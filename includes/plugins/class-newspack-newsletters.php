@@ -42,7 +42,12 @@ class Newspack_Newsletters {
 			return self::METADATA_PREFIX;
 		}
 
-		return $prefix;
+		/**
+		 * Filters the string used to prefix custom fields synced to Newsletter ESPs.
+		 *
+		 * @param string $prefix Prefix to prepend the field name.
+		 */
+		return apply_filters( 'newspack_newsletters_metadata_prefix', $prefix );
 	}
 
 	/**
@@ -61,32 +66,42 @@ class Newspack_Newsletters {
 	}
 
 	/**
+	 * Given a field name, prepend it with the metadata field prefix.
+	 *
+	 * @param string $name Field name to prepend.
+	 *
+	 * @return string Prefixed field name.
+	 */
+	public static function get_metadata_key( $name ) {
+		return self::get_metadata_prefix() . $name;
+	}
+
+	/**
 	 * Metadata keys map for Reader Activation.
 	 *
 	 * @return array
 	 */
 	public static function get_metadata_keys() {
-		$metadata_prefix = self::get_metadata_prefix();
 		return [
-			'account'              => $metadata_prefix . 'Account',
-			'registration_date'    => $metadata_prefix . 'Registration Date',
-			'connected_account'    => $metadata_prefix . 'Connected Account',
-			'signup_page'          => $metadata_prefix . 'Signup Page',
-			'signup_page_utm'      => $metadata_prefix . 'Signup UTM: ',
-			'newsletter_selection' => $metadata_prefix . 'Newsletter Selection',
+			'account'              => self::get_metadata_key( 'Account' ),
+			'registration_date'    => self::get_metadata_key( 'Registration Date' ),
+			'connected_account'    => self::get_metadata_key( 'Connected Account' ),
+			'signup_page'          => self::get_metadata_key( 'Signup Page' ),
+			'signup_page_utm'      => self::get_metadata_key( 'Signup UTM: ' ),
+			'newsletter_selection' => self::get_metadata_key( 'Newsletter Selection' ),
 			// Payment-related.
-			'membership_status'    => $metadata_prefix . 'Membership Status',
-			'payment_page'         => $metadata_prefix . 'Payment Page',
-			'payment_page_utm'     => $metadata_prefix . 'Payment UTM: ',
-			'sub_start_date'       => $metadata_prefix . 'Current Subscription Start Date',
-			'sub_end_date'         => $metadata_prefix . 'Current Subscription End Date',
-			'billing_cycle'        => $metadata_prefix . 'Billing Cycle',
-			'recurring_payment'    => $metadata_prefix . 'Recurring Payment',
-			'last_payment_date'    => $metadata_prefix . 'Last Payment Date',
-			'last_payment_amount'  => $metadata_prefix . 'Last Payment Amount',
-			'product_name'         => $metadata_prefix . 'Product Name',
-			'next_payment_date'    => $metadata_prefix . 'Next Payment Date',
-			'total_paid'           => $metadata_prefix . 'Total Paid',
+			'membership_status'    => self::get_metadata_key( 'Membership Status' ),
+			'payment_page'         => self::get_metadata_key( 'Payment Page' ),
+			'payment_page_utm'     => self::get_metadata_key( 'Payment UTM: ' ),
+			'sub_start_date'       => self::get_metadata_key( 'Current Subscription Start Date' ),
+			'sub_end_date'         => self::get_metadata_key( 'Current Subscription End Date' ),
+			'billing_cycle'        => self::get_metadata_key( 'Billing Cycle' ),
+			'recurring_payment'    => self::get_metadata_key( 'Recurring Payment' ),
+			'last_payment_date'    => self::get_metadata_key( 'Last Payment Date' ),
+			'last_payment_amount'  => self::get_metadata_key( 'Last Payment Amount' ),
+			'product_name'         => self::get_metadata_key( 'Product Name' ),
+			'next_payment_date'    => self::get_metadata_key( 'Next Payment Date' ),
+			'total_paid'           => self::get_metadata_key( 'Total Paid' ),
 		];
 	}
 
