@@ -102,14 +102,14 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 	public static function test_stripe_handle_donation() {
 		self::configure_stripe_as_platform();
 		$donation_config = [
-			'amount'                     => 100,
-			'frequency'                  => 'once',
-			'email_address'              => 'foo@bar.baz',
-			'full_name'                  => 'Boo Bar',
-			'stripe_tokenization_method' => null,
-			'stripe_source_id'           => 'src_123',
-			'client_metadata'            => [],
-			'payment_metadata'           => [],
+			'amount'              => 100,
+			'frequency'           => 'once',
+			'email_address'       => 'foo@bar.baz',
+			'full_name'           => 'Boo Bar',
+			'tokenization_method' => null,
+			'source_id'           => 'src_123',
+			'client_metadata'     => [],
+			'payment_metadata'    => [],
 		];
 		$response        = Stripe_Connection::handle_donation( $donation_config );
 		self::assertEquals(
