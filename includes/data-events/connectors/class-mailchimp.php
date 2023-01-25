@@ -12,6 +12,7 @@ use \Newspack\Mailchimp_API;
 use \Newspack\Newspack_Newsletters;
 use \Newspack\Reader_Activation;
 use \Newspack\WooCommerce_Connection;
+use \Newspack\Donations;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,6 +27,7 @@ class Mailchimp {
 		if ( Reader_Activation::is_enabled() && true === Reader_Activation::get_setting( 'sync_esp' ) ) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
+			Data_Events::register_handler( [ __CLASS__, 'donation_subscription_new' ], 'donation_subscription_new' );
 		}
 	}
 
@@ -195,11 +197,34 @@ class Mailchimp {
 		// Only use metadata defined in 'Newspack_Newsletters'.
 		$metadata = array_intersect_key( $metadata, array_flip( $keys ) );
 
-		// Remove "product name" from metadata. This requires a better strategy
-		// since it's updated on every different donation.
+		// Remove "product name" from metadata, we'll use
+		// 'donation_subscription_new' action for this data.
 		unset( $metadata[ $keys['product_name'] ] );
 
 		self::put( $email, $metadata );
+	}
+
+	/**
+	 * Handle a new subscription.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function donation_subscription_new( $timestamp, $data, $client_id ) {
+		if ( empty( $data['platform_data']['order_id'] ) ) {
+			return;
+		}
+		$metadata     = [
+			'NP_Account' => $data['user_id'],
+		];
+		$order_id     = $data['platform_data']['order_id'];
+		$product_id   = Donations::get_order_donation_product_id( $order_id );
+		$product_name = get_the_title( $product_id );
+
+		$metadata['NP_Product Name'] = $product_name;
+
+		self::put( $data['email'], $metadata );
 	}
 }
 new Mailchimp();
