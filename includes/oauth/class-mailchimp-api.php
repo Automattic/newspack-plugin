@@ -210,7 +210,7 @@ class Mailchimp_API {
 	 *
 	 * @return array|WP_Error API response or error.
 	 */
-	public static function put( $path = '', $data ) {
+	public static function put( $path = '', $data = [] ) {
 		return self::request( 'PUT', $path, $data );
 	}
 
@@ -222,7 +222,7 @@ class Mailchimp_API {
 	 *
 	 * @return array|WP_Error API response or error.
 	 */
-	public static function post( $path = '', $data ) {
+	public static function post( $path = '', $data = [] ) {
 		return self::request( 'POST', $path, $data );
 	}
 }
