@@ -108,6 +108,7 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			'full_name'         => 'Boo Bar',
 			'token_data'        => [
 				'id'   => 'tok_123',
+				'type' => 'card',
 				'card' => [ 'id' => 'card_number_one' ],
 			],
 			'client_metadata'   => [],

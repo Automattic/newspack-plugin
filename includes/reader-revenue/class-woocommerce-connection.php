@@ -382,6 +382,26 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Update an order.
+	 *
+	 * @param int   $order_id Order ID.
+	 * @param array $update Update data.
+	 */
+	public static function update_order( $order_id, $update ) {
+		$order = \wc_get_order( $order_id );
+		if ( false === $order ) {
+			Logger::error( 'Could not find WC order with id: ' . $order_id );
+		} else {
+			if ( isset( $update['status'] ) ) {
+				$order->set_status( $update['status'] );
+			}
+			self::add_wc_stripe_gateway_metadata( $order, $update );
+			$order->save();
+			Logger::log( 'Updated WC order with id: ' . $order->get_id() );
+		}
+	}
+
+	/**
 	 * Update WC Stripe Gateway related metadata to an order or subscription.
 	 * The order has to be saved afterwards.
 	 *
@@ -577,6 +597,14 @@ class WooCommerce_Connection {
 					Logger::error( 'Error creating WC subscription: ' . $subscription->get_error_message() );
 				} else {
 					$subscription_id = $subscription->get_id();
+
+					$wc_subscription_payload = [
+						'stripe_customer_id' => $order_data['stripe_customer_id'],
+					];
+					if ( isset( $order_data['stripe_source_id'] ) ) {
+						$wc_subscription_payload['stripe_source_id'] = $order_data['stripe_source_id'];
+					}
+					self::add_wc_stripe_gateway_metadata( $subscription, $wc_subscription_payload );
 					self::add_universal_order_data( $subscription, $order_data );
 					if ( false === $stripe_subscription_id ) {
 						$subscription->add_order_note( __( 'This subscription was created via Newspack.', 'newspack' ) );

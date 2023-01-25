@@ -407,7 +407,7 @@ class Stripe_Connection {
 	 *
 	 * @param string $transaction_id Transaction ID.
 	 */
-	private static function get_balance_transaction( $transaction_id ) {
+	public static function get_balance_transaction( $transaction_id ) {
 		$stripe = self::get_stripe_client();
 		try {
 			return $stripe->balanceTransactions->retrieve( $transaction_id, [] );
@@ -761,6 +761,7 @@ class Stripe_Connection {
 			$email_address     = $config['email_address'];
 			$full_name         = $config['full_name'];
 			$token_data        = $config['token_data'];
+			$source_data       = $config['source_data'];
 			$client_metadata   = $config['client_metadata'];
 			$payment_metadata  = $config['payment_metadata'];
 			$payment_method_id = $config['payment_method_id'];
@@ -802,22 +803,113 @@ class Stripe_Connection {
 					],
 				]
 			);
+			$is_recurring = 'once' != $frequency;
 
-			if ( 'once' === $frequency ) {
-				// Create a Payment Intent on Stripe.
-				$payment_data = self::get_stripe_data();
-				$intent       = self::create_payment_intent(
-					[
-						'amount'   => $amount_raw,
-						'customer' => $customer['id'],
-						'metadata' => $payment_metadata,
-					]
-				);
+			// In this mode, WC will create a subscription for the customer, instead of using
+			// native Stripe subscriptions.
+			$is_wc_first_enabled = defined( 'NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM' ) && NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM;
+			$is_wc_first         = $is_wc_first_enabled && Donations::is_woocommerce_suite_active();
+
+			$payment_intent_payload = [
+				'amount'      => $amount_raw,
+				'customer'    => $customer['id'],
+				'description' => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
+			];
+
+			if ( $is_wc_first ) {
+				if ( 'once' !== $frequency ) {
+					$payment_metadata['is_newspack']         = true;
+					$payment_metadata['payment_type']        = 'recurring';
+					$payment_metadata['save_payment_method'] = false;
+					$source_data                             = $stripe->sources->create(
+						[
+							'type'  => $token_data['type'],
+							'token' => $token_data['id'],
+							'owner' => [
+								'email' => $email_address,
+								'name'  => $full_name,
+							],
+						]
+					);
+
+					// Attach the source to the customer.
+					$stripe->customers->createSource(
+						$customer['id'],
+						[
+							'source' => $source_data['id'],
+						]
+					);
+					$payment_intent_payload['source'] = $source_data['id'];
+					// Set up the payment intent for recurring payments via WooCommerce Subscriptions.
+					$payment_intent_payload['setup_future_usage'] = 'off_session';
+					// Default description, to be updated with order ID once it's created.
+					$payment_intent_payload['description'] = __( 'Newspack Donation', 'newspack' );
+				}
+			}
+
+
+			if ( $is_wc_first || ! $is_recurring ) {
+				// Create a Payment Intent on Stripe. The client secret of this PI has to be
+				// sent back to the front-end to finish processing the transaction.
+				$payment_intent_payload['metadata'] = $payment_metadata;
+				$payment_intent                     = self::create_payment_intent( $payment_intent_payload );
 				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 					// If this instance can't send the receipt email, make Stripe send the email.
-					$intent['receipt_email'] = $email_address;
+					$payment_intent['receipt_email'] = $email_address;
 				}
-				$response['client_secret'] = $intent['client_secret'];
+
+				if ( $is_wc_first ) {
+					$amount_normalised = self::normalise_amount( $payment_intent['amount'], $payment_intent['currency'] );
+					switch ( $token_data['card']['tokenization_method'] ) {
+						case 'apple_pay':
+							$payment_method_title = __( 'Apple Pay (Stripe)', 'newspack' );
+							break;
+						case 'android_pay':
+							$payment_method_title = __( 'Google Pay (Stripe)', 'newspack' );
+							break;
+						default:
+							$payment_method_title = __( 'Credit Card (Stripe)', 'newspack' );
+							break;
+					}
+					$wc_order_payload = [
+						'status'               => 'pending',
+						'email'                => $customer['email'],
+						'name'                 => $customer['name'],
+						'stripe_customer_id'   => $customer['id'],
+						'stripe_intent_id'     => $payment_intent['id'],
+						'payment_method_title' => $payment_method_title,
+						'date'                 => $payment_intent['created'],
+						'amount'               => $amount_normalised,
+						'frequency'            => $frequency,
+						'currency'             => strtoupper( $payment_intent['currency'] ),
+						'client_id'            => $customer['metadata']['clientId'],
+						'user_id'              => $customer['metadata']['userId'],
+						'subscribed'           => self::has_customer_opted_in_to_newsletters( $customer ),
+					];
+					if ( $is_recurring ) {
+						$wc_order_payload['subscription_status'] = 'created';
+					}
+					if ( $source_data ) {
+						$wc_order_payload['stripe_source_id'] = $source_data['id'];
+					}
+					$wc_order_id = WooCommerce_Connection::create_transaction( $wc_order_payload );
+
+					// Update the metadata on the payment intent with the order ID.
+					$stripe->paymentIntents->update(
+						$payment_intent['id'],
+						[
+							'description' => sprintf(
+								/* translators: %s: Product name */
+								__( 'Newspack %1$s (Order #%2$d)', 'newspack' ),
+								Donations::get_donation_name_by_frequency( $frequency ),
+								$wc_order_id
+							),
+							'metadata'    => [ 'order_id' => $wc_order_id ],
+						]
+					);
+				}
+
+				$response['client_secret'] = $payment_intent['client_secret'];
 			} else {
 				// Create a Subscription on Stripe.
 				$prices = self::get_donation_prices();
@@ -868,14 +960,15 @@ class Stripe_Connection {
 	private static function create_payment_intent( $config ) {
 		$stripe       = self::get_stripe_client();
 		$payment_data = self::get_stripe_data();
-		$intent_data  = [
-			'amount'               => self::get_amount( $config['amount'], $payment_data['currency'] ),
-			'metadata'             => $config['metadata'],
-			'currency'             => $payment_data['currency'],
-			'payment_method_types' => [ 'card' ],
-			'description'          => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
-			'customer'             => $config['customer'],
-		];
+		$amount       = self::get_amount( $config['amount'], $payment_data['currency'] );
+		$intent_data  = array_merge(
+			$config,
+			[
+				'amount'               => $amount,
+				'currency'             => $payment_data['currency'],
+				'payment_method_types' => [ 'card' ],
+			]
+		);
 		return $stripe->paymentIntents->create( $intent_data );
 	}
 
