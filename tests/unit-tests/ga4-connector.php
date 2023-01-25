@@ -27,7 +27,7 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 			],
 			[
 				'123_asd',
-				true,
+				false,
 			],
 			[
 				'_asd123',

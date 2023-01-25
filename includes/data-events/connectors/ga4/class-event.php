@@ -79,7 +79,7 @@ class Event {
 	 * @return bool
 	 */
 	public static function validate_name( $name ) {
-		if ( ! is_string( $name ) || ! preg_match( '/^[a-zA-Z0-9]{1}[a-zA-Z0-9_]{1,39}$/', $name ) ) {
+		if ( ! is_string( $name ) || ! preg_match( '/^[a-zA-Z]{1}[a-zA-Z0-9_]{1,39}$/', $name ) ) {
 			return false;
 		}
 		return true;
