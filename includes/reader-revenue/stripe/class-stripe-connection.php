@@ -756,15 +756,14 @@ class Stripe_Connection {
 		try {
 			$stripe = self::get_stripe_client();
 
-			$amount_raw        = $config['amount'];
-			$frequency         = $config['frequency'];
-			$email_address     = $config['email_address'];
-			$full_name         = $config['full_name'];
-			$token_data        = $config['token_data'];
-			$source_data       = $config['source_data'];
-			$client_metadata   = $config['client_metadata'];
-			$payment_metadata  = $config['payment_metadata'];
-			$payment_method_id = $config['payment_method_id'];
+			$amount_raw       = $config['amount'];
+			$frequency        = $config['frequency'];
+			$email_address    = $config['email_address'];
+			$full_name        = $config['full_name'];
+			$token_data       = $config['token_data'];
+			$source_data      = $config['source_data'];
+			$client_metadata  = $config['client_metadata'];
+			$payment_metadata = $config['payment_metadata'];
 
 			if ( ! isset( $client_metadata['userId'] ) && Reader_Activation::is_enabled() ) {
 				$reader_metadata                        = $client_metadata;
@@ -794,66 +793,43 @@ class Stripe_Connection {
 			$is_wc_first_enabled = defined( 'NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM' ) && NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM;
 			$is_wc_first         = $is_wc_first_enabled && Donations::is_woocommerce_suite_active();
 
-			if ( $is_recurring && ! $is_wc_first ) {
-				// Attach the Payment Method ID to the customer, so the Stripe Subscription can be created.
-				$stripe->paymentMethods->attach( // phpcs:ignore
-					$payment_method_id,
-					[ 'customer' => $customer['id'] ]
-				);
-				// Set the payment method as the default for customer's transactions.
-				$stripe->customers->update(
-					$customer['id'],
-					[
-						'invoice_settings' => [
-							'default_payment_method' => $payment_method_id,
-						],
-					]
-				);
-			}
-
 			$payment_intent_payload = [
 				'amount'      => $amount_raw,
 				'customer'    => $customer['id'],
 				'description' => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
 			];
 
-			if ( $is_wc_first ) {
-				if ( 'once' !== $frequency ) {
-					$payment_metadata['is_newspack']         = true;
-					$payment_metadata['payment_type']        = 'recurring';
-					$payment_metadata['save_payment_method'] = false;
-					$source_data                             = $stripe->sources->create(
-						[
-							'type'  => $token_data['type'],
-							'token' => $token_data['id'],
-							'owner' => [
-								'email' => $email_address,
-								'name'  => $full_name,
-							],
-						]
-					);
+			// To create a WC Subscription, a source is needed to make future charges,
+			// because WC Stripe Gateway is source-based.
 
-					// Attach the source to the customer.
-					$stripe->customers->createSource(
-						$customer['id'],
-						[
-							'source' => $source_data['id'],
-						]
-					);
-					$payment_intent_payload['source'] = $source_data['id'];
-					// Set up the payment intent for recurring payments via WooCommerce Subscriptions.
-					$payment_intent_payload['setup_future_usage'] = 'off_session';
-					// Default description, to be updated with order ID once it's created.
-					$payment_intent_payload['description'] = __( 'Newspack Donation', 'newspack' );
-				}
-			}
+			// Mark the payment as coming from Newspack.
+			$payment_metadata['is_newspack']         = true;
 
+			// Data for WC Stripe Gateway.
+			$payment_metadata['payment_type']        = $is_recurring ? 'recurring' : 'once';
+			$payment_metadata['save_payment_method'] = false;
+
+			// Attach the source to the customer.
+			$stripe->customers->createSource(
+				$customer['id'],
+				[
+					'source' => $source_data['id'],
+				]
+			);
 
 			if ( $is_wc_first || ! $is_recurring ) {
 				// Create a Payment Intent on Stripe. The client secret of this PI has to be
 				// sent back to the front-end to finish processing the transaction.
+				$payment_intent_payload['source'] = $source_data['id'];
+				if ( $is_recurring ) {
+					// Set up the payment intent for recurring payments via WooCommerce Subscriptions.
+					$payment_intent_payload['setup_future_usage'] = 'off_session';
+				}
+				// Default description, to be updated with order ID once it's created.
+				$payment_intent_payload['description'] = __( 'Newspack Donation', 'newspack' );
 				$payment_intent_payload['metadata'] = $payment_metadata;
 				$payment_intent                     = self::create_payment_intent( $payment_intent_payload );
+
 				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 					// If this instance can't send the receipt email, make Stripe send the email.
 					$payment_intent['receipt_email'] = $email_address;
