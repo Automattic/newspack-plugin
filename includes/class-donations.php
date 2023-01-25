@@ -879,6 +879,24 @@ class Donations {
 	}
 
 	/**
+	 * Whether the WC cart contains a donation product.
+	 *
+	 * @return bool
+	 */
+	public static function is_donation_cart() {
+		if ( ! self::is_platform_wc() ) {
+			return false;
+		}
+		$donation_products_ids = array_values( self::get_donation_product_child_products_ids() );
+		foreach ( WC()->cart->cart_contents as $prod_in_cart ) {
+			if ( isset( $prod_in_cart['product_id'] ) && in_array( $prod_in_cart['product_id'], $donation_products_ids ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Manipulate WC's cart, if needed.
 	 * If WC is not the donations platform, the donation products should not be buyable.
 	 */
