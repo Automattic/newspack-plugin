@@ -85,6 +85,15 @@ class Perfmatters {
 	}
 
 	/**
+	 * Selectors to exclude from the "Unused CSS" feature.
+	 */
+	private static function unused_css_excluded_selectors() {
+		return [
+			'body',
+		];
+	}
+
+	/**
 	 * URLs to preconnect to.
 	 *
 	 * @param array $existing_urls Existing URLs to filter out.
@@ -119,7 +128,6 @@ class Perfmatters {
 		// Basic options.
 		$options['disable_emojis']              = true;
 		$options['disable_dashicons']           = true;
-		$options['remove_global_styles']        = true;
 		$options['disable_woocommerce_scripts'] = true;
 		// "The cart fragments feature and or AJAX request in WooCommerce is used to update the cart
 		// total without refreshing the page."
@@ -130,7 +138,10 @@ class Perfmatters {
 		if ( ! isset( $options['assets'] ) ) {
 			$options['assets'] = [];
 		}
-		$defer_js_exclusions           = [ 'wp-includes' ];
+		$defer_js_exclusions           = [
+			'wp-includes',
+			'jwplayer.com', // This platform won't work if the JS is deferred.
+		];
 		$options['assets']['defer_js'] = true;
 		if ( isset( $options['assets']['js_exclusions'] ) && is_array( $options['assets']['js_exclusions'] ) ) {
 			$options['assets']['js_exclusions'] = array_unique(
@@ -169,6 +180,16 @@ class Perfmatters {
 			);
 		} else {
 			$options['assets']['rucss_excluded_stylesheets'] = self::unused_css_excluded_stylesheets();
+		}
+		if ( isset( $options['assets']['rucss_excluded_selectors'] ) && is_array( $options['assets']['rucss_excluded_selectors'] ) ) {
+			$options['assets']['rucss_excluded_selectors'] = array_unique(
+				array_merge(
+					$options['assets']['rucss_excluded_selectors'],
+					self::unused_css_excluded_selectors()
+				)
+			);
+		} else {
+			$options['assets']['rucss_excluded_selectors'] = self::unused_css_excluded_selectors();
 		}
 
 		// Preload.
