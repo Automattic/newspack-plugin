@@ -13,6 +13,7 @@ use Automattic\Jetpack\Device_Detection;
 use Newspack\Data_Events;
 use Newspack\Data_Events\Connectors\GA4\Event;
 use Newspack\Logger;
+use Newspack\Reader_Activation;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,6 +29,29 @@ class GA4 {
 	 */
 	public static function init() {
 		Data_Events::register_handler( [ __CLASS__, 'handle_reader_logged_in' ], 'reader_logged_in' );
+		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_event_body' ], 10, 2 );
+	}
+
+
+	public static function filter_event_body( $body, $event_name ) {
+		$watched_events = [ 'reader_logged_in' ];
+		if ( ! in_array( $event_name, $watched_events, true ) ) {
+			return $body;
+		}
+
+		$body['data']['ga_client_id'] = self::extract_cid_from_cookies();
+		$body['data']['ga_params']    = [
+			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
+		];
+		if ( is_user_logged_in() ) {
+			$current_user                           = wp_get_current_user();
+			$body['data']['ga_params']['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+		}
+
+		error_log( json_encode( $body ) );
+
+		return $body;
+
 	}
 
 	/**
@@ -35,20 +59,23 @@ class GA4 {
 	 *
 	 * @param int   $timestamp Timestamp of the event.
 	 * @param array $data      Data associated with the event.
-	 * @param int   $client_id ID of the client that triggered the event.
+	 * @param int   $user_id ID of the client that triggered the event.
 	 *
 	 * @throws \Exception If the event is invalid.
 	 * @return void
 	 */
-	public static function handle_reader_logged_in( $timestamp, $data, $client_id ) {
+	public static function handle_reader_logged_in( $timestamp, $data, $user_id ) {
 
-		$params = array_merge(
-			self::get_default_params(),
-			[ 'user_id' => $data['user_id'] ]
-		);
+		$params                  = $data['ga_params'];
+		$params['ga_session_id'] = 1674677794;
+		$client_id               = $data['ga_client_id'];
+
+		if ( empty( $client_id ) ) {
+			throw new \Exception( 'Missing client ID' );
+		}
 
 		$event = new Event( 'reader_login', $params );
-		self::send_event( $event, $client_id );
+		self::send_event( $event, $client_id, $timestamp, $user_id );
 	}
 
 	/**
@@ -56,13 +83,9 @@ class GA4 {
 	 *
 	 * @return array
 	 */
-	private static function get_default_params() {
-		$params = [
-			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
-		];
-
-		return $params;
-	}
+	// private static function get_default_params() {
+	// return self::$ga_default_params;
+	// }
 
 	/**
 	 * Gets the credentials for the GA4 API.
@@ -100,11 +123,13 @@ class GA4 {
 	 * Sends an event to GA4.
 	 *
 	 * @param Event  $event The event object.
+	 * @param string $client_id The GA client ID obtained from the cookie.
+	 * @param int    $timestamp The timestamp of the event.
 	 * @param string $user_id User identifier. Use Reader_Activation::get_client_id().
 	 * @throws \Exception If the credentials are missing.
 	 * @return void
 	 */
-	private static function send_event( Event $event, $user_id = null ) {
+	private static function send_event( Event $event, $client_id, $timestamp, $user_id = null ) {
 
 		$url = self::get_api_url();
 
@@ -112,18 +137,27 @@ class GA4 {
 			throw new \Exception( $url->get_error_message() );
 		}
 
-		$client_id = self::extract_cid_from_cookies();
+		$timestamp_micros = (int) $timestamp * 1000000;
 
 		$payload = [
-			'client_id' => $client_id,
-			'events'    => [
+			'client_id'        => $client_id,
+			'timestamp_micros' => $timestamp_micros,
+			// 'user_properties'  => [
+			// 'is_donor'      => [
+			// 'value' => 0,
+			// ],
+			// 'is_subscriber' => [
+			// 'value' => 1,
+			// ],
+			// ],
+			'events'           => [
 				$event->to_array(),
 			],
 		];
 
-		if ( $user_id ) {
-			$payload['user_id'] = $user_id;
-		}
+		// if ( $user_id ) {
+		// $payload['user_id'] = $user_id;
+		// }
 
 		wp_remote_post(
 			$url,
@@ -132,7 +166,7 @@ class GA4 {
 			]
 		);
 
-		self::log( sprintf( 'Event sent - %s', $event->get_name() ) );
+		self::log( sprintf( 'Event sent - %s - Client ID: %s', $event->get_name(), $client_id ) );
 
 	}
 
