@@ -1,3 +1,10 @@
+# [1.102.0](https://github.com/Automattic/newspack-plugin/compare/v1.101.0...v1.102.0) (2023-01-26)
+
+
+### Features
+
+* if rendering media tags, ensure proper nesting ([#2250](https://github.com/Automattic/newspack-plugin/issues/2250)) ([794be65](https://github.com/Automattic/newspack-plugin/commit/794be65a6a65a99aeaf91a7e4e57a48ac409674a))
+
 # [1.101.0](https://github.com/Automattic/newspack-plugin/compare/v1.100.2...v1.101.0) (2023-01-25)
 
 
