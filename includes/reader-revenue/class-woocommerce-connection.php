@@ -163,24 +163,20 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Sync a customer to the ESP from an order.
+	 * Get the contact data from a WooCommerce order.
 	 *
-	 * @param WC_Order $order Order object.
+	 * @param \WC_Order|int $order WooCommerce order or order ID.
+	 *
+	 * @return array|false Contact data or false.
 	 */
-	public static function sync_reader_from_order( $order ) {
-		if ( ! self::can_sync_customers() ) {
-			return;
+	public static function get_contact_from_order( $order ) {
+		if ( is_integer( $order ) ) {
+			$order = new \WC_Order( $order );
 		}
-
-		if ( self::CREATED_VIA_NAME === $order->get_created_via() ) {
-			// Only sync orders not created via the Stripe integration.
-			return;
-		}
-
 		$metadata_keys = Newspack_Newsletters::$metadata_keys;
 		$user_id       = $order->get_customer_id();
 		if ( ! $user_id ) {
-			return;
+			return false;
 		}
 
 		$customer = new \WC_Customer( $user_id );
@@ -261,11 +257,33 @@ class WooCommerce_Connection {
 
 		$first_name = $order->get_billing_first_name();
 		$last_name  = $order->get_billing_last_name();
-		$contact    = [
+		return [
 			'email'    => $order->get_billing_email(),
 			'name'     => "$first_name $last_name",
 			'metadata' => $metadata,
 		];
+	}
+
+	/**
+	 * Sync a customer to the ESP from an order.
+	 *
+	 * @param WC_Order $order Order object.
+	 */
+	public static function sync_reader_from_order( $order ) {
+		if ( ! self::can_sync_customers() ) {
+			return;
+		}
+
+		if ( self::CREATED_VIA_NAME === $order->get_created_via() ) {
+			// Only sync orders not created via the Stripe integration.
+			return;
+		}
+
+		$contact = self::get_contact_from_order( $order );
+		if ( ! $contact ) {
+			return;
+		}
+
 		\Newspack_Newsletters_Subscription::add_contact( $contact );
 	}
 
