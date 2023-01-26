@@ -1,11 +1,15 @@
 # [1.102.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.101.0...v1.102.0-alpha.1) (2023-01-26)
 
+### Bug Fixes
+
+* if rendering media tags, ensure proper nesting ([#2250](https://github.com/Automattic/newspack-plugin/issues/2250)) ([794be65](https://github.com/Automattic/newspack-plugin/commit/794be65a6a65a99aeaf91a7e4e57a48ac409674a))
+
+# [1.102.0](https://github.com/Automattic/newspack-plugin/compare/v1.101.0...v1.102.0) (2023-01-26)
 
 ### Bug Fixes
 
 * add template versions to Woo templates ([#2240](https://github.com/Automattic/newspack-plugin/issues/2240)) ([38f75b4](https://github.com/Automattic/newspack-plugin/commit/38f75b43bb298cf59fc6567a5f7fbafa3e400d5a))
 * **wc-to-esp:** total amount field value ([83e6a42](https://github.com/Automattic/newspack-plugin/commit/83e6a4254b10a7bbb213384a0961f3f3371b6831))
-
 
 ### Features
 
@@ -17,7 +21,6 @@
 * **stripe:** disable WC emails sent on sub. renewal for Stripe sync'd subs. ([2e75135](https://github.com/Automattic/newspack-plugin/commit/2e75135ba87943a458eeb16c1cca515d7397a239))
 
 # [1.101.0](https://github.com/Automattic/newspack-plugin/compare/v1.100.2...v1.101.0) (2023-01-25)
-
 
 ### Bug Fixes
 
