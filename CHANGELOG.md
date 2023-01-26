@@ -1,3 +1,22 @@
+# [1.103.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.102.0...v1.103.0-alpha.1) (2023-01-26)
+
+
+### Bug Fixes
+
+* add template versions to Woo templates ([#2240](https://github.com/Automattic/newspack-plugin/issues/2240)) ([38f75b4](https://github.com/Automattic/newspack-plugin/commit/38f75b43bb298cf59fc6567a5f7fbafa3e400d5a))
+* merge conflicts ([8dd0e87](https://github.com/Automattic/newspack-plugin/commit/8dd0e87b2fa3311cce72d103ce694090bf94f583))
+* **wc-to-esp:** total amount field value ([83e6a42](https://github.com/Automattic/newspack-plugin/commit/83e6a4254b10a7bbb213384a0961f3f3371b6831))
+
+
+### Features
+
+* **ads:** optimise inline JS of newspack-ads ([#2238](https://github.com/Automattic/newspack-plugin/issues/2238)) ([7d02837](https://github.com/Automattic/newspack-plugin/commit/7d02837a59353f96b52f47b0286ac5e5104313d1))
+* **data-events:** donation listeners ([#2225](https://github.com/Automattic/newspack-plugin/issues/2225)) ([9c5d4aa](https://github.com/Automattic/newspack-plugin/commit/9c5d4aa85012b9da408456a5f8f5b554ad5c8da3))
+* optimise the HP block that renders first on a page ([7559986](https://github.com/Automattic/newspack-plugin/commit/75599862880bf42d4069aa01e8435bfaa3ff9eab))
+* **perfmatters:** add newspack theme files to unused CSS exclusions list ([4571387](https://github.com/Automattic/newspack-plugin/commit/45713877475ceffd11c39ab8c53e38f2d83e11b7))
+* **perfmatters:** add some scripts to script delay list ([989c9fd](https://github.com/Automattic/newspack-plugin/commit/989c9fdd54adf3200aa8c886570f2f213847fe9b))
+* **stripe:** disable WC emails sent on sub. renewal for Stripe sync'd subs. ([2e75135](https://github.com/Automattic/newspack-plugin/commit/2e75135ba87943a458eeb16c1cca515d7397a239))
+
 # [1.102.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.101.0...v1.102.0-alpha.1) (2023-01-26)
 
 ### Bug Fixes
