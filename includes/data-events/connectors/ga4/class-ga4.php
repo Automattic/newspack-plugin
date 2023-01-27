@@ -167,11 +167,9 @@ class GA4 {
 	/**
 	 * Extracts the Client ID from the _ga cookie
 	 *
-	 * @throws \Exception If the _ga cookie is missing.
-	 * @return string
+	 * @return ?string
 	 */
 	private static function extract_cid_from_cookies() {
-
 		if ( isset( $_COOKIE['_ga'] ) ) {
 			$cookie_pieces = explode( '.', $_COOKIE['_ga'], 3 ); // phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___COOKIE, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			if ( 1 === count( $cookie_pieces ) ) {
@@ -179,11 +177,8 @@ class GA4 {
 			} else {
 				list( $version, $domain_depth, $cid ) = $cookie_pieces;
 			}
-		} else {
-			throw new \Exception( 'Missing _ga Cookie' );
+			return $cid;
 		}
-
-		return $cid;
 	}
 
 	/**
