@@ -103,7 +103,6 @@ final class Data_Events {
 			sprintf( 'Executing global action handlers for "%s".', $action_name ),
 			self::LOGGER_HEADER
 		);
-
 		foreach ( self::$global_handlers as $handler ) {
 			try {
 				call_user_func( $handler, $action_name, $timestamp, $data, $client_id );

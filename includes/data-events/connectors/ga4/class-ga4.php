@@ -9,7 +9,6 @@ namespace Newspack\Data_Events\Connectors;
 
 require_once 'class-event.php';
 
-use Automattic\Jetpack\Device_Detection;
 use Newspack\Data_Events;
 use Newspack\Data_Events\Connectors\GA4\Event;
 use Newspack\Logger;
@@ -124,10 +123,11 @@ class GA4 {
 	/**
 	 * Sends an event to GA4.
 	 *
-	 * @param Event  $event The event object.
+	 * @param Event  $event     The event object.
 	 * @param string $client_id The GA client ID obtained from the cookie.
 	 * @param int    $timestamp The timestamp of the event.
-	 * @param string $user_id User identifier. Use Reader_Activation::get_client_id().
+	 * @param string $user_id   User identifier. Use Reader_Activation::get_client_id().
+	 *
 	 * @throws \Exception If the credentials are missing.
 	 * @return void
 	 */
@@ -167,6 +167,7 @@ class GA4 {
 	/**
 	 * Extracts the Client ID from the _ga cookie
 	 *
+	 * @throws \Exception If the _ga cookie is missing.
 	 * @return string
 	 */
 	private static function extract_cid_from_cookies() {
@@ -179,7 +180,7 @@ class GA4 {
 				list( $version, $domain_depth, $cid ) = $cookie_pieces;
 			}
 		} else {
-			$cid = 555;
+			throw new \Exception( 'Missing _ga Cookie' );
 		}
 
 		return $cid;
