@@ -32,7 +32,13 @@ class GA4 {
 		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_event_body' ], 10, 2 );
 	}
 
-
+	/**
+	 * Filters the event body before dispatching it.
+	 *
+	 * @param array  $body The event body.
+	 * @param string $event_name The event name.
+	 * @return array
+	 */
 	public static function filter_event_body( $body, $event_name ) {
 		$watched_events = [ 'reader_logged_in' ];
 		if ( ! in_array( $event_name, $watched_events, true ) ) {
@@ -40,15 +46,21 @@ class GA4 {
 		}
 
 		$body['data']['ga_client_id'] = self::extract_cid_from_cookies();
-		$body['data']['ga_params']    = [
+
+		// Default params added to all events will go here.
+		$body['data']['ga_params'] = [
 			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
 		];
+
+		$session_id = self::extract_sid_from_cookies();
+		if ( $session_id ) {
+			$body['data']['ga_params']['ga_session_id'] = $session_id;
+		}
+
 		if ( is_user_logged_in() ) {
 			$current_user                           = wp_get_current_user();
 			$body['data']['ga_params']['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
 		}
-
-		error_log( json_encode( $body ) );
 
 		return $body;
 
@@ -59,16 +71,15 @@ class GA4 {
 	 *
 	 * @param int   $timestamp Timestamp of the event.
 	 * @param array $data      Data associated with the event.
-	 * @param int   $user_id ID of the client that triggered the event.
+	 * @param int   $user_id   ID of the client that triggered the event. It's a RAS ID.
 	 *
 	 * @throws \Exception If the event is invalid.
 	 * @return void
 	 */
 	public static function handle_reader_logged_in( $timestamp, $data, $user_id ) {
 
-		$params                  = $data['ga_params'];
-		$params['ga_session_id'] = 1674677794;
-		$client_id               = $data['ga_client_id'];
+		$params    = $data['ga_params'];
+		$client_id = $data['ga_client_id'];
 
 		if ( empty( $client_id ) ) {
 			throw new \Exception( 'Missing client ID' );
@@ -77,15 +88,6 @@ class GA4 {
 		$event = new Event( 'reader_login', $params );
 		self::send_event( $event, $client_id, $timestamp, $user_id );
 	}
-
-	/**
-	 * Get the default parameters that are added to all events
-	 *
-	 * @return array
-	 */
-	// private static function get_default_params() {
-	// return self::$ga_default_params;
-	// }
 
 	/**
 	 * Gets the credentials for the GA4 API.
@@ -142,22 +144,14 @@ class GA4 {
 		$payload = [
 			'client_id'        => $client_id,
 			'timestamp_micros' => $timestamp_micros,
-			// 'user_properties'  => [
-			// 'is_donor'      => [
-			// 'value' => 0,
-			// ],
-			// 'is_subscriber' => [
-			// 'value' => 1,
-			// ],
-			// ],
 			'events'           => [
 				$event->to_array(),
 			],
 		];
 
-		// if ( $user_id ) {
-		// $payload['user_id'] = $user_id;
-		// }
+		if ( $user_id ) {
+			$payload['user_id'] = $user_id;
+		}
 
 		wp_remote_post(
 			$url,
@@ -173,8 +167,6 @@ class GA4 {
 	/**
 	 * Extracts the Client ID from the _ga cookie
 	 *
-	 * If the cookie is not found, it will be created
-	 *
 	 * @return string
 	 */
 	private static function extract_cid_from_cookies() {
@@ -186,19 +178,29 @@ class GA4 {
 			} else {
 				list( $version, $domain_depth, $cid ) = $cookie_pieces;
 			}
-		} elseif ( isset( $_SERVER['HTTP_HOST'] ) ) {
-			$host           = sanitize_text_field( $_SERVER['HTTP_HOST'] );
-			$time           = time();
-			$cid            = wp_rand( 1000000000, 2147483647 ) . ".{$time}";
-			$num_components = count( explode( '.', preg_replace( '/^www\./', '', $host ) ) );
-			$ga             = "GA1.{$num_components}.{$cid}";
-			setcookie( '_ga', $ga, $time + 63115200, '/', $host, false, false ); // phpcs:ignore
-			$_COOKIE['_ga'] = $ga; // phpcs:ignore
 		} else {
 			$cid = 555;
 		}
 
 		return $cid;
+	}
+
+	/**
+	 * Extracts the Session ID from the _ga_{container} cookie
+	 *
+	 * If the cookie is not found, it will be created
+	 *
+	 * @return ?string
+	 */
+	private static function extract_sid_from_cookies() {
+		foreach ( $_COOKIE as $key => $value ) { //phpcs:ignore
+			if ( strpos( $key, '_ga_' ) === 0 && strpos( $value, 'GS1.' ) === 0 ) {
+				$cookie_pieces = explode( '.', $value );
+				if ( ! empty( $cookie_pieces[2] ) ) {
+					return $cookie_pieces[2];
+				}
+			}
+		}
 	}
 
 	/**
@@ -211,4 +213,6 @@ class GA4 {
 	}
 }
 
-GA4::init();
+if ( defined( 'NEWSPACK_EXPERIMENTAL_GA4_EVENTS' ) && NEWSPACK_EXPERIMENTAL_GA4_EVENTS ) {
+	add_action( 'plugins_loaded', array( 'Newspack\Data_Events\Connectors\GA4', 'init' ) );
+}
