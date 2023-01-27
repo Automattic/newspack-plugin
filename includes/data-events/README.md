@@ -26,8 +26,6 @@ These events are registered by the Newspack Plugin and available by default.
 
 When a reader registers.
 
-#### Data
-
 | Name       | Type      |
 | ---------- | --------- |
 | `user_id`  | `integer` |
@@ -38,8 +36,6 @@ When a reader registers.
 
 When a reader authenticates.
 
-#### Data
-
 | Name      | Type      |
 | --------- | --------- |
 | `user_id` | `integer` |
@@ -49,8 +45,6 @@ When a reader authenticates.
 
 When a reader verifies their email address.
 
-#### Data
-
 | Name      | Type      |
 | --------- | --------- |
 | `user_id` | `integer` |
@@ -58,8 +52,6 @@ When a reader verifies their email address.
 ### `newsletter_subscribed`
 
 When a reader subscribes to newsletter lists from Newspack Newsletters subscription.
-
-#### Data
 
 | Name       | Type       |
 | ---------- | ---------- |
@@ -71,14 +63,70 @@ When a reader subscribes to newsletter lists from Newspack Newsletters subscript
 
 When a reader updates their lists subscription from Newspack Newsletters.
 
-#### Data
-
 | Name            | Type       |
 | --------------- | ---------- |
 | `provider`      | `string`   |
 | `email`         | `string`   |
 | `lists_added`   | `string[]` |
 | `lists_removed` | `string[]` |
+
+### `donation_new`
+
+When there's a new donation, either through Stripe or Newspack (WooCommerce) platforms.
+
+| Name            | Type     |
+| --------------- | -------- |
+| `user_id`       | `int`    |
+| `email`         | `string` |
+| `amount`        | `float`  |
+| `currency`      | `string` |
+| `recurrence`    | `string` |
+| `platform`      | `string` |
+| `platform_data` | `array`  |
+
+### `donation_subscription_new`
+
+When there's a new WooCommerce Subscription. This action does not replace the `donation_new` that create the subscription.
+
+| Name            | Type     |
+| --------------- | -------- |
+| `user_id`       | `int`    |
+| `email`         | `string` |
+| `amount`        | `float`  |
+| `currency`      | `string` |
+| `recurrence`    | `string` |
+| `platform`      | `string` |
+| `platform_data` | `array`  |
+
+### `donation_subscription_cancelled`
+
+When a WooCommerce Subscription is cancelled.
+
+| Name              | Type     |
+| ----------------- | -------- |
+| `subscription_id` | `int`    |
+| `user_id`         | `int`    |
+| `email`           | `string` |
+| `amount`          | `float`  |
+| `currency`        | `string` |
+| `recurrence`      | `string` |
+| `platform`        | `string` |
+
+### `donation_subscription_changed`
+
+When a WooCommerce Subscription status changes.
+
+| Name              | Type     |
+| ----------------- | -------- |
+| `subscription_id` | `int`    |
+| `user_id`         | `int`    |
+| `email`           | `string` |
+| `status_before`   | `string` |
+| `status_after`    | `string` |
+| `amount`          | `float`  |
+| `currency`        | `string` |
+| `recurrence`      | `string` |
+| `platform`        | `string` |
 
 ## Registering a new action
 
