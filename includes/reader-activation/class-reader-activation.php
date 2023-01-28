@@ -175,6 +175,7 @@ final class Reader_Activation {
 			'metadata_prefix'             => Newspack_Newsletters::get_metadata_prefix(),
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
+			'mailchimp_audience_id'       => '',
 			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
 			'sender_name'                 => Emails::get_from_name(),
 			'sender_email_address'        => Emails::get_from_email(),
