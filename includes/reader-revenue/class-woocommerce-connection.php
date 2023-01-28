@@ -174,11 +174,6 @@ class WooCommerce_Connection {
 			$order = new \WC_Order( $order );
 		}
 
-		if ( self::CREATED_VIA_NAME === $order->get_created_via() ) {
-			// Only sync orders not created via the Stripe integration.
-			return;
-		}
-
 		$user_id = $order->get_customer_id();
 		if ( ! $user_id ) {
 			return false;
