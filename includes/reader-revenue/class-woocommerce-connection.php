@@ -177,8 +177,7 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		$metadata_keys = Newspack_Newsletters::get_metadata_keys();
-		$user_id       = $order->get_customer_id();
+		$user_id = $order->get_customer_id();
 		if ( ! $user_id ) {
 			return;
 		}
@@ -188,73 +187,73 @@ class WooCommerce_Connection {
 			'registration_method' => 'woocommerce-order',
 		];
 
-		$metadata[ $metadata_keys['account'] ]           = $order->get_customer_id();
-		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
-		$metadata[ $metadata_keys['payment_page'] ]      = \wc_get_checkout_url();
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $order->get_customer_id();
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page' ) ]      = \wc_get_checkout_url();
 
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
 
 		// One-time donation.
 		if ( empty( $order_subscriptions ) ) {
-			$metadata[ $metadata_keys['membership_status'] ] = 'Donor';
-			$metadata[ $metadata_keys['total_paid'] ]        = (float) $customer->get_total_spent();
-			$metadata[ $metadata_keys['total_paid'] ]       += (float) $order->get_total();
-			$metadata[ $metadata_keys['product_name'] ]      = '';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = (float) $customer->get_total_spent();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]       += (float) $order->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ]      = '';
 			$order_items                                     = $order->get_items();
 			if ( $order_items ) {
-				$metadata[ $metadata_keys['product_name'] ] = reset( $order_items )->get_name();
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
 			}
-			$metadata[ $metadata_keys['last_payment_amount'] ] = $order->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = $order->get_total();
 			$order_date_paid                                   = $order->get_date_paid();
 			if ( null !== $order_date_paid ) {
-				$metadata[ $metadata_keys['last_payment_date'] ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 			}
 
 			// Subscription donation.
 		} else {
 			$current_subscription = reset( $order_subscriptions );
 
-			$metadata[ $metadata_keys['membership_status'] ] = 'Donor';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			if ( 'active' === $current_subscription->get_status() || 'pending' === $current_subscription->get_status() ) {
 				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Monthly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Monthly Donor';
 				}
 
 				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Yearly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Yearly Donor';
 				}
 			} else {
 				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Ex-Monthly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Monthly Donor';
 				}
 
 				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Ex-Yearly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Yearly Donor';
 				}
 			}
 
-			$metadata[ $metadata_keys['sub_start_date'] ]      = $current_subscription->get_date( 'start' );
-			$metadata[ $metadata_keys['sub_end_date'] ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
-			$metadata[ $metadata_keys['billing_cycle'] ]       = $current_subscription->get_billing_period();
-			$metadata[ $metadata_keys['recurring_payment'] ]   = $current_subscription->get_total();
-			$metadata[ $metadata_keys['last_payment_date'] ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
-			$metadata[ $metadata_keys['last_payment_amount'] ] = $current_subscription->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]      = $current_subscription->get_date( 'start' );
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]       = $current_subscription->get_billing_period();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ]   = $current_subscription->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = $current_subscription->get_total();
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
 			$next_payment_date = $current_subscription->get_date( 'next_payment' );
 			if ( $next_payment_date ) {
-				$metadata[ $metadata_keys['next_payment_date'] ] = $next_payment_date;
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
 			}
 
-			$metadata[ $metadata_keys['total_paid'] ]  = (float) $customer->get_total_spent();
-			$metadata[ $metadata_keys['total_paid'] ] += (float) $current_subscription->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]  = (float) $customer->get_total_spent();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
 
-			$metadata[ $metadata_keys['product_name'] ] = '';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
 			if ( $current_subscription ) {
 				$subscription_order_items = $current_subscription->get_items();
 				if ( $subscription_order_items ) {
-					$metadata[ $metadata_keys['product_name'] ] = reset( $subscription_order_items )->get_name();
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $subscription_order_items )->get_name();
 				}
 			}
 		}
