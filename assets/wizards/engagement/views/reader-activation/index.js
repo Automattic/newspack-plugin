@@ -213,7 +213,7 @@ export default withWizardScreen( () => {
 						<TextControl
 							label={ __( 'Metadata field prefix', 'newspack' ) }
 							help={ __(
-								'A string to prefix metadata fields attached to each contact synced to the ESP.',
+								'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_',
 								'newspack'
 							) }
 							{ ...getSharedProps( 'metadata_prefix', 'text' ) }
