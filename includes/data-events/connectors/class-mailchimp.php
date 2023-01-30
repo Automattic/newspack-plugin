@@ -163,14 +163,16 @@ class Mailchimp {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$metadata = [
-			'NP_Account' => $data['user_id'],
+		$prefix      = Newspack_Newsletters::get_metadata_prefix();
+		$account_key = Newspack_Newsletters::get_metadata_key( 'account' );
+		$metadata    = [
+			$account_key => $data['user_id'],
 		];
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
-			$metadata['NP_Registration Page'] = $data['metadata']['current_page_url'];
+			$metadata[ $prefix . 'Registration Page' ] = $data['metadata']['current_page_url'];
 		}
 		if ( isset( $data['metadata']['registration_method'] ) ) {
-			$metadata['NP_Registration Method'] = $data['metadata']['registration_method'];
+			$metadata[ $prefix . 'Registration Method' ] = $data['metadata']['registration_method'];
 		}
 		self::put( $data['email'], $metadata );
 	}
@@ -203,7 +205,7 @@ class Mailchimp {
 
 		// Remove "product name" from metadata, we'll use
 		// 'donation_subscription_new' action for this data.
-		unset( $metadata[ $keys['product_name'] ] );
+		unset( $metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] );
 
 		self::put( $email, $metadata );
 	}
@@ -219,14 +221,16 @@ class Mailchimp {
 		if ( empty( $data['platform_data']['order_id'] ) ) {
 			return;
 		}
+		$account_key  = Newspack_Newsletters::get_metadata_key( 'account' );
 		$metadata     = [
-			'NP_Account' => $data['user_id'],
+			$account_key => $data['user_id'],
 		];
 		$order_id     = $data['platform_data']['order_id'];
 		$product_id   = Donations::get_order_donation_product_id( $order_id );
 		$product_name = get_the_title( $product_id );
 
-		$metadata['NP_Product Name'] = $product_name;
+		$key              = Newspack_Newsletters::get_metadata_key( 'product_name' );
+		$metadata[ $key ] = $product_name;
 
 		self::put( $data['email'], $metadata );
 	}
