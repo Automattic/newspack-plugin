@@ -27,6 +27,7 @@ export default withWizardScreen( () => {
 	const [ config, setConfig ] = useState( {} );
 	const [ error, setError ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
+	const [ hasPlugins, setHasPlugins ] = useState( true );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
@@ -52,7 +53,15 @@ export default withWizardScreen( () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
+	const fetchPluginStatus = () => {
+		apiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation-plugins',
+		} )
+			.then( setHasPlugins )
+			.catch( setError );
+	};
 	useEffect( fetchConfig, [] );
+	useEffect( fetchPluginStatus, [] );
 	useEffect( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
@@ -83,7 +92,7 @@ export default withWizardScreen( () => {
 
 	const emails = Object.values( config.emails || {} );
 
-	if ( ! inFlight && false === config.plugins_configured ) {
+	if ( false === hasPlugins ) {
 		return (
 			<>
 				<Notice isError>
@@ -94,8 +103,8 @@ export default withWizardScreen( () => {
 				</Notice>
 				<PluginInstaller
 					isWaiting={ inFlight }
-					plugins={ [ 'woocommerce', 'woocommerce-subscriptions' ] }
-					onStatus={ ( { complete } ) => complete && fetchConfig() }
+					plugins={ [ 'woocommerce', 'woocommerce-subscriptions', 'woocommerce-name-your-price' ] }
+					onStatus={ ( { complete } ) => complete && fetchPluginStatus() }
 					withoutFooterButton={ true }
 				/>
 			</>

@@ -90,6 +90,15 @@ class Engagement_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation-plugins',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_fetch_plugin_status' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/reader-activation',
@@ -195,6 +204,15 @@ class Engagement_Wizard extends Wizard {
 	 */
 	public function api_get_reader_activation_settings() {
 		return rest_ensure_response( Reader_Activation::get_settings() );
+	}
+
+	/**
+	 * Get all Wizard Data
+	 *
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_fetch_plugin_status() {
+		return \rest_ensure_response( Reader_Activation::is_woocommerce_active() );
 	}
 
 	/**
