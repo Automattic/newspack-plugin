@@ -27,7 +27,7 @@ export default withWizardScreen( () => {
 	const [ config, setConfig ] = useState( {} );
 	const [ error, setError ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
-	const [ hasPlugins, setHasPlugins ] = useState( true );
+	const [ hasPlugins, setHasPlugins ] = useState( false );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
@@ -54,11 +54,14 @@ export default withWizardScreen( () => {
 			.finally( () => setInFlight( false ) );
 	};
 	const fetchPluginStatus = () => {
+		setError( false );
+		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation-plugins',
 		} )
 			.then( setHasPlugins )
-			.catch( setError );
+			.catch( setError )
+			.finally( () => setInFlight( false ) );
 	};
 	useEffect( fetchConfig, [] );
 	useEffect( fetchPluginStatus, [] );
