@@ -55,7 +55,7 @@ class WooCommerce_Connection {
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
 
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
-		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'sync_reader_on_order_complete' ], 101 );
+		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'order_processed' ], 101 );
 		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
 
 		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
@@ -112,21 +112,33 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Sync a reader's info to the ESP when they make an order.
+	 * Donations actions when order is processed.
 	 *
-	 * @param int $order_id Order post ID.
+	 * @param int $order_id Order ID.
 	 */
-	public static function sync_reader_on_order_complete( $order_id ) {
-		if ( ! self::can_sync_customers() ) {
+	public static function order_processed( $order_id ) {
+		$product_id = Donations::get_order_donation_product_id( $order_id );
+
+		/** Bail if not a donation order. */
+		if ( false === $product_id ) {
 			return;
 		}
 
-		$order = new \WC_Order( $order_id );
-		if ( ! $order->get_customer_id() ) {
-			return;
+		if ( self::can_sync_customers() ) {
+			$order = new \WC_Order( $order_id );
+			if ( ! $order->get_customer_id() ) {
+				return;
+			}
+			self::sync_reader_from_order( $order );
 		}
 
-		self::sync_reader_from_order( $order );
+		/**
+		 * Fires when a donation order is processed.
+		 *
+		 * @param int $order_id   Order post ID.
+		 * @param int $product_id Donation product post ID.
+		 */
+		\do_action( 'newspack_donation_order_processed', $order_id, $product_id );
 	}
 
 	/**
@@ -151,6 +163,108 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Get the contact data from a WooCommerce order.
+	 *
+	 * @param \WC_Order|int $order WooCommerce order or order ID.
+	 *
+	 * @return array|false Contact data or false.
+	 */
+	public static function get_contact_from_order( $order ) {
+		if ( is_integer( $order ) ) {
+			$order = new \WC_Order( $order );
+		}
+
+		$user_id = $order->get_customer_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$customer = new \WC_Customer( $user_id );
+		$metadata = [
+			'registration_method' => 'woocommerce-order',
+		];
+
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $order->get_customer_id();
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page' ) ]      = \wc_get_checkout_url();
+
+		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
+
+		// One-time donation.
+		if ( empty( $order_subscriptions ) ) {
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = (float) $customer->get_total_spent();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]       += (float) $order->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ]      = '';
+			$order_items = $order->get_items();
+			if ( $order_items ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
+			}
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = $order->get_total();
+			$order_date_paid = $order->get_date_paid();
+			if ( null !== $order_date_paid ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			}
+
+			// Subscription donation.
+		} else {
+			$current_subscription = reset( $order_subscriptions );
+
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+			if ( 'active' === $current_subscription->get_status() || 'pending' === $current_subscription->get_status() ) {
+				if ( 'month' === $current_subscription->get_billing_period() ) {
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Monthly Donor';
+				}
+
+				if ( 'year' === $current_subscription->get_billing_period() ) {
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Yearly Donor';
+				}
+			} else {
+				if ( 'month' === $current_subscription->get_billing_period() ) {
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Monthly Donor';
+				}
+
+				if ( 'year' === $current_subscription->get_billing_period() ) {
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Yearly Donor';
+				}
+			}
+
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]      = $current_subscription->get_date( 'start' );
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]       = $current_subscription->get_billing_period();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ]   = $current_subscription->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = $current_subscription->get_total();
+
+			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
+			// in the event of cancellation.
+			$next_payment_date = $current_subscription->get_date( 'next_payment' );
+			if ( $next_payment_date ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
+			}
+
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]  = (float) $customer->get_total_spent();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
+
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
+			if ( $current_subscription ) {
+				$subscription_order_items = $current_subscription->get_items();
+				if ( $subscription_order_items ) {
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $subscription_order_items )->get_name();
+				}
+			}
+		}
+
+		$first_name = $order->get_billing_first_name();
+		$last_name  = $order->get_billing_last_name();
+		return [
+			'email'    => $order->get_billing_email(),
+			'name'     => "$first_name $last_name",
+			'metadata' => $metadata,
+		];
+	}
+
+	/**
 	 * Sync a customer to the ESP from an order.
 	 *
 	 * @param WC_Order $order Order object.
@@ -165,95 +279,11 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		$metadata_keys = Newspack_Newsletters::$metadata_keys;
-		$user_id       = $order->get_customer_id();
-		if ( ! $user_id ) {
+		$contact = self::get_contact_from_order( $order );
+		if ( ! $contact ) {
 			return;
 		}
 
-		$customer = new \WC_Customer( $user_id );
-		$metadata = [
-			'registration_method' => 'woocommerce-order',
-		];
-
-		$metadata[ $metadata_keys['account'] ]           = $order->get_customer_id();
-		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
-		$metadata[ $metadata_keys['payment_page'] ]      = \wc_get_checkout_url();
-
-		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
-
-		// One-time donation.
-		if ( empty( $order_subscriptions ) ) {
-			$metadata[ $metadata_keys['membership_status'] ] = 'Donor';
-			$metadata[ $metadata_keys['total_paid'] ]        = (float) $customer->get_total_spent();
-			$metadata[ $metadata_keys['total_paid'] ]       += (float) $order->get_total();
-			$metadata[ $metadata_keys['product_name'] ]      = '';
-			$order_items                                     = $order->get_items();
-			if ( $order_items ) {
-				$metadata[ $metadata_keys['product_name'] ] = reset( $order_items )->get_name();
-			}
-			$metadata[ $metadata_keys['last_payment_amount'] ] = $order->get_total();
-			$order_date_paid                                   = $order->get_date_paid();
-			if ( null !== $order_date_paid ) {
-				$metadata[ $metadata_keys['last_payment_date'] ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
-			}
-
-			// Subscription donation.
-		} else {
-			$current_subscription = reset( $order_subscriptions );
-
-			$metadata[ $metadata_keys['membership_status'] ] = 'Donor';
-			if ( 'active' === $current_subscription->get_status() || 'pending' === $current_subscription->get_status() ) {
-				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Monthly Donor';
-				}
-
-				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Yearly Donor';
-				}
-			} else {
-				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Ex-Monthly Donor';
-				}
-
-				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ $metadata_keys['membership_status'] ] = 'Ex-Yearly Donor';
-				}
-			}
-
-			$metadata[ $metadata_keys['sub_start_date'] ]      = $current_subscription->get_date( 'start' );
-			$metadata[ $metadata_keys['sub_end_date'] ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
-			$metadata[ $metadata_keys['billing_cycle'] ]       = $current_subscription->get_billing_period();
-			$metadata[ $metadata_keys['recurring_payment'] ]   = $current_subscription->get_total();
-			$metadata[ $metadata_keys['last_payment_date'] ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
-			$metadata[ $metadata_keys['last_payment_amount'] ] = $current_subscription->get_total();
-
-			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
-			// in the event of cancellation.
-			$next_payment_date = $current_subscription->get_date( 'next_payment' );
-			if ( $next_payment_date ) {
-				$metadata[ $metadata_keys['next_payment_date'] ] = $next_payment_date;
-			}
-
-			$metadata[ $metadata_keys['total_paid'] ]  = (float) $customer->get_total_spent();
-			$metadata[ $metadata_keys['total_paid'] ] += (float) $current_subscription->get_total();
-
-			$metadata[ $metadata_keys['product_name'] ] = '';
-			if ( $current_subscription ) {
-				$subscription_order_items = $current_subscription->get_items();
-				if ( $subscription_order_items ) {
-					$metadata[ $metadata_keys['product_name'] ] = reset( $subscription_order_items )->get_name();
-				}
-			}
-		}
-
-		$first_name = $order->get_billing_first_name();
-		$last_name  = $order->get_billing_last_name();
-		$contact    = [
-			'email'    => $order->get_billing_email(),
-			'name'     => "$first_name $last_name",
-			'metadata' => $metadata,
-		];
 		\Newspack_Newsletters_Subscription::add_contact( $contact );
 	}
 
@@ -472,6 +502,12 @@ class WooCommerce_Connection {
 			}
 		}
 
+		/**
+		 * Disable the emails sent to admin & customer after a subscription renewal order is completed.
+		 */
+		\add_filter( 'woocommerce_email_enabled_customer_completed_renewal_order', '__return_false' );
+		\add_filter( 'woocommerce_email_enabled_new_renewal_order', '__return_false' );
+
 		if ( 'renewed' === $subscription_status ) {
 			/**
 			 * Handle WooCommerce Subscriptions - subscription renewal. This will create a new order
@@ -485,8 +521,8 @@ class WooCommerce_Connection {
 				$order->save();
 				Logger::log( 'Updated WC subscription with id: ' . $subscription->get_id() . ' with a new order of id: ' . $order->get_id() );
 			} else {
-				// Linked subscription not found, just create an order. Temporarily disable the
-				// "New Order" email, since this is a renewal.
+				// Linked subscription not found, just create an order.
+				// Temporarily disable the "New Order" email, since this is a renewal.
 				\add_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
 				$order = self::create_order( $order_data, $item );
 				\remove_filter( 'woocommerce_email_enabled_new_order', '__return_false' );
@@ -533,6 +569,9 @@ class WooCommerce_Connection {
 				}
 			}
 		}
+
+		\remove_filter( 'woocommerce_email_enabled_customer_completed_renewal_order', '__return_false' );
+		\remove_filter( 'woocommerce_email_enabled_new_renewal_order', '__return_false' );
 
 		/**
 		 * Handle WooCommerce Memberships.

@@ -495,14 +495,15 @@ class Stripe_Connection {
 		$metadata          = [];
 		$amount_normalised = self::normalise_amount( $amount, $currency );
 		$payment_date      = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $date );
-		$metadata[ Newspack_Newsletters::$metadata_keys['billing_cycle'] ]     = $frequency;
-		$metadata[ Newspack_Newsletters::$metadata_keys['recurring_payment'] ] = $amount_normalised;
-		$metadata[ Newspack_Newsletters::$metadata_keys['membership_status'] ] = self::get_membership_status_field_value( $frequency );
 		$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
-		$metadata[ Newspack_Newsletters::$metadata_keys['next_payment_date'] ] = $next_payment_date;
-		$metadata[ Newspack_Newsletters::$metadata_keys['sub_start_date'] ]    = $payment_date;
+
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]     = $frequency;
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ] = $amount_normalised;
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = self::get_membership_status_field_value( $frequency );
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]    = $payment_date;
 		// In case this was previously set after a previous cancelled subscription, clear it.
-		$metadata[ Newspack_Newsletters::$metadata_keys['sub_end_date'] ] = '';
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ] = '';
 		return $metadata;
 	}
 
@@ -634,7 +635,12 @@ class Stripe_Connection {
 	public static function get_stripe_client() {
 		$secret_key = self::get_stripe_secret_key();
 		if ( $secret_key ) {
-			return new \Stripe\StripeClient( $secret_key );
+			return new \Stripe\StripeClient(
+				[
+					'api_key'        => $secret_key,
+					'stripe_version' => '2022-11-15',
+				]
+			);
 		}
 	}
 

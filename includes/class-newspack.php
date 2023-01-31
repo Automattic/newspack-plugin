@@ -82,6 +82,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/listeners.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/ga4/class-ga4.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-mailchimp.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics.php';
@@ -154,6 +156,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-performance.php';
 
 		if ( Donations::is_platform_nrh() ) {
 			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';
