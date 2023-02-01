@@ -789,15 +789,8 @@ class Stripe_Connection {
 
 			// In this mode, WC will create a subscription for the customer, instead of using
 			// native Stripe subscriptions.
-			$is_wc_first         = false;
 			$is_wc_first_enabled = defined( 'NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM' ) && NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM;
-			if ( $is_wc_first_enabled && Donations::is_woocommerce_suite_active() ) {
-				$gateways = WooCommerce_Configuration_Manager::get_payment_gateways( true );
-				// Check if Stripe (Credit Card) is the only payment gateway enabled.
-				if ( 1 === count( $gateways ) && isset( $gateways['stripe'] ) ) {
-					$is_wc_first = true;
-				}
-			}
+			$is_wc_first         = $is_wc_first_enabled && Donations::is_woocommerce_suite_active();
 
 			$payment_intent_payload = [
 				'amount'      => $amount_raw,
