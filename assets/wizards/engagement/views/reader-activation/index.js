@@ -27,7 +27,7 @@ export default withWizardScreen( () => {
 	const [ config, setConfig ] = useState( {} );
 	const [ error, setError ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
-	const [ hasPlugins, setHasPlugins ] = useState( false );
+	const [ hasPlugins, setHasPlugins ] = useState( null );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
