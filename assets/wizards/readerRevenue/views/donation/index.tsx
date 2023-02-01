@@ -254,7 +254,7 @@ const BillingFields = () => {
 		} );
 
 	const availableFields = wizardData.available_billing_fields;
-	if ( ! availableFields ) {
+	if ( ! availableFields || ! Object.keys( availableFields ).length ) {
 		return null;
 	}
 
