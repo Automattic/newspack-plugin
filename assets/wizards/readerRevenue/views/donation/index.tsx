@@ -266,7 +266,7 @@ const BillingFields = () => {
 				<SectionHeader
 					title={ __( 'Billing Fields', 'newspack' ) }
 					description={ __(
-						'Configure which billing fields are required for donations.',
+						'Configure which billing fields should be rendered on the donation form',
 						'newspack'
 					) }
 					noMargin
