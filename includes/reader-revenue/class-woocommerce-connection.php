@@ -108,6 +108,7 @@ class WooCommerce_Connection {
 		$item->set_product( \wc_get_product( $product_id ) );
 		$item->set_total( $amount );
 		$item->set_subtotal( $amount );
+		$item->save();
 		return $item;
 	}
 
@@ -623,6 +624,8 @@ class WooCommerce_Connection {
 						$subscription->add_order_note( sprintf( __( 'Newspack subscription with frequency: %s. The recurring payment and the subscription will be handled in Stripe, so you\'ll see "Manual renewal" as the payment method in WooCommerce.', 'newspack' ), $frequency ) );
 						$subscription->update_status( 'active' ); // Settings status via method (not in wcs_create_subscription), to make WCS recalculate dates.
 					}
+					// Mint a new item – subscription is a new WC order.
+					$item = self::get_donation_order_item( $frequency, $order_data['amount'] );
 					$subscription->add_item( $item );
 					$subscription->calculate_totals();
 
