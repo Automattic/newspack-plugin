@@ -43,7 +43,7 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 				'platform',
 				'minimumDonation',
 				'currencySymbol',
-				'billingFields,',
+				'billingFields',
 			],
 			array_keys( $donation_settings ),
 			'Donation settings have the expected keys.'
