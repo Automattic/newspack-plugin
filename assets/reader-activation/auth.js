@@ -270,7 +270,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					emailInput.focus();
 				}
 			}
-			setFormAction( readerActivation.getAuthStrategy() || 'pwd' );
+			setFormAction( readerActivation.getAuthStrategy() || 'link' );
 			readerActivation.on( 'reader', () => {
 				if ( readerActivation.getOTPHash() ) {
 					setFormAction( 'otp' );
