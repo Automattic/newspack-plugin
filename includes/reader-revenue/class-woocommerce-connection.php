@@ -610,7 +610,7 @@ class WooCommerce_Connection {
 			 * Handle WooCommerce Subscriptions - new subscription.
 			 */
 			if ( 'created' === $subscription_status ) {
-				// A subscription needs a valid user. If not user ID is provided, attribute the
+				// A subscription needs a valid user. If no user ID is provided, attribute the
 				// subscription to the user with the supplied email address.
 				if ( empty( $order_data['user_id'] ) ) {
 					$user = \get_user_by( 'email', $order_data['email'] );
