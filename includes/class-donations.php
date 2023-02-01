@@ -19,6 +19,7 @@ class Donations {
 	const DONATION_PRODUCT_ID_OPTION       = 'newspack_donation_product_id';
 	const DONATION_PAGE_ID_OPTION          = 'newspack_donation_page_id';
 	const DONATION_SETTINGS_OPTION         = 'newspack_donations_settings';
+	const DONATION_BILLING_FIELDS_OPTION   = 'newspack_donations_billing_fields';
 	const DONATION_ORDER_META_KEYS         = [
 		'referer_tags'       => [
 			'label' => 'Post Tags',
@@ -71,6 +72,7 @@ class Donations {
 			add_filter( 'pre_option_woocommerce_enable_guest_checkout', [ __CLASS__, 'disable_guest_checkout' ] );
 			add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'handle_cart' ] );
 			add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
+			add_filter( 'newspack_blocks_donate_billing_fields_keys', [ __CLASS__, 'get_billing_fields' ] );
 		}
 	}
 
@@ -374,7 +376,8 @@ class Donations {
 			self::update_donation_product( [ 'minimumDonation' => $settings['minimumDonation'] ] );
 		}
 
-		$parsed_settings['platform'] = self::get_platform_slug();
+		$parsed_settings['platform']      = self::get_platform_slug();
+		$parsed_settings['billingFields'] = self::get_billing_fields();
 
 		return $parsed_settings;
 	}
@@ -396,6 +399,13 @@ class Donations {
 				return $ready;
 			}
 			self::update_donation_product( $configuration );
+
+			// Update the billing fields.
+			$billing_fields = $args['billingFields'];
+			if ( ! empty( $billing_fields ) ) {
+				$billing_fields = array_map( 'sanitize_text_field', $billing_fields );
+				self::update_billing_fields( $billing_fields );
+			}
 		}
 
 		Logger::log( 'Save donation settings' );
@@ -910,6 +920,43 @@ class Donations {
 				WC()->cart->remove_cart_item( $prod_in_cart['key'] );
 			}
 		}
+	}
+
+	/**
+	 * Get the checkout billing fields keys for the donation form.
+	 */
+	public static function get_billing_fields() {
+		$default_billing_fields = [
+			'billing_first_name',
+			'billing_last_name',
+			'billing_email',
+		];
+
+		$billing_fields = get_option( self::DONATION_BILLING_FIELDS_OPTION, $default_billing_fields );
+
+		// Email is required, so it should always be in the list.
+		if ( ! in_array( 'billing_email', $billing_fields, true ) ) {
+			$billing_fields[] = 'billing_email';
+		}
+
+		/**
+		 * Filter the checkout fields keys for the donation form.
+		 *
+		 * @param array $billing_fields Checkout fields keys.
+		 */
+		return apply_filters( self::DONATION_BILLING_FIELDS_OPTION, $billing_fields );
+	}
+
+	/**
+	 * Update the checkout billing fields keys for the donation form.
+	 *
+	 * @param string[] $billing_fields Checkout fields keys.
+	 *
+	 * @return string[] Updated checkout fields keys.
+	 */
+	public static function update_billing_fields( $billing_fields ) {
+		update_option( self::DONATION_BILLING_FIELDS_OPTION, $billing_fields );
+		return $billing_fields;
 	}
 }
 Donations::init();
