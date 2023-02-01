@@ -874,20 +874,25 @@ class Stripe_Connection {
 						$wc_order_payload['subscription_status'] = 'created';
 					}
 					$wc_order_id = WooCommerce_Connection::create_transaction( $wc_order_payload );
+					if ( ! \is_wp_error( $wc_order_id ) ) {
+						// Trigger the ESP data sync, which would normally happen on checkout.
+						$payment_page_url = isset( $client_metadata['current_page_url'] ) ? $client_metadata['current_page_url'] : false;
+						WooCommerce_Connection::sync_reader_from_order( \wc_get_order( $wc_order_id ), false, $payment_page_url );
 
-					// Update the metadata on the payment intent with the order ID.
-					$stripe->paymentIntents->update(
-						$payment_intent['id'],
-						[
-							'description' => sprintf(
-								/* translators: %s: Product name */
-								__( 'Newspack %1$s (Order #%2$d)', 'newspack' ),
-								Donations::get_donation_name_by_frequency( $frequency ),
-								$wc_order_id
-							),
-							'metadata'    => [ 'order_id' => $wc_order_id ],
-						]
-					);
+						// Update the metadata on the payment intent with the order ID.
+						$stripe->paymentIntents->update(
+							$payment_intent['id'],
+							[
+								'description' => sprintf(
+									/* translators: %s: Product name */
+									__( 'Newspack %1$s (Order #%2$d)', 'newspack' ),
+									Donations::get_donation_name_by_frequency( $frequency ),
+									$wc_order_id
+								),
+								'metadata'    => [ 'order_id' => $wc_order_id ],
+							]
+						);
+					}
 				}
 
 				$response['client_secret'] = $payment_intent['client_secret'];

@@ -166,14 +166,16 @@ class WooCommerce_Connection {
 	/**
 	 * Sync a customer to the ESP from an order.
 	 *
-	 * @param WC_Order $order Order object.
+	 * @param WC_Order    $order Order object.
+	 * @param bool        $verify_created_via Whether to verify that the order was not created via the Stripe integration.
+	 * @param bool|string $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 */
-	public static function sync_reader_from_order( $order ) {
+	public static function sync_reader_from_order( $order, $verify_created_via = true, $payment_page_url = false ) {
 		if ( ! self::can_sync_customers() ) {
 			return;
 		}
 
-		if ( self::CREATED_VIA_NAME === $order->get_created_via() ) {
+		if ( $verify_created_via && self::CREATED_VIA_NAME === $order->get_created_via() ) {
 			// Only sync orders not created via the Stripe integration.
 			return;
 		}
@@ -191,7 +193,10 @@ class WooCommerce_Connection {
 
 		$metadata[ $metadata_keys['account'] ]           = $order->get_customer_id();
 		$metadata[ $metadata_keys['registration_date'] ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
-		$metadata[ $metadata_keys['payment_page'] ]      = \wc_get_checkout_url();
+		if ( false === $payment_page_url ) {
+			$payment_page_url = \wc_get_checkout_url();
+		}
+		$metadata['current_page_url'] = $payment_page_url;
 
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
 
