@@ -438,7 +438,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			$checkout = new \WC_Checkout();
 			$fields   = $checkout->get_checkout_fields();
 			if ( ! empty( $fields['billing'] ) ) {
-				$billing_fields = $checkout->get_checkout_fields()['billing'];
+				$billing_fields = $fields['billing'];
 			}
 		}
 
