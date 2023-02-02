@@ -898,6 +898,12 @@ class Donations {
 			return false;
 		}
 		$donation_products_ids = array_values( self::get_donation_product_child_products_ids() );
+		if ( empty( $donation_products_ids ) ) {
+			return false;
+		}
+		if ( ! WC()->cart || ! WC()->cart->cart_contents || ! is_array( WC()->cart->cart_contents ) ) {
+			return false;
+		}
 		foreach ( WC()->cart->cart_contents as $prod_in_cart ) {
 			if ( isset( $prod_in_cart['product_id'] ) && in_array( $prod_in_cart['product_id'], $donation_products_ids ) ) {
 				return true;
