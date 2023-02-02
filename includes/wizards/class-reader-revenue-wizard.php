@@ -434,7 +434,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		$stripe_data['can_use_stripe_platform'] = Donations::can_use_stripe_platform();
 
 		$billing_fields = [];
-		if ( 'wc' === $platform && $wc_installed ) {
+		if ( $wc_installed && Donations::is_platform_wc() ) {
 			$checkout = new \WC_Checkout();
 			$fields   = $checkout->get_checkout_fields();
 			if ( ! empty( $fields['billing'] ) ) {
