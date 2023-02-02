@@ -38,6 +38,23 @@ class Performance {
 
 		add_action( 'template_redirect', [ __CLASS__, 'process_output_html' ] );
 		add_filter( 'newspack_output_html', [ __CLASS__, 'minify_inline_style_tags' ] );
+
+		add_filter( 'newspack_analytics_event_js', [ __CLASS__, 'optimize_js' ] );
+		add_filter( 'newspack_ads_frontend_js', [ __CLASS__, 'optimize_js' ] );
+		add_filter( 'newspack_ads_lazy_loading_js', [ __CLASS__, 'optimize_js' ] );
+	}
+
+	/**
+	 * Optimise JS code.
+	 *
+	 * @param string $js_code JS code.
+	 */
+	public static function optimize_js( $js_code ) {
+		return preg_replace(
+			[ '/(<script>|,|\(|\)|\{|\}|;|\&\&)\s+/', '/\s+(<script>|,|\(|\)|\{|\}|;|\&\&)/' ],
+			'\1',
+			$js_code
+		);
 	}
 
 	/**
