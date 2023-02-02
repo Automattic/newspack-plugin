@@ -615,9 +615,18 @@ class WooCommerce_Connection {
 				if ( empty( $order_data['user_id'] ) ) {
 					$user = \get_user_by( 'email', $order_data['email'] );
 					if ( ! $user || \is_wp_error( $user ) ) {
-						Logger::error( 'Could not find user by email.' );
+						Logger::log( 'Could not find user by email, creating a user.' );
+						$display_name = explode( '@', $order_data['email'], 2 )[0];
+						$user_id      = \wc_create_new_customer(
+							$order_data['email'],
+							\sanitize_user( $order_data['email'], true ),
+							\wp_generate_password(),
+							[ 'display_name' => $display_name ]
+						);
+						$order->set_customer_id( $user_id );
+					} else {
+						$order->set_customer_id( $user->ID );
 					}
-					$order->set_customer_id( $user->ID );
 					$order->save();
 				}
 				$subscription = \wcs_create_subscription(
