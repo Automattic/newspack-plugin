@@ -37,7 +37,10 @@ export default withWizardScreen( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
 		} )
-			.then( setConfig )
+			.then( ( { config: fetchedConfig, pluginsStatus } ) => {
+				setHasPlugins( pluginsStatus );
+				setConfig( fetchedConfig );
+			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
@@ -53,18 +56,7 @@ export default withWizardScreen( () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
-	const fetchPluginStatus = () => {
-		setError( false );
-		setInFlight( true );
-		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation-plugins',
-		} )
-			.then( setHasPlugins )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
-	};
 	useEffect( fetchConfig, [] );
-	useEffect( fetchPluginStatus, [] );
 	useEffect( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
@@ -107,7 +99,7 @@ export default withWizardScreen( () => {
 				<PluginInstaller
 					isWaiting={ inFlight }
 					plugins={ [ 'woocommerce', 'woocommerce-subscriptions', 'woocommerce-name-your-price' ] }
-					onStatus={ ( { complete } ) => complete && fetchPluginStatus() }
+					onStatus={ ( { complete } ) => complete && fetchConfig() }
 					withoutFooterButton={ true }
 				/>
 			</>
