@@ -258,7 +258,9 @@ const BillingFields = () => {
 		return null;
 	}
 
-	const billingFields = wizardData.donation_data.billingFields || [];
+	const billingFields = wizardData.donation_data.billingFields.length
+		? wizardData.donation_data.billingFields
+		: Object.keys( availableFields );
 
 	return (
 		<>

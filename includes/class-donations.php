@@ -934,32 +934,19 @@ class Donations {
 	 * @return string[]
 	 */
 	public static function get_billing_fields() {
-		$default_billing_fields = [
-			'billing_first_name',
-			'billing_last_name',
-			'billing_email',
-		];
-		if ( class_exists( 'WC_Checkout' ) ) {
-			$checkout = new \WC_Checkout();
-			$fields   = $checkout->get_checkout_fields();
-			if ( ! empty( $fields['billing'] ) ) {
-				$default_billing_fields = array_keys( $fields['billing'] );
-			}
-		}
+		$billing_fields = get_option( self::DONATION_BILLING_FIELDS_OPTION, [] );
 
-		$billing_fields = get_option( self::DONATION_BILLING_FIELDS_OPTION, $default_billing_fields );
+		// If empty, return empty array so it uses the default.
+		if ( empty( $billing_fields ) ) {
+			return $billing_fields;
+		}
 
 		// Email is required, so it should always be in the list.
 		if ( ! in_array( 'billing_email', $billing_fields, true ) ) {
 			$billing_fields[] = 'billing_email';
 		}
 
-		/**
-		 * Filter the checkout fields keys for the donation form.
-		 *
-		 * @param array $billing_fields Checkout fields keys.
-		 */
-		return apply_filters( self::DONATION_BILLING_FIELDS_OPTION, $billing_fields );
+		return $billing_fields;
 	}
 
 	/**
