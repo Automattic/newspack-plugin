@@ -924,13 +924,17 @@ class Donations {
 
 	/**
 	 * Get the checkout billing fields keys for the donation form.
+	 *
+	 * @return string[]
 	 */
 	public static function get_billing_fields() {
-		$default_billing_fields = [
-			'billing_first_name',
-			'billing_last_name',
-			'billing_email',
-		];
+		$default_billing_fields = [];
+
+		$checkout = new \WC_Checkout();
+		$fields   = $checkout->get_checkout_fields();
+		if ( ! empty( $fields['billing'] ) ) {
+			$default_billing_fields = array_keys( $fields['billing'] );
+		}
 
 		$billing_fields = get_option( self::DONATION_BILLING_FIELDS_OPTION, $default_billing_fields );
 
