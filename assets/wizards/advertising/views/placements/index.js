@@ -201,19 +201,6 @@ const Placements = () => {
 								</Card>
 							);
 						} ) }
-					<ToggleControl
-						label={ __( 'Use fixed height', 'newspack' ) }
-						help={ __(
-							'Avoid content layout shift by using the ad unit height as fixed height for this placement. This is recommended if an ad is guaranteed to be shown across all devices.',
-							'newspack'
-						) }
-						checked={ !! placement.data?.fixed_height }
-						onChange={ value => {
-							setPlacements(
-								set( [ editingPlacement, 'data', 'fixed_height' ], value, placements )
-							);
-						} }
-					/>
 					{ placement.supports?.indexOf( 'stick_to_top' ) > -1 && (
 						<ToggleControl
 							label={ __( 'Stick to Top', 'newspack' ) }

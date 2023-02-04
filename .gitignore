@@ -31,3 +31,4 @@ Thumbs.db
 # Tests
 codecov/
 coverage/
+.phpunit.result.cache
