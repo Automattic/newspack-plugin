@@ -17,7 +17,6 @@ class Perfmatters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_filter( 'default_option_perfmatters_options', [ __CLASS__, 'set_defaults' ] );
 		add_filter( 'option_perfmatters_options', [ __CLASS__, 'set_defaults' ] );
 	}
 
@@ -118,9 +117,6 @@ class Perfmatters {
 	 * @param array $options Perfmatters options.
 	 */
 	public static function set_defaults( $options = [] ) {
-		if ( ! isset( $_GET['newspack-perfmatters-defaults'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return $options;
-		}
 		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
 			return $options;
 		}
