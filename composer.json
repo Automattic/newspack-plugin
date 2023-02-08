@@ -1,13 +1,13 @@
 {
-	"name"       : "automattic/newspack-plugin",
+	"name": "automattic/newspack-plugin",
 	"description": "An advanced open-source publishing and revenue-generating platform for news organizations",
-	"homepage"   : "https://newspack.com/",
-	"type"       : "wordpress-plugin",
-	"license"    : "GPL-2.0-or-later",
+	"homepage": "https://newspack.com/",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
 	"support": {
-			"issues": "https://github.com/Automattic/newspack-plugin/issues"
+		"issues": "https://github.com/Automattic/newspack-plugin/issues"
 	},
-	"require"    : {
+	"require": {
 		"composer/installers": "~2.0",
 		"joshtronic/php-loremipsum": "^2.1",
 		"google/auth": "^1.15",
@@ -15,7 +15,6 @@
 	},
 	"require-dev": {
 		"brainmaestro/composer-git-hooks": "^2.6",
-		"xwp/wp-dev-lib": "^1.5",
 		"automattic/vipwpcs": "^2.0.0",
 		"wp-coding-standards/wpcs": "*",
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
@@ -23,7 +22,7 @@
 		"yoast/phpunit-polyfills": "^1.0",
 		"phpunit/phpunit": "^7.0 || ^9.5"
 	},
-  "autoload": {
+	"autoload": {
 		"classmap": [
 			"includes"
 		]
@@ -38,16 +37,16 @@
 	},
 	"extra": {
 		"hooks": {
-			"pre-commit": "DEV_LIB_SKIP=eslint ./vendor/xwp/wp-dev-lib/scripts/pre-commit && ./node_modules/.bin/lint-staged",
+			"pre-commit": "./node_modules/.bin/lint-staged",
 			"commit-msg": [
 				"cat $1 | ./node_modules/.bin/newspack-scripts commitlint"
 			]
 		}
 	},
 	"config": {
-    "platform": {
-      "php": "7.4"
-    },
+		"platform": {
+			"php": "7.4"
+		},
 		"allow-plugins": {
 			"composer/installers": true,
 			"dealerdirect/phpcodesniffer-composer-installer": true
