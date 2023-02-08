@@ -80,6 +80,7 @@ class Perfmatters {
 		return [
 			'donateStreamlined.css',
 			'/themes/newspack-', // Any Newspack theme stylesheet.
+			'wp-includes',
 		];
 	}
 
