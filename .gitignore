@@ -38,3 +38,4 @@ release
 # Tests
 codecov/
 coverage/
+.phpunit.result.cache
