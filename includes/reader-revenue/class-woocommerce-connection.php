@@ -534,6 +534,7 @@ class WooCommerce_Connection {
 	 * Add a donation transaction to WooCommerce.
 	 *
 	 * @param object $order_data Order data.
+	 * @return array Data of created order and subscription, if applicable.
 	 */
 	public static function create_transaction( $order_data ) {
 		if ( isset( $order_data['stripe_id'] ) ) {
@@ -574,6 +575,9 @@ class WooCommerce_Connection {
 				$subscription_status = 'renewed';
 			}
 		}
+
+		$order        = false;
+		$subscription = false;
 
 		/**
 		 * Disable the emails sent to admin & customer after a subscription renewal order is completed.
@@ -699,7 +703,10 @@ class WooCommerce_Connection {
 			$wc_memberships_membership_plans->grant_access_to_membership_from_order( $order );
 		}
 
-		return $order->get_id();
+		return [
+			'order_id'        => $order ? $order->get_id() : false,
+			'subscription_id' => $subscription ? $subscription->get_id() : false,
+		];
 	}
 
 	/**

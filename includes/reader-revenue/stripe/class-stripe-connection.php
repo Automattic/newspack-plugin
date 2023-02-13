@@ -867,7 +867,9 @@ class Stripe_Connection {
 					if ( $is_recurring ) {
 						$wc_order_payload['subscription_status'] = 'created';
 					}
-					$wc_order_id = WooCommerce_Connection::create_transaction( $wc_order_payload );
+
+					$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
+					$wc_order_id                  = $wc_transaction_creation_data['order_id'];
 					if ( ! \is_wp_error( $wc_order_id ) ) {
 						// Trigger the ESP data sync, which would normally happen on checkout.
 						$payment_page_url = isset( $client_metadata['current_page_url'] ) ? $client_metadata['current_page_url'] : false;
