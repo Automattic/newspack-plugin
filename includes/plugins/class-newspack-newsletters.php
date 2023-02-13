@@ -188,7 +188,10 @@ class Newspack_Newsletters {
 				}
 
 				$current_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
-				if ( ! $current_page_url ) {
+				if ( $current_page_url ) {
+					// Don't send this metadata to ESP, it will be used to populate signup and payment page URLs' fields.
+					unset( $contact['metadata']['current_page_url'] );
+				} else {
 					global $wp;
 					$current_page_url = home_url( add_query_arg( array(), $wp->request ) );
 				}
