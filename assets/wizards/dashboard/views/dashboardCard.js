@@ -30,7 +30,7 @@ class DashboardCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { name, description, slug, url } = this.props;
+		const { name, description, slug, url, is_external } = this.props;
 		const iconMap = {
 			'site-design': typography,
 			'reader-revenue': payment,
@@ -47,6 +47,7 @@ class DashboardCard extends Component {
 		return (
 			<ButtonCard
 				href={ url }
+				{ ...( is_external && { target: '_blank' } ) }
 				title={ name }
 				desc={ description }
 				icon={ iconMap[ slug ] || plugins }

@@ -116,7 +116,7 @@ class Dashboard extends Wizard {
 			],
 		];
 
-		return $dashboard;
+		return apply_filters( 'newspack_plugin_dashboard_items', $dashboard );
 	}
 
 	/**
