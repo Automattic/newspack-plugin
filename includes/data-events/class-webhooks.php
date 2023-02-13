@@ -581,7 +581,7 @@ final class Webhooks {
 			self::add_request_error( $request_id, __( 'Endpoint not found.', 'newspack' ) );
 			self::kill_request( $request_id );
 		}
-		if ( $endpoint['disabled'] ) {
+		if ( $endpoint && $endpoint['disabled'] ) {
 			self::add_request_error( $request_id, __( 'Endpoint is disabled.', 'newspack' ) );
 			self::kill_request( $request_id );
 		}
