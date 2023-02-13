@@ -803,7 +803,7 @@ class Stripe_Connection {
 			// because WC Stripe Gateway is source-based.
 
 			// Mark the payment as coming from Newspack.
-			$payment_metadata['is_newspack'] = true;
+			$payment_metadata['origin'] = 'newspack';
 
 			// Data for WC Stripe Gateway.
 			$payment_metadata['payment_type']        = $is_recurring ? 'recurring' : 'once';
@@ -879,7 +879,6 @@ class Stripe_Connection {
 							'order_id'            => $wc_transaction_creation_data['order_id'],
 							'payment_type'        => 'recurring',
 							'subscription_status' => 'created',
-							'origin'              => 'newspack',
 						];
 						if ( $wc_transaction_creation_data['subscription_id'] ) {
 							$payment_intent_meta['subscription_id'] = $wc_transaction_creation_data['subscription_id'];
