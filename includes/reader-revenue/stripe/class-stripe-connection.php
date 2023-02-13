@@ -879,6 +879,7 @@ class Stripe_Connection {
 							'order_id'            => $wc_transaction_creation_data['order_id'],
 							'payment_type'        => 'recurring',
 							'subscription_status' => 'created',
+							'origin'              => 'newspack',
 						];
 						if ( $wc_transaction_creation_data['subscription_id'] ) {
 							$payment_intent_meta['subscription_id'] = $wc_transaction_creation_data['subscription_id'];

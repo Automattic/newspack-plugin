@@ -990,7 +990,8 @@ class WooCommerce_Connection {
 			}
 			// Add the description only for Newspack-created subscriptions.
 			if ( self::CREATED_VIA_NAME === $subscription->get_created_via() ) {
-				$post_data['description'] = self::create_payment_description(
+				$post_data['metadata']['origin'] = 'newspack';
+				$post_data['description']        = self::create_payment_description(
 					[
 						'order_id'        => $order->get_id(),
 						'subscription_id' => $subscription_id,
