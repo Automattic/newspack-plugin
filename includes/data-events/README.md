@@ -48,6 +48,7 @@ When a reader verifies their email address.
 | Name      | Type      |
 | --------- | --------- |
 | `user_id` | `integer` |
+| `email`   | `string`  |
 
 ### `newsletter_subscribed`
 
@@ -55,6 +56,8 @@ When a reader subscribes to newsletter lists from Newspack Newsletters subscript
 
 | Name       | Type       |
 | ---------- | ---------- |
+| `user_id`  | `integer`  |
+| `email`    | `string`   |
 | `provider` | `string`   |
 | `contact`  | `array`    |
 | `lists`    | `string[]` |
@@ -65,6 +68,8 @@ When a reader updates their lists subscription from Newspack Newsletters.
 
 | Name            | Type       |
 | --------------- | ---------- |
+| `user_id`       | `integer`  |
+| `email`         | `string`   |
 | `provider`      | `string`   |
 | `email`         | `string`   |
 | `lists_added`   | `string[]` |
@@ -104,9 +109,9 @@ When a WooCommerce Subscription is cancelled.
 
 | Name              | Type     |
 | ----------------- | -------- |
-| `subscription_id` | `int`    |
 | `user_id`         | `int`    |
 | `email`           | `string` |
+| `subscription_id` | `int`    |
 | `amount`          | `float`  |
 | `currency`        | `string` |
 | `recurrence`      | `string` |
@@ -118,9 +123,9 @@ When a WooCommerce Subscription status changes.
 
 | Name              | Type     |
 | ----------------- | -------- |
-| `subscription_id` | `int`    |
 | `user_id`         | `int`    |
 | `email`           | `string` |
+| `subscription_id` | `int`    |
 | `status_before`   | `string` |
 | `status_after`    | `string` |
 | `amount`          | `float`  |
