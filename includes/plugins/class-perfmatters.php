@@ -18,6 +18,7 @@ class Perfmatters {
 	 */
 	public static function init() {
 		add_filter( 'option_perfmatters_options', [ __CLASS__, 'set_defaults' ] );
+		add_action( 'admin_notices', [ __CLASS__, 'admin_notice' ] );
 	}
 
 	/**
@@ -212,6 +213,18 @@ class Perfmatters {
 		$options['lazyload']['image_dimensions']           = true;
 
 		return $options;
+	}
+
+	/**
+	 * Add an admin notice.
+	 */
+	public static function admin_notice() {
+		if ( 'settings_page_perfmatters' !== get_current_screen()->id ) {
+			return;
+		}
+		echo '<div class="notice notice-warning"><p>'
+		. __( 'Newspack plugin is overriding Perfmatters settings. You can use the <code>NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS</code> flag to disable that behavior.', 'newspack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		. '</p></div>';
 	}
 }
 Perfmatters::init();
