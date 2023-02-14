@@ -439,6 +439,11 @@ class Stripe_Sync {
 				continue;
 			}
 
+			if ( 'active' !== $existing_subscription->status ) {
+				\WP_CLI::log( '  - Subscription is not active. Skipping.' );
+				return;
+			}
+
 			$new_subscription_items = [];
 
 			foreach ( $existing_subscription->items->data as $existing_subscription_item ) {
