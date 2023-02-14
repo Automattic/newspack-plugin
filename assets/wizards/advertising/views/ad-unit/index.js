@@ -65,7 +65,7 @@ class AdUnit extends Component {
 	 * Render.
 	 */
 	render() {
-		const { adUnit, service, onSave } = this.props;
+		const { adUnit, service, onSave, onCancel } = this.props;
 		const { id, code, fluid = false, name = '' } = adUnit;
 		const isLegacy = adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
@@ -182,7 +182,7 @@ class AdUnit extends Component {
 					>
 						{ __( 'Save', 'newspack' ) }
 					</Button>
-					<Button variant="secondary" href={ `#/${ service }` }>
+					<Button variant="secondary" onClick={ () => onCancel() } href={ `#/${ service }` }>
 						{ __( 'Cancel', 'newspack' ) }
 					</Button>
 				</div>
