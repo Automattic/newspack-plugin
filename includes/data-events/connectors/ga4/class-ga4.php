@@ -13,6 +13,7 @@ use Newspack\Data_Events;
 use Newspack\Data_Events\Connectors\GA4\Event;
 use Newspack\Logger;
 use Newspack\Reader_Activation;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,12 +23,24 @@ defined( 'ABSPATH' ) || exit;
 class GA4 {
 
 	/**
+	 * The events being watched.
+	 *
+	 * @var array
+	 */
+	public static $watched_events = [
+		'reader_logged_in',
+		'reader_registered',
+	];
+
+	/**
 	 * Initialize the class and registers the handlers
 	 *
 	 * @return void
 	 */
 	public static function init() {
-		Data_Events::register_handler( [ __CLASS__, 'handle_reader_logged_in' ], 'reader_logged_in' );
+		foreach ( self::$watched_events as $event_name ) {
+			Data_Events::register_handler( [ __CLASS__, 'handle_' . $event_name ], $event_name );
+		}
 		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_event_body' ], 10, 2 );
 	}
 
@@ -39,8 +52,7 @@ class GA4 {
 	 * @return array
 	 */
 	public static function filter_event_body( $body, $event_name ) {
-		$watched_events = [ 'reader_logged_in' ];
-		if ( ! in_array( $event_name, $watched_events, true ) ) {
+		if ( ! in_array( $event_name, self::$watched_events, true ) ) {
 			return $body;
 		}
 
@@ -85,6 +97,31 @@ class GA4 {
 		}
 
 		$event = new Event( 'reader_login', $params );
+		self::send_event( $event, $client_id, $timestamp, $user_id );
+	}
+
+	/**
+	 * Handler for the reader_registered event.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $user_id   ID of the client that triggered the event. It's a RAS ID.
+	 *
+	 * @throws \Exception If the event is invalid.
+	 * @return void
+	 */
+	public static function handle_reader_registered( $timestamp, $data, $user_id ) {
+
+		$params    = $data['ga_params'];
+		$client_id = $data['ga_client_id'];
+
+		if ( empty( $client_id ) ) {
+			throw new \Exception( 'Missing client ID' );
+		}
+
+		$params['registration_method'] = $data['metadata']['registration_method'] ?? '';
+
+		$event = new Event( 'reader_registered', $params );
 		self::send_event( $event, $client_id, $timestamp, $user_id );
 	}
 
