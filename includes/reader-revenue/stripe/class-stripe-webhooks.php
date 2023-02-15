@@ -239,7 +239,7 @@ class Stripe_Webhooks {
 		// If order_id is set in the metadata, this is a charge created by WC.
 		if ( isset( $payload['metadata']['order_id'] ) ) {
 			// Update the associated order and subscription.
-			if ( isset( $payload['metadata']['is_newspack'] ) && $payload['metadata']['is_newspack'] && Donations::is_woocommerce_suite_active() ) {
+			if ( isset( $payload['metadata']['origin'] ) && 'newspack' === $payload['metadata']['origin'] && Donations::is_woocommerce_suite_active() ) {
 				$balance_transaction = Stripe_Connection::get_balance_transaction( $payload['balance_transaction'] );
 				WooCommerce_Connection::update_order(
 					$payload['metadata']['order_id'],

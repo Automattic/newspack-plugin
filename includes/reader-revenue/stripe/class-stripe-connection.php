@@ -803,7 +803,7 @@ class Stripe_Connection {
 			// because WC Stripe Gateway is source-based.
 
 			// Mark the payment as coming from Newspack.
-			$payment_metadata['is_newspack'] = true;
+			$payment_metadata['origin'] = 'newspack';
 
 			// Data for WC Stripe Gateway.
 			$payment_metadata['payment_type']        = $is_recurring ? 'recurring' : 'once';
@@ -867,23 +867,29 @@ class Stripe_Connection {
 					if ( $is_recurring ) {
 						$wc_order_payload['subscription_status'] = 'created';
 					}
-					$wc_order_id = WooCommerce_Connection::create_transaction( $wc_order_payload );
+
+					$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
+					$wc_order_id                  = $wc_transaction_creation_data['order_id'];
 					if ( ! \is_wp_error( $wc_order_id ) ) {
 						// Trigger the ESP data sync, which would normally happen on checkout.
 						$payment_page_url = isset( $client_metadata['current_page_url'] ) ? $client_metadata['current_page_url'] : false;
 						WooCommerce_Connection::sync_reader_from_order( $wc_order_id, false, $payment_page_url );
 
+						$payment_intent_meta = [
+							'order_id'            => $wc_transaction_creation_data['order_id'],
+							'payment_type'        => 'recurring',
+							'subscription_status' => 'created',
+						];
+						if ( $wc_transaction_creation_data['subscription_id'] ) {
+							$payment_intent_meta['subscription_id'] = $wc_transaction_creation_data['subscription_id'];
+						}
+
 						// Update the metadata on the payment intent with the order ID.
 						$stripe->paymentIntents->update(
 							$payment_intent['id'],
 							[
-								'description' => sprintf(
-									/* translators: %s: Product name */
-									__( 'Newspack %1$s (Order #%2$d)', 'newspack' ),
-									Donations::get_donation_name_by_frequency( $frequency ),
-									$wc_order_id
-								),
-								'metadata'    => [ 'order_id' => $wc_order_id ],
+								'description' => WooCommerce_Connection::create_payment_description( $wc_transaction_creation_data, $frequency ),
+								'metadata'    => $payment_intent_meta,
 							]
 						);
 					}

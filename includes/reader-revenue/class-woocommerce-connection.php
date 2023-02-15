@@ -50,6 +50,7 @@ class WooCommerce_Connection {
 		}
 		\add_filter( 'woocommerce_subscriptions_can_user_renew_early', [ __CLASS__, 'prevent_subscription_early_renewal' ], 11, 2 );
 		\add_filter( 'woocommerce_subscription_is_manual', [ __CLASS__, 'set_syncd_subscriptions_as_manual' ], 11, 2 );
+		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
 
 		// WooCommerce Memberships.
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
@@ -534,6 +535,7 @@ class WooCommerce_Connection {
 	 * Add a donation transaction to WooCommerce.
 	 *
 	 * @param object $order_data Order data.
+	 * @return array Data of created order and subscription, if applicable.
 	 */
 	public static function create_transaction( $order_data ) {
 		if ( isset( $order_data['stripe_id'] ) ) {
@@ -574,6 +576,9 @@ class WooCommerce_Connection {
 				$subscription_status = 'renewed';
 			}
 		}
+
+		$order        = false;
+		$subscription = false;
 
 		/**
 		 * Disable the emails sent to admin & customer after a subscription renewal order is completed.
@@ -699,7 +704,10 @@ class WooCommerce_Connection {
 			$wc_memberships_membership_plans->grant_access_to_membership_from_order( $order );
 		}
 
-		return $order->get_id();
+		return [
+			'order_id'        => $order ? $order->get_id() : false,
+			'subscription_id' => $subscription ? $subscription->get_id() : false,
+		];
 	}
 
 	/**
@@ -930,6 +938,69 @@ class WooCommerce_Connection {
 			}
 		}
 		return $renewal_errors;
+	}
+
+	/**
+	 * Create a payment description for Stripe Gateway.
+	 *
+	 * @param array  $order_data An array of order data, containing the order ID and subscription ID, if applicable.
+	 * @param string $frequency The frequency of the donation.
+	 */
+	public static function create_payment_description( $order_data, $frequency ) {
+
+		if ( $order_data['subscription_id'] ) {
+			return sprintf(
+				/* translators: %s: Product name */
+				__( 'Newspack %1$s (Order #%2$d, Subscription #%3$d)', 'newspack' ),
+				Donations::get_donation_name_by_frequency( $frequency ),
+				$order_data['order_id'],
+				$order_data['subscription_id']
+			);
+		} else {
+			return sprintf(
+				/* translators: %s: Product name */
+				__( 'Newspack %1$s (Order #%2$d)', 'newspack' ),
+				Donations::get_donation_name_by_frequency( $frequency ),
+				$order_data['order_id']
+			);
+		}
+	}
+
+	/**
+	 * Filter post request made by the Stripe Gateway for Stripe payments.
+	 *
+	 * @param array     $post_data An array of metadata.
+	 * @param \WC_Order $order The order object.
+	 */
+	public static function stripe_gateway_payment_request_data( $post_data, $order ) {
+		if ( ! function_exists( 'wcs_get_subscriptions_for_renewal_order' ) ) {
+			return $post_data;
+		}
+		$related_subscriptions = \wcs_get_subscriptions_for_renewal_order( $order );
+		if ( ! empty( $related_subscriptions ) ) {
+			// In theory, there should be just one subscription per renewal.
+			$subscription    = reset( $related_subscriptions );
+			$subscription_id = $subscription->get_id();
+			// Add subscription ID to any renewal.
+			$post_data['metadata']['subscription_id'] = $subscription_id;
+			if ( \wcs_order_contains_renewal( $order ) ) {
+				$post_data['metadata']['subscription_status'] = 'renewed';
+			} else {
+				$post_data['metadata']['subscription_status'] = 'created';
+			}
+			// Add the description only for Newspack-created subscriptions.
+			if ( self::CREATED_VIA_NAME === $subscription->get_created_via() ) {
+				$post_data['metadata']['origin'] = 'newspack';
+				$post_data['description']        = self::create_payment_description(
+					[
+						'order_id'        => $order->get_id(),
+						'subscription_id' => $subscription_id,
+					],
+					$subscription->get_billing_period()
+				);
+			}
+		}
+		return $post_data;
 	}
 }
 
