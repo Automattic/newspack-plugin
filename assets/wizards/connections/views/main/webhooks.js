@@ -29,11 +29,22 @@ import {
 	Popover,
 } from '../../../../components/src';
 
-const getEndpointTitle = endpoint => {
-	if ( endpoint.url.length > 45 ) {
-		return `${ endpoint.url.slice( 8, 38 ) }...${ endpoint.url.slice( -10 ) }`;
+const getDisplayUrl = url => {
+	let displayUrl = url.slice( 8 );
+	if ( url.length > 45 ) {
+		displayUrl = `${ url.slice( 8, 38 ) }...${ url.slice( -10 ) }`;
 	}
-	return endpoint.url.slice( 8 );
+	return displayUrl;
+};
+
+const getEndpointTitle = endpoint => {
+	const { label, url } = endpoint;
+	return (
+		<>
+			{ label && <span className="newspack-webhooks__endpoint__label">{ label }</span> }
+			<span className="newspack-webhooks__endpoint__url">{ getDisplayUrl( url ) }</span>
+		</>
+	);
 };
 
 const getRequestStatusIcon = status => {
@@ -308,7 +319,7 @@ const Webhooks = () => {
 					description={ sprintf(
 						/* translators: %s: endpoint title */
 						__( 'Are you sure you want to remove the endpoint %s?', 'newspack' ),
-						`"${ getEndpointTitle( deleting ) }"`
+						`"${ getDisplayUrl( deleting.url ) }"`
 					) }
 					onClose={ () => setDeleting( false ) }
 					onConfirm={ () => deleteEndpoint( deleting ) }
@@ -327,12 +338,12 @@ const Webhooks = () => {
 							? sprintf(
 									/* translators: %s: endpoint title */
 									__( 'Are you sure you want to enable the endpoint %s?', 'newspack' ),
-									`"${ getEndpointTitle( toggling ) }"`
+									`"${ getDisplayUrl( toggling.url ) }"`
 							  )
 							: sprintf(
 									/* translators: %s: endpoint title */
 									__( 'Are you sure you want to disable the endpoint %s?', 'newspack' ),
-									`"${ getEndpointTitle( toggling ) }"`
+									`"${ getDisplayUrl( toggling.url ) }"`
 							  )
 					}
 					endpoint={ toggling }
@@ -475,6 +486,16 @@ const Webhooks = () => {
 						</Card>
 					</Grid>
 					<hr />
+					<TextControl
+						label={ __( 'Label (optional)', 'newspack' ) }
+						help={ __(
+							'A label to help you identify this endpoint. It will not be sent to the endpoint.',
+							'newspack'
+						) }
+						value={ editing.label }
+						onChange={ value => setEditing( { ...editing, label: value } ) }
+						disabled={ inFlight }
+					/>
 					<Grid columns={ 1 } gutter={ 16 }>
 						<h3>{ __( 'Actions', 'newspack' ) }</h3>
 						<CheckboxControl
