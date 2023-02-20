@@ -362,7 +362,7 @@ class WooCommerce_Connection {
 	 * @param string $stripe_subscription_id Stripe Subscription ID.
 	 * @return WC_Subscription|false Subscription object or false.
 	 */
-	private static function get_subscription_by_stripe_subscription_id( $stripe_subscription_id ) {
+	public static function get_subscription_by_stripe_subscription_id( $stripe_subscription_id ) {
 		if ( ! function_exists( 'wcs_get_subscription' ) ) {
 			return false;
 		}
@@ -393,7 +393,7 @@ class WooCommerce_Connection {
 		$order->set_billing_email( $order_data['email'] );
 		$order->set_billing_first_name( $order_data['name'] );
 
-		if ( $order_data['subscribed'] ) {
+		if ( isset( $order_data['subscribed'] ) && $order_data['subscribed'] ) {
 			$order->add_order_note( __( 'Donor has opted-in to your newsletter.', 'newspack' ) );
 		}
 
@@ -634,14 +634,16 @@ class WooCommerce_Connection {
 					}
 					$order->save();
 				}
-				$subscription = \wcs_create_subscription(
-					[
-						'start_date'       => self::convert_timestamp_to_date( $order_data['date'] ),
-						'order_id'         => $order->get_id(),
-						'billing_period'   => $frequency,
-						'billing_interval' => 1, // Every billing period (not e.g. every *second* month).
-					]
-				);
+				$subscription_creation_payload = [
+					'start_date'       => self::convert_timestamp_to_date( $order_data['date'] ),
+					'order_id'         => $order->get_id(),
+					'billing_period'   => $frequency,
+					'billing_interval' => 1, // Every billing period (not e.g. every *second* month).
+				];
+				if ( isset( $order_data['wc_subscription_status'] ) ) {
+					$subscription_creation_payload['status'] = $order_data['wc_subscription_status'];
+				}
+				$subscription = \wcs_create_subscription( $subscription_creation_payload );
 
 				if ( is_wp_error( $subscription ) ) {
 					Logger::error( 'Error creating WC subscription: ' . $subscription->get_error_message() );
@@ -705,8 +707,8 @@ class WooCommerce_Connection {
 		}
 
 		return [
-			'order_id'        => $order ? $order->get_id() : false,
-			'subscription_id' => $subscription ? $subscription->get_id() : false,
+			'order_id'        => ( ! \is_wp_error( $order ) && $order ) ? $order->get_id() : false,
+			'subscription_id' => ( ! \is_wp_error( $subscription ) && $subscription ) ? $subscription->get_id() : false,
 		];
 	}
 
