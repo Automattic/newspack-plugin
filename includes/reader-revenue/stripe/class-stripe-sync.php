@@ -297,7 +297,17 @@ class Stripe_Sync {
 			'sync-to-esp' => false, // Sync data to the ESP.
 			'dry-run'     => false,
 		];
-		$passed_args  = array_merge( $default_args, $assoc_args );
+
+		\WP_CLI::log(
+			'
+
+Running data backfill from Stripe...
+
+		'
+		);
+
+
+		$passed_args = array_merge( $default_args, $assoc_args );
 		if ( false !== $passed_args['dry-run'] ) {
 			\WP_CLI::warning( __( 'This is a dry run, no changes will be made.', 'newspack' ) );
 		}
@@ -363,7 +373,15 @@ class Stripe_Sync {
 		$force_override = ! empty( $assoc_args['force'] );
 		$batch_size     = ! empty( $assoc_args['batch-size'] ) ? intval( $assoc_args['batch-size'] ) : 10;
 
-		$customers = self::get_batch_of_customers_for_stripe_connect_to_stripe( $batch_size );
+		\WP_CLI::log(
+			'
+
+Running Stripe Connect to Stripe Subscriptions Migration...
+
+		'
+		);
+
+		$customers = self::get_batch_of_customers_with_subscriptions( $batch_size );
 		while ( $customers ) {
 			$customer = array_shift( $customers );
 
@@ -481,7 +499,7 @@ class Stripe_Sync {
 				);
 				\WP_CLI::log( sprintf( '    * Created subscription: %s with next renewal at %s', $subscription->id, gmdate( 'Y-m-d', $existing_subscription->current_period_end ) ) );
 			} catch ( \Throwable $e ) {
-				\WP_CLI::error( sprintf( 'Failed to create subscription: %s', $e->getMessage() ) );
+				\WP_CLI::warning( sprintf( 'Failed to create subscription: %s', $e->getMessage() ) );
 			}
 
 			try {
