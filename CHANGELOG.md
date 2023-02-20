@@ -1,3 +1,10 @@
+# [1.104.0](https://github.com/Automattic/newspack-plugin/compare/v1.103.0...v1.104.0) (2023-02-20)
+
+
+### Features
+
+* **perfmatters:** defaults adjustments, remove feature flag ([#2271](https://github.com/Automattic/newspack-plugin/issues/2271)) ([1e451e5](https://github.com/Automattic/newspack-plugin/commit/1e451e57c776ce5ec8e46e5b1d8aa5fa8ae01838))
+
 # [1.103.0](https://github.com/Automattic/newspack-plugin/compare/v1.102.0...v1.103.0) (2023-02-17)
 
 
