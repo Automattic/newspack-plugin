@@ -525,89 +525,86 @@ Running Stripe to WC Subscriptions Migration...
 			// Create a new subscription (or make a sync'd subscription billable).
 			try {
 				if ( $migrate_to_wc ) {
-					$chargeable_sources = array_filter(
-						$customer->sources->data,
-						function( $source ) {
-							return 'chargeable' === $source->status;
-						}
-					);
-					if ( empty( $chargeable_sources ) ) {
-						\WP_CLI::warning( 'No chargeable source for this customer, a subscription cannot be created.' );
-					} else {
-						$source_id = $chargeable_sources[0]->id;
+					// Source ID for the Stripe Gateway may be a source, a payment method, or a card.
+					// See WC_Stripe_Subscriptions_Trait::validate_subscription_payment_meta.
+					$source_id = $customer->invoice_settings->default_payment_method ?? $customer->default_source;
 
-						// Check if this subscription is already synchronised (shadowed) in WooCommerce.
-						$subscription = WooCommerce_connection::get_subscription_by_stripe_subscription_id( $existing_subscription->id );
-						if ( $subscription ) {
-							$subscription_id = $subscription->get_id();
-							if ( $dry_run ) {
-								\WP_CLI::log(
-									sprintf(
-										'    * Would update WC Subscription #%s, which was already synced from Stripe but not renewed by WC.',
-										$subscription_id
-									)
-								);
-							} else {
-								// If this subscription is already synchronised,
-								// attach a source so it's billable and remove the link to the Stripe subscription.
-								$subscription->add_meta_data( '_stripe_source_id', $source_id );
-								// Delete the 'link' to a Stripe subscription, so it's not sync'd anymore.
-								$subscription->delete_meta_data( WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY );
-								\WP_CLI::success( sprintf( 'Updated WC Subscription #%s, which was already synced from Stripe but not renewed by WC (now it will).', $subscription_id ) );
-							}
+					$stripe_metadata_base = [
+						'stripe_customer_id' => $customer->id,
+						'stripe_source_id'   => $source_id,
+					];
+
+					// Check if this subscription is already synchronised (shadowed) in WooCommerce.
+					$subscription = WooCommerce_connection::get_subscription_by_stripe_subscription_id( $existing_subscription->id );
+					if ( $subscription ) {
+						$subscription_id = $subscription->get_id();
+						if ( $dry_run ) {
+							\WP_CLI::log(
+								sprintf(
+									'    * Would update WC Subscription #%s, which was already synced from Stripe but not renewed by WC.',
+									$subscription_id
+								)
+							);
 						} else {
-							// Create a new WooCommerce subscription, starting at the current period start.
-							$currency                = $existing_subscription->currency;
-							$amount_normalised       = Stripe_Connection::normalise_amount( $existing_subscription->quantity, $currency );
-							$first_subscription_item = $existing_subscription->items->data[0];
-							$frequency               = $first_subscription_item->price->recurring->interval;
+							WooCommerce_Connection::add_wc_stripe_gateway_metadata( $subscription, $stripe_metadata_base );
+							// Delete the 'link' to a Stripe subscription, so it's not sync'd anymore.
+							$subscription->delete_meta_data( WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY );
+							$subscription->save();
+							\WP_CLI::success( sprintf( 'Updated WC Subscription #%s, which was already synced from Stripe but not renewed by WC (now it will).', $subscription_id ) );
+						}
+					} else {
+						// Create a new WooCommerce subscription, starting at the current period start.
+						$currency                = $existing_subscription->currency;
+						$amount_normalised       = Stripe_Connection::normalise_amount( $existing_subscription->quantity, $currency );
+						$first_subscription_item = $existing_subscription->items->data[0];
+						$frequency               = $first_subscription_item->price->recurring->interval;
 
-							$wc_order_payload = [
+						$wc_order_payload = array_merge(
+							[
 								'status'                 => 'completed',
 								'subscription_status'    => 'created',
 								'wc_subscription_status' => 'active',
 								'email'                  => $customer->email,
 								'name'                   => $customer->name,
-								'stripe_customer_id'     => $customer->id,
-								'stripe_source_id'       => $source_id,
 								'date'                   => $existing_subscription->current_period_start,
 								'amount'                 => $amount_normalised,
 								'frequency'              => $frequency,
 								'currency'               => strtoupper( $currency ),
 								'client_id'              => $customer->metadata->clientId,
 								'user_id'                => $customer->metadata->userId,
-							];
+							],
+							$stripe_metadata_base
+						);
 
-							if ( $dry_run ) {
-								\WP_CLI::log(
-									sprintf(
-										'    * Would create a WC Subscription with frequency of %s and amount of %s.',
-										$frequency,
-										$amount_normalised
-									)
-								);
-								$subscription_id = true;
-							} else {
-								// Create the WC Subscription.
-								$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
-								$subscription_id              = $wc_transaction_creation_data['subscription_id'];
-								$subscription                 = \wcs_get_subscription( $subscription_id );
-								\WP_CLI::success( sprintf( 'Created subscription: %s with next renewal at %s', $subscription_id, gmdate( 'Y-m-d', $existing_subscription->current_period_end ) ) );
-							}
-						}
-
-						if ( $subscription ) {
-							// Add the cancelled Stripe subscription ID to the meta data, so it can be found later.
-							$subscription->add_meta_data( 'cancelled-' . WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY, $existing_subscription->id );
-							$subscription->add_order_note(
+						if ( $dry_run ) {
+							\WP_CLI::log(
 								sprintf(
-									// translators: %s is the Stripe subscription ID.
-									__( 'This subscription has been migrated from Stripe. It will now be fully manageable in WooCommerce. You can find the cancelled Stripe subscription by ID %s', 'newspack' ),
-									$existing_subscription->id
+									'    * Would create a WC Subscription with frequency of %s and amount of %s.',
+									$frequency,
+									$amount_normalised
 								)
 							);
-							$subscription->save();
+							$subscription_id = true;
+						} else {
+							// Create the WC Subscription.
+							$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
+							$subscription_id              = $wc_transaction_creation_data['subscription_id'];
+							$subscription                 = \wcs_get_subscription( $subscription_id );
+							\WP_CLI::success( sprintf( 'Created subscription: %s with next renewal at %s', $subscription_id, gmdate( 'Y-m-d', $existing_subscription->current_period_end ) ) );
 						}
+					}
+
+					if ( $subscription ) {
+						// Add the cancelled Stripe subscription ID to the meta data, so it can be found later.
+						$subscription->add_meta_data( 'cancelled-' . WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY, $existing_subscription->id );
+						$subscription->add_order_note(
+							sprintf(
+								// translators: %s is the Stripe subscription ID.
+								__( 'This subscription has been migrated from Stripe. It will now be fully manageable in WooCommerce. You can find the cancelled Stripe subscription by ID %s', 'newspack' ),
+								$existing_subscription->id
+							)
+						);
+						$subscription->save();
 					}
 				} else {
 					if ( $dry_run ) {

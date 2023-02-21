@@ -435,7 +435,7 @@ class WooCommerce_Connection {
 	 * @param WC_Order $order Order object. Can be a subscription or an order.
 	 * @param array    $metadata Metadata.
 	 */
-	private static function add_wc_stripe_gateway_metadata( $order, $metadata ) {
+	public static function add_wc_stripe_gateway_metadata( $order, $metadata ) {
 		$order->set_payment_method( 'stripe' );
 
 		if ( isset( $metadata['stripe_id'] ) ) {
