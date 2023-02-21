@@ -158,7 +158,7 @@ final class Popups {
 	 * @param int|false      $popup_id The ID of the popup that triggered the registration, or false if not triggered by a popup.
 	 * @return ?array
 	 */
-	public static function newsletter_submission( $email, $result, $popup_id ) {
+	public static function newsletter_submission( $email, $result, $popup_id = false ) {
 		if ( ! $popup_id ) {
 			return;
 		}
@@ -181,7 +181,7 @@ final class Popups {
 	 * @param int|false      $popup_id The ID of the popup that triggered the registration, or false if not triggered by a popup.
 	 * @return ?array
 	 */
-	public static function newsletter_submission_with_status( $email, $result, $popup_id ) {
+	public static function newsletter_submission_with_status( $email, $result, $popup_id = false ) {
 		if ( ! $popup_id ) {
 			return;
 		}
