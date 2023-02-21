@@ -656,6 +656,11 @@ class WooCommerce_Connection {
 					}
 					self::add_wc_stripe_gateway_metadata( $subscription, $wc_subscription_payload );
 					self::add_universal_order_data( $subscription, $order_data );
+
+					// Mint a new item – subscription is a new WC order.
+					$item = self::get_donation_order_item( $frequency, $order_data['amount'] );
+					$subscription->add_item( $item );
+
 					if ( false === $stripe_subscription_id ) {
 						$subscription->add_order_note( __( 'This subscription was created via Newspack.', 'newspack' ) );
 					} else {
@@ -663,9 +668,6 @@ class WooCommerce_Connection {
 						$subscription->add_order_note( sprintf( __( 'Newspack subscription with frequency: %s. The recurring payment and the subscription will be handled in Stripe, so you\'ll see "Manual renewal" as the payment method in WooCommerce.', 'newspack' ), $frequency ) );
 						$subscription->update_status( 'active' ); // Settings status via method (not in wcs_create_subscription), to make WCS recalculate dates.
 					}
-					// Mint a new item – subscription is a new WC order.
-					$item = self::get_donation_order_item( $frequency, $order_data['amount'] );
-					$subscription->add_item( $item );
 					$subscription->calculate_totals();
 
 					if ( false === $stripe_subscription_id ) {
