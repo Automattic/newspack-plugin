@@ -108,6 +108,32 @@ Data_Events::register_listener(
 	}
 );
 
+/**
+ * For when there's a new donation processed through WooCommerce.
+ */
+Data_Events::register_listener(
+	'newspack_donation_order_processed',
+	'donation_order_processed',
+	function( $order_id, $product_id ) {
+		$order = \wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		return [
+			'user_id'       => $order->get_customer_id(),
+			'email'         => $order->get_billing_email(),
+			'amount'        => (float) $order->get_total(),
+			'currency'      => $order->get_currency(),
+			'recurrence'    => get_post_meta( $product_id, '_subscription_period', true ),
+			'platform'      => 'wc',
+			'platform_data' => [
+				'order_id'   => $order_id,
+				'product_id' => $product_id,
+			],
+		];
+	}
+);
+
 
 /**
  * For when a Subscription is confirmed.
@@ -120,8 +146,6 @@ Data_Events::register_listener(
 			return;
 		}
 		$product_id = Donations::get_order_donation_product_id( $subscription->get_id() );
-		error_log( 'checking subcription is a product donation' );
-		error_log( print_r( $product_id, true ) );
 		if ( ! $product_id ) {
 			return;
 		}
@@ -138,7 +162,7 @@ Data_Events::register_listener(
 );
 
 /**
- * For when there's a new donation through the Stripe platform.
+ * For when there's a new donation confirmed
  */
 Data_Events::register_listener(
 	'woocommerce_order_status_pending_to_completed',
