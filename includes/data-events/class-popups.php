@@ -68,16 +68,17 @@ final class Popups {
 			return $data;
 		}
 
-		$data['title'] = $popup['title'];
+		$data['campaign_id'] = $popup['id'];
+		$data['campaign_title'] = $popup['title'];
 
 		if ( isset( $popup['options'] ) ) {
-			$data['frequency'] = $popup['options']['frequency'] ?? '';
-			$data['placement'] = $popup['options']['placement'] ?? '';
+			$data['campaign_frequency'] = $popup['options']['frequency'] ?? '';
+			$data['campaign_placement'] = $popup['options']['placement'] ?? '';
 		}
 
-		$data['has_registration_block'] = has_block( 'newspack/reader-registration', $popup['content'] );
-		$data['has_donation_block']     = false; // TODO.
-		$data['has_newsletter_block']   = has_block( 'newspack-newsletters/subscribe', $popup['content'] );
+		$data['campaign_has_registration_block'] = has_block( 'newspack/reader-registration', $popup['content'] );
+		$data['campaign_has_donation_block']     = false; // TODO.
+		$data['campaign_has_newsletter_block']   = has_block( 'newspack-newsletters/subscribe', $popup['content'] );
 
 		return $data;
 	}

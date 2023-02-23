@@ -11,6 +11,7 @@ require_once 'class-event.php';
 
 use Newspack\Data_Events;
 use Newspack\Data_Events\Connectors\GA4\Event;
+use Newspack\Data_Events\Popups as Popups_Events;
 use Newspack\Logger;
 use Newspack\Reader_Activation;
 use WP_Error;
@@ -38,10 +39,41 @@ class GA4 {
 	 * @return void
 	 */
 	public static function init() {
-		foreach ( self::$watched_events as $event_name ) {
-			Data_Events::register_handler( [ __CLASS__, 'handle_' . $event_name ], $event_name );
-		}
+		Data_Events::register_handler( [ __CLASS__, 'global_handler' ] );
 		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_event_body' ], 10, 2 );
+	}
+
+	/**
+	 * Handler for the reader_logged_in event.
+	 *
+	 * @param string $event_name The event name.
+	 * @param int    $timestamp Timestamp of the event.
+	 * @param array  $data      Data associated with the event.
+	 * @param int    $user_id   ID of the client that triggered the event. It's a RAS ID.
+	 *
+	 * @throws \Exception If the event is invalid.
+	 * @return void
+	 */
+	public static function global_handler( $event_name, $timestamp, $data, $user_id ) {
+		if ( ! in_array( $event_name, self::$watched_events, true ) ) {
+			return;
+		}
+
+		$params    = $data['ga_params'];
+		$client_id = $data['ga_client_id'];
+
+		if ( empty( $client_id ) ) {
+			throw new \Exception( 'Missing client ID' );
+		}
+
+		if ( method_exists( __CLASS__, 'handle_' . $event_name ) ) {
+			$params = call_user_func( [ __CLASS__, 'handle_' . $event_name ], $params, $data );
+			$event  = new Event( $event_name, $params );
+			self::send_event( $event, $client_id, $timestamp, $user_id );
+		} else {
+			throw new \Exception( 'Event handler method not found' );
+		}
+
 	}
 
 	/**
@@ -80,49 +112,32 @@ class GA4 {
 	/**
 	 * Handler for the reader_logged_in event.
 	 *
-	 * @param int   $timestamp Timestamp of the event.
-	 * @param array $data      Data associated with the event.
-	 * @param int   $user_id   ID of the client that triggered the event. It's a RAS ID.
+	 * @param int   $params The GA4 event parameters.
+	 * @param array $data      Data associated with the Data Events api event.
 	 *
-	 * @throws \Exception If the event is invalid.
-	 * @return void
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
-	public static function handle_reader_logged_in( $timestamp, $data, $user_id ) {
-
-		$params    = $data['ga_params'];
-		$client_id = $data['ga_client_id'];
-
-		if ( empty( $client_id ) ) {
-			throw new \Exception( 'Missing client ID' );
-		}
-
-		$event = new Event( 'reader_login', $params );
-		self::send_event( $event, $client_id, $timestamp, $user_id );
+	public static function handle_reader_logged_in( $params, $data ) {
+		return $params;
 	}
 
 	/**
 	 * Handler for the reader_registered event.
 	 *
-	 * @param int   $timestamp Timestamp of the event.
-	 * @param array $data      Data associated with the event.
-	 * @param int   $user_id   ID of the client that triggered the event. It's a RAS ID.
+	 * @param int   $params The GA4 event parameters.
+	 * @param array $data      Data associated with the Data Events api event.
 	 *
-	 * @throws \Exception If the event is invalid.
-	 * @return void
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
-	public static function handle_reader_registered( $timestamp, $data, $user_id ) {
-
-		$params    = $data['ga_params'];
-		$client_id = $data['ga_client_id'];
-
-		if ( empty( $client_id ) ) {
-			throw new \Exception( 'Missing client ID' );
-		}
-
+	public static function handle_reader_registered( $params, $data ) {
 		$params['registration_method'] = $data['metadata']['registration_method'] ?? '';
-
-		$event = new Event( 'reader_registered', $params );
-		self::send_event( $event, $client_id, $timestamp, $user_id );
+		if ( ! empty( $data['metadata']['newspack_popup_id'] ) ) {
+			$params = array_merge( $params, Popups_Events::get_popup_metadata( $data['metadata']['newspack_popup_id'] ) );
+		}
+		if ( ! empty( $data['metadata']['referer'] ) ) {
+			$params['referer'] = substr( $data['metadata']['referer'], 0, 100 );
+		}
+		return $params;
 	}
 
 	/**
