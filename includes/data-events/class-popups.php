@@ -68,7 +68,7 @@ final class Popups {
 			return $data;
 		}
 
-		$data['campaign_id'] = $popup['id'];
+		$data['campaign_id']    = $popup['id'];
 		$data['campaign_title'] = $popup['title'];
 
 		if ( isset( $popup['options'] ) ) {
