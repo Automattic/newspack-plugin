@@ -402,7 +402,7 @@ class WooCommerce_Connection {
 		}
 
 		if ( ! empty( $order_data['referer'] ) ) {
-			$order->add_meta_data( '_referer', $order_data['referer'] );
+			$order->add_meta_data( '_newspack_referer', $order_data['referer'] );
 		}
 
 		if ( ! empty( $order_data['newspack_popup_id'] ) ) {

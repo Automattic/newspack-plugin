@@ -702,7 +702,7 @@ class Donations {
 			$order->add_meta_data( '_newspack_popup_id', $values['newspack_popup_id'] );
 		}
 		if ( ! empty( $values['referer'] ) ) {
-			$order->add_meta_data( '_referer', $values['referer'] );
+			$order->add_meta_data( '_newspack_referer', $values['referer'] );
 		}
 	}
 
