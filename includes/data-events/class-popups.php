@@ -23,12 +23,6 @@ final class Popups {
 	 */
 	public static function init() {
 		Data_Events::register_listener(
-			'newspack_campaigns_after_campaign_render',
-			'campaign_interaction',
-			[ __CLASS__, 'campaign_rendered' ]
-		);
-
-		Data_Events::register_listener(
 			'newspack_reader_registration_form_processed',
 			'campaign_interaction',
 			[ __CLASS__, 'registration_submission' ]
@@ -80,22 +74,6 @@ final class Popups {
 		$data['has_newsletter_block']   = has_block( 'newspack-newsletters/subscribe', $popup['content'] );
 
 		return $data;
-	}
-
-	/**
-	 * A listener for the moment when a campaign is rendered.
-	 *
-	 * @param array $popup The popup representation.
-	 * @return ?array
-	 */
-	public static function campaign_rendered( $popup ) {
-		$popup_data = self::get_popup_metadata( $popup );
-		return array_merge(
-			$popup_data,
-			[
-				'action' => 'rendered',
-			]
-		);
 	}
 
 	/**
