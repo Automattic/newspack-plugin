@@ -401,6 +401,14 @@ class WooCommerce_Connection {
 			$order->add_meta_data( NEWSPACK_CLIENT_ID_COOKIE_NAME, $order_data['client_id'] );
 		}
 
+		if ( ! empty( $order_data['referer'] ) ) {
+			$order->add_meta_data( '_newspack_referer', $order_data['referer'] );
+		}
+
+		if ( ! empty( $order_data['newspack_popup_id'] ) ) {
+			$order->add_meta_data( '_newspack_popup_id', $order_data['newspack_popup_id'] );
+		}
+
 		if ( ! empty( $order_data['user_id'] ) ) {
 			$order->set_customer_id( $order_data['user_id'] );
 		}
