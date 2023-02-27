@@ -1018,7 +1018,7 @@ class WooCommerce_Connection {
 	 * @param bool $can_switch Whether the subscription amount can be switched.
 	 */
 	public static function force_allow_switching_subscription_amount( $can_switch ) {
-		if ( defined( 'NEWSPACK_PREVENT_FORCE_ALLOW_SWITCHING' ) && NEWSPACK_PREVENT_FORCE_ALLOW_SWITCHING ) {
+		if ( defined( 'NEWSPACK_PREVENT_WC_SUBS_ALLOW_SWITCHING_OVERRIDE' ) && NEWSPACK_PREVENT_WC_SUBS_ALLOW_SWITCHING_OVERRIDE ) {
 			return $can_switch;
 		}
 		return 'yes';
