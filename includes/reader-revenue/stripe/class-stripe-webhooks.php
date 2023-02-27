@@ -236,11 +236,22 @@ class Stripe_Webhooks {
 
 		$payload = $request['data']['object'];
 
-		// If order_id is set in the metadata, this was not created by this integration.
-		// This can happen when WC Subscriptions w/ Stripe Gateway was active before using this integration.
-		// In such a situation, WCS continues to charge subscribers, but since the platform is set to this integration,
-		// the webhook will still be exectuted for these payments, resulting in duplicate WC orders.
+		// If order_id is set in the metadata, this is a charge created by WC.
 		if ( isset( $payload['metadata']['order_id'] ) ) {
+			// Update the associated order and subscription.
+			if ( isset( $payload['metadata']['origin'] ) && 'newspack' === $payload['metadata']['origin'] && Donations::is_woocommerce_suite_active() ) {
+				$balance_transaction = Stripe_Connection::get_balance_transaction( $payload['balance_transaction'] );
+				WooCommerce_Connection::update_order(
+					$payload['metadata']['order_id'],
+					[
+						// On order completed, the connected subscription will be activated if it exists.
+						'status'     => 'completed',
+						'stripe_id'  => $payload['id'],
+						'stripe_fee' => Stripe_Connection::normalise_amount( $balance_transaction['fee'], $payload['currency'] ),
+						'stripe_net' => Stripe_Connection::normalise_amount( $balance_transaction['net'], $payload['currency'] ),
+					]
+				);
+			}
 			return;
 		}
 
@@ -256,19 +267,19 @@ class Stripe_Webhooks {
 				$client_id         = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
 				$origin            = isset( $customer['metadata']['origin'] ) ? $customer['metadata']['origin'] : null;
 
-				$referer = '';
-				if ( isset( $metadata['referer'] ) ) {
-					$referer = $metadata['referer'];
-				}
-
-				$frequency = Stripe_Connection::get_frequency_of_payment( $payment );
-
+				$referer           = $metadata['referer'] ?? '';
+				$newspack_popup_id = $metadata['newspack_popup_id'] ?? '';
 				if ( $payment['invoice'] ) {
 					$invoice = Stripe_Connection::get_invoice( $payment['invoice'] );
-					if ( ! \is_wp_error( $invoice ) && isset( $invoice['metadata']['referer'] ) ) {
-						$referer = $invoice['metadata']['referer'];
+					if ( ! \is_wp_error( $invoice ) ) {
+						$referer           = $invoice['metadata']['referer'] ?? $referer;
+						$newspack_popup_id = $invoice['metadata']['newspack_popup_id'] ?? $newspack_popup_id;
 					}
 				}
+				$payment['referer']           = $referer;
+				$payment['newspack_popup_id'] = $newspack_popup_id;
+
+				$frequency = Stripe_Connection::get_frequency_of_payment( $payment );
 
 				// Update data in Newsletters provider.
 				$was_customer_added_to_mailing_list = false;

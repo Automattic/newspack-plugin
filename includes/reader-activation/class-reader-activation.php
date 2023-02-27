@@ -180,7 +180,6 @@ final class Reader_Activation {
 			'sender_name'                 => Emails::get_from_name(),
 			'sender_email_address'        => Emails::get_from_email(),
 			'contact_email_address'       => Emails::get_reply_to_email(),
-			'plugins_configured'          => self::is_woocommerce_active(),
 		];
 
 		/**
@@ -265,7 +264,13 @@ final class Reader_Activation {
 	 * @return boolean True if all required plugins are active, otherwise false.
 	 */
 	public static function is_woocommerce_active() {
-		return class_exists( 'WooCommerce' ) && class_exists( 'WC_Subscriptions' );
+		$is_active = Donations::is_woocommerce_suite_active();
+
+		if ( \is_wp_error( $is_active ) ) {
+			return false;
+		}
+
+		return $is_active;
 	}
 
 	/**

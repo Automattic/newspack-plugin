@@ -102,17 +102,14 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 	public static function test_stripe_handle_donation() {
 		self::configure_stripe_as_platform();
 		$donation_config = [
-			'amount'            => 100,
-			'frequency'         => 'once',
-			'email_address'     => 'foo@bar.baz',
-			'full_name'         => 'Boo Bar',
-			'token_data'        => [
-				'id'   => 'tok_123',
-				'card' => [ 'id' => 'card_number_one' ],
-			],
-			'client_metadata'   => [],
-			'payment_metadata'  => [],
-			'payment_method_id' => 'pm_123',
+			'amount'              => 100,
+			'frequency'           => 'once',
+			'email_address'       => 'foo@bar.baz',
+			'full_name'           => 'Boo Bar',
+			'tokenization_method' => null,
+			'source_id'           => 'src_123',
+			'client_metadata'     => [],
+			'payment_metadata'    => [],
 		];
 		$response        = Stripe_Connection::handle_donation( $donation_config );
 		self::assertEquals(
@@ -159,6 +156,8 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			'invoice'             => 'in_123',
 			'created'             => 1234567890,
 			'balance_transaction' => 'txn_123',
+			'referer'             => 'sample_referer',
+			'newspack_popup_id'   => 123,
 		];
 		self::assertEquals(
 			Stripe_Connection::create_wc_transaction_payload( $customer, $payment ),
@@ -178,6 +177,8 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 				'client_id'                     => 'abc123',
 				'user_id'                       => 42,
 				'subscribed'                    => null,
+				'referer'                       => 'sample_referer',
+				'newspack_popup_id'             => 123,
 			]
 		);
 	}
