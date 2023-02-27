@@ -1,71 +1,71 @@
 {
-  "name": "newspack",
-  "version": "1.104.1",
-  "description": "The Newspack plugin. https://newspack.com",
-  "bugs": {
-    "url": "https://github.com/Automattic/newspack-plugin/issues"
-  },
-  "homepage": "https://newspack.com",
-  "engines": {
-    "node": "16",
-    "npm": "8"
-  },
-  "devDependencies": {
-    "@rushstack/eslint-patch": "^1.2.0",
-    "@testing-library/react": "^12.1.4",
-    "@wordpress/browserslist-config": "^5.9.0",
-    "eslint": "^7.32.0",
-    "lint-staged": "^13.1.1",
-    "newspack-scripts": "^4.3.8",
-    "postcss-scss": "^4.0.6",
-    "prettier": "npm:wp-prettier@^2.6.2-beta-1",
-    "stylelint": "^14.9.1"
-  },
-  "browserslist": [
-    "extends @wordpress/browserslist-config"
-  ],
-  "lint-staged": {
-    "*.scss": "npm run lint:scss:staged",
-    "*.(js|jsx)": "npm run lint:js:staged",
-    "*.php": "npm run lint:php:staged"
-  },
-  "scripts": {
-    "cm": "newspack-scripts commit",
-    "semantic-release": "newspack-scripts release --files=newspack.php",
-    "build": "newspack-scripts build",
-    "start": "npm ci && newspack-scripts watch",
-    "watch": "newspack-scripts watch",
-    "test": "newspack-scripts test",
-    "lint": "npm run lint:scss && npm run lint:js",
-    "lint:js": "eslint --ext .js,.jsx assets",
-    "lint:js:staged": "eslint --ext .js,.jsx",
-    "lint:php:staged": "./vendor/bin/phpcs --filter=gitstaged",
-    "format:js": "prettier 'assets/**/*.{js,jsx}' --write",
-    "lint:scss": "stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
-    "format:scss": "prettier --write '**/*.scss'",
-    "lint:scss:staged": "stylelint --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
-    "release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
-    "release": "npm run build && npm run semantic-release",
-    "postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
-  },
-  "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.19.6",
-    "@babel/preset-env": "^7.20.2",
-    "classnames": "^2.3.2",
-    "colord": "^2.9.3",
-    "date-fns": "^2.29.3",
-    "deep-map-keys": "^2.0.1",
-    "human-number": "^2.0.1",
-    "js-cookie": "^3.0.1",
-    "lodash": "^4.17.21",
-    "moment": "^2.29.4",
-    "moment-range": "^3.1.1",
-    "qs": "^6.11.0",
-    "react": "^17.0.2",
-    "react-daterange-picker": "^2.0.1",
-    "react-google-charts": "^4.0.0",
-    "react-router-dom": "^5.3.4",
-    "recursive-copy": "^2.0.14",
-    "tachyons": "^4.12.0"
-  }
+	"name": "newspack",
+	"version": "1.104.1",
+	"description": "The Newspack plugin. https://newspack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/newspack-plugin/issues"
+	},
+	"homepage": "https://newspack.com",
+	"engines": {
+		"node": "16",
+		"npm": "8"
+	},
+	"devDependencies": {
+		"@rushstack/eslint-patch": "^1.2.0",
+		"@testing-library/react": "^12.1.4",
+		"@wordpress/browserslist-config": "^5.9.0",
+		"eslint": "^7.32.0",
+		"lint-staged": "^13.1.1",
+		"newspack-scripts": "^4.3.8",
+		"postcss-scss": "^4.0.6",
+		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
+		"stylelint": "^14.9.1"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"lint-staged": {
+		"*.scss": "npm run lint:scss:staged",
+		"*.(js|jsx)": "npm run lint:js:staged",
+		"*.php": "npm run lint:php:staged"
+	},
+	"scripts": {
+		"cm": "newspack-scripts commit",
+		"semantic-release": "newspack-scripts release --files=newspack.php",
+		"build": "newspack-scripts build",
+		"start": "npm ci && newspack-scripts watch",
+		"watch": "newspack-scripts watch",
+		"test": "newspack-scripts test",
+		"lint": "npm run lint:scss && npm run lint:js",
+		"lint:js": "eslint --ext .js,.jsx assets",
+		"lint:js:staged": "eslint --ext .js,.jsx",
+		"lint:php:staged": "./vendor/bin/phpcs --filter=gitstaged",
+		"format:js": "prettier 'assets/**/*.{js,jsx}' --write",
+		"lint:scss": "stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
+		"format:scss": "prettier --write '**/*.scss'",
+		"lint:scss:staged": "stylelint --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
+		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
+		"release": "npm run build && npm run semantic-release",
+		"postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
+	},
+	"dependencies": {
+		"@babel/plugin-transform-runtime": "^7.19.6",
+		"@babel/preset-env": "^7.20.2",
+		"classnames": "^2.3.2",
+		"colord": "^2.9.3",
+		"date-fns": "^2.29.3",
+		"deep-map-keys": "^2.0.1",
+		"human-number": "^2.0.1",
+		"js-cookie": "^3.0.1",
+		"lodash": "^4.17.21",
+		"moment": "^2.29.4",
+		"moment-range": "^3.1.1",
+		"qs": "^6.11.0",
+		"react": "^17.0.2",
+		"react-daterange-picker": "^2.0.1",
+		"react-google-charts": "^4.0.0",
+		"react-router-dom": "^5.3.4",
+		"recursive-copy": "^2.0.14",
+		"tachyons": "^4.12.0"
+	}
 }
