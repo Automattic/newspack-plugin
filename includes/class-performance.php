@@ -72,6 +72,11 @@ class Performance {
 	 * @param array $attributes Block attributes.
 	 */
 	public static function optimise_homepage_posts_block( $attributes ) {
+		// Bail on AMP pages. These attributes may cause issues on AMP.
+		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
+			return $attributes;
+		}
+
 		if ( self::$is_rendering_page_content ) {
 			if ( 0 === self::$current_homepage_posts_block ) {
 				$attributes['disableImageLazyLoad'] = true;
