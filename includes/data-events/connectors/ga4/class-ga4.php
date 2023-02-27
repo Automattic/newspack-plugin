@@ -44,7 +44,7 @@ class GA4 {
 	}
 
 	/**
-	 * Handler for the reader_logged_in event.
+	 * Global handler for the Data Events API.
 	 *
 	 * @param string $event_name The event name.
 	 * @param int    $timestamp Timestamp of the event.
