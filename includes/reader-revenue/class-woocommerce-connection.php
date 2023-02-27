@@ -1013,7 +1013,7 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Force allow switching the subscription amount.
+	 * Force allow switching the subscription amount unless the NEWSPACK_PREVENT_WC_SUBS_ALLOW_SWITCHING_OVERRIDE constant is set
 	 *
 	 * @param bool $can_switch Whether the subscription amount can be switched.
 	 */
