@@ -40,6 +40,7 @@ class WooCommerce_Connection {
 	 */
 	public static function init() {
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
+		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_switching_subscription_amount' ] );
 
 		// WooCommerce Subscriptions.
 		\add_action( 'add_meta_boxes', [ __CLASS__, 'remove_subscriptions_schedule_meta_box' ], 45 );
@@ -1009,6 +1010,18 @@ class WooCommerce_Connection {
 			}
 		}
 		return $post_data;
+	}
+
+	/**
+	 * Force allow switching the subscription amount.
+	 *
+	 * @param bool $can_switch Whether the subscription amount can be switched.
+	 */
+	public static function force_allow_switching_subscription_amount( $can_switch ) {
+		if ( defined( 'NEWSPACK_PREVENT_FORCE_ALLOW_SWITCHING' ) && NEWSPACK_PREVENT_FORCE_ALLOW_SWITCHING ) {
+			return $can_switch;
+		}
+		return 'yes';
 	}
 }
 
