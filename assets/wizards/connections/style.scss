@@ -14,8 +14,18 @@
 			font-size: 0.8em;
 		}
 
-		.newspack-action-card__title {
+		&__label {
+			margin-right: 8px;
+		}
+		&__url {
 			font-family: Consolas, monaco, monospace;
+			font-size: 0.8em;
+			color: wp-colors.$gray-900;
+		}
+
+		.newspack-action-card__title {
+			display: flex;
+			align-items: center;
 		}
 	}
 	&__test-response {

@@ -1,3 +1,10 @@
+# [1.105.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.105.0-alpha.1...v1.105.0-alpha.2) (2023-02-27)
+
+
+### Bug Fixes
+
+* skip HPB optimisations on AMP ([b4f5fad](https://github.com/Automattic/newspack-plugin/commit/b4f5fad1793f7a464208506b278333aaac8a9baf))
+
 ## [1.104.1](https://github.com/Automattic/newspack-plugin/compare/v1.104.0...v1.104.1) (2023-02-27)
 
 
