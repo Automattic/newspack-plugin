@@ -110,7 +110,7 @@ const SettingsSection = props => {
 					'buttons',
 					<Button
 						variant="primary"
-						disabled={ sectionSettingsButtonDisabled }
+						disabled={ disabled || sectionSettingsButtonDisabled }
 						onClick={ () => {
 							onUpdate();
 						} }
