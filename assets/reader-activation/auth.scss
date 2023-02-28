@@ -149,7 +149,7 @@
 			&.small {
 				margin: 0;
 				font-size: 0.8125em;
-				line-height: 1.2307692308;
+				line-height: 1.2307;
 				a {
 					color: inherit;
 				}
@@ -201,7 +201,6 @@
 			max-width: 544px;
 			background: white;
 			max-height: 100vh;
-
 			transition: height 125ms ease-in-out;
 
 			.newspack-reader__auth-form__inline & {
@@ -250,12 +249,12 @@
 
 			h2 {
 				font-size: 1rem;
-				line-height: 1.3333333333;
+				line-height: 1.3333;
 				margin: 0;
 
 				@media screen and ( min-width: 600px ) {
 					font-size: 1.3125em;
-					line-height: 1.523809;
+					line-height: 1.5238;
 				}
 			}
 		}
@@ -264,7 +263,7 @@
 			a {
 				color: wp-colors.$gray-700;
 				font-size: 0.8125em;
-				line-height: 1.2307692308;
+				line-height: 1.2307;
 
 				&:active,
 				&:focus,
@@ -332,7 +331,7 @@
 
 		&__response {
 			font-size: 0.8125em;
-			line-height: 1.2307692308;
+			line-height: 1.2307;
 			&__content {
 				p {
 					margin: 0;
@@ -388,7 +387,7 @@
 		&__terms-text {
 			color: wp-colors.$gray-700;
 			font-size: 0.8125em;
-			line-height: 1.2307692308 !important;
+			line-height: 1.2307 !important;
 			a {
 				color: inherit;
 			}

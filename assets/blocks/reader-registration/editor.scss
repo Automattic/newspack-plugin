@@ -15,7 +15,7 @@
 			font-size: inherit;
 			outline: none;
 			padding: 0.36rem 0.66rem;
-			-webkit-appearance: none;
+			appearance: none;
 			outline-offset: 0;
 			border-radius: 0;
 		}
@@ -77,11 +77,11 @@
 
 		h2 {
 			font-size: 1rem;
-			line-height: 1.3333333333;
+			line-height: 1.3333;
 
 			@media screen and ( min-width: 600px ) {
 				font-size: 1.3125em;
-				line-height: 1.523809;
+				line-height: 1.5238;
 			}
 		}
 
