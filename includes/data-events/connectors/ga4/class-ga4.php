@@ -68,8 +68,35 @@ class GA4 {
 
 		if ( method_exists( __CLASS__, 'handle_' . $event_name ) ) {
 			$params = call_user_func( [ __CLASS__, 'handle_' . $event_name ], $params, $data );
-			$event  = new Event( $event_name, $params );
+
+			if ( ! Event::validate_name( $event_name ) ) {
+				throw new \Exception( 'Invalid event name' );
+			}
+
+			foreach ( $params as $param_name => $param_value ) {
+				if ( ! Event::validate_name( $param_name ) ) {
+					unset( $params[ $param_name ] );
+					self::log( sprintf( 'Parameter %s has an invalid name. It was removed from the %s event.', $param_name, $event_name ) );
+				}
+
+				if ( ! Event::validate_param_value( $param_value ) ) {
+					unset( $params[ $param_name ] );
+					self::log( sprintf( 'Parameter %s has an invalid value. It was removed from the %s event.', $param_name, $event_name ) );
+				}
+			}
+
+			if ( count( $params ) > Event::MAX_PARAMS ) {
+				$discarded_params = array_slice( $params, Event::MAX_PARAMS );
+				$params           = array_slice( $params, 0, Event::MAX_PARAMS );
+				self::log( sprintf( 'Event %s has too many parameters. Only the first 25 were kept.', $event_name, Event::MAX_PARAMS ) );
+				foreach ( array_keys( $discarded_params ) as $d_param_name ) {
+					self::log( sprintf( 'Discarded parameter: %s', $d_param_name ) );
+				}
+			}
+
+			$event = new Event( $event_name, $params );
 			self::send_event( $event, $client_id, $timestamp, $user_id );
+
 		} else {
 			throw new \Exception( 'Event handler method not found' );
 		}
