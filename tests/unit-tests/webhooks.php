@@ -65,15 +65,15 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			'https://example.com/webhook',
 			[],
 			true
-		);
+		)['id'];
 		$this->action_endpoint         = Data_Events\Webhooks::create_endpoint(
 			'https://example.com/webhook/test_action',
 			[ 'test_action' ]
-		);
+		)['id'];
 		$this->missing_action_endpoint = Data_Events\Webhooks::create_endpoint(
 			'https://example.com/webhook/missing_action',
 			[ 'missing_action' ]
-		);
+		)['id'];
 		$this->endpoints               = [
 			$this->global_endpoint,
 			$this->action_endpoint,
@@ -104,6 +104,20 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 				$this->assertEquals( [], $endpoint['actions'] );
 				$this->assertEquals( true, $endpoint['global'] );
 				$this->assertEquals( false, $endpoint['disabled'] );
+			}
+		}
+	}
+
+	/**
+	 * Test updating an endpoint label.
+	 */
+	public function test_update_endpoint_label() {
+		$id = $this->global_endpoint;
+		Data_Events\Webhooks::update_endpoint_label( $id, 'Test Label' );
+		$endpoints = Data_Events\Webhooks::get_endpoints();
+		foreach ( $endpoints as $endpoint ) {
+			if ( $endpoint['id'] === $id ) {
+				$this->assertEquals( 'Test Label', $endpoint['label'] );
 			}
 		}
 	}

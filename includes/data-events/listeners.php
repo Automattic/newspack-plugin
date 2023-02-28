@@ -55,6 +55,7 @@ Data_Events::register_listener(
 	function( $user ) {
 		return [
 			'user_id' => $user->ID,
+			'email'   => $user->user_email,
 		];
 	}
 );
@@ -72,7 +73,10 @@ Data_Events::register_listener(
 		if ( true !== $result ) {
 			return;
 		}
+		$user = get_user_by( 'email', $contact['email'] );
 		return [
+			'user_id'  => $user ? $user->ID : null,
+			'email'    => $contact['email'],
 			'provider' => $provider,
 			'contact'  => $contact,
 			'lists'    => $lists,
@@ -93,9 +97,11 @@ Data_Events::register_listener(
 		if ( true !== $result ) {
 			return;
 		}
+		$user = get_user_by( 'email', $email );
 		return [
-			'provider'      => $provider,
+			'user_id'       => $user ? $user->ID : null,
 			'email'         => $email,
+			'provider'      => $provider,
 			'lists_added'   => $lists_added,
 			'lists_removed' => $lists_removed,
 		];
@@ -103,11 +109,11 @@ Data_Events::register_listener(
 );
 
 /**
- * For when there's a new donation through WooCommerce.
+ * For when there's a new donation processed through WooCommerce.
  */
 Data_Events::register_listener(
 	'newspack_donation_order_processed',
-	'donation_new',
+	'donation_order_processed',
 	function( $order_id, $product_id ) {
 		$order = \wc_get_order( $order_id );
 		if ( ! $order ) {
@@ -128,14 +134,40 @@ Data_Events::register_listener(
 	}
 );
 
+
 /**
- * For when there's a new donation through the Stripe platform.
+ * For when a Subscription is confirmed.
  */
 Data_Events::register_listener(
-	'newspack_new_donation_woocommerce',
+	'woocommerce_subscription_status_updated',
+	'donation_subscription_new',
+	function( $subscription, $status_to, $status_from ) {
+		if ( 'active' !== $status_to || 'pending' !== $status_from ) {
+			return;
+		}
+		$product_id = Donations::get_order_donation_product_id( $subscription->get_id() );
+		if ( ! $product_id ) {
+			return;
+		}
+		return [
+			'user_id'         => $subscription->get_customer_id(),
+			'email'           => $subscription->get_billing_email(),
+			'subscription_id' => $subscription->get_id(),
+			'amount'          => (float) $subscription->get_total(),
+			'currency'        => $subscription->get_currency(),
+			'recurrence'      => get_post_meta( $product_id, '_subscription_period', true ),
+			'platform'        => Donations::get_platform_slug(),
+		];
+	}
+);
+
+/**
+ * For when there's a new donation confirmed
+ */
+Data_Events::register_listener(
+	'woocommerce_order_status_pending_to_completed',
 	'donation_new',
-	function( $order, $client_id ) {
-		$order_id   = $order->get_id();
+	function( $order_id, $order ) {
 		$product_id = Donations::get_order_donation_product_id( $order_id );
 		if ( ! $product_id ) {
 			return;
@@ -146,29 +178,13 @@ Data_Events::register_listener(
 			'amount'        => (float) $order->get_total(),
 			'currency'      => $order->get_currency(),
 			'recurrence'    => \get_post_meta( $product_id, '_subscription_period', true ),
-			'platform'      => 'stripe',
+			'platform'      => Donations::get_platform_slug(),
 			'platform_data' => [
 				'order_id'   => $order_id,
 				'product_id' => $product_id,
-				'client_id'  => $client_id,
+				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
 			],
 		];
-	}
-);
-
-/**
- * For when there's a new donation subscription.
- *
- * This will be fetched from a new donation, so we're hooking into the 'donation_new' dispatch.
- */
-Data_Events::register_listener(
-	'newspack_data_event_dispatch_donation_new',
-	'donation_subscription_new',
-	function( $timestamp, $data ) {
-		if ( ! in_array( $data['recurrence'], [ 'month', 'year' ] ) ) {
-			return;
-		}
-		return $data;
 	}
 );
 
@@ -187,9 +203,9 @@ Data_Events::register_listener(
 			return;
 		}
 		return [
-			'subscription_id' => $subscription->get_id(),
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
+			'subscription_id' => $subscription->get_id(),
 			'amount'          => (float) $subscription->get_total(),
 			'currency'        => $subscription->get_currency(),
 			'recurrence'      => get_post_meta( $product_id, '_subscription_period', true ),
@@ -210,9 +226,9 @@ Data_Events::register_listener(
 			return;
 		}
 		return [
-			'subscription_id' => $subscription->get_id(),
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
+			'subscription_id' => $subscription->get_id(),
 			'status_before'   => $status_from,
 			'status_after'    => $status_to,
 			'amount'          => (float) $subscription->get_total(),

@@ -71,6 +71,7 @@ class Donations {
 			add_filter( 'pre_option_woocommerce_enable_guest_checkout', [ __CLASS__, 'disable_guest_checkout' ] );
 			add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'handle_cart' ] );
 			add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
+			add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
 		}
 	}
 
@@ -413,6 +414,24 @@ class Donations {
 	}
 
 	/**
+	 * Map donation frequency code to a human readable string.
+	 *
+	 * @param string $frequency Frequency code.
+	 */
+	public static function get_donation_name_by_frequency( $frequency ) {
+		switch ( $frequency ) {
+			case 'once':
+				return __( 'One-Time Donation', 'newspack' );
+			case 'month':
+				return __( 'Monthly Donation', 'newspack' );
+			case 'year':
+				return __( 'Yearly Donation', 'newspack' );
+			default:
+				return __( 'Donation', 'newspack' );
+		}
+	}
+
+	/**
 	 * Create missing donations products.
 	 *
 	 * @param array $args Info that will be used to create the products.
@@ -635,7 +654,9 @@ class Donations {
 				0,
 				[],
 				[
-					'nyp' => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
+					'nyp'               => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
+					'referer'           => $referer,
+					'newspack_popup_id' => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
 				]
 			);
 		}
@@ -665,6 +686,24 @@ class Donations {
 		// Redirect to checkout.
 		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency ) );
 		exit;
+	}
+
+	/**
+	 * Add cart metadata to the order line item.
+	 *
+	 * @param \WC_Order_Item_Product $item The cart item.
+	 * @param string                 $cart_item_key The cart item key.
+	 * @param array                  $values The cart item values.
+	 * @param \WC_Order              $order The order.
+	 * @return void
+	 */
+	public static function checkout_create_order_line_item( $item, $cart_item_key, $values, $order ) {
+		if ( ! empty( $values['newspack_popup_id'] ) ) {
+			$order->add_meta_data( '_newspack_popup_id', $values['newspack_popup_id'] );
+		}
+		if ( ! empty( $values['referer'] ) ) {
+			$order->add_meta_data( '_newspack_referer', $values['referer'] );
+		}
 	}
 
 	/**

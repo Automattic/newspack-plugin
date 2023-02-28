@@ -158,9 +158,9 @@ class Stripe_Sync {
 			} else {
 				// This is a charge without an order. Create a new order.
 				if ( ! $is_dry_run ) {
-					$order_id = WooCommerce_Connection::create_transaction( $transation_payload );
+					$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
 					// translators: Order ID.
-					\WP_CLI::success( sprintf( __( 'Created WC order: %d.', 'newspack' ), $order_id ) );
+					\WP_CLI::success( sprintf( __( 'Created WC order: %d.', 'newspack' ), $wc_transaction_creation_data['order_id'] ) );
 				}
 				self::$results['wc_orders_created'] ++;
 			}
