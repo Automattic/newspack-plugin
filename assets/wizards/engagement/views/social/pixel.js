@@ -21,6 +21,7 @@ export default function Pixel( {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const [ settings, setSettings ] = useState( null );
+	const [ sectionSettingsButtonDisabled, setSectionSettingsButtonDisabled ] = useState( true );
 
 	useEffect( async () => {
 		setInFlight( true );
@@ -31,6 +32,7 @@ export default function Pixel( {
 			setSettings( null );
 		}
 		setInFlight( false );
+		setSectionSettingsButtonDisabled( true );
 	}, [] );
 
 	const handleChange = ( key, value ) => {
@@ -38,6 +40,7 @@ export default function Pixel( {
 			...settings,
 			[ key ]: value,
 		} );
+		setSectionSettingsButtonDisabled( false );
 	};
 
 	const handleUpdate = async data => {
@@ -57,6 +60,7 @@ export default function Pixel( {
 			setError( err );
 		}
 		setInFlight( false );
+		setSectionSettingsButtonDisabled( true );
 	};
 
 	if ( ! settings ) {
@@ -84,6 +88,7 @@ export default function Pixel( {
 			fields={ fields }
 			onUpdate={ handleUpdate }
 			onChange={ handleChange }
+			sectionSettingsButtonDisabled={ sectionSettingsButtonDisabled }
 		/>
 	);
 }
