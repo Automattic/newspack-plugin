@@ -40,7 +40,7 @@ class PluginSettings extends Component {
 				if ( 'function' === typeof afterFetch ) {
 					afterFetch( settings );
 				}
-				let sectionButtonState = {};
+				const sectionButtonState = {};
 				for ( const sectionkeys in settings ) {
 					Object.assign( sectionButtonState, {
 						[ `${ sectionkeys }` ]: true,
@@ -105,17 +105,6 @@ class PluginSettings extends Component {
 			},
 		} )
 			.then( settings => {
-				/**
-				 * At this point we have 2 options -
-				 * 1. If we are using settings button individually then no need to update
-				 *    state settings after saving for any one section. This is override
-				 *    the non-saved settings.
-				 * 2. We can assume user changes settings and directly hit save settings
-				 *    button, then we can add below line it won't be affecting anything.
-				 */
-				// Need to check below line based on above comment.
-				this.setState( { settings, error: null } );
-
 				if ( 'function' === typeof afterUpdate ) {
 					afterUpdate( settings );
 				}
