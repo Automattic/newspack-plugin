@@ -158,7 +158,7 @@ class Stripe_Webhooks {
 	 * @return bool|WP_Error
 	 */
 	public static function api_permissions_check( $request ) {
-		if ( ! current_user_can( 'manage_options' ) || ! Donations::is_platform_stripe() ) {
+		if ( ! current_user_can( 'manage_options' ) || ! Donations::is_using_streamlined_donate_block() ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),

@@ -441,7 +441,8 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 		}
 
-		$args = [
+		$is_using_sdb = Donations::is_using_streamlined_donate_block();
+		$args         = [
 			'country_state_fields'     => newspack_get_countries(),
 			'currency_fields'          => newspack_get_currencies_options(),
 			'location_data'            => [],
@@ -451,7 +452,8 @@ class Reader_Revenue_Wizard extends Wizard {
 			'available_billing_fields' => $billing_fields,
 			'salesforce_settings'      => [],
 			'platform_data'            => [
-				'platform' => $platform,
+				'platform'                          => $platform,
+				'is_using_streamlined_donate_block' => $is_using_sdb,
 			],
 			'is_ssl'                   => is_ssl(),
 			'errors'                   => [],
@@ -483,7 +485,8 @@ class Reader_Revenue_Wizard extends Wizard {
 		} elseif ( Donations::is_platform_nrh() ) {
 			$nrh_config            = get_option( NEWSPACK_NRH_CONFIG, [] );
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
-		} elseif ( Donations::is_platform_stripe() ) {
+		}
+		if ( $is_using_sdb ) {
 			$are_webhooks_valid = Stripe_Webhooks::validate_or_create_webhooks();
 			if ( is_wp_error( $are_webhooks_valid ) ) {
 				$args['errors'][] = [
@@ -568,6 +571,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return bool
 	 */
 	public function api_validate_platform( $value ) {
-		return in_array( $value, [ 'nrh', 'wc', 'stripe', 'other' ] );
+		return in_array( $value, [ 'nrh', 'wc', 'other' ] );
 	}
 }

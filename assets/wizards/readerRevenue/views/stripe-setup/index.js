@@ -24,7 +24,7 @@ import {
 	ActionCard,
 } from '../../../../components/src';
 import NewsletterSettings from './newsletter-settings';
-import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
+import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 import './style.scss';
 
 const { SettingsCard } = Settings;
@@ -114,7 +114,7 @@ const StripeSetup = () => {
 		errors = [],
 	} = Wizard.useWizardData( 'reader-revenue' );
 
-	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
+	const displayStripeSettings = platform_data.is_using_streamlined_donate_block;
 
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = key => value =>
@@ -151,7 +151,7 @@ const StripeSetup = () => {
 					}
 				/>
 			) }
-			{ displayStripeSettingsOnly ? (
+			{ displayStripeSettings ? (
 				<>
 					{ ! isEmpty( data.connection_error ) && (
 						<Notice isError noticeText={ data.connection_error } />
@@ -252,7 +252,7 @@ const StripeSetup = () => {
 					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</div>
-			{ displayStripeSettingsOnly && (
+			{ displayStripeSettings && (
 				<ActionCard
 					title={ __( 'Webhooks', 'newspack' ) }
 					titleLink="#/stripe-webhooks"

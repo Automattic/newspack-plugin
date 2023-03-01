@@ -16,7 +16,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Wizard, Notice } from '../../components/src';
 import * as Views from './views';
-import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, STRIPE, OTHER } from './constants';
+import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, OTHER } from './constants';
 
 const ReaderRevenueWizard = () => {
 	const { platform_data, plugin_status, donation_data } = Wizard.useWizardData( 'reader-revenue' );
@@ -26,6 +26,8 @@ const ReaderRevenueWizard = () => {
 		path: '/',
 		render: Views.Platform,
 	};
+	const displayStripeSettings = platform_data?.is_using_streamlined_donate_block;
+
 	let sections = [
 		{
 			label: __( 'Donations', 'newspack' ),
@@ -34,27 +36,24 @@ const ReaderRevenueWizard = () => {
 			isHidden: usedPlatform === OTHER,
 		},
 		{
-			label:
-				usedPlatform === NEWSPACK
-					? __( 'Stripe Gateway', 'newspack' )
-					: __( 'Stripe Settings', 'newspack' ),
+			label: __( 'Stripe Settings', 'newspack' ),
 			path: '/stripe-setup',
 			activeTabPaths: [ '/stripe-setup', '/stripe-webhooks' ],
 			render: Views.StripeSetup,
-			isHidden: usedPlatform !== NEWSPACK && usedPlatform !== STRIPE,
+			isHidden: usedPlatform !== NEWSPACK && ! displayStripeSettings,
 		},
 		{
 			label: __( 'Stripe Webhooks', 'newspack' ),
 			path: '/stripe-webhooks',
 			render: Views.StripeWebhooksSettings,
-			isHidden: usedPlatform !== STRIPE,
+			isHidden: ! displayStripeSettings,
 			isHiddenInTabbedNavigation: true,
 		},
 		{
 			label: __( 'Emails', 'newspack' ),
 			path: '/emails',
 			render: Views.Emails,
-			isHidden: usedPlatform !== STRIPE,
+			isHidden: ! displayStripeSettings,
 		},
 		{
 			label: __( 'Address', 'newspack' ),

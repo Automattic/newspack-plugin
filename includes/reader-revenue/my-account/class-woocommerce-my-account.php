@@ -429,7 +429,7 @@ class WooCommerce_My_Account {
 	 * @param array $required_fields Required fields.
 	 */
 	public static function remove_required_fields( $required_fields ) {
-		if ( ! Donations::is_platform_stripe() ) {
+		if ( ! Donations::is_using_streamlined_donate_block() ) {
 			return $required_fields;
 		}
 		return [];
@@ -478,7 +478,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function edit_account_prevent_email_update() {
 		if (
-			! Donations::is_platform_stripe()
+			! Donations::is_using_streamlined_donate_block()
 			|| empty( $_POST['account_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			|| ! \is_user_logged_in()
 			|| ! Reader_Activation::is_enabled()

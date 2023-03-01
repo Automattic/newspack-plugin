@@ -152,11 +152,11 @@ class Donations {
 			case 'wc':
 				if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
 					return \get_woocommerce_currency_symbol();
+				} elseif ( self::is_using_streamlined_donate_block() ) {
+					$currency = Stripe_Connection::get_stripe_data()['currency'];
+					return newspack_get_currency_symbol( $currency );
 				}
 				break;
-			case 'stripe':
-				$currency = Stripe_Connection::get_stripe_data()['currency'];
-				return newspack_get_currency_symbol( $currency );
 			default:
 				return '$';
 		}
@@ -542,7 +542,14 @@ class Donations {
 	 * Get donation platform slug.
 	 */
 	public static function get_platform_slug() {
-		return get_option( self::NEWSPACK_READER_REVENUE_PLATFORM, 'wc' );
+		$default_platform = 'wc';
+		$saved_slug       = get_option( self::NEWSPACK_READER_REVENUE_PLATFORM, $default_platform );
+		if ( 'stripe' === $saved_slug ) {
+			// Stripe as a Reader Revenue platform is deprecated.
+			$saved_slug = $default_platform;
+			self::set_platform_slug( $saved_slug );
+		}
+		return $saved_slug;
 	}
 
 	/**
@@ -567,13 +574,6 @@ class Donations {
 	 */
 	public static function is_platform_wc() {
 		return 'wc' === self::get_platform_slug();
-	}
-
-	/**
-	 * Is Stripe the donation platform?
-	 */
-	public static function is_platform_stripe() {
-		return 'stripe' === self::get_platform_slug();
 	}
 
 	/**

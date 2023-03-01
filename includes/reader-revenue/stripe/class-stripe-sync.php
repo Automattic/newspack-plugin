@@ -322,8 +322,8 @@ Running data backfill from Stripe...
 				\WP_CLI::error( __( 'WooCommerce plugin has to be active.', 'newspack' ) );
 				return;
 			}
-			if ( ! Donations::is_platform_stripe() ) {
-				\WP_CLI::error( __( 'Reader Revenue platform has to be set to Stripe.', 'newspack' ) );
+			if ( ! Donations::is_using_streamlined_donate_block() ) {
+				\WP_CLI::error( __( 'Stripe has to be configured.', 'newspack' ) );
 				return;
 			}
 		}
