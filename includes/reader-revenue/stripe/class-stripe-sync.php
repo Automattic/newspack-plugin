@@ -594,7 +594,7 @@ Running Stripe to WC Subscriptions Migration...
 						}
 					}
 
-					if ( $subscription ) {
+					if ( $subscription && ! $dry_run ) {
 						// Add the cancelled Stripe subscription ID to the meta data, so it can be found later.
 						$subscription->add_meta_data( 'cancelled-' . WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY, $existing_subscription->id );
 						$subscription->add_order_note(
