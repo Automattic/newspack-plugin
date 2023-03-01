@@ -56,6 +56,10 @@ type WizardData = {
 				minimumDonation: string;
 				billingFields: string[];
 		  };
+	platform_data: {
+		platform: string;
+		is_using_streamlined_donate_block: boolean;
+	};
 	donation_page: {
 		editUrl: string;
 		status: string;
@@ -75,6 +79,7 @@ type WizardData = {
 
 export const DonationAmounts = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
+
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
@@ -343,7 +348,7 @@ const Donation = () => {
 				</>
 			) }
 			<DonationAmounts />
-			<BillingFields />
+			{ ! wizardData.platform_data?.is_using_streamlined_donate_block && <BillingFields /> }
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ onSave } href={ undefined }>
 					{ __( 'Save Settings' ) }
