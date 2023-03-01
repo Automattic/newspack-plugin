@@ -409,12 +409,13 @@ function process_form() {
 	if ( ! empty( $lists ) ) {
 		$metadata['lists'] = $lists;
 	}
-	$metadata['current_page_url']    = home_url( add_query_arg( array(), \wp_get_referer() ) );
+	$metadata['referer']             = \wp_get_raw_referer(); // wp_get_referer() will return false because it's a POST request to the same page.
+	$metadata['current_page_url']    = home_url( add_query_arg( array(), $metadata['referer'] ) );
 	$metadata['registration_method'] = 'registration-block';
 
 	$popup_id = isset( $_REQUEST['newspack_popup_id'] ) ? (int) $_REQUEST['newspack_popup_id'] : false;
 	if ( $popup_id ) {
-		$metadata['popup_id']            = $popup_id;
+		$metadata['newspack_popup_id']   = $popup_id;
 		$metadata['registration_method'] = 'registration-block-popup';
 	}
 
