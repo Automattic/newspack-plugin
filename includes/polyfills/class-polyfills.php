@@ -51,10 +51,16 @@ class Polyfills {
 			return $content;
 		}
 
-		// Polyfill amp-img and amp-iframe. These both have a src attribute, so we can use a regex to replace them.
+		// Polyfill amp-img.
 		$content = preg_replace(
-			'/<amp-(img|iframe)([^>]+)src="([^"]+)"([^>]*)>/',
-			'<\1 \2src="\3"\4></\1>',
+			'/<amp-img([^>]*)>[^<]*<\/amp-img>/',
+			'<img\1>', // img is a void element.
+			$content
+		);
+		// Polyfill amp-iframe.
+		$content = preg_replace(
+			'/<amp-iframe([^>]*)>[^<]*<\/amp-iframe>/',
+			'<iframe\1></iframe>',
 			$content
 		);
 
@@ -98,7 +104,8 @@ class Polyfills {
                             </div></figure>
                         <!-- /wp:embed --></div>';
 						self::insert_html( $dom, $html, $tag );
-						$content = $dom->saveHTML();
+						$body    = $dom->getElementsByTagName( 'body' )->item( 0 );
+						$content = preg_replace( '/<\/?body>/', '', $dom->saveHTML( $body ) );
 					}
 				}
 			}

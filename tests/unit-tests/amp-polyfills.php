@@ -13,7 +13,7 @@ use Newspack\Polyfills;
 class Amp_Polyfills extends WP_UnitTestCase {
 
 	/**
-	 * Data provider for test_image.
+	 * Data provider for test_amp_polyfills_image.
 	 *
 	 * @return array
 	 */
@@ -21,15 +21,15 @@ class Amp_Polyfills extends WP_UnitTestCase {
 		return [
 			[
 				'<amp-img src="https://example.com/image.jpg" width="100" height="100"></amp-img>',
-				'<img src="https://example.com/image.jpg" width="100" height="100"></img>',
+				'<img src="https://example.com/image.jpg" width="100" height="100">',
 			],
 			[
-				'<amp-img class="test" src="https://example.com/image.jpg" width="100" height="100"></amp-img>',
-				'<img class="test" src="https://example.com/image.jpg" width="100" height="100"/>',
+				'<amp-img class="test" src="https://example.com/image.jpg" width="100" height="100">something inside</amp-img>',
+				'<img class="test" src="https://example.com/image.jpg" width="100" height="100">',
 			],
 			[
 				'<amp-img src="https://example.com/image.jpg"></amp-img><p>something</p><amp-img src="https://example.com/image.jpg"></amp-img>something',
-				'<img src="https://example.com/image.jpg"></img><p>something</p><img src="https://example.com/image.jpg"></img>something',
+				'<img src="https://example.com/image.jpg"><p>something</p><img src="https://example.com/image.jpg">something',
 			],
 
 		];
@@ -43,12 +43,12 @@ class Amp_Polyfills extends WP_UnitTestCase {
 	 * @return void
 	 * @dataProvider image_data
 	 */
-	public function test_image( $input, $expected ) {
+	public function test_amp_polyfills_image( $input, $expected ) {
 		$this->assertSame( $expected, Polyfills::amp_tags( $input ) );
 	}
 
 	/**
-	 * Data provider for test_iframe.
+	 * Data provider for test_amp_polyfills_iframe.
 	 *
 	 * @return array
 	 */
@@ -60,7 +60,7 @@ class Amp_Polyfills extends WP_UnitTestCase {
 			],
 			[
 				'<amp-iframe class="test" src="https://example.com/image.jpg" width="100" height="100"></amp-iframe>',
-				'<iframe class="test" src="https://example.com/image.jpg" width="100" height="100"></img>',
+				'<iframe class="test" src="https://example.com/image.jpg" width="100" height="100"></iframe>',
 			],
 			[
 				'<amp-iframe src="https://example.com/image.jpg"></amp-iframe><p>something</p><amp-iframe src="https://example.com/image.jpg"></amp-iframe>something',
@@ -78,24 +78,24 @@ class Amp_Polyfills extends WP_UnitTestCase {
 	 * @return void
 	 * @dataProvider iframe_data
 	 */
-	public function test_iframe( $input, $expected ) {
+	public function test_amp_polyfills_iframe( $input, $expected ) {
 		$this->assertSame( $expected, Polyfills::amp_tags( $input ) );
 	}
 
 	/**
-	 * Data provider for test_youtube.
+	 * Data provider for test_amp_polyfills_youtube.
 	 *
 	 * @return array
 	 */
-	public function test_youtube_data() {
+	public function youtube_data() {
 		return [
 			[
 				'<amp-youtube data-videoid="mGENRKrdoGY" layout="responsive" width="480" height="270" ></amp-youtube>',
-				'<div><!-- wp:embed {"url":"https://www.youtube.com/watch?v=mGENRKrdoGY","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
+				'<div><div><!-- wp:embed {"url":"https://www.youtube.com/watch?v=mGENRKrdoGY","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
                             <figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
                             https://www.youtube.com/watch?v=mGENRKrdoGY
                             </div></figure>
-                        <!-- /wp:embed --></div>',
+                        <!-- /wp:embed --></div></div>',
 			],
 
 		];
@@ -107,10 +107,9 @@ class Amp_Polyfills extends WP_UnitTestCase {
 	 * @param string $input Input content.
 	 * @param string $expected Expected output.
 	 * @return void
-	 * @dataProvider test_youtube_data
+	 * @dataProvider youtube_data
 	 */
-	public function test_youtube( $input, $expected ) {
+	public function test_amp_polyfills_youtube( $input, $expected ) {
 		$this->assertSame( str_replace( ' ', '', $expected ), str_replace( ' ', '', Polyfills::amp_tags( $input ) ) );
 	}
-
 }
