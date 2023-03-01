@@ -1,6 +1,6 @@
 <?php
 /**
- * Polyfills.
+ * AMP_Polyfills.
  *
  * @package Newspack
  */
@@ -12,9 +12,9 @@ use \WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Manages settings for Polyfills.
+ * Manages settings for AMP_Polyfills.
  */
-class Polyfills {
+class AMP_Polyfills {
 	/**
 	 * Add hooks.
 	 */
@@ -114,4 +114,4 @@ class Polyfills {
 		return $content;
 	}
 }
-Polyfills::init();
+AMP_Polyfills::init();

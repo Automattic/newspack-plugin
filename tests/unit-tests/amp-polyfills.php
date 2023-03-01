@@ -5,12 +5,12 @@
  * @package Newspack\Tests
  */
 
-use Newspack\Polyfills;
+use Newspack\AMP_Polyfills;
 
 /**
  * Tests the AMP Polyfills.
  */
-class Amp_Polyfills extends WP_UnitTestCase {
+class Newspack_AMP_Polyfills extends WP_UnitTestCase {
 
 	/**
 	 * Data provider for test_amp_polyfills_image.
@@ -44,7 +44,7 @@ class Amp_Polyfills extends WP_UnitTestCase {
 	 * @dataProvider image_data
 	 */
 	public function test_amp_polyfills_image( $input, $expected ) {
-		$this->assertSame( $expected, Polyfills::amp_tags( $input ) );
+		$this->assertSame( $expected, AMP_Polyfills::amp_tags( $input ) );
 	}
 
 	/**
@@ -79,7 +79,7 @@ class Amp_Polyfills extends WP_UnitTestCase {
 	 * @dataProvider iframe_data
 	 */
 	public function test_amp_polyfills_iframe( $input, $expected ) {
-		$this->assertSame( $expected, Polyfills::amp_tags( $input ) );
+		$this->assertSame( $expected, AMP_Polyfills::amp_tags( $input ) );
 	}
 
 	/**
@@ -110,6 +110,6 @@ class Amp_Polyfills extends WP_UnitTestCase {
 	 * @dataProvider youtube_data
 	 */
 	public function test_amp_polyfills_youtube( $input, $expected ) {
-		$this->assertSame( str_replace( ' ', '', $expected ), str_replace( ' ', '', Polyfills::amp_tags( $input ) ) );
+		$this->assertSame( str_replace( ' ', '', $expected ), str_replace( ' ', '', AMP_Polyfills::amp_tags( $input ) ) );
 	}
 }
