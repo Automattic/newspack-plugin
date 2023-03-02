@@ -17,7 +17,6 @@ defined( 'ABSPATH' ) || exit;
  * All things Stripe.
  */
 class Stripe_Connection {
-	const STRIPE_DATA_OPTION_NAME        = 'newspack_stripe_data';
 	const STRIPE_DONATION_PRICE_METADATA = 'newspack_donation_price';
 	const STRIPE_CUSTOMER_ID_USER_META   = '_newspack_stripe_customer_id';
 
@@ -55,75 +54,6 @@ class Stripe_Connection {
 		add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'is_wc_complete_order_email_enabled' ] );
 		add_action( 'newspack_reader_verified', [ __CLASS__, 'newspack_reader_verified' ] );
 		add_action( 'delete_user', [ __CLASS__, 'cancel_user_subscriptions' ], 90 ); // Priority 90 to run after Newsletters deletes the contact in ESP.
-	}
-
-	/**
-	 * Get Stripe data blueprint.
-	 */
-	public static function get_default_stripe_data() {
-		$location_code = 'US';
-		$currency      = 'USD';
-
-		// The instance might've used WooCommerce. Read WC's saved settings to
-		// provide more sensible defaults.
-		$wc_country = get_option( 'woocommerce_default_country', false );
-		if ( $wc_country ) {
-			$wc_country = explode( ':', $wc_country )[0];
-		}
-		$valid_country_codes = wp_list_pluck( newspack_get_countries(), 'value' );
-		if ( $wc_country && in_array( $wc_country, $valid_country_codes ) ) {
-			$location_code = $wc_country;
-		}
-		$wc_currency      = get_option( 'woocommerce_currency', false );
-		$valid_currencies = wp_list_pluck( newspack_get_currencies_options(), 'value' );
-		if ( $wc_currency && in_array( $wc_currency, $valid_currencies ) ) {
-			$currency = $wc_currency;
-		}
-
-		return [
-			'enabled'            => false,
-			'testMode'           => false,
-			'publishableKey'     => '',
-			'secretKey'          => '',
-			'testPublishableKey' => '',
-			'testSecretKey'      => '',
-			'currency'           => $currency,
-			'location_code'      => $location_code,
-			'newsletter_list_id' => '',
-		];
-	}
-
-	/**
-	 * Get Stripe data, either from WC, or saved in options table.
-	 */
-	public static function get_stripe_data() {
-		$stripe_data = self::get_saved_stripe_data();
-		return $stripe_data;
-	}
-
-	/**
-	 * Update Stripe data. If WC is the donations platform, update is there too.
-	 *
-	 * @param object $updated_stripe_data Updated Stripe data to be saved.
-	 */
-	public static function update_stripe_data( $updated_stripe_data ) {
-		if ( Donations::is_platform_wc() ) {
-			// If WC is configured, set Stripe data in WC.
-			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-			$wc_configuration_manager->update_wc_stripe_settings( $updated_stripe_data );
-		}
-		if ( isset( $updated_stripe_data['fee_multiplier'] ) ) {
-			update_option( 'newspack_blocks_donate_fee_multiplier', $updated_stripe_data['fee_multiplier'] );
-		}
-		if ( isset( $updated_stripe_data['fee_static'] ) ) {
-			update_option( 'newspack_blocks_donate_fee_static', $updated_stripe_data['fee_static'] );
-		}
-
-		$valid_keys     = array_keys( self::get_default_stripe_data() );
-		$validated_data = array_intersect_key( $updated_stripe_data, array_flip( $valid_keys ) );
-
-		// Save it in options table.
-		return update_option( self::STRIPE_DATA_OPTION_NAME, $validated_data );
 	}
 
 	/**
@@ -508,34 +438,108 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Get saved Stripe data.
+	 * Is a value not empty?
+	 *
+	 * @param mixed $value Value to check.
 	 */
-	private static function get_saved_stripe_data() {
-		$stripe_data = self::get_default_stripe_data();
-		if ( Donations::is_platform_wc() ) {
-			// If WC is configured, get Stripe data from WC.
-			$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-			$stripe_data              = $wc_configuration_manager->stripe_data();
+	private static function is_value_non_empty( $value ) {
+		if ( 'boolean' === gettype( $value ) ) {
+			return true;
 		} else {
-			// Filter out empty values, which are not booleans.
-			$saved_stripe_data = array_filter(
-				get_option( self::STRIPE_DATA_OPTION_NAME, [] ),
-				function ( $value ) {
-					if ( 'boolean' === gettype( $value ) ) {
-						return true;
-					} else {
-						return ! empty( $value );
-					}
-				}
-			);
-			$stripe_data       = array_merge( $stripe_data, $saved_stripe_data );
+			return ! empty( $value );
 		}
-		$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
-		$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
-		$stripe_data['fee_multiplier']     = get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' );
-		$stripe_data['fee_static']         = get_option( 'newspack_blocks_donate_fee_static', '0.3' );
+	}
 
+	/**
+	 * Get Stripe data.
+	 */
+	public static function get_stripe_data() {
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		$stripe_data              = $wc_configuration_manager->stripe_data();
+
+		$location_code = 'US';
+		$currency      = 'USD';
+
+		$wc_country = get_option( 'woocommerce_default_country', false );
+		if ( $wc_country ) {
+			// Remove region code.
+			$wc_country = explode( ':', $wc_country )[0];
+		}
+
+		$valid_country_codes = wp_list_pluck( newspack_get_countries(), 'value' );
+		if ( $wc_country && in_array( $wc_country, $valid_country_codes ) ) {
+			$location_code = $wc_country;
+		}
+		$wc_currency      = get_option( 'woocommerce_currency', false );
+		$valid_currencies = wp_list_pluck( newspack_get_currencies_options(), 'value' );
+		if ( $wc_currency && in_array( $wc_currency, $valid_currencies ) ) {
+			$currency = $wc_currency;
+		}
+		$stripe_data = array_merge(
+			$stripe_data,
+			[
+				'currency'           => $currency,
+				'location_code'      => $location_code,
+				'newsletter_list_id' => '',
+			]
+		);
+
+		// Read data from the legacy option.
+		$legacy_stripe_data = array_filter(
+			get_option( 'newspack_stripe_data', [] ),
+			[ __CLASS__, 'is_value_non_empty' ]
+		);
+		$stripe_data        = array_merge( $legacy_stripe_data, $stripe_data );
+
+		if ( isset( $stripe_data['testMode'] ) ) {
+			$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
+			$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
+		} else {
+			$stripe_data['usedPublishableKey'] = '';
+			$stripe_data['usedSecretKey']      = '';
+		}
+		$stripe_data['fee_multiplier'] = get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' );
+		$stripe_data['fee_static']     = get_option( 'newspack_blocks_donate_fee_static', '0.3' );
 		return $stripe_data;
+	}
+
+	/**
+	 * Update Stripe data.
+	 *
+	 * @param object $updated_stripe_data Updated Stripe data to be saved.
+	 */
+	public static function update_stripe_data( $updated_stripe_data ) {
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		$wc_configuration_manager->update_wc_stripe_settings( $updated_stripe_data );
+
+		if ( isset( $updated_stripe_data['currency'] ) ) {
+			update_option( 'woocommerce_currency', $updated_stripe_data['currency'] );
+		}
+		if ( isset( $updated_stripe_data['location_code'] ) ) {
+			$location_code = $updated_stripe_data['location_code'];
+			try {
+				// Ensure the location code is valid.
+				$stripe = self::get_stripe_client();
+				$stripe->countrySpecs->retrieve( $location_code );
+			} catch ( \Throwable $th ) {
+				return new \WP_Error(
+					'location_code_error',
+					__( 'Error when setting the location code:', 'newspack' ) . ' ' . $th->getMessage(),
+					[
+						'status' => 400,
+						'level'  => 'error',
+					]
+				);
+			}
+			update_option( 'woocommerce_default_country', $location_code );
+		}
+
+		if ( isset( $updated_stripe_data['fee_multiplier'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_multiplier', $updated_stripe_data['fee_multiplier'] );
+		}
+		if ( isset( $updated_stripe_data['fee_static'] ) ) {
+			update_option( 'newspack_blocks_donate_fee_static', $updated_stripe_data['fee_static'] );
+		}
 	}
 
 	/**
@@ -549,53 +553,12 @@ class Stripe_Connection {
 	 * Get Stripe secret key.
 	 */
 	private static function get_stripe_secret_key() {
-		$stripe_data = self::get_saved_stripe_data();
+		$stripe_data = self::get_stripe_data();
 		return $stripe_data['usedSecretKey'];
 	}
 
 	/**
-	 * Create a recurring donation product in Stripe.
-	 *
-	 * @param string $name Name.
-	 * @param string $interval Interval.
-	 */
-	private static function create_donation_product( $name, $interval ) {
-		$payment_data = self::get_stripe_data();
-		$currency     = $payment_data['currency'];
-
-		$stripe = self::get_stripe_client();
-		// A price has to be assigned to a product.
-		$product = $stripe->products->create( [ 'name' => $name ] );
-		// Tiered volume pricing allows the subscription prices to be arbitrary.
-		$price = $stripe->prices->create(
-			[
-				'product'        => $product['id'],
-				'currency'       => $currency,
-				'billing_scheme' => 'tiered',
-				'tiers'          => [
-					[
-						'up_to'               => 1,
-						'unit_amount_decimal' => 1,
-					],
-					[
-						'up_to'               => 'inf',
-						'unit_amount_decimal' => 1,
-					],
-				],
-				'tiers_mode'     => 'volume',
-				'recurring'      => [
-					'interval' => $interval,
-				],
-				'metadata'       => [
-					self::STRIPE_DONATION_PRICE_METADATA => $interval,
-				],
-			]
-		);
-		return $price;
-	}
-
-	/**
-	 * List Stripe donation-related products. Products will be created if not found.
+	 * List Stripe donation-related products.
 	 */
 	public static function get_donation_prices() {
 		try {
@@ -616,12 +579,6 @@ class Stripe_Connection {
 						$prices_mapped['year'] = $price;
 					}
 				}
-			}
-			if ( ! isset( $prices_mapped['month'] ) ) {
-				$prices_mapped['month'] = self::create_donation_product( __( 'Newspack Monthly Donation', 'newspack' ), 'month' );
-			}
-			if ( ! isset( $prices_mapped['year'] ) ) {
-				$prices_mapped['year'] = self::create_donation_product( __( 'Newspack Annual Donation', 'newspack' ), 'year' );
 			}
 			return $prices_mapped;
 		} catch ( \Throwable $e ) {
@@ -876,6 +833,7 @@ class Stripe_Connection {
 					$payment_method_title = __( 'Credit Card (Stripe)', 'newspack' );
 					break;
 			}
+
 			$wc_order_payload = [
 				'status'               => 'pending',
 				'email'                => $customer['email'],
@@ -897,11 +855,14 @@ class Stripe_Connection {
 			}
 
 			$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
-			$wc_order_id                  = $wc_transaction_creation_data['order_id'];
-			if ( ! \is_wp_error( $wc_order_id ) ) {
+			if ( ! \is_wp_error( $wc_transaction_creation_data ) && $wc_transaction_creation_data['order_id'] ) {
 				// Trigger the ESP data sync, which would normally happen on checkout.
 				$payment_page_url = isset( $client_metadata['current_page_url'] ) ? $client_metadata['current_page_url'] : false;
-				WooCommerce_Connection::sync_reader_from_order( $wc_order_id, false, $payment_page_url );
+				WooCommerce_Connection::sync_reader_from_order(
+					$wc_transaction_creation_data['order_id'],
+					false,
+					$payment_page_url
+				);
 
 				$payment_intent_meta = [
 					'order_id'            => $wc_transaction_creation_data['order_id'],

@@ -102,29 +102,6 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Retrieve Stripe data
-	 *
-	 * @return Array Array of Stripe data.
-	 */
-	public function stripe_data() {
-		$gateways = self::get_payment_gateways();
-		$defaults = Stripe_Connection::get_default_stripe_data();
-		if ( ! isset( $gateways['stripe'] ) ) {
-			return $defaults;
-		}
-		$stripe      = $gateways['stripe'];
-		$stripe_data = [
-			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
-			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
-			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
-			'secretKey'          => $stripe->get_option( 'secret_key', '' ),
-			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
-			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
-		];
-		return \wp_parse_args( $stripe_data, $defaults );
-	}
-
-	/**
 	 * Retrieve location data
 	 *
 	 * @return Array Array of data.
@@ -173,15 +150,41 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Retrieve Stripe data
+	 *
+	 * @return Array Array of Stripe data.
+	 */
+	public function stripe_data() {
+		$gateways = self::get_payment_gateways();
+		if ( ! isset( $gateways['stripe'] ) ) {
+			return [];
+		}
+		$stripe      = $gateways['stripe'];
+		$stripe_data = [
+			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
+			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
+			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
+			'secretKey'          => $stripe->get_option( 'secret_key', '' ),
+			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
+			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
+		];
+		return $stripe_data;
+	}
+
+	/**
 	 * Update WooCommerce Stripe settings
 	 *
 	 * @param Array $args Address data.
 	 * @return Array|WP_Error The data that was updated or an error.
 	 */
 	public function update_wc_stripe_settings( $args ) {
+
+		if ( ! class_exists( '\WC_Payment_Gateways' ) ) {
+			return false;
+		}
 		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
 		if ( ! isset( $gateways['stripe'] ) ) {
-			if ( $args['enabled'] ) {
+			if ( isset( $args['enabled'] ) && $args['enabled'] ) {
 				// Stripe is not installed and we want to use it. Install/Activate/Initialize it.
 				Plugin_Manager::activate( 'woocommerce-gateway-stripe' );
 				do_action( 'plugins_loaded' );
@@ -194,12 +197,24 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		}
 
 		$stripe = $gateways['stripe'];
-		$stripe->update_option( 'enabled', $args['enabled'] ? 'yes' : 'no' );
-		$stripe->update_option( 'testmode', $args['testMode'] ? 'yes' : 'no' );
-		$stripe->update_option( 'publishable_key', $args['publishableKey'] );
-		$stripe->update_option( 'secret_key', $args['secretKey'] );
-		$stripe->update_option( 'test_publishable_key', $args['testPublishableKey'] );
-		$stripe->update_option( 'test_secret_key', $args['testSecretKey'] );
+		if ( isset( $args['enabled'] ) ) {
+			$stripe->update_option( 'enabled', $args['enabled'] ? 'yes' : 'no' );
+		}
+		if ( isset( $args['testMode'] ) ) {
+			$stripe->update_option( 'testmode', $args['testMode'] ? 'yes' : 'no' );
+		}
+		if ( isset( $args['publishableKey'] ) ) {
+			$stripe->update_option( 'publishable_key', $args['publishableKey'] );
+		}
+		if ( isset( $args['secretKey'] ) ) {
+			$stripe->update_option( 'secret_key', $args['secretKey'] );
+		}
+		if ( isset( $args['testPublishableKey'] ) ) {
+			$stripe->update_option( 'test_publishable_key', $args['testPublishableKey'] );
+		}
+		if ( isset( $args['testSecretKey'] ) ) {
+			$stripe->update_option( 'test_secret_key', $args['testSecretKey'] );
+		}
 
 		// @todo when is the best time to do this?
 		$this->set_smart_defaults();

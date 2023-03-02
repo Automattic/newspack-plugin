@@ -332,18 +332,9 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public function update_stripe_settings( $settings ) {
-		$is_platform_wc = Donations::is_platform_wc();
-		if ( $is_platform_wc ) {
-			$required_plugins_installed = $this->check_required_plugins_installed();
-			if ( is_wp_error( $required_plugins_installed ) ) {
-				return rest_ensure_response( $required_plugins_installed );
-			}
-		}
-
-		$args = wp_parse_args( $settings, Stripe_Connection::get_default_stripe_data() );
-		// For WC, Stripe has to be enabled explicitly.
-		if ( $is_platform_wc ? $args['enabled'] : true ) {
-			if ( $args['testMode'] && ( ! $this->api_validate_not_empty( $args['testPublishableKey'] ) || ! $this->api_validate_not_empty( $args['testSecretKey'] ) ) ) {
+		// Stripe has to be enabled explicitly.
+		if ( $settings['enabled'] ) {
+			if ( $settings['testMode'] && ( ! $this->api_validate_not_empty( $settings['testPublishableKey'] ) || ! $this->api_validate_not_empty( $settings['testSecretKey'] ) ) ) {
 				return new WP_Error(
 					'newspack_missing_required_field',
 					esc_html__( 'Test Publishable Key and Test Secret Key are required to use Stripe in test mode.', 'newspack' ),
@@ -352,7 +343,7 @@ class Reader_Revenue_Wizard extends Wizard {
 						'level'  => 'notice',
 					]
 				);
-			} elseif ( ! $args['testMode'] && ( ! $this->api_validate_not_empty( $args['publishableKey'] ) || ! $this->api_validate_not_empty( $args['secretKey'] ) ) ) {
+			} elseif ( ! $settings['testMode'] && ( ! $this->api_validate_not_empty( $settings['publishableKey'] ) || ! $this->api_validate_not_empty( $settings['secretKey'] ) ) ) {
 				return new WP_Error(
 					'newspack_missing_required_field',
 					esc_html__( 'Publishable Key and Secret Key are required to use Stripe.', 'newspack' ),
@@ -364,7 +355,10 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 		}
 
-		Stripe_Connection::update_stripe_data( $args );
+		$result = Stripe_Connection::update_stripe_data( $settings );
+		if ( \is_wp_error( $result ) ) {
+			return $result;
+		}
 		return $this->fetch_all_data();
 	}
 
@@ -472,13 +466,14 @@ class Reader_Revenue_Wizard extends Wizard {
 					$plugin_status = false;
 				}
 			}
+			if ( ! $is_using_sdb ) {
+				$args['country_state_fields'] = $wc_configuration_manager->country_state_fields();
+				$args['location_data']        = $wc_configuration_manager->location_data();
+			}
 			$args = wp_parse_args(
 				[
-					// A more complete list, with states for each country.
-					'country_state_fields' => $wc_configuration_manager->country_state_fields(),
-					'location_data'        => $wc_configuration_manager->location_data(),
-					'salesforce_settings'  => Salesforce::get_salesforce_settings(),
-					'plugin_status'        => $plugin_status,
+					'salesforce_settings' => Salesforce::get_salesforce_settings(),
+					'plugin_status'       => $plugin_status,
 				],
 				$args
 			);

@@ -80,6 +80,7 @@ class StripeMockHTTPClient {
 								'email'          => $params['email'],
 								'name'           => $params['name'],
 								'default_source' => 'card_number_one',
+								'metadata'       => $params['metadata'],
 							];
 							self::$database['customers'][] = $customer;
 							$response                      = $customer;
@@ -90,7 +91,10 @@ class StripeMockHTTPClient {
 			case 'payment_intents':
 				switch ( $method ) {
 					case 'post':
-						$response = [ 'client_secret' => 'pi_number_one' ];
+						$response = [
+							'client_secret' => 'pi_number_one',
+							'currency'      => 'usd',
+						];
 						break;
 				}
 				break;
@@ -100,6 +104,16 @@ class StripeMockHTTPClient {
 						$response = [
 							'fee' => 1,
 							'net' => 2,
+						];
+						break;
+				}
+				break;
+			case 'webhook_endpoints':
+				switch ( $method ) {
+					case 'post':
+						$response = [
+							'id'     => 'wh_endpoint_123',
+							'secret' => 'whsec_123',
 						];
 						break;
 				}
