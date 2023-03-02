@@ -113,7 +113,7 @@ Data_Events::register_listener(
  */
 Data_Events::register_listener(
 	'newspack_donation_order_processed',
-	'donation_order_processed',
+	'woocommerce_donation_order_processed',
 	function( $order_id, $product_id ) {
 		$order = \wc_get_order( $order_id );
 		if ( ! $order ) {
@@ -126,6 +126,8 @@ Data_Events::register_listener(
 			'currency'      => $order->get_currency(),
 			'recurrence'    => get_post_meta( $product_id, '_subscription_period', true ),
 			'platform'      => 'wc',
+			'referer'       => $order->get_meta( '_newspack_referer' ),
+			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
 			'platform_data' => [
 				'order_id'   => $order_id,
 				'product_id' => $product_id,
@@ -134,6 +136,38 @@ Data_Events::register_listener(
 	}
 );
 
+/**
+ * For when there's a new donation payment failed through WooCommerce.
+ *
+ * Known issue: If the user tries to pay again after a failed payment, and the payment fails for a second time,
+ * the order is already marked as failed so this hook will not trigger.
+ */
+Data_Events::register_listener(
+	'woocommerce_order_status_failed',
+	'woocommerce_order_failed',
+	function( $order_id, $order ) {
+		$product_id = Donations::get_order_donation_product_id( $order_id );
+		if ( ! $product_id ) {
+			return;
+		}
+
+		return [
+			'user_id'       => $order->get_customer_id(),
+			'email'         => $order->get_billing_email(),
+			'amount'        => (float) $order->get_total(),
+			'currency'      => $order->get_currency(),
+			'recurrence'    => \get_post_meta( $product_id, '_subscription_period', true ),
+			'platform'      => Donations::get_platform_slug(),
+			'referer'       => $order->get_meta( '_newspack_referer' ),
+			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
+			'platform_data' => [
+				'order_id'   => $order_id,
+				'product_id' => $product_id,
+				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
+			],
+		];
+	}
+);
 
 /**
  * For when a Subscription is confirmed.
@@ -157,6 +191,8 @@ Data_Events::register_listener(
 			'currency'        => $subscription->get_currency(),
 			'recurrence'      => get_post_meta( $product_id, '_subscription_period', true ),
 			'platform'        => Donations::get_platform_slug(),
+			'referer'         => $subscription->get_meta( '_newspack_referer' ),
+			'popup_id'        => $subscription->get_meta( '_newspack_popup_id' ),
 		];
 	}
 );
@@ -165,13 +201,14 @@ Data_Events::register_listener(
  * For when there's a new donation confirmed
  */
 Data_Events::register_listener(
-	'woocommerce_order_status_pending_to_completed',
+	'woocommerce_order_status_completed',
 	'donation_new',
 	function( $order_id, $order ) {
 		$product_id = Donations::get_order_donation_product_id( $order_id );
 		if ( ! $product_id ) {
 			return;
 		}
+
 		return [
 			'user_id'       => $order->get_customer_id(),
 			'email'         => $order->get_billing_email(),
@@ -179,6 +216,8 @@ Data_Events::register_listener(
 			'currency'      => $order->get_currency(),
 			'recurrence'    => \get_post_meta( $product_id, '_subscription_period', true ),
 			'platform'      => Donations::get_platform_slug(),
+			'referer'       => $order->get_meta( '_newspack_referer' ),
+			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
 			'platform_data' => [
 				'order_id'   => $order_id,
 				'product_id' => $product_id,
