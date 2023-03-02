@@ -1,3 +1,10 @@
+## [1.105.1-hotfix.1](https://github.com/Automattic/newspack-plugin/compare/v1.105.0...v1.105.1-hotfix.1) (2023-03-02)
+
+
+### Bug Fixes
+
+* **perfmatters:** adjust defaults ([a5fe0c7](https://github.com/Automattic/newspack-plugin/commit/a5fe0c74c4da06859b3fa76a41fc1db781073543))
+
 # [1.105.0](https://github.com/Automattic/newspack-plugin/compare/v1.104.1...v1.105.0) (2023-02-28)
 
 
