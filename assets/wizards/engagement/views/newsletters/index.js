@@ -1,3 +1,4 @@
+/* global newspack_engagement_wizard */
 /**
  * Internal dependencies
  */
