@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
@@ -52,18 +52,9 @@ const getControlType = setting => {
 };
 
 const SettingsSection = props => {
-	const {
-		error,
-		sectionKey,
-		active,
-		title,
-		description,
-		fields,
-		disabled,
-		onChange,
-		onUpdate,
-		sectionSettingsButtonDisabled,
-	} = props;
+	const [ saveDisabled, setSaveDisabled ] = useState( true );
+	const { error, sectionKey, active, title, description, fields, disabled, onChange, onUpdate } =
+		props;
 	const getControlProps = setting => ( {
 		disabled,
 		name: `${ setting.section }_${ setting.key }`,
@@ -80,6 +71,7 @@ const SettingsSection = props => {
 		checked: setting.type === 'boolean' ? !! setting.value : null,
 		onChange: value => {
 			onChange( setting.key, value );
+			setSaveDisabled( false );
 		},
 	} );
 	const createFilter = ( name, defaultComponent = null ) => {
@@ -110,9 +102,10 @@ const SettingsSection = props => {
 					'buttons',
 					<Button
 						variant="primary"
-						disabled={ disabled || sectionSettingsButtonDisabled }
+						disabled={ disabled || saveDisabled }
 						onClick={ () => {
 							onUpdate();
+							setSaveDisabled( true );
 						} }
 					>
 						{ __( 'Save Settings', 'newspack' ) }

@@ -23,7 +23,6 @@ class PluginSettings extends Component {
 			inFlight: false,
 			settings: {},
 			error: null,
-			sectionSettingsButtonDisabled: {},
 		};
 	}
 
@@ -40,15 +39,6 @@ class PluginSettings extends Component {
 				if ( 'function' === typeof afterFetch ) {
 					afterFetch( settings );
 				}
-				const sectionButtonState = {};
-				for ( const sectionkeys in settings ) {
-					Object.assign( sectionButtonState, {
-						[ `${ sectionkeys }` ]: true,
-					} );
-				}
-				this.setState( {
-					sectionSettingsButtonDisabled: sectionButtonState,
-				} );
 			} )
 			.catch( error => {
 				this.setState( { error } );
@@ -83,11 +73,6 @@ class PluginSettings extends Component {
 				...this.state.settings,
 				[ sectionKey ]: sectionSettings,
 			},
-			// When any change in settings happen, Remove disabled from that section.
-			sectionSettingsButtonDisabled: {
-				...this.state.sectionSettingsButtonDisabled,
-				[ sectionKey ]: false,
-			},
 		} );
 	};
 
@@ -111,22 +96,9 @@ class PluginSettings extends Component {
 			} )
 			.catch( error => {
 				this.setState( { error } );
-				// On Error, Do not disable button.
-				this.setState( {
-					sectionSettingsButtonDisabled: {
-						...this.state.sectionSettingsButtonDisabled,
-						[ sectionKey ]: false,
-					},
-				} );
 			} )
 			.finally( () => {
 				this.setState( { inFlight: false } );
-				this.setState( {
-					sectionSettingsButtonDisabled: {
-						...this.state.sectionSettingsButtonDisabled,
-						[ sectionKey ]: true,
-					},
-				} );
 			} );
 	};
 
@@ -194,7 +166,7 @@ class PluginSettings extends Component {
 	 */
 	render() {
 		const { title, description, hasGreyHeader, children } = this.props;
-		const { settings, inFlight, error, sectionSettingsButtonDisabled } = this.state;
+		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
 				{ title && <SectionHeader title={ title } description={ description } /> }
@@ -216,7 +188,6 @@ class PluginSettings extends Component {
 							onChange={ this.handleSettingChange( sectionKey ) }
 							onUpdate={ this.handleSectionUpdate( sectionKey ) }
 							hasGreyHeader={ hasGreyHeader }
-							sectionSettingsButtonDisabled={ sectionSettingsButtonDisabled[ `${ sectionKey }` ] }
 						/>
 					) ) }
 					{ children }
