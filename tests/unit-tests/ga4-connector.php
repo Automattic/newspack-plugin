@@ -124,7 +124,7 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 			],
 			[
 				'iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0i',
-				false,
+				true,
 			],
 			[
 				[ 123 ],
@@ -136,7 +136,15 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 			],
 			[
 				true,
-				false,
+				true,
+			],
+			[
+				null,
+				true,
+			],
+			[
+				1.234,
+				true,
 			],
 		];
 	}
@@ -150,6 +158,61 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 	 */
 	public function test_validate_param_value( $value, $expected ) {
 		$this->assertEquals( $expected, Event::validate_param_value( $value ) );
+	}
+
+	/**
+	 * Data provider for test_validate_param_name
+	 */
+	public function sanitize_value_data() {
+		return [
+			[
+				'dsl2390ijd2m, #asd',
+				'dsl2390ijd2m, #asd',
+			],
+			[
+				123123232,
+				'123123232',
+			],
+			[
+				'iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0i',
+				'iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0iiiiiiiii0',
+			],
+			[
+				[ 123 ],
+				[ 123 ],
+			],
+			[
+				(object) [ 'asd' => 123 ],
+				(object) [ 'asd' => 123 ],
+			],
+			[
+				true,
+				'yes',
+			],
+			[
+				false,
+				'no',
+			],
+			[
+				null,
+				'',
+			],
+			[
+				1.234,
+				'1.234',
+			],
+		];
+	}
+
+	/**
+	 * Tests the sanitize_value method
+	 *
+	 * @param mixed $value The param value.
+	 * @param mixed $expected The expected result.
+	 * @dataProvider sanitize_value_data
+	 */
+	public function test_sanitize_value( $value, $expected ) {
+		$this->assertEquals( $expected, Event::sanitize_value( $value ) );
 	}
 
 	/**
@@ -179,7 +242,7 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 			],
 			[
 				[
-					'invalid' => false,
+					'invalid' => [ 123 ],
 					'param2'  => 'value2',
 					'param3'  => 'value3',
 					'param4'  => 'value4',
