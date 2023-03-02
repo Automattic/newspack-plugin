@@ -20,13 +20,13 @@
 			justify-content: center;
 			margin-left: 0.5rem;
 
-			@media screen and ( min-width: 960px ) {
+			@media screen and ( min-width: 1200px ) {
 				display: none;
 			}
 
 			a {
 				display: flex;
-				padding: 0.4em;
+				padding: 7px;
 			}
 		}
 
@@ -34,7 +34,7 @@
 			height: 24px;
 			width: 24px;
 
-			@media screen and ( min-width: 960px ) {
+			@media screen and ( min-width: 1200px ) {
 				margin-left: -4px;
 				margin-top: -12px;
 				position: absolute;
@@ -45,7 +45,7 @@
 		&__label {
 			margin-left: calc( 16px + 0.4rem );
 
-			@media screen and ( max-width: 959px ) {
+			@media screen and ( max-width: 1199px ) {
 				@include mixins.visuallyHidden;
 			}
 		}
@@ -495,7 +495,7 @@
  */
 ul.newspack-reader__account-menu,
 li.menu-item .newspack-reader__account-link {
-	@media screen and ( max-width: 959px ) {
+	@media screen and ( max-width: 1199px ) {
 		display: none !important;
 	}
 }
