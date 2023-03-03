@@ -232,21 +232,21 @@ svg {
 }
 
 @keyframes loading {
-	from {
-		opacity: 100%;
+	0% {
+		opacity: 1;
 	}
 
 	50% {
-		opacity: 10%;
+		opacity: 0.1;
 	}
 
-	to {
-		opacity: 100%;
+	100% {
+		opacity: 1;
 	}
 }
 
 @keyframes loading-quiet {
-	from {
+	0% {
 		left: 0;
 		right: 100%;
 	}
@@ -256,7 +256,7 @@ svg {
 		right: 0;
 	}
 
-	to {
+	100% {
 		left: 100%;
 		right: 0;
 	}

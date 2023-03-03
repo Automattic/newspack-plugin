@@ -1,3 +1,4 @@
+/* global newspack_engagement_wizard */
 /**
  * Internal dependencies
  */
@@ -198,10 +199,20 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 	}
 	return (
 		<>
-			<SectionHeader
-				title={ __( 'Subscription Lists', 'newspack' ) }
-				description={ __( 'Manage the lists available for subscription.', 'newspack' ) }
-			/>
+			<Card headerActions noBorder>
+				<SectionHeader
+					title={ __( 'Subscription Lists', 'newspack' ) }
+					description={ __( 'Manage the lists available for subscription.', 'newspack' ) }
+				/>
+				{ newspack_engagement_wizard.new_subscription_lists_url && (
+					<Button
+						variant="secondary"
+						href={ newspack_engagement_wizard.new_subscription_lists_url }
+					>
+						{ __( 'Add New', 'newspack' ) }
+					</Button>
+				) }
+			</Card>
 			{ error && (
 				<Notice
 					noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }

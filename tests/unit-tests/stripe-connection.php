@@ -156,6 +156,8 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			'invoice'             => 'in_123',
 			'created'             => 1234567890,
 			'balance_transaction' => 'txn_123',
+			'referer'             => 'sample_referer',
+			'newspack_popup_id'   => 123,
 		];
 		self::assertEquals(
 			Stripe_Connection::create_wc_transaction_payload( $customer, $payment ),
@@ -175,6 +177,8 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 				'client_id'                     => 'abc123',
 				'user_id'                       => 42,
 				'subscribed'                    => null,
+				'referer'                       => 'sample_referer',
+				'newspack_popup_id'             => 123,
 			]
 		);
 	}
