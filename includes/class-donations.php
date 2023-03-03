@@ -924,6 +924,10 @@ class Donations {
 			return false;
 		}
 
+		if ( defined( 'NEWSPACK_DISABLE_SIMPLIFIED_DONATE_BLOCK' ) && NEWSPACK_DISABLE_SIMPLIFIED_DONATE_BLOCK ) {
+			return false;
+		}
+
 		// If "Stripe (Credit Card)" is the only gateway configured, use the streamlined donate block.
 		$gateways = WooCommerce_Configuration_Manager::get_payment_gateways( true );
 		if ( 1 < count( $gateways ) || ! isset( $gateways['stripe'] ) ) {
