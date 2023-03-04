@@ -223,6 +223,9 @@ class Perfmatters {
 		if ( 'settings_page_perfmatters' !== get_current_screen()->id ) {
 			return;
 		}
+		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
+			return;
+		}
 		echo '<div class="notice notice-warning"><p>'
 		. __( 'Newspack plugin is overriding Perfmatters settings. You can use the <code>NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS</code> flag to disable that behavior.', 'newspack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		. '</p></div>';
