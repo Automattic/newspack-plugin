@@ -7,9 +7,9 @@
 	"support": {
 		"issues": "https://github.com/Automattic/newspack-plugin/issues"
 	},
-	"require": {
-		"composer/installers": "~2.0",
-		"joshtronic/php-loremipsum": "^2.1",
+	"require"    : {
+		"composer/installers": "^1",
+		"joshtronic/php-loremipsum": "^1.0",
 		"google/auth": "^1.15",
 		"stripe/stripe-php": "^10.0"
 	},
@@ -43,10 +43,10 @@
 			]
 		}
 	},
+    "platform": {
+      "php": "7.4"
+    },
 	"config": {
-		"platform": {
-			"php": "7.4"
-		},
 		"allow-plugins": {
 			"composer/installers": true,
 			"dealerdirect/phpcodesniffer-composer-installer": true
