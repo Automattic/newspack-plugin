@@ -20,6 +20,8 @@ class AMP_Polyfills {
 	 */
 	public static function init() {
 		add_filter( 'the_content', [ __CLASS__, 'amp_tags' ], 1, 1 );
+		add_filter( 'render_block', [ __CLASS__, 'render_block' ], 1, 2 );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ], 99999 );
 	}
 
 	/**
@@ -112,6 +114,45 @@ class AMP_Polyfills {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Hook into render_block to polyfill blocks.
+	 *
+	 * @param string $block_content Block content.
+	 * @param array  $block Block.
+	 */
+	public static function render_block( $block_content, $block ) {
+		if (
+			'core/image' === $block['blockName']
+			&& isset( $block['attrs']['ampLightbox'] )
+			&& $block['attrs']['ampLightbox']
+			&& stripos( $block_content, '<a href=' ) === false // Don't add lightbox if the image is a link.
+		) {
+			return str_replace( '<figure', '<figure data-lightbox', $block_content );
+		}
+		return $block_content;
+	}
+
+	/**
+	 * Enqueue scripts and styles.
+	 */
+	public static function wp_enqueue_scripts() {
+		if ( preg_match( '/wp:image.*"ampLightbox":true/', get_the_content() ) ) {
+			\wp_enqueue_script(
+				'newspack-image-lightbox',
+				\Newspack\Newspack::plugin_url() . '/dist/other-scripts/lightbox.js',
+				[],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_enqueue_style(
+				'newspack-image-lightbox',
+				Newspack::plugin_url() . '/dist/other-scripts/lightbox.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
+			);
+		}
 	}
 }
 AMP_Polyfills::init();
