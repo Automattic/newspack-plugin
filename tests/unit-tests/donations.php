@@ -78,26 +78,6 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 	 * Stripe integration.
 	 */
 	public function test_donations_stripe() {
-		self::assertTrue(
-			Donations::can_use_stripe_platform(),
-			'Stripe platform can be used - AMP plugin is not installed.'
-		);
-		Plugin_Manager::activate( 'amp' );
-		self::assertFalse(
-			Donations::can_use_stripe_platform(),
-			"Stripe platform can't be used - AMP plugin is active."
-		);
-		self::assertFalse(
-			Donations::can_use_streamlined_donate_block(),
-			'The streamlined block cannot be used either.'
-		);
-
-		define( 'NEWSPACK_AMP_PLUS_ENABLED', true );
-		self::assertTrue(
-			Donations::can_use_stripe_platform(),
-			'Stripe platform can be used - site uses AMP Plus mode.'
-		);
-
 		self::assertFalse(
 			Donations::can_use_streamlined_donate_block(),
 			'The streamlined block cannot be used until Stripe platform is configured.'

@@ -55,16 +55,6 @@ class HealthCheckWizard extends Component {
 			} );
 	};
 
-	repairConfiguration = configuration => {
-		const { wizardApiFetch, setError } = this.props;
-		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-health-check-wizard/repair/' + configuration,
-		} )
-			.then( healthCheckData => this.setState( { healthCheckData } ) )
-			.catch( error => {
-				setError( error );
-			} );
-	};
 	/**
 	 * Render
 	 */
@@ -118,7 +108,6 @@ class HealthCheckWizard extends Component {
 									tabbedNavigation={ tabs }
 									configurationStatus={ configurationStatus }
 									missingPlugins={ Object.keys( missingPlugins ) }
-									repairConfiguration={ this.repairConfiguration }
 								/>
 							) }
 						/>
