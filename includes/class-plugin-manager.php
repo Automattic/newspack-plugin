@@ -404,8 +404,12 @@ class Plugin_Manager {
 			'wordpress-seo-premium',
 			'gravityformspolls',
 			'gravityformsmailchimp',
+			'gravityformsstripe',
 			'perfmatters',
 			'onesignal-free-web-push-notifications',
+			'web-stories',
+			'ads-txt',
+			'woocommerce-memberships',
 		];
 	}
 
