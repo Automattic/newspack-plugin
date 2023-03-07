@@ -33,6 +33,7 @@ class GA4 {
 		'reader_registered',
 		'donation_new',
 		'donation_subscription_cancelled',
+		'newsletter_subscribed',
 	];
 
 	/**
@@ -230,6 +231,32 @@ class GA4 {
 		} else {
 			return 'over-500';
 		}
+	}
+
+	/**
+	 * Handler for the newsletter_subscribed event.
+	 *
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data      Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_newsletter_subscribed( $params, $data ) {
+		$metadata = $data['contact']['metadata'] ?? [];
+		if ( ! empty( $metadata['newspack_popup_id'] ) ) {
+			$params = array_merge( $params, Popups_Events::get_popup_metadata( $metadata['newspack_popup_id'] ) );
+		}
+		$params['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'] ?? '';
+		$params['referer']                         = $metadata['current_page_url'] ?? '';
+
+		// In case the subscription happened as part of the registration process, we should also have the registration method.
+		$params['registration_method'] = $metadata['registration_method'] ?? '';
+
+		$lists = $data['lists'];
+		sort( $lists );
+		$params['lists'] = implode( ',', $lists );
+
+		return $params;
 	}
 
 	/**
