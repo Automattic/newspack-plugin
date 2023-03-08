@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  newspack: adekbadek/newspack@1.4.3
+  newspack: newspack/newspack@1.4.3
 
 workflows:
   version: 2

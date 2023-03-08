@@ -61,16 +61,19 @@ Data_Events::register_listener(
 );
 
 /**
- * For when a contact is added to newsletter lists.
+ * For when a new contact is added to newsletter lists for the first time.
  */
 Data_Events::register_listener(
 	'newspack_newsletters_add_contact',
 	'newsletter_subscribed',
-	function( $provider, $contact, $lists, $result ) {
+	function( $provider, $contact, $lists, $result, $is_updating ) {
 		if ( empty( $lists ) ) {
 			return;
 		}
-		if ( true !== $result ) {
+		if ( is_wp_error( $result ) ) {
+			return;
+		}
+		if ( $is_updating ) {
 			return;
 		}
 		$user = get_user_by( 'email', $contact['email'] );

@@ -133,6 +133,23 @@ When a WooCommerce Subscription status changes.
 | `recurrence`      | `string` |
 | `platform`        | `string` |
 
+## Newspack Popups Actions
+
+### `campaign_interaction`
+
+When a user interacts with a Newspack Popup's campaign prompt.
+
+| Name                              | Type      |
+| --------------------------------- | --------- |
+| `campaign_id`                     | `int`     |
+| `campaign_title`                  | `string`  |
+| `campaign_frequency`              | `string`  |
+| `campaign_placement`              | `string`  |
+| `campaign_has_registration_block` | `boolean` |
+| `campaign_has_donation_block`     | `boolean` |
+| `campaign_has_newsletter_block`   | `boolean` |
+| `action`                          | `string`  |
+
 ## Registering a new action
 
 To dispatch an event, an action must first be registered with the following:

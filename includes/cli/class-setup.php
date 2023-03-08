@@ -164,7 +164,7 @@ class Setup {
 	 * @return void
 	 */
 	private function amp_plus() {
-		$wpconfig = new WPConfigTransformer( ABSPATH . '/wp-config.php' );
+		$wpconfig = new WPConfigTransformer( WP_CLI\Utils\locate_wp_config() );
 		$wpconfig->update( 'constant', 'NEWSPACK_AMP_PLUS_ENABLED', 'true', [ 'raw' => true ] );
 		WP_CLI::success( 'AMP Plus configured.' );
 	}
@@ -175,7 +175,7 @@ class Setup {
 	 * @return void
 	 */
 	private function ras_beta() {
-		$wpconfig = new WPConfigTransformer( ABSPATH . '/wp-config.php' );
+		$wpconfig = new WPConfigTransformer( WP_CLI\Utils\locate_wp_config() );
 		$wpconfig->update( 'constant', 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION', 'true', [ 'raw' => true ] );
 		WP_CLI::success( 'RAS enabled.' );
 	}
