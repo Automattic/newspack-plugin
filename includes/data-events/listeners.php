@@ -122,12 +122,13 @@ Data_Events::register_listener(
 		if ( ! $order ) {
 			return;
 		}
+		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
 		return [
 			'user_id'       => $order->get_customer_id(),
 			'email'         => $order->get_billing_email(),
 			'amount'        => (float) $order->get_total(),
 			'currency'      => $order->get_currency(),
-			'recurrence'    => get_post_meta( $product_id, '_subscription_period', true ),
+			'recurrence'    => empty( $recurrence ) ? 'once' : $recurrence,
 			'platform'      => 'wc',
 			'referer'       => $order->get_meta( '_newspack_referer' ),
 			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
@@ -153,13 +154,14 @@ Data_Events::register_listener(
 		if ( ! $product_id ) {
 			return;
 		}
+		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
 
 		return [
 			'user_id'       => $order->get_customer_id(),
 			'email'         => $order->get_billing_email(),
 			'amount'        => (float) $order->get_total(),
 			'currency'      => $order->get_currency(),
-			'recurrence'    => \get_post_meta( $product_id, '_subscription_period', true ),
+			'recurrence'    => empty( $recurrence ) ? 'once' : $recurrence,
 			'platform'      => Donations::get_platform_slug(),
 			'referer'       => $order->get_meta( '_newspack_referer' ),
 			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
@@ -186,13 +188,14 @@ Data_Events::register_listener(
 		if ( ! $product_id ) {
 			return;
 		}
+		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
 		return [
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
 			'subscription_id' => $subscription->get_id(),
 			'amount'          => (float) $subscription->get_total(),
 			'currency'        => $subscription->get_currency(),
-			'recurrence'      => get_post_meta( $product_id, '_subscription_period', true ),
+			'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
 			'platform'        => Donations::get_platform_slug(),
 			'referer'         => $subscription->get_meta( '_newspack_referer' ),
 			'popup_id'        => $subscription->get_meta( '_newspack_popup_id' ),
@@ -211,13 +214,14 @@ Data_Events::register_listener(
 		if ( ! $product_id ) {
 			return;
 		}
+		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
 
 		return [
 			'user_id'       => $order->get_customer_id(),
 			'email'         => $order->get_billing_email(),
 			'amount'        => (float) $order->get_total(),
 			'currency'      => $order->get_currency(),
-			'recurrence'    => \get_post_meta( $product_id, '_subscription_period', true ),
+			'recurrence'    => empty( $recurrence ) ? 'once' : $recurrence,
 			'platform'      => Donations::get_platform_slug(),
 			'referer'       => $order->get_meta( '_newspack_referer' ),
 			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
@@ -244,13 +248,14 @@ Data_Events::register_listener(
 		if ( ! $product_id ) {
 			return;
 		}
+		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
 		return [
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
 			'subscription_id' => $subscription->get_id(),
 			'amount'          => (float) $subscription->get_total(),
 			'currency'        => $subscription->get_currency(),
-			'recurrence'      => get_post_meta( $product_id, '_subscription_period', true ),
+			'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
 			'platform'        => Donations::get_platform_slug(),
 		];
 	}
@@ -267,6 +272,7 @@ Data_Events::register_listener(
 		if ( ! $product_id ) {
 			return;
 		}
+		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
 		return [
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
@@ -275,7 +281,7 @@ Data_Events::register_listener(
 			'status_after'    => $status_to,
 			'amount'          => (float) $subscription->get_total(),
 			'currency'        => $subscription->get_currency(),
-			'recurrence'      => get_post_meta( $product_id, '_subscription_period', true ),
+			'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
 			'platform'        => Donations::get_platform_slug(),
 		];
 	}
