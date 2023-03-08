@@ -37,6 +37,11 @@ const getDisplayUrl = url => {
 	return displayUrl;
 };
 
+const getEndpointLabel = endpoint => {
+	const { label, url } = endpoint;
+	return label || getDisplayUrl( url );
+};
+
 const getEndpointTitle = endpoint => {
 	const { label, url } = endpoint;
 	return (
@@ -361,7 +366,7 @@ const Webhooks = () => {
 						{ sprintf(
 							// translators: %s is the endpoint title (shortened URL).
 							__( 'Most recent requests for %s', 'newspack' ),
-							getEndpointTitle( viewing )
+							getEndpointLabel( viewing )
 						) }
 					</p>
 					{ viewing.requests.length > 0 ? (
