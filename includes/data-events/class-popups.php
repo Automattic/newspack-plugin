@@ -180,10 +180,11 @@ final class Popups {
 	 *
 	 * @param string         $email  Email address of the reader.
 	 * @param array|WP_Error $result Contact data if it was added, or error otherwise.
-	 * @param int|false      $popup_id The ID of the popup that triggered the registration, or false if not triggered by a popup.
+	 * @param array          $metadata Some metadata about the subscription. Always contains `current_page_url`, `newspack_popup_id` and `newsletters_subscription_method` keys.
 	 * @return ?array
 	 */
-	public static function newsletter_submission( $email, $result, $popup_id = false ) {
+	public static function newsletter_submission( $email, $result, $metadata = [] ) {
+		$popup_id = $metadata['newspack_popup_id'];
 		if ( ! $popup_id ) {
 			return;
 		}
@@ -191,7 +192,9 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action' => self::FORM_SUBMISSION,
+				'action'                         => self::FORM_SUBMISSION,
+				'newsletter_subscription_method' => $metadata['newsletters_subscription_method'],
+				'referer'                        => $metadata['current_page_url'],
 			]
 		);
 	}
@@ -203,10 +206,11 @@ final class Popups {
 	 *
 	 * @param string         $email  Email address of the reader.
 	 * @param array|WP_Error $result Contact data if it was added, or error otherwise.
-	 * @param int|false      $popup_id The ID of the popup that triggered the registration, or false if not triggered by a popup.
+	 * @param array          $metadata Some metadata about the subscription. Always contains `current_page_url`, `newspack_popup_id` and `newsletters_subscription_method` keys.
 	 * @return ?array
 	 */
-	public static function newsletter_submission_with_status( $email, $result, $popup_id = false ) {
+	public static function newsletter_submission_with_status( $email, $result, $metadata = [] ) {
+		$popup_id = $metadata['newspack_popup_id'];
 		if ( ! $popup_id ) {
 			return;
 		}
@@ -218,7 +222,9 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action' => $action,
+				'action'                         => $action,
+				'newsletter_subscription_method' => $metadata['newsletters_subscription_method'],
+				'referer'                        => $metadata['current_page_url'],
 			]
 		);
 	}

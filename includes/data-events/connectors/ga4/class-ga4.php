@@ -32,6 +32,7 @@ class GA4 {
 		'reader_logged_in',
 		'reader_registered',
 		'newsletter_subscribed',
+		'campaign_interaction',
 	];
 
 	/**
@@ -191,6 +192,18 @@ class GA4 {
 		sort( $lists );
 		$params['lists'] = implode( ',', $lists );
 
+		return $params;
+	}
+
+	/**
+	 * Handler for the campaign_interaction event.
+	 *
+	 * @param int   $params The GA4 event parameters.
+	 * @param array $data      Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_campaign_interaction( $params, $data ) {
 		return $params;
 	}
 
