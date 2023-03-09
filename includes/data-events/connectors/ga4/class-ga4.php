@@ -204,7 +204,10 @@ class GA4 {
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
 	public static function handle_campaign_interaction( $params, $data ) {
-		return $params;
+		// remove data added in the body filter.
+		unset( $data['ga_params'] );
+		unset( $data['ga_client_id'] );
+		return array_merge( $params, $data );
 	}
 
 	/**
