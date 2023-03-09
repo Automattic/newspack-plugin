@@ -269,10 +269,20 @@ class GA4 {
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
 	public static function handle_campaign_interaction( $params, $data ) {
+		$transformed_data = $data;
 		// remove data added in the body filter.
-		unset( $data['ga_params'] );
-		unset( $data['ga_client_id'] );
-		return array_merge( $params, $data );
+		unset( $transformed_data['ga_params'] );
+		unset( $transformed_data['ga_client_id'] );
+
+		unset( $transformed_data['registration_data'] );
+		unset( $transformed_data['donation_data'] );
+		unset( $transformed_data['newsletter_data'] );
+
+		$transformed_data = array_merge( $transformed_data, $data['registration_data'] );
+		$transformed_data = array_merge( $transformed_data, $data['donation_data'] );
+		$transformed_data = array_merge( $transformed_data, $data['newsletter_data'] );
+
+		return array_merge( $params, $transformed_data );
 	}
 
 	/**
