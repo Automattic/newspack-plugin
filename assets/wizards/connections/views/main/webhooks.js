@@ -516,7 +516,7 @@ const Webhooks = () => {
 										'newspack'
 									) }
 								</p>
-								<Grid columns={ 3 } gutter={ 16 }>
+								<Grid columns={ 2 } gutter={ 16 }>
 									{ actions.map( ( action, i ) => (
 										<CheckboxControl
 											key={ i }
