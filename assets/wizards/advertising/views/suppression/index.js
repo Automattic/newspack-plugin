@@ -30,7 +30,7 @@ const Suppression = () => {
 		apiFetch( { path: '/newspack-ads/v1/suppression' } ).then( setConfig );
 	};
 	const fetchPostTypes = () => {
-		return apiFetch( {
+		apiFetch( {
 			path: addQueryArgs( '/wp/v2/types', { context: 'edit' } ),
 		} )
 			.then( result => {
