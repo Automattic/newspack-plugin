@@ -274,13 +274,13 @@ class GA4 {
 		unset( $transformed_data['ga_params'] );
 		unset( $transformed_data['ga_client_id'] );
 
-		unset( $transformed_data['registration_data'] );
-		unset( $transformed_data['donation_data'] );
-		unset( $transformed_data['newsletter_data'] );
+		unset( $transformed_data['interaction_data'] );
+		$transformed_data = array_merge( $transformed_data, $data['interaction_data'] );
 
-		$transformed_data = array_merge( $transformed_data, $data['registration_data'] );
-		$transformed_data = array_merge( $transformed_data, $data['donation_data'] );
-		$transformed_data = array_merge( $transformed_data, $data['newsletter_data'] );
+		unset( $transformed_data['campaign_blocks'] );
+		foreach ( $data['campaign_blocks'] as $block ) {
+			$transformed_data[ 'campaign_has_' . $block ] = 1;
+		}
 
 		return array_merge( $params, $transformed_data );
 	}

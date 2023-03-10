@@ -116,13 +116,21 @@ final class Popups {
 			$data['campaign_placement'] = $popup['options']['placement'] ?? '';
 		}
 
-		$data['campaign_has_registration_block'] = has_block( 'newspack/reader-registration', $popup['content'] );
-		$data['campaign_has_donation_block']     = has_block( 'newspack-blocks/donate', $popup['content'] );
-		$data['campaign_has_newsletter_block']   = has_block( 'newspack-newsletters/subscribe', $popup['content'] );
+		$watched_blocks = [
+			'registration'             => 'newspack/reader-registration',
+			'donation'                 => 'newspack-blocks/donate',
+			'newsletters_subscription' => 'newspack-newsletters/subscribe',
+		];
 
-		$data['registration_data'] = [];
-		$data['donation_data']     = [];
-		$data['newsletter_data']   = [];
+		$data['campaign_blocks'] = [];
+
+		foreach ( $watched_blocks as $key => $block_name ) {
+			if ( has_block( $block_name, $popup['content'] ) ) {
+				$data['campaign_blocks'][] = $key;
+			}
+		}
+
+		$data['interaction_data'] = [];
 
 		return $data;
 	}
@@ -146,10 +154,11 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'            => self::FORM_SUBMISSION,
-				'referer'           => $metadata['referer'],
-				'registration_data' => [
-					'registration_method' => $metadata['newsletters_subscription_method'],
+				'action'           => self::FORM_SUBMISSION,
+				'action_type'      => 'registration',
+				'referer'          => $metadata['referer'],
+				'interaction_data' => [
+					'registration_method' => $metadata['registration_method'],
 				],
 			]
 		);
@@ -178,10 +187,11 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'            => $action,
-				'referer'           => $metadata['referer'],
-				'registration_data' => [
-					'registration_method' => $metadata['newsletters_subscription_method'],
+				'action'           => $action,
+				'action_type'      => 'registration',
+				'referer'          => $metadata['referer'],
+				'interaction_data' => [
+					'registration_method' => $metadata['registration_method'],
 				],
 			]
 		);
@@ -206,10 +216,11 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'          => self::FORM_SUBMISSION,
-				'referer'         => $metadata['current_page_url'],
-				'newsletter_data' => [
-					'newsletter_subscription_method' => $metadata['newsletters_subscription_method'],
+				'action'           => self::FORM_SUBMISSION,
+				'action_type'      => 'newsletters_subscription',
+				'referer'          => $metadata['current_page_url'],
+				'interaction_data' => [
+					'newsletters_subscription_method' => $metadata['newsletters_subscription_method'],
 				],
 			]
 		);
@@ -238,10 +249,11 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'          => $action,
-				'referer'         => $metadata['current_page_url'],
-				'newsletter_data' => [
-					'newsletter_subscription_method' => $metadata['newsletters_subscription_method'],
+				'action'           => $action,
+				'action_type'      => 'newsletters_subscription',
+				'referer'          => $metadata['current_page_url'],
+				'interaction_data' => [
+					'newsletters_subscription_method' => $metadata['newsletters_subscription_method'],
 				],
 			]
 		);
@@ -263,9 +275,10 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'        => self::FORM_SUBMISSION_SUCCESS,
-				'referer'       => $data['referer'],
-				'donation_data' => [
+				'action'           => self::FORM_SUBMISSION_SUCCESS,
+				'action_type'      => 'donation',
+				'referer'          => $data['referer'],
+				'interaction_data' => [
 					'donation_amount'     => $data['amount'],
 					'donation_currency'   => $data['currency'],
 					'donation_recurrence' => $data['recurrence'],
@@ -291,9 +304,10 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'        => self::FORM_SUBMISSION,
-				'referer'       => $config['payment_metadata']['referer'],
-				'donation_data' => [
+				'action'           => self::FORM_SUBMISSION,
+				'action_type'      => 'donation',
+				'referer'          => $config['payment_metadata']['referer'],
+				'interaction_data' => [
 					'donation_amount'     => $config['amount'],
 					'donation_currency'   => $stripe_data['currency'],
 					'donation_recurrence' => $config['frequency'],
@@ -320,9 +334,10 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'        => self::FORM_SUBMISSION_FAILURE,
-				'referer'       => $config['payment_metadata']['referer'],
-				'donation_data' => [
+				'action'           => self::FORM_SUBMISSION_FAILURE,
+				'action_type'      => 'donation',
+				'referer'          => $config['payment_metadata']['referer'],
+				'interaction_data' => [
 					'donation_amount'     => $config['amount'],
 					'donation_currency'   => $stripe_data['currency'],
 					'donation_recurrence' => $config['frequency'],
@@ -349,9 +364,10 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'        => self::FORM_SUBMISSION,
-				'referer'       => $data['referer'],
-				'donation_data' => [
+				'action'           => self::FORM_SUBMISSION,
+				'action_type'      => 'donation',
+				'referer'          => $data['referer'],
+				'interaction_data' => [
 					'donation_amount'     => $data['amount'],
 					'donation_currency'   => $data['currency'],
 					'donation_recurrence' => $data['recurrence'],
@@ -377,9 +393,10 @@ final class Popups {
 		return array_merge(
 			$popup_data,
 			[
-				'action'        => self::FORM_SUBMISSION_FAILURE,
-				'referer'       => $data['referer'],
-				'donation_data' => [
+				'action'           => self::FORM_SUBMISSION_FAILURE,
+				'action_type'      => 'donation',
+				'referer'          => $data['referer'],
+				'interaction_data' => [
 					'donation_amount'     => $data['amount'],
 					'donation_currency'   => $data['currency'],
 					'donation_recurrence' => $data['recurrence'],
