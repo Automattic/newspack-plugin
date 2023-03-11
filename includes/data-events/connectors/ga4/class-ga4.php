@@ -14,6 +14,7 @@ use Newspack\Data_Events\Connectors\GA4\Event;
 use Newspack\Data_Events\Popups as Popups_Events;
 use Newspack\Logger;
 use Newspack\Reader_Activation;
+use WC_Order;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -45,6 +46,9 @@ class GA4 {
 	public static function init() {
 		Data_Events::register_handler( [ __CLASS__, 'global_handler' ] );
 		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_event_body' ], 10, 2 );
+		add_filter( 'newspack_stripe_handle_donation_payment_metadata', [ __CLASS__, 'filter_donation_metadata' ], 10, 2 );
+
+		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_donation_new_event_body' ], 20, 2 );
 	}
 
 	/**
@@ -134,6 +138,44 @@ class GA4 {
 		if ( is_user_logged_in() ) {
 			$current_user                           = wp_get_current_user();
 			$body['data']['ga_params']['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+		}
+
+		return $body;
+
+	}
+
+	/**
+	 * When the donation_new event is dispatched from the Stripe webhook, it can't catch GA client ID from Cookies.
+	 *
+	 * In those cases, we rely on the metadata added to the order/subscription via the `newspack_stripe_handle_donation_payment_metadata` filter.
+	 *
+	 * This filter fixes both the donation_new event and the campaign_interaction with action form_submission_success that relies on this event.
+	 *
+	 * @param array  $body The event body.
+	 * @param string $event_name The event name.
+	 * @return array
+	 */
+	public static function filter_donation_new_event_body( $body, $event_name ) {
+		if ( ! empty( $body['data']['ga_client_id'] || ( 'donation_new' !== $event_name && 'campaign_interaction' !== $event_name ) ) ) {
+			return $body;
+		}
+
+		if ( 'donation_new' === $event_name ) {
+			$order_id = $body['data']['platform_data']['order_id'];
+		} else { // campaign_interaction.
+			$order_id = $body['data']['interaction_data']['donation_order_id'] ?? false;
+		}
+
+		$order = wc_get_order( $order_id );
+		if ( $order ) {
+			$ga_client_id = $order->get_meta( '_newspack_ga_client_id' );
+			if ( $ga_client_id ) {
+				$body['data']['ga_client_id'] = $ga_client_id;
+			}
+			$ga_session_id = $order->get_meta( '_newspack_ga_session_id' );
+			if ( $ga_session_id ) {
+				$body['data']['ga_params']['ga_session_id'] = $ga_session_id;
+			}
 		}
 
 		return $body;
@@ -394,6 +436,19 @@ class GA4 {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Adds GA4 session and client to the payment metadata sent to Stripe
+	 *
+	 * @param array $payment_metadata The payment metadata.
+	 * @param array $config The donation configuration.
+	 * @return array
+	 */
+	public static function filter_donation_metadata( $payment_metadata, $config ) {
+		$payment_metadata['newspack_ga_session_id'] = self::extract_sid_from_cookies();
+		$payment_metadata['newspack_ga_client_id']  = self::extract_cid_from_cookies();
+		return $payment_metadata;
 	}
 
 	/**

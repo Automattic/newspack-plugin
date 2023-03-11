@@ -279,6 +279,7 @@ final class Popups {
 				'action_type'      => 'donation',
 				'referer'          => $data['referer'],
 				'interaction_data' => [
+					'donation_order_id'   => $data['platform_data']['order_id'],
 					'donation_amount'     => $data['amount'],
 					'donation_currency'   => $data['currency'],
 					'donation_recurrence' => $data['recurrence'],
@@ -368,6 +369,7 @@ final class Popups {
 				'action_type'      => 'donation',
 				'referer'          => $data['referer'],
 				'interaction_data' => [
+					'donation_order_id'   => $data['platform_data']['order_id'],
 					'donation_amount'     => $data['amount'],
 					'donation_currency'   => $data['currency'],
 					'donation_recurrence' => $data['recurrence'],
@@ -397,6 +399,7 @@ final class Popups {
 				'action_type'      => 'donation',
 				'referer'          => $data['referer'],
 				'interaction_data' => [
+					'donation_order_id'   => $data['platform_data']['order_id'],
 					'donation_amount'     => $data['amount'],
 					'donation_currency'   => $data['currency'],
 					'donation_recurrence' => $data['recurrence'],
