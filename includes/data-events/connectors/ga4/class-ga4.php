@@ -44,7 +44,6 @@ class GA4 {
 	public static function init() {
 		Data_Events::register_handler( [ __CLASS__, 'global_handler' ] );
 		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_event_body' ], 10, 2 );
-		add_filter( 'newspack_stripe_handle_donation_payment_metadata', [ __CLASS__, 'filter_donation_metadata' ], 10, 2 );
 	}
 
 	/**
@@ -369,19 +368,6 @@ class GA4 {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Adds GA4 session and client to the payment metadata sent to Stripe
-	 *
-	 * @param array $payment_metadata The payment metadata.
-	 * @param array $config The donation configuration.
-	 * @return array
-	 */
-	public static function filter_donation_metadata( $payment_metadata, $config ) {
-		$payment_metadata['newspack_ga_session_id'] = self::extract_sid_from_cookies();
-		$payment_metadata['newspack_ga_client_id']  = self::extract_cid_from_cookies();
-		return $payment_metadata;
 	}
 
 	/**

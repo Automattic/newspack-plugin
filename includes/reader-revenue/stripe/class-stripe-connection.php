@@ -767,21 +767,13 @@ class Stripe_Connection {
 		try {
 			$stripe = self::get_stripe_client();
 
-			$amount_raw      = $config['amount'];
-			$frequency       = $config['frequency'];
-			$email_address   = $config['email_address'];
-			$full_name       = $config['full_name'];
-			$source_id       = $config['source_id'];
-			$client_metadata = $config['client_metadata'];
-
-
-			/**
-			 * Filters the payment metadata that will be sent to Stripe when a donation is made.
-			 *
-			 * @param array $payment_metadata The payment metadata.
-			 * @param array $config The donation configuration.
-			 */
-			$payment_metadata = apply_filters( 'newspack_stripe_handle_donation_payment_metadata', $config['payment_metadata'], $config );
+			$amount_raw       = $config['amount'];
+			$frequency        = $config['frequency'];
+			$email_address    = $config['email_address'];
+			$full_name        = $config['full_name'];
+			$source_id        = $config['source_id'];
+			$client_metadata  = $config['client_metadata'];
+			$payment_metadata = $config['payment_metadata'];
 
 			if ( ! isset( $client_metadata['userId'] ) && Reader_Activation::is_enabled() ) {
 				$reader_metadata                        = $client_metadata;
@@ -1172,7 +1164,7 @@ class Stripe_Connection {
 		} else {
 			$frequency = self::get_frequency_of_payment( $payment );
 		}
-		$payload = [
+		return [
 			'email'                         => $customer['email'],
 			'name'                          => $customer['name'],
 			'stripe_id'                     => $payment['id'],
@@ -1189,16 +1181,8 @@ class Stripe_Connection {
 			'user_id'                       => $customer['metadata']['userId'],
 			'subscribed'                    => self::has_customer_opted_in_to_newsletters( $customer ),
 			'referer'                       => $payment['referer'] ?? null,
+			'newspack_popup_id'             => $payment['newspack_popup_id'] ?? null,
 		];
-
-		// Add any metadata prefixed with newspack_ to the payload.
-		foreach ( $payment as $key => $value ) {
-			if ( 0 === strpos( $key, 'newspack_' ) ) {
-				$payload[ $key ] = $value;
-			}
-		}
-
-		return $payload;
 	}
 
 	/**
