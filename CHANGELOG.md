@@ -1,3 +1,10 @@
+# [1.106.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.106.0-alpha.2...v1.106.0-alpha.3) (2023-03-13)
+
+
+### Bug Fixes
+
+* show handoff to finish Newspack setup only if setup is incomplete ([#2343](https://github.com/Automattic/newspack-plugin/issues/2343)) ([1173b5b](https://github.com/Automattic/newspack-plugin/commit/1173b5b099bdbe35d89360825341c8d6796f6b95))
+
 # [1.106.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.106.0-alpha.1...v1.106.0-alpha.2) (2023-03-06)
 
 
