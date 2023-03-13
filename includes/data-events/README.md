@@ -188,6 +188,33 @@ When a user interacts with a Newspack Popup's campaign prompt.
 | `action_type`        | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
 | `interaction_data`   | `array`  | Depending on the actino type, it will return different information about the interaction.                                                      |
 
+#### structure of interaction_data:
+
+If `action_type` is `registration`:
+
+| Name                  | Type     |
+| --------------------- | -------- |
+| `registration_method` | `string` |
+
+If `action_type` is `newsletters_subscription`:
+
+| Name                  | Type     |
+| --------------------- | -------- |
+| `newsletters_subscription_method` | `string` |
+
+If `action_type` is `donation`:
+
+| Name                  | Type     | Obs                                                                                              |
+| --------------------- | -------- | ------------------------------------------------------------------------------------------------ |
+| `donation_order_id`   | `string` | Only for successful donations in any platform' or any processed/failed donations via Woocommerce |
+| `donation_amount`     | `string` |                                                                                                  |
+| `donation_currency`   | `string` |                                                                                                  |
+| `donation_recurrence` | `string` |                                                                                                  |
+| `donation_platform`   | `string` |                                                                                                  |
+| `donation_error`      | `string` | Only for failed donations via Stripe                                                             |
+
+
+
 ## Registering a new action
 
 To dispatch an event, an action must first be registered with the following:
