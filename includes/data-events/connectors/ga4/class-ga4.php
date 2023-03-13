@@ -77,6 +77,9 @@ class GA4 {
 		if ( method_exists( __CLASS__, 'handle_' . $event_name ) ) {
 			$params = call_user_func( [ __CLASS__, 'handle_' . $event_name ], $params, $data );
 
+			// prefix event name.
+			$event_name = 'np_' . $event_name;
+
 			if ( ! Event::validate_name( $event_name ) ) {
 				throw new \Exception( 'Invalid event name' );
 			}
