@@ -24,16 +24,19 @@ const Recaptcha = () => {
 	const [ settings, setSettings ] = useState( {} );
 	const [ settingsToUpdate, setSettingsToUpdate ] = useState( {} );
 
-	// Check the Mailchimp connectivity status.
-	useEffect( async () => {
-		setIsLoading( true );
-		try {
-			setSettings( await apiFetch( { path: '/newspack/v1/recaptcha' } ) );
-		} catch ( e ) {
-			setError( e.message || __( 'Error fetching settings.', 'newspack' ) );
-		} finally {
-			setIsLoading( false );
-		}
+	// Check the reCAPTCHA connectivity status.
+	useEffect( () => {
+		const fetchSettings = async () => {
+			setIsLoading( true );
+			try {
+				setSettings( await apiFetch( { path: '/newspack/v1/recaptcha' } ) );
+			} catch ( e ) {
+				setError( e.message || __( 'Error fetching settings.', 'newspack' ) );
+			} finally {
+				setIsLoading( false );
+			}
+		};
+		fetchSettings();
 	}, [] );
 
 	const updateSettings = async data => {
