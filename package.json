@@ -1,6 +1,6 @@
 {
 	"name": "newspack",
-	"version": "1.105.1",
+	"version": "1.106.0-alpha.3",
 	"description": "The Newspack plugin. https://newspack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -13,13 +13,13 @@
 	"devDependencies": {
 		"@rushstack/eslint-patch": "^1.2.0",
 		"@testing-library/react": "^12.1.4",
-		"@wordpress/browserslist-config": "^5.9.0",
+		"@wordpress/browserslist-config": "^5.10.0",
 		"eslint": "^7.32.0",
-		"lint-staged": "^13.1.1",
-		"newspack-scripts": "^4.3.8",
+		"lint-staged": "^13.1.2",
+		"newspack-scripts": "^5.0.0",
 		"postcss-scss": "^4.0.6",
 		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
-		"stylelint": "^14.9.1"
+		"stylelint": "^15.2.0"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -49,7 +49,7 @@
 		"postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
 	},
 	"dependencies": {
-		"@babel/plugin-transform-runtime": "^7.19.6",
+		"@babel/plugin-transform-runtime": "^7.21.0",
 		"@babel/preset-env": "^7.20.2",
 		"classnames": "^2.3.2",
 		"colord": "^2.9.3",

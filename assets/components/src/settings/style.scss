@@ -43,7 +43,7 @@
 					align-items: center;
 					justify-content: space-between;
 					flex-wrap: wrap;
-					> *:not( [class*='help'] ):not( [class*='label'] ) {
+					> *:not( [class*='help'], [class*='label'] ) {
 						margin: 0;
 					}
 				}
