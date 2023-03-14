@@ -1,3 +1,10 @@
+# [1.107.0](https://github.com/Automattic/newspack-plugin/compare/v1.106.0...v1.107.0) (2023-03-14)
+
+
+### Features
+
+* remove AMP as a required plugin ([#2346](https://github.com/Automattic/newspack-plugin/issues/2346)) ([102ed04](https://github.com/Automattic/newspack-plugin/commit/102ed04723bb4a6918cfac4a9dd913d2cc6cdf25))
+
 # [1.106.0](https://github.com/Automattic/newspack-plugin/compare/v1.105.1...v1.106.0) (2023-03-14)
 
 
