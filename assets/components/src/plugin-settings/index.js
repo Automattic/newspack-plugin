@@ -90,6 +90,13 @@ class PluginSettings extends Component {
 			},
 		} )
 			.then( settings => {
+				this.setState( {
+					settings: {
+						...this.state.settings,
+						[ sectionKey ]: settings[ sectionKey ],
+					},
+					error: null,
+				} );
 				if ( 'function' === typeof afterUpdate ) {
 					afterUpdate( settings );
 				}
