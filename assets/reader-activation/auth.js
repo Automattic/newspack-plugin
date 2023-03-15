@@ -236,7 +236,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			/**
 			 * Handle auth form action selection.
 			 */
-			function setFormAction( action ) {
+			function setFormAction( action, shouldFocus = true ) {
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
 						return;
@@ -262,15 +262,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 					const label = 'register' === action ? labels.register : labels.signin;
 					container.querySelector( 'h2' ).textContent = label;
 				} catch {}
-				if ( action === 'pwd' && emailInput.value ) {
-					passwordInput.focus();
-				} else if ( action === 'otp' ) {
-					otpCodeInput.focus();
-				} else {
-					emailInput.focus();
+				if ( shouldFocus ) {
+					if ( action === 'pwd' && emailInput.value ) {
+						passwordInput.focus();
+					} else if ( action === 'otp' ) {
+						otpCodeInput.focus();
+					} else {
+						emailInput.focus();
+					}
 				}
 			}
-			setFormAction( readerActivation.getAuthStrategy() || 'link' );
+			setFormAction( readerActivation.getAuthStrategy() || 'link', false );
 			readerActivation.on( 'reader', () => {
 				if ( readerActivation.getOTPHash() ) {
 					setFormAction( 'otp' );
