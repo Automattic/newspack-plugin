@@ -236,7 +236,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			/**
 			 * Handle auth form action selection.
 			 */
-			function setFormAction( action ) {
+			function setFormAction( action, shouldFocus = false ) {
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
 						return;
@@ -262,12 +262,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 					const label = 'register' === action ? labels.register : labels.signin;
 					container.querySelector( 'h2' ).textContent = label;
 				} catch {}
-				if ( action === 'pwd' && emailInput.value ) {
-					passwordInput.focus();
-				} else if ( action === 'otp' ) {
-					otpCodeInput.focus();
-				} else {
-					emailInput.focus();
+				if ( shouldFocus ) {
+					if ( action === 'pwd' && emailInput.value ) {
+						passwordInput.focus();
+					} else if ( action === 'otp' ) {
+						otpCodeInput.focus();
+					} else {
+						emailInput.focus();
+					}
 				}
 			}
 			setFormAction( readerActivation.getAuthStrategy() || 'link' );
@@ -279,7 +281,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.querySelectorAll( '[data-set-action]' ).forEach( item => {
 				item.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
-					setFormAction( ev.target.getAttribute( 'data-set-action' ) );
+					setFormAction( ev.target.getAttribute( 'data-set-action' ), true );
 				} );
 			} );
 
