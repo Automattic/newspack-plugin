@@ -98,23 +98,26 @@ const Placements = () => {
 	};
 
 	// Fetch placements, providers and bidders.
-	useEffect( async () => {
-		setInFlight( true );
-		await placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
-		try {
-			const data = await apiFetch( { path: '/newspack-ads/v1/providers' } );
-			setProviders( data );
-		} catch ( err ) {
-			setError( err );
-		}
-		try {
-			const data = await apiFetch( { path: '/newspack-ads/v1/bidders' } );
-			setBidders( data );
-		} catch ( err ) {
-			setBiddersError( err );
-		}
-		setInitialized( true );
-		setInFlight( false );
+	useEffect( () => {
+		const fetchData = async () => {
+			setInFlight( true );
+			await placementsApiFetch( { path: '/newspack-ads/v1/placements' } );
+			try {
+				const data = await apiFetch( { path: '/newspack-ads/v1/providers' } );
+				setProviders( data );
+			} catch ( err ) {
+				setError( err );
+			}
+			try {
+				const data = await apiFetch( { path: '/newspack-ads/v1/bidders' } );
+				setBidders( data );
+			} catch ( err ) {
+				setBiddersError( err );
+			}
+			setInitialized( true );
+			setInFlight( false );
+		};
+		fetchData();
 	}, [] );
 
 	// Silently refetch placements data when exiting edit modal.

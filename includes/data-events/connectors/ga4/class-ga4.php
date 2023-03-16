@@ -31,6 +31,9 @@ class GA4 {
 	public static $watched_events = [
 		'reader_logged_in',
 		'reader_registered',
+		'donation_new',
+		'donation_subscription_cancelled',
+		'newsletter_subscribed',
 	];
 
 	/**
@@ -139,7 +142,7 @@ class GA4 {
 	/**
 	 * Handler for the reader_logged_in event.
 	 *
-	 * @param int   $params The GA4 event parameters.
+	 * @param array $params The GA4 event parameters.
 	 * @param array $data      Data associated with the Data Events api event.
 	 *
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
@@ -151,7 +154,7 @@ class GA4 {
 	/**
 	 * Handler for the reader_registered event.
 	 *
-	 * @param int   $params The GA4 event parameters.
+	 * @param array $params The GA4 event parameters.
 	 * @param array $data      Data associated with the Data Events api event.
 	 *
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
@@ -164,6 +167,95 @@ class GA4 {
 		if ( ! empty( $data['metadata']['referer'] ) ) {
 			$params['referer'] = substr( $data['metadata']['referer'], 0, 100 );
 		}
+		return $params;
+	}
+
+	/**
+	 * Handler for the donation_new event.
+	 *
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data      Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_donation_new( $params, $data ) {
+		$params['amount']     = $data['amount'];
+		$params['currency']   = $data['currency'];
+		$params['recurrence'] = $data['recurrence'];
+		$params['platform']   = $data['platform'];
+		$params['referer']    = $data['referer'] ?? '';
+		$params['popup_id']   = $data['popup_id'] ?? '';
+		$params['range']      = self::get_donation_amount_range( $data['amount'] );
+		return $params;
+	}
+
+	/**
+	 * Handler for the donation_subscription_cancelled event.
+	 *
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data      Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_donation_subscription_cancelled( $params, $data ) {
+		$params['amount']     = $data['amount'];
+		$params['currency']   = $data['currency'];
+		$params['recurrence'] = $data['recurrence'];
+		$params['platform']   = $data['platform'];
+		$params['range']      = self::get_donation_amount_range( $data['amount'] );
+		return $params;
+	}
+
+	/**
+	 * Gets the value of the donation range metadata based on the donation amount.
+	 *
+	 * @param mixed $amount The donation amount.
+	 * @return string
+	 */
+	public static function get_donation_amount_range( $amount ) {
+
+		$amount = (float) $amount;
+
+		if ( 0.0 === $amount ) {
+			return '';
+		} elseif ( $amount < 20 ) {
+			return 'under-20';
+		} elseif ( $amount < 51 ) {
+			return '20-50';
+		} elseif ( $amount < 101 ) {
+			return '51-100';
+		} elseif ( $amount < 201 ) {
+			return '101-200';
+		} elseif ( $amount < 501 ) {
+			return '201-500';
+		} else {
+			return 'over-500';
+		}
+	}
+
+	/**
+	 * Handler for the newsletter_subscribed event.
+	 *
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data      Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_newsletter_subscribed( $params, $data ) {
+		$metadata = $data['contact']['metadata'] ?? [];
+		if ( ! empty( $metadata['newspack_popup_id'] ) ) {
+			$params = array_merge( $params, Popups_Events::get_popup_metadata( $metadata['newspack_popup_id'] ) );
+		}
+		$params['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'] ?? '';
+		$params['referer']                         = $metadata['current_page_url'] ?? '';
+
+		// In case the subscription happened as part of the registration process, we should also have the registration method.
+		$params['registration_method'] = $metadata['registration_method'] ?? '';
+
+		$lists = $data['lists'];
+		sort( $lists );
+		$params['lists'] = implode( ',', $lists );
+
 		return $params;
 	}
 

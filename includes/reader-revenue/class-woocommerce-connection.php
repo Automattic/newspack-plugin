@@ -192,7 +192,12 @@ class WooCommerce_Connection {
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 
 		if ( false === $payment_page_url ) {
-			$payment_page_url = \wc_get_checkout_url();
+			$referer_from_order = $order->get_meta( '_newspack_referer' );
+			if ( empty( $referer_from_order ) ) {
+				$payment_page_url = \wc_get_checkout_url();
+			} else {
+				$payment_page_url = $referer_from_order;
+			}
 		}
 		$metadata['current_page_url'] = $payment_page_url;
 
