@@ -138,6 +138,7 @@ class GA4 {
 			$body['data']['ga_params']['ga_session_id'] = $session_id;
 		}
 
+		$body['data']['ga_params']['is_reader'] = 'no';
 		if ( is_user_logged_in() ) {
 			$current_user                           = wp_get_current_user();
 			$body['data']['ga_params']['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
@@ -178,6 +179,14 @@ class GA4 {
 			$ga_session_id = $order->get_meta( '_newspack_ga_session_id' );
 			if ( $ga_session_id ) {
 				$body['data']['ga_params']['ga_session_id'] = $ga_session_id;
+			}
+			$logged_in = $order->get_meta( '_newspack_logged_in' );
+			if ( $logged_in ) {
+				$body['data']['ga_params']['logged_in'] = $logged_in;
+			}
+			$is_reader = $order->get_meta( '_newspack_is_reader' );
+			if ( $is_reader ) {
+				$body['data']['ga_params']['is_reader'] = $is_reader;
 			}
 		}
 
@@ -320,7 +329,7 @@ class GA4 {
 		unset( $transformed_data['ga_client_id'] );
 
 		$transformed_data = self::sanitize_popup_params( $transformed_data );
-		
+
 		return array_merge( $params, $transformed_data );
 	}
 
@@ -472,7 +481,7 @@ class GA4 {
 	}
 
 	/**
-	 * Adds GA4 session and client to the payment metadata sent to Stripe
+	 * Adds additional information about the current user and session to the payment metadata sent to Stripe
 	 *
 	 * @param array $payment_metadata The payment metadata.
 	 * @param array $config The donation configuration.
@@ -481,6 +490,12 @@ class GA4 {
 	public static function filter_donation_metadata( $payment_metadata, $config ) {
 		$payment_metadata['newspack_ga_session_id'] = self::extract_sid_from_cookies();
 		$payment_metadata['newspack_ga_client_id']  = self::extract_cid_from_cookies();
+		$payment_metadata['newspack_logged_in']     = is_user_logged_in() ? 'yes' : 'no';
+		$payment_metadata['newspack_is_reader']     = 'no';
+		if ( is_user_logged_in() ) {
+			$current_user                           = wp_get_current_user();
+			$payment_metadata['newspack_is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+		}
 		return $payment_metadata;
 	}
 
