@@ -23,6 +23,10 @@ const CONNECTORS = [
 		label: __( 'Google Analytics', 'newspack' ),
 	},
 	{
+		service: 'google_analytics_4',
+		label: __( 'Google Analytics 4', 'newspack' ),
+	},
+	{
 		service: 'mailchimp',
 		label: __( 'Mailchimp', 'newspack' ),
 	},
