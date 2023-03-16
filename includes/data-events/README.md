@@ -188,7 +188,7 @@ When a user interacts with a Newspack Popup's campaign prompt.
 | `action_type`        | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
 | `interaction_data`   | `array`  | Depending on the actino type, it will return different information about the interaction.                                                      |
 
-#### structure of interaction_data:
+#### Possible values for `interaction_data`
 
 If `action_type` is `registration`:
 
