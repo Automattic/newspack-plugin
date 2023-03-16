@@ -339,18 +339,18 @@ class GA4 {
 	 * @param array $popup_params The popup params as they are returned by Newspack\Data_Events\Popups::get_popup_metadata and by the campaign_interaction data.
 	 * @return array
 	 */
-	public static function sanitize_popup_params( $popup_parms ) {
+	public static function sanitize_popup_params( $popup_params ) {
 		// Invalid input.
-		if ( ! is_array( $popup_parms ) || ! isset( $popup_parms['campaign_id'] ) ) {
+		if ( ! is_array( $popup_params ) || ! isset( $popup_params['campaign_id'] ) ) {
 			return [];
 		}
-		$santized = $popup_parms;
+		$santized = $popup_params;
 
 		unset( $santized['interaction_data'] );
-		$santized = array_merge( $santized, $popup_parms['interaction_data'] );
+		$santized = array_merge( $santized, $popup_params['interaction_data'] );
 
 		unset( $santized['campaign_blocks'] );
-		foreach ( $popup_parms['campaign_blocks'] as $block ) {
+		foreach ( $popup_params['campaign_blocks'] as $block ) {
 			$santized[ 'campaign_has_' . $block ] = 1;
 		}
 		return $santized;
@@ -361,7 +361,7 @@ class GA4 {
 	 *
 	 * Ensures that the params are sanitized to be sent as GA params
 	 *
-	 * @param int $popup The popup ID.
+	 * @param int $popup_id The popup ID.
 	 * @return array
 	 */
 	public static function get_sanitized_popup_params( $popup_id ) {
