@@ -779,7 +779,7 @@ class Stripe_Connection {
 			 *
 			 * Use this filter to add additinoal metadata to the payment. Every metadata prefixed with "newspack_" will be later automatically added
 			 * as a metadata to the order or subscription when we receive the webhook request from Stripe.
-			 * (Note, in the order, the metadata prefix will be "_newsapck_")
+			 * (Note, in the order, the metadata prefix will be "_newspack_")
 			 *
 			 * @param array $payment_metadata The payment metadata.
 			 * @param array $config The donation configuration.
