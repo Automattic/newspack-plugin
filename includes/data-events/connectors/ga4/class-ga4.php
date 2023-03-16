@@ -208,7 +208,7 @@ class GA4 {
 	public static function handle_reader_registered( $params, $data ) {
 		$params['registration_method'] = $data['metadata']['registration_method'] ?? '';
 		if ( ! empty( $data['metadata']['newspack_popup_id'] ) ) {
-			$params = array_merge( $params, Popups_Events::get_popup_metadata( $data['metadata']['newspack_popup_id'] ) );
+			$params = array_merge( $params, self::get_sanitized_popup_params( $data['metadata']['newspack_popup_id'] ) );
 		}
 		if ( ! empty( $data['metadata']['referer'] ) ) {
 			$params['referer'] = substr( $data['metadata']['referer'], 0, 100 );
@@ -290,7 +290,7 @@ class GA4 {
 	public static function handle_newsletter_subscribed( $params, $data ) {
 		$metadata = $data['contact']['metadata'] ?? [];
 		if ( ! empty( $metadata['newspack_popup_id'] ) ) {
-			$params = array_merge( $params, Popups_Events::get_popup_metadata( $metadata['newspack_popup_id'] ) );
+			$params = array_merge( $params, self::get_sanitized_popup_params( $metadata['newspack_popup_id'] ) );
 		}
 		$params['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'] ?? '';
 		$params['referer']                         = $metadata['current_page_url'] ?? '';
@@ -319,15 +319,45 @@ class GA4 {
 		unset( $transformed_data['ga_params'] );
 		unset( $transformed_data['ga_client_id'] );
 
-		unset( $transformed_data['interaction_data'] );
-		$transformed_data = array_merge( $transformed_data, $data['interaction_data'] );
-
-		unset( $transformed_data['campaign_blocks'] );
-		foreach ( $data['campaign_blocks'] as $block ) {
-			$transformed_data[ 'campaign_has_' . $block ] = 1;
-		}
-
+		$transformed_data = self::sanitize_popup_params( $transformed_data );
+		
 		return array_merge( $params, $transformed_data );
+	}
+
+	/**
+	 * Sanitizes the popup params to be sent as params for GA events
+	 *
+	 * @param array $popup_params The popup params as they are returned by Newspack\Data_Events\Popups::get_popup_metadata and by the campaign_interaction data.
+	 * @return array
+	 */
+	public static function sanitize_popup_params( $popup_parms ) {
+		// Invalid input.
+		if ( ! is_array( $popup_parms ) || ! isset( $popup_parms['campaign_id'] ) ) {
+			return [];
+		}
+		$santized = $popup_parms;
+
+		unset( $santized['interaction_data'] );
+		$santized = array_merge( $santized, $popup_parms['interaction_data'] );
+
+		unset( $santized['campaign_blocks'] );
+		foreach ( $popup_parms['campaign_blocks'] as $block ) {
+			$santized[ 'campaign_has_' . $block ] = 1;
+		}
+		return $santized;
+	}
+
+	/**
+	 * Gets the santized popup params from a popup ID
+	 *
+	 * Ensures that the params are sanitized to be sent as GA params
+	 *
+	 * @param int $popup The popup ID.
+	 * @return array
+	 */
+	public static function get_sanitized_popup_params( $popup_id ) {
+		$popup_params = Popups_Events::get_popup_metadata( $popup_id );
+		return self::sanitize_popup_params( $popup_params );
 	}
 
 	/**
