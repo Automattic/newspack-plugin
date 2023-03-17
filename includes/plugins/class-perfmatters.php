@@ -64,6 +64,11 @@ class Perfmatters {
 			'mailchimp-for-wp',
 			// Third-party services.
 			'disqus',
+			// Advertising.
+			'googletag.pubads',
+			'adsbygoogle.js',
+			'ai_insert_code',
+			'doubleclick.net',
 		];
 	}
 
