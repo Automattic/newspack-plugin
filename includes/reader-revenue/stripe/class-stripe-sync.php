@@ -321,7 +321,7 @@ class Stripe_Sync {
 		\WP_CLI::log(
 			'
 
-Running data backfill from Stripe to ' . ( $to_wc ? 'WooCommerce' : 'ESP' ) . '...
+Running data backfill from Stripe to ' . ( $to_esp ? 'ESP' : 'WooCommerce' ) . '...
 
 		'
 		);
