@@ -65,6 +65,7 @@ class Perfmatters {
 			// Third-party services.
 			'disqus',
 			'recaptcha',
+			'twitter.com',
 			// Advertising.
 			'googletag.pubads',
 			'adsbygoogle.js',
