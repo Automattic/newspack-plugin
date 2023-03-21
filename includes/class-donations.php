@@ -903,7 +903,7 @@ class Donations {
 	}
 
 	/**
-	 * Can Stripe platform be used?
+	 * Can Stripe be used?
 	 *
 	 * @return bool True if it can.
 	 */
@@ -919,13 +919,20 @@ class Donations {
 	 *
 	 * @return bool True if it can.
 	 */
-	public static function can_use_streamlined_donate_block() {
-		if ( self::can_use_stripe_platform() ) {
-			$payment_data    = Stripe_Connection::get_stripe_data();
-			$has_stripe_keys = isset( $payment_data['usedPublishableKey'], $payment_data['usedSecretKey'] ) && $payment_data['usedPublishableKey'] && $payment_data['usedSecretKey'];
-			return $has_stripe_keys;
+	public static function is_using_streamlined_donate_block() {
+		if ( ! self::can_use_stripe_platform() ) {
+			return false;
 		}
-		return false;
+
+		// If "Stripe (Credit Card)" is the only gateway configured, use the streamlined donate block.
+		$gateways = WooCommerce_Configuration_Manager::get_payment_gateways( true );
+		if ( 1 < count( $gateways ) || ! isset( $gateways['stripe'] ) ) {
+			return false;
+		}
+
+		$payment_data    = Stripe_Connection::get_stripe_data();
+		$has_stripe_keys = isset( $payment_data['usedPublishableKey'], $payment_data['usedSecretKey'] ) && $payment_data['usedPublishableKey'] && $payment_data['usedSecretKey'];
+		return $has_stripe_keys;
 	}
 
 	/**

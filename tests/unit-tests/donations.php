@@ -79,7 +79,7 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 	 */
 	public function test_donations_stripe() {
 		self::assertFalse(
-			Donations::can_use_streamlined_donate_block(),
+			Donations::is_using_streamlined_donate_block(),
 			'The streamlined block cannot be used until Stripe platform is configured.'
 		);
 
@@ -92,7 +92,7 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 		);
 
 		self::assertFalse(
-			Donations::can_use_streamlined_donate_block(),
+			Donations::is_using_streamlined_donate_block(),
 			'The streamlined block still cannot be used, keys are needed.'
 		);
 
@@ -122,7 +122,7 @@ class Newspack_Test_Donations extends WP_UnitTestCase {
 		);
 
 		self::assertTrue(
-			Donations::can_use_streamlined_donate_block(),
+			Donations::is_using_streamlined_donate_block(),
 			'The streamlined block can be used now.'
 		);
 	}

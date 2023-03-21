@@ -214,7 +214,7 @@ class Stripe_Webhooks {
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
 	public static function receive_webhook( $request ) {
-		if ( ! Donations::is_platform_stripe() ) {
+		if ( ! Donations::is_using_streamlined_donate_block() ) {
 			return;
 		}
 		// Verify the webhook signature (https://stripe.com/docs/webhooks/signatures).
