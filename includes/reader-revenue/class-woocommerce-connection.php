@@ -411,8 +411,11 @@ class WooCommerce_Connection {
 			$order->add_meta_data( '_newspack_referer', $order_data['referer'] );
 		}
 
-		if ( ! empty( $order_data['newspack_popup_id'] ) ) {
-			$order->add_meta_data( '_newspack_popup_id', $order_data['newspack_popup_id'] );
+		// Add all newspack_* meta data.
+		foreach ( $order_data as $key => $value ) {
+			if ( 0 === strpos( $key, 'newspack_' ) ) {
+				$order->add_meta_data( '_' . $key, $value );
+			}
 		}
 
 		if ( ! empty( $order_data['user_id'] ) ) {
