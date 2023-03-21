@@ -748,8 +748,6 @@ class Stripe_Connection {
 	 * @param object $config Data about the donation.
 	 */
 	public static function handle_donation( $config ) {
-		Stripe_Webhooks::validate_or_create_webhooks( true );
-
 		$stripe_data = self::get_stripe_data();
 
 		/**
@@ -764,6 +762,14 @@ class Stripe_Connection {
 			'error'  => null,
 			'status' => null,
 		];
+
+		if ( ! Donations::is_woocommerce_suite_active() ) {
+			$response['error'] = __( 'Donations are not supported when WooCommerce is inactive.', 'newspack' );
+			return $response;
+		}
+
+		Stripe_Webhooks::validate_or_create_webhooks( true );
+
 		try {
 			$stripe = self::get_stripe_client();
 
@@ -817,11 +823,6 @@ class Stripe_Connection {
 
 			$is_recurring = 'once' != $frequency;
 
-			// In this mode, WC will create a subscription for the customer, instead of using
-			// native Stripe subscriptions.
-			$is_wc_first_enabled = defined( 'NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM' ) && NEWSPACK_USE_WC_SUBSCRIPTIONS_WITH_STRIPE_PLATFORM;
-			$is_wc_first         = $is_wc_first_enabled && Donations::is_woocommerce_suite_active();
-
 			$payment_intent_payload = [
 				'amount'      => $amount_raw,
 				'customer'    => $customer['id'],
@@ -846,121 +847,82 @@ class Stripe_Connection {
 				]
 			);
 
-			if ( $is_wc_first || ! $is_recurring ) {
-				// Create a Payment Intent on Stripe. The client secret of this PI has to be
-				// sent back to the front-end to finish processing the transaction.
-				$payment_intent_payload['source'] = $source_id;
-				if ( $is_recurring ) {
-					// Set up the payment intent for recurring payments via WooCommerce Subscriptions.
-					$payment_intent_payload['setup_future_usage'] = 'off_session';
-				}
-				// Default description, to be updated with order ID once it's created.
-				$payment_intent_payload['description'] = __( 'Newspack Donation', 'newspack' );
-				$payment_intent_payload['metadata']    = $payment_metadata;
-				$payment_intent                        = self::create_payment_intent( $payment_intent_payload );
-
-				if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
-					// If this instance can't send the receipt email, make Stripe send the email.
-					$payment_intent['receipt_email'] = $email_address;
-				}
-
-				if ( $is_wc_first ) {
-					$amount_normalised = self::normalise_amount( $payment_intent['amount'], $payment_intent['currency'] );
-					switch ( $config['tokenization_method'] ) {
-						case 'apple_pay':
-							$payment_method_title = __( 'Apple Pay (Stripe)', 'newspack' );
-							break;
-						case 'android_pay':
-							$payment_method_title = __( 'Google Pay (Stripe)', 'newspack' );
-							break;
-						default:
-							$payment_method_title = __( 'Credit Card (Stripe)', 'newspack' );
-							break;
-					}
-					$wc_order_payload = [
-						'status'               => 'pending',
-						'email'                => $customer['email'],
-						'name'                 => $customer['name'],
-						'stripe_customer_id'   => $customer['id'],
-						'stripe_source_id'     => $source_id,
-						'stripe_intent_id'     => $payment_intent['id'],
-						'payment_method_title' => $payment_method_title,
-						'date'                 => $payment_intent['created'],
-						'amount'               => $amount_normalised,
-						'frequency'            => $frequency,
-						'currency'             => strtoupper( $payment_intent['currency'] ),
-						'client_id'            => $customer['metadata']['clientId'],
-						'user_id'              => $customer['metadata']['userId'],
-						'subscribed'           => self::has_customer_opted_in_to_newsletters( $customer ),
-					];
-					if ( $is_recurring ) {
-						$wc_order_payload['subscription_status'] = 'created';
-					}
-
-					$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
-					$wc_order_id                  = $wc_transaction_creation_data['order_id'];
-					if ( ! \is_wp_error( $wc_order_id ) ) {
-						// Trigger the ESP data sync, which would normally happen on checkout.
-						$payment_page_url = isset( $client_metadata['current_page_url'] ) ? $client_metadata['current_page_url'] : false;
-						WooCommerce_Connection::sync_reader_from_order( $wc_order_id, false, $payment_page_url );
-
-						$payment_intent_meta = [
-							'order_id'            => $wc_transaction_creation_data['order_id'],
-							'payment_type'        => 'recurring',
-							'subscription_status' => 'created',
-						];
-						if ( $wc_transaction_creation_data['subscription_id'] ) {
-							$payment_intent_meta['subscription_id'] = $wc_transaction_creation_data['subscription_id'];
-						}
-
-						// Update the metadata on the payment intent with the order ID.
-						$stripe->paymentIntents->update(
-							$payment_intent['id'],
-							[
-								'description' => WooCommerce_Connection::create_payment_description( $wc_transaction_creation_data, $frequency ),
-								'metadata'    => $payment_intent_meta,
-							]
-						);
-					}
-				}
-
-				$response['client_secret'] = $payment_intent['client_secret'];
-			} else {
-				// Create a Subscription on Stripe.
-				$prices = self::get_donation_prices();
-				$price  = $prices[ $frequency ];
-				$amount = self::get_amount( $amount_raw, $price['currency'] );
-
-				$subscription = $stripe->subscriptions->create(
-					[
-						'customer'         => $customer['id'],
-						'items'            => [
-							[
-								'price'    => $price['id'],
-								'quantity' => $amount,
-							],
-						],
-						'payment_behavior' => 'allow_incomplete',
-						'metadata'         => $payment_metadata,
-						'expand'           => [ 'latest_invoice.payment_intent' ],
-					]
-				);
-
-				// Update invoice metadata.
-				$stripe->invoices->update(
-					$subscription->latest_invoice['id'],
-					[
-						'metadata' => $payment_metadata,
-					]
-				);
-
-				if ( 'incomplete' === $subscription->status ) {
-					// The card may require additional authentication.
-					$response['client_secret'] = $subscription->latest_invoice->payment_intent->client_secret;
-				} elseif ( 'active' === $subscription->status ) {
-					$response['status'] = 'success';
-				}
+			// Create a Payment Intent on Stripe. The client secret of this PI has to be
+			// sent back to the front-end to finish processing the transaction.
+			$payment_intent_payload['source'] = $source_id;
+			if ( $is_recurring ) {
+				// Set up the payment intent for recurring payments via WooCommerce Subscriptions.
+				$payment_intent_payload['setup_future_usage'] = 'off_session';
 			}
+			// Default description, to be updated with order ID once it's created.
+			$payment_intent_payload['description'] = __( 'Newspack Donation', 'newspack' );
+			$payment_intent_payload['metadata']    = $payment_metadata;
+			$payment_intent                        = self::create_payment_intent( $payment_intent_payload );
+
+			if ( ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
+				// If this instance can't send the receipt email, make Stripe send the email.
+				$payment_intent['receipt_email'] = $email_address;
+			}
+
+			$amount_normalised = self::normalise_amount( $payment_intent['amount'], $payment_intent['currency'] );
+			switch ( $config['tokenization_method'] ) {
+				case 'apple_pay':
+					$payment_method_title = __( 'Apple Pay (Stripe)', 'newspack' );
+					break;
+				case 'android_pay':
+					$payment_method_title = __( 'Google Pay (Stripe)', 'newspack' );
+					break;
+				default:
+					$payment_method_title = __( 'Credit Card (Stripe)', 'newspack' );
+					break;
+			}
+			$wc_order_payload = [
+				'status'               => 'pending',
+				'email'                => $customer['email'],
+				'name'                 => $customer['name'],
+				'stripe_customer_id'   => $customer['id'],
+				'stripe_source_id'     => $source_id,
+				'stripe_intent_id'     => $payment_intent['id'],
+				'payment_method_title' => $payment_method_title,
+				'date'                 => $payment_intent['created'],
+				'amount'               => $amount_normalised,
+				'frequency'            => $frequency,
+				'currency'             => strtoupper( $payment_intent['currency'] ),
+				'client_id'            => $customer['metadata']['clientId'],
+				'user_id'              => $customer['metadata']['userId'],
+				'subscribed'           => self::has_customer_opted_in_to_newsletters( $customer ),
+			];
+			if ( $is_recurring ) {
+				$wc_order_payload['subscription_status'] = 'created';
+			}
+
+			$wc_transaction_creation_data = WooCommerce_Connection::create_transaction( $wc_order_payload );
+			$wc_order_id                  = $wc_transaction_creation_data['order_id'];
+			if ( ! \is_wp_error( $wc_order_id ) ) {
+				// Trigger the ESP data sync, which would normally happen on checkout.
+				$payment_page_url = isset( $client_metadata['current_page_url'] ) ? $client_metadata['current_page_url'] : false;
+				WooCommerce_Connection::sync_reader_from_order( $wc_order_id, false, $payment_page_url );
+
+				$payment_intent_meta = [
+					'order_id'            => $wc_transaction_creation_data['order_id'],
+					'payment_type'        => 'recurring',
+					'subscription_status' => 'created',
+				];
+				if ( $wc_transaction_creation_data['subscription_id'] ) {
+					$payment_intent_meta['subscription_id'] = $wc_transaction_creation_data['subscription_id'];
+				}
+
+				// Update the metadata on the payment intent with the order ID.
+				$stripe->paymentIntents->update(
+					$payment_intent['id'],
+					[
+						'description' => WooCommerce_Connection::create_payment_description( $wc_transaction_creation_data, $frequency ),
+						'metadata'    => $payment_intent_meta,
+					]
+				);
+			}
+
+			$response['client_secret'] = $payment_intent['client_secret'];
 		} catch ( \Throwable $e ) {
 			$response['error'] = $e->getMessage();
 			/**
