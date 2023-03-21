@@ -101,6 +101,15 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/memberships',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_memberships_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -215,6 +224,27 @@ class Engagement_Wizard extends Wizard {
 			Reader_Activation::update_setting( $key, $value );
 		}
 		return rest_ensure_response( Reader_Activation::get_settings() );
+	}
+
+	/**
+	 * Get memberships settings.
+	 *
+	 * @return array
+	 */
+	private static function get_memberships_settings() {
+		return [
+			'edit_gate_url' => WC_Memberships::get_edit_gate_url(),
+			'gate_status'   => get_post_status( WC_Memberships::get_gate_post_id() ),
+		];
+	}
+
+	/**
+	 * Get memberships settings.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_get_memberships_settings() {
+		return rest_ensure_response( [ 'config' => self::get_memberships_settings() ] );
 	}
 
 	/**
@@ -349,6 +379,7 @@ class Engagement_Wizard extends Wizard {
 
 		$data = [
 			'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
+			'has_memberships'       => \is_plugin_active( 'woocommerce-memberships/woocommerce-memberships.php' ),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {

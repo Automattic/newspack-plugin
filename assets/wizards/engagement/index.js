@@ -16,7 +16,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ReaderActivation, Commenting, Newsletters, Social, RelatedContent } from './views';
+import {
+	ReaderActivation,
+	Commenting,
+	Newsletters,
+	Social,
+	RelatedContent,
+	Memberships,
+} from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -104,6 +111,13 @@ class EngagementWizard extends Component {
 				exact: true,
 			} );
 		}
+		if ( newspack_engagement_wizard.has_memberships ) {
+			tabbed_navigation.push( {
+				label: __( 'Memberships', 'newspack' ),
+				path: '/memberships',
+				exact: true,
+			} );
+		}
 		const props = {
 			headerText: __( 'Engagement', 'newspack' ),
 			tabbedNavigation: tabbed_navigation,
@@ -119,6 +133,20 @@ class EngagementWizard extends Component {
 								render={ () => (
 									<ReaderActivation
 										subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
+										{ ...props }
+									/>
+								) }
+							/>
+						) }
+						{ newspack_engagement_wizard.has_memberships && (
+							<Route
+								path="/memberships"
+								render={ () => (
+									<Memberships
+										subHeaderText={ __(
+											'Better reader experience for Woo Memberships',
+											'newspack'
+										) }
 										{ ...props }
 									/>
 								) }
