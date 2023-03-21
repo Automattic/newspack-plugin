@@ -1,3 +1,15 @@
+# [1.109.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.109.0-alpha.1...v1.109.0-alpha.2) (2023-03-21)
+
+
+### Bug Fixes
+
+* **perfmatters:** add twitter.com to JS delay list ([34bac52](https://github.com/Automattic/newspack-plugin/commit/34bac52e258f1f464e100998e77e9c91bcce858e))
+
+
+### Features
+
+* Add popup events to GA4 ([#2337](https://github.com/Automattic/newspack-plugin/issues/2337)) ([62c738e](https://github.com/Automattic/newspack-plugin/commit/62c738e86c9599ed166b908bd827a3d8d09597b6))
+
 # [1.109.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.108.0...v1.109.0-alpha.1) (2023-03-20)
 
 
