@@ -16,8 +16,6 @@ defined( 'ABSPATH' ) || exit;
  * Connection with WooCommerce's "My Account" page.
  */
 class WooCommerce_My_Account {
-	const BILLING_ENDPOINT             = 'billing';
-	const STRIPE_CUSTOMER_ID_USER_META = '_newspack_stripe_customer_id';
 	const RESET_PASSWORD_URL_PARAM     = 'reset-password';
 	const DELETE_ACCOUNT_URL_PARAM     = 'delete-account';
 	const DELETE_ACCOUNT_FORM          = 'delete-account-form';
@@ -37,8 +35,6 @@ class WooCommerce_My_Account {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
-		\add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
-		\add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 
 		// Reader Activation mods.
@@ -73,19 +69,11 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Filter "My Account" items, if Stripe is the donations platform.
+	 * Filter "My Account" items.
 	 *
 	 * @param array $items Items.
 	 */
 	public static function my_account_menu_items( $items ) {
-		// If the user has a Stripe customer ID, they're a Stripe customer (regardless of the donations platform).
-		// Add a nav item for Stripe's billing portal.
-		$stripe_customer_id = self::get_current_user_stripe_id();
-		if ( false !== $stripe_customer_id ) {
-			$custom_endpoints = [ self::BILLING_ENDPOINT => __( 'Billing', 'newspack' ) ];
-			$items            = array_slice( $items, 0, 1, true ) + $custom_endpoints + array_slice( $items, 1, null, true );
-		}
-
 		$default_disabled_items = [];
 
 		// Rename 'Logout' action to 'Log out', for grammatical reasons.
@@ -106,40 +94,16 @@ class WooCommerce_My_Account {
 			}
 
 			$default_disabled_items = array_merge( $default_disabled_items, [ 'dashboard', 'members-area', 'edit-address' ] );
-			$customer_id            = \get_current_user_id();
-			if ( function_exists( 'wcs_user_has_subscription' ) && function_exists( 'wcs_get_subscriptions' ) ) {
-				$user_subscriptions             = wcs_get_subscriptions( [ 'customer_id' => $customer_id ] );
-				$has_non_newspack_subscriptions = false;
-				foreach ( $user_subscriptions as $subscription ) {
-					if ( ! $subscription->get_meta( WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY ) ) {
-						$has_non_newspack_subscriptions = true;
-						break;
-					}
-				}
-				// Unless user has any subscriptions that aren't tied to a Stripe subscription by Newspack, hide the subscriptions link.
-				// The Stripe-tied subscriptions will be available for management in the "Billing" section.
-				if ( ! $has_non_newspack_subscriptions ) {
-					$default_disabled_items[] = 'subscriptions';
-				}
-			}
-			if ( function_exists( 'wc_get_orders' ) ) {
-				$wc_non_newspack_orders = array_filter(
-					\wc_get_orders( [ 'customer' => $customer_id ] ),
-					function ( $order ) {
-						return WooCommerce_Connection::CREATED_VIA_NAME !== $order->get_created_via();
-					}
-				);
-				if ( empty( $wc_non_newspack_orders ) ) {
-					$default_disabled_items = array_merge( $default_disabled_items, [ 'orders', 'payment-methods' ] );
-				}
-			}
-			if ( function_exists( 'wc_get_customer_available_downloads' ) ) {
-				$wc_customer_downloads = \wc_get_customer_available_downloads( $customer_id );
 
+			// Hide "Downloads" menu item if the user has no downloads.
+			if ( function_exists( 'wc_get_customer_available_downloads' ) ) {
+				$customer_id           = \get_current_user_id();
+				$wc_customer_downloads = \wc_get_customer_available_downloads( $customer_id );
 				if ( empty( $wc_customer_downloads ) ) {
 					$default_disabled_items[] = 'downloads';
 				}
 			}
+
 			$disabled_wc_menu_items = \apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
 			foreach ( $disabled_wc_menu_items as $key ) {
 				if ( isset( $items[ $key ] ) ) {
@@ -356,70 +320,6 @@ class WooCommerce_My_Account {
 				\wp_safe_redirect( \wc_get_account_endpoint_url( 'edit-account' ) );
 				exit;
 			}
-		}
-	}
-
-	/**
-	 * Get current user's Stripe customer ID.
-	 */
-	private static function get_current_user_stripe_id() {
-		if ( self::$stripe_customer_id ) {
-			return self::$stripe_customer_id;
-		}
-		$user_id               = \get_current_user_id();
-		$user_meta_customer_id = \get_user_meta( $user_id, Stripe_Connection::STRIPE_CUSTOMER_ID_USER_META, true );
-		if ( $user_meta_customer_id ) {
-			self::$stripe_customer_id = $user_meta_customer_id;
-			return $user_meta_customer_id;
-		}
-		$customer_orders     = \wc_get_orders(
-			[
-				'customer_id' => $user_id,
-				'created_via' => WooCommerce_Connection::CREATED_VIA_NAME,
-				'limit'       => -1,
-			]
-		);
-		$stripe_customer_ids = [];
-		foreach ( $customer_orders as $order ) {
-			$stripe_customer_id = $order->get_meta( '_stripe_customer_id' );
-			if ( $stripe_customer_id ) {
-				$stripe_customer_ids[] = $stripe_customer_id;
-			}
-		}
-		array_unique( $stripe_customer_ids );
-		if ( empty( $stripe_customer_ids ) ) {
-			self::$stripe_customer_id = false;
-		} else {
-			self::$stripe_customer_id = $stripe_customer_ids[0];
-			\update_user_meta( $user_id, Stripe_Connection::STRIPE_CUSTOMER_ID_USER_META, self::$stripe_customer_id );
-		}
-		return self::$stripe_customer_id;
-	}
-
-	/**
-	 * Render custom "My Account" page.
-	 */
-	public static function render_billing_template() {
-		$stripe_customer_id        = self::get_current_user_stripe_id();
-		$stripe_billing_portal_url = Stripe_Connection::get_billing_portal_url( $stripe_customer_id );
-		$error_message             = false;
-		if ( \is_wp_error( $stripe_billing_portal_url ) ) {
-			$error_message = $stripe_billing_portal_url->get_error_message();
-			Logger::error( 'Error getting Stripe billing portal URL: ' . \wp_json_encode( $stripe_billing_portal_url ) );
-		}
-
-		include dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-billing.php';
-	}
-
-	/**
-	 * Add the necessary endpoints to rewrite rules.
-	 */
-	public static function add_rewrite_endpoints() {
-		\add_rewrite_endpoint( self::BILLING_ENDPOINT, EP_PAGES );
-		if ( ! \get_option( '_newspack_has_set_up_custom_billing_endpoint' ) ) {
-			\flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
-			Logger::log( 'Flushed rewrite rules to add billing endpoint' );
-			\update_option( '_newspack_has_set_up_custom_billing_endpoint', true );
 		}
 	}
 
