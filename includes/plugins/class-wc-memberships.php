@@ -181,6 +181,10 @@ class WC_Memberships {
 		check_admin_referer( 'newspack_edit_memberships_gate' );
 		$gate_post_id = self::get_gate_post_id();
 		if ( $gate_post_id && get_post( $gate_post_id ) ) {
+			// Untrash post if it's in the trash.
+			if ( 'trash' === get_post_status( $gate_post_id ) ) {
+				\wp_untrash_post( $gate_post_id );
+			}
 			// Gate found, edit it.
 			\wp_safe_redirect( \admin_url( 'post.php?post=' . $gate_post_id . '&action=edit' ) );
 			exit;
