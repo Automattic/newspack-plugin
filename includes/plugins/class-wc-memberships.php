@@ -141,6 +141,16 @@ class WC_Memberships {
 	}
 
 	/**
+	 * Whether the gate is available.
+	 *
+	 * @return bool
+	 */
+	public static function has_gate() {
+		$post_id = self::get_gate_post_id();
+		return $post_id && 'publish' === get_post_status( $post_id );
+	}
+
+	/**
 	 * Set the post ID of the custom gate.
 	 *
 	 * @param int $post_id Post ID.
@@ -213,11 +223,11 @@ class WC_Memberships {
 	 * @param string $notice Notice HTML.
 	 */
 	public static function notice_html( $notice ) {
-		$gate_post_id = self::get_gate_post_id();
-		if ( ! $gate_post_id || ! get_post( $gate_post_id ) || 'publish' !== get_post_status( $gate_post_id ) ) {
+		if ( ! self::has_gate() ) {
 			return $notice;
 		}
-		$style = \get_post_meta( $gate_post_id, 'style', true );
+		$gate_post_id = self::get_gate_post_id();
+		$style        = \get_post_meta( $gate_post_id, 'style', true );
 		if ( 'inline' === $style ) {
 			$notice = \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );
 		} else {
@@ -236,14 +246,16 @@ class WC_Memberships {
 	 * @return string
 	 */
 	public static function excerpt( $excerpt, $post, $message_code ) {
-		$gate_post_id = self::get_gate_post_id();
-		if ( ! $gate_post_id ) {
+		if ( ! self::has_gate() ) {
 			return $excerpt;
 		}
+		$gate_post_id = self::get_gate_post_id();
 
 		$content = $post->post_content;
+
+		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
-		if ( strpos( $content, '<!--more-->' ) ) {
+		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
 			$content = explode( '<!--more-->', $content )[0];
 		} else {
 			$count = (int) get_post_meta( $gate_post_id, 'visible_paragraphs', true );
