@@ -297,29 +297,6 @@ class Stripe_Webhooks {
 
 				$frequency = Stripe_Connection::get_frequency_of_payment( $payment );
 
-				// Update data in Campaigns plugin.
-				if ( ! empty( $client_id ) ) {
-					/**
-					 * When a new Stripe transaction occurs that can be associated with a client ID,
-					 * fire an action with the client ID and the relevant donation info.
-					 *
-					 * @param string      $client_id Client ID.
-					 * @param array       $donation_data Info about the transaction.
-					 * @param string|null $newsletter_email If the user signed up for a newsletter as part of the transaction, the subscribed email address. Otherwise, null.
-					 */
-					do_action(
-						'newspack_stripe_new_donation',
-						$client_id,
-						[
-							'stripe_id'          => $payment['id'],
-							'stripe_customer_id' => $customer['id'],
-							'amount'             => $amount_normalised,
-							'frequency'          => $frequency,
-						],
-						$was_customer_added_to_mailing_list ? $customer['email'] : null
-					);
-				}
-
 				$label = $frequency;
 				if ( ! empty( $origin ) ) {
 					$label .= ' - ' . $origin;
