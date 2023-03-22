@@ -1,3 +1,4 @@
+/* global newspack_engagement_wizard */
 /**
  * WordPress dependencies
  */
@@ -25,6 +26,7 @@ import ActiveCampaign from './active-campaign';
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
+	const [ membershipsConfig, setMembershipsConfig ] = useState( {} );
 	const [ error, setError ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const [ hasPlugins, setHasPlugins ] = useState( null );
@@ -37,9 +39,10 @@ export default withWizardScreen( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
 		} )
-			.then( ( { config: fetchedConfig, pluginsStatus } ) => {
+			.then( ( { config: fetchedConfig, pluginsStatus, memberships } ) => {
 				setHasPlugins( pluginsStatus );
 				setConfig( fetchedConfig );
+				setMembershipsConfig( memberships );
 			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
@@ -145,6 +148,19 @@ export default withWizardScreen( () => {
 						{ ...getSharedProps( 'terms_url', 'text' ) }
 					/>
 				</Grid>
+				{ newspack_engagement_wizard.has_memberships && membershipsConfig ? (
+					<>
+						<hr />
+						<SectionHeader title={ __( 'Memberships Integration', 'newspack' ) } />
+						<ActionCard
+							title={ __( 'Content Gate', 'newspack' ) }
+							titleLink={ membershipsConfig.edit_gate_url }
+							href={ membershipsConfig.edit_gate_url }
+							description={ __( 'Configure the content of the gate', 'newspack' ) }
+							actionText={ __( 'Edit', 'newspack' ) }
+						/>
+					</>
+				) : null }
 				<hr />
 				{ emails?.length > 0 && (
 					<>
@@ -177,7 +193,7 @@ export default withWizardScreen( () => {
 								titleLink={ email.edit_link }
 								href={ email.edit_link }
 								description={ email.description }
-								actionText={ __( 'Edit', 'newspack' ) }
+								actionText={ __( 'Configure', 'newspack' ) }
 							/>
 						) ) }
 						<hr />

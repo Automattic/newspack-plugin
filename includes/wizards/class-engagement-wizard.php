@@ -101,15 +101,6 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/memberships',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_memberships_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -198,6 +189,18 @@ class Engagement_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get memberships settings.
+	 *
+	 * @return array
+	 */
+	private static function get_memberships_settings() {
+		return [
+			'edit_gate_url' => WC_Memberships::get_edit_gate_url(),
+			'gate_status'   => get_post_status( WC_Memberships::get_gate_post_id() ),
+		];
+	}
+
+	/**
 	 * Get reader activation settings.
 	 *
 	 * @return WP_REST_Response
@@ -206,6 +209,7 @@ class Engagement_Wizard extends Wizard {
 		return rest_ensure_response(
 			[
 				'config'        => Reader_Activation::get_settings(),
+				'memberships'   => self::get_memberships_settings(),
 				'pluginsStatus' => Reader_Activation::is_woocommerce_active(),
 			]
 		);
@@ -224,27 +228,6 @@ class Engagement_Wizard extends Wizard {
 			Reader_Activation::update_setting( $key, $value );
 		}
 		return rest_ensure_response( Reader_Activation::get_settings() );
-	}
-
-	/**
-	 * Get memberships settings.
-	 *
-	 * @return array
-	 */
-	private static function get_memberships_settings() {
-		return [
-			'edit_gate_url' => WC_Memberships::get_edit_gate_url(),
-			'gate_status'   => get_post_status( WC_Memberships::get_gate_post_id() ),
-		];
-	}
-
-	/**
-	 * Get memberships settings.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function api_get_memberships_settings() {
-		return rest_ensure_response( [ 'config' => self::get_memberships_settings() ] );
 	}
 
 	/**
