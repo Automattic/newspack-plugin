@@ -157,7 +157,7 @@ export default withWizardScreen( () => {
 							titleLink={ membershipsConfig.edit_gate_url }
 							href={ membershipsConfig.edit_gate_url }
 							description={ __( 'Configure the content of the gate', 'newspack' ) }
-							actionText={ __( 'Edit', 'newspack' ) }
+							actionText={ __( 'Configure', 'newspack' ) }
 						/>
 					</>
 				) : null }
@@ -193,7 +193,7 @@ export default withWizardScreen( () => {
 								titleLink={ email.edit_link }
 								href={ email.edit_link }
 								description={ email.description }
-								actionText={ __( 'Configure', 'newspack' ) }
+								actionText={ __( 'Edit', 'newspack' ) }
 							/>
 						) ) }
 						<hr />
