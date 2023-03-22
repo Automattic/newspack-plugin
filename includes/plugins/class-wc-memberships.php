@@ -146,7 +146,7 @@ class WC_Memberships {
 	 * @param int $post_id Post ID.
 	 */
 	public static function set_gate_post_id( $post_id ) {
-		\update_option( 'newspack_memberships_gate', $post_id );
+		\update_option( 'newspack_memberships_gate_post_id', $post_id );
 	}
 
 	/**
@@ -155,7 +155,7 @@ class WC_Memberships {
 	 * @return int|false Post ID or false if not set.
 	 */
 	public static function get_gate_post_id() {
-		$post_id = (int) \get_option( 'newspack_memberships_gate' );
+		$post_id = (int) \get_option( 'newspack_memberships_gate_post_id' );
 		return $post_id ? $post_id : false;
 	}
 

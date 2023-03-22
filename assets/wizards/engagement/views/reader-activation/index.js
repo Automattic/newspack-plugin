@@ -109,6 +109,22 @@ export default withWizardScreen( () => {
 		);
 	}
 
+	const getContentGateDescription = () => {
+		let message = __(
+			'Configure the gate rendered on content with restricted access.',
+			'newspack'
+		);
+		if ( 'publish' === membershipsConfig?.gate_status ) {
+			message += ' ' + __( 'The gate is currently published.', 'newspack' );
+		} else if (
+			'draft' === membershipsConfig?.gate_status ||
+			'trash' === membershipsConfig?.gate_status
+		) {
+			message += ' ' + __( 'The gate is currently a draft.', 'newspack' );
+		}
+		return message;
+	};
+
 	return (
 		<>
 			{ error && (
@@ -151,12 +167,15 @@ export default withWizardScreen( () => {
 				{ newspack_engagement_wizard.has_memberships && membershipsConfig ? (
 					<>
 						<hr />
-						<SectionHeader title={ __( 'Memberships Integration', 'newspack' ) } />
+						<SectionHeader
+							title={ __( 'Memberships Integration', 'newspack' ) }
+							description={ __( 'Improve the reader experience on content gating.', 'newspack' ) }
+						/>
 						<ActionCard
 							title={ __( 'Content Gate', 'newspack' ) }
 							titleLink={ membershipsConfig.edit_gate_url }
 							href={ membershipsConfig.edit_gate_url }
-							description={ __( 'Configure the content of the gate', 'newspack' ) }
+							description={ getContentGateDescription() }
 							actionText={ __( 'Configure', 'newspack' ) }
 						/>
 					</>
