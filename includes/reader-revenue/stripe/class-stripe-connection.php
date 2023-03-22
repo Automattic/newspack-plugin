@@ -39,7 +39,7 @@ class Stripe_Connection {
 	 * @var array
 	 */
 	private static $cache = [
-		'invoices'      => [],
+		'invoices' => [],
 	];
 
 	/**
