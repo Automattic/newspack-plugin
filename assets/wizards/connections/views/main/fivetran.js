@@ -24,7 +24,7 @@ const CONNECTORS = [
 	},
 	{
 		service: 'google_analytics_4',
-		label: __( 'Google Analytics 4', 'newspack' ),
+		label: __( 'Google Analytics 4 - Experimental', 'newspack' ),
 	},
 	{
 		service: 'mailchimp',
