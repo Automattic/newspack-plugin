@@ -263,35 +263,6 @@ class Stripe_Webhooks {
 				if ( \is_wp_error( $customer ) ) {
 					return $customer;
 				}
-				$amount_normalised = Stripe_Connection::normalise_amount( $payment['amount'], $payment['currency'] );
-				$origin            = isset( $customer['metadata']['origin'] ) ? $customer['metadata']['origin'] : null;
-
-				$referer = $metadata['referer'] ?? '';
-
-				if ( $payment['invoice'] ) {
-					$invoice = Stripe_Connection::get_invoice( $payment['invoice'] );
-					if ( ! \is_wp_error( $invoice ) ) {
-						$referer = $invoice['metadata']['referer'] ?? $referer;
-					}
-				}
-
-				$frequency = Stripe_Connection::get_frequency_of_payment( $payment );
-
-				$label = $frequency;
-				if ( ! empty( $origin ) ) {
-					$label .= ' - ' . $origin;
-				}
-
-				// Send custom event to GA.
-				\Newspack\Google_Services_Connection::send_custom_event(
-					[
-						'category' => __( 'Newspack Donation', 'newspack' ),
-						'action'   => __( 'Stripe', 'newspack' ),
-						'label'    => $label,
-						'value'    => $amount_normalised,
-						'referer'  => $referer,
-					]
-				);
 
 				// Send email to the donor.
 				Stripe_Connection::send_email_to_customer( $customer, $payment );

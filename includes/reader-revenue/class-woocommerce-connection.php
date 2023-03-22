@@ -42,6 +42,8 @@ class WooCommerce_Connection {
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_switching_subscription_amount' ] );
 
+		\add_action( 'woocommerce_order_status_changed', [ __CLASS__, 'handle_order_status_change' ], 10, 4 );
+
 		// WooCommerce Subscriptions.
 		\add_action( 'add_meta_boxes', [ __CLASS__, 'remove_subscriptions_schedule_meta_box' ], 45 );
 		\add_filter( 'wc_order_is_editable', [ __CLASS__, 'make_syncd_subscriptions_uneditable' ], 10, 2 );
@@ -968,7 +970,6 @@ class WooCommerce_Connection {
 	 * @param string $frequency The frequency of the donation.
 	 */
 	public static function create_payment_description( $order_data, $frequency ) {
-
 		if ( $order_data['subscription_id'] ) {
 			return sprintf(
 				/* translators: %s: Product name */
@@ -1034,6 +1035,38 @@ class WooCommerce_Connection {
 			return $can_switch;
 		}
 		return 'yes';
+	}
+
+	/**
+	 * Handle order status change.
+	 *
+	 * @param int       $id The order ID.
+	 * @param string    $from The previous status.
+	 * @param string    $to The new status.
+	 * @param \WC_Order $order The order object.
+	 */
+	public static function handle_order_status_change( $id, $from, $to, $order ) {
+		// Only run for completed orders created by this plugin.
+		if ( 'completed' !== $to && self::CREATED_VIA_NAME === $order->get_created_via() ) {
+			return;
+		}
+		$frequency = 'once';
+		if ( function_exists( 'wcs_get_subscriptions_for_order' ) ) {
+			$related_subscriptions = \wcs_get_subscriptions_for_order( $order );
+			// In theory, there should be just one subscription per renewal.
+			$subscription = reset( $related_subscriptions );
+			$frequency    = $subscription->get_billing_period();
+		}
+
+		\Newspack\Google_Services_Connection::send_custom_event(
+			[
+				'category' => __( 'Newspack Donation', 'newspack' ),
+				'action'   => __( 'WooCommerce', 'newspack' ),
+				'label'    => $frequency . ' - newspack',
+				'value'    => $order->get_total(),
+				'referer'  => $order->get_meta( '_newspack_referer' ),
+			]
+		);
 	}
 }
 

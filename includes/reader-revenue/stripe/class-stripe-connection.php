@@ -632,6 +632,7 @@ class Stripe_Connection {
 				'client_id'            => $customer['metadata']['clientId'],
 				'user_id'              => $customer['metadata']['userId'],
 				'subscribed'           => self::has_customer_opted_in_to_newsletters( $customer ),
+				'referer'              => isset( $payment_metadata['referer'] ) ? $payment_metadata['referer'] : '',
 			];
 			if ( $is_recurring ) {
 				$wc_order_payload['subscription_status'] = 'created';
@@ -809,24 +810,6 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Get frequency of a payment.
-	 *
-	 * @param array $payment Stripe payment.
-	 */
-	public static function get_frequency_of_payment( $payment ) {
-		$frequency = 'once';
-		if ( $payment['invoice'] ) {
-			// A subscription payment will have an invoice.
-			$invoice = self::get_invoice( $payment['invoice'] );
-			if ( \is_wp_error( $invoice ) ) {
-				return $frequency;
-			}
-			$frequency = self::get_frequency_from_invoice( $invoice );
-		}
-		return $frequency;
-	}
-
-	/**
 	 * Get payment frequency from invoice.
 	 *
 	 * @param array $invoice Stripe invoice.
@@ -880,7 +863,7 @@ class Stripe_Connection {
 		if ( isset( $payment['frequency'] ) ) {
 			$frequency = $payment['frequency'];
 		} else {
-			$frequency = self::get_frequency_of_payment( $payment );
+			$frequency = 'once';
 		}
 		$payload = [
 			'email'                         => $customer['email'],
