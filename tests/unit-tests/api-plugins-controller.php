@@ -123,11 +123,11 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 	 */
 	public function test_activate_deactivate_plugin_unauthorized() {
 		wp_set_current_user( 0 );
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/activate' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/activate' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
 
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/deactivate' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/deactivate' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
 	}
@@ -138,11 +138,11 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 	public function test_activate_deactivate_plugin_authorized() {
 		wp_set_current_user( $this->administrator );
 
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/activate' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/activate' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'Name'   => 'AMP',
+			'Name'   => 'PWA',
 			'Status' => 'active',
 		];
 		$response_data = $response->get_data();
@@ -150,15 +150,15 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Activating the plugin again should fail.
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/activate' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/activate' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 500, $response->get_status() );
 
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/deactivate' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/deactivate' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 200, $response->get_status() );
 		$expected_data = [
-			'Name'   => 'AMP',
+			'Name'   => 'PWA',
 			'Status' => 'inactive',
 		];
 		$response_data = $response->get_data();
@@ -166,7 +166,7 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$this->assertEquals( $expected_data['Status'], $response_data['Status'] );
 
 		// Dectivating the plugin again should fail.
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/deactivate' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/deactivate' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 500, $response->get_status() );
 
@@ -185,7 +185,7 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 	 */
 	public function test_install_uninstall_unauthorized() {
 		wp_set_current_user( 0 );
-		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/amp/install' );
+		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/install' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
 

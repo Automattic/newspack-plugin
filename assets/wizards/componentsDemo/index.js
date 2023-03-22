@@ -257,7 +257,7 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Plugin installer', 'newspack' ) }</h2>
 						<PluginInstaller
-							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+							plugins={ [ 'woocommerce', 'wordpress-seo' ] }
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {
 								console.log(
@@ -272,7 +272,7 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Plugin installer (small)', 'newspack' ) }</h2>
 						<PluginInstaller
-							plugins={ [ 'woocommerce', 'amp', 'wordpress-seo' ] }
+							plugins={ [ 'woocommerce', 'wordpress-seo' ] }
 							isSmall
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {

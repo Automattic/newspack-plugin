@@ -17,21 +17,21 @@ class Newspack_Test_Plugin_Manager extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	protected $plugin_slug = 'amp';
+	protected $plugin_slug = 'pwa';
 
 	/**
 	 * Plugin file path.
 	 *
 	 * @var string
 	 */
-	protected $plugin_file = 'amp/amp.php';
+	protected $plugin_file = 'pwa/pwa.php';
 
 	/**
 	 * URL to plugin download.
 	 *
 	 * @var string
 	 */
-	protected $plugin_url = 'https://downloads.wordpress.org/plugin/amp.1.2.0.zip';
+	protected $plugin_url = 'https://downloads.wordpress.org/plugin/pwa.0.7.1.zip';
 
 	/**
 	 * Reset the global state when running each test. This helps avoid issues stemming from redefined constants.

@@ -21,26 +21,11 @@ class Configuration extends Component {
 	 * Render.
 	 */
 	render() {
-		const { configurationStatus, missingPlugins, hasData, repairConfiguration } = this.props;
-		const { amp, jetpack, sitekit } = configurationStatus || {};
-		const isAMPMissing = missingPlugins.indexOf( 'amp' ) !== -1;
+		const { configurationStatus, hasData } = this.props;
+		const { jetpack, sitekit } = configurationStatus || {};
 		return (
 			hasData && (
 				<Fragment>
-					<ActionCard
-						className={ amp ? 'newspack-card__is-supported' : 'newspack-card__is-unsupported' }
-						title={ __( 'AMP', 'newspack' ) }
-						description={
-							// eslint-disable-next-line no-nested-ternary
-							isAMPMissing
-								? __( 'AMP plugin is not active.', 'newspack' )
-								: amp
-								? __( 'AMP plugin is in standard mode.', 'newspack' )
-								: __( 'AMP plugin is not in standard mode. ', 'newspack' )
-						}
-						actionText={ ! isAMPMissing && ! amp && __( 'Repair', 'newspack' ) }
-						onClick={ () => repairConfiguration( 'amp' ) }
-					/>
 					<ActionCard
 						className={ jetpack ? 'newspack-card__is-supported' : 'newspack-card__is-unsupported' }
 						title={ __( 'Jetpack', 'newspack' ) }

@@ -22,15 +22,18 @@ export default function Pixel( {
 	const [ error, setError ] = useState( null );
 	const [ settings, setSettings ] = useState( null );
 
-	useEffect( async () => {
-		setInFlight( true );
-		try {
-			const response = await apiFetch( { path: apiEndpoint } );
-			setSettings( response );
-		} catch ( err ) {
-			setSettings( null );
-		}
-		setInFlight( false );
+	useEffect( () => {
+		const fetchSettings = async () => {
+			setInFlight( true );
+			try {
+				const response = await apiFetch( { path: apiEndpoint } );
+				setSettings( response );
+			} catch ( err ) {
+				setSettings( null );
+			}
+			setInFlight( false );
+		};
+		fetchSettings();
 	}, [] );
 
 	const handleChange = ( key, value ) => {
