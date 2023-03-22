@@ -65,6 +65,15 @@ const GateEdit = ( { editPost, meta } ) => {
 						'newspack'
 					) }
 				/>
+				<CheckboxControl
+					label={ __( 'Use "More" tag as threshold', 'newspack' ) }
+					checked={ meta.use_more_tag }
+					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
+					help={ __(
+						'Whether to use the <!-- more --> tag as the threshold for the gate.',
+						'newspack'
+					) }
+				/>
 			</PluginDocumentSettingPanel>
 		</Fragment>
 	);

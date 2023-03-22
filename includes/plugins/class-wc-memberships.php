@@ -80,6 +80,17 @@ class WC_Memberships {
 		);
 		\register_meta(
 			'post',
+			'use_more_tag',
+			[
+				'object_subtype' => self::GATE_CPT,
+				'show_in_rest'   => true,
+				'type'           => 'boolean',
+				'default'        => true,
+				'single'         => true,
+			]
+		);
+		\register_meta(
+			'post',
 			'visible_paragraphs',
 			[
 				'object_subtype' => self::GATE_CPT,
