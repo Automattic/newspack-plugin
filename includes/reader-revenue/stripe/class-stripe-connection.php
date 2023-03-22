@@ -53,7 +53,6 @@ class Stripe_Connection {
 		add_action( 'init', [ __CLASS__, 'register_apple_pay_domain' ] );
 		add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'is_wc_complete_order_email_enabled' ] );
 		add_action( 'newspack_reader_verified', [ __CLASS__, 'newspack_reader_verified' ] );
-		add_action( 'delete_user', [ __CLASS__, 'cancel_user_subscriptions' ], 90 ); // Priority 90 to run after Newsletters deletes the contact in ESP.
 	}
 
 	/**
@@ -230,21 +229,6 @@ class Stripe_Connection {
 			if ( ! \is_wp_error( $invoice ) && $invoice['subscription'] ) {
 				return self::get_subscription( $invoice['subscription'] );
 			}
-		}
-	}
-
-	/**
-	 * Cancel a Stripe subscription.
-	 *
-	 * @param string $subscription_id Subscription ID.
-	 */
-	private static function cancel_subscription( $subscription_id ) {
-		$stripe = self::get_stripe_client();
-		Logger::log( 'Cancelling Stripe subscription with id: ' . $subscription_id );
-		try {
-			return $stripe->subscriptions->cancel( $subscription_id, [] );
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_newspack', __( 'Could not cancel subscription.', 'newspack' ), $e->getMessage() );
 		}
 	}
 
@@ -1041,24 +1025,6 @@ class Stripe_Connection {
 		}
 
 		return $payload;
-	}
-
-	/**
-	 * Cancel all Stripe subscriptions of a WP user.
-	 *
-	 * @param int $user_id User ID.
-	 */
-	public static function cancel_user_subscriptions( $user_id ) {
-		$customer_id = get_user_meta( $user_id, self::STRIPE_CUSTOMER_ID_USER_META, true );
-		if ( $customer_id ) {
-			$subscriptions = self::get_subscriptions_of_customer( $customer_id );
-			if ( \is_wp_error( $subscriptions ) ) {
-				return $subscriptions;
-			}
-			foreach ( $subscriptions as $subscription ) {
-				self::cancel_subscription( $subscription['id'] );
-			}
-		}
 	}
 }
 
