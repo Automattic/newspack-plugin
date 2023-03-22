@@ -42,6 +42,9 @@ class WC_Memberships {
 					'item_published'         => __( 'Memberships Gate published.', 'newspack' ),
 					'item_reverted_to_draft' => __( 'Memberships Gate reverted to draft.', 'newspack' ),
 					'item_updated'           => __( 'Memberships Gate updated.', 'newspack' ),
+					'new_item'               => __( 'New Memberships Gate', 'newspack' ),
+					'edit_item'              => __( 'Edit Memberships Gate', 'newspack' ),
+					'view_item'              => __( 'View Memberships Gate', 'newspack' ),
 				],
 				'public'       => false,
 				'show_ui'      => true,
@@ -152,16 +155,6 @@ class WC_Memberships {
 	}
 
 	/**
-	 * Whether the gate is available.
-	 *
-	 * @return bool
-	 */
-	public static function has_gate() {
-		$post_id = self::get_gate_post_id();
-		return $post_id && 'publish' === get_post_status( $post_id );
-	}
-
-	/**
 	 * Set the post ID of the custom gate.
 	 *
 	 * @param int $post_id Post ID.
@@ -178,6 +171,16 @@ class WC_Memberships {
 	public static function get_gate_post_id() {
 		$post_id = (int) \get_option( 'newspack_memberships_gate_post_id' );
 		return $post_id ? $post_id : false;
+	}
+
+	/**
+	 * Whether the gate is available.
+	 *
+	 * @return bool
+	 */
+	public static function has_gate() {
+		$post_id = self::get_gate_post_id();
+		return $post_id && 'publish' === get_post_status( $post_id );
 	}
 
 	/**

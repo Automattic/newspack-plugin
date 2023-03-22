@@ -56,6 +56,16 @@ const GateEdit = ( { editPost, meta } ) => {
 				name="memberships-gate-settings-panel"
 				title={ __( 'Settings', 'newspack' ) }
 			>
+				<CheckboxControl
+					label={ __( 'Use "More" tag as threshold', 'newspack' ) }
+					checked={ meta.use_more_tag }
+					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
+					help={ __(
+						'Whether to use the <!-- more --> tag as the threshold for the gate.',
+						'newspack'
+					) }
+				/>
+				<hr />
 				<TextControl
 					type="number"
 					value={ meta.visible_paragraphs }
@@ -63,15 +73,6 @@ const GateEdit = ( { editPost, meta } ) => {
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
 					help={ __(
 						"If the content doesn't have a <!-- more --> tag, this will be the number of paragraphs that will be visible to non-members.",
-						'newspack'
-					) }
-				/>
-				<CheckboxControl
-					label={ __( 'Use "More" tag as threshold', 'newspack' ) }
-					checked={ meta.use_more_tag }
-					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
-					help={ __(
-						'Whether to use the <!-- more --> tag as the threshold for the gate.',
 						'newspack'
 					) }
 				/>
