@@ -902,11 +902,12 @@ class Stripe_Connection {
 	 * @param \WP_User $user   The user object.
 	 */
 	public static function newspack_reader_verified( $user ) {
+		// When a user is verified, save their Stripe customer ID.
 		self::sync_customer_id( $user->user_email );
 	}
 
 	/**
-	 * Lookup the customer ID for a given email address.
+	 * Set Stripe customer ID for a given email address.
 	 *
 	 * @param string $email_address   Email address.
 	 */
