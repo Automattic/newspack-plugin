@@ -124,25 +124,6 @@ class Stripe_Connection {
 	}
 
 	/**
-	 * Get the sum of all customer's charges (Lifetime Value).
-	 *
-	 * @param string $customer_id Customer ID.
-	 */
-	public static function get_customer_ltv( $customer_id ) {
-		$all_charges = self::get_customer_transactions( $customer_id );
-		if ( \is_wp_error( $all_charges ) ) {
-			return $all_charges;
-		}
-		return array_reduce(
-			$all_charges,
-			function( $total, $charge ) {
-				return $total + self::normalise_amount( $charge['amount'], $charge['currency'] );
-			},
-			0
-		);
-	}
-
-	/**
 	 * Retrieve a customer by email address.
 	 *
 	 * @param string $email_address Email address.
@@ -242,46 +223,6 @@ class Stripe_Connection {
 			$customer['email'],
 			$placeholders
 		);
-	}
-
-	/**
-	 * Determine the memberhip status metadata field value.
-	 *
-	 * @param string $frequency Frequency of payment.
-	 */
-	public static function get_membership_status_field_value( $frequency ) {
-		switch ( $frequency ) {
-			case 'once':
-				return self::ESP_METADATA_VALUES['once_donor'];
-			case 'year':
-				return self::ESP_METADATA_VALUES['yearly_donor'];
-			case 'month':
-				return self::ESP_METADATA_VALUES['monthly_donor'];
-		}
-	}
-
-	/**
-	 * Create metadata for a recurring payment.
-	 *
-	 * @param string $frequency Frequency.
-	 * @param string $amount Amount.
-	 * @param string $currency Currency.
-	 * @param int    $date Date.
-	 */
-	public static function create_recurring_payment_metadata( $frequency, $amount, $currency, $date ) {
-		$metadata          = [];
-		$amount_normalised = self::normalise_amount( $amount, $currency );
-		$payment_date      = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $date );
-		$next_payment_date = date_format( date_add( date_create( 'now' ), date_interval_create_from_date_string( '1 ' . $frequency ) ), Newspack_Newsletters::METADATA_DATE_FORMAT );
-
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]     = $frequency;
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ] = $amount_normalised;
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = self::get_membership_status_field_value( $frequency );
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]    = $payment_date;
-		// In case this was previously set after a previous cancelled subscription, clear it.
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ] = '';
-		return $metadata;
 	}
 
 	/**
@@ -630,9 +571,6 @@ class Stripe_Connection {
 				'customer'    => $customer['id'],
 				'description' => __( 'Newspack One-Time Donation', 'newspack-blocks' ),
 			];
-
-			// To create a WC Subscription, a source is needed to make future charges,
-			// because WC Stripe Gateway is source-based.
 
 			// Mark the payment as coming from Newspack.
 			$payment_metadata['origin'] = 'newspack';
