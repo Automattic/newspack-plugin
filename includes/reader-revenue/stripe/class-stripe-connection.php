@@ -40,7 +40,6 @@ class Stripe_Connection {
 	 */
 	private static $cache = [
 		'invoices'      => [],
-		'subscriptions' => [],
 	];
 
 	/**
@@ -177,58 +176,6 @@ class Stripe_Connection {
 			return $result;
 		} catch ( \Throwable $e ) {
 			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch invoice.', 'newspack' ), $e->getMessage() );
-		}
-	}
-
-	/**
-	 * Get Stripe subscription.
-	 *
-	 * @param string $subscription_id Invoice ID.
-	 */
-	public static function get_subscription( $subscription_id ) {
-		if ( isset( self::$cache['subscriptions'][ $subscription_id ] ) ) {
-			return self::$cache['subscriptions'][ $subscription_id ];
-		}
-		$stripe = self::get_stripe_client();
-		try {
-			$result = $stripe->subscriptions->retrieve( $subscription_id, [] );
-			self::$cache['subscriptions'][ $subscription_id ] = $result;
-			return $result;
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch subscription.', 'newspack' ), $e->getMessage() );
-		}
-	}
-
-	/**
-	 * Get Stripe customer's subscriptions.
-	 *
-	 * @param string $customer_id Customer ID.
-	 */
-	public static function get_subscriptions_of_customer( $customer_id ) {
-		$stripe = self::get_stripe_client();
-		try {
-			return $stripe->subscriptions->all(
-				[
-					'customer' => $customer_id,
-					'limit'    => 100,
-				]
-			);
-		} catch ( \Throwable $e ) {
-			return new \WP_Error( 'stripe_newspack', __( 'Could not fetch subscriptions.', 'newspack' ), $e->getMessage() );
-		}
-	}
-
-	/**
-	 * Get Subscription from payment, if one exists.
-	 *
-	 * @param array $payment Payment object.
-	 */
-	public static function get_subscription_from_payment( $payment ) {
-		if ( $payment['invoice'] ) {
-			$invoice = self::get_invoice( $payment['invoice'] );
-			if ( ! \is_wp_error( $invoice ) && $invoice['subscription'] ) {
-				return self::get_subscription( $invoice['subscription'] );
-			}
 		}
 	}
 
@@ -599,8 +546,6 @@ class Stripe_Connection {
 
 	/**
 	 * Handle a donation in Stripe.
-	 * If it's a recurring donation, a subscription will be created. Otherwise,
-	 * a single charge.
 	 *
 	 * @param object $config Data about the donation.
 	 */
@@ -902,7 +847,7 @@ class Stripe_Connection {
 	 * @param \WP_User $user   The user object.
 	 */
 	public static function newspack_reader_verified( $user ) {
-		// When a user is verified, save their Stripe customer ID.
+		// When a user is verified, save their Stripe customer ID, found by email address.
 		self::sync_customer_id( $user->user_email );
 	}
 

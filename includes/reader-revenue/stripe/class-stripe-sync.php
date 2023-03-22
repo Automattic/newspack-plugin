@@ -168,85 +168,6 @@ class Stripe_Sync {
 	}
 
 	/**
-	 * Sync Stripe customer data to ESP.
-	 *
-	 * @param array $customer Customer object.
-	 * @param array $args Arguments.
-	 */
-	private static function sync_to_esp( $customer, $args ) {
-		$email_address = $customer->email;
-		$is_dry_run    = false !== $args['dry-run'];
-		$contact       = [
-			'email' => $email_address,
-			'name'  => $customer->name,
-		];
-
-		$metadata = [
-			Newspack_Newsletters::get_metadata_key( 'total_paid' ) => Stripe_Connection::get_customer_ltv( $customer->id ),
-		];
-
-		$last_payments = Stripe_Connection::get_customer_transactions( $customer->id, false, 1 );
-		if ( \is_wp_error( $last_payments ) ) {
-			\WP_CLI::warning( __( 'Error fetching customer charges: ', 'newspack' ) . $last_payments->get_error_message() );
-			return;
-		}
-
-		if ( ! empty( $last_payments ) ) {
-			$payment           = $last_payments[0];
-			$amount_normalised = Stripe_Connection::normalise_amount( $payment['amount'], $payment['currency'] );
-			$frequency         = Stripe_Connection::get_frequency_of_payment( $payment );
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $payment['created'] );
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = $amount_normalised;
-			if ( 'once' !== $frequency ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ] = $frequency;
-			}
-			$membership_status = Stripe_Connection::get_membership_status_field_value( $frequency );
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $membership_status;
-
-			if ( Donations::is_woocommerce_suite_active() ) {
-				$wc_product_id = Donations::get_donation_product( $frequency );
-				try {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = \wc_get_product( $wc_product_id )->get_name();
-				} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// Fail silently.
-				}
-			}
-
-			$subscription = Stripe_Connection::get_subscription_from_payment( $payment );
-			if ( $subscription ) {
-				$recurring_related_metadata = Stripe_Connection::create_recurring_payment_metadata(
-					$frequency,
-					$payment['amount'],
-					$payment['currency'],
-					$subscription['start_date']
-				);
-				$metadata                   = array_merge( $recurring_related_metadata, $metadata );
-				if ( 'active' !== $subscription['status'] ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-' . $membership_status;
-				}
-				if ( $subscription['ended_at'] ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ] = gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $subscription['ended_at'] );
-				} else {
-					unset( $metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ] );
-				}
-			}
-		}
-
-		$wp_user = get_user_by( 'email', $email_address );
-		if ( $wp_user ) {
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $wp_user->ID;
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = date_format( date_create( $wp_user->data->user_registered ), Newspack_Newsletters::METADATA_DATE_FORMAT );
-		}
-
-		$contact['metadata'] = $metadata;
-
-		if ( ! $is_dry_run ) {
-			// This method is idempotent, so it's safe to call it even if the contact already exists.
-			\Newspack_Newsletters_Subscription::add_contact( $contact );
-		}
-	}
-
-	/**
 	 * Process all Stripe customers.
 	 *
 	 * @param array  $args Arguments.
@@ -264,9 +185,7 @@ class Stripe_Sync {
 			// translators: Number of customers processed.
 			\WP_CLI::log( sprintf( __( 'Processing a batch of %d Stripe customers.', 'newspack' ), count( $response['data'] ) ) );
 			foreach ( $response['data'] as $customer ) {
-				if ( $args['sync-to-esp'] ) {
-					self::sync_to_esp( $customer, $args );
-				} elseif ( $args['sync-to-wc'] ) {
+				if ( $args['sync-to-wc'] ) {
 					self::sync_to_wc( $customer, $args );
 				}
 				self::$results['processed']++;
@@ -292,10 +211,9 @@ class Stripe_Sync {
 	 */
 	public static function data_backfill( $args, $assoc_args ) {
 		$default_args = [
-			'batch-size'  => 10,
-			'sync-to-wc'  => true, // Sync data to WooCommerce.
-			'sync-to-esp' => false, // Sync data to the ESP.
-			'dry-run'     => false,
+			'batch-size' => 10,
+			'sync-to-wc' => true, // Sync data to WooCommerce.
+			'dry-run'    => false,
 		];
 
 		\WP_CLI::log(
@@ -324,13 +242,6 @@ Running data backfill from Stripe...
 			}
 			if ( ! Donations::is_using_streamlined_donate_block() ) {
 				\WP_CLI::error( __( 'Stripe has to be configured.', 'newspack' ) );
-				return;
-			}
-		}
-
-		if ( $passed_args['sync-to-esp'] ) {
-			if ( ! method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-				\WP_CLI::error( __( 'Newspack Newsletters has to be active.', 'newspack' ) );
 				return;
 			}
 		}
