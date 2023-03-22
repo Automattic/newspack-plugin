@@ -264,36 +264,16 @@ class Stripe_Webhooks {
 					return $customer;
 				}
 				$amount_normalised = Stripe_Connection::normalise_amount( $payment['amount'], $payment['currency'] );
-				$client_id         = isset( $customer['metadata']['clientId'] ) ? $customer['metadata']['clientId'] : null;
 				$origin            = isset( $customer['metadata']['origin'] ) ? $customer['metadata']['origin'] : null;
 
-				$referer                   = $metadata['referer'] ?? '';
-				$newspack_popup_id         = $metadata['newspack_popup_id'] ?? '';
-				$invoice_newspack_metadata = [];
-				$payment_newspack_metadata = array_filter(
-					$metadata,
-					function( $key ) {
-						return 0 === strpos( $key, 'newspack_' );
-					},
-					ARRAY_FILTER_USE_KEY
-				);
+				$referer = $metadata['referer'] ?? '';
 
 				if ( $payment['invoice'] ) {
 					$invoice = Stripe_Connection::get_invoice( $payment['invoice'] );
 					if ( ! \is_wp_error( $invoice ) ) {
 						$referer = $invoice['metadata']['referer'] ?? $referer;
-						foreach ( $invoice['metadata']->keys() as $meta_key ) {
-							if ( 0 === strpos( $meta_key, 'newspack_' ) ) {
-								$invoice_newspack_metadata[ $meta_key ] = $invoice['metadata'][ $meta_key ];
-							}
-						}
 					}
 				}
-				$payment['referer'] = $referer;
-
-				$newspack_metadata = array_merge( $payment_newspack_metadata, $invoice_newspack_metadata );
-
-				$payment = array_merge( $payment, $newspack_metadata );
 
 				$frequency = Stripe_Connection::get_frequency_of_payment( $payment );
 
@@ -313,19 +293,12 @@ class Stripe_Webhooks {
 					]
 				);
 
-				// Add a transaction to WooCommerce.
-				if ( Donations::is_woocommerce_suite_active() ) {
-					WooCommerce_Connection::create_transaction( Stripe_Connection::create_wc_transaction_payload( $customer, $payment ) );
-				}
-
 				// Send email to the donor.
 				Stripe_Connection::send_email_to_customer( $customer, $payment );
 
 				break;
 			case 'charge.failed':
 				break;
-			default:
-				return new \WP_Error( 'newspack_unsupported_webhook' );
 		}
 	}
 
