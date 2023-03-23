@@ -130,7 +130,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					const messageContentElement = container.querySelector(
 						'.newspack-reader__auth-form__response__content'
 					);
-					if ( messageContentElement ) {
+					if ( messageContentElement && form ) {
 						form.replaceWith( messageContentElement.parentNode );
 					}
 				}
