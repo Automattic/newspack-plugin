@@ -1,10 +1,11 @@
+/* globals newspack_memberships_gate */
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useEffect } from '@wordpress/element';
 import { Button, TextControl, CheckboxControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
@@ -19,7 +20,18 @@ const styles = [
 	{ name: 'overlay', label: __( 'Overlay (soon)', 'newspack' ) },
 ];
 
-const GateEdit = ( { editPost, meta } ) => {
+const GateEdit = ( { editPost, createNotice, meta } ) => {
+	useEffect( () => {
+		if ( newspack_memberships_gate.has_campaigns ) {
+			createNotice(
+				'info',
+				__(
+					'Newspack Campaigns: Prompts will not be displayed when rendering a gated content.',
+					'newspack'
+				)
+			);
+		}
+	}, [] );
 	return (
 		<Fragment>
 			<PluginDocumentSettingPanel
@@ -89,8 +101,10 @@ const GateEditWithSelect = compose( [
 	} ),
 	withDispatch( dispatch => {
 		const { editPost } = dispatch( 'core/editor' );
+		const { createNotice } = dispatch( 'core/notices' );
 		return {
 			editPost,
+			createNotice,
 		};
 	} ),
 ] )( GateEdit );

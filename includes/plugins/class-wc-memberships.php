@@ -36,12 +36,17 @@ class WC_Memberships {
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
+		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 	}
 
 	/**
 	 * Register post type for custom gate.
 	 */
 	public static function register_post_type() {
+		// Bail if Woo Memberships is not active.
+		if ( ! class_exists( 'WC_Memberships' ) ) {
+			return false;
+		}
 		\register_post_type(
 			self::GATE_CPT,
 			[
@@ -67,6 +72,10 @@ class WC_Memberships {
 	 * Register gate meta.
 	 */
 	public static function register_meta() {
+		// Bail if Woo Memberships is not active.
+		if ( ! class_exists( 'WC_Memberships' ) ) {
+			return false;
+		}
 		\register_meta(
 			'post',
 			'style',
@@ -154,6 +163,14 @@ class WC_Memberships {
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-editor.js' ),
 			true
 		);
+		\wp_localize_script(
+			'newspack-memberships-gate',
+			'newspack_memberships_gate',
+			[
+				'has_campaigns' => class_exists( 'Newspack_Popups' ),
+			]
+		);
+
 		\wp_enqueue_style(
 			'newspack-memberships-gate',
 			Newspack::plugin_url() . '/dist/memberships-gate-editor.css',
@@ -187,6 +204,9 @@ class WC_Memberships {
 	 * @return bool
 	 */
 	public static function has_gate() {
+		if ( ! class_exists( 'WC_Memberships' ) ) {
+			return false;
+		}
 		$post_id = self::get_gate_post_id();
 		return $post_id && 'publish' === get_post_status( $post_id );
 	}
@@ -335,6 +355,24 @@ class WC_Memberships {
 			} );
 		</script>
 		<?php
+	}
+
+	/**
+	 * Disable popups if rendering a restricted post.
+	 *
+	 * @param bool $disabled Whether popups are disabled.
+	 *
+	 * @return bool
+	 */
+	public static function disable_popups( $disabled ) {
+		if (
+			self::has_gate() &&
+			function_exists( 'wc_memberships_is_post_content_restricted' ) &&
+			\wc_memberships_is_post_content_restricted( get_the_ID() )
+		) {
+			return true;
+		}
+		return $disabled;
 	}
 }
 WC_Memberships::init();

@@ -362,7 +362,7 @@ class Engagement_Wizard extends Wizard {
 
 		$data = [
 			'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
-			'has_memberships'       => \is_plugin_active( 'woocommerce-memberships/woocommerce-memberships.php' ),
+			'has_memberships'       => class_exists( 'WC_Memberships' ),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
