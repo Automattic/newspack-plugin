@@ -17,6 +17,13 @@ class WC_Memberships {
 	const GATE_CPT = 'np_memberships_gate';
 
 	/**
+	 * Whether the gate has been rendered in this execution.
+	 *
+	 * @var boolean
+	 */
+	private static $gate_rendered = false;
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -28,6 +35,7 @@ class WC_Memberships {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
+		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 	}
 
 	/**
@@ -252,6 +260,7 @@ class WC_Memberships {
 		} else {
 			$notice = '';
 		}
+		self::$gate_rendered = true;
 		return $notice;
 	}
 
@@ -301,6 +310,31 @@ class WC_Memberships {
 		}
 
 		return $excerpt;
+	}
+
+	/**
+	 * Render footer JS.
+	 *
+	 * If the gate was rendered, reload the page after 2 seconds in case RAS
+	 * detects a new reader. This allows the membership purchase to unlock the
+	 * content.
+	 */
+	public static function render_js() {
+		if ( ! self::$gate_rendered ) {
+			return;
+		}
+		?>
+		<script type="text/javascript">
+			window.newspackRAS = window.newspackRAS || [];
+			window.newspackRAS.push( function( ras ) {
+				ras.on( 'reader', function() {
+					setTimeout( function() {
+						window.location.reload();
+					}, 2000 );
+				} );
+			} );
+		</script>
+		<?php
 	}
 }
 WC_Memberships::init();
