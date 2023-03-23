@@ -61,7 +61,7 @@ const GateEdit = ( { editPost, meta } ) => {
 					checked={ meta.use_more_tag }
 					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
 					help={ __(
-						'Whether to use the <!-- more --> tag as the threshold for the gate.',
+						'Whether to use the <!--more--> tag as the threshold for the gate.',
 						'newspack'
 					) }
 				/>
@@ -72,7 +72,7 @@ const GateEdit = ( { editPost, meta } ) => {
 					label={ __( 'Number of visible paragraphs', 'newspack' ) }
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
 					help={ __(
-						"If the content doesn't have a <!-- more --> tag, this will be the number of paragraphs that will be visible to non-members.",
+						"If the content doesn't have a <!--more--> tag, this will be the number of paragraphs that will be visible to non-members.",
 						'newspack'
 					) }
 				/>
