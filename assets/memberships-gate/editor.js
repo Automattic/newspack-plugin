@@ -73,7 +73,7 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 					checked={ meta.use_more_tag }
 					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
 					help={ __(
-						'Whether to use the <!--more--> tag as the threshold for the gate.',
+						'A post can have a "<!--more-->" tag (or More Block) to shorten the content displayed in archive pages or subscriber emails. Click to toggle its use as the threshold for the gate.',
 						'newspack'
 					) }
 				/>
