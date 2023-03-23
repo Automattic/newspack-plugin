@@ -68,23 +68,23 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 				name="memberships-gate-settings-panel"
 				title={ __( 'Settings', 'newspack' ) }
 			>
-				<CheckboxControl
-					label={ __( 'Use "More" tag as threshold', 'newspack' ) }
-					checked={ meta.use_more_tag }
-					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
-					help={ __(
-						'A post can have a "<!--more-->" tag (or More Block) to shorten the content displayed in archive pages or subscriber emails. Click to toggle its use as the threshold for the gate.',
-						'newspack'
-					) }
-				/>
-				<hr />
 				<TextControl
 					type="number"
 					value={ meta.visible_paragraphs }
 					label={ __( 'Number of visible paragraphs', 'newspack' ) }
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
 					help={ __(
-						"If the content doesn't have a <!--more--> tag, this will be the number of paragraphs that will be visible to non-members.",
+						'Number of paragraphs that will be visible to non-members before displaying the gate.',
+						'newspack'
+					) }
+				/>
+				<hr />
+				<CheckboxControl
+					label={ __( 'Use “More” tag to manually place content gate', 'newspack' ) }
+					checked={ meta.use_more_tag }
+					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
+					help={ __(
+						'Override the default number of visible paragraph settings on pages where a “More” block has been placed.',
 						'newspack'
 					) }
 				/>
