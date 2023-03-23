@@ -237,8 +237,13 @@ class WC_Memberships {
 	 * @param string $notice Notice HTML.
 	 */
 	public static function notice_html( $notice ) {
+		// If the gate is not available, don't mess with the notice.
 		if ( ! self::has_gate() ) {
 			return $notice;
+		}
+		// If rendering the content in a loop, don't render the gate.
+		if ( get_queried_object_id() !== get_the_ID() ) {
+			return '';
 		}
 		$gate_post_id = self::get_gate_post_id();
 		$style        = \get_post_meta( $gate_post_id, 'style', true );
@@ -260,7 +265,12 @@ class WC_Memberships {
 	 * @return string
 	 */
 	public static function excerpt( $excerpt, $post, $message_code ) {
+		// If the gate is not available, don't mess with the excerpt.
 		if ( ! self::has_gate() ) {
+			return $excerpt;
+		}
+		// If rendering the content in a loop, don't truncate the excerpt.
+		if ( get_queried_object_id() !== $post->ID ) {
 			return $excerpt;
 		}
 		$gate_post_id = self::get_gate_post_id();
