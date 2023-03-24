@@ -212,6 +212,13 @@ class Perfmatters {
 		$options['lazyload']['youtube_preview_thumbnails'] = true;
 		$options['lazyload']['image_dimensions']           = true;
 
+		// Fonts.
+		if ( ! isset( $options['fonts'] ) ) {
+			$options['fonts'] = [];
+		}
+		$options['lazyload']['display_swap']       = true;
+		$options['lazyload']['local_google_fonts'] = true;
+
 		return $options;
 	}
 
