@@ -74,7 +74,7 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 					label={ __( 'Default paragraph count', 'newspack' ) }
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
 					help={ __(
-						'Number of paragraphs that readers can see above the content gate if they have not yet registered/subscribed/converted.',
+						'Number of paragraphs that readers can see above the content gate.',
 						'newspack'
 					) }
 				/>
