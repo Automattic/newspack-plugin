@@ -71,10 +71,10 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 				<TextControl
 					type="number"
 					value={ meta.visible_paragraphs }
-					label={ __( 'Number of visible paragraphs', 'newspack' ) }
+					label={ __( 'Default paragraph count', 'newspack' ) }
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
 					help={ __(
-						'Number of paragraphs that will be visible to non-members before displaying the gate.',
+						'Number of paragraphs that readers can see above the content gate if they have not yet registered/subscribed/converted.',
 						'newspack'
 					) }
 				/>
@@ -84,7 +84,7 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 					checked={ meta.use_more_tag }
 					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
 					help={ __(
-						'Override the default number of visible paragraph settings on pages where a “More” block has been placed.',
+						'Override the default paragraph count on pages where a “More” block has been placed.',
 						'newspack'
 					) }
 				/>
