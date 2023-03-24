@@ -319,14 +319,13 @@ class WC_Memberships {
 			// Rejoin the paragraphs into a single string again.
 			$content = wp_kses_post( implode( '</p>', $content ) );
 		}
-		$inline_fade_content = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>';
 
 		$excerpt = $content;
 
 		$style       = \get_post_meta( $gate_post_id, 'style', true );
 		$inline_fade = \get_post_meta( $gate_post_id, 'inline_fade', true );
 		if ( 'inline' === $style && $inline_fade ) {
-			$excerpt .= $inline_fade_content;
+			$excerpt .= '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>';
 		}
 
 		return $excerpt;
