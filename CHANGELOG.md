@@ -1,3 +1,10 @@
+# [1.109.0](https://github.com/Automattic/newspack-plugin/compare/v1.108.0...v1.109.0) (2023-03-24)
+
+
+### Features
+
+* **amp-deprecation:** polyfills for amp-img, amp-iframe, amp-fit-text, amp-youtube ([#2308](https://github.com/Automattic/newspack-plugin/issues/2308)) ([29b043b](https://github.com/Automattic/newspack-plugin/commit/29b043bdc25795fea4be08cebdf07894057888f8))
+
 # [1.108.0](https://github.com/Automattic/newspack-plugin/compare/v1.107.1...v1.108.0) (2023-03-20)
 
 
