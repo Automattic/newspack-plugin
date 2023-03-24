@@ -13,13 +13,13 @@ defined( 'ABSPATH' ) || exit;
  * Newspack functionality on the WP Admin Plugins screen.
  */
 class Admin_Plugins_Screen {
-
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		add_filter( 'all_plugins', [ $this, 'inject_managed_plugins' ] );
 		add_filter( 'plugin_action_links', [ $this, 'modify_action_links' ], 10, 3 );
+		add_filter( 'plugin_install_action_links', [ $this, 'modify_install_action_links' ], 10, 2 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		add_action( 'admin_action_newspack_install_plugin', [ $this, 'handle_plugin_install' ] );
 		add_action( 'all_admin_notices', [ $this, 'plugin_install_notices' ] );
@@ -103,6 +103,7 @@ class Admin_Plugins_Screen {
 		$plugin_slug       = isset( $plugin_data['slug'] ) ? $plugin_data['slug'] : $plugin_file;
 		$installed_plugins = Plugin_Manager::get_installed_plugins();
 		$managed_plugins   = array_keys( Plugin_Manager::get_managed_plugins() );
+		$blocked_plugins   = Plugin_Manager::get_blocked_plugin_slugs();
 
 		if ( in_array( $plugin_slug, $managed_plugins ) && ! isset( $installed_plugins[ $plugin_slug ] ) ) {
 			unset( $actions['activate'] );
@@ -123,7 +124,42 @@ class Admin_Plugins_Screen {
 			}
 		}
 
+		/*
+		 * Remove Activate buttons from blocked plugins in the Plugins screen.
+		 * Note that this will not actually prevent the activation of these plugins.
+		 * It will only remove the ability to do so from the WP plugin admin screen.
+		 */
+		if ( in_array( $plugin_slug, $blocked_plugins ) ) {
+			unset( $actions['activate'] );
+		}
+
 		return $actions;
+	}
+
+	/**
+	 * Modify action buttons in the Add New plugins screen.
+	 *
+	 * @param array $action_links Array of plugin action links.
+	 * @param array $plugin Array of plugin data.
+	 *
+	 * @return array Filtered array of action links.
+	 */
+	public function modify_install_action_links( $action_links, $plugin ) {
+		/*
+		 * Remove Activate buttons from blocked plugins in the Add New plugins screen.
+		 * Note that this will not actually prevent the installation or activation of these plugins.
+		 * It will only remove the ability to do so from the Add New plugins screen.
+		 */
+		$blocked_plugins = Plugin_Manager::get_blocked_plugin_slugs();
+
+		if ( isset( $plugin['slug'] ) && in_array( $plugin['slug'], $blocked_plugins ) ) {
+			$action_links[0] = sprintf(
+				'<button type="button" class="button button-disabled" disabled="disabled">%s</button>',
+				__( 'Plugin not allowed', 'newspack' )
+			);
+		}
+
+		return $action_links;
 	}
 
 	/**

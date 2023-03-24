@@ -401,6 +401,18 @@ class Plugin_Manager {
 	}
 
 	/**
+	 * Get an array of blocked plugin slugs.
+	 * These plugins are not allowed on Newspack sites, for whatever reason.
+	 *
+	 * @return array Array of blocked plugin slugs.
+	 */
+	public static function get_blocked_plugin_slugs() {
+		return [
+			'adthrive-ads',
+		];
+	}
+
+	/**
 	 * Get info about all the unmanaged plugins that are installed.
 	 *
 	 * @return array of plugin info.
