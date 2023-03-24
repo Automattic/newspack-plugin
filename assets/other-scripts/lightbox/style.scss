@@ -4,6 +4,7 @@ body.newspack-has-img-lightbox {
 
 .newspack-img-lightbox {
 	position: fixed;
+	z-index: 99999;
 	top: 0;
 	left: 0;
 	width: 100vw;
