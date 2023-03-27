@@ -65,6 +65,7 @@ class Perfmatters {
 			// Third-party services.
 			'disqus',
 			'recaptcha',
+			'twitter.com',
 			// Advertising.
 			'googletag.pubads',
 			'adsbygoogle.js',
@@ -220,6 +221,9 @@ class Perfmatters {
 	 */
 	public static function admin_notice() {
 		if ( 'settings_page_perfmatters' !== get_current_screen()->id ) {
+			return;
+		}
+		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
 			return;
 		}
 		echo '<div class="notice notice-warning"><p>'

@@ -6,6 +6,7 @@
  */
 
 use Newspack\Data_Events\Connectors\GA4\Event;
+use Newspack\Data_Events\Connectors\GA4;
 
 /**
  * Tests the GA 4 connector.
@@ -320,5 +321,48 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 				true,
 			],
 		];
+	}
+
+	/**
+	 * Data provider for test_validate_param_name
+	 */
+	public function get_donation_amount_range_data() {
+		return [
+			[
+				12,
+				'under-20',
+			],
+			[
+				'zdxasd',
+				'',
+			],
+			[
+				0,
+				'',
+			],
+			[
+				'53.12',
+				'51-100',
+			],
+			[
+				420,
+				'201-500',
+			],
+			[
+				200,
+				'101-200',
+			],
+		];
+	}
+
+	/**
+	 * Tests the sanitize_value method
+	 *
+	 * @param mixed $value The param value.
+	 * @param mixed $expected The expected result.
+	 * @dataProvider get_donation_amount_range_data
+	 */
+	public function test_get_donation_amount_range( $value, $expected ) {
+		$this->assertEquals( $expected, GA4::get_donation_amount_range( $value ) );
 	}
 }

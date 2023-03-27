@@ -71,37 +71,75 @@ When a reader updates their lists subscription from Newspack Newsletters.
 | `user_id`       | `integer`  |
 | `email`         | `string`   |
 | `provider`      | `string`   |
-| `email`         | `string`   |
 | `lists_added`   | `string[]` |
 | `lists_removed` | `string[]` |
+
+### `woocommerce_donation_order_processed`
+
+For when there's a new donation processed through WooCommerce.
+
+| Name            | Type     | Obs                                                    |
+| --------------- | -------- | ------------------------------------------------------ |
+| `user_id`       | `int`    |                                                        |
+| `email`         | `string` |                                                        |
+| `amount`        | `float`  |                                                        |
+| `currency`      | `string` |                                                        |
+| `recurrence`    | `string` |                                                        |
+| `platform`      | `string` | Always `wc` in this case                               |
+| `referer`       | `string` |                                                        |
+| `popup_id`      | `string` | If the donation was triggered by a popup, the popup ID |
+| `platform_data` | `array`  |                                                        |
+
+### `woocommerce_order_failed`
+
+For when there's a new donation payment failed through WooCommerce.
+Known issue: If the user tries to pay again after a failed payment, and the payment fails for a second time,
+the order is already marked as failed so this hook will not trigger.
+
+| Name            | Type     | Obs                                                    |
+| --------------- | -------- | ------------------------------------------------------ |
+| `user_id`       | `int`    |                                                        |
+| `email`         | `string` |                                                        |
+| `amount`        | `float`  |                                                        |
+| `currency`      | `string` |                                                        |
+| `recurrence`    | `string` |                                                        |
+| `platform`      | `string` | Always `wc` in this case                               |
+| `referer`       | `string` |                                                        |
+| `popup_id`      | `string` | If the donation was triggered by a popup, the popup ID |
+| `platform_data` | `array`  |                                                        |
+
 
 ### `donation_new`
 
 When there's a new donation, either through Stripe or Newspack (WooCommerce) platforms.
 
-| Name            | Type     |
-| --------------- | -------- |
-| `user_id`       | `int`    |
-| `email`         | `string` |
-| `amount`        | `float`  |
-| `currency`      | `string` |
-| `recurrence`    | `string` |
-| `platform`      | `string` |
-| `platform_data` | `array`  |
+| Name            | Type     | Obs                                                    |
+| --------------- | -------- | ------------------------------------------------------ |
+| `user_id`       | `int`    |                                                        |
+| `email`         | `string` |                                                        |
+| `amount`        | `float`  |                                                        |
+| `currency`      | `string` |                                                        |
+| `recurrence`    | `string` |                                                        |
+| `platform`      | `string` |                                                        |
+| `referer`       | `string` |                                                        |
+| `popup_id`      | `string` | If the donation was triggered by a popup, the popup ID |
+| `platform_data` | `array`  |                                                        |
 
 ### `donation_subscription_new`
 
 When there's a new WooCommerce Subscription. This action does not replace the `donation_new` that create the subscription.
 
-| Name            | Type     |
-| --------------- | -------- |
-| `user_id`       | `int`    |
-| `email`         | `string` |
-| `amount`        | `float`  |
-| `currency`      | `string` |
-| `recurrence`    | `string` |
-| `platform`      | `string` |
-| `platform_data` | `array`  |
+| Name              | Type     | Obs                                                    |
+| ----------------- | -------- | ------------------------------------------------------ |
+| `user_id`         | `int`    |                                                        |
+| `email`           | `string` |                                                        |
+| `subscription_id` | `int`    |                                                        |
+| `amount`          | `float`  |                                                        |
+| `currency`        | `string` |                                                        |
+| `recurrence`      | `string` |                                                        |
+| `platform`        | `string` |                                                        |
+| `referer`         | `string` |                                                        |
+| `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
 
 ### `donation_subscription_cancelled`
 
@@ -132,6 +170,50 @@ When a WooCommerce Subscription status changes.
 | `currency`        | `string` |
 | `recurrence`      | `string` |
 | `platform`        | `string` |
+
+## Newspack Popups Actions
+
+### `campaign_interaction`
+
+When a user interacts with a Newspack Popup's campaign prompt.
+
+| Name                 | Type     | Obs                                                                                                                                            |
+| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `campaign_id`        | `int`    |                                                                                                                                                |
+| `campaign_title`     | `string` |                                                                                                                                                |
+| `campaign_frequency` | `string` |                                                                                                                                                |
+| `campaign_placement` | `string` |                                                                                                                                                |
+| `campaign_blocks`    | `array`  | Array containing the blocks that are inside the campaign. Only 3 blocks are tracked: `donation`, `registration` and `newsletters_subscription` |
+| `action`             | `string` | `form_submission`, `form_submission_success` or `form_submission_failure`                                                                      |
+| `action_type`        | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
+| `interaction_data`   | `array`  | Depending on the action type, it will contain different information about the interaction.                                                      |
+
+#### Possible values for `interaction_data`
+
+If `action_type` is `registration`:
+
+| Name                  | Type     |
+| --------------------- | -------- |
+| `registration_method` | `string` |
+
+If `action_type` is `newsletters_subscription`:
+
+| Name                  | Type     |
+| --------------------- | -------- |
+| `newsletters_subscription_method` | `string` |
+
+If `action_type` is `donation`:
+
+| Name                  | Type     | Obs                                                                                              |
+| --------------------- | -------- | ------------------------------------------------------------------------------------------------ |
+| `donation_order_id`   | `string` | Only for successful donations in any platform' or any processed/failed donations via Woocommerce |
+| `donation_amount`     | `string` |                                                                                                  |
+| `donation_currency`   | `string` |                                                                                                  |
+| `donation_recurrence` | `string` |                                                                                                  |
+| `donation_platform`   | `string` |                                                                                                  |
+| `donation_error`      | `string` | Only for failed donations via Stripe                                                             |
+
+
 
 ## Registering a new action
 
