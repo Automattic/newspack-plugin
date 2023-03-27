@@ -157,7 +157,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				noBorder
 			>
 				<ToggleControl
-					label={ __( 'Segment Enabled', 'newspack' ) }
+					label={ __( 'Segment enabled', 'newspack' ) }
 					checked={ ! segmentConfig.is_disabled }
 					onChange={ () => updateSegmentConfig( { is_disabled: ! segmentConfig.is_disabled } ) }
 				/>
