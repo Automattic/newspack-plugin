@@ -151,14 +151,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			<SettingsCard
 				title={ __( 'Segment Status', 'newspack' ) }
 				description={ __(
-					'If disabled, the segment will be ignored for reader segmentation.',
+					'If not enabled, the segment will be ignored for reader segmentation.',
 					'newspack'
 				) }
 				noBorder
 			>
 				<ToggleControl
-					label={ __( 'Disable segment', 'newspack' ) }
-					checked={ segmentConfig.is_disabled }
+					label={ __( 'Segment Enabled', 'newspack' ) }
+					checked={ ! segmentConfig.is_disabled }
 					onChange={ () => updateSegmentConfig( { is_disabled: ! segmentConfig.is_disabled } ) }
 				/>
 			</SettingsCard>
