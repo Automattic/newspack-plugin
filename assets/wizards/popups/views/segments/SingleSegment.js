@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies.
  */
+import { ToggleControl } from '@wordpress/components';
 import { useMemo, useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
@@ -38,6 +39,7 @@ const DEFAULT_CONFIG = {
 	favorite_categories: [],
 	referrers: '',
 	referrers_not: '',
+	is_disabled: false,
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
@@ -145,6 +147,21 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					}
 				/>
 			) }
+
+			<SettingsCard
+				title={ __( 'Segment Status', 'newspack' ) }
+				description={ __(
+					'If disabled, the segment will be ignored for reader segmentation.',
+					'newspack'
+				) }
+				noBorder
+			>
+				<ToggleControl
+					label={ __( 'Disable segment', 'newspack' ) }
+					checked={ segmentConfig.is_disabled }
+					onChange={ () => updateSegmentConfig( { is_disabled: ! segmentConfig.is_disabled } ) }
+				/>
+			</SettingsCard>
 
 			<SettingsCard
 				title={ __( 'Reader Engagement', 'newspack' ) }
