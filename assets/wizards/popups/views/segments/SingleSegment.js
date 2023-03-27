@@ -52,8 +52,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
 
-	const isSegmentValid =
-		name.length > 0 && JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG ); // Segment has a name. // Segment differs from the default config.
+	const isSegmentValid = () => {
+		const _segmentConfig = { ...segmentConfig };
+		const _defaultConfig = { ...DEFAULT_CONFIG };
+		delete _segmentConfig.is_disabled;
+		delete _defaultConfig.is_disabled;
+		console.log( _segmentConfig, _defaultConfig );
+		return name.length > 0 && JSON.stringify( _segmentConfig ) !== JSON.stringify( _defaultConfig ); // Segment has a name. // Segment differs from the default config with the exception of the is_disabled flag.
+	};
 
 	const isDirty =
 		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig ) ||
@@ -346,7 +352,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			</SettingsCard>
 			<div className="newspack-buttons-card">
 				<Button
-					disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
+					disabled={ ! isSegmentValid() || ( ! isNew && ! isDirty ) }
 					isPrimary
 					onClick={ saveSegment }
 				>
