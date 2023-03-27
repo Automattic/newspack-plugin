@@ -17,7 +17,7 @@ import './editor.scss';
 
 const styles = [
 	{ name: 'inline', label: __( 'Inline', 'newspack' ) },
-	{ name: 'overlay', label: __( 'Overlay (soon)', 'newspack' ) },
+	{ name: 'overlay', label: __( 'Overlay', 'newspack' ) },
 ];
 
 const GateEdit = ( { editPost, createNotice, meta } ) => {
@@ -46,7 +46,6 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 							isPressed={ meta.style === style.name }
 							onClick={ () => editPost( { meta: { style: style.name } } ) }
 							aria-current={ meta.style === style.name }
-							disabled={ style.name === 'overlay' }
 						>
 							{ style.label }
 						</Button>

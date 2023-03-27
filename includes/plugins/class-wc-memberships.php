@@ -31,9 +31,11 @@ class WC_Memberships {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
+		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 100 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 	}
@@ -132,6 +134,38 @@ class WC_Memberships {
 		}
 	}
 
+	/**
+	 * Enqueue frontend scripts and styles for gated content.
+	 */
+	public static function enqueue_scripts() {
+		if ( ! self::has_gate() ) {
+			return;
+		}
+		if ( ! is_singular() ) {
+			return;
+		}
+		if ( ! \wc_memberships_is_post_content_restricted( get_the_ID() ) ) {
+			return;
+		}
+		$gate_post_id = self::get_gate_post_id();
+		$style        = \get_post_meta( $gate_post_id, 'style', true );
+		if ( 'overlay' !== $style ) {
+			return;
+		}
+		\wp_enqueue_script(
+			'newspack-memberships-gate-overlay',
+			Newspack::plugin_url() . '/dist/memberships-gate-overlay.js',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.js' ),
+			true
+		);
+		\wp_enqueue_style(
+			'newspack-memberships-gate-overlay',
+			Newspack::plugin_url() . '/dist/memberships-gate-overlay.css',
+			[],
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.css' )
+		);
+	}
 
 	/**
 	 * Enqueue block editor assets.
@@ -313,6 +347,45 @@ class WC_Memberships {
 		}
 
 		return $excerpt;
+	}
+
+	/**
+	 * Render the overlay gate.
+	 */
+	public static function render_overlay_gate() {
+		if ( ! self::has_gate() ) {
+			return;
+		}
+		// Only render overlay gate for singular content.
+		if ( ! is_singular() ) {
+			return;
+		}
+		if ( ! \wc_memberships_is_post_content_restricted( get_the_ID() ) ) {
+			return;
+		}
+		// If rendering content in a loop, don't render the gate.
+		if ( get_queried_object_id() !== get_the_ID() ) {
+			return;
+		}
+		$gate_post_id = self::get_gate_post_id();
+		$style        = \get_post_meta( $gate_post_id, 'style', true );
+		if ( 'overlay' !== $style ) {
+			return;
+		}
+		global $post;
+		$_post = $post;
+		$post  = \get_post( $gate_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		setup_postdata( $post );
+		?>
+		<div class="newspack-memberships__overlay-gate">
+			<div class="newspack-memberships__overlay-gate__content">
+				<?php echo \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
+		</div>
+		<?php
+		self::$gate_rendered = true;
+		wp_reset_postdata();
+		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 
 	/**
