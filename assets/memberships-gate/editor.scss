@@ -1,5 +1,9 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
+.edit-post-post-visibility {
+	display: none;
+}
+
 .newspack-memberships-gate-style-selector {
 	display: grid;
 	gap: 8px;

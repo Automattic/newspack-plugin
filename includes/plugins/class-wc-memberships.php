@@ -31,7 +31,6 @@ class WC_Memberships {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
-		add_action( 'admin_head', [ __CLASS__, 'editor_css' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
@@ -133,21 +132,6 @@ class WC_Memberships {
 		}
 	}
 
-	/**
-	 * Custom CSS for the gate editor.
-	 */
-	public static function editor_css() {
-		if ( self::GATE_CPT !== get_post_type() ) {
-			return;
-		}
-		?>
-		<style>
-			.edit-post-post-visibility {
-				display: none;
-			}
-		</style>
-		<?php
-	}
 
 	/**
 	 * Enqueue block editor assets.
