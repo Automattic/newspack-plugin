@@ -82,6 +82,7 @@ describe( 'A new segment creation', () => {
 			{
 				configuration: {
 					favorite_categories: [],
+					is_disabled: false,
 					is_donor: false,
 					is_not_donor: false,
 					is_former_donor: false,
@@ -95,7 +96,6 @@ describe( 'A new segment creation', () => {
 					min_session_posts: 0,
 					referrers: '',
 					referrers_not: '',
-					is_disabled: false,
 				},
 				name: 'Big time readers',
 			},
