@@ -110,6 +110,7 @@ class Newspack_AMP_Polyfills extends WP_UnitTestCase {
 	 * @dataProvider youtube_data
 	 */
 	public function test_amp_polyfills_youtube( $input, $expected ) {
-		$this->assertSame( str_replace( ' ', '', $expected ), str_replace( ' ', '', AMP_Polyfills::amp_tags( $input ) ) );
+		$actual = preg_replace( '/\s+/', '', AMP_Polyfills::amp_tags( $input ) );
+		$this->assertSame( preg_replace( '/\s+/', '', $expected ), $actual );
 	}
 }
