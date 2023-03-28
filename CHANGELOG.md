@@ -1,3 +1,10 @@
+# [1.111.0](https://github.com/Automattic/newspack-plugin/compare/v1.110.0...v1.111.0) (2023-03-28)
+
+
+### Features
+
+* (perfmatters) add fonts settings to defaults ([#2370](https://github.com/Automattic/newspack-plugin/issues/2370)) ([025595f](https://github.com/Automattic/newspack-plugin/commit/025595f63916ccc44faeadd7807bf76fc26c600e))
+
 # [1.110.0](https://github.com/Automattic/newspack-plugin/compare/v1.109.0...v1.110.0) (2023-03-27)
 
 
