@@ -57,7 +57,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		const _defaultConfig = { ...DEFAULT_CONFIG };
 		delete _segmentConfig.is_disabled;
 		delete _defaultConfig.is_disabled;
-		console.log( _segmentConfig, _defaultConfig );
 		return name.length > 0 && JSON.stringify( _segmentConfig ) !== JSON.stringify( _defaultConfig ); // Segment has a name. // Segment differs from the default config with the exception of the is_disabled flag.
 	};
 
