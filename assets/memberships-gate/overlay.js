@@ -39,9 +39,9 @@ domReady( function () {
 		const handleScroll = () => {
 			const delta = ( entry?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
 			if ( delta < 0 ) {
-				overlay.classList.add( 'newspack-memberships__overlay-gate--visible' );
+				overlay.setAttribute( 'data-visible', 'true' );
 			} else {
-				overlay.classList.remove( 'newspack-memberships__overlay-gate--visible' );
+				overlay.setAttribute( 'data-visible', 'false' );
 			}
 		};
 		document.addEventListener( 'scroll', handleScroll );

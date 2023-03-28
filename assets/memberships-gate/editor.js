@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { Fragment, useEffect } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl } from '@wordpress/components';
+import { Button, TextControl, CheckboxControl, RadioControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
@@ -16,8 +16,19 @@ import { registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
 
 const styles = [
-	{ name: 'inline', label: __( 'Inline', 'newspack' ) },
-	{ name: 'overlay', label: __( 'Overlay', 'newspack' ) },
+	{ value: 'inline', label: __( 'Inline', 'newspack' ) },
+	{ value: 'overlay', label: __( 'Overlay', 'newspack' ) },
+];
+
+const overlayPlacement = [
+	{ value: 'center', label: __( 'Center', 'newspack' ) },
+	{ value: 'bottom', label: __( 'Bottom', 'newspack' ) },
+];
+
+const overlaySizes = [
+	{ value: 'small', label: __( 'Small', 'newspack' ) },
+	{ value: 'medium', label: __( 'Medium', 'newspack' ) },
+	{ value: 'large', label: __( 'Large', 'newspack' ) },
 ];
 
 const GateEdit = ( { editPost, createNotice, meta } ) => {
@@ -32,6 +43,11 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 			);
 		}
 	}, [] );
+	useEffect( () => {
+		document
+			.querySelector( '.editor-styles-wrapper' )
+			.setAttribute( 'data-overlay-size', meta.overlay_size );
+	}, [ meta.overlay_size ] );
 	return (
 		<Fragment>
 			<PluginDocumentSettingPanel
@@ -41,11 +57,11 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 				<div className="newspack-memberships-gate-style-selector">
 					{ styles.map( style => (
 						<Button
-							key={ style.name }
-							variant={ meta.style === style.name ? 'primary' : 'secondary' }
-							isPressed={ meta.style === style.name }
-							onClick={ () => editPost( { meta: { style: style.name } } ) }
-							aria-current={ meta.style === style.name }
+							key={ style.value }
+							variant={ meta.style === style.value ? 'primary' : 'secondary' }
+							isPressed={ meta.style === style.value }
+							onClick={ () => editPost( { meta: { style: style.value } } ) }
+							aria-current={ meta.style === style.value }
 						>
 							{ style.label }
 						</Button>
@@ -61,6 +77,22 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 							'newspack'
 						) }
 					/>
+				) }
+				{ meta.style === 'overlay' && (
+					<Fragment>
+						<RadioControl
+							label={ __( 'Placement', 'newspack' ) }
+							selected={ meta.overlay_placement }
+							options={ overlayPlacement }
+							onChange={ value => editPost( { meta: { overlay_placement: value } } ) }
+						/>
+						<RadioControl
+							label={ __( 'Size', 'newspack' ) }
+							selected={ meta.overlay_size }
+							options={ overlaySizes }
+							onChange={ value => editPost( { meta: { overlay_size: value } } ) }
+						/>
+					</Fragment>
 				) }
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel

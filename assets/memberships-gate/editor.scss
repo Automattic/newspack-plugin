@@ -4,6 +4,31 @@
 	display: none;
 }
 
+.components-base-control {
+	margin-bottom: 16px;
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.editor-styles-wrapper[data-overlay-size='small'] {
+	.wp-block {
+		max-width: 400px;
+	}
+}
+
+.editor-styles-wrapper[data-overlay-size='medium'] {
+	.wp-block {
+		max-width: 600px;
+	}
+}
+
+.editor-styles-wrapper[data-overlay-size='large'] {
+	.wp-block {
+		max-width: 800px;
+	}
+}
+
 .newspack-memberships-gate-style-selector {
 	display: grid;
 	gap: 8px;
