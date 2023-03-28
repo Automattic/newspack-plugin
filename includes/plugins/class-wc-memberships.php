@@ -356,15 +356,8 @@ class WC_Memberships {
 		if ( ! self::has_gate() ) {
 			return;
 		}
-		// Only render overlay gate for singular content.
-		if ( ! is_singular() ) {
-			return;
-		}
-		if ( ! \wc_memberships_is_post_content_restricted( get_the_ID() ) ) {
-			return;
-		}
-		// If rendering content in a loop, don't render the gate.
-		if ( get_queried_object_id() !== get_the_ID() ) {
+		// Only render overlay gate for a restricted singular content.
+		if ( ! is_singular() || ! \wc_memberships_is_post_content_restricted( get_the_ID() ) ) {
 			return;
 		}
 		$gate_post_id = self::get_gate_post_id();
