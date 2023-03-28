@@ -8,6 +8,7 @@
 // Reset Padding of the Admin Page
 
 .toplevel_page_newspack:not( .menu-top ),
+.toplevel_page_newspack-multi-branded-sites:not( .menu-top ),
 body[class*='newspack_page_newspack-'],
 body[class*='admin_page_newspack-'] {
 	background: white;
