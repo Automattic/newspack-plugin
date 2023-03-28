@@ -216,8 +216,9 @@ class Perfmatters {
 		if ( ! isset( $options['fonts'] ) ) {
 			$options['fonts'] = [];
 		}
-		$options['lazyload']['display_swap']       = true;
-		$options['lazyload']['local_google_fonts'] = true;
+		$options['fonts']['disable_google_fonts'] = false;
+		$options['fonts']['display_swap']         = true;
+		$options['fonts']['local_google_fonts']   = true;
 
 		return $options;
 	}
