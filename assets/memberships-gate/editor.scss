@@ -11,20 +11,14 @@
 	}
 }
 
-.editor-styles-wrapper[data-overlay-size='small'] {
-	.wp-block {
+.wp-block {
+	.editor-styles-wrapper[data-overlay-size='small'] & {
 		max-width: 400px;
 	}
-}
-
-.editor-styles-wrapper[data-overlay-size='medium'] {
-	.wp-block {
+	.editor-styles-wrapper[data-overlay-size='medium'] & {
 		max-width: 600px;
 	}
-}
-
-.editor-styles-wrapper[data-overlay-size='large'] {
-	.wp-block {
+	.editor-styles-wrapper[data-overlay-size='large'] & {
 		max-width: 800px;
 	}
 }
