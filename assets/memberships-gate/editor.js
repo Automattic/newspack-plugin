@@ -44,10 +44,14 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 		}
 	}, [] );
 	useEffect( () => {
-		document
-			.querySelector( '.editor-styles-wrapper' )
-			.setAttribute( 'data-overlay-size', meta.overlay_size );
-	}, [ meta.overlay_size ] );
+		if ( meta.style === 'overlay' ) {
+			document
+				.querySelector( '.editor-styles-wrapper' )
+				.setAttribute( 'data-overlay-size', meta.overlay_size );
+		} else {
+			document.querySelector( '.editor-styles-wrapper' ).removeAttribute( 'data-overlay-size' );
+		}
+	}, [ meta.style, meta.overlay_size ] );
 	return (
 		<Fragment>
 			<PluginDocumentSettingPanel
