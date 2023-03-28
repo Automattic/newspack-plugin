@@ -20,7 +20,7 @@ const styles = [
 	{ value: 'overlay', label: __( 'Overlay', 'newspack' ) },
 ];
 
-const overlayPlacement = [
+const overlayPlacements = [
 	{ value: 'center', label: __( 'Center', 'newspack' ) },
 	{ value: 'bottom', label: __( 'Bottom', 'newspack' ) },
 ];
@@ -83,7 +83,7 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 						<RadioControl
 							label={ __( 'Placement', 'newspack' ) }
 							selected={ meta.overlay_placement }
-							options={ overlayPlacement }
+							options={ overlayPlacements }
 							onChange={ value => editPost( { meta: { overlay_placement: value } } ) }
 						/>
 						<RadioControl
