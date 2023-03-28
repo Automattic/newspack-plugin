@@ -278,7 +278,7 @@ class Stripe_Sync {
 					}
 				);
 				if ( 0 === count( $succesful_charges ) ) {
-					\WP_CLI::warning( 'No successfull charges for ' . $customer->email . ', skipping.' );
+					\WP_CLI::warning( 'No successful charges for ' . $customer->email . ', skipping.' );
 				} else {
 					if ( $args['sync-to-esp'] ) {
 						self::sync_to_esp( $customer, $args );
