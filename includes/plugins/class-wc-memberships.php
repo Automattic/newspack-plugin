@@ -35,7 +35,7 @@ class WC_Memberships {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
-		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 100 );
+		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 	}
@@ -377,7 +377,7 @@ class WC_Memberships {
 		$post  = \get_post( $gate_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
 		?>
-		<div class="newspack-memberships__overlay-gate">
+		<div class="newspack-memberships__overlay-gate" style="display:none;">
 			<div class="newspack-memberships__overlay-gate__content">
 				<?php echo \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
