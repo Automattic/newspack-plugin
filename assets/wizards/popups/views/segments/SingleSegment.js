@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies.
  */
+import { ToggleControl } from '@wordpress/components';
 import { useMemo, useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
@@ -38,6 +39,7 @@ const DEFAULT_CONFIG = {
 	favorite_categories: [],
 	referrers: '',
 	referrers_not: '',
+	is_disabled: false,
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
@@ -50,8 +52,13 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	const [ segmentInitially, setSegmentInitially ] = useState( null );
 
-	const isSegmentValid =
-		name.length > 0 && JSON.stringify( segmentConfig ) !== JSON.stringify( DEFAULT_CONFIG ); // Segment has a name. // Segment differs from the default config.
+	const isSegmentValid = () => {
+		const _segmentConfig = { ...segmentConfig };
+		const _defaultConfig = { ...DEFAULT_CONFIG };
+		delete _segmentConfig.is_disabled;
+		delete _defaultConfig.is_disabled;
+		return name.length > 0 && JSON.stringify( _segmentConfig ) !== JSON.stringify( _defaultConfig ); // Segment has a name. // Segment differs from the default config with the exception of the is_disabled flag.
+	};
 
 	const isDirty =
 		JSON.stringify( segmentInitially ) !== JSON.stringify( segmentConfig ) ||
@@ -145,6 +152,21 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					}
 				/>
 			) }
+
+			<SettingsCard
+				title={ __( 'Segment Status', 'newspack' ) }
+				description={ __(
+					'If not enabled, the segment will be ignored for reader segmentation.',
+					'newspack'
+				) }
+				noBorder
+			>
+				<ToggleControl
+					label={ __( 'Segment enabled', 'newspack' ) }
+					checked={ ! segmentConfig.is_disabled }
+					onChange={ () => updateSegmentConfig( { is_disabled: ! segmentConfig.is_disabled } ) }
+				/>
+			</SettingsCard>
 
 			<SettingsCard
 				title={ __( 'Reader Engagement', 'newspack' ) }
@@ -329,7 +351,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			</SettingsCard>
 			<div className="newspack-buttons-card">
 				<Button
-					disabled={ ! isSegmentValid || ( ! isNew && ! isDirty ) }
+					disabled={ ! isSegmentValid() || ( ! isNew && ! isDirty ) }
 					isPrimary
 					onClick={ saveSegment }
 				>

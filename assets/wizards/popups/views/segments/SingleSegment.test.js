@@ -21,6 +21,7 @@ const SEGMENTS = [
 			is_not_logged_in: false,
 			favorite_categories: [],
 			referrers: '',
+			is_disabled: false,
 		},
 		id: '5fa056b4b94bc',
 		created_at: '2020-11-02',
@@ -81,6 +82,7 @@ describe( 'A new segment creation', () => {
 			{
 				configuration: {
 					favorite_categories: [],
+					is_disabled: false,
 					is_donor: false,
 					is_not_donor: false,
 					is_former_donor: false,
