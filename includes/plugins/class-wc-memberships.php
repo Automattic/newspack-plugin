@@ -163,10 +163,7 @@ class WC_Memberships {
 		if ( ! self::has_gate() ) {
 			return;
 		}
-		if ( ! is_singular() ) {
-			return;
-		}
-		if ( ! \wc_memberships_is_post_content_restricted( get_the_ID() ) ) {
+		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
 		}
 		$gate_post_id = self::get_gate_post_id();
@@ -265,7 +262,7 @@ class WC_Memberships {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		if ( ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! wc_memberships_is_post_content_restricted( $post_id ) ) {
+		if ( ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! \wc_memberships_is_post_content_restricted( $post_id ) ) {
 			return false;
 		}
 		return ! is_user_logged_in() || ! current_user_can( 'wc_memberships_view_restricted_post_content', $post_id );
@@ -399,7 +396,7 @@ class WC_Memberships {
 			return;
 		}
 		// Only render overlay gate for a restricted singular content.
-		if ( ! is_singular() || ! \wc_memberships_is_post_content_restricted( get_the_ID() ) ) {
+		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
 		}
 		$gate_post_id = self::get_gate_post_id();
