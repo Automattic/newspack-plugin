@@ -1,3 +1,4 @@
+/* global newspack_engagement_wizard */
 /**
  * WordPress dependencies
  */
@@ -25,6 +26,7 @@ import ActiveCampaign from './active-campaign';
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
+	const [ membershipsConfig, setMembershipsConfig ] = useState( {} );
 	const [ error, setError ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const [ hasPlugins, setHasPlugins ] = useState( null );
@@ -37,9 +39,10 @@ export default withWizardScreen( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
 		} )
-			.then( ( { config: fetchedConfig, pluginsStatus } ) => {
+			.then( ( { config: fetchedConfig, pluginsStatus, memberships } ) => {
 				setHasPlugins( pluginsStatus );
 				setConfig( fetchedConfig );
+				setMembershipsConfig( memberships );
 			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
@@ -106,6 +109,22 @@ export default withWizardScreen( () => {
 		);
 	}
 
+	const getContentGateDescription = () => {
+		let message = __(
+			'Configure the gate rendered on content with restricted access.',
+			'newspack'
+		);
+		if ( 'publish' === membershipsConfig?.gate_status ) {
+			message += ' ' + __( 'The gate is currently published.', 'newspack' );
+		} else if (
+			'draft' === membershipsConfig?.gate_status ||
+			'trash' === membershipsConfig?.gate_status
+		) {
+			message += ' ' + __( 'The gate is currently a draft.', 'newspack' );
+		}
+		return message;
+	};
+
 	return (
 		<>
 			{ error && (
@@ -145,6 +164,22 @@ export default withWizardScreen( () => {
 						{ ...getSharedProps( 'terms_url', 'text' ) }
 					/>
 				</Grid>
+				{ newspack_engagement_wizard.has_memberships && membershipsConfig ? (
+					<>
+						<hr />
+						<SectionHeader
+							title={ __( 'Memberships Integration', 'newspack' ) }
+							description={ __( 'Improve the reader experience on content gating.', 'newspack' ) }
+						/>
+						<ActionCard
+							title={ __( 'Content Gate', 'newspack' ) }
+							titleLink={ membershipsConfig.edit_gate_url }
+							href={ membershipsConfig.edit_gate_url }
+							description={ getContentGateDescription() }
+							actionText={ __( 'Configure', 'newspack' ) }
+						/>
+					</>
+				) : null }
 				<hr />
 				{ emails?.length > 0 && (
 					<>
