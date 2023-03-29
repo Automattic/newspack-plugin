@@ -274,6 +274,52 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Is the Newspack Newsletters plugin configured with an ESP?
+	 */
+	public static function is_newsletters_configured() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+
+		return $newsletters_configuration_manager->is_configured();
+	}
+
+	/**
+	 * Get the status of the prerequisites for enabling reader activation.
+	 * TODO: Finalize the list of prerequisites and all copy.
+	 *
+	 * @return array Array of prerequisites to complete.
+	 */
+	public static function get_prerequisites_status() {
+		$prerequisites = [
+			// TODO: Remove example prerequisite.
+			'example_slug' => [
+				'active'      => false,
+				'label'       => __( 'Example requirement', 'newspack' ),
+				'description' => __( 'Boilerplate config for inactive prerequisite.', 'newspack-plugin' ),
+			],
+			'woocommerce'  => [
+				'active'      => self::is_woocommerce_active(),
+				'label'       => __( 'WooCommerce', 'newspack' ),
+				'description' => __( 'WooCommerce and required plugin extensions.', 'newspack' ),
+				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
+			],
+			'esp'          => [
+				'active'      => self::is_newsletters_configured(),
+				'label'       => __( 'Newspack Newsletters', 'newspack' ),
+				'description' => __( 'Newspack Newsletters must be configured with a valid ESP connection.', 'newspack' ),
+				'href'        => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
+			],
+			'recaptcha'    => [
+				'active'      => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
+				'label'       => __( 'reCAPTCHA', 'newspack' ),
+				'description' => __( 'A reCAPTCHA v3 connection is required to secure reader input forms.', 'newspack' ),
+				'href'        => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
+			],
+		];
+
+		return $prerequisites;
+	}
+
+	/**
 	 * Whether reader activation is enabled.
 	 *
 	 * @param bool $strict If true, check both the environment constant and the setting.
