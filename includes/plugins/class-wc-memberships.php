@@ -196,7 +196,7 @@ class WC_Memberships {
 	}
 
 	/**
-	 * Is post restricted.
+	 * Whether the post is restricted for the current user.
 	 *
 	 * @param int $post_id Post ID.
 	 *
@@ -212,7 +212,7 @@ class WC_Memberships {
 		if ( ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! wc_memberships_is_post_content_restricted( $post_id ) ) {
 			return false;
 		}
-		return is_user_logged_in() && current_user_can( 'wc_memberships_view_restricted_post_content', $post_id );
+		return ! ( is_user_logged_in() && current_user_can( 'wc_memberships_view_restricted_post_content', $post_id ) );
 	}
 
 	/**
