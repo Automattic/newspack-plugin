@@ -196,6 +196,26 @@ class WC_Memberships {
 	}
 
 	/**
+	 * Is post restricted.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return bool
+	 */
+	public static function is_post_restricted( $post_id = null ) {
+		if ( ! class_exists( 'WC_Memberships' ) ) {
+			return false;
+		}
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+		if ( ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! wc_memberships_is_post_content_restricted( $post_id ) ) {
+			return false;
+		}
+		return is_user_logged_in() && current_user_can( 'wc_memberships_view_restricted_post_content', $post_id );
+	}
+
+	/**
 	 * Get the URL for editing the custom gate.
 	 */
 	public static function get_edit_gate_url() {
@@ -348,11 +368,7 @@ class WC_Memberships {
 	 * @return bool
 	 */
 	public static function disable_popups( $disabled ) {
-		if (
-			self::has_gate() &&
-			function_exists( 'wc_memberships_is_post_content_restricted' ) &&
-			\wc_memberships_is_post_content_restricted( get_the_ID() )
-		) {
+		if ( self::has_gate() && self::is_post_restricted() ) {
 			return true;
 		}
 		return $disabled;
