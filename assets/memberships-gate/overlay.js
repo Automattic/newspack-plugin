@@ -38,11 +38,11 @@ domReady( function () {
 		overlay.style.removeProperty( 'display' );
 		const handleScroll = () => {
 			const delta = ( entry?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
+			let visible = false;
 			if ( delta < 0 ) {
-				overlay.setAttribute( 'data-visible', 'true' );
-			} else {
-				overlay.setAttribute( 'data-visible', 'false' );
+				visible = true;
 			}
+			overlay.setAttribute( 'data-visible', visible );
 		};
 		document.addEventListener( 'scroll', handleScroll );
 		handleScroll();

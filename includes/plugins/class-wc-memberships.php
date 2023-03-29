@@ -171,15 +171,17 @@ class WC_Memberships {
 		if ( 'overlay' !== $style ) {
 			return;
 		}
+		$handle = 'newspack-memberships-gate-overlay';
 		\wp_enqueue_script(
-			'newspack-memberships-gate-overlay',
+			$handle,
 			Newspack::plugin_url() . '/dist/memberships-gate-overlay.js',
 			[],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.js' ),
 			true
 		);
+		\wp_script_add_data( $handle, 'async', true );
 		\wp_enqueue_style(
-			'newspack-memberships-gate-overlay',
+			$handle,
 			Newspack::plugin_url() . '/dist/memberships-gate-overlay.css',
 			[],
 			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.css' )
