@@ -107,8 +107,8 @@ export const overlaySizesForPopups = () => {
 	return window.newspack_popups_wizard_data?.overlay_sizes;
 };
 
-export const getCardClassName = ( { status } ) => {
-	if ( 'publish' !== status ) {
+export const getCardClassName = ( status, forceDisabled = false ) => {
+	if ( 'publish' !== status || forceDisabled ) {
 		return 'newspack-card__is-disabled';
 	}
 	return 'newspack-card__is-supported';
@@ -184,8 +184,14 @@ export const descriptionForSegment = ( segment, categories = [] ) => {
 		min_session_posts = 0,
 		referrers = '',
 		referrers_not = '',
+		is_disabled = false,
 	} = configuration;
 	const descriptionMessages = [];
+
+	// If the segment is disabled.
+	if ( is_disabled ) {
+		descriptionMessages.push( __( 'Segment disabled', 'newspack' ) );
+	}
 
 	// Messages for reader engagement.
 	if ( 0 < min_posts || 0 < max_posts ) {
