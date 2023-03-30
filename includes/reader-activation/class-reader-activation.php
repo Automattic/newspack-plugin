@@ -166,7 +166,7 @@ final class Reader_Activation {
 	private static function get_settings_config() {
 		$settings_config = [
 			'enabled'                     => true,
-			'enabled_account_link'        => false,
+			'enabled_account_link'        => true,
 			'account_link_menu_locations' => [ 'tertiary-menu' ],
 			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
 			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
@@ -285,34 +285,45 @@ final class Reader_Activation {
 	/**
 	 * Get the status of the prerequisites for enabling reader activation.
 	 * TODO: Finalize the list of prerequisites and all copy.
+	 * TODO: Establish schema for input fields to be shown in expandable cards.
 	 *
 	 * @return array Array of prerequisites to complete.
 	 */
 	public static function get_prerequisites_status() {
 		$prerequisites = [
 			// TODO: Remove example prerequisite.
-			'example_slug' => [
+			'example_slug'     => [
 				'active'      => false,
 				'label'       => __( 'Example requirement', 'newspack' ),
 				'description' => __( 'Boilerplate config for inactive prerequisite.', 'newspack-plugin' ),
 			],
-			'woocommerce'  => [
-				'active'      => self::is_woocommerce_active(),
-				'label'       => __( 'WooCommerce', 'newspack' ),
-				'description' => __( 'WooCommerce and required plugin extensions.', 'newspack' ),
-				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
+			'terms_conditions' => [
+				'active'      => false,
+				'label'       => __( 'Terms & Conditions', 'newspack' ),
+				'description' => __( 'Displaying Terms and Conditions on your site is necessary to allow readers to register and access their account.', 'newspack-plugin' ),
 			],
-			'esp'          => [
+			'esp'              => [
 				'active'      => self::is_newsletters_configured(),
-				'label'       => __( 'Newspack Newsletters', 'newspack' ),
-				'description' => __( 'Newspack Newsletters must be configured with a valid ESP connection.', 'newspack' ),
+				'label'       => __( 'Email Service Provider (ESP)', 'newspack' ),
+				'description' => __( 'Connecting your ESP with the right settings is necessary to register readers with their email addresses, send account related emails and newsletters.', 'newspack' ),
 				'href'        => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
 			],
-			'recaptcha'    => [
+			'emails'           => [
+				'active'      => false,
+				'label'       => __( 'Transactional Emails', 'newspack' ),
+				'description' => __( 'Boilerplate config for inactive prerequisite.', 'newspack-plugin' ),
+			],
+			'recaptcha'        => [
 				'active'      => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
 				'label'       => __( 'reCAPTCHA', 'newspack' ),
-				'description' => __( 'A reCAPTCHA v3 connection is required to secure reader input forms.', 'newspack' ),
+				'description' => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam security for newsletter signup, user account, and payment forms rendered by Newspack tools.', 'newspack' ),
 				'href'        => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
+			],
+			'reader_revenue'   => [
+				'active'      => self::is_woocommerce_active(),
+				'label'       => __( 'Reader Revenue', 'newspack' ),
+				'description' => __( 'Selecting WooCommerce as reader revenue platform and setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
+				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
 			],
 		];
 

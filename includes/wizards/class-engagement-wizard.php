@@ -198,7 +198,6 @@ class Engagement_Wizard extends Wizard {
 			[
 				'config'               => Reader_Activation::get_settings(),
 				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
-				'setup_complete'       => false, // TODO: Make this dynamic.
 			]
 		);
 	}

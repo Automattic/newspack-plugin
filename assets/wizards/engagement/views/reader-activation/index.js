@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { CheckboxControl, ExternalLink } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -27,7 +27,6 @@ export default withWizardScreen( () => {
 	const [ config, setConfig ] = useState( {} );
 	const [ error, setError ] = useState( false );
 	const [ allReady, setAllReady ] = useState( false );
-	const [ setupComplete, setSetupComplete ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const [ prerequisites, setPrerequisites ] = useState( null );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
@@ -40,9 +39,8 @@ export default withWizardScreen( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
 		} )
-			.then( ( { config: fetchedConfig, prerequisites_status, setup_complete } ) => {
+			.then( ( { config: fetchedConfig, prerequisites_status } ) => {
 				setPrerequisites( prerequisites_status );
-				setSetupComplete( setup_complete );
 				setConfig( fetchedConfig );
 			} )
 			.catch( setError )
@@ -111,7 +109,7 @@ export default withWizardScreen( () => {
 				description={ () => (
 					<>
 						{ __(
-							'An easy way to let readers register for your site, sign up for newsletters, or become donors and paid members. ',
+							'Newspack’s Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ',
 							'newspack'
 						) }
 						<ExternalLink href={ 'https://help.newspack.com' }>
@@ -126,20 +124,19 @@ export default withWizardScreen( () => {
 					isError
 				/>
 			) }
-			{ prerequisites && ! allReady && ! setupComplete && (
+			{ prerequisites && ! allReady && (
 				<Notice
-					noticeText={ __( 'Complete these settings to enable Reader Activation.', 'newspack' ) }
+					noticeText={ __( 'Complete the settings to enable Reader Activation.', 'newspack' ) }
 					isWarning
 				/>
 			) }
-			{ ! prerequisites && ! setupComplete && (
+			{ ! prerequisites && (
 				<>
 					<Waiting isLeft />
 					{ __( 'Retrieving status…', 'newspack' ) }
 				</>
 			) }
-			{ ! setupComplete &&
-				prerequisites &&
+			{ prerequisites &&
 				Object.keys( prerequisites ).map( key => (
 					<ActionCard
 						key={ key }
@@ -164,32 +161,17 @@ export default withWizardScreen( () => {
 				) ) }
 
 			{ /** TODO: Link this to the new setup wizard. */ }
-			{ prerequisites && ! setupComplete && (
+			{ prerequisites && (
 				<ActionCard
 					isMedium
 					title={ __( 'Reader Activation Campaign', 'newspack' ) }
 					description={ __(
-						'A set of prompts and segments optimized for reader activaton.',
+						'Building a set of prompts with default segments and settings optimized for Reader Activation allows for an improved reader experience around site registration, newsletter sign-up, and donation in order to drive industry-leading conversion rates.',
 						'newspack'
 					) }
 					checkbox="unchecked"
 					actionText={ __( 'Waiting for all settings to be ready', 'newspack' ) }
 				/>
-			) }
-			{ setupComplete && (
-				<>
-					{ /** TODO: Make this notice appear only when RAS setup is first completed. */ }
-					<Notice
-						noticeText={ __( 'Congratulations! Reader Activation is enabled.', 'newspack' ) }
-						isSuccess
-					/>
-					<ActionCard
-						isMedium
-						title={ __( 'Reader Activation', 'newspack' ) }
-						description={ __( 'Status: Enabled', 'newspack' ) }
-						checkbox="checked"
-					/>
-				</>
 			) }
 			<hr />
 			<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
@@ -201,14 +183,6 @@ export default withWizardScreen( () => {
 			</Button>
 			{ showAdvanced && (
 				<Card noBorder>
-					<CheckboxControl
-						label={ __( 'Enable Sign In/Account link', 'newspack' ) }
-						help={ __(
-							'Display an account link in the site header. It will allow readers to register and access their account.',
-							'newspack'
-						) }
-						{ ...getSharedProps( 'enabled_account_link' ) }
-					/>
 					<Grid columns={ 2 } gutter={ 16 }>
 						<TextControl
 							label={ __( 'Terms & Conditions Text', 'newspack' ) }
@@ -225,8 +199,8 @@ export default withWizardScreen( () => {
 					{ emails?.length > 0 && (
 						<>
 							<SectionHeader
-								title={ __( 'Emails', 'newspack' ) }
-								description={ __( 'Customize emails sent to readers.', 'newspack' ) }
+								title={ __( 'Transactional Emails', 'newspack' ) }
+								description={ __( 'Customize the content of transactional emails.', 'newspack' ) }
 							/>
 							<TextControl
 								label={ __( 'Sender name', 'newspack' ) }
@@ -264,6 +238,7 @@ export default withWizardScreen( () => {
 						title={ __( 'Email Service Provider Settings', 'newspack' ) }
 						description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
 					/>
+					{ /** TODO: Deprecate this option. This field should be populated by user input in the prompt setup wizard. */ }
 					<TextControl
 						label={ __( 'Newsletter subscription text on registration', 'newspack' ) }
 						help={ __(
@@ -272,24 +247,8 @@ export default withWizardScreen( () => {
 						) }
 						{ ...getSharedProps( 'newsletters_label', 'text' ) }
 					/>
-					<CheckboxControl
-						label={ __( 'Synchronize reader to ESP', 'newspack' ) }
-						help={ __(
-							'Whether to synchronize reader data to the ESP. A contact will be created on reader registration if the ESP supports contacts without a list subscription.',
-							'newspack'
-						) }
-						{ ...getSharedProps( 'sync_esp' ) }
-					/>
 					{ config.sync_esp && (
 						<>
-							<CheckboxControl
-								label={ __( 'Delete contact on reader deletion', 'newspack' ) }
-								help={ __(
-									"If the reader's email is verified, delete contact from ESP on reader deletion. ESP synchronization must be enabled.",
-									'newspack'
-								) }
-								{ ...getSharedProps( 'sync_esp_delete' ) }
-							/>
 							<TextControl
 								label={ __( 'Metadata field prefix', 'newspack' ) }
 								help={ __(
