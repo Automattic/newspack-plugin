@@ -291,12 +291,6 @@ final class Reader_Activation {
 	 */
 	public static function get_prerequisites_status() {
 		$prerequisites = [
-			// TODO: Remove example prerequisite.
-			'example_slug'     => [
-				'active'      => false,
-				'label'       => __( 'Example requirement', 'newspack' ),
-				'description' => __( 'Boilerplate config for inactive prerequisite.', 'newspack-plugin' ),
-			],
 			'terms_conditions' => [
 				'active'      => false,
 				'label'       => __( 'Terms & Conditions', 'newspack' ),
@@ -311,7 +305,7 @@ final class Reader_Activation {
 			'emails'           => [
 				'active'      => false,
 				'label'       => __( 'Transactional Emails', 'newspack' ),
-				'description' => __( 'Boilerplate config for inactive prerequisite.', 'newspack-plugin' ),
+				'description' => __( 'Your sender name and email address determines how readers find emails related to their account in their inbox.', 'newspack-plugin' ),
 			],
 			'recaptcha'        => [
 				'active'      => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
