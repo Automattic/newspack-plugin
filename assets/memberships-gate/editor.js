@@ -2,17 +2,18 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { Fragment, useEffect } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl, RadioControl } from '@wordpress/components';
+import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
 /**
  * Internal dependencies
  */
+import PositionPlacementControl from '../components/src/position-placement-control';
 import './editor.scss';
 
 const styles = [
@@ -20,10 +21,10 @@ const styles = [
 	{ value: 'overlay', label: __( 'Overlay', 'newspack' ) },
 ];
 
-const overlayPlacements = [
-	{ value: 'center', label: __( 'Center', 'newspack' ) },
-	{ value: 'bottom', label: __( 'Bottom', 'newspack' ) },
-];
+const overlayPlacementsLabel = {
+	center: __( 'center', 'newspack' ),
+	bottom: __( 'bottom', 'newspack' ),
+};
 
 const overlaySizes = [
 	{ value: 'small', label: __( 'Small', 'newspack' ) },
@@ -84,17 +85,22 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 				) }
 				{ meta.style === 'overlay' && (
 					<Fragment>
-						<RadioControl
-							label={ __( 'Placement', 'newspack' ) }
-							selected={ meta.overlay_placement }
-							options={ overlayPlacements }
-							onChange={ value => editPost( { meta: { overlay_placement: value } } ) }
-						/>
-						<RadioControl
+						<SelectControl
 							label={ __( 'Size', 'newspack' ) }
-							selected={ meta.overlay_size }
+							value={ meta.overlay_size }
 							options={ overlaySizes }
 							onChange={ value => editPost( { meta: { overlay_size: value } } ) }
+						/>
+						<PositionPlacementControl
+							label={ __( 'Placement', 'newspack' ) }
+							value={ meta.overlay_placement }
+							allowedPlacements={ [ 'bottom', 'center' ] }
+							onChange={ value => editPost( { meta: { overlay_placement: value } } ) }
+							help={ sprintf(
+								// translators: %s is the placement of the gate.
+								__( 'The gate will be displayed at the %s of the screen.', 'newspack' ),
+								overlayPlacementsLabel[ meta.overlay_placement ]
+							) }
 						/>
 					</Fragment>
 				) }
