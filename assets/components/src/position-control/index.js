@@ -14,7 +14,7 @@ import classnames from 'classnames';
  */
 import './style.scss';
 
-const PositionPlacementControl = ( { value, label, help, onChange, size, ...props } ) => {
+export default function PositionControl( { value, label, help, onChange, size, ...props } ) {
 	/**
 	 * Set layout options
 	 */
@@ -103,8 +103,8 @@ const PositionPlacementControl = ( { value, label, help, onChange, size, ...prop
 									onChange( option.value );
 								} }
 								disabled={
-									props.allowedPlacements?.length &&
-									! props.allowedPlacements.includes( option.value )
+									props.allowedPositions?.length &&
+									! props.allowedPositions.includes( option.value )
 								}
 							/>
 						</div>
@@ -114,6 +114,4 @@ const PositionPlacementControl = ( { value, label, help, onChange, size, ...prop
 			<p className="components-base-control__help">{ help }</p>
 		</div>
 	);
-};
-
-export default PositionPlacementControl;
+}

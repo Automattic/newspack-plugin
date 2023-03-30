@@ -123,7 +123,7 @@ class WC_Memberships {
 		);
 		\register_meta(
 			'post',
-			'overlay_placement',
+			'overlay_position',
 			[
 				'object_subtype' => self::GATE_CPT,
 				'show_in_rest'   => true,
@@ -410,10 +410,10 @@ class WC_Memberships {
 		$_post = $post;
 		$post  = \get_post( $gate_post_id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		setup_postdata( $post );
-		$placement = \get_post_meta( $gate_post_id, 'overlay_placement', true );
-		$size      = \get_post_meta( $gate_post_id, 'overlay_size', true );
+		$position = \get_post_meta( $gate_post_id, 'overlay_position', true );
+		$size     = \get_post_meta( $gate_post_id, 'overlay_size', true );
 		?>
-		<div class="newspack-memberships__overlay-gate" style="display:none;" data-placement="<?php echo \esc_attr( $placement ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
+		<div class="newspack-memberships__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
 			<div class="newspack-memberships__overlay-gate__content">
 				<?php echo \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>

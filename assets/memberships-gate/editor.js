@@ -13,7 +13,7 @@ import { registerPlugin } from '@wordpress/plugins';
 /**
  * Internal dependencies
  */
-import PositionPlacementControl from '../components/src/position-placement-control';
+import PositionControl from '../components/src/position-control';
 import './editor.scss';
 
 const styles = [
@@ -21,7 +21,7 @@ const styles = [
 	{ value: 'overlay', label: __( 'Overlay', 'newspack' ) },
 ];
 
-const overlayPlacementsLabel = {
+const overlayPositionsLabels = {
 	center: __( 'center', 'newspack' ),
 	bottom: __( 'bottom', 'newspack' ),
 };
@@ -91,15 +91,15 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 							options={ overlaySizes }
 							onChange={ value => editPost( { meta: { overlay_size: value } } ) }
 						/>
-						<PositionPlacementControl
-							label={ __( 'Placement', 'newspack' ) }
-							value={ meta.overlay_placement }
-							allowedPlacements={ [ 'bottom', 'center' ] }
-							onChange={ value => editPost( { meta: { overlay_placement: value } } ) }
+						<PositionControl
+							label={ __( 'Position', 'newspack' ) }
+							value={ meta.overlay_position }
+							allowedPositions={ [ 'bottom', 'center' ] }
+							onChange={ value => editPost( { meta: { overlay_position: value } } ) }
 							help={ sprintf(
 								// translators: %s is the placement of the gate.
 								__( 'The gate will be displayed at the %s of the screen.', 'newspack' ),
-								overlayPlacementsLabel[ meta.overlay_placement ]
+								overlayPositionsLabels[ meta.overlay_position ]
 							) }
 						/>
 					</Fragment>

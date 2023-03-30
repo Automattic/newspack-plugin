@@ -49,13 +49,13 @@
 				box-sizing: content-box;
 				border-radius: 5px 5px 0 0;
 				padding: 32px;
-				[data-placement='center'] & {
+				[data-position='center'] & {
 					bottom: auto;
 					top: 50%;
 					border-radius: 5px;
 					transform: translate( -50%, calc( -50% + 50px ) );
 				}
-				[data-placement='center'][data-visible='true'] & {
+				[data-position='center'][data-visible='true'] & {
 					transform: translate( -50%, -50% );
 				}
 				[data-size='small'] & {
