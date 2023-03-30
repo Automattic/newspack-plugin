@@ -166,7 +166,7 @@ export default withWizardScreen( () => {
 					isMedium
 					title={ __( 'Reader Activation Campaign', 'newspack' ) }
 					description={ __(
-						'Building a set of prompts with default segments and settings optimized for Reader Activation allows for an improved reader experience around site registration, newsletter sign-up, and donation in order to drive industry-leading conversion rates.',
+						'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.',
 						'newspack'
 					) }
 					checkbox="unchecked"
