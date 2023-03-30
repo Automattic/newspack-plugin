@@ -152,8 +152,8 @@ export default withWizardScreen( () => {
 							prerequisites[ key ].href ? (
 								<Button isLink disabled={ inFlight } href={ prerequisites[ key ].href }>
 									{ prerequisites[ key ].active
-										? __( 'View configuration', 'newspack' )
-										: __( 'Configure', 'newspack' ) }
+										? __( 'View setup', 'newspack' )
+										: __( 'Set up', 'newspack' ) }
 								</Button>
 							) : null
 						}
