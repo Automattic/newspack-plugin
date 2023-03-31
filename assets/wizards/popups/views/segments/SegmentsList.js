@@ -32,6 +32,7 @@ const SegmentActionCard = ( {
 	sortSegments,
 	totalSegments,
 	wrapperRef,
+	toggleSegmentStatus,
 } ) => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 	const [ categories, setCategories ] = useState( [] );
@@ -182,6 +183,8 @@ const SegmentActionCard = ( {
 						title={ segment.name }
 						titleLink={ `#/segments/${ segment.id }` }
 						description={ descriptionForSegment( segment, categories ) }
+						toggleChecked={ ! segment.configuration.is_disabled }
+						toggleOnChange={ () => toggleSegmentStatus( segment ) }
 						actionText={
 							<>
 								<Button
@@ -253,6 +256,31 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const ref = useRef();
+	const toggleSegmentStatus = segment => {
+		setInFlight( true );
+		setError( null );
+		wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
+			method: 'POST',
+			quiet: true,
+			data: {
+				name: segment.name,
+				configuration: {
+					...segment.configuration,
+					is_disabled: ! segment.configuration.is_disabled,
+				},
+			},
+		} )
+			.then( _segments => {
+				console.log( _segments );
+				setInFlight( false );
+				setSegments( _segments );
+			} )
+			.catch( e => {
+				console.error( e );
+				setInFlight( false );
+			} );
+	};
 	const deleteSegment = segment => {
 		setInFlight( true );
 		setError( null );
@@ -323,6 +351,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 						dropTargetIndex={ dropTargetIndex }
 						setDropTargetIndex={ setDropTargetIndex }
 						totalSegments={ segments.length }
+						toggleSegmentStatus={ toggleSegmentStatus }
 					/>
 				) ) }
 			</div>
