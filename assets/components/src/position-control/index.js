@@ -23,71 +23,71 @@ export default function PositionControl( { value, label, help, onChange, size, .
 			? [
 					{
 						value: 'top',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Top', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Top', 'newspack' ),
 					},
 					{
 						value: 'center',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Center', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Center', 'newspack' ),
 					},
 					{
 						value: 'bottom',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Bottom', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Bottom', 'newspack' ),
 					},
 			  ]
 			: [
 					{
 						value: 'top_left',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Top Left', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Top Left', 'newspack' ),
 					},
 					{
 						value: 'top',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Top Center', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Top Center', 'newspack' ),
 					},
 					{
 						value: 'top_right',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Top Right', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Top Right', 'newspack' ),
 					},
 					{
 						value: 'center_left',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Center Left', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Center Left', 'newspack' ),
 					},
 					{
 						value: 'center',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Center', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Center', 'newspack' ),
 					},
 					{
 						value: 'center_right',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Center Right', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Center Right', 'newspack' ),
 					},
 					{
 						value: 'bottom_left',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Bottom Left', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Bottom Left', 'newspack' ),
 					},
 					{
 						value: 'bottom',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Bottom Center', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Bottom Center', 'newspack' ),
 					},
 					{
 						value: 'bottom_right',
-						/* translators: Overlay Prompt Position */
-						label: __( 'Bottom Right', 'newspack-popups' ),
+						/* translators: Overlay Position */
+						label: __( 'Bottom Right', 'newspack' ),
 					},
 			  ];
 	return (
 		<div className={ classnames( 'newspack-position-placement-control', 'size-' + size ) }>
 			<p className="components-base-control__label">{ label }</p>
-			<ButtonGroup aria-label={ __( 'Select Position', 'newspack-popups' ) } { ...props }>
+			<ButtonGroup aria-label={ __( 'Select Position', 'newspack' ) } { ...props }>
 				{ options.map( ( option, index ) => {
 					return (
 						<div
