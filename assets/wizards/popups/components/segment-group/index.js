@@ -222,7 +222,7 @@ const SegmentGroup = props => {
 			<Card noBorder className="newspack-campaigns__segment-group__action-cards">
 				{ prompts.map( item => (
 					<PromptActionCard
-						className={ getCardClassName( item ) }
+						className={ getCardClassName( item.status, segment.configuration.is_disabled ) }
 						description={ descriptionForPopup( item ) }
 						warning={ warningForPopup( prompts, item ) }
 						key={ item.id }
