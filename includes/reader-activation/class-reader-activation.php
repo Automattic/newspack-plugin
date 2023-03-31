@@ -276,10 +276,10 @@ final class Reader_Activation {
 	/**
 	 * Is the Newspack Newsletters plugin configured with an ESP?
 	 */
-	public static function is_newsletters_configured() {
+	public static function is_esp_configured() {
 		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 
-		return $newsletters_configuration_manager->is_configured();
+		return $newsletters_configuration_manager->is_esp_set_up();
 	}
 
 	/**
@@ -297,7 +297,7 @@ final class Reader_Activation {
 				'description' => __( 'Displaying Terms and Conditions on your site is necessary to allow readers to register and access their account.', 'newspack-plugin' ),
 			],
 			'esp'              => [
-				'active'      => self::is_newsletters_configured(),
+				'active'      => self::is_esp_configured(),
 				'label'       => __( 'Email Service Provider (ESP)', 'newspack' ),
 				'description' => __( 'Connecting your ESP with the right settings is necessary to register readers with their email addresses, send account related emails and newsletters.', 'newspack' ),
 				'href'        => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
