@@ -229,7 +229,7 @@ class Stripe_Sync {
 					$subscription['start_date']
 				);
 				$metadata                   = array_merge( $recurring_related_metadata, $metadata );
-				if ( ! in_array( $subscription['status'], [ 'active', 'trialing' ] ) ) {
+				if ( ! in_array( $subscription['status'], [ 'active', 'trialing' ], true ) ) {
 					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-' . $membership_status;
 				}
 				if ( $subscription['ended_at'] ) {
