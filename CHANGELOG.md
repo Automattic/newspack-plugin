@@ -1,3 +1,20 @@
+# [1.112.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.111.0...v1.112.0-alpha.1) (2023-03-31)
+
+
+### Bug Fixes
+
+* bail silently when recaptcha key is not set ([#2363](https://github.com/Automattic/newspack-plugin/issues/2363)) ([de18369](https://github.com/Automattic/newspack-plugin/commit/de183695019b3e29f5f404ed3faace976ca3b86d))
+* if My Account is set to shown in RAS, show in Customizer at all breakpoints ([#2379](https://github.com/Automattic/newspack-plugin/issues/2379)) ([1052923](https://github.com/Automattic/newspack-plugin/commit/10529238fe0475c9f4933231d4f037f7687559af))
+* **stripe-sync-script:** process only customers with successful transactions ([#2355](https://github.com/Automattic/newspack-plugin/issues/2355)) ([1020663](https://github.com/Automattic/newspack-plugin/commit/1020663c0dbe1cfd81679d0ce1cca716a795993e))
+
+
+### Features
+
+* **amp-deprecation:** polyfill amp-vimeo tag ([#2372](https://github.com/Automattic/newspack-plugin/issues/2372)) ([4a70b65](https://github.com/Automattic/newspack-plugin/commit/4a70b65470f62c89135d1dc5f27d4060989b736a))
+* **amp:** polyfill lightbox effect ([#2324](https://github.com/Automattic/newspack-plugin/issues/2324)) ([b31288c](https://github.com/Automattic/newspack-plugin/commit/b31288c3bf1538889f9ba6c0e49e62bca5ebe2d0))
+* **memberships:** content gate page ([#2366](https://github.com/Automattic/newspack-plugin/issues/2366)) ([15026ab](https://github.com/Automattic/newspack-plugin/commit/15026ab36f118a0447d882f42ff0b2ca148266c1))
+* **popups:** support disabled segments ([#2376](https://github.com/Automattic/newspack-plugin/issues/2376)) ([bfd65b2](https://github.com/Automattic/newspack-plugin/commit/bfd65b23dc5da98f692efcceb738c512b85b8f4b))
+
 # [1.111.0](https://github.com/Automattic/newspack-plugin/compare/v1.110.0...v1.111.0) (2023-03-28)
 
 
