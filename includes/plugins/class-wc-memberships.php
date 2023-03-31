@@ -365,6 +365,8 @@ class WC_Memberships {
 
 		$content = $post->post_content;
 
+		$style = \get_post_meta( $gate_post_id, 'style', true );
+
 		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
 		if ( $use_more_tag && strpos( $content, '<!--more-->' ) ) {
@@ -375,13 +377,16 @@ class WC_Memberships {
 			$content = explode( '</p>', $content );
 			// Extract the first $x paragraphs only.
 			$content = array_slice( $content, 0, $count ?? 2 );
+			if ( 'overlay' === $style ) {
+				// Append ellipsis to the last paragraph.
+				$content[ count( $content ) - 1 ] .= ' [&hellip;]';
+			}
 			// Rejoin the paragraphs into a single string again.
-			$content = wp_kses_post( implode( '</p>', $content ) );
+			$content = wp_kses_post( implode( '</p>', $content ) . '</p>' );
 		}
 
 		$excerpt = $content;
 
-		$style       = \get_post_meta( $gate_post_id, 'style', true );
 		$inline_fade = \get_post_meta( $gate_post_id, 'inline_fade', true );
 		if ( 'inline' === $style && $inline_fade ) {
 			$excerpt .= '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>';
