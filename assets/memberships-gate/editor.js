@@ -98,6 +98,7 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 						<PositionControl
 							label={ __( 'Position', 'newspack' ) }
 							value={ meta.overlay_position }
+							size={ meta.overlay_size }
 							allowedPositions={ [ 'bottom', 'center' ] }
 							onChange={ value => editPost( { meta: { overlay_position: value } } ) }
 							help={ sprintf(
