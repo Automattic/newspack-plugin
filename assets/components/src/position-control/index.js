@@ -14,7 +14,15 @@ import classnames from 'classnames';
  */
 import './style.scss';
 
-export default function PositionControl( { value, label, help, onChange, size, ...props } ) {
+export default function PositionControl( {
+	allowedPositions,
+	value,
+	label,
+	help,
+	onChange,
+	size,
+	...props
+} ) {
 	/**
 	 * Set layout options
 	 */
@@ -102,10 +110,7 @@ export default function PositionControl( { value, label, help, onChange, size, .
 								onClick={ () => {
 									onChange( option.value );
 								} }
-								disabled={
-									props.allowedPositions?.length &&
-									! props.allowedPositions.includes( option.value )
-								}
+								disabled={ allowedPositions?.length && ! allowedPositions.includes( option.value ) }
 							/>
 						</div>
 					);

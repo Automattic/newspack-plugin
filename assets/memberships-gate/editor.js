@@ -27,9 +27,11 @@ const overlayPositionsLabels = {
 };
 
 const overlaySizes = [
+	{ value: 'x-small', label: __( 'Extra Small', 'newspack' ) },
 	{ value: 'small', label: __( 'Small', 'newspack' ) },
 	{ value: 'medium', label: __( 'Medium', 'newspack' ) },
 	{ value: 'large', label: __( 'Large', 'newspack' ) },
+	{ value: 'full', label: __( 'Full Width', 'newspack' ) },
 ];
 
 const GateEdit = ( { editPost, createNotice, meta } ) => {
@@ -45,12 +47,14 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 		}
 	}, [] );
 	useEffect( () => {
+		const wrapper = document.querySelector( '.editor-styles-wrapper' );
+		if ( ! wrapper ) {
+			return;
+		}
 		if ( meta.style === 'overlay' ) {
-			document
-				.querySelector( '.editor-styles-wrapper' )
-				.setAttribute( 'data-overlay-size', meta.overlay_size );
+			wrapper.setAttribute( 'data-overlay-size', meta.overlay_size );
 		} else {
-			document.querySelector( '.editor-styles-wrapper' ).removeAttribute( 'data-overlay-size' );
+			wrapper.removeAttribute( 'data-overlay-size' );
 		}
 	}, [ meta.style, meta.overlay_size ] );
 	return (

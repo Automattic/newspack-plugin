@@ -1,4 +1,5 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
+@use 'vars' as gate;
 
 .edit-post-post-visibility {
 	display: none;
@@ -12,14 +13,18 @@
 }
 
 .wp-block {
+	.editor-styles-wrapper[data-overlay-size='x-small'] & {
+		max-width: gate.$size__x-small;
+	}
 	.editor-styles-wrapper[data-overlay-size='small'] & {
-		max-width: 400px;
+		max-width: gate.$size__small;
 	}
 	.editor-styles-wrapper[data-overlay-size='medium'] & {
-		max-width: 600px;
+		max-width: gate.$size__medium;
 	}
-	.editor-styles-wrapper[data-overlay-size='large'] & {
-		max-width: 800px;
+	.editor-styles-wrapper[data-overlay-size='large'] &,
+	.editor-styles-wrapper[data-overlay-size='full'] & {
+		max-width: gate.$size__large;
 	}
 }
 

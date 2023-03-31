@@ -1,3 +1,5 @@
+@use 'vars' as gate;
+
 .newspack-memberships {
 	&__overlay-gate {
 		position: fixed;
@@ -25,7 +27,7 @@
 				opacity: 0.75;
 			}
 		}
-		&__content {
+		&__container {
 			position: absolute;
 			z-index: 10;
 			left: 50%;
@@ -34,8 +36,6 @@
 			max-height: 100%;
 			overflow-y: auto;
 			width: 100%;
-			padding: 5vw;
-			background: #fff;
 			opacity: 0;
 			transition: transform 200ms ease, opacity 200ms ease;
 			box-sizing: border-box;
@@ -43,29 +43,40 @@
 				transform: translate( -50%, 0 );
 				opacity: 1;
 			}
+			[data-position='center'] & {
+				bottom: auto;
+				top: 50%;
+				transform: translate( -50%, calc( -50% + 50px ) );
+			}
+			[data-position='center'][data-visible='true'] & {
+				transform: translate( -50%, -50% );
+			}
+			[data-size='x-small'] & {
+				max-width: gate.$size__x-small;
+			}
+			[data-size='small'] & {
+				max-width: gate.$size__small;
+			}
+			[data-size='medium'] & {
+				max-width: gate.$size__medium;
+			}
+			[data-size='large'] & {
+				max-width: gate.$size__large;
+			}
+			[data-size='full'] & {
+				background: #fff;
+			}
 		}
-		@media ( min-width: 864px ) {
-			&__content {
-				box-sizing: content-box;
+		&__content {
+			max-width: gate.$size__large;
+			padding: 5vw;
+			margin: 0 auto;
+			background: #fff;
+			@media ( min-width: 600px ) {
 				border-radius: 5px 5px 0 0;
 				padding: 32px;
 				[data-position='center'] & {
-					bottom: auto;
-					top: 50%;
 					border-radius: 5px;
-					transform: translate( -50%, calc( -50% + 50px ) );
-				}
-				[data-position='center'][data-visible='true'] & {
-					transform: translate( -50%, -50% );
-				}
-				[data-size='small'] & {
-					max-width: 400px;
-				}
-				[data-size='medium'] & {
-					max-width: 600px;
-				}
-				[data-size='large'] & {
-					max-width: 800px;
 				}
 			}
 		}
