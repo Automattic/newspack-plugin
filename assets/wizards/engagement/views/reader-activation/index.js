@@ -112,6 +112,7 @@ export default withWizardScreen( () => {
 							'Newspack’s Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ',
 							'newspack'
 						) }
+						{ /** TODO: Update this URL with the real one once the docs are ready. */ }
 						<ExternalLink href={ 'https://help.newspack.com' }>
 							{ __( 'Learn more', 'newspack-plugin' ) }
 						</ExternalLink>
