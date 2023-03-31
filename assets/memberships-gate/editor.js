@@ -31,7 +31,7 @@ const overlaySizes = [
 	{ value: 'small', label: __( 'Small', 'newspack' ) },
 	{ value: 'medium', label: __( 'Medium', 'newspack' ) },
 	{ value: 'large', label: __( 'Large', 'newspack' ) },
-	{ value: 'full', label: __( 'Full Width', 'newspack' ) },
+	{ value: 'full-width', label: __( 'Full Width', 'newspack' ) },
 ];
 
 const GateEdit = ( { editPost, createNotice, meta } ) => {
