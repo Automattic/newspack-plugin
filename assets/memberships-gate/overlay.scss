@@ -54,7 +54,7 @@
 			[data-size='large'] & {
 				max-width: gate.$size__large;
 			}
-			[data-size='full'] & {
+			[data-size='full-width'] & {
 				background: #fff;
 			}
 			@media ( min-width: 600px ) {
