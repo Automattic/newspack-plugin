@@ -66,7 +66,10 @@ class Newspack_AMP_Polyfills extends WP_UnitTestCase {
 				'<amp-iframe src="https://example.com/image.jpg"></amp-iframe><p>something</p><amp-iframe src="https://example.com/image.jpg"></amp-iframe>something',
 				'<iframe src="https://example.com/image.jpg"></iframe><p>something</p><iframe src="https://example.com/image.jpg"></iframe>something',
 			],
-
+			[
+				'<amp-iframe src="https://example.com/image.jpg" width="100" height="100"><amp-img src="https://example.com/image.jpg" width="100" height="100"></amp-img></amp-iframe>',
+				'<iframe src="https://example.com/image.jpg" width="100" height="100"><img src="https://example.com/image.jpg" width="100" height="100" /></iframe>',
+			]
 		];
 	}
 
