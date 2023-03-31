@@ -43,14 +43,6 @@
 				transform: translate( -50%, 0 );
 				opacity: 1;
 			}
-			[data-position='center'] & {
-				bottom: auto;
-				top: 50%;
-				transform: translate( -50%, calc( -50% + 50px ) );
-			}
-			[data-position='center'][data-visible='true'] & {
-				transform: translate( -50%, -50% );
-			}
 			[data-size='x-small'] & {
 				max-width: gate.$size__x-small;
 			}
@@ -65,6 +57,16 @@
 			}
 			[data-size='full'] & {
 				background: #fff;
+			}
+			@media ( min-width: 600px ) {
+				[data-position='center'] & {
+					bottom: auto;
+					top: 50%;
+					transform: translate( -50%, calc( -50% + 50px ) );
+				}
+				[data-position='center'][data-visible='true'] & {
+					transform: translate( -50%, -50% );
+				}
 			}
 		}
 		&__content {
