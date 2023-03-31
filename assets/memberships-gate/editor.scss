@@ -23,7 +23,7 @@
 		max-width: gate.$size__medium;
 	}
 	.editor-styles-wrapper[data-overlay-size='large'] &,
-	.editor-styles-wrapper[data-overlay-size='full'] & {
+	.editor-styles-wrapper[data-overlay-size='full-width'] & {
 		max-width: gate.$size__large;
 	}
 }
