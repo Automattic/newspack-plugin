@@ -37,7 +37,6 @@
 			transform: translate( -50%, 50px );
 			opacity: 0;
 			transition: transform 200ms ease, opacity 200ms ease;
-			box-sizing: border-box;
 			[data-visible='true'] & {
 				transform: translate( -50%, 0 );
 				opacity: 1;
