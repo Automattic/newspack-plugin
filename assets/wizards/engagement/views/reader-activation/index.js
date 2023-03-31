@@ -161,12 +161,13 @@ export default withWizardScreen( () => {
 					<ActionCard
 						key={ key }
 						isMedium
+						expandable
 						title={ prerequisites[ key ].label }
-						description={
-							prerequisites[ key ].active
-								? __( 'Status: Ready', 'newspack' )
-								: prerequisites[ key ].description
-						}
+						description={ sprintf(
+							/* translators: %s: Prerequisite status */
+							__( 'Status: %s', 'newspack' ),
+							prerequisites[ key ].active ? __( 'Ready', 'newspack' ) : __( 'Pending', 'newspack' )
+						) }
 						checkbox={ prerequisites[ key ].active ? 'checked' : 'unchecked' }
 						actionText={
 							prerequisites[ key ].href ? (
@@ -177,7 +178,9 @@ export default withWizardScreen( () => {
 								</Button>
 							) : null
 						}
-					/>
+					>
+						Test child content
+					</ActionCard>
 				) ) }
 
 			{ /** TODO: Link this to the new setup wizard. */ }

@@ -393,6 +393,19 @@
 		font-style: italic;
 	}
 
+	// Expandable card children
+
+	&.is-expandable {
+		.newspack-action-card__region-children {
+			border-top: 1px solid wp-colors.$gray-200;
+			padding-top: 24px;
+		}
+
+		&.is-medium .newspack-action-card__region-children {
+			padding-top: 32px;
+		}
+	}
+
 	// Multiple Cards
 
 	& + & {
