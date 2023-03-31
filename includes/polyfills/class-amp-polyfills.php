@@ -60,7 +60,7 @@ class AMP_Polyfills {
 		// Polyfill amp-iframe.
 		$content = preg_replace(
 			'/<amp-iframe([^>]*)>(.*?)<\/amp-iframe>/',
-			'<iframe$1>$2</iframe>',
+			'<iframe$1></iframe>',
 			$content
 		);
 
