@@ -21,15 +21,15 @@ class Newspack_AMP_Polyfills extends WP_UnitTestCase {
 		return [
 			[
 				'<amp-img src="https://example.com/image.jpg" width="100" height="100"></amp-img>',
-				'<img src="https://example.com/image.jpg" width="100" height="100">',
+				'<img src="https://example.com/image.jpg" width="100" height="100" />',
 			],
 			[
 				'<amp-img class="test" src="https://example.com/image.jpg" width="100" height="100">something inside</amp-img>',
-				'<img class="test" src="https://example.com/image.jpg" width="100" height="100">',
+				'<img class="test" src="https://example.com/image.jpg" width="100" height="100" />',
 			],
 			[
 				'<amp-img src="https://example.com/image.jpg"></amp-img><p>something</p><amp-img src="https://example.com/image.jpg"></amp-img>something',
-				'<img src="https://example.com/image.jpg"><p>something</p><img src="https://example.com/image.jpg">something',
+				'<img src="https://example.com/image.jpg" /><p>something</p><img src="https://example.com/image.jpg" />something',
 			],
 
 		];
