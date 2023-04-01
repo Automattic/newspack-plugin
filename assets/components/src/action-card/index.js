@@ -65,6 +65,7 @@ const ActionCard = props => {
 		indent && 'newspack-card--indent',
 		isSmall && 'is-small',
 		isMedium && 'is-medium',
+		checkbox && 'has-checkbox',
 		expandable && 'is-expandable',
 		className
 	);

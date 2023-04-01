@@ -35,7 +35,7 @@ export default withWizardScreen( () => {
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
-	const fetchConfig = () => {
+	const fetchConfig = ( updateInFlight = true ) => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
@@ -47,7 +47,7 @@ export default withWizardScreen( () => {
 				setMembershipsConfig( memberships );
 			} )
 			.catch( setError )
-			.finally( () => setInFlight( false ) );
+			.finally( () => updateInFlight && setInFlight( false ) );
 	};
 	const saveConfig = () => {
 		setError( false );
@@ -57,7 +57,11 @@ export default withWizardScreen( () => {
 			method: 'post',
 			data: config,
 		} )
-			.then( setConfig )
+			.then( ( { config: fetchedConfig, prerequisites_status, memberships } ) => {
+				setPrerequisites( prerequisites_status );
+				setConfig( fetchedConfig );
+				setMembershipsConfig( memberships );
+			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
@@ -161,7 +165,7 @@ export default withWizardScreen( () => {
 					<ActionCard
 						key={ key }
 						isMedium
-						expandable
+						expandable // TODO: If the status goes from Pending to Ready, close the card.
 						title={ prerequisites[ key ].label }
 						description={ sprintf(
 							/* translators: %s: Prerequisite status */
@@ -179,7 +183,68 @@ export default withWizardScreen( () => {
 							) : null
 						}
 					>
-						Test child content
+						{
+							// Inner card content.
+							<>
+								{ prerequisites[ key ].description && (
+									<p>
+										{ prerequisites[ key ].description }
+										{ prerequisites[ key ].help_url && (
+											<>
+												{ ' ' }
+												<ExternalLink href={ prerequisites[ key ].help_url }>
+													{ __( 'Learn more', 'newspack-plugin' ) }
+												</ExternalLink>
+											</>
+										) }
+									</p>
+								) }
+								{
+									// Form fields.
+									// TODO: Refactor so that the save button saves only these fields.
+									prerequisites[ key ].fields && (
+										<Grid columns={ 2 } gutter={ 16 }>
+											<div>
+												{ Object.keys( prerequisites[ key ].fields ).map( fieldName => (
+													<TextControl
+														key={ fieldName }
+														label={ prerequisites[ key ].fields[ fieldName ].label }
+														help={ prerequisites[ key ].fields[ fieldName ].description }
+														{ ...getSharedProps( fieldName, 'text' ) }
+													/>
+												) ) }
+
+												<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
+													{ inFlight
+														? __( 'Saving…', 'newspack' )
+														: sprintf(
+																// Translators: Save or Update settings.
+																__( '%s settings', 'newspack' ),
+																prerequisites[ key ].active
+																	? __( 'Update', 'newspack' )
+																	: __( 'Save', 'newspack' )
+														  ) }
+												</Button>
+											</div>
+										</Grid>
+									)
+								}
+								{
+									// Link to another settings page.
+									prerequisites[ key ].href && prerequisites[ key ].action_text && (
+										<Grid columns={ 2 } gutter={ 16 }>
+											<div>
+												<Button isPrimary href={ prerequisites[ key ].href }>
+													{ ( prerequisites[ key ].active
+														? __( 'Update ', 'newspack' )
+														: __( 'Save ', 'newspack' ) ) + prerequisites[ key ].action_text }
+												</Button>
+											</div>
+										</Grid>
+									)
+								}
+							</>
+						}
 					</ActionCard>
 				) ) }
 
@@ -187,14 +252,36 @@ export default withWizardScreen( () => {
 			{ prerequisites && (
 				<ActionCard
 					isMedium
+					expandable
 					title={ __( 'Reader Activation Campaign', 'newspack' ) }
-					description={ __(
-						'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.',
-						'newspack'
-					) }
+					description={ __( 'Status: Pending', 'newspack' ) } // TODO: Update this once the campaign UI is ready.
 					checkbox="unchecked"
-					actionText={ __( 'Waiting for all settings to be ready', 'newspack' ) }
-				/>
+				>
+					<>
+						<p>
+							<>
+								{ __(
+									'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation. ',
+									'newspack'
+								) }
+
+								{ /** TODO: Update this URL with the real one once the docs are ready. */ }
+								<ExternalLink href={ 'https://help.newspack.com' }>
+									{ __( 'Learn more', 'newspack-plugin' ) }
+								</ExternalLink>
+							</>
+						</p>
+						<Grid columns={ 2 } gutter={ 16 }>
+							<div>
+								<Button variant={ allReady ? 'primary' : 'secondary' } disabled={ ! allReady }>
+									{ allReady
+										? __( 'Set up Reader Activation campaign', 'newspack' )
+										: __( 'Waiting for all settings to be ready', 'newspack' ) }
+								</Button>
+							</div>
+						</Grid>
+					</>
+				</ActionCard>
 			) }
 			<hr />
 			<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
@@ -206,60 +293,8 @@ export default withWizardScreen( () => {
 			</Button>
 			{ showAdvanced && (
 				<Card noBorder>
-					<Grid columns={ 2 } gutter={ 16 }>
-						<TextControl
-							label={ __( 'Terms & Conditions Text', 'newspack' ) }
-							help={ __( 'Terms and conditions text to display on registration.', 'newspack' ) }
-							{ ...getSharedProps( 'terms_text', 'text' ) }
-						/>
-						<TextControl
-							label={ __( 'Terms & Conditions URL', 'newspack' ) }
-							help={ __( 'URL to the page containing the terms and conditions.', 'newspack' ) }
-							{ ...getSharedProps( 'terms_url', 'text' ) }
-						/>
-					</Grid>
-					<hr />
-					{ emails?.length > 0 && (
-						<>
-							<SectionHeader
-								title={ __( 'Transactional Emails', 'newspack' ) }
-								description={ __( 'Customize the content of transactional emails.', 'newspack' ) }
-							/>
-							<TextControl
-								label={ __( 'Sender name', 'newspack' ) }
-								{ ...getSharedProps( 'sender_name', 'text' ) }
-							/>
-							<Grid columns={ 2 } gutter={ 16 }>
-								<TextControl
-									label={ __( 'Sender email address', 'newspack' ) }
-									{ ...getSharedProps( 'sender_email_address', 'text' ) }
-								/>
-								<TextControl
-									label={ __( 'Contact email address', 'newspack' ) }
-									help={ __(
-										'This email will be used as "Reply-To" for transactional emails as well.',
-										'newspack'
-									) }
-									{ ...getSharedProps( 'contact_email_address', 'text' ) }
-								/>
-							</Grid>
-							{ emails.map( email => (
-								<ActionCard
-									key={ email.post_id }
-									title={ email.label }
-									titleLink={ email.edit_link }
-									href={ email.edit_link }
-									description={ email.description }
-									actionText={ __( 'Edit', 'newspack' ) }
-								/>
-							) ) }
-							<hr />
-						</>
-					) }
-
 					{ newspack_engagement_wizard.has_memberships && membershipsConfig ? (
 						<>
-							<hr />
 							<SectionHeader
 								title={ __( 'Memberships Integration', 'newspack' ) }
 								description={ __( 'Improve the reader experience on content gating.', 'newspack' ) }
@@ -271,11 +306,33 @@ export default withWizardScreen( () => {
 								description={ getContentGateDescription() }
 								actionText={ __( 'Configure', 'newspack' ) }
 							/>
+							<hr />
 						</>
 					) : null }
 
+					{ emails?.length > 0 && (
+						<>
+							<SectionHeader
+								title={ __( 'Transactional Email Content', 'newspack' ) }
+								description={ __( 'Customize the content of transactional emails.', 'newspack' ) }
+							/>
+							{ emails.map( email => (
+								<ActionCard
+									key={ email.post_id }
+									title={ email.label }
+									titleLink={ email.edit_link }
+									href={ email.edit_link }
+									description={ email.description }
+									actionText={ __( 'Edit', 'newspack' ) }
+									isSmall
+								/>
+							) ) }
+							<hr />
+						</>
+					) }
+
 					<SectionHeader
-						title={ __( 'Email Service Provider Settings', 'newspack' ) }
+						title={ __( 'Email Service Provider (ESP) Advanced Settings', 'newspack' ) }
 						description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
 					/>
 					{ /** TODO: Deprecate this option. This field should be populated by user input in the prompt setup wizard. */ }
@@ -311,7 +368,10 @@ export default withWizardScreen( () => {
 					) }
 					<div className="newspack-buttons-card">
 						<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
-							{ __( 'Save Changes', 'newspack' ) }
+							{
+								// TODO: Refactor so that this button only saves advanced settings.
+								__( 'Save advanced settings', 'newspack' )
+							}
 						</Button>
 					</div>
 				</Card>
