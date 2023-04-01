@@ -69,6 +69,7 @@ const webpackConfig = getBaseWebpackConfig(
 			),
 			'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
 			admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
+			'memberships-gate-editor': path.join( __dirname, 'assets', 'memberships-gate', 'editor.js' ),
 		},
 	}
 );
