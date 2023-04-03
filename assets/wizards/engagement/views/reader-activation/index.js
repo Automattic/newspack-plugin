@@ -243,7 +243,7 @@ export default withWizardScreen( () => {
 									)
 								}
 								{
-									// Link to another settings page.
+									// Link to another settings page or update config in place.
 									prerequisites[ key ].href && prerequisites[ key ].action_text && (
 										<Grid columns={ 2 } gutter={ 16 }>
 											<div>
