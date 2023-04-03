@@ -49,13 +49,13 @@ export default withWizardScreen( () => {
 			.catch( setError )
 			.finally( () => updateInFlight && setInFlight( false ) );
 	};
-	const saveConfig = () => {
+	const saveConfig = data => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
 			method: 'post',
-			data: config,
+			data,
 		} )
 			.then( ( { config: fetchedConfig, prerequisites_status, memberships } ) => {
 				setPrerequisites( prerequisites_status );
@@ -104,6 +104,7 @@ export default withWizardScreen( () => {
 				props.value = config[ configKey ] || '';
 				break;
 		}
+
 		return props;
 	};
 
@@ -214,7 +215,19 @@ export default withWizardScreen( () => {
 													/>
 												) ) }
 
-												<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
+												<Button
+													isPrimary
+													onClick={ () => {
+														const dataToSave = {};
+
+														Object.keys( prerequisites[ key ].fields ).forEach( fieldName => {
+															dataToSave[ fieldName ] = config[ fieldName ];
+														} );
+
+														saveConfig( dataToSave );
+													} }
+													disabled={ inFlight }
+												>
 													{ inFlight
 														? __( 'Saving…', 'newspack' )
 														: sprintf(
@@ -367,7 +380,17 @@ export default withWizardScreen( () => {
 						</>
 					) }
 					<div className="newspack-buttons-card">
-						<Button isPrimary onClick={ saveConfig } disabled={ inFlight }>
+						<Button
+							isPrimary
+							onClick={ () => {
+								saveConfig( {
+									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
+									metadata_prefix: config.metadata_prefix,
+									active_campaign_master_list: config.active_campaign_master_list,
+								} );
+							} }
+							disabled={ inFlight }
+						>
 							{
 								// TODO: Refactor so that this button only saves advanced settings.
 								__( 'Save advanced settings', 'newspack' )
