@@ -167,6 +167,7 @@ export default withWizardScreen( () => {
 						key={ key }
 						isMedium
 						expandable // TODO: If the status goes from Pending to Ready, close the card.
+						collapse={ prerequisites[ key ].active }
 						title={ prerequisites[ key ].label }
 						description={ sprintf(
 							/* translators: %s: Prerequisite status */

@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 
@@ -55,7 +55,16 @@ const ActionCard = props => {
 		hasGreyHeader,
 		isPending,
 		expandable = false,
+		collapse = false,
 	} = props;
+
+	useEffect( () => {
+		// If the card is expanded and the collapse prop is true, collapse the card.
+		if ( collapse && expanded ) {
+			setExpanded( false );
+		}
+	}, [ collapse ] );
+
 	const hasChildren = notification || children;
 	const classes = classnames(
 		'newspack-action-card',
