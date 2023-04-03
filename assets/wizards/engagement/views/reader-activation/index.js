@@ -203,7 +203,6 @@ export default withWizardScreen( () => {
 								) }
 								{
 									// Form fields.
-									// TODO: Refactor so that the save button saves only these fields.
 									prerequisites[ key ].fields && (
 										<Grid columns={ 2 } gutter={ 16 }>
 											<div>
@@ -249,9 +248,12 @@ export default withWizardScreen( () => {
 										<Grid columns={ 2 } gutter={ 16 }>
 											<div>
 												<Button isPrimary href={ prerequisites[ key ].href }>
+													{ /* eslint-disable no-nested-ternary */ }
 													{ ( prerequisites[ key ].active
 														? __( 'Update ', 'newspack' )
-														: __( 'Save ', 'newspack' ) ) + prerequisites[ key ].action_text }
+														: prerequisites[ key ].fields
+														? __( 'Save ', 'newspack' )
+														: __( 'Configure ', 'newspack' ) ) + prerequisites[ key ].action_text }
 												</Button>
 											</div>
 										</Grid>
