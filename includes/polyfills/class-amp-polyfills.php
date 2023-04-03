@@ -41,6 +41,28 @@ class AMP_Polyfills {
 	}
 
 	/**
+	 * Get embeed HTML for a video.
+	 *
+	 * @param string $type Video type.
+	 * @param string $id Video ID.
+	 */
+	private static function get_video_embed_html( $type, $id ) {
+		switch ( $type ) {
+			case 'vimeo':
+				$video_url = 'https://vimeo.com/' . $id;
+				break;
+			default:
+				$video_url = 'https://www.youtube.com/watch?v=' . $id;
+				break;
+		}
+		return '<div><!-- wp:embed {"url":"' . $video_url . '","type":"video","providerNameSlug":"' . $type . '","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
+			<figure class="wp-block-embed is-type-video is-provider-' . $type . ' wp-block-embed-' . $type . ' wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
+			' . $video_url . '
+			</div></figure>
+		<!-- /wp:embed --></div>';
+	}
+
+	/**
 	 * Polyfill AMP tags.
 	 *
 	 * @param string $content Content.
@@ -54,20 +76,21 @@ class AMP_Polyfills {
 		// Polyfill amp-img.
 		$content = preg_replace(
 			'/<amp-img([^>]*)>[^<]*<\/amp-img>/',
-			'<img\1>', // img is a void element.
+			'<img\1 />', // img is a void element.
 			$content
 		);
 		// Polyfill amp-iframe.
 		$content = preg_replace(
-			'/<amp-iframe([^>]*)>[^<]*<\/amp-iframe>/',
-			'<iframe\1></iframe>',
+			'/<amp-iframe([^>]*)>(.*?)<\/amp-iframe>/',
+			'<iframe$1></iframe>',
 			$content
 		);
 
 		$has_amp_fit_text = false !== stripos( $content, '<amp-fit-text' );
 		$has_amp_youtube  = false !== stripos( $content, '<amp-youtube' );
+		$has_amp_vimeo    = false !== stripos( $content, '<amp-vimeo' );
 
-		if ( $has_amp_fit_text || $has_amp_youtube ) {
+		if ( $has_amp_fit_text || $has_amp_youtube || $has_amp_vimeo ) {
 			$dom = new \DomDocument();
 			libxml_use_internal_errors( true );
 			$dom->loadHTML( mb_convert_encoding( $content, 'HTML-ENTITIES', get_bloginfo( 'charset' ) ) );
@@ -96,14 +119,24 @@ class AMP_Polyfills {
 						}
 					}
 					if ( $yt_id ) {
-						// Return a YouTube embed block.
-						$video_url = 'https://www.youtube.com/watch?v=' . $yt_id;
-						$html      = '<div><!-- wp:embed {"url":"' . $video_url . '","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} -->
-                            <figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">
-                            ' . $video_url . '
-                            </div></figure>
-                        <!-- /wp:embed --></div>';
-						self::insert_html( $dom, $html, $tag );
+						self::insert_html( $dom, self::get_video_embed_html( 'youtube', $yt_id ), $tag );
+						$body    = $dom->getElementsByTagName( 'body' )->item( 0 );
+						$content = preg_replace( '/<\/?body>/', '', $dom->saveHTML( $body ) );
+					}
+				}
+			}
+
+			// Process amp-vimeo tags.
+			if ( $has_amp_vimeo ) {
+				foreach ( $xpath->query( '//amp-vimeo' ) as $tag ) {
+					$vimeo_id = false;
+					foreach ( $tag->attributes as $attribute ) {
+						if ( 'data-videoid' === $attribute->name ) {
+							$vimeo_id = $attribute->value;
+						}
+					}
+					if ( $vimeo_id ) {
+						self::insert_html( $dom, self::get_video_embed_html( 'vimeo', $vimeo_id ), $tag );
 						$body    = $dom->getElementsByTagName( 'body' )->item( 0 );
 						$content = preg_replace( '/<\/?body>/', '', $dom->saveHTML( $body ) );
 					}
