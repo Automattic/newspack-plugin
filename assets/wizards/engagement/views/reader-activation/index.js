@@ -166,7 +166,7 @@ export default withWizardScreen( () => {
 					<ActionCard
 						key={ key }
 						isMedium
-						expandable // TODO: If the status goes from Pending to Ready, close the card.
+						expandable
 						collapse={ prerequisites[ key ].active }
 						title={ prerequisites[ key ].label }
 						description={ sprintf(
@@ -394,10 +394,7 @@ export default withWizardScreen( () => {
 							} }
 							disabled={ inFlight }
 						>
-							{
-								// TODO: Refactor so that this button only saves advanced settings.
-								__( 'Save advanced settings', 'newspack' )
-							}
+							{ __( 'Save advanced settings', 'newspack' ) }
 						</Button>
 					</div>
 				</Card>
