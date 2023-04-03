@@ -1,7 +1,31 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
+@use 'vars' as gate;
 
 .edit-post-post-visibility {
 	display: none;
+}
+
+.components-base-control {
+	margin-bottom: 16px;
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.wp-block {
+	.editor-styles-wrapper[data-overlay-size='x-small'] & {
+		max-width: gate.$size__x-small;
+	}
+	.editor-styles-wrapper[data-overlay-size='small'] & {
+		max-width: gate.$size__small;
+	}
+	.editor-styles-wrapper[data-overlay-size='medium'] & {
+		max-width: gate.$size__medium;
+	}
+	.editor-styles-wrapper[data-overlay-size='large'] &,
+	.editor-styles-wrapper[data-overlay-size='full-width'] & {
+		max-width: gate.$size__large;
+	}
 }
 
 .newspack-memberships-gate-style-selector {

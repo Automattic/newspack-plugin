@@ -2,22 +2,36 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { Fragment, useEffect } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl } from '@wordpress/components';
+import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
 /**
  * Internal dependencies
  */
+import PositionControl from '../components/src/position-control';
 import './editor.scss';
 
 const styles = [
-	{ name: 'inline', label: __( 'Inline', 'newspack' ) },
-	{ name: 'overlay', label: __( 'Overlay (soon)', 'newspack' ) },
+	{ value: 'inline', label: __( 'Inline', 'newspack' ) },
+	{ value: 'overlay', label: __( 'Overlay', 'newspack' ) },
+];
+
+const overlayPositionsLabels = {
+	center: __( 'center', 'newspack' ),
+	bottom: __( 'bottom', 'newspack' ),
+};
+
+const overlaySizes = [
+	{ value: 'x-small', label: __( 'Extra Small', 'newspack' ) },
+	{ value: 'small', label: __( 'Small', 'newspack' ) },
+	{ value: 'medium', label: __( 'Medium', 'newspack' ) },
+	{ value: 'large', label: __( 'Large', 'newspack' ) },
+	{ value: 'full-width', label: __( 'Full Width', 'newspack' ) },
 ];
 
 const GateEdit = ( { editPost, createNotice, meta } ) => {
@@ -32,6 +46,17 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 			);
 		}
 	}, [] );
+	useEffect( () => {
+		const wrapper = document.querySelector( '.editor-styles-wrapper' );
+		if ( ! wrapper ) {
+			return;
+		}
+		if ( meta.style === 'overlay' ) {
+			wrapper.setAttribute( 'data-overlay-size', meta.overlay_size );
+		} else {
+			wrapper.removeAttribute( 'data-overlay-size' );
+		}
+	}, [ meta.style, meta.overlay_size ] );
 	return (
 		<Fragment>
 			<PluginDocumentSettingPanel
@@ -41,12 +66,11 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 				<div className="newspack-memberships-gate-style-selector">
 					{ styles.map( style => (
 						<Button
-							key={ style.name }
-							variant={ meta.style === style.name ? 'primary' : 'secondary' }
-							isPressed={ meta.style === style.name }
-							onClick={ () => editPost( { meta: { style: style.name } } ) }
-							aria-current={ meta.style === style.name }
-							disabled={ style.name === 'overlay' }
+							key={ style.value }
+							variant={ meta.style === style.value ? 'primary' : 'secondary' }
+							isPressed={ meta.style === style.value }
+							onClick={ () => editPost( { meta: { style: style.value } } ) }
+							aria-current={ meta.style === style.value }
 						>
 							{ style.label }
 						</Button>
@@ -62,6 +86,28 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 							'newspack'
 						) }
 					/>
+				) }
+				{ meta.style === 'overlay' && (
+					<Fragment>
+						<SelectControl
+							label={ __( 'Size', 'newspack' ) }
+							value={ meta.overlay_size }
+							options={ overlaySizes }
+							onChange={ value => editPost( { meta: { overlay_size: value } } ) }
+						/>
+						<PositionControl
+							label={ __( 'Position', 'newspack' ) }
+							value={ meta.overlay_position }
+							size={ meta.overlay_size }
+							allowedPositions={ [ 'bottom', 'center' ] }
+							onChange={ value => editPost( { meta: { overlay_position: value } } ) }
+							help={ sprintf(
+								// translators: %s is the placement of the gate.
+								__( 'The gate will be displayed at the %s of the screen.', 'newspack' ),
+								overlayPositionsLabels[ meta.overlay_position ]
+							) }
+						/>
+					</Fragment>
 				) }
 			</PluginDocumentSettingPanel>
 			<PluginDocumentSettingPanel
