@@ -39,7 +39,7 @@
 		"lint": "npm run lint:scss && npm run lint:js",
 		"lint:js": "eslint --ext .js,.jsx assets",
 		"lint:js:staged": "eslint --ext .js,.jsx",
-		"lint:php:staged": "./vendor/bin/phpcs --filter=gitstaged",
+		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
 		"format:js": "prettier 'assets/**/*.{js,jsx}' --write",
 		"lint:scss": "stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
 		"format:scss": "prettier --write '**/*.scss'",
