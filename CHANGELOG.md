@@ -1,3 +1,10 @@
+## [1.111.1](https://github.com/Automattic/newspack-plugin/compare/v1.111.0...v1.111.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* **amp:** improved iframe polyfill and include vimeo ([592eba7](https://github.com/Automattic/newspack-plugin/commit/592eba753eea728f830cf6e65666a912b0319f81))
+
 # [1.111.0](https://github.com/Automattic/newspack-plugin/compare/v1.110.0...v1.111.0) (2023-03-28)
 
 

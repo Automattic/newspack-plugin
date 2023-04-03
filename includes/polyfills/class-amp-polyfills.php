@@ -78,13 +78,13 @@ class AMP_Polyfills {
 		// Polyfill amp-img.
 		$content = preg_replace(
 			'/<amp-img([^>]*)>[^<]*<\/amp-img>/',
-			'<img\1>', // img is a void element.
+			'<img\1 />', // img is a void element.
 			$content
 		);
 		// Polyfill amp-iframe.
 		$content = preg_replace(
-			'/<amp-iframe([^>]*)>[^<]*<\/amp-iframe>/',
-			'<iframe\1></iframe>',
+			'/<amp-iframe([^>]*)>(.*?)<\/amp-iframe>/',
+			'<iframe$1></iframe>',
 			$content
 		);
 
