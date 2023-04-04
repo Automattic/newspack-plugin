@@ -1,3 +1,16 @@
+# [1.112.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.112.0-alpha.2...v1.112.0-alpha.3) (2023-04-04)
+
+
+### Bug Fixes
+
+* add pre push hook ([#2395](https://github.com/Automattic/newspack-plugin/issues/2395)) ([04a6e57](https://github.com/Automattic/newspack-plugin/commit/04a6e5727332aa19fd88ba8ae822d9f00e8ab684))
+* Avoid falal error on Reader Revenue wizard ([#2382](https://github.com/Automattic/newspack-plugin/issues/2382)) ([646d212](https://github.com/Automattic/newspack-plugin/commit/646d212d7e4f3df022a472c30dfa052aa8795f48))
+
+
+### Features
+
+* **memberships:** overlay style for content gate ([#2377](https://github.com/Automattic/newspack-plugin/issues/2377)) ([dd2ff5c](https://github.com/Automattic/newspack-plugin/commit/dd2ff5c8fe177d5cac8a5af5dadb50e77bb127b9))
+
 # [1.112.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.112.0-alpha.1...v1.112.0-alpha.2) (2023-04-03)
 
 
