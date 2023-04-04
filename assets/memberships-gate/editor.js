@@ -6,7 +6,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { Fragment, useEffect } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl, SelectControl, Notice } from '@wordpress/components';
+import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel, PluginPostStatusInfo } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
