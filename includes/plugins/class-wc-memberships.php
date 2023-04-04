@@ -35,6 +35,7 @@ class WC_Memberships {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
+		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
