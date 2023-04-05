@@ -1,3 +1,10 @@
+# [1.112.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.112.0-alpha.3...v1.112.0-alpha.4) (2023-04-05)
+
+
+### Bug Fixes
+
+* **memberships:** remove content filters from excerpt ([#2398](https://github.com/Automattic/newspack-plugin/issues/2398)) ([987df5b](https://github.com/Automattic/newspack-plugin/commit/987df5b88868018a86dfee0ce0e9f0db5876dc23))
+
 # [1.112.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.112.0-alpha.2...v1.112.0-alpha.3) (2023-04-04)
 
 
