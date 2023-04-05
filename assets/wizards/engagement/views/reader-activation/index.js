@@ -21,6 +21,7 @@ import {
 	Waiting,
 	withWizardScreen,
 } from '../../../../components/src';
+import Prerequisite from './prerequisite';
 import ActiveCampaign from './active-campaign';
 
 export default withWizardScreen( () => {
@@ -163,105 +164,12 @@ export default withWizardScreen( () => {
 			) }
 			{ prerequisites &&
 				Object.keys( prerequisites ).map( key => (
-					<ActionCard
+					<Prerequisite
 						key={ key }
-						isMedium
-						expandable
-						collapse={ prerequisites[ key ].active }
-						title={ prerequisites[ key ].label }
-						description={ sprintf(
-							/* translators: %s: Prerequisite status */
-							__( 'Status: %s', 'newspack' ),
-							prerequisites[ key ].active ? __( 'Ready', 'newspack' ) : __( 'Pending', 'newspack' )
-						) }
-						checkbox={ prerequisites[ key ].active ? 'checked' : 'unchecked' }
-						actionText={
-							prerequisites[ key ].href ? (
-								<Button isLink disabled={ inFlight } href={ prerequisites[ key ].href }>
-									{ prerequisites[ key ].active
-										? __( 'View setup', 'newspack' )
-										: __( 'Set up', 'newspack' ) }
-								</Button>
-							) : null
-						}
-					>
-						{
-							// Inner card content.
-							<>
-								{ prerequisites[ key ].description && (
-									<p>
-										{ prerequisites[ key ].description }
-										{ prerequisites[ key ].help_url && (
-											<>
-												{ ' ' }
-												<ExternalLink href={ prerequisites[ key ].help_url }>
-													{ __( 'Learn more', 'newspack-plugin' ) }
-												</ExternalLink>
-											</>
-										) }
-									</p>
-								) }
-								{
-									// Form fields.
-									prerequisites[ key ].fields && (
-										<Grid columns={ 2 } gutter={ 16 }>
-											<div>
-												{ Object.keys( prerequisites[ key ].fields ).map( fieldName => (
-													<TextControl
-														key={ fieldName }
-														label={ prerequisites[ key ].fields[ fieldName ].label }
-														help={ prerequisites[ key ].fields[ fieldName ].description }
-														{ ...getSharedProps( fieldName, 'text' ) }
-													/>
-												) ) }
-
-												<Button
-													isPrimary
-													onClick={ () => {
-														const dataToSave = {};
-
-														Object.keys( prerequisites[ key ].fields ).forEach( fieldName => {
-															dataToSave[ fieldName ] = config[ fieldName ];
-														} );
-
-														saveConfig( dataToSave );
-													} }
-													disabled={ inFlight }
-												>
-													{ inFlight
-														? __( 'Saving…', 'newspack' )
-														: sprintf(
-																// Translators: Save or Update settings.
-																__( '%s settings', 'newspack' ),
-																prerequisites[ key ].active
-																	? __( 'Update', 'newspack' )
-																	: __( 'Save', 'newspack' )
-														  ) }
-												</Button>
-											</div>
-										</Grid>
-									)
-								}
-								{
-									// Link to another settings page or update config in place.
-									prerequisites[ key ].href && prerequisites[ key ].action_text && (
-										<Grid columns={ 2 } gutter={ 16 }>
-											<div>
-												<Button isPrimary href={ prerequisites[ key ].href }>
-													{ /* eslint-disable no-nested-ternary */ }
-													{ ( prerequisites[ key ].active
-														? __( 'Update ', 'newspack' )
-														: prerequisites[ key ].fields
-														? __( 'Save ', 'newspack' )
-														: __( 'Configure ', 'newspack' ) ) + prerequisites[ key ].action_text }
-												</Button>
-											</div>
-										</Grid>
-									)
-								}
-							</>
-						}
-					</ActionCard>
+						prerequisite={ prerequisites[ key ] }
+						inFlight={ inFlight }
+						saveConfig={ saveConfig }
+					/>
 				) ) }
 
 			{ /** TODO: Link this to the new setup wizard. */ }
