@@ -35,7 +35,7 @@ export default withWizardScreen( () => {
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
-	const fetchConfig = ( updateInFlight = true ) => {
+	const fetchConfig = () => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
@@ -47,7 +47,7 @@ export default withWizardScreen( () => {
 				setMembershipsConfig( memberships );
 			} )
 			.catch( setError )
-			.finally( () => updateInFlight && setInFlight( false ) );
+			.finally( () => setInFlight( false ) );
 	};
 	const saveConfig = data => {
 		setError( false );
