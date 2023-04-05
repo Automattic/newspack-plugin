@@ -166,8 +166,10 @@ export default withWizardScreen( () => {
 				Object.keys( prerequisites ).map( key => (
 					<Prerequisite
 						key={ key }
-						prerequisite={ prerequisites[ key ] }
+						config={ config }
+						getSharedProps={ getSharedProps }
 						inFlight={ inFlight }
+						prerequisite={ prerequisites[ key ] }
 						saveConfig={ saveConfig }
 					/>
 				) ) }
