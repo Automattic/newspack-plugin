@@ -25,12 +25,18 @@ class ActionCard extends Component {
 		expanded: false,
 	};
 
-	componentDidUpdate() {
-		if ( this.props.collapse && this.state.expanded ) {
+	/**
+	 * When the collapse prop is updated to true, collapse the card if already expanded.
+	 */
+	componentDidUpdate( prevProps ) {
+		if ( ! prevProps.collapse && this.props.collapse && this.state.expanded ) {
 			this.setState( { expanded: false } );
 		}
 	}
 
+	/**
+	 * Render.
+	 */
 	render() {
 		const {
 			badge,
@@ -68,6 +74,8 @@ class ActionCard extends Component {
 		} = this.props;
 
 		const { expanded } = this.state;
+
+		console.log( this.props, expanded );
 
 		const hasChildren = notification || children;
 		const classes = classnames(
