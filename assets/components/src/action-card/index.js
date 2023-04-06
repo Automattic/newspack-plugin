@@ -7,7 +7,7 @@
  */
 import { Component } from '@wordpress/element';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
-import { Icon, check } from '@wordpress/icons';
+import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -21,12 +21,21 @@ import './style.scss';
 import classnames from 'classnames';
 
 class ActionCard extends Component {
-	backgroundImageStyles = url => {
-		return url ? { backgroundImage: `url(${ url })` } : {};
+	state = {
+		expanded: false,
 	};
 
 	/**
-	 * Render
+	 * When the collapse prop is updated to true, collapse the card if already expanded.
+	 */
+	componentDidUpdate( prevProps ) {
+		if ( ! prevProps.collapse && this.props.collapse && this.state.expanded ) {
+			this.setState( { expanded: false } );
+		}
+	}
+
+	/**
+	 * Render.
 	 */
 	render() {
 		const {
@@ -61,7 +70,11 @@ class ActionCard extends Component {
 			toggleOnChange,
 			hasGreyHeader,
 			isPending,
+			expandable = false,
 		} = this.props;
+
+		const { expanded } = this.state;
+
 		const hasChildren = notification || children;
 		const classes = classnames(
 			'newspack-action-card',
@@ -71,8 +84,13 @@ class ActionCard extends Component {
 			indent && 'newspack-card--indent',
 			isSmall && 'is-small',
 			isMedium && 'is-medium',
+			checkbox && 'has-checkbox',
+			expandable && 'is-expandable',
 			className
 		);
+		const backgroundImageStyles = url => {
+			return url ? { backgroundImage: `url(${ url })` } : {};
+		};
 		const titleProps =
 			toggleOnChange && ! titleLink && ! disabled
 				? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' }
@@ -95,7 +113,7 @@ class ActionCard extends Component {
 							<a href={ imageLink }>
 								<div
 									className="newspack-action-card__image"
-									style={ this.backgroundImageStyles( image ) }
+									style={ backgroundImageStyles( image ) }
 								/>
 							</a>
 						</div>
@@ -135,7 +153,7 @@ class ActionCard extends Component {
 							) }
 						</Grid>
 					</div>
-					{ ( actionText || isDisplayingSecondaryAction || actionContent ) && (
+					{ ! expandable && ( actionText || isDisplayingSecondaryAction || actionContent ) && (
 						<div className="newspack-action-card__region newspack-action-card__region-right">
 							{ /* eslint-disable no-nested-ternary */ }
 							{ actionContent && actionContent }
@@ -176,6 +194,11 @@ class ActionCard extends Component {
 							) }
 						</div>
 					) }
+					{ expandable && (
+						<Button onClick={ () => this.setState( { expanded: ! expanded } ) }>
+							<Icon icon={ expanded ? chevronUp : chevronDown } height={ 24 } width={ 24 } />
+						</Button>
+					) }
 				</div>
 				{ notification && (
 					<div className="newspack-action-card__notification newspack-action-card__region-children">
@@ -193,7 +216,9 @@ class ActionCard extends Component {
 						) }
 					</div>
 				) }
-				{ children && <div className="newspack-action-card__region-children">{ children }</div> }
+				{ children && ( ( expandable && expanded ) || ! expandable ) && (
+					<div className="newspack-action-card__region-children">{ children }</div>
+				) }
 			</Card>
 		);
 	}

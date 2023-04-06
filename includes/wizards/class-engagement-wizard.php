@@ -227,7 +227,13 @@ class Engagement_Wizard extends Wizard {
 		foreach ( $args as $key => $value ) {
 			Reader_Activation::update_setting( $key, $value );
 		}
-		return rest_ensure_response( Reader_Activation::get_settings() );
+		return rest_ensure_response(
+			[
+				'config'               => Reader_Activation::get_settings(),
+				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
+				'memberships'          => self::get_memberships_settings(),
+			]
+		);
 	}
 
 	/**

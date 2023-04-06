@@ -283,6 +283,27 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Are the Terms & Conditions settings configured?
+	 */
+	public static function is_terms_configured() {
+		$terms_text = \get_option( self::OPTIONS_PREFIX . 'terms_text', false );
+		$terms_url  = \get_option( self::OPTIONS_PREFIX . 'terms_url', false );
+
+		return ! empty( $terms_text ) && ! empty( $terms_url );
+	}
+
+	/**
+	 * Are Transaction Email settings configured?
+	 */
+	public static function is_transactional_email_configured() {
+		$sender_name           = \get_option( self::OPTIONS_PREFIX . 'sender_name', false );
+		$sender_email          = \get_option( self::OPTIONS_PREFIX . 'sender_email_address', false );
+		$contact_email_address = \get_option( self::OPTIONS_PREFIX . 'contact_email_address', false );
+
+		return ! empty( $sender_name ) && ! empty( $sender_email ) && ! empty( $contact_email_address );
+	}
+
+	/**
 	 * Get the status of the prerequisites for enabling reader activation.
 	 * TODO: Finalize the list of prerequisites and all copy.
 	 * TODO: Establish schema for input fields to be shown in expandable cards.
@@ -292,32 +313,64 @@ final class Reader_Activation {
 	public static function get_prerequisites_status() {
 		$prerequisites = [
 			'terms_conditions' => [
-				'active'      => false,
+				'active'      => self::is_terms_configured(),
 				'label'       => __( 'Terms & Conditions', 'newspack' ),
 				'description' => __( 'Displaying Terms and Conditions on your site is necessary to allow readers to register and access their account.', 'newspack-plugin' ),
+				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'fields'      => [
+					'terms_text' => [
+						'label'       => __( 'Terms & Conditions Text', 'newspack' ),
+						'description' => __( 'Terms and conditions text to display on registration.', 'newspack-plugin' ),
+					],
+					'terms_url'  => [
+						'label'       => __( 'Terms & Conditions URL', 'newspack' ),
+						'description' => __( 'URL to the page containing the terms and conditions.', 'newspack-plugin' ),
+					],
+				],
 			],
 			'esp'              => [
 				'active'      => self::is_esp_configured(),
 				'label'       => __( 'Email Service Provider (ESP)', 'newspack' ),
 				'description' => __( 'Connecting your ESP with the right settings is necessary to register readers with their email addresses, send account related emails and newsletters.', 'newspack' ),
+				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
 				'href'        => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
+				'action_text' => __( 'ESP settings' ),
 			],
 			'emails'           => [
-				'active'      => false,
+				'active'      => self::is_transactional_email_configured(),
 				'label'       => __( 'Transactional Emails', 'newspack' ),
 				'description' => __( 'Your sender name and email address determines how readers find emails related to their account in their inbox.', 'newspack-plugin' ),
+				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'fields'      => [
+					'sender_name'           => [
+						'label'       => __( 'Sender Name', 'newspack' ),
+						'description' => __( 'Name to use as the sender of transactional emails.', 'newspack-plugin' ),
+					],
+					'sender_email_address'  => [
+						'label'       => __( 'Sender Email Address', 'newspack' ),
+						'description' => __( 'Email address to use as the sender of transactional emails.', 'newspack-plugin' ),
+					],
+					'contact_email_address' => [
+						'label'       => __( 'Contact Email Address', 'newspack' ),
+						'description' => __( 'This email will be used as "Reply-To" for transactional emails as well.', 'newspack-plugin' ),
+					],
+				],
 			],
 			'recaptcha'        => [
 				'active'      => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
 				'label'       => __( 'reCAPTCHA', 'newspack' ),
 				'description' => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam security for newsletter signup, user account, and payment forms rendered by Newspack tools.', 'newspack' ),
+				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
 				'href'        => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
+				'action_text' => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
 				'active'      => self::is_woocommerce_active(),
 				'label'       => __( 'Reader Revenue', 'newspack' ),
 				'description' => __( 'Selecting WooCommerce as reader revenue platform and setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
+				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
 				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
+				'action_text' => __( 'Reader Revenue settings' ),
 			],
 		];
 

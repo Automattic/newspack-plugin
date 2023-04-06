@@ -393,6 +393,33 @@
 		font-style: italic;
 	}
 
+	// Expandable card children
+
+	&.is-expandable {
+		.newspack-action-card__region-children {
+			border-top: 1px solid wp-colors.$gray-100;
+			padding-top: 24px;
+		}
+
+		&.is-medium .newspack-action-card__region-children {
+			padding-top: 32px;
+		}
+
+		&.has-checkbox {
+			.newspack-action-card__region-children {
+				padding-left: 72px;
+			}
+
+			&.is-small .newspack-action-card__region-children {
+				padding-left: 64px;
+			}
+
+			&.is-medium .newspack-action-card__region-children {
+				padding-left: 56px;
+			}
+		}
+	}
+
 	// Multiple Cards
 
 	& + & {
