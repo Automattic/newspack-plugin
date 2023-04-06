@@ -9,7 +9,7 @@ import { intersection } from 'lodash';
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 import {
 	useBlockProps,
@@ -198,6 +198,30 @@ export default function ReaderRegistrationEdit( {
 						) }
 					</PanelBody>
 				) }
+				<PanelBody title={ __( 'Spam protection', 'newspack' ) }>
+					<p>
+						{ sprintf(
+							// translators: %s is either 'enabled' or 'disabled'.
+							__( 'reCAPTCHA v3 is currently %s.', 'newspack' ),
+							newspack_blocks.has_recaptcha
+								? __( 'enabled', 'newspack' )
+								: __( 'disabled', 'newspack' )
+						) }
+					</p>
+					{ ! newspack_blocks.has_recaptcha && (
+						<p>
+							{ __(
+								"It's highly recommended that you enable reCAPTCHA v3 protection to prevent spambots from using this form!",
+								'newspack'
+							) }
+						</p>
+					) }
+					<p>
+						<a href={ newspack_blocks.recaptcha_url }>
+							{ __( 'Configure your reCAPTCHA settings.', 'newspack' ) }
+						</a>
+					</p>
+				</PanelBody>
 			</InspectorControls>
 			<div { ...blockProps }>
 				<div className="newspack-registration__state-bar">
