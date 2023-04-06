@@ -75,8 +75,6 @@ class ActionCard extends Component {
 
 		const { expanded } = this.state;
 
-		console.log( this.props, expanded );
-
 		const hasChildren = notification || children;
 		const classes = classnames(
 			'newspack-action-card',
