@@ -101,6 +101,15 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/campaign',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_reader_activation_campaign_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -234,6 +243,17 @@ class Engagement_Wizard extends Wizard {
 				'memberships'          => self::get_memberships_settings(),
 			]
 		);
+	}
+
+	/**
+	 * Get reader activation campaign settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_get_reader_activation_campaign_settings( $request ) {
+		return rest_ensure_response( Reader_Activation_Campaign::get_prompts() );
 	}
 
 	/**
@@ -380,6 +400,15 @@ class Engagement_Wizard extends Wizard {
 			'newspack_engagement_wizard',
 			$data
 		);
+
+		\wp_register_style(
+			'newspack-engagement-wizard',
+			Newspack::plugin_url() . '/dist/engagement.css',
+			$this->get_style_dependencies(),
+			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_style_add_data( 'newspack-engagement-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-engagement-wizard' );
 	}
 
 	/**

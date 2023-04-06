@@ -35,6 +35,15 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Retrieve default RAS prompts and segments.
+	 *
+	 * @return array Default prompts and segments config.
+	 */
+	public function get_ras_defaults() {
+		return $this->is_configured() ? \Newspack_Popups_Model::retrieve_ras_defaults() : $this->unconfigured_error();
+	}
+
+	/**
 	 * Retrieve all prompt CPTs
 	 *
 	 * @param  boolean $include_unpublished Whether to include unpublished posts.

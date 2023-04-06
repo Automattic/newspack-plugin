@@ -16,11 +16,16 @@
 		}
 
 		> .components-base-control + .components-base-control {
+			margin-bottom: 32px !important;
 			margin-top: 32px !important;
 		}
 
 		.components-checkbox-control + .components-checkbox-control {
 			margin-top: 8px;
+		}
+
+		.components-button + .components-button {
+			margin-left: 16px;
 		}
 	}
 }

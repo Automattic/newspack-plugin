@@ -14,13 +14,14 @@ import { Fragment, useEffect, useState } from '@wordpress/element';
 import './style.scss';
 import { ActionCard, Button, Grid, Notice, TextControl } from '../../../../components/src';
 
-export default function Prompt( { inFlight, prompt, slug } ) {
+export default function Prompt( { inFlight, prompt } ) {
 	const [ values, setValues ] = useState( {} );
+	const [ isDirty, setIsDirty ] = useState( false );
 
 	useEffect( () => {
-		if ( Array.isArray( prompt?.user_inputs ) ) {
+		if ( Array.isArray( prompt?.user_input_fields ) ) {
 			const fields = {};
-			prompt.user_inputs.forEach( field => {
+			prompt.user_input_fields.forEach( field => {
 				if ( field.value ) {
 					fields[ field.name ] = field.value;
 				} else {
@@ -40,18 +41,14 @@ export default function Prompt( { inFlight, prompt, slug } ) {
 			description={ sprintf(
 				// Translators: Status of the prompt.
 				__( 'Status: %s', 'newspack' ),
-				inFlight
-					? __( 'Saving…', 'newspack' )
-					: prompt.ready
-					? __( 'Ready', 'newspack' )
-					: __( 'Pending', 'newspack' )
+				prompt.ready ? __( 'Ready', 'newspack' ) : __( 'Pending', 'newspack' )
 			) }
 			checkbox={ prompt.ready ? 'checked' : 'unchecked' }
 		>
 			{
 				<Grid columns={ 2 } gutter={ 16 } className="newspack-ras-campaign__grid">
 					<div className="newspack-ras-campaign__fields">
-						{ prompt.user_inputs.map( field => (
+						{ prompt.user_input_fields.map( field => (
 							<Fragment key={ field.name }>
 								{ 'array' === field.type && Array.isArray( field.options ) && (
 									<BaseControl
@@ -75,6 +72,9 @@ export default function Prompt( { inFlight, prompt, slug } ) {
 													if ( value && toUpdate[ field.name ].indexOf( option.id ) === -1 ) {
 														toUpdate[ field.name ].push( option.id );
 													}
+													if ( JSON.stringify( toUpdate ) !== JSON.stringify( values ) ) {
+														setIsDirty( true );
+													}
 													setValues( toUpdate );
 												} }
 											/>
@@ -86,15 +86,6 @@ export default function Prompt( { inFlight, prompt, slug } ) {
 										label={ field.label }
 										disabled={ inFlight }
 										help={ `${ values[ field.name ]?.length || 0 } / ${ field.max_length }` }
-										onBlur={ () => {
-											if (
-												! values[ field.name ] ||
-												( field.value && field.value === values[ field.name ] )
-											) {
-												return;
-											}
-											console.log( slug, field.name, values[ field.name ] );
-										} }
 										onChange={ value => {
 											if ( value.length > field.max_length ) {
 												return;
@@ -102,6 +93,9 @@ export default function Prompt( { inFlight, prompt, slug } ) {
 
 											const toUpdate = { ...values };
 											toUpdate[ field.name ] = value;
+											if ( JSON.stringify( toUpdate ) !== JSON.stringify( values ) ) {
+												setIsDirty( true );
+											}
 											setValues( toUpdate );
 										} }
 										placeholder={ field.default }
@@ -114,15 +108,6 @@ export default function Prompt( { inFlight, prompt, slug } ) {
 										label={ field.label }
 										disabled={ inFlight }
 										help={ `${ values[ field.name ]?.length || 0 } / ${ field.max_length }` }
-										onBlur={ () => {
-											if (
-												! values[ field.name ] ||
-												( field.value && field.value === values[ field.name ] )
-											) {
-												return;
-											}
-											console.log( slug, field.name, values[ field.name ] );
-										} }
 										onChange={ value => {
 											if ( value.length > field.max_length ) {
 												return;
@@ -130,6 +115,9 @@ export default function Prompt( { inFlight, prompt, slug } ) {
 
 											const toUpdate = { ...values };
 											toUpdate[ field.name ] = value;
+											if ( JSON.stringify( toUpdate ) !== JSON.stringify( values ) ) {
+												setIsDirty( true );
+											}
 											setValues( toUpdate );
 										} }
 										placeholder={ field.default }
@@ -138,6 +126,23 @@ export default function Prompt( { inFlight, prompt, slug } ) {
 								) }
 							</Fragment>
 						) ) }
+						<Button
+							isPrimary
+							onClick={ () => {
+								// TODO: Save values.
+								console.log( prompt.slug, values );
+							} }
+							disabled={ inFlight || ! isDirty }
+						>
+							{ inFlight
+								? __( 'Saving…', 'newspack' )
+								: sprintf(
+										// Translators: Save or Update settings.
+										__( '%s prompt settings', 'newspack' ),
+										prompt.ready ? __( 'Update', 'newspack' ) : __( 'Save', 'newspack' )
+								  ) }
+						</Button>
+						<Button isSecondary>{ __( 'Preview prompt', 'newspack' ) }</Button>
 					</div>
 				</Grid>
 			}
