@@ -16,7 +16,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ReaderActivation, Commenting, Newsletters, Social, RelatedContent } from './views';
+import {
+	ReaderActivation,
+	ReaderActivationCampaign,
+	Commenting,
+	Newsletters,
+	Social,
+	RelatedContent,
+} from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -102,6 +109,7 @@ class EngagementWizard extends Component {
 				label: __( 'Reader Activation', 'newspack' ),
 				path: '/reader-activation',
 				exact: true,
+				activeTabPaths: [ '/reader-activation', '/reader-activation-campaign' ],
 			} );
 		}
 		const props = {
@@ -119,6 +127,20 @@ class EngagementWizard extends Component {
 								render={ () => (
 									<ReaderActivation
 										subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
+										{ ...props }
+									/>
+								) }
+							/>
+						) }
+						{ newspack_engagement_wizard.has_reader_activation && (
+							<Route
+								path="/reader-activation-campaign"
+								render={ () => (
+									<ReaderActivationCampaign
+										subHeaderText={ __(
+											'Preview and customize the reader activation prompts',
+											'newspack'
+										) }
 										{ ...props }
 									/>
 								) }

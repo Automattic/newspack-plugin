@@ -31,13 +31,6 @@ export default function Prerequisite( {
 				prerequisite.active ? __( 'Ready', 'newspack' ) : __( 'Pending', 'newspack' )
 			) }
 			checkbox={ prerequisite.active ? 'checked' : 'unchecked' }
-			actionText={
-				prerequisite.href ? (
-					<Button isLink disabled={ inFlight } href={ prerequisite.href }>
-						{ prerequisite.active ? __( 'View setup', 'newspack' ) : __( 'Set up', 'newspack' ) }
-					</Button>
-				) : null
-			}
 		>
 			{
 				// Inner card content.

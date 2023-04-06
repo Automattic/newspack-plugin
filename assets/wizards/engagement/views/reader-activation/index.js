@@ -199,7 +199,11 @@ export default withWizardScreen( () => {
 						</p>
 						<Grid columns={ 2 } gutter={ 16 }>
 							<div>
-								<Button variant={ allReady ? 'primary' : 'secondary' } disabled={ ! allReady }>
+								<Button
+									href={ '#/reader-activation-campaign' }
+									variant={ allReady ? 'primary' : 'secondary' }
+									disabled={ ! allReady }
+								>
 									{ allReady
 										? __( 'Set up Reader Activation campaign', 'newspack' )
 										: __( 'Waiting for all settings to be ready', 'newspack' ) }
