@@ -10,13 +10,13 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Notice, SectionHeader, withWizardScreen } from '../../../../components/src';
+import { Notice, SectionHeader, Waiting, withWizardScreen } from '../../../../components/src';
 import Prompt from './prompt';
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
-	const [ prompts, setPrompts ] = useState( [] );
+	const [ prompts, setPrompts ] = useState( null );
 
 	const fetchPrompts = () => {
 		setError( false );
@@ -48,9 +48,16 @@ export default withWizardScreen( () => {
 					isError
 				/>
 			) }
-			{ prompts.map( prompt => (
-				<Prompt key={ prompt.slug } prompt={ prompt } inFlight={ inFlight } />
-			) ) }
+			{ ! prompts && (
+				<>
+					<Waiting isLeft />
+					{ __( 'Retrieving status…', 'newspack' ) }
+				</>
+			) }
+			{ prompts &&
+				prompts.map( prompt => (
+					<Prompt key={ prompt.slug } prompt={ prompt } inFlight={ inFlight } />
+				) ) }
 		</>
 	);
 } );
