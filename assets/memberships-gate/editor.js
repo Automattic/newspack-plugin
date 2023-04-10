@@ -7,7 +7,7 @@ import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 import { Fragment, useEffect } from '@wordpress/element';
 import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
-import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { PluginDocumentSettingPanel, PluginPostStatusInfo } from '@wordpress/edit-post';
 import { registerPlugin } from '@wordpress/plugins';
 
 /**
@@ -34,18 +34,7 @@ const overlaySizes = [
 	{ value: 'full-width', label: __( 'Full Width', 'newspack' ) },
 ];
 
-const GateEdit = ( { editPost, createNotice, meta } ) => {
-	useEffect( () => {
-		if ( newspack_memberships_gate.has_campaigns ) {
-			createNotice(
-				'info',
-				__(
-					'Newspack Campaigns: Prompts will not be displayed when rendering a gated content.',
-					'newspack'
-				)
-			);
-		}
-	}, [] );
+const GateEdit = ( { editPost, meta } ) => {
 	useEffect( () => {
 		const wrapper = document.querySelector( '.editor-styles-wrapper' );
 		if ( ! wrapper ) {
@@ -59,6 +48,16 @@ const GateEdit = ( { editPost, createNotice, meta } ) => {
 	}, [ meta.style, meta.overlay_size ] );
 	return (
 		<Fragment>
+			{ newspack_memberships_gate.has_campaigns && (
+				<PluginPostStatusInfo>
+					<p>
+						{ __(
+							"Newspack Campaign prompts won't be displayed when rendering gated content.",
+							'newspack'
+						) }
+					</p>
+				</PluginPostStatusInfo>
+			) }
 			<PluginDocumentSettingPanel
 				name="memberships-gate-styles-panel"
 				title={ __( 'Styles', 'newspack' ) }
@@ -147,11 +146,7 @@ const GateEditWithSelect = compose( [
 	} ),
 	withDispatch( dispatch => {
 		const { editPost } = dispatch( 'core/editor' );
-		const { createNotice } = dispatch( 'core/notices' );
-		return {
-			editPost,
-			createNotice,
-		};
+		return { editPost };
 	} ),
 ] )( GateEdit );
 
