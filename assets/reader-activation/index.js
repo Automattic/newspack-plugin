@@ -272,7 +272,13 @@ export function getCaptchaToken( action = 'submit' ) {
 		}
 
 		const { captcha_site_key: captchaSiteKey } = newspack_reader_activation_data;
-		if ( ! grecaptcha?.ready || ! captchaSiteKey ) {
+
+		// If the site key is not set, bail with an empty token.
+		if ( ! captchaSiteKey ) {
+			return res( '' );
+		}
+
+		if ( ! grecaptcha?.ready ) {
 			rej( 'Error loading the reCaptcha library.' );
 		}
 
