@@ -33,8 +33,9 @@ class WC_Memberships {
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100 );
+		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100, 4 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
+		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
@@ -322,11 +323,18 @@ class WC_Memberships {
 	 * Filter the notice HTML.
 	 *
 	 * @param string $notice Notice HTML.
+	 * @param string $message_body original message content.
+	 * @param string $message_code message code.
+	 * @param array  $message_args associative array of message arguments.
 	 */
-	public static function notice_html( $notice ) {
+	public static function notice_html( $notice, $message_body, $message_code, $message_args ) {
 		// If the gate is not available, don't mess with the notice.
 		if ( ! self::has_gate() ) {
 			return $notice;
+		}
+		// Don't show gate unless attached to a specific post.
+		if ( empty( $message_args['post'] ) ) {
+			return '';
 		}
 		// If rendering the content in a loop, don't render the gate.
 		if ( get_queried_object_id() !== get_the_ID() ) {
