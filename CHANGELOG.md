@@ -1,3 +1,10 @@
+# [1.112.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v1.112.0-alpha.4...v1.112.0-alpha.5) (2023-04-10)
+
+
+### Bug Fixes
+
+* don't show gate unless attached to a specific post ([#2400](https://github.com/Automattic/newspack-plugin/issues/2400)) ([c45097c](https://github.com/Automattic/newspack-plugin/commit/c45097ca4ec6ba1682254093ef50b978e1a74ca2))
+
 # [1.112.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.112.0-alpha.3...v1.112.0-alpha.4) (2023-04-05)
 
 
