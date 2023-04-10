@@ -328,13 +328,13 @@ class WC_Memberships {
 	 * @param array  $message_args associative array of message arguments.
 	 */
 	public static function notice_html( $notice, $message_body, $message_code, $message_args ) {
-		// Don't show gate unless attached to a specific post.
-		if ( empty( $message_args['post'] ) ) {
-			return '';
-		}
 		// If the gate is not available, don't mess with the notice.
 		if ( ! self::has_gate() ) {
 			return $notice;
+		}
+		// Don't show gate unless attached to a specific post.
+		if ( empty( $message_args['post'] ) ) {
+			return '';
 		}
 		// If rendering the content in a loop, don't render the gate.
 		if ( get_queried_object_id() !== get_the_ID() ) {
