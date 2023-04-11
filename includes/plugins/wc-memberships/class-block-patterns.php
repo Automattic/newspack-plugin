@@ -15,7 +15,7 @@ class Block_Patterns {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		add_action( 'init', [ __CLASS__, 'register_block_patterns' ] );
+		add_action( 'admin_init', [ __CLASS__, 'register_block_patterns' ] );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Block_Patterns {
 		\register_block_pattern_category( 'newspack-memberships', [ 'label' => __( 'Memberships', 'newspack' ) ] );
 		$patterns = self::get_patterns();
 		foreach ( $patterns as $pattern => $args ) {
-			$content_path = __DIR__ . '/patterns/' . $pattern . '.php';
+			$content_path = __DIR__ . '/block-patterns/' . $pattern . '.php';
 			if ( ! file_exists( $content_path ) ) {
 				continue;
 			}
