@@ -20,8 +20,13 @@ class Block_Patterns {
 
 	/**
 	 * Get block patterns.
+	 *
+	 * Each pattern content should be a PHP file in the block-patterns directory
+	 * named after the pattern slug.
+	 *
+	 * @return array
 	 */
-	public static function get_patterns() {
+	public static function get_block_patterns() {
 		$patterns = [
 			'registration-wall' => [
 				'title'       => __( 'Registration Wall', 'newspack' ),
@@ -40,7 +45,7 @@ class Block_Patterns {
 			return false;
 		}
 		\register_block_pattern_category( 'newspack-memberships', [ 'label' => __( 'Memberships', 'newspack' ) ] );
-		$patterns = self::get_patterns();
+		$patterns = self::get_block_patterns();
 		foreach ( $patterns as $pattern => $args ) {
 			$content_path = __DIR__ . '/block-patterns/' . $pattern . '.php';
 			if ( ! file_exists( $content_path ) ) {
