@@ -324,6 +324,43 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get post URL for preview requests.
+	 */
+	public function preview_post() {
+		return $this->is_configured() ?
+			\Newspack_Popups::preview_post_permalink() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get archive URL for preview requests.
+	 */
+	public function preview_archive() {
+		return $this->is_configured() ?
+			\Newspack_Popups::preview_archive_permalink() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Replace placeholders in a prompt's content with user input or default values.
+	 *
+	 * @param string $prompt_content Prompt content.
+	 * @param array  $field Field config.
+	 *               $field['name'] string Field name. Required.
+	 *               $field['type'] string Field value type. Required.
+	 *               $field['default'] string Field default value. Required.
+	 *               $field['value'] string Field user input value.
+	 *               $field['max_length'] int Max length of string-type user input value.
+	 *
+	 * @return string Prompt content with placeholders replaced.
+	 */
+	public function process_user_inputs( $prompt_content, $field ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Model::process_user_inputs( $prompt_content, $field ) :
+			$this->unconfigured_error();
+	}
+
+	/**
 	 * Configure Newspack Popups for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.

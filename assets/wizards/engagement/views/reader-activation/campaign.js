@@ -2,7 +2,7 @@
 /**
  * WordPress dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
@@ -11,7 +11,8 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import { Notice, SectionHeader, Waiting, withWizardScreen } from '../../../../components/src';
-import Prompt from './prompt';
+import Prompt from '../../components/prompt';
+import './style.scss';
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
@@ -56,7 +57,13 @@ export default withWizardScreen( () => {
 			) }
 			{ prompts &&
 				prompts.map( prompt => (
-					<Prompt key={ prompt.slug } prompt={ prompt } inFlight={ inFlight } />
+					<Prompt
+						key={ prompt.slug }
+						prompt={ prompt }
+						inFlight={ inFlight }
+						setInFlight={ setInFlight }
+						setPrompts={ setPrompts }
+					/>
 				) ) }
 		</>
 	);

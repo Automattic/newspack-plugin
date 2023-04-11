@@ -21,8 +21,8 @@ import {
 	Waiting,
 	withWizardScreen,
 } from '../../../../components/src';
-import Prerequisite from './prerequisite';
-import ActiveCampaign from './active-campaign';
+import Prerequisite from '../../components/prerequisite';
+import ActiveCampaign from '../../components/active-campaign';
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );

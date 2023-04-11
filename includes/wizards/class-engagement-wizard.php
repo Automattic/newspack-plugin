@@ -110,6 +110,15 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/campaign',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_reader_activation_campaign_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -253,7 +262,32 @@ class Engagement_Wizard extends Wizard {
 	 * @return WP_REST_Response
 	 */
 	public function api_get_reader_activation_campaign_settings( $request ) {
-		return rest_ensure_response( Reader_Activation_Campaign::get_prompts() );
+		$response = Reader_Activation_Campaign::get_prompts();
+
+		if ( \is_wp_error( $response ) ) {
+			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Update reader activation campaign settings.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_update_reader_activation_campaign_settings( $request ) {
+		$slug = $request['slug'];
+		$data = $request['data'];
+
+		$response = Reader_Activation_Campaign::update_prompt( $slug, $data );
+
+		if ( \is_wp_error( $response ) ) {
+			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -393,6 +427,13 @@ class Engagement_Wizard extends Wizard {
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
 			$data['new_subscription_lists_url'] = \Newspack\Newsletters\Subscription_Lists::get_add_new_url();
+		}
+
+		$newspack_popups = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		if ( $newspack_popups->is_configured() ) {
+			$data['preview_query_keys'] = $newspack_popups->preview_query_keys();
+			$data['preview_post']       = $newspack_popups->preview_post();
+			$data['preview_archive']    = $newspack_popups->preview_archive();
 		}
 
 		\wp_localize_script(
