@@ -8,7 +8,13 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Notice, SectionHeader, Waiting, withWizardScreen } from '../../../../components/src';
+import {
+	Button,
+	Notice,
+	SectionHeader,
+	Waiting,
+	withWizardScreen,
+} from '../../../../components/src';
 import Prompt from '../../components/prompt';
 import './style.scss';
 
@@ -16,6 +22,7 @@ export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ prompts, setPrompts ] = useState( null );
+	const [ allReady, setAllReady ] = useState( false );
 
 	const fetchPrompts = () => {
 		setError( false );
@@ -32,8 +39,14 @@ export default withWizardScreen( () => {
 
 	useEffect( fetchPrompts, [] );
 
+	useEffect( () => {
+		if ( Array.isArray( prompts ) && 0 < prompts.length ) {
+			setAllReady( prompts.every( prompt => prompt.ready ) );
+		}
+	}, [ prompts ] );
+
 	return (
-		<>
+		<div className="newspack-ras-campaign__prompt-wizard">
 			<SectionHeader
 				title={ __( 'Set Up Reader Activation Campaign', 'newspack' ) }
 				description={ __(
@@ -63,6 +76,15 @@ export default withWizardScreen( () => {
 						setPrompts={ setPrompts }
 					/>
 				) ) }
-		</>
+			<div className="newspack-buttons-card">
+				<Button
+					isPrimary
+					disabled={ inFlight || ! allReady }
+					onClick={ () => console.log( 'Ready to continue' ) }
+				>
+					{ __( 'Continue', 'newspack' ) }
+				</Button>
+			</div>
+		</div>
 	);
 } );
