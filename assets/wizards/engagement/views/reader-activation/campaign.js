@@ -60,7 +60,7 @@ export default withWizardScreen( () => {
 					isError
 				/>
 			) }
-			{ ! prompts && (
+			{ ! prompts && ! error && (
 				<>
 					<Waiting isLeft />
 					{ __( 'Retrieving prompts…', 'newspack' ) }
@@ -83,6 +83,9 @@ export default withWizardScreen( () => {
 					onClick={ () => console.log( 'Ready to continue' ) }
 				>
 					{ __( 'Continue', 'newspack' ) }
+				</Button>
+				<Button isSecondary disabled={ inFlight } href="#/">
+					{ __( 'Back', 'newspack' ) }
 				</Button>
 			</div>
 		</div>

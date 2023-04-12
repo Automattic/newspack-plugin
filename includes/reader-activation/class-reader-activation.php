@@ -304,6 +304,22 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Is the RAS campaign configured?
+	 *
+	 * TODO: Make this dynamic once the third UI screen to generate the prompts is built.
+	 */
+	public static function is_ras_campaign_configured() {
+		return false;
+	}
+
+	/**
+	 * Are all prerequisites for Reader Activation complete?
+	 */
+	public static function is_ras_ready_to_configure() {
+		return self::is_terms_configured() && self::is_esp_configured() && self::is_transactional_email_configured() && method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha() && self::is_woocommerce_active();
+	}
+
+	/**
 	 * Get the status of the prerequisites for enabling reader activation.
 	 * TODO: Finalize the list of prerequisites and all copy.
 	 * TODO: Establish schema for input fields to be shown in expandable cards.
@@ -371,6 +387,16 @@ final class Reader_Activation {
 				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
 				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
 				'action_text' => __( 'Reader Revenue settings' ),
+			],
+			'ras_campaign'     => [
+				'active'         => self::is_ras_campaign_configured(),
+				'label'          => __( 'Reader Activation Campaign', 'newspack' ),
+				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.', 'newspack' ),
+				'help_url'       => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'href'           => \admin_url( '/admin.php?page=newspack-engagement-wizard#/reader-activation-campaign' ),
+				'action_enabled' => self::is_ras_ready_to_configure(),
+				'action_text'    => __( 'Reader Activation campaign', 'newspack' ),
+				'disabled_text'  => __( 'Waiting for all settings to be ready', 'newspack' ),
 			],
 		];
 

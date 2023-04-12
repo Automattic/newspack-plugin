@@ -94,14 +94,23 @@ export default function Prerequisite( {
 						prerequisite.href && prerequisite.action_text && (
 							<Grid columns={ 2 } gutter={ 16 }>
 								<div>
-									<Button isPrimary href={ prerequisite.href }>
-										{ /* eslint-disable no-nested-ternary */ }
-										{ ( prerequisite.active
-											? __( 'Update ', 'newspack' )
-											: prerequisite.fields
-											? __( 'Save ', 'newspack' )
-											: __( 'Configure ', 'newspack' ) ) + prerequisite.action_text }
-									</Button>
+									{ ( ! prerequisite.hasOwnProperty( 'action_enabled' ) ||
+										prerequisite.action_enabled ) && (
+										<Button isPrimary href={ prerequisite.href }>
+											{ /* eslint-disable no-nested-ternary */ }
+											{ ( prerequisite.active
+												? __( 'Update ', 'newspack' )
+												: prerequisite.fields
+												? __( 'Save ', 'newspack' )
+												: __( 'Configure ', 'newspack' ) ) + prerequisite.action_text }
+										</Button>
+									) }
+									{ prerequisite.hasOwnProperty( 'action_enabled' ) &&
+										! prerequisite.action_enabled && (
+											<Button isSecondary disabled>
+												{ prerequisite.disabled_text || prerequisite.action_text }
+											</Button>
+										) }
 								</div>
 							</Grid>
 						)

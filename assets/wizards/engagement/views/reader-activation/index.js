@@ -14,7 +14,6 @@ import {
 	ActionCard,
 	Button,
 	Card,
-	Grid,
 	Notice,
 	SectionHeader,
 	TextControl,
@@ -166,46 +165,6 @@ export default withWizardScreen( () => {
 						saveConfig={ saveConfig }
 					/>
 				) ) }
-
-			{ /** TODO: Link this to the new setup wizard. */ }
-			{ prerequisites && (
-				<ActionCard
-					isMedium
-					expandable
-					title={ __( 'Reader Activation Campaign', 'newspack' ) }
-					description={ __( 'Status: Pending', 'newspack' ) } // TODO: Update this once the campaign UI is ready.
-					checkbox="unchecked"
-				>
-					<>
-						<p>
-							<>
-								{ __(
-									'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation. ',
-									'newspack'
-								) }
-
-								{ /** TODO: Update this URL with the real one once the docs are ready. */ }
-								<ExternalLink href={ 'https://help.newspack.com' }>
-									{ __( 'Learn more', 'newspack-plugin' ) }
-								</ExternalLink>
-							</>
-						</p>
-						<Grid columns={ 2 } gutter={ 16 }>
-							<div>
-								<Button
-									href={ '#/reader-activation-campaign' }
-									variant={ allReady ? 'primary' : 'secondary' }
-									disabled={ ! allReady }
-								>
-									{ allReady
-										? __( 'Set up Reader Activation campaign', 'newspack' )
-										: __( 'Waiting for all settings to be ready', 'newspack' ) }
-								</Button>
-							</div>
-						</Grid>
-					</>
-				</ActionCard>
-			) }
 			<hr />
 			<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
 				{ sprintf(
