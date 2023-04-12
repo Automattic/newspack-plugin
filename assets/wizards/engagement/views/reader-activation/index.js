@@ -78,14 +78,7 @@ export default withWizardScreen( () => {
 	}, [] );
 	useEffect( () => {
 		const _allReady =
-			prerequisites &&
-			Object.keys( prerequisites ).reduce( ( acc, key ) => {
-				if ( ! prerequisites[ key ]?.active ) {
-					return false;
-				}
-
-				return acc;
-			}, true );
+			prerequisites && Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
 
 		setAllReady( _allReady );
 	}, [ prerequisites ] );
