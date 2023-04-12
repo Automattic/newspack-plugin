@@ -285,6 +285,10 @@ const Newsletters = () => {
 		if ( ! provider ) {
 			return;
 		}
+		// Constant Contact is the only provider using an OAuth strategy.
+		if ( 'constant_contact' !== provider ) {
+			return;
+		}
 		apiFetch( { path: `/newspack-newsletters/v1/${ provider }/verify_token` } )
 			.then( response => {
 				if ( ! response.valid && response.auth_url ) {
