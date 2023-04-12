@@ -43,8 +43,9 @@ class Reader_Activation_Campaign {
 	/**
 	 * Update saved inputs for the given prompt.
 	 *
-	 * @param string         $slug Prompt slug.
-	 * @param array|WP_Error $inputs Array of prompt configs.
+	 * @param string $slug Prompt slug.
+	 * @param array  $inputs Array of user inputs for the prompt's fields.
+	 * @return array|WP_Error Array of prompt configs.
 	 */
 	public static function update_prompt( $slug, $inputs ) {
 		$newspack_popups = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
