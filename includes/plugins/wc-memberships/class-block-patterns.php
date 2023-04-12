@@ -27,13 +27,12 @@ class Block_Patterns {
 	 * @return array
 	 */
 	public static function get_block_patterns() {
-		$patterns = [
-			'registration-wall' => [
-				'title'       => __( 'Registration Wall', 'newspack' ),
-				'description' => _x( 'Invite your reader to register before continuing reading the article', 'Block pattern description', 'newspack' ),
-			],
+		return [
+			'registration-wall'  => __( 'Registration Wall', 'newspack' ),
+			'donation-wall'      => __( 'Donation Wall', 'newspack' ),
+			'pay-wall-one-tier'  => __( 'Pay Wall with One Tier', 'newspack' ),
+			'pay-wall-two-tiers' => __( 'Pay Wall with Two Tiers', 'newspack' ),
 		];
-		return $patterns;
 	}
 
 	/**
@@ -46,23 +45,23 @@ class Block_Patterns {
 		}
 		\register_block_pattern_category( 'newspack-memberships', [ 'label' => __( 'Memberships', 'newspack' ) ] );
 		$patterns = self::get_block_patterns();
-		foreach ( $patterns as $pattern => $args ) {
-			$content_path = __DIR__ . '/block-patterns/' . $pattern . '.php';
-			if ( ! file_exists( $content_path ) ) {
+		foreach ( $patterns as $slug => $title ) {
+			$path = __DIR__ . '/block-patterns/' . $slug . '.php';
+			if ( ! file_exists( $path ) ) {
 				continue;
 			}
 			ob_start();
-			require $content_path;
+			require $path;
 			$content = ob_get_clean();
 			if ( empty( $content ) ) {
 				continue;
 			}
 			\register_block_pattern(
-				'newspack-memberships/' . $pattern,
+				'newspack-memberships/' . $slug,
 				[
 					'categories'  => [ 'newspack-memberships' ],
-					'title'       => $args['title'],
-					'description' => $args['description'],
+					'title'       => $title,
+					'description' => _x( 'Invite your reader to become a member before continuing reading the article', 'Block pattern description', 'newspack' ),
 					'content'     => $content,
 				]
 			);
