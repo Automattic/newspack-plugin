@@ -39,8 +39,8 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	 *
 	 * @return array Default prompts and segments config.
 	 */
-	public function get_ras_defaults() {
-		return $this->is_configured() ? \Newspack_Popups_Model::retrieve_ras_defaults() : $this->unconfigured_error();
+	public function get_ras_presets() {
+		return $this->is_configured() ? \Newspack_Popups_Model::get_ras_presets() : $this->unconfigured_error();
 	}
 
 	/**
@@ -53,6 +53,19 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function get_prompts( $include_unpublished = false, $include_trash = false ) {
 		return $this->is_configured() ?
 			\Newspack_Popups_Model::retrieve_popups( $include_unpublished, $include_trash ) :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Update saved inputs for a prompt preset.
+	 *
+	 * @param string $slug Slug name of the preset.
+	 * @param array  $inputs Array of user inputs, keyed by field name.
+	 * @return boolean True if updated, false if not.
+	 */
+	public function update_preset_prompt( $slug, $inputs ) {
+		return $this->is_configured() ?
+			\Newspack_Popups_Model::update_preset_prompt( $slug, $inputs ) :
 			$this->unconfigured_error();
 	}
 

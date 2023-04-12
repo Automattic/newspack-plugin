@@ -4,7 +4,8 @@
 
 .newspack-ras-campaign {
 	&__fields {
-		.components-base-control {
+		.newspack-text-control,
+		.newspack-textarea-control {
 			position: relative !important;
 
 			.components-base-control__help {
@@ -12,6 +13,22 @@
 				position: absolute;
 				right: 0;
 				top: 0;
+			}
+		}
+
+		.newspack-checkbox-control {
+			margin-top: 0 !important;
+			.components-checkbox-control__label {
+				font-weight: 600;
+			}
+
+			.components-base-control__help {
+				margin-left: 32px;
+				margin-top: 0;
+			}
+
+			+ .newspack-checkbox-control {
+				margin-top: 16px;
 			}
 		}
 
@@ -26,6 +43,10 @@
 
 		.components-button + .components-button {
 			margin-left: 16px;
+		}
+
+		.newspack-image-upload {
+			margin-top: 0;
 		}
 	}
 }

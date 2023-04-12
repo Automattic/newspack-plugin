@@ -16,13 +16,22 @@ import { stringify } from 'qs';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Grid, Notice, TextControl, WebPreview } from '../../../components/src';
+import {
+	ActionCard,
+	Button,
+	Grid,
+	ImageUpload,
+	Notice,
+	TextControl,
+	WebPreview,
+} from '../../../components/src';
 
 export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) {
 	const [ values, setValues ] = useState( {} );
 	const [ isDirty, setIsDirty ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ success, setSuccess ] = useState( false );
+	const [ image, setImage ] = useState( null );
 
 	useEffect( () => {
 		if ( Array.isArray( prompt?.user_input_fields ) ) {
@@ -36,6 +45,22 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 			} );
 			setValues( fields );
 		}
+
+		if ( prompt.featured_image_id ) {
+			setInFlight( true );
+			apiFetch( {
+				path: `/wp/v2/media/${ prompt.featured_image_id }`,
+			} )
+				.then( attachment => {
+					if ( attachment?.source_url || attachment?.url ) {
+						setImage( { url: attachment.source_url || attachment.url } );
+					}
+				} )
+				.catch( setError )
+				.finally( () => {
+					setInFlight( false );
+				} );
+		}
 	}, [ prompt ] );
 
 	// Clear success message after a few seconds.
@@ -44,10 +69,10 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 	}, [ success ] );
 
 	// TODO: Create a preview popup on the fly.
-	const getPreviewUrl = ( { options } ) => {
+	const getPreviewUrl = ( { options, slug } ) => {
 		const { placement, trigger_type: triggerType } = options;
 		const previewQueryKeys = window.newspack_engagement_wizard?.preview_query_keys || {};
-		const abbreviatedKeys = {};
+		const abbreviatedKeys = { preset: slug };
 		Object.keys( options ).forEach( key => {
 			if ( previewQueryKeys.hasOwnProperty( key ) ) {
 				abbreviatedKeys[ previewQueryKeys[ key ] ] = options[ key ];
@@ -68,26 +93,33 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 		return `${ previewURL }?${ stringify( { ...abbreviatedKeys } ) }`;
 	};
 
-	// console.log( prompt, getPreviewUrl( prompt ) );
-
 	const savePrompt = ( slug, data ) => {
-		setError( false );
-		setSuccess( false );
-		setInFlight( true );
-		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/campaign',
-			method: 'post',
-			data: {
-				slug,
-				data,
-			},
-		} )
-			.then( fetchedPrompts => {
-				setPrompts( fetchedPrompts );
-				setSuccess( __( 'Prompt saved.', 'newspack' ) );
+		return new Promise( ( res, rej ) => {
+			setError( false );
+			setSuccess( false );
+			setInFlight( true );
+			apiFetch( {
+				path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/campaign',
+				method: 'post',
+				data: {
+					slug,
+					data,
+				},
 			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
+				.then( fetchedPrompts => {
+					setPrompts( fetchedPrompts );
+					setSuccess( __( 'Prompt saved.', 'newspack' ) );
+					setIsDirty( false );
+					res();
+				} )
+				.catch( err => {
+					setError( err );
+					rej( err );
+				} )
+				.finally( () => {
+					setInFlight( false );
+				} );
+		} );
 	};
 
 	return (
@@ -114,33 +146,40 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 										label={ field.label }
 									>
 										{ field.options.map( option => (
-											<CheckboxControl
+											<BaseControl
 												key={ option.id }
-												disabled={ inFlight }
-												label={ option.label }
-												value={ option.id }
-												checked={ values[ field.name ]?.indexOf( option.id ) > -1 }
-												onChange={ value => {
-													const toUpdate = { ...values };
-													if ( ! value && toUpdate[ field.name ].indexOf( option.id ) > -1 ) {
-														toUpdate[ field.name ].value = toUpdate[ field.name ].splice(
-															toUpdate[ field.name ].indexOf( option.id ),
-															1
-														);
-														setIsDirty( true );
-													}
-													if ( value && toUpdate[ field.name ].indexOf( option.id ) === -1 ) {
-														toUpdate[ field.name ].push( option.id );
-														setIsDirty( true );
-													}
-													setValues( toUpdate );
-												} }
-											/>
+												id={ `newspack-engagement-wizard__${ option.id }` }
+												className="newspack-checkbox-control"
+												help={ option.description }
+											>
+												<CheckboxControl
+													disabled={ inFlight }
+													label={ option.label }
+													value={ option.id }
+													checked={ values[ field.name ]?.indexOf( option.id ) > -1 }
+													onChange={ value => {
+														const toUpdate = { ...values };
+														if ( ! value && toUpdate[ field.name ].indexOf( option.id ) > -1 ) {
+															toUpdate[ field.name ].value = toUpdate[ field.name ].splice(
+																toUpdate[ field.name ].indexOf( option.id ),
+																1
+															);
+															setIsDirty( true );
+														}
+														if ( value && toUpdate[ field.name ].indexOf( option.id ) === -1 ) {
+															toUpdate[ field.name ].push( option.id );
+															setIsDirty( true );
+														}
+														setValues( toUpdate );
+													} }
+												/>
+											</BaseControl>
 										) ) }
 									</BaseControl>
 								) }
 								{ 'string' === field.type && 100 < field.max_length && (
 									<TextareaControl
+										className="newspack-textarea-control"
 										label={ field.label }
 										disabled={ inFlight }
 										help={ `${ values[ field.name ]?.length || 0 } / ${ field.max_length }` }
@@ -182,6 +221,32 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 										value={ values[ field.name ] || '' }
 									/>
 								) }
+								{ 'int' === field.type && 'featured_image_id' === field.name && (
+									<BaseControl
+										id={ `newspack-engagement-wizard__${ field.name }` }
+										label={ field.label }
+									>
+										<ImageUpload
+											buttonLabel={ __( 'Choose image', 'newspack' ) }
+											disabled={ inFlight }
+											image={ image }
+											onChange={ attachment => {
+												console.log( attachment );
+												const toUpdate = { ...values };
+												toUpdate[ field.name ] = attachment?.id || 0;
+												if ( toUpdate[ field.name ] !== values[ field.name ] ) {
+													setIsDirty( true );
+												}
+												setValues( toUpdate );
+												if ( attachment?.url ) {
+													setImage( attachment );
+												} else {
+													setImage( null );
+												}
+											} }
+										/>
+									</BaseControl>
+								) }
 							</Fragment>
 						) ) }
 						{ error && (
@@ -204,7 +269,23 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 										prompt.ready ? __( 'Update', 'newspack' ) : __( 'Save', 'newspack' )
 								  ) }
 						</Button>
-						<Button isSecondary>{ __( 'Preview prompt', 'newspack' ) }</Button>
+						<WebPreview
+							url={ getPreviewUrl( prompt ) }
+							renderButton={ ( { showPreview } ) => (
+								<Button
+									disabled={ inFlight }
+									isSecondary
+									onClick={ async () => {
+										if ( isDirty ) {
+											await savePrompt( prompt.slug, values );
+										}
+										showPreview();
+									} }
+								>
+									{ __( 'Preview prompt', 'newspack' ) }
+								</Button>
+							) }
+						/>
 					</div>
 				</Grid>
 			}

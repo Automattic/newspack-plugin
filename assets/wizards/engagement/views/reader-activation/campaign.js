@@ -1,9 +1,7 @@
-/* global newspack_engagement_wizard */
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -52,7 +50,7 @@ export default withWizardScreen( () => {
 			{ ! prompts && (
 				<>
 					<Waiting isLeft />
-					{ __( 'Retrieving status…', 'newspack' ) }
+					{ __( 'Retrieving prompts…', 'newspack' ) }
 				</>
 			) }
 			{ prompts &&
