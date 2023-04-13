@@ -109,7 +109,7 @@ class EngagementWizard extends Component {
 				label: __( 'Reader Activation', 'newspack' ),
 				path: '/reader-activation',
 				exact: true,
-				activeTabPaths: [ '/reader-activation', '/reader-activation-campaign' ],
+				activeTabPaths: [ '/reader-activation', '/reader-activation/campaign' ],
 			} );
 		}
 		const props = {
@@ -124,6 +124,7 @@ class EngagementWizard extends Component {
 						{ newspack_engagement_wizard.has_reader_activation && (
 							<Route
 								path="/reader-activation"
+								exact
 								render={ () => (
 									<ReaderActivation
 										subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
@@ -134,7 +135,7 @@ class EngagementWizard extends Component {
 						) }
 						{ newspack_engagement_wizard.has_reader_activation && (
 							<Route
-								path="/reader-activation-campaign"
+								path="/reader-activation/campaign"
 								render={ () => (
 									<ReaderActivationCampaign
 										subHeaderText={ __(
