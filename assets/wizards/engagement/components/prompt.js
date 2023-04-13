@@ -38,11 +38,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 		if ( Array.isArray( prompt?.user_input_fields ) ) {
 			const fields = {};
 			prompt.user_input_fields.forEach( field => {
-				if ( field.value ) {
-					fields[ field.name ] = field.value;
-				} else {
-					fields[ field.name ] = 'array' === field.type ? [] : '';
-				}
+				fields[ field.name ] = field.value || field.default;
 			} );
 			setValues( fields );
 		}
