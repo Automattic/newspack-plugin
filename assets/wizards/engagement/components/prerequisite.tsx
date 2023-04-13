@@ -7,6 +7,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import { PrequisiteProps } from './types';
 import { ActionCard, Button, Grid, TextControl } from '../../../components/src';
 
 /**
@@ -18,7 +19,8 @@ export default function Prerequisite( {
 	inFlight,
 	prerequisite,
 	saveConfig,
-} ) {
+}: PrequisiteProps ) {
+	console.log( config );
 	return (
 		<ActionCard
 			isMedium
