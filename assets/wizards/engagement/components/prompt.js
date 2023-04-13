@@ -26,6 +26,7 @@ import {
 	WebPreview,
 } from '../../../components/src';
 
+// Note: Schema and types for the `prompt` prop is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/master/includes/schemas/class-prompts.php
 export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) {
 	const [ values, setValues ] = useState( {} );
 	const [ isDirty, setIsDirty ] = useState( false );
