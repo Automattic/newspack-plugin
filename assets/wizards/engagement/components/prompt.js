@@ -231,7 +231,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts } ) 
 											disabled={ inFlight }
 											image={ image }
 											onChange={ attachment => {
-												console.log( attachment );
 												const toUpdate = { ...values };
 												toUpdate[ field.name ] = attachment?.id || 0;
 												if ( toUpdate[ field.name ] !== values[ field.name ] ) {

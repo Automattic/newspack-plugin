@@ -20,7 +20,6 @@ export default function Prerequisite( {
 	prerequisite,
 	saveConfig,
 }: PrequisiteProps ) {
-	console.log( config );
 	return (
 		<ActionCard
 			isMedium
