@@ -2,6 +2,42 @@
  * Types for the Prequisite component.
  */
 
+declare global {
+	interface Window {
+		// Localized data on engagement wizard script.
+		newspack_engagement_wizard: {
+			has_reader_activation: boolean;
+			has_memberships: boolean;
+			new_subscription_lists_url: string;
+			preview_query_keys: {
+				background_color: string;
+				display_title: string;
+				hide_border: string;
+				large_border: string;
+				frequency: string;
+				frequency_max: string;
+				frequency_start: string;
+				frequency_between: string;
+				frequency_reset: string;
+				overlay_color: string;
+				overlay_opacity: string;
+				overlay_size: string;
+				no_overlay_background: string;
+				placement: string;
+				trigger_type: string;
+				trigger_delay: string;
+				trigger_scroll_progress: string;
+				trigger_blocks_count: string;
+				archive_insertion_posts_count: string;
+				archive_insertion_is_repeating: string;
+				utm_suppression: string;
+			};
+			preview_post: string;
+			preview_archive: string;
+		};
+	}
+}
+
 // Available transactional email slugs.
 type EmailSlugs =
 	| 'reader-activation-verification'
@@ -73,4 +109,104 @@ export type PrequisiteProps = {
 		action_enabled?: boolean;
 		disabled_text?: string;
 	};
+};
+
+export type InputField = {
+	name: string;
+	type: string;
+	label: string;
+	description: string;
+	required?: boolean;
+	max_length?: number;
+	default: string | number | boolean;
+	value?: string | number | boolean;
+	options?: {
+		label: string;
+		value: string | number;
+	};
+};
+
+// Schema is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/master/includes/schemas/class-prompts.php
+export type PromptType = {
+	status: string;
+	slug: string;
+	title: string;
+	content: string;
+	featured_image_id?: number;
+	options: PromptOptions;
+	user_input_fields: [ InputField ];
+};
+
+export type PromptOptions = {
+	background_color: string;
+	display_title: boolean;
+	hide_border: boolean;
+	large_border: boolean;
+	frequency: string;
+	frequency_max: number;
+	frequency_start: number;
+	frequency_between: number;
+	frequency_reset: string;
+	overlay_color: string;
+	overlay_opacity: number;
+	overlay_size: string;
+	no_overlay_background: boolean;
+	placement: string;
+	trigger_type: string;
+	trigger_delay: number;
+	trigger_scroll_progress: number;
+	trigger_blocks_count: number;
+	archive_insertion_posts_count: number;
+	archive_insertion_is_repeating: false;
+	selected_segment_id: string;
+	post_types: Array< string >;
+	archive_page_types: Array< string >;
+	additional_classes: string;
+	excluded_categories: [
+		{
+			id: number;
+			name: string;
+		}
+	];
+	excluded_tags: [
+		{
+			id: number;
+			name: string;
+		}
+	];
+	categories: [
+		{
+			id: number;
+			name: string;
+		}
+	];
+	tags: [
+		{
+			id: number;
+			name: string;
+		}
+	];
+	campaign_groups: [
+		{
+			id: number;
+			name: string;
+		}
+	];
+};
+
+export type Attachment = {
+	source_url?: string;
+	url: string;
+};
+
+export type InputValues = {
+	[ fieldName: string ]: string | number | Array< string > | Array< number > | boolean;
+};
+
+// Props for the Prompt component.
+export type PromptProps = {
+	inFlight: boolean;
+	setInFlight: ( inFlight: boolean ) => void;
+	prompt: Prompt;
+	setPrompts: ( prompts: boolean | Array< Prompt > ) => void;
 };
