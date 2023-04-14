@@ -101,24 +101,6 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/campaign',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_reader_activation_campaign_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/campaign',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_reader_activation_campaign_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -252,42 +234,6 @@ class Engagement_Wizard extends Wizard {
 				'memberships'          => self::get_memberships_settings(),
 			]
 		);
-	}
-
-	/**
-	 * Get reader activation campaign settings.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function api_get_reader_activation_campaign_settings( $request ) {
-		$response = Reader_Activation_Campaign::get_prompts();
-
-		if ( \is_wp_error( $response ) ) {
-			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
-		}
-
-		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Update reader activation campaign settings.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
-	 */
-	public function api_update_reader_activation_campaign_settings( $request ) {
-		$slug = $request['slug'];
-		$data = $request['data'];
-
-		$response = Reader_Activation_Campaign::update_prompt( $slug, $data );
-
-		if ( \is_wp_error( $response ) ) {
-			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
-		}
-
-		return rest_ensure_response( $response );
 	}
 
 	/**

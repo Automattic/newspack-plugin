@@ -45,9 +45,14 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 	useEffect( () => {
 		if ( Array.isArray( prompt?.user_input_fields ) ) {
 			const fields = { ...values };
+			let _isDirty = true;
 			prompt.user_input_fields.forEach( ( field: InputField ) => {
 				fields[ field.name ] = field.value || field.default;
+				if ( field.value ) {
+					_isDirty = false; // Allow saving if all values are default.
+				}
 			} );
+			setIsDirty( _isDirty );
 			setValues( fields );
 		}
 
@@ -104,7 +109,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 			setSuccess( false );
 			setInFlight( true );
 			apiFetch< [ PromptType ] >( {
-				path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/campaign',
+				path: '/newspack-popups/v1/reader-activation/campaign',
 				method: 'post',
 				data: {
 					slug,

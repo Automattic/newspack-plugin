@@ -28,7 +28,7 @@ export default withWizardScreen( () => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/campaign',
+			path: '/newspack-popups/v1/reader-activation/campaign',
 		} )
 			.then( fetchedPrompts => {
 				setPrompts( fetchedPrompts );
