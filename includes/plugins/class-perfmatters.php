@@ -80,6 +80,8 @@ class Perfmatters {
 	private static function unused_css_excluded_stylesheets() {
 		return [
 			'plugins/newspack-blocks', // Newspack Blocks.
+			'plugins/newspack-newsletters', // Newspack Newsletters.
+			'plugins/jetpack/modules/sharedaddy', // Jetpack's share buttons.
 			'/themes/newspack-', // Any Newspack theme stylesheet.
 			'wp-includes',
 		];
