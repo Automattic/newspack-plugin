@@ -38,7 +38,7 @@ import {
 export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: PromptProps ) {
 	const [ values, setValues ] = useState< InputValues | Record< string, never > >( {} );
 	const [ isDirty, setIsDirty ] = useState( false );
-	const [ error, setError ] = useState( false );
+	const [ error, setError ] = useState< boolean | { message: string } >( false );
 	const [ success, setSuccess ] = useState< false | string >( false );
 	const [ image, setImage ] = useState< null | Attachment >( null );
 
@@ -103,7 +103,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 			setError( false );
 			setSuccess( false );
 			setInFlight( true );
-			apiFetch< [ Prompt ] >( {
+			apiFetch< [ PromptType ] >( {
 				path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/campaign',
 				method: 'post',
 				data: {
@@ -143,7 +143,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 			{
 				<Grid columns={ 2 } gutter={ 16 } className="newspack-ras-campaign__grid">
 					<div className="newspack-ras-campaign__fields">
-						{ prompt.user_input_fields.map( field => (
+						{ prompt.user_input_fields.map( ( field: InputField ) => (
 							<Fragment key={ field.name }>
 								{ 'array' === field.type && Array.isArray( field.options ) && (
 									<BaseControl
@@ -182,7 +182,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										) ) }
 									</BaseControl>
 								) }
-								{ 'string' === field.type && 100 < field.max_length && (
+								{ 'string' === field.type && field.max_length && 100 < field.max_length && (
 									<TextareaControl
 										className="newspack-textarea-control"
 										label={ field.label }
@@ -205,7 +205,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										value={ values[ field.name ] || '' }
 									/>
 								) }
-								{ 'string' === field.type && 100 >= field.max_length && (
+								{ 'string' === field.type && field.max_length && 100 >= field.max_length && (
 									<TextControl
 										label={ field.label }
 										disabled={ inFlight }
@@ -235,7 +235,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 											buttonLabel={ __( 'Choose image', 'newspack' ) }
 											disabled={ inFlight }
 											image={ image }
-											onChange={ attachment => {
+											onChange={ ( attachment: Attachment ) => {
 												const toUpdate = { ...values };
 												toUpdate[ field.name ] = attachment?.id || 0;
 												if ( toUpdate[ field.name ] !== values[ field.name ] ) {
