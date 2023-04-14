@@ -42,8 +42,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 	const [ success, setSuccess ] = useState< false | string >( false );
 	const [ image, setImage ] = useState< null | Attachment >( null );
 
-	console.log( values );
-
 	useEffect( () => {
 		if ( Array.isArray( prompt?.user_input_fields ) ) {
 			const fields = { ...values };
@@ -59,7 +57,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 				path: `/wp/v2/media/${ prompt.featured_image_id }`,
 			} )
 				.then( ( attachment: Attachment ) => {
-					console.log( attachment );
 					if ( attachment?.source_url || attachment?.url ) {
 						setImage( { url: attachment.source_url || attachment.url } );
 					}
