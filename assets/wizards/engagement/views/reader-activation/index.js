@@ -65,7 +65,10 @@ export default withWizardScreen( () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
-	useEffect( fetchConfig, [] );
+	useEffect( () => {
+		window.scrollTo( 0, 0 );
+		fetchConfig();
+	}, [] );
 	useEffect( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',

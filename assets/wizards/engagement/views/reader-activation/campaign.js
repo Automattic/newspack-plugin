@@ -37,7 +37,10 @@ export default withWizardScreen( () => {
 			.finally( () => setInFlight( false ) );
 	};
 
-	useEffect( fetchPrompts, [] );
+	useEffect( () => {
+		window.scrollTo( 0, 0 );
+		fetchPrompts();
+	}, [] );
 
 	useEffect( () => {
 		if ( Array.isArray( prompts ) && 0 < prompts.length ) {
