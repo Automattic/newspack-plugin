@@ -266,7 +266,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 						) }
 						{ success && <Notice noticeText={ success } isSuccess /> }
 						<Button
-							href={ false }
 							isPrimary
 							onClick={ () => savePrompt( prompt.slug, values ) }
 							disabled={ inFlight || ! isDirty }
@@ -283,7 +282,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 							url={ getPreviewUrl( prompt ) }
 							renderButton={ ( { showPreview }: { showPreview: () => void } ) => (
 								<Button
-									href={ false }
 									disabled={ inFlight }
 									isSecondary
 									onClick={ async () => {
