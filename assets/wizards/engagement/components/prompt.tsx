@@ -38,7 +38,7 @@ import {
 export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: PromptProps ) {
 	const [ values, setValues ] = useState< InputValues | Record< string, never > >( {} );
 	const [ isDirty, setIsDirty ] = useState( false );
-	const [ error, setError ] = useState< boolean | { message: string } >( false );
+	const [ error, setError ] = useState< false | { message: string } >( false );
 	const [ success, setSuccess ] = useState< false | string >( false );
 	const [ image, setImage ] = useState< null | Attachment >( null );
 
