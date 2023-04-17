@@ -28,11 +28,9 @@ class Block_Patterns {
 	 */
 	public static function get_block_patterns() {
 		return [
-			'registration-wall'    => __( 'Registration Wall', 'newspack' ),
-			'donation-wall'        => __( 'Donation Wall', 'newspack' ),
-			'pay-wall-one-tier'    => __( 'Pay Wall with One Tier', 'newspack' ),
-			'pay-wall-two-tiers'   => __( 'Pay Wall with Two Tiers', 'newspack' ),
-			'pay-wall-three-tiers' => __( 'Pay Wall with Three Tiers', 'newspack' ),
+			'registration-wall' => __( 'Registration Wall', 'newspack' ),
+			'donation-wall'     => __( 'Donation Wall', 'newspack' ),
+			'pay-wall-one-tier' => __( 'Pay Wall with One Tier', 'newspack' ),
 		];
 	}
 
