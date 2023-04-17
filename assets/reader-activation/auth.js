@@ -50,6 +50,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		return acc;
 	}, {} );
 
+const SIGN_IN_MODAL_HASH = 'signin_modal';
+
 window.newspackRAS = window.newspackRAS || [];
 
 window.newspackRAS.push( function ( readerActivation ) {
@@ -60,24 +62,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 			return;
 		}
 
-		let currentlyOpenOverlayPrompts = [];
-		let overlayPromptOrigin = null;
-		const hideCurrentlyOpenOverlayPrompts = () =>
-			currentlyOpenOverlayPrompts.forEach( promptElement =>
-				promptElement.setAttribute( 'amp-access-hide', '' )
-			);
-		const displayCurrentlyOpenOverlayPrompts = () => {
-			const reader = readerActivation.getReader();
-			const loginFromPrompt = reader?.email && overlayPromptOrigin;
-			currentlyOpenOverlayPrompts.forEach( promptElement => {
-				if ( loginFromPrompt && overlayPromptOrigin.isEqualNode( promptElement ) ) {
-					promptElement.setAttribute( 'amp-access-hide', '' );
-				} else {
-					promptElement.removeAttribute( 'amp-access-hide' );
-				}
-			} );
-		};
-
 		let accountLinks, triggerLinks;
 		const initLinks = function () {
 			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
@@ -86,6 +70,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 				link.addEventListener( 'click', handleAccountLinkClick );
 			} );
 		};
+		window.addEventListener( 'hashchange', function ( ev ) {
+			if ( window.location.hash === '#' + SIGN_IN_MODAL_HASH ) {
+				ev.preventDefault();
+				handleAccountLinkClick();
+			}
+		} );
 		initLinks();
 		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
 		setTimeout( initLinks, 1000 );
@@ -157,7 +147,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				return;
 			}
 
-			ev.preventDefault();
+			if ( ev ) {
+				ev.preventDefault();
+			}
 
 			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 			const emailInput = container.querySelector( 'input[name="npe"]' );
@@ -177,19 +169,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 				emailInput.value = reader?.email || '';
 			}
 
-			if ( redirectInput && ev.target.getAttribute( 'data-redirect' ) ) {
+			if ( redirectInput && ev?.target?.getAttribute( 'data-redirect' ) ) {
 				redirectInput.value = ev.target.getAttribute( 'data-redirect' );
 			}
 
 			container.hidden = false;
 			container.style.display = 'flex';
 
-			currentlyOpenOverlayPrompts = document.querySelectorAll(
-				'.newspack-lightbox:not([amp-access-hide])'
-			);
-			overlayPromptOrigin = ev.currentTarget.closest( '.newspack-lightbox' );
-
-			hideCurrentlyOpenOverlayPrompts();
+			document.body.classList.add( 'newspack-signin' );
 
 			if ( passwordInput && emailInput?.value && 'pwd' === actionInput?.value ) {
 				passwordInput.focus();
@@ -222,7 +209,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 					ev.preventDefault();
 					container.classList.remove( 'newspack-reader__auth-form__visible' );
 					container.style.display = 'none';
-					displayCurrentlyOpenOverlayPrompts();
+					document.body.classList.remove( 'newspack-signin' );
+					if ( window.location.hash === '#' + SIGN_IN_MODAL_HASH ) {
+						history.pushState(
+							'',
+							document.title,
+							window.location.pathname + window.location.search
+						);
+					}
 				} );
 			}
 

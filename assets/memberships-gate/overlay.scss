@@ -85,7 +85,8 @@
 	}
 }
 
-.newspack-modal-checkout-open {
+.newspack-modal-checkout-open,
+.newspack-signin {
 	.newspack-memberships {
 		&__overlay-gate {
 			display: none !important;
