@@ -196,9 +196,19 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 		updateConfig( newLists );
 	};
 	useEffect( fetchLists, [] );
-	if ( ! lists?.length && ! error ) {
+
+	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
 	}
+
+	if ( inFlight && ! lists?.length && ! error ) {
+		return (
+			<div className="flex justify-around mt4">
+				<Waiting />
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<Card headerActions noBorder>
@@ -330,7 +340,7 @@ const Newsletters = () => {
 		<>
 			<Card headerActions noBorder>
 				<h2>{ __( 'Authoring', 'newspack' ) }</h2>
-				<Button variant="primary" onClick={ saveNewslettersData }>
+				<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
 					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</Card>
