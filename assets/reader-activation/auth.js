@@ -65,7 +65,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 		let accountLinks, triggerLinks;
 		const initLinks = function () {
 			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
-			triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
+			triggerLinks = document.querySelectorAll(
+				`[data-newspack-reader-account-link],[href="${ newspack_reader_activation_data.account_url }"]`
+			);
 			triggerLinks.forEach( link => {
 				link.addEventListener( 'click', handleAccountLinkClick );
 			} );
