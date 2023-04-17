@@ -375,11 +375,27 @@ class Engagement_Wizard extends Wizard {
 			$data['new_subscription_lists_url'] = \Newspack\Newsletters\Subscription_Lists::get_add_new_url();
 		}
 
+		$newspack_popups = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		if ( $newspack_popups->is_configured() ) {
+			$data['preview_query_keys'] = $newspack_popups->preview_query_keys();
+			$data['preview_post']       = $newspack_popups->preview_post();
+			$data['preview_archive']    = $newspack_popups->preview_archive();
+		}
+
 		\wp_localize_script(
 			'newspack-engagement-wizard',
 			'newspack_engagement_wizard',
 			$data
 		);
+
+		\wp_register_style(
+			'newspack-engagement-wizard',
+			Newspack::plugin_url() . '/dist/engagement.css',
+			$this->get_style_dependencies(),
+			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_style_add_data( 'newspack-engagement-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-engagement-wizard' );
 	}
 
 	/**

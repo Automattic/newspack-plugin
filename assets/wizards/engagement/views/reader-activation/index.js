@@ -14,14 +14,14 @@ import {
 	ActionCard,
 	Button,
 	Card,
-	Grid,
 	Notice,
 	SectionHeader,
 	TextControl,
 	Waiting,
 	withWizardScreen,
 } from '../../../../components/src';
-import ActiveCampaign from './active-campaign';
+import Prerequisite from '../../components/prerequisite';
+import ActiveCampaign from '../../components/active-campaign';
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
@@ -65,7 +65,10 @@ export default withWizardScreen( () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
-	useEffect( fetchConfig, [] );
+	useEffect( () => {
+		window.scrollTo( 0, 0 );
+		fetchConfig();
+	}, [] );
 	useEffect( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
@@ -77,14 +80,7 @@ export default withWizardScreen( () => {
 	}, [] );
 	useEffect( () => {
 		const _allReady =
-			prerequisites &&
-			Object.keys( prerequisites ).reduce( ( acc, key ) => {
-				if ( ! prerequisites[ key ]?.active ) {
-					return false;
-				}
-
-				return acc;
-			}, true );
+			prerequisites && Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
 
 		setAllReady( _allReady );
 	}, [ prerequisites ] );
@@ -163,142 +159,15 @@ export default withWizardScreen( () => {
 			) }
 			{ prerequisites &&
 				Object.keys( prerequisites ).map( key => (
-					<ActionCard
+					<Prerequisite
 						key={ key }
-						isMedium
-						expandable
-						collapse={ prerequisites[ key ].active }
-						title={ prerequisites[ key ].label }
-						description={ sprintf(
-							/* translators: %s: Prerequisite status */
-							__( 'Status: %s', 'newspack' ),
-							prerequisites[ key ].active ? __( 'Ready', 'newspack' ) : __( 'Pending', 'newspack' )
-						) }
-						checkbox={ prerequisites[ key ].active ? 'checked' : 'unchecked' }
-						actionText={
-							prerequisites[ key ].href ? (
-								<Button isLink disabled={ inFlight } href={ prerequisites[ key ].href }>
-									{ prerequisites[ key ].active
-										? __( 'View setup', 'newspack' )
-										: __( 'Set up', 'newspack' ) }
-								</Button>
-							) : null
-						}
-					>
-						{
-							// Inner card content.
-							<>
-								{ prerequisites[ key ].description && (
-									<p>
-										{ prerequisites[ key ].description }
-										{ prerequisites[ key ].help_url && (
-											<>
-												{ ' ' }
-												<ExternalLink href={ prerequisites[ key ].help_url }>
-													{ __( 'Learn more', 'newspack-plugin' ) }
-												</ExternalLink>
-											</>
-										) }
-									</p>
-								) }
-								{
-									// Form fields.
-									prerequisites[ key ].fields && (
-										<Grid columns={ 2 } gutter={ 16 }>
-											<div>
-												{ Object.keys( prerequisites[ key ].fields ).map( fieldName => (
-													<TextControl
-														key={ fieldName }
-														label={ prerequisites[ key ].fields[ fieldName ].label }
-														help={ prerequisites[ key ].fields[ fieldName ].description }
-														{ ...getSharedProps( fieldName, 'text' ) }
-													/>
-												) ) }
-
-												<Button
-													isPrimary
-													onClick={ () => {
-														const dataToSave = {};
-
-														Object.keys( prerequisites[ key ].fields ).forEach( fieldName => {
-															dataToSave[ fieldName ] = config[ fieldName ];
-														} );
-
-														saveConfig( dataToSave );
-													} }
-													disabled={ inFlight }
-												>
-													{ inFlight
-														? __( 'Saving…', 'newspack' )
-														: sprintf(
-																// Translators: Save or Update settings.
-																__( '%s settings', 'newspack' ),
-																prerequisites[ key ].active
-																	? __( 'Update', 'newspack' )
-																	: __( 'Save', 'newspack' )
-														  ) }
-												</Button>
-											</div>
-										</Grid>
-									)
-								}
-								{
-									// Link to another settings page or update config in place.
-									prerequisites[ key ].href && prerequisites[ key ].action_text && (
-										<Grid columns={ 2 } gutter={ 16 }>
-											<div>
-												<Button isPrimary href={ prerequisites[ key ].href }>
-													{ /* eslint-disable no-nested-ternary */ }
-													{ ( prerequisites[ key ].active
-														? __( 'Update ', 'newspack' )
-														: prerequisites[ key ].fields
-														? __( 'Save ', 'newspack' )
-														: __( 'Configure ', 'newspack' ) ) + prerequisites[ key ].action_text }
-												</Button>
-											</div>
-										</Grid>
-									)
-								}
-							</>
-						}
-					</ActionCard>
+						config={ config }
+						getSharedProps={ getSharedProps }
+						inFlight={ inFlight }
+						prerequisite={ prerequisites[ key ] }
+						saveConfig={ saveConfig }
+					/>
 				) ) }
-
-			{ /** TODO: Link this to the new setup wizard. */ }
-			{ prerequisites && (
-				<ActionCard
-					isMedium
-					expandable
-					title={ __( 'Reader Activation Campaign', 'newspack' ) }
-					description={ __( 'Status: Pending', 'newspack' ) } // TODO: Update this once the campaign UI is ready.
-					checkbox="unchecked"
-				>
-					<>
-						<p>
-							<>
-								{ __(
-									'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation. ',
-									'newspack'
-								) }
-
-								{ /** TODO: Update this URL with the real one once the docs are ready. */ }
-								<ExternalLink href={ 'https://help.newspack.com' }>
-									{ __( 'Learn more', 'newspack-plugin' ) }
-								</ExternalLink>
-							</>
-						</p>
-						<Grid columns={ 2 } gutter={ 16 }>
-							<div>
-								<Button variant={ allReady ? 'primary' : 'secondary' } disabled={ ! allReady }>
-									{ allReady
-										? __( 'Set up Reader Activation campaign', 'newspack' )
-										: __( 'Waiting for all settings to be ready', 'newspack' ) }
-								</Button>
-							</div>
-						</Grid>
-					</>
-				</ActionCard>
-			) }
 			<hr />
 			<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
 				{ sprintf(
