@@ -135,6 +135,7 @@ export type PromptType = {
 	featured_image_id?: number;
 	options: PromptOptions;
 	user_input_fields: [ InputField ];
+	ready?: boolean;
 };
 
 export type PromptOptions = {
@@ -195,6 +196,7 @@ export type PromptOptions = {
 };
 
 export type Attachment = {
+	id?: number;
 	source_url?: string;
 	url: string;
 };
@@ -207,6 +209,6 @@ export type InputValues = {
 export type PromptProps = {
 	inFlight: boolean;
 	setInFlight: ( inFlight: boolean ) => void;
-	prompt: Prompt;
+	prompt: PromptType;
 	setPrompts: ( prompts: boolean | Array< Prompt > ) => void;
 };

@@ -78,7 +78,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 		setTimeout( () => setSuccess( false ), 5000 );
 	}, [ success ] );
 
-	// TODO: Create a preview popup on the fly.
 	const getPreviewUrl = ( { options, slug }: { options: PromptOptions; slug: string } ) => {
 		const { placement, trigger_type: triggerType } = options;
 		const previewQueryKeys = window.newspack_engagement_wizard.preview_query_keys;
@@ -268,7 +267,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 						<Button
 							isPrimary
 							onClick={ () => savePrompt( prompt.slug, values ) }
-							disabled={ inFlight || ! isDirty }
+							disabled={ inFlight }
 						>
 							{ inFlight
 								? __( 'Saving…', 'newspack' )
