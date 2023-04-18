@@ -1,3 +1,10 @@
+## [1.112.1](https://github.com/Automattic/newspack-plugin/compare/v1.112.0...v1.112.1) (2023-04-12)
+
+
+### Bug Fixes
+
+* sync reader to ESP on subscription update ([#2401](https://github.com/Automattic/newspack-plugin/issues/2401)) ([cdc8799](https://github.com/Automattic/newspack-plugin/commit/cdc8799957fabed3b3ac473083bbabd6e5aefa16))
+
 # [1.112.0](https://github.com/Automattic/newspack-plugin/compare/v1.111.1...v1.112.0) (2023-04-10)
 
 
