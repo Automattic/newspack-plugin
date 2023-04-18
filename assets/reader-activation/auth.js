@@ -72,12 +72,16 @@ window.newspackRAS.push( function ( readerActivation ) {
 				link.addEventListener( 'click', handleAccountLinkClick );
 			} );
 		};
-		window.addEventListener( 'hashchange', function ( ev ) {
+		const handleHashChange = function ( ev ) {
 			if ( window.location.hash === '#' + SIGN_IN_MODAL_HASH ) {
-				ev.preventDefault();
+				if ( ev ) {
+					ev.preventDefault();
+				}
 				handleAccountLinkClick();
 			}
-		} );
+		};
+		window.addEventListener( 'hashchange', handleHashChange );
+		handleHashChange();
 		initLinks();
 		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
 		setTimeout( initLinks, 1000 );
