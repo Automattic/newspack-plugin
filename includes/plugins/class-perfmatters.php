@@ -82,6 +82,7 @@ class Perfmatters {
 			'plugins/newspack-blocks', // Newspack Blocks.
 			'plugins/newspack-newsletters', // Newspack Newsletters.
 			'plugins/jetpack/modules/sharedaddy', // Jetpack's share buttons.
+			'plugins/jetpack/_inc/social-logos', // Jetpack's social logos CSS.
 			'/themes/newspack-', // Any Newspack theme stylesheet.
 			'wp-includes',
 		];
