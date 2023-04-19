@@ -338,7 +338,9 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 									</h4>
 									<ul>
 										{ helpInfo.recommendations.map( ( recommendation, index ) => (
-											<li key={ index } dangerouslySetInnerHTML={ { __html: recommendation } } />
+											<li key={ index }>
+												<span dangerouslySetInnerHTML={ { __html: recommendation } } />
+											</li>
 										) ) }
 									</ul>
 								</>
