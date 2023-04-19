@@ -24,9 +24,27 @@ $donate_settings = [
 ?>
 <!-- wp:group -->
 <div class="wp-block-group">
-	<!-- wp:heading -->
-	<h2 class="wp-block-heading"><?php _e( 'Become a member to continue reading', 'newspack' ); ?></h2>
-	<!-- /wp:heading -->
+	<!-- wp:paragraph {"align":"left","textColor":"medium-gray","fontSize":"normal"} -->
+	<p class="has-text-align-left has-medium-gray-color has-text-color has-normal-font-size">
+		<em><?php esc_html_e( 'Become a member to continue reading', 'newspack' ); ?></em>
+	</p>
+	<!-- /wp:paragraph -->
+
+	<!-- wp:separator {"className":"is-style-wide"} -->
+	<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide"/>
+	<!-- /wp:separator -->
+
+	<!-- wp:list { "style":{"typography":{"fontSize":"24px"}} } -->
+	<ul style="font-size:24px">
+		<!-- wp:list-item -->
+		<li><?php esc_html_e( 'Unlimited access to our content', 'newspack' ); ?></li>
+		<!-- /wp:list-item -->
+
+		<!-- wp:list-item -->
+		<li><?php esc_html_e( 'Weekly newsletters', 'newspack' ); ?></li>
+		<!-- /wp:list-item -->
+	</ul>
+	<!-- /wp:list -->
 	<!-- wp:newspack-blocks/donate <?php echo wp_json_encode( $donate_settings ); ?> /-->
 </div>
 <!-- /wp:group -->
