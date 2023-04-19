@@ -43,7 +43,7 @@ export default function Prerequisite( {
 								<>
 									{ ' ' }
 									<ExternalLink href={ prerequisite.help_url }>
-										{ __( 'Learn more', 'newspack-plugin' ) }
+										{ __( 'Learn more', 'newspack' ) }
 									</ExternalLink>
 								</>
 							) }
