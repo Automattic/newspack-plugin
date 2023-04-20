@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -41,9 +42,18 @@ export default withWizardScreen( () => {
 		<div className="newspack-ras-campaign__completed">
 			<SectionHeader
 				title={ __( 'Enable Reader Activation', 'newspack' ) }
-				description={ __(
-					'An easy way to let your readers register for your site, sign up for newsletters, or become donors and paid members.',
-					'newspack'
+				description={ () => (
+					<>
+						{ __(
+							'An easy way to let your readers register for your site, sign up for newsletters, or become donors and paid members. ',
+							'newspack'
+						) }
+
+						{ /** TODO: Update this URL with the real one once the docs are ready. */ }
+						<ExternalLink href={ 'https://help.newspack.com' }>
+							{ __( 'Learn more', 'newspack-plugin' ) }
+						</ExternalLink>
+					</>
 				) }
 			/>
 

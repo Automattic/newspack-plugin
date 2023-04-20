@@ -84,8 +84,10 @@
 	}
 
 	&__completed {
-		h2, p {
-			text-align: center;
+		.newspack-card {
+			h2, p {
+				text-align: center;
+			}
 		}
 	}
 }
