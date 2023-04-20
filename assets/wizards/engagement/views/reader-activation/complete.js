@@ -22,6 +22,21 @@ export default withWizardScreen( () => {
 	//const [ prompts, setPrompts ] = useState( null );
 	//const [ allReady, setAllReady ] = useState( false );
 
+	const listItems = [
+		__(
+			'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
+			'newspack '
+		),
+		__(
+			'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
+			'newspack '
+		),
+		__(
+			'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
+			'newspack '
+		),
+	];
+
 	return (
 		<div className="newspack-ras-campaign__completed">
 			<SectionHeader
@@ -37,30 +52,7 @@ export default withWizardScreen( () => {
 				<p>{ __( 'This is what will happen next:', 'newspack' ) }</p>
 
 				<Card noBorder className="justify-center">
-					<SteppedList
-						listNumber="1"
-						listText={ __(
-							'Your current segments and prompts will be deactivated and archived.',
-							'newspack'
-						) }
-						rawHTML
-					/>
-					<SteppedList
-						listNumber="2"
-						listText={ __(
-							'Reader registration will be activated to enable better targeting for driving engagement and conversations.',
-							'newspack'
-						) }
-						rawHTML
-					/>
-					<SteppedList
-						listNumber="3"
-						listText={ __(
-							'The Reader Activation campaign will be activated with default segments and settings.',
-							'newspack'
-						) }
-						rawHTML
-					/>
+					<SteppedList steppedListItems={ listItems } narrowList />
 				</Card>
 
 				<Card buttonsCard noBorder className="justify-center">

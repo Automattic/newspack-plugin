@@ -5,26 +5,8 @@
 	font-size: 14px;
 	margin-left: auto;
 	margin-right: auto;
-	width: 416px;
-	align-items: center;
-	display: flex;
-	gap: 24px;
-	flex: 0 0 auto;
 
-	+ .stepped-list {
-		margin-top: 32px;
-	}
-
-	&__number {
-		align-items: center;
-		border: 1px solid currentcolor;
-		border-radius: 100%;
-		color: colors.$primary-500;
-		display: flex;
-		flex: 1 0 auto;
-		height: 24px;
-		justify-content: center;
-		position: relative;
-		width: 24px;
+	&__narrow-list {
+		max-width: 416px;
 	}
 }

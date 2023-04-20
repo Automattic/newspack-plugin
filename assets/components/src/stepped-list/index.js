@@ -1,15 +1,16 @@
 /**
- * Notice
+ * Stepped List
  */
 
 /**
  * WordPress dependencies.
  */
-import { Component, RawHTML } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
+import { SteppedListItem } from '../';
 import './style.scss';
 
 /**
@@ -22,19 +23,21 @@ class SteppedList extends Component {
 	 * Render
 	 */
 	render() {
-		const { className, rawHTML, listNumber, listText, style = {}, propertyName } = this.props;
+		const { className, steppedListItems, narrowList, style = {} } = this.props;
 		const classes = classnames(
 			'stepped-list',
 			className,
-			propertyName && 'stepped-list__property-name'
+			narrowList && 'stepped-list__narrow-list'
 		);
 
 		return (
 			<div className={ classes } style={ style }>
-				<div className="stepped-list__number">{ listNumber }</div>
-				<div className="stepped-list__content">
-					{ rawHTML ? <RawHTML>{ listText }</RawHTML> : listText }
-				</div>
+				{ steppedListItems.map( ( listItem, index ) => {
+					return (
+						// TODO: Fix how the counting is handled.
+						<SteppedListItem key={ listItem.id } itemCount={ index + 1 } itemText={ listItem } />
+					);
+				} ) }
 			</div>
 		);
 	}

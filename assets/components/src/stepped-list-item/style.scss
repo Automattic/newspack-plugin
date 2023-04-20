@@ -1,0 +1,26 @@
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
+
+.stepped-list-item { // TODO: rework this to be more general and move specifics to the RAS Campaign styles.
+	align-items: center;
+	display: flex;
+	gap: 24px;
+	flex: 0 0 auto;
+
+	+ .stepped-list-item {
+		margin-top: 32px;
+	}
+
+	&__number {
+		align-items: center;
+		border: 1px solid currentcolor;
+		border-radius: 100%;
+		color: colors.$primary-500;
+		display: flex;
+		flex: 1 0 auto;
+		height: 24px;
+		justify-content: center;
+		position: relative;
+		width: 24px;
+	}
+}
