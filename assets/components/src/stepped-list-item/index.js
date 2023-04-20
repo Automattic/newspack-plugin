@@ -28,7 +28,10 @@ class SteppedListItem extends Component {
 		return (
 			<div className={ classes } style={ style }>
 				<div className="stepped-list-item__number">{ itemCount }</div>
-				<div className="stepped-list-item__content"> { itemText }</div>
+				<div
+					className="stepped-list-item__content"
+					dangerouslySetInnerHTML={ { __html: itemText } }
+				/>
 			</div>
 		);
 	}

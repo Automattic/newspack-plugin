@@ -1,8 +1,8 @@
 @use '../../../shared/scss/colors';
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
-.stepped-list { // TODO: rework this to be more general and move specifics to the RAS Campaign styles.
-	font-size: 14px;
+.stepped-list {
+	// font-size: 14px; // TODO: this matches the mockup, but this doesn't seem like the right approach
 	margin-left: auto;
 	margin-right: auto;
 

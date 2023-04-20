@@ -23,18 +23,9 @@ export default withWizardScreen( () => {
 	//const [ allReady, setAllReady ] = useState( false );
 
 	const listItems = [
-		__(
-			'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
-			'newspack '
-		),
-		__(
-			'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
-			'newspack '
-		),
-		__(
-			'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
-			'newspack '
-		),
+		'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
+		'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
+		'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
 	];
 
 	return (

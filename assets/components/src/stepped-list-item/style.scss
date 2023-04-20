@@ -3,6 +3,7 @@
 
 .stepped-list-item { // TODO: rework this to be more general and move specifics to the RAS Campaign styles.
 	align-items: center;
+	background: #fff;
 	display: flex;
 	gap: 24px;
 	position: relative;
@@ -39,7 +40,7 @@
 		flex: 1 0 auto;
 		height: 28px;
 		justify-content: center;
-		outline: 5px solid #fff;
+		outline: 8px solid #fff;
 		position: relative;
 		width: 28px;
 		z-index: 2;
