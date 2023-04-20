@@ -216,5 +216,5 @@ export type PromptProps = {
 	inFlight: boolean;
 	setInFlight: ( inFlight: boolean ) => void;
 	prompt: PromptType;
-	setPrompts: ( prompts: boolean | Array< Prompt > ) => void;
+	setPrompts: ( prompts: boolean | Array< PromptType > ) => void;
 };
