@@ -135,6 +135,12 @@ export type PromptType = {
 	featured_image_id?: number;
 	options: PromptOptions;
 	user_input_fields: [ InputField ];
+	help_info?: {
+		screenshot?: string;
+		recommendations?: Array< string >;
+		description?: string;
+		url?: string;
+	};
 	ready?: boolean;
 };
 
