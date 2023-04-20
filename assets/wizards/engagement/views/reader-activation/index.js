@@ -169,6 +169,12 @@ export default withWizardScreen( () => {
 					/>
 				) ) }
 			<hr />
+			<Button
+				isPrimary
+				href="/wp-admin/admin.php?page=newspack-engagement-wizard#/reader-activation/complete"
+			>
+				{ __( 'Final Screen', 'newspack ' ) }
+			</Button>
 			<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
 				{ sprintf(
 					// Translators: Show or Hide advanced settings.

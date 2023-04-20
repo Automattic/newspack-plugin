@@ -19,6 +19,7 @@ import Router from '../../components/src/proxied-imports/router';
 import {
 	ReaderActivation,
 	ReaderActivationCampaign,
+	ReaderActivationComplete,
 	Commenting,
 	Newsletters,
 	Social,
@@ -109,7 +110,11 @@ class EngagementWizard extends Component {
 				label: __( 'Reader Activation', 'newspack' ),
 				path: '/reader-activation',
 				exact: true,
-				activeTabPaths: [ '/reader-activation', '/reader-activation/campaign' ],
+				activeTabPaths: [
+					'/reader-activation',
+					'/reader-activation/campaign',
+					'/reader-activation/complete',
+				],
 			} );
 		}
 		const props = {
@@ -143,6 +148,19 @@ class EngagementWizard extends Component {
 											'newspack'
 										) }
 										{ ...props }
+									/>
+								) }
+							/>
+						) }
+						{ newspack_engagement_wizard.has_reader_activation && (
+							<Route
+								path="/reader-activation/complete"
+								render={ () => (
+									<ReaderActivationComplete
+										subHeaderText={ __(
+											'Preview and customize the reader activation prompts',
+											'newspack'
+										) }
 									/>
 								) }
 							/>
