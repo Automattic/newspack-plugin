@@ -3,8 +3,8 @@
 
 .stepped-list-item { // TODO: rework this to be more general and move specifics to the RAS Campaign styles.
 	align-items: center;
-	background: #fff;
-	display: flex;
+	display: grid;
+	grid-template-columns: 28px auto;
 	gap: 24px;
 	position: relative;
 
@@ -37,7 +37,6 @@
 		border-radius: 100%;
 		color: colors.$primary-500;
 		display: flex;
-		flex: 1 0 auto;
 		height: 28px;
 		justify-content: center;
 		outline: 8px solid #fff;
