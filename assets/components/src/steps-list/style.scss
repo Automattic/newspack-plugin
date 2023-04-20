@@ -1,8 +1,7 @@
 @use '../../../shared/scss/colors';
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
-.stepped-list {
-	// font-size: 14px; // TODO: this matches the mockup, but this doesn't seem like the right approach
+.steps-list {
 	margin-left: auto;
 	margin-right: auto;
 

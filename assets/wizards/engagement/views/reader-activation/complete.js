@@ -12,7 +12,7 @@ import {
 	withWizardScreen,
 	Card,
 	ProgressBar,
-	SteppedList,
+	StepsList,
 } from '../../../../components/src';
 import './style.scss';
 
@@ -23,9 +23,18 @@ export default withWizardScreen( () => {
 	//const [ allReady, setAllReady ] = useState( false );
 
 	const listItems = [
-		'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
-		'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
-		'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
+		__(
+			'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
+			'newspack'
+		),
+		__(
+			'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
+			'newspack'
+		),
+		__(
+			'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
+			'newspack'
+		),
 	];
 
 	return (
@@ -43,7 +52,7 @@ export default withWizardScreen( () => {
 				<p>{ __( 'This is what will happen next:', 'newspack' ) }</p>
 
 				<Card noBorder className="justify-center">
-					<SteppedList steppedListItems={ listItems } narrowList />
+					<StepsList stepsListItems={ listItems } narrowList />
 				</Card>
 
 				<Card buttonsCard noBorder className="justify-center">

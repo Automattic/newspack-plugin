@@ -1,7 +1,7 @@
 @use '../../../shared/scss/colors';
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
-.stepped-list-item { // TODO: rework this to be more general and move specifics to the RAS Campaign styles.
+.steps-list-item {
 	align-items: center;
 	display: grid;
 	grid-template-columns: 28px auto;
@@ -26,7 +26,7 @@
 		bottom: 50%;
 	}
 
-	+ .stepped-list-item {
+	+ .steps-list-item {
 		margin-top: 32px;
 	}
 
