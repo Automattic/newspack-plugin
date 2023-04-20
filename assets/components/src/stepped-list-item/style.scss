@@ -5,7 +5,25 @@
 	align-items: center;
 	display: flex;
 	gap: 24px;
-	flex: 0 0 auto;
+	position: relative;
+
+	&::before {
+		border: 1px solid #F0F0F0;
+		bottom: -16px;
+		content: '';
+		display: block;
+		left: 14px;
+		position: absolute;
+		top: -16px;
+	}
+
+	&:first-child::before {
+		top: 50%;
+	}
+
+	&:last-child::before {
+		bottom: 50%;
+	}
 
 	+ .stepped-list-item {
 		margin-top: 32px;
@@ -13,14 +31,17 @@
 
 	&__number {
 		align-items: center;
+		background: #fff;
 		border: 1px solid currentcolor;
 		border-radius: 100%;
 		color: colors.$primary-500;
 		display: flex;
 		flex: 1 0 auto;
-		height: 24px;
+		height: 28px;
 		justify-content: center;
+		outline: 5px solid #fff;
 		position: relative;
-		width: 24px;
+		width: 28px;
+		z-index: 2;
 	}
 }
