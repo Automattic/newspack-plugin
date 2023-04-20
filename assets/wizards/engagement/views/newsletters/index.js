@@ -35,6 +35,7 @@ export const NewspackNewsletters = ( {
 	onUpdate,
 	authUrl = false,
 	isOnboarding = true,
+	disabled = false,
 } ) => {
 	const [ error, setError ] = useState();
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
@@ -68,6 +69,7 @@ export const NewspackNewsletters = ( {
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
+		disabled,
 		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
 		label: config.settings[ key ]?.description,
@@ -194,9 +196,19 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 		updateConfig( newLists );
 	};
 	useEffect( fetchLists, [] );
-	if ( ! lists?.length && ! error ) {
+
+	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
 	}
+
+	if ( inFlight && ! lists?.length && ! error ) {
+		return (
+			<div className="flex justify-around mt4">
+				<Waiting />
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<Card headerActions noBorder>
@@ -264,6 +276,7 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 
 const Newsletters = () => {
 	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
+	const [ inFlight, setInFlight ] = useState( false );
 	const [ initialProvider, setInitialProvider ] = useState( '' );
 	const [ lockedLists, setLockedLists ] = useState( false );
 	const [ authUrl, setAuthUrl ] = useState( false );
@@ -285,6 +298,11 @@ const Newsletters = () => {
 		if ( ! provider ) {
 			return;
 		}
+		// Constant Contact is the only provider using an OAuth strategy.
+		if ( 'constant_contact' !== provider ) {
+			return;
+		}
+		setInFlight( true );
 		apiFetch( { path: `/newspack-newsletters/v1/${ provider }/verify_token` } )
 			.then( response => {
 				if ( ! response.valid && response.auth_url ) {
@@ -295,13 +313,17 @@ const Newsletters = () => {
 			} )
 			.catch( () => {
 				setAuthUrl( false );
+			} )
+			.finally( () => {
+				setInFlight( false );
 			} );
 	};
 	useEffect( () => {
 		verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
 	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
 
-	const saveNewslettersData = async () =>
+	const saveNewslettersData = async () => {
+		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 			method: 'POST',
@@ -310,18 +332,21 @@ const Newsletters = () => {
 			setInitialProvider( newslettersConfig?.newspack_newsletters_service_provider );
 			verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
 			setLockedLists( false );
+			setInFlight( false );
 		} );
+	};
 
 	return (
 		<>
 			<Card headerActions noBorder>
 				<h2>{ __( 'Authoring', 'newspack' ) }</h2>
-				<Button variant="primary" onClick={ saveNewslettersData }>
+				<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
 					{ __( 'Save Settings', 'newspack' ) }
 				</Button>
 			</Card>
 			<NewspackNewsletters
 				isOnboarding={ false }
+				disabled={ inFlight }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 				authUrl={ authUrl }
 			/>
