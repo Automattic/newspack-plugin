@@ -28,15 +28,9 @@ class StepsList extends Component {
 
 		return (
 			<div className={ classes } style={ style }>
-				{ stepsListItems.map( ( listItem, index ) => {
-					return (
-						<StepsListItem
-							key={ listItem.id }
-							listItemCount={ index + 1 }
-							listItemText={ listItem }
-						/>
-					);
-				} ) }
+				{ stepsListItems.map( ( listItem, index ) => (
+					<StepsListItem key={ index } listItemCount={ index + 1 } listItemText={ listItem } />
+				) ) }
 			</div>
 		);
 	}
