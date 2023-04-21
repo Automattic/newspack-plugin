@@ -259,6 +259,13 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Activate RAS features and publish RAS prompts + segments.
+	 */
+	public static function activate() {
+		return true;
+	}
+
+	/**
 	 * Check if the required Woo plugins are active.
 	 *
 	 * @return boolean True if all required plugins are active, otherwise false.
@@ -309,7 +316,7 @@ final class Reader_Activation {
 	 * TODO: Make this dynamic once the third UI screen to generate the prompts is built.
 	 */
 	public static function is_ras_campaign_configured() {
-		return false;
+		return self::is_enabled();
 	}
 
 	/**
@@ -406,20 +413,11 @@ final class Reader_Activation {
 	/**
 	 * Whether reader activation is enabled.
 	 *
-	 * @param bool $strict If true, check both the environment constant and the setting.
-	 *                     If false, only check for the constant.
-	 *
 	 * @return bool True if reader activation is enabled.
 	 */
-	public static function is_enabled( $strict = true ) {
+	public static function is_enabled() {
 		if ( defined( 'IS_TEST_ENV' ) && IS_TEST_ENV ) {
 			return true;
-		}
-
-		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
-
-		if ( ! $strict ) {
-			return $is_enabled;
 		}
 
 		if ( $is_enabled ) {

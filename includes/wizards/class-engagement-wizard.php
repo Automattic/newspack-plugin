@@ -101,6 +101,15 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/activate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_activate_reader_activation' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -234,6 +243,21 @@ class Engagement_Wizard extends Wizard {
 				'memberships'          => self::get_memberships_settings(),
 			]
 		);
+	}
+
+	/**
+	 * Activate reader activation and publish RAS prompts/segments.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_activate_reader_activation() {
+		$response = Reader_Activation::activate();
+
+		if ( \is_wp_error( $response ) ) {
+			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
