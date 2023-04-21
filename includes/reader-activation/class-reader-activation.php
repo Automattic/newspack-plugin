@@ -295,7 +295,23 @@ final class Reader_Activation {
 	public static function is_esp_configured() {
 		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 
-		return $newsletters_configuration_manager->is_esp_set_up();
+		if ( ! $newsletters_configuration_manager->is_esp_set_up() ) {
+			return false;
+		}
+
+		$lists = $newsletters_configuration_manager->get_enabled_lists();
+		if ( empty( $lists ) || ! is_array( $lists ) ) {
+			return false;
+		}
+
+		// Can be considered fully configured if the ESP is setup and there's at least one active list.
+		foreach ( $lists as $list ) {
+			if ( $list['active'] ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
