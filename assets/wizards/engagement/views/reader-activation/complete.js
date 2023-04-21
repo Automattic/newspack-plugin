@@ -16,8 +16,14 @@ import {
 	Card,
 	Notice,
 	ProgressBar,
+	Router,
 	StepsList,
 } from '../../../../components/src';
+
+/**
+ * External dependencies
+ */
+const { useHistory } = Router;
 
 const listItems = [
 	__(
@@ -59,6 +65,7 @@ export default withWizardScreen( () => {
 	const [ progressLabel, setProgressLabel ] = useState( false );
 	const [ completed, setCompleted ] = useState( false );
 	const timer = useRef();
+	const history = useHistory();
 
 	useEffect( () => {
 		if ( timer.current ) {
@@ -76,7 +83,10 @@ export default withWizardScreen( () => {
 		if ( progress === activationSteps.length && completed ) {
 			setProgress( activationSteps.length + 1 ); // Plus one to account for the "Done!" step.
 			setProgressLabel( __( 'Done!', 'newspack' ) );
-			setTimeout( () => setInFlight( false ), 3000 );
+			setTimeout( () => {
+				setInFlight( false );
+				history.push( '/reader-activation' );
+			}, 3000 );
 		}
 	}, [ completed, progress ] );
 

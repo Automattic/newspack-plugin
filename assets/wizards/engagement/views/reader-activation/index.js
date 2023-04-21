@@ -151,6 +151,9 @@ export default withWizardScreen( () => {
 					isWarning
 				/>
 			) }
+			{ prerequisites && allReady && config.enabled && (
+				<Notice noticeText={ __( 'Reader Activation is enabled.', 'newspack' ) } isSuccess />
+			) }
 			{ ! prerequisites && (
 				<>
 					<Waiting isLeft />

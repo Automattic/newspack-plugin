@@ -257,6 +257,10 @@ class Engagement_Wizard extends Wizard {
 			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
 		}
 
+		if ( true === $response ) {
+			Reader_Activation::update_setting( 'enabled', true );
+		}
+
 		return rest_ensure_response( $response );
 	}
 
@@ -391,7 +395,7 @@ class Engagement_Wizard extends Wizard {
 		);
 
 		$data = [
-			'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
+			'has_reader_activation' => Reader_Activation::is_enabled( false ),
 			'has_memberships'       => class_exists( 'WC_Memberships' ),
 		];
 
