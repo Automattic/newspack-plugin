@@ -3,8 +3,7 @@
  * WordPress dependencies
  */
 import { sprintf, __ } from '@wordpress/i18n';
-import { withSelect, withDispatch } from '@wordpress/data';
-import { compose } from '@wordpress/compose';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
 import { Button, TextControl, CheckboxControl, SelectControl } from '@wordpress/components';
 import { PluginDocumentSettingPanel, PluginPostStatusInfo } from '@wordpress/edit-post';
@@ -34,7 +33,14 @@ const overlaySizes = [
 	{ value: 'full-width', label: __( 'Full Width', 'newspack' ) },
 ];
 
-const GateEdit = ( { editPost, meta } ) => {
+function GateEdit() {
+	const { meta } = useSelect( select => {
+		const { getEditedPostAttribute } = select( 'core/editor' );
+		return {
+			meta: getEditedPostAttribute( 'meta' ),
+		};
+	} );
+	const { editPost } = useDispatch( 'core/editor' );
 	useEffect( () => {
 		const wrapper = document.querySelector( '.editor-styles-wrapper' );
 		if ( ! wrapper ) {
@@ -134,23 +140,70 @@ const GateEdit = ( { editPost, meta } ) => {
 					) }
 				/>
 			</PluginDocumentSettingPanel>
+			<PluginDocumentSettingPanel
+				name="memberships-gate-metering-panel"
+				title={ __( 'Metering', 'newspack' ) }
+			>
+				<CheckboxControl
+					label={ __( 'Enable metering', 'newspack' ) }
+					checked={ meta.metered }
+					onChange={ value => editPost( { meta: { metered: value } } ) }
+					help={ __(
+						'Limit the number of times a reader can view the gated content.',
+						'newspack'
+					) }
+				/>
+				{ meta.metered && (
+					<Fragment>
+						<CheckboxControl
+							label={ __( 'Limit to registered users', 'newspack' ) }
+							checked={ meta.metered_registered_only }
+							onChange={ value => editPost( { meta: { metered_registered_only: value } } ) }
+							help={ __( 'Limit the number of views to registered users only.', 'newspack' ) }
+						/>
+
+						<TextControl
+							type="number"
+							value={ meta.metered_count }
+							label={ __( 'Number of views', 'newspack' ) }
+							onChange={ value => editPost( { meta: { metered_count: value } } ) }
+							help={ __( 'Number of times a reader can view the gated content.', 'newspack' ) }
+						/>
+						{ ! meta.metered_registered_only && (
+							<TextControl
+								type="number"
+								value={ meta.metered_registered_count }
+								label={ __( 'Additional views for registered users', 'newspack' ) }
+								onChange={ value => editPost( { meta: { metered_registered_count: value } } ) }
+								help={ __(
+									'Number of additional times a registered reader can view the gated content.',
+									'newspack'
+								) }
+							/>
+						) }
+						<SelectControl
+							label={ __( 'Time period', 'newspack' ) }
+							value={ meta.metered_period }
+							options={ [
+								{ value: 'day', label: __( 'Day', 'newspack' ) },
+								{ value: 'week', label: __( 'Week', 'newspack' ) },
+								{ value: 'month', label: __( 'Month', 'newspack' ) },
+								{ value: 'year', label: __( 'Year', 'newspack' ) },
+							] }
+							onChange={ value => editPost( { meta: { metered_period: value } } ) }
+							help={ __(
+								'The time period during which the metered views will be counted.',
+								'newspack'
+							) }
+						/>
+					</Fragment>
+				) }
+			</PluginDocumentSettingPanel>
 		</Fragment>
 	);
-};
-
-const GateEditWithSelect = compose( [
-	withSelect( select => {
-		const { getEditedPostAttribute } = select( 'core/editor' );
-		const meta = getEditedPostAttribute( 'meta' );
-		return { meta };
-	} ),
-	withDispatch( dispatch => {
-		const { editPost } = dispatch( 'core/editor' );
-		return { editPost };
-	} ),
-] )( GateEdit );
+}
 
 registerPlugin( 'newspack-memberships-gate', {
-	render: GateEditWithSelect,
+	render: GateEdit,
 	icon: null,
 } );

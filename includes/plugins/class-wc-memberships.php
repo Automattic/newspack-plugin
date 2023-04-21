@@ -16,6 +16,8 @@ class WC_Memberships {
 
 	const GATE_CPT = 'np_memberships_gate';
 
+	const METERED_META_KEY = 'np_memberships_metered';
+
 	/**
 	 * Whether the gate has been rendered in this execution.
 	 *
@@ -78,72 +80,65 @@ class WC_Memberships {
 		if ( ! class_exists( 'WC_Memberships' ) ) {
 			return false;
 		}
-		\register_meta(
-			'post',
-			'style',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'default'        => 'inline',
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'inline_fade',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'boolean',
-				'default'        => true,
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'use_more_tag',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'boolean',
-				'default'        => true,
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'visible_paragraphs',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'integer',
-				'default'        => 2,
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'overlay_position',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'default'        => 'center',
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'overlay_size',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'default'        => 'medium',
-				'single'         => true,
-			]
-		);
+		$meta = [
+			'style'                    => [
+				'type'    => 'string',
+				'default' => 'inline',
+			],
+			'inline_fade'              => [
+				'type'    => 'boolean',
+				'default' => true,
+			],
+			'use_more_tag'             => [
+				'type'    => 'boolean',
+				'default' => true,
+			],
+			'visible_paragraphs'       => [
+				'type'    => 'integer',
+				'default' => 2,
+			],
+			'overlay_position'         => [
+				'type'    => 'string',
+				'default' => 'center',
+			],
+			'overlay_size'             => [
+				'type'    => 'string',
+				'default' => 'medium',
+			],
+			'metered'                  => [
+				'type'    => 'boolean',
+				'default' => false,
+			],
+			'metered_registered_only'  => [
+				'type'    => 'boolean',
+				'default' => false,
+			],
+			'metered_count'            => [
+				'type'    => 'integer',
+				'default' => 3,
+			],
+			'metered_registered_count' => [
+				'type'    => 'integer',
+				'default' => 0,
+			],
+			'metered_period'           => [
+				'type'    => 'string',
+				'default' => 'day',
+			],
+		];
+		foreach ( $meta as $key => $config ) {
+			\register_meta(
+				'post',
+				$key,
+				[
+					'object_subtype' => self::GATE_CPT,
+					'show_in_rest'   => true,
+					'type'           => $config['type'],
+					'default'        => $config['default'],
+					'single'         => true,
+				]
+			);
+		}
 	}
 
 	/**
@@ -169,24 +164,47 @@ class WC_Memberships {
 		}
 		$gate_post_id = self::get_gate_post_id();
 		$style        = \get_post_meta( $gate_post_id, 'style', true );
-		if ( 'overlay' !== $style ) {
-			return;
+		if ( 'overlay' === $style ) {
+			$overlay_handle = 'newspack-memberships-gate-overlay';
+			\wp_enqueue_script(
+				$overlay_handle,
+				Newspack::plugin_url() . '/dist/memberships-gate-overlay.js',
+				[],
+				filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.js' ),
+				true
+			);
+			\wp_script_add_data( $overlay_handle, 'async', true );
+			\wp_enqueue_style(
+				$overlay_handle,
+				Newspack::plugin_url() . '/dist/memberships-gate-overlay.css',
+				[],
+				filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.css' )
+			);
 		}
-		$handle = 'newspack-memberships-gate-overlay';
-		\wp_enqueue_script(
-			$handle,
-			Newspack::plugin_url() . '/dist/memberships-gate-overlay.js',
-			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.js' ),
-			true
-		);
-		\wp_script_add_data( $handle, 'async', true );
-		\wp_enqueue_style(
-			$handle,
-			Newspack::plugin_url() . '/dist/memberships-gate-overlay.css',
-			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.css' )
-		);
+		// Enqueue anonymous metered strategy.
+		$metered = \get_post_meta( $gate_post_id, 'metered', true );
+		if ( $metered && ! is_user_logged_in() ) {
+			$metered_handle = 'newspack-memberships-gate-metered';
+			\wp_enqueue_script(
+				$metered_handle,
+				Newspack::plugin_url() . '/dist/memberships-gate-metered.js',
+				[],
+				filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-metered.js' ),
+				true
+			);
+			\wp_localize_script(
+				$metered_handle,
+				'newspack_metered_settings',
+				[
+					'visible_paragraphs' => \get_post_meta( $gate_post_id, 'visible_paragraphs', true ),
+					'use_more_tag'       => \get_post_meta( $gate_post_id, 'use_more_tag', true ),
+					'count'              => \get_post_meta( $gate_post_id, 'metered_count', true ),
+					'registered_count'   => \get_post_meta( $gate_post_id, 'metered_registered_count', true ),
+					'period'             => \get_post_meta( $gate_post_id, 'metered_period', true ),
+					'post_id'            => get_the_ID(),
+				]
+			);
+		}
 	}
 
 	/**
@@ -340,6 +358,10 @@ class WC_Memberships {
 		if ( get_queried_object_id() !== get_the_ID() ) {
 			return '';
 		}
+		// Bail if metered allowed for logged in user.
+		if ( is_user_logged_in() && self::is_metered_allowed() ) {
+			return '';
+		}
 		$gate_post_id = self::get_gate_post_id();
 		$style        = \get_post_meta( $gate_post_id, 'style', true );
 		if ( 'inline' === $style ) {
@@ -347,8 +369,94 @@ class WC_Memberships {
 		} else {
 			$notice = '';
 		}
+		// Wrap notice in a div for styling.
+		if ( ! empty( $notice ) ) {
+			$notice = '<div class="newspack-memberships__gate">' . $notice . '</div>';
+		}
 		self::$gate_rendered = true;
 		return $notice;
+	}
+
+	/**
+	 * Get the metering expiration time for the current date.
+	 *
+	 * @return int Timestamp of the expiration time.
+	 */
+	private static function get_expiration_time() {
+		$period = \get_post_meta( self::get_gate_post_id(), 'metered_period', true );
+		$date   = new \DateTime();
+		// Reset time to 00:00:00:000.
+		$date->setTime( 0, 0, 0, 0 );
+		switch ( $period ) {
+			case 'day':
+				$date->modify( '+1 day' );
+				break;
+			case 'week':
+				$day         = $date->format( 'w' );
+				$days_to_sat = 6 - $day;
+				$date->modify( '+' . $days_to_sat . ' day' );
+				break;
+			case 'month':
+				$date->setDate( $date->format( 'Y' ), $date->format( 'm' ), 1 );
+				break;
+			case 'year':
+				$date->setDate( intval( $date->format( 'Y' ) ) + 1, 1, 1 );
+				break;
+		}
+		return intval( $date->format( 'U' ), 10 );
+	}
+
+	/**
+	 * Whether to allow content rendering through metering.
+	 *
+	 * @param int $post_id Optional post ID. Default is the current post.
+	 *
+	 * @return bool
+	 */
+	private static function is_metered_allowed( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = get_the_ID();
+		}
+		$gate_post_id            = self::get_gate_post_id();
+		$metered                 = \get_post_meta( $gate_post_id, 'metered', true );
+		$metered_registered_only = \get_post_meta( $gate_post_id, 'metered_registered_only', true );
+
+		// Bail if metering is not enabled.
+		if ( ! $metered ) {
+			return false;
+		}
+
+		// If metered anonymously, allow and let frontend metering handle it.
+		if ( ! $metered_registered_only && ! is_user_logged_in() ) {
+			return true;
+		}
+
+		// If logged-in, apply metering through a backend strategy.
+		if ( is_user_logged_in() ) {
+			$current_expiration = self::get_expiration_time();
+			$user_metered_data  = \get_user_meta( get_current_user_id(), self::METERED_META_KEY, true );
+			if ( ! is_array( $user_metered_data ) ) {
+				$user_metered_data = [];
+			}
+			// If the expiration is not set or is in the past, reset the metered data.
+			if ( ! isset( $user_metered_data['expiration'] ) || $user_metered_data['expiration'] < $current_expiration ) {
+				$user_metered_data['expiration'] = $current_expiration;
+				$user_metered_data['content']    = [];
+			}
+			$count = (int) \get_post_meta( $gate_post_id, 'metered_count', true );
+			if ( ! $metered_registered_only ) {
+				$registered_count = (int) \get_post_meta( $gate_post_id, 'metered_registered_count', true );
+				$count            = $count + $registered_count;
+			}
+			$limited          = count( $user_metered_data['content'] ) >= $count;
+			$accessed_content = in_array( $post_id, $user_metered_data['content'], true );
+			if ( ! $limited && ! $accessed_content ) {
+				$user_metered_data['content'][] = $post_id;
+			}
+			\update_user_meta( get_current_user_id(), self::METERED_META_KEY, $user_metered_data );
+			// If the content is not accessed and the meter is limited, don't render the content.
+			return $accessed_content || ! $limited;
+		}
 	}
 
 	/**
@@ -374,6 +482,11 @@ class WC_Memberships {
 		$content = $post->post_content;
 
 		$style = \get_post_meta( $gate_post_id, 'style', true );
+
+		// If allowed through metering, render the full content.
+		if ( self::is_metered_allowed() ) {
+			return apply_filters( 'the_content', $content );
+		}
 
 		$use_more_tag = get_post_meta( $gate_post_id, 'use_more_tag', true );
 		// Use <!--more--> as threshold if it exists.
@@ -414,6 +527,10 @@ class WC_Memberships {
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
 		}
+		// Bail if metered allowed for logged in user.
+		if ( is_user_logged_in() && self::is_metered_allowed() ) {
+			return;
+		}
 		$gate_post_id = self::get_gate_post_id();
 		$style        = \get_post_meta( $gate_post_id, 'style', true );
 		if ( 'overlay' !== $style ) {
@@ -426,7 +543,7 @@ class WC_Memberships {
 		$position = \get_post_meta( $gate_post_id, 'overlay_position', true );
 		$size     = \get_post_meta( $gate_post_id, 'overlay_size', true );
 		?>
-		<div class="newspack-memberships__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
+		<div class="newspack-memberships__gate newspack-memberships__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
 			<div class="newspack-memberships__overlay-gate__container">
 				<div class="newspack-memberships__overlay-gate__content">
 					<?php echo \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -454,10 +571,12 @@ class WC_Memberships {
 		<script type="text/javascript">
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
-				ras.on( 'reader', function() {
-					setTimeout( function() {
-						window.location.reload();
-					}, 2000 );
+				ras.on( 'reader', function( ev ) {
+					if ( ev.detail.authenticated ) {
+						setTimeout( function() {
+							window.location.reload();
+						}, 2000 );
+					}
 				} );
 			} );
 		</script>
