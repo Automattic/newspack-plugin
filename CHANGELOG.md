@@ -1,3 +1,17 @@
+# [1.113.0](https://github.com/Automattic/newspack-plugin/compare/v1.112.1...v1.113.0) (2023-04-24)
+
+
+### Features
+
+* **reader-registration:** add recaptcha panel in the editor ([#2397](https://github.com/Automattic/newspack-plugin/issues/2397)) ([336ee94](https://github.com/Automattic/newspack-plugin/commit/336ee942f31cba9613f2c3065c7475165ee5fa9d))
+
+# [1.113.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.112.1...v1.113.0-alpha.1) (2023-04-13)
+
+
+### Features
+
+* **reader-registration:** add recaptcha panel in the editor ([#2397](https://github.com/Automattic/newspack-plugin/issues/2397)) ([336ee94](https://github.com/Automattic/newspack-plugin/commit/336ee942f31cba9613f2c3065c7475165ee5fa9d))
+
 ## [1.112.1](https://github.com/Automattic/newspack-plugin/compare/v1.112.0...v1.112.1) (2023-04-12)
 
 

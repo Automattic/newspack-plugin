@@ -48,6 +48,8 @@ class WC_Memberships {
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
+
+		include __DIR__ . '/class-block-patterns.php';
 	}
 
 	/**
