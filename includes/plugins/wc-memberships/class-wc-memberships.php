@@ -466,10 +466,14 @@ class WC_Memberships {
 			$user_metered_data = [];
 		}
 
-		// If the expiration is not set or is in the past, reset the metered data.
-		if ( ! isset( $user_metered_data['expiration'] ) || $user_metered_data['expiration'] !== $current_expiration ) {
+		$expiration = isset( $user_metered_data['expiration'] ) ? $user_metered_data['expiration'] : 0;
+		if ( $expiration !== $current_expiration ) {
+			// Clear content if expired.
+			if ( $expiration < $current_expiration ) {
+				$user_metered_data['content'] = [];
+			}
+			// Reset expiration.
 			$user_metered_data['expiration'] = $current_expiration;
-			$user_metered_data['content']    = [];
 		}
 
 		$count                   = (int) \get_post_meta( $gate_post_id, 'metered_count', true );

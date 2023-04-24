@@ -6,7 +6,7 @@ const settings = newspack_metered_settings;
 const storage = window.localStorage;
 let locked = false;
 
-function getCurrentExpirationPeriodTime() {
+function getCurrentExpiration() {
 	const date = new Date();
 	// Reset time to 00:00:00:000.
 	date.setHours( 0 );
@@ -65,15 +65,21 @@ function lockContent() {
 	}
 }
 
+const currentExpiration = getCurrentExpiration();
+
 const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
 	content: [],
-	expiration: getCurrentExpirationPeriodTime(),
+	expiration: currentExpiration,
 };
 
-// Clear content on expiration period reset.
-if ( parseInt( data.expiration, 10 ) !== getCurrentExpirationPeriodTime() ) {
-	data.expiration = getCurrentExpirationPeriodTime();
-	data.content = [];
+const expiration = parseInt( data.expiration, 10 ) || 0;
+if ( expiration !== currentExpiration ) {
+	// Clear content if expired.
+	if ( expiration < currentExpiration ) {
+		data.content = [];
+	}
+	// Reset expiration.
+	data.expiration = currentExpiration;
 	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
 }
 
