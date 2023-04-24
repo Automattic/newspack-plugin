@@ -90,7 +90,7 @@ export default withWizardScreen( () => {
 			onChange: val => updateConfig( configKey, val ),
 		};
 		if ( configKey !== 'enabled' ) {
-			props.disabled = inFlight || ! config.enabled;
+			props.disabled = inFlight;
 		}
 		switch ( type ) {
 			case 'checkbox':
@@ -171,14 +171,18 @@ export default withWizardScreen( () => {
 						saveConfig={ saveConfig }
 					/>
 				) ) }
-			<hr />
-			<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
-				{ sprintf(
-					// Translators: Show or Hide advanced settings.
-					__( '%s Advanced Settings', 'newspack' ),
-					showAdvanced ? __( 'Hide', 'newspack' ) : __( 'Show', 'newspack' )
-				) }
-			</Button>
+			{ config.enabled && (
+				<>
+					<hr />
+					<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
+						{ sprintf(
+							// Translators: Show or Hide advanced settings.
+							__( '%s Advanced Settings', 'newspack' ),
+							showAdvanced ? __( 'Hide', 'newspack' ) : __( 'Show', 'newspack' )
+						) }
+					</Button>
+				</>
+			) }
 			{ showAdvanced && (
 				<Card noBorder>
 					{ newspack_engagement_wizard.has_memberships && membershipsConfig ? (
