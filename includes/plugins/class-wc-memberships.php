@@ -26,6 +26,13 @@ class WC_Memberships {
 	private static $gate_rendered = false;
 
 	/**
+	 * Cached map of whether this execution is metered allowed by post IDs.
+	 *
+	 * @var boolean[] Map of post IDs to booleans.
+	 */
+	private static $is_metered_allowed = [];
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -181,9 +188,7 @@ class WC_Memberships {
 				filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.css' )
 			);
 		}
-		// Enqueue anonymous metered strategy.
-		$metered = \get_post_meta( $gate_post_id, 'metered', true );
-		if ( $metered && ! is_user_logged_in() ) {
+		if ( self::is_frontend_metered() ) {
 			$metered_handle = 'newspack-memberships-gate-metered';
 			\wp_enqueue_script(
 				$metered_handle,
@@ -358,8 +363,8 @@ class WC_Memberships {
 		if ( get_queried_object_id() !== get_the_ID() ) {
 			return '';
 		}
-		// Bail if metered allowed for logged in user.
-		if ( is_user_logged_in() && self::is_metered_allowed() ) {
+		// Bail if rendering allowed and not frontend metered.
+		if ( ! self::is_frontend_metered() && self::is_metered_allowed() ) {
 			return '';
 		}
 		$gate_post_id = self::get_gate_post_id();
@@ -378,13 +383,19 @@ class WC_Memberships {
 	}
 
 	/**
-	 * Get the metering expiration time for the current date.
+	 * Get the metering expiration time for the given date.
+	 *
+	 * @param string|\DateTime $datetime Date to calculate the expiration time for. Defaults to 'now'.
 	 *
 	 * @return int Timestamp of the expiration time.
 	 */
-	private static function get_expiration_time() {
+	private static function get_expiration_time( $datetime = 'now' ) {
 		$period = \get_post_meta( self::get_gate_post_id(), 'metered_period', true );
-		$date   = new \DateTime();
+		if ( is_string( $datetime ) ) {
+			$date = new \DateTime( $datetime );
+		} else {
+			$date = $datetime;
+		}
 		// Reset time to 00:00:00:000.
 		$date->setTime( 0, 0, 0, 0 );
 		switch ( $period ) {
@@ -407,6 +418,18 @@ class WC_Memberships {
 	}
 
 	/**
+	 * Whether to use the frontend metering strategy.
+	 *
+	 * @return bool
+	 */
+	private static function is_frontend_metered() {
+		$gate_post_id            = self::get_gate_post_id();
+		$metered                 = \get_post_meta( $gate_post_id, 'metered', true );
+		$metered_registered_only = \get_post_meta( $gate_post_id, 'metered_registered_only', true );
+		return $metered && ! $metered_registered_only && ! is_user_logged_in();
+	}
+
+	/**
 	 * Whether to allow content rendering through metering.
 	 *
 	 * @param int $post_id Optional post ID. Default is the current post.
@@ -417,46 +440,56 @@ class WC_Memberships {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		$gate_post_id            = self::get_gate_post_id();
-		$metered                 = \get_post_meta( $gate_post_id, 'metered', true );
-		$metered_registered_only = \get_post_meta( $gate_post_id, 'metered_registered_only', true );
+		$gate_post_id = self::get_gate_post_id();
+		$metered      = \get_post_meta( $gate_post_id, 'metered', true );
 
 		// Bail if metering is not enabled.
 		if ( ! $metered ) {
 			return false;
 		}
 
-		// If metered anonymously, allow and let frontend metering handle it.
-		if ( ! $metered_registered_only && ! is_user_logged_in() ) {
-			return true;
+		// Metering back-end strategy is only for logged-in users.
+		if ( ! is_user_logged_in() ) {
+			return false;
 		}
 
-		// If logged-in, apply metering through a backend strategy.
-		if ( is_user_logged_in() ) {
-			$current_expiration = self::get_expiration_time();
-			$user_metered_data  = \get_user_meta( get_current_user_id(), self::METERED_META_KEY, true );
-			if ( ! is_array( $user_metered_data ) ) {
-				$user_metered_data = [];
-			}
-			// If the expiration is not set or is in the past, reset the metered data.
-			if ( ! isset( $user_metered_data['expiration'] ) || $user_metered_data['expiration'] < $current_expiration ) {
-				$user_metered_data['expiration'] = $current_expiration;
-				$user_metered_data['content']    = [];
-			}
-			$count = (int) \get_post_meta( $gate_post_id, 'metered_count', true );
-			if ( ! $metered_registered_only ) {
-				$registered_count = (int) \get_post_meta( $gate_post_id, 'metered_registered_count', true );
-				$count            = $count + $registered_count;
-			}
-			$limited          = count( $user_metered_data['content'] ) >= $count;
-			$accessed_content = in_array( $post_id, $user_metered_data['content'], true );
-			if ( ! $limited && ! $accessed_content ) {
-				$user_metered_data['content'][] = $post_id;
-			}
-			\update_user_meta( get_current_user_id(), self::METERED_META_KEY, $user_metered_data );
-			// If the content is not accessed and the meter is limited, don't render the content.
-			return $accessed_content || ! $limited;
+		// Return cached value if available.
+		if ( isset( self::$is_metered_allowed[ $post_id ] ) ) {
+			return self::$is_metered_allowed[ $post_id ];
 		}
+
+		$current_expiration = self::get_expiration_time();
+		$user_metered_data  = \get_user_meta( get_current_user_id(), self::METERED_META_KEY, true );
+		if ( ! is_array( $user_metered_data ) ) {
+			$user_metered_data = [];
+		}
+
+		// If the expiration is not set or is in the past, reset the metered data.
+		if ( ! isset( $user_metered_data['expiration'] ) || $user_metered_data['expiration'] !== $current_expiration ) {
+			$user_metered_data['expiration'] = $current_expiration;
+			$user_metered_data['content']    = [];
+		}
+
+		$count                   = (int) \get_post_meta( $gate_post_id, 'metered_count', true );
+		$metered_registered_only = \get_post_meta( $gate_post_id, 'metered_registered_only', true );
+		if ( ! $metered_registered_only ) {
+			$registered_count = (int) \get_post_meta( $gate_post_id, 'metered_registered_count', true );
+			$count            = $count + $registered_count;
+		}
+
+		$limited          = count( $user_metered_data['content'] ) >= $count;
+		$accessed_content = in_array( $post_id, $user_metered_data['content'], true );
+		if ( ! $limited && ! $accessed_content ) {
+			$user_metered_data['content'][] = $post_id;
+		}
+
+		\update_user_meta( get_current_user_id(), self::METERED_META_KEY, $user_metered_data );
+
+		// Allowed if the content has been accessed accessed or the metering limit has not been reached.
+		$allowed = $accessed_content || ! $limited;
+
+		self::$is_metered_allowed[ $post_id ] = $allowed;
+		return $allowed;
 	}
 
 	/**
@@ -483,8 +516,8 @@ class WC_Memberships {
 
 		$style = \get_post_meta( $gate_post_id, 'style', true );
 
-		// If allowed through metering, render the full content.
-		if ( self::is_metered_allowed() ) {
+		// If frontend metering or allowed through backend metering, render the full content.
+		if ( self::is_frontend_metered() || self::is_metered_allowed() ) {
 			return apply_filters( 'the_content', $content );
 		}
 
@@ -527,8 +560,8 @@ class WC_Memberships {
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
 		}
-		// Bail if metered allowed for logged in user.
-		if ( is_user_logged_in() && self::is_metered_allowed() ) {
+		// Bail if rendering allowed and not frontend metered.
+		if ( ! self::is_frontend_metered() && self::is_metered_allowed() ) {
 			return;
 		}
 		$gate_post_id = self::get_gate_post_id();

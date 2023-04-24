@@ -71,7 +71,7 @@ const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
 };
 
 // Clear content on expiration period reset.
-if ( parseInt( data.expiration, 10 ) < getCurrentExpirationPeriodTime() ) {
+if ( parseInt( data.expiration, 10 ) !== getCurrentExpirationPeriodTime() ) {
 	data.expiration = getCurrentExpirationPeriodTime();
 	data.content = [];
 	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
