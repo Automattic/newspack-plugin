@@ -478,7 +478,7 @@ final class Reader_Activation {
 		}
 
 		// If RAS is not enabled yet, allow to render when previewing a campaign prompt.
-		return self::is_enabled() || method_exists( '\Newspack_Popups', 'is_preview_request' ) && \Newspack_Popups::is_preview_request();
+		return self::is_enabled() || ( method_exists( '\Newspack_Popups', 'is_preview_request' ) && \Newspack_Popups::is_preview_request() );
 	}
 
 	/**
