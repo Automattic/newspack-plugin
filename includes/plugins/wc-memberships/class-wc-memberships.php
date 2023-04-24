@@ -432,7 +432,7 @@ class WC_Memberships {
 	}
 
 	/**
-	 * Whether to allow content rendering through metering.
+	 * Whether to allow content rendering through metering for logged in users.
 	 *
 	 * @param int $post_id Optional post ID. Default is the current post.
 	 *
@@ -491,7 +491,7 @@ class WC_Memberships {
 
 		\update_user_meta( get_current_user_id(), self::METERED_META_KEY, $user_metered_data );
 
-		// Allowed if the content has been accessed accessed or the metering limit has not been reached.
+		// Allowed if the content has been accessed or the metering limit has not been reached.
 		$allowed = $accessed_content || ! $limited;
 
 		self::$is_metered_allowed[ $post_id ] = $allowed;
