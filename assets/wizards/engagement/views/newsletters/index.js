@@ -298,7 +298,10 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 					error
 						? error?.message || __( 'Something went wrong.', 'newspack' )
 						: lockedLists
-						? __( 'Please save your settings before changing your subscription lists.', 'newspack' )
+						? __(
+								'Please save your ESP settings before changing your subscription lists.',
+								'newspack'
+						  )
 						: null
 				}
 				notificationLevel={ error ? 'error' : 'warning' }
