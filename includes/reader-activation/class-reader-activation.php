@@ -315,6 +315,20 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Are all Reader Revenue features configured and ready to use?
+	 * Platform must be "Newspack" and all donation settings must be configured.
+	 */
+	public static function is_reader_revenue_ready() {
+		$donation_settings = Donations::get_donation_settings();
+
+		if ( \is_wp_error( $donation_settings ) ) {
+			return false;
+		}
+
+		return Donations::is_platform_wc();
+	}
+
+	/**
 	 * Are the Terms & Conditions settings configured?
 	 */
 	public static function is_terms_configured() {
@@ -413,9 +427,9 @@ final class Reader_Activation {
 				'action_text' => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
-				'active'      => self::is_woocommerce_active(),
+				'active'      => self::is_reader_revenue_ready(),
 				'label'       => __( 'Reader Revenue', 'newspack' ),
-				'description' => __( 'Selecting WooCommerce as reader revenue platform and setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
+				'description' => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
 				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
 				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
 				'action_text' => __( 'Reader Revenue settings' ),
