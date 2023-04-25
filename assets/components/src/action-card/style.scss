@@ -396,6 +396,13 @@
 	// Expandable card children
 
 	&.is-expandable {
+		.newspack-action-card__title .components-button.is-link {
+			color: inherit;
+			font-size: inherit;
+			font-weight: inherit;
+			text-decoration: inherit;
+		}
+
 		.newspack-action-card__region-children {
 			border-top: 1px solid wp-colors.$gray-100;
 			padding-top: 24px;
