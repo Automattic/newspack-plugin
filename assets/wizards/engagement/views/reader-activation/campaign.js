@@ -83,7 +83,7 @@ export default withWizardScreen( () => {
 				<Button
 					isPrimary
 					disabled={ inFlight || ! allReady }
-					onClick={ () => console.log( 'Ready to continue' ) }
+					href="/wp-admin/admin.php?page=newspack-engagement-wizard#/reader-activation/complete"
 				>
 					{ __( 'Continue', 'newspack' ) }
 				</Button>

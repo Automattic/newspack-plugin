@@ -101,6 +101,15 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/activate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_activate_reader_activation' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -237,6 +246,25 @@ class Engagement_Wizard extends Wizard {
 	}
 
 	/**
+	 * Activate reader activation and publish RAS prompts/segments.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_activate_reader_activation() {
+		$response = Reader_Activation::activate();
+
+		if ( \is_wp_error( $response ) ) {
+			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
+		}
+
+		if ( true === $response ) {
+			Reader_Activation::update_setting( 'enabled', true );
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
 	 * Get lists of configured ESP.
 	 */
 	public static function api_get_newsletters_lists() {
@@ -367,7 +395,7 @@ class Engagement_Wizard extends Wizard {
 		);
 
 		$data = [
-			'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
+			'has_reader_activation' => Reader_Activation::is_enabled( false ),
 			'has_memberships'       => class_exists( 'WC_Memberships' ),
 		];
 

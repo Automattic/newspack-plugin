@@ -59,6 +59,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 	const [ error, setError ] = useState< false | { message: string } >( false );
 	const [ success, setSuccess ] = useState< false | string >( false );
 	const [ image, setImage ] = useState< null | Attachment >( null );
+	const [ isSavingFromPreview, setIsSavingFromPreview ] = useState( false );
 
 	useEffect( () => {
 		if ( Array.isArray( prompt?.user_input_fields ) ) {
@@ -155,7 +156,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 		<ActionCard
 			isMedium
 			expandable
-			collapse={ prompt.ready }
+			collapse={ prompt.ready && ! isSavingFromPreview }
 			title={ prompt.title }
 			description={ sprintf(
 				// Translators: Status of the prompt.
@@ -287,7 +288,10 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 						<div className="newspack-buttons-card">
 							<Button
 								isPrimary
-								onClick={ () => savePrompt( prompt.slug, values ) }
+								onClick={ () => {
+									setIsSavingFromPreview( false );
+									savePrompt( prompt.slug, values );
+								} }
 								disabled={ inFlight }
 							>
 								{ inFlight
@@ -307,6 +311,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										isSecondary
 										onClick={ async () => {
 											if ( isDirty ) {
+												setIsSavingFromPreview( true );
 												await savePrompt( prompt.slug, values );
 											}
 											showPreview();

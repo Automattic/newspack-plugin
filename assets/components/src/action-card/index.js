@@ -136,7 +136,13 @@ class ActionCard extends Component {
 						<Grid columns={ 1 } gutter={ 8 } noMargin>
 							<h2>
 								<span className="newspack-action-card__title" { ...titleProps }>
-									{ titleLink ? <a href={ titleLink }>{ title }</a> : title }
+									{ titleLink && <a href={ titleLink }>{ title }</a> }
+									{ ! titleLink && expandable && (
+										<Button isLink onClick={ () => this.setState( { expanded: ! expanded } ) }>
+											{ title }
+										</Button>
+									) }
+									{ ! titleLink && ! expandable && title }
 								</span>
 								{ badges?.length &&
 									badges.map( ( badgeText, i ) => (
