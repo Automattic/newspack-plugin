@@ -38,10 +38,9 @@ export const NewspackNewsletters = ( {
 	initialProvider,
 	setInitialProvider,
 	newslettersConfig,
-	inFlight,
-	setInFlight,
 	setLockedLists,
 } ) => {
+	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
 
@@ -132,7 +131,7 @@ export const NewspackNewsletters = ( {
 	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
-		inFlight,
+		disabled: inFlight,
 		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
 		label: config.settings[ key ]?.description,
@@ -367,7 +366,6 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 
 const Newsletters = () => {
 	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
-	const [ inFlight, setInFlight ] = useState( false );
 	const [ initialProvider, setInitialProvider ] = useState( '' );
 	const [ lockedLists, setLockedLists ] = useState( false );
 	const [ authUrl, setAuthUrl ] = useState( false );
@@ -376,8 +374,6 @@ const Newsletters = () => {
 		<>
 			<NewspackNewsletters
 				isOnboarding={ false }
-				inFlight={ inFlight }
-				setInFlight={ setInFlight }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 				authUrl={ authUrl }
 				setAuthUrl={ setAuthUrl }

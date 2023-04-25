@@ -391,12 +391,13 @@ final class Reader_Activation {
 				],
 			],
 			'esp'              => [
-				'active'      => self::is_esp_configured(),
-				'label'       => __( 'Email Service Provider (ESP)', 'newspack' ),
-				'description' => __( 'Connecting your ESP with the right settings is necessary to register readers with their email addresses, send account related emails and newsletters.', 'newspack' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
-				'href'        => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
-				'action_text' => __( 'ESP settings' ),
+				'active'       => self::is_esp_configured(),
+				'label'        => __( 'Email Service Provider (ESP)', 'newspack' ),
+				'description'  => __( 'Connecting your ESP with the right settings is necessary to register readers with their email addresses, send account related emails and newsletters.', 'newspack' ),
+				'instructions' => __( 'Connect an email service provider (ESP) and enable at least one subscription list.', 'newspack' ),
+				'help_url'     => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'href'         => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
+				'action_text'  => __( 'ESP settings' ),
 			],
 			'emails'           => [
 				'active'      => self::is_transactional_email_configured(),
@@ -419,20 +420,22 @@ final class Reader_Activation {
 				],
 			],
 			'recaptcha'        => [
-				'active'      => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
-				'label'       => __( 'reCAPTCHA', 'newspack' ),
-				'description' => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam security for newsletter signup, user account, and payment forms rendered by Newspack tools.', 'newspack' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
-				'href'        => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
-				'action_text' => __( 'reCAPTCHA settings' ),
+				'active'       => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
+				'label'        => __( 'reCAPTCHA', 'newspack' ),
+				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam security for newsletter signup, user account, and payment forms rendered by Newspack tools.', 'newspack' ),
+				'instructions' => __( 'Enable reCAPTCHA and enter account credentials.', 'newspack' ),
+				'help_url'     => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
+				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
-				'active'      => self::is_reader_revenue_ready(),
-				'label'       => __( 'Reader Revenue', 'newspack' ),
-				'description' => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
-				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
-				'action_text' => __( 'Reader Revenue settings' ),
+				'active'       => self::is_reader_revenue_ready(),
+				'label'        => __( 'Reader Revenue', 'newspack' ),
+				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
+				'instructions' => __( 'Set platform to "Newspack" and configure default donation settings.', 'newspack' ),
+				'help_url'     => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'href'         => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
+				'action_text'  => __( 'Reader Revenue settings' ),
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),

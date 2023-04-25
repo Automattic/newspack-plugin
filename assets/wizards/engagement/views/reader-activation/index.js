@@ -22,6 +22,7 @@ import {
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
+import { HANDOFF_KEY } from '../../../../components/src/consts';
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
@@ -68,6 +69,9 @@ export default withWizardScreen( () => {
 	useEffect( () => {
 		window.scrollTo( 0, 0 );
 		fetchConfig();
+
+		// Clear the handoff when the component mounts.
+		window.localStorage.removeItem( HANDOFF_KEY );
 	}, [] );
 	useEffect( () => {
 		apiFetch( {
