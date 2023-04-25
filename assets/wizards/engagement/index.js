@@ -161,7 +161,6 @@ class EngagementWizard extends Component {
 											'Preview and customize the reader activation prompts',
 											'newspack'
 										) }
-										{ ...props }
 									/>
 								) }
 							/>

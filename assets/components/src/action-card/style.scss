@@ -146,6 +146,24 @@
 		}
 	}
 
+	// Nested children
+
+	&.newspack-card--has-children {
+		.newspack-action-card {
+			&:first-child {
+				margin-top: 32px;
+			}
+
+			+ .newspack-action-card {
+				margin-top: 16px !important;
+			}
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+
 	// Has grey header
 
 	&.newspack-card--has-grey-header {
@@ -154,6 +172,11 @@
 		&.newspack-card--has-children {
 			.newspack-action-card__region-top {
 				border-bottom: 1px solid wp-colors.$gray-300;
+			}
+
+			.is-small > .newspack-action-card__region-top {
+				padding-bottom: 8px;
+				padding-top: 8px;
 			}
 		}
 
@@ -165,6 +188,13 @@
 			p {
 				color: color.adjust( wp-colors.$gray-700, $lightness: -0.75% );
 			}
+		}
+	}
+
+	&.newspack-card--has-white-header {
+		.newspack-action-card__region-top {
+			background-color: transparent;
+			border: none !important;
 		}
 	}
 
@@ -348,6 +378,12 @@
 				margin-top: 0;
 			}
 		}
+
+		&.newspack-action-card__region-children {
+			.newspack-notice {
+				margin-top: 32px;
+			}
+		}
 	}
 
 	// Image
@@ -424,6 +460,15 @@
 			&.is-medium .newspack-action-card__region-children {
 				padding-left: 56px;
 			}
+		}
+	}
+
+	// Action content with multiple buttons
+	&.has-action-content .newspack-action-card__region-right {
+		flex-direction: row;
+
+		.components-button + .components-button {
+			margin-left: 8px;
 		}
 	}
 

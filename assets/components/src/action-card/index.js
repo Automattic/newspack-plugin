@@ -69,6 +69,7 @@ class ActionCard extends Component {
 			toggleChecked,
 			toggleOnChange,
 			hasGreyHeader,
+			hasWhiteHeader,
 			isPending,
 			expandable = false,
 		} = this.props;
@@ -80,12 +81,14 @@ class ActionCard extends Component {
 			'newspack-action-card',
 			simple && 'newspack-card--is-clickable',
 			hasGreyHeader && 'newspack-card--has-grey-header',
+			hasWhiteHeader && 'newspack-card--has-white-header',
 			hasChildren && 'newspack-card--has-children',
 			indent && 'newspack-card--indent',
 			isSmall && 'is-small',
 			isMedium && 'is-medium',
 			checkbox && 'has-checkbox',
 			expandable && 'is-expandable',
+			actionContent && 'has-action-content',
 			className
 		);
 		const backgroundImageStyles = url => {
