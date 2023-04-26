@@ -104,23 +104,27 @@ export default function Prerequisite( {
 											isPrimary
 											onClick={ () => {
 												// Set up a handoff to indicate that the user is coming from the RAS wizard page.
-												window.localStorage.setItem(
-													HANDOFF_KEY,
-													JSON.stringify( {
-														message: sprintf(
-															// Translators: %s is specific instructions for satisfying the prerequisite.
-															__(
-																'%1$s%2$sReturn to the Reader Activation page to complete the settings and activate%3$s.',
-																'newspack'
+												if ( prerequisite.instructions ) {
+													window.localStorage.setItem(
+														HANDOFF_KEY,
+														JSON.stringify( {
+															message: sprintf(
+																// Translators: %s is specific instructions for satisfying the prerequisite.
+																__(
+																	'%1$s%2$sReturn to the Reader Activation page to complete the settings and activate%3$s.',
+																	'newspack'
+																),
+																prerequisite.instructions + ' ',
+																window.newspack_engagement_wizard?.reader_activation_url
+																	? `<a href="${ window.newspack_engagement_wizard.reader_activation_url }">`
+																	: '',
+																window.newspack_engagement_wizard?.reader_activation_url
+																	? '</a>'
+																	: ''
 															),
-															prerequisite.instructions + ' ' || '',
-															window.newspack_engagement_wizard?.reader_activation_url
-																? `<a href="${ window.newspack_engagement_wizard.reader_activation_url }">`
-																: '',
-															window.newspack_engagement_wizard?.reader_activation_url ? '</a>' : ''
-														),
-													} )
-												);
+														} )
+													);
+												}
 
 												window.location.href = href;
 											} }
