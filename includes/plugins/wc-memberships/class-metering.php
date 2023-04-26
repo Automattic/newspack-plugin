@@ -174,13 +174,18 @@ class Metering {
 	 * @return bool
 	 */
 	public static function is_frontend_metering() {
-		if ( ! \is_singular() || ! Memberships::has_gate() || ! Memberships::is_post_restricted() ) {
+		// Frotend metering strategy should only be applied for anonymous readers.
+		if ( \is_user_logged_in() ) {
+			return false;
+		}
+		// Bail if not in a singular restricted post with available gate.
+		if ( \is_singular() || ! Memberships::has_gate() || ! Memberships::is_post_restricted() ) {
 			return false;
 		}
 		$gate_post_id    = Memberships::get_gate_post_id();
 		$metering        = \get_post_meta( $gate_post_id, 'metering', true );
 		$anonymous_count = \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
-		return $metering && ! empty( $anonymous_count ) && ! is_user_logged_in();
+		return $metering && ! empty( $anonymous_count );
 	}
 
 	/**
