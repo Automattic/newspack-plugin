@@ -328,36 +328,6 @@ class Memberships {
 	}
 
 	/**
-	 * Custom handling of content restriction when using frontend metering.
-	 */
-	public static function handle_metering_restriction() {
-		if ( ! class_exists( 'WC_Memberships' ) ) {
-			return;
-		}
-		if ( ! \is_singular() || ! self::is_post_restricted() ) {
-			return;
-		}
-
-		// Remove the default restriction handler from 'SkyVerge\WooCommerce\Memberships\Restrictions\Posts::restrict_post'.
-		if ( self::is_frontend_metering() || self::is_logged_in_metering_allowed() ) {
-			$restriction_instance = \wc_memberships()->get_restrictions_instance()->get_posts_restrictions_instance();
-			\remove_action( 'the_post', spl_object_hash( $restriction_instance ) . 'restrict_post', 0 );
-		}
-
-		// Add inline gate to the footer so it can be handled by the frontend.
-		if ( self::is_frontend_metering() ) {
-			\add_action(
-				'wp_footer',
-				function() {
-					self::$gate_rendered = true;
-					echo '<div style="display:none">' . self::get_inline_gate_content() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				},
-				1
-			);
-		}
-	}
-
-	/**
 	 * Filter WooCommerce Memberships' notice HTML.
 	 *
 	 * @param string $notice Notice HTML.
