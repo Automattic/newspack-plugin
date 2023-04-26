@@ -407,7 +407,7 @@ class Memberships {
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
 		}
-		// Bail if rendering allowed and not frontend metering.
+		// Bail if metering allows rendering the content.
 		if ( ! Metering::is_frontend_metering() && Metering::is_logged_in_metering_allowed() ) {
 			return;
 		}
