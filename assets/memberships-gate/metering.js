@@ -1,8 +1,8 @@
-/* globals newspack_metered_settings */
+/* globals newspack_metering_settings */
 
-const STORAGE_KEY = 'newspack_metered';
+const STORAGE_KEY = 'newspack_metering';
 
-const settings = newspack_metered_settings;
+const settings = newspack_metering_settings;
 const storage = window.localStorage;
 let locked = false;
 

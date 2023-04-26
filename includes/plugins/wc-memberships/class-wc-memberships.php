@@ -385,8 +385,10 @@ class WC_Memberships {
 			\add_action(
 				'wp_footer',
 				function() {
-					echo self::get_inline_gate_content(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
+					self::$gate_rendered = true;
+					echo '<div style="display:none">' . self::get_inline_gate_content() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				},
+				1
 			);
 		}
 	}
