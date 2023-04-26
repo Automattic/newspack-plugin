@@ -110,7 +110,7 @@ export default function Prerequisite( {
 														message: sprintf(
 															// Translators: %s is specific instructions for satisfying the prerequisite.
 															__(
-																'%1$s%2$sReturn to Reader Activation to complete setup%3$s.',
+																'%1$s%2$sReturn to the Reader Activation page to complete the settings and activate%3$s.',
 																'newspack'
 															),
 															prerequisite.instructions + ' ' || '',
