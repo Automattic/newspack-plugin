@@ -26,11 +26,6 @@ function getCurrentExpiration() {
 			date.setMonth( date.getMonth() + 1 );
 			date.setDate( 1 );
 			break;
-		case 'year':
-			date.setFullYear( date.getFullYear() + 1 );
-			date.setMonth( 0 );
-			date.setDate( 1 );
-			break;
 	}
 	return parseInt( date.getTime() / 1000, 10 );
 }
@@ -43,25 +38,22 @@ function lockContent() {
 	const visibleParagraphs = settings.visible_paragraphs;
 	const articleElements = document.querySelectorAll( '.entry-content > *' );
 	const moreIndex = content.innerHTML.indexOf( '<!--more-->' );
-	const gate = content.querySelector( '.newspack-memberships__gate' );
+	const gate = document.querySelector( '.newspack-memberships__gate' );
 	if ( moreIndex > -1 && settings.use_more_tag ) {
 		content.innerHTML = content.innerHTML.substring( 0, moreIndex );
-		if ( gate ) {
-			content.appendChild( gate );
-		}
 	} else {
 		let paragraphIndex = 0;
 		articleElements.forEach( element => {
 			if ( element.tagName === 'P' ) {
 				paragraphIndex++;
 			}
-			if ( element.classList.contains( 'newspack-memberships__gate' ) ) {
-				return;
-			}
 			if ( paragraphIndex > visibleParagraphs ) {
 				content.removeChild( element );
 			}
 		} );
+	}
+	if ( gate ) {
+		content.appendChild( gate );
 	}
 }
 
