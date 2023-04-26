@@ -136,8 +136,7 @@ export default withWizardScreen( () => {
 							'Newspack’s Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ',
 							'newspack'
 						) }
-						{ /** TODO: Update this URL with the real one once the docs are ready. */ }
-						<ExternalLink href={ 'https://help.newspack.com' }>
+						<ExternalLink href={ 'https://help.newspack.com/engagement/reader-activation-system' }>
 							{ __( 'Learn more', 'newspack-plugin' ) }
 						</ExternalLink>
 					</>
@@ -151,7 +150,7 @@ export default withWizardScreen( () => {
 			) }
 			{ prerequisites && ! allReady && (
 				<Notice
-					noticeText={ __( 'Complete the settings to enable Reader Activation.', 'newspack' ) }
+					noticeText={ __( 'Complete these settings to enable Reader Activation.', 'newspack' ) }
 					isWarning
 				/>
 			) }
@@ -231,11 +230,10 @@ export default withWizardScreen( () => {
 						title={ __( 'Email Service Provider (ESP) Advanced Settings', 'newspack' ) }
 						description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
 					/>
-					{ /** TODO: Deprecate this option. This field should be populated by user input in the prompt setup wizard. */ }
 					<TextControl
 						label={ __( 'Newsletter subscription text on registration', 'newspack' ) }
 						help={ __(
-							'The text to display while subscribing to newsletters on the registration modal.',
+							'The text to display while subscribing to newsletters from the sign-in modal.',
 							'newspack'
 						) }
 						{ ...getSharedProps( 'newsletters_label', 'text' ) }

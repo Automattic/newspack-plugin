@@ -257,7 +257,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										label={ field.label }
 									>
 										<ImageUpload
-											buttonLabel={ __( 'Choose image', 'newspack' ) }
+											buttonLabel={ __( 'Select file', 'newspack' ) }
 											disabled={ inFlight }
 											image={ image }
 											onChange={ ( attachment: Attachment ) => {

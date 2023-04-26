@@ -42,9 +42,8 @@ const listItems = [
 
 const activationSteps = [
 	__( 'Setting up new segments…', 'newspack' ),
-	__( 'Generating new prompts with your saved copy…', 'newspack' ),
-	__( 'Deactivating existing prompts and segments…', 'newspack' ),
-	__( 'Activating new prompts and segments…', 'newspack' ),
+	__( 'Activating reader registration…', 'newspack' ),
+	__( 'Activating Reader Activation Campaign…', 'newspack' ),
 ];
 
 /**
