@@ -230,6 +230,13 @@ class Memberships {
 	}
 
 	/**
+	 * Public method for marking the gate as rendered.
+	 */
+	public static function mark_gate_as_rendered() {
+		self::$gate_rendered = true;
+	}
+
+	/**
 	 * Whether the post is restricted for the current user.
 	 *
 	 * @param int $post_id Post ID.

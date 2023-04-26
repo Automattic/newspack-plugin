@@ -128,7 +128,7 @@ class Metering {
 			\add_action(
 				'wp_footer',
 				function() {
-					// Memberships::mark_gate_rendered();
+					Memberships::mark_gate_as_rendered();
 					echo '<div style="display:none">' . Memberships::get_inline_gate_content() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				},
 				1
