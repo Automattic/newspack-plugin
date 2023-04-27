@@ -323,7 +323,7 @@ class Memberships {
 		}
 
 		// Wrap gate in a div for styling.
-		$gate = '<div class="newspack-memberships__gate">' . $gate . '</div>';
+		$gate = '<div class="newspack-memberships__gate newspack-memberships__inline-gate">' . $gate . '</div>';
 		return $gate;
 	}
 

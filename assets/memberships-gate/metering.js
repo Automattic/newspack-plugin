@@ -38,7 +38,7 @@ function lockContent() {
 	const visibleParagraphs = settings.visible_paragraphs;
 	const articleElements = document.querySelectorAll( '.entry-content > *' );
 	const moreIndex = content.innerHTML.indexOf( '<!--more-->' );
-	const gate = document.querySelector( '.newspack-memberships__gate' );
+	const inlineGate = document.querySelector( '.newspack-memberships__inline-gate' );
 	if ( moreIndex > -1 && settings.use_more_tag ) {
 		content.innerHTML = content.innerHTML.substring( 0, moreIndex );
 	} else {
@@ -52,8 +52,8 @@ function lockContent() {
 			}
 		} );
 	}
-	if ( gate ) {
-		content.appendChild( gate );
+	if ( inlineGate ) {
+		content.appendChild( inlineGate );
 	}
 }
 
