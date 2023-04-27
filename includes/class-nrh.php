@@ -93,7 +93,7 @@ class NRH {
 
 		$domain_parts = explode( '//', $domain );
 
-		return end( $domain_parts );
+		return \wp_unslash( end( $domain_parts ) );
 	}
 
 	/**
