@@ -9,6 +9,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { PrequisiteProps } from './types';
 import { ActionCard, Button, Grid, TextControl } from '../../../components/src';
+import { HANDOFF_KEY } from '../../../components/src/consts';
 
 /**
  * Expandable ActionCard for RAS prerequisites checklist.
@@ -20,6 +21,8 @@ export default function Prerequisite( {
 	prerequisite,
 	saveConfig,
 }: PrequisiteProps ) {
+	const { href } = prerequisite;
+
 	return (
 		<ActionCard
 			isMedium
@@ -92,12 +95,40 @@ export default function Prerequisite( {
 					}
 					{
 						// Link to another settings page or update config in place.
-						prerequisite.href && prerequisite.action_text && (
+						href && prerequisite.action_text && (
 							<Grid columns={ 2 } gutter={ 16 }>
 								<div>
 									{ ( ! prerequisite.hasOwnProperty( 'action_enabled' ) ||
 										prerequisite.action_enabled ) && (
-										<Button isPrimary href={ prerequisite.href }>
+										<Button
+											isPrimary
+											onClick={ () => {
+												// Set up a handoff to indicate that the user is coming from the RAS wizard page.
+												if ( prerequisite.instructions ) {
+													window.localStorage.setItem(
+														HANDOFF_KEY,
+														JSON.stringify( {
+															message: sprintf(
+																// Translators: %s is specific instructions for satisfying the prerequisite.
+																__(
+																	'%1$s%2$sReturn to the Reader Activation page to complete the settings and activate%3$s.',
+																	'newspack'
+																),
+																prerequisite.instructions + ' ',
+																window.newspack_engagement_wizard?.reader_activation_url
+																	? `<a href="${ window.newspack_engagement_wizard.reader_activation_url }">`
+																	: '',
+																window.newspack_engagement_wizard?.reader_activation_url
+																	? '</a>'
+																	: ''
+															),
+														} )
+													);
+												}
+
+												window.location.href = href;
+											} }
+										>
 											{ /* eslint-disable no-nested-ternary */ }
 											{ ( prerequisite.active
 												? __( 'Update ', 'newspack' )

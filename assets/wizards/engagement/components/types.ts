@@ -9,6 +9,7 @@ declare global {
 			has_reader_activation: boolean;
 			has_memberships: boolean;
 			new_subscription_lists_url: string;
+			reader_activation_url: string;
 			preview_query_keys: {
 				background_color: string;
 				display_title: string;
@@ -97,6 +98,7 @@ export type PrequisiteProps = {
 		active: boolean;
 		label: string;
 		description: string;
+		instructions?: string;
 		help_url: string;
 		fields?: {
 			[ fieldName: string ]: {

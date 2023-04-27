@@ -376,9 +376,9 @@ final class Reader_Activation {
 		$prerequisites = [
 			'terms_conditions' => [
 				'active'      => self::is_terms_configured(),
-				'label'       => __( 'Terms & Conditions', 'newspack' ),
-				'description' => __( 'Displaying Terms and Conditions on your site is necessary to allow readers to register and access their account.', 'newspack-plugin' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'label'       => __( 'Legal Pages', 'newspack' ),
+				'description' => __( 'Displaying legal pages like Privacy Policy and Terms of Service on your site is recommended for allowing readers to register and access their account.', 'newspack-plugin' ),
+				'help_url'    => 'https://help.newspack.com/engagement/reader-activation-system',
 				'fields'      => [
 					'terms_text' => [
 						'label'       => __( 'Terms & Conditions Text', 'newspack' ),
@@ -391,18 +391,19 @@ final class Reader_Activation {
 				],
 			],
 			'esp'              => [
-				'active'      => self::is_esp_configured(),
-				'label'       => __( 'Email Service Provider (ESP)', 'newspack' ),
-				'description' => __( 'Connecting your ESP with the right settings is necessary to register readers with their email addresses, send account related emails and newsletters.', 'newspack' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
-				'href'        => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
-				'action_text' => __( 'ESP settings' ),
+				'active'       => self::is_esp_configured(),
+				'label'        => __( 'Email Service Provider (ESP)', 'newspack' ),
+				'description'  => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack' ),
+				'instructions' => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack' ),
+				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
+				'href'         => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
+				'action_text'  => __( 'ESP settings' ),
 			],
 			'emails'           => [
 				'active'      => self::is_transactional_email_configured(),
 				'label'       => __( 'Transactional Emails', 'newspack' ),
-				'description' => __( 'Your sender name and email address determines how readers find emails related to their account in their inbox.', 'newspack-plugin' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'description' => __( 'Your sender name and email address determines how readers find emails related to their account in their inbox. To customize the content of these emails, visit Advanced Settings below.', 'newspack-plugin' ),
+				'help_url'    => 'https://help.newspack.com/engagement/reader-activation-system',
 				'fields'      => [
 					'sender_name'           => [
 						'label'       => __( 'Sender Name', 'newspack' ),
@@ -419,26 +420,28 @@ final class Reader_Activation {
 				],
 			],
 			'recaptcha'        => [
-				'active'      => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
-				'label'       => __( 'reCAPTCHA', 'newspack' ),
-				'description' => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam security for newsletter signup, user account, and payment forms rendered by Newspack tools.', 'newspack' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
-				'href'        => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
-				'action_text' => __( 'reCAPTCHA settings' ),
+				'active'       => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
+				'label'        => __( 'reCAPTCHA', 'newspack' ),
+				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack' ),
+				'instructions' => __( 'Enable reCAPTCHA and enter your account credentials.', 'newspack' ),
+				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
+				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
+				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
-				'active'      => self::is_reader_revenue_ready(),
-				'label'       => __( 'Reader Revenue', 'newspack' ),
-				'description' => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
-				'help_url'    => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
-				'href'        => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
-				'action_text' => __( 'Reader Revenue settings' ),
+				'active'       => self::is_reader_revenue_ready(),
+				'label'        => __( 'Reader Revenue', 'newspack' ),
+				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
+				'instructions' => __( 'Set platform to "Newspack" and configure your default donation settings.', 'newspack' ),
+				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
+				'href'         => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
+				'action_text'  => __( 'Reader Revenue settings' ),
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),
 				'label'          => __( 'Reader Activation Campaign', 'newspack' ),
 				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.', 'newspack' ),
-				'help_url'       => 'https://help.newspack.com', // TODO: Add the correct URL to help docs.
+				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
 				'href'           => self::is_ras_campaign_configured() ? \admin_url( '/admin.php?page=newspack-popups-wizard#/campaigns' ) : \admin_url( '/admin.php?page=newspack-engagement-wizard#/reader-activation/campaign' ),
 				'action_enabled' => self::is_ras_ready_to_configure(),
 				'action_text'    => __( 'Reader Activation campaign', 'newspack' ),
