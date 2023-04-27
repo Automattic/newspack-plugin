@@ -107,7 +107,7 @@ class Metering {
 	}
 
 	/**
-	 * Custom handling of content restriction when using frontend metering.
+	 * Custom handling of content restriction when using metering.
 	 */
 	public static function handle_restriction() {
 		if ( ! class_exists( 'WC_Memberships' ) ) {
@@ -179,7 +179,7 @@ class Metering {
 			return false;
 		}
 		// Bail if not in a singular restricted post with available gate.
-		if ( \is_singular() || ! Memberships::has_gate() || ! Memberships::is_post_restricted() ) {
+		if ( ! \is_singular() || ! Memberships::has_gate() || ! Memberships::is_post_restricted() ) {
 			return false;
 		}
 		$gate_post_id    = Memberships::get_gate_post_id();
@@ -234,8 +234,7 @@ class Metering {
 			$user_metering_data['expiration'] = $current_expiration;
 		}
 
-		$count = (int) \get_post_meta( $gate_post_id, 'metering_anonymous_count', true ) +
-			(int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
+		$count = (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
 
 		$limited          = count( $user_metering_data['content'] ) >= $count;
 		$accessed_content = in_array( $post_id, $user_metering_data['content'], true );

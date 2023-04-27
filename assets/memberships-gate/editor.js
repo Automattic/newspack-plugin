@@ -96,7 +96,7 @@ function GateEdit() {
 								label={ __( 'Available views for registered readers', 'newspack' ) }
 								onChange={ value => editPost( { meta: { metering_registered_count: value } } ) }
 								help={ __(
-									'Number of additional times a registered reader can view gated content.',
+									'Number of times a registered reader can view gated content.',
 									'newspack'
 								) }
 							/>
