@@ -48,7 +48,7 @@ const NRHSettings = () => {
 				<TextControl
 					label={ __( 'Custom domain (optional)', 'newspack' ) }
 					help={ __( 'Enter the raw domain without protocol or slashes.' ) }
-					placeholder="example.fundjournalism.org"
+					placeholder="donate.example.com"
 					value={ wizardData.platform_data?.nrh_custom_domain || '' }
 					onChange={ changeHandler( 'nrh_custom_domain' ) }
 				/>
