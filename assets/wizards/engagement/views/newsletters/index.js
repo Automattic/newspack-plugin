@@ -30,6 +30,8 @@ import {
 	withWizardScreen,
 } from '../../../../components/src';
 
+import './style.scss';
+
 export const NewspackNewsletters = ( {
 	className,
 	onUpdate,
@@ -239,6 +241,9 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 					disabled={ inFlight }
 					toggleOnChange={ handleChange( index, 'active' ) }
 					toggleChecked={ list.active }
+					className={
+						'mailchimp-group' === list?.type ? 'newspack-newsletters-group-list-item' : ''
+					}
 					actionText={
 						list?.edit_link ? (
 							<ExternalLink href={ list.edit_link }>
