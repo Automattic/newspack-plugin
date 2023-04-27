@@ -69,7 +69,7 @@ const ReaderRevenueWizard = () => {
 			isHidden: usedPlatform !== NEWSPACK,
 		},
 		{
-			label: __( 'NRH Settings', 'newspack' ),
+			label: __( 'News Revenue Hub Settings', 'newspack' ),
 			path: '/settings',
 			render: Views.NRHSettings,
 			isHidden: usedPlatform !== NRH,
