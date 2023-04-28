@@ -81,26 +81,26 @@ function GateEdit() {
 					<Fragment>
 						<TextControl
 							type="number"
+							min="0"
 							value={ meta.metering_anonymous_count }
 							label={ __( 'Available views for anonymous readers', 'newspack' ) }
 							onChange={ value => editPost( { meta: { metering_anonymous_count: value } } ) }
 							help={ __(
-								'Number of times an anonymous reader can view gated content.',
+								'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
 								'newspack'
 							) }
 						/>
-						{ ! meta.metering_registered_only && (
-							<TextControl
-								type="number"
-								value={ meta.metering_registered_count }
-								label={ __( 'Available views for registered readers', 'newspack' ) }
-								onChange={ value => editPost( { meta: { metering_registered_count: value } } ) }
-								help={ __(
-									'Number of times a registered reader can view gated content.',
-									'newspack'
-								) }
-							/>
-						) }
+						<TextControl
+							type="number"
+							min="0"
+							value={ meta.metering_registered_count }
+							label={ __( 'Available views for registered readers', 'newspack' ) }
+							onChange={ value => editPost( { meta: { metering_registered_count: value } } ) }
+							help={ __(
+								'Number of times a registered reader can view gated content.',
+								'newspack'
+							) }
+						/>
 						<SelectControl
 							label={ __( 'Time period', 'newspack' ) }
 							value={ meta.metering_period }
