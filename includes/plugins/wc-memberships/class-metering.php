@@ -165,14 +165,24 @@ class Metering {
 		if ( \is_user_logged_in() ) {
 			return false;
 		}
+
 		// Bail if not in a singular restricted post with available gate.
 		if ( ! \is_singular() || ! Memberships::has_gate() || ! Memberships::is_post_restricted() ) {
 			return false;
 		}
+
 		$gate_post_id    = Memberships::get_gate_post_id();
 		$metering        = \get_post_meta( $gate_post_id, 'metering', true );
 		$anonymous_count = \get_post_meta( $gate_post_id, 'metering_anonymous_count', true );
-		return $metering && ! empty( $anonymous_count );
+
+		$is_frontend_metering = $metering && ! empty( $anonymous_count );
+
+		/**
+		 * Filters whether to use the frontend metering strategy.
+		 *
+		 * @param bool $is_frontend_metering Whether to use the frontend metering strategy.
+		 */
+		return apply_filters( 'newspack_memberships_is_frontend_metering', $is_frontend_metering );
 	}
 
 	/**
@@ -240,8 +250,15 @@ class Metering {
 		// Allowed if the content has been accessed or the metering limit has not been reached.
 		$allowed = $accessed_content || ! $limited;
 
-		self::$logged_in_metering_cache[ $post_id ] = $allowed;
-		return $allowed;
+		/**
+		 * Filters whether to allow content rendering through metering for logged in user.
+		 *
+		 * @param bool $is_logged_in_metering_allowed Whether to allow content rendering through metering for logged in user
+		 * @param int  $post_id                       Post ID.
+		 */
+		self::$logged_in_metering_cache[ $post_id ] = apply_filters( 'newspack_memberships_is_logged_in_metering_allowed', $allowed, $post_id );
+
+		return self::$logged_in_metering_cache[ $post_id ];
 	}
 }
 Metering::init();
