@@ -139,33 +139,20 @@ class Metering {
 	/**
 	 * Get the metering expiration time for the given date.
 	 *
-	 * @param string|\DateTime $datetime Date to calculate the expiration time for. Defaults to 'now'.
-	 *
 	 * @return int Timestamp of the expiration time.
 	 */
-	private static function get_expiration_time( $datetime = 'now' ) {
+	private static function get_expiration_time() {
 		$period = \get_post_meta( Memberships::get_gate_post_id(), 'metering_period', true );
-		if ( is_string( $datetime ) ) {
-			$date = new \DateTime( $datetime );
-		} else {
-			$date = $datetime;
-		}
-		// Reset time to 00:00:00:000.
-		$date->setTime( 0, 0, 0, 0 );
 		switch ( $period ) {
 			case 'day':
-				$date->modify( '+1 day' );
-				break;
+				return strtotime( 'tomorrow' );
 			case 'week':
-				$day         = $date->format( 'w' );
-				$days_to_sat = 6 - $day;
-				$date->modify( '+' . $days_to_sat . ' day' );
-				break;
+				return strtotime( 'next monday' );
 			case 'month':
-				$date->setDate( $date->format( 'Y' ), $date->format( 'm' ), 1 );
-				break;
+				return mktime( 0, 0, 0, gmdate( 'n' ) + 1, 1 );
+			default:
+				return 0;
 		}
-		return intval( $date->format( 'U' ), 10 );
 	}
 
 	/**
@@ -201,7 +188,7 @@ class Metering {
 		}
 
 		// Metering back-end strategy is only for logged-in users.
-		if ( ! is_user_logged_in() ) {
+		if ( ! \is_user_logged_in() ) {
 			return false;
 		}
 
