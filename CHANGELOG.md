@@ -1,3 +1,20 @@
+# [1.114.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.113.0...v1.114.0-alpha.1) (2023-04-28)
+
+
+### Bug Fixes
+
+* add filter to prompt conflicts check ([#2421](https://github.com/Automattic/newspack-plugin/issues/2421)) ([8d1c1d3](https://github.com/Automattic/newspack-plugin/commit/8d1c1d3e17ae51f97a7d783b05c4fef4a2b6660e))
+* ensure .hooks is excluded from the dist ZIP ([#2420](https://github.com/Automattic/newspack-plugin/issues/2420)) ([75f8f36](https://github.com/Automattic/newspack-plugin/commit/75f8f3665bc19ee65333726906e42a1a8724ef25))
+* **newsletters:** only attempt token verification for Constant Contact ([#2407](https://github.com/Automattic/newspack-plugin/issues/2407)) ([c58f9a8](https://github.com/Automattic/newspack-plugin/commit/c58f9a8c8036d5c86987768a20117bf7d3c00d68))
+* **perfmatters:** exclude Jetpack and Newsletters css delay ([#2410](https://github.com/Automattic/newspack-plugin/issues/2410)) ([d2b167c](https://github.com/Automattic/newspack-plugin/commit/d2b167c19ecc851ef8a3a3a1d052d28c23a1ac83))
+
+
+### Features
+
+* memberships block patterns ([#2406](https://github.com/Automattic/newspack-plugin/issues/2406)) ([c96555a](https://github.com/Automattic/newspack-plugin/commit/c96555a7297b82644dfa67fb873692411890debc))
+* RAS setup UI and default Campaigns wizard ([#2426](https://github.com/Automattic/newspack-plugin/issues/2426)) ([a1d4eb7](https://github.com/Automattic/newspack-plugin/commit/a1d4eb7aad13449cb1d847fb25ee2414028fdb69)), closes [#2381](https://github.com/Automattic/newspack-plugin/issues/2381) [#2366](https://github.com/Automattic/newspack-plugin/issues/2366) [#2382](https://github.com/Automattic/newspack-plugin/issues/2382)
+* **sign-in:** body class when in modal and url hash ([#2414](https://github.com/Automattic/newspack-plugin/issues/2414)) ([aea4dc9](https://github.com/Automattic/newspack-plugin/commit/aea4dc949439f459465fa15c695639a65dcb26f8))
+
 # [1.113.0](https://github.com/Automattic/newspack-plugin/compare/v1.112.1...v1.113.0) (2023-04-24)
 
 
