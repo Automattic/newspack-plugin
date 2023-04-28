@@ -65,60 +65,6 @@ function GateEdit() {
 				</PluginPostStatusInfo>
 			) }
 			<PluginDocumentSettingPanel
-				name="memberships-gate-metering-panel"
-				title={ __( 'Metering', 'newspack' ) }
-			>
-				<CheckboxControl
-					label={ __( 'Enable metering', 'newspack' ) }
-					checked={ meta.metering }
-					onChange={ value => editPost( { meta: { metering: value } } ) }
-					help={ __(
-						'Implement metering to configure access to restricted content before showing the gate.',
-						'newspack'
-					) }
-				/>
-				{ meta.metering && (
-					<Fragment>
-						<TextControl
-							type="number"
-							min="0"
-							value={ meta.metering_anonymous_count }
-							label={ __( 'Available views for anonymous readers', 'newspack' ) }
-							onChange={ value => editPost( { meta: { metering_anonymous_count: value } } ) }
-							help={ __(
-								'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
-								'newspack'
-							) }
-						/>
-						<TextControl
-							type="number"
-							min="0"
-							value={ meta.metering_registered_count }
-							label={ __( 'Available views for registered readers', 'newspack' ) }
-							onChange={ value => editPost( { meta: { metering_registered_count: value } } ) }
-							help={ __(
-								'Number of times a registered reader can view gated content. If set to 0, registered readers without membership plan will always render the gate.',
-								'newspack'
-							) }
-						/>
-						<SelectControl
-							label={ __( 'Time period', 'newspack' ) }
-							value={ meta.metering_period }
-							options={ [
-								{ value: 'day', label: __( 'Day', 'newspack' ) },
-								{ value: 'week', label: __( 'Week', 'newspack' ) },
-								{ value: 'month', label: __( 'Month', 'newspack' ) },
-							] }
-							onChange={ value => editPost( { meta: { metering_period: value } } ) }
-							help={ __(
-								'The time period during which the metering views will be counted. For example, if the metering period is set to a week, the metering views will be reset every week.',
-								'newspack'
-							) }
-						/>
-					</Fragment>
-				) }
-			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel
 				name="memberships-gate-styles-panel"
 				title={ __( 'Styles', 'newspack' ) }
 			>
@@ -193,6 +139,60 @@ function GateEdit() {
 						'newspack'
 					) }
 				/>
+			</PluginDocumentSettingPanel>
+			<PluginDocumentSettingPanel
+				name="memberships-gate-metering-panel"
+				title={ __( 'Metering', 'newspack' ) }
+			>
+				<CheckboxControl
+					label={ __( 'Enable metering', 'newspack' ) }
+					checked={ meta.metering }
+					onChange={ value => editPost( { meta: { metering: value } } ) }
+					help={ __(
+						'Implement metering to configure access to restricted content before showing the gate.',
+						'newspack'
+					) }
+				/>
+				{ meta.metering && (
+					<Fragment>
+						<TextControl
+							type="number"
+							min="0"
+							value={ meta.metering_anonymous_count }
+							label={ __( 'Available views for anonymous readers', 'newspack' ) }
+							onChange={ value => editPost( { meta: { metering_anonymous_count: value } } ) }
+							help={ __(
+								'Number of times an anonymous reader can view gated content. If set to 0, anonymous readers will always render the gate.',
+								'newspack'
+							) }
+						/>
+						<TextControl
+							type="number"
+							min="0"
+							value={ meta.metering_registered_count }
+							label={ __( 'Available views for registered readers', 'newspack' ) }
+							onChange={ value => editPost( { meta: { metering_registered_count: value } } ) }
+							help={ __(
+								'Number of times a registered reader can view gated content. If set to 0, registered readers without membership plan will always render the gate.',
+								'newspack'
+							) }
+						/>
+						<SelectControl
+							label={ __( 'Time period', 'newspack' ) }
+							value={ meta.metering_period }
+							options={ [
+								{ value: 'day', label: __( 'Day', 'newspack' ) },
+								{ value: 'week', label: __( 'Week', 'newspack' ) },
+								{ value: 'month', label: __( 'Month', 'newspack' ) },
+							] }
+							onChange={ value => editPost( { meta: { metering_period: value } } ) }
+							help={ __(
+								'The time period during which the metering views will be counted. For example, if the metering period is set to a week, the metering views will be reset every week.',
+								'newspack'
+							) }
+						/>
+					</Fragment>
+				) }
 			</PluginDocumentSettingPanel>
 		</Fragment>
 	);
