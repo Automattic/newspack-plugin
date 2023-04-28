@@ -4,7 +4,6 @@ const STORAGE_KEY = 'newspack_metering';
 
 const settings = newspack_metering_settings;
 const storage = window.localStorage;
-let locked = false;
 
 function getCurrentExpiration() {
 	const date = new Date();
@@ -28,6 +27,27 @@ function getCurrentExpiration() {
 			break;
 	}
 	return parseInt( date.getTime() / 1000, 10 );
+}
+
+function getUserData() {
+	const currentExpiration = getCurrentExpiration();
+	const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
+		content: [],
+		expiration: currentExpiration,
+	};
+	// Sanitize expiration.
+	data.expiration = parseInt( data.expiration, 10 ) || 0;
+	// Reset expiration if needed.
+	if ( data.expiration !== currentExpiration ) {
+		data.expiration = currentExpiration;
+	}
+	// Clear content if expired.
+	const now = parseInt( Date.now() / 1000, 10 );
+	if ( data.expiration < now ) {
+		data.content = [];
+	}
+	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+	return data;
 }
 
 function lockContent() {
@@ -57,42 +77,24 @@ function lockContent() {
 	}
 }
 
-const currentExpiration = getCurrentExpiration();
-
-const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
-	content: [],
-	expiration: currentExpiration,
-};
-
-// Sanitize expiration.
-data.expiration = parseInt( data.expiration, 10 ) || 0;
-
-// Reset expiration if needed.
-if ( data.expiration !== currentExpiration ) {
-	data.expiration = currentExpiration;
+function meter() {
+	const data = getUserData();
+	let locked = false;
+	// Lock content if reached limit, remove gate content if not.
+	if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
+		lockContent();
+		locked = true;
+	} else {
+		const gates = document.querySelectorAll( '.newspack-memberships__gate' );
+		gates.forEach( gate => {
+			gate.parentNode.removeChild( gate );
+		} );
+	}
+	// Add current content to read content.
+	if ( ! locked && ! data.content.includes( settings.post_id ) ) {
+		data.content.push( settings.post_id );
+		storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+	}
 }
 
-// Clear content if expired.
-const now = parseInt( Date.now() / 1000, 10 );
-if ( data.expiration < now ) {
-	data.content = [];
-}
-
-storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
-
-// Lock content if reached limit, remove gate content if not.
-if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
-	lockContent();
-	locked = true;
-} else {
-	const gates = document.querySelectorAll( '.newspack-memberships__gate' );
-	gates.forEach( gate => {
-		gate.parentNode.removeChild( gate );
-	} );
-}
-
-// Add current content to read content.
-if ( ! locked && ! data.content.includes( settings.post_id ) ) {
-	data.content.push( settings.post_id );
-	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
-}
+meter();
