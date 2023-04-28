@@ -232,6 +232,7 @@ class Metering {
 			}
 			// Reset expiration.
 			$user_metering_data['expiration'] = $current_expiration;
+			\update_user_meta( get_current_user_id(), self::METERING_META_KEY, $user_metering_data );
 		}
 
 		$count = (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
@@ -240,9 +241,8 @@ class Metering {
 		$accessed_content = in_array( $post_id, $user_metering_data['content'], true );
 		if ( ! $limited && ! $accessed_content ) {
 			$user_metering_data['content'][] = $post_id;
+			\update_user_meta( get_current_user_id(), self::METERING_META_KEY, $user_metering_data );
 		}
-
-		\update_user_meta( get_current_user_id(), self::METERING_META_KEY, $user_metering_data );
 
 		// Allowed if the content has been accessed or the metering limit has not been reached.
 		$allowed = $accessed_content || ! $limited;
