@@ -205,21 +205,25 @@ class Metering {
 			return self::$logged_in_metering_cache[ $post_id ];
 		}
 
-		$current_expiration = self::get_expiration_time();
+		$updated_user_data  = false;
 		$user_metering_data = \get_user_meta( get_current_user_id(), self::METERING_META_KEY, true );
 		if ( ! is_array( $user_metering_data ) ) {
 			$user_metering_data = [];
 		}
 
-		$expiration = isset( $user_metering_data['expiration'] ) ? $user_metering_data['expiration'] : 0;
-		if ( $expiration !== $current_expiration ) {
-			// Clear content if expired.
-			if ( $expiration < $current_expiration ) {
-				$user_metering_data['content'] = [];
-			}
-			// Reset expiration.
+		$user_expiration = isset( $user_metering_data['expiration'] ) ? $user_metering_data['expiration'] : 0;
+
+		// Clear content if expired.
+		if ( $user_expiration < time() ) {
+			$user_metering_data['content'] = [];
+			$updated_user_data             = true;
+		}
+
+		// Reset expiration.
+		$current_expiration = self::get_expiration_time();
+		if ( $user_expiration !== $current_expiration ) {
 			$user_metering_data['expiration'] = $current_expiration;
-			\update_user_meta( get_current_user_id(), self::METERING_META_KEY, $user_metering_data );
+			$updated_user_data                = true;
 		}
 
 		$count = (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
@@ -228,6 +232,10 @@ class Metering {
 		$accessed_content = in_array( $post_id, $user_metering_data['content'], true );
 		if ( ! $limited && ! $accessed_content ) {
 			$user_metering_data['content'][] = $post_id;
+			$updated_user_data               = true;
+		}
+
+		if ( $updated_user_data ) {
 			\update_user_meta( get_current_user_id(), self::METERING_META_KEY, $user_metering_data );
 		}
 

@@ -64,16 +64,20 @@ const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
 	expiration: currentExpiration,
 };
 
-const expiration = parseInt( data.expiration, 10 ) || 0;
-if ( expiration !== currentExpiration ) {
-	// Clear content if expired.
-	if ( expiration < currentExpiration ) {
-		data.content = [];
-	}
-	// Reset expiration.
-	data.expiration = currentExpiration;
-	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+const userExpiration = parseInt( data.expiration, 10 ) || 0;
+const now = parseInt( Date.now() / 1000, 10 );
+
+// Clear content if expired.
+if ( userExpiration < now ) {
+	data.content = [];
 }
+
+// Reset expiration.
+if ( userExpiration !== currentExpiration ) {
+	data.expiration = currentExpiration;
+}
+
+storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
 
 // Lock content if reached limit, remove gate content if not.
 if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
