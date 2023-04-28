@@ -7,7 +7,7 @@ import classnames from 'classnames';
  * WordPress dependencies.
  */
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { category } from '@wordpress/icons';
 
@@ -19,6 +19,7 @@ import Router from '../proxied-imports/router';
 import registerStore, { WIZARD_STORE_NAMESPACE } from './store';
 import { useWizardData } from './store/utils';
 import WizardError from './components/WizardError';
+import { HANDOFF_KEY } from '../consts';
 
 registerStore();
 
@@ -34,12 +35,21 @@ const Wizard = ( {
 	renderAboveSections,
 	requiredPlugins = [],
 } ) => {
+	const [ handoffMessage, setHandoffMessage ] = useState( false );
 	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );
 	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
 
 	// Trigger initial data fetch. Some sections might not use the wizard data,
 	// but for consistency, fetching is triggered regardless of the section.
 	useSelect( select => select( WIZARD_STORE_NAMESPACE ).getWizardAPIData( apiSlug ) );
+
+	useEffect( () => {
+		const handoff = JSON.parse( localStorage.getItem( HANDOFF_KEY ) );
+
+		if ( handoff?.message ) {
+			setHandoffMessage( handoff.message );
+		}
+	}, [] );
 
 	let displayedSections = sections.filter( section => ! section.isHidden );
 
@@ -101,6 +111,9 @@ const Wizard = ( {
 						<TabbedNavigation items={ displayedSections }>
 							<WizardError />
 						</TabbedNavigation>
+					) }
+					{ handoffMessage && (
+						<Notice isHandoff isDismissible={ false } rawHTML noticeText={ handoffMessage } />
 					) }
 
 					<Switch>

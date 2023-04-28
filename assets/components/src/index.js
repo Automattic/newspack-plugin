@@ -30,6 +30,8 @@ export { default as SectionHeader } from './section-header';
 export { default as SelectControl } from './select-control';
 export { default as DateRangePicker } from './date-range-picker';
 export { default as Settings } from './settings';
+export { default as StepsList } from './steps-list';
+export { default as StepsListItem } from './steps-list-item';
 export { default as StyleCard } from './style-card';
 export { default as TabbedNavigation } from './tabbed-navigation';
 export { default as TextControl } from './text-control';
