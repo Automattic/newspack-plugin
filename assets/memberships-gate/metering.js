@@ -64,17 +64,18 @@ const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
 	expiration: currentExpiration,
 };
 
-const userExpiration = parseInt( data.expiration, 10 ) || 0;
-const now = parseInt( Date.now() / 1000, 10 );
+// Sanitize expiration.
+data.expiration = parseInt( data.expiration, 10 ) || 0;
 
-// Clear content if expired.
-if ( userExpiration < now ) {
-	data.content = [];
+// Reset expiration if needed.
+if ( data.expiration !== currentExpiration ) {
+	data.expiration = currentExpiration;
 }
 
-// Reset expiration.
-if ( userExpiration !== currentExpiration ) {
-	data.expiration = currentExpiration;
+// Clear content if expired.
+const now = parseInt( Date.now() / 1000, 10 );
+if ( data.expiration < now ) {
+	data.content = [];
 }
 
 storage.setItem( STORAGE_KEY, JSON.stringify( data ) );

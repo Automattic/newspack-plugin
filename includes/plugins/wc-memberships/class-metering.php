@@ -213,17 +213,17 @@ class Metering {
 
 		$user_expiration = isset( $user_metering_data['expiration'] ) ? $user_metering_data['expiration'] : 0;
 
-		// Clear content if expired.
-		if ( $user_expiration < time() ) {
-			$user_metering_data['content'] = [];
-			$updated_user_data             = true;
-		}
-
-		// Reset expiration.
+		// Reset expiration if needed.
 		$current_expiration = self::get_expiration_time();
 		if ( $user_expiration !== $current_expiration ) {
 			$user_metering_data['expiration'] = $current_expiration;
 			$updated_user_data                = true;
+		}
+
+		// Clear content if expired.
+		if ( $user_metering_data['expiration'] < time() ) {
+			$user_metering_data['content'] = [];
+			$updated_user_data             = true;
 		}
 
 		$count = (int) \get_post_meta( $gate_post_id, 'metering_registered_count', true );
