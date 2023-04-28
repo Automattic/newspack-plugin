@@ -48,6 +48,11 @@
 		}
 	}
 
+	&__is-handoff {
+		background: color.adjust( wp-colors.$alert-yellow, $lightness: 30% );
+		margin-top: 0;
+	}
+
 	&__is-help {
 		background: colors.$primary-050;
 
