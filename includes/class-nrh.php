@@ -132,7 +132,7 @@ class NRH {
 		Donations::remove_donations_from_cart();
 
 		$url = sprintf(
-			'https://%s/?amount=%.1f&installmentPeriod=%s&org_id=%s',
+			'https://%s/?amount=%.1f&frequency=%s&org_id=%s',
 			! empty( $custom_domain ) ? $custom_domain : $organization_id . '.fundjournalism.org',
 			$donation_value,
 			$donation_frequency,
