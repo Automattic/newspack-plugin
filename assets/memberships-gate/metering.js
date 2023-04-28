@@ -35,16 +35,14 @@ function getUserData() {
 		content: [],
 		expiration: currentExpiration,
 	};
-	// Sanitize expiration.
 	data.expiration = parseInt( data.expiration, 10 ) || 0;
-	// Reset expiration if needed.
 	if ( data.expiration !== currentExpiration ) {
+		// Clear content if expired.
+		if ( data.expiration < currentExpiration ) {
+			data.content = [];
+		}
+		// Reset expiration.
 		data.expiration = currentExpiration;
-	}
-	// Clear content if expired.
-	const now = parseInt( Date.now() / 1000, 10 );
-	if ( data.expiration < now ) {
-		data.content = [];
 	}
 	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
 	return data;
