@@ -433,6 +433,16 @@ class ComponentsDemo extends Component {
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
 					/>
+					<ActionCard
+						expandable
+						title={ __( 'Expandable', 'newspack' ) }
+						description={ __(
+							' An example of an action card with expandable inner content.',
+							'newspack'
+						) }
+					>
+						<p>{ __( 'Some inner content to display when the card is expanded.', 'newspack' ) }</p>
+					</ActionCard>
 					<Card>
 						<h2>{ __( 'Image Uploader', 'newspack' ) }</h2>
 						<ImageUpload
