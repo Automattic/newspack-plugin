@@ -701,6 +701,14 @@ class WooCommerce_Connection {
 						update_post_meta( $subscription_id, self::SUBSCRIPTION_STRIPE_ID_META_KEY, $stripe_subscription_id );
 					}
 
+					// Ensure the next payment is scheduled.
+					$next_payment_date = $subscription->calculate_date( 'next_payment' );
+					$subscription->update_dates(
+						[
+							'next_payment' => $next_payment_date,
+						]
+					);
+
 					$subscription->save();
 
 					Logger::log( 'Created WC subscription with id: ' . $subscription_id );
