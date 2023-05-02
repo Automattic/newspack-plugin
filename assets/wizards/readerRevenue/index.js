@@ -54,7 +54,7 @@ const ReaderRevenueWizard = () => {
 			label: __( 'Emails', 'newspack' ),
 			path: '/emails',
 			render: Views.Emails,
-			isHidden: usedPlatform !== STRIPE,
+			isHidden: usedPlatform !== NEWSPACK && usedPlatform !== STRIPE,
 		},
 		{
 			label: __( 'Address', 'newspack' ),

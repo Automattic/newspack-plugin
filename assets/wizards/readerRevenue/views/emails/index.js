@@ -59,6 +59,8 @@ const Emails = () => {
 						href={ email.edit_link }
 						description={ email.description }
 						actionText={ __( 'Edit', 'newspack' ) }
+						toggleChecked={ email.enabled }
+						toggleOnChange={ () => console.log( email ) }
 						{ ...( isActive
 							? {}
 							: {
