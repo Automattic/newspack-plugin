@@ -51,6 +51,12 @@
 	&__is-handoff {
 		background: color.adjust( wp-colors.$alert-yellow, $lightness: 30% );
 		margin-top: 0;
+		position: sticky;
+		top: 46px;
+
+		@media ( min-width: 782px ) {
+			top: 32px;
+		}
 	}
 
 	&__is-help {
