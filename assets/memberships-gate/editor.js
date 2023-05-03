@@ -121,6 +121,7 @@ function GateEdit() {
 			>
 				<TextControl
 					type="number"
+					min="0"
 					value={ meta.visible_paragraphs }
 					label={ __( 'Default paragraph count', 'newspack' ) }
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
