@@ -174,7 +174,7 @@ final class Reader_Activation {
 			'enabled_account_link'        => true,
 			'account_link_menu_locations' => [ 'tertiary-menu' ],
 			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack' ),
-			'terms_text'                  => __( 'By signing up, you agree to our Terms and Conditions.', 'newspack' ),
+			'terms_text'                  => '',
 			'terms_url'                   => '',
 			'sync_esp'                    => true,
 			'metadata_prefix'             => Newspack_Newsletters::get_metadata_prefix(),
@@ -224,14 +224,6 @@ final class Reader_Activation {
 			return null;
 		}
 		$value = \get_option( self::OPTIONS_PREFIX . $name, $config[ $name ] );
-
-		// If fetching terms URL, set the default here as \get_permalink and \get_post_status aren't available on the init hook.
-		if ( 'terms_url' === $name && empty( $value ) ) {
-			$privacy_policy_page_id = \get_option( 'wp_page_for_privacy_policy' );
-			if ( ! empty( $privacy_policy_page_id ) && 'publish' === \get_post_status( $privacy_policy_page_id ) ) {
-				$value = \get_permalink( $privacy_policy_page_id );
-			}
-		}
 
 		// Use default value type for casting bool option value.
 		if ( is_bool( $config[ $name ] ) ) {
@@ -329,13 +321,14 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Are the Terms & Conditions settings configured?
+	 * Are the Legal Pages settings configured?
+	 * Allows for blank values.
 	 */
 	public static function is_terms_configured() {
 		$terms_text = \get_option( self::OPTIONS_PREFIX . 'terms_text', false );
 		$terms_url  = \get_option( self::OPTIONS_PREFIX . 'terms_url', false );
 
-		return ! empty( $terms_text ) && ! empty( $terms_url );
+		return is_string( $terms_text ) && is_string( $terms_url );
 	}
 
 	/**
@@ -379,14 +372,15 @@ final class Reader_Activation {
 				'label'       => __( 'Legal Pages', 'newspack' ),
 				'description' => __( 'Displaying legal pages like Privacy Policy and Terms of Service on your site is recommended for allowing readers to register and access their account.', 'newspack-plugin' ),
 				'help_url'    => 'https://help.newspack.com/engagement/reader-activation-system',
+				'warning'     => __( 'Privacy policies that tell users how you collect and use their data are essential for running a  trustworthy website. While rules and regulations can differ by country, certain legal pages might be required by law.', 'newspack' ),
 				'fields'      => [
 					'terms_text' => [
-						'label'       => __( 'Terms & Conditions Text', 'newspack' ),
-						'description' => __( 'Terms and conditions text to display on registration.', 'newspack-plugin' ),
+						'label'       => __( 'Legal Pages Disclaimer Text', 'newspack' ),
+						'description' => __( 'Legal pages disclaimer text to display on registration.', 'newspack-plugin' ),
 					],
 					'terms_url'  => [
-						'label'       => __( 'Terms & Conditions URL', 'newspack' ),
-						'description' => __( 'URL to the page containing the terms and conditions.', 'newspack-plugin' ),
+						'label'       => __( 'Legal Pages URL', 'newspack' ),
+						'description' => __( 'URL to the page containing the privacy policy or terms of service.', 'newspack-plugin' ),
 					],
 				],
 			],
@@ -421,11 +415,11 @@ final class Reader_Activation {
 			],
 			'recaptcha'        => [
 				'active'       => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
-				'label'        => __( 'reCAPTCHA', 'newspack' ),
-				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack' ),
-				'instructions' => __( 'Enable reCAPTCHA and enter your account credentials.', 'newspack' ),
+				'label'        => __( 'reCAPTCHA v3', 'newspack' ),
+				'description'  => __( 'Connecting to a Google reCAPTCHA v3 account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack' ),
+				'instructions' => __( 'Enable reCAPTCHA v3 and enter your account credentials.', 'newspack' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
+				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard&scrollTo=recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
