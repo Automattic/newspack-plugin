@@ -1,3 +1,15 @@
+# [1.114.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.114.0-alpha.2...v1.114.0-alpha.3) (2023-05-03)
+
+
+### Bug Fixes
+
+* **ras-defaults:** feedback from QA ([#2437](https://github.com/Automattic/newspack-plugin/issues/2437)) ([1dd1f36](https://github.com/Automattic/newspack-plugin/commit/1dd1f369427c137f9c24a72a559370a264b77def))
+
+
+### Features
+
+* **auth:** support "register modal" hash url ([#2427](https://github.com/Automattic/newspack-plugin/issues/2427)) ([fcb1199](https://github.com/Automattic/newspack-plugin/commit/fcb119964dbe6e977efa0ce5d236b736a6af79b0))
+
 # [1.114.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.114.0-alpha.1...v1.114.0-alpha.2) (2023-05-03)
 
 
