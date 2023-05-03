@@ -65,7 +65,7 @@ const Recaptcha = () => {
 				isMedium
 				title={ __( 'Enable reCAPTCHA v3', 'newspack' ) }
 				description={ () => (
-					<p>
+					<>
 						{ __(
 							'Enabling reCAPTCHA v3 can help protect your site against bot attacks and credit card testing.',
 							'newspack'
@@ -73,7 +73,7 @@ const Recaptcha = () => {
 						<ExternalLink href="https://www.google.com/recaptcha/admin/create">
 							{ __( 'Get started' ) }
 						</ExternalLink>
-					</p>
+					</>
 				) }
 				hasGreyHeader={ !! settings.use_captcha }
 				toggleChecked={ !! settings.use_captcha }
