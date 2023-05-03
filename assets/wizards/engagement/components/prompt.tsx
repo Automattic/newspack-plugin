@@ -100,7 +100,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 	const getPreviewUrl = ( { options, slug }: { options: PromptOptions; slug: string } ) => {
 		const { placement, trigger_type: triggerType } = options;
 		const previewQueryKeys = window.newspack_engagement_wizard.preview_query_keys;
-		const abbreviatedKeys = { preset: slug };
+		const abbreviatedKeys = { preset: slug, values };
 		Object.keys( options ).forEach( ( key: string ) => {
 			if ( previewQueryKeys.hasOwnProperty( key ) ) {
 				abbreviatedKeys[ previewQueryKeys[ key ] ] = options[ key ];
@@ -309,13 +309,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										disabled={ inFlight }
 										icon={ previewIcon }
 										isSecondary
-										onClick={ async () => {
-											if ( isDirty ) {
-												setIsSavingFromPreview( true );
-												await savePrompt( prompt.slug, values );
-											}
-											showPreview();
-										} }
+										onClick={ async () => showPreview() }
 									>
 										{ __( 'Preview prompt', 'newspack' ) }
 									</Button>
