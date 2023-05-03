@@ -52,7 +52,7 @@ class Metering {
 			],
 			'metering_registered_count' => [
 				'type'    => 'integer',
-				'default' => 3,
+				'default' => 0,
 			],
 			'metering_period'           => [
 				'type'    => 'string',
