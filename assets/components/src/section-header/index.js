@@ -3,11 +3,6 @@
  */
 
 /**
- * WordPress dependencies
- */
-import { useEffect, useRef } from '@wordpress/element';
-
-/**
  * Internal dependencies
  */
 import { Grid } from '..';
@@ -28,18 +23,6 @@ const SectionHeader = ( {
 	title,
 	id = null,
 } ) => {
-	// If #id is in the URL, scroll to it on render.
-	const ref = useRef();
-	useEffect( () => {
-		const params = new Proxy( new URLSearchParams( window.location.search ), {
-			get: ( searchParams, prop ) => searchParams.get( prop ),
-		} );
-		const scrollToId = params.scrollTo;
-		if ( scrollToId && scrollToId === id ) {
-			ref.current.scrollIntoView( { behavior: 'smooth' } );
-		}
-	}, [] );
-
 	const classes = classnames(
 		'newspack-section-header',
 		centered && 'newspack-section-header--is-centered',
@@ -51,7 +34,7 @@ const SectionHeader = ( {
 	const HeadingTag = `h${ heading }`;
 
 	return (
-		<div id={ id } ref={ ref }>
+		<div id={ id }>
 			<Grid columns={ 1 } gutter={ 8 } className={ classes }>
 				{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }
 				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }

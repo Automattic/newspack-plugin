@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -23,6 +23,7 @@ const Recaptcha = () => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ settings, setSettings ] = useState( {} );
 	const [ settingsToUpdate, setSettingsToUpdate ] = useState( {} );
+	const prevLoading = useRef( isLoading );
 
 	// Check the reCAPTCHA connectivity status.
 	useEffect( () => {
@@ -38,6 +39,24 @@ const Recaptcha = () => {
 		};
 		fetchSettings();
 	}, [] );
+
+	useEffect( () => {
+		if ( ! prevLoading.current && isLoading ) {
+			// If #id is in the URL, scroll to it once the component start fetching status.
+			const params = new Proxy( new URLSearchParams( window.location.search ), {
+				get: ( searchParams, prop ) => searchParams.get( prop ),
+			} );
+			const scrollToId = params.scrollTo;
+			if ( 'recaptcha' === scrollToId ) {
+				const el = document.getElementById( scrollToId );
+
+				if ( el ) {
+					el.scrollIntoView( { behavior: 'smooth' } );
+				}
+			}
+		}
+		prevLoading.current = isLoading;
+	}, [ isLoading ] );
 
 	const updateSettings = async data => {
 		setError( null );
