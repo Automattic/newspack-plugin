@@ -44,7 +44,6 @@ import {
 // Note: Schema and types for the `prompt` prop is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/master/includes/schemas/class-prompts.php
 export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: PromptProps ) {
 	const [ values, setValues ] = useState< InputValues | Record< string, never > >( {} );
-	const [ isDirty, setIsDirty ] = useState( false );
 	const [ error, setError ] = useState< false | { message: string } >( false );
 	const [ success, setSuccess ] = useState< false | string >( false );
 	const [ image, setImage ] = useState< null | Attachment >( null );
@@ -53,14 +52,9 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 	useEffect( () => {
 		if ( Array.isArray( prompt?.user_input_fields ) ) {
 			const fields = { ...values };
-			let _isDirty = true;
 			prompt.user_input_fields.forEach( ( field: InputField ) => {
 				fields[ field.name ] = field.value || field.default;
-				if ( field.value ) {
-					_isDirty = false; // Allow saving if all values are default.
-				}
 			} );
-			setIsDirty( _isDirty );
 			setValues( fields );
 		}
 
@@ -137,7 +131,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 				.then( ( fetchedPrompts: Array< PromptType > ) => {
 					setPrompts( fetchedPrompts );
 					setSuccess( __( 'Prompt saved.', 'newspack' ) );
-					setIsDirty( false );
 					res();
 				} )
 				.catch( err => {
@@ -194,11 +187,9 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 																toUpdate[ field.name ].indexOf( option.id ),
 																1
 															);
-															setIsDirty( true );
 														}
 														if ( value && toUpdate[ field.name ].indexOf( option.id ) === -1 ) {
 															toUpdate[ field.name ].push( option.id );
-															setIsDirty( true );
 														}
 														setValues( toUpdate );
 													} }
@@ -221,7 +212,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 											const toUpdate = { ...values };
 											toUpdate[ field.name ] = value;
 											if ( JSON.stringify( toUpdate ) !== JSON.stringify( values ) ) {
-												setIsDirty( true );
 											}
 											setValues( toUpdate );
 										} }
@@ -243,7 +233,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 											const toUpdate = { ...values };
 											toUpdate[ field.name ] = value;
 											if ( JSON.stringify( toUpdate ) !== JSON.stringify( values ) ) {
-												setIsDirty( true );
 											}
 											setValues( toUpdate );
 										} }
@@ -264,7 +253,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 												const toUpdate = { ...values };
 												toUpdate[ field.name ] = attachment?.id || 0;
 												if ( toUpdate[ field.name ] !== values[ field.name ] ) {
-													setIsDirty( true );
 												}
 												setValues( toUpdate );
 												if ( attachment?.url ) {
