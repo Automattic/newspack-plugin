@@ -198,7 +198,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										) ) }
 									</BaseControl>
 								) }
-								{ 'string' === field.type && field.max_length && 100 < field.max_length && (
+								{ 'string' === field.type && field.max_length && 150 < field.max_length && (
 									<TextareaControl
 										className="newspack-textarea-control"
 										label={ field.label }
@@ -220,7 +220,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										value={ values[ field.name ] || '' }
 									/>
 								) }
-								{ 'string' === field.type && field.max_length && 100 >= field.max_length && (
+								{ 'string' === field.type && field.max_length && 150 >= field.max_length && (
 									<TextControl
 										label={ field.label }
 										disabled={ inFlight }

@@ -98,6 +98,7 @@ export type PrequisiteProps = {
 		active: boolean;
 		label: string;
 		description: string;
+		warning?: string;
 		instructions?: string;
 		help_url: string;
 		fields?: {
