@@ -21,6 +21,7 @@ const SectionHeader = ( {
 	isWhite = false,
 	noMargin = false,
 	title,
+	id = null,
 } ) => {
 	const classes = classnames(
 		'newspack-section-header',
@@ -34,8 +35,8 @@ const SectionHeader = ( {
 
 	return (
 		<Grid columns={ 1 } gutter={ 8 } className={ classes }>
-			{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }
-			{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
+			{ typeof title === 'string' && <HeadingTag id={ id || null }>{ title }</HeadingTag> }
+			{ typeof title === 'function' && <HeadingTag id={ id || null }>{ title() }</HeadingTag> }
 			{ typeof description === 'string' && <p>{ description }</p> }
 			{ typeof description === 'function' && <p>{ description() }</p> }
 		</Grid>

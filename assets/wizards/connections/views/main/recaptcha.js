@@ -60,14 +60,14 @@ const Recaptcha = () => {
 
 	return (
 		<>
-			<SectionHeader title={ __( 'reCAPTCHA v3', 'newspack' ) } />
+			<SectionHeader id="recaptcha" title={ __( 'reCAPTCHA v3', 'newspack' ) } />
 			<ActionCard
 				isMedium
-				title={ __( 'Enable reCAPTCHA', 'newspack' ) }
+				title={ __( 'Enable reCAPTCHA v3', 'newspack' ) }
 				description={ () => (
 					<p>
 						{ __(
-							'Enabling reCAPTCHA can help protect your site against bot attacks and credit card testing.',
+							'Enabling reCAPTCHA v3 can help protect your site against bot attacks and credit card testing.',
 							'newspack'
 						) }{ ' ' }
 						<ExternalLink href="https://www.google.com/recaptcha/admin/create">

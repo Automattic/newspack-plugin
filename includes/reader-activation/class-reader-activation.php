@@ -421,11 +421,11 @@ final class Reader_Activation {
 			],
 			'recaptcha'        => [
 				'active'       => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
-				'label'        => __( 'reCAPTCHA', 'newspack' ),
-				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack' ),
-				'instructions' => __( 'Enable reCAPTCHA and enter your account credentials.', 'newspack' ),
+				'label'        => __( 'reCAPTCHA v3', 'newspack' ),
+				'description'  => __( 'Connecting to a Google reCAPTCHA v3 account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack' ),
+				'instructions' => __( 'Enable reCAPTCHA v3 and enter your account credentials.', 'newspack' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard' ),
+				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard#recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
