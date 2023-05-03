@@ -50,7 +50,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		return acc;
 	}, {} );
 
-const SIGN_IN_MODAL_HASH = 'signin_modal';
+const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
+let currentHash;
 
 window.newspackRAS = window.newspackRAS || [];
 
@@ -73,7 +74,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 			} );
 		};
 		const handleHashChange = function ( ev ) {
-			if ( window.location.hash === '#' + SIGN_IN_MODAL_HASH ) {
+			currentHash = window.location.hash.replace( '#', '' );
+			if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
 				if ( ev ) {
 					ev.preventDefault();
 				}
@@ -216,7 +218,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					container.classList.remove( 'newspack-reader__auth-form__visible' );
 					container.style.display = 'none';
 					document.body.classList.remove( 'newspack-signin' );
-					if ( window.location.hash === '#' + SIGN_IN_MODAL_HASH ) {
+					if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
 						history.pushState(
 							'',
 							document.title,
@@ -272,7 +274,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 				}
 			}
-			setFormAction( readerActivation.getAuthStrategy() || 'link' );
+			setFormAction(
+				currentHash === 'register_modal' ? 'register' : readerActivation.getAuthStrategy() || 'link'
+			);
+			window.addEventListener( 'hashchange', () => {
+				if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
+					setFormAction(
+						currentHash === 'register_modal'
+							? 'register'
+							: readerActivation.getAuthStrategy() || 'link'
+					);
+				}
+			} );
 			readerActivation.on( 'reader', () => {
 				if ( readerActivation.getOTPHash() ) {
 					setFormAction( 'otp' );
