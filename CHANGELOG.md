@@ -1,3 +1,15 @@
+# [1.114.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.114.0-alpha.1...v1.114.0-alpha.2) (2023-05-03)
+
+
+### Bug Fixes
+
+* **ras-defaults:** updates for design review feedback ([#2435](https://github.com/Automattic/newspack-plugin/issues/2435)) ([3aa6de7](https://github.com/Automattic/newspack-plugin/commit/3aa6de7e9a77d9640f3b42c2e9bf8182f3dc2d1b))
+
+
+### Features
+
+* update NRH settings page and redirect behavior ([#2425](https://github.com/Automattic/newspack-plugin/issues/2425)) ([f7a6c6b](https://github.com/Automattic/newspack-plugin/commit/f7a6c6b5d9ef5876c1128407b541a6d8cd986a95))
+
 # [1.114.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.113.0...v1.114.0-alpha.1) (2023-04-28)
 
 
