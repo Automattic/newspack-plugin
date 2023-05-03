@@ -23,8 +23,22 @@ export default function Prerequisite( {
 }: PrequisiteProps ) {
 	const { href } = prerequisite;
 
+	// If the prerequisite is active but has empty fields, show a warning.
+	const hasEmptyFields = () => {
+		if ( prerequisite.active && prerequisite.fields && prerequisite.warning ) {
+			const emptyValues = Object.keys( prerequisite.fields ).filter(
+				fieldName => '' === config[ fieldName ]
+			);
+			if ( emptyValues.length ) {
+				return prerequisite.warning;
+			}
+		}
+		return null;
+	};
+
 	return (
 		<ActionCard
+			className="newspack-ras-wizard__prerequisite"
 			isMedium
 			expandable
 			collapse={ prerequisite.active }
@@ -35,6 +49,8 @@ export default function Prerequisite( {
 				prerequisite.active ? __( 'Ready', 'newspack' ) : __( 'Pending', 'newspack' )
 			) }
 			checkbox={ prerequisite.active ? 'checked' : 'unchecked' }
+			notificationLevel="info"
+			notification={ hasEmptyFields() }
 		>
 			{
 				// Inner card content.
