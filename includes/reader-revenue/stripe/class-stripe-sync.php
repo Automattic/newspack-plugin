@@ -423,8 +423,9 @@ Running Stripe Connect to Stripe Subscriptions Migration...
 	 * @param array $assoc_args Associative args.
 	 */
 	public static function sync_stripe_subscriptions_to_wc( $args, $assoc_args ) {
-		$is_dry_run = ! empty( $assoc_args['dry-run'] );
-		$batch_size = ! empty( $assoc_args['batch-size'] ) ? intval( $assoc_args['batch-size'] ) : 10;
+		$is_dry_run     = ! empty( $assoc_args['dry-run'] );
+		$force_override = ! empty( $assoc_args['force'] );
+		$batch_size     = ! empty( $assoc_args['batch-size'] ) ? intval( $assoc_args['batch-size'] ) : 10;
 
 		\WP_CLI::log(
 			'
@@ -442,8 +443,9 @@ Running Stripe to WC Subscriptions Migration...
 			self::process_stripe_subscriber(
 				$customer,
 				[
-					'dry_run'       => $is_dry_run,
-					'migrate_to_wc' => true,
+					'dry_run'                     => $is_dry_run,
+					'force_subscription_override' => $force_override,
+					'migrate_to_wc'               => true,
 				]
 			);
 
@@ -606,7 +608,7 @@ Running script to set next payment dates on migrated subscriptions...
 				continue;
 			}
 
-			if ( 'active' !== $existing_subscription->status ) {
+			if ( ! in_array( $existing_subscription->status, [ 'active', 'trialing' ], true ) ) {
 				\WP_CLI::log( '  - Subscription is not active. Skipping.' );
 				return;
 			}
@@ -636,8 +638,9 @@ Running script to set next payment dates on migrated subscriptions...
 					$source_id = $customer->invoice_settings->default_payment_method ?? $customer->default_source;
 
 					$stripe_metadata_base = [
-						'stripe_customer_id' => $customer->id,
-						'stripe_source_id'   => $source_id,
+						'stripe_customer_id'       => $customer->id,
+						'stripe_source_id'         => $source_id,
+						'stripe_next_payment_date' => $existing_subscription->current_period_end,
 					];
 
 					// Check if this subscription is already synchronised (shadowed) in WooCommerce.
@@ -788,6 +791,11 @@ Running script to set next payment dates on migrated subscriptions...
 					[
 						'type'     => 'flag',
 						'name'     => 'dry-run',
+						'optional' => true,
+					],
+					[
+						'type'     => 'flag',
+						'name'     => 'force',
 						'optional' => true,
 					],
 					[

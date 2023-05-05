@@ -482,6 +482,9 @@ class WooCommerce_Connection {
 		if ( isset( $metadata['stripe_intent_id'] ) ) {
 			$order->add_meta_data( '_stripe_intent_id', $metadata['stripe_intent_id'] );
 		}
+		if ( isset( $metadata['stripe_next_payment_date'] ) ) {
+			$order->add_meta_data( '_stripe_next_payment_date', $metadata['stripe_next_payment_date'] );
+		}
 		if ( 'completed' === $order->get_status() ) {
 			$order->add_meta_data( '_stripe_charge_captured', 'yes' );
 		}
@@ -702,7 +705,7 @@ class WooCommerce_Connection {
 					}
 
 					// Ensure the next payment is scheduled.
-					$next_payment_date = $subscription->calculate_date( 'next_payment' );
+					$next_payment_date = isset( $order_data['stripe_next_payment_date'] ) ? self::convert_timestamp_to_date( $order_data['stripe_next_payment_date'] ) : $subscription->calculate_date( 'next_payment' );
 					$subscription->update_dates(
 						[
 							'next_payment' => $next_payment_date,
