@@ -1,3 +1,10 @@
+# [1.114.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.114.0-alpha.3...v1.114.0-alpha.4) (2023-05-08)
+
+
+### Bug Fixes
+
+* check for required plugins in RAS setup wizard ([#2442](https://github.com/Automattic/newspack-plugin/issues/2442)) ([0d5bb63](https://github.com/Automattic/newspack-plugin/commit/0d5bb63e028a13f47712150787f707593a68e969))
+
 # [1.114.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.114.0-alpha.2...v1.114.0-alpha.3) (2023-05-03)
 
 
