@@ -42,6 +42,13 @@ final class Webhooks {
 	const LOGGER_HEADER = 'NEWSPACK-WEBHOOKS';
 
 	/**
+	 * Endpoints registered via plugins using register_system_endpoint method.
+	 *
+	 * @var array
+	 */
+	private static $system_endpoints = [];
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -221,6 +228,32 @@ final class Webhooks {
 	}
 
 	/**
+	 * Register a webhook endpoint. For plugins use. See `newspack_webooks_register_endpoint` action.
+	 *
+	 * @param string $id      An unique identifier for the endpoint.
+	 * @param string $url     Endpoint URL.
+	 * @param array  $actions Array of action names.
+	 * @param bool   $global  Whether the endpoint should be triggered for all actions.
+	 *
+	 * @return void
+	 */
+	public static function register_system_endpoint( $id, $url, $actions = [], $global = false ) {
+
+		$endpoint = [
+			'id'             => $id,
+			'url'            => $url,
+			'actions'        => $actions,
+			'global'         => $global,
+			'label'          => $id,
+			'disabled'       => false,
+			'disabled_error' => null,
+			'system'         => true,
+		];
+
+		self::$system_endpoints[ $id ] = $endpoint;
+	}
+
+	/**
 	 * Update a webhook endpoint.
 	 *
 	 * @param int    $id       Endpoint ID.
@@ -320,6 +353,7 @@ final class Webhooks {
 			'label'          => \get_term_meta( $endpoint->term_id, 'label', true ),
 			'disabled'       => $disabled,
 			'disabled_error' => $disabled ? \get_term_meta( $endpoint->term_id, 'disabled_error', true ) : null,
+			'system'         => false,
 		];
 	}
 
@@ -349,7 +383,7 @@ final class Webhooks {
 		$terms     = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
 		$endpoints = array_map( [ __CLASS__, 'get_endpoint_by_term' ], $terms );
 
-		return apply_filters( 'newspack_webhooks_get_endpoints', $endpoints );
+		return array_values( array_merge( $endpoints, self::$system_endpoints ) );
 	}
 
 	/**
@@ -393,20 +427,33 @@ final class Webhooks {
 	 * @return array Array of requests.
 	 */
 	public static function get_endpoint_requests( $endpoint_id, $amount = -1 ) {
-		$posts = \get_posts(
-			[
-				'post_type'      => self::REQUEST_POST_TYPE,
-				'post_status'    => [ 'publish', 'draft', 'future', 'trash' ],
-				'posts_per_page' => $amount,
-				'tax_query'      => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-					[
-						'taxonomy' => self::ENDPOINT_TAXONOMY,
-						'field'    => 'term_id',
-						'terms'    => $endpoint_id,
-					],
+		$endpoint = self::get_endpoint( $endpoint_id );
+		if ( is_wp_error( $endpoint ) ) {
+			return [];
+		}
+		$query = [
+			'post_type'      => self::REQUEST_POST_TYPE,
+			'post_status'    => [ 'publish', 'draft', 'future', 'trash' ],
+			'posts_per_page' => $amount,
+		];
+		if ( true === $endpoint['system'] ) {
+			$query['meta_query'] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				[
+					'key'   => '_endpoint_id',
+					'value' => $endpoint_id,
 				],
-			]
-		);
+			];
+		} else {
+			$query['tax_query'] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				[
+					'taxonomy' => self::ENDPOINT_TAXONOMY,
+					'field'    => 'term_id',
+					'terms'    => $endpoint_id,
+				],
+			];
+		}
+		$posts = \get_posts( $query );
+
 		return array_map( [ __CLASS__, 'get_request' ], $posts );
 	}
 
@@ -454,8 +501,17 @@ final class Webhooks {
 			return $request_id;
 		}
 
-		\wp_set_object_terms( $request_id, $endpoint_id, self::ENDPOINT_TAXONOMY );
-		\update_post_meta( $request_id, '_endpoint_id', $endpoint_id );
+		$endpoint = self::get_endpoint( $endpoint_id );
+		if ( is_wp_error( $endpoint ) ) {
+			Logger::error( 'Error creating webhook request: ' . $endpoint->get_error_message(), self::LOGGER_HEADER );
+			return $endpoint;
+		}
+
+		if ( true === $endpoint['system'] ) {
+			\update_post_meta( $request_id, '_endpoint_id', $endpoint_id );
+		} else {
+			\wp_set_object_terms( $request_id, $endpoint_id, self::ENDPOINT_TAXONOMY );
+		}
 
 		$body = [
 			'request_id' => $request_id,
@@ -465,7 +521,13 @@ final class Webhooks {
 			'client_id'  => $client_id,
 		];
 
-		$body = apply_filters( 'newspack_webhooks_request_body', $body, $request_id, $endpoint_id, $action_name, $timestamp, $data, $client_id );
+		/**
+		 * Filters the request body when creating a new request.
+		 *
+		 * @param array  $body        Request body.
+		 * @param int    $endpoint_id Endpoint ID.
+		 */
+		$body = apply_filters( 'newspack_webhooks_request_body', $body, $endpoint_id );
 
 		\update_post_meta( $request_id, 'body', \wp_json_encode( $body ) );
 		\update_post_meta( $request_id, 'action_name', $action_name );
