@@ -1,3 +1,17 @@
+# [1.114.0](https://github.com/Automattic/newspack-plugin/compare/v1.113.1...v1.114.0) (2023-05-08)
+
+
+### Features
+
+* force release version bump ([323da0a](https://github.com/Automattic/newspack-plugin/commit/323da0a010a1d1b1689b65aefbf4236707dc66cd))
+
+## [1.113.1](https://github.com/Automattic/newspack-plugin/compare/v1.113.0...v1.113.1) (2023-05-08)
+
+
+### Bug Fixes
+
+* force release build ([5691429](https://github.com/Automattic/newspack-plugin/commit/56914296a4cf92fe6c061e4f7f1bb592997a15f1))
+
 # [1.114.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.114.0-alpha.3...v1.114.0-alpha.4) (2023-05-08)
 
 
