@@ -217,7 +217,7 @@ final class Webhooks {
 		}
 		\update_term_meta( $endpoint['term_id'], 'actions', $actions );
 		\update_term_meta( $endpoint['term_id'], 'global', $global );
-		return self::get_endpoint( $endpoint['term_id'] );
+		return self::get_endpoint_by_term( $endpoint['term_id'] );
 	}
 
 	/**
@@ -247,7 +247,7 @@ final class Webhooks {
 		\update_term_meta( $endpoint['term_id'], 'actions', $actions );
 		\update_term_meta( $endpoint['term_id'], 'global', $global );
 		\update_term_meta( $endpoint['term_id'], 'disabled', $disabled );
-		return self::get_endpoint( $endpoint['term_id'] );
+		return self::get_endpoint_by_term( $endpoint['term_id'] );
 	}
 
 	/**
@@ -298,13 +298,13 @@ final class Webhooks {
 	}
 
 	/**
-	 * Get a webhook endpoint array.
+	 * Get a webhook endpoint array from a term.
 	 *
 	 * @param int|WP_Term $endpoint Endpoint ID or term object.
 	 *
 	 * @return array|WP_Error
 	 */
-	public static function get_endpoint( $endpoint ) {
+	public static function get_endpoint_by_term( $endpoint ) {
 		if ( is_int( $endpoint ) ) {
 			$endpoint = \get_term( $endpoint, self::ENDPOINT_TAXONOMY );
 		}
@@ -324,13 +324,32 @@ final class Webhooks {
 	}
 
 	/**
+	 * Get a webhook endpoint array.
+	 *
+	 * @param int|string $endpoint_id Endpoint ID.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_endpoint( $endpoint_id ) {
+		$endpoints = self::get_endpoints();
+		foreach ( $endpoints as $endpoint ) {
+			if ( $endpoint['id'] === $endpoint_id ) {
+				return $endpoint;
+			}
+		}
+		return new WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+	}
+
+	/**
 	 * Get all webhook endpoints.
 	 *
 	 * @return array Array of endpoints.
 	 */
 	public static function get_endpoints() {
-		$endpoints = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
-		return array_map( [ __CLASS__, 'get_endpoint' ], $endpoints );
+		$terms     = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
+		$endpoints = array_map( [ __CLASS__, 'get_endpoint_by_term' ], $terms );
+
+		return apply_filters( 'newspack_webhooks_get_endpoints', $endpoints );
 	}
 
 	/**
@@ -436,6 +455,7 @@ final class Webhooks {
 		}
 
 		\wp_set_object_terms( $request_id, $endpoint_id, self::ENDPOINT_TAXONOMY );
+		\update_post_meta( $request_id, '_endpoint_id', $endpoint_id );
 
 		$body = [
 			'request_id' => $request_id,
@@ -444,6 +464,9 @@ final class Webhooks {
 			'data'       => $data,
 			'client_id'  => $client_id,
 		];
+
+		$body = apply_filters( 'newspack_webhooks_request_body', $body, $request_id, $endpoint_id, $action_name, $timestamp, $data, $client_id );
+
 		\update_post_meta( $request_id, 'body', \wp_json_encode( $body ) );
 		\update_post_meta( $request_id, 'action_name', $action_name );
 		\update_post_meta( $request_id, 'client_id', $action_name );
@@ -476,7 +499,10 @@ final class Webhooks {
 		$endpoint_id = \wp_get_object_terms( $request_id, self::ENDPOINT_TAXONOMY, [ 'fields' => 'ids' ] );
 		$endpoint_id = $endpoint_id ? $endpoint_id[0] : null;
 		if ( ! $endpoint_id ) {
-			return null;
+			$endpoint_id = get_post_meta( $request_id, '_endpoint_id', true );
+			if ( ! $endpoint_id ) {
+				return null;
+			}
 		}
 		return self::get_endpoint( $endpoint_id );
 	}
