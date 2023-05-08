@@ -75,6 +75,7 @@ class ImageUpload extends Component {
 		const {
 			buttonLabel,
 			className,
+			disabled,
 			help,
 			image,
 			info,
@@ -104,17 +105,22 @@ class ImageUpload extends Component {
 								alt={ __( 'Image preview', 'newspack' ) }
 							/>
 							<div className="newspack-image-upload__controls">
-								<Button onClick={ this.openModal } isLink>
+								<Button disabled={ disabled } onClick={ this.openModal } isLink>
 									{ __( 'Replace', 'newspack' ) }
 								</Button>
 								<span className="sep" />
-								<Button onClick={ () => onChange( null ) } isLink isDestructive>
+								<Button
+									disabled={ disabled }
+									onClick={ () => onChange( null ) }
+									isLink
+									isDestructive
+								>
 									{ __( 'Remove', 'newspack' ) }
 								</Button>
 							</div>
 						</>
 					) : (
-						<Button onClick={ this.openModal } isLink>
+						<Button disabled={ disabled } onClick={ this.openModal } isLink>
 							{ buttonLabel ? buttonLabel : __( 'Upload', 'newspack' ) }
 						</Button>
 					) }
