@@ -235,9 +235,14 @@ final class Webhooks {
 	 * @param array  $actions Array of action names.
 	 * @param bool   $global  Whether the endpoint should be triggered for all actions.
 	 *
+	 * @throws \InvalidArgumentException If the ID is invalid.
 	 * @return void
 	 */
 	public static function register_system_endpoint( $id, $url, $actions = [], $global = false ) {
+
+		if ( ! is_string( $id ) || ctype_digit( $id ) || ! preg_match( '/^[a-z0-9-_]+$/', $id ) || ! empty( self::$system_endpoints[ $id ] ) ) {
+			throw new \InvalidArgumentException( 'Endpoint ID must be a unique string containing only lowercase letters, numbers, dashes and underscores, and it can not be only numerical.' );
+		}
 
 		$endpoint = [
 			'id'             => $id,
