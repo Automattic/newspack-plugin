@@ -1,3 +1,10 @@
+## [1.114.1](https://github.com/Automattic/newspack-plugin/compare/v1.114.0...v1.114.1) (2023-05-10)
+
+
+### Bug Fixes
+
+* ensure migrated Stripe subs have next_payment scheduled ([#2434](https://github.com/Automattic/newspack-plugin/issues/2434)) ([b3b32f0](https://github.com/Automattic/newspack-plugin/commit/b3b32f0bfc09a6cf296153f783778c146e3b8291))
+
 # [1.114.0](https://github.com/Automattic/newspack-plugin/compare/v1.113.1...v1.114.0) (2023-05-08)
 
 
