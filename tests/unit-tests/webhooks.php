@@ -362,17 +362,17 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 * Tests that getting endpoint requests fetch requests for system endpoints.
 	 */
 	public function test_get_endpoint_requests() {
-		Data_Events\Webhooks::register_system_endpoint( 'test', 'https://example.com/test', [], true );
-		Data_Events\Webhooks::register_system_endpoint( 'test-2', 'https://example2.com/test', [ 'test_action' ] );
+		Data_Events\Webhooks::register_system_endpoint( 'test-2', 'https://example.com/test', [], true );
+		Data_Events\Webhooks::register_system_endpoint( 'test-3', 'https://example2.com/test', [ 'test_action' ] );
 		$this->dispatch_event();
 
 		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
 		$this->assertSame( 1, count( $requests ) );
 
-		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test' );
+		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-2' );
 		$this->assertSame( 1, count( $requests ) );
 
-		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-2' );
+		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-3' );
 		$this->assertSame( 1, count( $requests ) );
 	}
 
