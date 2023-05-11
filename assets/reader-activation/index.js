@@ -57,8 +57,9 @@ function Store() {
  * @param {Object} data   Data.
  */
 export function dispatch( action, data ) {
-	store.add( 'activity', { action, data, timestamp: Date.now() } );
-	emit( EVENTS.activity, { action, data } );
+	const activity = { action, data, timestamp: Date.now() };
+	store.add( 'activity', activity );
+	emit( EVENTS.activity, activity );
 }
 
 /**
