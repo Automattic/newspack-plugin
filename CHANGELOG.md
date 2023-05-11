@@ -1,3 +1,18 @@
+# [1.115.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.2...v1.115.0-alpha.3) (2023-05-11)
+
+
+### Bug Fixes
+
+* check for required plugins in RAS setup wizard ([#2442](https://github.com/Automattic/newspack-plugin/issues/2442)) ([11d682a](https://github.com/Automattic/newspack-plugin/commit/11d682a01ca3d4ed3abb1ec0a29b0ab528a03385))
+* **ga4:** donation event conditional typo ([#2439](https://github.com/Automattic/newspack-plugin/issues/2439)) ([d2a9373](https://github.com/Automattic/newspack-plugin/commit/d2a9373b5edaea74b2f7cbeaf3cf8f3ecd19e091))
+* Improved handling of trial subscriptions in ESP sync ([#2385](https://github.com/Automattic/newspack-plugin/issues/2385)) ([6fe3368](https://github.com/Automattic/newspack-plugin/commit/6fe33680cc1e67dd440c9148990fcd6ca6019215))
+
+
+### Features
+
+* add indentation to groups newsletters ([#2424](https://github.com/Automattic/newspack-plugin/issues/2424)) ([d423151](https://github.com/Automattic/newspack-plugin/commit/d423151a86dac5bd21c46128f5da78afde780be7))
+* filter existing webhooks endpoints ([#2446](https://github.com/Automattic/newspack-plugin/issues/2446)) ([d63a296](https://github.com/Automattic/newspack-plugin/commit/d63a296ed18f9efda6afe524dd41eec31722fc1b))
+
 # [1.115.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.1...v1.115.0-alpha.2) (2023-05-10)
 
 
