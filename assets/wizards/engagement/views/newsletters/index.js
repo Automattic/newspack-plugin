@@ -32,13 +32,13 @@ import {
 export const NewspackNewsletters = ( {
 	className,
 	onUpdate,
-	authUrl = false,
-	setAuthUrl,
-	isOnboarding = true,
 	initialProvider,
-	setInitialProvider,
 	newslettersConfig,
-	setLockedLists,
+	isOnboarding = true,
+	authUrl = false,
+	setInitialProvider = () => {},
+	setAuthUrl = () => {},
+	setLockedLists = () => {},
 } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
