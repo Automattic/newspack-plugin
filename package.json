@@ -1,6 +1,6 @@
 {
 	"name": "newspack",
-	"version": "1.113.0",
+	"version": "1.114.1",
 	"description": "The Newspack plugin. https://newspack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -13,9 +13,9 @@
 	"devDependencies": {
 		"@rushstack/eslint-patch": "^1.2.0",
 		"@testing-library/react": "^12.1.4",
-		"@wordpress/browserslist-config": "^5.14.0",
+		"@wordpress/browserslist-config": "^5.15.0",
 		"eslint": "^7.32.0",
-		"lint-staged": "^13.2.1",
+		"lint-staged": "^13.2.2",
 		"newspack-scripts": "^5.1.0",
 		"postcss-scss": "^4.0.6",
 		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
@@ -37,10 +37,11 @@
 		"watch": "newspack-scripts watch",
 		"test": "newspack-scripts test",
 		"lint": "npm run lint:scss && npm run lint:js",
-		"lint:js": "eslint --ext .js,.jsx assets",
-		"lint:js:staged": "eslint --ext .js,.jsx",
+		"lint:js": "eslint --ext .js,.jsx,.ts,.tsx assets",
+		"lint:js:staged": "eslint --ext .js,.jsx,.ts,.tsx",
 		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
-		"format:js": "prettier 'assets/**/*.{js,jsx}' --write",
+		"format:js": "prettier 'assets/**/*.{js,jsx,ts,tsx}' --write",
+		"typescript:check": "newspack-scripts typescript-check",
 		"lint:scss": "stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
 		"format:scss": "prettier --write '**/*.scss'",
 		"lint:scss:staged": "stylelint --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
@@ -50,10 +51,10 @@
 	},
 	"dependencies": {
 		"@babel/plugin-transform-runtime": "^7.21.4",
-		"@babel/preset-env": "^7.21.4",
+		"@babel/preset-env": "^7.21.5",
 		"classnames": "^2.3.2",
 		"colord": "^2.9.3",
-		"date-fns": "^2.29.3",
+		"date-fns": "^2.30.0",
 		"deep-map-keys": "^2.0.1",
 		"human-number": "^2.0.1",
 		"js-cookie": "^3.0.5",

@@ -20,7 +20,6 @@ import {
 	Card,
 	ActionCard,
 	Grid,
-	Notice,
 	PluginInstaller,
 	SectionHeader,
 	SelectControl,
@@ -30,15 +29,65 @@ import {
 	withWizardScreen,
 } from '../../../../components/src';
 
+import './style.scss';
+
 export const NewspackNewsletters = ( {
 	className,
 	onUpdate,
 	authUrl = false,
+	setAuthUrl,
 	isOnboarding = true,
-	disabled = false,
+	initialProvider,
+	setInitialProvider,
+	newslettersConfig,
+	setLockedLists,
 } ) => {
-	const [ error, setError ] = useState();
+	const [ inFlight, setInFlight ] = useState( false );
+	const [ error, setError ] = useState( false );
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
+
+	useEffect( () => {
+		const provider = newslettersConfig?.newspack_newsletters_service_provider;
+		if ( initialProvider && provider !== initialProvider ) {
+			setLockedLists( true );
+		} else {
+			setLockedLists( false );
+		}
+		if ( ! initialProvider && provider ) {
+			setInitialProvider( provider );
+		}
+	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
+
+	useEffect( () => {
+		verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
+	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
+
+	const verifyToken = provider => {
+		setAuthUrl( false );
+		if ( ! provider ) {
+			return;
+		}
+		// Constant Contact is the only provider using an OAuth strategy.
+		if ( 'constant_contact' !== provider ) {
+			return;
+		}
+		setInFlight( true );
+		apiFetch( { path: `/newspack-newsletters/v1/${ provider }/verify_token` } )
+			.then( response => {
+				if ( ! response.valid && response.auth_url ) {
+					setAuthUrl( response.auth_url );
+				} else {
+					setAuthUrl( false );
+				}
+			} )
+			.catch( () => {
+				setAuthUrl( false );
+			} )
+			.finally( () => {
+				setInFlight( false );
+			} );
+	};
+
 	const performConfigUpdate = update => {
 		updateConfig( update );
 		if ( onUpdate ) {
@@ -46,6 +95,7 @@ export const NewspackNewsletters = ( {
 		}
 	};
 	const fetchConfiguration = () => {
+		setError( false );
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 		} )
@@ -67,9 +117,23 @@ export const NewspackNewsletters = ( {
 			};
 		}
 	};
+	const saveNewslettersData = async () => {
+		setError( false );
+		setInFlight( true );
+		apiFetch( {
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
+			method: 'POST',
+			data: newslettersConfig,
+		} ).finally( () => {
+			setInitialProvider( newslettersConfig?.newspack_newsletters_service_provider );
+			verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
+			setLockedLists( false );
+			setInFlight( false );
+		} );
+	};
 	useEffect( fetchConfiguration, [] );
 	const getSettingProps = key => ( {
-		disabled,
+		disabled: inFlight,
 		value: config.settings[ key ]?.value || '',
 		checked: Boolean( config.settings[ key ]?.value ),
 		label: config.settings[ key ]?.description,
@@ -85,49 +149,71 @@ export const NewspackNewsletters = ( {
 	const renderProviderSettings = () => {
 		const providerSelectProps = getSettingProps( 'newspack_newsletters_service_provider' );
 		return (
-			<Grid gutter={ 16 } columns={ 1 }>
-				{ false !== authUrl && (
-					<Card isSmall>
-						<h3>{ __( 'Authorize Application', 'newspack' ) }</h3>
-						<p>
-							{ sprintf(
-								// translators: %s is the name of the ESP.
-								__( 'Authorize %s to connect to Newspack.', 'newspack-newsletters' ),
-								getSelectedProviderName()
-							) }
-						</p>
-						<Button isSecondary onClick={ handleAuth }>
-							{ __( 'Authorize', 'newspack' ) }
-						</Button>
-					</Card>
+			<ActionCard
+				isMedium
+				title={ __( 'Email Service Provider', 'newspack' ) }
+				description={ __(
+					'Connect an email service provider (ESP) to author and send newsletters.',
+					'newspack'
 				) }
-				{ values( config.settings )
-					.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
-					.map( setting => {
-						if ( isOnboarding && ! setting.onboarding ) {
-							return null;
-						}
-						switch ( setting.type ) {
-							case 'select':
-								return <SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
-							case 'checkbox':
-								return (
-									<CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />
-								);
-							default:
-								return (
-									<Grid columns={ 1 } gutter={ 8 } key={ setting.key }>
-										<TextControl { ...getSettingProps( setting.key ) } />
-										{ setting.help && setting.helpURL && (
-											<p>
-												<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
-											</p>
-										) }
-									</Grid>
-								);
-						}
-					} ) }
-			</Grid>
+				notification={ error ? error?.message || __( 'Something went wrong.', 'newspack' ) : null }
+				notificationLevel="error"
+				hasGreyHeader
+				actionContent={
+					<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
+						{ __( 'Save Settings', 'newspack' ) }
+					</Button>
+				}
+				disabled={ inFlight }
+			>
+				<Grid gutter={ 16 } columns={ 1 }>
+					{ false !== authUrl && (
+						<Card isSmall>
+							<h3>{ __( 'Authorize Application', 'newspack' ) }</h3>
+							<p>
+								{ sprintf(
+									// translators: %s is the name of the ESP.
+									__( 'Authorize %s to connect to Newspack.', 'newspack-newsletters' ),
+									getSelectedProviderName()
+								) }
+							</p>
+							<Button isSecondary onClick={ handleAuth }>
+								{ __( 'Authorize', 'newspack' ) }
+							</Button>
+						</Card>
+					) }
+					{ values( config.settings )
+						.filter(
+							setting => ! setting.provider || setting.provider === providerSelectProps.value
+						)
+						.map( setting => {
+							if ( isOnboarding && ! setting.onboarding ) {
+								return null;
+							}
+							switch ( setting.type ) {
+								case 'select':
+									return (
+										<SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />
+									);
+								case 'checkbox':
+									return (
+										<CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />
+									);
+								default:
+									return (
+										<Grid columns={ 1 } gutter={ 8 } key={ setting.key }>
+											<TextControl { ...getSettingProps( setting.key ) } />
+											{ setting.help && setting.helpURL && (
+												<p>
+													<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
+												</p>
+											) }
+										</Grid>
+									);
+							}
+						} ) }
+				</Grid>
+			</ActionCard>
 		);
 	};
 	if ( ! error && isEmpty( config ) ) {
@@ -135,12 +221,6 @@ export const NewspackNewsletters = ( {
 			<div className="flex justify-around mt4">
 				<Waiting />
 			</div>
-		);
-	}
-
-	if ( error ) {
-		return (
-			<Notice noticeText={ error.message || __( 'Something went wrong.', 'newspack' ) } isError />
 		);
 	}
 
@@ -158,7 +238,7 @@ export const NewspackNewsletters = ( {
 	);
 };
 
-export const SubscriptionLists = ( { onUpdate } ) => {
+export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ lists, setLists ] = useState( [] );
@@ -195,7 +275,7 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 		newLists[ index ][ name ] = value;
 		updateConfig( newLists );
 	};
-	useEffect( fetchLists, [] );
+	useEffect( fetchLists, [ initialProvider ] );
 
 	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
@@ -211,155 +291,112 @@ export const SubscriptionLists = ( { onUpdate } ) => {
 
 	return (
 		<>
-			<Card headerActions noBorder>
-				<SectionHeader
-					title={ __( 'Subscription Lists', 'newspack' ) }
-					description={ __( 'Manage the lists available for subscription.', 'newspack' ) }
-				/>
-				{ newspack_engagement_wizard.new_subscription_lists_url && (
-					<Button
-						variant="secondary"
-						href={ newspack_engagement_wizard.new_subscription_lists_url }
-					>
-						{ __( 'Add New', 'newspack' ) }
-					</Button>
-				) }
-			</Card>
-			{ error && (
-				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
-					isError
-				/>
-			) }
-			{ lists.map( ( list, index ) => (
-				<ActionCard
-					key={ list.id }
-					title={ list.name }
-					description={ list?.type_label ? list.type_label : null }
-					disabled={ inFlight }
-					toggleOnChange={ handleChange( index, 'active' ) }
-					toggleChecked={ list.active }
-					actionText={
-						list?.edit_link ? (
-							<ExternalLink href={ list.edit_link }>
-								{ __( 'Edit', 'newspack_newsletters' ) }
-							</ExternalLink>
-						) : null
-					}
-				>
-					{ list.active && 'local' !== list?.type && (
-						<>
-							<TextControl
-								label={ __( 'List title', 'newspack' ) }
-								value={ list.title }
-								disabled={ inFlight || 'local' === list?.type }
-								onChange={ handleChange( index, 'title' ) }
-							/>
-							<TextareaControl
-								label={ __( 'List description', 'newspack' ) }
-								value={ list.description }
-								disabled={ inFlight || 'local' === list?.type }
-								onChange={ handleChange( index, 'description' ) }
-							/>
-						</>
-					) }
-				</ActionCard>
-			) ) }
-			<div className="newspack-buttons-card">
-				<Button isPrimary onClick={ saveLists } disabled={ inFlight }>
-					{ __( 'Save Subscription Lists', 'newspack' ) }
-				</Button>
-			</div>
+			<ActionCard
+				isMedium
+				title={ __( 'Subscription Lists', 'newspack' ) }
+				description={ __( 'Manage the lists available to readers for subscription.', 'newspack' ) }
+				notification={
+					/* eslint-disable no-nested-ternary */
+					error
+						? error?.message || __( 'Something went wrong.', 'newspack' )
+						: lockedLists
+						? __(
+								'Please save your ESP settings before changing your subscription lists.',
+								'newspack'
+						  )
+						: null
+				}
+				notificationLevel={ error ? 'error' : 'warning' }
+				hasGreyHeader
+				actionContent={
+					<>
+						{ newspack_engagement_wizard.new_subscription_lists_url && (
+							<Button
+								variant="secondary"
+								disabled={ inFlight || lockedLists }
+								href={ newspack_engagement_wizard.new_subscription_lists_url }
+							>
+								{ __( 'Add New', 'newspack' ) }
+							</Button>
+						) }
+						<Button isPrimary onClick={ saveLists } disabled={ inFlight || lockedLists }>
+							{ __( 'Save Subscription Lists', 'newspack' ) }
+						</Button>
+					</>
+				}
+				disabled={ inFlight || lockedLists }
+			>
+				{ ! lockedLists &&
+					lists.map( ( list, index ) => (
+						<ActionCard
+							key={ list.id }
+							isSmall
+							simple
+							hasWhiteHeader
+							title={ list.name }
+							description={ list?.type_label ? list.type_label : null }
+							disabled={ inFlight }
+							toggleOnChange={ handleChange( index, 'active' ) }
+							toggleChecked={ list.active }
+							className={
+								'mailchimp-group' === list?.type ? 'newspack-newsletters-group-list-item' : ''
+							}
+							actionText={
+								list?.edit_link ? (
+									<ExternalLink href={ list.edit_link }>
+										{ __( 'Edit', 'newspack_newsletters' ) }
+									</ExternalLink>
+								) : null
+							}
+						>
+							{ list.active && 'local' !== list?.type && (
+								<>
+									<TextControl
+										label={ __( 'List title', 'newspack' ) }
+										value={ list.title }
+										disabled={ inFlight || 'local' === list?.type }
+										onChange={ handleChange( index, 'title' ) }
+									/>
+									<TextareaControl
+										label={ __( 'List description', 'newspack' ) }
+										value={ list.description }
+										disabled={ inFlight || 'local' === list?.type }
+										onChange={ handleChange( index, 'description' ) }
+									/>
+								</>
+							) }
+						</ActionCard>
+					) ) }
+			</ActionCard>
 		</>
 	);
 };
 
 const Newsletters = () => {
 	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
-	const [ inFlight, setInFlight ] = useState( false );
 	const [ initialProvider, setInitialProvider ] = useState( '' );
 	const [ lockedLists, setLockedLists ] = useState( false );
 	const [ authUrl, setAuthUrl ] = useState( false );
 
-	useEffect( () => {
-		const provider = newslettersConfig?.newspack_newsletters_service_provider;
-		if ( initialProvider && provider !== initialProvider ) {
-			setLockedLists( true );
-		} else {
-			setLockedLists( false );
-		}
-		if ( ! initialProvider && provider ) {
-			setInitialProvider( provider );
-		}
-	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
-
-	const verifyToken = provider => {
-		setAuthUrl( false );
-		if ( ! provider ) {
-			return;
-		}
-		// Constant Contact is the only provider using an OAuth strategy.
-		if ( 'constant_contact' !== provider ) {
-			return;
-		}
-		setInFlight( true );
-		apiFetch( { path: `/newspack-newsletters/v1/${ provider }/verify_token` } )
-			.then( response => {
-				if ( ! response.valid && response.auth_url ) {
-					setAuthUrl( response.auth_url );
-				} else {
-					setAuthUrl( false );
-				}
-			} )
-			.catch( () => {
-				setAuthUrl( false );
-			} )
-			.finally( () => {
-				setInFlight( false );
-			} );
-	};
-	useEffect( () => {
-		verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
-	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
-
-	const saveNewslettersData = async () => {
-		setInFlight( true );
-		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
-			method: 'POST',
-			data: newslettersConfig,
-		} ).finally( () => {
-			setInitialProvider( newslettersConfig?.newspack_newsletters_service_provider );
-			verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
-			setLockedLists( false );
-			setInFlight( false );
-		} );
-	};
-
 	return (
 		<>
-			<Card headerActions noBorder>
-				<h2>{ __( 'Authoring', 'newspack' ) }</h2>
-				<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
-					{ __( 'Save Settings', 'newspack' ) }
-				</Button>
-			</Card>
 			<NewspackNewsletters
 				isOnboarding={ false }
-				disabled={ inFlight }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 				authUrl={ authUrl }
+				setAuthUrl={ setAuthUrl }
+				newslettersConfig={ newslettersConfig }
+				setLockedLists={ setLockedLists }
+				initialProvider={ initialProvider }
+				setInitialProvider={ setInitialProvider }
 			/>
-			{ lockedLists ? (
-				<Notice
-					noticeText={ __(
-						'Please save your settings before changing your subscription lists.',
-						'newspack'
-					) }
-					isWarning
-				/>
-			) : (
-				<SubscriptionLists />
+			<SubscriptionLists lockedLists={ lockedLists } initialProvider={ initialProvider } />
+			{ 'mailchimp' === newslettersConfig?.newspack_newsletters_service_provider && (
+				<>
+					<hr />
+					<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />
+					<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
+				</>
 			) }
 		</>
 	);
@@ -368,7 +405,5 @@ const Newsletters = () => {
 export default withWizardScreen( () => (
 	<>
 		<Newsletters />
-		<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />
-		<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
 	</>
 ) );

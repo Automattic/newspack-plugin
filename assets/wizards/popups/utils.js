@@ -4,6 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * External dependencies.
@@ -339,20 +340,27 @@ export const warningForPopup = ( prompts, prompt ) => {
 			);
 		} );
 
-		if ( 0 < conflictingPrompts.length ) {
+		const filteredConflictingPrompts = applyFilters(
+			'newspack.wizards.campaigns.conflictingPrompts',
+			conflictingPrompts,
+			prompt,
+			prompts
+		);
+
+		if ( 0 < filteredConflictingPrompts.length ) {
 			return (
 				<>
 					<strong>
 						{ sprintf(
 							// Translators: %s: 'Conflicts' or 'Conflict' depending on number of conflicts.
 							__( '%s detected:', 'newspack' ),
-							1 < conflictingPrompts.length
+							1 < filteredConflictingPrompts.length
 								? __( 'Conflicts', 'newspack' )
 								: __( 'Conflict', 'newspack' )
 						) }
 					</strong>
 					<ul>
-						{ conflictingPrompts.map( conflictingPrompt => (
+						{ filteredConflictingPrompts.map( conflictingPrompt => (
 							<li key={ conflictingPrompt.id }>
 								<p data-testid={ `conflict-warning-${ prompt.id }` }>
 									<strong>{ sprintf( '%s: ', conflictingPrompt.title ) }</strong>
