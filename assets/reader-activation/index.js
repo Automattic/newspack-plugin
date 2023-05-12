@@ -13,6 +13,7 @@ const EVENTS = {
 	reader: 'reader',
 	data: 'data',
 	activity: 'activity',
+	apiDispatch: 'apiDispatch',
 };
 
 /**
@@ -79,11 +80,13 @@ function Store() {
 /**
  * Dispatch activity to the Data Events API.
  *
- * @param {Object} activity
+ * @param {string} action    Action name.
+ * @param {Object} data      Data.
+ * @param {number} timestamp Timestamp.
  *
  * @return {Promise} Promise.
  */
-export function dispatchApi( activity ) {
+export function dispatchApi( action, data, timestamp = 0 ) {
 	if ( ! newspack_reader_activation_data.dispatch_url ) {
 		return Promise.reject( 'No dispatch URL.' );
 	}
@@ -92,11 +95,11 @@ export function dispatchApi( activity ) {
 	req.open( 'POST', newspack_reader_activation_data.dispatch_url, true );
 	req.setRequestHeader( 'Content-Type', 'application/json' );
 
-	// Clone activity.
-	activity = { ...activity };
-
-	// Transform timestamp to seconds.
-	activity.timestamp = Math.floor( activity.timestamp / 1000 );
+	const activity = {
+		action,
+		data,
+		timestamp: Math.floor( timestamp || Date.now() / 1000 ),
+	};
 
 	// Send request.
 	req.send( JSON.stringify( activity ) );
@@ -110,6 +113,7 @@ export function dispatchApi( activity ) {
 				reject( req );
 			}
 			resolve( req );
+			emit( EVENTS.apiDispatch, activity );
 		};
 	} );
 }
@@ -129,7 +133,7 @@ export function dispatch( action, data, api = false, timestamp = 0 ) {
 	store.add( 'activity', activity );
 	emit( EVENTS.activity, activity );
 	if ( api ) {
-		dispatchApi( activity );
+		dispatchApi( activity.action, activity.data, activity.timestamp );
 	}
 	return activity;
 }
