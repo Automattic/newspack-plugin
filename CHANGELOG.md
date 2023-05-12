@@ -1,3 +1,10 @@
+# [1.115.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.3...v1.115.0-alpha.4) (2023-05-12)
+
+
+### Bug Fixes
+
+* **perfmatters:** do not delay CSS from Newspack Campaigns or Perfmatters’ own cache ([#2449](https://github.com/Automattic/newspack-plugin/issues/2449)) ([8075b5e](https://github.com/Automattic/newspack-plugin/commit/8075b5edc8a1902cd45f972dc505303f51fa9cfa))
+
 ## [1.114.2](https://github.com/Automattic/newspack-plugin/compare/v1.114.1...v1.114.2) (2023-05-12)
 
 
