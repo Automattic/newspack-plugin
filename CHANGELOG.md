@@ -1,12 +1,13 @@
 # [1.115.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.1...v1.115.0-alpha.2) (2023-05-10)
 
-
-### Bug Fixes
-
 * ensure migrated Stripe subs have next_payment scheduled ([#2434](https://github.com/Automattic/newspack-plugin/issues/2434)) ([b3b32f0](https://github.com/Automattic/newspack-plugin/commit/b3b32f0bfc09a6cf296153f783778c146e3b8291))
 
-## [1.114.1](https://github.com/Automattic/newspack-plugin/compare/v1.114.0...v1.114.1) (2023-05-10)
+## [1.114.2](https://github.com/Automattic/newspack-plugin/compare/v1.114.1...v1.114.2) (2023-05-12)
 
+### Bug Fixes
+* **perfmatters:** do not delay CSS from Newspack Campaigns or Perfmatters’ own cache ([#2449](https://github.com/Automattic/newspack-plugin/issues/2449)) ([8075b5e](https://github.com/Automattic/newspack-plugin/commit/8075b5edc8a1902cd45f972dc505303f51fa9cfa))
+
+## [1.114.1](https://github.com/Automattic/newspack-plugin/compare/v1.114.0...v1.114.1) (2023-05-10)
 
 ### Bug Fixes
 
