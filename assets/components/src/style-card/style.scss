@@ -62,16 +62,13 @@
 	&__actions {
 		align-items: center;
 		background: rgba( white, 0.9 );
-		bottom: 0;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		left: 0;
+		inset: 0;
 		opacity: 0;
 		padding: 16px;
 		position: absolute;
-		right: 0;
-		top: 0;
 		transition: opacity 125ms ease-in-out;
 
 		&:empty {

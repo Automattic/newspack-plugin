@@ -3,20 +3,14 @@
 .newspack-memberships {
 	&__overlay-gate {
 		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
+		inset: 0;
 		z-index: 999999;
 		pointer-events: none;
 		overflow: hidden;
 		&::before {
 			content: '';
 			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
+			inset: 0;
 			background: #000;
 			opacity: 0;
 			transition: opacity 200ms ease;
