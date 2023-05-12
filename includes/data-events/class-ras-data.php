@@ -14,13 +14,6 @@ defined( 'ABSPATH' ) || exit;
  */
 final class RAS_Data {
 	/**
-	 * Events to be dispatched.
-	 *
-	 * @var array[]
-	 */
-	public static $events = [];
-
-	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
