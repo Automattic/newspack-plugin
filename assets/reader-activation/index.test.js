@@ -82,9 +82,9 @@ describe( 'Store', () => {
 		expect( getReader().email ).toEqual( email );
 	} );
 	it( 'should store reader authentication', () => {
-		const auth = true;
-		setAuthenticated( auth );
-		expect( getReader().authenticated ).toEqual( auth );
+		expect( getReader().authenticated ).toEqual( false );
+		setAuthenticated( true );
+		expect( getReader().authenticated ).toEqual( true );
 	} );
 	it( 'should emit an event when reader is updated', () => {
 		const callback = jest.fn();
