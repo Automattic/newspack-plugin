@@ -1,4 +1,5 @@
 /* globals newspack_reader_activation_data */
+window.newspack_reader_activation_data = window.newspack_reader_activation_data || {};
 
 /**
  * Reader Activation Frontend Library.
@@ -10,6 +11,7 @@
 const EVENT_PREFIX = 'newspack-reader-activation';
 const EVENTS = {
 	reader: 'reader',
+	data: 'data',
 	activity: 'activity',
 };
 
@@ -17,7 +19,7 @@ const EVENTS = {
  * Initialize data.
  */
 export const STORE_KEY = 'newspack-reader';
-const store = Store();
+export const store = Store();
 
 /**
  * Get store.
@@ -26,16 +28,27 @@ const store = Store();
  */
 function Store() {
 	const storage = window.localStorage;
+	const maxItems = 1000;
+	const maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days.
+
 	const _get = () => {
 		return JSON.parse( storage.getItem( STORE_KEY ) ) || {};
 	};
+	const _set = ( key, value ) => {
+		const data = _get();
+		data[ key ] = value;
+		storage.setItem( STORE_KEY, JSON.stringify( data ) );
+		emit( EVENTS.data, { key, value } );
+	};
+
 	return {
 		get: key => {
 			return _get()[ key ];
 		},
-		set: ( key, value ) => {
+		set: _set,
+		delete: key => {
 			const data = _get();
-			data[ key ] = value;
+			delete data[ key ];
 			storage.setItem( STORE_KEY, JSON.stringify( data ) );
 		},
 		add: ( key, value ) => {
@@ -44,8 +57,21 @@ function Store() {
 			if ( ! Array.isArray( data[ key ] ) ) {
 				throw `Store key '${ key }' is not an array.`;
 			}
+
+			// Remove items older than max age if `timestamp` is set.
+			if ( maxAge ) {
+				const now = Date.now();
+				data[ key ] = data[ key ].filter(
+					item => ! item.timestamp || now - item.timestamp < maxAge
+				);
+			}
+
 			data[ key ].push( value );
-			storage.setItem( STORE_KEY, JSON.stringify( data ) );
+
+			// Remove items if max items is reached.
+			data[ key ] = data[ key ].slice( -maxItems );
+
+			_set( key, data[ key ] );
 		},
 	};
 }
@@ -53,13 +79,17 @@ function Store() {
 /**
  * Dispatch reader activity.
  *
- * @param {string} action Action.
- * @param {Object} data   Data.
+ * @param {string} action    Action.
+ * @param {Object} data      Data.
+ * @param {number} timestamp Timestamp. (optional)
+ *
+ * @return {Object} Activity.
  */
-export function dispatch( action, data ) {
-	const activity = { action, data, timestamp: Date.now() };
+export function dispatch( action, data, timestamp = 0 ) {
+	const activity = { action, data, timestamp: timestamp || Date.now() };
 	store.add( 'activity', activity );
 	emit( EVENTS.activity, activity );
+	return activity;
 }
 
 /**
@@ -71,6 +101,9 @@ export function dispatch( action, data ) {
  */
 export function getActivities( action ) {
 	const activities = store.get( 'activity' ) || [];
+	if ( ! action ) {
+		return activities;
+	}
 	return activities.filter( activity => activity.action === action );
 }
 
@@ -356,8 +389,7 @@ function init() {
 	const data = newspack_reader_activation_data;
 	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
 	const authenticated = !! data?.authenticated_email;
-	const reader =
-		store.get( 'reader' ) || initialEmail ? { email: initialEmail, authenticated } : null;
+	const reader = initialEmail ? { email: initialEmail, authenticated } : null;
 	store.set( 'reader', reader );
 	emit( EVENTS.reader, reader );
 }
@@ -390,24 +422,25 @@ if ( ! getCookie( clientIDCookieName ) ) {
 	setCookie( clientIDCookieName, `${ getShortStringId() }${ getShortStringId() }` );
 }
 
-window.newspackRAS = window.newspackRAS || [];
-
 /**
  * Handle a push to the newspackRAS array.
  *
  * @param {Function|string} fn   A function to call or a string to dispatch reader activity.
  * @param {...any}          args Arguments to pass to the function or dispatch.
+ *
+ * @return {any} Return value of the function or dispatch.
  */
 function handlePush( fn, ...args ) {
 	if ( typeof fn === 'function' ) {
-		fn( readerActivation, ...args );
-	} else if ( typeof fn === 'string' ) {
-		dispatch( fn, ...args );
-	} else {
-		throw 'Invalid newspackRAS push';
+		return fn( readerActivation, ...args );
 	}
+	if ( typeof fn === 'string' ) {
+		return dispatch( fn, ...args );
+	}
+	throw 'Invalid newspackRAS push';
 }
 
+window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.forEach( handlePush );
 window.newspackRAS.push = handlePush;
 
