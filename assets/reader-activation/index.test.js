@@ -52,7 +52,7 @@ describe( 'Store', () => {
 			},
 			timestamp: 1234567890,
 		};
-		dispatch( activity.action, activity.data, activity.timestamp );
+		dispatch( activity.action, activity.data, false, activity.timestamp );
 		expect( getActivities( 'test' ) ).toEqual( [ activity ] );
 	} );
 	it( 'should store activities with a timestamp', () => {
@@ -66,7 +66,7 @@ describe( 'Store', () => {
 		expect( typeof getActivities( 'test-timestamp' )[ 0 ].timestamp ).toBe( 'number' );
 	} );
 	it( 'should clear added items older than 30 days', () => {
-		dispatch( 'old-activity', {}, 1 ); // Old timestamp.
+		dispatch( 'old-activity', {}, false, 1 ); // Old timestamp.
 		dispatch( 'new-activity', {} ); // Dispatching a new activity should clear old ones.
 		expect( getActivities( 'old-activity' ) ).toEqual( [] );
 	} );
@@ -82,7 +82,7 @@ describe( 'Store', () => {
 		expect( getReader().email ).toEqual( email );
 	} );
 	it( 'should store reader authentication', () => {
-		expect( getReader().authenticated ).toEqual( false );
+		expect( getReader().authenticated ).toBeFalsy();
 		setAuthenticated( true );
 		expect( getReader().authenticated ).toEqual( true );
 	} );

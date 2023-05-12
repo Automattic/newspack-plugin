@@ -9,6 +9,7 @@ namespace Newspack\Data_Events;
 
 use Newspack\Data_Events;
 use Newspack\Data_Events\Webhooks;
+use Newspack\Reader_Activation;
 
 /**
  * Main Class.
@@ -25,7 +26,30 @@ final class Api {
 	 * Register the routes.
 	 */
 	public static function register_routes() {
-		register_rest_route(
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/data-events/dispatch',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ __CLASS__, 'dispatch' ],
+				'permission_callback' => function() {
+					return (bool) Reader_Activation::get_client_id();
+				},
+				'args'                => [
+					'action'    => [
+						'type' => 'string',
+					],
+					'data'      => [
+						'type' => 'object',
+					],
+					'timestamp' => [
+						'type'    => 'integer',
+						'default' => time(),
+					],
+				],
+			]
+		);
+		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/data-events/actions',
 			[
@@ -136,6 +160,44 @@ final class Api {
 				'sanitize_callback' => 'sanitize_text_field',
 			],
 		];
+	}
+
+	/**
+	 * Get list of actions that can be dispatched through the API.
+	 *
+	 * @return string[]
+	 */
+	private static function get_api_allowed_dispatch_actions() {
+		/**
+		 * Filters which actions can be dispatched through the API.
+		 *
+		 * @param string[] $actions List of actions.
+		 */
+		return apply_filters( 'newspack_data_events_api_allowed_dispatch_actions', [] );
+	}
+
+	/**
+	 * Handle dispatch request
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 */
+	public static function dispatch( $request ) {
+		$action    = $request->get_param( 'action' );
+		$data      = $request->get_param( 'data' );
+		$timestamp = $request->get_param( 'timestamp' );
+
+		$allowed_actions = self::get_api_allowed_dispatch_actions();
+
+		if ( empty( $action ) || empty( $data ) || ! in_array( $action, $allowed_actions, true ) ) {
+			return new \WP_Error(
+				'newspack_data_events_invalid_request',
+				esc_html__( 'Invalid request.', 'newspack' ),
+				[
+					'status' => 400,
+				]
+			);
+		}
+		return Data_Events::dispatch( $action, $data, $timestamp );
 	}
 
 	/**

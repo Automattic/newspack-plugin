@@ -125,7 +125,7 @@ final class RAS_Data {
 				var dataLayer = window.newspackRAS || [];
 				for ( var i = 0; i < events.length; i++ ) {
 					var event = events[ i ];
-					dataLayer.push( event.action, event.data, event.timestamp );
+					dataLayer.push( event.action, event.data, false, event.timestamp );
 				}
 			} )();
 		</script>
