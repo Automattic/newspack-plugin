@@ -11,6 +11,7 @@ export { default as CustomSelectControl } from './custom-select-control';
 export { default as FormTokenField } from './form-token-field';
 export { default as Footer } from './footer';
 export { default as Handoff } from './handoff';
+export { default as HandoffMessage } from './handoff-message';
 export { default as InfoButton } from './info-button';
 export { default as ImageUpload } from './image-upload';
 export { default as GlobalNotices } from './global-notices';

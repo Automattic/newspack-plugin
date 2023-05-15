@@ -110,13 +110,10 @@
 				&::before {
 					border: 2px solid white;
 					border-radius: 2px;
-					bottom: 5px;
 					content: '';
 					display: block;
-					left: 6px;
+					inset: 6px 6px 5px;
 					position: absolute;
-					right: 6px;
-					top: 6px;
 				}
 			}
 		}

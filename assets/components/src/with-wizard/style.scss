@@ -76,12 +76,9 @@ svg {
 
 .newspack-wizard__is-loading {
 	background: white;
-	bottom: 0;
 	cursor: wait;
-	left: 0;
+	inset: 0;
 	position: absolute;
-	right: 0;
-	top: 0;
 
 	> * {
 		display: none !important;
