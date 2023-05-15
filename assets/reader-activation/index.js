@@ -50,6 +50,9 @@ function Store() {
 		return decode( storage.getItem( STORE_KEY ) ) || {};
 	};
 	const _set = ( key, value ) => {
+		if ( ! key ) {
+			throw 'Key is required.';
+		}
 		const data = _get();
 		data[ key ] = value;
 		storage.setItem( STORE_KEY, encode( data ) );
@@ -58,15 +61,25 @@ function Store() {
 
 	return {
 		get: key => {
-			return _get()[ key ];
+			const data = _get();
+			if ( ! key ) {
+				return data;
+			}
+			return data[ key ];
 		},
 		set: _set,
 		delete: key => {
+			if ( ! key ) {
+				throw 'Key is required.';
+			}
 			const data = _get();
 			delete data[ key ];
 			storage.setItem( STORE_KEY, encode( data ) );
 		},
 		add: ( key, value ) => {
+			if ( ! key ) {
+				throw 'Key is required.';
+			}
 			const data = _get();
 			data[ key ] = data[ key ] || [];
 			if ( ! Array.isArray( data[ key ] ) ) {
@@ -241,7 +254,7 @@ export function setReaderEmail( email ) {
 	if ( ! email ) {
 		return;
 	}
-	const reader = store.get( 'reader' ) || {};
+	const reader = getReader();
 	reader.email = email;
 	store.set( 'reader', reader );
 	emit( EVENTS.reader, reader );
