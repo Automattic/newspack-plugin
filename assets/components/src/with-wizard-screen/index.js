@@ -2,14 +2,12 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
 import { category } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Button, Handoff, NewspackIcon, Notice, TabbedNavigation } from '../';
-import { HANDOFF_KEY } from '../consts';
+import { Button, Handoff, NewspackIcon, Notice, HandoffMessage, TabbedNavigation } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -23,7 +21,6 @@ import classnames from 'classnames';
  */
 export default function withWizardScreen( WrappedComponent, { hidePrimaryButton } = {} ) {
 	const WrappedWithWizardScreen = props => {
-		const [ handoffMessage, setHandoffMessage ] = useState( false );
 		const {
 			className,
 			buttonText,
@@ -37,14 +34,6 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			renderAboveContent,
 			disableUpcomingInTabbedNavigation,
 		} = props;
-
-		useEffect( () => {
-			const handoff = JSON.parse( localStorage.getItem( HANDOFF_KEY ) );
-
-			if ( handoff?.message ) {
-				setHandoffMessage( handoff.message );
-			}
-		}, [] );
 
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
@@ -99,9 +88,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 					/>
 				) }
 
-				{ handoffMessage && (
-					<Notice isHandoff isDismissible={ false } rawHTML noticeText={ handoffMessage } />
-				) }
+				<HandoffMessage />
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
 					{ typeof renderAboveContent === 'function' ? renderAboveContent() : null }
