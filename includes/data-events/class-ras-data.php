@@ -137,8 +137,7 @@ final class RAS_Data {
 				}
 				window.newspackRAS = window.newspackRAS || [];
 				for ( var i = 0; i < items.length; i++ ) {
-					var item = items[ i ];
-					window.newspackRAS.push( item.action, item.data, false, item.timestamp );
+					window.newspackRAS.push( [ items[ i ].action, items[ i ].data, false, items[ i ].timestamp ] );
 				}
 			} )();
 		</script>

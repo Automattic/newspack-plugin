@@ -461,17 +461,17 @@ window.newspackReaderActivation = readerActivation;
 /**
  * Handle a push to the newspackRAS array.
  *
- * @param {Function|string} fn   A function to call or a string to dispatch reader activity.
- * @param {...any}          args Arguments to pass to the function or dispatch.
+ * @param {Array|Function} fn An array to dispatch reader activity or a function
+ *                            to callback with the readerActivation object.
  *
  * @return {any} Return value of the function or dispatch.
  */
-function handlePush( fn, ...args ) {
-	if ( typeof fn === 'function' ) {
-		return fn( readerActivation, ...args );
+function handlePush( fn ) {
+	if ( Array.isArray( fn ) ) {
+		return dispatch( ...fn );
 	}
-	if ( typeof fn === 'string' ) {
-		return dispatch( fn, ...args );
+	if ( typeof fn === 'function' ) {
+		return fn( readerActivation );
 	}
 	throw 'Invalid newspackRAS push';
 }
