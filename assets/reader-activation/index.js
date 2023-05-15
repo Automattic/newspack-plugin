@@ -461,19 +461,20 @@ window.newspackReaderActivation = readerActivation;
 /**
  * Handle a push to the newspackRAS array.
  *
- * @param {Array|Function} fn An array to dispatch reader activity or a function
- *                            to callback with the readerActivation object.
- *
- * @return {any} Return value of the function or dispatch.
+ * @param {...Array|Function} args Array to dispatch reader activity or
+ *                                 function to callback with the
+ *                                 readerActivation object.
  */
-function handlePush( fn ) {
-	if ( Array.isArray( fn ) ) {
-		return dispatch( ...fn );
-	}
-	if ( typeof fn === 'function' ) {
-		return fn( readerActivation );
-	}
-	throw 'Invalid newspackRAS push';
+function handlePush( ...args ) {
+	args.forEach( arg => {
+		if ( Array.isArray( arg ) && typeof arg[ 0 ] === 'string' ) {
+			dispatch( ...arg );
+		} else if ( typeof arg === 'function' ) {
+			arg( readerActivation );
+		} else {
+			console.warn( 'Invalid newspackRAS.push argument', arg );
+		}
+	} );
 }
 
 window.newspackRAS = window.newspackRAS || [];
