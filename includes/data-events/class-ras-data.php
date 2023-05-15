@@ -13,6 +13,9 @@ defined( 'ABSPATH' ) || exit;
  * RAS Data Class.
  */
 final class RAS_Data {
+
+	const TRANSIENT_EXPIRATION = 60 * 60 * 24 * 5; // 5 days.
+
 	/**
 	 * Initialize hooks.
 	 */
@@ -100,13 +103,20 @@ final class RAS_Data {
 		$transient_key = self::get_transient_key( $client_id );
 		$items         = get_transient( $transient_key ) ?? [];
 		$items[]       = $ras_activity;
-		set_transient( $transient_key, $items, 60 * 60 * 24 );
+		set_transient( $transient_key, $items, self::TRANSIENT_EXPIRATION );
 	}
 
 	/**
 	 * Print front-end dispatch of RAS activity.
+	 *
+	 * Until the reader is logged in, dispatched events will be accumulated in a
+	 * transient. Once logged in, events attached to that client ID can be
+	 * reconciled and dispatched to the front-end.
 	 */
 	public static function print_dispatch() {
+		if ( ! \is_user_logged_in() ) {
+			return;
+		}
 		$client_id = \Newspack\Reader_Activation::get_client_id();
 		if ( ! $client_id ) {
 			return;
@@ -125,10 +135,10 @@ final class RAS_Data {
 				if ( ! items.length ) {
 					return;
 				}
-				var dataLayer = window.newspackRAS || [];
+				window.newspackRAS = window.newspackRAS || [];
 				for ( var i = 0; i < items.length; i++ ) {
 					var item = items[ i ];
-					dataLayer.push( item.action, item.data, false, item.timestamp );
+					window.newspackRAS.push( item.action, item.data, false, item.timestamp );
 				}
 			} )();
 		</script>
