@@ -1,6 +1,8 @@
 /* globals newspack_reader_activation_data */
 window.newspack_reader_activation_data = window.newspack_reader_activation_data || {};
 
+import { getCookie, setCookie, generateID } from './utils.js';
+
 /**
  * Reader Activation Frontend Library.
  */
@@ -8,7 +10,7 @@ window.newspack_reader_activation_data = window.newspack_reader_activation_data 
 /**
  * Constants.
  */
-const EVENT_PREFIX = 'newspack-reader-activation';
+const EVENT_PREFIX = 'newspack-ras';
 const EVENTS = {
 	reader: 'reader',
 	data: 'data',
@@ -32,13 +34,25 @@ function Store() {
 	const maxItems = 1000;
 	const maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days.
 
+	const encode = object => {
+		return JSON.stringify( object );
+	};
+	const decode = str => {
+		if ( ! str ) {
+			return {};
+		} else if ( 'object' === typeof str ) {
+			return str;
+		}
+		return JSON.parse( str );
+	};
+
 	const _get = () => {
-		return JSON.parse( storage.getItem( STORE_KEY ) ) || {};
+		return decode( storage.getItem( STORE_KEY ) ) || {};
 	};
 	const _set = ( key, value ) => {
 		const data = _get();
 		data[ key ] = value;
-		storage.setItem( STORE_KEY, JSON.stringify( data ) );
+		storage.setItem( STORE_KEY, encode( data ) );
 		emit( EVENTS.data, { key, value } );
 	};
 
@@ -50,7 +64,7 @@ function Store() {
 		delete: key => {
 			const data = _get();
 			delete data[ key ];
-			storage.setItem( STORE_KEY, JSON.stringify( data ) );
+			storage.setItem( STORE_KEY, encode( data ) );
 		},
 		add: ( key, value ) => {
 			const data = _get();
@@ -151,35 +165,6 @@ export function getActivities( action ) {
 		return activities;
 	}
 	return activities.filter( activity => activity.action === action );
-}
-
-/**
- * Get a cookie value given its name.
- *
- * @param {string} name Cookie name.
- *
- * @return {string} Cookie value or empty string if not found.
- */
-function getCookie( name ) {
-	if ( ! name ) {
-		return '';
-	}
-	const value = `; ${ document.cookie }`;
-	const parts = value.split( `; ${ name }=` );
-	if ( parts.length === 2 ) return decodeURIComponent( parts.pop().split( ';' ).shift() );
-}
-
-/**
- * Set a cookie.
- *
- * @param {string} name           Cookie name.
- * @param {string} value          Cookie value.
- * @param {number} expirationDays Expiration in days from now.
- */
-function setCookie( name, value, expirationDays = 365 ) {
-	const date = new Date();
-	date.setTime( date.getTime() + expirationDays * 24 * 60 * 60 * 1000 );
-	document.cookie = `${ name }=${ value }; expires=${ date.toUTCString() }; path=/`;
 }
 
 /**
@@ -429,6 +414,16 @@ export function getCaptchaToken( action = 'submit' ) {
 }
 
 /**
+ * Ensure the client ID cookie is set.
+ */
+function fixClientID() {
+	const clientIDCookieName = newspack_reader_activation_data.cid_cookie;
+	if ( ! getCookie( clientIDCookieName ) ) {
+		setCookie( clientIDCookieName, generateID( 12 ) );
+	}
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -438,6 +433,7 @@ function init() {
 	const reader = initialEmail ? { email: initialEmail, authenticated } : null;
 	store.set( 'reader', reader );
 	emit( EVENTS.reader, reader );
+	fixClientID();
 }
 
 init();
@@ -461,13 +457,6 @@ const readerActivation = {
 	getCaptchaToken,
 };
 window.newspackReaderActivation = readerActivation;
-
-const clientIDCookieName = newspack_reader_activation_data.cid_cookie;
-if ( ! getCookie( clientIDCookieName ) ) {
-	// If entropy is an issue, https://www.npmjs.com/package/nanoid can be used.
-	const getShortStringId = () => Math.floor( Math.random() * 999999999 ).toString( 36 );
-	setCookie( clientIDCookieName, `${ getShortStringId() }${ getShortStringId() }` );
-}
 
 /**
  * Handle a push to the newspackRAS array.
