@@ -54,11 +54,14 @@ final class RAS_Data {
 	 * @return string
 	 */
 	private static function get_transient_key( $client_id ) {
+		if ( empty( $client_id ) ) {
+			return '';
+		}
 		return 'newspack_data_events_ras_' . $client_id;
 	}
 
 	/**
-	 * Handle a data event dispatch.
+	 * Handle a data event dispatch to generate a RAS activity.
 	 *
 	 * @param string $action    The action.
 	 * @param int    $timestamp The timestamp.
@@ -76,32 +79,32 @@ final class RAS_Data {
 			return;
 		}
 
-		$event = [
+		$ras_activity = [
 			'action'    => $action,
 			'data'      => $data,
 			'timestamp' => $timestamp * 1000, // RAS expects milliseconds.
 		];
 
 		/**
-		 * Filter the event payload to be dispatched to RAS.
+		 * Filter the data event payload to be dispatched as RAS activity.
 		 *
-		 * @param array  $event     The event data.
-		 * @param string $client_id The client ID.
+		 * @param array  $ras_activity The RAS activity payload.
+		 * @param string $client_id    The client ID.
 		 */
-		$event = apply_filters( 'newspack_data_events_ras_event', $event, $client_id );
+		$ras_activity = apply_filters( 'newspack_data_events_ras_activity', $ras_activity, $client_id );
 
-		if ( empty( $event ) || \is_wp_error( $event ) ) {
+		if ( empty( $ras_activity ) || \is_wp_error( $ras_activity ) ) {
 			return;
 		}
 
 		$transient_key = self::get_transient_key( $client_id );
-		$events        = get_transient( $transient_key ) ?? [];
-		$events[]      = $event;
-		set_transient( $transient_key, $events, 60 * 60 * 24 );
+		$items         = get_transient( $transient_key ) ?? [];
+		$items[]       = $ras_activity;
+		set_transient( $transient_key, $items, 60 * 60 * 24 );
 	}
 
 	/**
-	 * Print front-end dispatch.
+	 * Print front-end dispatch of RAS activity.
 	 */
 	public static function print_dispatch() {
 		$client_id = \Newspack\Reader_Activation::get_client_id();
@@ -109,8 +112,8 @@ final class RAS_Data {
 			return;
 		}
 		$transient_key = self::get_transient_key( $client_id );
-		$events        = get_transient( $transient_key );
-		if ( empty( $events ) ) {
+		$items         = get_transient( $transient_key );
+		if ( empty( $items ) ) {
 			return;
 		}
 		// Delete the transient.
@@ -118,14 +121,14 @@ final class RAS_Data {
 		?>
 		<script>
 			( function() {
-				var events = <?php echo wp_json_encode( $events ); ?>;
-				if ( ! events.length ) {
+				var items = <?php echo wp_json_encode( $items ); ?>;
+				if ( ! items.length ) {
 					return;
 				}
 				var dataLayer = window.newspackRAS || [];
-				for ( var i = 0; i < events.length; i++ ) {
-					var event = events[ i ];
-					dataLayer.push( event.action, event.data, false, event.timestamp );
+				for ( var i = 0; i < items.length; i++ ) {
+					var item = items[ i ];
+					dataLayer.push( item.action, item.data, false, item.timestamp );
 				}
 			} )();
 		</script>
