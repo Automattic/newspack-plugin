@@ -1,5 +1,16 @@
-## [1.114.1](https://github.com/Automattic/newspack-plugin/compare/v1.114.0...v1.114.1) (2023-05-10)
+## [1.114.3](https://github.com/Automattic/newspack-plugin/compare/v1.114.2...v1.114.3) (2023-05-15)
 
+
+### Bug Fixes
+
+* **onboarding:** handoff message component ([#2450](https://github.com/Automattic/newspack-plugin/issues/2450)) ([e010876](https://github.com/Automattic/newspack-plugin/commit/e0108764a3272555e1b882abaa794b10bd52fc03))
+
+## [1.114.2](https://github.com/Automattic/newspack-plugin/compare/v1.114.1...v1.114.2) (2023-05-12)
+
+### Bug Fixes
+* **perfmatters:** do not delay CSS from Newspack Campaigns or Perfmatters’ own cache ([#2449](https://github.com/Automattic/newspack-plugin/issues/2449)) ([8075b5e](https://github.com/Automattic/newspack-plugin/commit/8075b5edc8a1902cd45f972dc505303f51fa9cfa))
+
+## [1.114.1](https://github.com/Automattic/newspack-plugin/compare/v1.114.0...v1.114.1) (2023-05-10)
 
 ### Bug Fixes
 
