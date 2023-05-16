@@ -1,3 +1,10 @@
+# [1.115.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.5...v1.115.0-alpha.6) (2023-05-16)
+
+
+### Bug Fixes
+
+* **perfmatters:** exlcude Newspack CSS from being delayed ([#2459](https://github.com/Automattic/newspack-plugin/issues/2459)) ([ee649f5](https://github.com/Automattic/newspack-plugin/commit/ee649f5e2929f4aba8c38fac9f76991e391ed991))
+
 ## [1.114.4](https://github.com/Automattic/newspack-plugin/compare/v1.114.3...v1.114.4) (2023-05-16)
 
 
