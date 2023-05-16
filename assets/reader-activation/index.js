@@ -1,5 +1,6 @@
-/* globals newspack_reader_activation_data */
-window.newspack_reader_activation_data = window.newspack_reader_activation_data || {};
+/* globals newspack_ras_config, newspack_reader_data */
+window.newspack_ras_config = window.newspack_ras_config || {};
+window.newspack_reader_data = window.newspack_reader_data || {};
 
 import { getCookie, setCookie, generateID } from './utils.js';
 
@@ -34,6 +35,8 @@ function Store() {
 	const maxItems = 1000;
 	const maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days.
 
+	const reservedKeys = [ 'activity', 'data' ];
+
 	const encode = object => {
 		return JSON.stringify( object );
 	};
@@ -49,15 +52,41 @@ function Store() {
 	const _get = () => {
 		return decode( storage.getItem( STORE_KEY ) ) || {};
 	};
-	const _set = ( key, value ) => {
+	const _set = ( key, value, internal = false ) => {
 		if ( ! key ) {
 			throw 'Key is required.';
+		}
+		if ( ! internal && reservedKeys.includes( key ) ) {
+			throw `Key '${ key }' is reserved.`;
 		}
 		const data = _get();
 		data[ key ] = value;
 		storage.setItem( STORE_KEY, encode( data ) );
 		emit( EVENTS.data, { key, value } );
 	};
+
+	if ( newspack_reader_data?.items ) {
+		const items = {};
+		const keys = Object.keys( newspack_reader_data.items );
+		// Sync missing items.
+		if ( canSyncData() ) {
+			const storeData = _get();
+			const localKeys = Object.keys( storeData );
+			for ( const key of localKeys ) {
+				if ( ! keys.includes( key ) && ! reservedKeys.includes( key ) ) {
+					syncDataItem( key, storeData[ key ] );
+				}
+			}
+		}
+		// Rehydrate items.
+		for ( const key of keys ) {
+			const item = JSON.parse( newspack_reader_data.items[ key ] );
+			if ( item ) {
+				items[ key ] = item;
+			}
+		}
+		storage.setItem( STORE_KEY, encode( { ..._get(), ...items } ) );
+	}
 
 	return {
 		get: key => {
@@ -67,7 +96,12 @@ function Store() {
 			}
 			return data[ key ];
 		},
-		set: _set,
+		set: ( key, value ) => {
+			_set( key, value, false );
+			if ( canSyncData() ) {
+				syncDataItem( key );
+			}
+		},
 		delete: key => {
 			if ( ! key ) {
 				throw 'Key is required.';
@@ -75,6 +109,9 @@ function Store() {
 			const data = _get();
 			delete data[ key ];
 			storage.setItem( STORE_KEY, encode( data ) );
+			if ( canSyncData() ) {
+				syncDataItem( key );
+			}
 		},
 		add: ( key, value ) => {
 			if ( ! key ) {
@@ -99,9 +136,60 @@ function Store() {
 			// Remove items if max items is reached.
 			data[ key ] = data[ key ].slice( -maxItems );
 
-			_set( key, data[ key ] );
+			_set( key, data[ key ], true );
 		},
 	};
+}
+
+/**
+ * Whether the reader can sync data with the server.
+ *
+ * @return {boolean} Whether the reader can sync data with the server.
+ */
+function canSyncData() {
+	return !! newspack_reader_data.api_url && !! newspack_reader_data.nonce;
+}
+
+/**
+ * Sync a data key with the server.
+ *
+ * @param {string} key   Data key.
+ * @param {string} value Data value. Defaults to store value.
+ *
+ * @return {Promise} Promise.
+ */
+function syncDataItem( key, value ) {
+	if ( ! canSyncData() ) {
+		return Promise.reject( 'Not allowed to sync data.' );
+	}
+
+	if ( ! value ) {
+		value = store.get( key );
+	}
+	const payload = { key };
+	if ( value ) {
+		payload.value = JSON.stringify( value );
+	}
+
+	const req = new XMLHttpRequest();
+	req.open( payload.value ? 'POST' : 'DELETE', newspack_reader_data.api_url, true );
+	req.setRequestHeader( 'Content-Type', 'application/json' );
+	req.setRequestHeader( 'X-WP-Nonce', newspack_reader_data.nonce );
+
+	// Send request.
+	req.send( JSON.stringify( payload ) );
+
+	return new Promise( ( resolve, reject ) => {
+		req.onreadystatechange = () => {
+			if ( 4 !== req.readyState ) {
+				return;
+			}
+			if ( 200 !== req.status ) {
+				return reject( req );
+			}
+			return resolve( req );
+		};
+	} );
 }
 
 /**
@@ -114,12 +202,12 @@ function Store() {
  * @return {Promise} Promise.
  */
 export function dispatchApi( action, data, timestamp = 0 ) {
-	if ( ! newspack_reader_activation_data.dispatch_url ) {
+	if ( ! newspack_ras_config.dispatch_url ) {
 		return Promise.reject( 'No dispatch URL.' );
 	}
 
 	const req = new XMLHttpRequest();
-	req.open( 'POST', newspack_reader_activation_data.dispatch_url, true );
+	req.open( 'POST', newspack_ras_config.dispatch_url, true );
 	req.setRequestHeader( 'Content-Type', 'application/json' );
 
 	const activity = {
@@ -137,10 +225,10 @@ export function dispatchApi( action, data, timestamp = 0 ) {
 				return;
 			}
 			if ( 200 !== req.status ) {
-				reject( req );
+				return reject( req );
 			}
-			resolve( req );
 			emit( EVENTS.apiDispatch, activity );
+			return resolve( req );
 		};
 	} );
 }
@@ -345,7 +433,7 @@ export function authenticateOTP( code ) {
 				Accept: 'application/json',
 			},
 			body: new URLSearchParams( {
-				action: newspack_reader_activation_data.otp_auth_action,
+				action: newspack_ras_config.otp_auth_action,
 				email,
 				hash,
 				code,
@@ -402,11 +490,11 @@ export function getAuthStrategy() {
 export function getCaptchaToken( action = 'submit' ) {
 	return new Promise( ( res, rej ) => {
 		const { grecaptcha } = window;
-		if ( ! grecaptcha || ! newspack_reader_activation_data ) {
+		if ( ! grecaptcha || ! newspack_ras_config ) {
 			return res( '' );
 		}
 
-		const { captcha_site_key: captchaSiteKey } = newspack_reader_activation_data;
+		const { captcha_site_key: captchaSiteKey } = newspack_ras_config;
 
 		// If the site key is not set, bail with an empty token.
 		if ( ! captchaSiteKey ) {
@@ -430,7 +518,7 @@ export function getCaptchaToken( action = 'submit' ) {
  * Ensure the client ID cookie is set.
  */
 function fixClientID() {
-	const clientIDCookieName = newspack_reader_activation_data.cid_cookie;
+	const clientIDCookieName = newspack_ras_config.cid_cookie;
 	if ( ! getCookie( clientIDCookieName ) ) {
 		setCookie( clientIDCookieName, generateID( 12 ) );
 	}
@@ -440,11 +528,17 @@ function fixClientID() {
  * Initialize store data.
  */
 function init() {
-	const data = newspack_reader_activation_data;
+	const data = newspack_ras_config;
 	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
 	const authenticated = !! data?.authenticated_email;
+	const currentReader = getReader();
 	const reader = initialEmail ? { email: initialEmail, authenticated } : null;
-	store.set( 'reader', reader );
+	if (
+		currentReader?.email !== reader?.email ||
+		currentReader?.authenticated !== reader?.authenticated
+	) {
+		store.set( 'reader', reader );
+	}
 	emit( EVENTS.reader, reader );
 	fixClientID();
 }

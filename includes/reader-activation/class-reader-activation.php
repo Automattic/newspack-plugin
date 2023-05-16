@@ -129,7 +129,7 @@ final class Reader_Activation {
 		);
 		\wp_localize_script(
 			self::SCRIPT_HANDLE,
-			'newspack_reader_activation_data',
+			'newspack_ras_config',
 			$script_data
 		);
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );

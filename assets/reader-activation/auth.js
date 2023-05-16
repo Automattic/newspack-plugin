@@ -1,4 +1,4 @@
-/* globals newspack_reader_activation_data newspack_reader_auth_labels */
+/* globals newspack_ras_config newspack_reader_auth_labels */
 
 /**
  * Internal dependencies.
@@ -67,7 +67,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 		const initLinks = function () {
 			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
 			triggerLinks = document.querySelectorAll(
-				`[data-newspack-reader-account-link],[href="${ newspack_reader_activation_data.account_url }"]`
+				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
 			);
 			triggerLinks.forEach( link => {
 				link.addEventListener( 'click', handleAccountLinkClick );
@@ -410,7 +410,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 												let redirect = body.get( 'redirect' );
 												/** Redirect every registration to the account page for verification */
 												if ( action === 'register' ) {
-													redirect = newspack_reader_activation_data.account_url;
+													redirect = newspack_ras_config.account_url;
 												}
 												form.endLoginFlow( message, res.status, data, redirect );
 											} )
