@@ -585,7 +585,7 @@ function handlePush( ...args ) {
 }
 
 window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.forEach( handlePush );
+window.newspackRAS.forEach( arg => handlePush( arg ) );
 window.newspackRAS.push = handlePush;
 
 export default readerActivation;
