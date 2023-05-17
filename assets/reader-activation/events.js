@@ -1,6 +1,3 @@
-/**
- * Constants.
- */
 const EVENT_PREFIX = 'newspack-ras';
 
 export const EVENTS = {
@@ -10,10 +7,7 @@ export const EVENTS = {
 	apiDispatch: 'apiDispatch',
 };
 
-/**
- * Handling events.
- */
-const events = Object.values( EVENTS );
+const eventList = Object.values( EVENTS );
 
 /**
  * Get the full event name given its local name.
@@ -23,7 +17,7 @@ const events = Object.values( EVENTS );
  * @return {string} Full event name or empty string if event name is not valid.
  */
 function getEventName( localEventName ) {
-	if ( ! events.includes( localEventName ) ) {
+	if ( ! eventList.includes( localEventName ) ) {
 		return '';
 	}
 	return `${ EVENT_PREFIX }-${ localEventName }`;
