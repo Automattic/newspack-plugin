@@ -9,7 +9,6 @@ namespace Newspack\Data_Events;
 
 use Newspack\Data_Events;
 use Newspack\Data_Events\Webhooks;
-use Newspack\Reader_Activation;
 
 /**
  * Main Class.
@@ -26,7 +25,7 @@ final class Api {
 	 * Register the routes.
 	 */
 	public static function register_routes() {
-		\register_rest_route(
+		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/data-events/actions',
 			[
