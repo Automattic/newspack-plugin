@@ -53,17 +53,6 @@ describe( 'newspackReaderActivation', () => {
 		dispatch( activity.action, activity.data );
 		expect( typeof getActivities( 'test-timestamp' )[ 0 ].timestamp ).toBe( 'number' );
 	} );
-	it( 'should clear added items older than 30 days', () => {
-		dispatch( 'old-activity', {}, 1 ); // Old timestamp.
-		dispatch( 'new-activity', {} ); // Dispatching a new activity should clear old ones.
-		expect( getActivities( 'old-activity' ) ).toEqual( [] );
-	} );
-	it( 'should not store more than 1000 items in a key', () => {
-		for ( let i = 0; i < 1001; i++ ) {
-			dispatch( 'test-amount', {} );
-		}
-		expect( getActivities( 'test-amount' ).length ).toEqual( 1000 );
-	} );
 	it( 'should store reader email', () => {
 		const email = 'test@example.com';
 		setReaderEmail( email );

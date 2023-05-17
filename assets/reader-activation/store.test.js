@@ -37,6 +37,20 @@ describe( 'Store', () => {
 		store.add( 'my-list', item );
 		expect( store.get( 'my-list' ) ).toEqual( [ item ] );
 	} );
+	it( 'should not store more than 1000 items in a list', () => {
+		const store = Store();
+		for ( let i = 0; i < 1001; i++ ) {
+			store.add( 'my-list', { foo: 'bar' } );
+		}
+		expect( store.get( 'my-list' ).length ).toEqual( 1000 );
+	} );
+	it( 'should clear added items older than 30 days', () => {
+		const store = Store();
+		const now = Date.now();
+		store.add( 'my-list', { timestamp: 1 } ); // Old timestamp.
+		store.add( 'my-list', { timestamp: now } ); // Setting new item clears old ones.
+		expect( store.get( 'my-list' ) ).toEqual( [ { timestamp: now } ] );
+	} );
 	it( 'should not add if not an array', () => {
 		const store = Store();
 		const item = { foo: 'bar' };
