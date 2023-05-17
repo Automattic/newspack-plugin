@@ -1,3 +1,11 @@
+# [1.115.0-alpha.7](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.6...v1.115.0-alpha.7) (2023-05-17)
+
+
+### Features
+
+* **ras:** mailchimp audience config ([#2462](https://github.com/Automattic/newspack-plugin/issues/2462)) ([3ca7e52](https://github.com/Automattic/newspack-plugin/commit/3ca7e52140346305f635bb37a1a4875e13fdf62c))
+* **ras:** remove env flag requirements for RAS functionality ([#2461](https://github.com/Automattic/newspack-plugin/issues/2461)) ([ddc875f](https://github.com/Automattic/newspack-plugin/commit/ddc875fb4b7b5b58a2855ee22e38cce6518864cb))
+
 # [1.115.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.5...v1.115.0-alpha.6) (2023-05-16)
 
 
