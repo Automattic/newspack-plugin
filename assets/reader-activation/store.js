@@ -15,35 +15,38 @@ const maxItems = 1000;
 const maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days.
 
 /**
- * Whether the reader can sync data with the server.
- *
- * @return {boolean} Whether the reader can sync data with the server.
- */
-function canSyncData() {
-	return !! newspack_reader_data.api_url && !! newspack_reader_data.nonce;
-}
-
-/**
  * Sync a data key with the server.
  *
  * @param {string} key   Data key.
  * @param {any}    value Data value.
+ * @param {Object} data  Source data object.
  *
  * @return {Promise} Promise resolving when the sync is complete.
  */
-function syncItem( key, value ) {
+function syncItem( key, value, data ) {
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
 
-	const data = _get();
+	if ( ! data ) {
+		data = _get();
+	}
 
-	if ( ! canSyncData() ) {
-		// Set as pending sync.
+	const setPending = () => {
 		if ( ! data.config.pendingSync.includes( key ) ) {
 			data.config.pendingSync.push( key );
 		}
 		_set( 'config', data.config, true );
+	};
+	const clearPending = () => {
+		if ( data.config.pendingSync.includes( key ) ) {
+			data.config.pendingSync.splice( data.config.pendingSync.indexOf( key ), 1 );
+		}
+		_set( 'config', data.config, true );
+	};
+
+	if ( ! newspack_reader_data.api_url || ! newspack_reader_data.nonce ) {
+		setPending();
 		return Promise.resolve();
 	}
 
@@ -70,13 +73,10 @@ function syncItem( key, value ) {
 				return;
 			}
 			if ( 200 !== req.status ) {
+				setPending();
 				return reject( req );
 			}
-			// Clear from pending sync.
-			if ( data.config.pendingSync.includes( key ) ) {
-				data.config.pendingSync.splice( data.config.pendingSync.indexOf( key ), 1 );
-			}
-			_set( 'config', data.config, true );
+			clearPending();
 			return resolve( req );
 		};
 	} );
@@ -152,12 +152,10 @@ function _set( key, value, internal = false ) {
 export default function Store() {
 	const initialData = _get();
 
-	// Sync missing items.
+	// Attempt to sync missing items.
 	const pendingSync = initialData.config.pendingSync;
-	if ( canSyncData() ) {
-		for ( const key of pendingSync ) {
-			syncItem( key, initialData[ key ] );
-		}
+	for ( const key of pendingSync ) {
+		syncItem( key, initialData[ key ], initialData );
 	}
 
 	// Rehydrate items from server.
@@ -196,6 +194,7 @@ export default function Store() {
 			const data = _get();
 			delete data[ key ];
 			storage.setItem( STORE_KEY, encode( data ) );
+			emit( EVENTS.data, { key, value: undefined } );
 			syncItem( key );
 		},
 		add: ( key, value ) => {
