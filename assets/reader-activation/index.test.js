@@ -1,22 +1,14 @@
 import {
 	store,
-	on,
-	off,
 	dispatch,
 	getActivities,
 	setReaderEmail,
 	setAuthenticated,
 	getReader,
 } from './index';
+import { on, off } from './events';
 
-describe( 'Store', () => {
-	it( 'should be an object with methods', () => {
-		expect( typeof store ).toBe( 'object' );
-		expect( typeof store.get ).toBe( 'function' );
-		expect( typeof store.set ).toBe( 'function' );
-		expect( typeof store.add ).toBe( 'function' );
-		expect( typeof store.delete ).toBe( 'function' );
-	} );
+describe( 'newspackReaderActivation', () => {
 	it( 'should have a dispatch method', () => {
 		expect( typeof dispatch ).toBe( 'function' );
 	} );
@@ -40,11 +32,7 @@ describe( 'Store', () => {
 		expect( callback ).toHaveBeenCalled();
 		expect( store.get( 'test-set' ) ).toEqual( 'test' );
 	} );
-	it( 'should delete a key', () => {
-		store.delete( 'activity' );
-		expect( store.get( 'activity' ) ).toBeUndefined();
-	} );
-	it( 'should store activities', () => {
+	it( 'should dispatch activities', () => {
 		const activity = {
 			action: 'test',
 			data: {
@@ -55,7 +43,7 @@ describe( 'Store', () => {
 		dispatch( activity.action, activity.data, false, activity.timestamp );
 		expect( getActivities( 'test' ) ).toEqual( [ activity ] );
 	} );
-	it( 'should store activities with a timestamp', () => {
+	it( 'should dispatch activities with a timestamp', () => {
 		const activity = {
 			action: 'test-timestamp',
 			data: {

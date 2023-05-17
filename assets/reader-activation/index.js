@@ -1,196 +1,14 @@
-/* globals newspack_ras_config, newspack_reader_data */
+/* globals newspack_ras_config */
 window.newspack_ras_config = window.newspack_ras_config || {};
-window.newspack_reader_data = window.newspack_reader_data || {};
 
+import Store from './store.js';
+import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 
 /**
- * Reader Activation Frontend Library.
+ * Reader Activation Library.
  */
-
-/**
- * Constants.
- */
-const EVENT_PREFIX = 'newspack-ras';
-const EVENTS = {
-	reader: 'reader',
-	data: 'data',
-	activity: 'activity',
-	apiDispatch: 'apiDispatch',
-};
-
-/**
- * Initialize data.
- */
-export const STORE_KEY = 'newspack-reader';
 export const store = Store();
-
-/**
- * Get store.
- *
- * @return {Object} Store.
- */
-function Store() {
-	const storage = window.localStorage;
-	const maxItems = 1000;
-	const maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days.
-
-	const reservedKeys = [ 'activity', 'data' ];
-
-	const encode = object => {
-		return JSON.stringify( object );
-	};
-	const decode = str => {
-		if ( ! str ) {
-			return {};
-		} else if ( 'object' === typeof str ) {
-			return str;
-		}
-		return JSON.parse( str );
-	};
-
-	const _get = () => {
-		return decode( storage.getItem( STORE_KEY ) ) || {};
-	};
-	const _set = ( key, value, internal = false ) => {
-		if ( ! key ) {
-			throw 'Key is required.';
-		}
-		if ( ! internal && reservedKeys.includes( key ) ) {
-			throw `Key '${ key }' is reserved.`;
-		}
-		const data = _get();
-		data[ key ] = value;
-		storage.setItem( STORE_KEY, encode( data ) );
-		emit( EVENTS.data, { key, value } );
-	};
-
-	if ( newspack_reader_data?.items ) {
-		const items = {};
-		const keys = Object.keys( newspack_reader_data.items );
-		// Sync missing items.
-		if ( canSyncData() ) {
-			const storeData = _get();
-			const localKeys = Object.keys( storeData );
-			for ( const key of localKeys ) {
-				if ( ! keys.includes( key ) && ! reservedKeys.includes( key ) ) {
-					syncDataItem( key, storeData[ key ] );
-				}
-			}
-		}
-		// Rehydrate items.
-		for ( const key of keys ) {
-			const item = JSON.parse( newspack_reader_data.items[ key ] );
-			if ( item ) {
-				items[ key ] = item;
-			}
-		}
-		storage.setItem( STORE_KEY, encode( { ..._get(), ...items } ) );
-	}
-
-	return {
-		get: key => {
-			const data = _get();
-			if ( ! key ) {
-				return data;
-			}
-			return data[ key ];
-		},
-		set: ( key, value ) => {
-			_set( key, value, false );
-			if ( canSyncData() ) {
-				syncDataItem( key );
-			}
-		},
-		delete: key => {
-			if ( ! key ) {
-				throw 'Key is required.';
-			}
-			const data = _get();
-			delete data[ key ];
-			storage.setItem( STORE_KEY, encode( data ) );
-			if ( canSyncData() ) {
-				syncDataItem( key );
-			}
-		},
-		add: ( key, value ) => {
-			if ( ! key ) {
-				throw 'Key is required.';
-			}
-			const data = _get();
-			data[ key ] = data[ key ] || [];
-			if ( ! Array.isArray( data[ key ] ) ) {
-				throw `Store key '${ key }' is not an array.`;
-			}
-
-			// Remove items older than max age if `timestamp` is set.
-			if ( maxAge ) {
-				const now = Date.now();
-				data[ key ] = data[ key ].filter(
-					item => ! item.timestamp || now - item.timestamp < maxAge
-				);
-			}
-
-			data[ key ].push( value );
-
-			// Remove items if max items is reached.
-			data[ key ] = data[ key ].slice( -maxItems );
-
-			_set( key, data[ key ], true );
-		},
-	};
-}
-
-/**
- * Whether the reader can sync data with the server.
- *
- * @return {boolean} Whether the reader can sync data with the server.
- */
-function canSyncData() {
-	return !! newspack_reader_data.api_url && !! newspack_reader_data.nonce;
-}
-
-/**
- * Sync a data key with the server.
- *
- * @param {string} key   Data key.
- * @param {string} value Data value. Defaults to store value.
- *
- * @return {Promise} Promise.
- */
-function syncDataItem( key, value ) {
-	if ( ! canSyncData() ) {
-		return Promise.reject( 'Not allowed to sync data.' );
-	}
-
-	if ( ! value ) {
-		value = store.get( key );
-	}
-	const payload = { key };
-	if ( value ) {
-		payload.value = JSON.stringify( value );
-	}
-
-	const req = new XMLHttpRequest();
-	req.open( payload.value ? 'POST' : 'DELETE', newspack_reader_data.api_url, true );
-	req.setRequestHeader( 'Content-Type', 'application/json' );
-	req.setRequestHeader( 'X-WP-Nonce', newspack_reader_data.nonce );
-
-	// Send request.
-	req.send( JSON.stringify( payload ) );
-
-	return new Promise( ( resolve, reject ) => {
-		req.onreadystatechange = () => {
-			if ( 4 !== req.readyState ) {
-				return;
-			}
-			if ( 200 !== req.status ) {
-				return reject( req );
-			}
-			return resolve( req );
-		};
-	} );
-}
 
 /**
  * Dispatch activity to the Data Events API.
@@ -269,67 +87,6 @@ export function getActivities( action ) {
 }
 
 /**
- * Handling events.
- */
-const events = Object.values( EVENTS );
-
-/**
- * Get the full event name given its local name.
- *
- * @param {string} localEventName Local event name.
- *
- * @return {string} Full event name or empty string if event name is not valid.
- */
-function getEventName( localEventName ) {
-	if ( ! events.includes( localEventName ) ) {
-		return '';
-	}
-	return `${ EVENT_PREFIX }-${ localEventName }`;
-}
-
-/**
- * Emit a reader activation event.
- *
- * @param {string} event Local event name.
- * @param {*}      data  Data to be emitted.
- */
-function emit( event, data ) {
-	event = getEventName( event );
-	if ( ! event ) {
-		throw 'Invalid event';
-	}
-	window.dispatchEvent( new CustomEvent( event, { detail: data } ) );
-}
-
-/**
- * Attach an event listener given a local event name.
- *
- * @param {string}   event    Local event name.
- * @param {Function} callback Callback.
- */
-export function on( event, callback ) {
-	event = getEventName( event );
-	if ( ! event ) {
-		throw 'Invalid event';
-	}
-	window.addEventListener( event, callback );
-}
-
-/**
- * Detach an event listener given a local event name.
- *
- * @param {string}   event    Local event name.
- * @param {Function} callback Callback.
- */
-export function off( event, callback ) {
-	event = getEventName( event );
-	if ( ! event ) {
-		throw 'Invalid event';
-	}
-	window.removeEventListener( event, callback );
-}
-
-/**
  * Reader functions.
  */
 
@@ -356,7 +113,7 @@ export function setReaderEmail( email ) {
 export function setAuthenticated( authenticated = true ) {
 	const reader = store.get( 'reader' ) || {};
 	if ( ! reader.email ) {
-		throw 'Reader email not set';
+		throw new Error( 'Reader email not set' );
 	}
 	reader.authenticated = Boolean( authenticated );
 	store.set( 'reader', reader );
@@ -466,7 +223,7 @@ export function authenticateOTP( code ) {
  */
 export function setAuthStrategy( strategy ) {
 	if ( ! authStrategies.includes( strategy ) ) {
-		throw 'Invalid authentication strategy';
+		throw new Error( 'Invalid authentication strategy' );
 	}
 	setCookie( 'np_auth_strategy', strategy );
 	return strategy;

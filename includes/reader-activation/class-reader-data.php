@@ -104,7 +104,7 @@ final class Reader_Data {
 	 * @param string $user_id User ID.
 	 * @param string $key     Optional key to return.
 	 *
-	 * @return array|false Array of data, false if key not found.
+	 * @return mixed Key data if provided, array of data or false if key not found.
 	 */
 	public static function get_data( $user_id, $key = '' ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
