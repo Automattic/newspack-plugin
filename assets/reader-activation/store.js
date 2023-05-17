@@ -29,7 +29,7 @@ function canSyncData() {
  * @param {string} key   Data key.
  * @param {any}    value Data value.
  *
- * @return {Promise} Promise.
+ * @return {Promise} Promise resolving when the sync is complete.
  */
 function syncItem( key, value ) {
 	if ( ! key ) {
@@ -44,7 +44,7 @@ function syncItem( key, value ) {
 			data.config.pendingSync.push( key );
 		}
 		_set( 'config', data.config, true );
-		return Promise.reject( 'Not allowed to sync data.' );
+		return Promise.resolve();
 	}
 
 	if ( ! value ) {
