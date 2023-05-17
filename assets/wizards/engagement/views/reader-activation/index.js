@@ -15,6 +15,7 @@ import {
 	Button,
 	Card,
 	Notice,
+	PluginInstaller,
 	SectionHeader,
 	TextControl,
 	Waiting,
@@ -32,6 +33,7 @@ export default withWizardScreen( () => {
 	const [ allReady, setAllReady ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const [ prerequisites, setPrerequisites ] = useState( null );
+	const [ missingPlugins, setMissingPlugins ] = useState( [] );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
@@ -84,9 +86,27 @@ export default withWizardScreen( () => {
 	}, [] );
 	useEffect( () => {
 		const _allReady =
-			prerequisites && Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
+			! missingPlugins.length &&
+			prerequisites &&
+			Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
 
 		setAllReady( _allReady );
+
+		if ( prerequisites ) {
+			setMissingPlugins(
+				Object.keys( prerequisites ).reduce( ( acc, slug ) => {
+					const prerequisite = prerequisites[ slug ];
+					if ( prerequisite.plugins ) {
+						for ( const pluginSlug in prerequisite.plugins ) {
+							if ( ! prerequisite.plugins[ pluginSlug ] ) {
+								acc.push( pluginSlug );
+							}
+						}
+					}
+					return acc;
+				}, [] )
+			);
+		}
 	}, [ prerequisites ] );
 
 	const getSharedProps = ( configKey, type = 'checkbox' ) => {
@@ -148,7 +168,10 @@ export default withWizardScreen( () => {
 					isError
 				/>
 			) }
-			{ prerequisites && ! allReady && (
+			{ 0 < missingPlugins.length && (
+				<Notice noticeText={ __( 'The following plugins are required.', 'newspack' ) } isWarning />
+			) }
+			{ 0 === missingPlugins.length && prerequisites && ! allReady && (
 				<Notice
 					noticeText={ __( 'Complete these settings to enable Reader Activation.', 'newspack' ) }
 					isWarning
@@ -163,7 +186,15 @@ export default withWizardScreen( () => {
 					{ __( 'Retrieving status…', 'newspack' ) }
 				</>
 			) }
-			{ prerequisites &&
+			{ 0 < missingPlugins.length && prerequisites && (
+				<PluginInstaller
+					plugins={ missingPlugins }
+					withoutFooterButton
+					onStatus={ ( { complete } ) => complete && fetchConfig() }
+				/>
+			) }
+			{ ! missingPlugins.length &&
+				prerequisites &&
 				Object.keys( prerequisites ).map( key => (
 					<Prerequisite
 						key={ key }
@@ -171,6 +202,7 @@ export default withWizardScreen( () => {
 						getSharedProps={ getSharedProps }
 						inFlight={ inFlight }
 						prerequisite={ prerequisites[ key ] }
+						fetchConfig={ fetchConfig }
 						saveConfig={ saveConfig }
 					/>
 				) ) }

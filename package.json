@@ -1,6 +1,6 @@
 {
 	"name": "newspack",
-	"version": "1.113.0",
+	"version": "1.114.4",
 	"description": "The Newspack plugin. https://newspack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -19,7 +19,7 @@
 		"newspack-scripts": "^5.1.0",
 		"postcss-scss": "^4.0.6",
 		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
-		"stylelint": "^15.2.0"
+		"stylelint": "^15.6.1"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"

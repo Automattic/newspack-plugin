@@ -96,8 +96,12 @@ export type PrequisiteProps = {
 	// Schema for prequisite object is defined in PHP class Reader_Activation::get_prerequisites_status().
 	prerequisite: {
 		active: boolean;
+		plugins?: {
+			[ pluginName: string ]: boolean; // Are the required plugins active?
+		};
 		label: string;
 		description: string;
+		warning?: string;
 		instructions?: string;
 		help_url: string;
 		fields?: {

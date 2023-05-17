@@ -341,4 +341,97 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		// Half should've been deleted.
 		$this->assertEquals( count( $created_requests ) / 2, count( $requests ) );
 	}
+
+	/**
+	 * Tests creating and getting system endpoints.
+	 */
+	public function test_system_endpoint() {
+		Data_Events\Webhooks::register_system_endpoint( 'test', 'https://example.com/test' );
+		$endpoints = Data_Events\Webhooks::get_endpoints();
+		$this->assertSame( 4, count( $endpoints ) );
+		$this->assertSame( 'test', $endpoints[3]['id'] );
+		$this->assertTrue( $endpoints[3]['system'] );
+		$this->assertFalse( $endpoints[2]['system'] );
+
+		$ep = Data_Events\Webhooks::get_endpoint( 'test' );
+		$this->assertSame( 'test', $ep['id'] );
+		$this->assertSame( 'https://example.com/test', $ep['url'] );
+	}
+
+	/**
+	 * Tests that getting endpoint requests fetch requests for system endpoints.
+	 */
+	public function test_get_endpoint_requests() {
+		Data_Events\Webhooks::register_system_endpoint( 'test-2', 'https://example.com/test', [], true );
+		Data_Events\Webhooks::register_system_endpoint( 'test-3', 'https://example2.com/test', [ 'test_action' ] );
+		$this->dispatch_event();
+
+		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
+		$this->assertSame( 1, count( $requests ) );
+
+		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-2' );
+		$this->assertSame( 1, count( $requests ) );
+
+		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-3' );
+		$this->assertSame( 1, count( $requests ) );
+	}
+
+	/**
+	 * Data provider for test_register_system_endpoints_throws
+	 *
+	 * @return array
+	 */
+	public function register_system_endpoints_throws_data() {
+		return [
+			[
+				'*j30s',
+			],
+			[
+				'asd$',
+			],
+			[
+				'asd@',
+			],
+			[
+				123,
+			],
+			[
+				'123',
+			],
+			[
+				[ 'array' ],
+			],
+			[
+				'asd_asd',
+				false,
+			],
+			[
+				'asd_asd-123',
+				false,
+			],
+			[
+				'asd-123',
+				false,
+			],
+			[
+				'asd-123', // repeated.
+				true,
+			],
+		];
+	}
+
+	/**
+	 * Test if register_system_endpoints throws on invalid IDs
+	 *
+	 * @param mixed   $id The ID to be tested.
+	 * @param boolean $should_throw Whether the test should throw an exception.
+	 * @return void
+	 * @dataProvider register_system_endpoints_throws_data
+	 */
+	public function test_register_system_endpoints_throws( $id, $should_throw = true ) {
+		if ( $should_throw ) {
+			$this->expectException( 'InvalidArgumentException' );
+		}
+		$this->assertNull( Data_Events\Webhooks::register_system_endpoint( $id, 'https://example.com/test' ) );
+	}
 }

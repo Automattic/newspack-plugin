@@ -29,16 +29,18 @@ import {
 	withWizardScreen,
 } from '../../../../components/src';
 
+import './style.scss';
+
 export const NewspackNewsletters = ( {
 	className,
 	onUpdate,
-	authUrl = false,
-	setAuthUrl,
-	isOnboarding = true,
 	initialProvider,
-	setInitialProvider,
 	newslettersConfig,
-	setLockedLists,
+	isOnboarding = true,
+	authUrl = false,
+	setInitialProvider = () => {},
+	setAuthUrl = () => {},
+	setLockedLists = () => {},
 } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
@@ -336,6 +338,9 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 							disabled={ inFlight }
 							toggleOnChange={ handleChange( index, 'active' ) }
 							toggleChecked={ list.active }
+							className={
+								'mailchimp-group' === list?.type ? 'newspack-newsletters-group-list-item' : ''
+							}
 							actionText={
 								list?.edit_link ? (
 									<ExternalLink href={ list.edit_link }>
