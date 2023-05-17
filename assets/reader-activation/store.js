@@ -32,16 +32,23 @@ function canSyncData() {
  * @return {Promise} Promise.
  */
 function syncItem( key, value ) {
-	if ( ! canSyncData() ) {
-		return Promise.reject( 'Not allowed to sync data.' );
-	}
-
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
 
+	const data = _get();
+
+	if ( ! canSyncData() ) {
+		// Set as pending sync.
+		if ( ! data.config.pendingSync.includes( key ) ) {
+			data.config.pendingSync.push( key );
+		}
+		_set( 'config', data.config, true );
+		return Promise.reject( 'Not allowed to sync data.' );
+	}
+
 	if ( ! value ) {
-		value = _get()[ key ];
+		value = data[ key ];
 	}
 
 	const payload = { key };
@@ -65,7 +72,11 @@ function syncItem( key, value ) {
 			if ( 200 !== req.status ) {
 				return reject( req );
 			}
-			removePendingSync( key );
+			// Clear from pending sync.
+			if ( data.config.pendingSync.includes( key ) ) {
+				data.config.pendingSync.splice( data.config.pendingSync.indexOf( key ), 1 );
+			}
+			_set( 'config', data.config, true );
 			return resolve( req );
 		};
 	} );
@@ -134,32 +145,6 @@ function _set( key, value, internal = false ) {
 }
 
 /**
- * Set a key as pending sync.
- *
- * @param {string} key Key to set as pending sync.
- */
-function setPendingSync( key ) {
-	const config = _get().config;
-	if ( ! config.pendingSync.includes( key ) ) {
-		config.pendingSync.push( key );
-	}
-	_set( 'config', config, true );
-}
-
-/**
- * Remove a key from pending sync.
- *
- * @param {string} key Key to remove from pending sync.
- */
-function removePendingSync( key ) {
-	const config = _get().config;
-	if ( config.pendingSync.includes( key ) ) {
-		config.pendingSync.splice( config.pendingSync.indexOf( key ), 1 );
-	}
-	_set( 'config', config, true );
-}
-
-/**
  * Store.
  *
  * @return {Object} The store object.
@@ -202,11 +187,7 @@ export default function Store() {
 		},
 		set: ( key, value ) => {
 			_set( key, value, false );
-			if ( canSyncData() ) {
-				syncItem( key );
-			} else {
-				setPendingSync( key );
-			}
+			syncItem( key );
 		},
 		delete: key => {
 			if ( ! key ) {
@@ -215,11 +196,7 @@ export default function Store() {
 			const data = _get();
 			delete data[ key ];
 			storage.setItem( STORE_KEY, encode( data ) );
-			if ( canSyncData() ) {
-				syncItem( key );
-			} else {
-				setPendingSync( key );
-			}
+			syncItem( key );
 		},
 		add: ( key, value ) => {
 			if ( ! key ) {
