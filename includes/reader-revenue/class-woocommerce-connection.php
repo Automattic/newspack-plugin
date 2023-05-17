@@ -1077,8 +1077,8 @@ class WooCommerce_Connection {
 	 * @return bool
 	 */
 	public static function send_customizable_receipt_email( $enable, $order, $class ) {
-		// If we don't have a valid order, bail.
-		if ( ! is_a( $order, 'WC_Order' ) ) {
+		// If we don't have a valid order, or the customizable email isn't enabled, bail.
+		if ( ! is_a( $order, 'WC_Order' ) || ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 			return $enable;
 		}
 
@@ -1113,7 +1113,6 @@ class WooCommerce_Connection {
 			$placeholders
 		);
 
-		// Fall back to default email if the custom one failed to send.
 		return false;
 	}
 }

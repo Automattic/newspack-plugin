@@ -15,7 +15,6 @@ defined( 'ABSPATH' ) || exit;
 class Emails {
 	const POST_TYPE              = 'newspack_rr_email'; // "Reader Revenue" emails, for legacy reasons.
 	const EMAIL_CONFIG_NAME_META = 'newspack_email_type'; // "type" for legacy reasons.
-	const EMAIL_OPTION_PREFIX    = 'newspack_email_enabled_'; // Prefix for enabled option key.
 
 	/**
 	 * Initialize.
@@ -287,7 +286,7 @@ class Emails {
 			return false;
 		}
 		$email_config = self::get_email_config_by_type( $type );
-		if ( ! $email_config || 'publish' !== $email_config['status'] || ! $email_config['enabled'] ) {
+		if ( ! $email_config || 'publish' !== $email_config['status'] ) {
 			return false;
 		}
 		return true;
@@ -347,10 +346,6 @@ class Emails {
 			'status'         => get_post_status( $post_id ),
 			'html_payload'   => $html_payload,
 		];
-
-		if ( null !== $type ) {
-			$serialized_email['enabled'] = \get_option( self::EMAIL_OPTION_PREFIX . $type, Donations::is_platform_stripe() );
-		}
 
 		return $serialized_email;
 	}
