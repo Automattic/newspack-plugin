@@ -37,6 +37,21 @@ describe( 'Store', () => {
 		store.add( 'my-list', item );
 		expect( store.get( 'my-list' ) ).toEqual( [ item ] );
 	} );
+	it( 'should not add if not an array', () => {
+		const store = Store();
+		const item = { foo: 'bar' };
+		store.set( 'my-list', item );
+		const storeNotArray = () => store.add( 'my-list', item );
+		expect( storeNotArray ).toThrow( Error );
+		expect( store.get( 'my-list' ) ).toEqual( item );
+	} );
+	it( 'should not add if key is not provided', () => {
+		const store = Store();
+		const item = { foo: 'bar' };
+		const storeNoKey = () => store.add( undefined, item );
+		expect( storeNoKey ).toThrow( Error );
+		expect( store.get( 'my-list' ) ).toBeUndefined();
+	} );
 	it( 'should load store with initial data', () => {
 		window.newspack_reader_data = {
 			items: {
