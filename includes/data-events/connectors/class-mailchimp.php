@@ -112,13 +112,17 @@ class Mailchimp {
 		// Create remaining fields.
 		$remaining_fields = array_keys( $data );
 		foreach ( $remaining_fields as $field_name ) {
-			$created_field                            = Mailchimp_API::post(
+			$created_field = Mailchimp_API::post(
 				"lists/$audience_id/merge-fields",
 				[
 					'name' => $field_name,
 					'type' => self::get_merge_field_type( $data[ $field_name ] ),
 				]
 			);
+			// Skip field if it failed to create.
+			if ( is_wp_error( $created_field ) ) {
+				continue;
+			}
 			$merge_fields[ $created_field['tag'] ]    = $data[ $field_name ];
 			$fields_ids[ $created_field['merge_id'] ] = $field_name;
 		}
@@ -151,7 +155,7 @@ class Mailchimp {
 		}
 
 		// Upsert the contact.
-		Mailchimp_API::put(
+		$res = Mailchimp_API::put(
 			"lists/$audience_id/members/$hash",
 			$payload
 		);
