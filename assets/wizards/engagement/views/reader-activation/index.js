@@ -23,6 +23,7 @@ import {
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
+import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 
 export default withWizardScreen( () => {
@@ -32,6 +33,7 @@ export default withWizardScreen( () => {
 	const [ error, setError ] = useState( false );
 	const [ allReady, setAllReady ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
+	const [ isMailchimp, setIsMailchimp ] = useState( false );
 	const [ prerequisites, setPrerequisites ] = useState( null );
 	const [ missingPlugins, setMissingPlugins ] = useState( [] );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
@@ -79,6 +81,9 @@ export default withWizardScreen( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 		} ).then( data => {
+			setIsMailchimp(
+				data?.settings?.newspack_newsletters_service_provider?.value === 'mailchimp'
+			);
 			setIsActiveCampaign(
 				data?.settings?.newspack_newsletters_service_provider?.value === 'active_campaign'
 			);
@@ -280,6 +285,16 @@ export default withWizardScreen( () => {
 								) }
 								{ ...getSharedProps( 'metadata_prefix', 'text' ) }
 							/>
+							{ isMailchimp && (
+								<Mailchimp
+									value={ { audienceId: config.mailchimp_audience_id } }
+									onChange={ ( key, value ) => {
+										if ( key === 'audienceId' ) {
+											updateConfig( 'mailchimp_audience_id', value );
+										}
+									} }
+								/>
+							) }
 							{ isActiveCampaign && (
 								<ActiveCampaign
 									value={ { masterList: config.active_campaign_master_list } }
@@ -299,6 +314,7 @@ export default withWizardScreen( () => {
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
 									metadata_prefix: config.metadata_prefix,
+									mailchimp_audience_id: config.mailchimp_audience_id,
 									active_campaign_master_list: config.active_campaign_master_list,
 								} );
 							} }
