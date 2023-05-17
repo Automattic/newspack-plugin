@@ -155,7 +155,7 @@ class Mailchimp {
 		}
 
 		// Upsert the contact.
-		$res = Mailchimp_API::put(
+		Mailchimp_API::put(
 			"lists/$audience_id/members/$hash",
 			$payload
 		);
