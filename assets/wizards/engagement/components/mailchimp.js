@@ -10,7 +10,7 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import { Notice, SectionHeader, SelectControl } from '../../../components/src';
 
-export default function ActiveCampaign( { value, onChange } ) {
+export default function Mailchimp( { value, onChange } ) {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ lists, setLists ] = useState( [] );
 	const [ error, setError ] = useState( false );
