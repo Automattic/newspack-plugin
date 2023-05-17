@@ -1,17 +1,9 @@
-# [1.115.0-alpha.7](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.6...v1.115.0-alpha.7) (2023-05-17)
-
-
-### Features
-
-* **ras:** mailchimp audience config ([#2462](https://github.com/Automattic/newspack-plugin/issues/2462)) ([3ca7e52](https://github.com/Automattic/newspack-plugin/commit/3ca7e52140346305f635bb37a1a4875e13fdf62c))
-* **ras:** remove env flag requirements for RAS functionality ([#2461](https://github.com/Automattic/newspack-plugin/issues/2461)) ([ddc875f](https://github.com/Automattic/newspack-plugin/commit/ddc875fb4b7b5b58a2855ee22e38cce6518864cb))
-
-# [1.115.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v1.115.0-alpha.5...v1.115.0-alpha.6) (2023-05-16)
+## [1.114.5](https://github.com/Automattic/newspack-plugin/compare/v1.114.4...v1.114.5) (2023-05-17)
 
 
 ### Bug Fixes
 
-* **perfmatters:** exlcude Newspack CSS from being delayed ([#2459](https://github.com/Automattic/newspack-plugin/issues/2459)) ([ee649f5](https://github.com/Automattic/newspack-plugin/commit/ee649f5e2929f4aba8c38fac9f76991e391ed991))
+* **ras:** total paid sum race condition ([#2464](https://github.com/Automattic/newspack-plugin/issues/2464)) ([eea0e81](https://github.com/Automattic/newspack-plugin/commit/eea0e816a7b7e99087712de665553d10407ff7cb))
 
 ## [1.114.4](https://github.com/Automattic/newspack-plugin/compare/v1.114.3...v1.114.4) (2023-05-16)
 
