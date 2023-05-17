@@ -58,7 +58,7 @@ class WooCommerce_Connection {
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
 
 		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
-		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'order_processed' ], 101 );
+		\add_action( 'woocommerce_order_status_completed', [ __CLASS__, 'order_processed' ], 101 );
 		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
 
 		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
@@ -208,7 +208,6 @@ class WooCommerce_Connection {
 		if ( empty( $order_subscriptions ) ) {
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = (float) $customer->get_total_spent();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]       += (float) $order->get_total();
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ]      = '';
 			$order_items = $order->get_items();
 			if ( $order_items ) {
