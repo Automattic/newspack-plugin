@@ -31,17 +31,11 @@ describe( 'Store', () => {
 		expect( storeReserved ).toThrow( Error );
 		expect( store.get( key ) ).not.toEqual( 'foo' );
 	} );
-	it( 'should add an activity', () => {
+	it( 'should add a list', () => {
 		const store = Store();
-		const activity = {
-			action: 'test',
-			data: {
-				test: 'test',
-			},
-			timestamp: 1234567890,
-		};
-		store.add( 'activity', activity );
-		expect( store.get( 'activity' ) ).toEqual( [ activity ] );
+		const item = { foo: 'bar' };
+		store.add( 'my-list', item );
+		expect( store.get( 'my-list' ) ).toEqual( [ item ] );
 	} );
 	it( 'should load store with initial data', () => {
 		window.newspack_reader_data = {
