@@ -11,63 +11,18 @@ import { getCookie, setCookie, generateID } from './utils.js';
 export const store = Store();
 
 /**
- * Dispatch activity to the Data Events API.
- *
- * @param {string} action    Action name.
- * @param {Object} data      Data.
- * @param {number} timestamp Timestamp.
- *
- * @return {Promise} Promise.
- */
-export function dispatchApi( action, data, timestamp = 0 ) {
-	if ( ! newspack_ras_config.dispatch_url ) {
-		return Promise.reject( 'No dispatch URL.' );
-	}
-
-	const req = new XMLHttpRequest();
-	req.open( 'POST', newspack_ras_config.dispatch_url, true );
-	req.setRequestHeader( 'Content-Type', 'application/json' );
-
-	const activity = {
-		action,
-		data,
-		timestamp: Math.floor( timestamp || Date.now() / 1000 ),
-	};
-
-	// Send request.
-	req.send( JSON.stringify( activity ) );
-
-	return new Promise( ( resolve, reject ) => {
-		req.onreadystatechange = () => {
-			if ( 4 !== req.readyState ) {
-				return;
-			}
-			if ( 200 !== req.status ) {
-				return reject( req );
-			}
-			emit( EVENTS.apiDispatch, activity );
-			return resolve( req );
-		};
-	} );
-}
-
-/**
  * Dispatch reader activity.
  *
- * @param {string}  action    Action name.
- * @param {Object}  data      Data object.
- * @param {boolean} api       Whether to dispatch to the Data Events API. Default false.
- * @param {number}  timestamp Timestamp. (optional)
+ * @param {string} action    Action name.
+ * @param {Object} data      Data object.
+ * @param {number} timestamp Timestamp. (optional)
  *
  * @return {Object} Activity.
  */
-export function dispatch( action, data, api = false, timestamp = 0 ) {
+export function dispatch( action, data, timestamp = 0 ) {
 	const activity = { action, data, timestamp: timestamp || Date.now() };
 	store.add( 'activity', activity );
 	emit( EVENTS.activity, activity );
-	if ( api ) {
-		dispatchApi( activity.action, activity.data, activity.timestamp );
-	}
 	return activity;
 }
 
@@ -307,7 +262,6 @@ const readerActivation = {
 	on,
 	off,
 	dispatch,
-	dispatchApi,
 	getActivities,
 	setReaderEmail,
 	setAuthenticated,
