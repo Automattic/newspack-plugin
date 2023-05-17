@@ -105,7 +105,6 @@ final class Reader_Activation {
 		$script_dependencies = [];
 		$script_data         = [
 			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
-			'dispatch_url'          => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/data-events/dispatch' ),
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 			'authenticated_email'   => $authenticated_email,
 			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
