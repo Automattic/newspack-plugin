@@ -40,7 +40,7 @@ describe( 'newspackReaderActivation', () => {
 			},
 			timestamp: 1234567890,
 		};
-		dispatch( activity.action, activity.data, false, activity.timestamp );
+		dispatch( activity.action, activity.data, activity.timestamp );
 		expect( getActivities( 'test' ) ).toEqual( [ activity ] );
 	} );
 	it( 'should dispatch activities with a timestamp', () => {
@@ -54,7 +54,7 @@ describe( 'newspackReaderActivation', () => {
 		expect( typeof getActivities( 'test-timestamp' )[ 0 ].timestamp ).toBe( 'number' );
 	} );
 	it( 'should clear added items older than 30 days', () => {
-		dispatch( 'old-activity', {}, false, 1 ); // Old timestamp.
+		dispatch( 'old-activity', {}, 1 ); // Old timestamp.
 		dispatch( 'new-activity', {} ); // Dispatching a new activity should clear old ones.
 		expect( getActivities( 'old-activity' ) ).toEqual( [] );
 	} );
