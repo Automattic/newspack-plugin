@@ -25,7 +25,6 @@ class Mailchimp {
 	 */
 	public function __construct() {
 		if (
-			defined( 'NEWSPACK_DATA_EVENTS_MAILCHIMP' ) && NEWSPACK_DATA_EVENTS_MAILCHIMP &&
 			Reader_Activation::is_enabled() &&
 			true === Reader_Activation::get_setting( 'sync_esp' )
 		) {
