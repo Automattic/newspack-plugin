@@ -7,7 +7,8 @@ const config = {
 	storeKey: 'newspack-reader',
 	storage: window.localStorage,
 	reservedKeys: [ 'activity', 'data', 'config' ], // Reserved keys that cannot be used with store.set().
-	lists: {
+	collections: {
+		// Configuration of collections that are created through store.add().
 		maxItems: 1000, // Maximum number of items in a list.
 		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days.
 	},
@@ -198,7 +199,10 @@ export default function Store() {
 		},
 		add: ( key, value ) => {
 			if ( ! key ) {
-				throw new Error( 'Key is required.' );
+				throw new Error( 'Key cannot be empty.' );
+			}
+			if ( ! value ) {
+				throw new Error( 'Value cannot be empty.' );
 			}
 			const data = _get();
 			data[ key ] = data[ key ] || [];
@@ -207,17 +211,17 @@ export default function Store() {
 			}
 
 			// Remove items older than max age if `timestamp` is set.
-			if ( config.lists.maxAge ) {
+			if ( config.collections.maxAge ) {
 				const now = Date.now();
 				data[ key ] = data[ key ].filter(
-					item => ! item.timestamp || now - item.timestamp < config.lists.maxAge
+					item => ! item.timestamp || now - item.timestamp < config.collections.maxAge
 				);
 			}
 
 			data[ key ].push( value );
 
 			// Remove items if max items is reached.
-			data[ key ] = data[ key ].slice( -config.lists.maxItems );
+			data[ key ] = data[ key ].slice( -config.collections.maxItems );
 
 			_set( key, data[ key ], true );
 		},
