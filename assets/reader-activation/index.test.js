@@ -9,9 +9,6 @@ import {
 import { on, off } from './events';
 
 describe( 'newspackReaderActivation', () => {
-	it( 'should have a dispatch method', () => {
-		expect( typeof dispatch ).toBe( 'function' );
-	} );
 	it( 'should emit an event on dispatch', () => {
 		const callback = jest.fn();
 		on( 'activity', callback );
