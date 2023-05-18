@@ -31,7 +31,7 @@ describe( 'Store', () => {
 		expect( storeReserved ).toThrow( Error );
 		expect( store.get( key ) ).not.toEqual( 'foo' );
 	} );
-	it( 'should add a collection', () => {
+	it( 'should add to a collection', () => {
 		const store = Store();
 		const item = { foo: 'bar' };
 		store.add( 'my-collection', item );
@@ -44,26 +44,32 @@ describe( 'Store', () => {
 		}
 		expect( store.get( 'my-collection' ).length ).toEqual( 1000 );
 	} );
-	it( 'should clear added items older than 30 days', () => {
+	it( 'should clear added items older than 30 days in a collection', () => {
 		const store = Store();
 		const now = Date.now();
 		store.add( 'my-collection', { timestamp: 1 } ); // Old timestamp.
 		store.add( 'my-collection', { timestamp: now } ); // Setting new item clears old ones.
 		expect( store.get( 'my-collection' ) ).toEqual( [ { timestamp: now } ] );
 	} );
-	it( 'should not add if not an array', () => {
+	it( 'should not add to collection if key value is not an array', () => {
 		const store = Store();
 		const item = { foo: 'bar' };
-		store.set( 'my-collection', item );
+		store.set( 'my-collection', 'not-an-array' );
 		const storeNotArray = () => store.add( 'my-collection', item );
 		expect( storeNotArray ).toThrow( Error );
 		expect( store.get( 'my-collection' ) ).toEqual( item );
 	} );
-	it( 'should not add if key is not provided', () => {
+	it( 'should not add to collection if key is empty', () => {
 		const store = Store();
 		const item = { foo: 'bar' };
-		const storeNoKey = () => store.add( undefined, item );
-		expect( storeNoKey ).toThrow( Error );
+		const storeEmptyKey = () => store.add( undefined, item );
+		expect( storeEmptyKey ).toThrow( Error );
+		expect( store.get( 'my-collection' ) ).toBeUndefined();
+	} );
+	it( 'should not add to collection if value is empty', () => {
+		const store = Store();
+		const storeEmptyValue = () => store.add( 'my-collection', undefined );
+		expect( storeEmptyValue ).toThrow( Error );
 		expect( store.get( 'my-collection' ) ).toBeUndefined();
 	} );
 	it( 'should load store with initial data', () => {
