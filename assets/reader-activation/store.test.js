@@ -53,16 +53,14 @@ describe( 'Store', () => {
 	} );
 	it( 'should not add to collection if key value is not an array', () => {
 		const store = Store();
-		const item = { foo: 'bar' };
 		store.set( 'my-collection', 'not-an-array' );
-		const storeNotArray = () => store.add( 'my-collection', item );
+		const storeNotArray = () => store.add( 'my-collection', { foo: 'bar' } );
 		expect( storeNotArray ).toThrow( Error );
-		expect( store.get( 'my-collection' ) ).toEqual( item );
+		expect( store.get( 'my-collection' ) ).toEqual( 'not-an-array' );
 	} );
 	it( 'should not add to collection if key is empty', () => {
 		const store = Store();
-		const item = { foo: 'bar' };
-		const storeEmptyKey = () => store.add( undefined, item );
+		const storeEmptyKey = () => store.add( undefined, { foo: 'bar' } );
 		expect( storeEmptyKey ).toThrow( Error );
 		expect( store.get( 'my-collection' ) ).toBeUndefined();
 	} );
