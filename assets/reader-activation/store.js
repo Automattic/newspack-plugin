@@ -3,16 +3,15 @@ window.newspack_reader_data = window.newspack_reader_data || {};
 
 import { EVENTS, emit } from './events';
 
-const STORE_KEY = 'newspack-reader';
-
-const storage = window.localStorage;
-const reservedKeys = [ 'activity', 'data', 'config' ];
-
-/**
- * Activity config.
- */
-const maxItems = 1000;
-const maxAge = 1000 * 60 * 60 * 24 * 30; // 30 days.
+const config = {
+	storeKey: 'newspack-reader',
+	storage: window.localStorage,
+	reservedKeys: [ 'activity', 'data', 'config' ], // Reserved keys that cannot be used with store.set().
+	lists: {
+		maxItems: 1000, // Maximum number of items in a list.
+		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days.
+	},
+};
 
 /**
  * Sync a data key with the server.
@@ -121,7 +120,7 @@ function _get() {
 			pendingSync: [],
 		},
 	};
-	return { ...defaultData, ...decode( storage.getItem( STORE_KEY ) ) } || defaultData;
+	return { ...defaultData, ...decode( config.storage.getItem( config.storeKey ) ) } || defaultData;
 }
 
 /**
@@ -135,12 +134,12 @@ function _set( key, value, internal = false ) {
 	if ( ! key ) {
 		throw new Error( 'Key is required.' );
 	}
-	if ( ! internal && reservedKeys.includes( key ) ) {
+	if ( ! internal && config.reservedKeys.includes( key ) ) {
 		throw new Error( `Key '${ key }' is reserved.` );
 	}
 	const data = _get();
 	data[ key ] = value;
-	storage.setItem( STORE_KEY, encode( data ) );
+	config.storage.setItem( config.storeKey, encode( data ) );
 	emit( EVENTS.data, { key, value } );
 }
 
@@ -172,7 +171,7 @@ export default function Store() {
 				items[ key ] = item;
 			}
 		}
-		storage.setItem( STORE_KEY, encode( { ...initialData, ...items } ) );
+		config.storage.setItem( config.storeKey, encode( { ...initialData, ...items } ) );
 	}
 
 	return {
@@ -193,7 +192,7 @@ export default function Store() {
 			}
 			const data = _get();
 			delete data[ key ];
-			storage.setItem( STORE_KEY, encode( data ) );
+			config.storage.setItem( config.storeKey, encode( data ) );
 			emit( EVENTS.data, { key, value: undefined } );
 			syncItem( key );
 		},
@@ -208,17 +207,17 @@ export default function Store() {
 			}
 
 			// Remove items older than max age if `timestamp` is set.
-			if ( maxAge ) {
+			if ( config.lists.maxAge ) {
 				const now = Date.now();
 				data[ key ] = data[ key ].filter(
-					item => ! item.timestamp || now - item.timestamp < maxAge
+					item => ! item.timestamp || now - item.timestamp < config.lists.maxAge
 				);
 			}
 
 			data[ key ].push( value );
 
 			// Remove items if max items is reached.
-			data[ key ] = data[ key ].slice( -maxItems );
+			data[ key ] = data[ key ].slice( -config.lists.maxItems );
 
 			_set( key, data[ key ], true );
 		},
