@@ -9,7 +9,7 @@ const config = {
 	reservedKeys: [ 'activity', 'data', 'config' ], // Reserved keys that cannot be used with store.set().
 	collections: {
 		// Configuration of collections that are created through store.add().
-		maxItems: 1000, // Maximum number of items in a list.
+		maxItems: 1000, // Maximum number of items in a collection.
 		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days.
 	},
 };
