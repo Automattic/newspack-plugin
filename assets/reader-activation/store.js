@@ -10,7 +10,7 @@ const config = {
 	collections: {
 		// Configuration of collections that are created through store.add().
 		maxItems: 1000, // Maximum number of items in a collection.
-		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days.
+		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days, maximum age of a collection item if 'timestamp' is set.
 	},
 };
 
