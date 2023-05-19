@@ -196,6 +196,10 @@ final class Reader_Data {
 		if ( ! $key || ! $value ) {
 			return new \WP_Error( 'invalid_params', __( 'Invalid parameters.', 'newspack' ), [ 'status' => 400 ] );
 		}
+		// Value must be a valid stringified JSON.
+		if ( null === json_decode( $value ) ) {
+			return new \WP_Error( 'invalid_value', __( 'Invalid value.', 'newspack' ), [ 'status' => 400 ] );
+		}
 		$res = self::update_reader_data_key( \get_current_user_id(), $key, $value );
 		if ( \is_wp_error( $res ) ) {
 			return $res;
