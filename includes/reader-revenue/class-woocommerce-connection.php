@@ -208,8 +208,12 @@ class WooCommerce_Connection {
 		if ( empty( $order_subscriptions ) ) {
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = (float) $customer->get_total_spent();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]       += (float) $order->get_total();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ]      = '';
+
+			if ( 'pending' === $order->get_status() ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $order->get_total();
+			}
+
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
 			$order_items = $order->get_items();
 			if ( $order_items ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
@@ -257,8 +261,11 @@ class WooCommerce_Connection {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
 			}
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]  = (float) $customer->get_total_spent();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
+
+			if ( 'pending' === $order->get_status() ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
+			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
 			if ( $current_subscription ) {
@@ -482,6 +489,9 @@ class WooCommerce_Connection {
 		if ( isset( $metadata['stripe_intent_id'] ) ) {
 			$order->add_meta_data( '_stripe_intent_id', $metadata['stripe_intent_id'] );
 		}
+		if ( isset( $metadata['stripe_next_payment_date'] ) ) {
+			$order->add_meta_data( '_stripe_next_payment_date', $metadata['stripe_next_payment_date'] );
+		}
 		if ( 'completed' === $order->get_status() ) {
 			$order->add_meta_data( '_stripe_charge_captured', 'yes' );
 		}
@@ -700,6 +710,14 @@ class WooCommerce_Connection {
 					} else {
 						update_post_meta( $subscription_id, self::SUBSCRIPTION_STRIPE_ID_META_KEY, $stripe_subscription_id );
 					}
+
+					// Ensure the next payment is scheduled.
+					$next_payment_date = isset( $order_data['stripe_next_payment_date'] ) ? self::convert_timestamp_to_date( $order_data['stripe_next_payment_date'] ) : $subscription->calculate_date( 'next_payment' );
+					$subscription->update_dates(
+						[
+							'next_payment' => $next_payment_date,
+						]
+					);
 
 					$subscription->save();
 
