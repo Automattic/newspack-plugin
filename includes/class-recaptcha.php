@@ -317,13 +317,13 @@ final class Recaptcha {
 		if ( ! self::can_use_captcha() ) {
 			return;
 		}
-		$settings = self::get_settings();
+		$site_key = self::get_setting( 'site_key' );
 		?>
 		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
 		<script>
 			grecaptcha.ready( function() {
 				grecaptcha.execute(
-					'<?php echo \esc_attr( $settings['site_key'] ); ?>',
+					'<?php echo \esc_attr( $site_key ); ?>',
 					{ action: 'checkout' }
 				).then( function( token ) {
 					var field   = document.createElement('input');
