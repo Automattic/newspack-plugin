@@ -76,6 +76,12 @@ const webpackConfig = getBaseWebpackConfig(
 				'memberships-gate',
 				'overlay.js'
 			),
+			'memberships-gate-metering': path.join(
+				__dirname,
+				'assets',
+				'memberships-gate',
+				'metering.js'
+			),
 		},
 	}
 );

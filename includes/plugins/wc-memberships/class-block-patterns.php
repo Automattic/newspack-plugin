@@ -5,7 +5,7 @@
  * @package Newspack
  */
 
-namespace Newspack\WC_Memberships;
+namespace Newspack\Memberships;
 
 /**
  * WooCommerce Memberships Block Patterns class.
