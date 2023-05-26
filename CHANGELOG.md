@@ -1,3 +1,10 @@
+## [1.115.1](https://github.com/Automattic/newspack-plugin/compare/v1.115.0...v1.115.1) (2023-05-26)
+
+
+### Bug Fixes
+
+* **performance:** exclude main jetpack css from delay ([4e7aa5e](https://github.com/Automattic/newspack-plugin/commit/4e7aa5e8a076bb37d5378a007c83c5f26c22f7e9))
+
 # [1.115.0](https://github.com/Automattic/newspack-plugin/compare/v1.114.5...v1.115.0) (2023-05-24)
 
 
