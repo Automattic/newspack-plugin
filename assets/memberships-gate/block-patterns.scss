@@ -17,7 +17,7 @@
 		li {
 			position: relative;
 			padding-left: 24px;
-			&:before {
+			&::before {
 				content: '';
 				position: absolute;
 				left: 0;
@@ -52,7 +52,7 @@
 					background: transparent;
 					border: 0;
 					position: relative;
-					&:not( :last-child ):after {
+					&:not( :last-child )::after {
 						@media only screen and ( min-width: 782px ) {
 							content: '';
 							position: absolute;
