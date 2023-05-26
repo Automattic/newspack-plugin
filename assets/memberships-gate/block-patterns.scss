@@ -1,16 +1,16 @@
 .editor-styles-wrapper .newspack-content-gate,
 .newspack-content-gate {
 	/**
-   * Apply RAS CTA color to outline button.
-   */
+	 * Apply RAS CTA color to outline button.
+	 */
 	.is-style-outline,
 	.is-style-outline .wp-block-button__link:not( .has-text-color ) {
 		color: #cc1818;
 		border-color: #cc1818;
 	}
 	/**
-   * Feature list.
-   */
+	 * Feature list.
+	 */
 	.newspack-feature-list {
 		list-style: none;
 		padding-left: 0;
@@ -31,8 +31,8 @@
 		}
 	}
 	/**
-   * Donate block tweaks.
-   */
+	 * Donate block tweaks.
+	 */
 	.wpbnbd--tiers-based {
 		&.is-style-minimal form:not( [data-is-streamlined-form] ) {
 			text-align: left;
@@ -68,8 +68,8 @@
 	}
 
 	/**
-   * Reader Registration block.
-   */
+	 * Reader Registration block.
+	 */
 	.newspack-registration {
 		&__have-account {
 			display: none;
