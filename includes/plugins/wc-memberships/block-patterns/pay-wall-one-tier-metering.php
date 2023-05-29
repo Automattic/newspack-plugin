@@ -56,8 +56,8 @@
 	</div>
 	<!-- /wp:columns -->
 
-	<!-- wp:paragraph { "align":"center","style":{"typography":{"fontSize":"13px"}} } -->
-	<p class="has-text-align-center" style="font-size:13px">
+	<!-- wp:paragraph { "align":"center","style":{"typography":{"fontSize":"13px"}},"className":"newspack-sign-in" } -->
+	<p class="has-text-align-center newspack-sign-in" style="font-size:13px">
 		<?php esc_html_e( 'Already have an account?', 'newspack' ); ?>
 		<a href="#signin_modal"><?php esc_html_e( 'Sign In', 'newspack' ); ?></a>.
 	</p>

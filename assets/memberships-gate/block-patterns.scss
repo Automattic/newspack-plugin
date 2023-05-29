@@ -31,6 +31,14 @@
 		}
 	}
 	/**
+	 * Logged-out only content.
+	 */
+	.logged-in & {
+		.newspack-sign-in {
+			display: none;
+		}
+	}
+	/**
 	 * Donate block tweaks.
 	 */
 	.wpbnbd--tiers-based {
