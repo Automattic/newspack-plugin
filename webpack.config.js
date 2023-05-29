@@ -82,6 +82,12 @@ const webpackConfig = getBaseWebpackConfig(
 				'memberships-gate',
 				'metering.js'
 			),
+			'memberships-gate-block-patterns': path.join(
+				__dirname,
+				'assets',
+				'memberships-gate',
+				'block-patterns.js'
+			),
 		},
 	}
 );
