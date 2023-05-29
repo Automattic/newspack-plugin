@@ -1,3 +1,10 @@
+# [1.116.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v1.116.0-alpha.2...v1.116.0-alpha.3) (2023-05-29)
+
+
+### Features
+
+* **content-gate:** updated block patterns ([#2474](https://github.com/Automattic/newspack-plugin/issues/2474)) ([161f935](https://github.com/Automattic/newspack-plugin/commit/161f935368be4305dba28631fd9142c3c84f6758))
+
 # [1.116.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v1.116.0-alpha.1...v1.116.0-alpha.2) (2023-05-26)
 
 
