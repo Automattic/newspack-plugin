@@ -189,12 +189,21 @@ class PluginInstaller extends Component {
 					slugs.length > 0 &&
 					slugs.map( slug => {
 						const plugin = pluginInfo[ slug ];
-						const { Name, Description, Status, installationStatus, notification } = plugin;
+						const { Name, Description, Download, Status, installationStatus, notification } =
+							plugin;
 						const isWaiting = installationStatus === PLUGIN_STATE_INSTALLING;
 						const isButton = ! isWaiting && Status !== 'active';
+						const installable = Download || pluginInstalled( Status );
 						let actionText;
 						if ( installationStatus === PLUGIN_STATE_INSTALLING ) {
-							actionText = __( 'Installing…' );
+							actionText = 'inactive' === Status ? __( 'Activating…' ) : __( 'Installing…' );
+						} else if ( ! installable ) {
+							actionText = (
+								<span className="newspack-plugin-installer__status">
+									{ __( 'Contact Newspack support to install', 'newspack' ) }
+									<span className="newspack-checkbox-icon" />
+								</span>
+							);
 						} else if ( Status === 'uninstalled' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
@@ -230,6 +239,7 @@ class PluginInstaller extends Component {
 								key={ slug }
 								title={ Name }
 								description={ Description }
+								disabled={ ! installable }
 								actionText={ actionText }
 								isSmall={ isSmall }
 								isWaiting={ isWaiting }
