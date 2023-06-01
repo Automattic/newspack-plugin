@@ -87,7 +87,7 @@ export default withWizardScreen( () => {
 				>
 					{ __( 'Continue', 'newspack' ) }
 				</Button>
-				<Button isSecondary disabled={ inFlight } href="#/">
+				<Button isSecondary disabled={ inFlight } href="#/reader-activation">
 					{ __( 'Back', 'newspack' ) }
 				</Button>
 			</div>
