@@ -94,10 +94,6 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		if ( ! self::allow_reg_block_render() ) {
-			return;
-		}
-
 		$authenticated_email = '';
 		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
 			$authenticated_email = \wp_get_current_user()->user_email;
@@ -119,7 +115,7 @@ final class Reader_Activation {
 		/**
 		 * Reader Activation Frontend Library.
 		 */
-		\wp_register_script(
+		\wp_enqueue_script(
 			self::SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-activation.js',
 			$script_dependencies,
@@ -137,6 +133,9 @@ final class Reader_Activation {
 		/**
 		 * Reader Authentication
 		 */
+		if ( \is_user_logged_in() ) { // Don't load auth scripts if the user is logged in.
+			return;
+		}
 		\wp_enqueue_script(
 			self::AUTH_SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-auth.js',
