@@ -133,9 +133,6 @@ final class Reader_Activation {
 		/**
 		 * Reader Authentication
 		 */
-		if ( \is_user_logged_in() ) { // Don't load auth scripts if the user is logged in.
-			return;
-		}
 		\wp_enqueue_script(
 			self::AUTH_SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-auth.js',
