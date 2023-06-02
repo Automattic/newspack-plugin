@@ -33,15 +33,17 @@ function syncItem( key, value, data ) {
 	}
 
 	const setPending = () => {
-		if ( ! data.config.pendingSync.includes( key ) ) {
-			data.config.pendingSync.push( key );
+		if ( data.config.pendingSync.includes( key ) ) {
+			return;
 		}
+		data.config.pendingSync.push( key );
 		_set( 'config', data.config, true );
 	};
 	const clearPending = () => {
-		if ( data.config.pendingSync.includes( key ) ) {
-			data.config.pendingSync.splice( data.config.pendingSync.indexOf( key ), 1 );
+		if ( ! data.config.pendingSync.includes( key ) ) {
+			return;
 		}
+		data.config.pendingSync.splice( data.config.pendingSync.indexOf( key ), 1 );
 		_set( 'config', data.config, true );
 	};
 
