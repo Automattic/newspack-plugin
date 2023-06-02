@@ -124,7 +124,9 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 
 	const savePrompt = ( slug: string, data: InputValues ) => {
 		return new Promise< void >( ( res, rej ) => {
-			unblock();
+			if ( unblock ) {
+				unblock();
+			}
 			setError( false );
 			setSuccess( false );
 			setInFlight( true );
