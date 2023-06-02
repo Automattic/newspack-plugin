@@ -89,18 +89,21 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'platform'                   => [
+					'platform'                           => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => [ $this, 'api_validate_platform' ],
 					],
-					'nrh_organization_id'        => [
+					'nrh_organization_id'                => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
-					'nrh_custom_domain'          => [
+					'nrh_custom_domain'                  => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'nrh_salesforce_campaign_id' => [
+					'nrh_salesforce_campaign_id'         => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'newspack_popups_donor_landing_page' => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
@@ -480,7 +483,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				$args
 			);
 		} elseif ( Donations::is_platform_nrh() ) {
-			$nrh_config            = get_option( NEWSPACK_NRH_CONFIG, [] );
+			$nrh_config            = NRH::get_settings();
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
 		} elseif ( Donations::is_platform_stripe() ) {
 			$are_webhooks_valid = Stripe_Webhooks::validate_or_create_webhooks();
