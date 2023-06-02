@@ -170,7 +170,6 @@ function _set( key, value, internal = false ) {
 	if ( value === undefined ) {
 		throw new Error( 'Value cannot be undefined.' );
 	}
-	// Key cannot start with an underscore.
 	if ( '_' === key[ 0 ] ) {
 		throw new Error( 'Key cannot start with an underscore.' );
 	}
