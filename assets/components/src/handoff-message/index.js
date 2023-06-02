@@ -23,7 +23,16 @@ export default function HandoffMessage() {
 			} else {
 				setHandoffMessage( false );
 			}
+
+			// Clean up the notification if navigating away from the relevant page.
+			if ( handoff?.url && -1 < window.location.href.indexOf( handoff.url ) ) {
+				window.localStorage.removeItem( HANDOFF_KEY );
+				setHandoffMessage( false );
+			}
 		}, 100 );
+
+		// Clean up the notification when unmounting.
+		return () => window.localStorage.removeItem( HANDOFF_KEY );
 	}, [] );
 	if ( ! handoffMessage ) return null;
 	return <Notice isHandoff isDismissible={ false } rawHTML noticeText={ handoffMessage } />;
