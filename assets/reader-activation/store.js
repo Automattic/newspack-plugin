@@ -15,6 +15,11 @@ const config = {
 };
 
 /**
+ * Queue of requests to sync with the polling strategy.
+ */
+const syncRequests = [];
+
+/**
  * Sync a data key with the server.
  *
  * @param {string} key   Data key.
@@ -83,6 +88,17 @@ function syncItem( key, value, data ) {
 		};
 	} );
 }
+
+/**
+ * Poll sync requests queue.
+ */
+setInterval( () => {
+	if ( ! syncRequests.length ) {
+		return;
+	}
+	const { key, value, data } = syncRequests.shift();
+	syncItem( key, value, data );
+}, 1000 );
 
 /**
  * Encode object to be stored.
@@ -154,10 +170,10 @@ function _set( key, value, internal = false ) {
 export default function Store() {
 	const initialData = _get();
 
-	// Attempt to sync missing items.
+	// Push pending items to sync requests polling.
 	const pendingSync = initialData.config.pendingSync;
 	for ( const key of pendingSync ) {
-		syncItem( key, initialData[ key ], initialData );
+		syncRequests.push( { key, value: initialData[ key ], data: initialData } );
 	}
 
 	// Rehydrate items from server.
@@ -178,6 +194,13 @@ export default function Store() {
 	}
 
 	return {
+		/**
+		 * Get a value from the store.
+		 *
+		 * @param {string} key Key to get.
+		 *
+		 * @return {any} Value. Undefined if not set.
+		 */
 		get: key => {
 			const data = _get();
 			if ( ! key ) {
@@ -185,10 +208,24 @@ export default function Store() {
 			}
 			return data[ key ];
 		},
-		set: ( key, value ) => {
+		/**
+		 * Set a value in the store.
+		 *
+		 * @param {string}  key   Key to set.
+		 * @param {any}     value Value to set.
+		 * @param {boolean} sync  Whether to sync the value with the server. Default true.
+		 */
+		set: ( key, value, sync = true ) => {
 			_set( key, value, false );
-			syncItem( key );
+			if ( sync ) {
+				syncRequests.push( { key, value } );
+			}
 		},
+		/**
+		 * Delete a value from the store.
+		 *
+		 * @param {string} key Key to delete.
+		 */
 		delete: key => {
 			if ( ! key ) {
 				throw new Error( 'Key is required.' );
@@ -197,8 +234,15 @@ export default function Store() {
 			delete data[ key ];
 			config.storage.setItem( config.storeKey, encode( data ) );
 			emit( EVENTS.data, { key, value: undefined } );
-			syncItem( key );
+			syncRequests.push( { key } );
 		},
+		/**
+		 * Add a value to a collection.
+		 *
+		 * @param {string} key             Collection key to add to.
+		 * @param {any}    value           Value to add.
+		 * @param {number} value.timestamp Optional timestamp to use for max age.
+		 */
 		add: ( key, value ) => {
 			if ( ! key ) {
 				throw new Error( 'Key cannot be empty.' );

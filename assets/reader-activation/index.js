@@ -56,7 +56,7 @@ export function setReaderEmail( email ) {
 	}
 	const reader = getReader();
 	reader.email = email;
-	store.set( 'reader', reader );
+	store.set( 'reader', reader, false );
 	emit( EVENTS.reader, reader );
 }
 
@@ -71,7 +71,7 @@ export function setAuthenticated( authenticated = true ) {
 		throw new Error( 'Reader email not set' );
 	}
 	reader.authenticated = Boolean( authenticated );
-	store.set( 'reader', reader );
+	store.set( 'reader', reader, false );
 	emit( EVENTS.reader, reader );
 }
 
@@ -249,7 +249,7 @@ function init() {
 		currentReader?.email !== reader?.email ||
 		currentReader?.authenticated !== reader?.authenticated
 	) {
-		store.set( 'reader', reader );
+		store.set( 'reader', reader, false );
 	}
 	emit( EVENTS.reader, reader );
 	fixClientID();
