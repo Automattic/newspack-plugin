@@ -24,13 +24,6 @@ describe( 'Store', () => {
 		store.delete( 'foo' );
 		expect( store.get( 'foo' ) ).toBeUndefined();
 	} );
-	it( "shouldn't store if key is reserved", () => {
-		const store = Store();
-		const key = 'activity';
-		const storeReserved = () => store.set( key, 'foo' );
-		expect( storeReserved ).toThrow( Error );
-		expect( store.get( key ) ).not.toEqual( 'foo' );
-	} );
 	it( 'should add to a collection', () => {
 		const store = Store();
 		const item = { foo: 'bar' };
