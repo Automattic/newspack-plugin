@@ -87,9 +87,9 @@ class NRH {
 		foreach ( $data as $key => $value ) {
 			if ( in_array( $key, self::$allowed_keys, true ) ) {
 				$settings[ $key ] = $value;
-			} elseif ( 'newspack_popups_donor_landing_page' === $key && class_exists( '\Newspack_Popups_Settings' ) ) {
+			} elseif ( 'donor_landing_page' === $key && method_exists( '\Newspack_Popups_Settings', 'update_setting' ) ) {
 				// Update the donor landing page in Campaigns settings.
-				\update_option( $key, $value );
+				\Newspack_Popups_Settings::update_setting( 'donor_settings', 'newspack_popups_donor_landing_page', ! empty( $value['value'] ) ? $value['value'] : 0 );
 			}
 		}
 

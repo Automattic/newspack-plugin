@@ -30,7 +30,6 @@ const NRHSettings = () => {
 	}, [] );
 
 	const changeHandler = ( key, value ) => {
-		console.log( key, value );
 		return updateWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
 			path: [ 'platform_data', key ],
@@ -97,14 +96,13 @@ const NRHSettings = () => {
 							'newspack'
 						) }
 						onChange={ items => {
-							console.log( items );
 							if ( ! items || ! items.length ) {
 								setSelectedPage( null );
-								return changeHandler( 'newspack_popups_donor_landing_page', 0 );
+								return changeHandler( 'donor_landing_page', null );
 							}
 							const item = items[ 0 ];
 							setSelectedPage( item );
-							return changeHandler( 'newspack_popups_donor_landing_page', item.value );
+							return changeHandler( 'donor_landing_page', item );
 						} }
 						postTypes={ [ { slug: 'page', label: 'Page' } ] }
 						postTypeLabel={ __( 'page', 'newspack' ) }
