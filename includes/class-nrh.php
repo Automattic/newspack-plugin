@@ -89,7 +89,7 @@ class NRH {
 				$settings[ $key ] = $value;
 			} elseif ( 'donor_landing_page' === $key && method_exists( '\Newspack_Popups_Settings', 'update_setting' ) ) {
 				// Update the donor landing page in Campaigns settings.
-				\Newspack_Popups_Settings::update_setting( 'donor_settings', 'newspack_popups_donor_landing_page', ! empty( $value['value'] ) ? $value['value'] : 0 );
+				\Newspack_Popups_Settings::update_setting( 'donor_settings', 'newspack_popups_donor_landing_page', ! empty( $value['value'] ) ? (string) $value['value'] : 0 );
 			}
 		}
 
