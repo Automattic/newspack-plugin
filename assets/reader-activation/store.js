@@ -245,7 +245,7 @@ export default function Store() {
 			if ( ! key ) {
 				throw new Error( 'Key is required.' );
 			}
-			config.storage.deleteItem( getStoreItemKey( key ) );
+			config.storage.removeItem( getStoreItemKey( key ) );
 			emit( EVENTS.data, { key, value: undefined } );
 			syncRequests.push( { key, value: undefined } );
 		},
