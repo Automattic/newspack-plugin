@@ -41,12 +41,11 @@ export function getStoreItemKey( key, internal = false ) {
 /**
  * Sync a data key with the server.
  *
- * @param {string} key   Data key.
- * @param {any}    value Data value.
+ * @param {string} key Data key.
  *
  * @return {Promise} Promise resolving when the sync is complete.
  */
-function syncItem( key, value ) {
+function syncItem( key ) {
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
@@ -73,10 +72,7 @@ function syncItem( key, value ) {
 		return Promise.resolve();
 	}
 
-	if ( ! value ) {
-		value = _get( key );
-	}
-
+	const value = _get( key );
 	const payload = { key };
 	if ( value ) {
 		payload.value = JSON.stringify( value );
@@ -112,8 +108,7 @@ setInterval( () => {
 	if ( ! syncRequests.length ) {
 		return;
 	}
-	const { key, value } = syncRequests.shift();
-	syncItem( key, value );
+	syncItem( syncRequests.shift() );
 }, 1000 );
 
 /**
@@ -188,7 +183,7 @@ export default function Store() {
 	// Push unsynced items to sync requests polling.
 	const unsynced = _get( 'unsynced', true ) || [];
 	for ( const key of unsynced ) {
-		syncRequests.push( { key, value: _get( key ) } );
+		syncRequests.push( key );
 	}
 
 	// Rehydrate items from server.
@@ -227,7 +222,7 @@ export default function Store() {
 		set: ( key, value, sync = true ) => {
 			_set( key, value, false );
 			if ( sync ) {
-				syncRequests.push( { key, value } );
+				syncRequests.push( key );
 			}
 		},
 		/**
@@ -241,7 +236,7 @@ export default function Store() {
 			}
 			config.storage.removeItem( getStoreItemKey( key ) );
 			emit( EVENTS.data, { key, value: undefined } );
-			syncRequests.push( { key, value: undefined } );
+			syncRequests.push( key );
 		},
 		/**
 		 * Add a value to a collection.
