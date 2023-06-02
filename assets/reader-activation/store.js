@@ -4,9 +4,8 @@ window.newspack_reader_data = window.newspack_reader_data || {};
 import { EVENTS, emit } from './events';
 
 const config = {
-	storeKey: 'newspack-reader',
+	storePrefix: 'np_reader_',
 	storage: window.localStorage,
-	reservedKeys: [ 'activity', 'data', 'config' ], // Reserved keys that cannot be used with store.set().
 	collections: {
 		// Configuration of collections that are created through store.add().
 		maxItems: 1000, // Maximum number of items in a collection.
@@ -20,36 +19,53 @@ const config = {
 const syncRequests = [];
 
 /**
+ * Get store item key
+ *
+ * @param {string}  key      Key to get.
+ * @param {boolean} internal Whether it's internal value.
+ *
+ * @return {string} Store item key.
+ */
+export function getStoreItemKey( key, internal = false ) {
+	if ( ! key ) {
+		throw new Error( 'Key is required.' );
+	}
+	const parts = [ config.storePrefix ];
+	if ( internal ) {
+		parts.push( '_' );
+	}
+	parts.push( key );
+	return parts.join( '' );
+}
+
+/**
  * Sync a data key with the server.
  *
  * @param {string} key   Data key.
  * @param {any}    value Data value.
- * @param {Object} data  Source data object.
  *
  * @return {Promise} Promise resolving when the sync is complete.
  */
-function syncItem( key, value, data ) {
+function syncItem( key, value ) {
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
 
-	if ( ! data ) {
-		data = _get();
-	}
+	const unsynced = _get( 'unsynced', true ) || [];
 
 	const setPending = () => {
-		if ( data.config.pendingSync.includes( key ) ) {
+		if ( unsynced.includes( key ) ) {
 			return;
 		}
-		data.config.pendingSync.push( key );
-		_set( 'config', data.config, true );
+		unsynced.push( key );
+		_set( 'unsynced', unsynced, true );
 	};
 	const clearPending = () => {
-		if ( ! data.config.pendingSync.includes( key ) ) {
+		if ( ! unsynced.includes( key ) ) {
 			return;
 		}
-		data.config.pendingSync.splice( data.config.pendingSync.indexOf( key ), 1 );
-		_set( 'config', data.config, true );
+		unsynced.splice( unsynced.indexOf( key ), 1 );
+		_set( 'unsynced', unsynced, true );
 	};
 
 	if ( ! newspack_reader_data.api_url || ! newspack_reader_data.nonce ) {
@@ -58,7 +74,7 @@ function syncItem( key, value, data ) {
 	}
 
 	if ( ! value ) {
-		value = data[ key ];
+		value = _get( key );
 	}
 
 	const payload = { key };
@@ -96,8 +112,8 @@ setInterval( () => {
 	if ( ! syncRequests.length ) {
 		return;
 	}
-	const { key, value, data } = syncRequests.shift();
-	syncItem( key, value, data );
+	const { key, value } = syncRequests.shift();
+	syncItem( key, value );
 }, 1000 );
 
 /**
@@ -119,9 +135,7 @@ function encode( object ) {
  * @return {Object} Decoded string.
  */
 function decode( str ) {
-	if ( ! str ) {
-		return {};
-	} else if ( 'object' === typeof str ) {
+	if ( ! str || 'string' !== typeof str ) {
 		return str;
 	}
 	return JSON.parse( str );
@@ -130,16 +144,16 @@ function decode( str ) {
 /**
  * Internal get function to fetch data from storage.
  *
- * @return {Object} Store data.
+ * @param {string}  key      Key to get.
+ * @param {boolean} internal Whether it's internal value.
+ *
+ * @return {any|null} Value. Null if not set.
  */
-function _get() {
-	const defaultData = {
-		activity: [],
-		config: {
-			pendingSync: [],
-		},
-	};
-	return { ...defaultData, ...decode( config.storage.getItem( config.storeKey ) ) } || defaultData;
+function _get( key, internal = false ) {
+	if ( ! key ) {
+		throw new Error( 'Key is required.' );
+	}
+	return decode( config.storage.getItem( getStoreItemKey( key, internal ) ) );
 }
 
 /**
@@ -153,12 +167,14 @@ function _set( key, value, internal = false ) {
 	if ( ! key ) {
 		throw new Error( 'Key is required.' );
 	}
-	if ( ! internal && config.reservedKeys.includes( key ) ) {
-		throw new Error( `Key '${ key }' is reserved.` );
+	if ( value === undefined ) {
+		throw new Error( 'Value cannot be undefined.' );
 	}
-	const data = _get();
-	data[ key ] = value;
-	config.storage.setItem( config.storeKey, encode( data ) );
+	// Key cannot start with an underscore.
+	if ( '_' === key[ 0 ] ) {
+		throw new Error( 'Key cannot start with an underscore.' );
+	}
+	config.storage.setItem( getStoreItemKey( key, internal ), encode( value ) );
 	emit( EVENTS.data, { key, value } );
 }
 
@@ -168,12 +184,10 @@ function _set( key, value, internal = false ) {
  * @return {Object} The store object.
  */
 export default function Store() {
-	const initialData = _get();
-
-	// Push pending items to sync requests polling.
-	const pendingSync = initialData.config.pendingSync;
-	for ( const key of pendingSync ) {
-		syncRequests.push( { key, value: initialData[ key ], data: initialData } );
+	// Push unsynced items to sync requests polling.
+	const unsynced = _get( 'unsynced', true ) || [];
+	for ( const key of unsynced ) {
+		syncRequests.push( { key, value: _get( key ) } );
 	}
 
 	// Rehydrate items from server.
@@ -182,15 +196,15 @@ export default function Store() {
 		const keys = Object.keys( newspack_reader_data.items );
 		for ( const key of keys ) {
 			// Do not overwrite items that were pending sync.
-			if ( pendingSync.includes( key ) ) {
+			if ( unsynced.includes( key ) ) {
 				continue;
 			}
 			const item = JSON.parse( newspack_reader_data.items[ key ] );
 			if ( item ) {
 				items[ key ] = item;
 			}
+			_set( key, item );
 		}
-		config.storage.setItem( config.storeKey, encode( { ...initialData, ...items } ) );
 	}
 
 	return {
@@ -202,11 +216,10 @@ export default function Store() {
 		 * @return {any} Value. Undefined if not set.
 		 */
 		get: key => {
-			const data = _get();
 			if ( ! key ) {
-				return data;
+				throw new Error( 'Key is required.' );
 			}
-			return data[ key ];
+			return _get( key );
 		},
 		/**
 		 * Set a value in the store.
@@ -230,11 +243,9 @@ export default function Store() {
 			if ( ! key ) {
 				throw new Error( 'Key is required.' );
 			}
-			const data = _get();
-			delete data[ key ];
-			config.storage.setItem( config.storeKey, encode( data ) );
+			config.storage.deleteItem( getStoreItemKey( key ) );
 			emit( EVENTS.data, { key, value: undefined } );
-			syncRequests.push( { key } );
+			syncRequests.push( { key, value: undefined } );
 		},
 		/**
 		 * Add a value to a collection.
@@ -250,26 +261,25 @@ export default function Store() {
 			if ( ! value ) {
 				throw new Error( 'Value cannot be empty.' );
 			}
-			const data = _get();
-			data[ key ] = data[ key ] || [];
-			if ( ! Array.isArray( data[ key ] ) ) {
+			let collection = _get( key ) || [];
+			if ( ! Array.isArray( collection ) ) {
 				throw new Error( `Store key '${ key }' is not an array.` );
 			}
 
 			// Remove items older than max age if `timestamp` is set.
 			if ( config.collections.maxAge ) {
 				const now = Date.now();
-				data[ key ] = data[ key ].filter(
+				collection = collection.filter(
 					item => ! item.timestamp || now - item.timestamp < config.collections.maxAge
 				);
 			}
 
-			data[ key ].push( value );
+			collection.push( value );
 
 			// Remove items if max items is reached.
-			data[ key ] = data[ key ].slice( -config.collections.maxItems );
+			collection = collection.slice( -config.collections.maxItems );
 
-			_set( key, data[ key ], true );
+			_set( key, collection );
 		},
 	};
 }
