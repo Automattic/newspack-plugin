@@ -193,18 +193,13 @@ export default function Store() {
 
 	// Rehydrate items from server.
 	if ( newspack_reader_data?.items ) {
-		const items = {};
 		const keys = Object.keys( newspack_reader_data.items );
 		for ( const key of keys ) {
 			// Do not overwrite items that were pending sync.
 			if ( unsynced.includes( key ) ) {
 				continue;
 			}
-			const item = JSON.parse( newspack_reader_data.items[ key ] );
-			if ( item ) {
-				items[ key ] = item;
-			}
-			_set( key, item );
+			_set( key, JSON.parse( newspack_reader_data.items[ key ] ) );
 		}
 	}
 
