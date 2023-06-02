@@ -91,7 +91,6 @@ function meter( store ) {
 		store.set( 'metering', data );
 	}
 }
+
 window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.push( ras => {
-	meter( ras.store );
-} );
+window.newspackRAS.push( ras => meter( ras.store ) );
