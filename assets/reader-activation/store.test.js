@@ -22,7 +22,7 @@ describe( 'Store', () => {
 		const store = Store();
 		store.set( 'foo', 'bar' );
 		store.delete( 'foo' );
-		expect( store.get( 'foo' ) ).toBeUndefined();
+		expect( store.get( 'foo' ) ).toBeNull();
 	} );
 	it( 'should add to a collection', () => {
 		const store = Store();
@@ -55,13 +55,13 @@ describe( 'Store', () => {
 		const store = Store();
 		const storeEmptyKey = () => store.add( undefined, { foo: 'bar' } );
 		expect( storeEmptyKey ).toThrow( Error );
-		expect( store.get( 'my-collection' ) ).toBeUndefined();
+		expect( store.get( 'my-collection' ) ).toBeNull();
 	} );
 	it( 'should not add to collection if value is empty', () => {
 		const store = Store();
 		const storeEmptyValue = () => store.add( 'my-collection', undefined );
 		expect( storeEmptyValue ).toThrow( Error );
-		expect( store.get( 'my-collection' ) ).toBeUndefined();
+		expect( store.get( 'my-collection' ) ).toBeNull();
 	} );
 	it( 'should load store with initial data', () => {
 		window.newspack_reader_data = {
