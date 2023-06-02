@@ -22,7 +22,7 @@ const syncRequests = [];
  * Get store item key
  *
  * @param {string}  key      Key to get.
- * @param {boolean} internal Whether it's internal value.
+ * @param {boolean} internal Whether it's an internal value.
  *
  * @return {string} Store item key.
  */
@@ -145,7 +145,7 @@ function decode( str ) {
  * Internal get function to fetch data from storage.
  *
  * @param {string}  key      Key to get.
- * @param {boolean} internal Whether it's internal value.
+ * @param {boolean} internal Whether it's an internal value.
  *
  * @return {any|null} Value. Null if not set.
  */
@@ -161,7 +161,7 @@ function _get( key, internal = false ) {
  *
  * @param {string}  key      Key to set.
  * @param {any}     value    Value to set.
- * @param {boolean} internal Whether it's internal and should bypass reserved keys check.
+ * @param {boolean} internal Whether it's an internal value.
  */
 function _set( key, value, internal = false ) {
 	if ( ! key ) {
@@ -175,7 +175,9 @@ function _set( key, value, internal = false ) {
 		throw new Error( 'Key cannot start with an underscore.' );
 	}
 	config.storage.setItem( getStoreItemKey( key, internal ), encode( value ) );
-	emit( EVENTS.data, { key, value } );
+	if ( ! internal ) {
+		emit( EVENTS.data, { key, value } );
+	}
 }
 
 /**
