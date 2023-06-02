@@ -442,7 +442,7 @@ final class Reader_Activation {
 				],
 				'label'        => __( 'Reader Revenue', 'newspack' ),
 				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
-				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Post-Donation Landing Page in News Revenue Hub Settings.', 'newspack' ),
+				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
 				'href'         => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
 				'action_text'  => __( 'Reader Revenue settings' ),

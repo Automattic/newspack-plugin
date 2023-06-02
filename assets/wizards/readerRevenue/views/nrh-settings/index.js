@@ -83,15 +83,15 @@ const NRHSettings = () => {
 			{ settings.hasOwnProperty( 'donor_landing_page' ) && (
 				<div>
 					<hr />
-					<h3>{ __( 'Post-Donation Landing Page', 'newspack' ) }</h3>
+					<h3>{ __( 'Donor Landing Page', 'newspack' ) }</h3>
 					<p className="components-base-control__help">
 						{ __(
-							'Set a page on your site as a post-donation landing page. Once a reader donates and lands on this page, they will be considered a donor.',
+							'Set a page on your site as a donor landing page. Once a reader donates and lands on this page, they will be considered a donor.',
 							'newspack'
 						) }
 					</p>
 					<AutocompleteWithSuggestions
-						label={ __( 'Search for a New Donation Landing Page', 'newspack' ) }
+						label={ __( 'Search for a New Donor Landing Page', 'newspack' ) }
 						help={ __(
 							'Begin typing page title, click autocomplete result to select.',
 							'newspack'
