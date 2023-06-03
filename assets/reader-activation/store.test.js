@@ -24,7 +24,7 @@ describe( 'Store', () => {
 		expect( localStorage.getItem( 'np_reader_string' ) ).toEqual( '"foo"' );
 		expect( localStorage.getItem( 'np_reader_array' ) ).toEqual( '[1,2,3]' );
 		expect( localStorage.getItem( 'np_reader_object' ) ).toEqual( '{"foo":"bar"}' );
-		expect( localStorage.getItem( 'np_reader_empty' ) ).toEqual( '' );
+		expect( localStorage.getItem( 'np_reader_empty' ) ).toEqual( '""' );
 		expect( localStorage.getItem( 'np_reader_null' ) ).toEqual( null );
 		expect( localStorage.getItem( 'np_reader_false' ) ).toEqual( 'false' );
 	} );
