@@ -24,7 +24,7 @@ describe( 'Store', () => {
 		expect( localStorage.getItem( 'np_reader_array' ) ).toEqual( '[1,2,3]' );
 		expect( localStorage.getItem( 'np_reader_object' ) ).toEqual( '{"foo":"bar"}' );
 		expect( localStorage.getItem( 'np_reader_empty' ) ).toEqual( '""' );
-		expect( localStorage.getItem( 'np_reader_false' ) ).toEqual( 'false' );
+		expect( localStorage.getItem( 'np_reader_boolean' ) ).toEqual( 'false' );
 	} );
 	it( 'should not store undefined or null values', () => {
 		const store = Store();
