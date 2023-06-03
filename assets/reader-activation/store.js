@@ -164,8 +164,8 @@ function _set( key, value, internal = false ) {
 	if ( ! key ) {
 		throw new Error( 'Key is required.' );
 	}
-	if ( value === undefined ) {
-		throw new Error( 'Value cannot be undefined.' );
+	if ( value === undefined || value === null ) {
+		throw new Error( 'Value cannot be undefined or null.' );
 	}
 	if ( '_' === key[ 0 ] ) {
 		throw new Error( 'Key cannot start with an underscore.' );

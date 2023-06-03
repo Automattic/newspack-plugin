@@ -19,20 +19,21 @@ describe( 'Store', () => {
 		store.set( 'array', [ 1, 2, 3 ] );
 		store.set( 'object', { foo: 'bar' } );
 		store.set( 'empty', '' );
-		store.set( 'null', null );
 		store.set( 'boolean', false );
 		expect( localStorage.getItem( 'np_reader_string' ) ).toEqual( '"foo"' );
 		expect( localStorage.getItem( 'np_reader_array' ) ).toEqual( '[1,2,3]' );
 		expect( localStorage.getItem( 'np_reader_object' ) ).toEqual( '{"foo":"bar"}' );
 		expect( localStorage.getItem( 'np_reader_empty' ) ).toEqual( '""' );
-		expect( localStorage.getItem( 'np_reader_null' ) ).toEqual( null );
 		expect( localStorage.getItem( 'np_reader_false' ) ).toEqual( 'false' );
 	} );
-	it( 'should not store undefined values', () => {
+	it( 'should not store undefined or null values', () => {
 		const store = Store();
 		const storeUndefined = () => store.set( 'undefined', undefined );
+		const storeNull = () => store.set( 'null', null );
 		expect( storeUndefined ).toThrow( Error );
+		expect( storeNull ).toThrow( Error );
 		expect( localStorage.getItem( 'np_reader_undefined' ) ).toBeNull();
+		expect( localStorage.getItem( 'np_reader_null' ) ).toBeNull();
 	} );
 	it( 'should store data and return it', () => {
 		const store = Store();
