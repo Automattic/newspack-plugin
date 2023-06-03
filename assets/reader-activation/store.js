@@ -69,7 +69,7 @@ function syncItem( key ) {
 
 	if ( ! newspack_reader_data.api_url || ! newspack_reader_data.nonce ) {
 		setPending();
-		return Promise.resolve();
+		return Promise.reject();
 	}
 
 	const value = _get( key );
@@ -108,7 +108,9 @@ setInterval( () => {
 	if ( ! syncRequests.length ) {
 		return;
 	}
-	syncItem( syncRequests.shift() );
+	syncItem( syncRequests.shift() ).catch( () => {
+		// Ignore errors because it will retry on the next page load.
+	} );
 }, 1000 );
 
 /**

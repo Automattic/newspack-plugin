@@ -13,6 +13,27 @@ describe( 'Store', () => {
 		expect( typeof store.add ).toBe( 'function' );
 		expect( typeof store.delete ).toBe( 'function' );
 	} );
+	it( 'should store json stringified data in localStorage', () => {
+		const store = Store();
+		store.set( 'string', 'foo' );
+		store.set( 'array', [ 1, 2, 3 ] );
+		store.set( 'object', { foo: 'bar' } );
+		store.set( 'empty', '' );
+		store.set( 'null', null );
+		store.set( 'boolean', false );
+		expect( localStorage.getItem( 'np_reader_string' ) ).toEqual( '"foo"' );
+		expect( localStorage.getItem( 'np_reader_array' ) ).toEqual( '[1,2,3]' );
+		expect( localStorage.getItem( 'np_reader_object' ) ).toEqual( '{"foo":"bar"}' );
+		expect( localStorage.getItem( 'np_reader_empty' ) ).toEqual( '' );
+		expect( localStorage.getItem( 'np_reader_null' ) ).toEqual( null );
+		expect( localStorage.getItem( 'np_reader_false' ) ).toEqual( 'false' );
+	} );
+	it( 'should not store undefined values', () => {
+		const store = Store();
+		const storeUndefined = () => store.set( 'undefined', undefined );
+		expect( storeUndefined ).toThrow( Error );
+		expect( localStorage.getItem( 'np_reader_undefined' ) ).toBeNull();
+	} );
 	it( 'should store data and return it', () => {
 		const store = Store();
 		store.set( 'foo', 'bar' );
@@ -22,6 +43,7 @@ describe( 'Store', () => {
 		const store = Store();
 		store.set( 'foo', 'bar' );
 		store.delete( 'foo' );
+		expect( localStorage.getItem( 'np_reader_foo' ) ).toBeNull();
 		expect( store.get( 'foo' ) ).toBeNull();
 	} );
 	it( 'should add to a collection', () => {
