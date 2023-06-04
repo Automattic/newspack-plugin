@@ -7,7 +7,6 @@ import { EVENTS, emit } from './events';
  * Store configuration.
  *
  * @type {Object}
- *
  * @property {string}  storePrefix          Prefix for store items.
  * @property {Storage} storage              Storage object.
  * @property {Object}  collections          Configuration of collections that are created through store.add().
@@ -26,7 +25,7 @@ const config = {
 /**
  * Queue of keys to sync with the server every second.
  *
- * @type {string[]}
+ * @type {string[]} Array of keys.
  */
 const syncQueue = [];
 
