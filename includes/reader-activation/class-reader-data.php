@@ -14,8 +14,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Reader_Data {
 
-	// Maximum number of keys a user can have.
-	const MAX_KEYS = 100;
+	// Maximum number of items per user.
+	const MAX_ITEMS = 100;
 
 	/**
 	 * Initialize hooks.
@@ -141,16 +141,16 @@ final class Reader_Data {
 		}
 
 		/**
-		 * Filter the maximum number of keys a user can have.
+		 * Filter the maximum number of items per user.
 		 *
-		 * @param int    $max_keys Maximum number of keys.
-		 * @param int    $user_id  User ID.
-		 * @param string $key      Key.
-		 * @param string $value    Value.
+		 * @param int    $max_items Maximum number of items.
+		 * @param int    $user_id   User ID.
+		 * @param string $key       Key.
+		 * @param string $value     Value.
 		 */
-		$max_keys = apply_filters( 'newspack_reader_data_max_keys', self::MAX_KEYS, $user_id, $key, $value );
-		if ( count( $user_keys ) >= self::MAX_KEYS ) {
-			return new \WP_Error( 'too_many_keys', __( 'Too many keys.', 'newspack' ), [ 'status' => 400 ] );
+		$max_items = apply_filters( 'newspack_reader_data_max_items', self::MAX_ITEMS, $user_id, $key, $value );
+		if ( count( $user_keys ) >= self::MAX_ITEMS ) {
+			return new \WP_Error( 'too_many_items', __( 'Too many items.', 'newspack' ), [ 'status' => 400 ] );
 		}
 
 		if ( ! in_array( $key, $user_keys, true ) ) {
