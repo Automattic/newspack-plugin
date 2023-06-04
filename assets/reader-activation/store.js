@@ -255,6 +255,7 @@ export default function Store() {
 			}
 			config.storage.removeItem( getStoreItemKey( key ) );
 			emit( EVENTS.data, { key, value: undefined } );
+			setPendingSync( key );
 			syncQueue.push( key );
 		},
 		/**
