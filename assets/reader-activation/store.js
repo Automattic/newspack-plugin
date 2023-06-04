@@ -39,37 +39,46 @@ export function getStoreItemKey( key, internal = false ) {
 }
 
 /**
- * Sync a data key with the server.
+ * Set a key as pending sync.
+ *
+ * @param {string} key
+ */
+function setPendingSync( key ) {
+	const unsynced = _get( 'unsynced', true ) || [];
+	if ( unsynced.includes( key ) ) {
+		return;
+	}
+	unsynced.push( key );
+	_set( 'unsynced', unsynced, true );
+}
+
+/**
+ * Clear a key from pending sync.
+ *
+ * @param {string} key
+ */
+function clearPendingSync( key ) {
+	const unsynced = _get( 'unsynced', true ) || [];
+	if ( ! unsynced.includes( key ) ) {
+		return;
+	}
+	unsynced.splice( unsynced.indexOf( key ), 1 );
+	_set( 'unsynced', unsynced, true );
+}
+
+/**
+ * Send a data item to the server.
  *
  * @param {string} key Data key.
  *
- * @return {Promise} Promise resolving when the sync is complete.
+ * @return {Promise} Promise that resolves when the request is complete.
  */
 function syncItem( key ) {
 	if ( ! key ) {
 		return Promise.reject( 'Key is required.' );
 	}
-
-	const unsynced = _get( 'unsynced', true ) || [];
-
-	const setPending = () => {
-		if ( unsynced.includes( key ) ) {
-			return;
-		}
-		unsynced.push( key );
-		_set( 'unsynced', unsynced, true );
-	};
-	const clearPending = () => {
-		if ( ! unsynced.includes( key ) ) {
-			return;
-		}
-		unsynced.splice( unsynced.indexOf( key ), 1 );
-		_set( 'unsynced', unsynced, true );
-	};
-
 	if ( ! newspack_reader_data.api_url || ! newspack_reader_data.nonce ) {
-		setPending();
-		return Promise.reject();
+		return Promise.reject( 'API not available.' );
 	}
 
 	const value = _get( key );
@@ -92,10 +101,8 @@ function syncItem( key ) {
 				return;
 			}
 			if ( 200 !== req.status ) {
-				setPending();
 				return reject( req );
 			}
-			clearPending();
 			return resolve( req );
 		};
 	} );
@@ -108,9 +115,10 @@ setInterval( () => {
 	if ( ! syncRequests.length ) {
 		return;
 	}
-	syncItem( syncRequests.shift() ).catch( () => {
-		// Ignore errors because it will retry on the next page load.
-	} );
+	const key = syncRequests.shift();
+	syncItem( key )
+		.then( () => clearPendingSync( key ) )
+		.catch( () => setPendingSync( key ) );
 }, 1000 );
 
 /**
@@ -224,6 +232,7 @@ export default function Store() {
 		set: ( key, value, sync = true ) => {
 			_set( key, value, false );
 			if ( sync ) {
+				setPendingSync( key );
 				syncRequests.push( key );
 			}
 		},
