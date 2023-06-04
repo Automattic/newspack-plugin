@@ -3,20 +3,42 @@ window.newspack_reader_data = window.newspack_reader_data || {};
 
 import { EVENTS, emit } from './events';
 
+/**
+ * Store configuration.
+ *
+ * @type {Object}
+ *
+ * @property {string}  storePrefix          Prefix for store items.
+ * @property {Storage} storage              Storage object.
+ * @property {Object}  collections          Configuration of collections that are created through store.add().
+ * @property {number}  collections.maxItems Maximum number of items in a collection.
+ * @property {number}  collections.maxAge   Maximum age of a collection item if 'timestamp' is set.
+ */
 const config = {
 	storePrefix: 'np_reader_',
 	storage: window.localStorage,
 	collections: {
-		// Configuration of collections that are created through store.add().
-		maxItems: 1000, // Maximum number of items in a collection.
-		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days, maximum age of a collection item if 'timestamp' is set.
+		maxItems: 1000,
+		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days.
 	},
 };
 
 /**
- * Queue of requests to sync with the polling strategy.
+ * Queue of keys to sync with the server every second.
+ *
+ * @type {string[]}
  */
-const syncRequests = [];
+const syncQueue = [];
+
+setInterval( () => {
+	if ( ! syncQueue.length ) {
+		return;
+	}
+	const key = syncQueue.shift();
+	syncItem( key )
+		.then( () => clearPendingSync( key ) )
+		.catch( () => setPendingSync( key ) );
+}, 1000 );
 
 /**
  * Get store item key
@@ -109,19 +131,6 @@ function syncItem( key ) {
 }
 
 /**
- * Poll sync requests queue.
- */
-setInterval( () => {
-	if ( ! syncRequests.length ) {
-		return;
-	}
-	const key = syncRequests.shift();
-	syncItem( key )
-		.then( () => clearPendingSync( key ) )
-		.catch( () => setPendingSync( key ) );
-}, 1000 );
-
-/**
  * Encode object to be stored.
  *
  * @param {Object} object Object to encode.
@@ -193,7 +202,7 @@ export default function Store() {
 	// Push unsynced items to sync requests polling.
 	const unsynced = _get( 'unsynced', true ) || [];
 	for ( const key of unsynced ) {
-		syncRequests.push( key );
+		syncQueue.push( key );
 	}
 
 	// Rehydrate items from server.
@@ -233,7 +242,7 @@ export default function Store() {
 			_set( key, value, false );
 			if ( sync ) {
 				setPendingSync( key );
-				syncRequests.push( key );
+				syncQueue.push( key );
 			}
 		},
 		/**
@@ -247,7 +256,7 @@ export default function Store() {
 			}
 			config.storage.removeItem( getStoreItemKey( key ) );
 			emit( EVENTS.data, { key, value: undefined } );
-			syncRequests.push( key );
+			syncQueue.push( key );
 		},
 		/**
 		 * Add a value to a collection.
