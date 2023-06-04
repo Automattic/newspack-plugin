@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-use Newspack\Recaptcha;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -54,7 +52,7 @@ final class Reader_Data {
 			'/reader-data',
 			[
 				'methods'             => 'POST',
-				'callback'            => [ __CLASS__, 'update_data' ],
+				'callback'            => [ __CLASS__, 'api_update_item' ],
 				'permission_callback' => [ __CLASS__, 'permission_callback' ],
 				'args'                => [
 					'key'   => [
@@ -71,7 +69,7 @@ final class Reader_Data {
 			'/reader-data',
 			[
 				'methods'             => 'DELETE',
-				'callback'            => [ __CLASS__, 'delete_data' ],
+				'callback'            => [ __CLASS__, 'api_delete_item' ],
 				'permission_callback' => [ __CLASS__, 'permission_callback' ],
 				'args'                => [
 					'key' => [
@@ -128,7 +126,7 @@ final class Reader_Data {
 	}
 
 	/**
-	 * Update user key.
+	 * Update reader data item.
 	 *
 	 * @param string $user_id User ID.
 	 * @param string $key     Key.
@@ -136,7 +134,7 @@ final class Reader_Data {
 	 *
 	 * @return true|WP_Error True on success, error object on failure.
 	 */
-	private static function update_reader_data_key( $user_id, $key, $value ) {
+	private static function update_item( $user_id, $key, $value ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
 		if ( ! $user_keys ) {
 			$user_keys = [];
@@ -165,12 +163,12 @@ final class Reader_Data {
 	}
 
 	/**
-	 * Delete user key.
+	 * Delete user data item.
 	 *
 	 * @param string $user_id User ID.
 	 * @param string $key     Key.
 	 */
-	private static function delete_reader_data_key( $user_id, $key ) {
+	private static function delete_item( $user_id, $key ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
 		if ( ! $user_keys ) {
 			$user_keys = [];
@@ -184,13 +182,13 @@ final class Reader_Data {
 	}
 
 	/**
-	 * Update data.
+	 * API callback to update an item.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function update_data( $request ) {
+	public static function api_update_item( $request ) {
 		$key   = $request->get_param( 'key' );
 		$value = $request->get_param( 'value' );
 		if ( ! $key || ! $value ) {
@@ -200,7 +198,7 @@ final class Reader_Data {
 		if ( null === json_decode( $value ) ) {
 			return new \WP_Error( 'invalid_value', __( 'Invalid value.', 'newspack' ), [ 'status' => 400 ] );
 		}
-		$res = self::update_reader_data_key( \get_current_user_id(), $key, $value );
+		$res = self::update_item( \get_current_user_id(), $key, $value );
 		if ( \is_wp_error( $res ) ) {
 			return $res;
 		}
@@ -208,18 +206,18 @@ final class Reader_Data {
 	}
 
 	/**
-	 * Update data.
+	 * API callback to delete an item.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function delete_data( $request ) {
+	public static function api_delete_item( $request ) {
 		$key = $request->get_param( 'key' );
 		if ( ! $key ) {
 			return new \WP_Error( 'invalid_params', __( 'Invalid parameters.', 'newspack' ), [ 'status' => 400 ] );
 		}
-		self::delete_reader_data_key( \get_current_user_id(), $key );
+		self::delete_item( \get_current_user_id(), $key );
 		return new \WP_REST_Response( [ 'success' => true ] );
 	}
 
