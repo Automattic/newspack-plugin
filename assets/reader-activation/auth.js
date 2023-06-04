@@ -195,6 +195,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 		containers.forEach( container => {
 			const initialForm = container.querySelector( 'form' );
+			if ( ! initialForm ) {
+				return;
+			}
 			let form;
 			/** Workaround AMP's enforced XHR strategy. */
 			if ( initialForm.getAttribute( 'action-xhr' ) ) {
