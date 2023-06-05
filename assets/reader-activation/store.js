@@ -198,7 +198,7 @@ function _set( key, value, internal = false ) {
  * @return {Object} The store object.
  */
 export default function Store() {
-	// Push unsynced items to sync requests polling.
+	// Push unsynced items to the sync queue.
 	const unsynced = _get( 'unsynced', true ) || [];
 	for ( const key of unsynced ) {
 		syncQueue.push( key );
