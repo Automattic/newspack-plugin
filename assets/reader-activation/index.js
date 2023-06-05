@@ -244,7 +244,7 @@ function init() {
 	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
 	const authenticated = !! data?.authenticated_email;
 	const currentReader = getReader();
-	const reader = initialEmail ? { email: initialEmail, authenticated } : null;
+	const reader = { email: initialEmail || currentReader?.email, authenticated };
 	if (
 		currentReader?.email !== reader?.email ||
 		currentReader?.authenticated !== reader?.authenticated
