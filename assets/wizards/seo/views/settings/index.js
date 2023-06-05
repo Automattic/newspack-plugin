@@ -78,7 +78,7 @@ class Settings extends Component {
 							placeholder={ __( 'https://facebook.com/page', 'newspack' ) }
 						/>
 						<TextControl
-							label={ __( 'Twitter Username', 'newspack' ) }
+							label={ __( 'Twitter', 'newspack' ) }
 							onChange={ value => onChange( { urls: { ...urls, twitter: value } } ) }
 							value={ twitter }
 							placeholder={ __( 'username', 'newspack' ) }
