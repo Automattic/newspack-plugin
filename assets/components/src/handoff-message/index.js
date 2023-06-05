@@ -25,7 +25,7 @@ export default function HandoffMessage() {
 			}
 
 			// Clean up the notification if navigating away from the relevant page.
-			if ( handoff?.url && -1 < window.location.href.indexOf( handoff.url ) ) {
+			if ( handoff?.url && -1 === window.location.href.indexOf( handoff.url ) ) {
 				window.localStorage.removeItem( HANDOFF_KEY );
 				setHandoffMessage( false );
 			}
