@@ -19,7 +19,7 @@ final class Popups {
 	/**
 	 * The name of the action for form submissions
 	 */
-	const FORM_SUBMISSION = 'form_submission';
+	const FORM_SUBMISSION = 'form_submission_received';
 
 	/**
 	 * The name of the action for form submissions
@@ -39,55 +39,55 @@ final class Popups {
 	public static function init() {
 		Data_Events::register_listener(
 			'newspack_reader_registration_form_processed',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'registration_submission' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_reader_registration_form_processed',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'registration_submission_with_status' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_newsletters_subscribe_form_processed',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'newsletter_submission' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_newsletters_subscribe_form_processed',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'newsletter_submission_with_status' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_data_event_dispatch_donation_new',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'donation_submission_success' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_stripe_handle_donation_before',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'donation_submission_stripe' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_stripe_handle_donation_error',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'donation_submission_stripe_error' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_data_event_dispatch_woocommerce_donation_order_processed',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'donation_submission_woocommerce' ]
 		);
 
 		Data_Events::register_listener(
 			'newspack_data_event_dispatch_woocommerce_order_failed',
-			'campaign_interaction',
+			'prompt_interaction',
 			[ __CLASS__, 'donation_submission_woocommerce_error' ]
 		);
 
@@ -108,12 +108,12 @@ final class Popups {
 			return $data;
 		}
 
-		$data['campaign_id']    = $popup['id'];
-		$data['campaign_title'] = $popup['title'];
+		$data['prompt_id']    = $popup['id'];
+		$data['prompt_title'] = $popup['title'];
 
 		if ( isset( $popup['options'] ) ) {
-			$data['campaign_frequency'] = $popup['options']['frequency'] ?? '';
-			$data['campaign_placement'] = $popup['options']['placement'] ?? '';
+			$data['prompt_frequency'] = $popup['options']['frequency'] ?? '';
+			$data['prompt_placement'] = $popup['options']['placement'] ?? '';
 		}
 
 		$watched_blocks = [
@@ -122,11 +122,11 @@ final class Popups {
 			'newsletters_subscription' => 'newspack-newsletters/subscribe',
 		];
 
-		$data['campaign_blocks'] = [];
+		$data['prompt_blocks'] = [];
 
 		foreach ( $watched_blocks as $key => $block_name ) {
 			if ( has_block( $block_name, $popup['content'] ) ) {
-				$data['campaign_blocks'][] = $key;
+				$data['prompt_blocks'][] = $key;
 			}
 		}
 

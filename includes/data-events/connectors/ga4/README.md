@@ -87,12 +87,12 @@ Additional parameters:
 * `lists`: comma separated list of the list IDs the readers subscribed to (note: truncated at 100 characters)
 * `registration_method`: If the newsletter subscription was triggered by a registration form
 
-### campaign_interaction
+### prompt_interaction
 
 Additional parameters:
 
-* All default parameters from the `campaign_interaction` event (`campaign_id`, `campaign_frequency`, `action`, `action_type`, etc.)
-* `campaign_has_donation_block`: If the donation block was present, the value will be 1
-* `campaign_has_registration_block`: If the registration block was present, the value will be 1
-* `campaign_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
+* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.)
+* `prompt_has_donation_block`: If the donation block was present, the value will be 1
+* `prompt_has_registration_block`: If the registration block was present, the value will be 1
+* `prompt_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
 * All parameters inside the `interaction_data` value.
