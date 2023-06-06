@@ -184,7 +184,7 @@ When a user interacts with a Newspack Popup's campaign prompt.
 | `prompt_frequency` | `string` |                                                                                                                                                |
 | `prompt_placement` | `string` |                                                                                                                                                |
 | `prompt_blocks`    | `array`  | Array containing the blocks that are inside the prompt. Only 3 blocks are tracked: `donation`, `registration` and `newsletters_subscription` |
-| `action`             | `string` | `form_submission`, `form_submission_success` or `form_submission_failure`                                                                      |
+| `action`             | `string` | `form_submission_received`, `form_submission_success` or `form_submission_failure`                                                                      |
 | `action_type`        | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
 | `interaction_data`   | `array`  | Depending on the action type, it will contain different information about the interaction.                                                      |
 
