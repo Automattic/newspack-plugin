@@ -35,7 +35,7 @@ class GA4 {
 		'donation_new',
 		'donation_subscription_cancelled',
 		'newsletter_subscribed',
-		'campaign_interaction',
+		'prompt_interaction',
 	];
 
 	/**
@@ -153,20 +153,20 @@ class GA4 {
 	 *
 	 * In those cases, we rely on the metadata added to the order/subscription via the `newspack_stripe_handle_donation_payment_metadata` filter.
 	 *
-	 * This filter fixes both the donation_new event and the campaign_interaction with action form_submission_success that relies on this event.
+	 * This filter fixes both the donation_new event and the prompt_interaction with action form_submission_success that relies on this event.
 	 *
 	 * @param array  $body The event body.
 	 * @param string $event_name The event name.
 	 * @return array
 	 */
 	public static function filter_donation_new_event_body( $body, $event_name ) {
-		if ( ! empty( $body['data']['ga_client_id'] ) || ( 'donation_new' !== $event_name && 'campaign_interaction' !== $event_name ) ) {
+		if ( ! empty( $body['data']['ga_client_id'] ) || ( 'donation_new' !== $event_name && 'prompt_interaction' !== $event_name ) ) {
 			return $body;
 		}
 
 		if ( 'donation_new' === $event_name ) {
 			$order_id = $body['data']['platform_data']['order_id'];
-		} else { // campaign_interaction.
+		} else { // prompt_interaction.
 			$order_id = $body['data']['interaction_data']['donation_order_id'] ?? false;
 		}
 
@@ -315,14 +315,14 @@ class GA4 {
 	}
 
 	/**
-	 * Handler for the campaign_interaction event.
+	 * Handler for the prompt_interaction event.
 	 *
 	 * @param int   $params The GA4 event parameters.
 	 * @param array $data      Data associated with the Data Events api event.
 	 *
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
-	public static function handle_campaign_interaction( $params, $data ) {
+	public static function handle_prompt_interaction( $params, $data ) {
 		$transformed_data = $data;
 		// remove data added in the body filter.
 		unset( $transformed_data['ga_params'] );
@@ -336,12 +336,12 @@ class GA4 {
 	/**
 	 * Sanitizes the popup params to be sent as params for GA events
 	 *
-	 * @param array $popup_params The popup params as they are returned by Newspack\Data_Events\Popups::get_popup_metadata and by the campaign_interaction data.
+	 * @param array $popup_params The popup params as they are returned by Newspack\Data_Events\Popups::get_popup_metadata and by the prompt_interaction data.
 	 * @return array
 	 */
 	public static function sanitize_popup_params( $popup_params ) {
 		// Invalid input.
-		if ( ! is_array( $popup_params ) || ! isset( $popup_params['campaign_id'] ) ) {
+		if ( ! is_array( $popup_params ) || ! isset( $popup_params['prompt_id'] ) ) {
 			return [];
 		}
 		$santized = $popup_params;
@@ -349,9 +349,9 @@ class GA4 {
 		unset( $santized['interaction_data'] );
 		$santized = array_merge( $santized, $popup_params['interaction_data'] );
 
-		unset( $santized['campaign_blocks'] );
-		foreach ( $popup_params['campaign_blocks'] as $block ) {
-			$santized[ 'campaign_has_' . $block ] = 1;
+		unset( $santized['prompt_blocks'] );
+		foreach ( $popup_params['prompt_blocks'] as $block ) {
+			$santized[ 'prompt_has_' . $block ] = 1;
 		}
 		return $santized;
 	}
