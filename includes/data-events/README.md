@@ -173,17 +173,17 @@ When a WooCommerce Subscription status changes.
 
 ## Newspack Popups Actions
 
-### `campaign_interaction`
+### `prompt_interaction`
 
 When a user interacts with a Newspack Popup's campaign prompt.
 
 | Name                 | Type     | Obs                                                                                                                                            |
 | -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `campaign_id`        | `int`    |                                                                                                                                                |
-| `campaign_title`     | `string` |                                                                                                                                                |
-| `campaign_frequency` | `string` |                                                                                                                                                |
-| `campaign_placement` | `string` |                                                                                                                                                |
-| `campaign_blocks`    | `array`  | Array containing the blocks that are inside the campaign. Only 3 blocks are tracked: `donation`, `registration` and `newsletters_subscription` |
+| `prompt_id`        | `int`    |                                                                                                                                                |
+| `prompt_title`     | `string` |                                                                                                                                                |
+| `prompt_frequency` | `string` |                                                                                                                                                |
+| `prompt_placement` | `string` |                                                                                                                                                |
+| `prompt_blocks`    | `array`  | Array containing the blocks that are inside the prompt. Only 3 blocks are tracked: `donation`, `registration` and `newsletters_subscription` |
 | `action`             | `string` | `form_submission`, `form_submission_success` or `form_submission_failure`                                                                      |
 | `action_type`        | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
 | `interaction_data`   | `array`  | Depending on the action type, it will contain different information about the interaction.                                                      |
