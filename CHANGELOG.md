@@ -1,3 +1,10 @@
+## [1.116.1](https://github.com/Automattic/newspack-plugin/compare/v1.116.0...v1.116.1) (2023-06-07)
+
+
+### Bug Fixes
+
+* **recaptcha:** selector for response input in WC checkout ([#2490](https://github.com/Automattic/newspack-plugin/issues/2490)) ([bf4ac17](https://github.com/Automattic/newspack-plugin/commit/bf4ac1710a51d60c65d7e09c97b9b984193924f4))
+
 # [1.116.0](https://github.com/Automattic/newspack-plugin/compare/v1.115.1...v1.116.0) (2023-06-05)
 
 
