@@ -330,7 +330,10 @@ final class Recaptcha {
 					field.type  = 'hidden';
 					field.name  = 'g-recaptcha-response';
 					field.value = token;
-					document.getElementById( 'place_order' ).before( field );
+					var form = document.querySelector('form.checkout');
+					if ( form ) {
+						form.appendChild( field );
+					}
 				} );
 			} );
 		</script>
