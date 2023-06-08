@@ -1,3 +1,30 @@
+# [2.0.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v1.116.1...v2.0.0-alpha.1) (2023-06-08)
+
+
+### Bug Fixes
+
+* **ras-defaults:** warn if navigating away from wizard with unsaved changes ([#2453](https://github.com/Automattic/newspack-plugin/issues/2453)) ([029e89a](https://github.com/Automattic/newspack-plugin/commit/029e89a386c42ddc190659d40009833df6fd3ff1))
+* **ras:** check that unblock exists before calling it ([#2483](https://github.com/Automattic/newspack-plugin/issues/2483)) ([8ab9a8f](https://github.com/Automattic/newspack-plugin/commit/8ab9a8fca6aec9563c164ae3e3d1805941a585fe))
+
+
+### Features
+
+* **content-gate:** updated block patterns ([#2474](https://github.com/Automattic/newspack-plugin/issues/2474)) ([244240d](https://github.com/Automattic/newspack-plugin/commit/244240d92380cb95b7e77cf1ec2c76bc34423776))
+* customizable receipt emails for Woo ([#2463](https://github.com/Automattic/newspack-plugin/issues/2463)) ([6c5c38d](https://github.com/Automattic/newspack-plugin/commit/6c5c38d48bf7156cd4241e14c9f18f2fce1045ba))
+* **jetpack-photon:** additional srcset sizes ([#2471](https://github.com/Automattic/newspack-plugin/issues/2471)) ([35ac697](https://github.com/Automattic/newspack-plugin/commit/35ac697baa12894beb240848028287ede143991c))
+* only display author filter for posts ([#2470](https://github.com/Automattic/newspack-plugin/issues/2470)) ([2461e49](https://github.com/Automattic/newspack-plugin/commit/2461e49a80d0e07156ddf86d8d6540b469dde016))
+* **ras:** add NRH support for setup wizard ([#2484](https://github.com/Automattic/newspack-plugin/issues/2484)) ([efd1c66](https://github.com/Automattic/newspack-plugin/commit/efd1c669443c6ce372d1f07380757d6ac2f059d3))
+* rename ga4 events ([#2489](https://github.com/Automattic/newspack-plugin/issues/2489)) ([d1b0a3d](https://github.com/Automattic/newspack-plugin/commit/d1b0a3dc6db7ef86b6992a55ebe8b35b4556941e))
+
+
+### BREAKING CHANGES
+
+* Turns on customizable receipt emails for sites using WooCommerce as a Reader Revenue platform. This can be turned off in Reader Revenue settings, if desired.
+
+* feat: use customizable receipt emails for Woo and start feature to enable/disable
+
+* feat: allow customizable receipt to be turned on or off
+
 ## [1.116.1](https://github.com/Automattic/newspack-plugin/compare/v1.116.0...v1.116.1) (2023-06-07)
 
 
