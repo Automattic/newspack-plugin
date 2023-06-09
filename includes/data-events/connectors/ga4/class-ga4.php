@@ -14,6 +14,7 @@ use Newspack\Data_Events\Connectors\GA4\Event;
 use Newspack\Data_Events\Popups as Popups_Events;
 use Newspack\Logger;
 use Newspack\Reader_Activation;
+use Newspack_Popups_Data_Api;
 use WC_Order;
 use WP_Error;
 
@@ -328,32 +329,9 @@ class GA4 {
 		unset( $transformed_data['ga_params'] );
 		unset( $transformed_data['ga_client_id'] );
 
-		$transformed_data = self::sanitize_popup_params( $transformed_data );
+		$transformed_data = Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $transformed_data );
 
 		return array_merge( $params, $transformed_data );
-	}
-
-	/**
-	 * Sanitizes the popup params to be sent as params for GA events
-	 *
-	 * @param array $popup_params The popup params as they are returned by Newspack\Data_Events\Popups::get_popup_metadata and by the prompt_interaction data.
-	 * @return array
-	 */
-	public static function sanitize_popup_params( $popup_params ) {
-		// Invalid input.
-		if ( ! is_array( $popup_params ) || ! isset( $popup_params['prompt_id'] ) ) {
-			return [];
-		}
-		$santized = $popup_params;
-
-		unset( $santized['interaction_data'] );
-		$santized = array_merge( $santized, $popup_params['interaction_data'] );
-
-		unset( $santized['prompt_blocks'] );
-		foreach ( $popup_params['prompt_blocks'] as $block ) {
-			$santized[ 'prompt_has_' . $block ] = 1;
-		}
-		return $santized;
 	}
 
 	/**
@@ -365,8 +343,8 @@ class GA4 {
 	 * @return array
 	 */
 	public static function get_sanitized_popup_params( $popup_id ) {
-		$popup_params = Popups_Events::get_popup_metadata( $popup_id );
-		return self::sanitize_popup_params( $popup_params );
+		$popup_params = Newspack_Popups_Data_Api::get_popup_metadata( $popup_id );
+		return Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $popup_params );
 	}
 
 	/**
