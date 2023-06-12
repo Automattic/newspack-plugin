@@ -155,6 +155,7 @@ class PluginInstaller extends Component {
 	render() {
 		const { autoInstall, isSmall, withoutFooterButton } = this.props;
 		const { pluginInfo } = this.state;
+		const { is_atomic: isAtomic } = window;
 		const slugs = Object.keys( pluginInfo );
 
 		// Store all plugin status info for installer button text value based on current status.
@@ -200,7 +201,9 @@ class PluginInstaller extends Component {
 						} else if ( ! installable ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Contact Newspack support to install', 'newspack' ) }
+									{ isAtomic
+										? __( 'Contact Newspack support to install', 'newspack' )
+										: __( 'Plugin must be installed manually', 'newspack' ) }
 									<span className="newspack-checkbox-icon" />
 								</span>
 							);
