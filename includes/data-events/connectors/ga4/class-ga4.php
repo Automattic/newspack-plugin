@@ -353,20 +353,20 @@ class GA4 {
 	 * @return array
 	 */
 	private static function get_credentials() {
-		$api_secret     = get_option( 'ga4_api_secret' );
-		$measurement_id = get_option( 'ga4_measurement_id' );
-		return compact( 'api_secret', 'measurement_id' );
+		// @TODO: add UI to set credentials or fetch it from Site Kit.
+		$measurement_protocol_secret = get_option( 'ga4_measurement_protocol_secret' );
+		$measurement_id              = get_option( 'ga4_measurement_id' );
+		return compact( 'measurement_protocol_secret', 'measurement_id' );
 	}
 
 	/**
 	 * Gets the API URL for GA4
 	 *
+	 * @param string $measurement_id The GA4 measurement ID.
+	 * @param string $api_secret The GA4 Measurement Protocol API secret.
 	 * @return WP_Error|string
 	 */
-	public static function get_api_url() {
-		$credentials    = self::get_credentials();
-		$api_secret     = $credentials['api_secret'];
-		$measurement_id = $credentials['measurement_id'];
+	public static function get_api_url( $measurement_id, $api_secret ) {
 		if ( ! $api_secret || ! $measurement_id ) {
 			return new WP_Error( 'missing_credentials', 'Missing GA4 API credentials.' );
 		}
@@ -392,12 +392,6 @@ class GA4 {
 	 */
 	private static function send_event( Event $event, $client_id, $timestamp, $user_id = null ) {
 
-		$url = self::get_api_url();
-
-		if ( is_wp_error( $url ) ) {
-			throw new \Exception( $url->get_error_message() );
-		}
-
 		$timestamp_micros = (int) $timestamp * 1000000;
 
 		$payload = [
@@ -412,14 +406,37 @@ class GA4 {
 			$payload['user_id'] = $user_id;
 		}
 
-		wp_remote_post(
-			$url,
-			[
-				'body' => wp_json_encode( $payload ),
-			]
-		);
+		$destinations = [
+			self::get_credentials(),
+		];
 
-		self::log( sprintf( 'Event sent - %s - Client ID: %s', $event->get_name(), $client_id ) );
+		/**
+		 * Filters the destinations of the GA4 events in the GA4 Data Events connector.
+		 *
+		 * Each destination is an array with two keys: `measurement_id` and `measurement_protocol_secret`.
+		 *
+		 * @param array $destinations The destinations.
+		 */
+		$destinations = apply_filters( 'newspack_data_events_ga4_destinations', $destinations );
+
+		foreach ( $destinations as $destination ) {
+
+			$url = self::get_api_url( $destination['measurement_id'] ?? '', $destination['measurement_protocol_secret'] ?? '' );
+
+			if ( is_wp_error( $url ) ) {
+				self::log( sprintf( 'Error sending event - %s - Error: %s', $event->get_name(), $url->get_error_message() ) );
+				continue;
+			}
+
+			wp_remote_post(
+				$url,
+				[
+					'body' => wp_json_encode( $payload ),
+				]
+			);
+
+			self::log( sprintf( 'Event sent to %s - %s - Client ID: %s', $destination['measurement_id'], $event->get_name(), $client_id ) );
+		}
 
 	}
 
