@@ -22,7 +22,7 @@ class RSS_Add_Image {
 	/**
 	 * Display Featured Images in RSS feed.
 	 *
-	 * @param string  $content Thumbail to add to RSS feed.
+	 * @param string $content Thumbail to add to RSS feed.
 	 */
 	public static function thumbnails_in_rss( $content ) {
 		global $post;
