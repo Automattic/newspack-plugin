@@ -14,11 +14,8 @@ For now, the credentials must be manually added to the database. You will need y
 Store this info in the database:
 ```
 wp option set ga4_measurement_id "G-XXXXXXXXXX"
-wp option set ga4_api_secret YYYYYYYYYYYYYYYYYYY
+wp option set ga4_measurement_protocol_secret YYYYYYYYYYYYYYYYYYY
 ```
-
-This is still experimental, so you'll need to add this to wp-config:
-`define( 'NEWSPACK_EXPERIMENTAL_GA4_EVENTS', true );`
 
 ## Events being tracked
 

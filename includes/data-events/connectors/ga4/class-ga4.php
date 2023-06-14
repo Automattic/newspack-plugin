@@ -406,22 +406,22 @@ class GA4 {
 			$payload['user_id'] = $user_id;
 		}
 
-		$destinations = [
+		$properties = [
 			self::get_credentials(),
 		];
 
 		/**
-		 * Filters the destinations of the GA4 events in the GA4 Data Events connector.
+		 * Filters the properties of the GA4 events in the GA4 Data Events connector.
 		 *
-		 * Each destination is an array with two keys: `measurement_id` and `measurement_protocol_secret`.
+		 * Each property is an array with two keys: `measurement_id` and `measurement_protocol_secret`.
 		 *
-		 * @param array $destinations The destinations.
+		 * @param array $properties The properties.
 		 */
-		$destinations = apply_filters( 'newspack_data_events_ga4_destinations', $destinations );
+		$properties = apply_filters( 'newspack_data_events_ga4_properties', $properties );
 
-		foreach ( $destinations as $destination ) {
+		foreach ( $properties as $property ) {
 
-			$url = self::get_api_url( $destination['measurement_id'] ?? '', $destination['measurement_protocol_secret'] ?? '' );
+			$url = self::get_api_url( $property['measurement_id'] ?? '', $property['measurement_protocol_secret'] ?? '' );
 
 			if ( is_wp_error( $url ) ) {
 				self::log( sprintf( 'Error sending event - %s - Error: %s', $event->get_name(), $url->get_error_message() ) );
@@ -435,7 +435,7 @@ class GA4 {
 				]
 			);
 
-			self::log( sprintf( 'Event sent to %s - %s - Client ID: %s', $destination['measurement_id'], $event->get_name(), $client_id ) );
+			self::log( sprintf( 'Event sent to %s - %s - Client ID: %s', $property['measurement_id'], $event->get_name(), $client_id ) );
 		}
 
 	}
