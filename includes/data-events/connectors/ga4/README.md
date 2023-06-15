@@ -14,11 +14,8 @@ For now, the credentials must be manually added to the database. You will need y
 Store this info in the database:
 ```
 wp option set ga4_measurement_id "G-XXXXXXXXXX"
-wp option set ga4_api_secret YYYYYYYYYYYYYYYYYYY
+wp option set ga4_measurement_protocol_secret YYYYYYYYYYYYYYYYYYY
 ```
-
-This is still experimental, so you'll need to add this to wp-config:
-`define( 'NEWSPACK_EXPERIMENTAL_GA4_EVENTS', true );`
 
 ## Events being tracked
 
@@ -87,12 +84,12 @@ Additional parameters:
 * `lists`: comma separated list of the list IDs the readers subscribed to (note: truncated at 100 characters)
 * `registration_method`: If the newsletter subscription was triggered by a registration form
 
-### campaign_interaction
+### prompt_interaction
 
 Additional parameters:
 
-* All default parameters from the `campaign_interaction` event (`campaign_id`, `campaign_frequency`, `action`, `action_type`, etc.)
-* `campaign_has_donation_block`: If the donation block was present, the value will be 1
-* `campaign_has_registration_block`: If the registration block was present, the value will be 1
-* `campaign_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
+* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.)
+* `prompt_has_donation_block`: If the donation block was present, the value will be 1
+* `prompt_has_registration_block`: If the registration block was present, the value will be 1
+* `prompt_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
 * All parameters inside the `interaction_data` value.
