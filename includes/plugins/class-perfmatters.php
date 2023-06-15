@@ -17,8 +17,21 @@ class Perfmatters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		add_action( 'init', [ __CLASS__, 'update_option' ] );
 		add_filter( 'option_perfmatters_options', [ __CLASS__, 'set_defaults' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notice' ] );
+	}
+
+	/**
+	 * Ensures that our default settings are persisted in the database.
+	 * Overwrites existing options unless the NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS constant is set.
+	 */
+	public static function update_option() {
+		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
+			return;
+		}
+
+		\update_option( 'perfmatters_options', self::get_defaults() );
 	}
 
 	/**
@@ -121,15 +134,13 @@ class Perfmatters {
 	}
 
 	/**
-	 * Set default options for Perfmatters.
+	 * Get Newspack default options for Perfmatters.
 	 *
-	 * @param array $options Perfmatters options.
+	 * @param array $options Initial options. Optional.
+	 *
+	 * @return array Newspack default options.
 	 */
-	public static function set_defaults( $options = [] ) {
-		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
-			return $options;
-		}
-
+	private static function get_defaults( $options = [] ) {
 		// Basic options.
 		$options['disable_emojis']              = true;
 		$options['disable_dashicons']           = true;
@@ -174,6 +185,7 @@ class Perfmatters {
 			$options['assets']['delay_js_inclusions'] = self::scripts_to_delay();
 		}
 		$options['assets']['delay_timeout'] = true;
+		$options['assets']['fastclick']     = true;
 
 		// Unused CSS.
 		$options['assets']['remove_unused_css'] = true;
@@ -227,6 +239,24 @@ class Perfmatters {
 		$options['fonts']['disable_google_fonts'] = false;
 		$options['fonts']['display_swap']         = true;
 		$options['fonts']['local_google_fonts']   = true;
+
+		return $options;
+	}
+
+	/**
+	 * Set default options for Perfmatters.
+	 * Overwrites existing options unless the NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS constant is set.
+	 *
+	 * @param array $options Perfmatters options.
+	 *
+	 * @return array Newspack default options.
+	 */
+	public static function set_defaults( $options = [] ) {
+		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
+			return $options;
+		}
+
+		$options = self::get_defaults( $options );
 
 		return $options;
 	}
