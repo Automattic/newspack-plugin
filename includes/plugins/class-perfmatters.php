@@ -17,7 +17,7 @@ class Perfmatters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_action( 'init', [ __CLASS__, 'update_option' ] );
+		add_action( 'admin_init', [ __CLASS__, 'update_option' ] );
 		add_filter( 'option_perfmatters_options', [ __CLASS__, 'set_defaults' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notice' ] );
 	}
