@@ -14,6 +14,7 @@ use Newspack\Data_Events\Connectors\GA4\Event;
 use Newspack\Data_Events\Popups as Popups_Events;
 use Newspack\Logger;
 use Newspack\Reader_Activation;
+use Newspack_Popups_Data_Api;
 use WC_Order;
 use WP_Error;
 
@@ -328,32 +329,9 @@ class GA4 {
 		unset( $transformed_data['ga_params'] );
 		unset( $transformed_data['ga_client_id'] );
 
-		$transformed_data = self::sanitize_popup_params( $transformed_data );
+		$transformed_data = Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $transformed_data );
 
 		return array_merge( $params, $transformed_data );
-	}
-
-	/**
-	 * Sanitizes the popup params to be sent as params for GA events
-	 *
-	 * @param array $popup_params The popup params as they are returned by Newspack\Data_Events\Popups::get_popup_metadata and by the prompt_interaction data.
-	 * @return array
-	 */
-	public static function sanitize_popup_params( $popup_params ) {
-		// Invalid input.
-		if ( ! is_array( $popup_params ) || ! isset( $popup_params['prompt_id'] ) ) {
-			return [];
-		}
-		$santized = $popup_params;
-
-		unset( $santized['interaction_data'] );
-		$santized = array_merge( $santized, $popup_params['interaction_data'] );
-
-		unset( $santized['prompt_blocks'] );
-		foreach ( $popup_params['prompt_blocks'] as $block ) {
-			$santized[ 'prompt_has_' . $block ] = 1;
-		}
-		return $santized;
 	}
 
 	/**
@@ -365,8 +343,8 @@ class GA4 {
 	 * @return array
 	 */
 	public static function get_sanitized_popup_params( $popup_id ) {
-		$popup_params = Popups_Events::get_popup_metadata( $popup_id );
-		return self::sanitize_popup_params( $popup_params );
+		$popup_params = Newspack_Popups_Data_Api::get_popup_metadata( $popup_id );
+		return Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $popup_params );
 	}
 
 	/**
@@ -375,20 +353,20 @@ class GA4 {
 	 * @return array
 	 */
 	private static function get_credentials() {
-		$api_secret     = get_option( 'ga4_api_secret' );
-		$measurement_id = get_option( 'ga4_measurement_id' );
-		return compact( 'api_secret', 'measurement_id' );
+		// @TODO: add UI to set credentials or fetch it from Site Kit.
+		$measurement_protocol_secret = get_option( 'ga4_measurement_protocol_secret' );
+		$measurement_id              = get_option( 'ga4_measurement_id' );
+		return compact( 'measurement_protocol_secret', 'measurement_id' );
 	}
 
 	/**
 	 * Gets the API URL for GA4
 	 *
+	 * @param string $measurement_id The GA4 measurement ID.
+	 * @param string $api_secret The GA4 Measurement Protocol API secret.
 	 * @return WP_Error|string
 	 */
-	public static function get_api_url() {
-		$credentials    = self::get_credentials();
-		$api_secret     = $credentials['api_secret'];
-		$measurement_id = $credentials['measurement_id'];
+	public static function get_api_url( $measurement_id, $api_secret ) {
 		if ( ! $api_secret || ! $measurement_id ) {
 			return new WP_Error( 'missing_credentials', 'Missing GA4 API credentials.' );
 		}
@@ -414,12 +392,6 @@ class GA4 {
 	 */
 	private static function send_event( Event $event, $client_id, $timestamp, $user_id = null ) {
 
-		$url = self::get_api_url();
-
-		if ( is_wp_error( $url ) ) {
-			throw new \Exception( $url->get_error_message() );
-		}
-
 		$timestamp_micros = (int) $timestamp * 1000000;
 
 		$payload = [
@@ -434,14 +406,37 @@ class GA4 {
 			$payload['user_id'] = $user_id;
 		}
 
-		wp_remote_post(
-			$url,
-			[
-				'body' => wp_json_encode( $payload ),
-			]
-		);
+		$properties = [
+			self::get_credentials(),
+		];
 
-		self::log( sprintf( 'Event sent - %s - Client ID: %s', $event->get_name(), $client_id ) );
+		/**
+		 * Filters the properties of the GA4 events in the GA4 Data Events connector.
+		 *
+		 * Each property is an array with two keys: `measurement_id` and `measurement_protocol_secret`.
+		 *
+		 * @param array $properties The properties.
+		 */
+		$properties = apply_filters( 'newspack_data_events_ga4_properties', $properties );
+
+		foreach ( $properties as $property ) {
+
+			$url = self::get_api_url( $property['measurement_id'] ?? '', $property['measurement_protocol_secret'] ?? '' );
+
+			if ( is_wp_error( $url ) ) {
+				self::log( sprintf( 'Error sending event - %s - Error: %s', $event->get_name(), $url->get_error_message() ) );
+				continue;
+			}
+
+			wp_remote_post(
+				$url,
+				[
+					'body' => wp_json_encode( $payload ),
+				]
+			);
+
+			self::log( sprintf( 'Event sent to %s - %s - Client ID: %s', $property['measurement_id'], $event->get_name(), $client_id ) );
+		}
 
 	}
 
@@ -509,6 +504,4 @@ class GA4 {
 	}
 }
 
-if ( defined( 'NEWSPACK_EXPERIMENTAL_GA4_EVENTS' ) && NEWSPACK_EXPERIMENTAL_GA4_EVENTS ) {
-	add_action( 'plugins_loaded', array( 'Newspack\Data_Events\Connectors\GA4', 'init' ) );
-}
+add_action( 'plugins_loaded', array( 'Newspack\Data_Events\Connectors\GA4', 'init' ) );
