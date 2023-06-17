@@ -179,5 +179,28 @@ class Jetpack {
 		</style>
 		<?php
 	}
+
+	/**
+	 * Disables Google Analytics module. Users will not be able to activate it.
+	 *
+	 * @param array $modules Array with modules slugs.
+	 * @return array
+	 */
+	public static function remove_google_analytics_from_active( $modules ) {
+		return array_diff( $modules, array( 'google-analytics' ) );
+	}
+
+	/**
+	 * Remove Google Analytics from available modules
+	 *
+	 * @param array $modules The array of available modules.
+	 * @return array
+	 */
+	public static function remove_google_analytics_from_available( $modules ) {
+		if ( isset( $modules['google-analytics'] ) ) {
+			unset( $modules['google-analytics'] );
+		}
+		return $modules;
+	}
 }
 Jetpack::init();
