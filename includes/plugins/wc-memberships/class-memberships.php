@@ -7,12 +7,14 @@
 
 namespace Newspack;
 
+use Newspack\Memberships\Metering;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Main class.
  */
-class WC_Memberships {
+class Memberships {
 
 	const GATE_CPT = 'np_memberships_gate';
 
@@ -33,14 +35,15 @@ class WC_Memberships {
 		add_action( 'admin_init', [ __CLASS__, 'handle_edit_gate' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'notice_html' ], 100, 4 );
-		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'excerpt' ], 100, 3 );
+		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'wc_memberships_notice_html' ], 100, 4 );
+		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'wc_memberships_excerpt' ], 100, 3 );
 		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 
 		include __DIR__ . '/class-block-patterns.php';
+		include __DIR__ . '/class-metering.php';
 	}
 
 	/**
@@ -80,72 +83,45 @@ class WC_Memberships {
 		if ( ! class_exists( 'WC_Memberships' ) ) {
 			return false;
 		}
-		\register_meta(
-			'post',
-			'style',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'default'        => 'inline',
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'inline_fade',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'boolean',
-				'default'        => true,
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'use_more_tag',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'boolean',
-				'default'        => true,
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'visible_paragraphs',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'integer',
-				'default'        => 2,
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'overlay_position',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'default'        => 'center',
-				'single'         => true,
-			]
-		);
-		\register_meta(
-			'post',
-			'overlay_size',
-			[
-				'object_subtype' => self::GATE_CPT,
-				'show_in_rest'   => true,
-				'type'           => 'string',
-				'default'        => 'medium',
-				'single'         => true,
-			]
-		);
+		$meta = [
+			'style'              => [
+				'type'    => 'string',
+				'default' => 'inline',
+			],
+			'inline_fade'        => [
+				'type'    => 'boolean',
+				'default' => true,
+			],
+			'use_more_tag'       => [
+				'type'    => 'boolean',
+				'default' => true,
+			],
+			'visible_paragraphs' => [
+				'type'    => 'integer',
+				'default' => 2,
+			],
+			'overlay_position'   => [
+				'type'    => 'string',
+				'default' => 'center',
+			],
+			'overlay_size'       => [
+				'type'    => 'string',
+				'default' => 'medium',
+			],
+		];
+		foreach ( $meta as $key => $config ) {
+			\register_meta(
+				'post',
+				$key,
+				[
+					'object_subtype' => self::GATE_CPT,
+					'show_in_rest'   => true,
+					'type'           => $config['type'],
+					'default'        => $config['default'],
+					'single'         => true,
+				]
+			);
+		}
 	}
 
 	/**
@@ -254,6 +230,13 @@ class WC_Memberships {
 	}
 
 	/**
+	 * Public method for marking the gate as rendered.
+	 */
+	public static function mark_gate_as_rendered() {
+		self::$gate_rendered = true;
+	}
+
+	/**
 	 * Whether the post is restricted for the current user.
 	 *
 	 * @param int $post_id Post ID.
@@ -322,14 +305,37 @@ class WC_Memberships {
 	}
 
 	/**
-	 * Filter the notice HTML.
+	 * Get the inline gate content for rendering.
+	 *
+	 * @return string
+	 */
+	public static function get_inline_gate_content() {
+		$gate_post_id = self::get_gate_post_id();
+		$style        = \get_post_meta( $gate_post_id, 'style', true );
+		if ( 'inline' !== $style ) {
+			return '';
+		}
+		$gate = \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );
+
+		// Apply inline fade.
+		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
+			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
+		}
+
+		// Wrap gate in a div for styling.
+		$gate = '<div class="newspack-memberships__gate newspack-memberships__inline-gate">' . $gate . '</div>';
+		return $gate;
+	}
+
+	/**
+	 * Filter WooCommerce Memberships' notice HTML.
 	 *
 	 * @param string $notice Notice HTML.
 	 * @param string $message_body original message content.
 	 * @param string $message_code message code.
 	 * @param array  $message_args associative array of message arguments.
 	 */
-	public static function notice_html( $notice, $message_body, $message_code, $message_args ) {
+	public static function wc_memberships_notice_html( $notice, $message_body, $message_code, $message_args ) {
 		// If the gate is not available, don't mess with the notice.
 		if ( ! self::has_gate() ) {
 			return $notice;
@@ -342,19 +348,12 @@ class WC_Memberships {
 		if ( get_queried_object_id() !== get_the_ID() ) {
 			return '';
 		}
-		$gate_post_id = self::get_gate_post_id();
-		$style        = \get_post_meta( $gate_post_id, 'style', true );
-		if ( 'inline' === $style ) {
-			$notice = \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );
-		} else {
-			$notice = '';
-		}
 		self::$gate_rendered = true;
-		return $notice;
+		return self::get_inline_gate_content();
 	}
 
 	/**
-	 * Filter the excerpt.
+	 * Filter WooCommerce Memberships' generated excerpt for restricted content.
 	 *
 	 * @param string $excerpt      Excerpt.
 	 * @param object $post         Post object.
@@ -362,7 +361,7 @@ class WC_Memberships {
 	 *
 	 * @return string
 	 */
-	public static function excerpt( $excerpt, $post, $message_code ) {
+	public static function wc_memberships_excerpt( $excerpt, $post, $message_code ) {
 		// If the gate is not available, don't mess with the excerpt.
 		if ( ! self::has_gate() ) {
 			return $excerpt;
@@ -394,15 +393,7 @@ class WC_Memberships {
 			// Rejoin the paragraphs into a single string again.
 			$content = wp_kses_post( implode( '</p>', $content ) . '</p>' );
 		}
-
-		$excerpt = $content;
-
-		$inline_fade = \get_post_meta( $gate_post_id, 'inline_fade', true );
-		if ( 'inline' === $style && $inline_fade ) {
-			$excerpt .= '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>';
-		}
-
-		return $excerpt;
+		return $content;
 	}
 
 	/**
@@ -414,6 +405,10 @@ class WC_Memberships {
 		}
 		// Only render overlay gate for a restricted singular content.
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
+			return;
+		}
+		// Bail if metering allows rendering the content.
+		if ( ! Metering::is_frontend_metering() && Metering::is_logged_in_metering_allowed() ) {
 			return;
 		}
 		$gate_post_id = self::get_gate_post_id();
@@ -428,7 +423,7 @@ class WC_Memberships {
 		$position = \get_post_meta( $gate_post_id, 'overlay_position', true );
 		$size     = \get_post_meta( $gate_post_id, 'overlay_size', true );
 		?>
-		<div class="newspack-memberships__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
+		<div class="newspack-memberships__gate newspack-memberships__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
 			<div class="newspack-memberships__overlay-gate__container">
 				<div class="newspack-memberships__overlay-gate__content">
 					<?php echo \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -456,10 +451,12 @@ class WC_Memberships {
 		<script type="text/javascript">
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
-				ras.on( 'reader', function() {
-					setTimeout( function() {
-						window.location.reload();
-					}, 2000 );
+				ras.on( 'reader', function( ev ) {
+					if ( ev.detail.authenticated ) {
+						setTimeout( function() {
+							window.location.reload();
+						}, 2000 );
+					}
 				} );
 			} );
 		</script>
@@ -480,4 +477,4 @@ class WC_Memberships {
 		return $disabled;
 	}
 }
-WC_Memberships::init();
+Memberships::init();

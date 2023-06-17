@@ -311,13 +311,20 @@ final class Reader_Activation {
 	 * Platform must be "Newspack" and all donation settings must be configured.
 	 */
 	public static function is_reader_revenue_ready() {
+		$ready             = false;
 		$donation_settings = Donations::get_donation_settings();
 
 		if ( \is_wp_error( $donation_settings ) ) {
-			return false;
+			return $ready;
 		}
 
-		return Donations::is_platform_wc();
+		if ( Donations::is_platform_wc() ) {
+			$ready = true;
+		} elseif ( Donations::is_platform_nrh() && NRH::get_setting( 'nrh_organization_id' ) && method_exists( '\Newspack_Popups_Settings', 'donor_landing_page' ) && \Newspack_Popups_Settings::donor_landing_page() ) {
+			$ready = true;
+		}
+
+		return $ready;
 	}
 
 	/**
@@ -386,6 +393,9 @@ final class Reader_Activation {
 			],
 			'esp'              => [
 				'active'       => self::is_esp_configured(),
+				'plugins'      => [
+					'newspack-newsletters' => class_exists( '\Newspack_Newsletters' ),
+				],
 				'label'        => __( 'Email Service Provider (ESP)', 'newspack' ),
 				'description'  => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack' ),
 				'instructions' => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack' ),
@@ -424,15 +434,24 @@ final class Reader_Activation {
 			],
 			'reader_revenue'   => [
 				'active'       => self::is_reader_revenue_ready(),
+				'plugins'      => [
+					'newspack-blocks'             => class_exists( '\Newspack_Blocks' ),
+					'woocommerce'                 => function_exists( 'WC' ),
+					'woocommerce-subscriptions'   => class_exists( 'WC_Subscriptions_Product' ),
+					'woocommerce-name-your-price' => class_exists( 'WC_Name_Your_Price_Helpers' ),
+				],
 				'label'        => __( 'Reader Revenue', 'newspack' ),
 				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack' ),
-				'instructions' => __( 'Set platform to "Newspack" and configure your default donation settings.', 'newspack' ),
+				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
 				'href'         => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
 				'action_text'  => __( 'Reader Revenue settings' ),
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),
+				'plugins'        => [
+					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
+				],
 				'label'          => __( 'Reader Activation Campaign', 'newspack' ),
 				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.', 'newspack' ),
 				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
@@ -447,27 +466,16 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Whether reader activation is enabled.
-	 *
-	 * @param bool $strict If true, check both the environment constant and the setting.
-	 *                     If false, only check for the constant.
+	 * Whether reader activation features should be enabled.
 	 *
 	 * @return bool True if reader activation is enabled.
 	 */
-	public static function is_enabled( $strict = true ) {
+	public static function is_enabled() {
 		if ( defined( 'IS_TEST_ENV' ) && IS_TEST_ENV ) {
 			return true;
 		}
 
-		$is_enabled = defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION;
-
-		if ( ! $strict ) {
-			return $is_enabled;
-		}
-
-		if ( $is_enabled ) {
-			$is_enabled = (bool) \get_option( self::OPTIONS_PREFIX . 'enabled', false );
-		}
+		$is_enabled = (bool) \get_option( self::OPTIONS_PREFIX . 'enabled', false );
 
 		/**
 		 * Filters whether reader activation is enabled.

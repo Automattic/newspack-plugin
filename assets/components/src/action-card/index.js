@@ -173,6 +173,7 @@ class ActionCard extends Component {
 									</Handoff>
 								) : onClick || hasInternalLink ? (
 									<Button
+										disabled={ disabled }
 										isLink
 										href={ href }
 										onClick={ onClick }
