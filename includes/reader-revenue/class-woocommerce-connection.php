@@ -41,6 +41,7 @@ class WooCommerce_Connection {
 	public static function init() {
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_switching_subscription_amount' ] );
+		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
 
 		// WooCommerce Subscriptions.
 		\add_action( 'add_meta_boxes', [ __CLASS__, 'remove_subscriptions_schedule_meta_box' ], 45 );
@@ -208,8 +209,12 @@ class WooCommerce_Connection {
 		if ( empty( $order_subscriptions ) ) {
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = (float) $customer->get_total_spent();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]       += (float) $order->get_total();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ]      = '';
+
+			if ( 'pending' === $order->get_status() ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $order->get_total();
+			}
+
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
 			$order_items = $order->get_items();
 			if ( $order_items ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
@@ -257,8 +262,11 @@ class WooCommerce_Connection {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
 			}
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]  = (float) $customer->get_total_spent();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
+
+			if ( 'pending' === $order->get_status() ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
+			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
 			if ( $current_subscription ) {
@@ -482,6 +490,9 @@ class WooCommerce_Connection {
 		if ( isset( $metadata['stripe_intent_id'] ) ) {
 			$order->add_meta_data( '_stripe_intent_id', $metadata['stripe_intent_id'] );
 		}
+		if ( isset( $metadata['stripe_next_payment_date'] ) ) {
+			$order->add_meta_data( '_stripe_next_payment_date', $metadata['stripe_next_payment_date'] );
+		}
 		if ( 'completed' === $order->get_status() ) {
 			$order->add_meta_data( '_stripe_charge_captured', 'yes' );
 		}
@@ -700,6 +711,14 @@ class WooCommerce_Connection {
 					} else {
 						update_post_meta( $subscription_id, self::SUBSCRIPTION_STRIPE_ID_META_KEY, $stripe_subscription_id );
 					}
+
+					// Ensure the next payment is scheduled.
+					$next_payment_date = isset( $order_data['stripe_next_payment_date'] ) ? self::convert_timestamp_to_date( $order_data['stripe_next_payment_date'] ) : $subscription->calculate_date( 'next_payment' );
+					$subscription->update_dates(
+						[
+							'next_payment' => $next_payment_date,
+						]
+					);
 
 					$subscription->save();
 
@@ -1053,6 +1072,55 @@ class WooCommerce_Connection {
 			return $can_switch;
 		}
 		return 'yes';
+	}
+
+	/**
+	 * Send the customizable receipt email instead of WooCommerce's default receipt.
+	 *
+	 * @param bool     $enable Whether to send the default receipt email.
+	 * @param WC_Order $order The order object for the receipt email.
+	 * @param WC_Email $class Instance of the WC_Email class.
+	 *
+	 * @return bool
+	 */
+	public static function send_customizable_receipt_email( $enable, $order, $class ) {
+		// If we don't have a valid order, or the customizable email isn't enabled, bail.
+		if ( ! is_a( $order, 'WC_Order' ) || ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
+			return $enable;
+		}
+
+		$currency = $order->get_currency();
+		$symbol   = newspack_get_currency_symbol( $currency );
+		$total    = $order->get_total();
+		$created  = $order->get_date_created();
+
+		// Replace content placeholders.
+		$placeholders = [
+			[
+				'template' => '*AMOUNT*',
+				'value'    => 'USD' === $currency ? $symbol . $total : $total . $symbol,
+			],
+			[
+				'template' => '*DATE*',
+				'value'    => $created->date_i18n(),
+			],
+			[
+				'template' => '*PAYMENT_METHOD*',
+				'value'    => __( 'Card', 'newspack' ) . ' – ' . $order->get_payment_method(),
+			],
+			[
+				'template' => '*RECEIPT_URL*',
+				'value'    => sprintf( '<a href="%s">%s</a>', $order->get_view_order_url(), __( 'My Account', 'newspack' ) ),
+			],
+		];
+
+		$sent = Emails::send_email(
+			Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'],
+			$order->get_billing_email(),
+			$placeholders
+		);
+
+		return false;
 	}
 }
 

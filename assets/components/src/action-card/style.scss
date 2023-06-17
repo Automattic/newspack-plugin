@@ -209,13 +209,10 @@
 			border-left-width: 1px;
 			border-bottom-width: 1px;
 			border-radius: 0 0 0 2px;
-			bottom: 50%;
 			content: '';
 			display: block;
-			left: -28px;
 			position: absolute;
-			right: 100%;
-			top: -17px;
+			inset: -17px 100% 50% -28px;
 		}
 	}
 

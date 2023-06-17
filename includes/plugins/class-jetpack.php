@@ -32,6 +32,68 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'jetpack_async_scripts' ], 20 );
 		add_filter( 'newspack_amp_plus_sanitized', [ __CLASS__, 'jetpack_modules_amp_plus' ], 10, 2 );
 		add_action( 'wp_head', [ __CLASS__, 'fix_instant_search_sidebar_display' ], 10 );
+		add_filter( 'jetpack_lazy_images_skip_image_with_attributes', [ __CLASS__, 'skip_lazy_loading_on_feeds' ], 10 );
+		add_filter( 'wp_calculate_image_srcset', [ __CLASS__, 'filter_srcset_array' ], 100, 5 );
+
+		// Disables Google Analytics.
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'remove_google_analytics_from_active' ), 10, 2 );
+		add_filter( 'jetpack_get_available_modules', array( __CLASS__, 'remove_google_analytics_from_available' ) );
+	}
+
+	/**
+	 * Filters an array of image `srcset` values, adding Photon urls for additional sizes.
+	 *
+	 * @param array $sources       An array of image urls and widths.
+	 * @param array $size_array    The size array for srcset.
+	 * @param array $image_src     The image srcs.
+	 * @param array $image_meta    The image meta.
+	 * @param int   $attachment_id Attachment ID.
+	 *
+	 * @return array An array of Photon image urls and widths.
+	 */
+	public static function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array(), $attachment_id = 0 ) {
+		if ( ! class_exists( 'Jetpack' ) || ! \Jetpack::is_module_active( 'photon' ) ) {
+			return $sources;
+		}
+		if ( ! function_exists( 'jetpack_photon_url' ) ) {
+			return $sources;
+		}
+
+		/**
+		 * Filter the additional sizes to add to the srcset.
+		 *
+		 * @param array $additional_sizes An array of additional sizes to add to the srcset.
+		 */
+		$additional_sizes = apply_filters( 'newspack_photon_srcset_additional_sizes', [ 370, 400 ] );
+
+		foreach ( $additional_sizes as $w ) {
+			if ( isset( $sources[ $w ] ) ) {
+				continue;
+			}
+			if ( ! empty( $attachment_id ) ) {
+				$url = \wp_get_attachment_url( $attachment_id );
+			}
+			$sources[ $w ] = [
+				'url'        => \jetpack_photon_url( $url, [ 'w' => $w ] ),
+				'descriptor' => 'w',
+				'value'      => $w,
+			];
+		}
+
+		return $sources;
+	}
+
+	/**
+	 * Skip image lazy-loading on RSS feeds.
+	 *
+	 * @param bool $skip_lazy_loading Whether to skip lazy-loading.
+	 * @return @bool Whether to skip lazy-loading.
+	 */
+	public static function skip_lazy_loading_on_feeds( $skip_lazy_loading ) {
+		if ( is_feed() ) {
+			return true;
+		}
+		return $skip_lazy_loading;
 	}
 
 	/**

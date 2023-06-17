@@ -204,8 +204,8 @@ class Engagement_Wizard extends Wizard {
 	 */
 	private static function get_memberships_settings() {
 		return [
-			'edit_gate_url' => WC_Memberships::get_edit_gate_url(),
-			'gate_status'   => get_post_status( WC_Memberships::get_gate_post_id() ),
+			'edit_gate_url' => Memberships::get_edit_gate_url(),
+			'gate_status'   => get_post_status( Memberships::get_gate_post_id() ),
 		];
 	}
 
@@ -395,7 +395,6 @@ class Engagement_Wizard extends Wizard {
 		);
 
 		$data = [
-			'has_reader_activation' => Reader_Activation::is_enabled( false ),
 			'has_memberships'       => class_exists( 'WC_Memberships' ),
 			'reader_activation_url' => \admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
 		];

@@ -15,6 +15,7 @@ import {
 	Button,
 	Card,
 	Notice,
+	PluginInstaller,
 	SectionHeader,
 	TextControl,
 	Waiting,
@@ -22,6 +23,7 @@ import {
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
+import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 
 export default withWizardScreen( () => {
@@ -31,7 +33,9 @@ export default withWizardScreen( () => {
 	const [ error, setError ] = useState( false );
 	const [ allReady, setAllReady ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
+	const [ isMailchimp, setIsMailchimp ] = useState( false );
 	const [ prerequisites, setPrerequisites ] = useState( null );
+	const [ missingPlugins, setMissingPlugins ] = useState( [] );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
@@ -77,6 +81,9 @@ export default withWizardScreen( () => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 		} ).then( data => {
+			setIsMailchimp(
+				data?.settings?.newspack_newsletters_service_provider?.value === 'mailchimp'
+			);
 			setIsActiveCampaign(
 				data?.settings?.newspack_newsletters_service_provider?.value === 'active_campaign'
 			);
@@ -84,9 +91,27 @@ export default withWizardScreen( () => {
 	}, [] );
 	useEffect( () => {
 		const _allReady =
-			prerequisites && Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
+			! missingPlugins.length &&
+			prerequisites &&
+			Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
 
 		setAllReady( _allReady );
+
+		if ( prerequisites ) {
+			setMissingPlugins(
+				Object.keys( prerequisites ).reduce( ( acc, slug ) => {
+					const prerequisite = prerequisites[ slug ];
+					if ( prerequisite.plugins ) {
+						for ( const pluginSlug in prerequisite.plugins ) {
+							if ( ! prerequisite.plugins[ pluginSlug ] ) {
+								acc.push( pluginSlug );
+							}
+						}
+					}
+					return acc;
+				}, [] )
+			);
+		}
 	}, [ prerequisites ] );
 
 	const getSharedProps = ( configKey, type = 'checkbox' ) => {
@@ -148,7 +173,10 @@ export default withWizardScreen( () => {
 					isError
 				/>
 			) }
-			{ prerequisites && ! allReady && (
+			{ 0 < missingPlugins.length && (
+				<Notice noticeText={ __( 'The following plugins are required.', 'newspack' ) } isWarning />
+			) }
+			{ 0 === missingPlugins.length && prerequisites && ! allReady && (
 				<Notice
 					noticeText={ __( 'Complete these settings to enable Reader Activation.', 'newspack' ) }
 					isWarning
@@ -163,7 +191,15 @@ export default withWizardScreen( () => {
 					{ __( 'Retrieving status…', 'newspack' ) }
 				</>
 			) }
-			{ prerequisites &&
+			{ 0 < missingPlugins.length && prerequisites && (
+				<PluginInstaller
+					plugins={ missingPlugins }
+					withoutFooterButton
+					onStatus={ ( { complete } ) => complete && fetchConfig() }
+				/>
+			) }
+			{ ! missingPlugins.length &&
+				prerequisites &&
 				Object.keys( prerequisites ).map( key => (
 					<Prerequisite
 						key={ key }
@@ -171,6 +207,7 @@ export default withWizardScreen( () => {
 						getSharedProps={ getSharedProps }
 						inFlight={ inFlight }
 						prerequisite={ prerequisites[ key ] }
+						fetchConfig={ fetchConfig }
 						saveConfig={ saveConfig }
 					/>
 				) ) }
@@ -248,6 +285,16 @@ export default withWizardScreen( () => {
 								) }
 								{ ...getSharedProps( 'metadata_prefix', 'text' ) }
 							/>
+							{ isMailchimp && (
+								<Mailchimp
+									value={ { audienceId: config.mailchimp_audience_id } }
+									onChange={ ( key, value ) => {
+										if ( key === 'audienceId' ) {
+											updateConfig( 'mailchimp_audience_id', value );
+										}
+									} }
+								/>
+							) }
 							{ isActiveCampaign && (
 								<ActiveCampaign
 									value={ { masterList: config.active_campaign_master_list } }
@@ -267,6 +314,7 @@ export default withWizardScreen( () => {
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
 									metadata_prefix: config.metadata_prefix,
+									mailchimp_audience_id: config.mailchimp_audience_id,
 									active_campaign_master_list: config.active_campaign_master_list,
 								} );
 							} }
