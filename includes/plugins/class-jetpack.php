@@ -47,7 +47,7 @@ class Jetpack {
 	 * @param int[]  $size_array    The size array for srcset.
 	 * @param string $image_src     The 'src' of the image.
 	 * @param array  $image_meta    The image meta.
-	 * @param int    $attachment_id The iamge attachment ID.
+	 * @param int    $attachment_id The image attachment ID.
 	 *
 	 * @return array An array of Photon image urls and widths.
 	 */
