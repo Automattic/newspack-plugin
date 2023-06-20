@@ -1,10 +1,9 @@
 const EVENT_PREFIX = 'newspack-ras';
 
 export const EVENTS = {
-	reader: 'reader',
+	reader: 'reader' /* This event can soon be depecrated to use only 'data'. */,
 	data: 'data',
 	activity: 'activity',
-	apiDispatch: 'apiDispatch',
 };
 
 const eventList = Object.values( EVENTS );
