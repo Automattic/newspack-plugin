@@ -19,7 +19,7 @@ export const store = Store();
  *
  * @return {Object} Activity.
  */
-export function dispatch( action, data, timestamp = 0 ) {
+export function dispatchActivity( action, data, timestamp = 0 ) {
 	const activity = { action, data, timestamp: timestamp || Date.now() };
 	store.add( 'activity', activity );
 	emit( EVENTS.activity, activity );
@@ -261,7 +261,7 @@ const readerActivation = {
 	store,
 	on,
 	off,
-	dispatch,
+	dispatchActivity,
 	getActivities,
 	setReaderEmail,
 	setAuthenticated,
@@ -279,14 +279,14 @@ window.newspackReaderActivation = readerActivation;
 /**
  * Handle a push to the newspackRAS array.
  *
- * @param {...Array|Function} args Array to dispatch reader activity or
+ * @param {...Array|Function} args Array to dispatchActivity reader activity or
  *                                 function to callback with the
  *                                 readerActivation object.
  */
 function handlePush( ...args ) {
 	args.forEach( arg => {
 		if ( Array.isArray( arg ) && typeof arg[ 0 ] === 'string' ) {
-			dispatch( ...arg );
+			dispatchActivity( ...arg );
 		} else if ( typeof arg === 'function' ) {
 			arg( readerActivation );
 		} else {

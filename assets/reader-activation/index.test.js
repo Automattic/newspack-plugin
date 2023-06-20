@@ -1,6 +1,6 @@
 import {
 	store,
-	dispatch,
+	dispatchActivity,
 	getActivities,
 	setReaderEmail,
 	setAuthenticated,
@@ -9,17 +9,17 @@ import {
 import { on, off } from './events';
 
 describe( 'newspackReaderActivation', () => {
-	it( 'should emit an event on dispatch', () => {
+	it( 'should emit an event on dispatchActivity', () => {
 		const callback = jest.fn();
 		on( 'activity', callback );
-		dispatch( 'test-emit-on', { test: 'test' } );
+		dispatchActivity( 'test-emit-on', { test: 'test' } );
 		expect( callback ).toHaveBeenCalled();
 	} );
 	it( 'should not emit to removed listener', () => {
 		const callback = jest.fn();
 		on( 'activity', callback );
 		off( 'activity', callback );
-		dispatch( 'test-emit-off', { test: 'test' } );
+		dispatchActivity( 'test-emit-off', { test: 'test' } );
 		expect( callback ).not.toHaveBeenCalled();
 	} );
 	it( 'should store data and emit an event when setting store key', () => {
@@ -29,7 +29,7 @@ describe( 'newspackReaderActivation', () => {
 		expect( callback ).toHaveBeenCalled();
 		expect( store.get( 'test-set' ) ).toEqual( 'test' );
 	} );
-	it( 'should dispatch activities', () => {
+	it( 'should dispatchActivity activities', () => {
 		const activity = {
 			action: 'test',
 			data: {
@@ -37,17 +37,17 @@ describe( 'newspackReaderActivation', () => {
 			},
 			timestamp: 1234567890,
 		};
-		dispatch( activity.action, activity.data, activity.timestamp );
+		dispatchActivity( activity.action, activity.data, activity.timestamp );
 		expect( getActivities( 'test' ) ).toEqual( [ activity ] );
 	} );
-	it( 'should dispatch activities with a timestamp', () => {
+	it( 'should dispatchActivity activities with a timestamp', () => {
 		const activity = {
 			action: 'test-timestamp',
 			data: {
 				test: 'test',
 			},
 		};
-		dispatch( activity.action, activity.data );
+		dispatchActivity( activity.action, activity.data );
 		expect( typeof getActivities( 'test-timestamp' )[ 0 ].timestamp ).toBe( 'number' );
 	} );
 	it( 'should store reader email', () => {
