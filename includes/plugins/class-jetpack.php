@@ -43,15 +43,15 @@ class Jetpack {
 	/**
 	 * Filters an array of image `srcset` values, adding Photon urls for additional sizes.
 	 *
-	 * @param array $sources       An array of image urls and widths.
-	 * @param array $size_array    The size array for srcset.
-	 * @param array $image_src     The image srcs.
-	 * @param array $image_meta    The image meta.
-	 * @param int   $attachment_id Attachment ID.
+	 * @param array  $sources       An array of image urls and widths.
+	 * @param int[]  $size_array    The size array for srcset.
+	 * @param string $image_src     The 'src' of the image.
+	 * @param array  $image_meta    The image meta.
+	 * @param int    $attachment_id The iamge attachment ID.
 	 *
 	 * @return array An array of Photon image urls and widths.
 	 */
-	public static function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array(), $attachment_id = 0 ) {
+	public static function filter_srcset_array( $sources, $size_array, $image_src, $image_meta, $attachment_id ) {
 		if ( ! class_exists( 'Jetpack' ) || ! \Jetpack::is_module_active( 'photon' ) ) {
 			return $sources;
 		}
