@@ -29,18 +29,24 @@ final class Reader_Data {
 	 * Add config to the data script.
 	 */
 	public static function config_script() {
-		if ( ! \is_user_logged_in() ) {
-			return;
+		/**
+		 * Filters the localStorage store item prefix.
+		 *
+		 * @param string $store_prefix Prefix.
+		 */
+		$store_prefix = apply_filters( 'newspack_reader_data_store_prefix', 'np_reader_' );
+
+		$config = [
+			'store_prefix' => $store_prefix,
+		];
+
+		if ( \is_user_logged_in() ) {
+			$config['api_url'] = \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' );
+			$config['nonce']   = \wp_create_nonce( 'wp_rest' );
+			$config['items']   = self::get_data( \get_current_user_id() );
 		}
-		wp_localize_script(
-			Reader_Activation::SCRIPT_HANDLE,
-			'newspack_reader_data',
-			[
-				'api_url' => \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' ),
-				'nonce'   => \is_user_logged_in() ? \wp_create_nonce( 'wp_rest' ) : '',
-				'items'   => self::get_data( \get_current_user_id() ),
-			]
-		);
+
+		wp_localize_script( Reader_Activation::SCRIPT_HANDLE, 'newspack_reader_data', $config );
 	}
 
 	/**

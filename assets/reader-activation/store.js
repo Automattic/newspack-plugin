@@ -14,7 +14,7 @@ import { EVENTS, emit } from './events';
  * @property {number}  collections.maxAge   Maximum age of a collection item if 'timestamp' is set.
  */
 const config = {
-	storePrefix: 'np_reader_',
+	storePrefix: newspack_reader_data?.store_prefix || 'np_reader_',
 	storage: window.localStorage,
 	collections: {
 		maxItems: 1000,
