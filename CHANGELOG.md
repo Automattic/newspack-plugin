@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/Automattic/newspack-plugin/compare/v2.0.0...v2.0.1) (2023-06-20)
+
+
+### Bug Fixes
+
+* **jetpack:** preserve image src for photon srcset filter ([#2515](https://github.com/Automattic/newspack-plugin/issues/2515)) ([2b8c94b](https://github.com/Automattic/newspack-plugin/commit/2b8c94b05f06368c0c4d1a6e0d56fbaa603df1dd))
+
 # [2.0.0](https://github.com/Automattic/newspack-plugin/compare/v1.117.0...v2.0.0) (2023-06-19)
 
 
