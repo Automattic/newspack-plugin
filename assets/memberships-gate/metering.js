@@ -50,6 +50,11 @@ function lockContent() {
 	if ( ! content ) {
 		return;
 	}
+	// Remove campaign prompts.
+	const prompts = document.querySelectorAll( '.newspack-popup' );
+	prompts.forEach( prompt => {
+		prompt.parentNode.removeChild( prompt );
+	} );
 	const visibleParagraphs = settings.visible_paragraphs;
 	const articleElements = document.querySelectorAll( '.entry-content > *' );
 	const moreIndex = content.innerHTML.indexOf( '<!--more-->' );
