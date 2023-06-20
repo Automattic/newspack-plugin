@@ -1,9 +1,6 @@
 /* globals newspack_metering_settings */
 
-const STORAGE_KEY = 'newspack_metering';
-
 const settings = newspack_metering_settings;
-const storage = window.localStorage;
 
 function getCurrentExpiration() {
 	const date = new Date();
@@ -29,9 +26,9 @@ function getCurrentExpiration() {
 	return parseInt( date.getTime() / 1000, 10 );
 }
 
-function getUserData() {
+function getUserData( store ) {
 	const currentExpiration = getCurrentExpiration();
-	const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
+	const data = store.get( 'metering' ) || {
 		content: [],
 		expiration: currentExpiration,
 	};
@@ -44,7 +41,7 @@ function getUserData() {
 		// Reset expiration.
 		data.expiration = currentExpiration;
 	}
-	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+	store.set( 'metering', data );
 	return data;
 }
 
@@ -75,8 +72,8 @@ function lockContent() {
 	}
 }
 
-function meter() {
-	const data = getUserData();
+function meter( store ) {
+	const data = getUserData( store );
 	let locked = false;
 	// Lock content if reached limit, remove gate content if not.
 	if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
@@ -91,8 +88,9 @@ function meter() {
 	// Add current content to read content.
 	if ( ! locked && ! data.content.includes( settings.post_id ) ) {
 		data.content.push( settings.post_id );
-		storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+		store.set( 'metering', data );
 	}
 }
 
-meter();
+window.newspackRAS = window.newspackRAS || [];
+window.newspackRAS.push( ras => meter( ras.store ) );
