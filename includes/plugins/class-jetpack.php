@@ -70,11 +70,8 @@ class Jetpack {
 			if ( isset( $sources[ $w ] ) ) {
 				continue;
 			}
-			if ( ! empty( $attachment_id ) ) {
-				$url = \wp_get_attachment_url( $attachment_id );
-			}
 			$sources[ $w ] = [
-				'url'        => \jetpack_photon_url( $url, [ 'w' => $w ] ),
+				'url'        => \jetpack_photon_url( $image_src, [ 'w' => $w ] ),
 				'descriptor' => 'w',
 				'value'      => $w,
 			];
