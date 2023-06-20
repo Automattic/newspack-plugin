@@ -34,7 +34,10 @@ final class Reader_Data {
 		 *
 		 * @param string $store_prefix Prefix.
 		 */
-		$store_prefix = apply_filters( 'newspack_reader_data_store_prefix', 'np_reader_' );
+		$store_prefix = apply_filters(
+			'newspack_reader_data_store_prefix',
+			sprintf( 'np_reader_%d_', \get_current_blog_id() )
+		);
 
 		$config = [
 			'store_prefix' => $store_prefix,
