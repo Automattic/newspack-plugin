@@ -367,6 +367,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							tokenField = document.createElement( 'input' );
 							tokenField.setAttribute( 'type', 'hidden' );
 							tokenField.setAttribute( 'name', 'captcha_token' );
+							tokenField.setAttribute( 'autocomplete', 'off' );
 							form.appendChild( tokenField );
 						}
 						tokenField.value = captchaToken;
