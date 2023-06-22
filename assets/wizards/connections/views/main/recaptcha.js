@@ -110,6 +110,7 @@ const Recaptcha = () => {
 									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
 								}
 								disabled={ isLoading }
+								autocomplete="off"
 							/>
 							<TextControl
 								type="password"
@@ -119,6 +120,7 @@ const Recaptcha = () => {
 									setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
 								}
 								disabled={ isLoading }
+								autocomplete="off"
 							/>
 						</Grid>
 					</>
