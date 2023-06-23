@@ -93,7 +93,7 @@ function meter( store ) {
 	if ( ! locked ) {
 		// Push article_view activity.
 		if ( settings.article_view ) {
-			window.newspackRAS.push( [ settings.article_view.name, settings.article_view.data ] );
+			window.newspackRAS.push( [ settings.article_view.action, settings.article_view.data ] );
 		}
 		// Add current content to read content.
 		if ( ! data.content.includes( settings.post_id ) ) {

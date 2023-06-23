@@ -242,8 +242,8 @@ final class Reader_Data {
 		 */
 		if ( is_singular( 'post' ) ) {
 			$activity = [
-				'name' => 'article_view',
-				'data' => [
+				'action' => 'article_view',
+				'data'   => [
 					'post_id'    => get_the_ID(),
 					'permalink'  => get_permalink(),
 					'categories' => wp_get_post_categories( get_the_ID(), [ 'fields' => 'ids' ] ),
