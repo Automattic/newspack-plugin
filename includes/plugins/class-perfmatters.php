@@ -17,21 +17,8 @@ class Perfmatters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_action( 'admin_init', [ __CLASS__, 'update_option' ] );
 		add_filter( 'option_perfmatters_options', [ __CLASS__, 'set_defaults' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notice' ] );
-	}
-
-	/**
-	 * Ensures that our default settings are persisted in the database.
-	 * Overwrites existing options unless the NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS constant is set.
-	 */
-	public static function update_option() {
-		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
-			return;
-		}
-
-		\update_option( 'perfmatters_options', self::get_defaults() );
 	}
 
 	/**
@@ -252,13 +239,14 @@ class Perfmatters {
 	 * @return array Newspack default options.
 	 */
 	public static function set_defaults( $options = [] ) {
+		$defaults = self::get_defaults( $options );
+
+		// Ensure our defaults remain the default, but can be overwritten.
 		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
-			return $options;
+			return array_merge( $defaults, $options );
 		}
 
-		$options = self::get_defaults( $options );
-
-		return $options;
+		return $defaults;
 	}
 
 	/**
