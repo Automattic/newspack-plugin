@@ -254,6 +254,8 @@ final class Reader_Data {
 
 			/**
 			 * Filters the 'article_view' reader activity.
+			 *
+			 * @param array $activity Activity.
 			 */
 			$activity = apply_filters( 'newspack_reader_activity_article_view', $activity );
 
@@ -265,6 +267,8 @@ final class Reader_Data {
 
 		/**
 		 * Filter the reader activity to push to the client.
+		 *
+		 * @param array $reader_activity Reader activity.
 		 */
 		$reader_activity = apply_filters( 'newspack_reader_activity', $reader_activity );
 		foreach ( $reader_activity as $i => $activity ) {

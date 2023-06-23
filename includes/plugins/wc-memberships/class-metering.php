@@ -19,6 +19,8 @@ class Metering {
 
 	/**
 	 * Article view activity to be handled by frontend metering.
+	 *
+	 * @var array|null
 	 */
 	private static $article_view = null;
 
