@@ -68,7 +68,7 @@ describe( 'newspackReaderActivation', () => {
 		dispatchActivity( activity2.action, activity2.data );
 		expect( getUniqueActivitiesBy( 'test-unique', 'test' ) ).toEqual( [ activity1 ] );
 	} );
-	it('should get unique activities by iteratee', () => {
+	it( 'should get unique activities by iteratee', () => {
 		const activity1 = {
 			action: 'test-unique-iteratee',
 			data: {
@@ -83,7 +83,10 @@ describe( 'newspackReaderActivation', () => {
 		};
 		dispatchActivity( activity1.action, activity1.data );
 		dispatchActivity( activity2.action, activity2.data );
-		expect( getUniqueActivitiesBy( 'test-unique-iteratee', activity => activity.data.test ) ).toEqual( [ activity1 ] );
+		expect(
+			getUniqueActivitiesBy( 'test-unique-iteratee', activity => activity.data.test )
+		).toEqual( [ activity1 ] );
+	} );
 	it( 'should store reader email', () => {
 		const email = 'test@example.com';
 		setReaderEmail( email );
