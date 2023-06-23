@@ -23,6 +23,7 @@ final class Reader_Data {
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
+		add_action( 'wp_head', [ __CLASS__, 'push_reader_activity' ] );
 	}
 
 	/**
@@ -230,5 +231,57 @@ final class Reader_Data {
 		return new \WP_REST_Response( [ 'success' => true ] );
 	}
 
+	/**
+	 * Push reader activity.
+	 */
+	public static function push_reader_activity() {
+		$reader_activity = [];
+
+		/**
+		 * Article view activity.
+		 */
+		if ( is_singular( 'post' ) ) {
+			$activity = [
+				'name' => 'article_view',
+				'data' => [
+					'post_id'    => get_the_ID(),
+					'permalink'  => get_permalink(),
+					'categories' => wp_get_post_categories( get_the_ID(), [ 'fields' => 'ids' ] ),
+					'tags'       => wp_get_post_tags( get_the_ID(), [ 'fields' => 'ids' ] ),
+					'author'     => get_the_author(),
+				],
+			];
+
+			/**
+			 * Filters the 'article_view' reader activity.
+			 */
+			$activity = apply_filters( 'newspack_reader_activity_article_view', $activity );
+
+			// Allow the filter to short-circuit the activity.
+			if ( ! empty( $activity ) ) {
+				$reader_activity[] = $activity;
+			}
+		}
+
+		/**
+		 * Filter the reader activity to push to the client.
+		 */
+		$reader_activity = apply_filters( 'newspack_reader_activity', $reader_activity );
+		foreach ( $reader_activity as $i => $activity ) {
+			$reader_activity[ $i ] = array_values( $activity );
+		}
+		?>
+		<script>
+			( function() {
+				var activity = <?php echo wp_json_encode( $reader_activity ); ?>;
+				if ( ! activity || ! activity.length ) {
+					return;
+				}
+				window.newspackRAS = window.newspackRAS || [];
+				activity.forEach( item => window.newspackRAS.push(item) );
+			})();
+		</script>
+		<?php
+	}
 }
 Reader_Data::init();

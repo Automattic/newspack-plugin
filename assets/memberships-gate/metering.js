@@ -90,10 +90,16 @@ function meter( store ) {
 			gate.parentNode.removeChild( gate );
 		} );
 	}
-	// Add current content to read content.
-	if ( ! locked && ! data.content.includes( settings.post_id ) ) {
-		data.content.push( settings.post_id );
-		store.set( 'metering', data );
+	if ( ! locked ) {
+		// Push article_view activity.
+		if ( settings.article_view ) {
+			window.newspackRAS.push( [ settings.article_view.name, settings.article_view.data ] );
+		}
+		// Add current content to read content.
+		if ( ! data.content.includes( settings.post_id ) ) {
+			data.content.push( settings.post_id );
+			store.set( 'metering', data );
+		}
 	}
 }
 

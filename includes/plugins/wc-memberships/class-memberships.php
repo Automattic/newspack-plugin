@@ -41,6 +41,7 @@ class Memberships {
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
+		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
@@ -475,6 +476,18 @@ class Memberships {
 			return true;
 		}
 		return $disabled;
+	}
+
+	/**
+	 * Suppress 'article_view' reader activity on locked posts.
+	 *
+	 * @param array $activity Activity.
+	 */
+	public static function suppress_article_view_activity( $activity ) {
+		if ( ( self::is_post_restricted() && ! Metering::is_logged_in_metering_allowed() ) || Metering::is_frontend_metering() ) {
+			return false;
+		}
+		return $activity;
 	}
 }
 Memberships::init();
