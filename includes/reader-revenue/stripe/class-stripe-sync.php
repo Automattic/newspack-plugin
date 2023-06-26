@@ -492,37 +492,10 @@ Running script to set next payment dates on migrated subscriptions...
 			$subscription_id = array_shift( $migrated_subscriptions );
 
 			// Set next payment date.
-			$subscription = \wcs_get_subscription( $subscription_id );
-			if ( $subscription ) {
-				\WP_CLI::log(
-					sprintf(
-						'Found subscription with ID %d and start date %s.',
-						$subscription_id,
-						$subscription->get_date( 'start' )
-					)
-				);
+			$updated = self::set_next_payment_date( $subscription_id, $is_dry_run );
 
-				// Get the next payment date.
-				$next_payment_date = $subscription->get_date( 'next_payment' );
-
-				// If there's no next payment, set it.
-				if ( ! $next_payment_date ) {
-					$next_payment_date = $subscription->calculate_date( 'next_payment' );
-					\WP_CLI::log( sprintf( 'No next payment date set. Setting to %s.', $next_payment_date ) );
-
-					if ( ! $is_dry_run ) {
-						$subscription->update_dates(
-							[
-								'next_payment' => $next_payment_date,
-							]
-						);
-
-						$subscription->save();
-					}
-					$processed ++;
-				} else {
-					\WP_CLI::log( sprintf( 'Next payment date already set to %s. Skipping.', $next_payment_date ) );
-				}
+			if ( $updated ) {
+				$processed++;
 			}
 
 			// Get the next batch.
@@ -533,6 +506,60 @@ Running script to set next payment dates on migrated subscriptions...
 		}
 
 		\WP_CLI::success( sprintf( 'Finished processing %d subscriptions.', $processed ) );
+	}
+
+	/**
+	 * Set the next payment date for a given subscription.
+	 *
+	 * @param int  $subscription_id The ID of the subscription to update.
+	 * @param bool $is_dry_run Whether or not this is a dry run.
+	 *
+	 * @return bool Whether or not the next payment date was updated.
+	 */
+	public static function set_next_payment_date( $subscription_id, $is_dry_run = false ) {
+		$subscription = \wcs_get_subscription( $subscription_id );
+		$updated      = false;
+		if ( $subscription ) {
+			\WP_CLI::log(
+				sprintf(
+					'Found subscription with ID %d and start date %s.',
+					$subscription_id,
+					$subscription->get_date( 'start' )
+				)
+			);
+
+			// Get the next payment date.
+			$next_payment_date = $subscription->get_date( 'next_payment' );
+			$utc               = new \DateTimeZone( 'UTC' );
+			$now               = new \DateTime( 'now', $utc );
+
+			// If there's no next payment or the next payment is in the past, set it.
+			if ( ! $next_payment_date || new \DateTime( $next_payment_date, $utc ) < $now ) {
+				$new_next_payment_date = $subscription->calculate_date( 'next_payment' );
+				\WP_CLI::log(
+					sprintf(
+						'%s. Setting to %s.',
+						! $next_payment_date ? 'No next payment date found' : 'Next payment date is in the past',
+						$new_next_payment_date
+					)
+				);
+
+				if ( ! $is_dry_run ) {
+					$subscription->update_dates(
+						[
+							'next_payment' => $new_next_payment_date,
+						]
+					);
+
+					$subscription->save();
+				}
+				$updated = true;
+			} else {
+				\WP_CLI::log( sprintf( 'Next payment date already set to %s. Skipping.', $next_payment_date ) );
+			}
+		}
+
+		return $updated;
 	}
 
 	/**
@@ -758,6 +785,9 @@ Running script to set next payment dates on migrated subscriptions...
 					\WP_CLI::warning( 'A subscription was not created, so the existing Stripe subscription will not be cancelled.' );
 				}
 			} else {
+				// Ensure that next renewal date is in the future.
+				self::set_next_payment_date( $subscription_id, $dry_run );
+
 				try {
 					if ( $dry_run ) {
 						\WP_CLI::log(
