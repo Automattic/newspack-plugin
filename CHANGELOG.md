@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/Automattic/newspack-plugin/compare/v2.0.1...v2.0.2) (2023-06-26)
+
+
+### Bug Fixes
+
+* update required fields for editing My Account details ([#2519](https://github.com/Automattic/newspack-plugin/issues/2519)) ([becc207](https://github.com/Automattic/newspack-plugin/commit/becc2076336561faa1efab9a4707d3f5a1f82162))
+
 ## [2.0.1](https://github.com/Automattic/newspack-plugin/compare/v2.0.0...v2.0.1) (2023-06-20)
 
 
