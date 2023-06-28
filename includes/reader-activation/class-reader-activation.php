@@ -1566,6 +1566,10 @@ final class Reader_Activation {
 			}
 		}
 
+		if ( ! empty( $metadata ) ) {
+			\update_user_meta( $user_id, 'np_registration_metadata', $metadata );
+		}
+
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
