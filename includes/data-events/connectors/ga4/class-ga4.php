@@ -58,7 +58,8 @@ class GA4 {
 	 * @return bool
 	 */
 	public static function can_use_ga4() {
-		return ! empty( self::get_ga4_properties() );
+		$properties = self::get_ga4_properties();
+		return ! empty( $propeties ) && ! empty( $properties[0]['measurement_id'] );
 	}
 
 	/**
