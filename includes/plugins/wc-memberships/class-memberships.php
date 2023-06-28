@@ -484,7 +484,7 @@ class Memberships {
 	 * @param array $activity Activity.
 	 */
 	public static function suppress_article_view_activity( $activity ) {
-		if ( ( self::is_post_restricted() && ! Metering::is_logged_in_metering_allowed() ) || Metering::is_frontend_metering() ) {
+		if ( Metering::is_frontend_metering() || ( self::is_post_restricted() && ! Metering::is_logged_in_metering_allowed() ) ) {
 			return false;
 		}
 		return $activity;
