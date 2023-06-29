@@ -411,9 +411,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 											.json()
 											.then( ( { message, data } ) => {
 												let redirect = body.get( 'redirect' );
-												/** Redirect every registration to the account page for verification */
-												if ( action === 'register' ) {
-													redirect = newspack_ras_config.account_url;
+												/** Redirect every registration to the account page for verification if not coming from a hash link */
+												if ( action === 'register' && ! currentHash ) {
+													redirect = newspack_reader_activation_data.account_url;
 												}
 												form.endLoginFlow( message, res.status, data, redirect );
 											} )
