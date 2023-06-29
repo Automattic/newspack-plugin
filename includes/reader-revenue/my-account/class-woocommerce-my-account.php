@@ -105,7 +105,7 @@ class WooCommerce_My_Account {
 				return $items;
 			}
 
-			$default_disabled_items = array_merge( $default_disabled_items, [ 'dashboard', 'members-area', 'edit-address' ] );
+			$default_disabled_items = array_merge( $default_disabled_items, [ 'dashboard', 'edit-address' ] );
 			$customer_id            = \get_current_user_id();
 			if ( function_exists( 'wcs_user_has_subscription' ) && function_exists( 'wcs_get_subscriptions' ) ) {
 				$user_subscriptions             = wcs_get_subscriptions( [ 'customer_id' => $customer_id ] );
