@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/Automattic/newspack-plugin/compare/v2.0.2...v2.0.3) (2023-06-29)
+
+
+### Bug Fixes
+
+* **auth:** stop redirect registration from hash link ([#2528](https://github.com/Automattic/newspack-plugin/issues/2528)) ([d462341](https://github.com/Automattic/newspack-plugin/commit/d46234175b065f8f1e4df643aa8ae1ad2df0b6e2))
+
 ## [2.0.2](https://github.com/Automattic/newspack-plugin/compare/v2.0.1...v2.0.2) (2023-06-26)
 
 
