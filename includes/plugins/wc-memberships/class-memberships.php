@@ -225,8 +225,10 @@ class Memberships {
 			$plans = self::get_restricted_post_plans( $post_id );
 			$gates = array_map( [ __CLASS__, 'get_plan_gate_id' ], $plans );
 			$gates = array_values( array_filter( $gates ) );
-			if ( ! empty( $gates ) ) {
-				return $gates[0];
+			foreach ( $gates as $gate_id ) {
+				if ( 'publish' === get_post_status( $gate_id ) ) {
+					return $gate_id;
+				}
 			}
 		}
 		return $gate_post_id ? $gate_post_id : false;
