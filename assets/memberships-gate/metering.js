@@ -55,23 +55,8 @@ function lockContent() {
 	prompts.forEach( prompt => {
 		prompt.parentNode.removeChild( prompt );
 	} );
-	const visibleParagraphs = settings.visible_paragraphs;
-	const articleElements = document.querySelectorAll( '.entry-content > *' );
-	const moreIndex = content.innerHTML.indexOf( '<!--more-->' );
+	content.innerHTML = settings.post_excerpt;
 	const inlineGate = document.querySelector( '.newspack-memberships__inline-gate' );
-	if ( moreIndex > -1 && settings.use_more_tag ) {
-		content.innerHTML = content.innerHTML.substring( 0, moreIndex );
-	} else {
-		let paragraphIndex = 0;
-		articleElements.forEach( element => {
-			if ( element.tagName === 'P' ) {
-				paragraphIndex++;
-			}
-			if ( paragraphIndex > visibleParagraphs ) {
-				content.removeChild( element );
-			}
-		} );
-	}
 	if ( inlineGate ) {
 		content.appendChild( inlineGate );
 	}

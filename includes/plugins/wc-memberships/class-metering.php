@@ -102,6 +102,7 @@ class Metering {
 				'count'              => \get_post_meta( $gate_post_id, 'metering_anonymous_count', true ),
 				'period'             => \get_post_meta( $gate_post_id, 'metering_period', true ),
 				'post_id'            => get_the_ID(),
+				'post_excerpt'       => apply_filters( 'the_content', Memberships::get_post_excerpt() ),
 			]
 		);
 	}

@@ -353,23 +353,14 @@ class Memberships {
 	}
 
 	/**
-	 * Filter WooCommerce Memberships' generated excerpt for restricted content.
+	 * Get allowed post content for a restricted post.
 	 *
-	 * @param string $excerpt      Excerpt.
-	 * @param object $post         Post object.
-	 * @param string $message_code Message code.
+	 * @param object $post Post object.
 	 *
 	 * @return string
 	 */
-	public static function wc_memberships_excerpt( $excerpt, $post, $message_code ) {
-		// If the gate is not available, don't mess with the excerpt.
-		if ( ! self::has_gate() ) {
-			return $excerpt;
-		}
-		// If rendering the content in a loop, don't truncate the excerpt.
-		if ( get_queried_object_id() !== $post->ID ) {
-			return $excerpt;
-		}
+	public static function get_post_excerpt( $post = null ) {
+		$post         = $post ?? get_post();
 		$gate_post_id = self::get_gate_post_id();
 
 		$content = $post->post_content;
@@ -391,9 +382,30 @@ class Memberships {
 				$content[ count( $content ) - 1 ] .= ' [&hellip;]';
 			}
 			// Rejoin the paragraphs into a single string again.
-			$content = wp_kses_post( implode( '</p>', $content ) . '</p>' );
+			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
 		}
 		return $content;
+	}
+
+	/**
+	 * Filter WooCommerce Memberships' generated excerpt for restricted content.
+	 *
+	 * @param string $excerpt      Excerpt.
+	 * @param object $post         Post object.
+	 * @param string $message_code Message code.
+	 *
+	 * @return string
+	 */
+	public static function wc_memberships_excerpt( $excerpt, $post, $message_code ) {
+		// If the gate is not available, don't mess with the excerpt.
+		if ( ! self::has_gate() ) {
+			return $excerpt;
+		}
+		// If rendering the content in a loop, don't truncate the excerpt.
+		if ( get_queried_object_id() !== $post->ID ) {
+			return $excerpt;
+		}
+		return self::get_post_excerpt( $post );
 	}
 
 	/**
