@@ -186,6 +186,9 @@ class Memberships {
 			'newspack_memberships_gate',
 			[
 				'has_campaigns' => class_exists( 'Newspack_Popups' ),
+				'plans'         => self::get_plans(),
+				'gate_plans'    => self::get_gate_plans( get_the_ID() ),
+				'edit_gate_url' => self::get_edit_gate_url(),
 			]
 		);
 
@@ -209,11 +212,111 @@ class Memberships {
 	/**
 	 * Get the post ID of the custom gate.
 	 *
+	 * @param int $post_id Post ID to find gate for.
+	 *
 	 * @return int|false Post ID or false if not set.
 	 */
-	public static function get_gate_post_id() {
-		$post_id = (int) \get_option( 'newspack_memberships_gate_post_id' );
-		return $post_id ? $post_id : false;
+	public static function get_gate_post_id( $post_id = null ) {
+		$gate_post_id = (int) \get_option( 'newspack_memberships_gate_post_id' );
+		if ( is_singular() ) {
+			$post_id = $post_id ? $post_id : get_queried_object_id();
+		}
+		if ( ! empty( $post_id ) ) {
+			$plans = self::get_restricted_post_plans( $post_id );
+			$gates = array_map( [ __CLASS__, 'get_plan_gate_id' ], $plans );
+			$gates = array_values( array_filter( $gates ) );
+			if ( ! empty( $gates ) ) {
+				return $gates[0];
+			}
+		}
+		return $gate_post_id ? $gate_post_id : false;
+	}
+
+	/**
+	 * Get the gate post object for the given plan.
+	 *
+	 * @param int $plan_id Plan ID.
+	 *
+	 * @return int|false Gate post ID or false if not found.
+	 */
+	public static function get_plan_gate_id( $plan_id ) {
+		$gates = get_posts(
+			[
+				'post_type'      => self::GATE_CPT,
+				'post_status'    => [ 'publish', 'draft', 'trash', 'pending', 'future' ],
+				'posts_per_page' => -1,
+			]
+		);
+		foreach ( $gates as $gate ) {
+			$plans = get_post_meta( $gate->ID, 'plans', true );
+			if ( is_array( $plans ) && ! empty( $plans ) && in_array( $plan_id, $plans ) ) {
+				return $gate->ID;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get the gate plans names.
+	 *
+	 * @param int $gate_id Gate post ID.
+	 *
+	 * @return string[] Plan names keyed by plan ID.
+	 */
+	private static function get_gate_plans( $gate_id ) {
+		$ids = get_post_meta( $gate_id, 'plans', true );
+		if ( empty( $ids ) || ! is_array( $ids ) ) {
+			return [];
+		}
+		$plans = [];
+		foreach ( $ids as $id ) {
+			$plan = wc_memberships_get_membership_plan( $id );
+			if ( $plan ) {
+				$plans[ $id ] = $plan->get_name();
+			}
+		}
+		return $plans;
+	}
+
+	/**
+	 * Get all plans and their respective gate ID if available.
+	 *
+	 * @return array
+	 */
+	private static function get_plans() {
+		$membership_plans = wc_memberships_get_membership_plans();
+		$plans            = [];
+		foreach ( $membership_plans as $plan ) {
+			$plans[] = [
+				'id'          => $plan->get_id(),
+				'name'        => $plan->get_name(),
+				'gate_id'     => self::get_plan_gate_id( $plan->get_id() ),
+				'gate_status' => get_post_status( self::get_plan_gate_id( $plan->get_id() ) ),
+			];
+		}
+		return $plans;
+	}
+
+	/**
+	 * Get the plans that are currently restricting the given post.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return int[] Array of plan IDs.
+	 */
+	public static function get_restricted_post_plans( $post_id ) {
+		$rules = wc_memberships()->get_rules_instance()->get_post_content_restriction_rules( $post_id );
+		if ( ! $rules || empty( $rules ) ) {
+			return [];
+		}
+		$plans = [];
+		foreach ( $rules as $rule ) {
+			$plan = $rule->get_membership_plan_id();
+			if ( ! empty( $plan ) ) {
+				$plans[] = $plan;
+			}
+		}
+		return $plans;
 	}
 
 	/**
@@ -258,8 +361,12 @@ class Memberships {
 
 	/**
 	 * Get the URL for editing the custom gate.
+	 *
+	 * @param int|false $plan_id Plan ID.
+	 *
+	 * @return string
 	 */
-	public static function get_edit_gate_url() {
+	public static function get_edit_gate_url( $plan_id = false ) {
 		$action = 'newspack_edit_memberships_gate';
 		$url    = \add_query_arg( '_wpnonce', \wp_create_nonce( $action ), \admin_url( 'admin.php?action=' . $action ) );
 		return str_replace( \site_url(), '', $url );
@@ -276,7 +383,8 @@ class Memberships {
 			return;
 		}
 		check_admin_referer( 'newspack_edit_memberships_gate' );
-		$gate_post_id = self::get_gate_post_id();
+		$plan_id      = isset( $_GET['plan_id'] ) ? \absint( $_GET['plan_id'] ) : false;
+		$gate_post_id = $plan_id ? self::get_plan_gate_id( $plan_id ) : self::get_gate_post_id();
 		if ( $gate_post_id && get_post( $gate_post_id ) ) {
 			// Untrash post if it's in the trash.
 			if ( 'trash' === get_post_status( $gate_post_id ) ) {
@@ -287,6 +395,17 @@ class Memberships {
 			exit;
 		} else {
 			// Gate not found, create it.
+			$post_title = __( 'Memberships Gate', 'newspack' );
+			if ( $plan_id ) {
+				$plan = \wc_memberships_get_membership_plan( $plan_id );
+				if ( $plan ) {
+					$post_title = sprintf(
+						// Translators: %s is the plan name.
+						__( '%s Gate', 'newspack' ),
+						$plan->get_name()
+					);
+				}
+			}
 			$gate_post_id = \wp_insert_post(
 				[
 					'post_title'   => __( 'Memberships Gate', 'newspack' ),
@@ -298,7 +417,12 @@ class Memberships {
 			if ( is_wp_error( $gate_post_id ) ) {
 				\wp_die( esc_html( $gate_post_id->get_error_message() ) );
 			}
-			self::set_gate_post_id( $gate_post_id );
+			// If not a plan-specific gate, set as primary gate.
+			if ( ! $plan_id ) {
+				self::set_gate_post_id( $gate_post_id );
+			} else {
+				\update_post_meta( $gate_post_id, 'plans', [ $plan_id ] );
+			}
 			\wp_safe_redirect( \admin_url( 'post.php?post=' . $gate_post_id . '&action=edit' ) );
 			exit;
 		}
