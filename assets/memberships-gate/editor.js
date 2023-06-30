@@ -84,65 +84,67 @@ function GateEdit() {
 					</p>
 				</PluginPostStatusInfo>
 			) }
-			<PluginDocumentSettingPanel
-				name="memberships-gate-plans"
-				title={ __( 'WooCommerce Memberships', 'newspack' ) }
-			>
-				{ ! Object.keys( newspack_memberships_gate.gate_plans ).length ? (
-					<Fragment>
-						<p>
-							{ __(
-								'This gate will be rendered for all membership plans. Create a custom gate for when a content is locked behind a specific plan:',
-								'newspack'
-							) }
-						</p>
-					</Fragment>
-				) : (
-					<Fragment>
-						<p>
-							{ sprintf(
-								// translators: %s is the list of plans.
-								__(
-									'This gate will be rendered for the following membership plans: %s',
+			{ newspack_memberships_gate.plans.length > 1 && (
+				<PluginDocumentSettingPanel
+					name="memberships-gate-plans"
+					title={ __( 'WooCommerce Memberships', 'newspack' ) }
+				>
+					{ ! Object.keys( newspack_memberships_gate.gate_plans ).length ? (
+						<Fragment>
+							<p>
+								{ __(
+									'This gate will be rendered for all membership plans. Manage custom gates for when the content is locked behind a specific plan:',
 									'newspack'
-								),
-								Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
-							) }
-						</p>
-						<hr />
-						<p
-							dangerouslySetInnerHTML={ {
-								__html: sprintf(
-									// translators: %s is the link to the primary gate.
-									__( 'Edit the <a href="%s">primary gate</a>, or:', 'newspack' ),
-									newspack_memberships_gate.edit_gate_url
-								),
-							} }
-						/>
-					</Fragment>
-				) }
-				<ul>
-					{ getPlansToEdit().map( plan => (
-						<li key={ plan.id }>
-							{ plan.name } (
-							{ plan.gate_id !== false && (
-								<Fragment>
-									<strong>
-										{ plan.gate_status === 'publish'
-											? __( 'published', 'newspack' )
-											: __( 'draft', 'newspack' ) }
-									</strong>{ ' ' }
-									-{ ' ' }
-								</Fragment>
-							) }
-							<a href={ newspack_memberships_gate.edit_gate_url + '&plan_id=' + plan.id }>
-								{ plan.gate_id ? __( 'edit gate', 'newspack' ) : __( 'create gate', 'newspack' ) }
-							</a>
-							)
-						</li>
-					) ) }
-				</ul>
-			</PluginDocumentSettingPanel>
+								) }
+							</p>
+						</Fragment>
+					) : (
+						<Fragment>
+							<p>
+								{ sprintf(
+									// translators: %s is the list of plans.
+									__(
+										'This gate will be rendered for the following membership plans: %s',
+										'newspack'
+									),
+									Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
+								) }
+							</p>
+							<hr />
+							<p
+								dangerouslySetInnerHTML={ {
+									__html: sprintf(
+										// translators: %s is the link to the primary gate.
+										__( 'Edit the <a href="%s">primary gate</a>, or:', 'newspack' ),
+										newspack_memberships_gate.edit_gate_url
+									),
+								} }
+							/>
+						</Fragment>
+					) }
+					<ul>
+						{ getPlansToEdit().map( plan => (
+							<li key={ plan.id }>
+								{ plan.name } (
+								{ plan.gate_id !== false && (
+									<Fragment>
+										<strong>
+											{ plan.gate_status === 'publish'
+												? __( 'published', 'newspack' )
+												: __( 'draft', 'newspack' ) }
+										</strong>{ ' ' }
+										-{ ' ' }
+									</Fragment>
+								) }
+								<a href={ newspack_memberships_gate.edit_gate_url + '&plan_id=' + plan.id }>
+									{ plan.gate_id ? __( 'edit gate', 'newspack' ) : __( 'create gate', 'newspack' ) }
+								</a>
+								)
+							</li>
+						) ) }
+					</ul>
+				</PluginDocumentSettingPanel>
+			) }
 			<PluginDocumentSettingPanel
 				name="memberships-gate-styles-panel"
 				title={ __( 'Styles', 'newspack' ) }
