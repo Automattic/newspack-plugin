@@ -1,110 +1,44 @@
-/* globals newspack_reader_activation_data */
+/* globals newspack_ras_config */
+window.newspack_ras_config = window.newspack_ras_config || {};
+
+import Store from './store.js';
+import { EVENTS, on, off, emit } from './events.js';
+import { getCookie, setCookie, generateID } from './utils.js';
 
 /**
- * Reader Activation Frontend Library.
+ * Reader Activation Library.
  */
+export const store = Store();
 
 /**
- * Constants.
- */
-const EVENT_PREFIX = 'newspack-reader-activation';
-const EVENTS = {
-	reader: 'reader',
-};
-
-/**
- * Initialize data.
- */
-const store = {};
-
-/**
- * Get a cookie value given its name.
+ * Dispatch reader activity.
  *
- * @param {string} name Cookie name.
+ * @param {string} action    Action name.
+ * @param {Object} data      Data object.
+ * @param {number} timestamp Timestamp. (optional)
  *
- * @return {string} Cookie value or empty string if not found.
+ * @return {Object} Activity.
  */
-function getCookie( name ) {
-	if ( ! name ) {
-		return '';
-	}
-	const value = `; ${ document.cookie }`;
-	const parts = value.split( `; ${ name }=` );
-	if ( parts.length === 2 ) return decodeURIComponent( parts.pop().split( ';' ).shift() );
+export function dispatchActivity( action, data, timestamp = 0 ) {
+	const activity = { action, data, timestamp: timestamp || Date.now() };
+	store.add( 'activity', activity );
+	emit( EVENTS.activity, activity );
+	return activity;
 }
 
 /**
- * Set a cookie.
+ * Get all activities from a given action.
  *
- * @param {string} name           Cookie name.
- * @param {string} value          Cookie value.
- * @param {number} expirationDays Expiration in days from now.
- */
-function setCookie( name, value, expirationDays = 365 ) {
-	const date = new Date();
-	date.setTime( date.getTime() + expirationDays * 24 * 60 * 60 * 1000 );
-	document.cookie = `${ name }=${ value }; expires=${ date.toUTCString() }; path=/`;
-}
-
-/**
- * Handling events.
- */
-const events = Object.values( EVENTS );
-
-/**
- * Get the full event name given its local name.
+ * @param {string} action
  *
- * @param {string} localEventName Local event name.
- *
- * @return {string} Full event name or empty string if event name is not valid.
+ * @return {Array} Activities.
  */
-function getEventName( localEventName ) {
-	if ( ! events.includes( localEventName ) ) {
-		return '';
+export function getActivities( action ) {
+	const activities = store.get( 'activity' ) || [];
+	if ( ! action ) {
+		return activities;
 	}
-	return `${ EVENT_PREFIX }-${ localEventName }`;
-}
-
-/**
- * Emit a reader activation event.
- *
- * @param {string} event Local event name.
- * @param {*}      data  Data to be emitted.
- */
-function emit( event, data ) {
-	event = getEventName( event );
-	if ( ! event ) {
-		throw 'Invalid event';
-	}
-	window.dispatchEvent( new CustomEvent( event, { detail: data } ) );
-}
-
-/**
- * Attach an event listener given a local event name.
- *
- * @param {string}   event    Local event name.
- * @param {Function} callback Callback.
- */
-export function on( event, callback ) {
-	event = getEventName( event );
-	if ( ! event ) {
-		throw 'Invalid event';
-	}
-	window.addEventListener( event, callback );
-}
-
-/**
- * Detach an event listener given a local event name.
- *
- * @param {string}   event    Local event name.
- * @param {Function} callback Callback.
- */
-export function off( event, callback ) {
-	event = getEventName( event );
-	if ( ! event ) {
-		throw 'Invalid event';
-	}
-	window.removeEventListener( event, callback );
+	return activities.filter( activity => activity.action === action );
 }
 
 /**
@@ -120,11 +54,10 @@ export function setReaderEmail( email ) {
 	if ( ! email ) {
 		return;
 	}
-	if ( ! store.reader ) {
-		store.reader = {};
-	}
-	store.reader.email = email;
-	emit( EVENTS.reader, store.reader );
+	const reader = getReader();
+	reader.email = email;
+	store.set( 'reader', reader, false );
+	emit( EVENTS.reader, reader );
 }
 
 /**
@@ -133,11 +66,13 @@ export function setReaderEmail( email ) {
  * @param {boolean} authenticated Whether the current reader is authenticated. Default is true.
  */
 export function setAuthenticated( authenticated = true ) {
-	if ( ! store.reader?.email ) {
-		throw 'Reader email not set';
+	const reader = store.get( 'reader' ) || {};
+	if ( ! reader.email ) {
+		throw new Error( 'Reader email not set' );
 	}
-	store.reader.authenticated = Boolean( authenticated );
-	emit( EVENTS.reader, store.reader );
+	reader.authenticated = Boolean( authenticated );
+	store.set( 'reader', reader, false );
+	emit( EVENTS.reader, reader );
 }
 
 /**
@@ -159,7 +94,7 @@ export function refreshAuthentication() {
  * @return {Object} Reader data.
  */
 export function getReader() {
-	return store.reader;
+	return store.get( 'reader' ) || {};
 }
 
 /**
@@ -210,7 +145,7 @@ export function authenticateOTP( code ) {
 				Accept: 'application/json',
 			},
 			body: new URLSearchParams( {
-				action: newspack_reader_activation_data.otp_auth_action,
+				action: newspack_ras_config.otp_auth_action,
 				email,
 				hash,
 				code,
@@ -243,7 +178,7 @@ export function authenticateOTP( code ) {
  */
 export function setAuthStrategy( strategy ) {
 	if ( ! authStrategies.includes( strategy ) ) {
-		throw 'Invalid authentication strategy';
+		throw new Error( 'Invalid authentication strategy' );
 	}
 	setCookie( 'np_auth_strategy', strategy );
 	return strategy;
@@ -267,11 +202,11 @@ export function getAuthStrategy() {
 export function getCaptchaToken( action = 'submit' ) {
 	return new Promise( ( res, rej ) => {
 		const { grecaptcha } = window;
-		if ( ! grecaptcha || ! newspack_reader_activation_data ) {
+		if ( ! grecaptcha || ! newspack_ras_config ) {
 			return res( '' );
 		}
 
-		const { captcha_site_key: captchaSiteKey } = newspack_reader_activation_data;
+		const { captcha_site_key: captchaSiteKey } = newspack_ras_config;
 
 		// If the site key is not set, bail with an empty token.
 		if ( ! captchaSiteKey ) {
@@ -292,21 +227,42 @@ export function getCaptchaToken( action = 'submit' ) {
 }
 
 /**
+ * Ensure the client ID cookie is set.
+ */
+function fixClientID() {
+	const clientIDCookieName = newspack_ras_config.cid_cookie;
+	if ( ! getCookie( clientIDCookieName ) ) {
+		setCookie( clientIDCookieName, generateID( 12 ) );
+	}
+}
+
+/**
  * Initialize store data.
  */
 function init() {
-	const data = newspack_reader_activation_data;
+	const data = newspack_ras_config;
 	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
 	const authenticated = !! data?.authenticated_email;
-	store.reader = initialEmail ? { email: initialEmail, authenticated } : null;
-	emit( EVENTS.reader, store.reader );
+	const currentReader = getReader();
+	const reader = { email: initialEmail || currentReader?.email, authenticated };
+	if (
+		currentReader?.email !== reader?.email ||
+		currentReader?.authenticated !== reader?.authenticated
+	) {
+		store.set( 'reader', reader, false );
+	}
+	emit( EVENTS.reader, reader );
+	fixClientID();
 }
 
 init();
 
 const readerActivation = {
+	store,
 	on,
 	off,
+	dispatchActivity,
+	getActivities,
 	setReaderEmail,
 	setAuthenticated,
 	refreshAuthentication,
@@ -320,15 +276,27 @@ const readerActivation = {
 };
 window.newspackReaderActivation = readerActivation;
 
-const clientIDCookieName = newspack_reader_activation_data.cid_cookie;
-if ( ! getCookie( clientIDCookieName ) ) {
-	// If entropy is an issue, https://www.npmjs.com/package/nanoid can be used.
-	const getShortStringId = () => Math.floor( Math.random() * 999999999 ).toString( 36 );
-	setCookie( clientIDCookieName, `${ getShortStringId() }${ getShortStringId() }` );
+/**
+ * Handle a push to the newspackRAS array.
+ *
+ * @param {...Array|Function} args Array to dispatchActivity reader activity or
+ *                                 function to callback with the
+ *                                 readerActivation object.
+ */
+function handlePush( ...args ) {
+	args.forEach( arg => {
+		if ( Array.isArray( arg ) && typeof arg[ 0 ] === 'string' ) {
+			dispatchActivity( ...arg );
+		} else if ( typeof arg === 'function' ) {
+			arg( readerActivation );
+		} else {
+			console.warn( 'Invalid newspackRAS.push argument', arg );
+		}
+	} );
 }
 
 window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.forEach( fn => fn( readerActivation ) );
-window.newspackRAS.push = fn => fn( readerActivation );
+window.newspackRAS.forEach( arg => handlePush( arg ) );
+window.newspackRAS.push = handlePush;
 
 export default readerActivation;
