@@ -1,3 +1,20 @@
+# [2.1.0](https://github.com/Automattic/newspack-plugin/compare/v2.0.3...v2.1.0) (2023-07-03)
+
+
+### Bug Fixes
+
+* allow campaign prompts to render on metered content ([#2516](https://github.com/Automattic/newspack-plugin/issues/2516)) ([bba79ef](https://github.com/Automattic/newspack-plugin/commit/bba79ef89723b1cebf7bc09ba63cdcb68ae1bfbd))
+* allow high-res youtube thumbs via constant ([#2507](https://github.com/Automattic/newspack-plugin/issues/2507)) ([235757b](https://github.com/Automattic/newspack-plugin/commit/235757b8b021870610669b267dd700f13c3232f1))
+* **donations:** empty cart on donation checkout ([#2505](https://github.com/Automattic/newspack-plugin/issues/2505)) ([35d9a91](https://github.com/Automattic/newspack-plugin/commit/35d9a917d267c085833ac7f940f2fa451de998d0))
+
+
+### Features
+
+* do not override data on popup events ([#2506](https://github.com/Automattic/newspack-plugin/issues/2506)) ([051769b](https://github.com/Automattic/newspack-plugin/commit/051769bea935977ce2f482210aac170fe3b6e5c8))
+* move RSS image to plugin and increase size ([#2504](https://github.com/Automattic/newspack-plugin/issues/2504)) ([3dab16f](https://github.com/Automattic/newspack-plugin/commit/3dab16f02070749a2d08813f408105832966f483))
+* **plugin-installer:** handle premium plugins in PluginInstaller ([#2482](https://github.com/Automattic/newspack-plugin/issues/2482)) ([b35aeeb](https://github.com/Automattic/newspack-plugin/commit/b35aeebf4970f20ae41b6497364e0e4794dfd686))
+* reader data library ([#2451](https://github.com/Automattic/newspack-plugin/issues/2451)) ([2ad5f06](https://github.com/Automattic/newspack-plugin/commit/2ad5f06c3f87e9b3c7bd17fed5092364fbf38bdb))
+
 ## [2.0.3](https://github.com/Automattic/newspack-plugin/compare/v2.0.2...v2.0.3) (2023-06-29)
 
 
