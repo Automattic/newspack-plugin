@@ -23,6 +23,7 @@ final class Reader_Data {
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
+		add_action( 'wp_head', [ __CLASS__, 'set_referrer' ] );
 	}
 
 	/**
@@ -230,5 +231,21 @@ final class Reader_Data {
 		return new \WP_REST_Response( [ 'success' => true ] );
 	}
 
+	/**
+	 * Set the referrer if it's not the same as the current domain.
+	 */
+	public static function set_referrer() {
+		?>
+		<script>
+			window.newspackRAS = window.newspackRAS || [];
+			window.newspackRAS.push( function( ras ) {
+				var referrer = document.referrer ? new URL( document.referrer ).hostname : '';
+				if ( referrer && referrer !== window.location.hostname ) {
+					ras.store.set( 'referrer', referrer.replace( 'www.', '' ).trim().toLowerCase() );
+				}
+			} );
+		</script>
+		<?php
+	}
 }
 Reader_Data::init();
