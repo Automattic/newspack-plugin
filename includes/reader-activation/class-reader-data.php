@@ -247,7 +247,7 @@ final class Reader_Data {
 	 * @param array $data      Data.
 	 */
 	public static function set_is_newsletter_subscriber( $timestamp, $data ) {
-		self::update_item( $data['user_id'] ?? \get_current_user_id(), 'is_newsletter_subscriber', 'true' );
+		self::update_item( $data['user_id'] ?? \get_current_user_id(), 'is_newsletter_subscriber', true );
 	}
 
 	/**
@@ -257,8 +257,8 @@ final class Reader_Data {
 	 * @param array $data      Data.
 	 */
 	public static function set_is_donor( $timestamp, $data ) {
-		self::update_item( $data['user_id'], 'is_donor', 'true' );
-		self::update_item( $data['user_id'], 'is_former_donor', 'false' );
+		self::update_item( $data['user_id'], 'is_donor', true );
+		self::update_item( $data['user_id'], 'is_former_donor', false );
 	}
 
 	/**
@@ -268,8 +268,8 @@ final class Reader_Data {
 	 * @param array $data      Data.
 	 */
 	public static function set_is_former_donor( $timestamp, $data ) {
-		self::update_item( $data['user_id'], 'is_donor', 'false' );
-		self::update_item( $data['user_id'], 'is_former_donor', 'true' );
+		self::update_item( $data['user_id'], 'is_donor', false );
+		self::update_item( $data['user_id'], 'is_former_donor', true );
 	}
 
 }
