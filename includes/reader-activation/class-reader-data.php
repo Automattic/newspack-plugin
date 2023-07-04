@@ -25,8 +25,8 @@ final class Reader_Data {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
 
 		/* Update reader data items on event dispatches */
-		add_action( 'newspack_data_event_dispatch_newsletter_subscribed', [ __CLASS__, 'set_is_newsletter_subscriber' ] );
-		add_action( 'newspack_data_event_dispatch_donation_new', [ __CLASS__, 'set_is_donor' ] );
+		add_action( 'newspack_data_event_dispatch_newsletter_subscribed', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
+		add_action( 'newspack_data_event_dispatch_donation_new', [ __CLASS__, 'set_is_donor' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_subscription_new', [ __CLASS__, 'set_is_donor' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_subscription_cancelled', [ __CLASS__, 'set_is_former_donor' ], 10, 2 );
 	}
@@ -242,9 +242,12 @@ final class Reader_Data {
 
 	/**
 	 * Set the user as a newsletter subscriber.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
 	 */
-	public static function set_is_newsletter_subscriber() {
-		self::update_item( \get_current_user_id(), 'is_newsletter_subscriber', 'true' );
+	public static function set_is_newsletter_subscriber( $timestamp, $data ) {
+		self::update_item( $data['user_id'] ?? \get_current_user_id(), 'is_newsletter_subscriber', 'true' );
 	}
 
 	/**
