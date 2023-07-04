@@ -452,6 +452,11 @@ class Popups_Wizard extends Wizard {
 			$preview_archive = \Newspack_Popups::preview_archive_permalink();
 		}
 
+		$criteria = [];
+		if ( method_exists( 'Newspack_Popups_Criteria', 'get_registered_criteria' ) ) {
+			$criteria = \Newspack_Popups_Criteria::get_registered_criteria();
+		}
+
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$custom_placements                     = $newspack_popups_configuration_manager->get_custom_placements();
 		$overlay_placements                    = $newspack_popups_configuration_manager->get_overlay_placements();
@@ -470,6 +475,7 @@ class Popups_Wizard extends Wizard {
 				'overlay_sizes'      => $overlay_sizes,
 				'preview_query_keys' => $preview_query_keys,
 				'experimental'       => Reader_Activation::is_enabled(),
+				'criteria'           => $criteria,
 			]
 		);
 
@@ -776,6 +782,7 @@ class Popups_Wizard extends Wizard {
 		$response                              = $newspack_popups_configuration_manager->create_segment(
 			[
 				'name'          => $request['name'],
+				'criteria'      => $request['criteria'],
 				'configuration' => $request['configuration'],
 			]
 		);
@@ -794,6 +801,7 @@ class Popups_Wizard extends Wizard {
 			[
 				'id'            => $request['id'],
 				'name'          => $request['name'],
+				'criteria'      => $request['criteria'],
 				'configuration' => $request['configuration'],
 			]
 		);
