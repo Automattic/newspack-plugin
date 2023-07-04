@@ -23,6 +23,7 @@ final class Reader_Data {
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
+		add_action( 'wp_head', [ __CLASS__, 'push_reader_activity' ] );
 
 		/* Update reader data items on event dispatches */
 		add_action( 'newspack_data_event_dispatch_newsletter_subscribed', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
@@ -241,6 +242,63 @@ final class Reader_Data {
 	}
 
 	/**
+	 * Push reader activity.
+	 */
+	public static function push_reader_activity() {
+		$reader_activity = [];
+
+		/**
+		 * Article view activity.
+		 */
+		if ( is_singular( 'post' ) ) {
+			$activity = [
+				'action' => 'article_view',
+				'data'   => [
+					'post_id'    => get_the_ID(),
+					'permalink'  => get_permalink(),
+					'categories' => wp_get_post_categories( get_the_ID(), [ 'fields' => 'ids' ] ),
+					'tags'       => wp_get_post_tags( get_the_ID(), [ 'fields' => 'ids' ] ),
+					'author'     => get_the_author(),
+				],
+			];
+
+			/**
+			 * Filters the 'article_view' reader activity.
+			 *
+			 * @param array $activity Activity.
+			 */
+			$activity = apply_filters( 'newspack_reader_activity_article_view', $activity );
+
+			// Allow the filter to short-circuit the activity.
+			if ( ! empty( $activity ) ) {
+				$reader_activity[] = $activity;
+			}
+		}
+
+		/**
+		 * Filter the reader activity to push to the client.
+		 *
+		 * @param array $reader_activity Reader activity.
+		 */
+		$reader_activity = apply_filters( 'newspack_reader_activity', $reader_activity );
+		foreach ( $reader_activity as $i => $activity ) {
+			$reader_activity[ $i ] = array_values( $activity );
+		}
+		?>
+		<script>
+			( function() {
+				var activity = <?php echo wp_json_encode( $reader_activity ); ?>;
+				if ( ! activity || ! activity.length ) {
+					return;
+				}
+				window.newspackRAS = window.newspackRAS || [];
+				activity.forEach( item => window.newspackRAS.push(item) );
+			})();
+		</script>
+		<?php
+	}
+
+	/**
 	 * Set the user as a newsletter subscriber.
 	 *
 	 * @param int   $timestamp Timestamp.
@@ -271,6 +329,5 @@ final class Reader_Data {
 		self::update_item( $data['user_id'], 'is_donor', false );
 		self::update_item( $data['user_id'], 'is_former_donor', true );
 	}
-
 }
 Reader_Data::init();

@@ -42,6 +42,28 @@ export function getActivities( action ) {
 }
 
 /**
+ * Get all unique activities from a given action by a given iteratee.
+ *
+ * @param {string}          action   Action name.
+ * @param {string|Function} iteratee Iteratee or a data key.
+ *
+ * @return {Array} Unique activities.
+ */
+export function getUniqueActivitiesBy( action, iteratee ) {
+	const activities = getActivities( action );
+	const unique = [];
+	const seen = {};
+	for ( const activity of activities ) {
+		const value = typeof iteratee === 'function' ? iteratee( activity ) : activity.data[ iteratee ];
+		if ( ! seen[ value ] ) {
+			unique.push( activity );
+			seen[ value ] = true;
+		}
+	}
+	return unique;
+}
+
+/**
  * Reader functions.
  */
 
@@ -263,6 +285,7 @@ const readerActivation = {
 	off,
 	dispatchActivity,
 	getActivities,
+	getUniqueActivitiesBy,
 	setReaderEmail,
 	setAuthenticated,
 	refreshAuthentication,
