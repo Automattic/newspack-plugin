@@ -26,6 +26,7 @@ final class Reader_Data {
 
 		/* Update reader data items on event dispatches */
 		add_action( 'newspack_data_event_dispatch_newsletter_subscribed', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
+		add_action( 'newspack_data_event_dispatch_newsletter_updated', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_new', [ __CLASS__, 'set_is_donor' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_subscription_new', [ __CLASS__, 'set_is_donor' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_subscription_cancelled', [ __CLASS__, 'set_is_former_donor' ], 10, 2 );
