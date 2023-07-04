@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/Automattic/newspack-plugin/compare/v2.1.0...v2.1.1) (2023-07-04)
+
+
+### Bug Fixes
+
+* preserve newsletters lists order on reg block ([4586fc8](https://github.com/Automattic/newspack-plugin/commit/4586fc810bf9a2f0a791bce1259e18be55540935))
+
 # [2.1.0](https://github.com/Automattic/newspack-plugin/compare/v2.0.3...v2.1.0) (2023-07-03)
 
 
