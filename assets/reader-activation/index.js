@@ -1,9 +1,11 @@
-/* globals newspack_ras_config */
+/* globals newspack_ras_config, newspack_reader_data */
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
+
+import './article-view.js';
 
 /**
  * Reader Activation Library.
@@ -39,6 +41,28 @@ export function getActivities( action ) {
 		return activities;
 	}
 	return activities.filter( activity => activity.action === action );
+}
+
+/**
+ * Get all unique activities from a given action by a given iteratee.
+ *
+ * @param {string}          action   Action name.
+ * @param {string|Function} iteratee Iteratee or a data key.
+ *
+ * @return {Array} Unique activities.
+ */
+export function getUniqueActivitiesBy( action, iteratee ) {
+	const activities = getActivities( action );
+	const unique = [];
+	const seen = {};
+	for ( const activity of activities ) {
+		const value = typeof iteratee === 'function' ? iteratee( activity ) : activity.data[ iteratee ];
+		if ( ! seen[ value ] ) {
+			unique.push( activity );
+			seen[ value ] = true;
+		}
+	}
+	return unique;
 }
 
 /**
@@ -237,6 +261,14 @@ function fixClientID() {
 }
 
 /**
+ * Push activities coming from the server.
+ */
+function pushActivities() {
+	const activity = newspack_reader_data?.reader_activity || [];
+	activity.forEach( ( { action, data } ) => dispatchActivity( action, data ) );
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -253,6 +285,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	fixClientID();
+	pushActivities();
 }
 
 init();
@@ -263,6 +296,7 @@ const readerActivation = {
 	off,
 	dispatchActivity,
 	getActivities,
+	getUniqueActivitiesBy,
 	setReaderEmail,
 	setAuthenticated,
 	refreshAuthentication,
