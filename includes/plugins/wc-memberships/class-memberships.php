@@ -317,6 +317,9 @@ class Memberships {
 		}
 		$gate = \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );
 
+		// Add clearfix to the gate.
+		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
+
 		// Apply inline fade.
 		if ( \get_post_meta( $gate_post_id, 'inline_fade', true ) ) {
 			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
@@ -391,7 +394,7 @@ class Memberships {
 				$content[ count( $content ) - 1 ] .= ' [&hellip;]';
 			}
 			// Rejoin the paragraphs into a single string again.
-			$content = wp_kses_post( implode( '</p>', $content ) . '</p>' );
+			$content = \force_balance_tags( \wp_kses_post( implode( '</p>', $content ) . '</p>' ) );
 		}
 		return $content;
 	}
