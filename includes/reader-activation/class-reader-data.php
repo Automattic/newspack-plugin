@@ -229,5 +229,6 @@ final class Reader_Data {
 		self::delete_item( \get_current_user_id(), $key );
 		return new \WP_REST_Response( [ 'success' => true ] );
 	}
+
 }
 Reader_Data::init();
