@@ -420,12 +420,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 												redirect = '';
 											}
 											const otpHash = readerActivation.getOTPHash();
-											if ( otpHash ) {
+											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
 												setFormAction( 'otp' );
-												form.endLoginFlow( message, 400, data, redirect );
-											} else {
-												form.endLoginFlow( message, res.status, data, redirect );
 											}
+											form.endLoginFlow( message, res.status, data, redirect );
 										} )
 										.catch( () => {
 											form.endLoginFlow();

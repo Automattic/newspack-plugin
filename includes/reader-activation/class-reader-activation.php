@@ -1407,7 +1407,9 @@ final class Reader_Activation {
 				}
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
-					return self::send_auth_form_response( $payload, __( 'An account was already registered with this email.', 'newspack' ), $redirect );
+					return self::send_auth_form_response(
+						new \WP_Error( 'unauthorized', __( 'An account was already registered with this email.', 'newspack' ) )
+					);
 				}
 				if ( \is_wp_error( $user_id ) ) {
 					return self::send_auth_form_response(
