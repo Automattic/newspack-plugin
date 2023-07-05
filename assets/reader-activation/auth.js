@@ -401,26 +401,26 @@ window.newspackRAS.push( function ( readerActivation ) {
 								body,
 							} )
 								.then( res => {
-									const otpHash = readerActivation.getOTPHash();
-									if ( 'link' === action && otpHash ) {
-										form.endLoginFlow( null, 0 );
-										setFormAction( 'otp' );
-									} else {
-										container.setAttribute( 'data-form-status', res.status );
-										res
-											.json()
-											.then( ( { message, data } ) => {
+									container.setAttribute( 'data-form-status', res.status );
+									res
+										.json()
+										.then( ( { message, data } ) => {
+											const otpHash = readerActivation.getOTPHash();
+											if ( otpHash ) {
+												setFormAction( 'otp' );
+												form.endLoginFlow( message, 400, data );
+											} else {
 												let redirect = body.get( 'redirect' );
 												/** Redirect every registration to the account page for verification if not coming from a hash link */
 												if ( action === 'register' && ! currentHash ) {
 													redirect = newspack_ras_config.account_url;
 												}
 												form.endLoginFlow( message, res.status, data, redirect );
-											} )
-											.catch( () => {
-												form.endLoginFlow();
-											} );
-									}
+											}
+										} )
+										.catch( () => {
+											form.endLoginFlow();
+										} );
 								} )
 								.catch( () => {
 									form.endLoginFlow();
