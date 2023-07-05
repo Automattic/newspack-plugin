@@ -300,6 +300,23 @@ class Memberships {
 	}
 
 	/**
+	 * Whether the current user is a member of the given plan.
+	 *
+	 * @param int $plan_id Plan ID.
+	 *
+	 * @return bool
+	 */
+	private static function current_user_has_plan( $plan_id ) {
+		if ( ! \is_user_logged_in() ) {
+			return false;
+		}
+		if ( ! function_exists( 'wc_memberships_is_user_active_or_delayed_member' ) ) {
+			return false;
+		}
+		return \wc_memberships_is_user_active_or_delayed_member( \get_current_user_id(), $plan_id );
+	}
+
+	/**
 	 * Get the plans that are currently restricting the given post.
 	 *
 	 * @param int $post_id Post ID.
@@ -313,9 +330,9 @@ class Memberships {
 		}
 		$plans = [];
 		foreach ( $rules as $rule ) {
-			$plan = $rule->get_membership_plan_id();
-			if ( ! empty( $plan ) ) {
-				$plans[] = $plan;
+			$plan_id = $rule->get_membership_plan_id();
+			if ( ! empty( $plan_id ) && ! self::current_user_has_plan( $plan_id ) ) {
+				$plans[] = $plan_id;
 			}
 		}
 		return $plans;
