@@ -29,11 +29,8 @@ final class Reader_Data {
 	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
+		add_action( 'wp', [ __CLASS__, 'setup_reader_activity' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
-
-		/* Hook frontend reader data */
-		add_action( 'wp_head', [ __CLASS__, 'setup_reader_activity' ] );
-		add_action( 'wp_footer', [ __CLASS__, 'push_reader_activity' ], 100 );
 	}
 
 	/**
@@ -51,7 +48,8 @@ final class Reader_Data {
 		);
 
 		$config = [
-			'store_prefix' => $store_prefix,
+			'store_prefix'    => $store_prefix,
+			'reader_activity' => self::$reader_activity,
 		];
 
 		if ( \is_user_logged_in() ) {
@@ -284,27 +282,6 @@ final class Reader_Data {
 		foreach ( self::$reader_activity as $i => $activity ) {
 			self::$reader_activity[ $i ] = array_values( $activity );
 		}
-	}
-
-	/**
-	 * Push reader activity to the client.
-	 */
-	public static function push_reader_activity() {
-		if ( empty( self::$reader_activity ) ) {
-			return;
-		}
-		?>
-		<script>
-			( function() {
-				var activity = <?php echo wp_json_encode( self::$reader_activity ); ?>;
-				if ( ! activity || ! activity.length ) {
-					return;
-				}
-				window.newspackRAS = window.newspackRAS || [];
-				activity.forEach( item => window.newspackRAS.push(item) );
-			})();
-		</script>
-		<?php
 	}
 }
 Reader_Data::init();

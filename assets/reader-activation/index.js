@@ -1,4 +1,4 @@
-/* globals newspack_ras_config */
+/* globals newspack_ras_config, newspack_reader_data */
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
@@ -261,6 +261,14 @@ function fixClientID() {
 }
 
 /**
+ * Push activities coming from the server.
+ */
+function pushActivities() {
+	const activity = newspack_reader_data?.reader_activity || [];
+	activity.forEach( ( { action, data } ) => dispatchActivity( action, data ) );
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -277,6 +285,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	fixClientID();
+	pushActivities();
 }
 
 init();
