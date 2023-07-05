@@ -5,6 +5,8 @@ import Store from './store.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 
+import './article-view.js';
+
 /**
  * Reader Activation Library.
  */
