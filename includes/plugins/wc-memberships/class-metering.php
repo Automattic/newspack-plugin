@@ -288,7 +288,7 @@ class Metering {
 	 *
 	 * @return array
 	 */
-	public static function get_article_view( $activity )  {
+	public static function get_article_view( $activity ) {
 		self::$article_view = $activity;
 		return $activity;
 	}
