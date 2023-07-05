@@ -23,7 +23,8 @@ final class Reader_Data {
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
-		add_action( 'wp_head', [ __CLASS__, 'set_referrer' ] );
+
+		add_action( 'wp_footer', [ __CLASS__, 'set_referrer' ], 100 );
 	}
 
 	/**
