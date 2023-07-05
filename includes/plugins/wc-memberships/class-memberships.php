@@ -266,6 +266,9 @@ class Memberships {
 	 * @return string[] Plan names keyed by plan ID.
 	 */
 	private static function get_gate_plans( $gate_id ) {
+		if ( ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
+			return [];
+		}
 		$ids = get_post_meta( $gate_id, 'plans', true );
 		if ( empty( $ids ) || ! is_array( $ids ) ) {
 			return [];
@@ -286,6 +289,9 @@ class Memberships {
 	 * @return array
 	 */
 	private static function get_plans() {
+		if ( ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
+			return [];
+		}
 		$membership_plans = wc_memberships_get_membership_plans();
 		$plans            = [];
 		foreach ( $membership_plans as $plan ) {
@@ -324,6 +330,9 @@ class Memberships {
 	 * @return int[] Array of plan IDs.
 	 */
 	public static function get_restricted_post_plans( $post_id ) {
+		if ( ! class_exists( 'WC_Memberships' ) ) {
+			return [];
+		}
 		$rules = wc_memberships()->get_rules_instance()->get_post_content_restriction_rules( $post_id );
 		if ( ! $rules || empty( $rules ) ) {
 			return [];
