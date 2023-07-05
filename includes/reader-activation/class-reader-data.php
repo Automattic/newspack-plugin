@@ -34,7 +34,6 @@ final class Reader_Data {
 		/* Hook frontend reader data */
 		add_action( 'wp_head', [ __CLASS__, 'setup_reader_activity' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'push_reader_activity' ], 100 );
-		add_action( 'wp_footer', [ __CLASS__, 'set_referrer' ], 100 );
 
 		/* Update reader data items on event dispatches */
 		add_action( 'newspack_data_event_dispatch_newsletter_subscribed', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
@@ -315,23 +314,6 @@ final class Reader_Data {
 				window.newspackRAS = window.newspackRAS || [];
 				activity.forEach( item => window.newspackRAS.push(item) );
 			})();
-		</script>
-		<?php
-	}
-
-	/**
-	 * Set the referrer if it's not the same as the current domain.
-	 */
-	public static function set_referrer() {
-		?>
-		<script>
-			window.newspackRAS = window.newspackRAS || [];
-			window.newspackRAS.push( function( ras ) {
-				var referrer = document.referrer ? new URL( document.referrer ).hostname : '';
-				if ( referrer && referrer !== window.location.hostname ) {
-					ras.store.set( 'referrer', referrer.replace( 'www.', '' ).trim().toLowerCase() );
-				}
-			} );
 		</script>
 		<?php
 	}
