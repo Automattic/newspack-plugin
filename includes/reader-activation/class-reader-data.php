@@ -31,6 +31,12 @@ final class Reader_Data {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		add_action( 'wp', [ __CLASS__, 'setup_reader_activity' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'config_script' ] );
+
+		/* Update reader data items on event dispatches */
+		add_action( 'newspack_data_event_dispatch_newsletter_subscribed', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
+		add_action( 'newspack_data_event_dispatch_newsletter_updated', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
+		add_action( 'newspack_data_event_dispatch_donation_new', [ __CLASS__, 'set_is_donor' ], 10, 2 );
+		add_action( 'newspack_data_event_dispatch_donation_subscription_cancelled', [ __CLASS__, 'set_is_former_donor' ], 10, 2 );
 	}
 
 	/**
@@ -158,6 +164,10 @@ final class Reader_Data {
 			$user_keys = [];
 		}
 
+		if ( ! is_string( $value ) ) {
+			$value = wp_json_encode( $value );
+		}
+
 		/**
 		 * Filter the maximum number of items per user.
 		 *
@@ -237,6 +247,38 @@ final class Reader_Data {
 		}
 		self::delete_item( \get_current_user_id(), $key );
 		return new \WP_REST_Response( [ 'success' => true ] );
+	}
+
+	/**
+	 * Set the user as a newsletter subscriber.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
+	 */
+	public static function set_is_newsletter_subscriber( $timestamp, $data ) {
+		self::update_item( $data['user_id'] ?? \get_current_user_id(), 'is_newsletter_subscriber', true );
+	}
+
+	/**
+	 * Set the user as a donor.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
+	 */
+	public static function set_is_donor( $timestamp, $data ) {
+		self::update_item( $data['user_id'], 'is_donor', true );
+		self::update_item( $data['user_id'], 'is_former_donor', false );
+	}
+
+	/**
+	 * Set the user as a former donor.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
+	 */
+	public static function set_is_former_donor( $timestamp, $data ) {
+		self::update_item( $data['user_id'], 'is_donor', false );
+		self::update_item( $data['user_id'], 'is_former_donor', true );
 	}
 
 	/**
