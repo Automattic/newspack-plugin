@@ -261,6 +261,16 @@ function fixClientID() {
 }
 
 /**
+ * Store the referrer.
+ */
+function setReferrer() {
+	const referrer = document.referrer ? new URL( document.referrer ).hostname : '';
+	if ( referrer && referrer !== window.location.hostname ) {
+		store.set( 'referrer', referrer.replace( 'www.', '' ).trim().toLowerCase() );
+	}
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -277,6 +287,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	fixClientID();
+	setReferrer();
 }
 
 init();
