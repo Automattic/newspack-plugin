@@ -427,7 +427,7 @@ class Memberships {
 			}
 			$gate_post_id = \wp_insert_post(
 				[
-					'post_title'   => __( 'Memberships Gate', 'newspack' ),
+					'post_title'   => $post_title,
 					'post_type'    => self::GATE_CPT,
 					'post_status'  => 'draft',
 					'post_content' => '<!-- wp:paragraph --><p>' . __( 'This post is only available to members.', 'newspack' ) . '</p><!-- /wp:paragraph -->',
