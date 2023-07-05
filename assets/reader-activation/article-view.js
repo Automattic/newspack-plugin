@@ -24,7 +24,7 @@ window.newspackRAS.push( ras => {
 		if ( ! per_week[ week ] ) {
 			per_week[ week ] = {};
 		}
-		per_week[ week ][ data.permalink ] = true;
+		per_week[ week ][ data.post_id ] = true;
 		ras.store.set( 'article_view_per_week', per_week );
 
 		// Per month.
@@ -35,7 +35,7 @@ window.newspackRAS.push( ras => {
 		if ( ! per_month[ month ] ) {
 			per_month[ month ] = {};
 		}
-		per_month[ month ][ data.permalink ] = true;
+		per_month[ month ][ data.post_id ] = true;
 		ras.store.set( 'article_view_per_month', per_month );
 	} );
 } );
