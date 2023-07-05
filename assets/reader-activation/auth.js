@@ -384,7 +384,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 							readerActivation
 								.authenticateOTP( body.get( 'otp_code' ) )
 								.then( data => {
-									form.endLoginFlow( data.message, 200, data, body.get( 'redirect' ) );
+									form.endLoginFlow(
+										data.message,
+										200,
+										data,
+										currentHash ? '' : body.get( 'redirect' )
+									);
 								} )
 								.catch( data => {
 									if ( data.expired ) {
@@ -405,16 +410,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 									res
 										.json()
 										.then( ( { message, data } ) => {
+											let redirect = body.get( 'redirect' );
+											/** Redirect every registration to the account page for verification if not coming from a hash link */
+											if ( action === 'register' ) {
+												redirect = newspack_ras_config.account_url;
+											}
+											// Never redirect from hash links.
+											if ( currentHash ) {
+												redirect = '';
+											}
 											const otpHash = readerActivation.getOTPHash();
 											if ( otpHash ) {
 												setFormAction( 'otp' );
-												form.endLoginFlow( message, 400, data );
+												form.endLoginFlow( message, 400, data, redirect );
 											} else {
-												let redirect = body.get( 'redirect' );
-												/** Redirect every registration to the account page for verification if not coming from a hash link */
-												if ( action === 'register' && ! currentHash ) {
-													redirect = newspack_ras_config.account_url;
-												}
 												form.endLoginFlow( message, res.status, data, redirect );
 											}
 										} )
