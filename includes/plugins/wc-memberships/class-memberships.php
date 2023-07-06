@@ -241,7 +241,7 @@ class Memberships {
 	 *
 	 * @return int|false Gate post ID or false if not found.
 	 */
-	public static function get_plan_gate_id( $plan_id ) {
+	private static function get_plan_gate_id( $plan_id ) {
 		$gates = get_posts(
 			[
 				'post_type'      => self::GATE_CPT,
@@ -329,7 +329,7 @@ class Memberships {
 	 *
 	 * @return int[] Array of plan IDs.
 	 */
-	public static function get_restricted_post_plans( $post_id ) {
+	private static function get_restricted_post_plans( $post_id ) {
 		if ( ! class_exists( 'WC_Memberships' ) ) {
 			return [];
 		}
