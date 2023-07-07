@@ -1,3 +1,20 @@
+# [2.2.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.1.1...v2.2.0-alpha.1) (2023-07-07)
+
+
+### Bug Fixes
+
+* **content-gate:** close excerpt tags before inline gate ([#2529](https://github.com/Automattic/newspack-plugin/issues/2529)) ([f5c8b15](https://github.com/Automattic/newspack-plugin/commit/f5c8b154f66ede8b906542e6c3027d5e5416a534))
+* don’t assume the site URL is at the root domain ([#2521](https://github.com/Automattic/newspack-plugin/issues/2521)) ([8250b26](https://github.com/Automattic/newspack-plugin/commit/8250b267edf96ce0b5e275513477afe54e999f33))
+* remove reCaptcha for WC plugin ([#2513](https://github.com/Automattic/newspack-plugin/issues/2513)) ([827ef0b](https://github.com/Automattic/newspack-plugin/commit/827ef0b59b6d43956a0a9cae50f4e6602eb73578))
+
+
+### Features
+
+* add 'article_view' reader activity data ([#2520](https://github.com/Automattic/newspack-plugin/issues/2520)) ([0b2617a](https://github.com/Automattic/newspack-plugin/commit/0b2617a14ada11fb2ea3b33e2a839ebe80d2c52a))
+* **data-events:** broader coverage for 'reader_registered' ([#2526](https://github.com/Automattic/newspack-plugin/issues/2526)) ([9bf9c49](https://github.com/Automattic/newspack-plugin/commit/9bf9c4936f1cd5b0febc8aa664363304cd12c2f7))
+* **reader-data:** add newsletter subscription and donation ([#2539](https://github.com/Automattic/newspack-plugin/issues/2539)) ([00f4880](https://github.com/Automattic/newspack-plugin/commit/00f4880da82f7ab144420e6379a0898729f6dd3c))
+* **reader-data:** set referrer ([#2541](https://github.com/Automattic/newspack-plugin/issues/2541)) ([cb2993a](https://github.com/Automattic/newspack-plugin/commit/cb2993a075884757bd4c5fecea21feaf6f1fd122))
+
 ## [2.1.1](https://github.com/Automattic/newspack-plugin/compare/v2.1.0...v2.1.1) (2023-07-04)
 
 
