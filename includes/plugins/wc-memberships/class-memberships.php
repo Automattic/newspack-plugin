@@ -43,6 +43,17 @@ class Memberships {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
+		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
+		add_filter( 'newspack_gate_content', 'do_blocks', 9 );
+		add_filter( 'newspack_gate_content', 'wptexturize' );
+		add_filter( 'newspack_gate_content', 'convert_smilies', 20 );
+		add_filter( 'newspack_gate_content', 'wpautop' );
+		add_filter( 'newspack_gate_content', 'shortcode_unautop' );
+		add_filter( 'newspack_gate_content', 'prepend_attachment' );
+		add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
+		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
+		add_filter( 'newspack_gate_content', 'do_shortcode', 11 );
+
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
 	}
@@ -316,7 +327,7 @@ class Memberships {
 		if ( 'inline' !== $style ) {
 			return '';
 		}
-		$gate = \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );
+		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, null, $gate_post_id ), $gate_post_id );
 
 		// Add clearfix to the gate.
 		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
@@ -430,7 +441,7 @@ class Memberships {
 		<div class="newspack-memberships__gate newspack-memberships__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
 			<div class="newspack-memberships__overlay-gate__container">
 				<div class="newspack-memberships__overlay-gate__content">
-					<?php echo \apply_filters( 'the_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo \apply_filters( 'newspack_gate_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			</div>
 		</div>
