@@ -60,7 +60,7 @@ $patron_features = [
 				<?php endforeach; ?>
 			</ul>
 			<!-- /wp:list -->
-			<!-- wp:newspack-blocks/checkout-button {"text":"Become a Member","align":"wide","className":"is-style-outline","style":{"color":{"text":"#cc1818"}}} /-->
+			<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_attr_e( 'Become a Member', 'newspack' ); ?>","align":"wide","className":"is-style-outline"} /-->
 		</div>
 		<!-- /wp:column -->
 
