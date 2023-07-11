@@ -10,7 +10,7 @@
 <hr class="wp-block-separator has-alpha-channel-opacity is-style-dots"/>
 <!-- /wp:separator -->
 
-<!-- wp:group { "style":{ "spacing":{ "padding":{ "top":"var:preset|spacing|70","right":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"var:preset|spacing|70" } } },"className":"is-style-border newspack-content-gate","layout":{ "type":"constrained" } } -->
+<!-- wp:group { "style":{ "spacing":{ "padding":{ "top":"var:preset|spacing|70","right":"var:preset|spacing|70","bottom":"var:preset|spacing|70","left":"var:preset|spacing|70" } } },"className":"is-style-border newspack-content-gate","layout":{ "type":"constrained" } } --><?php // phpcs:ignore WordPressVIPMinimum.Security.Mustache.OutputNotation ?>
 <div class="wp-block-group is-style-border newspack-content-gate" style="padding-top:var(--wp--preset--spacing--70);padding-right:var(--wp--preset--spacing--70);padding-bottom:var(--wp--preset--spacing--70);padding-left:var(--wp--preset--spacing--70)">
 
 	<!-- wp:paragraph {"align":"center","fontSize":"normal"} -->
