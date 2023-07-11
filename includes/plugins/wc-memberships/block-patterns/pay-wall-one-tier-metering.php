@@ -19,7 +19,7 @@
 	</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:columns { "style":{"spacing":{"padding":{"top":"var:preset|spacing|60","right":"var:preset|spacing|60","bottom":"var:preset|spacing|60","left":"var:preset|spacing|60"}}},"backgroundColor":"light-gray","className":"is-style-borders" } -->
+	<!-- wp:columns { "style":{ "spacing":{ "padding":{ "top":"var:preset|spacing|60","right":"var:preset|spacing|60","bottom":"var:preset|spacing|60","left":"var:preset|spacing|60" } } },"backgroundColor":"light-gray","className":"is-style-borders" } -->
 	<div class="wp-block-columns is-style-borders has-light-gray-background-color has-background" style="padding-top:var(--wp--preset--spacing--60);padding-right:var(--wp--preset--spacing--60);padding-bottom:var(--wp--preset--spacing--60);padding-left:var(--wp--preset--spacing--60)">
 		<!-- wp:column -->
 		<div class="wp-block-column">
