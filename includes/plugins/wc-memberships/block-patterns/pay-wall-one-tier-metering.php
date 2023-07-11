@@ -51,17 +51,18 @@
 			</p>
 			<!-- /wp:paragraph -->
 
-			<!-- wp:newspack-blocks/checkout-button {"text":"Subscribe for $5/month!","align":"wide","style":{"color":{"background":"#cc1818"}}} /-->
+			<!-- wp:newspack-blocks/checkout-button { "text":"<?php esc_attr_e( 'Subscribe for $5/month!', 'newspack' ); ?>","align":"wide","style":{"color":{"background":"#cc1818"}} } /-->
 		</div>
 		<!-- /wp:column -->
 	</div>
 	<!-- /wp:columns -->
 
-	<!-- wp:paragraph {"align":"center","style":{"typography":{"fontSize":"13px"}},"className":"newspack-sign-in"} -->
+	<!-- wp:paragraph { "align":"center","style":{"typography":{"fontSize":"13px"}},"className":"newspack-sign-in" } -->
 	<p class="has-text-align-center newspack-sign-in" style="font-size:13px">
 		<?php esc_html_e( 'Already have an account?', 'newspack' ); ?>
 		<a href="#signin_modal"><?php esc_html_e( 'Sign In', 'newspack' ); ?></a>.
 	</p>
 	<!-- /wp:paragraph -->
+
 </div>
 <!-- /wp:group -->
