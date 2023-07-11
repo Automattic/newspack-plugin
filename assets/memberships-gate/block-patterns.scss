@@ -90,4 +90,13 @@
 			padding-right: 1em;
 		}
 	}
+
+	/**
+	 * Columns block tweaks.
+	 */
+	 @media only screen and ( max-width: 781px ) {
+		.wp-block-column:empty {
+			display: none;
+		}
+	}
 }
