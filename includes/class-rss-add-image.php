@@ -76,7 +76,7 @@ class RSS_Add_Image {
 
 		add_settings_field(
 			self::OPTION_RSS_IMAGE_HEIGHT,
-			__( '', 'newspack' ),
+			'', // Empty to avoid a duplicate label.
 			[ __CLASS__, 'render_rss_image_height' ],
 			'media',
 			'rss_image_sizes'
