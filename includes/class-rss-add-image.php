@@ -117,7 +117,7 @@ class RSS_Add_Image {
 	public static function render_rss_image_width() {
 		$saved_width = self::get_rss_image_width();
 		?>
-		<fieldset>
+		<fieldset style="margin-bottom: -40px;">
 			<label for="<?php echo esc_attr( self::OPTION_RSS_IMAGE_WIDTH ); ?>">
 				<?php esc_html_e( 'Max Width', 'newspack' ); ?>
 			</label>
