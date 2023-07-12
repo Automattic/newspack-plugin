@@ -1,3 +1,10 @@
+# [2.2.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.2.0-alpha.1...v2.2.0-alpha.2) (2023-07-12)
+
+
+### Bug Fixes
+
+* **auth:** render otp when registering with existing account ([#2542](https://github.com/Automattic/newspack-plugin/issues/2542)) ([55e7b0a](https://github.com/Automattic/newspack-plugin/commit/55e7b0a10484391c1286d7339033735cbd0c01b3))
+
 ## [2.1.2](https://github.com/Automattic/newspack-plugin/compare/v2.1.1...v2.1.2) (2023-07-12)
 
 
