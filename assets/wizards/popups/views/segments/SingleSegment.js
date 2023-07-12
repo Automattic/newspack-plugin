@@ -141,10 +141,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						data-testid="subscriber-select"
 						onChange={ update }
 						value={ value }
-						options={ criteria.options.map( option => ( {
-							value: option.value,
-							label: option.name,
-						} ) ) }
+						options={ criteria.options }
 					/>
 				);
 			}
