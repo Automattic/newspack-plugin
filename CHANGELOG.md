@@ -1,3 +1,12 @@
+# [2.2.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.2.0-alpha.2...v2.2.0-alpha.3) (2023-07-13)
+
+
+### Bug Fixes
+
+* disable autofill for recaptcha inputs ([#2517](https://github.com/Automattic/newspack-plugin/issues/2517)) ([c8c07a6](https://github.com/Automattic/newspack-plugin/commit/c8c07a638a75b8dd3f0df8e0bf9c89d28157315f))
+* **reader-data:** format of activity push array ([#2555](https://github.com/Automattic/newspack-plugin/issues/2555)) ([67a33a9](https://github.com/Automattic/newspack-plugin/commit/67a33a94efcc08799b42d53493b3981c65edb101))
+* tweak content gate styles for mobile ([#2552](https://github.com/Automattic/newspack-plugin/issues/2552)) ([ad02d79](https://github.com/Automattic/newspack-plugin/commit/ad02d791f8fde0f96b9d344937b370eb0411fceb))
+
 # [2.2.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.2.0-alpha.1...v2.2.0-alpha.2) (2023-07-12)
 
 
