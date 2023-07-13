@@ -1,3 +1,48 @@
+## [2.1.2](https://github.com/Automattic/newspack-plugin/compare/v2.1.1...v2.1.2) (2023-07-12)
+
+
+### Bug Fixes
+
+* **auth:** render otp when registering with existing account ([#2542](https://github.com/Automattic/newspack-plugin/issues/2542)) ([55e7b0a](https://github.com/Automattic/newspack-plugin/commit/55e7b0a10484391c1286d7339033735cbd0c01b3))
+
+## [2.1.1](https://github.com/Automattic/newspack-plugin/compare/v2.1.0...v2.1.1) (2023-07-04)
+
+
+### Bug Fixes
+
+* preserve newsletters lists order on reg block ([4586fc8](https://github.com/Automattic/newspack-plugin/commit/4586fc810bf9a2f0a791bce1259e18be55540935))
+
+# [2.1.0](https://github.com/Automattic/newspack-plugin/compare/v2.0.3...v2.1.0) (2023-07-03)
+
+
+### Bug Fixes
+
+* allow campaign prompts to render on metered content ([#2516](https://github.com/Automattic/newspack-plugin/issues/2516)) ([bba79ef](https://github.com/Automattic/newspack-plugin/commit/bba79ef89723b1cebf7bc09ba63cdcb68ae1bfbd))
+* allow high-res youtube thumbs via constant ([#2507](https://github.com/Automattic/newspack-plugin/issues/2507)) ([235757b](https://github.com/Automattic/newspack-plugin/commit/235757b8b021870610669b267dd700f13c3232f1))
+* **donations:** empty cart on donation checkout ([#2505](https://github.com/Automattic/newspack-plugin/issues/2505)) ([35d9a91](https://github.com/Automattic/newspack-plugin/commit/35d9a917d267c085833ac7f940f2fa451de998d0))
+
+
+### Features
+
+* do not override data on popup events ([#2506](https://github.com/Automattic/newspack-plugin/issues/2506)) ([051769b](https://github.com/Automattic/newspack-plugin/commit/051769bea935977ce2f482210aac170fe3b6e5c8))
+* move RSS image to plugin and increase size ([#2504](https://github.com/Automattic/newspack-plugin/issues/2504)) ([3dab16f](https://github.com/Automattic/newspack-plugin/commit/3dab16f02070749a2d08813f408105832966f483))
+* **plugin-installer:** handle premium plugins in PluginInstaller ([#2482](https://github.com/Automattic/newspack-plugin/issues/2482)) ([b35aeeb](https://github.com/Automattic/newspack-plugin/commit/b35aeebf4970f20ae41b6497364e0e4794dfd686))
+* reader data library ([#2451](https://github.com/Automattic/newspack-plugin/issues/2451)) ([2ad5f06](https://github.com/Automattic/newspack-plugin/commit/2ad5f06c3f87e9b3c7bd17fed5092364fbf38bdb))
+
+## [2.0.3](https://github.com/Automattic/newspack-plugin/compare/v2.0.2...v2.0.3) (2023-06-29)
+
+
+### Bug Fixes
+
+* **auth:** stop redirect registration from hash link ([#2528](https://github.com/Automattic/newspack-plugin/issues/2528)) ([d462341](https://github.com/Automattic/newspack-plugin/commit/d46234175b065f8f1e4df643aa8ae1ad2df0b6e2))
+
+## [2.0.2](https://github.com/Automattic/newspack-plugin/compare/v2.0.1...v2.0.2) (2023-06-26)
+
+
+### Bug Fixes
+
+* update required fields for editing My Account details ([#2519](https://github.com/Automattic/newspack-plugin/issues/2519)) ([becc207](https://github.com/Automattic/newspack-plugin/commit/becc2076336561faa1efab9a4707d3f5a1f82162))
+
 ## [2.0.1](https://github.com/Automattic/newspack-plugin/compare/v2.0.0...v2.0.1) (2023-06-20)
 
 

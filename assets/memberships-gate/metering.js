@@ -50,6 +50,11 @@ function lockContent() {
 	if ( ! content ) {
 		return;
 	}
+	// Remove campaign prompts.
+	const prompts = document.querySelectorAll( '.newspack-popup' );
+	prompts.forEach( prompt => {
+		prompt.parentNode.removeChild( prompt );
+	} );
 	const visibleParagraphs = settings.visible_paragraphs;
 	const articleElements = document.querySelectorAll( '.entry-content > *' );
 	const moreIndex = content.innerHTML.indexOf( '<!--more-->' );
@@ -72,8 +77,8 @@ function lockContent() {
 	}
 }
 
-function meter( store ) {
-	const data = getUserData( store );
+function meter( ras ) {
+	const data = getUserData( ras.store );
 	let locked = false;
 	// Lock content if reached limit, remove gate content if not.
 	if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
@@ -85,12 +90,18 @@ function meter( store ) {
 			gate.parentNode.removeChild( gate );
 		} );
 	}
-	// Add current content to read content.
-	if ( ! locked && ! data.content.includes( settings.post_id ) ) {
-		data.content.push( settings.post_id );
-		store.set( 'metering', data );
+	if ( ! locked ) {
+		// Push article_view activity.
+		if ( settings.article_view ) {
+			ras.dispatchActivity( settings.article_view.action, settings.article_view.data );
+		}
+		// Add current content to read content.
+		if ( ! data.content.includes( settings.post_id ) ) {
+			data.content.push( settings.post_id );
+			ras.store.set( 'metering', data );
+		}
 	}
 }
 
 window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.push( ras => meter( ras.store ) );
+window.newspackRAS.push( ras => meter( ras ) );
