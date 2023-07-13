@@ -65,7 +65,7 @@ describe( 'A new segment creation', () => {
 	};
 
 	beforeEach( () => {
-		window.newspack_popups_wizard_data.criteria = criteria;
+		window.newspack_popups_wizard_data = { criteria };
 		render(
 			<MemoryRouter>
 				<SingleSegment { ...mockProps } />
@@ -113,6 +113,9 @@ describe( 'A new segment creation', () => {
 			...SEGMENTS,
 			{
 				name: 'Big time readers that subscribed and came from Google or Twitter',
+				configuration: {
+					is_disabled: false,
+				},
 				criteria: [
 					{
 						criteria_id: 'articles_read',

@@ -1,4 +1,3 @@
-/* globals newspack_popups_wizard_data */
 /**
  * WordPress dependencies.
  */
@@ -24,13 +23,13 @@ import {
 const { useHistory } = Router;
 const { SettingsCard, SettingsSection, MinMaxSetting } = Settings;
 
-const allCriteria = newspack_popups_wizard_data.criteria;
-
 const DEFAULT_CONFIG = {
 	is_disabled: false,
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
+	const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
+
 	const [ segmentConfig, updateSegmentConfig ] = hooks.useObjectState( DEFAULT_CONFIG );
 	const [ name, setName ] = useState( '' );
 	const [ segmentCriteria, setSegmentCriteria ] = useState( [] );
