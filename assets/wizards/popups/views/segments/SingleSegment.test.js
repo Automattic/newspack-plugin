@@ -4,23 +4,43 @@ import { MemoryRouter } from 'react-router-dom';
 
 import SingleSegment from './SingleSegment';
 
+// Sample criteria for input testing.
+const criteria = [
+	{
+		id: 'articles_read',
+		category: 'reader_engagement',
+		matching_function: 'range',
+		name: 'Articles read',
+		description: 'Number of articles read in the last 30 day period.',
+	},
+	{
+		id: 'newsletter',
+		category: 'reader_activity',
+		matching_function: 'default',
+		name: 'Newsletter',
+		options: [
+			{ label: 'Subscribers and non-subscribers', value: '' },
+			{ label: 'Subscribers', value: 'subscribers' },
+			{ label: 'Non-subscribers', value: 'non-subscribers' },
+		],
+		matching_attribute: 'newsletter',
+	},
+	{
+		id: 'sources_to_match',
+		category: 'referrer_sources',
+		matching_function: 'list__in',
+		name: 'Sources to match',
+		description: 'Segment based on traffic source',
+		help: 'A comma-separated list of domains.',
+		placeholder: 'google.com, facebook.com',
+		matching_attribute: 'referrer',
+	},
+];
+
 const SEGMENTS = [
 	{
 		name: 'Subscribers',
 		configuration: {
-			min_posts: 0,
-			max_posts: 0,
-			min_session_posts: 0,
-			max_session_posts: 0,
-			is_subscribed: true,
-			is_not_subscribed: false,
-			is_donor: false,
-			is_not_donor: false,
-			is_former_donor: false,
-			is_logged_in: false,
-			is_not_logged_in: false,
-			favorite_categories: [],
-			referrers: '',
 			is_disabled: false,
 		},
 		id: '5fa056b4b94bc',
@@ -45,6 +65,7 @@ describe( 'A new segment creation', () => {
 	};
 
 	beforeEach( () => {
+		window.newspack_popups_wizard_data.criteria = criteria;
 		render(
 			<MemoryRouter>
 				<SingleSegment { ...mockProps } />
@@ -57,22 +78,33 @@ describe( 'A new segment creation', () => {
 		expect( screen.getByText( 'Save' ) ).toBeDisabled();
 	} );
 
-	it( 'shows the reach notice.', () => {
-		const noticeText = 'This segment would reach approximately 100% of recorded visitors.';
-
-		// Reach notice shows 100% with no options selected.
-		expect( screen.queryByText( noticeText ) ).toBeInTheDocument();
+	it( 'renders inputs for each criteria', () => {
+		expect( screen.getByTestId( 'newspack-criteria-articles_read' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'newspack-criteria-newsletter' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'newspack-criteria-sources_to_match' ) ).toBeInTheDocument();
 	} );
 
 	it( 'creates a new segment', async () => {
 		fireEvent.change( screen.getByPlaceholderText( 'Untitled Segment' ), {
-			target: { value: 'Big time readers' },
+			target: { value: 'Big time readers that subscribed and came from Google or Twitter' },
 		} );
 		expect( screen.getByText( 'Save' ) ).toBeDisabled();
 
 		// Save button is disabled until at least one option has been updated.
-		fireEvent.change( screen.getByPlaceholderText( 'Min posts' ), { target: { value: '42' } } );
+		fireEvent.change(
+			screen
+				.getByTestId( 'newspack-criteria-articles_read' )
+				.querySelector( 'input[data-testid="min"]' ),
+			{ target: { value: '42' } }
+		);
 		expect( screen.getByText( 'Save' ) ).not.toBeDisabled();
+
+		fireEvent.change( screen.getByTestId( 'newspack-criteria-newsletter' ), {
+			target: { value: 'subscribers' },
+		} );
+		fireEvent.change( screen.getByTestId( 'newspack-criteria-sources_to_match' ), {
+			target: { value: 'google.com,twitter.com' },
+		} );
 
 		fireEvent.click( screen.getByText( 'Save' ) );
 
@@ -80,24 +112,21 @@ describe( 'A new segment creation', () => {
 		expect( mockProps.setSegments ).toHaveBeenCalledWith( [
 			...SEGMENTS,
 			{
-				configuration: {
-					favorite_categories: [],
-					is_disabled: false,
-					is_donor: false,
-					is_not_donor: false,
-					is_former_donor: false,
-					is_not_subscribed: false,
-					is_subscribed: false,
-					is_logged_in: false,
-					is_not_logged_in: false,
-					max_posts: 0,
-					max_session_posts: 0,
-					min_posts: '42',
-					min_session_posts: 0,
-					referrers: '',
-					referrers_not: '',
-				},
-				name: 'Big time readers',
+				name: 'Big time readers that subscribed and came from Google or Twitter',
+				criteria: [
+					{
+						criteria_id: 'articles_read',
+						value: { min: '42' },
+					},
+					{
+						criteria_id: 'newsletter',
+						value: 'subscribers',
+					},
+					{
+						criteria_id: 'sources_to_match',
+						value: 'google.com,twitter.com',
+					},
+				],
 			},
 		] );
 	} );

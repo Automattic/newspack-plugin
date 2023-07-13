@@ -127,6 +127,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			if ( criteria.matching_function === 'range' ) {
 				return (
 					<MinMaxSetting
+						data-testid={ `newspack-criteria-${ criteria.id }` }
 						min={ value?.min }
 						max={ value?.max }
 						onChangeMin={ min => update( { min } ) }
@@ -137,8 +138,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			if ( criteria.options?.length ) {
 				return (
 					<SelectControl
+						data-testid={ `newspack-criteria-${ criteria.id }` }
 						isWide
-						data-testid="subscriber-select"
 						onChange={ update }
 						value={ value }
 						options={ criteria.options }
@@ -147,6 +148,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			}
 			return (
 				<TextControl
+					data-testid={ `newspack-criteria-${ criteria.id }` }
 					isWide
 					placeholder={ criteria.placeholder }
 					help={ criteria.help }
