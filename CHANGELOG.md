@@ -1,18 +1,9 @@
-# [2.2.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.2.0-alpha.2...v2.2.0-alpha.3) (2023-07-13)
+## [2.1.3](https://github.com/Automattic/newspack-plugin/compare/v2.1.2...v2.1.3) (2023-07-13)
 
 
 ### Bug Fixes
 
-* disable autofill for recaptcha inputs ([#2517](https://github.com/Automattic/newspack-plugin/issues/2517)) ([c8c07a6](https://github.com/Automattic/newspack-plugin/commit/c8c07a638a75b8dd3f0df8e0bf9c89d28157315f))
-* **reader-data:** format of activity push array ([#2555](https://github.com/Automattic/newspack-plugin/issues/2555)) ([67a33a9](https://github.com/Automattic/newspack-plugin/commit/67a33a94efcc08799b42d53493b3981c65edb101))
-* tweak content gate styles for mobile ([#2552](https://github.com/Automattic/newspack-plugin/issues/2552)) ([ad02d79](https://github.com/Automattic/newspack-plugin/commit/ad02d791f8fde0f96b9d344937b370eb0411fceb))
-
-# [2.2.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.2.0-alpha.1...v2.2.0-alpha.2) (2023-07-12)
-
-
-### Bug Fixes
-
-* **auth:** render otp when registering with existing account ([#2542](https://github.com/Automattic/newspack-plugin/issues/2542)) ([55e7b0a](https://github.com/Automattic/newspack-plugin/commit/55e7b0a10484391c1286d7339033735cbd0c01b3))
+* **perfmatters:** add TEC CSS to excluded stylesheets ([#2554](https://github.com/Automattic/newspack-plugin/issues/2554)) ([8c9b5ed](https://github.com/Automattic/newspack-plugin/commit/8c9b5eddf40b266c35b1a81f90bdbb97cb261ae5))
 
 ## [2.1.2](https://github.com/Automattic/newspack-plugin/compare/v2.1.1...v2.1.2) (2023-07-12)
 
