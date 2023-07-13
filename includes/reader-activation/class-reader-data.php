@@ -321,9 +321,6 @@ final class Reader_Data {
 		 * @param array $reader_activity Reader activity.
 		 */
 		self::$reader_activity = apply_filters( 'newspack_reader_activity', self::$reader_activity );
-		foreach ( self::$reader_activity as $i => $activity ) {
-			self::$reader_activity[ $i ] = array_values( $activity );
-		}
 	}
 }
 Reader_Data::init();
