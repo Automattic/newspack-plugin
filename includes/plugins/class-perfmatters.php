@@ -87,6 +87,8 @@ class Perfmatters {
 			'plugins/jetpack/modules/sharedaddy', // Jetpack's share buttons.
 			'plugins/jetpack/_inc/social-logos', // Jetpack's social logos CSS.
 			'plugins/jetpack/css/jetpack.css', // Jetpack's main CSS.
+			'plugins/the-events-calendar', // The Events Calendar.
+			'plugins/events-calendar-pro', // The Events Calendar Pro.
 			'/themes/newspack-', // Any Newspack theme stylesheet.
 			'cache/perfmatters', //	Perfmatters' cache.
 			'wp-includes',

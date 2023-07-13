@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/Automattic/newspack-plugin/compare/v2.1.2...v2.1.3) (2023-07-13)
+
+
+### Bug Fixes
+
+* **perfmatters:** add TEC CSS to excluded stylesheets ([#2554](https://github.com/Automattic/newspack-plugin/issues/2554)) ([8c9b5ed](https://github.com/Automattic/newspack-plugin/commit/8c9b5eddf40b266c35b1a81f90bdbb97cb261ae5))
+
 ## [2.1.2](https://github.com/Automattic/newspack-plugin/compare/v2.1.1...v2.1.2) (2023-07-12)
 
 
