@@ -322,6 +322,17 @@ final class Recaptcha {
 		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
 		<script>
 			grecaptcha.ready( function() {
+				setInterval( function() {
+					grecaptcha.execute(
+						'<?php echo \esc_attr( $site_key ); ?>',
+						{ action: 'checkout' }
+					).then( function( token ) {
+						var field = document.querySelector('input[name="g-recaptcha-response"]');
+						if ( field ) {
+							field.value = token;
+						}
+					} );
+				}, 30000 );
 				grecaptcha.execute(
 					'<?php echo \esc_attr( $site_key ); ?>',
 					{ action: 'checkout' }
