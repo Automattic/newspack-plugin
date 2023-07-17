@@ -2,6 +2,7 @@ import {
 	store,
 	dispatchActivity,
 	getActivities,
+	getUniqueActivitiesBy,
 	setReaderEmail,
 	setAuthenticated,
 	getReader,
@@ -49,6 +50,43 @@ describe( 'newspackReaderActivation', () => {
 		};
 		dispatchActivity( activity.action, activity.data );
 		expect( typeof getActivities( 'test-timestamp' )[ 0 ].timestamp ).toBe( 'number' );
+	} );
+	it( 'should get unique activities by key', () => {
+		const activity1 = {
+			action: 'test-unique',
+			data: {
+				foo: 'bar',
+				test: 'test',
+			},
+		};
+		const activity2 = {
+			action: 'test-unique',
+			data: {
+				test: 'test',
+			},
+		};
+		dispatchActivity( activity1.action, activity1.data );
+		dispatchActivity( activity2.action, activity2.data );
+		expect( getUniqueActivitiesBy( 'test-unique', 'test' ).length ).toEqual( 1 );
+	} );
+	it( 'should get unique activities by iteratee', () => {
+		const activity1 = {
+			action: 'test-unique-iteratee',
+			data: {
+				test: 'test',
+			},
+		};
+		const activity2 = {
+			action: 'test-unique-iteratee',
+			data: {
+				test: 'test',
+			},
+		};
+		dispatchActivity( activity1.action, activity1.data );
+		dispatchActivity( activity2.action, activity2.data );
+		expect(
+			getUniqueActivitiesBy( 'test-unique-iteratee', activity => activity.data.test ).length
+		).toEqual( 1 );
 	} );
 	it( 'should store reader email', () => {
 		const email = 'test@example.com';
