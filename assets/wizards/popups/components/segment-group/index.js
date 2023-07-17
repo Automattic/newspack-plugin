@@ -17,7 +17,7 @@ import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
 	descriptionForPopup,
-	descriptionForSegment,
+	segmentDescription,
 	getCardClassName,
 	getFavoriteCategoryNames,
 	warningForPopup,
@@ -95,7 +95,7 @@ const SegmentGroup = props => {
 					</h3>
 					<span className="newspack-campaigns__segment-group__description">
 						{ id
-							? descriptionForSegment( segment, categories )
+							? segmentDescription( segment, categories )
 							: __( 'All readers, regardless of segment', 'newspack' ) }
 					</span>
 				</div>

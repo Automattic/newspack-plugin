@@ -11,7 +11,7 @@ import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpre
  * Internal dependencies.
  */
 import { ActionCard, Button, Card, Notice, Popover, Router } from '../../../../components/src';
-import { descriptionForSegment, getFavoriteCategoryNames } from '../../utils';
+import { segmentDescription, getFavoriteCategoryNames } from '../../utils';
 
 const { NavLink, useHistory } = Router;
 
@@ -182,7 +182,7 @@ const SegmentActionCard = ( {
 						isSmall
 						title={ segment.name }
 						titleLink={ `#/segments/${ segment.id }` }
-						description={ descriptionForSegment( segment, categories ) }
+						description={ segmentDescription( segment, categories ) }
 						toggleChecked={ ! segment.configuration.is_disabled }
 						toggleOnChange={ () => toggleSegmentStatus( segment ) }
 						actionText={

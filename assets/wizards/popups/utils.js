@@ -12,6 +12,8 @@ import { applyFilters } from '@wordpress/hooks';
 import { memoize } from 'lodash';
 import { format, parse } from 'date-fns';
 
+const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
+
 /**
  * Check whether the given popup is an overlay.
  *
@@ -168,101 +170,44 @@ const getFavoriteCategoryNamesFn = async favoriteCategories => {
 };
 export const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
 
-export const descriptionForSegment = ( segment, categories = [] ) => {
-	const { configuration } = segment;
-	const {
-		favorite_categories = [],
-		is_donor = false,
-		is_not_donor = false,
-		is_former_donor = false,
-		is_not_subscribed = false,
-		is_subscribed = false,
-		is_logged_in = false,
-		is_not_logged_in = false,
-		max_posts = 0,
-		max_session_posts = 0,
-		min_posts = 0,
-		min_session_posts = 0,
-		referrers = '',
-		referrers_not = '',
-		is_disabled = false,
-	} = configuration;
+export const segmentDescription = segment => {
 	const descriptionMessages = [];
 
 	// If the segment is disabled.
-	if ( is_disabled ) {
+	if ( segment.configuration.is_disabled ) {
 		descriptionMessages.push( __( 'Segment disabled', 'newspack' ) );
 	}
 
-	// Messages for reader engagement.
-	if ( 0 < min_posts || 0 < max_posts ) {
-		descriptionMessages.push(
-			sprintf(
-				// Translators: %1: The minimum number of articles. %2: The maximum number of articles.
-				__( 'Articles read (past 30 days): %1$s %2$s', 'newspack' ),
-				0 < min_posts ? __( 'min ', 'newspack' ) + min_posts : '',
-				0 < max_posts ? __( 'max ', 'newspack' ) + max_posts : ''
-			)
-		);
-	}
-	if ( 0 < min_session_posts || 0 < max_session_posts ) {
-		descriptionMessages.push(
-			sprintf(
-				// Translators: %1: The minimum number of articles. %2: The maximum number of articles.
-				__( 'Articles read (session): %1$s %2$s', 'newspack' ),
-				0 < min_session_posts ? __( 'min ', 'newspack' ) + min_session_posts : '',
-				0 < max_session_posts ? __( 'max ', 'newspack' ) + max_session_posts : ''
-			)
-		);
-	}
-
-	// Messages for reader activity.
-	if ( is_donor ) {
-		descriptionMessages.push( __( 'Has donated', 'newspack' ) );
-	}
-	if ( is_not_donor ) {
-		descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
-	}
-	if ( is_former_donor ) {
-		descriptionMessages.push( __( 'Has cancelled a recurring donation', 'newspack' ) );
-	}
-	if ( is_subscribed ) {
-		descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
-	}
-	if ( is_not_subscribed ) {
-		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
-	}
-	if ( is_logged_in ) {
-		descriptionMessages.push( __( 'Has user account', 'newspack' ) );
-	}
-	if ( is_not_logged_in ) {
-		descriptionMessages.push( __( 'Does not have user account', 'newspack' ) );
-	}
-
-	// Messages for referrer sources.
-	if ( referrers ) {
-		descriptionMessages.push( __( 'Referrers (matching): ' ) + referrers );
-	}
-	if ( referrers_not ) {
-		descriptionMessages.push( __( 'Referrers (excluding): ' ) + referrers_not );
-	}
-
-	// Messages for category affinity.
-	if ( 0 < favorite_categories.length ) {
-		if ( 0 < categories.length ) {
-			descriptionMessages.push(
-				sprintf(
-					// Translators: %1: 'categories' or 'category' depending on number of categories. %2: a list of favorite categories.
-					__( 'Favorite %1$s: %2$s', 'newspack' ),
-					categories.length > 1 ? __( 'categories', 'newspack' ) : __( 'category', 'newspack' ),
-					categories.filter( cat => !! cat ).join( ', ' )
-				)
-			);
-		} else {
-			descriptionMessages.push( __( 'Has favorite categories', 'newspack' ) );
+	if ( segment.criteria ) {
+		for ( const config of allCriteria ) {
+			const item = segment.criteria.find( ( { criteria_id } ) => criteria_id === config.id );
+			if ( item?.value ) {
+				let value = item.value;
+				if ( config.options ) {
+					const option = config.options.find(
+						( { value: optionValue } ) => optionValue === item.value
+					);
+					if ( option ) {
+						value = option.label;
+					}
+				}
+				if ( item.value.min || item.value.max ) {
+					value = sprintf( '%1$s - %2$s', value.min, value.max );
+				}
+				if ( Array.isArray( value ) ) {
+					value = value.join( ', ' );
+				}
+				const message = applyFilters(
+					'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+					sprintf( '%1$s: %2$s', config.name, value ),
+					value,
+					config,
+					item
+				);
+				descriptionMessages.push( message );
+			}
 		}
 	}
-
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
