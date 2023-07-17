@@ -1,3 +1,23 @@
+# [2.2.0](https://github.com/Automattic/newspack-plugin/compare/v2.1.3...v2.2.0) (2023-07-17)
+
+
+### Bug Fixes
+
+* **content-gate:** close excerpt tags before inline gate ([#2529](https://github.com/Automattic/newspack-plugin/issues/2529)) ([f5c8b15](https://github.com/Automattic/newspack-plugin/commit/f5c8b154f66ede8b906542e6c3027d5e5416a534))
+* disable autofill for recaptcha inputs ([#2517](https://github.com/Automattic/newspack-plugin/issues/2517)) ([c8c07a6](https://github.com/Automattic/newspack-plugin/commit/c8c07a638a75b8dd3f0df8e0bf9c89d28157315f))
+* don’t assume the site URL is at the root domain ([#2521](https://github.com/Automattic/newspack-plugin/issues/2521)) ([8250b26](https://github.com/Automattic/newspack-plugin/commit/8250b267edf96ce0b5e275513477afe54e999f33))
+* **reader-data:** format of activity push array ([#2555](https://github.com/Automattic/newspack-plugin/issues/2555)) ([67a33a9](https://github.com/Automattic/newspack-plugin/commit/67a33a94efcc08799b42d53493b3981c65edb101))
+* remove reCaptcha for WC plugin ([#2513](https://github.com/Automattic/newspack-plugin/issues/2513)) ([827ef0b](https://github.com/Automattic/newspack-plugin/commit/827ef0b59b6d43956a0a9cae50f4e6602eb73578))
+* tweak content gate styles for mobile ([#2552](https://github.com/Automattic/newspack-plugin/issues/2552)) ([ad02d79](https://github.com/Automattic/newspack-plugin/commit/ad02d791f8fde0f96b9d344937b370eb0411fceb))
+
+
+### Features
+
+* add 'article_view' reader activity data ([#2520](https://github.com/Automattic/newspack-plugin/issues/2520)) ([0b2617a](https://github.com/Automattic/newspack-plugin/commit/0b2617a14ada11fb2ea3b33e2a839ebe80d2c52a))
+* **data-events:** broader coverage for 'reader_registered' ([#2526](https://github.com/Automattic/newspack-plugin/issues/2526)) ([9bf9c49](https://github.com/Automattic/newspack-plugin/commit/9bf9c4936f1cd5b0febc8aa664363304cd12c2f7))
+* **reader-data:** add newsletter subscription and donation ([#2539](https://github.com/Automattic/newspack-plugin/issues/2539)) ([00f4880](https://github.com/Automattic/newspack-plugin/commit/00f4880da82f7ab144420e6379a0898729f6dd3c))
+* **reader-data:** set referrer ([#2541](https://github.com/Automattic/newspack-plugin/issues/2541)) ([cb2993a](https://github.com/Automattic/newspack-plugin/commit/cb2993a075884757bd4c5fecea21feaf6f1fd122))
+
 # [2.2.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v2.2.0-alpha.3...v2.2.0-alpha.4) (2023-07-13)
 
 
