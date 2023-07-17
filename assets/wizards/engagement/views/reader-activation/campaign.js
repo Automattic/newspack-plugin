@@ -1,3 +1,5 @@
+/* global newspack_engagement_wizard */
+
 /**
  * WordPress dependencies
  */
@@ -23,6 +25,7 @@ export default withWizardScreen( () => {
 	const [ error, setError ] = useState( false );
 	const [ prompts, setPrompts ] = useState( null );
 	const [ allReady, setAllReady ] = useState( false );
+	const { reader_activation_url } = newspack_engagement_wizard;
 
 	const fetchPrompts = () => {
 		setError( false );
@@ -83,11 +86,11 @@ export default withWizardScreen( () => {
 				<Button
 					isPrimary
 					disabled={ inFlight || ! allReady }
-					href="/wp-admin/admin.php?page=newspack-engagement-wizard#/reader-activation/complete"
+					href={ `${ reader_activation_url }/complete` }
 				>
 					{ __( 'Continue', 'newspack' ) }
 				</Button>
-				<Button isSecondary disabled={ inFlight } href="#/reader-activation">
+				<Button isSecondary disabled={ inFlight } href={ reader_activation_url }>
 					{ __( 'Back', 'newspack' ) }
 				</Button>
 			</div>

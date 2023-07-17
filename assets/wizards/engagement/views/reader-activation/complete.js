@@ -1,3 +1,5 @@
+/* global newspack_engagement_wizard */
+
 /**
  * WordPress dependencies
  */
@@ -16,14 +18,8 @@ import {
 	Card,
 	Notice,
 	ProgressBar,
-	Router,
 	StepsList,
 } from '../../../../components/src';
-
-/**
- * External dependencies
- */
-const { useHistory } = Router;
 
 const listItems = [
 	__(
@@ -64,7 +60,7 @@ export default withWizardScreen( () => {
 	const [ progressLabel, setProgressLabel ] = useState( false );
 	const [ completed, setCompleted ] = useState( false );
 	const timer = useRef();
-	const history = useHistory();
+	const { reader_activation_url } = newspack_engagement_wizard;
 
 	useEffect( () => {
 		if ( timer.current ) {
@@ -84,7 +80,7 @@ export default withWizardScreen( () => {
 			setProgressLabel( __( 'Done!', 'newspack' ) );
 			setTimeout( () => {
 				setInFlight( false );
-				history.push( '/reader-activation' );
+				window.location = reader_activation_url;
 			}, 3000 );
 		}
 	}, [ completed, progress ] );
@@ -158,11 +154,7 @@ export default withWizardScreen( () => {
 				</Card>
 			) }
 			<div className="newspack-buttons-card">
-				<Button
-					isSecondary
-					disabled={ inFlight }
-					href="/wp-admin/admin.php?page=newspack-engagement-wizard#/reader-activation/campaign"
-				>
+				<Button isSecondary disabled={ inFlight } href={ `${ reader_activation_url }/campaign` }>
 					{ __( 'Back', 'newspack' ) }
 				</Button>
 			</div>
