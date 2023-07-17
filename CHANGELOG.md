@@ -1,3 +1,10 @@
+## [2.2.1](https://github.com/Automattic/newspack-plugin/compare/v2.2.0...v2.2.1) (2023-07-17)
+
+
+### Bug Fixes
+
+* **recaptcha:** prevent token timeout on WC ([#2562](https://github.com/Automattic/newspack-plugin/issues/2562)) ([64611fd](https://github.com/Automattic/newspack-plugin/commit/64611fd2c05cf743873c00c6627ff5c0594acf35))
+
 # [2.2.0](https://github.com/Automattic/newspack-plugin/compare/v2.1.3...v2.2.0) (2023-07-17)
 
 
