@@ -33,6 +33,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const [ segmentConfig, updateSegmentConfig ] = hooks.useObjectState( DEFAULT_CONFIG );
 	const [ name, setName ] = useState( '' );
 	const [ segmentCriteria, setSegmentCriteria ] = useState( [] );
+	const [ segmentCriteriaInitially, setSegmentCriteriaInitially ] = useState( [] );
 	const [ nameInitially, setNameInitially ] = useState( '' );
 	const history = useHistory();
 
@@ -46,7 +47,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		return name.length > 0 && segmentCriteria.length; // Segment has a name. // Segment has criteria.
 	};
 
-	const isDirty = segmentInitially !== JSON.stringify( segmentCriteria ) || nameInitially !== name;
+	const isDirty =
+		JSON.stringify( segmentCriteriaInitially ) !== JSON.stringify( segmentCriteria ) ||
+		nameInitially !== name ||
+		JSON.stringify( segmentInitially.is_disabled ) !== JSON.stringify( segmentConfig.is_disabled );
 
 	const unblock = hooks.usePrompt(
 		isDirty,
@@ -66,10 +70,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						...foundSegment.configuration,
 					};
 					updateSegmentConfig( segmentConfigurationWithDefaults );
-					setSegmentInitially( JSON.stringify( foundSegment.criteria ) );
+					setSegmentInitially( segmentConfigurationWithDefaults );
 					setName( foundSegment.name );
 					setNameInitially( foundSegment.name );
 					setSegmentCriteria( [ ...foundSegment.criteria ] );
+					setSegmentCriteriaInitially( [ ...foundSegment.criteria ] );
 				}
 			} );
 		}
