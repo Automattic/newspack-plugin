@@ -37,5 +37,11 @@ export function setCookie( name, value, expirationDays = 365 ) {
  * @return {string} Random ID.
  */
 export function generateID( length = 9 ) {
-	return Math.random().toString( 36 ).substr( 2, length );
+	let randomString = '';
+	const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+	for ( let i = 0; i < length; i++ ) {
+		const randomIndex = Math.floor( Math.random() * chars.length );
+		randomString += chars.charAt( randomIndex );
+	}
+	return randomString;
 }
