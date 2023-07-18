@@ -269,6 +269,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 					...segment.configuration,
 					is_disabled: ! segment.configuration.is_disabled,
 				},
+				criteria: segment.criteria,
 			},
 		} )
 			.then( _segments => {
