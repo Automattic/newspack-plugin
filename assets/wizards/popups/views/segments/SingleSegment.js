@@ -102,7 +102,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const getCriteriaValue = id => {
 		const item = segmentCriteria.find( c => c.criteria_id === id );
 		if ( ! item ) {
-			return null;
+			return '';
 		}
 		return item.value;
 	};
@@ -132,8 +132,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				return (
 					<MinMaxSetting
 						data-testid={ `newspack-criteria-${ criteria.id }` }
-						min={ value?.min || '' }
-						max={ value?.max || '' }
+						min={ value?.min }
+						max={ value?.max }
 						onChangeMin={ min => update( { min } ) }
 						onChangeMax={ max => update( { max } ) }
 					/>
@@ -145,7 +145,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 						data-testid={ `newspack-criteria-${ criteria.id }` }
 						isWide
 						onChange={ update }
-						value={ value || '' }
+						value={ value }
 						options={ criteria.options }
 					/>
 				);
@@ -156,7 +156,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					isWide
 					placeholder={ criteria.placeholder }
 					help={ criteria.help }
-					value={ value || '' }
+					value={ value }
 					onChange={ update }
 				/>
 			);
