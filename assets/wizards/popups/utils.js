@@ -191,11 +191,16 @@ export const segmentDescription = segment => {
 						value = option.label;
 					}
 				}
-				if ( item.value.min || item.value.max ) {
-					value = sprintf( '%1$s - %2$s', value.min, value.max );
-				}
 				if ( Array.isArray( value ) ) {
 					value = value.join( ', ' );
+				} else if ( typeof value === 'object' ) {
+					const values = [];
+					for ( const key in value ) {
+						if ( value[ key ] ) {
+							values.push( `${ key }: ${ value[ key ] }` );
+						}
+					}
+					value = values.join( ', ' );
 				}
 				const message = applyFilters(
 					'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
