@@ -84,10 +84,11 @@ const filterByCampaign = ( prompts, campaignId ) => {
 const groupBySegment = ( segments, prompts ) => {
 	const grouped = [];
 	grouped.push(
-		...segments.map( ( { name: label, id, configuration } ) => ( {
+		...segments.map( ( { name: label, id, configuration, criteria } ) => ( {
 			label,
 			id,
 			configuration,
+			criteria,
 			prompts: prompts.filter( ( { options: { selected_segment_id: _segments } } ) => {
 				return _segments ? -1 < _segments.split( ',' ).indexOf( id ) : false;
 			} ),
