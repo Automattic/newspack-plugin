@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { header, layout } from '@wordpress/icons';
 
 /**
@@ -19,7 +19,6 @@ import {
 	promptDescription,
 	segmentDescription,
 	getCardClassName,
-	getFavoriteCategoryNames,
 	warningForPopup,
 } from '../../utils';
 import {
@@ -50,19 +49,8 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState( false );
-	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const campaignToPreview = 'unassigned' !== campaignId ? parseInt( campaignId ) : -1;
-
-	useEffect( () => {
-		updateCategories();
-	}, [ segment ] );
-
-	const updateCategories = async () => {
-		if ( 0 < segment.configuration?.favorite_categories?.length ) {
-			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
-		}
-	};
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {
@@ -73,6 +61,8 @@ const SegmentGroup = props => {
 	} else {
 		emptySegmentText = __( 'No active prompts in this segment.', 'newspack' );
 	}
+
+	const description = segmentDescription( segment );
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
 			<div className="newspack-campaigns__segment-group__card__segment">
@@ -94,9 +84,7 @@ const SegmentGroup = props => {
 						) }
 					</h3>
 					<span className="newspack-campaigns__segment-group__description">
-						{ id
-							? segmentDescription( segment, categories )
-							: __( 'All readers, regardless of segment', 'newspack' ) }
+						{ id ? description() : __( 'All readers, regardless of segment', 'newspack' ) }
 					</span>
 				</div>
 				<div className="newspack-campaigns__segment-group__card__segment-actions">

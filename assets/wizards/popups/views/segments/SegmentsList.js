@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useRef, useState, Fragment } from '@wordpress/element';
+import { useRef, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Draggable, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
@@ -11,7 +11,7 @@ import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpre
  * Internal dependencies.
  */
 import { ActionCard, Button, Card, Notice, Popover, Router } from '../../../../components/src';
-import { segmentDescription, getFavoriteCategoryNames } from '../../utils';
+import { segmentDescription } from '../../utils';
 
 const { NavLink, useHistory } = Router;
 
@@ -35,18 +35,7 @@ const SegmentActionCard = ( {
 	toggleSegmentStatus,
 } ) => {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
-	const [ categories, setCategories ] = useState( [] );
 	const [ isDragging, setIsDragging ] = useState( false );
-
-	useEffect( () => {
-		updateCategories();
-	}, [ segment ] );
-
-	const updateCategories = async () => {
-		if ( 0 < segment.configuration?.favorite_categories?.length ) {
-			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
-		}
-	};
 
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
@@ -182,7 +171,7 @@ const SegmentActionCard = ( {
 						isSmall
 						title={ segment.name }
 						titleLink={ `#/segments/${ segment.id }` }
-						description={ segmentDescription( segment, categories ) }
+						description={ segmentDescription( segment ) }
 						toggleChecked={ ! segment.configuration.is_disabled }
 						toggleOnChange={ () => toggleSegmentStatus( segment ) }
 						actionText={

@@ -4,7 +4,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { applyFilters } from '@wordpress/hooks';
+import { applyFilters, addFilter } from '@wordpress/hooks';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 
 /**
  * External dependencies.
@@ -148,28 +149,6 @@ export const promptDescription = prompt => {
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
-const getFavoriteCategoryNamesFn = async favoriteCategories => {
-	try {
-		const favoriteCategoryNames = await Promise.all(
-			favoriteCategories.map( async categoryId => {
-				const category = await apiFetch( {
-					path: addQueryArgs( '/wp/v2/categories/' + categoryId, {
-						_fields: 'name',
-					} ),
-				} );
-
-				return category.name;
-			} )
-		);
-
-		return favoriteCategoryNames;
-	} catch ( e ) {
-		console.error( e );
-		return [];
-	}
-};
-export const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
-
 export const segmentDescription = segment => {
 	const descriptionMessages = [];
 
@@ -213,8 +192,64 @@ export const segmentDescription = segment => {
 			}
 		}
 	}
-	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+
+	const render = () => (
+		<Fragment>
+			{ descriptionMessages.map( ( item, index ) => (
+				<Fragment key={ index }>
+					{ item } { descriptionMessages.length !== index + 1 ? ' | ' : null }
+				</Fragment>
+			) ) }
+		</Fragment>
+	);
+	return render;
 };
+
+const getFavoriteCategoryNamesFn = async favoriteCategories => {
+	try {
+		const favoriteCategoryNames = await Promise.all(
+			favoriteCategories.map( async categoryId => {
+				const category = await apiFetch( {
+					path: addQueryArgs( '/wp/v2/categories/' + categoryId, {
+						_fields: 'name',
+					} ),
+				} );
+
+				return category.name;
+			} )
+		);
+
+		return favoriteCategoryNames;
+	} catch ( e ) {
+		console.error( e );
+		return [];
+	}
+};
+const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
+
+const FavoriteCategoriesNames = ( { ids } ) => {
+	const [ favoriteCategoryNames, setFavoriteCategoryNames ] = useState( [] );
+	useEffect( () => {
+		getFavoriteCategoryNames( ids ).then( setFavoriteCategoryNames );
+	}, [ ids ] );
+	return (
+		<span>
+			{ __( 'Favorite Categories:', 'newspack' ) }{ ' ' }
+			{ favoriteCategoryNames.length ? favoriteCategoryNames.join( ', ' ) : '' }
+		</span>
+	);
+};
+
+addFilter(
+	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+	'newspack.favoriteCategories',
+	( message, value, config, item ) => {
+		if ( 'favorite_categories' === config.id ) {
+			return <FavoriteCategoriesNames ids={ item.value } />;
+		}
+		return message;
+	}
+);
 
 export const isSameType = ( campaignA, campaignB ) => {
 	return campaignA.options.placement === campaignB.options.placement;
