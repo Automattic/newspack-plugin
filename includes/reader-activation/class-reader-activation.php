@@ -94,10 +94,6 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		if ( ! self::allow_reg_block_render() ) {
-			return;
-		}
-
 		$authenticated_email = '';
 		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
 			$authenticated_email = \wp_get_current_user()->user_email;
@@ -119,7 +115,7 @@ final class Reader_Activation {
 		/**
 		 * Reader Activation Frontend Library.
 		 */
-		\wp_register_script(
+		\wp_enqueue_script(
 			self::SCRIPT_HANDLE,
 			Newspack::plugin_url() . '/dist/reader-activation.js',
 			$script_dependencies,
@@ -128,7 +124,7 @@ final class Reader_Activation {
 		);
 		\wp_localize_script(
 			self::SCRIPT_HANDLE,
-			'newspack_reader_activation_data',
+			'newspack_ras_config',
 			$script_data
 		);
 		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
@@ -1018,6 +1014,19 @@ final class Reader_Activation {
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack' ); ?></h2>
 						</div>
+						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
+							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
+								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</span>
+							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
+								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</span>
+							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
+								<?php if ( ! empty( $message ) ) : ?>
+									<p><?php echo \esc_html( $message ); ?></p>
+								<?php endif; ?>
+							</div>
+						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack' ); ?>
 						</p>
@@ -1080,19 +1089,6 @@ final class Reader_Activation {
 						</div>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack' ); ?>" />
-						</div>
-						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
-								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
-								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
-								<?php if ( ! empty( $message ) ) : ?>
-									<p><?php echo \esc_html( $message ); ?></p>
-								<?php endif; ?>
-							</div>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<div class="components-form__submit">
@@ -1411,7 +1407,9 @@ final class Reader_Activation {
 				}
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
-					return self::send_auth_form_response( $payload, __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack' ), $redirect );
+					return self::send_auth_form_response(
+						new \WP_Error( 'unauthorized', __( 'An account was already registered with this email.', 'newspack' ) )
+					);
 				}
 				if ( \is_wp_error( $user_id ) ) {
 					return self::send_auth_form_response(
