@@ -1,3 +1,20 @@
+# [2.3.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.2.1...v2.3.0-alpha.1) (2023-07-20)
+
+
+### Bug Fixes
+
+* **content-gate:** use custom filter for gate content ([#2551](https://github.com/Automattic/newspack-plugin/issues/2551)) ([714cfec](https://github.com/Automattic/newspack-plugin/commit/714cfec4792db5699935eda9a8e3c5ea950014eb))
+* ensure generated id always have given length ([#2557](https://github.com/Automattic/newspack-plugin/issues/2557)) ([84c018b](https://github.com/Automattic/newspack-plugin/commit/84c018bb4c3f485209296a97e0f15bfc5290ef50))
+* **pwa:** improve "server offline" message ([#2550](https://github.com/Automattic/newspack-plugin/issues/2550)) ([dbe4519](https://github.com/Automattic/newspack-plugin/commit/dbe451944675282479464ffbc76586af9cef8ba8))
+
+
+### Features
+
+* add an image size control for the RSS images ([#2553](https://github.com/Automattic/newspack-plugin/issues/2553)) ([dbc8358](https://github.com/Automattic/newspack-plugin/commit/dbc83580551212b144b07d7d0a6c6301ddab746b))
+* **content-gate:** support gate per plan ([#2531](https://github.com/Automattic/newspack-plugin/issues/2531)) ([eaf5d50](https://github.com/Automattic/newspack-plugin/commit/eaf5d501514bd18914a7fc7c33837e7977954cde))
+* Remove GA Fivetran connection ([2100013](https://github.com/Automattic/newspack-plugin/commit/210001340db82964973a0947769e6702742011be))
+* trigger reader_registered for Woo checkout ([#2527](https://github.com/Automattic/newspack-plugin/issues/2527)) ([8e2f244](https://github.com/Automattic/newspack-plugin/commit/8e2f244c11bb1f577ad730001024b5f45a54595b))
+
 ## [2.2.1](https://github.com/Automattic/newspack-plugin/compare/v2.2.0...v2.2.1) (2023-07-17)
 
 
