@@ -426,7 +426,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 											}
 											let status = res.status;
 											/** If action is link, suppress message and status so the OTP handles it. */
-											if ( action === 'link' ) {
+											if ( status === 200 && action === 'link' ) {
 												status = null;
 												message = null;
 											}
