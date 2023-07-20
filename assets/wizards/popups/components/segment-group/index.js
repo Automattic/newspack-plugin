@@ -16,7 +16,7 @@ import { Button, ButtonCard, Card, Grid, Modal } from '../../../../components/sr
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
-	descriptionForPopup,
+	promptDescription,
 	segmentDescription,
 	getCardClassName,
 	getFavoriteCategoryNames,
@@ -190,7 +190,7 @@ const SegmentGroup = props => {
 				{ prompts.map( item => (
 					<PromptActionCard
 						className={ getCardClassName( item.status, segment.configuration.is_disabled ) }
-						description={ descriptionForPopup( item ) }
+						description={ promptDescription( item ) }
 						warning={ warningForPopup( prompts, item ) }
 						key={ item.id }
 						prompt={ item }

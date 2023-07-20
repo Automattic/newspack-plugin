@@ -117,7 +117,7 @@ export const getCardClassName = ( status, forceDisabled = false ) => {
 	return 'newspack-card__is-supported';
 };
 
-export const descriptionForPopup = prompt => {
+export const promptDescription = prompt => {
 	const { categories, tags, campaign_groups: campaigns, status } = prompt;
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {
