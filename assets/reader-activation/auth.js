@@ -424,7 +424,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
 												setFormAction( 'otp' );
 											}
-											form.endLoginFlow( message, res.status, data, redirect );
+											let status = res.status;
+											/** If action is link, suppress message and status so the OTP handles it. */
+											if ( action === 'link' ) {
+												status = null;
+												message = null;
+											}
+											form.endLoginFlow( message, status, data, redirect );
 										} )
 										.catch( () => {
 											form.endLoginFlow();
