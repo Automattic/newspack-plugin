@@ -1,3 +1,17 @@
+## [2.2.3](https://github.com/Automattic/newspack-plugin/compare/v2.2.2...v2.2.3) (2023-07-21)
+
+
+### Bug Fixes
+
+* **auth:** restore sign-in otp ui ([#2568](https://github.com/Automattic/newspack-plugin/issues/2568)) ([16c4b02](https://github.com/Automattic/newspack-plugin/commit/16c4b024fdedaa9aee7b2f9a5d4fa812a0184ae0))
+
+## [2.2.2](https://github.com/Automattic/newspack-plugin/compare/v2.2.1...v2.2.2) (2023-07-20)
+
+
+### Bug Fixes
+
+* perfmatters default settings updates ([#2509](https://github.com/Automattic/newspack-plugin/issues/2509)) ([c5a9e15](https://github.com/Automattic/newspack-plugin/commit/c5a9e15b54db27af599ebaa7294928f9a26cb594))
+
 ## [2.2.1](https://github.com/Automattic/newspack-plugin/compare/v2.2.0...v2.2.1) (2023-07-17)
 
 

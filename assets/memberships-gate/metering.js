@@ -2,6 +2,8 @@
 
 const settings = newspack_metering_settings;
 
+const storeKey = 'metering-' + settings.gate_id || 0;
+
 function getCurrentExpiration() {
 	const date = new Date();
 	// Reset time to 00:00:00:000.
@@ -28,7 +30,7 @@ function getCurrentExpiration() {
 
 function getUserData( store ) {
 	const currentExpiration = getCurrentExpiration();
-	const data = store.get( 'metering' ) || {
+	const data = store.get( storeKey ) || {
 		content: [],
 		expiration: currentExpiration,
 	};
@@ -41,7 +43,7 @@ function getUserData( store ) {
 		// Reset expiration.
 		data.expiration = currentExpiration;
 	}
-	store.set( 'metering', data );
+	store.set( storeKey, data );
 	return data;
 }
 
@@ -98,7 +100,7 @@ function meter( ras ) {
 		// Add current content to read content.
 		if ( ! data.content.includes( settings.post_id ) ) {
 			data.content.push( settings.post_id );
-			ras.store.set( 'metering', data );
+			ras.store.set( storeKey, data );
 		}
 	}
 }
