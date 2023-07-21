@@ -48,7 +48,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	};
 
 	const isDirty =
-		JSON.stringify( segmentCriteriaInitially ) !== JSON.stringify( segmentCriteria ) ||
+		segmentCriteriaInitially !== JSON.stringify( segmentCriteria ) ||
 		nameInitially !== name ||
 		JSON.stringify( segmentInitially.is_disabled ) !== JSON.stringify( segmentConfig.is_disabled );
 
@@ -74,7 +74,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					setName( foundSegment.name );
 					setNameInitially( foundSegment.name );
 					setSegmentCriteria( [ ...foundSegment.criteria ] );
-					setSegmentCriteriaInitially( [ ...foundSegment.criteria ] );
+					setSegmentCriteriaInitially( JSON.stringify( foundSegment.criteria ) );
 				}
 			} );
 		}
