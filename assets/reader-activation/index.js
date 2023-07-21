@@ -279,6 +279,24 @@ function setReferrer() {
 }
 
 /**
+ * Listen to cookie changes to detect authentication.
+ */
+function listenAuthCookie() {
+	// If the reader is already authenticated, bail.
+	if ( getCookie( 'np_auth_reader' ) ) {
+		return;
+	}
+	const interval = setInterval( () => {
+		const authCookie = getCookie( 'np_auth_reader' );
+		if ( authCookie ) {
+			setReaderEmail( authCookie );
+			setAuthenticated( true );
+			clearInterval( interval );
+		}
+	}, 1000 );
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -295,6 +313,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	fixClientID();
+	listenAuthCookie();
 	pushActivities();
 	setReferrer();
 }
