@@ -12,14 +12,14 @@ import { uniq } from 'lodash';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl } from '@wordpress/components';
+import { Spinner, Button, TextControl, CheckboxControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { settings, trash } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Grid, ActionCard, Modal } from '../../../../../components/src';
+import { Grid, Card, ActionCard, Modal } from '../../../../../components/src';
 
 const AdProductEditor = ( {
 	product,
@@ -210,6 +210,7 @@ export default function MarketplaceProducts( { adUnits } ) {
 	return (
 		<>
 			<h2>{ __( 'Ad Products', 'newspack' ) }</h2>
+			{ inFlight && ! products.length && <Spinner /> }
 			{ products.map( ( p, i ) => (
 				<ActionCard
 					key={ p.id }
@@ -237,9 +238,11 @@ export default function MarketplaceProducts( { adUnits } ) {
 					}
 				/>
 			) ) }
-			<Button isPrimary onClick={ () => setIsEditing( true ) }>
-				{ __( 'Create New Product', 'newspack' ) }
-			</Button>
+			<Card buttonsCard noBorder className="justify-end">
+				<Button isPrimary onClick={ () => setIsEditing( true ) }>
+					{ __( 'Create New Product', 'newspack' ) }
+				</Button>
+			</Card>
 			{ false !== isEditing && (
 				<Modal
 					title={
