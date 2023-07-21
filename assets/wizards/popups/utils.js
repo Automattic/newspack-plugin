@@ -4,13 +4,16 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { applyFilters } from '@wordpress/hooks';
+import { applyFilters, addFilter } from '@wordpress/hooks';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 
 /**
  * External dependencies.
  */
 import { memoize } from 'lodash';
 import { format, parse } from 'date-fns';
+
+const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
 
 /**
  * Check whether the given popup is an overlay.
@@ -115,7 +118,7 @@ export const getCardClassName = ( status, forceDisabled = false ) => {
 	return 'newspack-card__is-supported';
 };
 
-export const descriptionForPopup = prompt => {
+export const promptDescription = prompt => {
 	const { categories, tags, campaign_groups: campaigns, status } = prompt;
 	const descriptionMessages = [];
 	if ( campaigns.length > 0 ) {
@@ -146,6 +149,62 @@ export const descriptionForPopup = prompt => {
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
+export const segmentDescription = segment => {
+	const descriptionMessages = [];
+
+	// If the segment is disabled.
+	if ( segment.configuration.is_disabled ) {
+		descriptionMessages.push( __( 'Segment disabled', 'newspack' ) );
+	}
+
+	if ( segment.criteria ) {
+		for ( const config of allCriteria ) {
+			const item = segment.criteria.find( ( { criteria_id } ) => criteria_id === config.id );
+			if ( item?.value ) {
+				let value = item.value;
+				if ( config.options ) {
+					const option = config.options.find(
+						( { value: optionValue } ) => optionValue === item.value
+					);
+					if ( option ) {
+						value = option.label;
+					}
+				}
+				if ( Array.isArray( value ) ) {
+					value = value.join( ', ' );
+				} else if ( typeof value === 'object' ) {
+					const values = [];
+					for ( const key in value ) {
+						if ( value[ key ] ) {
+							values.push( `${ key }: ${ value[ key ] }` );
+						}
+					}
+					value = values.join( ', ' );
+				}
+				const message = applyFilters(
+					'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+					sprintf( '%1$s: %2$s', config.name, value ),
+					value,
+					config,
+					item
+				);
+				descriptionMessages.push( message );
+			}
+		}
+	}
+
+	const render = () => (
+		<Fragment>
+			{ descriptionMessages.map( ( item, index ) => (
+				<Fragment key={ index }>
+					{ item } { descriptionMessages.length !== index + 1 ? ' | ' : null }
+				</Fragment>
+			) ) }
+		</Fragment>
+	);
+	return render;
+};
+
 const getFavoriteCategoryNamesFn = async favoriteCategories => {
 	try {
 		const favoriteCategoryNames = await Promise.all(
@@ -166,105 +225,31 @@ const getFavoriteCategoryNamesFn = async favoriteCategories => {
 		return [];
 	}
 };
-export const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
+const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
 
-export const descriptionForSegment = ( segment, categories = [] ) => {
-	const { configuration } = segment;
-	const {
-		favorite_categories = [],
-		is_donor = false,
-		is_not_donor = false,
-		is_former_donor = false,
-		is_not_subscribed = false,
-		is_subscribed = false,
-		is_logged_in = false,
-		is_not_logged_in = false,
-		max_posts = 0,
-		max_session_posts = 0,
-		min_posts = 0,
-		min_session_posts = 0,
-		referrers = '',
-		referrers_not = '',
-		is_disabled = false,
-	} = configuration;
-	const descriptionMessages = [];
-
-	// If the segment is disabled.
-	if ( is_disabled ) {
-		descriptionMessages.push( __( 'Segment disabled', 'newspack' ) );
-	}
-
-	// Messages for reader engagement.
-	if ( 0 < min_posts || 0 < max_posts ) {
-		descriptionMessages.push(
-			sprintf(
-				// Translators: %1: The minimum number of articles. %2: The maximum number of articles.
-				__( 'Articles read (past 30 days): %1$s %2$s', 'newspack' ),
-				0 < min_posts ? __( 'min ', 'newspack' ) + min_posts : '',
-				0 < max_posts ? __( 'max ', 'newspack' ) + max_posts : ''
-			)
-		);
-	}
-	if ( 0 < min_session_posts || 0 < max_session_posts ) {
-		descriptionMessages.push(
-			sprintf(
-				// Translators: %1: The minimum number of articles. %2: The maximum number of articles.
-				__( 'Articles read (session): %1$s %2$s', 'newspack' ),
-				0 < min_session_posts ? __( 'min ', 'newspack' ) + min_session_posts : '',
-				0 < max_session_posts ? __( 'max ', 'newspack' ) + max_session_posts : ''
-			)
-		);
-	}
-
-	// Messages for reader activity.
-	if ( is_donor ) {
-		descriptionMessages.push( __( 'Has donated', 'newspack' ) );
-	}
-	if ( is_not_donor ) {
-		descriptionMessages.push( __( 'Has not donated', 'newspack' ) );
-	}
-	if ( is_former_donor ) {
-		descriptionMessages.push( __( 'Has cancelled a recurring donation', 'newspack' ) );
-	}
-	if ( is_subscribed ) {
-		descriptionMessages.push( __( 'Has subscribed', 'newspack' ) );
-	}
-	if ( is_not_subscribed ) {
-		descriptionMessages.push( __( 'Has not subscribed', 'newspack' ) );
-	}
-	if ( is_logged_in ) {
-		descriptionMessages.push( __( 'Has user account', 'newspack' ) );
-	}
-	if ( is_not_logged_in ) {
-		descriptionMessages.push( __( 'Does not have user account', 'newspack' ) );
-	}
-
-	// Messages for referrer sources.
-	if ( referrers ) {
-		descriptionMessages.push( __( 'Referrers (matching): ' ) + referrers );
-	}
-	if ( referrers_not ) {
-		descriptionMessages.push( __( 'Referrers (excluding): ' ) + referrers_not );
-	}
-
-	// Messages for category affinity.
-	if ( 0 < favorite_categories.length ) {
-		if ( 0 < categories.length ) {
-			descriptionMessages.push(
-				sprintf(
-					// Translators: %1: 'categories' or 'category' depending on number of categories. %2: a list of favorite categories.
-					__( 'Favorite %1$s: %2$s', 'newspack' ),
-					categories.length > 1 ? __( 'categories', 'newspack' ) : __( 'category', 'newspack' ),
-					categories.filter( cat => !! cat ).join( ', ' )
-				)
-			);
-		} else {
-			descriptionMessages.push( __( 'Has favorite categories', 'newspack' ) );
-		}
-	}
-
-	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
+const FavoriteCategoriesNames = ( { ids } ) => {
+	const [ favoriteCategoryNames, setFavoriteCategoryNames ] = useState( [] );
+	useEffect( () => {
+		getFavoriteCategoryNames( ids ).then( setFavoriteCategoryNames );
+	}, [ ids ] );
+	return (
+		<span>
+			{ __( 'Favorite Categories:', 'newspack' ) }{ ' ' }
+			{ favoriteCategoryNames.length ? favoriteCategoryNames.join( ', ' ) : '' }
+		</span>
+	);
 };
+
+addFilter(
+	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+	'newspack.favoriteCategories',
+	( message, value, config, item ) => {
+		if ( 'favorite_categories' === config.id ) {
+			return <FavoriteCategoriesNames ids={ item.value } />;
+		}
+		return message;
+	}
+);
 
 export const isSameType = ( campaignA, campaignB ) => {
 	return campaignA.options.placement === campaignB.options.placement;
