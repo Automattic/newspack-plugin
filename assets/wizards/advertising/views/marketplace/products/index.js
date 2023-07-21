@@ -131,7 +131,7 @@ export default function MarketplaceProducts( { adUnits } ) {
 	const fetchProducts = () => {
 		setInFlight( true );
 		apiFetch( {
-			path: `/newspack-ads/v1/products`,
+			path: `/newspack-ads/v1/marketplace/products`,
 		} )
 			.then( data => {
 				setProducts( data );
@@ -165,7 +165,7 @@ export default function MarketplaceProducts( { adUnits } ) {
 	};
 	const saveProduct = () => {
 		setInFlight( true );
-		let path = `/newspack-ads/v1/products`;
+		let path = `/newspack-ads/v1/marketplace/products`;
 		if ( product.id ) {
 			path += `/${ product.id }`;
 		}
@@ -196,7 +196,7 @@ export default function MarketplaceProducts( { adUnits } ) {
 		}
 		setInFlight( true );
 		apiFetch( {
-			path: `/newspack-ads/v1/products/${ id }`,
+			path: `/newspack-ads/v1/marketplace/products/${ id }`,
 			method: 'DELETE',
 		} )
 			.then( data => {
