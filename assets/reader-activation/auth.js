@@ -411,6 +411,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									res
 										.json()
 										.then( ( { message, data } ) => {
+											let status = res.status;
 											let redirect = body.get( 'redirect' );
 											/** Redirect every registration to the account page for verification if not coming from a hash link */
 											if ( action === 'register' ) {
@@ -423,8 +424,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 											const otpHash = readerActivation.getOTPHash();
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
 												setFormAction( 'otp' );
+												/** If action is link, suppress message and status so the OTP handles it. */
+												if ( status === 200 && action === 'link' ) {
+													status = null;
+													message = null;
+												}
 											}
-											form.endLoginFlow( message, res.status, data, redirect );
+											form.endLoginFlow( message, status, data, redirect );
 										} )
 										.catch( () => {
 											form.endLoginFlow();
