@@ -279,6 +279,30 @@ function setReferrer() {
 }
 
 /**
+ * Listen to cookie changes to detect authentication.
+ */
+function attachAuthCookiesListener() {
+	// If the reader is already authenticated, bail.
+	if ( getCookie( 'np_auth_reader' ) ) {
+		return;
+	}
+	const interval = setInterval( () => {
+		const reader = getReader();
+		const intentionCookie = getCookie( 'np_auth_intention' );
+		if ( intentionCookie && reader.email !== intentionCookie ) {
+			setReaderEmail( intentionCookie );
+		} else {
+			const authCookie = getCookie( 'np_auth_reader' );
+			if ( authCookie ) {
+				setReaderEmail( authCookie );
+				setAuthenticated( true );
+				clearInterval( interval );
+			}
+		}
+	}, 1000 );
+}
+
+/**
  * Initialize store data.
  */
 function init() {
@@ -295,6 +319,7 @@ function init() {
 	}
 	emit( EVENTS.reader, reader );
 	fixClientID();
+	attachAuthCookiesListener();
 	pushActivities();
 	setReferrer();
 }
