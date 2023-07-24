@@ -1,7 +1,9 @@
 /**
  * Internal dependencies
  */
-import { isFunction, isString, isObject } from 'lodash';
+import isFunction from 'lodash/isFunction';
+import isObject from 'lodash/isObject';
+import isString from 'lodash/isString';
 
 /**
  * Creates button props based on an action

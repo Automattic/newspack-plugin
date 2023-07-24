@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { intersection } from 'lodash';
+import intersection from 'lodash/intersection';
 
 /**
  * WordPress dependencies

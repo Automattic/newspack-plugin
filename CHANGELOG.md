@@ -1,9 +1,9 @@
-# [2.3.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.3.0-alpha.2...v2.3.0-alpha.3) (2023-07-21)
+## [2.2.4](https://github.com/Automattic/newspack-plugin/compare/v2.2.3...v2.2.4) (2023-07-24)
 
 
 ### Bug Fixes
 
-* **auth:** restore sign-in otp ui ([#2568](https://github.com/Automattic/newspack-plugin/issues/2568)) ([16c4b02](https://github.com/Automattic/newspack-plugin/commit/16c4b024fdedaa9aee7b2f9a5d4fa812a0184ae0))
+* **wp-6.3:** destructured lodash module import error ([#2578](https://github.com/Automattic/newspack-plugin/issues/2578)) ([18ccf54](https://github.com/Automattic/newspack-plugin/commit/18ccf540bef664cee9afeb832d0764145cd398b6))
 
 ## [2.2.3](https://github.com/Automattic/newspack-plugin/compare/v2.2.2...v2.2.3) (2023-07-21)
 

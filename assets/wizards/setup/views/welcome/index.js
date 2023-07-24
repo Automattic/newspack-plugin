@@ -1,7 +1,8 @@
 /**
  * External dependencies.
  */
-import { omit, times } from 'lodash';
+import omit from 'lodash/omit';
+import times from 'lodash/times';
 
 /**
  * WordPress dependencies

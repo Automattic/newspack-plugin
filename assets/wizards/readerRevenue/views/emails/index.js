@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
-import { values } from 'lodash';
+import values from 'lodash/values';
 
 /**
  * Internal dependencies
