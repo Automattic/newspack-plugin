@@ -15,7 +15,7 @@ import { ActionCard } from '../../../../components/src';
  * External dependencies
  */
 import classnames from 'classnames';
-import { get } from 'lodash';
+import get from 'lodash/get';
 
 const CONNECTORS = [
 	{
