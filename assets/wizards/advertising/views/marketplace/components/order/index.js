@@ -11,7 +11,7 @@ import moment from 'moment';
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { external, update } from '@wordpress/icons';
@@ -41,19 +41,15 @@ const OrderItemDescription = ( { orderItem } ) => {
 /**
  * Advertising Marketplace Products Screen.
  */
-export default function MarketplaceOrder( props ) {
-	const [ order, setOrder ] = useState( props.order );
+export default function MarketplaceOrder( { order, onUpdate } ) {
 	const [ inFlight, setInFlight ] = useState( false );
-	useEffect( () => {
-		setOrder( props.order );
-	}, [ props.order ] );
 	const refreshGAMStatus = orderId => {
 		setInFlight( true );
 		apiFetch( {
 			path: `/newspack-ads/v1/marketplace/orders/${ orderId }/refresh-gam-status`,
 			method: 'POST',
 		} )
-			.then( setOrder )
+			.then( data => onUpdate && onUpdate( data ) )
 			.finally( () => setInFlight( false ) );
 	};
 	const getOrderTitle = data => {

@@ -41,6 +41,9 @@ const Marketplace = ( { adUnits, gam } ) => {
 			.finally( () => setInFlight( false ) );
 	};
 	useEffect( fetchOrders, [] );
+	const handleOrderUpdate = order => {
+		setOrders( orders.map( o => ( o.id === order.id ? order : o ) ) );
+	};
 	const activeOrders = orders.filter( order => order.gam.status !== 'DRAFT' );
 	const pendingOrders = orders
 		.filter(
@@ -108,7 +111,7 @@ const Marketplace = ( { adUnits, gam } ) => {
 										{ ! inFlight && activeOrders.length > 0 && (
 											<Fragment>
 												{ activeOrders.map( order => (
-													<Order key={ order.id } order={ order } />
+													<Order key={ order.id } order={ order } onUpdate={ handleOrderUpdate } />
 												) ) }
 											</Fragment>
 										) }
@@ -142,7 +145,10 @@ const Marketplace = ( { adUnits, gam } ) => {
 						) }
 					/>
 					<Route path="/marketplace/products" render={ () => <Products adUnits={ adUnits } /> } />
-					<Route path="/marketplace/orders" render={ () => <Orders orders={ orders } /> } />
+					<Route
+						path="/marketplace/orders"
+						render={ () => <Orders orders={ orders } onOrderUpdate={ handleOrderUpdate } /> }
+					/>
 					<Route path="/marketplace/settings" render={ () => null } />
 					<Redirect to="/marketplace" />
 				</Switch>

@@ -16,12 +16,12 @@ import Order from '../components/order';
 /**
  * Advertising Marketplace Products Screen.
  */
-export default function MarketplaceOrders( { orders = [] } ) {
+export default function MarketplaceOrders( { orders = [], onOrderUpdate } ) {
 	return (
 		<Fragment>
 			<h2>{ __( 'Marketplace Orders', 'newspack' ) }</h2>
 			{ orders.map( order => (
-				<Order key={ order.id } order={ order } />
+				<Order key={ order.id } order={ order } onUpdate={ onOrderUpdate } />
 			) ) }
 		</Fragment>
 	);
