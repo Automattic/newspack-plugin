@@ -1,3 +1,10 @@
+## [2.2.4](https://github.com/Automattic/newspack-plugin/compare/v2.2.3...v2.2.4) (2023-07-24)
+
+
+### Bug Fixes
+
+* **wp-6.3:** destructured lodash module import error ([#2578](https://github.com/Automattic/newspack-plugin/issues/2578)) ([18ccf54](https://github.com/Automattic/newspack-plugin/commit/18ccf540bef664cee9afeb832d0764145cd398b6))
+
 ## [2.2.3](https://github.com/Automattic/newspack-plugin/compare/v2.2.2...v2.2.3) (2023-07-21)
 
 
