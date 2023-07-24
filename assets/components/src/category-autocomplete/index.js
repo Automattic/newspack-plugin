@@ -19,7 +19,9 @@ import './style.scss';
 /**
  * External dependencies
  */
-import { debounce, find, filter } from 'lodash';
+import debounce from 'lodash/debounce';
+import find from 'lodash/find';
+import filter from 'lodash/filter';
 import classnames from 'classnames';
 
 /**

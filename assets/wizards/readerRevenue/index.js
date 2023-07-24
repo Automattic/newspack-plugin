@@ -3,7 +3,7 @@ import '../../shared/js/public-path';
 /**
  * External dependencies.
  */
-import { values } from 'lodash';
+import values from 'lodash/values';
 
 /**
  * WordPress dependencies.
