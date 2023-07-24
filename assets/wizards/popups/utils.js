@@ -10,7 +10,7 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
 /**
  * External dependencies.
  */
-import { memoize } from 'lodash';
+import memoize from 'lodash/memoize';
 import { format, parse } from 'date-fns';
 
 const allCriteria = window.newspack_popups_wizard_data?.criteria || [];

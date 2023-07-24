@@ -4,7 +4,7 @@
 import { ToggleControl } from '@wordpress/components';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { find } from 'lodash';
+import find from 'lodash/find';
 import { applyFilters, addFilter } from '@wordpress/hooks';
 
 /**

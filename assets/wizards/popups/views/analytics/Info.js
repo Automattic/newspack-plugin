@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import classnames from 'classnames';
-import { unescape } from 'lodash';
+import unescape from 'lodash/unescape';
 import humanNumber from 'human-number';
 
 /**

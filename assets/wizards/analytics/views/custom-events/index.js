@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { find } from 'lodash';
+import find from 'lodash/find';
 
 /**
  * WordPress dependencies
