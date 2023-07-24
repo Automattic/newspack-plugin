@@ -94,6 +94,7 @@ export default function MarketplaceOrder( { order, onUpdate } ) {
 						icon={ update }
 						label={ __( 'Fetch GAM order status', 'newspack' ) }
 						tooltipPosition="bottom center"
+						disabled={ inFlight }
 					/>
 					<Button
 						href={ order.gam.url }
