@@ -5,7 +5,7 @@ import Store from './store.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 
-import './article-view.js';
+import setupArticleViewsAggregates from './article-view.js';
 
 /**
  * Reader Activation Library.
@@ -302,30 +302,6 @@ function attachAuthCookiesListener() {
 	}, 1000 );
 }
 
-/**
- * Initialize store data.
- */
-function init() {
-	const data = newspack_ras_config;
-	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
-	const authenticated = !! data?.authenticated_email;
-	const currentReader = getReader();
-	const reader = { email: initialEmail || currentReader?.email, authenticated };
-	if (
-		currentReader?.email !== reader?.email ||
-		currentReader?.authenticated !== reader?.authenticated
-	) {
-		store.set( 'reader', reader, false );
-	}
-	emit( EVENTS.reader, reader );
-	fixClientID();
-	attachAuthCookiesListener();
-	pushActivities();
-	setReferrer();
-}
-
-init();
-
 const readerActivation = {
 	store,
 	on,
@@ -344,7 +320,6 @@ const readerActivation = {
 	getAuthStrategy,
 	getCaptchaToken,
 };
-window.newspackReaderActivation = readerActivation;
 
 /**
  * Handle a push to the newspackRAS array.
@@ -365,8 +340,39 @@ function handlePush( ...args ) {
 	} );
 }
 
-window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.forEach( arg => handlePush( arg ) );
-window.newspackRAS.push = handlePush;
+/**
+ * Initialize.
+ */
+function init() {
+	const data = newspack_ras_config;
+	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
+	const authenticated = !! data?.authenticated_email;
+	const currentReader = getReader();
+	const reader = { email: initialEmail || currentReader?.email, authenticated };
+	if (
+		currentReader?.email !== reader?.email ||
+		currentReader?.authenticated !== reader?.authenticated
+	) {
+		store.set( 'reader', reader, false );
+	}
+	emit( EVENTS.reader, reader );
+	fixClientID();
+	setupArticleViewsAggregates( readerActivation );
+	attachAuthCookiesListener();
+	pushActivities();
+	setReferrer();
+
+	window.newspackReaderActivation = readerActivation;
+
+	window.newspackRAS = window.newspackRAS || [];
+	window.newspackRAS.forEach( arg => handlePush( arg ) );
+	window.newspackRAS.push = handlePush;
+
+	window.newspackRASInitialized = true;
+}
+
+if ( ! window.newspackRASInitialized ) {
+	init();
+}
 
 export default readerActivation;
