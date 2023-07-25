@@ -19,6 +19,7 @@ class Perfmatters {
 	public static function init() {
 		add_filter( 'option_perfmatters_options', [ __CLASS__, 'set_defaults' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notice' ] );
+		add_filter( 'perfmatters_lazyload_youtube_thumbnail_resolution', [ __CLASS__, 'maybe_serve_high_res_youtube_thumbs' ] );
 	}
 
 	/**
@@ -86,6 +87,8 @@ class Perfmatters {
 			'plugins/jetpack/modules/sharedaddy', // Jetpack's share buttons.
 			'plugins/jetpack/_inc/social-logos', // Jetpack's social logos CSS.
 			'plugins/jetpack/css/jetpack.css', // Jetpack's main CSS.
+			'plugins/the-events-calendar', // The Events Calendar.
+			'plugins/events-calendar-pro', // The Events Calendar Pro.
 			'/themes/newspack-', // Any Newspack theme stylesheet.
 			'cache/perfmatters', //	Perfmatters' cache.
 			'wp-includes',
@@ -121,15 +124,13 @@ class Perfmatters {
 	}
 
 	/**
-	 * Set default options for Perfmatters.
+	 * Get Newspack default options for Perfmatters.
 	 *
-	 * @param array $options Perfmatters options.
+	 * @param array $options Initial options. Optional.
+	 *
+	 * @return array Newspack default options.
 	 */
-	public static function set_defaults( $options = [] ) {
-		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
-			return $options;
-		}
-
+	private static function get_defaults( $options = [] ) {
 		// Basic options.
 		$options['disable_emojis']              = true;
 		$options['disable_dashicons']           = true;
@@ -174,6 +175,7 @@ class Perfmatters {
 			$options['assets']['delay_js_inclusions'] = self::scripts_to_delay();
 		}
 		$options['assets']['delay_timeout'] = true;
+		$options['assets']['fastclick']     = true;
 
 		// Unused CSS.
 		$options['assets']['remove_unused_css'] = true;
@@ -232,6 +234,25 @@ class Perfmatters {
 	}
 
 	/**
+	 * Set default options for Perfmatters.
+	 * Overwrites existing options unless the NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS constant is set.
+	 *
+	 * @param array $options Perfmatters options.
+	 *
+	 * @return array Newspack default options.
+	 */
+	public static function set_defaults( $options = [] ) {
+		$defaults = self::get_defaults( $options );
+
+		// Ensure our defaults remain the default, but can be overwritten.
+		if ( defined( 'NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS' ) && NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS ) {
+			return array_merge( $defaults, $options );
+		}
+
+		return $defaults;
+	}
+
+	/**
 	 * Add an admin notice.
 	 */
 	public static function admin_notice() {
@@ -244,6 +265,26 @@ class Perfmatters {
 		echo '<div class="notice notice-warning"><p>'
 		. __( 'Newspack plugin is overriding Perfmatters settings. You can use the <code>NEWSPACK_IGNORE_PERFMATTERS_DEFAULTS</code> flag to disable that behavior.', 'newspack' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		. '</p></div>';
+	}
+
+	/**
+	 * Serve high resolution YouTube thumbnails if a constant is set.
+	 *
+	 * @param string $resolution Resolution.
+	 */
+	public static function maybe_serve_high_res_youtube_thumbs( $resolution ) {
+		// Use standard-res thumbnails if the constant is not set.
+		if ( ! defined( 'NEWSPACK_PERFMATTERS_USE_HIGH_RES_YOUTUBE_IMAGES' ) || ! NEWSPACK_PERFMATTERS_USE_HIGH_RES_YOUTUBE_IMAGES ) {
+			return $resolution;
+		}
+
+		// Use standard-res thumbnails on mobile devices.
+		if ( ( function_exists( 'jetpack_is_mobile' ) && \jetpack_is_mobile() ) || \wp_is_mobile() ) { // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_is_mobile_wp_is_mobile
+			return $resolution;
+		}
+
+		// Use high-res thumbnails on desktop devices.
+		return 'maxresdefault';
 	}
 }
 Perfmatters::init();

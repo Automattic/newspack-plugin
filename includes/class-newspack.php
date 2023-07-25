@@ -82,6 +82,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-popups.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/ga4/class-ga4.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-mailchimp.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-woo-user-registration.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics.php';
@@ -89,6 +90,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics-dimensions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-recaptcha.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-magic-link.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/stripe/class-stripe-connection.php';

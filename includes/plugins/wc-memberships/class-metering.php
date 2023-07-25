@@ -18,6 +18,13 @@ class Metering {
 	const METERING_META_KEY = 'np_memberships_metering';
 
 	/**
+	 * Article view activity to be handled by frontend metering.
+	 *
+	 * @var array|null
+	 */
+	private static $article_view = null;
+
+	/**
 	 * Cache of the user's metering status for posts.
 	 *
 	 * @var boolean[] Map of post IDs to booleans.
@@ -30,7 +37,8 @@ class Metering {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'wp', [ __CLASS__, 'handle_restriction' ], 11 );
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'enqueue_scripts' ] );
+		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'get_article_view' ], 20 );
 	}
 
 	/**
@@ -101,7 +109,9 @@ class Metering {
 				'use_more_tag'       => \get_post_meta( $gate_post_id, 'use_more_tag', true ),
 				'count'              => \get_post_meta( $gate_post_id, 'metering_anonymous_count', true ),
 				'period'             => \get_post_meta( $gate_post_id, 'metering_period', true ),
+				'gate_id'            => $gate_post_id,
 				'post_id'            => get_the_ID(),
+				'article_view'       => self::$article_view,
 			]
 		);
 	}
@@ -118,7 +128,7 @@ class Metering {
 		}
 
 		// Remove the default restriction handler from 'SkyVerge\WooCommerce\Memberships\Restrictions\Posts::restrict_post'.
-		if ( self::is_frontend_metering() || self::is_logged_in_metering_allowed() ) {
+		if ( self::is_metering() ) {
 			$restriction_instance = \wc_memberships()->get_restrictions_instance()->get_posts_restrictions_instance();
 			\remove_action( 'the_post', spl_object_hash( $restriction_instance ) . 'restrict_post', 0 );
 		}
@@ -215,8 +225,10 @@ class Metering {
 			return self::$logged_in_metering_cache[ $post_id ];
 		}
 
+		$user_meta_key = self::METERING_META_KEY . '_' . $gate_post_id;
+
 		$updated_user_data  = false;
-		$user_metering_data = \get_user_meta( get_current_user_id(), self::METERING_META_KEY, true );
+		$user_metering_data = \get_user_meta( get_current_user_id(), $user_meta_key, true );
 		if ( ! is_array( $user_metering_data ) ) {
 			$user_metering_data = [];
 		}
@@ -244,7 +256,7 @@ class Metering {
 		}
 
 		if ( $updated_user_data ) {
-			\update_user_meta( get_current_user_id(), self::METERING_META_KEY, $user_metering_data );
+			\update_user_meta( get_current_user_id(), $user_meta_key, $user_metering_data );
 		}
 
 		// Allowed if the content has been accessed or the metering limit has not been reached.
@@ -259,6 +271,29 @@ class Metering {
 		self::$logged_in_metering_cache[ $post_id ] = apply_filters( 'newspack_memberships_is_logged_in_metering_allowed', $allowed, $post_id );
 
 		return self::$logged_in_metering_cache[ $post_id ];
+	}
+
+	/**
+	 * Whether the content should be allowed to render. If it's frontend metered,
+	 * it will be handled by the frontend metering strategy.
+	 *
+	 * @return bool
+	 */
+	public static function is_metering() {
+		return self::is_frontend_metering() || self::is_logged_in_metering_allowed();
+	}
+
+	/**
+	 * Store the article view activity push for use in the frontend metering
+	 * strategy.
+	 *
+	 * @param array $activity Activity data.
+	 *
+	 * @return array
+	 */
+	public static function get_article_view( $activity ) {
+		self::$article_view = $activity;
+		return $activity;
 	}
 }
 Metering::init();

@@ -29,7 +29,9 @@ const Recaptcha = () => {
 		const fetchSettings = async () => {
 			setIsLoading( true );
 			try {
-				setSettings( await apiFetch( { path: '/newspack/v1/recaptcha' } ) );
+				const fetchedSettings = await apiFetch( { path: '/newspack/v1/recaptcha' } );
+				setSettings( fetchedSettings );
+				setSettingsToUpdate( fetchedSettings );
 			} catch ( e ) {
 				setError( e.message || __( 'Error fetching settings.', 'newspack' ) );
 			} finally {
@@ -104,21 +106,23 @@ const Recaptcha = () => {
 						) }
 						<Grid noMargin rowGap={ 16 }>
 							<TextControl
-								value={ settingsToUpdate?.site_key || settings.site_key }
+								value={ settingsToUpdate?.site_key }
 								label={ __( 'Site Key', 'newspack' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
 								}
 								disabled={ isLoading }
+								autoComplete="off"
 							/>
 							<TextControl
 								type="password"
-								value={ settingsToUpdate?.site_secret || settings.site_secret }
+								value={ settingsToUpdate?.site_secret }
 								label={ __( 'Site Secret', 'newspack' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
 								}
 								disabled={ isLoading }
+								autoComplete="off"
 							/>
 						</Grid>
 					</>

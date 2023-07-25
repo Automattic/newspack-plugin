@@ -30,6 +30,21 @@ Data_Events::register_listener(
 );
 
 /**
+ * For when a reader registers via Woo.
+ */
+Data_Events::register_listener(
+	'newspack_registered_reader_via_woo',
+	'reader_registered',
+	function( $email, $user_id, $metadata ) {
+		return [
+			'user_id'  => $user_id,
+			'email'    => $email,
+			'metadata' => $metadata,
+		];
+	}
+);
+
+/**
  * For when a reader logs in.
  */
 Data_Events::register_listener(

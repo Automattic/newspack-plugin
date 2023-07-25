@@ -1,4 +1,4 @@
-/* globals newspack_reader_activation_data newspack_reader_auth_labels */
+/* globals newspack_ras_config newspack_reader_auth_labels */
 
 /**
  * Internal dependencies.
@@ -67,7 +67,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 		const initLinks = function () {
 			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
 			triggerLinks = document.querySelectorAll(
-				`[data-newspack-reader-account-link],[href="${ newspack_reader_activation_data.account_url }"]`
+				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
 			);
 			triggerLinks.forEach( link => {
 				link.addEventListener( 'click', handleAccountLinkClick );
@@ -195,6 +195,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 		containers.forEach( container => {
 			const initialForm = container.querySelector( 'form' );
+			if ( ! initialForm ) {
+				return;
+			}
 			let form;
 			/** Workaround AMP's enforced XHR strategy. */
 			if ( initialForm.getAttribute( 'action-xhr' ) ) {
@@ -364,6 +367,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							tokenField = document.createElement( 'input' );
 							tokenField.setAttribute( 'type', 'hidden' );
 							tokenField.setAttribute( 'name', 'captcha_token' );
+							tokenField.setAttribute( 'autocomplete', 'off' );
 							form.appendChild( tokenField );
 						}
 						tokenField.value = captchaToken;
@@ -381,7 +385,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 							readerActivation
 								.authenticateOTP( body.get( 'otp_code' ) )
 								.then( data => {
-									form.endLoginFlow( data.message, 200, data, body.get( 'redirect' ) );
+									form.endLoginFlow(
+										data.message,
+										200,
+										data,
+										currentHash ? '' : body.get( 'redirect' )
+									);
 								} )
 								.catch( data => {
 									if ( data.expired ) {
@@ -398,26 +407,34 @@ window.newspackRAS.push( function ( readerActivation ) {
 								body,
 							} )
 								.then( res => {
-									const otpHash = readerActivation.getOTPHash();
-									if ( 'link' === action && otpHash ) {
-										form.endLoginFlow( null, 0 );
-										setFormAction( 'otp' );
-									} else {
-										container.setAttribute( 'data-form-status', res.status );
-										res
-											.json()
-											.then( ( { message, data } ) => {
-												let redirect = body.get( 'redirect' );
-												/** Redirect every registration to the account page for verification */
-												if ( action === 'register' ) {
-													redirect = newspack_reader_activation_data.account_url;
+									container.setAttribute( 'data-form-status', res.status );
+									res
+										.json()
+										.then( ( { message, data } ) => {
+											let status = res.status;
+											let redirect = body.get( 'redirect' );
+											/** Redirect every registration to the account page for verification if not coming from a hash link */
+											if ( action === 'register' ) {
+												redirect = newspack_ras_config.account_url;
+											}
+											// Never redirect from hash links.
+											if ( currentHash ) {
+												redirect = '';
+											}
+											const otpHash = readerActivation.getOTPHash();
+											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
+												setFormAction( 'otp' );
+												/** If action is link, suppress message and status so the OTP handles it. */
+												if ( status === 200 && action === 'link' ) {
+													status = null;
+													message = null;
 												}
-												form.endLoginFlow( message, res.status, data, redirect );
-											} )
-											.catch( () => {
-												form.endLoginFlow();
-											} );
-									}
+											}
+											form.endLoginFlow( message, status, data, redirect );
+										} )
+										.catch( () => {
+											form.endLoginFlow();
+										} );
 								} )
 								.catch( () => {
 									form.endLoginFlow();

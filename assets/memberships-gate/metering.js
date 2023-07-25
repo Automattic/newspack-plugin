@@ -1,9 +1,8 @@
 /* globals newspack_metering_settings */
 
-const STORAGE_KEY = 'newspack_metering';
-
 const settings = newspack_metering_settings;
-const storage = window.localStorage;
+
+const storeKey = 'metering-' + settings.gate_id || 0;
 
 function getCurrentExpiration() {
 	const date = new Date();
@@ -29,9 +28,9 @@ function getCurrentExpiration() {
 	return parseInt( date.getTime() / 1000, 10 );
 }
 
-function getUserData() {
+function getUserData( store ) {
 	const currentExpiration = getCurrentExpiration();
-	const data = JSON.parse( storage.getItem( STORAGE_KEY ) ) || {
+	const data = store.get( storeKey ) || {
 		content: [],
 		expiration: currentExpiration,
 	};
@@ -44,7 +43,7 @@ function getUserData() {
 		// Reset expiration.
 		data.expiration = currentExpiration;
 	}
-	storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+	store.set( storeKey, data );
 	return data;
 }
 
@@ -53,6 +52,11 @@ function lockContent() {
 	if ( ! content ) {
 		return;
 	}
+	// Remove campaign prompts.
+	const prompts = document.querySelectorAll( '.newspack-popup' );
+	prompts.forEach( prompt => {
+		prompt.parentNode.removeChild( prompt );
+	} );
 	const visibleParagraphs = settings.visible_paragraphs;
 	const articleElements = document.querySelectorAll( '.entry-content > *' );
 	const moreIndex = content.innerHTML.indexOf( '<!--more-->' );
@@ -75,8 +79,8 @@ function lockContent() {
 	}
 }
 
-function meter() {
-	const data = getUserData();
+function meter( ras ) {
+	const data = getUserData( ras.store );
 	let locked = false;
 	// Lock content if reached limit, remove gate content if not.
 	if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
@@ -88,11 +92,18 @@ function meter() {
 			gate.parentNode.removeChild( gate );
 		} );
 	}
-	// Add current content to read content.
-	if ( ! locked && ! data.content.includes( settings.post_id ) ) {
-		data.content.push( settings.post_id );
-		storage.setItem( STORAGE_KEY, JSON.stringify( data ) );
+	if ( ! locked ) {
+		// Push article_view activity.
+		if ( settings.article_view ) {
+			ras.dispatchActivity( settings.article_view.action, settings.article_view.data );
+		}
+		// Add current content to read content.
+		if ( ! data.content.includes( settings.post_id ) ) {
+			data.content.push( settings.post_id );
+			ras.store.set( storeKey, data );
+		}
 	}
 }
 
-meter();
+window.newspackRAS = window.newspackRAS || [];
+window.newspackRAS.push( ras => meter( ras ) );

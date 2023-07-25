@@ -7,7 +7,7 @@
 /**
  * External dependencies.
  */
-import { startCase } from 'lodash';
+import startCase from 'lodash/startCase';
 
 /**
  * WordPress dependencies.
