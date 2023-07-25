@@ -44,7 +44,8 @@ class Memberships {
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
-		add_filter( 'newspack_gate_content', 'do_blocks', 9 );
+		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
+		add_filter( 'newspack_gate_content', [ __CLASS__, 'do_blocks' ], 9 ); // Custom implementation of do_blocks().
 		add_filter( 'newspack_gate_content', 'wptexturize' );
 		add_filter( 'newspack_gate_content', 'convert_smilies', 20 );
 		add_filter( 'newspack_gate_content', 'wpautop' );
@@ -52,10 +53,38 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'prepend_attachment' );
 		add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
-		add_filter( 'newspack_gate_content', 'do_shortcode', 11 );
+		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+	}
+
+	/**
+	 * Parses dynamic blocks out of `post_content` and re-renders them.
+	 *
+	 * This is a copy of `do_blocks()` from `wp-includes/blocks.php` but with
+	 * a different filter name for the `wpautop` filter handling.
+	 *
+	 * @param string $content Post content.
+	 *
+	 * @return string Updated post content.
+	 */
+	public static function do_blocks( $content ) {
+		$blocks = parse_blocks( $content );
+		$output = '';
+
+		foreach ( $blocks as $block ) {
+			$output .= render_block( $block );
+		}
+
+		// If there are blocks in this content, we shouldn't run wpautop() on it later.
+		$priority = has_filter( 'newspack_gate_content', 'wpautop' );
+		if ( false !== $priority && doing_filter( 'newspack_gate_content' ) && has_blocks( $content ) ) {
+			remove_filter( 'newspack_gate_content', 'wpautop', $priority );
+			add_filter( 'newspack_gate_content', '_restore_wpautop_hook', $priority + 1 );
+		}
+
+		return $output;
 	}
 
 	/**
@@ -479,7 +508,7 @@ class Memberships {
 		if ( 'inline' !== $style ) {
 			return '';
 		}
-		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, null, $gate_post_id ), $gate_post_id );
+		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, null, \get_post( $gate_post_id ) ), $gate_post_id );
 
 		// Add clearfix to the gate.
 		$gate = '<div style=\'content:"";clear:both;display:table;\'></div>' . $gate;
