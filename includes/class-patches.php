@@ -18,7 +18,7 @@ class Patches {
 	 */
 	public static function init() {
 		add_filter( 'wpseo_enhanced_slack_data', [ __CLASS__, 'use_cap_for_slack_preview' ] );
-		add_action( 'admin_menu', [ __CLASS__, 'add_reusable_blocks_menu_link' ] );
+		add_action( 'admin_menu', [ __CLASS__, 'add_patterns_menu_link' ] );
 		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_post_update', [ __CLASS__, 'prevent_unpublish_front_page' ], 10, 2 );
@@ -101,10 +101,10 @@ class Patches {
 	}
 
 	/**
-	 * Add a menu link in WP Admin to easily edit and manage reusable blocks.
+	 * Add a menu link in WP Admin to easily edit and manage patterns.
 	 */
-	public static function add_reusable_blocks_menu_link() {
-		add_submenu_page( 'edit.php', 'manage_reusable_blocks', __( 'Reusable Blocks' ), 'edit_posts', 'edit.php?post_type=wp_block', '', 2 );
+	public static function add_patterns_menu_link() {
+		add_submenu_page( 'edit.php', 'manage_patterns', __( 'Patterns' ), 'edit_posts', 'edit.php?post_type=wp_block', '', 2 );
 	}
 
 	/**
