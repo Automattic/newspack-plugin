@@ -115,8 +115,8 @@ class Analytics_Wizard extends Wizard {
 	 * @return array
 	 */
 	public static function get_ga4_credentials() {
-		$measurement_protocol_secret = get_option( 'ga4_measurement_protocol_secret' );
-		$measurement_id              = get_option( 'ga4_measurement_id' );
+		$measurement_protocol_secret = get_option( 'ga4_measurement_protocol_secret', '' );
+		$measurement_id              = get_option( 'ga4_measurement_id', '' );
 		return compact( 'measurement_protocol_secret', 'measurement_id' );
 	}
 
