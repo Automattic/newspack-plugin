@@ -37,6 +37,7 @@ class NewspackCustomEvents extends Component {
 			data: {
 				measurement_id: this.state.ga4Credendials.measurement_id,
 				measurement_protocol_secret: this.state.ga4Credendials.measurement_protocol_secret,
+				quiet: true,
 			},
 		} )
 			.then( response => this.setState( { ga4Credendials: response, error: false } ) )
