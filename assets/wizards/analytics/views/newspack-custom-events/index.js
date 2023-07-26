@@ -51,20 +51,16 @@ class NewspackCustomEvents extends Component {
 			<div className="newspack__analytics-configuration">
 				<div className="newspack__analytics-configuration__header">
 					<SectionHeader
-						title={ __( 'Additional Newspack Custom Events', 'newspack' ) }
+						title={ __( 'Activate Newspack Custom Events', 'newspack' ) }
 						description={ __(
-							'Adds support for back-end events tracking for Google Analytics 4',
+							'Allows Newspack to send enhanced custom event data to your Google Analytics.',
 							'newspack'
 						) }
 						noMargin
 					/>
 					<p>
 						{ __(
-							'Newspack tracks some custom events to your configured Google Analytics account.',
-							'newspack'
-						) }
-						{ __(
-							"By adding the credentials below, you will enable additional events that are fired from your site's backend, like when a donation is confirmed or when a user subscribes to a Newsletter.",
+							"Newspack already sends some custom event data to your GA account, but adding the credentials below enables enhanced events that are fired from your site's backend. For example, when a donation is confirmed or when a user successfully subscribes to a newsletter.",
 							'newspack'
 						) }
 					</p>
@@ -76,7 +72,7 @@ class NewspackCustomEvents extends Component {
 						value={ ga4Credendials?.measurement_id }
 						label={ __( 'Measurement ID', 'newspack' ) }
 						help={ __(
-							'The same measurement ID you have configured in your GA plugin. Example: G-ABCD1234',
+							'You can find this in Site Kit Settings, or in Google Analytics > Admin > Data Streams and clickng the data stream. Example: G-ABCD1234',
 							'newspack'
 						) }
 						onChange={ value =>
@@ -93,7 +89,7 @@ class NewspackCustomEvents extends Component {
 						value={ ga4Credendials?.measurement_protocol_secret }
 						label={ __( 'Measurement Protocol API Secret', 'newspack' ) }
 						help={ __(
-							'You can grab your API Secret from your Google Analytics dashboard in Admin > Dat a Stream. Click in your data stream and then on Measurement Protocol API secrets',
+							'Generate an API secret from your GA dashboard in Admin > Data Streams and opening your data stream. Select "Measurement Protocol API secrets" under the Events section. Create a new secret.',
 							'newspack'
 						) }
 						onChange={ value =>
