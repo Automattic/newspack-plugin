@@ -1,7 +1,7 @@
 /**
  * External dependencies.
  */
-import { uniqBy } from 'lodash';
+import uniqBy from 'lodash/uniqBy';
 import { subDays } from 'date-fns';
 
 /**

@@ -32,7 +32,7 @@ import './style.scss';
  * External dependencies
  */
 import classnames from 'classnames';
-import { find } from 'lodash';
+import find from 'lodash/find';
 
 const { useHistory } = Router;
 

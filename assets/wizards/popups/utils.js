@@ -9,7 +9,7 @@ import { applyFilters } from '@wordpress/hooks';
 /**
  * External dependencies.
  */
-import { memoize } from 'lodash';
+import memoize from 'lodash/memoize';
 import { format, parse } from 'date-fns';
 
 /**
