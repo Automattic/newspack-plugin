@@ -256,8 +256,8 @@ export const isSameType = ( campaignA, campaignB ) => {
 };
 
 const sharesSegments = ( segmentsA, segmentsB ) => {
-	const segmentsArrayA = segmentsA ? segmentsA.split( ',' ) : [];
-	const segmentsArrayB = segmentsB ? segmentsB.split( ',' ) : [];
+	const segmentsArrayA = segmentsA.map( segment => segment.term_id );
+	const segmentsArrayB = segmentsB.map( segment => segment.term_id );
 	return (
 		( ! segmentsArrayA.length && ! segmentsArrayB.length ) ||
 		segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) )
@@ -317,10 +317,7 @@ export const warningForPopup = ( prompts, prompt ) => {
 				'publish' === conflict.status &&
 				conflict.id !== prompt.id &&
 				isSameType( prompt, conflict ) &&
-				sharesSegments(
-					prompt.options.selected_segment_id,
-					conflict.options.selected_segment_id
-				) &&
+				sharesSegments( prompt.segments, conflict.segments ) &&
 				hasConflictingCategory
 			);
 		} );
