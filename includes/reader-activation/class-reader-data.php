@@ -130,7 +130,7 @@ final class Reader_Data {
 	 */
 	public static function get_data( $user_id, $key = '' ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
-		if ( ! $user_keys && ! $key ) {
+		if ( ! $user_keys ) {
 			return [];
 		}
 
@@ -158,7 +158,7 @@ final class Reader_Data {
 	 *
 	 * @return true|WP_Error True on success, error object on failure.
 	 */
-	private static function update_item( $user_id, $key, $value ) {
+	public static function update_item( $user_id, $key, $value ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
 		if ( ! $user_keys ) {
 			$user_keys = [];
