@@ -562,6 +562,10 @@ class Popups_Wizard extends Wizard {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+		$response = $newspack_popups_configuration_manager->set_popup_terms( $id, self::sanitize_terms( $config['segments'] ), 'popup_segment' );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
 
 		return $this->api_get_settings();
 	}
