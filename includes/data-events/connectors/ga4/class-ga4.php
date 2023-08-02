@@ -81,6 +81,13 @@ class GA4 {
 		 */
 		$properties = apply_filters( 'newspack_data_events_ga4_properties', $properties );
 
+		$properties = array_filter(
+			$properties,
+			function( $a ) {
+				return ! is_empty( $a );
+			} 
+		);
+
 		return $properties;
 	}
 
