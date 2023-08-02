@@ -411,7 +411,7 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 					'xxx' => 'local_secret',
 					'yyy' => 'local_id',
 				],
-				true,
+				false,
 			],
 		];
 	}
@@ -423,6 +423,7 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 	 * @param array $filter_creds The credentials that will be added via a filter.
 	 * @param bool  $expected The expected result.
 	 * @return void
+	 * @dataProvider can_use_ga4_data
 	 */
 	public function test_can_use_ga4( $local_creds, $filter_creds, $expected ) {
 
