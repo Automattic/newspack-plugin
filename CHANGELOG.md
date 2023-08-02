@@ -1,3 +1,10 @@
+## [2.2.5](https://github.com/Automattic/newspack-plugin/compare/v2.2.4...v2.2.5) (2023-08-02)
+
+
+### Bug Fixes
+
+* check for the ga4 connector ([#2587](https://github.com/Automattic/newspack-plugin/issues/2587)) ([4fc21ab](https://github.com/Automattic/newspack-plugin/commit/4fc21abd6d172665b7ef7d8f4dcac2020fbaf684))
+
 ## [2.2.4](https://github.com/Automattic/newspack-plugin/compare/v2.2.3...v2.2.4) (2023-07-24)
 
 
