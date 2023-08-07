@@ -26,7 +26,7 @@ These parameters are added to all events:
 * `ga_session_id`: The GA Session ID, retrieved from the cookie
 * `logged_in`: Whether the user is logged in when the event got fired
 * `is_reader`: Whether the user is a RAS reader
-* `user_hash`: The anonymized user email, if the user is logged in
+* `email_hash`: The anonymized user email, if the user is logged in
 
 Note: All paramaters are strings
 

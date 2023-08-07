@@ -180,9 +180,9 @@ class GA4 {
 
 		$body['data']['ga_params']['is_reader'] = 'no';
 		if ( is_user_logged_in() ) {
-			$current_user                           = wp_get_current_user();
-			$body['data']['ga_params']['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
-			$body['data']['ga_params']['user_hash'] = md5( $current_user->user_email );
+			$current_user                            = wp_get_current_user();
+			$body['data']['ga_params']['is_reader']  = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+			$body['data']['ga_params']['email_hash'] = md5( $current_user->user_email );
 		}
 
 		return $body;
