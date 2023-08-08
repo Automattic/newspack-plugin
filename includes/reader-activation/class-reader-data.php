@@ -130,7 +130,7 @@ final class Reader_Data {
 	 */
 	public static function get_data( $user_id, $key = '' ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
-		if ( ! $user_keys && ! $key ) {
+		if ( ! $user_keys ) {
 			return [];
 		}
 
@@ -158,7 +158,7 @@ final class Reader_Data {
 	 *
 	 * @return true|WP_Error True on success, error object on failure.
 	 */
-	private static function update_item( $user_id, $key, $value ) {
+	public static function update_item( $user_id, $key, $value ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
 		if ( ! $user_keys ) {
 			$user_keys = [];
@@ -291,6 +291,7 @@ final class Reader_Data {
 		 * Article view activity.
 		 */
 		if ( is_singular( 'post' ) ) {
+			global $post;
 			$activity = [
 				'action' => 'article_view',
 				'data'   => [
@@ -298,7 +299,7 @@ final class Reader_Data {
 					'permalink'  => get_permalink(),
 					'categories' => wp_get_post_categories( get_the_ID(), [ 'fields' => 'ids' ] ),
 					'tags'       => wp_get_post_tags( get_the_ID(), [ 'fields' => 'ids' ] ),
-					'author'     => get_the_author(),
+					'author'     => $post->post_author,
 				],
 			];
 

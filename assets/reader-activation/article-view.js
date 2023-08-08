@@ -2,8 +2,7 @@
  * Create useful data from the 'article_view' activity.
  */
 
-window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.push( ras => {
+export default function setupArticleViewsAggregates( ras ) {
 	ras.on( 'activity', ( { detail: { action, data, timestamp } } ) => {
 		if ( action !== 'article_view' ) {
 			return;
@@ -38,4 +37,4 @@ window.newspackRAS.push( ras => {
 		per_month[ month ][ data.post_id ] = true;
 		ras.store.set( 'article_view_per_month', per_month );
 	} );
-} );
+}
