@@ -22,6 +22,7 @@ class Plugin_Manager {
 	 * @var array
 	 */
 	public static $required_plugins = [
+		'akismet',
 		'jetpack',
 		'pwa',
 		'google-site-kit',
