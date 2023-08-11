@@ -11,6 +11,7 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
  * External dependencies.
  */
 import memoize from 'lodash/memoize';
+import compact from 'lodash/compact';
 import { format, parse } from 'date-fns';
 
 const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
@@ -221,7 +222,7 @@ const getFavoriteCategoryNamesFn = async favoriteCategories => {
 			}
 		} )
 	);
-	return favoriteCategoryNames;
+	return compact( favoriteCategoryNames );
 };
 const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
 
