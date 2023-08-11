@@ -11,7 +11,6 @@ import {
 	Button,
 	Card,
 	CategoryAutocomplete,
-	FormTokenField,
 	Grid,
 	Modal,
 	SelectControl,
@@ -27,7 +26,7 @@ import {
 
 const { SettingsCard } = Settings;
 
-const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup } ) => {
+const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 	const [ promptConfig, setPromptConfig ] = hooks.useObjectState( prompt );
 	const { excluded_categories: excludedCategories = [], excluded_tags: excludedTags = [] } =
 		promptConfig.options || {};
@@ -38,8 +37,6 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 	const handleSave = () => {
 		updatePopup( promptConfig ).then( onClose );
 	};
-
-	const assignedSegmentsIds = ( promptConfig.options.selected_segment_id || '' ).split( ',' );
 
 	return (
 		<Modal title={ prompt.title } onRequestClose={ onClose } isWide>
@@ -124,28 +121,13 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, segments, updatePopup
 					noBorder
 				>
 					<Grid columns={ 3 } rowGap={ 16 }>
-						<FormTokenField
-							label={ __( 'Segment', 'newspack' ) }
+						<CategoryAutocomplete
 							disabled={ disabled }
-							hideHelpFromVision
-							value={ segments
-								.filter( ( { id } ) => assignedSegmentsIds.indexOf( id ) > -1 )
-								.map( segment => segment.name ) }
-							onChange={ _segments => {
-								const segmentsToAssign = segments
-									.filter( segment => -1 < _segments.indexOf( segment.name ) )
-									.map( segment => segment.id );
-								setPromptConfig( {
-									options: { selected_segment_id: segmentsToAssign.join( ',' ) },
-								} );
-							} }
-							suggestions={ segments
-								.filter( segment => -1 === assignedSegmentsIds.indexOf( segment.id ) )
-								.map( segment => segment.name ) }
-							description={ __(
-								'Prompt will only appear to reader belonging to the specified segments.',
-								'newspack'
-							) }
+							value={ promptConfig.segments || [] }
+							onChange={ tokens => setPromptConfig( { segments: tokens } ) }
+							label={ __( 'Segments', 'newspack' ) }
+							taxonomy="popup_segment"
+							hideLabelFromVision
 						/>
 						<CategoryAutocomplete
 							label={ __( 'Post categories', 'newspack ' ) }
