@@ -206,24 +206,22 @@ export const segmentDescription = segment => {
 };
 
 const getFavoriteCategoryNamesFn = async favoriteCategories => {
-	try {
-		const favoriteCategoryNames = await Promise.all(
-			favoriteCategories.map( async categoryId => {
+	const favoriteCategoryNames = await Promise.all(
+		favoriteCategories.map( async categoryId => {
+			try {
 				const category = await apiFetch( {
 					path: addQueryArgs( '/wp/v2/categories/' + categoryId, {
 						_fields: 'name',
 					} ),
 				} );
-
 				return category.name;
-			} )
-		);
-
-		return favoriteCategoryNames;
-	} catch ( e ) {
-		console.error( e );
-		return [];
-	}
+			} catch ( e ) {
+				console.warn( e );
+				return '';
+			}
+		} )
+	);
+	return favoriteCategoryNames;
 };
 const getFavoriteCategoryNames = memoize( getFavoriteCategoryNamesFn );
 
