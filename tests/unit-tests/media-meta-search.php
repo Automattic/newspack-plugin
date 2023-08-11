@@ -87,8 +87,6 @@ class Newspack_Test_Media_Meta_Search extends WP_UnitTestCase {
 			]
 		);
 
-		wp_cache_flush();
-
 		$wp_query = new WP_Query( $base_query );
 		$this->assertSame( 3, $wp_query->found_posts );
 		$this->assertSame( $media1, $wp_query->posts[0]->ID );
