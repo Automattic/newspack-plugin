@@ -5,7 +5,7 @@ import Store from './store.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 
-import './article-view.js';
+import setupArticleViewsAggregates from './article-view.js';
 
 /**
  * Reader Activation Library.
@@ -279,27 +279,28 @@ function setReferrer() {
 }
 
 /**
- * Initialize store data.
+ * Listen to cookie changes to detect authentication.
  */
-function init() {
-	const data = newspack_ras_config;
-	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
-	const authenticated = !! data?.authenticated_email;
-	const currentReader = getReader();
-	const reader = { email: initialEmail || currentReader?.email, authenticated };
-	if (
-		currentReader?.email !== reader?.email ||
-		currentReader?.authenticated !== reader?.authenticated
-	) {
-		store.set( 'reader', reader, false );
+function attachAuthCookiesListener() {
+	// If the reader is already authenticated, bail.
+	if ( getCookie( 'np_auth_reader' ) ) {
+		return;
 	}
-	emit( EVENTS.reader, reader );
-	fixClientID();
-	pushActivities();
-	setReferrer();
+	const interval = setInterval( () => {
+		const reader = getReader();
+		const intentionCookie = getCookie( 'np_auth_intention' );
+		if ( intentionCookie && reader.email !== intentionCookie ) {
+			setReaderEmail( intentionCookie );
+		} else {
+			const authCookie = getCookie( 'np_auth_reader' );
+			if ( authCookie ) {
+				setReaderEmail( authCookie );
+				setAuthenticated( true );
+				clearInterval( interval );
+			}
+		}
+	}, 1000 );
 }
-
-init();
 
 const readerActivation = {
 	store,
@@ -319,7 +320,6 @@ const readerActivation = {
 	getAuthStrategy,
 	getCaptchaToken,
 };
-window.newspackReaderActivation = readerActivation;
 
 /**
  * Handle a push to the newspackRAS array.
@@ -340,8 +340,39 @@ function handlePush( ...args ) {
 	} );
 }
 
-window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.forEach( arg => handlePush( arg ) );
-window.newspackRAS.push = handlePush;
+/**
+ * Initialize.
+ */
+function init() {
+	const data = newspack_ras_config;
+	const initialEmail = data?.authenticated_email || getCookie( 'np_auth_intention' );
+	const authenticated = !! data?.authenticated_email;
+	const currentReader = getReader();
+	const reader = { email: initialEmail || currentReader?.email, authenticated };
+	if (
+		currentReader?.email !== reader?.email ||
+		currentReader?.authenticated !== reader?.authenticated
+	) {
+		store.set( 'reader', reader, false );
+	}
+	emit( EVENTS.reader, reader );
+	fixClientID();
+	setupArticleViewsAggregates( readerActivation );
+	attachAuthCookiesListener();
+	pushActivities();
+	setReferrer();
+
+	window.newspackReaderActivation = readerActivation;
+
+	window.newspackRAS = window.newspackRAS || [];
+	window.newspackRAS.forEach( arg => handlePush( arg ) );
+	window.newspackRAS.push = handlePush;
+
+	window.newspackRASInitialized = true;
+}
+
+if ( ! window.newspackRASInitialized ) {
+	init();
+}
 
 export default readerActivation;

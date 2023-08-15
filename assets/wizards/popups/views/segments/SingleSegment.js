@@ -5,7 +5,8 @@ import { ToggleControl } from '@wordpress/components';
 import { useMemo, useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { find, debounce } from 'lodash';
+import debounce from 'lodash/debounce';
+import find from 'lodash/find';
 
 /**
  * Internal dependencies.

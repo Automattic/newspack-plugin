@@ -21,7 +21,8 @@ import { Settings } from './views';
  * External dependencies.
  */
 import deepMapKeys from 'deep-map-keys';
-import { camelCase, snakeCase } from 'lodash';
+import camelCase from 'lodash/camelCase';
+import snakeCase from 'lodash/snakeCase';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
