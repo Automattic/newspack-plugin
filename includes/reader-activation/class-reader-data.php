@@ -53,8 +53,15 @@ final class Reader_Data {
 			sprintf( 'np_reader_%d_', \get_current_blog_id() )
 		);
 
+		/**
+		 * Allows for "temporary" reader data for things like previews.
+		 * If true, the store will use sessionStorage instead of localStorage.
+		 */
+		$is_temporary = apply_filters( 'newspack_reader_data_store_is_temp_session', false );
+
 		$config = [
 			'store_prefix'    => $store_prefix,
+			'is_temporary'    => $is_temporary,
 			'reader_activity' => self::$reader_activity,
 		];
 
