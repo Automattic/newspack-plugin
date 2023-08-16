@@ -127,7 +127,6 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 							onChange={ tokens => setPromptConfig( { segments: tokens } ) }
 							label={ __( 'Segments', 'newspack' ) }
 							taxonomy="popup_segment"
-							hideLabelFromVision
 						/>
 						<CategoryAutocomplete
 							label={ __( 'Post categories', 'newspack ' ) }
