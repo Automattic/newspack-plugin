@@ -6,7 +6,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { set } from 'lodash/fp';
+import set from 'lodash/set';
 
 /**
  * WordPress dependencies

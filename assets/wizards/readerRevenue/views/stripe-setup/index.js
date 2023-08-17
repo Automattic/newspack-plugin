@@ -8,7 +8,7 @@ import { useDispatch } from '@wordpress/data';
 /**
  * External dependencies
  */
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 
 /**
  * Internal dependencies

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { isEmpty } from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 
 /**
  * WordPress dependencies.

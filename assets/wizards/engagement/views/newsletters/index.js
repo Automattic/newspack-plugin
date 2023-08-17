@@ -2,7 +2,11 @@
 /**
  * Internal dependencies
  */
-import { values, mapValues, property, isEmpty, once } from 'lodash';
+import values from 'lodash/values';
+import mapValues from 'lodash/mapValues';
+import property from 'lodash/property';
+import isEmpty from 'lodash/isEmpty';
+import once from 'lodash/once';
 
 /**
  * WordPress dependencies
