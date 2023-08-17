@@ -25,13 +25,24 @@ const PopupAnalytics = () => (
 						) }
 					</>,
 					<>
-						<a href="https://help.newspack.com/analytics/">{ __( 'help page', 'newspack' ) }</a>
+						<a
+							target="_blank"
+							rel="noopener noreferrer"
+							href="https://help.newspack.com/analytics/"
+						>
+							{ __( 'help page', 'newspack' ) }
+						</a>
 					</>,
 					<>{ __( ' to see how Campaign data is being recorded in GA.', 'newspack' ) }</>,
 				] }
 			</p>
 			<Card buttonsCard noBorder>
-				<Button href="https://help.newspack.com/analytics/" isPrimary>
+				<Button
+					target="_blank"
+					rel="noopener noreferrer"
+					href="https://help.newspack.com/analytics/"
+					isPrimary
+				>
 					{ __( 'View the help page', 'newspack' ) }
 				</Button>
 			</Card>
