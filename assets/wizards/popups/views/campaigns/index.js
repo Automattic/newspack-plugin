@@ -84,19 +84,24 @@ const filterByCampaign = ( prompts, campaignId ) => {
 const groupBySegment = ( segments, prompts ) => {
 	const grouped = [];
 	grouped.push(
-		...segments.map( ( { name: label, id, configuration } ) => ( {
+		...segments.map( ( { name: label, id, configuration, criteria } ) => ( {
 			label,
 			id,
 			configuration,
-			prompts: prompts.filter( ( { options: { selected_segment_id: _segments } } ) => {
-				return _segments ? -1 < _segments.split( ',' ).indexOf( id ) : false;
+			criteria,
+			prompts: prompts.filter( ( { segments: _segments } ) => {
+				if ( ! _segments ) {
+					return false;
+				}
+				const found = _segments.find( _segment => _segment.term_id === parseInt( id ) );
+				return !! found;
 			} ),
 		} ) )
 	);
 	grouped.push( {
 		label: __( 'Everyone', 'newspack' ),
 		id: '',
-		prompts: prompts.filter( ( { options: { selected_segment_id: segment } } ) => ! segment ),
+		prompts: prompts.filter( ( { segments: _segments } ) => _segments.length === 0 ),
 		configuration: {},
 	} );
 	return grouped;
