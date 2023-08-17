@@ -15,7 +15,7 @@ import { EVENTS, emit } from './events';
  */
 const config = {
 	storePrefix: newspack_reader_data?.store_prefix || 'np_reader_',
-	storage: window.localStorage,
+	storage: newspack_reader_data?.is_temporary ? window.sessionStorage : window.localStorage,
 	collections: {
 		maxItems: 1000,
 		maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days.
@@ -24,13 +24,14 @@ const config = {
 
 /**
  * Queue of keys to sync with the server every second.
+ * No need to sync data for temporary sessions.
  *
  * @type {string[]} Array of keys.
  */
 const syncQueue = [];
 
 setInterval( () => {
-	if ( ! syncQueue.length ) {
+	if ( ! syncQueue.length || newspack_reader_data?.is_temporary ) {
 		return;
 	}
 	const key = syncQueue.shift();
@@ -204,8 +205,8 @@ export default function Store() {
 		syncQueue.push( key );
 	}
 
-	// Rehydrate items from server.
-	if ( newspack_reader_data?.items ) {
+	// Rehydrate items from server. No need to rehydrate for temporary sessions.
+	if ( newspack_reader_data?.items && ! newspack_reader_data?.is_temporary ) {
 		const keys = Object.keys( newspack_reader_data.items );
 		for ( const key of keys ) {
 			// Do not overwrite items that were pending sync.

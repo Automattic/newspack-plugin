@@ -6,6 +6,7 @@
 /**
  * WordPress dependencies
  */
+import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -14,6 +15,9 @@ import { addQueryArgs } from '@wordpress/url';
 import { WebPreview } from '../../../../components/src';
 
 const SegmentationPreview = props => {
+	const [ decoratedUrl, setDecoratedUrl ] = useState( null );
+	const [ isOpen, setIsOpen ] = useState( false );
+	const [ sessionId, setSessionId ] = useState( Math.floor( Math.random() * 9999 ) ); // A random ID that can be used to tie together all pageviews in a single preview session.
 	const postPreviewLink = window?.newspack_popups_wizard_data?.preview_post;
 	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
 
@@ -25,7 +29,13 @@ const SegmentationPreview = props => {
 		url = postPreviewLink || frontendUrl,
 	} = props;
 
-	const decorateURL = urlToDecorate => {
+	useEffect( () => {
+		if ( ! isOpen ) {
+			setDecoratedUrl( decorateUrl( url ) );
+		}
+	}, [ isOpen ] );
+
+	const decorateUrl = urlToDecorate => {
 		const view_as = segment.length ? [ `segment:${ segment }` ] : [ 'segment:everyone' ];
 
 		if ( showUnpublished ) {
@@ -39,6 +49,8 @@ const SegmentationPreview = props => {
 			view_as.push( 'all' );
 		}
 
+		view_as.push( 'session_id:' + sessionId );
+
 		return addQueryArgs( urlToDecorate, { view_as: view_as.join( ';' ) } );
 	};
 
@@ -47,14 +59,25 @@ const SegmentationPreview = props => {
 			[ ...iframeEl.contentWindow.document.querySelectorAll( 'a' ) ].forEach( anchor => {
 				const href = anchor.getAttribute( 'href' );
 				if ( href.indexOf( frontendUrl ) === 0 ) {
-					anchor.setAttribute( 'href', decorateURL( href ) );
+					anchor.setAttribute( 'href', decorateUrl( href ) );
 				}
 			} );
+			setIsOpen( true );
 			onLoad( iframeEl );
 		}
 	};
 
-	return <WebPreview { ...props } onLoad={ onWebPreviewLoad } url={ decorateURL( url ) } />;
+	return (
+		<WebPreview
+			{ ...props }
+			onLoad={ onWebPreviewLoad }
+			onClose={ () => {
+				setSessionId( Math.floor( Math.random() * 9999 ) ); // Reset session ID when the preview is closed.
+				setIsOpen( false );
+			} }
+			url={ decoratedUrl }
+		/>
+	);
 };
 
 export default SegmentationPreview;
