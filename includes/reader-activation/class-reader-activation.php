@@ -1231,7 +1231,7 @@ final class Reader_Activation {
 		 *
 		 * @param array[] $lists List config keyed by their ID.
 		 */
-		$lists = apply_filters( 'newspack_auth_form_available_newsletters_lists', $lists );
+		$lists = apply_filters( 'newspack_auth_form_newsletters_lists', $lists );
 
 		if ( empty( $lists ) || is_wp_error( $lists ) ) {
 			return;
