@@ -28,4 +28,20 @@
 			margin-top: 64px;
 		}
 	}
+
+	.newspack-ads-marketplace {
+		.newspack-marketplace-back {
+			display: flex;
+			margin: 24px 0;
+			vertical-align: middle;
+			color: var( --wp-admin-theme-color );
+			text-decoration: none;
+			svg {
+				margin-right: 12px;
+				path {
+					fill: var( --wp-admin-theme-color );
+				}
+			}
+		}
+	}
 }

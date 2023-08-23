@@ -3,261 +3,161 @@
  */
 
 /**
- * External dependencies
- */
-import { uniq } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
-import { Button, TextControl, CheckboxControl } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { settings, trash } from '@wordpress/icons';
+import { useEffect, useState, Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { Icon, ExternalLink, Spinner } from '@wordpress/components';
+import { archive, payment, cog, arrowLeft } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { Grid, ActionCard, Modal, withWizardScreen } from '../../../../components/src';
+import Router from '../../../../components/src/proxied-imports/router';
+import { Grid, Card, ButtonCard, withWizardScreen } from '../../../../components/src';
 
-const AdProductEditor = ( {
-	product,
-	adUnits = {},
-	placements = {},
-	onChange = () => {},
-	onSave = () => {},
-} ) => {
-	const getSizes = () => {
-		const productPlacements = product.placements || [];
-		const sizes = [];
-		productPlacements.forEach( placement => {
-			const adUnit = adUnits[ placements[ placement ].data.ad_unit ];
-			if ( adUnit ) {
-				sizes.push( ...adUnit.sizes );
-			}
-		} );
-		return uniq( sizes.map( size => size.join( 'x' ) ) );
-	};
-	const isValid = () => {
-		return (
-			product.placements?.length &&
-			product.required_sizes?.length &&
-			parseFloat( product.price ) > 0
-		);
-	};
-	return (
-		<>
-			<h3>{ __( 'Placements', 'newspack' ) }</h3>
-			<Grid columns={ 2 } gutter={ 8 }>
-				{ Object.keys( placements ).map( key => (
-					<CheckboxControl
-						key={ key }
-						label={ placements[ key ].name }
-						checked={ product.placements?.includes( key ) }
-						onChange={ () => {
-							const newPlacements = [ ...product.placements ];
-							if ( newPlacements.includes( key ) ) {
-								newPlacements.splice( newPlacements.indexOf( key ), 1 );
-							} else {
-								newPlacements.push( key );
-							}
-							onChange( { ...product, placements: newPlacements } );
-						} }
-					/>
-				) ) }
-			</Grid>
-			{ getSizes().length > 0 && (
-				<>
-					<h3>{ __( 'Required Sizes', 'newspack' ) }</h3>
-					<Grid columns={ 4 } gutter={ 8 }>
-						{ getSizes().map( size => (
-							<CheckboxControl
-								key={ size }
-								label={ size }
-								checked={ product.required_sizes?.includes( size ) }
-								onChange={ () => {
-									const newSizes = [ ...product.required_sizes ];
-									if ( newSizes.includes( size ) ) {
-										newSizes.splice( newSizes.indexOf( size ), 1 );
-									} else {
-										newSizes.push( size );
-									}
-									onChange( { ...product, required_sizes: newSizes } );
-								} }
-							/>
-						) ) }
-					</Grid>
-				</>
-			) }
-			{ product.placements?.length > 0 && product.required_sizes?.length > 0 && (
-				<>
-					<h3>{ __( 'Pricing', 'newspack' ) }</h3>
-					<TextControl
-						label={ __( 'CPD', 'newspack' ) }
-						value={ product.price }
-						onChange={ price => onChange( { ...product, price } ) }
-					/>
-				</>
-			) }
-			<Button disabled={ ! isValid() } isPrimary onClick={ onSave }>
-				{ __( 'Save Product', 'newspack' ) }
-			</Button>
-		</>
-	);
-};
+import Products from './products';
+import Orders from './orders';
+import Order from './components/order';
+
+const { HashRouter, Redirect, Route, Switch, useLocation } = Router;
 
 /**
  * Advertising Markplace screen.
  */
-const Marketplace = ( { adUnits } ) => {
-	const [ isEditing, setIsEditing ] = useState( false );
-	const [ placements, setPlacements ] = useState( {} );
-	const [ products, setProducts ] = useState( [] );
-	const [ product, setProduct ] = useState( {} );
+const Marketplace = ( { adUnits, gam } ) => {
+	const location = useLocation();
+	const [ orders, setOrders ] = useState( [] );
 	const [ inFlight, setInFlight ] = useState( false );
-	const fetchPlacements = () => {
-		apiFetch( {
-			path: `/newspack-ads/v1/placements`,
-		} ).then( data => {
-			for ( const key in data ) {
-				if ( ! data[ key ].data?.ad_unit ) {
-					delete data[ key ];
-				}
-			}
-			setPlacements( data );
-		} );
-	};
-	const fetchProducts = () => {
+	const fetchOrders = () => {
 		setInFlight( true );
 		apiFetch( {
-			path: `/newspack-ads/v1/products`,
+			path: `/newspack-ads/v1/marketplace/orders`,
 		} )
 			.then( data => {
-				setProducts( data );
+				setOrders( data );
 			} )
 			.finally( () => setInFlight( false ) );
 	};
-	useEffect( () => {
-		setProduct(
-			false !== isEditing
-				? {
-						placements: [],
-						required_sizes: [],
-						...products[ isEditing ],
-				  }
-				: {}
-		);
-	}, [ isEditing ] );
-	useEffect( fetchPlacements, [] );
-	useEffect( fetchProducts, [] );
-	const getProductTitle = ( { placements: productPlacements } ) => {
-		const productPlacementsNames = productPlacements.map( key => placements[ key ].name );
-		return productPlacementsNames.join( ', ' );
+	useEffect( fetchOrders, [] );
+	const handleOrderUpdate = order => {
+		setOrders( orders.map( o => ( o.id === order.id ? order : o ) ) );
 	};
-	const getProductDescription = ( { price, required_sizes: productSizes } ) => {
-		return sprintf(
-			/* translators: 1: price, 2: list of required sizes. */
-			__( 'CPD: %1$s - Required Sizes: %2$s', 'newspack' ),
-			price,
-			productSizes.join( ', ' )
-		);
-	};
-	const saveProduct = () => {
-		setInFlight( true );
-		let path = `/newspack-ads/v1/products`;
-		if ( product.id ) {
-			path += `/${ product.id }`;
-		}
-		apiFetch( {
-			path,
-			method: 'POST',
-			data: product,
-		} )
-			.then( res => {
-				const newProducts = [ ...products ];
-				const idx = newProducts.findIndex( p => p.id === res.id );
-				if ( idx > -1 ) {
-					newProducts[ idx ] = res;
-				} else {
-					newProducts.push( res );
-				}
-				setProducts( newProducts );
-				setIsEditing( false );
-			} )
-			.finally( () => {
-				setInFlight( false );
-			} );
-	};
-	const deleteProduct = id => {
-		// eslint-disable-next-line no-alert
-		if ( ! confirm( __( 'Are you sure you want to delete this product?', 'newspack' ) ) ) {
-			return;
-		}
-		setInFlight( true );
-		apiFetch( {
-			path: `/newspack-ads/v1/products/${ id }`,
-			method: 'DELETE',
-		} )
-			.then( data => {
-				setProducts( data );
-				setIsEditing( false );
-			} )
-			.finally( () => {
-				setInFlight( false );
-			} );
-	};
+	const activeOrders = orders.filter( order => order.gam.status !== 'DRAFT' );
+	const pendingOrders = orders
+		.filter(
+			order =>
+				order.status !== 'completed' && order.status !== 'cancelled' && order.gam.status === 'DRAFT'
+		)
+		.sort( ( a, b ) => new Date( a.items[ 0 ].from ) - new Date( b.items[ 0 ].from ) );
 	return (
-		<>
-			{ products.map( ( p, i ) => (
-				<ActionCard
-					key={ p.id }
-					isSmall
-					disabled={ inFlight }
-					title={ getProductTitle( p ) }
-					description={ getProductDescription( p ) }
-					actionText={
-						<>
-							<Button
-								disabled={ inFlight }
-								onClick={ () => setIsEditing( i ) }
-								icon={ settings }
-								label={ __( 'Edit product', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
-							<Button
-								disabled={ inFlight }
-								onClick={ () => deleteProduct( p.id ) }
-								icon={ trash }
-								label={ __( 'Delete product', 'newspack' ) }
-								tooltipPosition="bottom center"
-							/>
-						</>
-					}
-				/>
-			) ) }
-			<Button isPrimary onClick={ () => setIsEditing( true ) }>
-				{ __( 'Create New Product', 'newspack' ) }
-			</Button>
-			{ false !== isEditing && (
-				<Modal
-					title={
-						product.id
-							? __( 'Edit ad product', 'newspack' )
-							: __( 'Create new ad product', 'newspack' )
-					}
-					onRequestClose={ () => ! inFlight && setIsEditing( false ) }
-				>
-					<AdProductEditor
-						product={ product }
-						adUnits={ adUnits }
-						placements={ placements }
-						onChange={ setProduct }
-						onSave={ saveProduct }
-					/>
-				</Modal>
+		<div className="newspack-ads-marketplace">
+			{ location.pathname !== '/marketplace' && (
+				<a href="#/marketplace" className="newspack-marketplace-back">
+					<Icon icon={ arrowLeft } />
+					{ __( 'Return to the Marketplace Dashboard', 'newspack' ) }
+				</a>
 			) }
-		</>
+			<HashRouter hashType="slash">
+				<Switch>
+					<Route
+						path="/marketplace"
+						exact
+						render={ () => (
+							<Fragment>
+								<Grid columns={ 3 } gutter={ 32 }>
+									<ButtonCard
+										title={ __( 'Products', 'newspack' ) }
+										desc={ __( 'Manage your ad products.' ) }
+										icon={ archive }
+										href="#/marketplace/products"
+									/>
+									<ButtonCard
+										title={ __( 'Orders', 'newspack' ) }
+										desc={ __( 'Manage your ad orders.' ) }
+										icon={ payment }
+										href="#/marketplace/orders"
+									/>
+									<ButtonCard
+										title={ __( 'Settings', 'newspack' ) }
+										desc={ __( 'Configure your marketplace settings.' ) }
+										icon={ cog }
+										href="#/marketplace/settings"
+									/>
+								</Grid>
+								<hr />
+								<Grid columns={ 2 } gutter={ 32 }>
+									<Card noBorder>
+										<h2>{ __( 'Recent orders requiring attention', 'newspack' ) }</h2>
+										{ inFlight && <Spinner /> }
+										{ ! inFlight && ! pendingOrders.length && (
+											<p>{ __( 'No orders requiring attention.', 'newspack' ) }</p>
+										) }
+										{ ! inFlight && pendingOrders.length > 0 && (
+											<Fragment>
+												{ pendingOrders.map( order => (
+													<Order key={ `recent-order-${ order.id }` } order={ order } />
+												) ) }
+											</Fragment>
+										) }
+									</Card>
+									<Card noBorder>
+										<h2>{ __( 'Approved orders', 'newspack' ) }</h2>
+										{ inFlight && <Spinner /> }
+										{ ! inFlight && ! activeOrders.length && (
+											<p>{ __( 'No approved orders.', 'newspack' ) }</p>
+										) }
+										{ ! inFlight && activeOrders.length > 0 && (
+											<Fragment>
+												{ activeOrders.map( order => (
+													<Order
+														key={ `approved-order-${ order.id }` }
+														order={ order }
+														onUpdate={ handleOrderUpdate }
+													/>
+												) ) }
+											</Fragment>
+										) }
+									</Card>
+								</Grid>
+								<hr />
+								<Card noBorder>
+									{ /** This is an example of the type of information the marketplace dashboard can display. */ }
+									<h2>{ __( 'Overview', 'newspack' ) }</h2>
+									<Grid columns={ 4 } gutter={ 16 }>
+										<div>
+											<h3>Impressions</h3>
+										</div>
+										<div>
+											<h3>Revenue</h3>
+										</div>
+										<div>
+											<h3>eCPM</h3>
+										</div>
+										<div>
+											<h3>Viewability</h3>
+										</div>
+									</Grid>
+									<ExternalLink
+										href={ `https://admanager.google.com/${ gam.network_code }#reports/report/list` }
+									>
+										View reports
+									</ExternalLink>
+								</Card>
+							</Fragment>
+						) }
+					/>
+					<Route path="/marketplace/products" render={ () => <Products adUnits={ adUnits } /> } />
+					<Route
+						path="/marketplace/orders"
+						render={ () => <Orders orders={ orders } onOrderUpdate={ handleOrderUpdate } /> }
+					/>
+					<Route path="/marketplace/settings" render={ () => null } />
+					<Redirect to="/marketplace" />
+				</Switch>
+			</HashRouter>
+		</div>
 	);
 };
 

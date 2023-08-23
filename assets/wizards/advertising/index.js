@@ -330,6 +330,7 @@ class AdvertisingWizard extends Component {
 									subHeaderText={ __( 'Sell your ad placements', 'newspack' ) }
 									tabbedNavigation={ tabs }
 									adUnits={ adUnits }
+									gam={ services.google_ad_manager }
 								/>
 							) }
 						/>
