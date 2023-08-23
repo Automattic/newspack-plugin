@@ -69,6 +69,7 @@ export default function MarketplaceOrder( { order, onUpdate } ) {
 	};
 	return (
 		<ActionCard
+			key={ `order-item-${ order.id }` }
 			disabled={ inFlight }
 			titleLink={ order.edit_url }
 			isSmall
