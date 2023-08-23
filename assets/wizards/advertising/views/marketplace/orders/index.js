@@ -21,7 +21,7 @@ export default function MarketplaceOrders( { orders = [], onOrderUpdate } ) {
 		<Fragment>
 			<h2>{ __( 'Marketplace Orders', 'newspack' ) }</h2>
 			{ orders.map( order => (
-				<Order key={ order.id } order={ order } onUpdate={ onOrderUpdate } />
+				<Order key={ `order-${ order.id }` } order={ order } onUpdate={ onOrderUpdate } />
 			) ) }
 		</Fragment>
 	);
