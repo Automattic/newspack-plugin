@@ -111,7 +111,11 @@ const Marketplace = ( { adUnits, gam } ) => {
 										{ ! inFlight && activeOrders.length > 0 && (
 											<Fragment>
 												{ activeOrders.map( order => (
-													<Order key={ order.id } order={ order } onUpdate={ handleOrderUpdate } />
+													<Order
+														key={ `order-${ order.id }` }
+														order={ order }
+														onUpdate={ handleOrderUpdate }
+													/>
 												) ) }
 											</Fragment>
 										) }
