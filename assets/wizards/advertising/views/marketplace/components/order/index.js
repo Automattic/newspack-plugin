@@ -71,7 +71,6 @@ export default function MarketplaceOrder( { order, onUpdate } ) {
 		<ActionCard
 			disabled={ inFlight }
 			titleLink={ order.edit_url }
-			key={ order.id }
 			isSmall
 			title={ getOrderTitle( order ) }
 			description={ () => (
