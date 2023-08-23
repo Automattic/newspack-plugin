@@ -97,7 +97,7 @@ const Marketplace = ( { adUnits, gam } ) => {
 										{ ! inFlight && pendingOrders.length > 0 && (
 											<Fragment>
 												{ pendingOrders.map( order => (
-													<Order key={ order.id } order={ order } />
+													<Order key={ `recent-order-${ order.id }` } order={ order } />
 												) ) }
 											</Fragment>
 										) }
@@ -112,7 +112,7 @@ const Marketplace = ( { adUnits, gam } ) => {
 											<Fragment>
 												{ activeOrders.map( order => (
 													<Order
-														key={ `order-${ order.id }` }
+														key={ `approved-order-${ order.id }` }
 														order={ order }
 														onUpdate={ handleOrderUpdate }
 													/>
