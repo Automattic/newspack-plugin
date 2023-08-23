@@ -152,7 +152,7 @@ export default function MarketplaceProducts( { adUnits } ) {
 	useEffect( fetchPlacements, [] );
 	useEffect( fetchProducts, [] );
 	const getProductTitle = ( { placements: productPlacements } ) => {
-		const productPlacementsNames = productPlacements.map( key => placements[ key ].name );
+		const productPlacementsNames = productPlacements.map( key => placements[ key ]?.name );
 		return productPlacementsNames.join( ', ' );
 	};
 	const getProductDescription = ( { price, required_sizes: productSizes } ) => {
