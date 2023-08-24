@@ -2,13 +2,11 @@
  * Segment group component.
  */
 
-import cookies from 'js-cookie';
-
 /**
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState, Fragment } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { header, layout } from '@wordpress/icons';
 
 /**
@@ -18,10 +16,9 @@ import { Button, ButtonCard, Card, Grid, Modal } from '../../../../components/sr
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
-	descriptionForPopup,
-	descriptionForSegment,
+	promptDescription,
+	segmentDescription,
 	getCardClassName,
-	getFavoriteCategoryNames,
 	warningForPopup,
 } from '../../utils';
 import {
@@ -49,39 +46,11 @@ const addNewURL = ( placement, campaignId, segmentId ) => {
 	return base + params.join( '&' );
 };
 
-const removeCIDCookie = () => {
-	if ( newspack_aux_data.popups_cookie_name ) {
-		// Remove cookies for all possible domains.
-		window.location.host
-			.split( '.' )
-			.reduce( ( acc, _, i, arr ) => {
-				acc.push( arr.slice( -( i + 1 ) ).join( '.' ) );
-				return acc;
-			}, [] )
-			.map( domain =>
-				cookies.remove( newspack_aux_data.popups_cookie_name, {
-					domain: `.${ domain }`,
-				} )
-			);
-	}
-};
-
 const SegmentGroup = props => {
 	const { campaignData, campaignId, segment } = props;
 	const [ modalVisible, setModalVisible ] = useState( false );
-	const [ categories, setCategories ] = useState( [] );
 	const { label, id, prompts } = segment;
 	const campaignToPreview = 'unassigned' !== campaignId ? parseInt( campaignId ) : -1;
-
-	useEffect( () => {
-		updateCategories();
-	}, [ segment ] );
-
-	const updateCategories = async () => {
-		if ( 0 < segment.configuration?.favorite_categories?.length ) {
-			setCategories( await getFavoriteCategoryNames( segment.configuration.favorite_categories ) );
-		}
-	};
 
 	let emptySegmentText;
 	if ( 'unassigned' === campaignId ) {
@@ -92,6 +61,8 @@ const SegmentGroup = props => {
 	} else {
 		emptySegmentText = __( 'No active prompts in this segment.', 'newspack' );
 	}
+
+	const description = segmentDescription( segment );
 	return (
 		<Card isSmall className="newspack-campaigns__segment-group__card">
 			<div className="newspack-campaigns__segment-group__card__segment">
@@ -113,9 +84,7 @@ const SegmentGroup = props => {
 						) }
 					</h3>
 					<span className="newspack-campaigns__segment-group__description">
-						{ id
-							? descriptionForSegment( segment, categories )
-							: __( 'All readers, regardless of segment', 'newspack' ) }
+						{ id ? description() : __( 'All readers, regardless of segment', 'newspack' ) }
 					</span>
 				</div>
 				<div className="newspack-campaigns__segment-group__card__segment-actions">
@@ -123,22 +92,8 @@ const SegmentGroup = props => {
 						campaign={ campaignId ? campaignToPreview : false }
 						segment={ id }
 						showUnpublished={ !! campaignId } // Only if previewing a specific campaign/group.
-						onClose={ removeCIDCookie }
 						renderButton={ ( { showPreview } ) => (
-							<Button
-								isSmall
-								variant="tertiary"
-								onClick={ () => {
-									removeCIDCookie();
-									if ( newspack_aux_data.popups_cookie_name ) {
-										cookies.set( newspack_aux_data.popups_cookie_name, `preview-${ Date.now() }`, {
-											domain: '.' + window.location.host,
-										} );
-									}
-
-									showPreview();
-								} }
-							>
+							<Button isSmall variant="tertiary" onClick={ () => showPreview() }>
 								{ __( 'Preview Segment', 'newspack' ) }
 							</Button>
 						) }
@@ -223,7 +178,7 @@ const SegmentGroup = props => {
 				{ prompts.map( item => (
 					<PromptActionCard
 						className={ getCardClassName( item.status, segment.configuration.is_disabled ) }
-						description={ descriptionForPopup( item ) }
+						description={ promptDescription( item ) }
 						warning={ warningForPopup( prompts, item ) }
 						key={ item.id }
 						prompt={ item }

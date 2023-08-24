@@ -53,8 +53,15 @@ final class Reader_Data {
 			sprintf( 'np_reader_%d_', \get_current_blog_id() )
 		);
 
+		/**
+		 * Allows for "temporary" reader data for things like previews.
+		 * If true, the store will use sessionStorage instead of localStorage.
+		 */
+		$is_temporary = apply_filters( 'newspack_reader_data_store_is_temp_session', false );
+
 		$config = [
 			'store_prefix'    => $store_prefix,
+			'is_temporary'    => $is_temporary,
 			'reader_activity' => self::$reader_activity,
 		];
 
@@ -130,7 +137,7 @@ final class Reader_Data {
 	 */
 	public static function get_data( $user_id, $key = '' ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
-		if ( ! $user_keys && ! $key ) {
+		if ( ! $user_keys ) {
 			return [];
 		}
 
@@ -158,7 +165,7 @@ final class Reader_Data {
 	 *
 	 * @return true|WP_Error True on success, error object on failure.
 	 */
-	private static function update_item( $user_id, $key, $value ) {
+	public static function update_item( $user_id, $key, $value ) {
 		$user_keys = \get_user_meta( $user_id, 'newspack_reader_data_keys', true );
 		if ( ! $user_keys ) {
 			$user_keys = [];
