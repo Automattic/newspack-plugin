@@ -66,12 +66,21 @@ class AdUnit extends Component {
 	 */
 	render() {
 		const { adUnit, service, onSave, onCancel } = this.props;
-		const { id, code, fluid = false, name = '' } = adUnit;
+		const { id, code, fluid = false, name = '', path = [] } = adUnit;
 		const isLegacy = adUnit.is_legacy;
 		const isExistingAdUnit = id !== 0;
 		const sizes = adUnit.sizes && Array.isArray( adUnit.sizes ) ? adUnit.sizes : [];
 		const isInvalidSize = ! fluid && sizes.length === 0;
 		const sizeOptions = this.getSizeOptions();
+		const getCodeValue = () => {
+			if ( isLegacy ) {
+				return code;
+			}
+			if ( ! path.length ) {
+				return code;
+			}
+			return `${ path.map( parent => parent.code ).join( '/' ) }/${ code }`;
+		};
 		return (
 			<>
 				<Card headerActions noBorder>
@@ -87,7 +96,7 @@ class AdUnit extends Component {
 					{ ( isExistingAdUnit || isLegacy ) && (
 						<TextControl
 							label={ __( 'Code', 'newspack' ) }
-							value={ code || '' }
+							value={ getCodeValue() }
 							className="code"
 							help={
 								isLegacy
