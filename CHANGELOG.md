@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/Automattic/newspack-plugin/compare/v2.4.0...v2.5.0) (2023-08-30)
+
+
+### Features
+
+* **reader-data:** check newsletter subscription on login ([#2619](https://github.com/Automattic/newspack-plugin/issues/2619)) ([34afeb3](https://github.com/Automattic/newspack-plugin/commit/34afeb36560f38007e84dfeec8a970a7fb0e3b23))
+
 # [2.4.0](https://github.com/Automattic/newspack-plugin/compare/v2.3.0...v2.4.0) (2023-08-24)
 
 
