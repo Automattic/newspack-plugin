@@ -356,7 +356,7 @@ final class Reader_Data {
 		if ( ! class_exists( '\Newspack_Newsletters' ) || ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
 			return;
 		}
-		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email_address );
+		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
 		if ( ! is_wp_error( $subscribed_lists ) && ! empty( $subscribed_lists ) && is_array( $subscribed_lists ) ) {
 			self::update_item( $data['user_id'], 'is_newsletter_subscriber', true );
 		}
