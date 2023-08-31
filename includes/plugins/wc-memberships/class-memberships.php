@@ -330,21 +330,44 @@ class Memberships {
 	 *
 	 * @return array
 	 */
-	private static function get_plans() {
+	public static function get_plans() {
 		if ( ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
 			return [];
 		}
 		$membership_plans = wc_memberships_get_membership_plans();
 		$plans            = [];
 		foreach ( $membership_plans as $plan ) {
+			$plan_id = $plan->get_id();
 			$plans[] = [
-				'id'          => $plan->get_id(),
+				'id'          => $plan_id,
 				'name'        => $plan->get_name(),
-				'gate_id'     => self::get_plan_gate_id( $plan->get_id() ),
-				'gate_status' => get_post_status( self::get_plan_gate_id( $plan->get_id() ) ),
+				'gate_id'     => self::get_plan_gate_id( $plan_id ),
+				'gate_status' => get_post_status( self::get_plan_gate_id( $plan_id ) ),
+				'plan_url'    => get_edit_post_link( $plan_id ),
 			];
 		}
 		return $plans;
+	}
+
+	/**
+	 * Get the current setting of the "Require memberships in all plans" option.
+	 * 
+	 * @return boolean
+	 */
+	public static function get_require_all_plans_setting() {
+		return \get_option( 'newspack_memberships_require_all_plans', false );
+	}
+
+	/**
+	 * Set the "Require memberships in all plans" option.
+	 * 
+	 * @param boolean $require False to require membership in any plan restricting content (default)
+	 *                         or true to require membership in all plans restricting content.
+	 * 
+	 * @return boolean
+	 */
+	public static function set_require_all_plans_setting( $require = false ) {
+		return \update_option( 'newspack_memberships_require_all_plans', $require );
 	}
 
 	/**
@@ -754,10 +777,10 @@ class Memberships {
 	 * Checks if a user has content access from rules.
 	 * Overrides behvavior from the WooCommerce Memberships plugin to decide whether to show restricted content.
 	 * Default behavior matches the WooCommerce Memberships plugin: if a user matches ANY applicable membership
-	 * plan rule, they are granted access to the content.
+	 * plan rules, they are granted access to the content.
 	 * 
-	 * Custom behavior: If the "Check all rules" option is enabled in the Engagement wizard, then a user must 
-	 * match ALL applicable membership plan rules before being granted access to the content.
+	 * Custom behavior: If the "Require membership in all plans" option is enabled in the Engagement wizard,
+	 * then a user must match ALL applicable membership plan rules before being granted access to the content.
 	 *
 	 * @since 1.9.0
 	 *
@@ -772,7 +795,8 @@ class Memberships {
 			return true;
 		}
 
-		$has_access = false;
+		$require_all_plans = self::get_require_all_plans_setting();
+		$has_access        = false;
 
 		foreach ( $rules as $rule ) {
 
@@ -784,7 +808,10 @@ class Memberships {
 
 			if ( wc_memberships_is_user_active_or_delayed_member( $user_id, $rule->get_membership_plan_id() ) ) {
 				$has_access = true;
-			} else {
+				if ( ! $require_all_plans ) {
+					break;
+				}
+			} elseif ( $require_all_plans ) {
 				$has_access = false;
 				break;
 			}

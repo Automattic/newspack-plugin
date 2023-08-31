@@ -76,7 +76,7 @@ class EngagementWizard extends Component {
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch } = this.props;
 		const { relatedPostsEnabled, relatedPostsError, relatedPostsMaxAge, relatedPostsUpdated } =
 			this.state;
 
@@ -114,6 +114,7 @@ class EngagementWizard extends Component {
 		const props = {
 			headerText: __( 'Engagement', 'newspack' ),
 			tabbedNavigation: tabbed_navigation,
+			wizardApiFetch,
 		};
 		return (
 			<Fragment>
