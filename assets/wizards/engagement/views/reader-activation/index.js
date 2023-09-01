@@ -26,7 +26,7 @@ import ActiveCampaign from '../../components/active-campaign';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 
-export default withWizardScreen( () => {
+export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
 	const [ membershipsConfig, setMembershipsConfig ] = useState( {} );
@@ -57,9 +57,10 @@ export default withWizardScreen( () => {
 	const saveConfig = data => {
 		setError( false );
 		setInFlight( true );
-		apiFetch( {
+		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
 			method: 'post',
+			quiet: true,
 			data,
 		} )
 			.then( ( { config: fetchedConfig, prerequisites_status, memberships } ) => {
@@ -238,6 +239,19 @@ export default withWizardScreen( () => {
 								description={ getContentGateDescription() }
 								actionText={ __( 'Configure', 'newspack' ) }
 							/>
+							{ membershipsConfig?.plans && 1 < membershipsConfig.plans.length && (
+								<ActionCard
+									title={ __( 'Require membership in all plans', 'newspack' ) }
+									description={ __(
+										'When enabled, readers must belong to all membership plans that apply to a restricted content item before they are granted access. Otherwise, they will be able to unlock access to that item with membership in any single plan that applies to it.',
+										'newspack'
+									) }
+									toggleOnChange={ value =>
+										setMembershipsConfig( { ...membershipsConfig, require_all_plans: value } )
+									}
+									toggleChecked={ membershipsConfig.require_all_plans }
+								/>
+							) }
 							<hr />
 						</>
 					) : null }
@@ -316,6 +330,7 @@ export default withWizardScreen( () => {
 									metadata_prefix: config.metadata_prefix,
 									mailchimp_audience_id: config.mailchimp_audience_id,
 									active_campaign_master_list: config.active_campaign_master_list,
+									memberships_require_all_plans: membershipsConfig.require_all_plans,
 								} );
 							} }
 							disabled={ inFlight }
