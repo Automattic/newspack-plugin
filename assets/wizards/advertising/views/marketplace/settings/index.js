@@ -72,10 +72,10 @@ export default function MarketplaceSettings() {
 				<p>
 					{ __(
 						'Make sure you also have email notifications enabled for new orders on WooCommerce settings:',
-						'newspack-plugin'
+						'newspack'
 					) }{ ' ' }
 					<a href={ newspack_ads_wizard.wc_email_settings_url } target="_blank" rel="noreferrer">
-						{ __( 'WooCommerce > Settings > Emails', 'newspack-plugin' ) }
+						{ __( 'WooCommerce > Settings > Emails', 'newspack' ) }
 					</a>
 				</p>
 				<TextControl
