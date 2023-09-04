@@ -17,6 +17,7 @@ import { archive, payment, cog, arrowLeft } from '@wordpress/icons';
 import Router from '../../../../components/src/proxied-imports/router';
 import { Grid, Card, ButtonCard, withWizardScreen } from '../../../../components/src';
 
+import Settings from './settings';
 import Products from './products';
 import Orders from './orders';
 import Order from './components/order';
@@ -153,7 +154,7 @@ const Marketplace = ( { adUnits, gam } ) => {
 						path="/marketplace/orders"
 						render={ () => <Orders orders={ orders } onOrderUpdate={ handleOrderUpdate } /> }
 					/>
-					<Route path="/marketplace/settings" render={ () => null } />
+					<Route path="/marketplace/settings" render={ () => <Settings /> } />
 					<Redirect to="/marketplace" />
 				</Switch>
 			</HashRouter>
