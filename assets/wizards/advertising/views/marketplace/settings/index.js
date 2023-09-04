@@ -1,3 +1,4 @@
+/* globals newspack_ads_wizard */
 /**
  * Ad Unit Management Screens.
  */
@@ -68,6 +69,15 @@ export default function MarketplaceSettings() {
 						setSettings( { ...settings, enable_email_notification } );
 					} }
 				/>
+				<p>
+					{ __(
+						'Make sure you also have email notifications enabled for new orders on WooCommerce settings:',
+						'newspack-plugin'
+					) }{ ' ' }
+					<a href={ newspack_ads_wizard.wc_email_settings_url } target="_blank" rel="noreferrer">
+						{ __( 'WooCommerce > Settings > Emails', 'newspack-plugin' ) }
+					</a>
+				</p>
 				<TextControl
 					label={ __( 'Email address for notifications', 'newspack' ) }
 					help={ __( 'Email address to send notifications to.', 'newspack' ) }
