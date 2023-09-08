@@ -118,7 +118,8 @@ Running WooCommerce-to-ESP contact resync...
 
 		if ( ! empty( $subscription_ids ) ) {
 			\WP_CLI::log( __( 'Migrating by subscription ID...', 'newspack' ) );
-			while ( $subscription_ids ) {
+
+			while ( ! empty( $subscription_ids ) ) {
 				$subscription_id = array_shift( $subscription_ids );
 				$subscription    = new \WC_Subscription( $subscription_id );
 
@@ -142,8 +143,6 @@ Running WooCommerce-to-ESP contact resync...
 					$subscription_ids = Stripe_Sync::get_migrated_subscriptions( $batch_size, $batches * $batch_size );
 				}
 			}
-
-			return;
 		}
 
 		// If user-ids flag is passed, resync those users.
@@ -177,7 +176,7 @@ Running WooCommerce-to-ESP contact resync...
 		}
 
 		// Default behavior: resync all customers and subscribers.
-		if ( empty( $user_ids ) && empty( $order_ids ) && empty( $subscription_ids ) ) {
+		if ( empty( $user_ids ) && empty( $order_ids ) && empty( $subscription_ids ) && ! $migrated_only ) {
 			\WP_CLI::log( __( 'Migrating all customers...', 'newspack' ) );
 			$user_ids = self::get_batch_of_customers( $batch_size );
 			$batches  = 0;
@@ -194,6 +193,21 @@ Running WooCommerce-to-ESP contact resync...
 				}
 			}
 		}
+
+		\WP_CLI::success(
+			sprintf(
+				// Translators: total number of resynced contacts.
+				__(
+					'
+
+Done! Resynced %d contacts.
+
+		',
+					'newspack'
+				),
+				self::$results['processed']
+			)
+		);
 	}
 
 	/**
@@ -233,9 +247,9 @@ Running WooCommerce-to-ESP contact resync...
 
 		if ( ! $customer->get_order_count() ) {
 			$contact = WooCommerce_Connection::get_contact_from_customer( $customer );
-			$result  = ! $dry_run ? \Newspack_Newsletters_Subscription::add_contact( $contact ) : true;
+			$result  = ! $is_dry_run ? \Newspack_Newsletters_Subscription::add_contact( $contact ) : true;
 		} else {
-			$result = ! $dry_run ? WooCommerce_Connection::sync_reader_from_order( $customer->get_last_order(), false ) : true;
+			$result = ! $is_dry_run ? WooCommerce_Connection::sync_reader_from_order( $customer->get_last_order(), false ) : true;
 		}
 
 		if ( $result && ! \is_wp_error( $result ) ) {
