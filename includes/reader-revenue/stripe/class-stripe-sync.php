@@ -14,6 +14,11 @@ defined( 'ABSPATH' ) || exit;
  */
 class Stripe_Sync {
 	/**
+	 * A flag to indicate that a Stripe subscription was migrated from Stripe to WooCommerce.
+	 */
+	const MIGRATION_CANCELLATION_FLAG = 'newspack_subscription_migrated_to_woo';
+
+	/**
 	 * The final results object.
 	 *
 	 * @var array
@@ -764,7 +769,14 @@ Running script to set next payment dates on migrated subscriptions...
 							sprintf( '    * Would cancel Stripe subscription %s.', $existing_subscription->id )
 						);
 					} else {
-						$stripe->subscriptions->cancel( $existing_subscription->id );
+						$stripe->subscriptions->cancel(
+							$existing_subscription->id,
+							[
+								'cancellation_details' => [
+									'comment' => self::MIGRATION_CANCELLATION_FLAG, // Add a flag so we know not to sync this subscription in the future.
+								],
+							]
+						);
 						\WP_CLI::success( sprintf( 'Cancelled old subscription: %s', $existing_subscription->id ) );
 					}
 				} catch ( \Throwable $e ) {
