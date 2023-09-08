@@ -575,7 +575,7 @@ Running script to set next payment dates on migrated subscriptions...
 	 * @param int $offset Offset to start at.
 	 * @return array Array of WC Subscriptions.
 	 */
-	protected static function get_migrated_subscriptions( $batch_size = 0, $offset = 0 ) {
+	public static function get_migrated_subscriptions( $batch_size = 0, $offset = 0 ) {
 		$args = [
 			'fields'         => 'ids',
 			'offset'         => $offset,
