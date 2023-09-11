@@ -26,11 +26,11 @@ class WooCommerce_Sync {
 		'processed' => 0,
 	];
 
-		/**
-		 * Initialize.
-		 *
-		 * @codeCoverageIgnore
-		 */
+	/**
+	 * Initialize.
+	 *
+	 * @codeCoverageIgnore
+	 */
 	public static function init() {
 		\add_action( 'init', [ __CLASS__, 'wp_cli' ] );
 	}
