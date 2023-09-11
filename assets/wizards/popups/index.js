@@ -42,6 +42,7 @@ const tabbedNavigation = [
 		label: __( 'Segments', 'newpack' ),
 		path: '/segments',
 		exact: true,
+		activeTabPaths: [ '/segments/*' ],
 	},
 	{
 		label: __( 'Analytics', 'newpack' ),

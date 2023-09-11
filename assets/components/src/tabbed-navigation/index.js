@@ -25,7 +25,14 @@ const TabbedNavigation = ( { items, className, disableUpcoming, children = null 
 							to={ item.path }
 							isActive={ ( match, { pathname } ) => {
 								if ( item.activeTabPaths ) {
-									return item.activeTabPaths.includes( pathname );
+									return item.activeTabPaths.some( path => {
+										if ( path.includes( '/*' ) ) {
+											return path
+												.split( '/*' )
+												.every( part => '' === part || pathname.includes( part ) );
+										}
+										return path === pathname;
+									}, false );
 								}
 								return match;
 							} }
