@@ -110,15 +110,16 @@ const AdProductEditor = ( {
 /**
  * Advertising Marketplace Products Screen.
  */
-export default function MarketplaceProducts( { adUnits } ) {
+export default function MarketplaceProducts( { adUnits, wizardApiFetch } ) {
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ placements, setPlacements ] = useState( {} );
 	const [ products, setProducts ] = useState( [] );
 	const [ product, setProduct ] = useState( {} );
 	const [ inFlight, setInFlight ] = useState( false );
 	const fetchPlacements = () => {
-		apiFetch( {
+		wizardApiFetch( {
 			path: `/newspack-ads/v1/placements`,
+			quiet: true,
 		} ).then( data => {
 			for ( const key in data ) {
 				if ( ! data[ key ].data?.ad_unit ) {
@@ -130,8 +131,9 @@ export default function MarketplaceProducts( { adUnits } ) {
 	};
 	const fetchProducts = () => {
 		setInFlight( true );
-		apiFetch( {
+		wizardApiFetch( {
 			path: `/newspack-ads/v1/marketplace/products`,
+			quiet: true,
 		} )
 			.then( data => {
 				setProducts( data );

@@ -25,9 +25,9 @@ import Order from './components/order';
 const { HashRouter, Redirect, Route, Switch, useLocation } = Router;
 
 /**
- * Advertising Markplace screen.
+ * Advertising Marketplace screen.
  */
-const Marketplace = ( { adUnits, gam } ) => {
+function Marketplace( { adUnits, gam, wizardApiFetch } ) {
 	const location = useLocation();
 	const [ orders, setOrders ] = useState( [] );
 	const [ inFlight, setInFlight ] = useState( false );
@@ -149,17 +149,23 @@ const Marketplace = ( { adUnits, gam } ) => {
 							</Fragment>
 						) }
 					/>
-					<Route path="/marketplace/products" render={ () => <Products adUnits={ adUnits } /> } />
+					<Route
+						path="/marketplace/products"
+						render={ () => <Products adUnits={ adUnits } wizardApiFetch={ wizardApiFetch } /> }
+					/>
 					<Route
 						path="/marketplace/orders"
 						render={ () => <Orders orders={ orders } onOrderUpdate={ handleOrderUpdate } /> }
 					/>
-					<Route path="/marketplace/settings" render={ () => <Settings /> } />
+					<Route
+						path="/marketplace/settings"
+						render={ () => <Settings wizardApiFetch={ wizardApiFetch } /> }
+					/>
 					<Redirect to="/marketplace" />
 				</Switch>
 			</HashRouter>
 		</div>
 	);
-};
+}
 
 export default withWizardScreen( Marketplace );

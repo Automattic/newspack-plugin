@@ -14,29 +14,34 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Grid, Card } from '../../../../../components/src';
+import { Grid, Card, Notice } from '../../../../../components/src';
 
 /**
  * Advertising Marketplace Products Screen.
  */
-export default function MarketplaceSettings() {
+export default function MarketplaceSettings( { wizardApiFetch } ) {
 	const [ settings, setSettings ] = useState( {} );
 	const [ inFlight, setInFlight ] = useState( false );
+	const [ error, setError ] = useState( null );
 	useEffect( () => {
 		setInFlight( true );
-		apiFetch( {
+		setError( null );
+		if ( ! wizardApiFetch ) return;
+		wizardApiFetch( {
 			path: `/newspack-ads/v1/marketplace/settings`,
+			quiet: true,
 		} )
 			.then( data => {
 				setSettings( data );
 			} )
 			.catch( err => {
-				console.log( err );
+				setError( err );
 			} )
 			.finally( () => setInFlight( false ) );
 	}, [] );
 	const save = () => {
 		setInFlight( true );
+		setError( null );
 		apiFetch( {
 			path: `/newspack-ads/v1/marketplace/settings`,
 			method: 'POST',
@@ -46,7 +51,7 @@ export default function MarketplaceSettings() {
 				setSettings( data );
 			} )
 			.catch( err => {
-				console.log( err );
+				setError( err );
 			} )
 			.finally( () => setInFlight( false ) );
 	};
@@ -57,6 +62,7 @@ export default function MarketplaceSettings() {
 		<>
 			<h2>{ __( 'Marketplace Settings', 'newspack' ) }</h2>
 			<Grid columns={ 1 } gutter={ 32 }>
+				{ error && <Notice isError noticeText={ error.message } /> }
 				<CheckboxControl
 					label={ __( 'Send email notification', 'newspack' ) }
 					help={ __(

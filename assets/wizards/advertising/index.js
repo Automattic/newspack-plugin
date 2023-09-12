@@ -333,6 +333,7 @@ class AdvertisingWizard extends Component {
 									tabbedNavigation={ tabs }
 									adUnits={ adUnits }
 									gam={ services.google_ad_manager }
+									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
 						/>
