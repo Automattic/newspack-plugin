@@ -37,6 +37,8 @@ final class Reader_Data {
 		add_action( 'newspack_data_event_dispatch_newsletter_updated', [ __CLASS__, 'set_is_newsletter_subscriber' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_new', [ __CLASS__, 'set_is_donor' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_subscription_cancelled', [ __CLASS__, 'set_is_former_donor' ], 10, 2 );
+
+		Data_Events::register_handler( [ __CLASS__, 'check_newsletter_subscription' ], 'reader_logged_in' );
 	}
 
 	/**
@@ -329,6 +331,35 @@ final class Reader_Data {
 		 * @param array $reader_activity Reader activity.
 		 */
 		self::$reader_activity = apply_filters( 'newspack_reader_activity', self::$reader_activity );
+	}
+
+	/**
+	 * Data event handler to check if the user is subscribed to a newsletter and
+	 * set the data item.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
+	 */
+	public static function check_newsletter_subscription( $timestamp, $data ) {
+		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
+			return;
+		}
+		$is_newsletter_subscriber = self::get_data( $data['user_id'], 'is_newsletter_subscriber' );
+		if ( ! empty( $is_newsletter_subscriber ) && gettype( $is_newsletter_subscriber ) === 'string' ) {
+			$is_newsletter_subscriber = json_decode( $is_newsletter_subscriber );
+		}
+		// Bail if reader is already a newsletter subscriber.
+		if ( $is_newsletter_subscriber ) {
+			return;
+		}
+		// Check if the user is subscribed to a newsletter.
+		if ( ! class_exists( '\Newspack_Newsletters' ) || ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
+			return;
+		}
+		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
+		if ( ! is_wp_error( $subscribed_lists ) && ! empty( $subscribed_lists ) && is_array( $subscribed_lists ) ) {
+			self::update_item( $data['user_id'], 'is_newsletter_subscriber', true );
+		}
 	}
 }
 Reader_Data::init();
