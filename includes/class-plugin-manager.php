@@ -254,7 +254,7 @@ class Plugin_Manager {
 			],
 			'complianz-gdpr'                => [
 				'Name'        => esc_html__( 'Complianz - GDPR/CCPA Cookie Consent', 'newspack' ),
-				'Description' => esc_html__( 'Configure your Cookie Banner, Cookie Consent and Cookie Policy with our Wizard and Cookie Scan. Supports GDPR, DSGVO, TTDSG, LGPD, POPIA, RGPD, CCPA/CPRA and PIPEDA.', 'newspack' ),
+				'Description' => esc_html__( 'Complianz is a GDPR/CCPA Cookie Consent plugin that supports GDPR, ePrivacy, DSGVO, TTDSG, LGPD, POPIA, APA, RGPD, CCPA/CPRA and PIPEDA with a conditional Cookie Notice and customized Cookie Policy based on the results of the built-in Cookie Scan.', 'newspack' ),
 				'Author'      => esc_html__( 'Really Simple Plugins', 'newspack' ),
 				'AuthorURI'   => esc_url( 'https://www.complianz.io/' ),
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/complianz-gdpr/' ),
