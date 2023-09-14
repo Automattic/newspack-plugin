@@ -391,7 +391,10 @@ class Plugin_Manager {
 			'gravityformsstripe',
 			'perfmatters',
 			'onesignal-free-web-push-notifications',
-			'wp-gdpr-cookie-notice',
+			'web-stories',
+			'ads-txt',
+			'woocommerce-memberships',
+			'complianz-gdpr',
 		];
 	}
 
