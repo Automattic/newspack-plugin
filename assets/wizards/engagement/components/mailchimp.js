@@ -20,7 +20,7 @@ export default function Mailchimp( { value, onChange } ) {
 		apiFetch( {
 			path: '/newspack-newsletters/v1/lists',
 		} )
-			.then( res => setLists( res.filter( list => ! list.type ) ) )
+			.then( res => setLists( res.filter( list => list.type_label === 'Mailchimp Audience' ) ) )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
