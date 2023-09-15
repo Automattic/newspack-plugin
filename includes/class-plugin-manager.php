@@ -293,6 +293,15 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/ad-refresh-control/' ),
 				'Download'    => 'wporg',
 			],
+			'ads-txt'                       => [
+				'Name'        => esc_html__( 'Ads.txt Manager', 'newspack' ),
+				'Description' => esc_html__( 'Create, manage, and validate your ads.txt and app-ads.txt from within WordPress, just like any other content asset.', 'newspack' ),
+				'Author'      => esc_html__( '10up', 'newspack' ),
+				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/ads-txt/' ),
+				'AuthorURI'   => esc_url( 'https://10up.com/' ),
+				'Download'    => 'wporg',
+				'EditPath'    => 'options-general.php?page=adstxt-settings',
+			],
 			'publisher-media-kit'           => [
 				'Name'        => esc_html__( 'Publisher Media Kit', 'newspack' ),
 				'Description' => esc_html__( 'Quick and easy option for small to medium sized publishers to digitize their media kit.', 'newspack' ),
