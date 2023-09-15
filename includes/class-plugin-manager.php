@@ -394,7 +394,6 @@ class Plugin_Manager {
 			'web-stories',
 			'ads-txt',
 			'woocommerce-memberships',
-			'complianz-gdpr',
 		];
 	}
 
