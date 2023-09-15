@@ -6,7 +6,7 @@
  * Author: Automattic
  * Author URI: https://newspack.com/
  * License: GPL2
- * Text Domain: newspack
+ * Text Domain: newspack-plugin
  * Domain Path: /languages/
  *
  * @package         Newspack_Plugin
