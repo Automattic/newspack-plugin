@@ -400,6 +400,7 @@ class Plugin_Manager {
 			'gravityformsstripe',
 			'perfmatters',
 			'onesignal-free-web-push-notifications',
+			'super-cool-ad-inserter-plugin',
 			'web-stories',
 			'ads-txt',
 			'woocommerce-memberships',
