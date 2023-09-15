@@ -1,3 +1,10 @@
+## [2.6.1](https://github.com/Automattic/newspack-plugin/compare/v2.6.0...v2.6.1) (2023-09-15)
+
+
+### Bug Fixes
+
+* restore audience selector for mailchimp data sync ([#2645](https://github.com/Automattic/newspack-plugin/issues/2645)) ([8ce676c](https://github.com/Automattic/newspack-plugin/commit/8ce676c0ca8d74c1d4464ad3af15b88e2e7ffd30))
+
 # [2.6.0](https://github.com/Automattic/newspack-plugin/compare/v2.5.1...v2.6.0) (2023-09-13)
 
 
