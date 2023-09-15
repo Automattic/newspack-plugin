@@ -253,12 +253,12 @@ class Plugin_Manager {
 				'WPCore'   => true,
 				'EditPath' => 'options-discussion.php',
 			],
-			'wp-gdpr-cookie-notice'         => [
-				'Name'        => esc_html__( 'WP GDPR Cookie Notice', 'newspack' ),
-				'Description' => esc_html__( 'Simple performant cookie consent notice that supports AMP, granular cookie control and live preview customization.', 'newspack' ),
-				'Author'      => esc_html__( 'Felix Arntz', 'newspack' ),
-				'AuthorURI'   => esc_url( 'https://felix-arntz.me/' ),
-				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/wp-gdpr-cookie-notice/' ),
+			'complianz-gdpr'                => [
+				'Name'        => esc_html__( 'Complianz - GDPR/CCPA Cookie Consent', 'newspack' ),
+				'Description' => esc_html__( 'Complianz is a GDPR/CCPA Cookie Consent plugin that supports GDPR, ePrivacy, DSGVO, TTDSG, LGPD, POPIA, APA, RGPD, CCPA/CPRA and PIPEDA with a conditional Cookie Notice and customized Cookie Policy based on the results of the built-in Cookie Scan.', 'newspack' ),
+				'Author'      => esc_html__( 'Really Simple Plugins', 'newspack' ),
+				'AuthorURI'   => esc_url( 'https://www.complianz.io/' ),
+				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/complianz-gdpr/' ),
 				'Download'    => 'wporg',
 			],
 			'simple-local-avatars'          => [
