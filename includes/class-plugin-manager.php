@@ -390,7 +390,6 @@ class Plugin_Manager {
 	 */
 	private static function get_supported_plugins_slugs() {
 		return [
-			'amp',
 			'gutenberg',
 			'classic-widgets',
 			'republication-tracker-tool',
@@ -401,6 +400,7 @@ class Plugin_Manager {
 			'gravityformsstripe',
 			'perfmatters',
 			'onesignal-free-web-push-notifications',
+			'super-cool-ad-inserter-plugin',
 			'web-stories',
 			'ads-txt',
 			'woocommerce-memberships',
