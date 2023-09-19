@@ -14,6 +14,27 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Updater {
 	/**
+	 * Plugin slug.
+	 *
+	 * @var string
+	 */
+	private $plugin;
+
+	/**
+	 * Plugin file.
+	 *
+	 * @var string
+	 */
+	private $plugin_file;
+
+	/**
+	 * GitHub repository.
+	 *
+	 * @var string
+	 */
+	private $github_repository;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $plugin            Plugin.
@@ -24,7 +45,6 @@ final class Updater {
 		$this->plugin            = $plugin;
 		$this->plugin_file       = $plugin_file;
 		$this->github_repository = $github_repository;
-		$this->plugin_data       = \get_plugin_data( $plugin_file );
 		add_filter( 'site_transient_update_plugins', [ $this, 'add_update_data' ] );
 	}
 
@@ -38,7 +58,7 @@ final class Updater {
 	}
 
 	/**
-	 * Get data on the latest release.
+	 * Fetch GitHub data on the latest release.
 	 *
 	 * @return array|bool
 	 */
@@ -76,6 +96,7 @@ final class Updater {
 		if ( false === $release_data ) {
 			$github_data = self::fetch_latest_github_data();
 			if ( $github_data ) {
+				$plugin_data  = \get_plugin_data( $this->plugin_file );
 				$release_data = (object) [
 					'id'            => $this->plugin,
 					'slug'          => $this->plugin_data['TextDomain'],
@@ -110,6 +131,7 @@ final class Updater {
 		if ( empty( $data ) ) {
 			return $transient;
 		}
+		$plugin_data = \get_plugin_data( $this->plugin_file );
 		if ( version_compare( $this->plugin_data['Version'], $data->new_version, '<' ) ) {
 			$transient->response[ $this->plugin ] = $data;
 		} else {
