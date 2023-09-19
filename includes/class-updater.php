@@ -99,10 +99,10 @@ final class Updater {
 				$plugin_data  = \get_plugin_data( $this->plugin_file );
 				$release_data = (object) [
 					'id'            => $this->plugin,
-					'slug'          => $this->plugin_data['TextDomain'],
+					'slug'          => $plugin_data['TextDomain'],
 					'plugin'        => $this->plugin,
 					'new_version'   => str_replace( 'v', '', $github_data['tag_name'] ),
-					'url'           => $this->plugin_data['PluginURI'],
+					'url'           => $plugin_data['PluginURI'],
 					'package'       => $github_data['zipball_url'],
 					'icons'         => [],
 					'banners'       => [],
@@ -132,7 +132,7 @@ final class Updater {
 			return $transient;
 		}
 		$plugin_data = \get_plugin_data( $this->plugin_file );
-		if ( version_compare( $this->plugin_data['Version'], $data->new_version, '<' ) ) {
+		if ( version_compare( $plugin_data['Version'], $data->new_version, '<' ) ) {
 			$transient->response[ $this->plugin ] = $data;
 		} else {
 			$transient->no_update[ $this->plugin ] = $data;
