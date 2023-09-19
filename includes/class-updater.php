@@ -45,7 +45,7 @@ final class Updater {
 		$this->plugin            = $plugin;
 		$this->plugin_file       = $plugin_file;
 		$this->github_repository = $github_repository;
-		add_filter( 'site_transient_update_plugins', [ $this, 'add_update_data' ] );
+		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'add_update_data' ] );
 	}
 
 	/**
@@ -79,7 +79,7 @@ final class Updater {
 			return false;
 		}
 
-		if ( empty( $data['tag_name'] ) || empty( $data['zipball_url'] ) ) {
+		if ( empty( $data['tag_name'] ) || empty( $data['assets'] ) ) {
 			return false;
 		}
 
@@ -103,7 +103,7 @@ final class Updater {
 					'plugin'        => $this->plugin,
 					'new_version'   => str_replace( 'v', '', $github_data['tag_name'] ),
 					'url'           => $plugin_data['PluginURI'],
-					'package'       => $github_data['zipball_url'],
+					'package'       => $github_data['assets'][0]['browser_download_url'],
 					'icons'         => [],
 					'banners'       => [],
 					'banners_rtl'   => [],
@@ -134,8 +134,10 @@ final class Updater {
 		$plugin_data = \get_plugin_data( $this->plugin_file );
 		if ( version_compare( $plugin_data['Version'], $data->new_version, '<' ) ) {
 			$transient->response[ $this->plugin ] = $data;
+			unset( $transient->no_update[ $this->plugin ] );
 		} else {
 			$transient->no_update[ $this->plugin ] = $data;
+			unset( $transient->response[ $this->plugin ] );
 		}
 		return $transient;
 	}
