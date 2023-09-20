@@ -156,6 +156,7 @@ class AdvertisingWizard extends Component {
 				label: __( 'Providers', 'newspack' ),
 				path: '/',
 				exact: true,
+				activeTabPaths: [ '/', '/google_ad_manager/*' ],
 			},
 			{
 				label: __( 'Placements', 'newspack' ),
@@ -176,6 +177,7 @@ class AdvertisingWizard extends Component {
 			{
 				label: __( 'Marketplace', 'newspack' ),
 				path: '/marketplace',
+				activeTabPaths: [ '/marketplace/*' ],
 			},
 		];
 		return (
@@ -331,6 +333,7 @@ class AdvertisingWizard extends Component {
 									tabbedNavigation={ tabs }
 									adUnits={ adUnits }
 									gam={ services.google_ad_manager }
+									wizardApiFetch={ wizardApiFetch }
 								/>
 							) }
 						/>

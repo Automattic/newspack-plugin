@@ -86,11 +86,7 @@ class EngagementWizard extends Component {
 				label: __( 'Reader Activation', 'newspack' ),
 				path: '/reader-activation',
 				exact: true,
-				activeTabPaths: [
-					'/reader-activation',
-					'/reader-activation/campaign',
-					'/reader-activation/complete',
-				],
+				activeTabPaths: [ '/reader-activation/*' ],
 			},
 			{
 				label: __( 'Newsletters', 'newspack' ),
