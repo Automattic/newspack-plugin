@@ -1,9 +1,9 @@
-# [2.7.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.7.0-alpha.1...v2.7.0-alpha.2) (2023-09-20)
+## [2.6.3](https://github.com/Automattic/newspack-plugin/compare/v2.6.2...v2.6.3) (2023-09-21)
 
 
 ### Bug Fixes
 
-* partial text domain update for the newspack plugin ([#2646](https://github.com/Automattic/newspack-plugin/issues/2646)) ([#2654](https://github.com/Automattic/newspack-plugin/issues/2654)) ([3b5b713](https://github.com/Automattic/newspack-plugin/commit/3b5b713e06b0e8a7abd7d92688fd25402e8c44b4))
+* allow set-next-payment-dates-for-migrated-subscriptions to reset past dates ([#2644](https://github.com/Automattic/newspack-plugin/issues/2644)) ([72f147e](https://github.com/Automattic/newspack-plugin/commit/72f147e5f480e395eead1b12ede84c5a2d968d8c))
 
 ## [2.6.2](https://github.com/Automattic/newspack-plugin/compare/v2.6.1...v2.6.2) (2023-09-20)
 
