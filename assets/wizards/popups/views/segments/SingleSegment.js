@@ -293,7 +293,7 @@ addFilter(
 	'newspack.criteria.input',
 	'newspack.newsletterSubscribedLists',
 	function ( element, criteria, value, update ) {
-		if ( criteria.id === 'newsletter_subscribed_lists' ) {
+		if ( [ 'subscribed_lists', 'not_subscribed_lists' ].includes( criteria.id ) ) {
 			return (
 				<SubscriptionListsControl
 					placeholder={ __( 'Start typing to search for lists…', 'newspack-plugin' ) }

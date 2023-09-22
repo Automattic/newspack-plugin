@@ -270,7 +270,7 @@ const getNewsletterSubscriptionLists = memoize( async () => {
 	}
 } );
 
-const NewsletterSubscriptionListsNames = ( { ids } ) => {
+const NewsletterSubscriptionListsNames = ( { label, ids } ) => {
 	const [ lists, setLists ] = useState( [] );
 	useEffect( () => {
 		getNewsletterSubscriptionLists().then( setLists );
@@ -280,7 +280,7 @@ const NewsletterSubscriptionListsNames = ( { ids } ) => {
 	}
 	return (
 		<span>
-			{ __( 'Newsletter Subscribed Lists:', 'newspack' ) }{ ' ' }
+			{ label }{ ' ' }
 			{ lists.length
 				? lists
 						.filter( list => ids.includes( list.id ) )
@@ -295,11 +295,18 @@ addFilter(
 	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
 	'newspack.newsletterSubscribedLists',
 	( message, value, config, item ) => {
-		if ( 'newsletter_subscribed_lists' === config.id ) {
+		if ( [ 'subscribed_lists', 'not_subscribed_lists' ].includes( config.id ) ) {
 			if ( ! item.value?.length ) {
 				return null;
 			}
-			return <NewsletterSubscriptionListsNames ids={ item.value } />;
+			return (
+				<NewsletterSubscriptionListsNames
+					label={
+						config.id === 'subscribed_lists' ? __( 'Subscribed to:' ) : __( 'Not subscribed to:' )
+					}
+					ids={ item.value }
+				/>
+			);
 		}
 		return message;
 	}
