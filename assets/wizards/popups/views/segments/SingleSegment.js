@@ -287,7 +287,7 @@ addFilter(
 );
 
 /**
- * Adds a custom input for the newsletter_subscribed_lists criteria.
+ * Adds a custom input for the subscribed_lists and not_subscribed_lists criteria.
  */
 addFilter(
 	'newspack.criteria.input',
