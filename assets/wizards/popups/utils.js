@@ -189,7 +189,9 @@ export const segmentDescription = segment => {
 					config,
 					item
 				);
-				descriptionMessages.push( message );
+				if ( message ) {
+					descriptionMessages.push( message );
+				}
 			}
 		}
 	}
@@ -231,6 +233,9 @@ const FavoriteCategoriesNames = ( { ids } ) => {
 	useEffect( () => {
 		getFavoriteCategoryNames( ids ).then( setFavoriteCategoryNames );
 	}, [ ids ] );
+	if ( ! favoriteCategoryNames.length ) {
+		return null;
+	}
 	return (
 		<span>
 			{ __( 'Favorite Categories:', 'newspack' ) }{ ' ' }
@@ -244,7 +249,57 @@ addFilter(
 	'newspack.favoriteCategories',
 	( message, value, config, item ) => {
 		if ( 'favorite_categories' === config.id ) {
+			if ( ! item.value?.length ) {
+				return null;
+			}
 			return <FavoriteCategoriesNames ids={ item.value } />;
+		}
+		return message;
+	}
+);
+
+const getNewsletterSubscriptionLists = memoize( async () => {
+	try {
+		const lists = await apiFetch( {
+			path: '/newspack-newsletters/v1/lists_config',
+		} );
+		return Object.values( lists ).map( item => ( { id: item.id, label: item.title } ) );
+	} catch ( e ) {
+		console.warn( e );
+		return [];
+	}
+} );
+
+const NewsletterSubscriptionListsNames = ( { ids } ) => {
+	const [ lists, setLists ] = useState( [] );
+	useEffect( () => {
+		getNewsletterSubscriptionLists().then( setLists );
+	}, [ ids ] );
+	if ( ! lists.length ) {
+		return null;
+	}
+	return (
+		<span>
+			{ __( 'Newsletter Subscribed Lists:', 'newspack' ) }{ ' ' }
+			{ lists.length
+				? lists
+						.filter( list => ids.includes( list.id ) )
+						.map( list => list.label )
+						.join( ', ' )
+				: '' }
+		</span>
+	);
+};
+
+addFilter(
+	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+	'newspack.newsletterSubscribedLists',
+	( message, value, config, item ) => {
+		if ( 'newsletter_subscribed_lists' === config.id ) {
+			if ( ! item.value?.length ) {
+				return null;
+			}
+			return <NewsletterSubscriptionListsNames ids={ item.value } />;
 		}
 		return message;
 	}
