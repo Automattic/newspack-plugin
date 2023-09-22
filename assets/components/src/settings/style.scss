@@ -53,11 +53,12 @@
 					width: 100%;
 				}
 				.newspack-autocomplete-tokenfield {
+					display: block;
+					margin: 0;
+
 					label:empty {
 						display: none;
 					}
-					display: block;
-					margin: 0;
 				}
 				.newspack-text-control,
 				.newspack-checkbox-control {
