@@ -1,9 +1,9 @@
-# [2.7.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.7.0-alpha.2...v2.7.0-alpha.3) (2023-09-21)
+## [2.6.4](https://github.com/Automattic/newspack-plugin/compare/v2.6.3...v2.6.4) (2023-09-22)
 
 
 ### Bug Fixes
 
-* allow set-next-payment-dates-for-migrated-subscriptions to reset past dates ([#2644](https://github.com/Automattic/newspack-plugin/issues/2644)) ([72f147e](https://github.com/Automattic/newspack-plugin/commit/72f147e5f480e395eead1b12ede84c5a2d968d8c))
+* remove Stripe migration scripts ([#2657](https://github.com/Automattic/newspack-plugin/issues/2657)) ([13ad632](https://github.com/Automattic/newspack-plugin/commit/13ad63274c5d4a80a23f25306b5e4ce9c35f3141))
 
 ## [2.6.3](https://github.com/Automattic/newspack-plugin/compare/v2.6.2...v2.6.3) (2023-09-21)
 
