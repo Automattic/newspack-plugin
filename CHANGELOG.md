@@ -1,3 +1,18 @@
+# [2.7.0](https://github.com/Automattic/newspack-plugin/compare/v2.6.4...v2.7.0) (2023-09-25)
+
+
+### Bug Fixes
+
+* partial text domain update for the newspack plugin ([#2646](https://github.com/Automattic/newspack-plugin/issues/2646)) ([7d92092](https://github.com/Automattic/newspack-plugin/commit/7d92092340e6559e0676e42b42561546e43550ef))
+
+
+### Features
+
+* add ads.txt manager to plugin manager ([#2639](https://github.com/Automattic/newspack-plugin/issues/2639)) ([06eccaa](https://github.com/Automattic/newspack-plugin/commit/06eccaa75daaafa915df03f5758e776ba763c1a0))
+* **amp-deprecation:** remove AMP from supported list ([#2647](https://github.com/Automattic/newspack-plugin/issues/2647)) ([ef98476](https://github.com/Automattic/newspack-plugin/commit/ef98476e834f672504d40f554411e647af3b1707))
+* disable deactivate and delete for Akismet ([#2593](https://github.com/Automattic/newspack-plugin/issues/2593)) ([136752a](https://github.com/Automattic/newspack-plugin/commit/136752a6f86c7d8de6d77921ddd841380405a231))
+* replace recommended cookie plugin ([#2223](https://github.com/Automattic/newspack-plugin/issues/2223)) ([4a309be](https://github.com/Automattic/newspack-plugin/commit/4a309be2141a18333f6ce3c2346450224c555028))
+
 # [2.7.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v2.7.0-alpha.3...v2.7.0-alpha.4) (2023-09-22)
 
 
