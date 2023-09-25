@@ -302,6 +302,24 @@ function attachAuthCookiesListener() {
 	}, 1000 );
 }
 
+/**
+ * Persist UTM parameters to store.
+ */
+function persistUTMParams() {
+	const tags = [ 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content' ];
+	const utmParams = new URLSearchParams( window.location.search );
+	const utm = {};
+	for ( const tag of tags ) {
+		const value = utmParams.get( tag );
+		if ( value ) {
+			utm[ tag ] = value;
+		}
+	}
+	if ( Object.keys( utm ).length ) {
+		store.set( 'utm', utm, false );
+	}
+}
+
 const readerActivation = {
 	store,
 	on,
@@ -361,6 +379,7 @@ function init() {
 	attachAuthCookiesListener();
 	pushActivities();
 	setReferrer();
+	persistUTMParams();
 
 	window.newspackReaderActivation = readerActivation;
 
