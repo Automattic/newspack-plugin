@@ -1,3 +1,83 @@
+# [2.7.0](https://github.com/Automattic/newspack-plugin/compare/v2.6.4...v2.7.0) (2023-09-25)
+
+
+### Bug Fixes
+
+* partial text domain update for the newspack plugin ([#2646](https://github.com/Automattic/newspack-plugin/issues/2646)) ([7d92092](https://github.com/Automattic/newspack-plugin/commit/7d92092340e6559e0676e42b42561546e43550ef))
+
+
+### Features
+
+* add ads.txt manager to plugin manager ([#2639](https://github.com/Automattic/newspack-plugin/issues/2639)) ([06eccaa](https://github.com/Automattic/newspack-plugin/commit/06eccaa75daaafa915df03f5758e776ba763c1a0))
+* **amp-deprecation:** remove AMP from supported list ([#2647](https://github.com/Automattic/newspack-plugin/issues/2647)) ([ef98476](https://github.com/Automattic/newspack-plugin/commit/ef98476e834f672504d40f554411e647af3b1707))
+* disable deactivate and delete for Akismet ([#2593](https://github.com/Automattic/newspack-plugin/issues/2593)) ([136752a](https://github.com/Automattic/newspack-plugin/commit/136752a6f86c7d8de6d77921ddd841380405a231))
+* replace recommended cookie plugin ([#2223](https://github.com/Automattic/newspack-plugin/issues/2223)) ([4a309be](https://github.com/Automattic/newspack-plugin/commit/4a309be2141a18333f6ce3c2346450224c555028))
+
+# [2.7.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v2.7.0-alpha.3...v2.7.0-alpha.4) (2023-09-22)
+
+
+### Bug Fixes
+
+* remove Stripe migration scripts ([#2657](https://github.com/Automattic/newspack-plugin/issues/2657)) ([13ad632](https://github.com/Automattic/newspack-plugin/commit/13ad63274c5d4a80a23f25306b5e4ce9c35f3141))
+
+## [2.6.4](https://github.com/Automattic/newspack-plugin/compare/v2.6.3...v2.6.4) (2023-09-22)
+
+
+### Bug Fixes
+
+* remove Stripe migration scripts ([#2657](https://github.com/Automattic/newspack-plugin/issues/2657)) ([13ad632](https://github.com/Automattic/newspack-plugin/commit/13ad63274c5d4a80a23f25306b5e4ce9c35f3141))
+
+## [2.6.3](https://github.com/Automattic/newspack-plugin/compare/v2.6.2...v2.6.3) (2023-09-21)
+
+
+### Bug Fixes
+
+* allow set-next-payment-dates-for-migrated-subscriptions to reset past dates ([#2644](https://github.com/Automattic/newspack-plugin/issues/2644)) ([72f147e](https://github.com/Automattic/newspack-plugin/commit/72f147e5f480e395eead1b12ede84c5a2d968d8c))
+
+## [2.6.2](https://github.com/Automattic/newspack-plugin/compare/v2.6.1...v2.6.2) (2023-09-20)
+
+
+### Bug Fixes
+
+* partial text domain update for the newspack plugin ([#2646](https://github.com/Automattic/newspack-plugin/issues/2646)) ([#2654](https://github.com/Automattic/newspack-plugin/issues/2654)) ([3b5b713](https://github.com/Automattic/newspack-plugin/commit/3b5b713e06b0e8a7abd7d92688fd25402e8c44b4))
+
+## [2.6.1](https://github.com/Automattic/newspack-plugin/compare/v2.6.0...v2.6.1) (2023-09-15)
+
+
+### Bug Fixes
+
+* restore audience selector for mailchimp data sync ([#2645](https://github.com/Automattic/newspack-plugin/issues/2645)) ([8ce676c](https://github.com/Automattic/newspack-plugin/commit/8ce676c0ca8d74c1d4464ad3af15b88e2e7ffd30))
+
+# [2.6.0](https://github.com/Automattic/newspack-plugin/compare/v2.5.1...v2.6.0) (2023-09-13)
+
+
+### Bug Fixes
+
+* sync scripts for Stripe-to-Woo migrations ([#2632](https://github.com/Automattic/newspack-plugin/issues/2632)) ([34beb15](https://github.com/Automattic/newspack-plugin/commit/34beb159d4d8a5eb2ce2c6a931989708752a59fd))
+
+
+### Features
+
+* add anonymized email to ga4 events ([#2585](https://github.com/Automattic/newspack-plugin/issues/2585)) ([9ac1c33](https://github.com/Automattic/newspack-plugin/commit/9ac1c3378f188794de63c9947ca7e46f5dd8644c))
+* add filter to the lists in the reg block ([#2611](https://github.com/Automattic/newspack-plugin/issues/2611)) ([d960541](https://github.com/Automattic/newspack-plugin/commit/d96054167c428f0d7f3a36e99f7c1b3fd1c3bbd3))
+* new option to require all membership plans for restricted content ([#2623](https://github.com/Automattic/newspack-plugin/issues/2623)) ([60b361e](https://github.com/Automattic/newspack-plugin/commit/60b361e78b86a77ab2502a91a6d1bcbc9218e533))
+
+# [2.6.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.6.0-alpha.1...v2.6.0-alpha.2) (2023-09-11)
+
+
+### Bug Fixes
+
+* sync scripts for Stripe-to-Woo migrations ([#2632](https://github.com/Automattic/newspack-plugin/issues/2632)) ([34beb15](https://github.com/Automattic/newspack-plugin/commit/34beb159d4d8a5eb2ce2c6a931989708752a59fd))
+
+# [2.6.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.5.1...v2.6.0-alpha.1) (2023-09-06)
+
+
+### Features
+
+* add anonymized email to ga4 events ([#2585](https://github.com/Automattic/newspack-plugin/issues/2585)) ([9ac1c33](https://github.com/Automattic/newspack-plugin/commit/9ac1c3378f188794de63c9947ca7e46f5dd8644c))
+* add filter to the lists in the reg block ([#2611](https://github.com/Automattic/newspack-plugin/issues/2611)) ([d960541](https://github.com/Automattic/newspack-plugin/commit/d96054167c428f0d7f3a36e99f7c1b3fd1c3bbd3))
+* new option to require all membership plans for restricted content ([#2623](https://github.com/Automattic/newspack-plugin/issues/2623)) ([60b361e](https://github.com/Automattic/newspack-plugin/commit/60b361e78b86a77ab2502a91a6d1bcbc9218e533))
+
 ## [2.5.1](https://github.com/Automattic/newspack-plugin/compare/v2.5.0...v2.5.1) (2023-09-06)
 
 
