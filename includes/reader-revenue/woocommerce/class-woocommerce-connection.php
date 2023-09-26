@@ -169,9 +169,9 @@ class WooCommerce_Connection {
 
 	/**
 	 * Get the contact data from a WooCommerce customer user account.
-	 * 
+	 *
 	 * @param \WC_Customer|int $customer Customer or customer ID.
-	 * 
+	 *
 	 * @return array|false Contact data or false.
 	 */
 	public static function get_contact_from_customer( $customer ) {
@@ -180,7 +180,7 @@ class WooCommerce_Connection {
 		}
 
 		$metadata = [];
-		
+
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $customer->get_id();
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 
@@ -229,6 +229,13 @@ class WooCommerce_Connection {
 			}
 		}
 		$metadata['current_page_url'] = $payment_page_url;
+
+		$utm = $order->get_meta( 'utm' );
+		if ( ! empty( $utm ) ) {
+			foreach ( $utm as $key => $value ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page_utm' ) . $key ] = $value;
+			}
+		}
 
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
 
