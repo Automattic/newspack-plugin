@@ -89,8 +89,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
 		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics.php';
-		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics-events.php';
-		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics-dimensions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
