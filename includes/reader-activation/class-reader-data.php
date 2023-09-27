@@ -369,17 +369,12 @@ final class Reader_Data {
 		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
 			return;
 		}
-		$is_newsletter_subscriber = self::get_data( $data['user_id'], 'is_newsletter_subscriber' );
-		if ( ! empty( $is_newsletter_subscriber ) && gettype( $is_newsletter_subscriber ) === 'string' ) {
-			$is_newsletter_subscriber = json_decode( $is_newsletter_subscriber );
-		}
-		// Check if the user is subscribed to a newsletter.
 		if ( ! class_exists( '\Newspack_Newsletters' ) || ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
 			return;
 		}
 		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
-		if ( ! is_wp_error( $subscribed_lists ) && ! empty( $subscribed_lists ) && is_array( $subscribed_lists ) ) {
-			self::update_item( $data['user_id'], 'is_newsletter_subscriber', true );
+		if ( ! is_wp_error( $subscribed_lists ) && is_array( $subscribed_lists ) ) {
+			self::update_item( $data['user_id'], 'is_newsletter_subscriber', ! empty( $subscribed_lists ) );
 			self::update_item( $data['user_id'], 'newsletter_subscribed_lists', wp_json_encode( $subscribed_lists ) );
 		}
 	}
