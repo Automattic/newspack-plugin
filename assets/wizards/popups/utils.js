@@ -12,7 +12,6 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
  */
 import memoize from 'lodash/memoize';
 import compact from 'lodash/compact';
-import { format, parse } from 'date-fns';
 
 const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
 
@@ -364,6 +363,3 @@ export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[
 
 export const dataForCampaignId = ( id, campaigns ) =>
 	campaigns.reduce( ( acc, group ) => ( +id > 0 && +id === +group.term_id ? group : acc ), null );
-
-export const formatDate = ( date = new Date() ) => format( date, 'yyyy-MM-dd' );
-export const parseDate = dateString => parse( dateString, 'yyyy-MM-dd', new Date() );

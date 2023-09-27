@@ -10,13 +10,11 @@ import '../../shared/js/public-path';
 import { Component, render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import apiFetch from '@wordpress/api-fetch';
 
 /**
  * External dependencies.
  */
 import { stringify } from 'qs';
-import { subDays } from 'date-fns';
 
 /**
  * Internal dependencies.
@@ -25,7 +23,6 @@ import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Campaigns, Analytics, Settings, Segments } from './views';
 import { CampaignsContext } from './contexts';
-import { formatDate } from './utils';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -61,7 +58,6 @@ class PopupsWizard extends Component {
 		this.state = {
 			campaigns: [],
 			prompts: [],
-			promptsAnalyticsData: null,
 			segments: [],
 			settings: [],
 			previewUrl: null,
@@ -70,37 +66,15 @@ class PopupsWizard extends Component {
 		};
 	}
 	onWizardReady = () => {
-		this.refetch( { isInitial: true } );
+		this.refetch();
 	};
 
-	refetch = ( { isInitial } = {} ) => {
+	refetch = () => {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-popups-wizard/',
 		} )
-			.then( response => {
-				this.updateAfterAPI( response );
-
-				if ( isInitial ) {
-					// Fetch GA report to display per-popup data.
-					const reportSpec = {
-						start_date: formatDate( subDays( new Date(), 30 ) ),
-						end_date: formatDate(),
-						with_report_by_id: true,
-					};
-					apiFetch( { path: `/newspack/v1/popups-analytics/report/?${ stringify( reportSpec ) }` } )
-						.then( ( { report_by_id } ) => {
-							this.setState( {
-								promptsAnalyticsData: report_by_id,
-							} );
-						} )
-						.catch( error => {
-							this.setState( {
-								promptsAnalyticsData: { error },
-							} );
-						} );
-				}
-			} )
+			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
 	};
 
@@ -248,16 +222,7 @@ class PopupsWizard extends Component {
 	render() {
 		const { pluginRequirements, setError, isLoading, wizardApiFetch, startLoading, doneLoading } =
 			this.props;
-		const {
-			campaigns,
-			inFlight,
-			prompts,
-			segments,
-			settings,
-			previewUrl,
-			duplicated,
-			promptsAnalyticsData,
-		} = this.state;
+		const { campaigns, inFlight, prompts, segments, settings, previewUrl, duplicated } = this.state;
 		return (
 			<WebPreview
 				url={ previewUrl }
@@ -386,7 +351,6 @@ class PopupsWizard extends Component {
 													duplicateCampaignGroup={ duplicateCampaignGroup }
 													renameCampaignGroup={ renameCampaignGroup }
 													campaigns={ campaigns }
-													promptsAnalyticsData={ promptsAnalyticsData }
 												/>
 											</CampaignsContext.Provider>
 										);
