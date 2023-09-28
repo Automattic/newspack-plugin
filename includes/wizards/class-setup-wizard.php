@@ -504,6 +504,35 @@ class Setup_Wizard extends Wizard {
 				continue;
 			}
 
+			if ( substr_compare( $key, '_all_posts', -strlen( '_all_posts' ) ) === 0 ) {
+				$post_ids = get_posts(
+					[
+						'posts_per_page' => -1,
+						'post_type'      => 'post',
+						'fields'         => 'ids',
+					]
+				);
+				// Update the featured image position on all posts.
+				if ( 'featured_image_all_posts' === $key ) {
+					foreach ( $post_ids as $post_id ) {
+						update_post_meta( $post_id, 'newspack_featured_image_position', $value );
+						Logger::log(
+							sprintf( 'Updated featured image position to "%s" on post #%s.', $value, $post_id )
+						);
+					}
+				}
+				// Update the template on all posts.
+				if ( 'post_template_all_posts' === $key ) {
+					foreach ( $post_ids as $post_id ) {
+						update_post_meta( $post_id, '_wp_page_template', $value );
+						Logger::log(
+							sprintf( 'Updated template to "%s" on post #%s.', $value, $post_id )
+						);
+					}
+				}
+				continue;
+			}
+
 			if ( null !== $value && in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}

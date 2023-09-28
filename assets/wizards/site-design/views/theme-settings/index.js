@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Fragment, useEffect, useState } from '@wordpress/element';
-import { SelectControl, ToggleControl } from '@wordpress/components';
+import { SelectControl, Notice, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -30,6 +30,8 @@ const ThemeSettings = props => {
 		author_bio_length: authorBioLength = 200,
 		featured_image_default: featuredImageDefault = 'large',
 		post_template_default: postTemplateDefault = 'default',
+		featured_image_all_posts: featuredImageAllPosts = 'none',
+		post_template_all_posts: postTemplateAllPosts = 'none',
 		newspack_image_credits_placeholder_url: imageCreditsPlaceholderUrl,
 		newspack_image_credits_class_name: imageCreditsClassName = '',
 		newspack_image_credits_prefix_label: imageCreditsPrefix = '',
@@ -112,6 +114,62 @@ const ThemeSettings = props => {
 					] }
 					onChange={ value => setThemeMods( { post_template_default: value } ) }
 				/>
+			</Grid>
+			<SectionHeader
+				title={ __( 'Featured Image Position And Post Template For All Posts', 'newspack' ) }
+				description={ __(
+					'Modify how the featured image and post template settings are applied to existing posts. Warning: saving these options will override all posts.',
+					'newspack'
+				) }
+			/>
+			<Grid gutter={ 32 }>
+				<div>
+					<SelectControl
+						label={ __( 'Featured image position for all posts', 'newspack' ) }
+						help={ __( 'Set a featured image position for all posts.', 'newspack' ) }
+						value={ featuredImageAllPosts }
+						options={ [
+							{ label: __( 'Select to change all posts', 'newspack' ), value: 'none' },
+							{ label: __( 'Large', 'newspack' ), value: 'large' },
+							{ label: __( 'Small', 'newspack' ), value: 'small' },
+							{ label: __( 'Behind article title', 'newspack' ), value: 'behind' },
+							{ label: __( 'Beside article title', 'newspack' ), value: 'beside' },
+							{ label: __( 'Hidden', 'newspack' ), value: 'hidden' },
+						] }
+						onChange={ value => setThemeMods( { featured_image_all_posts: value } ) }
+					/>
+					{ featuredImageAllPosts !== 'none' && (
+						<Notice isDismissible={ false } status="warning" className="ma0 mt2">
+							{ __(
+								'After saving the settings with this option selected, all post will be updated. This cannot be undone.',
+								'newspack-newsletters'
+							) }
+						</Notice>
+					) }
+				</div>
+
+				<div>
+					<SelectControl
+						label={ __( 'Template for all posts', 'newspack' ) }
+						help={ __( 'Set a template for all posts.', 'newspack' ) }
+						value={ postTemplateAllPosts }
+						options={ [
+							{ label: __( 'Select to change all posts', 'newspack' ), value: 'none' },
+							{ label: __( 'Default', 'newspack' ), value: 'default' },
+							{ label: __( 'One Column', 'newspack' ), value: 'single-feature.php' },
+							{ label: __( 'One Column Wide', 'newspack' ), value: 'single-wide.php' },
+						] }
+						onChange={ value => setThemeMods( { post_template_all_posts: value } ) }
+					/>
+					{ postTemplateAllPosts !== 'none' && (
+						<Notice isDismissible={ false } status="warning" className="ma0 mt2">
+							{ __(
+								'After saving the settings with this option selected, all post will be updated. This cannot be undone.',
+								'newspack-newsletters'
+							) }
+						</Notice>
+					) }
+				</div>
 			</Grid>
 
 			<SectionHeader

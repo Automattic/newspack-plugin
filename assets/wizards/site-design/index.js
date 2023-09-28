@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
+import { withWizard, utils } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { ThemeSettings, Main } from './views';
 
@@ -36,6 +36,24 @@ class SiteDesignWizard extends Component {
 	updateThemeMods = () => {
 		const { setError, wizardApiFetch } = this.props;
 		const { themeMods } = this.state;
+
+		// Warn user before overwriting existing posts.
+		if (
+			themeMods.featured_image_all_posts !== 'none' ||
+			themeMods.post_template_all_posts !== 'none'
+		) {
+			if (
+				! utils.confirmAction(
+					__(
+						'Saving will overwrite existing posts, this cannot be undone. Are you sure you want to proceed?',
+						'newspack'
+					)
+				)
+			) {
+				return;
+			}
+		}
+
 		const params = {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
