@@ -1,3 +1,10 @@
+## [2.7.1](https://github.com/Automattic/newspack-plugin/compare/v2.7.0...v2.7.1) (2023-09-28)
+
+
+### Bug Fixes
+
+* **perfmatters:** handling false values when applying defaults ([7169d5d](https://github.com/Automattic/newspack-plugin/commit/7169d5dffd531bde6b2d46ca16d2a55aa61de856))
+
 # [2.7.0](https://github.com/Automattic/newspack-plugin/compare/v2.6.4...v2.7.0) (2023-09-25)
 
 
