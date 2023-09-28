@@ -277,6 +277,7 @@ final class Reader_Data {
 	 */
 	public static function update_newsletter_subscribed_lists( $timestamp, $data ) {
 		if ( ! empty( $data['lists'] ) ) {
+			self::update_item( $data['user_id'], 'is_newsletter_subscriber', true );
 			self::update_item( $data['user_id'], 'newsletter_subscribed_lists', wp_json_encode( $data['lists'] ) );
 		}
 		if ( ! empty( $data['lists_added'] ) ) {
@@ -289,6 +290,7 @@ final class Reader_Data {
 			} else {
 				$newsletter_subscribed_lists = $data['lists_added'];
 			}
+			self::update_item( $data['user_id'], 'is_newsletter_subscriber', true );
 			self::update_item( $data['user_id'], 'newsletter_subscribed_lists', wp_json_encode( $newsletter_subscribed_lists ) );
 		}
 		if ( ! empty( $data['lists_removed'] ) ) {
@@ -299,10 +301,9 @@ final class Reader_Data {
 			if ( ! empty( $newsletter_subscribed_lists ) && is_array( $newsletter_subscribed_lists ) ) {
 				$newsletter_subscribed_lists = array_diff( $newsletter_subscribed_lists, $data['lists_removed'] );
 			}
+			self::update_item( $data['user_id'], 'is_newsletter_subscriber', ! empty( $newsletter_subscribed_lists ) );
 			self::update_item( $data['user_id'], 'newsletter_subscribed_lists', wp_json_encode( $newsletter_subscribed_lists ) );
 		}
-		// Deprecate 'is_newsletter_subscriber' item.
-		self::delete_item( $data['user_id'], 'is_newsletter_subscriber' );
 	}
 
 	/**
@@ -386,6 +387,7 @@ final class Reader_Data {
 		}
 		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
 		if ( ! is_wp_error( $subscribed_lists ) && is_array( $subscribed_lists ) ) {
+			self::update_item( $data['user_id'], 'is_newsletter_subscriber', ! empty( $subscribed_lists ) );
 			self::update_item( $data['user_id'], 'newsletter_subscribed_lists', wp_json_encode( $subscribed_lists ) );
 		}
 	}
