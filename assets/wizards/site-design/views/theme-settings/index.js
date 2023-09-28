@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Fragment, useEffect, useState } from '@wordpress/element';
-import { RadioControl, ToggleControl } from '@wordpress/components';
+import { SelectControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -28,7 +28,8 @@ const ThemeSettings = props => {
 		show_author_bio: authorBio = true,
 		show_author_email: authorEmail = false,
 		author_bio_length: authorBioLength = 200,
-		featured_image_default: featuredImageDefault,
+		featured_image_default: featuredImageDefault = 'large',
+		post_template_default: postTemplateDefault = 'default',
 		newspack_image_credits_placeholder_url: imageCreditsPlaceholderUrl,
 		newspack_image_credits_class_name: imageCreditsClassName = '',
 		newspack_image_credits_prefix_label: imageCreditsPrefix = '',
@@ -80,22 +81,38 @@ const ThemeSettings = props => {
 			</Grid>
 
 			<SectionHeader
-				title={ __( 'Featured Image', 'newspack' ) }
-				description={ __( 'Set a default featured image position for new posts.', 'newspack' ) }
+				title={ __( 'Default Featured Image Position And Post Template', 'newspack' ) }
+				description={ __(
+					'Modify how the featured image and post template settings are applied to new posts.',
+					'newspack'
+				) }
 			/>
-			<RadioControl
-				label={ __( 'Default Position', 'newspack' ) }
-				hideLabelFromVision
-				selected={ featuredImageDefault || 'large' }
-				options={ [
-					{ label: __( 'Large', 'newspack' ), value: 'large' },
-					{ label: __( 'Small', 'newspack' ), value: 'small' },
-					{ label: __( 'Behind article title', 'newspack' ), value: 'behind' },
-					{ label: __( 'Beside article title', 'newspack' ), value: 'beside' },
-					{ label: __( 'Hidden', 'newspack' ), value: 'hidden' },
-				] }
-				onChange={ value => setThemeMods( { featured_image_default: value } ) }
-			/>
+			<Grid gutter={ 32 }>
+				<SelectControl
+					label={ __( 'Default featured image position for new posts', 'newspack' ) }
+					help={ __( 'Set a default featured image position for new posts.', 'newspack' ) }
+					value={ featuredImageDefault }
+					options={ [
+						{ label: __( 'Large', 'newspack' ), value: 'large' },
+						{ label: __( 'Small', 'newspack' ), value: 'small' },
+						{ label: __( 'Behind article title', 'newspack' ), value: 'behind' },
+						{ label: __( 'Beside article title', 'newspack' ), value: 'beside' },
+						{ label: __( 'Hidden', 'newspack' ), value: 'hidden' },
+					] }
+					onChange={ value => setThemeMods( { featured_image_default: value } ) }
+				/>
+				<SelectControl
+					label={ __( 'Default template for new posts', 'newspack' ) }
+					help={ __( 'Set a default template for new posts.', 'newspack' ) }
+					value={ postTemplateDefault }
+					options={ [
+						{ label: __( 'Default', 'newspack' ), value: 'default' },
+						{ label: __( 'One Column', 'newspack' ), value: 'single-feature.php' },
+						{ label: __( 'One Column Wide', 'newspack' ), value: 'single-wide.php' },
+					] }
+					onChange={ value => setThemeMods( { post_template_default: value } ) }
+				/>
+			</Grid>
 
 			<SectionHeader
 				title={ __( 'Media Credits', 'newspack' ) }
