@@ -1,17 +1,9 @@
-# [2.8.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.7.1...v2.8.0-alpha.1) (2023-09-28)
+## [2.7.2](https://github.com/Automattic/newspack-plugin/compare/v2.7.1...v2.7.2) (2023-09-28)
 
 
 ### Bug Fixes
 
-* **woocommerce:** hook for rendering UTM inputs ([#2671](https://github.com/Automattic/newspack-plugin/issues/2671)) ([634f7bf](https://github.com/Automattic/newspack-plugin/commit/634f7bfd8b9b96e572151a5aa2554e9a6098fc0c))
-
-
-### Features
-
-* add RAS CLI commands ([#2666](https://github.com/Automattic/newspack-plugin/issues/2666)) ([5afc049](https://github.com/Automattic/newspack-plugin/commit/5afc04934077661e78fe56c0d006868e1364d447))
-* remove unused GA code ([#2664](https://github.com/Automattic/newspack-plugin/issues/2664)) ([1fa99fa](https://github.com/Automattic/newspack-plugin/commit/1fa99fa6f0833416b71ef864eaedb3488d57c6c8))
-* search credit metadata on media library ([#2594](https://github.com/Automattic/newspack-plugin/issues/2594)) ([c33c5b2](https://github.com/Automattic/newspack-plugin/commit/c33c5b2a83bc12777aeac66a13ea38b4d13c19d9))
-* **woocommerce:** store UTM parameters as order meta ([#2665](https://github.com/Automattic/newspack-plugin/issues/2665)) ([39dfc31](https://github.com/Automattic/newspack-plugin/commit/39dfc31de6795fa91cfe79f5505b1eecd651c9ad))
+* **ads:** stick to top toggle ([#2669](https://github.com/Automattic/newspack-plugin/issues/2669)) ([4085ba7](https://github.com/Automattic/newspack-plugin/commit/4085ba7309369481cf242962c086514683d2eb52))
 
 ## [2.7.1](https://github.com/Automattic/newspack-plugin/compare/v2.7.0...v2.7.1) (2023-09-28)
 
