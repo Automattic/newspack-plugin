@@ -31,7 +31,7 @@ class WooCommerce_Order_UTM {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		add_action( 'woocommerce_checkout_after_customer_details', [ __CLASS__, 'render_utm_inputs' ] );
+		add_action( 'woocommerce_checkout_before_order_review_heading', [ __CLASS__, 'render_utm_inputs' ] );
 		add_action( 'woocommerce_new_order', [ __CLASS__, 'set_utm_to_order' ] );
 		add_action( 'woocommerce_admin_order_data_after_billing_address', [ __CLASS__, 'display_utm_parameters' ] );
 	}
