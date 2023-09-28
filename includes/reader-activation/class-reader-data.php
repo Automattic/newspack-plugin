@@ -223,7 +223,9 @@ final class Reader_Data {
 			\update_user_meta( $user_id, 'newspack_reader_data_keys', $user_keys );
 		}
 		\delete_user_meta( $user_id, self::get_meta_key_name( $key ) );
-		self::$deleted_items[] = $key;
+		if ( get_current_user_id() === $user_id ) {
+			self::$deleted_items[] = $key;
+		}
 		return true;
 	}
 
