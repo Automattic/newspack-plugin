@@ -217,6 +217,13 @@ export default function Store() {
 		}
 	}
 
+	// Delete items that were deleted on the server.
+	if ( newspack_reader_data?.deleted_items ) {
+		for ( const key of newspack_reader_data.deleted_items ) {
+			config.storage.removeItem( getStoreItemKey( key ) );
+		}
+	}
+
 	return {
 		/**
 		 * Get a value from the store.
