@@ -1,3 +1,10 @@
+## [2.7.2](https://github.com/Automattic/newspack-plugin/compare/v2.7.1...v2.7.2) (2023-09-28)
+
+
+### Bug Fixes
+
+* **ads:** stick to top toggle ([#2669](https://github.com/Automattic/newspack-plugin/issues/2669)) ([4085ba7](https://github.com/Automattic/newspack-plugin/commit/4085ba7309369481cf242962c086514683d2eb52))
+
 ## [2.7.1](https://github.com/Automattic/newspack-plugin/compare/v2.7.0...v2.7.1) (2023-09-28)
 
 
