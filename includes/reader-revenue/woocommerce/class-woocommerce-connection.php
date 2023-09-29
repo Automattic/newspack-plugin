@@ -336,7 +336,9 @@ class WooCommerce_Connection {
 		if ( ! $contact ) {
 			return;
 		}
-
+		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+			return;
+		}
 		return \Newspack_Newsletters_Subscription::add_contact( $contact );
 	}
 
