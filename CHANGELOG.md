@@ -1,3 +1,10 @@
+# [2.8.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.4...v2.8.0-alpha.5) (2023-09-29)
+
+
+### Bug Fixes
+
+* inline documentation for `Donations::get_donation_settings()` ([#2675](https://github.com/Automattic/newspack-plugin/issues/2675)) ([c6c7916](https://github.com/Automattic/newspack-plugin/commit/c6c79165b1579739b6428b612b5e141903656c88))
+
 # [2.8.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.3...v2.8.0-alpha.4) (2023-09-29)
 
 
