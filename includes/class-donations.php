@@ -285,7 +285,7 @@ class Donations {
 	/**
 	 * Get the donation settings.
 	 *
-	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
+	 * @return array|WP_Error Donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
 		$settings                   = self::get_donation_default_settings();
