@@ -123,7 +123,6 @@ class ActiveCampaign {
 		// 'donation_subscription_new' action for this data.
 		unset( $metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] );
 
-
 		self::put( $email, $metadata );
 	}
 
