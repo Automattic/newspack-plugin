@@ -25,13 +25,6 @@ final class Reader_Data {
 	private static $reader_activity = [];
 
 	/**
-	 * List of deleted items to send to the front-end.
-	 *
-	 * @var string[]
-	 */
-	private static $deleted_items = [];
-
-	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -75,10 +68,9 @@ final class Reader_Data {
 		];
 
 		if ( \is_user_logged_in() ) {
-			$config['api_url']       = \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' );
-			$config['nonce']         = \wp_create_nonce( 'wp_rest' );
-			$config['items']         = self::get_data( \get_current_user_id() );
-			$config['deleted_items'] = self::$deleted_items;
+			$config['api_url'] = \get_rest_url( null, NEWSPACK_API_NAMESPACE . '/reader-data' );
+			$config['nonce']   = \wp_create_nonce( 'wp_rest' );
+			$config['items']   = self::get_data( \get_current_user_id() );
 		}
 
 		wp_localize_script( Reader_Activation::SCRIPT_HANDLE, 'newspack_reader_data', $config );
@@ -223,9 +215,6 @@ final class Reader_Data {
 			\update_user_meta( $user_id, 'newspack_reader_data_keys', $user_keys );
 		}
 		\delete_user_meta( $user_id, self::get_meta_key_name( $key ) );
-		if ( get_current_user_id() === $user_id ) {
-			self::$deleted_items[] = $key;
-		}
 		return true;
 	}
 
