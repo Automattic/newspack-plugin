@@ -1,3 +1,15 @@
+# [2.8.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.3...v2.8.0-alpha.4) (2023-09-29)
+
+
+### Bug Fixes
+
+* **woocommerce:** check method exists before syncing reader ([#2673](https://github.com/Automattic/newspack-plugin/issues/2673)) ([063509c](https://github.com/Automattic/newspack-plugin/commit/063509c12a322f72818c21d3cb10e4b20f5ab243))
+
+
+### Features
+
+* **campaigns:** newsletter subscription list criteria ([#2658](https://github.com/Automattic/newspack-plugin/issues/2658)) ([69c8f88](https://github.com/Automattic/newspack-plugin/commit/69c8f88e794a52952ddbb7f9ef519aabb82558ed))
+
 # [2.8.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.2...v2.8.0-alpha.3) (2023-09-29)
 
 
