@@ -58,6 +58,26 @@ class AutocompleteTokenField extends Component {
 	}
 
 	/**
+	 * When the component updates, fetch information about the tokens so we can populate
+	 * the tokens with the correct labels.
+	 */
+	componentDidUpdate( prevProps ) {
+		const { tokens, fetchSavedInfo } = this.props;
+
+		if ( tokens !== prevProps.tokens && this.isFetchingInfoOnLoad() ) {
+			fetchSavedInfo( tokens ).then( results => {
+				const { validValues } = this.state;
+
+				results.forEach( suggestion => {
+					validValues[ suggestion.value ] = suggestion.label;
+				} );
+
+				this.setState( { validValues, loading: false } );
+			} );
+		}
+	}
+
+	/**
 	 * Clean up any unfinished autocomplete api call requests.
 	 */
 	componentWillUnmount() {
@@ -183,7 +203,7 @@ class AutocompleteTokenField extends Component {
 	 * Render.
 	 */
 	render() {
-		const { help, label = '', maxLength } = this.props;
+		const { help, label = '', placeholder = '', maxLength } = this.props;
 		const { suggestions, loading } = this.state;
 
 		return (
@@ -195,6 +215,7 @@ class AutocompleteTokenField extends Component {
 					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
 					label={ label }
 					maxLength={ maxLength }
+					placeholder={ placeholder }
 				/>
 				{ loading && <Spinner /> }
 				{ help && <p className="newspack-autocomplete-tokenfield__help">{ help }</p> }
