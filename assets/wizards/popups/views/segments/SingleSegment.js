@@ -19,6 +19,7 @@ import {
 	TextControl,
 	hooks,
 } from '../../../../components/src';
+import SubscriptionListsControl from '../../../../components/src/subscription-lists-control';
 
 const { useHistory } = Router;
 const { SettingsCard, SettingsSection, MinMaxSetting } = Settings;
@@ -278,6 +279,26 @@ addFilter(
 					} }
 					label={ criteria.name }
 					hideLabelFromVision
+				/>
+			);
+		}
+		return element;
+	}
+);
+
+/**
+ * Adds a custom input for the subscribed_lists and not_subscribed_lists criteria.
+ */
+addFilter(
+	'newspack.criteria.input',
+	'newspack.newsletterSubscribedLists',
+	function ( element, criteria, value, update ) {
+		if ( [ 'subscribed_lists', 'not_subscribed_lists' ].includes( criteria.id ) ) {
+			return (
+				<SubscriptionListsControl
+					placeholder={ __( 'Start typing to search for lists…', 'newspack-plugin' ) }
+					value={ value }
+					onChange={ update }
 				/>
 			);
 		}

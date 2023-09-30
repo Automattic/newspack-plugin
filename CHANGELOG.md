@@ -1,3 +1,24 @@
+## [2.7.3](https://github.com/Automattic/newspack-plugin/compare/v2.7.2...v2.7.3) (2023-09-29)
+
+
+### Bug Fixes
+
+* remove honeypot field if using reCAPTCHA ([#2667](https://github.com/Automattic/newspack-plugin/issues/2667)) ([9c6c325](https://github.com/Automattic/newspack-plugin/commit/9c6c3259c7638c917790705b6d76bbfdc9ebcb50))
+
+## [2.7.2](https://github.com/Automattic/newspack-plugin/compare/v2.7.1...v2.7.2) (2023-09-28)
+
+
+### Bug Fixes
+
+* **ads:** stick to top toggle ([#2669](https://github.com/Automattic/newspack-plugin/issues/2669)) ([4085ba7](https://github.com/Automattic/newspack-plugin/commit/4085ba7309369481cf242962c086514683d2eb52))
+
+## [2.7.1](https://github.com/Automattic/newspack-plugin/compare/v2.7.0...v2.7.1) (2023-09-28)
+
+
+### Bug Fixes
+
+* **perfmatters:** handling false values when applying defaults ([7169d5d](https://github.com/Automattic/newspack-plugin/commit/7169d5dffd531bde6b2d46ca16d2a55aa61de856))
+
 # [2.7.0](https://github.com/Automattic/newspack-plugin/compare/v2.6.4...v2.7.0) (2023-09-25)
 
 
