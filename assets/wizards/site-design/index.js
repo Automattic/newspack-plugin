@@ -26,7 +26,9 @@ class SiteDesignWizard extends Component {
 			method: 'GET',
 		};
 		wizardApiFetch( params )
-			.then( response => this.setState( { themeSettings: response.theme_mods } ) )
+			.then( response =>
+				this.setState( { themeSettings: { ...response.theme_mods, ...response.etc } } )
+			)
 			.catch( setError );
 	};
 

@@ -125,6 +125,14 @@ const ThemeSettings = props => {
 					'newspack-plugin'
 				) }
 			/>
+			{ themeSettings.post_count > 1000 && (
+				<Notice isDismissible={ false } status="warning" className="ma0 mb2">
+					{ __(
+						'You have more than 1000 posts. Applying this settings might take a moment.',
+						'newspack-plugin'
+					) }
+				</Notice>
+			) }
 			<Grid gutter={ 32 }>
 				<div>
 					<SelectControl

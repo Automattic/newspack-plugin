@@ -373,6 +373,9 @@ class Setup_Wizard extends Wizard {
 				'theme'             => Starter_Content::get_theme(),
 				'theme_mods'        => $theme_mods,
 				'homepage_patterns' => $this->get_homepage_patterns(),
+				'etc'               => [
+					'post_count' => wp_count_posts()->publish,
+				],
 			]
 		);
 	}
