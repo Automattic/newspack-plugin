@@ -141,8 +141,8 @@ const ThemeSettings = props => {
 					{ featuredImageAllPosts !== 'none' && (
 						<Notice isDismissible={ false } status="warning" className="ma0 mt2">
 							{ __(
-								'After saving the settings with this option selected, all post will be updated. This cannot be undone.',
-								'newspack-newsletters'
+								'After saving the settings with this option selected, all posts will be updated. This cannot be undone.',
+								'newspack-plugin'
 							) }
 						</Notice>
 					) }
@@ -164,8 +164,8 @@ const ThemeSettings = props => {
 					{ postTemplateAllPosts !== 'none' && (
 						<Notice isDismissible={ false } status="warning" className="ma0 mt2">
 							{ __(
-								'After saving the settings with this option selected, all post will be updated. This cannot be undone.',
-								'newspack-newsletters'
+								'After saving the settings with this option selected, all posts will be updated. This cannot be undone.',
+								'newspack-plugin'
 							) }
 						</Notice>
 					) }
