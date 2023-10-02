@@ -505,29 +505,47 @@ class Setup_Wizard extends Wizard {
 			}
 
 			if ( substr_compare( $key, '_all_posts', -strlen( '_all_posts' ) ) === 0 ) {
-				$post_ids = get_posts(
-					[
-						'posts_per_page' => -1,
-						'post_type'      => 'post',
-						'fields'         => 'ids',
-					]
-				);
-				// Update the featured image position on all posts.
-				if ( 'featured_image_all_posts' === $key ) {
-					foreach ( $post_ids as $post_id ) {
-						update_post_meta( $post_id, 'newspack_featured_image_position', $value );
-						Logger::log(
-							sprintf( 'Updated featured image position to "%s" on post #%s.', $value, $post_id )
-						);
-					}
+				$meta_key = null;
+				switch ( $key ) {
+					case 'featured_image_all_posts':
+						$meta_key = 'newspack_featured_image_position';
+						break;
+					case 'post_template_all_posts':
+						$meta_key = '_wp_page_template';
+						break;
 				}
-				// Update the template on all posts.
-				if ( 'post_template_all_posts' === $key ) {
-					foreach ( $post_ids as $post_id ) {
-						update_post_meta( $post_id, '_wp_page_template', $value );
+				if ( null !== $meta_key ) {
+					$post_ids = get_posts(
+						[
+							'posts_per_page' => -1,
+							'post_type'      => 'post',
+							'fields'         => 'ids',
+							'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+								[
+									'key'     => $meta_key,
+									'value'   => $value,
+									'compare' => '!=',
+								],
+							],
+						]
+					);
+					// Update the featured image position on all posts.
+					if ( 'featured_image_all_posts' === $key ) {
 						Logger::log(
-							sprintf( 'Updated template to "%s" on post #%s.', $value, $post_id )
+							sprintf( 'Will update featured image position to "%s" on %s posts.', $value, count( $post_ids ) )
 						);
+						foreach ( $post_ids as $post_id ) {
+							update_post_meta( $post_id, 'newspack_featured_image_position', $value );
+						}
+					}
+					// Update the template on all posts.
+					if ( 'post_template_all_posts' === $key ) {
+						Logger::log(
+							sprintf( 'Will update template to "%s" on %s posts.', $value, count( $post_ids ) )
+						);
+						foreach ( $post_ids as $post_id ) {
+							update_post_meta( $post_id, '_wp_page_template', $value );
+						}
 					}
 				}
 				continue;
