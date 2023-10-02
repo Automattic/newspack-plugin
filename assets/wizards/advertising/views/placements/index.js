@@ -210,7 +210,7 @@ const Placements = () => {
 							checked={ !! placement.data?.stick_to_top }
 							onChange={ value => {
 								setPlacements(
-									set( [ editingPlacement, 'data', 'stick_to_top' ], value, placements )
+									set( { ...placements }, [ editingPlacement, 'data', 'stick_to_top' ], value )
 								);
 							} }
 						/>

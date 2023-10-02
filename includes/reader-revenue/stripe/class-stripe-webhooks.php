@@ -255,6 +255,11 @@ class Stripe_Webhooks {
 			return;
 		}
 
+		// If the subscription was cancelled due to a migration to WooCommerce, don't attempt to sync this subscription.
+		if ( isset( $payload['cancellation_details']['comment'] ) && Stripe_Connection::MIGRATION_CANCELLATION_FLAG === $payload['cancellation_details']['comment'] ) {
+			return;
+		}
+
 		switch ( $request['type'] ) {
 			case 'charge.succeeded':
 				$payment  = $payload;
@@ -400,22 +405,6 @@ class Stripe_Webhooks {
 						$was_customer_added_to_mailing_list ? $customer['email'] : null
 					);
 				}
-
-				$label = $frequency;
-				if ( ! empty( $origin ) ) {
-					$label .= ' - ' . $origin;
-				}
-
-				// Send custom event to GA.
-				\Newspack\Google_Services_Connection::send_custom_event(
-					[
-						'category' => __( 'Newspack Donation', 'newspack' ),
-						'action'   => __( 'Stripe', 'newspack' ),
-						'label'    => $label,
-						'value'    => $amount_normalised,
-						'referer'  => $referer,
-					]
-				);
 
 				// Add a transaction to WooCommerce.
 				if ( Donations::is_woocommerce_suite_active() ) {
