@@ -33,7 +33,7 @@ class SiteDesignWizard extends Component {
 	setThemeMods = themeModUpdates =>
 		this.setState( { themeSettings: { ...this.state.themeSettings, ...themeModUpdates } } );
 
-	updateThemeMods = () => {
+	updateThemeSettings = () => {
 		const { setError, wizardApiFetch } = this.props;
 		const { themeSettings } = this.state;
 
@@ -127,7 +127,7 @@ class SiteDesignWizard extends Component {
 										themeSettings={ themeSettings }
 										setThemeMods={ this.setThemeMods }
 										buttonText={ __( 'Save', 'newspack-plugin' ) }
-										buttonAction={ this.updateThemeMods }
+										buttonAction={ this.updateThemeSettings }
 										secondaryButtonText={ __( 'Advanced Settings', 'newspack-plugin' ) }
 										secondaryButtonAction="/wp-admin/customize.php"
 									/>
