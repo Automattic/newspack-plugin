@@ -1,28 +1,9 @@
-# [2.8.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.4...v2.8.0-alpha.5) (2023-09-29)
+## [2.7.4](https://github.com/Automattic/newspack-plugin/compare/v2.7.3...v2.7.4) (2023-10-02)
 
 
 ### Bug Fixes
 
-* inline documentation for `Donations::get_donation_settings()` ([#2675](https://github.com/Automattic/newspack-plugin/issues/2675)) ([c6c7916](https://github.com/Automattic/newspack-plugin/commit/c6c79165b1579739b6428b612b5e141903656c88))
-
-# [2.8.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.3...v2.8.0-alpha.4) (2023-09-29)
-
-
-### Bug Fixes
-
-* **woocommerce:** check method exists before syncing reader ([#2673](https://github.com/Automattic/newspack-plugin/issues/2673)) ([063509c](https://github.com/Automattic/newspack-plugin/commit/063509c12a322f72818c21d3cb10e4b20f5ab243))
-
-
-### Features
-
-* **campaigns:** newsletter subscription list criteria ([#2658](https://github.com/Automattic/newspack-plugin/issues/2658)) ([69c8f88](https://github.com/Automattic/newspack-plugin/commit/69c8f88e794a52952ddbb7f9ef519aabb82558ed))
-
-# [2.8.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.2...v2.8.0-alpha.3) (2023-09-29)
-
-
-### Bug Fixes
-
-* remove honeypot field if using reCAPTCHA ([#2667](https://github.com/Automattic/newspack-plugin/issues/2667)) ([9c6c325](https://github.com/Automattic/newspack-plugin/commit/9c6c3259c7638c917790705b6d76bbfdc9ebcb50))
+* avoid deepMapKeys NPM package ([#2680](https://github.com/Automattic/newspack-plugin/issues/2680)) ([60b9828](https://github.com/Automattic/newspack-plugin/commit/60b9828f5ae41bc11763b4867f44000a4394d1c6))
 
 ## [2.7.3](https://github.com/Automattic/newspack-plugin/compare/v2.7.2...v2.7.3) (2023-09-29)
 

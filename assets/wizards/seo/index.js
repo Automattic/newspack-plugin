@@ -20,11 +20,40 @@ import { Settings } from './views';
 /**
  * External dependencies.
  */
-import deepMapKeys from 'deep-map-keys';
 import camelCase from 'lodash/camelCase';
 import snakeCase from 'lodash/snakeCase';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
+
+/**
+ * Check whether the given object is a pure object with key/value pairs.
+ *
+ * @param {*} obj Object to check.
+ * @return {boolean} True if an object, otherwise false.
+ */
+const isObj = obj =>
+	null !== obj && typeof obj === 'object' && Object.getPrototypeOf( obj ).isPrototypeOf( Object );
+
+/**
+ * Recursively run the given `callback` on all keys of `obj`, and all keys of values of `obj`.
+ *
+ * @param {*}        obj
+ * @param {Function} callback
+ * @return {*} Transformed obj.
+ */
+const deepMapKeys = ( obj, callback ) => {
+	if ( ! isObj( obj ) ) {
+		return obj;
+	}
+	const result = {};
+	for ( const key in obj ) {
+		if ( obj.hasOwnProperty( key ) ) {
+			result[ callback( key ) ] = deepMapKeys( obj[ key ], callback );
+		}
+	}
+
+	return result;
+};
 
 class SEOWizard extends Component {
 	state = {
