@@ -1,3 +1,10 @@
+# [2.8.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.5...v2.8.0-alpha.6) (2023-10-02)
+
+
+### Bug Fixes
+
+* avoid deepMapKeys NPM package ([#2680](https://github.com/Automattic/newspack-plugin/issues/2680)) ([60b9828](https://github.com/Automattic/newspack-plugin/commit/60b9828f5ae41bc11763b4867f44000a4394d1c6))
+
 ## [2.7.4](https://github.com/Automattic/newspack-plugin/compare/v2.7.3...v2.7.4) (2023-10-02)
 
 
