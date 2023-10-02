@@ -504,49 +504,15 @@ class Setup_Wizard extends Wizard {
 				continue;
 			}
 
+			// All-posts updates: featured image and post template.
 			if ( substr_compare( $key, '_all_posts', -strlen( '_all_posts' ) ) === 0 ) {
-				$meta_key = null;
 				switch ( $key ) {
 					case 'featured_image_all_posts':
-						$meta_key = 'newspack_featured_image_position';
+						self::update_meta_key_in_batches( $key, 'newspack_featured_image_position', $value );
 						break;
 					case 'post_template_all_posts':
-						$meta_key = '_wp_page_template';
+						self::update_meta_key_in_batches( $key, '_wp_page_template', $value );
 						break;
-				}
-				if ( null !== $meta_key ) {
-					$post_ids = get_posts(
-						[
-							'posts_per_page' => -1,
-							'post_type'      => 'post',
-							'fields'         => 'ids',
-							'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-								[
-									'key'     => $meta_key,
-									'value'   => $value,
-									'compare' => '!=',
-								],
-							],
-						]
-					);
-					// Update the featured image position on all posts.
-					if ( 'featured_image_all_posts' === $key ) {
-						Logger::log(
-							sprintf( 'Will update featured image position to "%s" on %s posts.', $value, count( $post_ids ) )
-						);
-						foreach ( $post_ids as $post_id ) {
-							update_post_meta( $post_id, 'newspack_featured_image_position', $value );
-						}
-					}
-					// Update the template on all posts.
-					if ( 'post_template_all_posts' === $key ) {
-						Logger::log(
-							sprintf( 'Will update template to "%s" on %s posts.', $value, count( $post_ids ) )
-						);
-						foreach ( $post_ids as $post_id ) {
-							update_post_meta( $post_id, '_wp_page_template', $value );
-						}
-					}
 				}
 				continue;
 			}
@@ -557,6 +523,41 @@ class Setup_Wizard extends Wizard {
 			set_theme_mod( $key, $value );
 		}
 		return self::api_retrieve_theme_and_set_defaults();
+	}
+
+	/**
+	 * Change a meta value on a batch of posts.
+	 *
+	 * @param string $key The key of the theme mod.
+	 * @param string $meta_key The meta key to update.
+	 * @param string $value The value to update.
+	 * @param int    $page The page of posts to update.
+	 */
+	private static function update_meta_key_in_batches( $key, $meta_key, $value, $page = 0 ) {
+		$args            = [
+			'posts_per_page' => 100,
+			'post_type'      => 'post',
+			'fields'         => 'ids',
+			'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				[
+					'key'     => $meta_key,
+					'value'   => $value,
+					'compare' => '!=',
+				],
+			],
+		];
+		$results         = new \WP_Query( $args );
+		$number_of_pages = $results->max_num_pages;
+
+		Logger::log(
+			sprintf( 'Updating %s to "%s" on %s posts (batch %d/%d).', $meta_key, $value, count( $results->posts ), $page + 1, $number_of_pages + $page )
+		);
+		foreach ( $results->posts as $post ) {
+			update_post_meta( $post, $meta_key, $value );
+		}
+		if ( 1 < $number_of_pages ) {
+			self::update_meta_key_in_batches( $key, $meta_key, $value, $page + 1 );
+		}
 	}
 
 	/**
