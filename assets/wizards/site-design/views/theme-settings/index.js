@@ -111,7 +111,7 @@ const ThemeSettings = props => {
 					help={ __( 'Set a default template for new posts.', 'newspack-plugin' ) }
 					value={ postTemplateDefault }
 					options={ [
-						{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
+						{ label: __( 'With sidebar', 'newspack-plugin' ), value: 'default' },
 						{ label: __( 'One Column', 'newspack-plugin' ), value: 'single-feature.php' },
 						{ label: __( 'One Column Wide', 'newspack-plugin' ), value: 'single-wide.php' },
 					] }
@@ -158,7 +158,7 @@ const ThemeSettings = props => {
 						value={ postTemplateAllPosts }
 						options={ [
 							{ label: __( 'Select to change all posts', 'newspack-plugin' ), value: 'none' },
-							{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
+							{ label: __( 'With sidebar', 'newspack-plugin' ), value: 'default' },
 							{ label: __( 'One Column', 'newspack-plugin' ), value: 'single-feature.php' },
 							{ label: __( 'One Column Wide', 'newspack-plugin' ), value: 'single-wide.php' },
 						] }
