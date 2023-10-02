@@ -37,7 +37,7 @@ class ActiveCampaign {
 		if (
 			Reader_Activation::is_enabled() &&
 			true === Reader_Activation::get_setting( 'sync_esp' ) &&
-			'active_campaign' === $provider->service
+			$provider && 'active_campaign' === $provider->service
 		) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
