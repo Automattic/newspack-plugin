@@ -26,15 +26,19 @@ const Main = () => {
 			<SectionHeader title={ __( 'Plugins', 'newspack' ) } />
 			<Plugins />
 			<SectionHeader title={ __( 'APIs', 'newspack' ) } />
-			{ newspack_connections_data.can_connect_google && <GoogleAuth setError={ setError } /> }
-			<Mailchimp setError={ setError } />
+			{ newspack_connections_data.can_connect_google && (
+				<GoogleAuth setError={ err => setError( __( 'Google: ', 'newspack-plugin' ) + err ) } />
+			) }
+			<Mailchimp setError={ err => setError( __( 'Mailchimp: ', 'newspack-plugin' ) + err ) } />
 			{ newspack_connections_data.can_connect_fivetran && (
 				<>
 					<SectionHeader title="Fivetran" />
-					<FivetranConnection setError={ setError } />
+					<FivetranConnection
+						setError={ err => setError( __( 'FiveTran: ', 'newspack-plugin' ) + err ) }
+					/>
 				</>
 			) }
-			<Recaptcha setError={ setError } />
+			<Recaptcha setError={ err => setError( __( 'reCAPTCHA: ', 'newspack-plugin' ) + err ) } />
 			<Webhooks />
 		</>
 	);
