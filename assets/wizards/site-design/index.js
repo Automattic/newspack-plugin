@@ -41,8 +41,9 @@ class SiteDesignWizard extends Component {
 
 		// Warn user before overwriting existing posts.
 		if (
-			themeSettings.featured_image_all_posts !== 'none' ||
-			themeSettings.post_template_all_posts !== 'none'
+			( themeSettings.featured_image_all_posts &&
+				themeSettings.featured_image_all_posts !== 'none' ) ||
+			( themeSettings.post_template_all_posts && themeSettings.post_template_all_posts !== 'none' )
 		) {
 			if (
 				! utils.confirmAction(
