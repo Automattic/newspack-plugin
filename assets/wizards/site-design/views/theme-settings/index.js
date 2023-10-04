@@ -128,7 +128,7 @@ const ThemeSettings = props => {
 			{ themeSettings.post_count > 1000 && (
 				<Notice isDismissible={ false } status="warning" className="ma0 mb2">
 					{ __(
-						'You have more than 1000 posts. Applying this settings might take a moment.',
+						'You have more than 1000 posts. Applying these settings might take a moment.',
 						'newspack-plugin'
 					) }
 				</Notice>
