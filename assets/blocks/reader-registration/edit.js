@@ -32,6 +32,10 @@ import {
  */
 import './editor.scss';
 
+const getListCheckboxId = listId => {
+	return 'newspack-reader-registration-list-checkbox-' + listId;
+};
+
 const editedStateOptions = [
 	{ label: __( 'Initial', 'newspack' ), value: 'initial' },
 	{ label: __( 'Registration Success', 'newspack' ), value: 'registration' },
@@ -54,6 +58,7 @@ export default function ReaderRegistrationEdit( {
 		signInLabel,
 		signedInLabel,
 		lists,
+		listsCheckboxes,
 		className,
 	},
 } ) {
@@ -109,6 +114,15 @@ export default function ReaderRegistrationEdit( {
 
 	const shouldHideSubscribeInput = () => {
 		return lists.length === 1 && hideSubscriptionInput;
+	};
+
+	const isListSelected = listId => {
+		return ! listsCheckboxes.hasOwnProperty( listId ) || listsCheckboxes[ listId ];
+	};
+	const toggleListCheckbox = listId => () => {
+		const newListsCheckboxes = { ...listsCheckboxes };
+		newListsCheckboxes[ listId ] = ! isListSelected( listId );
+		setAttributes( { listsCheckboxes: newListsCheckboxes } );
 	};
 
 	return (
@@ -286,10 +300,18 @@ export default function ReaderRegistrationEdit( {
 											{ lists.map( listId => (
 												<li key={ listId }>
 													<span className="newspack-reader__lists__checkbox">
-														<input type="checkbox" checked readOnly />
+														<input
+															id={ getListCheckboxId( listId ) }
+															type="checkbox"
+															checked={ isListSelected( listId ) }
+															onChange={ toggleListCheckbox( listId ) }
+														/>
 													</span>
 													<span className="newspack-reader__lists__details">
-														<span className="newspack-reader__lists__label">
+														<label
+															htmlFor={ getListCheckboxId( listId ) }
+															className="newspack-reader__lists__label"
+														>
 															<span className="newspack-reader__lists__title">
 																{ lists.length === 1 ? (
 																	<RichText
@@ -309,7 +331,7 @@ export default function ReaderRegistrationEdit( {
 																	{ listConfig[ listId ]?.description }
 																</span>
 															) }
-														</span>
+														</label>
 													</span>
 												</li>
 											) ) }
