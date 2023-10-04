@@ -511,10 +511,10 @@ class Setup_Wizard extends Wizard {
 			if ( substr_compare( $key, '_all_posts', -strlen( '_all_posts' ) ) === 0 ) {
 				switch ( $key ) {
 					case 'featured_image_all_posts':
-						self::update_meta_key_in_batches( $key, 'newspack_featured_image_position', $value );
+						self::update_meta_key_in_batches( 'newspack_featured_image_position', $value );
 						break;
 					case 'post_template_all_posts':
-						self::update_meta_key_in_batches( $key, '_wp_page_template', $value );
+						self::update_meta_key_in_batches( '_wp_page_template', $value );
 						break;
 				}
 				continue;
@@ -531,12 +531,11 @@ class Setup_Wizard extends Wizard {
 	/**
 	 * Change a meta value on a batch of posts.
 	 *
-	 * @param string $key The key of the theme mod.
 	 * @param string $meta_key The meta key to update.
 	 * @param string $value The value to update.
 	 * @param int    $page The page of posts to update.
 	 */
-	private static function update_meta_key_in_batches( $key, $meta_key, $value, $page = 0 ) {
+	private static function update_meta_key_in_batches( $meta_key, $value, $page = 0 ) {
 		$args            = [
 			'posts_per_page' => 100,
 			'post_type'      => 'post',
@@ -559,7 +558,7 @@ class Setup_Wizard extends Wizard {
 			update_post_meta( $post, $meta_key, $value );
 		}
 		if ( 1 < $number_of_pages ) {
-			self::update_meta_key_in_batches( $key, $meta_key, $value, $page + 1 );
+			self::update_meta_key_in_batches( $meta_key, $value, $page + 1 );
 		}
 	}
 
