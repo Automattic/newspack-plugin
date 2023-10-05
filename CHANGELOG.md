@@ -1,3 +1,10 @@
+# [2.8.0-alpha.7](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.6...v2.8.0-alpha.7) (2023-10-05)
+
+
+### Bug Fixes
+
+* **data-events:** earlier priority for webhook registration ([#2683](https://github.com/Automattic/newspack-plugin/issues/2683)) ([3467434](https://github.com/Automattic/newspack-plugin/commit/3467434cf6008326766b01c3f777ef2d1c23cd3e))
+
 ## [2.7.5](https://github.com/Automattic/newspack-plugin/compare/v2.7.4...v2.7.5) (2023-10-05)
 
 
