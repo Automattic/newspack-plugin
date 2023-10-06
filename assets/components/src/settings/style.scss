@@ -48,8 +48,17 @@
 						margin: 0;
 					}
 				}
+				.newspack-autocomplete-tokenfield,
 				.newspack-settings__min-max {
 					width: 100%;
+				}
+				.newspack-autocomplete-tokenfield {
+					display: block;
+					margin: 0;
+
+					label:empty {
+						display: none;
+					}
 				}
 				.newspack-text-control,
 				.newspack-checkbox-control {
