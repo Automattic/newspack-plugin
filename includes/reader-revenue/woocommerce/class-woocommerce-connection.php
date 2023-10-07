@@ -1153,6 +1153,32 @@ class WooCommerce_Connection {
 
 		return false;
 	}
+
+	/**
+	 * Get an array of product IDs associated with the given subscription ID.
+	 * 
+	 * @param int     $subscription_id Subscription ID.
+	 * @param boolean $include_donations If true, include donation products, otherwise omit them.
+	 * @return array Array of product IDs associated with this subscription.
+	 */
+	public static function get_products_for_subscription( $subscription_id, $include_donations = false ) {
+		$product_ids = [];
+		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+			return $product_ids;
+		}
+
+		$subscription = \wcs_get_subscription( $subscription_id );
+		$order_items  = $subscription->get_items();
+
+		foreach ( $order_items as $item ) {
+			$product_id = $item->get_product_id();
+			if ( $include_donations || ! Donations::is_donation_product( $product_id ) ) {
+				$product_ids[] = $product_id;
+			}
+		}
+
+		return $product_ids;
+	}
 }
 
 WooCommerce_Connection::init();

@@ -260,6 +260,17 @@ class Donations {
 	}
 
 	/**
+	 * Check whether the given product ID is a donation product.
+	 * 
+	 * @param int $product_id Product ID to check.
+	 * @return boolean True if a donation product, false if not.
+	 */
+	public static function is_donation_product( $product_id ) {
+		$donation_product_ids = array_values( self::get_donation_product_child_products_ids() );
+		return in_array( $product_id, $donation_product_ids, true );
+	}
+
+	/**
 	 * Get the donation product ID for the order.
 	 *
 	 * @param int $order_id Order ID.

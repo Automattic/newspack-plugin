@@ -19,7 +19,7 @@ import {
 	TextControl,
 	hooks,
 } from '../../../../components/src';
-import SubscriptionListsControl from '../../../../components/src/subscription-lists-control';
+import ListsControl from '../../components/lists-control';
 
 const { useHistory } = Router;
 const { SettingsCard, SettingsSection, MinMaxSetting } = Settings;
@@ -63,6 +63,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		if ( ! isNew ) {
 			wizardApiFetch( {
 				path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation`,
+				quiet: true,
 			} ).then( segments => {
 				const foundSegment = find( segments, ( { id } ) => id === segmentId );
 				if ( foundSegment ) {
@@ -95,6 +96,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				criteria: segmentCriteria,
 				configuration: segmentConfig,
 			},
+			quiet: true,
 		} )
 			.then( setSegments )
 			.then( history.push( '/segments' ) );
@@ -295,8 +297,30 @@ addFilter(
 	function ( element, criteria, value, update ) {
 		if ( [ 'subscribed_lists', 'not_subscribed_lists' ].includes( criteria.id ) ) {
 			return (
-				<SubscriptionListsControl
+				<ListsControl
 					placeholder={ __( 'Start typing to search for lists…', 'newspack-plugin' ) }
+					path="/newspack-newsletters/v1/lists_config"
+					value={ value }
+					onChange={ update }
+				/>
+			);
+		}
+		return element;
+	}
+);
+
+/**
+ * Adds a custom input for the active_subscriptions and not_active_subscriptions criteria.
+ */
+addFilter(
+	'newspack.criteria.input',
+	'newspack.activeSubscriptions',
+	function ( element, criteria, value, update ) {
+		if ( [ 'active_subscriptions', 'not_active_subscriptions' ].includes( criteria.id ) ) {
+			return (
+				<ListsControl
+					placeholder={ __( 'Start typing to search for products…', 'newspack-plugin' ) }
+					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
 					value={ value }
 					onChange={ update }
 				/>

@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use \WP_Error, \WP_Query;
+use \Newspack\Donations;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -371,6 +372,21 @@ class Popups_Wizard extends Wizard {
 						'sanitize_callback' => 'absint',
 					],
 					'name' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+		
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/subscription-products',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_subscription_products' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					's' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
@@ -916,5 +932,47 @@ class Popups_Wizard extends Wizard {
 		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$cm->rename_campaign( $request['id'], $request['name'] );
 		return $this->api_get_settings();
+	}
+
+	/**
+	 * Get non-donation subscription products.
+	 * 
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_get_subscription_products( $request ) {
+		$args = [
+			'post_type'      => 'product',
+			'posts_per_page' => 100,
+			'post_status'    => 'publish',
+			'tax_query'      => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				[
+					'taxonomy' => 'product_type',
+					'field'    => 'slug',
+					'terms'    => [ 'subscription', 'variable-subscription' ],
+				],
+			],
+		];
+
+		$posts = array_values(
+			array_filter(
+				\get_posts( $args ),
+				function( $post ) {
+					return ! Donations::is_donation_product( $post->ID );
+				}
+			)
+		);
+
+		return \rest_ensure_response(
+			array_map(
+				function( $post ) {
+					return [
+						'id'    => $post->ID,
+						'title' => $post->post_title,
+					];
+				},
+				$posts
+			)
+		);
 	}
 }

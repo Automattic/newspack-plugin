@@ -303,44 +303,6 @@ Data_Events::register_listener(
 );
 
 /**
- * When a new non-donation, non-subscription product order is completed.
- * The product IDs will be added to the list of the user's list of owned products.
- */
-Data_Events::register_listener(
-	'woocommerce_order_status_completed',
-	'product_order_new',
-	function( $order_id, $order ) {
-		// We only want to fire this for non-donation products.
-		$donation_product_id = Donations::get_order_donation_product_id( $order_id );
-		if ( false !== $donation_product_id ) {
-			return;
-		}
-
-		// We only want to fire for non-subscription products.
-		// The equivalent event for subscriptions is fired on the product_subscription_active event.
-		$is_subscription = function_exists( 'wcs_get_subscriptions_for_order' ) && ! empty( \wcs_get_subscriptions_for_order( $order_id ) );
-		if ( $is_subscription ) {
-			return;
-		}
-
-		$product_ids = array_map(
-			function( $item ) {
-				return $item->get_product_id();
-			},
-			array_values( $order->get_items() )
-		);
-
-		return [
-			'user_id'     => $order->get_customer_id(),
-			'email'       => $order->get_billing_email(),
-			'amount'      => (float) $order->get_total(),
-			'currency'    => $order->get_currency(),
-			'product_ids' => $product_ids,
-		];
-	}
-);
-
-/**
  * When a non-donation subscription is activated.
  * The subscription will be added to the user's list of active subscriptions.
  */
@@ -348,14 +310,21 @@ Data_Events::register_listener(
 	'woocommerce_subscription_status_active',
 	'product_subscription_active',
 	function( $subscription ) {
-		$donation_product_id = Donations::get_order_donation_product_id( $subscription->get_id() );
-		if ( ! empty( $donation_product_id ) ) {
-			return;
-		}
+		// We only want to fire this for non-donation products.
+		$product_ids = array_values(
+			array_filter(
+				\Newspack\WooCommerce_Connection::get_products_for_subscription( $subscription->get_id() ),
+				function( $product_id ) {
+					return ! Donations::is_donation_product( $product_id );
+				}
+			)
+		);
+
 		return [
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
 			'subscription_id' => $subscription->get_id(),
+			'product_ids'     => $product_ids,
 			'amount'          => (float) $subscription->get_total(),
 			'currency'        => $subscription->get_currency(),
 			'recurrence'      => $subscription->get_billing_period(),
@@ -375,17 +344,22 @@ Data_Events::register_listener(
 		if ( 'active' === $status_to ) {
 			return;
 		}
-		
+
 		// We only want to fire this for non-donation products.
-		$donation_product_id = Donations::get_order_donation_product_id( $subscription->get_id() );
-		if ( ! empty( $donation_product_id ) ) {
-			return;
-		}
+		$product_ids = array_values(
+			array_filter(
+				\Newspack\WooCommerce_Connection::get_products_for_subscription( $subscription->get_id() ),
+				function( $product_id ) {
+					return ! Donations::is_donation_product( $product_id );
+				}
+			)
+		);
 
 		return [
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
 			'subscription_id' => $subscription->get_id(),
+			'product_ids'     => $product_ids,
 			'amount'          => (float) $subscription->get_total(),
 			'currency'        => $subscription->get_currency(),
 			'recurrence'      => $subscription->get_billing_period(),

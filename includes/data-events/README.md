@@ -171,18 +171,6 @@ When a WooCommerce Subscription status changes.
 | `recurrence`      | `string` |
 | `platform`        | `string` |
 
-### `product_order_new`
-
-When a new WooCommerce order for a non-donation, non-subscription product is completed.
-
-| Name          | Type     |
-| ------------- | -------- |
-| `user_id`     | `int`    |
-| `email`       | `string` |
-| `amount`      | `float`  |
-| `currency`    | `string` |
-| `product_ids` | `array`  |
-
 ### `product_subscription_active`
 
 When a non-donation subscription is activated. 

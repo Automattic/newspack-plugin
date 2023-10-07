@@ -37,11 +37,11 @@ final class Reader_Data {
 		add_action( 'newspack_data_event_dispatch_newsletter_updated', [ __CLASS__, 'update_newsletter_subscribed_lists' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_new', [ __CLASS__, 'set_is_donor' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_donation_subscription_cancelled', [ __CLASS__, 'set_is_former_donor' ], 10, 2 );
-		add_action( 'newspack_data_event_dispatch_product_order_new', [ __CLASS__, 'update_owned_products' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_product_subscription_active', [ __CLASS__, 'update_active_subscriptions' ], 10, 2 );
 		add_action( 'newspack_data_event_dispatch_product_subscription_inactive', [ __CLASS__, 'update_active_subscriptions' ], 10, 2 );
 
 		Data_Events::register_handler( [ __CLASS__, 'check_newsletter_subscription' ], 'reader_logged_in' );
+		Data_Events::register_handler( [ __CLASS__, 'check_product_subscriptions' ], 'reader_logged_in' );
 	}
 
 	/**
@@ -385,20 +385,40 @@ final class Reader_Data {
 	}
 
 	/**
-	 * Data event handler to update a user's list of owned products.
-	 * The owned_products key stores an array of all non-donation, non-subscription products the user has purchased.
+	 * Data event handler to check if the user has active subscriptions and
+	 * set the data item on login.
 	 * 
 	 * @param int   $timestamp Timestamp.
 	 * @param array $data      Data.
 	 */
-	public static function update_owned_products( $timestamp, $data ) {
-		if ( empty( $data['user_id'] ) || empty( $data['product_ids'] ) ) {
+	public static function check_product_subscriptions( $timestamp, $data ) {
+		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
 			return;
 		}
 
-		$owned_products = self::get_data( $data['user_id'], 'owned_products' ) ?? [];
-		$owned_products = array_values( array_unique( array_merge( $owned_products, $data['product_ids'] ) ) );
-		self::update_item( $data['user_id'], 'owned_products', $owned_products );
+		if ( ! function_exists( 'wcs_get_subscriptions' ) ) {
+			return;
+		}
+
+		$active_subscriptions = \wcs_get_subscriptions(
+			[
+				'customer_id'         => $data['user_id'],
+				'subscription_status' => 'active',
+			]
+		);
+
+		if ( empty( $active_subscriptions ) ) {
+			return;
+		}
+		
+		$subscription_products = [];
+		if ( ! empty( $active_subscriptions ) ) {
+			foreach ( $active_subscriptions as $subscription ) {
+				$subscription_products = array_merge( $subscription_products, \Newspack\WooCommerce_Connection::get_products_for_subscription( $subscription->get_id() ) );
+			}
+		}
+		$subscription_products = array_values( array_unique( $subscription_products ) );
+		self::update_item( $data['user_id'], 'active_subscriptions', $subscription_products );
 	}
 
 	/**
@@ -409,15 +429,15 @@ final class Reader_Data {
 	 * @param array $data      Data.
 	 */
 	public static function update_active_subscriptions( $timestamp, $data ) {
-		if ( empty( $data['user_id'] ) || empty( $data['subscription_id'] ) ) {
+		if ( empty( $data['user_id'] ) || empty( $data['subscription_id'] ) || empty( $data['product_ids'] ) ) {
 			return;
 		}
 
-		$active_subscriptions = self::get_data( $data['user_id'], 'active_subscriptions' ) ?? [];
+		$active_subscriptions = json_decode( self::get_data( $data['user_id'], 'active_subscriptions' ) ) ?? [];
 		if ( empty( $data['status_after'] ) || 'active' === $data['status_after'] ) {
-			$active_subscriptions[] = $data['subscription_id'];
+			$active_subscriptions = array_merge( $active_subscriptions, $data['product_ids'] );
 		} else {
-			$active_subscriptions = array_values( array_diff( $active_subscriptions, $data['subscription_id'] ) );
+			$active_subscriptions = array_values( array_diff( $active_subscriptions, $data['product_ids'] ) );
 		}
 
 		$active_subscriptions = array_values( array_unique( $active_subscriptions ) );
