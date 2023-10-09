@@ -39,6 +39,8 @@ class WooCommerce_Connection {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		include_once __DIR__ . '/class-woocommerce-order-utm.php';
+
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_switching_subscription_amount' ] );
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
@@ -169,9 +171,9 @@ class WooCommerce_Connection {
 
 	/**
 	 * Get the contact data from a WooCommerce customer user account.
-	 * 
+	 *
 	 * @param \WC_Customer|int $customer Customer or customer ID.
-	 * 
+	 *
 	 * @return array|false Contact data or false.
 	 */
 	public static function get_contact_from_customer( $customer ) {
@@ -180,7 +182,7 @@ class WooCommerce_Connection {
 		}
 
 		$metadata = [];
-		
+
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $customer->get_id();
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 
@@ -334,7 +336,9 @@ class WooCommerce_Connection {
 		if ( ! $contact ) {
 			return;
 		}
-
+		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'add_contact' ) ) {
+			return;
+		}
 		return \Newspack_Newsletters_Subscription::add_contact( $contact );
 	}
 
