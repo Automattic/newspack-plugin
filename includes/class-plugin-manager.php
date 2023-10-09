@@ -179,7 +179,7 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'options-general.php?page=password-protected',
 			],
-			'perfmatters'            => [
+			'perfmatters'                   => [
 				'Name'        => esc_html__( 'Perfmatters', 'newspack' ),
 				'Description' => esc_html__( 'Perfmatters is a lightweight performance plugin developed to speed up your WordPress site.', 'newspack' ),
 				'Author'      => esc_html__( 'forgemedia', 'newspack' ),
