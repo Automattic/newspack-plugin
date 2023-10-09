@@ -1,3 +1,21 @@
+# [2.8.0](https://github.com/Automattic/newspack-plugin/compare/v2.7.5...v2.8.0) (2023-10-09)
+
+
+### Bug Fixes
+
+* inline documentation for `Donations::get_donation_settings()` ([#2675](https://github.com/Automattic/newspack-plugin/issues/2675)) ([c6c7916](https://github.com/Automattic/newspack-plugin/commit/c6c79165b1579739b6428b612b5e141903656c88))
+* **woocommerce:** check method exists before syncing reader ([#2673](https://github.com/Automattic/newspack-plugin/issues/2673)) ([063509c](https://github.com/Automattic/newspack-plugin/commit/063509c12a322f72818c21d3cb10e4b20f5ab243))
+* **woocommerce:** hook for rendering UTM inputs ([#2671](https://github.com/Automattic/newspack-plugin/issues/2671)) ([634f7bf](https://github.com/Automattic/newspack-plugin/commit/634f7bfd8b9b96e572151a5aa2554e9a6098fc0c))
+
+
+### Features
+
+* add RAS CLI commands ([#2666](https://github.com/Automattic/newspack-plugin/issues/2666)) ([5afc049](https://github.com/Automattic/newspack-plugin/commit/5afc04934077661e78fe56c0d006868e1364d447))
+* **campaigns:** newsletter subscription list criteria ([#2658](https://github.com/Automattic/newspack-plugin/issues/2658)) ([69c8f88](https://github.com/Automattic/newspack-plugin/commit/69c8f88e794a52952ddbb7f9ef519aabb82558ed))
+* remove unused GA code ([#2664](https://github.com/Automattic/newspack-plugin/issues/2664)) ([1fa99fa](https://github.com/Automattic/newspack-plugin/commit/1fa99fa6f0833416b71ef864eaedb3488d57c6c8))
+* search credit metadata on media library ([#2594](https://github.com/Automattic/newspack-plugin/issues/2594)) ([c33c5b2](https://github.com/Automattic/newspack-plugin/commit/c33c5b2a83bc12777aeac66a13ea38b4d13c19d9))
+* **woocommerce:** store UTM parameters as order meta ([#2665](https://github.com/Automattic/newspack-plugin/issues/2665)) ([39dfc31](https://github.com/Automattic/newspack-plugin/commit/39dfc31de6795fa91cfe79f5505b1eecd651c9ad))
+
 # [2.8.0-alpha.7](https://github.com/Automattic/newspack-plugin/compare/v2.8.0-alpha.6...v2.8.0-alpha.7) (2023-10-05)
 
 
