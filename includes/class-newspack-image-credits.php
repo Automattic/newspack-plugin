@@ -57,7 +57,6 @@ class Newspack_Image_Credits {
 		add_filter( 'get_the_excerpt', [ __CLASS__, 'add_credit_to_attachment_excerpts' ], 10, 2 );
 		add_filter( 'render_block', [ __CLASS__, 'add_credit_to_image_block' ], 10, 2 );
 		add_filter( 'wp_get_attachment_image_src', [ __CLASS__, 'maybe_show_placeholder_image' ], 11, 4 );
-		add_filter( 'ajax_query_attachments_args', [ __CLASS__, 'filter_ajax_query_attachments' ] );
 	}
 
 	/**
