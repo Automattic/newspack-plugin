@@ -462,9 +462,19 @@ class Newspack_Image_Credits {
 			return $clauses;
 		}
 		global $wpdb;
-		$clauses['join']   .= " LEFT JOIN {$wpdb->postmeta} AS media_credit_meta ON {$wpdb->posts}.ID = media_credit_meta.post_id";
-		$clauses['where']  .= " OR ( media_credit_meta.meta_key IN ( '_media_credit', '_media_credit_url', '_navis_media_credit_org' ) AND media_credit_meta.meta_value LIKE '%" . esc_sql( $query->get( 's' ) ) . "%' )";
-		$clauses['groupby'] = "{$wpdb->posts}.ID";
+		// Fetch post IDs that have the search term in the media credit meta.
+		$post_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT post_id FROM $wpdb->postmeta WHERE meta_key IN ( '_media_credit', '_media_credit_url', '_navis_media_credit_org' ) AND meta_value LIKE %s",
+				'%' . $wpdb->esc_like( $query->get( 's' ) ) . '%'
+			)
+		);
+		if ( empty( $post_ids ) ) {
+			return $clauses;
+		}
+		// Add the post IDs to the search query.
+		$post_ids          = array_map( 'absint', $post_ids );
+		$clauses['where'] .= " OR ( {$wpdb->posts}.ID IN ( " . implode( ',', $post_ids ) . ' ) )';
 		return $clauses;
 	}
 }
