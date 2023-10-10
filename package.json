@@ -1,6 +1,6 @@
 {
 	"name": "newspack",
-	"version": "2.7.4",
+	"version": "2.8.0",
 	"description": "The Newspack plugin. https://newspack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -13,7 +13,7 @@
 	"devDependencies": {
 		"@rushstack/eslint-patch": "^1.5.1",
 		"@testing-library/react": "^12.1.4",
-		"@wordpress/browserslist-config": "^5.25.0",
+		"@wordpress/browserslist-config": "^5.26.0",
 		"eslint": "^7.32.0",
 		"lint-staged": "^13.2.3",
 		"newspack-scripts": "^5.1.0",
