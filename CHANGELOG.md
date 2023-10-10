@@ -1,3 +1,10 @@
+## [2.8.1](https://github.com/Automattic/newspack-plugin/compare/v2.8.0...v2.8.1) (2023-10-10)
+
+
+### Bug Fixes
+
+* **media-credit:** refactor clauses for credit search ([#2691](https://github.com/Automattic/newspack-plugin/issues/2691)) ([6547fe1](https://github.com/Automattic/newspack-plugin/commit/6547fe1989cf39814827840b95e678f16ad0eb2d))
+
 # [2.8.0](https://github.com/Automattic/newspack-plugin/compare/v2.7.5...v2.8.0) (2023-10-09)
 
 
