@@ -1,3 +1,10 @@
+## [2.8.2](https://github.com/Automattic/newspack-plugin/compare/v2.8.1...v2.8.2) (2023-10-10)
+
+
+### Bug Fixes
+
+* **media-credit:** use post ids selection for search query ([#2692](https://github.com/Automattic/newspack-plugin/issues/2692)) ([6c9fa3e](https://github.com/Automattic/newspack-plugin/commit/6c9fa3ee3ebc498c52f0fd4accef0b9db3de9a5f))
+
 ## [2.8.1](https://github.com/Automattic/newspack-plugin/compare/v2.8.0...v2.8.1) (2023-10-10)
 
 
