@@ -1,3 +1,10 @@
+## [2.8.3](https://github.com/Automattic/newspack-plugin/compare/v2.8.2...v2.8.3) (2023-10-11)
+
+
+### Bug Fixes
+
+* update support link to help site ([#2693](https://github.com/Automattic/newspack-plugin/issues/2693)) ([1ab741d](https://github.com/Automattic/newspack-plugin/commit/1ab741dfddbfdfd541496167e443f979bcbb1060))
+
 ## [2.8.2](https://github.com/Automattic/newspack-plugin/compare/v2.8.1...v2.8.2) (2023-10-10)
 
 
