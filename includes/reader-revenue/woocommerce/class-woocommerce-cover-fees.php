@@ -35,7 +35,7 @@ class WooCommerce_Cover_Fees {
 	 * @return array
 	 */
 	public static function add_checkout_fields( $fields ) {
-		if ( ! self::is_modal_checkout() ) {
+		if ( ! self::should_allow_covering_fees() ) {
 			return $fields;
 		}
 		$fields['newspack'] = [
@@ -68,7 +68,12 @@ class WooCommerce_Cover_Fees {
 	 * This code is taken from Newspack Blocks, but can't be reused directly because
 	 * WC renders the checkout form before Blocks' code is available.
 	 */
-	private static function is_modal_checkout() {
+	private static function should_allow_covering_fees() {
+		if ( 0 < count( WC()->cart->get_coupon_discount_totals() ) ) {
+			// If the checkout has coupons applied, bail. This can be develped in the future,
+			// but at this point handling coupons + covering fees is an edge case.
+			return false;
+		}
 		if ( isset( $_REQUEST['modal_checkout'] ) && 1 === intval( $_REQUEST['modal_checkout'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return true;
 		}
@@ -89,7 +94,7 @@ class WooCommerce_Cover_Fees {
 	 * @return string
 	 */
 	public static function add_input_to_stripe_gateway_description( $desc ) {
-		if ( ! self::is_modal_checkout() ) {
+		if ( ! self::should_allow_covering_fees() ) {
 			return $desc;
 		}
 		ob_start();
@@ -129,7 +134,7 @@ class WooCommerce_Cover_Fees {
 	 * @param string $price Price.
 	 */
 	public static function amend_price_markup( $html, $price ) {
-		if ( ! self::is_modal_checkout() ) {
+		if ( ! self::should_allow_covering_fees() ) {
 			return $html;
 		}
 		return str_replace( $price, '<span id="' . self::PRICE_ELEMENT_ID . '">' . $price . '</span>', $html );
@@ -139,21 +144,31 @@ class WooCommerce_Cover_Fees {
 	 * Print the checkout helper JS script.
 	 */
 	public static function print_checkout_helper_script() {
-		if ( ! self::is_modal_checkout() ) {
+		if ( ! self::should_allow_covering_fees() ) {
 			return;
 		}
 		$handler = 'newspack-wc-modal-checkout-helper';
 		wp_register_script( $handler, '', [], false, [ 'in_footer' => true ] ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion
 		wp_enqueue_script( $handler );
-		$original_price = WC()->cart->total;
-		$price_with_fee = number_format( self::get_total_with_fee( $original_price ), 2 );
+		$original_price          = WC()->cart->total;
+		$price_with_fee          = number_format( self::get_total_with_fee( $original_price ), 2 );
+		$has_coupons_available   = WC()->cart->get_coupon_discount_totals();
+		$coupons_handling_script = '';
+		if ( \wc_coupons_enabled() ) {
+			// Handle an edge case where the price was updated in the UI, and then a coupon was applied.
+			// In this case, the price has to be reverted to the original value, since covering fees
+			// is not supported with coupons.
+			$coupons_handling_script = 'setInterval(function(){
+				if(document.querySelector(".woocommerce-remove-coupon")){
+					document.getElementById( "' . self::PRICE_ELEMENT_ID . '" ).textContent =  "' . $original_price . '";
+				}
+			}, 1000);';
+		}
 		wp_add_inline_script(
 			$handler,
 			'function newspackHandleCoverFees(inputEl) {
-				const priceEl = document.getElementById( "' . self::PRICE_ELEMENT_ID . '" );
-				if ( ! priceEl ) return;
-				priceEl.textContent = inputEl.checked ? "' . $price_with_fee . '" : "' . $original_price . '";
-			};'
+				document.getElementById( "' . self::PRICE_ELEMENT_ID . '" ).textContent = inputEl.checked ? "' . $price_with_fee . '" : "' . $original_price . '";
+			};' . $coupons_handling_script
 		);
 	}
 
