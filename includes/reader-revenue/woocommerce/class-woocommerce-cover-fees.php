@@ -14,6 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Cover_Fees {
 	const CUSTOM_FIELD_NAME = 'newspack-wc-pay-fees';
+	const PRICE_ELEMENT_ID  = 'newspack-wc-price';
 
 	/**
 	 * Initialize hooks.
@@ -21,7 +22,9 @@ class WooCommerce_Cover_Fees {
 	public static function init() {
 		\add_filter( 'woocommerce_checkout_fields', [ __CLASS__, 'add_checkout_fields' ] );
 		\add_filter( 'woocommerce_checkout_create_order', [ __CLASS__, 'set_total_with_fees' ], 1, 2 );
+		\add_filter( 'wc_price', [ __CLASS__, 'amend_price_markup' ], 1, 2 );
 		\add_filter( 'wc_stripe_description', [ __CLASS__, 'add_input_to_stripe_gateway_description' ] );
+		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'print_checkout_helper_script' ] );
 	}
 
 	/**
@@ -92,7 +95,14 @@ class WooCommerce_Cover_Fees {
 		ob_start();
 		?>
 			<p class="form-row">
-				<input id=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> name=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> type="checkbox" value="true" style="width:auto;">
+				<input
+					id=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
+					name=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
+					type="checkbox"
+					value="true"
+					style="width:auto;"
+					onchange="newspackHandleCoverFees(this)"
+				>
 				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
 					<b><?php echo esc_html( __( 'Cover transaction fees?', 'newspack-plugin' ) ); ?></b><br/>
 					<?php
@@ -110,6 +120,41 @@ class WooCommerce_Cover_Fees {
 		<?php
 		$desc .= ob_get_clean();
 		return $desc;
+	}
+
+	/**
+	 * Amend the price markup so it's possible to manipulate it via JS.
+	 *
+	 * @param string $html  Price HTML.
+	 * @param string $price Price.
+	 */
+	public static function amend_price_markup( $html, $price ) {
+		if ( ! self::is_modal_checkout() ) {
+			return $html;
+		}
+		return str_replace( $price, '<span id="' . self::PRICE_ELEMENT_ID . '">' . $price . '</span>', $html );
+	}
+
+	/**
+	 * Print the checkout helper JS script.
+	 */
+	public static function print_checkout_helper_script() {
+		if ( ! self::is_modal_checkout() ) {
+			return;
+		}
+		$handler = 'newspack-wc-modal-checkout-helper';
+		wp_register_script( $handler, '', [], false, [ 'in_footer' => true ] ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion
+		wp_enqueue_script( $handler );
+		$original_price = WC()->cart->total;
+		$price_with_fee = number_format( self::get_total_with_fee( $original_price ), 2 );
+		wp_add_inline_script(
+			$handler,
+			'function newspackHandleCoverFees(inputEl) {
+				const priceEl = document.getElementById( "' . self::PRICE_ELEMENT_ID . '" );
+				if ( ! priceEl ) return;
+				priceEl.textContent = inputEl.checked ? "' . $price_with_fee . '" : "' . $original_price . '";
+			};'
+		);
 	}
 
 	/**
