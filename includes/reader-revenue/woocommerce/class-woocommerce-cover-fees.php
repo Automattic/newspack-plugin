@@ -32,6 +32,9 @@ class WooCommerce_Cover_Fees {
 	 * @return array
 	 */
 	public static function add_checkout_fields( $fields ) {
+		if ( ! self::is_modal_checkout() ) {
+			return $fields;
+		}
 		$fields['newspack'] = [
 			self::CUSTOM_FIELD_NAME => [
 				'type' => 'checkbox',
@@ -57,6 +60,25 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
+	 * Is this the modal checkout?
+	 *
+	 * This code is taken from Newspack Blocks, but can't be reused directly because
+	 * WC renders the checkout form before Blocks' code is available.
+	 */
+	private static function is_modal_checkout() {
+		if ( isset( $_REQUEST['modal_checkout'] ) && 1 === intval( $_REQUEST['modal_checkout'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+		if ( isset( $_POST['post_data'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			parse_str( \sanitize_text_field( \wp_unslash( $_POST['post_data'] ) ), $post_data ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $post_data['modal_checkout'] ) && 1 === intval( $post_data['modal_checkout'] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Add "cover fees" input to Stripe checkout description.
 	 *
 	 * @param string $desc Description.
@@ -64,6 +86,9 @@ class WooCommerce_Cover_Fees {
 	 * @return string
 	 */
 	public static function add_input_to_stripe_gateway_description( $desc ) {
+		if ( ! self::is_modal_checkout() ) {
+			return $desc;
+		}
 		ob_start();
 		?>
 			<p class="form-row">
@@ -86,7 +111,6 @@ class WooCommerce_Cover_Fees {
 		$desc .= ob_get_clean();
 		return $desc;
 	}
-
 
 	/**
 	 * Get the fee multiplier value.
