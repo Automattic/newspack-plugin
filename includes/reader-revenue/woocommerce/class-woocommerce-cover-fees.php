@@ -13,8 +13,9 @@ defined( 'ABSPATH' ) || exit;
  * WooCommerce Order UTM class.
  */
 class WooCommerce_Cover_Fees {
-	const CUSTOM_FIELD_NAME = 'newspack-wc-pay-fees';
-	const PRICE_ELEMENT_ID  = 'newspack-wc-price';
+	const CUSTOM_FIELD_NAME  = 'newspack-wc-pay-fees';
+	const PRICE_ELEMENT_ID   = 'newspack-wc-price';
+	const WC_ORDER_META_NAME = 'newspack_donor_covers_fees';
 
 	/**
 	 * Initialize hooks.
@@ -22,6 +23,7 @@ class WooCommerce_Cover_Fees {
 	public static function init() {
 		\add_filter( 'woocommerce_checkout_fields', [ __CLASS__, 'add_checkout_fields' ] );
 		\add_filter( 'woocommerce_checkout_create_order', [ __CLASS__, 'set_total_with_fees' ], 1, 2 );
+		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'add_order_note' ], 1, 3 );
 		\add_filter( 'wc_price', [ __CLASS__, 'amend_price_markup' ], 1, 2 );
 		\add_filter( 'wc_stripe_description', [ __CLASS__, 'add_input_to_stripe_gateway_description' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'print_checkout_helper_script' ] );
@@ -56,10 +58,23 @@ class WooCommerce_Cover_Fees {
 	 */
 	public static function set_total_with_fees( $order, $data ) {
 		if ( isset( $data[ self::CUSTOM_FIELD_NAME ] ) && 1 === $data[ self::CUSTOM_FIELD_NAME ] ) {
-			$order->add_order_note( __( 'The donor opted to cover Stripe\'s transaction fee. The total amount will be updated.', 'newspack-plugin' ) );
+			$order->add_meta_data( self::WC_ORDER_META_NAME, 1 );
 			$order->set_total( self::get_total_with_fee( $order->get_total() ) );
 		}
 		return $order;
+	}
+
+	/**
+	 * Add an order note.
+	 *
+	 * @param int       $order_id Order ID.
+	 * @param array     $posted_data Posted data.
+	 * @param \WC_Order $order Order object.
+	 */
+	public static function add_order_note( $order_id, $posted_data, $order ) {
+		if ( 1 === intval( $order->get_meta_data( self::WC_ORDER_META_NAME ) ) ) {
+			$order->add_order_note( __( 'The donor opted to cover Stripe\'s transaction fee. The total amount will be updated.', 'newspack-plugin' ) );
+		}
 	}
 
 	/**
