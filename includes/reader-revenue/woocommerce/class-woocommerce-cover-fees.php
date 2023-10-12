@@ -63,15 +63,21 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
-	 * Is this the modal checkout?
+	 * Should this feature be active?
 	 *
-	 * This code is taken from Newspack Blocks, but can't be reused directly because
+	 * Some of this code is taken from Newspack Blocks, but can't be reused directly because
 	 * WC renders the checkout form before Blocks' code is available.
 	 */
 	private static function should_allow_covering_fees() {
+		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+			return false;
+		}
 		if ( 0 < count( WC()->cart->get_coupon_discount_totals() ) ) {
 			// If the checkout has coupons applied, bail. This can be develped in the future,
 			// but at this point handling coupons + covering fees is an edge case.
+			return false;
+		}
+		if ( defined( 'NEWSPACK_DISABLE_ALLOW_COVERING_FEES' ) && NEWSPACK_DISABLE_ALLOW_COVERING_FEES ) {
 			return false;
 		}
 		if ( isset( $_REQUEST['modal_checkout'] ) && 1 === intval( $_REQUEST['modal_checkout'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -99,13 +105,13 @@ class WooCommerce_Cover_Fees {
 		}
 		ob_start();
 		?>
-			<p class="form-row">
+			<p class="form-row" style="display: flex;">
 				<input
 					id=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
 					name=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
 					type="checkbox"
 					value="true"
-					style="width:auto;"
+					style="margin-right: 10px;"
 					onchange="newspackHandleCoverFees(this)"
 				>
 				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
@@ -113,9 +119,10 @@ class WooCommerce_Cover_Fees {
 					<?php
 						echo esc_html(
 							sprintf(
-								// Translators: %s is the transaction fee, as percentage with static portion (e.g. 2% + $0.3).
-								__( 'Cover Stripe’s %s transaction fee, so that The News Paper receives 100%% of your payment.', 'newspack-plugin' ),
-								self::get_fee_human_readable_value()
+								// Translators: %s is the transaction fee, as percentage with static portion (e.g. 2% + $0.3), %s is the site title.
+								__( 'Cover Stripe’s %1$s transaction fee, so that %2$s receives 100%% of your payment.', 'newspack-plugin' ),
+								self::get_fee_human_readable_value(),
+								get_option( 'blogname' )
 							)
 						);
 					?>
