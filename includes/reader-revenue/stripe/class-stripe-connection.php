@@ -554,7 +554,7 @@ class Stripe_Connection {
 	 */
 	private static function get_stripe_secret_key() {
 		$stripe_data = self::get_saved_stripe_data();
-		return $stripe_data['usedSecretKey'];
+		return apply_filters( 'newspack_stripe_connection_secret_key', $stripe_data['usedSecretKey'] );
 	}
 
 	/**
