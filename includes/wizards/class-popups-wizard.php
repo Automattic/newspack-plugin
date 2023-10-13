@@ -39,6 +39,7 @@ class Popups_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_filter( 'newspack_popups_registered_criteria', [ $this, 'maybe_unregister_memberships_criteria' ] );
 	}
 
 	/**
@@ -974,5 +975,29 @@ class Popups_Wizard extends Wizard {
 				$posts
 			)
 		);
+	}
+
+	/**
+	 * We only want to show Memberships criteria if the WooCommerce Memberships extension is active.
+	 * Otherwise these criteria are meaningless.
+	 * 
+	 * @param array $criteria Registered criteria.
+	 * 
+	 * @return array Filtered criteria.
+	 */
+	public function maybe_unregister_memberships_criteria( $criteria ) {
+		if ( ! class_exists( 'WC_Memberships' ) ) {
+			$memberships_criteria = [ 'active_memberships', 'not_active_memberships' ];
+			$criteria             = array_values(
+				array_filter(
+					$criteria,
+					function( $config ) use ( $memberships_criteria ) {
+						return ! in_array( $config['id'], $memberships_criteria, true );
+					}
+				)
+			);
+		}
+
+		return $criteria;
 	}
 }

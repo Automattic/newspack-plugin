@@ -22,7 +22,7 @@ export default function ListsControl( { label, help, placeholder, value, onChang
 				const values = Array.isArray( lists ) ? lists : Object.values( lists );
 				const suggestions = values.map( item => ( {
 					value: isNaN( parseInt( item.id ) ) ? item.id.toString() : parseInt( item.id ),
-					label: item.title,
+					label: item.title || item.name,
 				} ) );
 
 				return suggestions;
@@ -36,7 +36,7 @@ export default function ListsControl( { label, help, placeholder, value, onChang
 					.filter( item => ids.includes( item.id ) )
 					.map( item => ( {
 						value: isNaN( parseInt( item.id ) ) ? item.id.toString() : parseInt( item.id ),
-						label: item.title,
+						label: item.title || item.name,
 					} ) );
 			} }
 			onChange={ onChange }

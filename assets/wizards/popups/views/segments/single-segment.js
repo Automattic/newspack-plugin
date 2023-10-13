@@ -63,7 +63,6 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		if ( ! isNew ) {
 			wizardApiFetch( {
 				path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation`,
-				quiet: true,
 			} ).then( segments => {
 				const foundSegment = find( segments, ( { id } ) => id === segmentId );
 				if ( foundSegment ) {
@@ -114,7 +113,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		const config = [ ...segmentCriteria ];
 		const item = config.find( c => c.criteria_id === id );
 		if ( item ) {
-			if ( ! value ) {
+			if ( ! value || ( Array.isArray( value ) && 0 === value.length ) ) {
 				config.splice( config.indexOf( item ), 1 );
 			} else if ( ! Array.isArray( value ) && typeof value === 'object' ) {
 				item.value = { ...item.value, ...value };
@@ -194,7 +193,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 			<SettingsCard
 				title={ __( 'Reader Engagement', 'newspack' ) }
-				description={ __( 'Target readers based on their browsing behavior', 'newspack' ) }
+				description={ __( 'Target readers based on their browsing behavior.', 'newspack' ) }
 				noBorder
 			>
 				{ allCriteria
@@ -210,8 +209,11 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					) ) }
 			</SettingsCard>
 			<SettingsCard
-				title={ __( 'Reader Activity', 'newspack' ) }
-				description={ __( 'Target readers based on their actions', 'newspack' ) }
+				title={ __( 'Registration', 'newspack' ) }
+				description={ __(
+					'Target readers based on their user account registration status.',
+					'newspack'
+				) }
 				columns={ 3 }
 				noBorder
 			>
@@ -228,8 +230,47 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					) ) }
 			</SettingsCard>
 			<SettingsCard
+				title={ __( 'Newsletters', 'newspack' ) }
+				description={ __(
+					'Target readers based on their newsletter subscription status.',
+					'newspack'
+				) }
+				columns={ 3 }
+				noBorder
+			>
+				{ allCriteria
+					.filter( criteria => criteria.category === 'newsletter' )
+					.map( criteria => (
+						<SettingsSection
+							key={ criteria.id }
+							title={ criteria.name }
+							description={ criteria.description }
+						>
+							{ getCriteriaInput( criteria ) }
+						</SettingsSection>
+					) ) }
+			</SettingsCard>
+			<SettingsCard
+				title={ __( 'Reader Revenue', 'newspack' ) }
+				description={ __( 'Target readers based on their revenue activity.', 'newspack' ) }
+				columns={ 3 }
+				noBorder
+			>
+				{ allCriteria
+					.filter( criteria => criteria.category === 'reader_revenue' )
+					.map( criteria => (
+						<SettingsSection
+							key={ criteria.id }
+							title={ criteria.name }
+							description={ criteria.description }
+						>
+							{ getCriteriaInput( criteria ) }
+						</SettingsSection>
+					) ) }
+			</SettingsCard>
+			<SettingsCard
 				title={ __( 'Referrer Sources', 'newspack' ) }
-				description={ __( 'Target readers based on where they’re coming from', 'newspack' ) }
+				description={ __( 'Target readers based on where they’re coming from.', 'newspack' ) }
 				notification={ __(
 					'Segments using these options will apply only to the first page visited after coming from an external source.',
 					'newspack'
@@ -321,6 +362,27 @@ addFilter(
 				<ListsControl
 					placeholder={ __( 'Start typing to search for products…', 'newspack-plugin' ) }
 					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
+					value={ value }
+					onChange={ update }
+				/>
+			);
+		}
+		return element;
+	}
+);
+
+/**
+ * Adds a custom input for the active_memberships and not_active_memberships criteria.
+ */
+addFilter(
+	'newspack.criteria.input',
+	'newspack.activeMemberships',
+	function ( element, criteria, value, update ) {
+		if ( [ 'active_memberships', 'not_active_memberships' ].includes( criteria.id ) ) {
+			return (
+				<ListsControl
+					placeholder={ __( 'Start typing to search for membership plans…', 'newspack-plugin' ) }
+					path="/wc/v3/memberships/plans?per_page=100"
 					value={ value }
 					onChange={ update }
 				/>

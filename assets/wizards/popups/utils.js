@@ -265,7 +265,7 @@ const getItems = memoize( async path => {
 		const values = Array.isArray( items ) ? items : Object.values( items );
 		return values.map( item => ( {
 			id: isNaN( parseInt( item.id ) ) ? item.id.toString() : parseInt( item.id ),
-			label: item.title,
+			label: item.title || item.name,
 		} ) );
 	} catch ( e ) {
 		console.warn( e );
@@ -281,7 +281,6 @@ const ItemNames = ( { label, ids, path } ) => {
 	if ( ! items.length ) {
 		return null;
 	}
-	console.log( items );
 	return (
 		<span>
 			{ label }{ ' ' }
@@ -334,6 +333,30 @@ addFilter(
 					}
 					ids={ item.value }
 					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
+				/>
+			);
+		}
+		return message;
+	}
+);
+
+addFilter(
+	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+	'newspack.activeMemberships',
+	( message, value, config, item ) => {
+		if ( [ 'active_memberships', 'not_active_memberships' ].includes( config.id ) ) {
+			if ( ! item.value?.length ) {
+				return null;
+			}
+			return (
+				<ItemNames
+					label={
+						config.id === 'active_memberships'
+							? __( 'Has active membership(s):' )
+							: __( 'Does not have active membership(s):' )
+					}
+					ids={ item.value }
+					path="/wc/v3/memberships/plans?per_page=100"
 				/>
 			);
 		}
