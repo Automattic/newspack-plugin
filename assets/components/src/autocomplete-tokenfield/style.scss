@@ -5,13 +5,15 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-autocomplete-tokenfield {
-	position: relative;
+	&__input-container {
+		position: relative;
+	}
 
 	.components-spinner {
-		margin: 8px;
+		margin: 0;
 		position: absolute;
-		right: 0;
-		top: calc( 1.4em + 8px );
+		right: 8px;
+		bottom: 8px;
 	}
 
 	/* Workaround for hard-coded help text in FormTokenField. */

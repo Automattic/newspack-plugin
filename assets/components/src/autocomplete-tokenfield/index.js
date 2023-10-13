@@ -212,16 +212,18 @@ class AutocompleteTokenField extends Component {
 
 		return (
 			<div className="newspack-autocomplete-tokenfield">
-				<FormTokenField
-					value={ this.getTokens() }
-					suggestions={ suggestions.map( suggestion => suggestion.label ) }
-					onChange={ tokens => this.handleOnChange( tokens ) }
-					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
-					label={ label }
-					maxLength={ maxLength }
-					placeholder={ placeholder }
-				/>
-				{ loading && <Spinner /> }
+				<div className="newspack-autocomplete-tokenfield__input-container">
+					<FormTokenField
+						value={ this.getTokens() }
+						suggestions={ suggestions.map( suggestion => suggestion.label ) }
+						onChange={ tokens => this.handleOnChange( tokens ) }
+						onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
+						label={ label }
+						maxLength={ maxLength }
+						placeholder={ placeholder }
+					/>
+					{ loading && <Spinner /> }
+				</div>
 				{ help && <p className="newspack-autocomplete-tokenfield__help">{ help }</p> }
 			</div>
 		);
