@@ -124,6 +124,18 @@ const Recaptcha = () => {
 								disabled={ isLoading }
 								autoComplete="off"
 							/>
+							<TextControl
+								type="number"
+								step="0.05"
+								min="0"
+								max="1"
+								value={ settingsToUpdate?.threshold }
+								label={ __( 'Threshold', 'newspack' ) }
+								onChange={ value =>
+									setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
+								}
+								disabled={ isLoading }
+							/>
 						</Grid>
 					</>
 				) }
