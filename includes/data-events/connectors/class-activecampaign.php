@@ -42,6 +42,7 @@ class ActiveCampaign {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_subscription_new' ], 'donation_subscription_new' );
+			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 		}
 	}
 
@@ -150,6 +151,46 @@ class ActiveCampaign {
 		$key              = Newspack_Newsletters::get_metadata_key( 'product_name' );
 		$metadata[ $key ] = $product_name;
 
+		self::put( $data['email'], $metadata );
+	}
+
+	/**
+	 * Handle newsletter subscription update.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
+	 */
+	public static function newsletter_updated( $timestamp, $data ) {
+		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
+			return;
+		}
+		if ( ! class_exists( '\Newspack_Newsletters' ) || ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
+			return;
+		}
+		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
+		if ( is_wp_error( $subscribed_lists ) || ! is_array( $subscribed_lists ) ) {
+			return;
+		}
+		$lists = \Newspack_Newsletters_Subscription::get_lists();
+		if ( is_wp_error( $lists ) ) {
+			return;
+		}
+		$lists_names = [];
+		foreach ( $subscribed_lists as $subscribed_list_id ) {
+			foreach ( $lists as $list ) {
+				if ( $list['id'] === $subscribed_list_id ) {
+					$lists_names[] = $list['name'];
+				}
+			}
+		}
+
+		$account_key              = Newspack_Newsletters::get_metadata_key( 'account' );
+		$newsletter_selection_key = Newspack_Newsletters::get_metadata_key( 'newsletter_selection' );
+
+		$metadata = [
+			$account_key              => $data['user_id'],
+			$newsletter_selection_key => implode( ', ', $lists_names ),
+		];
 		self::put( $data['email'], $metadata );
 	}
 }
