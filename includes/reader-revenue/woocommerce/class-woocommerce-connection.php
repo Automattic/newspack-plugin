@@ -323,6 +323,53 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * If the site is using woocommerce-memberships, create a new user and a
+	 * membership, if the donation type calls for it.
+	 *
+	 * @param string $email_address Email address.
+	 * @param string $full_name Full name.
+	 * @param string $frequency Donation frequency.
+	 * @param array  $metadata Donor metadata.
+	 */
+	public static function set_up_membership( $email_address, $full_name, $frequency, $metadata = [] ) {
+		if ( ! class_exists( 'WC_Memberships_Membership_Plans' ) ) {
+			return;
+		}
+		$wc_memberships_membership_plans = new \WC_Memberships_Membership_Plans();
+		$should_create_account           = false;
+		$membership_plans                = $wc_memberships_membership_plans->get_membership_plans();
+		$order_items                     = [ self::get_donation_order_item( $frequency ) ];
+		foreach ( $membership_plans as $plan ) {
+			$access_granting_product_ids = \wc_memberships_get_order_access_granting_product_ids( $plan, '', $order_items );
+			if ( ! empty( $access_granting_product_ids ) ) {
+				$should_create_account = true;
+				break;
+			}
+		}
+		if ( $should_create_account ) {
+			if ( Reader_Activation::is_enabled() ) {
+				$metadata = array_merge( $metadata, [ 'registration_method' => 'woocommerce-memberships' ] );
+				$user_id  = Reader_Activation::register_reader( $email_address, $full_name, true, $metadata );
+				return $user_id;
+			}
+
+			Logger::log( 'This order will result in a membership, creating account for user.' );
+			$user_login = \sanitize_title( $full_name );
+			$user_id    = \wc_create_new_customer( $email_address, $user_login, '', [ 'display_name' => $full_name ] );
+
+			if ( is_wp_error( $user_id ) ) {
+				return $user_id;
+			}
+
+			// Log the new user in.
+			\wp_set_current_user( $user_id, $user_login );
+			\wp_set_auth_cookie( $user_id );
+
+			return $user_id;
+		}
+	}
+
+	/**
 	 * Find order by Stripe transaction ID.
 	 *
 	 * @param string $transaction_id Transaction ID.
