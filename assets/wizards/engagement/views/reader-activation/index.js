@@ -278,6 +278,13 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 					) }
 
 					<SectionHeader
+						title={ __( 'Newsletter Subscription Lists', 'newspack' ) }
+						description={ __( 'Configure the newsletter subscription lists.', 'newspack' ) }
+					/>
+					<p>{ __( ' Available newsletter lists upon registration', 'newspack' ) }</p>
+					<hr />
+
+					<SectionHeader
 						title={ __( 'Email Service Provider (ESP) Advanced Settings', 'newspack' ) }
 						description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
 					/>
