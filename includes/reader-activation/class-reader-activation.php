@@ -314,10 +314,14 @@ final class Reader_Activation {
 		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
 			return [];
 		}
-		$lists           = self::get_setting( 'newsletter_lists' );
-		$available_lists = \Newspack_Newsletters_Subscription::get_lists_config();
-		if ( empty( $lists ) ) {
+		$use_custom_lists = self::get_setting( 'use_custom_lists' );
+		$available_lists  = \Newspack_Newsletters_Subscription::get_lists_config();
+		if ( ! $use_custom_lists ) {
 			return $available_lists;
+		}
+		$lists = self::get_setting( 'newsletter_lists' );
+		if ( empty( $lists ) ) {
+			return [];
 		}
 		$registration_lists = [];
 		foreach ( $lists as $list_id ) {
