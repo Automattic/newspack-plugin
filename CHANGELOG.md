@@ -1,12 +1,9 @@
-# [2.9.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.8.3...v2.9.0-alpha.1) (2023-10-16)
+# [2.9.0](https://github.com/Automattic/newspack-plugin/compare/v2.8.3...v2.9.0) (2023-10-17)
 
 
 ### Features
 
-* add Perfmatters to managed plugins ([#2684](https://github.com/Automattic/newspack-plugin/issues/2684)) ([eb657d8](https://github.com/Automattic/newspack-plugin/commit/eb657d801d4d07cee2b4844da827ecb9953210c4))
-* **design-wizard:** allow bulk update of featured image, post template ([#2670](https://github.com/Automattic/newspack-plugin/issues/2670)) ([37a4656](https://github.com/Automattic/newspack-plugin/commit/37a46562a215afb92b7a2a24a628770c5ab2b4ee))
-* newspack_managed_plugins filter ([#2605](https://github.com/Automattic/newspack-plugin/issues/2605)) ([81ba5f2](https://github.com/Automattic/newspack-plugin/commit/81ba5f2c154c60f542adf8c67dfe3b5e1def95f3))
-* **reader-registration:** custom checkbox state for lists ([#2682](https://github.com/Automattic/newspack-plugin/issues/2682)) ([b8ce865](https://github.com/Automattic/newspack-plugin/commit/b8ce8653a864db97b573a92444c0231bbb8239c9))
+* **reader-data:** set newsletter subscriber status on form submission ([#2703](https://github.com/Automattic/newspack-plugin/issues/2703)) ([35c13cc](https://github.com/Automattic/newspack-plugin/commit/35c13cc565074364ca7b2e33d88eae7aaaf970f3))
 
 ## [2.8.3](https://github.com/Automattic/newspack-plugin/compare/v2.8.2...v2.8.3) (2023-10-11)
 
