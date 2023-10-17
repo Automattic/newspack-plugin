@@ -43,6 +43,7 @@ class ActiveCampaign {
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_subscription_new' ], 'donation_subscription_new' );
 			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
+			Data_Events::register_handler( [ __CLASS__, 'newsletter_subscribed' ], 'newsletter_updated' );
 		}
 	}
 
