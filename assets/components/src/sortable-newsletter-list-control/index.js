@@ -18,26 +18,42 @@ export default function SortableNewsletterListControl( {
 } ) {
 	const getList = id => lists.find( list => list.id === id );
 	const getAvailableLists = () => {
-		return lists.filter( list => list.active && ! selected.includes( list.id ) );
+		return lists.filter( list => list.active && ! selected.find( ( { id } ) => id === list.id ) );
 	};
 	return (
 		<div className="newspack__newsletter-list-control">
 			<div className="newspack__newsletter-list-control__selected">
-				{ selected.map( listId => {
-					const list = getList( listId );
+				{ selected.map( selectedList => {
+					const list = getList( selectedList.id );
 					if ( ! list ) {
 						return null;
 					}
 					return (
 						<ActionCard
-							key={ `selected-${ listId }` }
+							key={ `selected-${ selectedList.id }` }
 							title={ list.name }
-							description={ list.description }
+							description={ () => (
+								<>
+									<input
+										type="checkbox"
+										checked={ selectedList.checked }
+										onChange={ () => {
+											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
+											const newSelected = [ ...selected ];
+											newSelected[ index ].checked = ! newSelected[ index ].checked;
+											onChange( newSelected );
+										} }
+									/>
+									{ __( 'Checked by default', 'newspack' ) }
+								</>
+							) }
 							isSmall
 							actionText={
 								<>
 									<Button
-										onClick={ () => onChange( selected.filter( id => id !== listId ) ) }
+										onClick={ () =>
+											onChange( selected.filter( ( { id } ) => id !== selectedList.id ) )
+										}
 										label={ __( 'Remove', 'newspack' ) }
 										icon={ trash }
 									/>
@@ -48,31 +64,31 @@ export default function SortableNewsletterListControl( {
 								<span className="newspack__newsletter-list-control__sort-handle">
 									<button
 										onClick={ () => {
-											const index = selected.findIndex( item => item === listId );
+											const index = selected.findIndex( item => item === selectedList.id );
 											if ( index === 0 ) {
 												return;
 											}
 											const newSelected = [ ...selected ];
 											newSelected.splice( index, 1 );
-											newSelected.splice( index - 1, 0, listId );
+											newSelected.splice( index - 1, 0, selectedList.id );
 											onChange( newSelected );
 										} }
 										className={
-											selected.findIndex( item => item === listId ) === 0 ? 'disabled' : ''
+											selected.findIndex( item => item === selectedList.id ) === 0 ? 'disabled' : ''
 										}
 									>
 										<Icon icon={ chevronUp } />
 									</button>
 									<button
 										onClick={ () => {
-											const index = selected.findIndex( item => item === listId );
+											const index = selected.findIndex( item => item === selectedList.id );
 											const newSelected = [ ...selected ];
 											newSelected.splice( index, 1 );
-											newSelected.splice( index + 1, 0, listId );
+											newSelected.splice( index + 1, 0, selectedList.id );
 											onChange( newSelected );
 										} }
 										className={
-											selected.findIndex( item => item === listId ) === selected.length - 1
+											selected.findIndex( item => item === selectedList.id ) === selected.length - 1
 												? 'disabled'
 												: ''
 										}
@@ -97,7 +113,7 @@ export default function SortableNewsletterListControl( {
 							<Button
 								key={ list.id }
 								variant="secondary"
-								onClick={ () => onChange( [ ...selected, list.id ] ) }
+								onClick={ () => onChange( [ ...selected, { id: list.id, checked: true } ] ) }
 							>
 								{ list.name }
 							</Button>

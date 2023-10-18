@@ -324,9 +324,10 @@ final class Reader_Activation {
 			return [];
 		}
 		$registration_lists = [];
-		foreach ( $lists as $list_id ) {
-			if ( isset( $available_lists[ $list_id ] ) ) {
-				$registration_lists[ $list_id ] = $available_lists[ $list_id ];
+		foreach ( $lists as $list ) {
+			if ( isset( $available_lists[ $list['id'] ] ) ) {
+				$registration_lists[ $list['id'] ]            = $available_lists[ $list['id'] ];
+				$registration_lists[ $list['id'] ]['checked'] = $list['checked'] ?? false;
 			}
 		}
 		return $registration_lists;
@@ -1120,7 +1121,14 @@ final class Reader_Activation {
 								<?php
 								self::render_subscription_lists_inputs(
 									$lists,
-									array_keys( $lists ),
+									array_keys(
+										array_filter(
+											$lists,
+											function( $list ) {
+												return $list['checked'] ?? false;
+											}
+										)
+									),
 									[
 										'single_label' => $newsletters_label,
 									]
