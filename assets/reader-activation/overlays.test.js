@@ -2,6 +2,10 @@ import { on } from './events';
 import overlays from './overlays';
 
 describe( 'overlays', () => {
+	beforeEach( () => {
+		// Clear overlays.
+		overlays.get().forEach( overlayId => overlays.remove( overlayId ) );
+	} );
 	it( 'should return an array', () => {
 		expect( Array.isArray( overlays.get() ) ).toBe( true );
 	} );
