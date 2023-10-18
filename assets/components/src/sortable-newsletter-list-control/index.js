@@ -64,7 +64,7 @@ export default function SortableNewsletterListControl( {
 								<span className="newspack__newsletter-list-control__sort-handle">
 									<button
 										onClick={ () => {
-											const index = selected.findIndex( item => item === selectedList.id );
+											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
 											if ( index === 0 ) {
 												return;
 											}
@@ -74,21 +74,24 @@ export default function SortableNewsletterListControl( {
 											onChange( newSelected );
 										} }
 										className={
-											selected.findIndex( item => item === selectedList.id ) === 0 ? 'disabled' : ''
+											selected.findIndex( ( { id } ) => id === selectedList.id ) === 0
+												? 'disabled'
+												: ''
 										}
 									>
 										<Icon icon={ chevronUp } />
 									</button>
 									<button
 										onClick={ () => {
-											const index = selected.findIndex( item => item === selectedList.id );
+											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
 											const newSelected = [ ...selected ];
 											newSelected.splice( index, 1 );
 											newSelected.splice( index + 1, 0, selectedList.id );
 											onChange( newSelected );
 										} }
 										className={
-											selected.findIndex( item => item === selectedList.id ) === selected.length - 1
+											selected.findIndex( ( { id } ) => id === selectedList.id ) ===
+											selected.length - 1
 												? 'disabled'
 												: ''
 										}
