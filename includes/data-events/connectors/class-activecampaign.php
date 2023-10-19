@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack Data Events Mailchimp Connector
+ * Newspack Data Events ActiveCampaign Connector
  *
  * @package Newspack
  */
@@ -8,7 +8,6 @@
 namespace Newspack\Data_Events\Connectors;
 
 use \Newspack\Data_Events;
-use \Newspack\Mailchimp_API;
 use \Newspack\Newspack_Newsletters;
 use \Newspack\Reader_Activation;
 use \Newspack\WooCommerce_Connection;
@@ -19,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Main Class.
  */
-class Mailchimp {
+class ActiveCampaign {
 	/**
 	 * Constructor.
 	 */
@@ -31,133 +30,40 @@ class Mailchimp {
 	 * Register handlers.
 	 */
 	public static function register_handlers() {
-		if ( Reader_Activation::is_enabled() && true === Reader_Activation::get_setting( 'sync_esp' ) ) {
+		if ( ! method_exists( 'Newspack_Newsletters', 'get_service_provider' ) ) {
+			return;
+		}
+		$provider = \Newspack_Newsletters::get_service_provider();
+		if (
+			Reader_Activation::is_enabled() &&
+			true === Reader_Activation::get_setting( 'sync_esp' ) &&
+			$provider && 'active_campaign' === $provider->service
+		) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_subscription_new' ], 'donation_subscription_new' );
+			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
+			Data_Events::register_handler( [ __CLASS__, 'newsletter_subscribed' ], 'newsletter_updated' );
 		}
 	}
 
 	/**
-	 * Get audience ID.
+	 * Upsert the contact.
 	 *
-	 * @return string|bool Audience ID or false if not set.
+	 * @param string $email    Email address.
+	 * @param array  $metadata Metadata to add to the contact.
 	 */
-	private static function get_audience_id() {
-		$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
-		/** Attempt to use list ID from "Mailchimp for WooCommerce" */
-		if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
-			$audience_id = mailchimp_get_list_id();
-		}
-		return ! empty( $audience_id ) ? $audience_id : false;
-	}
-
-	/**
-	 * Get merge field type.
-	 *
-	 * @param mixed $value Value to check.
-	 *
-	 * @return string Merge field type.
-	 */
-	private static function get_merge_field_type( $value ) {
-		if ( is_numeric( $value ) ) {
-			return 'number';
-		}
-		if ( is_bool( $value ) ) {
-			return 'boolean';
-		}
-		return 'text';
-	}
-
-	/**
-	 * Get merge fields given data.
-	 *
-	 * @param string $audience_id Audience ID.
-	 * @param array  $data        Data to check.
-	 *
-	 * @return array Merge fields.
-	 */
-	private static function get_merge_fields( $audience_id, $data ) {
-		$merge_fields       = [];
-		$fields_option_name = sprintf( 'newspack_data_mailchimp_%s_fields', $audience_id );
-
-		// Strip arrays.
-		$data = array_filter(
-			$data,
-			function( $value ) {
-				return ! is_array( $value );
-			}
-		);
-
-		// Get and match existing merge fields.
-		$fields_ids      = \get_option( $fields_option_name, [] );
-		$existing_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
-		foreach ( $existing_fields['merge_fields'] as $field ) {
-			$field_name = '';
-			if ( isset( $fields_ids[ $field['merge_id'] ] ) ) {
-				// Match locally stored merge field ID.
-				$field_name = $fields_ids[ $field['merge_id'] ];
-			} elseif ( isset( $data[ $field['name'] ] ) ) {
-				// Match by merge field name.
-				$field_name                       = $field['name'];
-				$fields_ids[ $field['merge_id'] ] = $field_name;
-			}
-			// If field name is found, add it to the payload.
-			if ( ! empty( $field_name ) && isset( $data[ $field_name ] ) ) {
-				$merge_fields[ $field['tag'] ] = $data[ $field_name ];
-				unset( $data[ $field_name ] );
-			}
-		}
-
-		// Create remaining fields.
-		$remaining_fields = array_keys( $data );
-		foreach ( $remaining_fields as $field_name ) {
-			$created_field = Mailchimp_API::post(
-				"lists/$audience_id/merge-fields",
-				[
-					'name' => $field_name,
-					'type' => self::get_merge_field_type( $data[ $field_name ] ),
-				]
-			);
-			// Skip field if it failed to create.
-			if ( is_wp_error( $created_field ) ) {
-				continue;
-			}
-			$merge_fields[ $created_field['tag'] ]    = $data[ $field_name ];
-			$fields_ids[ $created_field['merge_id'] ] = $field_name;
-		}
-
-		// Store fields IDs for future use.
-		\update_option( $fields_option_name, $fields_ids );
-		return $merge_fields;
-	}
-
-	/**
-	 * Update a Mailchimp contact
-	 *
-	 * @param string $email Email address.
-	 * @param array  $data  Data to update.
-	 */
-	private static function put( $email, $data = [] ) {
-		$audience_id = self::get_audience_id();
-		if ( ! $audience_id ) {
+	private static function put( $email, $metadata ) {
+		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
+		if ( ! $master_list_id ) {
 			return;
 		}
-		$hash    = md5( strtolower( $email ) );
-		$payload = [
-			'email_address' => $email,
-			'status_if_new' => 'transactional',
-		];
-
-		$merge_fields = self::get_merge_fields( $audience_id, $data );
-		if ( ! empty( $merge_fields ) ) {
-			$payload['merge_fields'] = $merge_fields;
-		}
-
-		// Upsert the contact.
-		Mailchimp_API::put(
-			"lists/$audience_id/members/$hash",
-			$payload
+		\Newspack_Newsletters_Subscription::add_contact(
+			[
+				'email'    => $email,
+				'metadata' => $metadata,
+			],
+			$master_list_id
 		);
 	}
 
@@ -248,5 +154,45 @@ class Mailchimp {
 
 		self::put( $data['email'], $metadata );
 	}
+
+	/**
+	 * Handle newsletter subscription update.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
+	 */
+	public static function newsletter_updated( $timestamp, $data ) {
+		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
+			return;
+		}
+		if ( ! class_exists( '\Newspack_Newsletters' ) || ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
+			return;
+		}
+		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
+		if ( is_wp_error( $subscribed_lists ) || ! is_array( $subscribed_lists ) ) {
+			return;
+		}
+		$lists = \Newspack_Newsletters_Subscription::get_lists();
+		if ( is_wp_error( $lists ) ) {
+			return;
+		}
+		$lists_names = [];
+		foreach ( $subscribed_lists as $subscribed_list_id ) {
+			foreach ( $lists as $list ) {
+				if ( $list['id'] === $subscribed_list_id ) {
+					$lists_names[] = $list['name'];
+				}
+			}
+		}
+
+		$account_key              = Newspack_Newsletters::get_metadata_key( 'account' );
+		$newsletter_selection_key = Newspack_Newsletters::get_metadata_key( 'newsletter_selection' );
+
+		$metadata = [
+			$account_key              => $data['user_id'],
+			$newsletter_selection_key => implode( ', ', $lists_names ),
+		];
+		self::put( $data['email'], $metadata );
+	}
 }
-new Mailchimp();
+new ActiveCampaign();
