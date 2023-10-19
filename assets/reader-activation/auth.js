@@ -191,6 +191,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			} else {
 				emailInput.focus();
 			}
+			container.overlayId = readerActivation.overlays.add();
 		}
 
 		containers.forEach( container => {
@@ -227,6 +228,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 							document.title,
 							window.location.pathname + window.location.search
 						);
+					}
+					if ( container.overlayId ) {
+						readerActivation.overlays.remove( container.overlayId );
 					}
 				} );
 			}
