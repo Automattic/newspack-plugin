@@ -70,7 +70,7 @@ export default function SortableNewsletterListControl( {
 											}
 											const newSelected = [ ...selected ];
 											newSelected.splice( index, 1 );
-											newSelected.splice( index - 1, 0, selectedList.id );
+											newSelected.splice( index - 1, 0, selectedList );
 											onChange( newSelected );
 										} }
 										className={
@@ -86,7 +86,7 @@ export default function SortableNewsletterListControl( {
 											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
 											const newSelected = [ ...selected ];
 											newSelected.splice( index, 1 );
-											newSelected.splice( index + 1, 0, selectedList.id );
+											newSelected.splice( index + 1, 0, selectedList );
 											onChange( newSelected );
 										} }
 										className={
