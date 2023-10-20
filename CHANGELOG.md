@@ -1,3 +1,13 @@
+# [2.10.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.10.0-alpha.1...v2.10.0-alpha.2) (2023-10-20)
+
+
+### Features
+
+* **data-events:** activecampaign connector ([#2663](https://github.com/Automattic/newspack-plugin/issues/2663)) ([377a51f](https://github.com/Automattic/newspack-plugin/commit/377a51fbe6dcb51484f88ea5dedc710769e8511c))
+* **ras:** custom newsletter list selection on registration ([#2706](https://github.com/Automattic/newspack-plugin/issues/2706)) ([57b2871](https://github.com/Automattic/newspack-plugin/commit/57b2871c7d3261e7cddd97e32fdf7c4102e868c1))
+* **ras:** overlay management for content gate refresh ([#2708](https://github.com/Automattic/newspack-plugin/issues/2708)) ([6767740](https://github.com/Automattic/newspack-plugin/commit/67677406213737d38127881e75376bdc5eb10deb))
+* remove order-received text ([#2707](https://github.com/Automattic/newspack-plugin/issues/2707)) ([a386524](https://github.com/Automattic/newspack-plugin/commit/a386524274a8f3736384e9435737cb8678fe6105))
+
 # [2.10.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.9.0...v2.10.0-alpha.1) (2023-10-17)
 
 
