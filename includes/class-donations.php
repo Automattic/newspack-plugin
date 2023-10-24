@@ -696,6 +696,12 @@ class Donations {
 		if ( $is_modal_checkout ) {
 			$query_args['modal_checkout'] = 1;
 		}
+		foreach ( [ 'after_success_behavior', 'after_success_button_label', 'after_success_url' ] as $attribute_name ) {
+			$value = filter_input( INPUT_GET, $attribute_name, FILTER_SANITIZE_STRING );
+			if ( ! empty( $value ) ) {
+				$query_args[ $attribute_name ] = $value;
+			}
+		}
 
 		// Pass through UTM params so they can be forwarded to the WooCommerce checkout flow.
 		foreach ( $params as $param => $value ) {
