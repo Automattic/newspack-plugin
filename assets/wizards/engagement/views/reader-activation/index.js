@@ -25,6 +25,7 @@ import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
+import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
 
 export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
@@ -277,6 +278,26 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						</>
 					) }
 
+					<SectionHeader title={ __( 'Newsletter Subscription Lists', 'newspack' ) } />
+					<ActionCard
+						title={ __( 'Custom newsletter lists on registration', 'newspack' ) }
+						description={ __(
+							"Choose which of the Newspack Newsletters's subscription lists should be available upon registration.",
+							'newspack'
+						) }
+						toggleChecked={ config.use_custom_lists }
+						toggleOnChange={ value => updateConfig( 'use_custom_lists', value ) }
+					/>
+					{ config.use_custom_lists && (
+						<SortableNewsletterListControl
+							lists={ newspack_engagement_wizard.available_newsletter_lists }
+							selected={ config.newsletter_lists }
+							onChange={ selected => updateConfig( 'newsletter_lists', selected ) }
+						/>
+					) }
+
+					<hr />
+
 					<SectionHeader
 						title={ __( 'Email Service Provider (ESP) Advanced Settings', 'newspack' ) }
 						description={ __( 'Settings for Newspack Newsletters integration.', 'newspack' ) }
@@ -331,6 +352,8 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									mailchimp_audience_id: config.mailchimp_audience_id,
 									active_campaign_master_list: config.active_campaign_master_list,
 									memberships_require_all_plans: membershipsConfig.require_all_plans,
+									use_custom_lists: config.use_custom_lists,
+									newsletter_lists: config.newsletter_lists,
 								} );
 							} }
 							disabled={ inFlight }

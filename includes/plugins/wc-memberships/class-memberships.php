@@ -359,7 +359,7 @@ class Memberships {
 
 	/**
 	 * Get the current setting of the "Require memberships in all plans" option.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function get_require_all_plans_setting() {
@@ -368,10 +368,10 @@ class Memberships {
 
 	/**
 	 * Set the "Require memberships in all plans" option.
-	 * 
+	 *
 	 * @param boolean $require False to require membership in any plan restricting content (default)
 	 *                         or true to require membership in all plans restricting content.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public static function set_require_all_plans_setting( $require = false ) {
@@ -681,9 +681,17 @@ class Memberships {
 			window.newspackRAS.push( function( ras ) {
 				ras.on( 'reader', function( ev ) {
 					if ( ev.detail.authenticated ) {
-						setTimeout( function() {
-							window.location.reload();
-						}, 2000 );
+						if ( ras.overlays.get().length ) {
+							ras.on( 'overlay', function( ev ) {
+								if ( ! ev.detail.overlays.length ) {
+									window.location.reload();
+								}
+							} );
+						} else {
+							setTimeout( function() {
+								window.location.reload();
+							}, 2000 );
+						}
 					}
 				} );
 			} );
@@ -774,7 +782,7 @@ class Memberships {
 					$all_caps[ $cap ] = self::user_has_content_access_from_rules( $user_id, $rules, $post_id );
 
 					break;
-				}           
+				}
 			}
 		}
 
@@ -786,7 +794,7 @@ class Memberships {
 	 * Overrides behvavior from the WooCommerce Memberships plugin to decide whether to show restricted content.
 	 * Default behavior matches the WooCommerce Memberships plugin: if a user matches ANY applicable membership
 	 * plan rules, they are granted access to the content.
-	 * 
+	 *
 	 * Custom behavior: If the "Require membership in all plans" option is enabled in the Engagement wizard,
 	 * then a user must match ALL applicable membership plan rules before being granted access to the content.
 	 *

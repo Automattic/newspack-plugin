@@ -4,6 +4,7 @@ window.newspack_ras_config = window.newspack_ras_config || {};
 import Store from './store.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
+import overlays from './overlays.js';
 
 import setupArticleViewsAggregates from './article-view.js';
 
@@ -302,8 +303,30 @@ function attachAuthCookiesListener() {
 	}, 1000 );
 }
 
+/**
+ * Set the reader as newsletter subscriber once a newsletter form is submitted.
+ */
+function attachNewsletterFormListener() {
+	const forms = document.querySelectorAll( '.newspack-subscribe-form,.mc4wp-form' );
+	if ( ! forms.length ) {
+		return;
+	}
+	forms.forEach( form => {
+		if ( form.tagName !== 'FORM' ) {
+			form = form.querySelector( 'form' );
+		}
+		if ( ! form ) {
+			return;
+		}
+		form.addEventListener( 'submit', () => {
+			store.set( 'is_newsletter_subscriber', true );
+		} );
+	} );
+}
+
 const readerActivation = {
 	store,
+	overlays,
 	on,
 	off,
 	dispatchActivity,
@@ -359,6 +382,7 @@ function init() {
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
 	attachAuthCookiesListener();
+	attachNewsletterFormListener();
 	pushActivities();
 	setReferrer();
 

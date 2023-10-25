@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/Automattic/newspack-plugin/compare/v2.8.3...v2.9.0) (2023-10-17)
+
+
+### Features
+
+* **reader-data:** set newsletter subscriber status on form submission ([#2703](https://github.com/Automattic/newspack-plugin/issues/2703)) ([35c13cc](https://github.com/Automattic/newspack-plugin/commit/35c13cc565074364ca7b2e33d88eae7aaaf970f3))
+
 ## [2.8.3](https://github.com/Automattic/newspack-plugin/compare/v2.8.2...v2.8.3) (2023-10-11)
 
 
