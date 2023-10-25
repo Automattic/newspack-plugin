@@ -210,9 +210,15 @@ class AutocompleteTokenField extends Component {
 		const { help, label = '', placeholder = '', maxLength } = this.props;
 		const { suggestions, loading } = this.state;
 
+		const classNames = [ 'newspack-autocomplete-tokenfield__input-container' ];
+
+		if ( label ) {
+			classNames.push( 'has-label' );
+		}
+
 		return (
 			<div className="newspack-autocomplete-tokenfield">
-				<div className="newspack-autocomplete-tokenfield__input-container">
+				<div className={ classNames.join( ' ' ) }>
 					<FormTokenField
 						value={ this.getTokens() }
 						suggestions={ suggestions.map( suggestion => suggestion.label ) }

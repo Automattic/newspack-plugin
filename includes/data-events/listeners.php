@@ -321,6 +321,10 @@ Data_Events::register_listener(
 			)
 		);
 
+		if ( empty( $product_ids ) ) {
+			return;
+		}
+
 		return [
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
@@ -355,6 +359,10 @@ Data_Events::register_listener(
 				}
 			)
 		);
+
+		if ( empty( $product_ids ) ) {
+			return;
+		}
 
 		return [
 			'user_id'         => $subscription->get_customer_id(),
