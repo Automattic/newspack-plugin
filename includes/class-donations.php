@@ -661,16 +661,20 @@ class Donations {
 
 			\WC()->cart->empty_cart();
 
-			\WC()->cart->add_to_cart(
-				$product_id,
-				1,
-				0,
-				[],
+			$cart_item_data = apply_filters(
+				'newspack_donations_cart_item_data',
 				[
 					'nyp'               => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
 					'referer'           => $referer,
 					'newspack_popup_id' => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
 				]
+			);
+			\WC()->cart->add_to_cart(
+				$product_id,
+				1,
+				0,
+				[],
+				$cart_item_data
 			);
 		}
 
