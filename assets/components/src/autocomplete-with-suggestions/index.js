@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button, CheckboxControl, SelectControl, Spinner } from '@wordpress/components';
+import { Button, CheckboxControl, SelectControl } from '@wordpress/components';
 import { decodeEntities } from '@wordpress/html-entities';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -265,14 +265,6 @@ const AutocompleteWithSuggestions = ( {
 	 * Render a list of suggestions that can be clicked to select instead of searching by title.
 	 */
 	const renderSuggestions = () => {
-		if ( isLoading ) {
-			return (
-				<div className="newspack-autocomplete-with-suggestions__suggestions-spinner">
-					<Spinner />
-				</div>
-			);
-		}
-
 		if ( 0 === suggestions.length ) {
 			return null;
 		}
@@ -319,6 +311,7 @@ const AutocompleteWithSuggestions = ( {
 				fetchSuggestions={ async search => handleFetchSuggestions( search, 0, postTypeToSearch ) }
 				fetchSavedInfo={ postIds => handleFetchSaved( postIds ) }
 				label={ label }
+				loading={ isLoading }
 				help={ ! hideHelp && help }
 				returnFullObjects
 			/>

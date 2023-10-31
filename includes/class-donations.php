@@ -259,6 +259,17 @@ class Donations {
 	}
 
 	/**
+	 * Check whether the given product ID is a donation product.
+	 * 
+	 * @param int $product_id Product ID to check.
+	 * @return boolean True if a donation product, false if not.
+	 */
+	public static function is_donation_product( $product_id ) {
+		$donation_product_ids = array_values( self::get_donation_product_child_products_ids() );
+		return in_array( $product_id, $donation_product_ids, true );
+	}
+
+	/**
 	 * Get the donation product ID for the order.
 	 *
 	 * @param int $order_id Order ID.
@@ -684,6 +695,12 @@ class Donations {
 		}
 		if ( $is_modal_checkout ) {
 			$query_args['modal_checkout'] = 1;
+		}
+		foreach ( [ 'after_success_behavior', 'after_success_button_label', 'after_success_url' ] as $attribute_name ) {
+			$value = filter_input( INPUT_GET, $attribute_name, FILTER_SANITIZE_STRING );
+			if ( ! empty( $value ) ) {
+				$query_args[ $attribute_name ] = $value;
+			}
 		}
 
 		// Pass through UTM params so they can be forwarded to the WooCommerce checkout flow.

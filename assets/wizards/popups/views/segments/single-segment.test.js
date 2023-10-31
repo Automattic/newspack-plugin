@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
-import SingleSegment from './SingleSegment';
+import SingleSegment from './single-segment';
 
 // Sample criteria for input testing.
 const criteria = [

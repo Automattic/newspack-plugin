@@ -33,7 +33,7 @@ const Recaptcha = () => {
 				setSettings( fetchedSettings );
 				setSettingsToUpdate( fetchedSettings );
 			} catch ( e ) {
-				setError( e.message || __( 'Error fetching settings.', 'newspack' ) );
+				setError( e.message || __( 'Error fetching settings.', 'newspack-plugin' ) );
 			} finally {
 				setIsLoading( false );
 			}
@@ -54,7 +54,7 @@ const Recaptcha = () => {
 			);
 			setSettingsToUpdate( {} );
 		} catch ( e ) {
-			setError( e?.message || __( 'Error updating settings.', 'newspack' ) );
+			setError( e?.message || __( 'Error updating settings.', 'newspack-plugin' ) );
 		} finally {
 			setIsLoading( false );
 		}
@@ -62,15 +62,15 @@ const Recaptcha = () => {
 
 	return (
 		<>
-			<SectionHeader id="recaptcha" title={ __( 'reCAPTCHA v3', 'newspack' ) } />
+			<SectionHeader id="recaptcha" title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
 			<ActionCard
 				isMedium
-				title={ __( 'Enable reCAPTCHA v3', 'newspack' ) }
+				title={ __( 'Enable reCAPTCHA v3', 'newspack-plugin' ) }
 				description={ () => (
 					<>
 						{ __(
 							'Enabling reCAPTCHA v3 can help protect your site against bot attacks and credit card testing.',
-							'newspack'
+							'newspack-plugin'
 						) }{ ' ' }
 						<ExternalLink href="https://www.google.com/recaptcha/admin/create">
 							{ __( 'Get started' ) }
@@ -87,7 +87,7 @@ const Recaptcha = () => {
 							disabled={ isLoading || ! Object.keys( settingsToUpdate ).length }
 							onClick={ () => updateSettings( settingsToUpdate ) }
 						>
-							{ __( 'Save Settings', 'newspack' ) }
+							{ __( 'Save Settings', 'newspack-plugin' ) }
 						</Button>
 					)
 				}
@@ -100,14 +100,14 @@ const Recaptcha = () => {
 							<Notice
 								noticeText={ __(
 									'You must enter a valid site key and secret to use reCAPTCHA.',
-									'newspack'
+									'newspack-plugin'
 								) }
 							/>
 						) }
 						<Grid noMargin rowGap={ 16 }>
 							<TextControl
 								value={ settingsToUpdate?.site_key }
-								label={ __( 'Site Key', 'newspack' ) }
+								label={ __( 'Site Key', 'newspack-plugin' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
 								}
@@ -117,12 +117,29 @@ const Recaptcha = () => {
 							<TextControl
 								type="password"
 								value={ settingsToUpdate?.site_secret }
-								label={ __( 'Site Secret', 'newspack' ) }
+								label={ __( 'Site Secret', 'newspack-plugin' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
 								}
 								disabled={ isLoading }
 								autoComplete="off"
+							/>
+							<TextControl
+								type="number"
+								step="0.05"
+								min="0"
+								max="1"
+								value={ settingsToUpdate?.threshold }
+								label={ __( 'Threshold', 'newspack-plugin' ) }
+								onChange={ value =>
+									setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
+								}
+								disabled={ isLoading }
+								help={
+									<ExternalLink href="https://developers.google.com/recaptcha/docs/v3#interpreting_the_score">
+										{ __( 'Learn more about the threshold value', 'newspack-plugin' ) }
+									</ExternalLink>
+								}
 							/>
 						</Grid>
 					</>
