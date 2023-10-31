@@ -1,3 +1,10 @@
+# [2.10.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.10.0-alpha.2...v2.10.0-alpha.3) (2023-10-26)
+
+
+### Bug Fixes
+
+* **perfmatters:** force stylesheet exclusion in unused CSS feature ([f0c291f](https://github.com/Automattic/newspack-plugin/commit/f0c291f6900464eb5a5ce412217d39bd60e8828f))
+
 ## [2.9.1](https://github.com/Automattic/newspack-plugin/compare/v2.9.0...v2.9.1) (2023-10-26)
 
 
