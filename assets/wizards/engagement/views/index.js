@@ -4,4 +4,3 @@ export { default as ReaderActivationCampaign } from './reader-activation/campaig
 export { default as ReaderActivationComplete } from './reader-activation/complete';
 export { default as Social } from './social';
 export { default as RelatedContent } from './related-content';
-export { default as Commenting } from './commenting';

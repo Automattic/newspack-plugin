@@ -247,11 +247,6 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=wpseo_dashboard',
 			],
-			'wordpress-settings-discussion' => [
-				'Name'     => esc_html__( 'Wordpress Commenting', 'newspack' ),
-				'WPCore'   => true,
-				'EditPath' => 'options-discussion.php',
-			],
 			'complianz-gdpr'                => [
 				'Name'        => esc_html__( 'Complianz - GDPR/CCPA Cookie Consent', 'newspack' ),
 				'Description' => esc_html__( 'Complianz is a GDPR/CCPA Cookie Consent plugin that supports GDPR, ePrivacy, DSGVO, TTDSG, LGPD, POPIA, APA, RGPD, CCPA/CPRA and PIPEDA with a conditional Cookie Notice and customized Cookie Policy based on the results of the built-in Cookie Scan.', 'newspack' ),
