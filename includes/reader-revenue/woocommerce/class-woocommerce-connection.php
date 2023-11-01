@@ -99,7 +99,7 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get WC's Order Item related to a given SKU.
+	 * Get a WC_Order_Item related to the product with the given SKU, or a Newspack donation product based on frequency.
 	 * 
 	 * @param string      $frequency Frequency of the order's recurrence.
 	 * @param number      $amount Donation amount.
