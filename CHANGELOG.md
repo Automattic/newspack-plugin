@@ -1,3 +1,12 @@
+# [2.11.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.1...v2.11.0-alpha.2) (2023-11-01)
+
+
+### Features
+
+* add donation processing filters ([#2720](https://github.com/Automattic/newspack-plugin/issues/2720)) ([d041fa8](https://github.com/Automattic/newspack-plugin/commit/d041fa80a3916f384d2e598c3eda545fe791aece))
+* remove MC4WP from managed plugins ([#2723](https://github.com/Automattic/newspack-plugin/issues/2723)) ([8026688](https://github.com/Automattic/newspack-plugin/commit/80266880dda048ad8e580fd789f43d2cf95a079c))
+* **stripe-migration:** support mapping of products by SKU ([#2725](https://github.com/Automattic/newspack-plugin/issues/2725)) ([08f9569](https://github.com/Automattic/newspack-plugin/commit/08f95691e7facda5555f8003b19dbeb66fb2e276))
+
 # [2.11.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.10.0...v2.11.0-alpha.1) (2023-10-31)
 
 
