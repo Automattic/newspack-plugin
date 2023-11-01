@@ -99,35 +99,16 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get WC's Order Item related to a donation frequency.
-	 *
-	 * @param string $frequency Donation frequency.
-	 * @param number $amount Donation amount.
-	 */
-	private static function get_donation_order_item( $frequency, $amount = 0 ) {
-		$product_id = Donations::get_donation_product( $frequency );
-		if ( false === $product_id ) {
-			return false;
-		}
-
-		$item = new \WC_Order_Item_Product();
-		$item->set_product( \wc_get_product( $product_id ) );
-		$item->set_total( $amount );
-		$item->set_subtotal( $amount );
-		$item->save();
-		return $item;
-	}
-
-	/**
 	 * Get WC's Order Item related to a given SKU.
 	 * 
-	 * @param string $product_sku Product's SKU string.
-	 * @param number $amount Donation amount.
+	 * @param string      $frequency Frequency of the order's recurrence.
+	 * @param number      $amount Donation amount.
+	 * @param null|string $product_sku Product's SKU string, or null to get a Newspack donation product.
 	 * 
 	 * @return boolean|WC_Order_Item_Product Order item product, or false if there's no product with matching SKU.
 	 */
-	public static function get_order_item_by_sku( $product_sku, $amount = 0 ) {
-		$product_id = \wc_get_product_id_by_sku( $product_sku );
+	public static function get_order_item( $frequency = 'once', $amount = 0, $product_sku = null ) {
+		$product_id = ! empty( $product_sku ) ? \wc_get_product_id_by_sku( $product_sku ) : Donations::get_donation_product( $frequency );
 		if ( empty( $product_id ) ) {
 			return false;
 		}
@@ -360,7 +341,7 @@ class WooCommerce_Connection {
 		$wc_memberships_membership_plans = new \WC_Memberships_Membership_Plans();
 		$should_create_account           = false;
 		$membership_plans                = $wc_memberships_membership_plans->get_membership_plans();
-		$order_items                     = [ self::get_donation_order_item( $frequency ) ];
+		$order_items                     = [ self::get_order_item( $frequency ) ];
 		foreach ( $membership_plans as $plan ) {
 			$access_granting_product_ids = \wc_memberships_get_order_access_granting_product_ids( $plan, '', $order_items );
 			if ( ! empty( $access_granting_product_ids ) ) {
@@ -618,7 +599,7 @@ class WooCommerce_Connection {
 		$item = false;
 
 		// Match the Stripe product to WC product.
-		$item = ! empty( $product_sku ) ? self::get_order_item_by_sku( $product_sku, $order_data['amount'] ) : self::get_donation_order_item( $frequency, $order_data['amount'] );
+		$item = self::get_order_item( $frequency, $order_data['amount'], $product_sku );
 		if ( false === $item ) {
 			return new \WP_Error( 'newspack_woocommerce', __( 'Missing product.', 'newspack' ) );
 		}
@@ -725,7 +706,7 @@ class WooCommerce_Connection {
 					self::add_universal_order_data( $subscription, $order_data );
 
 					// Mint a new item – subscription is a new WC order.
-					$item = ! empty( $product_sku ) ? self::get_order_item_by_sku( $product_sku, $order_data['amount'] ) : self::get_donation_order_item( $frequency, $order_data['amount'] );
+					$item = self::get_order_item( $frequency, $order_data['amount'], $product_sku );
 					$subscription->add_item( $item );
 
 					if ( false === $stripe_subscription_id ) {
