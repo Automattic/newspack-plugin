@@ -355,7 +355,9 @@ final class Recaptcha {
 	 * Verify reCAPTCHA v3 on checkout submission.
 	 */
 	public static function verify_recaptcha_on_checkout() {
-		if ( ! self::can_use_captcha() ) {
+		$url                   = \home_url( \add_query_arg( null, null ) );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url );
+		if ( ! $should_verify_captcha ) {
 			return;
 		}
 		$token = isset( $_POST['g-recaptcha-response'] ) ? sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
