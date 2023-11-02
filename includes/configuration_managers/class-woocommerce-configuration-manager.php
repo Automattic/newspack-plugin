@@ -120,7 +120,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 			'secretKey'           => $stripe->get_option( 'secret_key', '' ),
 			'testPublishableKey'  => $stripe->get_option( 'test_publishable_key', '' ),
 			'testSecretKey'       => $stripe->get_option( 'test_secret_key', '' ),
-			'allow_covering_fees' => get_option( 'newspack_donations_allow_covering_fees', false ),
+			'allow_covering_fees' => get_option( 'newspack_donations_allow_covering_fees', true ),
 		];
 		return \wp_parse_args( $stripe_data, $defaults );
 	}
