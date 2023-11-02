@@ -87,6 +87,10 @@ class WooCommerce_Cover_Fees {
 		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
 			return false;
 		}
+		if ( ! Donations::is_donation_cart() ) {
+			// Only allow covering fees for donations.
+			return false;
+		}
 		if ( 0 < count( WC()->cart->get_coupon_discount_totals() ) ) {
 			// If the checkout has coupons applied, bail. This can be develped in the future,
 			// but at this point handling coupons + covering fees is an edge case.
@@ -95,7 +99,7 @@ class WooCommerce_Cover_Fees {
 		if ( defined( 'NEWSPACK_DISABLE_ALLOW_COVERING_FEES' ) && NEWSPACK_DISABLE_ALLOW_COVERING_FEES ) {
 			return false;
 		}
-		if ( isset( $_REQUEST['modal_checkout'] ) && 1 === intval( $_REQUEST['modal_checkout'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return true;
 		}
 		if ( isset( $_POST['post_data'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -132,13 +136,11 @@ class WooCommerce_Cover_Fees {
 				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
 					<b><?php echo esc_html( __( 'Cover transaction fees?', 'newspack-plugin' ) ); ?></b><br/>
 					<?php
-						echo esc_html(
-							sprintf(
-								// Translators: %s is the transaction fee, as percentage with static portion (e.g. 2% + $0.3), %s is the site title.
-								__( 'Cover Stripe’s %1$s transaction fee, so that %2$s receives 100%% of your payment.', 'newspack-plugin' ),
-								self::get_fee_human_readable_value(),
-								get_option( 'blogname' )
-							)
+						printf(
+							// Translators: %s is the transaction fee, as percentage with static portion (e.g. 2% + $0.3), %s is the site title.
+							esc_html__( 'Cover Stripe’s %1$s transaction fee, so that %2$s receives 100%% of your payment.', 'newspack-plugin' ),
+							self::get_fee_human_readable_value(), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							esc_html( get_option( 'blogname' ) )
 						);
 					?>
 
@@ -188,7 +190,17 @@ class WooCommerce_Cover_Fees {
 		}
 		wp_add_inline_script(
 			$handler,
-			'function newspackHandleCoverFees(inputEl) {
+			'const form = document.querySelector(\'form[name="checkout"]\');
+			if ( form ) {
+				form.addEventListener(\'change\', function( e ){
+					const inputEl = document.getElementById( "' . self::CUSTOM_FIELD_NAME . '" );
+					if( e.target.name === "payment_method" && e.target.value !== "stripe" && inputEl.checked ){
+						inputEl.checked = false;
+						newspackHandleCoverFees(inputEl);
+					}
+				});
+			}
+			function newspackHandleCoverFees(inputEl) {
 				document.getElementById( "' . self::PRICE_ELEMENT_ID . '" ).textContent = inputEl.checked ? "' . $price_with_fee . '" : "' . $original_price . '";
 			};' . $coupons_handling_script
 		);
@@ -212,8 +224,7 @@ class WooCommerce_Cover_Fees {
 	 * Get the fee human-redable value.
 	 */
 	private static function get_fee_human_readable_value() {
-		$fee_static = sprintf( get_woocommerce_price_format(), get_woocommerce_currency_symbol(), self::get_stripe_fee_static_value() );
-		return self::get_stripe_fee_multiplier_value() . '% + ' . $fee_static;
+		return self::get_stripe_fee_multiplier_value() . '% + ' . wc_price( self::get_stripe_fee_static_value() );
 	}
 
 	/**
