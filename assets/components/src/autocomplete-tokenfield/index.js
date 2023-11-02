@@ -119,7 +119,9 @@ class AutocompleteTokenField extends Component {
 			return labels.reduce( ( acc, label ) => {
 				Object.keys( validValues ).forEach( key => {
 					if ( validValues[ key ] === label ) {
-						acc.push( { value: key, label } );
+						// Preserve numeric or string type of values. Object.keys will convert numbers to strings.
+						const value = isNaN( parseInt( key ) ) ? key.toString() : parseInt( key );
+						acc.push( { value, label } );
 					}
 				} );
 
@@ -128,7 +130,9 @@ class AutocompleteTokenField extends Component {
 		}
 
 		return labels.map( label =>
-			Object.keys( validValues ).find( key => validValues[ key ] === label )
+			Object.keys( validValues )
+				.map( key => ( isNaN( parseInt( key ) ) ? key.toString() : parseInt( key ) ) )
+				.find( key => validValues[ key ] === label )
 		);
 	}
 
@@ -206,18 +210,26 @@ class AutocompleteTokenField extends Component {
 		const { help, label = '', placeholder = '', maxLength } = this.props;
 		const { suggestions, loading } = this.state;
 
+		const classNames = [ 'newspack-autocomplete-tokenfield__input-container' ];
+
+		if ( label ) {
+			classNames.push( 'has-label' );
+		}
+
 		return (
 			<div className="newspack-autocomplete-tokenfield">
-				<FormTokenField
-					value={ this.getTokens() }
-					suggestions={ suggestions.map( suggestion => suggestion.label ) }
-					onChange={ tokens => this.handleOnChange( tokens ) }
-					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
-					label={ label }
-					maxLength={ maxLength }
-					placeholder={ placeholder }
-				/>
-				{ loading && <Spinner /> }
+				<div className={ classNames.join( ' ' ) }>
+					<FormTokenField
+						value={ this.getTokens() }
+						suggestions={ suggestions.map( suggestion => suggestion.label ) }
+						onChange={ tokens => this.handleOnChange( tokens ) }
+						onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
+						label={ label }
+						maxLength={ maxLength }
+						placeholder={ placeholder }
+					/>
+					{ loading && <Spinner /> }
+				</div>
 				{ help && <p className="newspack-autocomplete-tokenfield__help">{ help }</p> }
 			</div>
 		);

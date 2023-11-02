@@ -4,6 +4,7 @@ export const EVENTS = {
 	reader: 'reader' /* This event can soon be depecrated to use only 'data'. */,
 	data: 'data',
 	activity: 'activity',
+	overlay: 'overlay',
 };
 
 const eventList = Object.values( EVENTS );

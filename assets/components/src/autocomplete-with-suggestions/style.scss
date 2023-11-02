@@ -15,13 +15,6 @@
 			margin-top: 16px;
 		}
 	}
-
-	.components-spinner {
-		margin: 8px;
-		right: 0;
-		top: calc( 1.4em + 8px );
-	}
-
 	.components-select-control__input {
 		max-width: none;
 	}
@@ -119,8 +112,7 @@
 		border-radius: 2px;
 		border: 1px solid wp-colors.$gray-700;
 		max-height: 178px;
-		overflow-x: visible;
-		overflow-y: auto;
+		overflow: visible auto;
 		padding: 8px 8px 0;
 
 		.components-button {

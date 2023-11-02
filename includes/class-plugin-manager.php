@@ -92,14 +92,6 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://mailchimp.com/connect-your-store/' ),
 				'Download'    => 'wporg',
 			],
-			'mailchimp-for-wp'              => [
-				'Name'        => esc_html__( 'MC4WP: Mailchimp for WordPress', 'newspack' ),
-				'Description' => esc_html__( 'Mailchimp for WordPress by ibericode. Adds various highly effective sign-up methods to your site.', 'newspack' ),
-				'Author'      => esc_html__( 'ibericode', 'newspack' ),
-				'PluginURI'   => esc_url( 'https://mc4wp.com' ),
-				'AuthorURI'   => esc_url( 'https://ibericode.com' ),
-				'Download'    => 'wporg',
-			],
 			'newspack-ads'                  => [
 				'Name'        => esc_html__( 'Newspack Ads', 'newspack' ),
 				'Description' => esc_html__( 'Ads integration.', 'newspack' ),
@@ -358,7 +350,13 @@ class Plugin_Manager {
 			$managed_plugins[ $plugin_slug ]['HandoffLink'] = isset( $managed_plugins[ $plugin_slug ]['EditPath'] ) ? admin_url( $managed_plugins[ $plugin_slug ]['EditPath'] ) : null;
 			$managed_plugins[ $plugin_slug ]                = wp_parse_args( $managed_plugins[ $plugin_slug ], $default_info );
 		}
-		return $managed_plugins;
+
+		/**
+		 * Filter the list of managed plugins.
+		 *
+		 * @param array $args Full list of managed plugins.
+		 */
+		return apply_filters( 'newspack_managed_plugins', $managed_plugins );
 	}
 
 	/**
