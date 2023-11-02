@@ -96,7 +96,7 @@ class WooCommerce_Cover_Fees {
 			// but at this point handling coupons + covering fees is an edge case.
 			return false;
 		}
-		if ( defined( 'NEWSPACK_DISABLE_ALLOW_COVERING_FEES' ) && NEWSPACK_DISABLE_ALLOW_COVERING_FEES ) {
+		if ( true !== boolval( get_option( 'newspack_donations_allow_covering_fees' ) ) ) {
 			return false;
 		}
 		if ( \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended

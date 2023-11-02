@@ -241,6 +241,15 @@ const StripeSetup = () => {
 						<>
 							<StripeKeysSettings />
 							<StripeFeeSettings data={ data } changeHandler={ changeHandler } />
+							<CheckboxControl
+								label={ __( 'Allow donors to cover transaction fees', 'newspack' ) }
+								checked={ data.allow_covering_fees }
+								onChange={ changeHandler( 'allow_covering_fees' ) }
+								help={ __(
+									"If checked, the donors will be able to cover Stripe's transaction fees.",
+									'newspack'
+								) }
+							/>
 						</>
 					) : (
 						<Grid>
