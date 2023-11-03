@@ -29,6 +29,35 @@ import './style.scss';
 
 const { SettingsCard } = Settings;
 
+const StripeFeeSettings = ( { data, changeHandler } ) => (
+	<SettingsCard
+		title={ __( 'Fee', 'newspack' ) }
+		description={ __(
+			'If you have a non-default or negotiated fee with Stripe, update its parameters here.',
+			'newspack'
+		) }
+		columns={ 1 }
+		noBorder
+	>
+		<Grid noMargin rowGap={ 16 }>
+			<TextControl
+				type="number"
+				step="0.1"
+				value={ data.fee_multiplier }
+				label={ __( 'Fee multiplier', 'newspack' ) }
+				onChange={ changeHandler( 'fee_multiplier' ) }
+			/>
+			<TextControl
+				type="number"
+				step="0.1"
+				value={ data.fee_static }
+				label={ __( 'Fee static portion', 'newspack' ) }
+				onChange={ changeHandler( 'fee_static' ) }
+			/>
+		</Grid>
+	</SettingsCard>
+);
+
 export const StripeKeysSettings = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' );
 	const {
@@ -197,32 +226,7 @@ const StripeSetup = () => {
 							onChange={ changeHandler( 'newsletter_list_id' ) }
 						/>
 					</SettingsCard>
-					<SettingsCard
-						title={ __( 'Fee', 'newspack' ) }
-						description={ __(
-							'If you have a non-default or negotiated fee with Stripe, update its parameters here.',
-							'newspack'
-						) }
-						columns={ 1 }
-						noBorder
-					>
-						<Grid noMargin rowGap={ 16 }>
-							<TextControl
-								type="number"
-								step="0.1"
-								value={ data.fee_multiplier }
-								label={ __( 'Fee multiplier', 'newspack' ) }
-								onChange={ changeHandler( 'fee_multiplier' ) }
-							/>
-							<TextControl
-								type="number"
-								step="0.1"
-								value={ data.fee_static }
-								label={ __( 'Fee static portion', 'newspack' ) }
-								onChange={ changeHandler( 'fee_static' ) }
-							/>
-						</Grid>
-					</SettingsCard>
+					<StripeFeeSettings data={ data } changeHandler={ changeHandler } />
 				</>
 			) : (
 				<>
@@ -234,7 +238,19 @@ const StripeSetup = () => {
 						/>
 					</Grid>
 					{ data.enabled ? (
-						<StripeKeysSettings />
+						<>
+							<StripeKeysSettings />
+							<StripeFeeSettings data={ data } changeHandler={ changeHandler } />
+							<CheckboxControl
+								label={ __( 'Allow donors to cover transaction fees', 'newspack' ) }
+								checked={ data.allow_covering_fees }
+								onChange={ changeHandler( 'allow_covering_fees' ) }
+								help={ __(
+									"If checked, the donors will be able to cover Stripe's transaction fees.",
+									'newspack'
+								) }
+							/>
+						</>
 					) : (
 						<Grid>
 							<p className="newspack-payment-setup-screen__info">

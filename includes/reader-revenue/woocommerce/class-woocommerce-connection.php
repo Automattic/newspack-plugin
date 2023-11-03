@@ -40,6 +40,7 @@ class WooCommerce_Connection {
 	 */
 	public static function init() {
 		include_once __DIR__ . '/class-woocommerce-order-utm.php';
+		include_once __DIR__ . '/class-woocommerce-cover-fees.php';
 
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_switching_subscription_amount' ] );
@@ -100,11 +101,11 @@ class WooCommerce_Connection {
 
 	/**
 	 * Get a WC_Order_Item related to the product with the given SKU, or a Newspack donation product based on frequency.
-	 * 
+	 *
 	 * @param string      $frequency Frequency of the order's recurrence.
 	 * @param number      $amount Donation amount.
 	 * @param null|string $product_sku Product's SKU string, or null to get a Newspack donation product.
-	 * 
+	 *
 	 * @return boolean|WC_Order_Item_Product Order item product, or false if there's no product with matching SKU.
 	 */
 	public static function get_order_item( $frequency = 'once', $amount = 0, $product_sku = null ) {
@@ -1114,6 +1115,10 @@ class WooCommerce_Connection {
 		// Replace content placeholders.
 		$placeholders = [
 			[
+				'template' => '*BILLING_NAME*',
+				'value'    => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
+			],
+			[
 				'template' => '*AMOUNT*',
 				'value'    => 'USD' === $currency ? $symbol . $total : $total . $symbol,
 			],
@@ -1142,7 +1147,7 @@ class WooCommerce_Connection {
 
 	/**
 	 * Get an array of product IDs associated with the given subscription ID.
-	 * 
+	 *
 	 * @param int     $subscription_id Subscription ID.
 	 * @param boolean $include_donations If true, include donation products, otherwise omit them.
 	 * @return array Array of product IDs associated with this subscription.
