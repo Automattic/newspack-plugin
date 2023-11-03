@@ -40,6 +40,7 @@ class WooCommerce_Connection {
 	 */
 	public static function init() {
 		include_once __DIR__ . '/class-woocommerce-order-utm.php';
+		include_once __DIR__ . '/class-woocommerce-cover-fees.php';
 
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_switching_subscription_amount' ] );

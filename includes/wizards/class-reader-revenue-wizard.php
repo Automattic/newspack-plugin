@@ -155,28 +155,28 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_stripe_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'enabled'            => [
+					'enabled'             => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'testMode'           => [
+					'testMode'            => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'publishableKey'     => [
+					'publishableKey'      => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'secretKey'          => [
+					'secretKey'           => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'testPublishableKey' => [
+					'testPublishableKey'  => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'testSecretKey'      => [
+					'testSecretKey'       => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'newsletter_list_id' => [
+					'newsletter_list_id'  => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'fee_multiplier'     => [
+					'fee_multiplier'      => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => function ( $value ) {
 							if ( (float) $value > 10 ) {
@@ -184,14 +184,17 @@ class Reader_Revenue_Wizard extends Wizard {
 									'newspack_invalid_param',
 									__( 'Fee multiplier must be smaller than 10.', 'newspack' )
 								);
-							};
+							}
 							return true;
 						},
 					],
-					'fee_static'         => [
+					'fee_static'          => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'location_code'      => [
+					'allow_covering_fees' => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'location_code'       => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
@@ -363,6 +366,9 @@ class Reader_Revenue_Wizard extends Wizard {
 						'level'  => 'notice',
 					]
 				);
+			}
+			if ( isset( $args['allow_covering_fees'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees', $args['allow_covering_fees'] );
 			}
 		}
 
