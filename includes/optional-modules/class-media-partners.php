@@ -77,6 +77,57 @@ class Media_Partners {
 	}
 
 	/**
+	 * Render a settings field.
+	 *
+	 * @param string $key The key for the field.
+	 * @param string $label The label for the field.
+	 * @param array  $partner The partner data.
+	 * @param string $context The context for the field.
+	 */
+	private static function render_settings_field( $key, $label, $partner = [], $context = 'new_partner' ) {
+		$type = 'text';
+		if ( in_array( $key, [ 'display_logo' ] ) ) {
+			$type = 'checkbox';
+		}
+		$value = isset( $partner[ $key ] ) ? $partner[ $key ] : '';
+
+		ob_start();
+		?>
+		<input
+			type="<?php echo esc_attr( $type ); ?>"
+			name="<?php echo esc_attr( $key ); ?>"
+			<?php if ( 'checkbox' === $type ) : ?>
+				<?php if ( boolval( $value ) ) : ?>
+					checked
+				<?php endif; ?>
+			<?php else : ?>
+				value="<?php echo esc_attr( $value ); ?>"
+			<?php endif; ?>
+		/>
+		<?php
+		$input_html = ob_get_clean();
+
+		switch ( $context ) {
+			case 'new_partner':
+				?>
+				<div class="form-field">
+					<label for="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
+					<?php echo $input_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
+				<?php
+				break;
+			case 'edit_partner':
+				?>
+				<tr class="form-field">
+					<th scope="row" valign="top"><label for="<?php esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label></th>
+					<td><?php echo $input_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
+				</tr>
+				<?php
+				break;
+		}
+	}
+
+	/**
 	 * Add custom meta to the Add New Partner screen.
 	 */
 	public static function add_partner_meta_fields() {
@@ -100,11 +151,12 @@ class Media_Partners {
 			</script>
 		</div>
 
-		<div class="form-field">
-			<label for="partner_logo"><?php esc_html_e( 'Partner URL:', 'newspack-media-partners' ); ?></label>
-			<input type="text" name="partner_url" value="" />
-		</div>
 		<?php
+		$defaults = [
+			'display_logo' => true,
+		];
+		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ) );
+		self::render_settings_field( 'display_logo', __( 'Should logo be displayed?', 'newspack-plugin' ), $defaults );
 	}
 
 	/**
@@ -121,8 +173,6 @@ class Media_Partners {
 				$logo = $logo_atts[0];
 			}
 		}
-
-		$partner_url = esc_url( get_term_meta( $term->term_id, 'partner_homepage_url', true ) );
 
 		?>
 		<tr class="form-field">
@@ -154,13 +204,16 @@ class Media_Partners {
 			</td>
 		</tr>
 
-		<tr class="form-field">
-			<th scope="row" valign="top"><label for="partner_url"><?php esc_html_e( 'Partner URL', 'newspack-media-partners' ); ?></label></th>
-			<td>
-				<input type="text" name="partner_url" value="<?php echo esc_attr( $partner_url ); ?>" />
-			</td>
-		</tr>
 		<?php
+		$partner = [
+			'partner_url'  => esc_url( get_term_meta( $term->term_id, 'partner_homepage_url', true ) ),
+			'display_logo' => esc_url( get_term_meta( $term->term_id, 'display_logo', true ) ),
+		];
+		if ( ! metadata_exists( 'term', $term->term_id, 'display_logo' ) ) {
+			$partner['display_logo'] = true; // For legacy partners, before the introduction of the display_logo field.
+		}
+		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ), $partner, 'edit_partner' );
+		self::render_settings_field( 'display_logo', __( 'Should logo be displayed?', 'newspack-plugin' ), $partner, 'edit_partner' );
 	}
 
 	/**
@@ -182,6 +235,8 @@ class Media_Partners {
 		if ( $partner_url ) {
 			update_term_meta( $term_id, 'partner_homepage_url', esc_url( $partner_url ) );
 		}
+
+		update_term_meta( $term_id, 'display_logo', filter_input( INPUT_POST, 'display_logo', FILTER_SANITIZE_STRING ) );
 	}
 
 	/**
@@ -190,6 +245,22 @@ class Media_Partners {
 	 */
 	public static function add_partners_shortcode() {
 		add_shortcode( 'partners', [ __CLASS__, 'render_partners_shortcode' ] );
+	}
+
+	/**
+	 * Get partner logo, if set to be displayed.
+	 *
+	 * @param WP_Term $partner The partner object.
+	 */
+	private static function get_partner_logo( $partner ) {
+		if ( ! metadata_exists( 'term', $partner->term_id, 'display_logo' ) ) {
+			$should_display = true; // For legacy partners, before the introduction of the display_logo field.
+		} else {
+			$should_display = get_term_meta( $partner->term_id, 'display_logo', true );
+		}
+		if ( $should_display ) {
+			return get_term_meta( $partner->term_id, 'logo', true );
+		}
 	}
 
 	/**
@@ -216,7 +287,7 @@ class Media_Partners {
 		$elements = [];
 		foreach ( $partners as $partner ) {
 			$partner_html = '';
-			$partner_logo = get_term_meta( $partner->term_id, 'logo', true );
+			$partner_logo = self::get_partner_logo( $partner );
 			$partner_url  = get_term_meta( $partner->term_id, 'partner_homepage_url', true );
 
 			if ( $partner_logo ) {
@@ -298,7 +369,7 @@ class Media_Partners {
 		$partner_images = [];
 		$partner_names  = [];
 		foreach ( $partners as $partner ) {
-			$partner_image_id = get_term_meta( $partner->term_id, 'logo', true );
+			$partner_image_id = self::get_partner_logo( $partner );
 			$partner_url      = esc_url( get_term_meta( $partner->term_id, 'partner_homepage_url', true ) );
 			$image            = '';
 			$image_alt        = $partner->name;
