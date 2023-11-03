@@ -401,6 +401,8 @@
 		border-radius: 2px;
 		padding: 0.5em;
 		box-sizing: border-box;
+		max-height: 21vh;
+		overflow-y: scroll;
 		h3 {
 			display: none;
 		}
