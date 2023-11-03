@@ -123,9 +123,16 @@ class WooCommerce_My_Account {
 				}
 			}
 			if ( class_exists( 'WC_Customer' ) ) {
+				$ignored_fields   = [ 'first_name', 'last_name', 'email' ];
 				$customer         = new \WC_Customer( $customer_id );
 				$billing_address  = $customer->get_billing();
 				$shipping_address = $customer->get_shipping();
+
+				// We only want to show the Addresses menu item if the reader has address info (not first/last name or email).
+				foreach ( $ignored_fields as $ignored_field ) {
+					unset( $billing_address[ $ignored_field ] );
+					unset( $shipping_address[ $ignored_field ] );
+				}
 
 				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $billing_address ) ) ) {
 					$default_disabled_items[] = 'edit-address';
