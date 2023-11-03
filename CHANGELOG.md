@@ -1,3 +1,11 @@
+# [2.11.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.2...v2.11.0-alpha.3) (2023-11-03)
+
+
+### Features
+
+* **emails:** support billing name on receipt email ([#2729](https://github.com/Automattic/newspack-plugin/issues/2729)) ([c9ad368](https://github.com/Automattic/newspack-plugin/commit/c9ad3684f072dce3d831ca477f35c51aa66ec8e8))
+* **modal-checkout:** allow covering Stripe's fees  ([#2695](https://github.com/Automattic/newspack-plugin/issues/2695)) ([420ca32](https://github.com/Automattic/newspack-plugin/commit/420ca32ce675fc976961591164963b73882e9644))
+
 # [2.11.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.1...v2.11.0-alpha.2) (2023-11-01)
 
 
