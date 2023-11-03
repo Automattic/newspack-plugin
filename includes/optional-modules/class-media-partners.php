@@ -128,6 +128,16 @@ class Media_Partners {
 	}
 
 	/**
+	 * Get default settings.
+	 */
+	private static function get_default_settings() {
+		return [
+			'display_logo'        => true,
+			'attribution_message' => __( 'This story also appeared in', 'newspack-plugin' ),
+		];
+	}
+
+	/**
 	 * Add custom meta to the Add New Partner screen.
 	 */
 	public static function add_partner_meta_fields() {
@@ -152,11 +162,10 @@ class Media_Partners {
 		</div>
 
 		<?php
-		$defaults = [
-			'display_logo' => true,
-		];
+		$defaults = self::get_default_settings();
 		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ) );
 		self::render_settings_field( 'display_logo', __( 'Should logo be displayed?', 'newspack-plugin' ), $defaults );
+		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $partner, 'edit_partner' );
 	}
 
 	/**
@@ -205,15 +214,31 @@ class Media_Partners {
 		</tr>
 
 		<?php
-		$partner = [
-			'partner_url'  => esc_url( get_term_meta( $term->term_id, 'partner_homepage_url', true ) ),
-			'display_logo' => esc_url( get_term_meta( $term->term_id, 'display_logo', true ) ),
-		];
-		if ( ! metadata_exists( 'term', $term->term_id, 'display_logo' ) ) {
-			$partner['display_logo'] = true; // For legacy partners, before the introduction of the display_logo field.
-		}
+		$partner = self::get_partner_settings( $term );
 		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ), $partner, 'edit_partner' );
 		self::render_settings_field( 'display_logo', __( 'Should logo be displayed?', 'newspack-plugin' ), $partner, 'edit_partner' );
+		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $partner, 'edit_partner' );
+	}
+
+	/**
+	 * Get partner settings.
+	 *
+	 * @param WP_Term $partner The partner term.
+	 */
+	private static function get_partner_settings( $partner ) {
+		$defaults         = self::get_default_settings();
+		$partner_settings = [
+			'partner_url'         => esc_url( get_term_meta( $partner->term_id, 'partner_homepage_url', true ) ),
+			'display_logo'        => get_term_meta( $partner->term_id, 'display_logo', true ),
+			'attribution_message' => get_term_meta( $partner->term_id, 'attribution_message', true ),
+		];
+		if ( ! metadata_exists( 'term', $partner->term_id, 'display_logo' ) ) {
+			$partner_settings['display_logo'] = $defaults['display_logo']; // For legacy partners, before the introduction of the display_logo field.
+		}
+		if ( ! metadata_exists( 'term', $partner->term_id, 'attribution_message' ) ) {
+			$partner_settings['attribution_message'] = $defaults['attribution_message']; // For legacy partners, before the introduction of the display_logo field.
+		}
+		return $partner_settings;
 	}
 
 	/**
@@ -237,6 +262,11 @@ class Media_Partners {
 		}
 
 		update_term_meta( $term_id, 'display_logo', filter_input( INPUT_POST, 'display_logo', FILTER_SANITIZE_STRING ) );
+
+		$attribution_message = filter_input( INPUT_POST, 'attribution_message', FILTER_SANITIZE_STRING );
+		if ( $attribution_message ) {
+			update_term_meta( $term_id, 'attribution_message', $attribution_message );
+		}
 	}
 
 	/**
@@ -398,6 +428,8 @@ class Media_Partners {
 			$partner_names[] = $partner_name;
 		}
 
+		$partner_settings = self::get_partner_settings( $partner );
+
 		ob_start();
 		?>
 		<div class="wp-block-group alignright newspack-media-partners">
@@ -408,8 +440,7 @@ class Media_Partners {
 						<?php
 						echo wp_kses_post(
 							sprintf(
-								/* translators: replaced with the name of the Media Partner, linked */
-								__( 'This story also appeared in %s', 'newspack-plugin' ),
+								$partner_settings['attribution_message'] . ' %s',
 								implode( esc_html__( ' and ', 'newspack-plugin' ), $partner_names )
 							)
 						);
