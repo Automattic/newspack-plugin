@@ -1,3 +1,10 @@
+# [2.11.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.3...v2.11.0-alpha.4) (2023-11-06)
+
+
+### Bug Fixes
+
+* sync order to ac after payment ([#2731](https://github.com/Automattic/newspack-plugin/issues/2731)) ([8960127](https://github.com/Automattic/newspack-plugin/commit/8960127580b68f1950dab5750585001a38e401b6))
+
 ## [2.10.1](https://github.com/Automattic/newspack-plugin/compare/v2.10.0...v2.10.1) (2023-11-06)
 
 
