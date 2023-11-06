@@ -60,8 +60,7 @@ class WooCommerce_Connection {
 		// WooCommerce Memberships.
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
 
-		// WC Subscriptions hooks in and creates subscription at priority 100, so use priority 101.
-		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'order_processed' ], 101 );
+		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
 
 		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
@@ -123,7 +122,7 @@ class WooCommerce_Connection {
 	 *
 	 * @param int $order_id Order ID.
 	 */
-	public static function order_processed( $order_id ) {
+	public static function order_paid( $order_id ) {
 		$product_id = Donations::get_order_donation_product_id( $order_id );
 
 		/** Bail if not a donation order. */
