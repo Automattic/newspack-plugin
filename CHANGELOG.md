@@ -1,28 +1,9 @@
-# [2.11.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.2...v2.11.0-alpha.3) (2023-11-03)
+## [2.10.1](https://github.com/Automattic/newspack-plugin/compare/v2.10.0...v2.10.1) (2023-11-06)
 
 
-### Features
+### Bug Fixes
 
-* **emails:** support billing name on receipt email ([#2729](https://github.com/Automattic/newspack-plugin/issues/2729)) ([c9ad368](https://github.com/Automattic/newspack-plugin/commit/c9ad3684f072dce3d831ca477f35c51aa66ec8e8))
-* **modal-checkout:** allow covering Stripe's fees  ([#2695](https://github.com/Automattic/newspack-plugin/issues/2695)) ([420ca32](https://github.com/Automattic/newspack-plugin/commit/420ca32ce675fc976961591164963b73882e9644))
-
-# [2.11.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.1...v2.11.0-alpha.2) (2023-11-01)
-
-
-### Features
-
-* add donation processing filters ([#2720](https://github.com/Automattic/newspack-plugin/issues/2720)) ([d041fa8](https://github.com/Automattic/newspack-plugin/commit/d041fa80a3916f384d2e598c3eda545fe791aece))
-* remove MC4WP from managed plugins ([#2723](https://github.com/Automattic/newspack-plugin/issues/2723)) ([8026688](https://github.com/Automattic/newspack-plugin/commit/80266880dda048ad8e580fd789f43d2cf95a079c))
-* **stripe-migration:** support mapping of products by SKU ([#2725](https://github.com/Automattic/newspack-plugin/issues/2725)) ([08f9569](https://github.com/Automattic/newspack-plugin/commit/08f95691e7facda5555f8003b19dbeb66fb2e276))
-
-# [2.11.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.10.0...v2.11.0-alpha.1) (2023-10-31)
-
-
-### Features
-
-* **donations:** process after-checkout-button params ([167a20e](https://github.com/Automattic/newspack-plugin/commit/167a20e500c565a7e549285d723741ae511dd332))
-* **recaptcha:** make recaptcha threshold configurable ([#2705](https://github.com/Automattic/newspack-plugin/issues/2705)) ([f3ec1a6](https://github.com/Automattic/newspack-plugin/commit/f3ec1a6fae04201014d7880328b4e3413758d47a))
-* segmentation criteria for subscriptions and memberships ([#2696](https://github.com/Automattic/newspack-plugin/issues/2696)) ([4631b51](https://github.com/Automattic/newspack-plugin/commit/4631b51e443fd8b3cd78d14ecd800194e25ac2bc))
+* sync order to ac after payment ([#2731](https://github.com/Automattic/newspack-plugin/issues/2731)) ([8960127](https://github.com/Automattic/newspack-plugin/commit/8960127580b68f1950dab5750585001a38e401b6))
 
 # [2.10.0](https://github.com/Automattic/newspack-plugin/compare/v2.9.1...v2.10.0) (2023-10-31)
 
