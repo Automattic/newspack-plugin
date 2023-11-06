@@ -28,7 +28,7 @@ class Memberships {
 	/**
 	 * Membership statuses that should grant access to restricted content.
 	 * See: https://woocommerce.com/document/woocommerce-memberships-user-memberships/#section-4
-	 * 
+	 *
 	 * @var array
 	 */
 	public static $active_statuses = [ 'active', 'complimentary', 'free-trial', 'pending' ];
@@ -195,25 +195,20 @@ class Memberships {
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
 		}
-		$gate_post_id = self::get_gate_post_id();
-		$style        = \get_post_meta( $gate_post_id, 'style', true );
-		if ( 'overlay' !== $style ) {
-			return;
-		}
-		$handle = 'newspack-memberships-gate-overlay';
+		$handle = 'newspack-memberships-gate';
 		\wp_enqueue_script(
 			$handle,
-			Newspack::plugin_url() . '/dist/memberships-gate-overlay.js',
+			Newspack::plugin_url() . '/dist/memberships-gate.js',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate.js' ),
 			true
 		);
 		\wp_script_add_data( $handle, 'async', true );
 		\wp_enqueue_style(
 			$handle,
-			Newspack::plugin_url() . '/dist/memberships-gate-overlay.css',
+			Newspack::plugin_url() . '/dist/memberships-gate.css',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate.css' )
 		);
 	}
 
@@ -540,6 +535,15 @@ class Memberships {
 		if ( 'inline' !== $style ) {
 			return '';
 		}
+
+		/**
+		 * Fires before the content gate is rendered.
+		 *
+		 * @param int    $gate_post_id Gate post ID.
+		 * @param string $style        Gate style.
+		 */
+		do_action( 'newspack_before_content_gate', $gate_post_id, 'inline' );
+
 		$gate = \apply_filters( 'newspack_gate_content', \get_the_content( null, null, \get_post( $gate_post_id ) ), $gate_post_id );
 
 		// Add clearfix to the gate.
@@ -552,6 +556,14 @@ class Memberships {
 
 		// Wrap gate in a div for styling.
 		$gate = '<div class="newspack-memberships__gate newspack-memberships__inline-gate">' . $gate . '</div>';
+
+		/**
+		 * Fires after the content gate is rendered.
+		 *
+		 * @param int    $gate_post_id Gate post ID.
+		 * @param string $style        Gate style.
+		 */
+		do_action( 'newspack_after_content_gate', $gate_post_id, 'inline' );
 		return $gate;
 	}
 
@@ -650,6 +662,15 @@ class Memberships {
 		setup_postdata( $post );
 		$position = \get_post_meta( $gate_post_id, 'overlay_position', true );
 		$size     = \get_post_meta( $gate_post_id, 'overlay_size', true );
+
+		/**
+		 * Fires before the content gate is rendered.
+		 *
+		 * @param int    $gate_post_id Gate post ID.
+		 * @param string $style        Gate style.
+		 */
+		do_action( 'newspack_before_content_gate', $gate_post_id, 'overlay' );
+
 		?>
 		<div class="newspack-memberships__gate newspack-memberships__overlay-gate" style="display:none;" data-position="<?php echo \esc_attr( $position ); ?>" data-size="<?php echo \esc_attr( $size ); ?>">
 			<div class="newspack-memberships__overlay-gate__container">
@@ -662,6 +683,14 @@ class Memberships {
 		self::$gate_rendered = true;
 		wp_reset_postdata();
 		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		/**
+		 * Fires after the content gate is rendered.
+		 *
+		 * @param int    $gate_post_id Gate post ID.
+		 * @param string $style        Gate style.
+		 */
+		do_action( 'newspack_after_content_gate', $gate_post_id, 'overlay' );
 	}
 
 	/**

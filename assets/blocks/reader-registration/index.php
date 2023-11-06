@@ -430,8 +430,15 @@ function process_form() {
 
 	$popup_id                      = isset( $_REQUEST['newspack_popup_id'] ) ? (int) $_REQUEST['newspack_popup_id'] : false;
 	$metadata['newspack_popup_id'] = $popup_id;
+
+	$metadata['memberships_content_gate'] = isset( $_REQUEST['memberships_content_gate'] ) ? (bool) $_REQUEST['memberships_content_gate'] : false;
+
 	if ( $popup_id ) {
 		$metadata['registration_method'] = 'registration-block-popup';
+	}
+
+	if ( $metadata['memberships_content_gate'] ) {
+		$metadata['registration_method'] = 'registration-block-content-gate';
 	}
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );

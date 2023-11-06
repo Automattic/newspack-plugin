@@ -260,7 +260,7 @@ class Donations {
 
 	/**
 	 * Check whether the given product ID is a donation product.
-	 * 
+	 *
 	 * @param int $product_id Product ID to check.
 	 * @return boolean True if a donation product, false if not.
 	 */
@@ -675,9 +675,10 @@ class Donations {
 			$cart_item_data = apply_filters(
 				'newspack_donations_cart_item_data',
 				[
-					'nyp'               => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
-					'referer'           => $referer,
-					'newspack_popup_id' => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
+					'nyp'                      => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
+					'referer'                  => $referer,
+					'newspack_popup_id'        => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
+					'memberships_content_gate' => (bool) filter_input( INPUT_GET, 'memberships_content_gate', FILTER_SANITIZE_NUMBER_INT ),
 				]
 			);
 			\WC()->cart->add_to_cart(
