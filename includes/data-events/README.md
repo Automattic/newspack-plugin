@@ -108,7 +108,6 @@ the order is already marked as failed so this hook will not trigger.
 | `popup_id`      | `string` | If the donation was triggered by a popup, the popup ID |
 | `platform_data` | `array`  |                                                        |
 
-
 ### `donation_new`
 
 When there's a new donation, either through Stripe or Newspack (WooCommerce) platforms.
@@ -173,7 +172,7 @@ When a WooCommerce Subscription status changes.
 
 ### `product_subscription_active`
 
-When a non-donation subscription is activated. 
+When a non-donation subscription is activated.
 
 | Name              | Type     |
 | ----------------- | -------- |
@@ -186,7 +185,7 @@ When a non-donation subscription is activated.
 
 ### `product_subscription_inactive`
 
-When a non-donation subscription is changed to any non-active status. 
+When a non-donation subscription is changed to any non-active status.
 
 | Name              | Type     |
 | ----------------- | -------- |
@@ -199,22 +198,39 @@ When a non-donation subscription is changed to any non-active status.
 | `status_before`   | `string` |
 | `status_after`    | `string` |
 
+## Membership Actions
+
+### `gate_interaction`
+
+When a reader interacts with the content gate.
+
+| Name           | Type      | Obs                                                                                       |
+| -------------- | --------- | ----------------------------------------------------------------------------------------- |
+| `gate_post_id` | `int`     |                                                                                           |
+| `action_type`  | `string`  | Either `paid_membership` or `registration`                                                |
+| `action`       | `string`  | Either `form_submission_received`, `form_submission_success` or `form_submission_failure` |
+| `order_id`     | `int`     | Only applicable when `action_type` is `paid_membership`                                   |
+| `product_id`   | `int`     | Only applicable when `action_type` is `paid_membership`                                   |
+| `amount`       | `float`   | Only applicable when `action_type` is `paid_membership`                                   |
+| `currency`     | `stringy` | Only applicable when `action_type` is `paid_membership`                                   |
+| `referer`      | `string`  | Only applicable when `action_type` is `paid_membership`                                   |
+
 ## Newspack Popups Actions
 
 ### `prompt_interaction`
 
 When a user interacts with a Newspack Popup's campaign prompt.
 
-| Name               | Type     | Obs                                                                                                                                            |
-| ------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `prompt_id`        | `int`    |                                                                                                                                                |
-| `prompt_title`     | `string` |                                                                                                                                                |
-| `prompt_frequency` | `string` |                                                                                                                                                |
-| `prompt_placement` | `string` |                                                                                                                                                |
+| Name               | Type     | Obs                                                                                                                                          |
+| ------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prompt_id`        | `int`    |                                                                                                                                              |
+| `prompt_title`     | `string` |                                                                                                                                              |
+| `prompt_frequency` | `string` |                                                                                                                                              |
+| `prompt_placement` | `string` |                                                                                                                                              |
 | `prompt_blocks`    | `array`  | Array containing the blocks that are inside the prompt. Only 3 blocks are tracked: `donation`, `registration` and `newsletters_subscription` |
-| `action`           | `string` | `form_submission_received`, `form_submission_success` or `form_submission_failure`                                                                      |
-| `action_type`      | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
-| `interaction_data` | `array`  | Depending on the action type, it will contain different information about the interaction.                                                      |
+| `action`           | `string` | `form_submission_received`, `form_submission_success` or `form_submission_failure`                                                           |
+| `action_type`      | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                     |
+| `interaction_data` | `array`  | Depending on the action type, it will contain different information about the interaction.                                                   |
 
 #### Possible values for `interaction_data`
 
@@ -226,8 +242,8 @@ If `action_type` is `registration`:
 
 If `action_type` is `newsletters_subscription`:
 
-| Name                  | Type     |
-| --------------------- | -------- |
+| Name                              | Type     |
+| --------------------------------- | -------- |
 | `newsletters_subscription_method` | `string` |
 
 If `action_type` is `donation`:
@@ -240,8 +256,6 @@ If `action_type` is `donation`:
 | `donation_recurrence` | `string` |                                                                                                  |
 | `donation_platform`   | `string` |                                                                                                  |
 | `donation_error`      | `string` | Only for failed donations via Stripe                                                             |
-
-
 
 ## Registering a new action
 
