@@ -38,6 +38,7 @@ class GA4 {
 		'donation_subscription_cancelled',
 		'newsletter_subscribed',
 		'prompt_interaction',
+		'gate_interaction',
 	];
 
 	/**
@@ -384,6 +385,26 @@ class GA4 {
 		$transformed_data = Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $transformed_data );
 
 		return array_merge( $params, $transformed_data );
+	}
+
+	/**
+	 * Handler for the gate_interaction event.
+	 *
+	 * @param int   $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_gate_interaction( $params, $data ) {
+		$params['gate_post_id'] = $data['gate_post_id'] ?? '';
+		$params['action']       = $data['action'] ?? '';
+		$params['action_type']  = $data['action_type'] ?? '';
+		$params['referer']      = $data['referer'] ?? '';
+		$params['order_id']     = $data['order_id'] ?? '';
+		$params['product_id']   = $data['product_id'] ?? '';
+		$params['amount']       = $data['amount'] ?? '';
+		$params['currency']     = $data['currency'] ?? '';
+		return $params;
 	}
 
 	/**

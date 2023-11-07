@@ -101,8 +101,6 @@ final class Memberships {
 	private static function get_gate_metadata() {
 		return [
 			'gate_post_id' => NewspackMemberships::get_gate_post_id(),
-			'logged_in'    => \is_user_logged_in(),
-			'is_reader'    => \is_user_logged_in() ? Reader_Activation::is_user_reader( \wp_get_current_user() ) : false,
 		];
 	}
 
@@ -182,7 +180,6 @@ final class Memberships {
 				'action_type' => 'paid_membership',
 				'order_id'    => $order_id,
 				'product_id'  => $item->get_product_id(),
-				'email'       => $order->get_billing_email(),
 				'amount'      => (float) $order->get_total(),
 				'currency'    => $order->get_currency(),
 				'referer'     => $order->get_meta( '_newspack_referer' ),

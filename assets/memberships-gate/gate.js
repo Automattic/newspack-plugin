@@ -71,7 +71,7 @@ domReady( function () {
 	}
 	addFormInputs( gate );
 
-	if ( gate.classLists.contains( 'newspack-memberships__gate--overlay' ) ) {
+	if ( gate.classList.contains( 'newspack-memberships__gate--overlay' ) ) {
 		initOverlay( gate );
 	}
 } );
