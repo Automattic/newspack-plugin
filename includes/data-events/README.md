@@ -204,16 +204,16 @@ When a non-donation subscription is changed to any non-active status.
 
 When a reader interacts with the content gate.
 
-| Name           | Type      | Obs                                                                                       |
-| -------------- | --------- | ----------------------------------------------------------------------------------------- |
-| `gate_post_id` | `int`     |                                                                                           |
-| `action_type`  | `string`  | Either `paid_membership` or `registration`                                                |
-| `action`       | `string`  | Either `form_submission_received`, `form_submission_success` or `form_submission_failure` |
-| `order_id`     | `int`     | Only applicable when `action_type` is `paid_membership`                                   |
-| `product_id`   | `int`     | Only applicable when `action_type` is `paid_membership`                                   |
-| `amount`       | `float`   | Only applicable when `action_type` is `paid_membership`                                   |
+| Name           | Type     | Obs                                                                                       |
+| -------------- | -------- | ----------------------------------------------------------------------------------------- |
+| `gate_post_id` | `int`    |                                                                                           |
+| `action_type`  | `string` | Either `paid_membership` or `registration`                                                |
+| `action`       | `string` | Either `form_submission_received`, `form_submission_success` or `form_submission_failure` |
+| `order_id`     | `int`    | Only applicable when `action_type` is `paid_membership`                                   |
+| `product_id`   | `int`    | Only applicable when `action_type` is `paid_membership`                                   |
+| `amount`       | `float`  | Only applicable when `action_type` is `paid_membership`                                   |
 | `currency`     | `string` | Only applicable when `action_type` is `paid_membership`                                   |
-| `referer`      | `string`  | Only applicable when `action_type` is `paid_membership`                                   |
+| `referer`      | `string` | Only applicable when `action_type` is `paid_membership`                                   |
 
 ## Newspack Popups Actions
 
