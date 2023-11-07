@@ -212,7 +212,7 @@ When a reader interacts with the content gate.
 | `order_id`     | `int`     | Only applicable when `action_type` is `paid_membership`                                   |
 | `product_id`   | `int`     | Only applicable when `action_type` is `paid_membership`                                   |
 | `amount`       | `float`   | Only applicable when `action_type` is `paid_membership`                                   |
-| `currency`     | `stringy` | Only applicable when `action_type` is `paid_membership`                                   |
+| `currency`     | `string` | Only applicable when `action_type` is `paid_membership`                                   |
 | `referer`      | `string`  | Only applicable when `action_type` is `paid_membership`                                   |
 
 ## Newspack Popups Actions
