@@ -39,7 +39,22 @@ final class Memberships {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_listeners' ] );
+		add_filter( 'newspack_blocks_modal_checkout_cart_item_data', [ __CLASS__, 'checkout_cart_item_data' ], 10, 2 );
 		add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
+	}
+
+	/**
+	 * Add cart metadata to the order line item.
+	 *
+	 * @param array $cart_item_data The cart item data.
+	 *
+	 * @return array
+	 */
+	public static function checkout_cart_item_data( $cart_item_data ) {
+		if ( isset( $_REQUEST['memberships_content_gate'] ) && ! empty( $_REQUEST['memberships_content_gate'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$cart_item_data['memberships_content_gate'] = true;
+		}
+		return $cart_item_data;
 	}
 
 	/**
