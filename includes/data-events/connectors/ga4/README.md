@@ -89,7 +89,7 @@ Additional parameters:
 
 Additional parameters:
 
-* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.)
+* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.). See [reference](../../README.md#prompt_interaction).
 * `prompt_has_donation_block`: If the donation block was present, the value will be 1
 * `prompt_has_registration_block`: If the registration block was present, the value will be 1
 * `prompt_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
