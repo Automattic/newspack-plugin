@@ -242,7 +242,7 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id() );
+		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id(), [ 'order_type' => 'any' ] );
 
 		// One-time donation.
 		if ( empty( $order_subscriptions ) ) {
