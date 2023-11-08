@@ -42,6 +42,19 @@ function addFormInputs( gate ) {
 }
 
 /**
+ * Push gate seen event to Google Analytics.
+ */
+function pushSeenEvent() {
+	const eventName = 'np_gate_interaction';
+	const payload = {
+		action: 'seen',
+	};
+	if ( 'function' === typeof window.gtag && payload ) {
+		window.gtag( 'event', eventName, payload );
+	}
+}
+
+/**
  * Initializes the overlay gate.
  *
  * @param {HTMLElement} gate The gate element.
@@ -52,11 +65,16 @@ function initOverlay( gate ) {
 		entry = document.querySelector( '#content' );
 	}
 	gate.style.removeProperty( 'display' );
+	let seen = false;
 	const handleScroll = () => {
 		const delta = ( entry?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
 		let visible = false;
 		if ( delta < 0 ) {
 			visible = true;
+			if ( ! seen ) {
+				pushSeenEvent();
+			}
+			seen = true;
 		}
 		gate.setAttribute( 'data-visible', visible );
 	};
@@ -71,7 +89,18 @@ domReady( function () {
 	}
 	addFormInputs( gate );
 
-	if ( gate.classList.contains( 'newspack-memberships__gate--overlay' ) ) {
+	if ( gate.classList.contains( 'newspack-memberships__overlay-gate' ) ) {
 		initOverlay( gate );
+	} else {
+		// Seen event for inline gate.
+		const detectSeen = () => {
+			const delta = ( gate?.getBoundingClientRect().top || 0 ) - window.innerHeight / 2;
+			if ( delta < 0 ) {
+				pushSeenEvent();
+				document.removeEventListener( 'scroll', detectSeen );
+			}
+		};
+		document.addEventListener( 'scroll', detectSeen );
+		detectSeen();
 	}
 } );
