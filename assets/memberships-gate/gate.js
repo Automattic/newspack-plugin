@@ -42,7 +42,7 @@ function addFormInputs( gate ) {
 }
 
 /**
- * Push gate seen event to Google Analytics.
+ * Push gate 'seen' event to Google Analytics.
  */
 function pushSeenEvent() {
 	const eventName = 'np_gate_interaction';

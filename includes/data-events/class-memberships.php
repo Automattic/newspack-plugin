@@ -77,7 +77,7 @@ final class Memberships {
 	 */
 	public static function register_listeners() {
 		/**
-		 * Registration membership
+		 * Gate interaction: Registration membership
 		 */
 		Data_Events::register_listener(
 			'newspack_reader_registration_form_processed',
@@ -91,7 +91,7 @@ final class Memberships {
 		);
 
 		/**
-		 * Paid membership
+		 * Gate interaction: Paid membership
 		 */
 		Data_Events::register_listener(
 			'woocommerce_checkout_order_processed',
