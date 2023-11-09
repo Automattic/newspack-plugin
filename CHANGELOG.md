@@ -1,3 +1,10 @@
+# [2.11.0-alpha.7](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.6...v2.11.0-alpha.7) (2023-11-09)
+
+
+### Bug Fixes
+
+* get subscriptions from any order type ([#2744](https://github.com/Automattic/newspack-plugin/issues/2744)) ([5f0bef3](https://github.com/Automattic/newspack-plugin/commit/5f0bef3cc39f60ca1df96dd2644076223e27ff8a))
+
 # [2.11.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.5...v2.11.0-alpha.6) (2023-11-07)
 
 
