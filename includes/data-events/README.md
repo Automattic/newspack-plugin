@@ -207,8 +207,8 @@ When a reader interacts with the content gate.
 | Name           | Type     | Obs                                                                                               |
 | -------------- | -------- | ------------------------------------------------------------------------------------------------- |
 | `gate_post_id` | `int`    |                                                                                                   |
-| `action_type`  | `string` | Either `paid_membership` or `registration`                                                        |
 | `action`       | `string` | Either `seen`, `form_submission_received`, `form_submission_success` or `form_submission_failure` |
+| `action_type`  | `string` | Either `paid_membership` or `registration`. Not applicable when `action` is `seen`                |
 | `referer`      | `string` |                                                                                                   |
 | `order_id`     | `int`    | Only applicable when `action_type` is `paid_membership`                                           |
 | `product_id`   | `int`    | Only applicable when `action_type` is `paid_membership`                                           |
