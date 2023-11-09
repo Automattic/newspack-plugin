@@ -209,11 +209,11 @@ When a reader interacts with the content gate.
 | `gate_post_id` | `int`    |                                                                                                   |
 | `action_type`  | `string` | Either `paid_membership` or `registration`                                                        |
 | `action`       | `string` | Either `seen`, `form_submission_received`, `form_submission_success` or `form_submission_failure` |
+| `referer`      | `string` |                                                                                                   |
 | `order_id`     | `int`    | Only applicable when `action_type` is `paid_membership`                                           |
 | `product_id`   | `int`    | Only applicable when `action_type` is `paid_membership`                                           |
 | `amount`       | `float`  | Only applicable when `action_type` is `paid_membership`                                           |
 | `currency`     | `string` | Only applicable when `action_type` is `paid_membership`                                           |
-| `referer`      | `string` | Only applicable when `action_type` is `paid_membership`                                           |
 
 ## Newspack Popups Actions
 
