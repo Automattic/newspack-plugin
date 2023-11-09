@@ -371,8 +371,8 @@ class GA4 {
 	/**
 	 * Handler for the prompt_interaction event.
 	 *
-	 * @param int   $params The GA4 event parameters.
-	 * @param array $data      Data associated with the Data Events api event.
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
 	 *
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
@@ -390,7 +390,7 @@ class GA4 {
 	/**
 	 * Handler for the gate_interaction event.
 	 *
-	 * @param int   $params The GA4 event parameters.
+	 * @param array $params The GA4 event parameters.
 	 * @param array $data   Data associated with the Data Events api event.
 	 *
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
