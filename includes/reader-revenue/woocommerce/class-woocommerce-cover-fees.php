@@ -227,9 +227,7 @@ class WooCommerce_Cover_Fees {
 		$price = floatval( WC()->cart->total );
 		$total = self::get_total_with_fee( $price );
 		// Just one decimal place, please.
-		$flat_percentage = number_format( ( ( $total - $price ) * 100 ) / $price, 1 );
-		// Remove trailing zero.
-		$flat_percentage = preg_replace( '/[.,]0+$/', '', $flat_percentage );
+		$flat_percentage = (float) number_format( ( ( $total - $price ) * 100 ) / $price, 1 );
 		return $flat_percentage . '%';
 	}
 
