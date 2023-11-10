@@ -139,7 +139,7 @@ class WooCommerce_Cover_Fees {
 						printf(
 							// Translators: %s is the transaction fee, as percentage with static portion (e.g. 2% + $0.3), %s is the site title.
 							esc_html__( 'Cover Stripe’s %1$s transaction fee, so that %2$s receives 100%% of your payment.', 'newspack-plugin' ),
-							self::get_fee_human_readable_value(), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							self::get_fee_display_value(), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							esc_html( get_option( 'blogname' ) )
 						);
 					?>
@@ -221,10 +221,16 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
-	 * Get the fee human-redable value.
+	 * Get the fee display value.
 	 */
-	private static function get_fee_human_readable_value() {
-		return self::get_stripe_fee_multiplier_value() . '% + ' . wc_price( self::get_stripe_fee_static_value() );
+	private static function get_fee_display_value() {
+		$price = floatval( WC()->cart->total );
+		$total = self::get_total_with_fee( $price );
+		// Just one decimal place, please.
+		$flat_percentage = number_format( ( ( $total - $price ) * 100 ) / $price, 1 );
+		// Remove trailing zero.
+		$flat_percentage = preg_replace( '/[.,]0+$/', '', $flat_percentage );
+		return $flat_percentage . '%';
 	}
 
 	/**
