@@ -41,24 +41,25 @@ final class Memberships {
 		add_action( 'init', [ __CLASS__, 'register_listeners' ] );
 		add_filter( 'newspack_blocks_modal_checkout_cart_item_data', [ __CLASS__, 'checkout_cart_item_data' ], 10, 2 );
 		add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
+		add_filter( 'newspack_register_reader_form_metadata', [ __CLASS__, 'register_reader_metadata' ], 10, 2 );
 	}
 
 	/**
-	 * Add cart metadata to the order line item.
+	 * Add content gate metadata to the cart item.
 	 *
 	 * @param array $cart_item_data The cart item data.
 	 *
 	 * @return array
 	 */
 	public static function checkout_cart_item_data( $cart_item_data ) {
-		if ( isset( $_REQUEST['memberships_content_gate'] ) && ! empty( $_REQUEST['memberships_content_gate'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$cart_item_data['memberships_content_gate'] = true;
+		if ( isset( $_REQUEST[ self::METADATA_NAME ] ) && ! empty( $_REQUEST[ self::METADATA_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$cart_item_data[ self::METADATA_NAME ] = true;
 		}
 		return $cart_item_data;
 	}
 
 	/**
-	 * Add cart metadata to the order line item.
+	 * Add content gate metadata from the cart item to the order.
 	 *
 	 * @param \WC_Order_Item_Product $item The cart item.
 	 * @param string                 $cart_item_key The cart item key.
@@ -70,6 +71,22 @@ final class Memberships {
 		if ( ! empty( $values[ self::METADATA_NAME ] ) ) {
 			$order->add_meta_data( '_memberships_content_gate', true );
 		}
+	}
+
+	/**
+	 * Add content gate metadata on reader registration.
+	 *
+	 * @param array     $metadata The metadata.
+	 * @param int|false $user_id  The user ID or false if not created.
+	 *
+	 * @return array
+	 */
+	public static function register_reader_metadata( $metadata, $user_id ) {
+		if ( isset( $_REQUEST[ self::METADATA_NAME ] ) && ! empty( $_REQUEST[ self::METADATA_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$metadata[ self::METADATA_NAME ] = true;
+			$metadata['registration_method'] = 'registration-block-content-gate';
+		}
+		return $metadata;
 	}
 
 	/**

@@ -1630,6 +1630,15 @@ final class Reader_Activation {
 			}
 		}
 
+		/**
+		 * Filters the metadata to pass along to the action hook.
+		 *
+		 * @param array          $metadata      Metadata.
+		 * @param int|false      $user_id       The created user id or false if the user already exists.
+		 * @param false|\WP_User $existing_user The existing user object.
+		 */
+		$metadata = apply_filters( 'newspack_register_reader_metadata', $metadata, $user_id, $existing_user );
+
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {
 			\update_user_meta( $user_id, self::REGISTRATION_METHOD, $metadata['registration_method'] );
