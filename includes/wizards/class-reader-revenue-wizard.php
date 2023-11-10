@@ -237,7 +237,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		// Save Salesforce settings.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			' / wizard / ' . $this->slug . ' / salesforce / ',
+			'/wizard/' . $this->slug . '/salesforce/',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_salesforce_settings' ],
@@ -261,7 +261,7 @@ class Reader_Revenue_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			' / wizard / ' . $this->slug . ' / donations / ',
+			'/wizard/' . $this->slug . '/donations/',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_donation_settings' ],
@@ -300,7 +300,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			Donations::update_donation_product( Donations::get_donation_settings() );
 		}
 
-					return \rest_ensure_response( $this->fetch_all_data() );
+		return \rest_ensure_response( $this->fetch_all_data() );
 	}
 
 	/**
