@@ -379,9 +379,8 @@ class Reader_Revenue_Wizard extends Wizard {
 			if ( isset( $args['allow_covering_fees_default'] ) ) {
 				update_option( 'newspack_donations_allow_covering_fees_default', $args['allow_covering_fees_default'] );
 			}
-			if ( ! empty( $args['allow_covering_fees_label'] ) ) {
-				update_option( 'newspack_donations_allow_covering_fees_label', $args['allow_covering_fees_label'] );
-			}
+
+			update_option( 'newspack_donations_allow_covering_fees_label', $args['allow_covering_fees_label'] );
 		}
 
 		Stripe_Connection::update_stripe_data( $args );

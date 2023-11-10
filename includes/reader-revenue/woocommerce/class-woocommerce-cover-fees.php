@@ -138,7 +138,6 @@ class WooCommerce_Cover_Fees {
 					<?php endif; ?>
 				>
 				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
-					<b><?php echo esc_html( __( 'Cover transaction fee?', 'newspack-plugin' ) ); ?></b><br/>
 					<?php
 					$custom_message = get_option( 'newspack_donations_allow_covering_fees_label', '' );
 					if ( ! empty( $custom_message ) ) {
