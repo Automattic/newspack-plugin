@@ -210,7 +210,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		// Update Donations settings.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			' / wizard / ' . $this->slug . ' / donations / ',
+			'/wizard/' . $this->slug . '/donations/',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_donation_settings' ],

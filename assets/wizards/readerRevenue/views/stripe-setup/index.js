@@ -39,12 +39,6 @@ const StripeFeeSettings = ( { data, changeHandler } ) => (
 		columns={ 1 }
 		noBorder
 	>
-		<TextControl
-			value={ data.allow_covering_fees_label }
-			label={ __( 'Fee message', 'newspack-plugin' ) }
-			placeholder={ __( 'A message to explain the transaction fee option.', 'newspack-plugin' ) }
-			onChange={ changeHandler( 'allow_covering_fees_label' ) }
-		/>
 		<Grid noMargin rowGap={ 16 }>
 			<TextControl
 				type="number"
@@ -270,6 +264,15 @@ const StripeSetup = () => {
 										'If checked, the option to cover transaction fees will be checked by default.',
 										'newspack-plugin'
 									) }
+								/>
+								<TextControl
+									value={ data.allow_covering_fees_label }
+									label={ __( 'Custom message', 'newspack-plugin' ) }
+									placeholder={ __(
+										'A message to explain the transaction fee option (optional).',
+										'newspack-plugin'
+									) }
+									onChange={ changeHandler( 'allow_covering_fees_label' ) }
 								/>
 							</Grid>
 						</>

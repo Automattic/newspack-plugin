@@ -138,21 +138,38 @@ class WooCommerce_Cover_Fees {
 					<?php endif; ?>
 				>
 				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
-					<b><?php echo esc_html( __( 'Cover transaction fees?', 'newspack-plugin' ) ); ?></b><br/>
+					<b><?php echo esc_html( __( 'Cover transaction fee?', 'newspack-plugin' ) ); ?></b><br/>
 					<?php
+					$custom_message = get_option( 'newspack_donations_allow_covering_fees_label', '' );
+					if ( ! empty( $custom_message ) ) {
+						echo esc_html( $custom_message );
+					} else {
 						printf(
-							// Translators: %s is the transaction fee, as percentage with static portion (e.g. 2% + $0.3), %s is the site title.
-							esc_html__( 'Cover Stripe’s %1$s transaction fee, so that %2$s receives 100%% of your payment.', 'newspack-plugin' ),
-							self::get_fee_display_value(), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							esc_html( get_option( 'blogname' ) )
+							// Translators: %s is the possessive form of the site name.
+							esc_html__(
+								'I’d like to cover the %1$s transaction fee to ensure my full donation goes towards %2$s mission.',
+								'newspack-plugin' 
+							),
+							esc_html( self::get_fee_display_value() ),
+							esc_html( self::get_possessive( get_option( 'blogname' ) ) )
 						);
+					}
 					?>
-
 				</label>
 			</p>
 		<?php
 		$desc .= ob_get_clean();
 		return $desc;
+	}
+
+	/**
+	 * Get possessive form of the given string. Proper nouns ending in S should not have a trailing S.
+	 * 
+	 * @param string $string String to modify.
+	 * @return string Modified string.
+	 */
+	private static function get_possessive( $string ) {
+		return $string . '’' . ( 's' !== $string[ strlen( $string ) - 1 ] ? 's' : '' );
 	}
 
 	/**
@@ -227,7 +244,7 @@ class WooCommerce_Cover_Fees {
 	/**
 	 * Get the fee display value.
 	 */
-	private static function get_fee_display_value() {
+	public static function get_fee_display_value() {
 		$price = floatval( WC()->cart->total );
 		$total = self::get_total_with_fee( $price );
 		// Just one decimal place, please.

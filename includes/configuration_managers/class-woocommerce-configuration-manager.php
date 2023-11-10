@@ -112,15 +112,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		if ( ! isset( $gateways['stripe'] ) ) {
 			return $defaults;
 		}
-		$stripe = $gateways['stripe'];
-
-		$default_message = sprintf(
-			// Translators: %s is the transaction fee, as percentage with static portion (e.g. 2% + $0.3), %s is the site title.
-			__( 'Cover Stripe’s %1$s transaction fee, so that %2$s receives 100%% of your payment.', 'newspack-plugin' ),
-			WooCommerce_Cover_Fees::get_fee_human_readable_value(), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			get_option( 'blogname' )
-		);
-
+		$stripe      = $gateways['stripe'];
 		$stripe_data = [
 			'enabled'                     => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
 			'testMode'                    => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
@@ -130,7 +122,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 			'testSecretKey'               => $stripe->get_option( 'test_secret_key', '' ),
 			'allow_covering_fees'         => get_option( 'newspack_donations_allow_covering_fees', true ),
 			'allow_covering_fees_default' => get_option( 'newspack_donations_allow_covering_fees_default', false ),
-			'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', $default_message ),
+			'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
 		];
 		return \wp_parse_args( $stripe_data, $defaults );
 	}
