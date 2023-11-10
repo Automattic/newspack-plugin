@@ -265,16 +265,16 @@ const StripeSetup = () => {
 										'newspack-plugin'
 									) }
 								/>
-								<TextControl
-									value={ data.allow_covering_fees_label }
-									label={ __( 'Custom message', 'newspack-plugin' ) }
-									placeholder={ __(
-										'A message to explain the transaction fee option (optional).',
-										'newspack-plugin'
-									) }
-									onChange={ changeHandler( 'allow_covering_fees_label' ) }
-								/>
 							</Grid>
+							<TextControl
+								value={ data.allow_covering_fees_label }
+								label={ __( 'Custom message', 'newspack-plugin' ) }
+								placeholder={ __(
+									'A message to explain the transaction fee option (optional).',
+									'newspack-plugin'
+								) }
+								onChange={ changeHandler( 'allow_covering_fees_label' ) }
+							/>
 						</>
 					) : (
 						<Grid>
