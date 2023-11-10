@@ -42,7 +42,8 @@ class WooCommerce_Cover_Fees {
 		}
 		$fields['newspack'] = [
 			self::CUSTOM_FIELD_NAME => [
-				'type' => 'checkbox',
+				'type'    => 'checkbox',
+				'default' => intval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
 			],
 		];
 		return $fields;
@@ -132,6 +133,9 @@ class WooCommerce_Cover_Fees {
 					value="true"
 					style="margin-right: 10px;"
 					onchange="newspackHandleCoverFees(this)"
+					<?php if ( get_option( 'newspack_donations_allow_covering_fees_default', false ) ) : ?>
+						checked
+					<?php endif; ?>
 				>
 				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
 					<b><?php echo esc_html( __( 'Cover transaction fees?', 'newspack-plugin' ) ); ?></b><br/>
@@ -223,7 +227,7 @@ class WooCommerce_Cover_Fees {
 	/**
 	 * Get the fee human-redable value.
 	 */
-	private static function get_fee_human_readable_value() {
+	public static function get_fee_human_readable_value() {
 		return self::get_stripe_fee_multiplier_value() . '% + ' . wc_price( self::get_stripe_fee_static_value() );
 	}
 
