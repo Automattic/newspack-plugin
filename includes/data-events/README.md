@@ -171,22 +171,50 @@ When a WooCommerce Subscription status changes.
 | `recurrence`      | `string` |
 | `platform`        | `string` |
 
+### `product_subscription_active`
+
+When a non-donation subscription is activated. 
+
+| Name              | Type     |
+| ----------------- | -------- |
+| `user_id`         | `int`    |
+| `email`           | `string` |
+| `subscription_id` | `int`    |
+| `amount`          | `float`  |
+| `currency`        | `string` |
+| `recurrence`      | `string` |
+
+### `product_subscription_inactive`
+
+When a non-donation subscription is changed to any non-active status. 
+
+| Name              | Type     |
+| ----------------- | -------- |
+| `user_id`         | `int`    |
+| `email`           | `string` |
+| `subscription_id` | `int`    |
+| `amount`          | `float`  |
+| `currency`        | `string` |
+| `recurrence`      | `string` |
+| `status_before`   | `string` |
+| `status_after`    | `string` |
+
 ## Newspack Popups Actions
 
 ### `prompt_interaction`
 
 When a user interacts with a Newspack Popup's campaign prompt.
 
-| Name                 | Type     | Obs                                                                                                                                            |
-| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name               | Type     | Obs                                                                                                                                            |
+| ------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `prompt_id`        | `int`    |                                                                                                                                                |
 | `prompt_title`     | `string` |                                                                                                                                                |
 | `prompt_frequency` | `string` |                                                                                                                                                |
 | `prompt_placement` | `string` |                                                                                                                                                |
 | `prompt_blocks`    | `array`  | Array containing the blocks that are inside the prompt. Only 3 blocks are tracked: `donation`, `registration` and `newsletters_subscription` |
-| `action`             | `string` | `form_submission_received`, `form_submission_success` or `form_submission_failure`                                                                      |
-| `action_type`        | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
-| `interaction_data`   | `array`  | Depending on the action type, it will contain different information about the interaction.                                                      |
+| `action`           | `string` | `form_submission_received`, `form_submission_success` or `form_submission_failure`                                                                      |
+| `action_type`      | `string` | `donation`, `registration` or `newsletters_subscription`                                                                                       |
+| `interaction_data` | `array`  | Depending on the action type, it will contain different information about the interaction.                                                      |
 
 #### Possible values for `interaction_data`
 

@@ -49,8 +49,7 @@
 		width: 100%;
 		display: flex;
 		flex-flow: row-reverse wrap;
-		row-gap: 0.8rem;
-		column-gap: 1.6rem;
+		gap: 0.8rem 1.6rem;
 		margin: 0;
 		transition: opacity 200ms ease-in-out;
 	}
@@ -89,12 +88,11 @@
 
 	&__header {
 		align-items: baseline;
-		column-gap: 2em;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
 		margin-bottom: 1em;
-		row-gap: 0.5em;
+		gap: 0.5em 2em;
 
 		h2,
 		p {

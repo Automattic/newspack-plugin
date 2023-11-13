@@ -257,33 +257,37 @@ addFilter(
 	}
 );
 
-const getNewsletterSubscriptionLists = memoize( async () => {
+const getItems = memoize( async path => {
 	try {
-		const lists = await apiFetch( {
-			path: '/newspack-newsletters/v1/lists_config',
+		const items = await apiFetch( {
+			path,
 		} );
-		return Object.values( lists ).map( item => ( { id: item.id, label: item.title } ) );
+		const values = Array.isArray( items ) ? items : Object.values( items );
+		return values.map( item => ( {
+			id: isNaN( parseInt( item.id ) ) ? item.id.toString() : parseInt( item.id ),
+			label: item.title || item.name,
+		} ) );
 	} catch ( e ) {
 		console.warn( e );
 		return [];
 	}
 } );
 
-const NewsletterSubscriptionListsNames = ( { label, ids } ) => {
-	const [ lists, setLists ] = useState( [] );
+const ItemNames = ( { label, ids, path } ) => {
+	const [ items, setItems ] = useState( [] );
 	useEffect( () => {
-		getNewsletterSubscriptionLists().then( setLists );
+		getItems( path ).then( setItems );
 	}, [ ids ] );
-	if ( ! lists.length ) {
+	if ( ! items.length ) {
 		return null;
 	}
 	return (
 		<span>
 			{ label }{ ' ' }
-			{ lists.length
-				? lists
-						.filter( list => ids.includes( list.id ) )
-						.map( list => list.label )
+			{ items.length
+				? items
+						.filter( item => ids.includes( item.id ) )
+						.map( item => item.label )
 						.join( ', ' )
 				: '' }
 		</span>
@@ -299,11 +303,60 @@ addFilter(
 				return null;
 			}
 			return (
-				<NewsletterSubscriptionListsNames
+				<ItemNames
 					label={
 						config.id === 'subscribed_lists' ? __( 'Subscribed to:' ) : __( 'Not subscribed to:' )
 					}
 					ids={ item.value }
+					path="/newspack-newsletters/v1/lists_config"
+				/>
+			);
+		}
+		return message;
+	}
+);
+
+addFilter(
+	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+	'newspack.activeSubscriptions',
+	( message, value, config, item ) => {
+		if ( [ 'active_subscriptions', 'not_active_subscriptions' ].includes( config.id ) ) {
+			if ( ! item.value?.length ) {
+				return null;
+			}
+			return (
+				<ItemNames
+					label={
+						config.id === 'active_subscriptions'
+							? __( 'Has active subscription(s):' )
+							: __( 'Does not have active subscription(s):' )
+					}
+					ids={ item.value }
+					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
+				/>
+			);
+		}
+		return message;
+	}
+);
+
+addFilter(
+	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
+	'newspack.activeMemberships',
+	( message, value, config, item ) => {
+		if ( [ 'active_memberships', 'not_active_memberships' ].includes( config.id ) ) {
+			if ( ! item.value?.length ) {
+				return null;
+			}
+			return (
+				<ItemNames
+					label={
+						config.id === 'active_memberships'
+							? __( 'Has active membership(s):' )
+							: __( 'Does not have active membership(s):' )
+					}
+					ids={ item.value }
+					path="/wc/v3/memberships/plans?per_page=100"
 				/>
 			);
 		}

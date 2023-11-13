@@ -1,3 +1,24 @@
+# [2.11.0-alpha.8](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.7...v2.11.0-alpha.8) (2023-11-13)
+
+
+### Features
+
+* new options for Stripe fees ([#2745](https://github.com/Automattic/newspack-plugin/issues/2745)) ([c974352](https://github.com/Automattic/newspack-plugin/commit/c974352a0a9da2387b3e1e3e1cbc76e7879b201a))
+
+# [2.11.0-alpha.7](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.6...v2.11.0-alpha.7) (2023-11-09)
+
+
+### Bug Fixes
+
+* get subscriptions from any order type ([#2744](https://github.com/Automattic/newspack-plugin/issues/2744)) ([5f0bef3](https://github.com/Automattic/newspack-plugin/commit/5f0bef3cc39f60ca1df96dd2644076223e27ff8a))
+
+# [2.11.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v2.11.0-alpha.5...v2.11.0-alpha.6) (2023-11-07)
+
+
+### Bug Fixes
+
+* **password-reset:** redirect non-readers to WP login ([#2742](https://github.com/Automattic/newspack-plugin/issues/2742)) ([0645073](https://github.com/Automattic/newspack-plugin/commit/0645073ae0ea3dcc63835ae53eaba0e88a742e4c))
+
 ## [2.10.3](https://github.com/Automattic/newspack-plugin/compare/v2.10.2...v2.10.3) (2023-11-07)
 
 
