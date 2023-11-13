@@ -31,10 +31,10 @@ const { SettingsCard } = Settings;
 
 const StripeFeeSettings = ( { data, changeHandler } ) => (
 	<SettingsCard
-		title={ __( 'Fee', 'newspack' ) }
+		title={ __( 'Transaction Fees', 'newspack-plugin' ) }
 		description={ __(
 			'If you have a non-default or negotiated fee with Stripe, update its parameters here.',
-			'newspack'
+			'newspack-plugin'
 		) }
 		columns={ 1 }
 		noBorder
@@ -44,14 +44,14 @@ const StripeFeeSettings = ( { data, changeHandler } ) => (
 				type="number"
 				step="0.1"
 				value={ data.fee_multiplier }
-				label={ __( 'Fee multiplier', 'newspack' ) }
+				label={ __( 'Fee multiplier', 'newspack-plugin' ) }
 				onChange={ changeHandler( 'fee_multiplier' ) }
 			/>
 			<TextControl
 				type="number"
 				step="0.1"
 				value={ data.fee_static }
-				label={ __( 'Fee static portion', 'newspack' ) }
+				label={ __( 'Fee static portion', 'newspack-plugin' ) }
 				onChange={ changeHandler( 'fee_static' ) }
 			/>
 		</Grid>
@@ -80,19 +80,19 @@ export const StripeKeysSettings = () => {
 		<Grid columns={ 1 } gutter={ 16 }>
 			<Grid columns={ 1 } gutter={ 16 }>
 				<p className="newspack-payment-setup-screen__api-keys-instruction">
-					{ __( 'Configure Stripe and enter your API keys', 'newspack' ) }
+					{ __( 'Configure Stripe and enter your API keys', 'newspack-plugin' ) }
 					{ ' – ' }
 					<ExternalLink href="https://stripe.com/docs/keys#api-keys">
 						{ __( 'learn how' ) }
 					</ExternalLink>
 				</p>
 				<CheckboxControl
-					label={ __( 'Use Stripe in test mode', 'newspack' ) }
+					label={ __( 'Use Stripe in test mode', 'newspack-plugin' ) }
 					checked={ testMode }
 					onChange={ changeHandler( 'testMode' ) }
 					help={ __(
 						'Test mode will not capture real payments. Use it for testing your purchase flow.',
-						'newspack'
+						'newspack-plugin'
 					) }
 				/>
 			</Grid>
@@ -102,13 +102,13 @@ export const StripeKeysSettings = () => {
 						<TextControl
 							type="password"
 							value={ testPublishableKey }
-							label={ __( 'Test Publishable Key', 'newspack' ) }
+							label={ __( 'Test Publishable Key', 'newspack-plugin' ) }
 							onChange={ changeHandler( 'testPublishableKey' ) }
 						/>
 						<TextControl
 							type="password"
 							value={ testSecretKey }
-							label={ __( 'Test Secret Key', 'newspack' ) }
+							label={ __( 'Test Secret Key', 'newspack-plugin' ) }
 							onChange={ changeHandler( 'testSecretKey' ) }
 						/>
 					</>
@@ -117,13 +117,13 @@ export const StripeKeysSettings = () => {
 						<TextControl
 							type="password"
 							value={ publishableKey }
-							label={ __( 'Publishable Key', 'newspack' ) }
+							label={ __( 'Publishable Key', 'newspack-plugin' ) }
 							onChange={ changeHandler( 'publishableKey' ) }
 						/>
 						<TextControl
 							type="password"
 							value={ secretKey }
-							label={ __( 'Secret Key', 'newspack' ) }
+							label={ __( 'Secret Key', 'newspack-plugin' ) }
 							onChange={ changeHandler( 'secretKey' ) }
 						/>
 					</>
@@ -174,7 +174,7 @@ const StripeSetup = () => {
 						<a href="https://stripe.com/docs/security/guide">
 							{ __(
 								'This site does not use SSL. The page hosting the Stipe integration should be secured with SSL.',
-								'newspack'
+								'newspack-plugin'
 							) }
 						</a>
 					}
@@ -185,26 +185,31 @@ const StripeSetup = () => {
 					{ ! isEmpty( data.connection_error ) && (
 						<Notice isError noticeText={ data.connection_error } />
 					) }
-					<SettingsCard title={ __( 'Settings', 'newspack' ) } columns={ 1 } gutter={ 16 } noBorder>
+					<SettingsCard
+						title={ __( 'Settings', 'newspack-plugin' ) }
+						columns={ 1 }
+						gutter={ 16 }
+						noBorder
+					>
 						{ data.can_use_stripe_platform === false && (
 							<Notice
 								isError
 								noticeText={ __(
 									'The Stripe platform will not work properly on this site.',
-									'newspack'
+									'newspack-plugin'
 								) }
 							/>
 						) }
 						<StripeKeysSettings />
 						<Grid rowGap={ 16 }>
 							<SelectControl
-								label={ __( 'Country', 'newspack' ) }
+								label={ __( 'Country', 'newspack-plugin' ) }
 								value={ data.location_code }
 								options={ country_state_fields }
 								onChange={ changeHandler( 'location_code' ) }
 							/>
 							<SelectControl
-								label={ __( 'Currency', 'newspack' ) }
+								label={ __( 'Currency', 'newspack-plugin' ) }
 								value={ data.currency }
 								options={ currency_fields }
 								onChange={ changeHandler( 'currency' ) }
@@ -212,10 +217,10 @@ const StripeSetup = () => {
 						</Grid>
 					</SettingsCard>
 					<SettingsCard
-						title={ __( 'Newsletters', 'newspack' ) }
+						title={ __( 'Newsletters', 'newspack-plugin' ) }
 						description={ __(
 							'Allow donors to sign up to your newsletter when donating.',
-							'newspack'
+							'newspack-plugin'
 						) }
 						columns={ 1 }
 						gutter={ 16 }
@@ -232,7 +237,7 @@ const StripeSetup = () => {
 				<>
 					<Grid>
 						<ToggleControl
-							label={ __( 'Enable Stripe', 'newspack' ) }
+							label={ __( 'Enable Stripe', 'newspack-plugin' ) }
 							checked={ data.enabled }
 							onChange={ changeHandler( 'enabled' ) }
 						/>
@@ -241,22 +246,42 @@ const StripeSetup = () => {
 						<>
 							<StripeKeysSettings />
 							<StripeFeeSettings data={ data } changeHandler={ changeHandler } />
-							<CheckboxControl
-								label={ __( 'Allow donors to cover transaction fees', 'newspack' ) }
-								checked={ data.allow_covering_fees }
-								onChange={ changeHandler( 'allow_covering_fees' ) }
-								help={ __(
-									"If checked, the donors will be able to cover Stripe's transaction fees.",
-									'newspack'
+							<Grid columns={ 2 }>
+								<CheckboxControl
+									label={ __( 'Allow donors to cover transaction fees', 'newspack-plugin' ) }
+									checked={ data.allow_covering_fees }
+									onChange={ changeHandler( 'allow_covering_fees' ) }
+									help={ __(
+										"If checked, the donors will be able to cover Stripe's transaction fees.",
+										'newspack-plugin'
+									) }
+								/>
+								<CheckboxControl
+									label={ __( 'Enable covering fees by default', 'newspack-plugin' ) }
+									checked={ data.allow_covering_fees_default }
+									onChange={ changeHandler( 'allow_covering_fees_default' ) }
+									help={ __(
+										'If checked, the option to cover transaction fees will be checked by default.',
+										'newspack-plugin'
+									) }
+								/>
+							</Grid>
+							<TextControl
+								value={ data.allow_covering_fees_label }
+								label={ __( 'Custom message', 'newspack-plugin' ) }
+								placeholder={ __(
+									'A message to explain the transaction fee option (optional).',
+									'newspack-plugin'
 								) }
+								onChange={ changeHandler( 'allow_covering_fees_label' ) }
 							/>
 						</>
 					) : (
 						<Grid>
 							<p className="newspack-payment-setup-screen__info">
-								{ __( 'Other gateways can be enabled and set up in the ', 'newspack' ) }
+								{ __( 'Other gateways can be enabled and set up in the ', 'newspack-plugin' ) }
 								<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-									{ __( 'WooCommerce payment gateway settings', 'newspack' ) }
+									{ __( 'WooCommerce payment gateway settings', 'newspack-plugin' ) }
 								</ExternalLink>
 							</p>
 						</Grid>
@@ -265,19 +290,19 @@ const StripeSetup = () => {
 			) }
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ onSave }>
-					{ __( 'Save Settings', 'newspack' ) }
+					{ __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
 			{ displayStripeSettingsOnly && (
 				<ActionCard
-					title={ __( 'Webhooks', 'newspack' ) }
+					title={ __( 'Webhooks', 'newspack-plugin' ) }
 					titleLink="#/stripe-webhooks"
 					href="#/stripe-webhooks"
 					description={ __(
 						'Manage the webhooks Stripe uses to communicate with your site.',
-						'newspack'
+						'newspack-plugin'
 					) }
-					actionText={ __( 'Edit', 'newspack' ) }
+					actionText={ __( 'Edit', 'newspack-plugin' ) }
 				/>
 			) }
 		</>
