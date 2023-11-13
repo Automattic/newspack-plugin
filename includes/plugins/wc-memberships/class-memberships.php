@@ -28,7 +28,7 @@ class Memberships {
 	/**
 	 * Membership statuses that should grant access to restricted content.
 	 * See: https://woocommerce.com/document/woocommerce-memberships-user-memberships/#section-4
-	 * 
+	 *
 	 * @var array
 	 */
 	public static $active_statuses = [ 'active', 'complimentary', 'free-trial', 'pending' ];
@@ -598,6 +598,17 @@ class Memberships {
 		if ( get_queried_object_id() !== $post->ID ) {
 			return $excerpt;
 		}
+		return self::get_restricted_post_excerpt( $post );
+	}
+
+	/**
+	 * Get the post excerpt to be displayed in the gate.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public static function get_restricted_post_excerpt( $post ) {
 		$gate_post_id = self::get_gate_post_id();
 
 		$content = $post->post_content;
