@@ -94,7 +94,7 @@ class Media_Partners {
 		ob_start();
 		if ( 'textarea' === $tag ) {
 			?>
-				<textarea name="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></textarea>
+				<textarea name="<?php echo esc_attr( $key ); ?>" rows="2" cols="40"><?php echo esc_html( $value ); ?></textarea>
 			<?php
 		} else {
 			?>
@@ -178,7 +178,7 @@ class Media_Partners {
 		<?php
 		$defaults = self::get_default_settings();
 		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ) );
-		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $defaults, 'edit_partner' );
+		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $defaults );
 	}
 
 	/**
