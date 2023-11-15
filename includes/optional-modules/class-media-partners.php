@@ -133,6 +133,35 @@ class Media_Partners {
 	}
 
 	/**
+	 * Get partner logo upload setting JS script.
+	 */
+	private static function get_logo_upload_script() {
+		ob_start()
+		?>
+		<script>
+		jQuery( document ).ready( function() {
+			const removeBtn = jQuery( '#remove_partner_logo' );
+			jQuery( '#add_partner_logo' ).click( function() {
+				wp.media.editor.send.attachment = function( props, attachment ) {
+					jQuery( '#partner_logo' ).val( attachment.id );
+					jQuery( '#partner_logo_preview' ).attr( 'src', attachment.url );
+					removeBtn[0].classList.remove('hidden')
+				}
+				wp.media.editor.open( this );
+				return false;
+			} );
+			removeBtn.click( function() {
+				jQuery( '#partner_logo' ).val( '' );
+				jQuery( '#partner_logo_preview' ).attr( 'src', '' );
+				removeBtn[0].classList.add('hidden')
+			} );
+		} );
+		</script>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
 	 * Add custom meta to the Add New Partner screen.
 	 */
 	public static function add_partner_meta_fields() {
@@ -141,19 +170,9 @@ class Media_Partners {
 			<label for="partner_logo"><?php esc_html_e( 'Partner Logo:', 'newspack-plugin' ); ?></label>
 			<input type="hidden" name="partner_logo" id="partner_logo" value="" />
 			<input class="upload_image_button button" name="add_partner_logo" id="add_partner_logo" type="button" value="<?php esc_attr_e( 'Select/Upload Image', 'newspack-plugin' ); ?>" />
+			<input class="button button-link-delete hidden" name="remove_partner_logo" id="remove_partner_logo" type="button" value="<?php esc_attr_e( 'Remove Image', 'newspack-plugin' ); ?>" />
 			<img src='' id='partner_logo_preview' style='max-width: 250px; width: 100%; height: auto' />
-			<script>
-				jQuery( document ).ready( function() {
-					jQuery( '#add_partner_logo' ).click( function() {
-						wp.media.editor.send.attachment = function( props, attachment ) {
-							jQuery( '#partner_logo' ).val( attachment.id );
-							jQuery( '#partner_logo_preview' ).attr( 'src', attachment.url );
-						}
-						wp.media.editor.open( this );
-						return false;
-					} );
-				} );
-			</script>
+			<?php echo self::get_logo_upload_script(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		</div>
 
 		<?php
@@ -183,6 +202,7 @@ class Media_Partners {
 			<td>
 				<input type="hidden" name="partner_logo" id="partner_logo" value="<?php echo esc_attr( $logo_id ); ?>" />
 				<input class="upload_image_button button" name="add_partner_logo" id="add_partner_logo" type="button" value="<?php esc_attr_e( 'Select/Upload Image', 'newspack-plugin' ); ?>" />
+				<input class="button button-link-delete <?php echo empty( $logo ) ? 'hidden' : ''; ?>" name="remove_partner_logo" id="remove_partner_logo" type="button" value="<?php esc_attr_e( 'Remove Image', 'newspack-plugin' ); ?>" />
 			</td>
 		</tr>
 		<tr class="form-field">
@@ -191,19 +211,7 @@ class Media_Partners {
 				<div class="img-preview">
 					<img src='<?php echo esc_url( $logo ); ?>' id='partner_logo_preview' style='max-width: 250px; width: 100%; height: auto' />
 				</div>
-
-				<script>
-					jQuery( document ).ready( function() {
-						jQuery( '#add_partner_logo' ).click( function() {
-							wp.media.editor.send.attachment = function( props, attachment ) {
-								jQuery( '#partner_logo' ).val( attachment.id );
-								jQuery( '#partner_logo_preview' ).attr( 'src', attachment.url );
-							}
-							wp.media.editor.open( this );
-							return false;
-						} );
-					} );
-				</script>
+				<?php echo self::get_logo_upload_script(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</td>
 		</tr>
 
@@ -243,6 +251,8 @@ class Media_Partners {
 		$partner_logo = filter_input( INPUT_POST, 'partner_logo', FILTER_SANITIZE_NUMBER_INT );
 		if ( $partner_logo ) {
 			update_term_meta( $term_id, 'logo', (int) $partner_logo );
+		} else {
+			delete_term_meta( $term_id, 'logo' );
 		}
 
 		$partner_url = filter_input( INPUT_POST, 'partner_url', FILTER_SANITIZE_STRING );
