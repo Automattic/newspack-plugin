@@ -420,6 +420,11 @@ class Media_Partners {
 
 		$partner_settings = self::get_partner_settings( $partner );
 
+		// Skip partners in RSS feed.
+		if ( is_feed() ) {
+			return $content;
+		}
+
 		ob_start();
 		?>
 		<div class="wp-block-group alignright newspack-media-partners">
