@@ -85,26 +85,22 @@ class Media_Partners {
 	 * @param string $context The context for the field.
 	 */
 	private static function render_settings_field( $key, $label, $partner = [], $context = 'new_partner' ) {
-		$type = 'text';
-		if ( in_array( $key, [ 'display_logo' ] ) ) {
-			$type = 'checkbox';
-		}
+		$tag   = 'input';
 		$value = isset( $partner[ $key ] ) ? $partner[ $key ] : '';
+		if ( in_array( $key, [ 'attribution_message' ] ) ) {
+			$tag = 'textarea';
+		}
 
 		ob_start();
-		?>
-		<input
-			type="<?php echo esc_attr( $type ); ?>"
-			name="<?php echo esc_attr( $key ); ?>"
-			<?php if ( 'checkbox' === $type ) : ?>
-				<?php if ( boolval( $value ) ) : ?>
-					checked
-				<?php endif; ?>
-			<?php else : ?>
-				value="<?php echo esc_attr( $value ); ?>"
-			<?php endif; ?>
-		/>
-		<?php
+		if ( 'textarea' === $tag ) {
+			?>
+				<textarea name="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></textarea>
+			<?php
+		} else {
+			?>
+				<input type="text" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $value ); ?>"/>
+			<?php
+		}
 		$input_html = ob_get_clean();
 
 		switch ( $context ) {
@@ -132,7 +128,6 @@ class Media_Partners {
 	 */
 	private static function get_default_settings() {
 		return [
-			'display_logo'        => true,
 			'attribution_message' => __( 'This story also appeared in', 'newspack-plugin' ),
 		];
 	}
@@ -164,8 +159,7 @@ class Media_Partners {
 		<?php
 		$defaults = self::get_default_settings();
 		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ) );
-		self::render_settings_field( 'display_logo', __( 'Should logo be displayed?', 'newspack-plugin' ), $defaults );
-		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $partner, 'edit_partner' );
+		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $defaults, 'edit_partner' );
 	}
 
 	/**
@@ -216,7 +210,6 @@ class Media_Partners {
 		<?php
 		$partner = self::get_partner_settings( $term );
 		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ), $partner, 'edit_partner' );
-		self::render_settings_field( 'display_logo', __( 'Should logo be displayed?', 'newspack-plugin' ), $partner, 'edit_partner' );
 		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $partner, 'edit_partner' );
 	}
 
@@ -229,14 +222,10 @@ class Media_Partners {
 		$defaults         = self::get_default_settings();
 		$partner_settings = [
 			'partner_url'         => esc_url( get_term_meta( $partner->term_id, 'partner_homepage_url', true ) ),
-			'display_logo'        => get_term_meta( $partner->term_id, 'display_logo', true ),
 			'attribution_message' => get_term_meta( $partner->term_id, 'attribution_message', true ),
 		];
-		if ( ! metadata_exists( 'term', $partner->term_id, 'display_logo' ) ) {
-			$partner_settings['display_logo'] = $defaults['display_logo']; // For legacy partners, before the introduction of the display_logo field.
-		}
 		if ( ! metadata_exists( 'term', $partner->term_id, 'attribution_message' ) ) {
-			$partner_settings['attribution_message'] = $defaults['attribution_message']; // For legacy partners, before the introduction of the display_logo field.
+			$partner_settings['attribution_message'] = $defaults['attribution_message'];
 		}
 		return $partner_settings;
 	}
@@ -261,8 +250,6 @@ class Media_Partners {
 			update_term_meta( $term_id, 'partner_homepage_url', esc_url( $partner_url ) );
 		}
 
-		update_term_meta( $term_id, 'display_logo', filter_input( INPUT_POST, 'display_logo', FILTER_SANITIZE_STRING ) );
-
 		$attribution_message = filter_input( INPUT_POST, 'attribution_message', FILTER_SANITIZE_STRING );
 		if ( $attribution_message ) {
 			update_term_meta( $term_id, 'attribution_message', $attribution_message );
@@ -283,14 +270,7 @@ class Media_Partners {
 	 * @param WP_Term $partner The partner object.
 	 */
 	private static function get_partner_logo( $partner ) {
-		if ( ! metadata_exists( 'term', $partner->term_id, 'display_logo' ) ) {
-			$should_display = true; // For legacy partners, before the introduction of the display_logo field.
-		} else {
-			$should_display = get_term_meta( $partner->term_id, 'display_logo', true );
-		}
-		if ( $should_display ) {
-			return get_term_meta( $partner->term_id, 'logo', true );
-		}
+		return get_term_meta( $partner->term_id, 'logo', true );
 	}
 
 	/**
