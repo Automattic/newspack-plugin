@@ -36,12 +36,14 @@ class Media_Partners {
 
 		add_action( 'partner_add_form_fields', [ __CLASS__, 'add_partner_meta_fields' ] );
 		add_action( 'partner_edit_form_fields', [ __CLASS__, 'edit_partner_meta_fields' ] );
+		add_action( 'after-partner-table', [ __CLASS__, 'add_global_settings' ] );
 		add_action( 'edited_partner', [ __CLASS__, 'save_partner_meta_fields' ] );
 		add_action( 'create_partner', [ __CLASS__, 'save_partner_meta_fields' ] );
 		add_action( 'init', [ __CLASS__, 'add_partners_shortcode' ] );
-
+		add_filter( 'admin_init', [ __CLASS__, 'handle_settings_update' ] );
 		add_filter( 'the_content', [ __CLASS__, 'add_content_partner_logo' ] );
 	}
+
 
 	/**
 	 * Register Partner taxonomy.
@@ -421,7 +423,8 @@ class Media_Partners {
 		$partner_settings = self::get_partner_settings( $partner );
 
 		// Skip partners in RSS feed.
-		if ( is_feed() ) {
+		$settings = self::get_settings();
+		if ( $settings['skip_in_feeds'] && is_feed() ) {
 			return $content;
 		}
 
@@ -459,6 +462,61 @@ class Media_Partners {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Add global settings UI.
+	 */
+	public static function add_global_settings() {
+		$settings = self::get_settings();
+		?>
+			<div class="form-wrap" style="margin-top: 3em;">
+				<h2><?php echo esc_html__( 'Global Settings', 'newspack-plugin' ); ?></h2>
+				<form id="settings" method="post" action="edit-tags.php">
+					<input type="hidden" name="taxonomy" value="partner">
+					<input type="hidden" name="media_partners_settings" value="1">
+					<?php wp_nonce_field( 'partners-settings', '_wpnonce_partners-settings' ); ?>
+					<div class="form-field">
+						<label>
+							<input type="checkbox" name="skip_in_feeds" <?php echo ( $settings['skip_in_feeds'] ? 'checked' : '' ); ?>>
+							<span class="checkbox-title"><?php echo esc_html__( 'Skip in RSS feeds', 'newspack-plugin' ); ?></span>
+							<p><?php echo esc_html__( 'If checked, the media partner markup will be skipped in RSS feeds.', 'newspack-plugin' ); ?></p>
+						</label>
+					</div>
+					<p class="submit">
+						<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php echo esc_html__( 'Save', 'newspack-plugin' ); ?>">
+					</p>
+				</form>
+			</div>
+		<?php
+	}
+
+	/**
+	 * Get saved settings.
+	 */
+	private static function get_settings() {
+		return [
+			'skip_in_feeds' => get_option( 'newspack_media_partners_skip_in_feeds', false ),
+		];
+	}
+
+	/**
+	 * Handle settings update.
+	 */
+	public static function handle_settings_update() { // phpcs:ignore WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.MissingReturnStatement
+		$media_partners_settings = filter_input( INPUT_POST, 'media_partners_settings', FILTER_SANITIZE_STRING );
+		if ( ! current_user_can( 'manage_options' ) || ! $media_partners_settings ) {
+			return true;
+		}
+		if ( ! wp_verify_nonce( filter_input( INPUT_POST, '_wpnonce_partners-settings', FILTER_SANITIZE_STRING ), 'partners-settings' ) ) {
+			return true;
+		}
+
+		$skip_in_feeds = filter_input( INPUT_POST, 'skip_in_feeds', FILTER_SANITIZE_STRING );
+		update_option( 'newspack_media_partners_skip_in_feeds', boolval( $skip_in_feeds ) );
+
+		wp_safe_redirect( admin_url( 'edit-tags.php?taxonomy=partner' ) );
+		exit;
 	}
 }
 Media_Partners::init();
