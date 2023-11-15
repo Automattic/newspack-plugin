@@ -126,9 +126,9 @@ class Media_Partners {
 	}
 
 	/**
-	 * Get default settings.
+	 * Get default config for a media partner.
 	 */
-	private static function get_default_settings() {
+	private static function get_default_media_partner_config() {
 		return [
 			'attribution_message' => __( 'This story also appeared in', 'newspack-plugin' ),
 		];
@@ -178,7 +178,7 @@ class Media_Partners {
 		</div>
 
 		<?php
-		$defaults = self::get_default_settings();
+		$defaults = self::get_default_media_partner_config();
 		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ) );
 		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $defaults );
 	}
@@ -218,18 +218,18 @@ class Media_Partners {
 		</tr>
 
 		<?php
-		$partner = self::get_partner_settings( $term );
+		$partner = self::get_partner_config( $term );
 		self::render_settings_field( 'partner_url', __( 'Partner URL', 'newspack-plugin' ), $partner, 'edit_partner' );
 		self::render_settings_field( 'attribution_message', __( 'Attribution message', 'newspack-plugin' ), $partner, 'edit_partner' );
 	}
 
 	/**
-	 * Get partner settings.
+	 * Get partner config.
 	 *
 	 * @param WP_Term $partner The partner term.
 	 */
-	private static function get_partner_settings( $partner ) {
-		$defaults         = self::get_default_settings();
+	private static function get_partner_config( $partner ) {
+		$defaults         = self::get_default_media_partner_config();
 		$partner_settings = [
 			'partner_url'         => esc_url( get_term_meta( $partner->term_id, 'partner_homepage_url', true ) ),
 			'attribution_message' => get_term_meta( $partner->term_id, 'attribution_message', true ),
@@ -420,7 +420,7 @@ class Media_Partners {
 			$partner_names[] = $partner_name;
 		}
 
-		$partner_settings = self::get_partner_settings( $partner );
+		$partner_settings = self::get_partner_config( $partner );
 
 		// Skip partners in RSS feed.
 		$settings = self::get_settings();
@@ -484,7 +484,7 @@ class Media_Partners {
 						</label>
 					</div>
 					<p class="submit">
-						<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php echo esc_html__( 'Save', 'newspack-plugin' ); ?>">
+						<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php echo esc_attr__( 'Save', 'newspack-plugin' ); ?>">
 					</p>
 				</form>
 			</div>
