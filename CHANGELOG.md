@@ -1,3 +1,10 @@
+## [2.11.1-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.11.0...v2.11.1-alpha.1) (2023-11-16)
+
+
+### Bug Fixes
+
+* **auth-modal:** handle very long newsletter lists list ([ad6895e](https://github.com/Automattic/newspack-plugin/commit/ad6895e03dbde96ecf7dd4c09dca85bba6ad3c50))
+
 # [2.11.0](https://github.com/Automattic/newspack-plugin/compare/v2.10.3...v2.11.0) (2023-11-13)
 
 
