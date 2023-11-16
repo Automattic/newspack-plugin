@@ -31,6 +31,12 @@ class WooCommerce_Connection {
 		'switched',
 	];
 
+	const MEMBERSHIP_STATUSES = [
+		'donor'      => 'Donor', // Has made at least one one-time or recurring donation.
+		'buyer'      => 'Buyer', // Has purchased a non-recurring non-donation product.
+		'subscriber' => 'Subscriber', // Has purchased a recurring non-donation product.
+	];
+
 	private static $created_membership_id; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 
 	/**
@@ -169,7 +175,7 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		self::sync_reader_from_order( $customer->get_last_order() );
+		self::sync_reader_from_order( $customer->get_last_order( 'all' ) );
 	}
 
 	/**
@@ -242,11 +248,13 @@ class WooCommerce_Connection {
 			}
 		}
 
+		$is_donation_order   = Donations::get_order_donation_product_id( $order->get_id() );
+		$membership_status   = $is_donation_order ? self::MEMBERSHIP_STATUSES['donor'] : self::MEMBERSHIP_STATUSES['buyer'];
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id(), [ 'order_type' => 'any' ] );
 
-		// One-time donation.
+		// One-time transaction.
 		if ( empty( $order_subscriptions ) ) {
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $membership_status;
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = (float) $customer->get_total_spent();
 
 			if ( 'pending' === $order->get_status() ) {
@@ -264,26 +272,27 @@ class WooCommerce_Connection {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 			}
 
-			// Subscription donation.
+			// Subscription transaction.
 		} else {
+			$membership_status    = self::MEMBERSHIP_STATUSES['subscriber'];
 			$current_subscription = reset( $order_subscriptions );
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $membership_status;
 			if ( 'active' === $current_subscription->get_status() || 'pending' === $current_subscription->get_status() ) {
 				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Monthly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Monthly ' . $membership_status;
 				}
 
 				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Yearly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Yearly ' . $membership_status;
 				}
 			} else {
 				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Monthly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Monthly ' . $membership_status;
 				}
 
 				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Yearly Donor';
+					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Yearly ' . $membership_status;
 				}
 			}
 
