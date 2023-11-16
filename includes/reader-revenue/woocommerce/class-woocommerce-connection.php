@@ -169,7 +169,14 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		self::sync_reader_from_order( $customer->get_last_order() );
+		$last_order = $customer->get_last_order();
+
+		// If last order is not a donation, don't sync.
+		if ( ! Donations::is_donation_order( $last_order ) ) {
+			return;
+		}
+
+		self::sync_reader_from_order( $last_order );
 	}
 
 	/**
@@ -1098,12 +1105,21 @@ class WooCommerce_Connection {
 	public static function sync_reader_on_subscription_update( $subscription, $new_status, $old_status ) {
 		$order = $subscription->get_last_order( 'all' );
 
-		if ( $order && self::can_sync_customers() ) {
-			if ( ! $order->get_customer_id() ) {
-				return;
-			}
-			self::sync_reader_from_order( $order );
+		if ( ! $order || ! self::can_sync_customers() ) {
+			return;
 		}
+
+		if ( ! $order->get_customer_id() ) {
+			return;
+		}
+
+		// Don't sync non-donation subscriptions.
+		$product_id = array_values( $subscription->get_items() )[0]->get_product()->get_id();
+		if ( ! Donations::is_donation_product( $product_id ) ) {
+			return;
+		}
+
+		self::sync_reader_from_order( $order );
 	}
 
 	/**
