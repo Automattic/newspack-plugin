@@ -31,8 +31,17 @@ class Mailchimp {
 	 * Register handlers.
 	 */
 	public static function register_handlers() {
-		if ( Reader_Activation::is_enabled() && true === Reader_Activation::get_setting( 'sync_esp' ) ) {
+		if ( ! method_exists( 'Newspack_Newsletters', 'get_service_provider' ) ) {
+			return;
+		}
+		$provider = \Newspack_Newsletters::get_service_provider();
+		if (
+			Reader_Activation::is_enabled() &&
+			true === Reader_Activation::get_setting( 'sync_esp' ) &&
+			$provider && 'mailchimp' === $provider->service
+		) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
+			Data_Events::register_handler( [ __CLASS__, 'reader_logged_in' ], 'reader_logged_in' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_subscription_new' ], 'donation_subscription_new' );
 		}
@@ -183,6 +192,42 @@ class Mailchimp {
 			$metadata[ $prefix . 'Registration Method' ] = $data['metadata']['registration_method'];
 		}
 		self::put( $data['email'], $metadata );
+	}
+
+	/**
+	 * Sync the reader's latest order on login.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function reader_logged_in( $timestamp, $data, $client_id ) {
+		$user_id    = $data['user_id'];
+		$customer   = new \WC_Customer( $user_id );
+		$last_order = $customer->get_last_order();
+		// If user has no orders, don't need to sync them.
+		if ( ! $last_order ) {
+			return;
+		}
+		$contact = WooCommerce_Connection::get_contact_from_order( $last_order->get_id() );
+		if ( ! $contact ) {
+			return;
+		}
+
+		$email         = $contact['email'];
+		$metadata      = $contact['metadata'];
+		$keys          = Newspack_Newsletters::$metadata_keys;
+		$prefixed_keys = array_map(
+			function( $key ) {
+				return Newspack_Newsletters::get_metadata_key( $key );
+			},
+			array_values( array_flip( $keys ) )
+		);
+
+		// Only use metadata defined in 'Newspack_Newsletters'.
+		$metadata = array_intersect_key( $metadata, array_flip( $prefixed_keys ) );
+
+		self::put( $email, $metadata );
 	}
 
 	/**

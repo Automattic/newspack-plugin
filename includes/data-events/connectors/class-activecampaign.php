@@ -55,15 +55,12 @@ class ActiveCampaign {
 	 */
 	private static function put( $email, $metadata ) {
 		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
-		if ( ! $master_list_id ) {
-			return;
-		}
 		\Newspack_Newsletters_Subscription::add_contact(
 			[
 				'email'    => $email,
 				'metadata' => $metadata,
 			],
-			$master_list_id
+			! empty( $master_list_id ) ? $master_list_id : false
 		);
 	}
 

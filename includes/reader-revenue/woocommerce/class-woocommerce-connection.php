@@ -134,14 +134,6 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		if ( self::can_sync_customers() ) {
-			$order = new \WC_Order( $order_id );
-			if ( ! $order->get_customer_id() ) {
-				return;
-			}
-			self::sync_reader_from_order( $order );
-		}
-
 		/**
 		 * Fires when a donation order is processed.
 		 *
@@ -149,6 +141,18 @@ class WooCommerce_Connection {
 		 * @param int $product_id Donation product post ID.
 		 */
 		\do_action( 'newspack_donation_order_processed', $order_id, $product_id );
+	}
+
+	/**
+	 * Get last donation order from customer
+	 *
+	 * @param \WC_Customer $customer Customer object.
+	 *
+	 * @return \WC_Order|false Order object or false.
+	 */
+	public static function get_customer_last_donation_order( $customer ) {
+		/** TODO */
+		return false;
 	}
 
 	/**
