@@ -260,7 +260,7 @@ class Donations {
 
 	/**
 	 * Check whether the given product ID is a donation product.
-	 * 
+	 *
 	 * @param int $product_id Product ID to check.
 	 * @return boolean True if a donation product, false if not.
 	 */
