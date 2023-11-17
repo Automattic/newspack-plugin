@@ -171,11 +171,6 @@ class WooCommerce_Connection {
 
 		$last_order = $customer->get_last_order();
 
-		// If last order is not a donation, don't sync.
-		if ( ! Donations::is_donation_order( $last_order ) ) {
-			return;
-		}
-
 		self::sync_reader_from_order( $last_order );
 	}
 
@@ -250,11 +245,14 @@ class WooCommerce_Connection {
 		}
 
 		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id(), [ 'order_type' => 'any' ] );
+		$is_donation_order   = Donations::is_donation_order( $order );
 
-		// One-time donation.
+		// One-time transaction.
 		if ( empty( $order_subscriptions ) ) {
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = (float) $customer->get_total_spent();
+			if ( $is_donation_order ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+			}
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
 
 			if ( 'pending' === $order->get_status() ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $order->get_total();
@@ -271,26 +269,28 @@ class WooCommerce_Connection {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 			}
 
-			// Subscription donation.
+			// Subscription transaction.
 		} else {
 			$current_subscription = reset( $order_subscriptions );
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
-			if ( 'active' === $current_subscription->get_status() || 'pending' === $current_subscription->get_status() ) {
-				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Monthly Donor';
-				}
+			if ( $is_donation_order ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+				if ( 'active' === $current_subscription->get_status() || 'pending' === $current_subscription->get_status() ) {
+					if ( 'month' === $current_subscription->get_billing_period() ) {
+						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Monthly Donor';
+					}
 
-				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Yearly Donor';
-				}
-			} else {
-				if ( 'month' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Monthly Donor';
-				}
+					if ( 'year' === $current_subscription->get_billing_period() ) {
+						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Yearly Donor';
+					}
+				} else {
+					if ( 'month' === $current_subscription->get_billing_period() ) {
+						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Monthly Donor';
+					}
 
-				if ( 'year' === $current_subscription->get_billing_period() ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Yearly Donor';
+					if ( 'year' === $current_subscription->get_billing_period() ) {
+						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Yearly Donor';
+					}
 				}
 			}
 
@@ -1110,12 +1110,6 @@ class WooCommerce_Connection {
 		}
 
 		if ( ! $order->get_customer_id() ) {
-			return;
-		}
-
-		// Don't sync non-donation subscriptions.
-		$product_id = array_values( $subscription->get_items() )[0]->get_product()->get_id();
-		if ( ! Donations::is_donation_product( $product_id ) ) {
 			return;
 		}
 
