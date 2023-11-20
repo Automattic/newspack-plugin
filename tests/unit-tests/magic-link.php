@@ -58,7 +58,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 			);
 		}
 		// Remove tokens.
-		delete_user_meta( self::$user_id, Magic_Link::TOKEN_META );
+		delete_user_meta( self::$user_id, Magic_Link::TOKENS_META );
 
 		// Create sample admin.
 		if ( empty( self::$admin_id ) ) {
@@ -72,7 +72,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 			);
 		}
 		// Remove tokens.
-		delete_user_meta( self::$admin_id, Magic_Link::TOKEN_META );
+		delete_user_meta( self::$admin_id, Magic_Link::TOKENS_META );
 	}
 
 	/**
