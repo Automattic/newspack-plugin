@@ -108,11 +108,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	 */
 	public function test_rate_limit() {
 		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
-		$validation = Magic_Link::validate_token( self::$user_id, $token_data['client'], $token_data['token'] );
-		$this->assertTokenIsValid( $validation );
-
-		// Second immediate generation should error with "rate_limit_exceeded".
-		$new_token = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$new_token  = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
 		$this->assertTrue( is_wp_error( $new_token ) );
 		$this->assertEquals( 'rate_limit_exceeded', $new_token->get_error_code() );
 	}
@@ -232,7 +228,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
 		$otp        = $token_data['otp'];
 
-		for ( $i = 0; $i < Magic_Link::OTP_MAX_ATTEMPTS; $i++ ) {
+		for ( $i = 0; $i <= Magic_Link::OTP_MAX_ATTEMPTS; $i++ ) {
 			$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], 12345 );
 			$this->assertTrue( is_wp_error( $validation ) );
 			$this->assertEquals( 'invalid_otp', $validation->get_error_code() );
