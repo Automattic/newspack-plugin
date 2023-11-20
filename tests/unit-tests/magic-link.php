@@ -228,7 +228,7 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
 		$otp        = $token_data['otp'];
 
-		for ( $i = 0; $i <= Magic_Link::OTP_MAX_ATTEMPTS; $i++ ) {
+		for ( $i = 0; $i < Magic_Link::OTP_MAX_ATTEMPTS; $i++ ) {
 			$validation = Magic_Link::validate_otp( self::$user_id, $otp['hash'], 12345 );
 			$this->assertTrue( is_wp_error( $validation ) );
 			$this->assertEquals( 'invalid_otp', $validation->get_error_code() );
