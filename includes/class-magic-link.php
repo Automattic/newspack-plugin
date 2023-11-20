@@ -546,7 +546,7 @@ final class Magic_Link {
 			$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
 			if ( empty( $tokens ) || empty( $hash ) ) {
 				$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack' ) );
-			} elseif ( empty( $otp ) ) {
+			} elseif ( empty( $code ) ) {
 				$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
 			}
 		}
