@@ -342,22 +342,20 @@ final class Magic_Link {
 		$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
 		if ( empty( $tokens ) ) {
 			$tokens = [];
-		} else {
-			// Rate limit token generation.
-			$last_token = end( $tokens );
-			if ( $last_token['time'] + self::RATE_INTERVAL > $now ) {
-				return new \WP_Error( 'rate_limit_exceeded', __( 'You must wait before you can issue another authorization code.', 'newspack' ) );
-			}
 		}
 
 		$expire = $now - self::get_token_expiration_period();
 		if ( ! empty( $tokens ) ) {
 			/** Limit maximum tokens to 5. */
 			$tokens = array_slice( $tokens, -4, 4 );
-			/** Clear expired tokens. */
 			foreach ( $tokens as $index => $token_data ) {
+				/** Clear expired tokens. */
 				if ( $token_data['time'] < $expire ) {
 					unset( $tokens[ $index ] );
+				}
+				/** Rate limit token generation. */
+				if ( $token_data['time'] + self::RATE_INTERVAL > $now ) {
+					return new \WP_Error( 'rate_limit_exceeded', __( 'You must wait before you can issue another authorization code.', 'newspack' ) );
 				}
 			}
 			$tokens = array_values( $tokens );
