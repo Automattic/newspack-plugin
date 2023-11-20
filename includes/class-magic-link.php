@@ -28,6 +28,8 @@ final class Magic_Link {
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
 	const COOKIE             = 'np_auth_link';
 
+	const RATE_INTERVAL = 60; // Interval in seconds to rate limit token generation.
+
 	const OTP_LENGTH       = 6;
 	const OTP_MAX_ATTEMPTS = 5;
 	const OTP_AUTH_ACTION  = 'np_otp_auth';
@@ -340,6 +342,12 @@ final class Magic_Link {
 		$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
 		if ( empty( $tokens ) ) {
 			$tokens = [];
+		} else {
+			// Rate limit token generation.
+			$last_token = end( $tokens );
+			if ( $last_token['time'] + self::RATE_INTERVAL > $now ) {
+				return new \WP_Error( 'newspack_magic_link_rate_limit', __( 'You must wait before you can issue another authorization code.', 'newspack' ) );
+			}
 		}
 
 		$expire = $now - self::get_token_expiration_period();
