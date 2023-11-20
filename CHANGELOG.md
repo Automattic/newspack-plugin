@@ -1,3 +1,10 @@
+## [2.11.1](https://github.com/Automattic/newspack-plugin/compare/v2.11.0...v2.11.1) (2023-11-20)
+
+
+### Bug Fixes
+
+* don't sync non-donation purchases to the ESP ([#2758](https://github.com/Automattic/newspack-plugin/issues/2758)) ([1e483ae](https://github.com/Automattic/newspack-plugin/commit/1e483ae333da4538564d54c0ff395899beefa665))
+
 # [2.11.0](https://github.com/Automattic/newspack-plugin/compare/v2.10.3...v2.11.0) (2023-11-13)
 
 
