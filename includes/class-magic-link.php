@@ -544,7 +544,9 @@ final class Magic_Link {
 			$errors->add( 'invalid_otp', __( 'OTP is not enabled.', 'newspack' ) );
 		} else {
 			$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
-			if ( empty( $tokens ) || empty( $hash ) || empty( $code ) ) {
+			if ( empty( $tokens ) || empty( $hash ) ) {
+				$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack' ) );
+			} elseif ( empty( $otp ) ) {
 				$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
 			}
 		}
