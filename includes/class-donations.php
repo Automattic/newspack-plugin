@@ -270,6 +270,21 @@ class Donations {
 	}
 
 	/**
+	 * Whether the order is a donation.
+	 *
+	 * @param \WC_Order $order Order object.
+	 * @return boolean True if a donation, false if not.
+	 */
+	public static function is_donation_order( $order ) {
+		foreach ( $order->get_items() as $item ) {
+			if ( self::is_donation_product( $item->get_product_id() ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the donation product ID for the order.
 	 *
 	 * @param int $order_id Order ID.
