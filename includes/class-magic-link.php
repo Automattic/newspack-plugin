@@ -355,7 +355,7 @@ final class Magic_Link {
 				}
 				/** Rate limit token generation. */
 				if ( $token_data['time'] + self::RATE_INTERVAL > $now ) {
-					return new \WP_Error( 'rate_limit_exceeded', __( 'You must wait before you can issue another authorization code.', 'newspack' ) );
+					return new \WP_Error( 'rate_limit_exceeded', __( 'Please wait a minute before requesting another authorization code.', 'newspack' ) );
 				}
 			}
 			$tokens = array_values( $tokens );
