@@ -57,9 +57,10 @@ Additional parameters:
 * `recurrence`
 * `platform`
 * `referer`
+* `is_renewal`: If this is a subscription renewal (recurring payment).
+* `subscription_id`: The related subscription id (if any).
 * `popup_id`: If the action was triggered from inside a popup, the popup id.
 * `range`: The range of the donation amount: `under-20`, `20-50`, `51-100`, `101-200`, `201-500` or `over-500`.
-
 
 ### donation_subscription_cancelled
 
@@ -74,8 +75,6 @@ Additional parameters:
 * `range`: The range of the donation amount: `under-20`, `20-50`, `51-100`, `101-200`, `201-500` or `over-500`.
 
 ### newsletter_subscribed
-
-
 
 Additional parameters:
 
