@@ -89,7 +89,7 @@ For when there's a new donation processed through WooCommerce.
 | `referer`        | `string` |                                                        |
 | `popup_id`       | `string` | If the donation was triggered by a popup, the popup ID |
 | `is_renewal`     | `bool`   | If this is a subscription renewal (recurring payment)  |
-| `subscription_id`| `bool`   | The related subscription id (if any)                   |
+| `subscription_id`| `int`    | The related subscription id (if any)                   |
 | `platform_data`  | `array`  |                                                        |
 
 ### `woocommerce_order_failed`
@@ -108,7 +108,7 @@ the order is already marked as failed so this hook will not trigger.
 | `platform`       | `string` | Always `wc` in this case                               |
 | `referer`        | `string` |                                                        |
 | `is_renewal`     | `bool`   | If this is a subscription renewal (recurring payment)  |
-| `subscription_id`| `bool`   | The related subscription id (if any)                   |
+| `subscription_id`| `int`    | The related subscription id (if any)                   |
 | `popup_id`       | `string` | If the donation was triggered by a popup, the popup ID |
 | `platform_data`  | `array`  |                                                        |
 
@@ -128,7 +128,7 @@ When there's a new donation, either through Stripe or Newspack (WooCommerce) pla
 | `referer`        | `string` |                                                        |
 | `popup_id`       | `string` | If the donation was triggered by a popup, the popup ID |
 | `is_renewal`     | `bool`   | If this is a subscription renewal (recurring payment)  |
-| `subscription_id`| `bool`   | The related subscription id (if any)                   |
+| `subscription_id`| `int`    | The related subscription id (if any)                   |
 | `platform_data`  | `array`  |                                                        |
 
 ### `donation_subscription_new`
