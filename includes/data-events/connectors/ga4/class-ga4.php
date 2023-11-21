@@ -224,6 +224,10 @@ class GA4 {
 			$order_id = $body['data']['interaction_data']['donation_order_id'] ?? false;
 		}
 
+		if ( ! function_exists( 'wc_get_order' ) ) {
+			return $body;
+		}
+
 		$order = wc_get_order( $order_id );
 		if ( $order ) {
 			$ga_client_id = $order->get_meta( '_newspack_ga_client_id' );
