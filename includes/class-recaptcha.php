@@ -323,7 +323,7 @@ final class Recaptcha {
 		<script>
 			grecaptcha.ready( function() {
 				var field;
-				setInterval( function() {
+				function update() {
 					grecaptcha.execute(
 						'<?php echo \esc_attr( $site_key ); ?>',
 						{ action: 'checkout' }
@@ -332,7 +332,13 @@ final class Recaptcha {
 							field.value = token;
 						}
 					} );
-				}, 30000 );
+				}
+				setInterval( update, 30000 );
+				( function( $ ) {
+					if ( ! $ ) { return; }
+					$( document ).on( 'updated_checkout', update );
+					$( document.body ).on( 'checkout_error', update );
+				} )( jQuery );
 				grecaptcha.execute(
 					'<?php echo \esc_attr( $site_key ); ?>',
 					{ action: 'checkout' }
