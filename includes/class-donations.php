@@ -65,16 +65,18 @@ class Donations {
 	 */
 	public static function init() {
 		self::$donation_product_name = __( 'Donate', 'newspack' );
-		if ( ! is_admin() ) {
-			add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
-			add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
-			add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
-			add_filter( 'pre_option_woocommerce_enable_guest_checkout', [ __CLASS__, 'disable_guest_checkout' ] );
-			add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'handle_cart' ] );
-			add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
-			add_filter( 'newspack_blocks_donate_billing_fields_keys', [ __CLASS__, 'get_billing_fields' ] );
-			add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
-		}
+
+		add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
+		add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
+		add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
+		add_filter( 'pre_option_woocommerce_enable_guest_checkout', [ __CLASS__, 'disable_guest_checkout' ] );
+		add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'handle_cart' ] );
+		add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
+		add_filter( 'newspack_blocks_donate_billing_fields_keys', [ __CLASS__, 'get_billing_fields' ] );
+		add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
+		add_filter( 'wcs_place_subscription_order_text', [ __CLASS__, 'order_button_text' ], 9 );
+		add_filter( 'woocommerce_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
+		add_filter( 'option_woocommerce_subscriptions_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
 	}
 
 	/**
@@ -613,6 +615,10 @@ class Donations {
 	 * Handle submission of the donation form.
 	 */
 	public static function process_donation_form() {
+		if ( is_admin() ) {
+			return;
+		}
+
 		$is_wc = self::is_platform_wc();
 
 		$donation_form_submitted = filter_input( INPUT_GET, 'newspack_donate', FILTER_SANITIZE_NUMBER_INT );
@@ -1035,6 +1041,18 @@ class Donations {
 	public static function update_billing_fields( $billing_fields ) {
 		update_option( self::DONATION_BILLING_FIELDS_OPTION, $billing_fields );
 		return $billing_fields;
+	}
+
+	/**
+	 * Set the "Place order" button text.
+	 *
+	 * @param string $text The button text.
+	 */
+	public static function order_button_text( $text ) {
+		if ( self::is_donation_cart() ) {
+			return __( 'Donate now', 'newspack-blocks' );
+		}
+		return $text;
 	}
 }
 Donations::init();
