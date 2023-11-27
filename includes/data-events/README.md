@@ -78,19 +78,19 @@ When a reader updates their lists subscription from Newspack Newsletters.
 
 For when there's a new donation processed through WooCommerce.
 
-| Name             | Type     | Obs                                                    |
-| ---------------- | -------- | ------------------------------------------------------ |
-| `user_id`        | `int`    |                                                        |
-| `email`          | `string` |                                                        |
-| `amount`         | `float`  |                                                        |
-| `currency`       | `string` |                                                        |
-| `recurrence`     | `string` |                                                        |
-| `platform`       | `string` | Always `wc` in this case                               |
-| `referer`        | `string` |                                                        |
-| `popup_id`       | `string` | If the donation was triggered by a popup, the popup ID |
-| `is_renewal`     | `bool`   | If this is a subscription renewal (recurring payment)  |
-| `subscription_id`| `int`    | The related subscription id (if any)                   |
-| `platform_data`  | `array`  |                                                        |
+| Name              | Type     | Obs                                                    |
+| ----------------- | -------- | ------------------------------------------------------ |
+| `user_id`         | `int`    |                                                        |
+| `email`           | `string` |                                                        |
+| `amount`          | `float`  |                                                        |
+| `currency`        | `string` |                                                        |
+| `recurrence`      | `string` |                                                        |
+| `platform`        | `string` | Always `wc` in this case                               |
+| `referer`         | `string` |                                                        |
+| `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
+| `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
+| `subscription_id` | `int`    | The related subscription id (if any)                   |
+| `platform_data`   | `array`  |                                                        |
 
 ### `woocommerce_order_failed`
 
@@ -98,37 +98,37 @@ For when there's a new donation payment failed through WooCommerce.
 Known issue: If the user tries to pay again after a failed payment, and the payment fails for a second time,
 the order is already marked as failed so this hook will not trigger.
 
-| Name             | Type     | Obs                                                    |
-| ---------------- | -------- | ------------------------------------------------------ |
-| `user_id`        | `int`    |                                                        |
-| `email`          | `string` |                                                        |
-| `amount`         | `float`  |                                                        |
-| `currency`       | `string` |                                                        |
-| `recurrence`     | `string` |                                                        |
-| `platform`       | `string` | Always `wc` in this case                               |
-| `referer`        | `string` |                                                        |
-| `is_renewal`     | `bool`   | If this is a subscription renewal (recurring payment)  |
-| `subscription_id`| `int`    | The related subscription id (if any)                   |
-| `popup_id`       | `string` | If the donation was triggered by a popup, the popup ID |
-| `platform_data`  | `array`  |                                                        |
+| Name              | Type     | Obs                                                    |
+| ----------------- | -------- | ------------------------------------------------------ |
+| `user_id`         | `int`    |                                                        |
+| `email`           | `string` |                                                        |
+| `amount`          | `float`  |                                                        |
+| `currency`        | `string` |                                                        |
+| `recurrence`      | `string` |                                                        |
+| `platform`        | `string` | Always `wc` in this case                               |
+| `referer`         | `string` |                                                        |
+| `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
+| `subscription_id` | `int`    | The related subscription id (if any)                   |
+| `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
+| `platform_data`   | `array`  |                                                        |
 
 ### `donation_new`
 
 When there's a new donation, either through Stripe or Newspack (WooCommerce) platforms.
 
-| Name             | Type     | Obs                                                    |
-| ---------------- | -------- | ------------------------------------------------------ |
-| `user_id`        | `int`    |                                                        |
-| `email`          | `string` |                                                        |
-| `amount`         | `float`  |                                                        |
-| `currency`       | `string` |                                                        |
-| `recurrence`     | `string` |                                                        |
-| `platform`       | `string` |                                                        |
-| `referer`        | `string` |                                                        |
-| `popup_id`       | `string` | If the donation was triggered by a popup, the popup ID |
-| `is_renewal`     | `bool`   | If this is a subscription renewal (recurring payment)  |
-| `subscription_id`| `int`    | The related subscription id (if any)                   |
-| `platform_data`  | `array`  |                                                        |
+| Name              | Type     | Obs                                                    |
+| ----------------- | -------- | ------------------------------------------------------ |
+| `user_id`         | `int`    |                                                        |
+| `email`           | `string` |                                                        |
+| `amount`          | `float`  |                                                        |
+| `currency`        | `string` |                                                        |
+| `recurrence`      | `string` |                                                        |
+| `platform`        | `string` |                                                        |
+| `referer`         | `string` |                                                        |
+| `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
+| `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
+| `subscription_id` | `int`    | The related subscription id (if any)                   |
+| `platform_data`   | `array`  |                                                        |
 
 ### `donation_subscription_new`
 
