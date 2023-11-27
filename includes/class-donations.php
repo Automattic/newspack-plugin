@@ -77,6 +77,7 @@ class Donations {
 		add_filter( 'wcs_place_subscription_order_text', [ __CLASS__, 'order_button_text' ], 9 );
 		add_filter( 'woocommerce_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
 		add_filter( 'option_woocommerce_subscriptions_order_button_text', [ __CLASS__, 'order_button_text' ], 9 );
+		add_action( 'woocommerce_coupons_enabled', [ __CLASS__, 'disable_coupons' ] );
 	}
 
 	/**
@@ -1053,6 +1054,24 @@ class Donations {
 			return __( 'Donate now', 'newspack-blocks' );
 		}
 		return $text;
+	}
+
+	/**
+	 * Disable coupons for donation checkouts.
+	 *
+	 * @param bool $enabled Whether coupons are enabled.
+	 *
+	 * @return bool
+	 */
+	public static function disable_coupons( $enabled ) {
+		$cart = WC()->cart;
+		if ( ! $cart ) {
+			return $enabled;
+		}
+		if ( ! self::is_donation_cart( $cart ) ) {
+			return $enabled;
+		}
+		return false;
 	}
 }
 Donations::init();
