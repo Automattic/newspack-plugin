@@ -95,6 +95,11 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
+		/**
+		 * Filters whether to enqueue the reader auth scripts.
+		 *
+		 * @param bool $allow_reg_block_render Whether to allow the registration block to render.
+		 */
 		if ( ! apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
 			return;
 		}
@@ -1007,6 +1012,11 @@ final class Reader_Activation {
 	 * @param boolean $is_inline If true, render the form inline, otherwise render as a modal.
 	 */
 	public static function render_auth_form( $is_inline = false ) {
+		/**
+		 * Filters whether to render reader auth form.
+		 *
+		 * @param bool $should_render Whether to render reader auth form.
+		 */
 		if ( ! apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
 			return;
 		}
