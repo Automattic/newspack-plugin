@@ -57,9 +57,10 @@ Additional parameters:
 * `recurrence`
 * `platform`
 * `referer`
+* `is_renewal`: If this is a subscription renewal (recurring payment).
+* `subscription_id`: The related subscription id (if any).
 * `popup_id`: If the action was triggered from inside a popup, the popup id.
 * `range`: The range of the donation amount: `under-20`, `20-50`, `51-100`, `101-200`, `201-500` or `over-500`.
-
 
 ### donation_subscription_cancelled
 
@@ -75,8 +76,6 @@ Additional parameters:
 
 ### newsletter_subscribed
 
-
-
 Additional parameters:
 
 * `newsletters_subscription_method`
@@ -89,7 +88,7 @@ Additional parameters:
 
 Additional parameters:
 
-* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.)
+* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.). See [reference](../../README.md#prompt_interaction).
 * `prompt_has_donation_block`: If the donation block was present, the value will be 1
 * `prompt_has_registration_block`: If the registration block was present, the value will be 1
 * `prompt_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
