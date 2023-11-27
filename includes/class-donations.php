@@ -1046,10 +1046,14 @@ class Donations {
 	 * @return bool
 	 */
 	public static function disable_coupons( $enabled ) {
-		if ( self::is_donation_cart( \WC()->cart ) ) {
-			return false;
+		$cart = WC()->cart;
+		if ( ! $cart ) {
+			return $enabled;
 		}
-		return $enabled;
+		if ( ! self::is_donation_cart( $cart ) ) {
+			return $enabled;
+		}
+		return false;
 	}
 }
 Donations::init();
