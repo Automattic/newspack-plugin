@@ -1468,6 +1468,10 @@ final class Reader_Activation {
 				if ( ! empty( $lists ) ) {
 					$metadata['lists'] = $lists;
 				}
+				$metadata['referer']             = \wp_get_raw_referer(); // wp_get_referer() will return false because it's a POST request to the same page.
+				$metadata['current_page_url']    = \home_url( \add_query_arg( array(), $metadata['referer'] ) );
+				$metadata['registration_method'] = 'auth-form';
+
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
 					return self::send_auth_form_response(
