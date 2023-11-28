@@ -325,11 +325,12 @@ class WooCommerce_Connection {
 
 		$first_name = $order->get_billing_first_name();
 		$last_name  = $order->get_billing_last_name();
-		return [
+		$contact    = [
 			'email'    => $order->get_billing_email(),
-			'name'     => "$first_name $last_name",
-			'metadata' => $metadata,
+			'name'     => trim( "$first_name $last_name" ),
+			'metadata' => array_filter( $metadata ),
 		];
+		return array_filter( $contact );
 	}
 
 	/**
