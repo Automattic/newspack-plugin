@@ -1,3 +1,10 @@
+## [2.11.3](https://github.com/Automattic/newspack-plugin/compare/v2.11.2...v2.11.3) (2023-11-28)
+
+
+### Bug Fixes
+
+* don’t sync empty contact fields to ESP ([#2779](https://github.com/Automattic/newspack-plugin/issues/2779)) ([f0866bd](https://github.com/Automattic/newspack-plugin/commit/f0866bdbec04dd95b0a06a907fec31aff0ab4142))
+
 ## [2.11.2](https://github.com/Automattic/newspack-plugin/compare/v2.11.1...v2.11.2) (2023-11-27)
 
 
