@@ -95,6 +95,15 @@ final class Reader_Activation {
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
+		/**
+		 * Filters whether to enqueue the reader auth scripts.
+		 *
+		 * @param bool $allow_reg_block_render Whether to allow the registration block to render.
+		 */
+		if ( ! apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
+			return;
+		}
+
 		$authenticated_email = '';
 		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
 			$authenticated_email = \wp_get_current_user()->user_email;
@@ -1003,6 +1012,14 @@ final class Reader_Activation {
 	 * @param boolean $is_inline If true, render the form inline, otherwise render as a modal.
 	 */
 	public static function render_auth_form( $is_inline = false ) {
+		/**
+		 * Filters whether to render reader auth form.
+		 *
+		 * @param bool $should_render Whether to render reader auth form.
+		 */
+		if ( ! apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
+			return;
+		}
 		// No need to render if RAS is disabled and not a preview request.
 		if ( ! self::allow_reg_block_render() ) {
 			return;
@@ -1460,7 +1477,7 @@ final class Reader_Activation {
 			case 'link':
 				$sent = Magic_Link::send_email( $user );
 				if ( true !== $sent ) {
-					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
+					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}
 				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ), $redirect );
 			case 'register':
@@ -1629,6 +1646,15 @@ final class Reader_Activation {
 				self::set_current_reader( $user_id );
 			}
 		}
+
+		/**
+		 * Filters the metadata to pass along to the action hook.
+		 *
+		 * @param array          $metadata      Metadata.
+		 * @param int|false      $user_id       The created user id or false if the user already exists.
+		 * @param false|\WP_User $existing_user The existing user object.
+		 */
+		$metadata = apply_filters( 'newspack_register_reader_metadata', $metadata, $user_id, $existing_user );
 
 		// Note the user's login method for later use.
 		if ( isset( $metadata['registration_method'] ) ) {

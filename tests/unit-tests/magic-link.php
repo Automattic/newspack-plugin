@@ -57,6 +57,8 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 				]
 			);
 		}
+		// Remove tokens.
+		delete_user_meta( self::$user_id, Magic_Link::TOKENS_META );
 
 		// Create sample admin.
 		if ( empty( self::$admin_id ) ) {
@@ -69,6 +71,8 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 				]
 			);
 		}
+		// Remove tokens.
+		delete_user_meta( self::$admin_id, Magic_Link::TOKENS_META );
 	}
 
 	/**
@@ -97,6 +101,16 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	public function test_generate_token() {
 		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
 		$this->assertTokenIsValid( $token_data );
+	}
+
+	/**
+	 * Test rate limiting of token generation.
+	 */
+	public function test_rate_limit() {
+		$token_data = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$new_token  = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		$this->assertTrue( is_wp_error( $new_token ) );
+		$this->assertEquals( 'rate_limit_exceeded', $new_token->get_error_code() );
 	}
 
 	/**
