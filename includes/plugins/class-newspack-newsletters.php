@@ -152,14 +152,27 @@ class Newspack_Newsletters {
 		}
 
 		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
-		if ( isset( $contact['metadata'] ) && self::should_sync_ras_metadata() ) {
+		if ( isset( $contact['metadata'] ) ) {
 			$normalized_metadata = [];
-			$normalized_keys     = array_keys( self::$metadata_keys );
+			$raw_keys            = array_values( array_flip( self::$metadata_keys ) );
+			$prefixed_keys       = array_map(
+				function( $key ) {
+					return self::get_metadata_key( $key );
+				},
+				$raw_keys
+			);
 			foreach ( $contact['metadata'] as $meta_key => $meta_value ) {
-				if ( in_array( $meta_key, $normalized_keys, true ) ) {
-					$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value;
+				if ( self::should_sync_ras_metadata() ) {
+					if ( in_array( $meta_key, $raw_keys, true ) ) {
+						$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
+					} elseif ( in_array( $meta_key, $prefixed_keys, true ) ) {
+						$normalized_metadata[ $meta_key ] = $meta_value;
+					}
 				} else {
-					$normalized_metadata[ $meta_key ] = $meta_value;
+					// If not syncing for RAS, we only want to sync email (for all ESPs) + First/Last Name (for MC only).
+					if ( in_array( $meta_key, [ 'First Name', 'Last Name' ], true ) ) {
+						$normalized_metadata[ $meta_key ] = $meta_value;
+					}
 				}
 			}
 			$contact['metadata'] = $normalized_metadata;
