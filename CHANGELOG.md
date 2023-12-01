@@ -1,3 +1,10 @@
+# [2.12.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.12.0-alpha.1...v2.12.0-alpha.2) (2023-12-01)
+
+
+### Bug Fixes
+
+* add a filter to the lists offered on register ([04192f5](https://github.com/Automattic/newspack-plugin/commit/04192f5bba185ee62269e597689db3df037fb73b))
+
 ## [2.11.4](https://github.com/Automattic/newspack-plugin/compare/v2.11.3...v2.11.4) (2023-12-01)
 
 
