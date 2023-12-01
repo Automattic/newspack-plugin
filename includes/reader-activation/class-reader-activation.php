@@ -317,20 +317,27 @@ final class Reader_Activation {
 		$use_custom_lists = self::get_setting( 'use_custom_lists' );
 		$available_lists  = \Newspack_Newsletters_Subscription::get_lists_config();
 		if ( ! $use_custom_lists ) {
-			return $available_lists;
-		}
-		$lists = self::get_setting( 'newsletter_lists' );
-		if ( empty( $lists ) ) {
-			return [];
-		}
-		$registration_lists = [];
-		foreach ( $lists as $list ) {
-			if ( isset( $available_lists[ $list['id'] ] ) ) {
-				$registration_lists[ $list['id'] ]            = $available_lists[ $list['id'] ];
-				$registration_lists[ $list['id'] ]['checked'] = $list['checked'] ?? false;
+			$registration_lists = $available_lists;
+		} else {
+			$lists = self::get_setting( 'newsletter_lists' );
+			if ( empty( $lists ) ) {
+				return [];
+			}
+			$registration_lists = [];
+			foreach ( $lists as $list ) {
+				if ( isset( $available_lists[ $list['id'] ] ) ) {
+					$registration_lists[ $list['id'] ]            = $available_lists[ $list['id'] ];
+					$registration_lists[ $list['id'] ]['checked'] = $list['checked'] ?? false;
+				}
 			}
 		}
-		return $registration_lists;
+
+		/**
+		 * Filters the newsletters lists that should be rendered during registration.
+		 *
+		 * @param array $registration_lists Array of newsletter lists.
+		 */
+		return apply_filters( 'newspack_registration_newsletters_lists', $registration_lists );
 	}
 
 	/**
