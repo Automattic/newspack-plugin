@@ -30,6 +30,11 @@ class Newspack_Newsletters {
 		'signup_page'          => 'Signup Page',
 		'signup_page_utm'      => 'Signup UTM: ',
 		'newsletter_selection' => 'Newsletter Selection',
+		'referer'              => 'Referrer Path',
+		'registration_page'    => 'Registration Page',
+		'current_page_url'     => 'Registration Page',
+		'registration_method'  => 'Registration Method',
+
 		// Payment-related.
 		'membership_status'    => 'Membership Status',
 		'payment_page'         => 'Payment Page',
@@ -50,6 +55,7 @@ class Newspack_Newsletters {
 	 */
 	public static function init() {
 		if ( Reader_Activation::is_enabled() && Reader_Activation::get_setting( 'sync_esp' ) ) {
+			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
 	}
@@ -115,6 +121,45 @@ class Newspack_Newsletters {
 		 * @param string $name The unprefixed part of the key.
 		 */
 		return apply_filters( 'newspack_ras_metadata_key', $key, $prefix, $name );
+	}
+
+	/**
+	 * Normalizes contact metadata keys before syncing to ESP. If RAS is enabled, we should favor RAS metadata keys.
+	 * 
+	 * @param array $contact Contact data.
+	 * @return array Normalized contact data.
+	 */
+	public static function normalize_contact_data( $contact ) {
+		// Parse full name into first + last for MC, which stores these as separate merge fields.
+		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
+			if ( isset( $contact['name'] ) ) {
+				$name_fragments                    = explode( ' ', $contact['name'], 2 );
+				$contact['metadata']['First Name'] = $name_fragments[0];
+				if ( isset( $name_fragments[1] ) ) {
+					$contact['metadata']['Last Name'] = $name_fragments[1];
+				}
+			}
+		}
+
+		// Ensure that metadata keys are normalized with the correct RAS metadata keys.
+		if ( isset( $contact['metadata'] ) ) {
+			$normalized_metadata = [];
+			$normalized_keys     = array_keys( self::$metadata_keys );
+			foreach ( $contact['metadata'] as $meta_key => $meta_value ) {
+				if ( in_array( $meta_key, $normalized_keys, true ) ) {
+					$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value;
+				} else {
+					$normalized_metadata[ $meta_key ] = $meta_value;
+				}
+			}
+			$contact['metadata'] = $normalized_metadata;
+		}
+
+		$header = 'NEWSPACK-RAS';
+		Logger::log( 'Normalizing contact data for RAS <> ESP sync:', $header );
+		Logger::log( $contact, $header );
+
+		return $contact;
 	}
 
 	/**
