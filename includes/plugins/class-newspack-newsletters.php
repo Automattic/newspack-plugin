@@ -54,10 +54,20 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		if ( Reader_Activation::is_enabled() && Reader_Activation::get_setting( 'sync_esp' ) ) {
-			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
+		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
+
+		if ( self::should_sync_ras_metadata() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
+	}
+
+	/**
+	 * Whether or not we should use the special metadata keys for RAS sites.
+	 * 
+	 * @return boolean True if a RAS sync, otherwise false.
+	 */
+	public static function should_sync_ras_metadata() {
+		return Reader_Activation::is_enabled() && Reader_Activation::get_setting( 'sync_esp' );
 	}
 
 	/**
@@ -141,8 +151,8 @@ class Newspack_Newsletters {
 			}
 		}
 
-		// Ensure that metadata keys are normalized with the correct RAS metadata keys.
-		if ( isset( $contact['metadata'] ) ) {
+		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
+		if ( isset( $contact['metadata'] ) && self::should_sync_ras_metadata() ) {
 			$normalized_metadata = [];
 			$normalized_keys     = array_keys( self::$metadata_keys );
 			foreach ( $contact['metadata'] as $meta_key => $meta_value ) {
@@ -155,9 +165,8 @@ class Newspack_Newsletters {
 			$contact['metadata'] = $normalized_metadata;
 		}
 
-		$header = 'NEWSPACK-RAS';
-		Logger::log( 'Normalizing contact data for RAS <> ESP sync:', $header );
-		Logger::log( $contact, $header );
+		Logger::log( 'Normalizing contact data for reader ESP sync:' );
+		Logger::log( $contact );
 
 		return $contact;
 	}
