@@ -90,18 +90,18 @@ class Mailchimp {
 		);
 
 		// Get and match existing merge fields.
-		$merge_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
-		if ( \is_wp_error( $merge_fields ) ) {
+		$merge_fields_res = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
+		if ( \is_wp_error( $merge_fields_res ) ) {
 			Logger::log(
 				sprintf(
 					// Translators: %1$s is the error message.
 					__( 'Error getting merge fields: %1$s', 'newspack-plugin' ),
-					$merge_fields->get_error_message()
+					$merge_fields_res->get_error_message()
 				)
 			);
 			return [];
 		}
-		$existing_fields = $merge_fields['merge_fields'];
+		$existing_fields = $merge_fields_res['merge_fields'];
 		usort(
 			$existing_fields,
 			function( $a, $b ) {
