@@ -90,7 +90,18 @@ class Mailchimp {
 		);
 
 		// Get and match existing merge fields.
-		$existing_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" )['merge_fields'];
+		$merge_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
+		if ( \is_wp_error( $merge_fields ) ) {
+			Logger::log(
+				sprintf(
+					// Translators: %1$s is the error message.
+					__( 'Error getting merge fields: %1$s', 'newspack-plugin' ),
+					$merge_fields->get_error_message()
+				)
+			);
+			return [];
+		}
+		$existing_fields = $merge_fields['merge_fields'];
 		usort(
 			$existing_fields,
 			function( $a, $b ) {
@@ -108,7 +119,7 @@ class Mailchimp {
 				Logger::log(
 					sprintf(
 						// Translators: %1$s is the merge field name, %2$s is the field's unique tag.
-						__( 'Warning: Duplicate merge field %1$s found with tag %2$s.', 'newspack-newsletters' ),
+						__( 'Warning: Duplicate merge field %1$s found with tag %2$s.', 'newspack-plugin' ),
 						$field['name'],
 						$field['tag']
 					)
@@ -141,7 +152,7 @@ class Mailchimp {
 			Logger::log(
 				sprintf(
 					// Translators: %1$s is the merge field key, %2$s is the error message.
-					__( 'Created merge field %1$s.', 'newspack-newsletters' ),
+					__( 'Created merge field %1$s.', 'newspack-plugin' ),
 					$field_name
 				)
 			);
@@ -156,7 +167,7 @@ class Mailchimp {
 	 *
 	 * @param string $email Email address.
 	 * @param array  $data  Data to update.
-	 * 
+	 *
 	 * @return array|WP_Error response body or error.
 	 */
 	public static function put( $email, $data = [] ) {
