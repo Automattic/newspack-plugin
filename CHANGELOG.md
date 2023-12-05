@@ -1,9 +1,9 @@
-# [2.12.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.12.0-alpha.2...v2.12.0-alpha.3) (2023-12-04)
+## [2.11.6](https://github.com/Automattic/newspack-plugin/compare/v2.11.5...v2.11.6) (2023-12-05)
 
 
 ### Bug Fixes
 
-* more fixes for Mailchimp RAS data sync ([#2780](https://github.com/Automattic/newspack-plugin/issues/2780)) ([ef4bfe7](https://github.com/Automattic/newspack-plugin/commit/ef4bfe754ebd101b483f6b934b7acd60ef778770))
+* **mailchimp:** prevent merge fields fetch throwing fatal error ([#2793](https://github.com/Automattic/newspack-plugin/issues/2793)) ([9b9d3ab](https://github.com/Automattic/newspack-plugin/commit/9b9d3abf9190fe195825b77bc33be92a602c395a))
 
 ## [2.11.5](https://github.com/Automattic/newspack-plugin/compare/v2.11.4...v2.11.5) (2023-12-04)
 
