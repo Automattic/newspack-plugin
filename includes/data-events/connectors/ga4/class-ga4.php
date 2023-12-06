@@ -158,7 +158,6 @@ class GA4 {
 		} else {
 			throw new \Exception( 'Event handler method not found' );
 		}
-
 	}
 
 	/**
@@ -196,7 +195,6 @@ class GA4 {
 		}
 
 		return $body;
-
 	}
 
 	/**
@@ -249,7 +247,6 @@ class GA4 {
 		}
 
 		return $body;
-
 	}
 
 	/**
@@ -494,7 +491,6 @@ class GA4 {
 			self::log( sprintf( 'Event sent to %s - %s - Client ID: %s', $property['measurement_id'], $event->get_name(), $client_id ) );
 			self::log( sprintf( 'Event payload: %s', wp_json_encode( $payload ) ) );
 		}
-
 	}
 
 	/**

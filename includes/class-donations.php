@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
+use WP_Error, WC_Product_Simple, WC_Product_Subscription, WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 

@@ -52,7 +52,7 @@ class Newspack_Unit_Tests_Bootstrap {
 			exit( 1 );
 		}
 
-		$this->plugin_dir = dirname( dirname( __FILE__ ) );
+		$this->plugin_dir = dirname( __DIR__ );
 
 		// Load test function so tests_add_filter() is available.
 		require_once $_tests_dir . '/includes/functions.php';

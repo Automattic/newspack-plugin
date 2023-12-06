@@ -9,7 +9,7 @@ use Newspack\Stripe_Connection;
 use Newspack\Donations;
 use Stripe\Stripe;
 
-require_once dirname( __FILE__ ) . '/../class-stripemockhttpclient.php';
+require_once __DIR__ . '/../class-stripemockhttpclient.php';
 
 /**
  * Tests Stripe features.

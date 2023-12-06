@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -855,7 +855,7 @@ class WooCommerce_Connection {
 
 				foreach ( $all_subs as $sub ) {
 					if ( 'active' === $sub->get_status() ) {
-						$active_subs ++;
+						$active_subs++;
 					}
 				}
 			}

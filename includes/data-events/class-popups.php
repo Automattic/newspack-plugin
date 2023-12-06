@@ -90,7 +90,6 @@ final class Popups {
 			'prompt_interaction',
 			[ __CLASS__, 'donation_submission_woocommerce_error' ]
 		);
-
 	}
 
 	/**
@@ -360,7 +359,6 @@ final class Popups {
 		$popup_data['interaction_data']['donation_platform']   = $data['platform'];
 		return $popup_data;
 	}
-
 }
 
 Popups::init();

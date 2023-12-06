@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WC_Payment_Gateways, \WC_Install, \WP_Error;
+use WC_Payment_Gateways, WC_Install, WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
