@@ -2,7 +2,7 @@
  * WordPress dependencies.
  */
 import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { ToggleControl, CheckboxControl } from '@wordpress/components';
 
 /**
@@ -41,6 +41,16 @@ const FREQUENCIES: {
 };
 const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys( FREQUENCIES ) as FrequencySlug[];
 
+type FieldConfig = {
+	autocomplete: string;
+	class: string[];
+	label: string;
+	priority: number;
+	required: boolean;
+	type: string;
+	validate: string[];
+};
+
 type WizardData = {
 	donation_data:
 		| { errors: { [ key: string ]: string[] } }
@@ -61,16 +71,9 @@ type WizardData = {
 		status: string;
 	};
 	available_billing_fields: {
-		[ key: string ]: {
-			autocomplete: string;
-			class: string[];
-			label: string;
-			priority: number;
-			required: boolean;
-			type: string;
-			validate: string[];
-		};
+		[ key: string ]: FieldConfig;
 	};
+	order_notes_field: FieldConfig;
 };
 
 export const DonationAmounts = () => {
@@ -258,6 +261,8 @@ const BillingFields = () => {
 		} );
 
 	const availableFields = wizardData.available_billing_fields;
+	const orderNotesField = wizardData.order_notes_field;
+	console.log( wizardData );
 	if ( ! availableFields || ! Object.keys( availableFields ).length ) {
 		return null;
 	}
@@ -267,22 +272,23 @@ const BillingFields = () => {
 		: Object.keys( availableFields );
 
 	return (
-		<>
-			<Card noBorder headerActions>
-				<SectionHeader
-					title={ __( 'Billing Fields', 'newspack' ) }
-					description={ __(
-						'Configure which billing fields should be rendered on the donation form.',
-						'newspack'
-					) }
-					noMargin
-				/>
-			</Card>
+		<Grid columns={ 1 } gutter={ 16 }>
+			<SectionHeader
+				title={ __( 'Billing Fields', 'newspack-plugin' ) }
+				description={ __(
+					'Configure which billing fields should be shown by the checkout form. Fields marked with (*) are required if shown. Note that for shippable products, address fields will always be shown.',
+					'newspack-plugin'
+				) }
+				noMargin
+			/>
 			<Grid columns={ 3 } rowGap={ 16 }>
 				{ Object.keys( availableFields ).map( fieldKey => (
 					<CheckboxControl
 						key={ fieldKey }
-						label={ availableFields[ fieldKey ].label }
+						label={
+							availableFields[ fieldKey ].label +
+							( availableFields[ fieldKey ].required ? ' *' : '' )
+						}
 						checked={ billingFields.includes( fieldKey ) }
 						disabled={ fieldKey === 'billing_email' } // Email is always required.
 						onChange={ () => {
@@ -296,8 +302,23 @@ const BillingFields = () => {
 						} }
 					/>
 				) ) }
+				{ orderNotesField && (
+					<CheckboxControl
+						label={ orderNotesField.label }
+						checked={ billingFields.includes( 'order_comments' ) }
+						onChange={ () => {
+							let newFields = [ ...billingFields ];
+							if ( billingFields.includes( 'order_comments' ) ) {
+								newFields = newFields.filter( field => field !== 'order_comments' );
+							} else {
+								newFields = [ ...newFields, 'order_comments' ];
+							}
+							changeHandler( [ 'billingFields' ] )( newFields );
+						} }
+					/>
+				) }
 			</Grid>
-		</>
+		</Grid>
 	);
 };
 
@@ -347,6 +368,7 @@ const Donation = () => {
 				</>
 			) }
 			<DonationAmounts />
+			<hr />
 			<BillingFields />
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ onSave } href={ undefined }>
