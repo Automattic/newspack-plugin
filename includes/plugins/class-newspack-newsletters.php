@@ -143,6 +143,9 @@ class Newspack_Newsletters {
 		// Parse full name into first + last for MC, which stores these as separate merge fields.
 		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
 			if ( isset( $contact['name'] ) ) {
+				if ( ! isset( $contact['metadata'] ) ) {
+					$contact['metadata'] = [];
+				}
 				$name_fragments                    = explode( ' ', $contact['name'], 2 );
 				$contact['metadata']['First Name'] = $name_fragments[0];
 				if ( isset( $name_fragments[1] ) ) {
@@ -165,7 +168,10 @@ class Newspack_Newsletters {
 				if ( self::should_sync_ras_metadata() ) {
 					if ( in_array( $meta_key, $raw_keys, true ) ) {
 						$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
-					} elseif ( in_array( $meta_key, $prefixed_keys, true ) ) {
+					} elseif (
+						in_array( $meta_key, $prefixed_keys, true ) ||
+						false !== strpos( $meta_key, self::get_metadata_key( self::$metadata_keys['signup_page_utm'] ) ) && false !== strpos( $meta_key, self::get_metadata_key( self::$metadata_keys['payment_page_utm'] ) ) // UTM meta keys can have arbitrary suffixes.
+					) {
 						$normalized_metadata[ $meta_key ] = $meta_value;
 					}
 				} else {
