@@ -174,6 +174,9 @@ const SegmentActionCard = ( {
 						description={ segmentDescription( segment ) }
 						toggleChecked={ ! segment.configuration.is_disabled }
 						toggleOnChange={ () => toggleSegmentStatus( segment ) }
+						badge={
+							segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : undefined
+						}
 						actionText={
 							<>
 								<Button

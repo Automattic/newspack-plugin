@@ -384,7 +384,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 							return form.endFlow( newspack_reader_auth_labels.invalid_email, 400 );
 						}
-						readerActivation.setReaderEmail( body.get( 'npe' ) );
 						if ( 'otp' === action ) {
 							readerActivation
 								.authenticateOTP( body.get( 'otp_code' ) )
@@ -425,9 +424,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 											if ( currentHash ) {
 												redirect = '';
 											}
+											if ( status === 200 ) {
+												readerActivation.setReaderEmail( body.get( 'npe' ) );
+											}
 											const otpHash = readerActivation.getOTPHash();
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
-												setFormAction( 'otp' );
+												if ( status === 200 ) {
+													setFormAction( 'otp' );
+												}
 												/** If action is link, suppress message and status so the OTP handles it. */
 												if ( status === 200 && action === 'link' ) {
 													status = null;
