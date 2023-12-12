@@ -140,20 +140,6 @@ class Newspack_Newsletters {
 	 * @return array Normalized contact data.
 	 */
 	public static function normalize_contact_data( $contact ) {
-		// Parse full name into first + last for MC, which stores these as separate merge fields.
-		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
-			if ( isset( $contact['name'] ) ) {
-				if ( ! isset( $contact['metadata'] ) ) {
-					$contact['metadata'] = [];
-				}
-				$name_fragments                    = explode( ' ', $contact['name'], 2 );
-				$contact['metadata']['First Name'] = $name_fragments[0];
-				if ( isset( $name_fragments[1] ) ) {
-					$contact['metadata']['Last Name'] = $name_fragments[1];
-				}
-			}
-		}
-
 		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
 		if ( isset( $contact['metadata'] ) ) {
 			$normalized_metadata = [];
@@ -182,6 +168,20 @@ class Newspack_Newsletters {
 				}
 			}
 			$contact['metadata'] = $normalized_metadata;
+		}
+
+		// Parse full name into first + last for MC, which stores these as separate merge fields.
+		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
+			if ( isset( $contact['name'] ) ) {
+				if ( ! isset( $contact['metadata'] ) ) {
+					$contact['metadata'] = [];
+				}
+				$name_fragments                    = explode( ' ', $contact['name'], 2 );
+				$contact['metadata']['First Name'] = $name_fragments[0];
+				if ( isset( $name_fragments[1] ) ) {
+					$contact['metadata']['Last Name'] = $name_fragments[1];
+				}
+			}
 		}
 
 		Logger::log( 'Normalizing contact data for reader ESP sync:' );
