@@ -170,7 +170,7 @@ class Newspack_Newsletters {
 						$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
 					} elseif (
 						in_array( $meta_key, $prefixed_keys, true ) ||
-						false !== strpos( $meta_key, self::get_metadata_key( self::$metadata_keys['signup_page_utm'] ) ) && false !== strpos( $meta_key, self::get_metadata_key( self::$metadata_keys['payment_page_utm'] ) ) // UTM meta keys can have arbitrary suffixes.
+						( false !== strpos( $meta_key, self::get_metadata_key( 'signup_page_utm' ) ) || false !== strpos( $meta_key, self::get_metadata_key( 'payment_page_utm' ) ) ) // UTM meta keys can have arbitrary suffixes.
 					) {
 						$normalized_metadata[ $meta_key ] = $meta_value;
 					}
