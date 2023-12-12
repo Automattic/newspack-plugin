@@ -202,6 +202,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		);
 
 		// But UTM keys can have arbitrary suffixes.
+		unset( $contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] );
 		$contact_data_with_prefixed_keys['metadata']['NP_Signup UTM: foo'] = 'bar';
 		$this->assertEquals(
 			$contact_data_with_prefixed_keys,
