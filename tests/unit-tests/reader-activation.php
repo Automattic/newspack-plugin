@@ -163,7 +163,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			'name'     => 'Test Contact',
 			'metadata' => [
 				'NP_Account'           => 123,
-				'NP_Registration'      => '2023-12-11',
+				'NP_Registration Date' => '2023-12-11',
 				'NP_Registration Page' => 'https://newspack.com/registration-page/',
 			],
 		];
@@ -172,7 +172,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			'name'     => 'Test Contact',
 			'metadata' => [
 				'CU_Account'           => 123,
-				'CU_Registration'      => '2023-12-11',
+				'CU_Registration Date' => '2023-12-11',
 				'CU_Registration Page' => 'https://newspack.com/registration-page/',
 			],
 		];
