@@ -183,7 +183,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 			\Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 
-		\Newspack\Newspack_Newsletters::update_metadata_prefix( 'CU' );
+		\Newspack\Newspack_Newsletters::update_metadata_prefix( 'CU_' );
 
 		// Metadata keys should be prefixed with the custom prefix, if set.
 		$this->assertEquals(
