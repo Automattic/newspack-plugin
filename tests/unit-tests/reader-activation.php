@@ -180,7 +180,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		// Raw metadata keys should be converted to prefixed keys.
 		$this->assertEquals(
 			$contact_data_with_prefixed_keys,
-			Reader_Activation::normalize_contact_data( $contact_data_with_raw_keys )
+			\Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 
 		\Newspack\Newspack_Newsletters::update_metadata_prefix( 'CU' );
@@ -188,7 +188,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		// Metadata keys should be prefixed with the custom prefix, if set.
 		$this->assertEquals(
 			$contact_data_with_custom_prefix,
-			Reader_Activation::normalize_contact_data( $contact_data_with_raw_keys )
+			\Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 
 		// Clear from last test.
@@ -197,7 +197,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		// Most keys should be exact.
 		$contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] = 'Invalid data';
 		$this->assertEquals(
-			array_diff( $contact_data_with_prefixed_keys, Reader_Activation::normalize_contact_data( $contact_data_with_raw_keys ) ),
+			array_diff( $contact_data_with_prefixed_keys, \Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_raw_keys ) ),
 			[
 				'metadata' => [
 					'NP_Invalid_Key' => 'Invalid data',
@@ -209,7 +209,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$contact_data_with_prefixed_keys['metadata']['Signup UTM: foo'] = 'bar';
 		$this->assertEquals(
 			$contact_data_with_prefixed_keys,
-			Reader_Activation::normalize_contact_data( $contact_data_with_raw_keys )
+			\Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 
 		// Set connected ESP to Mailchimp.
@@ -220,7 +220,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$contact_data_with_prefixed_keys['metadata']['Last Name']  = 'Contact';
 		$this->assertEquals(
 			$contact_data_with_prefixed_keys,
-			Reader_Activation::normalize_contact_data( $contact_data_with_raw_keys )
+			\Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 	}
 }
