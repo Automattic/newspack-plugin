@@ -1,3 +1,10 @@
+## [2.12.1](https://github.com/Automattic/newspack-plugin/compare/v2.12.0...v2.12.1) (2023-12-12)
+
+
+### Bug Fixes
+
+* **ras:** handle UTM metadata field keys with arbitrary suffixes ([#2804](https://github.com/Automattic/newspack-plugin/issues/2804)) ([98e4694](https://github.com/Automattic/newspack-plugin/commit/98e469465be828fa0a0dc0f1bd7f7be09617a5af))
+
 # [2.12.0](https://github.com/Automattic/newspack-plugin/compare/v2.11.6...v2.12.0) (2023-12-11)
 
 
