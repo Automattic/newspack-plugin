@@ -197,12 +197,8 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		// Most keys should be exact.
 		$contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] = 'Invalid data';
 		$this->assertEquals(
-			array_diff( $contact_data_with_prefixed_keys, \Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_prefixed_keys ) ),
-			[
-				'metadata' => [
-					'NP_Invalid_Key' => 'Invalid data',
-				],
-			]
+			array_diff( $contact_data_with_prefixed_keys['metadata'], \Newspack\Newspack_Newsletters::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] ),
+			[ 'NP_Invalid_Key' => 'Invalid data' ]
 		);
 
 		// But UTM keys can have arbitrary suffixes.
