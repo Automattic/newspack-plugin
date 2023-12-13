@@ -779,7 +779,7 @@ class Memberships {
 						}
 
 						// Allow editors.
-						if ( true === $all_caps['editor'] ) {
+						if ( isset( $all_caps['editor'] ) && true === $all_caps['editor'] ) {
 							$all_caps[ $cap ] = true;
 							break;
 						}
@@ -811,7 +811,7 @@ class Memberships {
 					case 'wc_memberships_view_delayed_post_content':
 					case 'wc_memberships_view_delayed_product':
 						// Allow editors.
-						if ( true === $all_caps['editor'] ) {
+						if ( isset( $all_caps['editor'] ) && true === $all_caps['editor'] ) {
 							$all_caps[ $cap ] = true;
 							break;
 						}
