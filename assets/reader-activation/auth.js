@@ -51,6 +51,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 	}, {} );
 
 const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
+
+const STORAGE_OTP_TIMER = 'newspack_otp_timer';
+
 let currentHash;
 
 window.newspackRAS = window.newspackRAS || [];
@@ -215,6 +218,82 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
+			const backButtons = container.querySelectorAll( '[data-back]' );
+			const resendCodeButton = container.querySelector( '[data-resend-code]' );
+
+			backButtons.forEach( backButton => {
+				backButton.addEventListener( 'click', function ( ev ) {
+					ev.preventDefault();
+					setFormAction( 'link', true );
+				} );
+			} );
+
+			let clearOtpTimerInterval;
+			function updateOTPTimer() {
+				if ( clearOtpTimerInterval ) {
+					clearOtpTimerInterval();
+				}
+				if ( ! resendCodeButton ) {
+					return;
+				}
+				const otpTimer = localStorage.getItem( STORAGE_OTP_TIMER );
+				if ( otpTimer ) {
+					clearOtpTimerInterval = setInterval( () => {
+						const timer = Math.floor( Date.now() / 1000 ) - parseInt( otpTimer );
+						console.log( timer );
+						if ( timer < 60 ) {
+							resendCodeButton.textContent = `Resend code in ${ 60 - timer } seconds`;
+							resendCodeButton.disabled = true;
+						} else {
+							resendCodeButton.textContent = 'Resend code';
+							resendCodeButton.disabled = false;
+							localStorage.removeItem( STORAGE_OTP_TIMER );
+						}
+					}, 1000 );
+				}
+			}
+
+			if ( resendCodeButton ) {
+				updateOTPTimer();
+				resendCodeButton.addEventListener( 'click', function ( ev ) {
+					ev.preventDefault();
+					const body = new FormData();
+					body.set( 'reader-activation-auth-form', 1 );
+					body.set( 'npe', emailInput.value );
+					body.set( 'action', 'link' );
+					ev.preventDefault();
+					readerActivation
+						.getCaptchaToken()
+						.then( captchaToken => {
+							if ( ! captchaToken ) {
+								return;
+							}
+							body.set( 'captcha_token', captchaToken );
+						} )
+						.catch( e => {
+							console.log( { e } );
+						} )
+						.finally( () => {
+							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+								method: 'POST',
+								headers: {
+									Accept: 'application/json',
+								},
+								body,
+							} )
+								.then( res => {
+									console.log( res );
+									localStorage.setItem( STORAGE_OTP_TIMER, Math.floor( Date.now() / 1000 ) );
+								} )
+								.catch( e => {
+									console.log( { e } );
+								} )
+								.finally( () => {
+									updateOTPTimer();
+								} );
+						} );
+				} );
+			}
 
 			if ( closeButton ) {
 				closeButton.addEventListener( 'click', function ( ev ) {
@@ -250,6 +329,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( ! readerActivation.getOTPHash() ) {
 						return;
 					}
+					const emailAddressElements = container.querySelectorAll( '.email-address' );
+					emailAddressElements.forEach( element => {
+						element.textContent = readerActivation.getReader()?.email || '';
+					} );
 				}
 				if ( [ 'link', 'pwd' ].includes( action ) ) {
 					readerActivation.setAuthStrategy( action );
@@ -402,6 +485,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									form.endLoginFlow( data.message, 400 );
 								} );
 						} else {
+							console.log( { body } );
 							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 								method: 'POST',
 								headers: {
@@ -429,6 +513,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 											}
 											const otpHash = readerActivation.getOTPHash();
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
+												// Set OTP rate-limit timer
+												localStorage.setItem( STORAGE_OTP_TIMER, Math.floor( Date.now() / 1000 ) );
+												updateOTPTimer();
 												if ( status === 200 ) {
 													setFormAction( 'otp' );
 												}

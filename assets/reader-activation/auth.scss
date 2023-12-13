@@ -153,6 +153,18 @@
 			}
 		}
 
+		button[type='button'] {
+			display: block;
+			background: transparent;
+			border: 1px solid wp-colors.$gray-200;
+			color: wp-colors.$gray-700;
+			margin-bottom: 0.8rem;
+			&.back-button {
+				border: 0;
+				margin: 0;
+			}
+		}
+
 		.components-form {
 			&__field {
 				font-size: 1rem;
@@ -168,6 +180,7 @@
 					background-color: var( --newspack-cta-color );
 					color: var( --newspack-cta-contrast-color );
 					transition: background-color 150ms ease-in-out;
+					margin-bottom: 0.8rem;
 
 					&:hover,
 					&:focus {

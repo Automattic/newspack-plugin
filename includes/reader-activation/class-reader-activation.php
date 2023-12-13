@@ -1131,15 +1131,9 @@ final class Reader_Activation {
 							?>
 						</p>
 						<p data-action="otp">
-							<?php
-								echo wp_kses_post(
-									sprintf(
-										// Translators: %s is the link to sign in via password instead.
-										__( 'Enter the code you received via email to sign in, or %s.', 'newspack-plugin' ),
-										'<a href="#" data-set-action="pwd">' . __( 'sign in using a password', 'newspack-plugin' ) . '</a>'
-									)
-								);
-							?>
+							<strong>
+								<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
+							</strong>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
@@ -1172,6 +1166,17 @@ final class Reader_Activation {
 						<div class="components-form__field otp-field" data-action="otp">
 							<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( Magic_Link::OTP_LENGTH ); ?>" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack-plugin' ); ?>" />
 						</div>
+						<p data-action="otp">
+							<?php
+							echo wp_kses_post(
+								sprintf(
+									// Translators: %s is the email address.
+									__( 'Sign in by entering the code we sent to %s, or clicking the magic link in the email.', 'newspack-plugin' ),
+									'<strong class="email-address"></strong>'
+								)
+							);
+							?>
+						</p>
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
 						</div>
@@ -1190,16 +1195,10 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="otp">
 							<div class="components-form__submit">
-								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
+								<button type="submit"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
 							</div>
-							<div class="components-form__help">
-								<p class="small">
-									<a href="#" data-set-action="link"><?php \esc_html_e( 'Try a different email', 'newspack-plugin' ); ?></a>
-								</p>
-								<p class="small">
-									<a href="#" data-set-action="link"><?php _e( 'Send another code', 'newspack-plugin' ); ?></a>
-								</p>
-							</div>
+							<button type="button" class="resend-code" data-resend-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
+							<button type="button" class="back-button" data-back><?php \esc_html_e( 'Back', 'newspack-plugin' ); ?></button>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
 							<div class="components-form__submit">
