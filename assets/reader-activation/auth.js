@@ -28,6 +28,17 @@ function domReady( callback ) {
 }
 
 /**
+ * Format time in MM:SS format.
+ *
+ * @param {number} time Time in seconds.
+ */
+function formatTime( time ) {
+	const minutes = Math.floor( time / 60 );
+	const seconds = time % 60;
+	return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
+}
+
+/**
  * Converts FormData into an object.
  *
  * @param {FormData} formData       The form data to convert.
@@ -229,6 +240,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			} );
 
 			let otpTimerInterval;
+			let otpOriginalButtonText;
 			function resetOTPTimer() {
 				if ( otpTimerInterval ) {
 					clearInterval( otpTimerInterval );
@@ -236,26 +248,34 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( ! resendCodeButton ) {
 					return;
 				}
+				otpOriginalButtonText = resendCodeButton.textContent;
+				const updateButton = () => {
+					const timer = Math.floor( Date.now() / 1000 ) - parseInt( otpTimer );
+					// Convert time to MM:SS format.
+
+					if ( timer < 60 ) {
+						resendCodeButton.textContent = `${ otpOriginalButtonText } (${ formatTime(
+							60 - timer
+						) })`;
+						resendCodeButton.disabled = true;
+					} else {
+						resendCodeButton.textContent = otpOriginalButtonText;
+						resendCodeButton.disabled = false;
+						localStorage.removeItem( STORAGE_OTP_TIMER );
+						clearInterval( otpTimerInterval );
+					}
+				};
 				const otpTimer = localStorage.getItem( STORAGE_OTP_TIMER );
 				if ( otpTimer ) {
-					otpTimerInterval = setInterval( () => {
-						const timer = Math.floor( Date.now() / 1000 ) - parseInt( otpTimer );
-						if ( timer < 60 ) {
-							resendCodeButton.textContent = `Resend code in ${ 60 - timer } seconds`;
-							resendCodeButton.disabled = true;
-						} else {
-							resendCodeButton.textContent = 'Resend code';
-							resendCodeButton.disabled = false;
-							localStorage.removeItem( STORAGE_OTP_TIMER );
-							clearInterval( otpTimerInterval );
-						}
-					}, 1000 );
+					otpTimerInterval = setInterval( updateButton, 1000 );
+					updateButton();
 				}
 			}
 
 			if ( resendCodeButton ) {
 				resetOTPTimer();
 				resendCodeButton.addEventListener( 'click', function ( ev ) {
+					messageContentElement.innerHTML = '';
 					ev.preventDefault();
 					const body = new FormData();
 					body.set( 'reader-activation-auth-form', 1 );
@@ -281,12 +301,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 								},
 								body,
 							} )
-								.then( res => {
-									console.log( res );
+								.then( () => {
+									messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
 									localStorage.setItem( STORAGE_OTP_TIMER, Math.floor( Date.now() / 1000 ) );
 								} )
 								.catch( e => {
-									console.log( { e } );
+									console.log( e );
 								} )
 								.finally( () => {
 									resetOTPTimer();

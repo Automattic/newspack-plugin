@@ -150,15 +150,13 @@ final class Reader_Activation {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		\wp_localize_script(
-			self::AUTH_SCRIPT_HANDLE,
-			'newspack_reader_auth_labels',
-			[
-				'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
-				'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
-				'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
-			]
-		);
+		$labels = [
+			'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
+			'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
+			'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+			'code_resent'      => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+		];
+		\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_auth_labels', $labels );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'amp-plus', true );
 		\wp_enqueue_style(
@@ -1092,19 +1090,6 @@ final class Reader_Activation {
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
 						</div>
-						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
-								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
-								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
-								<?php if ( ! empty( $message ) ) : ?>
-									<p><?php echo \esc_html( $message ); ?></p>
-								<?php endif; ?>
-							</div>
-						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
 						</p>
@@ -1166,6 +1151,18 @@ final class Reader_Activation {
 						<div class="components-form__field otp-field" data-action="otp">
 							<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( Magic_Link::OTP_LENGTH ); ?>" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack-plugin' ); ?>" />
 						</div>
+						<div class="components-form__field" data-action="pwd">
+							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
+						</div>
+
+						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
+							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
+								<?php if ( ! empty( $message ) ) : ?>
+									<p><?php echo \esc_html( $message ); ?></p>
+								<?php endif; ?>
+							</div>
+						</div>
+
 						<p data-action="otp">
 							<?php
 							echo wp_kses_post(
@@ -1177,9 +1174,7 @@ final class Reader_Activation {
 							);
 							?>
 						</p>
-						<div class="components-form__field" data-action="pwd">
-							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
-						</div>
+
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<div class="components-form__submit">
 								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
