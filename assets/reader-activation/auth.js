@@ -228,19 +228,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 				} );
 			} );
 
-			let clearOtpTimerInterval;
-			function updateOTPTimer() {
-				if ( clearOtpTimerInterval ) {
-					clearOtpTimerInterval();
+			let otpTimerInterval;
+			function resetOTPTimer() {
+				if ( otpTimerInterval ) {
+					clearInterval( otpTimerInterval );
 				}
 				if ( ! resendCodeButton ) {
 					return;
 				}
 				const otpTimer = localStorage.getItem( STORAGE_OTP_TIMER );
 				if ( otpTimer ) {
-					clearOtpTimerInterval = setInterval( () => {
+					otpTimerInterval = setInterval( () => {
 						const timer = Math.floor( Date.now() / 1000 ) - parseInt( otpTimer );
-						console.log( timer );
 						if ( timer < 60 ) {
 							resendCodeButton.textContent = `Resend code in ${ 60 - timer } seconds`;
 							resendCodeButton.disabled = true;
@@ -248,13 +247,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 							resendCodeButton.textContent = 'Resend code';
 							resendCodeButton.disabled = false;
 							localStorage.removeItem( STORAGE_OTP_TIMER );
+							clearInterval( otpTimerInterval );
 						}
 					}, 1000 );
 				}
 			}
 
 			if ( resendCodeButton ) {
-				updateOTPTimer();
+				resetOTPTimer();
 				resendCodeButton.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
 					const body = new FormData();
@@ -289,7 +289,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									console.log( { e } );
 								} )
 								.finally( () => {
-									updateOTPTimer();
+									resetOTPTimer();
 								} );
 						} );
 				} );
@@ -485,7 +485,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 									form.endLoginFlow( data.message, 400 );
 								} );
 						} else {
-							console.log( { body } );
 							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
 								method: 'POST',
 								headers: {
@@ -515,7 +514,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
 												// Set OTP rate-limit timer
 												localStorage.setItem( STORAGE_OTP_TIMER, Math.floor( Date.now() / 1000 ) );
-												updateOTPTimer();
+												resetOTPTimer();
 												if ( status === 200 ) {
 													setFormAction( 'otp' );
 												}
