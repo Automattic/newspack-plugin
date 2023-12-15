@@ -488,7 +488,7 @@ class Newspack_UI {
 	 * @return string Modified $content with demo appended.
 	 */
 	public static function load_demo( $content ) {
-		if ( isset( $_REQUEST['ui-demo'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_REQUEST['ui-demo'] ) && current_user_can('administrator') ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$content .= self::return_demo_content();
 		}
 		return $content;
