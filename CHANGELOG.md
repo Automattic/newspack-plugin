@@ -1,3 +1,13 @@
+# [2.13.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.12.1...v2.13.0-alpha.1) (2023-12-15)
+
+
+### Features
+
+* don’t send OTP via preauth flow when signing up for newsletter ([#2795](https://github.com/Automattic/newspack-plugin/issues/2795)) ([686af03](https://github.com/Automattic/newspack-plugin/commit/686af034ec7fad95109b5d6341fb0115f031dfa6))
+* force allow subscription switching ([#2784](https://github.com/Automattic/newspack-plugin/issues/2784)) ([ae7523f](https://github.com/Automattic/newspack-plugin/commit/ae7523f9fd14702de8c53d1726c7865e350ed67e))
+* **my-account:** support edit address ([#2733](https://github.com/Automattic/newspack-plugin/issues/2733)) ([92d5778](https://github.com/Automattic/newspack-plugin/commit/92d577894a6118c2894c21fb8bfad8d9b8c897d8))
+* remove commenting from engagement tab ([#2726](https://github.com/Automattic/newspack-plugin/issues/2726)) ([f51c7bc](https://github.com/Automattic/newspack-plugin/commit/f51c7bc9205b7f3d537591de5b63ac1a90433b3c))
+
 ## [2.12.1](https://github.com/Automattic/newspack-plugin/compare/v2.12.0...v2.12.1) (2023-12-12)
 
 
