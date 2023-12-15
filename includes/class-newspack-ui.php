@@ -18,7 +18,7 @@ class Newspack_UI {
 	 */
 	public static function init() {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_styles' ] );
-		\add_filter ('the_content', [ __CLASS__, 'load_demo' ] );
+		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
 	}
 
 	/**
@@ -26,10 +26,10 @@ class Newspack_UI {
 	 */
 	public static function enqueue_styles() {
 		\wp_enqueue_style(
-		'newspack-ui',
-		Newspack::plugin_url() . '/dist/newspack-ui.css',
-		[],
-		NEWSPACK_PLUGIN_VERSION
+			'newspack-ui',
+			Newspack::plugin_url() . '/dist/newspack-ui.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
 		);
 	}
 
@@ -483,11 +483,12 @@ class Newspack_UI {
 
 	/**
 	 * Append the demo content when the ui-demo query string is used.
+	 *
 	 * @param string $content The page content.
 	 * @return string Modified $content with demo appended.
 	 */
 	public static function load_demo( $content ) {
-		if ( isset( $_REQUEST['ui-demo'] ) ) {
+		if ( isset( $_REQUEST['ui-demo'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$content .= self::return_demo_content();
 		}
 		return $content;
