@@ -81,10 +81,6 @@
 			z-index: auto;
 		}
 
-		&__have-account {
-			flex: 1 1 100%;
-		}
-
 		.nphp,
 		input[type='email'].nphp {
 			@include mixins.visuallyHidden;
@@ -183,6 +179,7 @@
 				flex: 1 1 100%;
 				font-size: 1rem;
 				margin: 0;
+
 				button[type='submit'] {
 					background-color: var( --newspack-cta-color );
 					color: var( --newspack-cta-contrast-color );
@@ -224,6 +221,26 @@
 				margin: auto;
 				max-width: 780px;
 				overflow-y: hidden;
+			}
+		}
+		&__have-account {
+			background-color: #111;
+			padding: 4px 15px;
+			margin-bottom: 11px;
+			padding-top: 6px !important;
+			padding-bottom: 8px !important;
+			text-align: center;
+			width: calc( 100% - 37px );
+			@media screen and ( min-width: 600px ) {
+				width: 100%;
+			}
+			&,
+			a {
+				color: #fff;
+			}
+			a:active,
+			a:hover {
+				color: #d6d6d6;
 			}
 		}
 
@@ -271,6 +288,16 @@
 		}
 
 		&__content {
+			padding: 16px;
+
+			@media screen and ( min-width: 600px ) {
+				padding: 32px;
+			}
+
+			@media screen and ( min-width: 782px ) {
+				padding: 47px 64px 64px;
+			}
+
 			form {
 				transition: opacity 0.2s ease-in-out;
 
@@ -324,6 +351,48 @@
 			}
 			&__icon {
 				display: none;
+			}
+		}
+
+		&__close {
+			align-items: center;
+			background: white;
+			border: none;
+			border-radius: 3px;
+			box-shadow: none;
+			color: inherit;
+			cursor: pointer;
+			display: flex;
+			font-size: inherit;
+			height: 40px;
+			justify-content: center;
+			margin: 8px;
+			padding: 0;
+			position: absolute;
+			right: 0;
+			top: 7px;
+			width: 40px;
+
+			@media screen and ( min-width: 600px ) {
+				height: 30px;
+				margin: 2px;
+				width: 30px;
+			}
+
+			@media screen and ( min-width: 782px ) {
+				height: 48px;
+				margin: 8px;
+				width: 48px;
+			}
+
+			svg {
+				fill: currentcolor;
+				flex: 0 0 24px;
+			}
+
+			&:focus {
+				outline: 1.5px solid #111;
+				outline-offset: 2px;
 			}
 		}
 

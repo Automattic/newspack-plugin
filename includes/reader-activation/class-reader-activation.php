@@ -1067,18 +1067,15 @@ final class Reader_Activation {
 		global $wp;
 		?>
 		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
-			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?> newspack-ui newspack-ui__modal newspack-ui__modal__small">
+			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
 				<?php if ( ! $is_inline ) : ?>
-					<header class="newspack-ui__modal__header">
-						<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
-						<button class="<?php echo \esc_attr( $class( 'close' ) ); ?> newspack-ui__modal__close" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack-plugin' ); ?>">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-							</svg>
-						</button>
-					</header>
+				<button class="<?php echo \esc_attr( $class( 'close' ) ); ?>" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack-plugin' ); ?>">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+					</svg>
+				</button>
 				<?php endif; ?>
-				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?> newspack-ui__modal__content">
+				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
 						<div data-action="pwd link register">
 							<?php self::render_third_party_auth(); ?>
@@ -1094,6 +1091,19 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
+						</div>
+						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
+							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
+								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</span>
+							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
+								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</span>
+							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
+								<?php if ( ! empty( $message ) ) : ?>
+									<p><?php echo \esc_html( $message ); ?></p>
+								<?php endif; ?>
+							</div>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
@@ -1182,16 +1192,8 @@ final class Reader_Activation {
 
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<div class="components-form__submit">
-								<button type="submit" class="newspack-ui__button__primary"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
+								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
 							</div>
-
-							<div class="<?php echo \esc_attr( $class( 'have-account' ) ); ?>">
-								<button data-action="pwd link" data-set-action="register" class="newspack-ui__button__tertiary newspack-ui__button__wide"><?php \esc_html_e( "I don't have an account", 'newspack-plugin' ); ?></button>
-								<button data-action="register" data-set-action="pwd" class="newspack-ui__button__tertiary newspack-ui__wide"><?php \esc_html_e( 'I already have an account', 'newspack-plugin' ); ?></button>
-							</div>
-
-							<!--
-							TODO: Get rid of
 							<div class="components-form__help">
 								<p class="small">
 									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with your email', 'newspack-plugin' ); ?></a>
@@ -1200,7 +1202,6 @@ final class Reader_Activation {
 									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack-plugin' ); ?></a>
 								</p>
 							</div>
-							-->
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="otp">
 							<div class="components-form__submit">
@@ -1211,7 +1212,7 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
 							<div class="components-form__submit">
-								<button type="submit" class="newspack-ui__button__primary"><?php \esc_html_e( 'Send authorization code', 'newspack-plugin' ); ?></button>
+								<button type="submit"><?php \esc_html_e( 'Send authorization code', 'newspack-plugin' ); ?></button>
 							</div>
 							<div class="components-form__help">
 								<p class="small">
@@ -1225,8 +1226,6 @@ final class Reader_Activation {
 							</div>
 						</div>
 						<?php if ( ! empty( $terms_text ) ) : ?>
-							<!--
-							TODO: Get rid of.
 							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
 								<?php if ( ! empty( $terms_url ) ) : ?>
 									<a href="<?php echo \esc_url( $terms_url ); ?>" target="_blank" rel="noopener noreferrer">
@@ -1236,15 +1235,9 @@ final class Reader_Activation {
 									</a>
 								<?php endif; ?>
 							</p>
-							-->
 						<?php endif; ?>
 					</form>
 				</div>
-				<?php if ( ! $is_inline ) : ?>
-					<footer class="newspack-ui__modal__footer">
-						TODO finish up the footer.
-					</footer>
-				<?php endif; ?>
 			</div>
 		</div>
 		<?php
