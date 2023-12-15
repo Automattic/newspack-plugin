@@ -1,0 +1,32 @@
+@use 'buttons';
+@use 'checkbox-radio';
+@use 'labels';
+@use 'text-inputs';
+
+// TODO: Find a better home for this stuff.
+.newspack-ui {
+	form {
+		> *:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	select {
+		font-family: var( --newspack-ui-font-family);
+		line-height: var( --newspack-ui-line-height-large );
+	}
+
+	// Container for displaying grid of inputs.
+	& &__code-input {
+		display: flex;
+		gap: var( --newspack-ui-spacer-1 );
+	}
+
+	// Container for input description.
+	&__field-description {
+		display: block;
+		font-size: var( --newspack-ui-font-size-small );
+		line-height: var( --newspack-ui-line-height-small );
+		margin: var( --newspack-ui-spacer-1 ) 0 var( --newspack-ui-spacer-5 );
+	}
+}

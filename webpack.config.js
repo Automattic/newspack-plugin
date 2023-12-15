@@ -83,6 +83,12 @@ const webpackConfig = getBaseWebpackConfig(
 				'memberships-gate',
 				'block-patterns.js'
 			),
+			'newspack-ui': path.join(
+				__dirname,
+				'assets',
+				'newspack-ui',
+				'index.js'
+			),
 		},
 	}
 );

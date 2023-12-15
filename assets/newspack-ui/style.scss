@@ -1,0 +1,35 @@
+@use 'scss/variables';
+@use 'scss/elements';
+@use 'scss/modals';
+
+.newspack-ui {
+	font-family: var( --newspack-ui-font-family );
+	font-size: var( --newspack-ui-font-size-medium ) !important;
+
+	// Need better spot for this
+	&__color-text-gray {
+		color: var( --newspack-ui-color-text-med-contrast );
+	}
+
+	// Overrides for theme styles -- to move to theme?
+	h2,
+	h3 {
+		font-size: var( --newspack-ui-font-size-medium );
+	}
+
+	a,
+	a:hover {
+		color: inherit !important;
+	}
+
+	// TODO: This specifically is a WooCommerce HTML structure; have been using it for other elements so far, but do we want to?
+	form p {
+		margin: 0 0 var( --newspack-ui-spacer-5 );
+	}
+
+	.newspack-ui__modal__small {
+		form p {
+			margin: 0 0 var( --newspack-ui-spacer-2 );
+		}
+	}
+}
