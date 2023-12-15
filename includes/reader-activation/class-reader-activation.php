@@ -1064,7 +1064,6 @@ final class Reader_Activation {
 			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?> newspack-ui newspack-ui__modal newspack-ui__modal__small">
 				<?php if ( ! $is_inline ) : ?>
 					<header class="newspack-ui__modal__header">
-						<?php // TODO: replace with dynamic string ?>
 						<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
 						<button class="<?php echo \esc_attr( $class( 'close' ) ); ?> newspack-ui__modal__close" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack-plugin' ); ?>">
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
