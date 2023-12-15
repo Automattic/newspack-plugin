@@ -1,0 +1,17 @@
+:root {
+	// Fonts
+	--newspack-ui-font-family: system-ui, sans-serif;
+
+	// TODO: the base size for the modals is 16px, with small text/labels at 14px;
+	// The My Account designs appear to use 16px for most labels
+	// Should we have a in-modal vs. non-modal set of font sizes?
+	--newspack-ui-font-size-large: 20px;
+	--newspack-ui-font-size-medium: 16px; // modal baseline
+	--newspack-ui-font-size-small: 14px; // modal small
+	--newspack-ui-font-weight-strong: 600;
+
+	// Line heights - TODO: sort this out:
+	--newspack-ui-line-height-large: 1.7143; // inputs, buttons
+	--newspack-ui-line-height-medium: 1.5; // 16px font size
+	--newspack-ui-line-height-small: 1.4286; // 14px font sizes
+}

@@ -1,0 +1,73 @@
+.newspack-ui {
+	// TODO: define some kind of size hierachy for buttons eg. small, medium, large;
+	// not needed for RAS, but likely for My Account.
+	.button,
+	button,
+	input[type='button'],
+	input[type='reset'],
+	input[type='submit'] {
+		align-items: center;
+		border: 0;
+		border-radius: var( --newspack-ui-border-radius-small );
+		display: inline-flex;
+		font-family: var( --newspack-ui-font-family);
+		font-size: var( --newspack-ui-font-size-small );
+		font-weight: 600;
+		gap: var( --newspack-ui-spacer-2 );
+		justify-content: center;
+		line-height: var( --newspack-ui-line-height-large );
+		margin-bottom: var( --newspack-ui-spacer-1 );
+		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-3 ); // TODO: correct this
+		transition: background-color 150ms ease-in-out;
+
+		&:hover {
+			// TODO
+		}
+
+		&:focus {
+			// TODO
+		}
+
+		&:disabled {
+			background: var( --newspack-ui-color-gray-100 ) !important;
+			color: var( --newspack-ui-color-text-med-contrast ) !important;
+			cursor: default;
+		}
+
+		&.newspack-ui__button{
+			&__wide {
+				display: flex;
+				width: 100%;
+			}
+
+			&__primary {
+				background: var( --newspack-ui-color-button-bg );
+				color: var( --newspack-ui-color-button-text );
+
+				&:hover {
+					background: var( --newspack-ui-color-button-bg-hover );
+				}
+			}
+
+			&__secondary {
+				background: transparent;
+				border: 1px solid var( --newspack-ui-color-border );
+				color: var( --newspack-ui-color-text-high-contrast );
+				padding: calc( var( --newspack-ui-spacer-2 ) - 1px ) calc( var( --newspack-ui-spacer-3 ) - 1px );
+
+				&:hover {
+					background: var( --newspack-ui-color-gray-100 );
+				}
+			}
+
+			&__tertiary {
+				background: transparent;
+				color: var( --newspack-ui-color-text-high-contrast );
+
+				&:hover {
+					background: var( --newspack-ui-color-gray-100 );
+				}
+			}
+		}
+	}
+}
