@@ -481,6 +481,11 @@ class Newspack_UI {
 		return ob_get_clean();
 	}
 
+	/**
+	 * Append the demo content when the ui-demo query string is used.
+	 * @param string $content The page content.
+	 * @return string Modified $content with demo appended.
+	 */
 	public static function load_demo( $content ) {
 		if ( isset( $_REQUEST['ui-demo'] ) ) {
 			$content .= self::return_demo_content();
