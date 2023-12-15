@@ -105,7 +105,7 @@ class WooCommerce_My_Account {
 				return $items;
 			}
 
-			$default_disabled_items = array_merge( $default_disabled_items, [ 'dashboard', 'members-area', 'edit-address' ] );
+			$default_disabled_items = array_merge( $default_disabled_items, [ 'dashboard', 'members-area' ] );
 			$customer_id            = \get_current_user_id();
 			if ( function_exists( 'wcs_user_has_subscription' ) && function_exists( 'wcs_get_subscriptions' ) ) {
 				$user_subscriptions             = wcs_get_subscriptions( [ 'customer_id' => $customer_id ] );
@@ -120,6 +120,22 @@ class WooCommerce_My_Account {
 				// The Stripe-tied subscriptions will be available for management in the "Billing" section.
 				if ( ! $has_non_newspack_subscriptions ) {
 					$default_disabled_items[] = 'subscriptions';
+				}
+			}
+			if ( class_exists( 'WC_Customer' ) ) {
+				$ignored_fields   = [ 'first_name', 'last_name', 'email' ];
+				$customer         = new \WC_Customer( $customer_id );
+				$billing_address  = $customer->get_billing();
+				$shipping_address = $customer->get_shipping();
+
+				// We only want to show the Addresses menu item if the reader has address info (not first/last name or email).
+				foreach ( $ignored_fields as $ignored_field ) {
+					unset( $billing_address[ $ignored_field ] );
+					unset( $shipping_address[ $ignored_field ] );
+				}
+
+				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $billing_address ) ) ) {
+					$default_disabled_items[] = 'edit-address';
 				}
 			}
 			if ( function_exists( 'wc_get_orders' ) ) {
