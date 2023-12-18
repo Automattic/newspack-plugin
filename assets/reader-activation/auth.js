@@ -533,10 +533,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 											}
 											const otpHash = readerActivation.getOTPHash();
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
-												// Set OTP rate-limit timer
-												readerActivation.setOTPTimer();
-												handleOTPTimer();
 												if ( status === 200 ) {
+													// Set OTP rate-limit timer
+													readerActivation.setOTPTimer();
+													handleOTPTimer();
 													setFormAction( 'otp' );
 												}
 												/** If action is link, suppress message and status so the OTP handles it. */
