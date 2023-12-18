@@ -1194,7 +1194,7 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$item = array_values( $order->get_items() )[0];
+		$item = array_shift( $order->get_items() );
 
 		// Replace content placeholders.
 		$placeholders = [
