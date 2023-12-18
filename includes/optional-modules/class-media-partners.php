@@ -26,7 +26,7 @@ class Media_Partners {
 			return;
 		}
 
-		add_filter( 'admin_init', [ __CLASS__, 'switch_from_standalone_plugin' ] );
+		add_action( 'admin_init', [ __CLASS__, 'switch_from_standalone_plugin' ] );
 		add_action( 'init', [ __CLASS__, 'register_taxonomies' ] );
 
 		add_action( 'partner_add_form_fields', [ __CLASS__, 'add_partner_meta_fields' ] );
@@ -35,7 +35,7 @@ class Media_Partners {
 		add_action( 'edited_partner', [ __CLASS__, 'save_partner_meta_fields' ] );
 		add_action( 'create_partner', [ __CLASS__, 'save_partner_meta_fields' ] );
 		add_action( 'init', [ __CLASS__, 'add_partners_shortcode' ] );
-		add_filter( 'admin_init', [ __CLASS__, 'handle_settings_update' ] );
+		add_action( 'admin_init', [ __CLASS__, 'handle_settings_update' ] );
 		add_filter( 'the_content', [ __CLASS__, 'add_content_partner_logo' ] );
 	}
 
@@ -47,7 +47,6 @@ class Media_Partners {
 			deactivate_plugins( 'newspack-media-partners/newspack-media-partners.php' );
 			Settings::activate_optional_module( 'media-partners' );
 		}
-		return true;
 	}
 
 	/**
