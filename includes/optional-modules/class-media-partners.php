@@ -22,16 +22,11 @@ class Media_Partners {
 			include_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		// If the standalone plugin is active, deactivate it and activate as a module.
-		if ( is_plugin_active( 'newspack-media-partners/newspack-media-partners.php' ) ) {
-			deactivate_plugins( 'newspack-media-partners/newspack-media-partners.php' );
-			Settings::activate_optional_module( 'media-partners' );
-		}
-
 		if ( ! Settings::is_optional_module_active( 'media-partners' ) ) {
 			return;
 		}
 
+		add_filter( 'admin_init', [ __CLASS__, 'switch_from_standalone_plugin' ] );
 		add_action( 'init', [ __CLASS__, 'register_taxonomies' ] );
 
 		add_action( 'partner_add_form_fields', [ __CLASS__, 'add_partner_meta_fields' ] );
@@ -44,6 +39,15 @@ class Media_Partners {
 		add_filter( 'the_content', [ __CLASS__, 'add_content_partner_logo' ] );
 	}
 
+	/**
+	 * If the standalone plugin is active, deactivate it and activate as a module.
+	 */
+	public static function switch_from_standalone_plugin() {
+		if ( is_plugin_active( 'newspack-media-partners/newspack-media-partners.php' ) ) {
+			deactivate_plugins( 'newspack-media-partners/newspack-media-partners.php' );
+			Settings::activate_optional_module( 'media-partners' );
+		}
+	}
 
 	/**
 	 * Register Partner taxonomy.
@@ -504,15 +508,15 @@ class Media_Partners {
 	 * Handle settings update.
 	 */
 	public static function handle_settings_update() { // phpcs:ignore WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.MissingReturnStatement
-		$media_partners_settings = filter_input( INPUT_POST, 'media_partners_settings', FILTER_SANITIZE_STRING );
+		$media_partners_settings = filter_input( INPUT_POST, 'media_partners_settings', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! current_user_can( 'manage_options' ) || ! $media_partners_settings ) {
 			return true;
 		}
-		if ( ! wp_verify_nonce( filter_input( INPUT_POST, '_wpnonce_partners-settings', FILTER_SANITIZE_STRING ), 'partners-settings' ) ) {
+		if ( ! wp_verify_nonce( filter_input( INPUT_POST, '_wpnonce_partners-settings', FILTER_SANITIZE_FULL_SPECIAL_CHARS ), 'partners-settings' ) ) {
 			return true;
 		}
 
-		$skip_in_feeds = filter_input( INPUT_POST, 'skip_in_feeds', FILTER_SANITIZE_STRING );
+		$skip_in_feeds = filter_input( INPUT_POST, 'skip_in_feeds', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		update_option( 'newspack_media_partners_skip_in_feeds', boolval( $skip_in_feeds ) );
 
 		wp_safe_redirect( admin_url( 'edit-tags.php?taxonomy=partner' ) );
