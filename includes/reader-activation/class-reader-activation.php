@@ -1090,6 +1090,9 @@ final class Reader_Activation {
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
 						</div>
+						<div data-action="pwd link register">
+							<?php self::render_third_party_auth(); ?>
+						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
 						</p>
@@ -1210,7 +1213,6 @@ final class Reader_Activation {
 								<button type="submit"><?php \esc_html_e( 'Sign up', 'newspack-plugin' ); ?></button>
 							</div>
 						</div>
-						<?php self::render_third_party_auth(); ?>
 						<?php if ( ! empty( $terms_text ) ) : ?>
 							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
 								<?php if ( ! empty( $terms_url ) ) : ?>
@@ -1370,6 +1372,12 @@ final class Reader_Activation {
 		$classnames = implode( ' ', [ $class(), $class() . '--disabled' ] );
 		?>
 		<div class="<?php echo \esc_attr( $classnames ); ?>">
+			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
+				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<span>
+					<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
+				</span>
+			</button>
 			<div class="<?php echo \esc_attr( $class( 'separator' ) ); ?>">
 				<div></div>
 				<div>
@@ -1377,12 +1385,6 @@ final class Reader_Activation {
 				</div>
 				<div></div>
 			</div>
-			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
-				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span>
-					<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
-				</span>
-			</button>
 		</div>
 		<?php
 	}
