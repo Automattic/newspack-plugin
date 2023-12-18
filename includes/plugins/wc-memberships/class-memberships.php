@@ -778,8 +778,8 @@ class Memberships {
 							break;
 						}
 
-						// Allow editors.
-						if ( isset( $all_caps['editor'] ) && true === $all_caps['editor'] ) {
+						// Allow ueser who can edit posts (by default: editors, authors, contributors).
+						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
 							$all_caps[ $cap ] = true;
 							break;
 						}
@@ -810,8 +810,8 @@ class Memberships {
 					case 'wc_memberships_view_delayed_taxonomy_term':
 					case 'wc_memberships_view_delayed_post_content':
 					case 'wc_memberships_view_delayed_product':
-						// Allow editors.
-						if ( isset( $all_caps['editor'] ) && true === $all_caps['editor'] ) {
+						// Allow ueser who can edit posts (by default: editors, authors, contributors).
+						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
 							$all_caps[ $cap ] = true;
 							break;
 						}
