@@ -144,16 +144,30 @@ export function getOTPHash() {
 	return getCookie( 'np_otp_hash' );
 }
 
+/**
+ * OTP timer storage key.
+ */
 const OTP_TIMER_STORAGE_KEY = 'newspack_otp_timer';
 
+/**
+ * Set the OTP timer to the current time.
+ */
 export function setOTPTimer() {
 	localStorage.setItem( OTP_TIMER_STORAGE_KEY, Math.floor( Date.now() / 1000 ) );
 }
 
+/**
+ * Clear the OTP timer.
+ */
 export function clearOTPTimer() {
 	localStorage.removeItem( OTP_TIMER_STORAGE_KEY );
 }
 
+/**
+ * Get the time remaining for the OTP timer.
+ *
+ * @return {number} Time remaining in seconds
+ */
 export function getOTPTimeRemaining() {
 	const timer = localStorage.getItem( OTP_TIMER_STORAGE_KEY );
 	if ( ! timer ) {
