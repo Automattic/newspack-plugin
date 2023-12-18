@@ -353,6 +353,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 					emailAddressElements.forEach( element => {
 						element.textContent = readerActivation.getReader()?.email || '';
 					} );
+					// Focus on the first input.
+					const firstInput = container.querySelector( '.otp-field input[type="text"]' );
+					if ( firstInput ) {
+						firstInput.focus();
+					}
 				}
 				if ( [ 'link', 'pwd' ].includes( action ) ) {
 					readerActivation.setAuthStrategy( action );
