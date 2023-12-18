@@ -47,6 +47,7 @@ class Media_Partners {
 			deactivate_plugins( 'newspack-media-partners/newspack-media-partners.php' );
 			Settings::activate_optional_module( 'media-partners' );
 		}
+		return true;
 	}
 
 	/**
