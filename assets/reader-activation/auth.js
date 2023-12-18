@@ -63,8 +63,6 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
 
-const STORAGE_OTP_TIMER = 'newspack_otp_timer';
-
 let currentHash;
 
 window.newspackRAS = window.newspackRAS || [];
@@ -241,7 +239,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 			let otpTimerInterval;
 			let otpOriginalButtonText;
-			function resetOTPTimer() {
+			function handleOTPTimer() {
 				if ( otpTimerInterval ) {
 					clearInterval( otpTimerInterval );
 				}
@@ -250,38 +248,35 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 				otpOriginalButtonText = resendCodeButton.textContent;
 				const updateButton = () => {
-					const timer = Math.floor( Date.now() / 1000 ) - parseInt( otpTimer );
-					// Convert time to MM:SS format.
-
-					if ( timer < 60 ) {
+					const remaining = readerActivation.getOTPTimeRemaining();
+					if ( remaining ) {
 						resendCodeButton.textContent = `${ otpOriginalButtonText } (${ formatTime(
-							60 - timer
+							remaining
 						) })`;
 						resendCodeButton.disabled = true;
 					} else {
 						resendCodeButton.textContent = otpOriginalButtonText;
 						resendCodeButton.disabled = false;
-						localStorage.removeItem( STORAGE_OTP_TIMER );
 						clearInterval( otpTimerInterval );
 					}
 				};
-				const otpTimer = localStorage.getItem( STORAGE_OTP_TIMER );
-				if ( otpTimer ) {
+				const remaining = readerActivation.getOTPTimeRemaining();
+				if ( remaining ) {
 					otpTimerInterval = setInterval( updateButton, 1000 );
 					updateButton();
 				}
 			}
 
 			if ( resendCodeButton ) {
-				resetOTPTimer();
+				handleOTPTimer();
 				resendCodeButton.addEventListener( 'click', function ( ev ) {
 					messageContentElement.innerHTML = '';
 					ev.preventDefault();
+					form.startLoginFlow();
 					const body = new FormData();
 					body.set( 'reader-activation-auth-form', 1 );
 					body.set( 'npe', emailInput.value );
 					body.set( 'action', 'link' );
-					ev.preventDefault();
 					readerActivation
 						.getCaptchaToken()
 						.then( captchaToken => {
@@ -303,13 +298,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 							} )
 								.then( () => {
 									messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
-									localStorage.setItem( STORAGE_OTP_TIMER, Math.floor( Date.now() / 1000 ) );
+									readerActivation.setOTPTimer();
 								} )
 								.catch( e => {
 									console.log( e );
 								} )
 								.finally( () => {
-									resetOTPTimer();
+									handleOTPTimer();
+									form.style.opacity = 1;
 								} );
 						} );
 				} );
@@ -538,8 +534,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 											const otpHash = readerActivation.getOTPHash();
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
 												// Set OTP rate-limit timer
-												localStorage.setItem( STORAGE_OTP_TIMER, Math.floor( Date.now() / 1000 ) );
-												resetOTPTimer();
+												readerActivation.setOTPTimer();
+												handleOTPTimer();
 												if ( status === 200 ) {
 													setFormAction( 'otp' );
 												}

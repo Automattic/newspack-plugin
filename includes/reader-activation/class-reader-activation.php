@@ -114,6 +114,7 @@ final class Reader_Activation {
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 			'authenticated_email'   => $authenticated_email,
 			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
+			'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
 			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 		];
 
@@ -1078,6 +1079,9 @@ final class Reader_Activation {
 				<?php endif; ?>
 				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
+						<div data-action="pwd link register">
+							<?php self::render_third_party_auth(); ?>
+						</div>
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<?php if ( ! empty( $referer['path'] ) ) : ?>
 							<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
@@ -1089,9 +1093,6 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
-						</div>
-						<div data-action="pwd link register">
-							<?php self::render_third_party_auth(); ?>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>

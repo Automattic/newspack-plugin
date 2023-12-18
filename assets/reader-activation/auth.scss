@@ -159,6 +159,10 @@
 			border: 1px solid wp-colors.$gray-200;
 			color: wp-colors.$gray-700;
 			margin-bottom: 0.8rem;
+			&:disabled {
+				background-color: wp-colors.$gray-100;
+				color: wp-colors.$gray-600;
+			}
 			&.back-button {
 				border: 0;
 				margin: 0;

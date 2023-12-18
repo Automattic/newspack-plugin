@@ -144,6 +144,29 @@ export function getOTPHash() {
 	return getCookie( 'np_otp_hash' );
 }
 
+const OTP_TIMER_STORAGE_KEY = 'newspack_otp_timer';
+
+export function setOTPTimer() {
+	localStorage.setItem( OTP_TIMER_STORAGE_KEY, Math.floor( Date.now() / 1000 ) );
+}
+
+export function clearOTPTimer() {
+	localStorage.removeItem( OTP_TIMER_STORAGE_KEY );
+}
+
+export function getOTPTimeRemaining() {
+	const timer = localStorage.getItem( OTP_TIMER_STORAGE_KEY );
+	if ( ! timer ) {
+		return 0;
+	}
+	const timeRemaining =
+		newspack_ras_config.otp_rate_interval - ( Math.floor( Date.now() / 1000 ) - timer );
+	if ( ! timeRemaining ) {
+		clearOTPTimer();
+	}
+	return timeRemaining > 0 ? timeRemaining : 0;
+}
+
 /**
  * Authenticate reader using an OTP code.
  *
@@ -338,6 +361,9 @@ const readerActivation = {
 	getReader,
 	hasAuthLink,
 	getOTPHash,
+	setOTPTimer,
+	clearOTPTimer,
+	getOTPTimeRemaining,
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
