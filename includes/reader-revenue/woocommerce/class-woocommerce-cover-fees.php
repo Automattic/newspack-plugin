@@ -13,18 +13,15 @@ defined( 'ABSPATH' ) || exit;
  * WooCommerce Order UTM class.
  */
 class WooCommerce_Cover_Fees {
-	const CUSTOM_FIELD_NAME  = 'newspack-wc-pay-fees';
-	const PRICE_ELEMENT_ID   = 'newspack-wc-price';
-	const WC_ORDER_META_NAME = 'newspack_donor_covers_fees';
+	const CUSTOM_FIELD_NAME = 'newspack-wc-pay-fees';
 
 	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		\add_filter( 'woocommerce_checkout_fields', [ __CLASS__, 'add_checkout_fields' ] );
-		\add_filter( 'woocommerce_checkout_create_order', [ __CLASS__, 'set_total_with_fees' ], 1, 2 );
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'add_order_note' ], 1, 3 );
-		\add_filter( 'wc_price', [ __CLASS__, 'amend_price_markup' ], 1, 2 );
+		\add_action( 'woocommerce_cart_calculate_fees', [ __CLASS__, 'add_transaction_fee' ] );
 		\add_action( 'wc_stripe_payment_fields_stripe', [ __CLASS__, 'render_stripe_input' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'print_checkout_helper_script' ] );
 	}
@@ -47,22 +44,6 @@ class WooCommerce_Cover_Fees {
 			],
 		];
 		return $fields;
-	}
-
-	/**
-	 * Set order total, taking the fee into account.
-	 *
-	 * @param \WC_Order $order Order object.
-	 * @param array     $data  Posted data.
-	 *
-	 * @return \WC_Order
-	 */
-	public static function set_total_with_fees( $order, $data ) {
-		if ( isset( $data[ self::CUSTOM_FIELD_NAME ] ) && 1 === $data[ self::CUSTOM_FIELD_NAME ] ) {
-			$order->add_meta_data( self::WC_ORDER_META_NAME, 1 );
-			$order->set_total( self::get_total_with_fee( $order->get_total() ) );
-		}
-		return $order;
 	}
 
 	/**
@@ -100,7 +81,7 @@ class WooCommerce_Cover_Fees {
 		if ( true !== boolval( get_option( 'newspack_donations_allow_covering_fees' ) ) ) {
 			return false;
 		}
-		if ( \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {
 			return true;
 		}
 		if ( isset( $_POST['post_data'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -126,9 +107,7 @@ class WooCommerce_Cover_Fees {
 					id=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
 					name=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
 					type="checkbox"
-					value="true"
 					style="margin-right: 8px;"
-					onchange="newspackHandleCoverFees(this)"
 					<?php if ( get_option( 'newspack_donations_allow_covering_fees_default', false ) ) : ?>
 						checked
 					<?php endif; ?>
@@ -167,19 +146,6 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
-	 * Amend the price markup so it's possible to manipulate it via JS.
-	 *
-	 * @param string $html  Price HTML.
-	 * @param string $price Price.
-	 */
-	public static function amend_price_markup( $html, $price ) {
-		if ( ! self::should_allow_covering_fees() ) {
-			return $html;
-		}
-		return str_replace( $price, '<span id="' . self::PRICE_ELEMENT_ID . '">' . $price . '</span>', $html );
-	}
-
-	/**
 	 * Print the checkout helper JS script.
 	 */
 	public static function print_checkout_helper_script() {
@@ -189,36 +155,21 @@ class WooCommerce_Cover_Fees {
 		$handler = 'newspack-wc-modal-checkout-helper';
 		wp_register_script( $handler, '', [], false, [ 'in_footer' => true ] ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion
 		wp_enqueue_script( $handler );
-		$original_price          = WC()->cart->total;
-		$price_with_fee          = number_format( self::get_total_with_fee( $original_price ), 2 );
-		$has_coupons_available   = WC()->cart->get_coupon_discount_totals();
-		$coupons_handling_script = '';
-		if ( \wc_coupons_enabled() ) {
-			// Handle an edge case where the price was updated in the UI, and then a coupon was applied.
-			// In this case, the price has to be reverted to the original value, since covering fees
-			// is not supported with coupons.
-			$coupons_handling_script = 'setInterval(function(){
-				if(document.querySelector(".woocommerce-remove-coupon")){
-					document.getElementById( "' . self::PRICE_ELEMENT_ID . '" ).textContent =  "' . $original_price . '";
+		ob_start();
+		?>
+		( function( $ ) {
+			$(document.body).on('init_checkout', function() {
+				var inputEl = document.getElementById( "<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>" );
+				if ( inputEl ) {
+					inputEl.addEventListener( 'change', function( e ) {
+						$( document.body ).trigger( 'update_checkout', { update_shipping_method: false } );
+					} );
 				}
-			}, 1000);';
-		}
-		wp_add_inline_script(
-			$handler,
-			'const form = document.querySelector(\'form[name="checkout"]\');
-			if ( form ) {
-				form.addEventListener(\'change\', function( e ){
-					const inputEl = document.getElementById( "' . self::CUSTOM_FIELD_NAME . '" );
-					if( e.target.name === "payment_method" && e.target.value !== "stripe" && inputEl.checked ){
-						inputEl.checked = false;
-						newspackHandleCoverFees(inputEl);
-					}
-				});
-			}
-			function newspackHandleCoverFees(inputEl) {
-				document.getElementById( "' . self::PRICE_ELEMENT_ID . '" ).textContent = inputEl.checked ? "' . $price_with_fee . '" : "' . $original_price . '";
-			};' . $coupons_handling_script
-		);
+			});
+		} )( jQuery );
+		<?php
+		$output = ob_get_clean();
+		wp_add_inline_script( $handler, $output );
 	}
 
 	/**
@@ -239,25 +190,53 @@ class WooCommerce_Cover_Fees {
 	 * Get the fee display value.
 	 */
 	public static function get_fee_display_value() {
-		$price = floatval( WC()->cart->total );
-		$total = self::get_total_with_fee( $price );
+		$subtotal = WC()->cart->get_subtotal();
+		$total    = self::get_total_with_fee();
 		// Just one decimal place, please.
-		$flat_percentage = (float) number_format( ( ( $total - $price ) * 100 ) / $price, 1 );
+		$flat_percentage = (float) number_format( ( ( $total - $subtotal ) * 100 ) / $subtotal, 1 );
 		return $flat_percentage . '%';
+	}
+
+	/**
+	 * Add fee.
+	 *
+	 * @param \WC_Cart $cart Cart object.
+	 */
+	public static function add_transaction_fee( $cart ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			return;
+		}
+		if ( ! self::should_allow_covering_fees() ) {
+			return;
+		}
+		$cart->add_fee(
+			sprintf(
+				// Translators: %s is the fee percentage.
+				__( 'Transaction fees (%s)', 'newspack-plugin' ),
+				self::get_fee_display_value()
+			),
+			self::get_fee_value()
+		);
+	}
+
+	/**
+	 * Get the fee value.
+	 */
+	public static function get_fee_value() {
+		$fee_multiplier = self::get_stripe_fee_multiplier_value();
+		$fee_static     = self::get_stripe_fee_static_value();
+		$subtotal       = WC()->cart->get_subtotal();
+		$fee            = ( ( ( $subtotal + $fee_static ) / ( 100 - $fee_multiplier ) ) * 100 - $subtotal );
+		return $fee;
 	}
 
 	/**
 	 * Calculate the adjusted total, taking the fee into account.
 	 *
-	 * @param float $total Total amount.
-	 *
 	 * @return float
 	 */
-	private static function get_total_with_fee( $total ) {
-		$fee_multiplier = self::get_stripe_fee_multiplier_value();
-		$fee_static     = self::get_stripe_fee_static_value();
-		$fee            = ( ( ( $total + $fee_static ) / ( 100 - $fee_multiplier ) ) * 100 - $total );
-		return $total + $fee;
+	private static function get_total_with_fee() {
+		return WC()->cart->get_subtotal() + self::get_fee_value();
 	}
 }
 WooCommerce_Cover_Fees::init();
