@@ -208,7 +208,7 @@ class WooCommerce_Cover_Fees {
 		}
 		wp_add_inline_script(
 			$handler,
-			'var form = document.querySelector(\'form[name="checkout"]\');
+			'const form = document.querySelector(\'form[name="checkout"]\');
 			if ( form ) {
 				form.addEventListener(\'change\', function( e ){
 					var inputEl = document.getElementById( "' . self::CUSTOM_FIELD_NAME . '" );
