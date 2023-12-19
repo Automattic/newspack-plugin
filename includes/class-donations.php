@@ -1069,7 +1069,7 @@ class Donations {
 	 */
 	public static function order_button_text( $text ) {
 		if ( self::is_donation_cart() ) {
-			return __( 'Donate now', 'newspack-blocks' );
+			return __( 'Donate now', 'newspack-plugin' );
 		}
 		return $text;
 	}
