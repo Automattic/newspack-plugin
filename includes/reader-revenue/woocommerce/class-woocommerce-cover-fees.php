@@ -13,9 +13,9 @@ defined( 'ABSPATH' ) || exit;
  * WooCommerce Order UTM class.
  */
 class WooCommerce_Cover_Fees {
-	const CUSTOM_FIELD_NAME  = 'newspack-wc-pay-fees';
-	const PRICE_ELEMENT_ID   = 'newspack-wc-price';
-	const WC_ORDER_META_NAME = 'newspack_donor_covers_fees';
+	const CUSTOM_FIELD_NAME        = 'newspack-wc-pay-fees';
+	const PRICE_ELEMENT_CLASS_NAME = 'newspack-wc-price';
+	const WC_ORDER_META_NAME       = 'newspack_donor_covers_fees';
 
 	/**
 	 * Initialize hooks.
@@ -176,7 +176,7 @@ class WooCommerce_Cover_Fees {
 		if ( ! self::should_allow_covering_fees() ) {
 			return $html;
 		}
-		return str_replace( $price, '<span id="' . self::PRICE_ELEMENT_ID . '">' . $price . '</span>', $html );
+		return str_replace( $price, '<span class="' . self::PRICE_ELEMENT_CLASS_NAME . '">' . $price . '</span>', $html );
 	}
 
 	/**
@@ -199,7 +199,10 @@ class WooCommerce_Cover_Fees {
 			// is not supported with coupons.
 			$coupons_handling_script = 'setInterval(function(){
 				if(document.querySelector(".woocommerce-remove-coupon")){
-					document.getElementById( "' . self::PRICE_ELEMENT_ID . '" ).textContent =  "' . $original_price . '";
+					var prices = document.querySelectorAll(".' . self::PRICE_ELEMENT_CLASS_NAME . '");
+					for (var i = 0; i < prices.length; i++) {
+						prices[i].textContent = "' . $original_price . '";
+					}
 				}
 			}, 1000);';
 		}
@@ -208,15 +211,18 @@ class WooCommerce_Cover_Fees {
 			'const form = document.querySelector(\'form[name="checkout"]\');
 			if ( form ) {
 				form.addEventListener(\'change\', function( e ){
-					const inputEl = document.getElementById( "' . self::CUSTOM_FIELD_NAME . '" );
-					if( e.target.name === "payment_method" && e.target.value !== "stripe" && inputEl.checked ){
+					var inputEl = document.getElementById( "' . self::CUSTOM_FIELD_NAME . '" );
+					if( inputEl && e.target.name === "payment_method" && e.target.value !== "stripe" && inputEl.checked ){
 						inputEl.checked = false;
 						newspackHandleCoverFees(inputEl);
 					}
 				});
 			}
 			function newspackHandleCoverFees(inputEl) {
-				document.getElementById( "' . self::PRICE_ELEMENT_ID . '" ).textContent = inputEl.checked ? "' . $price_with_fee . '" : "' . $original_price . '";
+				var prices = document.querySelectorAll(".' . self::PRICE_ELEMENT_CLASS_NAME . '");
+				for (var i = 0; i < prices.length; i++) {
+					prices[i].textContent = inputEl.checked ? "' . $price_with_fee . '" : "' . $original_price . '";
+				}
 			};' . $coupons_handling_script
 		);
 	}
