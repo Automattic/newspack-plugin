@@ -181,13 +181,15 @@ class Mailchimp {
 			'status_if_new' => 'transactional',
 		];
 
-		$merge_fields = self::get_merge_fields( $audience_id, $data );
+		// Normalize contact metadata.
+		$contact      = Newspack_Newsletters::normalize_contact_data( [ 'metadata' => $data ] );
+		$merge_fields = self::get_merge_fields( $audience_id, $contact['metadata'] );
 		if ( ! empty( $merge_fields ) ) {
 			$payload['merge_fields'] = $merge_fields;
 		}
 
 		Logger::log(
-			'Syncing contact with metadata key(s): ' . implode( ', ', array_keys( $data ) ) . '.',
+			'Syncing contact with metadata key(s): ' . implode( ', ', array_keys( $contact['metadata'] ) ) . '.',
 			Data_Events::LOGGER_HEADER
 		);
 
