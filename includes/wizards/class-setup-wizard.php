@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, WP_REST_Server;
+use WP_Error, WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
@@ -34,14 +34,7 @@ class Setup_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-setup-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-setup-wizard';
 
 	/**
 	 * An array of theme mods that are media library IDs.
@@ -662,7 +655,7 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function hide_non_setup_menu_items() {
 		global $submenu;
-		if ( ! current_user_can( $this->capability ) ) {
+		if ( ! Wizards::can_access_wizard( $this->slug ) ) {
 			return;
 		}
 		foreach ( $submenu['newspack'] as $key => $value ) {

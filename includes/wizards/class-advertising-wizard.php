@@ -7,9 +7,9 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 
-use \Newspack_Ads\Providers\GAM_Model;
+use Newspack_Ads\Providers\GAM_Model;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,14 +35,7 @@ class Advertising_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-advertising-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-advertising-wizard';
 
 	/**
 	 * Supported services.
@@ -248,11 +241,11 @@ class Advertising_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'network_code' => [
-						'sanitize_callback' => function( $value ) {
+						'sanitize_callback' => function ( $value ) {
 							$raw_codes       = explode( ',', $value );
 							$sanitized_codes = array_reduce(
 								$raw_codes,
-								function( $acc, $code ) {
+								function ( $acc, $code ) {
 									$sanitized_code = absint( trim( $code ) );
 									if ( ! empty( $sanitized_code ) ) {
 										$acc[] = $sanitized_code;

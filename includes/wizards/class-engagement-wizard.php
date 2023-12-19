@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WP_Query;
+use WP_Error, WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,14 +23,7 @@ class Engagement_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-engagement-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-engagement-wizard';
 
 	/**
 	 * The name of the option for Related Posts max age.

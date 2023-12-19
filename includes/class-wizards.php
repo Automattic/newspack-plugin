@@ -26,22 +26,83 @@ class Wizards {
 	 * Initialize and register all of the wizards.
 	 */
 	public static function init() {
-		self::$wizards = [
-			'setup'           => new Setup_Wizard(),
-			'dashboard'       => new Dashboard(),
-			'site-design'     => new Site_Design_Wizard(),
-			'reader-revenue'  => new Reader_Revenue_Wizard(),
-			'advertising'     => new Advertising_Wizard(),
-			'syndication'     => new Syndication_Wizard(),
-			'analytics'       => new Analytics_Wizard(),
-			'components-demo' => new Components_Demo(),
-			'seo'             => new SEO_Wizard(),
-			'health-check'    => new Health_Check_Wizard(),
-			'engagement'      => new Engagement_Wizard(),
-			'popups'          => new Popups_Wizard(),
-			'connections'     => new Connections_Wizard(),
-			'settings'        => new Settings(),
+		$wizards = [
+			new Setup_Wizard(),
+			new Dashboard(),
+			new Site_Design_Wizard(),
+			new Reader_Revenue_Wizard(),
+			new Advertising_Wizard(),
+			new Syndication_Wizard(),
+			new Analytics_Wizard(),
+			new Components_Demo(),
+			new SEO_Wizard(),
+			new Health_Check_Wizard(),
+			new Engagement_Wizard(),
+			new Popups_Wizard(),
+			new Connections_Wizard(),
+			new Settings(),
 		];
+		foreach ( $wizards as $wizard ) {
+			self::$wizards[ $wizard->slug ] = $wizard;
+		}
+		add_action( 'admin_init', [ __CLASS__, 'assign_custom_caps' ] );
+		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 4 );
+	}
+
+	/**
+	 * Assign a custom capability to access this wizard.
+	 *
+	 * The capability will be assigned to the administrator role to make it
+	 * available to be assigned to other roles. Capabilities cannot be created
+	 * per se, only assigned to roles.
+	 */
+	public static function assign_custom_caps() {
+		$has_assigned_custom_caps = get_option( 'newspack_wizard_assigned_custom_caps', false );
+		if ( $has_assigned_custom_caps ) {
+			return;
+		}
+		$role = get_role( 'administrator' );
+		foreach ( self::$wizards as $key => $value ) {
+			$role->add_cap( self::get_capability_name( $key ) );
+		}
+		update_option( 'newspack_wizard_assigned_custom_caps', true );
+	}
+
+	/**
+	 * Filter the user capabilities. This is to allow users to edit certain posts.
+	 *
+	 * @param array   $capabilities The user's capabilities.
+	 * @param array   $required_capabilities The capabilities required perform an action.
+	 * @param array   $args The arguments passed to the user_has_cap filter.
+	 * @param WP_User $user The user object.
+	 */
+	public static function user_has_cap( $capabilities, $required_capabilities, $args, $user ) {
+		if ( 3 === count( $args ) && 'edit_post' === $args[0] ) {
+			$edited_post_id = $args[2];
+			foreach ( apply_filters( 'newspack_editable_posts', [] ) as $post_id ) {
+				if ( $post_id === $edited_post_id ) {
+					// Allow the user to publish posts.
+					if ( ! user_can( $user, 'publish_posts' ) ) {
+						$role = get_role( array_values( $user->roles )[0] );
+						$role->add_cap( 'publish_posts' );
+					}
+					// Ensure all capabilities are set, so the user can edit and publish this post.
+					foreach ( $required_capabilities as $cap ) {
+						$capabilities[ $cap ] = true;
+					}
+				}
+			}
+		}
+		return $capabilities;
+	}
+
+	/**
+	 * Get a wizard's capability.
+	 *
+	 * @param string $slug The wizard to get. Use slug from self::$wizards.
+	 */
+	private static function get_capability_name( $slug ) {
+		return 'newspack_wizard_' . $slug;
 	}
 
 	/**
@@ -54,7 +115,11 @@ class Wizards {
 		if ( isset( self::$wizards[ $wizard_slug ] ) ) {
 			return self::$wizards[ $wizard_slug ];
 		}
-
+		// The slug might be in the shortned form, e.g. 'seo' instead of 'newspack-seo-wizard'.
+		$slug = 'newspack-' . $wizard_slug . '-wizard';
+		if ( isset( self::$wizards[ $slug ] ) ) {
+			return self::$wizards[ $slug ];
+		}
 		return false;
 	}
 
@@ -69,7 +134,6 @@ class Wizards {
 		if ( $wizard ) {
 			return $wizard->get_url();
 		}
-
 		return false;
 	}
 
@@ -83,7 +147,6 @@ class Wizards {
 		foreach ( self::$wizards as $slug => $wizard ) {
 			$urls[ $slug ] = $wizard->get_url();
 		}
-
 		return $urls;
 	}
 
@@ -98,7 +161,32 @@ class Wizards {
 		if ( $wizard ) {
 			return $wizard->get_name();
 		}
+		return false;
+	}
 
+	/**
+	 * Can this wizard be accessed by the current user?
+	 *
+	 * @param string $wizard_slug The wizard to get name for. Use slug from self::$wizards.
+	 * @return bool Whether the wizard can be accessed by the current user.
+	 */
+	public static function can_access_wizard( $wizard_slug ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true; // Always allow admins.
+		}
+		if ( 'newspack' === $wizard_slug ) {
+			// Dashboard is accessible if at least one dashboard element is accessible.
+			$slugs = array_keys( self::$wizards );
+			foreach ( $slugs as $slug ) {
+				if ( current_user_can( self::get_capability_name( $slug ) ) ) {
+					return true;
+				}
+			}
+		}
+		$wizard = self::get_wizard( $wizard_slug );
+		if ( $wizard ) {
+			return current_user_can( self::get_capability_name( $wizard->slug ) );
+		}
 		return false;
 	}
 
@@ -113,7 +201,6 @@ class Wizards {
 		if ( $wizard ) {
 			return $wizard->is_completed();
 		}
-
 		return false;
 	}
 }
