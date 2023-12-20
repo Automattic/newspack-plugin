@@ -366,6 +366,10 @@ final class Recaptcha {
 		if ( ! $should_verify_captcha ) {
 			return;
 		}
+		// Bail if validating form.
+		if ( isset( $_POST['woocommerce_checkout_update_totals'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return;
+		}
 		$token = isset( $_POST['g-recaptcha-response'] ) ? sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$check = self::verify_captcha( $token );
 		if ( \is_wp_error( $check ) ) {
