@@ -453,12 +453,17 @@ class Reader_Revenue_Wizard extends Wizard {
 		$stripe_data                            = Stripe_Connection::get_stripe_data();
 		$stripe_data['can_use_stripe_platform'] = Donations::can_use_stripe_platform();
 
-		$billing_fields = [];
+		$billing_fields    = null;
+		$order_notes_field = [];
 		if ( $wc_installed && Donations::is_platform_wc() ) {
-			$checkout = new \WC_Checkout();
-			$fields   = $checkout->get_checkout_fields();
+			$checkout        = new \WC_Checkout();
+			$fields          = $checkout->get_checkout_fields();
+			$checkout_fields = $fields;
 			if ( ! empty( $fields['billing'] ) ) {
 				$billing_fields = $fields['billing'];
+			}
+			if ( ! empty( $fields['order']['order_comments'] ) ) {
+				$order_notes_field = $fields['order']['order_comments'];
 			}
 		}
 
@@ -470,6 +475,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'donation_data'            => Donations::get_donation_settings(),
 			'donation_page'            => Donations::get_donation_page_info(),
 			'available_billing_fields' => $billing_fields,
+			'order_notes_field'        => $order_notes_field,
 			'salesforce_settings'      => [],
 			'platform_data'            => [
 				'platform' => $platform,
