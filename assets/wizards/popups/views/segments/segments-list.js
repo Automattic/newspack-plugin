@@ -265,7 +265,6 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 			},
 		} )
 			.then( _segments => {
-				console.log( _segments );
 				setInFlight( false );
 				setSegments( _segments );
 			} )
