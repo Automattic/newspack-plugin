@@ -28,6 +28,17 @@ function domReady( callback ) {
 }
 
 /**
+ * Format time in MM:SS format.
+ *
+ * @param {number} time Time in seconds.
+ */
+function formatTime( time ) {
+	const minutes = Math.floor( time / 60 );
+	const seconds = time % 60;
+	return `${ minutes }:${ seconds < 10 ? '0' : '' }${ seconds }`;
+}
+
+/**
  * Converts FormData into an object.
  *
  * @param {FormData} formData       The form data to convert.
@@ -51,6 +62,7 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 	}, {} );
 
 const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
+
 let currentHash;
 
 window.newspackRAS = window.newspackRAS || [];
@@ -215,6 +227,92 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
+			const backButtons = container.querySelectorAll( '[data-back]' );
+			const resendCodeButton = container.querySelector( '[data-resend-code]' );
+
+			backButtons.forEach( backButton => {
+				backButton.addEventListener( 'click', function ( ev ) {
+					ev.preventDefault();
+					setFormAction( 'link', true );
+				} );
+			} );
+
+			let otpTimerInterval;
+			let otpOriginalButtonText;
+			function handleOTPTimer() {
+				if ( otpTimerInterval ) {
+					clearInterval( otpTimerInterval );
+				}
+				if ( ! resendCodeButton ) {
+					return;
+				}
+				otpOriginalButtonText = resendCodeButton.textContent;
+				const updateButton = () => {
+					const remaining = readerActivation.getOTPTimeRemaining();
+					if ( remaining ) {
+						resendCodeButton.textContent = `${ otpOriginalButtonText } (${ formatTime(
+							remaining
+						) })`;
+						resendCodeButton.disabled = true;
+					} else {
+						resendCodeButton.textContent = otpOriginalButtonText;
+						resendCodeButton.disabled = false;
+						clearInterval( otpTimerInterval );
+					}
+				};
+				const remaining = readerActivation.getOTPTimeRemaining();
+				if ( remaining ) {
+					otpTimerInterval = setInterval( updateButton, 1000 );
+					updateButton();
+				}
+			}
+
+			if ( resendCodeButton ) {
+				handleOTPTimer();
+				resendCodeButton.addEventListener( 'click', function ( ev ) {
+					messageContentElement.innerHTML = '';
+					ev.preventDefault();
+					form.startLoginFlow();
+					const body = new FormData();
+					body.set( 'reader-activation-auth-form', 1 );
+					body.set( 'npe', emailInput.value );
+					body.set( 'action', 'link' );
+					readerActivation
+						.getCaptchaToken()
+						.then( captchaToken => {
+							if ( ! captchaToken ) {
+								return;
+							}
+							body.set( 'captcha_token', captchaToken );
+						} )
+						.catch( e => {
+							console.log( { e } );
+						} )
+						.finally( () => {
+							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+								method: 'POST',
+								headers: {
+									Accept: 'application/json',
+								},
+								body,
+							} )
+								.then( () => {
+									messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
+									readerActivation.setOTPTimer();
+								} )
+								.catch( e => {
+									console.log( e );
+								} )
+								.finally( () => {
+									handleOTPTimer();
+									form.style.opacity = 1;
+									submitButtons.forEach( button => {
+										button.disabled = false;
+									} );
+								} );
+						} );
+				} );
+			}
 
 			if ( closeButton ) {
 				closeButton.addEventListener( 'click', function ( ev ) {
@@ -249,6 +347,15 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
 						return;
+					}
+					const emailAddressElements = container.querySelectorAll( '.email-address' );
+					emailAddressElements.forEach( element => {
+						element.textContent = readerActivation.getReader()?.email || '';
+					} );
+					// Focus on the first input.
+					const firstInput = container.querySelector( '.otp-field input[type="text"]' );
+					if ( firstInput ) {
+						firstInput.focus();
 					}
 				}
 				if ( [ 'link', 'pwd' ].includes( action ) ) {
@@ -430,6 +537,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 											const otpHash = readerActivation.getOTPHash();
 											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
 												if ( status === 200 ) {
+													// Set OTP rate-limit timer
+													readerActivation.setOTPTimer();
+													handleOTPTimer();
 													setFormAction( 'otp' );
 												}
 												/** If action is link, suppress message and status so the OTP handles it. */

@@ -114,6 +114,7 @@ final class Reader_Activation {
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
 			'authenticated_email'   => $authenticated_email,
 			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
+			'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
 			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 		];
 
@@ -150,15 +151,13 @@ final class Reader_Activation {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		\wp_localize_script(
-			self::AUTH_SCRIPT_HANDLE,
-			'newspack_reader_auth_labels',
-			[
-				'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
-				'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
-				'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
-			]
-		);
+		$labels = [
+			'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
+			'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
+			'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+			'code_resent'      => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+		];
+		\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_auth_labels', $labels );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'amp-plus', true );
 		\wp_enqueue_style(
@@ -1080,6 +1079,9 @@ final class Reader_Activation {
 				<?php endif; ?>
 				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
+						<div data-action="pwd link register">
+							<?php self::render_third_party_auth(); ?>
+						</div>
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
 						<?php if ( ! empty( $referer['path'] ) ) : ?>
 							<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
@@ -1091,19 +1093,6 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
-						</div>
-						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
-								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
-								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
-								<?php if ( ! empty( $message ) ) : ?>
-									<p><?php echo \esc_html( $message ); ?></p>
-								<?php endif; ?>
-							</div>
 						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
@@ -1131,15 +1120,9 @@ final class Reader_Activation {
 							?>
 						</p>
 						<p data-action="otp">
-							<?php
-								echo wp_kses_post(
-									sprintf(
-										// Translators: %s is the link to sign in via password instead.
-										__( 'Enter the code you received via email to sign in, or %s.', 'newspack-plugin' ),
-										'<a href="#" data-set-action="pwd">' . __( 'sign in using a password', 'newspack-plugin' ) . '</a>'
-									)
-								);
-							?>
+							<strong>
+								<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
+							</strong>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
@@ -1175,6 +1158,27 @@ final class Reader_Activation {
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
 						</div>
+
+						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
+							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
+								<?php if ( ! empty( $message ) ) : ?>
+									<p><?php echo \esc_html( $message ); ?></p>
+								<?php endif; ?>
+							</div>
+						</div>
+
+						<p data-action="otp">
+							<?php
+							echo wp_kses_post(
+								sprintf(
+									// Translators: %s is the email address.
+									__( 'Sign in by entering the code we sent to %s, or clicking the magic link in the email.', 'newspack-plugin' ),
+									'<strong class="email-address"></strong>'
+								)
+							);
+							?>
+						</p>
+
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<div class="components-form__submit">
 								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
@@ -1190,16 +1194,10 @@ final class Reader_Activation {
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="otp">
 							<div class="components-form__submit">
-								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
+								<button type="submit"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
 							</div>
-							<div class="components-form__help">
-								<p class="small">
-									<a href="#" data-set-action="link"><?php \esc_html_e( 'Try a different email', 'newspack-plugin' ); ?></a>
-								</p>
-								<p class="small">
-									<a href="#" data-set-action="link"><?php _e( 'Send another code', 'newspack-plugin' ); ?></a>
-								</p>
-							</div>
+							<button type="button" class="resend-code" data-resend-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
+							<button type="button" class="back-button" data-back><?php \esc_html_e( 'Back', 'newspack-plugin' ); ?></button>
 						</div>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
 							<div class="components-form__submit">
@@ -1216,7 +1214,6 @@ final class Reader_Activation {
 								<button type="submit"><?php \esc_html_e( 'Sign up', 'newspack-plugin' ); ?></button>
 							</div>
 						</div>
-						<?php self::render_third_party_auth(); ?>
 						<?php if ( ! empty( $terms_text ) ) : ?>
 							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
 								<?php if ( ! empty( $terms_url ) ) : ?>
@@ -1376,6 +1373,12 @@ final class Reader_Activation {
 		$classnames = implode( ' ', [ $class(), $class() . '--disabled' ] );
 		?>
 		<div class="<?php echo \esc_attr( $classnames ); ?>">
+			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
+				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<span>
+					<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
+				</span>
+			</button>
 			<div class="<?php echo \esc_attr( $class( 'separator' ) ); ?>">
 				<div></div>
 				<div>
@@ -1383,12 +1386,6 @@ final class Reader_Activation {
 				</div>
 				<div></div>
 			</div>
-			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
-				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span>
-					<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
-				</span>
-			</button>
 		</div>
 		<?php
 	}
