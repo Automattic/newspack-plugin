@@ -306,6 +306,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 								.finally( () => {
 									handleOTPTimer();
 									form.style.opacity = 1;
+									submitButtons.forEach( button => {
+										button.disabled = false;
+									} );
 								} );
 						} );
 				} );
