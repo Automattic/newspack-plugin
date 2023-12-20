@@ -1052,6 +1052,9 @@ class Donations {
 	 * @return bool
 	 */
 	public static function disable_coupons( $enabled ) {
+		if ( is_admin() ) {
+			return $enabled;
+		}
 		$cart = WC()->cart;
 		if ( ! $cart ) {
 			return $enabled;
