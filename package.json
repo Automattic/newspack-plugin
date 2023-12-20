@@ -11,9 +11,9 @@
 		"npm": "8"
 	},
 	"devDependencies": {
-		"@rushstack/eslint-patch": "^1.6.0",
+		"@rushstack/eslint-patch": "^1.6.1",
 		"@testing-library/react": "^12.1.4",
-		"@wordpress/browserslist-config": "^5.30.0",
+		"@wordpress/browserslist-config": "^5.31.0",
 		"eslint": "^7.32.0",
 		"lint-staged": "^13.2.3",
 		"newspack-scripts": "^5.1.0",
@@ -50,8 +50,8 @@
 		"postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
 	},
 	"dependencies": {
-		"@babel/plugin-transform-runtime": "^7.23.4",
-		"@babel/preset-env": "^7.23.5",
+		"@babel/plugin-transform-runtime": "^7.23.6",
+		"@babel/preset-env": "^7.23.6",
 		"classnames": "^2.3.2",
 		"colord": "^2.9.3",
 		"deep-map-keys": "^2.0.1",
