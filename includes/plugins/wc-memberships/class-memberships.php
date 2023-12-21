@@ -778,7 +778,7 @@ class Memberships {
 							break;
 						}
 
-						// Allow ueser who can edit posts (by default: editors, authors, contributors).
+						// Allow user who can edit posts (by default: editors, authors, contributors).
 						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
 							$all_caps[ $cap ] = true;
 							break;
