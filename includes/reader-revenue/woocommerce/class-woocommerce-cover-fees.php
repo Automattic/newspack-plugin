@@ -20,8 +20,9 @@ class WooCommerce_Cover_Fees {
 	 */
 	public static function init() {
 		\add_filter( 'woocommerce_checkout_fields', [ __CLASS__, 'add_checkout_fields' ] );
-		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'add_order_note' ], 1, 3 );
+		\add_action( 'woocommerce_checkout_update_order_review', [ __CLASS__, 'persist_fee_selection' ] );
 		\add_action( 'woocommerce_cart_calculate_fees', [ __CLASS__, 'add_transaction_fee' ] );
+		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'add_order_note' ], 1, 3 );
 		\add_action( 'wc_stripe_payment_fields_stripe', [ __CLASS__, 'render_stripe_input' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'print_checkout_helper_script' ] );
 	}
@@ -47,6 +48,44 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
+	 * Persist the transaction fee selection in the Woo sesion when updating the
+	 * order review.
+	 *
+	 * @param string $posted_data Posted posted_data.
+	 */
+	public static function persist_fee_selection( $posted_data ) {
+		$data = [];
+		parse_str( $posted_data, $data );
+		if ( self::should_apply_fee( $data ) ) {
+			\WC()->session->set( self::CUSTOM_FIELD_NAME, 1 );
+		} else {
+			\WC()->session->set( self::CUSTOM_FIELD_NAME, 0 );
+		}
+	}
+
+	/**
+	 * Add fee.
+	 *
+	 * @param \WC_Cart $cart Cart object.
+	 */
+	public static function add_transaction_fee( $cart ) {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
+			return;
+		}
+		if ( ! \WC()->session->get( self::CUSTOM_FIELD_NAME ) ) {
+			return;
+		}
+		$cart->add_fee(
+			sprintf(
+				// Translators: %s is the fee percentage.
+				__( 'Transaction fee (%s)', 'newspack-plugin' ),
+				self::get_fee_display_value()
+			),
+			self::get_fee_value()
+		);
+	}
+
+	/**
 	 * Add an order note.
 	 *
 	 * @param int       $order_id Order ID.
@@ -54,8 +93,8 @@ class WooCommerce_Cover_Fees {
 	 * @param \WC_Order $order Order object.
 	 */
 	public static function add_order_note( $order_id, $posted_data, $order ) {
-		if ( 1 === intval( $order->get_meta_data( self::WC_ORDER_META_NAME ) ) ) {
-			$order->add_order_note( __( 'The donor opted to cover Stripe\'s transaction fee. The total amount will be updated.', 'newspack-plugin' ) );
+		if ( \WC()->session->get( self::CUSTOM_FIELD_NAME ) ) {
+			$order->add_order_note( __( 'The donor opted to cover Stripe\'s transaction fee.', 'newspack-plugin' ) );
 		}
 	}
 
@@ -91,6 +130,26 @@ class WooCommerce_Cover_Fees {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Whether to apply the fee in the current request.
+	 *
+	 * @param array $data Posted data.
+	 *
+	 * @return bool
+	 */
+	private static function should_apply_fee( $data ) {
+		if ( ! self::should_allow_covering_fees() ) {
+			return false;
+		}
+		if ( ! isset( $data['payment_method'] ) || 'stripe' !== $data['payment_method'] ) {
+			return false;
+		}
+		if ( ! isset( $data[ self::CUSTOM_FIELD_NAME ] ) || '1' !== $data[ self::CUSTOM_FIELD_NAME ] ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -193,37 +252,6 @@ class WooCommerce_Cover_Fees {
 		// Just one decimal place, please.
 		$flat_percentage = (float) number_format( ( ( $total - $subtotal ) * 100 ) / $subtotal, 1 );
 		return $flat_percentage . '%';
-	}
-
-	/**
-	 * Add fee.
-	 *
-	 * @param \WC_Cart $cart Cart object.
-	 */
-	public static function add_transaction_fee( $cart ) {
-		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
-			return;
-		}
-		if ( ! self::should_allow_covering_fees() ) {
-			return;
-		}
-		$data = filter_input_array( INPUT_POST, FILTER_SANITIZE_STRING );
-		if ( ! isset( $data['payment_method'] ) || 'stripe' !== $data['payment_method'] ) {
-			return;
-		}
-		$post_data = [];
-		parse_str( $data['post_data'], $post_data );
-		if ( ! isset( $post_data[ self::CUSTOM_FIELD_NAME ] ) || '1' !== $post_data[ self::CUSTOM_FIELD_NAME ] ) {
-			return;
-		}
-		$cart->add_fee(
-			sprintf(
-				// Translators: %s is the fee percentage.
-				__( 'Transaction fee (%s)', 'newspack-plugin' ),
-				self::get_fee_display_value()
-			),
-			self::get_fee_value()
-		);
 	}
 
 	/**
