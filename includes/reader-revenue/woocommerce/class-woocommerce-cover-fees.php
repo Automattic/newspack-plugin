@@ -104,14 +104,15 @@ class WooCommerce_Cover_Fees {
 		<fieldset>
 			<p class="form-row newspack-cover-fees" style="display: flex;">
 				<input
-					id=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
-					name=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>
+					id="<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>"
+					name="<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>"
 					type="checkbox"
 					style="margin-right: 8px;"
+					value="1"
 					<?php if ( get_option( 'newspack_donations_allow_covering_fees_default', false ) ) : ?>
 						checked
 					<?php endif; ?>
-				>
+				/>
 				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
 					<?php
 					$custom_message = get_option( 'newspack_donations_allow_covering_fees_label', '' );
@@ -152,24 +153,21 @@ class WooCommerce_Cover_Fees {
 		if ( ! self::should_allow_covering_fees() ) {
 			return;
 		}
-		$handler = 'newspack-wc-modal-checkout-helper';
-		wp_register_script( $handler, '', [], false, [ 'in_footer' => true ] ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NoExplicitVersion
-		wp_enqueue_script( $handler );
-		ob_start();
-		?>
-		( function( $ ) {
-			$(document.body).on('init_checkout', function() {
-				var inputEl = document.getElementById( "<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>" );
-				if ( inputEl ) {
-					inputEl.addEventListener( 'change', function( e ) {
-						$( document.body ).trigger( 'update_checkout', { update_shipping_method: false } );
-					} );
-				}
-			});
-		} )( jQuery );
-		<?php
-		$output = ob_get_clean();
-		wp_add_inline_script( $handler, $output );
+		$handler = 'newspack-wc-cover-fees';
+		wp_enqueue_script(
+			$handler,
+			\Newspack\Newspack::plugin_url() . '/dist/other-scripts/wc-cover-fees.js',
+			[ 'jquery' ],
+			NEWSPACK_PLUGIN_VERSION,
+			[ 'in_footer' => true ]
+		);
+		wp_localize_script(
+			$handler,
+			'newspack_wc_cover_fees',
+			[
+				'custom_field_name' => self::CUSTOM_FIELD_NAME,
+			]
+		);
 	}
 
 	/**
@@ -209,10 +207,19 @@ class WooCommerce_Cover_Fees {
 		if ( ! self::should_allow_covering_fees() ) {
 			return;
 		}
+		$data = filter_input_array( INPUT_POST, FILTER_SANITIZE_STRING );
+		if ( ! isset( $data['payment_method'] ) || 'stripe' !== $data['payment_method'] ) {
+			return;
+		}
+		$post_data = [];
+		parse_str( $data['post_data'], $post_data );
+		if ( ! isset( $post_data[ self::CUSTOM_FIELD_NAME ] ) || '1' !== $post_data[ self::CUSTOM_FIELD_NAME ] ) {
+			return;
+		}
 		$cart->add_fee(
 			sprintf(
 				// Translators: %s is the fee percentage.
-				__( 'Transaction fees (%s)', 'newspack-plugin' ),
+				__( 'Transaction fee (%s)', 'newspack-plugin' ),
 				self::get_fee_display_value()
 			),
 			self::get_fee_value()
