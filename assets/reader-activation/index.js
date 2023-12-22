@@ -133,8 +133,6 @@ export function hasAuthLink() {
 	return !! ( reader?.email && emailLinkSecret );
 }
 
-const authStrategies = [ 'pwd', 'link' ];
-
 /**
  * Get the reader's OTP hash for the current authentication request.
  *
@@ -229,33 +227,6 @@ export function authenticateOTP( code ) {
 				}
 			} );
 	} );
-}
-
-/**
- * Set the reader preferred authentication strategy.
- *
- * @param {string} strategy Authentication strategy.
- *
- * @return {string} Reader preferred authentication strategy.
- */
-export function setAuthStrategy( strategy ) {
-	if ( ! authStrategies.includes( strategy ) ) {
-		throw new Error( 'Invalid authentication strategy' );
-	}
-	setCookie( 'np_auth_strategy', strategy );
-	return strategy;
-}
-
-/**
- * Get the reader preferred authentication strategy.
- *
- * @return {string} Reader preferred authentication strategy.
- */
-export function getAuthStrategy() {
-	if ( getOTPHash() ) {
-		return 'otp';
-	}
-	return getCookie( 'np_auth_strategy' );
 }
 
 /**
@@ -379,8 +350,6 @@ const readerActivation = {
 	clearOTPTimer,
 	getOTPTimeRemaining,
 	authenticateOTP,
-	setAuthStrategy,
-	getAuthStrategy,
 	getCaptchaToken,
 };
 

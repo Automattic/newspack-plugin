@@ -228,12 +228,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
 			const backButtons = container.querySelectorAll( '[data-back]' );
-			const resendCodeButton = container.querySelector( '[data-resend-code]' );
+			const sendCodeButton = container.querySelector( '[data-send-code]' );
 
 			backButtons.forEach( backButton => {
 				backButton.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
-					setFormAction( 'link', true );
+					setFormAction( 'signin', true );
 				} );
 			} );
 
@@ -243,20 +243,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( otpTimerInterval ) {
 					clearInterval( otpTimerInterval );
 				}
-				if ( ! resendCodeButton ) {
+				if ( ! sendCodeButton ) {
 					return;
 				}
-				otpOriginalButtonText = resendCodeButton.textContent;
+				otpOriginalButtonText = sendCodeButton.textContent;
 				const updateButton = () => {
 					const remaining = readerActivation.getOTPTimeRemaining();
 					if ( remaining ) {
-						resendCodeButton.textContent = `${ otpOriginalButtonText } (${ formatTime(
+						sendCodeButton.textContent = `${ otpOriginalButtonText } (${ formatTime(
 							remaining
 						) })`;
-						resendCodeButton.disabled = true;
+						sendCodeButton.disabled = true;
 					} else {
-						resendCodeButton.textContent = otpOriginalButtonText;
-						resendCodeButton.disabled = false;
+						sendCodeButton.textContent = otpOriginalButtonText;
+						sendCodeButton.disabled = false;
 						clearInterval( otpTimerInterval );
 					}
 				};
@@ -267,12 +267,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 			}
 
-			if ( resendCodeButton ) {
+			if ( sendCodeButton ) {
 				handleOTPTimer();
-				resendCodeButton.addEventListener( 'click', function ( ev ) {
+				sendCodeButton.addEventListener( 'click', function ( ev ) {
 					messageContentElement.innerHTML = '';
 					ev.preventDefault();
 					form.startLoginFlow();
+					console.log( 'send code' );
 					const body = new FormData();
 					body.set( 'reader-activation-auth-form', 1 );
 					body.set( 'npe', emailInput.value );
@@ -298,6 +299,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							} )
 								.then( () => {
 									messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
+									setFormAction( 'otp' );
 									readerActivation.setOTPTimer();
 								} )
 								.catch( e => {
@@ -344,6 +346,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 * Handle auth form action selection.
 			 */
 			function setFormAction( action, shouldFocus = false ) {
+				if ( ! [ 'register', 'signin', 'pwd', 'otp' ].includes( action ) ) {
+					action = 'signin';
+				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
 						return;
@@ -357,9 +362,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( firstInput ) {
 						firstInput.focus();
 					}
-				}
-				if ( [ 'link', 'pwd' ].includes( action ) ) {
-					readerActivation.setAuthStrategy( action );
 				}
 				actionInput.value = action;
 				container.removeAttribute( 'data-form-status' );
@@ -388,16 +390,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 				}
 			}
-			setFormAction(
-				currentHash === 'register_modal' ? 'register' : readerActivation.getAuthStrategy() || 'link'
-			);
+			setFormAction( currentHash === 'register_modal' ? 'register' : 'signin' );
 			window.addEventListener( 'hashchange', () => {
 				if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
-					setFormAction(
-						currentHash === 'register_modal'
-							? 'register'
-							: readerActivation.getAuthStrategy() || 'link'
-					);
+					setFormAction( currentHash === 'register_modal' ? 'register' : 'signin' );
 				}
 			} );
 			readerActivation.on( 'reader', () => {
@@ -438,12 +434,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} else {
 						form.replaceWith( messageContentElement.parentNode );
 					}
+					container.setAttribute( 'data-form-status', status );
 				}
-				container.setAttribute( 'data-form-status', status );
-				form.style.opacity = 1;
-				submitButtons.forEach( button => {
-					button.disabled = false;
-				} );
 			};
 
 			/**
@@ -504,7 +496,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 								} )
 								.catch( data => {
 									if ( data.expired ) {
-										setFormAction( 'link' );
+										setFormAction( 'signin' );
 									}
 									form.endLoginFlow( data.message, 400 );
 								} );
@@ -521,8 +513,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 									res
 										.json()
 										.then( ( { message, data } ) => {
-											let status = res.status;
+											const status = res.status;
 											let redirect = body.get( 'redirect' );
+											if ( status === 200 ) {
+												readerActivation.setReaderEmail( body.get( 'npe' ) );
+											}
 											/** Redirect every registration to the account page for verification if not coming from a hash link */
 											if ( action === 'register' ) {
 												redirect = newspack_ras_config.account_url;
@@ -531,27 +526,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 											if ( currentHash ) {
 												redirect = '';
 											}
-											if ( status === 200 ) {
-												readerActivation.setReaderEmail( body.get( 'npe' ) );
+											if ( data.action ) {
+												setFormAction( data.action );
+											} else {
+												form.endLoginFlow( message, status, data, redirect );
 											}
-											const otpHash = readerActivation.getOTPHash();
-											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
-												if ( status === 200 ) {
-													// Set OTP rate-limit timer
-													readerActivation.setOTPTimer();
-													handleOTPTimer();
-													setFormAction( 'otp' );
-												}
-												/** If action is link, suppress message and status so the OTP handles it. */
-												if ( status === 200 && action === 'link' ) {
-													status = null;
-													message = null;
-												}
-											}
-											form.endLoginFlow( message, status, data, redirect );
 										} )
 										.catch( () => {
 											form.endLoginFlow();
+										} )
+										.finally( () => {
+											form.style.opacity = 1;
+											submitButtons.forEach( button => {
+												button.disabled = false;
+											} );
 										} );
 								} )
 								.catch( () => {
