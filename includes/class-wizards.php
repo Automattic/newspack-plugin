@@ -81,10 +81,11 @@ class Wizards {
 			$edited_post_id = $args[2];
 			foreach ( apply_filters( 'newspack_editable_posts', [] ) as $post_id ) {
 				if ( $post_id === $edited_post_id ) {
-					// Allow the user to publish posts.
-					if ( ! user_can( $user, 'publish_posts' ) ) {
+					// Allow the user to publish this kind of posts.
+					$publish_cap = 'publish_' . get_post_type( $post_id ) . 's';
+					if ( ! user_can( $user, $publish_cap ) ) {
 						$role = get_role( array_values( $user->roles )[0] );
-						$role->add_cap( 'publish_posts' );
+						$role->add_cap( $publish_cap );
 					}
 					// Ensure all capabilities are set, so the user can edit and publish this post.
 					foreach ( $required_capabilities as $cap ) {
