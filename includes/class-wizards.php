@@ -171,6 +171,9 @@ class Wizards {
 	 * @return bool Whether the wizard can be accessed by the current user.
 	 */
 	public static function can_access_wizard( $wizard_slug ) {
+		if ( ! function_exists( 'wp_get_current_user' ) ) {
+			return false;
+		}
 		if ( current_user_can( 'manage_options' ) ) {
 			return true; // Always allow admins.
 		}
