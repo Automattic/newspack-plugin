@@ -1175,12 +1175,11 @@ class WooCommerce_Connection {
 	 * 
 	 * See: https://woo.com/document/subscriptions/failed-payment-retry/
 	 * 
-	 * @param bool   $should_retry Whether WooCommerce should automatically retry failed payments.
-	 * @param string $option_name The name of the option.
+	 * @param bool $should_retry Whether WooCommerce should automatically retry failed payments.
 	 *
 	 * @return string Option value.
 	 */
-	public static function force_allow_failed_payment_retry( $should_retry, $option_name ) {
+	public static function force_allow_failed_payment_retry( $should_retry ) {
 		if ( defined( 'NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE' ) && NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE ) {
 			return $can_switch;
 		}
