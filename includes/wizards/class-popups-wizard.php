@@ -999,19 +999,27 @@ class Popups_Wizard extends Wizard {
 	 * Translate capabilities. If the user can access the wizard, they should also get access to the CPT.
 	 */
 	public static function translate_capabilities() {
-		if (
-			defined( '\Newspack_Popups::NEWSPACK_POPUPS_CPT' )
-			&& method_exists( '\Newspack_Popups', 'get_capabilities_list' )
-			&& Wizards::can_access_wizard( 'popups' )
-		) {
-			$popup_cpt_caps = \Newspack_Popups::get_capabilities_list();
-			if ( current_user_can( $popup_cpt_caps[0] ) ) {
-				return;
-			}
-			$role = get_role( array_values( wp_get_current_user()->roles )[0] );
-			foreach ( $popup_cpt_caps as $cap ) {
-				$role->add_cap( $cap );
-			}
+		if ( ! method_exists( '\Newspack_Popups', 'get_capabilities_list' ) ) {
+			return;
+		}
+		if ( ! Wizards::can_access_wizard( 'popups' ) ) {
+			return;
+		}
+
+		$current_user_id = get_current_user_id();
+		$user_meta_name  = 'newspack_plugin_has_translated_popups_caps_v1';
+		if ( get_user_meta( $current_user_id, $user_meta_name, true ) ) {
+			return;
+		}
+		update_user_meta( $current_user_id, $user_meta_name, true );
+
+		$popup_cpt_caps = \Newspack_Popups::get_capabilities_list();
+		if ( current_user_can( $popup_cpt_caps[0] ) ) {
+			return;
+		}
+		$role = get_role( array_values( wp_get_current_user()->roles )[0] );
+		foreach ( $popup_cpt_caps as $cap ) {
+			$role->add_cap( $cap );
 		}
 	}
 }
