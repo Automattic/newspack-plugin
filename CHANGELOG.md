@@ -1,3 +1,20 @@
+# [2.13.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.13.0-alpha.1...v2.13.0-alpha.2) (2023-12-22)
+
+
+### Bug Fixes
+
+* newsletters Lists indentation ([#2797](https://github.com/Automattic/newspack-plugin/issues/2797)) ([1af3c23](https://github.com/Automattic/newspack-plugin/commit/1af3c230f4747ff3b8fd7ad13989a8d1db015776))
+* **ras:** remove modal checkout logic ([#2781](https://github.com/Automattic/newspack-plugin/issues/2781)) ([6aad17d](https://github.com/Automattic/newspack-plugin/commit/6aad17d54712d1878d559503112980a737667b6e))
+* use Woo's cart fee for covering transaction fees ([#2820](https://github.com/Automattic/newspack-plugin/issues/2820)) ([fded027](https://github.com/Automattic/newspack-plugin/commit/fded02763314c386907d677d9359ef41cb85789b))
+
+
+### Features
+
+* add media partners module ([#2753](https://github.com/Automattic/newspack-plugin/issues/2753)) ([70f7dcb](https://github.com/Automattic/newspack-plugin/commit/70f7dcbeba33e825655caf0805c2092eef0ecb07))
+* **donation:** additional receipt email template variables ([#2799](https://github.com/Automattic/newspack-plugin/issues/2799)) ([0c9c373](https://github.com/Automattic/newspack-plugin/commit/0c9c37381ca5fad1b0e46fc3c55f0c93c1436f46))
+* force option to enble retries of failed payments ([#2808](https://github.com/Automattic/newspack-plugin/issues/2808)) ([f8d35ec](https://github.com/Automattic/newspack-plugin/commit/f8d35ec6b092a2078a742a0ee04926801ef74fdc))
+* give editors permission for restricted content ([#2806](https://github.com/Automattic/newspack-plugin/issues/2806)) ([64d7817](https://github.com/Automattic/newspack-plugin/commit/64d781741e5a9806afd6597bf1d5a4656da9e256))
+
 # [2.13.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.12.1...v2.13.0-alpha.1) (2023-12-15)
 
 
