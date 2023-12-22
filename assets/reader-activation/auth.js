@@ -228,7 +228,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const closeButton = container.querySelector( 'button[data-close]' );
 			const backButtons = container.querySelectorAll( '[data-back]' );
-			const sendCodeButton = container.querySelector( '[data-send-code]' );
+			const sendCodeButtons = container.querySelectorAll( '[data-send-code]' );
 
 			backButtons.forEach( backButton => {
 				backButton.addEventListener( 'click', function ( ev ) {
@@ -237,82 +237,81 @@ window.newspackRAS.push( function ( readerActivation ) {
 				} );
 			} );
 
-			let otpTimerInterval;
-			let otpOriginalButtonText;
 			function handleOTPTimer() {
-				if ( otpTimerInterval ) {
-					clearInterval( otpTimerInterval );
-				}
-				if ( ! sendCodeButton ) {
+				if ( ! sendCodeButtons.length ) {
 					return;
 				}
-				otpOriginalButtonText = sendCodeButton.textContent;
-				const updateButton = () => {
+				sendCodeButtons.forEach( button => {
+					button.originalButtonText = button.textContent;
+					if ( button.otpTimerInterval ) {
+						clearInterval( button.otpTimerInterval );
+					}
+					const updateButton = () => {
+						const remaining = readerActivation.getOTPTimeRemaining();
+						if ( remaining ) {
+							button.textContent = `${ button.originalButtonText } (${ formatTime( remaining ) })`;
+							button.disabled = true;
+						} else {
+							button.textContent = button.originalButtonText;
+							button.disabled = false;
+							clearInterval( button.otpTimerInterval );
+						}
+					};
 					const remaining = readerActivation.getOTPTimeRemaining();
 					if ( remaining ) {
-						sendCodeButton.textContent = `${ otpOriginalButtonText } (${ formatTime(
-							remaining
-						) })`;
-						sendCodeButton.disabled = true;
-					} else {
-						sendCodeButton.textContent = otpOriginalButtonText;
-						sendCodeButton.disabled = false;
-						clearInterval( otpTimerInterval );
+						button.otpTimerInterval = setInterval( updateButton, 1000 );
+						updateButton();
 					}
-				};
-				const remaining = readerActivation.getOTPTimeRemaining();
-				if ( remaining ) {
-					otpTimerInterval = setInterval( updateButton, 1000 );
-					updateButton();
-				}
+				} );
 			}
 
-			if ( sendCodeButton ) {
+			if ( sendCodeButtons.length ) {
 				handleOTPTimer();
-				sendCodeButton.addEventListener( 'click', function ( ev ) {
-					messageContentElement.innerHTML = '';
-					ev.preventDefault();
-					form.startLoginFlow();
-					console.log( 'send code' );
-					const body = new FormData();
-					body.set( 'reader-activation-auth-form', 1 );
-					body.set( 'npe', emailInput.value );
-					body.set( 'action', 'link' );
-					readerActivation
-						.getCaptchaToken()
-						.then( captchaToken => {
-							if ( ! captchaToken ) {
-								return;
-							}
-							body.set( 'captcha_token', captchaToken );
-						} )
-						.catch( e => {
-							console.log( { e } );
-						} )
-						.finally( () => {
-							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-								method: 'POST',
-								headers: {
-									Accept: 'application/json',
-								},
-								body,
+				sendCodeButtons.forEach( button => {
+					button.addEventListener( 'click', function ( ev ) {
+						messageContentElement.innerHTML = '';
+						ev.preventDefault();
+						form.startLoginFlow();
+						const body = new FormData();
+						body.set( 'reader-activation-auth-form', 1 );
+						body.set( 'npe', emailInput.value );
+						body.set( 'action', 'link' );
+						readerActivation
+							.getCaptchaToken()
+							.then( captchaToken => {
+								if ( ! captchaToken ) {
+									return;
+								}
+								body.set( 'captcha_token', captchaToken );
 							} )
-								.then( () => {
-									messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
-									setFormAction( 'otp' );
-									readerActivation.setOTPTimer();
+							.catch( e => {
+								console.log( { e } );
+							} )
+							.finally( () => {
+								fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+									method: 'POST',
+									headers: {
+										Accept: 'application/json',
+									},
+									body,
 								} )
-								.catch( e => {
-									console.log( e );
-								} )
-								.finally( () => {
-									handleOTPTimer();
-									form.style.opacity = 1;
-									submitButtons.forEach( button => {
-										button.disabled = false;
+									.then( () => {
+										messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
+										setFormAction( 'otp' );
+										readerActivation.setOTPTimer();
+									} )
+									.catch( e => {
+										console.log( e );
+									} )
+									.finally( () => {
+										handleOTPTimer();
+										form.style.opacity = 1;
+										submitButtons.forEach( submitButton => {
+											submitButton.disabled = false;
+										} );
 									} );
-								} );
-						} );
+							} );
+					} );
 				} );
 			}
 
@@ -522,7 +521,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 											if ( action === 'register' ) {
 												redirect = newspack_ras_config.account_url;
 											}
-											// Never redirect from hash links.
+											/** Never redirect from hash links. */
 											if ( currentHash ) {
 												redirect = '';
 											}

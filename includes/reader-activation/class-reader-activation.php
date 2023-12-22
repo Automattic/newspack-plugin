@@ -1457,7 +1457,6 @@ final class Reader_Activation {
 					);
 				}
 				$payload['authenticated'] = \absint( $user_id ) ? 1 : 0;
-				$payload['action']        = 'otp';
 				return self::send_auth_form_response( $payload, false, $redirect );
 		}
 	}
