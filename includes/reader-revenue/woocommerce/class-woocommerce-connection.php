@@ -1181,7 +1181,7 @@ class WooCommerce_Connection {
 	 */
 	public static function force_allow_failed_payment_retry( $should_retry ) {
 		if ( defined( 'NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE' ) && NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE ) {
-			return $can_switch;
+			return $should_retry;
 		}
 
 		return 'yes';
