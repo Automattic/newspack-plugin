@@ -120,16 +120,7 @@ class WooCommerce_Cover_Fees {
 		if ( true !== boolval( get_option( 'newspack_donations_allow_covering_fees' ) ) ) {
 			return false;
 		}
-		if ( \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {
-			return true;
-		}
-		if ( isset( $_POST['post_data'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			parse_str( \sanitize_text_field( \wp_unslash( $_POST['post_data'] ) ), $post_data ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			if ( isset( $post_data['modal_checkout'] ) && 1 === intval( $post_data['modal_checkout'] ) ) {
-				return true;
-			}
-		}
-		return false;
+		return true;
 	}
 
 	/**
