@@ -343,7 +343,9 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 							toggleOnChange={ handleChange( index, 'active' ) }
 							toggleChecked={ list.active }
 							className={
-								'mailchimp-group' === list?.type ? 'newspack-newsletters-group-list-item' : ''
+								list?.id && list.id.startsWith( 'group' )
+									? 'newspack-newsletters-group-list-item'
+									: ''
 							}
 							actionText={
 								list?.edit_link ? (
