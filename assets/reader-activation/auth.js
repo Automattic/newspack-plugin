@@ -527,6 +527,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 											}
 											if ( data.action ) {
 												setFormAction( data.action );
+												if ( data.action === 'otp' ) {
+													readerActivation.setOTPTimer();
+													handleOTPTimer();
+												}
 											} else {
 												form.endLoginFlow( message, status, data, redirect );
 											}

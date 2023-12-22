@@ -318,7 +318,7 @@
 				background: transparent;
 				border: 1px solid wp-colors.$gray-200;
 				color: wp-colors.$gray-700;
-				margin-bottom: 0.8rem;
+				margin-bottom: 0.4rem;
 				&:disabled {
 					background-color: wp-colors.$gray-100;
 					color: wp-colors.$gray-600;
@@ -331,9 +331,7 @@
 					background-color: var( --newspack-cta-color );
 					color: var( --newspack-cta-contrast-color );
 					transition: background-color 150ms ease-in-out;
-					margin-bottom: 0.8rem;
 					border: 0;
-
 					&:hover,
 					&:focus {
 						background-color: #111;
@@ -467,7 +465,7 @@
 		&__separator {
 			align-items: center;
 			display: flex;
-			margin-bottom: 0.8rem;
+			margin: 0.8rem 0;
 			div {
 				text-align: center;
 				&:nth-child( 2 ) {
