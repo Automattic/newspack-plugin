@@ -399,6 +399,7 @@ class Plugin_Manager {
 			'gravityformsmailchimp',
 			'gravityformsstripe',
 			'onesignal-free-web-push-notifications',
+			'safety-net',
 			'web-stories',
 			'woocommerce-memberships',
 		];

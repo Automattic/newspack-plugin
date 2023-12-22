@@ -24,7 +24,10 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 	public function test_settings_defaults() {
 		self::assertEquals(
 			Settings::api_get_settings(),
-			[ 'module_enabled_rss' => false ],
+			[
+				'module_enabled_rss'            => false,
+				'module_enabled_media-partners' => false,
+			],
 			'Default settings are as expected.'
 		);
 	}
@@ -38,7 +41,10 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 		Settings::api_update_settings( $request );
 		self::assertEquals(
 			Settings::api_get_settings(),
-			[ 'module_enabled_rss' => true ],
+			[
+				'module_enabled_rss'            => true,
+				'module_enabled_media-partners' => false,
+			],
 			'Settings is updated.'
 		);
 
@@ -46,7 +52,10 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 		Settings::api_update_settings( $request );
 		self::assertEquals(
 			Settings::api_get_settings(),
-			[ 'module_enabled_rss' => true ],
+			[
+				'module_enabled_rss'            => true,
+				'module_enabled_media-partners' => false,
+			],
 			'A non-existent setting is not saved.'
 		);
 	}
