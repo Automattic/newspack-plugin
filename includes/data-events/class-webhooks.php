@@ -780,6 +780,15 @@ final class Webhooks {
 			$args['headers']['Authorization'] = 'Bearer ' . $endpoint['bearer_token'];
 		}
 
+		/**
+		 * Filters the request arguments for webhook requests.
+		 *
+		 * @param array $args       Request arguments.
+		 * @param int   $request_id Request ID.
+		 * @param array $endpoint   Endpoint data.
+		 */
+		$args = apply_filters( 'newspack_webhooks_request_args', $args, $request_id, $endpoint );
+
 		$response = \wp_safe_remote_request( $url, $args );
 		if ( \is_wp_error( $response ) ) {
 			return $response;
