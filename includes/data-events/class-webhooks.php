@@ -789,6 +789,16 @@ final class Webhooks {
 		 */
 		$args = apply_filters( 'newspack_webhooks_request_args', $args, $request_id, $endpoint );
 
+		/**
+		 * Filters the request URL for webhook requests.
+		 *
+		 * @param string $url        Request URL.
+		 * @param array  $args       Request arguments.
+		 * @param int    $request_id Request ID.
+		 * @param array  $endpoint   Endpoint data.
+		 */
+		$url = apply_filters( 'newspack_webhooks_request_url', $url, $args, $request_id, $endpoint );
+
 		$response = \wp_safe_remote_request( $url, $args );
 		if ( \is_wp_error( $response ) ) {
 			return $response;
