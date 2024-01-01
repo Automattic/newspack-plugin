@@ -52,7 +52,7 @@
 	"dependencies": {
 		"@babel/plugin-transform-runtime": "^7.23.6",
 		"@babel/preset-env": "^7.23.7",
-		"classnames": "^2.3.2",
+		"classnames": "^2.5.1",
 		"colord": "^2.9.3",
 		"deep-map-keys": "^2.0.1",
 		"js-cookie": "^3.0.5",
