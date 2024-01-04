@@ -1,3 +1,10 @@
+# [2.13.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.13.0-alpha.2...v2.13.0-alpha.3) (2024-01-04)
+
+
+### Bug Fixes
+
+* **cover-fees:** save order after setting total ([7bf58e9](https://github.com/Automattic/newspack-plugin/commit/7bf58e9bb142007521f748ab04d2a49b62bb8641))
+
 ## [2.12.2](https://github.com/Automattic/newspack-plugin/compare/v2.12.1...v2.12.2) (2024-01-04)
 
 
