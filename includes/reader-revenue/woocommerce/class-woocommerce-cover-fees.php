@@ -53,13 +53,11 @@ class WooCommerce_Cover_Fees {
 	 *
 	 * @param string $posted_data Posted posted_data.
 	 */
-	public static function persist_fee_selection( $posted_data ) {
-		$data = [];
-		parse_str( $posted_data, $data );
-		if ( self::should_apply_fee( $data ) ) {
-			\WC()->session->set( self::CUSTOM_FIELD_NAME, 1 );
-		} else {
-			\WC()->session->set( self::CUSTOM_FIELD_NAME, 0 );
+	public static function set_total_with_fees( $order, $data ) {
+		if ( isset( $data[ self::CUSTOM_FIELD_NAME ] ) && 1 === $data[ self::CUSTOM_FIELD_NAME ] ) {
+			$order->add_meta_data( self::WC_ORDER_META_NAME, 1 );
+			$order->set_total( self::get_total_with_fee( $order->get_total() ) );
+			$order->save();
 		}
 	}
 
