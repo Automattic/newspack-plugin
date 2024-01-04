@@ -61,6 +61,7 @@ class WooCommerce_Cover_Fees {
 		if ( isset( $data[ self::CUSTOM_FIELD_NAME ] ) && 1 === $data[ self::CUSTOM_FIELD_NAME ] ) {
 			$order->add_meta_data( self::WC_ORDER_META_NAME, 1 );
 			$order->set_total( self::get_total_with_fee( $order->get_total() ) );
+			$order->save();
 		}
 		return $order;
 	}
