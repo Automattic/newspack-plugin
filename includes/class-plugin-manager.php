@@ -117,7 +117,7 @@ class Plugin_Manager {
 				'Download'    => 'https://github.com/Automattic/newspack-content-converter/releases/latest/download/newspack-content-converter.zip',
 				'Quiet'       => true,
 			],
-			'newspack-multibranded-site' => [
+			'newspack-multibranded-site'  => [
 				'Name'        => esc_html__( 'Newspack Multibranded Site', 'newspack' ),
 				'Description' => esc_html__( 'Brand different content and sections of your site with unique colors and navigation.', 'newspack' ),
 				'Author'      => esc_html__( 'Automattic', 'newspack' ),
@@ -126,7 +126,7 @@ class Plugin_Manager {
 				'Download'    => 'https://github.com/Automattic/newspack-multibranded-site/releases/latest/download/newspack-multibranded-site.zip',
 				'Quiet'       => true,
 			],
-			'newspack-network'           => [
+			'newspack-network'            => [
 				'Name'        => esc_html__( 'Newspack Network', 'newspack' ),
 				'Description' => esc_html__( 'Distribute content across a network of Newspack sites.', 'newspack' ),
 				'Author'      => esc_html__( 'Automattic', 'newspack' ),
