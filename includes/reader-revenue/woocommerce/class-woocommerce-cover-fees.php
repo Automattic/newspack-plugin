@@ -48,6 +48,22 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
+	 * Persist the transaction fee selection in the Woo sesion when updating the
+	 * order review.
+	 *
+	 * @param string $posted_data Posted posted_data.
+	 */
+	public static function persist_fee_selection( $posted_data ) {
+		$data = [];
+		parse_str( $posted_data, $data );
+		if ( self::should_apply_fee( $data ) ) {
+			\WC()->session->set( self::CUSTOM_FIELD_NAME, 1 );
+		} else {
+			\WC()->session->set( self::CUSTOM_FIELD_NAME, 0 );
+		}
+	}
+
+	/**
 	 * Add fee.
 	 *
 	 * @param \WC_Cart $cart Cart object.
