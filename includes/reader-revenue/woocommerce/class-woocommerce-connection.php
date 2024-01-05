@@ -336,6 +336,20 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Should an order be synchronized with the integrations?
+	 *
+	 * @param WC_Order $order Order object.
+	 */
+	public static function should_sync_order( $order ) {
+		if ( $order->get_meta( '_subscription_switch' ) ) {
+			// This is a "switch" order, which is just recording a subscription update. It has value of 0 and
+			// should not be synced anywhere.
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Sync a customer to the ESP from an order.
 	 *
 	 * @param WC_Order    $order Order object.
@@ -349,6 +363,10 @@ class WooCommerce_Connection {
 
 		if ( $verify_created_via && self::CREATED_VIA_NAME === $order->get_created_via() ) {
 			// Only sync orders not created via the Stripe integration.
+			return;
+		}
+
+		if ( ! self::should_sync_order( $order ) ) {
 			return;
 		}
 
