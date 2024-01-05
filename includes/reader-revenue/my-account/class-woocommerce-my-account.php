@@ -431,10 +431,19 @@ class WooCommerce_My_Account {
 	 * Add the necessary endpoints to rewrite rules.
 	 */
 	public static function add_rewrite_endpoints() {
+		$has_set_up_custom_billing_endpoint = \get_option( '_newspack_has_set_up_custom_billing_endpoint' );
+		if ( ! Donations::is_platform_stripe() ) {
+			if ( $has_set_up_custom_billing_endpoint ) {
+				\delete_option( '_newspack_has_set_up_custom_billing_endpoint' );
+				\flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
+				Logger::log( 'Flushed rewrite rules to remove Stripe billing endpoint' );
+			}
+			return;
+		}
 		\add_rewrite_endpoint( self::BILLING_ENDPOINT, EP_PAGES );
-		if ( ! \get_option( '_newspack_has_set_up_custom_billing_endpoint' ) ) {
+		if ( ! $has_set_up_custom_billing_endpoint ) {
 			\flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
-			Logger::log( 'Flushed rewrite rules to add billing endpoint' );
+			Logger::log( 'Flushed rewrite rules to add Stripe billing endpoint' );
 			\update_option( '_newspack_has_set_up_custom_billing_endpoint', true );
 		}
 	}
