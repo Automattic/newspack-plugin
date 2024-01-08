@@ -19,7 +19,6 @@ import {
 	ReaderActivation,
 	ReaderActivationCampaign,
 	ReaderActivationComplete,
-	Commenting,
 	Newsletters,
 	Social,
 	RelatedContent,
@@ -98,10 +97,6 @@ class EngagementWizard extends Component {
 				exact: true,
 			},
 			{
-				label: __( 'Commenting', 'newspack' ),
-				path: '/commenting',
-			},
-			{
 				label: __( 'Social', 'newspack' ),
 				path: '/social',
 				exact: true,
@@ -170,16 +165,6 @@ class EngagementWizard extends Component {
 							render={ () => (
 								<Social
 									subHeaderText={ __( 'Share your content to social media', 'newspack' ) }
-									{ ...props }
-								/>
-							) }
-						/>
-						<Route
-							path="/commenting"
-							exact
-							render={ () => (
-								<Commenting
-									subHeaderText={ __( 'Set up the commenting system for your site', 'newspack' ) }
 									{ ...props }
 								/>
 							) }
