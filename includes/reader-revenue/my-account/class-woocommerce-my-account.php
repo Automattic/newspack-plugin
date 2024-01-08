@@ -40,7 +40,7 @@ class WooCommerce_My_Account {
 		\add_action( 'init', [ __CLASS__, 'add_rewrite_endpoints' ] );
 		\add_action( 'woocommerce_account_' . self::BILLING_ENDPOINT . '_endpoint', [ __CLASS__, 'render_billing_template' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
-		\add_filter( 'woocommerce_default_address_fields', [ __CLASS__, 'edit_address_required_fields' ] );
+		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'edit_address_required_fields' ] );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
@@ -485,7 +485,7 @@ class WooCommerce_My_Account {
 
 		$required_fields = Donations::get_billing_fields();
 		foreach ( $fields as $field_name => $field_config ) {
-			if ( ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
+			if ( ! in_array( $field_name, $required_fields, true ) ) {
 				$fields[ $field_name ]['required'] = false;
 			}
 		}
