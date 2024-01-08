@@ -132,7 +132,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						try {
 							const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
 							link.querySelector( '.newspack-reader__account-link__label' ).textContent =
-								reader?.email ? labels.signedin : labels.signedout;
+								reader?.authenticated ? labels.signedin : labels.signedout;
 						} catch {}
 					} );
 				}
