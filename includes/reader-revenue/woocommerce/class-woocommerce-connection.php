@@ -45,8 +45,10 @@ class WooCommerce_Connection {
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
+		\add_filter( 'option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
 		\add_filter( 'default_option_woocommerce_subscriptions_allow_switching', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'default_option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
+		\add_filter( 'default_option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
 
 		// WooCommerce Subscriptions.
@@ -1164,6 +1166,24 @@ class WooCommerce_Connection {
 		}
 
 		// Other options added by the woocommerce_subscriptions_allow_switching_options filter are either 'yes' or 'no'.
+		return 'yes';
+	}
+
+	/**
+	 * Force option for allowing retries for failed payments to ON unless the
+	 * NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE constant is set.
+	 * 
+	 * See: https://woo.com/document/subscriptions/failed-payment-retry/
+	 * 
+	 * @param bool $should_retry Whether WooCommerce should automatically retry failed payments.
+	 *
+	 * @return string Option value.
+	 */
+	public static function force_allow_failed_payment_retry( $should_retry ) {
+		if ( defined( 'NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE' ) && NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE ) {
+			return $should_retry;
+		}
+
 		return 'yes';
 	}
 
