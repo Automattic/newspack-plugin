@@ -310,7 +310,8 @@
 			flex-wrap: wrap;
 
 			button,
-			.button {
+			.button,
+			a.button {
 				width: 100%;
 				display: block;
 				text-align: center;
@@ -323,9 +324,22 @@
 					background-color: wp-colors.$gray-100;
 					color: wp-colors.$gray-600;
 				}
+				&.secondary {
+					color: wp-colors.$gray-700;
+					&:hover,
+					&:focus {
+						background-color: wp-colors.$gray-100;
+						color: wp-colors.$gray-700;
+					}
+				}
 				&.tertiary {
 					border: 0;
 					margin: 0;
+					&:hover,
+					&:focus {
+						background-color: transparent;
+						color: wp-colors.$gray-900;
+					}
 				}
 				&[type='submit'] {
 					background-color: var( --newspack-cta-color );
