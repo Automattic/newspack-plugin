@@ -403,7 +403,7 @@ final class Webhooks {
 	 * @return array Array of endpoints.
 	 */
 	public static function get_endpoints() {
-		$terms     = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
+		$terms     = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] ); // phpcs:ignore WordPress.WP.DeprecatedParameters.Get_termsParam2Found
 		$endpoints = array_map( [ __CLASS__, 'get_endpoint_by_term' ], $terms );
 
 		return array_values( array_merge( $endpoints, self::$system_endpoints ) );

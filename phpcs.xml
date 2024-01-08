@@ -14,6 +14,8 @@
 		<exclude name="WordPress.PHP.YodaConditions.NotYoda" />
 		<exclude name="Generic.Formatting.MultipleStatementAlignment.NotSameWarning" />
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed" />
+		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.Found" />
 	</rule>
 
 	<rule ref="PHPCompatibilityWP"/>

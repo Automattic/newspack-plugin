@@ -29,10 +29,10 @@ class Newspack_Unit_Tests_Bootstrap {
 	 */
 	public function __construct() {
 
-		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted
+		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted, WordPress.PHP.IniSet.display_errors_Disallowed
 		ini_set( 'display_errors', 'on' );
 		error_reporting( E_ALL );
-		// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted
+		// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted, WordPress.PHP.IniSet.display_errors_Disallowed
 
 		// Ensure server variable is set for WP email functions.
 		// phpcs:disable WordPress.VIP.SuperGlobalInputUsage.AccessDetected
@@ -90,9 +90,9 @@ class Newspack_Unit_Tests_Bootstrap {
 		// include $this->plugin_dir . '/uninstall.php';
 		// Install the plugin here if needed.
 		// Reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374.
-		// phpcs:disable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound, WordPress.WP.GlobalVariablesOverride.Prohibited
 		$GLOBALS['wp_roles'] = null; // WPCS: override ok.
-		// phpcs:enable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound, WordPress.WP.GlobalVariablesOverride.Prohibited
 		wp_roles();
 
 		echo esc_html( 'Installing Newspack...' . PHP_EOL );

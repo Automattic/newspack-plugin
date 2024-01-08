@@ -82,12 +82,11 @@ final class Recaptcha {
 	 */
 	public static function register_script() {
 		if ( self::can_use_captcha() ) {
-			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			\wp_register_script(
 				self::SCRIPT_HANDLE,
 				\esc_url( self::get_script_url() ),
 				null,
-				null,
+				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
 			\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
