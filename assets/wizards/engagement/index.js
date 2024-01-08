@@ -1,4 +1,3 @@
-/* global newspack_engagement_wizard */
 import '../../shared/js/public-path';
 
 /**
@@ -16,7 +15,14 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { ReaderActivation, Commenting, Newsletters, Social, RelatedContent } from './views';
+import {
+	ReaderActivation,
+	ReaderActivationCampaign,
+	ReaderActivationComplete,
+	Newsletters,
+	Social,
+	RelatedContent,
+} from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -69,23 +75,26 @@ class EngagementWizard extends Component {
 	 * Render
 	 */
 	render() {
-		const { pluginRequirements } = this.props;
+		const { pluginRequirements, wizardApiFetch } = this.props;
 		const { relatedPostsEnabled, relatedPostsError, relatedPostsMaxAge, relatedPostsUpdated } =
 			this.state;
 
-		const defaultPath = newspack_engagement_wizard.has_reader_activation
-			? '/reader-activation'
-			: '/newsletters';
-
+		const defaultPath = '/reader-activation';
 		const tabbed_navigation = [
+			{
+				label: __( 'Reader Activation', 'newspack' ),
+				path: '/reader-activation',
+				exact: true,
+				activeTabPaths: [
+					'/reader-activation',
+					'/reader-activation/campaign',
+					'/reader-activation/complete',
+				],
+			},
 			{
 				label: __( 'Newsletters', 'newspack' ),
 				path: '/newsletters',
 				exact: true,
-			},
-			{
-				label: __( 'Commenting', 'newspack' ),
-				path: '/commenting',
 			},
 			{
 				label: __( 'Social', 'newspack' ),
@@ -97,33 +106,50 @@ class EngagementWizard extends Component {
 				path: '/recirculation',
 			},
 		];
-		if ( newspack_engagement_wizard.has_reader_activation ) {
-			tabbed_navigation.unshift( {
-				label: __( 'Reader Activation', 'newspack' ),
-				path: '/reader-activation',
-				exact: true,
-			} );
-		}
 		const props = {
 			headerText: __( 'Engagement', 'newspack' ),
 			tabbedNavigation: tabbed_navigation,
+			wizardApiFetch,
 		};
 		return (
 			<Fragment>
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						{ newspack_engagement_wizard.has_reader_activation && (
-							<Route
-								path="/reader-activation"
-								render={ () => (
-									<ReaderActivation
-										subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
-										{ ...props }
-									/>
-								) }
-							/>
-						) }
+						<Route
+							path="/reader-activation"
+							exact
+							render={ () => (
+								<ReaderActivation
+									subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
+									{ ...props }
+								/>
+							) }
+						/>
+						<Route
+							path="/reader-activation/campaign"
+							render={ () => (
+								<ReaderActivationCampaign
+									subHeaderText={ __(
+										'Preview and customize the reader activation prompts',
+										'newspack'
+									) }
+									{ ...props }
+								/>
+							) }
+						/>
+						<Route
+							path="/reader-activation/complete"
+							render={ () => (
+								<ReaderActivationComplete
+									subHeaderText={ __(
+										'Preview and customize the reader activation prompts',
+										'newspack'
+									) }
+									{ ...props }
+								/>
+							) }
+						/>
 						<Route
 							path="/newsletters"
 							render={ () => (
@@ -139,16 +165,6 @@ class EngagementWizard extends Component {
 							render={ () => (
 								<Social
 									subHeaderText={ __( 'Share your content to social media', 'newspack' ) }
-									{ ...props }
-								/>
-							) }
-						/>
-						<Route
-							path="/commenting"
-							exact
-							render={ () => (
-								<Commenting
-									subHeaderText={ __( 'Set up the commenting system for your site', 'newspack' ) }
 									{ ...props }
 								/>
 							) }

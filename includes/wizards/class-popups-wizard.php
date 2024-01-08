@@ -8,11 +8,11 @@
 namespace Newspack;
 
 use \WP_Error, \WP_Query;
+use \Newspack\Donations;
 
 defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
-require_once NEWSPACK_ABSPATH . 'includes/popups-analytics/class-popups-analytics-utils.php';
 
 /**
  * Interface for managing Pop-ups.
@@ -39,6 +39,7 @@ class Popups_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_filter( 'newspack_popups_registered_criteria', [ $this, 'maybe_unregister_memberships_criteria' ] );
 	}
 
 	/**
@@ -239,21 +240,6 @@ class Popups_Wizard extends Wizard {
 
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/segmentation-reach',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_segment_reach' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'config' => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
-			]
-		);
-
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/segmentation-sort',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -262,36 +248,6 @@ class Popups_Wizard extends Wizard {
 				'args'                => [
 					'segments' => [
 						'sanitize_callback' => [ $this, 'sanitize_array' ],
-					],
-				],
-			]
-		);
-
-		// Register newspack/v1/popups-analytics/report endpoint.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/popups-analytics/report',
-			[
-				[
-					'methods'             => \WP_REST_Server::READABLE,
-					'callback'            => [ $this, 'get_popups_analytics_report' ],
-					'permission_callback' => [ $this, 'api_permissions_check' ],
-					'args'                => [
-						'start_date'        => [
-							'sanitize_callback' => 'sanitize_text_field',
-						],
-						'end_date'          => [
-							'sanitize_callback' => 'sanitize_text_field',
-						],
-						'event_label_id'    => [
-							'sanitize_callback' => 'sanitize_text_field',
-						],
-						'event_action'      => [
-							'sanitize_callback' => 'sanitize_text_field',
-						],
-						'with_report_by_id' => [
-							'sanitize_callback' => 'rest_sanitize_boolean',
-						],
 					],
 				],
 			]
@@ -422,6 +378,21 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
+		
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/subscription-products',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_subscription_products' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					's' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -452,6 +423,11 @@ class Popups_Wizard extends Wizard {
 			$preview_archive = \Newspack_Popups::preview_archive_permalink();
 		}
 
+		$criteria = [];
+		if ( method_exists( 'Newspack_Popups_Criteria', 'get_registered_criteria' ) ) {
+			$criteria = \Newspack_Popups_Criteria::get_registered_criteria();
+		}
+
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$custom_placements                     = $newspack_popups_configuration_manager->get_custom_placements();
 		$overlay_placements                    = $newspack_popups_configuration_manager->get_overlay_placements();
@@ -470,6 +446,7 @@ class Popups_Wizard extends Wizard {
 				'overlay_sizes'      => $overlay_sizes,
 				'preview_query_keys' => $preview_query_keys,
 				'experimental'       => Reader_Activation::is_enabled(),
+				'criteria'           => $criteria,
 			]
 		);
 
@@ -568,6 +545,10 @@ class Popups_Wizard extends Wizard {
 			return $response;
 		}
 		$response = $newspack_popups_configuration_manager->set_popup_terms( $id, self::sanitize_terms( $config['tags'] ), 'post_tag' );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$response = $newspack_popups_configuration_manager->set_popup_terms( $id, self::sanitize_terms( $config['segments'] ), 'popup_segment' );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -738,23 +719,6 @@ class Popups_Wizard extends Wizard {
 	}
 
 	/**
-	 * Get Campaigns Analytics report.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
-	 */
-	public function get_popups_analytics_report( $request ) {
-		$options = array(
-			'start_date'        => $request['start_date'],
-			'end_date'          => $request['end_date'],
-			'event_label_id'    => $request['event_label_id'],
-			'event_action'      => $request['event_action'],
-			'with_report_by_id' => $request['with_report_by_id'],
-		);
-		return rest_ensure_response( \Popups_Analytics_Utils::get_report( $options ) );
-	}
-
-	/**
 	 * Get Campaign Segments.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
@@ -776,6 +740,7 @@ class Popups_Wizard extends Wizard {
 		$response                              = $newspack_popups_configuration_manager->create_segment(
 			[
 				'name'          => $request['name'],
+				'criteria'      => $request['criteria'],
 				'configuration' => $request['configuration'],
 			]
 		);
@@ -794,6 +759,7 @@ class Popups_Wizard extends Wizard {
 			[
 				'id'            => $request['id'],
 				'name'          => $request['name'],
+				'criteria'      => $request['criteria'],
 				'configuration' => $request['configuration'],
 			]
 		);
@@ -809,18 +775,6 @@ class Popups_Wizard extends Wizard {
 	public function api_delete_segment( $request ) {
 		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$response                              = $newspack_popups_configuration_manager->delete_segment( $request['id'] );
-		return $response;
-	}
-
-	/**
-	 * Get a specific segment's potential reach.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
-	 */
-	public function api_get_segment_reach( $request ) {
-		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		$response                              = $newspack_popups_configuration_manager->get_segment_reach( json_decode( $request['config'] ) );
 		return $response;
 	}
 
@@ -979,5 +933,71 @@ class Popups_Wizard extends Wizard {
 		$cm = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$cm->rename_campaign( $request['id'], $request['name'] );
 		return $this->api_get_settings();
+	}
+
+	/**
+	 * Get non-donation subscription products.
+	 * 
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function api_get_subscription_products( $request ) {
+		$args = [
+			'post_type'      => 'product',
+			'posts_per_page' => 100,
+			'post_status'    => 'publish',
+			'tax_query'      => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+				[
+					'taxonomy' => 'product_type',
+					'field'    => 'slug',
+					'terms'    => [ 'subscription', 'variable-subscription' ],
+				],
+			],
+		];
+
+		$posts = array_values(
+			array_filter(
+				\get_posts( $args ),
+				function( $post ) {
+					return ! Donations::is_donation_product( $post->ID );
+				}
+			)
+		);
+
+		return \rest_ensure_response(
+			array_map(
+				function( $post ) {
+					return [
+						'id'    => $post->ID,
+						'title' => $post->post_title,
+					];
+				},
+				$posts
+			)
+		);
+	}
+
+	/**
+	 * We only want to show Memberships criteria if the WooCommerce Memberships extension is active.
+	 * Otherwise these criteria are meaningless.
+	 * 
+	 * @param array $criteria Registered criteria.
+	 * 
+	 * @return array Filtered criteria.
+	 */
+	public function maybe_unregister_memberships_criteria( $criteria ) {
+		if ( ! class_exists( 'WC_Memberships' ) ) {
+			$memberships_criteria = [ 'active_memberships', 'not_active_memberships' ];
+			$criteria             = array_values(
+				array_filter(
+					$criteria,
+					function( $config ) use ( $memberships_criteria ) {
+						return ! in_array( $config['id'], $memberships_criteria, true );
+					}
+				)
+			);
+		}
+
+		return $criteria;
 	}
 }

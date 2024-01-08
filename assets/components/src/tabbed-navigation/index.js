@@ -2,7 +2,7 @@
  * External dependencies.
  */
 import classnames from 'classnames';
-import { findIndex } from 'lodash';
+import findIndex from 'lodash/findIndex';
 import Router from '../proxied-imports/router';
 
 /**

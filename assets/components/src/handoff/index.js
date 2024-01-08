@@ -17,7 +17,7 @@ import { Button, Card, Modal, Waiting } from '../';
 /**
  * External dependencies.
  */
-import { assign } from 'lodash';
+import assign from 'lodash/assign';
 import classnames from 'classnames';
 
 class Handoff extends Component {

@@ -3,7 +3,7 @@ import '../../shared/js/public-path';
 /**
  * External dependencies.
  */
-import { values } from 'lodash';
+import values from 'lodash/values';
 
 /**
  * WordPress dependencies.
@@ -53,7 +53,7 @@ const ReaderRevenueWizard = () => {
 			label: __( 'Emails', 'newspack' ),
 			path: '/emails',
 			render: Views.Emails,
-			isHidden: ! displayStripeSettings,
+			isHidden: usedPlatform !== NEWSPACK && ! displayStripeSettings,
 		},
 		{
 			label: __( 'Address', 'newspack' ),
@@ -68,7 +68,7 @@ const ReaderRevenueWizard = () => {
 			isHidden: usedPlatform !== NEWSPACK,
 		},
 		{
-			label: __( 'NRH Settings', 'newspack' ),
+			label: __( 'News Revenue Hub Settings', 'newspack' ),
 			path: '/settings',
 			render: Views.NRHSettings,
 			isHidden: usedPlatform !== NRH,

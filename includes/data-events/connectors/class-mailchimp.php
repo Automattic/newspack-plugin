@@ -7,6 +7,7 @@
 
 namespace Newspack\Data_Events\Connectors;
 
+use \Newspack\Logger;
 use \Newspack\Data_Events;
 use \Newspack\Mailchimp_API;
 use \Newspack\Newspack_Newsletters;
@@ -24,11 +25,14 @@ class Mailchimp {
 	 * Constructor.
 	 */
 	public function __construct() {
-		if (
-			defined( 'NEWSPACK_DATA_EVENTS_MAILCHIMP' ) && NEWSPACK_DATA_EVENTS_MAILCHIMP &&
-			Reader_Activation::is_enabled() &&
-			true === Reader_Activation::get_setting( 'sync_esp' )
-		) {
+		add_action( 'init', [ __CLASS__, 'register_handlers' ] );
+	}
+
+	/**
+	 * Register handlers.
+	 */
+	public static function register_handlers() {
+		if ( Reader_Activation::is_enabled() && true === Reader_Activation::get_setting( 'sync_esp' ) ) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_new' ], 'donation_new' );
 			Data_Events::register_handler( [ __CLASS__, 'donation_subscription_new' ], 'donation_subscription_new' );
@@ -41,7 +45,6 @@ class Mailchimp {
 	 * @return string|bool Audience ID or false if not set.
 	 */
 	private static function get_audience_id() {
-		/** TODO: UI for handling Mailchimp's master list in RAS. */
 		$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
 		/** Attempt to use list ID from "Mailchimp for WooCommerce" */
 		if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
@@ -76,8 +79,7 @@ class Mailchimp {
 	 * @return array Merge fields.
 	 */
 	private static function get_merge_fields( $audience_id, $data ) {
-		$merge_fields       = [];
-		$fields_option_name = sprintf( 'newspack_data_mailchimp_%s_fields', $audience_id );
+		$merge_fields = [];
 
 		// Strip arrays.
 		$data = array_filter(
@@ -88,21 +90,47 @@ class Mailchimp {
 		);
 
 		// Get and match existing merge fields.
-		$fields_ids      = \get_option( $fields_option_name, [] );
-		$existing_fields = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
-		foreach ( $existing_fields['merge_fields'] as $field ) {
-			$field_name = '';
-			if ( isset( $fields_ids[ $field['merge_id'] ] ) ) {
-				// Match locally stored merge field ID.
-				$field_name = $fields_ids[ $field['merge_id'] ];
-			} elseif ( isset( $data[ $field['name'] ] ) ) {
-				// Match by merge field name.
-				$field_name                       = $field['name'];
-				$fields_ids[ $field['merge_id'] ] = $field_name;
+		$merge_fields_res = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
+		if ( \is_wp_error( $merge_fields_res ) ) {
+			Logger::log(
+				sprintf(
+					// Translators: %1$s is the error message.
+					__( 'Error getting merge fields: %1$s', 'newspack-plugin' ),
+					$merge_fields_res->get_error_message()
+				)
+			);
+			return [];
+		}
+		$existing_fields = $merge_fields_res['merge_fields'];
+		usort(
+			$existing_fields,
+			function( $a, $b ) {
+				return $a['merge_id'] - $b['merge_id'];
 			}
-			// If field name is found, add it to the payload.
-			if ( ! empty( $field_name ) && isset( $data[ $field_name ] ) ) {
-				$merge_fields[ $field['tag'] ] = $data[ $field_name ];
+		);
+
+		$list_merge_fields = [];
+
+		// Handle duplicate fields.
+		foreach ( $existing_fields as $field ) {
+			if ( ! isset( $list_merge_fields[ $field['name'] ] ) ) {
+				$list_merge_fields[ $field['name'] ] = $field['tag'];
+			} else {
+				Logger::log(
+					sprintf(
+						// Translators: %1$s is the merge field name, %2$s is the field's unique tag.
+						__( 'Warning: Duplicate merge field %1$s found with tag %2$s.', 'newspack-plugin' ),
+						$field['name'],
+						$field['tag']
+					)
+				);
+			}
+		}
+
+		foreach ( $data as $field_name => $field_value ) {
+			// If field already exists, add it to the payload.
+			if ( isset( $list_merge_fields[ $field_name ] ) ) {
+				$merge_fields[ $list_merge_fields[ $field_name ] ] = $data[ $field_name ];
 				unset( $data[ $field_name ] );
 			}
 		}
@@ -110,19 +138,27 @@ class Mailchimp {
 		// Create remaining fields.
 		$remaining_fields = array_keys( $data );
 		foreach ( $remaining_fields as $field_name ) {
-			$created_field                            = Mailchimp_API::post(
+			$created_field = Mailchimp_API::post(
 				"lists/$audience_id/merge-fields",
 				[
 					'name' => $field_name,
 					'type' => self::get_merge_field_type( $data[ $field_name ] ),
 				]
 			);
-			$merge_fields[ $created_field['tag'] ]    = $data[ $field_name ];
-			$fields_ids[ $created_field['merge_id'] ] = $field_name;
+			// Skip field if it failed to create.
+			if ( is_wp_error( $created_field ) ) {
+				continue;
+			}
+			Logger::log(
+				sprintf(
+					// Translators: %1$s is the merge field key, %2$s is the error message.
+					__( 'Created merge field %1$s.', 'newspack-plugin' ),
+					$field_name
+				)
+			);
+			$merge_fields[ $created_field['tag'] ] = $data[ $field_name ];
 		}
 
-		// Store fields IDs for future use.
-		\update_option( $fields_option_name, $fields_ids );
 		return $merge_fields;
 	}
 
@@ -131,8 +167,10 @@ class Mailchimp {
 	 *
 	 * @param string $email Email address.
 	 * @param array  $data  Data to update.
+	 *
+	 * @return array|WP_Error response body or error.
 	 */
-	private static function put( $email, $data = [] ) {
+	public static function put( $email, $data = [] ) {
 		$audience_id = self::get_audience_id();
 		if ( ! $audience_id ) {
 			return;
@@ -148,8 +186,13 @@ class Mailchimp {
 			$payload['merge_fields'] = $merge_fields;
 		}
 
+		Logger::log(
+			'Syncing contact with metadata key(s): ' . implode( ', ', array_keys( $data ) ) . '.',
+			Data_Events::LOGGER_HEADER
+		);
+
 		// Upsert the contact.
-		Mailchimp_API::put(
+		return Mailchimp_API::put(
 			"lists/$audience_id/members/$hash",
 			$payload
 		);
@@ -163,10 +206,12 @@ class Mailchimp {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$prefix      = Newspack_Newsletters::get_metadata_prefix();
-		$account_key = Newspack_Newsletters::get_metadata_key( 'account' );
-		$metadata    = [
-			$account_key => $data['user_id'],
+		$prefix                = Newspack_Newsletters::get_metadata_prefix();
+		$account_key           = Newspack_Newsletters::get_metadata_key( 'account' );
+		$registration_date_key = Newspack_Newsletters::get_metadata_key( 'registration_date' );
+		$metadata              = [
+			$account_key           => $data['user_id'],
+			$registration_date_key => gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $timestamp ),
 		];
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
 			$metadata[ $prefix . 'Registration Page' ] = $data['metadata']['current_page_url'];

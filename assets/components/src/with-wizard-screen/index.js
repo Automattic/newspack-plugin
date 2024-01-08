@@ -7,7 +7,7 @@ import { category } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Button, Handoff, NewspackIcon, Notice, TabbedNavigation } from '../';
+import { Button, Handoff, NewspackIcon, Notice, HandoffMessage, TabbedNavigation } from '../';
 import { buttonProps } from '../../../shared/js/';
 import './style.scss';
 
@@ -34,6 +34,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			renderAboveContent,
 			disableUpcomingInTabbedNavigation,
 		} = props;
+
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );
 		const SecondaryCTAComponent = retrievedSecondaryButtonProps.plugin ? Handoff : Button;
@@ -86,6 +87,8 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 						items={ tabbedNavigation.filter( item => ! item.isHiddenInNav ) }
 					/>
 				) }
+
+				<HandoffMessage />
 
 				<div className={ classnames( 'newspack-wizard newspack-wizard__content', className ) }>
 					{ typeof renderAboveContent === 'function' ? renderAboveContent() : null }

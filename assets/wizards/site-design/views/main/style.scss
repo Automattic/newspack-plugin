@@ -12,13 +12,10 @@
 		&::before {
 			border-radius: 2px;
 			box-shadow: 0 0 8px 4px rgba( black, 0.08 );
-			bottom: 0;
 			content: '';
 			display: block;
-			left: 0;
+			inset: 0;
 			position: absolute;
-			right: 0;
-			top: 0;
 			transition: box-shadow 125ms ease-in-out;
 			z-index: -1;
 		}

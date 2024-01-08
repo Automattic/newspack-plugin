@@ -1,4 +1,4 @@
-/* globals newspack_reader_activation_data newspack_reader_auth_labels */
+/* globals newspack_ras_config newspack_reader_auth_labels */
 
 /**
  * Internal dependencies.
@@ -50,6 +50,9 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 		return acc;
 	}, {} );
 
+const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
+let currentHash;
+
 window.newspackRAS = window.newspackRAS || [];
 
 window.newspackRAS.push( function ( readerActivation ) {
@@ -60,32 +63,27 @@ window.newspackRAS.push( function ( readerActivation ) {
 			return;
 		}
 
-		let currentlyOpenOverlayPrompts = [];
-		let overlayPromptOrigin = null;
-		const hideCurrentlyOpenOverlayPrompts = () =>
-			currentlyOpenOverlayPrompts.forEach( promptElement =>
-				promptElement.setAttribute( 'amp-access-hide', '' )
-			);
-		const displayCurrentlyOpenOverlayPrompts = () => {
-			const reader = readerActivation.getReader();
-			const loginFromPrompt = reader?.email && overlayPromptOrigin;
-			currentlyOpenOverlayPrompts.forEach( promptElement => {
-				if ( loginFromPrompt && overlayPromptOrigin.isEqualNode( promptElement ) ) {
-					promptElement.setAttribute( 'amp-access-hide', '' );
-				} else {
-					promptElement.removeAttribute( 'amp-access-hide' );
-				}
-			} );
-		};
-
 		let accountLinks, triggerLinks;
 		const initLinks = function () {
 			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
-			triggerLinks = document.querySelectorAll( '[data-newspack-reader-account-link]' );
+			triggerLinks = document.querySelectorAll(
+				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
+			);
 			triggerLinks.forEach( link => {
 				link.addEventListener( 'click', handleAccountLinkClick );
 			} );
 		};
+		const handleHashChange = function ( ev ) {
+			currentHash = window.location.hash.replace( '#', '' );
+			if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
+				if ( ev ) {
+					ev.preventDefault();
+				}
+				handleAccountLinkClick();
+			}
+		};
+		window.addEventListener( 'hashchange', handleHashChange );
+		handleHashChange();
 		initLinks();
 		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
 		setTimeout( initLinks, 1000 );
@@ -130,7 +128,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					const messageContentElement = container.querySelector(
 						'.newspack-reader__auth-form__response__content'
 					);
-					if ( messageContentElement ) {
+					if ( messageContentElement && form ) {
 						form.replaceWith( messageContentElement.parentNode );
 					}
 				}
@@ -157,7 +155,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				return;
 			}
 
-			ev.preventDefault();
+			if ( ev ) {
+				ev.preventDefault();
+			}
 
 			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 			const emailInput = container.querySelector( 'input[name="npe"]' );
@@ -177,29 +177,28 @@ window.newspackRAS.push( function ( readerActivation ) {
 				emailInput.value = reader?.email || '';
 			}
 
-			if ( redirectInput && ev.target.getAttribute( 'data-redirect' ) ) {
+			if ( redirectInput && ev?.target?.getAttribute( 'data-redirect' ) ) {
 				redirectInput.value = ev.target.getAttribute( 'data-redirect' );
 			}
 
 			container.hidden = false;
 			container.style.display = 'flex';
 
-			currentlyOpenOverlayPrompts = document.querySelectorAll(
-				'.newspack-lightbox:not([amp-access-hide])'
-			);
-			overlayPromptOrigin = ev.currentTarget.closest( '.newspack-lightbox' );
-
-			hideCurrentlyOpenOverlayPrompts();
+			document.body.classList.add( 'newspack-signin' );
 
 			if ( passwordInput && emailInput?.value && 'pwd' === actionInput?.value ) {
 				passwordInput.focus();
 			} else {
 				emailInput.focus();
 			}
+			container.overlayId = readerActivation.overlays.add();
 		}
 
 		containers.forEach( container => {
 			const initialForm = container.querySelector( 'form' );
+			if ( ! initialForm ) {
+				return;
+			}
 			let form;
 			/** Workaround AMP's enforced XHR strategy. */
 			if ( initialForm.getAttribute( 'action-xhr' ) ) {
@@ -222,7 +221,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 					ev.preventDefault();
 					container.classList.remove( 'newspack-reader__auth-form__visible' );
 					container.style.display = 'none';
-					displayCurrentlyOpenOverlayPrompts();
+					document.body.classList.remove( 'newspack-signin' );
+					if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
+						history.pushState(
+							'',
+							document.title,
+							window.location.pathname + window.location.search
+						);
+					}
+					if ( container.overlayId ) {
+						readerActivation.overlays.remove( container.overlayId );
+					}
 				} );
 			}
 
@@ -272,7 +281,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 				}
 			}
-			setFormAction( readerActivation.getAuthStrategy() || 'link' );
+			setFormAction(
+				currentHash === 'register_modal' ? 'register' : readerActivation.getAuthStrategy() || 'link'
+			);
+			window.addEventListener( 'hashchange', () => {
+				if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
+					setFormAction(
+						currentHash === 'register_modal'
+							? 'register'
+							: readerActivation.getAuthStrategy() || 'link'
+					);
+				}
+			} );
 			readerActivation.on( 'reader', () => {
 				if ( readerActivation.getOTPHash() ) {
 					setFormAction( 'otp' );
@@ -351,6 +371,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							tokenField = document.createElement( 'input' );
 							tokenField.setAttribute( 'type', 'hidden' );
 							tokenField.setAttribute( 'name', 'captcha_token' );
+							tokenField.setAttribute( 'autocomplete', 'off' );
 							form.appendChild( tokenField );
 						}
 						tokenField.value = captchaToken;
@@ -363,12 +384,16 @@ window.newspackRAS.push( function ( readerActivation ) {
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 							return form.endFlow( newspack_reader_auth_labels.invalid_email, 400 );
 						}
-						readerActivation.setReaderEmail( body.get( 'npe' ) );
 						if ( 'otp' === action ) {
 							readerActivation
 								.authenticateOTP( body.get( 'otp_code' ) )
 								.then( data => {
-									form.endLoginFlow( data.message, 200, data, body.get( 'redirect' ) );
+									form.endLoginFlow(
+										data.message,
+										200,
+										data,
+										currentHash ? '' : body.get( 'redirect' )
+									);
 								} )
 								.catch( data => {
 									if ( data.expired ) {
@@ -385,26 +410,39 @@ window.newspackRAS.push( function ( readerActivation ) {
 								body,
 							} )
 								.then( res => {
-									const otpHash = readerActivation.getOTPHash();
-									if ( 'link' === action && otpHash ) {
-										form.endLoginFlow( null, 0 );
-										setFormAction( 'otp' );
-									} else {
-										container.setAttribute( 'data-form-status', res.status );
-										res
-											.json()
-											.then( ( { message, data } ) => {
-												let redirect = body.get( 'redirect' );
-												/** Redirect every registration to the account page for verification */
-												if ( action === 'register' ) {
-													redirect = newspack_reader_activation_data.account_url;
+									container.setAttribute( 'data-form-status', res.status );
+									res
+										.json()
+										.then( ( { message, data } ) => {
+											let status = res.status;
+											let redirect = body.get( 'redirect' );
+											/** Redirect every registration to the account page for verification if not coming from a hash link */
+											if ( action === 'register' ) {
+												redirect = newspack_ras_config.account_url;
+											}
+											// Never redirect from hash links.
+											if ( currentHash ) {
+												redirect = '';
+											}
+											if ( status === 200 ) {
+												readerActivation.setReaderEmail( body.get( 'npe' ) );
+											}
+											const otpHash = readerActivation.getOTPHash();
+											if ( otpHash && [ 'register', 'link' ].includes( action ) ) {
+												if ( status === 200 ) {
+													setFormAction( 'otp' );
 												}
-												form.endLoginFlow( message, res.status, data, redirect );
-											} )
-											.catch( () => {
-												form.endLoginFlow();
-											} );
-									}
+												/** If action is link, suppress message and status so the OTP handles it. */
+												if ( status === 200 && action === 'link' ) {
+													status = null;
+													message = null;
+												}
+											}
+											form.endLoginFlow( message, status, data, redirect );
+										} )
+										.catch( () => {
+											form.endLoginFlow();
+										} );
 								} )
 								.catch( () => {
 									form.endLoginFlow();

@@ -30,6 +30,11 @@ class Newspack_Newsletters {
 		'signup_page'          => 'Signup Page',
 		'signup_page_utm'      => 'Signup UTM: ',
 		'newsletter_selection' => 'Newsletter Selection',
+		'referer'              => 'Referrer Path',
+		'registration_page'    => 'Registration Page',
+		'current_page_url'     => 'Registration Page',
+		'registration_method'  => 'Registration Method',
+
 		// Payment-related.
 		'membership_status'    => 'Membership Status',
 		'payment_page'         => 'Payment Page',
@@ -49,11 +54,20 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		if ( Reader_Activation::is_enabled() && Reader_Activation::get_setting( 'sync_esp' ) ) {
-			\add_action( 'newspack_newsletters_update_contact_lists', [ __CLASS__, 'update_contact_lists' ], 10, 5 );
-			\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'contact_data' ], 10, 3 );
+		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
+
+		if ( self::should_sync_ras_metadata() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
+	}
+
+	/**
+	 * Whether or not we should use the special metadata keys for RAS sites.
+	 * 
+	 * @return boolean True if a RAS sync, otherwise false.
+	 */
+	public static function should_sync_ras_metadata() {
+		return Reader_Activation::is_enabled() && Reader_Activation::get_setting( 'sync_esp' );
 	}
 
 	/**
@@ -120,176 +134,60 @@ class Newspack_Newsletters {
 	}
 
 	/**
-	 * Update content metadata after a contact's lists are updated.
-	 *
-	 * @param string        $provider        The provider name.
-	 * @param string        $email           Contact email address.
-	 * @param string[]      $lists_to_add    Array of list IDs to subscribe the contact to.
-	 * @param string[]      $lists_to_remove Array of list IDs to remove the contact from.
-	 * @param bool|WP_Error $result          True if the contact was updated or error if failed.
+	 * Normalizes contact metadata keys before syncing to ESP. If RAS is enabled, we should favor RAS metadata keys.
+	 * 
+	 * @param array $contact Contact data.
+	 * @return array Normalized contact data.
 	 */
-	public static function update_contact_lists( $provider, $email, $lists_to_add, $lists_to_remove, $result ) {
-		switch ( $provider ) {
-			case 'active_campaign':
-				if ( true === $result && method_exists( '\Newspack_Newsletters_Subscription', 'add_contact' ) && method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
-					$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email );
-					// The add_contact method is idempotent, effectively being an upsertion.
-					\Newspack_Newsletters_Subscription::add_contact( [ 'email' => $email ], $current_lists );
-				}
-				break;
-		}
-	}
-
-	/**
-	 * Modify metadata for newsletter contact creation.
-	 *
-	 * @param array          $contact           {
-	 *          Contact information.
-	 *
-	 *    @type string   $email                 Contact email address.
-	 *    @type string   $name                  Contact name. Optional.
-	 *    @type string   $existing_contact_data Existing contact data, if updating a contact. The hook will be also called when
-	 *    @type string[] $metadata              Contact additional metadata. Optional.
-	 * }
-	 * @param string[]|false $selected_list_ids Array of list IDs the contact will be subscribed to, or false.
-	 * @param string         $provider          The provider name.
-	 */
-	public static function contact_data( $contact, $selected_list_ids, $provider ) {
-		switch ( $provider ) {
-			case 'active_campaign':
-				$metadata = [];
-				if ( is_user_logged_in() ) {
-					$metadata[ self::get_metadata_key( 'account' ) ] = get_current_user_id();
-				}
-
-				// Translate list IDs to list names and store as metadata, if lists are supplied.
-				// The list ids can be an empty array, which means the contact has been unsubscribed from all lists.
-				if ( false !== $selected_list_ids ) {
-					try {
-						if ( method_exists( '\Newspack_Newsletters_Subscription', 'get_lists' ) ) {
-							$lists = \Newspack_Newsletters_Subscription::get_lists();
-							if ( ! is_wp_error( $lists ) ) {
-								$lists_names = [];
-								foreach ( $selected_list_ids as $selected_list_id ) {
-									foreach ( $lists as $list ) {
-										if ( $list['id'] === $selected_list_id ) {
-											$lists_names[] = $list['name'];
-										}
-									}
-								}
-								// Note: this field will be overwritten every time it's updated.
-								$metadata[ self::get_metadata_key( 'newsletter_selection' ) ] = implode( ', ', $lists_names );
-							}
-						}
-					} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-						Logger::error( 'Error in getting contact lists: ' . $e->getMessage() );
-						// Move along.
-					}
-				}
-
-				$current_page_url = isset( $contact['metadata'], $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : null;
-				if ( $current_page_url ) {
-					// Don't send this metadata to ESP, it will be used to populate signup and payment page URLs' fields.
-					unset( $contact['metadata']['current_page_url'] );
-				} else {
-					global $wp;
-					$current_page_url = home_url( add_query_arg( array(), $wp->request ) );
-				}
-				$current_page_url_params = self::get_url_params( $current_page_url );
-
-				$is_new_contact = ! $contact['existing_contact_data'];
-				// If the contact exists, but has no account metadata (or any metadata), treat it as a new contact.
-				$metadata_account_field_formatted = strtoupper( self::get_metadata_key( 'account' ) );
-				if ( $contact['existing_contact_data'] && ! isset( $contact['existing_contact_data']['metadata'], $contact['existing_contact_data']['metadata'][ $metadata_account_field_formatted ] ) ) {
-					$is_new_contact = true;
-				}
-				if ( $is_new_contact ) {
-					$contact['metadata'][ self::get_metadata_key( 'registration_date' ) ] = gmdate( self::METADATA_DATE_FORMAT );
-					$metadata[ self::get_metadata_key( 'signup_page' ) ]                  = $current_page_url;
-
-					// Capture UTM params.
-					foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
-						$param = 'utm_' . $value;
-						if ( isset( $current_page_url_params[ $param ] ) ) {
-							$metadata[ self::get_metadata_key( 'signup_page_utm' ) . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
-						}
-					}
-				}
-
-				// If the membership status is to be switched from recurring to non-recurring, ignore this change.
-				if ( $contact['existing_contact_data'] && isset( $contact['metadata'][ self::get_metadata_key( 'membership_status' ) ], $existing_metadata[ self::get_metadata_key( 'membership_status' ) ] ) ) {
-					$existing_metadata  = $contact['existing_contact_data']['metadata'];
-					$becomes_once_donor = Stripe_Connection::ESP_METADATA_VALUES['once_donor'] === $contact['metadata'][ self::get_metadata_key( 'membership_status' ) ];
-					$is_recurring_donor = in_array(
-						$existing_metadata[ self::get_metadata_key( 'membership_status' ) ],
-						[
-							Stripe_Connection::ESP_METADATA_VALUES['monthly_donor'],
-							Stripe_Connection::ESP_METADATA_VALUES['yearly_donor'],
-						]
-					);
-					if ( $becomes_once_donor && $is_recurring_donor ) {
-						unset( $contact['metadata'][ self::get_metadata_key( 'membership_status' ) ] );
-					}
-				}
-
-				if ( isset( $contact['metadata'] ) ) {
-					if ( isset( $contact['metadata'][ self::get_metadata_key( 'last_payment_amount' ) ] ) ) {
-						$metadata[ self::get_metadata_key( 'payment_page' ) ] = $current_page_url;
-						foreach ( [ 'source', 'medium', 'campaign' ] as $value ) {
-							$param = 'utm_' . $value;
-							if ( isset( $current_page_url_params[ $param ] ) ) {
-								$metadata[ self::get_metadata_key( 'payment_page_utm' ) . $value ] = sanitize_text_field( $current_page_url_params[ $param ] );
-							}
-						}
-					}
-
-					if ( isset( $contact['metadata']['registration_method'] ) ) {
-						$registration_method = $contact['metadata']['registration_method'];
-						if ( in_array( $registration_method, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
-							$contact['metadata'][ self::get_metadata_key( 'connected_account' ) ] = $registration_method;
-						}
-					}
-				}
-
-				if ( isset( $contact['metadata'] ) && is_array( $contact['metadata'] ) ) {
-					$contact['metadata'] = array_merge( $contact['metadata'], $metadata );
-				} else {
-					$contact['metadata'] = $metadata;
-				}
-
-				// Ensure only the prefixed metadata is passed along to the ESP.
-				foreach ( $contact['metadata'] as $key => $value ) {
-					if ( strpos( $key, self::get_metadata_prefix() ) !== 0 ) {
-						unset( $contact['metadata'][ $key ] );
-					}
-				}
-
-				return $contact;
-			default:
-				return $contact;
-		}
-	}
-
-	/**
-	 * Parse params from a URL.
-	 *
-	 * @param string $url URL to parse.
-	 * @return array Associative array of params.
-	 */
-	private static function get_url_params( $url ) {
-		$parsed_url = \wp_parse_url( $url );
-		if ( isset( $parsed_url['query'] ) ) {
-			return array_reduce(
-				explode( '&', $parsed_url['query'] ),
-				function( $acc, $item ) {
-					$parts            = explode( '=', $item );
-					$acc[ $parts[0] ] = count( $parts ) === 2 ? $parts[1] : '';
-					return $acc;
+	public static function normalize_contact_data( $contact ) {
+		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
+		if ( isset( $contact['metadata'] ) ) {
+			$normalized_metadata = [];
+			$raw_keys            = array_values( array_flip( self::$metadata_keys ) );
+			$prefixed_keys       = array_map(
+				function( $key ) {
+					return self::get_metadata_key( $key );
 				},
-				[]
+				$raw_keys
 			);
+			foreach ( $contact['metadata'] as $meta_key => $meta_value ) {
+				if ( self::should_sync_ras_metadata() ) {
+					if ( in_array( $meta_key, $raw_keys, true ) ) {
+						$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
+					} elseif (
+						in_array( $meta_key, $prefixed_keys, true ) ||
+						( false !== strpos( $meta_key, self::get_metadata_key( 'signup_page_utm' ) ) || false !== strpos( $meta_key, self::get_metadata_key( 'payment_page_utm' ) ) ) // UTM meta keys can have arbitrary suffixes.
+					) {
+						$normalized_metadata[ $meta_key ] = $meta_value;
+					}
+				} else {
+					// If not syncing for RAS, we only want to sync email (for all ESPs) + First/Last Name (for MC only).
+					if ( in_array( $meta_key, [ 'First Name', 'Last Name' ], true ) ) {
+						$normalized_metadata[ $meta_key ] = $meta_value;
+					}
+				}
+			}
+			$contact['metadata'] = $normalized_metadata;
 		}
-		return [];
+
+		// Parse full name into first + last for MC, which stores these as separate merge fields.
+		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
+			if ( isset( $contact['name'] ) ) {
+				if ( ! isset( $contact['metadata'] ) ) {
+					$contact['metadata'] = [];
+				}
+				$name_fragments                    = explode( ' ', $contact['name'], 2 );
+				$contact['metadata']['First Name'] = $name_fragments[0];
+				if ( isset( $name_fragments[1] ) ) {
+					$contact['metadata']['Last Name'] = $name_fragments[1];
+				}
+			}
+		}
+
+		Logger::log( 'Normalizing contact data for reader ESP sync:' );
+		Logger::log( $contact );
+
+		return $contact;
 	}
 
 	/**

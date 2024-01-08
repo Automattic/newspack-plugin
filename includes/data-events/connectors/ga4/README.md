@@ -14,11 +14,8 @@ For now, the credentials must be manually added to the database. You will need y
 Store this info in the database:
 ```
 wp option set ga4_measurement_id "G-XXXXXXXXXX"
-wp option set ga4_api_secret YYYYYYYYYYYYYYYYYYY
+wp option set ga4_measurement_protocol_secret YYYYYYYYYYYYYYYYYYY
 ```
-
-This is still experimental, so you'll need to add this to wp-config:
-`define( 'NEWSPACK_EXPERIMENTAL_GA4_EVENTS', true );`
 
 ## Events being tracked
 
@@ -29,6 +26,7 @@ These parameters are added to all events:
 * `ga_session_id`: The GA Session ID, retrieved from the cookie
 * `logged_in`: Whether the user is logged in when the event got fired
 * `is_reader`: Whether the user is a RAS reader
+* `email_hash`: The anonymized user email, if the user is logged in
 
 Note: All paramaters are strings
 
@@ -59,9 +57,10 @@ Additional parameters:
 * `recurrence`
 * `platform`
 * `referer`
+* `is_renewal`: If this is a subscription renewal (recurring payment).
+* `subscription_id`: The related subscription id (if any).
 * `popup_id`: If the action was triggered from inside a popup, the popup id.
 * `range`: The range of the donation amount: `under-20`, `20-50`, `51-100`, `101-200`, `201-500` or `over-500`.
-
 
 ### donation_subscription_cancelled
 
@@ -77,8 +76,6 @@ Additional parameters:
 
 ### newsletter_subscribed
 
-
-
 Additional parameters:
 
 * `newsletters_subscription_method`
@@ -87,12 +84,12 @@ Additional parameters:
 * `lists`: comma separated list of the list IDs the readers subscribed to (note: truncated at 100 characters)
 * `registration_method`: If the newsletter subscription was triggered by a registration form
 
-### campaign_interaction
+### prompt_interaction
 
 Additional parameters:
 
-* All default parameters from the `campaign_interaction` event (`campaign_id`, `campaign_frequency`, `action`, `action_type`, etc.)
-* `campaign_has_donation_block`: If the donation block was present, the value will be 1
-* `campaign_has_registration_block`: If the registration block was present, the value will be 1
-* `campaign_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
+* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.). See [reference](../../README.md#prompt_interaction).
+* `prompt_has_donation_block`: If the donation block was present, the value will be 1
+* `prompt_has_registration_block`: If the registration block was present, the value will be 1
+* `prompt_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1
 * All parameters inside the `interaction_data` value.

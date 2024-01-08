@@ -9,11 +9,13 @@ namespace Newspack\Data_Events\Connectors;
 
 require_once 'class-event.php';
 
+use Newspack\Analytics_Wizard;
 use Newspack\Data_Events;
 use Newspack\Data_Events\Connectors\GA4\Event;
 use Newspack\Data_Events\Popups as Popups_Events;
 use Newspack\Logger;
 use Newspack\Reader_Activation;
+use Newspack_Popups_Data_Api;
 use WC_Order;
 use WP_Error;
 
@@ -35,7 +37,8 @@ class GA4 {
 		'donation_new',
 		'donation_subscription_cancelled',
 		'newsletter_subscribed',
-		'campaign_interaction',
+		'prompt_interaction',
+		'gate_interaction',
 	];
 
 	/**
@@ -52,6 +55,47 @@ class GA4 {
 	}
 
 	/**
+	 * Whether GA4 can be used.
+	 *
+	 * @return bool
+	 */
+	public static function can_use_ga4() {
+		$properties = self::get_ga4_properties();
+		return ! empty( $properties ) && ! empty( $properties[0]['measurement_id'] );
+	}
+
+	/**
+	 * Get the GA4 properties to send events to.
+	 *
+	 * @return array
+	 */
+	private static function get_ga4_properties() {
+		$properties = [
+			Analytics_Wizard::get_ga4_credentials(),
+		];
+
+		/**
+		 * Filters the properties of the GA4 events in the GA4 Data Events connector.
+		 *
+		 * Each property is an array with two keys: `measurement_id` and `measurement_protocol_secret`.
+		 *
+		 * @param array $properties The properties.
+		 */
+		$properties = apply_filters( 'newspack_data_events_ga4_properties', $properties );
+
+		$properties = array_values(
+			array_filter(
+				$properties,
+				function( $a ) {
+					return ! empty( $a ) && ! empty( $a['measurement_id'] );
+				}
+			)
+		);
+
+		return $properties;
+	}
+
+	/**
 	 * Global handler for the Data Events API.
 	 *
 	 * @param string $event_name The event name.
@@ -64,6 +108,9 @@ class GA4 {
 	 */
 	public static function global_handler( $event_name, $timestamp, $data, $user_id ) {
 		if ( ! in_array( $event_name, self::$watched_events, true ) ) {
+			return;
+		}
+		if ( ! self::can_use_ga4() ) {
 			return;
 		}
 
@@ -125,6 +172,9 @@ class GA4 {
 		if ( ! in_array( $event_name, self::$watched_events, true ) ) {
 			return $body;
 		}
+		if ( ! self::can_use_ga4() ) {
+			return $body;
+		}
 
 		$body['data']['ga_client_id'] = self::extract_cid_from_cookies();
 
@@ -140,8 +190,9 @@ class GA4 {
 
 		$body['data']['ga_params']['is_reader'] = 'no';
 		if ( is_user_logged_in() ) {
-			$current_user                           = wp_get_current_user();
-			$body['data']['ga_params']['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+			$current_user                            = wp_get_current_user();
+			$body['data']['ga_params']['is_reader']  = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+			$body['data']['ga_params']['email_hash'] = md5( $current_user->user_email );
 		}
 
 		return $body;
@@ -153,21 +204,28 @@ class GA4 {
 	 *
 	 * In those cases, we rely on the metadata added to the order/subscription via the `newspack_stripe_handle_donation_payment_metadata` filter.
 	 *
-	 * This filter fixes both the donation_new event and the campaign_interaction with action form_submission_success that relies on this event.
+	 * This filter fixes both the donation_new event and the prompt_interaction with action form_submission_success that relies on this event.
 	 *
 	 * @param array  $body The event body.
 	 * @param string $event_name The event name.
 	 * @return array
 	 */
 	public static function filter_donation_new_event_body( $body, $event_name ) {
-		if ( ! empty( $body['data']['ga_client_id'] || ( 'donation_new' !== $event_name && 'campaign_interaction' !== $event_name ) ) ) {
+		if ( ! self::can_use_ga4() ) {
+			return $body;
+		}
+		if ( ! empty( $body['data']['ga_client_id'] ) || ( 'donation_new' !== $event_name && 'prompt_interaction' !== $event_name ) ) {
 			return $body;
 		}
 
 		if ( 'donation_new' === $event_name ) {
 			$order_id = $body['data']['platform_data']['order_id'];
-		} else { // campaign_interaction.
+		} else { // prompt_interaction.
 			$order_id = $body['data']['interaction_data']['donation_order_id'] ?? false;
+		}
+
+		if ( ! function_exists( 'wc_get_order' ) ) {
+			return $body;
 		}
 
 		$order = wc_get_order( $order_id );
@@ -234,13 +292,15 @@ class GA4 {
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
 	public static function handle_donation_new( $params, $data ) {
-		$params['amount']     = $data['amount'];
-		$params['currency']   = $data['currency'];
-		$params['recurrence'] = $data['recurrence'];
-		$params['platform']   = $data['platform'];
-		$params['referer']    = $data['referer'] ?? '';
-		$params['popup_id']   = $data['popup_id'] ?? '';
-		$params['range']      = self::get_donation_amount_range( $data['amount'] );
+		$params['amount']          = $data['amount'];
+		$params['currency']        = $data['currency'];
+		$params['recurrence']      = $data['recurrence'];
+		$params['platform']        = $data['platform'];
+		$params['referer']         = $data['referer'] ?? '';
+		$params['popup_id']        = $data['popup_id'] ?? '';
+		$params['is_renewal']      = $data['is_renewal'] ? 'yes' : 'no';
+		$params['subscription_id'] = $data['subscription_id'] ?? '';
+		$params['range']           = self::get_donation_amount_range( $data['amount'] );
 		return $params;
 	}
 
@@ -315,45 +375,42 @@ class GA4 {
 	}
 
 	/**
-	 * Handler for the campaign_interaction event.
+	 * Handler for the prompt_interaction event.
 	 *
-	 * @param int   $params The GA4 event parameters.
-	 * @param array $data      Data associated with the Data Events api event.
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
 	 *
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
-	public static function handle_campaign_interaction( $params, $data ) {
+	public static function handle_prompt_interaction( $params, $data ) {
 		$transformed_data = $data;
 		// remove data added in the body filter.
 		unset( $transformed_data['ga_params'] );
 		unset( $transformed_data['ga_client_id'] );
 
-		$transformed_data = self::sanitize_popup_params( $transformed_data );
+		$transformed_data = Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $transformed_data );
 
 		return array_merge( $params, $transformed_data );
 	}
 
 	/**
-	 * Sanitizes the popup params to be sent as params for GA events
+	 * Handler for the gate_interaction event.
 	 *
-	 * @param array $popup_params The popup params as they are returned by Newspack\Data_Events\Popups::get_popup_metadata and by the campaign_interaction data.
-	 * @return array
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
-	public static function sanitize_popup_params( $popup_params ) {
-		// Invalid input.
-		if ( ! is_array( $popup_params ) || ! isset( $popup_params['campaign_id'] ) ) {
-			return [];
-		}
-		$santized = $popup_params;
-
-		unset( $santized['interaction_data'] );
-		$santized = array_merge( $santized, $popup_params['interaction_data'] );
-
-		unset( $santized['campaign_blocks'] );
-		foreach ( $popup_params['campaign_blocks'] as $block ) {
-			$santized[ 'campaign_has_' . $block ] = 1;
-		}
-		return $santized;
+	public static function handle_gate_interaction( $params, $data ) {
+		$params['gate_post_id'] = $data['gate_post_id'] ?? '';
+		$params['action']       = $data['action'] ?? '';
+		$params['action_type']  = $data['action_type'] ?? '';
+		$params['referer']      = $data['referer'] ?? '';
+		$params['order_id']     = $data['order_id'] ?? '';
+		$params['product_id']   = $data['product_id'] ?? '';
+		$params['amount']       = $data['amount'] ?? '';
+		$params['currency']     = $data['currency'] ?? '';
+		return $params;
 	}
 
 	/**
@@ -365,30 +422,18 @@ class GA4 {
 	 * @return array
 	 */
 	public static function get_sanitized_popup_params( $popup_id ) {
-		$popup_params = Popups_Events::get_popup_metadata( $popup_id );
-		return self::sanitize_popup_params( $popup_params );
-	}
-
-	/**
-	 * Gets the credentials for the GA4 API.
-	 *
-	 * @return array
-	 */
-	private static function get_credentials() {
-		$api_secret     = get_option( 'ga4_api_secret' );
-		$measurement_id = get_option( 'ga4_measurement_id' );
-		return compact( 'api_secret', 'measurement_id' );
+		$popup_params = Newspack_Popups_Data_Api::get_popup_metadata( $popup_id );
+		return Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $popup_params );
 	}
 
 	/**
 	 * Gets the API URL for GA4
 	 *
+	 * @param string $measurement_id The GA4 measurement ID.
+	 * @param string $api_secret The GA4 Measurement Protocol API secret.
 	 * @return WP_Error|string
 	 */
-	public static function get_api_url() {
-		$credentials    = self::get_credentials();
-		$api_secret     = $credentials['api_secret'];
-		$measurement_id = $credentials['measurement_id'];
+	public static function get_api_url( $measurement_id, $api_secret ) {
 		if ( ! $api_secret || ! $measurement_id ) {
 			return new WP_Error( 'missing_credentials', 'Missing GA4 API credentials.' );
 		}
@@ -414,12 +459,6 @@ class GA4 {
 	 */
 	private static function send_event( Event $event, $client_id, $timestamp, $user_id = null ) {
 
-		$url = self::get_api_url();
-
-		if ( is_wp_error( $url ) ) {
-			throw new \Exception( $url->get_error_message() );
-		}
-
 		$timestamp_micros = (int) $timestamp * 1000000;
 
 		$payload = [
@@ -434,14 +473,27 @@ class GA4 {
 			$payload['user_id'] = $user_id;
 		}
 
-		wp_remote_post(
-			$url,
-			[
-				'body' => wp_json_encode( $payload ),
-			]
-		);
+		$properties = self::get_ga4_properties();
 
-		self::log( sprintf( 'Event sent - %s - Client ID: %s', $event->get_name(), $client_id ) );
+		foreach ( $properties as $property ) {
+
+			$url = self::get_api_url( $property['measurement_id'] ?? '', $property['measurement_protocol_secret'] ?? '' );
+
+			if ( is_wp_error( $url ) ) {
+				self::log( sprintf( 'Error sending event - %s - Error: %s', $event->get_name(), $url->get_error_message() ) );
+				continue;
+			}
+
+			wp_remote_post(
+				$url,
+				[
+					'body' => wp_json_encode( $payload ),
+				]
+			);
+
+			self::log( sprintf( 'Event sent to %s - %s - Client ID: %s', $property['measurement_id'], $event->get_name(), $client_id ) );
+			self::log( sprintf( 'Event payload: %s', wp_json_encode( $payload ) ) );
+		}
 
 	}
 
@@ -509,6 +561,4 @@ class GA4 {
 	}
 }
 
-if ( defined( 'NEWSPACK_EXPERIMENTAL_GA4_EVENTS' ) && NEWSPACK_EXPERIMENTAL_GA4_EVENTS ) {
-	add_action( 'plugins_loaded', array( 'Newspack\Data_Events\Connectors\GA4', 'init' ) );
-}
+add_action( 'plugins_loaded', array( 'Newspack\Data_Events\Connectors\GA4', 'init' ) );

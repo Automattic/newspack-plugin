@@ -171,17 +171,6 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Get segment's potential reach.
-	 *
-	 * @param object $config Segment configuration.
-	 */
-	public function get_segment_reach( $config ) {
-		return $this->is_configured() ?
-			\Newspack_Popups_Segmentation::get_segment_reach( $config ) :
-			$this->unconfigured_error();
-	}
-
-	/**
 	 * Sort all segments.
 	 *
 	 * @param object $segment_ids Sorted array of segment IDs.
@@ -311,6 +300,24 @@ class Newspack_Popups_Configuration_Manager extends Configuration_Manager {
 	public function preview_query_keys() {
 		return $this->is_configured() ?
 			\Newspack_Popups::PREVIEW_QUERY_KEYS :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get post URL for preview requests.
+	 */
+	public function preview_post() {
+		return $this->is_configured() ?
+			\Newspack_Popups::preview_post_permalink() :
+			$this->unconfigured_error();
+	}
+
+	/**
+	 * Get archive URL for preview requests.
+	 */
+	public function preview_archive() {
+		return $this->is_configured() ?
+			\Newspack_Popups::preview_archive_permalink() :
 			$this->unconfigured_error();
 	}
 

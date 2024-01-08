@@ -21,15 +21,15 @@ class Newspack_AMP_Polyfills extends WP_UnitTestCase {
 		return [
 			[
 				'<amp-img src="https://example.com/image.jpg" width="100" height="100"></amp-img>',
-				'<img src="https://example.com/image.jpg" width="100" height="100">',
+				'<img src="https://example.com/image.jpg" width="100" height="100" />',
 			],
 			[
 				'<amp-img class="test" src="https://example.com/image.jpg" width="100" height="100">something inside</amp-img>',
-				'<img class="test" src="https://example.com/image.jpg" width="100" height="100">',
+				'<img class="test" src="https://example.com/image.jpg" width="100" height="100" />',
 			],
 			[
 				'<amp-img src="https://example.com/image.jpg"></amp-img><p>something</p><amp-img src="https://example.com/image.jpg"></amp-img>something',
-				'<img src="https://example.com/image.jpg"><p>something</p><img src="https://example.com/image.jpg">something',
+				'<img src="https://example.com/image.jpg" /><p>something</p><img src="https://example.com/image.jpg" />something',
 			],
 
 		];
@@ -66,7 +66,10 @@ class Newspack_AMP_Polyfills extends WP_UnitTestCase {
 				'<amp-iframe src="https://example.com/image.jpg"></amp-iframe><p>something</p><amp-iframe src="https://example.com/image.jpg"></amp-iframe>something',
 				'<iframe src="https://example.com/image.jpg"></iframe><p>something</p><iframe src="https://example.com/image.jpg"></iframe>something',
 			],
-
+			[
+				'<amp-iframe src="https://example.com/image.jpg" width="100" height="100"><amp-img src="https://example.com/image.jpg" width="100" height="100"></amp-img></amp-iframe>',
+				'<iframe src="https://example.com/image.jpg" width="100" height="100"></iframe>',
+			],
 		];
 	}
 
@@ -110,6 +113,7 @@ class Newspack_AMP_Polyfills extends WP_UnitTestCase {
 	 * @dataProvider youtube_data
 	 */
 	public function test_amp_polyfills_youtube( $input, $expected ) {
-		$this->assertSame( str_replace( ' ', '', $expected ), str_replace( ' ', '', AMP_Polyfills::amp_tags( $input ) ) );
+		$actual = preg_replace( '/\s+/', '', AMP_Polyfills::amp_tags( $input ) );
+		$this->assertSame( preg_replace( '/\s+/', '', $expected ), $actual );
 	}
 }

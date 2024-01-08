@@ -6,6 +6,7 @@
 *.config.js
 .git
 .gitlab-ci.yml
+.hooks
 .travis.yml
 .DS_Store
 Thumbs.db

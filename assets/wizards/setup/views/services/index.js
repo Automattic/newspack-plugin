@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { values, keys, mapValues, property } from 'lodash';
+import values from 'lodash/values';
+import keys from 'lodash/keys';
+import mapValues from 'lodash/mapValues';
+import property from 'lodash/property';
 
 /**
  * WordPress dependencies

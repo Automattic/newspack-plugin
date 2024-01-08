@@ -101,6 +101,15 @@ class Engagement_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/activate',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_activate_reader_activation' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/newsletters',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
@@ -189,6 +198,20 @@ class Engagement_Wizard extends Wizard {
 	}
 
 	/**
+	 * Get memberships settings.
+	 *
+	 * @return array
+	 */
+	private static function get_memberships_settings() {
+		return [
+			'edit_gate_url'     => Memberships::get_edit_gate_url(),
+			'gate_status'       => get_post_status( Memberships::get_gate_post_id() ),
+			'plans'             => Memberships::get_plans(),
+			'require_all_plans' => Memberships::get_require_all_plans_setting(),
+		];
+	}
+
+	/**
 	 * Get reader activation settings.
 	 *
 	 * @return WP_REST_Response
@@ -196,8 +219,9 @@ class Engagement_Wizard extends Wizard {
 	public function api_get_reader_activation_settings() {
 		return rest_ensure_response(
 			[
-				'config'        => Reader_Activation::get_settings(),
-				'pluginsStatus' => Reader_Activation::is_woocommerce_active(),
+				'config'               => Reader_Activation::get_settings(),
+				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
+				'memberships'          => self::get_memberships_settings(),
 			]
 		);
 	}
@@ -214,7 +238,38 @@ class Engagement_Wizard extends Wizard {
 		foreach ( $args as $key => $value ) {
 			Reader_Activation::update_setting( $key, $value );
 		}
-		return rest_ensure_response( Reader_Activation::get_settings() );
+
+		// Update Memberships options.
+		if ( isset( $args['memberships_require_all_plans'] ) ) {
+			Memberships::set_require_all_plans_setting( (bool) $args['memberships_require_all_plans'] );
+		}
+
+		return rest_ensure_response(
+			[
+				'config'               => Reader_Activation::get_settings(),
+				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
+				'memberships'          => self::get_memberships_settings(),
+			]
+		);
+	}
+
+	/**
+	 * Activate reader activation and publish RAS prompts/segments.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_activate_reader_activation() {
+		$response = Reader_Activation::activate();
+
+		if ( \is_wp_error( $response ) ) {
+			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
+		}
+
+		if ( true === $response ) {
+			Reader_Activation::update_setting( 'enabled', true );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -348,11 +403,23 @@ class Engagement_Wizard extends Wizard {
 		);
 
 		$data = [
-			'has_reader_activation' => defined( 'NEWSPACK_EXPERIMENTAL_READER_ACTIVATION' ) && NEWSPACK_EXPERIMENTAL_READER_ACTIVATION,
+			'has_memberships'       => class_exists( 'WC_Memberships' ),
+			'reader_activation_url' => \admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
 			$data['new_subscription_lists_url'] = \Newspack\Newsletters\Subscription_Lists::get_add_new_url();
+		}
+
+		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
+			$data['available_newsletter_lists'] = \Newspack_Newsletters_Subscription::get_lists();
+		}
+
+		$newspack_popups = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
+		if ( $newspack_popups->is_configured() ) {
+			$data['preview_query_keys'] = $newspack_popups->preview_query_keys();
+			$data['preview_post']       = $newspack_popups->preview_post();
+			$data['preview_archive']    = $newspack_popups->preview_archive();
 		}
 
 		\wp_localize_script(
@@ -360,6 +427,15 @@ class Engagement_Wizard extends Wizard {
 			'newspack_engagement_wizard',
 			$data
 		);
+
+		\wp_register_style(
+			'newspack-engagement-wizard',
+			Newspack::plugin_url() . '/dist/engagement.css',
+			$this->get_style_dependencies(),
+			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_style_add_data( 'newspack-engagement-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-engagement-wizard' );
 	}
 
 	/**

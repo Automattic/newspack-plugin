@@ -3,7 +3,8 @@
  */
 import { useState } from '@wordpress/element';
 
-import { mergeWith, isArray } from 'lodash';
+import isArray from 'lodash/isArray';
+import mergeWith from 'lodash/mergeWith';
 
 const mergeCustomizer = ( objValue, srcValue ) => {
 	if ( isArray( objValue ) ) {

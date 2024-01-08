@@ -68,6 +68,7 @@ const hasEndpointErrors = endpoint => {
 const EndpointActions = ( {
 	disabled,
 	position = 'bottom left',
+	isSystem,
 	onEdit = () => {},
 	onDelete = () => {},
 	onView = () => {},
@@ -98,12 +99,16 @@ const EndpointActions = ( {
 					<MenuItem onClick={ onView } className="newspack-button">
 						{ __( 'View Requests', 'newspack' ) }
 					</MenuItem>
-					<MenuItem onClick={ onEdit } className="newspack-button">
-						{ __( 'Edit', 'newspack' ) }
-					</MenuItem>
-					<MenuItem onClick={ onDelete } className="newspack-button" isDestructive>
-						{ __( 'Remove', 'newspack' ) }
-					</MenuItem>
+					{ ! isSystem && (
+						<MenuItem onClick={ onEdit } className="newspack-button">
+							{ __( 'Edit', 'newspack' ) }
+						</MenuItem>
+					) }
+					{ ! isSystem && (
+						<MenuItem onClick={ onDelete } className="newspack-button" isDestructive>
+							{ __( 'Remove', 'newspack' ) }
+						</MenuItem>
+					) }
 				</Popover>
 			) }
 		</>
@@ -283,6 +288,7 @@ const Webhooks = () => {
 							toggleOnChange={ () => setToggling( endpoint ) }
 							key={ endpoint.id }
 							title={ getEndpointTitle( endpoint ) }
+							disabled={ endpoint.system }
 							description={ () => {
 								if ( endpoint.disabled && endpoint.disabled_error ) {
 									return (
@@ -312,6 +318,7 @@ const Webhooks = () => {
 									onEdit={ () => setEditing( endpoint ) }
 									onDelete={ () => setDeleting( endpoint ) }
 									onView={ () => setViewing( endpoint ) }
+									isSystem={ endpoint.system }
 								/>
 							}
 						/>

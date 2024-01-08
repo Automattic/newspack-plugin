@@ -6,7 +6,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { set } from 'lodash/fp';
+import set from 'lodash/set';
 
 /**
  * WordPress dependencies
@@ -210,7 +210,7 @@ const Placements = () => {
 							checked={ !! placement.data?.stick_to_top }
 							onChange={ value => {
 								setPlacements(
-									set( [ editingPlacement, 'data', 'stick_to_top' ], value, placements )
+									set( { ...placements }, [ editingPlacement, 'data', 'stick_to_top' ], value )
 								);
 							} }
 						/>

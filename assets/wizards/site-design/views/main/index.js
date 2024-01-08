@@ -9,7 +9,7 @@ import { TextareaControl, ToggleControl } from '@wordpress/components';
 /**
  * External dependencies
  */
-import { omit } from 'lodash';
+import omit from 'lodash/omit';
 
 /**
  * Internal dependencies

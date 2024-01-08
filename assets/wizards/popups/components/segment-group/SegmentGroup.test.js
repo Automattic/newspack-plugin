@@ -29,7 +29,7 @@ const SEGMENT = {
 		favorite_categories: [],
 		referrers: '',
 	},
-	id: '603692fc1f548',
+	id: 1001,
 	created_at: '2020-11-02',
 	updated_at: '2020-11-02',
 	priority: 0,
@@ -46,9 +46,14 @@ const PROMPTS = {
 			...PROMPT_DEFAULTS,
 			content: 'Overlay Prompt 1',
 			id: 1,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'center',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
 			title: 'Overlay Prompt 1',
@@ -57,9 +62,14 @@ const PROMPTS = {
 			...PROMPT_DEFAULTS,
 			content: 'Overlay Prompt 2',
 			id: 2,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'center',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
 			title: 'Overlay Prompt 2',
@@ -76,9 +86,14 @@ const PROMPTS = {
 			],
 			content: 'Overlay Prompt 3 with category',
 			id: 3,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'center',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
 			title: 'Overlay Prompt 3 with category',
@@ -97,9 +112,14 @@ const PROMPTS = {
 			],
 			content: 'Overlay Prompt 4 with category',
 			id: 4,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'center',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'daily',
 			},
 			title: 'Overlay Prompt 4 with category',
@@ -110,9 +130,14 @@ const PROMPTS = {
 			...PROMPT_DEFAULTS,
 			content: 'Above Header Prompt 1',
 			id: 5,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'above_header',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			title: 'Above Header Prompt 1',
@@ -121,9 +146,14 @@ const PROMPTS = {
 			...PROMPT_DEFAULTS,
 			content: 'Above Header Prompt 2',
 			id: 6,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'above_header',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			title: 'Above Header Prompt 2',
@@ -140,9 +170,14 @@ const PROMPTS = {
 			],
 			content: 'Above Header Prompt 3 with category',
 			id: 7,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'above_header',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			title: 'Above Header Prompt 3 with category',
@@ -161,9 +196,14 @@ const PROMPTS = {
 			],
 			content: 'Above Header Prompt 4 with category',
 			id: 8,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'above_header',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			title: 'Above Header Prompt 4 with category',
@@ -174,9 +214,14 @@ const PROMPTS = {
 			...PROMPT_DEFAULTS,
 			content: 'Custom Placement Prompt 1',
 			id: 9,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'custom1',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			status: 'publish',
@@ -186,9 +231,14 @@ const PROMPTS = {
 			...PROMPT_DEFAULTS,
 			content: 'Custom Placement Prompt 2',
 			id: 10,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'custom1',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			title: 'Custom Placement Prompt 2',
@@ -205,9 +255,14 @@ const PROMPTS = {
 			],
 			content: 'Custom Placement Prompt 3 with category',
 			id: 11,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'custom1',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			title: 'Custom Placement Prompt 3 with category',
@@ -226,9 +281,14 @@ const PROMPTS = {
 			],
 			content: 'Custom Placement Prompt 4 with category',
 			id: 12,
+			segments: [
+				{
+					id: SEGMENT.id,
+					name: SEGMENT.label,
+				},
+			],
 			options: {
 				placement: 'custom1',
-				selected_segment_id: SEGMENT.id,
 				frequency: 'always',
 			},
 			title: 'Custom Placement Prompt 4 with category',
@@ -400,7 +460,7 @@ describe( 'A segment with conflicting prompts', () => {
 		};
 
 		// Unset selected segment ids.
-		everyone.prompts.forEach( prompt => ( prompt.options.selected_segment_id = '' ) );
+		everyone.prompts.forEach( prompt => ( prompt.segments = [] ) );
 
 		// Expected warning text.
 		const noticeText =

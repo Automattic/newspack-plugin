@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
+import { withWizard, utils } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { ThemeSettings, Main } from './views';
 
@@ -26,26 +26,47 @@ class SiteDesignWizard extends Component {
 			method: 'GET',
 		};
 		wizardApiFetch( params )
-			.then( response => this.setState( { themeMods: response.theme_mods } ) )
+			.then( response =>
+				this.setState( { themeSettings: { ...response.theme_mods, ...response.etc } } )
+			)
 			.catch( setError );
 	};
 
 	setThemeMods = themeModUpdates =>
-		this.setState( { themeMods: { ...this.state.themeMods, ...themeModUpdates } } );
+		this.setState( { themeSettings: { ...this.state.themeSettings, ...themeModUpdates } } );
 
-	updateThemeMods = () => {
+	updateThemeSettings = () => {
 		const { setError, wizardApiFetch } = this.props;
-		const { themeMods } = this.state;
+		const { themeSettings } = this.state;
+
+		// Warn user before overwriting existing posts.
+		if (
+			( themeSettings.featured_image_all_posts &&
+				themeSettings.featured_image_all_posts !== 'none' ) ||
+			( themeSettings.post_template_all_posts && themeSettings.post_template_all_posts !== 'none' )
+		) {
+			if (
+				! utils.confirmAction(
+					__(
+						'Saving will overwrite existing posts, this cannot be undone. Are you sure you want to proceed?',
+						'newspack-plugin'
+					)
+				)
+			) {
+				return;
+			}
+		}
+
 		const params = {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
-			data: { theme_mods: themeMods },
+			data: { theme_mods: themeSettings },
 			quiet: true,
 		};
 		wizardApiFetch( params )
 			.then( response => {
 				const { theme, theme_mods } = response;
-				this.setState( { theme, themeMods: theme_mods } );
+				this.setState( { theme, themeSettings: theme_mods } );
 			} )
 			.catch( error => {
 				console.log( '[Theme Update Error]', error );
@@ -83,8 +104,11 @@ class SiteDesignWizard extends Component {
 							render={ () => {
 								return (
 									<Main
-										headerText={ __( 'Site Design', 'newspack' ) }
-										subHeaderText={ __( 'Customize the look and feel of your site', 'newspack' ) }
+										headerText={ __( 'Site Design', 'newspack-plugin' ) }
+										subHeaderText={ __(
+											'Customize the look and feel of your site',
+											'newspack-plugin'
+										) }
 										tabbedNavigation={ tabbedNavigation }
 										wizardApiFetch={ wizardApiFetch }
 										setError={ setError }
@@ -97,17 +121,17 @@ class SiteDesignWizard extends Component {
 							path="/settings"
 							exact
 							render={ () => {
-								const { themeMods } = this.state;
+								const { themeSettings } = this.state;
 								return (
 									<ThemeSettings
-										headerText={ __( 'Site Design', 'newspack' ) }
-										subHeaderText={ __( 'Configure your Newspack theme', 'newspack' ) }
+										headerText={ __( 'Site Design', 'newspack-plugin' ) }
+										subHeaderText={ __( 'Configure your Newspack theme', 'newspack-plugin' ) }
 										tabbedNavigation={ tabbedNavigation }
-										themeMods={ themeMods }
+										themeSettings={ themeSettings }
 										setThemeMods={ this.setThemeMods }
-										buttonText={ __( 'Save', 'newspack' ) }
-										buttonAction={ this.updateThemeMods }
-										secondaryButtonText={ __( 'Advanced Settings', 'newspack' ) }
+										buttonText={ __( 'Save', 'newspack-plugin' ) }
+										buttonAction={ this.updateThemeSettings }
+										secondaryButtonText={ __( 'Advanced Settings', 'newspack-plugin' ) }
 										secondaryButtonAction="/wp-admin/customize.php"
 									/>
 								);

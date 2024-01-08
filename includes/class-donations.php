@@ -73,8 +73,8 @@ class Donations {
 			add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'handle_cart' ] );
 			add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
 			add_filter( 'newspack_blocks_donate_billing_fields_keys', [ __CLASS__, 'get_billing_fields' ] );
-			add_filter( 'woocommerce_thankyou_order_received_text', [ __CLASS__, 'woocommerce_thankyou_order_received_text' ], 100, 2 );
 			add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
+			add_action( 'woocommerce_coupons_enabled', [ __CLASS__, 'disable_coupons' ] );
 		}
 	}
 
@@ -146,6 +146,8 @@ class Donations {
 
 	/**
 	 * Get the donation currency symbol.
+	 *
+	 * @return string Currency symbol.
 	 */
 	private static function get_currency_symbol() {
 		switch ( self::get_platform_slug() ) {
@@ -157,9 +159,8 @@ class Donations {
 					return newspack_get_currency_symbol( $currency );
 				}
 				break;
-			default:
-				return '$';
 		}
+		return '$';
 	}
 
 	/**
@@ -259,6 +260,32 @@ class Donations {
 	}
 
 	/**
+	 * Check whether the given product ID is a donation product.
+	 *
+	 * @param int $product_id Product ID to check.
+	 * @return boolean True if a donation product, false if not.
+	 */
+	public static function is_donation_product( $product_id ) {
+		$donation_product_ids = array_values( self::get_donation_product_child_products_ids() );
+		return in_array( $product_id, $donation_product_ids, true );
+	}
+
+	/**
+	 * Whether the order is a donation.
+	 *
+	 * @param \WC_Order $order Order object.
+	 * @return boolean True if a donation, false if not.
+	 */
+	public static function is_donation_order( $order ) {
+		foreach ( $order->get_items() as $item ) {
+			if ( self::is_donation_product( $item->get_product_id() ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the donation product ID for the order.
 	 *
 	 * @param int $order_id Order ID.
@@ -284,7 +311,7 @@ class Donations {
 	/**
 	 * Get the donation settings.
 	 *
-	 * @return Array of donation settings or WP_Error if WooCommerce is not set up.
+	 * @return array|WP_Error Donation settings or WP_Error if WooCommerce is not set up.
 	 */
 	public static function get_donation_settings() {
 		$settings                   = self::get_donation_default_settings();
@@ -659,18 +686,22 @@ class Donations {
 				return;
 			}
 
-			self::remove_donations_from_cart();
+			\WC()->cart->empty_cart();
 
-			\WC()->cart->add_to_cart(
-				$product_id,
-				1,
-				0,
-				[],
+			$cart_item_data = apply_filters(
+				'newspack_donations_cart_item_data',
 				[
 					'nyp'               => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
 					'referer'           => $referer,
 					'newspack_popup_id' => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
 				]
+			);
+			\WC()->cart->add_to_cart(
+				$product_id,
+				1,
+				0,
+				[],
+				$cart_item_data
 			);
 		}
 
@@ -684,6 +715,12 @@ class Donations {
 		}
 		if ( $is_modal_checkout ) {
 			$query_args['modal_checkout'] = 1;
+		}
+		foreach ( [ 'after_success_behavior', 'after_success_button_label', 'after_success_url' ] as $attribute_name ) {
+			$value = filter_input( INPUT_GET, $attribute_name, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			if ( ! empty( $value ) ) {
+				$query_args[ $attribute_name ] = $value;
+			}
 		}
 
 		// Pass through UTM params so they can be forwarded to the WooCommerce checkout flow.
@@ -1013,22 +1050,21 @@ class Donations {
 	}
 
 	/**
-	 * Get the donation "thank you, order received" text.
+	 * Disable coupons for donation checkouts.
 	 *
-	 * @param string $text  The text to display.
-	 * @param object $order The order object.
+	 * @param bool $enabled Whether coupons are enabled.
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	public static function woocommerce_thankyou_order_received_text( $text, $order ) {
-		if ( ! $order ) {
-			return $text;
+	public static function disable_coupons( $enabled ) {
+		$cart = WC()->cart;
+		if ( ! $cart ) {
+			return $enabled;
 		}
-		$product_id = self::get_order_donation_product_id( $order->get_id() );
-		if ( ! $product_id ) {
-			return $text;
+		if ( ! self::is_donation_cart( $cart ) ) {
+			return $enabled;
 		}
-		return __( 'Thank you for your donation!', 'newspack-blocks' );
+		return false;
 	}
 }
 Donations::init();

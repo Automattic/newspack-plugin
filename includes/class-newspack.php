@@ -83,21 +83,21 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/listeners.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-popups.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/ga4/class-ga4.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-mailchimp.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-activecampaign.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-woo-user-registration.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
-		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics.php';
-		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics-events.php';
-		include_once NEWSPACK_ABSPATH . 'includes/analytics/class-analytics-dimensions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-recaptcha.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-magic-link.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/stripe/class-stripe-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/stripe/class-stripe-webhooks.php';
-		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-woocommerce-connection.php';
-		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/stripe/class-stripe-sync.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/woocommerce/class-woocommerce-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/my-account/class-woocommerce-my-account.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-reader-revenue-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-oauth.php';
@@ -114,6 +114,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/authors/class-authors-custom-fields.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
+		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-media-partners.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
@@ -145,6 +146,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-starter-content.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-image-credits.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-rss-add-image.php';
 
 		/* Integrations with other plugins. */
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-jetpack.php';
@@ -155,6 +157,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-onesignal.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';
@@ -331,6 +334,9 @@ final class Newspack {
 			return;
 		}
 		delete_transient( NEWSPACK_ACTIVATION_TRANSIENT );
+		if ( \get_option( NEWSPACK_SETUP_COMPLETE, false ) ) {
+			return;
+		}
 		wp_safe_redirect( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 		exit;
 	}
@@ -370,7 +376,6 @@ final class Newspack {
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
-
 	}
 }
 Newspack::instance();

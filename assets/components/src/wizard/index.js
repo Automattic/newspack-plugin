@@ -14,7 +14,15 @@ import { category } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Footer, Notice, Button, NewspackIcon, TabbedNavigation, PluginInstaller } from '../';
+import {
+	Footer,
+	Notice,
+	Button,
+	NewspackIcon,
+	TabbedNavigation,
+	PluginInstaller,
+	HandoffMessage,
+} from '../';
 import Router from '../proxied-imports/router';
 import registerStore, { WIZARD_STORE_NAMESPACE } from './store';
 import { useWizardData } from './store/utils';
@@ -102,6 +110,7 @@ const Wizard = ( {
 							<WizardError />
 						</TabbedNavigation>
 					) }
+					<HandoffMessage />
 
 					<Switch>
 						{ displayedSections.map( ( section, index ) => {

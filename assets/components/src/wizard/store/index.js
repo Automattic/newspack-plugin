@@ -1,7 +1,9 @@
 /**
  * External dependencies.
  */
-import { set, get, isEmpty } from 'lodash';
+import set from 'lodash/set';
+import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 
 /**
  * WordPress dependencies.

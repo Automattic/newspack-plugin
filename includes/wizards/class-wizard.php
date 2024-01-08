@@ -58,7 +58,7 @@ abstract class Wizard {
 	 */
 	public function add_page() {
 		add_submenu_page(
-			$this->hidden ? null : 'newspack',
+			$this->hidden ? 'hidden' : 'newspack',
 			$this->get_name(),
 			$this->get_name(),
 			$this->capability,
@@ -105,7 +105,7 @@ abstract class Wizard {
 			],
 			'homepage'       => get_edit_post_link( get_option( 'page_on_front', false ) ),
 			'site'           => get_site_url(),
-			'support'        => esc_url( 'https://newspack.com/support/' ),
+			'support'        => esc_url( 'https://help.newspack.com/' ),
 			'support_email'  => $support_email,
 		];
 
@@ -140,11 +140,8 @@ abstract class Wizard {
 			'is_debug_mode'       => Newspack::is_debug_mode(),
 			'has_completed_setup' => get_option( NEWSPACK_SETUP_COMPLETE ),
 			'site_title'          => get_option( 'blogname' ),
+			'is_atomic'           => defined( 'ATOMIC_SITE_ID' ) && ATOMIC_SITE_ID,
 		];
-
-		if ( class_exists( 'Newspack_Popups_Segmentation' ) ) {
-			$aux_data['popups_cookie_name'] = \Newspack_Popups_Segmentation::NEWSPACK_SEGMENTATION_CID_NAME;
-		}
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
 		wp_localize_script( 'newspack_data', 'newspack_aux_data', $aux_data );

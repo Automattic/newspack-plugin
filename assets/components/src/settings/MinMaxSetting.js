@@ -16,9 +16,10 @@ const MinMaxSetting = ( {
 	onChangeMax,
 	minPlaceholder,
 	maxPlaceholder,
+	...props
 } ) => {
 	return (
-		<>
+		<div { ...props }>
 			<div className="newspack-settings__min-max">
 				<CheckboxControl
 					checked={ min > 0 }
@@ -26,27 +27,28 @@ const MinMaxSetting = ( {
 					label={ __( 'Min', 'newspack' ) }
 				/>
 				<TextControl
-					data-testid="min-articles-input"
+					data-testid="min"
 					type="number"
 					value={ min }
 					placeholder={ minPlaceholder }
 					onChange={ value => onChangeMin( value > 0 ? value : 0 ) }
 				/>
 			</div>
-			<div className="newspack-settings__min-max">
+			<div className="newspack-settings__min-max" data-testid="max">
 				<CheckboxControl
 					checked={ max > 0 }
 					onChange={ value => onChangeMax( value ? min || 1 : 0 ) }
 					label={ __( 'Max', 'newspack' ) }
 				/>
 				<TextControl
+					data-testid="max"
 					type="number"
 					value={ max }
 					placeholder={ maxPlaceholder }
 					onChange={ value => onChangeMax( value > 0 ? value : 0 ) }
 				/>
 			</div>
-		</>
+		</div>
 	);
 };
 export default MinMaxSetting;

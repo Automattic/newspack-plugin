@@ -28,6 +28,8 @@ final class Magic_Link {
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
 	const COOKIE             = 'np_auth_link';
 
+	const RATE_INTERVAL = 60; // Interval in seconds to rate limit token generation.
+
 	const OTP_LENGTH       = 6;
 	const OTP_MAX_ATTEMPTS = 5;
 	const OTP_AUTH_ACTION  = 'np_otp_auth';
@@ -57,6 +59,8 @@ final class Magic_Link {
 		\add_filter( 'user_row_actions', [ __CLASS__, 'user_row_actions' ], 10, 2 );
 		\add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
 
+		/** Replace Newspack Newsletters Verification Email */
+		\add_filter( 'newspack_newsletters_email_verification_email', [ __CLASS__, 'newsletters_email_verification_email' ], 10, 3 );
 	}
 
 	/**
@@ -344,10 +348,14 @@ final class Magic_Link {
 		if ( ! empty( $tokens ) ) {
 			/** Limit maximum tokens to 5. */
 			$tokens = array_slice( $tokens, -4, 4 );
-			/** Clear expired tokens. */
 			foreach ( $tokens as $index => $token_data ) {
+				/** Clear expired tokens. */
 				if ( $token_data['time'] < $expire ) {
 					unset( $tokens[ $index ] );
+				}
+				/** Rate limit token generation. */
+				if ( $token_data['time'] + self::RATE_INTERVAL > $now ) {
+					return new \WP_Error( 'rate_limit_exceeded', __( 'Please wait a minute before requesting another authorization code.', 'newspack' ) );
 				}
 			}
 			$tokens = array_values( $tokens );
@@ -536,7 +544,9 @@ final class Magic_Link {
 			$errors->add( 'invalid_otp', __( 'OTP is not enabled.', 'newspack' ) );
 		} else {
 			$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
-			if ( empty( $tokens ) || empty( $hash ) || empty( $code ) ) {
+			if ( empty( $tokens ) || empty( $hash ) ) {
+				$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack' ) );
+			} elseif ( empty( $code ) ) {
 				$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
 			}
 		}
@@ -707,10 +717,16 @@ final class Magic_Link {
 			$authenticated = self::authenticate( $user->ID, $token );
 		}
 
+		$redirect = \wp_validate_redirect(
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			\sanitize_text_field( \wp_unslash( $_GET['redirect'] ?? '' ) ),
+			\remove_query_arg( [ 'action', 'email', 'token' ] )
+		);
+
 		\wp_safe_redirect(
 			\add_query_arg(
 				[ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ],
-				\remove_query_arg( [ 'action', 'email', 'token' ] )
+				$redirect
 			)
 		);
 		exit;
@@ -1060,6 +1076,52 @@ final class Magic_Link {
 			</table>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Replace Newspack Newsletters verification email with a magic link.
+	 *
+	 * @param array    $email Email arguments. {
+	 *   Used to build wp_mail().
+	 *
+	 *   @type string $to      The intended recipient - New user email address.
+	 *   @type string $subject The subject of the email.
+	 *   @type string $message The body of the email.
+	 *   @type string $headers The headers of the email.
+	 * }
+	 * @param \WP_User $user  User to send the magic link to.
+	 * @param string   $url   Magic link url.
+	 *
+	 * @return array Modified email arguments.
+	 */
+	public static function newsletters_email_verification_email( $email, $user, $url ) {
+		if ( ! self::can_magic_link( $user->ID ) ) {
+			return $email;
+		}
+		$token_data = self::generate_token( $user );
+		if ( \is_wp_error( $token_data ) ) {
+			return $email;
+		}
+		$verification_url   = \add_query_arg(
+			[
+				'action'   => self::AUTH_ACTION,
+				'email'    => urlencode( $user->user_email ),
+				'token'    => $token_data['token'],
+				'redirect' => urlencode( $url ),
+			],
+			\home_url()
+		);
+		$email['message']   = Emails::get_email_payload(
+			Reader_Activation_Emails::EMAIL_TYPES['VERIFICATION'],
+			[
+				[
+					'template' => '*VERIFICATION_URL*',
+					'value'    => $verification_url,
+				],
+			]
+		);
+		$email['headers'][] = 'Content-Type: text/html; charset=UTF-8';
+		return $email;
 	}
 }
 Magic_Link::init();

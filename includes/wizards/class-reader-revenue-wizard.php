@@ -97,7 +97,13 @@ class Reader_Revenue_Wizard extends Wizard {
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
+					'nrh_custom_domain'          => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
 					'nrh_salesforce_campaign_id' => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'donor_landing_page'         => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
@@ -149,28 +155,28 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_stripe_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'enabled'            => [
+					'enabled'                     => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'testMode'           => [
+					'testMode'                    => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'publishableKey'     => [
+					'publishableKey'              => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'secretKey'          => [
+					'secretKey'                   => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'testPublishableKey' => [
+					'testPublishableKey'          => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'testSecretKey'      => [
+					'testSecretKey'               => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'newsletter_list_id' => [
+					'newsletter_list_id'          => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'fee_multiplier'     => [
+					'fee_multiplier'              => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => function ( $value ) {
 							if ( (float) $value > 10 ) {
@@ -178,14 +184,23 @@ class Reader_Revenue_Wizard extends Wizard {
 									'newspack_invalid_param',
 									__( 'Fee multiplier must be smaller than 10.', 'newspack' )
 								);
-							};
+							}
 							return true;
 						},
 					],
-					'fee_static'         => [
+					'fee_static'                  => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'location_code'      => [
+					'allow_covering_fees'         => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_default' => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_label'   => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'location_code'               => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
@@ -274,17 +289,13 @@ class Reader_Revenue_Wizard extends Wizard {
 		$params   = $request->get_params();
 		$platform = $params['platform'];
 		Donations::set_platform_slug( $platform );
-		if ( 'nrh' === $platform && isset( $params['nrh_organization_id'] ) ) {
-			$nrh_config = [
-				'nrh_organization_id' => $params['nrh_organization_id'],
-			];
-			if ( isset( $params['nrh_salesforce_campaign_id'] ) ) {
-				$nrh_config['nrh_salesforce_campaign_id'] = $params['nrh_salesforce_campaign_id'];
-			}
-			update_option( NEWSPACK_NRH_CONFIG, $nrh_config );
+
+		// Update NRH settings.
+		if ( 'nrh' === $platform ) {
+			NRH::update_settings( $params );
 		}
 
-		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products.
+		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products .
 		if ( Donations::is_platform_wc() ) {
 			Donations::update_donation_product( Donations::get_donation_settings() );
 		}
@@ -352,6 +363,16 @@ class Reader_Revenue_Wizard extends Wizard {
 						'level'  => 'notice',
 					]
 				);
+			}
+			if ( isset( $args['allow_covering_fees'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees', $args['allow_covering_fees'] );
+			}
+			if ( isset( $args['allow_covering_fees_default'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees_default', $args['allow_covering_fees_default'] );
+			}
+
+			if ( isset( $args['allow_covering_fees_label'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees_label', $args['allow_covering_fees_label'] );
 			}
 		}
 
@@ -478,7 +499,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				$args
 			);
 		} elseif ( Donations::is_platform_nrh() ) {
-			$nrh_config            = get_option( NEWSPACK_NRH_CONFIG, [] );
+			$nrh_config            = NRH::get_settings();
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
 		}
 		if ( $is_using_sdb ) {
@@ -553,6 +574,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'newspack_reader_revenue',
 			[
 				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 			]
 		);

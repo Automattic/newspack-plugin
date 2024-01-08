@@ -9,7 +9,8 @@ import { Icon, chevronDown } from '@wordpress/icons';
  * External dependencies
  */
 import classnames from 'classnames';
-import { find, some } from 'lodash';
+import find from 'lodash/find';
+import some from 'lodash/some';
 
 /**
  * Internal dependencies

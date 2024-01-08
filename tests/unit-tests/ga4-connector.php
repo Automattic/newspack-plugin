@@ -365,4 +365,83 @@ class Newspack_Test_GA4_Connector extends WP_UnitTestCase {
 	public function test_get_donation_amount_range( $value, $expected ) {
 		$this->assertEquals( $expected, GA4::get_donation_amount_range( $value ) );
 	}
+
+	/**
+	 * Data provider for test_can_use_ga4
+	 *
+	 * @return array
+	 */
+	public function can_use_ga4_data() {
+		return [
+			'empty'          => [
+				[],
+				[],
+				false,
+			],
+			'local'          => [
+				[
+					'secret' => 'local_secret',
+					'id'     => 'local_id',
+				],
+				[],
+				true,
+			],
+			'filter'         => [
+				[],
+				[
+					'measurement_protocol_secret' => 'local_secret',
+					'measurement_id'              => 'local_id',
+				],
+				true,
+			],
+			'both'           => [
+				[
+					'secret' => 'local_secret',
+					'id'     => 'local_id',
+				],
+				[
+					'measurement_protocol_secret' => 'local_secret',
+					'measurement_id'              => 'local_id',
+				],
+				true,
+			],
+			'invalid_filter' => [
+				[],
+				[
+					'xxx' => 'local_secret',
+					'yyy' => 'local_id',
+				],
+				false,
+			],
+		];
+	}
+
+	/**
+	 * Tests the can_use_ga4 method
+	 *
+	 * @param array $local_creds The credentials present in the database.
+	 * @param array $filter_creds The credentials that will be added via a filter.
+	 * @param bool  $expected The expected result.
+	 * @return void
+	 * @dataProvider can_use_ga4_data
+	 */
+	public function test_can_use_ga4( $local_creds, $filter_creds, $expected ) {
+
+		if ( ! empty( $local_creds ) ) {
+			update_option( 'ga4_measurement_protocol_secret', $local_creds['secret'] );
+			update_option( 'ga4_measurement_id', $local_creds['id'] );
+		}
+
+		if ( ! empty( $filter_creds ) ) {
+			add_filter(
+				'newspack_data_events_ga4_properties',
+				function( $props ) use ( $filter_creds ) {
+					$props[] = $filter_creds;
+					return $props;
+				}
+			);
+		}
+
+		$this->assertSame( $expected, GA4::can_use_ga4() );
+	}
 }

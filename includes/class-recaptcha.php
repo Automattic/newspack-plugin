@@ -14,7 +14,6 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Recaptcha {
 	const SCRIPT_HANDLE  = 'newspack-recaptcha';
-	const THRESHOLD      = 0.5;
 	const OPTIONS_PREFIX = 'newspack_recaptcha_';
 
 	/**
@@ -23,6 +22,7 @@ final class Recaptcha {
 	public static function init() {
 		\add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_script' ] );
+		\add_action( 'init', [ __CLASS__, 'woocommerce_hooks' ] );
 	}
 
 	/**
@@ -65,16 +65,27 @@ final class Recaptcha {
 	}
 
 	/**
+	 * Get the reCAPTCHA v3 script URL.
+	 *
+	 * @return string
+	 */
+	private static function get_script_url() {
+		if ( ! self::can_use_captcha() ) {
+			return '';
+		}
+		$captcha_site_key = self::get_setting( 'site_key' );
+		return 'https://www.google.com/recaptcha/api.js?render=' . $captcha_site_key;
+	}
+
+	/**
 	 * Register the reCAPTCHA v3 script.
 	 */
 	public static function register_script() {
 		if ( self::can_use_captcha() ) {
-			$captcha_site_key = self::get_setting( 'site_key' );
-
 			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			\wp_register_script(
 				self::SCRIPT_HANDLE,
-				\esc_url( 'https://www.google.com/recaptcha/api.js?render=' . $captcha_site_key ),
+				\esc_url( self::get_script_url() ),
 				null,
 				null,
 				true
@@ -112,6 +123,7 @@ final class Recaptcha {
 			'use_captcha' => false,
 			'site_key'    => '',
 			'site_secret' => '',
+			'threshold'   => 0.5,
 		];
 	}
 
@@ -276,7 +288,7 @@ final class Recaptcha {
 		// If the reCaptcha verification score is below our threshold for valid user input.
 		if (
 			isset( $captcha_verify['score'] ) &&
-			self::THRESHOLD > floatval( $captcha_verify['score'] )
+			floatval( self::get_setting( 'threshold' ) ) > floatval( $captcha_verify['score'] )
 		) {
 			return new \WP_Error(
 				'newspack_recaptcha_failure',
@@ -285,6 +297,80 @@ final class Recaptcha {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Hook reCAPTCHA v3 to WooCommerce.
+	 */
+	public static function woocommerce_hooks() {
+		// Add reCAPTCHA v3 to the checkout form.
+		\add_action( 'woocommerce_after_checkout_form', [ __CLASS__, 'add_recaptcha_to_checkout' ] );
+
+		// Verify reCAPTCHA v3 on checkout submission.
+		\add_action( 'woocommerce_checkout_process', [ __CLASS__, 'verify_recaptcha_on_checkout' ] );
+	}
+
+	/**
+	 * Add reCAPTCHA v3 to checkout.
+	 */
+	public static function add_recaptcha_to_checkout() {
+		if ( ! self::can_use_captcha() ) {
+			return;
+		}
+		$site_key = self::get_setting( 'site_key' );
+		?>
+		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
+		<script>
+			grecaptcha.ready( function() {
+				var field;
+				function refreshToken() {
+					grecaptcha.execute(
+						'<?php echo \esc_attr( $site_key ); ?>',
+						{ action: 'checkout' }
+					).then( function( token ) {
+						if ( field ) {
+							field.value = token;
+						}
+					} );
+				}
+				setInterval( refreshToken, 30000 );
+				( function( $ ) {
+					if ( ! $ ) { return; }
+					$( document ).on( 'updated_checkout', refreshToken );
+					$( document.body ).on( 'checkout_error', refreshToken );
+				} )( jQuery );
+				grecaptcha.execute(
+					'<?php echo \esc_attr( $site_key ); ?>',
+					{ action: 'checkout' }
+				).then( function( token ) {
+					field       = document.createElement('input');
+					field.type  = 'hidden';
+					field.name  = 'g-recaptcha-response';
+					field.value = token;
+					var form = document.querySelector('form.checkout');
+					if ( form ) {
+						form.appendChild( field );
+					}
+				} );
+			} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Verify reCAPTCHA v3 on checkout submission.
+	 */
+	public static function verify_recaptcha_on_checkout() {
+		$url                   = \home_url( \add_query_arg( null, null ) );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url );
+		if ( ! $should_verify_captcha ) {
+			return;
+		}
+		$token = isset( $_POST['g-recaptcha-response'] ) ? sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$check = self::verify_captcha( $token );
+		if ( \is_wp_error( $check ) ) {
+			\wc_add_notice( $check->get_error_message(), 'error' );
+		}
 	}
 }
 

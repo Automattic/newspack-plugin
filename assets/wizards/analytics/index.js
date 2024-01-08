@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Plugins, CustomDimensions, CustomEvents } from './views';
+import { Plugins, NewspackCustomEvents } from './views';
 import './style.scss';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -27,12 +27,8 @@ const TABS = [
 		exact: true,
 	},
 	{
-		label: __( 'Custom Dimensions', 'newspack' ),
-		path: '/custom-dimensions',
-	},
-	{
-		label: __( 'Custom Events', 'newspack' ),
-		path: '/custom-events',
+		label: __( 'Newspack Custom Events', 'newspack' ),
+		path: '/newspack-custom-events',
 	},
 ];
 
@@ -44,7 +40,7 @@ class AnalyticsWizard extends Component {
 		const { pluginRequirements, wizardApiFetch, isLoading } = this.props;
 		const sharedProps = {
 			headerText: __( 'Analytics', 'newspack' ),
-			subHeaderText: __( 'Track traffic and activity', 'newspack' ),
+			subHeaderText: __( 'Manage Google Analytics Configuration', 'newspack' ),
 			tabbedNavigation: TABS,
 			wizardApiFetch,
 			isLoading,
@@ -55,14 +51,9 @@ class AnalyticsWizard extends Component {
 					<Switch>
 						{ pluginRequirements }
 						<Route
-							path="/custom-dimensions"
+							path="/newspack-custom-events"
 							exact
-							render={ () => <CustomDimensions { ...sharedProps } /> }
-						/>
-						<Route
-							path="/custom-events"
-							exact
-							render={ () => <CustomEvents { ...sharedProps } /> }
+							render={ () => <NewspackCustomEvents { ...sharedProps } /> }
 						/>
 						<Route path="/" exact render={ () => <Plugins { ...sharedProps } /> } />
 						<Redirect to="/" />

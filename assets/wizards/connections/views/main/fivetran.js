@@ -15,13 +15,9 @@ import { ActionCard } from '../../../../components/src';
  * External dependencies
  */
 import classnames from 'classnames';
-import { get } from 'lodash';
+import get from 'lodash/get';
 
 const CONNECTORS = [
-	{
-		service: 'google_analytics',
-		label: __( 'Google Analytics', 'newspack' ),
-	},
 	{
 		service: 'mailchimp',
 		label: __( 'Mailchimp', 'newspack' ),

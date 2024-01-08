@@ -36,7 +36,7 @@ function register_block() {
 		'newspack/reader-registration',
 		[
 			'name'       => 'stacked',
-			'label'      => __( 'Stacked', 'newspack' ),
+			'label'      => __( 'Stacked', 'newspack-plugin' ),
 			'is_default' => true,
 		]
 	);
@@ -44,7 +44,7 @@ function register_block() {
 		'newspack/reader-registration',
 		[
 			'name'  => 'columns',
-			'label' => __( 'Columns (newsletter subscription)', 'newspack' ),
+			'label' => __( 'Columns (newsletter subscription)', 'newspack-plugin' ),
 		]
 	);
 }
@@ -54,8 +54,13 @@ add_action( 'init', __NAMESPACE__ . '\\register_block' );
  * Enqueue front-end scripts.
  */
 function enqueue_scripts() {
-	// No need to enqueue scripts if Reader Activation is disabled.
-	if ( ! Reader_Activation::is_enabled() ) {
+	$should_enqueue_scripts = Reader_Activation::allow_reg_block_render();
+	/**
+	 * Filters whether to enqueue the reader registration block scripts.
+	 *
+	 * @param bool $should_enqueue_scripts Whether to enqueue the reader registration block scripts.
+	 */
+	if ( ! apply_filters( 'newspack_enqueue_reader_activation_block', $should_enqueue_scripts ) ) {
 		return;
 	}
 
@@ -99,32 +104,32 @@ function get_form_id() {
  * @param string  $content Block content (inner blocks) – success state in this case.
  */
 function render_block( $attrs, $content ) {
-	// Render nothing if Reader Activation is disabled.
-	if ( ! Reader_Activation::is_enabled() ) {
+	// Render nothing if Reader Activation is disabled and not a preview request.
+	if ( ! Reader_Activation::allow_reg_block_render() ) {
 		return '';
 	}
 
 	$registered      = false;
 	$my_account_url  = function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : false;
 	$message         = '';
-	$success_message = __( 'Thank you for registering!', 'newspack' ) . '<br />';
+	$success_message = __( 'Thank you for registering!', 'newspack-plugin' ) . '<br />';
 
 	if ( $my_account_url ) {
 		$success_message .= sprintf(
 			// Translators: %s is a link to My Account.
-			__( 'Please visit %s to verify and manage your account.', 'newspack' ),
-			'<a href="' . esc_url( $my_account_url ) . '">' . __( 'My Account', 'newspack' ) . '</a>'
+			__( 'Please visit %s to verify and manage your account.', 'newspack-plugin' ),
+			'<a href="' . esc_url( $my_account_url ) . '">' . __( 'My Account', 'newspack-plugin' ) . '</a>'
 		);
 	}
 
 	/** Handle default attributes. */
 	$default_attrs = [
 		'style'            => 'stacked',
-		'label'            => __( 'Sign up', 'newspack' ),
-		'newsletterLabel'  => __( 'Subscribe to our newsletter', 'newspack' ),
-		'haveAccountLabel' => __( 'Already have an account?', 'newspack' ),
-		'signInLabel'      => __( 'Sign in', 'newspack' ),
-		'signedInLabel'    => __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack' ),
+		'label'            => __( 'Sign up', 'newspack-plugin' ),
+		'newsletterLabel'  => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
+		'haveAccountLabel' => __( 'Already have an account?', 'newspack-plugin' ),
+		'signInLabel'      => __( 'Sign in', 'newspack-plugin' ),
+		'signedInLabel'    => __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ),
 	];
 	$attrs         = \wp_parse_args( $attrs, $default_attrs );
 	foreach ( $default_attrs as $key => $value ) {
@@ -142,7 +147,13 @@ function render_block( $attrs, $content ) {
 	if ( $attrs['newsletterSubscription'] && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
 		$list_config = \Newspack_Newsletters_Subscription::get_lists_config();
 		if ( ! \is_wp_error( $list_config ) ) {
-			$lists = array_intersect_key( $list_config, array_flip( $attrs['lists'] ) );
+			// get existing lists preserving the order.
+			$lists = [];
+			foreach ( $attrs['lists'] as $list_id ) {
+				if ( isset( $list_config[ $list_id ] ) ) {
+					$lists[ $list_id ] = $list_config[ $list_id ];
+				}
+			}
 		}
 	}
 
@@ -152,7 +163,7 @@ function render_block( $attrs, $content ) {
 	if (
 		! \is_preview() &&
 		! $is_admin_preview &&
-		( ! method_exists( 'Newspack_Popups', 'is_preview_request' ) || ! \Newspack_Popups::is_preview_request() ) &&
+		( ! method_exists( '\Newspack_Popups', 'is_preview_request' ) || ! \Newspack_Popups::is_preview_request() ) &&
 		(
 			\is_user_logged_in() ||
 			( isset( $_GET['newspack_reader'] ) && absint( $_GET['newspack_reader'] ) )
@@ -174,6 +185,15 @@ function render_block( $attrs, $content ) {
 	$success_login_markup = $attrs['signedInLabel'];
 	if ( ! empty( \wp_strip_all_tags( $attrs['signedInLabel'] ) ) ) {
 		$success_login_markup = '<p class="has-text-align-center">' . $attrs['signedInLabel'] . '</p>';
+	}
+
+	$checked = [];
+	if ( ! empty( $attrs['listsCheckboxes'] ) ) {
+		foreach ( $lists as $list_id => $list_name ) {
+			if ( ! isset( $attrs['listsCheckboxes'][ $list_id ] ) || false !== $attrs['listsCheckboxes'][ $list_id ] ) {
+				$checked[] = $list_id;
+			}
+		}
 	}
 
 	ob_start();
@@ -228,7 +248,7 @@ function render_block( $attrs, $content ) {
 						} else {
 							Reader_Activation::render_subscription_lists_inputs(
 								$lists,
-								array_keys( $lists ),
+								$checked,
 								[
 									'title'            => $attrs['newsletterTitle'],
 									'single_label'     => $attrs['newsletterLabel'],
@@ -334,7 +354,7 @@ function get_block_classes( $attrs = [] ) {
 function send_form_response( $data, $message = '' ) {
 	$is_error = \is_wp_error( $data );
 	if ( empty( $message ) ) {
-		$message = $is_error ? $data->get_error_message() : __( 'Thank you for registering!', 'newspack' );
+		$message = $is_error ? $data->get_error_message() : __( 'Thank you for registering!', 'newspack-plugin' );
 	}
 	if ( \wp_is_json_request() ) {
 		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
@@ -401,7 +421,7 @@ function process_form() {
 	// The honeypot field is called `email` to hopefully capture bots that might be looking for such a field.
 	$email = isset( $_REQUEST['npe'] ) ? \sanitize_email( $_REQUEST['npe'] ) : '';
 	if ( empty( $email ) ) {
-		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack' ) ) );
+		return send_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack-plugin' ) ) );
 	}
 
 	$metadata = [];
@@ -415,9 +435,18 @@ function process_form() {
 
 	$popup_id                      = isset( $_REQUEST['newspack_popup_id'] ) ? (int) $_REQUEST['newspack_popup_id'] : false;
 	$metadata['newspack_popup_id'] = $popup_id;
+
 	if ( $popup_id ) {
 		$metadata['registration_method'] = 'registration-block-popup';
 	}
+
+	/**
+	 * Filters the metadata to be saved for a reader registered through the Reader Registration Block.
+	 *
+	 * @param array  $metadata Metadata.
+	 * @param string $email    Email address of the reader.
+	 */
+	$metadata = apply_filters( 'newspack_register_reader_form_metadata', $metadata, $email );
 
 	$user_id = Reader_Activation::register_reader( $email, '', true, $metadata );
 
