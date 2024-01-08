@@ -424,6 +424,16 @@ class Plugin_Manager {
 	}
 
 	/**
+	 * Get all managed and supported plugins' slugs.
+	 */
+	public static function get_approved_plugins_slugs() {
+		return array_merge(
+			array_keys( self::get_managed_plugins() ),
+			self::get_supported_plugins_slugs()
+		);
+	}
+
+	/**
 	 * Get info about all the unmanaged plugins that are installed.
 	 *
 	 * @return array of plugin info.
