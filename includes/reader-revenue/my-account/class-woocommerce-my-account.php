@@ -29,6 +29,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function init() {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
+		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'edit_address_required_fields' ] );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
@@ -344,6 +345,35 @@ class WooCommerce_My_Account {
 			];
 		}
 		return [];
+	}
+
+	/**
+	 * Ensure that only billing address fields enabled in Reader Revenue settings
+	 * are required in My Account edit billing address page.
+	 *
+	 * @param array $fields Address fields.
+	 * @return array Filtered address fields.
+	 */
+	public static function edit_address_required_fields( $fields ) {
+		global $wp;
+
+		if (
+			! function_exists( 'is_account_page' ) ||
+			! \is_account_page() || // Only on My Account page.
+			! isset( $wp->query_vars['edit-address'] ) || // Only when editing address.
+			'billing' !== $wp->query_vars['edit-address'] // Only when editing billing address.
+			) {
+			return $fields;
+		}
+
+		$required_fields = Donations::get_billing_fields();
+		foreach ( $fields as $field_name => $field_config ) {
+			if ( ! in_array( $field_name, $required_fields, true ) ) {
+				$fields[ $field_name ]['required'] = false;
+			}
+		}
+
+		return $fields;
 	}
 
 	/**
