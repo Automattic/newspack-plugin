@@ -81,6 +81,7 @@ final class Reader_Activation {
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
 			\add_action( 'wc_get_template', [ __CLASS__, 'replace_woocommerce_auth_form' ], 10, 2 );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
+			\add_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'get_user_data' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
@@ -1619,31 +1620,20 @@ final class Reader_Activation {
 			/**
 			 * Create new reader.
 			 */
-			if ( empty( $display_name ) ) {
-				$display_name = \sanitize_email( $email );
-			}
-
-			$user_login      = \sanitize_user( $email );
-			$user_nicename   = \sanitize_title( \sanitize_user( strstr( $display_name, '@', true ), true ) );
-			$random_password = \wp_generate_password();
-
+			$user_data = self::get_user_data(
+				[
+					'display_name' => $display_name,
+					'user_email'   => $email,
+				]
+			);
 			if ( function_exists( '\wc_create_new_customer' ) ) {
 				/**
 				 * Create WooCommerce Customer if possible.
-				 *
 				 * Email notification for WooCommerce is handled by the plugin.
 				 */
-				$user_id = \wc_create_new_customer( $email, $user_login, $random_password, [ 'display_name' => $display_name ] );
+				$user_id = \wc_create_new_customer( $email, $user_data['user_login'], $user_data['random_password'], $user_data );
 			} else {
-				$user_id = \wp_insert_user(
-					[
-						'user_login'    => $user_login,
-						'user_email'    => $email,
-						'user_pass'     => $random_password,
-						'user_nicename' => $user_nicename,
-						'display_name'  => $display_name,
-					]
-				);
+				$user_id = \wp_insert_user( $user_data );
 				\wp_new_user_notification( $user_id, null, 'user' );
 			}
 
@@ -1698,6 +1688,41 @@ final class Reader_Activation {
 		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user, $metadata );
 
 		return $user_id;
+	}
+
+	/**
+	 * Get user data args for creating a new WP user.
+	 * See https://developer.wordpress.org/reference/functions/wp_insert_user/ for supported args.
+	 *
+	 * @param array $user_data          Default args for the new user.
+	 *              $user_data['email] Email address for the new user (required).
+	 */
+	public static function get_user_data( $user_data = [] ) {
+		if ( empty( $user_data['user_email'] ) ) {
+			return new \WP_Error( 'newspack_register_reader_empty_email', __( 'Please enter a valid email address.', 'newspack-plugin' ) );
+		}
+
+		// If we don't have a display name, make it match the email address.
+		if ( empty( $user_data['display_name'] ) ) {
+			$user_data['display_name'] = \sanitize_email( $user_data['user_email'] );
+		}
+		$user_login      = \sanitize_user( $user_data['user_email'] ); // Matches the email address.
+		$user_nicename   = \sanitize_title( \sanitize_user( strstr( $user_data['display_name'], '@', true ), true ) ); // URL-sanitized version of display name.
+		$random_password = \wp_generate_password();
+		$user_data       = array_merge(
+			$user_data,
+			[
+				'user_login'    => $user_login,
+				'user_nicename' => $user_nicename,
+				'user_pass'     => $random_password,
+			]
+		);
+
+		/*
+		 * Filters the user_data used to register a new RAS reader account.
+		 * See https://developer.wordpress.org/reference/functions/wp_insert_user/ for supported args.
+		 */
+		return apply_filters( 'newspack_register_reader_user_data', $user_data );
 	}
 
 	/**
