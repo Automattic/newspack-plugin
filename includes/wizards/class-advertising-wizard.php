@@ -54,6 +54,14 @@ class Advertising_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+		add_filter( 'newspack_ads_can_current_user_manage_settings', [ $this, 'newspack_ads_can_current_user_manage_settings' ] );
+	}
+
+	/**
+	 * Determine if the current user can manage Newspack Ads settings.
+	 */
+	public function newspack_ads_can_current_user_manage_settings() {
+		return Wizards::can_access_wizard( 'advertising' );
 	}
 
 	/**
