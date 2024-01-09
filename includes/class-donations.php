@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
+use WP_Error, WC_Product_Simple, WC_Product_Subscription, WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -154,9 +154,6 @@ class Donations {
 			case 'wc':
 				if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
 					return \get_woocommerce_currency_symbol();
-				} elseif ( self::is_using_streamlined_donate_block() ) {
-					$currency = Stripe_Connection::get_stripe_data()['currency'];
-					return newspack_get_currency_symbol( $currency );
 				}
 				break;
 		}
@@ -937,43 +934,6 @@ class Donations {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Can Stripe be used?
-	 *
-	 * @return bool True if it can.
-	 */
-	public static function can_use_stripe_platform() {
-		$is_amp_plugin_active = is_plugin_active( 'amp/amp.php' );
-		$is_using_amp_plus    = AMP_Enhancements::is_amp_plus_configured();
-		// Only if AMP plugin is not active, or site is using AMP Plus.
-		return ! $is_amp_plugin_active || $is_using_amp_plus;
-	}
-
-	/**
-	 * Can the streamlined donate block be used?
-	 *
-	 * @return bool True if it can.
-	 */
-	public static function is_using_streamlined_donate_block() {
-		if ( ! self::can_use_stripe_platform() ) {
-			return false;
-		}
-
-		if ( defined( 'NEWSPACK_DISABLE_SIMPLIFIED_DONATE_BLOCK' ) && NEWSPACK_DISABLE_SIMPLIFIED_DONATE_BLOCK ) {
-			return false;
-		}
-
-		// If "Stripe (Credit Card)" is the only gateway configured, use the streamlined donate block.
-		$gateways = WooCommerce_Configuration_Manager::get_payment_gateways( true );
-		if ( 1 < count( $gateways ) || ! isset( $gateways['stripe'] ) ) {
-			return false;
-		}
-
-		$payment_data    = Stripe_Connection::get_stripe_data();
-		$has_stripe_keys = isset( $payment_data['usedPublishableKey'], $payment_data['usedSecretKey'] ) && $payment_data['usedPublishableKey'] && $payment_data['usedSecretKey'];
-		return $has_stripe_keys;
 	}
 
 	/**

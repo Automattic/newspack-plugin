@@ -26,7 +26,6 @@ const ReaderRevenueWizard = () => {
 		path: '/',
 		render: Views.Platform,
 	};
-	const displayStripeSettings = platform_data?.is_using_streamlined_donate_block;
 
 	let sections = [
 		{
@@ -38,22 +37,15 @@ const ReaderRevenueWizard = () => {
 		{
 			label: __( 'Stripe Settings', 'newspack' ),
 			path: '/stripe-setup',
-			activeTabPaths: [ '/stripe-setup', '/stripe-webhooks' ],
+			activeTabPaths: [ '/stripe-setup' ],
 			render: Views.StripeSetup,
-			isHidden: usedPlatform !== NEWSPACK && ! displayStripeSettings,
-		},
-		{
-			label: __( 'Stripe Webhooks', 'newspack' ),
-			path: '/stripe-webhooks',
-			render: Views.StripeWebhooksSettings,
-			isHidden: ! displayStripeSettings,
-			isHiddenInTabbedNavigation: true,
+			isHidden: usedPlatform !== NEWSPACK,
 		},
 		{
 			label: __( 'Emails', 'newspack' ),
 			path: '/emails',
 			render: Views.Emails,
-			isHidden: usedPlatform !== NEWSPACK && ! displayStripeSettings,
+			isHidden: usedPlatform !== NEWSPACK,
 		},
 		{
 			label: __( 'Address', 'newspack' ),

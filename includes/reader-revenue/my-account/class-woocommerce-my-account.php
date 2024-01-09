@@ -8,7 +8,7 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
-use \WP_Error;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,13 +21,6 @@ class WooCommerce_My_Account {
 	const DELETE_ACCOUNT_FORM          = 'delete-account-form';
 	const SEND_MAGIC_LINK_PARAM        = 'magic-link';
 	const AFTER_ACCOUNT_DELETION_PARAM = 'account-deleted';
-
-	/**
-	 * Cached Stripe customer ID of the current user.
-	 *
-	 * @var string
-	 */
-	private static $stripe_customer_id = null;
 
 	/**
 	 * Initialize.
@@ -396,8 +389,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function edit_account_prevent_email_update() {
 		if (
-			! Donations::is_using_streamlined_donate_block()
-			|| empty( $_POST['account_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			empty( $_POST['account_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			|| ! \is_user_logged_in()
 			|| ! Reader_Activation::is_enabled()
 		) {

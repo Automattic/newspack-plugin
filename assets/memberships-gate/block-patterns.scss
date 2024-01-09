@@ -42,10 +42,10 @@
 	 * Donate block tweaks.
 	 */
 	.wpbnbd--tiers-based {
-		&.is-style-minimal form:not( [data-is-streamlined-form] ) {
+		&.is-style-minimal form {
 			text-align: left;
 		}
-		&.is-style-minimal:not( .wpbnbd--platform-stripe ) button[type='submit'] {
+		&.is-style-minimal button[type='submit'] {
 			margin: 0;
 			width: 100%;
 		}
@@ -94,7 +94,7 @@
 	/**
 	 * Columns block tweaks.
 	 */
-	 @media only screen and ( max-width: 781px ) {
+	@media only screen and ( max-width: 781px ) {
 		.wp-block-column:empty {
 			display: none;
 		}

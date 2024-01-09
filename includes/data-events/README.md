@@ -114,7 +114,7 @@ the order is already marked as failed so this hook will not trigger.
 
 ### `donation_new`
 
-When there's a new donation, either through Stripe or Newspack (WooCommerce) platforms.
+When there's a new donation.
 
 | Name              | Type     | Obs                                                    |
 | ----------------- | -------- | ------------------------------------------------------ |
@@ -261,7 +261,6 @@ If `action_type` is `donation`:
 | `donation_currency`   | `string` |                                                                                                  |
 | `donation_recurrence` | `string` |                                                                                                  |
 | `donation_platform`   | `string` |                                                                                                  |
-| `donation_error`      | `string` | Only for failed donations via Stripe                                                             |
 
 ## Registering a new action
 

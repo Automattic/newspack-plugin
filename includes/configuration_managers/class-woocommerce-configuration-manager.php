@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WC_Payment_Gateways, \WC_Install, \WP_Error;
+use WC_Payment_Gateways, WC_Install, WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -159,16 +159,15 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		if ( ! isset( $gateways['stripe'] ) ) {
 			return [];
 		}
-		$stripe      = $gateways['stripe'];
-		$stripe_data = [
-			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
-			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
-			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
-			'secretKey'          => $stripe->get_option( 'secret_key', '' ),
-			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
-			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
+		$gateway = $gateways['stripe'];
+		return [
+			'enabled'            => 'yes' === $gateway->get_option( 'enabled', false ) ? true : false,
+			'testMode'           => 'yes' === $gateway->get_option( 'testmode', false ) ? true : false,
+			'publishableKey'     => $gateway->get_option( 'publishable_key', '' ),
+			'secretKey'          => $gateway->get_option( 'secret_key', '' ),
+			'testPublishableKey' => $gateway->get_option( 'test_publishable_key', '' ),
+			'testSecretKey'      => $gateway->get_option( 'test_secret_key', '' ),
 		];
-		return $stripe_data;
 	}
 
 	/**

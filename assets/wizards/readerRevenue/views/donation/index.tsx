@@ -58,7 +58,6 @@ type WizardData = {
 		  };
 	platform_data: {
 		platform: string;
-		is_using_streamlined_donate_block: boolean;
 	};
 	donation_page: {
 		editUrl: string;
@@ -255,7 +254,7 @@ const BillingFields = () => {
 		return null;
 	}
 
-	const changeHandler = path => value =>
+	const changeHandler = ( path: string[] ) => ( value: any ) =>
 		updateWizardSettings( {
 			slug: 'newspack-reader-revenue-wizard',
 			path: [ 'donation_data', ...path ],
@@ -352,7 +351,7 @@ const Donation = () => {
 				</>
 			) }
 			<DonationAmounts />
-			{ ! wizardData.platform_data?.is_using_streamlined_donate_block && <BillingFields /> }
+			<BillingFields />
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ onSave } href={ undefined }>
 					{ __( 'Save Settings' ) }

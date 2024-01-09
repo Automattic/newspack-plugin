@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -442,10 +442,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		$platform                 = Donations::get_platform_slug();
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$wc_installed             = $wc_configuration_manager->is_active();
-
-		// Stipe data is used by both WC and Stripe platforms.
-		$stripe_data                            = Stripe_Connection::get_stripe_data();
-		$stripe_data['can_use_stripe_platform'] = Donations::can_use_stripe_platform();
+		$stripe_data              = Stripe_Connection::get_stripe_data();
 
 		$billing_fields = [];
 		if ( $wc_installed && Donations::is_platform_wc() ) {
@@ -456,8 +453,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 		}
 
-		$is_using_sdb = Donations::is_using_streamlined_donate_block();
-		$args         = [
+		$args = [
 			'country_state_fields'     => newspack_get_countries(),
 			'currency_fields'          => newspack_get_currencies_options(),
 			'location_data'            => [],
@@ -467,8 +463,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'available_billing_fields' => $billing_fields,
 			'salesforce_settings'      => [],
 			'platform_data'            => [
-				'platform'                          => $platform,
-				'is_using_streamlined_donate_block' => $is_using_sdb,
+				'platform' => $platform,
 			],
 			'is_ssl'                   => is_ssl(),
 			'errors'                   => [],
@@ -487,10 +482,6 @@ class Reader_Revenue_Wizard extends Wizard {
 					$plugin_status = false;
 				}
 			}
-			if ( ! $is_using_sdb ) {
-				$args['country_state_fields'] = $wc_configuration_manager->country_state_fields();
-				$args['location_data']        = $wc_configuration_manager->location_data();
-			}
 			$args = wp_parse_args(
 				[
 					'salesforce_settings' => Salesforce::get_salesforce_settings(),
@@ -501,18 +492,6 @@ class Reader_Revenue_Wizard extends Wizard {
 		} elseif ( Donations::is_platform_nrh() ) {
 			$nrh_config            = NRH::get_settings();
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
-		}
-		if ( $is_using_sdb ) {
-			$are_webhooks_valid = Stripe_Webhooks::validate_or_create_webhooks();
-			if ( is_wp_error( $are_webhooks_valid ) ) {
-				$args['errors'][] = [
-					'code'    => $are_webhooks_valid->get_error_code(),
-					'message' => $are_webhooks_valid->get_error_message(),
-				];
-			}
-			if ( Stripe_Connection::is_configured() ) {
-				$args['stripe_data']['connection_error'] = Stripe_Connection::get_connection_error();
-			}
 		}
 		return $args;
 	}
