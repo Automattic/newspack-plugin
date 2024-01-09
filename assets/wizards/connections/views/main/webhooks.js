@@ -1,4 +1,3 @@
-/* global newspack_connections_data */
 /**
  * External dependencies
  */
@@ -251,10 +250,6 @@ const Webhooks = () => {
 		setEditingError( false );
 		setTestError( false );
 	}, [ editing ] );
-
-	if ( ! newspack_connections_data.can_use_webhooks ) {
-		return null;
-	}
 
 	return (
 		<Card noBorder className="mt64">
@@ -534,7 +529,7 @@ const Webhooks = () => {
 											key={ i }
 											disabled={ editing.global || inFlight }
 											label={ action }
-											checked={ editing.actions && editing.actions.includes( action ) }
+											checked={ ( editing.actions && editing.actions.includes( action ) ) || false }
 											indeterminate={ editing.global }
 											onChange={ () => {
 												const currentActions = editing.actions || [];
