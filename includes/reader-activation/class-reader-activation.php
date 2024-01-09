@@ -1620,11 +1620,11 @@ final class Reader_Activation {
 			 * Create new reader.
 			 */
 			if ( empty( $display_name ) ) {
-				$display_name = explode( '@', $email, 2 )[0];
+				$display_name = \sanitize_email( $email );
 			}
 
-			$user_login = \sanitize_user( $email, true );
-
+			$user_login      = \sanitize_user( $email );
+			$user_nicename   = \sanitize_title( \sanitize_user( strstr( $display_name, '@', true ), true ) );
 			$random_password = \wp_generate_password();
 
 			if ( function_exists( '\wc_create_new_customer' ) ) {
@@ -1637,10 +1637,11 @@ final class Reader_Activation {
 			} else {
 				$user_id = \wp_insert_user(
 					[
-						'user_login'   => $user_login,
-						'user_email'   => $email,
-						'user_pass'    => $random_password,
-						'display_name' => $display_name,
+						'user_login'    => $user_login,
+						'user_email'    => $email,
+						'user_pass'     => $random_password,
+						'user_nicename' => $user_nicename,
+						'display_name'  => $display_name,
 					]
 				);
 				\wp_new_user_notification( $user_id, null, 'user' );
