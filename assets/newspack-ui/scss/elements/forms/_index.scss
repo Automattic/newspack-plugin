@@ -19,7 +19,7 @@
 	// Container for displaying grid of inputs.
 	& &__code-input {
 		display: flex;
-		gap: var( --newspack-ui-spacer-1 );
+		gap: var( --newspack-ui-spacer-base );
 	}
 
 	// Container for input description.
@@ -27,6 +27,6 @@
 		display: block;
 		font-size: var( --newspack-ui-font-size-small );
 		line-height: var( --newspack-ui-line-height-small );
-		margin: var( --newspack-ui-spacer-1 ) 0 var( --newspack-ui-spacer-5 );
+		margin: var( --newspack-ui-spacer-base ) 0 var( --newspack-ui-spacer-5 );
 	}
 }
