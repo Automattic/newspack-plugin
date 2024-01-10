@@ -1054,12 +1054,7 @@ final class Reader_Activation {
 		}
 
 		$newsletters_label = self::get_setting( 'newsletters_label' );
-		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
-			$lists_config = self::get_registration_newsletter_lists();
-			if ( ! \is_wp_error( $lists_config ) ) {
-				$lists = $lists_config;
-			}
-		}
+
 		$terms_text      = self::get_setting( 'terms_text' );
 		$terms_url       = self::get_setting( 'terms_url' );
 		$is_account_page = function_exists( '\wc_get_page_id' ) ? \get_the_ID() === \wc_get_page_id( 'myaccount' ) : false;
