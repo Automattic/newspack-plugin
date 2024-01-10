@@ -1,0 +1,12 @@
+// Some general overrides for WooCommerce styles.
+.newspack-ui {
+	form p {
+		margin: 0 0 var( --newspack-ui-spacer-5 );
+	}
+
+	&__modal__small {
+		form p {
+			margin: 0 0 var( --newspack-ui-spacer-2 );
+		}
+	}
+}
