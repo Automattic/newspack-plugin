@@ -98,21 +98,21 @@ class Newspack_UI {
 			</form>
 
 			<p>
-				<label class="newspack-ui__input-checkradio">
+				<label>
 					<input type="radio" name="radio-control-demo">
 					This is a radio input.
 				</label>
 			</p>
 
 			<p>
-				<label class="newspack-ui__input-checkradio">
+				<label>
 					<input type="radio" name="radio-control-demo">
 					This is a radio input.
 				</label>
 			</p>
 
 			<p>
-				<label class="newspack-ui__input-checkradio">
+				<label>
 					<input type="checkbox">
 					This is a checkbox input.
 				</label>
@@ -122,7 +122,7 @@ class Newspack_UI {
 			<hr>
 
 			<h2>Checkbox/Radio Lists</h2>
-			<label class="newspack-ui__input-checkradio newspack-ui__input-list">
+			<label class="newspack-ui__input-list">
 				<input type="checkbox" name="checkbox-option-1">
 				<span>
 					<strong>The Weekly</strong><br>
@@ -130,7 +130,7 @@ class Newspack_UI {
 				</span>
 			</label>
 
-			<label class="newspack-ui__input-checkradio newspack-ui__input-list">
+			<label class="newspack-ui__input-list">
 				<input type="checkbox" name="checkbox-option-2">
 				<span>
 					<strong>The Weekly</strong><br>
@@ -138,7 +138,7 @@ class Newspack_UI {
 				</span>
 			</label>
 			<br>
-			<label class="newspack-ui__input-checkradio newspack-ui__input-list">
+			<label class="newspack-ui__input-list">
 				<input type="radio" name="list-radio-option">
 				<span>
 					<strong>The Weekly</strong><br>
@@ -146,7 +146,7 @@ class Newspack_UI {
 				</span>
 			</label>
 
-			<label class="newspack-ui__input-checkradio newspack-ui__input-list">
+			<label class="newspack-ui__input-list">
 				<input type="radio" name="list-radio-option">
 				<span>
 					<strong>The Weekly</strong><br>
@@ -455,7 +455,7 @@ class Newspack_UI {
 						<p class="newspack-ui__font__small">Get the best of The News Paper directly to your email inbox.<br>
 						<span class="newspack-ui__color-text-gray">Sending to: email@address.</span></p>
 
-						<label class="newspack-ui__input-checkradio newspack-ui__input-list">
+						<label class="newspack-ui__input-list">
 							<input type="checkbox" name="checkbox-option-1">
 							<span>
 								<strong>The Weekly</strong><br>
@@ -463,7 +463,7 @@ class Newspack_UI {
 							</span>
 						</label>
 
-						<label class="newspack-ui__input-checkradio newspack-ui__input-list">
+						<label class="newspack-ui__input-list">
 							<input type="checkbox" name="checkbox-option-2">
 							<span>
 								<strong>The Weekly</strong><br>
