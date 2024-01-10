@@ -1092,19 +1092,6 @@ final class Reader_Activation {
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
 							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
 						</div>
-						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="400">
-								<?php echo self::get_error_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<span class="<?php echo \esc_attr( $class( 'response', 'icon' ) ); ?>" data-form-status="200">
-								<?php echo self::get_check_icon(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							</span>
-							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
-								<?php if ( ! empty( $message ) ) : ?>
-									<p><?php echo \esc_html( $message ); ?></p>
-								<?php endif; ?>
-							</div>
-						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
 						</p>
