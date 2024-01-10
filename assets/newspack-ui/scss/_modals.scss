@@ -2,12 +2,13 @@
 	&__modal {
 		background: var( --newspack-ui-color-body-bg );
 		border-radius: var( --newspack-ui-border-radius );
+		max-height: 90vh;
 		max-width: var( --newspack-ui-modal-width-medium );
 		overflow: hidden;
 
 		// Modal header & footer
 		&__header,
-		&__footer, {
+		&__footer {
 			padding: var( --newspack-ui-spacer-4 ) var( --newspack-ui-spacer-5 );
 		}
 
@@ -43,6 +44,7 @@
 
 		&__content {
 			backface-visibility: visible;
+			overflow: auto;
 			padding: var( --newspack-ui-spacer-5 );
 		}
 
