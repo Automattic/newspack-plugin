@@ -1,18 +1,4 @@
 :root {
-	// Newspack Blues
-	--newspack-ui-color-primary-000: #f5fdff;
-	--newspack-ui-color-primary-050: #d6f6ff;
-	--newspack-ui-color-primary-100: #b4e4ff;
-	--newspack-ui-color-primary-200: #93ccfd;
-	--newspack-ui-color-primary-300: #72affb;
-	--newspack-ui-color-primary-400: #528dfc;
-	--newspack-ui-color-primary-500: #36f;
-	--newspack-ui-color-primary-600: #2240d5;
-	--newspack-ui-color-primary-700: #1522af;
-	--newspack-ui-color-primary-800: #0b0b8d;
-	--newspack-ui-color-primary-900: #0d046e;
-	--newspack-ui-color-primary-950: #0e0052;
-
 	// Grays - notes from the Gutenberg styles.
 	// TODO: Import from 'wordpress/base-styles/colors' ?
 	--newspack-ui-color-black: #000;		// Use only when you truly need pure black. For UI, use $gray-900.

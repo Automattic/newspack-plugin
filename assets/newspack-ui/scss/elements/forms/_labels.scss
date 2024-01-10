@@ -6,10 +6,11 @@
 		font-size: var( --newspack-ui-font-size-small ) !important; // !important to override Newspack Theme.
 		font-weight: 600;
 		line-height: var( --newspack-ui-line-height-small );
-		margin: 0 0 var( --newspack-ui-spacer-1 );
+		margin: 0 0 var( --newspack-ui-spacer-base );
 
 		// For labels containing radio, checkbox inputs:
-		&.newspack-ui__input-checkradio { // For Firefox; otherwise could use &:has( input[type='checkbox'] ),&:has( input[type='radio'] )
+		&:has( input[type='checkbox'] ),
+		&:has( input[type='radio'] ) {
 			align-items: center;
 			display: flex;
 			gap: var( --newspack-ui-spacer-2 );
@@ -25,8 +26,8 @@
 
 				// This selector isn't supported in Firefox yet.
 				&:has( input:checked ) {
-					background: var( --newspack-ui-color-primary-000 );
-					border-color: var( --newspack-ui-color-primary-500 );
+					background: var( --newspack-ui-color-gray-100 );
+					border-color: var( --newspack-ui-color-gray-900 );
 				}
 
 				+ .newspack-ui__input-list {
