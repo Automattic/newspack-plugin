@@ -1699,7 +1699,7 @@ final class Reader_Activation {
 	 */
 	public static function get_user_data( $user_data = [] ) {
 		if ( empty( $user_data['user_email'] ) ) {
-			return new \WP_Error( 'newspack_register_reader_empty_email', __( 'Please enter a valid email address.', 'newspack-plugin' ) );
+			return $user_data;
 		}
 
 		// If we don't have a display name, make it match the email address.
