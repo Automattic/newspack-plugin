@@ -280,34 +280,26 @@ Data_Events::register_listener(
 );
 
 /**
- * For non-donation purchases.
+ * For any completed purchase. This data event triggers a contact sync to the connected ESP.
  */
 Data_Events::register_listener(
 	'woocommerce_order_status_completed',
-	'product_order_new',
+	'order_completed',
 	function( $order_id, $order ) {
-		// We only want to fire this for non-donation products.
-		$product_ids = array_values(
-			array_filter(
-				\Newspack\WooCommerce_Connection::get_products_for_order( $order_id ),
-				function( $product_id ) {
-					return ! Donations::is_donation_product( $product_id );
-				}
-			)
-		);
-
-		if ( empty( $product_ids ) ) {
+		// Donation orders always have just a single product, but other orders can have more than one.
+		$product_id = Donations::get_order_donation_product_id( $order_id ) ?? array_values( \Newspack\WooCommerce_Connection::get_products_for_order( $order_id ) );
+		if ( empty( $product_id ) ) {
 			return;
 		}
-		$recurrence       = 'once';
+
+		$recurrence       = is_numeric( $product_id ) ? \get_post_meta( $product_id, '_subscription_period', 'once' ) : 'once'; // Only donation products will have this meta.
 		$wcs_is_available = function_exists( 'wcs_get_subscriptions_for_order' ) && function_exists( 'wcs_order_contains_renewal' );
 		$subscriptions    = $wcs_is_available ? array_values( \wcs_get_subscriptions_for_order( $order, [ 'order_type' => 'any' ] ) ) : null;
 		$is_renewal       = $wcs_is_available && \wcs_order_contains_renewal( $order );
 		$subscription_id  = ! empty( $subscriptions ) ? $subscriptions[0]->get_id() : null;
-		if ( $subscription_id ) {
+		if ( 'once' === $recurrence && $subscription_id ) {
 			$recurrence = $subscriptions[0]->get_billing_period();
 		}
-
 		return [
 			'user_id'         => $order->get_customer_id(),
 			'email'           => $order->get_billing_email(),
@@ -320,7 +312,7 @@ Data_Events::register_listener(
 			'subscription_id' => $subscription_id,
 			'platform_data'   => [
 				'order_id'   => $order_id,
-				'product_id' => $product_ids,
+				'product_id' => $product_id,
 				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
 			],
 		];
@@ -381,52 +373,13 @@ Data_Events::register_listener(
 );
 
 /**
- * When a non-donation subscription is activated.
- * The subscription will be added to the user's list of active subscriptions.
- */
-Data_Events::register_listener(
-	'woocommerce_subscription_status_active',
-	'product_subscription_active',
-	function( $subscription ) {
-		// We only want to fire this for non-donation products.
-		$product_ids = array_values(
-			array_filter(
-				\Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id() ),
-				function( $product_id ) {
-					return ! Donations::is_donation_product( $product_id );
-				}
-			)
-		);
-
-		if ( empty( $product_ids ) ) {
-			return;
-		}
-
-		return [
-			'user_id'         => $subscription->get_customer_id(),
-			'email'           => $subscription->get_billing_email(),
-			'subscription_id' => $subscription->get_id(),
-			'product_ids'     => $product_ids,
-			'amount'          => (float) $subscription->get_total(),
-			'currency'        => $subscription->get_currency(),
-			'recurrence'      => $subscription->get_billing_period(),
-		];
-	}
-);
-
-/**
  * When a non-donation subscription is deactivated.
  * The subscription will be removed from the user's list of active subscriptions.
  */
 Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
-	'product_subscription_inactive',
+	'product_subscription_changed',
 	function( $subscription, $status_to, $status_from ) {
-		// We only want to fire this for non-active statuses.
-		if ( 'active' === $status_to ) {
-			return;
-		}
-
 		// We only want to fire this for non-donation products.
 		$product_ids = array_values(
 			array_filter(

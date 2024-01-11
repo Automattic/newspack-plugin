@@ -40,13 +40,11 @@ class ActiveCampaign {
 		) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
 			Data_Events::register_handler( [ __CLASS__, 'reader_logged_in' ], 'reader_logged_in' );
-			Data_Events::register_handler( [ __CLASS__, 'order_new' ], 'donation_new' );
-			Data_Events::register_handler( [ __CLASS__, 'order_new' ], 'product_order_new' );
+			Data_Events::register_handler( [ __CLASS__, 'order_completed' ], 'order_completed' );
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
-			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_active' );
-			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_inactive' );
-			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'newsletter_updated' );
-			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'newsletter_subscribed' );
+			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_changed' );
+			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
+			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 		}
 	}
 
@@ -116,13 +114,13 @@ class ActiveCampaign {
 	}
 
 	/**
-	 * Handle a new order.
+	 * Handle a completed order of any type.
 	 *
 	 * @param int   $timestamp Timestamp of the event.
 	 * @param array $data      Data associated with the event.
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
-	public static function order_new( $timestamp, $data, $client_id ) {
+	public static function order_completed( $timestamp, $data, $client_id ) {
 		if ( ! isset( $data['platform_data']['order_id'] ) ) {
 			return;
 		}
@@ -145,7 +143,17 @@ class ActiveCampaign {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function subscription_updated( $timestamp, $data, $client_id ) {
-		if ( ! isset( $data['subscription_id'] ) ) {
+		if ( empty( $data['subscription_id'] ) || empty( $data['status_before'] ) || empty( $data['status_after'] ) ) {
+			return;
+		}
+
+		/*
+		 * If the subscription is being activated after a successful first or renewal payment,
+		 * the contact will be synced when that order is completed, so no need to sync again.
+		 */
+		if (
+			( 'pending' === $data['status_before'] || 'on-hold' === $data['status_before'] ) &&
+			'active' === $data['status_after'] ) {
 			return;
 		}
 
