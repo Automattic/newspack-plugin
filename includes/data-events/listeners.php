@@ -253,20 +253,18 @@ Data_Events::register_listener(
 		if ( ! $product_id ) {
 			return;
 		}
-		$recurrence      = get_post_meta( $product_id, '_subscription_period', true );
-		$is_renewal      = function_exists( 'wcs_order_contains_renewal' ) && wcs_order_contains_renewal( $order );
-		$subscription_id = null;
-		if ( function_exists( 'wcs_get_subscriptions_for_renewal_order' ) ) {
-			$subscriptions   = array_values( wcs_get_subscriptions_for_renewal_order( $order ) );
-			$subscription_id = is_array( $subscriptions ) && ! empty( $subscriptions ) && is_a( $subscriptions[0], 'WC_Subscription' ) ? $subscriptions[0]->get_id() : null;
-		}
+		$recurrence       = \get_post_meta( $product_id, '_subscription_period', 'once' );
+		$wcs_is_available = function_exists( 'wcs_is_subscription' ) && function_exists( 'wcs_get_subscriptions_for_order' ) && function_exists( 'wcs_order_contains_renewal' );
+		$subscriptions    = $wcs_is_available ? array_values( \wcs_get_subscriptions_for_order( $order, [ 'order_type' => 'any' ] ) ) : null;
+		$is_renewal       = $wcs_is_available && \wcs_order_contains_renewal( $order );
+		$subscription_id  = ! empty( $subscriptions ) ? $subscriptions[0]->get_id() : null;
 
 		return [
 			'user_id'         => $order->get_customer_id(),
 			'email'           => $order->get_billing_email(),
 			'amount'          => (float) $order->get_total(),
 			'currency'        => $order->get_currency(),
-			'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
+			'recurrence'      => $recurrence,
 			'platform'        => Donations::get_platform_slug(),
 			'referer'         => $order->get_meta( '_newspack_referer' ),
 			'popup_id'        => $order->get_meta( '_newspack_popup_id' ),
@@ -275,6 +273,51 @@ Data_Events::register_listener(
 			'platform_data'   => [
 				'order_id'   => $order_id,
 				'product_id' => $product_id,
+				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
+			],
+		];
+	}
+);
+
+/**
+ * For non-donation purchases.
+ */
+Data_Events::register_listener(
+	'woocommerce_order_status_completed',
+	'product_order_new',
+	function( $order_id, $order ) {
+		// We only want to fire this for non-donation products.
+		$product_ids = array_values(
+			array_filter(
+				\Newspack\WooCommerce_Connection::get_products_for_order( $order_id ),
+				function( $product_id ) {
+					return ! Donations::is_donation_product( $product_id );
+				}
+			)
+		);
+
+		if ( empty( $product_ids ) ) {
+			return;
+		}
+		$recurrence       = 'once';
+		$wcs_is_available = function_exists( 'wcs_get_subscriptions_for_order' ) && function_exists( 'wcs_order_contains_renewal' );
+		$subscriptions    = $wcs_is_available ? array_values( \wcs_get_subscriptions_for_order( $order, [ 'order_type' => 'any' ] ) ) : null;
+		$is_renewal       = $wcs_is_available && \wcs_order_contains_renewal( $order );
+		$subscription_id  = ! empty( $subscriptions ) ? $subscriptions[0]->get_id() : null;
+
+		return [
+			'user_id'         => $order->get_customer_id(),
+			'email'           => $order->get_billing_email(),
+			'amount'          => (float) $order->get_total(),
+			'currency'        => $order->get_currency(),
+			'recurrence'      => $recurrence,
+			'referer'         => $order->get_meta( '_newspack_referer' ),
+			'popup_id'        => $order->get_meta( '_newspack_popup_id' ),
+			'is_renewal'      => $is_renewal,
+			'subscription_id' => $subscription_id,
+			'platform_data'   => [
+				'order_id'   => $order_id,
+				'product_id' => $product_ids,
 				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
 			],
 		];
@@ -345,7 +388,7 @@ Data_Events::register_listener(
 		// We only want to fire this for non-donation products.
 		$product_ids = array_values(
 			array_filter(
-				\Newspack\WooCommerce_Connection::get_products_for_subscription( $subscription->get_id() ),
+				\Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id() ),
 				function( $product_id ) {
 					return ! Donations::is_donation_product( $product_id );
 				}
@@ -384,7 +427,7 @@ Data_Events::register_listener(
 		// We only want to fire this for non-donation products.
 		$product_ids = array_values(
 			array_filter(
-				\Newspack\WooCommerce_Connection::get_products_for_subscription( $subscription->get_id() ),
+				\Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id() ),
 				function( $product_id ) {
 					return ! Donations::is_donation_product( $product_id );
 				}

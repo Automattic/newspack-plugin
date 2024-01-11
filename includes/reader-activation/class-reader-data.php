@@ -442,7 +442,7 @@ final class Reader_Data {
 		
 		$subscription_products = [];
 		foreach ( $active_subscriptions as $subscription ) {
-			$subscription_products = array_merge( $subscription_products, \Newspack\WooCommerce_Connection::get_products_for_subscription( $subscription->get_id() ) );
+			$subscription_products = array_merge( $subscription_products, \Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id() ) );
 		}
 		$subscription_products = array_values( array_unique( $subscription_products ) );
 		self::update_item( $data['user_id'], 'active_subscriptions', $subscription_products );

@@ -153,13 +153,20 @@ class Newspack_Newsletters {
 
 			// Capture UTM params and signup/payment page URLs as meta for registration or payment.
 			if (
-				( isset( $contact['metadata']['current_page_url'] ) || isset( $contact['metadata'][ self::get_metadata_key( 'current_page_url' ) ] ) ) &&
-				( isset( $contact['metadata']['registration_method'] ) || isset( $contact['metadata'][ self::get_metadata_key( 'registration_method' ) ] ) )
+				isset( $contact['metadata']['current_page_url'] ) ||
+				isset( $contact['metadata'][ self::get_metadata_key( 'current_page_url' ) ] ) ||
+				isset( $contact['metadata']['payment_page'] ) ||
+				isset( $contact['metadata'][ self::get_metadata_key( 'payment_page' ) ] )
 			) {
-				$raw_url             = isset( $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : $contact['metadata'][ self::get_metadata_key( 'current_page_url' ) ];
-				$parsed_url          = \wp_parse_url( $raw_url );
-				$registration_method = isset( $contact['metadata']['registration_method'] ) ? $contact['metadata']['registration_method'] : $contact['metadata'][ self::get_metadata_key( 'registration_method' ) ];
-				$is_payment          = in_array( $registration_method, [ 'woocommerce', 'woocommerce-memberships', 'stripe-donation' ], true ); // Registration methods from payments/transactions.
+				$is_payment = isset( $contact['metadata']['payment_page'] ) || isset( $contact['metadata'][ self::get_metadata_key( 'payment_page' ) ] );
+				$raw_url    = false;
+				if ( $is_payment ) {
+					$raw_url = isset( $contact['metadata']['payment_page'] ) ? $contact['metadata']['payment_page'] : $contact['metadata'][ self::get_metadata_key( 'payment_page' ) ];
+				} else {
+					$raw_url = isset( $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : $contact['metadata'][ self::get_metadata_key( 'current_page_url' ) ];
+				}
+
+				$parsed_url = \wp_parse_url( $raw_url );
 
 				// Maybe set UTM meta.
 				if ( ! empty( $parsed_url['query'] ) ) {
