@@ -304,6 +304,9 @@ Data_Events::register_listener(
 		$subscriptions    = $wcs_is_available ? array_values( \wcs_get_subscriptions_for_order( $order, [ 'order_type' => 'any' ] ) ) : null;
 		$is_renewal       = $wcs_is_available && \wcs_order_contains_renewal( $order );
 		$subscription_id  = ! empty( $subscriptions ) ? $subscriptions[0]->get_id() : null;
+		if ( $subscription_id ) {
+			$recurrence = $subscriptions[0]->get_billing_period();
+		}
 
 		return [
 			'user_id'         => $order->get_customer_id(),
