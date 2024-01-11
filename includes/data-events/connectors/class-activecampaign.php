@@ -116,7 +116,7 @@ class ActiveCampaign {
 	}
 
 	/**
-	 * Handle new order being.
+	 * Handle a new order.
 	 *
 	 * @param int   $timestamp Timestamp of the event.
 	 * @param array $data      Data associated with the event.
