@@ -263,7 +263,7 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/simple-local-avatars/' ),
 				'Download'    => 'wporg',
 			],
-			'distributor-stable'          => [
+			'distributor'                 => [
 				'Name'        => esc_html__( 'Distributor', 'newspack' ),
 				'Description' => esc_html__( 'Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.', 'newspack' ),
 				'Author'      => '10up',
