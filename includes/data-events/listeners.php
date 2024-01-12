@@ -253,7 +253,7 @@ Data_Events::register_listener(
 		if ( ! $product_id ) {
 			return;
 		}
-		$recurrence       = \get_post_meta( $product_id, '_subscription_period', 'once' );
+		$recurrence       = \get_post_meta( $product_id, '_subscription_period', true );
 		$wcs_is_available = function_exists( 'wcs_is_subscription' ) && function_exists( 'wcs_get_subscriptions_for_order' ) && function_exists( 'wcs_order_contains_renewal' );
 		$subscriptions    = $wcs_is_available ? array_values( \wcs_get_subscriptions_for_order( $order, [ 'order_type' => 'any' ] ) ) : null;
 		$is_renewal       = $wcs_is_available && \wcs_order_contains_renewal( $order );
@@ -264,7 +264,7 @@ Data_Events::register_listener(
 			'email'           => $order->get_billing_email(),
 			'amount'          => (float) $order->get_total(),
 			'currency'        => $order->get_currency(),
-			'recurrence'      => $recurrence,
+			'recurrence'      => ! empty( $recurrence ) ? $recurrence : 'once',
 			'platform'        => Donations::get_platform_slug(),
 			'referer'         => $order->get_meta( '_newspack_referer' ),
 			'popup_id'        => $order->get_meta( '_newspack_popup_id' ),
