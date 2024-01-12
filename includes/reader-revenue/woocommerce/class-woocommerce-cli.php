@@ -176,14 +176,16 @@ class WooCommerce_Cli {
 		$subscriptions = array_map(
 			function( $subscription ) {
 				return [
-					'id'     => $subscription->get_id(),
-					'amount' => $subscription->get_total(),
+					'id'           => $subscription->get_id(),
+					'date_created' => $subscription->get_date_created()->__toString(),
+					'amount'       => $subscription->get_total(),
 				];
 			},
 			$subscriptions
 		);
 
-		WP_CLI\Utils\format_items( $format, $subscriptions, [ 'id', 'amount' ] );
+		WP_CLI\Utils\format_items( $format, $subscriptions, [ 'id', 'amount', 'date_created' ] );
+		WP_CLI::log( count( $subscriptions ) . ' subscriptions found.' );
 	}
 
 	/**
@@ -202,11 +204,16 @@ class WooCommerce_Cli {
 		);
 
 		$subscriptions = [];
+		$ids           = [];
 
 		foreach ( $parent_order_ids as $parent_order_id ) {
 			$subs = wcs_get_subscriptions_for_order( $parent_order_id );
 			if ( is_array( $subs ) && ! empty( $subs ) ) {
-				$subscriptions[] = array_shift( $subs );
+				$sub = array_shift( $subs );
+				if ( ! in_array( $sub->get_id(), $ids, true ) ) {
+					$subscriptions[] = $sub;
+					$ids[]           = $sub->get_id();
+				}
 			}
 		}
 
