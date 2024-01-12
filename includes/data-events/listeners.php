@@ -320,7 +320,7 @@ Data_Events::register_listener(
 );
 
 /**
- * For when a WooCommerce Subscription is cancelled.
+ * For when a donation subscription is cancelled.
  */
 Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
@@ -347,7 +347,7 @@ Data_Events::register_listener(
 );
 
 /**
- * For when a WooCommerce Subscription status changes.
+ * For when a donation subscription status changes.
  */
 Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
@@ -373,7 +373,7 @@ Data_Events::register_listener(
 );
 
 /**
- * When a non-donation subscription is deactivated.
+ * When a non-donation subscription status changes.
  * The subscription will be removed from the user's list of active subscriptions.
  */
 Data_Events::register_listener(
