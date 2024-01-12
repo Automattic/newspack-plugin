@@ -43,9 +43,10 @@ final class Reader_Activation {
 	 */
 	const AUTH_FORM_ACTION  = 'reader-activation-auth-form';
 	const AUTH_FORM_OPTIONS = [
-		'pwd',
-		'link',
+		'signin',
 		'register',
+		'link',
+		'pwd',
 	];
 
 	/**
@@ -1053,12 +1054,7 @@ final class Reader_Activation {
 		}
 
 		$newsletters_label = self::get_setting( 'newsletters_label' );
-		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
-			$lists_config = self::get_registration_newsletter_lists();
-			if ( ! \is_wp_error( $lists_config ) ) {
-				$lists = $lists_config;
-			}
-		}
+
 		$terms_text      = self::get_setting( 'terms_text' );
 		$terms_url       = self::get_setting( 'terms_url' );
 		$is_account_page = function_exists( '\wc_get_page_id' ) ? \get_the_ID() === \wc_get_page_id( 'myaccount' ) : false;
@@ -1077,7 +1073,10 @@ final class Reader_Activation {
 				<?php endif; ?>
 				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
-						<div data-action="pwd link register">
+						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
+							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
+						</div>
+						<div data-action="signin register">
 							<?php self::render_third_party_auth(); ?>
 						</div>
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
@@ -1085,37 +1084,13 @@ final class Reader_Activation {
 							<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
 						<?php endif; ?>
 						<input type="hidden" name="action" value="pwd" />
-						<div class="<?php echo \esc_attr( $class( 'have-account' ) ); ?>">
-							<a href="#" data-action="pwd link" data-set-action="register"><?php \esc_html_e( "I don't have an account", 'newspack-plugin' ); ?></a>
-							<a href="#" data-action="register" data-set-action="pwd"><?php \esc_html_e( 'I already have an account', 'newspack-plugin' ); ?></a>
-						</div>
-						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
-							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
-						</div>
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
 						</p>
 						<p data-action="pwd">
-							<?php
-								echo wp_kses_post(
-									sprintf(
-										// Translators: %s is the link to sign in via magic link instead.
-										__( 'Sign in with a password below, or %s.', 'newspack-plugin' ),
-										'<a href="#" data-set-action="link">' . __( 'sign in using your email', 'newspack-plugin' ) . '</a>'
-									)
-								);
-							?>
-						</p>
-						<p data-action="link">
-							<?php
-								echo wp_kses_post(
-									sprintf(
-										// Translators: %s is the link to sign in via password instead.
-										__( 'Get a code sent to your email to sign in, or %s.', 'newspack-plugin' ),
-										'<a href="#" data-set-action="pwd">' . __( 'sign in using a password', 'newspack-plugin' ) . '</a>'
-									)
-								);
-							?>
+							<strong>
+								<?php esc_html_e( 'Enter your password', 'newspack-plugin' ); ?>
+							</strong>
 						</p>
 						<p data-action="otp">
 							<strong>
@@ -1123,30 +1098,7 @@ final class Reader_Activation {
 							</strong>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
-						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
-							<div data-action="register">
-								<?php if ( 1 < count( $lists ) ) : ?>
-									<p><?php echo \esc_html( $newsletters_label ); ?></p>
-								<?php endif; ?>
-								<?php
-								self::render_subscription_lists_inputs(
-									$lists,
-									array_keys(
-										array_filter(
-											$lists,
-											function( $list ) {
-												return $list['checked'] ?? false;
-											}
-										)
-									),
-									[
-										'single_label' => $newsletters_label,
-									]
-								);
-								?>
-							</div>
-						<?php endif; ?>
-						<div class="components-form__field" data-action="pwd link register">
+						<div class="components-form__field" data-action="signin register">
 							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack-plugin' ); ?>" />
 							<?php self::render_honeypot_field(); ?>
 						</div>
@@ -1176,41 +1128,17 @@ final class Reader_Activation {
 							);
 							?>
 						</p>
-
-						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
+						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>">
 							<div class="components-form__submit">
-								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
+								<button type="submit" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+								<button type="submit" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
 							</div>
-							<div class="components-form__help">
-								<p class="small">
-									<a href="#" data-set-action="link"><?php \esc_html_e( 'Sign in with your email', 'newspack-plugin' ); ?></a>
-								</p>
-								<p class="small">
-									<a href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php _e( 'Lost your password?', 'newspack-plugin' ); ?></a>
-								</p>
-							</div>
-						</div>
-						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="otp">
-							<div class="components-form__submit">
-								<button type="submit"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-							</div>
-							<button type="button" class="resend-code" data-resend-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
-							<button type="button" class="back-button" data-back><?php \esc_html_e( 'Back', 'newspack-plugin' ); ?></button>
-						</div>
-						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="link">
-							<div class="components-form__submit">
-								<button type="submit"><?php \esc_html_e( 'Send authorization code', 'newspack-plugin' ); ?></button>
-							</div>
-							<div class="components-form__help">
-								<p class="small">
-									<a href="#" data-set-action="pwd"><?php \esc_html_e( 'Sign in with a password', 'newspack-plugin' ); ?></a>
-								</p>
-							</div>
-						</div>
-						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="register">
-							<div class="components-form__submit">
-								<button type="submit"><?php \esc_html_e( 'Sign up', 'newspack-plugin' ); ?></button>
-							</div>
+							<button type="button" class="secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
+							<button type="button" class="secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
+							<a class="button secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
+							<button type="button" class="tertiary" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
+							<button type="button" class="tertiary" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+							<button type="button" class="tertiary" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
 						</div>
 						<?php if ( ! empty( $terms_text ) ) : ?>
 							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
@@ -1472,6 +1400,18 @@ final class Reader_Activation {
 		];
 
 		switch ( $action ) {
+			case 'signin':
+				if ( self::is_reader_without_password( $user ) ) {
+					$sent = Magic_Link::send_email( $user );
+					if ( true !== $sent ) {
+						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
+					}
+					$payload['action'] = 'otp';
+					return self::send_auth_form_response( $payload, false, $redirect );
+				} else {
+					$payload['action'] = 'pwd';
+					return self::send_auth_form_response( $payload, false, $redirect );
+				}
 			case 'pwd':
 				if ( empty( $password ) ) {
 					return self::send_auth_form_response( new \WP_Error( 'invalid_password', __( 'You must enter a valid password.', 'newspack-plugin' ) ) );
