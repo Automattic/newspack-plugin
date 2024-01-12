@@ -292,20 +292,16 @@ Data_Events::register_listener(
 			return;
 		}
 
-		$recurrence       = is_numeric( $product_id ) ? \get_post_meta( $product_id, '_subscription_period', 'once' ) : 'once'; // Only donation products will have this meta.
 		$wcs_is_available = function_exists( 'wcs_get_subscriptions_for_order' ) && function_exists( 'wcs_order_contains_renewal' );
 		$subscriptions    = $wcs_is_available ? array_values( \wcs_get_subscriptions_for_order( $order, [ 'order_type' => 'any' ] ) ) : null;
 		$is_renewal       = $wcs_is_available && \wcs_order_contains_renewal( $order );
 		$subscription_id  = ! empty( $subscriptions ) ? $subscriptions[0]->get_id() : null;
-		if ( 'once' === $recurrence && $subscription_id ) {
-			$recurrence = $subscriptions[0]->get_billing_period();
-		}
+
 		return [
 			'user_id'         => $order->get_customer_id(),
 			'email'           => $order->get_billing_email(),
 			'amount'          => (float) $order->get_total(),
 			'currency'        => $order->get_currency(),
-			'recurrence'      => $recurrence,
 			'referer'         => $order->get_meta( '_newspack_referer' ),
 			'popup_id'        => $order->get_meta( '_newspack_popup_id' ),
 			'is_renewal'      => $is_renewal,
