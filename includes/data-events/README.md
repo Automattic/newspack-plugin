@@ -140,7 +140,6 @@ When any WooCommerce order is completed with a successful payment.
 | `email`           | `string` |                                                        |
 | `amount`          | `float`  |                                                        |
 | `currency`        | `string` |                                                        |
-| `recurrence`      | `string` |                                                        |
 | `platform`        | `string` |                                                        |
 | `referer`         | `string` |                                                        |
 | `popup_id`        | `string` | If the order was triggered by a popup, the popup ID    |
