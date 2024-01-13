@@ -2,6 +2,8 @@
 	&__modal {
 		background: var( --newspack-ui-color-body-bg );
 		border-radius: var( --newspack-ui-border-radius );
+		display: flex;
+		flex-direction: column;
 		max-height: 90vh;
 		max-width: var( --newspack-ui-modal-width-medium );
 		overflow: hidden;
