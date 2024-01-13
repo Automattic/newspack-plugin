@@ -50,6 +50,7 @@ class WooCommerce_Connection {
 		\add_filter( 'default_option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'default_option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
+		\add_action( 'woocommerce_order_status_completed', [ __CLASS__, 'maybe_update_reader_display_name' ], 10, 2 );
 
 		// WooCommerce Subscriptions.
 		\add_action( 'add_meta_boxes', [ __CLASS__, 'remove_subscriptions_schedule_meta_box' ], 45 );
@@ -1281,6 +1282,34 @@ class WooCommerce_Connection {
 		);
 
 		return false;
+	}
+
+	/**
+	 * If the reader completes an order, check if they have a generic display name.
+	 * If they do and they also have a billing first and/or last name, we can upgrade
+	 * the display name to match their provided billing name.
+	 * 
+	 * @param int      $order_id Order ID.
+	 * @param WC_Order $order Completed order.
+	 */
+	public static function maybe_update_reader_display_name( $order_id, $order ) {
+		$customer_id = $order->get_customer_id();
+		if ( ! Reader_Activation::reader_has_generic_display_name( $customer_id ) ) {
+			return;
+		}
+
+		// If they have a generated display name, construct it from billing name.
+		$first_name = $order->get_billing_first_name();
+		$last_name  = $order->get_billing_last_name();
+		if ( ! empty( $first_name ) || ! empty( $last_name ) ) {
+			$display_name = trim( "$first_name $last_name" );
+			\wp_update_user(
+				[
+					'ID'           => $customer_id,
+					'display_name' => $display_name,
+				]
+			);
+		}
 	}
 
 	/**

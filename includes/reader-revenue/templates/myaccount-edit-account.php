@@ -47,12 +47,14 @@ endif;
 
 	<?php \do_action( 'newspack_woocommerce_edit_account_form_start' ); ?>
 
+	<?php if ( ! Reader_Activation::reader_has_generic_display_name() ) : ?>
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide mt0">
 		<label for="account_display_name"><?php \esc_html_e( 'Display name', 'newspack-plugin' ); ?>&nbsp;<span class="required">*</span></label>
 		<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="account_display_name" id="account_display_name" autocomplete="name" value="<?php echo \esc_attr( $user->display_name ); ?>" />
 	</p>
+	<?php endif; ?>
 
-	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide mt0">
 		<label for="account_email_display"><?php \esc_html_e( 'Email address', 'newspack-plugin' ); ?>&nbsp;<span class="required">*</span></label>
 		<input type="email" disabled class="woocommerce-Input woocommerce-Input--email input-text" name="account_email_display" id="account_email_display" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
 		<input type="hidden" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />

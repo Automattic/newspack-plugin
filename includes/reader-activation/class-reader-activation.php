@@ -1702,14 +1702,16 @@ final class Reader_Activation {
 			return $user_data;
 		}
 
-		// If we don't have a display name, make it match the email address.
-		if ( empty( $user_data['display_name'] ) ) {
-			$user_data['display_name'] = \sanitize_email( $user_data['user_email'] );
-		}
 		$user_login      = \sanitize_user( $user_data['user_email'] ); // Matches the email address.
-		$user_nicename   = \sanitize_title( \sanitize_user( strstr( $user_data['display_name'], '@', true ), true ) ); // URL-sanitized version of display name.
 		$random_password = \wp_generate_password();
-		$user_data       = array_merge(
+		$user_nicename   = self::generate_user_nicename( ! empty( $user_data['display_name'] ) ? $user_data['display_name'] : $user_data['user_email'] );
+
+		// If we don't have a display name, make it match the nicename.
+		if ( empty( $user_data['display_name'] ) ) {
+			$user_data['display_name'] = $user_nicename;
+		}
+
+		$user_data = array_merge(
 			$user_data,
 			[
 				'user_login'    => $user_login,
@@ -1723,6 +1725,59 @@ final class Reader_Activation {
 		 * See https://developer.wordpress.org/reference/functions/wp_insert_user/ for supported args.
 		 */
 		return apply_filters( 'newspack_register_reader_user_data', $user_data );
+	}
+
+	/**
+	 * Strip the domain part of an email address string.
+	 * If not an email address, just return the string.
+	 *
+	 * @param string $str String to check.
+	 * @return string
+	 */
+	public static function strip_email_domain( $str ) {
+		return trim( explode( '@', $str, 2 )[0] );
+	}
+
+	/**
+	 * Generate a URL-sanitized version of the given string for a new reader account.
+	 *
+	 * @param string $name User's display name, or email if not available.
+	 * @return string
+	 */
+	public static function generate_user_nicename( $name ) {
+		$name = self::strip_email_domain( $name ); // If an email address, strip the domain.
+		return \sanitize_title( \sanitize_user( $name, true ) );
+	}
+
+	/**
+	 * Check if the reader's display name was auto-generated from email address.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool True if the display name was generated.
+	 */
+	public static function reader_has_generic_display_name( $user_id = 0 ) {
+		if ( ! $user_id ) {
+			$user_id = \get_current_user_id();
+		}
+		$user = \get_userdata( $user_id );
+		if ( empty( $user->data ) ) {
+			return false;
+		}
+
+		// If the user lacks a display name or email address at all.
+		if ( empty( $user->data->display_name ) || empty( $user->data->user_email ) ) {
+			return true;
+		}
+
+		// If it was generated from the email address.
+		if (
+			self::generate_user_nicename( $user->data->user_email ) === $user->data->display_name || // New generated construction (URL-sanitized version of the email address minus domain).
+			self::strip_email_domain( $user->data->user_email ) === $user->data->display_name // Legacy generated construction (just the email address minus domain).
+		) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

@@ -456,12 +456,18 @@ class WooCommerce_My_Account {
 	 */
 	public static function remove_required_fields( $required_fields ) {
 		if ( Donations::is_platform_wc() ) {
-			return [
-				'account_display_name' => __( 'Display name', 'newspack-plugin' ),
-				'account_email'        => __( 'Email address', 'newspack-plugin' ),
+			$newspack_required_fields = [
+				'account_email' => __( 'Email address', 'newspack-plugin' ),
 			];
+
+			// Require display name only if user account has real, non-generated one.
+			if ( ! Reader_Activation::reader_has_generic_display_name() ) {
+				$newspack_required_fields['account_display_name'] = __( 'Display name', 'newspack-plugin' );
+			}
+
+			return $newspack_required_fields;
 		}
-		return [];
+		return $required_fields;
 	}
 
 	/**
@@ -520,6 +526,10 @@ class WooCommerce_My_Account {
 	 * Restrict account content for unverified readers.
 	 */
 	public static function restrict_account_content() {
+		if ( defined( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION' ) && NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION ) {
+			return;
+		}
+
 		if ( \is_user_logged_in() && ! self::is_user_verified() ) {
 			\remove_all_actions( 'woocommerce_account_content' );
 			\add_action(
