@@ -1,3 +1,10 @@
+# [2.15.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.15.0-alpha.1...v2.15.0-alpha.2) (2024-01-15)
+
+
+### Bug Fixes
+
+* **plugins:** incorrect plugin slug for Distributor ([#2846](https://github.com/Automattic/newspack-plugin/issues/2846)) ([ba6dc97](https://github.com/Automattic/newspack-plugin/commit/ba6dc97f84bb6d2bc1fd6326d0d65c9e4bf2946c))
+
 ## [2.14.1](https://github.com/Automattic/newspack-plugin/compare/v2.14.0...v2.14.1) (2024-01-15)
 
 
