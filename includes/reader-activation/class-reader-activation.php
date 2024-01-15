@@ -26,11 +26,11 @@ final class Reader_Activation {
 	/**
 	 * Reader user meta keys.
 	 */
-	const READER              = 'np_reader';
-	const EMAIL_VERIFIED      = 'np_reader_email_verified';
-	const WITHOUT_PASSWORD    = 'np_reader_without_password';
-	const REGISTRATION_METHOD = 'np_reader_registration_method';
-
+	const READER                          = 'np_reader';
+	const EMAIL_VERIFIED                  = 'np_reader_email_verified';
+	const WITHOUT_PASSWORD                = 'np_reader_without_password';
+	const REGISTRATION_METHOD             = 'np_reader_registration_method';
+	const READER_HAS_GENERIC_DISPLAY_NAME = 'np_reader_has_generic_display_name';
 
 	/**
 	 * Unverified email rate limiting
@@ -82,6 +82,8 @@ final class Reader_Activation {
 			\add_action( 'wc_get_template', [ __CLASS__, 'replace_woocommerce_auth_form' ], 10, 2 );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
 			\add_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'canonize_user_data' ] );
+			\add_filter( 'wp_pre_insert_user_data', [ __CLASS__, 'validate_user_data' ], 10, 4 );
+			\add_filter( 'woocommerce_add_error', [ __CLASS__, 'better_display_name_error' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
@@ -1728,6 +1730,65 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Validate reader data before being saved.
+	 *
+	 * @param array $data     User data.
+	 * @param bool  $update   Whether the user is being updated rather than created.
+	 * @param int   $user_id  User ID.
+	 * @param array $userdata Raw array of user data.
+	 *
+	 * @return array
+	 */
+	public static function validate_user_data( $data, $update, $user_id, $userdata ) {
+		// Only when updating an existing user.
+		if ( ! $update || ! $user_id ) {
+			return $data;
+		}
+		// Only if the user is a reader.
+		if ( ! self::is_user_reader( \get_user_by( 'id', $user_id ) ) ) {
+			return $data;
+		}
+
+		// Validate display name before saving.
+		if ( isset( $data['display_name'] ) ) {
+			// If the reader saves an empty value.
+			if ( empty( trim( $data['display_name'] ) ) ) {
+				if ( empty( $userdata['display_name'] ) ) {
+					// If the reader lacks a display name, generate one.
+					$data['display_name'] = self::generate_user_nicename( $userdata['user_email'] );
+				} else {
+					// Otherwise, don't update it.
+					$data['display_name'] = $userdata['display_name'];
+				}
+			}
+
+			// If the reader has intentionally saved a display name we consider generic, mark it as such.
+			if (
+				self::generate_user_nicename( $userdata['user_email'] ) === $data['display_name'] || // New generated construction (URL-sanitized version of the email address minus domain).
+				self::strip_email_domain( $userdata['user_email'] ) === $data['display_name'] // Legacy generated construction (just the email address minus domain).
+			) {
+				\update_user_meta( $user_id, self::READER_HAS_GENERIC_DISPLAY_NAME, 1 );
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Display improved copy for the display name error message.
+	 *
+	 * @param string $message Error message.
+	 * @return string
+	 */
+	public static function better_display_name_error( $message ) {
+		if ( 'Display name cannot be changed to email address due to privacy concern.' === $message ) {
+			return __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' );
+		}
+
+		return $message;
+	}
+
+	/**
 	 * Strip the domain part of an email address string.
 	 * If not an email address, just return the string.
 	 *
@@ -1756,7 +1817,7 @@ final class Reader_Activation {
 	 * @return bool True if the display name was generated.
 	 */
 	public static function reader_has_generic_display_name( $user_id = 0 ) {
-		// Allow an environment constant to override this check.
+		// Allow an environment constant to override this check so that even generic/generated display names are allowed.
 		if ( defined( 'NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES' ) && NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES ) {
 			return false;
 		}
@@ -1768,12 +1829,17 @@ final class Reader_Activation {
 			return false;
 		}
 
-		// If the user lacks a display name or email address at all.
+		// If the reader has intentionally saved a display name we consider generic, treat it as not generic.
+		if ( \get_user_meta( $user_id, self::READER_HAS_GENERIC_DISPLAY_NAME, true ) ) {
+			return false;
+		}
+
+		// If the user lacks a display name or email address at all, treat it as generic.
 		if ( empty( $user->data->display_name ) || empty( $user->data->user_email ) ) {
 			return true;
 		}
 
-		// If it was generated from the email address.
+		// If we generated the display name from the user's email address, treat it as generic.
 		if (
 			self::generate_user_nicename( $user->data->user_email ) === $user->data->display_name || // New generated construction (URL-sanitized version of the email address minus domain).
 			self::strip_email_domain( $user->data->user_email ) === $user->data->display_name // Legacy generated construction (just the email address minus domain).

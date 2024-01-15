@@ -457,15 +457,16 @@ class WooCommerce_My_Account {
 	public static function remove_required_fields( $required_fields ) {
 		if ( Donations::is_platform_wc() ) {
 			$newspack_required_fields = [
-				'account_email' => __( 'Email address', 'newspack-plugin' ),
+				'account_email'        => __( 'Email address', 'newspack-plugin' ),
+				'account_display_name' => __( 'Display name', 'newspack-plugin' ),
 			];
 
-			// Require display name only if user account has real, non-generated one.
-			if ( ! Reader_Activation::reader_has_generic_display_name() ) {
-				$newspack_required_fields['account_display_name'] = __( 'Display name', 'newspack-plugin' );
-			}
-
-			return $newspack_required_fields;
+			/**
+			 * Filters the fields required when editing account details in My Account.
+			 *
+			 * @param array $newspack_required_fields Required fields, keyed by field name.
+			 */
+			return \apply_filters( 'newspack_myaccount_required_fields', $newspack_required_fields );
 		}
 		return $required_fields;
 	}
