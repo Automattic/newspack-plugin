@@ -6,7 +6,7 @@
 		flex-direction: column;
 		max-height: 90vh;
 		max-width: var( --newspack-ui-modal-width-medium );
-		overflow: hidden;
+		overflow: auto;
 
 		// Modal header & footer
 		&__header,
@@ -16,9 +16,12 @@
 
 		&__header {
 			align-items: center;
+			background: var( --newspack-ui-color-body-bg );
 			border-bottom: 1px solid var( --newspack-ui-color-border );
 			display: flex;
 			justify-content: space-between;
+			position: sticky;
+			top: 0;
 
 			h2 {
 				font-size: var( --newspack-ui-font-size-medium );
@@ -46,7 +49,6 @@
 
 		&__content {
 			backface-visibility: visible;
-			overflow: auto;
 			padding: var( --newspack-ui-spacer-5 );
 		}
 
