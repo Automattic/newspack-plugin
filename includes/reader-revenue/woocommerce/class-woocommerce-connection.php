@@ -15,10 +15,6 @@ defined( 'ABSPATH' ) || exit;
  * Connection with WooCommerce's features.
  */
 class WooCommerce_Connection {
-	const CREATED_VIA_STRIPE_INTEGRATION_NAME = 'newspack-stripe';
-
-	private static $created_membership_id; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
-
 	/**
 	 * Initialize.
 	 *
@@ -45,9 +41,6 @@ class WooCommerce_Connection {
 		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
 		\add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'sync_reader_on_subscription_update' ], 10, 3 );
 
-		// WooCommerce Memberships.
-		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
-
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 
 		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
@@ -72,16 +65,6 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * If a membership is created during the request, save its ID.
-	 *
-	 * @param \WC_Memberships_Membership_Plan $membership_plan the plan that user was granted access to.
-	 * @param array                           $args array of User Membership arguments.
-	 */
-	public static function wc_membership_created( $membership_plan, $args ) {
-		self::$created_membership_id = $args['user_membership_id'];
-	}
-
-	/**
 	 * Hide WooCommerce's setup task list. Newspack does the setup behind the scenes.
 	 */
 	public static function disable_woocommerce_setup() {
@@ -91,29 +74,6 @@ class WooCommerce_Connection {
 				$task_list->hide();
 			}
 		}
-	}
-
-	/**
-	 * Get a WC_Order_Item related to the product with the given SKU, or a Newspack donation product based on frequency.
-	 *
-	 * @param string      $frequency Frequency of the order's recurrence.
-	 * @param number      $amount Donation amount.
-	 * @param null|string $product_sku Product's SKU string, or null to get a Newspack donation product.
-	 *
-	 * @return boolean|WC_Order_Item_Product Order item product, or false if there's no product with matching SKU.
-	 */
-	public static function get_order_item( $frequency = 'once', $amount = 0, $product_sku = null ) {
-		$product_id = ! empty( $product_sku ) ? \wc_get_product_id_by_sku( $product_sku ) : Donations::get_donation_product( $frequency );
-		if ( empty( $product_id ) ) {
-			return false;
-		}
-
-		$item = new \WC_Order_Item_Product();
-		$item->set_product( \wc_get_product( $product_id ) );
-		$item->set_total( $amount );
-		$item->set_subtotal( $amount );
-		$item->save();
-		return $item;
 	}
 
 	/**
@@ -173,11 +133,10 @@ class WooCommerce_Connection {
 	 * Get the contact data from a WooCommerce order.
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
-	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	public static function get_contact_from_order( $order, $payment_page_url = false ) {
+	public static function get_contact_from_order( $order ) {
 		if ( is_integer( $order ) ) {
 			$order = new \WC_Order( $order );
 		}
@@ -192,13 +151,11 @@ class WooCommerce_Connection {
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $order->get_customer_id();
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 
-		if ( false === $payment_page_url ) {
-			$referer_from_order = $order->get_meta( '_newspack_referer' );
-			if ( empty( $referer_from_order ) ) {
-				$payment_page_url = \wc_get_checkout_url();
-			} else {
-				$payment_page_url = $referer_from_order;
-			}
+		$referer_from_order = $order->get_meta( '_newspack_referer' );
+		if ( empty( $referer_from_order ) ) {
+			$payment_page_url = \wc_get_checkout_url();
+		} else {
+			$payment_page_url = $referer_from_order;
 		}
 		$metadata['current_page_url'] = $payment_page_url;
 
@@ -315,17 +272,10 @@ class WooCommerce_Connection {
 	/**
 	 * Sync a customer to the ESP from an order.
 	 *
-	 * @param WC_Order    $order Order object.
-	 * @param bool        $verify_created_via Whether to verify that the order was not created via the Stripe integration.
-	 * @param bool|string $payment_page_url Payment page URL. If not provided, checkout URL will be used.
+	 * @param WC_Order $order Order object.
 	 */
-	public static function sync_reader_from_order( $order, $verify_created_via = true, $payment_page_url = false ) {
+	public static function sync_reader_from_order( $order ) {
 		if ( ! self::can_sync_customers() ) {
-			return;
-		}
-
-		if ( $verify_created_via && self::CREATED_VIA_STRIPE_INTEGRATION_NAME === $order->get_created_via() ) {
-			// Only sync orders not created via the Stripe integration.
 			return;
 		}
 
@@ -333,7 +283,7 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		$contact = self::get_contact_from_order( $order, $payment_page_url );
+		$contact = self::get_contact_from_order( $order );
 		if ( ! $contact ) {
 			return;
 		}
@@ -467,8 +417,8 @@ class WooCommerce_Connection {
 	 * @param \WC_Order $order The order object.
 	 */
 	public static function handle_order_status_change( $id, $from, $to, $order ) {
-		// Only run for completed orders created by this plugin.
-		if ( 'completed' !== $to && self::CREATED_VIA_STRIPE_INTEGRATION_NAME === $order->get_created_via() ) {
+		// Only run when order is completed.
+		if ( 'completed' !== $to ) {
 			return;
 		}
 		$frequency = 'once';
