@@ -417,6 +417,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 			};
 
 			form.endLoginFlow = ( message = null, status = 500, data = null, redirect ) => {
+				container.setAttribute( 'data-form-status', status );
+				form.style.opacity = 1;
+				submitButtons.forEach( button => {
+					button.disabled = false;
+				} );
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.textContent = message;
@@ -433,7 +438,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} else {
 						form.replaceWith( messageContentElement.parentNode );
 					}
-					container.setAttribute( 'data-form-status', status );
 				}
 			};
 
