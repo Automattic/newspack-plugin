@@ -1,3 +1,18 @@
+# [2.15.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.14.0...v2.15.0-alpha.1) (2024-01-15)
+
+
+### Bug Fixes
+
+* **connections-wizard:** error display ([7b20899](https://github.com/Automattic/newspack-plugin/commit/7b208997a3480455ad06c41983d7c9cb706b96f7))
+* prevent switch order synchronisation ([f08295f](https://github.com/Automattic/newspack-plugin/commit/f08295f608d2ae2b287bddf9b1b50b2820e633a4))
+
+
+### Features
+
+* add support for revisions to content gate CPT ([#2812](https://github.com/Automattic/newspack-plugin/issues/2812)) ([87bd78b](https://github.com/Automattic/newspack-plugin/commit/87bd78b7bbf695bd14d5ff5ea3b0be8ff6fea815))
+* approved plugins list retrieval method ([ea79dce](https://github.com/Automattic/newspack-plugin/commit/ea79dce0a67db8f5a8814aa0f09c0548f3562184))
+* **supported-plugins:** add Newspack Network & Multibranded Site ([#2824](https://github.com/Automattic/newspack-plugin/issues/2824)) ([857ebae](https://github.com/Automattic/newspack-plugin/commit/857ebae0d45a07ae4f3cbe97c54caa6f774a059a))
+
 # [2.14.0](https://github.com/Automattic/newspack-plugin/compare/v2.13.0...v2.14.0) (2024-01-15)
 
 
