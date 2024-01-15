@@ -81,7 +81,7 @@ final class Reader_Activation {
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
 			\add_action( 'wc_get_template', [ __CLASS__, 'replace_woocommerce_auth_form' ], 10, 2 );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
-			\add_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'sanitize_user_data' ] );
+			\add_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'canonize_user_data' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
@@ -1620,7 +1620,7 @@ final class Reader_Activation {
 			/**
 			 * Create new reader.
 			 */
-			$user_data = self::sanitize_user_data(
+			$user_data = self::canonize_user_data(
 				[
 					'display_name' => $display_name,
 					'user_email'   => $email,
@@ -1697,7 +1697,7 @@ final class Reader_Activation {
 	 * @param array $user_data          Default args for the new user.
 	 *              $user_data['email] Email address for the new user (required).
 	 */
-	public static function sanitize_user_data( $user_data = [] ) {
+	public static function canonize_user_data( $user_data = [] ) {
 		if ( empty( $user_data['user_email'] ) ) {
 			return $user_data;
 		}
