@@ -1726,7 +1726,7 @@ final class Reader_Activation {
 		 * Filters the user_data used to register a new RAS reader account.
 		 * See https://developer.wordpress.org/reference/functions/wp_insert_user/ for supported args.
 		 */
-		return apply_filters( 'newspack_register_reader_user_data', $user_data );
+		return \apply_filters( 'newspack_register_reader_user_data', $user_data );
 	}
 
 	/**
