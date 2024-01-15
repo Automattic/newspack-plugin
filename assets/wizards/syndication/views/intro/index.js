@@ -38,7 +38,7 @@ const Intro = () => {
 					'publish-to-apple-news': {
 						name: __( 'Apple News', 'newspack' ),
 					},
-					'distributor-stable': {
+					distributor: {
 						name: __( 'Distributor', 'newspack' ),
 					},
 				} }
