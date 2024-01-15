@@ -18,17 +18,13 @@ class Media_Partners {
 	 * Initialize everything.
 	 */
 	public static function init() {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			include_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
+		add_action( 'admin_init', [ __CLASS__, 'switch_from_standalone_plugin' ] );
 
 		if ( ! Settings::is_optional_module_active( 'media-partners' ) ) {
 			return;
 		}
 
-		add_action( 'admin_init', [ __CLASS__, 'switch_from_standalone_plugin' ] );
 		add_action( 'init', [ __CLASS__, 'register_taxonomies' ] );
-
 		add_action( 'partner_add_form_fields', [ __CLASS__, 'add_partner_meta_fields' ] );
 		add_action( 'partner_edit_form_fields', [ __CLASS__, 'edit_partner_meta_fields' ] );
 		add_action( 'after-partner-table', [ __CLASS__, 'add_global_settings' ] );
