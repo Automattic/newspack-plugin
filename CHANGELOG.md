@@ -1,3 +1,10 @@
+# [2.14.0](https://github.com/Automattic/newspack-plugin/compare/v2.13.0...v2.14.0) (2024-01-15)
+
+
+### Features
+
+* add cli command to fix stripe covered fees ([#2848](https://github.com/Automattic/newspack-plugin/issues/2848)) ([3f5874f](https://github.com/Automattic/newspack-plugin/commit/3f5874fe579f9a53953fd348188036801cea1b8e))
+
 # [2.13.0](https://github.com/Automattic/newspack-plugin/compare/v2.12.2...v2.13.0) (2024-01-08)
 
 
