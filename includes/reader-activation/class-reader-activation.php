@@ -26,11 +26,11 @@ final class Reader_Activation {
 	/**
 	 * Reader user meta keys.
 	 */
-	const READER                          = 'np_reader';
-	const EMAIL_VERIFIED                  = 'np_reader_email_verified';
-	const WITHOUT_PASSWORD                = 'np_reader_without_password';
-	const REGISTRATION_METHOD             = 'np_reader_registration_method';
-	const READER_HAS_GENERIC_DISPLAY_NAME = 'np_reader_has_generic_display_name';
+	const READER                            = 'np_reader';
+	const EMAIL_VERIFIED                    = 'np_reader_email_verified';
+	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
+	const REGISTRATION_METHOD               = 'np_reader_registration_method';
+	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
 	/**
 	 * Unverified email rate limiting
@@ -1756,6 +1756,7 @@ final class Reader_Activation {
 				if ( empty( $userdata['display_name'] ) ) {
 					// If the reader lacks a display name, generate one.
 					$data['display_name'] = self::generate_user_nicename( $userdata['user_email'] );
+					\delete_user_meta( $user_id, self::READER_SAVED_GENERIC_DISPLAY_NAME );
 				} else {
 					// Otherwise, don't update it.
 					$data['display_name'] = $userdata['display_name'];
@@ -1767,7 +1768,7 @@ final class Reader_Activation {
 				self::generate_user_nicename( $userdata['user_email'] ) === $data['display_name'] || // New generated construction (URL-sanitized version of the email address minus domain).
 				self::strip_email_domain( $userdata['user_email'] ) === $data['display_name'] // Legacy generated construction (just the email address minus domain).
 			) {
-				\update_user_meta( $user_id, self::READER_HAS_GENERIC_DISPLAY_NAME, 1 );
+				\update_user_meta( $user_id, self::READER_SAVED_GENERIC_DISPLAY_NAME, 1 );
 			}
 		}
 
@@ -1830,7 +1831,7 @@ final class Reader_Activation {
 		}
 
 		// If the reader has intentionally saved a display name we consider generic, treat it as not generic.
-		if ( \get_user_meta( $user_id, self::READER_HAS_GENERIC_DISPLAY_NAME, true ) ) {
+		if ( \get_user_meta( $user_id, self::READER_SAVED_GENERIC_DISPLAY_NAME, true ) ) {
 			return false;
 		}
 
