@@ -175,16 +175,19 @@ class WooCommerce_Cli {
 	private function output_subscriptions( $subscriptions, $format = 'table' ) {
 		$subscriptions = array_map(
 			function( $subscription ) {
+				$user  = $subscription->get_user();
+				$email = $user instanceof \WP_User ? $user->user_email : 'guest';
 				return [
 					'id'           => $subscription->get_id(),
 					'date_created' => $subscription->get_date_created()->__toString(),
 					'amount'       => $subscription->get_total(),
+					'user_email'   => $email,
 				];
 			},
 			$subscriptions
 		);
 
-		WP_CLI\Utils\format_items( $format, $subscriptions, [ 'id', 'amount', 'date_created' ] );
+		WP_CLI\Utils\format_items( $format, $subscriptions, [ 'id', 'amount', 'user_email', 'date_created' ] );
 		WP_CLI::log( count( $subscriptions ) . ' subscriptions found.' );
 	}
 
