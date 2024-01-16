@@ -293,9 +293,11 @@ const Webhooks = () => {
 								if ( endpoint.disabled && endpoint.disabled_error ) {
 									return (
 										__(
-											'This endpoint is disabled due excessive request errors: ',
+											'This endpoint is disabled due excessive request errors',
 											'newspack-plugin'
-										) + endpoint.disabled_error
+										) +
+										': ' +
+										endpoint.disabled_error
 									);
 								}
 								return (
