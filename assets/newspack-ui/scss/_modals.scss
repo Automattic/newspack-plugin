@@ -1,4 +1,41 @@
 .newspack-ui {
+	&__modal-container {
+		position: fixed;
+		inset: 0;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		visibility: hidden;
+		pointer-events: none;
+		z-index: -1;
+		&__overlay {
+			background: rgba( 0, 0, 0, 0.5 );
+			position: absolute;
+			inset: 0;
+			opacity: 0;
+			transition: opacity 0.1s linear;
+			z-index: 1;
+		}
+		.newspack-ui__modal {
+			width: 100%;
+			z-index: 2;
+			position: relative;
+			transform: translateY( 50px );
+			transition: transform 0.1s linear;
+		}
+		&[data-state='open'] {
+			z-index: 99999;
+			visibility: visible;
+			pointer-events: auto;
+			.newspack-ui__modal-container__overlay {
+				opacity: 1;
+			}
+			.newspack-ui__modal {
+				transform: translateY( 0 );
+			}
+		}
+	}
 	&__modal {
 		background: var( --newspack-ui-color-body-bg );
 		border-radius: var( --newspack-ui-border-radius );
@@ -28,7 +65,8 @@
 				margin: 0;
 			}
 
-			button { // Close button
+			button {
+				// Close button
 				background: transparent;
 				border: 0;
 				color: var( --newspack-ui-color-text-high-contrast );
