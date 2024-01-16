@@ -22,7 +22,8 @@
 			z-index: 2;
 			width: 100%;
 			transform: translateY( 50px );
-			transition: transform 0.1s linear;
+			opacity: 0;
+			transition: transform 0.1s linear, opacity 0.1s linear;
 		}
 		&[data-state='open'] {
 			z-index: 99999;
@@ -32,6 +33,7 @@
 				opacity: 1;
 			}
 			.newspack-ui__modal {
+				opacity: 1;
 				transform: translateY( 0 );
 			}
 		}
