@@ -1,0 +1,24 @@
+@use 'scss/variables';
+@use 'scss/elements';
+@use 'scss/modals';
+
+.newspack-ui {
+	font-family: var( --newspack-ui-font-family );
+	font-size: var( --newspack-ui-font-size-medium ) !important;
+
+	// Need better spot for this
+	&__color-text-gray {
+		color: var( --newspack-ui-color-text-med-contrast );
+	}
+
+	// Overrides for theme styles -- to move to theme?
+	h2,
+	h3 {
+		font-size: var( --newspack-ui-font-size-medium );
+	}
+
+	a,
+	a:hover {
+		color: inherit !important;
+	}
+}

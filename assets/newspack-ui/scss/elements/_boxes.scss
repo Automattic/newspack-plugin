@@ -1,0 +1,46 @@
+.newspack-ui {
+	.newspack-ui {
+		&__box {
+			background: var( --newspack-ui-color-gray-100 );
+			border-radius: var( --newspack-ui-border-radius );
+			margin-bottom: var( --newspack-ui-spacer-5 );
+			padding: var( --newspack-ui-spacer-5 );
+
+			// Backgrounds & Borders
+			&__success {
+				background: var( --newspack-ui-color-alert-green-bg );
+			}
+
+			&__error {
+				background: var( --newspack-ui-color-alert-red-bg );
+			}
+
+			&__warning {
+				// TODO
+			}
+
+			&__border {
+				background: transparent;
+				border: 1px solid var( --newspack-ui-color-border );
+			}
+
+			// Text alignments
+			&__text-center {
+				text-align: center;
+			}
+
+			// Some style resets.
+			h2 {
+				font-size: 1em;
+			}
+
+			> *:first-child {
+				margin-top: 0;
+			}
+
+			> *:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+}

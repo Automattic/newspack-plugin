@@ -1,0 +1,30 @@
+.newspack-ui {
+	table {
+		border: 0;
+		font-size: var( --newspack-ui-font-size-small ); // Prevent relative font size
+		line-height: var( --newspack-ui-line-height-large );
+		margin: calc( var( --newspack-ui-spacer-base ) / -2 ) 0; // Offset cell padding.
+		th,
+		td {
+			background: transparent;
+			border-color: var( --newspack-ui-color-border );
+			border-width: 0 0 1px;
+			font-size: var( --newspack-ui-font-size-small ); // Prevent relative font size
+			padding: calc( var( --newspack-ui-spacer-base ) / 2 ) 0;
+			vertical-align: top;
+			> * {
+				white-space: nowrap;
+			}
+		}
+		th {
+			font-weight: 600;
+			text-align: left;
+		}
+		tfoot tr:last-child {
+			th,
+			td {
+				border-bottom: 0;
+			}
+		}
+	}
+}

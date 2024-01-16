@@ -1,0 +1,83 @@
+.newspack-ui {
+	&__modal {
+		background: var( --newspack-ui-color-body-bg );
+		border-radius: var( --newspack-ui-border-radius );
+		display: flex;
+		flex-direction: column;
+		max-height: 90vh;
+		max-width: var( --newspack-ui-modal-width-medium );
+		overflow: auto;
+
+		// Modal header & footer
+		&__header,
+		&__footer {
+			padding: var( --newspack-ui-spacer-4 ) var( --newspack-ui-spacer-5 );
+		}
+
+		&__header {
+			align-items: center;
+			background: var( --newspack-ui-color-body-bg );
+			border-bottom: 1px solid var( --newspack-ui-color-border );
+			display: flex;
+			justify-content: space-between;
+			position: sticky;
+			top: 0;
+
+			h2 {
+				font-size: var( --newspack-ui-font-size-medium );
+				margin: 0;
+			}
+
+			button { // Close button
+				background: transparent;
+				border: 0;
+				color: var( --newspack-ui-color-text-high-contrast );
+				cursor: pointer;
+				margin: -8px;
+				padding: 8px;
+
+				&:focus,
+				&:hover {
+					background: transparent;
+					color: var( --newspack-ui-color-text-med-contrast );
+				}
+				svg {
+					display: block;
+				}
+			}
+		}
+
+		&__content {
+			backface-visibility: visible;
+			padding: var( --newspack-ui-spacer-5 );
+		}
+
+		&__footer {
+			background: var( --newspack-ui-color-gray-100 );
+			color: var( --newspack-ui-color-text-med-contrast );
+			font-size: var( --newspack-ui-font-size-small );
+			line-height: var( --newspack-ui-line-height-small );
+		}
+
+		// Narrow modal
+		&__small {
+			max-width: var( --newspack-ui-modal-width-small );
+		}
+
+		// Contents
+		h3 {
+			font-size: var( --newspack-ui-font-size-medium );
+		}
+
+		&__footer,
+		&__content {
+			> *:first-child {
+				margin-top: 0;
+			}
+
+			> *:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+}
