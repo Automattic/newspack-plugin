@@ -436,7 +436,7 @@ const Webhooks = () => {
 					) : (
 						<Notice
 							noticeText={ __(
-								"This endpoint didn't received any requests yet.",
+								"This endpoint hasn't received any requests yet.",
 								'newspack-plugin'
 							) }
 						/>
