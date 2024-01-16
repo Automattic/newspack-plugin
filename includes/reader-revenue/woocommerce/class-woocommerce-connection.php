@@ -41,6 +41,7 @@ class WooCommerce_Connection {
 	public static function init() {
 		include_once __DIR__ . '/class-woocommerce-order-utm.php';
 		include_once __DIR__ . '/class-woocommerce-cover-fees.php';
+		include_once __DIR__ . '/class-woocommerce-cli.php';
 
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
@@ -50,6 +51,7 @@ class WooCommerce_Connection {
 		\add_filter( 'default_option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'default_option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
+		\add_action( 'cli_init', [ __CLASS__, 'register_cli_commands' ] );
 
 		// WooCommerce Subscriptions.
 		\add_action( 'add_meta_boxes', [ __CLASS__, 'remove_subscriptions_schedule_meta_box' ], 45 );
@@ -61,15 +63,21 @@ class WooCommerce_Connection {
 		\add_filter( 'woocommerce_subscriptions_can_user_renew_early', [ __CLASS__, 'prevent_subscription_early_renewal' ], 11, 2 );
 		\add_filter( 'woocommerce_subscription_is_manual', [ __CLASS__, 'set_syncd_subscriptions_as_manual' ], 11, 2 );
 		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
-		\add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'sync_reader_on_subscription_update' ], 10, 3 );
 
 		// WooCommerce Memberships.
 		\add_action( 'wc_memberships_user_membership_created', [ __CLASS__, 'wc_membership_created' ], 10, 2 );
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
+	}
 
-		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
+	/**
+	 * Register CLI command
+	 *
+	 * @return void
+	 */
+	public static function register_cli_commands() {
+		\WP_CLI::add_command( 'newspack-woocommerce', 'Newspack\\WooCommerce_Cli' );
 	}
 
 	/**
@@ -77,7 +85,7 @@ class WooCommerce_Connection {
 	 *
 	 * @return bool True if enabled. False if not.
 	 */
-	protected static function can_sync_customers() {
+	public static function can_sync_customers() {
 		return Reader_Activation::is_enabled() && class_exists( 'WC_Customer' ) && function_exists( 'wcs_get_users_subscriptions' );
 	}
 
@@ -139,14 +147,6 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		if ( self::can_sync_customers() ) {
-			$order = new \WC_Order( $order_id );
-			if ( ! $order->get_customer_id() ) {
-				return;
-			}
-			self::sync_reader_from_order( $order );
-		}
-
 		/**
 		 * Fires when a donation order is processed.
 		 *
@@ -154,29 +154,6 @@ class WooCommerce_Connection {
 		 * @param int $product_id Donation product post ID.
 		 */
 		\do_action( 'newspack_donation_order_processed', $order_id, $product_id );
-	}
-
-	/**
-	 * Sync a reader's info to the ESP when they log in.
-	 *
-	 * @param string  $user_login User's login name.
-	 * @param WP_User $user User object.
-	 */
-	public static function sync_reader_on_customer_login( $user_login, $user ) {
-		if ( ! self::can_sync_customers() ) {
-			return;
-		}
-
-		$customer = new \WC_Customer( $user->ID );
-
-		// If user is not a Woo customer, don't need to sync them.
-		if ( ! $customer->get_order_count() ) {
-			return;
-		}
-
-		$last_order = $customer->get_last_order();
-
-		self::sync_reader_from_order( $last_order );
 	}
 
 	/**
@@ -211,12 +188,17 @@ class WooCommerce_Connection {
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
+	 * @param bool          $is_new Whether the order is new and should count towards the contact's total spent value.
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	public static function get_contact_from_order( $order, $payment_page_url = false ) {
-		if ( is_integer( $order ) ) {
+	public static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
+		if ( ! is_a( $order, 'WC_Order' ) ) {
 			$order = new \WC_Order( $order );
+		}
+
+		if ( ! self::should_sync_order( $order ) ) {
+			return;
 		}
 
 		$user_id = $order->get_customer_id();
@@ -237,7 +219,7 @@ class WooCommerce_Connection {
 				$payment_page_url = $referer_from_order;
 			}
 		}
-		$metadata['current_page_url'] = $payment_page_url;
+		$metadata['payment_page'] = $payment_page_url;
 
 		$utm = $order->get_meta( 'utm' );
 		if ( ! empty( $utm ) ) {
@@ -256,7 +238,7 @@ class WooCommerce_Connection {
 			}
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
 
-			if ( 'pending' === $order->get_status() ) {
+			if ( $is_new && 'pending' === $order->get_status() ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $order->get_total();
 			}
 
@@ -312,7 +294,7 @@ class WooCommerce_Connection {
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
 
-			if ( 'pending' === $order->get_status() ) {
+			if ( $is_new && 'pending' === $order->get_status() ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
 			}
 
@@ -327,12 +309,29 @@ class WooCommerce_Connection {
 
 		$first_name = $order->get_billing_first_name();
 		$last_name  = $order->get_billing_last_name();
+		$full_name  = trim( "$first_name $last_name" );
 		$contact    = [
 			'email'    => $order->get_billing_email(),
-			'name'     => trim( "$first_name $last_name" ),
 			'metadata' => array_filter( $metadata ),
 		];
+		if ( ! empty( $full_name ) ) {
+			$contact['name'] = $full_name;
+		}
 		return array_filter( $contact );
+	}
+
+	/**
+	 * Should an order be synchronized with the integrations?
+	 *
+	 * @param WC_Order $order Order object.
+	 */
+	public static function should_sync_order( $order ) {
+		if ( $order->get_meta( '_subscription_switch' ) ) {
+			// This is a "switch" order, which is just recording a subscription update. It has value of 0 and
+			// should not be synced anywhere.
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -349,6 +348,10 @@ class WooCommerce_Connection {
 
 		if ( $verify_created_via && self::CREATED_VIA_NAME === $order->get_created_via() ) {
 			// Only sync orders not created via the Stripe integration.
+			return;
+		}
+
+		if ( ! self::should_sync_order( $order ) ) {
 			return;
 		}
 
@@ -373,8 +376,6 @@ class WooCommerce_Connection {
 
 		// If syncing to Mailchimp, we need to use its special method to add contacts which handles transactional contacts.
 		if ( 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
-			// Normalize contact data, since this won't be passed through \Newspack_Newsletters_Subscription::add_contact().
-			$contact = \Newspack\Newspack_Newsletters::normalize_contact_data( $contact );
 			return \Newspack\Data_Events\Connectors\Mailchimp::put( $contact['email'], $contact['metadata'] );
 		}
 
@@ -1121,27 +1122,6 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * When a subscription's status is updated, re-sync the reader.
-	 *
-	 * @param object $subscription An instance of a WC_Subscription object.
-	 * @param string $new_status A valid subscription status.
-	 * @param string $old_status A valid subscription status.
-	 */
-	public static function sync_reader_on_subscription_update( $subscription, $new_status, $old_status ) {
-		$order = $subscription->get_last_order( 'all' );
-
-		if ( ! $order || ! self::can_sync_customers() ) {
-			return;
-		}
-
-		if ( ! $order->get_customer_id() ) {
-			return;
-		}
-
-		self::sync_reader_from_order( $order );
-	}
-
-	/**
 	 * Force values for subscription switching options to ON unless the
 	 * NEWSPACK_PREVENT_WC_SUBS_ALLOW_SWITCHING_OVERRIDE constant is set.
 	 * This affects the following "Allow Switching" options:
@@ -1172,9 +1152,9 @@ class WooCommerce_Connection {
 	/**
 	 * Force option for allowing retries for failed payments to ON unless the
 	 * NEWSPACK_PREVENT_WC_ALLOW_FAILED_PAYMENT_RETRIES_OVERRIDE constant is set.
-	 * 
+	 *
 	 * See: https://woo.com/document/subscriptions/failed-payment-retry/
-	 * 
+	 *
 	 * @param bool $should_retry Whether WooCommerce should automatically retry failed payments.
 	 *
 	 * @return string Option value.
@@ -1214,7 +1194,8 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$item = array_shift( $order->get_items() );
+		$items = $order->get_items();
+		$item  = array_shift( $items );
 
 		// Replace content placeholders.
 		$placeholders = [
@@ -1266,20 +1247,20 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get an array of product IDs associated with the given subscription ID.
+	 * Get an array of product IDs associated with the given order ID.
 	 *
-	 * @param int     $subscription_id Subscription ID.
+	 * @param int     $order_id Order ID.
 	 * @param boolean $include_donations If true, include donation products, otherwise omit them.
-	 * @return array Array of product IDs associated with this subscription.
+	 * @return array Array of product IDs associated with this order.
 	 */
-	public static function get_products_for_subscription( $subscription_id, $include_donations = false ) {
+	public static function get_products_for_order( $order_id, $include_donations = false ) {
 		$product_ids = [];
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+		if ( ! function_exists( 'wc_get_order' ) ) {
 			return $product_ids;
 		}
 
-		$subscription = \wcs_get_subscription( $subscription_id );
-		$order_items  = $subscription->get_items();
+		$order       = \wc_get_order( $order_id );
+		$order_items = $order->get_items();
 
 		foreach ( $order_items as $item ) {
 			$product_id = $item->get_product_id();

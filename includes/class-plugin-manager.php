@@ -281,7 +281,7 @@ class Plugin_Manager {
 				'PluginURI'   => esc_url( 'https://wordpress.org/plugins/simple-local-avatars/' ),
 				'Download'    => 'wporg',
 			],
-			'distributor-stable'          => [
+			'distributor'                 => [
 				'Name'        => esc_html__( 'Distributor', 'newspack' ),
 				'Description' => esc_html__( 'Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.', 'newspack' ),
 				'Author'      => '10up',
@@ -421,6 +421,16 @@ class Plugin_Manager {
 			'web-stories',
 			'woocommerce-memberships',
 		];
+	}
+
+	/**
+	 * Get all managed and supported plugins' slugs.
+	 */
+	public static function get_approved_plugins_slugs() {
+		return array_merge(
+			array_keys( self::get_managed_plugins() ),
+			self::get_supported_plugins_slugs()
+		);
 	}
 
 	/**
