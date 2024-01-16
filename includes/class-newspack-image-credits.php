@@ -490,6 +490,10 @@ class Newspack_Image_Credits {
 	 */
 	public static function populate_credit( $metadata, $attachment_id, $context ) {
 
+		if ( 'create' !== $context ) {
+			return $metadata;
+		}
+
 		$file_path  = get_attached_file( $attachment_id );
 		$attachment = get_post( $attachment_id );
 		$mime_type  = get_post_mime_type( $attachment );
