@@ -1040,18 +1040,12 @@ final class Reader_Activation {
 			'register' => \__( 'Sign Up', 'newspack-plugin' ),
 		];
 
-		$message    = '';
-		$classnames = [ 'newspack-reader-auth', $class() ];
+		$message = '';
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['reader_authenticated'] ) && isset( $_GET['message'] ) ) {
-			$message      = \sanitize_text_field( $_GET['message'] );
-			$classnames[] = $class( 'visible' );
+			$message = \sanitize_text_field( $_GET['message'] );
 		}
 		// phpcs:enable
-
-		if ( $is_inline ) {
-			$classnames[] = $class( 'inline' );
-		}
 
 		$newsletters_label = self::get_setting( 'newsletters_label' );
 
@@ -1062,20 +1056,22 @@ final class Reader_Activation {
 		$referer         = \wp_parse_url( \wp_get_referer() );
 		global $wp;
 		?>
-		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
-			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
+		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
+			<div class="newspack-ui__modal-container__overlay"></div>
+			<div class="newspack-ui__modal newspack-ui__modal__small">
 				<?php if ( ! $is_inline ) : ?>
-				<button class="<?php echo \esc_attr( $class( 'close' ) ); ?>" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack-plugin' ); ?>">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-					</svg>
-				</button>
+					<div class="newspack-ui__modal__header">
+						<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
+						<button class="newspack-blocks-modal__close newspack-ui__modal__close">
+							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+							</svg>
+						</button>
+					</div>
 				<?php endif; ?>
-				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
+				<div class="newspack-ui__modal__content">
 					<form method="post" target="_top">
-						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
-							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
-						</div>
 						<div data-action="signin register">
 							<?php self::render_third_party_auth(); ?>
 						</div>
@@ -1099,7 +1095,10 @@ final class Reader_Activation {
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<div class="components-form__field" data-action="signin register">
-							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack-plugin' ); ?>" />
+							<p>
+								<label for="newspack-reader-auth-email-input"><?php esc_html_e( 'Email address', 'newspack-plugin' ); ?></label>
+								<input id="newspack-reader-auth-email-input" name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack-plugin' ); ?>" />
+							</p>
 							<?php self::render_honeypot_field(); ?>
 						</div>
 						<div class="components-form__field otp-field" data-action="otp">
@@ -1130,15 +1129,15 @@ final class Reader_Activation {
 						</p>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>">
 							<div class="components-form__submit">
-								<button type="submit" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-								<button type="submit" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+								<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+								<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
 							</div>
-							<button type="button" class="secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
-							<button type="button" class="secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
-							<a class="button secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
-							<button type="button" class="tertiary" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
-							<button type="button" class="tertiary" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-							<button type="button" class="tertiary" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
+							<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
+							<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
+							<a class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
+							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
+							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
 						</div>
 						<?php if ( ! empty( $terms_text ) ) : ?>
 							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
@@ -1292,26 +1291,15 @@ final class Reader_Activation {
 		if ( ! Google_OAuth::is_oauth_configured() ) {
 			return;
 		}
-		$class      = function( ...$parts ) {
-			array_unshift( $parts, 'logins' );
-			return self::get_element_class_name( $parts );
-		};
-		$classnames = implode( ' ', [ $class(), $class() . '--disabled' ] );
 		?>
-		<div class="<?php echo \esc_attr( $classnames ); ?>">
-			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
-				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span>
-					<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
-				</span>
-			</button>
-			<div class="<?php echo \esc_attr( $class( 'separator' ) ); ?>">
-				<div></div>
-				<div>
-					<?php echo \esc_html__( 'OR', 'newspack-plugin' ); ?>
-				</div>
-				<div></div>
-			</div>
+		<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary google-oauth">
+			<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<span>
+				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
+			</span>
+		</button>
+		<div class="newspack-ui__word-divider">
+			<?php echo \esc_html__( 'Or', 'newspack-plugin' ); ?>
 		</div>
 		<?php
 	}

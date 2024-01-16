@@ -193,8 +193,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				redirectInput.value = ev.target.getAttribute( 'data-redirect' );
 			}
 
-			container.hidden = false;
-			container.style.display = 'flex';
+			container.setAttribute( 'data-state', 'open' );
 
 			document.body.classList.add( 'newspack-signin' );
 
@@ -226,7 +225,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const otpCodeInput = form.querySelector( 'input[name="otp_code"]' );
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
-			const closeButton = container.querySelector( 'button[data-close]' );
+			const closeButtons = container.querySelectorAll(
+				'button[data-close], .newspack-ui__modal__close'
+			);
 			const backButtons = container.querySelectorAll( '[data-back]' );
 			const sendCodeButtons = container.querySelectorAll( '[data-send-code]' );
 
@@ -315,22 +316,24 @@ window.newspackRAS.push( function ( readerActivation ) {
 				} );
 			}
 
-			if ( closeButton ) {
-				closeButton.addEventListener( 'click', function ( ev ) {
-					ev.preventDefault();
-					container.classList.remove( 'newspack-reader__auth-form__visible' );
-					container.style.display = 'none';
-					document.body.classList.remove( 'newspack-signin' );
-					if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
-						history.pushState(
-							'',
-							document.title,
-							window.location.pathname + window.location.search
-						);
-					}
-					if ( container.overlayId ) {
-						readerActivation.overlays.remove( container.overlayId );
-					}
+			if ( closeButtons?.length ) {
+				closeButtons.forEach( closeButton => {
+					closeButton.addEventListener( 'click', function ( ev ) {
+						ev.preventDefault();
+						container.classList.remove( 'newspack-reader__auth-form__visible' );
+						container.setAttribute( 'data-state', 'closed' );
+						document.body.classList.remove( 'newspack-signin' );
+						if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
+							history.pushState(
+								'',
+								document.title,
+								window.location.pathname + window.location.search
+							);
+						}
+						if ( container.overlayId ) {
+							readerActivation.overlays.remove( container.overlayId );
+						}
+					} );
 				} );
 			}
 
@@ -657,7 +660,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 		[ ...loginsElements ].forEach( element => {
 			element.classList.remove( 'newspack-reader__logins--disabled' );
 		} );
-		const googleLoginElements = document.querySelectorAll( '.newspack-reader__logins__google' );
+		const googleLoginElements = document.querySelectorAll( '.google-oauth' );
 		googleLoginElements.forEach( googleLoginElement => {
 			const googleLoginForm = googleLoginElement.closest( 'form' );
 			const redirectInput = googleLoginForm.querySelector( 'input[name="redirect"]' );
