@@ -35,8 +35,6 @@ class WooCommerce_Connection {
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
 		\add_action( 'cli_init', [ __CLASS__, 'register_cli_commands' ] );
 
-		\add_action( 'woocommerce_order_status_changed', [ __CLASS__, 'handle_order_status_change' ], 10, 4 );
-
 		// WooCommerce Subscriptions.
 		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
 
@@ -51,15 +49,6 @@ class WooCommerce_Connection {
 	 */
 	public static function register_cli_commands() {
 		\WP_CLI::add_command( 'newspack-woocommerce', 'Newspack\\WooCommerce_Cli' );
-	}
-
-	/**
-	 * Check whether everything is set up to enable customer syncing to ESP.
-	 *
-	 * @return bool True if enabled. False if not.
-	 */
-	public static function can_sync_customers() {
-		return Reader_Activation::is_enabled() && class_exists( 'WC_Customer' ) && function_exists( 'wcs_get_users_subscriptions' );
 	}
 
 	/**
@@ -94,56 +83,6 @@ class WooCommerce_Connection {
 		 * @param int $product_id Donation product post ID.
 		 */
 		\do_action( 'newspack_donation_order_processed', $order_id, $product_id );
-	}
-
-	/**
-	 * Sync a reader's info to the ESP when they log in.
-	 *
-	 * @param string  $user_login User's login name.
-	 * @param WP_User $user User object.
-	 */
-	public static function sync_reader_on_customer_login( $user_login, $user ) {
-		if ( ! self::can_sync_customers() ) {
-			return;
-		}
-
-		$customer = new \WC_Customer( $user->ID );
-
-		// If user is not a Woo customer, don't need to sync them.
-		if ( ! $customer->get_order_count() ) {
-			return;
-		}
-
-		$last_order = $customer->get_last_order();
-
-		self::sync_reader_from_order( $last_order );
-	}
-
-	/**
-	 * Get the contact data from a WooCommerce customer user account.
-	 *
-	 * @param \WC_Customer|int $customer Customer or customer ID.
-	 *
-	 * @return array|false Contact data or false.
-	 */
-	public static function get_contact_from_customer( $customer ) {
-		if ( is_integer( $customer ) ) {
-			$customer = new \WC_Customer( $customer );
-		}
-
-		$metadata = [];
-
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $customer->get_id();
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
-
-		$first_name   = $customer->get_first_name();
-		$last_name    = $customer->get_last_name();
-		$display_name = $customer->get_display_name();
-		return [
-			'email'    => $customer->get_email(),
-			'name'     => $display_name ?? "$first_name $last_name",
-			'metadata' => $metadata,
-		];
 	}
 
 	/**
@@ -296,50 +235,6 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Sync a customer to the ESP from an order.
-	 *
-	 * @param WC_Order $order Order object.
-	 */
-	public static function sync_reader_from_order( $order ) {
-		if ( ! self::can_sync_customers() ) {
-			return;
-		}
-
-		if ( ! self::should_sync_order( $order ) ) {
-			return;
-		}
-
-		$contact = self::get_contact_from_order( $order );
-		if ( ! $contact ) {
-			return;
-		}
-
-		return self::sync_contact_to_esp( $contact );
-	}
-
-	/**
-	 * Upsert reader data to the ESP connected via Newspack Newsletters.
-	 *
-	 * @param array $contact Reader data to sync.
-	 * @return bool|WP_Error Contact data if it was added, WP_Error otherwise.
-	 */
-	public static function sync_contact_to_esp( $contact ) {
-		if ( ! method_exists( 'Newspack_Newsletters', 'service_provider' ) ) {
-			return;
-		}
-
-		// If syncing to Mailchimp, we need to use its special method to add contacts which handles transactional contacts.
-		if ( 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
-			return \Newspack\Data_Events\Connectors\Mailchimp::put( $contact['email'], $contact['metadata'] );
-		}
-
-		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'add_contact' ) ) {
-			return;
-		}
-		return \Newspack_Newsletters_Subscription::add_contact( $contact );
-	}
-
-	/**
 	 * Filter post request made by the Stripe Gateway for Stripe payments.
 	 *
 	 * @param array     $post_data An array of metadata.
@@ -409,38 +304,6 @@ class WooCommerce_Connection {
 		}
 
 		return 'yes';
-	}
-
-	/**
-	 * Handle order status change.
-	 *
-	 * @param int       $id The order ID.
-	 * @param string    $from The previous status.
-	 * @param string    $to The new status.
-	 * @param \WC_Order $order The order object.
-	 */
-	public static function handle_order_status_change( $id, $from, $to, $order ) {
-		// Only run when order is completed.
-		if ( 'completed' !== $to ) {
-			return;
-		}
-		$frequency = 'once';
-		if ( function_exists( 'wcs_get_subscriptions_for_order' ) ) {
-			$related_subscriptions = \wcs_get_subscriptions_for_order( $order );
-			// In theory, there should be just one subscription per renewal.
-			$subscription = reset( $related_subscriptions );
-			$frequency    = $subscription->get_billing_period();
-		}
-
-		\Newspack\Google_Services_Connection::send_custom_event(
-			[
-				'category' => __( 'Newspack Donation', 'newspack' ),
-				'action'   => __( 'WooCommerce', 'newspack' ),
-				'label'    => $frequency . ' - newspack',
-				'value'    => $order->get_total(),
-				'referer'  => $order->get_meta( '_newspack_referer' ),
-			]
-		);
 	}
 
 	/**
