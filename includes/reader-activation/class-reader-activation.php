@@ -1111,7 +1111,7 @@ final class Reader_Activation {
 						</p>
 
 						<div class="response-container">
-							<div class="response">
+							<div class="response newspack-ui__inline-error">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>
 								<?php endif; ?>
@@ -1373,7 +1373,7 @@ final class Reader_Activation {
 
 		$user = \get_user_by( 'email', $email );
 		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( "We couldn't find a reader account registered to this email address. Please confirm that you entered the correct email, or sign up for a new account.", 'newspack-plugin' ) ) );
+			return self::send_auth_form_response( new \WP_Error( 'unauthorized', wp_kses_post( __( 'Account not found. <a href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) ) ) );
 		}
 
 		$payload = [

@@ -137,9 +137,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} );
 				}
 				if ( reader?.authenticated ) {
-					const messageContentElement = container.querySelector(
-						'.newspack-reader__auth-form__response__content'
-					);
+					const messageContentElement = container.querySelector( '.response' );
 					if ( messageContentElement && form ) {
 						form.replaceWith( messageContentElement.parentNode );
 					}
@@ -203,6 +201,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 				emailInput.focus();
 			}
 			container.overlayId = readerActivation.overlays.add();
+
+			/** Remove the modal hash from the URL if any. */
+			if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
+				history.pushState( '', document.title, window.location.pathname + window.location.search );
+			}
 		}
 
 		containers.forEach( container => {
@@ -323,13 +326,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 						container.classList.remove( 'newspack-reader__auth-form__visible' );
 						container.setAttribute( 'data-state', 'closed' );
 						document.body.classList.remove( 'newspack-signin' );
-						if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
-							history.pushState(
-								'',
-								document.title,
-								window.location.pathname + window.location.search
-							);
-						}
 						if ( container.overlayId ) {
 							readerActivation.overlays.remove( container.overlayId );
 						}
@@ -425,7 +421,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				} );
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
-					messageNode.textContent = message;
+					messageNode.innerHTML = message;
 					messageContentElement.appendChild( messageNode );
 				}
 				if ( status === 200 && data ) {
