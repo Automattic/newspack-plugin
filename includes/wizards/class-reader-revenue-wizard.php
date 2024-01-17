@@ -483,7 +483,6 @@ class Reader_Revenue_Wizard extends Wizard {
 			$required_plugins = [
 				'woocommerce',
 				'woocommerce-gateway-stripe',
-				'woocommerce-name-your-price',
 				'woocommerce-subscriptions',
 			];
 			foreach ( $required_plugins as $required_plugin ) {
