@@ -54,36 +54,33 @@
 		}
 
 		&__header {
-			align-items: center;
+			display: flex;
+			position: sticky;
+			align-items: flex-start;
+			justify-content: space-between;
 			background: var( --newspack-ui-color-body-bg );
 			border-bottom: 1px solid var( --newspack-ui-color-border );
-			display: flex;
-			justify-content: space-between;
-			position: sticky;
-			top: 0;
 
 			h2 {
 				font-size: var( --newspack-ui-font-size-medium );
 				margin: 0;
 			}
+		}
 
-			button {
-				// Close button
+		&__close {
+			margin: -2px -5px 0 0; // Offsets a padding in the SVG.
+			padding: 0 0 0 8px;
+			background: transparent;
+			color: var( --newspack-ui-color-text-high-contrast );
+			cursor: pointer;
+
+			&:focus,
+			&:hover {
 				background: transparent;
-				border: 0;
-				color: var( --newspack-ui-color-text-high-contrast );
-				cursor: pointer;
-				margin: -8px;
-				padding: 8px;
-
-				&:focus,
-				&:hover {
-					background: transparent;
-					color: var( --newspack-ui-color-text-med-contrast );
-				}
-				svg {
-					display: block;
-				}
+				color: var( --newspack-ui-color-text-med-contrast );
+			}
+			svg {
+				display: block;
 			}
 		}
 
@@ -100,7 +97,7 @@
 		}
 
 		// Narrow modal
-		&__small {
+		&--small {
 			max-width: var( --newspack-ui-modal-width-small );
 		}
 

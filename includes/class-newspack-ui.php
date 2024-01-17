@@ -44,7 +44,7 @@ class Newspack_UI {
 
 			<p>Regular text (16px)</p>
 
-			<p class="newspack-ui__font__small">Small text (14px).</p>
+			<p class="newspack-ui__font--small">Small text (14px).</p>
 
 			<hr>
 
@@ -54,22 +54,22 @@ class Newspack_UI {
 				<p>Default box style</p>
 			</div>
 
-			<div class="newspack-ui__box newspack-ui__box__border">
+			<div class="newspack-ui__box newspack-ui__box--border">
 				<p>Border box style</p>
 			</div>
 
-			<div class="newspack-ui__box newspack-ui__box__success">
+			<div class="newspack-ui__box newspack-ui__box--success">
 				<p>"Success" box style</p>
 			</div>
 
-			<div class="newspack-ui__box newspack-ui__box__success newspack-ui__box__text-center">
+			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box__text-center">
 				<?php
 				/*
 				 * TODO:
 				 * Can this be nicely consolidated with the logic/code here instead of being stand alone? (https://github.com/Automattic/newspack-plugin/blob/686af034ec7fad95109b5d6341fb0115f031dfa6/includes/reader-activation/class-reader-activation.php#L934-L950)
 				 */
 				?>
-				<span class="newspack-ui__icon newspack-ui__icon__success">
+				<span class="newspack-ui__icon newspack-ui__icon--success">
 					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
 					</svg>
@@ -79,7 +79,7 @@ class Newspack_UI {
 					<strong>Success box style, plus icon + <code>newspack-ui__box__text-center</code> class.</strong>
 				</p>
 
-				<p class="newspack-ui__font__small">Plus a little bit of text below it.</p>
+				<p class="newspack-ui__font--small">Plus a little bit of text below it.</p>
 			</div>
 
 			<hr>
@@ -186,7 +186,7 @@ class Newspack_UI {
 							<th>GST 5%)</th>
 							<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>9.00</span></td>
 						</tr>
-										<tr class="tax-rate tax-rate-ca-bc-pst-7-2">
+						<tr class="tax-rate tax-rate-ca-bc-pst-7-2">
 							<th>PST (7%)</th>
 							<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>12.60</span></td>
 						</tr>
@@ -201,13 +201,13 @@ class Newspack_UI {
 			<hr>
 
 			<h2>Buttons</h2>
-			<p><code>newspack-ui__button__primary</code>, <code>__secondary</code>, and <code>__tertiary</code> classes for colours/borders, and <code>newspack-ui__button__wide</code>for being 100% wide</p>
+			<p><code>newspack-ui__button--primary</code>, <code>--secondary</code>, and <code>--tertiary</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
 			<button>Default Theme Button</button><br>
-			<button class="newspack-ui__button__primary">Primary Button</button><br>
-			<button class="newspack-ui__button__secondary">Secondary Button</button><br>
-			<button class="newspack-ui__button__tertiary">Tertiary Button</button><br>
-			<button class="newspack-ui__button__tertiary" disabled>Disabled</button><br>
-			<button class="newspack-ui__button__secondary">
+			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--secondary">Secondary Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--tertiary">Tertiary Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--tertiary" disabled>Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--secondary">
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
@@ -218,12 +218,12 @@ class Newspack_UI {
 					Sign in with Google
 				</span>
 			</button>
-			<button class="newspack-ui__button__wide">Default Theme Button</button>
-			<button class="newspack-ui__button__primary newspack-ui__button__wide">Primary Button</button>
-			<button class="newspack-ui__button__secondary newspack-ui__button__wide">Secondary Button</button>
-			<button class="newspack-ui__button__tertiary newspack-ui__button__wide">Tertiary Button</button>
-			<button class="newspack-ui__button__tertiary newspack-ui__button__wide" disabled>Disabled</button>
-			<button class="newspack-ui__button__secondary newspack-ui__button__wide">
+			<button class="newspack-ui__button newspack-ui__button--wide">Default Theme Button</button>
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
+			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
+			<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Tertiary Button</button>
+			<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide" disabled>Disabled</button>
+			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
@@ -244,7 +244,7 @@ class Newspack_UI {
 				<div class="newspack-ui__modal">
 					<header class="newspack-ui__modal__header">
 						<h2>This is a header</h2>
-						<button class="newspack-blocks-modal__close newspack-ui__modal__close">
+						<button class="newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
@@ -265,11 +265,11 @@ class Newspack_UI {
 			<h2>Small size</h2>
 
 			<div class="newspack-ui__box">
-				<div class="newspack-ui__modal newspack-ui__modal__small">
+				<div class="newspack-ui__modal newspack-ui__modal--small">
 					<header class="newspack-ui__modal__header">
 						<h2>Auth Modal Contents Default</h2>
 
-						<button class="newspack-blocks-modal__close newspack-ui__modal__close">
+						<button class="newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
@@ -279,7 +279,7 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<button class="newspack-ui__button__secondary newspack-ui__button__wide">
+						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
 							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 								<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
 								<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
@@ -301,23 +301,23 @@ class Newspack_UI {
 								<input type="email" placeholder="Email Address">
 							</p>
 
-							<button class="newspack-ui__button__primary newspack-ui__button__wide">Sign In</button>
-							<button class="newspack-ui__button__tertiary newspack-ui__button__wide">Sign in to existing account</button>
+							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Sign In</button>
+							<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Sign in to existing account</button>
 						</form>
 					</section>
 
 					<footer class="newspack-ui__modal__footer">
 						<p>This is the modal footer.</p>
 					</footer>
-				</div><!-- .newspack-ui__modal__small -->
+				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
 
 			<div class="newspack-ui__box">
-				<div class="newspack-ui__modal newspack-ui__modal__small">
+				<div class="newspack-ui__modal newspack-ui__modal--small">
 					<header class="newspack-ui__modal__header">
 						<h2>Auth Modal Contents OTP</h2>
 
-						<button class="newspack-blocks-modal__close newspack-ui__modal__close">
+						<button class="newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
@@ -339,22 +339,22 @@ class Newspack_UI {
 								</div>
 							</p>
 
-							<p class="newspack-ui__font__small">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
+							<p class="newspack-ui__font--small">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
 
-							<button class="newspack-ui__button__primary newspack-ui__button__wide">Continue</button>
-							<button class="newspack-ui__button__secondary newspack-ui__button__wide">Resend Code</button>
-							<button class="newspack-ui__button__tertiary newspack-ui__button__wide">Go Back</button>
+							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
+							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Resend Code</button>
+							<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Go Back</button>
 						</form>
 					</section>
-				</div><!-- .newspack-ui__modal__small -->
+				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
 
 			<div class="newspack-ui__box">
-				<div class="newspack-ui__modal newspack-ui__modal__small">
+				<div class="newspack-ui__modal newspack-ui__modal--small">
 					<header class="newspack-ui__modal__header">
 						<h2>Auth Modal Contents Success</h2>
 
-						<button class="newspack-blocks-modal__close newspack-ui__modal__close">
+						<button class="newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
@@ -364,8 +364,8 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<div class="newspack-ui__box newspack-ui__box__success newspack-ui__box__text-center">
-							<span class="newspack-ui__icon newspack-ui__icon__success">
+						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box__text-center">
+							<span class="newspack-ui__icon newspack-ui__icon--success">
 								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
 								</svg>
@@ -375,22 +375,22 @@ class Newspack_UI {
 								<strong>Success! Your account was created and you're signed in.</strong>
 							</p>
 
-							<p class="newspack-ui__font__small">In the future, you'll sign in with a code sent to your email. If you'd rather use a password, you can set one in <a href="#">My Account</a>.</p>
+							<p class="newspack-ui__font--small">In the future, you'll sign in with a code sent to your email. If you'd rather use a password, you can set one in <a href="#">My Account</a>.</p>
 						</div>
 
 
-						<button class="newspack-ui__button__primary newspack-ui__button__wide">Continue</button>
+						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
 					</section>
-				</div><!-- .newspack-ui__modal__small -->
+				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
 
 
 			<div class="newspack-ui__box">
-				<div class="newspack-ui__modal newspack-ui__modal__small">
+				<div class="newspack-ui__modal newspack-ui__modal--small">
 					<header class="newspack-ui__modal__header">
 						<h2>Auth Modal Contents Success + PW</h2>
 
-						<button class="newspack-blocks-modal__close newspack-ui__modal__close">
+						<button class="newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
@@ -400,8 +400,8 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<div class="newspack-ui__box newspack-ui__box__success newspack-ui__box__text-center">
-							<span class="newspack-ui__icon newspack-ui__icon__success">
+						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box__text-center">
+							<span class="newspack-ui__icon newspack-ui__icon--success">
 								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
 								</svg>
@@ -430,19 +430,19 @@ class Newspack_UI {
 							</p>
 						</form>
 
-						<button class="newspack-ui__button__primary newspack-ui__button__wide">Continue</button>
-						<button class="newspack-ui__button__secondary newspack-ui__button__wide">Skip for now</button>
+						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
+						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Skip for now</button>
 					</section>
-				</div><!-- .newspack-ui__modal__small -->
+				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
 
 
 			<div class="newspack-ui__box">
-				<div class="newspack-ui__modal newspack-ui__modal__small">
+				<div class="newspack-ui__modal newspack-ui__modal--small">
 					<header class="newspack-ui__modal__header">
 						<h2>Auth Modal Newsletter Sign Up</h2>
 
-						<button class="newspack-blocks-modal__close newspack-ui__modal__close">
+						<button class="newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
@@ -452,7 +452,7 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<p class="newspack-ui__font__small">Get the best of The News Paper directly to your email inbox.<br>
+						<p class="newspack-ui__font--small">Get the best of The News Paper directly to your email inbox.<br>
 						<span class="newspack-ui__color-text-gray">Sending to: email@address.</span></p>
 
 						<label class="newspack-ui__input-list">
@@ -471,9 +471,9 @@ class Newspack_UI {
 							</span>
 						</label>
 
-						<button class="newspack-ui__button__primary newspack-ui__button__wide">Continue</button>
+						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
 					</section>
-				</div><!-- .newspack-ui__modal__small -->
+				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
 
 			<button id="open-modal-example" class="newspack-ui__button__primary">Open Modal</button>
