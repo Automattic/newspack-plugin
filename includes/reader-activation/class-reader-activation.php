@@ -1077,6 +1077,17 @@ final class Reader_Activation {
 					</div>
 				<?php endif; ?>
 				<div class="newspack-ui__modal__content">
+					<div class="newspack-ui__box newspack-ui__box__success newspack-ui__box__text-center" data-action="success">
+							<span class="newspack-ui__icon newspack-ui__icon__success">
+								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
+								</svg>
+							</span>
+							<p>
+								<strong>Success! Your account was created and you're signed in.</strong>
+							</p>
+							<p class="newspack-ui__font__small">In the future, you'll sign in with a code sent to your email. If you'd rather use a password, you can set one in <a href="#">My Account</a>.</p>
+					</div>
 					<form method="post" target="_top">
 						<div data-action="signin register">
 							<?php self::render_third_party_auth(); ?>
@@ -1140,7 +1151,7 @@ final class Reader_Activation {
 					</form>
 				</div>
 				<?php if ( ! empty( $terms ) ) : ?>
-					<footer class="newspack-ui__modal__footer">
+					<footer class="newspack-ui__modal__footer" data-action="signin signup pwd otp">
 						<p>
 							<?php echo wp_kses_post( trim( $terms ) ); ?>
 						</p>

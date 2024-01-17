@@ -63,6 +63,8 @@ const convertFormDataToObject = ( formData, includedFields = [] ) =>
 
 const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
 
+const FORM_ALLOWED_ACTIONS = [ 'register', 'signin', 'pwd', 'otp', 'success' ];
+
 let currentHash;
 
 window.newspackRAS = window.newspackRAS || [];
@@ -342,7 +344,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 * Handle auth form action selection.
 			 */
 			function setFormAction( action, shouldFocus = false ) {
-				if ( ! [ 'register', 'signin', 'pwd', 'otp' ].includes( action ) ) {
+				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
 				}
 				if ( 'otp' === action ) {
@@ -413,7 +415,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				form.style.opacity = 0.5;
 			};
 
-			form.endLoginFlow = ( message = null, status = 500, data = null, redirect ) => {
+			form.endLoginFlow = ( message = null, status = 500, data = null ) => {
 				container.setAttribute( 'data-form-status', status );
 				form.style.opacity = 1;
 				submitButtons.forEach( button => {
@@ -425,16 +427,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageContentElement.appendChild( messageNode );
 				}
 				if ( status === 200 && data ) {
+					setFormAction( 'success' );
 					const authenticated = !! data?.authenticated;
 					readerActivation.setReaderEmail( data.email );
 					readerActivation.setAuthenticated( authenticated );
-					if ( authenticated ) {
-						if ( redirect ) {
-							window.location = redirect;
-						}
-					} else {
-						form.replaceWith( messageContentElement.parentNode );
-					}
 				}
 			};
 
