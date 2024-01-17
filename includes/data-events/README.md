@@ -130,6 +130,23 @@ When there's a new donation.
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
 | `platform_data`   | `array`  |                                                        |
 
+### `order_completed`
+
+When any WooCommerce order is completed with a successful payment.
+
+| Name              | Type     | Obs                                                    |
+| ----------------- | -------- | ------------------------------------------------------ |
+| `user_id`         | `int`    |                                                        |
+| `email`           | `string` |                                                        |
+| `amount`          | `float`  |                                                        |
+| `currency`        | `string` |                                                        |
+| `platform`        | `string` |                                                        |
+| `referer`         | `string` |                                                        |
+| `popup_id`        | `string` | If the order was triggered by a popup, the popup ID    |
+| `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
+| `subscription_id` | `int`    | The related subscription id (if any)                   |
+| `platform_data`   | `array`  |                                                        |
+
 ### `donation_subscription_new`
 
 When there's a new WooCommerce Subscription. This action does not replace the `donation_new` that create the subscription.
@@ -176,22 +193,9 @@ When a WooCommerce Subscription status changes.
 | `recurrence`      | `string` |
 | `platform`        | `string` |
 
-### `product_subscription_active`
+### `product_subscription_changed`
 
-When a non-donation subscription is activated.
-
-| Name              | Type     |
-| ----------------- | -------- |
-| `user_id`         | `int`    |
-| `email`           | `string` |
-| `subscription_id` | `int`    |
-| `amount`          | `float`  |
-| `currency`        | `string` |
-| `recurrence`      | `string` |
-
-### `product_subscription_inactive`
-
-When a non-donation subscription is changed to any non-active status.
+When a non-donation subscription status changes.
 
 | Name              | Type     |
 | ----------------- | -------- |

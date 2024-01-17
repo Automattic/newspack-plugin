@@ -39,11 +39,9 @@ class WooCommerce_Connection {
 
 		// WooCommerce Subscriptions.
 		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
-		\add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'sync_reader_on_subscription_update' ], 10, 3 );
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
-
-		\add_action( 'wp_login', [ __CLASS__, 'sync_reader_on_customer_login' ], 10, 2 );
+		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
 	}
 
 	/**
@@ -60,7 +58,7 @@ class WooCommerce_Connection {
 	 *
 	 * @return bool True if enabled. False if not.
 	 */
-	protected static function can_sync_customers() {
+	public static function can_sync_customers() {
 		return Reader_Activation::is_enabled() && class_exists( 'WC_Customer' ) && function_exists( 'wcs_get_users_subscriptions' );
 	}
 
@@ -87,14 +85,6 @@ class WooCommerce_Connection {
 		/** Bail if not a donation order. */
 		if ( false === $product_id ) {
 			return;
-		}
-
-		if ( self::can_sync_customers() ) {
-			$order = new \WC_Order( $order_id );
-			if ( ! $order->get_customer_id() ) {
-				return;
-			}
-			self::sync_reader_from_order( $order );
 		}
 
 		/**
@@ -130,15 +120,48 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get the contact data from a WooCommerce order.
+	 * Get the contact data from a WooCommerce customer user account.
 	 *
-	 * @param \WC_Order|int $order WooCommerce order or order ID.
+	 * @param \WC_Customer|int $customer Customer or customer ID.
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	public static function get_contact_from_order( $order ) {
-		if ( is_integer( $order ) ) {
+	public static function get_contact_from_customer( $customer ) {
+		if ( is_integer( $customer ) ) {
+			$customer = new \WC_Customer( $customer );
+		}
+
+		$metadata = [];
+
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $customer->get_id();
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+
+		$first_name   = $customer->get_first_name();
+		$last_name    = $customer->get_last_name();
+		$display_name = $customer->get_display_name();
+		return [
+			'email'    => $customer->get_email(),
+			'name'     => $display_name ?? "$first_name $last_name",
+			'metadata' => $metadata,
+		];
+	}
+
+	/**
+	 * Get the contact data from a WooCommerce order.
+	 *
+	 * @param \WC_Order|int $order WooCommerce order or order ID.
+	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
+	 * @param bool          $is_new Whether the order is new and should count towards the contact's total spent value.
+	 *
+	 * @return array|false Contact data or false.
+	 */
+	public static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
+		if ( ! is_a( $order, 'WC_Order' ) ) {
 			$order = new \WC_Order( $order );
+		}
+
+		if ( ! self::should_sync_order( $order ) ) {
+			return;
 		}
 
 		$user_id = $order->get_customer_id();
@@ -157,7 +180,7 @@ class WooCommerce_Connection {
 		} else {
 			$payment_page_url = $referer_from_order;
 		}
-		$metadata['current_page_url'] = $payment_page_url;
+		$metadata['payment_page'] = $payment_page_url;
 
 		$utm = $order->get_meta( 'utm' );
 		if ( ! empty( $utm ) ) {
@@ -176,7 +199,7 @@ class WooCommerce_Connection {
 			}
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
 
-			if ( 'pending' === $order->get_status() ) {
+			if ( $is_new && 'pending' === $order->get_status() ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $order->get_total();
 			}
 
@@ -232,7 +255,7 @@ class WooCommerce_Connection {
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
 
-			if ( 'pending' === $order->get_status() ) {
+			if ( $is_new && 'pending' === $order->get_status() ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
 			}
 
@@ -247,11 +270,14 @@ class WooCommerce_Connection {
 
 		$first_name = $order->get_billing_first_name();
 		$last_name  = $order->get_billing_last_name();
+		$full_name  = trim( "$first_name $last_name" );
 		$contact    = [
 			'email'    => $order->get_billing_email(),
-			'name'     => trim( "$first_name $last_name" ),
 			'metadata' => array_filter( $metadata ),
 		];
+		if ( ! empty( $full_name ) ) {
+			$contact['name'] = $full_name;
+		}
 		return array_filter( $contact );
 	}
 
@@ -304,8 +330,6 @@ class WooCommerce_Connection {
 
 		// If syncing to Mailchimp, we need to use its special method to add contacts which handles transactional contacts.
 		if ( 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
-			// Normalize contact data, since this won't be passed through \Newspack_Newsletters_Subscription::add_contact().
-			$contact = \Newspack\Newspack_Newsletters::normalize_contact_data( $contact );
 			return \Newspack\Data_Events\Connectors\Mailchimp::put( $contact['email'], $contact['metadata'] );
 		}
 
@@ -339,27 +363,6 @@ class WooCommerce_Connection {
 			}
 		}
 		return $post_data;
-	}
-
-	/**
-	 * When a subscription's status is updated, re-sync the reader.
-	 *
-	 * @param object $subscription An instance of a WC_Subscription object.
-	 * @param string $new_status A valid subscription status.
-	 * @param string $old_status A valid subscription status.
-	 */
-	public static function sync_reader_on_subscription_update( $subscription, $new_status, $old_status ) {
-		$order = $subscription->get_last_order( 'all' );
-
-		if ( ! $order || ! self::can_sync_customers() ) {
-			return;
-		}
-
-		if ( ! $order->get_customer_id() ) {
-			return;
-		}
-
-		self::sync_reader_from_order( $order );
 	}
 
 	/**
@@ -467,7 +470,8 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$item = array_shift( $order->get_items() );
+		$items = $order->get_items();
+		$item  = array_shift( $items );
 
 		// Replace content placeholders.
 		$placeholders = [
@@ -519,20 +523,20 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get an array of product IDs associated with the given subscription ID.
+	 * Get an array of product IDs associated with the given order ID.
 	 *
-	 * @param int     $subscription_id Subscription ID.
+	 * @param int     $order_id Order ID.
 	 * @param boolean $include_donations If true, include donation products, otherwise omit them.
-	 * @return array Array of product IDs associated with this subscription.
+	 * @return array Array of product IDs associated with this order.
 	 */
-	public static function get_products_for_subscription( $subscription_id, $include_donations = false ) {
+	public static function get_products_for_order( $order_id, $include_donations = false ) {
 		$product_ids = [];
-		if ( ! function_exists( 'wcs_get_subscription' ) ) {
+		if ( ! function_exists( 'wc_get_order' ) ) {
 			return $product_ids;
 		}
 
-		$subscription = \wcs_get_subscription( $subscription_id );
-		$order_items  = $subscription->get_items();
+		$order       = \wc_get_order( $order_id );
+		$order_items = $order->get_items();
 
 		foreach ( $order_items as $item ) {
 			$product_id = $item->get_product_id();

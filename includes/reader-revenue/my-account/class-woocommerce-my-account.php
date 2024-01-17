@@ -53,6 +53,22 @@ class WooCommerce_My_Account {
 	 */
 	public static function enqueue_scripts() {
 		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			\wp_enqueue_script(
+				'my-account',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account.js',
+				[],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				'my-account',
+				'newspack_my_account',
+				[
+					'labels' => [
+						'cancel_subscription_message' => __( 'Are you sure you want to cancel this subscription?', 'newspack-plugin' ),
+					],
+				]
+			);
 			\wp_enqueue_style(
 				'my-account',
 				\Newspack\Newspack::plugin_url() . '/dist/my-account.css',
