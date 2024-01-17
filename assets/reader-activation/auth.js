@@ -337,9 +337,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				} );
 			}
 
-			const messageContentElement = container.querySelector(
-				'.newspack-reader__auth-form__response__content'
-			);
+			const messageContentElement = container.querySelector( '.response' );
 
 			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 			authLinkMessage.hidden = true;
@@ -533,7 +531,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 												redirect = '';
 											}
 											if ( data.action ) {
-												setFormAction( data.action );
+												setFormAction( data.action, true );
 												if ( data.action === 'otp' ) {
 													readerActivation.setOTPTimer();
 													handleOTPTimer();

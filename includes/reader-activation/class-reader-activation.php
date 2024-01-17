@@ -1030,11 +1030,6 @@ final class Reader_Activation {
 			return;
 		}
 
-		$class = function( ...$parts ) {
-			array_unshift( $parts, 'auth-form' );
-			return self::get_element_class_name( $parts );
-		};
-
 		$labels = [
 			'signin'   => \__( 'Sign In', 'newspack-plugin' ),
 			'register' => \__( 'Sign Up', 'newspack-plugin' ),
@@ -1083,33 +1078,29 @@ final class Reader_Activation {
 						<p data-has-auth-link>
 							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
 						</p>
-						<p data-action="pwd">
-							<strong>
-								<?php esc_html_e( 'Enter your password', 'newspack-plugin' ); ?>
-							</strong>
-						</p>
 						<p data-action="otp">
 							<strong>
 								<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
 							</strong>
 						</p>
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
-						<div class="components-form__field" data-action="signin register">
+						<div data-action="signin register">
 							<p>
 								<label for="newspack-reader-auth-email-input"><?php esc_html_e( 'Email address', 'newspack-plugin' ); ?></label>
-								<input id="newspack-reader-auth-email-input" name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack-plugin' ); ?>" />
+								<input id="newspack-reader-auth-email-input" name="npe" type="email" placeholder="<?php \esc_attr_e( 'Your email address', 'newspack-plugin' ); ?>" />
 							</p>
 							<?php self::render_honeypot_field(); ?>
 						</div>
-						<div class="components-form__field otp-field" data-action="otp">
+						<p class="newspack-ui__code-input" data-action="otp">
 							<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( Magic_Link::OTP_LENGTH ); ?>" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack-plugin' ); ?>" />
-						</div>
-						<div class="components-form__field" data-action="pwd">
-							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
-						</div>
+						</p>
+						<p data-action="pwd">
+							<label for="newspack-reader-auth-password-input"><?php esc_html_e( 'Enter your password', 'newspack-plugin' ); ?></label>
+							<input id="newspack-reader-auth-password-input" name="password" type="password" />
+						</p>
 
-						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
-							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
+						<div class="response-container">
+							<div class="response">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>
 								<?php endif; ?>
@@ -1127,31 +1118,31 @@ final class Reader_Activation {
 							);
 							?>
 						</p>
-						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>">
-							<div class="components-form__submit">
-								<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-								<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-							</div>
+						<div>
+							<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+							<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
 							<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
 							<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
-							<a class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
+							<a class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
 							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
 							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
 							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
 						</div>
-						<?php if ( ! empty( $terms_text ) ) : ?>
-							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
-								<?php if ( ! empty( $terms_url ) ) : ?>
-									<a href="<?php echo \esc_url( $terms_url ); ?>" target="_blank" rel="noopener noreferrer">
-								<?php endif; ?>
-								<?php echo \esc_html( $terms_text ); ?>
-								<?php if ( ! empty( $terms_url ) ) : ?>
-									</a>
-								<?php endif; ?>
-							</p>
-						<?php endif; ?>
 					</form>
 				</div>
+				<footer class="newspack-ui__modal__footer">
+					<?php if ( ! empty( $terms_text ) ) : ?>
+						<p>
+							<?php if ( ! empty( $terms_url ) ) : ?>
+								<a href="<?php echo \esc_url( $terms_url ); ?>" target="_blank" rel="noopener noreferrer">
+							<?php endif; ?>
+							<?php echo \esc_html( $terms_text ); ?>
+							<?php if ( ! empty( $terms_url ) ) : ?>
+								</a>
+							<?php endif; ?>
+						</p>
+					<?php endif; ?>
+				</footer>
 			</div>
 		</div>
 		<?php

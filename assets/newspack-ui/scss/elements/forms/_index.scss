@@ -12,7 +12,7 @@
 	}
 
 	select {
-		font-family: var( --newspack-ui-font-family);
+		font-family: var( --newspack-ui-font-family );
 		line-height: var( --newspack-ui-line-height-large );
 	}
 
@@ -20,6 +20,9 @@
 	& &__code-input {
 		display: flex;
 		gap: var( --newspack-ui-spacer-base );
+		input {
+			text-align: center;
+		}
 	}
 
 	// Container for input description.
