@@ -793,15 +793,15 @@ final class Magic_Link {
 
 		if ( is_wp_error( $authenticated ) ) {
 			if ( 'max_otp_attempts' === $authenticated->get_error_code() ) {
-				return self::send_otp_request_response( __( "You've reached the maximum attempts for this code. Please try again.", 'newspack' ), false, [ 'expired' => true ] );
+				return self::send_otp_request_response( __( "You've reached the maximum attempts for this code, try again.", 'newspack' ), false, [ 'expired' => true ] );
 			}
 			if ( 'invalid_otp' === $authenticated->get_error_code() ) {
-				return self::send_otp_request_response( __( 'The code does not match.', 'newspack' ), false );
+				return self::send_otp_request_response( __( 'Code not recognized, try again.', 'newspack' ), false );
 			}
 		}
 
 		if ( true !== $authenticated ) {
-			return self::send_otp_request_response( __( 'Unable to authenticated. Please try again.', 'newspack' ), false, [ 'expired' => true ] );
+			return self::send_otp_request_response( __( 'Unable to authenticated, try again.', 'newspack' ), false, [ 'expired' => true ] );
 		}
 
 		return self::send_otp_request_response( __( 'Login successful!', 'newspack' ), true );

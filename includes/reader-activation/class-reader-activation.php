@@ -1042,10 +1042,21 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 
-		$newsletters_label = self::get_setting( 'newsletters_label' );
+		$terms_text = self::get_setting( 'terms_text' );
+		$terms_url  = self::get_setting( 'terms_url' );
+		$terms      = trim( $terms_text ? $terms_text : '' );
+		if ( ! empty( $terms ) ) {
+			if ( $terms_url ) {
+				$terms = sprintf( '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>', $terms_url, $terms_text );
+			}
+			if ( substr( trim( $terms_text ), -1 ) !== '.' ) {
+				$terms .= '.';
+			}
+		}
+		if ( Recaptcha::can_use_captcha() ) {
+			$terms .= ' ' . Recaptcha::get_terms_text();
+		}
 
-		$terms_text      = self::get_setting( 'terms_text' );
-		$terms_url       = self::get_setting( 'terms_url' );
 		$is_account_page = function_exists( '\wc_get_page_id' ) ? \get_the_ID() === \wc_get_page_id( 'myaccount' ) : false;
 		$redirect        = $is_account_page ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 		$referer         = \wp_parse_url( \wp_get_referer() );
@@ -1118,31 +1129,23 @@ final class Reader_Activation {
 							);
 							?>
 						</p>
-						<div>
-							<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-							<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-							<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
-							<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
-							<a class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
-							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
-							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-							<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
-						</div>
+						<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+						<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
+						<a class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
+						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
 					</form>
 				</div>
-				<footer class="newspack-ui__modal__footer">
-					<?php if ( ! empty( $terms_text ) ) : ?>
+				<?php if ( ! empty( $terms ) ) : ?>
+					<footer class="newspack-ui__modal__footer">
 						<p>
-							<?php if ( ! empty( $terms_url ) ) : ?>
-								<a href="<?php echo \esc_url( $terms_url ); ?>" target="_blank" rel="noopener noreferrer">
-							<?php endif; ?>
-							<?php echo \esc_html( $terms_text ); ?>
-							<?php if ( ! empty( $terms_url ) ) : ?>
-								</a>
-							<?php endif; ?>
+							<?php echo wp_kses_post( trim( $terms ) ); ?>
 						</p>
-					<?php endif; ?>
-				</footer>
+					</footer>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
@@ -1393,11 +1396,11 @@ final class Reader_Activation {
 				}
 			case 'pwd':
 				if ( empty( $password ) ) {
-					return self::send_auth_form_response( new \WP_Error( 'invalid_password', __( 'You must enter a valid password.', 'newspack-plugin' ) ) );
+					return self::send_auth_form_response( new \WP_Error( 'invalid_password', __( 'Password not recognized, try again.', 'newspack-plugin' ) ) );
 				}
 				$user = \wp_authenticate( $user->user_login, $password );
 				if ( \is_wp_error( $user ) ) {
-					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid credentials.', 'newspack-plugin' ) ) );
+					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Password not recognized, try again.', 'newspack-plugin' ) ) );
 				}
 				$authenticated            = self::set_current_reader( $user->ID );
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;

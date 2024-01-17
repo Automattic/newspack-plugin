@@ -11,6 +11,10 @@
 		}
 	}
 
+	& &__last-child {
+		margin-bottom: 0;
+	}
+
 	select {
 		font-family: var( --newspack-ui-font-family );
 		line-height: var( --newspack-ui-line-height-large );

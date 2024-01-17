@@ -239,6 +239,18 @@ final class Recaptcha {
 	}
 
 	/**
+	 * Render reCAPTCHA disclaimer text.
+	 */
+	public static function get_terms_text() {
+		return sprintf(
+			/* translators: 1: Privacy Policy URL, 2: Terms of Service URL. */
+			__( 'This site is protected by reCAPTCHA and the Google <a href="%1$s" rel="noopener noreferrer" target="_blank">Privacy Policy</a> and <a href="%2$s" rel="external" target="_blank">Terms of Service</a> apply.', 'newspack' ),
+			'https://policies.google.com/privacy',
+			'https://policies.google.com/terms'
+		);
+	}
+
+	/**
 	 * Verify a REST API request using reCAPTCHA v3.
 	 *
 	 * @param string $captcha_token Token to verify.
