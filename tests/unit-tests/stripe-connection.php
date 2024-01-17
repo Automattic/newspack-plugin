@@ -54,6 +54,9 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			'currency'           => 'USD',
 			'location_code'      => 'US',
 			'newsletter_list_id' => '',
+			'allow_covering_fees' => true,
+			'allow_covering_fees_default' => false,
+			'allow_covering_fees_label' => '',
 		];
 		self::assertEquals(
 			$expected_data,
