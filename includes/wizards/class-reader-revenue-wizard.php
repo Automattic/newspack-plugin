@@ -364,15 +364,15 @@ class Reader_Revenue_Wizard extends Wizard {
 					]
 				);
 			}
-			if ( isset( $args['allow_covering_fees'] ) ) {
-				update_option( 'newspack_donations_allow_covering_fees', $args['allow_covering_fees'] );
+			if ( isset( $settings['allow_covering_fees'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees', $settings['allow_covering_fees'] );
 			}
-			if ( isset( $args['allow_covering_fees_default'] ) ) {
-				update_option( 'newspack_donations_allow_covering_fees_default', $args['allow_covering_fees_default'] );
+			if ( isset( $settings['allow_covering_fees_default'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees_default', $settings['allow_covering_fees_default'] );
 			}
 
-			if ( isset( $args['allow_covering_fees_label'] ) ) {
-				update_option( 'newspack_donations_allow_covering_fees_label', $args['allow_covering_fees_label'] );
+			if ( isset( $settings['allow_covering_fees_label'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees_label', $settings['allow_covering_fees_label'] );
 			}
 		}
 
