@@ -54,9 +54,9 @@ class Stripe_Connection {
 		$stripe_data = array_merge(
 			$stripe_data,
 			[
-				'currency'           => $currency,
-				'location_code'      => $location_code,
-				'newsletter_list_id' => '',
+				'currency'                    => $currency,
+				'location_code'               => $location_code,
+				'newsletter_list_id'          => '',
 				'allow_covering_fees'         => get_option( 'newspack_donations_allow_covering_fees', true ),
 				'allow_covering_fees_default' => get_option( 'newspack_donations_allow_covering_fees_default', false ),
 				'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
