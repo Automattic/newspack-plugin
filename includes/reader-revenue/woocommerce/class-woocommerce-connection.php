@@ -352,6 +352,10 @@ class WooCommerce_Connection {
 	 * @param WC_Order $order Order object.
 	 */
 	public static function should_sync_order( $order ) {
+		// $order is not a valid WC_Order object, so don't try to sync.
+		if ( ! is_a( $order, 'WC_Order' ) ) {
+			return false;
+		}
 		if ( $order->get_meta( '_subscription_switch' ) ) {
 			// This is a "switch" order, which is just recording a subscription update. It has value of 0 and
 			// should not be synced anywhere.
@@ -372,12 +376,12 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		if ( $verify_created_via && self::CREATED_VIA_NAME === $order->get_created_via() ) {
-			// Only sync orders not created via the Stripe integration.
+		if ( ! self::should_sync_order( $order ) ) {
 			return;
 		}
 
-		if ( ! self::should_sync_order( $order ) ) {
+		if ( $verify_created_via && self::CREATED_VIA_NAME === $order->get_created_via() ) {
+			// Only sync orders not created via the Stripe integration.
 			return;
 		}
 
