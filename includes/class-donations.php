@@ -417,13 +417,6 @@ class Donations {
 		$parsed_settings['platform']      = self::get_platform_slug();
 		$parsed_settings['billingFields'] = self::get_billing_fields();
 
-		// Remove "other" frequency if NYP isn't available.
-		if ( ! class_exists( 'WC_Name_Your_Price_Helpers' ) ) {
-			foreach ( array_keys( $parsed_settings['amounts'] ) as $freq ) {
-				array_pop( $parsed_settings['amounts'][ $freq ] );
-			}
-		}
-
 		return $parsed_settings;
 	}
 
