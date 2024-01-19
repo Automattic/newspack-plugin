@@ -368,7 +368,7 @@ class WooCommerce_Connection {
 	 * @param bool|string $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 */
 	public static function sync_reader_from_order( $order, $verify_created_via = true, $payment_page_url = false ) {
-		if ( ! self::can_sync_customers() ) {
+		if ( ! $order || ! self::can_sync_customers() ) {
 			return;
 		}
 
