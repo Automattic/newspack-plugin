@@ -353,7 +353,7 @@ class WooCommerce_Connection {
 	 */
 	public static function should_sync_order( $order ) {
 		// $order is not a valid WC_Order object, so don't try to sync.
-		if ( ! $order || ! is_a( $order, 'WC_Order' ) ) {
+		if ( ! is_a( $order, 'WC_Order' ) ) {
 			return false;
 		}
 		if ( $order->get_meta( '_subscription_switch' ) ) {
