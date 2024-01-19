@@ -47,6 +47,7 @@ class Wizards {
 		}
 		add_action( 'admin_init', [ __CLASS__, 'assign_custom_caps' ] );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 4 );
+		add_filter( 'cme_plugin_capabilities', [ __CLASS__, 'cme_plugin_capabilities' ] );
 	}
 
 	/**
@@ -57,15 +58,36 @@ class Wizards {
 	 * per se, only assigned to roles.
 	 */
 	public static function assign_custom_caps() {
-		$has_assigned_custom_caps = get_option( 'newspack_wizard_assigned_custom_caps', false );
+		$has_assigned_custom_caps = get_option( 'newspack_wizard_assigned_custom_caps_v1', false );
 		if ( $has_assigned_custom_caps ) {
 			return;
 		}
 		$role = get_role( 'administrator' );
-		foreach ( self::$wizards as $key => $value ) {
-			$role->add_cap( self::get_capability_name( $key ) );
+		foreach ( self::get_capabilities_list() as $cap ) {
+			$role->add_cap( $cap );
 		}
 		update_option( 'newspack_wizard_assigned_custom_caps', true );
+	}
+
+	/**
+	 * Get a list of all wizards' capabilities.
+	 */
+	private static function get_capabilities_list() {
+		$caps = [];
+		foreach ( self::$wizards as $key => $value ) {
+			$caps[] = self::get_capability_name( $key );
+		}
+		return $caps;
+	}
+
+	/**
+	 * Filter the capabilities list in the capability-manager-enhanced plugin.
+	 *
+	 * @param array $capabilities_list The list of capabilities tabs.
+	 */
+	public static function cme_plugin_capabilities( $capabilities_list ) {
+		$capabilities_list['Newspack'] = self::get_capabilities_list();
+		return $capabilities_list;
 	}
 
 	/**
