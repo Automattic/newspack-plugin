@@ -1151,7 +1151,7 @@ final class Reader_Activation {
 					</form>
 				</div>
 				<?php if ( ! empty( $terms ) ) : ?>
-					<footer class="newspack-ui__modal__footer" data-action="signin signup pwd otp">
+					<footer class="newspack-ui__modal__footer" data-action="signin register">
 						<p>
 							<?php echo wp_kses_post( trim( $terms ) ); ?>
 						</p>
