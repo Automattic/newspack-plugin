@@ -122,6 +122,15 @@ class Donations {
 	}
 
 	/**
+	 * Check if the Name Your Price extension is available.
+	 *
+	 * @return bool True if available, false if not.
+	 */
+	public static function can_use_name_your_price() {
+		return class_exists( 'WC_Name_Your_Price_Helpers' );
+	}
+
+	/**
 	 * Get the default donation settings.
 	 *
 	 * @return array Array of settings info.
@@ -529,6 +538,7 @@ class Donations {
 			}
 
 			$child_product->set_name( $product_name );
+			$child_product->set_price( $price );
 			$child_product->set_regular_price( $price );
 			$child_product->update_meta_data( '_suggested_price', $price );
 			$child_product->update_meta_data( '_min_price', wc_format_decimal( $configuration['minimumDonation'] ) );
