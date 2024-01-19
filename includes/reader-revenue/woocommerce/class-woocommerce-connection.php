@@ -352,6 +352,10 @@ class WooCommerce_Connection {
 	 * @param WC_Order $order Order object.
 	 */
 	public static function should_sync_order( $order ) {
+		// $order is not a valid WC_Order object, so don't try to sync.
+		if ( ! $order || ! is_a( $order, 'WC_Order' ) ) {
+			return false;
+		}
 		if ( $order->get_meta( '_subscription_switch' ) ) {
 			// This is a "switch" order, which is just recording a subscription update. It has value of 0 and
 			// should not be synced anywhere.
@@ -368,16 +372,16 @@ class WooCommerce_Connection {
 	 * @param bool|string $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 */
 	public static function sync_reader_from_order( $order, $verify_created_via = true, $payment_page_url = false ) {
-		if ( ! $order || ! self::can_sync_customers() ) {
+		if ( ! self::can_sync_customers() ) {
+			return;
+		}
+
+		if ( ! self::should_sync_order( $order ) ) {
 			return;
 		}
 
 		if ( $verify_created_via && self::CREATED_VIA_NAME === $order->get_created_via() ) {
 			// Only sync orders not created via the Stripe integration.
-			return;
-		}
-
-		if ( ! self::should_sync_order( $order ) ) {
 			return;
 		}
 
