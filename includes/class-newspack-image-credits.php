@@ -494,15 +494,8 @@ class Newspack_Image_Credits {
 			return $metadata;
 		}
 
-		$file_path  = get_attached_file( $attachment_id );
-		$attachment = get_post( $attachment_id );
-		$mime_type  = get_post_mime_type( $attachment );
-
-		if ( preg_match( '!^image/!', $mime_type ) && file_is_displayable_image( $file_path ) ) {
-			$meta = wp_read_image_metadata( $file_path );
-			if ( ! empty( $meta['credit'] ) ) {
-				update_post_meta( $attachment_id, self::MEDIA_CREDIT_META, $meta['credit'] );
-			}
+		if ( ! empty( $metadata['image_meta']['credit'] ) ) {
+			update_post_meta( $attachment_id, self::MEDIA_CREDIT_META, $metadata['image_meta']['credit'] );
 		}
 
 		return $metadata;
