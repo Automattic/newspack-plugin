@@ -151,10 +151,14 @@ final class Reader_Activation {
 			true
 		);
 		$labels = [
-			'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
-			'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
-			'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
-			'code_resent'      => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+			'invalid_email'          => __( 'Please enter a valid email address.', 'newspack-plugin' ),
+			'invalid_password'       => __( 'Please enter a password.', 'newspack-plugin' ),
+			'blocked_popup'          => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+			'code_resent'            => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+			'signedin_title'         => __( 'Success! You’re signed in.', 'newspack-plugin' ),
+			'signedin_description'   => '',
+			'registered_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
+			'registered_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
 		];
 		\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_auth_labels', $labels );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
@@ -1084,9 +1088,9 @@ final class Reader_Activation {
 								</svg>
 							</span>
 							<p>
-								<strong>Success! Your account was created and you're signed in.</strong>
+								<strong class="success-title"></strong>
 							</p>
-							<p class="newspack-ui__font__small">In the future, you'll sign in with a code sent to your email. If you'd rather use a password, you can set one in <a href="#">My Account</a>.</p>
+							<p class="newspack-ui__font__small success-description"></p>
 					</div>
 					<form method="post" target="_top">
 						<div data-action="signin register">
@@ -1149,6 +1153,8 @@ final class Reader_Activation {
 						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
 						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
 					</form>
+					<a href="#" class="auth-redirect button newspack-ui__button__wide newspack-ui__button__primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
+					<a href="#" class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
 				</div>
 				<?php if ( ! empty( $terms ) ) : ?>
 					<footer class="newspack-ui__modal__footer" data-action="signin register">

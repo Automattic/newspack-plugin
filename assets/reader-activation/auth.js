@@ -343,6 +343,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			/**
 			 * Handle auth form action selection.
 			 */
+			let formAction;
 			function setFormAction( action, shouldFocus = false ) {
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
@@ -361,6 +362,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						firstInput.focus();
 					}
 				}
+				formAction = action;
 				actionInput.value = action;
 				container.removeAttribute( 'data-form-status' );
 				messageContentElement.innerHTML = '';
@@ -427,6 +429,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageContentElement.appendChild( messageNode );
 				}
 				if ( status === 200 && data ) {
+					let title = newspack_reader_auth_labels.signedin_title;
+					let description = newspack_reader_auth_labels.signedin_description;
+					if ( formAction === 'register' ) {
+						title = newspack_reader_auth_labels.registered_title;
+						description = newspack_reader_auth_labels.registered_description;
+					}
+					container.querySelector( '.success-title' ).innerHTML = title;
+					container.querySelector( '.success-description' ).innerHTML = description;
 					setFormAction( 'success' );
 					const authenticated = !! data?.authenticated;
 					readerActivation.setReaderEmail( data.email );
