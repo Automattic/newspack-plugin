@@ -662,8 +662,8 @@ final class Reader_Activation {
 	/**
 	 * Whether the user is a reader.
 	 *
-	 * @param \WP_User $user   User object.
-	 * @param bool     $strict Whether to check if the user was created through reader registration. Default false.
+	 * @param WP_User $user   User object.
+	 * @param bool    $strict Whether to check if the user was created through reader registration. Default false.
 	 *
 	 * @return bool Whether the user is a reader.
 	 */
@@ -1761,14 +1761,6 @@ final class Reader_Activation {
 					// Otherwise, don't update it.
 					$data['display_name'] = $userdata['display_name'];
 				}
-			}
-
-			// If the reader has intentionally saved a display name we consider generic, mark it as such.
-			if (
-				self::generate_user_nicename( $userdata['user_email'] ) === $data['display_name'] || // New generated construction (URL-sanitized version of the email address minus domain).
-				self::strip_email_domain( $userdata['user_email'] ) === $data['display_name'] // Legacy generated construction (just the email address minus domain).
-			) {
-				\update_user_meta( $user_id, self::READER_SAVED_GENERIC_DISPLAY_NAME, 1 );
 			}
 		}
 
