@@ -1,3 +1,10 @@
+# [2.15.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.15.0-alpha.2...v2.15.0-alpha.3) (2024-01-19)
+
+
+### Bug Fixes
+
+* **ras:** handle invalid order sync request ([#2865](https://github.com/Automattic/newspack-plugin/issues/2865)) ([38f265f](https://github.com/Automattic/newspack-plugin/commit/38f265feccfdba3ef7916a820ffcd5eba0ebe917))
+
 # [2.15.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.15.0-alpha.1...v2.15.0-alpha.2) (2024-01-15)
 
 
