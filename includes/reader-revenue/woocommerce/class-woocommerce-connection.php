@@ -536,6 +536,13 @@ class WooCommerce_Connection {
 	 * @param array    $metadata Metadata.
 	 */
 	public static function add_wc_stripe_gateway_metadata( $order, $metadata ) {
+		$wc = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+
+		// If not using the Stripe payment gateway, no need to add metadata.
+		if ( ! $wc->get_stripe_gateway() ) {
+			return;
+		}
+
 		$order->set_payment_method( 'stripe' );
 
 		if ( isset( $metadata['stripe_id'] ) ) {

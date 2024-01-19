@@ -102,6 +102,16 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get Stripe payment gateway, if available.
+	 *
+	 * @return WC_Gateway_Stripe|bool WC_Gateway_Stripe instance if Stripe payment gateway is available, false if not.
+	 */
+	public static function get_stripe_gateway() {
+		$gateways = self::get_payment_gateways();
+		return isset( $gateways['stripe'] ) ? $gateways['stripe'] : false;
+	}
+
+	/**
 	 * Retrieve Stripe data
 	 *
 	 * @return Array Array of Stripe data.
@@ -182,22 +192,36 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @return Array|WP_Error The data that was updated or an error.
 	 */
 	public function update_wc_stripe_settings( $args ) {
-		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
-		if ( ! isset( $gateways['stripe'] ) ) {
-			if ( $args['enabled'] ) {
-				// Stripe is not installed and we want to use it. Install/Activate/Initialize it.
-				Plugin_Manager::activate( 'woocommerce-gateway-stripe' );
-				do_action( 'plugins_loaded' );
-				WC_Payment_Gateways::instance()->init();
-				$gateways = WC_Payment_Gateways::instance()->payment_gateways();
-			} else {
-				// Stripe is not installed and we don't want to use it. No settings needed.
-				return true;
+		// Get the Stripe payment gateway instance.
+		$stripe = self::get_stripe_gateway();
+
+		// If disabling Stripe.
+		if ( empty( $args['enabled'] ) ) {
+			// If installed, disable the payment gateway.
+			if ( $stripe ) {
+				$stripe->disable();
+			}
+			return true;
+		}
+
+		// If not installed, install it.
+		if ( ! $stripe ) {
+			// Stripe gateway is not installed and we want to use it. Install/Activate/Initialize it.
+			Plugin_Manager::activate( 'woocommerce-gateway-stripe' );
+			do_action( 'plugins_loaded' );
+			WC_Payment_Gateways::instance()->init();
+			$stripe = self::get_stripe_gateway();
+			if ( ! $stripe ) {
+				return new WP_Error( 'newspack_stripe_gateway_error', __( 'Error activating the Stripe payment gateway.', 'newspack-plugin' ) );
 			}
 		}
 
-		$stripe = $gateways['stripe'];
-		$stripe->update_option( 'enabled', $args['enabled'] ? 'yes' : 'no' );
+		// If installed but not enabled, enable it.
+		if ( ! $stripe->is_enabled() ) {
+			$stripe->enable();
+		}
+
+		// Update Stripe payment gateway settings.
 		$stripe->update_option( 'testmode', $args['testMode'] ? 'yes' : 'no' );
 		$stripe->update_option( 'publishable_key', $args['publishableKey'] );
 		$stripe->update_option( 'secret_key', $args['secretKey'] );

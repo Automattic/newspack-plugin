@@ -56,7 +56,7 @@ const Platform = () => {
 			</Card>
 			{ NEWSPACK === wizardData.platform_data?.platform && ! wizardData.plugin_status && (
 				<PluginInstaller
-					plugins={ [ 'woocommerce', 'woocommerce-subscriptions', 'woocommerce-gateway-stripe' ] }
+					plugins={ [ 'woocommerce', 'woocommerce-subscriptions' ] }
 					onStatus={ ( { complete } ) => {
 						if ( complete ) {
 							updateWizardSettings( {
