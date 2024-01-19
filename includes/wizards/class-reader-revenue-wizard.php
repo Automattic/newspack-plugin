@@ -482,7 +482,6 @@ class Reader_Revenue_Wizard extends Wizard {
 			$managed_plugins  = Plugin_Manager::get_managed_plugins();
 			$required_plugins = [
 				'woocommerce',
-				'woocommerce-gateway-stripe',
 				'woocommerce-subscriptions',
 			];
 			foreach ( $required_plugins as $required_plugin ) {
@@ -577,6 +576,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
 				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
+				'can_use_name_your_price' => Donations::can_use_name_your_price(),
 			]
 		);
 		\wp_enqueue_script( 'newspack-reader-revenue-wizard' );
