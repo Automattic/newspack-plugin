@@ -129,8 +129,8 @@ export function getReader() {
  */
 export function hasAuthLink() {
 	const reader = getReader();
-	const emailLinkSecret = getCookie( 'np_auth_link' );
-	return !! ( reader?.email && emailLinkSecret );
+	const otpHash = getCookie( 'np_otp_hash' );
+	return !! ( reader?.email && otpHash );
 }
 
 /**

@@ -115,7 +115,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 			allContainers.forEach( container => {
 				const form = container.querySelector( 'form' );
 				const emailInput = container.querySelector( 'input[name="npe"]' );
-				const redirectInput = container.querySelector( 'input[name="redirect"]' );
 				const reader = readerActivation.getReader();
 
 				if ( emailInput ) {
@@ -124,13 +123,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 				if ( accountLinks?.length ) {
 					accountLinks.forEach( link => {
-						/** If there's a pre-auth, signing in redirects to the reader account. */
-						if ( reader?.email && ! reader?.authenticated ) {
-							link.setAttribute( 'data-redirect', link.getAttribute( 'href' ) );
-							redirectInput.value = link.getAttribute( 'href' );
-						} else {
-							link.removeAttribute( 'data-redirect' );
-						}
 						try {
 							const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
 							link.querySelector( '.newspack-reader__account-link__label' ).textContent =
@@ -149,13 +141,32 @@ window.newspackRAS.push( function ( readerActivation ) {
 		readerActivation.on( 'reader', handleReaderChanges );
 		handleReaderChanges();
 
+		function handleAccountLinkClick( ev ) {
+			let cb = () => {};
+			if ( ev ) {
+				ev.preventDefault();
+				let redirect = ev.target.getAttribute( 'href' );
+				if ( ev.target.getAttribute( 'data-redirect' ) ) {
+					redirect = ev.target.getAttribute( 'data-redirect' );
+				}
+				console.log( ev.target, redirect );
+				if ( redirect ) {
+					console.log( { redirect } );
+					cb = () => {
+						window.location.href = redirect;
+					};
+				}
+			}
+			doAuthModal( cb );
+		}
+
 		/**
 		 * Handle account links.
 		 */
-		function handleAccountLinkClick( ev ) {
+		function doAuthModal( cb ) {
 			const reader = readerActivation.getReader();
-			/** If logged in, bail and allow page redirection. */
 			if ( reader?.authenticated ) {
+				cb();
 				return;
 			}
 
@@ -164,33 +175,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 			);
 			/** If no modal login form, bail. */
 			if ( ! container ) {
+				cb();
 				return;
 			}
+			/** Attach callback to the container. */
+			container.callback = cb;
 
-			if ( ev ) {
-				ev.preventDefault();
-			}
-
-			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
 			const emailInput = container.querySelector( 'input[name="npe"]' );
-			const redirectInput = container.querySelector( 'input[name="redirect"]' );
 			const passwordInput = container.querySelector( 'input[name="password"]' );
 			const actionInput = container.querySelector( 'input[name="action"]' );
 
-			if ( authLinkMessage ) {
-				if ( readerActivation.hasAuthLink() ) {
-					authLinkMessage.style.display = 'flex';
-				} else {
-					authLinkMessage.style.display = 'none';
-				}
-			}
-
 			if ( emailInput ) {
 				emailInput.value = reader?.email || '';
-			}
-
-			if ( redirectInput && ev?.target?.getAttribute( 'data-redirect' ) ) {
-				redirectInput.value = ev.target.getAttribute( 'data-redirect' );
 			}
 
 			container.setAttribute( 'data-state', 'open' );
@@ -337,9 +333,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 			const messageContentElement = container.querySelector( '.response' );
 
-			const authLinkMessage = container.querySelector( '[data-has-auth-link]' );
-			authLinkMessage.hidden = true;
-
 			/**
 			 * Handle auth form action selection.
 			 */
@@ -390,7 +383,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 				}
 			}
-			setFormAction( currentHash === 'register_modal' ? 'register' : 'signin' );
+			let initialFormAction = 'signin';
+			if ( readerActivation.hasAuthLink() ) {
+				initialFormAction = 'otp';
+			}
+			if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
+				initialFormAction = currentHash === 'register_modal' ? 'register' : 'signin';
+			}
+			setFormAction( initialFormAction );
 			window.addEventListener( 'hashchange', () => {
 				if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
 					setFormAction( currentHash === 'register_modal' ? 'register' : 'signin' );
@@ -437,6 +437,15 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 					container.querySelector( '.success-title' ).innerHTML = title;
 					container.querySelector( '.success-description' ).innerHTML = description;
+					const callbackButton = container.querySelector( '.auth-callback' );
+					if ( callbackButton ) {
+						callbackButton.addEventListener( 'click', ev => {
+							ev.preventDefault();
+							if ( container.callback && typeof container.callback === 'function' ) {
+								container.callback( data );
+							}
+						} );
+					}
 					setFormAction( 'success' );
 					const authenticated = !! data?.authenticated;
 					readerActivation.setReaderEmail( data.email );
@@ -493,12 +502,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							readerActivation
 								.authenticateOTP( body.get( 'otp_code' ) )
 								.then( data => {
-									form.endLoginFlow(
-										data.message,
-										200,
-										data,
-										currentHash ? '' : body.get( 'redirect' )
-									);
+									form.endLoginFlow( data.message, 200, data );
 								} )
 								.catch( data => {
 									if ( data.expired ) {
@@ -520,17 +524,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 										.json()
 										.then( ( { message, data } ) => {
 											const status = res.status;
-											let redirect = body.get( 'redirect' );
 											if ( status === 200 ) {
 												readerActivation.setReaderEmail( body.get( 'npe' ) );
-											}
-											/** Redirect every registration to the account page for verification if not coming from a hash link */
-											if ( action === 'register' ) {
-												redirect = newspack_ras_config.account_url;
-											}
-											/** Never redirect from hash links. */
-											if ( currentHash ) {
-												redirect = '';
 											}
 											if ( data.action ) {
 												setFormAction( data.action, true );
@@ -539,7 +534,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 													handleOTPTimer();
 												}
 											} else {
-												form.endLoginFlow( message, status, data, redirect );
+												form.endLoginFlow( message, status, data );
 											}
 										} )
 										.catch( () => {
@@ -663,7 +658,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 		const googleLoginElements = document.querySelectorAll( '.google-oauth' );
 		googleLoginElements.forEach( googleLoginElement => {
 			const googleLoginForm = googleLoginElement.closest( 'form' );
-			const redirectInput = googleLoginForm.querySelector( 'input[name="redirect"]' );
 			const checkLoginStatus = metadata => {
 				fetch(
 					`/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }`
@@ -672,9 +666,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 						res
 							.json()
 							.then( ( { message, data } ) => {
-								const redirect = redirectInput?.value || null;
 								if ( googleLoginForm?.endLoginFlow ) {
-									googleLoginForm.endLoginFlow( message, res.status, data, redirect );
+									googleLoginForm.endLoginFlow( message, res.status, data );
 								}
 							} )
 							.catch( error => {

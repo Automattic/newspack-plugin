@@ -1100,10 +1100,7 @@ final class Reader_Activation {
 						<?php if ( ! empty( $referer['path'] ) ) : ?>
 							<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
 						<?php endif; ?>
-						<input type="hidden" name="action" value="pwd" />
-						<p data-has-auth-link>
-							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
-						</p>
+						<input type="hidden" name="action" />
 						<p data-action="otp">
 							<strong>
 								<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
@@ -1153,7 +1150,7 @@ final class Reader_Activation {
 						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
 						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
 					</form>
-					<a href="#" class="auth-redirect button newspack-ui__button__wide newspack-ui__button__primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
+					<a href="#" class="auth-callback button newspack-ui__button__wide newspack-ui__button__primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
 					<a href="#" class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
 				</div>
 				<?php if ( ! empty( $terms ) ) : ?>
