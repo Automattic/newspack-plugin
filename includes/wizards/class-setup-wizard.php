@@ -9,6 +9,7 @@ namespace Newspack;
 
 use WP_Error, WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
+
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
@@ -106,10 +107,7 @@ class Setup_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_theme_with_mods' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'theme_mods' => [
-						'sanitize_callback' => [ $this, 'sanitize_theme_mods' ],
-					],
-					'theme'      => [
+					'theme' => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
@@ -688,14 +686,5 @@ class Setup_Wizard extends Wizard {
 			return false;
 		}
 		return $show;
-	}
-
-	/**
-	 * Sanitize theme mods.
-	 *
-	 * @param array $theme_mods An array of theme mods.
-	 */
-	public function sanitize_theme_mods( $theme_mods ) {
-		return $theme_mods;
 	}
 }
