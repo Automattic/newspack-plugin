@@ -43,6 +43,7 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 			\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'verify_saved_account_details' ] );
 			\add_action( 'logout_redirect', [ __CLASS__, 'add_param_after_logout' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'show_message_after_logout' ] );
 		}
@@ -355,12 +356,50 @@ class WooCommerce_My_Account {
 	 */
 	public static function remove_required_fields( $required_fields ) {
 		if ( Donations::is_platform_wc() ) {
-			return [
-				'account_display_name' => __( 'Display name', 'newspack-plugin' ),
+			$newspack_required_fields = [
 				'account_email'        => __( 'Email address', 'newspack-plugin' ),
+				'account_display_name' => __( 'Display name', 'newspack-plugin' ),
 			];
+
+			/**
+			 * Filters the fields required when editing account details in My Account.
+			 *
+			 * @param array $newspack_required_fields Required fields, keyed by field name.
+			 */
+			return \apply_filters( 'newspack_myaccount_required_fields', $newspack_required_fields );
 		}
-		return [];
+		return $required_fields;
+	}
+
+	/**
+	 * Intercept account details saved by the reader in My Account.
+	 */
+	public static function verify_saved_account_details() {
+		$action       = filter_input( INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$display_name = filter_input( INPUT_POST, 'account_display_name', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$email        = filter_input( INPUT_POST, 'account_email', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		if ( empty( $action ) || 'save_account_details' !== $action || empty( $display_name ) || empty( $email ) ) {
+			return;
+		}
+
+		$user_id = \get_current_user_id();
+		if ( $user_id <= 0 ) {
+			return;
+		}
+
+		$user = \get_user_by( 'id', $user_id );
+		if ( ! Reader_Activation::is_user_reader( $user ) || $user->data->user_email !== $email ) {
+			return false;
+		}
+
+		// If the reader has intentionally saved a display name we consider generic, mark it as such.
+		if (
+			Reader_Activation::generate_user_nicename( $email ) === $display_name || // New generated construction (URL-sanitized version of the email address minus domain).
+			Reader_Activation::strip_email_domain( $email ) === $display_name // Legacy generated construction (just the email address minus domain).
+		) {
+			\update_user_meta( $user_id, Reader_Activation::READER_SAVED_GENERIC_DISPLAY_NAME, 1 );
+		}
 	}
 
 	/**
@@ -419,6 +458,10 @@ class WooCommerce_My_Account {
 	 * Restrict account content for unverified readers.
 	 */
 	public static function restrict_account_content() {
+		if ( defined( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION' ) && NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION ) {
+			return;
+		}
+
 		if ( \is_user_logged_in() && ! self::is_user_verified() ) {
 			\remove_all_actions( 'woocommerce_account_content' );
 			\add_action(
