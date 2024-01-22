@@ -59,7 +59,7 @@ const webpackConfig = getBaseWebpackConfig(
 			...wizardsScriptFiles,
 			blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
 			'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
-			'reader-auth': path.join( __dirname, 'assets', 'reader-activation', 'auth.js' ),
+			'reader-auth': path.join( __dirname, 'assets', 'reader-activation-auth', 'index.js' ),
 			'reader-registration-block': path.join(
 				__dirname,
 				'assets',
@@ -83,12 +83,7 @@ const webpackConfig = getBaseWebpackConfig(
 				'memberships-gate',
 				'block-patterns.js'
 			),
-			'newspack-ui': path.join(
-				__dirname,
-				'assets',
-				'newspack-ui',
-				'index.js'
-			),
+			'newspack-ui': path.join( __dirname, 'assets', 'newspack-ui', 'index.js' ),
 		},
 	}
 );
