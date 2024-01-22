@@ -330,7 +330,7 @@ final class Reader_Activation {
 			$registration_lists = $available_lists;
 		} else {
 			$lists = self::get_setting( 'newsletter_lists' );
-			if ( empty( $lists ) ) {
+			if ( empty( $lists ) || \is_wp_error( $available_lists ) ) {
 				return [];
 			}
 			$registration_lists = [];
