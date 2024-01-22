@@ -326,6 +326,9 @@ final class Reader_Activation {
 		}
 		$use_custom_lists = self::get_setting( 'use_custom_lists' );
 		$available_lists  = \Newspack_Newsletters_Subscription::get_lists_config();
+		if ( \is_wp_error( $available_lists ) ) {
+			return [];
+		}
 		if ( ! $use_custom_lists ) {
 			$registration_lists = $available_lists;
 		} else {
