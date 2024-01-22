@@ -197,17 +197,27 @@ window.newspackRAS.push( function ( readerActivation ) {
 				return;
 			}
 
-			if ( config.initialState && container.setFormAction ) {
-				container.setFormAction( config.initialState, true );
+			/** Attach config to the container. */
+			container.config = config;
+
+			let initialFormAction = 'signin';
+			if ( readerActivation.hasAuthLink() ) {
+				initialFormAction = 'otp';
+			}
+			if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
+				initialFormAction = currentHash === 'register_modal' ? 'register' : 'signin';
+			}
+			if ( config.initialState ) {
+				initialFormAction = config.initialState;
+			}
+			if ( container.setFormAction ) {
+				container.setFormAction( initialFormAction, true );
 			}
 
 			const titleEl = container.querySelector( 'h2' );
 			if ( titleEl && config.title ) {
 				titleEl.textContent = config.title;
 			}
-
-			/** Attach config to the container. */
-			container.config = config;
 
 			const emailInput = container.querySelector( 'input[name="npe"]' );
 			if ( emailInput ) {
@@ -408,22 +418,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 			}
 			container.setFormAction = setFormAction;
-			let initialFormAction = 'signin';
-			if ( readerActivation.hasAuthLink() ) {
-				initialFormAction = 'otp';
-			}
-			if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
-				initialFormAction = currentHash === 'register_modal' ? 'register' : 'signin';
-			}
-			setFormAction( initialFormAction );
 			window.addEventListener( 'hashchange', () => {
 				if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
 					setFormAction( currentHash === 'register_modal' ? 'register' : 'signin' );
-				}
-			} );
-			readerActivation.on( 'reader', () => {
-				if ( readerActivation.getOTPHash() ) {
-					setFormAction( 'otp' );
 				}
 			} );
 			container.querySelectorAll( '[data-set-action]' ).forEach( item => {
