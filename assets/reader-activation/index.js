@@ -134,6 +134,41 @@ export function hasAuthLink() {
 }
 
 /**
+ * Start the authentication modal with an optional custom callback.
+ *
+ * @param {Object} config Config.
+ */
+export function doAuthModal( config = {} ) {
+	// Set default config.
+	config = {
+		...{
+			title: null,
+			callback: null,
+			initialState: 'signin',
+			skipContinueButton: false,
+		},
+		...config,
+	};
+	if ( readerActivation._authModal ) {
+		readerActivation._authModal( config );
+	} else {
+		console.warn( 'Authentication modal not available' );
+		if ( config.callback ) {
+			config.callback();
+		}
+	}
+}
+
+/**
+ * Set the auth modal callback.
+ *
+ * @param {Function} callback Callback.
+ */
+export function setAuthModalCallback( callback ) {
+	readerActivation._authModalCallback = callback;
+}
+
+/**
  * Get the reader's OTP hash for the current authentication request.
  *
  * @return {string} OTP hash.
@@ -344,6 +379,8 @@ const readerActivation = {
 	setAuthenticated,
 	refreshAuthentication,
 	getReader,
+	doAuthModal,
+	setAuthModalCallback,
 	hasAuthLink,
 	getOTPHash,
 	setOTPTimer,

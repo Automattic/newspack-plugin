@@ -142,31 +142,47 @@ window.newspackRAS.push( function ( readerActivation ) {
 		handleReaderChanges();
 
 		function handleAccountLinkClick( ev ) {
-			let cb = () => {};
+			let callback;
 			if ( ev ) {
 				ev.preventDefault();
-				let redirect = ev.target.getAttribute( 'href' );
+				let redirect;
 				if ( ev.target.getAttribute( 'data-redirect' ) ) {
 					redirect = ev.target.getAttribute( 'data-redirect' );
+				} else {
+					redirect = ev.target.getAttribute( 'href' );
 				}
-				console.log( ev.target, redirect );
+				if ( ! redirect ) {
+					const closestEl = ev.target.closest( 'a' );
+					if ( closestEl ) {
+						if ( closestEl.getAttribute( 'data-redirect' ) ) {
+							redirect = closestEl.getAttribute( 'data-redirect' );
+						} else {
+							redirect = closestEl.getAttribute( 'href' );
+						}
+					}
+				}
 				if ( redirect ) {
-					console.log( { redirect } );
-					cb = () => {
+					callback = () => {
 						window.location.href = redirect;
 					};
 				}
 			}
-			doAuthModal( cb );
+			authModal( { callback } );
 		}
 
 		/**
-		 * Handle account links.
+		 * Start the authentication modal with a custom callback.
+		 *
+		 * @param {Object} config Configuration object.
+		 *
+		 * @return {void}
 		 */
-		function doAuthModal( cb ) {
+		function authModal( config = {} ) {
 			const reader = readerActivation.getReader();
 			if ( reader?.authenticated ) {
-				cb();
+				if ( config.callback ) {
+					config.callback();
+				}
 				return;
 			}
 
@@ -175,11 +191,23 @@ window.newspackRAS.push( function ( readerActivation ) {
 			);
 			/** If no modal login form, bail. */
 			if ( ! container ) {
-				cb();
+				if ( config.callback ) {
+					config.callback();
+				}
 				return;
 			}
-			/** Attach callback to the container. */
-			container.callback = cb;
+
+			if ( config.initialState && container.setFormAction ) {
+				container.setFormAction( config.initialState, true );
+			}
+
+			const titleEl = container.querySelector( 'h2' );
+			if ( titleEl && config.title ) {
+				titleEl.textContent = config.title;
+			}
+
+			/** Attach config to the container. */
+			container.config = config;
 
 			const emailInput = container.querySelector( 'input[name="npe"]' );
 			const passwordInput = container.querySelector( 'input[name="password"]' );
@@ -205,6 +233,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 				history.pushState( '', document.title, window.location.pathname + window.location.search );
 			}
 		}
+		/** Expose the function to the RAS scope. */
+		readerActivation._authModal = authModal;
 
 		containers.forEach( container => {
 			const initialForm = container.querySelector( 'form' );
@@ -321,7 +351,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				closeButtons.forEach( closeButton => {
 					closeButton.addEventListener( 'click', function ( ev ) {
 						ev.preventDefault();
-						container.classList.remove( 'newspack-reader__auth-form__visible' );
 						container.setAttribute( 'data-state', 'closed' );
 						document.body.classList.remove( 'newspack-signin' );
 						if ( container.overlayId ) {
@@ -368,11 +397,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 				container.querySelectorAll( '[data-action~="' + action + '"]' ).forEach( item => {
 					item.style.display = item.prevDisplay;
 				} );
-				try {
-					const labels = JSON.parse( container.getAttribute( 'data-labels' ) );
-					const label = 'register' === action ? labels.register : labels.signin;
-					container.querySelector( 'h2' ).textContent = label;
-				} catch {}
+				if ( ! container.config?.title ) {
+					const titleEl = container.querySelector( 'h2' );
+					if ( titleEl ) {
+						const labels = JSON.parse( container.getAttribute( 'data-labels' ) );
+						const label = 'register' === action ? labels.register : labels.signin;
+						titleEl.textContent = label;
+					}
+				}
 				if ( shouldFocus ) {
 					if ( action === 'pwd' && emailInput.value ) {
 						passwordInput.focus();
@@ -383,6 +415,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 				}
 			}
+			container.setFormAction = setFormAction;
 			let initialFormAction = 'signin';
 			if ( readerActivation.hasAuthLink() ) {
 				initialFormAction = 'otp';
@@ -429,27 +462,46 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageContentElement.appendChild( messageNode );
 				}
 				if ( status === 200 && data ) {
-					let title = newspack_reader_auth_labels.signedin_title;
-					let description = newspack_reader_auth_labels.signedin_description;
-					if ( formAction === 'register' ) {
-						title = newspack_reader_auth_labels.registered_title;
-						description = newspack_reader_auth_labels.registered_description;
-					}
-					container.querySelector( '.success-title' ).innerHTML = title;
-					container.querySelector( '.success-description' ).innerHTML = description;
-					const callbackButton = container.querySelector( '.auth-callback' );
-					if ( callbackButton ) {
-						callbackButton.addEventListener( 'click', ev => {
-							ev.preventDefault();
-							if ( container.callback && typeof container.callback === 'function' ) {
-								container.callback( data );
-							}
-						} );
-					}
-					setFormAction( 'success' );
+					const resolve = () => {
+						/** Close the modal */
+						container.setAttribute( 'data-state', 'closed' );
+						document.body.classList.remove( 'newspack-signin' );
+						if ( container.overlayId ) {
+							readerActivation.overlays.remove( container.overlayId );
+						}
+						/** Global callback takes priority, otherwise use the container callback. */
+						if ( readerActivation._authModalCallback ) {
+							readerActivation._authModalCallback( data, container );
+						} else if ( container.config.callback ) {
+							container.config.callback( data, container );
+						}
+					};
+
 					const authenticated = !! data?.authenticated;
 					readerActivation.setReaderEmail( data.email );
 					readerActivation.setAuthenticated( authenticated );
+
+					/** Resolve the modal immediately or display the "success" state. */
+					if ( container.config.skipContinueButton ) {
+						resolve();
+					} else {
+						setFormAction( 'success' );
+						let title = newspack_reader_auth_labels.signedin_title;
+						let description = newspack_reader_auth_labels.signedin_description;
+						if ( formAction === 'register' ) {
+							title = newspack_reader_auth_labels.registered_title;
+							description = newspack_reader_auth_labels.registered_description;
+						}
+						container.querySelector( '.success-title' ).innerHTML = title;
+						container.querySelector( '.success-description' ).innerHTML = description;
+						const callbackButton = container.querySelector( '.auth-callback' );
+						if ( callbackButton ) {
+							callbackButton.addEventListener( 'click', ev => {
+								ev.preventDefault();
+								resolve();
+							} );
+						}
+					}
 				}
 			};
 
