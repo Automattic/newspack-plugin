@@ -145,7 +145,16 @@ export function doAuthModal( config = {} ) {
 			title: null,
 			callback: null,
 			initialState: 'signin',
-			skipContinueButton: false,
+			skipSuccess: false,
+			labels: {
+				signin: {
+					title: null,
+				},
+				register: {
+					title: null,
+				},
+			},
+			content: null,
 		},
 		...config,
 	};

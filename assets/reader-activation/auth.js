@@ -210,9 +210,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.config = config;
 
 			const emailInput = container.querySelector( 'input[name="npe"]' );
-			const passwordInput = container.querySelector( 'input[name="password"]' );
-			const actionInput = container.querySelector( 'input[name="action"]' );
-
 			if ( emailInput ) {
 				emailInput.value = reader?.email || '';
 			}
@@ -220,12 +217,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.setAttribute( 'data-state', 'open' );
 
 			document.body.classList.add( 'newspack-signin' );
-
-			if ( passwordInput && emailInput?.value && 'pwd' === actionInput?.value ) {
-				passwordInput.focus();
-			} else {
-				emailInput.focus();
-			}
 			container.overlayId = readerActivation.overlays.add();
 
 			/** Remove the modal hash from the URL if any. */
@@ -397,13 +388,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 				container.querySelectorAll( '[data-action~="' + action + '"]' ).forEach( item => {
 					item.style.display = item.prevDisplay;
 				} );
-				if ( ! container.config?.title ) {
-					const titleEl = container.querySelector( 'h2' );
-					if ( titleEl ) {
-						const labels = JSON.parse( container.getAttribute( 'data-labels' ) );
-						const label = 'register' === action ? labels.register : labels.signin;
-						titleEl.textContent = label;
-					}
+				const labels = {
+					...newspack_reader_auth_labels,
+					...container.config?.labels,
+				};
+				const titleEl = container.querySelector( 'h2' );
+				if ( titleEl ) {
+					const label = 'register' === action ? labels.register.title : labels.signin.title;
+					titleEl.textContent = label;
 				}
 				if ( shouldFocus ) {
 					if ( action === 'pwd' && emailInput.value ) {
@@ -482,7 +474,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					readerActivation.setAuthenticated( authenticated );
 
 					/** Resolve the modal immediately or display the "success" state. */
-					if ( container.config.skipContinueButton ) {
+					if ( container.config.skipSuccess ) {
 						resolve();
 					} else {
 						setFormAction( 'success' );

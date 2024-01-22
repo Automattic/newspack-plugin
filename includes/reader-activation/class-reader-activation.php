@@ -155,10 +155,17 @@ final class Reader_Activation {
 			'invalid_password'       => __( 'Please enter a password.', 'newspack-plugin' ),
 			'blocked_popup'          => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
 			'code_resent'            => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+			'create_account'         => __( 'Create an account', 'newspack-plugin' ),
 			'signedin_title'         => __( 'Success! You’re signed in.', 'newspack-plugin' ),
 			'signedin_description'   => '',
 			'registered_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
 			'registered_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
+			'signin'                 => [
+				'title' => __( 'Sign in', 'newspack-plugin' ),
+			],
+			'register'               => [
+				'title' => __( 'Create an account', 'newspack-plugin' ),
+			],
 		];
 		\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_auth_labels', $labels );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
@@ -1034,11 +1041,6 @@ final class Reader_Activation {
 			return;
 		}
 
-		$labels = [
-			'signin'   => \__( 'Sign In', 'newspack-plugin' ),
-			'register' => \__( 'Sign Up', 'newspack-plugin' ),
-		];
-
 		$message = '';
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['reader_authenticated'] ) && isset( $_GET['message'] ) ) {
@@ -1066,7 +1068,7 @@ final class Reader_Activation {
 		$referer         = \wp_parse_url( \wp_get_referer() );
 		global $wp;
 		?>
-		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
+		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth">
 			<div class="newspack-ui__modal-container__overlay"></div>
 			<div class="newspack-ui__modal newspack-ui__modal__small">
 				<?php if ( ! $is_inline ) : ?>
@@ -1141,8 +1143,8 @@ final class Reader_Activation {
 							);
 							?>
 						</p>
-						<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-						<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+
+						<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
 						<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
 						<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
 						<a class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
