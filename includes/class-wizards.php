@@ -86,7 +86,15 @@ class Wizards {
 	 * @param array $capabilities_list The list of capabilities tabs.
 	 */
 	public static function cme_plugin_capabilities( $capabilities_list ) {
-		$capabilities_list['Newspack'] = self::get_capabilities_list();
+		$official_caps                 = array_diff(
+			self::get_capabilities_list(),
+			[
+				self::get_capability_name( 'newspack-setup-wizard' ),
+				self::get_capability_name( 'newspack-components-demo-wizard' ),
+				self::get_capability_name( 'newspack-settings-wizard' ),
+			]
+		);
+		$capabilities_list['Newspack'] = $official_caps;
 		return $capabilities_list;
 	}
 
