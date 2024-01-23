@@ -17,11 +17,11 @@
 		transition: background-color 150ms ease-in-out;
 
 		&:hover {
-			// TODO
+			color: inherit;
 		}
 
 		&:focus {
-			// TODO
+			color: inherit;
 		}
 
 		&:disabled {
@@ -41,6 +41,7 @@
 
 			&:hover {
 				background: var( --newspack-ui-color-button-bg-hover );
+				color: var( --newspack-ui-color-button-text );
 			}
 		}
 
