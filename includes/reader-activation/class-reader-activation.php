@@ -155,20 +155,19 @@ final class Reader_Activation {
 			true
 		);
 		$labels = [
-			'invalid_email'          => __( 'Please enter a valid email address.', 'newspack-plugin' ),
-			'invalid_password'       => __( 'Please enter a password.', 'newspack-plugin' ),
-			'blocked_popup'          => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
-			'code_resent'            => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
-			'create_account'         => __( 'Create an account', 'newspack-plugin' ),
-			'signedin_title'         => __( 'Success! You’re signed in.', 'newspack-plugin' ),
-			'signedin_description'   => '',
-			'registered_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
-			'registered_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
-			'signin'                 => [
-				'title' => __( 'Sign in', 'newspack-plugin' ),
+			'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
+			'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
+			'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+			'code_resent'      => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+			'create_account'   => __( 'Create an account', 'newspack-plugin' ),
+			'signin'           => [
+				'title'         => __( 'Sign in', 'newspack-plugin' ),
+				'success_title' => __( 'Success! You’re signed in.', 'newspack-plugin' ),
 			],
-			'register'               => [
-				'title' => __( 'Create an account', 'newspack-plugin' ),
+			'register'         => [
+				'title'               => __( 'Create an account', 'newspack-plugin' ),
+				'success_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
+				'success_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
 			],
 		];
 		\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_auth_labels', $labels );
@@ -1485,7 +1484,8 @@ final class Reader_Activation {
 					function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url()
 				);
 
-				$payload['authenticated'] = \absint( $user_id ) ? 1 : 0;
+				$payload['registered']    = 1;
+				$payload['authenticated'] = 1;
 				return self::send_auth_form_response( $payload, false, $redirect );
 		}
 	}

@@ -244,15 +244,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 							container.authCallback( message, data );
 						}
 					} else {
-						let title = newspack_reader_auth_labels.signedin_title;
-						let description = newspack_reader_auth_labels.signedin_description;
-						if ( formAction === 'register' ) {
-							title = newspack_reader_auth_labels.registered_title;
-							description = newspack_reader_auth_labels.registered_description;
+						let labels = newspack_reader_auth_labels.signin;
+						if ( data.registered ) {
+							labels = newspack_reader_auth_labels.register;
 						}
 						container.setFormAction( 'success' );
-						container.querySelector( '.success-title' ).innerHTML = title;
-						container.querySelector( '.success-description' ).innerHTML = description;
+						container.querySelector( '.success-title' ).innerHTML = labels.success_title || '';
+						container.querySelector( '.success-description' ).innerHTML =
+							labels.success_description || '';
 						const callbackButton = container.querySelector( '.auth-callback' );
 						if ( callbackButton ) {
 							callbackButton.addEventListener( 'click', ev => {
