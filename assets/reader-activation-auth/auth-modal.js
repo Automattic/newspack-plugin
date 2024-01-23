@@ -69,10 +69,10 @@ export function openAuthModal( config = {} ) {
 	container.config = config;
 
 	container.authCallback = ( message, data ) => {
+		close();
 		if ( config.callback ) {
 			config.callback( message, data );
 		}
-		close();
 	};
 
 	container.formActionCallback = action => {

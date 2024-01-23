@@ -142,7 +142,6 @@ export function doAuthModal( config = {} ) {
 	// Set default config.
 	config = {
 		...{
-			title: null,
 			callback: null,
 			initialState: null,
 			skipSuccess: false,
