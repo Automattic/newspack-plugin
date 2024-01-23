@@ -1,16 +1,9 @@
-# [2.15.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v2.15.0-alpha.2...v2.15.0-alpha.3) (2024-01-19)
+# [2.15.0](https://github.com/Automattic/newspack-plugin/compare/v2.14.1...v2.15.0) (2024-01-23)
 
 
-### Bug Fixes
+### Features
 
-* **ras:** handle invalid order sync request ([#2865](https://github.com/Automattic/newspack-plugin/issues/2865)) ([38f265f](https://github.com/Automattic/newspack-plugin/commit/38f265feccfdba3ef7916a820ffcd5eba0ebe917))
-
-# [2.15.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v2.15.0-alpha.1...v2.15.0-alpha.2) (2024-01-15)
-
-
-### Bug Fixes
-
-* **plugins:** incorrect plugin slug for Distributor ([#2846](https://github.com/Automattic/newspack-plugin/issues/2846)) ([ba6dc97](https://github.com/Automattic/newspack-plugin/commit/ba6dc97f84bb6d2bc1fd6326d0d65c9e4bf2946c))
+* add get_recurrence_of_order method ([3232c70](https://github.com/Automattic/newspack-plugin/commit/3232c70d2a5cb3b38f9aa3de55d3e66e3e4464c8))
 
 ## [2.14.1](https://github.com/Automattic/newspack-plugin/compare/v2.14.0...v2.14.1) (2024-01-15)
 
