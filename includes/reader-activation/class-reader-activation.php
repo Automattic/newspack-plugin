@@ -1050,21 +1050,6 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 
-		$terms_text = self::get_setting( 'terms_text' );
-		$terms_url  = self::get_setting( 'terms_url' );
-		$terms      = trim( $terms_text ? $terms_text : '' );
-		if ( ! empty( $terms ) ) {
-			if ( $terms_url ) {
-				$terms = sprintf( '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>', $terms_url, $terms_text );
-			}
-			if ( substr( trim( $terms_text ), -1 ) !== '.' ) {
-				$terms .= '.';
-			}
-		}
-		if ( Recaptcha::can_use_captcha() ) {
-			$terms .= ' ' . Recaptcha::get_terms_text();
-		}
-
 		$referer = \wp_parse_url( \wp_get_referer() );
 		?>
 		<div class="newspack-ui newspack-reader-auth">
