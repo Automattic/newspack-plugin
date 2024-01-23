@@ -1305,7 +1305,7 @@ final class Reader_Activation {
 			return;
 		}
 		?>
-		<button type="button" class="newspack-ui__button--wide newspack-ui__button--secondary google-oauth">
+		<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary google-oauth">
 			<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<span>
 				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
