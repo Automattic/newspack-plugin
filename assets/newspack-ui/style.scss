@@ -19,6 +19,8 @@
 
 	a,
 	a:hover {
-		color: inherit;
+		&:not( .newspack-ui__button ) {
+			color: inherit;
+		}
 	}
 }
