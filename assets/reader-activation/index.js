@@ -169,15 +169,6 @@ export function doAuthModal( config = {} ) {
 }
 
 /**
- * Set the auth modal callback.
- *
- * @param {Function} callback Callback.
- */
-export function setAuthModalCallback( callback ) {
-	readerActivation._authModalCallback = callback;
-}
-
-/**
  * Get the reader's OTP hash for the current authentication request.
  *
  * @return {string} OTP hash.
@@ -389,7 +380,6 @@ const readerActivation = {
 	refreshAuthentication,
 	getReader,
 	doAuthModal,
-	setAuthModalCallback,
 	hasAuthLink,
 	getOTPHash,
 	setOTPTimer,
