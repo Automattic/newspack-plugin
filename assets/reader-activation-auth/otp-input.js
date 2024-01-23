@@ -1,6 +1,12 @@
+/**
+ * Internal dependencies.
+ */
 import { domReady } from './utils';
 
 domReady( function () {
+	/**
+	 * OTP Input
+	 */
 	const otpInputs = document.querySelectorAll( 'input[name="otp_code"]' );
 	otpInputs.forEach( originalInput => {
 		const length = parseInt( originalInput.getAttribute( 'maxlength' ) );
@@ -10,10 +16,10 @@ domReady( function () {
 		const inputContainer = originalInput.parentNode;
 		inputContainer.removeChild( originalInput );
 		const values = [];
-		const codeInput = document.createElement( 'input' );
-		codeInput.setAttribute( 'type', 'hidden' );
-		codeInput.setAttribute( 'name', 'otp_code' );
-		inputContainer.appendChild( codeInput );
+		const otpCodeInput = document.createElement( 'input' );
+		otpCodeInput.setAttribute( 'type', 'hidden' );
+		otpCodeInput.setAttribute( 'name', 'otp_code' );
+		inputContainer.appendChild( otpCodeInput );
 		for ( let i = 0; i < length; i++ ) {
 			const digit = document.createElement( 'input' );
 			digit.setAttribute( 'type', 'text' );
@@ -33,7 +39,7 @@ domReady( function () {
 							prev.focus();
 						}
 						values[ i ] = '';
-						codeInput.value = values.join( '' );
+						otpCodeInput.value = values.join( '' );
 						break;
 					case 'ArrowLeft':
 						ev.preventDefault();
@@ -70,7 +76,7 @@ domReady( function () {
 				} else {
 					ev.target.value = '';
 				}
-				codeInput.value = values.join( '' );
+				otpCodeInput.value = values.join( '' );
 			} );
 			digit.addEventListener( 'paste', ev => {
 				ev.preventDefault();
@@ -85,7 +91,7 @@ domReady( function () {
 						values[ j ] = paste[ j ];
 					}
 				}
-				codeInput.value = values.join( '' );
+				otpCodeInput.value = values.join( '' );
 			} );
 			inputContainer.appendChild( digit );
 		}

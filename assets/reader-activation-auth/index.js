@@ -1,6 +1,9 @@
 /* globals newspack_ras_config newspack_reader_auth_labels */
-import { domReady, formatTime } from './utils';
 
+/**
+ * Internal dependencies.
+ */
+import { domReady, formatTime } from './utils';
 import './otp-input';
 import './google-oauth';
 

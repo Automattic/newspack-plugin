@@ -1,16 +1,12 @@
 .newspack-ui {
 	// TODO: define some kind of size hierachy for buttons eg. small, medium, large;
 	// not needed for RAS, but likely for My Account.
-	.button,
-	button,
-	input[type='button'],
-	input[type='reset'],
-	input[type='submit'] {
+	&__button {
 		align-items: center;
 		border: 0;
 		border-radius: var( --newspack-ui-border-radius-small );
 		display: inline-flex;
-		font-family: var( --newspack-ui-font-family);
+		font-family: var( --newspack-ui-font-family );
 		font-size: var( --newspack-ui-font-size-small );
 		font-weight: 600;
 		gap: var( --newspack-ui-spacer-2 );
@@ -34,39 +30,38 @@
 			cursor: default;
 		}
 
-		&.newspack-ui__button{
-			&__wide {
-				display: flex;
-				width: 100%;
+		&--wide {
+			display: flex;
+			width: 100%;
+		}
+
+		&--primary {
+			background: var( --newspack-ui-color-button-bg );
+			color: var( --newspack-ui-color-button-text );
+
+			&:hover {
+				background: var( --newspack-ui-color-button-bg-hover );
 			}
+		}
 
-			&__primary {
-				background: var( --newspack-ui-color-button-bg );
-				color: var( --newspack-ui-color-button-text );
+		&--secondary {
+			background: transparent;
+			border: 1px solid var( --newspack-ui-color-border );
+			color: var( --newspack-ui-color-text-high-contrast );
+			padding: calc( var( --newspack-ui-spacer-2 ) - 1px )
+				calc( var( --newspack-ui-spacer-3 ) - 1px );
 
-				&:hover {
-					background: var( --newspack-ui-color-button-bg-hover );
-				}
+			&:hover {
+				background: var( --newspack-ui-color-gray-100 );
 			}
+		}
 
-			&__secondary {
-				background: transparent;
-				border: 1px solid var( --newspack-ui-color-border );
-				color: var( --newspack-ui-color-text-high-contrast );
-				padding: calc( var( --newspack-ui-spacer-2 ) - 1px ) calc( var( --newspack-ui-spacer-3 ) - 1px );
+		&--tertiary {
+			background: transparent;
+			color: var( --newspack-ui-color-text-high-contrast );
 
-				&:hover {
-					background: var( --newspack-ui-color-gray-100 );
-				}
-			}
-
-			&__tertiary {
-				background: transparent;
-				color: var( --newspack-ui-color-text-high-contrast );
-
-				&:hover {
-					background: var( --newspack-ui-color-gray-100 );
-				}
+			&:hover {
+				background: var( --newspack-ui-color-gray-100 );
 			}
 		}
 	}

@@ -6,25 +6,10 @@ import { CheckboxControl, ExternalLink, ToggleControl } from '@wordpress/compone
 import { useDispatch } from '@wordpress/data';
 
 /**
- * External dependencies
- */
-import isEmpty from 'lodash/isEmpty';
-
-/**
  * Internal dependencies
  */
-import {
-	Button,
-	Grid,
-	Notice,
-	Settings,
-	SelectControl,
-	TextControl,
-	Wizard,
-	ActionCard,
-} from '../../../../components/src';
-import NewsletterSettings from './newsletter-settings';
-import { STRIPE, READER_REVENUE_WIZARD_SLUG } from '../../constants';
+import { Button, Grid, Notice, Settings, TextControl, Wizard } from '../../../../components/src';
+import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 import './style.scss';
 
 const { SettingsCard } = Settings;
@@ -134,16 +119,7 @@ export const StripeKeysSettings = () => {
 };
 
 const StripeSetup = () => {
-	const {
-		stripe_data: data = {},
-		platform_data,
-		is_ssl,
-		currency_fields = [],
-		country_state_fields = [],
-		errors = [],
-	} = Wizard.useWizardData( 'reader-revenue' );
-
-	const displayStripeSettingsOnly = platform_data?.platform === STRIPE;
+	const { stripe_data: data = {}, is_ssl, errors = [] } = Wizard.useWizardData( 'reader-revenue' );
 
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = key => value =>
@@ -180,131 +156,64 @@ const StripeSetup = () => {
 					}
 				/>
 			) }
-			{ displayStripeSettingsOnly ? (
-				<>
-					{ ! isEmpty( data.connection_error ) && (
-						<Notice isError noticeText={ data.connection_error } />
-					) }
-					<SettingsCard
-						title={ __( 'Settings', 'newspack-plugin' ) }
-						columns={ 1 }
-						gutter={ 16 }
-						noBorder
-					>
-						{ data.can_use_stripe_platform === false && (
-							<Notice
-								isError
-								noticeText={ __(
-									'The Stripe platform will not work properly on this site.',
-									'newspack-plugin'
-								) }
-							/>
-						) }
+			<>
+				<Grid>
+					<ToggleControl
+						label={ __( 'Enable Stripe', 'newspack-plugin' ) }
+						checked={ data.enabled }
+						onChange={ changeHandler( 'enabled' ) }
+					/>
+				</Grid>
+				{ data.enabled ? (
+					<>
 						<StripeKeysSettings />
-						<Grid rowGap={ 16 }>
-							<SelectControl
-								label={ __( 'Country', 'newspack-plugin' ) }
-								value={ data.location_code }
-								options={ country_state_fields }
-								onChange={ changeHandler( 'location_code' ) }
-							/>
-							<SelectControl
-								label={ __( 'Currency', 'newspack-plugin' ) }
-								value={ data.currency }
-								options={ currency_fields }
-								onChange={ changeHandler( 'currency' ) }
-							/>
-						</Grid>
-					</SettingsCard>
-					<SettingsCard
-						title={ __( 'Newsletters', 'newspack-plugin' ) }
-						description={ __(
-							'Allow donors to sign up to your newsletter when donating.',
-							'newspack-plugin'
-						) }
-						columns={ 1 }
-						gutter={ 16 }
-						noBorder
-					>
-						<NewsletterSettings
-							listId={ data.newsletter_list_id }
-							onChange={ changeHandler( 'newsletter_list_id' ) }
-						/>
-					</SettingsCard>
-					<StripeFeeSettings data={ data } changeHandler={ changeHandler } />
-				</>
-			) : (
-				<>
-					<Grid>
-						<ToggleControl
-							label={ __( 'Enable Stripe', 'newspack-plugin' ) }
-							checked={ data.enabled }
-							onChange={ changeHandler( 'enabled' ) }
-						/>
-					</Grid>
-					{ data.enabled ? (
-						<>
-							<StripeKeysSettings />
-							<StripeFeeSettings data={ data } changeHandler={ changeHandler } />
-							<Grid columns={ 2 }>
-								<CheckboxControl
-									label={ __( 'Allow donors to cover transaction fees', 'newspack-plugin' ) }
-									checked={ data.allow_covering_fees }
-									onChange={ changeHandler( 'allow_covering_fees' ) }
-									help={ __(
-										"If checked, the donors will be able to cover Stripe's transaction fees.",
-										'newspack-plugin'
-									) }
-								/>
-								<CheckboxControl
-									label={ __( 'Enable covering fees by default', 'newspack-plugin' ) }
-									checked={ data.allow_covering_fees_default }
-									onChange={ changeHandler( 'allow_covering_fees_default' ) }
-									help={ __(
-										'If checked, the option to cover transaction fees will be checked by default.',
-										'newspack-plugin'
-									) }
-								/>
-							</Grid>
-							<TextControl
-								value={ data.allow_covering_fees_label }
-								label={ __( 'Custom message', 'newspack-plugin' ) }
-								placeholder={ __(
-									'A message to explain the transaction fee option (optional).',
+						<StripeFeeSettings data={ data } changeHandler={ changeHandler } />
+						<Grid columns={ 2 }>
+							<CheckboxControl
+								label={ __( 'Allow donors to cover transaction fees', 'newspack-plugin' ) }
+								checked={ data.allow_covering_fees }
+								onChange={ changeHandler( 'allow_covering_fees' ) }
+								help={ __(
+									"If checked, the donors will be able to cover Stripe's transaction fees.",
 									'newspack-plugin'
 								) }
-								onChange={ changeHandler( 'allow_covering_fees_label' ) }
 							/>
-						</>
-					) : (
-						<Grid>
-							<p className="newspack-payment-setup-screen__info">
-								{ __( 'Other gateways can be enabled and set up in the ', 'newspack-plugin' ) }
-								<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
-									{ __( 'WooCommerce payment gateway settings', 'newspack-plugin' ) }
-								</ExternalLink>
-							</p>
+							<CheckboxControl
+								label={ __( 'Enable covering fees by default', 'newspack-plugin' ) }
+								checked={ data.allow_covering_fees_default }
+								onChange={ changeHandler( 'allow_covering_fees_default' ) }
+								help={ __(
+									'If checked, the option to cover transaction fees will be checked by default.',
+									'newspack-plugin'
+								) }
+							/>
 						</Grid>
-					) }
-				</>
-			) }
+						<TextControl
+							value={ data.allow_covering_fees_label }
+							label={ __( 'Custom message', 'newspack-plugin' ) }
+							placeholder={ __(
+								'A message to explain the transaction fee option (optional).',
+								'newspack-plugin'
+							) }
+							onChange={ changeHandler( 'allow_covering_fees_label' ) }
+						/>
+					</>
+				) : (
+					<Grid>
+						<p className="newspack-payment-setup-screen__info">
+							{ __( 'Other gateways can be enabled and set up in the ', 'newspack-plugin' ) }
+							<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout">
+								{ __( 'WooCommerce payment gateway settings', 'newspack-plugin' ) }
+							</ExternalLink>
+						</p>
+					</Grid>
+				) }
+			</>
 			<div className="newspack-buttons-card">
 				<Button isPrimary onClick={ onSave }>
 					{ __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
-			{ displayStripeSettingsOnly && (
-				<ActionCard
-					title={ __( 'Webhooks', 'newspack-plugin' ) }
-					titleLink="#/stripe-webhooks"
-					href="#/stripe-webhooks"
-					description={ __(
-						'Manage the webhooks Stripe uses to communicate with your site.',
-						'newspack-plugin'
-					) }
-					actionText={ __( 'Edit', 'newspack-plugin' ) }
-				/>
-			) }
 		</>
 	);
 };
