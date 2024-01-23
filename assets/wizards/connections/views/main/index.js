@@ -40,7 +40,7 @@ const Main = () => {
 				</>
 			) }
 			<Recaptcha setError={ setErrorWithPrefix( __( 'reCAPTCHA: ', 'newspack-plugin' ) ) } />
-			<Webhooks />
+			{ newspack_connections_data.can_use_webhooks && <Webhooks /> }
 		</>
 	);
 };
