@@ -41,6 +41,7 @@
 
 			&:hover {
 				background: var( --newspack-ui-color-button-bg-hover );
+				color: var( --newspack-ui-color-button-text-hover );
 			}
 		}
 
@@ -53,6 +54,7 @@
 
 			&:hover {
 				background: var( --newspack-ui-color-gray-100 );
+				color: var( --newspack-ui-color-text-high-contrast );
 			}
 		}
 
@@ -62,6 +64,7 @@
 
 			&:hover {
 				background: var( --newspack-ui-color-gray-100 );
+				color: var( --newspack-ui-color-text-high-contrast );
 			}
 		}
 	}
