@@ -19,10 +19,14 @@ class Newspack_UI {
 	public static function init() {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_styles' ] );
 		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
+		// Only run if the site is using a block theme.
+		if ( wp_theme_has_theme_json() ) {
+			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'colors_css_wrap' ] );
+		}
 	}
 
 	/**
-	 * Enqueue script and styles for Handoff Banner.
+	 * Enqueue styles for the Newspack UI.
 	 */
 	public static function enqueue_styles() {
 		\wp_enqueue_style(
@@ -31,6 +35,24 @@ class Newspack_UI {
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
+	}
+
+	/**
+	 * Adds inline styles CSS for the element/button colors from the theme.json.
+	 * See: https://developer.wordpress.org/reference/functions/wp_get_global_styles/
+	 */
+	public static function colors_css_wrap() {
+		$global_styles = wp_get_global_styles();
+
+		$custom_css = 'body {';
+		if ( isset( $global_styles['elements']['button']['color']['background'] ) ) {
+			$custom_css .= '--newspack-ui-color-primary: ' . $global_styles['elements']['button']['color']['background'] . ';';
+		}
+		if ( isset( $global_styles['elements']['button']['color']['text'] ) ) {
+			$custom_css .= '--newspack-ui-color-against-primary: ' . $global_styles['elements']['button']['color']['text'] . ';';
+		}
+		$custom_css .= '}';
+		wp_add_inline_style( 'newspack-ui', $custom_css );
 	}
 
 	/**
@@ -202,7 +224,7 @@ class Newspack_UI {
 
 			<h2>Buttons</h2>
 			<p><code>newspack-ui__button--primary</code>, <code>--secondary</code>, and <code>--tertiary</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
-			<button>Default Theme Button</button><br>
+			<button class="newspack-ui__button">Default Theme Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">Secondary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--tertiary">Tertiary Button</button><br>
@@ -476,7 +498,7 @@ class Newspack_UI {
 				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
 
-			<button id="open-modal-example" class="newspack-ui__button__primary">Open Modal</button>
+			<button id="open-modal-example" class="newspack-ui__button newspack-ui__button--primary">Open Modal</button>
 			<div id="newspack-modal-example" class="newspack-ui__modal-container">
 				<div class="newspack-ui__modal-container__overlay"></div>
 				<div class="newspack-ui__modal newspack-ui__modal__small">
