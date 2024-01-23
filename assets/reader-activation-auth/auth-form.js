@@ -102,20 +102,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 */
 			const handleReaderChanges = () => {
 				const reader = readerActivation.getReader();
-
 				if ( emailInput ) {
 					emailInput.value = reader?.email || '';
-				}
-
-				const accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
-				if ( accountLinks?.length ) {
-					accountLinks.forEach( link => {
-						try {
-							const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
-							link.querySelector( '.newspack-reader__account-link__label' ).textContent =
-								reader?.authenticated ? labels.signedin : labels.signedout;
-						} catch {}
-					} );
 				}
 				if ( reader?.authenticated ) {
 					form.endLoginFlow( null, 200 );
@@ -315,7 +303,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					.finally( () => {
 						const body = new FormData( ev.target );
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-							return form.endFlow( newspack_reader_auth_labels.invalid_email, 400 );
+							return form.endLoginFlow( newspack_reader_auth_labels.invalid_email, 400 );
 						}
 						if ( 'otp' === action ) {
 							readerActivation

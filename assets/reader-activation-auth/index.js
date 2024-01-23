@@ -85,33 +85,16 @@ window.newspackRAS.push( readerActivation => {
 		 * Handle reader changes.
 		 */
 		function handleReaderChanges() {
-			const container = getModalContainer();
-			if ( ! container ) {
-				return;
-			}
-			const form = container.querySelector( 'form' );
-			const emailInput = container.querySelector( 'input[name="npe"]' );
 			const reader = window.newspackReaderActivation.getReader();
-
-			if ( emailInput ) {
-				emailInput.value = reader?.email || '';
-			}
-
 			const accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
 			if ( accountLinks?.length ) {
 				accountLinks.forEach( link => {
-					try {
-						const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
-						link.querySelector( '.newspack-reader__account-link__label' ).textContent =
-							reader?.authenticated ? labels.signedin : labels.signedout;
-					} catch {}
+					const labels = JSON.parse( link.getAttribute( 'data-labels' ) );
+					const labelEl = link.querySelector( '.newspack-reader__account-link__label' );
+					if ( labelEl ) {
+						labelEl.textContent = reader?.authenticated ? labels.signedin : labels.signedout;
+					}
 				} );
-			}
-			if ( reader?.authenticated ) {
-				const messageContentElement = container.querySelector( '.response' );
-				if ( messageContentElement && form ) {
-					form.replaceWith( messageContentElement.parentNode );
-				}
 			}
 		}
 		window.newspackReaderActivation.on( 'reader', handleReaderChanges );
