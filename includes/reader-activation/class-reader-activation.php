@@ -1120,7 +1120,7 @@ final class Reader_Activation {
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
 			</form>
 			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
-			<a href="#" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
+			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
 		</div>
 		<?php
 	}
@@ -1476,6 +1476,15 @@ final class Reader_Activation {
 						new \WP_Error( 'unauthorized', __( 'Unable to register your account. Try a different email.', 'newspack-plugin' ) )
 					);
 				}
+
+				$password_url_arg        = WooCommerce_My_Account::RESET_PASSWORD_URL_PARAM;
+				$nonce                   = wp_create_nonce( $password_url_arg );
+				$payload['password_url'] = add_query_arg(
+					$password_url_arg,
+					$nonce,
+					function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url()
+				);
+
 				$payload['authenticated'] = \absint( $user_id ) ? 1 : 0;
 				return self::send_auth_form_response( $payload, false, $redirect );
 		}

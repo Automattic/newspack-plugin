@@ -105,9 +105,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( emailInput ) {
 					emailInput.value = reader?.email || '';
 				}
-				if ( reader?.authenticated ) {
-					form.endLoginFlow( null, 200 );
-				}
+				setTimeout( function () {
+					if ( reader?.authenticated && formAction !== 'success' ) {
+						form.endLoginFlow( null, 200 );
+					}
+				}, 1000 );
 			};
 			readerActivation.on( 'reader', handleReaderChanges );
 			handleReaderChanges();
@@ -259,6 +261,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 									container.authCallback( message, data );
 								}
 							} );
+						}
+
+						const setPasswordButton = container.querySelector( '.set-password' );
+						if ( setPasswordButton ) {
+							const originalDisplay = setPasswordButton.style.display;
+							if ( data?.password_url ) {
+								setPasswordButton.style.display = originalDisplay;
+								setPasswordButton.setAttribute( 'href', data.password_url );
+							} else {
+								setPasswordButton.style.display = 'none';
+								setPasswordButton.setAttribute( 'href', '#' );
+							}
 						}
 					}
 				}
