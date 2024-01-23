@@ -515,7 +515,7 @@ class Newspack_UI {
 
 						<section class="newspack-ui__modal__content">
 
-							<button class="newspack-ui__button__secondary newspack-ui__button__wide">
+							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
 								<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
 									<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
@@ -537,8 +537,8 @@ class Newspack_UI {
 									<input type="email" placeholder="Email Address">
 								</p>
 
-								<button class="newspack-ui__button__primary newspack-ui__button__wide">Sign In</button>
-								<button class="newspack-ui__button__tertiary newspack-ui__button__wide">Sign in to existing account</button>
+								<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Sign In</button>
+								<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Sign in to existing account</button>
 							</form>
 						</section>
 
