@@ -6,8 +6,6 @@ import { domReady } from './utils';
 import { SIGN_IN_MODAL_HASHES, getModalContainer, openAuthModal } from './auth-modal.js';
 import './auth-form.js';
 
-let accountLinks, triggerLinks, currentHash;
-
 window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( readerActivation => {
 	domReady( function () {
@@ -21,7 +19,7 @@ window.newspackRAS.push( readerActivation => {
 			if ( ! container ) {
 				return;
 			}
-			currentHash = window.location.hash.replace( '#', '' );
+			const currentHash = window.location.hash.replace( '#', '' );
 			if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
 				if ( ev ) {
 					ev.preventDefault();
@@ -34,8 +32,7 @@ window.newspackRAS.push( readerActivation => {
 		 * Initialize trigger links.
 		 */
 		function initializeTriggerLinks() {
-			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
-			triggerLinks = document.querySelectorAll(
+			const triggerLinks = document.querySelectorAll(
 				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
 			);
 			triggerLinks.forEach( link => {
@@ -90,6 +87,7 @@ window.newspackRAS.push( readerActivation => {
 				emailInput.value = reader?.email || '';
 			}
 
+			const accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
 			if ( accountLinks?.length ) {
 				accountLinks.forEach( link => {
 					try {
