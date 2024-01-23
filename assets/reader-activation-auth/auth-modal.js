@@ -49,6 +49,10 @@ export function openAuthModal( config = {} ) {
 		if ( modal.overlayId && window.newspackReaderActivation?.overlays ) {
 			window.newspackReaderActivation.overlays.remove( modal.overlayId );
 		}
+		const openerContent = container.querySelector( '.opener-content' );
+		if ( openerContent ) {
+			openerContent.remove();
+		}
 	};
 
 	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
@@ -81,6 +85,14 @@ export function openAuthModal( config = {} ) {
 		titleEl.textContent =
 			'register' === action ? config.labels.register.title : config.labels.signin.title;
 	};
+
+	if ( config.content ) {
+		const openerContent = document.createElement( 'div' );
+		openerContent.classList.add( 'opener-content' );
+		openerContent.innerHTML = config.content;
+		const form = container.querySelector( 'form' );
+		form.insertBefore( openerContent, form.firstChild );
+	}
 
 	let initialFormAction = 'signin';
 	if ( window.newspackReaderActivation?.hasAuthLink() ) {
