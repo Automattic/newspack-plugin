@@ -4,8 +4,9 @@
  * Internal dependencies.
  */
 import { domReady, formatTime } from './utils';
-import './otp-input';
+
 import './google-oauth';
+import './otp-input';
 
 import './style.scss';
 
