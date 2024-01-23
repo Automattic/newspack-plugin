@@ -4,11 +4,15 @@
  */
 import { domReady } from './utils';
 import { SIGN_IN_MODAL_HASHES, getModalContainer, openAuthModal } from './auth-modal.js';
+
 import './auth-form.js';
 
 window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( readerActivation => {
 	domReady( function () {
+		/** Expose the openAuthModal function to the RAS scope */
+		readerActivation._openAuthModal = openAuthModal;
+
 		/**
 		 * Handle hash change.
 		 *
@@ -28,17 +32,8 @@ window.newspackRAS.push( readerActivation => {
 				openAuthModal();
 			}
 		}
-		/**
-		 * Initialize trigger links.
-		 */
-		function initializeTriggerLinks() {
-			const triggerLinks = document.querySelectorAll(
-				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
-			);
-			triggerLinks.forEach( link => {
-				link.addEventListener( 'click', handleAccountLinkClick );
-			} );
-		}
+		window.addEventListener( 'hashchange', handleHashChange );
+		handleHashChange();
 
 		/**
 		 * Handle account link click.
@@ -70,6 +65,21 @@ window.newspackRAS.push( readerActivation => {
 			}
 			openAuthModal( { callback } );
 		}
+
+		/**
+		 * Initialize trigger links.
+		 */
+		function initializeTriggerLinks() {
+			const triggerLinks = document.querySelectorAll(
+				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
+			);
+			triggerLinks.forEach( link => {
+				link.addEventListener( 'click', handleAccountLinkClick );
+			} );
+		}
+		initializeTriggerLinks();
+		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
+		setTimeout( initializeTriggerLinks, 1000 );
 
 		/**
 		 * Handle reader changes.
@@ -104,16 +114,6 @@ window.newspackRAS.push( readerActivation => {
 				}
 			}
 		}
-
-		/** Expose the openAuthModal function to the RAS scope */
-		readerActivation._openAuthModal = openAuthModal;
-
-		window.addEventListener( 'hashchange', handleHashChange );
-		handleHashChange();
-		initializeTriggerLinks();
-		/** Re-initialize links in case the navigation DOM was modified by a third-party. */
-		setTimeout( initializeTriggerLinks, 1000 );
-
 		window.newspackReaderActivation.on( 'reader', handleReaderChanges );
 		handleReaderChanges();
 	} );
