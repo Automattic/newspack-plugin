@@ -15,7 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 \do_action( 'woocommerce_before_customer_login_form' );
-
-Reader_Activation::render_auth_form( true );
-
+?>
+<div class="newspack-ui">
+	<?php Reader_Activation::render_auth_form(); ?>
+	<p><?php echo wp_kses_post( Reader_Activation::get_auth_footer() ); ?></p>
+</div>
+<?php
 \do_action( 'woocommerce_after_customer_login_form' );

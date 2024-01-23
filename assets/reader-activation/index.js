@@ -158,8 +158,8 @@ export function doAuthModal( config = {} ) {
 		},
 		...config,
 	};
-	if ( readerActivation._authModal ) {
-		readerActivation._authModal( config );
+	if ( readerActivation._openAuthModal ) {
+		readerActivation._openAuthModal( config );
 	} else {
 		console.warn( 'Authentication modal not available' );
 		if ( config.callback ) {
