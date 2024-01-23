@@ -85,10 +85,10 @@
 		}
 
 		&__content {
+			--newspack-ui-font-size-base: var( --newspack-ui-font-size-small );
+
 			backface-visibility: visible;
 			padding: var( --newspack-ui-spacer-5 );
-			/* TODO: Decide whether to change the size base or this should be the applied rule to ensure smaller font size on modals. */
-			font-size: var( --newspack-ui-font-size-small );
 		}
 
 		&__footer {

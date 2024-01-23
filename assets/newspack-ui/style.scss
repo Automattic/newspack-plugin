@@ -4,7 +4,7 @@
 
 .newspack-ui {
 	font-family: var( --newspack-ui-font-family );
-	font-size: var( --newspack-ui-font-size-medium ) !important;
+	font-size: var( --newspack-ui-font-size-base );
 
 	// Need better spot for this
 	&__color-text-gray {
