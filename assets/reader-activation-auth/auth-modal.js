@@ -45,10 +45,20 @@ export function openAuthModal( config = {} ) {
 	const close = () => {
 		modal.setAttribute( 'data-state', 'closed' );
 		document.body.classList.remove( 'newspack-signin' );
-		if ( modal.overlayId ) {
+		if ( modal.overlayId && window.newspackReaderActivation?.overlays ) {
 			window.newspackReaderActivation.overlays.remove( modal.overlayId );
 		}
 	};
+
+	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
+	if ( closeButtons?.length ) {
+		closeButtons.forEach( closeButton => {
+			closeButton.addEventListener( 'click', function ( ev ) {
+				ev.preventDefault();
+				close();
+			} );
+		} );
+	}
 
 	config.labels = {
 		...newspack_reader_auth_labels,
@@ -72,7 +82,7 @@ export function openAuthModal( config = {} ) {
 	};
 
 	let initialFormAction = 'signin';
-	if ( window.newspackReaderActivation.hasAuthLink() ) {
+	if ( window.newspackReaderActivation?.hasAuthLink() ) {
 		initialFormAction = 'otp';
 	}
 	const currentHash = window.location.hash.replace( '#', '' );
@@ -89,19 +99,10 @@ export function openAuthModal( config = {} ) {
 		emailInput.value = reader?.email || '';
 	}
 
-	modal.setAttribute( 'data-state', 'open' );
-
 	document.body.classList.add( 'newspack-signin' );
-	modal.overlayId = window.newspackReaderActivation.overlays.add();
-
-	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
-	if ( closeButtons?.length ) {
-		closeButtons.forEach( closeButton => {
-			closeButton.addEventListener( 'click', function ( ev ) {
-				ev.preventDefault();
-				close();
-			} );
-		} );
+	modal.setAttribute( 'data-state', 'open' );
+	if ( window.newspackReaderActivation?.overlays ) {
+		modal.overlayId = window.newspackReaderActivation.overlays.add();
 	}
 
 	/** Remove the modal hash from the URL if any. */
