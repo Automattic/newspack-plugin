@@ -84,6 +84,16 @@ export function openAuthModal( config = {} ) {
 		const titleEl = modal.querySelector( 'h2' );
 		titleEl.textContent =
 			'register' === action ? config.labels.register.title : config.labels.signin.title;
+
+		modal.querySelectorAll( '[data-action]' ).forEach( item => {
+			if ( 'none' !== item.style.display ) {
+				item.prevDisplay = item.style.display;
+			}
+			item.style.display = 'none';
+		} );
+		modal.querySelectorAll( '[data-action~="' + action + '"]' ).forEach( item => {
+			item.style.display = item.prevDisplay;
+		} );
 	};
 
 	if ( config.content ) {
