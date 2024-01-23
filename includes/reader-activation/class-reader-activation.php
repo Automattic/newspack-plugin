@@ -114,6 +114,7 @@ final class Reader_Activation {
 		$script_data         = [
 			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+			'is_logged_in'          => \is_user_logged_in(),
 			'authenticated_email'   => $authenticated_email,
 			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
 			'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,

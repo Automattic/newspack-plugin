@@ -157,6 +157,12 @@ export function doAuthModal( config = {} ) {
 		},
 		...config,
 	};
+	if ( newspack_ras_config.is_logged_in ) {
+		if ( config.callback ) {
+			config.callback();
+		}
+		return;
+	}
 	if ( readerActivation._openAuthModal ) {
 		readerActivation._openAuthModal( config );
 	} else {
