@@ -21,8 +21,8 @@
 	--newpsack-ui-color-alert-red-bg: #fcf0f1;
 
 	// Theme variables - from the classic theme; overridden in class-newspack-ui.php for block theme.
-	--newspack-ui-color-primary: var(--newspack-theme-color-primary);
-	--newspack-ui-color-against-primary: var(--newspack-theme-color-against-primary);
+	--newspack-ui-color-primary: var( --newspack-theme-color-primary );
+	--newspack-ui-color-against-primary: var( --newspack-theme-color-against-primary );
 
 	// Specific assignments - general:
 	--newspack-ui-color-text-high-contrast: var( --newspack-ui-color-gray-900 );
