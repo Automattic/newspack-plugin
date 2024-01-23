@@ -239,7 +239,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 
 					/** Resolve the modal immediately or display the "success" state. */
-					if ( container.config.skipSuccess ) {
+					if ( container.config?.skipSuccess ) {
 						if ( container.authCallback ) {
 							container.authCallback( message, data );
 						}
