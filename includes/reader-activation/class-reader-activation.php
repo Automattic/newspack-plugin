@@ -1073,7 +1073,7 @@ final class Reader_Activation {
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth">
 			<div class="newspack-ui__modal-container__overlay"></div>
-			<div class="newspack-ui__modal newspack-ui__modal__small">
+			<div class="newspack-ui__modal newspack-ui__modal--small">
 				<?php if ( ! $is_inline ) : ?>
 					<div class="newspack-ui__modal__header">
 						<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
@@ -1087,7 +1087,7 @@ final class Reader_Activation {
 				<?php endif; ?>
 				<div class="newspack-ui__modal__content">
 					<div class="newspack-ui__box newspack-ui__box__success newspack-ui__box__text-center" data-action="success">
-							<span class="newspack-ui__icon newspack-ui__icon__success">
+							<span class="newspack-ui__icon newspack-ui__icon--success">
 								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
 								</svg>
@@ -1095,7 +1095,7 @@ final class Reader_Activation {
 							<p>
 								<strong class="success-title"></strong>
 							</p>
-							<p class="newspack-ui__font__small success-description"></p>
+							<p class="newspack-ui__font--small success-description"></p>
 					</div>
 					<form method="post" target="_top">
 						<div data-action="signin register">
@@ -1147,16 +1147,16 @@ final class Reader_Activation {
 							?>
 						</p>
 
-						<button type="submit" class="newspack-ui__button__wide newspack-ui__button__primary" data-action="register signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-						<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
-						<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
-						<a class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
-						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
-						<button type="button" class="newspack-ui__button__wide newspack-ui__button__tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
+						<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="register signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
+						<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
 					</form>
-					<a href="#" class="auth-callback button newspack-ui__button__wide newspack-ui__button__primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
-					<a href="#" class="button newspack-ui__button__wide newspack-ui__button__secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
+					<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
+					<a href="#" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
 				</div>
 				<?php if ( ! empty( $terms ) ) : ?>
 					<footer class="newspack-ui__modal__footer" data-action="signin register">
@@ -1305,7 +1305,7 @@ final class Reader_Activation {
 			return;
 		}
 		?>
-		<button type="button" class="newspack-ui__button__wide newspack-ui__button__secondary google-oauth">
+		<button type="button" class="newspack-ui__button--wide newspack-ui__button--secondary google-oauth">
 			<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<span>
 				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
