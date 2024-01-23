@@ -71,6 +71,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				formAction = action;
 				actionInput.value = action;
 				container.removeAttribute( 'data-form-status' );
+				messageContentElement.style.display = 'none';
 				messageContentElement.innerHTML = '';
 				container.querySelectorAll( '[data-action]' ).forEach( item => {
 					if ( 'none' !== item.style.display ) {
@@ -117,9 +118,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} );
 				}
 				if ( reader?.authenticated ) {
-					if ( messageContentElement && form ) {
-						form.replaceWith( messageContentElement.parentNode );
-					}
+					form.endLoginFlow( null, 200 );
 				}
 			};
 			readerActivation.on( 'reader', handleReaderChanges );
@@ -194,6 +193,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									body,
 								} )
 									.then( () => {
+										messageContentElement.style.display = 'block';
 										messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
 										container.setFormAction( 'otp' );
 										readerActivation.setOTPTimer();
@@ -238,12 +238,15 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.innerHTML = message;
+					messageContentElement.style.display = 'block';
 					messageContentElement.appendChild( messageNode );
 				}
-				if ( status === 200 && data ) {
-					const authenticated = !! data?.authenticated;
-					readerActivation.setReaderEmail( data.email );
-					readerActivation.setAuthenticated( authenticated );
+				if ( status === 200 ) {
+					if ( data ) {
+						const authenticated = !! data.authenticated;
+						readerActivation.setReaderEmail( data.email );
+						readerActivation.setAuthenticated( authenticated );
+					}
 
 					/** Resolve the modal immediately or display the "success" state. */
 					if ( container.config.skipSuccess ) {
@@ -251,13 +254,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 							container.authCallback( message, data );
 						}
 					} else {
-						container.setFormAction( 'success' );
 						let title = newspack_reader_auth_labels.signedin_title;
 						let description = newspack_reader_auth_labels.signedin_description;
 						if ( formAction === 'register' ) {
 							title = newspack_reader_auth_labels.registered_title;
 							description = newspack_reader_auth_labels.registered_description;
 						}
+						container.setFormAction( 'success' );
 						container.querySelector( '.success-title' ).innerHTML = title;
 						container.querySelector( '.success-description' ).innerHTML = description;
 						const callbackButton = container.querySelector( '.auth-callback' );
