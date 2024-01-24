@@ -1052,8 +1052,12 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 
+		$additional_attrs = '';
 		if ( $is_inline ) {
 			$classnames[] = $class( 'inline' );
+		} else {
+			// Attributes to improve accessibility of a modal dialog.
+			$additional_attrs .= "role='dialog' aria-modal='true' aria-labelledby='newspack-reader-auth-modal-label'";
 		}
 
 		$newsletters_label = self::get_setting( 'newsletters_label' );
@@ -1065,7 +1069,7 @@ final class Reader_Activation {
 		$referer         = \wp_parse_url( \wp_get_referer() );
 		global $wp;
 		?>
-		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
+		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>" <?php echo \esc_html( $additional_attrs ); ?>>
 			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
 				<?php if ( ! $is_inline ) : ?>
 				<button class="<?php echo \esc_attr( $class( 'close' ) ); ?>" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack-plugin' ); ?>">
@@ -1077,7 +1081,7 @@ final class Reader_Activation {
 				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
 						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
-							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
+							<h2 id="newspack-reader-auth-modal-label"><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
 						</div>
 						<div data-action="signin register">
 							<?php self::render_third_party_auth(); ?>
