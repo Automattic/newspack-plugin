@@ -25,6 +25,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 		}
 
 		let accountLinks, triggerLinks;
+		let lastModalTrigger; // Button clicked to open modal.
 		const initLinks = function () {
 			accountLinks = document.querySelectorAll( '.newspack-reader__account-link' );
 			triggerLinks = document.querySelectorAll(
@@ -99,6 +100,40 @@ window.newspackRAS.push( function ( readerActivation ) {
 		handleReaderChanges();
 
 		/**
+		 * Trap focus in the modal when opened.
+		 *
+		 * See: https://uxdesign.cc/how-to-trap-focus-inside-modal-to-make-it-ada-compliant-6a50f9a70700
+		 */
+		function trapFocus( currentModal ) {
+			const focusableEls =
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+			const firstFocusableEl = currentModal.querySelectorAll( focusableEls )[ 0 ]; // get first element to be focused inside modal
+			const focusableElsAll = currentModal.querySelectorAll( focusableEls );
+			const lastFocusableEl = focusableElsAll[ focusableElsAll.length - 1 ]; // get last element to be focused inside modal
+
+			document.addEventListener( 'keydown', function ( e ) {
+				const isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+
+				if ( ! isTabPressed ) {
+					return;
+				}
+
+				/* eslint-disable @wordpress/no-global-active-element */
+				if ( e.shiftKey ) {
+					if ( document.activeElement === firstFocusableEl ) {
+						lastFocusableEl.focus();
+						e.preventDefault();
+					}
+				} else if ( document.activeElement === lastFocusableEl ) {
+					firstFocusableEl.focus();
+					e.preventDefault();
+				}
+				/* eslint-enable @wordpress/no-global-active-element */
+			} );
+		}
+
+		/**
 		 * Handle account links.
 		 */
 		function handleAccountLinkClick( ev ) {
@@ -107,6 +142,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 			if ( reader?.authenticated ) {
 				return;
 			}
+			// Store element that was clicked as the modal trigger.
+			lastModalTrigger = this;
 
 			const container = document.querySelector(
 				'.newspack-reader-auth:not(.newspack-reader__auth-form__inline)'
@@ -144,6 +181,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 			container.hidden = false;
 			container.style.display = 'flex';
+
+			trapFocus( container );
 
 			document.body.classList.add( 'newspack-signin' );
 
@@ -279,6 +318,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 					if ( container.overlayId ) {
 						readerActivation.overlays.remove( container.overlayId );
+					}
+					if ( lastModalTrigger ) {
+						// Return focus to the element that triggered the modal.
+						lastModalTrigger.focus();
 					}
 				} );
 			}
