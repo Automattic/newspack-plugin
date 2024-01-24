@@ -302,25 +302,36 @@ window.newspackRAS.push( function ( readerActivation ) {
 				} );
 			}
 
+			// Function to close the modal.
+			function closeModal( ev ) {
+				ev.preventDefault();
+				container.classList.remove( 'newspack-reader__auth-form__visible' );
+				container.style.display = 'none';
+				document.body.classList.remove( 'newspack-signin' );
+				if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
+					history.pushState(
+						'',
+						document.title,
+						window.location.pathname + window.location.search
+					);
+				}
+				if ( container.overlayId ) {
+					readerActivation.overlays.remove( container.overlayId );
+				}
+				if ( lastModalTrigger ) {
+					// Return focus to the element that triggered the modal.
+					lastModalTrigger.focus();
+				}
+			}
+
+			// Add an event listener if the Close button exists:
 			if ( closeButton ) {
 				closeButton.addEventListener( 'click', function ( ev ) {
-					ev.preventDefault();
-					container.classList.remove( 'newspack-reader__auth-form__visible' );
-					container.style.display = 'none';
-					document.body.classList.remove( 'newspack-signin' );
-					if ( SIGN_IN_MODAL_HASHES.includes( window.location.hash.replace( '#', '' ) ) ) {
-						history.pushState(
-							'',
-							document.title,
-							window.location.pathname + window.location.search
-						);
-					}
-					if ( container.overlayId ) {
-						readerActivation.overlays.remove( container.overlayId );
-					}
-					if ( lastModalTrigger ) {
-						// Return focus to the element that triggered the modal.
-						lastModalTrigger.focus();
+					closeModal( ev );
+				} );
+				document.addEventListener( 'keydown', function ( ev ) {
+					if ( ev.key === 'Escape' || ev.keyCode === 27 ) {
+						closeModal( ev );
 					}
 				} );
 			}
