@@ -104,6 +104,11 @@ export function openAuthModal( config = {} ) {
 		form.insertBefore( openerContent, form.firstChild );
 	}
 
+	const emailInput = container.querySelector( 'input[name="npe"]' );
+	if ( emailInput ) {
+		emailInput.value = reader?.email || '';
+	}
+
 	let initialFormAction = 'signin';
 	if ( window.newspackReaderActivation?.hasAuthLink() ) {
 		initialFormAction = 'otp';
@@ -116,11 +121,6 @@ export function openAuthModal( config = {} ) {
 		initialFormAction = config.initialState;
 	}
 	container.setFormAction( initialFormAction, true );
-
-	const emailInput = container.querySelector( 'input[name="npe"]' );
-	if ( emailInput ) {
-		emailInput.value = reader?.email || '';
-	}
 
 	document.body.classList.add( 'newspack-signin' );
 	modal.setAttribute( 'data-state', 'open' );

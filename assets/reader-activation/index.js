@@ -138,7 +138,7 @@ export function hasAuthLink() {
  *
  * @param {Object} config Config.
  */
-export function doAuthModal( config = {} ) {
+export function openAuthModal( config = {} ) {
 	// Set default config.
 	config = {
 		...{
@@ -384,7 +384,7 @@ const readerActivation = {
 	setAuthenticated,
 	refreshAuthentication,
 	getReader,
-	doAuthModal,
+	openAuthModal,
 	hasAuthLink,
 	getOTPHash,
 	setOTPTimer,
