@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 use Google\Auth\OAuth2;
 use Google\Auth\Credentials\UserRefreshCredentials;
 
@@ -83,7 +83,7 @@ class Google_OAuth {
 	 * @return bool|WP_Error
 	 */
 	public static function permissions_check() {
-		if ( ! current_user_can( 'manage_options' ) || ! self::is_oauth_configured() ) {
+		if ( ! Wizards::can_access_wizard( 'connections' ) || ! self::is_oauth_configured() ) {
 			Logger::error( 'Fail: user failed permissions check or OAuth is not configured.' );
 			return new \WP_Error(
 				'newspack_rest_forbidden',

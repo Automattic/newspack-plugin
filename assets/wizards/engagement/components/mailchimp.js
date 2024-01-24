@@ -18,7 +18,7 @@ export default function Mailchimp( { value, onChange } ) {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack-newsletters/v1/lists',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters/lists',
 		} )
 			.then( res => setLists( res.filter( list => list.type_label === 'Mailchimp Audience' ) ) )
 			.catch( setError )

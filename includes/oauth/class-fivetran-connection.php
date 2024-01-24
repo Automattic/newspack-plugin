@@ -108,19 +108,6 @@ class Fivetran_Connection {
 		$service      = $request->get_param( 'service' );
 		$service_data = [];
 
-		// For Google Ad Manager (aka double_click_publishers) - if Newspack Ads knows the network code, let's use it.
-		if (
-			'double_click_publishers' === $service &&
-			method_exists( 'Newspack_Ads\Providers\GAM_Model', 'get_active_network_code' )
-		) {
-			$network_code = \Newspack_Ads\Providers\GAM_Model::get_active_network_code();
-			if ( ! empty( $network_code ) ) {
-				$service_data['double_click_publishers'] = [
-					'network_code' => $network_code,
-				];
-			}
-		}
-
 		$url      = OAuth::authenticate_proxy_url(
 			'fivetran',
 			'/wp-json/newspack-fivetran/v1/connect-card',
@@ -191,7 +178,7 @@ class Fivetran_Connection {
 	 * @return bool|WP_Error
 	 */
 	public static function api_permissions_check( $request ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! Wizards::can_access_wizard( 'connections' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),

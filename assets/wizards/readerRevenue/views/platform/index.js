@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
-import { NEWSPACK, NRH, STRIPE, OTHER } from '../../constants';
+import { NEWSPACK, NRH, OTHER } from '../../constants';
 
 /**
  * Platform Selection  Screen Component
@@ -35,11 +35,6 @@ const Platform = () => {
 						{
 							label: __( 'News Revenue Hub', 'newspack' ),
 							value: NRH,
-						},
-						{
-							label: __( 'Stripe', 'newspack' ),
-							value: STRIPE,
-							disabled: wizardData.stripe_data?.can_use_stripe_platform === false,
 						},
 					] }
 					onChange={ value => {

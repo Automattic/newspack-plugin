@@ -256,7 +256,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack-newsletters/v1/lists',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters/lists',
 		} )
 			.then( updateConfig )
 			.catch( setError )
@@ -266,7 +266,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack-newsletters/v1/lists',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters/lists',
 			method: 'post',
 			data: { lists },
 		} )

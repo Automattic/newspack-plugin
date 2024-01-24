@@ -22,14 +22,7 @@ abstract class Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = '';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = '';
 
 	/**
 	 * Whether the wizard should be displayed in the Newspack submenu.
@@ -57,11 +50,14 @@ abstract class Wizard {
 	 * Add an admin page for the wizard to live on.
 	 */
 	public function add_page() {
+		if ( ! Wizards::can_access_wizard( $this->slug ) ) {
+			return;
+		}
 		add_submenu_page(
 			$this->hidden ? 'hidden' : 'newspack',
 			$this->get_name(),
 			$this->get_name(),
-			$this->capability,
+			'read',
 			$this->slug,
 			[ $this, 'render_wizard' ]
 		);
@@ -95,7 +91,7 @@ abstract class Wizard {
 		$support_email = ( defined( 'NEWSPACK_SUPPORT_EMAIL' ) && NEWSPACK_SUPPORT_EMAIL ) ? NEWSPACK_SUPPORT_EMAIL : false;
 
 		$urls = [
-			'dashboard'      => Wizards::get_url( 'dashboard' ),
+			'dashboard'      => Wizards::get_url( 'newspack' ),
 			'public_path'    => Newspack::plugin_url() . '/dist/',
 			'bloginfo'       => [
 				'name' => get_bloginfo( 'name' ),
@@ -117,20 +113,20 @@ abstract class Wizard {
 					array(
 						'newspack_reset' => 'starter-content',
 					),
-					Wizards::get_url( 'dashboard' )
+					Wizards::get_url( 'newspack' )
 				)
 			);
 		}
 
 		if ( Newspack::is_debug_mode() ) {
-			$urls['components_demo'] = esc_url( admin_url( 'admin.php?page=newspack-components-demo' ) );
+			$urls['components_demo'] = esc_url( admin_url( 'admin.php?page=newspack-components-demo-wizard' ) );
 			$urls['setup_wizard']    = esc_url( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 			$urls['reset_url']       = esc_url(
 				add_query_arg(
 					array(
 						'newspack_reset' => 'reset',
 					),
-					Wizards::get_url( 'dashboard' )
+					Wizards::get_url( 'newspack' )
 				)
 			);
 		}
@@ -151,30 +147,10 @@ abstract class Wizard {
 	/**
 	 * Check capabilities for using API.
 	 *
-	 * @param WP_REST_Request $request API request object.
 	 * @return bool|WP_Error
 	 */
-	public function api_permissions_check( $request ) {
-		if ( ! current_user_can( $this->capability ) ) {
-			return new \WP_Error(
-				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
-				[
-					'status' => 403,
-				]
-			);
-		}
-		return true;
-	}
-
-	/**
-	 * Check capabilities for using API when endpoint involves unfiltered HTML.
-	 *
-	 * @param WP_REST_Request $request API request object.
-	 * @return bool|WP_Error
-	 */
-	public function api_permissions_check_unfiltered_html( $request ) {
-		if ( ! current_user_can( 'unfiltered_html' ) ) {
+	public function api_permissions_check() {
+		if ( ! Wizards::can_access_wizard( $this->slug ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),

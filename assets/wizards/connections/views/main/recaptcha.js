@@ -106,7 +106,7 @@ const Recaptcha = () => {
 						) }
 						<Grid noMargin rowGap={ 16 }>
 							<TextControl
-								value={ settingsToUpdate?.site_key }
+								value={ settingsToUpdate?.site_key || '' }
 								label={ __( 'Site Key', 'newspack-plugin' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
@@ -116,7 +116,7 @@ const Recaptcha = () => {
 							/>
 							<TextControl
 								type="password"
-								value={ settingsToUpdate?.site_secret }
+								value={ settingsToUpdate?.site_secret || '' }
 								label={ __( 'Site Secret', 'newspack-plugin' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
@@ -129,7 +129,7 @@ const Recaptcha = () => {
 								step="0.05"
 								min="0"
 								max="1"
-								value={ settingsToUpdate?.threshold }
+								value={ settingsToUpdate?.threshold || '' }
 								label={ __( 'Threshold', 'newspack-plugin' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
