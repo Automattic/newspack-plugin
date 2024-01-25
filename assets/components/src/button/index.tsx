@@ -16,25 +16,32 @@ import './style.scss';
 
 const { useHistory } = Router;
 
-const Button = ( { href, onClick, ...otherProps } ) => {
+type OriginalButtonProps = typeof BaseComponent.defaultProps;
+type Props = OriginalButtonProps & {
+	href?: string;
+	onClick?: () => void;
+};
+
+const Button = ( { href, onClick, ...otherProps }: Props ) => {
 	const history = useHistory();
 	const [ isAwaitingOnClick, setIsAwaitingOnClick ] = useState( false );
 
 	// If both onClick and href are present, await the onClick action an then redirect.
 	if ( href && onClick ) {
-		otherProps.onClick = async () => {
+		( otherProps as Props ).onClick = async () => {
 			setIsAwaitingOnClick( true );
 			await onClick();
 			setIsAwaitingOnClick( false );
-			history.push( href.replace( '#', '' ) );
+			history.push( ( href || '' ).replace( '#', '' ) );
 		};
 	} else {
-		otherProps.href = href;
-		otherProps.onClick = onClick;
+		( otherProps as Props ).href = href;
+		( otherProps as Props ).onClick = onClick;
 	}
 	if ( isAwaitingOnClick ) {
 		otherProps.disabled = true;
 	}
+	// @ts-ignore - @wordpress/components' Button can only have either href or onClick, not both.
 	return <BaseComponent { ...otherProps } />;
 };
 

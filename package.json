@@ -13,10 +13,13 @@
 	"devDependencies": {
 		"@rushstack/eslint-patch": "^1.7.0",
 		"@testing-library/react": "^12.1.4",
+		"@types/qs": "^6.9.11",
+		"@types/react": "^17.0.75",
+		"@types/wordpress__components": "^23.0.11",
 		"@wordpress/browserslist-config": "^5.32.0",
 		"eslint": "^7.32.0",
 		"lint-staged": "^13.2.3",
-		"newspack-scripts": "^5.1.1",
+		"newspack-scripts": "^5.2.1",
 		"postcss-scss": "^4.0.9",
 		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
 		"stylelint": "^15.11.0"
