@@ -47,6 +47,7 @@ class Reader_Activation_Emails {
 			'description'            => __( "Email sent to the reader after they've registered.", 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/verification.php',
 			'editor_notice'          => __( 'This email will be sent to a reader after they\'ve registered.', 'newspack' ),
+			'can_be_edited'          => Wizards::can_access_wizard( 'engagement' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the verification link', 'newspack' ),
@@ -60,6 +61,7 @@ class Reader_Activation_Emails {
 			'description'            => __( 'Email with a login link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/magic-link.php',
 			'editor_notice'          => __( 'This email will be sent to a reader when they request a login link.', 'newspack' ),
+			'can_be_edited'          => Wizards::can_access_wizard( 'engagement' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the one-time password', 'newspack' ),
@@ -73,6 +75,7 @@ class Reader_Activation_Emails {
 			'description'            => __( 'Email with a one-time password and login link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/otp.php',
 			'editor_notice'          => __( 'This email will be sent to a reader when they request a login link and a one-time password is available.', 'newspack' ),
+			'can_be_edited'          => Wizards::can_access_wizard( 'engagement' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the one-time password', 'newspack' ),
@@ -90,6 +93,7 @@ class Reader_Activation_Emails {
 			'description'            => __( 'Email with password reset link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/password-reset.php',
 			'editor_notice'          => __( 'This email will be sent to a reader when they request a password creation or reset.', 'newspack' ),
+			'can_be_edited'          => Wizards::can_access_wizard( 'engagement' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the password reset link', 'newspack' ),
@@ -103,6 +107,7 @@ class Reader_Activation_Emails {
 			'description'            => __( 'Email with account deletion link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/delete-account.php',
 			'editor_notice'          => __( 'This email will be sent to a reader when they request an account deletion.', 'newspack' ),
+			'can_be_edited'          => Wizards::can_access_wizard( 'engagement' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the account deletion link', 'newspack' ),

@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { Icon, chevronUp, chevronDown, trash } from '@wordpress/icons';
+import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,6 +17,13 @@ export default function SortableNewsletterListControl( {
 	selected = [],
 	onChange = () => {},
 } ) {
+	if ( ! Array.isArray( lists ) && lists.errors ) {
+		return (
+			<Notice status="error" isDismissible={ false }>
+				{ Object.values( lists.errors ).join( ', ' ) }
+			</Notice>
+		);
+	}
 	const getList = id => lists.find( list => list.id === id );
 	const getAvailableLists = () => {
 		return lists.filter( list => list.active && ! selected.find( ( { id } ) => id === list.id ) );
