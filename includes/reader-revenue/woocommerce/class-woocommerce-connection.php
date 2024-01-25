@@ -347,6 +347,24 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Should an order be synchronized with the integrations?
+	 *
+	 * @param WC_Order $order Order object.
+	 */
+	public static function should_sync_order( $order ) {
+		// $order is not a valid WC_Order object, so don't try to sync.
+		if ( ! is_a( $order, 'WC_Order' ) ) {
+			return false;
+		}
+		if ( $order->get_meta( '_subscription_switch' ) ) {
+			// This is a "switch" order, which is just recording a subscription update. It has value of 0 and
+			// should not be synced anywhere.
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Sync a customer to the ESP from an order.
 	 *
 	 * @param WC_Order    $order Order object.
@@ -355,6 +373,10 @@ class WooCommerce_Connection {
 	 */
 	public static function sync_reader_from_order( $order, $verify_created_via = true, $payment_page_url = false ) {
 		if ( ! self::can_sync_customers() ) {
+			return;
+		}
+
+		if ( ! self::should_sync_order( $order ) ) {
 			return;
 		}
 
