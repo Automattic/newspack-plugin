@@ -110,7 +110,7 @@ class Newspack_Image_Credits {
 		}
 
 		if ( $credit_info['credit_url'] ) {
-			$credit = '<a href="' . $credit_info['credit_url'] . '"' . $credit . '</a>';
+			$credit = '<a href="' . $credit_info['credit_url'] . '">' . $credit . '</a>';
 		}
 
 		$class_name    = self::get_settings( 'newspack_image_credits_class_name' );
