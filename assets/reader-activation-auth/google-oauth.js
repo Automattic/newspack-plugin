@@ -10,7 +10,7 @@ domReady( function () {
 	[ ...loginsElements ].forEach( element => {
 		element.classList.remove( 'newspack-reader__logins--disabled' );
 	} );
-	const googleLoginElements = document.querySelectorAll( '.google-oauth' );
+	const googleLoginElements = document.querySelectorAll( '.newspack-ui__button--google-oauth' );
 	googleLoginElements.forEach( googleLoginElement => {
 		const googleLoginForm = googleLoginElement.closest( 'form' );
 		const checkLoginStatus = metadata => {
