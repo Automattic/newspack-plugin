@@ -1,3 +1,10 @@
+## [2.16.1](https://github.com/Automattic/newspack-plugin/compare/v2.16.0...v2.16.1) (2024-01-26)
+
+
+### Bug Fixes
+
+* ensure WC session is present if triggering WC notice ([3857c56](https://github.com/Automattic/newspack-plugin/commit/3857c564a4e9bf50c61851a24328e5975b1edd6e))
+
 # [2.16.0](https://github.com/Automattic/newspack-plugin/compare/v2.15.0...v2.16.0) (2024-01-25)
 
 
