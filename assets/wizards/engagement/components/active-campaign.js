@@ -18,7 +18,7 @@ export default function ActiveCampaign( { value, onChange } ) {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack-newsletters/v1/lists',
+			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters/lists',
 		} )
 			.then( setLists )
 			.catch( setError )
