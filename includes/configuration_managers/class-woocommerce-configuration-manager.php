@@ -212,11 +212,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 
 		// Update Stripe payment gateway settings.
 		if ( isset( $args['enabled'] ) ) {
-			if ( $args['enabled'] ) {
-				$stripe->enable();
-			} else {
-				$stripe->disable();
-			}
+			$stripe->update_option( 'enabled', $args['enabled'] ? 'yes' : 'no' );
 		}
 		if ( isset( $args['testMode'] ) ) {
 			$stripe->update_option( 'testmode', $args['testMode'] ? 'yes' : 'no' );
