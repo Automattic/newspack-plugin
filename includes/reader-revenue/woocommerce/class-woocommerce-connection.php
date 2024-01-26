@@ -1323,6 +1323,22 @@ class WooCommerce_Connection {
 
 		return $product_ids;
 	}
+
+	/**
+	 * Add a WC notice.
+	 *
+	 * @param string $message Message to display.
+	 * @param string $type Type of notice.
+	 */
+	public static function add_wc_notice( $message, $type ) {
+		if ( ! function_exists( '\wc_add_notice' ) || ! function_exists( 'WC' ) ) {
+			return;
+		}
+		if ( ! WC()->session ) {
+			return;
+		}
+		\wc_add_notice( $message, $type );
+	}
 }
 
 WooCommerce_Connection::init();
