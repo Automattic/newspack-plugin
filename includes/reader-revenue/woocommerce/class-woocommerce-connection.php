@@ -227,6 +227,10 @@ class WooCommerce_Connection {
 	 * @param WC_Order $order Order object.
 	 */
 	public static function should_sync_order( $order ) {
+		// $order is not a valid WC_Order object, so don't try to sync.
+		if ( ! is_a( $order, 'WC_Order' ) ) {
+			return false;
+		}
 		if ( $order->get_meta( '_subscription_switch' ) ) {
 			// This is a "switch" order, which is just recording a subscription update. It has value of 0 and
 			// should not be synced anywhere.
@@ -438,6 +442,22 @@ class WooCommerce_Connection {
 		}
 
 		return $product_ids;
+	}
+
+	/**
+	 * Add a WC notice.
+	 *
+	 * @param string $message Message to display.
+	 * @param string $type Type of notice.
+	 */
+	public static function add_wc_notice( $message, $type ) {
+		if ( ! function_exists( '\wc_add_notice' ) || ! function_exists( 'WC' ) ) {
+			return;
+		}
+		if ( ! WC()->session ) {
+			return;
+		}
+		\wc_add_notice( $message, $type );
 	}
 }
 
