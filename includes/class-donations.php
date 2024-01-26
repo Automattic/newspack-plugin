@@ -431,6 +431,11 @@ class Donations {
 		$parsed_settings['platform']      = self::get_platform_slug();
 		$parsed_settings['billingFields'] = self::get_billing_fields();
 
+		// If NYP isn't available, force untiered config.
+		if ( ! self::can_use_name_your_price() ) {
+			$parsed_settings['tiered'] = false;
+		}
+
 		return $parsed_settings;
 	}
 
