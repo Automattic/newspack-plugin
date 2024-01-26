@@ -336,8 +336,10 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public function update_stripe_settings( $settings ) {
-		// Stripe has to be enabled explicitly.
-		if ( $settings['enabled'] ) {
+		if ( ! empty( $settings['activate'] ) ) {
+			// If activating the Stripe Gateway plugin, let's enable it.
+			$settings = [ 'enabled' => true ];
+		} elseif ( $settings['enabled'] ) {
 			if ( $settings['testMode'] && ( ! $this->api_validate_not_empty( $settings['testPublishableKey'] ) || ! $this->api_validate_not_empty( $settings['testSecretKey'] ) ) ) {
 				return new WP_Error(
 					'newspack_missing_required_field',

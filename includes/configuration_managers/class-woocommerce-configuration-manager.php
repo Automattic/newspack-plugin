@@ -152,9 +152,11 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Get Stripe payment gateway, if available.
 	 *
+	 * @param bool $only_enabled If true, only return the gateway if enabled.
+	 *
 	 * @return WC_Gateway_Stripe|bool WC_Gateway_Stripe instance if Stripe payment gateway is available, false if not.
 	 */
-	public static function get_stripe_gateway() {
+	public static function get_stripe_gateway( $only_enabled = false ) {
 		$gateways = self::get_payment_gateways();
 		return isset( $gateways['stripe'] ) ? $gateways['stripe'] : false;
 	}
@@ -162,21 +164,20 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	/**
 	 * Retrieve Stripe data
 	 *
-	 * @return Array Array of Stripe data.
+	 * @return Array|bool Array of Stripe data, or false if Stripe gateway isn't available.
 	 */
 	public function stripe_data() {
-		$gateways = self::get_payment_gateways();
-		if ( ! isset( $gateways['stripe'] ) ) {
-			return [];
+		$stripe = self::get_stripe_gateway();
+		if ( ! $stripe ) {
+			return false;
 		}
-		$gateway = $gateways['stripe'];
 		return [
-			'enabled'            => 'yes' === $gateway->get_option( 'enabled', false ) ? true : false,
-			'testMode'           => 'yes' === $gateway->get_option( 'testmode', false ) ? true : false,
-			'publishableKey'     => $gateway->get_option( 'publishable_key', '' ),
-			'secretKey'          => $gateway->get_option( 'secret_key', '' ),
-			'testPublishableKey' => $gateway->get_option( 'test_publishable_key', '' ),
-			'testSecretKey'      => $gateway->get_option( 'test_secret_key', '' ),
+			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
+			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
+			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
+			'secretKey'          => $stripe->get_option( 'secret_key', '' ),
+			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
+			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
 		];
 	}
 
