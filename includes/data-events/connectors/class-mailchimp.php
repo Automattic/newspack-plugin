@@ -256,8 +256,7 @@ class Mailchimp {
 			return;
 		}
 
-		$last_order = $customer->get_last_order();
-		$contact    = WooCommerce_Connection::get_contact_from_order( $last_order );
+		$contact = WooCommerce_Connection::get_contact_from_customer( $customer );
 
 		self::put( $contact );
 	}

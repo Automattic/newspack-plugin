@@ -87,32 +87,55 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get the contact data from a WooCommerce order.
+	 * Get the last successful order for a given customer.
+	 *
+	 * @param \WC_Customer $customer Customer object.
+	 *
+	 * @return \WC_Order|false Order object or false.
+	 */
+	public static function get_last_successful_order( $customer ) {
+		if ( ! is_a( $customer, 'WC_Customer' ) ) {
+			return false;
+		}
+
+		// See https://github.com/woocommerce/woocommerce/wiki/wc_get_orders-and-WC_Order_Query for query args.
+		$args = [
+			'customer_id' => $customer->get_id(),
+			'status'      => [ 'wc-completed' ],
+			'limit'       => 1,
+			'order'       => 'DESC',
+			'orderby'     => 'date',
+			'return'      => 'objects',
+		];
+
+		$orders = wc_get_orders( $args );
+
+		if ( ! empty( $orders ) ) {
+			return reset( $orders );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get data about a customer's order to sync to the connected ESP.
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 * @param bool          $is_new Whether the order is new and should count towards the contact's total spent value.
 	 *
-	 * @return array|false Contact data or false.
+	 * @return array Contact order metadata.
 	 */
-	public static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
+	public static function get_contact_order_metadata( $order, $payment_page_url = false, $is_new = false ) {
 		if ( ! is_a( $order, 'WC_Order' ) ) {
 			$order = new \WC_Order( $order );
 		}
 
 		if ( ! self::should_sync_order( $order ) ) {
-			return;
+			return [];
 		}
 
-		$user_id = $order->get_customer_id();
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		$customer = new \WC_Customer( $user_id );
-
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $order->get_customer_id();
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+		$metadata = [];
 
 		$referer_from_order = $order->get_meta( '_newspack_referer' );
 		if ( empty( $referer_from_order ) ) {
@@ -137,10 +160,9 @@ class WooCommerce_Connection {
 			if ( $is_donation_order ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			}
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
 
 			if ( $is_new && 'pending' === $order->get_status() ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $order->get_total();
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += \wc_format_localized_price( $order->get_total() );
 			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
@@ -148,7 +170,7 @@ class WooCommerce_Connection {
 			if ( $order_items ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
 			}
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = $order->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $order->get_total() );
 			$order_date_paid = $order->get_date_paid();
 			if ( null !== $order_date_paid ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
@@ -184,7 +206,7 @@ class WooCommerce_Connection {
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]       = $current_subscription->get_billing_period();
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ]   = $current_subscription->get_total();
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = $current_subscription->get_total();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $current_subscription->get_total() );
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
@@ -193,10 +215,8 @@ class WooCommerce_Connection {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
 			}
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] = (float) $customer->get_total_spent();
-
 			if ( $is_new && 'pending' === $order->get_status() ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += (float) $current_subscription->get_total();
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += \wc_format_localized_price( $current_subscription->get_total() );
 			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
@@ -208,17 +228,83 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$first_name = $order->get_billing_first_name();
-		$last_name  = $order->get_billing_last_name();
+		return $metadata;
+	}
+
+	/**
+	 * Get data for a customer to sync to the connected ESP.
+	 *
+	 * @param \WC_Customer    $customer Customer object.
+	 * @param \WC_Order|false $order Order object to sync with. If not given, the last successful order will be used.
+	 * @param bool|string     $payment_page_url Payment page URL. If not provided, checkout URL will be used.
+	 * @param bool            $is_new Whether the order is new and should count towards the contact's total spent value.
+	 *
+	 * @return array|false Contact data or false.
+	 */
+	public static function get_contact_from_customer( $customer, $order = false, $payment_page_url = false, $is_new = false ) {
+		if ( ! is_a( $customer, 'WC_Customer' ) ) {
+			return false;
+		}
+
+		$metadata       = [];
+		$order_metadata = [];
+
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $customer->get_id();
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = \wc_format_localized_price( $customer->get_total_spent() );
+
+		if ( ! $order ) {
+			$order = self::get_last_successful_order( $customer );
+		}
+
+		if ( $order ) {
+			$order_metadata = self::get_contact_order_metadata( $order, $payment_page_url, $is_new );
+		} else {
+			// If the customer has no successful orders, ensure their spend totals are correct.
+			$order_metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( '0.00' );
+		}
+
+		$metadata = array_merge( $metadata, $order_metadata );
+
+		$first_name = $customer->get_billing_first_name();
+		$last_name  = $customer->get_billing_last_name();
 		$full_name  = trim( "$first_name $last_name" );
 		$contact    = [
-			'email'    => $order->get_billing_email(),
+			'email'    => $customer->get_billing_email(),
 			'metadata' => array_filter( $metadata ),
 		];
 		if ( ! empty( $full_name ) ) {
 			$contact['name'] = $full_name;
 		}
 		return array_filter( $contact );
+	}
+
+	/**
+	 * Get the contact data from a WooCommerce order.
+	 *
+	 * @param \WC_Order|int $order WooCommerce order or order ID.
+	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
+	 * @param bool          $is_new Whether the order is new and should count towards the contact's total spent value.
+	 *
+	 * @return array|false Contact data or false.
+	 */
+	public static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
+		if ( ! is_a( $order, 'WC_Order' ) ) {
+			$order = new \WC_Order( $order );
+		}
+
+		if ( ! self::should_sync_order( $order ) ) {
+			return;
+		}
+
+		$user_id = $order->get_customer_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$customer = new \WC_Customer( $user_id );
+
+		return self::get_contact_from_customer( $customer, $order, $payment_page_url, $is_new );
 	}
 
 	/**
@@ -229,6 +315,10 @@ class WooCommerce_Connection {
 	public static function should_sync_order( $order ) {
 		// $order is not a valid WC_Order object, so don't try to sync.
 		if ( ! is_a( $order, 'WC_Order' ) ) {
+			return false;
+		}
+		if ( ! in_array( $order->get_status(), [ 'pending', 'completed' ], true ) ) {
+			// The order was not successful. Don't sync data about it.
 			return false;
 		}
 		if ( $order->get_meta( '_subscription_switch' ) ) {
