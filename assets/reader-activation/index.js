@@ -129,8 +129,48 @@ export function getReader() {
  */
 export function hasAuthLink() {
 	const reader = getReader();
-	const emailLinkSecret = getCookie( 'np_auth_link' );
-	return !! ( reader?.email && emailLinkSecret );
+	const otpHash = getCookie( 'np_otp_hash' );
+	return !! ( reader?.email && otpHash );
+}
+
+/**
+ * Start the authentication modal with an optional custom callback.
+ *
+ * @param {Object} config Config.
+ */
+export function openAuthModal( config = {} ) {
+	// Set default config.
+	config = {
+		...{
+			callback: null,
+			initialState: null,
+			skipSuccess: false,
+			labels: {
+				signin: {
+					title: null,
+				},
+				register: {
+					title: null,
+				},
+			},
+			content: null,
+		},
+		...config,
+	};
+	if ( newspack_ras_config.is_logged_in ) {
+		if ( config.callback ) {
+			config.callback();
+		}
+		return;
+	}
+	if ( readerActivation._openAuthModal ) {
+		readerActivation._openAuthModal( config );
+	} else {
+		console.warn( 'Authentication modal not available' );
+		if ( config.callback ) {
+			config.callback();
+		}
+	}
 }
 
 /**
@@ -344,6 +384,7 @@ const readerActivation = {
 	setAuthenticated,
 	refreshAuthentication,
 	getReader,
+	openAuthModal,
 	hasAuthLink,
 	getOTPHash,
 	setOTPTimer,

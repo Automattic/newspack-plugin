@@ -11,11 +11,11 @@
 				background: var( --newspack-ui-color-alert-green-bg );
 			}
 
-			&__error {
+			&--error {
 				background: var( --newspack-ui-color-alert-red-bg );
 			}
 
-			&__warning {
+			&--warning {
 				// TODO
 			}
 
@@ -25,7 +25,7 @@
 			}
 
 			// Text alignments
-			&__text-center {
+			&--text-center {
 				text-align: center;
 			}
 

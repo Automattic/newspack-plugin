@@ -10,19 +10,17 @@ domReady( function () {
 	[ ...loginsElements ].forEach( element => {
 		element.classList.remove( 'newspack-reader__logins--disabled' );
 	} );
-	const googleLoginElements = document.querySelectorAll( '.newspack-reader__logins__google' );
+	const googleLoginElements = document.querySelectorAll( '.newspack-ui__button--google-oauth' );
 	googleLoginElements.forEach( googleLoginElement => {
 		const googleLoginForm = googleLoginElement.closest( 'form' );
-		const redirectInput = googleLoginForm.querySelector( 'input[name="redirect"]' );
 		const checkLoginStatus = metadata => {
 			fetch( `/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }` )
 				.then( res => {
 					res
 						.json()
 						.then( ( { message, data } ) => {
-							const redirect = redirectInput?.value || null;
 							if ( googleLoginForm?.endLoginFlow ) {
-								googleLoginForm.endLoginFlow( message, res.status, data, redirect );
+								googleLoginForm.endLoginFlow( message, res.status, data );
 							}
 						} )
 						.catch( error => {

@@ -14,12 +14,12 @@
 			color: var( --newspack-ui-color-body-bg );
 		}
 
-		&__error {
+		&--error {
 			background: var( --newspack-ui-color-alert-red );
 			color: var( --newspack-ui-color-body-bg );
 		}
 
-		&__warning {
+		&--warning {
 			background: var( --newspack-ui-color-alert-yellow );
 			color: var( --newspack-ui-color-body-bg );
 		}

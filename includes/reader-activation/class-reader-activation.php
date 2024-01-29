@@ -66,7 +66,7 @@ final class Reader_Activation {
 	 */
 	public static function init() {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
-		\add_action( 'wp_footer', [ __CLASS__, 'render_auth_form' ] );
+		\add_action( 'wp_footer', [ __CLASS__, 'render_auth_modal' ] );
 
 		if ( self::is_enabled() ) {
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -114,6 +114,7 @@ final class Reader_Activation {
 		$script_data         = [
 			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
 			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+			'is_logged_in'          => \is_user_logged_in(),
 			'authenticated_email'   => $authenticated_email,
 			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
 			'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
@@ -158,6 +159,16 @@ final class Reader_Activation {
 			'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
 			'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
 			'code_resent'      => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+			'create_account'   => __( 'Create an account', 'newspack-plugin' ),
+			'signin'           => [
+				'title'         => __( 'Sign in', 'newspack-plugin' ),
+				'success_title' => __( 'Success! You’re signed in.', 'newspack-plugin' ),
+			],
+			'register'         => [
+				'title'               => __( 'Create an account', 'newspack-plugin' ),
+				'success_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
+				'success_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
+			],
 		];
 		\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_auth_labels', $labels );
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
@@ -1023,10 +1034,8 @@ final class Reader_Activation {
 
 	/**
 	 * Renders reader authentication form.
-	 *
-	 * @param boolean $is_inline If true, render the form inline, otherwise render as a modal.
 	 */
-	public static function render_auth_form( $is_inline = false ) {
+	public static function render_auth_form() {
 		/**
 		 * Filters whether to render reader auth form.
 		 *
@@ -1040,161 +1049,168 @@ final class Reader_Activation {
 			return;
 		}
 
-		$class = function( ...$parts ) {
-			array_unshift( $parts, 'auth-form' );
-			return self::get_element_class_name( $parts );
-		};
-
-		$labels = [
-			'signin'   => \__( 'Sign In', 'newspack-plugin' ),
-			'register' => \__( 'Sign Up', 'newspack-plugin' ),
-		];
-
-		$message    = '';
-		$classnames = [ 'newspack-reader-auth', $class() ];
+		$message = '';
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['reader_authenticated'] ) && isset( $_GET['message'] ) ) {
-			$message      = \sanitize_text_field( $_GET['message'] );
-			$classnames[] = $class( 'visible' );
+			$message = \sanitize_text_field( $_GET['message'] );
 		}
 		// phpcs:enable
 
-		if ( $is_inline ) {
-			$classnames[] = $class( 'inline' );
+		$referer = \wp_parse_url( \wp_get_referer() );
+		?>
+		<div class="newspack-ui newspack-reader-auth">
+			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
+				<span class="newspack-ui__icon newspack-ui__icon--success">
+					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
+					</svg>
+				</span>
+				<p>
+					<strong class="success-title"></strong>
+				</p>
+				<p class="newspack-ui__font--small success-description"></p>
+			</div>
+			<form method="post" target="_top">
+				<div data-action="signin register">
+					<?php self::render_third_party_auth(); ?>
+				</div>
+				<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
+				<?php if ( ! empty( $referer['path'] ) ) : ?>
+					<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
+				<?php endif; ?>
+				<input type="hidden" name="action" />
+				<p data-action="otp">
+					<strong>
+						<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
+					</strong>
+				</p>
+				<div data-action="signin register">
+					<p>
+						<label for="newspack-reader-auth-email-input"><?php esc_html_e( 'Email address', 'newspack-plugin' ); ?></label>
+						<input id="newspack-reader-auth-email-input" name="npe" type="email" placeholder="<?php \esc_attr_e( 'Your email address', 'newspack-plugin' ); ?>" />
+					</p>
+					<?php self::render_honeypot_field(); ?>
+				</div>
+				<p class="newspack-ui__code-input" data-action="otp">
+					<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( Magic_Link::OTP_LENGTH ); ?>" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack-plugin' ); ?>" />
+				</p>
+				<p data-action="pwd">
+					<label for="newspack-reader-auth-password-input"><?php esc_html_e( 'Enter your password', 'newspack-plugin' ); ?></label>
+					<input id="newspack-reader-auth-password-input" name="password" type="password" />
+				</p>
+				<div class="response-container">
+					<div class="response newspack-ui__inline-error">
+						<?php if ( ! empty( $message ) ) : ?>
+							<p><?php echo \esc_html( $message ); ?></p>
+						<?php endif; ?>
+					</div>
+				</div>
+				<p data-action="otp">
+					<?php
+					echo wp_kses_post(
+						sprintf(
+							// Translators: %s is the email address.
+							__( 'Sign in by entering the code we sent to %s, or clicking the magic link in the email.', 'newspack-plugin' ),
+							'<strong class="email-address"></strong>'
+						)
+					);
+					?>
+				</p>
+				<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="register signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
+				<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
+			</form>
+			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
+			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Renders reader authentication modal.
+	 */
+	public static function render_auth_modal() {
+		/**
+		 * Filters whether to render reader auth form.
+		 *
+		 * @param bool $should_render Whether to render reader auth form.
+		 */
+		if ( ! apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
+			return;
+		}
+		// No need to render if RAS is disabled and not a preview request.
+		if ( ! self::allow_reg_block_render() ) {
+			return;
 		}
 
-		$newsletters_label = self::get_setting( 'newsletters_label' );
-
-		$terms_text      = self::get_setting( 'terms_text' );
-		$terms_url       = self::get_setting( 'terms_url' );
-		$is_account_page = function_exists( '\wc_get_page_id' ) ? \get_the_ID() === \wc_get_page_id( 'myaccount' ) : false;
-		$redirect        = $is_account_page ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
-		$referer         = \wp_parse_url( \wp_get_referer() );
-		global $wp;
+		$terms = self::get_auth_footer();
 		?>
-		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
-			<div class="<?php echo \esc_attr( $class( 'wrapper' ) ); ?>">
-				<?php if ( ! $is_inline ) : ?>
-				<button class="<?php echo \esc_attr( $class( 'close' ) ); ?>" data-close aria-label="<?php \esc_attr_e( 'Close Authentication Form', 'newspack-plugin' ); ?>">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-						<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-					</svg>
-				</button>
-				<?php endif; ?>
-				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
-					<form method="post" target="_top">
-						<div class="<?php echo \esc_attr( $class( 'header' ) ); ?>">
-							<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
-						</div>
-						<div data-action="signin register">
-							<?php self::render_third_party_auth(); ?>
-						</div>
-						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
-						<?php if ( ! empty( $referer['path'] ) ) : ?>
-							<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
-						<?php endif; ?>
-						<input type="hidden" name="action" value="pwd" />
-						<p data-has-auth-link>
-							<?php _e( "We've recently sent you an authentication link. Please, check your inbox!", 'newspack-plugin' ); ?>
-						</p>
-						<p data-action="pwd">
-							<strong>
-								<?php esc_html_e( 'Enter your password', 'newspack-plugin' ); ?>
-							</strong>
-						</p>
-						<p data-action="otp">
-							<strong>
-								<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
-							</strong>
-						</p>
-						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
-						<div class="components-form__field" data-action="signin register">
-							<input name="npe" type="email" placeholder="<?php \esc_attr_e( 'Enter your email address', 'newspack-plugin' ); ?>" />
-							<?php self::render_honeypot_field(); ?>
-						</div>
-						<div class="components-form__field otp-field" data-action="otp">
-							<input name="otp_code" type="text" maxlength="<?php echo \esc_attr( Magic_Link::OTP_LENGTH ); ?>" placeholder="<?php \esc_attr_e( '6-digit code', 'newspack-plugin' ); ?>" />
-						</div>
-						<div class="components-form__field" data-action="pwd">
-							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
-						</div>
-
-						<div class="<?php echo \esc_attr( $class( 'response' ) ); ?>">
-							<div class="<?php echo \esc_attr( $class( 'response', 'content' ) ); ?>">
-								<?php if ( ! empty( $message ) ) : ?>
-									<p><?php echo \esc_html( $message ); ?></p>
-								<?php endif; ?>
-							</div>
-						</div>
-
-						<p data-action="otp">
-							<?php
-							echo wp_kses_post(
-								sprintf(
-									// Translators: %s is the email address.
-									__( 'Sign in by entering the code we sent to %s, or clicking the magic link in the email.', 'newspack-plugin' ),
-									'<strong class="email-address"></strong>'
-								)
-							);
-							?>
-						</p>
-						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>">
-							<div class="components-form__submit">
-								<button type="submit" data-action="signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-								<button type="submit" data-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-							</div>
-							<button type="button" class="secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
-							<button type="button" class="secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
-							<a class="button secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
-							<button type="button" class="tertiary" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
-							<button type="button" class="tertiary" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-							<button type="button" class="tertiary" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
-						</div>
-						<?php if ( ! empty( $terms_text ) ) : ?>
-							<p class="<?php echo \esc_attr( $class( 'terms-text' ) ); ?>">
-								<?php if ( ! empty( $terms_url ) ) : ?>
-									<a href="<?php echo \esc_url( $terms_url ); ?>" target="_blank" rel="noopener noreferrer">
-								<?php endif; ?>
-								<?php echo \esc_html( $terms_text ); ?>
-								<?php if ( ! empty( $terms_url ) ) : ?>
-									</a>
-								<?php endif; ?>
-							</p>
-						<?php endif; ?>
-					</form>
+		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth-modal">
+			<div class="newspack-ui__modal-container__overlay"></div>
+			<div class="newspack-ui__modal newspack-ui__modal--small">
+				<div class="newspack-ui__modal__header">
+					<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
+					<button class="newspack-ui__modal__close">
+						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+						</svg>
+					</button>
 				</div>
+				<div class="newspack-ui__modal__content">
+					<?php self::render_auth_form(); ?>
+				</div>
+				<?php if ( ! empty( $terms ) ) : ?>
+					<footer class="newspack-ui__modal__footer" data-action="signin register">
+						<p>
+							<?php echo wp_kses_post( trim( $terms ) ); ?>
+						</p>
+					</footer>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
 	}
 
 	/**
-	 * Send the auth form response to the client, whether it's a JSON or POST request.
+	 * Get the authentication form footer text.
+	 *
+	 * @return string The authentication form footer text.
+	 */
+	public static function get_auth_footer() {
+		$terms_text = self::get_setting( 'terms_text' );
+		$terms_url  = self::get_setting( 'terms_url' );
+		$terms      = trim( $terms_text ? $terms_text : '' );
+		if ( ! empty( $terms ) ) {
+			if ( $terms_url ) {
+				$terms = sprintf( '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>', $terms_url, $terms_text );
+			}
+			if ( substr( trim( $terms_text ), -1 ) !== '.' ) {
+				$terms .= '.';
+			}
+		}
+		if ( Recaptcha::can_use_captcha() ) {
+			$terms .= ' ' . Recaptcha::get_terms_text();
+		}
+		return $terms;
+	}
+
+	/**
+	 * Send the auth form response to the client.
 	 *
 	 * @param array|WP_Error $data         The response to send to the client.
 	 * @param string         $message      Optional custom message.
-	 * @param string         $redirect_url Optional custom redirect URL.
 	 */
-	private static function send_auth_form_response( $data = [], $message = false, $redirect_url = false ) {
+	private static function send_auth_form_response( $data = [], $message = false ) {
 		$is_error = \is_wp_error( $data );
 		if ( empty( $message ) ) {
 			$message = $is_error ? $data->get_error_message() : __( 'Login successful!', 'newspack-plugin' );
 		}
-		if ( \wp_is_json_request() ) {
-			\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
-			exit;
-		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
-			\wp_safe_redirect(
-				\add_query_arg(
-					[
-						'reader_authenticated' => $is_error ? '0' : '1',
-						'message'              => $message,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
+		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
 	}
 
 	/**
@@ -1302,26 +1318,15 @@ final class Reader_Activation {
 		if ( ! Google_OAuth::is_oauth_configured() ) {
 			return;
 		}
-		$class      = function( ...$parts ) {
-			array_unshift( $parts, 'logins' );
-			return self::get_element_class_name( $parts );
-		};
-		$classnames = implode( ' ', [ $class(), $class() . '--disabled' ] );
 		?>
-		<div class="<?php echo \esc_attr( $classnames ); ?>">
-			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
-				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span>
-					<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
-				</span>
-			</button>
-			<div class="<?php echo \esc_attr( $class( 'separator' ) ); ?>">
-				<div></div>
-				<div>
-					<?php echo \esc_html__( 'OR', 'newspack-plugin' ); ?>
-				</div>
-				<div></div>
-			</div>
+		<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
+			<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			<span>
+				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
+			</span>
+		</button>
+		<div class="newspack-ui__word-divider">
+			<?php echo \esc_html__( 'Or', 'newspack-plugin' ); ?>
 		</div>
 		<?php
 	}
@@ -1361,7 +1366,6 @@ final class Reader_Activation {
 		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referer is the current page URL because the form is submitted via AJAX.
 		$email            = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
 		$password         = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
-		$redirect         = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 		$lists            = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		$honeypot         = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
 		$captcha_token    = isset( $_POST['captcha_token'] ) ? \sanitize_text_field( $_POST['captcha_token'] ) : '';
@@ -1389,10 +1393,6 @@ final class Reader_Activation {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack-plugin' ) ) );
 		}
 
-		if ( $redirect && false === strpos( $redirect, home_url(), 0 ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack-plugin' ) ) );
-		}
-
 		if ( empty( $email ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack-plugin' ) ) );
 		}
@@ -1401,7 +1401,7 @@ final class Reader_Activation {
 
 		$user = \get_user_by( 'email', $email );
 		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( "We couldn't find a reader account registered to this email address. Please confirm that you entered the correct email, or sign up for a new account.", 'newspack-plugin' ) ) );
+			return self::send_auth_form_response( new \WP_Error( 'unauthorized', wp_kses_post( __( 'Account not found. <a href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) ) ) );
 		}
 
 		$payload = [
@@ -1417,28 +1417,28 @@ final class Reader_Activation {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
 					$payload['action'] = 'otp';
-					return self::send_auth_form_response( $payload, false, $redirect );
+					return self::send_auth_form_response( $payload, false );
 				} else {
 					$payload['action'] = 'pwd';
-					return self::send_auth_form_response( $payload, false, $redirect );
+					return self::send_auth_form_response( $payload, false );
 				}
 			case 'pwd':
 				if ( empty( $password ) ) {
-					return self::send_auth_form_response( new \WP_Error( 'invalid_password', __( 'You must enter a valid password.', 'newspack-plugin' ) ) );
+					return self::send_auth_form_response( new \WP_Error( 'invalid_password', __( 'Password not recognized, try again.', 'newspack-plugin' ) ) );
 				}
 				$user = \wp_authenticate( $user->user_login, $password );
 				if ( \is_wp_error( $user ) ) {
-					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Invalid credentials.', 'newspack-plugin' ) ) );
+					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Password not recognized, try again.', 'newspack-plugin' ) ) );
 				}
 				$authenticated            = self::set_current_reader( $user->ID );
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
-				return self::send_auth_form_response( $payload, false, $redirect );
+				return self::send_auth_form_response( $payload, false );
 			case 'link':
 				$sent = Magic_Link::send_email( $user );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}
-				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ), $redirect );
+				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ) );
 			case 'register':
 				$metadata = [ 'registration_method' => 'auth-form' ];
 				if ( ! empty( $lists ) ) {
@@ -1461,8 +1461,18 @@ final class Reader_Activation {
 						new \WP_Error( 'unauthorized', __( 'Unable to register your account. Try a different email.', 'newspack-plugin' ) )
 					);
 				}
-				$payload['authenticated'] = \absint( $user_id ) ? 1 : 0;
-				return self::send_auth_form_response( $payload, false, $redirect );
+
+				$password_url_arg        = WooCommerce_My_Account::RESET_PASSWORD_URL_PARAM;
+				$nonce                   = wp_create_nonce( $password_url_arg );
+				$payload['password_url'] = add_query_arg(
+					$password_url_arg,
+					$nonce,
+					function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url()
+				);
+
+				$payload['registered']    = 1;
+				$payload['authenticated'] = 1;
+				return self::send_auth_form_response( $payload, false );
 		}
 	}
 

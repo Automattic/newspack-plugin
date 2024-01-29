@@ -260,6 +260,7 @@ function render_block( $attrs, $content ) {
 					?>
 					<div class="newspack-registration__main">
 						<div>
+							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__inputs">
 								<input
 								<?php
@@ -281,7 +282,6 @@ function render_block( $attrs, $content ) {
 									value="<?php echo \esc_attr( $attrs['label'] ); ?>"
 								/>
 							</div>
-							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>
@@ -319,10 +319,6 @@ function render_block( $attrs, $content ) {
 			</div>
 		<?php endif; ?>
 	</div>
-	<?php
-		// Including a dummy element with used classes to prevent AMP stripping them.
-	?>
-	<div class="newspack-registration--in-progress newspack-registration--error newspack-registration--success"></div>
 	<?php
 	return ob_get_clean();
 }

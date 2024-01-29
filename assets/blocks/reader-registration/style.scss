@@ -159,6 +159,17 @@
 		.newspack-registration__logins {
 			display: none;
 		}
+		&:not( [class*='--hidden'] ) {
+			.newspack-registration__icon {
+				animation: fadein 125ms ease-in;
+
+				&::before {
+					animation: bounce 125ms ease-in;
+					animation-delay: 500ms;
+					animation-fill-mode: forwards;
+				}
+			}
+		}
 	}
 
 	&--in-progress {
@@ -194,37 +205,7 @@
 		}
 	}
 
-	&__success {
-		margin: 0 auto;
-		max-width: 780px;
-
-		&:not( [class*='--hidden'] ) {
-			.newspack-registration__icon {
-				animation: fadein 125ms ease-in;
-
-				&::before {
-					animation: bounce 125ms ease-in;
-					animation-delay: 500ms;
-					animation-fill-mode: forwards;
-				}
-			}
-		}
-
-		.wp-block-newspack-reader-registration {
-			> *:first-child {
-				margin-top: 0 !important;
-			}
-
-			> *:last-child {
-				margin-bottom: 0 !important;
-			}
-		}
-	}
-
-	&--hidden {
-		display: none;
-	}
-
+	&--hidden,
 	+ div:empty {
 		display: none;
 	}
