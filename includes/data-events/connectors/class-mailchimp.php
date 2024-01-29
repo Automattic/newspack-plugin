@@ -274,7 +274,7 @@ class Mailchimp {
 		}
 
 		$order_id = $data['platform_data']['order_id'];
-		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id, false, true );
+		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id, $data['referer'], true );
 
 		if ( ! $contact ) {
 			return;
@@ -291,7 +291,7 @@ class Mailchimp {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function subscription_updated( $timestamp, $data, $client_id ) {
-		if ( empty( $data['subscription_id'] ) || empty( $data['status_before'] ) || empty( $data['status_after'] ) ) {
+		if ( empty( $data['status_before'] ) || empty( $data['status_after'] ) || empty( $data['user_id'] ) ) {
 			return;
 		}
 
@@ -305,9 +305,8 @@ class Mailchimp {
 			return;
 		}
 
-		$subscription = \wcs_get_subscription( $data['subscription_id'] );
-		$order        = $subscription->get_last_order( 'all' );
-		$contact      = WooCommerce_Connection::get_contact_from_order( $order );
+		$customer = new \WC_Customer( $data['user_id'] );
+		$contact  = WooCommerce_Connection::get_contact_from_customer( $customer );
 
 		if ( ! $contact ) {
 			return;

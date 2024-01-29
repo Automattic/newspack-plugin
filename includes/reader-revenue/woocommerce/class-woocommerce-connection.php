@@ -122,7 +122,7 @@ class WooCommerce_Connection {
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
-	 * @param bool          $is_new Whether the order is new and should count towards the contact's total spent value.
+	 * @param bool          $is_new Whether the order is new and should count as the last payment amount.
 	 *
 	 * @return array Contact order metadata.
 	 */
@@ -134,6 +134,9 @@ class WooCommerce_Connection {
 		if ( ! self::should_sync_order( $order ) ) {
 			return [];
 		}
+
+		// Only update last payment data if new payment has been received.
+		$payment_received = $is_new && in_array( $order->get_status(), [ 'processing', 'completed' ], true );
 
 		$metadata = [];
 
@@ -152,7 +155,7 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$order_subscriptions = wcs_get_subscriptions_for_order( $order->get_id(), [ 'order_type' => 'any' ] );
+		$order_subscriptions = \wcs_get_subscriptions_for_order( $order->get_id(), [ 'order_type' => 'any' ] );
 		$is_donation_order   = Donations::is_donation_order( $order );
 
 		// One-time transaction.
@@ -166,10 +169,10 @@ class WooCommerce_Connection {
 			if ( $order_items ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
 			}
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $order->get_total() );
 			$order_date_paid = $order->get_date_paid();
-			if ( null !== $order_date_paid ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ] = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			if ( $payment_received && null !== $order_date_paid ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $order->get_total() );
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 			}
 
 			// Subscription transaction.
@@ -197,12 +200,15 @@ class WooCommerce_Connection {
 				}
 			}
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]      = $current_subscription->get_date( 'start' );
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ]        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]       = $current_subscription->get_billing_period();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ]   = $current_subscription->get_total();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $current_subscription->get_total() );
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]    = $current_subscription->get_date( 'start' );
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ]      = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]     = $current_subscription->get_billing_period();
+			$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ] = $current_subscription->get_total();
+
+			if ( $payment_received ) {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $current_subscription->get_total() );
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
+			}
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
@@ -229,7 +235,7 @@ class WooCommerce_Connection {
 	 * @param \WC_Customer    $customer Customer object.
 	 * @param \WC_Order|false $order Order object to sync with. If not given, the last successful order will be used.
 	 * @param bool|string     $payment_page_url Payment page URL. If not provided, checkout URL will be used.
-	 * @param bool            $is_new Whether the order is new and should count towards the contact's total spent value.
+	 * @param bool            $is_new Whether the order is new and should count as the last payment amount.
 	 *
 	 * @return array|false Contact data or false.
 	 */
@@ -276,7 +282,7 @@ class WooCommerce_Connection {
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
-	 * @param bool          $is_new Whether the order is new and should count towards the contact's total spent value.
+	 * @param bool          $is_new Whether the order is new and should count as the last payment amount.
 	 *
 	 * @return array|false Contact data or false.
 	 */
@@ -289,11 +295,7 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		$user_id = $order->get_customer_id();
-		if ( ! $user_id ) {
-			return false;
-		}
-
+		$user_id  = $order->get_customer_id();
 		$customer = new \WC_Customer( $user_id );
 
 		return self::get_contact_from_customer( $customer, $order, $payment_page_url, $is_new );
@@ -310,13 +312,8 @@ class WooCommerce_Connection {
 			return false;
 		}
 		// If the order lacks a customer.
-		$user_id = $order->get_customer_id();
-		if ( ! $user_id ) {
+		if ( ! $order->get_customer_id() ) {
 			return [];
-		}
-		// If the order isn't pending or wasn't successfully completed.
-		if ( ! in_array( $order->get_status(), [ 'pending', 'completed' ], true ) ) {
-			return false;
 		}
 		if ( $order->get_meta( '_subscription_switch' ) ) {
 			// This is a "switch" order, which is just recording a subscription update. It has value of 0 and
