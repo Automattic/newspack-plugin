@@ -84,7 +84,7 @@ class Newspack_UI {
 				<p>"Success" box style</p>
 			</div>
 
-			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box__text-center">
+			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 				<?php
 				/*
 				 * TODO:
@@ -98,7 +98,7 @@ class Newspack_UI {
 				</span>
 
 				<p>
-					<strong>Success box style, plus icon + <code>newspack-ui__box__text-center</code> class.</strong>
+					<strong>Success box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
 				</p>
 
 				<p class="newspack-ui__font--small">Plus a little bit of text below it.</p>
@@ -386,7 +386,7 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box__text-center">
+						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 							<span class="newspack-ui__icon newspack-ui__icon--success">
 								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
@@ -422,7 +422,7 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box__text-center">
+						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 							<span class="newspack-ui__icon newspack-ui__icon--success">
 								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />

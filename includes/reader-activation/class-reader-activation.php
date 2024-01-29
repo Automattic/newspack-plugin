@@ -1052,7 +1052,7 @@ final class Reader_Activation {
 		$referer = \wp_parse_url( \wp_get_referer() );
 		?>
 		<div class="newspack-ui newspack-reader-auth">
-			<div class="newspack-ui__box newspack-ui__box__success newspack-ui__box__text-center" data-action="success">
+			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
 					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
