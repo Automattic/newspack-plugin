@@ -320,10 +320,6 @@ function render_block( $attrs, $content ) {
 		<?php endif; ?>
 	</div>
 	<?php
-		// Including a dummy element with used classes to prevent AMP stripping them.
-	?>
-	<div class="newspack-registration--in-progress newspack-registration--error newspack-registration--success"></div>
-	<?php
 	return ob_get_clean();
 }
 
