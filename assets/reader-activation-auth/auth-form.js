@@ -223,9 +223,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 				if ( status === 200 ) {
 					if ( data ) {
-						const authenticated = !! data.authenticated;
 						readerActivation.setReaderEmail( data.email );
-						readerActivation.setAuthenticated( authenticated );
+						readerActivation.setAuthenticated( !! data.authenticated );
 					}
 
 					/** Resolve the modal immediately or display the "success" state. */
