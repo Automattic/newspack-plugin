@@ -1077,7 +1077,6 @@ final class Reader_Activation {
 						<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
 					</strong>
 				</p>
-				<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 				<div data-action="signin register">
 					<p>
 						<label for="newspack-reader-auth-email-input"><?php esc_html_e( 'Email address', 'newspack-plugin' ); ?></label>
@@ -1194,32 +1193,17 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Send the auth form response to the client, whether it's a JSON or POST request.
+	 * Send the auth form response to the client.
 	 *
 	 * @param array|WP_Error $data         The response to send to the client.
 	 * @param string         $message      Optional custom message.
-	 * @param string         $redirect_url Optional custom redirect URL.
 	 */
-	private static function send_auth_form_response( $data = [], $message = false, $redirect_url = false ) {
+	private static function send_auth_form_response( $data = [], $message = false ) {
 		$is_error = \is_wp_error( $data );
 		if ( empty( $message ) ) {
 			$message = $is_error ? $data->get_error_message() : __( 'Login successful!', 'newspack-plugin' );
 		}
-		if ( \wp_is_json_request() ) {
-			\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
-			exit;
-		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
-			\wp_safe_redirect(
-				\add_query_arg(
-					[
-						'reader_authenticated' => $is_error ? '0' : '1',
-						'message'              => $message,
-					],
-					$redirect_url
-				)
-			);
-			exit;
-		}
+		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
 	}
 
 	/**
@@ -1375,7 +1359,6 @@ final class Reader_Activation {
 		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referer is the current page URL because the form is submitted via AJAX.
 		$email            = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
 		$password         = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
-		$redirect         = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 		$lists            = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		$honeypot         = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
 		$captcha_token    = isset( $_POST['captcha_token'] ) ? \sanitize_text_field( $_POST['captcha_token'] ) : '';
@@ -1403,10 +1386,6 @@ final class Reader_Activation {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack-plugin' ) ) );
 		}
 
-		if ( $redirect && false === strpos( $redirect, home_url(), 0 ) ) {
-			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack-plugin' ) ) );
-		}
-
 		if ( empty( $email ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_email', __( 'You must enter a valid email address.', 'newspack-plugin' ) ) );
 		}
@@ -1431,10 +1410,10 @@ final class Reader_Activation {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
 					$payload['action'] = 'otp';
-					return self::send_auth_form_response( $payload, false, $redirect );
+					return self::send_auth_form_response( $payload, false );
 				} else {
 					$payload['action'] = 'pwd';
-					return self::send_auth_form_response( $payload, false, $redirect );
+					return self::send_auth_form_response( $payload, false );
 				}
 			case 'pwd':
 				if ( empty( $password ) ) {
@@ -1446,13 +1425,13 @@ final class Reader_Activation {
 				}
 				$authenticated            = self::set_current_reader( $user->ID );
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
-				return self::send_auth_form_response( $payload, false, $redirect );
+				return self::send_auth_form_response( $payload, false );
 			case 'link':
 				$sent = Magic_Link::send_email( $user );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}
-				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ), $redirect );
+				return self::send_auth_form_response( $payload, __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ) );
 			case 'register':
 				$metadata = [ 'registration_method' => 'auth-form' ];
 				if ( ! empty( $lists ) ) {
@@ -1486,7 +1465,7 @@ final class Reader_Activation {
 
 				$payload['registered']    = 1;
 				$payload['authenticated'] = 1;
-				return self::send_auth_form_response( $payload, false, $redirect );
+				return self::send_auth_form_response( $payload, false );
 		}
 	}
 
