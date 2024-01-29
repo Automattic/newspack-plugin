@@ -22,19 +22,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 		}
 
 		containers.forEach( container => {
-			const initialForm = container.querySelector( 'form' );
-			if ( ! initialForm ) {
+			const form = container.querySelector( 'form' );
+			if ( ! form ) {
 				return;
-			}
-
-			let form;
-			/** Workaround AMP's enforced XHR strategy. */
-			if ( initialForm.getAttribute( 'action-xhr' ) ) {
-				initialForm.removeAttribute( 'action-xhr' );
-				form = initialForm.cloneNode( true );
-				initialForm.replaceWith( form );
-			} else {
-				form = initialForm;
 			}
 
 			const actionInput = form.querySelector( 'input[name="action"]' );
