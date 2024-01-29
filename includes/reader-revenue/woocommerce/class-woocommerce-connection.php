@@ -180,24 +180,19 @@ class WooCommerce_Connection {
 			$current_subscription = reset( $order_subscriptions );
 
 			if ( $is_donation_order ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
-				if ( 'active' === $current_subscription->get_status() || 'pending' === $current_subscription->get_status() ) {
-					if ( 'month' === $current_subscription->get_billing_period() ) {
-						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Monthly Donor';
-					}
-
-					if ( 'year' === $current_subscription->get_billing_period() ) {
-						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Yearly Donor';
-					}
-				} else {
-					if ( 'month' === $current_subscription->get_billing_period() ) {
-						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Monthly Donor';
-					}
-
-					if ( 'year' === $current_subscription->get_billing_period() ) {
-						$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Ex-Yearly Donor';
-					}
+				$donor_status = 'Donor';
+				if ( 'month' === $current_subscription->get_billing_period() ) {
+					$donor_status = 'Monthly ' . $donor_status;
 				}
+				if ( 'year' === $current_subscription->get_billing_period() ) {
+					$donor_status = 'Yearly ' . $donor_status;
+				}
+
+				// If the subscription has moved to a cancelled or expired status.
+				if ( in_array( $current_subscription->get_status(), [ 'cancelled', 'expired' ], true ) ) {
+					$donor_status = 'Ex-' . $donor_status;
+				}
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $donor_status;
 			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]    = $current_subscription->get_date( 'start' );
