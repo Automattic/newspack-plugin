@@ -161,10 +161,6 @@ class WooCommerce_Connection {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			}
 
-			if ( $is_new && 'pending' === $order->get_status() ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += \wc_format_localized_price( $order->get_total() );
-			}
-
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
 			$order_items = $order->get_items();
 			if ( $order_items ) {
@@ -213,10 +209,6 @@ class WooCommerce_Connection {
 			$next_payment_date = $current_subscription->get_date( 'next_payment' );
 			if ( $next_payment_date ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
-			}
-
-			if ( $is_new && 'pending' === $order->get_status() ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ] += \wc_format_localized_price( $current_subscription->get_total() );
 			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
@@ -317,8 +309,13 @@ class WooCommerce_Connection {
 		if ( ! is_a( $order, 'WC_Order' ) ) {
 			return false;
 		}
+		// If the order lacks a customer.
+		$user_id = $order->get_customer_id();
+		if ( ! $user_id ) {
+			return [];
+		}
+		// If the order isn't pending or wasn't successfully completed.
 		if ( ! in_array( $order->get_status(), [ 'pending', 'completed' ], true ) ) {
-			// The order was not successful. Don't sync data about it.
 			return false;
 		}
 		if ( $order->get_meta( '_subscription_switch' ) ) {
