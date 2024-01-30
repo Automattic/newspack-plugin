@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -395,7 +395,7 @@ class Plugin_Manager {
 		if ( 'wordpress-seo' === $plugin_slug && 'active' !== $status && isset( $installed_plugins['wordpress-seo-premium'] ) && $installed_plugins['wordpress-seo-premium'] ) {
 			if ( is_plugin_active( $installed_plugins['wordpress-seo-premium'] ) ) {
 				$status = 'active';
-			};
+			}
 		}
 
 		return $status;
