@@ -7,11 +7,11 @@
 
 namespace Newspack\Data_Events\Connectors;
 
-use \Newspack\Data_Events;
-use \Newspack\Newspack_Newsletters;
-use \Newspack\Reader_Activation;
-use \Newspack\WooCommerce_Connection;
-use \Newspack\Donations;
+use Newspack\Data_Events;
+use Newspack\Newspack_Newsletters;
+use Newspack\Reader_Activation;
+use Newspack\WooCommerce_Connection;
+use Newspack\Donations;
 
 defined( 'ABSPATH' ) || exit;
 

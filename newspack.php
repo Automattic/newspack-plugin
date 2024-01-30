@@ -28,5 +28,5 @@ require_once 'vendor/autoload.php';
 
 // Include the main Newspack class.
 if ( ! class_exists( 'Newspack' ) ) {
-	include_once dirname( __FILE__ ) . '/includes/class-newspack.php';
+	include_once __DIR__ . '/includes/class-newspack.php';
 }
