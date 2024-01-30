@@ -21,14 +21,7 @@ class Components_Demo extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-components-demo';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-components-demo-wizard';
 
 	/**
 	 * Priority setting for ordering admin submenu items.

@@ -23,14 +23,7 @@ class Syndication_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-syndication-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-syndication-wizard';
 
 	/**
 	 * Constructor.

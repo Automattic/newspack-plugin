@@ -100,7 +100,7 @@ final class Recaptcha {
 	 * @return bool|WP_Error
 	 */
 	public static function api_permissions_check() {
-		if ( ! \current_user_can( 'manage_options' ) ) {
+		if ( ! Wizards::can_access_wizard( 'connections' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				\esc_html__( 'You cannot use this resource.', 'newspack' ),
@@ -174,12 +174,6 @@ final class Recaptcha {
 				$settings['use_captcha'] = $stripe_settings['useCaptcha'];
 				$settings['site_key']    = $stripe_settings['captchaSiteKey'];
 				$settings['site_secret'] = $stripe_settings['captchaSiteSecret'];
-
-				// Delete the legacy settings from Stripe settings and apply the settings to the return value.
-				unset( $stripe_settings['useCaptcha'] );
-				unset( $stripe_settings['captchaSiteKey'] );
-				unset( $stripe_settings['captchaSiteSecret'] );
-				Stripe_Connection::update_stripe_data( $stripe_settings );
 			}
 		}
 
@@ -368,7 +362,7 @@ final class Recaptcha {
 		$token = isset( $_POST['g-recaptcha-response'] ) ? sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$check = self::verify_captcha( $token );
 		if ( \is_wp_error( $check ) ) {
-			\wc_add_notice( $check->get_error_message(), 'error' );
+			WooCommerce_Connection::add_wc_notice( $check->get_error_message(), 'error' );
 		}
 	}
 }

@@ -24,14 +24,7 @@ class Settings extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-settings-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-settings-wizard';
 
 	/**
 	 * Constructor.
@@ -137,7 +130,7 @@ class Settings extends Wizard {
 
 		$required_args = array_reduce(
 			self::get_available_optional_modules(),
-			function( $acc, $module_name ) {
+			function ( $acc, $module_name ) {
 				$acc[ self::MODULE_ENABLED_PREFIX . $module_name ] = [
 					'required'          => true,
 					'sanitize_callback' => 'rest_sanitize_boolean',

@@ -60,6 +60,7 @@ class Reader_Revenue_Emails {
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
 			'editor_notice'          => __( 'This email will be sent to a reader after they contribute to your site.', 'newspack-plugin' ),
 			'from_email'             => self::get_from_email(),
+			'can_be_edited'          => Wizards::can_access_wizard( 'reader-revenue' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the customer billing name', 'newspack-plugin' ),
@@ -106,23 +107,6 @@ class Reader_Revenue_Emails {
 				],
 			],
 		];
-
-		$platform = Donations::get_platform_slug();
-		// If using 'Stripe', remove unsupported placeholders.
-		$stripe_unsupported_placeholders = [
-			'*BILLING_FIRST_NAME*',
-			'*BILLING_LAST_NAME*',
-			'*BILLING_FREQUENCY*',
-			'*PRODUCT_NAME*',
-		];
-		if ( 'stripe' === $platform ) {
-			foreach ( $configs[ self::EMAIL_TYPES['RECEIPT'] ]['available_placeholders'] as $key => $placeholder ) {
-				if ( in_array( $placeholder['template'], $stripe_unsupported_placeholders ) ) {
-					unset( $configs[ self::EMAIL_TYPES['RECEIPT'] ]['available_placeholders'][ $key ] );
-				}
-			}
-			$configs[ self::EMAIL_TYPES['RECEIPT'] ]['available_placeholders'] = array_values( $configs[ self::EMAIL_TYPES['RECEIPT'] ]['available_placeholders'] );
-		}
 
 		return $configs;
 	}

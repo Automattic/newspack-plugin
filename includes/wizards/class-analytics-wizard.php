@@ -26,14 +26,7 @@ class Analytics_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-analytics-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-analytics-wizard';
 
 	/**
 	 * Constructor.

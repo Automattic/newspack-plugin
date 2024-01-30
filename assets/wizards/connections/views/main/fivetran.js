@@ -19,20 +19,8 @@ import get from 'lodash/get';
 
 const CONNECTORS = [
 	{
-		service: 'mailchimp',
-		label: __( 'Mailchimp', 'newspack' ),
-	},
-	{
 		service: 'stripe',
 		label: __( 'Stripe', 'newspack' ),
-	},
-	{
-		service: 'double_click_publishers',
-		label: __( 'Google Ad Manager', 'newspack' ),
-	},
-	{
-		service: 'facebook_pages',
-		label: __( 'Facebook Pages', 'newspack' ),
 	},
 ];
 

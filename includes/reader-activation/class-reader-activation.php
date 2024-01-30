@@ -26,11 +26,11 @@ final class Reader_Activation {
 	/**
 	 * Reader user meta keys.
 	 */
-	const READER              = 'np_reader';
-	const EMAIL_VERIFIED      = 'np_reader_email_verified';
-	const WITHOUT_PASSWORD    = 'np_reader_without_password';
-	const REGISTRATION_METHOD = 'np_reader_registration_method';
-
+	const READER                            = 'np_reader';
+	const EMAIL_VERIFIED                    = 'np_reader_email_verified';
+	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
+	const REGISTRATION_METHOD               = 'np_reader_registration_method';
+	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
 	/**
 	 * Unverified email rate limiting
@@ -81,6 +81,9 @@ final class Reader_Activation {
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
 			\add_action( 'wc_get_template', [ __CLASS__, 'replace_woocommerce_auth_form' ], 10, 2 );
 			\add_action( 'template_redirect', [ __CLASS__, 'process_auth_form' ] );
+			\add_filter( 'woocommerce_new_customer_data', [ __CLASS__, 'canonize_user_data' ] );
+			\add_filter( 'wp_pre_insert_user_data', [ __CLASS__, 'validate_user_data' ], 10, 4 );
+			\add_filter( 'woocommerce_add_error', [ __CLASS__, 'better_display_name_error' ] );
 			\add_filter( 'amp_native_post_form_allowed', '__return_true' );
 			\add_filter( 'woocommerce_email_actions', [ __CLASS__, 'disable_woocommerce_new_user_email' ] );
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
@@ -323,6 +326,9 @@ final class Reader_Activation {
 		}
 		$use_custom_lists = self::get_setting( 'use_custom_lists' );
 		$available_lists  = \Newspack_Newsletters_Subscription::get_lists_config();
+		if ( \is_wp_error( $available_lists ) ) {
+			return [];
+		}
 		if ( ! $use_custom_lists ) {
 			$registration_lists = $available_lists;
 		} else {
@@ -433,16 +439,17 @@ final class Reader_Activation {
 				],
 			],
 			'esp'              => [
-				'active'       => self::is_esp_configured(),
-				'plugins'      => [
+				'active'         => self::is_esp_configured(),
+				'plugins'        => [
 					'newspack-newsletters' => class_exists( '\Newspack_Newsletters' ),
 				],
-				'label'        => __( 'Email Service Provider (ESP)', 'newspack-plugin' ),
-				'description'  => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack-plugin' ),
-				'instructions' => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'         => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
-				'action_text'  => __( 'ESP settings' ),
+				'label'          => __( 'Email Service Provider (ESP)', 'newspack-plugin' ),
+				'description'    => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack-plugin' ),
+				'instructions'   => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack-plugin' ),
+				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
+				'href'           => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
+				'action_text'    => __( 'ESP settings' ),
+				'is_unavailable' => ! Wizards::can_access_wizard( 'engagement' ),
 			],
 			'emails'           => [
 				'active'      => self::is_transactional_email_configured(),
@@ -465,28 +472,30 @@ final class Reader_Activation {
 				],
 			],
 			'recaptcha'        => [
-				'active'       => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
-				'label'        => __( 'reCAPTCHA v3', 'newspack-plugin' ),
-				'description'  => __( 'Connecting to a Google reCAPTCHA v3 account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
-				'instructions' => __( 'Enable reCAPTCHA v3 and enter your account credentials.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard&scrollTo=recaptcha' ),
-				'action_text'  => __( 'reCAPTCHA settings' ),
+				'active'         => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
+				'label'          => __( 'reCAPTCHA v3', 'newspack-plugin' ),
+				'description'    => __( 'Connecting to a Google reCAPTCHA v3 account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
+				'instructions'   => __( 'Enable reCAPTCHA v3 and enter your account credentials.', 'newspack-plugin' ),
+				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
+				'href'           => \admin_url( '/admin.php?page=newspack-connections-wizard&scrollTo=recaptcha' ),
+				'action_text'    => __( 'reCAPTCHA settings' ),
+				'is_unavailable' => ! Wizards::can_access_wizard( 'connections' ),
 			],
 			'reader_revenue'   => [
-				'active'       => self::is_reader_revenue_ready(),
-				'plugins'      => [
+				'active'         => self::is_reader_revenue_ready(),
+				'plugins'        => [
 					'newspack-blocks'             => class_exists( '\Newspack_Blocks' ),
 					'woocommerce'                 => function_exists( 'WC' ),
 					'woocommerce-subscriptions'   => class_exists( 'WC_Subscriptions_Product' ),
 					'woocommerce-name-your-price' => class_exists( 'WC_Name_Your_Price_Helpers' ),
 				],
-				'label'        => __( 'Reader Revenue', 'newspack-plugin' ),
-				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
-				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'         => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
-				'action_text'  => __( 'Reader Revenue settings' ),
+				'label'          => __( 'Reader Revenue', 'newspack-plugin' ),
+				'description'    => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
+				'instructions'   => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack-plugin' ),
+				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
+				'href'           => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
+				'action_text'    => __( 'Reader Revenue settings' ),
+				'is_unavailable' => ! Wizards::can_access_wizard( 'reader-revenue' ),
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),
@@ -500,6 +509,7 @@ final class Reader_Activation {
 				'action_enabled' => self::is_ras_ready_to_configure(),
 				'action_text'    => __( 'Reader Activation campaign', 'newspack-plugin' ),
 				'disabled_text'  => __( 'Waiting for all settings to be ready', 'newspack-plugin' ),
+				'is_unavailable' => ! Wizards::can_access_wizard( 'popups' ),
 			],
 		];
 
@@ -659,8 +669,8 @@ final class Reader_Activation {
 	/**
 	 * Whether the user is a reader.
 	 *
-	 * @param \WP_User $user   User object.
-	 * @param bool     $strict Whether to check if the user was created through reader registration. Default false.
+	 * @param WP_User $user   User object.
+	 * @param bool    $strict Whether to check if the user was created through reader registration. Default false.
 	 *
 	 * @return bool Whether the user is a reader.
 	 */
@@ -724,9 +734,7 @@ final class Reader_Activation {
 
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
 
-		if ( function_exists( '\wc_add_notice' ) ) {
-			\wc_add_notice( __( 'Thank you for verifying your account!', 'newspack-plugin' ), 'success' );
-		}
+		WooCommerce_Connection::add_wc_notice( __( 'Thank you for verifying your account!', 'newspack-plugin' ), 'success' );
 
 		/**
 		 * Fires after a reader's email address is verified.
@@ -1619,30 +1627,20 @@ final class Reader_Activation {
 			/**
 			 * Create new reader.
 			 */
-			if ( empty( $display_name ) ) {
-				$display_name = explode( '@', $email, 2 )[0];
-			}
-
-			$user_login = \sanitize_user( $email, true );
-
-			$random_password = \wp_generate_password();
-
+			$user_data = self::canonize_user_data(
+				[
+					'display_name' => $display_name,
+					'user_email'   => $email,
+				]
+			);
 			if ( function_exists( '\wc_create_new_customer' ) ) {
 				/**
 				 * Create WooCommerce Customer if possible.
-				 *
 				 * Email notification for WooCommerce is handled by the plugin.
 				 */
-				$user_id = \wc_create_new_customer( $email, $user_login, $random_password, [ 'display_name' => $display_name ] );
+				$user_id = \wc_create_new_customer( $email, $user_data['user_login'], $user_data['random_password'], $user_data );
 			} else {
-				$user_id = \wp_insert_user(
-					[
-						'user_login'   => $user_login,
-						'user_email'   => $email,
-						'user_pass'    => $random_password,
-						'display_name' => $display_name,
-					]
-				);
+				$user_id = \wp_insert_user( $user_data );
 				\wp_new_user_notification( $user_id, null, 'user' );
 			}
 
@@ -1697,6 +1695,157 @@ final class Reader_Activation {
 		\do_action( 'newspack_registered_reader', $email, $authenticate, $user_id, $existing_user, $metadata );
 
 		return $user_id;
+	}
+
+	/**
+	 * Get sanitized user data args for creating a new reader user account.
+	 * See https://developer.wordpress.org/reference/functions/wp_insert_user/ for supported args.
+	 *
+	 * @param array $user_data          Default args for the new user.
+	 *              $user_data['email] Email address for the new user (required).
+	 */
+	public static function canonize_user_data( $user_data = [] ) {
+		if ( empty( $user_data['user_email'] ) ) {
+			return $user_data;
+		}
+
+		$user_login      = \sanitize_user( $user_data['user_email'] ); // Matches the email address.
+		$random_password = \wp_generate_password();
+		$user_nicename   = self::generate_user_nicename( ! empty( $user_data['display_name'] ) ? $user_data['display_name'] : $user_data['user_email'] );
+
+		// If we don't have a display name, make it match the nicename.
+		if ( empty( $user_data['display_name'] ) ) {
+			$user_data['display_name'] = $user_nicename;
+		}
+
+		$user_data = array_merge(
+			$user_data,
+			[
+				'user_login'    => $user_login,
+				'user_nicename' => $user_nicename,
+				'user_pass'     => $random_password,
+			]
+		);
+
+		/*
+		 * Filters the user_data used to register a new RAS reader account.
+		 * See https://developer.wordpress.org/reference/functions/wp_insert_user/ for supported args.
+		 */
+		return \apply_filters( 'newspack_register_reader_user_data', $user_data );
+	}
+
+	/**
+	 * Validate reader data before being saved.
+	 *
+	 * @param array $data     User data.
+	 * @param bool  $update   Whether the user is being updated rather than created.
+	 * @param int   $user_id  User ID.
+	 * @param array $userdata Raw array of user data.
+	 *
+	 * @return array
+	 */
+	public static function validate_user_data( $data, $update, $user_id, $userdata ) {
+		// Only when updating an existing user.
+		if ( ! $update || ! $user_id ) {
+			return $data;
+		}
+		// Only if the user is a reader.
+		if ( ! self::is_user_reader( \get_user_by( 'id', $user_id ) ) ) {
+			return $data;
+		}
+
+		// Validate display name before saving.
+		if ( isset( $data['display_name'] ) ) {
+			// If the reader saves an empty value.
+			if ( empty( trim( $data['display_name'] ) ) ) {
+				if ( empty( $userdata['display_name'] ) ) {
+					// If the reader lacks a display name, generate one.
+					$data['display_name'] = self::generate_user_nicename( $userdata['user_email'] );
+					\delete_user_meta( $user_id, self::READER_SAVED_GENERIC_DISPLAY_NAME );
+				} else {
+					// Otherwise, don't update it.
+					$data['display_name'] = $userdata['display_name'];
+				}
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Display improved copy for the display name error message.
+	 *
+	 * @param string $message Error message.
+	 * @return string
+	 */
+	public static function better_display_name_error( $message ) {
+		if ( 'Display name cannot be changed to email address due to privacy concern.' === $message ) {
+			return __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' );
+		}
+
+		return $message;
+	}
+
+	/**
+	 * Strip the domain part of an email address string.
+	 * If not an email address, just return the string.
+	 *
+	 * @param string $str String to check.
+	 * @return string
+	 */
+	public static function strip_email_domain( $str ) {
+		return trim( explode( '@', $str, 2 )[0] );
+	}
+
+	/**
+	 * Generate a URL-sanitized version of the given string for a new reader account.
+	 *
+	 * @param string $name User's display name, or email if not available.
+	 * @return string
+	 */
+	public static function generate_user_nicename( $name ) {
+		$name = self::strip_email_domain( $name ); // If an email address, strip the domain.
+		return \sanitize_title( \sanitize_user( $name, true ) );
+	}
+
+	/**
+	 * Check if the reader's display name was auto-generated from email address.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool True if the display name was generated.
+	 */
+	public static function reader_has_generic_display_name( $user_id = 0 ) {
+		// Allow an environment constant to override this check so that even generic/generated display names are allowed.
+		if ( defined( 'NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES' ) && NEWSPACK_ALLOW_GENERIC_READER_DISPLAY_NAMES ) {
+			return false;
+		}
+		if ( ! $user_id ) {
+			$user_id = \get_current_user_id();
+		}
+		$user = \get_userdata( $user_id );
+		if ( empty( $user->data ) ) {
+			return false;
+		}
+
+		// If the reader has intentionally saved a display name we consider generic, treat it as not generic.
+		if ( \get_user_meta( $user_id, self::READER_SAVED_GENERIC_DISPLAY_NAME, true ) ) {
+			return false;
+		}
+
+		// If the user lacks a display name or email address at all, treat it as generic.
+		if ( empty( $user->data->display_name ) || empty( $user->data->user_email ) ) {
+			return true;
+		}
+
+		// If we generated the display name from the user's email address, treat it as generic.
+		if (
+			self::generate_user_nicename( $user->data->user_email ) === $user->data->display_name || // New generated construction (URL-sanitized version of the email address minus domain).
+			self::strip_email_domain( $user->data->user_email ) === $user->data->display_name // Legacy generated construction (just the email address minus domain).
+		) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

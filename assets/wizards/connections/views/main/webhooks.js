@@ -1,4 +1,3 @@
-/* global newspack_connections_data */
 /**
  * External dependencies
  */
@@ -223,14 +222,14 @@ const Webhooks = () => {
 
 	const [ testResponse, setTestResponse ] = useState( false );
 	const [ testError, setTestError ] = useState( false );
-	const sendTestRequest = url => {
+	const sendTestRequest = ( url, bearer_token ) => {
 		setInFlight( true );
 		setTestError( false );
 		setTestResponse( false );
 		apiFetch( {
 			path: '/newspack/v1/webhooks/endpoints/test',
 			method: 'POST',
-			data: { url },
+			data: { url, bearer_token },
 		} )
 			.then( response => {
 				setTestResponse( response );
@@ -252,20 +251,16 @@ const Webhooks = () => {
 		setTestError( false );
 	}, [ editing ] );
 
-	if ( ! newspack_connections_data.can_use_webhooks ) {
-		return null;
-	}
-
 	return (
 		<Card noBorder className="mt64">
 			{ false !== error && <Notice isError noticeText={ error.message } /> }
 
 			<div className="flex justify-between items-end">
 				<SectionHeader
-					title={ __( 'Webhook Endpoints', 'newspack' ) }
+					title={ __( 'Webhook Endpoints', 'newspack-plugin' ) }
 					description={ __(
 						'Register webhook endpoints to integrate reader activity data to third-party services or private APIs',
-						'newspack'
+						'newspack-plugin'
 					) }
 					noMargin
 				/>
@@ -274,7 +269,7 @@ const Webhooks = () => {
 					onClick={ () => setEditing( { global: true } ) }
 					disabled={ inFlight }
 				>
-					{ __( 'Add New Endpoint', 'newspack' ) }
+					{ __( 'Add New Endpoint', 'newspack-plugin' ) }
 				</Button>
 			</div>
 
@@ -292,16 +287,20 @@ const Webhooks = () => {
 							description={ () => {
 								if ( endpoint.disabled && endpoint.disabled_error ) {
 									return (
-										__( 'This endpoint is disabled due excessive request errors: ', 'newspack' ) +
+										__(
+											'This endpoint is disabled due to excessive request errors',
+											'newspack-plugin'
+										) +
+										': ' +
 										endpoint.disabled_error
 									);
 								}
 								return (
 									<>
-										{ __( 'Actions:', 'newspack' ) }{ ' ' }
+										{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
 										{ endpoint.global ? (
 											<span className="newspack-webhooks__endpoint__action">
-												{ __( 'global', 'newspack' ) }
+												{ __( 'global', 'newspack-plugin' ) }
 											</span>
 										) : (
 											endpoint.actions.map( action => (
@@ -327,10 +326,10 @@ const Webhooks = () => {
 			) }
 			{ false !== deleting && (
 				<ConfirmationModal
-					title={ __( 'Remove Endpoint', 'newspack' ) }
+					title={ __( 'Remove Endpoint', 'newspack-plugin' ) }
 					description={ sprintf(
 						/* translators: %s: endpoint title */
-						__( 'Are you sure you want to remove the endpoint %s?', 'newspack' ),
+						__( 'Are you sure you want to remove the endpoint %s?', 'newspack-plugin' ),
 						`"${ getDisplayUrl( deleting.url ) }"`
 					) }
 					onClose={ () => setDeleting( false ) }
@@ -342,19 +341,19 @@ const Webhooks = () => {
 				<ConfirmationModal
 					title={
 						toggling.disabled
-							? __( 'Enable Endpoint', 'newspack' )
-							: __( 'Disable Endpoint', 'newspack' )
+							? __( 'Enable Endpoint', 'newspack-plugin' )
+							: __( 'Disable Endpoint', 'newspack-plugin' )
 					}
 					description={
 						toggling.disabled
 							? sprintf(
 									/* translators: %s: endpoint title */
-									__( 'Are you sure you want to enable the endpoint %s?', 'newspack' ),
+									__( 'Are you sure you want to enable the endpoint %s?', 'newspack-plugin' ),
 									`"${ getDisplayUrl( toggling.url ) }"`
 							  )
 							: sprintf(
 									/* translators: %s: endpoint title */
-									__( 'Are you sure you want to disable the endpoint %s?', 'newspack' ),
+									__( 'Are you sure you want to disable the endpoint %s?', 'newspack-plugin' ),
 									`"${ getDisplayUrl( toggling.url ) }"`
 							  )
 					}
@@ -366,13 +365,13 @@ const Webhooks = () => {
 			) }
 			{ false !== viewing && (
 				<Modal
-					title={ __( 'Latest Requests', 'newspack' ) }
+					title={ __( 'Latest Requests', 'newspack-plugin' ) }
 					onRequestClose={ () => setViewing( false ) }
 				>
 					<p>
 						{ sprintf(
 							// translators: %s is the endpoint title (shortened URL).
-							__( 'Most recent requests for %s', 'newspack' ),
+							__( 'Most recent requests for %s', 'newspack-plugin' ),
 							getEndpointLabel( viewing )
 						) }
 					</p>
@@ -384,9 +383,9 @@ const Webhooks = () => {
 						>
 							<tr>
 								<th />
-								<th colSpan="2">{ __( 'Action', 'newspack' ) }</th>
+								<th colSpan="2">{ __( 'Action', 'newspack-plugin' ) }</th>
 								{ hasEndpointErrors( viewing ) && (
-									<th colSpan="2">{ __( 'Error', 'newspack' ) }</th>
+									<th colSpan="2">{ __( 'Error', 'newspack-plugin' ) }</th>
 								) }
 							</tr>
 							{ viewing.requests.map( request => (
@@ -399,12 +398,12 @@ const Webhooks = () => {
 										{ 'pending' === request.status
 											? sprintf(
 													// translators: %s is a human-readable time difference.
-													__( 'sending in %s', 'newspack' ),
+													__( 'sending in %s', 'newspack-plugin' ),
 													moment( parseInt( request.scheduled ) * 1000 ).fromNow( true )
 											  )
 											: sprintf(
 													// translators: %s is a human-readable time difference.
-													__( 'processed %s', 'newspack' ),
+													__( 'processed %s', 'newspack-plugin' ),
 													moment( parseInt( request.scheduled ) * 1000 ).fromNow()
 											  ) }
 									</td>
@@ -419,7 +418,7 @@ const Webhooks = () => {
 												<span className="error-count">
 													{ sprintf(
 														// translators: %s is the number of errors.
-														__( 'Attempt #%s', 'newspack' ),
+														__( 'Attempt #%s', 'newspack-plugin' ),
 														request.errors.length
 													) }
 												</span>
@@ -431,14 +430,17 @@ const Webhooks = () => {
 						</table>
 					) : (
 						<Notice
-							noticeText={ __( "This endpoint didn't received any requests yet.", 'newspack' ) }
+							noticeText={ __(
+								"This endpoint hasn't received any requests yet.",
+								'newspack-plugin'
+							) }
 						/>
 					) }
 				</Modal>
 			) }
 			{ false !== editing && (
 				<Modal
-					title={ __( 'Webhook Endpoint', 'newspack' ) }
+					title={ __( 'Webhook Endpoint', 'newspack-plugin' ) }
 					onRequestClose={ () => {
 						setEditing( false );
 						setEditingError( false );
@@ -447,34 +449,44 @@ const Webhooks = () => {
 					{ false !== editingError && <Notice isError noticeText={ editingError.message } /> }
 					{ true === editing.disabled && (
 						<Notice
-							noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack' ) }
+							noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack-plugin' ) }
 							className="mt0"
 						/>
 					) }
 					{ editing.disabled && editing.disabled_error && (
 						<Notice
 							isError
-							noticeText={ __( 'Request Error: ', 'newspack' ) + editing.disabled_error }
+							noticeText={ __( 'Request Error: ', 'newspack-plugin' ) + editing.disabled_error }
 							className="mt0"
 						/>
 					) }
 					{ testError && (
 						<Notice
 							isError
-							noticeText={ __( 'Test Error: ', 'newspack' ) + testError.message }
+							noticeText={ __( 'Test Error: ', 'newspack-plugin' ) + testError.message }
 							className="mt0"
 						/>
 					) }
 					<Grid columns={ 1 } gutter={ 16 } className="mt0">
 						<TextControl
-							label={ __( 'URL', 'newspack' ) }
+							label={ __( 'URL', 'newspack-plugin' ) }
 							help={ __(
 								"The URL to send requests to. It's required for the URL to be under a valid TLS/SSL certificate. You can use the test button below to verify the endpoint response.",
-								'newspack'
+								'newspack-plugin'
 							) }
 							className="code"
 							value={ editing.url }
 							onChange={ value => setEditing( { ...editing, url: value } ) }
+							disabled={ inFlight }
+						/>
+						<TextControl
+							label={ __( 'Authentication token (optional)', 'newspack-plugin' ) }
+							help={ __(
+								'If your endpoint requires a token authentication, enter it here. It will be sent as a Bearer token in the Authorization header.',
+								'newspack-plugin'
+							) }
+							value={ editing.bearer_token }
+							onChange={ value => setEditing( { ...editing, bearer_token: value } ) }
 							disabled={ inFlight }
 						/>
 						<Card buttonsCard noBorder className="justify-end">
@@ -490,33 +502,33 @@ const Webhooks = () => {
 							) }
 							<Button
 								isSecondary
-								onClick={ () => sendTestRequest( editing.url ) }
+								onClick={ () => sendTestRequest( editing.url, editing.bearer_token ) }
 								disabled={ inFlight || ! editing.url }
 							>
-								{ __( 'Send a test request', 'newspack' ) }
+								{ __( 'Send a test request', 'newspack-plugin' ) }
 							</Button>
 						</Card>
 					</Grid>
 					<hr />
 					<TextControl
-						label={ __( 'Label (optional)', 'newspack' ) }
+						label={ __( 'Label (optional)', 'newspack-plugin' ) }
 						help={ __(
 							'A label to help you identify this endpoint. It will not be sent to the endpoint.',
-							'newspack'
+							'newspack-plugin'
 						) }
 						value={ editing.label }
 						onChange={ value => setEditing( { ...editing, label: value } ) }
 						disabled={ inFlight }
 					/>
 					<Grid columns={ 1 } gutter={ 16 }>
-						<h3>{ __( 'Actions', 'newspack' ) }</h3>
+						<h3>{ __( 'Actions', 'newspack-plugin' ) }</h3>
 						<CheckboxControl
 							checked={ editing.global }
 							onChange={ value => setEditing( { ...editing, global: value } ) }
-							label={ __( 'Global', 'newspack' ) }
+							label={ __( 'Global', 'newspack-plugin' ) }
 							help={ __(
 								'Leave this checked if you want this endpoint to receive data from all actions.',
-								'newspack'
+								'newspack-plugin'
 							) }
 							disabled={ inFlight }
 						/>
@@ -525,7 +537,7 @@ const Webhooks = () => {
 								<p>
 									{ __(
 										'If this endpoint is not global, select which actions should trigger this endpoint:',
-										'newspack'
+										'newspack-plugin'
 									) }
 								</p>
 								<Grid columns={ 2 } gutter={ 16 }>
@@ -534,7 +546,7 @@ const Webhooks = () => {
 											key={ i }
 											disabled={ editing.global || inFlight }
 											label={ action }
-											checked={ editing.actions && editing.actions.includes( action ) }
+											checked={ ( editing.actions && editing.actions.includes( action ) ) || false }
 											indeterminate={ editing.global }
 											onChange={ () => {
 												const currentActions = editing.actions || [];
@@ -558,7 +570,7 @@ const Webhooks = () => {
 								} }
 								disabled={ inFlight }
 							>
-								{ __( 'Save', 'newspack' ) }
+								{ __( 'Save', 'newspack-plugin' ) }
 							</Button>
 						</Card>
 					</Grid>
