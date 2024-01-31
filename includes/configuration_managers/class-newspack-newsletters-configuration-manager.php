@@ -87,7 +87,11 @@ class Newspack_Newsletters_Configuration_Manager extends Configuration_Manager {
 		if ( ! $this->is_configured() ) {
 			return self::get_unconfigured_error();
 		}
-		return array_values( \Newspack_Newsletters_Subscription::get_lists() );
+		$lists = \Newspack_Newsletters_Subscription::get_lists();
+		if ( is_wp_error( $lists ) ) {
+			return $lists;
+		}
+		return array_values( $lists );
 	}
 
 	/**
