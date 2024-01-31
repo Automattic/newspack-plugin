@@ -41,6 +41,9 @@ class WooCommerce_Connection {
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
+
+		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
+		\add_filter( 'get_post_metadata', [ __CLASS__, 'get_post_metadata' ], 10, 3 );
 	}
 
 	/**
@@ -458,6 +461,45 @@ class WooCommerce_Connection {
 			return;
 		}
 		\wc_add_notice( $message, $type );
+	}
+
+	/**
+	 * Should override the template for the given page?
+	 */
+	private static function should_override_template() {
+		if ( defined( 'NEWSPACK_DISABLE_WC_TEMPLATE_OVERRIDE' ) && NEWSPACK_DISABLE_WC_TEMPLATE_OVERRIDE ) {
+			return false;
+		}
+		if ( ! function_exists( 'WC' ) ) {
+			return false;
+		}
+		return is_checkout() || is_cart() || is_account_page();
+	}
+
+	/**
+	 * Override page templates for WC pages.
+	 *
+	 * @param string $template Template path.
+	 */
+	public static function page_template( $template ) {
+		if ( self::should_override_template() ) {
+			return get_stylesheet_directory() . '/single-wide.php';
+		}
+		return $template;
+	}
+
+	/**
+	 * Override post meta for WC pages.
+	 *
+	 * @param mixed  $value    Meta value to return.
+	 * @param int    $id       Post ID.
+	 * @param string $meta_key Meta key.
+	 */
+	public static function get_post_metadata( $value, $id, $meta_key ) {
+		if ( '_wp_page_template' === $meta_key && self::should_override_template() ) {
+			return 'single-wide';
+		}
+		return $value;
 	}
 }
 
