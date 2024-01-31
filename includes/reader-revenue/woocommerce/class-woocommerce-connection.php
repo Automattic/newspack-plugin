@@ -136,7 +136,7 @@ class WooCommerce_Connection {
 		}
 
 		// Only update last payment data if new payment has been received.
-		$payment_received = $is_new && in_array( $order->get_status(), [ 'processing', 'completed' ], true );
+		$payment_received = $is_new && $order->has_status( [ 'processing', 'completed' ] );
 
 		$metadata = [];
 
@@ -170,7 +170,7 @@ class WooCommerce_Connection {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
 			}
 			$order_date_paid = $order->get_date_paid();
-			if ( $payment_received && null !== $order_date_paid ) {
+			if ( $payment_received && ! empty( $order_date_paid ) ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $order->get_total() );
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 			}
@@ -189,7 +189,7 @@ class WooCommerce_Connection {
 				}
 
 				// If the subscription has moved to a cancelled or expired status.
-				if ( in_array( $current_subscription->get_status(), [ 'cancelled', 'expired' ], true ) ) {
+				if ( $current_subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
 					$donor_status = 'Ex-' . $donor_status;
 				}
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $donor_status;
