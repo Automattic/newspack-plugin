@@ -1414,7 +1414,7 @@ final class Reader_Activation {
 		switch ( $action ) {
 			case 'signin':
 				if ( self::is_reader_without_password( $user ) ) {
-					$sent = Magic_Link::send_email( $user );
+					$sent = Magic_Link::send_email( $user, $current_page_url );
 					if ( true !== $sent ) {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
