@@ -37,6 +37,10 @@
 	.wc_payment_method .payment_box {
 		padding: 1rem 0 0;
 
+		p {
+			font-size: var(--newspack-ui-font-size-small);
+		}
+
 		ul.wc-saved-payment-methods {
 			li {
 				margin-bottom: 16px;
@@ -48,32 +52,39 @@
 		}
 
 		fieldset {
-			margin-bottom: 8px;
+			margin-bottom: 12px;
 
 			&:last-child {
 				margin-bottom: 0;
 			}
 
-			p.form-row {
-				display: flex;
-				align-items: center;
+			p {
+				font-size: var(--newspack-ui-font-size-small);
+				margin-bottom: 0;
 
-				input {
-					margin-right: 8px;
-				}
+				&.form-row {
+					display: flex;
+					align-items: flex-start;
 
-				label {
-					margin-bottom: 0;
+					input {
+						margin-right: 12px;
+					}
+
+					label {
+						margin-bottom: 0;
+						font-weight: 400;
+					}
 				}
 			}
 		}
 	}
 
-	// Override theme hiding of radio checkbox.
-	.wc_payment_method input.input-radio[name="payment_method"] {
-		display: grid;
+	// Override checkout form terms and condition text.
+	.woocommerce-terms-and-conditions-wrapper {
+		font-size: var(--newspack-ui-font-size-small);
 	}
 
+	// Override checkout form coupon field.
 	.woocommerce-form-coupon {
 		p:first-of-type {
 			display: flex;
@@ -90,6 +101,7 @@
 		}
 	}
 
+	// Override checkout form subscriptions gift toggle.
 	.newspack-wcsg--gift-toggle {
 		margin-bottom: 0;
 
