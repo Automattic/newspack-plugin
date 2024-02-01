@@ -331,13 +331,16 @@ class WooCommerce_My_Account {
 
 	/**
 	 * Redirect to "Account details" if accessing "My Account" directly.
-	 * Do not redirect if the request is a resubscribe request, as resubscribe
-	 * requests do their own redirect to the cart/checkout page.
+	 * Do not redirect if the request is a resubscribe or renewal request, as
+	 * these requests do their own redirect to the cart/checkout page.
 	 */
 	public static function redirect_to_account_details() {
-		$resubscribe_request = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$resubscribe_request    = filter_input( INPUT_GET, 'resubscribe', FILTER_SANITIZE_NUMBER_INT );
+		$is_resubscribe_request = ! empty( $resubscribe_request ) && 'shop_subscription' === get_post_type( $resubscribe_request );
+		$renewal_request        = filter_input( INPUT_GET, 'subscription_renewal_early', FILTER_SANITIZE_NUMBER_INT );
+		$is_renewal_request     = ! empty( $renewal_request ) && 'shop_subscription' === get_post_type( $renewal_request ) && 'true' === filter_input( INPUT_GET, 'subscription_renewal', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $resubscribe_request ) {
+		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $is_resubscribe_request && ! $is_renewal_request ) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
 			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
