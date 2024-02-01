@@ -10,6 +10,7 @@ import { ExternalLink } from '@wordpress/components';
 import { PrequisiteProps } from './types';
 import { ActionCard, Button, Grid, TextControl } from '../../../components/src';
 import { HANDOFF_KEY } from '../../../components/src/consts';
+import type { Config, ConfigKey } from './types';
 
 /**
  * Expandable ActionCard for RAS prerequisites checklist.
@@ -27,7 +28,7 @@ export default function Prerequisite( {
 	const hasEmptyFields = () => {
 		if ( prerequisite.active && prerequisite.fields && prerequisite.warning ) {
 			const emptyValues = Object.keys( prerequisite.fields ).filter(
-				fieldName => '' === config[ fieldName ]
+				fieldName => '' === config[ fieldName as keyof Config ]
 			);
 			if ( emptyValues.length ) {
 				return prerequisite.warning;
@@ -35,6 +36,8 @@ export default function Prerequisite( {
 		}
 		return null;
 	};
+
+	const fieldKeys = Object.keys( prerequisite.fields || {} ) as ConfigKey[];
 
 	const renderInnerContent = () => (
 		// Inner card content.
@@ -57,24 +60,30 @@ export default function Prerequisite( {
 				prerequisite.fields && (
 					<Grid columns={ 2 } gutter={ 16 }>
 						<div>
-							{ Object.keys( prerequisite.fields ).map( fieldName => (
-								<TextControl
-									key={ fieldName }
-									label={ prerequisite.fields[ fieldName ].label }
-									help={ prerequisite.fields[ fieldName ].description }
-									{ ...getSharedProps( fieldName, 'text' ) }
-								/>
-							) ) }
+							{ fieldKeys.map( fieldName => {
+								if ( ! prerequisite.fields || ! prerequisite.fields[ fieldName ] ) {
+									return undefined;
+								}
+								return (
+									<TextControl
+										key={ fieldName }
+										label={ prerequisite.fields[ fieldName ].label }
+										help={ prerequisite.fields[ fieldName ].description }
+										{ ...getSharedProps( fieldName, 'text' ) }
+									/>
+								);
+							} ) }
 
 							<Button
-								isPrimary
+								variant={ 'primary' }
 								onClick={ () => {
-									const dataToSave = {};
-
-									Object.keys( prerequisite.fields ).forEach( fieldName => {
-										dataToSave[ fieldName ] = config[ fieldName ];
+									const dataToSave: Partial< Config > = {};
+									fieldKeys.forEach( fieldName => {
+										if ( config[ fieldName ] ) {
+											// @ts-ignore - not sure what's the issue here.
+											dataToSave[ fieldName ] = config[ fieldName ];
+										}
 									} );
-
 									saveConfig( dataToSave );
 								} }
 								disabled={ inFlight }
@@ -99,7 +108,7 @@ export default function Prerequisite( {
 							{ ( ! prerequisite.hasOwnProperty( 'action_enabled' ) ||
 								prerequisite.action_enabled ) && (
 								<Button
-									isPrimary
+									variant={ 'primary' }
 									onClick={ () => {
 										// Set up a handoff to indicate that the user is coming from the RAS wizard page.
 										if ( prerequisite.instructions ) {
@@ -135,7 +144,7 @@ export default function Prerequisite( {
 								</Button>
 							) }
 							{ prerequisite.hasOwnProperty( 'action_enabled' ) && ! prerequisite.action_enabled && (
-								<Button isSecondary disabled>
+								<Button variant={ 'secondary' } disabled>
 									{ prerequisite.disabled_text || prerequisite.action_text }
 								</Button>
 							) }

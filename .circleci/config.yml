@@ -14,6 +14,9 @@ workflows:
       - newspack/test-js:
           requires:
             - newspack/build
+      - newspack/check-typescript:
+          requires:
+            - newspack/build
       - newspack/build-distributable:
           requires:
             - newspack/build

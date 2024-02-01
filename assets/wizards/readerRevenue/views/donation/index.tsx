@@ -88,7 +88,7 @@ export const DonationAmounts = () => {
 	const { amounts, currencySymbol, tiered, disabledFrequencies, minimumDonation } =
 		wizardData.donation_data;
 
-	const changeHandler = path => value =>
+	const changeHandler = ( path: ( string | number )[] ) => ( value: any ) =>
 		updateWizardSettings( {
 			slug: 'newspack-reader-revenue-wizard',
 			path: [ 'donation_data', ...path ],
@@ -238,7 +238,7 @@ export const DonationAmounts = () => {
 					type="number"
 					min={ 1 }
 					value={ minimumDonationFloat }
-					onChange={ value => changeHandler( [ 'minimumDonation' ] )( value ) }
+					onChange={ ( value: string ) => changeHandler( [ 'minimumDonation' ] )( value ) }
 				/>
 			</Card>
 		</>
