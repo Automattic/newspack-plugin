@@ -2,6 +2,32 @@
  * Types for the Prequisite component.
  */
 
+export type PromptOptionsBase = {
+	background_color: string;
+	display_title: boolean;
+	hide_border: boolean;
+	large_border: boolean;
+	frequency: string;
+	frequency_max: number;
+	frequency_start: number;
+	frequency_between: number;
+	frequency_reset: string;
+	overlay_color: string;
+	overlay_opacity: number;
+	overlay_size: string;
+	no_overlay_background: boolean;
+	placement: string;
+	trigger_type: string;
+	trigger_delay: number;
+	trigger_scroll_progress: number;
+	trigger_blocks_count: number;
+	archive_insertion_posts_count: number;
+	archive_insertion_is_repeating: false;
+	utm_suppression: string;
+};
+
+export type PromptOptionsBaseKey = keyof PromptOptionsBase;
+
 declare global {
 	interface Window {
 		// Localized data on engagement wizard script.
@@ -11,27 +37,7 @@ declare global {
 			new_subscription_lists_url: string;
 			reader_activation_url: string;
 			preview_query_keys: {
-				background_color: string;
-				display_title: string;
-				hide_border: string;
-				large_border: string;
-				frequency: string;
-				frequency_max: string;
-				frequency_start: string;
-				frequency_between: string;
-				frequency_reset: string;
-				overlay_color: string;
-				overlay_opacity: string;
-				overlay_size: string;
-				no_overlay_background: string;
-				placement: string;
-				trigger_type: string;
-				trigger_delay: string;
-				trigger_scroll_progress: string;
-				trigger_blocks_count: string;
-				archive_insertion_posts_count: string;
-				archive_insertion_is_repeating: string;
-				utm_suppression: string;
+				[ K in PromptOptionsBaseKey ]: string;
 			};
 			preview_post: string;
 			preview_archive: string;
@@ -48,7 +54,7 @@ type EmailSlugs =
 	| 'reader-activation-delete-account';
 
 // RAS config inherited from RAS wizard view.
-type Config = {
+export type Config = {
 	enabled?: boolean;
 	enabled_account_link?: boolean;
 	account_link_menu_locations?: [ 'tertiary-menu' ];
@@ -78,6 +84,8 @@ type Config = {
 	contact_email_address?: string;
 };
 
+export type ConfigKey = keyof Config;
+
 // Props for the Prequisite component.
 export type PrequisiteProps = {
 	config: Config;
@@ -105,7 +113,7 @@ export type PrequisiteProps = {
 		instructions?: string;
 		help_url: string;
 		fields?: {
-			[ fieldName: string ]: {
+			[ K in ConfigKey ]: {
 				label: string;
 				description: string;
 			};
@@ -157,27 +165,7 @@ export type PromptType = {
 	ready?: boolean;
 };
 
-export type PromptOptions = {
-	background_color: string;
-	display_title: boolean;
-	hide_border: boolean;
-	large_border: boolean;
-	frequency: string;
-	frequency_max: number;
-	frequency_start: number;
-	frequency_between: number;
-	frequency_reset: string;
-	overlay_color: string;
-	overlay_opacity: number;
-	overlay_size: string;
-	no_overlay_background: boolean;
-	placement: string;
-	trigger_type: string;
-	trigger_delay: number;
-	trigger_scroll_progress: number;
-	trigger_blocks_count: number;
-	archive_insertion_posts_count: number;
-	archive_insertion_is_repeating: false;
+export type PromptOptions = PromptOptionsBase & {
 	post_types: Array< string >;
 	archive_page_types: Array< string >;
 	additional_classes: string;
