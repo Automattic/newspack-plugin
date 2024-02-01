@@ -734,9 +734,7 @@ final class Reader_Activation {
 
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
 
-		if ( function_exists( '\wc_add_notice' ) ) {
-			\wc_add_notice( __( 'Thank you for verifying your account!', 'newspack-plugin' ), 'success' );
-		}
+		WooCommerce_Connection::add_wc_notice( __( 'Thank you for verifying your account!', 'newspack-plugin' ), 'success' );
 
 		/**
 		 * Fires after a reader's email address is verified.
@@ -1442,6 +1440,10 @@ final class Reader_Activation {
 		$captcha_token    = isset( $_POST['captcha_token'] ) ? \sanitize_text_field( $_POST['captcha_token'] ) : '';
 		// phpcs:enable
 
+		if ( ! empty( $current_page_url['path'] ) ) {
+			$current_page_url = \esc_url( \home_url( $current_page_url['path'] ) );
+		}
+
 		// Honeypot trap.
 		if ( ! empty( $honeypot ) ) {
 			return self::send_auth_form_response(
@@ -1497,7 +1499,7 @@ final class Reader_Activation {
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
 				return self::send_auth_form_response( $payload, false, $redirect );
 			case 'link':
-				$sent = Magic_Link::send_email( $user );
+				$sent = Magic_Link::send_email( $user, $current_page_url );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}
@@ -1510,8 +1512,8 @@ final class Reader_Activation {
 				if ( ! empty( $referer ) ) {
 					$metadata['referer'] = \esc_url( $referer );
 				}
-				if ( ! empty( $current_page_url['path'] ) ) {
-					$metadata['current_page_url'] = \esc_url( \home_url( $current_page_url['path'] ) );
+				if ( ! empty( $current_page_url ) ) {
+					$metadata['current_page_url'] = $current_page_url;
 				}
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
@@ -1623,7 +1625,8 @@ final class Reader_Activation {
 			// Don't send OTP email for newsletter signup.
 			if ( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) ) {
 				Logger::log( "User with $email already exists. Sending magic link." );
-				Magic_Link::send_email( $existing_user );
+				$redirect = isset( $metadata['current_page_url'] ) ? $metadata['current_page_url'] : '';
+				Magic_Link::send_email( $existing_user, $redirect );
 			}
 		} else {
 			/**

@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -145,7 +145,7 @@ class Plugin_Manager {
 			],
 			'newspack-popups'             => [
 				'Name'        => esc_html__( 'Newspack Campaigns', 'newspack' ),
-				'Description' => esc_html__( 'AMP-compatible overlay and inline Campaigns.', 'newspack' ),
+				'Description' => esc_html__( 'Build persuasive call-to-action prompts from scratch and display them as overlays, inline with the story, or above the site header.', 'newspack-plugin' ),
 				'Author'      => esc_html__( 'Automattic', 'newspack' ),
 				'PluginURI'   => esc_url( 'https://newspack.com' ),
 				'AuthorURI'   => esc_url( 'https://automattic.com' ),
@@ -395,7 +395,7 @@ class Plugin_Manager {
 		if ( 'wordpress-seo' === $plugin_slug && 'active' !== $status && isset( $installed_plugins['wordpress-seo-premium'] ) && $installed_plugins['wordpress-seo-premium'] ) {
 			if ( is_plugin_active( $installed_plugins['wordpress-seo-premium'] ) ) {
 				$status = 'active';
-			};
+			}
 		}
 
 		return $status;
