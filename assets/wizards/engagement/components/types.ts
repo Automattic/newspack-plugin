@@ -133,7 +133,7 @@ export type InputField = {
 	};
 };
 
-// Schema is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/master/includes/schemas/class-prompts.php
+// Schema is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/trunk/includes/schemas/class-prompts.php
 export type PromptType = {
 	status: string;
 	slug: string;
