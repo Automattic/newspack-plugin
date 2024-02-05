@@ -9,4 +9,111 @@
 			margin: 0 0 var( --newspack-ui-spacer-2 );
 		}
 	}
+
+	.newspack-ui__input-list {
+		label {
+			display: block;
+		}
+	}
+
+	// Override checkout form heading.
+	.woocommerce .order-details-summary {
+		// Top margin not needed in newspack ui modal.
+		h2 {
+			margin-top: 0;
+		}
+	}
+
+	// Override checkout and billing form headings spacing.
+	.woocommerce-billing-fields h3,
+	.woocommerce-additional-fields h3,
+	.woocommerce-checkout h3,
+	.woocommerce-form-coupon h3 {
+		font-size: var(--newspack-ui-font-size-medium);
+		margin: 1rem 0 !important;
+	}
+
+	// Override checkout payment method box.
+	.wc_payment_method {
+		span {
+			font-weight: var( --newspack-ui-font-weight-strong );
+		}
+
+		.payment_box {
+			font-weight: normal;
+			padding: 0;
+
+			p {
+				font-size: var(--newspack-ui-font-size-small);
+			}
+
+			ul.wc-saved-payment-methods {
+				li {
+					margin-bottom: 16px;
+
+					input {
+						margin-right: 8px;
+					}
+				}
+			}
+
+			fieldset {
+				margin-bottom: 12px;
+
+				&:last-child {
+					margin-bottom: 0;
+				}
+
+				p {
+					font-size: var(--newspack-ui-font-size-small);
+					margin-bottom: 0;
+
+					&.form-row {
+						display: flex;
+						align-items: flex-start;
+
+						input {
+							margin-right: 12px;
+						}
+
+						label {
+							margin-bottom: 0;
+							font-weight: normal;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Override checkout form terms and condition text.
+	.woocommerce-terms-and-conditions-wrapper {
+		font-size: var(--newspack-ui-font-size-small);
+	}
+
+	// Override checkout form coupon field.
+	.woocommerce-form-coupon {
+		p:first-of-type {
+			display: flex;
+			align-items: center;
+			margin: var(--newspack-ui-spacer-2) 0;
+
+			input {
+				margin-right: 8px;
+			}
+
+			button {
+				margin-bottom: 0;
+			}
+		}
+	}
+
+	// Override checkout form subscriptions gift toggle.
+	.newspack-wcsg--gift-toggle {
+		margin-bottom: 0;
+
+		label {
+			display: flex !important;
+		}
+	}
 }
