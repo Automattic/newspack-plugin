@@ -17,10 +17,6 @@ class Organic_Profile_Block {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			include_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 	}
@@ -31,7 +27,7 @@ class Organic_Profile_Block {
 	 */
 	public static function wp_enqueue_scripts() {
 		if (
-			! \is_plugin_active( 'organic-profile-block/organic-profile-block.php' )
+			! \function_exists( 'organic_profile_block' )
 			&& \has_block( 'organic/profile-block' )
 		) {
 			\wp_enqueue_style(
