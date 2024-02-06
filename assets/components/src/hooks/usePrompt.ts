@@ -12,21 +12,17 @@ import Router from '../proxied-imports/router';
 
 const { useHistory } = Router;
 
-export default ( when, message ) => {
+export default ( when: boolean, message: string ): ( () => void ) => {
 	const history = useHistory();
 	const self = useRef( null );
 
-	const onWindowOrTabClose = event => {
+	const onWindowOrTabClose = ( event: Event | undefined ) => {
 		if ( ! when ) {
 			return;
 		}
 
 		if ( typeof event === 'undefined' ) {
 			event = window.event;
-		}
-
-		if ( event ) {
-			event.returnValue = message;
 		}
 
 		return message;
@@ -40,11 +36,11 @@ export default ( when, message ) => {
 
 		return () => {
 			if ( self.current ) {
-				self.current();
+				( self.current as () => void )();
 			}
 			window.removeEventListener( 'beforeunload', onWindowOrTabClose );
 		};
 	}, [ message, when ] );
 
-	return self.current;
+	return self.current || ( () => {} );
 };
