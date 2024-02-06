@@ -7,8 +7,8 @@
 
 namespace Newspack\API;
 
-use WP_REST_Controller;
-use WP_Error;
+use \WP_REST_Controller;
+use \WP_Error;
 use Newspack\Plugin_Manager;
 use Newspack\Handoff_Banner;
 use Newspack\Configuration_Managers;
@@ -386,7 +386,7 @@ class Plugins_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function get_items_permissions_check( $request ) {
-		if ( ! \Newspack\Wizards::can_access_wizard( 'newspack' ) ) { // Dashboard wizard.
+		if ( ! current_user_can( 'activate_plugins' ) ) {
 			return new WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot view this resource.', 'newspack' ),

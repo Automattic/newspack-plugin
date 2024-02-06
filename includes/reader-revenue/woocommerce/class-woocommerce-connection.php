@@ -40,7 +40,6 @@ class WooCommerce_Connection {
 		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
-		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
 
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
 		\add_filter( 'get_post_metadata', [ __CLASS__, 'get_post_metadata' ], 10, 3 );

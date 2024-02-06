@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use WP_Error, WP_Query;
+use \WP_Error, \WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,7 +23,14 @@ class SEO_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-seo-wizard';
+	protected $slug = 'newspack-seo-wizard';
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'manage_options';
 
 	/**
 	 * Constructor.

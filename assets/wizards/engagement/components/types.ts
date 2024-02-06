@@ -122,7 +122,6 @@ export type PrequisiteProps = {
 		action_text?: string;
 		action_enabled?: boolean;
 		disabled_text?: string;
-		is_unavailable?: boolean;
 	};
 };
 
