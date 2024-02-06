@@ -313,7 +313,7 @@ final class Data_Events {
 		}
 
 		Logger::log(
-			sprintf( 'Dispatching action "%s".', $action_name ),
+			sprintf( 'Dispatching action "%s" with data:' . "\n" . \wp_json_encode( $data, JSON_PRETTY_PRINT ), $action_name ),
 			self::LOGGER_HEADER
 		);
 

@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WP_Query;
+use WP_Error, WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -23,14 +23,7 @@ class Engagement_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-engagement-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
+	public $slug = 'newspack-engagement-wizard';
 
 	/**
 	 * The name of the option for Related Posts max age.
@@ -47,6 +40,7 @@ class Engagement_Wizard extends Wizard {
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'jetpack_relatedposts_filter_date_range', [ $this, 'restrict_age_of_related_posts' ] );
 		add_filter( 'newspack_newsletters_settings_url', [ $this, 'newsletters_settings_url' ] );
+		add_action( 'admin_init', [ $this, 'translate_capabilities' ] );
 	}
 
 	/**
@@ -132,6 +126,15 @@ class Engagement_Wizard extends Wizard {
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_newsletters_lists' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/newsletters/lists',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_newsletters_lists' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -278,6 +281,16 @@ class Engagement_Wizard extends Wizard {
 	public static function api_get_newsletters_lists() {
 		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 		return $newsletters_configuration_manager->get_lists();
+	}
+
+	/**
+	 * Update lists of configured ESP.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public static function api_update_newsletters_lists( $request ) {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		return $newsletters_configuration_manager->api_update_lists( $request );
 	}
 
 	/**
@@ -464,5 +477,33 @@ class Engagement_Wizard extends Wizard {
 	 */
 	public function newsletters_settings_url( $url = '' ) {
 		return admin_url( 'admin.php?page=newspack-engagement-wizard#/newsletters' );
+	}
+
+	/**
+	 * Translate capabilities. If the user can access the wizard, they should also get access to the CPT.
+	 */
+	public static function translate_capabilities() {
+		if ( ! method_exists( '\Newspack_Newsletters', 'get_capabilities_list' ) ) {
+			return;
+		}
+		if ( ! Wizards::can_access_wizard( 'engagement' ) ) {
+			return;
+		}
+
+		$current_user_id = get_current_user_id();
+		$user_meta_name  = 'newspack_plugin_has_translated_newsletters_caps_v1';
+		if ( get_user_meta( $current_user_id, $user_meta_name, true ) ) {
+			return;
+		}
+		update_user_meta( $current_user_id, $user_meta_name, true );
+
+		$cpt_caps = \Newspack_Newsletters::get_capabilities_list();
+		if ( current_user_can( $cpt_caps[0] ) ) {
+			return;
+		}
+		$role = get_role( array_values( wp_get_current_user()->roles )[0] );
+		foreach ( $cpt_caps as $cap ) {
+			$role->add_cap( $cap );
+		}
 	}
 }

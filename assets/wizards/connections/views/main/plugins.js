@@ -73,6 +73,9 @@ const Plugins = ( { setError } ) => {
 						return __( 'Loading…', 'newspack' );
 					}
 					if ( isInactive ) {
+						if ( plugin.pluginSlug === 'google-site-kit' ) {
+							return __( 'Not connected for this user', 'newspack' );
+						}
 						return __( 'Not connected', 'newspack' );
 					}
 					return __( 'Connected', 'newspack' );
