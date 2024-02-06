@@ -48,12 +48,6 @@ const ReaderRevenueWizard = () => {
 			isHidden: usedPlatform !== NEWSPACK,
 		},
 		{
-			label: __( 'Address', 'newspack' ),
-			path: '/location-setup',
-			render: Views.LocationSetup,
-			isHidden: usedPlatform !== NEWSPACK,
-		},
-		{
 			label: __( 'Salesforce', 'newspack' ),
 			path: '/salesforce',
 			render: Views.Salesforce,

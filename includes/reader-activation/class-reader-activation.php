@@ -484,10 +484,9 @@ final class Reader_Activation {
 			'reader_revenue'   => [
 				'active'         => self::is_reader_revenue_ready(),
 				'plugins'        => [
-					'newspack-blocks'             => class_exists( '\Newspack_Blocks' ),
-					'woocommerce'                 => function_exists( 'WC' ),
-					'woocommerce-subscriptions'   => class_exists( 'WC_Subscriptions_Product' ),
-					'woocommerce-name-your-price' => class_exists( 'WC_Name_Your_Price_Helpers' ),
+					'newspack-blocks'           => class_exists( '\Newspack_Blocks' ),
+					'woocommerce'               => function_exists( 'WC' ),
+					'woocommerce-subscriptions' => class_exists( 'WC_Subscriptions_Product' ),
 				],
 				'label'          => __( 'Reader Revenue', 'newspack-plugin' ),
 				'description'    => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
