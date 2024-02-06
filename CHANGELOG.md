@@ -1,3 +1,15 @@
+## [3.0.1](https://github.com/Automattic/newspack-plugin/compare/v3.0.0...v3.0.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* remove unneeded hook ([e863a3e](https://github.com/Automattic/newspack-plugin/commit/e863a3e2477df4eb7b05fe2b444dfc09d42285f7))
+
+
+### Reverts
+
+* Revert "feat: per-wizard capabilities (#2864)" ([353d9fd](https://github.com/Automattic/newspack-plugin/commit/353d9fd36191324981725f46eb52ac97e50c7aed)), closes [#2864](https://github.com/Automattic/newspack-plugin/issues/2864)
+
 # [3.0.0](https://github.com/Automattic/newspack-plugin/compare/v2.16.1...v3.0.0) (2024-02-06)
 
 
