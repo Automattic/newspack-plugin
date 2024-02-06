@@ -35,7 +35,7 @@ class Mailchimp_API {
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_mailchimp_auth_status' ],
 				'permission_callback' => function() {
-					return Wizards::can_access_wizard( 'connections' );
+					return current_user_can( 'manage_options' );
 				},
 			]
 		);
@@ -48,7 +48,7 @@ class Mailchimp_API {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ __CLASS__, 'api_mailchimp_save_key' ],
 				'permission_callback' => function() {
-					return Wizards::can_access_wizard( 'connections' );
+					return current_user_can( 'manage_options' );
 				},
 				'args'                => [
 					'api_key' => [
@@ -68,7 +68,7 @@ class Mailchimp_API {
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ __CLASS__, 'api_mailchimp_delete_key' ],
 				'permission_callback' => function() {
-					return Wizards::can_access_wizard( 'connections' );
+					return current_user_can( 'manage_options' );
 				},
 			]
 		);

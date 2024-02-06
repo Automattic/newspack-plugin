@@ -65,46 +65,23 @@ class Newspack_Newsletters_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
-	 * Get "unconfigured" error.
-	 */
-	private static function get_unconfigured_error() {
-		return new \WP_Error(
-			'newspack_missing_required_plugin',
-			esc_html__( 'The Newspack Newsletters plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
-			[
-				'status' => 400,
-				'level'  => 'fatal',
-			]
-		);
-	}
-
-	/**
 	 * Get configured ESP's lists.
 	 *
 	 * @return array Lists.
 	 */
 	public function get_lists() {
-		if ( ! $this->is_configured() ) {
-			return self::get_unconfigured_error();
+		if ( $this->is_configured() ) {
+			return \Newspack_Newsletters::get_esp_lists();
+		} else {
+			return new \WP_Error(
+				'newspack_missing_required_plugin',
+				esc_html__( 'The Newspack Newsletters plugin is not installed and activated. Install and/or activate it to access this feature.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'fatal',
+				]
+			);
 		}
-		$lists = \Newspack_Newsletters_Subscription::get_lists();
-		if ( is_wp_error( $lists ) ) {
-			return $lists;
-		}
-		return array_values( $lists );
-	}
-
-	/**
-	 * Update configured ESP's lists.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return array Lists.
-	 */
-	public function api_update_lists( $request ) {
-		if ( ! $this->is_configured() ) {
-			return self::get_unconfigured_error();
-		}
-		return \Newspack_Newsletters_Subscription::api_update_lists( $request );
 	}
 
 	/**

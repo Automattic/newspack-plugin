@@ -22,7 +22,7 @@ class SiteDesignWizard extends Component {
 	componentDidMount = () => {
 		const { setError, wizardApiFetch } = this.props;
 		const params = {
-			path: '/newspack/v1/wizard/newspack-site-design-wizard/theme/',
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 			method: 'GET',
 		};
 		wizardApiFetch( params )
@@ -58,7 +58,7 @@ class SiteDesignWizard extends Component {
 		}
 
 		const params = {
-			path: '/newspack/v1/wizard/newspack-site-design-wizard/theme/',
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
 			data: { theme_mods: themeSettings },
 			quiet: true,

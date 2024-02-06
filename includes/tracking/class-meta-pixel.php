@@ -35,10 +35,10 @@ class Meta_Pixel extends Pixel {
 	 */
 	private static function get_event_params() {
 		global $wp;
-		$current_user_roles = array_values( wp_get_current_user()->roles ); // Reindex the roles array, so the first element is at position 0.
-		$event_params       = [
+		$current_user = wp_get_current_user();
+		$event_params = [
 			'page_title' => get_the_title(),
-			'user_role'  => empty( $current_user_roles ) ? 'guest' : $current_user_roles[0],
+			'user_role'  => empty( $current_user->roles ) ? 'guest' : $current_user->roles[0],
 			'event_url'  => home_url( $wp->request ),
 		];
 

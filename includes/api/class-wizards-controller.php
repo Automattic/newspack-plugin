@@ -7,8 +7,8 @@
 
 namespace Newspack\API;
 
-use WP_REST_Controller;
-use WP_Error;
+use \WP_REST_Controller;
+use \WP_Error;
 use Newspack\Wizards;
 
 defined( 'ABSPATH' ) || exit;
@@ -124,7 +124,7 @@ class Wizards_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function get_item_permissions_check( $request ) {
-		if ( ! Wizards::can_access_wizard( 'setup' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot view this resource.', 'newspack' ),
@@ -144,7 +144,7 @@ class Wizards_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function complete_item_permissions_check( $request ) {
-		if ( ! Wizards::can_access_wizard( 'setup' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),

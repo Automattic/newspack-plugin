@@ -7,9 +7,9 @@
 
 namespace Newspack;
 
-use WP_Error;
+use \WP_Error;
 
-use Newspack_Ads\Providers\GAM_Model;
+use \Newspack_Ads\Providers\GAM_Model;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -35,7 +35,14 @@ class Advertising_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-advertising-wizard';
+	protected $slug = 'newspack-advertising-wizard';
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'manage_options';
 
 	/**
 	 * Supported services.
@@ -54,14 +61,6 @@ class Advertising_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		add_filter( 'newspack_ads_can_current_user_manage_settings', [ $this, 'newspack_ads_can_current_user_manage_settings' ] );
-	}
-
-	/**
-	 * Determine if the current user can manage Newspack Ads settings.
-	 */
-	public function newspack_ads_can_current_user_manage_settings() {
-		return Wizards::can_access_wizard( 'advertising' );
 	}
 
 	/**
@@ -249,11 +248,11 @@ class Advertising_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'network_code' => [
-						'sanitize_callback' => function ( $value ) {
+						'sanitize_callback' => function( $value ) {
 							$raw_codes       = explode( ',', $value );
 							$sanitized_codes = array_reduce(
 								$raw_codes,
-								function ( $acc, $code ) {
+								function( $acc, $code ) {
 									$sanitized_code = absint( trim( $code ) );
 									if ( ! empty( $sanitized_code ) ) {
 										$acc[] = $sanitized_code;
