@@ -7,8 +7,8 @@
 
 namespace Newspack;
 
-use WP_Error, WP_Query;
-use Newspack\Donations;
+use \WP_Error, \WP_Query;
+use \Newspack\Donations;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,7 +24,14 @@ class Popups_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-popups-wizard';
+	protected $slug = 'newspack-popups-wizard';
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'manage_options';
 
 	/**
 	 * Constructor.
@@ -33,7 +40,6 @@ class Popups_Wizard extends Wizard {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'newspack_popups_registered_criteria', [ $this, 'maybe_unregister_memberships_criteria' ] );
-		add_action( 'admin_init', [ $this, 'translate_capabilities' ] );
 	}
 
 	/**
@@ -372,7 +378,7 @@ class Popups_Wizard extends Wizard {
 				],
 			]
 		);
-
+		
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/subscription-products',
@@ -479,7 +485,7 @@ class Popups_Wizard extends Wizard {
 
 		if ( $newspack_popups_configuration_manager->is_configured() ) {
 			$response['prompts']   = array_map(
-				function ( $prompt ) {
+				function( $prompt ) {
 					$prompt['edit_link'] = get_edit_post_link( $prompt['id'] );
 					return $prompt;
 				},
@@ -931,7 +937,7 @@ class Popups_Wizard extends Wizard {
 
 	/**
 	 * Get non-donation subscription products.
-	 *
+	 * 
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
@@ -952,7 +958,7 @@ class Popups_Wizard extends Wizard {
 		$posts = array_values(
 			array_filter(
 				\get_posts( $args ),
-				function ( $post ) {
+				function( $post ) {
 					return ! Donations::is_donation_product( $post->ID );
 				}
 			)
@@ -960,7 +966,7 @@ class Popups_Wizard extends Wizard {
 
 		return \rest_ensure_response(
 			array_map(
-				function ( $post ) {
+				function( $post ) {
 					return [
 						'id'    => $post->ID,
 						'title' => $post->post_title,
@@ -974,9 +980,9 @@ class Popups_Wizard extends Wizard {
 	/**
 	 * We only want to show Memberships criteria if the WooCommerce Memberships extension is active.
 	 * Otherwise these criteria are meaningless.
-	 *
+	 * 
 	 * @param array $criteria Registered criteria.
-	 *
+	 * 
 	 * @return array Filtered criteria.
 	 */
 	public function maybe_unregister_memberships_criteria( $criteria ) {
@@ -985,7 +991,7 @@ class Popups_Wizard extends Wizard {
 			$criteria             = array_values(
 				array_filter(
 					$criteria,
-					function ( $config ) use ( $memberships_criteria ) {
+					function( $config ) use ( $memberships_criteria ) {
 						return ! in_array( $config['id'], $memberships_criteria, true );
 					}
 				)
@@ -993,33 +999,5 @@ class Popups_Wizard extends Wizard {
 		}
 
 		return $criteria;
-	}
-
-	/**
-	 * Translate capabilities. If the user can access the wizard, they should also get access to the CPT.
-	 */
-	public static function translate_capabilities() {
-		if ( ! method_exists( '\Newspack_Popups', 'get_capabilities_list' ) ) {
-			return;
-		}
-		if ( ! Wizards::can_access_wizard( 'popups' ) ) {
-			return;
-		}
-
-		$current_user_id = get_current_user_id();
-		$user_meta_name  = 'newspack_plugin_has_translated_popups_caps_v1';
-		if ( get_user_meta( $current_user_id, $user_meta_name, true ) ) {
-			return;
-		}
-		update_user_meta( $current_user_id, $user_meta_name, true );
-
-		$popup_cpt_caps = \Newspack_Popups::get_capabilities_list();
-		if ( current_user_can( $popup_cpt_caps[0] ) ) {
-			return;
-		}
-		$role = get_role( array_values( wp_get_current_user()->roles )[0] );
-		foreach ( $popup_cpt_caps as $cap ) {
-			$role->add_cap( $cap );
-		}
 	}
 }
