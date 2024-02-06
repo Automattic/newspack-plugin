@@ -1,3 +1,10 @@
+# [3.0.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v3.0.0-alpha.1...v3.0.0-alpha.2) (2024-02-06)
+
+
+### Bug Fixes
+
+* fixes for prod release feb 5 ([#2905](https://github.com/Automattic/newspack-plugin/issues/2905)) ([1531ac3](https://github.com/Automattic/newspack-plugin/commit/1531ac3c38436c5021a10c99313bd513940258c8))
+
 # [3.0.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v2.16.1...v3.0.0-alpha.1) (2024-01-26)
 
 
