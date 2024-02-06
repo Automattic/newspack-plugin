@@ -30,6 +30,8 @@ class WooCommerce_My_Account {
 	public static function init() {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'edit_address_required_fields' ] );
+		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
+		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
@@ -106,6 +108,21 @@ class WooCommerce_My_Account {
 
 			$default_disabled_items = array_merge( $default_disabled_items, [ 'dashboard', 'members-area' ] );
 			$customer_id            = \get_current_user_id();
+			if ( function_exists( 'wcs_user_has_subscription' ) && function_exists( 'wcs_get_subscriptions' ) ) {
+				$user_subscriptions             = apply_filters( 'wcs_get_users_subscriptions', [], $customer_id ); // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+				$has_non_newspack_subscriptions = false;
+				foreach ( $user_subscriptions as $subscription ) {
+					if ( ! $subscription->get_meta( WooCommerce_Connection::SUBSCRIPTION_STRIPE_ID_META_KEY ) ) {
+						$has_non_newspack_subscriptions = true;
+						break;
+					}
+				}
+				// Unless user has any subscriptions that aren't tied to a Stripe subscription by Newspack, hide the subscriptions link.
+				// The Stripe-tied subscriptions will be available for management in the "Billing" section.
+				if ( ! $has_non_newspack_subscriptions ) {
+					$default_disabled_items[] = 'subscriptions';
+				}
+			}
 			if ( class_exists( 'WC_Customer' ) ) {
 				$ignored_fields   = [ 'first_name', 'last_name', 'email' ];
 				$customer         = new \WC_Customer( $customer_id );
@@ -431,6 +448,29 @@ class WooCommerce_My_Account {
 			}
 		}
 
+		return $fields;
+	}
+
+	/**
+	 * Ensure that only billing address fields enabled in Reader Revenue settings
+	 * are required for new gift recipient accounts.
+	 *
+	 * See: https://github.com/woocommerce/woocommerce-subscriptions-gifting/blob/trunk/includes/class-wcsg-recipient-details.php#L275
+	 *
+	 * @param array $fields Address fields.
+	 * @return array
+	 */
+	public static function new_recipient_fields( $fields ) {
+		// Escape hatch to force required shipping address for virtual products.
+		if ( apply_filters( 'wcsg_require_shipping_address_for_virtual_products', false ) ) { // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			return $fields;
+		}
+		$required_fields = Donations::get_billing_fields();
+		foreach ( $fields as $field_name => $field_config ) {
+			if ( ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
+				unset( $fields[ $field_name ] );
+			}
+		}
 		return $fields;
 	}
 
