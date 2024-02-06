@@ -7,9 +7,8 @@
 
 namespace Newspack;
 
-use WP_Error, WP_REST_Server;
+use \WP_Error, WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
-
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
@@ -35,7 +34,14 @@ class Setup_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-setup-wizard';
+	protected $slug = 'newspack-setup-wizard';
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'manage_options';
 
 	/**
 	 * An array of theme mods that are media library IDs.
@@ -107,7 +113,10 @@ class Setup_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_theme_with_mods' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'theme' => [
+					'theme_mods' => [
+						'sanitize_callback' => [ $this, 'sanitize_theme_mods' ],
+					],
+					'theme'      => [
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
@@ -653,7 +662,7 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function hide_non_setup_menu_items() {
 		global $submenu;
-		if ( ! Wizards::can_access_wizard( $this->slug ) ) {
+		if ( ! current_user_can( $this->capability ) ) {
 			return;
 		}
 		foreach ( $submenu['newspack'] as $key => $value ) {
@@ -686,5 +695,14 @@ class Setup_Wizard extends Wizard {
 			return false;
 		}
 		return $show;
+	}
+
+	/**
+	 * Sanitize theme mods.
+	 *
+	 * @param array $theme_mods An array of theme mods.
+	 */
+	public function sanitize_theme_mods( $theme_mods ) {
+		return $theme_mods;
 	}
 }

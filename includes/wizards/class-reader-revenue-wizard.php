@@ -22,7 +22,14 @@ class Reader_Revenue_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-reader-revenue-wizard';
+	protected $slug = 'newspack-reader-revenue-wizard';
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'manage_options';
 
 	/**
 	 * Get the name for this wizard.

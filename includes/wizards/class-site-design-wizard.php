@@ -7,12 +7,11 @@
 
 namespace Newspack;
 
-use WP_Error, WP_Query, WP_REST_Server;
+use \WP_Error, \WP_Query;
 
 defined( 'ABSPATH' ) || exit;
 
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-setup-wizard.php';
 
 /**
  * Site Design
@@ -24,57 +23,14 @@ class Site_Design_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-site-design-wizard';
+	protected $slug = 'newspack-site-design-wizard';
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-	}
-
-	/**
-	 * Register the endpoints needed for the wizard screens.
-	 */
-	public function register_api_endpoints() {
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/theme',
-			[
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_retrieve_theme_and_set_defaults' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/theme',
-			[
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_theme_with_mods' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-	}
-
-	/**
-	 * Retrieve the theme and set defaults.
-	 */
-	public function api_retrieve_theme_and_set_defaults() {
-		$setup_wizard = new Setup_Wizard();
-		return $setup_wizard->api_retrieve_theme_and_set_defaults();
-	}
-
-	/**
-	 * Update the theme with mods.
+	 * The capability required to access this wizard.
 	 *
-	 * @param WP_REST_Request $request Full details about the request.
+	 * @var string
 	 */
-	public function api_update_theme_with_mods( $request ) {
-		$setup_wizard = new Setup_Wizard();
-		return $setup_wizard->api_update_theme_with_mods( $request );
-	}
+	protected $capability = 'manage_options';
 
 	/**
 	 * Get the name for this wizard.

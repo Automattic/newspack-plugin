@@ -99,7 +99,7 @@ final class Api {
 	 * @return bool|WP_Error
 	 */
 	public static function permission_callback() {
-		if ( ! \Newspack\Wizards::can_access_wizard( 'connections' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),
