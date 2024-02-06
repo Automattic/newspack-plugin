@@ -234,7 +234,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 					} else {
 						let labels = newspack_reader_auth_labels.signin;
-						if ( data.registered ) {
+						if ( data?.registered ) {
 							labels = newspack_reader_auth_labels.register;
 						}
 						container.setFormAction( 'success' );
