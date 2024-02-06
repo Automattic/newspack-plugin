@@ -1643,7 +1643,7 @@ final class Reader_Activation {
 				 * Create WooCommerce Customer if possible.
 				 * Email notification for WooCommerce is handled by the plugin.
 				 */
-				$user_id = \wc_create_new_customer( $email, $user_data['user_login'], $user_data['random_password'], $user_data );
+				$user_id = \wc_create_new_customer( $email, $user_data['user_login'], $user_data['user_pass'], $user_data );
 			} else {
 				$user_id = \wp_insert_user( $user_data );
 				\wp_new_user_notification( $user_id, null, 'user' );
