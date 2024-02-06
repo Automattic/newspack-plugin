@@ -178,7 +178,7 @@ class Fivetran_Connection {
 	 * @return bool|WP_Error
 	 */
 	public static function api_permissions_check( $request ) {
-		if ( ! Wizards::can_access_wizard( 'connections' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),

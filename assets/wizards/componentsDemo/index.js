@@ -707,4 +707,4 @@ class ComponentsDemo extends Component {
 	}
 }
 
-render( <ComponentsDemo />, document.getElementById( 'newspack-components-demo-wizard' ) );
+render( <ComponentsDemo />, document.getElementById( 'newspack-components-demo' ) );

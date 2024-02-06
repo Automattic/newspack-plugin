@@ -76,7 +76,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 	};
 	useEffect( () => {
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-site-design-wizard/theme',
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 		} )
 			.then( updateSettings )
 			.catch( setError );
@@ -84,7 +84,7 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 
 	const saveSettings = () =>
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-site-design-wizard/theme/',
+			path: '/newspack/v1/wizard/newspack-setup-wizard/theme/',
 			method: 'POST',
 			data: {
 				theme_mods: omit(

@@ -346,7 +346,6 @@ class Patches {
 
 	/**
 	 * Restrict non-privileged users from seeing posts not owned by them.
-	 * edit_others_posts restricts editing, but would still allow viewing – here this is changed.
 	 * Affects all admin post lists and the legacy (non-AJAX) media library list page.
 	 *
 	 * @param WP_Query $query Query to alter.
@@ -364,8 +363,7 @@ class Patches {
 		$is_posts_list    = 'edit' === $current_screen->base;
 
 		// If the user can't edit others' posts, only allow them to view their own posts.
-		$cap = 'edit_others_' . $query->query['post_type'] . 's';
-		if ( ( $is_media_library || $is_posts_list ) && ! current_user_can( $cap ) ) {
+		if ( ( $is_media_library || $is_posts_list ) && ! current_user_can( 'edit_others_posts' ) ) {
 			$query->set( 'author', $current_user_id ); // phpcs:ignore WordPressVIPMinimum.Hooks.PreGetPosts.PreGetPosts
 			add_filter( 'wp_count_posts', [ __CLASS__, 'fix_post_counts' ], 10, 2 );
 		}
