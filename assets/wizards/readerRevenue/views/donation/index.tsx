@@ -1,3 +1,5 @@
+/* globals newspack_reader_revenue */
+
 /**
  * WordPress dependencies.
  */
@@ -103,6 +105,9 @@ export const DonationAmounts = () => {
 	// Minimum donation is returned by the REST API as a string.
 	const minimumDonationFloat = parseFloat( minimumDonation );
 
+	// Whether we can use the Name Your Price extension. If not, layout is forced to Tiered.
+	const canUseNameYourPrice = newspack_reader_revenue?.can_use_name_your_price;
+
 	return (
 		<>
 			<Card headerActions noBorder>
@@ -114,17 +119,19 @@ export const DonationAmounts = () => {
 					) }
 					noMargin
 				/>
-				<SelectControl
-					label={ __( 'Donation Type', 'newspack' ) }
-					onChange={ () => changeHandler( [ 'tiered' ] )( ! tiered ) }
-					buttonOptions={ [
-						{ value: true, label: __( 'Tiered', 'newspack' ) },
-						{ value: false, label: __( 'Untiered', 'newspack' ) },
-					] }
-					buttonSmall
-					value={ tiered }
-					hideLabelFromVision
-				/>
+				{ canUseNameYourPrice && (
+					<SelectControl
+						label={ __( 'Donation Type', 'newspack' ) }
+						onChange={ () => changeHandler( [ 'tiered' ] )( ! tiered ) }
+						buttonOptions={ [
+							{ value: true, label: __( 'Tiered', 'newspack' ) },
+							{ value: false, label: __( 'Untiered', 'newspack' ) },
+						] }
+						buttonSmall
+						value={ tiered }
+						hideLabelFromVision
+					/>
+				) }
 			</Card>
 			{ tiered ? (
 				<Grid columns={ 1 } gutter={ 16 }>
