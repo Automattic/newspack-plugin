@@ -313,7 +313,7 @@ class WooCommerce_Connection {
 
 	/**
 	 * Force option for enabling order attribution to OFF unless the
-	 * NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBTION_OVERRIDE constant is set.
+	 * NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE constant is set.
 	 * Right now, it causes JavaScript errors in the modal checkout.
 	 *
 	 * See:https://woo.com/document/order-attribution-tracking/
@@ -323,7 +323,7 @@ class WooCommerce_Connection {
 	 * @return string Option value.
 	 */
 	public static function force_disable_order_attribution( $should_allow ) {
-		if ( defined( 'NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBTION_OVERRIDE' ) && NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBTION_OVERRIDE ) {
+		if ( defined( 'NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE' ) && NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE ) {
 			return $should_allow;
 		}
 		return false;
