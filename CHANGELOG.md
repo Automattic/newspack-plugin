@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/Automattic/newspack-plugin/compare/v3.0.1...v3.0.2) (2024-02-07)
+
+
+### Bug Fixes
+
+* prevent fatal when redirecting for pixel tracking ([#2910](https://github.com/Automattic/newspack-plugin/issues/2910)) ([ef22a9b](https://github.com/Automattic/newspack-plugin/commit/ef22a9b5e236051ad8f25bd523157ce67c3d02cc))
+
 ## [3.0.1](https://github.com/Automattic/newspack-plugin/compare/v3.0.0...v3.0.1) (2024-02-06)
 
 
