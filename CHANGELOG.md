@@ -1,3 +1,17 @@
+## [3.0.3](https://github.com/Automattic/newspack-plugin/compare/v3.0.2...v3.0.3) (2024-02-08)
+
+
+### Bug Fixes
+
+* turn off WooCommerce's Order Attribution ([#2911](https://github.com/Automattic/newspack-plugin/issues/2911)) ([f3387e3](https://github.com/Automattic/newspack-plugin/commit/f3387e35df946ea48e49ac0b6553d7724cb20816))
+
+## [3.0.2](https://github.com/Automattic/newspack-plugin/compare/v3.0.1...v3.0.2) (2024-02-07)
+
+
+### Bug Fixes
+
+* prevent fatal when redirecting for pixel tracking ([#2910](https://github.com/Automattic/newspack-plugin/issues/2910)) ([ef22a9b](https://github.com/Automattic/newspack-plugin/commit/ef22a9b5e236051ad8f25bd523157ce67c3d02cc))
+
 ## [3.0.1](https://github.com/Automattic/newspack-plugin/compare/v3.0.0...v3.0.1) (2024-02-06)
 
 
