@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Newspack category pager.
  *
- * This class adds a few tweaks to sites where the permalink structure is "/%category%/%postname%/".
+ * This class adds tweaks to sites where the permalink structure is "/%category%/%postname%/".
  *
  * See https://core.trac.wordpress.org/ticket/8905 and https://core.trac.wordpress.org/ticket/21209
  */
@@ -30,7 +30,6 @@ final class Category_Pager {
 	public static function on_init() {
 		if ( '/%category%/%postname%/' === get_option( 'permalink_structure' ) ) {
 			add_filter( 'paginate_links', [ __CLASS__, 'fix_category_pager' ] );
-			add_filter( 'wp_unique_post_slug', [ __CLASS__, 'guard_page_slug' ], 99, 1 );
 		}
 	}
 
@@ -39,8 +38,9 @@ final class Category_Pager {
 	 *
 	 * Filter the pager urls on category pages.
 	 *
-	 * For a category with the slug "kitten" for instance, WP will generate pager urls like "/kitten/page/2/"
-	 * if you hit the url /kitten – this fixes the pager urls to be "/category/kitten/page/2/".
+	 * For a category with the slug "kitten" for instance, the url /kitten will show the content that
+	 * really should be on /category/kitten. On the /kitten page, WP will generate pager urls like "/kitten/page/2/"
+	 * – this fixes the pager urls to be "/category/kitten/page/2/".
 	 *
 	 * @param string $link The pager link to filter.
 	 *
@@ -62,23 +62,6 @@ final class Category_Pager {
 		$new_path = '/' . $category_base . $path;
 
 		return str_replace( $path, $new_path, $link );
-	}
-
-	/**
-	 * Filter callback for wp_unique_post_slug.
-	 *
-	 * This will guard against the slug "page" being used for a post, as it will conflict with the pager.
-	 *
-	 * @param string $slug The post slug.
-	 *
-	 * @return mixed|string
-	 */
-	public static function guard_page_slug( $slug ) {
-		if ( 'page' === $slug ) {
-			return 'np-page';
-		}
-
-		return $slug;
 	}
 }
 
