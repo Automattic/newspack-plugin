@@ -8,7 +8,15 @@ import { useDispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { Button, Grid, Notice, Settings, TextControl, Wizard } from '../../../../components/src';
+import {
+	Button,
+	Grid,
+	Notice,
+	PluginInstaller,
+	Settings,
+	TextControl,
+	Wizard,
+} from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 import './style.scss';
 
@@ -136,6 +144,34 @@ const StripeSetup = () => {
 			section: 'stripe',
 			payloadPath: [ 'stripe_data' ],
 		} );
+
+	if ( ! data ) {
+		return (
+			<>
+				<p>
+					{ __(
+						'To configure Stripe, install the WooCommerce Stripe Gateway plugin.',
+						'newspack-plugin'
+					) }
+				</p>
+				<PluginInstaller
+					plugins={ [ 'woocommerce-gateway-stripe' ] }
+					onStatus={ ( { complete } ) => {
+						if ( complete ) {
+							console.log( complete );
+							updateWizardSettings( {
+								slug: 'newspack-reader-revenue-wizard',
+								path: [ 'stripe_data' ],
+								value: { activate: true },
+							} );
+							onSave();
+						}
+					} }
+					withoutFooterButton={ true }
+				/>
+			</>
+		);
+	}
 
 	return (
 		<>
