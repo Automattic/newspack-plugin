@@ -1,3 +1,23 @@
+# [3.1.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.0.3...v3.1.0-alpha.1) (2024-02-08)
+
+
+### Bug Fixes
+
+* **engagement-wizard:** handle error when retrieving subscription lists ([e85c108](https://github.com/Automattic/newspack-plugin/commit/e85c108ce6dd470a41ca9330fdbbdfbae4ed562c))
+* **ras:** only sync spend total and last payment amounts for completed orders ([#2886](https://github.com/Automattic/newspack-plugin/issues/2886)) ([68aaf39](https://github.com/Automattic/newspack-plugin/commit/68aaf39fb744245cd91c9e041aa038e81c653b2a))
+* redirect to origin from magic link ([9f41947](https://github.com/Automattic/newspack-plugin/commit/9f4194709502baeabbbf66233453795516f099c1))
+* typescript errors ([dc27973](https://github.com/Automattic/newspack-plugin/commit/dc27973dedb0bc373a7c9e8877003845a6bf3adb))
+* TypeScript usage; add to CI ([#2884](https://github.com/Automattic/newspack-plugin/issues/2884)) ([6f5e7a6](https://github.com/Automattic/newspack-plugin/commit/6f5e7a63594377eb9fa07589a08bb5dcbb96d043))
+* update newsletter scroll appearance in Sign Up modal ([#2897](https://github.com/Automattic/newspack-plugin/issues/2897)) ([496723a](https://github.com/Automattic/newspack-plugin/commit/496723aa2e6519c803da615bbc494b22c57e6804))
+
+
+### Features
+
+* **ci:** add epic/* release workflow and rename `master` to `trunk` ([#2895](https://github.com/Automattic/newspack-plugin/issues/2895)) ([ea02075](https://github.com/Automattic/newspack-plugin/commit/ea020753c85e9ff881b08510effbcbe3b90b7b86)), closes [#2897](https://github.com/Automattic/newspack-plugin/issues/2897) [#2886](https://github.com/Automattic/newspack-plugin/issues/2886)
+* **reader-revenue:** make NYP and Stripe Gateway optional ([#2866](https://github.com/Automattic/newspack-plugin/issues/2866)) ([fcfa88c](https://github.com/Automattic/newspack-plugin/commit/fcfa88c9d1b9053557b48e2cbd6172f58e0bac10))
+* remove new tab default on image credits ([#2880](https://github.com/Automattic/newspack-plugin/issues/2880)) ([3c996b1](https://github.com/Automattic/newspack-plugin/commit/3c996b1fa7cae99675d455c446cfa425091f372f))
+* **wc:** override cart, checkout, and my-account page templates ([#2893](https://github.com/Automattic/newspack-plugin/issues/2893)) ([68b1836](https://github.com/Automattic/newspack-plugin/commit/68b1836395e0b16536509c6e41bb1dfbc4de3571))
+
 ## [3.0.3](https://github.com/Automattic/newspack-plugin/compare/v3.0.2...v3.0.3) (2024-02-08)
 
 
