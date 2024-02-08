@@ -34,6 +34,7 @@ class WooCommerce_Connection {
 		\add_filter( 'default_option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
 		\add_action( 'woocommerce_order_status_completed', [ __CLASS__, 'maybe_update_reader_display_name' ], 10, 2 );
+		\add_action( 'option_woocommerce_feature_order_attribution_enabled', [ __CLASS__, 'force_disable_order_attribution' ] );
 		\add_action( 'cli_init', [ __CLASS__, 'register_cli_commands' ] );
 
 		// WooCommerce Subscriptions.
@@ -308,6 +309,24 @@ class WooCommerce_Connection {
 		}
 
 		return 'yes';
+	}
+
+	/**
+	 * Force option for enabling order attribution to OFF unless the
+	 * NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE constant is set.
+	 * Right now, it causes JavaScript errors in the modal checkout.
+	 *
+	 * See:https://woo.com/document/order-attribution-tracking/
+	 *
+	 * @param bool $should_allow Whether WooCommerce should allow enabling Order Attribution.
+	 *
+	 * @return string Option value.
+	 */
+	public static function force_disable_order_attribution( $should_allow ) {
+		if ( defined( 'NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE' ) && NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE ) {
+			return $should_allow;
+		}
+		return false;
 	}
 
 	/**
