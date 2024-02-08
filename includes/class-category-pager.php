@@ -51,13 +51,15 @@ final class Category_Pager {
 			return $link;
 		}
 
-		$path = wp_parse_url( $link, PHP_URL_PATH );
-		if ( str_starts_with( $path, '/category' ) ) {
+		$category_base = get_option( 'category_base' );
+		$path          = wp_parse_url( $link, PHP_URL_PATH );
+
+		if ( str_starts_with( $path, '/' . $category_base ) ) {
 			// No fixing needed.
 			return $link;
 		}
 
-		$new_path = '/category' . $path;
+		$new_path = '/' . $category_base . $path;
 
 		return str_replace( $path, $new_path, $link );
 	}
