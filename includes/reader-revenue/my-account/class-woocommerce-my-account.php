@@ -30,6 +30,8 @@ class WooCommerce_My_Account {
 	public static function init() {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'edit_address_required_fields' ] );
+		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
+		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
@@ -331,13 +333,16 @@ class WooCommerce_My_Account {
 
 	/**
 	 * Redirect to "Account details" if accessing "My Account" directly.
-	 * Do not redirect if the request is a resubscribe request, as resubscribe
-	 * requests do their own redirect to the cart/checkout page.
+	 * Do not redirect if the request is a resubscribe or renewal request, as
+	 * these requests do their own redirect to the cart/checkout page.
 	 */
 	public static function redirect_to_account_details() {
-		$resubscribe_request = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$resubscribe_request    = filter_input( INPUT_GET, 'resubscribe', FILTER_SANITIZE_NUMBER_INT );
+		$is_resubscribe_request = ! empty( $resubscribe_request ) && 'shop_subscription' === get_post_type( $resubscribe_request );
+		$renewal_request        = filter_input( INPUT_GET, 'subscription_renewal_early', FILTER_SANITIZE_NUMBER_INT );
+		$is_renewal_request     = ! empty( $renewal_request ) && 'shop_subscription' === get_post_type( $renewal_request ) && 'true' === filter_input( INPUT_GET, 'subscription_renewal', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $resubscribe_request ) {
+		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $is_resubscribe_request && ! $is_renewal_request ) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
 			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
@@ -428,6 +433,29 @@ class WooCommerce_My_Account {
 			}
 		}
 
+		return $fields;
+	}
+
+	/**
+	 * Ensure that only billing address fields enabled in Reader Revenue settings
+	 * are required for new gift recipient accounts.
+	 *
+	 * See: https://github.com/woocommerce/woocommerce-subscriptions-gifting/blob/trunk/includes/class-wcsg-recipient-details.php#L275
+	 *
+	 * @param array $fields Address fields.
+	 * @return array
+	 */
+	public static function new_recipient_fields( $fields ) {
+		// Escape hatch to force required shipping address for virtual products.
+		if ( apply_filters( 'wcsg_require_shipping_address_for_virtual_products', false ) ) { // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			return $fields;
+		}
+		$required_fields = Donations::get_billing_fields();
+		foreach ( $fields as $field_name => $field_config ) {
+			if ( ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
+				unset( $fields[ $field_name ] );
+			}
+		}
 		return $fields;
 	}
 
