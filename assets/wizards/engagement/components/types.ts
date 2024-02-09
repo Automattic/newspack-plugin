@@ -42,6 +42,9 @@ declare global {
 			preview_post: string;
 			preview_archive: string;
 		};
+		newspack_reader_revenue: {
+			can_use_name_your_price: boolean;
+		};
 	}
 }
 
@@ -122,6 +125,7 @@ export type PrequisiteProps = {
 		action_text?: string;
 		action_enabled?: boolean;
 		disabled_text?: string;
+		is_unavailable?: boolean;
 	};
 };
 
@@ -140,7 +144,7 @@ export type InputField = {
 	};
 };
 
-// Schema is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/master/includes/schemas/class-prompts.php
+// Schema is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/trunk/includes/schemas/class-prompts.php
 export type PromptType = {
 	status: string;
 	slug: string;

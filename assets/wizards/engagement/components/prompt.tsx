@@ -43,7 +43,7 @@ import {
 	hooks,
 } from '../../../components/src';
 
-// Note: Schema and types for the `prompt` prop is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/master/includes/schemas/class-prompts.php
+// Note: Schema and types for the `prompt` prop is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/trunk/includes/schemas/class-prompts.php
 export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: PromptProps ) {
 	const [ values, setValues ] = useState< InputValues | Record< string, never > >( {} );
 	const [ error, setError ] = useState< false | { message: string } >( false );

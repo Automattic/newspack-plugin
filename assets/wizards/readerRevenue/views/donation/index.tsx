@@ -1,5 +1,3 @@
-/* globals newspack_reader_revenue */
-
 /**
  * WordPress dependencies.
  */
@@ -106,7 +104,7 @@ export const DonationAmounts = () => {
 	const minimumDonationFloat = parseFloat( minimumDonation );
 
 	// Whether we can use the Name Your Price extension. If not, layout is forced to Tiered.
-	const canUseNameYourPrice = newspack_reader_revenue?.can_use_name_your_price;
+	const canUseNameYourPrice = window.newspack_reader_revenue?.can_use_name_your_price;
 
 	return (
 		<>
