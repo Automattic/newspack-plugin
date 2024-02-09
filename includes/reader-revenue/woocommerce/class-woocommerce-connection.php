@@ -147,11 +147,11 @@ class WooCommerce_Connection {
 
 		$metadata = [];
 
-		$referer_from_order = $order->get_meta( '_newspack_referer' );
-		if ( empty( $referer_from_order ) ) {
+		$referrer_from_order = $order->get_meta( '_newspack_referrer' );
+		if ( empty( $referrer_from_order ) ) {
 			$payment_page_url = \wc_get_checkout_url();
 		} else {
-			$payment_page_url = $referer_from_order;
+			$payment_page_url = $referrer_from_order;
 		}
 		$metadata['payment_page'] = $payment_page_url;
 

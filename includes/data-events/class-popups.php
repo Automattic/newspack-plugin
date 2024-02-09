@@ -101,7 +101,7 @@ final class Popups {
 			[
 				'action'      => self::FORM_SUBMISSION,
 				'action_type' => 'registration',
-				'referer'     => $metadata['referer'],
+				'referrer'    => $metadata['referrer'],
 			]
 		);
 		$popup_data['interaction_data']['registration_method'] = $metadata['registration_method'];
@@ -133,7 +133,7 @@ final class Popups {
 			[
 				'action'      => $action,
 				'action_type' => 'registration',
-				'referer'     => $metadata['referer'],
+				'referrer'    => $metadata['referrer'],
 			]
 		);
 		$popup_data['interaction_data']['registration_method'] = $metadata['registration_method'];
@@ -161,7 +161,7 @@ final class Popups {
 			[
 				'action'      => self::FORM_SUBMISSION,
 				'action_type' => 'newsletters_subscription',
-				'referer'     => $metadata['current_page_url'],
+				'referrer'    => $metadata['current_page_url'],
 			]
 		);
 		$popup_data['interaction_data']['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'];
@@ -193,7 +193,7 @@ final class Popups {
 			[
 				'action'      => $action,
 				'action_type' => 'newsletters_subscription',
-				'referer'     => $metadata['current_page_url'],
+				'referrer'    => $metadata['current_page_url'],
 			]
 		);
 		$popup_data['interaction_data']['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'];
@@ -218,7 +218,7 @@ final class Popups {
 			[
 				'action'      => self::FORM_SUBMISSION_SUCCESS,
 				'action_type' => 'donation',
-				'referer'     => $data['referer'],
+				'referrer'    => $data['referrer'],
 			]
 		);
 		$popup_data['interaction_data']['donation_order_id']   = $data['platform_data']['order_id'];
@@ -247,7 +247,7 @@ final class Popups {
 			[
 				'action'      => self::FORM_SUBMISSION,
 				'action_type' => 'donation',
-				'referer'     => $data['referer'],
+				'referrer'    => $data['referrer'],
 			]
 		);
 
@@ -277,7 +277,7 @@ final class Popups {
 			[
 				'action'      => self::FORM_SUBMISSION_FAILURE,
 				'action_type' => 'donation',
-				'referer'     => $data['referer'],
+				'referrer'    => $data['referrer'],
 			]
 		);
 

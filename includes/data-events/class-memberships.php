@@ -155,7 +155,7 @@ final class Memberships {
 			[
 				'action'      => self::FORM_SUBMISSION,
 				'action_type' => 'registration',
-				'referer'     => $metadata['referer'],
+				'referrer'    => $metadata['referrer'],
 			]
 		);
 		$data['interaction_data']['registration_method'] = $metadata['registration_method'];
@@ -185,7 +185,7 @@ final class Memberships {
 			[
 				'action'      => $action,
 				'action_type' => 'registration',
-				'referer'     => $metadata['referer'],
+				'referrer'    => $metadata['referrer'],
 			]
 		);
 		$data['interaction_data']['registration_method'] = $metadata['registration_method'];
@@ -214,7 +214,7 @@ final class Memberships {
 				'product_id'  => $item->get_product_id(),
 				'amount'      => (float) $order->get_total(),
 				'currency'    => $order->get_currency(),
-				'referer'     => $order->get_meta( '_newspack_referer' ),
+				'referrer'    => $order->get_meta( '_newspack_referrer' ),
 			]
 		);
 		return $data;

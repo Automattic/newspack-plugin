@@ -57,8 +57,8 @@ final class Woo_User_Registration {
 			if ( ! empty( $values['newspack_popup_id'] ) ) {
 				self::$metadata['newspack_popup_id'] = $values['newspack_popup_id'];
 			}
-			if ( ! empty( $values['referer'] ) ) {
-				self::$metadata['referer'] = $values['referer'];
+			if ( ! empty( $values['referrer'] ) ) {
+				self::$metadata['referrer'] = $values['referrer'];
 			}
 		}
 
@@ -85,9 +85,9 @@ final class Woo_User_Registration {
 		// If a user is created later on the request by woocommerce_created_customer(), it will at least have this data.
 		self::$metadata['registration_method'] = 'woocommerce';
 
-		// For modal checkout, the referer is actually what we want to capture as the registration page.
-		if ( ! empty( self::$metadata['referer'] ) && method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) && \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {
-			self::$metadata['current_page_url'] = self::$metadata['referer'];
+		// For modal checkout, the referrer is actually what we want to capture as the registration page.
+		if ( ! empty( self::$metadata['referrer'] ) && method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) && \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) {
+			self::$metadata['current_page_url'] = self::$metadata['referrer'];
 		}
 
 		/**

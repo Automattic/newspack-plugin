@@ -21,25 +21,25 @@ class Donations {
 	const DONATION_SETTINGS_OPTION         = 'newspack_donations_settings';
 	const DONATION_BILLING_FIELDS_OPTION   = 'newspack_donations_billing_fields';
 	const DONATION_ORDER_META_KEYS         = [
-		'referer_tags'       => [
+		'referrer_tags'       => [
 			'label' => 'Post Tags',
 		],
-		'referer_categories' => [
+		'referrer_categories' => [
 			'label' => 'Post Categories',
 		],
-		'utm_source'         => [
+		'utm_source'          => [
 			'label' => 'Campaign Source',
 		],
-		'utm_medium'         => [
+		'utm_medium'          => [
 			'label' => 'Campaign Medium',
 		],
-		'utm_campaign'       => [
+		'utm_campaign'        => [
 			'label' => 'Campaign Name',
 		],
-		'utm_term'           => [
+		'utm_term'            => [
 			'label' => 'Campaign Term',
 		],
-		'utm_content'        => [
+		'utm_content'         => [
 			'label' => 'Campaign Content',
 		],
 	];
@@ -672,34 +672,34 @@ class Donations {
 			}
 		}
 
-		$referer    = wp_get_referer();
+		$referrer   = wp_get_referer();
 		$params     = [];
-		$parsed_url = wp_parse_url( $referer );
+		$parsed_url = wp_parse_url( $referrer );
 
-		// Get URL params appended to the referer URL.
+		// Get URL params appended to the referrer URL.
 		if ( ! empty( $parsed_url['query'] ) ) {
 			wp_parse_str( $parsed_url['query'], $params );
 		}
 
 		if ( function_exists( 'wpcom_vip_url_to_postid' ) ) {
-			$referer_post_id = wpcom_vip_url_to_postid( $referer );
+			$referrer_post_id = wpcom_vip_url_to_postid( $referrer );
 		} else {
-			$referer_post_id = url_to_postid( $referer ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
+			$referrer_post_id = url_to_postid( $referrer ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
 		}
-		$referer_tags       = [];
-		$referer_categories = [];
-		$tags               = get_the_tags( $referer_post_id );
+		$referrer_tags       = [];
+		$referrer_categories = [];
+		$tags                = get_the_tags( $referrer_post_id );
 		if ( $tags && ! empty( $tags ) ) {
-			$referer_tags = array_map(
+			$referrer_tags = array_map(
 				function ( $item ) {
 					return $item->slug;
 				},
 				$tags
 			);
 		}
-		$categories = get_the_category( $referer_post_id );
+		$categories = get_the_category( $referrer_post_id );
 		if ( $categories && ! empty( $categories ) ) {
-			$referer_categories = array_map(
+			$referrer_categories = array_map(
 				function ( $item ) {
 					return $item->slug;
 				},
@@ -721,7 +721,7 @@ class Donations {
 				'newspack_donations_cart_item_data',
 				[
 					'nyp'               => class_exists( 'WC_Name_Your_Price_Helpers' ) ? (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ) : null,
-					'referer'           => $referer,
+					'referrer'          => $referrer,
 					'newspack_popup_id' => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
 				]
 			);
@@ -736,11 +736,11 @@ class Donations {
 
 		$query_args = [];
 
-		if ( ! empty( $referer_tags ) ) {
-			$query_args['referer_tags'] = implode( ',', $referer_tags );
+		if ( ! empty( $referrer_tags ) ) {
+			$query_args['referrer_tags'] = implode( ',', $referrer_tags );
 		}
-		if ( ! empty( $referer_categories ) ) {
-			$query_args['referer_categories'] = implode( ',', $referer_categories );
+		if ( ! empty( $referrer_categories ) ) {
+			$query_args['referrer_categories'] = implode( ',', $referrer_categories );
 		}
 		if ( $is_modal_checkout ) {
 			$query_args['modal_checkout'] = 1;
@@ -783,8 +783,8 @@ class Donations {
 		if ( ! empty( $values['newspack_popup_id'] ) ) {
 			$order->add_meta_data( '_newspack_popup_id', $values['newspack_popup_id'] );
 		}
-		if ( ! empty( $values['referer'] ) ) {
-			$order->add_meta_data( '_newspack_referer', $values['referer'] );
+		if ( ! empty( $values['referrer'] ) ) {
+			$order->add_meta_data( '_newspack_referrer', $values['referrer'] );
 		}
 	}
 

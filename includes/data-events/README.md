@@ -86,7 +86,7 @@ For when there's a new donation processed through WooCommerce.
 | `currency`        | `string` |                                                        |
 | `recurrence`      | `string` |                                                        |
 | `platform`        | `string` | Always `wc` in this case                               |
-| `referer`         | `string` |                                                        |
+| `referrer`        | `string` |                                                        |
 | `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
 | `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
@@ -106,7 +106,7 @@ the order is already marked as failed so this hook will not trigger.
 | `currency`        | `string` |                                                        |
 | `recurrence`      | `string` |                                                        |
 | `platform`        | `string` | Always `wc` in this case                               |
-| `referer`         | `string` |                                                        |
+| `referrer`        | `string` |                                                        |
 | `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
 | `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
@@ -124,7 +124,7 @@ When there's a new donation.
 | `currency`        | `string` |                                                        |
 | `recurrence`      | `string` |                                                        |
 | `platform`        | `string` |                                                        |
-| `referer`         | `string` |                                                        |
+| `referrer`        | `string` |                                                        |
 | `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
 | `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
@@ -141,7 +141,7 @@ When any WooCommerce order is completed with a successful payment.
 | `amount`          | `float`  |                                                        |
 | `currency`        | `string` |                                                        |
 | `platform`        | `string` |                                                        |
-| `referer`         | `string` |                                                        |
+| `referrer`        | `string` |                                                        |
 | `popup_id`        | `string` | If the order was triggered by a popup, the popup ID    |
 | `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
@@ -160,7 +160,7 @@ When there's a new WooCommerce Subscription. This action does not replace the `d
 | `currency`        | `string` |                                                        |
 | `recurrence`      | `string` |                                                        |
 | `platform`        | `string` |                                                        |
-| `referer`         | `string` |                                                        |
+| `referrer`        | `string` |                                                        |
 | `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
 
 ### `donation_subscription_cancelled`
@@ -219,7 +219,7 @@ When a reader interacts with the content gate.
 | `gate_post_id` | `int`    |                                                                                                   |
 | `action`       | `string` | Either `seen`, `form_submission_received`, `form_submission_success` or `form_submission_failure` |
 | `action_type`  | `string` | Either `paid_membership` or `registration`. Not applicable when `action` is `seen`                |
-| `referer`      | `string` |                                                                                                   |
+| `referrer`     | `string` |                                                                                                   |
 | `order_id`     | `int`    | Only applicable when `action_type` is `paid_membership`                                           |
 | `product_id`   | `int`    | Only applicable when `action_type` is `paid_membership`                                           |
 | `amount`       | `float`  | Only applicable when `action_type` is `paid_membership`                                           |

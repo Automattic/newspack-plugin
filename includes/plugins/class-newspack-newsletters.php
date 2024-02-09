@@ -30,7 +30,7 @@ class Newspack_Newsletters {
 		'signup_page'          => 'Signup Page',
 		'signup_page_utm'      => 'Signup UTM: ',
 		'newsletter_selection' => 'Newsletter Selection',
-		'referer'              => 'Referrer Path',
+		'referrer'             => 'Referrer Path',
 		'registration_page'    => 'Registration Page',
 		'current_page_url'     => 'Registration Page',
 		'registration_method'  => 'Registration Method',
