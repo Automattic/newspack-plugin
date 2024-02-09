@@ -21,16 +21,7 @@ final class Category_Pager {
 	 * Initialize Hooks.
 	 */
 	public static function init() {
-		add_action( 'init', [ __CLASS__, 'on_init' ] );
-	}
-
-	/**
-	 * Action callback for init.
-	 */
-	public static function on_init() {
-		if ( '/%category%/%postname%/' === get_option( 'permalink_structure' ) ) {
-			add_filter( 'paginate_links', [ __CLASS__, 'fix_category_pager' ] );
-		}
+		add_filter( 'paginate_links', [ __CLASS__, 'fix_category_pager' ] );
 	}
 
 	/**
@@ -47,13 +38,16 @@ final class Category_Pager {
 	 * @return mixed|string
 	 */
 	public static function fix_category_pager( $link ) {
-		if ( ! is_category() ) {
+		if ( ! is_category() || ! str_starts_with( get_option( 'permalink_structure' ), '/%category%/' ) ) {
 			return $link;
 		}
 
 		$category_base = get_option( 'category_base' );
-		$path          = wp_parse_url( $link, PHP_URL_PATH );
+		if ( empty( $category_base ) ) {
+			$category_base = 'category';
+		}
 
+		$path = wp_parse_url( $link, PHP_URL_PATH );
 		if ( str_starts_with( $path, '/' . $category_base ) ) {
 			// No fixing needed.
 			return $link;
