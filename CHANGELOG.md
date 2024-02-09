@@ -1,3 +1,10 @@
+# [3.1.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v3.1.0-alpha.1...v3.1.0-alpha.2) (2024-02-09)
+
+
+### Bug Fixes
+
+* **categories:** fix pager urls ([#2913](https://github.com/Automattic/newspack-plugin/issues/2913)) ([bb7e534](https://github.com/Automattic/newspack-plugin/commit/bb7e534afb224a2c03888eb5e953a8fc27a10719))
+
 # [3.1.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.0.3...v3.1.0-alpha.1) (2024-02-08)
 
 
