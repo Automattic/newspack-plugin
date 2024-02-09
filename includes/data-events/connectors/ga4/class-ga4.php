@@ -269,8 +269,8 @@ class GA4 {
 		if ( ! empty( $data['metadata']['newspack_popup_id'] ) ) {
 			$params = array_merge( $params, self::get_sanitized_popup_params( $data['metadata']['newspack_popup_id'] ) );
 		}
-		if ( ! empty( $data['metadata']['referer'] ) ) {
-			$params['referer'] = substr( $data['metadata']['referer'], 0, 100 );
+		if ( ! empty( $data['metadata']['referrer'] ) ) {
+			$params['referrer'] = substr( $data['metadata']['referrer'], 0, 100 );
 		}
 		return $params;
 	}
@@ -288,7 +288,7 @@ class GA4 {
 		$params['currency']        = $data['currency'];
 		$params['recurrence']      = $data['recurrence'];
 		$params['platform']        = $data['platform'];
-		$params['referer']         = $data['referer'] ?? '';
+		$params['referrer']        = $data['referrer'] ?? '';
 		$params['popup_id']        = $data['popup_id'] ?? '';
 		$params['is_renewal']      = $data['is_renewal'] ? 'yes' : 'no';
 		$params['subscription_id'] = $data['subscription_id'] ?? '';
@@ -354,7 +354,7 @@ class GA4 {
 			$params = array_merge( $params, self::get_sanitized_popup_params( $metadata['newspack_popup_id'] ) );
 		}
 		$params['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'] ?? '';
-		$params['referer']                         = $metadata['current_page_url'] ?? '';
+		$params['referrer']                        = $metadata['current_page_url'] ?? '';
 
 		// In case the subscription happened as part of the registration process, we should also have the registration method.
 		$params['registration_method'] = $metadata['registration_method'] ?? '';
@@ -397,7 +397,7 @@ class GA4 {
 		$params['gate_post_id'] = $data['gate_post_id'] ?? '';
 		$params['action']       = $data['action'] ?? '';
 		$params['action_type']  = $data['action_type'] ?? '';
-		$params['referer']      = $data['referer'] ?? '';
+		$params['referrer']     = $data['referrer'] ?? '';
 		$params['order_id']     = $data['order_id'] ?? '';
 		$params['product_id']   = $data['product_id'] ?? '';
 		$params['amount']       = $data['amount'] ?? '';
