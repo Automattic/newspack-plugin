@@ -580,7 +580,7 @@ class WooCommerce_Connection {
 	 */
 	public static function page_template( $template ) {
 		if ( self::should_override_template() ) {
-			return get_stylesheet_directory() . '/single-wide.php';
+			return get_theme_file_path( '/single-wide.php' );
 		}
 		return $template;
 	}
