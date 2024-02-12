@@ -271,6 +271,9 @@ class GA4 {
 		}
 		if ( ! empty( $data['metadata']['referrer'] ) ) {
 			$params['referrer'] = substr( $data['metadata']['referrer'], 0, 100 );
+
+			// Retain both instances of referrer spelling to ensure publisher reports are not broken.
+			$params['referer'] = substr( $data['metadata']['referrer'], 0, 100 );
 		}
 		return $params;
 	}
@@ -289,6 +292,8 @@ class GA4 {
 		$params['recurrence']      = $data['recurrence'];
 		$params['platform']        = $data['platform'];
 		$params['referrer']        = $data['referrer'] ?? '';
+		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
+		$params['referer']         = $data['referer'] ?? '';
 		$params['popup_id']        = $data['popup_id'] ?? '';
 		$params['is_renewal']      = $data['is_renewal'] ? 'yes' : 'no';
 		$params['subscription_id'] = $data['subscription_id'] ?? '';
@@ -356,6 +361,9 @@ class GA4 {
 		$params['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'] ?? '';
 		$params['referrer']                        = $metadata['current_page_url'] ?? '';
 
+		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
+		$params['referer'] = $metadata['current_page_url'] ?? '';
+
 		// In case the subscription happened as part of the registration process, we should also have the registration method.
 		$params['registration_method'] = $metadata['registration_method'] ?? '';
 
@@ -398,6 +406,8 @@ class GA4 {
 		$params['action']       = $data['action'] ?? '';
 		$params['action_type']  = $data['action_type'] ?? '';
 		$params['referrer']     = $data['referrer'] ?? '';
+		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
+		$params['referer']      = $data['referer'] ?? '';
 		$params['order_id']     = $data['order_id'] ?? '';
 		$params['product_id']   = $data['product_id'] ?? '';
 		$params['amount']       = $data['amount'] ?? '';
