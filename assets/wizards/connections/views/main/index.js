@@ -19,6 +19,7 @@ import Webhooks from './webhooks';
 
 const Main = () => {
 	const [ error, setError ] = useState();
+	const setErrorWithPrefix = prefix => err => setError( err ? prefix + err : null );
 
 	return (
 		<>
@@ -27,19 +28,19 @@ const Main = () => {
 			<Plugins />
 			<SectionHeader title={ __( 'APIs', 'newspack' ) } />
 			{ newspack_connections_data.can_connect_google && (
-				<GoogleAuth setError={ err => setError( __( 'Google: ', 'newspack-plugin' ) + err ) } />
+				<GoogleAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
 			) }
-			<Mailchimp setError={ err => setError( __( 'Mailchimp: ', 'newspack-plugin' ) + err ) } />
+			<Mailchimp setError={ setErrorWithPrefix( __( 'Mailchimp: ', 'newspack-plugin' ) ) } />
 			{ newspack_connections_data.can_connect_fivetran && (
 				<>
 					<SectionHeader title="Fivetran" />
 					<FivetranConnection
-						setError={ err => setError( __( 'FiveTran: ', 'newspack-plugin' ) + err ) }
+						setError={ setErrorWithPrefix( __( 'Fivetran: ', 'newspack-plugin' ) ) }
 					/>
 				</>
 			) }
-			<Recaptcha setError={ err => setError( __( 'reCAPTCHA: ', 'newspack-plugin' ) + err ) } />
-			<Webhooks />
+			<Recaptcha setError={ setErrorWithPrefix( __( 'reCAPTCHA: ', 'newspack-plugin' ) ) } />
+			{ newspack_connections_data.can_use_webhooks && <Webhooks /> }
 		</>
 	);
 };
