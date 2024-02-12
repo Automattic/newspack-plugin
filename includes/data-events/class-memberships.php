@@ -205,6 +205,14 @@ final class Memberships {
 		if ( ! $is_from_gate ) {
 			return;
 		}
+
+		$referrer_meta = $order->get_meta( '_newspack_referrer' );
+
+		// If referrer meta is empty, let's check for the old meta key and update it.
+		if ( empty( $referrer_meta ) && newspack_update_referrer_meta( $order ) ) {
+			$referrer_meta = $order->get_meta( '_newspack_referrer' );
+		}
+
 		$item = array_shift( $order->get_items() );
 		$data = array_merge(
 			self::get_gate_metadata(),
@@ -214,7 +222,7 @@ final class Memberships {
 				'product_id'  => $item->get_product_id(),
 				'amount'      => (float) $order->get_total(),
 				'currency'    => $order->get_currency(),
-				'referrer'    => $order->get_meta( '_newspack_referrer' ),
+				'referrer'    => $referrer_meta,
 			]
 		);
 		return $data;

@@ -293,7 +293,7 @@ class GA4 {
 		$params['platform']        = $data['platform'];
 		$params['referrer']        = $data['referrer'] ?? '';
 		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
-		$params['referer']         = $data['referer'] ?? '';
+		$params['referer']         = $data['referrer'] ?? '';
 		$params['popup_id']        = $data['popup_id'] ?? '';
 		$params['is_renewal']      = $data['is_renewal'] ? 'yes' : 'no';
 		$params['subscription_id'] = $data['subscription_id'] ?? '';
@@ -407,7 +407,7 @@ class GA4 {
 		$params['action_type']  = $data['action_type'] ?? '';
 		$params['referrer']     = $data['referrer'] ?? '';
 		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
-		$params['referer']      = $data['referer'] ?? '';
+		$params['referer']      = $data['referrer'] ?? '';
 		$params['order_id']     = $data['order_id'] ?? '';
 		$params['product_id']   = $data['product_id'] ?? '';
 		$params['amount']       = $data['amount'] ?? '';

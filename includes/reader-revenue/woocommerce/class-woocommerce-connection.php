@@ -148,6 +148,12 @@ class WooCommerce_Connection {
 		$metadata = [];
 
 		$referrer_from_order = $order->get_meta( '_newspack_referrer' );
+
+		// If referrer meta is empty, let's check for the old meta key and update it.
+		if ( empty( $referrer_from_order ) && newspack_update_referrer_meta( $order ) ) {
+			$referrer_from_order = $order->get_meta( '_newspack_referrer' );
+		}
+
 		if ( empty( $referrer_from_order ) ) {
 			$payment_page_url = \wc_get_checkout_url();
 		} else {
