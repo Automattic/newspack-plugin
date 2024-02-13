@@ -202,6 +202,9 @@ class Newspack_Newsletters {
 						$normalized_metadata[ $meta_key ] = $meta_value;
 					}
 				}
+				if ( isset( $contact['metadata']['status'] ) ) {
+					$normalized_metadata['status'] = $contact['metadata']['status'];
+				}
 			}
 			$contact['metadata'] = $normalized_metadata;
 		}
