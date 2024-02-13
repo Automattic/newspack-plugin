@@ -40,6 +40,9 @@ class WooCommerce_Connection {
 		// WooCommerce Subscriptions.
 		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
 
+		// woocommerce-memberships-for-teams plugin.
+		\add_filter( 'wc_memberships_for_teams_product_team_user_input_fields', [ __CLASS__, 'wc_memberships_for_teams_product_team_user_input_fields' ] );
+
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 	}
 
@@ -476,6 +479,30 @@ class WooCommerce_Connection {
 			return;
 		}
 		\wc_add_notice( $message, $type );
+	}
+
+	/**
+	 * Fix woocommerce-memberships-for-teams when on /order-pay page. This page is available
+	 * from edit order screen -> "Customer payment page" link when the order is pending payment.
+	 * It allows the customer to pay for the order.
+	 * If woocommerce-memberships-for-teams is used, a cart validation error prevents the customer from
+	 * paying for the order because the team name is not set. This filter sets the team name from the order item.
+	 *
+	 * @param array $fields associative array of user input fields.
+	 */
+	public static function wc_memberships_for_teams_product_team_user_input_fields( $fields ) {
+		global $wp;
+		if ( ! isset( $wp->query_vars['order-pay'] ) || ! class_exists( 'WC_Order' ) || ! function_exists( 'wc_memberships_for_teams_get_team_for_order_item' ) ) {
+			return $fields;
+		}
+		$order = new \WC_Order( $wp->query_vars['order-pay'] );
+		foreach ( $order->get_items( 'line_item' ) as $id => $item ) {
+			$team = wc_memberships_for_teams_get_team_for_order_item( $item );
+			if ( $team ) {
+				$_REQUEST['team_name'] = $team->get_name();
+			}
+		}
+		return $fields;
 	}
 }
 
