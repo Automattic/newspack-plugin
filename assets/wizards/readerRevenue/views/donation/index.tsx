@@ -214,17 +214,17 @@ export const DonationAmounts = () => {
 								Object.values( disabledFrequencies ).filter( Boolean ).length ===
 								FREQUENCY_SLUGS.length - 1;
 							return (
-								<Grid columns={ 1 } gutter={ 16 }>
+								<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
 									<ToggleControl
-											checked={ ! isFrequencyDisabled }
-											onChange={ () =>
-												changeHandler( [ 'disabledFrequencies', section.key ] )(
-													! isFrequencyDisabled
-												)
-											}
-											label={ section.tieredLabel }
-											disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
-										/>
+										checked={ ! isFrequencyDisabled }
+										onChange={ () =>
+											changeHandler( [ 'disabledFrequencies', section.key ] )(
+												! isFrequencyDisabled
+											)
+										}
+										label={ section.tieredLabel }
+										disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
+									/>
 									{ ! isFrequencyDisabled && (
 										<MoneyInput
 											currencySymbol={ currencySymbol }
