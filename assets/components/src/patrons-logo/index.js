@@ -21,7 +21,10 @@ class PatronsLogo extends Component {
 				height="16"
 				viewBox="0 0 438 32"
 				className="patrons-logo"
-				aria-label={ __( 'A project of WordPress.com and the Google News Initiative', 'newspack' ) }
+				aria-label={ __(
+					'A project of WordPress.com and the Google News Initiative',
+					'newspack-plugin'
+				) }
 			>
 				<Path
 					fillRule="evenodd"

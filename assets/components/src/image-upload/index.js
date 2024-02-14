@@ -102,11 +102,11 @@ class ImageUpload extends Component {
 							<img
 								data-testid="image-upload"
 								src={ image.url }
-								alt={ __( 'Image preview', 'newspack' ) }
+								alt={ __( 'Image preview', 'newspack-plugin' ) }
 							/>
 							<div className="newspack-image-upload__controls">
 								<Button disabled={ disabled } onClick={ this.openModal } isLink>
-									{ __( 'Replace', 'newspack' ) }
+									{ __( 'Replace', 'newspack-plugin' ) }
 								</Button>
 								<span className="sep" />
 								<Button
@@ -115,13 +115,13 @@ class ImageUpload extends Component {
 									isLink
 									isDestructive
 								>
-									{ __( 'Remove', 'newspack' ) }
+									{ __( 'Remove', 'newspack-plugin' ) }
 								</Button>
 							</div>
 						</>
 					) : (
 						<Button disabled={ disabled } onClick={ this.openModal } isLink>
-							{ buttonLabel ? buttonLabel : __( 'Upload', 'newspack' ) }
+							{ buttonLabel ? buttonLabel : __( 'Upload', 'newspack-plugin' ) }
 						</Button>
 					) }
 				</div>

@@ -17,16 +17,16 @@ import './style.scss';
 const AutocompleteWithSuggestions = ( {
 	fetchSavedPosts = false, // If passed, will use this function to fetch saved data.
 	fetchSuggestions = false, // If passed, will use this function to fetch suggestions data.
-	help = __( 'Begin typing search term, click autocomplete result to select.', 'newspack' ),
+	help = __( 'Begin typing search term, click autocomplete result to select.', 'newspack-plugin' ),
 	hideHelp = false, // If true, all help text will be hidden.
-	label = __( 'Search', 'newspack' ),
+	label = __( 'Search', 'newspack-plugin' ),
 	maxItemsToSuggest = 0, // If passed, will be used to determine "load more" state. Necessary if you want "load more" functionality when using a custom `fetchSuggestions` function.
 	multiSelect = false, // If true, component can select multiple values at once.
 	onChange = false, // Function to call when selections change.
 	onPostTypeChange = false, // Funciton to call when the post type selector is changed.
 	postTypes = [ { slug: 'post', label: 'Post' } ], // If passed, will render a selector to change the post type queried for suggestions.
-	postTypeLabel = __( 'item', 'newspack' ), // String to describe the data being shown.
-	postTypeLabelPlural = __( 'items', 'newspack' ), // Plural string to describe the data being shown.
+	postTypeLabel = __( 'item', 'newspack-plugin' ), // String to describe the data being shown.
+	postTypeLabelPlural = __( 'items', 'newspack-plugin' ), // Plural string to describe the data being shown.
 	selectedItems = [], // Array of saved items.
 	selectedPost = 0, // Legacy prop when single-select was the only option.
 	suggestionsToFetch = 10, // Number of suggestions to fetch per query.
@@ -96,7 +96,7 @@ const AutocompleteWithSuggestions = ( {
 
 				return posts.map( post => ( {
 					value: parseInt( post.id ),
-					label: decodeEntities( post.title ) || __( '(no title)', 'newspack' ),
+					label: decodeEntities( post.title ) || __( '(no title)', 'newspack-plugin' ),
 				} ) );
 		  };
 
@@ -130,7 +130,7 @@ const AutocompleteWithSuggestions = ( {
 				return posts.reduce( ( acc, post ) => {
 					acc.push( {
 						value: parseInt( post.id ),
-						label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack' ),
+						label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack-plugin' ),
 					} );
 
 					return acc;
@@ -177,21 +177,21 @@ const AutocompleteWithSuggestions = ( {
 		const selectedMessage = multiSelect
 			? sprintf(
 					// Translators: %1: the length of selections. %2: the selection leabel.
-					__( '%1$s %2$s selected', 'newspack' ),
+					__( '%1$s %2$s selected', 'newspack-plugin' ),
 					selections.length,
 					selections.length > 1 ? postTypeLabelPlural : postTypeLabel
 			  )
 			: // Translators: %s: The label for the selection.
-			  sprintf( __( 'Selected %s', 'newspack' ), postTypeLabel );
+			  sprintf( __( 'Selected %s', 'newspack-plugin' ), postTypeLabel );
 
 		return (
 			<div className="newspack-autocomplete-with-suggestions__selected-items">
 				<p className="newspack-autocomplete-with-suggestions__label">
 					{ selectedMessage }
-					{ 1 < selections.length && _x( ' – ', 'separator character', 'newspack' ) }
+					{ 1 < selections.length && _x( ' – ', 'separator character', 'newspack-plugin' ) }
 					{ 1 < selections.length && (
 						<Button onClick={ () => onChange( [] ) } isLink isDestructive>
-							{ __( 'Clear all', 'newspack' ) }
+							{ __( 'Clear all', 'newspack-plugin' ) }
 						</Button>
 					) }
 				</p>
@@ -219,7 +219,7 @@ const AutocompleteWithSuggestions = ( {
 			<SelectControl
 				label={ sprintf(
 					// Translators: %s: The name of the type.
-					__( '%s type', 'newspack' ),
+					__( '%s type', 'newspack-plugin' ),
 					postTypeLabel.charAt( 0 ).toUpperCase() + postTypeLabel.slice( 1 )
 				) }
 				value={ postTypeToSearch }
@@ -279,7 +279,7 @@ const AutocompleteWithSuggestions = ( {
 					<p className="newspack-autocomplete-with-suggestions__label">
 						{
 							/* Translators: %s: the name of a post type. */ sprintf(
-								__( 'Or, select a recent %s:', 'newspack' ),
+								__( 'Or, select a recent %s:', 'newspack-plugin' ),
 								postTypeLabel
 							)
 						}
@@ -293,7 +293,9 @@ const AutocompleteWithSuggestions = ( {
 							isSecondary
 							onClick={ () => setIsLoadingMore( true ) }
 						>
-							{ isLoadingMore ? __( 'Loading…', 'newspack' ) : __( 'Load more', 'newspack' ) }
+							{ isLoadingMore
+								? __( 'Loading…', 'newspack-plugin' )
+								: __( 'Load more', 'newspack-plugin' ) }
 						</Button>
 					) }
 				</div>
