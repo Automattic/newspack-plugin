@@ -158,6 +158,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/esp-sync-schemas/class-mailchimp-minimum.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';
