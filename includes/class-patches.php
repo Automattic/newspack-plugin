@@ -115,7 +115,7 @@ class Patches {
 	 * Add a menu link in WP Admin to easily edit and manage pattern categories.
 	 */
 	public static function add_pattern_categories_menu_link() {
-		add_submenu_page( 'edit.php', 'manage_pattern_categories', __( 'Pattern Categories' ), 'edit_posts', 'edit-tags.php?taxonomy=wp_pattern_category', '', 3 );
+		add_submenu_page( 'edit.php', 'manage_pattern_categories', __( 'Pattern Categories', 'newspack-plugin' ), 'edit_posts', 'edit-tags.php?taxonomy=wp_pattern_category', '', 3 );
 	}
 
 	/**
