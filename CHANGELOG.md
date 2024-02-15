@@ -1,3 +1,10 @@
+# [3.1.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v3.1.0-alpha.3...v3.1.0-alpha.4) (2024-02-15)
+
+
+### Bug Fixes
+
+* add frequency tab options for donations, even when tiers are disabled ([#2930](https://github.com/Automattic/newspack-plugin/issues/2930)) ([cb7eb7b](https://github.com/Automattic/newspack-plugin/commit/cb7eb7b7f86697af9a648b10845bf23d2be91de3))
+
 # [3.1.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v3.1.0-alpha.2...v3.1.0-alpha.3) (2024-02-09)
 
 
