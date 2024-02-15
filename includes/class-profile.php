@@ -16,6 +16,14 @@ require_once NEWSPACK_ABSPATH . 'includes/configuration_managers/class-configura
  * Manages user profile data.
  */
 class Profile {
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'manage_options';
+
 	/**
 	 * Constructor.
 	 */
@@ -263,7 +271,7 @@ class Profile {
 	 * @return bool|WP_Error
 	 */
 	public function api_permissions_check( $request ) {
-		if ( ! Wizards::can_access_wizard( 'setup' ) ) {
+		if ( ! current_user_can( $this->capability ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),

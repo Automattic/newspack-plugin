@@ -19,7 +19,7 @@ abstract class Configuration_Manager {
 	 *
 	 * @var string
 	 */
-	public $slug = '';
+	protected $slug = '';
 
 	/**
 	 * Retrieve data for this plugin.

@@ -34,13 +34,13 @@ class WooCommerce_Connection {
 		\add_filter( 'default_option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
 		\add_action( 'woocommerce_order_status_completed', [ __CLASS__, 'maybe_update_reader_display_name' ], 10, 2 );
+		\add_action( 'option_woocommerce_feature_order_attribution_enabled', [ __CLASS__, 'force_disable_order_attribution' ] );
 		\add_action( 'cli_init', [ __CLASS__, 'register_cli_commands' ] );
 
 		// WooCommerce Subscriptions.
 		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
-		\add_action( 'option_woocommerce_subscriptions_failed_scheduled_actions', [ __CLASS__, 'filter_subscription_scheduled_actions_errors' ] );
 
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
 		\add_filter( 'get_post_metadata', [ __CLASS__, 'get_post_metadata' ], 10, 3 );
@@ -394,6 +394,24 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Force option for enabling order attribution to OFF unless the
+	 * NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE constant is set.
+	 * Right now, it causes JavaScript errors in the modal checkout.
+	 *
+	 * See:https://woo.com/document/order-attribution-tracking/
+	 *
+	 * @param bool $should_allow Whether WooCommerce should allow enabling Order Attribution.
+	 *
+	 * @return string Option value.
+	 */
+	public static function force_disable_order_attribution( $should_allow ) {
+		if ( defined( 'NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE' ) && NEWSPACK_PREVENT_WC_ALLOW_ORDER_ATTRIBUTION_OVERRIDE ) {
+			return $should_allow;
+		}
+		return false;
+	}
+
+	/**
 	 * Send the customizable receipt email instead of WooCommerce's default receipt.
 	 *
 	 * @param bool     $enable Whether to send the default receipt email.
@@ -562,7 +580,7 @@ class WooCommerce_Connection {
 	 */
 	public static function page_template( $template ) {
 		if ( self::should_override_template() ) {
-			return get_stylesheet_directory() . '/single-wide.php';
+			return get_theme_file_path( '/single-wide.php' );
 		}
 		return $template;
 	}

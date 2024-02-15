@@ -60,7 +60,6 @@ class Reader_Revenue_Emails {
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
 			'editor_notice'          => __( 'This email will be sent to a reader after they contribute to your site.', 'newspack-plugin' ),
 			'from_email'             => self::get_from_email(),
-			'can_be_edited'          => Wizards::can_access_wizard( 'reader-revenue' ),
 			'available_placeholders' => [
 				[
 					'label'    => __( 'the customer billing name', 'newspack-plugin' ),

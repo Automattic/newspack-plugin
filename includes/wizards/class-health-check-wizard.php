@@ -24,7 +24,14 @@ class Health_Check_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $slug = 'newspack-health-check-wizard';
+	protected $slug = 'newspack-health-check-wizard';
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'activate_plugins';
 
 	/**
 	 * Constructor.

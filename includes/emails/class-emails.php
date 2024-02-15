@@ -28,7 +28,6 @@ class Emails {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
-		add_filter( 'newspack_editable_posts', [ __CLASS__, 'newspack_editable_posts' ] );
 	}
 
 	/**
@@ -59,12 +58,8 @@ class Emails {
 	 * @codeCoverageIgnore
 	 */
 	public static function register_cpt() {
-		$should_register_cpt = false;
-		foreach ( self::get_email_configs() as $config ) {
-			if ( ! isset( $config['can_be_edited'] ) || $config['can_be_edited'] ) {
-				$should_register_cpt = true;
-				break;
-			}
+		if ( ! current_user_can( 'edit_others_posts' ) ) {
+			return;
 		}
 
 		$labels = [
@@ -356,21 +351,6 @@ class Emails {
 	}
 
 	/**
-	 * Enable editing of email posts based on capabilities.
-	 *
-	 * @param array $post_ids Editable post IDs.
-	 */
-	public static function newspack_editable_posts( $post_ids ) {
-		$configs = self::get_email_configs();
-		foreach ( $configs as $key => $config ) {
-			if ( isset( $config['can_be_edited'] ) && $config['can_be_edited'] ) {
-				$post_ids[] = self::get_post_id_of_email_by_type( $key );
-			}
-		}
-		return $post_ids;
-	}
-
-	/**
 	 * Get the from email address used to send all transactional emails.
 	 * We avoid use of the `wp_mail_from` hook because we only want to
 	 * set the email address for Newspack emails, not all emails sent via wp_mail.
@@ -423,11 +403,14 @@ class Emails {
 	}
 
 	/**
-	 * Get post id of the existing email post, by type.
+	 * Get the email for a specific type.
+	 * If the email does not exist, it will be created based on default template.
 	 *
 	 * @param string $type Type of the email.
+	 *
+	 * @return array|false The serialized email config or false if not available or supported.
 	 */
-	private static function get_post_id_of_email_by_type( $type ) {
+	public static function get_email_config_by_type( $type ) {
 		$emails_query = new \WP_Query(
 			[
 				'post_type'      => self::POST_TYPE,
@@ -437,21 +420,8 @@ class Emails {
 				'meta_value'     => $type, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 			]
 		);
-		return $emails_query->post ? $emails_query->post->ID : false;
-	}
-
-	/**
-	 * Get the email for a specific type.
-	 * If the email does not exist, it will be created based on default template.
-	 *
-	 * @param string $type Type of the email.
-	 *
-	 * @return array|false The serialized email config or false if not available or supported.
-	 */
-	public static function get_email_config_by_type( $type ) {
-		$post_id = self::get_post_id_of_email_by_type( $type );
-		if ( $post_id ) {
-			return self::serialize_email( $type, $post_id );
+		if ( $emails_query->post ) {
+			return self::serialize_email( $type, $emails_query->post->ID );
 		} elseif ( ! function_exists( 'is_user_logged_in' ) ) {
 			/** Only attempt to create the email post if wp-includes/pluggable.php is loaded. */
 			return false;

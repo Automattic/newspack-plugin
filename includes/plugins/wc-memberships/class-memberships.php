@@ -64,8 +64,6 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
-		add_filter( 'newspack_editable_posts', [ __CLASS__, 'newspack_editable_posts' ] );
-
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
 	}
@@ -471,32 +469,13 @@ class Memberships {
 	}
 
 	/**
-	 * Allow users with the to edit the custom gate.
-	 *
-	 * @param array $post_ids Editable post IDs.
-	 */
-	public static function newspack_editable_posts( $post_ids ) {
-		if ( self::can_current_user_edit_gate() ) {
-			$post_ids[] = self::get_gate_post_id();
-		}
-		return $post_ids;
-	}
-
-	/**
-	 * Can the current user edit the content gate post?
-	 */
-	private static function can_current_user_edit_gate() {
-		return Wizards::can_access_wizard( 'engagement' );
-	}
-
-	/**
 	 * Create a post for the custom gate.
 	 */
 	public static function handle_edit_gate() {
 		if ( ! isset( $_GET['action'] ) || 'newspack_edit_memberships_gate' !== $_GET['action'] ) {
 			return;
 		}
-		if ( ! self::can_current_user_edit_gate() ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		check_admin_referer( 'newspack_edit_memberships_gate' );
