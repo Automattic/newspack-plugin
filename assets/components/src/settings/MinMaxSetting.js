@@ -24,7 +24,7 @@ const MinMaxSetting = ( {
 				<CheckboxControl
 					checked={ min > 0 }
 					onChange={ value => onChangeMin( value ? 1 : 0 ) }
-					label={ __( 'Min', 'newspack' ) }
+					label={ __( 'Min', 'newspack-plugin' ) }
 				/>
 				<TextControl
 					data-testid="min"
@@ -38,7 +38,7 @@ const MinMaxSetting = ( {
 				<CheckboxControl
 					checked={ max > 0 }
 					onChange={ value => onChangeMax( value ? min || 1 : 0 ) }
-					label={ __( 'Max', 'newspack' ) }
+					label={ __( 'Max', 'newspack-plugin' ) }
 				/>
 				<TextControl
 					data-testid="max"

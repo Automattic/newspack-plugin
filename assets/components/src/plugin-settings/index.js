@@ -205,7 +205,7 @@ class PluginSettings extends Component {
 }
 
 PluginSettings.defaultProps = {
-	title: __( 'General Settings', 'newspack' ),
+	title: __( 'General Settings', 'newspack-plugin' ),
 };
 
 PluginSettings.Section = SettingsSection;
