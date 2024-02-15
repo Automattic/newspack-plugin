@@ -38,25 +38,31 @@ class StyleCard extends Component {
 					{ imageType === 'html' ? (
 						<div dangerouslySetInnerHTML={ image } />
 					) : (
-						<img src={ image } alt={ cardTitle + ' ' + __( 'Thumbnail', 'newspack' ) } />
+						<img src={ image } alt={ cardTitle + ' ' + __( 'Thumbnail', 'newspack-plugin' ) } />
 					) }
 					<div className="newspack-style-card__actions">
 						{ isActive ? (
 							<span className="newspack-style-card__actions__badge">
-								{ __( 'Selected', 'newspack' ) }
+								{ __( 'Selected', 'newspack-plugin' ) }
 							</span>
 						) : (
 							<Button
 								variant="link"
 								onClick={ onClick }
-								aria-label={ ariaLabel ? ariaLabel : __( 'Select', 'newspack' ) + ' ' + cardTitle }
+								aria-label={
+									ariaLabel ? ariaLabel : __( 'Select', 'newspack-plugin' ) + ' ' + cardTitle
+								}
 								tabIndex="0"
 							>
-								{ __( 'Select', 'newspack' ) }
+								{ __( 'Select', 'newspack-plugin' ) }
 							</Button>
 						) }
 						{ url && (
-							<WebPreview url={ url } label={ __( 'View Demo', 'newspack' ) } variant="link" />
+							<WebPreview
+								url={ url }
+								label={ __( 'View Demo', 'newspack-plugin' ) }
+								variant="link"
+							/>
 						) }
 					</div>
 				</div>
