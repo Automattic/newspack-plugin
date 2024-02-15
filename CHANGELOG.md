@@ -1,3 +1,10 @@
+## [3.0.5](https://github.com/Automattic/newspack-plugin/compare/v3.0.4...v3.0.5) (2024-02-15)
+
+
+### Bug Fixes
+
+* **perfmatters:** use ignore-defaults constant when applying unused CSS ([#2863](https://github.com/Automattic/newspack-plugin/issues/2863)) ([6d52be3](https://github.com/Automattic/newspack-plugin/commit/6d52be38e8266d13506676675ffc57ec509b393d))
+
 ## [3.0.4](https://github.com/Automattic/newspack-plugin/compare/v3.0.3...v3.0.4) (2024-02-15)
 
 
