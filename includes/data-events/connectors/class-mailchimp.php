@@ -198,16 +198,41 @@ class Mailchimp {
 			}
 		}
 
+		// TODO: Only here while we discuss tags. A contact needs to be subscribed to a list to have tags added.
+		$payload['status'] = 'subscribed';
+
 		Logger::log(
 			'Syncing contact with metadata key(s): ' . implode( ', ', array_keys( $contact['metadata'] ) ) . '.',
 			Data_Events::LOGGER_HEADER
 		);
 
 		// Upsert the contact.
-		return Mailchimp_API::put(
+		$result = Mailchimp_API::put(
 			"lists/$audience_id/members/$hash",
 			$payload
 		);
+
+		if (
+			! $result ||
+			! isset( $result['status'] ) ||
+			( isset( $result['errors'] ) && count( $result['errors'] ) )
+		) {
+			return new WP_Error(
+				'newspack_mailchimp_add_contact_failed',
+				sprintf(
+					/* translators: %s: Mailchimp error message */
+					__( 'Failed to add contact to list. %s', 'newspack' ),
+					isset( $result['detail'] ) ? $result['detail'] : ''
+				)
+			);
+		}
+
+		if ( class_exists( 'Newspack_Newsletters_Mailchimp' ) ) {
+			$mc = \Newspack_Newsletters_Mailchimp::instance();
+			$mc->process_contact_tags( $contact, $audience_id );
+		}
+
+		return $result;
 	}
 
 	/**

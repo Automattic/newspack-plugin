@@ -72,13 +72,24 @@ class Mailchimp_Minimum {
 	 * @return array
 	 */
 	public static function normalize_contact_data( $contact ) {
-		$new_metadata = [];
-		$new_metadata['First Name'] = $contact['metadata']['First Name'];
-		$new_metadata['Last Name'] = $contact['metadata']['Last Name'];
-		$new_metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ] = $contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ];
 
-		$tags_to_add = [];
-		$tags_to_remove = [];
+		// Merge fields we want to keep.
+		$fields_to_keep = [
+			'First Name',
+			'Last Name',
+			Newspack_Newsletters::get_metadata_key( 'sub_end_date' ),
+			Newspack_Newsletters::get_metadata_key( 'sub_start_date' ),
+		];
+
+		$new_metadata = [];
+
+		foreach ( $fields_to_keep as $field ) {
+			$new_metadata[ $field ] = $contact['metadata'][ $field ] ?? '';
+		}
+
+		$tags_to_add            = [];
+		$tags_to_remove         = [];
+		$product_tags_to_remove = [];
 
 		if ( ! empty( $contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] ) ) {
 			$product_tag = self::prefix( $contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'product_name' ) ], 'Product_' );
@@ -88,17 +99,18 @@ class Mailchimp_Minimum {
 					return $tag !== $product_tag;
 				}
 			);
+			$tags_to_add[] = $product_tag;
 		}
 
-		$membership_status = $contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] ?? '';
+		$membership_status      = $contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] ?? '';
 		$membership_status_tags = self::get_membership_status_tags( $membership_status );
 
-		$tags_to_add = array_merge( $membership_status_tags['add'], [ $product_tag ] );
+		$tags_to_add    = array_merge( $membership_status_tags['add'], $tags_to_add );
 		$tags_to_remove = array_merge( $product_tags_to_remove, $membership_status_tags['remove'] );
 
-		$contact['metadata'] = $new_metadata;
-		$contact['tags_to_add'] = $tags_to_add;
-		$contact['tags_to_remove'] = $tags_to_remove;
+		$contact['metadata']    = $new_metadata;
+		$contact['add_tags']    = $tags_to_add;
+		$contact['remove_tags'] = $tags_to_remove;
 
 		return $contact;
 	}
@@ -116,7 +128,7 @@ class Mailchimp_Minimum {
 				'remove' => [],
 			];
 		}
-		if ( strstartswith( $membership_status, 'Ex-' ) ) {
+		if ( str_starts_with( $membership_status, 'Ex-' ) ) {
 			return [
 				'add'    => [ self::prefix( 'Paid_Status_Expired' ) ],
 				'remove' => [ self::prefix( 'Paid_Status_Active' ) ],
