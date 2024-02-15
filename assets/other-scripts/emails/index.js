@@ -56,7 +56,7 @@ const ReaderRevenueEmailSidebar = compose( [
 			'info',
 			sprintf(
 				/* translators: 1: "From" email address 2: "From" email name */
-				__( 'This email will be sent from %1$s <%2$s>.', 'newspack' ),
+				__( 'This email will be sent from %1$s <%2$s>.', 'newspack-plugin' ),
 				config.from_name || newspack_emails.from_name,
 				config.from_email || newspack_emails.from_email
 			),
@@ -78,10 +78,10 @@ const ReaderRevenueEmailSidebar = compose( [
 			},
 		} )
 			.then( () => {
-				createNotice( 'success', __( 'Test email sent!', 'newspack' ) );
+				createNotice( 'success', __( 'Test email sent!', 'newspack-plugin' ) );
 			} )
 			.catch( () => {
-				createNotice( 'error', __( 'Test email was not sent.', 'newspack' ) );
+				createNotice( 'error', __( 'Test email was not sent.', 'newspack-plugin' ) );
 			} )
 			.finally( () => {
 				setInFlight( false );
@@ -92,11 +92,11 @@ const ReaderRevenueEmailSidebar = compose( [
 			{ config.available_placeholders?.length && (
 				<PluginDocumentSettingPanel
 					name="email-instructions-panel"
-					title={ __( 'Instructions', 'newspack' ) }
+					title={ __( 'Instructions', 'newspack-plugin' ) }
 				>
 					{ __(
 						'Use the following placeholders to insert dynamic content in the email:',
-						'newspack'
+						'newspack-plugin'
 					) }
 					<ul>
 						{ config.available_placeholders.map( ( item, i ) => (
@@ -109,24 +109,27 @@ const ReaderRevenueEmailSidebar = compose( [
 			) }
 			<PluginDocumentSettingPanel
 				name="email-settings-panel"
-				title={ __( 'Settings', 'newspack' ) }
+				title={ __( 'Settings', 'newspack-plugin' ) }
 			>
 				<TextControl
-					label={ __( 'Subject', 'newspack' ) }
+					label={ __( 'Subject', 'newspack-plugin' ) }
 					value={ title }
 					onChange={ updatePostTitle }
 				/>
 			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel name="email-testing-panel" title={ __( 'Testing', 'newspack' ) }>
+			<PluginDocumentSettingPanel
+				name="email-testing-panel"
+				title={ __( 'Testing', 'newspack-plugin' ) }
+			>
 				<TextControl
-					label={ __( 'Send to', 'newspack' ) }
+					label={ __( 'Send to', 'newspack-plugin' ) }
 					value={ settings.testRecipient }
 					type="email"
 					onChange={ updateSettings( 'testRecipient' ) }
 				/>
 				<div className="newspack__testing-controls">
 					<Button isPrimary onClick={ sendTestEmail } disabled={ inFlight }>
-						{ inFlight ? __( 'Sending…', 'newspack' ) : __( 'Send', 'newspack' ) }
+						{ inFlight ? __( 'Sending…', 'newspack-plugin' ) : __( 'Send', 'newspack-plugin' ) }
 					</Button>
 					{ inFlight && <Spinner /> }
 				</div>

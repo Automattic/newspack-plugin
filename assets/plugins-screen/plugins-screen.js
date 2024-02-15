@@ -47,25 +47,25 @@ const getCreateButton =
 		};
 
 		modalEl.classList.add( 'newspack-plugin-info-modal' );
-		modalHeadingEl.innerText = wp.i18n.__( 'Plugin review required', 'newspack' );
+		modalHeadingEl.innerText = wp.i18n.__( 'Plugin review required', 'newspack-plugin' );
 		modalPEl.innerText = wp.i18n.__(
 			'Please submit a plugin for review by the Newspack Team before installing it on your website. If you plan to install an approved plugin, feel free to close this message.',
-			'newspack'
+			'newspack-plugin'
 		);
 		modalCloseEl.innerHTML =
 			'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>';
 		modalCloseEl.onclick = closeModal;
 
 		createButton(
-			wp.i18n.__( 'Plugin Review Form', 'newspack' ),
+			wp.i18n.__( 'Plugin Review Form', 'newspack-plugin' ),
 			newspack_plugin_info.plugin_review_link,
 			true
 		);
 		createButton(
-			wp.i18n.__( 'Approved Plugins List', 'newspack' ),
+			wp.i18n.__( 'Approved Plugins List', 'newspack-plugin' ),
 			newspack_plugin_info.approved_plugins_list_link
 		);
-		createButton( wp.i18n.__( 'Close this message', 'newspack' ), closeModal );
+		createButton( wp.i18n.__( 'Close this message', 'newspack-plugin' ), closeModal );
 
 		modalEl.appendChild( modalContentEl );
 		modalContentEl.appendChild( modalHeadingEl );
