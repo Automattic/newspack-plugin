@@ -662,6 +662,13 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Get the reader roles.
+	 */
+	public static function get_reader_roles() {
+		return \apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
+	}
+
+	/**
 	 * Whether the user is a reader.
 	 *
 	 * @param WP_User $user   User object.
@@ -679,7 +686,7 @@ final class Reader_Activation {
 			 *
 			 * @param string[] $roles Array of user roles.
 			 */
-			$reader_roles = \apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
+			$reader_roles = self::get_reader_roles();
 			if ( ! empty( $reader_roles ) ) {
 				$is_reader = ! empty( array_intersect( $reader_roles, $user_data->roles ) );
 			}
