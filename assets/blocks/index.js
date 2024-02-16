@@ -1,11 +1,6 @@
 /* globals newspack_blocks */
 
 /**
- * Includes
- */
-import './core-image';
-
-/**
  * WordPress dependencies
  */
 import { registerBlockType } from '@wordpress/blocks';
@@ -14,6 +9,11 @@ import { registerBlockType } from '@wordpress/blocks';
  * Internal dependencies
  */
 import * as readerRegistration from './reader-registration';
+
+/**
+ * Block Scripts
+ */
+import './core-image';
 
 export const blocks = [ readerRegistration ];
 
