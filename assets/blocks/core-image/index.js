@@ -10,33 +10,36 @@ import './style.scss';
 /**
  * Add image credit meta to core/image block attributes
  */
-addFilter( 'blocks.registerBlockType', 'newspack-blocks', ( settings, name ) => {
-	if ( name !== 'core/image' ) {
-		return settings;
-	}
-	return {
-		...settings,
-		attributes: {
-			...settings.attributes,
-			meta: {
-				type: 'object',
-				default: {},
+addFilter(
+	'blocks.registerBlockType',
+	'newspack-plugin/register-hook/core-image',
+	( settings, name ) => {
+		if ( name !== 'core/image' ) {
+			return settings;
+		}
+		return {
+			...settings,
+			attributes: {
+				...settings.attributes,
+				meta: {
+					type: 'object',
+					default: {},
+				},
 			},
-		},
-	};
-} );
+		};
+	}
+);
 
 /**
  * Populate attributes with meta data.
  */
 addFilter(
 	'editor.BlockEdit',
-	'newspack-blocks',
+	'newspack-plugin/block-edit-hook/core-image',
 	createHigherOrderComponent( BlockEdit => {
 		// eslint-disable-next-line react/display-name
 		return props => {
 			const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
-			// Check if this is an image block and it has an ID
 			if ( props.name === 'core/image' && props.attributes.id ) {
 				const imageId = props.attributes.id;
 
@@ -48,18 +51,19 @@ addFilter(
 				if ( Object.keys( meta ).length > 0 ) {
 					props.setAttributes( { meta } );
 					unlockPostSaving( 'attachment-meta-empty' );
-					return <BlockEdit { ...props } />;
 				}
 				// Display loading and lock post saving
 				lockPostSaving( 'attachment-meta-empty' );
 				return (
-					<div className="newspack-block-core-image">
+					<div className="newspack-block__core-image">
 						<BlockEdit { ...props } />
-						<div className="newspack-block-core-image__background">
-							<div className="newspack-block-core-image__spinner">
-								<Spinner />
+						{ Object.keys( meta ).length > 0 && (
+							<div className="newspack-block__core-image-background">
+								<div className="newspack-block__core-image-spinner">
+									<Spinner />
+								</div>
 							</div>
-						</div>
+						) }
 					</div>
 				);
 			}

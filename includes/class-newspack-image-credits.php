@@ -93,14 +93,44 @@ class Newspack_Image_Credits {
 		return apply_filters( 'newspack_image_credits_media_credit', $output, $attachment_id );
 	}
 
+
+	/**
+	 * Parse Media Credit Meta Attributes
+	 *
+	 * @param int   $attachment_id Post ID of the attachment.
+	 * @param array $credit_attrs Array of credit properties to parse.
+	 * @return array Credit info. See $output at the top of this method.
+	 */
+	public static function parse_media_credit_attrs( $attachment_id, $credit_attrs ) {
+		/**
+		 * Filter for the media credit data from this plugin.
+		 * Allows third-party code to hook into and modify the credits info if needed.
+		 *
+		 * @param array $output Credit info for the attachment.
+		 * @param int   $attachment_id ID of the attachment whose credit is being filtered.
+		 */
+		return apply_filters(
+			'newspack_image_credits_media_credit',
+			[
+				'id'             => $attachment_id,
+				'credit'         => $credit_attrs[ static::MEDIA_CREDIT_META ] ?? '',
+				'credit_url'     => $credit_attrs[ static::MEDIA_CREDIT_URL_META ] ?? '',
+				'organization'   => $credit_attrs[ static::MEDIA_CREDIT_ORG_META ] ?? '',
+				'can_distribute' => ( $credit_attrs[ static::MEDIA_CREDIT_CAN_DISTRIBUTE_META ] ?? '' ) === '1',
+			],
+			$attachment_id
+		);
+	}
+
 	/**
 	 * Get credit info as an HTML string.
 	 *
-	 * @param int $attachment_id Attachment post ID.
+	 * @param int   $attachment_id Attachment post ID.
+	 * @param array $meta_attributes Array of credit properties to parse.
 	 * @return string The credit ready for output.
 	 */
-	public static function get_media_credit_string( $attachment_id ) {
-		$credit_info = self::get_media_credit( $attachment_id );
+	public static function get_media_credit_string( $attachment_id, $meta_attributes = [] ) {
+		$credit_info = empty( $meta_attributes ) ? self::get_media_credit( $attachment_id ) : self::parse_media_credit_attrs( $attachment_id, $meta_attributes );
 		if ( ! $credit_info['credit'] ) {
 			return '';
 		}
@@ -228,9 +258,12 @@ class Newspack_Image_Credits {
 
 			// If there's no credit, show placeholder image, if any.
 			if ( ! $credit_string ) {
-				$size         = ! empty( $block['attrs']['sizeSlug'] ) ? $block['attrs']['sizeSlug'] : null;
-				$block_output = self::maybe_show_placeholder_image_in_block( $block_output, $size );
-				return $block_output;
+				if ( empty( $block['attrs']['meta'][ static::MEDIA_CREDIT_META ] ) ) {
+					$size         = ! empty( $block['attrs']['sizeSlug'] ) ? $block['attrs']['sizeSlug'] : null;
+					$block_output = self::maybe_show_placeholder_image_in_block( $block_output, $size );
+					return $block_output;
+				}
+				$credit_string = self::get_media_credit_string( $block['attrs']['id'], $block['attrs']['meta'] );
 			}
 
 			if ( strpos( $block_output, '</figcaption>' ) ) {
