@@ -4,6 +4,7 @@
  * Includes
  */
 import './core-image';
+
 /**
  * WordPress dependencies
  */
