@@ -1,6 +1,10 @@
 /* globals newspack_blocks */
 
 /**
+ * Includes
+ */
+import './core-image';
+/**
  * WordPress dependencies
  */
 import { registerBlockType } from '@wordpress/blocks';
