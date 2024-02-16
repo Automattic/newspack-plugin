@@ -45,7 +45,7 @@ class Newspack_Image_Credits {
 		add_filter( 'wp_get_attachment_image_src', [ __CLASS__, 'maybe_show_placeholder_image' ], 11, 4 );
 		add_filter( 'ajax_query_attachments_args', [ __CLASS__, 'filter_ajax_query_attachments' ] );
 		add_filter( 'wp_generate_attachment_metadata', [ __CLASS__, 'populate_credit' ], 10, 3 );
-		add_filter('init', [__CLASS__, 'register_meta']);
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 	}
 
 	/**
@@ -505,18 +505,23 @@ class Newspack_Image_Credits {
 	 * Register _media_credit* meta fields. Required for displaying in relevant REST endpoints.
 	 */
 	public static function register_meta() {
-		foreach ([
+		foreach ( [
 			static::MEDIA_CREDIT_META, 
 			static::MEDIA_CREDIT_URL_META,
 			static::MEDIA_CREDIT_ORG_META,
-			static::MEDIA_CREDIT_CAN_DISTRIBUTE_META]
-		as $meta) {
-			register_meta('post', $meta, [
-				'object_subtype' => 'attachment',
-				'type' 			 => 'string', // Adjust according to your meta type (string, boolean, integer, etc.)
-				'single' 		 => true,
-				'show_in_rest' 	 => true,
-			]);
+			static::MEDIA_CREDIT_CAN_DISTRIBUTE_META,
+		]
+		as $meta ) {
+			register_meta(
+				'post',
+				$meta,
+				[
+					'object_subtype' => 'attachment',
+					'type'           => 'string',
+					'single'         => true,
+					'show_in_rest'   => true,
+				]
+			);
 		}
 	}
 }
