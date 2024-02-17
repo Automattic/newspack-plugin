@@ -57,7 +57,7 @@ addFilter(
 				return (
 					<div className="newspack-block__core-image">
 						<BlockEdit { ...props } />
-						{ Object.keys( meta ).length > 0 && (
+						{ Object.keys( meta ).length < 0 && (
 							<div className="newspack-block__core-image-background">
 								<div className="newspack-block__core-image-spinner">
 									<Spinner />
