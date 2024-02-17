@@ -31,45 +31,53 @@ addFilter(
 );
 
 /**
+ * Display spinner and lock post saving until meta attributes are added to block
+ */
+const AttributesLoader = props => {
+	const imageId = props.attributes.id;
+	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
+	const { meta } = useSelect( select => select( 'core' ).getMedia( imageId ), [ imageId ] ) ?? {
+		meta: {},
+	};
+	// Meta added, proceed
+	if ( Object.keys( meta ).length ) {
+		props.setAttributes( { meta } );
+		unlockPostSaving( 'attachment-meta-empty' );
+	} else {
+		lockPostSaving( 'attachment-meta-empty' );
+	}
+
+	return (
+		<>
+			{ ! Object.keys( meta ).length && (
+				<div className="newspack-block__core-image-background">
+					<div className="newspack-block__core-image-spinner">
+						<Spinner />
+					</div>
+				</div>
+			) }
+		</>
+	);
+};
+
+/**
  * Populate attributes with meta data.
  */
 addFilter(
 	'editor.BlockEdit',
 	'newspack-plugin/block-edit-hook/core-image',
 	createHigherOrderComponent( BlockEdit => {
-		// eslint-disable-next-line react/display-name
-		return props => {
-			const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
-			if ( props.name === 'core/image' && props.attributes.id ) {
-				const imageId = props.attributes.id;
-
-				const { meta } = useSelect(
-					select => select( 'core' ).getMedia( imageId ),
-					[ imageId ]
-				) ?? { meta: {} };
-				// Meta added, proceed
-				if ( Object.keys( meta ).length > 0 ) {
-					props.setAttributes( { meta } );
-					unlockPostSaving( 'attachment-meta-empty' );
-				}
-				// Display loading and lock post saving
-				lockPostSaving( 'attachment-meta-empty' );
+		const blockEditComponent = props => {
+			if ( props.name === 'core/image' ) {
 				return (
 					<div className="newspack-block__core-image">
 						<BlockEdit { ...props } />
-						{ Object.keys( meta ).length < 0 && (
-							<div className="newspack-block__core-image-background">
-								<div className="newspack-block__core-image-spinner">
-									<Spinner />
-								</div>
-							</div>
-						) }
+						<AttributesLoader { ...props } />
 					</div>
 				);
 			}
-
-			// Return the original block edit component
 			return <BlockEdit { ...props } />;
 		};
+		return blockEditComponent;
 	}, 'withCustomMetaData' )
 );
