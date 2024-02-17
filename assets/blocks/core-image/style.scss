@@ -1,11 +1,11 @@
-.newspack-block-core-image {
+.newspack-block__core-image {
     margin-left: auto;
     margin-right: auto;
     position: relative;
     width: fit-content;
 }
 
-.newspack-block-core-image__background {
+.newspack-block__core-image-background {
     background-color: rgba(#fff, 0.7);
     height: 100%;
     overflow: hidden;
@@ -42,7 +42,7 @@
     }
 }
 
-.newspack-block-core-image__spinner {
+.newspack-block__core-image-spinner {
     position: relative;
     text-align: center;
     top: 50%;
