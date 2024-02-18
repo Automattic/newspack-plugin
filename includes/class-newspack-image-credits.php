@@ -113,9 +113,9 @@ class Newspack_Image_Credits {
 			'newspack_image_credits_media_credit',
 			[
 				'id'             => $attachment_id,
-				'credit'         => $credit_attrs[ static::MEDIA_CREDIT_META ] ?? '',
-				'credit_url'     => $credit_attrs[ static::MEDIA_CREDIT_URL_META ] ?? '',
-				'organization'   => $credit_attrs[ static::MEDIA_CREDIT_ORG_META ] ?? '',
+				'credit'         => esc_html( $credit_attrs[ static::MEDIA_CREDIT_META ] ?? '' ),
+				'credit_url'     => esc_url( $credit_attrs[ static::MEDIA_CREDIT_URL_META ] ?? '' ),
+				'organization'   => esc_html( $credit_attrs[ static::MEDIA_CREDIT_ORG_META ] ?? '' ),
 				'can_distribute' => ( $credit_attrs[ static::MEDIA_CREDIT_CAN_DISTRIBUTE_META ] ?? '' ) === '1',
 			],
 			$attachment_id
