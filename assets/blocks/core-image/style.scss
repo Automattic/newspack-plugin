@@ -1,4 +1,6 @@
 .newspack-block__core-image {
+    --wp-block-image-caption-credit: " ";
+
     margin-left: auto;
     margin-right: auto;
     position: relative;
@@ -53,5 +55,11 @@
 @keyframes loading {
     100% {
         transform: translateX(100%);
+    }
+}
+
+.newspack-block__core-image figcaption {
+    &::after {
+        content: var(--wp-block-image-caption-credit)
     }
 }

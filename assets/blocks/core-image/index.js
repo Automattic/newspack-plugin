@@ -48,7 +48,7 @@ const AttributesLoader = props => {
 		} else {
 			lockPostSaving( 'attachment-meta-empty' );
 		}
-	}, [ meta ] );
+	}, [ Object.keys( meta ).length ] );
 
 	return (
 		<>
@@ -64,6 +64,25 @@ const AttributesLoader = props => {
 };
 
 /**
+ * Helper to parse credit meta
+ *
+ * @param {{}} credit Credit meta to parse
+ * @return {string} Formatted string of image credit
+ */
+function parseCreditToText( credit ) {
+	const parsed = {
+		credit: credit._media_credit ?? '',
+		url: credit._media_credit_url ?? '',
+		org: credit._navis_media_credit_org ?? '',
+	};
+	if ( ! parsed.credit ) {
+		return '';
+	}
+	const org = `${ parsed.org ? ` / ${ parsed.org }` : '' }`;
+	return `Credit: ${ parsed.credit }${ org }`;
+}
+
+/**
  * Populate attributes with meta data.
  */
 addFilter(
@@ -73,7 +92,14 @@ addFilter(
 		const blockEditComponent = props => {
 			if ( props.name === 'core/image' ) {
 				return (
-					<div className="newspack-block__core-image">
+					<div
+						className="newspack-block__core-image"
+						style={ {
+							'--wp-block-image-caption-credit': `" ${ parseCreditToText(
+								props.attributes?.meta ?? ''
+							) }"`,
+						} }
+					>
 						<BlockEdit { ...props } />
 						<AttributesLoader { ...props } />
 					</div>
