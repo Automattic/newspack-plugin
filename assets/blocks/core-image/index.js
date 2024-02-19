@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Spinner } from '@wordpress/components';
@@ -79,7 +80,7 @@ function parseCreditToText( credit ) {
 		return '';
 	}
 	const org = `${ parsed.org ? ` / ${ parsed.org }` : '' }`;
-	return `Credit: ${ parsed.credit }${ org }`;
+	return `${ __( 'Credit', 'newspack-plugin' ) }: ${ parsed.credit }${ org }`;
 }
 
 /**
