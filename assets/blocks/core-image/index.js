@@ -4,6 +4,7 @@
 import { addFilter } from '@wordpress/hooks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Spinner } from '@wordpress/components';
+import { useEffect } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import './style.scss';
 
@@ -39,13 +40,15 @@ const AttributesLoader = props => {
 	const { meta } = useSelect( select => select( 'core' ).getMedia( imageId ), [ imageId ] ) ?? {
 		meta: {},
 	};
-	// Meta added, proceed
-	if ( Object.keys( meta ).length ) {
-		props.setAttributes( { meta } );
-		unlockPostSaving( 'attachment-meta-empty' );
-	} else {
-		lockPostSaving( 'attachment-meta-empty' );
-	}
+	useEffect( () => {
+		// Meta added, proceed
+		if ( Object.keys( meta ).length ) {
+			props.setAttributes( { meta } );
+			unlockPostSaving( 'attachment-meta-empty' );
+		} else {
+			lockPostSaving( 'attachment-meta-empty' );
+		}
+	}, [ meta ] );
 
 	return (
 		<>
