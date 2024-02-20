@@ -188,7 +188,6 @@ class Newspack_Test_Plugins_Controller extends WP_UnitTestCase {
 		$request  = new WP_REST_Request( 'POST', $this->api_namespace . '/plugins/pwa/install' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
-
 	}
 
 	/**
