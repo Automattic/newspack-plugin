@@ -36,7 +36,7 @@ addFilter(
  * Display spinner and lock post saving until meta attributes are added to block
  */
 const AttributesLoader = props => {
-	const imageId = props.attributes.id;
+	const imageId = props.attributes.id ?? 0;
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const { meta } = useSelect( select => select( 'core' ).getMedia( imageId ), [ imageId ] ) ?? {
 		meta: {},
@@ -53,22 +53,21 @@ const AttributesLoader = props => {
 
 	return (
 		<>
-			{ ! Object.keys( meta ).length && (
-				<div className="newspack-block__core-image-background">
-					<div className="newspack-block__core-image-spinner">
-						<Spinner />
-					</div>
-				</div>
-			) }
+			{ ! imageId
+				? null
+				: ! Object.keys( meta ).length && (
+						<div className="newspack-block__core-image-background">
+							<div className="newspack-block__core-image-spinner">
+								<Spinner />
+							</div>
+						</div>
+				  ) }
 		</>
 	);
 };
 
 /**
  * Helper to parse credit meta
- *
- * @param {{}} credit Credit meta to parse
- * @return {string} Formatted string of image credit
  */
 function parseCreditToText( credit ) {
 	const parsed = {
