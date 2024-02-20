@@ -6,6 +6,9 @@
 * add frequency tab options for donations, even when tiers are disabled ([#2930](https://github.com/Automattic/newspack-plugin/issues/2930)) ([cb7eb7b](https://github.com/Automattic/newspack-plugin/commit/cb7eb7b7f86697af9a648b10845bf23d2be91de3))
 
 # [3.1.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v3.1.0-alpha.2...v3.1.0-alpha.3) (2024-02-09)
+* **perfmatters:** use ignore-defaults constant when applying unused CSS ([#2863](https://github.com/Automattic/newspack-plugin/issues/2863)) ([6d52be3](https://github.com/Automattic/newspack-plugin/commit/6d52be38e8266d13506676675ffc57ec509b393d))
+
+## [3.0.4](https://github.com/Automattic/newspack-plugin/compare/v3.0.3...v3.0.4) (2024-02-15)
 
 
 ### Bug Fixes
@@ -39,6 +42,7 @@
 * **reader-revenue:** make NYP and Stripe Gateway optional ([#2866](https://github.com/Automattic/newspack-plugin/issues/2866)) ([fcfa88c](https://github.com/Automattic/newspack-plugin/commit/fcfa88c9d1b9053557b48e2cbd6172f58e0bac10))
 * remove new tab default on image credits ([#2880](https://github.com/Automattic/newspack-plugin/issues/2880)) ([3c996b1](https://github.com/Automattic/newspack-plugin/commit/3c996b1fa7cae99675d455c446cfa425091f372f))
 * **wc:** override cart, checkout, and my-account page templates ([#2893](https://github.com/Automattic/newspack-plugin/issues/2893)) ([68b1836](https://github.com/Automattic/newspack-plugin/commit/68b1836395e0b16536509c6e41bb1dfbc4de3571))
+* **woocommerce:** fix order-pay page when using woocommerce-memberships-for-teams plugin ([#2923](https://github.com/Automattic/newspack-plugin/issues/2923)) ([e87e2dc](https://github.com/Automattic/newspack-plugin/commit/e87e2dc2192771e151dbc78c2b30a9c431a6a976))
 
 ## [3.0.3](https://github.com/Automattic/newspack-plugin/compare/v3.0.2...v3.0.3) (2024-02-08)
 
