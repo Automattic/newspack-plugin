@@ -1,65 +1,94 @@
-.newspack-block__core-image {
-    --wp-block-image-caption-credit: " ";
-
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-    width: fit-content;
-}
-
-.newspack-block__core-image-background {
-    background-color: rgba(#fff, 0.7);
-    height: 100%;
-    overflow: hidden;
-    position: absolute;
-    top: 0;
-    transition: 0.4s opacity;
-    width: 100%;
-
-    &::before {
-        content: '';
-        height: 100%;
-        position: absolute;
-        top: 0;
-        width: 100%;
-    }
-
-    &::after {
-        animation: loading 2s infinite;
-        background-image: linear-gradient(90deg,
-                rgba(#fff, 0) 0,
-                rgba(#fff, 0.2) 20%,
-                rgba(#fff, 0.6) 60%,
-                rgba(#fff, 0));
-        content: '';
-        height: 100%;
-        position: absolute;
-        top: 0;
-        transform: translateX(-100%);
-        width: 100%;
-    }
-
-    &:hover {
-        opacity: 0.5;
-    }
-}
-
-.newspack-block__core-image-spinner {
-    position: relative;
-    text-align: center;
-    top: 50%;
-    transform: translateY(-8px);
-    z-index: 1;
-}
-
+// Keyframes
 @keyframes loading {
-    100% {
+    to {
         transform: translateX(100%);
     }
 }
 
-.newspack-block__core-image figcaption {
-    &::after {
-        content: var(--wp-block-image-caption-credit)
+// Base styles for newspack-block__core-image
+.newspack-block__core-image {
+    --wp-block-image-caption-credit: " ";
+
+    margin: 0 auto 2em;
+    position: relative;
+    width: fit-content;
+
+    &.caption-visible {
+        figcaption.wp-element-caption {
+            visibility: hidden;
+            position: absolute;
+        }
+
+        figure.wp-block-image {
+            padding-bottom: 1.5em;
+            margin-bottom: 0;
+        }
     }
+
+    figure.wp-block-image {
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    &:hover .newspack-block__core-image-background {
+        opacity: 0.5;
+    }
+}
+
+// Background styles
+.newspack-block__core-image-background {
+    background-color: rgba(#fff, 0.7);
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+    }
+
+    &::after {
+        animation: loading 2s infinite;
+        background-image: linear-gradient(90deg, rgba(#fff, 0) 0, rgba(#fff, 0.2) 20%, rgba(#fff, 0.6) 60%, rgba(#fff, 0));
+        transform: translateX(-100%);
+    }
+}
+
+// Spinner styles
+.newspack-block__core-image-spinner {
+    position: relative;
+    top: 50%;
+    transform: translateY(-8px);
+    text-align: center;
+    z-index: 1;
+}
+
+// Caption styles
+.newspack-block__core-image-caption {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    color: var(--newspack-theme-color-text-light);
+    font-family: var(--newspack-theme-font-heading);
+    font-size: var(--newspack-theme-font-size-xxs);
+    line-height: var(--newspack-theme-font-line-height-body);
+    margin: -2em 0 1em;
+    max-width: 810px;
+    position: relative;
+    z-index: 1;
+
+    & span:nth-child(2) {
+        margin-left: 1ch;
+        user-select: none;
+    }
+}
+
+// Hide default caption buttons that are not part of newspack-block__core-image-caption-btn
+button[aria-label="Add caption"]:not(.newspack-block__core-image-caption-btn),
+button[aria-label="Remove caption"]:not(.newspack-block__core-image-caption-btn) {
+    display: none;
 }
