@@ -11,8 +11,6 @@ import { __ } from '@wordpress/i18n';
 
 import * as CoreImageBlockTypes from './types';
 
-// const isImageCreditRequired = window.newspack_blocks.image_credit_required !== null;
-
 /**
  * Helper to parse credit meta
  */
