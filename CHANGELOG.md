@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/Automattic/newspack-plugin/compare/v3.1.0...v3.1.1) (2024-02-21)
+
+
+### Bug Fixes
+
+* avoid a reCAPTCHA API error when script is enqueued with a version param ([#2943](https://github.com/Automattic/newspack-plugin/issues/2943)) ([c7d8bff](https://github.com/Automattic/newspack-plugin/commit/c7d8bffd87a0ffb0f7ef3bf380967fae7f5d4c1c))
+
 # [3.1.0](https://github.com/Automattic/newspack-plugin/compare/v3.0.5...v3.1.0) (2024-02-20)
 
 
