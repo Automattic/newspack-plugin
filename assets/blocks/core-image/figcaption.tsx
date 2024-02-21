@@ -51,20 +51,18 @@ const FigcaptionCredit = ( {
 	};
 
 	return (
-		<>
+		<div className="newspack-block__core-image-caption">
 			{ isCaptionVisible && (
-				<div className="newspack-block__core-image-caption">
-					<RichText
-						tagName="span"
-						value={ caption }
-						allowedFormats={ [] }
-						onChange={ onChangeCaption }
-						placeholder="Enter caption here."
-					/>
-					{ credit !== '' && <span>{ credit }</span> }
-				</div>
+				<RichText
+					tagName="span"
+					value={ caption }
+					allowedFormats={ [] }
+					onChange={ onChangeCaption }
+					placeholder="Enter caption here."
+				/>
 			) }
-		</>
+			{ credit !== '' && <span>{ credit }</span> }
+		</div>
 	);
 };
 

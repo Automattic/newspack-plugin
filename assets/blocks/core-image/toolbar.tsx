@@ -37,8 +37,8 @@ const Toolbar = ( {
 					icon={ Icon }
 					label={
 						isCaptionVisible
-							? __( 'Hide caption', 'newspack-plugin' )
-							: __( 'Show caption', 'newspack-plugin' )
+							? __( 'Add caption', 'newspack-plugin' )
+							: __( 'Remove caption', 'newspack-plugin' )
 					}
 					className="newspack-block__core-image-caption-btn"
 					isPressed={ isCaptionVisible }
