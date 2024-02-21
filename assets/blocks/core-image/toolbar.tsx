@@ -1,6 +1,7 @@
 /**
  * Newspack Core Image, Toolbar
  */
+
 /**
  * Dependencies
  */
