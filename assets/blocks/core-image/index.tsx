@@ -63,9 +63,8 @@ addFilter(
 			if ( props.name === 'core/image' ) {
 				const id = props.attributes.id ?? 0;
 				const classes = classnames(
-					'newspack-block__core-image',
 					props.className,
-					id > 0 && 'has-image',
+					'newspack-block__core-image',
 					isCaptionVisible && 'caption-visible'
 				);
 				return (
@@ -73,9 +72,16 @@ addFilter(
 						<Edit { ...props } />
 						{ id !== 0 && (
 							<>
-								<Figcaption { ...{ ...props, isCaptionVisible } } />
+								<Figcaption
+									attributes={ props.attributes }
+									setAttributes={ props.setAttributes }
+									isCaptionVisible={ isCaptionVisible }
+								/>
 								<Loader attributes={ props.attributes } setAttributes={ props.setAttributes } />
-								<Toolbar { ...{ isCaptionVisible, setIsCaptionVisible } } />
+								<Toolbar
+									isCaptionVisible={ isCaptionVisible }
+									setIsCaptionVisible={ setIsCaptionVisible }
+								/>
 							</>
 						) }
 					</div>
