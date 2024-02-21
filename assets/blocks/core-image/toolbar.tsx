@@ -7,6 +7,7 @@
 // External
 import { Dispatch } from 'react';
 // WordPress
+import { __ } from '@wordpress/i18n';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 // Internal
@@ -33,7 +34,11 @@ const Toolbar = ( {
 			<ToolbarGroup>
 				<ToolbarButton
 					icon={ Icon }
-					label="Add a caption"
+					label={
+						isCaptionVisible
+							? __( 'Hide caption', 'newspack-plugin' )
+							: __( 'Show caption', 'newspack-plugin' )
+					}
 					className="newspack-block__core-image-caption-btn"
 					isPressed={ isCaptionVisible }
 					onClick={ () => {
