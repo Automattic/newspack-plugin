@@ -25,7 +25,8 @@ const Loader = ( { attributes, setAttributes }: AttributeProps ) => {
 	};
 	useEffect( () => {
 		if ( Object.keys( meta ).length ) {
-			setAttributes( { meta } );
+			const { _media_credit, _media_credit_url, _navis_media_credit_org } = meta;
+			setAttributes( { meta: { _media_credit, _media_credit_url, _navis_media_credit_org } } );
 			unlockPostSaving( 'attachment-meta-empty' );
 		} else {
 			lockPostSaving( 'attachment-meta-empty' );
