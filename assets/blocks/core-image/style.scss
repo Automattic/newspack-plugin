@@ -18,15 +18,8 @@
         position: absolute;
     }
 
-    &.caption-visible {
-        figure.wp-block-image {
-            padding-bottom: 1.5em;
-            margin-bottom: 0;
-        }
-    }
-
     figure.wp-block-image {
-        padding-bottom: 0;
+        padding-bottom: 1.5em;
         margin-bottom: 0;
     }
 

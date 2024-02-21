@@ -10,7 +10,7 @@
 import classnames from 'classnames';
 // WordPress
 import { addFilter } from '@wordpress/hooks';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
 // Internal
 import './style.scss';
@@ -55,18 +55,19 @@ addFilter(
 		const BlockEditHoc = (
 			props: CoreImageBlockTypes.BaseProps< CoreImageBlockTypes.Attributes >
 		) => {
-			const { caption = null } = props.attributes;
-			const { _media_credit: credit = '' } = props.attributes.meta ?? {};
-			const [ isCaptionVisible, setIsCaptionVisible ] = useState< boolean >(
-				'' !== caption || '' !== credit
-			);
+			const caption = ( props.attributes.caption ?? '' ).trim();
+			const [ isCaptionVisible, setIsCaptionVisible ] = useState< boolean >( '' !== caption );
+
+			// If caption visibility is toggled off, clear the caption
+			useEffect( () => {
+				if ( ! isCaptionVisible && '' !== caption ) {
+					props.setAttributes( { caption: '' } );
+				}
+			}, [ isCaptionVisible ] );
+
 			if ( props.name === 'core/image' ) {
 				const id = props.attributes.id ?? 0;
-				const classes = classnames(
-					props.className,
-					'newspack-block__core-image',
-					isCaptionVisible && 'caption-visible'
-				);
+				const classes = classnames( props.className, 'newspack-block__core-image' );
 				return (
 					<div className={ classes }>
 						<Edit { ...props } />
