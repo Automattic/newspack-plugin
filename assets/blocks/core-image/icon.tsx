@@ -1,3 +1,9 @@
+/**
+ * Caption SVG component
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/utils/caption.js#L18
+ * @see https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library
+ */
 const Icon = () => {
 	return (
 		<svg
