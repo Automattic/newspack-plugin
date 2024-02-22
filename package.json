@@ -15,8 +15,6 @@
 		"@testing-library/react": "^12.1.4",
 		"@types/qs": "^6.9.11",
 		"@types/react": "^17.0.75",
-		"@types/wordpress__block-editor": "^11.5.10",
-		"@types/wordpress__blocks": "^12.5.13",
 		"@types/wordpress__components": "^23.0.11",
 		"@wordpress/browserslist-config": "^5.34.0",
 		"eslint": "^7.32.0",
