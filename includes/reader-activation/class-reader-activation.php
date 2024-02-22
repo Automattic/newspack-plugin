@@ -665,6 +665,11 @@ final class Reader_Activation {
 	 * Get the reader roles.
 	 */
 	public static function get_reader_roles() {
+		/**
+		 * Filters the roles that can determine if a user is a reader.
+		 *
+		 * @param string[] $roles Array of user roles.
+		 */
 		return \apply_filters( 'newspack_reader_user_roles', [ 'subscriber', 'customer' ] );
 	}
 
@@ -681,11 +686,6 @@ final class Reader_Activation {
 		$user_data = \get_userdata( $user->ID );
 
 		if ( false === $is_reader && false === $strict ) {
-			/**
-			 * Filters the roles that can determine if a user is a reader.
-			 *
-			 * @param string[] $roles Array of user roles.
-			 */
 			$reader_roles = self::get_reader_roles();
 			if ( ! empty( $reader_roles ) ) {
 				$is_reader = ! empty( array_intersect( $reader_roles, $user_data->roles ) );
