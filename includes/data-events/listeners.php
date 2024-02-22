@@ -134,7 +134,7 @@ Data_Events::register_listener(
 	'newspack_donation_order_processed',
 	'woocommerce_donation_order_processed',
 	function( $order_id, $product_id ) {
-		return \Newspack\Data_Events\Utils::get_order_data( $order_id );
+		return \Newspack\Data_Events\Utils::get_order_data( $order_id, true );
 	}
 );
 
@@ -148,7 +148,7 @@ Data_Events::register_listener(
 	'woocommerce_order_status_failed',
 	'woocommerce_order_failed',
 	function( $order_id, $order ) {
-		return \Newspack\Data_Events\Utils::get_order_data( $order_id );
+		return \Newspack\Data_Events\Utils::get_order_data( $order_id, true );
 	}
 );
 
@@ -188,7 +188,7 @@ Data_Events::register_listener(
 	'woocommerce_order_status_completed',
 	'donation_new',
 	function ( $order_id, $order ) {
-		return \Newspack\Data_Events\Utils::get_order_data( $order_id );
+		return \Newspack\Data_Events\Utils::get_order_data( $order_id, true );
 	}
 );
 
@@ -213,7 +213,7 @@ Data_Events::register_listener(
 		if ( 'cancelled' !== $status_to ) {
 			return;
 		}
-		return \Newspack\Data_Events\Utils::get_subscription_data( $subscription );
+		return \Newspack\Data_Events\Utils::get_recurring_donation_data( $subscription );
 	}
 );
 
@@ -224,7 +224,7 @@ Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
 	'donation_subscription_changed',
 	function( $subscription, $status_to, $status_from ) {
-		$data = \Newspack\Data_Events\Utils::get_subscription_data( $subscription );
+		$data = \Newspack\Data_Events\Utils::get_recurring_donation_data( $subscription );
 		if ( ! is_array( $data ) ) {
 			return;
 		}

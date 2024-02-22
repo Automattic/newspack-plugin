@@ -14,9 +14,10 @@ final class Utils {
 	/**
 	 * Get order data.
 	 *
-	 * @param int $order_id Order ID.
+	 * @param int  $order_id Order ID.
+	 * @param bool $process_donations_only Whether to process only donation orders.
 	 */
-	public static function get_order_data( $order_id ) {
+	public static function get_order_data( $order_id, $process_donations_only = false ) {
 		$order = \wc_get_order( $order_id );
 		if ( ! $order ) {
 			return;
@@ -24,8 +25,12 @@ final class Utils {
 		if ( ! \Newspack\WooCommerce_Connection::should_sync_order( $order ) ) {
 			return;
 		}
-		// Donation orders always have just a single product, but other orders can have more than one.
-		$product_id = \Newspack\Donations::get_order_donation_product_id( $order_id ) ?? array_values( \Newspack\WooCommerce_Connection::get_products_for_order( $order_id ) );
+		if ( $process_donations_only ) {
+			$product_id = \Newspack\Donations::get_order_donation_product_id( $order_id );
+		} else {
+			// Donation orders always have just a single product, but other orders can have more than one.
+			$product_id = array_values( \Newspack\WooCommerce_Connection::get_products_for_order( $order_id ) );
+		}
 		if ( ! $product_id ) {
 			return;
 		}
@@ -60,11 +65,11 @@ final class Utils {
 	}
 
 	/**
-	 * Get subscription data.
+	 * Get recurring donation data.
 	 *
-	 * @param WC_Subscription $subscription Subscription.
+	 * @param WC_Subscription $subscription Subscription which is a recurring donation.
 	 */
-	public static function get_subscription_data( $subscription ) {
+	public static function get_recurring_donation_data( $subscription ) {
 		$product_id = \Newspack\Donations::get_order_donation_product_id( $subscription->get_id() );
 		if ( ! $product_id ) {
 			return;
