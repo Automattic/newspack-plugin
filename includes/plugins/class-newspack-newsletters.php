@@ -223,12 +223,7 @@ class Newspack_Newsletters {
 		Logger::log( 'Normalizing contact data for reader ESP sync:' );
 		Logger::log( $contact );
 
-		/**
-		 * Filters the normalized contact data before syncing to the ESP.
-		 *
-		 * @param array $contact Contact data.
-		 */
-		return apply_filters( 'newspack_esp_sync_normalize_contact', $contact );
+		return $contact;
 	}
 
 	/**
