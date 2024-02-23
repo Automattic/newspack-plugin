@@ -52,10 +52,11 @@ class Handoff extends Component {
 	textForPlugin = pluginInfo => {
 		const defaults = {
 			modalBody: null,
-			modalTitle: pluginInfo.Name && `${ __( 'Manage', 'newspack' ) } ${ pluginInfo.Name }`,
-			primaryButton: pluginInfo.Name && `${ __( 'Manage', 'newspack' ) } ${ pluginInfo.Name }`,
-			primaryModalButton: __( 'Manage', 'newspack' ),
-			dismissModalButton: __( 'Dismiss', 'newspack' ),
+			modalTitle: pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
+			primaryButton:
+				pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
+			primaryModalButton: __( 'Manage', 'newspack-plugin' ),
+			dismissModalButton: __( 'Dismiss', 'newspack-plugin' ),
 		};
 		return assign( defaults, this.props );
 	};
@@ -115,7 +116,7 @@ class Handoff extends Component {
 				) }
 				{ Name && 'active' !== Status && (
 					<Button className={ classes } variant="secondary" disabled { ...otherProps }>
-						{ Name + __( ' not installed', 'newspack' ) }
+						{ Name + __( ' not installed', 'newspack-plugin' ) }
 					</Button>
 				) }
 				{ ! Name && (
@@ -126,7 +127,7 @@ class Handoff extends Component {
 					>
 						<Fragment>
 							{ ! compact && <Waiting isLeft /> }
-							{ __( 'Retrieving Plugin Info', 'newspack' ) }
+							{ __( 'Retrieving Plugin Info', 'newspack-plugin' ) }
 						</Fragment>
 					</Button>
 				) }

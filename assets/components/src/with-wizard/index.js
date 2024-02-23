@@ -105,7 +105,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 					<Notice noticeText={ message } isError rawHTML />
 					<Card buttonsCard noBorder className="justify-end">
 						<Button isPrimary href={ fallbackURL }>
-							{ __( 'Return to Dashboard', 'newspack' ) }
+							{ __( 'Return to Dashboard', 'newspack-plugin' ) }
 						</Button>
 					</Card>
 				</Modal>
@@ -219,7 +219,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 											<Button
 												isLink
 												href={ newspack_urls.dashboard }
-												label={ __( 'Return to Dashboard', 'newspack' ) }
+												label={ __( 'Return to Dashboard', 'newspack-plugin' ) }
 												showTooltip={ true }
 												icon={ home }
 												iconSize={ 36 }
@@ -229,8 +229,8 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 											<div>
 												<h2>
 													{ requiredPlugins.length > 1
-														? __( 'Required plugins', 'newspack' )
-														: __( 'Required plugin', 'newspack' ) }
+														? __( 'Required plugins', 'newspack-plugin' )
+														: __( 'Required plugin', 'newspack-plugin' ) }
 												</h2>
 											</div>
 										</div>

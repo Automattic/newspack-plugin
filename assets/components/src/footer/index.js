@@ -32,43 +32,43 @@ const Footer = ( { simple } ) => {
 			external: true,
 		},
 		{
-			label: __( 'About', 'newspack' ),
+			label: __( 'About', 'newspack-plugin' ),
 			url: 'https://newspack.com/',
 			external: true,
 		},
 		{
-			label: __( 'Documentation', 'newspack' ),
+			label: __( 'Documentation', 'newspack-plugin' ),
 			url: support,
 			external: true,
 		},
 	];
 	if ( componentsDemo ) {
 		footerElements.push( {
-			label: __( 'Components Demo', 'newspack' ),
+			label: __( 'Components Demo', 'newspack-plugin' ),
 			url: componentsDemo,
 		} );
 	}
 	if ( setupWizard ) {
 		footerElements.push( {
-			label: __( 'Setup Wizard', 'newspack' ),
+			label: __( 'Setup Wizard', 'newspack-plugin' ),
 			url: setupWizard,
 		} );
 	}
 	if ( resetUrl ) {
 		footerElements.push( {
-			label: __( 'Reset Newspack', 'newspack' ),
+			label: __( 'Reset Newspack', 'newspack-plugin' ),
 			url: resetUrl,
 		} );
 	}
 	if ( removeStarterContent ) {
 		footerElements.push( {
-			label: __( 'Remove Starter Content', 'newspack' ),
+			label: __( 'Remove Starter Content', 'newspack-plugin' ),
 			url: removeStarterContent,
 		} );
 	}
 	if ( supportEmail ) {
 		footerElements.push( {
-			label: __( 'Contact Support', 'newspack' ),
+			label: __( 'Contact Support', 'newspack-plugin' ),
 			url: `mailto:${ supportEmail }`,
 		} );
 	}
