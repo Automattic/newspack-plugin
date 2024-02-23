@@ -155,7 +155,7 @@ final class Memberships {
 			[
 				'action'      => self::FORM_SUBMISSION,
 				'action_type' => 'registration',
-				'referrer'    => $metadata['referrer'],
+				'referer'     => $metadata['referer'],
 			]
 		);
 		$data['interaction_data']['registration_method'] = $metadata['registration_method'];
@@ -185,7 +185,7 @@ final class Memberships {
 			[
 				'action'      => $action,
 				'action_type' => 'registration',
-				'referrer'    => $metadata['referrer'],
+				'referer'     => $metadata['referer'],
 			]
 		);
 		$data['interaction_data']['registration_method'] = $metadata['registration_method'];
@@ -205,14 +205,6 @@ final class Memberships {
 		if ( ! $is_from_gate ) {
 			return;
 		}
-
-		$referrer_meta = $order->get_meta( '_newspack_referrer' );
-
-		// If referrer meta is empty, let's check for the old meta key and update it.
-		if ( empty( $referrer_meta ) && newspack_update_referrer_meta( $order ) ) {
-			$referrer_meta = $order->get_meta( '_newspack_referrer' );
-		}
-
 		$item = array_shift( $order->get_items() );
 		$data = array_merge(
 			self::get_gate_metadata(),
@@ -222,7 +214,7 @@ final class Memberships {
 				'product_id'  => $item->get_product_id(),
 				'amount'      => (float) $order->get_total(),
 				'currency'    => $order->get_currency(),
-				'referrer'    => $referrer_meta,
+				'referer'     => $order->get_meta( '_newspack_referer' ),
 			]
 		);
 		return $data;

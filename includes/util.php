@@ -492,23 +492,3 @@ function newspack_get_countries() {
 	}
 	return $countries_options;
 }
-
-/**
- * Replaces instances of _newspack_referer meta with _newspack_referrer.
- *
- * @param object $order WC Order.
- *
- * @return bool True if the meta was updated, false if not.
- */
-function newspack_update_referrer_meta( $order ) {
-	$order_meta = $order->get_meta( '_newspack_referer' );
-
-	if ( empty( $order_meta ) ) {
-		return false;
-	}
-
-	$order->add_meta_data( '_newspack_referrer', $order_meta );
-	$order->delete_meta_data( '_newspack_referer' );
-
-	return true;
-}

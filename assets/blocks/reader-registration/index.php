@@ -429,8 +429,8 @@ function process_form() {
 	if ( ! empty( $lists ) ) {
 		$metadata['lists'] = $lists;
 	}
-	$metadata['referrer']             = \wp_get_raw_referer(); // wp_get_referer() will return false because it's a POST request to the same page.
-	$metadata['current_page_url']    = home_url( add_query_arg( array(), $metadata['referrer'] ) );
+	$metadata['referer']             = \wp_get_raw_referer(); // wp_get_referer() will return false because it's a POST request to the same page.
+	$metadata['current_page_url']    = home_url( add_query_arg( array(), $metadata['referer'] ) );
 	$metadata['registration_method'] = 'registration-block';
 
 	$popup_id                      = isset( $_REQUEST['newspack_popup_id'] ) ? (int) $_REQUEST['newspack_popup_id'] : false;

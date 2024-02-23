@@ -1067,7 +1067,7 @@ final class Reader_Activation {
 		$terms_url       = self::get_setting( 'terms_url' );
 		$is_account_page = function_exists( '\wc_get_page_id' ) ? \get_the_ID() === \wc_get_page_id( 'myaccount' ) : false;
 		$redirect        = $is_account_page ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
-		$referrer        = \wp_parse_url( \wp_get_referer() );
+		$referer         = \wp_parse_url( \wp_get_referer() );
 		global $wp;
 		?>
 		<div class="<?php echo \esc_attr( implode( ' ', $classnames ) ); ?>" data-labels="<?php echo \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ); ?>">
@@ -1082,8 +1082,8 @@ final class Reader_Activation {
 				<div class="<?php echo \esc_attr( $class( 'content' ) ); ?>">
 					<form method="post" target="_top">
 						<input type="hidden" name="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>" value="1" />
-						<?php if ( ! empty( $referrer['path'] ) ) : ?>
-							<input type="hidden" name="referrer" value="<?php echo \esc_url( $referrer['path'] ); ?>" />
+						<?php if ( ! empty( $referer['path'] ) ) : ?>
+							<input type="hidden" name="referer" value="<?php echo \esc_url( $referer['path'] ); ?>" />
 						<?php endif; ?>
 						<input type="hidden" name="action" value="pwd" />
 						<div class="<?php echo \esc_attr( $class( 'have-account' ) ); ?>">
@@ -1425,8 +1425,8 @@ final class Reader_Activation {
 			return;
 		}
 		$action           = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
-		$referrer         = isset( $_POST['referrer'] ) ? \sanitize_text_field( $_POST['referrer'] ) : '';
-		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referrer is the current page URL because the form is submitted via AJAX.
+		$referer          = isset( $_POST['referer'] ) ? \sanitize_text_field( $_POST['referer'] ) : '';
+		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referer is the current page URL because the form is submitted via AJAX.
 		$email            = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
 		$password         = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$redirect         = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
@@ -1504,8 +1504,8 @@ final class Reader_Activation {
 				if ( ! empty( $lists ) ) {
 					$metadata['lists'] = $lists;
 				}
-				if ( ! empty( $referrer ) ) {
-					$metadata['referrer'] = \esc_url( $referrer );
+				if ( ! empty( $referer ) ) {
+					$metadata['referer'] = \esc_url( $referer );
 				}
 				if ( ! empty( $current_page_url ) ) {
 					$metadata['current_page_url'] = $current_page_url;

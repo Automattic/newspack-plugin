@@ -125,7 +125,7 @@ class ActiveCampaign {
 		}
 
 		$order_id = $data['platform_data']['order_id'];
-		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id, $data['referrer'], true );
+		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id, $data['referer'], true );
 
 		if ( ! $contact ) {
 			return;
