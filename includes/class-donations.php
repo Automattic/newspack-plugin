@@ -43,6 +43,7 @@ class Donations {
 			'label' => 'Campaign Content',
 		],
 	];
+	const WOOCOMMERCE_DEFAULT_CUSTOMER_ADDRESS_OPTION = 'woocommerce_default_customer_address';
 
 	/**
 	 * Donation product WC name;
@@ -462,6 +463,7 @@ class Donations {
 			if ( ! empty( $billing_fields ) ) {
 				$billing_fields = array_map( 'sanitize_text_field', $billing_fields );
 				self::update_billing_fields( $billing_fields );
+				self::maybe_update_woocommerce_default_customer_address( $billing_fields );
 			}
 		}
 
@@ -1056,6 +1058,22 @@ class Donations {
 		if ( ! self::is_donation_cart( $cart ) ) {
 			return $enabled;
 		}
+		return false;
+	}
+
+	/**
+	 * Update the woocommerce_default_customer_address option to base when country is optional, but state is a required billing field.
+	 * We need to set this for this configuration to correctly populate state in donation checkout for new customers.
+	 *
+	 * @param string[] $billing_fields Checkout fields keys.
+	 *
+	 * @return bool Whether the woocommerce_default_customer_address option was updated.
+	 */
+	public static function maybe_update_woocommerce_default_customer_address( $billing_fields ) {
+		if ( ! in_array( 'billing_country', $billing_fields, true ) && in_array( 'billing_state', $billing_fields, true ) ) {
+			return update_option( self::WOOCOMMERCE_DEFAULT_CUSTOMER_ADDRESS_OPTION, 'base' );
+		}
+
 		return false;
 	}
 }

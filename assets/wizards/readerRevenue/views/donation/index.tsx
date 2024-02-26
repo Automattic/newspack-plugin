@@ -295,6 +295,11 @@ const BillingFields = () => {
 		? wizardData.donation_data.billingFields
 		: Object.keys( availableFields );
 
+	const isDefaultBillingCountryForced =
+		window.newspack_reader_revenue?.is_platform_wc &&
+		! billingFields.includes( 'billing_country' ) &&
+		billingFields.includes( 'billing_state' );
+
 	return (
 		<>
 			<Card noBorder headerActions>
@@ -326,6 +331,15 @@ const BillingFields = () => {
 					/>
 				) ) }
 			</Grid>
+			{ isDefaultBillingCountryForced && (
+				<Notice
+					isHelp
+					noticeText={ __(
+						'Your WooCommerce store address will be used to determine billing country for new customers.',
+						'newspack'
+					) }
+				/>
+			) }
 		</>
 	);
 };

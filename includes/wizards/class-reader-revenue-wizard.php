@@ -557,6 +557,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
+				'is_platform_wc'          => Donations::is_platform_wc(),
 			]
 		);
 		\wp_enqueue_script( 'newspack-reader-revenue-wizard' );
