@@ -62,7 +62,7 @@ class Notice extends Component {
 				{ <Icon icon={ noticeIcon } /> }
 				<div className="newspack-notice__content">
 					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
-					{ debugMode && __( 'Debug Mode', 'newspack' ) }
+					{ debugMode && __( 'Debug Mode', 'newspack-plugin' ) }
 					{ children || null }
 				</div>
 			</div>

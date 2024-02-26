@@ -170,8 +170,8 @@ class PluginInstaller extends Component {
 			currentStatus === 'active' || currentStatus === 'inactive';
 
 		const buttonText = currentPluginStatuses.every( pluginInstalled )
-			? __( 'Activate', 'newspack' )
-			: __( 'Install', 'newspack' );
+			? __( 'Activate', 'newspack-plugin' )
+			: __( 'Install', 'newspack-plugin' );
 
 		const needsInstall = slugs.some( slug => {
 			const plugin = pluginInfo[ slug ];
@@ -183,7 +183,7 @@ class PluginInstaller extends Component {
 				{ ( ! pluginInfo || ! Object.keys( pluginInfo ).length ) && (
 					<div className="newspack-plugin-installer_is-waiting">
 						<Waiting isLeft />
-						{ __( 'Retrieving plugin information…' ) }
+						{ __( 'Retrieving plugin information…', 'newspack-plugin' ) }
 					</div>
 				) }
 				{ pluginInfo &&
@@ -202,8 +202,8 @@ class PluginInstaller extends Component {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
 									{ isAtomic
-										? __( 'Contact Newspack support to install', 'newspack' )
-										: __( 'Plugin must be installed manually', 'newspack' ) }
+										? __( 'Contact Newspack support to install', 'newspack-plugin' )
+										: __( 'Plugin must be installed manually', 'newspack-plugin' ) }
 									<span className="newspack-checkbox-icon" />
 								</span>
 							);
@@ -217,14 +217,14 @@ class PluginInstaller extends Component {
 						} else if ( Status === 'inactive' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Activate', 'newspack' ) }
+									{ __( 'Activate', 'newspack-plugin' ) }
 									<span className="newspack-checkbox-icon" />
 								</span>
 							);
 						} else if ( Status === 'active' ) {
 							actionText = (
 								<span className="newspack-plugin-installer__status">
-									{ __( 'Installed', 'newspack' ) }
+									{ __( 'Installed', 'newspack-plugin' ) }
 									<span className="newspack-checkbox-icon newspack-checkbox-icon--checked">
 										<Icon icon={ check } />
 									</span>

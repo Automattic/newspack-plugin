@@ -25,23 +25,23 @@ import { __ } from '@wordpress/i18n';
 			.then( opportunityId => {
 				if ( false === opportunityId ) {
 					statusMarker.classList.add( 'status-failed' );
-					statusMarkerLabel.textContent = __( 'Not synced', 'newspack' );
+					statusMarkerLabel.textContent = __( 'Not synced', 'newspack-plugin' );
 				} else if ( 'string' === typeof opportunityId ) {
 					const anchor = document.createElement( 'a' );
 					statusMarker.classList.add( 'status-completed' );
 					anchor.href = `${ salesforceUrl }/lightning/r/Opportunity/${ opportunityId }/view`;
 					anchor.setAttribute( 'target', '_blank' );
 					anchor.setAttribute( 'rel', 'noopener noreferrer' );
-					anchor.textContent = __( 'Synced', 'newspack' );
+					anchor.textContent = __( 'Synced', 'newspack-plugin' );
 					statusMarkerLabel.textContent = '';
 					statusMarkerLabel.appendChild( anchor );
 				} else {
-					throw __( 'Error fetching status', 'newspack' );
+					throw __( 'Error fetching status', 'newspack-plugin' );
 				}
 			} )
 			.catch( e => {
 				statusMarker.classList.add( 'status-failed' );
-				statusMarkerLabel.textContent = e || __( 'Error fetching status', 'newspack' );
+				statusMarkerLabel.textContent = e || __( 'Error fetching status', 'newspack-plugin' );
 			} );
 	}
 } )();
