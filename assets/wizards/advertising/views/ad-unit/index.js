@@ -84,18 +84,18 @@ class AdUnit extends Component {
 		return (
 			<>
 				<Card headerActions noBorder>
-					<h2>{ __( 'Ad Unit Details', 'newspack' ) }</h2>
+					<h2>{ __( 'Ad Unit Details', 'newspack-plugin' ) }</h2>
 				</Card>
 
 				<Grid gutter={ 32 }>
 					<TextControl
-						label={ __( 'Name', 'newspack' ) }
+						label={ __( 'Name', 'newspack-plugin' ) }
 						value={ name || '' }
 						onChange={ value => this.handleOnChange( 'name', value ) }
 					/>
 					{ ( isExistingAdUnit || isLegacy ) && (
 						<TextControl
-							label={ __( 'Code', 'newspack' ) }
+							label={ __( 'Code', 'newspack-plugin' ) }
 							value={ getCodeValue() }
 							className="code"
 							help={
@@ -103,7 +103,7 @@ class AdUnit extends Component {
 									? undefined
 									: __(
 											"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
-											'newspack'
+											'newspack-plugin'
 									  )
 							}
 							disabled={ ! isLegacy }
@@ -115,8 +115,8 @@ class AdUnit extends Component {
 				<Card headerActions noBorder>
 					<h2>
 						{ sizeOptions.length > 1
-							? __( 'Ad Unit Sizes', 'newspack' )
-							: __( 'Ad Unit Size', 'newspack' ) }
+							? __( 'Ad Unit Sizes', 'newspack-plugin' )
+							: __( 'Ad Unit Size', 'newspack-plugin' ) }
 					</h2>
 					<Button
 						variant="secondary"
@@ -124,7 +124,7 @@ class AdUnit extends Component {
 							this.handleOnChange( 'sizes', [ ...sizes, this.getNextAvailableSize() ] )
 						}
 					>
-						{ __( 'Add New Size', 'newspack' ) }
+						{ __( 'Add New Size', 'newspack-plugin' ) }
 					</Button>
 				</Card>
 
@@ -133,16 +133,16 @@ class AdUnit extends Component {
 						isWarning
 						noticeText={ __(
 							'The ad unit must have at least one valid size or fluid size enabled.',
-							'newspack'
+							'newspack-plugin'
 						) }
 					/>
 				) }
 
 				<Grid columns={ 4 } gutter={ 8 } className="newspack-grid__thead">
-					<span>{ __( 'Size', 'newspack' ) }</span>
-					<span>{ __( 'Width', 'newspack' ) }</span>
-					<span>{ __( 'Height', 'newspack' ) }</span>
-					<span className="screen-reader-text">{ __( 'Action', 'newspack' ) }</span>
+					<span>{ __( 'Size', 'newspack-plugin' ) }</span>
+					<span>{ __( 'Width', 'newspack-plugin' ) }</span>
+					<span>{ __( 'Height', 'newspack-plugin' ) }</span>
+					<span className="screen-reader-text">{ __( 'Action', 'newspack-plugin' ) }</span>
 				</Grid>
 
 				{ sizeOptions.map( ( size, index ) => (
@@ -177,7 +177,7 @@ class AdUnit extends Component {
 							} }
 							icon={ trash }
 							disabled={ sizeOptions.length <= 1 }
-							label={ __( 'Delete', 'newspack' ) }
+							label={ __( 'Delete', 'newspack-plugin' ) }
 							showTooltip={ true }
 						/>
 					</Grid>
@@ -189,10 +189,10 @@ class AdUnit extends Component {
 						variant="primary"
 						onClick={ () => onSave( id ) }
 					>
-						{ __( 'Save', 'newspack' ) }
+						{ __( 'Save', 'newspack-plugin' ) }
 					</Button>
 					<Button variant="secondary" onClick={ () => onCancel() } href={ `#/${ service }` }>
-						{ __( 'Cancel', 'newspack' ) }
+						{ __( 'Cancel', 'newspack-plugin' ) }
 					</Button>
 				</div>
 			</>
