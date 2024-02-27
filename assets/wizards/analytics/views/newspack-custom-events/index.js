@@ -52,17 +52,17 @@ class NewspackCustomEvents extends Component {
 			<div className="newspack__analytics-configuration">
 				<div className="newspack__analytics-configuration__header">
 					<SectionHeader
-						title={ __( 'Activate Newspack Custom Events', 'newspack' ) }
+						title={ __( 'Activate Newspack Custom Events', 'newspack-plugin' ) }
 						description={ __(
 							'Allows Newspack to send enhanced custom event data to your Google Analytics.',
-							'newspack'
+							'newspack-plugin'
 						) }
 						noMargin
 					/>
 					<p>
 						{ __(
 							"Newspack already sends some custom event data to your GA account, but adding the credentials below enables enhanced events that are fired from your site's backend. For example, when a donation is confirmed or when a user successfully subscribes to a newsletter.",
-							'newspack'
+							'newspack-plugin'
 						) }
 					</p>
 				</div>
@@ -71,10 +71,10 @@ class NewspackCustomEvents extends Component {
 				<Grid noMargin rowGap={ 16 }>
 					<TextControl
 						value={ ga4Credendials?.measurement_id }
-						label={ __( 'Measurement ID', 'newspack' ) }
+						label={ __( 'Measurement ID', 'newspack-plugin' ) }
 						help={ __(
 							'You can find this in Site Kit Settings, or in Google Analytics > Admin > Data Streams and clickng the data stream. Example: G-ABCD1234',
-							'newspack'
+							'newspack-plugin'
 						) }
 						onChange={ value =>
 							this.setState( {
@@ -88,10 +88,10 @@ class NewspackCustomEvents extends Component {
 					<TextControl
 						type="password"
 						value={ ga4Credendials?.measurement_protocol_secret }
-						label={ __( 'Measurement Protocol API Secret', 'newspack' ) }
+						label={ __( 'Measurement Protocol API Secret', 'newspack-plugin' ) }
 						help={ __(
 							'Generate an API secret from your GA dashboard in Admin > Data Streams and opening your data stream. Select "Measurement Protocol API secrets" under the Events section. Create a new secret.',
-							'newspack'
+							'newspack-plugin'
 						) }
 						onChange={ value =>
 							this.setState( {
@@ -109,7 +109,7 @@ class NewspackCustomEvents extends Component {
 					disabled={ isLoading }
 					onClick={ this.updateGa4Credentials }
 				>
-					{ __( 'Save', 'newspack' ) }
+					{ __( 'Save', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		);
