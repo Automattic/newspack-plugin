@@ -18,64 +18,64 @@ const fields = [
 	{
 		key: 'viewability_threshold',
 		type: 'int',
-		description: __( 'Viewability Threshold', 'newspack' ),
+		description: __( 'Viewability Threshold', 'newspack-plugin' ),
 		help: __(
 			"The percentage of the ad slot which must be visible in the viewport in order to be considered eligible for being refreshed. It's recommended you do not lower this below 50 or you risk third-party viewability tracking platforms flagging your ad impressions as not having been viewed before refreshing.",
-			'newspack'
+			'newspack-plugin'
 		),
 	},
 	{
 		key: 'refresh_interval',
 		type: 'int',
-		description: __( 'Refresh Interval', 'newspack' ),
+		description: __( 'Refresh Interval', 'newspack-plugin' ),
 		help: __(
 			'The number of seconds that must pass between an ad crossing the viewability threshold and the the ad refreshing. The plugin enforces a minimum of 30 in order to avoid your site being flagged for abusing ad refreshes by advertisers. This value may however be overridden via the avc_refresh_interval_value filter hook.',
-			'newspack'
+			'newspack-plugin'
 		),
 	},
 	{
 		key: 'maximum_refreshes',
 		type: 'int',
-		description: __( 'Maximum Refreshes', 'newspack' ),
+		description: __( 'Maximum Refreshes', 'newspack-plugin' ),
 		help: __(
 			'The number of times each ad slot is allowed to be refreshed. If this is set to 4 then an ad slot could have a total of 5 impressions by combining the initial loading of the ad with the 4 times it can refresh.',
-			'newspack'
+			'newspack-plugin'
 		),
 	},
 	{
 		key: 'advertiser_ids',
 		type: 'string',
-		description: __( 'Excluded Advertiser IDs', 'newspack' ),
+		description: __( 'Excluded Advertiser IDs', 'newspack-plugin' ),
 		help: __(
 			'Prevent ad refreshes for specific advertiser IDs in the format of a comma separated list (e.g., 125,594,293). If an ad slot ever displays an ad creative from one of the listed advertiser IDs then that ad slot will stop refreshing for the remainder of the page view. AdSense does not allow their ads to be auto-refreshed. When Newspack detects that AdSense is the advertiser for any given impression, a refresh will not take place.',
-			'newspack'
+			'newspack-plugin'
 		),
 	},
 	{
 		key: 'line_item_ids',
 		type: 'string',
-		description: __( 'Line Items IDs to Exclude', 'newspack' ),
+		description: __( 'Line Items IDs to Exclude', 'newspack-plugin' ),
 		help: __(
 			'Prevent ad refreshs for specific line item IDs. (Comma Seperated List)',
-			'newspack'
+			'newspack-plugin'
 		),
 	},
 	{
 		key: 'sizes_to_exclude',
 		type: 'string',
-		description: __( 'Sizes to Exclude', 'newspack' ),
+		description: __( 'Sizes to Exclude', 'newspack-plugin' ),
 		help: __(
 			'Prevent ad refreshs for specific sizes. Accepts string (fluid) or array (300x250). Example: fluid, 300x250.',
-			'newspack'
+			'newspack-plugin'
 		),
 	},
 	{
 		key: 'slot_ids_to_exclude',
 		type: 'string',
-		description: __( 'Slot IDs to Exclude', 'newspack' ),
+		description: __( 'Slot IDs to Exclude', 'newspack-plugin' ),
 		help: __(
 			'Prevent ad refreshs for specific slot IDs e.g. div-gpt-ad-grid-1. (Comma Seperated List).',
-			'newspack'
+			'newspack-plugin'
 		),
 	},
 ];
@@ -134,10 +134,10 @@ export default function AdRefreshControlSettings() {
 			error={ error }
 			disabled={ inFlight }
 			sectionKey="ad-refresh-control"
-			title={ __( 'Ad Refresh Control', 'newspack' ) }
+			title={ __( 'Ad Refresh Control', 'newspack-plugin' ) }
 			description={ __(
 				'Enable Active View refresh for Google Ad Manager ads without needing to modify any code.',
-				'newspack'
+				'newspack-plugin'
 			) }
 			active={ ! settings.disable_refresh }
 			fields={ fields }

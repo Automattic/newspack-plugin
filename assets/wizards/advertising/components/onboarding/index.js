@@ -59,7 +59,7 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 							<p>
 								{ __(
 									'Authenticate with Google in order to connect your Google Ad Manager account:',
-									'newspack'
+									'newspack-plugin'
 								) }
 							</p>
 						) }
@@ -69,31 +69,31 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 				{ false === useOAuth && (
 					<Fragment>
 						{ isConnected ? (
-							<Notice isSuccess noticeText={ __( "We're all set here!", 'newspack' ) } />
+							<Notice isSuccess noticeText={ __( "We're all set here!", 'newspack-plugin' ) } />
 						) : (
 							<Fragment>
 								<p>
 									{ __(
 										'Enter your Google Ad Manager network code and service account credentials for a full integration:',
-										'newspack'
+										'newspack-plugin'
 									) }
 								</p>
 								<TextControl
 									disabled={ inFlight }
 									isWide
 									name="network_code"
-									label={ __( 'Network code', 'newspack' ) }
+									label={ __( 'Network code', 'newspack-plugin' ) }
 									value={ networkCode }
 									onChange={ setNetworkCode }
 								/>
 								<ButtonCard
 									disabled={ inFlight }
 									onClick={ () => credentialsInputFile.current.click() }
-									title={ __( 'Upload credentials', 'newspack' ) }
+									title={ __( 'Upload credentials', 'newspack-plugin' ) }
 									desc={ [
 										__(
 											'Upload your Service Account credentials file to connect your GAM account.',
-											'newspack'
+											'newspack-plugin'
 										),
 										fileError && <Notice noticeText={ fileError } isError />,
 									] }
@@ -105,7 +105,7 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 										target="_blank"
 										rel="noopener noreferrer"
 									>
-										{ __( 'How to get a service account user for API access', 'newspack' ) }
+										{ __( 'How to get a service account user for API access', 'newspack-plugin' ) }
 									</a>
 									.
 								</p>
