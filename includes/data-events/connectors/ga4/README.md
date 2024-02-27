@@ -44,7 +44,7 @@ Additional parameters:
 
 * `registration_method`
 * `newspack_popup_id`: If the action was triggered from inside a popup, the popup id.
-* `referer`
+* `referrer`
 
 ### donation_new
 
@@ -56,7 +56,7 @@ Additional parameters:
 * `currency`
 * `recurrence`
 * `platform`
-* `referer`
+* `referrer`
 * `is_renewal`: If this is a subscription renewal (recurring payment).
 * `subscription_id`: The related subscription id (if any).
 * `popup_id`: If the action was triggered from inside a popup, the popup id.
@@ -80,7 +80,7 @@ Additional parameters:
 
 * `newsletters_subscription_method`
 * `newspack_popup_id`: If the action was triggered from inside a popup, the popup id.
-* `referer`
+* `referrer`
 * `lists`: comma separated list of the list IDs the readers subscribed to (note: truncated at 100 characters)
 * `registration_method`: If the newsletter subscription was triggered by a registration form
 
