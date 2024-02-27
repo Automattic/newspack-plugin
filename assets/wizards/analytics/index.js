@@ -22,12 +22,12 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 
 const TABS = [
 	{
-		label: __( 'Plugins', 'newspack' ),
+		label: __( 'Plugins', 'newspack-plugin' ),
 		path: '/',
 		exact: true,
 	},
 	{
-		label: __( 'Newspack Custom Events', 'newspack' ),
+		label: __( 'Newspack Custom Events', 'newspack-plugin' ),
 		path: '/newspack-custom-events',
 	},
 ];
@@ -39,8 +39,8 @@ class AnalyticsWizard extends Component {
 	render() {
 		const { pluginRequirements, wizardApiFetch, isLoading } = this.props;
 		const sharedProps = {
-			headerText: __( 'Analytics', 'newspack' ),
-			subHeaderText: __( 'Manage Google Analytics Configuration', 'newspack' ),
+			headerText: __( 'Analytics', 'newspack-plugin' ),
+			subHeaderText: __( 'Manage Google Analytics Configuration', 'newspack-plugin' ),
 			tabbedNavigation: TABS,
 			wizardApiFetch,
 			isLoading,
