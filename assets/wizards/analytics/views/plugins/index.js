@@ -26,9 +26,9 @@ class Plugins extends Component {
 		return (
 			<Fragment>
 				<ActionCard
-					title={ __( 'Google Analytics' ) }
-					description={ __( 'Configure and view site analytics' ) }
-					actionText={ __( 'View' ) }
+					title={ __( 'Google Analytics', 'newspack-plugin' ) }
+					description={ __( 'Configure and view site analytics', 'newspack-plugin' ) }
+					actionText={ __( 'View', 'newspack-plugin' ) }
 					handoff="google-site-kit"
 					editLink={
 						newspack_analytics_wizard_data.analyticsConnectionError
