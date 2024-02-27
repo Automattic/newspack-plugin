@@ -40,7 +40,7 @@ const AdUnits = ( {
 	fetchAdvertisingData,
 } ) => {
 	const gamErrorMessage = serviceData?.status?.error
-		? `${ __( 'Google Ad Manager Error', 'newspack' ) }: ${ serviceData.status.error }`
+		? `${ __( 'Google Ad Manager Error', 'newspack-plugin' ) }: ${ serviceData.status.error }`
 		: false;
 
 	const updateNetworkCode = async ( value, isGam ) => {
@@ -81,13 +81,13 @@ const AdUnits = ( {
 		<>
 			<Card noBorder>
 				<Button isLink href="#/" icon={ arrowLeft }>
-					{ __( 'Back', 'newspack' ) }
+					{ __( 'Back', 'newspack-plugin' ) }
 				</Button>
 			</Card>
 
 			{ ! isLegacy && networkCode && (
 				<SelectControl
-					label={ __( 'Connected GAM network code', 'newspack' ) }
+					label={ __( 'Connected GAM network code', 'newspack-plugin' ) }
 					value={ networkCode }
 					options={ serviceData.available_networks.map( network => ( {
 						label: `${ network.name } (${ network.code })`,
@@ -100,7 +100,7 @@ const AdUnits = ( {
 				<Notice
 					noticeText={ __(
 						'Your GAM network code is different than the network code the site was configured with. Legacy ad units are likely to not load.',
-						'newspack'
+						'newspack-plugin'
 					) }
 					isWarning
 				/>
@@ -109,13 +109,13 @@ const AdUnits = ( {
 			{ serviceData.created_targeting_keys?.length > 0 && (
 				<Notice
 					noticeText={ [
-						__( 'Created custom targeting keys:' ) + '\u00A0',
+						__( 'Created custom targeting keys:', 'newspack-plugin' ) + '\u00A0',
 						serviceData.created_targeting_keys.join( ', ' ) + '. \u00A0',
 						<ExternalLink
 							href={ `https://admanager.google.com/${ serviceData.network_code }#inventory/custom_targeting/list` }
 							key="google-ad-manager-custom-targeting-link"
 						>
-							{ __( 'Visit your GAM dashboard' ) }
+							{ __( 'Visit your GAM dashboard', 'newspack-plugin' ) }
 						</ExternalLink>,
 					] }
 					isSuccess
@@ -124,19 +124,19 @@ const AdUnits = ( {
 			{ isLegacy && serviceData.enabled && (
 				<>
 					<Notice
-						noticeText={ __( 'Currently operating in legacy mode.', 'newspack' ) }
+						noticeText={ __( 'Currently operating in legacy mode.', 'newspack-plugin' ) }
 						isWarning
 					/>
 					<div className="flex items-end">
 						<TextControl
-							label={ __( 'Network Code', 'newspack' ) }
+							label={ __( 'Network Code', 'newspack-plugin' ) }
 							value={ networkCode }
 							onChange={ setNetworkCode }
 							withMargin={ false }
 						/>
 						<span className="pl3">
 							<Button onClick={ updateLegacyNetworkCode } isPrimary>
-								{ __( 'Save', 'newspack' ) }
+								{ __( 'Save', 'newspack-plugin' ) }
 							</Button>
 						</span>
 					</div>
@@ -145,18 +145,18 @@ const AdUnits = ( {
 			<p>
 				{ __(
 					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
-					'newspack'
+					'newspack-plugin'
 				) }
 				<br />
 				{ __(
 					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
-					'newspack'
+					'newspack-plugin'
 				) }
 			</p>
 			<Card headerActions noBorder>
 				<div className="flex justify-end w-100">
 					<Button variant="primary" href={ `#/google_ad_manager/${ CREATE_AD_ID_PARAM }` }>
-						{ __( 'Add New Ad Unit', 'newspack' ) }
+						{ __( 'Add New Ad Unit', 'newspack-plugin' ) }
 					</Button>
 				</div>
 			</Card>
@@ -178,35 +178,35 @@ const AdUnits = ( {
 									<span>
 										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Code:', 'newspack' ) }</i> <code>{ adUnit.code }</code>
+												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ adUnit.code }</code>
 											</>
 										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
 											<>
 												{ ' ' }
-												| { __( 'Sizes:', 'newspack' ) }{ ' ' }
+												| { __( 'Sizes:', 'newspack-plugin' ) }{ ' ' }
 												{ adUnit.sizes.map( ( size, i ) => (
 													<code key={ i }>{ Array.isArray( size ) ? size.join( 'x' ) : size }</code>
 												) ) }
-												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack' ) }</code> }
+												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack-plugin' ) }</code> }
 											</>
 										) : null }
 										{ adUnit.is_legacy ? (
 											<>
 												{ ' ' }
-												| <i>{ __( 'Legacy ad unit.', 'newspack' ) }</i>
+												| <i>{ __( 'Legacy ad unit.', 'newspack-plugin' ) }</i>
 											</>
 										) : null }
 										{ adUnit.is_default ? (
 											<>
 												{ ' ' }
-												| <i>{ __( 'Default ad unit.', 'newspack' ) }</i>
+												| <i>{ __( 'Default ad unit.', 'newspack-plugin' ) }</i>
 											</>
 										) : null }
 										{ isDisconnectedGAM( adUnit ) ? (
 											<>
 												{ ' ' }
-												| <i>{ __( 'Disconnected from GAM.', 'newspack' ) }</i>
+												| <i>{ __( 'Disconnected from GAM.', 'newspack-plugin' ) }</i>
 											</>
 										) : null }
 									</span>
