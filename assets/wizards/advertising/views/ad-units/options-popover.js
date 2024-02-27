@@ -35,7 +35,7 @@ const OptionsPopover = props => {
 					onKeyDown={ event => ESCAPE === event.keyCode && toggleVisible }
 				>
 					<MenuItem onClick={ toggleVisible } className="screen-reader-text">
-						{ __( 'Close Popover', 'newspack=plugin' ) }
+						{ __( 'Close Popover', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem href={ editLink } className="newspack-button" isLink>
 						{ __( 'Edit', 'newspack-plugin' ) }
