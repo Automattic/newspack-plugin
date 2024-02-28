@@ -823,7 +823,7 @@ final class Webhooks {
 		$message = \wp_remote_retrieve_response_message( $response );
 		
 		$response_body = wp_remote_retrieve_body( $response );
-		$response_body = json_validate( $response_body ) ? json_decode( $response_body, true ) : $response_body;
+		$response_body = json_decode( $response_body, true );
 
 		if ( ! $code || $code < 200 || $code >= 300 ) {
 			return new WP_Error( 'newspack_webhooks_request_failed', $response_body['error'] ?? $message ?? __( 'Request failed', 'newspack' ) );
