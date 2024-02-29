@@ -27,7 +27,7 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ localError, setLocalError ] = useState( null );
 	const handleError = res => {
-		const message = res.message || __( 'Something went wrong.', 'newspack' );
+		const message = res.message || __( 'Something went wrong.', 'newspack-plugin' );
 		setLocalError( message );
 		if ( typeof setError === 'function' ) {
 			setError( message );
@@ -39,7 +39,7 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 	useEffect( () => {
 		if ( isConnected && ! userBasicInfo.has_refresh_token ) {
 			setError( [
-				__( 'Missing Google refresh token. Please', 'newspack' ),
+				__( 'Missing Google refresh token. Please', 'newspack-plugin' ),
 				' ',
 				<a
 					key="link"
@@ -47,10 +47,10 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 					rel="noreferrer"
 					href="https://myaccount.google.com/permissions"
 				>
-					{ __( 'revoke credentials', 'newspack' ) }
+					{ __( 'revoke credentials', 'newspack-plugin' ) }
 				</a>,
 				' ',
-				__( 'and authorise the site again.', 'newspack' ),
+				__( 'and authorise the site again.', 'newspack-plugin' ),
 			] );
 		}
 	}, [ isConnected ] );
@@ -136,22 +136,22 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 			return localError;
 		}
 		if ( inFlight ) {
-			return __( 'Loading…', 'newspack' );
+			return __( 'Loading…', 'newspack-plugin' );
 		}
 		if ( isConnected ) {
 			return sprintf(
 				// Translators: connected user's email address.
-				__( 'Connected as %s', 'newspack' ),
+				__( 'Connected as %s', 'newspack-plugin' ),
 				userBasicInfo.email
 			);
 		}
-		return __( 'Not connected', 'newspack' );
+		return __( 'Not connected', 'newspack-plugin' );
 	};
 
 	return (
 		<ActionCard
-			title={ __( 'Google', 'newspack' ) }
-			description={ `${ __( 'Status:', 'newspack' ) } ${ getDescription() }` }
+			title={ __( 'Google', 'newspack-plugin' ) }
+			description={ `${ __( 'Status:', 'newspack-plugin' ) } ${ getDescription() }` }
 			checkbox={ isConnected ? 'checked' : 'unchecked' }
 			actionText={
 				<Button
@@ -160,7 +160,9 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 					onClick={ isConnected ? disconnect : openAuth }
 					disabled={ inFlight }
 				>
-					{ isConnected ? __( 'Disconnect', 'newspack' ) : __( 'Connect', 'newspack' ) }
+					{ isConnected
+						? __( 'Disconnect', 'newspack-plugin' )
+						: __( 'Connect', 'newspack-plugin' ) }
 				</Button>
 			}
 			isMedium

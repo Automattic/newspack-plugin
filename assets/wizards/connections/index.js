@@ -21,8 +21,8 @@ const MainScreen = withWizardScreen( Main );
 
 const ConnectionsWizard = ( { pluginRequirements, wizardApiFetch, startLoading, doneLoading } ) => {
 	const wizardScreenProps = {
-		headerText: __( 'Connections', 'newspack' ),
-		subHeaderText: __( 'Connections to third-party services', 'newspack' ),
+		headerText: __( 'Connections', 'newspack-plugin' ),
+		subHeaderText: __( 'Connections to third-party services', 'newspack-plugin' ),
 		wizardApiFetch,
 		startLoading,
 		doneLoading,
