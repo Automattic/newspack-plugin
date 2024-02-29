@@ -19,6 +19,13 @@
 * **core-image-block:** display media credit in editor; handle distributed posts ([#2936](https://github.com/Automattic/newspack-plugin/issues/2936)) ([b0d2dff](https://github.com/Automattic/newspack-plugin/commit/b0d2dff56318bd463684ed3dec04d7875a98f420))
 * **rss:** enable control over feed update frequency and guid ([#2925](https://github.com/Automattic/newspack-plugin/issues/2925)) ([948972c](https://github.com/Automattic/newspack-plugin/commit/948972c01d4bba313df5b41bb347a330e1b96431))
 
+## [3.1.2](https://github.com/Automattic/newspack-plugin/compare/v3.1.1...v3.1.2) (2024-02-29)
+
+
+### Bug Fixes
+
+* donate block layout for NRH ([#2954](https://github.com/Automattic/newspack-plugin/issues/2954)) ([8595985](https://github.com/Automattic/newspack-plugin/commit/8595985d6ce1273a5484d2f3ede1ee9596bd53b9))
+
 ## [3.1.1](https://github.com/Automattic/newspack-plugin/compare/v3.1.0...v3.1.1) (2024-02-21)
 
 
