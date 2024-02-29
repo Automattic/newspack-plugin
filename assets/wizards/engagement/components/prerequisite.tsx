@@ -93,7 +93,9 @@ export default function Prerequisite( {
 									: sprintf(
 											// Translators: Save or Update settings.
 											__( '%s settings', 'newspack-plugin' ),
-											prerequisite.active ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
+											prerequisite.active
+												? __( 'Update', 'newspack-plugin' )
+												: __( 'Save', 'newspack-plugin' )
 									  ) }
 							</Button>
 						</div>

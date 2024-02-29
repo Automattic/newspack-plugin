@@ -316,7 +316,9 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 									: sprintf(
 											// Translators: Save or Update settings.
 											__( '%s prompt settings', 'newspack-plugin' ),
-											prompt.ready ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
+											prompt.ready
+												?__( 'Update', 'newspack-plugin' )
+												: __( 'Save', 'newspack-plugin' )
 									  ) }
 							</Button>
 							<WebPreview
