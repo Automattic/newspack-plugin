@@ -30,7 +30,7 @@ class Jetpack {
 	 *
 	 * @var string[]
 	 */
-	private static $default_active_modules = [
+	public static $default_active_modules = [
 		/** 
 		 * Assets CDN
 		 *
