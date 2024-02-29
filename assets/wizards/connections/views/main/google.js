@@ -50,7 +50,7 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 					{ __( 'revoke credentials', 'newspack-plugin' ) }
 				</a>,
 				' ',
-				__( 'and authorise the site again.', 'newspack-plugin' ),
+				__( 'and authorize the site again.', 'newspack-plugin' ),
 			] );
 		}
 	}, [ isConnected ] );
