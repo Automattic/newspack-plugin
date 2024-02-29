@@ -92,11 +92,11 @@ class Jetpack {
 		 */
 		'copy-post',
 		/**
-				 * Extra Sidebar Widgets
-				 *
-				 * @link https://jetpack.com/support/extra-sidebar-widgets/
-				 */
-			'widgets',
+		 * Extra Sidebar Widgets
+		 *
+		 * @link https://jetpack.com/support/extra-sidebar-widgets/
+		 */
+		'widgets',
 		/**
 		 * Gravatar Hovercards
 		 *
