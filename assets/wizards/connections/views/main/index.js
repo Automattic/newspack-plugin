@@ -24,9 +24,9 @@ const Main = () => {
 	return (
 		<>
 			{ error && <Notice isError noticeText={ error } /> }
-			<SectionHeader title={ __( 'Plugins', 'newspack' ) } />
+			<SectionHeader title={ __( 'Plugins', 'newspack-plugin' ) } />
 			<Plugins />
-			<SectionHeader title={ __( 'APIs', 'newspack' ) } />
+			<SectionHeader title={ __( 'APIs', 'newspack-plugin' ) } />
 			{ newspack_connections_data.can_connect_google && (
 				<GoogleAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
 			) }
