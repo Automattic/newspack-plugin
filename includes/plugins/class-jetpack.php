@@ -155,7 +155,7 @@ class Jetpack {
 		add_filter( 'jetpack_active_modules', [ __CLASS__, 'remove_google_analytics_from_active' ], 10, 2 );
 		add_filter( 'jetpack_get_available_modules', [ __CLASS__, 'remove_google_analytics_from_available' ] );
 
-		add_filter( 'jetpack_get_default_modules', [ __CLASS__, 'default_modules' ] );
+		add_filter( 'jetpack_get_default_modules', [ __CLASS__, 'get_default_modules' ] );
 	}
 
 	/**
@@ -306,7 +306,7 @@ class Jetpack {
 	 * @uses https://developer.jetpack.com/hooks/jetpack_get_default_modules/
 	 * @return string[] Default active modules
 	 */
-	public static function default_modules() {
+	public static function get_default_modules() {
 		return static::$default_active_modules;
 	}
 }
