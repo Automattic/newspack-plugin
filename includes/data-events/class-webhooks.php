@@ -725,6 +725,17 @@ final class Webhooks {
 
 		$errors = self::get_request_errors( $request_id );
 
+		if ( ! empty( $errors ) ) {
+			/**
+			 * Hook to recover from errors with webhook_request before being processed.
+			 *
+			 * @param int    $request_id  Webhook Request id.
+			 * @param array  $errors      Previous errors array.
+			 * @param array  $endpoint    Webhook Request endpoint object.
+			 */
+			do_action( 'newspack_webhooks_process_request_errors', $request_id, $errors );
+		}
+
 		$response = self::send_request( $request_id );
 
 		if ( is_wp_error( $response ) ) {
@@ -810,8 +821,12 @@ final class Webhooks {
 		}
 		$code    = \wp_remote_retrieve_response_code( $response );
 		$message = \wp_remote_retrieve_response_message( $response );
+		
+		$response_body = wp_remote_retrieve_body( $response );
+		$response_body = json_decode( $response_body, true );
+
 		if ( ! $code || $code < 200 || $code >= 300 ) {
-			return new WP_Error( 'newspack_webhooks_request_failed', $message ?? __( 'Request failed', 'newspack' ) );
+			return new WP_Error( 'newspack_webhooks_request_failed', $response_body['error'] ?? $message ?? __( 'Request failed', 'newspack' ) );
 		}
 		return true;
 	}
