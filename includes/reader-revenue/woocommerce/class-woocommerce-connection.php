@@ -35,6 +35,7 @@ class WooCommerce_Connection {
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
 		\add_action( 'woocommerce_order_status_completed', [ __CLASS__, 'maybe_update_reader_display_name' ], 10, 2 );
 		\add_action( 'option_woocommerce_feature_order_attribution_enabled', [ __CLASS__, 'force_disable_order_attribution' ] );
+		\add_action( 'option_woocommerce_default_customer_address', [ __CLASS__, 'force_base_default_customer_address' ] );
 		\add_action( 'cli_init', [ __CLASS__, 'register_cli_commands' ] );
 
 		// WooCommerce Subscriptions.
@@ -413,6 +414,34 @@ class WooCommerce_Connection {
 			return $should_allow;
 		}
 		return false;
+	}
+
+	/**
+	 * Force option for base country for new customers if unset and billing country optional while state is requried
+	 * unless the NEWSPACK_PREVENT_FORCE_BASE_DEFAULT_CUSTOMER_ADDRESS constant is set.
+	 *
+	 * See Default Customer Location in: https://woo.com/document/configuring-woocommerce-settings/#general-options
+	 *
+	 * @param string $option_value The value of the default customer address option.
+	 *
+	 * @return string Option value.
+	 */
+	public static function force_base_default_customer_address( $option_value ) {
+		if ( defined( 'NEWSPACK_PREVENT_FORCE_BASE_DEFAULT_CUSTOMER_ADDRESS' ) && NEWSPACK_PREVENT_FORCE_BASE_DEFAULT_CUSTOMER_ADDRESS ) {
+			return $option_value;
+		}
+
+		if ( ! empty( $option_value ) ) {
+			return $option_value;
+		}
+
+		$billing_fields = get_option( Donations::DONATION_BILLING_FIELDS_OPTION, [] );
+
+		if ( ! in_array( 'billing_country', $billing_fields, true ) && in_array( 'billing_state', $billing_fields, true ) ) {
+			return 'base';
+		}
+
+		return $option_value;
 	}
 
 	/**
