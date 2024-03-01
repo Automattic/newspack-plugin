@@ -33,14 +33,17 @@ class Plugins extends Component {
 			<Grid columns={ 1 } gutter={ 64 }>
 				{ missingPlugins.length ? (
 					<Grid columns={ 1 } gutter={ 16 }>
-						<Notice noticeText={ __( 'These plugins shoud be active:', 'newspack' ) } isWarning />
+						<Notice
+							noticeText={ __( 'These plugins shoud be active:', 'newspack-plugin' ) }
+							isWarning
+						/>
 						<PluginInstaller plugins={ missingPlugins } />
 					</Grid>
 				) : null }
 				{ unsupportedPlugins.length ? (
 					<Grid columns={ 1 } gutter={ 16 }>
 						<Notice
-							noticeText={ __( 'Newspack does not support these plugins:', 'newspack' ) }
+							noticeText={ __( 'Newspack does not support these plugins:', 'newspack-plugin' ) }
 							isError
 						/>
 						{ unsupportedPlugins.map( unsupportedPlugin => (
@@ -53,12 +56,15 @@ class Plugins extends Component {
 						) ) }
 						<div className="newspack-buttons-card">
 							<Button isPrimary onClick={ deactivateAllPlugins }>
-								{ __( 'Deactivate All', 'newspack' ) }
+								{ __( 'Deactivate All', 'newspack-plugin' ) }
 							</Button>
 						</div>
 					</Grid>
 				) : (
-					<Notice noticeText={ __( 'No unsupported plugins found.', 'newspack' ) } isSuccess />
+					<Notice
+						noticeText={ __( 'No unsupported plugins found.', 'newspack-plugin' ) }
+						isSuccess
+					/>
 				) }
 			</Grid>
 		);
