@@ -53,7 +53,7 @@
 		"postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
 	},
 	"dependencies": {
-		"@babel/plugin-transform-runtime": "^7.23.9",
+		"@babel/plugin-transform-runtime": "^7.24.0",
 		"@babel/preset-env": "^7.24.0",
 		"classnames": "^2.5.1",
 		"colord": "^2.9.3",
