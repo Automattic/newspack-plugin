@@ -81,19 +81,19 @@ class WebPreview extends Component {
 									onClick={ () => this.setState( { device: 'desktop' } ) }
 									variant={ 'desktop' === device && 'primary' }
 									icon={ desktop }
-									label={ __( 'Preview Desktop Size', 'newspack' ) }
+									label={ __( 'Preview Desktop Size', 'newspack-plugin' ) }
 								/>
 								<Button
 									onClick={ () => this.setState( { device: 'tablet' } ) }
 									variant={ 'tablet' === device && 'primary' }
 									icon={ tablet }
-									label={ __( 'Preview Tablet Size', 'newspack' ) }
+									label={ __( 'Preview Tablet Size', 'newspack-plugin' ) }
 								/>
 								<Button
 									onClick={ () => this.setState( { device: 'phone' } ) }
 									variant={ 'phone' === device && 'primary' }
 									icon={ mobile }
-									label={ __( 'Preview Phone Size', 'newspack' ) }
+									label={ __( 'Preview Phone Size', 'newspack-plugin' ) }
 								/>
 							</ButtonGroup>
 						</div>
@@ -104,7 +104,7 @@ class WebPreview extends Component {
 									this.setState( { isPreviewVisible: false, loaded: false } );
 								} }
 								icon={ closeSmall }
-								label={ __( 'Close Preview', 'newspack' ) }
+								label={ __( 'Close Preview', 'newspack-plugin' ) }
 							/>
 						</div>
 					</div>
@@ -112,7 +112,7 @@ class WebPreview extends Component {
 						{ ! loaded && (
 							<div className="newspack-web-preview__is-waiting">
 								<Waiting isLeft />
-								{ __( 'Loading…', 'newspack' ) }
+								{ __( 'Loading…', 'newspack-plugin' ) }
 							</div>
 						) }
 						<iframe
@@ -166,7 +166,7 @@ class WebPreview extends Component {
 
 WebPreview.defaultProps = {
 	url: '//newspack.com',
-	label: __( 'Preview', 'newspack' ),
+	label: __( 'Preview', 'newspack-plugin' ),
 	onLoad: () => {},
 };
 

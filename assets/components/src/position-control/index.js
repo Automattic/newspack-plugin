@@ -32,70 +32,70 @@ export default function PositionControl( {
 					{
 						value: 'top',
 						/* translators: Overlay Position */
-						label: __( 'Top', 'newspack' ),
+						label: __( 'Top', 'newspack-plugin' ),
 					},
 					{
 						value: 'center',
 						/* translators: Overlay Position */
-						label: __( 'Center', 'newspack' ),
+						label: __( 'Center', 'newspack-plugin' ),
 					},
 					{
 						value: 'bottom',
 						/* translators: Overlay Position */
-						label: __( 'Bottom', 'newspack' ),
+						label: __( 'Bottom', 'newspack-plugin' ),
 					},
 			  ]
 			: [
 					{
 						value: 'top_left',
 						/* translators: Overlay Position */
-						label: __( 'Top Left', 'newspack' ),
+						label: __( 'Top Left', 'newspack-plugin' ),
 					},
 					{
 						value: 'top',
 						/* translators: Overlay Position */
-						label: __( 'Top Center', 'newspack' ),
+						label: __( 'Top Center', 'newspack-plugin' ),
 					},
 					{
 						value: 'top_right',
 						/* translators: Overlay Position */
-						label: __( 'Top Right', 'newspack' ),
+						label: __( 'Top Right', 'newspack-plugin' ),
 					},
 					{
 						value: 'center_left',
 						/* translators: Overlay Position */
-						label: __( 'Center Left', 'newspack' ),
+						label: __( 'Center Left', 'newspack-plugin' ),
 					},
 					{
 						value: 'center',
 						/* translators: Overlay Position */
-						label: __( 'Center', 'newspack' ),
+						label: __( 'Center', 'newspack-plugin' ),
 					},
 					{
 						value: 'center_right',
 						/* translators: Overlay Position */
-						label: __( 'Center Right', 'newspack' ),
+						label: __( 'Center Right', 'newspack-plugin' ),
 					},
 					{
 						value: 'bottom_left',
 						/* translators: Overlay Position */
-						label: __( 'Bottom Left', 'newspack' ),
+						label: __( 'Bottom Left', 'newspack-plugin' ),
 					},
 					{
 						value: 'bottom',
 						/* translators: Overlay Position */
-						label: __( 'Bottom Center', 'newspack' ),
+						label: __( 'Bottom Center', 'newspack-plugin' ),
 					},
 					{
 						value: 'bottom_right',
 						/* translators: Overlay Position */
-						label: __( 'Bottom Right', 'newspack' ),
+						label: __( 'Bottom Right', 'newspack-plugin' ),
 					},
 			  ];
 	return (
 		<div className={ classnames( 'newspack-position-placement-control', 'size-' + size ) }>
 			<p className="components-base-control__label">{ label }</p>
-			<ButtonGroup aria-label={ __( 'Select Position', 'newspack' ) } { ...props }>
+			<ButtonGroup aria-label={ __( 'Select Position', 'newspack-plugin' ) } { ...props }>
 				{ options.map( ( option, index ) => {
 					return (
 						<div

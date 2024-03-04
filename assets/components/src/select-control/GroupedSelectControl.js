@@ -52,7 +52,7 @@ export default function GroupedSelectControl( {
 					aria-describedby={ !! help ? `${ id }__help` : undefined }
 					{ ...props }
 				>
-					<option value="">{ __( '-- Select --', 'newspack' ) }</option>
+					<option value="">{ __( '-- Select --', 'newspack-plugin' ) }</option>
 					{ optgroups.map( ( { label: optgroupLabel, options }, optgroupIndex ) => (
 						<optgroup label={ optgroupLabel } key={ optgroupIndex }>
 							{ options.map( ( option, optionIndex ) => (

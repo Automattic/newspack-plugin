@@ -66,7 +66,7 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 							<Button
 								isLink
 								href={ newspack_urls.dashboard }
-								label={ __( 'Return to Dashboard', 'newspack' ) }
+								label={ __( 'Return to Dashboard', 'newspack-plugin' ) }
 								showTooltip={ true }
 								icon={ category }
 								iconSize={ 36 }

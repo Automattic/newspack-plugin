@@ -67,7 +67,9 @@ class PluginToggle extends Component {
 								...pluginInfo,
 								[ plugin ]: {
 									...pluginInfo[ plugin ],
-									error: e.message || __( 'There was an error managing this plugin.', 'newspack' ),
+									error:
+										e.message ||
+										__( 'There was an error managing this plugin.', 'newspack-plugin' ),
 								},
 							},
 						} );
@@ -148,21 +150,21 @@ class PluginToggle extends Component {
 		if ( 'configure' === inFlight ) {
 			return (
 				<Fragment>
-					{ __( 'Installing…', 'newspack' ) } <Waiting isRight />
+					{ __( 'Installing…', 'newspack-plugin' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
 		if ( 'deactivate' === inFlight ) {
 			return (
 				<Fragment>
-					{ __( 'Deactivating…', 'newspack' ) } <Waiting isRight />
+					{ __( 'Deactivating…', 'newspack-plugin' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
 		if ( ! name ) {
 			return (
 				<Fragment>
-					{ __( 'Loading…', 'newspack' ) } <Waiting isRight />
+					{ __( 'Loading…', 'newspack-plugin' ) } <Waiting isRight />
 				</Fragment>
 			);
 		}
@@ -171,7 +173,7 @@ class PluginToggle extends Component {
 			return null;
 		}
 		if ( href || editPath ) {
-			return actionText ? actionText : __( 'Configure', 'newspack' );
+			return actionText ? actionText : __( 'Configure', 'newspack-plugin' );
 		}
 	};
 

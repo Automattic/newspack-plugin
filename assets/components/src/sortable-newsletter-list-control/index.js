@@ -52,7 +52,7 @@ export default function SortableNewsletterListControl( {
 											onChange( newSelected );
 										} }
 									/>
-									{ __( 'Checked by default', 'newspack' ) }
+									{ __( 'Checked by default', 'newspack-plugin' ) }
 								</>
 							) }
 							isSmall
@@ -62,7 +62,7 @@ export default function SortableNewsletterListControl( {
 										onClick={ () =>
 											onChange( selected.filter( ( { id } ) => id !== selectedList.id ) )
 										}
-										label={ __( 'Remove', 'newspack' ) }
+										label={ __( 'Remove', 'newspack-plugin' ) }
 										icon={ trash }
 									/>
 								</>
@@ -115,9 +115,9 @@ export default function SortableNewsletterListControl( {
 			{ getAvailableLists().length > 0 && (
 				<p className="newspack__newsletter-list-control__lists">
 					{ selected.length > 0 ? (
-						<strong>{ __( 'Add more lists:', 'newspack' ) }</strong>
+						<strong>{ __( 'Add more lists:', 'newspack-plugin' ) }</strong>
 					) : (
-						<strong>{ __( 'Select lists:', 'newspack' ) }</strong>
+						<strong>{ __( 'Select lists:', 'newspack-plugin' ) }</strong>
 					) }{ ' ' }
 					{ getAvailableLists().map( list => {
 						return (
