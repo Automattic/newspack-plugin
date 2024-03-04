@@ -41,7 +41,7 @@ const WizardError = () => {
 				{ fallbackURL && (
 					<Card buttonsCard noBorder className="justify-end">
 						<Button isPrimary href={ fallbackURL }>
-							{ __( 'Return to Dashboard', 'newspack' ) }
+							{ __( 'Return to Dashboard', 'newspack-plugin' ) }
 						</Button>
 					</Card>
 				) }

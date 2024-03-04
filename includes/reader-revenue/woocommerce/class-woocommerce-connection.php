@@ -44,6 +44,7 @@ class WooCommerce_Connection {
 		\add_filter( 'wc_memberships_for_teams_product_team_user_input_fields', [ __CLASS__, 'wc_memberships_for_teams_product_team_user_input_fields' ] );
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
+		\add_action( 'wc_stripe_save_to_subs_checked', '__return_true' );
 
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
 		\add_filter( 'get_post_metadata', [ __CLASS__, 'get_post_metadata' ], 10, 3 );
