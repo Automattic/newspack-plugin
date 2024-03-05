@@ -9,6 +9,7 @@
 // External
 import classnames from 'classnames';
 // WordPress
+import { useSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { useState, useEffect } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -57,6 +58,12 @@ addFilter(
 		) => {
 			const caption = ( props.attributes.caption ?? '' ).trim();
 			const [ isCaptionVisible, setIsCaptionVisible ] = useState< boolean >( '' !== caption );
+			const { url: siteUrl }: { url: string } = useSelect(
+				select => select( 'core' ).getSite(),
+				[ props.attributes.url ]
+			) ?? {
+				url: '',
+			};
 
 			// If caption visibility is toggled off, clear the caption
 			useEffect( () => {
@@ -78,7 +85,9 @@ addFilter(
 									setAttributes={ props.setAttributes }
 									isCaptionVisible={ isCaptionVisible }
 								/>
-								<Loader attributes={ props.attributes } setAttributes={ props.setAttributes } />
+								{ siteUrl && props.attributes.url.includes( siteUrl ) && (
+									<Loader attributes={ props.attributes } setAttributes={ props.setAttributes } />
+								) }
 								<Toolbar
 									isCaptionVisible={ isCaptionVisible }
 									setIsCaptionVisible={ setIsCaptionVisible }
