@@ -17,7 +17,7 @@ const { NavLink, useHistory } = Router;
 
 const AddNewSegmentLink = () => (
 	<NavLink to="segments/new">
-		<Button variant="primary">{ __( 'Add New Segment', 'newspack' ) }</Button>
+		<Button variant="primary">{ __( 'Add New Segment', 'newspack-plugin' ) }</Button>
 	</NavLink>
 );
 
@@ -181,7 +181,7 @@ const SegmentActionCard = ( {
 							<>
 								<Button
 									onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
-									label={ __( 'More options', 'newspack' ) }
+									label={ __( 'More options', 'newspack-plugin' ) }
 									icon={ moreVertical }
 									className={ popoverVisibility && 'popover-active' }
 								/>
@@ -192,19 +192,19 @@ const SegmentActionCard = ( {
 										onFocusOutside={ onFocusOutside }
 									>
 										<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
-											{ __( 'Close Popover', 'newspack' ) }
+											{ __( 'Close Popover', 'newspack-plugin' ) }
 										</MenuItem>
 										<MenuItem
 											onClick={ () => history.push( `/segments/${ segment.id }` ) }
 											className="newspack-button"
 										>
-											{ __( 'Edit', 'newspack' ) }
+											{ __( 'Edit', 'newspack-plugin' ) }
 										</MenuItem>
 										<MenuItem
 											onClick={ () => deleteSegment( segment ) }
 											className="newspack-button"
 										>
-											{ __( 'Delete', 'newspack' ) }
+											{ __( 'Delete', 'newspack-plugin' ) }
 										</MenuItem>
 									</Popover>
 								) }
@@ -225,13 +225,13 @@ const SegmentActionCard = ( {
 									icon={ chevronUp }
 									onClick={ moveUp }
 									disabled={ isFirstTarget }
-									label={ __( 'Move segment position up', 'newspack' ) }
+									label={ __( 'Move segment position up', 'newspack-plugin' ) }
 								/>
 								<Button
 									icon={ chevronDown }
 									onClick={ moveDown }
 									disabled={ isLastTarget }
-									label={ __( 'Move segment position down', 'newspack' ) }
+									label={ __( 'Move segment position down', 'newspack-plugin' ) }
 								/>
 							</div>
 						</div>
@@ -307,7 +307,10 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 			} )
 			.catch( e => {
 				setInFlight( false );
-				setError( e.message || __( 'There was an error sorting segments. Please try again.' ) );
+				setError(
+					e.message ||
+						__( 'There was an error sorting segments. Please try again.', 'newspack-plugin' )
+				);
 				setSegments( segments );
 			} );
 	};
@@ -323,7 +326,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 		<Fragment>
 			{ error && <Notice noticeText={ error } isError /> }
 			<Card headerActions noBorder>
-				<h2>{ __( 'Audience segments', 'newspack' ) }</h2>
+				<h2>{ __( 'Audience segments', 'newspack-plugin' ) }</h2>
 				<AddNewSegmentLink />
 			</Card>
 			<div
@@ -351,13 +354,13 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 	) : (
 		<Fragment>
 			<Card headerActions noBorder>
-				<h2>{ __( 'You have no saved audience segments.', 'newspack' ) }</h2>
+				<h2>{ __( 'You have no saved audience segments.', 'newspack-plugin' ) }</h2>
 				<AddNewSegmentLink />
 			</Card>
 			<p>
 				{ __(
 					'Create audience segments to target visitors by engagement, activity, and more.',
-					'newspack'
+					'newspack-plugin'
 				) }
 			</p>
 		</Fragment>
