@@ -155,7 +155,9 @@ class Jetpack {
 		add_filter( 'jetpack_active_modules', [ __CLASS__, 'remove_google_analytics_from_active' ], 10, 2 );
 		add_filter( 'jetpack_get_available_modules', [ __CLASS__, 'remove_google_analytics_from_available' ] );
 
-		add_filter( 'jetpack_get_default_modules', [ __CLASS__, 'get_default_modules' ] );
+		// Set Jetpack default modules on Newspack setup.
+		add_action( 'add_option_newspack_setup_complete', [ __CLASS__, 'set_default_modules' ], 10, 2 );
+		add_action( 'update_option_newspack_setup_complete', [ __CLASS__, 'set_default_modules' ], 10, 2 );
 	}
 
 	/**
@@ -301,13 +303,16 @@ class Jetpack {
 	}
 
 	/**
-	 * Jetpack Default Modules
+	 * Set Jetpack Default Modules on newspack setup complete.
 	 *
-	 * @uses https://developer.jetpack.com/hooks/jetpack_get_default_modules/
-	 * @return string[] Default active modules
+	 * @param string $old_val_or_opt_name If adding will be opt name. If updating will be old value.
+	 * @param string $new_val Value correlated to update/add.
+	 * @return void 
 	 */
-	public static function get_default_modules() {
-		return static::$default_active_modules;
+	public static function set_default_modules( string $old_val_or_opt_name, string $new_val ) {
+		if ( $new_val === '1' ) {
+			update_option( 'jetpack_active_modules', static::$default_active_modules );
+		}
 	}
 }
 Jetpack::init();
