@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/Automattic/newspack-plugin/compare/v3.3.0...v3.3.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* **woo:** disable related products ([#2972](https://github.com/Automattic/newspack-plugin/issues/2972)) ([f60b966](https://github.com/Automattic/newspack-plugin/commit/f60b966d3a1a07354d921c512300e254d3a24ea4))
+
 # [3.3.0](https://github.com/Automattic/newspack-plugin/compare/v3.2.1...v3.3.0) (2024-03-05)
 
 
