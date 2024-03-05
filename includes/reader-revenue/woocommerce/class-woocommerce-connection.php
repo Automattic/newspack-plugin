@@ -73,11 +73,16 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Disable related products on product pages
+	 * Disable related products on product pages.
+	 *
+	 * @param array $related_products Related products.
 	 *
 	 * @return array
 	 */
-	public static function disable_related_products() {
+	public static function disable_related_products( $related_products ) {
+		if ( defined( 'NEWSPACK_ALLOW_DISABLED_PRODUCTS' ) && NEWSPACK_ALLOW_DISABLED_PRODUCTS ) {
+			return $related_products;
+		}
 		return [];
 	}
 
