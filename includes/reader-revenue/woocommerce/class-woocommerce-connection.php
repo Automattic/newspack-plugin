@@ -35,6 +35,7 @@ class WooCommerce_Connection {
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
 		\add_action( 'woocommerce_order_status_completed', [ __CLASS__, 'maybe_update_reader_display_name' ], 10, 2 );
 		\add_action( 'option_woocommerce_feature_order_attribution_enabled', [ __CLASS__, 'force_disable_order_attribution' ] );
+		\add_filter( 'woocommerce_related_products', [ __CLASS__, 'disable_related_products' ] );
 		\add_action( 'cli_init', [ __CLASS__, 'register_cli_commands' ] );
 
 		// WooCommerce Subscriptions.
@@ -69,6 +70,20 @@ class WooCommerce_Connection {
 				$task_list->hide();
 			}
 		}
+	}
+
+	/**
+	 * Disable related products on product pages.
+	 *
+	 * @param array $related_products Related products.
+	 *
+	 * @return array
+	 */
+	public static function disable_related_products( $related_products ) {
+		if ( defined( 'NEWSPACK_ALLOW_RELATED_PRODUCTS' ) && NEWSPACK_ALLOW_RELATED_PRODUCTS ) {
+			return $related_products;
+		}
+		return [];
 	}
 
 	/**
