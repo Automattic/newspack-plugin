@@ -80,7 +80,7 @@ class WooCommerce_Connection {
 	 * @return array
 	 */
 	public static function disable_related_products( $related_products ) {
-		if ( defined( 'NEWSPACK_ALLOW_DISABLED_PRODUCTS' ) && NEWSPACK_ALLOW_DISABLED_PRODUCTS ) {
+		if ( defined( 'NEWSPACK_ALLOW_RELATED_PRODUCTS' ) && NEWSPACK_ALLOW_RELATED_PRODUCTS ) {
 			return $related_products;
 		}
 		return [];
