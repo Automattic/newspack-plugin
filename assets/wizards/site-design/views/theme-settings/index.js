@@ -35,7 +35,7 @@ const ThemeSettings = props => {
 		newspack_image_credits_placeholder_url: imageCreditsPlaceholderUrl,
 		newspack_image_credits_class_name: imageCreditsClassName = '',
 		newspack_image_credits_prefix_label: imageCreditsPrefix = '',
-		newspack_image_credits_auto_populate: imageCreditsAutoPopulate = true,
+		newspack_image_credits_auto_populate: imageCreditsAutoPopulate = false,
 	} = themeSettings;
 
 	useEffect( () => {

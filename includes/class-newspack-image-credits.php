@@ -376,7 +376,7 @@ class Newspack_Image_Credits {
 				'key'         => 'newspack_image_credits_auto_populate',
 				'label'       => __( 'Auto-populate image credits', 'newspack-image-credits' ),
 				'type'        => 'boolean',
-				'value'       => true,
+				'value'       => false,
 			],
 		];
 
