@@ -11,18 +11,18 @@ import Pixel from './pixel';
 
 const MetaPixel = () => (
 	<Pixel
-		title={ __( 'Meta Pixel', 'newspack' ) }
+		title={ __( 'Meta Pixel', 'newspack-plugin' ) }
 		pixelKey="meta"
 		pixelValueType="integer"
 		description={ __(
 			'Add the Meta pixel (formely known as Facebook pixel) to your site.',
-			'newspack'
+			'newspack-plugin'
 		) }
-		fieldDescription={ __( 'Pixel ID', 'newspack' ) }
+		fieldDescription={ __( 'Pixel ID', 'newspack-plugin' ) }
 		fieldHelp={ createInterpolateElement(
 			__(
 				'The Meta Pixel ID. You only need to add the number, not the full code. Example: 123456789123456789. You can get this information <linkToFb>here</linkToFb>.',
-				'newspack'
+				'newspack-plugin'
 			),
 			{
 				/* eslint-disable jsx-a11y/anchor-has-content */
