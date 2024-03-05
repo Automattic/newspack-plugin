@@ -41,14 +41,14 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 	return (
 		<Modal title={ prompt.title } onRequestClose={ onClose } isWide>
 			<Button onClick={ () => onClose() } className="screen-reader-text">
-				{ __( 'Close Modal', 'newspack' ) }
+				{ __( 'Close Modal', 'newspack-plugin' ) }
 			</Button>
 			<Grid gutter={ 64 } columns={ 1 }>
 				<SettingsCard
-					title={ __( 'Campaigns', 'newspack' ) }
+					title={ __( 'Campaigns', 'newspack-plugin' ) }
 					description={ __(
 						'Assign a prompt to one or more campaigns for easier management',
-						'newspack'
+						'newspack-plugin'
 					) }
 					columns={ 1 }
 					className="newspack-settings__campaigns"
@@ -58,22 +58,22 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 						disabled={ disabled }
 						value={ promptConfig.campaign_groups || [] }
 						onChange={ tokens => setPromptConfig( { campaign_groups: tokens } ) }
-						label={ __( 'Campaigns', 'newspack' ) }
+						label={ __( 'Campaigns', 'newspack-plugin' ) }
 						taxonomy="newspack_popups_taxonomy"
 						hideLabelFromVision
 					/>
 				</SettingsCard>
 
 				<SettingsCard
-					title={ __( 'Settings', 'newspack' ) }
-					description={ __( 'When and how should the prompt be displayed', 'newspack' ) }
+					title={ __( 'Settings', 'newspack-plugin' ) }
+					description={ __( 'When and how should the prompt be displayed', 'newspack-plugin' ) }
 					columns={ isOverlay( prompt ) ? 3 : 2 }
 					className="newspack-settings__settings"
 					rowGap={ 16 }
 					noBorder
 				>
 					<SelectControl
-						label={ __( 'Frequency', 'newspack' ) }
+						label={ __( 'Frequency', 'newspack-plugin' ) }
 						disabled={ disabled }
 						onChange={ value => {
 							setPromptConfig( { options: { frequency: value } } );
@@ -82,7 +82,11 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 						value={ promptConfig.options.frequency }
 					/>
 					<SelectControl
-						label={ isOverlay( prompt ) ? __( 'Position' ) : __( 'Placement' ) }
+						label={
+							isOverlay( prompt )
+								? __( 'Position', 'newspack-plugin' )
+								: __( 'Placement', 'newspack-plugin' )
+						}
 						disabled={ disabled }
 						onChange={ value => {
 							setPromptConfig( { options: { placement: value } } );
@@ -92,7 +96,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 					/>
 					{ isOverlay( prompt ) && (
 						<SelectControl
-							label={ __( 'Size' ) }
+							label={ __( 'Size', 'newspack-plugin' ) }
 							disabled={ disabled }
 							onChange={ value => {
 								setPromptConfig( { options: { overlay_size: value } } );
@@ -104,14 +108,14 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 				</SettingsCard>
 
 				<SettingsCard
-					title={ __( 'Targeting', 'newspack' ) }
+					title={ __( 'Targeting', 'newspack-plugin' ) }
 					description={ () => (
 						<>
-							{ __( 'Under which conditions should the prompt be displayed', 'newspack' ) }
+							{ __( 'Under which conditions should the prompt be displayed', 'newspack-plugin' ) }
 							<br />
 							{ __(
 								'If multiple conditions are set, all will have to be satisfied in order to display the prompt',
-								'newspack'
+								'newspack-plugin'
 							) }
 						</>
 					) }
@@ -125,22 +129,22 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 							disabled={ disabled }
 							value={ promptConfig.segments || [] }
 							onChange={ tokens => setPromptConfig( { segments: tokens } ) }
-							label={ __( 'Segments', 'newspack' ) }
+							label={ __( 'Segments', 'newspack-plugin' ) }
 							taxonomy="popup_segment"
 						/>
 						<CategoryAutocomplete
-							label={ __( 'Post categories', 'newspack ' ) }
+							label={ __( 'Post categories', 'newspack-plugin' ) }
 							disabled={ disabled }
 							hideHelpFromVision
 							value={ promptConfig.categories || [] }
 							onChange={ tokens => setPromptConfig( { categories: tokens } ) }
 							description={ __(
 								'Prompt will only appear on posts with the specified categories.',
-								'newspack'
+								'newspack-plugin'
 							) }
 						/>
 						<CategoryAutocomplete
-							label={ __( 'Post tags', 'newspack ' ) }
+							label={ __( 'Post tags', 'newspack-plugin' ) }
 							disabled={ disabled }
 							hideHelpFromVision
 							taxonomy="tags"
@@ -148,7 +152,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 							onChange={ tokens => setPromptConfig( { tags: tokens } ) }
 							description={ __(
 								'Prompt will only appear on posts with the specified tags.',
-								'newspack'
+								'newspack-plugin'
 							) }
 						/>
 					</Grid>
@@ -156,15 +160,15 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 						<Button isLink onClick={ () => setShowAdvanced( ! showAdvanced ) }>
 							{ sprintf(
 								// Translators: whether to show or hide advanced settings fields.
-								__( '%s Advanced Settings', 'newspack_popups_taxonomy' ),
-								showAdvanced ? __( 'Hide', 'newspack' ) : __( 'Show', 'newspack' )
+								__( '%s Advanced Settings', 'newspack-plugin' ),
+								showAdvanced ? __( 'Hide', 'newspack-plugin' ) : __( 'Show', 'newspack-plugin' )
 							) }
 						</Button>
 					</div>
 					{ showAdvanced && (
 						<Grid columns={ 3 } rowGap={ 16 }>
 							<CategoryAutocomplete
-								label={ __( 'Category Exclusions', 'newspack ' ) }
+								label={ __( 'Category Exclusions', 'newspack-plugin' ) }
 								disabled={ disabled }
 								hideHelpFromVision
 								value={ excludedCategories || [] }
@@ -177,11 +181,11 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 								}
 								description={ __(
 									'Prompt will not appear on posts with the specified categories.',
-									'newspack'
+									'newspack-plugin'
 								) }
 							/>
 							<CategoryAutocomplete
-								label={ __( 'Tag Exclusions', 'newspack ' ) }
+								label={ __( 'Tag Exclusions', 'newspack-plugin' ) }
 								disabled={ disabled }
 								hideHelpFromVision
 								taxonomy="tags"
@@ -195,7 +199,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 								}
 								description={ __(
 									'Prompt will not appear on posts with the specified tags.',
-									'newspack'
+									'newspack-plugin'
 								) }
 							/>
 						</Grid>
@@ -205,10 +209,10 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 
 			<Card buttonsCard noBorder className="justify-end">
 				<Button onClick={ onClose } variant="secondary">
-					{ __( 'Cancel', 'newspack' ) }
+					{ __( 'Cancel', 'newspack-plugin' ) }
 				</Button>
 				<Button onClick={ handleSave } variant="primary">
-					{ __( 'Save', 'newspack' ) }
+					{ __( 'Save', 'newspack-plugin' ) }
 				</Button>
 			</Card>
 		</Modal>
