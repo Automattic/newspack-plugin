@@ -8,7 +8,7 @@
 // WordPress
 import { Spinner } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 /**
  * Types
  */
@@ -16,7 +16,6 @@ import { AttributesMeta, AttributeProps } from './types';
 
 const Loader = ( { attributes, setAttributes }: AttributeProps ) => {
 	const imageId = attributes.id ?? 0;
-	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const { meta }: { meta: AttributesMeta } = useSelect(
 		select => select( 'core' ).getMedia( imageId ),
 		[ imageId ]
@@ -27,9 +26,6 @@ const Loader = ( { attributes, setAttributes }: AttributeProps ) => {
 		if ( Object.keys( meta ).length ) {
 			const { _media_credit, _media_credit_url, _navis_media_credit_org } = meta;
 			setAttributes( { meta: { _media_credit, _media_credit_url, _navis_media_credit_org } } );
-			unlockPostSaving( 'attachment-meta-empty' );
-		} else {
-			lockPostSaving( 'attachment-meta-empty' );
 		}
 	}, [ Object.keys( meta ).length, attributes.caption ] );
 
