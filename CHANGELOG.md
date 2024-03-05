@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/Automattic/newspack-plugin/compare/v3.2.0...v3.2.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* correct issue with media sizes not saving ([#2958](https://github.com/Automattic/newspack-plugin/issues/2958)) ([64a8833](https://github.com/Automattic/newspack-plugin/commit/64a88334f19647b68787d5039dd413c2b8f531d7))
+
 # [3.2.0](https://github.com/Automattic/newspack-plugin/compare/v3.1.2...v3.2.0) (2024-03-04)
 
 
