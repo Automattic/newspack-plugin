@@ -150,6 +150,7 @@ final class Newspack {
 
 		/* Integrations with other plugins. */
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-jetpack.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-co-authors-plus.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-gravityforms.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekit.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-newsletters.php';
