@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/Automattic/newspack-plugin/compare/v3.2.1...v3.3.0) (2024-03-05)
+
+
+### Features
+
+* new option for auto-populating iamge credits ([#2973](https://github.com/Automattic/newspack-plugin/issues/2973)) ([b6c62ea](https://github.com/Automattic/newspack-plugin/commit/b6c62ead416894cdb9e2b7b74d9093968e780211))
+
 ## [3.2.1](https://github.com/Automattic/newspack-plugin/compare/v3.2.0...v3.2.1) (2024-03-05)
 
 
