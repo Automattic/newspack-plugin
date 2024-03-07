@@ -186,7 +186,7 @@ class Mailchimp {
 		$hash    = md5( strtolower( $contact['email'] ) );
 		$payload = [
 			'email_address' => $contact['email'],
-			'status_if_new' => 'transactional',
+			'status_if_new' => 'subscribed',
 		];
 
 		// Normalize contact metadata.
