@@ -1,3 +1,10 @@
+## [3.3.2](https://github.com/Automattic/newspack-plugin/compare/v3.3.1...v3.3.2) (2024-03-07)
+
+
+### Bug Fixes
+
+* **ras:** check for woo when generating password reset link ([#2975](https://github.com/Automattic/newspack-plugin/issues/2975)) ([bf5150c](https://github.com/Automattic/newspack-plugin/commit/bf5150ce32c51324f408e112ebb6f1da71ea46a9))
+
 ## [3.3.1](https://github.com/Automattic/newspack-plugin/compare/v3.3.0...v3.3.1) (2024-03-05)
 
 
