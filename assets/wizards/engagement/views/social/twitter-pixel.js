@@ -11,15 +11,15 @@ import Pixel from './pixel';
 
 const TwitterPixel = () => (
 	<Pixel
-		title={ __( 'Twitter Pixel', 'newspack' ) }
+		title={ __( 'Twitter Pixel', 'newspack-plugin' ) }
 		pixelKey="twitter"
-		description={ __( 'Add the Twitter pixel to your site.', 'newspack' ) }
+		description={ __( 'Add the Twitter pixel to your site.', 'newspack-plugin' ) }
 		pixelValueType="text"
-		fieldDescription={ __( 'Pixel ID', 'newspack' ) }
+		fieldDescription={ __( 'Pixel ID', 'newspack-plugin' ) }
 		fieldHelp={ createInterpolateElement(
 			__(
 				'The Twitter Pixel ID. You only need to add the ID, not the full code. Example: ny3ad. You can read more about it <link>here</link>.',
-				'newspack'
+				'newspack-plugin'
 			),
 			{
 				/* eslint-disable jsx-a11y/anchor-has-content */

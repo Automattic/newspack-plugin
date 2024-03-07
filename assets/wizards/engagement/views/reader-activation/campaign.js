@@ -54,22 +54,22 @@ export default withWizardScreen( () => {
 	return (
 		<div className="newspack-ras-campaign__prompt-wizard">
 			<SectionHeader
-				title={ __( 'Set Up Reader Activation Campaign', 'newspack' ) }
+				title={ __( 'Set Up Reader Activation Campaign', 'newspack-plugin' ) }
 				description={ __(
 					'Preview and customize the prompts, or use our suggested defaults.',
-					'newspack'
+					'newspack-plugin'
 				) }
 			/>
 			{ error && (
 				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
+					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
 					isError
 				/>
 			) }
 			{ ! prompts && ! error && (
 				<>
 					<Waiting isLeft />
-					{ __( 'Retrieving prompts…', 'newspack' ) }
+					{ __( 'Retrieving prompts…', 'newspack-plugin' ) }
 				</>
 			) }
 			{ prompts &&
@@ -88,10 +88,10 @@ export default withWizardScreen( () => {
 					disabled={ inFlight || ! allReady }
 					href={ `${ reader_activation_url }/complete` }
 				>
-					{ __( 'Continue', 'newspack' ) }
+					{ __( 'Continue', 'newspack-plugin' ) }
 				</Button>
 				<Button isSecondary disabled={ inFlight } href={ reader_activation_url }>
-					{ __( 'Back', 'newspack' ) }
+					{ __( 'Back', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</div>

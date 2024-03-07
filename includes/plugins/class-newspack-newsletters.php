@@ -202,6 +202,9 @@ class Newspack_Newsletters {
 						$normalized_metadata[ $meta_key ] = $meta_value;
 					}
 				}
+				if ( isset( $contact['metadata']['status'] ) ) {
+					$normalized_metadata['status'] = $contact['metadata']['status'];
+				}
 			}
 			$contact['metadata'] = $normalized_metadata;
 		}
@@ -223,7 +226,12 @@ class Newspack_Newsletters {
 		Logger::log( 'Normalizing contact data for reader ESP sync:' );
 		Logger::log( $contact );
 
-		return $contact;
+		/**
+		 * Filters the normalized contact data before syncing to the ESP.
+		 *
+		 * @param array $contact Contact data.
+		 */
+		return apply_filters( 'newspack_esp_sync_normalize_contact', $contact );
 	}
 
 	/**

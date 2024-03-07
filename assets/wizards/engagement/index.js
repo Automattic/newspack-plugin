@@ -66,7 +66,8 @@ class EngagementWizard extends Component {
 		} catch ( e ) {
 			this.setState( {
 				relatedPostsError:
-					e.message || __( 'There was an error saving settings. Please try again.', 'newspack' ),
+					e.message ||
+					__( 'There was an error saving settings. Please try again.', 'newspack-plugin' ),
 			} );
 		}
 	};
@@ -82,7 +83,7 @@ class EngagementWizard extends Component {
 		const defaultPath = '/reader-activation';
 		const tabbed_navigation = [
 			{
-				label: __( 'Reader Activation', 'newspack' ),
+				label: __( 'Reader Activation', 'newspack-plugin' ),
 				path: '/reader-activation',
 				exact: true,
 				activeTabPaths: [
@@ -92,22 +93,22 @@ class EngagementWizard extends Component {
 				],
 			},
 			{
-				label: __( 'Newsletters', 'newspack' ),
+				label: __( 'Newsletters', 'newspack-plugin' ),
 				path: '/newsletters',
 				exact: true,
 			},
 			{
-				label: __( 'Social', 'newspack' ),
+				label: __( 'Social', 'newspack-plugin' ),
 				path: '/social',
 				exact: true,
 			},
 			{
-				label: __( 'Recirculation', 'newspack' ),
+				label: __( 'Recirculation', 'newspack-plugin' ),
 				path: '/recirculation',
 			},
 		];
 		const props = {
-			headerText: __( 'Engagement', 'newspack' ),
+			headerText: __( 'Engagement', 'newspack-plugin' ),
 			tabbedNavigation: tabbed_navigation,
 			wizardApiFetch,
 		};
@@ -121,7 +122,10 @@ class EngagementWizard extends Component {
 							exact
 							render={ () => (
 								<ReaderActivation
-									subHeaderText={ __( 'Configure your reader activation settings', 'newspack' ) }
+									subHeaderText={ __(
+										'Configure your reader activation settings',
+										'newspack-plugin'
+									) }
 									{ ...props }
 								/>
 							) }
@@ -132,7 +136,7 @@ class EngagementWizard extends Component {
 								<ReaderActivationCampaign
 									subHeaderText={ __(
 										'Preview and customize the reader activation prompts',
-										'newspack'
+										'newspack-plugin'
 									) }
 									{ ...props }
 								/>
@@ -144,7 +148,7 @@ class EngagementWizard extends Component {
 								<ReaderActivationComplete
 									subHeaderText={ __(
 										'Preview and customize the reader activation prompts',
-										'newspack'
+										'newspack-plugin'
 									) }
 									{ ...props }
 								/>
@@ -154,7 +158,7 @@ class EngagementWizard extends Component {
 							path="/newsletters"
 							render={ () => (
 								<Newsletters
-									subHeaderText={ __( 'Configure your newsletter settings', 'newspack' ) }
+									subHeaderText={ __( 'Configure your newsletter settings', 'newspack-plugin' ) }
 									{ ...props }
 								/>
 							) }
@@ -164,7 +168,7 @@ class EngagementWizard extends Component {
 							exact
 							render={ () => (
 								<Social
-									subHeaderText={ __( 'Share your content to social media', 'newspack' ) }
+									subHeaderText={ __( 'Share your content to social media', 'newspack-plugin' ) }
 									{ ...props }
 								/>
 							) }
@@ -175,11 +179,11 @@ class EngagementWizard extends Component {
 							render={ () => (
 								<RelatedContent
 									{ ...props }
-									subHeaderText={ __( 'Engage visitors with related content', 'newspack' ) }
+									subHeaderText={ __( 'Engage visitors with related content', 'newspack-plugin' ) }
 									relatedPostsEnabled={ relatedPostsEnabled }
 									relatedPostsError={ relatedPostsError }
 									buttonAction={ () => this.updatedRelatedContentSettings() }
-									buttonText={ __( 'Save Settings', 'newspack' ) }
+									buttonText={ __( 'Save Settings', 'newspack-plugin' ) }
 									buttonDisabled={ ! relatedPostsEnabled || ! relatedPostsUpdated }
 									relatedPostsMaxAge={ relatedPostsMaxAge }
 									onChange={ value => {

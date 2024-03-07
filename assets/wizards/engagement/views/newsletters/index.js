@@ -155,17 +155,19 @@ export const NewspackNewsletters = ( {
 		return (
 			<ActionCard
 				isMedium
-				title={ __( 'Email Service Provider', 'newspack' ) }
+				title={ __( 'Email Service Provider', 'newspack-plugin' ) }
 				description={ __(
 					'Connect an email service provider (ESP) to author and send newsletters.',
-					'newspack'
+					'newspack-plugin'
 				) }
-				notification={ error ? error?.message || __( 'Something went wrong.', 'newspack' ) : null }
+				notification={
+					error ? error?.message || __( 'Something went wrong.', 'newspack-plugin' ) : null
+				}
 				notificationLevel="error"
 				hasGreyHeader
 				actionContent={
 					<Button disabled={ inFlight } variant="primary" onClick={ saveNewslettersData }>
-						{ __( 'Save Settings', 'newspack' ) }
+						{ __( 'Save Settings', 'newspack-plugin' ) }
 					</Button>
 				}
 				disabled={ inFlight }
@@ -173,16 +175,16 @@ export const NewspackNewsletters = ( {
 				<Grid gutter={ 16 } columns={ 1 }>
 					{ false !== authUrl && (
 						<Card isSmall>
-							<h3>{ __( 'Authorize Application', 'newspack' ) }</h3>
+							<h3>{ __( 'Authorize Application', 'newspack-plugin' ) }</h3>
 							<p>
 								{ sprintf(
 									// translators: %s is the name of the ESP.
-									__( 'Authorize %s to connect to Newspack.', 'newspack-newsletters' ),
+									__( 'Authorize %s to connect to Newspack.', 'newspack-plugin' ),
 									getSelectedProviderName()
 								) }
 							</p>
 							<Button isSecondary onClick={ handleAuth }>
-								{ __( 'Authorize', 'newspack' ) }
+								{ __( 'Authorize', 'newspack-plugin' ) }
 							</Button>
 						</Card>
 					) }
@@ -297,16 +299,19 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 		<>
 			<ActionCard
 				isMedium
-				title={ __( 'Subscription Lists', 'newspack' ) }
-				description={ __( 'Manage the lists available to readers for subscription.', 'newspack' ) }
+				title={ __( 'Subscription Lists', 'newspack-plugin' ) }
+				description={ __(
+					'Manage the lists available to readers for subscription.',
+					'newspack-plugin'
+				) }
 				notification={
 					/* eslint-disable no-nested-ternary */
 					error
-						? error?.message || __( 'Something went wrong.', 'newspack' )
+						? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
 						: lockedLists
 						? __(
 								'Please save your ESP settings before changing your subscription lists.',
-								'newspack'
+								'newspack-plugin'
 						  )
 						: null
 				}
@@ -320,11 +325,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 								disabled={ inFlight || lockedLists }
 								href={ newspack_engagement_wizard.new_subscription_lists_url }
 							>
-								{ __( 'Add New', 'newspack' ) }
+								{ __( 'Add New', 'newspack-plugin' ) }
 							</Button>
 						) }
 						<Button isPrimary onClick={ saveLists } disabled={ inFlight || lockedLists }>
-							{ __( 'Save Subscription Lists', 'newspack' ) }
+							{ __( 'Save Subscription Lists', 'newspack-plugin' ) }
 						</Button>
 					</>
 				}
@@ -350,7 +355,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 							actionText={
 								list?.edit_link ? (
 									<ExternalLink href={ list.edit_link }>
-										{ __( 'Edit', 'newspack_newsletters' ) }
+										{ __( 'Edit', 'newspack-plugin' ) }
 									</ExternalLink>
 								) : null
 							}
@@ -358,13 +363,13 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 							{ list.active && 'local' !== list?.type && (
 								<>
 									<TextControl
-										label={ __( 'List title', 'newspack' ) }
+										label={ __( 'List title', 'newspack-plugin' ) }
 										value={ list.title }
 										disabled={ inFlight || 'local' === list?.type }
 										onChange={ handleChange( index, 'title' ) }
 									/>
 									<TextareaControl
-										label={ __( 'List description', 'newspack' ) }
+										label={ __( 'List description', 'newspack-plugin' ) }
 										value={ list.description }
 										disabled={ inFlight || 'local' === list?.type }
 										onChange={ handleChange( index, 'description' ) }
@@ -400,7 +405,7 @@ const Newsletters = () => {
 			{ 'mailchimp' === newslettersConfig?.newspack_newsletters_service_provider && (
 				<>
 					<hr />
-					<SectionHeader title={ __( 'WooCommerce integration', 'newspack' ) } />
+					<SectionHeader title={ __( 'WooCommerce integration', 'newspack-plugin' ) } />
 					<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
 				</>
 			) }

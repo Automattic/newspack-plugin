@@ -49,25 +49,25 @@ export const isCustomPlacement = popup => {
 export const isInline = prompt => ! isOverlay( prompt );
 
 const placementMap = {
-	top: __( 'Top Overlay', 'newspack' ),
-	top_left: __( 'Top Left Overlay', 'newspack' ),
-	top_right: __( 'Top Right Overlay', 'newspack' ),
-	center: __( 'Center Overlay', 'newspack' ),
-	center_left: __( 'Center Left Overlay', 'newspack' ),
-	center_right: __( 'Center Right Overlay', 'newspack' ),
-	bottom: __( 'Bottom Overlay', 'newspack' ),
-	bottom_left: __( 'Bottom Left Overlay', 'newspack' ),
-	bottom_right: __( 'Bottom Right Overlay', 'newspack' ),
-	inline: __( 'Inline', 'newspack' ),
-	archives: __( 'In archive pages', 'newspack' ),
-	above_header: __( 'Above Header', 'newspack' ),
-	manual: __( 'Manual Only', 'newspack' ),
+	top: __( 'Top Overlay', 'newspack-plugin' ),
+	top_left: __( 'Top Left Overlay', 'newspack-plugin' ),
+	top_right: __( 'Top Right Overlay', 'newspack-plugin' ),
+	center: __( 'Center Overlay', 'newspack-plugin' ),
+	center_left: __( 'Center Left Overlay', 'newspack-plugin' ),
+	center_right: __( 'Center Right Overlay', 'newspack-plugin' ),
+	bottom: __( 'Bottom Overlay', 'newspack-plugin' ),
+	bottom_left: __( 'Bottom Left Overlay', 'newspack-plugin' ),
+	bottom_right: __( 'Bottom Right Overlay', 'newspack-plugin' ),
+	inline: __( 'Inline', 'newspack-plugin' ),
+	archives: __( 'In archive pages', 'newspack-plugin' ),
+	above_header: __( 'Above Header', 'newspack-plugin' ),
+	manual: __( 'Manual Only', 'newspack-plugin' ),
 };
 
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
 	const customPlacements = window.newspack_popups_wizard_data?.custom_placements || {};
 	if ( 'manual' === frequency || customPlacements.hasOwnProperty( placement ) ) {
-		return __( 'Custom Placement', 'newspack' );
+		return __( 'Custom Placement', 'newspack-plugin' );
 	}
 	return placementMap[ placement ];
 };
@@ -96,11 +96,11 @@ export const placementsForPopups = prompt => {
 };
 
 const frequencyMap = {
-	once: __( 'Once a month', 'newspack' ),
-	weekly: __( 'Once a week', 'newspack' ),
-	daily: __( 'Once a day', 'newspack' ),
-	always: __( 'Every pageview', 'newspack' ),
-	custom: __( 'Custom frequency (edit prompt to manage)', 'newspack' ),
+	once: __( 'Once a month', 'newspack-plugin' ),
+	weekly: __( 'Once a week', 'newspack-plugin' ),
+	daily: __( 'Once a day', 'newspack-plugin' ),
+	always: __( 'Every pageview', 'newspack-plugin' ),
+	custom: __( 'Custom frequency (edit prompt to manage)', 'newspack-plugin' ),
 };
 
 export const frequenciesForPopup = () => {
@@ -125,27 +125,28 @@ export const promptDescription = prompt => {
 		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
 		descriptionMessages.push(
 			( campaigns.length === 1
-				? __( 'Campaign: ', 'newspack' )
-				: __( 'Campaigns: ', 'newspack' ) ) + campaignsList
+				? __( 'Campaign: ', 'newspack-plugin' )
+				: __( 'Campaigns: ', 'newspack-plugin' ) ) + campaignsList
 		);
 	}
 	if ( categories.length > 0 ) {
 		descriptionMessages.push(
-			__( 'Categories: ', 'newspack' ) + categories.map( category => category.name ).join( ', ' )
+			__( 'Categories: ', 'newspack-plugin' ) +
+				categories.map( category => category.name ).join( ', ' )
 		);
 	}
 	if ( tags.length > 0 ) {
 		descriptionMessages.push(
-			__( 'Tags: ', 'newspack' ) + tags.map( tag => tag.name ).join( ', ' )
+			__( 'Tags: ', 'newspack-plugin' ) + tags.map( tag => tag.name ).join( ', ' )
 		);
 	}
 	if ( 'pending' === status ) {
-		descriptionMessages.push( __( 'Pending review', 'newspack' ) );
+		descriptionMessages.push( __( 'Pending review', 'newspack-plugin' ) );
 	}
 	if ( 'future' === status ) {
-		descriptionMessages.push( __( 'Scheduled', 'newspack' ) );
+		descriptionMessages.push( __( 'Scheduled', 'newspack-plugin' ) );
 	}
-	descriptionMessages.push( __( 'Frequency: ', 'newspack' ) + frequencyForPopup( prompt ) );
+	descriptionMessages.push( __( 'Frequency: ', 'newspack-plugin' ) + frequencyForPopup( prompt ) );
 	return descriptionMessages.length ? descriptionMessages.join( ' | ' ) : null;
 };
 
@@ -154,7 +155,7 @@ export const segmentDescription = segment => {
 
 	// If the segment is disabled.
 	if ( segment.configuration.is_disabled ) {
-		descriptionMessages.push( __( 'Segment disabled', 'newspack' ) );
+		descriptionMessages.push( __( 'Segment disabled', 'newspack-plugin' ) );
 	}
 
 	if ( segment.criteria ) {
@@ -237,7 +238,7 @@ const FavoriteCategoriesNames = ( { ids } ) => {
 	}
 	return (
 		<span>
-			{ __( 'Favorite Categories:', 'newspack' ) }{ ' ' }
+			{ __( 'Favorite Categories:', 'newspack-plugin' ) }{ ' ' }
 			{ favoriteCategoryNames.length ? favoriteCategoryNames.join( ', ' ) : '' }
 		</span>
 	);
@@ -305,7 +306,9 @@ addFilter(
 			return (
 				<ItemNames
 					label={
-						config.id === 'subscribed_lists' ? __( 'Subscribed to:' ) : __( 'Not subscribed to:' )
+						config.id === 'subscribed_lists'
+							? __( 'Subscribed to:', 'newspack-plugin' )
+							: __( 'Not subscribed to:', 'newspack-plugin' )
 					}
 					ids={ item.value }
 					path="/newspack-newsletters/v1/lists_config"
@@ -328,8 +331,8 @@ addFilter(
 				<ItemNames
 					label={
 						config.id === 'active_subscriptions'
-							? __( 'Has active subscription(s):' )
-							: __( 'Does not have active subscription(s):' )
+							? __( 'Has active subscription(s):', 'newspack-plugin' )
+							: __( 'Does not have active subscription(s):', 'newspack-plugin' )
 					}
 					ids={ item.value }
 					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
@@ -352,8 +355,8 @@ addFilter(
 				<ItemNames
 					label={
 						config.id === 'active_memberships'
-							? __( 'Has active membership(s):' )
-							: __( 'Does not have active membership(s):' )
+							? __( 'Has active membership(s):', 'newspack-plugin' )
+							: __( 'Does not have active membership(s):', 'newspack-plugin' )
 					}
 					ids={ item.value }
 					path="/wc/v3/memberships/plans?per_page=100"
@@ -382,13 +385,14 @@ export const buildWarning = ( prompt, promptCategories ) => {
 		return sprintf(
 			// Translators: %1: 'uncetegorized' if no categories. %2: 'above-header prompts' if above header, 'overlays' otherwise. %3: 'and category filtering' if categories.
 			__(
-				'If multiple%1$s %2$s share the same segment%3$s, only the most recent one will be displayed.'
+				'If multiple%1$s %2$s share the same segment%3$s, only the most recent one will be displayed.',
+				'newspack-plugin'
 			),
-			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
+			0 === promptCategories.length ? __( ' uncategorized', 'newspack-plugin' ) : '',
 			isAboveHeader( prompt )
-				? __( 'above-header prompts', 'newspack' )
-				: __( 'overlays', 'newspack' ),
-			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
+				? __( 'above-header prompts', 'newspack-plugin' )
+				: __( 'overlays', 'newspack-plugin' ),
+			0 < promptCategories.length ? __( ' and category filtering', 'newspack-plugin' ) : ''
 		);
 	}
 
@@ -396,10 +400,11 @@ export const buildWarning = ( prompt, promptCategories ) => {
 		return sprintf(
 			// Translators: %1: 'uncetegorized' if no categories. %2: 'and category filtering' if categories.
 			__(
-				'If multiple%1$s prompts in the same custom placement share the same segment%2$s, only the most recent one will be displayed.'
+				'If multiple%1$s prompts in the same custom placement share the same segment%2$s, only the most recent one will be displayed.',
+				'newspack-plugin'
 			),
-			0 === promptCategories.length ? __( ' uncategorized', 'newspack' ) : '',
-			0 < promptCategories.length ? __( ' and category filtering', 'newspack' ) : ''
+			0 === promptCategories.length ? __( ' uncategorized', 'newspack-plugin' ) : '',
+			0 < promptCategories.length ? __( ' and category filtering', 'newspack-plugin' ) : ''
 		);
 	}
 
@@ -448,10 +453,10 @@ export const warningForPopup = ( prompts, prompt ) => {
 					<strong>
 						{ sprintf(
 							// Translators: %s: 'Conflicts' or 'Conflict' depending on number of conflicts.
-							__( '%s detected:', 'newspack' ),
+							__( '%s detected:', 'newspack-plugin' ),
 							1 < filteredConflictingPrompts.length
-								? __( 'Conflicts', 'newspack' )
-								: __( 'Conflict', 'newspack' )
+								? __( 'Conflicts', 'newspack-plugin' )
+								: __( 'Conflict', 'newspack-plugin' )
 						) }
 					</strong>
 					<ul>
