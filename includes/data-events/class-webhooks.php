@@ -423,7 +423,7 @@ final class Webhooks {
 			[
 				'taxonomy'   => self::ENDPOINT_TAXONOMY,
 				'hide_empty' => false,
-			] 
+			]
 		);
 		$endpoints = array_map( [ __CLASS__, 'get_endpoint_by_term' ], $terms );
 
@@ -521,6 +521,15 @@ final class Webhooks {
 	}
 
 	/**
+	 * Format request data for saving in the DB.
+	 *
+	 * @param array $data Request data.
+	 */
+	public static function format_request_data( $data ) {
+		return addslashes( \wp_json_encode( $data ) );
+	}
+
+	/**
 	 * Create webhook request.
 	 *
 	 * @param int    $endpoint_id Endpoint ID.
@@ -574,9 +583,11 @@ final class Webhooks {
 		$body = apply_filters( 'newspack_webhooks_request_body', $body, $endpoint_id );
 
 		// addslashes prevents JSON from breaking if the data contains quotes or another json encoded string inside it.
-		$body_value = addslashes( \wp_json_encode( $body ) );
+		$body_value = self::format_request_data( $body );
 
 		\update_post_meta( $request_id, 'body', $body_value );
+		\update_post_meta( $request_id, 'data', self::format_request_data( $data ) );
+		\update_post_meta( $request_id, 'timestamp', $timestamp );
 		\update_post_meta( $request_id, 'action_name', $action_name );
 		\update_post_meta( $request_id, 'client_id', $action_name );
 
@@ -839,7 +850,7 @@ final class Webhooks {
 	 * @param array  $data        Event data.
 	 * @param string $client_id   Optional user session's client ID.
 	 */
-	public static function handle_dispatch( $action_name, $timestamp, $data, $client_id ) {
+	public static function handle_dispatch( $action_name, $timestamp, $data, $client_id = '' ) {
 		$endpoints = self::get_endpoints_for_action( $action_name );
 		if ( empty( $endpoints ) ) {
 			return;
