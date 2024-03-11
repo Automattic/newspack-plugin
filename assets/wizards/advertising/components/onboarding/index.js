@@ -101,7 +101,7 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 								/>
 								<p>
 									<a
-										href="https://support.google.com/admanager/answer/6078734"
+										href="https://developers.google.com/ad-manager/api/authentication"
 										target="_blank"
 										rel="noopener noreferrer"
 									>
