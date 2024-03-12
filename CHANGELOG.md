@@ -1,4 +1,4 @@
-# [3.4.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.3.2...v3.4.0-alpha.1) (2024-03-07)
+## [3.3.3](https://github.com/Automattic/newspack-plugin/compare/v3.3.2...v3.3.3) (2024-03-12)
 
 
 ### Bug Fixes
@@ -17,6 +17,7 @@
 * update text domain in wizards/connections directory ([#2956](https://github.com/Automattic/newspack-plugin/issues/2956)) ([2acb12d](https://github.com/Automattic/newspack-plugin/commit/2acb12dcd0a60d38390c950872ee4bdd073e7e37))
 * update text domains for the advertising wizard ([#2952](https://github.com/Automattic/newspack-plugin/issues/2952)) ([cb45da2](https://github.com/Automattic/newspack-plugin/commit/cb45da20d409ec92b5deb521d27261e27f6dc330))
 * update text domains for the analytics, components ([#2953](https://github.com/Automattic/newspack-plugin/issues/2953)) ([04ff6a9](https://github.com/Automattic/newspack-plugin/commit/04ff6a9a49908c0276d8fad828e60e86ed0fb769))
+* add a check for setup complete before adding homepage pattern ([#2987](https://github.com/Automattic/newspack-plugin/issues/2987)) ([36238e9](https://github.com/Automattic/newspack-plugin/commit/36238e96a863723720979520400a9afc65dd0cfa))
 
 
 ### Features
