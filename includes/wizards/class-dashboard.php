@@ -55,6 +55,12 @@ class Dashboard extends Wizard {
 	protected function get_dashboard() {
 		$dashboard = [
 			[
+				'slug'        => 'settings',
+				'name'        => Wizards::get_name( 'settings-v2' ),
+				'url'         => Wizards::get_url( 'settings-v2' ),
+				'description' => '',
+			],
+			[
 				'slug'        => 'site-design',
 				'name'        => Wizards::get_name( 'site-design' ),
 				'url'         => Wizards::get_url( 'site-design' ),

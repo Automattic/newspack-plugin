@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\v2;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -41,6 +43,7 @@ class Wizards {
 			'popups'          => new Popups_Wizard(),
 			'connections'     => new Connections_Wizard(),
 			'settings'        => new Settings(),
+			'settings-v2'     => new v2\Settings(),
 		];
 	}
 

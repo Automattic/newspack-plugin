@@ -32,7 +32,9 @@
 		],
 		"post-update-cmd": [
 			"vendor/bin/cghooks update"
-		]
+		],
+		"phpcbf": "phpcbf",
+		"phpcs": "phpcs"
 	},
 	"extra": {
 		"hooks": {
