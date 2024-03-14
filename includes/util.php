@@ -492,16 +492,3 @@ function newspack_get_countries() {
 	}
 	return $countries_options;
 }
-
-/**
- * Determines whether site is connected to production Newspack Manager.
- *
- * @return bool
- */
-function is_connected_to_production_manager() {
-	if ( class_exists( '\Newspack_Manager' ) ) {
-		return \Newspack_Manager::is_connected_to_production_manager();
-	}
-
-	return false;
-}

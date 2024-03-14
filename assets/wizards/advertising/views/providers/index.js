@@ -1,5 +1,3 @@
-/* globals newspack_ads_wizard */
-
 /**
  * Ad Providers view.
  */
@@ -48,14 +46,6 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 		} );
 	};
 
-	const handleGAMOnboardingClick = () => {
-		if ( newspack_ads_wizard.show_gam_sa_setup ) {
-			return setIsOnboarding( true );
-		}
-
-		window.location = newspack_ads_wizard.gam_connection_url;
-	};
-
 	let notifications = [];
 
 	if ( google_ad_manager.enabled && google_ad_manager.status.error ) {
@@ -80,7 +70,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 		! google_ad_manager.status.connected
 	) {
 		notifications.push(
-			<Button key="gam-connect-account" isLink onClick={ handleGAMOnboardingClick }>
+			<Button key="gam-connect-account" isLink onClick={ () => setIsOnboarding( true ) }>
 				{ __( 'Click here to connect your account.', 'newspack-plugin' ) }
 			</Button>
 		);
