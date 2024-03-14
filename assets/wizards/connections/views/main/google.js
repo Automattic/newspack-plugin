@@ -19,7 +19,7 @@ const getURLParams = () => {
 	return qs.parse( window.location.search.replace( /^\?/, '' ) );
 };
 
-const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
+const GoogleOAuth = ( { setError, onInit, onSuccess, isOnboarding } ) => {
 	const [ authState, setAuthState ] = useState( {} );
 
 	const userBasicInfo = authState.user_basic_info;
@@ -82,7 +82,12 @@ const GoogleOAuth = ( { setError, onInit, onSuccess } ) => {
 		}
 	};
 
-	useEffect( getCurrentAuth, [] );
+	// We only want to autofetch the current auth state if we're not onboarding.
+	useEffect( () => {
+		if ( ! isOnboarding ) {
+			getCurrentAuth();
+		}
+	}, [] );
 
 	const openAuth = () => {
 		const authWindow = window.open(

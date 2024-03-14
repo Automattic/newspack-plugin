@@ -1,3 +1,5 @@
+/* globals newspack_ads_wizard */
+
 /**
  * WordPress dependencies.
  */
@@ -53,7 +55,7 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 	return (
 		<Card noBorder>
 			<div className="ads-onboarding">
-				{ ( true === useOAuth || null === useOAuth ) && (
+				{ newspack_ads_wizard.can_connect_google && ( true === useOAuth || null === useOAuth ) && (
 					<Fragment>
 						{ useOAuth && (
 							<p>
@@ -63,10 +65,14 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 								) }
 							</p>
 						) }
-						<GoogleOAuth onInit={ err => setUseOAuth( ! err ) } onSuccess={ onSuccess } />
+						<GoogleOAuth
+							onInit={ err => setUseOAuth( ! err ) }
+							onSuccess={ onSuccess }
+							isOnboarding={ true }
+						/>
 					</Fragment>
 				) }
-				{ false === useOAuth && (
+				{ ( ! newspack_ads_wizard.can_connect_google || false === useOAuth ) && (
 					<Fragment>
 						{ isConnected ? (
 							<Notice isSuccess noticeText={ __( "We're all set here!", 'newspack-plugin' ) } />
@@ -101,7 +107,7 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 								/>
 								<p>
 									<a
-										href="https://support.google.com/admanager/answer/6078734"
+										href="https://developers.google.com/ad-manager/api/authentication"
 										target="_blank"
 										rel="noopener noreferrer"
 									>
