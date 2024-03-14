@@ -133,6 +133,162 @@ class Dashboard extends Wizard {
 	}
 
 	/**
+	 * Get Dashboard data
+	 *
+	 * @return [] 
+	 */
+	public function get_dashboard_v2() {
+		return [
+			'audience_development' => [
+				'title' => __( 'Audience Development', 'newspack-plugin' ),
+				'desc'  => __( 'Engage your readers more deeply with tools to build customer relationships that drive towards sustainable revenue.', 'newspack-plugin' ),
+				'cards' => [
+					[
+						'icon'  => 'settings',
+						'title' => __( 'Configuration', 'newspack-plugin' ),
+						'desc'  => __( 'Manage your audience development setup.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'megaphone',
+						'title' => __( 'Campaigns', 'newspack-plugin' ),
+						'desc'  => __( 'Coordinate prompts across your site to drive metrics.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'gift',
+						'title' => __( 'Donations', 'newspack-plugin' ),
+						'desc'  => __( 'Bring in revenue through voluntary gifts.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'payment',
+						'title' => __( 'Subscriptions', 'newspack-plugin' ),
+						'desc'  => __( 'Gate your site\'s content behind a paywall.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+				],
+			],
+			'newsletters'          => [
+				'title' => __( 'Newsletters', 'newspack-plugin' ),
+				'desc'  => __( 'Engage your readers directly in their email inbox.', 'newspack-plugin' ),
+				'cards' => [
+					[
+						'icon'  => 'mail',
+						'title' => __( 'All Newsletters', 'newspack-plugin' ),
+						'desc'  => __( 'See all newsletters you’ve sent out, and start new ones.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'ad',
+						'title' => __( 'Advertising', 'newspack-plugin' ),
+						'desc'  => __( 'Get advertising revenue from your newsletters.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'tool',
+						'title' => __( 'Settings', 'newspack-plugin' ),
+						'desc'  => __( 'Configure tracking and other newsletter settings.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+				],
+			],
+			'advertising'          => [
+				'title' => __( 'Advertising', 'newspack-plugin' ),
+				'desc'  => __( 'Sell space on your site to fund your operations.', 'newspack-plugin' ),
+				'cards' => [
+					[
+						'icon'  => 'ad',
+						'title' => __( 'Display Ads', 'newspack-plugin' ),
+						'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'dollar',
+						'title' => __( 'Sponsors', 'newspack-plugin' ),
+						'desc'  => __( 'Sell sponsored content directly to purchasers.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+				],
+			],
+			'listings'             => [
+				'title' => __( 'Listings', 'newspack-plugin' ),
+				'desc'  => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
+				'cards' => [
+					[
+						'icon'  => 'helpFilled', // @TODO
+						'title' => __( 'Events', 'newspack-plugin' ),
+						'desc'  => __( 'Easily use the same event information across multiple posts.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'store',
+						'title' => __( 'Marketplace Listings', 'newspack-plugin' ),
+						'desc'  => __( 'Allow users to list items and services for sale.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'postList',
+						'title' => __( 'Generic Listing', 'newspack-plugin' ),
+						'desc'  => __( 'Manage any structured data for use in posts.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'mapMarker',
+						'title' => __( 'Places', 'newspack-plugin' ),
+						'desc'  => __( 'Create a database of places in your coverage area.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'tool',
+						'title' => __( 'Settings', 'newspack-plugin' ),
+						'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+				],
+				
+			],
+			// @TODO HUB vs NODE
+			'network'              => [
+				'title' => __( 'Network', 'newspack-plugin' ),
+				'desc'  => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
+				'cards' => [
+					[
+						'icon'  => '', // @TODO
+						'title' => __( 'Nodes', 'newspack-plugin' ),
+						'desc'  => __( 'Manage which sites are part of your content network.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'rotateRight',
+						'title' => __( 'Subscriptions', 'newspack-plugin' ),
+						'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'currencyDollar',
+						'title' => __( 'Orders', 'newspack-plugin' ),
+						'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'formatListBullets',
+						'title' => __( 'Event Log', 'newspack-plugin' ),
+						'desc'  => __( 'Troubleshoot issues by viewing all events across your network.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+					[
+						'icon'  => 'tool',
+						'title' => __( 'Settings', 'newspack-plugin' ),
+						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
+						'href'  => '', // @TODO
+					],
+				],
+			],
+		];
+	}
+
+	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
@@ -183,7 +339,7 @@ class Dashboard extends Wizard {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		wp_localize_script( 'newspack-dashboard', 'newspack_dashboard', $this->get_dashboard() );
+		wp_localize_script( 'newspack-dashboard', 'newspack_dashboard', $this->get_dashboard_v2() );
 		wp_enqueue_script( 'newspack-dashboard' );
 
 		wp_register_style(
