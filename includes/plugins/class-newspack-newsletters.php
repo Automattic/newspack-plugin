@@ -17,6 +17,12 @@ class Newspack_Newsletters {
 	const METADATA_PREFIX        = 'NP_';
 	const METADATA_PREFIX_OPTION = '_newspack_metadata_prefix';
 
+	/**
+	 * The option name for choosing which metadata fields to sync.
+	 *
+	 * @var string
+	 */
+	const METADATA_FIELDS_OPTION = '_newspack_metadata_fields';
 
 	/**
 	 * Metadata keys map for Reader Activation.
@@ -108,6 +114,27 @@ class Newspack_Newsletters {
 	}
 
 	/**
+	 * Get the list of fields to be synced to the connected ESP.
+	 */
+	public static function get_metadata_fields() {
+		$default_fields = array_keys( self::$metadata_keys );
+		return \get_option( self::METADATA_FIELDS_OPTION, $default_fields );
+	}
+
+	/**
+	 * Update the list of fields to be synced to the connected ESP.
+	 *
+	 * @param array $fields List of fields to sync.
+	 *
+	 * @return boolean True if updated, false otherwise.
+	 */
+	public static function update_metadata_fields( $fields ) {
+		// Only allow fields that are in the metadata keys map.
+		$fields = array_intersect( array_keys( self::$metadata_keys ), $fields );
+		return \update_option( self::METADATA_FIELDS_OPTION, array_values( $fields ) );
+	}
+
+	/**
 	 * Given a field name, prepend it with the metadata field prefix.
 	 *
 	 * @param string $key Metadata field to fetch.
@@ -143,7 +170,7 @@ class Newspack_Newsletters {
 		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
 		if ( isset( $contact['metadata'] ) ) {
 			$normalized_metadata = [];
-			$raw_keys            = array_values( array_flip( self::$metadata_keys ) );
+			$raw_keys            = self::get_metadata_fields();
 			$prefixed_keys       = array_map(
 				function( $key ) {
 					return self::get_metadata_key( $key );
