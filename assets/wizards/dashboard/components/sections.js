@@ -1,7 +1,12 @@
 /* eslint import/namespace: ['error', { allowComputed: true }] */
+/**
+ * Newspack - Dashboard, Sections
+ *
+ * Component for outputting sections with grid and cards
+ */
 import { __ } from '@wordpress/i18n';
 import * as icons from '@wordpress/icons';
-import { Card, Grid } from '../../../components/src';
+import { Grid, Card } from '../../../components/src';
 
 const Icon = icons.Icon;
 
