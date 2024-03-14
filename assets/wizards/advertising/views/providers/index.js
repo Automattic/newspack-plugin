@@ -48,6 +48,14 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 		} );
 	};
 
+	const handleGAMOnboardingClick = () => {
+		if ( newspack_ads_wizard.show_gam_sa_setup ) {
+			return setIsOnboarding( true );
+		}
+
+		window.location = newspack_ads_wizard.gam_connection_url;
+	};
+
 	let notifications = [];
 
 	if ( google_ad_manager.enabled && google_ad_manager.status.error ) {
@@ -72,7 +80,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 		! google_ad_manager.status.connected
 	) {
 		notifications.push(
-			<Button key="gam-connect-account" isLink onClick={ () => setIsOnboarding( true ) }>
+			<Button key="gam-connect-account" isLink onClick={ handleGAMOnboardingClick }>
 				{ __( 'Click here to connect your account.', 'newspack-plugin' ) }
 			</Button>
 		);
@@ -80,37 +88,33 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 
 	return (
 		<>
-			{ newspack_ads_wizard.show_gam_sa_setup && (
-				<ActionCard
-					title={ __( 'Google Ad Manager', 'newspack-plugin' ) }
-					description={ __(
-						'Manage Google Ad Manager ad units and placements directly from the Newspack dashboard.',
-						'newspack-plugin'
-					) }
-					actionText={
-						google_ad_manager && google_ad_manager.enabled && __( 'Configure', 'newspack-plugin' )
-					}
-					toggle
-					toggleChecked={ google_ad_manager && google_ad_manager.enabled }
-					toggleOnChange={ value => {
-						toggleService( 'google_ad_manager', value ).then( () => {
-							if (
-								value === true &&
-								! google_ad_manager.status.connected &&
-								! google_ad_manager.status.network_code
-							) {
-								setIsOnboarding( true );
-							}
-						} );
-					} }
-					titleLink={ google_ad_manager?.enabled ? '#/google_ad_manager' : null }
-					href={ google_ad_manager?.enabled && '#/google_ad_manager' }
-					notification={ notifications.length ? notifications : null }
-					notificationLevel={
-						google_ad_manager.created_targeting_keys?.length ? 'success' : 'error'
-					}
-				/>
-			) }
+			<ActionCard
+				title={ __( 'Google Ad Manager', 'newspack-plugin' ) }
+				description={ __(
+					'Manage Google Ad Manager ad units and placements directly from the Newspack dashboard.',
+					'newspack-plugin'
+				) }
+				actionText={
+					google_ad_manager && google_ad_manager.enabled && __( 'Configure', 'newspack-plugin' )
+				}
+				toggle
+				toggleChecked={ google_ad_manager && google_ad_manager.enabled }
+				toggleOnChange={ value => {
+					toggleService( 'google_ad_manager', value ).then( () => {
+						if (
+							value === true &&
+							! google_ad_manager.status.connected &&
+							! google_ad_manager.status.network_code
+						) {
+							setIsOnboarding( true );
+						}
+					} );
+				} }
+				titleLink={ google_ad_manager?.enabled ? '#/google_ad_manager' : null }
+				href={ google_ad_manager?.enabled && '#/google_ad_manager' }
+				notification={ notifications.length ? notifications : null }
+				notificationLevel={ google_ad_manager.created_targeting_keys?.length ? 'success' : 'error' }
+			/>
 			<PluginToggle
 				plugins={ {
 					broadstreet: {
