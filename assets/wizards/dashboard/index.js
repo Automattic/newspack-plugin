@@ -1,41 +1,47 @@
-/* global newspack_dashboard */
+/**
+ * Newspack - Dashboard
+ *
+ * WP Admin Newspack Dashboard page.
+ */
 
 import '../../shared/js/public-path';
 
 /**
  * WordPress dependencies.
  */
-import { Fragment, render } from '@wordpress/element';
-
+import { __ } from '@wordpress/i18n';
+import { render } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { GlobalNotices, Footer, Grid, NewspackIcon, Notice } from '../../components/src';
-import DashboardCard from './views/dashboardCard';
+import sections from './components/sections';
+import QuickActions from './components/quick-actions';
+import SiteStatus from './components/site-status';
+import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
 
-const Dashboard = ( { items } ) => {
-	return (
-		<Fragment>
-			<GlobalNotices />
-			{ newspack_aux_data.is_debug_mode && <Notice debugMode /> }
-			<div className="newspack-wizard__header">
-				<div className="newspack-wizard__header__inner">
-					<div className="newspack-wizard__title">
-						<NewspackIcon size={ 36 } />
-					</div>
-				</div>
-			</div>
+const {
+	newspack_aux_data: { is_debug_mode: isDebugMode = false },
+} = window;
 
-			<div className="newspack-wizard newspack-wizard__content">
-				<Grid columns={ 3 } gutter={ 32 }>
-					{ items.map( card => (
-						<DashboardCard { ...card } key={ card.slug } />
-					) ) }
-				</Grid>
-			</div>
+const Newspack = () => {
+	return (
+		<>
+			<GlobalNotices />
+			{ isDebugMode && <Notice debugMode /> }
+			<Wizard
+				headerText={ __( 'Newspack / Dashboard', 'newspack' ) }
+				sections={ sections }
+				renderAboveSections={ () => (
+					<>
+						<SiteStatus />
+						<QuickActions />
+					</>
+				) }
+			/>
 			<Footer />
-		</Fragment>
+		</>
 	);
 };
-render( <Dashboard items={ newspack_dashboard } />, document.getElementById( 'newspack' ) );
+
+render( <Newspack />, document.getElementById( 'newspack' ) );
