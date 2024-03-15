@@ -30,6 +30,7 @@ window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( function ( readerActivation ) {
 	domReady( function () {
 		document.querySelectorAll( '.newspack-registration' ).forEach( container => {
+			const { __ } = wp.i18n;
 			const form = container.querySelector( 'form' );
 			if ( ! form ) {
 				return;
@@ -41,25 +42,35 @@ window.newspackRAS.push( function ( readerActivation ) {
 				'.newspack-registration__registration-success'
 			);
 
+			const createMessageNode = message => {
+				const node = document.createElement( 'p' );
+				node.classList.add( 'has-text-align-center' );
+				node.textContent = message;
+				return node;
+			};
+
 			form.startLoginFlow = () => {
-				messageElement.classList.add( 'newspack-registration--hidden' );
-				messageElement.innerHTML = '';
 				submitElement.disabled = true;
 				container.classList.add( 'newspack-registration--in-progress' );
+				const messageNode = createMessageNode(
+					__( 'Registering your account. This can take a few seconds.', 'newspack-plugin' )
+				);
+				messageElement.innerHTML = '';
+				messageElement.appendChild( messageNode );
+				messageElement.classList.remove( 'newspack-registration--hidden' );
 			};
 
 			form.endLoginFlow = ( message = null, status = 500, data = null ) => {
 				let messageNode;
+
+				messageElement.classList.add( 'newspack-registration--hidden' );
 
 				if ( data?.existing_user ) {
 					successElement = container.querySelector( '.newspack-registration__login-success' );
 				}
 
 				if ( message ) {
-					messageNode = document.createElement( 'p' );
-					messageNode.classList.add( 'has-text-align-center' );
-					messageNode.textContent = message;
-
+					messageNode = createMessageNode( message );
 					const defaultMessage = successElement.querySelector( 'p' );
 					if ( defaultMessage && data?.sso ) {
 						defaultMessage.replaceWith( messageNode );
@@ -77,6 +88,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						readerActivation.setAuthenticated( data?.authenticated );
 					}
 				} else if ( messageNode ) {
+					messageElement.innerHTML = '';
 					messageElement.appendChild( messageNode );
 					messageElement.classList.remove( 'newspack-registration--hidden' );
 				}

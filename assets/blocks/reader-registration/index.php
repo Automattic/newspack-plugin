@@ -74,7 +74,7 @@ function enqueue_scripts() {
 	\wp_enqueue_script(
 		$handle,
 		\Newspack\Newspack::plugin_url() . '/dist/reader-registration-block.js',
-		[ 'wp-polyfill', 'newspack-reader-activation' ],
+		[ 'wp-polyfill', 'newspack-reader-activation','wp-i18n' ],
 		NEWSPACK_PLUGIN_VERSION,
 		true
 	);
