@@ -223,7 +223,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			{ config.enabled && (
 				<>
 					<hr />
-					<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
+					<Button variant="secondary" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
 						{ sprintf(
 							// Translators: Show or Hide advanced settings.
 							__( '%s Advanced Settings', 'newspack-plugin' ),

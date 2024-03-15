@@ -16,24 +16,6 @@ const MetadataFields = ( { availableFields, getSharedProps, selectedFields, upda
 				title={ __( 'Metadata field settings', 'newspack-plugin' ) }
 				description={ __( 'Select which data to sync for each contact.', 'newspack-plugin' ) }
 			/>
-			<Grid columns={ 3 } rowGap={ 16 }>
-				{ Object.keys( availableFields ).map( fieldKey => (
-					<CheckboxControl
-						key={ fieldKey }
-						label={ availableFields[ fieldKey ] }
-						checked={ selectedFields.includes( fieldKey ) }
-						onChange={ value => {
-							const newFields = [ ...selectedFields ];
-							updateConfig(
-								'metadata_fields',
-								value
-									? [ ...newFields, fieldKey ]
-									: newFields.filter( selectedField => selectedField !== fieldKey )
-							);
-						} }
-					/>
-				) ) }
-			</Grid>
 			<TextControl
 				label={ __( 'Metadata field prefix', 'newspack-plugin' ) }
 				help={ __(
@@ -42,6 +24,25 @@ const MetadataFields = ( { availableFields, getSharedProps, selectedFields, upda
 				) }
 				{ ...getSharedProps( 'metadata_prefix', 'text' ) }
 			/>
+			<Grid columns={ 3 } rowGap={ 16 }>
+				{ availableFields.map( ( field, index ) => (
+					<CheckboxControl
+						className="newspack-checkbox-control"
+						key={ index }
+						label={ field.replace( ': ', '' ) }
+						checked={ selectedFields.includes( field ) }
+						onChange={ value => {
+							const newFields = [ ...selectedFields ];
+							updateConfig(
+								'metadata_fields',
+								value
+									? [ ...newFields, field ]
+									: newFields.filter( selectedField => selectedField !== field )
+							);
+						} }
+					/>
+				) ) }
+			</Grid>
 		</>
 	);
 };

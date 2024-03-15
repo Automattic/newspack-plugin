@@ -114,11 +114,21 @@ class Newspack_Newsletters {
 	}
 
 	/**
+	 * Get the list of possible fields to be synced to the connected ESP.
+	 *
+	 * @return string[] List of fields.
+	 */
+	public static function get_default_metadata_fields() {
+		return array_values( array_unique( array_values( self::$metadata_keys ) ) );
+	}
+
+	/**
 	 * Get the list of fields to be synced to the connected ESP.
+	 *
+	 * @return string[] List of fields to be synced.
 	 */
 	public static function get_metadata_fields() {
-		$default_fields = array_keys( self::$metadata_keys );
-		return \get_option( self::METADATA_FIELDS_OPTION, $default_fields );
+		return array_values( \get_option( self::METADATA_FIELDS_OPTION, self::get_default_metadata_fields() ) );
 	}
 
 	/**
@@ -130,8 +140,44 @@ class Newspack_Newsletters {
 	 */
 	public static function update_metadata_fields( $fields ) {
 		// Only allow fields that are in the metadata keys map.
-		$fields = array_intersect( array_keys( self::$metadata_keys ), $fields );
+		$fields = array_intersect( self::get_default_metadata_fields(), $fields );
 		return \update_option( self::METADATA_FIELDS_OPTION, array_values( $fields ) );
+	}
+
+	/**
+	 * Get the "raw" unprefixed metadata keys. Only return fields selected to sync to the ESP.
+	 *
+	 * @return string[] List of raw metadata keys.
+	 */
+	public static function get_raw_metadata_keys() {
+		$fields_to_sync = self::get_metadata_fields();
+		$raw_keys       = [];
+
+		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+			if ( in_array( $field_name, $fields_to_sync, true ) ) {
+				$raw_keys[] = $raw_key;
+			}
+		}
+
+		return array_unique( $raw_keys );
+	}
+
+	/**
+	 * Get the "prefixed" metadata keys. Only return fields selected to sync to the ESP.
+	 *
+	 * @return string[] List of prefixed metadata keys.
+	 */
+	public static function get_prefixed_metadata_keys() {
+		$fields_to_sync = self::get_metadata_fields();
+		$prefixed_keys  = [];
+
+		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+			if ( in_array( $field_name, $fields_to_sync, true ) ) {
+				$prefixed_keys[] = self::get_metadata_key( $raw_key );
+			}
+		}
+
+		return array_unique( $prefixed_keys );
 	}
 
 	/**
@@ -170,13 +216,8 @@ class Newspack_Newsletters {
 		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
 		if ( isset( $contact['metadata'] ) ) {
 			$normalized_metadata = [];
-			$raw_keys            = self::get_metadata_fields();
-			$prefixed_keys       = array_map(
-				function( $key ) {
-					return self::get_metadata_key( $key );
-				},
-				$raw_keys
-			);
+			$raw_keys            = self::get_raw_metadata_keys();
+			$prefixed_keys       = self::get_prefixed_metadata_keys();
 
 			// Capture UTM params and signup/payment page URLs as meta for registration or payment.
 			if (
