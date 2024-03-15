@@ -63,6 +63,20 @@ class Mailchimp {
 	}
 
 	/**
+	 * Get default reader MailChimp status.
+	 *
+	 * @return string MailChimp status slug, 'transactional' or 'subscriber'. (Default: 'transactional').
+	 */
+	private static function get_default_reader_status() {
+		$allowed_statuses = [
+			'transactional',
+			'subscribed',
+		];
+		$default_status = Reader_Activation::get_setting( 'mailchimp_reader_default_status' );
+		return in_array( $default_status, $allowed_statuses ) ? $default_status : 'transactional';
+	}
+
+	/**
 	 * Get merge field type.
 	 *
 	 * @param mixed $value Value to check.
@@ -186,7 +200,7 @@ class Mailchimp {
 		$hash    = md5( strtolower( $contact['email'] ) );
 		$payload = [
 			'email_address' => $contact['email'],
-			'status_if_new' => 'subscribed',
+			'status_if_new' => self::get_default_reader_status(),
 		];
 
 		// Normalize contact metadata.
