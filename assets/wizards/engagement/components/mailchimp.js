@@ -52,7 +52,10 @@ export default function Mailchimp( { value, onChange } ) {
 			{ value.audienceId && (
 				<SelectControl
 					label={ __( 'Default reader status', 'newspack' ) }
-					help={ __( 'Choose which MailChimp status readers should have by default if they are not subscribed to any newsletters' ) }
+					help={ __(
+						'Choose which MailChimp status readers should have by default if they are not subscribed to any newsletters',
+						'newspack'
+					) }
 					disabled={ inFlight }
 					value={ value.readerDefaultStatus }
 					onChange={ handleChange( 'readerDefaultStatus' ) }

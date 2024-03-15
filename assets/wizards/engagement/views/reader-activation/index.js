@@ -322,7 +322,10 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							/>
 							{ isMailchimp && (
 								<Mailchimp
-									value={ { audienceId: config.mailchimp_audience_id, readerDefaultStatus: config.mailchimp_reader_default_status } }
+									value={ {
+										audienceId: config.mailchimp_audience_id,
+										readerDefaultStatus: config.mailchimp_reader_default_status,
+									} }
 									onChange={ ( key, value ) => {
 										if ( key === 'audienceId' ) {
 											updateConfig( 'mailchimp_audience_id', value );
