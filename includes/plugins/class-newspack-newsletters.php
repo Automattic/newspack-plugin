@@ -219,7 +219,11 @@ class Newspack_Newsletters {
 						$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
 					} elseif (
 						in_array( $meta_key, $prefixed_keys, true ) ||
-						( false !== strpos( $meta_key, self::get_metadata_key( 'signup_page_utm' ) ) || false !== strpos( $meta_key, self::get_metadata_key( 'payment_page_utm' ) ) ) // UTM meta keys can have arbitrary suffixes.
+						(
+							// UTM meta keys can have arbitrary suffixes.
+							( in_array( self::get_metadata_key( 'signup_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_metadata_key( 'signup_page_utm' ) ) ) ||
+							( in_array( self::get_metadata_key( 'payment_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_metadata_key( 'payment_page_utm' ) ) )
+						)
 					) {
 						$normalized_metadata[ $meta_key ] = $meta_value;
 					}
@@ -239,7 +243,7 @@ class Newspack_Newsletters {
 		}
 
 		// Parse full name into first + last for MC, which stores these as separate merge fields.
-		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
+		if ( method_exists( '\Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
 			if ( isset( $contact['name'] ) ) {
 				if ( ! isset( $contact['metadata'] ) ) {
 					$contact['metadata'] = [];
