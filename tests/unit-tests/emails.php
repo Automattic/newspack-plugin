@@ -51,6 +51,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	 * Email setup & defaults generation.
 	 */
 	public function test_emails_setup() {
+		Plugin_Manager::deactivate( 'newspack-newsletters' );
 		self::assertEquals(
 			Emails::get_emails( [ 'test-email-config' ] ),
 			[],
