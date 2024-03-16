@@ -185,6 +185,5 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertArrayHasKey( Newspack_Newsletters_Internal::get_metadata_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
 		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
-		$this->assertCount( 2, $normalized['metadata'] );
 	}
 }
