@@ -15,6 +15,6 @@ class Newspack_Newsletters {
 	 * Mock method for service_provider.
 	 */
 	public static function service_provider() {
-		return \get_option( 'newspack_newsletters_service_provider', 'active_campaign' );
+		return \get_option( 'newspack_newsletters_service_provider', false );
 	}
 }
