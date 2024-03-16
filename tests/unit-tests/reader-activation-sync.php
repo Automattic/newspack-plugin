@@ -5,12 +5,19 @@
  * @package Newspack\Tests
  */
 
+use Newspack\Plugin_Manager;
 use Newspack\Newspack_Newsletters as Newspack_Newsletters_Internal;
 
 /**
  * Test the Esp_Metadata_Sync class.
  */
 class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
+	/**
+	 * Setup.
+	 */
+	public function set_up() {
+		Plugin_Manager::activate( 'newspack-newsletters' );
+	}
 
 	/**
 	 * Gets a sample contact for the tests
