@@ -190,7 +190,7 @@ class WooCommerce_Connection {
 			if ( $is_donation_order ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			} else {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Customer';
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'customer';
 			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
