@@ -5,7 +5,11 @@
  */
 
 const SiteStatus = () => {
-	return <h3>Site Status</h3>;
+	return (
+		<div className="newspack-dashboard__section">
+			<h3>Site Actions</h3>
+		</div>
+	);
 };
 
 export default SiteStatus;

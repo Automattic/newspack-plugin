@@ -5,21 +5,125 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 @use '../../shared/scss/colors';
 
-.newspack-dashboard-card {
-	align-items: center;
+.newspack-wizard__content {
+	font-family: -apple-system, blinkmacsystemfont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+	margin: 0;
+	max-width: 100%;
+	padding: 0 0 32px;
+
+	* {
+		box-sizing: border-box;
+	}
+}
+
+.newspack-dashboard__brand-header {
+	padding: 37px 0 27px;
+
+	&>div {
+		margin: 0 auto;
+		max-width: 1040px;
+	}
+}
+
+.newspack-dashboard__section {
+	margin: 0 auto;
+	max-width: 1040px;
+
+	&:first-of-type {
+		margin-top: 56px;
+	}
+
+	h3 {
+		font-size: 20px;
+		font-weight: normal;
+	}
+
+	p {
+		color: wp-colors.$gray-700;
+	}
+
+	a {
+		text-decoration: none;
+	}
+}
+
+.newspack-dashboard__card {
+	background-color: transparent;
 	border-color: wp-colors.$gray-300;
+	border-radius: 2px;
 	display: grid;
 	grid-gap: 16px;
-	grid-template-columns: 48px auto;
+	grid-template: 
+		"icon title" 16px
+		"icon text" auto
+		/ auto 1fr;
 	margin: 0;
-	padding: 32px;
+	overflow: hidden;
+	padding: 16px;
+	transition: all 0.4s;
 
-	h2,
+	.newspack-dashboard__card-icon {
+		background-color: #eaeefb;
+		border: 1px solid white;
+		border-radius: 4px;
+		fill: colors.$primary-600;
+		grid-area: icon;
+		height: 0;
+		min-width: 80px;
+		padding-top: 100%;
+		place-items: center;
+		position: relative;
+		width: 100%;
+		transform: translateZ(0);
+		
+		svg {
+			left: 50%;
+			position: absolute;
+			top: 50%;
+			transform: translate(-50%, -50%) scale(1);
+			transition: transform 0.3s ease-in-out;
+		}
+	}
+
+	h4,
 	p {
 		margin: 0;
 	}
 
-	svg {
-		fill: colors.$primary-500;
+	h4 {
+		font-size: 16px;
+		font-weight: normal;
+		grid-area: title;
+		text-shadow: 0 0 1px #fff;
+		line-height: 16px;
+	}
+
+	p {
+		grid-area: text;
+		line-height: 16px;
+		opacity: 1;
+		transition: transform 0.2s ease-out, opacity 0.2s;
+	}
+
+}
+
+a {
+
+	&:hover,
+	&:focus {
+		.newspack-dashboard__card {
+			background-color: #fafbff;
+			border-color: colors.$primary-600;
+
+			p {
+				opacity: 0.8;
+			}
+
+			.newspack-dashboard__card-icon {
+				svg {
+					transform: translate(-50%, -50%) scale(1.3);
+				}
+			}
+		}
 	}
 }

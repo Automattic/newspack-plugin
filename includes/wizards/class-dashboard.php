@@ -216,7 +216,7 @@ class Dashboard extends Wizard {
 				'desc'  => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
 				'cards' => [
 					[
-						'icon'  => 'helpFilled', // @TODO
+						'icon'  => '', // @TODO
 						'title' => __( 'Events', 'newspack-plugin' ),
 						'desc'  => __( 'Easily use the same event information across multiple posts.', 'newspack-plugin' ),
 						'href'  => '', // @TODO
@@ -339,7 +339,19 @@ class Dashboard extends Wizard {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		wp_localize_script( 'newspack-dashboard', 'newspack_dashboard', $this->get_dashboard_v2() );
+		$theme_mods = get_theme_mods();
+		$logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
+		wp_localize_script(
+			'newspack-dashboard', 
+			'newspack_dashboard', 
+			[
+				'settings' => [
+					'logo'          => wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' ),
+					'headerBgColor' => $theme_mods['header_color_hex'],
+				], 
+				'sections' => $this->get_dashboard_v2(),
+			]
+		);
 		wp_enqueue_script( 'newspack-dashboard' );
 
 		wp_register_style(
