@@ -9,6 +9,8 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 
 import * as ImageBlockTypes from './types';
 
+const currentUrl = window.location.href;
+
 /**
  * Add image credit meta to core/image block attributes
  */
@@ -46,13 +48,22 @@ const AttributesLoader = ( { setAttributes, attributes }: ImageBlockTypes.Attrib
 	useEffect( () => {
 		// Meta added, proceed
 		if ( Object.keys( meta ).length ) {
-			setAttributes( { meta } );
+			const { _media_credit, _media_credit_url, _navis_media_credit_org } = meta;
+			setAttributes( { meta: { _media_credit, _media_credit_url, _navis_media_credit_org } } );
 		}
 	}, [ Object.keys( meta ).length ] );
 
-	return (
-		<></>
-	);
+	return <></>;
+};
+
+/**
+ * Compare two urls strings and determine if they're from the same origin.
+ */
+const isSameOrigin = ( urlOne: string, urlTwo = currentUrl ) => {
+	const urlObjOne = new URL( urlOne );
+	const urlObjTwo = new URL( urlTwo );
+	if ( urlObjOne.host !== urlObjTwo.host ) return false;
+	return true;
 };
 
 /**
@@ -69,7 +80,7 @@ addFilter(
 				return (
 					<>
 						<BlockEdit { ...props } />
-						<AttributesLoader { ...props } />
+						{ isSameOrigin( props.attributes.url ) && <AttributesLoader { ...props } /> }
 					</>
 				);
 			}
