@@ -14,5 +14,8 @@
     <testsuite name="Newspack Test Suite">
       <directory suffix=".php">./tests/unit-tests</directory>
     </testsuite>
+    <testsuite name="Newspack Reader Activation Test Suite">
+      <directory suffix=".php">./tests/unit-tests/reader-activation-sync.php</directory>
+    </testsuite>
   </testsuites>
 </phpunit>

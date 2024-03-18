@@ -5,12 +5,20 @@
  * @package Newspack\Tests
  */
 
+use Newspack\Plugin_Manager;
 use Newspack\Newspack_Newsletters as Newspack_Newsletters_Internal;
 
 /**
  * Test the Esp_Metadata_Sync class.
  */
-class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
+class Reader_Activation_Sync extends WP_UnitTestCase {
+	/**
+	 * Setup before each test case.
+	 */
+	public function set_up() {
+		// Ensure Newsletters plugin is active.
+		Plugin_Manager::activate( 'newspack-newsletters' );
+	}
 
 	/**
 	 * Gets a sample contact for the tests
@@ -43,7 +51,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_sync_contact_data() {
 		// Set connected ESP to ActiveCampaign.
-		\update_option( 'newspack_newsletters_service_provider', 'active_campaign' );
+		\Newspack_Newsletters::set_service_provider( 'active_campaign' );
 		$contact_data_with_raw_keys      = [
 			'email'    => 'test@email.com',
 			'name'     => 'Test Contact',
@@ -105,7 +113,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		);
 
 		// Set connected ESP to Mailchimp.
-		\update_option( 'newspack_newsletters_service_provider', 'mailchimp' );
+		\Newspack_Newsletters::set_service_provider( 'mailchimp' );
 
 		// Mailchimp contact data should split the name into first/last name.
 		$this->assertArrayHasKey( 'First Name', Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] );
