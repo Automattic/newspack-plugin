@@ -182,8 +182,15 @@ class WooCommerce_Connection {
 
 		// One-time transaction.
 		if ( empty( $order_subscriptions ) ) {
+
+			/**
+			 * For donation-type products, use donation membership status as defined by BlueLena.
+			 * For non-donation-type products, we just need to know that the reader is a customer.
+			 */
 			if ( $is_donation_order ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+			} else {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Customer';
 			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
@@ -201,6 +208,10 @@ class WooCommerce_Connection {
 		} else {
 			$current_subscription = reset( $order_subscriptions );
 
+			/**
+			 * For donation-type products, use donation membership status as defined by BlueLena.
+			 * For non-donation-type products, use the subscription's current status.
+			 */
 			if ( $is_donation_order ) {
 				$donor_status = 'Donor';
 				if ( 'month' === $current_subscription->get_billing_period() ) {
@@ -215,6 +226,8 @@ class WooCommerce_Connection {
 					$donor_status = 'Ex-' . $donor_status;
 				}
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $donor_status;
+			} else {
+				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $current_subscription->get_status();
 			}
 
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]    = $current_subscription->get_date( 'start' );
