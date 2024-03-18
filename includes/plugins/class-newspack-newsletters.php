@@ -60,6 +60,13 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		/**
+		 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 *
+		 * @param array $metadata_keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 */
+		self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', self::$metadata_keys );
+
 		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
 
 		if ( self::should_sync_ras_metadata() ) {
