@@ -16,6 +16,8 @@ final class Utils {
 	 *
 	 * @param int  $order_id Order ID.
 	 * @param bool $process_donations_only Whether to process only donation orders.
+	 *
+	 * @return array|null
 	 */
 	public static function get_order_data( $order_id, $process_donations_only = false ) {
 		$order = \wc_get_order( $order_id );
@@ -25,10 +27,10 @@ final class Utils {
 		if ( ! \Newspack\WooCommerce_Connection::should_sync_order( $order ) ) {
 			return;
 		}
-		if ( $process_donations_only ) {
-			$product_id = \Newspack\Donations::get_order_donation_product_id( $order_id );
-		} else {
-			// Donation orders always have just a single product, but other orders can have more than one.
+
+		// Donation orders always have just a single product, but other orders can have more than one.
+		$product_id = \Newspack\Donations::get_order_donation_product_id( $order_id );
+		if ( ! $process_donations_only && ! $product_id ) {
 			$product_id = array_values( \Newspack\WooCommerce_Connection::get_products_for_order( $order_id ) );
 		}
 		if ( ! $product_id ) {
