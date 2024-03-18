@@ -270,10 +270,10 @@ class Emails {
 	 * Does this instance support emails?
 	 */
 	public static function supports_emails() {
-		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && ! empty( \Newspack_Newsletters::service_provider() ) ) {
-			return true;
+		if ( ! class_exists( 'Newspack_Newsletters' ) ) {
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	/**
