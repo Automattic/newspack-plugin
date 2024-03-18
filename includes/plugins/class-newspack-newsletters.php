@@ -282,7 +282,7 @@ class Newspack_Newsletters {
 		}
 
 		// Parse full name into first + last for MC, which stores these as separate merge fields.
-		if ( method_exists( '\Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
+		if ( 'mailchimp' === \get_option( 'newspack_newsletters_service_provider', false ) ) {
 			if ( isset( $contact['name'] ) ) {
 				if ( ! isset( $contact['metadata'] ) ) {
 					$contact['metadata'] = [];
