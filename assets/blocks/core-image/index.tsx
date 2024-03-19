@@ -78,7 +78,9 @@ addFilter(
 				return (
 					<>
 						<BlockEdit { ...props } />
-						{ isSameOrigin( props.attributes.url ) && <AttributesLoader { ...props } /> }
+						{ props.attributes.url && isSameOrigin( props.attributes.url ) && (
+							<AttributesLoader { ...props } />
+						) }
 					</>
 				);
 			}
