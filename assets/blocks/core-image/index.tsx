@@ -60,10 +60,9 @@ const AttributesLoader = ( { setAttributes, attributes }: ImageBlockTypes.Attrib
  * Compare two urls strings and determine if they're from the same origin.
  */
 const isSameOrigin = ( urlOne: string, urlTwo = currentUrl ) => {
-	const urlObjOne = new URL( urlOne );
-	const urlObjTwo = new URL( urlTwo );
-	if ( urlObjOne.host !== urlObjTwo.host ) return false;
-	return true;
+	const hostOne = new URL( urlOne ).hostname;
+	const hostTwo = new URL( urlTwo ).hostname;
+	return hostOne === hostTwo;
 };
 
 /**
