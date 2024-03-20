@@ -2,10 +2,9 @@
  * Dashboard
  */
 
-@import url('./components/site-statuses/index.scss');
-
 @use '~@wordpress/base-styles/colors' as wp-colors;
 @use '../../shared/scss/colors';
+@use './components/site-statuses/index';
 
 .newspack-wizard__content {
 	font-family: -apple-system, blinkmacsystemfont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;

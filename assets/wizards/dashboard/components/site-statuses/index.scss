@@ -2,9 +2,10 @@
     --np-wizard-pill-bg: #f3f3f3;
 
     background-color: var(--np-wizard-pill-bg);
-    font-weight: 600;
     border-radius: 26px;
+    font-weight: 600;
     padding: 16px 24px;
+    transition: background-color 0.4s;
 
     &.newspack-dashboard__pill-success {
         --np-wizard-pill-bg: #E6F2E8;
