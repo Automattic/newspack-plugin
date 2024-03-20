@@ -2,6 +2,8 @@
  * Dashboard
  */
 
+@import url('./components/site-statuses/index.scss');
+
 @use '~@wordpress/base-styles/colors' as wp-colors;
 @use '../../shared/scss/colors';
 
@@ -53,7 +55,7 @@
 	border-radius: 2px;
 	display: grid;
 	grid-gap: 16px;
-	grid-template: 
+	grid-template:
 		"icon title" 16px
 		"icon text" auto
 		/ auto 1fr;
@@ -75,7 +77,7 @@
 		position: relative;
 		width: 100%;
 		transform: translateZ(0);
-		
+
 		svg {
 			left: 50%;
 			position: absolute;
