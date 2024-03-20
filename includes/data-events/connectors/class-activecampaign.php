@@ -53,12 +53,12 @@ class ActiveCampaign {
 	 *
 	 * @param array $contact Contact info to sync to ESP.
 	 */
-	private static function put( $contact ) {
+	public static function put( $contact ) {
 		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
 		if ( ! $master_list_id ) {
 			return;
 		}
-		\Newspack_Newsletters_Subscription::add_contact( $contact, $master_list_id );
+		return \Newspack_Newsletters_Subscription::add_contact( $contact, $master_list_id );
 	}
 
 	/**
