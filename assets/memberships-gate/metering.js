@@ -60,7 +60,10 @@ function lockContent() {
 	// Replace content.
 	content.innerHTML = settings.excerpt;
 	// Remove comments.
-	document.getElementById( 'comments' ).remove();
+	const commentsEl = document.getElementById( 'comments' );
+	if ( commentsEl ) {
+		commentsEl.remove();
+	}
 	// Append inline gate, if any.
 	const inlineGate = document.querySelector( '.newspack-memberships__inline-gate' );
 	if ( inlineGate ) {
