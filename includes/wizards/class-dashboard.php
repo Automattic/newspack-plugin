@@ -204,7 +204,7 @@ class Dashboard extends Wizard {
 						'href'  => '', // @TODO
 					],
 					[
-						'icon'  => 'dollar',
+						'icon'  => 'currencyDollar',
 						'title' => __( 'Sponsors', 'newspack-plugin' ),
 						'desc'  => __( 'Sell sponsored content directly to purchasers.', 'newspack-plugin' ),
 						'href'  => '', // @TODO
@@ -216,7 +216,7 @@ class Dashboard extends Wizard {
 				'desc'  => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
 				'cards' => [
 					[
-						'icon'  => '', // @TODO
+						'icon'  => 'blockPostDate',
 						'title' => __( 'Events', 'newspack-plugin' ),
 						'desc'  => __( 'Easily use the same event information across multiple posts.', 'newspack-plugin' ),
 						'href'  => '', // @TODO
@@ -254,7 +254,7 @@ class Dashboard extends Wizard {
 				'desc'  => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
 				'cards' => [
 					[
-						'icon'  => '', // @TODO
+						'icon'  => 'positionCenterCenter',
 						'title' => __( 'Nodes', 'newspack-plugin' ),
 						'desc'  => __( 'Manage which sites are part of your content network.', 'newspack-plugin' ),
 						'href'  => '', // @TODO
@@ -343,13 +343,16 @@ class Dashboard extends Wizard {
 		$logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
 		wp_localize_script(
 			'newspack-dashboard', 
-			'newspack_dashboard', 
+			'newspack_dashboard',
 			[
-				'settings' => [
-					'logo'          => wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' ),
+				'settings'    => [
+					'logo'          => false === $logo ? [] : $logo,
 					'headerBgColor' => $theme_mods['header_color_hex'],
-				], 
-				'sections' => $this->get_dashboard_v2(),
+				],
+				'sections'    => $this->get_dashboard_v2(),
+				'siteActions' => [
+					'googleAdManager' => [ 'isAvailable' => OAuth::is_proxy_configured( 'google' ) ],
+				],
 			]
 		);
 		wp_enqueue_script( 'newspack-dashboard' );
