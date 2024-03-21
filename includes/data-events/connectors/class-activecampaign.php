@@ -142,7 +142,7 @@ class ActiveCampaign {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function subscription_updated( $timestamp, $data, $client_id ) {
-		if ( empty( $data['status_before'] ) || empty( $data['status_after'] ) || empty( $data['user_id'] ) ) {
+		if ( empty( $data['status_before'] ) || empty( $data['status_after'] ) || empty( $data['subscription_id'] ) ) {
 			return;
 		}
 
@@ -156,8 +156,7 @@ class ActiveCampaign {
 			return;
 		}
 
-		$customer = new \WC_Customer( $data['user_id'] );
-		$contact  = WooCommerce_Connection::get_contact_from_customer( $customer );
+		$contact = WooCommerce_Connection::get_contact_from_order( $data['subscription_id'] );
 
 		if ( ! $contact ) {
 			return;
