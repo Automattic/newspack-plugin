@@ -4,7 +4,11 @@
 
 @use '~@wordpress/base-styles/colors' as wp-colors;
 @use '../../shared/scss/colors';
-@use './components/site-statuses/index';
+@use './components/site-actions/index';
+
+.newspack-icon {
+	background-color: colors.$primary-600;
+}
 
 .newspack-wizard__content {
 	font-family: -apple-system, blinkmacsystemfont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -20,9 +24,15 @@
 .newspack-dashboard__brand-header {
 	padding: 37px 0 27px;
 
-	&>div {
+	.brand-header__inner {
 		margin: 0 auto;
 		max-width: 1040px;
+	}
+
+	img {
+		height: 100%;
+		max-height: 64px;
+		width: auto;
 	}
 }
 
@@ -46,6 +56,10 @@
 	a {
 		text-decoration: none;
 	}
+
+	.newspack-grid {
+		--np-dash-card-icon-size: 80px;
+	}
 }
 
 .newspack-dashboard__card {
@@ -63,27 +77,9 @@
 	padding: 16px;
 	transition: all 0.4s;
 
-	.newspack-dashboard__card-icon {
-		background-color: #eaeefb;
-		border: 1px solid white;
-		border-radius: 4px;
-		fill: colors.$primary-600;
-		grid-area: icon;
-		height: 0;
-		min-width: 80px;
-		padding-top: 100%;
-		place-items: center;
-		position: relative;
-		width: 100%;
-		transform: translateZ(0);
-
-		svg {
-			left: 50%;
-			position: absolute;
-			top: 50%;
-			transform: translate(-50%, -50%) scale(1);
-			transition: transform 0.3s ease-in-out;
-		}
+	&:not(:has(p)) {
+		align-items: center;
+		grid-template: "icon title" auto / var(--np-dash-card-icon-size) auto;
 	}
 
 	h4,
@@ -93,7 +89,7 @@
 
 	h4 {
 		font-size: 16px;
-		font-weight: normal;
+		font-weight: 600;
 		grid-area: title;
 		text-shadow: 0 0 1px #fff;
 		line-height: 16px;
@@ -106,6 +102,23 @@
 		transition: transform 0.2s ease-out, opacity 0.2s;
 	}
 
+}
+
+.newspack-dashboard__card-icon {
+	background-color: #eaeefb;
+	border: 1px solid white;
+	border-radius: 4px;
+	display: grid;
+	fill: colors.$primary-600;
+	grid-area: icon;
+	height: var(--np-dash-card-icon-size);
+	width: var(--np-dash-card-icon-size);
+	place-items: center;
+	transform: translateZ(0);
+
+	svg {
+		transition: transform 0.3s ease-in-out;
+	}
 }
 
 a {
@@ -122,7 +135,7 @@ a {
 
 			.newspack-dashboard__card-icon {
 				svg {
-					transform: translate(-50%, -50%) scale(1.3);
+					transform: scale(1.3);
 				}
 			}
 		}

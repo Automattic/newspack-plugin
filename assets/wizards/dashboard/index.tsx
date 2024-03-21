@@ -16,7 +16,7 @@ import { render } from '@wordpress/element';
  */
 import sections from './components/sections';
 import QuickActions from './components/quick-actions';
-import SiteStatus from './components/site-statuses';
+import SiteStatus from './components/site-actions';
 import BrandHeader from './components/brand-header';
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
