@@ -6,14 +6,19 @@
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 /* eslint import/namespace: ['error', { allowComputed: true }] */
-import * as icons from '@wordpress/icons';
+import { Icon, icons } from './icons';
 import { Grid, Card } from '../../../components/src';
-
-const Icon = icons.Icon;
 
 const {
 	newspack_dashboard: { sections: dashSections },
 } = window;
+
+function getIcon( iconName: keyof typeof icons ) {
+	if ( iconName in icons ) {
+		return icons[ iconName ];
+	}
+	return icons.help;
+}
 
 export default [
 	{
@@ -28,13 +33,13 @@ export default [
 						<div className="newspack-dashboard__section">
 							<h3>{ dashSections[ sectionKey ].title }</h3>
 							<p>{ dashSections[ sectionKey ].desc }</p>
-							<Grid gutter="24" columns="3" key={ `${ sectionKey }-grid` }>
+							<Grid columns={ 3 } gutter={ 24 } key={ `${ sectionKey }-grid` }>
 								{ dashSections[ sectionKey ].cards.map( ( sectionCard, i ) => {
 									return (
 										<a href={ sectionCard.href } key={ `${ sectionKey }-card-${ i }` }>
 											<Card className="newspack-dashboard__card">
 												<div className="newspack-dashboard__card-icon">
-													<Icon size="32" icon={ icons[ sectionCard.icon ] ?? icons.help } />
+													<Icon size={ 32 } icon={ getIcon( sectionCard.icon ) } />
 												</div>
 												<h4>{ sectionCard.title }</h4>
 												<p>{ sectionCard.desc }</p>
