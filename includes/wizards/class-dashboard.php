@@ -46,98 +46,11 @@ class Dashboard extends Wizard {
 	}
 
 	/**
-	 * Get the information required to build the dashboard.
-	 * Each tier of the dashboard is an array.
-	 * Each card within the tier is an array of [slug, name, url, description].
-	 *
-	 * @return array
-	 */
-	protected function get_dashboard() {
-		$dashboard = [
-			[
-				'slug'        => 'site-design',
-				'name'        => Wizards::get_name( 'site-design' ),
-				'url'         => Wizards::get_url( 'site-design' ),
-				'description' => esc_html__( 'Customize the look and feel of your site', 'newspack' ),
-			],
-			[
-				'slug'        => 'reader-revenue',
-				'name'        => Wizards::get_name( 'reader-revenue' ),
-				'url'         => Wizards::get_url( 'reader-revenue' ),
-				'description' => esc_html__( 'Generate revenue from your customers', 'newspack' ),
-			],
-			[
-				'slug'        => 'advertising',
-				'name'        => Wizards::get_name( 'advertising' ),
-				'url'         => Wizards::get_url( 'advertising' ),
-				'description' => esc_html__( 'Monetize your content through ads', 'newspack' ),
-			],
-			[
-				'slug'        => 'syndication',
-				'name'        => Wizards::get_name( 'syndication' ),
-				'url'         => Wizards::get_url( 'syndication' ),
-				'description' => esc_html__( 'Distribute your content across multiple websites', 'newspack' ),
-			],
-			[
-				'slug'        => 'analytics',
-				'name'        => Wizards::get_name( 'analytics' ),
-				'url'         => Wizards::get_url( 'analytics' ),
-				'description' => esc_html__( 'Track traffic and activity', 'newspack' ),
-			],
-			[
-				'slug'        => 'seo',
-				'name'        => Wizards::get_name( 'seo' ),
-				'url'         => Wizards::get_url( 'seo' ),
-				'description' => esc_html__( 'Configure basic SEO settings', 'newspack' ),
-			],
-			[
-				'slug'        => 'health-check',
-				'name'        => Wizards::get_name( 'health-check' ),
-				'url'         => Wizards::get_url( 'health-check' ),
-				'description' => esc_html__( 'Verify and correct site health issues', 'newspack' ),
-			],
-			[
-				'slug'        => 'engagement',
-				'name'        => Wizards::get_name( 'engagement' ),
-				'url'         => Wizards::get_url( 'engagement' ),
-				'description' => esc_html__( 'Newsletters, social, recirculation', 'newspack' ),
-			],
-			[
-				'slug'        => 'popups',
-				'name'        => Wizards::get_name( 'popups' ),
-				'url'         => Wizards::get_url( 'popups' ),
-				'description' => esc_html__( 'Reach your readers with configurable campaigns', 'newspack' ),
-			],
-			[
-				'slug'        => 'connections',
-				'name'        => Wizards::get_name( 'connections' ),
-				'url'         => Wizards::get_url( 'connections' ),
-				'description' => esc_html__( 'Connections to third-party services', 'newspack' ),
-			],
-		];
-
-		/**
-		 * Filters the dashboard items.
-		 *
-		 * @param array          $dashboard  {
-		 *    Dashboard items.
-		 *
-		 *    @type string   $slug        Slug.
-		 *    @type string   $name        Displayed name.
-		 *    @type string   $url         URL to redirect to.
-		 *    @type string   $description Item description.
-		 *    @type bool     $is_externam If true, the URL will be opened in a new window. Optional.
-		 * }
-		 */
-		return apply_filters( 'newspack_plugin_dashboard_items', $dashboard );
-	}
-
-	/**
 	 * Get Dashboard data
 	 *
 	 * @return [] 
 	 */
-	public function get_dashboard_v2() {
+	public function get_dashboard() {
 		return [
 			'audience_development' => [
 				'title' => __( 'Audience Development', 'newspack-plugin' ),
@@ -147,141 +60,160 @@ class Dashboard extends Wizard {
 						'icon'  => 'settings',
 						'title' => __( 'Configuration', 'newspack-plugin' ),
 						'desc'  => __( 'Manage your audience development setup.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( '' ), // @TODO
 					],
 					[
 						'icon'  => 'megaphone',
 						'title' => __( 'Campaigns', 'newspack-plugin' ),
 						'desc'  => __( 'Coordinate prompts across your site to drive metrics.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( '' ), // @TODO
 					],
 					[
 						'icon'  => 'gift',
 						'title' => __( 'Donations', 'newspack-plugin' ),
 						'desc'  => __( 'Bring in revenue through voluntary gifts.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( '' ), // @TODO
 					],
 					[
 						'icon'  => 'payment',
 						'title' => __( 'Subscriptions', 'newspack-plugin' ),
 						'desc'  => __( 'Gate your site\'s content behind a paywall.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( '' ), // @TODO
 					],
 				],
 			],
 			'newsletters'          => [
-				'title' => __( 'Newsletters', 'newspack-plugin' ),
-				'desc'  => __( 'Engage your readers directly in their email inbox.', 'newspack-plugin' ),
-				'cards' => [
+				'title'        => __( 'Newsletters', 'newspack-plugin' ),
+				'desc'         => __( 'Engage your readers directly in their email inbox.', 'newspack-plugin' ),
+				'dependencies' => [
+					'newspack-newsletters',
+				],
+				'cards'        => [
 					[
 						'icon'  => 'mail',
 						'title' => __( 'All Newsletters', 'newspack-plugin' ),
 						'desc'  => __( 'See all newsletters you’ve sent out, and start new ones.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_nl_cpt' ),
 					],
 					[
 						'icon'  => 'ad',
 						'title' => __( 'Advertising', 'newspack-plugin' ),
 						'desc'  => __( 'Get advertising revenue from your newsletters.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( '' ), // @TODO
 					],
 					[
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure tracking and other newsletter settings.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( '' ), // @TODO
 					],
 				],
 			],
 			'advertising'          => [
-				'title' => __( 'Advertising', 'newspack-plugin' ),
-				'desc'  => __( 'Sell space on your site to fund your operations.', 'newspack-plugin' ),
-				'cards' => [
+				'title'        => __( 'Advertising', 'newspack-plugin' ),
+				'desc'         => __( 'Sell space on your site to fund your operations.', 'newspack-plugin' ),
+				'dependencies' => [
+					'newspack-ads',
+				],
+				'cards'        => [
 					[
 						'icon'  => 'ad',
 						'title' => __( 'Display Ads', 'newspack-plugin' ),
 						'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'admin.php?page=newspack-advertising-wizard#/' ),
 					],
 					[
 						'icon'  => 'currencyDollar',
 						'title' => __( 'Sponsors', 'newspack-plugin' ),
 						'desc'  => __( 'Sell sponsored content directly to purchasers.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
 					],
 				],
 			],
 			'listings'             => [
-				'title' => __( 'Listings', 'newspack-plugin' ),
-				'desc'  => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
-				'cards' => [
+				'title'        => __( 'Listings', 'newspack-plugin' ),
+				'desc'         => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
+				'dependencies' => [
+					'newspack-listings',
+				],
+				'cards'        => [
 					[
 						'icon'  => 'blockPostDate',
 						'title' => __( 'Events', 'newspack-plugin' ),
 						'desc'  => __( 'Easily use the same event information across multiple posts.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_event' ),
 					],
 					[
 						'icon'  => 'store',
 						'title' => __( 'Marketplace Listings', 'newspack-plugin' ),
 						'desc'  => __( 'Allow users to list items and services for sale.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_mktplce' ),
 					],
 					[
 						'icon'  => 'postList',
 						'title' => __( 'Generic Listing', 'newspack-plugin' ),
 						'desc'  => __( 'Manage any structured data for use in posts.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_generic' ),
 					],
 					[
 						'icon'  => 'mapMarker',
 						'title' => __( 'Places', 'newspack-plugin' ),
 						'desc'  => __( 'Create a database of places in your coverage area.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_place' ),
 					],
 					[
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ), 
 					],
 				],
 				
 			],
 			// @TODO HUB vs NODE
 			'network'              => [
-				'title' => __( 'Network', 'newspack-plugin' ),
-				'desc'  => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
-				'cards' => [
+				'title'        => __( 'Network', 'newspack-plugin' ),
+				'desc'         => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
+				'dependencies' => [
+					'newspack-network',
+				],
+				'cards'        => 'node' === get_option( 'newspack_network_site_role', '' ) ? [
+					[
+						'icon'  => 'tool',
+						'title' => __( 'Settings', 'newspack-plugin' ),
+						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
+						'href'  => admin_url( '' ), // @TODO
+					],
+				] : [
 					[
 						'icon'  => 'positionCenterCenter',
 						'title' => __( 'Nodes', 'newspack-plugin' ),
 						'desc'  => __( 'Manage which sites are part of your content network.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_hub_nodes' ),
 					],
 					[
 						'icon'  => 'rotateRight',
 						'title' => __( 'Subscriptions', 'newspack-plugin' ),
 						'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=np_hub_subscriptions' ),
 					],
 					[
 						'icon'  => 'currencyDollar',
 						'title' => __( 'Orders', 'newspack-plugin' ),
 						'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
 					],
 					[
 						'icon'  => 'formatListBullets',
 						'title' => __( 'Event Log', 'newspack-plugin' ),
 						'desc'  => __( 'Troubleshoot issues by viewing all events across your network.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( 'admin.php?page=newspack-network-event-log' ),
 					],
 					[
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
-						'href'  => '', // @TODO
+						'href'  => admin_url( '' ), // @TODO
 					],
 				],
 			],
@@ -349,7 +281,7 @@ class Dashboard extends Wizard {
 					'logo'          => false === $logo ? [] : $logo,
 					'headerBgColor' => $theme_mods['header_color_hex'],
 				],
-				'sections'    => $this->get_dashboard_v2(),
+				'sections'    => $this->get_dashboard(),
 				'siteActions' => [
 					'googleAdManager' => [ 'isAvailable' => OAuth::is_proxy_configured( 'google' ) ],
 				],
