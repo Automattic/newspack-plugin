@@ -1,11 +1,11 @@
-# [3.4.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v3.4.0-alpha.2...v3.4.0-alpha.3) (2024-03-19)
+## [3.3.4](https://github.com/Automattic/newspack-plugin/compare/v3.3.3...v3.3.4) (2024-03-20)
 
 
 ### Bug Fixes
 
-* revert credits display when editing image block ([#2994](https://github.com/Automattic/newspack-plugin/issues/2994)) ([54ca247](https://github.com/Automattic/newspack-plugin/commit/54ca24705300353d13d504a3bd3d688d46e29d73)), closes [#2936](https://github.com/Automattic/newspack-plugin/issues/2936)
+* **memberships-gate:** handle no comments ([#2999](https://github.com/Automattic/newspack-plugin/issues/2999)) ([7973c8e](https://github.com/Automattic/newspack-plugin/commit/7973c8ea85faea4fcfb50a69a9ad8d03324a09f9))
 
-# [3.4.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v3.4.0-alpha.1...v3.4.0-alpha.2) (2024-03-12)
+## [3.3.3](https://github.com/Automattic/newspack-plugin/compare/v3.3.2...v3.3.3) (2024-03-12)
 
 
 ### Bug Fixes
