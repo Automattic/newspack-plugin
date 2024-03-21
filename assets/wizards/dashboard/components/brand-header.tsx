@@ -1,6 +1,6 @@
 /**
  * Newspack Dashboard, Brand-Header
- * 
+ *
  * Displaying stored logo and header bg color in a header
  */
 
