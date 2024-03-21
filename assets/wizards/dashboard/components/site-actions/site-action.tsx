@@ -10,7 +10,7 @@ const defaultStatusLabels = {
 	idle: '',
 	error: __( 'Disconnected', 'newspack-plugin' ),
 	success: __( 'Connected', 'newspack-plugin' ),
-	pending: __( 'Fetching...', 'newspack-plugin' ),
+	pending: __( 'Fetching…', 'newspack-plugin' ),
 };
 
 /**
