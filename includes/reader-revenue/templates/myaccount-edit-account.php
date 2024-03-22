@@ -69,6 +69,15 @@ endif;
 
 	<?php
 		/**
+		 * Hook where additional fields should be rendered.
+		 *
+		 * Newspack equivalent of do_action( 'woocommerce_edit_account_form_fields' );
+		 */
+		do_action( 'newspack_woocommerce_edit_account_form_fields' );
+	?>
+
+	<?php
+		/**
 		 * My Account edit account form.
 		 *
 		 * Newspack equivalent of do_action( 'woocommerce_edit_account_form' );
