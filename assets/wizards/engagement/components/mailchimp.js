@@ -35,7 +35,7 @@ export default function Mailchimp( { value, onChange } ) {
 				/>
 			) }
 			<SectionHeader
-				title={ __( 'Mailchimp', 'newspack-plugin' ) }
+				title={ __( 'Mailchimp settings', 'newspack-plugin' ) }
 				description={ __( 'Settings for the Mailchimp integration.', 'newspack-plugin' ) }
 			/>
 			<SelectControl

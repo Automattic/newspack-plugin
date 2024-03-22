@@ -156,6 +156,14 @@ class Mailchimp {
 			);
 			// Skip field if it failed to create.
 			if ( is_wp_error( $created_field ) ) {
+				Logger::log(
+					sprintf(
+					// Translators: %1$s is the merge field key, %2$s is the error message.
+						__( 'Failed to create merge field %1$s. Error response: %2$s', 'newspack-plugin' ),
+						$field_name,
+						$created_field->get_error_message() ?? __( 'The connected ESP could not create this merge field.', 'newspack-plugin' )
+					)
+				);
 				continue;
 			}
 			Logger::log(
