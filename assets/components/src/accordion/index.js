@@ -24,7 +24,7 @@ const Accordion = ( { children, title } ) => {
 				{ title }
 				<Icon className="newspack-accordion__icon" icon={ chevronRight } size={ 24 } />
 			</summary>
-			{ children }
+			<div className="newspack-accordion__content">{ children }</div>
 		</details>
 	);
 };

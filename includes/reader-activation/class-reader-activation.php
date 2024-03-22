@@ -187,6 +187,7 @@ final class Reader_Activation {
 			'terms_url'                   => '',
 			'sync_esp'                    => true,
 			'metadata_prefix'             => Newspack_Newsletters::get_metadata_prefix(),
+			'metadata_fields'             => Newspack_Newsletters::get_metadata_fields(),
 			'sync_esp_delete'             => true,
 			'active_campaign_master_list' => '',
 			'mailchimp_audience_id'       => '',
@@ -259,6 +260,9 @@ final class Reader_Activation {
 		}
 		if ( 'metadata_prefix' === $key ) {
 			return Newspack_Newsletters::update_metadata_prefix( $value );
+		}
+		if ( 'metadata_fields' === $key ) {
+			return Newspack_Newsletters::update_metadata_fields( $value );
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
