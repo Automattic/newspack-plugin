@@ -16,7 +16,7 @@ import { Icon, icons } from './icons';
 const QuickActions = () => {
 	return (
 		<div className="newspack-dashboard__section">
-			<h3>{ __( 'Site Actions', 'newspack-plugin' ) }</h3>
+			<h3>{ __( 'Quick actions', 'newspack-plugin' ) }</h3>
 			<Grid style={ { '--np-dash-card-icon-size': '48px' } } columns={ 3 } gutter={ 24 }>
 				<a href="/wp-admin/post-new.php">
 					<Card className="newspack-dashboard__card">

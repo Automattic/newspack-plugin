@@ -26,7 +26,8 @@
 
 	.brand-header__inner {
 		margin: 0 auto;
-		max-width: 1040px;
+		max-width: calc(calc(24px * 2) + 1040px);
+		padding: 0 24px;
 	}
 
 	img {
@@ -38,7 +39,8 @@
 
 .newspack-dashboard__section {
 	margin: 0 auto;
-	max-width: 1040px;
+	max-width: calc(calc(24px * 2) + 1040px);
+	padding: 0 24px;
 
 	&:first-of-type {
 		margin-top: 56px;

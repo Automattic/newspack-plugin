@@ -6,7 +6,9 @@ declare global {
 	interface Window {
 		newspack_dashboard: {
 			siteActions: {
-				googleAdManager: {
+				readerActivation: ActionLocal;
+				googleAnalytics: ActionLocal;
+				googleAdManager: ActionLocal & {
 					isAvailable: boolean;
 				};
 			};
@@ -31,7 +33,7 @@ declare global {
 import 'react';
 
 declare module 'react' {
-    interface CSSProperties {
-        [key: `--${string}`]: string | number
-    }
+	interface CSSProperties {
+		[ key: `--${ string }` ]: string | number;
+	}
 }

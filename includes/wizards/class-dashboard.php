@@ -53,7 +53,7 @@ class Dashboard extends Wizard {
 	public function get_dashboard() {
 		return [
 			'audience_development' => [
-				'title' => __( 'Audience Development', 'newspack-plugin' ),
+				'title' => __( 'Audience development', 'newspack-plugin' ),
 				'desc'  => __( 'Engage your readers more deeply with tools to build customer relationships that drive towards sustainable revenue.', 'newspack-plugin' ),
 				'cards' => [
 					[
@@ -282,8 +282,33 @@ class Dashboard extends Wizard {
 					'headerBgColor' => $theme_mods['header_color_hex'],
 				],
 				'sections'    => $this->get_dashboard(),
+				'plugins'     => get_plugins(),
 				'siteActions' => [
-					'googleAdManager' => [ 'isAvailable' => OAuth::is_proxy_configured( 'google' ) ],
+					'readerActivation' => [
+						'dependencies' => [
+							'woocommerce' => [
+								'label'    => __( 'Woocommerce', 'newspack-plugin' ),
+								'isActive' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+							],
+						],
+					],
+					'googleAdManager'  => [
+						'isAvailable'  => OAuth::is_proxy_configured( 'google' ),
+						'dependencies' => [
+							'newspack-ads' => [
+								'label'    => __( 'Newspack Ads', 'newspack-plugin' ),
+								'isActive' => is_plugin_active( 'newspack-ads/newspack-ads.php' ),
+							],
+						],
+					],
+					'googleAnalytics'  => [
+						'dependencies' => [
+							'google-site-kit' => [
+								'label'    => __( 'Google Site Kit', 'newspack-plugin' ),
+								'isActive' => is_plugin_active( 'google-site-kit/google-site-kit.php' ),
+							],
+						],
+					],
 				],
 			]
 		);

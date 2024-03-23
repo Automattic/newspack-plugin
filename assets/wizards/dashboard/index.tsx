@@ -3,20 +3,18 @@
  *
  * WP Admin Newspack Dashboard page.
  */
-
 import '../../shared/js/public-path';
 
 /**
- * WordPress dependencies.
+ * Dependencies.
  */
+// WordPress
 import { __ } from '@wordpress/i18n';
 import { render } from '@wordpress/element';
-/**
- * Internal dependencies.
- */
+// Internal
 import sections from './components/sections';
 import QuickActions from './components/quick-actions';
-import SiteStatus from './components/site-actions';
+import SiteActions from './components/site-actions';
 import BrandHeader from './components/brand-header';
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
@@ -36,7 +34,7 @@ const Newspack = () => {
 				renderAboveSections={ () => (
 					<>
 						<BrandHeader />
-						<SiteStatus />
+						<SiteActions />
 						<hr />
 						<QuickActions />
 					</>
