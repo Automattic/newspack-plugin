@@ -77,6 +77,7 @@ const SiteAction = ( {
 		dependencies && 'error-dependency' === requestStatus ? (
 			<Tooltip
 				text={ sprintf(
+					// translators: %s is a comma separated list of needed dependencies.
 					__( '%s must be installed & activated!' ),
 					failedDependencies.map( dep => dependencies[ dep ].label ).join( ', ' )
 				) }

@@ -8,7 +8,7 @@
  * Dependencies
  */
 // WordPress
-import { __, _n } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { PluginInstaller, Modal } from '../../../../components/src';
 
 const SiteActionModal = ( { onRequestClose, plugins, onSuccess }: SiteActionModal ) => {
