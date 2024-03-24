@@ -75,7 +75,6 @@ const SiteAction = ( {
 
 	const statusLabel =
 		dependencies && 'error-dependency' === requestStatus ? (
-			// @ts-expect-error: versions for react + @types/react inside @wordpress + newspack-scripts need to be unified.
 			<Tooltip
 				text={ sprintf(
 					__( '%s must be installed & activated!' ),
