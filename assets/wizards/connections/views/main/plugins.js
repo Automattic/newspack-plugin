@@ -23,7 +23,7 @@ const PLUGINS = {
 	'google-site-kit': {
 		pluginSlug: 'google-site-kit',
 		editLink: 'admin.php?page=googlesitekit-splash',
-		name: __( 'Site Kit by Google', 'newspack' ),
+		name: __( 'Site Kit by Google', 'newspack-plugin' ),
 		fetchStatus: () =>
 			apiFetch( { path: '/newspack/v1/plugins/google-site-kit' } ).then( result => ( {
 				'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
@@ -35,20 +35,22 @@ const pluginConnectButton = plugin => {
 	if ( plugin.pluginSlug ) {
 		return (
 			<Handoff plugin={ plugin.pluginSlug } editLink={ plugin.editLink } compact isLink>
-				{ __( 'Connect', 'newspack' ) }
+				{ __( 'Connect', 'newspack-plugin' ) }
 			</Handoff>
 		);
 	}
 	if ( plugin.url ) {
 		return (
 			<Button isLink href={ plugin.url } target="_blank">
-				{ __( 'Connect', 'newspack' ) }
+				{ __( 'Connect', 'newspack-plugin' ) }
 			</Button>
 		);
 	}
 	if ( plugin.error?.code === 'unavailable_site_id' ) {
 		return (
-			<span className="i newspack-error">{ __( 'Jetpack connection required', 'newspack' ) }</span>
+			<span className="i newspack-error">
+				{ __( 'Jetpack connection required', 'newspack-plugin' ) }
+			</span>
 		);
 	}
 };
@@ -70,21 +72,21 @@ const Plugins = ( { setError } ) => {
 				const isLoading = ! plugin.status;
 				const getDescription = () => {
 					if ( isLoading ) {
-						return __( 'Loading…', 'newspack' );
+						return __( 'Loading…', 'newspack-plugin' );
 					}
 					if ( isInactive ) {
 						if ( plugin.pluginSlug === 'google-site-kit' ) {
-							return __( 'Not connected for this user', 'newspack' );
+							return __( 'Not connected for this user', 'newspack-plugin' );
 						}
-						return __( 'Not connected', 'newspack' );
+						return __( 'Not connected', 'newspack-plugin' );
 					}
-					return __( 'Connected', 'newspack' );
+					return __( 'Connected', 'newspack-plugin' );
 				};
 				return (
 					<ActionCard
 						key={ plugin.name }
 						title={ plugin.name }
-						description={ `${ __( 'Status:', 'newspack' ) } ${ getDescription() }` }
+						description={ `${ __( 'Status:', 'newspack-plugin' ) } ${ getDescription() }` }
 						actionText={ isInactive ? pluginConnectButton( plugin ) : null }
 						checkbox={ isInactive || isLoading ? 'unchecked' : 'checked' }
 						badge={ plugin.badge }

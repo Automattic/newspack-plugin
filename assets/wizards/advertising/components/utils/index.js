@@ -18,12 +18,12 @@ export function handleJSONFile( file ) {
 			try {
 				json = JSON.parse( ev.target.result );
 			} catch ( error ) {
-				reject( __( 'Invalid JSON file', 'newspack' ) );
+				reject( __( 'Invalid JSON file', 'newspack-plugin' ) );
 			}
 			resolve( json );
 		};
 		reader.onerror = function () {
-			reject( __( 'Unable to read file', 'newspack' ) );
+			reject( __( 'Unable to read file', 'newspack-plugin' ) );
 		};
 	} );
 }

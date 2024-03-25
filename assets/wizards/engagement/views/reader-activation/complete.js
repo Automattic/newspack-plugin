@@ -24,22 +24,22 @@ import {
 const listItems = [
 	__(
 		'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
-		'newspack'
+		'newspack-plugin'
 	),
 	__(
 		'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
-		'newspack'
+		'newspack-plugin'
 	),
 	__(
 		'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
-		'newspack'
+		'newspack-plugin'
 	),
 ];
 
 const activationSteps = [
-	__( 'Setting up new segments…', 'newspack' ),
-	__( 'Activating reader registration…', 'newspack' ),
-	__( 'Activating Reader Activation Campaign…', 'newspack' ),
+	__( 'Setting up new segments…', 'newspack-plugin' ),
+	__( 'Activating reader registration…', 'newspack-plugin' ),
+	__( 'Activating Reader Activation Campaign…', 'newspack-plugin' ),
 ];
 
 /**
@@ -77,7 +77,7 @@ export default withWizardScreen( () => {
 		}
 		if ( progress === activationSteps.length && completed ) {
 			setProgress( activationSteps.length + 1 ); // Plus one to account for the "Done!" step.
-			setProgressLabel( __( 'Done!', 'newspack' ) );
+			setProgressLabel( __( 'Done!', 'newspack-plugin' ) );
 			setTimeout( () => {
 				setInFlight( false );
 				window.location = reader_activation_url;
@@ -105,12 +105,12 @@ export default withWizardScreen( () => {
 	return (
 		<div className="newspack-ras-campaign__completed">
 			<SectionHeader
-				title={ __( 'Enable Reader Activation', 'newspack' ) }
+				title={ __( 'Enable Reader Activation', 'newspack-plugin' ) }
 				description={ () => (
 					<>
 						{ __(
 							'An easy way to let your readers register for your site, sign up for newsletters, or become donors and paid members. ',
-							'newspack'
+							'newspack-plugin'
 						) }
 
 						{ /** TODO: Update this URL with the real one once the docs are ready. */ }
@@ -132,8 +132,8 @@ export default withWizardScreen( () => {
 			) }
 			{ ! inFlight && (
 				<Card className="newspack-ras-campaign__completed-card">
-					<h2>{ __( "You're all set to enable Reader Activation!", 'newspack' ) }</h2>
-					<p>{ __( 'This is what will happen next:', 'newspack' ) }</p>
+					<h2>{ __( "You're all set to enable Reader Activation!", 'newspack-plugin' ) }</h2>
+					<p>{ __( 'This is what will happen next:', 'newspack-plugin' ) }</p>
 
 					<Card noBorder className="justify-center">
 						<StepsList stepsListItems={ listItems } narrowList />
@@ -141,21 +141,21 @@ export default withWizardScreen( () => {
 
 					{ error && (
 						<Notice
-							noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
+							noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
 							isError
 						/>
 					) }
 
 					<Card buttonsCard noBorder className="justify-center">
 						<Button isPrimary onClick={ () => activate() }>
-							{ __( 'Enable Reader Activation', 'newspack ' ) }
+							{ __( 'Enable Reader Activation', 'newspack-plugin' ) }
 						</Button>
 					</Card>
 				</Card>
 			) }
 			<div className="newspack-buttons-card">
 				<Button isSecondary disabled={ inFlight } href={ `${ reader_activation_url }/campaign` }>
-					{ __( 'Back', 'newspack' ) }
+					{ __( 'Back', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</div>

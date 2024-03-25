@@ -28,24 +28,24 @@ class Configuration extends Component {
 				<Fragment>
 					<ActionCard
 						className={ jetpack ? 'newspack-card__is-supported' : 'newspack-card__is-unsupported' }
-						title={ __( 'Jetpack', 'newspack' ) }
+						title={ __( 'Jetpack', 'newspack-plugin' ) }
 						description={
 							jetpack
-								? __( 'Jetpack is connected.', 'newspack' )
-								: __( 'Jetpack is not connected. ', 'newspack' )
+								? __( 'Jetpack is connected.', 'newspack-plugin' )
+								: __( 'Jetpack is not connected. ', 'newspack-plugin' )
 						}
-						actionText={ ! jetpack && __( 'Connect', 'newspack' ) }
+						actionText={ ! jetpack && __( 'Connect', 'newspack-plugin' ) }
 						handoff="jetpack"
 					/>
 					<ActionCard
 						className={ sitekit ? 'newspack-card__is-supported' : 'newspack-card__is-unsupported' }
-						title={ __( 'Google Site Kit', 'newspack' ) }
+						title={ __( 'Google Site Kit', 'newspack-plugin' ) }
 						description={
 							sitekit
-								? __( 'Site Kit is connected.', 'newspack' )
-								: __( 'Site Kit is not connected. ', 'newspack' )
+								? __( 'Site Kit is connected.', 'newspack-plugin' )
+								: __( 'Site Kit is not connected. ', 'newspack-plugin' )
 						}
-						actionText={ ! sitekit && __( 'Connect', 'newspack' ) }
+						actionText={ ! sitekit && __( 'Connect', 'newspack-plugin' ) }
 						handoff="google-site-kit"
 					/>
 				</Fragment>

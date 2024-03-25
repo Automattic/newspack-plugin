@@ -38,15 +38,15 @@ const PrimaryPromptPopover = ( {
 			className="newspack-popover__campaigns__primary-popover"
 		>
 			<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
-				{ __( 'Close Popover', 'newspack' ) }
+				{ __( 'Close Popover', 'newspack-plugin' ) }
 			</MenuItem>
 			{ isTrash ? (
 				<>
 					<MenuItem onClick={ () => restorePopup( id ) } className="newspack-button">
-						{ __( 'Restore', 'newspack' ) }
+						{ __( 'Restore', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
-						{ __( 'Delete permanently', 'newspack' ) }
+						{ __( 'Delete permanently', 'newspack-plugin' ) }
 					</MenuItem>
 				</>
 			) : (
@@ -58,16 +58,16 @@ const PrimaryPromptPopover = ( {
 						} }
 						className="newspack-button"
 					>
-						{ __( 'Preview', 'newspack' ) }
+						{ __( 'Preview', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
-						{ __( 'Edit', 'newspack' ) }
+						{ __( 'Edit', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem
 						onClick={ () => setIsDuplicatePromptModalVisible( true ) }
 						className="newspack-button"
 					>
-						{ __( 'Duplicate', 'newspack' ) }
+						{ __( 'Duplicate', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem
 						onClick={ () => {
@@ -76,15 +76,17 @@ const PrimaryPromptPopover = ( {
 						} }
 						className="newspack-button"
 					>
-						{ isPublished ? __( 'Deactivate', 'newspack' ) : __( 'Activate', 'newspack' ) }
+						{ isPublished
+							? __( 'Deactivate', 'newspack-plugin' )
+							: __( 'Activate', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
-						{ __( 'Delete', 'newspack' ) }
+						{ __( 'Delete', 'newspack-plugin' ) }
 					</MenuItem>
 				</>
 			) }
 			<div className="newspack-popover__campaigns__info">
-				{ __( 'ID:', 'newspack' ) } { id }
+				{ __( 'ID:', 'newspack-plugin' ) } { id }
 			</div>
 		</Popover>
 	);
