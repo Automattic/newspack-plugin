@@ -1,3 +1,10 @@
+## [3.3.5](https://github.com/Automattic/newspack-plugin/compare/v3.3.4...v3.3.5) (2024-03-25)
+
+
+### Bug Fixes
+
+* update WC's required fields if using other RR platforms ([#2997](https://github.com/Automattic/newspack-plugin/issues/2997)) ([a0d6632](https://github.com/Automattic/newspack-plugin/commit/a0d6632ddd76fc55a6f4b6ef0dd1387c31f8e90a))
+
 ## [3.3.4](https://github.com/Automattic/newspack-plugin/compare/v3.3.3...v3.3.4) (2024-03-20)
 
 
