@@ -78,9 +78,9 @@ const SiteAction = ( {
 				path: endpoint,
 			} )
 				.then( data => {
-					const requestStatus = then( data );
-					setRequestStatus( requestStatus ? 'success' : 'error' );
-					resolve( requestStatus );
+					const apiRequest = then( data );
+					setRequestStatus( apiRequest ? 'success' : 'error' );
+					resolve( apiRequest );
 				} )
 				.catch( () => {
 					then( false );
