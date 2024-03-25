@@ -29,23 +29,15 @@ wizardsScripts.forEach( function ( wizard ) {
 		// "advertising.js" might be blocked by ad-blocking extensions.
 		wizardFileName = 'billboard';
 	}
-	if ( fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' ) ) ) {
-		wizardsScriptFiles[ wizardFileName ] = path.join(
-			__dirname,
-			'assets',
-			'wizards',
-			wizard,
-			'index.js'
-		);
-	} else if ( fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' ) ) ) {
-		wizardsScriptFiles[ wizardFileName ] = path.join(
-			__dirname,
-			'assets',
-			'wizards',
-			wizard,
-			'index.tsx'
-		);
-	}
+	wizardsScriptFiles[ wizardFileName ] = path.join(
+		__dirname,
+		'assets',
+		'wizards',
+		wizard,
+		fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' ) )
+			? 'index.tsx'
+			: 'index.js'
+	);
 } );
 
 // Get files for other scripts.
