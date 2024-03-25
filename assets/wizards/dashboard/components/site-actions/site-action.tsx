@@ -52,7 +52,10 @@ const SiteAction = ( {
 			// Dependency check
 			if ( dependencies && Object.keys( dependencies ).length > 0 ) {
 				const failedDeps: string[] = [];
-				for ( const [ dependencyName, dependencyInfo ] of Object.entries( dependencies ) ) {
+				for ( const [ dependencyName, dependencyInfo ] of Object.entries<{
+					isActive: boolean;
+					label: string;
+				}>( dependencies ) ) {
 					// Don't process active
 					if ( dependencyInfo.isActive ) {
 						continue;
