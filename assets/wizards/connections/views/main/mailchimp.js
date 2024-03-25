@@ -21,7 +21,8 @@ const Mailchimp = ( { setError } ) => {
 	const modalTextRef = useRef( null );
 	const isConnected = Boolean( authState && authState.username );
 
-	const handleError = res => setError( res.message || __( 'Something went wrong.', 'newspack' ) );
+	const handleError = res =>
+		setError( res.message || __( 'Something went wrong.', 'newspack-plugin' ) );
 
 	const openModal = () => setisModalOpen( true );
 	const closeModal = () => {
@@ -62,7 +63,10 @@ const Mailchimp = ( { setError } ) => {
 			.catch( e => {
 				setError(
 					e.message ||
-						__( 'Something went wrong during verification of your Mailchimp API key.', 'newspack' )
+						__(
+							'Something went wrong during verification of your Mailchimp API key.',
+							'newspack-plugin'
+						)
 				);
 			} )
 			.finally( () => {
@@ -86,30 +90,30 @@ const Mailchimp = ( { setError } ) => {
 
 	const getDescription = () => {
 		if ( isLoading ) {
-			return __( 'Loading…', 'newspack' );
+			return __( 'Loading…', 'newspack-plugin' );
 		}
 		if ( isConnected ) {
 			// Translators: user connection status message.
-			return sprintf( __( 'Connected as %s', 'newspack' ), authState.username );
+			return sprintf( __( 'Connected as %s', 'newspack-plugin' ), authState.username );
 		}
-		return __( 'Not connected', 'newspack' );
+		return __( 'Not connected', 'newspack-plugin' );
 	};
 
 	const getModalButtonText = () => {
 		if ( isLoading ) {
-			return __( 'Connecting…', 'newspack' );
+			return __( 'Connecting…', 'newspack-plugin' );
 		}
 		if ( isConnected ) {
-			return __( 'Connected', 'newspack' );
+			return __( 'Connected', 'newspack-plugin' );
 		}
-		return __( 'Connect', 'newspack' );
+		return __( 'Connect', 'newspack-plugin' );
 	};
 
 	return (
 		<>
 			<ActionCard
 				title="Mailchimp"
-				description={ `${ __( 'Status:', 'newspack' ) } ${ getDescription() }` }
+				description={ `${ __( 'Status:', 'newspack-plugin' ) } ${ getDescription() }` }
 				checkbox={ isConnected ? 'checked' : 'unchecked' }
 				actionText={
 					<Button
@@ -118,18 +122,23 @@ const Mailchimp = ( { setError } ) => {
 						onClick={ isConnected ? disconnect : openModal }
 						disabled={ isLoading }
 					>
-						{ isConnected ? __( 'Disconnect', 'newspack' ) : __( 'Connect', 'newspack' ) }
+						{ isConnected
+							? __( 'Disconnect', 'newspack-plugin' )
+							: __( 'Connect', 'newspack-plugin' ) }
 					</Button>
 				}
 				isMedium
 			/>
 			{ isModalOpen && (
-				<Modal title={ __( 'Add Mailchimp API Key', 'newspack' ) } onRequestClose={ closeModal }>
+				<Modal
+					title={ __( 'Add Mailchimp API Key', 'newspack-plugin' ) }
+					onRequestClose={ closeModal }
+				>
 					<div ref={ modalTextRef }>
 						<Grid columns={ 1 } gutter={ 8 }>
 							<TextControl
 								placeholder="123457103961b1f4dc0b2b2fd59c137b-us1"
-								label={ __( 'Mailchimp API Key', 'newspack' ) }
+								label={ __( 'Mailchimp API Key', 'newspack-plugin' ) }
 								hideLabelFromVision={ true }
 								value={ apiKey }
 								onChange={ setAPIKey }
@@ -142,14 +151,14 @@ const Mailchimp = ( { setError } ) => {
 							/>
 							<p>
 								<ExternalLink href="https://mailchimp.com/help/about-api-keys/#Find_or_generate_your_API_key">
-									{ __( 'Find or generate your API key', 'newspack' ) }
+									{ __( 'Find or generate your API key', 'newspack-plugin' ) }
 								</ExternalLink>
 							</p>
 						</Grid>
 					</div>
 					<Card buttonsCard noBorder className="justify-end">
 						<Button isSecondary onClick={ closeModal }>
-							{ __( 'Cancel', 'newspack' ) }
+							{ __( 'Cancel', 'newspack-plugin' ) }
 						</Button>
 						<Button isPrimary disabled={ ! apiKey } onClick={ submitAPIKey }>
 							{ getModalButtonText() }

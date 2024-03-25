@@ -73,7 +73,7 @@ const Recaptcha = () => {
 							'newspack-plugin'
 						) }{ ' ' }
 						<ExternalLink href="https://www.google.com/recaptcha/admin/create">
-							{ __( 'Get started' ) }
+							{ __( 'Get started', 'newspack-plugin' ) }
 						</ExternalLink>
 					</>
 				) }

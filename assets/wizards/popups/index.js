@@ -26,27 +26,27 @@ import { CampaignsContext } from './contexts';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
-const headerText = __( 'Campaigns', 'newspack' );
-const subHeaderText = __( 'Reach your readers with configurable campaigns', 'newspack' );
+const headerText = __( 'Campaigns', 'newspack-plugin' );
+const subHeaderText = __( 'Reach your readers with configurable campaigns', 'newspack-plugin' );
 
 const tabbedNavigation = [
 	{
-		label: __( 'Campaigns', 'newpack' ),
+		label: __( 'Campaigns', 'newpack-plugin' ),
 		path: '/campaigns',
 		exact: true,
 	},
 	{
-		label: __( 'Segments', 'newpack' ),
+		label: __( 'Segments', 'newpack-plugin' ),
 		path: '/segments',
 		exact: true,
 	},
 	{
-		label: __( 'Analytics', 'newpack' ),
+		label: __( 'Analytics', 'newpack-plugin' ),
 		path: '/analytics',
 		exact: true,
 	},
 	{
-		label: __( 'Settings', 'newpack' ),
+		label: __( 'Settings', 'newpack-plugin' ),
 		path: '/settings',
 		exact: true,
 	},
@@ -175,7 +175,7 @@ class PopupsWizard extends Component {
 			.catch( () => {
 				setError( {
 					code: 'duplicate_prompt_error',
-					message: __( 'Error duplicating prompt. Please try again later.', 'newspack' ),
+					message: __( 'Error duplicating prompt. Please try again later.', 'newspack-plugin' ),
 				} );
 			} );
 	};
