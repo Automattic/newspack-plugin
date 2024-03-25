@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/Automattic/newspack-plugin/compare/v3.4.0...v3.5.0) (2024-03-25)
+
+
+### Features
+
+* **ras:** updates to metadata fields synced to ESP ([#2993](https://github.com/Automattic/newspack-plugin/issues/2993)) ([f28f436](https://github.com/Automattic/newspack-plugin/commit/f28f436ad64026b2d012ac9f0990e7381c90ded4))
+
 # [3.4.0](https://github.com/Automattic/newspack-plugin/compare/v3.3.5...v3.4.0) (2024-03-25)
 
 
