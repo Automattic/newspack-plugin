@@ -341,10 +341,16 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							<>
 								{ isMailchimp && (
 									<Mailchimp
-										value={ { audienceId: config.mailchimp_audience_id } }
+										value={ {
+											audienceId: config.mailchimp_audience_id,
+											readerDefaultStatus: config.mailchimp_reader_default_status,
+										} }
 										onChange={ ( key, value ) => {
 											if ( key === 'audienceId' ) {
 												updateConfig( 'mailchimp_audience_id', value );
+											}
+											if ( key === 'readerDefaultStatus' ) {
+												updateConfig( 'mailchimp_reader_default_status', value );
 											}
 										} }
 									/>
@@ -375,6 +381,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
 									mailchimp_audience_id: config.mailchimp_audience_id,
+									mailchimp_reader_default_status: config.mailchimp_reader_default_status,
 									active_campaign_master_list: config.active_campaign_master_list,
 									memberships_require_all_plans: membershipsConfig.require_all_plans,
 									use_custom_lists: config.use_custom_lists,
