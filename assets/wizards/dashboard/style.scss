@@ -6,6 +6,14 @@
 @use '../../shared/scss/colors';
 @use './components/site-actions/index';
 
+:root {
+	--np-font-size: 16px;
+	--np-header-height: 64px;
+	--np-section-space: 24px;
+	--np-section-width: 1040px;
+	--np-section-child-space: 16px;
+}
+
 .newspack-icon {
 	background-color: colors.$primary-600;
 }
@@ -26,21 +34,21 @@
 
 	.brand-header__inner {
 		margin: 0 auto;
-		max-width: calc(calc(24px * 2) + 1040px);
-		padding: 0 24px;
+		max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
+		padding: 0 var(--np-section-space);
 	}
 
 	img {
 		height: 100%;
-		max-height: 64px;
+		max-height: var(--np-header-height);
 		width: auto;
 	}
 }
 
 .newspack-dashboard__section {
 	margin: 0 auto;
-	max-width: calc(calc(24px * 2) + 1040px);
-	padding: 0 24px;
+	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
+	padding: 0 var(--np-section-space);
 
 	&:first-of-type {
 		margin-top: 56px;
@@ -65,18 +73,21 @@
 }
 
 .newspack-dashboard__card {
+	--np-card-icon-bg-color: #eaeefb;
+	--np-card-hover-bg-color: #fafbff;
+
 	background-color: transparent;
 	border-color: wp-colors.$gray-300;
 	border-radius: 2px;
 	display: grid;
-	grid-gap: 16px;
+	grid-gap: var(--np-section-child-space);
 	grid-template:
-		"icon title" 16px
+		"icon title" var(--np-section-child-space)
 		"icon text" auto
 		/ auto 1fr;
 	margin: 0;
 	overflow: hidden;
-	padding: 16px;
+	padding: var(--np-section-child-space);
 	transition: all 0.4s;
 
 	&:not(:has(p)) {
@@ -107,7 +118,7 @@
 }
 
 .newspack-dashboard__card-icon {
-	background-color: #eaeefb;
+	background-color: var(--np-card-icon-bg-color);
 	border: 1px solid white;
 	border-radius: 4px;
 	display: grid;
@@ -128,7 +139,7 @@ a {
 	&:hover,
 	&:focus {
 		.newspack-dashboard__card {
-			background-color: #fafbff;
+			background-color: var(--np-card-hover-bg-color);
 			border-color: colors.$primary-600;
 
 			p {

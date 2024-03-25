@@ -1,13 +1,14 @@
 .newspack-site-action {
     --np-sa-bg-color: #EEE;
     --np-sa-txt-color: #666;
+    --np-sa-space: 16px;
 
     animation: none;
     background-color: var(--np-sa-bg-color);
     border-radius: 26px;
     font-weight: 600;
     overflow: hidden;
-    padding: 16px 24px;
+    padding: var(--np-sa-space) 24px;
     position: relative;
     text-overflow: ellipsis;
     transition: background-color 0.4s;
