@@ -22,7 +22,7 @@ import { Grid, Notice, SelectControl, TextControl } from '../../../../components
 const getProvidersForSelect = providers => {
 	return [
 		{
-			label: __( 'Select a provider', 'newspack' ),
+			label: __( 'Select a provider', 'newspack-plugin' ),
 			value: '',
 		},
 		...providers.map( unit => {
@@ -46,12 +46,17 @@ const getProviderUnitsForSelect = provider => {
 	}
 	return [
 		{
-			label: __( 'Select an Ad Unit', 'newspack' ),
+			label: __( 'Select an Ad Unit', 'newspack-plugin' ),
 			value: '',
 		},
 		...provider.units.map( unit => {
 			return {
-				label: unit.name,
+				label: sprintf(
+					// Translators: 1 is ad unit name and 2 is ad unit id.
+					__( '%1$s (%2$s)', 'newspack-plugin' ),
+					unit.name,
+					unit.value
+				),
 				value: unit.value,
 			};
 		} ),
@@ -74,7 +79,7 @@ const hasAnySize = ( sizes, sizesToCheck ) => {
 };
 
 const PlacementControl = ( {
-	label = __( 'Ad Unit', 'newspack' ),
+	label = __( 'Ad Unit', 'newspack-plugin' ),
 	providers = [],
 	bidders = {},
 	value = {},
@@ -99,7 +104,7 @@ const PlacementControl = ( {
 					? null
 					: sprintf(
 							// Translators: Ad bidder name.
-							__( '%s does not support the selected ad unit sizes.', 'newspack' ),
+							__( '%s does not support the selected ad unit sizes.', 'newspack-plugin' ),
 							bidder.name,
 							''
 					  );
@@ -108,22 +113,24 @@ const PlacementControl = ( {
 	}, [ providers, value.ad_unit ] );
 
 	if ( ! providers.length ) {
-		return <Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack' ) } />;
+		return (
+			<Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) } />
+		);
 	}
 
 	return (
 		<Fragment>
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SelectControl
-					label={ __( 'Provider', 'newspack' ) }
-					value={ placementProvider?.id }
+					label={ __( 'Provider', 'newspack-plugin' ) }
+					value={ placementProvider?.id ?? '' }
 					options={ getProvidersForSelect( providers ) }
 					onChange={ provider => onChange( { ...value, provider } ) }
 					disabled={ disabled }
 				/>
 				<SelectControl
 					label={ label }
-					value={ value.ad_unit }
+					value={ value?.ad_unit ?? '' }
 					options={ getProviderUnitsForSelect( placementProvider ) }
 					onChange={ data => {
 						onChange( {
@@ -139,7 +146,7 @@ const PlacementControl = ( {
 				Object.keys( bidders ).map( bidderKey => {
 					const bidder = bidders[ bidderKey ];
 					// Translators: Bidder name.
-					const bidderLabel = sprintf( __( '%s Placement ID', 'newspack' ), bidder.name );
+					const bidderLabel = sprintf( __( '%s Placement ID', 'newspack-plugin' ), bidder.name );
 					return (
 						<TextControl
 							key={ bidderKey }

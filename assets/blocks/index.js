@@ -10,6 +10,11 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import * as readerRegistration from './reader-registration';
 
+/**
+ * Block Scripts
+ */
+import './core-image';
+
 export const blocks = [ readerRegistration ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];

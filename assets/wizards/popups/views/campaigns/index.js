@@ -43,20 +43,20 @@ const DEFAULT_CAMPAIGNS_FILTER = 'active';
 
 const modalTitle = modalType => {
 	if ( MODAL_TYPE_RENAME === modalType ) {
-		return __( 'Rename Campaign', 'newspack' );
+		return __( 'Rename Campaign', 'newspack-plugin' );
 	} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
-		return __( 'Duplicate Campaign', 'newspack' );
+		return __( 'Duplicate Campaign', 'newspack-plugin' );
 	}
-	return __( 'Add New Campaign', 'newspack' );
+	return __( 'Add New Campaign', 'newspack-plugin' );
 };
 
 const modalButton = modalType => {
 	if ( MODAL_TYPE_RENAME === modalType ) {
-		return __( 'Rename', 'newspack' );
+		return __( 'Rename', 'newspack-plugin' );
 	} else if ( MODAL_TYPE_DUPLICATE === modalType ) {
-		return __( 'Duplicate', 'newspack' );
+		return __( 'Duplicate', 'newspack-plugin' );
 	}
-	return __( 'Add', 'newspack' );
+	return __( 'Add', 'newspack-plugin' );
 };
 
 const filterByCampaign = ( prompts, campaignId ) => {
@@ -99,7 +99,7 @@ const groupBySegment = ( segments, prompts ) => {
 		} ) )
 	);
 	grouped.push( {
-		label: __( 'Everyone', 'newspack' ),
+		label: __( 'Everyone', 'newspack-plugin' ),
 		id: '',
 		prompts: prompts.filter( ( { segments: _segments } ) => _segments.length === 0 ),
 		configuration: {},
@@ -160,21 +160,21 @@ const Campaigns = props => {
 	const campaignsSelectOptions = [
 		{
 			key: DEFAULT_CAMPAIGNS_FILTER,
-			name: __( 'Active Prompts', 'newspack' ),
+			name: __( 'Active Prompts', 'newspack-plugin' ),
 		},
 		{
 			key: 'all',
-			name: __( 'All Prompts', 'newspack' ),
+			name: __( 'All Prompts', 'newspack-plugin' ),
 		},
 		{
 			key: 'trash',
-			name: __( 'Trash', 'newspack' ),
+			name: __( 'Trash', 'newspack-plugin' ),
 		},
 		...( hasUnassigned
 			? [
 					{
 						key: 'unassigned',
-						name: __( 'Unassigned Prompts', 'newspack' ),
+						name: __( 'Unassigned Prompts', 'newspack-plugin' ),
 					},
 			  ]
 			: [] ),
@@ -182,7 +182,7 @@ const Campaigns = props => {
 			? [
 					{
 						key: 'header-campaigns',
-						name: __( 'Campaigns', 'newspack' ),
+						name: __( 'Campaigns', 'newspack-plugin' ),
 						className: 'is-header',
 					},
 			  ]
@@ -196,14 +196,14 @@ const Campaigns = props => {
 			? [
 					{
 						key: 'header-archived-campaigns',
-						name: __( 'Archived Campaigns', 'newspack' ),
+						name: __( 'Archived Campaigns', 'newspack-plugin' ),
 						className: 'is-header',
 					},
 			  ]
 			: [] ),
 		...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
 			key: String( id ),
-			name: name + ' ' + __( '(archived)', 'newspack' ),
+			name: name + ' ' + __( '(archived)', 'newspack-plugin' ),
 			className: 'newspack-campaigns__campaign-group__select-control-group-item',
 		} ) ),
 	];
@@ -213,7 +213,7 @@ const Campaigns = props => {
 			<Card headerActions noBorder>
 				<div className="newspack-campaigns__campaign-group__filter-group-actions">
 					<CustomSelectControl
-						label={ __( 'Campaigns', 'newspack' ) }
+						label={ __( 'Campaigns', 'newspack-plugin' ) }
 						options={ campaignsSelectOptions.map( option => ( {
 							...option,
 							className: classnames( option.className, {
@@ -237,7 +237,7 @@ const Campaigns = props => {
 								className={ popoverVisible && 'popover-active' }
 								onClick={ () => setPopoverVisible( ! popoverVisible ) }
 								icon={ moreVertical }
-								label={ __( 'Actions', 'newspack' ) }
+								label={ __( 'Actions', 'newspack-plugin' ) }
 								tooltipPosition="bottom center"
 							/>
 							{ popoverVisible && (
@@ -275,7 +275,7 @@ const Campaigns = props => {
 							setModalType( MODAL_TYPE_NEW );
 						} }
 					>
-						{ __( 'Add New Campaign', 'newspack' ) }
+						{ __( 'Add New Campaign', 'newspack-plugin' ) }
 					</Button>
 					{ modalVisible && (
 						<Modal
@@ -286,9 +286,9 @@ const Campaigns = props => {
 						>
 							<div ref={ modalTextRef }>
 								<TextControl
-									placeholder={ __( 'Campaign Name', 'newspack' ) }
+									placeholder={ __( 'Campaign Name', 'newspack-plugin' ) }
 									onChange={ setCampaignName }
-									label={ __( 'Campaign Name', 'newspack' ) }
+									label={ __( 'Campaign Name', 'newspack-plugin' ) }
 									hideLabelFromVision={ true }
 									value={ campaignName }
 									onKeyDown={ event => {
@@ -306,7 +306,7 @@ const Campaigns = props => {
 										setModalVisible( false );
 									} }
 								>
-									{ __( 'Cancel', 'newspack' ) }
+									{ __( 'Cancel', 'newspack-plugin' ) }
 								</Button>
 								<Button
 									variant="primary"

@@ -55,7 +55,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 	const unblock = hooks.usePrompt(
 		isDirty,
-		__( 'There are unsaved changes to this segment. Discard changes?', 'newspack' )
+		__( 'There are unsaved changes to this segment. Discard changes?', 'newspack-plugin' )
 	);
 
 	const isNew = segmentId === 'new';
@@ -169,31 +169,31 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	return (
 		<Fragment>
 			<TextControl
-				placeholder={ __( 'Untitled Segment', 'newspack' ) }
+				placeholder={ __( 'Untitled Segment', 'newspack-plugin' ) }
 				value={ name }
 				onChange={ setName }
-				label={ __( 'Title', 'newspack' ) }
+				label={ __( 'Title', 'newspack-plugin' ) }
 				className={ 'newspack-campaigns-wizard-segments__title' }
 			/>
 
 			<SettingsCard
-				title={ __( 'Segment Status', 'newspack' ) }
+				title={ __( 'Segment Status', 'newspack-plugin' ) }
 				description={ __(
 					'If not enabled, the segment will be ignored for reader segmentation.',
-					'newspack'
+					'newspack-plugin'
 				) }
 				noBorder
 			>
 				<ToggleControl
-					label={ __( 'Segment enabled', 'newspack' ) }
+					label={ __( 'Segment enabled', 'newspack-plugin' ) }
 					checked={ ! segmentConfig.is_disabled }
 					onChange={ () => updateSegmentConfig( { is_disabled: ! segmentConfig.is_disabled } ) }
 				/>
 			</SettingsCard>
 
 			<SettingsCard
-				title={ __( 'Reader Engagement', 'newspack' ) }
-				description={ __( 'Target readers based on their browsing behavior.', 'newspack' ) }
+				title={ __( 'Reader Engagement', 'newspack-plugin' ) }
+				description={ __( 'Target readers based on their browsing behavior.', 'newspack-plugin' ) }
 				noBorder
 			>
 				{ allCriteria
@@ -209,10 +209,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					) ) }
 			</SettingsCard>
 			<SettingsCard
-				title={ __( 'Registration', 'newspack' ) }
+				title={ __( 'Registration', 'newspack-plugin' ) }
 				description={ __(
 					'Target readers based on their user account registration status.',
-					'newspack'
+					'newspack-plugin'
 				) }
 				columns={ 3 }
 				noBorder
@@ -230,10 +230,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					) ) }
 			</SettingsCard>
 			<SettingsCard
-				title={ __( 'Newsletters', 'newspack' ) }
+				title={ __( 'Newsletters', 'newspack-plugin' ) }
 				description={ __(
 					'Target readers based on their newsletter subscription status.',
-					'newspack'
+					'newspack-plugin'
 				) }
 				columns={ 3 }
 				noBorder
@@ -251,8 +251,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					) ) }
 			</SettingsCard>
 			<SettingsCard
-				title={ __( 'Reader Revenue', 'newspack' ) }
-				description={ __( 'Target readers based on their revenue activity.', 'newspack' ) }
+				title={ __( 'Reader Revenue', 'newspack-plugin' ) }
+				description={ __( 'Target readers based on their revenue activity.', 'newspack-plugin' ) }
 				columns={ 3 }
 				noBorder
 			>
@@ -269,11 +269,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					) ) }
 			</SettingsCard>
 			<SettingsCard
-				title={ __( 'Referrer Sources', 'newspack' ) }
-				description={ __( 'Target readers based on where they’re coming from.', 'newspack' ) }
+				title={ __( 'Referrer Sources', 'newspack-plugin' ) }
+				description={ __(
+					'Target readers based on where they’re coming from.',
+					'newspack-plugin'
+				) }
 				notification={ __(
 					'Segments using these options will apply only to the first page visited after coming from an external source.',
-					'newspack'
+					'newspack-plugin'
 				) }
 				columns={ 2 }
 				noBorder
@@ -296,10 +299,10 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 					isPrimary
 					onClick={ saveSegment }
 				>
-					{ __( 'Save', 'newspack' ) }
+					{ __( 'Save', 'newspack-plugin' ) }
 				</Button>
 				<Button isSecondary href="#/segments">
-					{ __( 'Cancel', 'newspack' ) }
+					{ __( 'Cancel', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</Fragment>

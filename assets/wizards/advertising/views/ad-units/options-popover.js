@@ -25,7 +25,7 @@ const OptionsPopover = props => {
 				className={ isVisible && 'popover-active' }
 				onClick={ toggleVisible }
 				icon={ moreVertical }
-				label={ __( 'More options', 'newspack' ) }
+				label={ __( 'More options', 'newspack-plugin' ) }
 				tooltipPosition="bottom center"
 			/>
 			{ isVisible && (
@@ -35,13 +35,13 @@ const OptionsPopover = props => {
 					onKeyDown={ event => ESCAPE === event.keyCode && toggleVisible }
 				>
 					<MenuItem onClick={ toggleVisible } className="screen-reader-text">
-						{ __( 'Close Popover', 'newspack' ) }
+						{ __( 'Close Popover', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem href={ editLink } className="newspack-button" isLink>
-						{ __( 'Edit', 'newspack' ) }
+						{ __( 'Edit', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem onClick={ deleteLink } className="newspack-button">
-						{ __( 'Archive', 'newspack' ) }
+						{ __( 'Archive', 'newspack-plugin' ) }
 					</MenuItem>
 				</Popover>
 			) }

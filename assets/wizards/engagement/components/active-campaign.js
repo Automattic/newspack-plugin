@@ -30,22 +30,25 @@ export default function ActiveCampaign( { value, onChange } ) {
 		<>
 			{ error && (
 				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
+					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
 					isError
 				/>
 			) }
 			<SectionHeader
-				title={ __( 'ActiveCampaign', 'newspack' ) }
-				description={ __( 'Settings for the ActiveCampaign integration.', 'newspack' ) }
+				title={ __( 'ActiveCampaign settings', 'newspack-plugin' ) }
+				description={ __( 'Settings for the ActiveCampaign integration.', 'newspack-plugin' ) }
 			/>
 			<SelectControl
-				label={ __( 'Master List', 'newspack' ) }
-				help={ __( 'Choose a list to which all registered readers will be added.', 'newspack' ) }
+				label={ __( 'Master List', 'newspack-plugin' ) }
+				help={ __(
+					'Choose a list to which all registered readers will be added.',
+					'newspack-plugin'
+				) }
 				disabled={ inFlight }
 				value={ value.masterList }
 				onChange={ handleChange( 'masterList' ) }
 				options={ [
-					{ value: '', label: __( 'None', 'newspack' ) },
+					{ value: '', label: __( 'None', 'newspack-plugin' ) },
 					...lists.map( list => ( { label: list.name, value: list.id } ) ),
 				] }
 			/>

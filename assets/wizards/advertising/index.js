@@ -117,7 +117,9 @@ class AdvertisingWizard extends Component {
 	 */
 	deleteAdUnit = id => {
 		if (
-			utils.confirmAction( __( 'Are you sure you want to archive this ad unit?', 'newspack' ) )
+			utils.confirmAction(
+				__( 'Are you sure you want to archive this ad unit?', 'newspack-plugin' )
+			)
 		) {
 			return this.updateWithAPI( {
 				path: '/newspack/v1/wizard/billboard/ad_unit/' + id,
@@ -144,24 +146,24 @@ class AdvertisingWizard extends Component {
 		const { services, adUnits } = advertisingData;
 		const tabs = [
 			{
-				label: __( 'Providers', 'newspack' ),
+				label: __( 'Providers', 'newspack-plugin' ),
 				path: '/',
 				exact: true,
 			},
 			{
-				label: __( 'Placements', 'newspack' ),
+				label: __( 'Placements', 'newspack-plugin' ),
 				path: '/placements',
 			},
 			{
-				label: __( 'Settings', 'newspack' ),
+				label: __( 'Settings', 'newspack-plugin' ),
 				path: '/settings',
 			},
 			{
-				label: __( 'Suppression', 'newspack' ),
+				label: __( 'Suppression', 'newspack-plugin' ),
 				path: '/suppression',
 			},
 			{
-				label: __( 'Add-Ons', 'newspack' ),
+				label: __( 'Add-Ons', 'newspack-plugin' ),
 				path: '/addons',
 			},
 		];
@@ -176,7 +178,10 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<Providers
 									headerText="Advertising"
-									subHeaderText={ __( 'Manage ad providers and their settings.', 'newspack' ) }
+									subHeaderText={ __(
+										'Manage ad providers and their settings.',
+										'newspack-plugin'
+									) }
 									services={ services }
 									toggleService={ this.toggleService }
 									fetchAdvertisingData={ this.fetchAdvertisingData }
@@ -188,10 +193,10 @@ class AdvertisingWizard extends Component {
 							path="/placements"
 							render={ () => (
 								<Placements
-									headerText={ __( 'Advertising', 'newspack' ) }
+									headerText={ __( 'Advertising', 'newspack-plugin' ) }
 									subHeaderText={ __(
 										'Define global advertising placements to serve ad units on your site',
-										'newspack'
+										'newspack-plugin'
 									) }
 									tabbedNavigation={ tabs }
 								/>
@@ -201,10 +206,10 @@ class AdvertisingWizard extends Component {
 							path="/settings"
 							render={ () => (
 								<Settings
-									headerText={ __( 'Advertising', 'newspack' ) }
+									headerText={ __( 'Advertising', 'newspack-plugin' ) }
 									subHeaderText={ __(
 										'Configure display and advanced settings for your ads',
-										'newspack'
+										'newspack-plugin'
 									) }
 									tabbedNavigation={ tabs }
 								/>
@@ -218,7 +223,7 @@ class AdvertisingWizard extends Component {
 									headerText="Google Ad Manager"
 									subHeaderText={ __(
 										'Monetize your content through Google Ad Manager',
-										'newspack'
+										'newspack-plugin'
 									) }
 									adUnits={ adUnits }
 									service={ 'google_ad_manager' }
@@ -235,8 +240,8 @@ class AdvertisingWizard extends Component {
 							path={ `/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
 							render={ routeProps => (
 								<AdUnit
-									headerText={ __( 'Add New Ad Unit', 'newspack' ) }
-									subHeaderText={ __( 'Allows you to place ads on your site', 'newspack' ) }
+									headerText={ __( 'Add New Ad Unit', 'newspack-plugin' ) }
+									subHeaderText={ __( 'Allows you to place ads on your site', 'newspack-plugin' ) }
 									adUnit={
 										adUnits[ 0 ] || {
 											id: 0,
@@ -268,8 +273,11 @@ class AdvertisingWizard extends Component {
 								const adId = routeProps.match.params.id;
 								return (
 									<AdUnit
-										headerText={ __( 'Edit Ad Unit', 'newspack' ) }
-										subHeaderText={ __( 'Allows you to place ads on your site', 'newspack' ) }
+										headerText={ __( 'Edit Ad Unit', 'newspack-plugin' ) }
+										subHeaderText={ __(
+											'Allows you to place ads on your site',
+											'newspack-plugin'
+										) }
 										adUnit={ adUnits[ adId ] || {} }
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
@@ -288,10 +296,10 @@ class AdvertisingWizard extends Component {
 							path="/suppression"
 							render={ () => (
 								<Suppression
-									headerText={ __( 'Advertising', 'newspack' ) }
+									headerText={ __( 'Advertising', 'newspack-plugin' ) }
 									subHeaderText={ __(
 										'Allows you to manage site-wide ad suppression',
-										'newspack'
+										'newspack-plugin'
 									) }
 									tabbedNavigation={ tabs }
 									config={ advertisingData.suppression }
@@ -303,8 +311,8 @@ class AdvertisingWizard extends Component {
 							path="/addons"
 							render={ () => (
 								<AddOns
-									headerText={ __( 'Advertising', 'newspack' ) }
-									subHeaderText={ __( 'Add-ons for enhanced advertising', 'newspack' ) }
+									headerText={ __( 'Advertising', 'newspack-plugin' ) }
+									subHeaderText={ __( 'Add-ons for enhanced advertising', 'newspack-plugin' ) }
 									tabbedNavigation={ tabs }
 								/>
 							) }

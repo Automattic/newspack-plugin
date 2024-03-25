@@ -67,12 +67,12 @@ class HealthCheckWizard extends Component {
 		} = healthCheckData;
 		const tabs = [
 			{
-				label: __( 'Plugins', 'newspack' ),
+				label: __( 'Plugins', 'newspack-plugin' ),
 				path: '/',
 				exact: true,
 			},
 			{
-				label: __( 'Configuration' ),
+				label: __( 'Configuration', 'newspack-plugin' ),
 				path: '/configuration',
 			},
 		];
@@ -85,8 +85,8 @@ class HealthCheckWizard extends Component {
 							exact
 							render={ () => (
 								<Plugins
-									headerText={ __( 'Health Check', 'newspack' ) }
-									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
+									headerText={ __( 'Health Check', 'newspack-plugin' ) }
+									subHeaderText={ __( 'Verify and correct site health issues', 'newspack-plugin' ) }
 									deactivateAllPlugins={ this.deactivateAllPlugins }
 									tabbedNavigation={ tabs }
 									missingPlugins={ Object.keys( missingPlugins ) }
@@ -103,8 +103,8 @@ class HealthCheckWizard extends Component {
 							render={ () => (
 								<Configuration
 									hasData={ hasData }
-									headerText={ __( 'Health Check', 'newspack' ) }
-									subHeaderText={ __( 'Verify and correct site health issues', 'newspack' ) }
+									headerText={ __( 'Health Check', 'newspack-plugin' ) }
+									subHeaderText={ __( 'Verify and correct site health issues', 'newspack-plugin' ) }
 									tabbedNavigation={ tabs }
 									configurationStatus={ configurationStatus }
 									missingPlugins={ Object.keys( missingPlugins ) }

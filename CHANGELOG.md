@@ -1,3 +1,175 @@
+# [3.5.0](https://github.com/Automattic/newspack-plugin/compare/v3.4.0...v3.5.0) (2024-03-25)
+
+
+### Features
+
+* **ras:** updates to metadata fields synced to ESP ([#2993](https://github.com/Automattic/newspack-plugin/issues/2993)) ([f28f436](https://github.com/Automattic/newspack-plugin/commit/f28f436ad64026b2d012ac9f0990e7381c90ded4))
+
+# [3.4.0](https://github.com/Automattic/newspack-plugin/compare/v3.3.5...v3.4.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* allow media lib access if explicitly set ([63ba98c](https://github.com/Automattic/newspack-plugin/commit/63ba98c10456954d07b2fb64455a79d00e40ff33))
+* correct text domains for handoff, healthcheck wizards ([#2961](https://github.com/Automattic/newspack-plugin/issues/2961)) ([a8f5de3](https://github.com/Automattic/newspack-plugin/commit/a8f5de30d22a8a9062409579727340ced31d706d))
+* correct text domains for popup wizard ([#2962](https://github.com/Automattic/newspack-plugin/issues/2962)) ([dba7f6c](https://github.com/Automattic/newspack-plugin/commit/dba7f6c9a4fd22ccbfa63d589d29b1d9a5092730))
+* correct text domains in wizards/engagement ([#2957](https://github.com/Automattic/newspack-plugin/issues/2957)) ([4db61b0](https://github.com/Automattic/newspack-plugin/commit/4db61b03e407cb1298df7391355ce91f320a42b6))
+* data-events tweaks ([#2935](https://github.com/Automattic/newspack-plugin/issues/2935)) ([828f5f2](https://github.com/Automattic/newspack-plugin/commit/828f5f24c11affcea1cd7433062bd70dbe2eff7b))
+* fix fallback logic in get_order_data() util method ([0ac5b35](https://github.com/Automattic/newspack-plugin/commit/0ac5b35f127540e1a16fe972405256fcb677dd44))
+* **GA:** update spelling of referrer param ([#2917](https://github.com/Automattic/newspack-plugin/issues/2917)) ([fc2bd26](https://github.com/Automattic/newspack-plugin/commit/fc2bd26280abc62992e18315ce7b95864986783a))
+* handle no themes are available ([#2967](https://github.com/Automattic/newspack-plugin/issues/2967)) ([6ae6c7c](https://github.com/Automattic/newspack-plugin/commit/6ae6c7cea2059835cd7de87369303f3b7ddfbc48))
+* **image-credits:** handle errors when fetching metadata ([#2968](https://github.com/Automattic/newspack-plugin/issues/2968)) ([6e9459f](https://github.com/Automattic/newspack-plugin/commit/6e9459f7bf4bf08a0b4c259677162fcdba6276eb))
+* **media-partners:** handle skip-in-feeds when exporting to apple news ([7226e42](https://github.com/Automattic/newspack-plugin/commit/7226e4223ea1c98bca57f22319a86c9e285d487a))
+* **memberships-gate:** handle no comments ([#2999](https://github.com/Automattic/newspack-plugin/issues/2999)) ([1791ca4](https://github.com/Automattic/newspack-plugin/commit/1791ca4afcec087b095eb1d4903cf24aa253f995))
+* **newsletters:** handle status metadata ([1c8e069](https://github.com/Automattic/newspack-plugin/commit/1c8e069051b191899bd232a97ef5669c50f221c7))
+* **ras:** check for auth status before updating my account label ([#2970](https://github.com/Automattic/newspack-plugin/issues/2970)) ([3a0fb8b](https://github.com/Automattic/newspack-plugin/commit/3a0fb8b9a748fa2b67cbc43f9cf334788d8c4d57))
+* revert credits display when editing image block ([#2994](https://github.com/Automattic/newspack-plugin/issues/2994)) ([54ca247](https://github.com/Automattic/newspack-plugin/commit/54ca24705300353d13d504a3bd3d688d46e29d73)), closes [#2936](https://github.com/Automattic/newspack-plugin/issues/2936)
+* update text domain in wizards/connections directory ([#2956](https://github.com/Automattic/newspack-plugin/issues/2956)) ([2acb12d](https://github.com/Automattic/newspack-plugin/commit/2acb12dcd0a60d38390c950872ee4bdd073e7e37))
+* update text domains for the advertising wizard ([#2952](https://github.com/Automattic/newspack-plugin/issues/2952)) ([cb45da2](https://github.com/Automattic/newspack-plugin/commit/cb45da20d409ec92b5deb521d27261e27f6dc330))
+* update text domains for the analytics, components ([#2953](https://github.com/Automattic/newspack-plugin/issues/2953)) ([04ff6a9](https://github.com/Automattic/newspack-plugin/commit/04ff6a9a49908c0276d8fad828e60e86ed0fb769))
+
+
+### Features
+
+* add a filter to esp normalized contact ([#2940](https://github.com/Automattic/newspack-plugin/issues/2940)) ([6ce05be](https://github.com/Automattic/newspack-plugin/commit/6ce05beb8ab40000a0560d1e1ec59abfdd035d09))
+* **core-image-block:** display media credit in editor; handle distributed posts ([#2936](https://github.com/Automattic/newspack-plugin/issues/2936)) ([6c8d9ff](https://github.com/Automattic/newspack-plugin/commit/6c8d9ff0e1059f41c90819c6ef5537d0930cc55e))
+* jetpack default modules ([#2959](https://github.com/Automattic/newspack-plugin/issues/2959)) ([90e918e](https://github.com/Automattic/newspack-plugin/commit/90e918e7db5a4b55b5778989831a8ea4590d8b41))
+* **webhooks:** add `newspack_webhooks_process_request_errors` action ([#2955](https://github.com/Automattic/newspack-plugin/issues/2955)) ([20c6b29](https://github.com/Automattic/newspack-plugin/commit/20c6b299f5bf518bcf6e5e120ab5e38d14501bd9))
+
+## [3.3.5](https://github.com/Automattic/newspack-plugin/compare/v3.3.4...v3.3.5) (2024-03-25)
+
+
+### Bug Fixes
+
+* update WC's required fields if using other RR platforms ([#2997](https://github.com/Automattic/newspack-plugin/issues/2997)) ([a0d6632](https://github.com/Automattic/newspack-plugin/commit/a0d6632ddd76fc55a6f4b6ef0dd1387c31f8e90a))
+
+## [3.3.4](https://github.com/Automattic/newspack-plugin/compare/v3.3.3...v3.3.4) (2024-03-20)
+
+
+### Bug Fixes
+
+* **memberships-gate:** handle no comments ([#2999](https://github.com/Automattic/newspack-plugin/issues/2999)) ([7973c8e](https://github.com/Automattic/newspack-plugin/commit/7973c8ea85faea4fcfb50a69a9ad8d03324a09f9))
+
+## [3.3.3](https://github.com/Automattic/newspack-plugin/compare/v3.3.2...v3.3.3) (2024-03-12)
+
+
+### Bug Fixes
+
+* add a check for setup complete before adding homepage pattern ([#2987](https://github.com/Automattic/newspack-plugin/issues/2987)) ([36238e9](https://github.com/Automattic/newspack-plugin/commit/36238e96a863723720979520400a9afc65dd0cfa))
+
+## [3.3.3](https://github.com/Automattic/newspack-plugin/compare/v3.3.2...v3.3.3) (2024-03-12)
+
+
+### Bug Fixes
+
+* allow media lib access if explicitly set ([63ba98c](https://github.com/Automattic/newspack-plugin/commit/63ba98c10456954d07b2fb64455a79d00e40ff33))
+* correct text domains for handoff, healthcheck wizards ([#2961](https://github.com/Automattic/newspack-plugin/issues/2961)) ([a8f5de3](https://github.com/Automattic/newspack-plugin/commit/a8f5de30d22a8a9062409579727340ced31d706d))
+* correct text domains for popup wizard ([#2962](https://github.com/Automattic/newspack-plugin/issues/2962)) ([dba7f6c](https://github.com/Automattic/newspack-plugin/commit/dba7f6c9a4fd22ccbfa63d589d29b1d9a5092730))
+* correct text domains in wizards/engagement ([#2957](https://github.com/Automattic/newspack-plugin/issues/2957)) ([4db61b0](https://github.com/Automattic/newspack-plugin/commit/4db61b03e407cb1298df7391355ce91f320a42b6))
+* data-events tweaks ([#2935](https://github.com/Automattic/newspack-plugin/issues/2935)) ([828f5f2](https://github.com/Automattic/newspack-plugin/commit/828f5f24c11affcea1cd7433062bd70dbe2eff7b))
+* **GA:** update spelling of referrer param ([#2917](https://github.com/Automattic/newspack-plugin/issues/2917)) ([fc2bd26](https://github.com/Automattic/newspack-plugin/commit/fc2bd26280abc62992e18315ce7b95864986783a))
+* handle no themes are available ([#2967](https://github.com/Automattic/newspack-plugin/issues/2967)) ([6ae6c7c](https://github.com/Automattic/newspack-plugin/commit/6ae6c7cea2059835cd7de87369303f3b7ddfbc48))
+* **image-credits:** handle errors when fetching metadata ([#2968](https://github.com/Automattic/newspack-plugin/issues/2968)) ([6e9459f](https://github.com/Automattic/newspack-plugin/commit/6e9459f7bf4bf08a0b4c259677162fcdba6276eb))
+* **media-partners:** handle skip-in-feeds when exporting to apple news ([7226e42](https://github.com/Automattic/newspack-plugin/commit/7226e4223ea1c98bca57f22319a86c9e285d487a))
+* **newsletters:** handle status metadata ([1c8e069](https://github.com/Automattic/newspack-plugin/commit/1c8e069051b191899bd232a97ef5669c50f221c7))
+* **ras:** check for auth status before updating my account label ([#2970](https://github.com/Automattic/newspack-plugin/issues/2970)) ([3a0fb8b](https://github.com/Automattic/newspack-plugin/commit/3a0fb8b9a748fa2b67cbc43f9cf334788d8c4d57))
+* update text domain in wizards/connections directory ([#2956](https://github.com/Automattic/newspack-plugin/issues/2956)) ([2acb12d](https://github.com/Automattic/newspack-plugin/commit/2acb12dcd0a60d38390c950872ee4bdd073e7e37))
+* update text domains for the advertising wizard ([#2952](https://github.com/Automattic/newspack-plugin/issues/2952)) ([cb45da2](https://github.com/Automattic/newspack-plugin/commit/cb45da20d409ec92b5deb521d27261e27f6dc330))
+* update text domains for the analytics, components ([#2953](https://github.com/Automattic/newspack-plugin/issues/2953)) ([04ff6a9](https://github.com/Automattic/newspack-plugin/commit/04ff6a9a49908c0276d8fad828e60e86ed0fb769))
+* add a check for setup complete before adding homepage pattern ([#2987](https://github.com/Automattic/newspack-plugin/issues/2987)) ([36238e9](https://github.com/Automattic/newspack-plugin/commit/36238e96a863723720979520400a9afc65dd0cfa))
+
+
+### Features
+
+* add a filter to esp normalized contact ([#2940](https://github.com/Automattic/newspack-plugin/issues/2940)) ([6ce05be](https://github.com/Automattic/newspack-plugin/commit/6ce05beb8ab40000a0560d1e1ec59abfdd035d09))
+* **core-image-block:** display media credit in editor; handle distributed posts ([#2936](https://github.com/Automattic/newspack-plugin/issues/2936)) ([6c8d9ff](https://github.com/Automattic/newspack-plugin/commit/6c8d9ff0e1059f41c90819c6ef5537d0930cc55e))
+* jetpack default modules ([#2959](https://github.com/Automattic/newspack-plugin/issues/2959)) ([90e918e](https://github.com/Automattic/newspack-plugin/commit/90e918e7db5a4b55b5778989831a8ea4590d8b41))
+* **webhooks:** add `newspack_webhooks_process_request_errors` action ([#2955](https://github.com/Automattic/newspack-plugin/issues/2955)) ([20c6b29](https://github.com/Automattic/newspack-plugin/commit/20c6b299f5bf518bcf6e5e120ab5e38d14501bd9))
+
+## [3.3.2](https://github.com/Automattic/newspack-plugin/compare/v3.3.1...v3.3.2) (2024-03-07)
+
+
+### Bug Fixes
+
+* **ras:** check for woo when generating password reset link ([#2975](https://github.com/Automattic/newspack-plugin/issues/2975)) ([bf5150c](https://github.com/Automattic/newspack-plugin/commit/bf5150ce32c51324f408e112ebb6f1da71ea46a9))
+
+## [3.3.1](https://github.com/Automattic/newspack-plugin/compare/v3.3.0...v3.3.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* **woo:** disable related products ([#2972](https://github.com/Automattic/newspack-plugin/issues/2972)) ([f60b966](https://github.com/Automattic/newspack-plugin/commit/f60b966d3a1a07354d921c512300e254d3a24ea4))
+
+# [3.3.0](https://github.com/Automattic/newspack-plugin/compare/v3.2.1...v3.3.0) (2024-03-05)
+
+
+### Features
+
+* new option for auto-populating iamge credits ([#2973](https://github.com/Automattic/newspack-plugin/issues/2973)) ([b6c62ea](https://github.com/Automattic/newspack-plugin/commit/b6c62ead416894cdb9e2b7b74d9093968e780211))
+
+## [3.2.1](https://github.com/Automattic/newspack-plugin/compare/v3.2.0...v3.2.1) (2024-03-05)
+
+
+### Bug Fixes
+
+* correct issue with media sizes not saving ([#2958](https://github.com/Automattic/newspack-plugin/issues/2958)) ([64a8833](https://github.com/Automattic/newspack-plugin/commit/64a88334f19647b68787d5039dd413c2b8f531d7))
+
+# [3.2.0](https://github.com/Automattic/newspack-plugin/compare/v3.1.2...v3.2.0) (2024-03-04)
+
+
+### Bug Fixes
+
+* correct translation strings for assets/blocks ([#2926](https://github.com/Automattic/newspack-plugin/issues/2926)) ([bb5504d](https://github.com/Automattic/newspack-plugin/commit/bb5504d6cf708c80679801df84b15f955df05662))
+* correct translation strings for half of assets/components ([#2927](https://github.com/Automattic/newspack-plugin/issues/2927)) ([664aa4a](https://github.com/Automattic/newspack-plugin/commit/664aa4a84132a20334ad6479ef1c804f21554b49))
+* correct translation strings for number of assets files ([#2929](https://github.com/Automattic/newspack-plugin/issues/2929)) ([858d9e4](https://github.com/Automattic/newspack-plugin/commit/858d9e40745bcb6a4226ea365826bce8342e28d8))
+* correct translation strings for second half of assets/components ([#2928](https://github.com/Automattic/newspack-plugin/issues/2928)) ([087b1b0](https://github.com/Automattic/newspack-plugin/commit/087b1b0416e0aa327deaf81a972a58b3ccf9e07b))
+* data-events tweaks ([#2935](https://github.com/Automattic/newspack-plugin/issues/2935)) ([80354d2](https://github.com/Automattic/newspack-plugin/commit/80354d25ce99b285a9221e6b9138463c9d429014))
+* **ga4:** add default client id ([274c238](https://github.com/Automattic/newspack-plugin/commit/274c238f06e4b3bf9fc16a4849f3606fee9343f6))
+* **my-account:** always update all subs when updating payment method ([#2934](https://github.com/Automattic/newspack-plugin/issues/2934)) ([e1618f8](https://github.com/Automattic/newspack-plugin/commit/e1618f8bc8e49ff63b39f0e5a9d3e114297e9944))
+
+
+### Features
+
+* add a filter to esp normalized contact ([#2940](https://github.com/Automattic/newspack-plugin/issues/2940)) ([6101165](https://github.com/Automattic/newspack-plugin/commit/6101165c82ea39fe55f1f77b4e1e5af0a1dd5a4f))
+* add link to block pattern category page ([#2932](https://github.com/Automattic/newspack-plugin/issues/2932)) ([24a2adc](https://github.com/Automattic/newspack-plugin/commit/24a2adc61c4a942f2d28382dd022512855303b7d))
+* **core-image-block:** display media credit in editor; handle distributed posts ([#2936](https://github.com/Automattic/newspack-plugin/issues/2936)) ([b0d2dff](https://github.com/Automattic/newspack-plugin/commit/b0d2dff56318bd463684ed3dec04d7875a98f420))
+* **rss:** enable control over feed update frequency and guid ([#2925](https://github.com/Automattic/newspack-plugin/issues/2925)) ([948972c](https://github.com/Automattic/newspack-plugin/commit/948972c01d4bba313df5b41bb347a330e1b96431))
+
+# [3.2.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v3.2.0-alpha.1...v3.2.0-alpha.2) (2024-02-29)
+
+
+### Bug Fixes
+
+* donate block layout for NRH ([#2954](https://github.com/Automattic/newspack-plugin/issues/2954)) ([8595985](https://github.com/Automattic/newspack-plugin/commit/8595985d6ce1273a5484d2f3ede1ee9596bd53b9))
+
+# [3.2.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.1.1...v3.2.0-alpha.1) (2024-02-23)
+
+
+### Bug Fixes
+
+* correct translation strings for assets/blocks ([#2926](https://github.com/Automattic/newspack-plugin/issues/2926)) ([bb5504d](https://github.com/Automattic/newspack-plugin/commit/bb5504d6cf708c80679801df84b15f955df05662))
+* correct translation strings for half of assets/components ([#2927](https://github.com/Automattic/newspack-plugin/issues/2927)) ([664aa4a](https://github.com/Automattic/newspack-plugin/commit/664aa4a84132a20334ad6479ef1c804f21554b49))
+* correct translation strings for number of assets files ([#2929](https://github.com/Automattic/newspack-plugin/issues/2929)) ([858d9e4](https://github.com/Automattic/newspack-plugin/commit/858d9e40745bcb6a4226ea365826bce8342e28d8))
+* correct translation strings for second half of assets/components ([#2928](https://github.com/Automattic/newspack-plugin/issues/2928)) ([087b1b0](https://github.com/Automattic/newspack-plugin/commit/087b1b0416e0aa327deaf81a972a58b3ccf9e07b))
+* data-events tweaks ([#2935](https://github.com/Automattic/newspack-plugin/issues/2935)) ([80354d2](https://github.com/Automattic/newspack-plugin/commit/80354d25ce99b285a9221e6b9138463c9d429014))
+* **ga4:** add default client id ([274c238](https://github.com/Automattic/newspack-plugin/commit/274c238f06e4b3bf9fc16a4849f3606fee9343f6))
+* **my-account:** always update all subs when updating payment method ([#2934](https://github.com/Automattic/newspack-plugin/issues/2934)) ([e1618f8](https://github.com/Automattic/newspack-plugin/commit/e1618f8bc8e49ff63b39f0e5a9d3e114297e9944))
+
+
+### Features
+
+* add a filter to esp normalized contact ([#2940](https://github.com/Automattic/newspack-plugin/issues/2940)) ([6101165](https://github.com/Automattic/newspack-plugin/commit/6101165c82ea39fe55f1f77b4e1e5af0a1dd5a4f))
+* add link to block pattern category page ([#2932](https://github.com/Automattic/newspack-plugin/issues/2932)) ([24a2adc](https://github.com/Automattic/newspack-plugin/commit/24a2adc61c4a942f2d28382dd022512855303b7d))
+* **core-image-block:** display media credit in editor; handle distributed posts ([#2936](https://github.com/Automattic/newspack-plugin/issues/2936)) ([b0d2dff](https://github.com/Automattic/newspack-plugin/commit/b0d2dff56318bd463684ed3dec04d7875a98f420))
+* **rss:** enable control over feed update frequency and guid ([#2925](https://github.com/Automattic/newspack-plugin/issues/2925)) ([948972c](https://github.com/Automattic/newspack-plugin/commit/948972c01d4bba313df5b41bb347a330e1b96431))
+
+## [3.1.2](https://github.com/Automattic/newspack-plugin/compare/v3.1.1...v3.1.2) (2024-02-29)
+
+
+### Bug Fixes
+
+* donate block layout for NRH ([#2954](https://github.com/Automattic/newspack-plugin/issues/2954)) ([8595985](https://github.com/Automattic/newspack-plugin/commit/8595985d6ce1273a5484d2f3ede1ee9596bd53b9))
+
 ## [3.1.1](https://github.com/Automattic/newspack-plugin/compare/v3.1.0...v3.1.1) (2024-02-21)
 
 

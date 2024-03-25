@@ -35,6 +35,7 @@ const ThemeSettings = props => {
 		newspack_image_credits_placeholder_url: imageCreditsPlaceholderUrl,
 		newspack_image_credits_class_name: imageCreditsClassName = '',
 		newspack_image_credits_prefix_label: imageCreditsPrefix = '',
+		newspack_image_credits_auto_populate: imageCreditsAutoPopulate = false,
 	} = themeSettings;
 
 	useEffect( () => {
@@ -224,6 +225,15 @@ const ThemeSettings = props => {
 							'A placeholder image to be displayed in place of images without credits. If none is chosen, the image will be displayed normally whether or not it has a credit.',
 							'newspack-plugin'
 						) }
+					/>
+					<ToggleControl
+						label={ __( 'Auto-populate image credits', 'newspack-plugin' ) }
+						help={ __(
+							'Automatically populate image credits from EXIF or IPTC metadata when uploading new images.',
+							'newspack-plugin'
+						) }
+						checked={ imageCreditsAutoPopulate }
+						onChange={ value => setThemeMods( { newspack_image_credits_auto_populate: value } ) }
 					/>
 				</Grid>
 			</Grid>

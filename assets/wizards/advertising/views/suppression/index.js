@@ -69,8 +69,8 @@ const Suppression = () => {
 		<>
 			{ error && <Notice isError noticeText={ error.message } /> }
 			<SectionHeader
-				title={ __( 'Post Types', 'newspack' ) }
-				description={ __( 'Suppress ads on specific post types.', 'newspack' ) }
+				title={ __( 'Post Types', 'newspack-plugin' ) }
+				description={ __( 'Suppress ads on specific post types.', 'newspack-plugin' ) }
 			/>
 			<Grid columns={ 3 } gutter={ 16 }>
 				{ postTypes.map( postType => (
@@ -91,8 +91,11 @@ const Suppression = () => {
 				) ) }
 			</Grid>
 			<SectionHeader
-				title={ __( 'Tags', 'newspack' ) }
-				description={ __( 'Suppress ads on specific tags and their archive pages.', 'newspack' ) }
+				title={ __( 'Tags', 'newspack-plugin' ) }
+				description={ __(
+					'Suppress ads on specific tags and their archive pages.',
+					'newspack-plugin'
+				) }
 			/>
 			<CategoryAutocomplete
 				value={ config.tags?.map( v => parseInt( v ) ) || [] }
@@ -102,7 +105,7 @@ const Suppression = () => {
 						tags: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Tags to suppress ads on (archives and posts)', 'newspack ' ) }
+				label={ __( 'Tags to suppress ads on (archives and posts)', 'newspack-plugin' ) }
 				taxonomy="tags"
 			/>
 			<ToggleControl
@@ -111,13 +114,13 @@ const Suppression = () => {
 				onChange={ tag_archive_pages => {
 					setConfig( { ...config, tag_archive_pages } );
 				} }
-				label={ __( 'All tag archive pages', 'newspack' ) }
+				label={ __( 'All tag archive pages', 'newspack-plugin' ) }
 			/>
 			<SectionHeader
-				title={ __( 'Categories', 'newspack' ) }
+				title={ __( 'Categories', 'newspack-plugin' ) }
 				description={ __(
 					'Suppress ads on specific categories and their archive pages.',
-					'newspack'
+					'newspack-plugin'
 				) }
 			/>
 			<CategoryAutocomplete
@@ -128,7 +131,7 @@ const Suppression = () => {
 						categories: selected.map( item => item.id ),
 					} );
 				} }
-				label={ __( 'Categories to suppress ads on (archives and posts)', 'newspack ' ) }
+				label={ __( 'Categories to suppress ads on (archives and posts)', 'newspack-plugin' ) }
 			/>
 			<ToggleControl
 				disabled={ config === false }
@@ -136,13 +139,13 @@ const Suppression = () => {
 				onChange={ category_archive_pages => {
 					setConfig( { ...config, category_archive_pages } );
 				} }
-				label={ __( 'All category archive pages', 'newspack' ) }
+				label={ __( 'All category archive pages', 'newspack-plugin' ) }
 			/>
 			<SectionHeader
-				title={ __( 'Author Archive Pages', 'newspack' ) }
+				title={ __( 'Author Archive Pages', 'newspack-plugin' ) }
 				description={ __(
 					'Suppress ads on automatically generated pages displaying a list of posts by an author.',
-					'newspack'
+					'newspack-plugin'
 				) }
 			/>
 			<ToggleControl
@@ -151,11 +154,11 @@ const Suppression = () => {
 				onChange={ author_archive_pages => {
 					setConfig( { ...config, author_archive_pages } );
 				} }
-				label={ __( 'Suppress ads on author archive pages', 'newspack' ) }
+				label={ __( 'Suppress ads on author archive pages', 'newspack-plugin' ) }
 			/>{ ' ' }
 			<Card buttonsCard noBorder className="justify-end">
 				<Button isPrimary disabled={ inFlight } onClick={ updateConfig }>
-					{ __( 'Save', 'newspack' ) }
+					{ __( 'Save', 'newspack-plugin' ) }
 				</Button>
 			</Card>
 		</>
