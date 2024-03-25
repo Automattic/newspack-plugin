@@ -35,7 +35,7 @@ const SiteAction = ( {
 	const [ isModalVisible, setIsModalVisible ] = useState( false );
 	const parsedStatusLabels = { ...defaultStatusLabels, ...statusLabels };
 
-	const dependencies = structuredClone( dependenciesProp );
+	const dependencies = structuredClone( dependenciesProp ) as Dependencies;
 
 	useEffect( () => {
 		makeRequest();
@@ -43,7 +43,7 @@ const SiteAction = ( {
 
 	const makeRequest = ( pluginInfo = {} ) => {
 		// When/if a dependency is activated update reference.
-		if ( Object.keys( pluginInfo ).length > 0 ) {
+		if ( dependencies && Object.keys( pluginInfo ).length > 0 ) {
 			for ( const [ pluginName ] of Object.entries( pluginInfo ) ) {
 				dependencies[ pluginName ].isActive = true;
 			}
@@ -52,10 +52,7 @@ const SiteAction = ( {
 			// Dependency check
 			if ( dependencies && Object.keys( dependencies ).length > 0 ) {
 				const failedDeps: string[] = [];
-				for ( const [ dependencyName, dependencyInfo ] of Object.entries<{
-					isActive: boolean;
-					label: string;
-				}>( dependencies ) ) {
+				for ( const [ dependencyName, dependencyInfo ] of Object.entries( dependencies ) ) {
 					// Don't process active
 					if ( dependencyInfo.isActive ) {
 						continue;
