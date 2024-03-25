@@ -150,7 +150,7 @@ class WooCommerce_Connection {
 	 */
 	public static function get_contact_order_metadata( $order, $payment_page_url = false, $is_new = false ) {
 		if ( ! is_a( $order, 'WC_Order' ) ) {
-			$order = new \WC_Order( $order );
+			$order = \wc_get_order( $order );
 		}
 
 		if ( ! self::should_sync_order( $order ) ) {
@@ -318,7 +318,7 @@ class WooCommerce_Connection {
 	 */
 	public static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
 		if ( ! is_a( $order, 'WC_Order' ) ) {
-			$order = new \WC_Order( $order );
+			$order = \wc_get_order( $order );
 		}
 
 		if ( ! self::should_sync_order( $order ) ) {

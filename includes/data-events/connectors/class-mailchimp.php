@@ -295,16 +295,6 @@ class Mailchimp {
 			return;
 		}
 
-		/*
-		 * If the subscription is being activated after a successful first or renewal payment,
-		 * the contact will be synced when that order is completed, so no need to sync again.
-		 */
-		if (
-			( 'pending' === $data['status_before'] || 'on-hold' === $data['status_before'] ) &&
-			'active' === $data['status_after'] ) {
-			return;
-		}
-
 		$contact = WooCommerce_Connection::get_contact_from_order( $data['subscription_id'] );
 
 		if ( ! $contact ) {
