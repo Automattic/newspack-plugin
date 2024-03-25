@@ -20,9 +20,16 @@ const SiteActionModal = ( { onRequestClose, plugins, onSuccess }: SiteActionModa
 			<PluginInstaller
 				plugins={ plugins }
 				canUninstall
-				onStatus={ ( { complete }: { complete: boolean } ) => {
+				onStatus={ ( {
+					complete,
+					pluginInfo,
+				}: {
+					complete: boolean;
+					pluginInfo: Record< string, any >;
+				} ) => {
 					if ( complete ) {
-						onSuccess();
+						onSuccess( pluginInfo );
+						onRequestClose( false );
 					}
 				} }
 			/>

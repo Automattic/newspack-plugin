@@ -28,7 +28,7 @@ type SiteAction = {
 
 type SiteActionModal = {
 	onRequestClose: ( a: boolean ) => void;
-	onSuccess: () => void;
+	onSuccess: ( a: Record<string, any> ) => void;
 	plugins: string[];
 };
 

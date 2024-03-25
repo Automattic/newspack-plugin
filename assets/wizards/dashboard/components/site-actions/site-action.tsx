@@ -25,7 +25,7 @@ const defaultStatusLabels = {
 const SiteAction = ( {
 	label = '',
 	canConnect = true,
-	dependencies = null,
+	dependencies: dependenciesProp = null,
 	statusLabels,
 	endpoint,
 	then,
@@ -35,41 +35,60 @@ const SiteAction = ( {
 	const [ isModalVisible, setIsModalVisible ] = useState( false );
 	const parsedStatusLabels = { ...defaultStatusLabels, ...statusLabels };
 
+	const dependencies = structuredClone( dependenciesProp );
+
 	useEffect( () => {
-		// Dependency check
-		if ( dependencies && Object.keys( dependencies ).length > 0 ) {
-			const failedDeps: string[] = [];
-			for ( const [ dependencyName, dependencyInfo ] of Object.entries( dependencies ) ) {
-				// Don't process active
-				if ( dependencyInfo.isActive ) {
-					continue;
-				}
-				failedDeps.push( dependencyName );
+		makeRequest();
+	}, [] );
+
+	const makeRequest = ( pluginInfo = {} ) => {
+		// When/if a dependency is activated update reference.
+		if ( Object.keys( pluginInfo ).length > 0 ) {
+			for ( const [ pluginName ] of Object.entries( pluginInfo ) ) {
+				dependencies[ pluginName ].isActive = true;
 			}
-			setFailedDependencies( failedDeps );
-			if ( failedDeps.length > 0 ) {
-				setRequestStatus( 'error-dependency' );
+		}
+		return new Promise( ( resolve, reject ) => {
+			// Dependency check
+			if ( dependencies && Object.keys( dependencies ).length > 0 ) {
+				const failedDeps: string[] = [];
+				for ( const [ dependencyName, dependencyInfo ] of Object.entries( dependencies ) ) {
+					// Don't process active
+					if ( dependencyInfo.isActive ) {
+						continue;
+					}
+					failedDeps.push( dependencyName );
+				}
+				setFailedDependencies( failedDeps );
+				if ( failedDeps.length > 0 ) {
+					setRequestStatus( 'error-dependency' );
+					resolve( false );
+					return;
+				}
+			}
+			// Preflight check
+			if ( ! canConnect ) {
+				setRequestStatus( 'error' );
+				resolve( false );
 				return;
 			}
-		}
-		// Preflight check
-		if ( ! canConnect ) {
-			setRequestStatus( 'error' );
-			return;
-		}
-		// Pending API request
-		setRequestStatus( 'pending' );
-		apiFetch( {
-			path: endpoint,
-		} )
-			.then( data => {
-				setRequestStatus( then( data ) ? 'success' : 'error' );
+			// Pending API request
+			setRequestStatus( 'pending' );
+			apiFetch( {
+				path: endpoint,
 			} )
-			.catch( () => {
-				then( false );
-				setRequestStatus( 'error' );
-			} );
-	}, [] );
+				.then( data => {
+					const requestStatus = then( data );
+					setRequestStatus( requestStatus ? 'success' : 'error' );
+					resolve( requestStatus );
+				} )
+				.catch( () => {
+					then( false );
+					setRequestStatus( 'error' );
+					reject();
+				} );
+		} );
+	};
 
 	const classes = `newspack-site-action newspack-site-action__${ requestStatus }`;
 
@@ -116,7 +135,7 @@ const SiteAction = ( {
 			{ isModalVisible && (
 				<SiteActionModal
 					plugins={ failedDependencies }
-					onSuccess={ () => console.log( 'Complete' ) }
+					onSuccess={ makeRequest }
 					onRequestClose={ setIsModalVisible }
 				/>
 			) }
