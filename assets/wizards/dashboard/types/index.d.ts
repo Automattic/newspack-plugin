@@ -1,5 +1,3 @@
-import icons from '../components/icons';
-
 export {};
 
 declare global {
@@ -9,7 +7,7 @@ declare global {
 				[ k: string ]: {
 					title: string;
 					desc: string;
-					cards: { href: string; title: string; desc: string; icon: keyof typeof icons }[];
+					cards: { href: string; title: string; desc: string; icon: string; }[];
 				};
 			};
 		};
