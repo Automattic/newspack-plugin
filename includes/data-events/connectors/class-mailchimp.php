@@ -73,7 +73,7 @@ class Mailchimp {
 			'subscribed',
 		];
 		$default_status = Reader_Activation::get_setting( 'mailchimp_reader_default_status' );
-		return in_array( $default_status, $allowed_statuses ) ? $default_status : 'transactional';
+		return in_array( $default_status, $allowed_statuses, true ) ? $default_status : 'transactional';
 	}
 
 	/**
