@@ -14,6 +14,8 @@ import { GlobalNotices, Footer, Grid, NewspackIcon, Notice } from '../../compone
 import DashboardCard from './views/dashboardCard';
 import './style.scss';
 
+import { Icon, icons } from './components/icons';
+
 const Dashboard = ( { items } ) => {
 	return (
 		<Fragment>
@@ -26,6 +28,11 @@ const Dashboard = ( { items } ) => {
 					</div>
 				</div>
 			</div>
+
+			{ /* For demo purposes */ }
+			{ Object.keys( icons ).map( icon => {
+				return <Icon key={ icon } size={ 32 } icon={ icons[ icon ] } />;
+			} ) }
 
 			<div className="newspack-wizard newspack-wizard__content">
 				<Grid columns={ 3 } gutter={ 32 }>
