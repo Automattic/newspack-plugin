@@ -7,6 +7,10 @@
 .newspack-section-header {
 	margin: 64px 0 32px;
 
+	&__container:not(:first-child) {
+		margin-top: 48px;
+	}
+
 	&--no-margin,
 	h1,
 	h2,

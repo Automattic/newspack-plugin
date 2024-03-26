@@ -177,23 +177,25 @@ final class Reader_Activation {
 	 */
 	private static function get_settings_config() {
 		$settings_config = [
-			'enabled'                     => false,
-			'enabled_account_link'        => true,
-			'account_link_menu_locations' => [ 'tertiary-menu' ],
-			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack-plugin' ),
-			'use_custom_lists'            => false,
-			'newsletter_lists'            => [],
-			'terms_text'                  => '',
-			'terms_url'                   => '',
-			'sync_esp'                    => true,
-			'metadata_prefix'             => Newspack_Newsletters::get_metadata_prefix(),
-			'sync_esp_delete'             => true,
-			'active_campaign_master_list' => '',
-			'mailchimp_audience_id'       => '',
-			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
-			'sender_name'                 => Emails::get_from_name(),
-			'sender_email_address'        => Emails::get_from_email(),
-			'contact_email_address'       => Emails::get_reply_to_email(),
+			'enabled'                         => false,
+			'enabled_account_link'            => true,
+			'account_link_menu_locations'     => [ 'tertiary-menu' ],
+			'newsletters_label'               => __( 'Subscribe to our newsletters:', 'newspack-plugin' ),
+			'use_custom_lists'                => false,
+			'newsletter_lists'                => [],
+			'terms_text'                      => '',
+			'terms_url'                       => '',
+			'sync_esp'                        => true,
+			'metadata_prefix'                 => Newspack_Newsletters::get_metadata_prefix(),
+			'metadata_fields'                 => Newspack_Newsletters::get_metadata_fields(),
+			'sync_esp_delete'                 => true,
+			'active_campaign_master_list'     => '',
+			'mailchimp_audience_id'           => '',
+			'mailchimp_reader_default_status' => 'transactional',
+			'emails'                          => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
+			'sender_name'                     => Emails::get_from_name(),
+			'sender_email_address'            => Emails::get_from_email(),
+			'contact_email_address'           => Emails::get_reply_to_email(),
 		];
 
 		/**
@@ -259,6 +261,9 @@ final class Reader_Activation {
 		}
 		if ( 'metadata_prefix' === $key ) {
 			return Newspack_Newsletters::update_metadata_prefix( $value );
+		}
+		if ( 'metadata_fields' === $key ) {
+			return Newspack_Newsletters::update_metadata_fields( $value );
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );

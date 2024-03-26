@@ -35,7 +35,7 @@ export default function Mailchimp( { value, onChange } ) {
 				/>
 			) }
 			<SectionHeader
-				title={ __( 'Mailchimp', 'newspack-plugin' ) }
+				title={ __( 'Mailchimp settings', 'newspack-plugin' ) }
 				description={ __( 'Settings for the Mailchimp integration.', 'newspack-plugin' ) }
 			/>
 			<SelectControl
@@ -49,6 +49,22 @@ export default function Mailchimp( { value, onChange } ) {
 					...lists.map( list => ( { label: list.name, value: list.id } ) ),
 				] }
 			/>
+			{ value.audienceId && (
+				<SelectControl
+					label={ __( 'Default reader status', 'newspack' ) }
+					help={ __(
+						'Choose which MailChimp status readers should have by default if they are not subscribed to any newsletters',
+						'newspack'
+					) }
+					disabled={ inFlight }
+					value={ value.readerDefaultStatus }
+					onChange={ handleChange( 'readerDefaultStatus' ) }
+					options={ [
+						{ value: 'transactional', label: __( 'Transactional/Non-Subscribed', 'newspack' ) },
+						{ value: 'subscribed', label: __( 'Subscribed', 'newspack' ) },
+					] }
+				/>
+			) }
 		</>
 	);
 }

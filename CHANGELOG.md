@@ -1,3 +1,10 @@
+## [3.5.1](https://github.com/Automattic/newspack-plugin/compare/v3.5.0...v3.5.1) (2024-03-26)
+
+
+### Bug Fixes
+
+* cherry-pick new features for Network sites ([#3011](https://github.com/Automattic/newspack-plugin/issues/3011)) ([7316d62](https://github.com/Automattic/newspack-plugin/commit/7316d622d7d19787f7e275bfc439c079e645aa20)), closes [#2989](https://github.com/Automattic/newspack-plugin/issues/2989)
+
 # [3.5.0](https://github.com/Automattic/newspack-plugin/compare/v3.4.0...v3.5.0) (2024-03-25)
 
 

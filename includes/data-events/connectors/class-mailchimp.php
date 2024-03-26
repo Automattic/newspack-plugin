@@ -63,6 +63,20 @@ class Mailchimp {
 	}
 
 	/**
+	 * Get default reader MailChimp status.
+	 *
+	 * @return string MailChimp status slug, 'transactional' or 'subscriber'. (Default: 'transactional').
+	 */
+	private static function get_default_reader_status() {
+		$allowed_statuses = [
+			'transactional',
+			'subscribed',
+		];
+		$default_status = Reader_Activation::get_setting( 'mailchimp_reader_default_status' );
+		return in_array( $default_status, $allowed_statuses, true ) ? $default_status : 'transactional';
+	}
+
+	/**
 	 * Get merge field type.
 	 *
 	 * @param mixed $value Value to check.
@@ -156,6 +170,14 @@ class Mailchimp {
 			);
 			// Skip field if it failed to create.
 			if ( is_wp_error( $created_field ) ) {
+				Logger::log(
+					sprintf(
+					// Translators: %1$s is the merge field key, %2$s is the error message.
+						__( 'Failed to create merge field %1$s. Error response: %2$s', 'newspack-plugin' ),
+						$field_name,
+						$created_field->get_error_message() ?? __( 'The connected ESP could not create this merge field.', 'newspack-plugin' )
+					)
+				);
 				continue;
 			}
 			Logger::log(
@@ -186,7 +208,7 @@ class Mailchimp {
 		$hash    = md5( strtolower( $contact['email'] ) );
 		$payload = [
 			'email_address' => $contact['email'],
-			'status_if_new' => 'transactional',
+			'status_if_new' => self::get_default_reader_status(),
 		];
 
 		// Normalize contact metadata.
