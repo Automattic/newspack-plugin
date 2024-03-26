@@ -12,8 +12,6 @@ use Newspack\Data_Events;
 use Newspack\Mailchimp_API;
 use Newspack\Newspack_Newsletters;
 use Newspack\Reader_Activation;
-use Newspack\WooCommerce_Connection;
-use Newspack\Donations;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -57,7 +55,7 @@ class Mailchimp extends Connector {
 		$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
 		/** Attempt to use list ID from "Mailchimp for WooCommerce" */
 		if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
-			$audience_id = mailchimp_get_list_id();
+			$audience_id = \mailchimp_get_list_id();
 		}
 		return ! empty( $audience_id ) ? $audience_id : false;
 	}
