@@ -15,8 +15,20 @@
 	}
 }
 
-// Checkbox Icon
+// Checkboxes
+.newspack-checkbox-control {
+	margin-top: 0 !important;
+	.components-checkbox-control__label {
+		font-weight: 600;
+	}
 
+	.components-base-control__help {
+		margin-left: 32px;
+		margin-top: 0;
+	}
+}
+
+// Checkbox Icon
 .newspack-checkbox-icon {
 	background: white;
 	border-radius: 50%;
