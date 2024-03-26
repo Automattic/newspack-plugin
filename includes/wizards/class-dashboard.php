@@ -60,25 +60,25 @@ class Dashboard extends Wizard {
 						'icon'  => 'settings',
 						'title' => __( 'Configuration', 'newspack-plugin' ),
 						'desc'  => __( 'Manage your audience development setup.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 					[
 						'icon'  => 'megaphone',
 						'title' => __( 'Campaigns', 'newspack-plugin' ),
 						'desc'  => __( 'Coordinate prompts across your site to drive metrics.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 					[
 						'icon'  => 'gift',
 						'title' => __( 'Donations', 'newspack-plugin' ),
 						'desc'  => __( 'Bring in revenue through voluntary gifts.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 					[
 						'icon'  => 'payment',
 						'title' => __( 'Subscriptions', 'newspack-plugin' ),
 						'desc'  => __( 'Gate your site\'s content behind a paywall.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 				],
 			],
@@ -99,13 +99,13 @@ class Dashboard extends Wizard {
 						'icon'  => 'ad',
 						'title' => __( 'Advertising', 'newspack-plugin' ),
 						'desc'  => __( 'Get advertising revenue from your newsletters.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 					[
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure tracking and other newsletter settings.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 				],
 			],
@@ -182,7 +182,7 @@ class Dashboard extends Wizard {
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 				] : [
 					[
@@ -213,7 +213,7 @@ class Dashboard extends Wizard {
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
-						'href'  => admin_url( '' ), // @TODO
+						'href'  => '#', // @TODO
 					],
 				],
 			],
