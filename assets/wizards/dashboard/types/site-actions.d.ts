@@ -17,7 +17,7 @@ type ActionLocal = {
 	dependencies: Dependencies;
 };
 
-type SiteAction = {
+type SiteStatus = {
 	label: string;
 	canConnect?: boolean;
 	statusLabels?: { [ k in Statuses ]?: string };

@@ -8,7 +8,7 @@
 // WordPress
 import { __ } from '@wordpress/i18n';
 // Internal
-import SiteAction from './site-action';
+import SiteStatus from './site-status';
 import { Grid } from '../../../../components/src';
 
 const {
@@ -47,17 +47,17 @@ const actions: Actions = {
 	},
 } as const;
 
-const SiteActions = () => {
+const SiteStatuses = () => {
 	return (
 		<div className="newspack-dashboard__section">
-			<h3>{ __( 'Site actions', 'newspack-plugin' ) }</h3>
+			<h3>{ __( 'Site status', 'newspack-plugin' ) }</h3>
 			<Grid columns={ 3 } gutter={ 24 }>
 				{ Object.keys( actions ).map( id => {
-					return <SiteAction key={ id } { ...actions[ id ] } />;
+					return <SiteStatus key={ id } { ...actions[ id ] } />;
 				} ) }
 			</Grid>
 		</div>
 	);
 };
 
-export default SiteActions;
+export default SiteStatuses;

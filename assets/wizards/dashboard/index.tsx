@@ -14,7 +14,7 @@ import { render } from '@wordpress/element';
 // Internal
 import sections from './components/sections';
 import QuickActions from './components/quick-actions';
-import SiteActions from './components/site-actions';
+import SiteStatuses from './components/site-statuses';
 import BrandHeader from './components/brand-header';
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
@@ -34,7 +34,7 @@ const Newspack = () => {
 				renderAboveSections={ () => (
 					<>
 						<BrandHeader />
-						<SiteActions />
+						<SiteStatuses />
 						<hr />
 						<QuickActions />
 					</>

@@ -20,7 +20,7 @@ declare global {
 				};
 			};
 			settings: {
-				logo: [ string, number, number, boolean ] | [];
+				siteName: string;
 				headerBgColor: string;
 			};
 		};

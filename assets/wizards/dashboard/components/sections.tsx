@@ -41,8 +41,10 @@ export default [
 												<div className="newspack-dashboard__card-icon">
 													<Icon size={ 32 } icon={ getIcon( sectionCard.icon ) } />
 												</div>
-												<h4>{ sectionCard.title }</h4>
-												<p>{ sectionCard.desc }</p>
+												<div className="newspack-dashboard__card-text">
+													<h4>{ sectionCard.title }</h4>
+													<p>{ sectionCard.desc }</p>
+												</div>
 											</Card>
 										</a>
 									);

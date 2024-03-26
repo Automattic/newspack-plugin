@@ -11,7 +11,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect } from '@wordpress/element';
 import { Tooltip } from '@wordpress/components';
 // Internal
-import SiteActionModal from './site-action-modal';
+import SiteActionModal from './site-status-modal';
 
 const defaultStatusLabels = {
 	idle: '',
@@ -22,14 +22,14 @@ const defaultStatusLabels = {
 	error: __( 'Disconnected', 'newspack-plugin' ),
 };
 
-const SiteAction = ( {
+const SiteStatus = ( {
 	label = '',
 	canConnect = true,
 	dependencies: dependenciesProp = null,
 	statusLabels,
 	endpoint,
 	then,
-}: SiteAction ) => {
+}: SiteStatus ) => {
 	const [ requestStatus, setRequestStatus ] = useState< Statuses >( 'idle' );
 	const [ failedDependencies, setFailedDependencies ] = useState< string[] >( [] );
 	const [ isModalVisible, setIsModalVisible ] = useState( false );
@@ -90,7 +90,7 @@ const SiteAction = ( {
 		} );
 	};
 
-	const classes = `newspack-site-action newspack-site-action__${ requestStatus }`;
+	const classes = `newspack-site-status newspack-site-status__${ requestStatus }`;
 
 	const statusLabel =
 		dependencies && 'error-dependency' === requestStatus ? (
@@ -103,7 +103,7 @@ const SiteAction = ( {
 			>
 				<button
 					onClick={ () => setIsModalVisible( true ) }
-					className={ `${ classes } newspack-site-action__install` }
+					className={ `${ classes } newspack-site-status__install` }
 				>
 					{ label }:{ ' ' }
 					<span>
@@ -144,4 +144,4 @@ const SiteAction = ( {
 	);
 };
 
-export default SiteAction;
+export default SiteStatus;

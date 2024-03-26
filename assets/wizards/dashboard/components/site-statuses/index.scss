@@ -1,4 +1,4 @@
-.newspack-site-action {
+.newspack-site-status {
     --np-sa-bg-color: #EEE;
     --np-sa-txt-color: #666;
     --np-sa-space: 16px;
@@ -10,6 +10,7 @@
     overflow: hidden;
     padding: var(--np-sa-space) 24px;
     position: relative;
+    line-height: 16px;
     text-overflow: ellipsis;
     transition: background-color 0.4s;
     white-space: nowrap;
@@ -32,7 +33,7 @@
     }
 
     // When loading
-    &.newspack-site-action__pending {
+    &.newspack-site-status__pending {
         overflow: hidden;
 
         &::after {
@@ -45,7 +46,7 @@
         }
     }
 
-    &.newspack-site-action__success {
+    &.newspack-site-status__success {
         --np-sa-bg-color: #E6F2E8;
         --np-sa-txt-color: #007017;
 
@@ -60,7 +61,7 @@
         }
     }
 
-    &.newspack-site-action__error {
+    &.newspack-site-status__error {
         --np-sa-bg-color: #F7EBEC;
         --np-sa-txt-color: #B32D2E;
 
@@ -75,9 +76,9 @@
         }
     }
 
-    &.newspack-site-action__error-dependency {
-        --np-sa-bg-color: #f7f0eb;
-        --np-sa-txt-color: #b3532d;
+    &.newspack-site-status__error-dependency {
+        --np-sa-bg-color: #F5F1E1;
+        --np-sa-txt-color: #755100;
 
         background-color: var(--np-sa-bg-color);
         border: 0;

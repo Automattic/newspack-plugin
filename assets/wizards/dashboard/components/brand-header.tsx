@@ -13,7 +13,7 @@ const BrandHeader = () => {
 			style={ { backgroundColor: settings.headerBgColor } }
 		>
 			<div className="brand-header__inner">
-				<img src={ settings.logo[ 0 ] } alt="Brand Header" />
+				<h1>{ settings.siteName }</h1>
 			</div>
 		</header>
 	);
