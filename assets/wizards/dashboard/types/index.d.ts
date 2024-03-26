@@ -1,8 +1,10 @@
 import icons from '../components/icons';
 
+export {};
+
 declare global {
 	interface Window {
-		newspack_settings: {
+		newspack_dashboard: {
 			sections: {
 				[ k: string ]: {
 					title: string;
@@ -24,5 +26,3 @@ declare module 'react' {
 		[ key: `--${ string }` ]: string | number;
 	}
 }
-
-export {};
