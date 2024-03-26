@@ -34,11 +34,11 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 
 const Wizard = ( {
 	sections = [],
-	apiSlug,
 	headerText,
-	subHeaderText,
-	hasSimpleFooter,
-	className,
+	apiSlug = undefined,
+	subHeaderText = undefined,
+	hasSimpleFooter = undefined,
+	className = undefined,
 	renderAboveSections,
 	requiredPlugins = [],
 } ) => {
