@@ -33,7 +33,7 @@ const CampaignManagementPopover = ( {
 		onKeyDown={ event => ESCAPE === event.keyCode && dismiss() }
 	>
 		<MenuItem onClick={ () => dismiss() } className="screen-reader-text">
-			{ __( 'Close Popover', 'newspack' ) }
+			{ __( 'Close Popover', 'newspack-plugin' ) }
 		</MenuItem>
 
 		{ hasPrompts && (
@@ -44,7 +44,7 @@ const CampaignManagementPopover = ( {
 				} }
 				className="newspack-button"
 			>
-				{ __( 'Activate all prompts', 'newspack' ) }
+				{ __( 'Activate all prompts', 'newspack-plugin' ) }
 			</MenuItem>
 		) }
 		{ hasPublished && (
@@ -55,7 +55,7 @@ const CampaignManagementPopover = ( {
 				} }
 				className="newspack-button"
 			>
-				{ __( 'Deactivate all prompts', 'newspack' ) }
+				{ __( 'Deactivate all prompts', 'newspack-plugin' ) }
 			</MenuItem>
 		) }
 		<MenuItem
@@ -65,7 +65,7 @@ const CampaignManagementPopover = ( {
 			} }
 			className="newspack-button"
 		>
-			{ __( 'Duplicate', 'newspack' ) }
+			{ __( 'Duplicate', 'newspack-plugin' ) }
 		</MenuItem>
 		<MenuItem
 			onClick={ () => {
@@ -74,7 +74,7 @@ const CampaignManagementPopover = ( {
 			} }
 			className="newspack-button"
 		>
-			{ __( 'Rename', 'newspack' ) }
+			{ __( 'Rename', 'newspack-plugin' ) }
 		</MenuItem>
 		{ ! isArchive && (
 			<MenuItem
@@ -84,7 +84,7 @@ const CampaignManagementPopover = ( {
 				} }
 				className="newspack-button"
 			>
-				{ __( 'Archive', 'newspack' ) }
+				{ __( 'Archive', 'newspack-plugin' ) }
 			</MenuItem>
 		) }
 		{ isArchive && (
@@ -95,7 +95,7 @@ const CampaignManagementPopover = ( {
 				} }
 				className="newspack-button"
 			>
-				{ __( 'Unarchive', 'newspack' ) }
+				{ __( 'Unarchive', 'newspack-plugin' ) }
 			</MenuItem>
 		) }
 		<MenuItem
@@ -105,7 +105,7 @@ const CampaignManagementPopover = ( {
 			} }
 			className="newspack-button"
 		>
-			{ __( 'Delete', 'newspack' ) }
+			{ __( 'Delete', 'newspack-plugin' ) }
 		</MenuItem>
 	</Popover>
 );

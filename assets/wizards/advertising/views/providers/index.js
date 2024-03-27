@@ -52,14 +52,14 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 		notifications = notifications.concat( [ google_ad_manager.status.error, '\u00A0' ] );
 	} else if ( google_ad_manager?.created_targeting_keys?.length > 0 ) {
 		notifications = notifications.concat( [
-			__( 'Created custom targeting keys:' ) + '\u00A0',
+			__( 'Created custom targeting keys:', 'newspack-plugin' ) + '\u00A0',
 			google_ad_manager.created_targeting_keys.join( ', ' ) + '. \u00A0',
 			// eslint-disable-next-line react/jsx-indent
 			<ExternalLink
 				href={ `https://admanager.google.com/${ google_ad_manager.network_code }#inventory/custom_targeting/list` }
 				key="google-ad-manager-custom-targeting-link"
 			>
-				{ __( 'Visit your GAM dashboard' ) }
+				{ __( 'Visit your GAM dashboard', 'newspack-plugin' ) }
 			</ExternalLink>,
 		] );
 	}
@@ -71,7 +71,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 	) {
 		notifications.push(
 			<Button key="gam-connect-account" isLink onClick={ () => setIsOnboarding( true ) }>
-				{ __( 'Click here to connect your account.', 'newspack' ) }
+				{ __( 'Click here to connect your account.', 'newspack-plugin' ) }
 			</Button>
 		);
 	}
@@ -79,11 +79,14 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 	return (
 		<>
 			<ActionCard
-				title={ __( 'Google Ad Manager' ) }
+				title={ __( 'Google Ad Manager', 'newspack-plugin' ) }
 				description={ __(
-					'Manage Google Ad Manager ad units and placements directly from the Newspack dashboard.'
+					'Manage Google Ad Manager ad units and placements directly from the Newspack dashboard.',
+					'newspack-plugin'
 				) }
-				actionText={ google_ad_manager && google_ad_manager.enabled && __( 'Configure' ) }
+				actionText={
+					google_ad_manager && google_ad_manager.enabled && __( 'Configure', 'newspack-plugin' )
+				}
 				toggle
 				toggleChecked={ google_ad_manager && google_ad_manager.enabled }
 				toggleOnChange={ value => {
@@ -105,14 +108,14 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 			<PluginToggle
 				plugins={ {
 					broadstreet: {
-						actionText: __( 'Configure' ),
+						actionText: __( 'Configure', 'newspack-plugin' ),
 						href: '/wp-admin/admin.php?page=Broadstreet',
 					},
 				} }
 			/>
 			{ isOnboarding && (
 				<Modal
-					title={ __( 'Google Ad Manager Setup', 'newspack-ads' ) }
+					title={ __( 'Google Ad Manager Setup', 'newspack-plugin' ) }
 					onRequestClose={ () => setIsOnboarding( false ) }
 				>
 					<GAMOnboarding
@@ -124,14 +127,14 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 					/>
 					<Card buttonsCard noBorder className="justify-end">
 						<Button isSecondary disabled={ inFlight } onClick={ () => setIsOnboarding( false ) }>
-							{ __( 'Cancel', 'newspack' ) }
+							{ __( 'Cancel', 'newspack-plugin' ) }
 						</Button>
 						<Button
 							isPrimary
 							disabled={ inFlight || ! networkCode }
 							onClick={ () => updateGAMNetworkCode() }
 						>
-							{ __( 'Save', 'newspack' ) }
+							{ __( 'Save', 'newspack-plugin' ) }
 						</Button>
 					</Card>
 				</Modal>

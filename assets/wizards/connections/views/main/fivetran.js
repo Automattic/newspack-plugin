@@ -20,7 +20,7 @@ import get from 'lodash/get';
 const CONNECTORS = [
 	{
 		service: 'stripe',
-		label: __( 'Stripe', 'newspack' ),
+		label: __( 'Stripe', 'newspack-plugin' ),
 	},
 ];
 
@@ -37,11 +37,11 @@ const getConnectionStatus = ( item, connections ) => {
 		} else if ( isPending ) {
 			label = `${ setupState }, ${ syncState }. ${ __(
 				'Sync is in progress – please check back in a while.',
-				'newspack'
+				'newspack-plugin'
 			) }`;
 		}
 	} else if ( hasConnections ) {
-		label = __( 'Not connected', 'newspack' );
+		label = __( 'Not connected', 'newspack-plugin' );
 	}
 	return {
 		label,
@@ -55,7 +55,8 @@ const FivetranConnection = ( { setError } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ hasAcceptedTOS, setHasAcceptedTOS ] = useState( null );
 
-	const handleError = err => setError( err.message || __( 'Something went wrong.', 'newspack' ) );
+	const handleError = err =>
+		setError( err.message || __( 'Something went wrong.', 'newspack-plugin' ) );
 
 	const hasConnections = connections !== undefined;
 	const isDisabled = inFlight || ! hasConnections || ! hasAcceptedTOS;
@@ -87,9 +88,9 @@ const FivetranConnection = ( { setError } ) => {
 	return (
 		<>
 			<div>
-				{ __( 'In order to use the this features, you must read and accept', 'newspack' ) }{ ' ' }
+				{ __( 'In order to use the this features, you must read and accept', 'newspack-plugin' ) }{ ' ' }
 				<a href="https://newspack.com/terms-of-service/">
-					{ __( 'Newspack Terms of Service', 'newspack' ) }
+					{ __( 'Newspack Terms of Service', 'newspack-plugin' ) }
 				</a>
 				:
 			</div>
@@ -107,7 +108,7 @@ const FivetranConnection = ( { setError } ) => {
 					} );
 					setHasAcceptedTOS( has_accepted );
 				} }
-				label={ __( "I've read and accept Newspack Terms of Service", 'newspack' ) }
+				label={ __( "I've read and accept Newspack Terms of Service", 'newspack-plugin' ) }
 			/>
 			{ CONNECTORS.map( item => {
 				const status = getConnectionStatus( item, connections );
@@ -115,13 +116,13 @@ const FivetranConnection = ( { setError } ) => {
 					<ActionCard
 						key={ item.service }
 						title={ item.label }
-						description={ `${ __( 'Status:', 'newspack' ) } ${ status.label }` }
+						description={ `${ __( 'Status:', 'newspack-plugin' ) } ${ status.label }` }
 						isPending={ status.isPending }
 						actionText={
 							<Button disabled={ isDisabled } onClick={ () => createConnection( item ) } isLink>
 								{ status.isConnected
-									? __( 'Re-connect', 'newspack' )
-									: __( 'Connect', 'newspack' ) }
+									? __( 'Re-connect', 'newspack-plugin' )
+									: __( 'Connect', 'newspack-plugin' ) }
 							</Button>
 						}
 						checkbox={ status.isConnected ? 'checked' : 'unchecked' }

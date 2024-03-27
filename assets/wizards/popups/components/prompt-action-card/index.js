@@ -54,7 +54,7 @@ const PromptActionCard = props => {
 
 			setDuplicateTitle( defaultTitle );
 		} catch ( e ) {
-			setDuplicateTitle( title + __( ' copy', 'newspack-popups' ) );
+			setDuplicateTitle( title + __( ' copy', 'newspack-plugin' ) );
 		}
 	};
 
@@ -64,7 +64,7 @@ const PromptActionCard = props => {
 				isSmall
 				badge={ placementForPopup( prompt ) }
 				className={ className }
-				title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack' ) }
+				title={ title.length ? decodeEntities( title ) : __( '(no title)', 'newspack-plugin' ) }
 				titleLink={ decodeEntities( editLink ) }
 				key={ id }
 				description={ description }
@@ -77,14 +77,14 @@ const PromptActionCard = props => {
 								className={ isSettingsModalVisible && 'popover-active' }
 								onClick={ () => setIsSettingsModalVisible( ! isSettingsModalVisible ) }
 								icon={ settings }
-								label={ __( 'Prompt settings', 'newspack' ) }
+								label={ __( 'Prompt settings', 'newspack-plugin' ) }
 								tooltipPosition="bottom center"
 							/>
 							<Button
 								className={ popoverVisibility && 'popover-active' }
 								onClick={ () => setPopoverVisibility( ! popoverVisibility ) }
 								icon={ moreVertical }
-								label={ __( 'More options', 'newspack' ) }
+								label={ __( 'More options', 'newspack-plugin' ) }
 								tooltipPosition="bottom center"
 							/>
 							{ popoverVisibility && (
@@ -113,7 +113,7 @@ const PromptActionCard = props => {
 					className="newspack-popups__duplicate-modal"
 					title={
 						// Translators: %s: The title of the item.
-						sprintf( __( 'Duplicate “%s”', 'newspack' ), title )
+						sprintf( __( 'Duplicate “%s”', 'newspack-plugin' ), title )
 					}
 					onRequestClose={ () => {
 						setIsDuplicatePromptModalVisible( false );
@@ -127,7 +127,7 @@ const PromptActionCard = props => {
 								isSuccess
 								noticeText={ sprintf(
 									// Translators: %s: The title of the item.
-									__( 'Duplicate of “%s” created as a draft.', 'newspack' ),
+									__( 'Duplicate of “%s” created as a draft.', 'newspack-plugin' ),
 									title
 								) }
 							/>
@@ -136,7 +136,7 @@ const PromptActionCard = props => {
 									isWarning
 									noticeText={ __(
 										'This prompt is currently not assigned to any campaign.',
-										'newspack'
+										'newspack-plugin'
 									) }
 								/>
 							) }
@@ -149,10 +149,10 @@ const PromptActionCard = props => {
 										resetDuplicated();
 									} }
 								>
-									{ __( 'Close', 'newspack' ) }
+									{ __( 'Close', 'newspack-plugin' ) }
 								</Button>
 								<Button isPrimary href={ `/wp-admin/post.php?post=${ duplicated }&action=edit` }>
-									{ __( 'Edit', 'newspack' ) }
+									{ __( 'Edit', 'newspack-plugin' ) }
 								</Button>
 							</Card>
 						</>
@@ -163,13 +163,13 @@ const PromptActionCard = props => {
 									isWarning
 									noticeText={ __(
 										'This prompt will not be assigned to any campaign.',
-										'newspack'
+										'newspack-plugin'
 									) }
 								/>
 							) }
 							<TextControl
 								disabled={ inFlight || null === duplicateTitle }
-								label={ __( 'Title', 'newspack' ) }
+								label={ __( 'Title', 'newspack-plugin' ) }
 								value={ duplicateTitle }
 								onChange={ value => setDuplicateTitle( value ) }
 							/>
@@ -183,7 +183,7 @@ const PromptActionCard = props => {
 										resetDuplicated();
 									} }
 								>
-									{ __( 'Cancel', 'newspack' ) }
+									{ __( 'Cancel', 'newspack-plugin' ) }
 								</Button>
 								<Button
 									disabled={ inFlight || null === duplicateTitle }
@@ -193,7 +193,7 @@ const PromptActionCard = props => {
 										duplicatePopup( id, titleForDuplicate );
 									} }
 								>
-									{ __( 'Duplicate', 'newspack' ) }
+									{ __( 'Duplicate', 'newspack-plugin' ) }
 								</Button>
 							</Card>
 						</>

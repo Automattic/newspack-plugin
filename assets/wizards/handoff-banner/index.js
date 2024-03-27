@@ -17,9 +17,9 @@ import { Button } from '../../components/src';
 import './style.scss';
 
 const HandoffBanner = ( {
-	bodyText = __( 'Return to Newspack after completing configuration', 'newspack' ),
-	primaryButtonText = __( 'Back to Newspack', 'newspack' ),
-	dismissButtonText = __( 'Dismiss', 'newspack' ),
+	bodyText = __( 'Return to Newspack after completing configuration', 'newspack-plugin' ),
+	primaryButtonText = __( 'Back to Newspack', 'newspack-plugin' ),
+	dismissButtonText = __( 'Dismiss', 'newspack-plugin' ),
 	primaryButtonURL = '/wp-admin/admin.php?page=newspack',
 } ) => {
 	const [ visibility, setVisibility ] = useState( true );

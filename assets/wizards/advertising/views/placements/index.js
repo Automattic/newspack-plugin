@@ -132,7 +132,10 @@ const Placements = () => {
 	return (
 		<Fragment>
 			{ ! inFlight && ! providers.length && (
-				<Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack' ) } />
+				<Notice
+					isWarning
+					noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) }
+				/>
 			) }
 			<div
 				className={ classnames( {
@@ -156,7 +159,7 @@ const Placements = () => {
 										disabled={ inFlight || ! providers.length }
 										onClick={ () => setEditingPlacement( key ) }
 										icon={ settings }
-										label={ __( 'Placement settings', 'newspack' ) }
+										label={ __( 'Placement settings', 'newspack-plugin' ) }
 										tooltipPosition="bottom center"
 									/>
 								) : null
@@ -169,7 +172,7 @@ const Placements = () => {
 				<Modal
 					title={ sprintf(
 						// translators: %s is the name of the placement
-						__( '%s placement settings', 'newspack' ),
+						__( '%s placement settings', 'newspack-plugin' ),
 						placement.name
 					) }
 					onRequestClose={ () => setEditingPlacement( null ) }
@@ -194,7 +197,7 @@ const Placements = () => {
 							return (
 								<Card noBorder key={ hookKey }>
 									<PlacementControl
-										label={ hook.name + ' ' + __( 'Ad Unit', 'newspack' ) }
+										label={ hook.name + ' ' + __( 'Ad Unit', 'newspack-plugin' ) }
 										providers={ providers }
 										bidders={ bidders }
 										value={ placement.data?.hooks ? placement.data.hooks[ hookKey ] : {} }
@@ -206,7 +209,7 @@ const Placements = () => {
 						} ) }
 					{ placement.supports?.indexOf( 'stick_to_top' ) > -1 && (
 						<ToggleControl
-							label={ __( 'Stick to Top', 'newspack' ) }
+							label={ __( 'Stick to Top', 'newspack-plugin' ) }
 							checked={ !! placement.data?.stick_to_top }
 							onChange={ value => {
 								setPlacements(
@@ -223,7 +226,7 @@ const Placements = () => {
 								setEditingPlacement( null );
 							} }
 						>
-							{ __( 'Cancel', 'newspack' ) }
+							{ __( 'Cancel', 'newspack-plugin' ) }
 						</Button>
 						<Button
 							isPrimary
@@ -233,7 +236,7 @@ const Placements = () => {
 								setEditingPlacement( null );
 							} }
 						>
-							{ __( 'Save', 'newspack' ) }
+							{ __( 'Save', 'newspack-plugin' ) }
 						</Button>
 					</Card>
 				</Modal>

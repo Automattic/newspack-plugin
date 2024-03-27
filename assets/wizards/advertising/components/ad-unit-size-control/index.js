@@ -70,14 +70,14 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 	return (
 		<>
 			<SelectControl
-				label={ __( 'Size', 'newspack' ) }
+				label={ __( 'Size', 'newspack-plugin' ) }
 				value={ sizeIndex }
 				options={ [
 					...options.map( ( size, index ) => ( {
 						label: Array.isArray( size ) ? getSizeLabel( size ) : startCase( size ),
 						value: index,
 					} ) ),
-					{ label: __( 'Custom', 'newspack' ), value: -1 },
+					{ label: __( 'Custom', 'newspack-plugin' ), value: -1 },
 				] }
 				onChange={ index => {
 					const size = options[ index ];
@@ -90,13 +90,13 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 				<div className="newspack-advertising-wizard__ad-unit-fluid">
 					{ __(
 						'Fluid is a native ad size that allows more flexibility when styling your ad. It automatically sizes the ad by filling the width of the enclosing column and adjusting the height as appropriate.',
-						'newspack'
+						'newspack-plugin'
 					) }
 				</div>
 			) : (
 				<>
 					<TextControl
-						label={ __( 'Width', 'newspack' ) }
+						label={ __( 'Width', 'newspack-plugin' ) }
 						value={ value[ 0 ] }
 						onChange={ newWidth => onChange( [ newWidth, value[ 1 ] ] ) }
 						disabled={ ! isCustom && sizeIndex !== -1 }
@@ -104,7 +104,7 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 						hideLabelFromVision
 					/>
 					<TextControl
-						label={ __( 'Height', 'newspack' ) }
+						label={ __( 'Height', 'newspack-plugin' ) }
 						value={ value[ 1 ] }
 						onChange={ newHeight => onChange( [ value[ 0 ], newHeight ] ) }
 						disabled={ ! isCustom && sizeIndex !== -1 }

@@ -83,7 +83,7 @@ const EndpointActions = ( {
 				onClick={ () => setPopoverVisible( ! popoverVisible ) }
 				icon={ moreVertical }
 				disabled={ disabled }
-				label={ __( 'Endpoint Actions', 'newspack' ) }
+				label={ __( 'Endpoint Actions', 'newspack-plugin' ) }
 				tooltipPosition={ position }
 			/>
 			{ popoverVisible && (
@@ -93,19 +93,19 @@ const EndpointActions = ( {
 					onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisible( false ) }
 				>
 					<MenuItem onClick={ () => setPopoverVisible( false ) } className="screen-reader-text">
-						{ __( 'Close Endpoint Actions', 'newspack' ) }
+						{ __( 'Close Endpoint Actions', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem onClick={ onView } className="newspack-button">
-						{ __( 'View Requests', 'newspack' ) }
+						{ __( 'View Requests', 'newspack-plugin' ) }
 					</MenuItem>
 					{ ! isSystem && (
 						<MenuItem onClick={ onEdit } className="newspack-button">
-							{ __( 'Edit', 'newspack' ) }
+							{ __( 'Edit', 'newspack-plugin' ) }
 						</MenuItem>
 					) }
 					{ ! isSystem && (
 						<MenuItem onClick={ onDelete } className="newspack-button" isDestructive>
-							{ __( 'Remove', 'newspack' ) }
+							{ __( 'Remove', 'newspack-plugin' ) }
 						</MenuItem>
 					) }
 				</Popover>
@@ -120,10 +120,10 @@ const ConfirmationModal = ( { disabled, onConfirm, onClose, title, description }
 			<p>{ description }</p>
 			<Card buttonsCard noBorder className="justify-end">
 				<Button isSecondary onClick={ onClose } disabled={ disabled }>
-					{ __( 'Cancel', 'newspack' ) }
+					{ __( 'Cancel', 'newspack-plugin' ) }
 				</Button>
 				<Button isPrimary onClick={ onConfirm } disabled={ disabled }>
-					{ __( 'Confirm', 'newspack' ) }
+					{ __( 'Confirm', 'newspack-plugin' ) }
 				</Button>
 			</Card>
 		</Modal>

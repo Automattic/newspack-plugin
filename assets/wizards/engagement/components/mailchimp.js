@@ -30,25 +30,41 @@ export default function Mailchimp( { value, onChange } ) {
 		<>
 			{ error && (
 				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
+					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
 					isError
 				/>
 			) }
 			<SectionHeader
-				title={ __( 'Mailchimp', 'newspack' ) }
-				description={ __( 'Settings for the Mailchimp integration.', 'newspack' ) }
+				title={ __( 'Mailchimp settings', 'newspack-plugin' ) }
+				description={ __( 'Settings for the Mailchimp integration.', 'newspack-plugin' ) }
 			/>
 			<SelectControl
-				label={ __( 'Audience ID', 'newspack' ) }
-				help={ __( 'Choose an audience to receive reader activity data.', 'newspack' ) }
+				label={ __( 'Audience ID', 'newspack-plugin' ) }
+				help={ __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ) }
 				disabled={ inFlight }
 				value={ value.audienceId }
 				onChange={ handleChange( 'audienceId' ) }
 				options={ [
-					{ value: '', label: __( 'None', 'newspack' ) },
+					{ value: '', label: __( 'None', 'newspack-plugin' ) },
 					...lists.map( list => ( { label: list.name, value: list.id } ) ),
 				] }
 			/>
+			{ value.audienceId && (
+				<SelectControl
+					label={ __( 'Default reader status', 'newspack' ) }
+					help={ __(
+						'Choose which MailChimp status readers should have by default if they are not subscribed to any newsletters',
+						'newspack'
+					) }
+					disabled={ inFlight }
+					value={ value.readerDefaultStatus }
+					onChange={ handleChange( 'readerDefaultStatus' ) }
+					options={ [
+						{ value: 'transactional', label: __( 'Transactional/Non-Subscribed', 'newspack' ) },
+						{ value: 'subscribed', label: __( 'Subscribed', 'newspack' ) },
+					] }
+				/>
+			) }
 		</>
 	);
 }
