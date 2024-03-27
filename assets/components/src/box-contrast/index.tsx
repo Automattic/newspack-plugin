@@ -13,9 +13,7 @@ import { getContrast } from '../utils/color';
 /**
  * Box Contrast component
  *
- * @uses getContrast
- * @param param Props object
- * @returns JSX.Element
+ * @return JSX.Element
  */
 const BoxContrast = ( {
 	content,
