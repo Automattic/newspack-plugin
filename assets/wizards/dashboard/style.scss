@@ -64,6 +64,7 @@
 
 	p {
 		color: wp-colors.$gray-700;
+		margin: 0;
 	}
 
 	a {
@@ -129,7 +130,7 @@
 	transform: translateZ(0);
 
 	svg {
-		transition: transform 0.3s ease-in-out;
+		transition: transform 0.15s ease-in-out;
 	}
 }
 

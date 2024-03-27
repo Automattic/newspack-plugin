@@ -4,6 +4,8 @@
  * Displaying stored logo and header bg color in a header
  */
 
+import { BoxContrast } from '../../../components/src';
+
 const { settings } = window.newspack_dashboard;
 
 const BrandHeader = () => {
@@ -12,9 +14,12 @@ const BrandHeader = () => {
 			className="newspack-dashboard__brand-header"
 			style={ { backgroundColor: settings.headerBgColor } }
 		>
-			<div className="brand-header__inner">
-				<h1>{ settings.siteName }</h1>
-			</div>
+			<BoxContrast
+				className="brand-header__inner"
+				content={ <h1>{ settings.siteName }</h1> }
+				hexColor={ settings.headerBgColor }
+				cssProp="background-color"
+			/>
 		</header>
 	);
 };

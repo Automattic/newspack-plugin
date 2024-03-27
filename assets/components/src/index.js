@@ -4,6 +4,7 @@ export { default as AutocompleteTokenField } from './autocomplete-tokenfield';
 export { default as AutocompleteWithSuggestions } from './autocomplete-with-suggestions';
 export { default as Button } from './button';
 export { default as ButtonCard } from './button-card';
+export { default as BoxContrast } from './box-contrast';
 export { default as Card } from './card';
 export { default as CategoryAutocomplete } from './category-autocomplete';
 export { default as ColorPicker } from './color-picker';
