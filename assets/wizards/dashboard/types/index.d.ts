@@ -2,7 +2,7 @@ import icons from '../components/icons';
 
 declare global {
 	interface Window {
-		newspack_settings: {
+		newspack_dashboard: {
 			sections: {
 				[ k: string ]: {
 					title: string;
