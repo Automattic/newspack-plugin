@@ -40,6 +40,7 @@
 		"build": "newspack-scripts build",
 		"start": "npm ci && newspack-scripts watch",
 		"watch": "newspack-scripts watch",
+		"tsc": "tsc --watch",
 		"test": "newspack-scripts test",
 		"lint": "npm run lint:scss && npm run lint:js",
 		"lint:js": "eslint --ext .js,.jsx,.ts,.tsx assets",
