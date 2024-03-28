@@ -13,24 +13,32 @@ import { __ } from '@wordpress/i18n';
 import { render } from '@wordpress/element';
 // Internal
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
+import './style.scss';
+import sections from './components/sections';
 
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
 } = window;
 
-const Settings = () => {
+const Newspack = () => {
 	return (
 		<>
 			<GlobalNotices />
 			{ isDebugMode && <Notice debugMode /> }
 			<Wizard
 				headerText={ __( 'Newspack / Dashboard', 'newspack' ) }
-				sections={ [] }
-				renderAboveSections={ () => <></> }
+				sections={ sections }
+				renderAboveSections={ () => (
+					<>
+						<p>Brand Header</p>
+						<p>Site Actions</p>
+						<p>Quick Actions</p>
+					</>
+				) }
 			/>
 			<Footer />
 		</>
 	);
 };
 
-render( <Settings />, document.getElementById( 'newspack' ) );
+render( <Newspack />, document.getElementById( 'newspack' ) );
