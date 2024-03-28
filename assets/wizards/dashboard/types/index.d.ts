@@ -3,11 +3,18 @@ export {};
 declare global {
 	interface Window {
 		newspack_dashboard: {
+			siteStatuses: {
+				readerActivation: ActionLocal;
+				googleAnalytics: ActionLocal;
+				googleAdManager: ActionLocal & {
+					isAvailable: boolean;
+				};
+			};
 			sections: {
 				[ k: string ]: {
 					title: string;
 					desc: string;
-					cards: { href: string; title: string; desc: string; icon: string; }[];
+					cards: { href: string; title: string; desc: string; icon: string }[];
 				};
 			};
 		};

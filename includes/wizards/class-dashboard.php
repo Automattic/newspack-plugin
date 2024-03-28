@@ -277,13 +277,13 @@ class Dashboard extends Wizard {
 			'newspack-dashboard', 
 			'newspack_dashboard',
 			[
-				'settings'    => [
+				'settings'     => [
 					'logo'          => false === $logo ? [] : $logo,
 					'headerBgColor' => $theme_mods['header_color_hex'],
 				],
-				'sections'    => $this->get_dashboard(),
-				'plugins'     => get_plugins(),
-				'siteActions' => [
+				'sections'     => $this->get_dashboard(),
+				'plugins'      => get_plugins(),
+				'siteStatuses' => [
 					'readerActivation' => [
 						'dependencies' => [
 							'woocommerce' => [
