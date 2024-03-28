@@ -10,6 +10,10 @@ declare global {
 					cards: { href: string; title: string; desc: string; icon: string; }[];
 				};
 			};
+			settings: {
+				siteName: string;
+				headerBgColor: string;
+			};
 		};
 		newspackSettings: {
 			sections: Record<
