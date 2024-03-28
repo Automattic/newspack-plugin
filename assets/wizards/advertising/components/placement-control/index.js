@@ -51,7 +51,12 @@ const getProviderUnitsForSelect = provider => {
 		},
 		...provider.units.map( unit => {
 			return {
-				label: unit.name,
+				label: sprintf(
+					// Translators: 1 is ad unit name and 2 is ad unit id.
+					__( '%1$s (%2$s)', 'newspack-plugin' ),
+					unit.name,
+					unit.value
+				),
 				value: unit.value,
 			};
 		} ),
@@ -118,14 +123,14 @@ const PlacementControl = ( {
 			<Grid columns={ 2 } gutter={ 32 }>
 				<SelectControl
 					label={ __( 'Provider', 'newspack-plugin' ) }
-					value={ placementProvider?.id }
+					value={ placementProvider?.id ?? '' }
 					options={ getProvidersForSelect( providers ) }
 					onChange={ provider => onChange( { ...value, provider } ) }
 					disabled={ disabled }
 				/>
 				<SelectControl
 					label={ label }
-					value={ value.ad_unit }
+					value={ value?.ad_unit ?? '' }
 					options={ getProviderUnitsForSelect( placementProvider ) }
 					onChange={ data => {
 						onChange( {
