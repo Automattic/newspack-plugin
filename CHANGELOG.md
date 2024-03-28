@@ -1,3 +1,10 @@
+## [3.5.3](https://github.com/Automattic/newspack-plugin/compare/v3.5.2...v3.5.3) (2024-03-28)
+
+
+### Bug Fixes
+
+* **sitekit:** use analytics 4 module ([#3022](https://github.com/Automattic/newspack-plugin/issues/3022)) ([94dbc18](https://github.com/Automattic/newspack-plugin/commit/94dbc18dc3ac523847727c6a4263442b12c26185))
+
 ## [3.5.2](https://github.com/Automattic/newspack-plugin/compare/v3.5.1...v3.5.2) (2024-03-27)
 
 
