@@ -15,8 +15,10 @@ const wizardsDir = path.join( __dirname, 'assets', 'wizards' );
 // Get files for wizards scripts.
 const wizardsScripts = fs
 	.readdirSync( wizardsDir )
-	.filter( wizard =>
-		fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' ) )
+	.filter(
+		wizard =>
+			fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' ) ) ||
+			fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' ) )
 	);
 const wizardsScriptFiles = {
 	'plugins-screen': path.join( __dirname, 'assets', 'plugins-screen', 'plugins-screen.js' ),
@@ -32,7 +34,9 @@ wizardsScripts.forEach( function ( wizard ) {
 		'assets',
 		'wizards',
 		wizard,
-		'index.js'
+		fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' ) )
+			? 'index.tsx'
+			: 'index.js'
 	);
 } );
 
