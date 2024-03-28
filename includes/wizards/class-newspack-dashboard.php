@@ -280,12 +280,12 @@ class Newspack_Dashboard extends Wizard {
 			'newspackDashboard',
 			[
 				'settings'     => [
-					'siteName'      => $site_name,
+					'logo'          => false === $logo ? [] : $logo,
 					'headerBgColor' => $theme_mods['header_color_hex'],
 				],
 				'sections'     => $this->get_dashboard(),
 				'plugins'      => get_plugins(),
-				'siteActions'  => [
+				'siteStatuses' => [
 					'readerActivation' => [
 						'dependencies' => [
 							'woocommerce' => [
