@@ -5,21 +5,38 @@
 @use '~@wordpress/base-styles/colors' as wp-colors;
 @use '../../shared/scss/colors';
 
-.newspack-dashboard-card {
-	align-items: center;
-	border-color: wp-colors.$gray-300;
-	display: grid;
-	grid-gap: 16px;
-	grid-template-columns: 48px auto;
-	margin: 0;
-	padding: 32px;
+:root {
+	--np-font-size: 16px;
+	--np-header-height: 64px;
+	--np-section-space: 24px;
+	--np-section-width: 1040px;
+	--np-section-child-space: 16px;
+}
 
-	h2,
-	p {
-		margin: 0;
+.newspack-wizard__content {
+	margin: 0;
+	max-width: 100%;
+	padding: 0 0 32px;
+
+	* {
+		box-sizing: border-box;
+	}
+}
+
+.newspack-dashboard__brand-header {
+	padding: 40px 0;
+
+	.brand-header__inner {
+		margin: 0 auto;
+		max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
+		padding: 0 var(--np-section-space);
 	}
 
-	svg {
-		fill: colors.$primary-500;
+	h1 {
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 40px;
+		margin: 0;
 	}
 }
