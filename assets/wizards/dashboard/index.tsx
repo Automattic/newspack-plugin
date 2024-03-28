@@ -33,7 +33,11 @@ const Newspack = () => {
 					<>
 						{ /* For demo purposes */ }
 						{ Object.keys( icons ).map( icon => {
-							return icon in icons && <Icon key={ icon } size={ 32 } icon={ icons[ icon as keyof typeof icons ] } />;
+							return (
+								icon in icons && (
+									<Icon key={ icon } size={ 32 } icon={ icons[ icon as keyof typeof icons ] } />
+								)
+							);
 						} ) }
 						<p>Brand Header</p>
 						<p>Site Actions</p>
