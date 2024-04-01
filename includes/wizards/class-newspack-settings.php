@@ -68,7 +68,7 @@ class Newspack_Settings extends Wizard {
 	 */
 	public function add_page() {
 		add_submenu_page(
-			'newspack',
+			'newspack-dashboard',
 			__( 'Newspack / Settings', 'newspack-plugin' ),
 			__( 'Settings', 'newspack-plugin' ),
 			$this->capability,
@@ -89,14 +89,11 @@ class Newspack_Settings extends Wizard {
 
 		wp_register_script(
 			'newspack-settings',
-			Newspack::plugin_url() . '/dist/newspack-settings.js',
+			Newspack::plugin_url() . '/dist/newspack.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		
-		$site_name = get_bloginfo( 'name' );
-		$theme_mods = get_theme_mods();
 
 		wp_localize_script(
 			'newspack-settings', 
