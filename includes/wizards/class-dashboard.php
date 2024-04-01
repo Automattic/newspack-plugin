@@ -21,7 +21,7 @@ class Dashboard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack';
+	protected $slug = 'newspack-dashboard';
 
 	/**
 	 * The capability required to access this.
@@ -266,7 +266,7 @@ class Dashboard extends Wizard {
 
 		wp_register_script(
 			'newspack-dashboard',
-			Newspack::plugin_url() . '/dist/dashboard.js',
+			Newspack::plugin_url() . '/dist/newspack.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
 			true
@@ -316,7 +316,7 @@ class Dashboard extends Wizard {
 
 		wp_register_style(
 			'newspack-dashboard',
-			Newspack::plugin_url() . '/dist/dashboard.css',
+			Newspack::plugin_url() . '/dist/newspack.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
