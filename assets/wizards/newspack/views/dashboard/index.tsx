@@ -3,7 +3,6 @@
  *
  * WP Admin Newspack Dashboard page.
  */
-import '../../shared/js/public-path';
 
 /**
  * Dependencies.
@@ -12,9 +11,11 @@ import '../../shared/js/public-path';
 import { __ } from '@wordpress/i18n';
 import { render } from '@wordpress/element';
 // Internal
-import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
-import './style.scss';
-import sections from './components/sections';
+import { GlobalNotices, Footer, Notice, Wizard } from '../../../../components/src';
+import sections from './sections';
+import { Icon, icons } from '../../components/icons';
+
+import '../../style.scss';
 
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
@@ -49,4 +50,4 @@ const Newspack = () => {
 	);
 };
 
-render( <Newspack />, document.getElementById( 'newspack' ) );
+render( <Newspack />, document.getElementById( 'newspack-dashboard' ) );
