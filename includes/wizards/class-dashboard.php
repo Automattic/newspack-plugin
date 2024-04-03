@@ -304,12 +304,10 @@ class Dashboard extends Wizard {
 					'googleAdManager'  => [
 						'label'            => __( 'Google Ad Manager', 'newspack-plugin' ),
 						'statuses'         => [
-							'success'         => '',
-							'error'           => '',
 							'error-preflight' => __( 'Proxy Not Configured', 'newspack-plugin' ),
 						],
 						'endpoint'         => '/newspack/v1/oauth/google',
-						'isPreflightValid' => OAuth::is_proxy_configured( 'google' ),
+						'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
 						'configLink'       => admin_url( 'admin.php?page=newspack-advertising-wizard' ),
 						'dependencies'     => [
 							'newspack-ads' => [
