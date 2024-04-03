@@ -170,7 +170,29 @@ class Emails {
 		$email_config   = self::get_email_config_by_type( $config_name );
 		$html           = $email_config['html_payload'];
 		$reply_to_email = $email_config['reply_to_email'];
-		$placeholders   = array_merge(
+
+		if ( class_exists( 'WC' ) ) {
+			$base_address  = WC()->countries->get_base_address();
+			$base_city     = WC()->countries->get_base_city();
+			$base_postcode = WC()->countries->get_base_postcode();
+
+			$site_address = sprintf(
+				// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
+				__( '%1$s, %2$s %3$s', 'newspack' ),
+				$base_address,
+				$base_city,
+				$base_postcode
+			);
+		} else {
+			$site_address = sprintf(
+				// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
+				__( '%1$s, %2$s %3$s', 'newspack' ),
+				get_option( 'woocommerce_store_address', '' ),
+				get_option( 'woocommerce_store_city', '' ),
+				get_option( 'woocommerce_store_postcode', '' )
+			);
+		}
+		$placeholders = array_merge(
 			[
 				[
 					'template' => '*CONTACT_EMAIL*',
@@ -178,7 +200,7 @@ class Emails {
 				],
 				[
 					'template' => '*SITE_ADDRESS*',
-					'value'    => class_exists( 'WC' ) ? WC()->countries->get_base_address() : get_option( 'woocommerce_store_address', '' ),
+					'value'    => $site_address,
 				],
 				[
 					'template' => '*SITE_LOGO*',
@@ -190,7 +212,7 @@ class Emails {
 				],
 				[
 					'template' => '*SITE_URL*',
-					'value'    => get_site_url(),
+					'value'    => get_bloginfo( 'wpurl' ),
 				],
 			],
 			$placeholders

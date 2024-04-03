@@ -45,7 +45,7 @@ class Reader_Activation_Emails {
 	public static function add_email_configs( $configs ) {
 		$available_placeholders = [
 			[
-				'label'    => __( 'the site address', 'newspack' ),
+				'label'    => __( 'the site base address', 'newspack' ),
 				'template' => '*SITE_ADDRESS*',
 			],
 			[
