@@ -4,9 +4,9 @@ declare global {
 	interface Window {
 		newspack_dashboard: {
 			siteStatuses: {
-				readerActivation: ActionLocal;
-				googleAnalytics: ActionLocal;
-				googleAdManager: ActionLocal & {
+				readerActivation: Status;
+				googleAnalytics: Status;
+				googleAdManager: Status & {
 					isAvailable: boolean;
 				};
 			};

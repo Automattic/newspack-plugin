@@ -1,29 +1,26 @@
 type Dependencies = Record< string, { isActive: boolean; label: string } >;
 
-type Action = {
+type StatusLabels =
+	| 'success'
+	| 'error'
+	| 'error-dependencies'
+	| 'error-preflight'
+	| 'pending'
+	| 'pending-install'
+	| 'idle';
+
+type Status = {
 	label: string;
-	statusLabels?: { pending?: string; error?: string; success?: string };
-	canConnect?: boolean;
+	statuses?: Partial<StatusLabels, string>;
+	isPreflightValid?: boolean;
+	configLink: string;
 	endpoint: string;
-	dependencies?: Dependencies;
+	dependencies?: Dependencies | null;
 	then: ( args: any ) => boolean;
 };
 
-type Actions = {
-	[ k: string ]: Action;
-};
-
-type ActionLocal = {
-	dependencies: Dependencies;
-};
-
-type SiteStatus = {
-	label: string;
-	canConnect?: boolean;
-	statusLabels?: { [ k in Statuses ]?: string };
-	endpoint: string;
-	dependencies?: Dependencies | null;
-	then: ( args?: any ) => boolean;
+type Statuses = {
+	[ k: string ]: Status;
 };
 
 type SiteActionModal = {
@@ -39,5 +36,3 @@ type PrerequisitesStatus = {
 		};
 	};
 };
-
-type Statuses = 'success' | 'error' | 'error-dependency' | 'pending' | 'pending-install' | 'idle';
