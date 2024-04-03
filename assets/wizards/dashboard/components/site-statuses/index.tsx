@@ -18,8 +18,8 @@ const {
 const actions: Statuses = {
 	readerActivation: {
 		...siteStatuses.readerActivation,
-		then( { prerequisites_status }: { prerequisites_status: PrerequisitesStatus } ) {
-			return Object.values( prerequisites_status ).every( status => status.active );
+		then( { config: { enabled = false } }: { config: { enabled: boolean } } ) {
+			return enabled;
 		},
 	},
 	googleAnalytics: {
