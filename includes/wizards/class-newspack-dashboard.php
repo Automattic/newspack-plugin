@@ -271,10 +271,10 @@ class Newspack_Dashboard extends Wizard {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-		
-		$site_name = get_bloginfo( 'name' );
-		$theme_mods = get_theme_mods();
 
+		$theme_mods = get_theme_mods();
+		$logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
+		
 		wp_localize_script(
 			$this->slug, 
 			'newspackDashboard',
@@ -287,6 +287,13 @@ class Newspack_Dashboard extends Wizard {
 				'plugins'      => get_plugins(),
 				'siteStatuses' => [
 					'readerActivation' => [
+						'label'        => __( 'Reader Activation', 'newspack-plugin' ),
+						'statuses'     => [
+							'success' => __( 'Enabled', 'newspack-plugin' ),
+							'error'   => __( 'Disabled', 'newspack-plugin' ),
+						],
+						'endpoint'     => '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
+						'configLink'   => admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
 						'dependencies' => [
 							'woocommerce' => [
 								'label'    => __( 'Woocommerce', 'newspack-plugin' ),
@@ -295,8 +302,16 @@ class Newspack_Dashboard extends Wizard {
 						],
 					],
 					'googleAdManager'  => [
-						'isAvailable'  => OAuth::is_proxy_configured( 'google' ),
-						'dependencies' => [
+						'label'            => __( 'Google Ad Manager', 'newspack-plugin' ),
+						'statuses'         => [
+							'success'         => '',
+							'error'           => '',
+							'error-preflight' => __( 'Proxy Not Configured', 'newspack-plugin' ),
+						],
+						'endpoint'         => '/newspack/v1/oauth/google',
+						'isPreflightValid' => OAuth::is_proxy_configured( 'google' ),
+						'configLink'       => admin_url( 'admin.php?page=newspack-advertising-wizard' ),
+						'dependencies'     => [
 							'newspack-ads' => [
 								'label'    => __( 'Newspack Ads', 'newspack-plugin' ),
 								'isActive' => is_plugin_active( 'newspack-ads/newspack-ads.php' ),
@@ -304,6 +319,9 @@ class Newspack_Dashboard extends Wizard {
 						],
 					],
 					'googleAnalytics'  => [
+						'label'        => __( 'Google Analytics', 'newspack-plugin' ),
+						'endpoint'     => '/google-site-kit/v1/core/site/data/connection-check',
+						'configLink'   => admin_url( 'admin.php?page=googlesitekit-splash' ),
 						'dependencies' => [
 							'google-site-kit' => [
 								'label'    => __( 'Google Site Kit', 'newspack-plugin' ),
