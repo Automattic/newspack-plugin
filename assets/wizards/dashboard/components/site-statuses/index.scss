@@ -32,6 +32,16 @@
         color: var(--np-sa-txt-color);
     }
 
+    &:has(span.hidden):hover {
+        span {
+            display: none;
+
+            &.hidden {
+                display: inline-block;
+            }
+        }
+    }
+
     // When loading
     &.newspack-site-status__pending {
         overflow: hidden;
@@ -61,7 +71,8 @@
         }
     }
 
-    &.newspack-site-status__error {
+    // Errors
+    &[class*="newspack-site-status__error"] {
         --np-sa-bg-color: #F7EBEC;
         --np-sa-txt-color: #B32D2E;
 
@@ -76,7 +87,8 @@
         }
     }
 
-    &.newspack-site-status__error-dependency {
+    // Dependency Error
+    &.newspack-site-status__error-dependencies {
         --np-sa-bg-color: #F5F1E1;
         --np-sa-txt-color: #755100;
 
@@ -92,16 +104,15 @@
         &::before {
             background-color: var(--np-sa-txt-color);
         }
+    }
+}
 
-        &:hover {
-            span {
-                display: none;
+a.newspack-site-status {
+    color: inherit;
+    text-decoration: none;
 
-                &.hidden {
-                    display: inline-block;
-                }
-            }
-        }
+    &:hover, &:active, &:focus {
+        color: inherit;
     }
 }
 

@@ -15,32 +15,21 @@ const {
 	newspack_dashboard: { siteStatuses },
 } = window;
 
-const actions: Actions = {
+const actions: Statuses = {
 	readerActivation: {
-		label: __( 'Reader Activation', 'newspack-plugin' ),
-		statusLabels: {
-			success: __( 'Enabled', 'newspack-plugin' ),
-			error: __( 'Disabled', 'newspack-plugin' ),
-		},
-		endpoint: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
-		dependencies: siteStatuses.readerActivation.dependencies,
+		...siteStatuses.readerActivation,
 		then( { prerequisites_status }: { prerequisites_status: PrerequisitesStatus } ) {
 			return Object.values( prerequisites_status ).every( status => status.active );
 		},
 	},
 	googleAnalytics: {
-		label: __( 'Google Analytics', 'newspack-plugin' ),
-		endpoint: '/google-site-kit/v1/core/site/data/connection-check',
-		dependencies: siteStatuses.googleAnalytics.dependencies,
+		...siteStatuses.googleAnalytics,
 		then( payload ) {
 			return payload === 'true';
 		},
 	},
 	googleAdManager: {
-		label: __( 'Google Ad Manager', 'newspack-plugin' ),
-		endpoint: '/newspack/v1/oauth/google',
-		canConnect: siteStatuses.googleAdManager.isAvailable,
-		dependencies: siteStatuses.googleAdManager.dependencies,
+		...siteStatuses.googleAdManager,
 		then( { user_basic_info } ) {
 			return Boolean( user_basic_info && user_basic_info.email );
 		},
