@@ -12,50 +12,33 @@ namespace Newspack;
 [ 'primary_color' => $primary_color, 'secondary_color' => $secondary_color ]  = newspack_get_theme_colors();
 [ 'block_markup' => $social_links, 'html_markup' => $social_links_html ]      = newspack_get_social_markup();
 
-$post_content = '
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"56px","bottom":"56px","left":"56px","right":"56px"}},"color":{"background":"' . esc_attr( $secondary_color ) . '"}},"className":"has-secondary-background-color","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group has-secondary-background-color has-background" style="background-color:' . esc_attr( $secondary_color ) . ';padding-top:56px;padding-right:56px;padding-bottom:56px;padding-left:56px">
-	<!-- wp:site-logo {"width":50} /-->
-	<!-- wp:heading {"style":{"typography":{"fontStyle":"normal","fontWeight":"400"}}} -->
-	<h2 class="wp-block-heading" style="font-style:normal;font-weight:400">' . __( 'Sign in', 'newspack' ) . '</h2>
-	<!-- /wp:heading -->
-
-	<!-- wp:paragraph -->
-	<p>' . __( 'Use the following code to login to your account:', 'newspack' ) . '</p>
-	<!-- /wp:paragraph -->
-
-	<!-- wp:paragraph {"fontSize":"x-large"} -->
-	<p class="has-x-large-font-size"><code>*MAGIC_LINK_OTP*</code></p>
-	<!-- /wp:paragraph -->
-
-	<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"400"}}} -->
-	<p style="font-style:normal;font-weight:400">' . __( 'You can also log into your account by clicking the following button:', 'newspack' ) . '</p>
-	<!-- /wp:paragraph -->
-
-	<!-- wp:buttons {"layout":{"type":"flex","orientation":"horizontal","flexWrap":"nowrap","justifyContent":"left"},"style":{"typography":{"fontStyle":"normal","fontWeight":"400"}},"fontSize":"medium"} -->
-	<div class="wp-block-buttons has-custom-font-size has-medium-font-size" style="font-style:normal;font-weight:400"><!-- wp:button {"textAlign":"center","style":{"color":{"background":"' . esc_attr( $primary_color ) . '"},"border":{"radius":"4px"}}} -->
-	<div class="wp-block-button"><a class="wp-block-button__link has-background has-text-align-center wp-element-button" href="*MAGIC_LINK_URL*" style="border-radius:4px;background-color:' . esc_attr( $primary_color ) . '">' . sprintf( /* Translators: s: site title. */ __( 'Continue to %s', 'newspack' ), '*SITE_TITLE*' ) . '</a></div>
-	<!-- /wp:button --></div>
-	<!-- /wp:buttons -->
-
-	<!-- wp:paragraph -->
-	<p>' . __( 'Or copy and paste the link in your browser:', 'newspack' ) . ' <a href="*MAGIC_LINK_URL*" data-type="URL" data-id="*MAGIC_LINK_URL*">*MAGIC_LINK_URL*</a></p>
-	<!-- /wp:paragraph -->
-
-	<!-- wp:paragraph -->
-	<p>' . __( 'If you did not request this code, please ignore this email.', 'newspack' ) . '</p>
-	<!-- /wp:paragraph --></div>
-	<!-- /wp:group -->
-
-	<!-- wp:group {"style":{"spacing":{"padding":{"top":"56px","bottom":"56px","left":"56px","right":"56px"}},"color":{"background":"' . esc_attr( $primary_color ) . '"}},"className":"has-primary-background-color","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group has-primary-background-color has-background" style="background-color:' . esc_attr( $primary_color ) . ';padding-top:56px;padding-right:56px;padding-bottom:56px;padding-left:56px"><!-- wp:social-links {"iconBackgroundColor":"' . esc_attr( $primary_color ) . '","iconBackgroundColorValue":"' . esc_attr( $primary_color ) . '","className":"is-style-filled-white","layout":{"type":"flex","flexWrap":"nowrap"}} -->
-	<ul class="wp-block-social-links has-icon-background-color is-style-filled-white">' . $social_links . '</ul>
-	<!-- /wp:social-links -->
-
-	<!-- wp:paragraph {"fontSize":"small"} -->
-	<p class="has-small-font-size">' . sprintf( /* Translators: 1: site title 2: site base address. */ __( '%1$s - %2$s', 'newspack' ), '<strong>*SITE_TITLE*</strong>', '*SITE_ADDRESS*' ) . '<br>' . sprintf( /* Translators: 1: link to site url. */ __( 'You received this email because you requested to sign in to %s', 'newspack' ), '<a href="*SITE_URL*">*SITE_URL*</a>' ) . '</p>
-	<!-- /wp:paragraph --></div>
-	<!-- /wp:group -->';
+// Default post content.
+$post_content  = '<!-- wp:site-logo {"align":"center"} /-->';
+$post_content .= '<!-- wp:heading --><h2 class="wp-block-heading">' . __( 'Sign in', 'newspack' ) . '</h2><!-- /wp:heading -->';
+$post_content .= '<!-- wp:paragraph --><p>' . __( 'Use the following code to login to your account:', 'newspack' ) . '</p><!-- /wp:paragraph -->';
+$post_content .= '<!-- wp:paragraph {"align":"center","fontSize":"x-large"} --><p class="has-text-align-center has-x-large-font-size"><code>*MAGIC_LINK_OTP*</code></p><!-- /wp:paragraph -->';
+$post_content .= '<!-- wp:paragraph --><p>' . __( 'You can also log into your account by clicking the following button:', 'newspack' ) . '</p><!-- /wp:paragraph -->';
+$post_content .= '<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"left","orientation":"horizontal","flexWrap":"nowrap"}} --><div class="wp-block-buttons">';
+$post_content .= '<!-- wp:button {"textAlign":"center","style":{"color":{"background":"' . esc_attr( $primary_color ) . '"},"border":{"radius":"4px"}}} -->';
+$post_content .= '<div class="wp-block-button"><a class="wp-block-button__link has-background has-text-align-center wp-element-button" href="*MAGIC_LINK_URL*" style="border-radius:4px;background-color:' . esc_attr( $primary_color ) . '">Continue to *SITE_TITLE*</a></div>';
+$post_content .= '<!-- /wp:button -->';
+$post_content .= '</div><!-- /wp:buttons -->';
+$post_content .= '<!-- wp:paragraph --><p>' . __( 'Or copy and paste the link in your browser:', 'newspack' ) . ' <a href="*MAGIC_LINK_URL*" data-type="URL" data-id="*MAGIC_LINK_URL*">*MAGIC_LINK_URL*</a></p><!-- /wp:paragraph -->';
+$post_content .= '<!-- wp:paragraph --><p>' . __( 'If you did not request this code, please ignore this email.', 'newspack' ) . '</p><!-- /wp:paragraph -->';
+// Footer.
+$post_content .= '<!-- wp:group {"backgroundColor":"' . esc_attr( $primary_color ) . '","layout":{"type":"constrained"}} --><div class="wp-block-group has-primary-background-color has-background">';
+// TODO: Conditionally render social links if present.
+$post_content .= '<!-- wp:social-links {"iconBackgroundColor":"' . esc_attr( $primary_color ) . '","iconBackgroundColorValue":"' . esc_attr( $primary_color ) . '","className":"is-style-default","layout":{"type":"flex","flexWrap":"nowrap"}} -->';
+$post_content .= '<ul class="wp-block-social-links has-icon-background-color is-style-default">';
+$post_content .= '<!-- wp:social-link {"service":"instagram"} /-->';
+$post_content .= '<!-- wp:social-link {"service":"twitter"} /-->';
+$post_content .= '<!-- wp:social-link {"service":"facebook"} /-->';
+$post_content .= '<!-- wp:social-link {"service":"youtube"} /-->';
+$post_content .= '</ul>';
+$post_content .= '<!-- /wp:social-links -->';
+// TODO: Fix translations.
+$post_content .= '<!-- wp:paragraph {"fontSize":"small"} --><p class="has-small-font-size">*SITE_TITLE* - *SITE_ADDRESS*<br>' . __( 'You received this email because you requested to sign in to', 'newspack' ) . ' *SITE_URL*</p><!-- /wp:paragraph -->';
+$post_content .= '</div><!-- /wp:group -->';
 
 $email_html = '
 	<html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head><title>Sign in</title><!--[if !mso]><!--><meta http-equiv="X-UA-Compatible" content="IE=edge"><!--<![endif]--><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style type="text/css">#outlook a { padding:0; }

@@ -213,7 +213,7 @@ class Emails {
 				],
 				[
 					'template' => '*SITE_URL*',
-					'value'    => get_bloginfo( 'wpurl' ),
+					'value'    => get_site_url(),
 				],
 			],
 			$placeholders
