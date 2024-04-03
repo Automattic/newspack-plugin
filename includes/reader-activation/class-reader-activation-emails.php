@@ -39,20 +39,39 @@ class Reader_Activation_Emails {
 	 * Register email type.
 	 *
 	 * @param array $configs Email types.
+	 *
+	 * @return array Email configs.
 	 */
 	public static function add_email_configs( $configs ) {
+		$available_placeholders = [
+			[
+				'label'    => __( 'the site address', 'newspack' ),
+				'template' => '*SITE_ADDRESS*',
+			],
+			[
+				'label'    => __( 'the site title', 'newspack' ),
+				'template' => '*SITE_TITLE*',
+			],
+			[
+				'label'    => __( 'the site url', 'newspack' ),
+				'template' => '*SITE_URL*',
+			],
+		];
 		$configs[ self::EMAIL_TYPES['VERIFICATION'] ]   = [
 			'name'                   => self::EMAIL_TYPES['VERIFICATION'],
 			'label'                  => __( 'Verification', 'newspack' ),
 			'description'            => __( "Email sent to the reader after they've registered.", 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/verification.php',
 			'editor_notice'          => __( 'This email will be sent to a reader after they\'ve registered.', 'newspack' ),
-			'available_placeholders' => [
+			'available_placeholders' => array_merge(
+				$available_placeholders,
 				[
-					'label'    => __( 'the verification link', 'newspack' ),
-					'template' => '*VERIFICATION_URL*',
-				],
-			],
+					[
+						'label'    => __( 'the verification link', 'newspack' ),
+						'template' => '*VERIFICATION_URL*',
+					],
+				]
+			),
 		];
 		$configs[ self::EMAIL_TYPES['MAGIC_LINK'] ]     = [
 			'name'                   => self::EMAIL_TYPES['MAGIC_LINK'],
@@ -60,12 +79,15 @@ class Reader_Activation_Emails {
 			'description'            => __( 'Email with a login link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/magic-link.php',
 			'editor_notice'          => __( 'This email will be sent to a reader when they request a login link.', 'newspack' ),
-			'available_placeholders' => [
+			'available_placeholders' => array_merge(
+				$available_placeholders,
 				[
-					'label'    => __( 'the one-time password', 'newspack' ),
-					'template' => '*MAGIC_LINK_OTP*',
-				],
-			],
+					[
+						'label'    => __( 'the one-time password', 'newspack' ),
+						'template' => '*MAGIC_LINK_OTP*',
+					],
+				]
+			),
 		];
 		$configs[ self::EMAIL_TYPES['OTP_AUTH'] ]       = [
 			'name'                   => self::EMAIL_TYPES['OTP_AUTH'],
@@ -73,16 +95,19 @@ class Reader_Activation_Emails {
 			'description'            => __( 'Email with a one-time password and login link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/otp.php',
 			'editor_notice'          => __( 'This email will be sent to a reader when they request a login link and a one-time password is available.', 'newspack' ),
-			'available_placeholders' => [
+			'available_placeholders' => array_merge(
+				$available_placeholders,
 				[
-					'label'    => __( 'the one-time password', 'newspack' ),
-					'template' => '*MAGIC_LINK_OTP*',
-				],
-				[
-					'label'    => __( 'the login link', 'newspack' ),
-					'template' => '*MAGIC_LINK_URL*',
-				],
-			],
+					[
+						'label'    => __( 'the one-time password', 'newspack' ),
+						'template' => '*MAGIC_LINK_OTP*',
+					],
+					[
+						'label'    => __( 'the login link', 'newspack' ),
+						'template' => '*MAGIC_LINK_URL*',
+					],
+				]
+			),
 		];
 		$configs[ self::EMAIL_TYPES['RESET_PASSWORD'] ] = [
 			'name'                   => self::EMAIL_TYPES['RESET_PASSWORD'],
@@ -90,12 +115,15 @@ class Reader_Activation_Emails {
 			'description'            => __( 'Email with password reset link.', 'newspack' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/password-reset.php',
 			'editor_notice'          => __( 'This email will be sent to a reader when they request a password creation or reset.', 'newspack' ),
-			'available_placeholders' => [
+			'available_placeholders' => array_merge(
+				$available_placeholders,
 				[
-					'label'    => __( 'the password reset link', 'newspack' ),
-					'template' => '*PASSWORD_RESET_LINK*',
-				],
-			],
+					[
+						'label'    => __( 'the password reset link', 'newspack' ),
+						'template' => '*PASSWORD_RESET_LINK*',
+					],
+				]
+			),
 		];
 		$configs[ self::EMAIL_TYPES['DELETE_ACCOUNT'] ] = [
 			'name'                   => self::EMAIL_TYPES['DELETE_ACCOUNT'],

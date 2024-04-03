@@ -177,12 +177,20 @@ class Emails {
 					'value'    => sprintf( '<a href="mailto:%s">%s</a>', $reply_to_email, $reply_to_email ),
 				],
 				[
-					'template' => '*SITE_URL*',
-					'value'    => get_site_url(),
+					'template' => '*SITE_ADDRESS*',
+					'value'    => class_exists( 'WC' ) ? WC()->countries->get_base_address() : get_option( 'woocommerce_store_address', '' ),
 				],
 				[
 					'template' => '*SITE_LOGO*',
 					'value'    => esc_url( wp_get_attachment_url( get_theme_mod( 'custom_logo' ) ) ),
+				],
+				[
+					'template' => '*SITE_TITLE*',
+					'value'    => get_bloginfo( 'name' ),
+				],
+				[
+					'template' => '*SITE_URL*',
+					'value'    => get_site_url(),
 				],
 			],
 			$placeholders
