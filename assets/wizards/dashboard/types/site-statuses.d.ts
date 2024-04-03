@@ -28,11 +28,3 @@ type SiteActionModal = {
 	onSuccess: ( a: Record< string, any > ) => void;
 	plugins: string[];
 };
-
-type PrerequisitesStatus = {
-	prerequisite_status: {
-		[ k: string ]: {
-			active: boolean;
-		};
-	};
-};
