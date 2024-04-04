@@ -16,10 +16,11 @@ const BrandHeader = () => {
 		>
 			<BoxContrast
 				className="brand-header__inner"
-				content={ <h1>{ settings.siteName }</h1> }
 				hexColor={ settings.headerBgColor }
 				cssProp="background-color"
-			/>
+			>
+				<h1>{ settings.siteName }</h1>
+			</BoxContrast>
 		</header>
 	);
 };
