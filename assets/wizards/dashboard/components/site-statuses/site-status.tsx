@@ -110,7 +110,7 @@ const SiteStatus = ( {
 				<Tooltip text={ __( 'Click to navigate to configuration', 'newspack-plugin' ) }>
 					<a href={ configLink } className={ classes }>
 						{ label }: <span>{ parsedStatusLabels[ requestStatus ] }</span>
-						<span className="hidden">{ __( 'Configure' ) }</span>
+						<span className="hidden">{ __( 'Configure?' ) }</span>
 					</a>
 				</Tooltip>
 			) }
