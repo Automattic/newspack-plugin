@@ -24,14 +24,14 @@ const actions: Statuses = {
 	},
 	googleAnalytics: {
 		...siteStatuses.googleAnalytics,
-		then( payload ) {
-			return payload === 'true';
+		then( { propertyID = '' }: { propertyID: string } ) {
+			return propertyID !== '';
 		},
 	},
 	googleAdManager: {
 		...siteStatuses.googleAdManager,
-		then( { user_basic_info } ) {
-			return Boolean( user_basic_info && user_basic_info.email );
+		then( { services: { google_ad_manager } } ) {
+			return google_ad_manager.available && google_ad_manager.enabled === '1';
 		},
 	},
 } as const;

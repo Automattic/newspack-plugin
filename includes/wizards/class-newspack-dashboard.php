@@ -306,7 +306,7 @@ class Newspack_Dashboard extends Wizard {
 						'statuses'         => [
 							'error-preflight' => __( 'Proxy Not Configured', 'newspack-plugin' ),
 						],
-						'endpoint'         => '/newspack/v1/oauth/google',
+						'endpoint'         => '/newspack/v1/wizard/billboard',
 						'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
 						'configLink'       => admin_url( 'admin.php?page=newspack-advertising-wizard' ),
 						'dependencies'     => [
@@ -318,8 +318,8 @@ class Newspack_Dashboard extends Wizard {
 					],
 					'googleAnalytics'  => [
 						'label'        => __( 'Google Analytics', 'newspack-plugin' ),
-						'endpoint'     => '/google-site-kit/v1/core/site/data/connection-check',
-						'configLink'   => admin_url( 'admin.php?page=googlesitekit-splash' ),
+						'endpoint'     => '/google-site-kit/v1/modules/analytics-4/data/settings',
+						'configLink'   => in_array( 'analytics', get_option( 'googlesitekit_active_modules', [] ) ) ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
 						'dependencies' => [
 							'google-site-kit' => [
 								'label'    => __( 'Google Site Kit', 'newspack-plugin' ),
