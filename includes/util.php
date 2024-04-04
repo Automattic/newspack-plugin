@@ -496,6 +496,7 @@ function newspack_get_countries() {
 }
 
 /**
+<<<<<<< HEAD
  * Pick either white or black, whatever has sufficient contrast with the color being passed to it.
  * (Copied from the Newspack theme: https://github.com/Automattic/newspack-theme/blob/6dc4e89a65c465abdd207d990e313921f2972a9a/newspack-theme/inc/template-functions.php#L547)
  *
