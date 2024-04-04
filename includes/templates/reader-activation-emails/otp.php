@@ -23,8 +23,8 @@ namespace Newspack;
 
 $post_content =
 	// Main body.
-	'<!-- wp:group {"style":{"spacing":{"padding":{"top":"56px","bottom":"56px","left":"56px","right":"56px"}},"color":{"background":"' . esc_attr( $secondary_color ) . '"},"elements":{"link":{"color":{"text":"' . esc_attr( $primary_color ) . '"}}}},"textColor":"' . esc_attr( $secondary_text_color ) . '","className":"has-secondary-background-color","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group has-secondary-background-color has-' . esc_attr( $secondary_text_color ) . '-color has-text-color has-background has-link-color" style="background-color:' . esc_attr( $secondary_color ) . ';padding-top:56px;padding-right:56px;padding-bottom:56px;padding-left:56px">
+	'<!-- wp:group {"style":{"spacing":{"padding":{"top":"56px","bottom":"56px","left":"56px","right":"56px"}},"elements":{"link":{"color":{"text":"' . esc_attr( $primary_color ) . '"}}}},"className":"has-link-color"} -->
+	<div class="wp-block-group has-link-color" style="padding-top:56px;padding-right:56px;padding-bottom:56px;padding-left:56px">
 	<!-- wp:site-logo {"width":50} /-->
 	<!-- wp:heading {"style":{"typography":{"fontStyle":"normal","fontWeight":"400"}}} -->
 	<h2 class="wp-block-heading" style="font-style:normal;font-weight:400">' . __( 'Sign in', 'newspack' ) . '</h2>
@@ -32,8 +32,8 @@ $post_content =
 	<!-- wp:paragraph -->
 	<p>' . __( 'Use the following code to login to your account:', 'newspack' ) . '</p>
 	<!-- /wp:paragraph -->
-	<!-- wp:paragraph {"fontSize":"x-large"} -->
-	<p class="has-x-large-font-size"><code>*MAGIC_LINK_OTP*</code></p>
+	<!-- wp:paragraph {"fontSize":"large"} -->
+	<p class="has-large-font-size"><code>*MAGIC_LINK_OTP*</code></p>
 	<!-- /wp:paragraph -->
 	<!-- wp:paragraph {"style":{"typography":{"fontStyle":"normal","fontWeight":"400"}}} -->
 	<p style="font-style:normal;font-weight:400">' . __( 'You can also log into your account by clicking the following button:', 'newspack' ) . '</p>
@@ -50,7 +50,19 @@ $post_content =
 	<p>' . __( 'If you did not request this code, please ignore this email.', 'newspack' ) . '</p>
 	<!-- /wp:paragraph --></div>
 	<!-- /wp:group -->' .
-
+	// FAQ.
+	'<!-- wp:group {"style":{"spacing":{"padding":{"top":"56px","bottom":"56px","left":"56px","right":"56px"}},"background":"' . esc_attr( $secondary_color ) . '","color":{"text":"' . esc_attr( $secondary_text_color ) . '","background":"' . esc_attr( $secondary_color ) . '"},"elements":{"link":{"color":{"text":"' . esc_attr( $primary_color ) . '"}}}},"className":"has-secondary-background-color has-background","layout":{"type":"constrained"}} -->
+	<div class="wp-block-group has-secondary-background-color has-background has-text-color has-link-color" style="color:' . esc_attr( $secondary_text_color ) . ';background-color:' . esc_attr( $secondary_color ) . ';padding-top:56px;padding-right:56px;padding-bottom:56px;padding-left:56px">
+	<!-- wp:heading {"level":3} -->
+	<h3 class="wp-block-heading">' . __( 'Frequently Asked Questions', 'newspack' ) . '</h3>
+	<!-- /wp:heading -->
+	<!-- wp:paragraph -->
+	<p><strong>' . __( 'What is a magic link?', 'newspack' ) . '</strong><br>' . __( 'It\’s a temporary, password-free link like the one above to help you quickly and securely verify your identity and sign in – all without needing to set a password.', 'newspack' ) . '</p>
+	<!-- /wp:paragraph -->
+	<!-- wp:paragraph -->
+	<p><strong>' . __( 'Can I still create a password?', 'newspack' ) . '</strong><br>' . sprintf( /* Translators: 1: opening HTML anchor tag 2: closing HTML anchor tag */ __( 'Yes. For security reasons, we recommend signing in with Google, Facebook, or Apple, or using a one-time code sent to your email, but you can set a password if you prefer. %1$sClick here%2$s to create a password.', 'newspack' ), '<a href="http://google.com" data-type="link" data-id="google.com">', '</a>' ) . '</p>
+	<!-- /wp:paragraph --></div>
+	<!-- /wp:group -->' .
 	// Footer.
 	'<!-- wp:group {"style":{"spacing":{"padding":{"top":"56px","bottom":"56px","left":"56px","right":"56px"}},"color":{"background":"' . esc_attr( $primary_color ) . '"},"elements":{"link":{"color":{"text":"' . esc_attr( $primary_text_color ) . '"}}}},"textColor":"' . esc_attr( $primary_text_color ) . '","className":"has-primary-background-color","layout":{"type":"constrained"}} -->
 	<div class="wp-block-group has-primary-background-color has-' . esc_attr( $primary_text_color ) . '-color has-text-color has-background has-link-color" style="background-color:' . esc_attr( $primary_color ) . ';padding-top:56px;padding-right:56px;padding-bottom:56px;padding-left:56px">
