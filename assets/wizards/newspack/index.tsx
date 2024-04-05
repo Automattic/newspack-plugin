@@ -7,16 +7,19 @@ import '../../shared/js/public-path';
 
 const pageParam = new URLSearchParams( window.location.search ).get( 'page' );
 
-console.log( { location } );
+console.time( 'FILE-LOAD' );
 
 if ( pageParam ) {
 	if ( 'newspack-dashboard' === pageParam ) {
-		import( './views/dashboard' );
+		import( /* webpackChunkName: "admin-newspack" */ './views/dashboard' ).then( mod => {
+			console.timeEnd( 'FILE-LOAD' );
+			console.log( mod );
+		} );
 	}
 	if ( 'newspack-settings' === pageParam ) {
-		import( './views/settings' );
+		import( /* webpackChunkName: "admin-newspack" */ './views/settings' ).then( mod => {
+			console.timeEnd( 'FILE-LOAD' );
+			console.log( mod );
+		} );
 	}
 }
-
-// import './views/dashboard';
-// import './views/settings';

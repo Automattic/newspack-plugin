@@ -116,7 +116,7 @@ const Wizard = ( {
 						{ displayedSections.map( ( section, index ) => {
 							const SectionComponent = section.render;
 							return (
-								<Route key={ index } path={ section.path }>
+								<Route key={ index } exact={ section.exact ?? false } path={ section.path }>
 									<div
 										className={ classnames(
 											'newspack-wizard newspack-wizard__content',
@@ -129,7 +129,8 @@ const Wizard = ( {
 								</Route>
 							);
 						} ) }
-						<Redirect to={ displayedSections[ 0 ].path } />
+
+						<Redirect exact to={ displayedSections[ 0 ].path } />
 					</Switch>
 				</HashRouter>
 			</div>
