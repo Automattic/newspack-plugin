@@ -18,7 +18,7 @@ const sectionComponents: Record< keyof typeof settingsSections, () => JSX.Elemen
 	// 'theme-and-brand': ThemeAndBrand,
 	// 'display-settings': DisplaySettings,
 	// 'additional-brands': AdditionalBrands,
-	default: () => <h2>{ __( 'Not found' ) }</h2>,
+	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
 
 export default Object.keys( settingsSections ).map( sectionPath => {
