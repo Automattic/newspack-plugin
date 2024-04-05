@@ -27,6 +27,24 @@
 	}
 }
 
+.newspack-dashboard__brand-header {
+	padding: 40px 0;
+
+	.brand-header__inner {
+		margin: 0 auto;
+		max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
+		padding: 0 var(--np-section-space);
+	}
+
+	h1 {
+		font-size: 32px;
+		font-style: normal;
+		font-weight: 400;
+		line-height: 40px;
+		margin: 0;
+	}
+}
+
 .newspack-dashboard__section {
 	margin: 0 auto;
 	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));

@@ -17,6 +17,10 @@ declare global {
 					cards: { href: string; title: string; desc: string; icon: keyof typeof icons; }[];
 				};
 			};
+			settings: {
+				siteName: string;
+				headerBgColor: string;
+			};
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;
