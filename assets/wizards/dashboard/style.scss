@@ -6,21 +6,133 @@
 @use '../../shared/scss/colors';
 @use './components/site-statuses/index';
 
-.newspack-dashboard-card {
-	align-items: center;
-	border-color: wp-colors.$gray-300;
-	display: grid;
-	grid-gap: 16px;
-	grid-template-columns: 48px auto;
-	margin: 0;
-	padding: 32px;
+:root {
+	--np-font-size: 16px;
+	--np-header-height: 64px;
+	--np-section-space: 24px;
+	--np-section-width: 1040px;
+	--np-section-child-space: 16px;
+}
 
-	h2,
+.newspack-icon {
+	background-color: colors.$primary-600;
+}
+
+.newspack-wizard__content {
+	margin: 0;
+	max-width: 100%;
+	padding: 0 0 32px;
+
+	* {
+		box-sizing: border-box;
+	}
+}
+
+.newspack-dashboard__section {
+	margin: 0 auto;
+	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
+	padding: 0 var(--np-section-space);
+
+	&:first-of-type {
+		margin-top: 56px;
+	}
+
+	h3 {
+		font-size: 20px;
+		font-weight: normal;
+		line-height: 28px;
+		margin-bottom: calc(var(--np-section-child-space) / 2);
+	}
+
 	p {
+		color: wp-colors.$gray-700;
 		margin: 0;
 	}
 
+	a {
+		text-decoration: none;
+	}
+
+	.newspack-grid {
+		--np-dash-card-icon-size: 80px;
+
+		margin: 24px 0 32px;
+	}
+}
+
+.newspack-dashboard__card {
+	--np-card-icon-bg-color: #eaeefb;
+	--np-card-hover-bg-color: #fafbff;
+
+	align-items: center;
+	background-color: transparent;
+	border-color: wp-colors.$gray-300;
+	border-radius: 2px;
+	display: grid;
+	grid-gap: var(--np-section-child-space);
+	grid-template: "icon text" auto / var(--np-dash-card-icon-size) auto;
+	margin: 0;
+	overflow: hidden;
+	padding: var(--np-section-child-space);
+	transition: border-color 0.15s, background-color 0.15s;
+
+	h4 {
+		font-size: 16px;
+		font-weight: 600;
+		grid-area: text;
+		line-height: 24px;
+		margin: 0 0 calc(var(--np-section-child-space) / 2);
+		text-shadow: 0 0 1px #fff;
+	}
+
+	p {
+		grid-area: text;
+		line-height: 16px;
+		margin: 0;
+		opacity: 1;
+		transition: transform 0.15s ease-out, opacity 0.15s;
+	}
+
+	&:not(:has(p)) h4 {
+		margin: 0;
+	}
+
+}
+
+.newspack-dashboard__card-icon {
+	background-color: var(--np-card-icon-bg-color);
+	border: 1px solid white;
+	border-radius: 4px;
+	display: grid;
+	fill: colors.$primary-600;
+	grid-area: icon;
+	height: var(--np-dash-card-icon-size);
+	width: var(--np-dash-card-icon-size);
+	place-items: center;
+	transform: translateZ(0);
+
 	svg {
-		fill: colors.$primary-500;
+		transition: transform 0.15s ease-in-out;
+	}
+}
+
+a {
+
+	&:hover,
+	&:focus {
+		.newspack-dashboard__card {
+			background-color: var(--np-card-hover-bg-color);
+			border-color: colors.$primary-600;
+
+			p {
+				opacity: 0.8;
+			}
+
+			.newspack-dashboard__card-icon {
+				svg {
+					transform: scale(1.15);
+				}
+			}
+		}
 	}
 }
