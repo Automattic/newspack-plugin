@@ -8,7 +8,7 @@ import { Fragment } from '@wordpress/element';
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 
 const {
-	newspack_dashboard: { sections: dashSections },
+	newspackDashboard: { sections: dashSections },
 } = window;
 
 export default [
