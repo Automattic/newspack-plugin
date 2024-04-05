@@ -28,6 +28,10 @@
 		&:focus {
 			outline: 1.5px solid var( --newspack-ui-color-neutral-90 );
 			outline-offset: 1px;
+
+			&:not( :checked ) {
+				border: 0;
+			}
 		}
 
 		&:disabled {
