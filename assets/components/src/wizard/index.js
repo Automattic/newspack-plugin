@@ -149,7 +149,6 @@ const Wizard = ( {
 								</Route>
 							);
 						} ) }
-
 						<Redirect exact to={ displayedSections[ 0 ].path } />
 					</Switch>
 				</HashRouter>
