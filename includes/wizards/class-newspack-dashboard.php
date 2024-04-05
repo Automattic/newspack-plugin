@@ -14,7 +14,7 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 /**
  * Common functionality for admin wizards. Override this class.
  */
-class Dashboard extends Wizard {
+class Newspack_Dashboard extends Wizard {
 
 	/**
 	 * The slug of this wizard.
