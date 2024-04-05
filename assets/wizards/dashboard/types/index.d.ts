@@ -1,4 +1,11 @@
-export {};
+import 'react';
+import icons from '../components/icons';
+
+declare module 'react' {
+	interface CSSProperties {
+		[ key: `--${ string }` ]: string | number;
+	}
+}
 
 declare global {
 	interface Window {
@@ -7,7 +14,7 @@ declare global {
 				[ k: string ]: {
 					title: string;
 					desc: string;
-					cards: { href: string; title: string; desc: string; icon: string; }[];
+					cards: { href: string; title: string; desc: string; icon: keyof typeof icons; }[];
 				};
 			};
 			settings: {
@@ -21,10 +28,4 @@ declare global {
 	}
 }
 
-import 'react';
-
-declare module 'react' {
-	interface CSSProperties {
-		[ key: `--${ string }` ]: string | number;
-	}
-}
+export {}
