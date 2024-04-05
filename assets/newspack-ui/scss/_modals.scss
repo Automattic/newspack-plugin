@@ -42,11 +42,11 @@
 		.newspack-ui {
 			&__modal {
 				&__content {
-					padding: 24px;
+					padding: var( --newspack-ui-spacer-5 );
 					overflow: auto;
 					border-radius: var( --newspack-ui-border-radius-small );
 					h3 {
-						font-size: 16px;
+						font-size: var( --newspack-ui-font-size-medium );
 						margin: 0;
 					}
 					p {
@@ -59,13 +59,13 @@
 				list-style: none;
 				display: flex;
 				flex-wrap: wrap;
-				gap: 16px;
+				gap: var( --newspack-ui-spacer-3 );
 				margin: 0;
 				padding: 0;
 
 				&__item {
-					border: 1px solid #ddd;
-					border-radius: 6px;
+					border: 1px solid var(--newspack-ui-color-border );
+					border-radius: var( --newspack-ui-border-radius-medium );
 					text-align: center;
 					flex: 1 1 100%;
 					@media ( min-width: 600px ) {
@@ -78,28 +78,28 @@
 						}
 					}
 					.summary {
-						font-size: 14px;
-						padding: 12px;
-						border-bottom: 1px solid #ddd;
+						font-size: var( --newspack-ui-font-size-small );
+						padding: var( --newspack-ui-spacer-2 );
+						border-bottom: 1px solid var( --newspack-ui-color-border );
 						bdi {
 							display: block;
 							font-weight: 600;
-							font-size: 32px;
+							font-size: 32px; // TODO: create & replace w/ a variable.
 						}
 					}
 					.variation {
-						padding: 12px;
-						font-size: 14px;
+						padding: var( --newspack-ui-spacer-2 );
+						font-size: var( --newspack-ui-font-size-small );
 						line-height: 1.5;
-						border-bottom: 1px solid #ddd;
+						border-bottom: 1px solid var(--newspack-ui-color-border );
 						font-weight: 600;
 					}
 					form {
-						padding: 12px;
+						padding: var( --newspack-ui-spacer-2 );
 						button {
 							display: block;
 							width: 100%;
-							font-size: 14px;
+							font-size: var( --newspack-ui-font-size-small );
 						}
 					}
 				}
@@ -143,7 +143,7 @@
 
 		&__close {
 			margin: -2px -5px 0 0; // Offsets a padding in the SVG.
-			padding: 0 0 0 8px;
+			padding: 0 0 0 var( --newspack-ui-spacer-base );
 			background: transparent;
 			color: var( --newspack-ui-color-neutral-90 );
 			cursor: pointer;
