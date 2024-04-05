@@ -265,7 +265,7 @@ class Newspack_Dashboard extends Wizard {
 		}
 
 		wp_register_script(
-			'newspack-dashboard',
+			$this->slug,
 			Newspack::plugin_url() . '/dist/newspack.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
@@ -274,8 +274,8 @@ class Newspack_Dashboard extends Wizard {
 		$theme_mods = get_theme_mods();
 		$logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
 		wp_localize_script(
-			'newspack-dashboard', 
-			'newspack_dashboard',
+			$this->slug, 
+			'newspackDashboard',
 			[
 				'settings'    => [
 					'logo'          => false === $logo ? [] : $logo,
@@ -312,15 +312,15 @@ class Newspack_Dashboard extends Wizard {
 				],
 			]
 		);
-		wp_enqueue_script( 'newspack-dashboard' );
+		wp_enqueue_script( $this->slug );
 
 		wp_register_style(
-			'newspack-dashboard',
+			$this->slug,
 			Newspack::plugin_url() . '/dist/newspack.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
-		wp_style_add_data( 'newspack-dashboard', 'rtl', 'replace' );
-		wp_enqueue_style( 'newspack-dashboard' );
+		wp_style_add_data( $this->slug, 'rtl', 'replace' );
+		wp_enqueue_style( $this->slug );
 	}
 }
