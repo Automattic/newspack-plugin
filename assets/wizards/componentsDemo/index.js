@@ -19,6 +19,7 @@ import { audio, home, plus, reusableBlock, typography } from '@wordpress/icons';
 import {
 	ActionCard,
 	AutocompleteWithSuggestions,
+	BoxContrast,
 	Button,
 	ButtonCard,
 	Card,
@@ -711,6 +712,28 @@ class ComponentsDemo extends Component {
 								console.log( 'Plugin Settings Section Changed', { key, val } );
 							} }
 						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Box Contrast', 'newspack-plugin' ) }</h2>
+						<p>
+							Component for adding color black/white depending on contrast ratio for{ ' ' }
+							<code>hexColor</code> prop value.
+						</p>
+						<h3>{ __( 'Demo 1:', 'newspack-plugin' ) }</h3>
+						<BoxContrast hexColor="#e5bd13">#e5bd13</BoxContrast>
+						<BoxContrast hexColor="#e5bd13" isInverted>
+							#e5bd13 / Inverted
+						</BoxContrast>
+						<h3>{ __( 'Demo 2:', 'newspack-plugin' ) }</h3>
+						<BoxContrast hexColor="#3366ff">#e5bd13</BoxContrast>
+						<BoxContrast hexColor="#3366ff" isInverted>
+							#3366ff / Inverted
+						</BoxContrast>
+						<h3>{ __( 'Demo 3:', 'newspack-plugin' ) }</h3>
+						<BoxContrast hexColor="#51f1ff">#e5bd13</BoxContrast>
+						<BoxContrast hexColor="#51f1ff" isInverted>
+							#51f1ff / Inverted
+						</BoxContrast>
 					</Card>
 				</div>
 				<Footer />
