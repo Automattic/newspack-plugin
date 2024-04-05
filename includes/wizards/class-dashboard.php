@@ -271,16 +271,16 @@ class Dashboard extends Wizard {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-
-		$theme_mods = get_theme_mods();
-		$logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
 		
+		$site_name = get_bloginfo( 'name' );
+		$theme_mods = get_theme_mods();
+
 		wp_localize_script(
 			'newspack-dashboard', 
 			'newspack_dashboard',
 			[
 				'settings'     => [
-					'logo'          => false === $logo ? [] : $logo,
+					'siteName'      => $site_name,
 					'headerBgColor' => $theme_mods['header_color_hex'],
 				],
 				'sections'     => $this->get_dashboard(),

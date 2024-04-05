@@ -15,6 +15,7 @@ import { render } from '@wordpress/element';
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import sections from './components/sections';
 import SiteStatuses from './components/site-statuses';
+import BrandHeader from './components/brand-header';
 import './style.scss';
 
 const {
@@ -31,7 +32,7 @@ const Newspack = () => {
 				sections={ sections }
 				renderAboveSections={ () => (
 					<>
-						<p>Brand Header</p>
+						<BrandHeader />
 						<SiteStatuses />
 						<p>Quick Actions</p>
 					</>
