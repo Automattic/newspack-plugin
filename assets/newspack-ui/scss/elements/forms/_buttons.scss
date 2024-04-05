@@ -25,8 +25,8 @@
 		}
 
 		&:disabled {
-			background: var( --newspack-ui-color-gray-100 ) !important;
-			color: var( --newspack-ui-color-text-med-contrast ) !important;
+			background: var( --newspack-ui-color-neutral-10 ) !important;
+			color: var( --newspack-ui-color-neutral-70 ) !important; //
 			cursor: default;
 		}
 
@@ -46,25 +46,24 @@
 		}
 
 		&--secondary {
-			background: transparent;
-			border: 1px solid var( --newspack-ui-color-border );
-			color: var( --newspack-ui-color-text-high-contrast );
+			background: var( --newspack-ui-color-neutral-10 );
+			color: var( --newspack-ui-color-neutral-90 );
 			padding: calc( var( --newspack-ui-spacer-2 ) - 1px )
 				calc( var( --newspack-ui-spacer-3 ) - 1px );
 
 			&:hover {
-				background: var( --newspack-ui-color-gray-100 );
-				color: var( --newspack-ui-color-text-high-contrast );
+				background: var( --newspack-ui-color-neutral-30 );
+				color: var( --newspack-ui-color-neutral-90 );
 			}
 		}
 
 		&--tertiary {
 			background: transparent;
-			color: var( --newspack-ui-color-text-high-contrast );
+			color: var( ---newspack-ui-color-neutral-90 );
 
 			&:hover {
-				background: var( --newspack-ui-color-gray-100 );
-				color: var( --newspack-ui-color-text-high-contrast );
+				background: var( --newspack-ui-color-neutral-10 );
+				color: var( --newspack-ui-color-neutral-90 );
 			}
 		}
 	}

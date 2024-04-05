@@ -108,8 +108,8 @@
 	}
 	&__modal {
 		// CSS Variables - update button background, with fallbacks to the Newspack UI defaults
-		--newspack-ui-color-button-bg: var( --newspack-ui-color-primary, var( --newspack-ui-color-gray-900 ) );
-		--newspack-ui-color-button-text: var( --newspack-ui-color-against-primary, var( --newspack-ui-color-white ) );
+		--newspack-ui-color-button-bg: var( --newspack-ui-color-primary, var( --newspack-ui-color-neutral-90 ) );
+		--newspack-ui-color-button-text: var( --newspack-ui-color-against-primary, var( --newspack-ui-color-neutral-0 ) );
 
 		// Modal styles
 		background: var( --newspack-ui-color-body-bg );
@@ -135,6 +135,7 @@
 			border-bottom: 1px solid var( --newspack-ui-color-border );
 
 			h2 {
+				font-family: var( --newspack-ui-font-family );
 				font-size: var( --newspack-ui-font-size-medium );
 				margin: 0;
 			}
@@ -144,13 +145,13 @@
 			margin: -2px -5px 0 0; // Offsets a padding in the SVG.
 			padding: 0 0 0 8px;
 			background: transparent;
-			color: var( --newspack-ui-color-text-high-contrast );
+			color: var( --newspack-ui-color-neutral-90 );
 			cursor: pointer;
 
 			&:focus,
 			&:hover {
 				background: transparent;
-				color: var( --newspack-ui-color-text-med-contrast );
+				color: var( --newspack-ui-color-neutral-70 );
 			}
 			svg {
 				display: block;
@@ -165,8 +166,8 @@
 		}
 
 		&__footer {
-			background: var( --newspack-ui-color-gray-100 );
-			color: var( --newspack-ui-color-text-med-contrast );
+			background: var( --newspack-ui-color-neutral-5 );
+			color: var( --newspack-ui-color-neutral-60 );
 			font-size: var( --newspack-ui-font-size-extra-small );
 			line-height: var( --newspack-ui-line-height-small );
 			a {

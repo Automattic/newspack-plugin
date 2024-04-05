@@ -10,7 +10,9 @@
 	--newspack-ui-modal-width-small: 368px;
 
 	// Border radius - not ems because the font size of the element itself caused a cascade.
+	// TODO: give these better names.
 	--newspack-ui-border-radius: 6px;
 	--newspack-ui-border-radius-small: 5px;
+	--newspack-ui-border-radius-extra-small: 2px;
 
 }

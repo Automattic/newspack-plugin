@@ -26,8 +26,8 @@
 
 				// This selector isn't supported in Firefox yet.
 				&:has( input:checked ) {
-					background: var( --newspack-ui-color-gray-100 );
-					border-color: var( --newspack-ui-color-gray-900 );
+					background: var( --newspack-ui-color-neutral-5 );
+					border-color: var( --newspack-ui-color-neutral-90 );
 				}
 
 				+ .newspack-ui__input-list {
