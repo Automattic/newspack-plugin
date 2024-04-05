@@ -2,7 +2,7 @@ import icons from '../components/icons';
 
 declare global {
 	interface Window {
-		newspack_dashboard: {
+		newspackDashboard: {
 			sections: {
 				[ k: string ]: {
 					title: string;
@@ -10,6 +10,15 @@ declare global {
 					cards: { href: string; title: string; desc: string; icon: keyof typeof icons }[];
 				};
 			};
+		};
+		newspackSettings: {
+			sections: Record<
+				string,
+				{
+					label: string;
+					path?: string;
+				}
+			>;
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;

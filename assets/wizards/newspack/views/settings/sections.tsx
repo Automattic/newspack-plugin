@@ -5,33 +5,27 @@
  */
 import { __ } from '@wordpress/i18n';
 
+const { sections: settingsSections } = window.newspackSettings;
 
-export default [
-	{
-		label: __( 'Connections', 'newspack' ),
-		path: '/',
-		render: () => (
-			<h2>
-				Connections
-			</h2>
-		),
-	},
-	{
-		label: __( 'Emails', 'newspack' ),
-		path: '/emails',
-		render: () => (
-			<h2>
-				Emails
-			</h2>
-		),
-	},
-	{
-		label: __( 'Social', 'newspack' ),
-		path: '/social',
-		render: () => (
-			<h2>
-				Social
-			</h2>
-		),
-	},
-];
+import Connections from './tabs/connections';
+
+const sectionComponents: Record< keyof typeof settingsSections, () => JSX.Element > = {
+	connections: Connections,
+	// emails: Emails,
+	// social: Social,
+	// syndication: Syndication,
+	// seo: Seo,
+	// 'theme-and-brand': ThemeAndBrand,
+	// 'display-settings': DisplaySettings,
+	// 'additional-brands': AdditionalBrands,
+	default: () => <h2>{ __( 'Not found' ) }</h2>,
+};
+
+export default Object.keys( settingsSections ).map( sectionPath => {
+	return {
+		label: settingsSections[ sectionPath ].label,
+		exact: '/' === ( settingsSections[ sectionPath ].path ?? '' ),
+		path: settingsSections[ sectionPath ].path ?? `/${ sectionPath }`,
+		render: sectionComponents[ sectionPath ] ?? sectionComponents.default,
+	};
+} );
