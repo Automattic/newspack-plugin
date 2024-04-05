@@ -32,7 +32,6 @@ const Newspack = () => {
 				renderAboveSections={ () => (
 					<>
 						<BrandHeader />
-						<p>Brand Header</p>
 						<p>Site Actions</p>
 						<p>Quick Actions</p>
 					</>
