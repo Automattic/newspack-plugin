@@ -5,21 +5,13 @@
  */
 import '../../shared/js/public-path';
 
-const pageParam = new URLSearchParams( window.location.search ).get( 'page' );
-
-console.time( 'FILE-LOAD' );
-
-if ( pageParam ) {
-	if ( 'newspack-dashboard' === pageParam ) {
-		import( /* webpackChunkName: "admin-newspack" */ './views/dashboard' ).then( mod => {
-			console.timeEnd( 'FILE-LOAD' );
-			console.log( mod );
-		} );
+( async function ( pageParam ) {
+	if ( pageParam ) {
+		if ( 'newspack-dashboard' === pageParam ) {
+			await import( /* webpackChunkName: "ia-newspack" */ './views/dashboard' );
+		}
+		if ( 'newspack-settings' === pageParam ) {
+			await import( /* webpackChunkName: "ia-newspack" */ './views/settings' );
+		}
 	}
-	if ( 'newspack-settings' === pageParam ) {
-		import( /* webpackChunkName: "admin-newspack" */ './views/settings' ).then( mod => {
-			console.timeEnd( 'FILE-LOAD' );
-			console.log( mod );
-		} );
-	}
-}
+} )( new URLSearchParams( window.location.search ).get( 'page' ) );
