@@ -16,6 +16,7 @@ import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
 import sections from './components/sections';
 import BrandHeader from './components/brand-header';
+import QuickActions from './components/quick-actions';
 
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
@@ -33,7 +34,7 @@ const Newspack = () => {
 					<>
 						<BrandHeader />
 						<p>Site Actions</p>
-						<p>Quick Actions</p>
+						<QuickActions />
 					</>
 				) }
 			/>
