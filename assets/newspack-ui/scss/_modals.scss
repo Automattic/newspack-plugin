@@ -44,7 +44,7 @@
 				&__content {
 					padding: 24px;
 					overflow: auto;
-					border-radius: 5px;
+					border-radius: var( --newspack-ui-border-radius-small );
 					h3 {
 						font-size: 16px;
 						margin: 0;
@@ -113,7 +113,7 @@
 
 		// Modal styles
 		background: var( --newspack-ui-color-body-bg );
-		border-radius: var( --newspack-ui-border-radius );
+		border-radius: var( --newspack-ui-border-radius-medium );
 		display: flex;
 		flex-direction: column;
 		max-height: 90vh;
@@ -168,7 +168,7 @@
 		&__footer {
 			background: var( --newspack-ui-color-neutral-5 );
 			color: var( --newspack-ui-color-neutral-60 );
-			font-size: var( --newspack-ui-font-size-extra-small );
+			font-size: var( --newspack-ui-font-size-small );
 			line-height: var( --newspack-ui-line-height-small );
 			a {
 				text-decoration: underline;

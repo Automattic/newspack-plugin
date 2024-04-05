@@ -6,12 +6,11 @@
 :root {
 	// Modal widths
 	--newspack-ui-modal-width-large: 964px;
-	--newspack-ui-modal-width-medium: 600px;
-	--newspack-ui-modal-width-small: 368px;
+	--newspack-ui-modal-width-medium: 632px;
+	--newspack-ui-modal-width-small: 410px;
 
 	// Border radius - not ems because the font size of the element itself caused a cascade.
-	// TODO: give these better names.
-	--newspack-ui-border-radius: 6px;
+	--newspack-ui-border-radius-medium: 6px;
 	--newspack-ui-border-radius-small: 5px;
 	--newspack-ui-border-radius-extra-small: 2px;
 }
