@@ -16,25 +16,24 @@ import { getContrast } from '../utils/color';
  * @return JSX.Element
  */
 const BoxContrast = ( {
-	content,
 	hexColor,
-	cssProp,
+	isInverted = false,
+	children,
 	...props
 }: {
-	content: string | JSX.Element;
+	children: string | JSX.Element;
 	hexColor: string;
-	cssProp: 'color' | 'background-color';
+	isInverted?: boolean;
 	className?: string;
 } ) => {
 	const contrastColor = getContrast( hexColor );
-	const style =
-		cssProp === 'color'
-			? { color: contrastColor }
-			: { backgroundColor: hexColor, color: contrastColor };
+	const style = isInverted
+		? { color: hexColor, backgoundColor: contrastColor }
+		: { backgroundColor: hexColor, color: contrastColor };
 
 	return (
 		<div { ...props } style={ style }>
-			{ content }
+			{ children }
 		</div>
 	);
 };
