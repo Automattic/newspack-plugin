@@ -89,7 +89,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 			'Test email has the expected label'
 		);
 		self::assertEquals(
-			'Thank you!',
+			'Your receipt',
 			$test_email['subject'],
 			'Test email has the expected subject'
 		);
