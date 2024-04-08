@@ -5,7 +5,7 @@
 	// TODO: the base size for the modals is 16px, with small text/labels at 14px;
 	// The My Account designs appear to use 16px for most labels
 	// Should we have a in-modal vs. non-modal set of font sizes?
-	--newspack-ui-font-size-large: 20px;
+	--newspack-ui-font-size-large: clamp(1.125rem, 0.929rem + 0.402vw, 1.25rem);
 	--newspack-ui-font-size-medium: 16px; // modal baseline
 	--newspack-ui-font-size-small: 14px; // modal small
 	--newspack-ui-font-size-extra-small: 12px; // modal extra small
