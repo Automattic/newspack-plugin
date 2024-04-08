@@ -1,3 +1,5 @@
+@use 'mixins';
+
 .newspack-ui {
 	&__modal-container {
 		position: fixed;
@@ -14,8 +16,8 @@
 			z-index: 1;
 			inset: 0;
 			opacity: 0;
-			background: rgba( 0, 0, 0, 0.5 );
-			transition: opacity 0.1s linear;
+			background: rgba( 0, 0, 0, 0.7 );
+			transition: opacity 0.125s linear;
 		}
 		.newspack-ui__modal {
 			position: relative;
@@ -23,7 +25,8 @@
 			width: 100%;
 			transform: translateY( 50px );
 			opacity: 0;
-			transition: transform 0.1s linear, opacity 0.1s linear;
+			transition: transform 0.125s linear, opacity 0.125s linear;
+			@include mixins.newspack-ui-elevation(3);
 		}
 		&[data-state='open'] {
 			z-index: 99999;
