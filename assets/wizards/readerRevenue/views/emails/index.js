@@ -47,6 +47,18 @@ const Emails = () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
+	const resetEmail = postId => {
+		setError( false );
+		setInFlight( true );
+		apiFetch( {
+			path: `/newspack/v1/wizard/newspack-reader-revenue-wizard/donations/emails/${ postId }`,
+			method: 'DELETE',
+			quiet: true,
+		} )
+			.then( result => setEmails( values( result ) ) )
+			.catch( setError )
+			.finally( () => setInFlight( false ) );
+	};
 
 	if ( false === pluginsReady ) {
 		return (
@@ -84,6 +96,9 @@ const Emails = () => {
 						href={ email.edit_link }
 						description={ email.description }
 						actionText={ __( 'Edit', 'newspack' ) }
+						secondaryActionText={ __( 'Reset', 'newspack' ) }
+						onSecondaryActionClick={ () => resetEmail( email.post_id ) }
+						secondaryDestructive={ true }
 						toggleChecked={ isActive }
 						toggleOnChange={ value => updateStatus( email.post_id, value ? 'publish' : 'draft' ) }
 						{ ...( isActive
