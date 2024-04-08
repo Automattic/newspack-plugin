@@ -1,9 +1,28 @@
+# [3.6.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.5.2...v3.6.0-alpha.1) (2024-03-28)
+
+
+### Bug Fixes
+
+* allow + character in reader account email ([#2980](https://github.com/Automattic/newspack-plugin/issues/2980)) ([2a8530c](https://github.com/Automattic/newspack-plugin/commit/2a8530c9e89cb56b3a7fdf47d558c8dbb542f0c6))
+* fix fallback logic in get_order_data() util method ([6de9b0f](https://github.com/Automattic/newspack-plugin/commit/6de9b0f6942ecd6cf7d2db80e60e935d1ceedc07))
+* **health-check:** fix call to undefined function get_plugins() ([#2998](https://github.com/Automattic/newspack-plugin/issues/2998)) ([ff9ccb3](https://github.com/Automattic/newspack-plugin/commit/ff9ccb315973ff7809078f9d38ef487800e65b3e))
+* **ras:** reset otp inputs when switching login actions ([#2971](https://github.com/Automattic/newspack-plugin/issues/2971)) ([538d00b](https://github.com/Automattic/newspack-plugin/commit/538d00b71c66b59b36eafe081466cc4545b3e9d5))
+* render correct gam onboarding flow and update service account support link ([#2986](https://github.com/Automattic/newspack-plugin/issues/2986)) ([b6a643f](https://github.com/Automattic/newspack-plugin/commit/b6a643ffafe75940de2d80492c23c3291bdd9cf5))
+
+
+### Features
+
+* add ID to ad unit dropdown labels ([#2988](https://github.com/Automattic/newspack-plugin/issues/2988)) ([44a5048](https://github.com/Automattic/newspack-plugin/commit/44a5048f7e038d4336a71c9c635938ac6c1427e2))
+* add option to choose which RAS meta fields to sync ([#2989](https://github.com/Automattic/newspack-plugin/issues/2989)) ([f920115](https://github.com/Automattic/newspack-plugin/commit/f920115ddf8173b6cb069dbf270e1dd83efeb367))
+
+
 ## [3.5.4](https://github.com/Automattic/newspack-plugin/compare/v3.5.3...v3.5.4) (2024-04-02)
 
 
 ### Bug Fixes
 
 * add filters for Data Events reader_registered handlers ([#3030](https://github.com/Automattic/newspack-plugin/issues/3030)) ([a27bf90](https://github.com/Automattic/newspack-plugin/commit/a27bf901197492a1bae583896f2122cfbf8a067f))
+
 
 ## [3.5.3](https://github.com/Automattic/newspack-plugin/compare/v3.5.2...v3.5.3) (2024-03-28)
 
