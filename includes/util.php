@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Configuration_Managers;
+
 defined( 'ABSPATH' ) || exit;
 
 define( 'NEWSPACK_API_NAMESPACE', 'newspack/v1' );
@@ -491,4 +493,51 @@ function newspack_get_countries() {
 		];
 	}
 	return $countries_options;
+}
+
+/**
+ * Get block and html markup for social media services.
+ *
+ * @return array An array containing block and html markup for social media services.
+ */
+function newspack_get_social_markup() {
+	$cm          = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'wordpress_seo' );
+	$social_urls = [];
+	if ( ! is_wp_error( $cm ) ) {
+		$social_urls = [
+			'facebook'  => $cm->get_option( 'facebook_site' ),
+			'twitter'   => $cm->get_option( 'twitter_site' ),
+			'instagram' => $cm->get_option( 'instagram_url' ),
+			'youtube'   => $cm->get_option( 'youtube_url' ),
+		];
+	}
+
+	$block_markup = '';
+	$html_markup  = '';
+	foreach ( $social_urls as $service => $url ) {
+		if ( ! empty( $url ) && ! is_wp_error( $url ) ) {
+			$block_markup .= '<!-- wp:social-link {"url":"' . esc_url( $url ) . '","service":"' . esc_attr( $service ) . '"} /-->';
+			$html_markup  .= '<td><![endif]--><table align="left" border="0" cellpadding="0" cellspacing="0" role="presentation" style="float:none;display:inline-table;"><tbody><tr class="social-element"><td style="padding:4px;vertical-align:middle;"><table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:transparent;border-radius:999px;width:24px;"><tbody><tr><td style="padding:7px;font-size:0;height:24px;vertical-align:middle;width:24px;"><a href="' . esc_url( $url ) . '" target="_blank"><img alt="" height="24" src="*SITE_URL*/wp-content/plugins/newspack-newsletters/assets/white-' . $service . '.png" style="border-radius:999px;display:block;" width="24"></a></td></tr></tbody></table></td></tr></tbody></table><!--[if mso | IE]></td>';
+		}
+	}
+
+	return [
+		'block_markup' => $block_markup,
+		'html_markup'  => $html_markup,
+	];
+}
+
+/**
+ * Get theme primary and secondary colors or defaults if none present.
+ *
+ * @return array An array containing primary and secondary colors.
+ */
+function newspack_get_theme_colors() {
+	$default_primary_color   = function_exists( 'newspack_get_primary_color' ) ? newspack_get_primary_color() : '#3366ff';
+	$default_secondary_color = function_exists( 'newspack_get_secondary_color' ) ? newspack_get_secondary_color() : '#f0f0f0';
+
+	return [
+		'primary_color'   => get_theme_mod( 'primary_color_hex', $default_primary_color ),
+		'secondary_color' => get_theme_mod( 'secondary_color_hex', $default_secondary_color ),
+	];
 }
