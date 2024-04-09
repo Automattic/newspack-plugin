@@ -64,9 +64,12 @@ class Newspack_UI {
 		<div class="newspack-ui">
 			<h2>Temporary Razzak Component Demo</h2>
 
-			<p>Regular text (16px)</p>
-
-			<p class="newspack-ui__font--small">Small text (14px).</p>
+			<p class="newspack-ui__font--xl">X-Large text</p>
+			<p class="newspack-ui__font--l">Large text</p>
+			<p class="newspack-ui__font--m">Medium text</p>
+			<p>Small text (default)</p>
+			<p class="newspack-ui__font--xs">X-Small text</p>
+			<p class="newspack-ui__font--2xs">2X-Small text</p>
 
 			<hr>
 
@@ -101,7 +104,7 @@ class Newspack_UI {
 					<strong>Success box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
 				</p>
 
-				<p class="newspack-ui__font--small">Plus a little bit of text below it.</p>
+				<p>Plus a little bit of text below it.</p>
 			</div>
 
 			<hr>
@@ -223,9 +226,10 @@ class Newspack_UI {
 			<hr>
 
 			<h2>Buttons</h2>
-			<p><code>newspack-ui__button--primary</code>, <code>--secondary</code>, and <code>--tertiary</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
+			<p><code>newspack-ui__button--primary</code>, <code>--branded</code>, <code>--secondary</code>, and <code>--tertiary</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
 			<button class="newspack-ui__button">Default Theme Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--branded">Branded Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">Secondary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--tertiary">Tertiary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--tertiary" disabled>Disabled</button><br>
@@ -242,6 +246,7 @@ class Newspack_UI {
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--wide">Default Theme Button</button>
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
+			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Tertiary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide" disabled>Disabled</button>
@@ -361,7 +366,7 @@ class Newspack_UI {
 								</div>
 							</p>
 
-							<p class="newspack-ui__font--small">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
+							<p class="newspack-ui__font--xs">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
 							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Resend Code</button>
@@ -397,7 +402,7 @@ class Newspack_UI {
 								<strong>Success! Your account was created and you're signed in.</strong>
 							</p>
 
-							<p class="newspack-ui__font--small">In the future, you'll sign in with a code sent to your email. If you'd rather use a password, you can set one in <a href="#">My Account</a>.</p>
+							<p>In the future, you'll sign in with a code sent to your email. If you'd rather use a password, you can set one in <a href="#">My Account</a>.</p>
 						</div>
 
 
@@ -474,7 +479,7 @@ class Newspack_UI {
 
 					<section class="newspack-ui__modal__content">
 
-						<p class="newspack-ui__font--small">Get the best of The News Paper directly to your email inbox.<br>
+						<p>Get the best of The News Paper directly to your email inbox.<br>
 						<span class="newspack-ui__color-text-gray">Sending to: email@address.</span></p>
 
 						<label class="newspack-ui__input-list">

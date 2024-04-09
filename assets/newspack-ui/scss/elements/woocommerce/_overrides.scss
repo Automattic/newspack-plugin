@@ -29,7 +29,7 @@
 	.woocommerce-additional-fields h3,
 	.woocommerce-checkout h3,
 	.woocommerce-form-coupon h3 {
-		font-size: var(--newspack-ui-font-size-medium);
+		font-size: var(--newspack-ui-font-size-s);
 		margin: 1rem 0 !important;
 	}
 
@@ -44,7 +44,7 @@
 			padding: 0;
 
 			p {
-				font-size: var(--newspack-ui-font-size-small);
+				font-size: var(--newspack-ui-font-size-xs);
 			}
 
 			ul.wc-saved-payment-methods {
@@ -65,7 +65,7 @@
 				}
 
 				p {
-					font-size: var(--newspack-ui-font-size-small);
+					font-size: var(--newspack-ui-font-size-xs);
 					margin-bottom: 0;
 
 					&.form-row {
@@ -88,7 +88,7 @@
 
 	// Override checkout form terms and condition text.
 	.woocommerce-terms-and-conditions-wrapper {
-		font-size: var(--newspack-ui-font-size-small);
+		font-size: var(--newspack-ui-font-size-xs);
 	}
 
 	// Override checkout form coupon field.

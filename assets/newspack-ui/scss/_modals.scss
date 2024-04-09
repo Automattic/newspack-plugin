@@ -47,13 +47,13 @@
 				&__content {
 					padding: var( --newspack-ui-spacer-5 );
 					overflow: auto;
-					border-radius: var( --newspack-ui-border-radius-small );
+					border-radius: var( --newspack-ui-border-radius-s );
 					h3 {
-						font-size: var( --newspack-ui-font-size-medium );
+						font-size: var( --newspack-ui-font-size-s );
 						margin: 0;
 					}
 					p {
-						font-size: 0.8em;
+						font-size: var( --newspack-ui-font-size-xs );
 					}
 				}
 			}
@@ -68,7 +68,7 @@
 
 				&__item {
 					border: 1px solid var(--newspack-ui-color-border );
-					border-radius: var( --newspack-ui-border-radius-medium );
+					border-radius: var( --newspack-ui-border-radius-m );
 					text-align: center;
 					flex: 1 1 100%;
 					@media ( min-width: 600px ) {
@@ -81,7 +81,7 @@
 						}
 					}
 					.summary {
-						font-size: var( --newspack-ui-font-size-small );
+						font-size: var( --newspack-ui-font-size-xs );
 						padding: var( --newspack-ui-spacer-2 );
 						border-bottom: 1px solid var( --newspack-ui-color-border );
 						bdi {
@@ -92,17 +92,17 @@
 					}
 					.variation {
 						padding: var( --newspack-ui-spacer-2 );
-						font-size: var( --newspack-ui-font-size-small );
+						font-size: var( --newspack-ui-font-size-xs );
 						line-height: 1.5;
 						border-bottom: 1px solid var(--newspack-ui-color-border );
 						font-weight: 600;
 					}
 					form {
-						padding: var( --newspack-ui-spacer-2 );
+						padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-2 ) 0;
 						button {
 							display: block;
 							width: 100%;
-							font-size: var( --newspack-ui-font-size-small );
+							font-size: var( --newspack-ui-font-size-xs );
 						}
 					}
 				}
@@ -116,11 +116,11 @@
 
 		// Modal styles
 		background: var( --newspack-ui-color-body-bg );
-		border-radius: var( --newspack-ui-border-radius-medium );
+		border-radius: var( --newspack-ui-border-radius-m );
 		display: flex;
 		flex-direction: column;
 		max-height: 90vh;
-		max-width: var( --newspack-ui-modal-width-medium );
+		max-width: var( --newspack-ui-modal-width-m );
 		overflow: auto;
 
 		// Modal header & footer
@@ -132,14 +132,14 @@
 		&__header {
 			display: flex;
 			position: sticky;
-			align-items: flex-start;
+			align-items: center;
 			justify-content: space-between;
 			background: var( --newspack-ui-color-body-bg );
 			border-bottom: 1px solid var( --newspack-ui-color-border );
 
 			h2 {
 				font-family: var( --newspack-ui-font-family );
-				font-size: var( --newspack-ui-font-size-medium );
+				font-size: var( --newspack-ui-font-size-s );
 				margin: 0;
 			}
 		}
@@ -162,8 +162,6 @@
 		}
 
 		&__content {
-			--newspack-ui-font-size-base: var( --newspack-ui-font-size-small );
-
 			backface-visibility: visible;
 			padding: var( --newspack-ui-spacer-5 );
 		}
@@ -171,8 +169,8 @@
 		&__footer {
 			background: var( --newspack-ui-color-neutral-5 );
 			color: var( --newspack-ui-color-neutral-60 );
-			font-size: var( --newspack-ui-font-size-small );
-			line-height: var( --newspack-ui-line-height-small );
+			font-size: var( --newspack-ui-font-size-xs );
+			line-height: var( --newspack-ui-line-height-s );
 			a {
 				text-decoration: underline;
 			}
@@ -180,12 +178,12 @@
 
 		// Narrow modal
 		&--small {
-			max-width: var( --newspack-ui-modal-width-small );
+			max-width: var( --newspack-ui-modal-width-s );
 		}
 
 		// Contents
 		h3 {
-			font-size: var( --newspack-ui-font-size-medium );
+			font-size: var( --newspack-ui-font-size-s );
 		}
 
 		&__footer,

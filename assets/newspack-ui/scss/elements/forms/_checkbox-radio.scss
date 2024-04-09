@@ -41,7 +41,7 @@
 	}
 
 	input[type='checkbox'] {
-		border-radius: var( --newspack-ui-border-radius-extra-small );
+		border-radius: var( --newspack-ui-border-radius-xs );
 
 		&::before {
 			background: transparent

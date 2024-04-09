@@ -19,11 +19,11 @@
 	input[type='color'],
 	textarea {
 		border-color: var( --newspack-ui-color-input-border );
-		border-radius: var( --newspack-ui-border-radius );
+		border-radius: var( --newspack-ui-border-radius-m );
 		display: block;
 		font-family: var( --newspack-ui-font-family);
-		font-size: var( --newspack-ui-font-size-small );
-		line-height: var( --newspack-ui-line-height-large );
+		font-size: var( --newspack-ui-font-size-s );
+		line-height: var( --newspack-ui-line-height-l );
 		padding: calc( var( --newspack-ui-spacer-2 ) - 1px ) calc( var( --newspack-ui-spacer-3 ) - 1px );
 		width: 100%;
 

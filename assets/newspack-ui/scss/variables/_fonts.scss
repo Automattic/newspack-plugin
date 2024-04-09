@@ -1,19 +1,23 @@
 :root {
-	// Fonts
+	// Fonts - general
 	--newspack-ui-font-family: system-ui, sans-serif;
-
-	// TODO: the base size for the modals is 16px, with small text/labels at 14px;
-	// The My Account designs appear to use 16px for most labels
-	// Should we have a in-modal vs. non-modal set of font sizes?
-	--newspack-ui-font-size-large: clamp(1.125rem, 0.929rem + 0.402vw, 1.25rem);
-	--newspack-ui-font-size-medium: 16px; // modal baseline
-	--newspack-ui-font-size-small: 14px; // modal small
-	--newspack-ui-font-size-extra-small: 12px; // modal extra small
-	--newspack-ui-font-size-base: var( --newspack-ui-font-size-medium );
 	--newspack-ui-font-weight-strong: 600;
 
-	// Line heights - TODO: sort this out:
-	--newspack-ui-line-height-large: 1.7143; // inputs, buttons
-	--newspack-ui-line-height-medium: 1.5; // 16px font size
-	--newspack-ui-line-height-small: 1.4286; // 14px font sizes
+	// Fonts - sizes
+	--newspack-ui-font-size-2xs: 12px; // line-height: 1.3333
+	--newspack-ui-font-size-xs: 14px; // line-height: 1.4286
+	--newspack-ui-font-size-s: 16px; // line-height: 1.5
+	--newspack-ui-font-size-m: clamp(1.125rem, 0.929rem + 0.402vw, 1.25rem); // line-height: 1.6
+	--newspack-ui-font-size-l: clamp( 1.25rem, 0.857rem + 0.803vw, 1.5rem ); // line-height: 1.5
+	--newspack-ui-font-size-xl: clamp( 1.375rem, 0.394rem + 2.008vw, 2rem ); // line-height: 1.375
+	--newspack-ui-font-size-2xl: clamp( 1.625rem, 0.055rem + 3.213vw, 2.625rem ); // line-height: 1.3333
+	--newspack-ui-font-size-3xl: clamp( 1.75rem, -0.213rem + 4.016vw, 3rem ); // line-height: 1.25
+	--newspack-ui-font-size-4xl: clamp( 2rem, -1.141rem + 6.426vw, 4rem ); // line-height: 1.125
+	--newspack-ui-font-size-5xl: clamp( 2.125rem, -2.39rem + 9.237vw, 5rem ); // line-height: 1.1
+	--newspack-ui-font-size-6xl: clamp( 2.25rem, -3.639rem + 12.048vw, 6rem ); // line-height: 1.0833
+
+	// Fonts - line heights. TODO: sort this out:
+	--newspack-ui-line-height-l: 1.7143; // inputs, buttons
+	--newspack-ui-line-height-m: 1.5; // 16px font size
+	--newspack-ui-line-height-s: 1.4286; // 14px font sizes
 }

@@ -4,14 +4,14 @@
 	&__button {
 		align-items: center;
 		border: 0;
-		border-radius: var( --newspack-ui-border-radius-small );
+		border-radius: var( --newspack-ui-border-radius-s );
 		display: inline-flex;
 		font-family: var( --newspack-ui-font-family );
-		font-size: var( --newspack-ui-font-size-small );
+		font-size: var( --newspack-ui-font-size-s );
 		font-weight: 600;
 		gap: var( --newspack-ui-spacer-2 );
 		justify-content: center;
-		line-height: var( --newspack-ui-line-height-large );
+		line-height: var( --newspack-ui-line-height-l );
 		margin-bottom: var( --newspack-ui-spacer-2 );
 		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-3 ); // TODO: correct this
 		transition: background-color 150ms ease-in-out;
@@ -38,6 +38,16 @@
 		&--primary {
 			background: var( --newspack-ui-color-button-bg );
 			color: var( --newspack-ui-color-button-text );
+
+			&:hover {
+				background: var( --newspack-ui-color-button-bg-hover );
+				color: var( --newspack-ui-color-button-text-hover );
+			}
+		}
+
+		&--branded {
+			background: var( --newspack-ui-color-primary );
+			color: var( --newspack-ui-color-against-primary );
 
 			&:hover {
 				background: var( --newspack-ui-color-button-bg-hover );

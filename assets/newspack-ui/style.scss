@@ -3,8 +3,6 @@
 @use 'scss/modals';
 
 .newspack-ui {
-	font-family: var( --newspack-ui-font-family );
-	font-size: var( --newspack-ui-font-size-base );
 
 	// Need better spot for this
 	&__color-text-gray {
@@ -14,7 +12,7 @@
 	// Overrides for theme styles -- to move to theme?
 	h2,
 	h3 {
-		font-size: var( --newspack-ui-font-size-medium );
+		font-size: var( --newspack-ui-font-size-s );
 	}
 
 	a,

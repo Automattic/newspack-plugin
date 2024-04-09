@@ -1073,7 +1073,7 @@ final class Reader_Activation {
 				<p>
 					<strong class="success-title"></strong>
 				</p>
-				<p class="newspack-ui__font--small success-description"></p>
+				<p class="newspack-ui__font--xs success-description"></p>
 			</div>
 			<form method="post" target="_top">
 				<div data-action="signin register">

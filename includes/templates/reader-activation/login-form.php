@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="newspack-ui">
 	<?php Reader_Activation::render_auth_form(); ?>
-	<p><?php echo wp_kses_post( Reader_Activation::get_auth_footer() ); ?></p>
+	<p class="newspack-ui__font--xs"><?php echo wp_kses_post( Reader_Activation::get_auth_footer() ); ?></p>
 </div>
 <?php
 \do_action( 'woocommerce_after_customer_login_form' );
