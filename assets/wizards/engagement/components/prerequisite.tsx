@@ -93,9 +93,7 @@ export default function Prerequisite( {
 									: sprintf(
 											// Translators: Save or Update settings.
 											__( '%s settings', 'newspack-plugin' ),
-											isValid
-												? __( 'Update', 'newspack-plugin' )
-												: __( 'Save', 'newspack-plugin' )
+											isValid ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
 									  ) }
 							</Button>
 						</div>
