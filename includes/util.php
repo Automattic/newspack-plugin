@@ -533,11 +533,11 @@ function newspack_get_social_markup() {
  * @return array An array containing primary and secondary colors.
  */
 function newspack_get_theme_colors() {
-	$primary_color   = get_theme_mod( 'primary_color_hex', '#3366ff' );
-	$secondary_color = get_theme_mod( 'secondary_color_hex', '#f0f0f0' );
+	$default_primary_color   = function_exists( 'newspack_get_primary_color' ) ? newspack_get_primary_color() : '#3366ff';
+	$default_secondary_color = function_exists( 'newspack_get_secondary_color' ) ? newspack_get_secondary_color() : '#f0f0f0';
 
 	return [
-		'primary_color'   => $primary_color,
-		'secondary_color' => $secondary_color,
+		'primary_color'   => get_theme_mod( 'primary_color_hex', $default_primary_color ),
+		'secondary_color' => get_theme_mod( 'secondary_color_hex', $default_secondary_color ),
 	];
 }
