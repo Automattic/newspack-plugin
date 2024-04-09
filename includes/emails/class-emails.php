@@ -239,6 +239,34 @@ class Emails {
 			return false;
 		}
 
+		// Migrate to RAS-ACC email templates if migration option is not set AND there have been no manual updates to the templates.
+		if ( ! get_option( 'newspack_email_templates_migrated', false ) ) {
+			$migrated  = true;
+			$templates = get_posts(
+				[
+					'post_type'      => self::POST_TYPE,
+					'posts_per_page' => -1,
+					'post_status'    => 'publish',
+				]
+			);
+
+			foreach ( $templates as $template ) {
+				$publish_date       = get_the_date( 'Y-m-d H:i:s', $template->ID );
+				$last_modified_date = get_the_modified_date( 'Y-m-d H:i:s', $template->ID );
+
+				// Template has not been modified, so trash the post so we can trigger a template update.
+				if ( $publish_date === $last_modified_date ) {
+					if ( ! wp_trash_post( $template->ID ) ) {
+						// Flag the migration as failed so we can trigger another attempt later.
+						$migrated = false;
+					}
+				}
+			}
+
+			update_option( 'newspack_email_templates_migrated', $migrated );
+		}
+
+
 		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
 
 		if ( 'string' === gettype( $config_name ) ) {
