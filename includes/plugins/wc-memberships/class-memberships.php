@@ -34,6 +34,14 @@ class Memberships {
 	public static $active_statuses = [ 'active', 'complimentary', 'free-trial', 'pending' ];
 
 	/**
+	 * WooCommerce Subscription statuses that should be considered active.
+	 * See: https://woo.com/document/subscriptions/statuses/
+	 *
+	 * @var array
+	 */
+	public static $active_subscription_statuses = [ 'active', 'pending', 'pending-cancel' ];
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -51,6 +59,8 @@ class Memberships {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
+		add_filter( 'get_post_metadata', [ __CLASS__, 'ensure_no_expire_date_for_active_subscriptions' ], 10, 4 );
+		add_filter( 'get_post_status', [ __CLASS__, 'ensure_active_status_for_active_subscriptions' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -821,6 +831,62 @@ class Memberships {
 		}
 
 		return $all_caps;
+	}
+
+	/**
+	 * Is the given user membership tied to a currently active subscription?
+	 *
+	 * @param int $membership_id User membership ID.
+	 *
+	 * @return bool
+	 */
+	public static function membership_is_tied_to_active_subscription( $membership_id ) {
+		if ( function_exists( 'wc_memberships_get_user_membership' ) ) {
+			$membership = \wc_memberships_get_user_membership( $membership_id );
+			$plan       = $membership->get_plan();
+			if ( method_exists( $plan, 'get_access_length_type' ) && 'subscription' === $plan->get_access_length_type() && method_exists( $membership, 'get_subscription_id' ) && function_exists( 'wcs_get_subscription' ) ) {
+				$subscription = \wcs_get_subscription( $membership->get_subscription_id() );
+				if ( $subscription && in_array( $subscription->get_status(), self::$active_subscription_statuses, true ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Ensure that WC User Memberships that are tied to an active subscription do not have an Expire date.
+	 *
+	 * @param mixed  $value     The value get_metadata() should return - a single metadata value, or an array of values.
+	 * @param int    $object_id ID of the object metadata is for.
+	 * @param string $meta_key  Metadata key.
+	 * @param bool   $single    Whether to return a single value.
+	 *
+	 * @return mixed
+	 */
+	public static function ensure_no_expire_date_for_active_subscriptions( $value, $object_id, $meta_key, $single ) {
+		if ( ( '_cancelled_date' === $meta_key || '_end_date' === $meta_key ) && self::membership_is_tied_to_active_subscription( $object_id ) ) {
+			$value = '';
+		}
+		return $value;
+	}
+
+	/**
+	 * Ensuer that WC User Memberships that are tied to an active subscription have an active status.
+	 *
+	 * @param string  $status The status of the membership.
+	 * @param WP_Post $post The post object.
+	 *
+	 * @return string
+	 */
+	public static function ensure_active_status_for_active_subscriptions( $status, $post ) {
+		if ( 'wc_user_membership' === $post->post_type && 'wcm-active' !== $post->post_status && self::membership_is_tied_to_active_subscription( $post->ID ) ) {
+			$status     = 'wcm-active';
+			$membership = \wc_memberships_get_user_membership( $post->ID );
+			$membership->update_status( 'active' );
+		}
+		return $status;
 	}
 
 	/**

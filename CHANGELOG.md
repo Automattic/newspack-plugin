@@ -1,3 +1,10 @@
+## [3.6.1](https://github.com/Automattic/newspack-plugin/compare/v3.6.0...v3.6.1) (2024-04-09)
+
+
+### Bug Fixes
+
+* ensure active status for memberships tied to active subs ([#3050](https://github.com/Automattic/newspack-plugin/issues/3050)) ([b74a06d](https://github.com/Automattic/newspack-plugin/commit/b74a06dac95b3f635795285ab38c6e4ceb1b40ee))
+
 # [3.6.0](https://github.com/Automattic/newspack-plugin/compare/v3.5.4...v3.6.0) (2024-04-08)
 
 
