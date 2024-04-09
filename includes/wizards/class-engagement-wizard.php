@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use WP_Error, WP_Query;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,6 +17,8 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  * Easy interface for setting up general store info.
  */
 class Engagement_Wizard extends Wizard {
+
+	const SKIP_CAMPAIGN_SETUP_OPTION = '_newspack_ras_skip_campaign_setup';
 
 	/**
 	 * The slug of this wizard.
@@ -105,6 +107,18 @@ class Engagement_Wizard extends Wizard {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_activate_reader_activation' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/skip-campaign-setup',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => function() {
+					$skip_campaign_setup = update_option( static::SKIP_CAMPAIGN_SETUP_OPTION, true );
+					return rest_ensure_response( $skip_campaign_setup );
+				},
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -422,6 +436,8 @@ class Engagement_Wizard extends Wizard {
 			$data['preview_post']       = $newspack_popups->preview_post();
 			$data['preview_archive']    = $newspack_popups->preview_archive();
 		}
+
+		$data['is_skipped_campaign_setup'] = get_option( static::SKIP_CAMPAIGN_SETUP_OPTION, '' );
 
 		\wp_localize_script(
 			'newspack-engagement-wizard',

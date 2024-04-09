@@ -16,16 +16,23 @@ import {
 	SectionHeader,
 	Waiting,
 	withWizardScreen,
+	utils,
 } from '../../../../components/src';
 import Prompt from '../../components/prompt';
+import Router from '../../../../components/src/proxied-imports/router';
 import './style.scss';
+
+const { is_skipped_campaign_setup, reader_activation_url } = newspack_engagement_wizard;
+const { useHistory } = Router;
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ prompts, setPrompts ] = useState( null );
 	const [ allReady, setAllReady ] = useState( false );
-	const { reader_activation_url } = newspack_engagement_wizard;
+	const [ isSetupSkipped, setIsSetupSkipped ] = useState( is_skipped_campaign_setup === '1' );
+
+	const history = useHistory();
 
 	const fetchPrompts = () => {
 		setError( false );
@@ -83,6 +90,34 @@ export default withWizardScreen( () => {
 					/>
 				) ) }
 			<div className="newspack-buttons-card">
+				<Button
+					disabled={ isSetupSkipped }
+					onClick={ () => {
+						if (
+							utils.confirmAction(
+								__(
+									'Are you sure you want to skip setting up a reader activation campaign?',
+									'newspack-plugin'
+								)
+							)
+						) {
+							apiFetch( {
+								path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/skip-campaign-setup',
+								method: 'POST',
+							} )
+								.then( res => {
+									setIsSetupSkipped( Boolean( res ) );
+									history.push( '/reader-activation' );
+									newspack_engagement_wizard.is_skipped_campaign_setup = '1';
+								} )
+								.catch( () => setIsSetupSkipped( false ) );
+						} else {
+							console.log( 'Denied' );
+						}
+					} }
+				>
+					{ __( 'Skip', 'newspack-plugin' ) }
+				</Button>
 				<Button
 					isPrimary
 					disabled={ inFlight || ! allReady }
