@@ -500,6 +500,7 @@ final class Reader_Activation {
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),
+				'is_skipped'     => get_option( Engagement_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, '' ) === '1',
 				'plugins'        => [
 					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
 				],
