@@ -80,9 +80,8 @@ export default function Prerequisite( {
 								onClick={ () => {
 									const dataToSave: Partial< Config > = {};
 									fieldKeys.forEach( fieldName => {
-										if ( config[ fieldName ] ) {
-											// @ts-ignore - not sure what's the issue here.
-											dataToSave[ fieldName ] = config[ fieldName ];
+										if ( typeof config[ fieldName ] !== 'undefined' ) {
+											dataToSave[ fieldName ] = config[ fieldName ] as any;
 										}
 									} );
 									saveConfig( dataToSave );
