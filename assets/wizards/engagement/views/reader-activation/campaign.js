@@ -63,15 +63,23 @@ export default withWizardScreen( () => {
 		) {
 			return;
 		}
+		setError( false );
 		setSkipped( { ...skipped, status: 'pending' } );
 		try {
 			const request = await apiFetch( {
 				path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/skip-campaign-setup',
 				method: 'POST',
+				data: { skip: ! skipped.isSkipped },
 			} );
-			setSkipped( { isSkipped: Boolean( request ), status: '' } );
-			newspack_engagement_wizard.is_skipped_campaign_setup = '1';
+			if ( ! request.updated ) {
+				setError( { message: __( 'Server not updated', 'newspack-plugin' ) } );
+				setSkipped( { isSkipped: false, status: '' } );
+				return;
+			}
+			setSkipped( { isSkipped: Boolean( request.skipped ), status: '' } );
+			newspack_engagement_wizard.is_skipped_campaign_setup = request.skipped ? '1' : '';
 		} catch ( err ) {
+			setError( err );
 			setSkipped( { isSkipped: false, status: '' } );
 		}
 	}

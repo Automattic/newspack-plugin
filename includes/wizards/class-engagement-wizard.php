@@ -115,9 +115,15 @@ class Engagement_Wizard extends Wizard {
 			'/wizard/' . $this->slug . '/reader-activation/skip-campaign-setup',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function() {
-					$skip_campaign_setup = update_option( static::SKIP_CAMPAIGN_SETUP_OPTION, true );
-					return rest_ensure_response( $skip_campaign_setup );
+				'callback'            => function( $request ) {
+					$skip = $request->get_param( 'skip' );
+					$skip_campaign_setup = update_option( static::SKIP_CAMPAIGN_SETUP_OPTION, $skip );
+					return rest_ensure_response( 
+						[ 
+							'skipped' => $skip,
+							'updated' => $skip_campaign_setup,
+						]
+					);
 				},
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
