@@ -28,6 +28,7 @@ class Emails {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
+		add_action( 'customize_save_after', [ __CLASS__, 'customize_save_after' ] );
 	}
 
 	/**
@@ -617,5 +618,30 @@ class Emails {
 
 		return wp_lostpassword_url();
 	}
+
+	/**
+	 * Trigger an update to all email template posts when theme color is updated in customizer.
+	 * This is to force an update of dynamic properties such as theme colors.
+	 *
+	 * @param WP_Customize_Manager $wp_customize WP_Customize_Manager instance.
+	 */
+	public static function customize_save_after( $wp_customize ) {
+		$changeset_keys = array_keys( $wp_customize->changeset_data() );
+
+		if ( in_array( get_template() . '::primary_color_hex', $changeset_keys, true ) || in_array( get_template() . '::secondary_color_hex', $changeset_keys, true ) ) {
+			$templates = get_posts(
+				[
+					'post_type'      => self::POST_TYPE,
+					'posts_per_page' => -1,
+					'post_status'    => 'publish',
+				]
+			);
+
+			foreach ( $templates as $template ) {
+				wp_update_post( [ 'ID' => $template->ID ] );
+			}
+		}
+	}
 }
+
 Emails::init();
