@@ -28,7 +28,7 @@ class Emails {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
-		add_action( 'customize_save_after', [ __CLASS__, 'customize_save_after' ] );
+		add_action( 'update_option_theme_mods_' . get_template(), [ __CLASS__, 'maybe_update_email_templates' ], 10, 2 );
 	}
 
 	/**
@@ -623,12 +623,18 @@ class Emails {
 	 * Trigger an update to all email template posts when theme color is updated in customizer.
 	 * This is to force an update of dynamic properties such as theme colors.
 	 *
-	 * @param WP_Customize_Manager $wp_customize WP_Customize_Manager instance.
+	 * @param string|array $previous_value previous option value.
+	 * @param string|array $updated_value  updated option value.
+	 *
+	 * @return void
 	 */
-	public static function customize_save_after( $wp_customize ) {
-		$changeset_keys = array_keys( $wp_customize->changeset_data() );
+	public static function maybe_update_email_templates( $previous_value, $updated_value ) {
+		// Check for theme mod color settings in case a non-newspack theme is installed.
+		if ( ! isset( $previous_value['primary_color_hex'], $previous_value['secondary_color_hex'], $updated_value['primary_color_hex'], $updated_value['secondary_color_hex'] ) ) {
+			return;
+		}
 
-		if ( in_array( get_template() . '::primary_color_hex', $changeset_keys, true ) || in_array( get_template() . '::secondary_color_hex', $changeset_keys, true ) ) {
+		if ( $previous_value['primary_color_hex'] !== $updated_value['primary_color_hex'] || $previous_value['secondary_color_hex'] !== $updated_value['secondary_color_hex'] ) {
 			$templates = get_posts(
 				[
 					'post_type'      => self::POST_TYPE,
