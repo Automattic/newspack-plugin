@@ -2,6 +2,9 @@
  * Newspack Dashboard Icons, Block-Post-Date
  */
 
+/**
+ * WordPress dependencies
+ */
 import { Path, SVG } from '@wordpress/primitives';
 
 const blockPostDate = (

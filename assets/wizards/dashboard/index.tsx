@@ -6,18 +6,21 @@
 import '../../shared/js/public-path';
 
 /**
- * Dependencies.
+ * WordPress dependencies
  */
-// WordPress
 import { __ } from '@wordpress/i18n';
 import { render } from '@wordpress/element';
-// Internal
+
+/**
+ * Internal dependencies
+ */
 import sections from './components/sections';
 import QuickActions from './components/quick-actions';
 import SiteStatuses from './components/site-statuses';
 import BrandHeader from './components/brand-header';
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
+
 
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
