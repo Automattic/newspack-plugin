@@ -134,8 +134,6 @@ class WooCommerce_My_Account {
 				}
 			}
 
-
-
 			$disabled_wc_menu_items = \apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
 			foreach ( $disabled_wc_menu_items as $key ) {
 				if ( isset( $items[ $key ] ) ) {
