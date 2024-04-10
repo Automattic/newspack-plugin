@@ -28,6 +28,7 @@ class Emails {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
+		add_action( 'update_option_theme_mods_' . get_template(), [ __CLASS__, 'maybe_update_email_templates' ], 10, 2 );
 	}
 
 	/**
@@ -617,5 +618,36 @@ class Emails {
 
 		return wp_lostpassword_url();
 	}
+
+	/**
+	 * Trigger an update to all email template posts when theme color is updated in customizer.
+	 * This is to force an update of dynamic properties such as theme colors.
+	 *
+	 * @param string|array $previous_value previous option value.
+	 * @param string|array $updated_value  updated option value.
+	 *
+	 * @return void
+	 */
+	public static function maybe_update_email_templates( $previous_value, $updated_value ) {
+		// Check for theme mod color settings in case a non-newspack theme is installed.
+		if ( ! isset( $previous_value['primary_color_hex'], $previous_value['secondary_color_hex'], $updated_value['primary_color_hex'], $updated_value['secondary_color_hex'] ) ) {
+			return;
+		}
+
+		if ( $previous_value['primary_color_hex'] !== $updated_value['primary_color_hex'] || $previous_value['secondary_color_hex'] !== $updated_value['secondary_color_hex'] ) {
+			$templates = get_posts(
+				[
+					'post_type'      => self::POST_TYPE,
+					'posts_per_page' => -1,
+					'post_status'    => 'publish',
+				]
+			);
+
+			foreach ( $templates as $template ) {
+				wp_update_post( [ 'ID' => $template->ID ] );
+			}
+		}
+	}
 }
+
 Emails::init();
