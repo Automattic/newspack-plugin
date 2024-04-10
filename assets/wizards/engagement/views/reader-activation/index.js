@@ -20,6 +20,7 @@ import {
 	TextControl,
 	Waiting,
 	withWizardScreen,
+	utils,
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
@@ -297,7 +298,18 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									href={ email.edit_link }
 									description={ email.description }
 									actionText={ __( 'Edit', 'newspack-plugin' ) }
-									onSecondaryActionClick={ () => resetEmail( email.post_id ) }
+									onSecondaryActionClick={ () => {
+										if (
+											utils.confirmAction(
+												__(
+													'Are you sure you want to reset the contents of this email?',
+													'newspack-plugin'
+												)
+											)
+										) {
+											resetEmail( email.post_id );
+										}
+									} }
 									secondaryActionText={ __( 'Reset', 'newspack-plugin' ) }
 									secondaryDestructive={ true }
 									isSmall

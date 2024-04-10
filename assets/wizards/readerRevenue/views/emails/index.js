@@ -15,7 +15,7 @@ import values from 'lodash/values';
 /**
  * Internal dependencies
  */
-import { PluginInstaller, ActionCard, Notice } from '../../../../components/src';
+import { PluginInstaller, ActionCard, Notice, utils } from '../../../../components/src';
 
 const EMAILS = values( newspack_reader_revenue.emails );
 const postType = newspack_reader_revenue.email_cpt;
@@ -97,7 +97,18 @@ const Emails = () => {
 						description={ email.description }
 						actionText={ __( 'Edit', 'newspack' ) }
 						secondaryActionText={ __( 'Reset', 'newspack' ) }
-						onSecondaryActionClick={ () => resetEmail( email.post_id ) }
+						onSecondaryActionClick={ () => {
+							if (
+								utils.confirmAction(
+									__(
+										'Are you sure you want to reset the contents of this email?',
+										'newspack-plugin'
+									)
+								)
+							) {
+								resetEmail( email.post_id );
+							}
+						} }
 						secondaryDestructive={ true }
 						toggleChecked={ isActive }
 						toggleOnChange={ value => updateStatus( email.post_id, value ? 'publish' : 'draft' ) }
