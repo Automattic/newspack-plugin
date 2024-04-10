@@ -2,6 +2,9 @@
  * Newspack Dashboard Icons, Mail
  */
 
+/**
+ * WordPress dependencies
+ */
 import { Path, SVG } from '@wordpress/primitives';
 
 const mail = (

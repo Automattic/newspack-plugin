@@ -3,8 +3,16 @@
  *
  * Component for outputting sections with grid and cards
  */
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
 /* eslint import/namespace: ['error', { allowComputed: true }] */
 import { Icon, icons } from './icons';
 import { Grid, Card } from '../../../components/src';
