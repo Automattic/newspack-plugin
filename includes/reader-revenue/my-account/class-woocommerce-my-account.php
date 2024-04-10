@@ -48,6 +48,7 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'show_message_after_logout' ] );
 			\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'append_membership_table' ], 11 );
 			\add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'option_display_memberships_without_subs' ] );
+			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 		}
 	}
 
@@ -520,46 +521,6 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Optionally append a table of active memberships without subscriptions on the My Account Subscriptions tab.
-	 */
-	public static function append_membership_table() {
-		if ( function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
-			$customer_id              = \get_current_user_id();
-			$memberships_info         = wc_memberships_get_user_active_memberships( $customer_id );
-			$memberships_without_subs = [];
-
-			// If this option is not enabled, don't return the table.
-			if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
-				return;
-			}
-
-			// Create an array of active memberships without active subscriptions.
-			if ( function_exists( 'wc_memberships_has_subscription_product_granted_access' ) ) {
-				foreach ( $memberships_info as $membership ) {
-					if ( ! wc_memberships_has_subscription_product_granted_access( $membership ) ) {
-						$memberships_without_subs[] = $membership;
-					}
-				}
-			}
-
-			// If there are active memberships without subscriptions, present them in a table.
-			if ( $memberships_without_subs ) {
-				echo '<div class="woocommerce-memberships-without-subs">';
-				echo '<h2>' . esc_html__( 'Active Memberships', 'newspack-plugin' ) . '</h2>';
-				echo '<p>' . esc_html__( 'These memberships are active, but don\'t have an associated subscription. They will need to be manually renewed when they expire.', 'newspack-plugin' ) . '</p>';
-				wc_get_template(
-					'myaccount/my-memberships.php',
-					array(
-						'customer_memberships' => $memberships_without_subs,
-						'user_id'              => get_current_user_id(),
-					)
-				);
-				echo '</div>';
-			}
-		}
-	}
-
-	/**
 	 * Adds option to display memberships without subscriptions on the Subscriptions tab of My Account..
 	 *
 	 * @param array $settings WooCommerce Memberships settings.
@@ -585,6 +546,83 @@ class WooCommerce_My_Account {
 		);
 
 		return $settings;
+	}
+
+	/**
+	 * Check if a reader has memberships that aren't associated with subscriptions.
+	 *
+	 * @return array
+	 */
+	public static function has_memberships_without_subs() {
+		if ( function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
+			$customer_id              = \get_current_user_id();
+			$memberships_info         = wc_memberships_get_user_active_memberships( $customer_id );
+			$memberships_without_subs = [];
+
+			// If this option is not enabled, don't return the table.
+			if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+				return;
+			}
+
+			// Create an array of active memberships without active subscriptions.
+			if ( function_exists( 'wc_memberships_has_subscription_product_granted_access' ) ) {
+				foreach ( $memberships_info as $membership ) {
+					if ( ! wc_memberships_has_subscription_product_granted_access( $membership ) ) {
+						$memberships_without_subs[] = $membership;
+					}
+				}
+			}
+
+			return $memberships_without_subs;
+		}
+	}
+
+	/**
+	 * Optionally append a table of active memberships without subscriptions on the My Account Subscriptions tab.
+	 */
+	public static function append_membership_table() {
+		// If this option is not enabled, don't return the table.
+		if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+			return;
+		}
+
+		$memberships_without_subs = self::has_memberships_without_subs();
+
+		// If there are active memberships without subscriptions, present them in a table.
+		if ( $memberships_without_subs ) {
+			echo '<div class="woocommerce-memberships-without-subs">';
+			echo '<h2>' . esc_html__( 'Active Memberships', 'newspack-plugin' ) . '</h2>';
+			echo '<p>' . esc_html__( 'These memberships are active, but don\'t have an associated subscription. They will need to be manually renewed when they expire.', 'newspack-plugin' ) . '</p>';
+			wc_get_template(
+				'myaccount/my-memberships.php',
+				array(
+					'customer_memberships' => $memberships_without_subs,
+					'user_id'              => get_current_user_id(),
+				)
+			);
+			echo '</div>';
+		}
+	}
+
+	/**
+	 * Returns whether or not to redirect the Subscriptions link to a single subscription, or to the main Subscriptions screen.
+	 *
+	 * @return bool
+	 */
+	public static function redirect_to_single_subscription() {
+		// If this option is not enabled, we want to keep the default redirect - return true.
+		if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+			return true;
+		}
+
+		$memberships_without_subs = self::has_memberships_without_subs();
+
+		// If there are memberships without subs, we want to remove the redirect and go to Subscriptions; otherwise, return true.
+		if ( $memberships_without_subs ) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 }
 
