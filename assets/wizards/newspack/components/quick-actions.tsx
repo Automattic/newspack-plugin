@@ -5,11 +5,13 @@
  */
 
 /**
- * Dependencies
+ * WordPress dependencies
  */
-// WordPress
 import { __ } from '@wordpress/i18n';
-// Internal
+
+/**
+ * Internal dependencies
+ */
 import { Card, Grid } from '../../../components/src';
 import { Icon, icons } from './icons';
 
