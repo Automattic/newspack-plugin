@@ -37,6 +37,7 @@ const Newspack = () => {
 					<>
 						<BrandHeader />
 						<SiteStatuses />
+						<hr />
 						<QuickActions />
 					</>
 				) }
