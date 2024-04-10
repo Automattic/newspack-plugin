@@ -1,3 +1,10 @@
+## [3.6.4](https://github.com/Automattic/newspack-plugin/compare/v3.6.3...v3.6.4) (2024-04-10)
+
+
+### Bug Fixes
+
+* dont hide comments on metered paywall posts ([#3057](https://github.com/Automattic/newspack-plugin/issues/3057)) ([f06e86f](https://github.com/Automattic/newspack-plugin/commit/f06e86f01aef0b794a3c18684abc5333690a5362))
+
 ## [3.6.3](https://github.com/Automattic/newspack-plugin/compare/v3.6.2...v3.6.3) (2024-04-10)
 
 
