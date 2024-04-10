@@ -59,7 +59,7 @@ class Memberships {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
-		add_filter( 'wc_memberships_user_membership', [ 'ensure_active_memberships_for_active_subscriptions' ] );
+		add_filter( 'wc_memberships_user_membership', [ __CLASS__, 'ensure_active_memberships_for_active_subscriptions' ] );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -863,15 +863,20 @@ class Memberships {
 			$subscription_id = self::membership_is_tied_to_active_subscription( $user_membership );
 			$active_statuses = \wc_memberships()->get_user_memberships_instance()->get_active_access_membership_statuses();
 
-			if ( $subscription_id && ! $user_membership->has_status( $active_statuses ) ) {
-				$user_membership->set_end_date(); // Clear the end date.
-				$user_membership->activate_membership( // Reset to active status.
-					sprintf(
-						// Translators: %d is the membership's linked subscription ID.
-						__( 'Membership reactivated because linked subscription %d is still active.', 'newspack-plugin' ),
-						$subscription_id
-					)
-				);
+			// Clear the end date and reactivate the membership if it's not active.
+			if ( ! \is_admin() && $subscription_id && ! $user_membership->has_status( $active_statuses ) ) {
+				if ( $user_membership->has_end_date() ) {
+					\delete_post_meta( $user_membership->get_id(), '_end_date' );
+				} else {
+					$user_membership->update_status(
+						'active',
+						sprintf(
+							// Translators: %d is the membership's linked subscription ID.
+							__( 'Membership reactivated because linked subscription %d is still active.', 'newspack-plugin' ),
+							$subscription_id
+						)
+					);
+				}
 			}
 		}
 		return $user_membership;
