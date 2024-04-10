@@ -2,6 +2,9 @@
  * Newspack Dashboard Icons, Postion-Center-Center
  */
 
+/**
+ * WordPress dependencies
+ */
 import { SVG, Rect } from '@wordpress/primitives';
 
 const positionCenterCenter = (
