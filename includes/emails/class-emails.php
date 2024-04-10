@@ -240,7 +240,7 @@ class Emails {
 		}
 
 		// Migrate to RAS-ACC email templates if migration option is not set AND there have been no manual updates to the templates.
-		if ( ! get_option( 'newspack_email_templates_migrated', false ) ) {
+		if ( get_option( 'newspack_email_templates_migrated', '' ) !== 'v1' ) {
 			$migrated  = true;
 			$templates = get_posts(
 				[
@@ -263,7 +263,9 @@ class Emails {
 				}
 			}
 
-			update_option( 'newspack_email_templates_migrated', $migrated );
+			if ( $migrated ) {
+				update_option( 'newspack_email_templates_migrated', 'v1' );
+			}
 		}
 
 
