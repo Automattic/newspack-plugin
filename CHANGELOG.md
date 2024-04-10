@@ -1,3 +1,10 @@
+## [3.6.2](https://github.com/Automattic/newspack-plugin/compare/v3.6.1...v3.6.2) (2024-04-10)
+
+
+### Bug Fixes
+
+* **ras:** email to login conversion ([#3031](https://github.com/Automattic/newspack-plugin/issues/3031)) ([075d7f1](https://github.com/Automattic/newspack-plugin/commit/075d7f147427b536903c29f0349c249a314f1e2a))
+
 ## [3.6.1](https://github.com/Automattic/newspack-plugin/compare/v3.6.0...v3.6.1) (2024-04-09)
 
 
