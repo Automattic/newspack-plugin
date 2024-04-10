@@ -2,6 +2,9 @@
  * Newspack Dashboard Icons, Ad
  */
 
+/**
+ * WordPress dependencies
+ */
 import { Path, SVG, Rect } from '@wordpress/primitives';
 
 const ad = (

@@ -5,12 +5,14 @@
  */
 
 /**
- * Dependencies.
+ * WordPress dependencies
  */
-// WordPress
 import { __ } from '@wordpress/i18n';
 import { render } from '@wordpress/element';
-// Internal
+
+/**
+ * Internal dependencies
+ */
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
 import sections from './components/sections';

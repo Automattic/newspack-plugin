@@ -2,6 +2,9 @@
  * Newspack Dashboard Icons, Dashboard
  */
 
+/**
+ * WordPress dependencies
+ */
 import { Path, SVG } from '@wordpress/primitives';
 
 const gift = (
