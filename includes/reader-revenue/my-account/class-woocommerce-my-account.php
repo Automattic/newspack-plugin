@@ -49,6 +49,7 @@ class WooCommerce_My_Account {
 			\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'append_membership_table' ], 11 );
 			\add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'option_display_memberships_without_subs' ] );
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
+			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 		}
 	}
 
@@ -338,11 +339,13 @@ class WooCommerce_My_Account {
 	 * Redirect to "Account details" if accessing "My Account" directly.
 	 * Do not redirect if the request is a resubscribe request, as resubscribe
 	 * requests do their own redirect to the cart/checkout page.
+	 * Do not redirect if this request is a membership cancellation.
 	 */
 	public static function redirect_to_account_details() {
-		$resubscribe_request = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$cancel_membership_request = isset( $_REQUEST['cancel_membership'] ) ? true : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $resubscribe_request ) {
+		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $resubscribe_request && ! $cancel_membership_request ) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
 			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
@@ -623,6 +626,17 @@ class WooCommerce_My_Account {
 		} else {
 			return true;
 		}
+	}
+
+	/**
+	 * Hides 'Cancel' button on main Membeships table to tidy it up.
+	 *
+	 * @param array $actions WooCommerce Memberships available actions.
+	 * @return array
+	 */
+	public static function hide_cancel_button_from_memberships_table( $actions ) {
+		unset( $actions['cancel'] );
+		return $actions;
 	}
 }
 
