@@ -2,10 +2,10 @@
 /**
  * WordPress dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
+import { ExternalLink } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,6 +20,7 @@ import {
 	TextControl,
 	Waiting,
 	withWizardScreen,
+	utils,
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
@@ -39,6 +40,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ prerequisites, setPrerequisites ] = useState( null );
 	const [ missingPlugins, setMissingPlugins ] = useState( [] );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
+
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
@@ -70,6 +72,18 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 				setConfig( fetchedConfig );
 				setMembershipsConfig( memberships );
 			} )
+			.catch( setError )
+			.finally( () => setInFlight( false ) );
+	};
+	const resetEmail = postId => {
+		setError( false );
+		setInFlight( true );
+		wizardApiFetch( {
+			path: `/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/emails/${ postId }`,
+			method: 'DELETE',
+			quiet: true,
+		} )
+			.then( emails => setConfig( { ...config, emails } ) )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
@@ -284,6 +298,20 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									href={ email.edit_link }
 									description={ email.description }
 									actionText={ __( 'Edit', 'newspack-plugin' ) }
+									onSecondaryActionClick={ () => {
+										if (
+											utils.confirmAction(
+												__(
+													'Are you sure you want to reset the contents of this email?',
+													'newspack-plugin'
+												)
+											)
+										) {
+											resetEmail( email.post_id );
+										}
+									} }
+									secondaryActionText={ __( 'Reset', 'newspack-plugin' ) }
+									secondaryDestructive={ true }
 									isSmall
 								/>
 							) ) }
