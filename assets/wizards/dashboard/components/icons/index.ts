@@ -2,6 +2,9 @@
  * Newspack Dashboard, Icons
  */
 
+/**
+ * WordPress dependencies
+ */
 export { Icon } from '@wordpress/icons';
 import {
 	help,
@@ -18,7 +21,7 @@ import {
 } from '@wordpress/icons';
 
 /**
- * Custom SVGs
+ * Internal dependencies
  */
 import blockPostDate from './block-post-date';
 import positionCenterCenter from './position-center-center';

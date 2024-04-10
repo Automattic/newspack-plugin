@@ -6,16 +6,19 @@
 import '../../shared/js/public-path';
 
 /**
- * Dependencies.
+ * WordPress dependencies
  */
-// WordPress
 import { __ } from '@wordpress/i18n';
 import { render } from '@wordpress/element';
-// Internal
+
+/**
+ * Internal dependencies
+ */
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import sections from './components/sections';
 import SiteStatuses from './components/site-statuses';
 import BrandHeader from './components/brand-header';
+import QuickActions from './components/quick-actions';
 import './style.scss';
 
 const {
@@ -34,7 +37,7 @@ const Newspack = () => {
 					<>
 						<BrandHeader />
 						<SiteStatuses />
-						<p>Quick Actions</p>
+						<QuickActions />
 					</>
 				) }
 			/>

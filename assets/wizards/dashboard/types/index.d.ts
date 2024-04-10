@@ -17,6 +17,11 @@ declare global {
 					isAvailable: boolean;
 				};
 			};
+			quickActions: {
+				href: string;
+				title: string;
+				icon: keyof typeof icons;
+			}[],
 			sections: {
 				[ k: string ]: {
 					title: string;

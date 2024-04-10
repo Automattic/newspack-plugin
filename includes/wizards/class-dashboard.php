@@ -328,6 +328,23 @@ class Dashboard extends Wizard {
 						],
 					],
 				],
+				'quickActions' => [
+					[
+						'href'  => admin_url( 'post-new.php' ),
+						'title' => __( 'Start a new post', 'newspack-plugin' ),
+						'icon'  => 'post',
+					],
+					[
+						'href'  => admin_url( 'post-new.php?post_type=newspack_nl_cpt' ),
+						'title' => __( 'Draft a newsletter', 'newspack-plugin' ),
+						'icon'  => 'mail',
+					],
+					[
+						'href'  => 'https://lookerstudio.google.com/u/0/reporting/b7026fea-8c2c-4c4b-be95-f582ed94f097/page/p_3eqlhk5odd',
+						'title' => __( 'Open data dashboard', 'newspack-plugin' ),
+						'icon'  => 'dashboard',
+					],
+				],
 			]
 		);
 		wp_enqueue_script( 'newspack-dashboard' );
