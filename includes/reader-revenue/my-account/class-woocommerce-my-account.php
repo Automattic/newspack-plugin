@@ -46,6 +46,8 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'verify_saved_account_details' ] );
 			\add_action( 'logout_redirect', [ __CLASS__, 'add_param_after_logout' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'show_message_after_logout' ] );
+			\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'append_membership_table' ], 11 );
+			\add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'option_display_memberships_without_subs' ] );
 		}
 	}
 
@@ -129,6 +131,8 @@ class WooCommerce_My_Account {
 					$default_disabled_items[] = 'downloads';
 				}
 			}
+
+
 
 			$disabled_wc_menu_items = \apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
 			foreach ( $disabled_wc_menu_items as $key ) {
@@ -513,6 +517,74 @@ class WooCommerce_My_Account {
 		if ( isset( $_GET['logged_out'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			WooCommerce_Connection::add_wc_notice( __( 'You have successfully logged out.', 'newspack-plugin' ), 'success' );
 		}
+	}
+
+	/**
+	 * Optionally append a table of active memberships without subscriptions on the My Account Subscriptions tab.
+	 */
+	public static function append_membership_table() {
+		if ( function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
+			$customer_id            = \get_current_user_id();
+			$memberships_info       = wc_memberships_get_user_active_memberships( $customer_id );
+			$no_sub_memberships     = [];
+
+			// If this option is not enabled, don't return the table.
+			if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+				return;
+			}
+
+			// Create an array of active memberships without active subscriptions.
+			if ( function_exists( 'wc_memberships_has_subscription_product_granted_access' ) ) {
+				foreach ( $memberships_info as $membership ) {
+					if ( ! wc_memberships_has_subscription_product_granted_access( $membership ) ) {
+						$no_sub_memberships[] = $membership;
+					}
+				}
+			}
+
+			// If there are active memberships without subscriptions, present them in a table.
+			if ( $no_sub_memberships ) {
+				echo '<div class="woocommerce-memberships-without-subs">';
+				echo '<h4>' . esc_html__( 'Active Memberships', 'newspack-plugin' ) . '</h4>';
+				echo '<p>' . esc_html__( 'These memberships are active, but don\'t have an associated subscription. They will need to be manually renewed when they expire.', 'newspack-plugin' ) . '</p>';
+				wc_get_template(
+					'myaccount/my-memberships.php',
+					array(
+						'customer_memberships' => $no_sub_memberships,
+						'user_id'              => get_current_user_id(),
+					)
+				);
+				echo '</div>';
+			}
+		}
+	}
+
+	/**
+	 * Adds option to display memberships without subscriptions on the Subscriptions tab of My Account..
+	 *
+	 * @param array $settings WooCommerce Memberships settings.
+	 * @return array
+	 */
+	public static function option_display_memberships_without_subs( $settings ) {
+		$settings[] = array(
+			'name' => __( 'Newspack Reader Activation', 'newspack-plugin' ),
+			'type' => 'title',
+			'id'   => 'wc_memberships_show_unsubbed_memberships',
+		);
+
+		$settings[] = array(
+			'type'    => 'checkbox',
+			'id'      => 'wc_memberships_show_unsubbed_memberships',
+			'name'    => __( 'Memberships without subscriptions', 'newspack-plugin' ),
+			'desc'    => __( 'Display memberships that don\'t have active subscriptions on the My Account Subscriptions tab.', 'newspack-plugin' ),
+			'default' => 'no',
+		);
+
+		$settings[] = array(
+			'type' => 'sectionend',
+		);
+
+		return $settings;
 	}
 }
 
