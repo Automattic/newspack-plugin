@@ -844,7 +844,7 @@ class Memberships {
 		if ( function_exists( 'wc_memberships_get_user_membership' ) ) {
 			$membership = \wc_memberships_get_user_membership( $membership_id );
 			$plan       = $membership->get_plan();
-			if ( $plan && method_exists( $plan, 'get_access_length_type' ) && 'subscription' === $plan->get_access_length_type() && method_exists( $membership, 'get_subscription_id' ) && function_exists( 'wcs_get_subscription' ) ) {
+			if ( $membership && $plan && method_exists( $plan, 'get_access_length_type' ) && 'subscription' === $plan->get_access_length_type() && method_exists( $membership, 'get_subscription_id' ) && function_exists( 'wcs_get_subscription' ) ) {
 				$subscription = \wcs_get_subscription( $membership->get_subscription_id() );
 				if ( $subscription && in_array( $subscription->get_status(), self::$active_subscription_statuses, true ) ) {
 					return true;
