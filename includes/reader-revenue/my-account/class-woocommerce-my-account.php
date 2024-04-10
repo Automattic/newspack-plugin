@@ -524,9 +524,9 @@ class WooCommerce_My_Account {
 	 */
 	public static function append_membership_table() {
 		if ( function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
-			$customer_id            = \get_current_user_id();
-			$memberships_info       = wc_memberships_get_user_active_memberships( $customer_id );
-			$no_sub_memberships     = [];
+			$customer_id              = \get_current_user_id();
+			$memberships_info         = wc_memberships_get_user_active_memberships( $customer_id );
+			$memberships_without_subs = [];
 
 			// If this option is not enabled, don't return the table.
 			if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
@@ -537,20 +537,20 @@ class WooCommerce_My_Account {
 			if ( function_exists( 'wc_memberships_has_subscription_product_granted_access' ) ) {
 				foreach ( $memberships_info as $membership ) {
 					if ( ! wc_memberships_has_subscription_product_granted_access( $membership ) ) {
-						$no_sub_memberships[] = $membership;
+						$memberships_without_subs[] = $membership;
 					}
 				}
 			}
 
 			// If there are active memberships without subscriptions, present them in a table.
-			if ( $no_sub_memberships ) {
+			if ( $memberships_without_subs ) {
 				echo '<div class="woocommerce-memberships-without-subs">';
-				echo '<h4>' . esc_html__( 'Active Memberships', 'newspack-plugin' ) . '</h4>';
+				echo '<h2>' . esc_html__( 'Active Memberships', 'newspack-plugin' ) . '</h2>';
 				echo '<p>' . esc_html__( 'These memberships are active, but don\'t have an associated subscription. They will need to be manually renewed when they expire.', 'newspack-plugin' ) . '</p>';
 				wc_get_template(
 					'myaccount/my-memberships.php',
 					array(
-						'customer_memberships' => $no_sub_memberships,
+						'customer_memberships' => $memberships_without_subs,
 						'user_id'              => get_current_user_id(),
 					)
 				);

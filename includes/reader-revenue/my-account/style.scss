@@ -86,12 +86,22 @@
 	}
 
 	.woocommerce-memberships-without-subs {
-		margin-top: 2rem;
+		h2 {
+			font-size: 1em;
+			margin-top: 0;
+		}
 
 		p {
 			font-size: 0.8rem;
 		}
 	}
+
+	// Hide the 'You have no active subscriptions' message if memberships table is present.
+	.woocommerce_account_subscriptions:has( > .no_subscriptions ):has( ~ .woocommerce-memberships-without-subs ) {
+		display: none;
+	}
+
+
 }
 
 /* stylelint-disable-next-line */
