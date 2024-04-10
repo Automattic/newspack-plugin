@@ -527,15 +527,15 @@ class WooCommerce_Connection {
 	 * Send the customizable cancellation email in addition to WooCommerce Subscription's default.
 	 * We still want to allow WCS to send its cancellation email since this targets the store admin.
 	 *
-	 * @param bool     $enable Whether to send the default receipt email.
-	 * @param WC_Order $order The order object for the receipt email.
-	 * @param WC_Email $class Instance of the WC_Email class.
+	 * @param bool            $enable        Whether to send the default receipt email.
+	 * @param WC_Subscription $subscription  The order object for the receipt email.
+	 * @param WC_Email        $class         Instance of the WC_Email class.
 	 *
 	 * @return bool
 	 */
-	public static function send_customizable_cancellation_email( $enable, $order, $class ) {
-		// If we don't have a valid order, or the customizable email isn't enabled, bail.
-		if ( ! is_a( $order, 'WC_Order' ) || ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'] ) ) {
+	public static function send_customizable_cancellation_email( $enable, $subscription, $class ) {
+		// If we don't have a valid subscription, or the customizable email isn't enabled, bail.
+		if ( ! is_a( $subscription, 'WC_Subscription' ) || ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'] ) ) {
 			return $enable;
 		}
 
@@ -551,22 +551,22 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$items = $order->get_items();
+		$items = $subscription->get_items();
 		$item  = array_shift( $items );
 
 		// Replace content placeholders.
 		$placeholders = [
 			[
 				'template' => '*BILLING_NAME*',
-				'value'    => trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
+				'value'    => trim( $subscription->get_billing_first_name() . ' ' . $subscription->get_billing_last_name() ),
 			],
 			[
 				'template' => '*BILLING_FIRST_NAME*',
-				'value'    => $order->get_billing_first_name(),
+				'value'    => $subscription->get_billing_first_name(),
 			],
 			[
 				'template' => '*BILLING_LAST_NAME*',
-				'value'    => $order->get_billing_last_name(),
+				'value'    => $subscription->get_billing_last_name(),
 			],
 			[
 				'template' => '*BILLING_FREQUENCY*',
@@ -577,26 +577,22 @@ class WooCommerce_Connection {
 				'value'    => $item->get_name(),
 			],
 			[
-				'template' => '*AMOUNT*',
-				'value'    => \wp_strip_all_tags( $order->get_formatted_order_total() ),
+				'template' => '*STATUS*',
+				'value'    => $subscription->get_status(),
 			],
 			[
-				'template' => '*DATE*',
-				'value'    => $order->get_date_created()->date_i18n(),
+				'template' => '*END_DATE*',
+				'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'end' ) ) ),
 			],
 			[
-				'template' => '*PAYMENT_METHOD*',
-				'value'    => __( 'Card', 'newspack-plugin' ) . ' – ' . $order->get_payment_method(),
-			],
-			[
-				'template' => '*SUBSCRIPTION_URL*',
-				'value'    => sprintf( '<a href="%s">%s</a>', $order->get_view_order_url(), __( 'My Account', 'newspack-plugin' ) ),
+				'template' => '*DONATION_URL*',
+				'value'    => sprintf( '<a href="%s">%s</a>', $subscription->get_view_order_url(), __( 'My Account', 'newspack-plugin' ) ),
 			],
 		];
 
 		$sent = Emails::send_email(
 			Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'],
-			$order->get_billing_email(),
+			$subscription->get_billing_email(),
 			$placeholders
 		);
 

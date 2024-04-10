@@ -76,18 +76,6 @@ class Reader_Revenue_Emails {
 				'template' => '*PRODUCT_NAME*',
 			],
 			[
-				'label'    => __( 'the payment amount', 'newspack-plugin' ),
-				'template' => '*AMOUNT*',
-			],
-			[
-				'label'    => __( 'payment date', 'newspack-plugin' ),
-				'template' => '*DATE*',
-			],
-			[
-				'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
-				'template' => '*PAYMENT_METHOD*',
-			],
-			[
 				'label'    => __(
 					'the contact email to your site (same as the "From" email address)',
 					'newspack-plugin'
@@ -109,6 +97,18 @@ class Reader_Revenue_Emails {
 						'label'    => __( 'automatically-generated receipt link', 'newspack-plugin' ),
 						'template' => '*RECEIPT_URL*',
 					],
+					[
+						'label'    => __( 'the payment amount', 'newspack-plugin' ),
+						'template' => '*AMOUNT*',
+					],
+					[
+						'label'    => __( 'payment date', 'newspack-plugin' ),
+						'template' => '*DATE*',
+					],
+					[
+						'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
+						'template' => '*PAYMENT_METHOD*',
+					],
 				]
 			),
 		];
@@ -123,8 +123,12 @@ class Reader_Revenue_Emails {
 				$available_placeholders,
 				[
 					[
-						'label'    => __( 'the subscription management url', 'newspack-plugin' ),
-						'template' => '*SUBSCRIPTION_URL*',
+						'label'    => __( 'the recurring donation management url', 'newspack-plugin' ),
+						'template' => '*DONATION_URL*',
+					],
+					[
+						'label'    => __( 'the recurring donation end date', 'newspack-plugin' ),
+						'template' => '*END_DATE*',
 					],
 				]
 			),
