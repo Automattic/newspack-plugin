@@ -97,8 +97,12 @@
 	}
 
 	// Hide the 'You have no active subscriptions' message if memberships table is present.
-	.woocommerce_account_subscriptions:has( > .no_subscriptions ):has( ~ .woocommerce-memberships-without-subs ) {
-		display: none;
+	.woocommerce_account_subscriptions:has( ~ .woocommerce-memberships-without-subs ) {
+		margin-bottom: 2rem;
+
+		&:has( > .no_subscriptions ) {
+			display: none;
+		}
 	}
 
 
