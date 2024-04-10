@@ -10,6 +10,11 @@ declare module 'react' {
 declare global {
 	interface Window {
 		newspackDashboard: {
+			quickActions: {
+				href: string;
+				title: string;
+				icon: keyof typeof icons;
+			}[],
 			sections: {
 				[ k: string ]: {
 					title: string;
