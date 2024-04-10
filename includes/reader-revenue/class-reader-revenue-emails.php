@@ -14,7 +14,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Reader_Revenue_Emails {
 	const EMAIL_TYPES = [
-		'RECEIPT' => 'receipt',
+		'CANCELLATION' => 'cancellation',
+		'RECEIPT'      => 'receipt',
 	];
 
 	/**
@@ -53,59 +54,82 @@ class Reader_Revenue_Emails {
 	 * @param array $configs Email types.
 	 */
 	public static function add_email_configs( $configs ) {
-		$configs[ self::EMAIL_TYPES['RECEIPT'] ] = [
+		$available_placeholders                       = [
+			[
+				'label'    => __( 'the customer billing name', 'newspack-plugin' ),
+				'template' => '*BILLING_NAME*',
+			],
+			[
+				'label'    => __( 'the customer billing first name', 'newspack-plugin' ),
+				'template' => '*BILLING_FIRST_NAME*',
+			],
+			[
+				'label'    => __( 'the customer billing last name', 'newspack-plugin' ),
+				'template' => '*BILLING_LAST_NAME*',
+			],
+			[
+				'label'    => __( 'the billing frequency (one-time, monthly or annual)', 'newspack-plugin' ),
+				'template' => '*BILLING_FREQUENCY*',
+			],
+			[
+				'label'    => __( 'the product name', 'newspack-plugin' ),
+				'template' => '*PRODUCT_NAME*',
+			],
+			[
+				'label'    => __( 'the payment amount', 'newspack-plugin' ),
+				'template' => '*AMOUNT*',
+			],
+			[
+				'label'    => __( 'payment date', 'newspack-plugin' ),
+				'template' => '*DATE*',
+			],
+			[
+				'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
+				'template' => '*PAYMENT_METHOD*',
+			],
+			[
+				'label'    => __(
+					'the contact email to your site (same as the "From" email address)',
+					'newspack-plugin'
+				),
+				'template' => '*CONTACT_EMAIL*',
+			],
+		];
+		$configs[ self::EMAIL_TYPES['RECEIPT'] ]      = [
 			'name'                   => self::EMAIL_TYPES['RECEIPT'],
 			'label'                  => __( 'Receipt', 'newspack-plugin' ),
 			'description'            => __( "Email sent to the donor after they've donated.", 'newspack-plugin' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
 			'editor_notice'          => __( 'This email will be sent to a reader after they contribute to your site.', 'newspack-plugin' ),
 			'from_email'             => self::get_from_email(),
-			'available_placeholders' => [
+			'available_placeholders' => array_merge(
+				$available_placeholders,
 				[
-					'label'    => __( 'the customer billing name', 'newspack-plugin' ),
-					'template' => '*BILLING_NAME*',
-				],
-				[
-					'label'    => __( 'the customer billing first name', 'newspack-plugin' ),
-					'template' => '*BILLING_FIRST_NAME*',
-				],
-				[
-					'label'    => __( 'the customer billing last name', 'newspack-plugin' ),
-					'template' => '*BILLING_LAST_NAME*',
-				],
-				[
-					'label'    => __( 'the billing frequency (one-time, monthly or annual)', 'newspack-plugin' ),
-					'template' => '*BILLING_FREQUENCY*',
-				],
-				[
-					'label'    => __( 'the product name', 'newspack-plugin' ),
-					'template' => '*PRODUCT_NAME*',
-				],
-				[
-					'label'    => __( 'the payment amount', 'newspack-plugin' ),
-					'template' => '*AMOUNT*',
-				],
-				[
-					'label'    => __( 'payment date', 'newspack-plugin' ),
-					'template' => '*DATE*',
-				],
-				[
-					'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
-					'template' => '*PAYMENT_METHOD*',
-				],
-				[
-					'label'    => __(
-						'the contact email to your site (same as the "From" email address)',
-						'newspack-plugin'
-					),
-					'template' => '*CONTACT_EMAIL*',
-				],
-				[
-					'label'    => __( 'automatically-generated receipt link', 'newspack-plugin' ),
-					'template' => '*RECEIPT_URL*',
-				],
-			],
+					[
+						'label'    => __( 'automatically-generated receipt link', 'newspack-plugin' ),
+						'template' => '*RECEIPT_URL*',
+					],
+				]
+			),
 		];
+		$configs[ self::EMAIL_TYPES['CANCELLATION'] ] = [
+			'name'                   => self::EMAIL_TYPES['CANCELLATION'],
+			'label'                  => __( 'Cancellation', 'newspack-plugin' ),
+			'description'            => __( "Email sent to the donor after they've cancelled a recurring donation.", 'newspack-plugin' ),
+			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/cancellation.php',
+			'editor_notice'          => __( 'This email will be sent to a reader after they cancel a recurring donation.', 'newspack-plugin' ),
+			'from_email'             => self::get_from_email(),
+			'available_placeholders' => array_merge(
+				$available_placeholders,
+				[
+					[
+						'label'    => __( 'the subscription management url', 'newspack-plugin' ),
+						'template' => '*SUBSCRIPTION_URL*',
+					],
+				]
+			),
+		];
+
 
 		return $configs;
 	}

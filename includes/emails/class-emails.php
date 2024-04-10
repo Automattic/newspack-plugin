@@ -269,7 +269,6 @@ class Emails {
 			}
 		}
 
-
 		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
 
 		if ( 'string' === gettype( $config_name ) ) {
