@@ -21,7 +21,6 @@ import BrandHeader from './components/brand-header';
 import { GlobalNotices, Footer, Notice, Wizard } from '../../components/src';
 import './style.scss';
 
-
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
 } = window;
