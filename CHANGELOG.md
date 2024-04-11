@@ -1,3 +1,10 @@
+# [3.7.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v3.7.0-alpha.1...v3.7.0-alpha.2) (2024-04-11)
+
+
+### Bug Fixes
+
+* hourly cron job to check for prematurely expired memberships ([#3060](https://github.com/Automattic/newspack-plugin/issues/3060)) ([77eeee3](https://github.com/Automattic/newspack-plugin/commit/77eeee374723a2780ace91669f848b2d24a436c4))
+
 # [3.7.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.6.7...v3.7.0-alpha.1) (2024-04-11)
 
 ### Bug Fixes
