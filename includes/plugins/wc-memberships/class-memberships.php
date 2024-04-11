@@ -888,13 +888,7 @@ class Memberships {
 	public static function cron_init() {
 		\register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'cron_deactivate' ] );
 
-		// No need to run the cron job if Memberships isn't active.
-		if ( ! function_exists( 'wc_memberships' ) ) {
-			self::cron_deactivate();
-			return;
-		}
-
-		if ( wp_next_scheduled( self::CRON_HOOK ) ) {
+		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			\wp_schedule_event( time(), 'hourly', self::CRON_HOOK );
 		}
 	}
