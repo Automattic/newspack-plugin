@@ -864,7 +864,7 @@ class Memberships {
 			$active_statuses = \wc_memberships()->get_user_memberships_instance()->get_active_access_membership_statuses();
 
 			// Clear the end date and reactivate the membership if it's not active.
-			if ( ! \is_admin() && $subscription_id && ! $user_membership->has_status( $active_statuses ) ) {
+			if ( $subscription_id && ! $user_membership->has_status( $active_statuses ) ) {
 				if ( $user_membership->has_end_date() ) {
 					\delete_post_meta( $user_membership->get_id(), '_end_date' );
 				} else {
@@ -876,6 +876,7 @@ class Memberships {
 							$subscription_id
 						)
 					);
+					\add_filter( 'wc_memberships_expire_user_membership', '__return_false' );
 				}
 			}
 		}
