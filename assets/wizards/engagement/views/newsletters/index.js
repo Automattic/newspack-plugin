@@ -348,8 +348,8 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 							toggleOnChange={ handleChange( index, 'active' ) }
 							toggleChecked={ list.active }
 							className={
-								list?.id && list.id.startsWith( 'group' )
-									? 'newspack-newsletters-group-list-item'
+								list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
+									? 'newspack-newsletters-sub-list-item'
 									: ''
 							}
 							actionText={
