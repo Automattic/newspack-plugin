@@ -554,16 +554,11 @@ class WooCommerce_My_Account {
 	 *
 	 * @return array
 	 */
-	public static function has_memberships_without_subs() {
+	public static function get_memberships_without_subs() {
 		if ( function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
 			$customer_id              = \get_current_user_id();
 			$memberships_info         = wc_memberships_get_user_active_memberships( $customer_id );
 			$memberships_without_subs = [];
-
-			// If this option is not enabled, don't return the table.
-			if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
-				return;
-			}
 
 			// Create an array of active memberships without active subscriptions.
 			if ( function_exists( 'wc_memberships_has_subscription_product_granted_access' ) ) {
@@ -582,12 +577,12 @@ class WooCommerce_My_Account {
 	 * Optionally append a table of active memberships without subscriptions on the My Account Subscriptions tab.
 	 */
 	public static function append_membership_table() {
-		// If this option is not enabled, don't return the table.
+		// If this option is not enabled, stop.
 		if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
 			return;
 		}
 
-		$memberships_without_subs = self::has_memberships_without_subs();
+		$memberships_without_subs = self::get_memberships_without_subs();
 
 		// If there are active memberships without subscriptions, present them in a table.
 		if ( $memberships_without_subs ) {
@@ -611,12 +606,12 @@ class WooCommerce_My_Account {
 	 * @return bool
 	 */
 	public static function redirect_to_single_subscription() {
-		// If this option is not enabled, we want to keep the default redirect - return true.
+		// If this option is not enabled, stop.
 		if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
 			return true;
 		}
 
-		$memberships_without_subs = self::has_memberships_without_subs();
+		$memberships_without_subs = self::get_memberships_without_subs();
 
 		// If there are memberships without subs, we want to remove the redirect and go to Subscriptions; otherwise, return true.
 		if ( $memberships_without_subs ) {
