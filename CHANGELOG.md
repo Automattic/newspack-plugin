@@ -1,3 +1,17 @@
+# [3.7.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.6.7...v3.7.0-alpha.1) (2024-04-11)
+
+
+### Bug Fixes
+
+* prevent multiple inputs from resetting in autocompletetokenfield component ([#3023](https://github.com/Automattic/newspack-plugin/issues/3023)) ([7f30d79](https://github.com/Automattic/newspack-plugin/commit/7f30d79bb4385f1a6bc28c275fda3bca2772fc71))
+* **reader-reg-block:** respect newsletter subscription checkbox state ([#3024](https://github.com/Automattic/newspack-plugin/issues/3024)) ([02728d3](https://github.com/Automattic/newspack-plugin/commit/02728d3cbd4355d8f09db7a44cb42c99f08d9da6))
+* revert [#3050](https://github.com/Automattic/newspack-plugin/issues/3050) due to performance issues ([#3059](https://github.com/Automattic/newspack-plugin/issues/3059)) ([a986c17](https://github.com/Automattic/newspack-plugin/commit/a986c174dc6e815bd72f15a51ea37d245266996b))
+
+
+### Features
+
+* support for MC tags as subscription lists ([#3035](https://github.com/Automattic/newspack-plugin/issues/3035)) ([c363630](https://github.com/Automattic/newspack-plugin/commit/c363630971464f2023c3fe9cd67e58707d68931b))
+
 ## [3.6.7](https://github.com/Automattic/newspack-plugin/compare/v3.6.6...v3.6.7) (2024-04-11)
 
 
