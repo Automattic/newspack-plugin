@@ -622,7 +622,7 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Hides 'Cancel' button on main Membeships table to tidy it up.
+	 * Hides 'Cancel' button on main Memberships table to tidy it up.
 	 *
 	 * @param array $actions WooCommerce Memberships available actions.
 	 * @return array
