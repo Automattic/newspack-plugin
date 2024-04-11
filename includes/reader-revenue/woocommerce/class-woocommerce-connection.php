@@ -307,6 +307,14 @@ class WooCommerce_Connection {
 
 		if ( ! $order ) {
 			$order = self::get_last_successful_order( $customer );
+
+			// If customer has no order, they might still have a Subscription.
+			if ( ! $order ) {
+				$user_subscriptions = wcs_get_users_subscriptions( $customer->get_id() );
+				if ( $user_subscriptions ) {
+					$order = reset( $user_subscriptions );
+				}
+			}
 		}
 
 		if ( $order ) {
