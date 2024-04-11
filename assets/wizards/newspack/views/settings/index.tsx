@@ -13,9 +13,10 @@ import { render } from '@wordpress/element';
 /**
  * Internal Imports
  */
+import sections from './sections';
 import Wizard from '../../../../components/src/wizard';
 import { GlobalNotices, Footer, Notice } from '../../../../components/src/';
-import sections from './sections';
+import './style.scss';
 
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
