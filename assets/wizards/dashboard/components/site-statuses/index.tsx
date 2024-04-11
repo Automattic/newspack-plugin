@@ -12,7 +12,7 @@ import SiteStatus from './site-status';
 import { Grid } from '../../../../components/src';
 
 const {
-	newspack_dashboard: { siteStatuses },
+	newspackDashboard: { siteStatuses },
 } = window;
 
 const actions: Statuses = {
