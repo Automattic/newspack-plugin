@@ -1,3 +1,10 @@
+## [3.6.6](https://github.com/Automattic/newspack-plugin/compare/v3.6.5...v3.6.6) (2024-04-11)
+
+
+### Bug Fixes
+
+* force release ([d9ee12a](https://github.com/Automattic/newspack-plugin/commit/d9ee12afe2e862485dcb1376f749c71c74ae86df))
+
 ## [3.6.5](https://github.com/Automattic/newspack-plugin/compare/v3.6.4...v3.6.5) (2024-04-11)
 
 
