@@ -285,8 +285,15 @@ class Newspack_Dashboard extends Wizard {
 				],
 				'sections'     => $this->get_dashboard(),
 				'plugins'      => get_plugins(),
-				'siteActions'  => [
+				'siteStatuses' => [
 					'readerActivation' => [
+						'label'        => __( 'Reader Activation', 'newspack-plugin' ),
+						'statuses'     => [
+							'success' => __( 'Enabled', 'newspack-plugin' ),
+							'error'   => __( 'Disabled', 'newspack-plugin' ),
+						],
+						'endpoint'     => '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
+						'configLink'   => admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
 						'dependencies' => [
 							'woocommerce' => [
 								'label'    => __( 'Woocommerce', 'newspack-plugin' ),
@@ -295,8 +302,14 @@ class Newspack_Dashboard extends Wizard {
 						],
 					],
 					'googleAdManager'  => [
-						'isAvailable'  => OAuth::is_proxy_configured( 'google' ),
-						'dependencies' => [
+						'label'            => __( 'Google Ad Manager', 'newspack-plugin' ),
+						'statuses'         => [
+							'error-preflight' => __( 'Proxy Not Configured', 'newspack-plugin' ),
+						],
+						'endpoint'         => '/newspack/v1/wizard/billboard',
+						'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
+						'configLink'       => admin_url( 'admin.php?page=newspack-advertising-wizard' ),
+						'dependencies'     => [
 							'newspack-ads' => [
 								'label'    => __( 'Newspack Ads', 'newspack-plugin' ),
 								'isActive' => is_plugin_active( 'newspack-ads/newspack-ads.php' ),
@@ -304,6 +317,9 @@ class Newspack_Dashboard extends Wizard {
 						],
 					],
 					'googleAnalytics'  => [
+						'label'        => __( 'Google Analytics', 'newspack-plugin' ),
+						'endpoint'     => '/google-site-kit/v1/modules/analytics-4/data/settings',
+						'configLink'   => in_array( 'analytics', get_option( 'googlesitekit_active_modules', [] ) ) ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
 						'dependencies' => [
 							'google-site-kit' => [
 								'label'    => __( 'Google Site Kit', 'newspack-plugin' ),

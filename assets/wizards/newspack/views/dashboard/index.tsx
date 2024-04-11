@@ -17,6 +17,7 @@ import { GlobalNotices, Footer, Notice, Wizard } from '../../../../components/sr
 import sections from './sections';
 import BrandHeader from '../../components/brand-header';
 import QuickActions from '../../components/quick-actions';
+import SiteStatuses from '../../components/site-statuses';
 import './style.scss';
 
 const {
@@ -34,7 +35,8 @@ const Newspack = () => {
 				renderAboveSections={ () => (
 					<>
 						<BrandHeader />
-						<p>Site Actions</p>
+						<SiteStatuses />
+						<hr />
 						<QuickActions />
 					</>
 				) }

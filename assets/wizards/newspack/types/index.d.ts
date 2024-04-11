@@ -10,6 +10,13 @@ declare module 'react' {
 declare global {
 	interface Window {
 		newspackDashboard: {
+			siteStatuses: {
+				readerActivation: Status;
+				googleAnalytics: Status;
+				googleAdManager: Status & {
+					isAvailable: boolean;
+				};
+			};
 			quickActions: {
 				href: string;
 				title: string;
