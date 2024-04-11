@@ -14,8 +14,8 @@ import { Fragment } from '@wordpress/element';
  * Internal dependencies
  */
 /* eslint import/namespace: ['error', { allowComputed: true }] */
-import { Icon, icons } from './icons';
-import { Grid, Card } from '../../../components/src';
+import { Icon, icons } from '../../components/icons';
+import { Grid, Card } from '../../../../components/src';
 
 const {
 	newspackDashboard: { sections: dashSections },

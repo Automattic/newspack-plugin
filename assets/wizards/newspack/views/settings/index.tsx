@@ -5,12 +5,14 @@
  */
 
 /**
- * Dependencies.
+ * WordPress dependencies.
  */
-// WordPress
 import { __ } from '@wordpress/i18n';
 import { render } from '@wordpress/element';
-// Internal
+
+/**
+ * Internal Imports
+ */
 import Wizard from '../../../../components/src/wizard';
 import { GlobalNotices, Footer, Notice } from '../../../../components/src/';
 import sections from './sections';
@@ -22,8 +24,8 @@ const {
 const Settings = () => {
 	return (
 		<>
-			<GlobalNotices />
 			{ isDebugMode && <Notice debugMode /> }
+			<GlobalNotices />
 			<Wizard headerText={ __( 'Newspack / Settings', 'newspack' ) } sections={ sections } />
 			<Footer />
 		</>
