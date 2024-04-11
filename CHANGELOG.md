@@ -1,3 +1,24 @@
+## [3.6.6](https://github.com/Automattic/newspack-plugin/compare/v3.6.5...v3.6.6) (2024-04-11)
+
+
+### Bug Fixes
+
+* force release ([d9ee12a](https://github.com/Automattic/newspack-plugin/commit/d9ee12afe2e862485dcb1376f749c71c74ae86df))
+
+## [3.6.5](https://github.com/Automattic/newspack-plugin/compare/v3.6.4...v3.6.5) (2024-04-11)
+
+
+### Bug Fixes
+
+* revert [#3050](https://github.com/Automattic/newspack-plugin/issues/3050) due to performance issues ([#3059](https://github.com/Automattic/newspack-plugin/issues/3059)) ([1d45d9e](https://github.com/Automattic/newspack-plugin/commit/1d45d9ee34b72b17dee41332389d890cd8f96423))
+
+## [3.6.4](https://github.com/Automattic/newspack-plugin/compare/v3.6.3...v3.6.4) (2024-04-10)
+
+
+### Bug Fixes
+
+* dont hide comments on metered paywall posts ([#3057](https://github.com/Automattic/newspack-plugin/issues/3057)) ([f06e86f](https://github.com/Automattic/newspack-plugin/commit/f06e86f01aef0b794a3c18684abc5333690a5362))
+
 ## [3.6.3](https://github.com/Automattic/newspack-plugin/compare/v3.6.2...v3.6.3) (2024-04-10)
 
 
