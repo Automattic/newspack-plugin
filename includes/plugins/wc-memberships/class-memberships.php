@@ -876,12 +876,25 @@ class Memberships {
 	}
 
 	/**
+	 * Deactivate the cron job.
+	 */
+	public static function cron_deactivate() {
+		\wp_clear_scheduled_hook( self::CRON_HOOK );
+	}
+
+	/**
 	 * Schedule an hourly cron job to check for and fix expired memberships linked to active subscriptions.
 	 */
 	public static function cron_init() {
 		\register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'cron_deactivate' ] );
 
-		if ( function_exists( 'wc_memberships' ) && ! wp_next_scheduled( self::CRON_HOOK ) ) {
+		// No need to run the cron job if Memberships isn't active.
+		if ( ! function_exists( 'wc_memberships' ) ) {
+			self::cron_deactivate();
+			return;
+		}
+
+		if ( wp_next_scheduled( self::CRON_HOOK ) ) {
 			\wp_schedule_event( time(), 'hourly', self::CRON_HOOK );
 		}
 	}
