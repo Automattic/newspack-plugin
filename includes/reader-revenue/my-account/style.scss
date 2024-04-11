@@ -85,6 +85,7 @@
 		}
 	}
 
+	/* WooCommerce Membership styles */
 	.woocommerce-memberships-without-subs {
 		h2 {
 			font-size: 1em;
@@ -94,12 +95,28 @@
 		p {
 			font-size: 0.8rem;
 		}
+
+		.my_account_memberships {
+			table-layout: unset;
+
+			td {
+				width: 20%;
+
+				&:first-child {
+					width: 25%;
+				}
+
+				&:last-child {
+					width: 15%;
+				}
+			}
+		}
 	}
 
-	// Hide the 'You have no active subscriptions' message if memberships table is present.
 	.woocommerce_account_subscriptions:has( ~ .woocommerce-memberships-without-subs ) {
 		margin-bottom: 2rem;
 
+		// Hide the 'You have no active subscriptions' message if memberships table is present.
 		&:has( > .no_subscriptions ) {
 			display: none;
 		}

@@ -50,6 +50,8 @@ class WooCommerce_My_Account {
 			\add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'option_display_memberships_without_subs' ] );
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
+			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
+
 		}
 	}
 
@@ -630,6 +632,17 @@ class WooCommerce_My_Account {
 	public static function hide_cancel_button_from_memberships_table( $actions ) {
 		unset( $actions['cancel'] );
 		return $actions;
+	}
+
+	/**
+	 * Removes the 'Next Bill On' column in the main Memberships table to tidy it up.
+	 *
+	 * @param array $columns WooCommerce Memberships table columns.
+	 * @return array
+	 */
+	public static function remove_next_bill_on( $columns ) {
+		unset( $columns['membership-next-bill-on'] );
+		return $columns;
 	}
 }
 
