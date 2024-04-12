@@ -121,7 +121,6 @@ class Metering {
 	 * Custom handling of content restriction when using metering.
 	 */
 	public static function handle_restriction() {
-		global $wp_query;
 		if ( ! class_exists( 'WC_Memberships' ) ) {
 			return;
 		}
@@ -129,14 +128,8 @@ class Metering {
 			return;
 		}
 
+		// Remove the default restriction handler from 'SkyVerge\WooCommerce\Memberships\Restrictions\Posts::restrict_post'.
 		if ( self::is_metering() ) {
-			add_filter( 'wc_memberships_restrictable_comment_types', '__return_empty_array' );
-
-			// Fixes a bug in Memberships where comments get restricted on restricted posts even with the above filter.
-			$wp_query->comment_count   = get_comment_count( get_the_ID() );
-			$wp_query->current_comment = 0;
-
-			// Remove the default restriction handler from 'SkyVerge\WooCommerce\Memberships\Restrictions\Posts::restrict_post'.
 			$restriction_instance = \wc_memberships()->get_restrictions_instance()->get_posts_restrictions_instance();
 			\remove_action( 'the_post', spl_object_hash( $restriction_instance ) . 'restrict_post', 0 );
 		}
