@@ -19,7 +19,10 @@ import {
 	utils,
 } from '../../../../components/src';
 import Prompt from '../../components/prompt';
+import Router from '../../../../components/src/proxied-imports/router';
 import './style.scss';
+
+const { useHistory } = Router;
 
 export default withWizardScreen( () => {
 	const { is_skipped_campaign_setup, reader_activation_url } = newspack_engagement_wizard;
@@ -32,6 +35,7 @@ export default withWizardScreen( () => {
 		status: '',
 		isSkipped: is_skipped_campaign_setup === '1',
 	} );
+	const history = useHistory();
 
 	const fetchPrompts = () => {
 		setError( false );
@@ -78,6 +82,7 @@ export default withWizardScreen( () => {
 			}
 			setSkipped( { isSkipped: Boolean( request.skipped ), status: '' } );
 			newspack_engagement_wizard.is_skipped_campaign_setup = request.skipped ? '1' : '';
+			history.push( '/reader-activation/complete' );
 		} catch ( err ) {
 			setError( err );
 			setSkipped( { isSkipped: false, status: '' } );

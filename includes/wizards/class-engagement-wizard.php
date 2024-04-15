@@ -7,7 +7,10 @@
 
 namespace Newspack;
 
+use TypeError;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -276,10 +279,12 @@ class Engagement_Wizard extends Wizard {
 	/**
 	 * Activate reader activation and publish RAS prompts/segments.
 	 *
+	 * @param WP_REST_Request $request WP Rest Request object.
 	 * @return WP_REST_Response
 	 */
-	public function api_activate_reader_activation() {
-		$response = Reader_Activation::activate();
+	public function api_activate_reader_activation( WP_REST_Request $request ) {
+		$skip_activation = $request->get_param( 'skip_activation' ) ?? false;
+		$response = $skip_activation ? true : Reader_Activation::activate();
 
 		if ( \is_wp_error( $response ) ) {
 			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
