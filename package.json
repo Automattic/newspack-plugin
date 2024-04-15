@@ -18,7 +18,7 @@
 		"@types/wordpress__block-editor": "^11.5.14",
 		"@types/wordpress__blocks": "^12.5.13",
 		"@types/wordpress__components": "^23.0.12",
-		"@wordpress/browserslist-config": "^5.37.0",
+		"@wordpress/browserslist-config": "^5.38.0",
 		"eslint": "^7.32.0",
 		"lint-staged": "^15.2.2",
 		"newspack-scripts": "^5.3.0",
