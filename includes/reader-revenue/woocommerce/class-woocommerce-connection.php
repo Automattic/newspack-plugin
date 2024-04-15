@@ -553,6 +553,7 @@ class WooCommerce_Connection {
 
 		$items = $subscription->get_items();
 		$item  = array_shift( $items );
+		$is_donation = Donations::is_donation_product( $item->get_product_id() );
 
 		// Replace content placeholders.
 		$placeholders = [
@@ -577,16 +578,28 @@ class WooCommerce_Connection {
 				'value'    => $item->get_name(),
 			],
 			[
-				'template' => '*STATUS*',
-				'value'    => $subscription->get_status(),
-			],
-			[
 				'template' => '*END_DATE*',
 				'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'end' ) ) ),
 			],
 			[
-				'template' => '*DONATION_URL*',
-				'value'    => sprintf( '<a href="%s">%s</a>', $subscription->get_view_order_url(), __( 'My Account', 'newspack-plugin' ) ),
+				'template' => '*BUTTON_TEXT*',
+				'value'    => $is_donation ? __( 'Restart Donation', 'newspack-plugin' ) : __( 'Restart Subscription', 'newspack-plugin' ),
+			],
+			[
+				'template' => '*CANCELLATION_DATE*',
+				'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'cancelled' ) ) ),
+			],
+			[
+				'template' => '*CANCELLATION_TITLE*',
+				'value'    => $is_donation ? __( 'Donation Cancelled', 'newspack-plugin' ) : __( 'Subscription Cancelled', 'newspack-plugin' ),
+			],
+			[
+				'template' => '*CANCELLATION_TYPE*',
+				'value'    => $is_donation ? __( 'recurring donation', 'newspack-plugin' ) : __( 'subscription', 'newspack-plugin' ),
+			],
+			[
+				'template' => '*SUBSCRIPTION_URL*',
+				'value'    => $subscription->get_view_order_url(),
 			],
 		];
 

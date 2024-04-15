@@ -7,60 +7,32 @@
 
 $post_content = '
 	<!-- wp:heading -->
-	<h2>' . __( 'Recurring Donation Cancelled', 'newspack-plugin' ) . '</h2>
+	<h2>*CANCELLATION_TITLE*</h2>
 	<!-- /wp:heading -->
 
 	<!-- wp:paragraph -->
-	<p>' . __( 'Your recurring donation has been cancelled:', 'newspack-plugin' ) . '</p>
+	<p>' . sprintf( /* Translators: 1: the cancellation type (subscription or recurring donation). 2: the site title. */ __( 'This is to confirm the cancellation of your %1$s to %2$s. We\'re sorry to see you go! If you\'d like to restart your %1$s, you can do so by clicking the button below.', 'newspack-plugin' ), '*CANCELLATION_TYPE*', '*SITE_TITLE*' ) . '</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:columns -->
-	<div class="wp-block-columns"><!-- wp:column -->
-	<div class="wp-block-column"><!-- wp:heading {"level":3} -->
-	<h3>' . __( 'Type', 'newspack-plugin' ) . '</h3>
-	<!-- /wp:heading -->
+	<!-- wp:buttons -->
+	<div class="wp-block-buttons">
+	<!-- wp:button {"style":{"color":{"background":"#dd3333"}}} -->
+	<div class="wp-block-button">
+	<a class="wp-block-button__link has-background" href="*SUBSCRIPTION_URL*" style="background-color:#dd3333">*BUTTON_TEXT*</a>
+	</div>
+	<!-- /wp:button -->
+	</div>
+	<!-- /wp:buttons -->
 
 	<!-- wp:paragraph -->
-	<p>*PRODUCT_NAME*</p>
-	<!-- /wp:paragraph --></div>
-	<!-- /wp:column -->
-
-	<!-- wp:column -->
-	<div class="wp-block-column"><!-- wp:heading {"level":3} -->
-	<h3>' . __( 'Status', 'newspack-plugin' ) . '</h3>
-	<!-- /wp:heading -->
-
-	<!-- wp:paragraph -->
-	<p>*STATUS*</p>
-	<!-- /wp:paragraph --></div>
-	<!-- /wp:column -->
-
-	<!-- wp:column -->
-	<div class="wp-block-column"><!-- wp:heading {"level":3} -->
-	<h3>' . __( 'End Date', 'newspack-plugin' ) . '</h3>
-	<!-- /wp:heading -->
-
-	<!-- wp:paragraph -->
-	<p>*END_DATE*</p>
-	<!-- /wp:paragraph --></div>
-	<!-- /wp:column --></div>
-	<!-- /wp:columns -->
-
-	<!-- wp:paragraph -->
-	<p>' . sprintf( /* Translators: s: site admin email address. */ __( 'If you have any questions, you can reach us at %s.', 'newspack-plugin' ), '*CONTACT_EMAIL*' ) . '</p>
-	<!-- /wp:paragraph -->
-
-	<!-- wp:paragraph -->
-	<p>' . sprintf( /* Translators: s: link to the recurring donation management page in MY Account. */ __( 'You can manage your recurring donation at %s.', 'newspack' ), '*DONATION_URL*' ) . '</p>
+	<p>' . sprintf( /* Translators: s: site admin email address. */ __( 'If you have any questions, you can reach us at %s. We appreciate your support', 'newspack-plugin' ), '*CONTACT_EMAIL*' ) . '</p>
 	<!-- /wp:paragraph -->';
 
 $email_html = '
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 	<head>
-		<title>
-		  Recurring Donation Cancelled
-		</title>
+		<title>*CANCELLATION_TITLE*</title>
 		<!--[if !mso]><!-->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!--<![endif]-->
@@ -221,7 +193,7 @@ $email_html = '
 
 	  <div
 		 style="font-family:Arial;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><h2>Recurring Donation Cancelled</h2></div>
+	  ><h2>*CANCELLATION_TITLE*</h2></div>
 
 				</td>
 			  </tr>
@@ -248,6 +220,67 @@ $email_html = '
 	  <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
 
 
+	  <div style="margin:0px auto;max-width:600px;">
+
+		<table
+		   align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
+		>
+		  <tbody>
+			<tr>
+			  <td
+				 style="direction:ltr;font-size:0px;padding:0;text-align:center;"
+			  >
+				<!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+
+	  <div
+		 class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
+	  >
+
+	  <table
+		 border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"
+	  >
+		<tbody>
+		  <tr>
+			<td  style="vertical-align:top;padding:12px;">
+
+	  <table
+		 border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%"
+	  >
+		<tbody>
+
+			  <tr>
+				<td
+				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
+				>
+
+	  <div
+		 style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
+	  ><p>' . sprintf( /* Translators: 1: the cancellation type (subscription or recurring donation). 2: the site title. */ __( 'This is to confirm the cancellation of your %1$s to %2$s. We\'re sorry to see you go! If you\'d like to restart your %1$s, you can do so by clicking the button below.', 'newspack-plugin' ), '*CANCELLATION_TYPE*', '*SITE_TITLE*' ) . '</p></div>
+
+				</td>
+			  </tr>
+
+		</tbody>
+	  </table>
+
+			</td>
+		  </tr>
+		</tbody>
+	  </table>
+
+	  </div>
+
+		  <!--[if mso | IE]></td></tr></table><![endif]-->
+			  </td>
+			</tr>
+		  </tbody>
+		</table>
+
+	  </div>
+
+		<!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+		<div style="margin:0px auto;max-width:600px;"><table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"><tbody><tr><td style="direction:ltr;font-size:0px;padding:0;text-align:center;"><!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="mj-column-has-width-outlook" style="vertical-align:top;width:600px;" ><![endif]--><div class="mj-column-per-100 mj-outlook-group-fix mj-column-has-width" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"><table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"><tbody><tr><td style="vertical-align:top;padding:12px;"><table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"><tbody><tr><td align="center" style="font-size:0px;padding:0;word-break:break-word;"><table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;"><tbody><tr><td align="center" bgcolor="#dd3333 !important" role="presentation" style="border:none;border-radius:999px;cursor:auto;mso-padding-alt:12px 24px;background:#dd3333 !important;" valign="middle"><a href="*SUBSCRIPTION_URL*" style="display:inline-block;background:#dd3333 !important;color:#fff !important;font-family:Georgia;font-size:16px;font-weight:bold;line-height:1.5;margin:0;text-decoration:none;text-transform:none;padding:12px 24px;mso-padding-alt:0px;border-radius:999px;" target="_blank">*BUTTON_TEXT*</a></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></div><!--[if mso | IE]></td></tr></table><![endif]--></td></tr></tbody></table></div>
+		<!--[if mso | IE]></td></tr></table><![endif]--></td></tr></tbody></table></div><!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
 	  <div  style="margin:0px auto;max-width:600px;">
 
 		<table
@@ -283,7 +316,7 @@ $email_html = '
 
 	  <div
 		 style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><p>' . __( 'Your recurring donation has been cancelled:', 'newspack-plugin' ) . '</p></div>
+	  ><p>' . sprintf( /* Translators: s: site admin email address. */ __( 'If you have any questions, you can reach us at %s. We appreciate your support!', 'newspack-plugin' ), '*CONTACT_EMAIL*' ) . '</p></div>
 
 				</td>
 			  </tr>
@@ -305,308 +338,13 @@ $email_html = '
 		</table>
 
 	  </div>
-
-
-	  <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-
-
-	  <div  style="margin:0px auto;max-width:600px;">
-
-		<table
-		   align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
-		>
-		  <tbody>
-			<tr>
-			  <td
-				 style="direction:ltr;font-size:0px;padding:0;text-align:center;"
-			  >
-				<!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="mj-column-has-width-outlook" style="vertical-align:top;width:199.999999999998px;" ><![endif]-->
-
-	  <div
-		 class="mj-column-per-33-333333333333 mj-outlook-group-fix mj-column-has-width" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
-	  >
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"
-	  >
-		<tbody>
-		  <tr>
-			<td  style="vertical-align:top;padding:12px;">
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%"
-	  >
-		<tbody>
-
-			  <tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-
-	  <div
-		 style="font-family:Arial;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><h3>' . __( 'Type', 'newspack-plugin' ) . '</h3></div>
-
-				</td>
-			  </tr>
-
-			  <tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-
-	  <div
-		 style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><p>*PRODUCT_NAME*</p></div>
-
-				</td>
-			  </tr>
-
-		</tbody>
-	  </table>
-
-			</td>
-		  </tr>
-		</tbody>
-	  </table>
-
-	  </div>
-
-		  <!--[if mso | IE]></td><td class="mj-column-has-width-outlook" style="vertical-align:top;width:199.999999999998px;" ><![endif]-->
-
-	  <div
-		 class="mj-column-per-33-333333333333 mj-outlook-group-fix mj-column-has-width" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
-	  >
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"
-	  >
-		<tbody>
-		  <tr>
-			<td  style="vertical-align:top;padding:12px;">
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%"
-	  >
-		<tbody>
-
-			  <tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-
-	  <div
-		 style="font-family:Arial;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><h3>' . __( 'Status', 'newspack-plugin' ) . '</h3></div>
-
-				</td>
-			  </tr>
-
-			  <tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-
-	  <div
-		 style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><p>*STATUS*</p></div>
-
-				</td>
-			  </tr>
-
-		</tbody>
-	  </table>
-
-			</td>
-		  </tr>
-		</tbody>
-	  </table>
-
-	  </div>
-
-		  <!--[if mso | IE]></td><td class="mj-column-has-width-outlook" style="vertical-align:top;width:199.999999999998px;" ><![endif]-->
-
-	  <div
-		 class="mj-column-per-33-333333333333 mj-outlook-group-fix mj-column-has-width" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
-	  >
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"
-	  >
-		<tbody>
-		  <tr>
-			<td  style="vertical-align:top;padding:12px;">
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%"
-	  >
-		<tbody>
-
-			  <tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-
-	  <div
-		 style="font-family:Arial;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><h3>End Date</h3></div>
-
-				</td>
-			  </tr>
-
-			  <tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-
-	  <div
-		 style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><p>*END_DATE*</p></div>
-
-				</td>
-			  </tr>
-
-		</tbody>
-	  </table>
-
-			</td>
-		  </tr>
-		</tbody>
-	  </table>
-
-	  </div>
-
-		  <!--[if mso | IE]></td></tr></table><![endif]-->
-			  </td>
-			</tr>
-		  </tbody>
-		</table>
-
-	  </div>
-
-
-	  <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-
-
-	  <div  style="margin:0px auto;max-width:600px;">
-
-		<table
-		   align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
-		>
-		  <tbody>
-			<tr>
-			  <td
-				 style="direction:ltr;font-size:0px;padding:0;text-align:center;"
-			  >
-				<!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-
-	  <div
-		 class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
-	  >
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"
-	  >
-		<tbody>
-		  <tr>
-			<td  style="vertical-align:top;padding:12px;">
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%"
-	  >
-		<tbody>
-
-			  <tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-
-	  <div
-		 style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-	  ><p>' . sprintf( /* Translators: s: site admin email address. */ __( 'If you have any questions, you can reach us at %s.', 'newspack-plugin' ), '*CONTACT_EMAIL*' ) . '</p></div>
-
-				</td>
-			  </tr>
-
-		</tbody>
-	  </table>
-
-			</td>
-		  </tr>
-		</tbody>
-	  </table>
-
-	  </div>
-
-		  <!--[if mso | IE]></td></tr></table><![endif]-->
-			  </td>
-			</tr>
-		  </tbody>
-		</table>
-
-	  </div>
-
-
-	  <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
-
-
-	  <div  style="margin:0px auto;max-width:600px;">
-
-		<table
-		   align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;"
-		>
-		  <tbody>
-			<tr>
-			  <td
-				 style="direction:ltr;font-size:0px;padding:0;text-align:center;"
-			  >
-				<!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-
-	  <div
-		 class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;"
-	  >
-
-	  <table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%"
-	  >
-		<tbody>
-		  <tr>
-			<td  style="vertical-align:top;padding:12px;">
-
-		<table
-		 border="0" cellpadding="0" cellspacing="0" role="presentation" style="" width="100%"
-		>
-		<tbody>
-				<tr>
-				<td
-				   align="left" style="font-size:0px;padding:0;word-break:break-word;"
-				>
-		<div
-		 style="font-family:Georgia;font-size:16px;line-height:1.8;text-align:left;color:#000000;"
-		>
-			<p>' . sprintf( /* Translators: s: link to the recurring donation management page in MY Account. */ __( 'You can manage your recurring donation at %s.', 'newspack' ), '*DONATION_URL*' ) . '</p></div>
-				</td>
-			  </tr>
-		</tbody>
-		</table>
-			</td>
-		  </tr>
-		</tbody>
-		</table>
-		</div>
-		  <!--[if mso | IE]></td></tr></table><![endif]-->
-			  </td>
-			</tr>
-		  </tbody>
-		</table>
-		</div>
 		<!--[if mso | IE]></td></tr></table><![endif]-->
 		</div>
 	</body>
 </html>';
 
 return array(
-	'post_title'   => __( 'Recurring Donation Cancelled', 'newspack' ),
+	'post_title'   => __( 'Subscription Cancelled', 'newspack' ),
 	'post_content' => $post_content,
 	'email_html'   => $email_html,
 );

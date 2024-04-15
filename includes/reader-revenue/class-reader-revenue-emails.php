@@ -124,7 +124,7 @@ class Reader_Revenue_Emails {
 				[
 					[
 						'label'    => __( 'the recurring donation management url', 'newspack-plugin' ),
-						'template' => '*DONATION_URL*',
+						'template' => '*CANCELLATION_URL*',
 					],
 					[
 						'label'    => __( 'the recurring donation end date', 'newspack-plugin' ),
