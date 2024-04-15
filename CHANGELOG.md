@@ -1,3 +1,24 @@
+## [3.6.9](https://github.com/Automattic/newspack-plugin/compare/v3.6.8...v3.6.9) (2024-04-12)
+
+
+### Bug Fixes
+
+* revert 3057 ([#3063](https://github.com/Automattic/newspack-plugin/issues/3063)) ([25eea61](https://github.com/Automattic/newspack-plugin/commit/25eea61980422f3f684429b57cdc3ca42234bd10))
+
+## [3.6.8](https://github.com/Automattic/newspack-plugin/compare/v3.6.7...v3.6.8) (2024-04-11)
+
+
+### Bug Fixes
+
+* hourly cron job to check for prematurely expired memberships ([#3060](https://github.com/Automattic/newspack-plugin/issues/3060)) ([77eeee3](https://github.com/Automattic/newspack-plugin/commit/77eeee374723a2780ace91669f848b2d24a436c4))
+
+## [3.6.7](https://github.com/Automattic/newspack-plugin/compare/v3.6.6...v3.6.7) (2024-04-11)
+
+
+### Bug Fixes
+
+* fallback to subscription for sync data when customer has no orders ([#3053](https://github.com/Automattic/newspack-plugin/issues/3053)) ([df4d1b0](https://github.com/Automattic/newspack-plugin/commit/df4d1b06ac77356cf6cfdfb45a5f8234aac0888f))
+
 ## [3.6.6](https://github.com/Automattic/newspack-plugin/compare/v3.6.5...v3.6.6) (2024-04-11)
 
 
