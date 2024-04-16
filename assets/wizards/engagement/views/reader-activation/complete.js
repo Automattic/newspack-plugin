@@ -22,18 +22,26 @@ import {
 } from '../../../../components/src';
 
 const listItems = [
-	__(
-		'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
-		'newspack-plugin'
-	),
-	__(
-		'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
-		'newspack-plugin'
-	),
-	__(
-		'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
-		'newspack-plugin'
-	),
+	{
+		text: __(
+			'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
+			'newspack-plugin'
+		),
+		isSkipped: '<span class="is-skipped">[skipped]</span>',
+	},
+	{
+		text: __(
+			'<strong>Reader registration</strong> will be activated to enable better targeting for driving engagement and conversations.',
+			'newspack-plugin'
+		),
+	},
+	{
+		text: __(
+			'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
+			'newspack-plugin'
+		),
+		isSkipped: '<span class="is-skipped">[skipped]</span>',
+	},
 ];
 
 const activationSteps = [
@@ -65,8 +73,25 @@ export default withWizardScreen( () => {
 	const { reader_activation_url, is_skipped_campaign_setup = '' } = newspack_engagement_wizard;
 	const isSkippedCampaignSetup = is_skipped_campaign_setup === '1';
 
+	/**
+	 * If skipped, remove first item.
+	 */
 	if ( isSkippedCampaignSetup && activationSteps.length !== activationStepsCount - 1 ) {
 		activationSteps.shift();
+	}
+
+	/**
+	 * Generate step list strings
+	 */
+	for ( const listItemIndex in listItems ) {
+		if ( ! listItems[ listItemIndex ].text ) {
+			continue;
+		}
+		const suffix = isSkippedCampaignSetup ? ` ${ listItems[ listItemIndex ].isSkipped ?? '' }` : '';
+		listItems[ listItemIndex ] = `${ listItems[ listItemIndex ].text }${ suffix }`;
+		if ( isSkippedCampaignSetup ) {
+			listItems[ listItemIndex ] += ` ${ listItems[ listItemIndex ].isSkipped ?? '' }`;
+		}
 	}
 
 	useEffect( () => {
@@ -87,7 +112,7 @@ export default withWizardScreen( () => {
 			setProgressLabel( __( 'Done!', 'newspack-plugin' ) );
 			setTimeout( () => {
 				setInFlight( false );
-				window.location = reader_activation_url;
+				// window.location = reader_activation_url;
 			}, 3000 );
 		}
 	}, [ completed, progress ] );
