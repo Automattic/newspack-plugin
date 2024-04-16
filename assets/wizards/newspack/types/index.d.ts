@@ -9,7 +9,7 @@ declare module 'react' {
 
 declare global {
 	interface Window {
-		newspack_dashboard: {
+		newspackDashboard: {
 			siteStatuses: {
 				readerActivation: Status;
 				googleAnalytics: Status;
@@ -33,6 +33,15 @@ declare global {
 				siteName: string;
 				headerBgColor: string;
 			};
+		};
+		newspackSettings: {
+			sections: Record<
+				string,
+				{
+					label: string;
+					path?: string;
+				}
+			>;
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;

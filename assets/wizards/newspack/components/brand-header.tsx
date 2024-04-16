@@ -6,7 +6,7 @@
 
 import { BoxContrast } from '../../../components/src';
 
-const { settings } = window.newspack_dashboard;
+const { settings } = window.newspackDashboard;
 
 const BrandHeader = () => {
 	return (

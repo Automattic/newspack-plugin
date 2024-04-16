@@ -16,7 +16,7 @@ import { Card, Grid } from '../../../components/src';
 import { Icon, icons } from './icons';
 
 const {
-	newspack_dashboard: { quickActions },
+	newspackDashboard: { quickActions },
 } = window;
 
 const QuickActions = () => {

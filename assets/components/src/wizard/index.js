@@ -32,13 +32,33 @@ registerStore();
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
+/**
+ * @typedef  {Object}      WizardProps
+ *
+ * @property {string} 	  headerText - The header text.
+ * @property {string} 	  [subHeaderText] - The sub-header text, optional.
+ * @property {string} 	  [apiSlug] - The API slug, optional.
+ * @property {any[]} 	  sections - Array of sections.
+ * @property {boolean} 	  [hasSimpleFooter] - Indicates if a simple footer is used, optional.
+ * @property {() => void} [renderAboveSections] - Function to render content above sections, optional.
+ * @property {string[]}   [requiredPlugins] - Array of required plugin strings, optional.
+ */
+
+/**
+ * Wizard Component
+ *
+ * Provides a tabbed UI with history.
+ *
+ * @param {WizardProps} props
+ * @return {JSX.Element} Wizard component
+ */
 const Wizard = ( {
 	sections = [],
 	headerText,
-	apiSlug = undefined,
-	subHeaderText = undefined,
-	hasSimpleFooter = undefined,
-	className = undefined,
+	apiSlug,
+	subHeaderText,
+	hasSimpleFooter,
+	className,
 	renderAboveSections,
 	requiredPlugins = [],
 } ) => {
@@ -116,7 +136,7 @@ const Wizard = ( {
 						{ displayedSections.map( ( section, index ) => {
 							const SectionComponent = section.render;
 							return (
-								<Route key={ index } path={ section.path }>
+								<Route key={ index } exact={ section.exact ?? false } path={ section.path }>
 									<div
 										className={ classnames(
 											'newspack-wizard newspack-wizard__content',

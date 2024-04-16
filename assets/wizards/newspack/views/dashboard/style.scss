@@ -3,8 +3,8 @@
  */
 
 @use '~@wordpress/base-styles/colors' as wp-colors;
-@use '../../shared/scss/colors';
-@use './components/site-statuses/index';
+@use '../../../../shared/scss/colors';
+@use '../../components/site-statuses/index';
 
 :root {
 	--np-font-size: 16px;
