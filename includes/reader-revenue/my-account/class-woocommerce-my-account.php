@@ -524,34 +524,6 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Adds option to display memberships without subscriptions on the Subscriptions tab of My Account..
-	 *
-	 * @param array $settings WooCommerce Memberships settings.
-	 * @return array
-	 */
-	public static function option_display_memberships_without_subs( $settings ) {
-		$settings[] = [
-			'name' => __( 'Newspack Reader Activation', 'newspack-plugin' ),
-			'type' => 'title',
-			'id'   => 'wc_memberships_show_unsubbed_memberships',
-		];
-
-		$settings[] = [
-			'type'    => 'checkbox',
-			'id'      => 'wc_memberships_show_unsubbed_memberships',
-			'name'    => __( 'Memberships without subscriptions', 'newspack-plugin' ),
-			'desc'    => __( 'Display memberships that don\'t have active subscriptions on the My Account Subscriptions tab.', 'newspack-plugin' ),
-			'default' => 'no',
-		];
-
-		$settings[] = [
-			'type' => 'sectionend',
-		];
-
-		return $settings;
-	}
-
-	/**
 	 * Check if a reader has memberships that aren't associated with subscriptions.
 	 *
 	 * @return array
@@ -580,7 +552,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function append_membership_table() {
 		// If this option is not enabled, stop.
-		if ( 'no' === \get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+		if ( ! Memberships::get_show_on_subscription_tab_setting() ) {
 			return;
 		}
 
@@ -609,7 +581,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function redirect_to_single_subscription() {
 		// If this option is not enabled, stop.
-		if ( 'no' === \get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+		if ( ! Memberships::get_show_on_subscription_tab_setting() ) {
 			return true;
 		}
 
