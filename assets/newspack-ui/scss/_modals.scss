@@ -110,10 +110,6 @@
 		}
 	}
 	&__modal {
-		// CSS Variables - update button background, with fallbacks to the Newspack UI defaults
-		--newspack-ui-color-button-bg: var( --newspack-ui-color-primary, var( --newspack-ui-color-neutral-90 ) );
-		--newspack-ui-color-button-text: var( --newspack-ui-color-against-primary, var( --newspack-ui-color-neutral-0 ) );
-
 		// Modal styles
 		background: var( --newspack-ui-color-body-bg );
 		border-radius: var( --newspack-ui-border-radius-m );

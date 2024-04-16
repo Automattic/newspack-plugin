@@ -19,18 +19,15 @@
 			margin-bottom: var( --newspack-ui-spacer-2 );
 		}
 
-		&:hover {
-			color: inherit;
-		}
-
-		&:focus {
-			// TODO
-		}
-
 		&:disabled {
 			background: var( --newspack-ui-color-neutral-10 ) !important;
 			color: var( --newspack-ui-color-neutral-70 ) !important;
 			cursor: default;
+		}
+
+		&:focus {
+			outline: 2px solid var( --newspack-ui-color-button-bg );
+			outline-offset: 2px;
 		}
 
 		&--wide {
@@ -55,6 +52,10 @@
 			&:hover {
 				background: var( --newspack-ui-color-button-bg-hover );
 				color: var( --newspack-ui-color-button-text-hover );
+			}
+
+			&:focus {
+				outline-color: var( --newspack-ui-color-primary );
 			}
 		}
 

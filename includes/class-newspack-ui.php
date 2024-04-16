@@ -99,11 +99,33 @@ class Newspack_UI {
 						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
 					</svg>
 				</span>
-
 				<p>
 					<strong>Success box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
 				</p>
+				<p>Plus a little bit of text below it.</p>
+			</div>
 
+			<div class="newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
+				<span class="newspack-ui__icon newspack-ui__icon--warning">
+					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
+					</svg>
+				</span>
+				<p>
+					<strong>Warning box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
+				</p>
+				<p>Plus a little bit of text below it.</p>
+			</div>
+
+			<div class="newspack-ui__box newspack-ui__box--error newspack-ui__box--text-center">
+				<span class="newspack-ui__icon newspack-ui__icon--error">
+					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
+					</svg>
+				</span>
+				<p>
+					<strong>Error box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
+				</p>
 				<p>Plus a little bit of text below it.</p>
 			</div>
 
