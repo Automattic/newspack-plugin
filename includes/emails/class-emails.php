@@ -29,6 +29,7 @@ class Emails {
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
 		add_action( 'update_option_theme_mods_' . get_template(), [ __CLASS__, 'maybe_update_email_templates' ], 10, 2 );
+		add_action( 'admin_head', [ __CLASS__, 'inject_dynamic_email_template_styles' ] );
 	}
 
 	/**
@@ -668,6 +669,36 @@ class Emails {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Inject dynamic email template styles for dynamic text colors in the editor.
+	 *
+	 * @return void
+	 */
+	public static function inject_dynamic_email_template_styles() {
+		if ( get_post_type() !== self::POST_TYPE ) {
+			return;
+		}
+
+		[
+			'primary_text_color'   => $primary_text_color,
+			'secondary_text_color' => $secondary_text_color,
+		] = newspack_get_theme_colors();
+
+		?>
+		<style type="text/css">
+			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color,
+			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color a {
+				color: <?php echo esc_attr( $primary_text_color ); ?> !important;
+			}
+
+			.<?php echo esc_html( self::POST_TYPE ); ?>-has-secondary-text-color,
+			.<?php echo esc_html( self::POST_TYPE ); ?>-has-secondary-text-color a {
+				color: <?php echo esc_attr( $secondary_text_color ); ?> !important;
+			}
+		</style>
+		<?php
 	}
 }
 
