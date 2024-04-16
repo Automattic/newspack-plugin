@@ -395,6 +395,7 @@ class Emails {
 			$edit_link = str_replace( site_url(), '', $post_link );
 		}
 		$serialized_email = [
+			'type'           => $type,
 			'label'          => $email_config['label'],
 			'description'    => $email_config['description'],
 			'post_id'        => $post_id,

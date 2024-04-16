@@ -527,8 +527,8 @@ class WooCommerce_Connection {
 	 * Send the customizable cancellation email in addition to WooCommerce Subscription's default.
 	 * We still want to allow WCS to send its cancellation email since this targets the store admin.
 	 *
-	 * @param bool            $enable        Whether to send the default receipt email.
-	 * @param WC_Subscription $subscription  The order object for the receipt email.
+	 * @param bool            $enable        Whether to send the cancellation email.
+	 * @param WC_Subscription $subscription  The order object for the cancellation email.
 	 * @param WC_Email        $class         Instance of the WC_Email class.
 	 *
 	 * @return bool
