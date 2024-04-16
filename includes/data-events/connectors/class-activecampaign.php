@@ -59,7 +59,6 @@ class ActiveCampaign extends Connector {
 		return \Newspack_Newsletters_Subscription::add_contact( $contact, $master_list_id );
 	}
 
-
 	/**
 	 * Handle newsletter subscription update.
 	 *

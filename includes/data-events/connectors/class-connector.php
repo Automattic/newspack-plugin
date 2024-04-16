@@ -36,10 +36,20 @@ abstract class Connector {
 		if ( isset( $data['metadata']['registration_method'] ) ) {
 			$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_method' ) ] = $data['metadata']['registration_method'];
 		}
-		$contact = [
+		/**
+		 * Filters the contact metadata sent to the ESP when a reader account is registered for the first time.
+		 *
+		 * @param array $metadata The contact metadata.
+		 * @param int   $user_id The ID of the user.
+		 *
+		 * @return array The modified contact metadata.
+		 */
+		$metadata = \apply_filters( 'newspack_data_events_reader_registered_metadata', $metadata, $data['user_id'] );
+		$contact  = [
 			'email'    => $data['email'],
 			'metadata' => $metadata,
 		];
+
 		static::put( $contact );
 	}
 
@@ -101,66 +111,12 @@ abstract class Connector {
 			return;
 		}
 
-		/*
-		 * If the subscription is being activated after a successful first or renewal payment,
-		 * the contact will be synced when that order is completed, so no need to sync again.
-		 */
-		if (
-			( 'pending' === $data['status_before'] || 'on-hold' === $data['status_before'] ) &&
-			'active' === $data['status_after'] ) {
-			return;
-		}
-
 		$contact = WooCommerce_Connection::get_contact_from_order( $data['subscription_id'] );
 
 		if ( ! $contact ) {
 			return;
 		}
 
-		static::put( $contact );
-	}
-
-	/**
-	 * Handle newsletter subscription update.
-	 *
-	 * @param int   $timestamp Timestamp.
-	 * @param array $data      Data.
-	 */
-	public static function newsletter_updated( $timestamp, $data ) {
-		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
-			return;
-		}
-		if ( ! class_exists( '\Newspack_Newsletters' ) || ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
-			return;
-		}
-		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
-		if ( is_wp_error( $subscribed_lists ) || ! is_array( $subscribed_lists ) ) {
-			return;
-		}
-		$lists = \Newspack_Newsletters_Subscription::get_lists();
-		if ( is_wp_error( $lists ) ) {
-			return;
-		}
-		$lists_names = [];
-		foreach ( $subscribed_lists as $subscribed_list_id ) {
-			foreach ( $lists as $list ) {
-				if ( $list['id'] === $subscribed_list_id ) {
-					$lists_names[] = $list['name'];
-				}
-			}
-		}
-
-		$account_key              = Newspack_Newsletters::get_metadata_key( 'account' );
-		$newsletter_selection_key = Newspack_Newsletters::get_metadata_key( 'newsletter_selection' );
-
-		$metadata = [
-			$account_key              => $data['user_id'],
-			$newsletter_selection_key => implode( ', ', $lists_names ),
-		];
-		$contact  = [
-			'email'    => $data['email'],
-			'metadata' => $metadata,
-		];
 		static::put( $contact );
 	}
 }

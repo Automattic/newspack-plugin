@@ -1556,6 +1556,10 @@ final class Reader_Activation {
 			return null;
 		}
 
+		if ( defined( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION' ) && NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION ) {
+			return true;
+		}
+
 		return (bool) \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
 	}
 
@@ -1721,7 +1725,7 @@ final class Reader_Activation {
 			return $user_data;
 		}
 
-		$user_login      = str_replace( '+', '_', \sanitize_user( $user_data['user_email'] ) ); // Matches the email address, but replace + with _ to allow for Gmail aliases.
+		$user_login      = str_replace( '+', '_', \sanitize_user( $user_data['user_email'], true ) ); // Matches the email address, but replace + with _ to allow for Gmail aliases.
 		$random_password = \wp_generate_password();
 		$user_nicename   = self::generate_user_nicename( ! empty( $user_data['display_name'] ) ? $user_data['display_name'] : $user_data['user_email'] );
 
