@@ -646,6 +646,27 @@ class Emails {
 			foreach ( $templates as $template ) {
 				wp_update_post( [ 'ID' => $template->ID ] );
 			}
+
+			if ( class_exists( 'Newspack_Newsletters' ) ) {
+				// Update newsletters color palette option so emails reflect the new colors.
+				$request = new \WP_REST_Request( 'POST', '/newspack-newsletters/v1/color-palette' );
+				$request->set_body(
+					wp_json_encode(
+						[
+							'primary'        => $updated_value['primary_color_hex'],
+							'secondary'      => $updated_value['secondary_color_hex'],
+							'primary-text'   => newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
+							'secondary-text' => newspack_get_color_contrast( $updated_value['secondary_color_hex'] ),
+						]
+					)
+				);
+
+				$response = rest_do_request( $request );
+
+				if ( $response->is_error() ) {
+					Logger::error( 'Error updating newsletters color palette: ' . $response->as_error()->get_error_message() );
+				}
+			}
 		}
 	}
 }

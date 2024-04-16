@@ -566,6 +566,11 @@ function newspack_get_theme_colors() {
 function newspack_get_social_markup( $color = 'white' ) {
 	$cm          = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'wordpress_seo' );
 	$social_urls = [];
+	$markup      = [
+		'block_markup' => '',
+		'html_markup'  => '',
+	];
+
 	if ( ! is_wp_error( $cm ) ) {
 		$social_urls = [
 			// TODO: Add more social media services here.
@@ -576,17 +581,30 @@ function newspack_get_social_markup( $color = 'white' ) {
 		];
 	}
 
-	$block_markup = '';
-	$html_markup  = '';
 	foreach ( $social_urls as $service => $url ) {
 		if ( ! empty( $url ) && ! is_wp_error( $url ) ) {
-			$block_markup .= '<!-- wp:social-link {"url":"' . esc_url( $url ) . '","service":"' . esc_attr( $service ) . '"} /-->';
-			$html_markup  .= '<td><![endif]--><table align="left" border="0" cellpadding="0" cellspacing="0" role="presentation" style="float:none;display:inline-table;"><tbody><tr class="social-element"><td style="padding:4px;vertical-align:middle;"><table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:transparent;border-radius:999px;width:24px;"><tbody><tr><td style="padding:7px;font-size:0;height:24px;vertical-align:middle;width:24px;"><a href="' . esc_url( $url ) . '" target="_blank"><img alt="" height="24" src="*SITE_URL*/wp-content/plugins/newspack-newsletters/assets/' . $color . '-' . $service . '.png" style="border-radius:999px;display:block;" width="24"></a></td></tr></tbody></table></td></tr></tbody></table><!--[if mso | IE]></td>';
+			$markup['block_markup'] .= '<!-- wp:social-link {"url":"' . esc_url( $url ) . '","service":"' . esc_attr( $service ) . '"} /-->';
+			$markup['html_markup']  .= '
+				<table align="left" border="0" cellpadding="0" cellspacing="0" role="presentation" style="float:none;display:inline-table;">
+					<tbody>
+						<tr class="social-element">
+							<td style="padding:4px;vertical-align:middle;">
+								<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:transparent;border-radius:999px;width:24px;">
+									<tbody>
+										<tr>
+											<td style="padding:7px;font-size:0;height:24px;vertical-align:middle;width:24px;">
+												<a href="' . esc_url( $url ) . '" target="_blank"><img alt="" height="24" src="*SITE_URL*/wp-content/plugins/newspack-newsletters/assets/' . $color . '-' . $service . '.png" style="border-radius:999px;display:block;" width="24"></a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<!--[if mso | IE]></td><td><![endif]-->';
 		}
 	}
 
-	return [
-		'block_markup' => $block_markup,
-		'html_markup'  => $html_markup,
-	];
+	return $markup;
 }
