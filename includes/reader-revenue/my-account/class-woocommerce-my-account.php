@@ -342,7 +342,7 @@ class WooCommerce_My_Account {
 	 * Do not redirect if this request is a membership cancellation.
 	 */
 	public static function redirect_to_account_details() {
-		$resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === \get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$cancel_membership_request = isset( $_REQUEST['cancel_membership'] ) ? true : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $resubscribe_request && ! $cancel_membership_request ) {
@@ -530,23 +530,23 @@ class WooCommerce_My_Account {
 	 * @return array
 	 */
 	public static function option_display_memberships_without_subs( $settings ) {
-		$settings[] = array(
+		$settings[] = [
 			'name' => __( 'Newspack Reader Activation', 'newspack-plugin' ),
 			'type' => 'title',
 			'id'   => 'wc_memberships_show_unsubbed_memberships',
-		);
+		];
 
-		$settings[] = array(
+		$settings[] = [
 			'type'    => 'checkbox',
 			'id'      => 'wc_memberships_show_unsubbed_memberships',
 			'name'    => __( 'Memberships without subscriptions', 'newspack-plugin' ),
 			'desc'    => __( 'Display memberships that don\'t have active subscriptions on the My Account Subscriptions tab.', 'newspack-plugin' ),
 			'default' => 'no',
-		);
+		];
 
-		$settings[] = array(
+		$settings[] = [
 			'type' => 'sectionend',
-		);
+		];
 
 		return $settings;
 	}
@@ -559,13 +559,13 @@ class WooCommerce_My_Account {
 	public static function get_memberships_without_subs() {
 		if ( function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
 			$customer_id              = \get_current_user_id();
-			$memberships_info         = wc_memberships_get_user_active_memberships( $customer_id );
+			$memberships_info         = \wc_memberships_get_user_active_memberships( $customer_id );
 			$memberships_without_subs = [];
 
 			// Create an array of active memberships without active subscriptions.
 			if ( function_exists( 'wc_memberships_has_subscription_product_granted_access' ) ) {
 				foreach ( $memberships_info as $membership ) {
-					if ( ! wc_memberships_has_subscription_product_granted_access( $membership ) ) {
+					if ( ! \wc_memberships_has_subscription_product_granted_access( $membership ) ) {
 						$memberships_without_subs[] = $membership;
 					}
 				}
@@ -580,7 +580,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function append_membership_table() {
 		// If this option is not enabled, stop.
-		if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+		if ( 'no' === \get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
 			return;
 		}
 
@@ -595,7 +595,7 @@ class WooCommerce_My_Account {
 				'myaccount/my-memberships.php',
 				array(
 					'customer_memberships' => $memberships_without_subs,
-					'user_id'              => get_current_user_id(),
+					'user_id'              => \get_current_user_id(),
 				)
 			);
 			echo '</div>';
@@ -609,7 +609,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function redirect_to_single_subscription() {
 		// If this option is not enabled, stop.
-		if ( 'no' === get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
+		if ( 'no' === \get_option( 'wc_memberships_show_unsubbed_memberships', 'no' ) ) {
 			return true;
 		}
 
@@ -630,7 +630,9 @@ class WooCommerce_My_Account {
 	 * @return array
 	 */
 	public static function hide_cancel_button_from_memberships_table( $actions ) {
-		unset( $actions['cancel'] );
+		if ( ! empty( $actions['cancel'] ) ) {
+			unset( $actions['cancel'] );
+		}
 		return $actions;
 	}
 
@@ -641,7 +643,9 @@ class WooCommerce_My_Account {
 	 * @return array
 	 */
 	public static function remove_next_bill_on( $columns ) {
-		unset( $columns['membership-next-bill-on'] );
+		if ( ! empty( $columns['membership-next-bill-on'] ) ) {
+			unset( $columns['membership-next-bill-on'] );
+		}
 		return $columns;
 	}
 }
