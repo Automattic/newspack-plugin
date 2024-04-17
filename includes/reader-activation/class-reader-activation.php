@@ -173,14 +173,15 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Get filtered labels.
+	 * Get reader activation auth flow labels.
 	 *
 	 * @param string|null $key Key of the label to return (optional).
 	 *
-	 * @return mixed[] Labels keyed by name.
+	 * @return mixed[]|string The label string or an array of labels keyed by string.
 	 */
 	private static function get_reader_auth_labels( $key = null ) {
 		$default_labels = [
+			'title'                   => __( 'Sign in', 'newspack-plugin' ),
 			'invalid_email'           => __( 'Please enter a valid email address.', 'newspack-plugin' ),
 			'invalid_password'        => __( 'Please enter a password.', 'newspack-plugin' ),
 			'invalid_display'         => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
@@ -194,6 +195,7 @@ final class Reader_Activation {
 				'continue'        => __( 'Continue', 'newspack-plugin' ),
 				'resend_code'     => __( 'Resend code', 'newspack-plugin' ),
 				'otp'             => __( 'Email me a one-time code instead', 'newspack-plugin' ),
+				'otp_title'       => __( 'Enter the code sent to your email.', 'newspack-plugin' ),
 				'forgot_password' => __( 'Forgot password', 'newspack-plugin' ),
 				'create_account'  => __( 'Create an account', 'newspack-plugin' ),
 				'register'        => __( 'Sign in to an existing account', 'newspack-plugin' ),
@@ -1135,7 +1137,7 @@ final class Reader_Activation {
 				<input type="hidden" name="action" />
 				<p data-action="otp">
 					<strong>
-						<?php esc_html_e( 'Enter the code sent to your email.', 'newspack-plugin' ); ?>
+						<?php echo esc_html( $labels['otp_title'] ); ?>
 					</strong>
 				</p>
 				<div data-action="signin register">
@@ -1202,12 +1204,13 @@ final class Reader_Activation {
 		}
 
 		$terms = self::get_auth_footer();
+		$label = self::get_reader_auth_labels( 'title' );
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth-modal">
 			<div class="newspack-ui__modal-container__overlay"></div>
 			<div class="newspack-ui__modal newspack-ui__modal--small">
 				<div class="newspack-ui__modal__header">
-					<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
+					<h2><?php echo \esc_html( $label ); ?></h2>
 					<button class="newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
