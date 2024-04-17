@@ -52,8 +52,92 @@ class Co_Authors_Plus {
 		}
 
 		self::migrate_linked_guest_authors();
+		self::migrate_unlinked_guest_authors();
 
 		WP_CLI::line( '' );
+	}
+
+
+	/**
+	 * Migrate unlinked guest authors to regular users.
+	 *
+	 * For all unlinked guest authors, copy the guest author's data to a new WP user,
+	 * reassign the posts, and remove the guest author.
+	 */
+	private static function migrate_unlinked_guest_authors() {
+		$unlinked_guest_authors = get_posts(
+			[
+				'post_type'      => 'guest-author',
+				'posts_per_page' => -1,
+				'post_status'    => 'any',
+				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					'relation' => 'OR',
+					[
+						'key'     => 'cap-linked_account',
+						'compare' => 'NOT EXISTS',
+					],
+					[
+						'key'     => 'cap-linked_account',
+						'compare' => '=',
+						'value'   => '',
+					],
+				],
+			]
+		);
+		WP_CLI::line( sprintf( 'Found %d guest author(s) not linked to any WP User.', count( $unlinked_guest_authors ) ) );
+
+		foreach ( $unlinked_guest_authors as $guest_author ) {
+			WP_CLI::line( '' );
+			$post_meta = array_map(
+				function( $value ) {
+					return $value[0];
+				},
+				get_post_meta( $guest_author->ID )
+			);
+			if ( self::$verbose ) {
+				WP_CLI::line( sprintf( 'Creating user %s from Guest Author #%d.', $post_meta['cap-display_name'], $guest_author->ID ) );
+			}
+
+			$user_login = $post_meta['cap-user_login'];
+
+			$user_data = [
+				'user_login'      => $user_login,
+				'user_nicename'   => $post_meta['cap-user_login'],
+				'user_url'        => $post_meta['cap-website'],
+				'user_pass'       => wp_generate_password(),
+				'role'            => \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+				'user_email'      => $post_meta['cap-user_email'],
+				'display_name'    => $post_meta['cap-display_name'],
+				'first_name'      => $post_meta['cap-first_name'],
+				'last_name'       => $post_meta['cap-last_name'],
+				'description'     => $post_meta['cap-description'],
+				'user_registered' => $guest_author->post_date,
+				'meta_input'      => [
+					'_np_migrated_cap_guest_author' => $guest_author->ID,
+				],
+			];
+
+			$existing_user = get_user_by( 'login', $user_login );
+			if ( $existing_user !== false ) {
+				WP_CLI::warning( sprintf( 'User with login %s already exists, it will be updated.', $user_login ) );
+				$user_data['ID'] = $existing_user->ID;
+			}
+
+			foreach ( array_values( \Newspack\Authors_Custom_Fields::USER_META_NAMES ) as $meta_key ) {
+				$user_data['meta_input'][ $meta_key ] = $post_meta[ 'cap-' . $meta_key ];
+			}
+			if ( self::$live ) {
+				$user_id = \wp_insert_user( $user_data );
+				if ( is_wp_error( $user_id ) ) {
+					WP_CLI::warning( sprintf( 'Could not create user: %s', $user_id->get_error_message() ) );
+					continue;
+				}
+				WP_CLI::success( sprintf( 'User created successfully (#%d).', $user_id ) );
+
+				self::assign_user_avatar( $guest_author, $user_id );
+				self::delete_guest_author_post( $guest_author->ID );
+			}
+		}
 	}
 
 	/**
@@ -121,14 +205,7 @@ class Co_Authors_Plus {
 					}
 				} else {
 					// Otherwise, only delete the Guest Author post and cache, leaving the term intact.
-					$guest_author_object = $coauthors_plus->guest_authors->get_guest_author_by( 'ID', $guest_author->ID );
-					$result = wp_delete_post( $guest_author->ID, true );
-					$coauthors_plus->guest_authors->delete_guest_author_cache( $guest_author_object );
-					if ( ! $result ) {
-						WP_CLI::warning( 'Could not delete the guest author post: ' . $result->get_error_message() );
-					} else {
-						WP_CLI::success( 'Deleted the guest author post.' );
-					}
+					self::delete_guest_author_post( $guest_author->ID );
 				}
 
 				if ( $wp_user_term ) {
@@ -152,6 +229,24 @@ class Co_Authors_Plus {
 			self::assign_user_props( $guest_author_data, $user_id );
 			self::assign_user_meta( $guest_author, $user_id );
 		}
+	}
+
+	/**
+	 * Delete a Guest Author, without deleting the related term.
+	 *
+	 * @param int $guest_author_id The guest author post ID.
+	 */
+	private static function delete_guest_author_post( $guest_author_id ) {
+		global $coauthors_plus;
+		$guest_author_object = $coauthors_plus->guest_authors->get_guest_author_by( 'ID', $guest_author_id );
+		$result = wp_delete_post( $guest_author_id, true );
+		$coauthors_plus->guest_authors->delete_guest_author_cache( $guest_author_object );
+		if ( ! $result ) {
+			WP_CLI::warning( 'Could not delete the guest author post: ' . $result->get_error_message() );
+		} else {
+			WP_CLI::success( sprintf( 'Deleted the guest author post (#%d).', $guest_author_id ) );
+		}
+		return $result;
 	}
 
 	/**
