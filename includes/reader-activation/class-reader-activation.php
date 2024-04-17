@@ -62,6 +62,13 @@ final class Reader_Activation {
 	private static $is_new_reader_auth = false;
 
 	/**
+	 * UI labels for reader auth flow.
+	 *
+	 * @var mixed[]
+	 */
+	private static $reader_auth_labels = [];
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -168,10 +175,12 @@ final class Reader_Activation {
 	/**
 	 * Get filtered labels.
 	 *
+	 * @param string|null $key Key of the label to return (optional).
+	 *
 	 * @return mixed[] Labels keyed by name.
 	 */
-	private static function get_reader_auth_labels() {
-		$labels = [
+	private static function get_reader_auth_labels( $key = null ) {
+		$default_labels = [
 			'invalid_email'           => __( 'Please enter a valid email address.', 'newspack-plugin' ),
 			'invalid_password'        => __( 'Please enter a password.', 'newspack-plugin' ),
 			'invalid_display'         => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
@@ -182,6 +191,14 @@ final class Reader_Activation {
 				'title'           => __( 'Sign in', 'newspack-plugin' ),
 				'success_title'   => __( 'Success! You’re signed in.', 'newspack-plugin' ),
 				'success_message' => __( 'Login successful!', 'newspack-plugin' ),
+				'continue'        => __( 'Continue', 'newspack-plugin' ),
+				'resend_code'     => __( 'Resend code', 'newspack-plugin' ),
+				'otp'             => __( 'Email me a one-time code instead', 'newspack-plugin' ),
+				'forgot_password' => __( 'Forgot password', 'newspack-plugin' ),
+				'create_account'  => __( 'Create an account', 'newspack-plugin' ),
+				'register'        => __( 'Sign in to an existing account', 'newspack-plugin' ),
+				'go_back'         => __( 'Go back', 'newspack-plugin' ),
+				'set_password'    => __( 'Set a password (optional)', 'newspack-plugin' ),
 			],
 			'register'                => [
 				'title'               => __( 'Create an account', 'newspack-plugin' ),
@@ -198,12 +215,20 @@ final class Reader_Activation {
 			'newsletters'             => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
 		];
 
-		/**
-		 * Filters the global labels for reader activation auth flow.
-		 *
-		 * @param mixed[] $labels Labels keyed by name.
-		 */
-		return apply_filters( 'newspack_reader_activation_auth_labels', $labels );
+		if ( empty( self::$reader_auth_labels ) ) {
+			/**
+			* Filters the global labels for reader activation auth flow.
+			*
+			* @param mixed[] $labels Labels keyed by name.
+			*/
+			self::$reader_auth_labels = apply_filters( 'newspack_reader_activation_auth_labels', $default_labels );
+		}
+
+		if ( ! $key ) {
+			return array_merge( $default_labels, self::$reader_auth_labels );
+		}
+
+		return self::$reader_auth_labels[ $key ] ?? $default_labels[ $key ] ?? '';
 	}
 
 	/**
@@ -212,12 +237,12 @@ final class Reader_Activation {
 	 * @return mixed[] Settings default values keyed by their name.
 	 */
 	private static function get_settings_config() {
-		$labels          = self::get_reader_auth_labels();
+		$label           = self::get_reader_auth_labels( 'newsletters' );
 		$settings_config = [
 			'enabled'                         => false,
 			'enabled_account_link'            => true,
 			'account_link_menu_locations'     => [ 'tertiary-menu' ],
-			'newsletters_label'               => $labels['newsletters'],
+			'newsletters_label'               => $label,
 			'use_custom_lists'                => false,
 			'newsletter_lists'                => [],
 			'terms_text'                      => '',
@@ -778,9 +803,7 @@ final class Reader_Activation {
 
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
 
-		$labels = self::get_reader_auth_labels();
-
-		WooCommerce_Connection::add_wc_notice( $labels['verify'], 'success' );
+		WooCommerce_Connection::add_wc_notice( self::get_reader_auth_labels( 'verify' ), 'success' );
 
 		/**
 		 * Fires after a reader's email address is verified.
@@ -1022,8 +1045,7 @@ final class Reader_Activation {
 			return self::get_element_class_name( $parts );
 		};
 
-		$labels = self::get_reader_auth_labels();
-		$labels = $labels['account_link'];
+		$labels = self::get_reader_auth_labels( 'account_link' );
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
 
 		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
@@ -1088,6 +1110,7 @@ final class Reader_Activation {
 		// phpcs:enable
 
 		$referer = \wp_parse_url( \wp_get_referer() );
+		$labels  = self::get_reader_auth_labels( 'signin' );
 		?>
 		<div class="newspack-ui newspack-reader-auth">
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
@@ -1147,16 +1170,16 @@ final class Reader_Activation {
 					);
 					?>
 				</p>
-				<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="register signin pwd otp"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
-				<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
+				<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="register signin pwd otp"><?php echo \esc_html( $labels['continue'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php echo \esc_html( $labels['resend_code'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php echo \esc_html( $labels['otp'] ); ?></button>
+				<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php echo \esc_html( $labels['forgot_password'] ); ?></a>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php echo \esc_html( $labels['create_account'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php echo \esc_html( $labels['register'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php echo \esc_html( $labels['go_back'] ); ?></button>
 			</form>
-			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
-			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
+			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
+			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php echo \esc_html( $labels['set_password'] ); ?></a>
 		</div>
 		<?php
 	}
@@ -1239,8 +1262,8 @@ final class Reader_Activation {
 	private static function send_auth_form_response( $data = [], $message = false ) {
 		$is_error = \is_wp_error( $data );
 		if ( empty( $message ) ) {
-			$labels  = self::get_reader_auth_labels();
-			$message = $is_error ? $data->get_error_message() : $labels['signin']['success_message'];
+			$labels  = self::get_reader_auth_labels( 'signin' );
+			$message = $is_error ? $data->get_error_message() : $labels['success_message'];
 		}
 		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
 	}
@@ -1265,13 +1288,13 @@ final class Reader_Activation {
 	 * }
 	 */
 	public static function render_subscription_lists_inputs( $lists = [], $checked = [], $config = [] ) {
-		$labels = self::get_reader_auth_labels();
+		$label = self::get_reader_auth_labels( 'newsletters' );
 		$config = \wp_parse_args(
 			$config,
 			[
 				'title'            => '',
 				'name'             => 'lists',
-				'single_label'     => $labels['newsletters'],
+				'single_label'     => $label,
 				'show_description' => true,
 			]
 		);
@@ -1446,7 +1469,7 @@ final class Reader_Activation {
 			'authenticated' => 0,
 		];
 
-		$labels = self::get_reader_auth_labels();
+		$magic_link_label = self::get_reader_auth_labels( 'magic_link' );
 
 		switch ( $action ) {
 			case 'signin':
@@ -1477,7 +1500,7 @@ final class Reader_Activation {
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}
-				return self::send_auth_form_response( $payload, $labels['magic_link'] );
+				return self::send_auth_form_response( $payload, $magic_link_label );
 			case 'register':
 				$metadata = [ 'registration_method' => 'auth-form' ];
 				if ( ! empty( $lists ) ) {
@@ -1769,8 +1792,7 @@ final class Reader_Activation {
 	 */
 	public static function better_display_name_error( $message ) {
 		if ( 'Display name cannot be changed to email address due to privacy concern.' === $message ) {
-			$labels = self::get_reader_auth_labels();
-			return $labels['invalid_display'];
+			return self::get_reader_auth_labels( 'invalid_display' );
 		}
 
 		return $message;
@@ -1969,8 +1991,7 @@ final class Reader_Activation {
 	 */
 	public static function rate_limit_lost_password( $errors, $user_data ) {
 		if ( $user_data && self::is_reader_email_rate_limited( $user_data ) ) {
-			$labels = self::get_reader_auth_labels();
-			$errors->add( 'newspack_password_reset_interval', $labels['password_reset_interval'] );
+			$errors->add( 'newspack_password_reset_interval', self::get_reader_auth_labels( 'password_reset_interval' ) );
 		} else {
 			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
 		}
