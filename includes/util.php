@@ -573,10 +573,10 @@ function newspack_get_social_markup( $color = 'white' ) {
 
 	if ( ! is_wp_error( $cm ) ) {
 		$social_urls = [
-			// TODO: Add more social media services here.
 			'facebook'  => $cm->get_option( 'facebook_site' ),
 			'twitter'   => $cm->get_option( 'twitter_site' ),
 			'instagram' => $cm->get_option( 'instagram_url' ),
+			'linkedin'  => $cm->get_option( 'linkedin_url' ),
 			'youtube'   => $cm->get_option( 'youtube_url' ),
 		];
 	}
