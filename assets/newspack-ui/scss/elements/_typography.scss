@@ -22,31 +22,56 @@
 
 	&__font--2xs {
 		font-size: var( --newspack-ui-font-size-2xs );
-		line-height: 1.3333;
+		line-height: var( --newspack-ui-line-height-2xs );
 	}
 
 	&__font--xs {
 		font-size: var( --newspack-ui-font-size-xs );
-		line-height: 1.4286;
+		line-height: var( --newspack-ui-line-height-xs );
 	}
 
 	&__font--s {
 		font-size: var( --newspack-ui-font-size-s );
-		line-height: 1.5;
+		line-height: var( --newspack-ui-line-height-s );
 	}
 
 	&__font--m {
 		font-size: var( --newspack-ui-font-size-m );
-		line-height: 1.6;
+		line-height: var( --newspack-ui-line-height-m );
 	}
 
 	&__font--l {
 		font-size: var( --newspack-ui-font-size-l );
-		line-height: 1.5;
+		line-height: var( --newspack-ui-line-height-l );
 	}
 
 	&__font--xl {
 		font-size: var( --newspack-ui-font-size-xl );
-		line-height: 1.375;
+		line-height: var( --newspack-ui-line-height-xl );
+	}
+
+	&__font--2xl {
+		font-size: var( --newspack-ui-font-size-2xl );
+		line-height: var( --newspack-ui-line-height-2xl );
+	}
+
+	&__font--3xl {
+		font-size: var( --newspack-ui-font-size-3xl );
+		line-height: var( --newspack-ui-line-height-3xl );
+	}
+
+	&__font--4xl {
+		font-size: var( --newspack-ui-font-size-4xl );
+		line-height: var( --newspack-ui-line-height-4xl );
+	}
+
+	&__font--5xl {
+		font-size: var( --newspack-ui-font-size-5xl );
+		line-height: var( --newspack-ui-line-height-5xl );
+	}
+
+	&__font--6xl {
+		font-size: var( --newspack-ui-font-size-6xl );
+		line-height: var( --newspack-ui-line-height-6xl );
 	}
 }

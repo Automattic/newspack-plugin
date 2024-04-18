@@ -1,6 +1,6 @@
 .newspack-ui {
-	// TODO: define some kind of size hierachy for buttons eg. small, medium, large;
-	// not needed for RAS, but likely for My Account.
+	// TODO: define some kind of size hierachy for buttons eg. small, medium, large.
+	// Buttons in modals are already set to font-size-s and border-radius-m.
 	&__button {
 		align-items: center;
 		border: 0;
@@ -11,8 +11,8 @@
 		font-weight: 600;
 		gap: var( --newspack-ui-spacer-2 );
 		justify-content: center;
-		line-height: var( --newspack-ui-line-height-l );
-		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-3 ); // TODO: correct this
+		line-height: var( --newspack-ui-line-height-s );
+		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-4 );
 		transition: background-color 150ms ease-in-out;
 
 		&:not( :last-child ) {

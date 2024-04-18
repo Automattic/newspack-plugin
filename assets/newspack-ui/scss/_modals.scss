@@ -47,7 +47,7 @@
 				&__content {
 					padding: var( --newspack-ui-spacer-5 );
 					overflow: auto;
-					border-radius: var( --newspack-ui-border-radius-s );
+					border-radius: var( --newspack-ui-border-radius-m );
 					h3 {
 						font-size: var( --newspack-ui-font-size-s );
 						margin: 0;
@@ -166,7 +166,7 @@
 			background: var( --newspack-ui-color-neutral-5 );
 			color: var( --newspack-ui-color-neutral-60 );
 			font-size: var( --newspack-ui-font-size-xs );
-			line-height: var( --newspack-ui-line-height-s );
+			line-height: var( --newspack-ui-line-height-xs );
 			a {
 				text-decoration: underline;
 			}

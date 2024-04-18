@@ -25,6 +25,7 @@
 		font-size: var( --newspack-ui-font-size-s );
 		line-height: var( --newspack-ui-line-height-l );
 		padding: calc( var( --newspack-ui-spacer-2 ) - 1px ) calc( var( --newspack-ui-spacer-3 ) - 1px );
+		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out, outline 125ms ease-in-out;
 		width: 100%;
 
 		&:focus {

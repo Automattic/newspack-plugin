@@ -2,7 +2,7 @@
 	table {
 		border: 0;
 		font-size: var( --newspack-ui-font-size-xs ); // Prevent relative font size
-		line-height: var( --newspack-ui-line-height-l );
+		line-height: var( --newspack-ui-line-height-xs );
 		margin: calc( var( --newspack-ui-spacer-base ) / -2 ) 0; // Offset cell padding.
 		th,
 		td {
