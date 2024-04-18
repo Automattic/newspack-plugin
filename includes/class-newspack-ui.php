@@ -359,7 +359,7 @@ class Newspack_UI {
 							</p>
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Sign In</button>
-							<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Sign in to existing account</button>
+							<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Sign in to existing account</button>
 						</form>
 					</section>
 
@@ -400,7 +400,7 @@ class Newspack_UI {
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
 							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Resend Code</button>
-							<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Go Back</button>
+							<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Go Back</button>
 						</form>
 					</section>
 				</div><!-- .newspack-ui__modal--small -->
@@ -488,7 +488,7 @@ class Newspack_UI {
 						</form>
 
 						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
-						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Skip for now</button>
+						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Skip for now</button>
 					</section>
 				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
