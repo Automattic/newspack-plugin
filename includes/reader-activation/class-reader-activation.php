@@ -180,57 +180,72 @@ final class Reader_Activation {
 	 * @return mixed[]|string The label string or an array of labels keyed by string.
 	 */
 	private static function get_reader_auth_labels( $key = null ) {
-		$default_labels = [
-			'title'                   => __( 'Sign in', 'newspack-plugin' ),
-			'invalid_email'           => __( 'Please enter a valid email address.', 'newspack-plugin' ),
-			'invalid_password'        => __( 'Please enter a password.', 'newspack-plugin' ),
-			'invalid_display'         => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
-			'blocked_popup'           => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
-			'code_resent'             => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
-			'create_account'          => __( 'Create an account', 'newspack-plugin' ),
-			'signin'                  => [
-				'title'           => __( 'Sign in', 'newspack-plugin' ),
-				'success_title'   => __( 'Success! You’re signed in.', 'newspack-plugin' ),
-				'success_message' => __( 'Login successful!', 'newspack-plugin' ),
-				'continue'        => __( 'Continue', 'newspack-plugin' ),
-				'resend_code'     => __( 'Resend code', 'newspack-plugin' ),
-				'otp'             => __( 'Email me a one-time code instead', 'newspack-plugin' ),
-				'otp_title'       => __( 'Enter the code sent to your email.', 'newspack-plugin' ),
-				'forgot_password' => __( 'Forgot password', 'newspack-plugin' ),
-				'create_account'  => __( 'Create an account', 'newspack-plugin' ),
-				'register'        => __( 'Sign in to an existing account', 'newspack-plugin' ),
-				'go_back'         => __( 'Go back', 'newspack-plugin' ),
-				'set_password'    => __( 'Set a password (optional)', 'newspack-plugin' ),
-			],
-			'register'                => [
-				'title'               => __( 'Create an account', 'newspack-plugin' ),
-				'success_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
-				'success_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
-			],
-			'verify'                  => __( 'Thank you for verifying your account!', 'newspack-plugin' ),
-			'magic_link'              => __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ),
-			'password_reset_interval' => __( 'Please wait a moment before requesting another password reset email.', 'newspack-plugin' ),
-			'account_link'            => [
-				'signedin'  => __( 'My Account', 'newspack-plugin' ),
-				'signedout' => __( 'Sign In', 'newspack-plugin' ),
-			],
-			'newsletters'             => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
-		];
-
 		if ( empty( self::$reader_auth_labels ) ) {
+			$default_labels = [
+				'title'                   => __( 'Sign in', 'newspack-plugin' ),
+				'invalid_email'           => __( 'Please enter a valid email address.', 'newspack-plugin' ),
+				'invalid_password'        => __( 'Please enter a password.', 'newspack-plugin' ),
+				'invalid_display'         => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
+				'blocked_popup'           => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+				'code_resent'             => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+				'create_account'          => __( 'Create an account', 'newspack-plugin' ),
+				'signin'                  => [
+					'title'           => __( 'Sign in', 'newspack-plugin' ),
+					'success_title'   => __( 'Success! You’re signed in.', 'newspack-plugin' ),
+					'success_message' => __( 'Login successful!', 'newspack-plugin' ),
+					'continue'        => __( 'Continue', 'newspack-plugin' ),
+					'resend_code'     => __( 'Resend code', 'newspack-plugin' ),
+					'otp'             => __( 'Email me a one-time code instead', 'newspack-plugin' ),
+					'otp_title'       => __( 'Enter the code sent to your email.', 'newspack-plugin' ),
+					'forgot_password' => __( 'Forgot password', 'newspack-plugin' ),
+					'create_account'  => __( 'Create an account', 'newspack-plugin' ),
+					'register'        => __( 'Sign in to an existing account', 'newspack-plugin' ),
+					'go_back'         => __( 'Go back', 'newspack-plugin' ),
+					'set_password'    => __( 'Set a password (optional)', 'newspack-plugin' ),
+				],
+				'register'                => [
+					'title'               => __( 'Create an account', 'newspack-plugin' ),
+					'success_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
+					'success_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
+				],
+				'verify'                  => __( 'Thank you for verifying your account!', 'newspack-plugin' ),
+				'magic_link'              => __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ),
+				'password_reset_interval' => __( 'Please wait a moment before requesting another password reset email.', 'newspack-plugin' ),
+				'account_link'            => [
+					'signedin'  => __( 'My Account', 'newspack-plugin' ),
+					'signedout' => __( 'Sign In', 'newspack-plugin' ),
+				],
+				'newsletters'             => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
+			];
+
 			/**
 			* Filters the global labels for reader activation auth flow.
 			*
 			* @param mixed[] $labels Labels keyed by name.
 			*/
-			self::$reader_auth_labels = apply_filters( 'newspack_reader_activation_auth_labels', $default_labels );
+			$filtered_labels = apply_filters( 'newspack_reader_activation_auth_labels', $default_labels );
+
+			foreach ( $default_labels as $key => $label ) {
+				if ( isset( $filtered_labels[ $key ] ) ) {
+					if ( is_array( $label ) && is_array( $filtered_labels[ $key ] ) ) {
+						self::$reader_auth_labels[ $key ] = array_merge( $label, $filtered_labels[ $key ] );
+					} elseif ( is_string( $label ) && is_string( $filtered_labels[ $key ] ) ) {
+						self::$reader_auth_labels[ $key ] = $filtered_labels[ $key ];
+					} else {
+						// If filtered label type doesn't match, fallback to default.
+						self::$reader_auth_labels[ $key ] = $label;
+					}
+				} else {
+					self::$reader_auth_labels[ $key ] = $label;
+				}
+			}
 		}
 
 		if ( ! $key ) {
-			return array_merge( $default_labels, self::$reader_auth_labels );
+			return self::$reader_auth_labels;
 		}
 
-		return self::$reader_auth_labels[ $key ] ?? $default_labels[ $key ] ?? '';
+		return self::$reader_auth_labels[ $key ] ?? '';
 	}
 
 	/**
