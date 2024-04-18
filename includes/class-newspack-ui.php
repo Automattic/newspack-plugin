@@ -576,7 +576,7 @@ class Newspack_UI {
 			<button id="open-modal-example" class="newspack-ui__button newspack-ui__button--primary">Open Modal</button>
 			<div id="newspack-modal-example" class="newspack-ui__modal-container">
 				<div class="newspack-ui__modal-container__overlay"></div>
-				<div class="newspack-ui__modal newspack-ui__modal__small">
+				<div class="newspack-ui__modal newspack-ui__modal--small">
 						<header class="newspack-ui__modal__header">
 							<h2>Auth Modal Contents Default</h2>
 
