@@ -258,6 +258,8 @@ class Newspack_UI {
 			<button class="newspack-ui__button newspack-ui__button--secondary" disabled>Secondary Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--ghost">Ghost Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--ghost" disabled>Ghost Button Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--outline">Outline Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--outline" disabled>Outline Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--destructive">Destructive Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--destructive" disabled>Destructive Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">
@@ -276,6 +278,7 @@ class Newspack_UI {
 			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Ghost Button</button>
+			<button class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--wide">Outline Button</button>
 			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide">Destructive Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
