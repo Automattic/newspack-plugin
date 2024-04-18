@@ -29,8 +29,7 @@ class WooCommerce_Products {
 	}
 
 	/**
-	 * Get custom product options for the given product type.
-	 * Product option values are always booleans but represented by string.
+	 * Get custom product options. Product option values are always booleans but represented by string.
 	 * See: https://github.com/woocommerce/woocommerce/blob/trunk/plugins/woocommerce/includes/wc-formatting-functions.php#L37
 	 *
 	 * @return array Keyed array of custom product options.
