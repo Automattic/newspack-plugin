@@ -248,13 +248,18 @@ class Newspack_UI {
 			<hr>
 
 			<h2>Buttons</h2>
-			<p><code>newspack-ui__button--primary</code>, <code>--branded</code>, <code>--secondary</code>, and <code>--tertiary</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
+			<p><code>newspack-ui__button--primary</code>, <code>--branded</code>, <code>--secondary</code>, <code>--ghost</code>, and <code>--destructive</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
 			<button class="newspack-ui__button">Default Theme Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--primary" disabled>Primary Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--branded">Branded Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--branded" disabled>Branded Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">Secondary Button</button><br>
-			<button class="newspack-ui__button newspack-ui__button--tertiary">Tertiary Button</button><br>
-			<button class="newspack-ui__button newspack-ui__button--tertiary" disabled>Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--secondary" disabled>Secondary Button Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--ghost">Ghost Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--ghost" disabled>Ghost Button Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--destructive">Destructive Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--destructive" disabled>Destructive Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
@@ -270,8 +275,8 @@ class Newspack_UI {
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
-			<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide">Tertiary Button</button>
-			<button class="newspack-ui__button newspack-ui__button--tertiary newspack-ui__button--wide" disabled>Disabled</button>
+			<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Ghost Button</button>
+			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide">Destructive Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>

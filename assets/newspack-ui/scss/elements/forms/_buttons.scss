@@ -12,7 +12,7 @@
 		justify-content: center;
 		line-height: var( --newspack-ui-line-height-s );
 		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-4 );
-		transition: background-color 150ms ease-in-out;
+		transition: background-color 125ms ease-in-out, outline 125ms ease-in-out;
 
 		&:not( :last-child ) {
 			margin-bottom: var( --newspack-ui-spacer-2 );
@@ -22,6 +22,7 @@
 			background: var( --newspack-ui-color-neutral-10 ) !important;
 			color: var( --newspack-ui-color-neutral-70 ) !important;
 			cursor: default;
+			pointer-events: none;
 		}
 
 		&:focus {
@@ -42,6 +43,11 @@
 				background: var( --newspack-ui-color-button-bg-hover );
 				color: var( --newspack-ui-color-button-text-hover );
 			}
+
+			&:disabled {
+				background: var( --newspack-ui-color-neutral-30 ) !important;
+				color: var( --newspack-ui-color-neutral-0 ) !important;
+			}
 		}
 
 		&--branded {
@@ -49,34 +55,66 @@
 			color: var( --newspack-ui-color-against-primary );
 
 			&:hover {
-				background: var( --newspack-ui-color-button-bg-hover );
-				color: var( --newspack-ui-color-button-text-hover );
+				background: color-mix(in srgb, var( --newspack-ui-color-primary ) 80%, black);
+				color: var( --newspack-ui-color-against-primary );
 			}
 
 			&:focus {
 				outline-color: var( --newspack-ui-color-primary );
+			}
+
+			&:disabled {
+				background: color-mix(in srgb, var( --newspack-ui-color-primary ) 20%, white) !important;
+				color: var( --newspack-ui-color-against-primary ) !important;
 			}
 		}
 
 		&--secondary {
 			background: var( --newspack-ui-color-neutral-10 );
 			color: var( --newspack-ui-color-neutral-90 );
-			padding: calc( var( --newspack-ui-spacer-2 ) - 1px )
-				calc( var( --newspack-ui-spacer-3 ) - 1px );
 
 			&:hover {
 				background: var( --newspack-ui-color-neutral-30 );
 				color: var( --newspack-ui-color-neutral-90 );
 			}
+
+			&:disabled {
+				background: var( --newspack-ui-color-neutral-5 ) !important;
+				color: var( --newspack-ui-color-neutral-40 ) !important;
+			}
 		}
 
-		&--tertiary {
+		&--ghost {
 			background: transparent;
 			color: var( ---newspack-ui-color-neutral-90 );
 
 			&:hover {
-				background: var( --newspack-ui-color-neutral-10 );
+				background: var( --newspack-ui-color-neutral-5 );
 				color: var( --newspack-ui-color-neutral-90 );
+			}
+
+			&:disabled {
+				background: transparent !important;
+				color: var( --newspack-ui-color-neutral-30 ) !important;
+			}
+		}
+
+		&--destructive {
+			background: var( --newspack-ui-color-error-50 );
+			color: var( --newspack-ui-color-neutral-0 );
+
+			&:hover {
+				background: var( --newspack-ui-color-error-60 );
+				color: var( --newspack-ui-color-neutral-0 );
+			}
+
+			&:focus {
+				outline-color: var( --newspack-ui-color-error-50 );
+			}
+
+			&:disabled {
+				background: var( --newspack-ui-color-error-5 ) !important;
+				color: var( --newspack-ui-color-neutral-0 ) !important;
 			}
 		}
 	}
