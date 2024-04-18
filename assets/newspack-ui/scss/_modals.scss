@@ -87,7 +87,7 @@
 						bdi {
 							display: block;
 							font-weight: 600;
-							font-size: 32px; // TODO: create & replace w/ a variable.
+							font-size: var( --newspack-ui-font-size-xl );
 						}
 					}
 					.variation {
