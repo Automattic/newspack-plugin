@@ -126,16 +126,18 @@
 		}
 
 		&__header {
-			display: flex;
-			position: sticky;
 			align-items: center;
-			justify-content: space-between;
 			background: var( --newspack-ui-color-body-bg );
 			border-bottom: 1px solid var( --newspack-ui-color-border );
+			display: flex;
+			justify-content: space-between;
+			position: sticky;
+			top: 0;		
 
 			h2 {
 				font-family: var( --newspack-ui-font-family );
 				font-size: var( --newspack-ui-font-size-s );
+				line-height: var( --newspack-ui-line-height-s );
 				margin: 0;
 			}
 		}
