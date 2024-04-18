@@ -294,6 +294,46 @@ class Newspack_UI {
 
 			<hr>
 
+			<h2>Buttons Icon</h2>
+			<p>Uses the same classes as the <code>newspack-ui__button</code> but we add an extra class to it <code>newspack-ui__button--icon</code></p>
+			<button class="newspack-ui__button newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+			<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+			<button class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+
+			<hr>
+
 			<h2>Modals</h2>
 
 			<div class="newspack-ui__box">

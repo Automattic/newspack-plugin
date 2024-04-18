@@ -30,11 +30,7 @@
 			outline-offset: 1px;
 		}
 
-		&--wide {
-			display: flex;
-			width: 100%;
-		}
-
+		// Styles
 		&--primary {
 			background: var( --newspack-ui-color-button-bg );
 			color: var( --newspack-ui-color-button-text );
@@ -130,6 +126,25 @@
 			&:disabled {
 				background: var( --newspack-ui-color-error-5 ) !important;
 				color: var( --newspack-ui-color-neutral-0 ) !important;
+			}
+		}
+
+		// Wide
+		&--wide {
+			display: flex;
+			width: 100%;
+		}
+
+		// Icon-only
+		&--icon {
+			display: grid;
+			height: var( --newspack-ui-spacer-7 ); // This is the XS size, we will need S, and M
+			padding: 0;
+			place-items: center;
+			width: var( --newspack-ui-spacer-7 );
+
+			svg {
+				fill: currentcolor;
 			}
 		}
 	}
