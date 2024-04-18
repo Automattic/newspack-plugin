@@ -106,6 +106,10 @@ class Reader_Activation_Emails {
 						'label'    => __( 'the login link', 'newspack' ),
 						'template' => '*MAGIC_LINK_URL*',
 					],
+					[
+						'label'    => __( 'the password reset link', 'newspack' ),
+						'template' => '*SET_PASSWORD_LINK*',
+					],
 				]
 			),
 		];
