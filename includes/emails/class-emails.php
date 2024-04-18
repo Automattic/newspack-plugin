@@ -269,7 +269,6 @@ class Emails {
 			}
 		}
 
-
 		$switched_locale = \switch_to_locale( \get_user_locale( \wp_get_current_user() ) );
 
 		if ( 'string' === gettype( $config_name ) ) {
@@ -396,6 +395,7 @@ class Emails {
 			$edit_link = str_replace( site_url(), '', $post_link );
 		}
 		$serialized_email = [
+			'type'           => $type,
 			'label'          => $email_config['label'],
 			'description'    => $email_config['description'],
 			'post_id'        => $post_id,

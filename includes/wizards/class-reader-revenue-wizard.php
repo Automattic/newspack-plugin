@@ -531,7 +531,7 @@ class Reader_Revenue_Wizard extends Wizard {
 
 
 	/**
-	 * Reset reader activation email template.
+	 * Reset donation email template.
 	 * We acheive this by trashing the email template post.
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -565,7 +565,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			);
 		}
 
-		return rest_ensure_response( Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ) );
+		return rest_ensure_response( Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ) );
 	}
 
 
@@ -609,7 +609,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'newspack-reader-revenue-wizard',
 			'newspack_reader_revenue',
 			[
-				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+				'emails'                  => Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ),
 				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
