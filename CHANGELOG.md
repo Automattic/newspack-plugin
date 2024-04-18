@@ -1,3 +1,10 @@
+# [3.7.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v3.7.0-alpha.3...v3.7.0-alpha.4) (2024-04-18)
+
+
+### Bug Fixes
+
+* safer approach to comment metering fix ([#3067](https://github.com/Automattic/newspack-plugin/issues/3067)) ([e73657d](https://github.com/Automattic/newspack-plugin/commit/e73657d75fabf2bd56943d4c556f40abf4ba0aef))
+
 ## [3.6.10](https://github.com/Automattic/newspack-plugin/compare/v3.6.9...v3.6.10) (2024-04-15)
 
 
