@@ -11,6 +11,7 @@
 		height: var( --newspack-ui-spacer-4 ) !important;
 		margin: 0;
 		place-content: center;
+		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out, outline 125ms ease-in-out;
 		width: var( --newspack-ui-spacer-4 ) !important;
 
 		&::before {
@@ -25,12 +26,13 @@
 			}
 		}
 
-		&:focus {
-			outline: 1.5px solid var( --newspack-ui-color-neutral-90 );
+		&:focus-visible {
+			outline: 2px solid var( --newspack-ui-color-neutral-90 );
 			outline-offset: 1px;
 
 			&:not( :checked ) {
 				border: 0;
+				outline-offset: -1px;
 			}
 		}
 
