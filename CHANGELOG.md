@@ -1,3 +1,10 @@
+# [3.7.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v3.7.0-alpha.4...v3.7.0-alpha.5) (2024-04-19)
+
+
+### Bug Fixes
+
+* minor bugs in reCAPTCHA + Campaigns admin UIs ([#3073](https://github.com/Automattic/newspack-plugin/issues/3073)) ([876d0a9](https://github.com/Automattic/newspack-plugin/commit/876d0a9a1baa26480e399d52199d62d8a8f6bed5))
+
 # [3.7.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v3.7.0-alpha.3...v3.7.0-alpha.4) (2024-04-18)
 
 ### Bug Fixes
