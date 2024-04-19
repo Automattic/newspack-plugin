@@ -1125,9 +1125,9 @@ final class Reader_Activation {
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php \esc_html_e( 'Resend code', 'newspack-plugin' ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php \esc_html_e( 'Email me a one-time code instead', 'newspack-plugin' ); ?></button>
 				<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?></a>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="signin" data-set-action="register"><?php \esc_html_e( 'Create an account', 'newspack-plugin' ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="register" data-set-action="signin"><?php \esc_html_e( 'Sign in to an existing account', 'newspack-plugin' ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="otp pwd"  data-back><?php \esc_html_e( 'Go back', 'newspack-plugin' ); ?></button>
 			</form>
 			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php \esc_html_e( 'Continue', 'newspack-plugin' ); ?></a>
 			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php \esc_html_e( 'Set a password (optional)', 'newspack-plugin' ); ?></a>
@@ -1159,7 +1159,7 @@ final class Reader_Activation {
 			<div class="newspack-ui__modal newspack-ui__modal--small">
 				<div class="newspack-ui__modal__header">
 					<h2><?php _e( 'Sign In', 'newspack-plugin' ); ?></h2>
-					<button class="newspack-ui__modal__close">
+					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>

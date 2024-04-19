@@ -31,12 +31,16 @@
 	}
 
 	// Container for input description.
-	&__field-description {
+	&__helper-text {
 		color: var( --newspack-ui-color-neutral-60 );
 		display: block;
 		font-size: var( --newspack-ui-font-size-xs );
 		line-height: var( --newspack-ui-line-height-s );
 		margin: var( --newspack-ui-spacer-base ) 0 var( --newspack-ui-spacer-5 );
+
+		label & {
+			margin: 0;
+		}
 	}
 
 	// Form response inline error text.

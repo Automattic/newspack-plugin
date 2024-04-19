@@ -138,7 +138,7 @@
 		// Icon-only
 		&--icon {
 			display: grid;
-			height: var( --newspack-ui-spacer-7 ); // This is the XS size, we will need S, and M
+			height: var( --newspack-ui-spacer-7 ); // TODO: This is the XS size, we will need S, and M
 			padding: 0;
 			place-items: center;
 			width: var( --newspack-ui-spacer-7 );

@@ -132,7 +132,7 @@
 			display: flex;
 			justify-content: space-between;
 			position: sticky;
-			top: 0;		
+			top: 0;
 
 			h2 {
 				font-family: var( --newspack-ui-font-family );
@@ -143,20 +143,7 @@
 		}
 
 		&__close {
-			margin: -2px -5px 0 0; // Offsets a padding in the SVG.
-			padding: 0 0 0 var( --newspack-ui-spacer-base );
-			background: transparent;
-			color: var( --newspack-ui-color-neutral-90 );
-			cursor: pointer;
-
-			&:focus,
-			&:hover {
-				background: transparent;
-				color: var( --newspack-ui-color-neutral-70 );
-			}
-			svg {
-				display: block;
-			}
+			margin: -6px -6px -6px 0; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
 		}
 
 		&__content {
