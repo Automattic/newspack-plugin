@@ -1,6 +1,6 @@
 <?php
 /**
- * Template.
+ * One Time Password Email Template.
  *
  * @package Newspack
  */
