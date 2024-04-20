@@ -82,6 +82,14 @@ class Reader_Revenue_Emails {
 				),
 				'template' => '*CONTACT_EMAIL*',
 			],
+			[
+				'label'    => __( 'the site title', 'newspack-plugin' ),
+				'template' => '*SITE_TITLE*',
+			],
+			[
+				'label'    => __( 'the site url', 'newspack-plugin' ),
+				'template' => '*SITE_URL*',
+			],
 		];
 		$configs[ self::EMAIL_TYPES['RECEIPT'] ]      = [
 			'name'                   => self::EMAIL_TYPES['RECEIPT'],
@@ -123,12 +131,16 @@ class Reader_Revenue_Emails {
 				$available_placeholders,
 				[
 					[
-						'label'    => __( 'the recurring donation management url', 'newspack-plugin' ),
-						'template' => '*CANCELLATION_URL*',
+						'label'    => __( 'the email title containing the specific type of recurring subscription being cancelled', 'newspack-plugin' ),
+						'template' => '*CANCELLATION_TITLE*',
 					],
 					[
-						'label'    => __( 'the recurring donation end date', 'newspack-plugin' ),
-						'template' => '*END_DATE*',
+						'label'    => __( 'the type of recurring subscription being cancelled', 'newspack-plugin' ),
+						'template' => '*CANCELLATION_TYPE*',
+					],
+					[
+						'label'    => __( 'the recurring donation management url', 'newspack-plugin' ),
+						'template' => '*CANCELLATION_URL*',
 					],
 				]
 			),
