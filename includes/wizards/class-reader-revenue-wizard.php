@@ -565,7 +565,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			);
 		}
 
-		return rest_ensure_response( Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ) );
+		return rest_ensure_response( Emails::get_emails( [], false ) );
 	}
 
 
@@ -609,7 +609,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'newspack-reader-revenue-wizard',
 			'newspack_reader_revenue',
 			[
-				'emails'                  => Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ),
+				'emails'                  => Emails::get_emails( [], false ),
 				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),

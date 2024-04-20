@@ -20,7 +20,6 @@ import {
 	TextControl,
 	Waiting,
 	withWizardScreen,
-	utils,
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
@@ -72,18 +71,6 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 				setConfig( fetchedConfig );
 				setMembershipsConfig( memberships );
 			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
-	};
-	const resetEmail = postId => {
-		setError( false );
-		setInFlight( true );
-		wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/emails/${ postId }`,
-			method: 'DELETE',
-			quiet: true,
-		} )
-			.then( emails => setConfig( { ...config, emails } ) )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
@@ -149,8 +136,6 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 
 		return props;
 	};
-
-	const emails = Object.values( config.emails || {} );
 
 	const getContentGateDescription = () => {
 		let message = __(
@@ -280,44 +265,6 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							<hr />
 						</>
 					) : null }
-
-					{ emails?.length > 0 && (
-						<>
-							<SectionHeader
-								title={ __( 'Transactional Email Content', 'newspack-plugin' ) }
-								description={ __(
-									'Customize the content of transactional emails.',
-									'newspack-plugin'
-								) }
-							/>
-							{ emails.map( email => (
-								<ActionCard
-									key={ email.post_id }
-									title={ email.label }
-									titleLink={ email.edit_link }
-									href={ email.edit_link }
-									description={ email.description }
-									actionText={ __( 'Edit', 'newspack-plugin' ) }
-									onSecondaryActionClick={ () => {
-										if (
-											utils.confirmAction(
-												__(
-													'Are you sure you want to reset the contents of this email?',
-													'newspack-plugin'
-												)
-											)
-										) {
-											resetEmail( email.post_id );
-										}
-									} }
-									secondaryActionText={ __( 'Reset', 'newspack-plugin' ) }
-									secondaryDestructive={ true }
-									isSmall
-								/>
-							) ) }
-							<hr />
-						</>
-					) }
 
 					<SectionHeader title={ __( 'Newsletter Subscription Lists', 'newspack-plugin' ) } />
 					<ActionCard
