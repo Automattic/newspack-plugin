@@ -51,11 +51,12 @@ $post_content =
 	'</ul>
 	<!-- /wp:social-links -->
 	<!-- wp:paragraph {"fontSize":"small"} -->
-	<p class="has-small-font-size">' . sprintf( /* Translators: 1: site title 2: site base address. */ __( '%1$s - %2$s', 'newspack-plugin' ), '<strong>*SITE_TITLE*</strong>', '*SITE_ADDRESS*' ) . '<br>' . sprintf( /* Translators: 1: link to site url. */ __( 'You received this email because you cancelled your recurring %1$s to %2$s', 'newspack-plugin' ), '*CANCELLATION_TYPE*', '<a href="*SITE_URL*">*SITE_URL*</a>' ) . '</p>
+	<p class="has-small-font-size">' . sprintf( /* Translators: 1: site title 2: site base address. */ __( '%1$s - %2$s', 'newspack-plugin' ), '<strong>*SITE_TITLE*</strong>', '*SITE_ADDRESS*' ) . '<br>' . sprintf( /* Translators: 1: link to site url. */ __( 'You received this email because you cancelled your %1$s to %2$s', 'newspack-plugin' ), '*CANCELLATION_TYPE*', '<a href="*SITE_URL*">*SITE_URL*</a>' ) . '</p>
 	<!-- /wp:paragraph --></div>
 	<!-- /wp:group -->';
 
 $email_html = '
+	<!doctype html>
 	<html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 		<head>
 			<title>*CANCELLATION_TITLE*</title>

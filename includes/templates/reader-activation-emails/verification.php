@@ -59,6 +59,7 @@ $post_content =
 	<!-- /wp:group -->';
 
 $email_html = '
+	<!doctype html>
 	<html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 		<head>
 			<title>' . __( 'Verify your email', 'newspack-plugin' ) . '</title>
