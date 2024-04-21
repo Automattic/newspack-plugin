@@ -33,6 +33,7 @@ class WooCommerce_Connection {
 		\add_filter( 'default_option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'default_option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
 		\add_filter( 'woocommerce_email_enabled_customer_completed_order', [ __CLASS__, 'send_customizable_receipt_email' ], 10, 3 );
+		\add_filter( 'woocommerce_email_enabled_cancelled_subscription', [ __CLASS__, 'send_customizable_cancellation_email' ], 10, 3 );
 		\add_action( 'woocommerce_order_status_completed', [ __CLASS__, 'maybe_update_reader_display_name' ], 10, 2 );
 		\add_action( 'option_woocommerce_feature_order_attribution_enabled', [ __CLASS__, 'force_disable_order_attribution' ] );
 		\add_filter( 'woocommerce_related_products', [ __CLASS__, 'disable_related_products' ] );
@@ -520,6 +521,95 @@ class WooCommerce_Connection {
 		);
 
 		return false;
+	}
+
+	/**
+	 * Send the customizable cancellation email in addition to WooCommerce Subscription's default.
+	 * We still want to allow WCS to send its cancellation email since this targets the store admin.
+	 *
+	 * @param bool            $enable        Whether to send the cancellation email.
+	 * @param WC_Subscription $subscription  The order object for the cancellation email.
+	 * @param WC_Email        $class         Instance of the WC_Email class.
+	 *
+	 * @return bool
+	 */
+	public static function send_customizable_cancellation_email( $enable, $subscription, $class ) {
+		// If we don't have a valid subscription, or the customizable email isn't enabled, bail.
+		if ( ! is_a( $subscription, 'WC_Subscription' ) || ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'] ) ) {
+			return $enable;
+		}
+
+		$frequencies = [
+			'month' => __( 'Monthly', 'newspack-plugin' ),
+			'year'  => __( 'Yearly', 'newspack-plugin' ),
+		];
+		$product_map = [];
+		foreach ( $frequencies as $frequency => $label ) {
+			$product_id = Donations::get_donation_product( $frequency );
+			if ( $product_id ) {
+				$product_map[ $product_id ] = $label;
+			}
+		}
+
+		$items = $subscription->get_items();
+		$item  = array_shift( $items );
+		$is_donation = Donations::is_donation_product( $item->get_product_id() );
+
+		// Replace content placeholders.
+		$placeholders = [
+			[
+				'template' => '*BILLING_NAME*',
+				'value'    => trim( $subscription->get_billing_first_name() . ' ' . $subscription->get_billing_last_name() ),
+			],
+			[
+				'template' => '*BILLING_FIRST_NAME*',
+				'value'    => $subscription->get_billing_first_name(),
+			],
+			[
+				'template' => '*BILLING_LAST_NAME*',
+				'value'    => $subscription->get_billing_last_name(),
+			],
+			[
+				'template' => '*BILLING_FREQUENCY*',
+				'value'    => $product_map[ $item->get_product_id() ] ?? __( 'One-time', 'newspack-plugin' ),
+			],
+			[
+				'template' => '*PRODUCT_NAME*',
+				'value'    => $item->get_name(),
+			],
+			[
+				'template' => '*END_DATE*',
+				'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'end' ) ) ),
+			],
+			[
+				'template' => '*BUTTON_TEXT*',
+				'value'    => $is_donation ? __( 'Restart Donation', 'newspack-plugin' ) : __( 'Restart Subscription', 'newspack-plugin' ),
+			],
+			[
+				'template' => '*CANCELLATION_DATE*',
+				'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'cancelled' ) ) ),
+			],
+			[
+				'template' => '*CANCELLATION_TITLE*',
+				'value'    => $is_donation ? __( 'Donation Cancelled', 'newspack-plugin' ) : __( 'Subscription Cancelled', 'newspack-plugin' ),
+			],
+			[
+				'template' => '*CANCELLATION_TYPE*',
+				'value'    => $is_donation ? __( 'recurring donation', 'newspack-plugin' ) : __( 'subscription', 'newspack-plugin' ),
+			],
+			[
+				'template' => '*SUBSCRIPTION_URL*',
+				'value'    => $subscription->get_view_order_url(),
+			],
+		];
+
+		$sent = Emails::send_email(
+			Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'],
+			$subscription->get_billing_email(),
+			$placeholders
+		);
+
+		return $enable;
 	}
 
 	/**

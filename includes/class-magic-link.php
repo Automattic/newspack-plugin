@@ -413,6 +413,12 @@ final class Magic_Link {
 		if ( \is_wp_error( $token_data ) ) {
 			return $token_data;
 		}
+
+		$key = \get_password_reset_key( $user );
+		if ( is_wp_error( $key ) ) {
+			return $key;
+		}
+
 		$url                = \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
@@ -427,6 +433,11 @@ final class Magic_Link {
 				'template' => '*MAGIC_LINK_URL*',
 				'value'    => $url,
 			],
+			[
+				'template' => '*SET_PASSWORD_LINK*',
+				'value'    => Emails::get_password_reset_url( $user, $key ),
+			],
+
 		];
 		if ( $use_otp && ! empty( $token_data['otp'] ) ) {
 			$email_type           = 'OTP_AUTH';

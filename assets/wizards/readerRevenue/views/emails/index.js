@@ -15,7 +15,7 @@ import values from 'lodash/values';
 /**
  * Internal dependencies
  */
-import { PluginInstaller, ActionCard, Notice } from '../../../../components/src';
+import { PluginInstaller, ActionCard, Notice, utils } from '../../../../components/src';
 
 const EMAILS = values( newspack_reader_revenue.emails );
 const postType = newspack_reader_revenue.email_cpt;
@@ -47,6 +47,18 @@ const Emails = () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
+	const resetEmail = postId => {
+		setError( false );
+		setInFlight( true );
+		apiFetch( {
+			path: `/newspack/v1/wizard/newspack-reader-revenue-wizard/donations/emails/${ postId }`,
+			method: 'DELETE',
+			quiet: true,
+		} )
+			.then( result => setEmails( values( result ) ) )
+			.catch( setError )
+			.finally( () => setInFlight( false ) );
+	};
 
 	if ( false === pluginsReady ) {
 		return (
@@ -75,6 +87,10 @@ const Emails = () => {
 		<>
 			{ emails.map( email => {
 				const isActive = email.status === 'publish';
+				const notification =
+					email.type === 'receipt'
+						? __( 'This email is not active. The default receipt will be used.', 'newspack-plugin' )
+						: __( 'This email is not active.', 'newspack-plugin' );
 				return (
 					<ActionCard
 						key={ email.post_id }
@@ -84,15 +100,26 @@ const Emails = () => {
 						href={ email.edit_link }
 						description={ email.description }
 						actionText={ __( 'Edit', 'newspack' ) }
+						secondaryActionText={ __( 'Reset', 'newspack' ) }
+						onSecondaryActionClick={ () => {
+							if (
+								utils.confirmAction(
+									__(
+										'Are you sure you want to reset the contents of this email?',
+										'newspack-plugin'
+									)
+								)
+							) {
+								resetEmail( email.post_id );
+							}
+						} }
+						secondaryDestructive={ true }
 						toggleChecked={ isActive }
 						toggleOnChange={ value => updateStatus( email.post_id, value ? 'publish' : 'draft' ) }
 						{ ...( isActive
 							? {}
 							: {
-									notification: __(
-										'This email is not active. The default receipt will be used.',
-										'newspack'
-									),
+									notification,
 									notificationLevel: 'info',
 							  } ) }
 					>

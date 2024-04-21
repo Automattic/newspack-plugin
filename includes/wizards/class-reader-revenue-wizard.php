@@ -268,6 +268,16 @@ class Reader_Revenue_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/donations/emails/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_reset_donation_email' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -519,6 +529,46 @@ class Reader_Revenue_Wizard extends Wizard {
 		return rest_ensure_response( Donations::get_donation_settings() );
 	}
 
+
+	/**
+	 * Reset donation email template.
+	 * We acheive this by trashing the email template post.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function api_reset_donation_email( $request ) {
+		$params = $request->get_params();
+		$id     = $params['id'];
+		$email  = get_post( $id );
+
+		if ( $email === null || $email->post_type !== Emails::POST_TYPE ) {
+			return new WP_Error(
+				'newspack_reset_donation_email_invalid_arg',
+				esc_html__( 'Invalid argument: no email template matches the provided id.', 'newspack-plugin' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+		}
+
+		if ( ! \wp_trash_post( $id ) ) {
+			return new WP_Error(
+				'newspack_reset_donation_email_reset_failed',
+				esc_html__( 'Reset failed: unable to reset email template.', 'newspack-plugin' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+		}
+
+		return rest_ensure_response( Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ) );
+	}
+
+
 	/**
 	 * Check whether WooCommerce is installed and active.
 	 *
@@ -559,7 +609,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'newspack-reader-revenue-wizard',
 			'newspack_reader_revenue',
 			[
-				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+				'emails'                  => Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ),
 				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
