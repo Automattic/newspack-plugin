@@ -380,31 +380,24 @@ const sharesSegments = ( segmentsA, segmentsB ) => {
 	);
 };
 
-export const buildWarning = ( prompt, promptCategories ) => {
+export const buildWarning = prompt => {
 	if ( isOverlay( prompt ) || isAboveHeader( prompt ) ) {
 		return sprintf(
-			// Translators: %1: 'uncetegorized' if no categories. %2: 'above-header prompts' if above header, 'overlays' otherwise. %3: 'and category filtering' if categories.
+			// Translators: %s is prompt type (above-header or overlay).
 			__(
-				'If multiple%1$s %2$s share the same segment%3$s, only the most recent one will be displayed.',
+				'If multiple %s are rendered on the same pageview, only the most recent one will be displayed.',
 				'newspack-plugin'
 			),
-			0 === promptCategories.length ? __( ' uncategorized', 'newspack-plugin' ) : '',
 			isAboveHeader( prompt )
 				? __( 'above-header prompts', 'newspack-plugin' )
-				: __( 'overlays', 'newspack-plugin' ),
-			0 < promptCategories.length ? __( ' and category filtering', 'newspack-plugin' ) : ''
+				: __( 'overlays', 'newspack-plugin' )
 		);
 	}
 
 	if ( isCustomPlacement( prompt ) ) {
-		return sprintf(
-			// Translators: %1: 'uncetegorized' if no categories. %2: 'and category filtering' if categories.
-			__(
-				'If multiple%1$s prompts in the same custom placement share the same segment%2$s, only the most recent one will be displayed.',
-				'newspack-plugin'
-			),
-			0 === promptCategories.length ? __( ' uncategorized', 'newspack-plugin' ) : '',
-			0 < promptCategories.length ? __( ' and category filtering', 'newspack-plugin' ) : ''
+		return __(
+			'If multiple prompts are rendered in the same custom placement, only the most recent one will be displayed.',
+			'newspack-plugin'
 		);
 	}
 

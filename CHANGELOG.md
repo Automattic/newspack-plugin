@@ -1,3 +1,17 @@
+## [3.6.12](https://github.com/Automattic/newspack-plugin/compare/v3.6.11...v3.6.12) (2024-04-22)
+
+
+### Bug Fixes
+
+* **woo:** include all active statuses ([#3074](https://github.com/Automattic/newspack-plugin/issues/3074)) ([b9b622f](https://github.com/Automattic/newspack-plugin/commit/b9b622fc4aae68843b4bf4ecc0ae6783f00d426f))
+
+## [3.6.11](https://github.com/Automattic/newspack-plugin/compare/v3.6.10...v3.6.11) (2024-04-19)
+
+
+### Bug Fixes
+
+* minor bugs in reCAPTCHA + Campaigns admin UIs ([#3073](https://github.com/Automattic/newspack-plugin/issues/3073)) ([876d0a9](https://github.com/Automattic/newspack-plugin/commit/876d0a9a1baa26480e399d52199d62d8a8f6bed5))
+
 ## [3.6.10](https://github.com/Automattic/newspack-plugin/compare/v3.6.9...v3.6.10) (2024-04-15)
 
 
