@@ -544,15 +544,11 @@ function newspack_get_color_contrast( $hex ) {
  */
 function newspack_get_theme_colors() {
 	$default_primary_color   = function_exists( 'newspack_get_primary_color' ) ? newspack_get_primary_color() : '#3366ff';
-	$default_secondary_color = function_exists( 'newspack_get_secondary_color' ) ? newspack_get_secondary_color() : '#f0f0f0';
 	$primary_color           = get_theme_mod( 'primary_color_hex', $default_primary_color );
-	$secondary_color         = get_theme_mod( 'secondary_color_hex', $default_secondary_color );
 
 	return [
-		'primary_color'        => $primary_color,
-		'secondary_color'      => $secondary_color,
-		'primary_text_color'   => newspack_get_color_contrast( $primary_color ),
-		'secondary_text_color' => newspack_get_color_contrast( $secondary_color ),
+		'primary_color'      => $primary_color,
+		'primary_text_color' => newspack_get_color_contrast( $primary_color ),
 	];
 }
 
@@ -567,7 +563,7 @@ function newspack_get_social_markup( $color = 'white' ) {
 	$cm          = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'wordpress_seo' );
 	$social_urls = [];
 	$markup      = [
-		'block_markup' => '',
+		'block_markup' => '<!-- wp:social-links {"iconColor":"primary-text","iconColorValue":"primary-text","layout":{"type":"flex","flexWrap":"nowrap"}} --><ul class="wp-block-social-links has-icon-color">',
 		'html_markup'  => '',
 	];
 
@@ -605,6 +601,8 @@ function newspack_get_social_markup( $color = 'white' ) {
 				<!--[if mso | IE]></td><td><![endif]-->';
 		}
 	}
+
+	$markup['block_markup'] .= '</ul><!-- /wp:social-links -->';
 
 	return $markup;
 }

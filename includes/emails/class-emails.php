@@ -654,10 +654,8 @@ class Emails {
 				$request->set_body(
 					wp_json_encode(
 						[
-							'primary'        => $updated_value['primary_color_hex'],
-							'secondary'      => $updated_value['secondary_color_hex'],
-							'primary-text'   => newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
-							'secondary-text' => newspack_get_color_contrast( $updated_value['secondary_color_hex'] ),
+							'primary'      => $updated_value['primary_color_hex'],
+							'primary-text' => newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
 						]
 					)
 				);
@@ -681,21 +679,13 @@ class Emails {
 			return;
 		}
 
-		[
-			'primary_text_color'   => $primary_text_color,
-			'secondary_text_color' => $secondary_text_color,
-		] = newspack_get_theme_colors();
+		[ 'primary_text_color' => $primary_text_color ] = newspack_get_theme_colors();
 
 		?>
 		<style type="text/css">
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color,
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color a {
 				color: <?php echo esc_attr( $primary_text_color ); ?> !important;
-			}
-
-			.<?php echo esc_html( self::POST_TYPE ); ?>-has-secondary-text-color,
-			.<?php echo esc_html( self::POST_TYPE ); ?>-has-secondary-text-color a {
-				color: <?php echo esc_attr( $secondary_text_color ); ?> !important;
 			}
 		</style>
 		<?php
