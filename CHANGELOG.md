@@ -1,3 +1,10 @@
+## [3.6.12](https://github.com/Automattic/newspack-plugin/compare/v3.6.11...v3.6.12) (2024-04-22)
+
+
+### Bug Fixes
+
+* **woo:** include all active statuses ([#3074](https://github.com/Automattic/newspack-plugin/issues/3074)) ([b9b622f](https://github.com/Automattic/newspack-plugin/commit/b9b622fc4aae68843b4bf4ecc0ae6783f00d426f))
+
 ## [3.6.11](https://github.com/Automattic/newspack-plugin/compare/v3.6.10...v3.6.11) (2024-04-19)
 
 
