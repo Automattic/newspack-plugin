@@ -13,7 +13,7 @@
 	"devDependencies": {
 		"@rushstack/eslint-patch": "^1.10.2",
 		"@testing-library/react": "^12.1.4",
-		"@types/qs": "^6.9.14",
+		"@types/qs": "^6.9.15",
 		"@types/react": "^17.0.75",
 		"@types/wordpress__block-editor": "^11.5.14",
 		"@types/wordpress__blocks": "^12.5.14",
@@ -64,7 +64,7 @@
 		"lodash": "^4.17.21",
 		"moment": "^2.30.1",
 		"moment-range": "^3.1.1",
-		"qs": "^6.12.0",
+		"qs": "^6.12.1",
 		"react": "^17.0.2",
 		"react-daterange-picker": "^2.0.1",
 		"react-router-dom": "^5.3.4",
