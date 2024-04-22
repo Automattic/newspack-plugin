@@ -1,4 +1,18 @@
+## [3.6.13](https://github.com/Automattic/newspack-plugin/compare/v3.6.12...v3.6.13) (2024-04-22)
+
+
+### Bug Fixes
+
+* add option to display subscriptionless memberships ([#3058](https://github.com/Automattic/newspack-plugin/issues/3058)) ([aa493c9](https://github.com/Automattic/newspack-plugin/commit/aa493c95e609853c8380830c72faf39c69713759))
+
 # [3.7.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v3.7.0-alpha.5...v3.7.0-alpha.6) (2024-04-22)
+
+
+### Bug Fixes
+
+* **woo:** include all active statuses ([#3074](https://github.com/Automattic/newspack-plugin/issues/3074)) ([b9b622f](https://github.com/Automattic/newspack-plugin/commit/b9b622fc4aae68843b4bf4ecc0ae6783f00d426f))
+
+## [3.6.12](https://github.com/Automattic/newspack-plugin/compare/v3.6.11...v3.6.12) (2024-04-22)
 
 
 ### Bug Fixes
@@ -7,9 +21,10 @@
 
 # [3.7.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v3.7.0-alpha.4...v3.7.0-alpha.5) (2024-04-19)
 
+
 ### Bug Fixes
 
-* **woo:** include all active statuses ([#3074](https://github.com/Automattic/newspack-plugin/issues/3074)) ([b9b622f](https://github.com/Automattic/newspack-plugin/commit/b9b622fc4aae68843b4bf4ecc0ae6783f00d426f))
+* minor bugs in reCAPTCHA + Campaigns admin UIs ([#3073](https://github.com/Automattic/newspack-plugin/issues/3073)) ([876d0a9](https://github.com/Automattic/newspack-plugin/commit/876d0a9a1baa26480e399d52199d62d8a8f6bed5))
 
 
 ## [3.6.12](https://github.com/Automattic/newspack-plugin/compare/v3.6.11...v3.6.12) (2024-04-22)
