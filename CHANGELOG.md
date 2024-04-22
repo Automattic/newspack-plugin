@@ -1,3 +1,10 @@
+## [3.6.13](https://github.com/Automattic/newspack-plugin/compare/v3.6.12...v3.6.13) (2024-04-22)
+
+
+### Bug Fixes
+
+* add option to display subscriptionless memberships ([#3058](https://github.com/Automattic/newspack-plugin/issues/3058)) ([aa493c9](https://github.com/Automattic/newspack-plugin/commit/aa493c95e609853c8380830c72faf39c69713759))
+
 ## [3.6.12](https://github.com/Automattic/newspack-plugin/compare/v3.6.11...v3.6.12) (2024-04-22)
 
 
