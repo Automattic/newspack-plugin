@@ -264,9 +264,12 @@ class Newspack_Dashboard extends Wizard {
 			return;
 		}
 
+		/**
+		 * JavaScript
+		 */
 		wp_register_script(
 			$this->slug,
-			Newspack::plugin_url() . '/dist/newspack.js',
+			Newspack::plugin_url() . '/dist/wizards.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
 			true
@@ -348,7 +351,6 @@ class Newspack_Dashboard extends Wizard {
 			]
 		);
 		wp_enqueue_script( $this->slug );
-
 		wp_register_style(
 			$this->slug,
 			Newspack::plugin_url() . '/dist/newspack.css',
@@ -356,6 +358,5 @@ class Newspack_Dashboard extends Wizard {
 			NEWSPACK_PLUGIN_VERSION
 		);
 		wp_style_add_data( $this->slug, 'rtl', 'replace' );
-		wp_enqueue_style( $this->slug );
-	}
+		wp_enqueue_style( $this->slug );    }
 }
