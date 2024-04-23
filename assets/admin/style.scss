@@ -19,6 +19,28 @@ html {
 	font-size: 16px;
 }
 
+.newspack-wizard {
+
+	.newspack-wizard__loader {
+		height: 100%;
+		position: absolute;
+		width: 100%;
+		display: flex;
+
+		>div {
+			position: relative;
+			margin: auto;
+			text-align: center;
+		}
+
+		span {
+			display: block;
+			color: #757575;
+			animation: opacity-pulse 1.4s infinite ease-in-out;
+		}
+	}
+}
+
 .newspack-admin__tabs {
 	h2 {
 		font-size: 2rem;
