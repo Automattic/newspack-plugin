@@ -26,7 +26,11 @@ const Settings = () => {
 		<>
 			{ isDebugMode && <Notice debugMode /> }
 			<GlobalNotices />
-			<Wizard className="newspack-admin__tabs" headerText={ __( 'Newspack / Settings', 'newspack' ) } sections={ sections } />
+			<Wizard
+				className="newspack-admin__tabs"
+				headerText={ __( 'Newspack / Settings', 'newspack' ) }
+				sections={ sections }
+			/>
 			<Footer />
 		</>
 	);
