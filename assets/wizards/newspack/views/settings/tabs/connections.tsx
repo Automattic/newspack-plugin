@@ -1,5 +1,9 @@
 const Connections = () => {
-	return <h2>Connections</h2>;
+	return (
+		<div className="newspack-dashboard__section">
+			<h2>Connections</h2>
+		</div>
+	);
 };
 
 export default Connections;

@@ -3,13 +3,16 @@
  */
 
 /**
- * Dependencies
+ * WordPress dependencies
  */
-// WordPress
 import { __ } from '@wordpress/i18n';
-// Internal
+
+/**
+ * Internal dependencies
+ */
 import SiteStatus from './site-status';
 import { Grid } from '../../../../components/src';
+import './index.scss';
 
 const {
 	newspackDashboard: { siteStatuses },

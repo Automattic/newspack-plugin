@@ -8,7 +8,6 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { render } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -24,7 +23,7 @@ const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
 } = window;
 
-const Newspack = () => {
+const Dashboard = () => {
 	return (
 		<>
 			<GlobalNotices />
@@ -46,4 +45,4 @@ const Newspack = () => {
 	);
 };
 
-render( <Newspack />, document.getElementById( 'newspack-dashboard' ) );
+export default Dashboard;
