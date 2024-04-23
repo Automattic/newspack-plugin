@@ -8,7 +8,6 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { render } from '@wordpress/element';
 
 /**
  * Internal Imports
@@ -27,10 +26,10 @@ const Settings = () => {
 		<>
 			{ isDebugMode && <Notice debugMode /> }
 			<GlobalNotices />
-			<Wizard headerText={ __( 'Newspack / Settings', 'newspack' ) } sections={ sections } />
+			<Wizard className="newspack-admin__tabs" headerText={ __( 'Newspack / Settings', 'newspack' ) } sections={ sections } />
 			<Footer />
 		</>
 	);
 };
 
-render( <Settings />, document.getElementById( 'newspack-settings' ) );
+export default Settings;
