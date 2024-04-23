@@ -695,6 +695,7 @@ class Emails {
 
 		?>
 		<style type="text/css">
+			.is-style-filled-primary-text,
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color,
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color a {
 				color: <?php echo esc_attr( $primary_text_color ); ?> !important;
