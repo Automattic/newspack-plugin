@@ -489,15 +489,17 @@ class Emails {
 			return false;
 		} else {
 			// Make sure newsletters color palette is updated with latest theme colors.
-			$theme_colors = newspack_get_theme_colors();
-			\Newspack_Newsletters::update_color_palette(
-				[
-					'primary'        => $theme_colors['primary_color'],
-					'secondary'      => $theme_colors['secondary_color'],
-					'primary-text'   => $theme_colors['primary_text_color'],
-					'secondary-text' => $theme_colors['secondary_text_color'],
-				]
-			);
+			if ( self::supports_emails() ) {
+				$theme_colors = newspack_get_theme_colors();
+				\Newspack_Newsletters::update_color_palette(
+					[
+						'primary'        => $theme_colors['primary_color'],
+						'secondary'      => $theme_colors['secondary_color'],
+						'primary-text'   => $theme_colors['primary_text_color'],
+						'secondary-text' => $theme_colors['secondary_text_color'],
+					]
+				);
+			}
 
 			$email_post_data = self::load_email_template( $type );
 			if ( ! $email_post_data ) {
@@ -695,9 +697,16 @@ class Emails {
 
 		?>
 		<style type="text/css">
-			.is-style-filled-primary-text,
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color,
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color a {
+				color: <?php echo esc_attr( $primary_text_color ); ?> !important;
+			}
+
+			.is-style-filled-primary-text li {
+				background: transparent !important;
+			}
+
+			.is-style-filled-primary-text li svg {
 				color: <?php echo esc_attr( $primary_text_color ); ?> !important;
 			}
 		</style>
