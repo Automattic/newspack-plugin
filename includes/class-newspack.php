@@ -207,6 +207,9 @@ final class Newspack {
 	 * Handle resetting of various options and content.
 	 */
 	public function handle_resets() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 		$redirect_url   = admin_url( 'admin.php?page=newspack' );
 		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'starter-content' === $newspack_reset ) {
