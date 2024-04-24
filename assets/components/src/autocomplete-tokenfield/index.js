@@ -158,16 +158,16 @@ class AutocompleteTokenField extends Component {
 						return;
 					}
 
+					const { validValues } = this.state;
 					const currentSuggestions = [ ...suggestions ];
-					const currentValidValues = {};
 
 					suggestions.forEach( suggestion => {
-						currentValidValues[ suggestion.value ] = suggestion.label;
+						validValues[ suggestion.value ] = suggestion.label;
 					} );
 
 					this.setState( {
 						suggestions: currentSuggestions,
-						validValues: currentValidValues,
+						validValues,
 						loading: false,
 					} );
 				} )

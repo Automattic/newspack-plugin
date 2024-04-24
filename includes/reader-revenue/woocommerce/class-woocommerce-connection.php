@@ -7,14 +7,19 @@
 
 namespace Newspack;
 
-use WP_Error;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Connection with WooCommerce's features.
  */
 class WooCommerce_Connection {
+	/**
+	 * Statuses considered active subscriptions.
+	 *
+	 * @var array
+	 */
+	public static $active_subscription_statuses = [ 'active', 'pending', 'pending-cancel' ];
+
 	/**
 	 * Initialize.
 	 *
@@ -50,6 +55,18 @@ class WooCommerce_Connection {
 
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
 		\add_filter( 'get_post_metadata', [ __CLASS__, 'get_post_metadata' ], 10, 3 );
+	}
+
+	/**
+	 * Check if the given status is considered active in Woo Subscriptions.
+	 *
+	 * @param string $status Subscription status.
+	 *
+	 * @return boolean
+	 */
+	public static function is_subscription_active( $status ) {
+		$status = str_replace( 'wc-', '', $status ); // Normalize status strings.
+		return in_array( $status, self::$active_subscription_statuses, true );
 	}
 
 	/**
@@ -107,6 +124,30 @@ class WooCommerce_Connection {
 		 * @param int $product_id Donation product post ID.
 		 */
 		\do_action( 'newspack_donation_order_processed', $order_id, $product_id );
+	}
+
+	/**
+	 * Get a batch of active Woo Subscriptions.
+	 *
+	 * @param int $batch_size Max number of subscriptions to get.
+	 * @param int $offset     Number to skip.
+	 *
+	 * @return array|false Array of subscription objects, or false if no more to fetch.
+	 */
+	public static function get_batch_of_active_subscriptions( $batch_size = 100, $offset = 0 ) {
+		if ( ! function_exists( 'wcs_get_subscriptions' ) ) {
+			return false;
+		}
+
+		$subscriptions = \wcs_get_subscriptions(
+			[
+				'status'                 => self::$active_subscription_statuses,
+				'subscriptions_per_page' => $batch_size,
+				'offset'                 => $offset,
+			]
+		);
+
+		return ! empty( $subscriptions ) ? array_values( $subscriptions ) : false;
 	}
 
 	/**
@@ -284,6 +325,14 @@ class WooCommerce_Connection {
 
 		if ( ! $order ) {
 			$order = self::get_last_successful_order( $customer );
+
+			// If customer has no order, they might still have a Subscription.
+			if ( ! $order ) {
+				$user_subscriptions = wcs_get_users_subscriptions( $customer->get_id() );
+				if ( $user_subscriptions ) {
+					$order = reset( $user_subscriptions );
+				}
+			}
 		}
 
 		if ( $order ) {
