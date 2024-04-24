@@ -1,40 +1,36 @@
 .newspack-ui {
-	// TODO: define some kind of size hierachy for buttons eg. small, medium, large;
-	// not needed for RAS, but likely for My Account.
+	// TODO: define some kind of size hierachy for buttons eg. small, medium, large.
 	&__button {
 		align-items: center;
 		border: 0;
-		border-radius: var( --newspack-ui-border-radius-small );
+		border-radius: var( --newspack-ui-border-radius-m );
 		display: inline-flex;
 		font-family: var( --newspack-ui-font-family );
-		font-size: var( --newspack-ui-font-size-small );
+		font-size: var( --newspack-ui-font-size-s );
 		font-weight: 600;
 		gap: var( --newspack-ui-spacer-2 );
 		justify-content: center;
-		line-height: var( --newspack-ui-line-height-large );
-		margin-bottom: var( --newspack-ui-spacer-base );
-		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-3 ); // TODO: correct this
-		transition: background-color 150ms ease-in-out;
+		line-height: var( --newspack-ui-line-height-s );
+		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-4 );
+		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out, outline 125ms ease-in-out;
 
-		&:hover {
-			color: inherit;
-		}
-
-		&:focus {
-			// TODO
+		&:not( :last-child ) {
+			margin-bottom: var( --newspack-ui-spacer-2 );
 		}
 
 		&:disabled {
-			background: var( --newspack-ui-color-gray-100 ) !important;
-			color: var( --newspack-ui-color-text-med-contrast ) !important;
+			background: var( --newspack-ui-color-neutral-10 ) !important;
+			color: var( --newspack-ui-color-neutral-70 ) !important;
 			cursor: default;
+			pointer-events: none;
 		}
 
-		&--wide {
-			display: flex;
-			width: 100%;
+		&:focus {
+			outline: 2px solid var( --newspack-ui-color-button-bg );
+			outline-offset: 1px;
 		}
 
+		// Styles
 		&--primary {
 			background: var( --newspack-ui-color-button-bg );
 			color: var( --newspack-ui-color-button-text );
@@ -43,28 +39,112 @@
 				background: var( --newspack-ui-color-button-bg-hover );
 				color: var( --newspack-ui-color-button-text-hover );
 			}
-		}
 
-		&--secondary {
-			background: transparent;
-			border: 1px solid var( --newspack-ui-color-border );
-			color: var( --newspack-ui-color-text-high-contrast );
-			padding: calc( var( --newspack-ui-spacer-2 ) - 1px )
-				calc( var( --newspack-ui-spacer-3 ) - 1px );
-
-			&:hover {
-				background: var( --newspack-ui-color-gray-100 );
-				color: var( --newspack-ui-color-text-high-contrast );
+			&:disabled {
+				background: var( --newspack-ui-color-neutral-30 ) !important;
+				color: var( --newspack-ui-color-neutral-0 ) !important;
 			}
 		}
 
-		&--tertiary {
-			background: transparent;
-			color: var( --newspack-ui-color-text-high-contrast );
+		&--branded {
+			background: var( --newspack-ui-color-primary );
+			color: var( --newspack-ui-color-against-primary );
 
 			&:hover {
-				background: var( --newspack-ui-color-gray-100 );
-				color: var( --newspack-ui-color-text-high-contrast );
+				background: color-mix(in srgb, var( --newspack-ui-color-primary ) 80%, black);
+				color: var( --newspack-ui-color-against-primary );
+			}
+
+			&:focus {
+				outline-color: var( --newspack-ui-color-primary );
+			}
+
+			&:disabled {
+				background: color-mix(in srgb, var( --newspack-ui-color-primary ) 20%, white) !important;
+				color: var( --newspack-ui-color-against-primary ) !important;
+			}
+		}
+
+		&--secondary {
+			background: var( --newspack-ui-color-neutral-10 );
+			color: var( --newspack-ui-color-neutral-90 );
+
+			&:hover {
+				background: var( --newspack-ui-color-neutral-30 );
+				color: var( --newspack-ui-color-neutral-90 );
+			}
+
+			&:disabled {
+				background: var( --newspack-ui-color-neutral-5 ) !important;
+				color: var( --newspack-ui-color-neutral-40 ) !important;
+			}
+		}
+
+		&--ghost,
+		&--outline {
+			background: transparent;
+			color: var( ---newspack-ui-color-neutral-90 );
+
+			&:hover {
+				background: var( --newspack-ui-color-neutral-5 );
+				color: var( --newspack-ui-color-neutral-90 );
+			}
+
+			&:disabled {
+				background: transparent !important;
+				color: var( --newspack-ui-color-neutral-30 ) !important;
+			}
+		}
+
+		&--outline {
+			border: 1px solid var( --newspack-ui-color-neutral-30 );
+			padding: calc( var( --newspack-ui-spacer-2 ) - 1px )
+				calc( var( --newspack-ui-spacer-4 ) - 1px );
+
+			&:hover {
+				border-color: var( --newspack-ui-color-neutral-40 );
+			}
+
+			&:disabled {
+				border-color: var( --newspack-ui-color-neutral-10 );
+			}
+		}
+
+		&--destructive {
+			background: var( --newspack-ui-color-error-50 );
+			color: var( --newspack-ui-color-neutral-0 );
+
+			&:hover {
+				background: var( --newspack-ui-color-error-60 );
+				color: var( --newspack-ui-color-neutral-0 );
+			}
+
+			&:focus {
+				outline-color: var( --newspack-ui-color-error-50 );
+			}
+
+			&:disabled {
+				background: var( --newspack-ui-color-error-5 ) !important;
+				color: var( --newspack-ui-color-neutral-0 ) !important;
+			}
+		}
+
+		// Wide
+		&--wide {
+			display: flex;
+			width: 100%;
+		}
+
+		// Icon-only
+		&--icon {
+			display: grid;
+			height: var( --newspack-ui-spacer-7 ); // TODO: This is the XS size, we will need S, and M
+			padding: 0;
+			place-items: center;
+			width: var( --newspack-ui-spacer-7 );
+
+			svg {
+				fill: currentcolor;
 			}
 		}
 	}

@@ -1139,7 +1139,7 @@ final class Reader_Activation {
 				<p>
 					<strong class="success-title"></strong>
 				</p>
-				<p class="newspack-ui__font--small success-description"></p>
+				<p class="newspack-ui__font--xs success-description"></p>
 			</div>
 			<form method="post" target="_top">
 				<div data-action="signin register">
@@ -1191,9 +1191,9 @@ final class Reader_Activation {
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php echo \esc_html( $labels['resend_code'] ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php echo \esc_html( $labels['otp'] ); ?></button>
 				<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php echo \esc_html( $labels['forgot_password'] ); ?></a>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="signin" data-set-action="register"><?php echo \esc_html( $labels['create_account'] ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="register" data-set-action="signin"><?php echo \esc_html( $labels['register'] ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--tertiary newspack-ui__last-child" data-action="otp pwd"  data-back><?php echo \esc_html( $labels['go_back'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="signin" data-set-action="register"><?php echo \esc_html( $labels['create_account'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="register" data-set-action="signin"><?php echo \esc_html( $labels['register'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="otp pwd"  data-back><?php echo \esc_html( $labels['go_back'] ); ?></button>
 			</form>
 			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
 			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php echo \esc_html( $labels['set_password'] ); ?></a>
@@ -1226,7 +1226,7 @@ final class Reader_Activation {
 			<div class="newspack-ui__modal newspack-ui__modal--small">
 				<div class="newspack-ui__modal__header">
 					<h2><?php echo \esc_html( $label ); ?></h2>
-					<button class="newspack-ui__modal__close">
+					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>

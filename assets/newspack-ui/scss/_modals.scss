@@ -1,3 +1,5 @@
+@use 'mixins';
+
 .newspack-ui {
 	&__modal-container {
 		position: fixed;
@@ -14,8 +16,8 @@
 			z-index: 1;
 			inset: 0;
 			opacity: 0;
-			background: rgba( 0, 0, 0, 0.5 );
-			transition: opacity 0.1s linear;
+			background: rgba( 0, 0, 0, 0.7 );
+			transition: opacity 0.125s linear;
 		}
 		.newspack-ui__modal {
 			position: relative;
@@ -23,7 +25,8 @@
 			width: 100%;
 			transform: translateY( 50px );
 			opacity: 0;
-			transition: transform 0.1s linear, opacity 0.1s linear;
+			transition: transform 0.125s linear, opacity 0.125s linear;
+			@include mixins.newspack-ui-elevation(3);
 		}
 		&[data-state='open'] {
 			z-index: 99999;
@@ -42,15 +45,15 @@
 		.newspack-ui {
 			&__modal {
 				&__content {
-					padding: 24px;
+					padding: var( --newspack-ui-spacer-5 );
 					overflow: auto;
-					border-radius: 5px;
+					border-radius: var( --newspack-ui-border-radius-m );
 					h3 {
-						font-size: 16px;
+						font-size: var( --newspack-ui-font-size-s );
 						margin: 0;
 					}
 					p {
-						font-size: 0.8em;
+						font-size: var( --newspack-ui-font-size-xs );
 					}
 				}
 			}
@@ -59,13 +62,13 @@
 				list-style: none;
 				display: flex;
 				flex-wrap: wrap;
-				gap: 16px;
+				gap: var( --newspack-ui-spacer-3 );
 				margin: 0;
 				padding: 0;
 
 				&__item {
-					border: 1px solid #ddd;
-					border-radius: 6px;
+					border: 1px solid var(--newspack-ui-color-border );
+					border-radius: var( --newspack-ui-border-radius-m );
 					text-align: center;
 					flex: 1 1 100%;
 					@media ( min-width: 600px ) {
@@ -78,28 +81,28 @@
 						}
 					}
 					.summary {
-						font-size: 14px;
-						padding: 12px;
-						border-bottom: 1px solid #ddd;
+						font-size: var( --newspack-ui-font-size-xs );
+						padding: var( --newspack-ui-spacer-2 );
+						border-bottom: 1px solid var( --newspack-ui-color-border );
 						bdi {
 							display: block;
 							font-weight: 600;
-							font-size: 32px;
+							font-size: var( --newspack-ui-font-size-xl );
 						}
 					}
 					.variation {
-						padding: 12px;
-						font-size: 14px;
+						padding: var( --newspack-ui-spacer-2 );
+						font-size: var( --newspack-ui-font-size-xs );
 						line-height: 1.5;
-						border-bottom: 1px solid #ddd;
+						border-bottom: 1px solid var(--newspack-ui-color-border );
 						font-weight: 600;
 					}
 					form {
-						padding: 12px;
+						padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-2 ) 0;
 						button {
 							display: block;
 							width: 100%;
-							font-size: 14px;
+							font-size: var( --newspack-ui-font-size-xs );
 						}
 					}
 				}
@@ -107,17 +110,13 @@
 		}
 	}
 	&__modal {
-		// CSS Variables - update button background, with fallbacks to the Newspack UI defaults
-		--newspack-ui-color-button-bg: var( --newspack-ui-color-primary, var( --newspack-ui-color-gray-900 ) );
-		--newspack-ui-color-button-text: var( --newspack-ui-color-against-primary, var( --newspack-ui-color-white ) );
-
 		// Modal styles
 		background: var( --newspack-ui-color-body-bg );
-		border-radius: var( --newspack-ui-border-radius );
+		border-radius: var( --newspack-ui-border-radius-m );
 		display: flex;
 		flex-direction: column;
 		max-height: 90vh;
-		max-width: var( --newspack-ui-modal-width-medium );
+		max-width: var( --newspack-ui-modal-width-m );
 		overflow: auto;
 
 		// Modal header & footer
@@ -127,48 +126,36 @@
 		}
 
 		&__header {
-			display: flex;
-			position: sticky;
-			align-items: flex-start;
-			justify-content: space-between;
+			align-items: center;
 			background: var( --newspack-ui-color-body-bg );
 			border-bottom: 1px solid var( --newspack-ui-color-border );
+			display: flex;
+			justify-content: space-between;
+			position: sticky;
+			top: 0;
 
 			h2 {
-				font-size: var( --newspack-ui-font-size-medium );
+				font-family: var( --newspack-ui-font-family );
+				font-size: var( --newspack-ui-font-size-s );
+				line-height: var( --newspack-ui-line-height-s );
 				margin: 0;
 			}
 		}
 
 		&__close {
-			margin: -2px -5px 0 0; // Offsets a padding in the SVG.
-			padding: 0 0 0 8px;
-			background: transparent;
-			color: var( --newspack-ui-color-text-high-contrast );
-			cursor: pointer;
-
-			&:focus,
-			&:hover {
-				background: transparent;
-				color: var( --newspack-ui-color-text-med-contrast );
-			}
-			svg {
-				display: block;
-			}
+			margin: -6px -6px -6px 0; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
 		}
 
 		&__content {
-			--newspack-ui-font-size-base: var( --newspack-ui-font-size-small );
-
 			backface-visibility: visible;
 			padding: var( --newspack-ui-spacer-5 );
 		}
 
 		&__footer {
-			background: var( --newspack-ui-color-gray-100 );
-			color: var( --newspack-ui-color-text-med-contrast );
-			font-size: var( --newspack-ui-font-size-extra-small );
-			line-height: var( --newspack-ui-line-height-small );
+			background: var( --newspack-ui-color-neutral-5 );
+			color: var( --newspack-ui-color-neutral-60 );
+			font-size: var( --newspack-ui-font-size-xs );
+			line-height: var( --newspack-ui-line-height-xs );
 			a {
 				text-decoration: underline;
 			}
@@ -176,12 +163,12 @@
 
 		// Narrow modal
 		&--small {
-			max-width: var( --newspack-ui-modal-width-small );
+			max-width: var( --newspack-ui-modal-width-s );
 		}
 
 		// Contents
 		h3 {
-			font-size: var( --newspack-ui-font-size-medium );
+			font-size: var( --newspack-ui-font-size-s );
 		}
 
 		&__footer,

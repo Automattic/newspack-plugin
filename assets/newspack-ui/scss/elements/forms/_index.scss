@@ -18,7 +18,7 @@
 
 	select {
 		font-family: var( --newspack-ui-font-family );
-		line-height: var( --newspack-ui-line-height-large );
+		line-height: var( --newspack-ui-line-height-l );
 	}
 
 	// Container for displaying grid of inputs.
@@ -31,18 +31,23 @@
 	}
 
 	// Container for input description.
-	&__field-description {
+	&__helper-text {
+		color: var( --newspack-ui-color-neutral-60 );
 		display: block;
-		font-size: var( --newspack-ui-font-size-small );
-		line-height: var( --newspack-ui-line-height-small );
+		font-size: var( --newspack-ui-font-size-xs );
+		line-height: var( --newspack-ui-line-height-s );
 		margin: var( --newspack-ui-spacer-base ) 0 var( --newspack-ui-spacer-5 );
+
+		label & {
+			margin: 0;
+		}
 	}
 
 	// Form response inline error text.
 	&__inline-error,
 	&__inline-info {
-		font-size: var( --newspack-ui-font-size-small );
-		line-height: var( --newspack-ui-line-height-small );
+		font-size: var( --newspack-ui-font-size-xs );
+		line-height: var( --newspack-ui-line-height-s );
 		margin: var( --newspack-ui-spacer-base ) 0 var( --newspack-ui-spacer-5 );
 		a {
 			text-decoration: underline;
@@ -50,6 +55,6 @@
 	}
 
 	&__inline-error {
-		color: var( --newspack-ui-color-alert-red );
+		color: var( --newspack-ui-color-error-50 );
 	}
 }
