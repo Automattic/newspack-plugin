@@ -144,7 +144,7 @@ class Google_Login {
 		Logger::log( 'Got user email from Google: ' . $user_email );
 
 		// Associate the email address with the a unique ID for later retrieval.
-		$has_set_transient = set_transient( self::EMAIL_TRANSIENT_PREFIX . OAuth::get_unique_id(), $user_email, 20 );
+		$has_set_transient = set_transient( self::EMAIL_TRANSIENT_PREFIX . OAuth::get_unique_id(), $user_email, 60 * 5 );
 		// If transient setting failed, the email address will not be available for the registration endpoint.
 		if ( ! $has_set_transient ) {
 			self::handle_error( __( 'Failed setting transient.', 'newspack-plugin' ) );
