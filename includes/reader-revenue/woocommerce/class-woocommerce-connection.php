@@ -203,13 +203,15 @@ class WooCommerce_Connection {
 
 		$metadata = [];
 
-		$referer_from_order = $order->get_meta( '_newspack_referer' );
-		if ( empty( $referer_from_order ) ) {
-			$payment_page_url = \wc_get_checkout_url();
-		} else {
-			$payment_page_url = $referer_from_order;
+		if ( empty( $payment_page_url ) ) {
+			$referer_from_order = $order->get_meta( '_newspack_referer' );
+			if ( empty( $referer_from_order ) ) {
+				$payment_page_url = \wc_get_checkout_url();
+			} else {
+				$payment_page_url = $referer_from_order;
+			}
 		}
-		$metadata['payment_page'] = $payment_page_url;
+		$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page' ) ] = $payment_page_url;
 
 		$utm = $order->get_meta( 'utm' );
 		if ( ! empty( $utm ) ) {
@@ -362,7 +364,7 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$metadata = array_merge( $metadata, $order_metadata );
+		$metadata = array_merge( $order_metadata, $metadata );
 
 		$first_name = $customer->get_billing_first_name();
 		$last_name  = $customer->get_billing_last_name();
