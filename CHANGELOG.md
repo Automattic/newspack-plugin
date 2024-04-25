@@ -1,3 +1,10 @@
+## [3.8.1](https://github.com/Automattic/newspack-plugin/compare/v3.8.0...v3.8.1) (2024-04-25)
+
+
+### Bug Fixes
+
+* remove deprecated filter callback ([#3090](https://github.com/Automattic/newspack-plugin/issues/3090)) ([5d7d0bf](https://github.com/Automattic/newspack-plugin/commit/5d7d0bf71d16907d3aa98def372a7d9ede8949c6))
+
 # [3.8.0](https://github.com/Automattic/newspack-plugin/compare/v3.7.0...v3.8.0) (2024-04-25)
 
 
