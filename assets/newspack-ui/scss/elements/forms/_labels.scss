@@ -43,23 +43,15 @@
 				}
 			}
 
-			// 'Selected' label
-			&:has( .newspack_ui__input-card__selected ) {
+			// 'Selected' badge
+			&:has( .newspack_ui__badge ) {
 				grid-template-columns: var( --newspack-ui-spacer-4 ) 1fr min-content;
 			}
 
-			.newspack_ui__input-card__selected {
+			.newspack_ui__badge {
 				align-self: start;
-				background: var( --newspack-ui-color-neutral-90 );
-				border-radius: var( --newspack-ui-border-radius-xs );
-				color: var( --newspack-ui-color-neutral-0 );
-				font-size: var( --newspack-ui-font-size-xs );
-				font-weight: 600;
 				grid-column-start: 3;
 				grid-row-start: 1;
-				line-height: var( --newspack-ui-line-height-xs );
-				padding: 2px 6px; // TODO: replace with variables; they only go down to 8px, rethink?
-				text-transform: uppercase;
 			}
 		}
 	}

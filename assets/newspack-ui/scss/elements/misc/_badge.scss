@@ -1,0 +1,12 @@
+.newspack_ui__badge {
+	background: var( --newspack-ui-color-neutral-90 );
+	border-radius: var( --newspack-ui-border-radius-xs );
+	color: var( --newspack-ui-color-neutral-0 );
+	display: inline-grid;
+	font-size: var( --newspack-ui-font-size-xs );
+	font-weight: 600;
+	line-height: var( --newspack-ui-line-height-xs );
+	padding: 2px 6px; // TODO: replace with variables; they only go down to 8px, perhaps they need to be rethought?
+	place-items: center;
+	text-transform: uppercase;
+}
