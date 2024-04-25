@@ -10,7 +10,7 @@
 		}
 	}
 
-	.newspack-ui__input-list {
+	.newspack-ui__input-card {
 		label {
 			display: block;
 		}
@@ -85,6 +85,33 @@
 				}
 			}
 		}
+
+		// If the only payment option, we're hiding the radio selection so we don't need a grid.
+		&:first-child:last-child .newspack-ui__input-card {
+			grid-template-columns: none;
+			gap: 0;
+		}
+	}
+
+	// Stripe inputs
+	.wc-credit-card-form {
+		.form-row-wide {
+			margin-bottom: var( --newspack-ui-spacer-base );
+		}
+		.wc-stripe-elements-field,
+		.wc-stripe-iban-element-field {
+			border: 1px solid var( --newspack-ui-color-input-border );
+			border-radius: var( --newspack-ui-border-radius-m );
+			display: block;
+			font-family: var( --newspack-ui-font-family);
+			font-size: var( --newspack-ui-font-size-s );
+			line-height: var( --newspack-ui-line-height-l );
+			padding: calc( var( --newspack-ui-spacer-2 ) - 1px ) calc( var( --newspack-ui-spacer-3 ) - 1px );
+		}
+	}
+
+	.wc_payment_methods label[for="payment_method_stripe"].newspack-ui__input-card {
+		padding: var( --newspack-ui-spacer-5 ) !important;
 	}
 
 	// Override billing details spacing.
@@ -148,32 +175,25 @@
 		}
 	}
 
-	// Stripe inputs
-	.wc-credit-card-form {
-		.form-row-wide {
-			margin-bottom: var( --newspack-ui-spacer-base );
-		}
-		.wc-stripe-elements-field,
-		.wc-stripe-iban-element-field {
-			border: 1px solid var( --newspack-ui-color-input-border );
-			border-radius: var( --newspack-ui-border-radius-m );
-			display: block;
-			font-family: var( --newspack-ui-font-family);
-			font-size: var( --newspack-ui-font-size-s );
-			line-height: var( --newspack-ui-line-height-l );
-			padding: calc( var( --newspack-ui-spacer-2 ) - 1px ) calc( var( --newspack-ui-spacer-3 ) - 1px );
-		}
-	}
-
-	.wc_payment_methods label[for="payment_method_stripe"].newspack-ui__input-list {
-		padding: var( --newspack-ui-spacer-5 ) !important;
+	// Required fields.
+	.woocommerce form .form-row .required {
+		color: var( --newspack-ui-color-error-50 );
 	}
 
 	// Errors
 	.woocommerce-invalid {
 		input,
-		textarea {
+		textarea,
+		.select2-container--default .select2-selection--single {
 			border-color: var( --newspack-ui-color-error-50 );
+
+			&:focus {
+				outline-color: var( --newspack-ui-color-error-50 );
+			}
+		}
+
+		label {
+			color: var( --newspack-ui-color-error-50 );
 		}
 	}
 }
