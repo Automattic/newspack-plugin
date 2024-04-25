@@ -26,9 +26,10 @@ class WooCommerce_Connection {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
-		include_once __DIR__ . '/class-woocommerce-order-utm.php';
-		include_once __DIR__ . '/class-woocommerce-cover-fees.php';
 		include_once __DIR__ . '/class-woocommerce-cli.php';
+		include_once __DIR__ . '/class-woocommerce-cover-fees.php';
+		include_once __DIR__ . '/class-woocommerce-order-utm.php';
+		include_once __DIR__ . '/class-woocommerce-products.php';
 
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
