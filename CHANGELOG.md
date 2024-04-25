@@ -1,3 +1,25 @@
+# [4.0.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.8.0...v4.0.0-alpha.1) (2024-04-25)
+
+
+### Bug Fixes
+
+* ensure only admins can reset starter content and newspack options ([#3081](https://github.com/Automattic/newspack-plugin/issues/3081)) ([4606721](https://github.com/Automattic/newspack-plugin/commit/46067217985f904286ddb2c952ba0e1deb954e56))
+
+
+### Features
+
+* add product option to autocomplete orders ([#3072](https://github.com/Automattic/newspack-plugin/issues/3072)) ([4a2859b](https://github.com/Automattic/newspack-plugin/commit/4a2859b894eab499e194102b0636dc20466e0c22))
+* **ras:** skip campaign setup ([#3051](https://github.com/Automattic/newspack-plugin/issues/3051)) ([9ef0e6d](https://github.com/Automattic/newspack-plugin/commit/9ef0e6d1de8d4dafda4d2af1304206d0f8190b15))
+
+
+### BREAKING CHANGES
+
+* Changes order autocompletion behavior for existing products!
+
+* feat: add product option to autocomplete orders
+
+* chore: update outdated docblock description
+
 # [3.8.0](https://github.com/Automattic/newspack-plugin/compare/v3.7.0...v3.8.0) (2024-04-25)
 
 
