@@ -16,16 +16,26 @@ import {
 	SectionHeader,
 	Waiting,
 	withWizardScreen,
+	utils,
 } from '../../../../components/src';
 import Prompt from '../../components/prompt';
+import Router from '../../../../components/src/proxied-imports/router';
 import './style.scss';
 
+const { useHistory } = Router;
+
 export default withWizardScreen( () => {
+	const { is_skipped_campaign_setup, reader_activation_url } = newspack_engagement_wizard;
+
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ prompts, setPrompts ] = useState( null );
 	const [ allReady, setAllReady ] = useState( false );
-	const { reader_activation_url } = newspack_engagement_wizard;
+	const [ skipped, setSkipped ] = useState( {
+		status: '',
+		isSkipped: is_skipped_campaign_setup === '1',
+	} );
+	const history = useHistory();
 
 	const fetchPrompts = () => {
 		setError( false );
@@ -39,6 +49,45 @@ export default withWizardScreen( () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
+
+	/**
+	 * Display prompt requiring editors to confirm skipping, on confirmation send request to
+	 * server to store skipped option in options table and redirect back to RAS
+	 *
+	 * @return {void}
+	 */
+	async function onSkipCampaignSetup() {
+		if (
+			! utils.confirmAction(
+				__(
+					'Are you sure you want to skip setting up a reader activation campaign?',
+					'newspack-plugin'
+				)
+			)
+		) {
+			return;
+		}
+		setError( false );
+		setSkipped( { ...skipped, status: 'pending' } );
+		try {
+			const request = await apiFetch( {
+				path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/skip-campaign-setup',
+				method: 'POST',
+				data: { skip: ! skipped.isSkipped },
+			} );
+			if ( ! request.updated ) {
+				setError( { message: __( 'Server not updated', 'newspack-plugin' ) } );
+				setSkipped( { isSkipped: false, status: '' } );
+				return;
+			}
+			setSkipped( { isSkipped: Boolean( request.skipped ), status: '' } );
+			newspack_engagement_wizard.is_skipped_campaign_setup = request.skipped ? '1' : '';
+			history.push( '/reader-activation/complete' );
+		} catch ( err ) {
+			setError( err );
+			setSkipped( { isSkipped: false, status: '' } );
+		}
+	}
 
 	useEffect( () => {
 		window.scrollTo( 0, 0 );
@@ -84,8 +133,20 @@ export default withWizardScreen( () => {
 				) ) }
 			<div className="newspack-buttons-card">
 				<Button
+					isTertiary
+					disabled={ inFlight || skipped.isSkipped || skipped.status === 'pending' }
+					onClick={ onSkipCampaignSetup }
+				>
+					{ /* eslint-disable-next-line no-nested-ternary */ }
+					{ skipped.status === 'pending'
+						? __( 'Skipping…', 'newspack-plugin' )
+						: skipped.isSkipped
+						? __( 'Skipped', 'newspack-plugin' )
+						: __( 'Skip', 'newspack-plugin' ) }
+				</Button>
+				<Button
 					isPrimary
-					disabled={ inFlight || ! allReady }
+					disabled={ inFlight || ( ! allReady && ! skipped.isSkipped ) }
 					href={ `${ reader_activation_url }/complete` }
 				>
 					{ __( 'Continue', 'newspack-plugin' ) }
