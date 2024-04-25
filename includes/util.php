@@ -563,7 +563,7 @@ function newspack_get_social_markup( $color = 'white' ) {
 	$cm          = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'wordpress_seo' );
 	$social_urls = [];
 	$markup      = [
-		'block_markup' => '<!-- wp:social-links {"iconColor":"primary-text","iconColorValue":"primary-text","layout":{"type":"flex","flexWrap":"nowrap"}} --><ul class="wp-block-social-links has-icon-color">',
+		'block_markup' => '<!-- wp:social-links {"iconColor":"primary-text","iconColorValue":"primary-text","className":"is-style-filled-primary-text","layout":{"type":"flex","flexWrap":"nowrap"}} --><ul class="wp-block-social-links has-icon-color is-style-filled-primary-text">',
 		'html_markup'  => '',
 	];
 
