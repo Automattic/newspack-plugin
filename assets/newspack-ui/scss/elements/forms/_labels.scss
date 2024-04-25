@@ -44,11 +44,11 @@
 			}
 
 			// 'Selected' badge
-			&:has( .newspack_ui__badge ) {
+			&:has( .newspack-ui__badge ) {
 				grid-template-columns: var( --newspack-ui-spacer-4 ) 1fr min-content;
 			}
 
-			.newspack_ui__badge {
+			.newspack-ui__badge {
 				align-self: start;
 				grid-column-start: 3;
 				grid-row-start: 1;

@@ -257,7 +257,7 @@ class Newspack_UI {
 			<label class="newspack-ui__input-card">
 				<input type="radio" name="list-radio-option" checked>
 				<strong>The Weekly</strong><br>
-				<span class="newspack_ui__badge">Badge</span>
+				<span class="newspack-ui__badge newspack-ui__badge--primary">Badge</span>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
@@ -314,7 +314,12 @@ class Newspack_UI {
 			<hr>
 
 			<h2 id="badges">Badges (more examples TK)</h2>
-			<span class="newspack_ui__badge">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--primary">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--secondary">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--outline">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--success">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--error">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--warning">Badge</span><br>
 
 
 			<hr>
