@@ -510,7 +510,7 @@ class Newspack_UI {
 								</div>
 							</p>
 
-							<p class="newspack-ui__font--xs">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
+							<p class="newspack-ui__helper-text">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
 							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Resend Code</button>
@@ -599,10 +599,10 @@ class Newspack_UI {
 								<input type="password">
 								<span class="newspack-ui__helper-text">If you don't set a password, you can always log in with a magic link or one-time code sent to your email.</span>
 							</p>
-						</form>
 
-						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
-						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Skip for now</button>
+							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
+							<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Skip for now</button>
+						</form>
 					</section>
 				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
