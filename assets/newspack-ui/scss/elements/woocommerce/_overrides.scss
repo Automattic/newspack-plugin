@@ -4,6 +4,11 @@
 		margin: 0 0 var( --newspack-ui-spacer-5 );
 	}
 
+	label .optional {
+		color: var( --newspack-ui-color-neutral-60 );
+		font-weight: 400;
+	}
+
 	&__modal--small {
 		form p {
 			margin: 0 0 var( --newspack-ui-spacer-2 );
@@ -107,6 +112,25 @@
 			font-size: var( --newspack-ui-font-size-s );
 			line-height: var( --newspack-ui-line-height-l );
 			padding: calc( var( --newspack-ui-spacer-2 ) - 1px ) calc( var( --newspack-ui-spacer-3 ) - 1px );
+		}
+
+		&:has( div.stripe-source-errors[role="alert"]:not( :empty ) ) {
+			.wc-stripe-elements-field,
+			.wc-stripe-iban-element-field {
+				border-color: var( --newspack-ui-color-error-50 );
+			}
+
+			label {
+				color: var( --newspack-ui-color-error-50 );
+			}
+
+			.woocommerce_error {
+				background: transparent;
+				color: var( --newspack-ui-color-error-50 );
+				font-family: var( --newspack-ui-font-family );
+				font-size: var( --newspack-ui-font-size-xs );
+				padding: 0;
+			}
 		}
 	}
 
