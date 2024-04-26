@@ -38,6 +38,7 @@ const { HashRouter, Redirect, Route, Switch } = Router;
  * @property {string} 	  headerText - The header text.
  * @property {string} 	  [subHeaderText] - The sub-header text, optional.
  * @property {string} 	  [apiSlug] - The API slug, optional.
+ * @property {string} 	  [className] - CSS classes, optional.
  * @property {any[]} 	  sections - Array of sections.
  * @property {boolean} 	  [hasSimpleFooter] - Indicates if a simple footer is used, optional.
  * @property {() => void} [renderAboveSections] - Function to render content above sections, optional.

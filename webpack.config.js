@@ -87,6 +87,7 @@ const webpackConfig = getBaseWebpackConfig(
 				'memberships-gate',
 				'block-patterns.js'
 			),
+			wizards: path.join( __dirname, 'assets', 'wizards', 'index.tsx' ),
 		},
 	}
 );
