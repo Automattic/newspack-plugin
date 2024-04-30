@@ -1,7 +1,7 @@
-require( '@rushstack/eslint-patch/modern-module-resolution' );
+require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
-	extends: [ './node_modules/newspack-scripts/config/eslintrc.js' ],
+	extends: ['./node_modules/newspack-scripts/config/eslintrc.js'],
 	globals: {
 		newspack_urls: 'readonly',
 		newspack_aux_data: 'readonly',
@@ -10,5 +10,16 @@ module.exports = {
 		'no-console': 'off',
 		'@typescript-eslint/ban-ts-comment': 'warn',
 	},
-	ignorePatterns: [ 'dist/', 'node_modules/', 'assets/components/node_modules' ],
+	ignorePatterns: ['dist/', 'node_modules/', 'assets/components/node_modules'],
+	settings: {
+		'import/resolver': {
+			node: {
+				extensions: ['.js', '.jsx', '.ts', '.tsx'],
+				moduleDirectory: ['node_modules', 'src/'],
+				paths: {
+					'@components': ['assets/components/src'],
+				},
+			},
+		},
+	},
 };
