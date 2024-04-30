@@ -105,11 +105,4 @@ webpackConfig.optimization = {
 	},
 };
 
-webpackConfig.resolve = {
-	extensions: [ '.tsx', '.ts', '.js' ],
-	alias: {
-		'@components': path.resolve( __dirname, 'assets/components/src/index.js' ),
-	},
-};
-
 module.exports = webpackConfig;

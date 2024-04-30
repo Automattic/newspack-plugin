@@ -9,7 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Grid, Notice, SectionHeader, TextControl } from '@components';
+import { ActionCard, Button, Grid, Notice, SectionHeader, TextControl } from '../../../../../../components/src';
 
 type RecaptchaData = {
 	site_key?: string;

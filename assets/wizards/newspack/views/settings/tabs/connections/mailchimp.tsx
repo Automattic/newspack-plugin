@@ -10,7 +10,7 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Grid, Modal, TextControl } from '@components';
+import { ActionCard, Button, Card, Grid, Modal, TextControl } from '../../../../../../components/src';
 
 const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 	const [ authState, setAuthState ] = useState< OAuthData >( {} );

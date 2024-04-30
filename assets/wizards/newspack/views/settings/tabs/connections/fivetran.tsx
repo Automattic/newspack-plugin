@@ -9,7 +9,7 @@ import { Button, CheckboxControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { ActionCard } from '@components';
+import { ActionCard } from '../../../../../../components/src';
 
 /**
  * External dependencies

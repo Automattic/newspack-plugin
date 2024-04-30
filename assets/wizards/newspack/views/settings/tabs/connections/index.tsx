@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 
-import { SectionHeader, Notice } from '@components';
+import { SectionHeader, Notice } from '../../../../../../components/src';
 import GoogleOAuth from './google';
 import Plugins from './plugins';
 import Mailchimp from './mailchimp';

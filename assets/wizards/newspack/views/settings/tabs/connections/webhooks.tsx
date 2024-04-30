@@ -26,7 +26,7 @@ import {
 	Modal,
 	TextControl,
 	Popover,
-} from '@components';
+} from '../../../../../../components/src';
 
 interface WpCheckboxControlPropsOverride extends React.ComponentProps< typeof WpCheckboxControl > {
 	indeterminate?: boolean;

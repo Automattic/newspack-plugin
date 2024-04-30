@@ -8,7 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Handoff, hooks } from '@components';
+import { ActionCard, Button, Handoff, hooks } from '../../../../../../components/src';
 
 interface PluginStatusResponse {
 	Configured: boolean;

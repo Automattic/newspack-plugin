@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button } from '@components';
+import { ActionCard, Button } from '../../../../../../components/src';
 
 const getURLParams = () => {
 	return qs.parse( window.location.search.replace( /^\?/, '' ) );

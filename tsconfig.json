@@ -2,12 +2,7 @@
   "extends": "newspack-scripts/config/tsconfig.json",
   "compilerOptions": {
     "rootDir": "assets",
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@components": ["assets/components/src/index"],
-      "@components/*": ["assets/components/src/*"],
-    }
+    "jsx": "react-jsx"
   },
   "include": [
     "assets",

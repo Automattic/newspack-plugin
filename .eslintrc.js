@@ -9,18 +9,6 @@ module.exports = {
 	rules: {
 		'no-console': 'off',
 		'@typescript-eslint/ban-ts-comment': 'warn',
-		'import/no-unresolved': 'warn',
 	},
 	ignorePatterns: [ 'dist/', 'node_modules/', 'assets/components/node_modules' ],
-	settings: {
-		'import/resolver': {
-			node: {
-				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
-				moduleDirectory: [ 'node_modules', 'assets/src/' ],
-				paths: {
-					'@components': [ 'assets/components/src' ],
-				},
-			},
-		},
-	},
 };
