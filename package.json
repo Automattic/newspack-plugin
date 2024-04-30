@@ -13,6 +13,7 @@
 	"devDependencies": {
 		"@rushstack/eslint-patch": "^1.7.2",
 		"@testing-library/react": "^12.1.4",
+		"@types/lodash": "^4.17.0",
 		"@types/qs": "^6.9.12",
 		"@types/react": "^17.0.75",
 		"@types/wordpress__block-editor": "^11.5.12",
