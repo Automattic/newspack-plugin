@@ -26,6 +26,14 @@ const Connections = () => {
 				<GoogleOAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
 			) }
 			<Mailchimp setError={ setErrorWithPrefix( __( 'Mailchimp: ', 'newspack-plugin' ) ) } />
+			{ connections.isAvailable.fivetran && (
+				<>
+					<SectionHeader title="Fivetran" />
+					<FivetranConnection
+						setError={ setErrorWithPrefix( __( 'Fivetran: ', 'newspack-plugin' ) ) }
+					/>
+				</>
+			) }
 		</div>
 	);
 };
