@@ -103,8 +103,13 @@ class Newspack_Settings extends Wizard {
 			[
 				'sections' => [
 					'connections'       => [
-						'label' => __( 'Connections', 'newspack-plugin' ),
-						'path'  => '/',
+						'label'       => __( 'Connections', 'newspack-plugin' ),
+						'path'        => '/',
+						'isAvailable' => [
+							'google'   => OAuth::is_proxy_configured( 'google' ),
+							'fivetran' => OAuth::is_proxy_configured( 'fivetran' ),
+							'webhooks' => defined( 'NEWSPACK_EXPERIMENTAL_WEBHOOKS' ) && NEWSPACK_EXPERIMENTAL_WEBHOOKS,
+						],
 					],
 					'emails'            => [
 						'label' => __( 'Emails', 'newspack-plugin' ),
