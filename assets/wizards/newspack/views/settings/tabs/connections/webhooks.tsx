@@ -28,12 +28,15 @@ import {
 	Popover,
 } from '../../../../../../components/src';
 
-interface WpCheckboxControlPropsOverride extends React.ComponentProps< typeof WpCheckboxControl > {
-	indeterminate?: boolean;
-	key?: React.Key | null;
-}
-
-const CheckboxControl: React.FC< WpCheckboxControlPropsOverride > = ( { ...props } ) => {
+/**
+ * Checkbox control props override.
+ *
+ * @param param WP CheckboxControl Component props.
+ * @return JSX.Element
+ */
+const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckboxControl > > = ( {
+	...props
+} ) => {
 	return <WpCheckboxControl { ...props } />;
 };
 
@@ -158,16 +161,6 @@ const ConfirmationModal = ( {
 			</Card>
 		</Modal>
 	);
-};
-
-type WebhookEditingState = {
-	disabled?: boolean;
-	disabled_error?: boolean;
-	url?: string;
-	bearer_token?: string;
-	label?: string;
-	global: boolean;
-	actions?: string[];
 };
 
 const Webhooks = () => {

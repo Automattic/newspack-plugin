@@ -18,13 +18,6 @@ import {
 	TextControl,
 } from '../../../../../../components/src';
 
-type RecaptchaData = {
-	site_key?: string;
-	threshold?: string;
-	use_captcha?: boolean;
-	site_secret?: string;
-};
-
 const settingsDefault = {
 	site_key: undefined,
 	threshold: undefined,

@@ -11,10 +11,14 @@ type OAuthData = {
 	username?: string;
 };
 
+type WpCheckboxControlPropsOverride< T > = React.ComponentProps< T > & {
+	indeterminate?: boolean;
+	key?: React.Key | null;
+};
+
 /**
  * Connections
  */
-
 type SetErrorCallback = ( a?: ErrorStateParams ) => void;
 
 type Endpoint = {
@@ -34,4 +38,21 @@ type Endpoint = {
 	system: string;
 	global: boolean;
 	actions: string[];
+};
+
+type RecaptchaData = {
+	site_key?: string;
+	threshold?: string;
+	use_captcha?: boolean;
+	site_secret?: string;
+};
+
+type WebhookEditingState = {
+	disabled?: boolean;
+	disabled_error?: boolean;
+	url?: string;
+	bearer_token?: string;
+	label?: string;
+	global: boolean;
+	actions?: string[];
 };
