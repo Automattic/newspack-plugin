@@ -21,6 +21,10 @@ const Connections = () => {
 			{ error && <Notice isError noticeText={ error } /> }
 			<SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
 			<Plugins />
+			<SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
+			{ connections.isAvailable.google && (
+				<GoogleOAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
+			) }
 		</div>
 	);
 };
