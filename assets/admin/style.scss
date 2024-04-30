@@ -41,15 +41,6 @@ html {
 	}
 }
 
-.newspack-admin__tabs {
-	h2 {
-		font-size: 2rem;
-		font-style: normal;
-		font-weight: 400;
-		line-height: 40px;
-	}
-}
-
 .newspack-dashboard__section {
 	margin: 0 auto;
 	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
@@ -75,7 +66,7 @@ html {
 		text-decoration: none;
 	}
 
-	.newspack-grid {
+	.newspack-grid:not(.newspack-grid--no-margin) {
 		--np-dash-card-icon-size: 80px;
 
 		margin: 24px 0 32px;
