@@ -33,9 +33,7 @@ interface WpCheckboxControlPropsOverride extends React.ComponentProps< typeof Wp
 	key?: React.Key | null;
 }
 
-const CheckboxControl: React.FC< WpCheckboxControlPropsOverride > = ( {
-	...props
-} ) => {
+const CheckboxControl: React.FC< WpCheckboxControlPropsOverride > = ( { ...props } ) => {
 	return <WpCheckboxControl { ...props } />;
 };
 
