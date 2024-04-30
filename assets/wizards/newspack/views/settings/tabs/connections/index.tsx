@@ -34,6 +34,7 @@ const Connections = () => {
 					/>
 				</>
 			) }
+			<Recaptcha />
 		</div>
 	);
 };
