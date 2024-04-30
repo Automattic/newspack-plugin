@@ -79,14 +79,6 @@ interface PluginsProps {
 	setError?: SetErrorCallback;
 }
 
-interface PluginStatus {
-	status: string;
-}
-
-interface PluginsState {
-	[ key: string ]: Plugin & PluginStatus;
-}
-
 const Plugins = ( { setError }: PluginsProps ) => {
 	const [ plugins, setPlugins ] = hooks.useObjectState( PLUGINS ) as any;
 	const pluginsArray = Object.values( plugins );
