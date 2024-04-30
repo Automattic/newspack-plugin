@@ -35,6 +35,7 @@ const Connections = () => {
 				</>
 			) }
 			<Recaptcha />
+			{ connections.isAvailable.webhooks && <Webhooks /> }
 		</div>
 	);
 };
