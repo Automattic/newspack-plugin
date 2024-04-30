@@ -25,6 +25,7 @@ const Connections = () => {
 			{ connections.isAvailable.google && (
 				<GoogleOAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
 			) }
+			<Mailchimp setError={ setErrorWithPrefix( __( 'Mailchimp: ', 'newspack-plugin' ) ) } />
 		</div>
 	);
 };
