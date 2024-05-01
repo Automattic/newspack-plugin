@@ -5,11 +5,11 @@
  */
 import { __ } from '@wordpress/i18n';
 
-const { sections: settingsSections } = window.newspackSettings;
+const { tabs: settingsTabs } = window.newspackSettings;
 
 import Connections from './tabs/connections';
 
-type SectionKeys = keyof typeof settingsSections;
+type SectionKeys = keyof typeof settingsTabs;
 
 const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = {
 	connections: Connections,
@@ -23,13 +23,13 @@ const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = 
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
 
-const SettingsSectionKeys = Object.keys( settingsSections ) as SectionKeys[];
+const SettingsSectionKeys = Object.keys( settingsTabs ) as SectionKeys[];
 
 export default SettingsSectionKeys.map( sectionPath => {
 	return {
-		label: settingsSections[ sectionPath ].label,
-		exact: '/' === ( settingsSections[ sectionPath ].path ?? '' ),
-		path: settingsSections[ sectionPath ].path ?? `/${ sectionPath }`,
+		label: settingsTabs[ sectionPath ].label,
+		exact: '/' === ( settingsTabs[ sectionPath ].path ?? '' ),
+		path: settingsTabs[ sectionPath ].path ?? `/${ sectionPath }`,
 		render: sectionComponents[ sectionPath ] ?? sectionComponents.default,
 	};
 } );

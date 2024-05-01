@@ -322,7 +322,7 @@ class Newspack_Dashboard extends Wizard {
 					'googleAnalytics'  => [
 						'label'        => __( 'Google Analytics', 'newspack-plugin' ),
 						'endpoint'     => '/google-site-kit/v1/modules/analytics-4/data/settings',
-						'configLink'   => in_array( 'analytics', get_option( 'googlesitekit_active_modules', [] ) ) ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
+						'configLink'   => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
 						'dependencies' => [
 							'google-site-kit' => [
 								'label'    => __( 'Google Site Kit', 'newspack-plugin' ),

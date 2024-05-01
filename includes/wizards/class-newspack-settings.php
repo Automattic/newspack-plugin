@@ -101,14 +101,24 @@ class Newspack_Settings extends Wizard {
 			$this->slug, 
 			'newspackSettings',
 			[
-				'sections' => [
+				'tabs' => [
 					'connections'       => [
-						'label'       => __( 'Connections', 'newspack-plugin' ),
-						'path'        => '/',
-						'isAvailable' => [
+						'label'        => __( 'Connections', 'newspack-plugin' ),
+						'path'         => '/',
+						'dependencies' => [
 							'google'   => OAuth::is_proxy_configured( 'google' ),
 							'fivetran' => OAuth::is_proxy_configured( 'fivetran' ),
 							'webhooks' => defined( 'NEWSPACK_EXPERIMENTAL_WEBHOOKS' ) && NEWSPACK_EXPERIMENTAL_WEBHOOKS,
+						],
+						'sections'     => [
+							'plugins'   => [],
+							'apis'      => [],
+							'recaptcha' => [],
+							'analytics' => [
+								'editLink'       => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
+								'measurement_id' => get_option( 'ga4_measurement_id', '' ),
+								'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
+							],
 						],
 					],
 					'emails'            => [

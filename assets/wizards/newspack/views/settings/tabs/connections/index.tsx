@@ -8,8 +8,10 @@ import Mailchimp from './mailchimp';
 import FivetranConnection from './fivetran';
 import Recaptcha from './recaptcha';
 import Webhooks from './webhooks';
+import Analytics from './analytics';
+import CustomEvents from './custom-events';
 
-const { connections } = window.newspackSettings.sections;
+const { connections } = window.newspackSettings.tabs;
 
 const Connections = () => {
 	const [ error, setError ] = useState< string | null >();
@@ -22,11 +24,11 @@ const Connections = () => {
 			<SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
 			<Plugins />
 			<SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
-			{ connections.isAvailable.google && (
+			{ connections.dependencies.google && (
 				<GoogleOAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
 			) }
 			<Mailchimp setError={ setErrorWithPrefix( __( 'Mailchimp: ', 'newspack-plugin' ) ) } />
-			{ connections.isAvailable.fivetran && (
+			{ connections.dependencies.fivetran && (
 				<>
 					<SectionHeader title="Fivetran" />
 					<FivetranConnection
@@ -35,7 +37,19 @@ const Connections = () => {
 				</>
 			) }
 			<Recaptcha />
-			{ connections.isAvailable.webhooks && <Webhooks /> }
+			{ connections.dependencies.webhooks && <Webhooks /> }
+			<SectionHeader heading={ 3 } title={ __( 'Analytics', 'newspack-plugin' ) } />
+			<Analytics editLink={ connections.sections.analytics.editLink } />
+			<SectionHeader
+				title={ __( 'Activate Newspack Custom Events', 'newspack-plugin' ) }
+				heading={ 3 }
+				description={ __(
+					'Allows Newspack to send enhanced custom event data to your Google Analytics.',
+					'newspack-plugin'
+				) }
+				noMargin
+			/>
+			<CustomEvents />
 		</div>
 	);
 };
