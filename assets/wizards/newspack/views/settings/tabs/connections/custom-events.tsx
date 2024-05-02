@@ -1,5 +1,3 @@
-/* global newspack_analytics_wizard_data */
-
 /**
  * WordPress dependencies
  */

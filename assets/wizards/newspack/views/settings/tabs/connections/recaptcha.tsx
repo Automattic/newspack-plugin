@@ -9,13 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import {
-	Grid,
-	Notice,
-	Button,
-	ActionCard,
-	TextControl,
-} from '../../../../../../components/src';
+import { Grid, Notice, Button, ActionCard, TextControl } from '../../../../../../components/src';
 
 const settingsDefault = {
 	site_key: undefined,
