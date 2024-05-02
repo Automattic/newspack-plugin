@@ -107,7 +107,6 @@ class Newspack_Settings extends Wizard {
 						'path'         => '/',
 						'dependencies' => [
 							'google'   => OAuth::is_proxy_configured( 'google' ),
-							'fivetran' => OAuth::is_proxy_configured( 'fivetran' ),
 							'webhooks' => defined( 'NEWSPACK_EXPERIMENTAL_WEBHOOKS' ) && NEWSPACK_EXPERIMENTAL_WEBHOOKS,
 						],
 						'sections'     => [

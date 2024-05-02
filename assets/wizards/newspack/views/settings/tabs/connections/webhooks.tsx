@@ -287,7 +287,7 @@ const Webhooks = () => {
 	}, [ editing ] );
 
 	return (
-		<Card noBorder className="mt64">
+		<Card noBorder>
 			{ false !== error && <Notice isError noticeText={ error.message } /> }
 
 			<div className="flex justify-between items-end">
