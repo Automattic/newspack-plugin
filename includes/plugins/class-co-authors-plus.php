@@ -86,7 +86,7 @@ class Co_Authors_Plus {
 		if ( get_role( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) === null ) {
 			add_role( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.custom_role_add_role
 				self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
-				__( 'Not Editing Contributor', 'newspack-plugin' ),
+				__( 'Non-Editing Contributor', 'newspack-plugin' ),
 				[
 					self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME => true,
 				]
