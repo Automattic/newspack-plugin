@@ -48,8 +48,17 @@
 
 	// Override checkout payment method box.
 	.wc_payment_method {
+
+		+ .wc_payment_method {
+			margin-top: calc( var(--newspack-ui-spacer-5) / -2 );
+		}
+
 		span {
 			font-weight: var( --newspack-ui-font-weight-strong );
+		}
+
+		> label:first-of-type {
+			margin: unset;
 		}
 
 		.payment_box {
@@ -58,6 +67,7 @@
 			padding: 0;
 
 			p {
+				color: var( --newspack-ui-color-neutral-60 );
 				font-size: var(--newspack-ui-font-size-xs);
 			}
 
@@ -72,7 +82,8 @@
 			}
 
 			fieldset {
-				margin-bottom: var(--newspack-ui-spacer-2);
+				margin: 0 0 var(--newspack-ui-spacer-2);
+				padding: 0 !important; // To override inline styles.
 
 				&:last-child {
 					margin-bottom: 0;
@@ -99,10 +110,19 @@
 			}
 		}
 
+		// Override a style coming from the theme to hide the radio -- we need this when there's more than one option.
+		input.input-radio[name="payment_method"] {
+			display: inherit;
+		}
+
 		// If the only payment option, we're hiding the radio selection so we don't need a grid.
 		&:first-child:last-child .newspack-ui__input-card {
 			grid-template-columns: none;
 			gap: 0;
+
+			input.input-radio[name="payment_method"] {
+				display: none;
+			}
 		}
 	}
 
@@ -142,8 +162,17 @@
 		}
 	}
 
-	.wc_payment_methods label[for="payment_method_stripe"].newspack-ui__input-card {
-		padding: var( --newspack-ui-spacer-5 ) !important;
+	.wc_payment_methods label[for="payment_method_stripe"] {
+		&.newspack-ui__input-card {
+			padding: var( --newspack-ui-spacer-3 ) !important;
+		}
+	}
+
+	// Woo Payments inputs
+	#wcpay-upe-element,
+	.wcpay-upe-element {
+		margin: var(--newspack-ui-spacer-5) 0;
+		padding: 0;
 	}
 
 	// Override billing details spacing.
@@ -227,5 +256,15 @@
 		label {
 			color: var( --newspack-ui-color-error-50 );
 		}
+	}
+
+	// Buttons - adjust spacing
+	#place-order {
+		margin-bottom: 0;
+	}
+
+	// stylelint-disable-next-line selector-id-pattern
+	#checkout_back {
+		margin-top: 0;
 	}
 }

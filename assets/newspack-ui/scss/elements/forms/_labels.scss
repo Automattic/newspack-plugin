@@ -12,7 +12,7 @@
 		&:has( input[type='checkbox'] ),
 		&:has( input[type='radio'] ) {
 			display: grid;
-			gap: 0 var( --newspack-ui-spacer-base );
+			gap: 0 var( --newspack-ui-spacer-3 );
 			grid-template-columns: var( --newspack-ui-spacer-4 ) 1fr;
 
 			> *:not( input ) {
@@ -33,7 +33,7 @@
 				padding: var( --newspack-ui-spacer-3 );
 				transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out;
 
-				&:has( input:checked ) {
+				&:has( > input:checked ) {
 					background: var( --newspack-ui-color-neutral-5 );
 					border-color: var( --newspack-ui-color-neutral-90 );
 				}

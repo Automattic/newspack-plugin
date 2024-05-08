@@ -169,9 +169,9 @@ class Newspack_UI {
 					<span class="newspack-ui__helper-text">Some helper text.</span>
 				</p>
 
-				<p class="newspack-ui__error">
-					<label for="text-input-demo">Text input <span class="newspack-ui__label-optional">(additional text)</span></label>
-					<input type="text" placeholder="Regular text">
+				<p>
+					<label for="text-input-demo" class="newspack-ui__field-error">Text input <span class="newspack-ui__label-optional">(additional text)</span></label>
+					<input type="text" placeholder="Regular text" class="newspack-ui__field-error">
 					<span class="newspack-ui__helper-text">Some helper text.</span>
 					<span class="newspack-ui__helper-text newspack-ui__inline-error">An error message.</span>
 				</p>
@@ -191,8 +191,8 @@ class Newspack_UI {
 					</label>
 				</p>
 
-				<p class="newspack-ui__error">
-					<label>
+				<p>
+					<label class="newspack-ui__field-error">
 						<input type="radio" name="radio-control-demo">
 						This is a radio input.
 						<span class="newspack-ui__helper-text">Some helper text.</span>
@@ -207,8 +207,8 @@ class Newspack_UI {
 					</label>
 				</p>
 
-				<p class="newspack-ui__error">
-					<label>
+				<p>
+					<label class="newspack-ui__field-error">
 						<input type="checkbox">
 						This is a checkbox input.
 					</label>
@@ -313,7 +313,7 @@ class Newspack_UI {
 
 			<hr>
 
-			<h2 id="badges">Badges (more examples TK)</h2>
+			<h2 id="badges">Badges</h2>
 			<span class="newspack-ui__badge newspack-ui__badge--primary">Badge</span><br>
 			<span class="newspack-ui__badge newspack-ui__badge--secondary">Badge</span><br>
 			<span class="newspack-ui__badge newspack-ui__badge--outline">Badge</span><br>
@@ -326,7 +326,6 @@ class Newspack_UI {
 
 			<h2 id="buttons">Buttons</h2>
 			<p><code>newspack-ui__button--primary</code>, <code>--branded</code>, <code>--secondary</code>, <code>--ghost</code>, and <code>--destructive</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
-			<button class="newspack-ui__button">Default Theme Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary" disabled>Primary Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--branded">Branded Button</button><br>
@@ -352,7 +351,6 @@ class Newspack_UI {
 			</button>
 
 			<h3>Wide buttons</h3>
-			<button class="newspack-ui__button newspack-ui__button--wide">Default Theme Button</button>
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>

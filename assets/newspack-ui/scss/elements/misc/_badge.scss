@@ -20,6 +20,7 @@
 	}
 
 	&--outline {
+		background: var( --newspack-ui-color-neutral-0 );
 		color: var( --newspack-ui-color-neutral-60 );
 		outline: 1px solid var( --newspack-ui-color-neutral-30 );
 		outline-offset: -1px;
