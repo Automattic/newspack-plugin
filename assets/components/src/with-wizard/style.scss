@@ -181,7 +181,7 @@ svg {
 
 		&::before {
 			animation: loading-quiet 1.25s ease-in-out infinite;
-			background: colors.$primary-500;
+			background: colors.$primary-600;
 			height: 8px;
 			right: 100%;
 			z-index: 9999;
