@@ -1,6 +1,6 @@
 .newspack-ui {
 	// TODO: define some kind of size hierachy for buttons eg. small, medium, large.
-	&__button {
+	.newspack-ui__button {
 		align-items: center;
 		background: var( --newspack-ui-color-neutral-10 );
 		border: 0;
