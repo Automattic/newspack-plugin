@@ -2,13 +2,14 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { ExternalLink } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 import { Grid, Notice, Button, ActionCard, TextControl } from '../../../../../../components/src';
 
 const settingsDefault = {
@@ -21,8 +22,11 @@ const settingsDefault = {
 const UNKNOWN_ERROR = __( 'RECAPTCHA UNKNOWN ERROR: ', 'newspack-plugin' );
 
 const Recaptcha = () => {
-	const [ error, setError ] = useState< ErrorStateParams >( undefined );
-	const [ isLoading, setIsLoading ] = useState( false );
+	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const isLoading: boolean = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
+	
+	const [ error, setError ] = useState< ErrorParams | undefined >( undefined );
+
 	const [ settings, setSettings ] = useState< RecaptchaData >( { ...settingsDefault } );
 	const [ settingsToUpdate, setSettingsToUpdate ] = useState< RecaptchaData >( {
 		...settingsDefault,
@@ -31,10 +35,10 @@ const Recaptcha = () => {
 	// Check the reCAPTCHA connectivity status.
 	useEffect( () => {
 		const fetchSettings = async () => {
-			setIsLoading( true );
 			try {
-				const fetchedSettings = await apiFetch< RecaptchaData >( {
+				const fetchedSettings = await wizardApiFetch< Promise< RecaptchaData > >( {
 					path: '/newspack/v1/recaptcha',
+					isQuietFetch: true,
 				} );
 				setSettings( fetchedSettings );
 				setSettingsToUpdate( fetchedSettings );
@@ -44,8 +48,6 @@ const Recaptcha = () => {
 					return;
 				}
 				setError( `${ UNKNOWN_ERROR } fetchSettings()` );
-			} finally {
-				setIsLoading( false );
 			}
 		};
 		fetchSettings();
@@ -53,12 +55,12 @@ const Recaptcha = () => {
 
 	const updateSettings = async ( data: RecaptchaData ) => {
 		setError( undefined );
-		setIsLoading( true );
 		try {
 			setSettings(
-				await apiFetch( {
+				await wizardApiFetch( {
 					path: '/newspack/v1/recaptcha',
 					method: 'POST',
+					isQuietFetch: true,
 					data,
 				} )
 			);
@@ -69,8 +71,6 @@ const Recaptcha = () => {
 				return;
 			}
 			setError( `${ UNKNOWN_ERROR } updateSettings() function!` );
-		} finally {
-			setIsLoading( false );
 		}
 	};
 
