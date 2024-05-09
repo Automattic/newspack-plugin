@@ -1,7 +1,7 @@
 /**
- * Error state handling callback params
+ * Error state types
  */
-type ErrorStateParams = string | undefined | any[];
+type ErrorParams = string | any[] | Error;
 
 /**
  * OAuth payload
@@ -11,6 +11,10 @@ type OAuthData = {
 	username?: string;
 };
 
+/**
+ * @wordpress/components/CheckboxControl component props override. Required to apply
+ * correct types to legacy version.
+ */
 type WpCheckboxControlPropsOverride< T > = React.ComponentProps< T > & {
 	indeterminate?: boolean;
 	key?: React.Key | null;
@@ -19,8 +23,11 @@ type WpCheckboxControlPropsOverride< T > = React.ComponentProps< T > & {
 /**
  * Connections
  */
-type SetErrorCallback = ( a?: ErrorStateParams ) => void;
+type SetErrorCallback = ( a: ErrorParams ) => void;
 
+/**
+ * Catch-all type for Webhook function params and function return types
+ */
 type Endpoint = {
 	url: string;
 	label: string;
@@ -40,6 +47,9 @@ type Endpoint = {
 	actions: string[];
 };
 
+/**
+ * reCAPTCHA state params
+ */
 type RecaptchaData = {
 	site_key?: string;
 	threshold?: string;
@@ -47,6 +57,9 @@ type RecaptchaData = {
 	site_secret?: string;
 };
 
+/**
+ *
+ */
 type WebhookEditingState = {
 	disabled?: boolean;
 	disabled_error?: boolean;
