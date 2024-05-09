@@ -332,9 +332,12 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 
 					<SectionHeader title={ __( 'Newsletter Subscription Lists', 'newspack-plugin' ) } />
 					<ActionCard
-						title={ __( 'Custom newsletter lists on registration', 'newspack-plugin' ) }
+						title={ __(
+							'Present newsletter signup after checkout and registration',
+							'newspack-plugin'
+						) }
 						description={ __(
-							"Choose which of the Newspack Newsletters's subscription lists should be available upon registration.",
+							'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
 							'newspack-plugin'
 						) }
 						toggleChecked={ config.use_custom_lists }
