@@ -1,8 +1,12 @@
 /**
+ * Newspack / Settings / Connections (Tab)
+ */
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -14,22 +18,49 @@ import Recaptcha from './recaptcha';
 import Webhooks from './webhooks';
 import Analytics from './analytics';
 import CustomEvents from './custom-events';
-import { SectionHeader, Notice } from '../../../../../../components/src';
+import { SectionHeader } from '../../../../../../components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 
 const { connections } = window.newspackSettings.tabs;
 
 const Connections = () => {
-	const [ error, setError ] = useState< string | null >();
-	const setErrorWithPrefix = ( prefix: string ) => ( err: ErrorStateParams ) =>
-		setError( err ? prefix + err : null );
+	const { setError } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const error = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getError() );
+
+	const setErrorWithPrefix = ( prefix: string ) => ( err?: ErrorParams ) => {
+		if ( ! err ) {
+			setError( {
+				message: `${ prefix } ${ __(
+					"An error occured, that's all we know!",
+					'newspack-plugin'
+				) }`,
+			} );
+			return;
+		}
+		if ( typeof err === 'string' ) {
+			setError( { message: err ? `${ prefix } ${ err }` : null, data: { level: 'notice' } } );
+		} else if ( 'message' in err ) {
+			setError( { ...err, message: `${ prefix } ${ err.message }` } );
+		} else {
+			setError( {
+				...err,
+				message: `${ prefix } ${ __(
+					'Error cannot be parsed: ',
+					'newspack-plugin'
+				) } ${ JSON.stringify( err, null, 2 ) }`,
+			} );
+		}
+	};
 
 	return (
 		<div className="newspack-dashboard__section">
-			{ error && <Notice isError noticeText={ error } /> }
+			{ /* <pre>
+				{JSON.stringify(error, null, 2)}
+			</pre> */ }
 			{ /* Plugins */ }
 			<SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
-			<Plugins />
-			{ /* APIs; google, fivetrai */ }
+			<Plugins setError={ setErrorWithPrefix( __( 'Plugins: ', 'newspack-plugin' ) ) } />
+			{ /* APIs; google */ }
 			<SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
 			{ connections.dependencies.google && (
 				<GoogleOAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
