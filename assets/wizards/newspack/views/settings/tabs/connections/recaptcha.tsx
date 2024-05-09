@@ -23,8 +23,10 @@ const UNKNOWN_ERROR = __( 'RECAPTCHA UNKNOWN ERROR: ', 'newspack-plugin' );
 
 const Recaptcha = () => {
 	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const isLoading: boolean = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
-	
+	const isLoading: boolean = useSelect( select =>
+		select( WIZARD_STORE_NAMESPACE ).isQuietLoading()
+	);
+
 	const [ error, setError ] = useState< ErrorParams | undefined >( undefined );
 
 	const [ settings, setSettings ] = useState< RecaptchaData >( { ...settingsDefault } );
