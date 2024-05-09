@@ -1,11 +1,11 @@
 /**
  * WordPress dependencies.
  */
-import { useEffect, useState, useRef } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
 import { ENTER } from '@wordpress/keycodes';
+import { __, sprintf } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect, useState, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -18,12 +18,17 @@ import {
 	Modal,
 	TextControl,
 } from '../../../../../../components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 
 const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 	const [ authState, setAuthState ] = useState< OAuthData >( {} );
 	const [ isModalOpen, setisModalOpen ] = useState( false );
 	const [ apiKey, setAPIKey ] = useState< string | undefined >();
-	const [ isLoading, setIsLoading ] = useState( false );
+
+	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const isLoading: boolean = useSelect( select =>
+		select( WIZARD_STORE_NAMESPACE ).isQuietLoading()
+	);
 
 	const modalTextRef = useRef< HTMLDivElement >( null );
 	const isConnected = Boolean( authState && authState.username );
@@ -39,13 +44,11 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 
 	// Check the Mailchimp connectivity status.
 	useEffect( () => {
-		setIsLoading( true );
-		apiFetch< OAuthData >( { path: '/newspack/v1/oauth/mailchimp' } )
+		wizardApiFetch< Promise< OAuthData > >( { path: '/newspack/v1/oauth/mailchimp' } )
 			.then( res => {
 				setAuthState( res );
 			} )
-			.catch( handleError )
-			.finally( () => setIsLoading( false ) );
+			.catch( handleError );
 	}, [] );
 
 	useEffect( () => {
@@ -58,11 +61,10 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 	}, [ isModalOpen ] );
 
 	const submitAPIKey = () => {
-		setError( undefined );
-		setIsLoading( true );
-		apiFetch< OAuthData >( {
+		wizardApiFetch< Promise< OAuthData > >( {
 			path: '/newspack/v1/oauth/mailchimp',
 			method: 'POST',
+			isQuietFetch: true,
 			data: {
 				api_key: apiKey,
 			},
@@ -80,20 +82,18 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 				);
 			} )
 			.finally( () => {
-				setIsLoading( false );
 				closeModal();
 			} );
 	};
 
 	const disconnect = () => {
-		setIsLoading( true );
-		apiFetch( {
+		wizardApiFetch< Promise< void > >( {
 			path: '/newspack/v1/oauth/mailchimp',
 			method: 'DELETE',
+			isQuietFetch: true,
 		} )
 			.then( () => {
 				setAuthState( {} );
-				setIsLoading( false );
 			} )
 			.catch( handleError );
 	};
@@ -143,15 +143,17 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 				<Modal
 					title={ __( 'Add Mailchimp API Key', 'newspack-plugin' ) }
 					onRequestClose={ closeModal }
+					otherStuff={''}
 				>
 					<div ref={ modalTextRef }>
 						<Grid columns={ 1 } gutter={ 8 }>
+							{JSON.stringify({apiKey})}
 							<TextControl
 								placeholder="123457103961b1f4dc0b2b2fd59c137b-us1"
 								label={ __( 'Mailchimp API Key', 'newspack-plugin' ) }
 								hideLabelFromVision={ true }
-								value={ apiKey }
-								onChange={ setAPIKey }
+								value={ apiKey ?? '' }
+								onChange={ ( value: string ) => setAPIKey( value ) }
 								onKeyDown={ ( event: KeyboardEvent ) => {
 									if ( ENTER === event.keyCode && '' !== apiKey ) {
 										event.preventDefault();
