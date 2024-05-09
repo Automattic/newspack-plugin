@@ -2,13 +2,14 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { Button, Grid, Notice, TextControl } from '../../../../../../components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 
 /**
  * Analytics Custom Events screen.
@@ -19,22 +20,28 @@ const CustomEvents = () => {
 		measurement_id: string;
 	} >( window.newspackSettings.tabs.connections.sections.analytics );
 	const [ error, setError ] = useState< undefined | string >();
+	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	const handleApiError = ( { message: err }: { message: string } ) => setError( err );
 
 	const updateGa4Credentials = () => {
-		apiFetch< {
-			measurement_protocol_secret: string;
-			measurement_id: string;
-		} >( {
+		wizardApiFetch<
+			Promise< {
+				measurement_protocol_secret: string;
+				measurement_id: string;
+			} >
+		>( {
 			path: '/newspack/v1/wizard/analytics/ga4-credentials',
 			method: 'POST',
+			isQuietFetch: true,
 			data: {
 				measurement_id: ga4Credentials.measurement_id,
 				measurement_protocol_secret: ga4Credentials.measurement_protocol_secret,
 			},
 		} )
-			.then( response => setGa4Credentials( response ) )
+			.then( ( response: { measurement_protocol_secret: string; measurement_id: string } ) =>
+				setGa4Credentials( response )
+			)
 			.catch( handleApiError );
 	};
 
