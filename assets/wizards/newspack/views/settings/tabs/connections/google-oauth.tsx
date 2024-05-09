@@ -36,12 +36,11 @@ const GoogleOAuth = ( {
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ localError, setLocalError ] = useState< null | undefined | string >( null );
+
 	const handleError = ( res: { message: string } ) => {
 		const message = res.message || __( 'Something went wrong.', 'newspack-plugin' );
 		setLocalError( message );
-		if ( typeof setError === 'function' ) {
-			setError( message );
-		}
+		setError( message );
 	};
 
 	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
@@ -73,7 +72,6 @@ const GoogleOAuth = ( {
 			apiFetch< OAuthData >( { path: '/newspack/v1/oauth/google' } )
 				.then( data => {
 					setAuthState( data );
-					setError();
 					setLocalError( undefined );
 					if ( 'user_basic_info' in data && typeof onSuccess === 'function' ) {
 						onSuccess( data );
@@ -139,7 +137,6 @@ const GoogleOAuth = ( {
 		} )
 			.then( () => {
 				setAuthState( {} );
-				setError();
 				setLocalError( undefined );
 			} )
 			.catch( handleError )
