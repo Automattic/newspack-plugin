@@ -2,13 +2,15 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
+import wpApiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
 import { ActionCard, Button, Handoff, hooks } from '../../../../../../components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 
 interface PluginStatusResponse {
 	Configured: boolean;
@@ -16,14 +18,17 @@ interface PluginStatusResponse {
 }
 
 interface Plugin {
-	pluginSlug?: string;
-	editLink?: string;
+	pluginSlug: string;
+	editLink: string;
 	name: string;
+	fetchStatus: (a: typeof wpApiFetch<PluginStatusResponse>) => Promise< any >;
 	url?: string;
+	status?: string;
+	badge?: string;
+	indent?: string;
 	error?: {
 		code: string;
 	};
-	fetchStatus: () => Promise< { [ key: string ]: { status: string } } >;
 }
 
 const PLUGINS: Record< string, Plugin > = {
@@ -31,8 +36,8 @@ const PLUGINS: Record< string, Plugin > = {
 		pluginSlug: 'jetpack',
 		editLink: 'admin.php?page=jetpack#/settings',
 		name: 'Jetpack',
-		fetchStatus: () =>
-			apiFetch< PluginStatusResponse >( { path: `/newspack/v1/plugins/jetpack` } ).then(
+		fetchStatus: apiFetch =>
+			apiFetch( { path: `/newspack/v1/plugins/jetpack` } ).then(
 				result => ( {
 					jetpack: { status: result.Configured ? result.Status : 'inactive' },
 				} )
@@ -42,8 +47,8 @@ const PLUGINS: Record< string, Plugin > = {
 		pluginSlug: 'google-site-kit',
 		editLink: 'admin.php?page=googlesitekit-splash',
 		name: __( 'Site Kit by Google', 'newspack-plugin' ),
-		fetchStatus: () =>
-			apiFetch< PluginStatusResponse >( { path: '/newspack/v1/plugins/google-site-kit' } ).then(
+		fetchStatus: apiFetch =>
+			apiFetch( { path: '/newspack/v1/plugins/google-site-kit' } ).then(
 				result => ( {
 					'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
 				} )
@@ -75,23 +80,22 @@ const pluginConnectButton = ( plugin: Plugin ) => {
 	}
 };
 
-interface PluginsProps {
-	setError?: SetErrorCallback;
-}
-
-const Plugins = ( { setError }: PluginsProps ) => {
+const Plugins = ( { setError }: {
+	setError: SetErrorCallback;
+} ) => {
 	const [ plugins, setPlugins ] = hooks.useObjectState( PLUGINS ) as any;
-	const pluginsArray = Object.values( plugins );
+	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const pluginsArray = Object.values( plugins ) as Plugin[];
 	useEffect( () => {
 		pluginsArray.forEach( async ( plugin: any ) => {
-			const update = await plugin.fetchStatus().catch( setError );
+			const update = await plugin.fetchStatus( wizardApiFetch ).catch( setError );
 			setPlugins( update );
 		} );
 	}, [] );
 
 	return (
 		<>
-			{ pluginsArray.map( ( plugin: any ) => {
+			{ pluginsArray.map( plugin => {
 				const isInactive = plugin.status === 'inactive';
 				const isLoading = ! plugin.status;
 				const getDescription = () => {
