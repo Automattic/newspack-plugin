@@ -143,11 +143,11 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 				<Modal
 					title={ __( 'Add Mailchimp API Key', 'newspack-plugin' ) }
 					onRequestClose={ closeModal }
-					otherStuff={''}
+					otherStuff={ '' }
 				>
 					<div ref={ modalTextRef }>
 						<Grid columns={ 1 } gutter={ 8 }>
-							{JSON.stringify({apiKey})}
+							{ JSON.stringify( { apiKey } ) }
 							<TextControl
 								placeholder="123457103961b1f4dc0b2b2fd59c137b-us1"
 								label={ __( 'Mailchimp API Key', 'newspack-plugin' ) }

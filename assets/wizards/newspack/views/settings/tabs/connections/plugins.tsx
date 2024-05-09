@@ -21,7 +21,7 @@ interface Plugin {
 	pluginSlug: string;
 	editLink: string;
 	name: string;
-	fetchStatus: (a: typeof wpApiFetch<PluginStatusResponse>) => Promise< any >;
+	fetchStatus: ( a: typeof wpApiFetch ) => Promise< any >;
 	url?: string;
 	status?: string;
 	badge?: string;
@@ -37,7 +37,7 @@ const PLUGINS: Record< string, Plugin > = {
 		editLink: 'admin.php?page=jetpack#/settings',
 		name: 'Jetpack',
 		fetchStatus: apiFetch =>
-			apiFetch( { path: `/newspack/v1/plugins/jetpack` } ).then(
+			apiFetch< PluginStatusResponse >( { path: `/newspack/v1/plugins/jetpack` } ).then(
 				result => ( {
 					jetpack: { status: result.Configured ? result.Status : 'inactive' },
 				} )
@@ -48,7 +48,7 @@ const PLUGINS: Record< string, Plugin > = {
 		editLink: 'admin.php?page=googlesitekit-splash',
 		name: __( 'Site Kit by Google', 'newspack-plugin' ),
 		fetchStatus: apiFetch =>
-			apiFetch( { path: '/newspack/v1/plugins/google-site-kit' } ).then(
+			apiFetch< PluginStatusResponse >( { path: '/newspack/v1/plugins/google-site-kit' } ).then(
 				result => ( {
 					'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
 				} )
@@ -80,9 +80,7 @@ const pluginConnectButton = ( plugin: Plugin ) => {
 	}
 };
 
-const Plugins = ( { setError }: {
-	setError: SetErrorCallback;
-} ) => {
+const Plugins = ( { setError }: { setError: SetErrorCallback } ) => {
 	const [ plugins, setPlugins ] = hooks.useObjectState( PLUGINS ) as any;
 	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const pluginsArray = Object.values( plugins ) as Plugin[];

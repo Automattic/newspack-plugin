@@ -25,7 +25,7 @@ const { connections } = window.newspackSettings.tabs;
 
 const Connections = () => {
 	const { setError } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const error = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getError() );
+	// const error = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getError() );
 
 	const setErrorWithPrefix = ( prefix: string ) => ( err?: ErrorParams ) => {
 		if ( ! err ) {

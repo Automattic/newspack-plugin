@@ -32,7 +32,7 @@ import {
  * Checkbox control props override.
  *
  * @param param WP CheckboxControl Component props.
- * @return JSX.Element
+ * @return      JSX.Element
  */
 const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckboxControl > > = ( {
 	...props
