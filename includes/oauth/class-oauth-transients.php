@@ -39,7 +39,7 @@ class OAuth_Transients {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		register_activation_hook( NEWSPACK_LISTINGS_FILE, [ __CLASS__, 'create_custom_table' ] );
+		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'create_custom_table' ] );
 		add_action( 'init', [ __CLASS__, 'check_update_version' ] );
 	}
 
