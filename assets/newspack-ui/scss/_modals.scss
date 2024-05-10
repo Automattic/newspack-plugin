@@ -118,16 +118,10 @@
 
 	&__modal-variation {
 		.newspack-ui {
-			&__modal {
-				&__content {
-					h3 {
-						font-size: var( --newspack-ui-font-size-s );
-						margin: 0;
+			&__selection {
+					> *:first-child {
+						margin-top: 0;
 					}
-					p {
-						font-size: var( --newspack-ui-font-size-xs );
-					}
-				}
 			}
 
 			&__options {
@@ -146,7 +140,7 @@
 					flex: 1 1 100%;
 					text-align: center;
 
-					@media ( min-width: 600px ) {
+					@include mixins.media( mobile ) {
 						flex: 1 1 30%;
 						max-width: calc( 33.3333% - 10px );
 						&:first-child:nth-last-child( 2 ),
@@ -161,7 +155,7 @@
 						line-height: var( --newspack-ui-line-height-xs );
 						padding: var( --newspack-ui-spacer-2 );
 
-						// Scale up just the primary price for a product, not other fees:
+						// Scale up just the primary price for a product, not the other fees:
 						.price > .amount > bdi,
 						.price > ins > .amount > bdi {
 							display: block;
