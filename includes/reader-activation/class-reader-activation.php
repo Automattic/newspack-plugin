@@ -445,7 +445,10 @@ final class Reader_Activation {
 				continue;
 			}
 
-			// TODO: Check and filter if the list is a premium list.
+			// Skip any premium lists since the reader has already made a purchase at this stage.
+			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_membership_list' ) && \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_membership_list( $list['db_id'] ) ) {
+				continue;
+			}
 
 			$registration_lists[ $list_id ] = $list;
 		}
