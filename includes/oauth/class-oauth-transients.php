@@ -13,27 +13,10 @@ defined( 'ABSPATH' ) || exit;
  * Main class.
  */
 class OAuth_Transients {
-	/**
-	 * Name of the custom table. To be prefixed with WPDB prefix.
-	 */
 	const TABLE_NAME = 'newspack_oauth_transients';
-
-	/**
-	 * Installed version number of the custom table.
-	 */
 	const TABLE_VERSION = '1.0';
-
-	/**
-	 * Option name for the installed version number of the custom table.
-	 */
 	const TABLE_VERSION_OPTION = '_newspack_oauth_transients_version';
-
-	/**
-	 * How long to keep the data in the table. Any data older than this will be purged.
-	 *
-	 * @var int
-	 */
-	private $expiration = 30 * MINUTE_IN_SECONDS;
+	const CRON_HOOK = 'np_oauth_transients_cleanup';
 
 	/**
 	 * Initialize hooks.
@@ -41,6 +24,26 @@ class OAuth_Transients {
 	public static function init() {
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'create_custom_table' ] );
 		add_action( 'init', [ __CLASS__, 'check_update_version' ] );
+		add_action( 'init', [ __CLASS__, 'cron_init' ] );
+		add_action( self::CRON_HOOK, [ __CLASS__, 'cleanup' ] );
+	}
+
+	/**
+	 * Schedule cron job to prune unused transients. If the OAuth process is interrupted,
+	 * a transient might never be deleted.
+	 */
+	public static function cron_init() {
+		\register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'cron_deactivate' ] );
+		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
+			\wp_schedule_event( time(), 'weekly', self::CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Deactivate the cron job.
+	 */
+	public static function cron_deactivate() {
+		\wp_clear_scheduled_hook( self::CRON_HOOK );
 	}
 
 	/**
@@ -183,6 +186,15 @@ class OAuth_Transients {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Cleanup old transients.
+	 */
+	public static function cleanup() {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		$wpdb->query( "DELETE FROM $table_name WHERE created_at < now() - interval 1 HOUR" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }
 
