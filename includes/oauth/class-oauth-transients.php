@@ -105,11 +105,11 @@ class OAuth_Transients {
 	 */
 	public static function get( $id, $scope, $field_to_get = 'value' ) {
 		global $wpdb;
-
 		$table_name = self::get_table_name();
-		$value      = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		$value = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
-				'SELECT %1$s FROM %2$s WHERE id = %3$d AND scope = %4$s', // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
+				'SELECT %1$s FROM %2$s WHERE id = "%3$s" AND scope = "%4$s"', // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
 				$field_to_get,
 				$table_name,
 				$id,
@@ -121,16 +121,45 @@ class OAuth_Transients {
 	}
 
 	/**
+	 * Delete a row from the database.
+	 *
+	 * @param string $id The reader's unique ID.
+	 * @param string $scope The scope of the data to get.
+	 *
+	 * @return boolean True if the row was deleted.
+	 */
+	public static function delete( $id, $scope ) {
+		global $wpdb;
+		$table_name = self::get_table_name();
+
+		$result = $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$table_name,
+			[
+				'id'    => $id,
+				'scope' => $scope,
+			],
+			[ '%s', '%s' ]
+		);
+
+		return boolval( $result );
+	}
+
+	/**
 	 * Set a value in the database.
 	 *
 	 * @param string $id The reader's unique ID.
 	 * @param string $scope The scope of the data to set.
 	 * @param string $value The value of the data to set.
 	 *
-	 * @return bool True if the value was set, false otherwise.
+	 * @return mixed The value if it was set, false otherwise.
 	 */
 	public static function set( $id, $scope, $value ) {
 		global $wpdb;
+
+		$existing = self::get( $id, $scope );
+		if ( $existing ) {
+			return $existing;
+		}
 
 		$table_name = self::get_table_name();
 		$result     = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -149,7 +178,11 @@ class OAuth_Transients {
 			]
 		);
 
-		return $result;
+		if ( $result === false ) {
+			return false;
+		}
+
+		return $value;
 	}
 }
 
