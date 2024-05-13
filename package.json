@@ -16,6 +16,7 @@
 		"@types/lodash": "^4.17.0",
 		"@types/qs": "^6.9.12",
 		"@types/react": "^17.0.75",
+		"@types/wordpress__api-fetch": "^3.23.1",
 		"@types/wordpress__block-editor": "^11.5.12",
 		"@types/wordpress__blocks": "^12.5.13",
 		"@types/wordpress__components": "^23.0.11",

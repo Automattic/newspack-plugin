@@ -16,7 +16,6 @@ import {
 	Card,
 	Grid,
 	Modal,
-	Notice,
 	TextControl,
 	Wizard,
 } from '../../../../../../components/src';
@@ -87,9 +86,9 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 				}
 				setAuthState( res );
 			} )
-			.catch( ( error: Error ) => {
+			.catch( ( err: Error ) => {
 				setError(
-					error.message ||
+					err.message ||
 						__(
 							'Something went wrong during verification of your Mailchimp API key.',
 							'newspack-plugin'
