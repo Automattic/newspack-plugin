@@ -144,10 +144,9 @@ class Google_Login {
 		Logger::log( 'Got user email from Google: ' . $user_email );
 
 		// Associate the email address with the a unique ID for later retrieval.
-		$transient_expiration_time = 60 * 5; // 5 minutes.
-		$has_set_transient = set_transient( self::EMAIL_TRANSIENT_PREFIX . OAuth::get_unique_id(), $user_email, $transient_expiration_time );
+		$set_transient_result = OAuth_Transients::set( OAuth::get_unique_id(), 'email', $user_email );
 		// If transient setting failed, the email address will not be available for the registration endpoint.
-		if ( ! $has_set_transient ) {
+		if ( $set_transient_result === false ) {
 			self::handle_error( __( 'Failed setting transient.', 'newspack-plugin' ) );
 			\wp_die( \esc_html__( 'Authentication failed.', 'newspack-plugin' ) );
 		}
@@ -178,8 +177,8 @@ class Google_Login {
 	public static function api_google_login_register( $request ) {
 		$uid = OAuth::get_unique_id();
 		// Retrieve the email address associated with the unique ID when the user was authenticated.
-		$email = get_transient( self::EMAIL_TRANSIENT_PREFIX . $uid );
-		delete_transient( self::EMAIL_TRANSIENT_PREFIX . $uid ); // Burn after reading.
+		$email = OAuth_Transients::get( $uid, 'email' );
+		OAuth_Transients::delete( $uid, 'email' );
 		$metadata = [];
 		if ( $request->get_param( 'metadata' ) ) {
 			try {
