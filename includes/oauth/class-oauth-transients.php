@@ -100,13 +100,14 @@ class OAuth_Transients {
 	/**
 	 * Get a value from the database.
 	 *
-	 * @param string $id The reader's unique ID.
-	 * @param string $scope The scope of the data to get.
-	 * @param string $field_to_get The column to get. Defaults to 'value'.
+	 * @param string  $id The reader's unique ID.
+	 * @param string  $scope The scope of the data to get.
+	 * @param string  $field_to_get The column to get. Defaults to 'value'.
+	 * @param boolean $cleanup If true, clean up old transients while getting.
 	 *
 	 * @return mixed The value of the data, or false if not found.
 	 */
-	public static function get( $id, $scope, $field_to_get = 'value' ) {
+	public static function get( $id, $scope, $field_to_get = 'value', $cleanup = true ) {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
@@ -119,6 +120,11 @@ class OAuth_Transients {
 				$scope
 			)
 		);
+
+		// Prune old transients.
+		if ( $cleanup ) {
+			self::cleanup();
+		}
 
 		return $value ?? false;
 	}
@@ -171,7 +177,7 @@ class OAuth_Transients {
 				'id'         => $id,
 				'scope'      => $scope,
 				'value'      => $value,
-				'created_at' => \current_time( 'mysql' ),
+				'created_at' => \current_time( 'mysql', true ), // GMT time.
 			],
 			[
 				'%s',
@@ -189,12 +195,12 @@ class OAuth_Transients {
 	}
 
 	/**
-	 * Cleanup old transients.
+	 * Cleanup old transients. Limit to max 1000 at a time, just in case.
 	 */
 	public static function cleanup() {
 		global $wpdb;
 		$table_name = self::get_table_name();
-		$wpdb->query( "DELETE FROM $table_name WHERE created_at < now() - interval 1 HOUR" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM $table_name WHERE created_at < now() - interval 30 MINUTE LIMIT 1000" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }
 
