@@ -1,3 +1,10 @@
+## [3.8.3](https://github.com/Automattic/newspack-plugin/compare/v3.8.2...v3.8.3) (2024-05-13)
+
+
+### Bug Fixes
+
+* **ras:** sync purchase data only for most recent order/subscription ([#3086](https://github.com/Automattic/newspack-plugin/issues/3086)) ([2c7763a](https://github.com/Automattic/newspack-plugin/commit/2c7763a53894e5c350d6ce76e0f4ab3b1e768bc5))
+
 ## [3.8.2](https://github.com/Automattic/newspack-plugin/compare/v3.8.1...v3.8.2) (2024-04-26)
 
 

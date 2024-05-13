@@ -1,6 +1,6 @@
 {
 	"name": "newspack",
-	"version": "3.8.2",
+	"version": "3.8.3",
 	"description": "The Newspack plugin. https://newspack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
