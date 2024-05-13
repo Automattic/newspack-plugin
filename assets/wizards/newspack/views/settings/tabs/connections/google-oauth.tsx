@@ -21,7 +21,6 @@ const getURLParams = () => {
 };
 
 const GoogleOAuth = ( {
-	onInit,
 	onSuccess,
 	isOnboarding,
 }: {
