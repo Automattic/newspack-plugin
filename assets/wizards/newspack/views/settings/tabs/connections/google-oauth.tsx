@@ -36,7 +36,10 @@ const GoogleOAuth = ( {
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const { wizardApiFetch, setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const error = Wizard.useWizardDataPropError( 'newspack/settings', 'connections/apis/googleoauth' );
+	const error = Wizard.useWizardDataPropError(
+		'newspack/settings',
+		'connections/apis/googleoauth'
+	);
 
 	const handleError = ( res: { message: string } ) => {
 		const message = res.message || __( 'Something went wrong.', 'newspack-plugin' );
