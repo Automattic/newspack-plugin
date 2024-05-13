@@ -46,7 +46,7 @@ const Connections = () => {
 			value = `${ __( 'Error cannot be parsed!', 'newspack-plugin' ) }: ${ JSON.stringify( err ) }`;
 		}
 		setDataPropError( {
-			slug: 'settings-connections',
+			slug: 'newspack/settings',
 			prop,
 			value,
 		} );

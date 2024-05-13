@@ -21,9 +21,11 @@ const getURLParams = () => {
 };
 
 const GoogleOAuth = ( {
+	setError,
 	onSuccess,
 	isOnboarding,
 }: {
+	setError: ( str: Error ) => void;
 	onInit?: ( str: Error | null ) => void;
 	onSuccess?: ( arg: OAuthData ) => void;
 	isOnboarding?: ( str: string ) => void;
@@ -34,12 +36,12 @@ const GoogleOAuth = ( {
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const { wizardApiFetch, setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const error = Wizard.useWizardDataPropError( 'settings', 'connections/apis/googleoauth' );
+	const error = Wizard.useWizardDataPropError( 'newspack/settings', 'connections/apis/googleoauth' );
 
 	const handleError = ( res: { message: string } ) => {
 		const message = res.message || __( 'Something went wrong.', 'newspack-plugin' );
 		setDataPropError( {
-			slug: 'settings',
+			slug: 'newspack/settings',
 			prop: 'connections/apis/googleoauth',
 			value: message,
 		} );
