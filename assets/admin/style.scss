@@ -50,14 +50,14 @@ html {
 		margin-top: 56px;
 	}
 
-	> h3 {
+	>h3 {
 		font-size: 20px;
 		font-weight: normal;
 		line-height: 28px;
 		margin-bottom: calc(var(--np-section-child-space) / 2);
 	}
 
-	> p {
+	>p {
 		color: var(--np-color-wp-gray-700);
 		margin: 0;
 	}
@@ -70,6 +70,17 @@ html {
 		--np-dash-card-icon-size: 80px;
 
 		margin: 24px 0 32px;
+	}
+}
+
+// Overrides
+.newspack-card.newspack-action-card {
+	.newspack-action-card__notification {
+		&.newspack-action-card__region-children {
+			.newspack-notice {
+				margin-top: 16px;
+			}
+		}
 	}
 }
 
