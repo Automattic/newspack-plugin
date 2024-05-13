@@ -4,13 +4,12 @@
 import { __ } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Handoff, hooks, Wizard } from '../../../../../../components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
+import { ActionCard, Button, Handoff, hooks, Wizard } from '../../../../../../components/src';
 
 interface Plugin {
 	pluginSlug: string;
@@ -18,7 +17,8 @@ interface Plugin {
 	name: string;
 	fetchStatus: (
 		p: (
-			a: APIFetchOptions & {
+			a: {
+				path: string;
 				isComponentFetch: boolean;
 			}
 		) => Promise< {

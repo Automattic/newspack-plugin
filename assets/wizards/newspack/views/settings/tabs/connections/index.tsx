@@ -37,15 +37,13 @@ const Connections = () => {
 	const setErrorWithPrefix = ( prop: SectionKeys ) => ( err?: ErrorParams ) => {
 		let value = '';
 		if ( ! err ) {
-			value = __( "An error occured!", 'newspack-plugin' );
+			value = __( 'An error occured!', 'newspack-plugin' );
 		} else if ( typeof err === 'string' ) {
 			value = err ? `${ err }` : '';
 		} else if ( 'message' in err ) {
 			value = err.message;
 		} else {
-			value = `${ __( 'Error cannot be parsed!', 'newspack-plugin' ) }: ${ JSON.stringify(
-				err
-			) }`;
+			value = `${ __( 'Error cannot be parsed!', 'newspack-plugin' ) }: ${ JSON.stringify( err ) }`;
 		}
 		setDataPropError( {
 			slug: 'settings-connections',
@@ -62,7 +60,7 @@ const Connections = () => {
 			{ /* APIs; google */ }
 			<SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
 			{ /* connections.dependencies.google && (
-			)  */}
+			)  */ }
 			<GoogleOAuth setError={ setErrorWithPrefix( 'googleOAuth' ) } />
 			<Mailchimp setError={ setErrorWithPrefix( 'mailchimp' ) } />
 			{ /* reCAPTCHA */ }
