@@ -13,7 +13,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Notice, Wizard } from '../../../../../../components/src';
+import { ActionCard, Button, Wizard } from '../../../../../../components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 
 const getURLParams = () => {
@@ -21,12 +21,10 @@ const getURLParams = () => {
 };
 
 const GoogleOAuth = ( {
-	setError,
 	onInit,
 	onSuccess,
 	isOnboarding,
 }: {
-	setError: SetErrorCallback;
 	onInit?: ( str: Error | null ) => void;
 	onSuccess?: ( arg: OAuthData ) => void;
 	isOnboarding?: ( str: string ) => void;
@@ -60,27 +58,12 @@ const GoogleOAuth = ( {
 					'newspack-plugin'
 				),
 			} );
-			// setError( [
-			// 	__( 'Missing Google refresh token. Please', 'newspack-plugin' ),
-			// 	' ',
-			// 	<a
-			// 		key="link"
-			// 		target="_blank"
-			// 		rel="noreferrer"
-			// 		href="https://myaccount.google.com/permissions"
-			// 	>
-			// 		{ __( 'revoke credentials', 'newspack-plugin' ) }
-			// 	</a>,
-			// 	' ',
-			// 	__( 'and authorize the site again.', 'newspack-plugin' ),
-			// ] );
 		}
 	}, [ isConnected ] );
 
 	const getCurrentAuth = () => {
 		const params = getURLParams();
 		if ( ! params.access_token ) {
-			let error: Error | null = null;
 			setInFlight( true );
 			wizardApiFetch< Promise< OAuthData > >( {
 				isComponentFetch: true,
@@ -93,14 +76,10 @@ const GoogleOAuth = ( {
 					}
 				} )
 				.catch( ( err: Error ) => {
-					error = err;
 					handleError( err );
 				} )
 				.finally( () => {
 					setInFlight( false );
-					if ( typeof onInit === 'function' ) {
-						onInit( error );
-					}
 				} );
 		}
 	};

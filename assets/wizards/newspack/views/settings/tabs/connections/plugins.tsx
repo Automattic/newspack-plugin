@@ -16,12 +16,7 @@ interface Plugin {
 	editLink: string;
 	name: string;
 	fetchStatus: (
-		p: (
-			a: {
-				path: string;
-				isComponentFetch: boolean;
-			}
-		) => Promise< {
+		p: ( a: { path: string; isComponentFetch: boolean } ) => Promise< {
 			Configured: boolean;
 			Status: string;
 		} >
