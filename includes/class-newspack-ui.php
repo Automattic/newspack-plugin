@@ -222,13 +222,13 @@ class Newspack_UI {
 
 			<label class="newspack-ui__input-card">
 				<input type="radio" name="list-radio-option" checked>
-				<strong>The Weekly</strong><br>
+				<strong>The Weekly</strong>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
 			<label class="newspack-ui__input-card">
 				<input type="radio" name="list-radio-option">
-				<strong>The Weekly</strong><br>
+				<strong>The Weekly</strong>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
@@ -236,19 +236,19 @@ class Newspack_UI {
 
 			<label class="newspack-ui__input-card">
 				<input type="checkbox" name="checkbox-option-1">
-				<strong>The Weekly</strong><br>
+				<strong>The Weekly</strong>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
 			<label class="newspack-ui__input-card">
 				<input type="checkbox" name="checkbox-option-1">
-				<strong>The Weekly</strong><br>
+				<strong>The Weekly</strong>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
 			<label class="newspack-ui__input-card">
 				<input type="checkbox" name="checkbox-option-2">
-				<strong>The Weekly</strong><br>
+				<strong>The Weekly</strong>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
@@ -256,14 +256,14 @@ class Newspack_UI {
 
 			<label class="newspack-ui__input-card">
 				<input type="radio" name="list-radio-option" checked>
-				<strong>The Weekly</strong><br>
+				<strong>The Weekly</strong>
 				<span class="newspack-ui__badge newspack-ui__badge--primary">Badge</span>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
 			<label class="newspack-ui__input-card">
 				<input type="radio" name="list-radio-option">
-				<strong>The Weekly</strong><br>
+				<strong>The Weekly</strong>
 				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
@@ -296,7 +296,7 @@ class Newspack_UI {
 						</tr>
 
 						<tr class="tax-rate tax-rate-ca-bc-gst-5-1">
-							<th>GST 5%)</th>
+							<th>GST 5%</th>
 							<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>9.00</span></td>
 						</tr>
 						<tr class="tax-rate tax-rate-ca-bc-pst-7-2">
@@ -632,7 +632,7 @@ class Newspack_UI {
 						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-1">
 							<span>
-								<strong>The Weekly</strong><br>
+								<strong>The Weekly</strong>
 								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 							</span>
 						</label>
@@ -640,7 +640,7 @@ class Newspack_UI {
 						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-2">
 							<span>
-								<strong>The Weekly</strong><br>
+								<strong>The Weekly</strong>
 								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 							</span>
 						</label>
