@@ -6,14 +6,15 @@ import qs from 'qs';
 /**
  * WordPress dependencies.
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button } from '../../../../../../components/src';
+import { ActionCard, Button, Notice, Wizard } from '../../../../../../components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 
 const getURLParams = () => {
 	return qs.parse( window.location.search.replace( /^\?/, '' ) );
@@ -26,58 +27,72 @@ const GoogleOAuth = ( {
 	isOnboarding,
 }: {
 	setError: SetErrorCallback;
-	onInit?: ( str: string ) => void;
+	onInit?: ( str: Error | null ) => void;
 	onSuccess?: ( arg: OAuthData ) => void;
 	isOnboarding?: ( str: string ) => void;
 } ) => {
 	const [ authState, setAuthState ] = useState< OAuthData >( {} );
 
-	const userBasicInfo = authState.user_basic_info;
+	const userBasicInfo = authState?.user_basic_info;
 
 	const [ inFlight, setInFlight ] = useState( false );
-	const [ localError, setLocalError ] = useState< null | undefined | string >( null );
+	const { wizardApiFetch, setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const error = Wizard.useWizardDataPropError( 'settings', 'connections/apis/googleoauth' );
 
 	const handleError = ( res: { message: string } ) => {
 		const message = res.message || __( 'Something went wrong.', 'newspack-plugin' );
-		setLocalError( message );
-		setError( message );
+		setDataPropError( {
+			slug: 'settings',
+			prop: 'connections/apis/googleoauth',
+			value: message,
+		} );
 	};
 
 	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 
 	useEffect( () => {
 		if ( isConnected && userBasicInfo && ! userBasicInfo.has_refresh_token ) {
-			setError( [
-				__( 'Missing Google refresh token. Please', 'newspack-plugin' ),
-				' ',
-				<a
-					key="link"
-					target="_blank"
-					rel="noreferrer"
-					href="https://myaccount.google.com/permissions"
-				>
-					{ __( 'revoke credentials', 'newspack-plugin' ) }
-				</a>,
-				' ',
-				__( 'and authorize the site again.', 'newspack-plugin' ),
-			] );
+			setDataPropError( {
+				slug: 'settings-connections',
+				prop: 'apis-googleoauth',
+				value: __(
+					'Missing Google refresh token. Please re-authenticate site.',
+					'newspack-plugin'
+				),
+			} );
+			// setError( [
+			// 	__( 'Missing Google refresh token. Please', 'newspack-plugin' ),
+			// 	' ',
+			// 	<a
+			// 		key="link"
+			// 		target="_blank"
+			// 		rel="noreferrer"
+			// 		href="https://myaccount.google.com/permissions"
+			// 	>
+			// 		{ __( 'revoke credentials', 'newspack-plugin' ) }
+			// 	</a>,
+			// 	' ',
+			// 	__( 'and authorize the site again.', 'newspack-plugin' ),
+			// ] );
 		}
 	}, [ isConnected ] );
 
 	const getCurrentAuth = () => {
 		const params = getURLParams();
 		if ( ! params.access_token ) {
-			let error: any = null;
+			let error: Error | null = null;
 			setInFlight( true );
-			apiFetch< OAuthData >( { path: '/newspack/v1/oauth/google' } )
+			wizardApiFetch< Promise< OAuthData > >( {
+				isComponentFetch: true,
+				path: '/newspack/v1/oauth/google',
+			} )
 				.then( data => {
 					setAuthState( data );
-					setLocalError( undefined );
-					if ( 'user_basic_info' in data && typeof onSuccess === 'function' ) {
+					if ( data?.user_basic_info && typeof onSuccess === 'function' ) {
 						onSuccess( data );
 					}
 				} )
-				.catch( err => {
+				.catch( ( err: Error ) => {
 					error = err;
 					handleError( err );
 				} )
@@ -104,8 +119,9 @@ const GoogleOAuth = ( {
 			'width=500,height=600'
 		);
 		setInFlight( true );
-		apiFetch< string >( {
+		wizardApiFetch< Promise< string > >( {
 			path: '/newspack/v1/oauth/google/start',
+			isComponentFetch: true,
 		} )
 			.then( url => {
 				/** authWindow can be 'null' due to browser's popup blocker. */
@@ -131,22 +147,20 @@ const GoogleOAuth = ( {
 	// Redirect user to Google auth screen.
 	const disconnect = () => {
 		setInFlight( true );
-		apiFetch( {
+		wizardApiFetch< Promise< void > >( {
 			path: '/newspack/v1/oauth/google/revoke',
 			method: 'DELETE',
+			isComponentFetch: true,
 		} )
 			.then( () => {
 				setAuthState( {} );
-				setLocalError( undefined );
+				// setLocalError( undefined );
 			} )
 			.catch( handleError )
 			.finally( () => setInFlight( false ) );
 	};
 
 	const getDescription = () => {
-		if ( localError ) {
-			return localError;
-		}
 		if ( inFlight ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
@@ -177,6 +191,8 @@ const GoogleOAuth = ( {
 						: __( 'Connect', 'newspack-plugin' ) }
 				</Button>
 			}
+			notification={ error }
+			notificationLevel="error"
 			isMedium
 		/>
 	);

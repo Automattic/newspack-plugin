@@ -3,25 +3,29 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
-import wpApiFetch from '@wordpress/api-fetch';
+import { useEffect, Fragment } from '@wordpress/element';
+import { APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
  */
-import { ActionCard, Button, Handoff, hooks } from '../../../../../../components/src';
+import { ActionCard, Button, Handoff, hooks, Wizard } from '../../../../../../components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
-
-interface PluginStatusResponse {
-	Configured: boolean;
-	Status: string;
-}
 
 interface Plugin {
 	pluginSlug: string;
 	editLink: string;
 	name: string;
-	fetchStatus: ( a: typeof wpApiFetch ) => Promise< any >;
+	fetchStatus: (
+		p: (
+			a: APIFetchOptions & {
+				isComponentFetch: boolean;
+			}
+		) => Promise< {
+			Configured: boolean;
+			Status: string;
+		} >
+	) => Promise< unknown >;
 	url?: string;
 	status?: string;
 	badge?: string;
@@ -35,24 +39,26 @@ const PLUGINS: Record< string, Plugin > = {
 	jetpack: {
 		pluginSlug: 'jetpack',
 		editLink: 'admin.php?page=jetpack#/settings',
-		name: 'Jetpack',
+		name: __( 'Jetpack', 'newspack-plugin' ),
 		fetchStatus: apiFetch =>
-			apiFetch< PluginStatusResponse >( { path: `/newspack/v1/plugins/jetpack` } ).then(
-				result => ( {
-					jetpack: { status: result.Configured ? result.Status : 'inactive' },
-				} )
-			),
+			apiFetch( {
+				isComponentFetch: true,
+				path: `/newspack/v1/plugins/jetpackd`,
+			} ).then( result => ( {
+				jetpack: { status: result.Configured ? result.Status : 'inactive' },
+			} ) ),
 	},
 	'google-site-kit': {
 		pluginSlug: 'google-site-kit',
 		editLink: 'admin.php?page=googlesitekit-splash',
 		name: __( 'Site Kit by Google', 'newspack-plugin' ),
 		fetchStatus: apiFetch =>
-			apiFetch< PluginStatusResponse >( { path: '/newspack/v1/plugins/google-site-kit' } ).then(
-				result => ( {
-					'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
-				} )
-			),
+			apiFetch( {
+				isComponentFetch: true,
+				path: '/newspack/v1/plugins/google-site-kitd',
+			} ).then( result => ( {
+				'google-site-kit': { status: result.Configured ? result.Status : 'inactive' },
+			} ) ),
 	},
 };
 
@@ -80,23 +86,46 @@ const pluginConnectButton = ( plugin: Plugin ) => {
 	}
 };
 
-const Plugins = ( { setError }: { setError: SetErrorCallback } ) => {
+const Plugins = () => {
 	const [ plugins, setPlugins ] = hooks.useObjectState( PLUGINS ) as any;
 	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const pluginsArray = Object.values( plugins ) as Plugin[];
+	const { setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const errors: Record< string, any > = {
+		jetpack: Wizard.useWizardDataPropError( 'newspack/settings', 'connections/plugins/jetpack' ),
+		'google-site-kit': Wizard.useWizardDataPropError(
+			'newspack/settings',
+			'connections/plugins/google-site-kit'
+		),
+	};
+
+	const pluginsArray = Object.keys( PLUGINS );
 	useEffect( () => {
-		pluginsArray.forEach( async ( plugin: any ) => {
-			const update = await plugin.fetchStatus( wizardApiFetch ).catch( setError );
+		pluginsArray.forEach( async ( pluginKey: string ) => {
+			const plugin = PLUGINS[ pluginKey ];
+			const update = await plugin.fetchStatus( wizardApiFetch ).catch( ( err: Error ) => {
+				setDataPropError( {
+					slug: 'newspack/settings',
+					prop: `connections/plugins/${ pluginKey }`,
+					value: err.message,
+				} );
+			} );
 			setPlugins( update );
 		} );
 	}, [] );
 
 	return (
 		<>
-			{ pluginsArray.map( plugin => {
-				const isInactive = plugin.status === 'inactive';
-				const isLoading = ! plugin.status;
+			{ pluginsArray.map( pluginKey => {
+				const isInactive = plugins[ pluginKey ].status === 'inactive';
+				const isLoading = ! plugins[ pluginKey ].status;
+				const isError = '' !== errors[ pluginKey ];
+
+				const plugin = PLUGINS[ pluginKey ];
+
 				const getDescription = () => {
+					if ( isError ) {
+						return __( 'Error', 'newspack-plugin' );
+					}
 					if ( isLoading ) {
 						return __( 'Loading…', 'newspack-plugin' );
 					}
@@ -110,13 +139,15 @@ const Plugins = ( { setError }: { setError: SetErrorCallback } ) => {
 				};
 				return (
 					<ActionCard
-						key={ plugin.name }
+						key={ pluginKey }
 						title={ plugin.name }
 						description={ `${ __( 'Status:', 'newspack-plugin' ) } ${ getDescription() }` }
 						actionText={ isInactive ? pluginConnectButton( plugin ) : null }
 						checkbox={ isInactive || isLoading ? 'unchecked' : 'checked' }
 						badge={ plugin.badge }
 						indent={ plugin.indent }
+						notification={ errors[ pluginKey ] }
+						notificationLevel="error"
 						isMedium
 					/>
 				);

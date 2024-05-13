@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -23,49 +23,48 @@ import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/
 
 const { connections } = window.newspackSettings.tabs;
 
-const Connections = () => {
-	const { setError } = useDispatch( WIZARD_STORE_NAMESPACE );
-	// const error = useSelect( select => select( WIZARD_STORE_NAMESPACE ).getError() );
+const sections = {
+	plugins: {},
+	googleOAuth: {},
+	mailchimp: {},
+};
 
-	const setErrorWithPrefix = ( prefix: string ) => ( err?: ErrorParams ) => {
+type SectionKeys = keyof typeof sections;
+
+const Connections = () => {
+	const { setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
+
+	const setErrorWithPrefix = ( prop: SectionKeys ) => ( err?: ErrorParams ) => {
+		let value = '';
 		if ( ! err ) {
-			setError( {
-				message: `${ prefix } ${ __(
-					"An error occured, that's all we know!",
-					'newspack-plugin'
-				) }`,
-			} );
-			return;
-		}
-		if ( typeof err === 'string' ) {
-			setError( { message: err ? `${ prefix } ${ err }` : null, data: { level: 'notice' } } );
+			value = __( "An error occured!", 'newspack-plugin' );
+		} else if ( typeof err === 'string' ) {
+			value = err ? `${ err }` : '';
 		} else if ( 'message' in err ) {
-			setError( { ...err, message: `${ prefix } ${ err.message }` } );
+			value = err.message;
 		} else {
-			setError( {
-				...err,
-				message: `${ prefix } ${ __(
-					'Error cannot be parsed: ',
-					'newspack-plugin'
-				) } ${ JSON.stringify( err, null, 2 ) }`,
-			} );
+			value = `${ __( 'Error cannot be parsed!', 'newspack-plugin' ) }: ${ JSON.stringify(
+				err
+			) }`;
 		}
+		setDataPropError( {
+			slug: 'settings-connections',
+			prop,
+			value,
+		} );
 	};
 
 	return (
 		<div className="newspack-dashboard__section">
-			{ /* <pre>
-				{JSON.stringify(error, null, 2)}
-			</pre> */ }
 			{ /* Plugins */ }
 			<SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
-			<Plugins setError={ setErrorWithPrefix( __( 'Plugins: ', 'newspack-plugin' ) ) } />
+			<Plugins />
 			{ /* APIs; google */ }
 			<SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
-			{ connections.dependencies.google && (
-				<GoogleOAuth setError={ setErrorWithPrefix( __( 'Google: ', 'newspack-plugin' ) ) } />
-			) }
-			<Mailchimp setError={ setErrorWithPrefix( __( 'Mailchimp: ', 'newspack-plugin' ) ) } />
+			{ /* connections.dependencies.google && (
+			)  */}
+			<GoogleOAuth setError={ setErrorWithPrefix( 'googleOAuth' ) } />
+			<Mailchimp setError={ setErrorWithPrefix( 'mailchimp' ) } />
 			{ /* reCAPTCHA */ }
 			<SectionHeader heading={ 3 } title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
 			<Recaptcha />

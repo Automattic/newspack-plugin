@@ -16,7 +16,9 @@ import {
 	Card,
 	Grid,
 	Modal,
+	Notice,
 	TextControl,
+	Wizard,
 } from '../../../../../../components/src';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
 
@@ -25,7 +27,8 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 	const [ isModalOpen, setisModalOpen ] = useState( false );
 	const [ apiKey, setAPIKey ] = useState< string | undefined >();
 
-	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { wizardApiFetch, setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { error } = Wizard.useWizardDataProp( 'settings-connections', 'mailchimp' );
 	const isLoading: boolean = useSelect( select =>
 		select( WIZARD_STORE_NAMESPACE ).isQuietLoading()
 	);
@@ -34,7 +37,7 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 	const isConnected = Boolean( authState && authState.username );
 
 	const handleError = ( res: Error ) =>
-		setError( res.message || __( 'Something went wrong.', 'newspack-plugin' ) );
+		setError( res || __( 'Something went wrong.', 'newspack-plugin' ) );
 
 	const openModal = () => setisModalOpen( true );
 	const closeModal = () => {
@@ -44,8 +47,15 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 
 	// Check the Mailchimp connectivity status.
 	useEffect( () => {
-		wizardApiFetch< Promise< OAuthData > >( { path: '/newspack/v1/oauth/mailchimp' } )
+		console.log( { useEffect: apiKey } );
+		wizardApiFetch< Promise< OAuthData > >( {
+			isComponentFetch: true,
+			path: '/newspack/v1/oauth/mailchimp',
+		} )
 			.then( res => {
+				if ( error ) {
+					setDataPropError( { slug: 'settings-connections', prop: 'mailchimp', value: '' } );
+				}
 				setAuthState( res );
 			} )
 			.catch( handleError );
@@ -61,20 +71,25 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 	}, [ isModalOpen ] );
 
 	const submitAPIKey = () => {
+		console.log( { submitAPIKey: apiKey } );
 		wizardApiFetch< Promise< OAuthData > >( {
 			path: '/newspack/v1/oauth/mailchimp',
 			method: 'POST',
 			isQuietFetch: true,
+			isComponentFetch: true,
 			data: {
 				api_key: apiKey,
 			},
 		} )
 			.then( res => {
+				if ( error ) {
+					setDataPropError( { slug: 'settings-connections', prop: 'mailchimp', value: '' } );
+				}
 				setAuthState( res );
 			} )
-			.catch( e => {
+			.catch( ( error: Error ) => {
 				setError(
-					e.message ||
+					error.message ||
 						__(
 							'Something went wrong during verification of your Mailchimp API key.',
 							'newspack-plugin'
@@ -87,13 +102,20 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 	};
 
 	const disconnect = () => {
+		console.log( { disconnect: apiKey } );
 		wizardApiFetch< Promise< void > >( {
 			path: '/newspack/v1/oauth/mailchimp',
 			method: 'DELETE',
 			isQuietFetch: true,
+			isComponentFetch: true,
 		} )
 			.then( () => {
 				setAuthState( {} );
+				setDataPropError( {
+					slug: 'settings-connections',
+					prop: 'mailchimp',
+					value: __( 'Invalid Mailchimp API Key.', 'newspack' ),
+				} );
 			} )
 			.catch( handleError );
 	};
@@ -137,6 +159,8 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 							: __( 'Connect', 'newspack-plugin' ) }
 					</Button>
 				}
+				notification={ error }
+				notificationLevel="error"
 				isMedium
 			/>
 			{ isModalOpen && (
@@ -147,7 +171,6 @@ const Mailchimp = ( { setError }: { setError: SetErrorCallback } ) => {
 				>
 					<div ref={ modalTextRef }>
 						<Grid columns={ 1 } gutter={ 8 }>
-							{ JSON.stringify( { apiKey } ) }
 							<TextControl
 								placeholder="123457103961b1f4dc0b2b2fd59c137b-us1"
 								label={ __( 'Mailchimp API Key', 'newspack-plugin' ) }

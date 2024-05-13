@@ -1,7 +1,7 @@
 /**
  * Error state types
  */
-type ErrorParams = string | any[] | Error;
+type ErrorParams = string | Error;
 
 /**
  * OAuth payload
@@ -9,6 +9,7 @@ type ErrorParams = string | any[] | Error;
 type OAuthData = {
 	user_basic_info?: { email: string; has_refresh_token: boolean };
 	username?: string;
+	error?: Error;
 };
 
 /**
@@ -23,7 +24,7 @@ type WpCheckboxControlPropsOverride< T > = React.ComponentProps< T > & {
 /**
  * Connections
  */
-type SetErrorCallback = ( a: ErrorParams ) => void;
+type SetErrorCallback<T = void> = ( a: ErrorParams ) => T;
 
 /**
  * Catch-all type for Webhook function params and function return types
