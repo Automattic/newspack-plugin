@@ -100,14 +100,13 @@ class OAuth_Transients {
 	/**
 	 * Get a value from the database.
 	 *
-	 * @param string  $id The reader's unique ID.
-	 * @param string  $scope The scope of the data to get.
-	 * @param string  $field_to_get The column to get. Defaults to 'value'.
-	 * @param boolean $cleanup If true, clean up old transients while getting.
+	 * @param string $id The reader's unique ID.
+	 * @param string $scope The scope of the data to get.
+	 * @param string $field_to_get The column to get. Defaults to 'value'.
 	 *
 	 * @return mixed The value of the data, or false if not found.
 	 */
-	public static function get( $id, $scope, $field_to_get = 'value', $cleanup = true ) {
+	public static function get( $id, $scope, $field_to_get = 'value' ) {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
@@ -120,11 +119,6 @@ class OAuth_Transients {
 				$scope
 			)
 		);
-
-		// Prune old transients.
-		if ( $cleanup ) {
-			self::cleanup();
-		}
 
 		return $value ?? false;
 	}
