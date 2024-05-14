@@ -8,10 +8,11 @@
 		font-family: var( --newspack-ui-font-family );
 		font-size: var( --newspack-ui-font-size-s );
 		font-weight: 600;
-		gap: var( --newspack-ui-spacer-2 );
+		gap: calc( var( --newspack-ui-spacer-base ) / 2 );
 		justify-content: center;
 		line-height: var( --newspack-ui-line-height-s );
-		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-4 );
+		min-height: var( --newspack-ui-spacer-9 );
+		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-5 );
 		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out, outline 125ms ease-in-out;
 
 		&:not( :last-child ) {
@@ -28,6 +29,26 @@
 		&:focus {
 			outline: 2px solid var( --newspack-ui-color-button-bg );
 			outline-offset: 1px;
+		}
+
+		// Sizes
+		&--x-small {
+			border-radius: var( --newspack-ui-border-radius-s );
+			font-size: var( --newspack-ui-font-size-xs );
+			line-height: var( --newspack-ui-line-height-xs );
+			min-height: var( --newspack-ui-spacer-6 );
+			padding: calc( var( --newspack-ui-spacer-base ) / 2 ) var( --newspack-ui-spacer-base );
+		}
+
+		&--small {
+			font-size: var( --newspack-ui-font-size-xs );
+			line-height: var( --newspack-ui-line-height-xs );
+			min-height: var( --newspack-ui-spacer-8 );
+			padding: var( --newspack-ui-spacer-base ) var( --newspack-ui-spacer-3 );
+		}
+
+		&--medium {
+			// is the default.
 		}
 
 		// Styles
@@ -139,13 +160,16 @@
 		&--icon {
 			display: grid;
 			height: var( --newspack-ui-spacer-7 ); // TODO: This is the XS size, we will need S, and M
+			min-height: unset;
 			padding: 0;
 			place-items: center;
 			width: var( --newspack-ui-spacer-7 );
 
-			svg {
-				fill: currentcolor;
-			}
+
+		}
+
+		svg {
+			fill: currentcolor;
 		}
 	}
 }

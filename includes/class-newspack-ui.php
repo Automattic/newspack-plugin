@@ -35,6 +35,14 @@ class Newspack_UI {
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
+
+		wp_enqueue_script(
+			'newspack-ui',
+			Newspack::plugin_url() . '/dist/newspack-ui.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -269,17 +277,13 @@ class Newspack_UI {
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M4.405 11.9C4.205 11.3 4.091 10.66 4.091 10C4.091 9.34001 4.205 8.70001 4.405 8.10001V5.51001H1.064C0.364015 6.90321 -0.000359433 8.44084 2.66054e-07 10C2.66054e-07 11.614 0.386 13.14 1.064 14.49L4.404 11.9H4.405Z" fill="#FBBC05"></path>
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 3.977C11.468 3.977 12.786 4.482 13.823 5.473L16.691 2.605C14.959 0.99 12.695 0 9.99996 0C6.08996 0 2.70996 2.24 1.06396 5.51L4.40396 8.1C5.19196 5.736 7.39596 3.977 9.99996 3.977Z" fill="#EA4335"></path>
 				</svg>
-				<span>
-					Sign in with Google
-				</span>
+				Sign in with Google
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--wide">Default Theme Button</button>
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Ghost Button</button>
-			<button class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--wide">Outline Button</button>
-			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide">Destructive Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
 				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
@@ -287,10 +291,102 @@ class Newspack_UI {
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M4.405 11.9C4.205 11.3 4.091 10.66 4.091 10C4.091 9.34001 4.205 8.70001 4.405 8.10001V5.51001H1.064C0.364015 6.90321 -0.000359433 8.44084 2.66054e-07 10C2.66054e-07 11.614 0.386 13.14 1.064 14.49L4.404 11.9H4.405Z" fill="#FBBC05"></path>
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 3.977C11.468 3.977 12.786 4.482 13.823 5.473L16.691 2.605C14.959 0.99 12.695 0 9.99996 0C6.08996 0 2.70996 2.24 1.06396 5.51L4.40396 8.1C5.19196 5.736 7.39596 3.977 9.99996 3.977Z" fill="#EA4335"></path>
 				</svg>
-				<span>
-					Sign up with Google
-				</span>
+				Sign up with Google
 			</button>
+
+			<hr>
+
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--x-small">X-Small Button</button><br />
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--x-small">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z"/>
+				</svg>
+				X-Small Button
+			</button><br />
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--x-small">
+				X-Small Button
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z"/>
+				</svg>
+			</button><br />
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--small">Small Button</button><br />
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--small">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z"/>
+				</svg>
+				Small Button
+			</button><br />
+			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--small">
+				Small Button
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z"/>
+				</svg>
+			</button><br />
+			<button class="newspack-ui__button newspack-ui__button--primary">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z"/>
+				</svg>
+				Medium Button (default)
+			</button><br />
+			<button class="newspack-ui__button newspack-ui__button--primary">
+				Medium Button (default)
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z"/>
+				</svg>
+			</button>
+
+			<hr>
+
+			<div class="newspack-ui__segmented-control">
+				<div class="newspack-ui__segmented-control__tabs">
+					<button class="newspack-ui__button newspack-ui__button--small selected">Tab One</button>
+					<button class="newspack-ui__button newspack-ui__button--small">Tab Two</button>
+					<button class="newspack-ui__button newspack-ui__button--small">Tab Three</button>
+					<button class="newspack-ui__button newspack-ui__button--small">Tab Four</button>
+					<button class="newspack-ui__button newspack-ui__button--small">Tab Five</button>
+				</div>
+			</div>
+
+			<div class="newspack-ui__segmented-control">
+				<div class="newspack-ui__segmented-control__tabs">
+					<button class="newspack-ui__button newspack-ui__button--small">Annually</button>
+					<button class="newspack-ui__button newspack-ui__button--small selected">Monthly</button>
+				</div>
+				<div class="newspack-ui__segmented-control__content">
+					<div>
+						<label class="newspack-ui__input-list">
+							<input type="checkbox" name="checkbox-option-1">
+							<span>
+								<strong>Annual Option 1</strong>
+								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+							</span>
+						</label>
+						<label class="newspack-ui__input-list">
+							<input type="checkbox" name="checkbox-option-1">
+							<span>
+								<strong>Annual Option 2</strong>
+								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+							</span>
+						</label>
+					</div>
+					<div>
+						<label class="newspack-ui__input-list">
+							<input type="checkbox" name="checkbox-option-1">
+							<span>
+								<strong>Montly Option 1</strong>
+								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+							</span>
+						</label>
+						<label class="newspack-ui__input-list">
+							<input type="checkbox" name="checkbox-option-1">
+							<span>
+								<strong>Monthly Option 2</strong><br>
+								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+							</span>
+						</label>
+					</div>
+				</div>
+			</div>
 
 			<hr>
 
