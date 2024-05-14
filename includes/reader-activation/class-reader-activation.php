@@ -331,6 +331,10 @@ final class Reader_Activation {
 		}
 		$use_custom_lists = self::get_setting( 'use_custom_lists' );
 		$available_lists  = \Newspack_Newsletters_Subscription::get_lists_config();
+		$subscribed_lists = [];
+		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
+			$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( \wp_get_current_user()->user_email );
+		}
 		if ( \is_wp_error( $available_lists ) ) {
 			return [];
 		}
@@ -349,6 +353,14 @@ final class Reader_Activation {
 				}
 			}
 		}
+
+		// Filter out lists that the reader is already subscribed to.
+		$registration_lists = array_filter(
+			$registration_lists,
+			function( $list ) use ( $subscribed_lists ) {
+				return ! in_array( $list['id'], $subscribed_lists, true );
+			}
+		);
 
 		/**
 		 * Filters the newsletters lists that should be rendered during registration.
