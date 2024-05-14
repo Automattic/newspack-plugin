@@ -177,8 +177,7 @@ class Google_Login {
 	public static function api_google_login_register( $request ) {
 		$uid = OAuth::get_unique_id();
 		// Retrieve the email address associated with the unique ID when the user was authenticated.
-		$email = OAuth_Transients::get( $uid, 'email' );
-		OAuth_Transients::delete( $uid, 'email' );
+		$email    = OAuth_Transients::get( $uid, 'email' );
 		$metadata = [];
 		if ( $request->get_param( 'metadata' ) ) {
 			try {

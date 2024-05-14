@@ -123,6 +123,11 @@ class OAuth_Transients {
 			)
 		);
 
+		// Burn after reading.
+		if ( ! empty( $value ) && ( ! defined( 'NEWSPACK_OAUTH_TRANSIENTS_DEBUG' ) || ! NEWSPACK_OAUTH_TRANSIENTS_DEBUG ) ) {
+			self::delete( $id, $scope );
+		}
+
 		return $value ?? false;
 	}
 
