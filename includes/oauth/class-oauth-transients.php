@@ -22,10 +22,10 @@ class OAuth_Transients {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'create_custom_table' ] );
-		add_action( 'init', [ __CLASS__, 'check_update_version' ] );
-		add_action( 'init', [ __CLASS__, 'cron_init' ] );
-		add_action( self::CRON_HOOK, [ __CLASS__, 'cleanup' ] );
+		\register_activation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'create_custom_table' ] );
+		\add_action( 'init', [ __CLASS__, 'check_update_version' ] );
+		\add_action( 'init', [ __CLASS__, 'cron_init' ] );
+		\add_action( self::CRON_HOOK, [ __CLASS__, 'cleanup' ] );
 	}
 
 	/**
@@ -34,8 +34,11 @@ class OAuth_Transients {
 	 */
 	public static function cron_init() {
 		\register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'cron_deactivate' ] );
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			\wp_schedule_event( time(), 'weekly', self::CRON_HOOK );
+
+		if ( defined( 'NEWSPACK_CRON_DISABLE' ) && is_array( NEWSPACK_CRON_DISABLE ) && in_array( self::CRON_HOOK, NEWSPACK_CRON_DISABLE, true ) ) {
+			self::cron_deactivate();
+		} elseif ( ! \wp_next_scheduled( self::CRON_HOOK ) ) {
+				\wp_schedule_event( time(), 'weekly', self::CRON_HOOK );
 		}
 	}
 
@@ -93,21 +96,20 @@ class OAuth_Transients {
 			) $charset_collate;";
 
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-			dbDelta( $sql );
+			\dbDelta( $sql );
 		}
 	}
 
 	/**
 	 * Get a value from the database.
 	 *
-	 * @param string  $id The reader's unique ID.
-	 * @param string  $scope The scope of the data to get.
-	 * @param string  $field_to_get The column to get. Defaults to 'value'.
-	 * @param boolean $cleanup If true, clean up old transients while getting.
+	 * @param string $id The reader's unique ID.
+	 * @param string $scope The scope of the data to get.
+	 * @param string $field_to_get The column to get. Defaults to 'value'.
 	 *
 	 * @return mixed The value of the data, or false if not found.
 	 */
-	public static function get( $id, $scope, $field_to_get = 'value', $cleanup = true ) {
+	public static function get( $id, $scope, $field_to_get = 'value' ) {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
@@ -121,9 +123,9 @@ class OAuth_Transients {
 			)
 		);
 
-		// Prune old transients.
-		if ( $cleanup ) {
-			self::cleanup();
+		// Burn after reading.
+		if ( ! empty( $value ) && ( ! defined( 'NEWSPACK_OAUTH_TRANSIENTS_DEBUG' ) || ! NEWSPACK_OAUTH_TRANSIENTS_DEBUG ) ) {
+			self::delete( $id, $scope );
 		}
 
 		return $value ?? false;

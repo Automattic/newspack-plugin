@@ -130,7 +130,8 @@ class Google_Login {
 		$saved_csrf_token = OAuth::retrieve_csrf_token( self::CSRF_TOKEN_NAMESPACE );
 
 		if ( $_REQUEST['csrf_token'] !== $saved_csrf_token ) {
-			self::handle_error( __( 'CSRF token verification failed.', 'newspack-plugin' ) );
+			/* translators: %s is a unique user id */
+			self::handle_error( sprintf( __( 'CSRF token verification failed for id: %s', 'newspack-plugin' ), OAuth::get_unique_id() ) );
 			\wp_die( \esc_html__( 'Authentication failed.', 'newspack-plugin' ) );
 		}
 
@@ -154,7 +155,10 @@ class Google_Login {
 		/** Close window if it's a popup. */
 		?>
 		<script type="text/javascript" data-amp-plus-allowed>
-			if ( window.opener ) { window.close(); }
+			if ( window.opener ) {
+				window.opener.dispatchEvent( new Event('google-oauth-success') );
+				window.close();
+			}
 		</script>
 		<?php
 	}
@@ -177,8 +181,7 @@ class Google_Login {
 	public static function api_google_login_register( $request ) {
 		$uid = OAuth::get_unique_id();
 		// Retrieve the email address associated with the unique ID when the user was authenticated.
-		$email = OAuth_Transients::get( $uid, 'email' );
-		OAuth_Transients::delete( $uid, 'email' );
+		$email    = OAuth_Transients::get( $uid, 'email' );
 		$metadata = [];
 		if ( $request->get_param( 'metadata' ) ) {
 			try {
