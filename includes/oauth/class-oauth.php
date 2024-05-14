@@ -60,7 +60,6 @@ class OAuth {
 	public static function retrieve_csrf_token( $namespace ) {
 		$transient_scope = self::CSRF_TOKEN_TRANSIENT_SCOPE_PREFIX . $namespace;
 		$value = OAuth_Transients::get( self::get_unique_id(), $transient_scope );
-		OAuth_Transients::delete( self::get_unique_id(), $transient_scope );
 		return $value;
 	}
 
