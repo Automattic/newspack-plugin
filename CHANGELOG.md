@@ -1,3 +1,10 @@
+## [3.8.5](https://github.com/Automattic/newspack-plugin/compare/v3.8.4...v3.8.5) (2024-05-14)
+
+
+### Bug Fixes
+
+* **oauth-transients:** remove redundant cleanup ([#3112](https://github.com/Automattic/newspack-plugin/issues/3112)) ([c123c02](https://github.com/Automattic/newspack-plugin/commit/c123c0248ecf9aab8f16e5ab63e84f9900b3d6f5))
+
 ## [3.8.4](https://github.com/Automattic/newspack-plugin/compare/v3.8.3...v3.8.4) (2024-05-14)
 
 
