@@ -185,5 +185,38 @@
 		svg {
 			fill: currentcolor;
 		}
+
+		// Loading
+		&--loading {
+			position: relative;
+
+			span {
+				visibility: hidden;
+			}
+
+			&::before {
+				animation: button-loading 1s infinite linear;
+				border: 2px solid;
+				border-color: currentcolor currentcolor transparent transparent;
+				border-radius: 50%;
+				content: '';
+				display: block;
+				height: var( --newspack-ui-spacer-3 );
+				position: absolute;
+				width: var( --newspack-ui-spacer-3 );
+			}
+		}
+	}
+}
+
+@keyframes button-loading {
+	0% {
+		transform: rotate( 0deg );
+	}
+	50% {
+		transform: rotate( 180deg );
+	}
+	100% {
+		transform: rotate( 360deg );
 	}
 }
