@@ -1,3 +1,10 @@
+## [3.8.4](https://github.com/Automattic/newspack-plugin/compare/v3.8.3...v3.8.4) (2024-05-14)
+
+
+### Bug Fixes
+
+* **google-oauth:** use a custom table for transients ([#3106](https://github.com/Automattic/newspack-plugin/issues/3106)) ([d4a2f5c](https://github.com/Automattic/newspack-plugin/commit/d4a2f5ce8ff6931b98593dafe759eab8b59d7ab2))
+
 ## [3.8.3](https://github.com/Automattic/newspack-plugin/compare/v3.8.2...v3.8.3) (2024-05-13)
 
 
