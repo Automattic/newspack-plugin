@@ -21,10 +21,6 @@ workflows:
           requires:
             - newspack/build
           archive-name: 'newspack-plugin'
-          filters:
-            branches:
-              only:
-                - trunk
       - newspack/release:
           requires:
             - newspack/build
