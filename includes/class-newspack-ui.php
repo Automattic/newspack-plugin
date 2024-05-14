@@ -296,6 +296,8 @@ class Newspack_UI {
 
 			<hr>
 
+			<p>Uses the <code>newspack-ui__button--x-small</code> and <code>newspack-ui__button--small</code> classes to get different sizes (medium is the default for this button styles).</p>
+
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--x-small">X-Small Button</button><br />
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--x-small">
 				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -423,6 +425,20 @@ class Newspack_UI {
 				</svg>
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--icon">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+
+			<p>Uses the <code>newspack-ui__button--small</code> and <code>newspack-ui__button--medium</code> CSS classes to get different sizes (x-small is the default).</p>
+
+			<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--small">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
+				</svg>
+			</button>
+
+			<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--medium">
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
 					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
 				</svg>
