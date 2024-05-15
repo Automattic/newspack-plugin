@@ -171,7 +171,20 @@ class Google_Login {
 	 * @param string $message The message to log.
 	 */
 	private static function handle_error( $message ) {
-		Logger::error( $message );
+		Logger::error(
+			sprintf(
+				// Translators: %1$s is the error message, %2$s is the user agent.
+				__( '%1$s | Details: %2$s', 'newspack-plugin' ),
+				$message,
+				\wp_json_encode(
+					[
+						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : 'N/A', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
+						'referrer'   => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url( $_SERVER['HTTP_REFERER'] ) : 'N/A', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
+					],
+					JSON_PRETTY_PRINT
+				)
+			)
+		);
 		do_action( 'newspack_google_login_error', new WP_Error( 'newspack_google_login', $message ) );
 	}
 
