@@ -88,16 +88,8 @@ class Newspack_UI {
 			</div>
 
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
-				<?php
-				/*
-				 * TODO:
-				 * Can this be nicely consolidated with the logic/code here instead of being stand alone? (https://github.com/Automattic/newspack-plugin/blob/686af034ec7fad95109b5d6341fb0115f031dfa6/includes/reader-activation/class-reader-activation.php#L934-L950)
-				 */
-				?>
 				<span class="newspack-ui__icon newspack-ui__icon--success">
-					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
-					</svg>
+					<?php \Newspack\Newspack_UI_Icons::get_svg( 'check' ); ?>
 				</span>
 				<p>
 					<strong>Success box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
@@ -107,9 +99,7 @@ class Newspack_UI {
 
 			<div class="newspack-ui__box newspack-ui__box--warning newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--warning">
-					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
-					</svg>
+					<?php \Newspack\Newspack_UI_Icons::get_svg( 'check' ); ?>
 				</span>
 				<p>
 					<strong>Warning box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
@@ -119,9 +109,7 @@ class Newspack_UI {
 
 			<div class="newspack-ui__box newspack-ui__box--error newspack-ui__box--text-center">
 				<span class="newspack-ui__icon newspack-ui__icon--error">
-					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
-					</svg>
+					<?php \Newspack\Newspack_UI_Icons::get_svg( 'check' ); ?>
 				</span>
 				<p>
 					<strong>Error box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
@@ -263,12 +251,7 @@ class Newspack_UI {
 			<button class="newspack-ui__button newspack-ui__button--destructive">Destructive Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--destructive" disabled>Destructive Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">
-				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M4.405 11.9C4.205 11.3 4.091 10.66 4.091 10C4.091 9.34001 4.205 8.70001 4.405 8.10001V5.51001H1.064C0.364015 6.90321 -0.000359433 8.44084 2.66054e-07 10C2.66054e-07 11.614 0.386 13.14 1.064 14.49L4.404 11.9H4.405Z" fill="#FBBC05"></path>
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 3.977C11.468 3.977 12.786 4.482 13.823 5.473L16.691 2.605C14.959 0.99 12.695 0 9.99996 0C6.08996 0 2.70996 2.24 1.06396 5.51L4.40396 8.1C5.19196 5.736 7.39596 3.977 9.99996 3.977Z" fill="#EA4335"></path>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'google' ); ?>
 				<span>
 					Sign in with Google
 				</span>
@@ -281,12 +264,7 @@ class Newspack_UI {
 			<button class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--wide">Outline Button</button>
 			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide">Destructive Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
-				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M4.405 11.9C4.205 11.3 4.091 10.66 4.091 10C4.091 9.34001 4.205 8.70001 4.405 8.10001V5.51001H1.064C0.364015 6.90321 -0.000359433 8.44084 2.66054e-07 10C2.66054e-07 11.614 0.386 13.14 1.064 14.49L4.404 11.9H4.405Z" fill="#FBBC05"></path>
-					<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 3.977C11.468 3.977 12.786 4.482 13.823 5.473L16.691 2.605C14.959 0.99 12.695 0 9.99996 0C6.08996 0 2.70996 2.24 1.06396 5.51L4.40396 8.1C5.19196 5.736 7.39596 3.977 9.99996 3.977Z" fill="#EA4335"></path>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'google' ); ?>
 				<span>
 					Sign up with Google
 				</span>
@@ -297,39 +275,25 @@ class Newspack_UI {
 			<h2>Buttons Icon</h2>
 			<p>Uses the same classes as the <code>newspack-ui__button</code> but we add an extra class to it <code>newspack-ui__button--icon</code></p>
 			<button class="newspack-ui__button newspack-ui__button--icon">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); ?>
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--icon">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); ?>
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--icon">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); ?>
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--icon">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); ?>
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); ?>
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--outline newspack-ui__button--icon">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); ?>
 			</button>
 			<button class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--icon">
-				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-					<path d="M5 5v1.5h14V5H5zm0 7.8h14v-1.5H5v1.5zM5 19h14v-1.5H5V19z"/>
-				</svg>
+				<?php \Newspack\Newspack_UI_Icons::get_svg( 'menu' ); ?>
 			</button>
 
 			<hr>
@@ -343,9 +307,7 @@ class Newspack_UI {
 						<h2>This is a header</h2>
 						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-							</svg>
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'close' ); ?>
 						</button>
 					</header>
 
@@ -368,21 +330,15 @@ class Newspack_UI {
 
 						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-							</svg>
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'close' ); ?>
 						</button>
 					</header>
 
 					<section class="newspack-ui__modal__content">
 
 						<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
-							<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M4.405 11.9C4.205 11.3 4.091 10.66 4.091 10C4.091 9.34001 4.205 8.70001 4.405 8.10001V5.51001H1.064C0.364015 6.90321 -0.000359433 8.44084 2.66054e-07 10C2.66054e-07 11.614 0.386 13.14 1.064 14.49L4.404 11.9H4.405Z" fill="#FBBC05"></path>
-								<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 3.977C11.468 3.977 12.786 4.482 13.823 5.473L16.691 2.605C14.959 0.99 12.695 0 9.99996 0C6.08996 0 2.70996 2.24 1.06396 5.51L4.40396 8.1C5.19196 5.736 7.39596 3.977 9.99996 3.977Z" fill="#EA4335"></path>
-							</svg>
+
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'google' ); ?>
 							<span>
 								Sign in with Google
 							</span>
@@ -416,9 +372,7 @@ class Newspack_UI {
 
 						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-							</svg>
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'close' ); ?>
 						</button>
 					</header>
 
@@ -453,9 +407,7 @@ class Newspack_UI {
 
 						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-							</svg>
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'close' ); ?>
 						</button>
 					</header>
 
@@ -463,9 +415,7 @@ class Newspack_UI {
 
 						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 							<span class="newspack-ui__icon newspack-ui__icon--success">
-								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
-								</svg>
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'check' ); ?>
 							</span>
 
 							<p>
@@ -489,9 +439,7 @@ class Newspack_UI {
 
 						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-							</svg>
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'close' ); ?>
 						</button>
 					</header>
 
@@ -499,9 +447,7 @@ class Newspack_UI {
 
 						<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
 							<span class="newspack-ui__icon newspack-ui__icon--success">
-								<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
-								</svg>
+								<?php \Newspack\Newspack_UI_Icons::get_svg( 'check' ); ?>
 							</span>
 
 							<p>
@@ -541,9 +487,7 @@ class Newspack_UI {
 
 						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-							</svg>
+							<?php \Newspack\Newspack_UI_Icons::get_svg( 'close' ); ?>
 						</button>
 					</header>
 
@@ -582,21 +526,14 @@ class Newspack_UI {
 
 							<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 								<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-									<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-								</svg>
+								<?php \Newspack\Newspack_UI_Icons::get_svg( 'close' ); ?>
 							</button>
 						</header>
 
 						<section class="newspack-ui__modal__content">
 
 							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
-								<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-									<path fill-rule="evenodd" clip-rule="evenodd" d="M19.6 10.227C19.6 9.51801 19.536 8.83701 19.418 8.18201H10V12.05H15.382C15.2706 12.6619 15.0363 13.2448 14.6932 13.7635C14.3501 14.2822 13.9054 14.726 13.386 15.068V17.578H16.618C18.509 15.836 19.6 13.273 19.6 10.228V10.227Z" fill="#4285F4"></path>
-									<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 20C12.7 20 14.964 19.105 16.618 17.577L13.386 15.068C12.491 15.668 11.346 16.023 9.99996 16.023C7.39496 16.023 5.18996 14.263 4.40496 11.9H1.06396V14.49C1.89597 16.1468 3.17234 17.5395 4.7504 18.5126C6.32846 19.4856 8.14603 20.0006 9.99996 20Z" fill="#34A853"></path>
-									<path fill-rule="evenodd" clip-rule="evenodd" d="M4.405 11.9C4.205 11.3 4.091 10.66 4.091 10C4.091 9.34001 4.205 8.70001 4.405 8.10001V5.51001H1.064C0.364015 6.90321 -0.000359433 8.44084 2.66054e-07 10C2.66054e-07 11.614 0.386 13.14 1.064 14.49L4.404 11.9H4.405Z" fill="#FBBC05"></path>
-									<path fill-rule="evenodd" clip-rule="evenodd" d="M9.99996 3.977C11.468 3.977 12.786 4.482 13.823 5.473L16.691 2.605C14.959 0.99 12.695 0 9.99996 0C6.08996 0 2.70996 2.24 1.06396 5.51L4.40396 8.1C5.19196 5.736 7.39596 3.977 9.99996 3.977Z" fill="#EA4335"></path>
-								</svg>
+								<?php \Newspack\Newspack_UI_Icons::get_svg( 'google', 20 ); ?>
 								<span>
 									Sign in with Google
 								</span>
