@@ -158,6 +158,7 @@ final class Reader_Activation {
 				'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
 				'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
 				'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+				'login_canceled'   => __( 'Login canceled.', 'newspack-plugin' ),
 			]
 		);
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );

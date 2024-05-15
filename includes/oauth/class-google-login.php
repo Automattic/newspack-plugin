@@ -145,10 +145,12 @@ class Google_Login {
 		Logger::log( 'Got user email from Google: ' . $user_email );
 
 		// Associate the email address with the a unique ID for later retrieval.
-		$set_transient_result = OAuth_Transients::set( OAuth::get_unique_id(), 'email', $user_email );
+		$uid = OAuth::get_unique_id();
+		$set_transient_result = OAuth_Transients::set( $uid, 'email', $user_email );
 		// If transient setting failed, the email address will not be available for the registration endpoint.
 		if ( $set_transient_result === false ) {
-			self::handle_error( __( 'Failed setting transient.', 'newspack-plugin' ) );
+			/* translators: %s is a unique user id */
+			self::handle_error( sprintf( __( 'Failed setting email transient for id: %s', 'newspack-plugin' ), $uid ) );
 			\wp_die( \esc_html__( 'Authentication failed.', 'newspack-plugin' ) );
 		}
 
@@ -169,7 +171,23 @@ class Google_Login {
 	 * @param string $message The message to log.
 	 */
 	private static function handle_error( $message ) {
-		Logger::error( $message );
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPressVIPMinimum.Variables.RestrictedVariables.cache_constraints___SERVER__HTTP_USER_AGENT__
+		Logger::error(
+			sprintf(
+				// Translators: %1$s is the error message, %2$s is the user agent.
+				__( '%1$s | Details: %2$s', 'newspack-plugin' ),
+				$message,
+				\wp_json_encode(
+					[
+						'user_agent'   => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : 'N/A',
+						'referrer'     => isset( $_SERVER['HTTP_REFERER'] ) ? esc_url( $_SERVER['HTTP_REFERER'] ) : 'N/A',
+						'request_time' => isset( $_SERVER['REQUEST_TIME'] ) ? gmdate( 'Y-m-d\TH:i:s', intval( $_SERVER['REQUEST_TIME'] ) ) : 'N/A',
+					],
+					JSON_PRETTY_PRINT
+				)
+			)
+		);
+		// phpcs:enable
 		do_action( 'newspack_google_login_error', new WP_Error( 'newspack_google_login', $message ) );
 	}
 
