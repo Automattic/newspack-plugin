@@ -21,11 +21,25 @@ class WooCommerce_Products {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		\add_action( 'admin_enqueue_scripts', [ __CLASS__, 'admin_enqueue_scripts' ] );
 		\add_filter( 'product_type_options', [ __CLASS__, 'show_custom_product_options' ] );
 		\add_action( 'woocommerce_variation_options', [ __CLASS__, 'show_custom_variation_options' ], 10, 3 );
 		\add_action( 'woocommerce_process_product_meta', [ __CLASS__, 'save_custom_product_options' ] );
 		\add_action( 'woocommerce_admin_process_variation_object', [ __CLASS__, 'save_custom_variation_options' ], 30, 2 );
 		\add_filter( 'woocommerce_order_item_needs_processing', [ __CLASS__, 'require_order_processing' ], 10, 2 );
+	}
+
+	/**
+	 * Enqueue admin scripts.
+	 */
+	public static function admin_enqueue_scripts() {
+		wp_enqueue_script(
+			'newspack-products-custom-options',
+			Newspack::plugin_url() . '/dist/other-scripts/custom-product-options.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -38,7 +52,7 @@ class WooCommerce_Products {
 		return [
 			'newspack_autocomplete_orders' => [
 				'id'            => '_newspack_autocomplete_orders',
-				'wrapper_class' => 'show_if_simple',
+				'wrapper_class' => 'show_if_virtual',
 				'label'         => __( 'Auto-complete orders', 'newspack-plugin' ),
 				'description'   => __( 'Allow orders containing this product to automatically complete upon successful payment.', 'newspack-plugin' ),
 				'default'       => 'yes',
@@ -108,10 +122,10 @@ class WooCommerce_Products {
 		foreach ( $custom_options as $option_key => $option_config ) {
 			$meta_key = $option_config['id'];
 			?>
-			<label class="tips" data-tip="<?php echo esc_attr( $option_config['description'] ); ?>">
+			<label class="tips show_if_variation_virtual" data-tip="<?php echo esc_attr( $option_config['description'] ); ?>">
 				<?php echo esc_html( $option_config['label'] ); ?>
 				<input
-					type="checkbox" class="checkbox variable_<?php echo esc_attr( $option_key ); ?>"
+					type="checkbox" class="checkbox show_if_variation_virtual variable_<?php echo esc_attr( $option_key ); ?>"
 					name="<?php echo esc_attr( $meta_key . '[' . $loop . ']' ); ?>"
 					<?php \checked( self::get_custom_option_value( $variation, $option_key ), true ); ?>
 				/>
@@ -183,7 +197,11 @@ class WooCommerce_Products {
 	 * @param WC_Product $product The product associated with this order item.
 	 */
 	public static function require_order_processing( $needs_proccessing, $product ) {
-		return self::get_custom_option_value( $product, 'newspack_autocomplete_orders' ) ? false : $needs_proccessing;
+		if ( $product->is_virtual() ) {
+			return self::get_custom_option_value( $product, 'newspack_autocomplete_orders' ) ? false : $needs_proccessing;
+		}
+
+		return $needs_proccessing;
 	}
 }
 
