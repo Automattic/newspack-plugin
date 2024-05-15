@@ -1,37 +1,16 @@
-## [3.8.6](https://github.com/Automattic/newspack-plugin/compare/v3.8.5...v3.8.6) (2024-05-15)
-
-
-### Bug Fixes
-
-* **google-login:** get the email from the /tokeninfo endpoint ([#3117](https://github.com/Automattic/newspack-plugin/issues/3117)) ([3296f1a](https://github.com/Automattic/newspack-plugin/commit/3296f1a0b36c7992749d6209bce3ed3ef2ea5ec5))
-
-## [3.8.5](https://github.com/Automattic/newspack-plugin/compare/v3.8.4...v3.8.5) (2024-05-14)
-
-
-### Bug Fixes
-
-* **oauth-transients:** remove redundant cleanup ([#3112](https://github.com/Automattic/newspack-plugin/issues/3112)) ([c123c02](https://github.com/Automattic/newspack-plugin/commit/c123c0248ecf9aab8f16e5ab63e84f9900b3d6f5))
-
-## [3.8.4](https://github.com/Automattic/newspack-plugin/compare/v3.8.3...v3.8.4) (2024-05-14)
-
-
-### Bug Fixes
-
-* **google-oauth:** use a custom table for transients ([#3106](https://github.com/Automattic/newspack-plugin/issues/3106)) ([d4a2f5c](https://github.com/Automattic/newspack-plugin/commit/d4a2f5ce8ff6931b98593dafe759eab8b59d7ab2))
-
-## [3.8.3](https://github.com/Automattic/newspack-plugin/compare/v3.8.2...v3.8.3) (2024-05-13)
-
-
-### Bug Fixes
-
-* **ras:** sync purchase data only for most recent order/subscription ([#3086](https://github.com/Automattic/newspack-plugin/issues/3086)) ([2c7763a](https://github.com/Automattic/newspack-plugin/commit/2c7763a53894e5c350d6ce76e0f4ab3b1e768bc5))
-
-## [3.8.2](https://github.com/Automattic/newspack-plugin/compare/v3.8.1...v3.8.2) (2024-04-26)
+# [4.0.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.2...v4.0.0-alpha.3) (2024-04-26)
 
 
 ### Bug Fixes
 
 * enable Memberships fix cron job only when environment constant is defined ([#3087](https://github.com/Automattic/newspack-plugin/issues/3087)) ([5d40297](https://github.com/Automattic/newspack-plugin/commit/5d40297252a9022bb9b63b72cf805a08c37eb553))
+
+# [4.0.0-alpha.2](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.1...v4.0.0-alpha.2) (2024-04-25)
+
+
+### Bug Fixes
+
+* remove deprecated filter callback ([#3090](https://github.com/Automattic/newspack-plugin/issues/3090)) ([5d7d0bf](https://github.com/Automattic/newspack-plugin/commit/5d7d0bf71d16907d3aa98def372a7d9ede8949c6))
 
 ## [3.8.1](https://github.com/Automattic/newspack-plugin/compare/v3.8.0...v3.8.1) (2024-04-25)
 
@@ -39,6 +18,29 @@
 ### Bug Fixes
 
 * remove deprecated filter callback ([#3090](https://github.com/Automattic/newspack-plugin/issues/3090)) ([5d7d0bf](https://github.com/Automattic/newspack-plugin/commit/5d7d0bf71d16907d3aa98def372a7d9ede8949c6))
+
+
+# [4.0.0-alpha.1](https://github.com/Automattic/newspack-plugin/compare/v3.8.0...v4.0.0-alpha.1) (2024-04-25)
+
+
+### Bug Fixes
+
+* ensure only admins can reset starter content and newspack options ([#3081](https://github.com/Automattic/newspack-plugin/issues/3081)) ([4606721](https://github.com/Automattic/newspack-plugin/commit/46067217985f904286ddb2c952ba0e1deb954e56))
+
+
+### Features
+
+* add product option to autocomplete orders ([#3072](https://github.com/Automattic/newspack-plugin/issues/3072)) ([4a2859b](https://github.com/Automattic/newspack-plugin/commit/4a2859b894eab499e194102b0636dc20466e0c22))
+* **ras:** skip campaign setup ([#3051](https://github.com/Automattic/newspack-plugin/issues/3051)) ([9ef0e6d](https://github.com/Automattic/newspack-plugin/commit/9ef0e6d1de8d4dafda4d2af1304206d0f8190b15))
+
+
+### BREAKING CHANGES
+
+* Changes order autocompletion behavior for existing products!
+
+* feat: add product option to autocomplete orders
+
+* chore: update outdated docblock description
 
 # [3.8.0](https://github.com/Automattic/newspack-plugin/compare/v3.7.0...v3.8.0) (2024-04-25)
 
