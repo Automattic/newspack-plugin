@@ -356,6 +356,8 @@ class Newspack_UI {
 
 			<hr>
 
+			<h2>Segmented Controls</h2>
+
 			<div class="newspack-ui__segmented-control">
 				<div class="newspack-ui__segmented-control__tabs">
 					<button class="newspack-ui__button newspack-ui__button--small selected">Tab One</button>
@@ -366,29 +368,15 @@ class Newspack_UI {
 				</div>
 			</div>
 
+			<hr>
+
 			<div class="newspack-ui__segmented-control">
 				<div class="newspack-ui__segmented-control__tabs">
-					<button class="newspack-ui__button newspack-ui__button--small">Annually</button>
 					<button class="newspack-ui__button newspack-ui__button--small selected">Monthly</button>
+					<button class="newspack-ui__button newspack-ui__button--small">Annually</button>
 				</div>
 				<div class="newspack-ui__segmented-control__content">
-					<div>
-						<label class="newspack-ui__input-list">
-							<input type="checkbox" name="checkbox-option-1">
-							<span>
-								<strong>Annual Option 1</strong>
-								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-							</span>
-						</label>
-						<label class="newspack-ui__input-list">
-							<input type="checkbox" name="checkbox-option-1">
-							<span>
-								<strong>Annual Option 2</strong>
-								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-							</span>
-						</label>
-					</div>
-					<div>
+					<div class="newspack-ui__segmented-control__panel">
 						<label class="newspack-ui__input-list">
 							<input type="checkbox" name="checkbox-option-1">
 							<span>
@@ -403,9 +391,25 @@ class Newspack_UI {
 								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 							</span>
 						</label>
-					</div>
-				</div>
-			</div>
+					</div><!-- .newspack-ui__segmented-control__panel -->
+					<div class="newspack-ui__segmented-control__panel">
+						<label class="newspack-ui__input-list">
+							<input type="checkbox" name="checkbox-option-1">
+							<span>
+								<strong>Annual Option 1</strong>
+								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+							</span>
+						</label>
+						<label class="newspack-ui__input-list">
+							<input type="checkbox" name="checkbox-option-1">
+							<span>
+								<strong>Annual Option 2</strong>
+								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+							</span>
+						</label>
+					</div><!-- .newspack-ui__segmented-control__panel -->
+				</div><!-- .newspack-ui__segmented-control__content -->
+			</div><!-- .newspack-ui__segmented-control -->
 
 			<hr>
 
@@ -698,6 +702,66 @@ class Newspack_UI {
 						</label>
 
 						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
+					</section>
+				</div><!-- .newspack-ui__modal--small -->
+			</div><!-- .newspack-ui__box -->
+
+			<div class="newspack-ui__box">
+				<div class="newspack-ui__modal newspack-ui__modal--small">
+					<header class="newspack-ui__modal__header">
+						<h2>Change Subscription</h2>
+
+						<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
+							<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+								<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+							</svg>
+						</button>
+					</header>
+
+					<section class="newspack-ui__modal__content">
+						<div class="newspack-ui__segmented-control">
+							<div class="newspack-ui__segmented-control__tabs">
+								<button class="newspack-ui__button newspack-ui__button--small selected">Monthly</button>
+								<button class="newspack-ui__button newspack-ui__button--small">Annually</button>
+							</div>
+							<div class="newspack-ui__segmented-control__content">
+								<div class="newspack-ui__segmented-control__panel">
+									<label class="newspack-ui__input-list">
+										<input type="checkbox" name="checkbox-option-1">
+										<span>
+											<strong>Montly Option 1</strong>
+											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+										</span>
+									</label>
+									<label class="newspack-ui__input-list">
+										<input type="checkbox" name="checkbox-option-1">
+										<span>
+											<strong>Monthly Option 2</strong><br>
+											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+										</span>
+									</label>
+								</div><!-- .newspack-ui__segmented-control__panel -->
+								<div class="newspack-ui__segmented-control__panel">
+									<label class="newspack-ui__input-list">
+										<input type="checkbox" name="checkbox-option-1">
+										<span>
+											<strong>Annual Option 1</strong>
+											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+										</span>
+									</label>
+									<label class="newspack-ui__input-list">
+										<input type="checkbox" name="checkbox-option-1">
+										<span>
+											<strong>Annual Option 2</strong>
+											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+										</span>
+									</label>
+								</div><!-- .newspack-ui__segmented-control__panel -->
+							</div><!-- .newspack-ui__segmented-control__content -->
+						</div><!-- .newspack-ui__segmented-control -->
+						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Change Subscription</button>
+						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Cancel</button>
 					</section>
 				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->

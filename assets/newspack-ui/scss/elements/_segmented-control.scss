@@ -5,10 +5,6 @@
 		gap: var( --newspack-ui-spacer-2 );
 		flex-direction: column;
 
-		&:not( :last-child ) {
-			margin-bottom: var( --newspack-ui-spacer-2 );
-		}
-
 		&__tabs {
 			background: var( --newspack-ui-color-neutral-10 );
 			border-radius: var( --newspack-ui-border-radius-m );
@@ -34,8 +30,10 @@
 
 		&__content {
 			width: 100%;
+		}
 
-			> *:not( .selected ) {
+		&__panel {
+			&:not( .selected ) {
 				display: none;
 			}
 		}
