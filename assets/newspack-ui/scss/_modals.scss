@@ -66,6 +66,7 @@
 			justify-content: space-between;
 			position: sticky;
 			top: 0;
+			z-index: 10;
 
 			h2 {
 				font-family: var( --newspack-ui-font-family );
@@ -153,14 +154,24 @@
 					.summary {
 						font-size: var( --newspack-ui-font-size-xs );
 						line-height: var( --newspack-ui-line-height-xs );
-						padding: var( --newspack-ui-spacer-2 );
+						padding: var( --newspack-ui-spacer-4 ) var( --newspack-ui-spacer-2 );
+						position: relative;
 
-						// Scale up just the primary price for a product, not the other fees:
-						.price > .amount > bdi,
-						.price > ins > .amount > bdi {
-							display: block;
-							font-weight: 600;
-							font-size: var( --newspack-ui-font-size-xl );
+						.price {
+							// Scale up just the primary price for a product, not the other fees:
+							> .amount > bdi,
+							> ins > .amount > bdi {
+								display: block;
+								font-weight: 600;
+								font-size: var( --newspack-ui-font-size-xl );
+							}
+
+							del {
+								position: absolute;
+								width: 100%;
+								left: 0;
+								top: var( --newspack-ui-spacer-base );
+							}
 						}
 					}
 
