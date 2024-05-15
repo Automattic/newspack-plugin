@@ -145,10 +145,12 @@ class Google_Login {
 		Logger::log( 'Got user email from Google: ' . $user_email );
 
 		// Associate the email address with the a unique ID for later retrieval.
-		$set_transient_result = OAuth_Transients::set( OAuth::get_unique_id(), 'email', $user_email );
+		$uid = OAuth::get_unique_id();
+		$set_transient_result = OAuth_Transients::set( $uid, 'email', $user_email );
 		// If transient setting failed, the email address will not be available for the registration endpoint.
 		if ( $set_transient_result === false ) {
-			self::handle_error( __( 'Failed setting transient.', 'newspack-plugin' ) );
+			/* translators: %s is a unique user id */
+			self::handle_error( sprintf( __( 'Failed setting email transient for id: %s', 'newspack-plugin' ), $uid ) );
 			\wp_die( \esc_html__( 'Authentication failed.', 'newspack-plugin' ) );
 		}
 
