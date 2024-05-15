@@ -489,7 +489,7 @@ class Emails {
 			return false;
 		} else {
 			// Make sure newsletters color palette is updated with latest theme colors.
-			if ( self::supports_emails() ) {
+			if ( self::supports_emails() && method_exists( '\Newspack_Newsletters', 'update_color_palette' ) ) {
 				$theme_colors = newspack_get_theme_colors();
 				\Newspack_Newsletters::update_color_palette(
 					[
