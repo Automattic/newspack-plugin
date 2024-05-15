@@ -1,3 +1,10 @@
+## [3.8.6](https://github.com/Automattic/newspack-plugin/compare/v3.8.5...v3.8.6) (2024-05-15)
+
+
+### Bug Fixes
+
+* **google-login:** get the email from the /tokeninfo endpoint ([#3117](https://github.com/Automattic/newspack-plugin/issues/3117)) ([3296f1a](https://github.com/Automattic/newspack-plugin/commit/3296f1a0b36c7992749d6209bce3ed3ef2ea5ec5))
+
 ## [3.8.5](https://github.com/Automattic/newspack-plugin/compare/v3.8.4...v3.8.5) (2024-05-14)
 
 
