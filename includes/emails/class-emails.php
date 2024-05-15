@@ -678,6 +678,25 @@ class Emails {
 			);
 
 			foreach ( $templates as $template ) {
+				// Find/replace the old hex values with the new ones in the rendered email HTML.
+				$email_html = get_post_meta( $template->ID, \Newspack_Newsletters::EMAIL_HTML_META, true );
+				$email_html = str_replace(
+					[
+						$previous_value['primary_color_hex'],
+						$previous_value['secondary_color_hex'],
+						newspack_get_color_contrast( $previous_value['primary_color_hex'] ),
+						newspack_get_color_contrast( $previous_value['secondary_color_hex'] ),
+					],
+					[
+						$updated_value['primary_color_hex'],
+						$updated_value['secondary_color_hex'],
+						newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
+						newspack_get_color_contrast( $updated_value['secondary_color_hex'] ),
+					],
+					$email_html
+				);
+				update_post_meta( $template->ID, \Newspack_Newsletters::EMAIL_HTML_META, $email_html );
+
 				wp_update_post( [ 'ID' => $template->ID ] );
 			}
 		}
