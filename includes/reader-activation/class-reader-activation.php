@@ -408,7 +408,7 @@ final class Reader_Activation {
 	 * TODO: Make this dynamic once the third UI screen to generate the prompts is built.
 	 */
 	public static function is_ras_campaign_configured() {
-		return self::is_enabled();
+		return self::is_enabled() || get_option( Engagement_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, '' ) === '1';
 	}
 
 	/**
@@ -501,6 +501,7 @@ final class Reader_Activation {
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),
+				'is_skipped'     => get_option( Engagement_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, '' ) === '1',
 				'plugins'        => [
 					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
 				],
