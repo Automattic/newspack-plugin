@@ -1,3 +1,14 @@
+# [4.0.0-alpha.4](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.3...v4.0.0-alpha.4) (2024-05-15)
+
+
+### Bug Fixes
+
+* autocomplete orders only for virtual products ([#3111](https://github.com/Automattic/newspack-plugin/issues/3111)) ([bfbe554](https://github.com/Automattic/newspack-plugin/commit/bfbe5541c7dcee270a6c2116344ffaa18742f612))
+* **google-login:** get the email from the /tokeninfo endpoint ([#3117](https://github.com/Automattic/newspack-plugin/issues/3117)) ([3296f1a](https://github.com/Automattic/newspack-plugin/commit/3296f1a0b36c7992749d6209bce3ed3ef2ea5ec5))
+* **google-oauth:** use a custom table for transients ([#3106](https://github.com/Automattic/newspack-plugin/issues/3106)) ([d4a2f5c](https://github.com/Automattic/newspack-plugin/commit/d4a2f5ce8ff6931b98593dafe759eab8b59d7ab2))
+* **oauth-transients:** remove redundant cleanup ([#3112](https://github.com/Automattic/newspack-plugin/issues/3112)) ([c123c02](https://github.com/Automattic/newspack-plugin/commit/c123c0248ecf9aab8f16e5ab63e84f9900b3d6f5))
+* **ras:** sync purchase data only for most recent order/subscription ([#3086](https://github.com/Automattic/newspack-plugin/issues/3086)) ([2c7763a](https://github.com/Automattic/newspack-plugin/commit/2c7763a53894e5c350d6ce76e0f4ab3b1e768bc5))
+
 # [4.0.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.2...v4.0.0-alpha.3) (2024-04-26)
 
 
