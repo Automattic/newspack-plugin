@@ -631,14 +631,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 						} else if ( authWindow ) {
 							authWindow.location = data;
 							const interval = setInterval( () => {
-								if ( authWindow.closed ) {
-									if ( ! googleOAuthSuccess ) {
-										if ( googleLoginForm?.endLoginFlow ) {
-											googleLoginForm.endLoginFlow();
-										}
+								if ( ! googleOAuthSuccess ) {
+									if ( googleLoginForm?.endLoginFlow ) {
+										googleLoginForm.endLoginFlow( newspack_reader_auth_labels.login_canceled, 401 );
 									}
-									clearInterval( interval );
 								}
+								clearInterval( interval );
 							}, 500 );
 						} else if ( googleLoginForm?.endLoginFlow ) {
 							googleLoginForm.endLoginFlow( newspack_reader_auth_labels.blocked_popup );
