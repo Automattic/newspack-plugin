@@ -159,7 +159,7 @@
 					.summary {
 						font-size: var( --newspack-ui-font-size-xs );
 						line-height: var( --newspack-ui-line-height-xs );
-						padding: var( --newspack-ui-spacer-4 ) var( --newspack-ui-spacer-2 );
+						padding: var( --newspack-ui-spacer-5 ) var( --newspack-ui-spacer-2 );
 						position: relative;
 
 						.price {
@@ -169,6 +169,7 @@
 								display: block;
 								font-weight: 600;
 								font-size: var( --newspack-ui-font-size-xl );
+								line-height: var( --newspack-ui-line-height-xl );
 							}
 
 							del {
