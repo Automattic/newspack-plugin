@@ -1122,9 +1122,7 @@ final class Reader_Activation {
 				<?php endif; ?>
 				<input type="hidden" name="action" />
 				<p data-action="otp">
-					<strong>
-						<?php echo esc_html( $labels['otp_title'] ); ?>
-					</strong>
+					<label><?php echo esc_html( $labels['otp_title'] ); ?></label>
 				</p>
 				<div data-action="signin register">
 					<p>
