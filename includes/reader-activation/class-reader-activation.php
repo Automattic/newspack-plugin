@@ -446,7 +446,7 @@ final class Reader_Activation {
 			}
 
 			// Skip any premium lists since the reader has already made a purchase at this stage.
-			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_membership_list' ) && \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_membership_list( $list['db_id'] ) ) {
+			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_subscription_list_tied_to_plan' ) && \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_subscription_list_tied_to_plan( $list['db_id'] ) ) {
 				continue;
 			}
 
