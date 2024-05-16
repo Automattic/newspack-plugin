@@ -631,7 +631,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						} else if ( authWindow ) {
 							authWindow.location = data;
 							const interval = setInterval( () => {
-								if ( ! googleOAuthSuccess ) {
+								if ( ! googleOAuthSuccess && authWindow.closed ) {
 									if ( googleLoginForm?.endLoginFlow ) {
 										googleLoginForm.endLoginFlow( newspack_reader_auth_labels.login_canceled, 401 );
 									}
