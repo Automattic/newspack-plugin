@@ -62,18 +62,38 @@ class Newspack_UI {
 		ob_start();
 		?>
 		<div class="newspack-ui">
-			<h2>Temporary Razzak Component Demo</h2>
+			<h1>Component Demo</h1>
 
-			<p class="newspack-ui__font--xl">X-Large text</p>
-			<p class="newspack-ui__font--l">Large text</p>
-			<p class="newspack-ui__font--m">Medium text</p>
-			<p>Small text (default)</p>
-			<p class="newspack-ui__font--xs">X-Small text</p>
-			<p class="newspack-ui__font--2xs">2X-Small text</p>
+			<ul>
+				<li><a href="?ui-demo#typography">Typography</a></li>
+				<li><a href="?ui-demo#boxes">Boxes</a></li>
+				<li><a href="?ui-demo#form-elements">Form Elements</a></li>
+				<li><a href="?ui-demo#checkbox-radio-lists">Checkbox/Radio Lists</a></li>
+				<li><a href="?ui-demo#order-table">Order table</a></li>
+				<li><a href="?ui-demo#buttons">Buttons</a></li>
+				<li><a href="#buttons-icon">Buttons Icon</a></li>
+				<li><a href="?ui-demo#modals">Modals</a></li>
+			</ul>
 
 			<hr>
 
-			<h2>Boxes</h2>
+			<h2 id="typography">Typography</h2>
+
+			<p class="newspack-ui__font--2xs">2X-Small text</p>
+			<p class="newspack-ui__font--xs">X-Small text</p>
+			<p>Small text (default)</p>
+			<p class="newspack-ui__font--m">Medium text</p>
+			<p class="newspack-ui__font--l">Large text</p>
+			<p class="newspack-ui__font--xl">X-Large text</p>
+			<p class="newspack-ui__font--2xl">2X-Large text</p>
+			<p class="newspack-ui__font--3xl">3X-Large text</p>
+			<p class="newspack-ui__font--4xl">4X-Large text</p>
+			<p class="newspack-ui__font--5xl">5X-Large text</p>
+			<p class="newspack-ui__font--6xl">6X-Large text</p>
+
+			<hr>
+
+			<h2 id="boxes">Boxes</h2> <?php // TODO: figure out correct name. ?>
 
 			<div class="newspack-ui__box">
 				<p>Default box style</p>
@@ -131,7 +151,7 @@ class Newspack_UI {
 
 			<hr>
 
-			<h2>Form elements</h2>
+			<h2 id="form-elements">Form elements</h2>
 			<form>
 				<p>
 					<label for="text-input-demo">Text input</label>
@@ -139,71 +159,117 @@ class Newspack_UI {
 				</p>
 
 				<p>
-					<label for="email-input-demo">Email input</label>
+					<label for="email-input-demo">Email input <abbr class="newspack-ui__required" title="required">*</abbr></label>
 					<input type="email" placeholder="Email Address">
+				</p>
+
+				<p>
+					<label for="text-input-demo">Text input <span class="newspack-ui__label-optional">(additional text)</span> <abbr class="newspack-ui__required" title="required">*</abbr></label>
+					<input type="text" placeholder="Regular text">
+					<span class="newspack-ui__helper-text">Some helper text.</span>
+				</p>
+
+				<p>
+					<label for="text-input-demo" class="newspack-ui__field-error">Text input <span class="newspack-ui__label-optional">(additional text)</span></label>
+					<input type="text" placeholder="Regular text" class="newspack-ui__field-error">
+					<span class="newspack-ui__helper-text">Some helper text.</span>
+					<span class="newspack-ui__helper-text newspack-ui__inline-error">An error message.</span>
+				</p>
+
+				<p>
+					<label>
+						<input type="radio" name="radio-control-demo">
+						This is a radio input.
+						<span class="newspack-ui__helper-text">Some helper text.</span>
+					</label>
+				</p>
+
+				<p>
+					<label>
+						<input type="radio" name="radio-control-demo">
+						This is a radio input.
+					</label>
+				</p>
+
+				<p>
+					<label class="newspack-ui__field-error">
+						<input type="radio" name="radio-control-demo">
+						This is a radio input.
+						<span class="newspack-ui__helper-text">Some helper text.</span>
+						<span class="newspack-ui__helper-text newspack-ui__inline-error">An error message.</span>
+					</label>
+				</p>
+
+				<p>
+					<label>
+						<input type="checkbox">
+						This is a checkbox input.
+					</label>
+				</p>
+
+				<p>
+					<label class="newspack-ui__field-error">
+						<input type="checkbox">
+						This is a checkbox input.
+					</label>
 				</p>
 			</form>
 
-			<p>
-				<label>
-					<input type="radio" name="radio-control-demo">
-					This is a radio input.
-				</label>
-			</p>
-
-			<p>
-				<label>
-					<input type="radio" name="radio-control-demo">
-					This is a radio input.
-				</label>
-			</p>
-
-			<p>
-				<label>
-					<input type="checkbox">
-					This is a checkbox input.
-				</label>
-			</p>
-
 
 			<hr>
 
-			<h2>Checkbox/Radio Lists</h2>
-			<label class="newspack-ui__input-list">
-				<input type="checkbox" name="checkbox-option-1">
-				<span>
-					<strong>The Weekly</strong><br>
-					<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-				</span>
+			<h2 id="checkbox-radio-lists">Checkbox/Radio Lists</h2>
+
+			<label class="newspack-ui__input-card">
+				<input type="radio" name="list-radio-option" checked>
+				<strong>The Weekly</strong>
+				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
-			<label class="newspack-ui__input-list">
-				<input type="checkbox" name="checkbox-option-2">
-				<span>
-					<strong>The Weekly</strong><br>
-					<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-				</span>
+			<label class="newspack-ui__input-card">
+				<input type="radio" name="list-radio-option">
+				<strong>The Weekly</strong>
+				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
+
 			<br>
-			<label class="newspack-ui__input-list">
-				<input type="radio" name="list-radio-option">
-				<span>
-					<strong>The Weekly</strong><br>
-					<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-				</span>
+
+			<label class="newspack-ui__input-card">
+				<input type="checkbox" name="checkbox-option-1">
+				<strong>The Weekly</strong>
+				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
-			<label class="newspack-ui__input-list">
+			<label class="newspack-ui__input-card">
+				<input type="checkbox" name="checkbox-option-1">
+				<strong>The Weekly</strong>
+				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+			</label>
+
+			<label class="newspack-ui__input-card">
+				<input type="checkbox" name="checkbox-option-2">
+				<strong>The Weekly</strong>
+				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+			</label>
+
+			<br>
+
+			<label class="newspack-ui__input-card">
+				<input type="radio" name="list-radio-option" checked>
+				<strong>The Weekly</strong>
+				<span class="newspack-ui__badge newspack-ui__badge--primary">Badge</span>
+				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
+			</label>
+
+			<label class="newspack-ui__input-card">
 				<input type="radio" name="list-radio-option">
-				<span>
-					<strong>The Weekly</strong><br>
-					<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-				</span>
+				<strong>The Weekly</strong>
+				<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 			</label>
 
 			<hr>
 
-			<h2>Order table</h2>
+			<h2 id="order-table">Order table</h2>
 			<h3 id="order_review_heading">Transaction details</h3>
 			<div id="order_review" class="woocommerce-checkout-review-order newspack-ui__box">
 				<table class="shop_table woocommerce-checkout-review-order-table" style="position: static; zoom: 1;">
@@ -230,7 +296,7 @@ class Newspack_UI {
 						</tr>
 
 						<tr class="tax-rate tax-rate-ca-bc-gst-5-1">
-							<th>GST 5%)</th>
+							<th>GST 5%</th>
 							<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>9.00</span></td>
 						</tr>
 						<tr class="tax-rate tax-rate-ca-bc-pst-7-2">
@@ -247,9 +313,19 @@ class Newspack_UI {
 
 			<hr>
 
-			<h2>Buttons</h2>
+			<h2 id="badges">Badges</h2>
+			<span class="newspack-ui__badge newspack-ui__badge--primary">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--secondary">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--outline">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--success">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--error">Badge</span><br>
+			<span class="newspack-ui__badge newspack-ui__badge--warning">Badge</span><br>
+
+
+			<hr>
+
+			<h2 id="buttons">Buttons</h2>
 			<p><code>newspack-ui__button--primary</code>, <code>--branded</code>, <code>--secondary</code>, <code>--ghost</code>, and <code>--destructive</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
-			<button class="newspack-ui__button">Default Theme Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary" disabled>Primary Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--branded">Branded Button</button><br>
@@ -273,7 +349,8 @@ class Newspack_UI {
 					Sign in with Google
 				</span>
 			</button>
-			<button class="newspack-ui__button newspack-ui__button--wide">Default Theme Button</button>
+
+			<h3>Wide buttons</h3>
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
@@ -294,7 +371,7 @@ class Newspack_UI {
 
 			<hr>
 
-			<h2>Buttons Icon</h2>
+			<h2 id="buttons-icon">Buttons Icon</h2>
 			<p>Uses the same classes as the <code>newspack-ui__button</code> but we add an extra class to it <code>newspack-ui__button--icon</code></p>
 			<button class="newspack-ui__button newspack-ui__button--icon">
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
@@ -334,7 +411,7 @@ class Newspack_UI {
 
 			<hr>
 
-			<h2>Modals</h2>
+			<h2 id="modals">Modals</h2>
 
 			<div class="newspack-ui__box">
 
@@ -436,7 +513,7 @@ class Newspack_UI {
 								</div>
 							</p>
 
-							<p class="newspack-ui__font--xs">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
+							<p class="newspack-ui__helper-text">Sign in by entering the code sent to email@address.com, or by clicking the magic link in the email.</p>
 
 							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
 							<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Resend Code</button>
@@ -525,10 +602,10 @@ class Newspack_UI {
 								<input type="password">
 								<span class="newspack-ui__helper-text">If you don't set a password, you can always log in with a magic link or one-time code sent to your email.</span>
 							</p>
-						</form>
 
-						<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
-						<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Skip for now</button>
+							<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Continue</button>
+							<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Skip for now</button>
+						</form>
 					</section>
 				</div><!-- .newspack-ui__modal--small -->
 			</div><!-- .newspack-ui__box -->
@@ -552,18 +629,18 @@ class Newspack_UI {
 						<p>Get the best of The News Paper directly to your email inbox.<br>
 						<span class="newspack-ui__color-text-gray">Sending to: email@address.</span></p>
 
-						<label class="newspack-ui__input-list">
+						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-1">
 							<span>
-								<strong>The Weekly</strong><br>
+								<strong>The Weekly</strong>
 								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 							</span>
 						</label>
 
-						<label class="newspack-ui__input-list">
+						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-2">
 							<span>
-								<strong>The Weekly</strong><br>
+								<strong>The Weekly</strong>
 								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 							</span>
 						</label>
