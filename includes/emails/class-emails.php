@@ -28,7 +28,7 @@ class Emails {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
-		add_action( 'update_option_theme_mods_' . get_template(), [ __CLASS__, 'maybe_update_email_templates' ], 10, 2 );
+		add_action( 'update_option_theme_mods_' . ( wp_get_theme()->parent() ? get_stylesheet() : get_template() ), [ __CLASS__, 'maybe_update_email_templates' ], 10, 2 );
 		add_action( 'admin_head', [ __CLASS__, 'inject_dynamic_email_template_styles' ] );
 	}
 
