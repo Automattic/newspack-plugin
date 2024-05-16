@@ -74,6 +74,7 @@
 	--newspack-ui-color-input-border-focus: var( --newspack-ui-color-neutral-90 );
 	--newspack-ui-color-input-border-disabled: var( --newspack-ui-color-neutral-40 );
 	--newspack-ui-color-input-background-disabled: var( --newspack-ui-color-neutral-10 );
+	--newspack-ui-label-color: var( --newspack-ui-color-neutral-90 );
 
 	// Alternatives for when prefers-contrast is set to 'more':
 	@media ( prefers-contrast: more ) {
