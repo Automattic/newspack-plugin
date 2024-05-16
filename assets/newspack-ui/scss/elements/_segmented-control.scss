@@ -18,7 +18,10 @@
 				background: transparent;
 				border: 1px solid transparent;
 				color: var( --newspack-ui-color-neutral-60 );
-				margin: 0;
+
+				&:not( :last-child ) {
+					margin: 0;
+				}
 
 				&.selected {
 					background: var( --newspack-ui-color-neutral-0 );
@@ -35,6 +38,10 @@
 		&__panel {
 			&:not( .selected ) {
 				display: none;
+			}
+
+			> *:last-child {
+				margin-bottom: 0 !important;
 			}
 		}
 	}

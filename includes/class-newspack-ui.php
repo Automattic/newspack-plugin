@@ -451,35 +451,29 @@ class Newspack_UI {
 				</div>
 				<div class="newspack-ui__segmented-control__content">
 					<div class="newspack-ui__segmented-control__panel">
-						<label class="newspack-ui__input-list">
+						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-1">
-							<span>
-								<strong>Montly Option 1</strong>
-								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-							</span>
+							<strong>Monthly Option 1</strong>
+							<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 						</label>
-						<label class="newspack-ui__input-list">
+
+						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-1">
-							<span>
-								<strong>Monthly Option 2</strong><br>
-								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-							</span>
+							<strong>Monthly Option 2</strong>
+							<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 						</label>
 					</div><!-- .newspack-ui__segmented-control__panel -->
 					<div class="newspack-ui__segmented-control__panel">
-						<label class="newspack-ui__input-list">
+						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-1">
-							<span>
-								<strong>Annual Option 1</strong>
-								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-							</span>
+							<strong>Annual Option 1</strong>
+							<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 						</label>
-						<label class="newspack-ui__input-list">
+
+						<label class="newspack-ui__input-card">
 							<input type="checkbox" name="checkbox-option-1">
-							<span>
-								<strong>Annual Option 2</strong>
-								<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-							</span>
+							<strong>Annual Option 2</strong>
+							<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 						</label>
 					</div><!-- .newspack-ui__segmented-control__panel -->
 				</div><!-- .newspack-ui__segmented-control__content -->
@@ -802,35 +796,29 @@ class Newspack_UI {
 							</div>
 							<div class="newspack-ui__segmented-control__content">
 								<div class="newspack-ui__segmented-control__panel">
-									<label class="newspack-ui__input-list">
+									<label class="newspack-ui__input-card">
 										<input type="checkbox" name="checkbox-option-1">
-										<span>
-											<strong>Montly Option 1</strong>
-											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-										</span>
+										<strong>Monthly Option 1</strong>
+										<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 									</label>
-									<label class="newspack-ui__input-list">
+
+									<label class="newspack-ui__input-card">
 										<input type="checkbox" name="checkbox-option-1">
-										<span>
-											<strong>Monthly Option 2</strong><br>
-											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-										</span>
+										<strong>Monthly Option 2</strong>
+										<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 									</label>
 								</div><!-- .newspack-ui__segmented-control__panel -->
 								<div class="newspack-ui__segmented-control__panel">
-									<label class="newspack-ui__input-list">
+									<label class="newspack-ui__input-card">
 										<input type="checkbox" name="checkbox-option-1">
-										<span>
-											<strong>Annual Option 1</strong>
-											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-										</span>
+										<strong>Annual Option 1</strong>
+										<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 									</label>
-									<label class="newspack-ui__input-list">
+
+									<label class="newspack-ui__input-card">
 										<input type="checkbox" name="checkbox-option-1">
-										<span>
-											<strong>Annual Option 2</strong>
-											<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
-										</span>
+										<strong>Annual Option 2</strong>
+										<span class="newspack-ui__helper-text">Friday roundup of the most relevant stories.</span>
 									</label>
 								</div><!-- .newspack-ui__segmented-control__panel -->
 							</div><!-- .newspack-ui__segmented-control__content -->
