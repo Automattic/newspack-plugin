@@ -1,9 +1,11 @@
 .newspack-ui {
 	// TODO: define some kind of size hierachy for buttons eg. small, medium, large.
-	&__button {
+	.newspack-ui__button {
 		align-items: center;
+		background: var( --newspack-ui-color-neutral-10 );
 		border: 0;
 		border-radius: var( --newspack-ui-border-radius-m );
+		color: var( --newspack-ui-color-neutral-90 );
 		display: inline-flex;
 		font-family: var( --newspack-ui-font-family );
 		font-size: var( --newspack-ui-font-size-s );
@@ -19,9 +21,14 @@
 			margin-bottom: var( --newspack-ui-spacer-2 );
 		}
 
+		&:hover {
+			background: var( --newspack-ui-color-neutral-30 );
+			color: var( --newspack-ui-color-neutral-90 );
+		}
+
 		&:disabled {
-			background: var( --newspack-ui-color-neutral-10 ) !important;
-			color: var( --newspack-ui-color-neutral-70 ) !important;
+			background: var( --newspack-ui-color-neutral-5 ) !important;
+			color: var( --newspack-ui-color-neutral-40 ) !important;
 			cursor: default;
 			pointer-events: none;
 		}
