@@ -46,7 +46,7 @@ class OAuth {
 	 * @return string CSRF token.
 	 */
 	public static function generate_csrf_token( $namespace ) {
-		$csrf_token = sha1( openssl_random_pseudo_bytes( 1024 ) );
+		$csrf_token = wp_generate_password( 40, false );
 		$transient_scope = self::CSRF_TOKEN_TRANSIENT_SCOPE_PREFIX . $namespace;
 		return OAuth_Transients::set( self::get_unique_id(), $transient_scope, $csrf_token );
 	}
