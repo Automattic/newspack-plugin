@@ -41,74 +41,7 @@
 			}
 		}
 	}
-	&__modal-variation {
-		.newspack-ui {
-			&__modal {
-				&__content {
-					padding: var( --newspack-ui-spacer-5 );
-					overflow: auto;
-					border-radius: var( --newspack-ui-border-radius-m );
-					h3 {
-						font-size: var( --newspack-ui-font-size-s );
-						margin: 0;
-					}
-					p {
-						font-size: var( --newspack-ui-font-size-xs );
-					}
-				}
-			}
 
-			&__options {
-				list-style: none;
-				display: flex;
-				flex-wrap: wrap;
-				gap: var( --newspack-ui-spacer-3 );
-				margin: 0;
-				padding: 0;
-
-				&__item {
-					border: 1px solid var(--newspack-ui-color-border );
-					border-radius: var( --newspack-ui-border-radius-m );
-					text-align: center;
-					flex: 1 1 100%;
-					@media ( min-width: 600px ) {
-						flex: 1 1 30%;
-						max-width: calc( 33.3333% - 10px );
-						&:first-child:nth-last-child( 2 ),
-						&:first-child:nth-last-child( 2 ) ~ li {
-							flex: 1 1 40%;
-							max-width: calc( 50% - 10px );
-						}
-					}
-					.summary {
-						font-size: var( --newspack-ui-font-size-xs );
-						padding: var( --newspack-ui-spacer-2 );
-						border-bottom: 1px solid var( --newspack-ui-color-border );
-						bdi {
-							display: block;
-							font-weight: 600;
-							font-size: var( --newspack-ui-font-size-xl );
-						}
-					}
-					.variation {
-						padding: var( --newspack-ui-spacer-2 );
-						font-size: var( --newspack-ui-font-size-xs );
-						line-height: 1.5;
-						border-bottom: 1px solid var(--newspack-ui-color-border );
-						font-weight: 600;
-					}
-					form {
-						padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-2 ) 0;
-						button {
-							display: block;
-							width: 100%;
-							font-size: var( --newspack-ui-font-size-xs );
-						}
-					}
-				}
-			}
-		}
-	}
 	&__modal {
 		// Modal styles
 		background: var( --newspack-ui-color-body-bg );
@@ -129,10 +62,12 @@
 			align-items: center;
 			background: var( --newspack-ui-color-body-bg );
 			border-bottom: 1px solid var( --newspack-ui-color-border );
+			color: var( --newspack-ui-color-neutral-90 );
 			display: flex;
 			justify-content: space-between;
 			position: sticky;
 			top: 0;
+			z-index: 10;
 
 			h2 {
 				font-family: var( --newspack-ui-font-family );
@@ -148,6 +83,7 @@
 
 		&__content {
 			backface-visibility: visible;
+			color: var( --newspack-ui-color-neutral-90 );
 			padding: var( --newspack-ui-spacer-5 );
 
 			// Make sure there's enough space above the first button in modals
@@ -184,6 +120,97 @@
 
 			> *:last-child {
 				margin-bottom: 0;
+			}
+		}
+	}
+
+	&__modal-variation {
+		.newspack-ui {
+
+			&__selection {
+				> *:first-child {
+					margin-top: 0;
+				}
+
+				h3 {
+					margin: 0;
+
+					+ p {
+						margin-top: calc( var( --newspack-ui-spacer-base ) / 2);
+					}
+				}
+			}
+
+			&__options {
+				list-style: none;
+				display: flex;
+				flex-wrap: wrap;
+				gap: var( --newspack-ui-spacer-2 );
+				margin: var( --newspack-ui-spacer-5 ) 0 0;
+				padding: 0;
+
+				&__item {
+					border: 1px solid var(--newspack-ui-color-border );
+					border-radius: var( --newspack-ui-border-radius-m );
+					display: flex;
+					flex-direction: column;
+					flex: 1 1 100%;
+					text-align: center;
+
+					@include mixins.media( mobile ) {
+						flex: 1 1 30%;
+						max-width: calc( 33.3333% - 10px );
+						&:first-child:nth-last-child( 2 ),
+						&:first-child:nth-last-child( 2 ) ~ li {
+							flex: 1 1 40%;
+							max-width: calc( 50% - 10px );
+						}
+					}
+
+					.summary {
+						font-size: var( --newspack-ui-font-size-xs );
+						line-height: var( --newspack-ui-line-height-xs );
+						padding: var( --newspack-ui-spacer-5 ) var( --newspack-ui-spacer-2 );
+						position: relative;
+
+						.price {
+							// Scale up just the primary price for a product, not the other fees:
+							> .amount > bdi,
+							> ins > .amount > bdi {
+								display: block;
+								font-weight: 600;
+								font-size: var( --newspack-ui-font-size-xl );
+								line-height: var( --newspack-ui-line-height-xl );
+							}
+
+							del {
+								color: var( --newspack-ui-color-neutral-60 );
+								left: 0;
+								position: absolute;
+								top: calc( var( --newspack-ui-spacer-base ) * 0.75 );
+								width: 100%;
+							}
+						}
+					}
+
+					.variation {
+						border-top: 1px solid var(--newspack-ui-color-border );
+						font-size: var( --newspack-ui-font-size-xs );
+						font-weight: 600;
+						line-height: var( --newspack-ui-line-height-xs );
+						margin-top: auto;
+						padding: var( --newspack-ui-spacer-2 );
+					}
+
+					form {
+						border-top: 1px solid var(--newspack-ui-color-border );
+						padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-2 ) 0;
+						button {
+							display: block;
+							width: 100%;
+						}
+					}
+				}
 			}
 		}
 	}
