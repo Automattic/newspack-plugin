@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { useState, useCallback } from '@wordpress/element';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies

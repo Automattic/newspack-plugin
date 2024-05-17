@@ -6,15 +6,15 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment, useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import WizardsActionCard from '../../../../wizards-action-card';
-import { Button, Handoff, hooks } from '../../../../../components/src';
+import { Button, Handoff } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import useWizardDataPropErrors from '../../../../hooks/use-wizard-data-prop-errors';
+import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
 
 interface Plugin {
 	path: string;
@@ -70,72 +70,64 @@ function PluginConnectButton( { plugin }: { plugin: Plugin } ) {
 	return null;
 }
 
-const Plugins = () => {
-	const [ plugins, setPlugins ] = hooks.useObjectState( PLUGINS ) as any;
-	const { wizardApiFetch } = useWizardApiFetch();
-	const { setError, getError } = useWizardDataPropErrors(
+const Plugin = ( { plugin }: { plugin: Plugin } ) => {
+	const { error, setError } = useWizardDataPropError(
 		'newspack/settings',
-		'connections/plugins',
-		Object.keys( PLUGINS )
+		`connections/plugins${ plugin.pluginSlug }`
 	);
+	const { wizardApiFetch, isFetching } = useWizardApiFetch();
+	const [ isActive, setIsActive ] = useState( false );
 
-	const pluginsArray = Object.keys( PLUGINS );
 	useEffect( () => {
-		pluginsArray.forEach(
-			async ( pluginKey: string ) =>
-				await wizardApiFetch(
-					{ path: PLUGINS[ pluginKey ].path },
-					{
-						onSuccess( result: any ) {
-							setPlugins( {
-								[ pluginKey ]: { status: result.Configured ? result.Status : 'inactive' },
-							} );
-						},
-						onError( error: any ) {
-							setError( pluginKey, error );
-						},
-					}
-				)
+		wizardApiFetch(
+			{ path: plugin.path },
+			{
+				onSuccess( result: { Status: string; Configured: boolean } ) {
+					setIsActive( result.Configured && result.Status === 'active' );
+				},
+				onError( error: any ) {
+					setError( error );
+				},
+			}
 		);
 	}, [] );
 
+	const getDescription = () => {
+		if ( error ) {
+			return __( 'Error!', 'newspack-plugin' );
+		}
+		if ( isFetching ) {
+			return __( 'Loading…', 'newspack-plugin' );
+		}
+		if ( ! isActive ) {
+			if ( plugin.pluginSlug === 'google-site-kit' ) {
+				return __( 'Not connected for this user', 'newspack-plugin' );
+			}
+			return __( 'Not connected', 'newspack-plugin' );
+		}
+		return __( 'Connected', 'newspack-plugin' );
+	};
+
+	return (
+		<WizardsActionCard
+			title={ plugin.name }
+			description={ getDescription() }
+			actionText={ isActive ? <PluginConnectButton plugin={ plugin } /> : null }
+			isChecked={ isActive && ! isFetching }
+			badge={ plugin.badge }
+			indent={ plugin.indent }
+			error={ error }
+			isMedium
+		/>
+	);
+};
+
+const Plugins = () => {
+	const pluginsArray = Object.keys( PLUGINS );
 	return (
 		<Fragment>
 			{ pluginsArray.map( pluginKey => {
-				const isInactive = plugins[ pluginKey ].status === 'inactive';
-				const isFetching = ! plugins[ pluginKey ].status;
-
-				const plugin = PLUGINS[ pluginKey ];
-				const error = getError( pluginKey );
-
-				const getDescription = () => {
-					if ( error ) {
-						return __( 'Error!', 'newspack-plugin' );
-					}
-					if ( isFetching ) {
-						return __( 'Loading…', 'newspack-plugin' );
-					}
-					if ( isInactive ) {
-						if ( plugin.pluginSlug === 'google-site-kit' ) {
-							return __( 'Not connected for this user', 'newspack-plugin' );
-						}
-						return __( 'Not connected', 'newspack-plugin' );
-					}
-					return __( 'Connected', 'newspack-plugin' );
-				};
-				return (
-					<WizardsActionCard
-						key={ pluginKey }
-						title={ plugin.name }
-						description={ getDescription() }
-						actionText={ isInactive ? <PluginConnectButton plugin={ plugin } /> : null }
-						isChecked={ ! ( isInactive || isFetching ) }
-						badge={ plugin.badge }
-						indent={ plugin.indent }
-						error={ error }
-						isMedium
-					/>
-				);
+				return <Plugin key={ pluginKey } plugin={ PLUGINS[ pluginKey ] } />;
 			} ) }
 		</Fragment>
 	);

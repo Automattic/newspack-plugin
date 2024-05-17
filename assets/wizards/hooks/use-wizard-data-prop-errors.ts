@@ -12,6 +12,7 @@ import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
 
 /**
  * Hook for managing granular errors within a specific Wizard data object.
+ *
  * @param slug       Name of the state group to store data in
  * @param propPrefix Property prefix in state group name to manage errors for.
  * @param props      Array of properties in state group name to manage errors for.
