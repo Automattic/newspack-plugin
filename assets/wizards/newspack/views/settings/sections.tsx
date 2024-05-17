@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 
 const { tabs: settingsTabs } = window.newspackSettings;
 
-import Connections from './tabs/connections';
+import Connections from './connections';
 
 type SectionKeys = keyof typeof settingsTabs;
 

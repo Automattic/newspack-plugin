@@ -1,4 +1,8 @@
 /**
+ * Settings Wizard: Connections > Google OAuth
+ */
+
+/**
  * External dependencies.
  */
 import qs from 'qs';
@@ -13,19 +17,19 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Wizard } from '../../../../../../components/src';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
+import { Button } from '../../../../../components/src';
+import WizardsActionCard from '../../../../wizards-action-card';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
+import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
 
 const getURLParams = () => {
 	return qs.parse( window.location.search.replace( /^\?/, '' ) );
 };
 
 const GoogleOAuth = ( {
-	setError,
 	onSuccess,
 	isOnboarding,
 }: {
-	setError: ( str: Error ) => void;
 	onInit?: ( str: Error | null ) => void;
 	onSuccess?: ( arg: OAuthData ) => void;
 	isOnboarding?: ( str: string ) => void;
@@ -35,33 +39,19 @@ const GoogleOAuth = ( {
 	const userBasicInfo = authState?.user_basic_info;
 
 	const [ inFlight, setInFlight ] = useState( false );
-	const { wizardApiFetch, setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const error = Wizard.useWizardDataPropError(
+	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { error, setError, resetError } = useWizardDataPropError(
 		'newspack/settings',
 		'connections/apis/googleoauth'
 	);
-
-	const handleError = ( res: { message: string } ) => {
-		const message = res.message || __( 'Something went wrong.', 'newspack-plugin' );
-		setDataPropError( {
-			slug: 'newspack/settings',
-			prop: 'connections/apis/googleoauth',
-			value: message,
-		} );
-	};
 
 	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
 
 	useEffect( () => {
 		if ( isConnected && userBasicInfo && ! userBasicInfo.has_refresh_token ) {
-			setDataPropError( {
-				slug: 'settings-connections',
-				prop: 'apis-googleoauth',
-				value: __(
-					'Missing Google refresh token. Please re-authenticate site.',
-					'newspack-plugin'
-				),
-			} );
+			setError(
+				__( 'Missing Google refresh token. Please re-authenticate site.', 'newspack-plugin' )
+			);
 		}
 	}, [ isConnected ] );
 
@@ -70,17 +60,20 @@ const GoogleOAuth = ( {
 		if ( ! params.access_token ) {
 			setInFlight( true );
 			wizardApiFetch< Promise< OAuthData > >( {
-				isComponentFetch: true,
+				isLocalError: true,
 				path: '/newspack/v1/oauth/google',
 			} )
 				.then( data => {
 					setAuthState( data );
-					if ( data?.user_basic_info && typeof onSuccess === 'function' ) {
-						onSuccess( data );
+					if ( data?.user_basic_info ) {
+						if ( typeof onSuccess === 'function' ) {
+							onSuccess( data );
+						}
+						resetError();
 					}
 				} )
 				.catch( ( err: Error ) => {
-					handleError( err );
+					setError( err );
 				} )
 				.finally( () => {
 					setInFlight( false );
@@ -104,7 +97,7 @@ const GoogleOAuth = ( {
 		setInFlight( true );
 		wizardApiFetch< Promise< string > >( {
 			path: '/newspack/v1/oauth/google/start',
-			isComponentFetch: true,
+			isLocalError: true,
 		} )
 			.then( url => {
 				/** authWindow can be 'null' due to browser's popup blocker. */
@@ -114,6 +107,7 @@ const GoogleOAuth = ( {
 						if ( authWindow?.closed ) {
 							clearInterval( interval );
 							getCurrentAuth();
+							resetError();
 						}
 					}, 500 );
 				}
@@ -122,7 +116,7 @@ const GoogleOAuth = ( {
 				if ( authWindow ) {
 					authWindow.close();
 				}
-				handleError( err );
+				setError( err );
 				setInFlight( false );
 			} );
 	};
@@ -133,13 +127,13 @@ const GoogleOAuth = ( {
 		wizardApiFetch< Promise< void > >( {
 			path: '/newspack/v1/oauth/google/revoke',
 			method: 'DELETE',
-			isComponentFetch: true,
+			isLocalError: true,
 		} )
 			.then( () => {
 				setAuthState( {} );
-				// setLocalError( undefined );
+				resetError();
 			} )
-			.catch( handleError )
+			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
 
@@ -158,10 +152,10 @@ const GoogleOAuth = ( {
 	};
 
 	return (
-		<ActionCard
+		<WizardsActionCard
 			title={ __( 'Google', 'newspack-plugin' ) }
-			description={ `${ __( 'Status:', 'newspack-plugin' ) } ${ getDescription() }` }
-			checkbox={ isConnected ? 'checked' : 'unchecked' }
+			description={ getDescription() }
+			isChecked={ isConnected }
 			actionText={
 				<Button
 					isLink
@@ -174,8 +168,7 @@ const GoogleOAuth = ( {
 						: __( 'Connect', 'newspack-plugin' ) }
 				</Button>
 			}
-			notification={ error }
-			notificationLevel="error"
+			error={ error }
 			isMedium
 		/>
 	);

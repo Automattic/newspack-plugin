@@ -27,7 +27,7 @@ type WpCheckboxControlPropsOverride< T > = React.ComponentProps< T > & {
 type SetErrorCallback<T = void> = ( a: ErrorParams ) => T;
 
 /**
- * Catch-all type for Webhook function params and function return types
+ * Endpoint data type
  */
 type Endpoint = {
 	url: string;
@@ -39,13 +39,13 @@ type Endpoint = {
 		scheduled: string;
 		action_name: string;
 	}[];
-} & {
 	disabled: boolean;
 	disabled_error: boolean;
-	id: string;
+	id: string | number;
 	system: string;
 	global: boolean;
 	actions: string[];
+	bearer_token?: string;
 };
 
 /**
@@ -56,17 +56,4 @@ type RecaptchaData = {
 	threshold?: string;
 	use_captcha?: boolean;
 	site_secret?: string;
-};
-
-/**
- *
- */
-type WebhookEditingState = {
-	disabled?: boolean;
-	disabled_error?: boolean;
-	url?: string;
-	bearer_token?: string;
-	label?: string;
-	global: boolean;
-	actions?: string[];
 };

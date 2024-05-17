@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { ActionCard } from '../../../../../../components/src';
+import { ActionCard } from '../../../../../components/src';
 
 /**
  * Analytics Plugins screen.

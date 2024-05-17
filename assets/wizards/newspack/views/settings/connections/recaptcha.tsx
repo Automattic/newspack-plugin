@@ -2,82 +2,92 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { ExternalLink } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
-import { Grid, Notice, Button, ActionCard, TextControl } from '../../../../../../components/src';
+import WizardsActionCard from '../../../../wizards-action-card';
+import { Grid, Button, TextControl } from '../../../../../components/src';
+import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
 
-const settingsDefault = {
+const settingsDefault: RecaptchaData = {
 	site_key: undefined,
 	threshold: undefined,
 	use_captcha: undefined,
 	site_secret: undefined,
 };
 
-const UNKNOWN_ERROR = __( 'RECAPTCHA UNKNOWN ERROR: ', 'newspack-plugin' );
-
 const Recaptcha = () => {
-	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const isLoading: boolean = useSelect( select =>
-		select( WIZARD_STORE_NAMESPACE ).isQuietLoading()
-	);
+	const { wizardApiFetch, isLoading } = useWizardApiFetch();
 
-	const [ error, setError ] = useState< ErrorParams | undefined >( undefined );
+	const { error, setError, resetError } = useWizardDataPropError(
+		'newspack/settings',
+		'connections/recaptcha'
+	);
 
 	const [ settings, setSettings ] = useState< RecaptchaData >( { ...settingsDefault } );
 	const [ settingsToUpdate, setSettingsToUpdate ] = useState< RecaptchaData >( {
 		...settingsDefault,
 	} );
 
-	// Check the reCAPTCHA connectivity status.
+	useEffect( () => {
+		if ( settings.use_captcha && ( ! settings.site_key || ! settings.site_secret ) ) {
+			setError(
+				__( 'You must enter a valid site key and secret to use reCAPTCHA.', 'newspack-plugin' )
+			);
+		}
+	}, [ settings.use_captcha, settings.site_key, settings.site_secret ] );
+
 	useEffect( () => {
 		const fetchSettings = async () => {
-			try {
-				const fetchedSettings = await wizardApiFetch< Promise< RecaptchaData > >( {
+			await wizardApiFetch< RecaptchaData >(
+				{
 					path: '/newspack/v1/recaptcha',
-					isQuietFetch: true,
-				} );
-				setSettings( fetchedSettings );
-				setSettingsToUpdate( fetchedSettings );
-			} catch ( e ) {
-				if ( e instanceof Error ) {
-					setError( e.message || __( 'Error fetching settings.', 'newspack-plugin' ) );
-					return;
+				},
+				{
+					onSuccess( fetchedSettings ) {
+						if ( fetchedSettings ) {
+							setSettings( fetchedSettings );
+							setSettingsToUpdate( { ...settingsDefault, ...fetchedSettings } );
+						}
+					},
+					onError( e ) {
+						setError( e, __( 'Error fetching settings.', 'newspack-plugin' ) );
+					},
 				}
-				setError( `${ UNKNOWN_ERROR } fetchSettings()` );
-			}
+			);
 		};
+
 		fetchSettings();
 	}, [] );
 
 	const updateSettings = async ( data: RecaptchaData ) => {
-		setError( undefined );
-		try {
-			setSettings(
-				await wizardApiFetch( {
-					path: '/newspack/v1/recaptcha',
-					method: 'POST',
-					isQuietFetch: true,
-					data,
-				} )
-			);
-			setSettingsToUpdate( {} );
-		} catch ( e ) {
-			if ( e instanceof Error ) {
-				setError( e.message || __( 'Error updating settings.', 'newspack-plugin' ) );
-				return;
+		await wizardApiFetch< RecaptchaData >(
+			{
+				path: '/newspack/v1/recaptcha',
+				method: 'POST',
+				data,
+			},
+			{
+				onStart() {
+					resetError();
+				},
+				onSuccess( fetchedSettings ) {
+					setSettings( fetchedSettings );
+					setSettingsToUpdate( fetchedSettings );
+				},
+				onError( e ) {
+					setError( e, __( 'Error fetching settings.', 'newspack-plugin' ) );
+				},
 			}
-			setError( `${ UNKNOWN_ERROR } updateSettings() function!` );
-		}
+		);
 	};
 
 	return (
-		<ActionCard
+		<WizardsActionCard
 			isMedium
 			title={ __( 'Enable reCAPTCHA v3', 'newspack-plugin' ) }
 			description={ () => (
@@ -105,19 +115,11 @@ const Recaptcha = () => {
 					</Button>
 				)
 			}
+			error={ error }
 			disabled={ isLoading }
 		>
 			{ settings.use_captcha && (
 				<>
-					{ error && <Notice isError noticeText={ error } /> }
-					{ settings.use_captcha && ( ! settings.site_key || ! settings.site_secret ) && (
-						<Notice
-							noticeText={ __(
-								'You must enter a valid site key and secret to use reCAPTCHA.',
-								'newspack-plugin'
-							) }
-						/>
-					) }
 					<Grid noMargin rowGap={ 16 }>
 						<TextControl
 							value={ settingsToUpdate?.site_key || '' }
@@ -158,7 +160,7 @@ const Recaptcha = () => {
 					</Grid>
 				</>
 			) }
-		</ActionCard>
+		</WizardsActionCard>
 	);
 };
 

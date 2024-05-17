@@ -8,8 +8,8 @@ import { useDispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { Button, Grid, Notice, TextControl } from '../../../../../../components/src';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../../components/src/wizard/store';
+import { Button, Grid, Notice, TextControl } from '../../../../../components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
 
 /**
  * Analytics Custom Events screen.
