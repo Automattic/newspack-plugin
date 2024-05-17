@@ -92,9 +92,15 @@ class Google_Login {
 	 * @return WP_REST_Response Response with the URL.
 	 */
 	public static function api_google_auth_get_url() {
+		$csrf_token = OAuth::generate_csrf_token( self::CSRF_TOKEN_NAMESPACE );
+		if ( $csrf_token === false ) {
+			/* translators: %s is the unique id of the visitor. */
+			self::handle_error( sprintf( __( 'Failed to save the CSRF token for id: %s', 'newspack-plugin' ), OAuth::get_unique_id() ) );
+			return new WP_Error( 'newspack_google_login', __( 'Failed to save the CSRF token.', 'newspack-plugin' ) );
+		}
 		$url = Google_OAuth::google_auth_get_url(
 			[
-				'csrf_token'     => OAuth::generate_csrf_token( self::CSRF_TOKEN_NAMESPACE ),
+				'csrf_token'     => $csrf_token,
 				'scope'          => implode( ' ', self::REQUIRED_SCOPES ),
 				'redirect_after' => add_query_arg( self::AUTH_CALLBACK, wp_create_nonce( self::AUTH_CALLBACK ), get_home_url() ),
 			]

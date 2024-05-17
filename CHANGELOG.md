@@ -1,3 +1,11 @@
+## [3.8.7](https://github.com/Automattic/newspack-plugin/compare/v3.8.6...v3.8.7) (2024-05-17)
+
+
+### Bug Fixes
+
+* **google-login:** use wp_generate_password for CSRF; handle CSRF saving failure ([37bab22](https://github.com/Automattic/newspack-plugin/commit/37bab2256a02a1a473c8cbcf2ec7b35309b283f3))
+* **oauth:** prevent false warning when opening Google OAuth ([22723f2](https://github.com/Automattic/newspack-plugin/commit/22723f256c1a8687fdb3d5fec3ed444be6f75c00))
+
 # [4.0.0-alpha.3](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.2...v4.0.0-alpha.3) (2024-04-26)
 
 
