@@ -190,17 +190,12 @@ export function openNewslettersSignupModal( config = {} ) {
 		},
 		...config,
 	};
-	if ( newspack_ras_config.is_logged_in ) {
-		if ( config.callback ) {
-			config.callback();
-		}
-		return;
-	}
-	if ( readerActivation._openNewslettersSignupModal ) {
+
+	if ( readerActivation?._openNewslettersSignupModal ) {
 		readerActivation._openNewslettersSignupModal( config );
 	} else {
 		console.warn( 'Newsletters signup modal not available' );
-		if ( config.callback ) {
+		if ( config?.callback ) {
 			config.callback();
 		}
 	}
@@ -420,6 +415,7 @@ const readerActivation = {
 	refreshAuthentication,
 	getReader,
 	openAuthModal,
+	openNewslettersSignupModal,
 	hasAuthLink,
 	getOTPHash,
 	setOTPTimer,
