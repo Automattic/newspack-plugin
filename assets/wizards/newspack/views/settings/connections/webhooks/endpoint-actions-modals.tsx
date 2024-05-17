@@ -90,44 +90,44 @@ const EndpointActionsModals = ( {
 	} = useWizardDataPropError( 'newspack/settings', `connections/webhooks/tests/${ endpoint.id }` );
 
 	// API
-	const toggleEndpoint = ( endpoint: Endpoint ) => {
+	const toggleEndpoint = ( endpointToToggle: Endpoint ) => {
 		wizardApiFetch< Endpoint[] >(
 			{
-				path: `/newspack/v1/webhooks/endpoints/${ endpoint.id }`,
+				path: `/newspack/v1/webhooks/endpoints/${ endpointToToggle.id }`,
 				method: 'POST',
-				data: { disabled: ! endpoint.disabled },
+				data: { disabled: ! endpointToToggle.disabled },
 			},
 			{
 				onSuccess: endpoints => setEndpoints( endpoints ),
 				onError: e => setError( e ),
-				onFinally: () => setAction( null, endpoint.id ),
+				onFinally: () => setAction( null, endpointToToggle.id ),
 			}
 		);
 	};
-	const deleteEndpoint = ( endpoint: Endpoint ) => {
+	const deleteEndpoint = ( endpointToDelete: Endpoint ) => {
 		wizardApiFetch< Endpoint[] >(
 			{
-				path: `/newspack/v1/webhooks/endpoints/${ endpoint.id }`,
+				path: `/newspack/v1/webhooks/endpoints/${ endpointToDelete.id }`,
 				method: 'DELETE',
 			},
 			{
 				onSuccess: endpoints => setEndpoints( endpoints ),
 				onError: e => setError( e ),
-				onFinally: () => setAction( null, endpoint.id ),
+				onFinally: () => setAction( null, endpointToDelete.id ),
 			}
 		);
 	};
-	const upsertEndpoint = ( endpoint: Endpoint ) => {
+	const upsertEndpoint = ( endpointToUpsert: Endpoint ) => {
 		wizardApiFetch< Endpoint[] >(
 			{
-				path: `/newspack/v1/webhooks/ensdpoints/${ endpoint.id || '' }`,
+				path: `/newspack/v1/webhooks/ensdpoints/${ endpointToUpsert.id || '' }`,
 				method: 'POST',
-				data: endpoint,
+				data: endpointToUpsert,
 			},
 			{
 				onSuccess( res ) {
 					setEndpoints( res );
-					setAction( null, endpoint.id );
+					setAction( null, endpointToUpsert.id );
 				},
 				onError( e ) {
 					setError( e );
@@ -380,19 +380,21 @@ const EndpointActionsModals = ( {
 									) }
 								</p>
 								<Grid columns={ 2 } gutter={ 16 }>
-									{ actions.map( ( action, i ) => (
+									{ actions.map( ( actionKey, i ) => (
 										<CheckboxControl
 											key={ i }
 											disabled={ editing.global || inFlight }
-											label={ action }
-											checked={ ( editing.actions && editing.actions.includes( action ) ) || false }
+											label={ actionKey }
+											checked={
+												( editing.actions && editing.actions.includes( actionKey ) ) || false
+											}
 											indeterminate={ editing.global }
 											onChange={ () => {
 												const currentActions = editing.actions || [];
-												if ( currentActions.includes( action ) ) {
-													currentActions.splice( currentActions.indexOf( action ), 1 );
+												if ( currentActions.includes( actionKey ) ) {
+													currentActions.splice( currentActions.indexOf( actionKey ), 1 );
 												} else {
-													currentActions.push( action );
+													currentActions.push( actionKey );
 												}
 												setEditing( { ...editing, actions: currentActions } );
 											} }

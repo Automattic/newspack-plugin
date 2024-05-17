@@ -83,7 +83,6 @@ const Webhooks = () => {
 
 	return (
 		<Card noBorder>
-			<pre>{ JSON.stringify( { action, selectedEndpoint }, null, 2 ) }</pre>
 			<div className="flex justify-between items-end">
 				<SectionHeader
 					title={ __( 'Webhook Endpoints', 'newspack-plugin' ) }
