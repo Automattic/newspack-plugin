@@ -8,6 +8,6 @@ window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( readerActivation => {
 	domReady( function () {
 		/** Expose the openNewslettersSignupModal function to the RAS scope */
-		readerActivation._openNewslettersSignup = openNewslettersSignupModal;
+		readerActivation._openNewslettersSignupModal = openNewslettersSignupModal;
 	} );
 } );

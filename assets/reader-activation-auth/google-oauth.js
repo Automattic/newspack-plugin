@@ -1,4 +1,4 @@
-/* globals newspack_reader_auth_labels */
+/* globals newspack_reader_activation_labels */
 
 /**
  * Internal dependencies.
@@ -77,7 +77,7 @@ domReady( function () {
 							}
 						}, 500 );
 					} else if ( googleLoginForm?.endLoginFlow ) {
-						googleLoginForm.endLoginFlow( newspack_reader_auth_labels.blocked_popup );
+						googleLoginForm.endLoginFlow( newspack_reader_activation_labels.blocked_popup );
 					}
 				} )
 				.catch( error => {

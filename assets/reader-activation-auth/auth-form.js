@@ -1,4 +1,4 @@
-/* globals newspack_reader_auth_labels */
+/* globals newspack_reader_activation_labels */
 
 /**
  * Internal dependencies.
@@ -184,7 +184,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 								} )
 									.then( () => {
 										messageContentElement.style.display = 'block';
-										messageContentElement.innerHTML = newspack_reader_auth_labels.code_resent;
+										messageContentElement.innerHTML = newspack_reader_activation_labels.code_resent;
 										container.setFormAction( 'otp' );
 										readerActivation.setOTPTimer();
 									} )
@@ -241,9 +241,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 							container.authCallback( message, data );
 						}
 					} else {
-						let labels = newspack_reader_auth_labels.signin;
+						let labels = newspack_reader_activation_labels.signin;
 						if ( data?.registered ) {
-							labels = newspack_reader_auth_labels.register;
+							labels = newspack_reader_activation_labels.register;
 						}
 						container.setFormAction( 'success' );
 						container.querySelector( '.success-title' ).innerHTML = labels.success_title || '';
@@ -284,11 +284,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 				const action = form.action?.value;
 
 				if ( ! form.npe?.value ) {
-					return form.endLoginFlow( newspack_reader_auth_labels.invalid_email, 400 );
+					return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 				}
 
 				if ( 'pwd' === action && ! form.password?.value ) {
-					return form.endLoginFlow( newspack_reader_auth_labels.invalid_password, 400 );
+					return form.endLoginFlow( newspack_reader_activation_labels.invalid_password, 400 );
 				}
 
 				readerActivation
@@ -313,7 +313,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					.finally( () => {
 						const body = new FormData( ev.target );
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-							return form.endLoginFlow( newspack_reader_auth_labels.invalid_email, 400 );
+							return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 						}
 						if ( 'otp' === action ) {
 							readerActivation

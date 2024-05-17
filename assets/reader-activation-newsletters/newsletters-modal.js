@@ -7,7 +7,7 @@
  */
 export function getModalContainer() {
 	return document.querySelector(
-		'.newspack-blocks-newsletters-signup-modal .newspack-blocks-newsletters-signup'
+		'.newspack-newsletters-signup-modal .newspack-newsletters-signup'
 	);
 }
 
@@ -21,15 +21,16 @@ export function getModalContainer() {
 export function openNewslettersSignupModal( config = {} ) {
 	const container = getModalContainer();
 	if ( ! container ) {
-		if ( config.callback ) {
+		if ( config?.callback ) {
 			config.callback();
 		}
 		return;
 	}
 
-	const modal = container.closest( '.newspack-blocks-newsletters-signup-modal' );
+	const modal = container.closest( '.newspack-newsletters-signup-modal' );
+
 	if ( ! modal ) {
-		if ( config.callback ) {
+		if ( config?.callback ) {
 			config.callback();
 		}
 		return;
@@ -38,7 +39,7 @@ export function openNewslettersSignupModal( config = {} ) {
 	const close = () => {
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
-		if ( modal.overlayId && window.newspackReaderActivation?.overlays ) {
+		if ( modal?.overlayId && window?.newspackReaderActivation?.overlays ) {
 			window.newspackReaderActivation.overlays.remove( modal.overlayId );
 		}
 		const openerContent = container.querySelector( '.opener-content' );
@@ -66,12 +67,12 @@ export function openNewslettersSignupModal( config = {} ) {
 
 	container.newslettersSignupCallback = ( message, data ) => {
 		close();
-		if ( config.callback ) {
+		if ( config?.callback ) {
 			config.callback( message, data );
 		}
 	};
 
-	if ( config.content ) {
+	if ( config?.content ) {
 		const openerContent = document.createElement( 'div' );
 		openerContent.classList.add( 'opener-content' );
 		openerContent.innerHTML = config.content;
@@ -79,7 +80,7 @@ export function openNewslettersSignupModal( config = {} ) {
 		form.insertBefore( openerContent, form.firstChild );
 	}
 	modal.setAttribute( 'data-state', 'open' );
-	if ( window.newspackReaderActivation?.overlays ) {
+	if ( window?.newspackReaderActivation?.overlays ) {
 		modal.overlayId = window.newspackReaderActivation.overlays.add();
 	}
 }
