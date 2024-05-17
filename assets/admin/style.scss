@@ -74,11 +74,23 @@ html {
 }
 
 // Overrides
-.newspack-card.newspack-action-card {
-	.newspack-action-card__notification {
-		&.newspack-action-card__region-children {
-			.newspack-notice {
-				margin-top: 16px;
+.newspack-card {
+	&.newspack-action-card {
+		.newspack-action-card__notification {
+			&.newspack-action-card__region-children {
+				.newspack-notice {
+					margin-top: 16px;
+				}
+			}
+		}
+		&.is-medium {
+			.newspack-action-card__region-children:not(:last-child) {
+				padding-bottom: 0;
+				padding-top: 32px;
+
+				.newspack-notice {
+					margin-top: 0;
+				}
 			}
 		}
 	}
