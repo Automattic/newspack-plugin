@@ -31,7 +31,7 @@ const defaultEndpoint: Endpoint = {
 };
 
 const Webhooks = () => {
-	const { wizardApiFetch, isLoading: inFlight } = useWizardApiFetch();
+	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch();
 
 	const [ action, setAction ] = useState< Actions >( null );
 	const [ actions, setActions ] = useState< string[] >( [] );
@@ -46,7 +46,10 @@ const Webhooks = () => {
 	/**
 	 * Component state for error handling.
 	 */
-	const { error, setError } = useWizardDataPropError( 'newspack/settings', 'connections/webhooks' );
+	const { error, setError, isError } = useWizardDataPropError(
+		'newspack/settings',
+		'connections/webhooks'
+	);
 
 	function fetchActions() {
 		wizardApiFetch< never[] >(
@@ -64,7 +67,10 @@ const Webhooks = () => {
 		wizardApiFetch< Endpoint[] >(
 			{ path: '/newspack/v1/webhooks/endpoints' },
 			{
-				onSuccess: newEndpoints => setEndpoints( newEndpoints ),
+				onSuccess: newEndpoints => {
+					setEndpoints( newEndpoints );
+					console.log( { newEndpoints } );
+				},
 				onError: e => setError( e ),
 			}
 		);
@@ -93,10 +99,12 @@ const Webhooks = () => {
 					noMargin
 				/>
 				<Button variant="primary" onClick={ () => setActionHandler( 'new' ) } disabled={ inFlight }>
-					{ __( 'Add New Endpoint', 'newspack-plugin' ) }
+					{ inFlight
+						? __( 'Loading…', 'newspack-plugin' )
+						: __( 'Add New Endpoint', 'newspack-plugin' ) }
 				</Button>
 			</div>
-			{ error && <Notice isError noticeText={ error } /> }
+			{ isError && <Notice isError noticeText={ error } /> }
 			{ endpoints.length > 0 && (
 				<>
 					{ endpoints.map( endpoint => (

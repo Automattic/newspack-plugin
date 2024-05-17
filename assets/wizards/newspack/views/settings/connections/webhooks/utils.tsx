@@ -1,5 +1,5 @@
 /**
- * Settings Webhooks Wizard utility functions.
+ * Settings Wizard: Connections > Webhooks > Utils
  */
 
 /**

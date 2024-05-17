@@ -1,5 +1,5 @@
 /**
- * Settings > Connections > Webhooks > Endpoint Actions.
+ * Settings Wizard: Connections > Webhooks > Endpoint Actions
  */
 
 /**

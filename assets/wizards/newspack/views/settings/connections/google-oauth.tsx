@@ -3,11 +3,6 @@
  */
 
 /**
- * External dependencies.
- */
-import qs from 'qs';
-
-/**
  * WordPress dependencies.
  */
 import { useDispatch } from '@wordpress/data';
@@ -23,7 +18,12 @@ import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/sto
 import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
 
 const getURLParams = () => {
-	return qs.parse( window.location.search.replace( /^\?/, '' ) );
+	const searchParams = new URLSearchParams(window.location.search);
+	const params: { [key: string]: string } = {};
+	for (const [key, value] of searchParams.entries()) {
+		params[key] = value;
+	}
+	return params;
 };
 
 const GoogleOAuth = ( {

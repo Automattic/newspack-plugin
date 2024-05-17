@@ -103,7 +103,7 @@ const Plugins = () => {
 		<Fragment>
 			{ pluginsArray.map( pluginKey => {
 				const isInactive = plugins[ pluginKey ].status === 'inactive';
-				const isLoading = ! plugins[ pluginKey ].status;
+				const isFetching = ! plugins[ pluginKey ].status;
 
 				const plugin = PLUGINS[ pluginKey ];
 				const error = getError( pluginKey );
@@ -112,7 +112,7 @@ const Plugins = () => {
 					if ( error ) {
 						return __( 'Error!', 'newspack-plugin' );
 					}
-					if ( isLoading ) {
+					if ( isFetching ) {
 						return __( 'Loading…', 'newspack-plugin' );
 					}
 					if ( isInactive ) {
@@ -129,7 +129,7 @@ const Plugins = () => {
 						title={ plugin.name }
 						description={ getDescription() }
 						actionText={ isInactive ? <PluginConnectButton plugin={ plugin } /> : null }
-						isChecked={ ! ( isInactive || isLoading ) }
+						isChecked={ ! ( isInactive || isFetching ) }
 						badge={ plugin.badge }
 						indent={ plugin.indent }
 						error={ error }

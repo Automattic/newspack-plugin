@@ -1,5 +1,5 @@
 /**
- * Settings > Connections > Webhooks > Endpoint Actions Modals
+ * Settings Wizard: Connections > Webhooks > Endpoint Actions Modals
  */
 
 /**
@@ -77,7 +77,7 @@ const EndpointActionsModals = ( {
 } ) => {
 	const [ editing, setEditing ] = useState< Endpoint >( endpoint );
 
-	const { wizardApiFetch, isLoading: inFlight } = useWizardApiFetch();
+	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch();
 
 	const { error, setError } = useWizardDataPropError(
 		'newspack/settings',

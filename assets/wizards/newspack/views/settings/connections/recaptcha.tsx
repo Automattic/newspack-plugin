@@ -1,4 +1,8 @@
 /**
+ * Settings Wizard: Connections > reCAPTCHA
+ */
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -21,7 +25,7 @@ const settingsDefault: RecaptchaData = {
 };
 
 const Recaptcha = () => {
-	const { wizardApiFetch, isLoading } = useWizardApiFetch();
+	const { wizardApiFetch, isFetching } = useWizardApiFetch();
 
 	const { error, setError, resetError } = useWizardDataPropError(
 		'newspack/settings',
@@ -108,15 +112,17 @@ const Recaptcha = () => {
 				settings.use_captcha && (
 					<Button
 						variant="primary"
-						disabled={ isLoading || ! Object.keys( settingsToUpdate ).length }
+						disabled={ isFetching || ! Object.keys( settingsToUpdate ).length }
 						onClick={ () => updateSettings( settingsToUpdate ) }
 					>
-						{ __( 'Save Settings', 'newspack-plugin' ) }
+						{ isFetching
+							? __( 'Loading…', 'newspack-plugin' )
+							: __( 'Save Settings', 'newspack-plugin' ) }
 					</Button>
 				)
 			}
 			error={ error }
-			disabled={ isLoading }
+			disabled={ isFetching }
 		>
 			{ settings.use_captcha && (
 				<>
@@ -127,7 +133,7 @@ const Recaptcha = () => {
 							onChange={ ( value: string ) =>
 								setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
 							}
-							disabled={ isLoading }
+							disabled={ isFetching }
 							autoComplete="off"
 						/>
 						<TextControl
@@ -137,7 +143,7 @@ const Recaptcha = () => {
 							onChange={ ( value: string ) =>
 								setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
 							}
-							disabled={ isLoading }
+							disabled={ isFetching }
 							autoComplete="off"
 						/>
 						<TextControl
@@ -150,7 +156,7 @@ const Recaptcha = () => {
 							onChange={ ( value: string ) =>
 								setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
 							}
-							disabled={ isLoading }
+							disabled={ isFetching }
 							help={
 								<ExternalLink href="https://developers.google.com/recaptcha/docs/v3#interpreting_the_score">
 									{ __( 'Learn more about the threshold value', 'newspack-plugin' ) }

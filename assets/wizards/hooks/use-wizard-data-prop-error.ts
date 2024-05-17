@@ -28,6 +28,7 @@ function useWizardDataPropError( slug: string, prop: string ) {
 
 	return {
 		error,
+		isError: !! error,
 		setError(
 			err: string | Error | { message: string },
 			defaultVal = __( 'Something went wrong.', 'newspack-plugin' )

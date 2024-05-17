@@ -1,7 +1,11 @@
 /**
+ * Custom hook for making API fetch requests using the wizard API.
+ */
+
+/**
  * WordPress dependencies
  */
-import { useCallback } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
@@ -9,21 +13,16 @@ import { useDispatch, useSelect } from '@wordpress/data';
  */
 import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
 
-/**
- * Custom hook for making API fetch requests using the wizard API.
- * @return An object containing the `wizardApiFetch` function and the `isLoading` boolean.
- */
 export function useWizardApiFetch() {
 	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const isLoading: boolean = useSelect( select =>
-		select( WIZARD_STORE_NAMESPACE ).isQuietLoading()
-	);
+	const [ isFetching, setIsFetching ] = useState( false );
 
 	const apiFetch = useCallback(
 		async < T = any >( options: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => {
 			if ( callbacks?.onStart ) {
 				callbacks.onStart();
 			}
+			setIsFetching( true );
 			try {
 				const response: T = await wizardApiFetch< T >( {
 					isQuietFetch: true,
@@ -38,15 +37,16 @@ export function useWizardApiFetch() {
 				if ( callbacks?.onError ) {
 					callbacks.onError( err );
 				}
-				throw err; // Optionally re-throw the error if you need to handle it outside as well
+				throw err;
 			} finally {
 				if ( callbacks?.onFinally ) {
 					callbacks.onFinally();
 				}
+				setIsFetching( false );
 			}
 		},
 		[ wizardApiFetch ]
 	);
 
-	return { wizardApiFetch: apiFetch, isLoading };
+	return { wizardApiFetch: apiFetch, isFetching };
 }

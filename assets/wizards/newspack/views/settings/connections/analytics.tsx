@@ -1,5 +1,5 @@
 /**
- * Analytics Plugins View
+ * Settings Wizard: Connections > Analytics
  */
 
 /**

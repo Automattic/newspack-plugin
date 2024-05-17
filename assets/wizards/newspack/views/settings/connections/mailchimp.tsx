@@ -1,4 +1,8 @@
 /**
+ * Settings Wizard: Connections > Mailchimp
+ */
+
+/**
  * WordPress dependencies.
  */
 import { ENTER } from '@wordpress/keycodes';
@@ -19,7 +23,7 @@ const Mailchimp = () => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ apiKey, setAPIKey ] = useState< string | undefined >();
 
-	const { wizardApiFetch, isLoading } = useWizardApiFetch();
+	const { wizardApiFetch, isFetching } = useWizardApiFetch();
 
 	const { error, setError, resetError } = useWizardDataPropError(
 		'newspack/settings',
@@ -112,7 +116,7 @@ const Mailchimp = () => {
 	};
 
 	const getDescription = () => {
-		if ( isLoading ) {
+		if ( isFetching ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
 		if ( isConnected ) {
@@ -126,7 +130,7 @@ const Mailchimp = () => {
 		if ( ! apiKey ) {
 			return __( 'Invalid Mailchimp API Key.', 'newspack' );
 		}
-		if ( isLoading ) {
+		if ( isFetching ) {
 			return __( 'Connecting…', 'newspack-plugin' );
 		}
 		if ( isConnected ) {
@@ -146,7 +150,7 @@ const Mailchimp = () => {
 						isLink
 						isDestructive={ isConnected }
 						onClick={ isConnected ? disconnect : openModal }
-						disabled={ isLoading }
+						disabled={ isFetching }
 					>
 						{ isConnected
 							? __( 'Disconnect', 'newspack-plugin' )

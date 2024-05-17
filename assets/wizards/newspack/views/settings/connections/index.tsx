@@ -1,5 +1,5 @@
 /**
- * Newspack / Settings / Connections (Tab)
+ * Settings Connections: Plugins, APIs, reCAPTCHA, Webhooks, Analytics, Custom Events
  */
 
 /**
