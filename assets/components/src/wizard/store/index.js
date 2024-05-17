@@ -27,25 +27,29 @@ const DEFAULT_STATE = {
  * on deep state change (via lodash's set function)
  * unless the state was cloned first.
  */
-const clone = objectToClone => JSON.parse(JSON.stringify(objectToClone));
+const clone = objectToClone => JSON.parse( JSON.stringify( objectToClone ) );
 
-const reducer = (state = DEFAULT_STATE, { type, payload = {} }) => {
-	switch (type) {
+const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
+	switch ( type ) {
 		case 'START_LOADING_DATA':
-			if (payload.isQuietLoading) {
+			if ( payload.isQuietLoading ) {
 				return { ...state, isQuietLoading: true };
 			}
 			return { ...state, isLoading: true };
 		case 'FINISH_LOADING_DATA':
 			return { ...state, isLoading: false, isQuietLoading: false };
 		case 'SET_API_DATA':
-			return set(clone(state), ['apiData', payload.slug], payload.data);
+			return set( clone( state ), [ 'apiData', payload.slug ], payload.data );
 		case 'UPDATE_WIZARD_SETTINGS':
-			return set(clone(state), ['apiData', payload.slug, ...payload.path], payload.value);
+			return set( clone( state ), [ 'apiData', payload.slug, ...payload.path ], payload.value );
 		case 'SET_ERROR':
 			return { ...state, error: payload };
 		case 'SET_DATA_PROP_ERROR':
-			return set(clone(state), ['apiData', payload.slug, payload.prop, 'error'], payload.message);
+			return set(
+				clone( state ),
+				[ 'apiData', payload.slug, payload.prop, 'error' ],
+				payload.message
+			);
 		default:
 			return state;
 	}
@@ -53,35 +57,35 @@ const reducer = (state = DEFAULT_STATE, { type, payload = {} }) => {
 
 const actions = {
 	// Regular actions.
-	startLoadingData: createAction('START_LOADING_DATA'),
-	finishLoadingData: createAction('FINISH_LOADING_DATA'),
-	fetchFromAPI: createAction('FETCH_FROM_API'),
-	setAPIDataForWizard: createAction('SET_API_DATA'),
-	setDataPropError: createAction('SET_DATA_PROP_ERROR'),
-	updateWizardSettings: createAction('UPDATE_WIZARD_SETTINGS'),
-	setError: createAction('SET_ERROR'),
+	startLoadingData: createAction( 'START_LOADING_DATA' ),
+	finishLoadingData: createAction( 'FINISH_LOADING_DATA' ),
+	fetchFromAPI: createAction( 'FETCH_FROM_API' ),
+	setAPIDataForWizard: createAction( 'SET_API_DATA' ),
+	setDataPropError: createAction( 'SET_DATA_PROP_ERROR' ),
+	updateWizardSettings: createAction( 'UPDATE_WIZARD_SETTINGS' ),
+	setError: createAction( 'SET_ERROR' ),
 
 	// Async actions. These will not show up in Redux devtools.
-	*saveWizardSettings({ slug, section = '', payloadPath = false, updatePayload = null }) {
+	*saveWizardSettings( { slug, section = '', payloadPath = false, updatePayload = null } ) {
 		// Optionally data can be updated before saving - an immediate update case
 		// (without an explicit "save" action).
-		if (updatePayload) {
-			yield actions.updateWizardSettings({ slug, ...updatePayload });
+		if ( updatePayload ) {
+			yield actions.updateWizardSettings( { slug, ...updatePayload } );
 		}
-		const wizardState = select(WIZARD_STORE_NAMESPACE).getWizardAPIData(slug);
-		const updatedData = yield actions.fetchFromAPI({
-			path: `/newspack/v1/wizard/${slug}/${section}`,
+		const wizardState = select( WIZARD_STORE_NAMESPACE ).getWizardAPIData( slug );
+		const updatedData = yield actions.fetchFromAPI( {
+			path: `/newspack/v1/wizard/${ slug }/${ section }`,
 			method: 'POST',
-			data: payloadPath ? get(wizardState, payloadPath) : wizardState,
+			data: payloadPath ? get( wizardState, payloadPath ) : wizardState,
 			isQuietFetch: true,
-		});
-		if (!isEmpty(updatedData) && !updatedData.error) {
-			return actions.setAPIDataForWizard({ slug, data: updatedData });
+		} );
+		if ( ! isEmpty( updatedData ) && ! updatedData.error ) {
+			return actions.setAPIDataForWizard( { slug, data: updatedData } );
 		}
 	},
-	*wizardApiFetch(fetchConfig) {
+	*wizardApiFetch( fetchConfig ) {
 		// Just a proxy to fetchFromAPI, but it has to be a generator.
-		const result = yield actions.fetchFromAPI(fetchConfig);
+		const result = yield actions.fetchFromAPI( fetchConfig );
 		return result;
 	},
 };
@@ -89,12 +93,12 @@ const actions = {
 const selectors = {
 	isLoading: state => state.isLoading,
 	isQuietLoading: state => state.isQuietLoading,
-	getWizardAPIData: (state, slug) => state.apiData[slug] || {},
-	getWizardData: (state, slug) => state.apiData[slug] ?? {},
+	getWizardAPIData: ( state, slug ) => state.apiData[ slug ] || {},
+	getWizardData: ( state, slug ) => state.apiData[ slug ] ?? {},
 	getError: state => state.error,
 };
 
-const store = createReduxStore(WIZARD_STORE_NAMESPACE, {
+const store = createReduxStore( WIZARD_STORE_NAMESPACE, {
 	reducer,
 	actions,
 	selectors,
@@ -102,38 +106,38 @@ const store = createReduxStore(WIZARD_STORE_NAMESPACE, {
 	controls: {
 		FETCH_FROM_API: action => {
 			const { isLocalError = false, isQuietFetch = false } = action.payload;
-			dispatch(WIZARD_STORE_NAMESPACE).startLoadingData({
-				isQuietLoading: Boolean(isQuietFetch),
-			});
-			return apiFetch(action.payload)
-				.then(data => {
-					dispatch(WIZARD_STORE_NAMESPACE).setError(null);
+			dispatch( WIZARD_STORE_NAMESPACE ).startLoadingData( {
+				isQuietLoading: Boolean( isQuietFetch ),
+			} );
+			return apiFetch( action.payload )
+				.then( data => {
+					dispatch( WIZARD_STORE_NAMESPACE ).setError( null );
 					return data;
-				})
-				.catch(error => {
-					if (isLocalError) {
+				} )
+				.catch( error => {
+					if ( isLocalError ) {
 						throw error;
 					}
-					dispatch(WIZARD_STORE_NAMESPACE).setError(error);
-				})
-				.finally(result => {
-					dispatch(WIZARD_STORE_NAMESPACE).finishLoadingData();
+					dispatch( WIZARD_STORE_NAMESPACE ).setError( error );
+				} )
+				.finally( result => {
+					dispatch( WIZARD_STORE_NAMESPACE ).finishLoadingData();
 					return result;
-				});
+				} );
 		},
 	},
 
 	resolvers: {
-		*getWizardAPIData(slug) {
-			if (slug) {
-				const data = yield actions.fetchFromAPI({
-					path: `/newspack/v1/wizard/${slug}`,
-				});
-				return actions.setAPIDataForWizard({ slug, data });
+		*getWizardAPIData( slug ) {
+			if ( slug ) {
+				const data = yield actions.fetchFromAPI( {
+					path: `/newspack/v1/wizard/${ slug }`,
+				} );
+				return actions.setAPIDataForWizard( { slug, data } );
 			}
 			return actions.finishLoadingData();
 		},
 	},
-});
+} );
 
-export default () => register(store);
+export default () => register( store );

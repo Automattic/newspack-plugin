@@ -25,7 +25,7 @@ import {
 } from '../';
 import Router from '../proxied-imports/router';
 import registerStore, { WIZARD_STORE_NAMESPACE } from './store';
-import { useWizardData, useWizardDataProp, useWizardDataPropError } from './store/utils';
+import { useWizardData, useWizardDataProp } from './store/utils';
 import WizardError from './components/WizardError';
 
 registerStore();
@@ -161,7 +161,6 @@ const Wizard = ( {
 
 Wizard.useWizardData = useWizardData;
 Wizard.useWizardDataProp = useWizardDataProp;
-Wizard.useWizardDataPropError = useWizardDataPropError;
 
 Wizard.STORE_NAMESPACE = WIZARD_STORE_NAMESPACE;
 
