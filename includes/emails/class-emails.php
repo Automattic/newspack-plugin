@@ -493,10 +493,8 @@ class Emails {
 				$theme_colors = newspack_get_theme_colors();
 				\Newspack_Newsletters::update_color_palette(
 					[
-						'primary'        => $theme_colors['primary_color'],
-						'secondary'      => $theme_colors['secondary_color'],
-						'primary-text'   => $theme_colors['primary_text_color'],
-						'secondary-text' => $theme_colors['secondary_text_color'],
+						'primary'      => $theme_colors['primary_color'],
+						'primary-text' => $theme_colors['primary_text_color'],
 					]
 				);
 			}
@@ -649,18 +647,16 @@ class Emails {
 		}
 
 		// Check for theme mod color settings in case a non-newspack theme is installed.
-		if ( ! isset( $previous_value['primary_color_hex'], $previous_value['secondary_color_hex'], $updated_value['primary_color_hex'], $updated_value['secondary_color_hex'] ) ) {
+		if ( ! isset( $previous_value['primary_color_hex'], $updated_value['primary_color_hex'] ) ) {
 			return;
 		}
 
-		if ( $previous_value['primary_color_hex'] !== $updated_value['primary_color_hex'] || $previous_value['secondary_color_hex'] !== $updated_value['secondary_color_hex'] ) {
+		if ( $previous_value['primary_color_hex'] !== $updated_value['primary_color_hex'] ) {
 			// Update the newsletters color palette.
 			$updated = \Newspack_Newsletters::update_color_palette(
 				[
-					'primary'        => $updated_value['primary_color_hex'],
-					'secondary'      => $updated_value['secondary_color_hex'],
-					'primary-text'   => newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
-					'secondary-text' => newspack_get_color_contrast( $updated_value['secondary_color_hex'] ),
+					'primary'      => $updated_value['primary_color_hex'],
+					'primary-text' => newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
 				]
 			);
 
@@ -683,15 +679,11 @@ class Emails {
 				$email_html = str_replace(
 					[
 						$previous_value['primary_color_hex'],
-						$previous_value['secondary_color_hex'],
 						newspack_get_color_contrast( $previous_value['primary_color_hex'] ),
-						newspack_get_color_contrast( $previous_value['secondary_color_hex'] ),
 					],
 					[
 						$updated_value['primary_color_hex'],
-						$updated_value['secondary_color_hex'],
 						newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
-						newspack_get_color_contrast( $updated_value['secondary_color_hex'] ),
 					],
 					$email_html
 				);
