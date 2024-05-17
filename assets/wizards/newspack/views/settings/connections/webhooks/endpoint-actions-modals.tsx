@@ -120,7 +120,7 @@ const EndpointActionsModals = ( {
 	const upsertEndpoint = ( endpointToUpsert: Endpoint ) => {
 		wizardApiFetch< Endpoint[] >(
 			{
-				path: `/newspack/v1/webhooks/ensdpoints/${ endpointToUpsert.id || '' }`,
+				path: `/newspack/v1/webhooks/endpoints/${ endpointToUpsert.id || '' }`,
 				method: 'POST',
 				data: endpointToUpsert,
 			},
