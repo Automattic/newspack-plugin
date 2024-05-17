@@ -174,6 +174,39 @@ export function openAuthModal( config = {} ) {
 }
 
 /**
+ * Start the newsletter signup modal with an optional custom callback.
+ *
+ * @param {Object} config Config.
+ */
+export function openNewslettersSignupModal( config = {} ) {
+	// Set default config.
+	config = {
+		...{
+			callback: null,
+			initialState: null,
+			skipSuccess: false,
+			labels: {},
+			content: null,
+		},
+		...config,
+	};
+	if ( newspack_ras_config.is_logged_in ) {
+		if ( config.callback ) {
+			config.callback();
+		}
+		return;
+	}
+	if ( readerActivation._openNewslettersSignupModal ) {
+		readerActivation._openNewslettersSignupModal( config );
+	} else {
+		console.warn( 'Newsletters signup modal not available' );
+		if ( config.callback ) {
+			config.callback();
+		}
+	}
+}
+
+/**
  * Get the reader's OTP hash for the current authentication request.
  *
  * @return {string} OTP hash.
