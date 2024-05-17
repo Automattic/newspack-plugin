@@ -86,9 +86,9 @@ const Mailchimp = () => {
 						)
 					);
 				},
-				onFinally(){
+				onFinally() {
 					closeModal();
-				}
+				},
 			}
 		);
 	};
