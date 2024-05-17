@@ -67,10 +67,7 @@ const Webhooks = () => {
 		wizardApiFetch< Endpoint[] >(
 			{ path: '/newspack/v1/webhooks/endpoints' },
 			{
-				onSuccess: newEndpoints => {
-					setEndpoints( newEndpoints );
-					console.log( { newEndpoints } );
-				},
+				onSuccess: newEndpoints => setEndpoints( newEndpoints ),
 				onError: e => setError( e ),
 			}
 		);

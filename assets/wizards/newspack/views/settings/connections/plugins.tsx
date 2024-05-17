@@ -85,8 +85,8 @@ const Plugin = ( { plugin }: { plugin: Plugin } ) => {
 				onSuccess( result: { Status: string; Configured: boolean } ) {
 					setIsActive( result.Configured && result.Status === 'active' );
 				},
-				onError( error: any ) {
-					setError( error );
+				onError( err: any ) {
+					setError( err );
 				},
 			}
 		);
