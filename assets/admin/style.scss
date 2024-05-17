@@ -19,6 +19,13 @@ html {
 	font-size: 16px;
 }
 
+/* Utils */
+p:has(span.newspack-text-overflow) {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .newspack-wizard {
 
 	.newspack-wizard__loader {
@@ -83,6 +90,7 @@ html {
 				}
 			}
 		}
+
 		&.is-medium {
 			.newspack-action-card__region-children:not(:last-child) {
 				padding-bottom: 0;

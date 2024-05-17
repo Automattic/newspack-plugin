@@ -40,18 +40,12 @@ const EndpointActionsCard = ( {
 				}
 				return (
 					<>
-						{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
-						{ endpoint.global ? (
-							<span className="newspack-webhooks__endpoint__action">
-								{ __( 'global', 'newspack-plugin' ) }
-							</span>
-						) : (
-							endpoint.actions.map( action => (
-								<span key={ action } className="newspack-webhooks__endpoint__action">
-									{ action }
-								</span>
-							) )
-						) }
+						<span className="newspack-webhooks__endpoint__action newspack-text-overflow">
+							{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
+							{ endpoint.global
+								? __( 'global', 'newspack-plugin' )
+								: endpoint.actions.join( ', ' ) }
+						</span>
 					</>
 				);
 			} }

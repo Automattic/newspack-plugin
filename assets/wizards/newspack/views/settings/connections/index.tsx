@@ -25,15 +25,15 @@ const Connections = () => {
 	return (
 		<div className="newspack-dashboard__section">
 			{ /* Plugins */ }
-			{/* <SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
-			<Plugins /> */}
+			<SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
+			<Plugins />
 			{ /* APIs; google */ }
-			{/* <SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
+			<SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
 			{ connections.dependencies.google && <GoogleOAuth /> }
-			<Mailchimp /> */}
+			<Mailchimp />
 			{ /* reCAPTCHA */ }
-			{/* <SectionHeader heading={ 3 } title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
-			<Recaptcha /> */}
+			<SectionHeader heading={ 3 } title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
+			<Recaptcha />
 			{ /* Webhooks */ }
 			{ connections.dependencies.webhooks && <Webhooks /> }
 			{ /* Analytics */ }
