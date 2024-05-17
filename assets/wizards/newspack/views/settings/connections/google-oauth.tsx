@@ -18,10 +18,10 @@ import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/sto
 import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
 
 const getURLParams = () => {
-	const searchParams = new URLSearchParams(window.location.search);
-	const params: { [key: string]: string } = {};
-	for (const [key, value] of searchParams.entries()) {
-		params[key] = value;
+	const searchParams = new URLSearchParams( window.location.search );
+	const params: { [ key: string ]: string } = {};
+	for ( const [ key, value ] of searchParams.entries() ) {
+		params[ key ] = value;
 	}
 	return params;
 };
