@@ -14,7 +14,7 @@ import { Fragment, useState, useEffect } from '@wordpress/element';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { Button, Handoff } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
+import useWizardError from '../../../../hooks/use-wizard-error';
 
 interface Plugin {
 	path: string;
@@ -71,7 +71,7 @@ function PluginConnectButton( { plugin }: { plugin: Plugin } ) {
 }
 
 const Plugin = ( { plugin }: { plugin: Plugin } ) => {
-	const { error, setError } = useWizardDataPropError(
+	const { error, setError } = useWizardError(
 		'newspack/settings',
 		`connections/plugins${ plugin.pluginSlug }`
 	);

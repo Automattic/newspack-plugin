@@ -12,7 +12,7 @@ import { useState } from '@wordpress/element';
  * Internal dependencies
  */
 import { Button, Grid, Notice, TextControl } from '../../../../../components/src';
-import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
+import useWizardError from '../../../../hooks/use-wizard-error';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 /**
@@ -23,7 +23,7 @@ const CustomEvents = () => {
 		measurement_protocol_secret: string;
 		measurement_id: string;
 	} >( window.newspackSettings.tabs.connections.sections.analytics );
-	const { error, setError, resetError } = useWizardDataPropError(
+	const { error, setError, resetError } = useWizardError(
 		'newspack/settings',
 		'connections/custom-events'
 	);

@@ -15,7 +15,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { Button } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
-import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
+import useWizardError from '../../../../hooks/use-wizard-error';
 
 const getURLParams = () => {
 	const searchParams = new URLSearchParams( window.location.search );
@@ -40,7 +40,7 @@ const GoogleOAuth = ( {
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const { error, setError, resetError } = useWizardDataPropError(
+	const { error, setError, resetError } = useWizardError(
 		'newspack/settings',
 		'connections/apis/googleoauth'
 	);

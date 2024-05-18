@@ -19,7 +19,7 @@ import moment from 'moment';
  */
 import { useWizardApiFetch } from '../../../../../hooks/use-wizard-api-fetch';
 import { Card, Button, Notice, Modal, Grid } from '../../../../../../components/src';
-import useWizardDataPropError from '../../../../../hooks/use-wizard-data-prop-error';
+import useWizardError from '../../../../../hooks/use-wizard-error';
 import { getDisplayUrl, getEndpointLabel, getRequestStatusIcon, hasEndpointErrors } from './utils';
 
 const ConfirmationModal = ( {
@@ -79,7 +79,7 @@ const EndpointActionsModals = ( {
 
 	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch();
 
-	const { error, setError } = useWizardDataPropError(
+	const { error, setError } = useWizardError(
 		'newspack/settings',
 		`connections/webhooks/${ endpoint.id }`
 	);
@@ -87,7 +87,7 @@ const EndpointActionsModals = ( {
 		error: testError,
 		setError: setTestError,
 		resetError: resetTestError,
-	} = useWizardDataPropError( 'newspack/settings', `connections/webhooks/tests/${ endpoint.id }` );
+	} = useWizardError( 'newspack/settings', `connections/webhooks/tests/${ endpoint.id }` );
 
 	// API
 	const toggleEndpoint = ( endpointToToggle: Endpoint ) => {

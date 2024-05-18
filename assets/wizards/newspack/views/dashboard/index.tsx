@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { GlobalNotices, Footer, Notice, Wizard } from '../../../../components/src';
+import { GlobalNotices, Notice, Wizard } from '../../../../components/src';
 import sections from './sections';
 import BrandHeader from '../../components/brand-header';
 import QuickActions from '../../components/quick-actions';
@@ -40,7 +40,6 @@ const Dashboard = () => {
 					</>
 				) }
 			/>
-			<Footer />
 		</>
 	);
 };

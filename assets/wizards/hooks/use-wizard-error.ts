@@ -19,10 +19,10 @@ import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
  *
  * @example
  * ```ts
- * const { error, setError, resetError } = useWizardDataPropError( 'slug', 'prop' );
+ * const { error, setError, resetError } = useWizardError( 'slug', 'prop' );
  * ```
  */
-function useWizardDataPropError( slug: string, prop: string ) {
+function useWizardError( slug: string, prop: string ) {
 	const { setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { error } = Wizard.useWizardDataProp( slug, prop );
 
@@ -49,4 +49,4 @@ function useWizardDataPropError( slug: string, prop: string ) {
 	};
 }
 
-export default useWizardDataPropError;
+export default useWizardError;

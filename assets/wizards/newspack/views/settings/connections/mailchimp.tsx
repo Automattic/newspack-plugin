@@ -15,7 +15,7 @@ import { useEffect, useState, useRef } from '@wordpress/element';
  */
 import WizardsActionCard from '../../../../wizards-action-card';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
+import useWizardError from '../../../../hooks/use-wizard-error';
 import { Button, Card, Grid, Modal, TextControl } from '../../../../../components/src';
 
 const Mailchimp = () => {
@@ -25,7 +25,7 @@ const Mailchimp = () => {
 
 	const { wizardApiFetch, isFetching } = useWizardApiFetch();
 
-	const { error, setError, resetError } = useWizardDataPropError(
+	const { error, setError, resetError } = useWizardError(
 		'newspack/settings',
 		'connections/apis/mailchimp'
 	);

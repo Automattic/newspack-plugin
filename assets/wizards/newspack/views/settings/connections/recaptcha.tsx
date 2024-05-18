@@ -15,7 +15,7 @@ import { useEffect, useState } from '@wordpress/element';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { Grid, Button, TextControl } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import useWizardDataPropError from '../../../../hooks/use-wizard-data-prop-error';
+import useWizardError from '../../../../hooks/use-wizard-error';
 
 const settingsDefault: RecaptchaData = {
 	site_key: undefined,
@@ -27,7 +27,7 @@ const settingsDefault: RecaptchaData = {
 const Recaptcha = () => {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch();
 
-	const { error, setError, resetError } = useWizardDataPropError(
+	const { error, setError, resetError } = useWizardError(
 		'newspack/settings',
 		'connections/recaptcha'
 	);

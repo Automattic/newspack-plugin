@@ -15,7 +15,7 @@ import { Card, Button, Notice, SectionHeader } from '../../../../../../component
 import EndpointActionsCard from './endpoint-actions-card';
 import EndpointActionsModals from './endpoint-actions-modals';
 import { useWizardApiFetch } from '../../../../../hooks/use-wizard-api-fetch';
-import useWizardDataPropError from '../../../../../hooks/use-wizard-data-prop-error';
+import useWizardError from '../../../../../hooks/use-wizard-error';
 
 const defaultEndpoint: Endpoint = {
 	url: '',
@@ -46,7 +46,7 @@ const Webhooks = () => {
 	/**
 	 * Component state for error handling.
 	 */
-	const { error, setError, isError } = useWizardDataPropError(
+	const { error, setError, isError } = useWizardError(
 		'newspack/settings',
 		'connections/webhooks'
 	);

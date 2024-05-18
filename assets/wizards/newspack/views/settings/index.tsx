@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  */
 import sections from './sections';
 import Wizard from '../../../../components/src/wizard';
-import { GlobalNotices, Footer, Notice } from '../../../../components/src/';
+import { GlobalNotices, Notice } from '../../../../components/src/';
 import './style.scss';
 
 const {
@@ -31,7 +31,6 @@ const Settings = () => {
 				headerText={ __( 'Newspack / Settings', 'newspack' ) }
 				sections={ sections }
 			/>
-			<Footer />
 		</>
 	);
 };
