@@ -24,6 +24,7 @@ const { connections } = window.newspackSettings.tabs;
 const Connections = () => {
 	return (
 		<div className="newspack-dashboard__section">
+			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
 			{ /* Plugins */ }
 			<SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
 			<Plugins />
