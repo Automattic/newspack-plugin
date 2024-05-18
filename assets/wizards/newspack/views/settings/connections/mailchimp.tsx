@@ -164,7 +164,6 @@ const Mailchimp = () => {
 				<Modal
 					title={ __( 'Add Mailchimp API Key', 'newspack-plugin' ) }
 					onRequestClose={ closeModal }
-					otherStuff={ '' }
 				>
 					<div ref={ modalTextRef }>
 						<Grid columns={ 1 } gutter={ 8 }>

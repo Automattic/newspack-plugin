@@ -16,21 +16,7 @@ import { Button, Handoff } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import useWizardError from '../../../../hooks/use-wizard-error';
 
-interface Plugin {
-	path: string;
-	pluginSlug: string;
-	editLink: string;
-	name: string;
-	url?: string;
-	status?: string;
-	badge?: string;
-	indent?: string;
-	error?: {
-		code: string;
-	};
-}
-
-const PLUGINS: Record< string, Plugin > = {
+const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
 		pluginSlug: 'jetpack',
 		editLink: 'admin.php?page=jetpack#/settings',
@@ -45,7 +31,7 @@ const PLUGINS: Record< string, Plugin > = {
 	},
 };
 
-function PluginConnectButton( { plugin }: { plugin: Plugin } ) {
+function PluginConnectButton( { plugin }: { plugin: PluginCard } ) {
 	if ( plugin.pluginSlug ) {
 		return (
 			<Handoff plugin={ plugin.pluginSlug } editLink={ plugin.editLink } compact isLink>
@@ -70,7 +56,7 @@ function PluginConnectButton( { plugin }: { plugin: Plugin } ) {
 	return null;
 }
 
-const Plugin = ( { plugin }: { plugin: Plugin } ) => {
+const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
 	const { error, setError } = useWizardError(
 		'newspack/settings',
 		`connections/plugins${ plugin.pluginSlug }`
