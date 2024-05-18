@@ -23,5 +23,9 @@
 			background: var( --newspack-ui-color-warning-30 );
 			color: var( --newspack-ui-color-body-bg );
 		}
+
+		svg {
+			fill: currentcolor;
+		}
 	}
 }
