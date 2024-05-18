@@ -202,15 +202,15 @@
 			}
 
 			&::before {
-				animation: button-loading 1s infinite linear;
-				border: 2px solid;
+				animation: button-loading 900ms infinite linear;
+				border: 1.5px solid;
 				border-color: currentcolor currentcolor transparent transparent;
 				border-radius: 50%;
 				content: '';
 				display: block;
-				height: var( --newspack-ui-spacer-3 );
+				height: calc( var( --newspack-ui-spacer-base ) * 2.25 );
 				position: absolute;
-				width: var( --newspack-ui-spacer-3 );
+				width: calc( var( --newspack-ui-spacer-base ) * 2.25 );
 			}
 		}
 	}
@@ -219,9 +219,6 @@
 @keyframes button-loading {
 	0% {
 		transform: rotate( 0deg );
-	}
-	50% {
-		transform: rotate( 180deg );
 	}
 	100% {
 		transform: rotate( 360deg );
