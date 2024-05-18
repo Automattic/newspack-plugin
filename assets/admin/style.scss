@@ -27,6 +27,7 @@ h1 {
 }
 
 /* Utils */
+
 p:has(span.newspack-text-overflow) {
 	overflow: hidden;
 	text-overflow: ellipsis;

@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies.
  */
-import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -14,8 +13,8 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import { Button } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
 import useWizardError from '../../../../hooks/use-wizard-error';
+import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 const getURLParams = () => {
 	const searchParams = new URLSearchParams( window.location.search );
@@ -38,8 +37,7 @@ const GoogleOAuth = ( {
 
 	const userBasicInfo = authState?.user_basic_info;
 
-	const [ inFlight, setInFlight ] = useState( false );
-	const { wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch();
 	const { error, setError, resetError } = useWizardError(
 		'newspack/settings',
 		'connections/apis/googleoauth'
@@ -58,26 +56,25 @@ const GoogleOAuth = ( {
 	const getCurrentAuth = () => {
 		const params = getURLParams();
 		if ( ! params.access_token ) {
-			setInFlight( true );
-			wizardApiFetch< Promise< OAuthData > >( {
-				isLocalError: true,
-				path: '/newspack/v1/oauth/google',
-			} )
-				.then( data => {
-					setAuthState( data );
-					if ( data?.user_basic_info ) {
-						if ( typeof onSuccess === 'function' ) {
-							onSuccess( data );
+			wizardApiFetch< OAuthData >(
+				{
+					path: '/newspack/v1/oauth/google',
+				},
+				{
+					onSuccess( data ) {
+						setAuthState( data );
+						if ( data?.user_basic_info ) {
+							if ( typeof onSuccess === 'function' ) {
+								onSuccess( data );
+							}
+							resetError();
 						}
-						resetError();
-					}
-				} )
-				.catch( ( err: Error ) => {
-					setError( err );
-				} )
-				.finally( () => {
-					setInFlight( false );
-				} );
+					},
+					onError( e ) {
+						setError( e );
+					},
+				}
+			);
 		}
 	};
 
@@ -94,47 +91,52 @@ const GoogleOAuth = ( {
 			'newspack_google_oauth',
 			'width=500,height=600'
 		);
-		setInFlight( true );
-		wizardApiFetch< Promise< string > >( {
-			path: '/newspack/v1/oauth/google/start',
-			isLocalError: true,
-		} )
-			.then( url => {
-				/** authWindow can be 'null' due to browser's popup blocker. */
-				if ( authWindow ) {
-					authWindow.location = url;
-					const interval = setInterval( () => {
-						if ( authWindow?.closed ) {
-							clearInterval( interval );
-							getCurrentAuth();
-							resetError();
-						}
-					}, 500 );
-				}
-			} )
-			.catch( err => {
-				if ( authWindow ) {
-					authWindow.close();
-				}
-				setError( err );
-				setInFlight( false );
-			} );
+		wizardApiFetch< string >(
+			{
+				path: '/newspack/v1/oauth/google/start',
+				isLocalError: true,
+			},
+			{
+				onSuccess( url ) {
+					/** authWindow can be 'null' due to browser's popup blocker. */
+					if ( authWindow ) {
+						authWindow.location = url;
+						const interval = setInterval( () => {
+							if ( authWindow?.closed ) {
+								clearInterval( interval );
+								getCurrentAuth();
+								resetError();
+							}
+						}, 500 );
+					}
+				},
+				onError( e ) {
+					if ( authWindow ) {
+						authWindow.close();
+					}
+					setError( e );
+				},
+			}
+		);
 	};
 
 	// Redirect user to Google auth screen.
 	const disconnect = () => {
-		setInFlight( true );
-		wizardApiFetch< Promise< void > >( {
-			path: '/newspack/v1/oauth/google/revoke',
-			method: 'DELETE',
-			isLocalError: true,
-		} )
-			.then( () => {
-				setAuthState( {} );
-				resetError();
-			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
+		wizardApiFetch< void >(
+			{
+				path: '/newspack/v1/oauth/google/revoke',
+				method: 'DELETE',
+			},
+			{
+				onSuccess() {
+					setAuthState( {} );
+					resetError();
+				},
+				onError( e ) {
+					setError( e );
+				},
+			}
+		);
 	};
 
 	const getDescription = () => {
