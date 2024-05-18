@@ -17,7 +17,22 @@
 			.newspack-ui__button {
 				background: transparent;
 				border: 1px solid transparent;
+				border-radius: var( --newspack-ui-border-radius-xs );
 				color: var( --newspack-ui-color-neutral-60 );
+				cursor: pointer;
+
+				&:hover {
+					background: transparent;
+				}
+
+				&:focus {
+					outline: none;
+				}
+
+				&:focus-visible {
+					outline: 2px solid var( --newspack-ui-color-button-bg );
+					outline-offset: 2px ;
+				}
 
 				&:not( :last-child ) {
 					margin: 0;
