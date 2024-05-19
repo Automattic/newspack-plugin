@@ -23,7 +23,7 @@ import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
  * ```
  */
 function useWizardError( slug: string, prop: string ) {
-	const { setDataPropError } = useDispatch( WIZARD_STORE_NAMESPACE );
+	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const { error } = Wizard.useWizardDataProp( slug, prop );
 
 	return {
@@ -33,18 +33,26 @@ function useWizardError( slug: string, prop: string ) {
 			err: string | Error | { message: string },
 			defaultVal = __( 'Something went wrong.', 'newspack-plugin' )
 		) {
-			let message;
+			let value;
 			if ( ! err ) {
-				message = defaultVal;
+				value = defaultVal;
 			} else if ( typeof err === 'string' ) {
-				message = err;
+				value = err;
 			} else if ( err instanceof Error || 'message' in err ) {
-				message = err.message;
+				value = err.message;
 			}
-			setDataPropError( { slug, prop, message } );
+			updateWizardSettings( {
+				slug,
+				path: [ prop, 'error' ],
+				value,
+			} );
 		},
 		resetError() {
-			setDataPropError( { slug, prop, message: '' } );
+			updateWizardSettings( {
+				slug,
+				path: [ prop, 'error' ],
+				value: '',
+			} );
 		},
 	};
 }

@@ -8,7 +8,7 @@
 import { ENTER } from '@wordpress/keycodes';
 import { __, sprintf } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-import { useEffect, useState, useRef } from '@wordpress/element';
+import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -140,7 +140,7 @@ const Mailchimp = () => {
 	};
 
 	return (
-		<>
+		<Fragment>
 			<WizardsActionCard
 				title="Mailchimp"
 				description={ getDescription() }
@@ -197,7 +197,7 @@ const Mailchimp = () => {
 					</Card>
 				</Modal>
 			) }
-		</>
+		</Fragment>
 	);
 };
 

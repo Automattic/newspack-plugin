@@ -8,6 +8,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal Imports
@@ -23,7 +24,7 @@ const {
 
 const Settings = () => {
 	return (
-		<>
+		<Fragment>
 			{ isDebugMode && <Notice debugMode /> }
 			<GlobalNotices />
 			<Wizard
@@ -31,7 +32,7 @@ const Settings = () => {
 				headerText={ __( 'Newspack / Settings', 'newspack' ) }
 				sections={ sections }
 			/>
-		</>
+		</Fragment>
 	);
 };
 

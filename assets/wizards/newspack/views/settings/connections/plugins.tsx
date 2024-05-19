@@ -108,9 +108,14 @@ const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
 	);
 };
 
-const Plugins = () =>
-	Object.keys( PLUGINS ).map( pluginKey => {
-		return <Plugin key={ pluginKey } plugin={ PLUGINS[ pluginKey ] } />;
-	} );
+const Plugins = () => {
+	return (
+		<Fragment>
+			{ Object.keys( PLUGINS ).map( pluginKey => {
+				return <Plugin key={ pluginKey } plugin={ PLUGINS[ pluginKey ] } />;
+			} ) }
+		</Fragment>
+	);
+};
 
 export default Plugins;

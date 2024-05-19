@@ -8,7 +8,7 @@
 import { __ } from '@wordpress/i18n';
 import { ESCAPE } from '@wordpress/keycodes';
 import { moreVertical } from '@wordpress/icons';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, Fragment } from '@wordpress/element';
 import { Tooltip, Button, Popover, MenuItem } from '@wordpress/components';
 
 const EndpointActions = ( {
@@ -31,7 +31,7 @@ const EndpointActions = ( {
 	}, [ disabled ] );
 
 	return (
-		<>
+		<Fragment>
 			<Button
 				className={ popoverVisible ? 'popover-active' : '' }
 				onClick={ () => setPopoverVisible( ! popoverVisible ) }
@@ -71,7 +71,7 @@ const EndpointActions = ( {
 					) }
 				</Popover>
 			) }
-		</>
+		</Fragment>
 	);
 };
 

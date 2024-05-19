@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -103,7 +103,7 @@ const Webhooks = () => {
 			</div>
 			{ isError && <Notice isError noticeText={ error } /> }
 			{ endpoints.length > 0 && (
-				<>
+				<Fragment>
 					{ endpoints.map( endpoint => (
 						<EndpointActionsCard
 							key={ endpoint.id }
@@ -111,7 +111,7 @@ const Webhooks = () => {
 							setAction={ setActionHandler }
 						/>
 					) ) }
-				</>
+				</Fragment>
 			) }
 			{ selectedEndpoint && (
 				<EndpointActionsModals

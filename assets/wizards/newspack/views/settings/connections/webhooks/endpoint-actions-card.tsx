@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -39,14 +40,14 @@ const EndpointActionsCard = ( {
 					);
 				}
 				return (
-					<>
+					<Fragment>
 						<span className="newspack-webhooks__endpoint__action newspack-text-overflow">
 							{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
 							{ endpoint.global
 								? __( 'global', 'newspack-plugin' )
 								: endpoint.actions.join( ', ' ) }
 						</span>
-					</>
+					</Fragment>
 				);
 			} }
 			actionText={

@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies
  */
+import { Fragment } from '@wordpress/element';
 import { settings, check, close, reusableBlock } from '@wordpress/icons';
 
 /**
@@ -41,10 +42,10 @@ export const getEndpointLabel = ( endpoint: Endpoint ): string => {
 export const getEndpointTitle = ( endpoint: Endpoint ): JSX.Element => {
 	const { label, url } = endpoint;
 	return (
-		<>
+		<Fragment>
 			{ label && <span className="newspack-webhooks__endpoint__label">{ label }: </span> }
 			<span className="newspack-webhooks__endpoint__url">{ getDisplayUrl( url ) }</span>
-		</>
+		</Fragment>
 	);
 };
 

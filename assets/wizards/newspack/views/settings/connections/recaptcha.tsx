@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -95,7 +95,7 @@ const Recaptcha = () => {
 			isMedium
 			title={ __( 'Enable reCAPTCHA v3', 'newspack-plugin' ) }
 			description={ () => (
-				<>
+				<Fragment>
 					{ __(
 						'Enabling reCAPTCHA v3 can help protect your site against bot attacks and credit card testing.',
 						'newspack-plugin'
@@ -103,7 +103,7 @@ const Recaptcha = () => {
 					<ExternalLink href="https://www.google.com/recaptcha/admin/create">
 						{ __( 'Get started', 'newspack-plugin' ) }
 					</ExternalLink>
-				</>
+				</Fragment>
 			) }
 			hasGreyHeader={ !! settings.use_captcha }
 			toggleChecked={ !! settings.use_captcha }
@@ -125,7 +125,7 @@ const Recaptcha = () => {
 			disabled={ isFetching }
 		>
 			{ settings.use_captcha && (
-				<>
+				<Fragment>
 					<Grid noMargin rowGap={ 16 }>
 						<TextControl
 							value={ settingsToUpdate?.site_key || '' }
@@ -164,7 +164,7 @@ const Recaptcha = () => {
 							}
 						/>
 					</Grid>
-				</>
+				</Fragment>
 			) }
 		</WizardsActionCard>
 	);

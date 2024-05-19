@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { useState } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { CheckboxControl as WpCheckboxControl, Icon, TextControl } from '@wordpress/components';
 
@@ -163,7 +163,7 @@ const EndpointActionsModals = ( {
 	};
 
 	return (
-		<>
+		<Fragment>
 			{ /* Modals */ }
 			{ action === 'delete' && (
 				<ConfirmationModal
@@ -248,7 +248,7 @@ const EndpointActionsModals = ( {
 											  ) }
 									</td>
 									{ hasEndpointErrors( endpoint ) && (
-										<>
+										<Fragment>
 											<td className="error">
 												{ request.errors && request.errors.length > 0
 													? request.errors[ request.errors.length - 1 ]
@@ -263,7 +263,7 @@ const EndpointActionsModals = ( {
 													) }
 												</span>
 											</td>
-										</>
+										</Fragment>
 									) }
 								</tr>
 							) ) }
@@ -372,7 +372,7 @@ const EndpointActionsModals = ( {
 							disabled={ inFlight }
 						/>
 						{ actions.length > 0 && (
-							<>
+							<Fragment>
 								<p>
 									{ __(
 										'If this endpoint is not global, select which actions should trigger this endpoint:',
@@ -401,7 +401,7 @@ const EndpointActionsModals = ( {
 										/>
 									) ) }
 								</Grid>
-							</>
+							</Fragment>
 						) }
 						<Card buttonsCard noBorder className="justify-end">
 							<Button
@@ -419,7 +419,7 @@ const EndpointActionsModals = ( {
 					</Grid>
 				</Modal>
 			) }
-		</>
+		</Fragment>
 	);
 };
 

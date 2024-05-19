@@ -44,12 +44,6 @@ const reducer = ( state = DEFAULT_STATE, { type, payload = {} } ) => {
 			return set( clone( state ), [ 'apiData', payload.slug, ...payload.path ], payload.value );
 		case 'SET_ERROR':
 			return { ...state, error: payload };
-		case 'SET_DATA_PROP_ERROR':
-			return set(
-				clone( state ),
-				[ 'apiData', payload.slug, payload.prop, 'error' ],
-				payload.message
-			);
 		default:
 			return state;
 	}
@@ -61,7 +55,6 @@ const actions = {
 	finishLoadingData: createAction( 'FINISH_LOADING_DATA' ),
 	fetchFromAPI: createAction( 'FETCH_FROM_API' ),
 	setAPIDataForWizard: createAction( 'SET_API_DATA' ),
-	setDataPropError: createAction( 'SET_DATA_PROP_ERROR' ),
 	updateWizardSettings: createAction( 'UPDATE_WIZARD_SETTINGS' ),
 	setError: createAction( 'SET_ERROR' ),
 
