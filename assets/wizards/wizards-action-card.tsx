@@ -12,7 +12,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { ActionCard } from '../components/src';
 
-/** */
 const WizardsActionCard = ( {
 	description,
 	error,

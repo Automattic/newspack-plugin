@@ -62,14 +62,14 @@ const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
 		`connections/plugins${ plugin.pluginSlug }`
 	);
 	const { wizardApiFetch, isFetching } = useWizardApiFetch();
-	const [ isActive, setIsActive ] = useState( false );
+	const [ status, setStatus ] = useState( 'inactive' );
 
 	useEffect( () => {
 		wizardApiFetch(
 			{ path: plugin.path },
 			{
 				onSuccess( result: { Status: string; Configured: boolean } ) {
-					setIsActive( result.Configured && result.Status === 'active' );
+					setStatus( result.Configured ? result.Status : 'inactive' );
 				},
 				onError( err: any ) {
 					setError( err );
@@ -85,7 +85,7 @@ const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
 		if ( isFetching ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
-		if ( ! isActive ) {
+		if ( status === 'inactive' ) {
 			if ( plugin.pluginSlug === 'google-site-kit' ) {
 				return __( 'Not connected for this user', 'newspack-plugin' );
 			}
@@ -98,8 +98,8 @@ const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
 		<WizardsActionCard
 			title={ plugin.name }
 			description={ getDescription() }
-			actionText={ isActive ? <PluginConnectButton plugin={ plugin } /> : null }
-			isChecked={ isActive && ! isFetching }
+			actionText={ status === 'inactive' ? <PluginConnectButton plugin={ plugin } /> : null }
+			isChecked={ ! ( status === 'inactive' || isFetching ) }
 			badge={ plugin.badge }
 			indent={ plugin.indent }
 			error={ error }
@@ -108,15 +108,9 @@ const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
 	);
 };
 
-const Plugins = () => {
-	const pluginsArray = Object.keys( PLUGINS );
-	return (
-		<Fragment>
-			{ pluginsArray.map( pluginKey => {
-				return <Plugin key={ pluginKey } plugin={ PLUGINS[ pluginKey ] } />;
-			} ) }
-		</Fragment>
-	);
-};
+const Plugins = () =>
+	Object.keys( PLUGINS ).map( pluginKey => {
+		return <Plugin key={ pluginKey } plugin={ PLUGINS[ pluginKey ] } />;
+	} );
 
 export default Plugins;
