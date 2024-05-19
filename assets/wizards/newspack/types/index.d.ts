@@ -35,13 +35,11 @@ declare global {
 			};
 		};
 		newspackSettings: {
-			tabs: {
-				connections: {
-					label: string;
-					path?: string;
-					dependencies: Record< string, boolean >;
-					sections: Record<string, any>
-				};
+			connections: {
+				label: string;
+				path?: string;
+				dependencies: Record< string, boolean >;
+				sections: Record< string, any >;
 			};
 		};
 		newspack_aux_data: {

@@ -19,7 +19,7 @@ import Analytics from './analytics';
 import CustomEvents from './custom-events';
 import { SectionHeader } from '../../../../../components/src';
 
-const { connections } = window.newspackSettings.tabs;
+const { connections } = window.newspackSettings;
 
 const Connections = () => {
 	return (

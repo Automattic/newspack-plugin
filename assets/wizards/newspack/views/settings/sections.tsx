@@ -5,7 +5,7 @@
  */
 import { __ } from '@wordpress/i18n';
 
-const { tabs: settingsTabs } = window.newspackSettings;
+const settingsTabs = window.newspackSettings;
 
 import Connections from './connections';
 
@@ -23,9 +23,9 @@ const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = 
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
 
-const SettingsSectionKeys = Object.keys( settingsTabs ) as SectionKeys[];
+const settingsSectionKeys = Object.keys( settingsTabs ) as SectionKeys[];
 
-export default SettingsSectionKeys.map( sectionPath => {
+export default settingsSectionKeys.map( sectionPath => {
 	return {
 		label: settingsTabs[ sectionPath ].label,
 		exact: '/' === ( settingsTabs[ sectionPath ].path ?? '' ),

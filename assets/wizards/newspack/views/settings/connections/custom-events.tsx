@@ -22,7 +22,7 @@ const CustomEvents = () => {
 	const [ ga4Credentials, setGa4Credentials ] = useState< {
 		measurement_protocol_secret: string;
 		measurement_id: string;
-	} >( window.newspackSettings.tabs.connections.sections.analytics );
+	} >( window.newspackSettings.connections.sections.analytics );
 	const { error, setError, resetError } = useWizardError(
 		'newspack/settings',
 		'connections/custom-events'

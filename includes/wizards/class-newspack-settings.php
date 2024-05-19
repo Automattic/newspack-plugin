@@ -101,46 +101,44 @@ class Newspack_Settings extends Wizard {
 			$this->slug, 
 			'newspackSettings',
 			[
-				'tabs' => [
-					'connections'       => [
-						'label'        => __( 'Connections', 'newspack-plugin' ),
-						'path'         => '/',
-						'dependencies' => [
-							'google'   => OAuth::is_proxy_configured( 'google' ),
-							'webhooks' => defined( 'NEWSPACK_EXPERIMENTAL_WEBHOOKS' ) && NEWSPACK_EXPERIMENTAL_WEBHOOKS,
-						],
-						'sections'     => [
-							'plugins'   => [],
-							'apis'      => [],
-							'recaptcha' => [],
-							'analytics' => [
-								'editLink'       => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
-								'measurement_id' => get_option( 'ga4_measurement_id', '' ),
-								'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
-							],
+				'connections'       => [
+					'label'        => __( 'Connections', 'newspack-plugin' ),
+					'path'         => '/',
+					'dependencies' => [
+						'google'   => OAuth::is_proxy_configured( 'google' ),
+						'webhooks' => defined( 'NEWSPACK_EXPERIMENTAL_WEBHOOKS' ) && NEWSPACK_EXPERIMENTAL_WEBHOOKS,
+					],
+					'sections'     => [
+						'plugins'   => [],
+						'apis'      => [],
+						'recaptcha' => [],
+						'analytics' => [
+							'editLink'                    => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
+							'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
+							'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
 						],
 					],
-					'emails'            => [
-						'label' => __( 'Emails', 'newspack-plugin' ),
-					],
-					'social'            => [
-						'label' => __( 'Social', 'newspack-plugin' ),
-					],
-					'syndication'       => [
-						'label' => __( 'Syndication', 'newspack-plugin' ),
-					],
-					'seo'               => [
-						'label' => __( 'SEO', 'newspack-plugin' ),
-					],
-					'theme-and-brand'   => [
-						'label' => __( 'Theme and Brand', 'newspack-plugin' ),
-					],
-					'display-settings'  => [
-						'label' => __( 'Display Settings', 'newspack-plugin' ),
-					],
-					'additional-brands' => [
-						'label' => __( 'Additional Brands', 'newspack-plugin' ),
-					],
+				],
+				'emails'            => [
+					'label' => __( 'Emails', 'newspack-plugin' ),
+				],
+				'social'            => [
+					'label' => __( 'Social', 'newspack-plugin' ),
+				],
+				'syndication'       => [
+					'label' => __( 'Syndication', 'newspack-plugin' ),
+				],
+				'seo'               => [
+					'label' => __( 'SEO', 'newspack-plugin' ),
+				],
+				'theme-and-brand'   => [
+					'label' => __( 'Theme and Brand', 'newspack-plugin' ),
+				],
+				'display-settings'  => [
+					'label' => __( 'Display Settings', 'newspack-plugin' ),
+				],
+				'additional-brands' => [
+					'label' => __( 'Additional Brands', 'newspack-plugin' ),
 				],
 			]
 		);
