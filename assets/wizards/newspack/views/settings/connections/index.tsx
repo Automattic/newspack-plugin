@@ -21,36 +21,65 @@ import { SectionHeader } from '../../../../../components/src';
 
 const { connections } = window.newspackSettings;
 
+const Section = ( {
+	title,
+	description,
+	children = null,
+}: {
+	title?: string;
+	description?: string;
+	children: React.ReactNode;
+} ) => {
+	return (
+		<div className="newspack-wizard__section">
+			{ title && <SectionHeader heading={ 3 } title={ title } description={ description } /> }
+			{ children }
+		</div>
+	);
+};
+
 const Connections = () => {
 	return (
-		<div className="newspack-dashboard__section">
+		<div className="newspack-wizard__sections">
 			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
 			{ /* Plugins */ }
-			<SectionHeader noMargin heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
-			<Plugins />
+			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>
+				<Plugins />
+			</Section>
+
 			{ /* APIs; google */ }
-			<SectionHeader noMargin heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
-			{ connections.dependencies.google && <GoogleOAuth /> }
-			<Mailchimp />
+			<Section title={ __( 'APIs', 'newspack-plugin' ) }>
+				{ connections.dependencies.google && <GoogleOAuth /> }
+				<Mailchimp />
+			</Section>
+
 			{ /* reCAPTCHA */ }
-			<SectionHeader noMargin heading={ 3 } title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
-			<Recaptcha />
+			<Section title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
+				<Recaptcha />
+			</Section>
+
 			{ /* Webhooks */ }
-			{ connections.dependencies.webhooks && <Webhooks /> }
+			{ connections.dependencies.webhooks && (
+				<Section>
+					<Webhooks />
+				</Section>
+			) }
+
 			{ /* Analytics */ }
-			<SectionHeader noMargin heading={ 3 } title={ __( 'Analytics', 'newspack-plugin' ) } />
-			<Analytics editLink={ connections.sections.analytics.editLink } />
+			<Section title={ __( 'Analytics', 'newspack-plugin' ) }>
+				<Analytics editLink={ connections.sections.analytics.editLink } />
+			</Section>
+
 			{ /* Custom Events */ }
-			<SectionHeader
+			<Section
 				title={ __( 'Activate Newspack Custom Events', 'newspack-plugin' ) }
-				heading={ 3 }
 				description={ __(
 					'Allows Newspack to send enhanced custom event data to your Google Analytics.',
 					'newspack-plugin'
 				) }
-				noMargin
-			/>
-			<CustomEvents />
+			>
+				<CustomEvents />
+			</Section>
 		</div>
 	);
 };
