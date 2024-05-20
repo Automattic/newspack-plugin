@@ -1,3 +1,19 @@
+# [4.0.0-alpha.6](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.5...v4.0.0-alpha.6) (2024-05-20)
+
+
+### Bug Fixes
+
+* **data-events:** handle no ga_client_id in data ([fc4fc9f](https://github.com/Automattic/newspack-plugin/commit/fc4fc9f5241cc8a9a316ae4d7e62f8f63f528b72))
+* **registration-block:** prevent undefined variable warning ([8af9d89](https://github.com/Automattic/newspack-plugin/commit/8af9d898a3f81059599b00fcd18e5e5ec01423f2))
+* **starter-content:** make the starter content generation idempotent ([d5e10ff](https://github.com/Automattic/newspack-plugin/commit/d5e10ff1c3935f921677f7f3bacb8d35c9709cb0))
+
+
+### Features
+
+* **cli:** command to migrate CAP guest authors to WP users ([#3068](https://github.com/Automattic/newspack-plugin/issues/3068)) ([7ea8273](https://github.com/Automattic/newspack-plugin/commit/7ea8273fceaccf4109c0de5dd4620eaf4d907520))
+* custom role for assignable authors who don't edit posts ([#3066](https://github.com/Automattic/newspack-plugin/issues/3066)) ([7b89053](https://github.com/Automattic/newspack-plugin/commit/7b89053aa8a828abbfd1220e194758c766e27ca1))
+* support for wrapping rss titles in cdata ([#3104](https://github.com/Automattic/newspack-plugin/issues/3104)) ([8b3a3be](https://github.com/Automattic/newspack-plugin/commit/8b3a3be48cf4ab0150f6e141be41460c0acfbb48))
+
 # [4.0.0-alpha.5](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.4...v4.0.0-alpha.5) (2024-05-17)
 
 
