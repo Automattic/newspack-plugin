@@ -351,12 +351,6 @@ class Newspack_Dashboard extends Wizard {
 			]
 		);
 		wp_enqueue_script( $this->slug );
-		wp_register_style(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/newspack.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
 		wp_style_add_data( $this->slug, 'rtl', 'replace' );
-		wp_enqueue_style( $this->slug );    }
+	}
 }
