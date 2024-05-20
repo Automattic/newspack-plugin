@@ -405,6 +405,68 @@ final class Reader_Activation {
 	 * @return array
 	 */
 	public static function get_registration_newsletter_lists() {
+		if ( ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
+			return [];
+		}
+
+		$registration_lists = self::get_available_newsletter_lists();
+
+		/**
+		 * Filters the newsletters lists that should be rendered during registration.
+		 *
+		 * @param array $registration_lists Array of newsletter lists.
+		 */
+		return apply_filters( 'newspack_registration_newsletters_lists', $registration_lists );
+	}
+
+	/**
+	 * Get the newsletter lists that should be rendered after checkout.
+	 *
+	 * @param string $email Email address.
+	 *
+	 * @return array
+	 */
+	public static function get_post_checkout_newsletter_lists( $email ) {
+		$available_lists    = self::get_available_newsletter_lists();
+		$registration_lists = [];
+
+		if ( empty( $available_lists ) || ! method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
+			return [];
+		}
+
+		$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email );
+		if ( \is_wp_error( $current_lists ) || ! is_array( $current_lists ) ) {
+			return [];
+		}
+
+		foreach ( $available_lists as $list_id => $list ) {
+			// Skip any lists the reader is already signed up for.
+			if ( in_array( $list_id, $current_lists, true ) ) {
+				continue;
+			}
+
+			// Skip any premium lists since the reader has already made a purchase at this stage.
+			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_subscription_list_tied_to_plan' ) && \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_subscription_list_tied_to_plan( $list['db_id'] ) ) {
+				continue;
+			}
+
+			$registration_lists[ $list_id ] = $list;
+		}
+
+		/**
+		 * Filters the newsletters lists that should be rendered after checkout.
+		 *
+		 * @param array $registration_lists Array of newsletter lists.
+		 */
+		return apply_filters( 'newspack_post_registration_newsletters_lists', $registration_lists );
+	}
+
+	/**
+	 * Get all available newsletter lists.
+	 *
+	 * @return array
+	 */
+	public static function get_available_newsletter_lists() {
 		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
 			return [];
 		}
