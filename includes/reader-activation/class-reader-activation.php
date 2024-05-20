@@ -112,10 +112,7 @@ final class Reader_Activation {
 		 * @param bool $allow_reg_block_render Whether to allow the registration block to render.
 		 */
 		if ( apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
-			$authenticated_email = '';
-			if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
-				$authenticated_email = \wp_get_current_user()->user_email;
-			}
+			$authenticated_email = self::get_logged_in_reader_email_address();
 			$script_dependencies = [];
 			$script_data         = [
 				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
@@ -228,18 +225,18 @@ final class Reader_Activation {
 					'signedin'  => __( 'My Account', 'newspack-plugin' ),
 					'signedout' => __( 'Sign In', 'newspack-plugin' ),
 				],
-				'newsletters'              => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
+				'newsletters_cta'          => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
 				'newsletters_confirmation' => sprintf(
 					// Translators: %s is the site name.
 					__( 'Thanks for supporting %s.', 'newspack-plugin' ),
 					get_option( 'blogname' )
 				),
+				'newsletters_continue'     => __( 'Continue', 'newspack-plugin' ),
 				'newsletters_details'      => sprintf(
 					// Translators: %s is the site name.
 					__( 'Get the best of %s directly in your email inbox.', 'newspack-plugin' ),
 					get_bloginfo( 'name' )
 				),
-				'newsletters_signup'       => __( 'Continue', 'newspack-plugin' ),
 				'newsletters_success'      => __( 'Signup successful!', 'newspack-plugin' ),
 				'newsletters_title'        => __( 'Sign up for newsletters', 'newspack-plugin' ),
 			];
@@ -280,7 +277,7 @@ final class Reader_Activation {
 	 * @return mixed[] Settings default values keyed by their name.
 	 */
 	private static function get_settings_config() {
-		$label           = self::get_reader_activation_labels( 'newsletters' );
+		$label           = self::get_reader_activation_labels( 'newsletters_cta' );
 		$settings_config = [
 			'enabled'                         => false,
 			'enabled_account_link'            => true,
@@ -1307,27 +1304,42 @@ final class Reader_Activation {
 
 	/**
 	 * Renders newsletters signup form.
+	 *
+	 * @param string $email_address     Email address.
+	 * @param array  $newsletters_lists Array of newsletters lists.
+	 *
+	 * @return void
 	 */
-	private static function render_newsletters_signup_form() {
-		// TODO: Fetch lists to render.
+	private static function render_newsletters_signup_form( $email_address, $newsletters_lists ) {
 		?>
 			<div class="newspack-ui newspack-newsletters-signup">
-				<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
-					<span class="newspack-ui__icon newspack-ui__icon--success">
-						<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
-						</svg>
-					</span>
-					<p>
-						<strong class="success-title"></strong>
-					</p>
-					<p class="newspack-ui__font--xs success-description"></p>
-				</div>
 				<form method="post" target="_top">
-					<p>
-						<input />
-					</p>
-					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_signup' ) ); ?></button>
+					<input type="hidden" name="newsletter_signup_email" value="<?php echo esc_attr( $email_address ); ?>" />
+					<?php
+					foreach ( $newsletters_lists as $list ) {
+						$checkbox_id = sprintf( 'newspack-blocks-list-%s', $list['id'] );
+						?>
+						<label class="newspack-ui__input-card">
+							<input
+								type="checkbox"
+								name="lists[]"
+								value="<?php echo \esc_attr( $list['id'] ); ?>"
+								id="<?php echo \esc_attr( $checkbox_id ); ?>"
+								<?php
+								if ( isset( $list['checked'] ) && $list['checked'] ) {
+									echo 'checked';
+								}
+								?>
+							>
+							<strong><?php echo \esc_html( $list['title'] ); ?></strong>
+							<?php if ( ! empty( $list['description'] ) ) : ?>
+								<span class="newspack-ui__helper-text"><?php echo \esc_html( $list['description'] ); ?></span>
+							<?php endif; ?>
+						</label>
+						<?php
+					}
+					?>
+					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
 				</form>
 			</div>
 		<?php
@@ -1338,6 +1350,16 @@ final class Reader_Activation {
 	 */
 	public static function render_newsletters_signup_modal() {
 		if ( ! self::is_newsletters_signup_available() ) {
+			return;
+		}
+
+		$email_address = self::get_logged_in_reader_email_address();
+		if ( ! $email_address ) {
+			return;
+		}
+
+		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
+		if ( empty( $newsletters_lists ) ) {
 			return;
 		}
 		?>
@@ -1354,7 +1376,22 @@ final class Reader_Activation {
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
-					<?php self::render_newsletters_signup_form(); ?>
+					<p class="newspack-ui__font--xs">
+						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
+						<br />
+						<span class="newspack-ui__color-text-gray">
+							<?php
+								echo esc_html(
+									sprintf(
+										// Translators: %s is the user's email address.
+										__( 'Sending to: %s', 'newspack-plugin' ),
+										$email_address
+									)
+								);
+							?>
+						</span>
+					</p>
+					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
 				</div>
 			</div>
 		</div>
@@ -1426,7 +1463,7 @@ final class Reader_Activation {
 	 * }
 	 */
 	public static function render_subscription_lists_inputs( $lists = [], $checked = [], $config = [] ) {
-		$label = self::get_reader_activation_labels( 'newsletters' );
+		$label = self::get_reader_activation_labels( 'newsletters_cta' );
 		$config = \wp_parse_args(
 			$config,
 			[
@@ -2137,6 +2174,21 @@ final class Reader_Activation {
 			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
 		}
 		return $errors;
+	}
+
+	/**
+	 * Gets the logged in reader's email address.
+	 *
+	 * @return string The reader's email address. Empty string if user is not logged in.
+	 */
+	private static function get_logged_in_reader_email_address() {
+		$email_address = '';
+
+		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
+			$email_address = \wp_get_current_user()->user_email;
+		}
+
+		return $email_address;
 	}
 }
 Reader_Activation::init();
