@@ -804,12 +804,13 @@ class Donations {
 		$title   = esc_html__( 'Support our publication', 'newspack' );
 		$intro   = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
 		$content = esc_html__( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack' );
+		$image   = Newspack::plugin_url() . '/includes/images/pexels-codioful-7135033.jpg';
 
 		$container_block       = '
-			<!-- wp:cover {"url":"https://newspack.com/wp-content/uploads/2024/05/pexels-brotin-biswas-158640-518543-scaled.jpg","dimRatio":60,"overlayColor":"black","isUserOverlayColor":true,"minHeight":80,"minHeightUnit":"vh","align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
-				<div class="wp-block-cover alignfull" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80);min-height:80vh">
-					<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-60 has-background-dim"></span>
-					<img class="wp-block-cover__image-background" alt="" src="https://newspack.com/wp-content/uploads/2024/05/pexels-brotin-biswas-158640-518543-scaled.jpg" data-object-fit="cover"/>
+			<!-- wp:cover {"url":"' . $image . '","dimRatio":20,"overlayColor":"black","isUserOverlayColor":true,"minHeight":85,"minHeightUnit":"vh","align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
+				<div class="wp-block-cover alignfull" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80);min-height:85vh">
+					<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
+					<img class="wp-block-cover__image-background" alt="" src="' . $image . '" data-object-fit="cover"/>
 					<div class="wp-block-cover__inner-container">
 						<!-- wp:columns {"verticalAlignment":"center","align":"wide"} -->
 							<div class="wp-block-columns alignwide are-vertically-aligned-center">
@@ -907,7 +908,7 @@ class Donations {
 	 * @return string Raw block content.
 	 */
 	protected static function get_donations_block() {
-		$block = '<!-- wp:newspack-blocks/donate {"className":"is-style-alternate"} /-->';
+		$block = '<!-- wp:newspack-blocks/donate {"className":"is-style-modern"} /-->';
 		return $block;
 	}
 
