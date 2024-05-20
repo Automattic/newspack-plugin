@@ -119,8 +119,11 @@ final class Reader_Activation {
 		];
 
 		if ( Recaptcha::can_use_captcha() ) {
-			$script_dependencies[]           = Recaptcha::SCRIPT_HANDLE;
-			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
+			$recaptcha_version                = Recaptcha::get_setting( 'version' );
+			$script_dependencies[]            = Recaptcha::SCRIPT_HANDLE;
+			if ( 'v3' === $recaptcha_version ) {
+				$script_data['captcha_site_key'] = Recaptcha::get_site_key();
+			}
 		}
 
 		/**
@@ -1190,6 +1193,9 @@ final class Reader_Activation {
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
 						</div>
+						<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
+							<div id="auth-form-grecaptcha" class="grecaptcha-container"></div>
+						<?php endif; ?>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<div class="components-form__submit">
 								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
@@ -1446,7 +1452,6 @@ final class Reader_Activation {
 		$redirect         = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 		$lists            = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		$honeypot         = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
-		$captcha_token    = isset( $_POST['captcha_token'] ) ? \sanitize_text_field( $_POST['captcha_token'] ) : '';
 		// phpcs:enable
 
 		if ( ! empty( $current_page_url['path'] ) ) {
@@ -1463,9 +1468,9 @@ final class Reader_Activation {
 			);
 		}
 
-		// reCAPTCHA test.
-		if ( Recaptcha::can_use_captcha() ) {
-			$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+		// reCAPTCHA test on account registration only.
+		if ( 'register' === $action && Recaptcha::can_use_captcha() ) {
+			$captcha_result = Recaptcha::verify_captcha();
 			if ( \is_wp_error( $captcha_result ) ) {
 				return self::send_auth_form_response( $captcha_result );
 			}

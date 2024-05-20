@@ -224,10 +224,10 @@ export function getAuthStrategy() {
 /**
  * Get a captcha token based on user input
  */
-export function getCaptchaToken( action = 'submit' ) {
+export function getCaptchaToken() {
 	return new Promise( ( res, rej ) => {
 		const { grecaptcha } = window;
-		if ( ! grecaptcha || ! newspack_ras_config ) {
+		if ( ! grecaptcha || ! newspack_ras_config?.captcha_site_key ) {
 			return res( '' );
 		}
 
@@ -244,7 +244,7 @@ export function getCaptchaToken( action = 'submit' ) {
 
 		grecaptcha.ready( () => {
 			grecaptcha
-				.execute( captchaSiteKey, { action } )
+				.execute( captchaSiteKey, { action: 'submit' } )
 				.then( token => res( token ) )
 				.catch( e => rej( e ) );
 		} );
