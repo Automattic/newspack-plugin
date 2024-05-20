@@ -86,9 +86,10 @@ const Webhooks = () => {
 
 	return (
 		<Card noBorder>
-			<div className="flex justify-between items-end">
+			<div className="flex justify-between items-end mb4">
 				<SectionHeader
 					title={ __( 'Webhook Endpoints', 'newspack-plugin' ) }
+					heading={ 3 }
 					description={ __(
 						'Register webhook endpoints to integrate reader activity data to third-party services or private APIs',
 						'newspack-plugin'
