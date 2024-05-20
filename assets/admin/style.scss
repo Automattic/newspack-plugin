@@ -94,7 +94,23 @@ p:has(span.newspack-text-overflow) {
 }
 
 // Overrides
+.newspack-wizard__sections .newspack-wizard__section {
+	.newspack-section-header:first-child {
+		margin-block: 0 2rem;
+	}
+}
+
+.newspack-card.newspack-action-card+.newspack-card.newspack-action-card {
+	margin-top: 0;
+}
+
 .newspack-card {
+	margin-block: 0 1em;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
 	&.newspack-action-card {
 		.newspack-action-card__notification {
 			&.newspack-action-card__region-children {
