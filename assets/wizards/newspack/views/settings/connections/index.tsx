@@ -26,19 +26,19 @@ const Connections = () => {
 		<div className="newspack-dashboard__section">
 			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
 			{ /* Plugins */ }
-			<SectionHeader heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
+			<SectionHeader noMargin heading={ 3 } title={ __( 'Plugins', 'newspack-plugin' ) } />
 			<Plugins />
 			{ /* APIs; google */ }
-			<SectionHeader heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
+			<SectionHeader noMargin heading={ 3 } title={ __( 'APIs', 'newspack-plugin' ) } />
 			{ connections.dependencies.google && <GoogleOAuth /> }
 			<Mailchimp />
 			{ /* reCAPTCHA */ }
-			<SectionHeader heading={ 3 } title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
+			<SectionHeader noMargin heading={ 3 } title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
 			<Recaptcha />
 			{ /* Webhooks */ }
 			{ connections.dependencies.webhooks && <Webhooks /> }
 			{ /* Analytics */ }
-			<SectionHeader heading={ 3 } title={ __( 'Analytics', 'newspack-plugin' ) } />
+			<SectionHeader noMargin heading={ 3 } title={ __( 'Analytics', 'newspack-plugin' ) } />
 			<Analytics editLink={ connections.sections.analytics.editLink } />
 			{ /* Custom Events */ }
 			<SectionHeader
@@ -48,6 +48,7 @@ const Connections = () => {
 					'Allows Newspack to send enhanced custom event data to your Google Analytics.',
 					'newspack-plugin'
 				) }
+				noMargin
 			/>
 			<CustomEvents />
 		</div>
