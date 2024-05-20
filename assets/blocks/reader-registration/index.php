@@ -261,7 +261,7 @@ function render_block( $attrs, $content ) {
 					<div class="newspack-registration__main">
 						<div>
 							<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
-								<div id="<?php echo esc_attr( get_form_id() . '-grecaptcha' ); ?>" class="grecaptcha-container"></div>
+								<?php Recaptcha::render_recaptcha_v2_container(); ?>
 							<?php endif; ?>
 							<div class="newspack-registration__inputs">
 								<input

@@ -24,6 +24,7 @@ final class Recaptcha {
 	public static function init() {
 		\add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_script' ] );
+		\add_action( 'newspack_newsletters_subscribe_block_before_email_field', [ __CLASS__, 'render_recaptcha_v2_container' ] );
 
 		// Add reCAPTCHA to the Woo checkout form.
 		\add_action( 'woocommerce_review_order_before_submit', [ __CLASS__, 'add_recaptcha_v2_to_checkout' ] );
@@ -125,6 +126,7 @@ final class Recaptcha {
 				'newspack_recaptcha_data',
 				[
 					'site_key' => self::get_site_key(),
+					'version'  => self::get_setting( 'version' ),
 				]
 			);
 		}
@@ -377,18 +379,27 @@ final class Recaptcha {
 	/**
 	 * Add reCAPTCHA v2 to checkout.
 	 */
-	public static function add_recaptcha_v2_to_checkout() {
+	public static function render_recaptcha_v2_container() {
 		if ( ! self::can_use_captcha( 'v2' ) ) {
 			return;
 		}
 		?>
-		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
-		<div id="checkout-form-grecaptcha" class="grecaptcha-container"></div>
+		<div id="<?php echo \esc_attr( 'newspack-recaptcha-' . uniqid() ); ?>" class="grecaptcha-container"></div>
 		<?php
 	}
 
 	/**
-	 * Add reCAPTCHA v3 to checkout.
+	 * Add reCAPTCHA v2 to Woo checkout.
+	 */
+	public static function add_recaptcha_v2_to_checkout() {
+		?>
+		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
+		<?php
+		self::render_recaptcha_v2_container();
+	}
+
+	/**
+	 * Add reCAPTCHA v3 to Woo checkout.
 	 */
 	public static function add_recaptcha_v3_to_checkout() {
 		if ( ! self::can_use_captcha( 'v3' ) ) {

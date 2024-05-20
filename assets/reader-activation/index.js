@@ -1,4 +1,4 @@
-/* globals newspack_ras_config, newspack_reader_data */
+/* globals newspack_ras_config, newspack_reader_data, newspack_grecaptcha */
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
@@ -222,36 +222,6 @@ export function getAuthStrategy() {
 }
 
 /**
- * Get a captcha token based on user input
- */
-export function getCaptchaToken() {
-	return new Promise( ( res, rej ) => {
-		const { grecaptcha } = window;
-		if ( ! grecaptcha || ! newspack_ras_config?.captcha_site_key ) {
-			return res( '' );
-		}
-
-		const { captcha_site_key: captchaSiteKey } = newspack_ras_config;
-
-		// If the site key is not set, bail with an empty token.
-		if ( ! captchaSiteKey ) {
-			return res( '' );
-		}
-
-		if ( ! grecaptcha?.ready ) {
-			rej( 'Error loading the reCaptcha library.' );
-		}
-
-		grecaptcha.ready( () => {
-			grecaptcha
-				.execute( captchaSiteKey, { action: 'submit' } )
-				.then( token => res( token ) )
-				.catch( e => rej( e ) );
-		} );
-	} );
-}
-
-/**
  * Ensure the client ID cookie is set.
  */
 function fixClientID() {
@@ -341,7 +311,9 @@ const readerActivation = {
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
-	getCaptchaToken,
+	getCaptchaToken: newspack_grecaptcha
+		? newspack_grecaptcha?.getCaptchaToken
+		: () => new Promise( res => res( '' ) ), // Empty promise.
 };
 
 /**

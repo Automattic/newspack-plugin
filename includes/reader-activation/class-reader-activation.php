@@ -1194,7 +1194,7 @@ final class Reader_Activation {
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
 						</div>
 						<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
-							<div id="auth-form-grecaptcha" class="grecaptcha-container"></div>
+							<?php Recaptcha::render_recaptcha_v2_container(); ?>
 						<?php endif; ?>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<div class="components-form__submit">
