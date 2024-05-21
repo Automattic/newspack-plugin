@@ -1493,7 +1493,7 @@ final class Reader_Activation {
 	 * Should post-checkout newsletter signup be available?
 	 */
 	private static function is_newsletters_signup_available() {
-		return defined( 'NEWSPACK_ENABLE_POST_CHECKOUT_NEWSLETTER_SIGNUP' ) && NEWSPACK_ENABLE_POST_CHECKOUT_NEWSLETTER_SIGNUP;
+		return (bool) self::get_setting( 'use_custom_lists' );
 	}
 
 	/**
