@@ -1,3 +1,4 @@
+@use 'breakpoints';
 @use 'colors';
 @use 'fonts';
 @use 'spacing';
@@ -12,5 +13,6 @@
 	// Border radius - not ems because the font size of the element itself caused a cascade.
 	--newspack-ui-border-radius-m: 6px;
 	--newspack-ui-border-radius-s: 4px;
-	--newspack-ui-border-radius-xs: 2px;
+	--newspack-ui-border-radius-xs: 3px;
+	--newspack-ui-border-radius-2xs: 2px;
 }

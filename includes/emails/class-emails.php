@@ -28,7 +28,7 @@ class Emails {
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 		add_filter( 'newspack_newsletters_email_editor_cpts', [ __CLASS__, 'register_email_cpt_with_email_editor' ] );
 		add_filter( 'newspack_newsletters_allowed_editor_actions', [ __CLASS__, 'register_scripts_enqueue_with_email_editor' ] );
-		add_action( 'update_option_theme_mods_' . get_template(), [ __CLASS__, 'maybe_update_email_templates' ], 10, 2 );
+		add_action( 'update_option_theme_mods_' . ( wp_get_theme()->parent() ? get_stylesheet() : get_template() ), [ __CLASS__, 'maybe_update_email_templates' ], 10, 2 );
 		add_action( 'admin_head', [ __CLASS__, 'inject_dynamic_email_template_styles' ] );
 	}
 
@@ -488,6 +488,17 @@ class Emails {
 			/** Only attempt to create the email post if wp-includes/pluggable.php is loaded. */
 			return false;
 		} else {
+			// Make sure newsletters color palette is updated with latest theme colors.
+			if ( self::supports_emails() && method_exists( '\Newspack_Newsletters', 'update_color_palette' ) ) {
+				$theme_colors = newspack_get_theme_colors();
+				\Newspack_Newsletters::update_color_palette(
+					[
+						'primary'      => $theme_colors['primary_color'],
+						'primary-text' => $theme_colors['primary_text_color'],
+					]
+				);
+			}
+
 			$email_post_data = self::load_email_template( $type );
 			if ( ! $email_post_data ) {
 				Logger::error( 'Error: could not retrieve template for type: ' . $type );
@@ -630,12 +641,30 @@ class Emails {
 	 * @return void
 	 */
 	public static function maybe_update_email_templates( $previous_value, $updated_value ) {
-		// Check for theme mod color settings in case a non-newspack theme is installed.
-		if ( ! isset( $previous_value['primary_color_hex'], $previous_value['secondary_color_hex'], $updated_value['primary_color_hex'], $updated_value['secondary_color_hex'] ) ) {
+		// Do nothing if newsletters is not active.
+		if ( ! self::supports_emails() ) {
 			return;
 		}
 
-		if ( $previous_value['primary_color_hex'] !== $updated_value['primary_color_hex'] || $previous_value['secondary_color_hex'] !== $updated_value['secondary_color_hex'] ) {
+		// Check for theme mod color settings in case a non-newspack theme is installed.
+		if ( ! isset( $previous_value['primary_color_hex'], $updated_value['primary_color_hex'] ) ) {
+			return;
+		}
+
+		if ( $previous_value['primary_color_hex'] !== $updated_value['primary_color_hex'] ) {
+			// Update the newsletters color palette.
+			$updated = \Newspack_Newsletters::update_color_palette(
+				[
+					'primary'      => $updated_value['primary_color_hex'],
+					'primary-text' => newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
+				]
+			);
+
+			if ( ! $updated ) {
+				Logger::error( 'There was an error updating the newsletters color palette.' );
+			}
+
+			// Trigger an update of all email templates to regenerate HTML.
 			$templates = get_posts(
 				[
 					'post_type'      => self::POST_TYPE,
@@ -645,26 +674,22 @@ class Emails {
 			);
 
 			foreach ( $templates as $template ) {
-				wp_update_post( [ 'ID' => $template->ID ] );
-			}
-
-			if ( class_exists( 'Newspack_Newsletters' ) ) {
-				// Update newsletters color palette option so emails reflect the new colors.
-				$request = new \WP_REST_Request( 'POST', '/newspack-newsletters/v1/color-palette' );
-				$request->set_body(
-					wp_json_encode(
-						[
-							'primary'      => $updated_value['primary_color_hex'],
-							'primary-text' => newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
-						]
-					)
+				// Find/replace the old hex values with the new ones in the rendered email HTML.
+				$email_html = get_post_meta( $template->ID, \Newspack_Newsletters::EMAIL_HTML_META, true );
+				$email_html = str_replace(
+					[
+						$previous_value['primary_color_hex'],
+						newspack_get_color_contrast( $previous_value['primary_color_hex'] ),
+					],
+					[
+						$updated_value['primary_color_hex'],
+						newspack_get_color_contrast( $updated_value['primary_color_hex'] ),
+					],
+					$email_html
 				);
+				update_post_meta( $template->ID, \Newspack_Newsletters::EMAIL_HTML_META, $email_html );
 
-				$response = rest_do_request( $request );
-
-				if ( $response->is_error() ) {
-					Logger::error( 'Error updating newsletters color palette: ' . $response->as_error()->get_error_message() );
-				}
+				wp_update_post( [ 'ID' => $template->ID ] );
 			}
 		}
 	}
@@ -685,6 +710,14 @@ class Emails {
 		<style type="text/css">
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color,
 			.<?php echo esc_html( self::POST_TYPE ); ?>-has-primary-text-color a {
+				color: <?php echo esc_attr( $primary_text_color ); ?> !important;
+			}
+
+			.is-style-filled-primary-text li {
+				background: transparent !important;
+			}
+
+			.is-style-filled-primary-text li svg {
 				color: <?php echo esc_attr( $primary_text_color ); ?> !important;
 			}
 		</style>
