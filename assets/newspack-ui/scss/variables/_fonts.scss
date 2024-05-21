@@ -1,6 +1,12 @@
+@font-face {
+	font-family: Inter;
+	font-display: swap;
+	src: url('/wp-content/plugins/newspack-plugin/assets/newspack-ui/fonts/inter/Inter-VariableFont_slnt,wght.ttf');
+}
+
 :root {
 	// Fonts - general
-	--newspack-ui-font-family: system-ui, sans-serif;
+	--newspack-ui-font-family: 'Inter', system-ui, sans-serif;
 	--newspack-ui-font-weight-strong: 600;
 
 	// Fonts - sizes
