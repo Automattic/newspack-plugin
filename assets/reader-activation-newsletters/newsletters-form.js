@@ -1,3 +1,5 @@
+/* globals newspack_reader_activation_newsletters */
+
 /**
  * Internal dependencies.
  */
@@ -23,12 +25,20 @@ window.newspackRAS.push( function () {
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
 
-				// TODO: Trigger form submission and handle signups on backend.
-				//
-				// For now, just trigger success callback.
-				if ( container?.newslettersSignupCallback ) {
-					container.newslettersSignupCallback();
-				}
+				const formData = new FormData( form );
+
+				formData.append( 'security', newspack_reader_activation_newsletters.security );
+				formData.append( 'action', 'newspack_reader_activation_newsletters_signup' );
+
+				// Ajax request.
+				fetch( newspack_reader_activation_newsletters.ajax_url, {
+					method: 'POST',
+					body: formData,
+				} ).finally( () => {
+					if ( container?.newslettersSignupCallback ) {
+						container.newslettersSignupCallback();
+					}
+				} );
 			} );
 		} );
 	} );

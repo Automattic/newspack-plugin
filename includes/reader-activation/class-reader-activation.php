@@ -76,6 +76,7 @@ final class Reader_Activation {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		\add_action( 'wp_footer', [ __CLASS__, 'render_auth_modal' ] );
 		\add_action( 'wp_footer', [ __CLASS__, 'render_newsletters_signup_modal' ] );
+		\add_action( 'wp_ajax_newspack_reader_activation_newsletters_signup', [ __CLASS__, 'newsletters_signup' ] );
 
 		if ( self::is_enabled() ) {
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -178,6 +179,15 @@ final class Reader_Activation {
 				[ self::SCRIPT_HANDLE ],
 				NEWSPACK_PLUGIN_VERSION,
 				true
+			);
+
+			\wp_localize_script(
+				self::NEWSLETTERS_SCRIPT_HANDLE,
+				'newspack_reader_activation_newsletters',
+				[
+					'security' => wp_create_nonce( 'newspack_reader_activation_newsletters_signup' ),
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+				]
 			);
 		}
 	}
@@ -1314,10 +1324,10 @@ final class Reader_Activation {
 		?>
 			<div class="newspack-ui newspack-newsletters-signup">
 				<form method="post" target="_top">
-					<input type="hidden" name="newsletter_signup_email" value="<?php echo esc_attr( $email_address ); ?>" />
+					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
 					<?php
 					foreach ( $newsletters_lists as $list ) {
-						$checkbox_id = sprintf( 'newspack-blocks-list-%s', $list['id'] );
+						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
 						?>
 						<label class="newspack-ui__input-card">
 							<input
@@ -1396,6 +1406,48 @@ final class Reader_Activation {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Handle newsletters signup submission.
+	 *
+	 * @return void|WP_Error
+	 */
+	public static function newsletters_signup() {
+		if ( ! self::is_newsletters_signup_available() ) {
+			return;
+		}
+
+		$nonce = filter_input( INPUT_POST, 'security', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'newspack_reader_activation_newsletters_signup' ) ) {
+			wp_die();
+		}
+
+		$email_address = filter_input( INPUT_POST, 'email_address', FILTER_SANITIZE_EMAIL );
+		if ( empty( $email_address ) ) {
+			return new \WP_Error( 'invalid_email_address', __( 'Invalid email address.', 'newspack-plugin' ) );
+		}
+
+		$lists = filter_input( INPUT_POST, 'lists', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
+		if ( empty( $lists ) ) {
+			return new \WP_Error( 'no_lists_selected', __( 'No lists selected.', 'newspack-plugin' ) );
+		}
+
+		$result = \Newspack_Newsletters_Subscription::add_contact(
+			[
+				'email'    => $email_address,
+				'metadata' => [
+					'current_page_url'                => home_url( add_query_arg( array(), \wp_get_referer() ) ),
+					// Right now the newsletters signup modal flow only applies to post checkout.
+					'newsletters_subscription_method' => 'post-checkout',
+				],
+			],
+			$lists
+		);
+
+		if ( \is_wp_error( $result ) ) {
+			return $result;
+		}
 	}
 
 	/**
