@@ -5,6 +5,8 @@
  */
 import { domReady } from '../reader-activation-auth/utils';
 
+import './style.scss';
+
 window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( function () {
 	domReady( function () {
@@ -25,6 +27,13 @@ window.newspackRAS.push( function () {
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
 
+				if ( form.classList.contains( 'processing' ) ) {
+					return;
+				}
+
+				form.classList.add( 'processing' );
+				form.querySelector( 'button' ).setAttribute( 'disabled', 'disabled' );
+
 				const formData = new FormData( form );
 
 				formData.append( 'security', newspack_reader_activation_newsletters.security );
@@ -38,6 +47,8 @@ window.newspackRAS.push( function () {
 					if ( container?.newslettersSignupCallback ) {
 						container.newslettersSignupCallback();
 					}
+					form.classList.remove( 'processing' );
+					form.querySelector( 'button' ).removeAttribute( 'disabled' );
 				} );
 			} );
 		} );
