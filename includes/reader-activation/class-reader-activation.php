@@ -171,7 +171,7 @@ final class Reader_Activation {
 
 		if ( self::is_newsletters_signup_available() ) {
 			/**
-			* Newsletter Signup
+			* Newsletters Signup.
 			*/
 			\wp_enqueue_script(
 				self::NEWSLETTERS_SCRIPT_HANDLE,
@@ -188,6 +188,13 @@ final class Reader_Activation {
 					'security' => wp_create_nonce( 'newspack_reader_activation_newsletters_signup' ),
 					'ajax_url' => admin_url( 'admin-ajax.php' ),
 				]
+			);
+
+			\wp_enqueue_style(
+				self::NEWSLETTERS_SCRIPT_HANDLE,
+				Newspack::plugin_url() . '/dist/newsletters-signup.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
 			);
 		}
 	}
@@ -1442,7 +1449,8 @@ final class Reader_Activation {
 					'newsletters_subscription_method' => 'post-checkout',
 				],
 			],
-			$lists
+			$lists,
+			true // Async.
 		);
 
 		if ( \is_wp_error( $result ) ) {
