@@ -1,4 +1,5 @@
-/* globals newspack_ras_config, newspack_reader_data, newspack_grecaptcha */
+/* globals newspack_ras_config, newspack_reader_data */
+
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
@@ -311,8 +312,8 @@ const readerActivation = {
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
-	getCaptchaToken: newspack_grecaptcha
-		? newspack_grecaptcha?.getCaptchaToken
+	getCaptchaToken: window.newspack_grecaptcha
+		? window.newspack_grecaptcha?.getCaptchaToken
 		: () => new Promise( res => res( '' ) ), // Empty promise.
 };
 
