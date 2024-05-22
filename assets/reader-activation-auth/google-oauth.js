@@ -50,6 +50,12 @@ domReady( function () {
 				'newspack_google_login',
 				'width=500,height=600'
 			);
+			let googleOAuthSuccess = false;
+			window.addEventListener( 'google-oauth-success', () => {
+				googleOAuthSuccess = true;
+				checkLoginStatus( metadata );
+			} );
+
 			fetch( '/wp-json/newspack/v1/login/google' )
 				.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )
 				.then( ( { data, status } ) => {
@@ -63,8 +69,10 @@ domReady( function () {
 					} else if ( authWindow ) {
 						authWindow.location = data;
 						const interval = setInterval( () => {
-							if ( authWindow.closed ) {
-								checkLoginStatus( metadata );
+							if ( ! googleOAuthSuccess && authWindow.closed ) {
+								if ( googleLoginForm?.endLoginFlow ) {
+									googleLoginForm.endLoginFlow( newspack_reader_auth_labels.login_canceled, 401 );
+								}
 								clearInterval( interval );
 							}
 						}, 500 );

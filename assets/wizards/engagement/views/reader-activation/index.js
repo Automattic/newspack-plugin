@@ -110,7 +110,9 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		const _allReady =
 			! missingPlugins.length &&
 			prerequisites &&
-			Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
+			Object.keys( prerequisites ).every(
+				key => prerequisites[ key ]?.active || prerequisites[ key ]?.skipped
+			);
 
 		setAllReady( _allReady );
 
