@@ -71,7 +71,10 @@ domReady( function () {
 						const interval = setInterval( () => {
 							if ( ! googleOAuthSuccess && authWindow.closed ) {
 								if ( googleLoginForm?.endLoginFlow ) {
-									googleLoginForm.endLoginFlow( newspack_reader_auth_labels.login_canceled, 401 );
+									googleLoginForm.endLoginFlow(
+										newspack_reader_activation_labels.login_canceled,
+										401
+									);
 								}
 								clearInterval( interval );
 							}
