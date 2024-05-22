@@ -42,7 +42,7 @@ class Connections_Wizard extends Wizard {
 	}
 
 	/**
-	 * Enqueue Subscriptions Wizard scripts and styles.
+	 * Enqueue Connections Wizard scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
 		parent::enqueue_scripts_and_styles();

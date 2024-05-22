@@ -362,7 +362,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 
 				readerActivation
-					.getCaptchaToken( ev.target )
+					.getCaptchaToken()
 					.then( captchaToken => {
 						if ( ! captchaToken ) {
 							return;

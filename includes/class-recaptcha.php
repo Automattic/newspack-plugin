@@ -15,15 +15,17 @@ defined( 'ABSPATH' ) || exit;
  * Class for reCAPTCHA integration.
  */
 final class Recaptcha {
-	const SCRIPT_HANDLE  = 'newspack-recaptcha';
+	const SCRIPT_HANDLE_NEWSPACK  = 'newspack-recaptcha';
+	const SCRIPT_HANDLE  = 'newspack-recaptcha-api';
 	const OPTIONS_PREFIX = 'newspack_recaptcha_';
+	const SUPPORTED_VERSIONS = [ 'v3', 'v2_checkbox', 'v2_invisible' ];
 
 	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		\add_action( 'rest_api_init', [ __CLASS__, 'register_api_endpoints' ] );
-		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_script' ] );
+		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'register_scripts' ] );
 		\add_action( 'newspack_newsletters_subscribe_block_before_email_field', [ __CLASS__, 'render_recaptcha_v2_container' ] );
 
 		// Add reCAPTCHA to the Woo checkout form.
@@ -68,6 +70,14 @@ final class Recaptcha {
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					],
+					'version'     => [
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'threshold'   => [
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
 				],
 			]
 		);
@@ -78,13 +88,9 @@ final class Recaptcha {
 	 *
 	 * @return string
 	 */
-	private static function get_script_url() {
-		if ( ! self::can_use_captcha() ) {
-			return '';
-		}
+	public static function get_script_url() {
 		$base_url = 'https://www.google.com/recaptcha/api.js';
-
-		if ( 'v2' === self::get_setting( 'version' ) ) {
+		if ( self::can_use_captcha( 'v2' ) ) {
 			return \add_query_arg(
 				[
 					'render' => 'explicit',
@@ -93,49 +99,51 @@ final class Recaptcha {
 				$base_url
 			);
 		}
-
-		$captcha_site_key = self::get_site_key();
-		return \add_query_arg(
-			[ 'render' => $captcha_site_key ],
-			$base_url
-		);
+		if ( self::can_use_captcha( 'v3' ) ) {
+			return \add_query_arg(
+				[ 'render' => self::get_site_key() ],
+				$base_url
+			);
+		}
+		return '';
 	}
 
 	/**
 	 * Register the reCAPTCHA script.
 	 */
-	public static function register_script() {
-		$is_v2 = false;
+	public static function register_scripts() {
 		if ( self::can_use_captcha( 'v2' ) ) {
-			$is_v2 = true;
 			\wp_enqueue_style(
-				self::SCRIPT_HANDLE . '-v2',
-				Newspack::plugin_url() . '/dist/other-scripts/recaptcha-v2.css',
+				self::SCRIPT_HANDLE_NEWSPACK,
+				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.css',
 				[],
 				NEWSPACK_PLUGIN_VERSION
 			);
+		}
+
+		// Enqueue the reCAPTCHA API from Google's servers.
+		if ( self::can_use_captcha() ) {
 			\wp_enqueue_script(
-				self::SCRIPT_HANDLE . '-v2',
-				Newspack::plugin_url() . '/dist/other-scripts/recaptcha-v2.js',
-				[],
+				self::SCRIPT_HANDLE_NEWSPACK,
+				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.js',
+				\is_admin() ? [ 'newspack-connections-wizard' ] : [], // So we can test the reCAPTCHA API connection in the admin wizard.
 				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
 			\wp_localize_script(
-				self::SCRIPT_HANDLE . '-v2',
+				self::SCRIPT_HANDLE_NEWSPACK,
 				'newspack_recaptcha_data',
 				[
 					'site_key' => self::get_site_key(),
 					'version'  => self::get_setting( 'version' ),
 				]
 			);
-		}
-		if ( self::can_use_captcha() ) {
-			// Note: version arg Must be null to avoid the &ver param being read as part of the reCAPTCHA site key .
+
+			// Note: version arg Must be null to avoid the &ver param being read as part of the reCAPTCHA site key.
 			\wp_register_script(
 				self::SCRIPT_HANDLE,
-				\esc_url( self::get_script_url() ),
-				$is_v2 ? [ self::SCRIPT_HANDLE . '-v2' ] : null,
+				\esc_url( self::get_script_url() ), // The Google API script.
+				[ self::SCRIPT_HANDLE_NEWSPACK ],
 				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 				true
 			);
@@ -169,13 +177,11 @@ final class Recaptcha {
 	 */
 	public static function get_settings_config() {
 		return [
-			'use_captcha'    => false,
-			'site_key'       => '',
-			'site_secret'    => '',
-			'threshold'      => 0.5,
-			'version'        => 'v3',
-			'site_key_v2'    => '',
-			'site_secret_v2' => '',
+			'use_captcha' => false,
+			'site_key'    => '',
+			'site_secret' => '',
+			'threshold'   => 0.5,
+			'version'     => 'v3',
 		];
 	}
 
@@ -262,16 +268,14 @@ final class Recaptcha {
 	 * Get the reCAPTCHA site key.
 	 */
 	public static function get_site_key() {
-		$version = self::get_setting( 'version' );
-		return 'v3' === $version ? self::get_setting( 'site_key' ) : self::get_setting( 'site_key_v2' );
+		return self::get_setting( 'site_key' );
 	}
 
 	/**
 	 * Get the reCAPTCHA site secret.
 	 */
 	public static function get_site_secret() {
-		$version = self::get_setting( 'version' );
-		return 'v3' === $version ? self::get_setting( 'site_secret' ) : self::get_setting( 'site_secret_v2' );
+		return self::get_setting( 'site_secret' );
 	}
 
 	/**
@@ -304,7 +308,13 @@ final class Recaptcha {
 			return false;
 		}
 
-		if ( $version && $version !== $settings['version'] ) {
+		if (
+			$version &&
+			(
+				( 'v3' === $version && $version !== $settings['version'] ) ||
+				( 'v2' === $version && $version !== substr( $settings['version'], 0, 2 ) )
+			)
+		) {
 			return false;
 		}
 
@@ -317,6 +327,7 @@ final class Recaptcha {
 
 	/**
 	 * Verify a REST API request using reCAPTCHA.
+	 * Should work for all versions of reCAPTCHA.
 	 *
 	 * @return boolean|WP_Error True if the request passes the CAPTCHA test, or WP_Error.
 	 */
@@ -362,8 +373,9 @@ final class Recaptcha {
 			);
 		}
 
-		// If the reCaptcha verification score is below our threshold for valid user input.
+		// If the reCAPTCHA verification score is below our threshold for valid user input (v3 only).
 		if (
+			'v3' === $version &&
 			isset( $captcha_verify['score'] ) &&
 			floatval( self::get_setting( 'threshold' ) ) > floatval( $captcha_verify['score'] )
 		) {
@@ -377,7 +389,7 @@ final class Recaptcha {
 	}
 
 	/**
-	 * Add reCAPTCHA v2 to checkout.
+	 * Render a container for the reCAPTCHA v2 checkbox widget.
 	 */
 	public static function render_recaptcha_v2_container() {
 		if ( ! self::can_use_captcha( 'v2' ) ) {
@@ -392,10 +404,10 @@ final class Recaptcha {
 	 * Add reCAPTCHA v2 to Woo checkout.
 	 */
 	public static function add_recaptcha_v2_to_checkout() {
+		self::render_recaptcha_v2_container();
 		?>
 		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
 		<?php
-		self::render_recaptcha_v2_container();
 	}
 
 	/**

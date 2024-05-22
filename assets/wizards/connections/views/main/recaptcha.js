@@ -61,13 +61,11 @@ const Recaptcha = () => {
 	};
 
 	const isV3 = 'v3' === settingsToUpdate?.version;
-	const hasRequiredSettings = isV3
-		? settings.site_key && settings.site_secret
-		: settings.site_key_v2 && settings.site_secret_v2;
+	const hasRequiredSettings = settings.site_key && settings.site_secret;
 
 	return (
 		<>
-			<SectionHeader id="recaptcha" title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
+			<SectionHeader id="recaptcha" title={ __( 'reCAPTCHA', 'newspack-plugin' ) } />
 			<ActionCard
 				isMedium
 				title={ __( 'Use reCAPTCHA', 'newspack-plugin' ) }
@@ -101,26 +99,18 @@ const Recaptcha = () => {
 				{ settings.use_captcha && (
 					<>
 						{ error && <Notice isError noticeText={ error } /> }
-						{ settings.use_captcha && ! hasRequiredSettings ? (
+						{ ! hasRequiredSettings && (
 							<Notice
 								noticeText={ __(
 									'You must enter a valid site key and secret to use reCAPTCHA.',
 									'newspack-plugin'
 								) }
 							/>
-						) : (
-							<Notice
-								isSuccess
-								noticeText={ __(
-									'Reader account registrations, newsletter signups, and WooCommerce transactions are protected by reCAPTCHA.',
-									'newspack-plugin'
-								) }
-							/>
 						) }
-						<Grid columns={ 1 } noMargin>
+						<Grid noMargin rowGap={ 16 }>
 							<BaseControl
 								id="recaptcha-version"
-								label={ __( 'reCAPTCHA Version', 'newspack' ) }
+								label={ __( 'reCAPTCHA Version', 'newspack-plugin' ) }
 								help={
 									<ExternalLink href="https://developers.google.com/recaptcha/docs/versions">
 										{ __( 'Learn more about reCAPTCHA versions', 'newspack-plugin' ) }
@@ -128,81 +118,78 @@ const Recaptcha = () => {
 								}
 							>
 								<SelectControl
-									label={ __( 'reCAPTCHA Version', 'newspack' ) }
+									label={ __( 'reCAPTCHA Version', 'newspack-plugin' ) }
 									hideLabelFromVision
 									value={ settingsToUpdate?.version || 'v3' }
-									onChange={ value =>
-										setSettingsToUpdate( { ...settingsToUpdate, version: value } )
-									}
+									onChange={ value => {
+										console.log( value );
+										setSettingsToUpdate( { ...settingsToUpdate, version: value } );
+									} }
 									buttonOptions={ [
-										{ value: 'v3', label: __( 'v3', 'newspack' ) },
-										{ value: 'v2', label: __( 'v2', 'newspack' ) },
+										{ value: 'v3', label: __( 'v3', 'newspack-plugin' ) },
+										{ value: 'v2_invisible', label: __( 'v2 invisible', 'newspack-plugin' ) },
+										{ value: 'v2_checkbox', label: __( 'v2 checkbox', 'newspack-plugin' ) },
 									] }
 								/>
 							</BaseControl>
+							{ 'v2_checkbox' === settingsToUpdate?.version ? (
+								<img
+									src="/wp-content/plugins/newspack-plugin/assets/images/recaptcha-v2-checkbox.gif"
+									alt="reCAPTCHA v2 - checkbox style"
+									width="308"
+									height="82"
+								/>
+							) : (
+								<img
+									src="/wp-content/plugins/newspack-plugin/assets/images/recaptcha-v2-invisible.png"
+									alt="reCAPTCHA v2 - invisible style"
+									width="267"
+									height="70"
+								/>
+							) }
 						</Grid>
 						<Grid noMargin rowGap={ 16 }>
-							{ isV3 ? (
-								<>
-									<TextControl
-										value={ settingsToUpdate?.site_key || '' }
-										label={ __( 'Site Key', 'newspack-plugin' ) }
-										onChange={ value =>
-											setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
-										}
-										disabled={ isLoading }
-										autoComplete="off"
-									/>
-									<TextControl
-										type="password"
-										value={ settingsToUpdate?.site_secret || '' }
-										label={ __( 'Site Secret', 'newspack-plugin' ) }
-										onChange={ value =>
-											setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
-										}
-										disabled={ isLoading }
-										autoComplete="off"
-									/>
-									<TextControl
-										type="number"
-										step="0.05"
-										min="0"
-										max="1"
-										value={ parseFloat( settingsToUpdate?.threshold || '' ) }
-										label={ __( 'Threshold', 'newspack-plugin' ) }
-										onChange={ value =>
-											setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
-										}
-										disabled={ isLoading }
-										help={
-											<ExternalLink href="https://developers.google.com/recaptcha/docs/v3#interpreting_the_score">
-												{ __( 'Learn more about the threshold value', 'newspack-plugin' ) }
-											</ExternalLink>
-										}
-									/>
-								</>
-							) : (
-								<>
-									<TextControl
-										value={ settingsToUpdate?.site_key_v2 || '' }
-										label={ __( 'Site Key', 'newspack-plugin' ) }
-										onChange={ value =>
-											setSettingsToUpdate( { ...settingsToUpdate, site_key_v2: value } )
-										}
-										disabled={ isLoading }
-										autoComplete="off"
-									/>
-									<TextControl
-										type="password"
-										value={ settingsToUpdate?.site_secret_v2 || '' }
-										label={ __( 'Site Secret', 'newspack-plugin' ) }
-										onChange={ value =>
-											setSettingsToUpdate( { ...settingsToUpdate, site_secret_v2: value } )
-										}
-										disabled={ isLoading }
-										autoComplete="off"
-									/>
-								</>
+							<TextControl
+								value={ settingsToUpdate?.site_key || '' }
+								label={ __( 'Site Key', 'newspack-plugin' ) }
+								help={ __(
+									'Your site key and secret must match the selected reCAPTCHA version.',
+									'newspack-plugin'
+								) }
+								onChange={ value =>
+									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
+								}
+								disabled={ isLoading }
+								autoComplete="off"
+							/>
+							<TextControl
+								type="password"
+								value={ settingsToUpdate?.site_secret || '' }
+								label={ __( 'Site Secret', 'newspack-plugin' ) }
+								onChange={ value =>
+									setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
+								}
+								disabled={ isLoading }
+								autoComplete="off"
+							/>
+							{ isV3 && (
+								<TextControl
+									type="number"
+									step="0.05"
+									min="0"
+									max="1"
+									value={ parseFloat( settingsToUpdate?.threshold || '' ) }
+									label={ __( 'Threshold', 'newspack-plugin' ) }
+									onChange={ value =>
+										setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
+									}
+									disabled={ isLoading }
+									help={
+										<ExternalLink href="https://developers.google.com/recaptcha/docs/v3#interpreting_the_score">
+											{ __( 'Learn more about the threshold value', 'newspack-plugin' ) }
+										</ExternalLink>
+									}
+								/>
 							) }
 						</Grid>
 					</>
