@@ -481,9 +481,9 @@ final class Reader_Activation {
 			],
 			'recaptcha'        => [
 				'active'       => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
-				'label'        => __( 'reCAPTCHA v3', 'newspack-plugin' ),
-				'description'  => __( 'Connecting to a Google reCAPTCHA v3 account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
-				'instructions' => __( 'Enable reCAPTCHA v3 and enter your account credentials.', 'newspack-plugin' ),
+				'label'        => __( 'reCAPTCHA', 'newspack-plugin' ),
+				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
+				'instructions' => __( 'Enable reCAPTCHA and enter your account credentials.', 'newspack-plugin' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
 				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard&scrollTo=recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),

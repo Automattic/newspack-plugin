@@ -136,14 +136,12 @@ const Recaptcha = () => {
 								<img
 									src="/wp-content/plugins/newspack-plugin/assets/images/recaptcha-v2-checkbox.gif"
 									alt="reCAPTCHA v2 - checkbox style"
-									width="308"
-									height="82"
+									height="70"
 								/>
 							) : (
 								<img
 									src="/wp-content/plugins/newspack-plugin/assets/images/recaptcha-v2-invisible.png"
 									alt="reCAPTCHA v2 - invisible style"
-									width="267"
 									height="70"
 								/>
 							) }
