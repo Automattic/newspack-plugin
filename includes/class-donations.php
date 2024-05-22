@@ -804,7 +804,7 @@ class Donations {
 		$title   = esc_html__( 'Support our publication', 'newspack' );
 		$intro   = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
 		$content = esc_html__( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack' );
-		$image   = Newspack::plugin_url() . '/includes/images/pexels-codioful-7135033.jpg';
+		$image   = Newspack::plugin_url() . '/includes/images/placeholder-donation.jpg';
 
 		$container_block       = '
 			<!-- wp:cover {"url":"' . $image . '","dimRatio":20,"overlayColor":"black","isUserOverlayColor":true,"minHeight":85,"minHeightUnit":"vh","align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
