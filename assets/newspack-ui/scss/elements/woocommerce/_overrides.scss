@@ -37,14 +37,18 @@
 		}
 	}
 
-	// Override checkout and billing form headings spacing.
-	.woocommerce-checkout,
-	.billing-details,
-	.shipping-details {
-		h3 {
-			font-size: var(--newspack-ui-font-size-s);
-			margin: 0 0 var( --newspack-ui-spacer-base );
+	// Different shipping address
+	#ship-to-different-address {
+		margin-bottom: 0;
+
+		&,
+		label {
+			display: block;
 		}
+	}
+
+	.shipping_address {
+		margin-top: var( --newspack-ui-spacer-5 );
 	}
 
 	// Override checkout payment method box.
@@ -80,6 +84,7 @@
 
 					label {
 						font-size: var(--newspack-ui-font-size-xs);
+						font-weight: normal;
 					}
 
 					input {
@@ -113,6 +118,14 @@
 							font-weight: normal;
 						}
 					}
+				}
+			}
+
+			.newspack-cover-fees {
+				label {
+					color: var(--newspack-ui-color-neutral-60);
+					font-size: var( --newspack-ui-font-size-xs );
+					line-height: var( --newspack-ui-line-height-xs );
 				}
 			}
 		}
@@ -186,11 +199,36 @@
 		padding: 0;
 	}
 
-	.checkout_details {
-		margin-bottom: var(--newspack-ui-spacer-5);
+	.woocommerce-checkout {
+		h3 {
+			font-size: var(--newspack-ui-font-size-s);
+			line-height: var(--newspack-ui-line-height-s);
+			margin: 0 0 var( --newspack-ui-spacer-5 );
+		}
+
+		.woocommerce-billing-fields h3 {
+			margin: 0 0 var( --newspack-ui-spacer-5 );
+		}
+
+		// After Customer Details
+		// stylelint-disable-next-line selector-id-pattern
+		#after_customer_details {
+			h3 {
+				margin-bottom: var( --newspack-ui-spacer-2 );
+			}
+		}
 	}
 
 	// Override billing details spacing.
+	// stylelint-disable-next-line selector-id-pattern
+	#checkout_details {
+		margin-bottom: var(--newspack-ui-spacer-5);
+
+		h3 {
+			margin: 0 0 var( --newspack-ui-spacer-base );
+		}
+	}
+
 	.billing-details,
 	.shipping-details {
 		&:not(:last-child ) {

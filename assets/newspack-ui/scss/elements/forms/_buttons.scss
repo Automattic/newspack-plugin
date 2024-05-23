@@ -1,5 +1,4 @@
 .newspack-ui {
-	// TODO: define some kind of size hierachy for buttons eg. small, medium, large.
 	.newspack-ui__button {
 		align-items: center;
 		background: var( --newspack-ui-color-neutral-10 );
@@ -13,12 +12,13 @@
 		gap: calc( var( --newspack-ui-spacer-base ) / 2 );
 		justify-content: center;
 		line-height: var( --newspack-ui-line-height-s );
+		margin-bottom: var( --newspack-ui-spacer-2 );
 		min-height: var( --newspack-ui-spacer-9 );
 		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-5 );
 		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out, outline 125ms ease-in-out;
 
-		&:not( :last-child ) {
-			margin-bottom: var( --newspack-ui-spacer-2 );
+		&:last-child {
+			margin-bottom: 0;
 		}
 
 		&:hover {
