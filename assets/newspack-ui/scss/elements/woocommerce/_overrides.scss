@@ -51,6 +51,7 @@
 		margin-top: var( --newspack-ui-spacer-5 );
 	}
 
+
 	// Override checkout payment method box.
 	.wc_payment_method {
 
@@ -107,10 +108,11 @@
 
 					&.form-row {
 						display: flex;
+						gap: var(--newspack-ui-spacer-2);
 						align-items: flex-start;
 
 						input {
-							margin-right: var(--newspack-ui-spacer-2);
+							margin: 0;
 						}
 
 						label {
@@ -121,11 +123,15 @@
 				}
 			}
 
-			.newspack-cover-fees {
+			.newspack-cover-fees,
+			.woocommerce-SavedPaymentMethods-saveNew {
 				label {
-					color: var(--newspack-ui-color-neutral-60);
 					font-size: var( --newspack-ui-font-size-xs );
 					line-height: var( --newspack-ui-line-height-xs );
+				}
+
+				&::before {
+					display: none;
 				}
 			}
 		}
@@ -143,6 +149,13 @@
 			input.input-radio[name="payment_method"] {
 				display: none;
 			}
+		}
+	}
+
+	// WooCommerce Payments
+	#payment {
+		.payment_method_woocommerce_payments .testmode-info {
+			margin-bottom: 0;
 		}
 	}
 
@@ -195,7 +208,7 @@
 	// Woo Payments inputs
 	#wcpay-upe-element,
 	.wcpay-upe-element {
-		margin: var(--newspack-ui-spacer-5) 0;
+		margin: var(--newspack-ui-spacer-3) 0;
 		padding: 0;
 	}
 
@@ -216,6 +229,17 @@
 			h3 {
 				margin-bottom: var( --newspack-ui-spacer-2 );
 			}
+		}
+
+		// Override label styles from theme
+		.woocommerce-billing-fields,
+		.woocommerce-account-fields,
+		.woocommerce-shipping-fields,
+		.woocommerce-additional-fields {
+			label {
+				font-size: var( --newspack-ui-font-size-s );
+			}
+
 		}
 	}
 
@@ -279,6 +303,7 @@
 		margin-bottom: var(--newspack-ui-spacer-5);
 
 		h3 {
+			color: var( --newspack-ui-label-color );
 			margin-bottom: var( --newspack-ui-spacer-base );
 		}
 
