@@ -30,9 +30,9 @@ class RAS {
 			WP_CLI::error( __( 'RAS is already configured for this site.', 'newspack-plugin' ) );
 		}
 
-		if ( ! $skip_campaigns && ! class_exists( '\Newspack_Popups_Presets' ) ) {
+		if ( ! class_exists( '\Newspack_Popups_Presets' ) ) {
 			WP_CLI::warning( __( 'Newspack Campaigns plugin not found. Activating...', 'newspack-plugin' ) );
-			Plugin_Manager::install( 'newspack-popups' );
+			Plugin_Manager::install( 'newspack-popups' ); // Must be installed before being activated to avoid a fatal.
 			Plugin_Manager::activate( 'newspack-popups' );
 		}
 
@@ -41,7 +41,7 @@ class RAS {
 			Plugin_Manager::activate( 'newspack-newsletters' );
 		}
 
-		if ( \is_wp_error( \Newspack_Newsletters_Subscription::get_lists() ) ) {
+		if ( ! $skip_campaigns && \is_wp_error( \Newspack_Newsletters_Subscription::get_lists() ) ) {
 			WP_CLI::error( __( 'Newspack Newsletters provider not set.', 'newspack-plugin' ) );
 		}
 
