@@ -85,6 +85,14 @@ const webpackConfig = getBaseWebpackConfig(
 			),
 			'newspack-ui': path.join( __dirname, 'assets', 'newspack-ui', 'index.js' ),
 		},
+		module: {
+			rules: [
+				{
+					test: /\.(woff|woff2|eot|ttf|otf)$/i,
+					type: 'asset/resource',
+				},
+			],
+		},
 	}
 );
 
