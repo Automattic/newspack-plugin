@@ -128,23 +128,9 @@ const Recaptcha = () => {
 									buttonOptions={ [
 										{ value: 'v3', label: __( 'v3', 'newspack-plugin' ) },
 										{ value: 'v2_invisible', label: __( 'v2 invisible', 'newspack-plugin' ) },
-										{ value: 'v2_checkbox', label: __( 'v2 checkbox', 'newspack-plugin' ) },
 									] }
 								/>
 							</BaseControl>
-							{ 'v2_checkbox' === settingsToUpdate?.version ? (
-								<img
-									src="/wp-content/plugins/newspack-plugin/assets/images/recaptcha-v2-checkbox.gif"
-									alt="reCAPTCHA v2 - checkbox style"
-									height="70"
-								/>
-							) : (
-								<img
-									src="/wp-content/plugins/newspack-plugin/assets/images/recaptcha-v2-invisible.png"
-									alt="reCAPTCHA v2 - invisible style"
-									height="70"
-								/>
-							) }
 						</Grid>
 						<Grid noMargin rowGap={ 16 }>
 							<TextControl
