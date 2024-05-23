@@ -99,6 +99,10 @@ class Setup {
 		$request = new WP_REST_Request( 'POST', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-setup-wizard/starter-content/init' );
 		if ( isset( $assoc_args['site'] ) && ! empty( $assoc_args['site'] ) ) {
 			$assoc_args['type'] = 'import';
+			// Prepend HTTPS protocol if missing.
+			if ( ! preg_match( '/^https?:\/\//', $assoc_args['site'] ) ) {
+				$assoc_args['site'] = 'https://' . $assoc_args['site'];
+			}
 		}
 		$init_query_params = wp_parse_args(
 			$assoc_args,
@@ -106,6 +110,9 @@ class Setup {
 		);
 		$request->set_query_params( $init_query_params );
 		$response = rest_do_request( $request );
+		if ( $response->status !== 200 ) {
+			return WP_CLI::error( $response->data['message'] );
+		}
 
 		WP_CLI::line( 'Creating Posts' );
 		for ( $i = 0; $i < 40; $i++ ) {
