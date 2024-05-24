@@ -1424,20 +1424,19 @@ final class Reader_Activation {
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
-					<p class="newspack-ui__font--xs">
+					<p class="newspack-ui__font--xs details">
 						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
-						<br />
-						<span class="newspack-ui__color-text-gray">
-							<?php
-								echo esc_html(
-									sprintf(
-										// Translators: %s is the user's email address.
-										__( 'Sending to: %s', 'newspack-plugin' ),
-										$email_address
-									)
-								);
-							?>
-						</span>
+					</p>
+					<p class="newspack-ui__font--xs newspack-ui__color-text-gray email">
+						<?php
+							echo esc_html(
+								sprintf(
+									// Translators: %s is the user's email address.
+									__( 'Sending to: %s', 'newspack-plugin' ),
+									$email_address
+								)
+							);
+						?>
 					</p>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
 				</div>
