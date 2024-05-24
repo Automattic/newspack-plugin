@@ -8,7 +8,7 @@ import { domReady } from '../reader-activation-auth/utils';
 import './style.scss';
 
 window.newspackRAS = window.newspackRAS || [];
-window.newspackRAS.push( function () {
+window.newspackRAS.push( function ( readerActivation ) {
 	domReady( function () {
 		const containers = [ ...document.querySelectorAll( '.newspack-newsletters-signup' ) ];
 		if ( ! containers?.length ) {
@@ -19,6 +19,13 @@ window.newspackRAS.push( function () {
 			const form = container.querySelector( 'form' );
 			if ( ! form ) {
 				return;
+			}
+
+			// Populate email if not already set.
+			const emailInput = form.querySelector( 'input[name="email_address"]' );
+			if ( emailInput && ! emailInput.value ) {
+				const reader = readerActivation?.getReader();
+				emailInput.value = reader?.email || '';
 			}
 
 			/**

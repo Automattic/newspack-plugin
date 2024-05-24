@@ -26,7 +26,6 @@ export function openNewslettersSignupModal( config = {} ) {
 	}
 
 	const modal = container.closest( '.newspack-newsletters-signup-modal' );
-
 	if ( ! modal ) {
 		if ( config?.callback ) {
 			config.callback();
@@ -77,6 +76,15 @@ export function openNewslettersSignupModal( config = {} ) {
 		const form = container.querySelector( 'form' );
 		form.insertBefore( openerContent, form.firstChild );
 	}
+
+	// Populate email if not already set.
+	const emailInput = modal.querySelector( 'span.email' );
+	console.log( emailInput );
+	if ( emailInput && ! emailInput.innerText ) {
+		const reader = window?.newspackReaderActivation?.getReader();
+		emailInput.textContent = reader?.email || '';
+	}
+
 	modal.setAttribute( 'data-state', 'open' );
 	if ( window?.newspackReaderActivation?.overlays ) {
 		modal.overlayId = window.newspackReaderActivation.overlays.add();
