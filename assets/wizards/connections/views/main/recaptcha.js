@@ -121,10 +121,9 @@ const Recaptcha = () => {
 									label={ __( 'reCAPTCHA Version', 'newspack-plugin' ) }
 									hideLabelFromVision
 									value={ settingsToUpdate?.version || 'v3' }
-									onChange={ value => {
-										console.log( value );
-										setSettingsToUpdate( { ...settingsToUpdate, version: value } );
-									} }
+									onChange={ value =>
+										setSettingsToUpdate( { ...settingsToUpdate, version: value } )
+									}
 									buttonOptions={ [
 										{ value: 'v3', label: __( 'v3', 'newspack-plugin' ) },
 										{ value: 'v2_invisible', label: __( 'v2 invisible', 'newspack-plugin' ) },
