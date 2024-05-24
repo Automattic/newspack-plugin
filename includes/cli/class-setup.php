@@ -92,7 +92,7 @@ class Setup {
 	 * Populates the site with initial content
 	 *
 	 * @param array $assoc_args Assoc args passed to the CLI invocation.
-	 * @return void
+	 * @return void|WP_Error Error on failure.
 	 */
 	private function initial_content( $assoc_args ) {
 		WP_CLI::line( 'Creating Initial Content' );
