@@ -502,8 +502,9 @@ final class Reader_Activation {
 		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
 			return [];
 		}
-		$use_custom_lists = self::get_setting( 'use_custom_lists' );
-		$available_lists  = \Newspack_Newsletters_Subscription::get_lists_config();
+		$use_custom_lists   = self::get_setting( 'use_custom_lists' );
+		$available_lists    = \Newspack_Newsletters_Subscription::get_lists_config();
+		$registration_lists = [];
 		if ( \is_wp_error( $available_lists ) ) {
 			return [];
 		}
@@ -514,26 +515,28 @@ final class Reader_Activation {
 			if ( empty( $lists ) ) {
 				return [];
 			}
-			$registration_lists = [];
-			$current_lists      = [];
-
-			if ( $email_address && method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
-				$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email_address );
-				if ( \is_wp_error( $current_lists ) || ! is_array( $current_lists ) ) {
-					$current_lists = [];
-				}
-			}
-
 			foreach ( $lists as $list ) {
-				// Skip any lists the reader is already signed up for.
-				if ( in_array( $list, $current_lists, true ) ) {
-					continue;
-				}
-
 				if ( isset( $available_lists[ $list['id'] ] ) ) {
 					$registration_lists[ $list['id'] ]            = $available_lists[ $list['id'] ];
 					$registration_lists[ $list['id'] ]['checked'] = $list['checked'] ?? false;
 				}
+			}
+		}
+
+		// Filter out any lists the reader is already signed up for if an email address is provided.
+		if ( $email_address && method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
+			$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email_address );
+			if ( ! \is_wp_error( $current_lists ) && is_array( $current_lists ) ) {
+				$filtered_lists = [];
+				foreach ( $registration_lists as $list ) {
+					// Skip any lists the reader is already signed up for.
+					if ( in_array( $list['id'], $current_lists, true ) ) {
+						continue;
+					}
+
+					$filtered_lists[ $list['id'] ] = $list;
+				}
+				$registration_lists = $filtered_lists;
 			}
 		}
 
