@@ -625,62 +625,64 @@ class WooCommerce_Connection {
 		}
 
 		$items = $subscription->get_items();
-		$item  = array_shift( $items );
-		$is_donation = Donations::is_donation_product( $item->get_product_id() );
 
-		// Replace content placeholders.
-		$placeholders = [
-			[
-				'template' => '*BILLING_NAME*',
-				'value'    => trim( $subscription->get_billing_first_name() . ' ' . $subscription->get_billing_last_name() ),
-			],
-			[
-				'template' => '*BILLING_FIRST_NAME*',
-				'value'    => $subscription->get_billing_first_name(),
-			],
-			[
-				'template' => '*BILLING_LAST_NAME*',
-				'value'    => $subscription->get_billing_last_name(),
-			],
-			[
-				'template' => '*BILLING_FREQUENCY*',
-				'value'    => $product_map[ $item->get_product_id() ] ?? __( 'One-time', 'newspack-plugin' ),
-			],
-			[
-				'template' => '*PRODUCT_NAME*',
-				'value'    => $item->get_name(),
-			],
-			[
-				'template' => '*END_DATE*',
-				'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'end' ) ) ),
-			],
-			[
-				'template' => '*BUTTON_TEXT*',
-				'value'    => $is_donation ? __( 'Restart Donation', 'newspack-plugin' ) : __( 'Restart Subscription', 'newspack-plugin' ),
-			],
-			[
-				'template' => '*CANCELLATION_DATE*',
-				'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'cancelled' ) ) ),
-			],
-			[
-				'template' => '*CANCELLATION_TITLE*',
-				'value'    => $is_donation ? __( 'Donation Cancelled', 'newspack-plugin' ) : __( 'Subscription Cancelled', 'newspack-plugin' ),
-			],
-			[
-				'template' => '*CANCELLATION_TYPE*',
-				'value'    => $is_donation ? __( 'recurring donation', 'newspack-plugin' ) : __( 'subscription', 'newspack-plugin' ),
-			],
-			[
-				'template' => '*SUBSCRIPTION_URL*',
-				'value'    => $subscription->get_view_order_url(),
-			],
-		];
+		if ( ! empty( $items ) ) {
+			$item         = array_shift( $items );
+			$is_donation  = Donations::is_donation_product( $item->get_product_id() );
+			// Replace content placeholders.
+			$placeholders = [
+				[
+					'template' => '*BILLING_NAME*',
+					'value'    => trim( $subscription->get_billing_first_name() . ' ' . $subscription->get_billing_last_name() ),
+				],
+				[
+					'template' => '*BILLING_FIRST_NAME*',
+					'value'    => $subscription->get_billing_first_name(),
+				],
+				[
+					'template' => '*BILLING_LAST_NAME*',
+					'value'    => $subscription->get_billing_last_name(),
+				],
+				[
+					'template' => '*BILLING_FREQUENCY*',
+					'value'    => $product_map[ $item->get_product_id() ] ?? __( 'One-time', 'newspack-plugin' ),
+				],
+				[
+					'template' => '*PRODUCT_NAME*',
+					'value'    => $item->get_name(),
+				],
+				[
+					'template' => '*END_DATE*',
+					'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'end' ) ) ),
+				],
+				[
+					'template' => '*BUTTON_TEXT*',
+					'value'    => $is_donation ? __( 'Restart Donation', 'newspack-plugin' ) : __( 'Restart Subscription', 'newspack-plugin' ),
+				],
+				[
+					'template' => '*CANCELLATION_DATE*',
+					'value'    => wcs_format_datetime( wcs_get_datetime_from( $subscription->get_date( 'cancelled' ) ) ),
+				],
+				[
+					'template' => '*CANCELLATION_TITLE*',
+					'value'    => $is_donation ? __( 'Donation Cancelled', 'newspack-plugin' ) : __( 'Subscription Cancelled', 'newspack-plugin' ),
+				],
+				[
+					'template' => '*CANCELLATION_TYPE*',
+					'value'    => $is_donation ? __( 'recurring donation', 'newspack-plugin' ) : __( 'subscription', 'newspack-plugin' ),
+				],
+				[
+					'template' => '*SUBSCRIPTION_URL*',
+					'value'    => $subscription->get_view_order_url(),
+				],
+			];
 
-		$sent = Emails::send_email(
-			Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'],
-			$subscription->get_billing_email(),
-			$placeholders
-		);
+			$sent = Emails::send_email(
+				Reader_Revenue_Emails::EMAIL_TYPES['CANCELLATION'],
+				$subscription->get_billing_email(),
+				$placeholders
+			);
+		}
 
 		return $enable;
 	}
