@@ -1739,8 +1739,9 @@ final class Reader_Activation {
 		$user_data = array_merge(
 			$user_data,
 			[
-				'user_login'    => $user_login,
+				'user_login'    => $user_nicename,
 				'user_nicename' => $user_nicename,
+				'display_name'  => $user_nicename,
 				'user_pass'     => $random_password,
 			]
 		);
