@@ -37,6 +37,16 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const messageContentElement = container.querySelector( '.response' );
 
 			/**
+			 * Set action listener on the given item.
+			 */
+			const setActionListener = item => {
+				item.addEventListener( 'click', function ( ev ) {
+					ev.preventDefault();
+					container.setFormAction( ev.target.getAttribute( 'data-set-action' ), true );
+				} );
+			};
+
+			/**
 			 * Handle auth form action selection.
 			 */
 			let formAction;
@@ -193,12 +203,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				} );
 			}
 
-			container.querySelectorAll( '[data-set-action]' ).forEach( item => {
-				item.addEventListener( 'click', function ( ev ) {
-					ev.preventDefault();
-					container.setFormAction( ev.target.getAttribute( 'data-set-action' ), true );
-				} );
-			} );
+			container.querySelectorAll( '[data-set-action]' ).forEach( setActionListener );
 
 			form.startLoginFlow = () => {
 				container.removeAttribute( 'data-form-status' );
@@ -220,6 +225,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageNode.innerHTML = message;
 					messageContentElement.style.display = 'block';
 					messageContentElement.appendChild( messageNode );
+					messageContentElement
+						.querySelectorAll( '[data-set-action]' )
+						.forEach( setActionListener );
 				}
 				if ( status === 200 ) {
 					if ( data ) {
