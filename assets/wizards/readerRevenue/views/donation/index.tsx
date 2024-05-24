@@ -334,7 +334,14 @@ const Donation = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
 
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
-	const onSave = () =>
+	const onSaveDonationSettings = () =>
+		saveWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			section: 'donations',
+			payloadPath: [ 'donation_data' ],
+			auxData: { saveDonationProduct: true },
+		} );
+	const onSaveBillingFields = () =>
 		saveWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
 			section: 'donations',
@@ -376,10 +383,15 @@ const Donation = () => {
 				</>
 			) }
 			<DonationAmounts />
+			<div className="newspack-buttons-card">
+				<Button variant="primary" onClick={ onSaveDonationSettings } href={ undefined }>
+					{ __( 'Save Donation Settings' ) }
+				</Button>
+			</div>
 			<BillingFields />
 			<div className="newspack-buttons-card">
-				<Button variant="primary" onClick={ onSave } href={ undefined }>
-					{ __( 'Save Settings' ) }
+				<Button variant="primary" onClick={ onSaveBillingFields } href={ undefined }>
+					{ __( 'Save Billing Fields' ) }
 				</Button>
 			</div>
 		</>
