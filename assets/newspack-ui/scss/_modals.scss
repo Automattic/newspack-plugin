@@ -75,10 +75,10 @@
 				line-height: var( --newspack-ui-line-height-s );
 				margin: 0;
 			}
+		}
 
-			.newspack-ui__modal__close {
-				margin: -6px -6px -6px 0; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
-			}
+		&__close {
+			margin: -6px -6px -6px 0 !important; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
 		}
 
 		&__content {
