@@ -462,29 +462,19 @@ final class Reader_Activation {
 	/**
 	 * Get the newsletter lists that should be rendered after checkout.
 	 *
-	 * @param string $email Email address.
+	 * @param string $email_address Email address. Optional.
 	 *
 	 * @return array
 	 */
-	public static function get_post_checkout_newsletter_lists( $email ) {
-		$available_lists    = self::get_available_newsletter_lists();
+	public static function get_post_checkout_newsletter_lists( $email_address = '' ) {
+		$available_lists    = self::get_available_newsletter_lists( $email_address );
 		$registration_lists = [];
 
-		if ( empty( $available_lists ) || ! method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
-			return [];
-		}
-
-		$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email );
-		if ( \is_wp_error( $current_lists ) || ! is_array( $current_lists ) ) {
+		if ( empty( $available_lists ) ) {
 			return [];
 		}
 
 		foreach ( $available_lists as $list_id => $list ) {
-			// Skip any lists the reader is already signed up for.
-			if ( in_array( $list_id, $current_lists, true ) ) {
-				continue;
-			}
-
 			// Skip any premium lists since the reader has already made a purchase at this stage.
 			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_subscription_list_tied_to_plan' ) && \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_subscription_list_tied_to_plan( $list['db_id'] ) ) {
 				continue;
@@ -504,9 +494,11 @@ final class Reader_Activation {
 	/**
 	 * Get all available newsletter lists.
 	 *
+	 * @param string $email_address Email address. Optional.
+	 *
 	 * @return array
 	 */
-	public static function get_available_newsletter_lists() {
+	public static function get_available_newsletter_lists( $email_address = '' ) {
 		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
 			return [];
 		}
@@ -523,7 +515,21 @@ final class Reader_Activation {
 				return [];
 			}
 			$registration_lists = [];
+			$current_lists      = [];
+
+			if ( $email_address && method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
+				$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email_address );
+				if ( \is_wp_error( $current_lists ) || ! is_array( $current_lists ) ) {
+					$current_lists = [];
+				}
+			}
+
 			foreach ( $lists as $list ) {
+				// Skip any lists the reader is already signed up for.
+				if ( in_array( $list, $current_lists, true ) ) {
+					continue;
+				}
+
 				if ( isset( $available_lists[ $list['id'] ] ) ) {
 					$registration_lists[ $list['id'] ]            = $available_lists[ $list['id'] ];
 					$registration_lists[ $list['id'] ]['checked'] = $list['checked'] ?? false;
@@ -1370,11 +1376,7 @@ final class Reader_Activation {
 			return;
 		}
 
-		$email_address = self::get_logged_in_reader_email_address();
-		if ( ! $email_address ) {
-			return;
-		}
-
+		$email_address     = self::get_logged_in_reader_email_address();
 		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
 		if ( empty( $newsletters_lists ) ) {
 			return;
@@ -1396,16 +1398,11 @@ final class Reader_Activation {
 					<p class="newspack-ui__font--xs details">
 						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
 					</p>
-					<p class="newspack-ui__font--xs newspack-ui__color-text-gray email">
-						<?php
-							echo esc_html(
-								sprintf(
-									// Translators: %s is the user's email address.
-									__( 'Sending to: %s', 'newspack-plugin' ),
-									$email_address
-								)
-							);
-						?>
+					<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
+						<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
+						<span class="email">
+							<?php echo esc_html( $email_address ); ?>
+						</span>
 					</p>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
 				</div>
