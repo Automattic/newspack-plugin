@@ -481,6 +481,42 @@ class Newspack_UI {
 
 			<hr>
 
+			<h2>Dropdowns</h2>
+
+			<div class="newspack-ui__dropdown">
+				<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">Dropdown toggle</button>
+				<div class="newspack-ui__dropdown--flyout">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+				</div>
+			</div>
+
+			<div class="newspack-ui__button-set">
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">Dropdown toggle</button>
+					<div class="newspack-ui__dropdown--flyout">
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+					</div>
+				</div>
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">Dropdown toggle</button>
+					<div class="newspack-ui__dropdown--flyout">
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+					</div>
+				</div>
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">Dropdown toggle</button>
+					<div class="newspack-ui__dropdown--flyout">
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+					</div>
+				</div>
+			</div>
+
+			<hr>
+
 			<h2 id="buttons-icon">Buttons Icon</h2>
 
 			<p>Uses the same classes as the <code>newspack-ui__button</code> but we add an extra class to it <code>newspack-ui__button--icon</code></p>
