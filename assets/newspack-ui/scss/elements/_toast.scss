@@ -1,0 +1,28 @@
+@use '../mixins';
+
+.newspack-ui {
+	.newspack-ui__toast {
+		background: var( --newspack-ui-color-neutral-90 );
+		border-radius: var( --newspack-ui-border-radius-xs );
+		color: var( --newspack-ui-color-neutral-0 );
+		font-size: var( --newspack-ui-font-size-xs );
+		line-height: var( --newspack-ui-line-height-xs );
+		max-width: 100%;
+		padding: var( --newspack-ui-spacer-3 );
+		position: relative;
+		width: var( --newspack-ui-modal-width-s );
+		@include mixins.newspack-ui-elevation(2);
+
+		p {
+			margin: 0;
+		}
+
+		&__loader {
+			background: var( --newspack-ui-color-success-50 );
+			border-radius: 0 0 var( --newspack-ui-border-radius-xs ) var( --newspack-ui-border-radius-xs );
+			height: 3px;
+			inset: auto 0 0;
+			position: absolute;
+		}
+	}
+}

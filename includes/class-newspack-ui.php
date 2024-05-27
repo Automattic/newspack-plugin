@@ -572,6 +572,15 @@ class Newspack_UI {
 
 			<hr>
 
+			<h2>Toast</h2>
+
+			<div class="newspack-ui__toast">
+				<p>This is some simple text that can show in the toast notification.</p>
+				<div class="newspack-ui__toast__loader"></div>
+			</div>
+
+			<hr>
+
 			<h2 id="modals">Modals</h2>
 
 			<div class="newspack-ui__box">
