@@ -1,3 +1,10 @@
+## [3.8.8](https://github.com/Automattic/newspack-plugin/compare/v3.8.7...v3.8.8) (2024-05-27)
+
+
+### Bug Fixes
+
+* **ras:** handle newsletters subscribe form selector ([5699466](https://github.com/Automattic/newspack-plugin/commit/5699466252fdbd4ea551506f3c9f26a71f964a66))
+
 ## [3.8.7](https://github.com/Automattic/newspack-plugin/compare/v3.8.6...v3.8.7) (2024-05-17)
 
 
