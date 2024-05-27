@@ -41,7 +41,7 @@ class Meta_Pixel extends Pixel {
 		$current_user = wp_get_current_user();
 		$event_params = [
 			'page_title' => get_the_title(),
-			'user_role'  => empty( $current_user->roles ) ? 'guest' : array_shift( $current_user->roles ),
+			'user_role'  => empty( $current_user->roles ) ? 'guest' : reset( $current_user->roles ),
 			'event_url'  => home_url( $wp->request ),
 		];
 
