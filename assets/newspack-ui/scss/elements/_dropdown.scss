@@ -1,0 +1,40 @@
+@use '../mixins';
+
+.newspack-ui {
+	&__dropdown {
+		position: relative;
+
+		> .newspack-ui__button {
+			gap: 4px; // TODO: variable.
+			> svg {
+				margin: 0 -12px 0 0; // TODO: make nicer; this is a pretty literal way to offset the SVG placement.
+			}
+		}
+
+		.newspack-ui__dropdown--flyout {
+			background: var( --newspack-ui-color-neutral-0 );
+			border: 1px solid var( --newspack-ui-color-neutral-10 );
+			border-radius: var( --newspack-ui-border-radius-m );
+			left: -9999em;
+			position: absolute;
+			top: var( --newspack-ui-spacing-base );
+			width: calc( var( --newspack-ui-spacer-5 ) * 10 );
+			z-index: 20;
+			@include mixins.newspack-ui-elevation(1);
+
+			.newspack-ui__button {
+				display: flex;
+				justify-content: left;
+				width: 100%;
+
+				&:not( :last-child ) {
+					margin: 0;
+				}
+			}
+		}
+
+		&.dropdown-opened .newspack-ui__dropdown--flyout {
+			left: 0;
+		}
+	}
+}

@@ -481,6 +481,66 @@ class Newspack_UI {
 
 			<hr>
 
+			<h2>Dropdowns</h2>
+
+			<div class="newspack-ui__dropdown">
+				<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">
+					Dropdown toggle
+					<?php // TODO: Replace with consolidated SVG when merged? ?>
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M12 10.9998L12 12.9998M12 4.99982L12 6.99982M12 16.9998L12 18.9998" stroke="#1E1E1E" stroke-width="2"/>
+					</svg>
+				</button>
+				<div class="newspack-ui__dropdown--flyout">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+				</div>
+			</div>
+
+			<div class="newspack-ui__button-set">
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">
+						Dropdown toggle
+						<?php // TODO: Replace with consolidated SVG when merged? ?>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 10.9998L12 12.9998M12 4.99982L12 6.99982M12 16.9998L12 18.9998" stroke="#1E1E1E" stroke-width="2"/>
+						</svg>
+					</button>
+					<div class="newspack-ui__dropdown--flyout">
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+					</div>
+				</div>
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">
+						Dropdown toggle
+						<?php // TODO: Replace with consolidated SVG when merged? ?>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 10.9998L12 12.9998M12 4.99982L12 6.99982M12 16.9998L12 18.9998" stroke="#1E1E1E" stroke-width="2"/>
+						</svg>
+					</button>
+					<div class="newspack-ui__dropdown--flyout">
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+					</div>
+				</div>
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--outline">
+						Dropdown toggle
+						<?php // TODO: Replace with consolidated SVG when merged? ?>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 10.9998L12 12.9998M12 4.99982L12 6.99982M12 16.9998L12 18.9998" stroke="#1E1E1E" stroke-width="2"/>
+						</svg>
+					</button>
+					<div class="newspack-ui__dropdown--flyout">
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Button</button>
+						<button class="newspack-ui__button newspack-ui__button--small newspack-ui__button--ghost">Cancel</button>
+					</div>
+				</div>
+			</div>
+
+			<hr>
+
 			<h2 id="buttons-icon">Buttons Icon</h2>
 
 			<p>Uses the same classes as the <code>newspack-ui__button</code> but we add an extra class to it <code>newspack-ui__button--icon</code></p>
