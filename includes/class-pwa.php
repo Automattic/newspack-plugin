@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use WP_Error;
+use WP_Service_Worker_Scripts;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -25,6 +26,19 @@ class PWA {
 
 		add_filter( 'wp_service_worker_navigation_caching', [ __CLASS__, 'increase_network_timeout' ] );
 		add_filter( 'wp_service_worker_error_messages', [ __CLASS__, 'error_messages' ] );
+
+		/**
+		 * Temporary workaround to disable the offline post request handling script.
+		 *
+		 * @see - https://github.com/GoogleChromeLabs/pwa-wp/issues/1106
+		 */
+		add_action(
+			'wp_front_service_worker',
+			function ( WP_Service_Worker_Scripts $scripts ) {
+				unset( $scripts->registered['wp-offline-post-request-handling'] );
+			},
+			100 
+		);
 	}
 
 	/**
