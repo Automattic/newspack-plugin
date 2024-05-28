@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 

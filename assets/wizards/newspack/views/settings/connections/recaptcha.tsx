@@ -24,12 +24,6 @@ const settingsDefault: RecaptchaData = {
 	site_secret: undefined,
 };
 
-const onEnterKey = ( event: React.KeyboardEvent< HTMLInputElement >, callback: () => void ) => {
-	if ( event.key === 'Enter' ) {
-		callback();
-	}
-};
-
 const Recaptcha = () => {
 	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
 		'/newspack-settings/connections/recaptchaV3'
