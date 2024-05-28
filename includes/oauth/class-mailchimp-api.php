@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use stdClass;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -111,7 +113,7 @@ class Mailchimp_API {
 	 */
 	public static function api_mailchimp_delete_key() {
 		delete_option( 'newspack_mailchimp_api_key' );
-		return \rest_ensure_response( [] );
+		return rest_ensure_response( new stdClass() );
 	}
 
 	/**
