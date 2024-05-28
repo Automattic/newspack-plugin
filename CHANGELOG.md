@@ -1,3 +1,32 @@
+# [4.0.0](https://github.com/Automattic/newspack-plugin/compare/v3.8.8...v4.0.0) (2024-05-28)
+
+
+### Bug Fixes
+
+* autocomplete orders only for virtual products ([#3111](https://github.com/Automattic/newspack-plugin/issues/3111)) ([bfbe554](https://github.com/Automattic/newspack-plugin/commit/bfbe5541c7dcee270a6c2116344ffaa18742f612))
+* **data-events:** handle no ga_client_id in data ([fc4fc9f](https://github.com/Automattic/newspack-plugin/commit/fc4fc9f5241cc8a9a316ae4d7e62f8f63f528b72))
+* ensure only admins can reset starter content and newspack options ([#3081](https://github.com/Automattic/newspack-plugin/issues/3081)) ([4606721](https://github.com/Automattic/newspack-plugin/commit/46067217985f904286ddb2c952ba0e1deb954e56))
+* **registration-block:** prevent undefined variable warning ([8af9d89](https://github.com/Automattic/newspack-plugin/commit/8af9d898a3f81059599b00fcd18e5e5ec01423f2))
+* **starter-content:** make the starter content generation idempotent ([d5e10ff](https://github.com/Automattic/newspack-plugin/commit/d5e10ff1c3935f921677f7f3bacb8d35c9709cb0))
+
+
+### Features
+
+* add product option to autocomplete orders ([#3072](https://github.com/Automattic/newspack-plugin/issues/3072)) ([4a2859b](https://github.com/Automattic/newspack-plugin/commit/4a2859b894eab499e194102b0636dc20466e0c22))
+* **cli:** command to migrate CAP guest authors to WP users ([#3068](https://github.com/Automattic/newspack-plugin/issues/3068)) ([7ea8273](https://github.com/Automattic/newspack-plugin/commit/7ea8273fceaccf4109c0de5dd4620eaf4d907520))
+* custom role for assignable authors who don't edit posts ([#3066](https://github.com/Automattic/newspack-plugin/issues/3066)) ([7b89053](https://github.com/Automattic/newspack-plugin/commit/7b89053aa8a828abbfd1220e194758c766e27ca1))
+* **ras:** skip campaign setup ([#3051](https://github.com/Automattic/newspack-plugin/issues/3051)) ([9ef0e6d](https://github.com/Automattic/newspack-plugin/commit/9ef0e6d1de8d4dafda4d2af1304206d0f8190b15))
+* support for wrapping rss titles in cdata ([#3104](https://github.com/Automattic/newspack-plugin/issues/3104)) ([8b3a3be](https://github.com/Automattic/newspack-plugin/commit/8b3a3be48cf4ab0150f6e141be41460c0acfbb48))
+
+
+### BREAKING CHANGES
+
+* Changes order autocompletion behavior for existing products!
+
+* feat: add product option to autocomplete orders
+
+* chore: update outdated docblock description
+
 # [4.0.0-alpha.7](https://github.com/Automattic/newspack-plugin/compare/v4.0.0-alpha.6...v4.0.0-alpha.7) (2024-05-27)
 
 
