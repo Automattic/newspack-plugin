@@ -62,6 +62,7 @@ type RecaptchaData = {
  * Plugin data type
  */
 type PluginCard = {
+	description?: string;
 	path: string;
 	pluginSlug: string;
 	editLink: string;

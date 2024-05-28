@@ -5,13 +5,12 @@
 /**
  * WordPress dependencies
  */
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { ActionCard } from '../../../../../components/src';
+import WizardsPluginCard from '../../../../wizards-plugin-card';
 
 /**
  * Analytics Plugins screen.
@@ -21,15 +20,17 @@ const Analytics = ( { editLink }: { editLink: string } ) => {
 	 * Render.
 	 */
 	return (
-		<Fragment>
-			<ActionCard
-				title={ __( 'Google Analytics', 'newspack-plugin' ) }
-				description={ __( 'Configure and view site analytics', 'newspack-plugin' ) }
-				actionText={ __( 'View', 'newspack-plugin' ) }
-				handoff="google-site-kit"
-				editLink={ editLink }
-			/>
-		</Fragment>
+		<WizardsPluginCard
+			plugin={ {
+				pluginSlug: 'google-site-kit',
+				editLink,
+				name: __( 'Google Analytics', 'newspack-plugin' ),
+				path: '/newspack/v1/plugins/google-site-kit',
+			} }
+			description={ __( 'Configure and view site analytics', 'newspack-plugin' ) }
+			actionText={ __( 'View', 'newspack-plugin' ) }
+			handoff="google-site-kit"
+		/>
 	);
 };
 

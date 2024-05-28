@@ -20,15 +20,10 @@ const WizardsActionCard = ( {
 	children,
 	...props
 }: ActionCardProps ) => {
-	const updatedDescription =
-		typeof description === 'string'
-			? `${ __( 'Status', 'newspack-plugin' ) }: ${ description }`
-			: description;
-
 	return (
 		<ActionCard
 			{ ...{
-				description: updatedDescription,
+				description,
 				checkbox: isChecked ? 'checked' : 'unchecked',
 				notification: error,
 				notificationLevel,

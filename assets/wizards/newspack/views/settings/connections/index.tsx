@@ -49,7 +49,7 @@ const Connections = () => {
 
 			{ /* APIs; google */ }
 			<Section title={ __( 'APIs', 'newspack-plugin' ) }>
-				{ connections.dependencies.google && <GoogleOAuth /> }
+				{ connections.sections.apis.dependencies.googleOAuth && <GoogleOAuth /> }
 				<Mailchimp />
 			</Section>
 
@@ -59,11 +59,9 @@ const Connections = () => {
 			</Section>
 
 			{ /* Webhooks */ }
-			{ connections.dependencies.webhooks && (
-				<Section>
-					<Webhooks />
-				</Section>
-			) }
+			<Section>
+				<Webhooks />
+			</Section>
 
 			{ /* Analytics */ }
 			<Section title={ __( 'Analytics', 'newspack-plugin' ) }>
