@@ -21,6 +21,22 @@ const confirmAction = message => {
 	return false;
 };
 
+/**
+ * Is Empty Check for primitive and non-primitive data types.
+ *
+ * @param {any} data Value to check if empty
+ * @return {boolean} True if data is empty, false otherwise
+ */
+export const isEmpty = data => {
+	if ( Array.isArray( data ) ) {
+		return data.length === 0;
+	}
+	if ( data instanceof Object ) {
+		return Object.keys( data ).length === 0;
+	}
+	return ! Boolean( data );
+};
+
 export default {
 	InteractiveDiv,
 	confirmAction,
