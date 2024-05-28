@@ -11,44 +11,43 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Button, Grid, Notice, TextControl } from '../../../../../components/src';
-import useWizardError from '../../../../hooks/use-wizard-error';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import { Button, Grid, Notice, TextControl } from '../../../../../components/src';
 
 /**
  * Analytics Custom Events screen.
  */
-const CustomEvents = () => {
-	const [ ga4Credentials, setGa4Credentials ] = useState< {
-		measurement_protocol_secret: string;
-		measurement_id: string;
-	} >( window.newspackSettings.connections.sections.analytics );
-	const { error, setError, resetError } = useWizardError(
-		'newspack/settings',
-		'connections/custom-events'
+function CustomEvents() {
+	const [ ga4Credentials, setGa4Credentials ] = useState< Ga4Credentials >(
+		window.newspackSettings.connections.sections.analytics
 	);
-	const { wizardApiFetch } = useWizardApiFetch();
+	const { wizardApiFetch, errorMessage, resetError } = useWizardApiFetch(
+		'newspack-settings/connections/custom-events'
+	);
 
-	const handleApiError = ( { message: err }: { message: string } ) => setError( err );
-
-	const updateGa4Credentials = () => {
-		wizardApiFetch< {
-			measurement_protocol_secret: string;
-			measurement_id: string;
-		} >( {
-			path: '/newspack/v1/wizard/analytics/ga4-credentials',
-			method: 'POST',
-			data: {
-				measurement_id: ga4Credentials.measurement_id,
-				measurement_protocol_secret: ga4Credentials.measurement_protocol_secret,
+	function updateGa4Credentials() {
+		wizardApiFetch< Ga4Credentials >(
+			{
+				path: '/newspack/v1/wizard/analytics/ga4-credentials',
+				method: 'POST',
+				data: {
+					measurement_id: ga4Credentials.measurement_id,
+					measurement_protocol_secret: ga4Credentials.measurement_protocol_secret,
+				},
+				isCached: true,
 			},
-		} )
-			.then( ( response: { measurement_protocol_secret: string; measurement_id: string } ) => {
-				setGa4Credentials( response );
-				resetError();
-			} )
-			.catch( handleApiError );
-	};
+			{
+				onSuccess( fetchedData ) {
+					window.newspackSettings.connections.sections.analytics = {
+						...window.newspackSettings.connections.sections.analytics,
+						...fetchedData,
+					};
+					setGa4Credentials( fetchedData );
+					resetError();
+				},
+			}
+		);
+	}
 
 	return (
 		<div className="newspack__analytics-configuration">
@@ -61,7 +60,7 @@ const CustomEvents = () => {
 				</p>
 			</div>
 
-			{ error && <Notice isError noticeText={ error } /> }
+			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<Grid noMargin rowGap={ 16 }>
 				<TextControl
 					value={ ga4Credentials.measurement_id }
@@ -93,11 +92,12 @@ const CustomEvents = () => {
 				className="newspack__analytics-newspack-custom-events__save-button"
 				variant="primary"
 				onClick={ updateGa4Credentials }
+				disabled={ ! ga4Credentials.measurement_id || ! ga4Credentials.measurement_protocol_secret }
 			>
 				{ __( 'Save', 'newspack-plugin' ) }
 			</Button>
 		</div>
 	);
-};
+}
 
 export default CustomEvents;

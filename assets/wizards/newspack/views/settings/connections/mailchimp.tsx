@@ -15,46 +15,34 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
  */
 import WizardsActionCard from '../../../../wizards-action-card';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import useWizardError from '../../../../hooks/use-wizard-error';
+import { WIZARD_ERROR_MESSAGES, WizardApiError } from '../../../../errors';
 import { Button, Card, Grid, Modal, TextControl } from '../../../../../components/src';
 
 const Mailchimp = () => {
-	const [ authState, setAuthState ] = useState< OAuthData >( {} );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const [ apiKey, setAPIKey ] = useState< string | undefined >();
-
-	const { wizardApiFetch, isFetching } = useWizardApiFetch();
-
-	const { error, setError, resetError } = useWizardError(
-		'newspack/settings',
-		'connections/apis/mailchimp'
+	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
+		'/newspack-settings/connections/apis/mailchimp'
 	);
+	const [ authState, setAuthState ] = useState< OAuthData >();
+	const [ apiKey, setAPIKey ] = useState< string | undefined >();
 
 	const modalTextRef = useRef< HTMLDivElement >( null );
 	const isConnected = Boolean( authState && authState.username );
 
-	const openModal = () => setIsModalOpen( true );
-	const closeModal = () => {
-		setIsModalOpen( false );
-		setAPIKey( undefined );
-	};
-
 	useEffect( () => {
-		const fetchData = () =>
+		const fetchData = () => {
 			wizardApiFetch< OAuthData >(
 				{
 					path: '/newspack/v1/oauth/mailchimp',
 				},
 				{
-					onSuccess( fetchedData ) {
-						resetError();
-						setAuthState( fetchedData );
-					},
-					onError( e ) {
-						setError( e );
+					onSuccess( response ) {
+						setAuthState( response );
+						console.log( { response } );
 					},
 				}
 			);
+		};
 		fetchData();
 	}, [] );
 
@@ -67,7 +55,16 @@ const Mailchimp = () => {
 		}
 	}, [ isModalOpen ] );
 
-	const submitAPIKey = () => {
+	function openModal() {
+		return setIsModalOpen( true );
+	}
+
+	function closeModal() {
+		setIsModalOpen( false );
+		setAPIKey( undefined );
+	}
+
+	function submitAPIKey() {
 		wizardApiFetch< OAuthData >(
 			{
 				path: '/newspack/v1/oauth/mailchimp',
@@ -75,58 +72,54 @@ const Mailchimp = () => {
 				data: {
 					api_key: apiKey,
 				},
+				updateCacheMethods: [ 'GET' ],
 			},
 			{
-				onSuccess( fetchedData ) {
+				onSuccess( response ) {
+					setAuthState( response );
 					resetError();
-					setAuthState( fetchedData );
-				},
-				onError( e ) {
-					setError(
-						e,
-						__(
-							'Something went wrong during verification of your Mailchimp API key.',
-							'newspack-plugin'
-						)
-					);
 				},
 				onFinally() {
 					closeModal();
 				},
 			}
 		);
-	};
+	}
 
-	const disconnect = () => {
+	function disconnect() {
 		wizardApiFetch< OAuthData >(
 			{
 				path: '/newspack/v1/oauth/mailchimp',
 				method: 'DELETE',
+				updateCacheMethods: [ 'GET' ],
 			},
 			{
-				onSuccess() {
-					setAuthState( {} );
-					setError( __( 'Invalid Mailchimp API Key.', 'newspack-plugin' ) );
-				},
-				onError( e ) {
-					setError( e );
+				onSuccess( data ) {
+					setAuthState( data );
+					setError(
+						new WizardApiError(
+							WIZARD_ERROR_MESSAGES.MAILCHIMP_API_KEY_INVALID,
+							500,
+							'MAILCHIMP_API_KEY_INVALID'
+						)
+					);
 				},
 			}
 		);
-	};
+	}
 
-	const getDescription = () => {
+	function getDescription() {
 		if ( isFetching ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
 		if ( isConnected ) {
 			// Translators: user connection status message.
-			return sprintf( __( 'Connected as %s', 'newspack-plugin' ), authState.username );
+			return sprintf( __( 'Connected as %s', 'newspack-plugin' ), authState?.username ?? {} );
 		}
 		return __( 'Not connected', 'newspack-plugin' );
-	};
+	}
 
-	const getModalButtonText = () => {
+	function getModalButtonText() {
 		if ( ! apiKey ) {
 			return __( 'Invalid Mailchimp API Key.', 'newspack' );
 		}
@@ -137,7 +130,7 @@ const Mailchimp = () => {
 			return __( 'Connected', 'newspack-plugin' );
 		}
 		return __( 'Connect', 'newspack-plugin' );
-	};
+	}
 
 	return (
 		<Fragment>
@@ -157,7 +150,7 @@ const Mailchimp = () => {
 							: __( 'Connect', 'newspack-plugin' ) }
 					</Button>
 				}
-				error={ error }
+				error={ errorMessage }
 				isMedium
 			/>
 			{ isModalOpen && (

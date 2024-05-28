@@ -74,3 +74,5 @@ type PluginCard = {
 		code: string;
 	};
 };
+
+type Ga4Credentials = Record< string, string >;

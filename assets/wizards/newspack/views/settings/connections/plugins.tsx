@@ -11,10 +11,9 @@ import { Fragment, useState, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { Button } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
-import { Button, Handoff } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import useWizardError from '../../../../hooks/use-wizard-error';
 
 const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
@@ -27,17 +26,13 @@ const PLUGINS: Record< string, PluginCard > = {
 		pluginSlug: 'google-site-kit',
 		editLink: 'admin.php?page=googlesitekit-splash',
 		name: __( 'Site Kit by Google', 'newspack-plugin' ),
-		path: '/newspack/v1/plugins/google-site-kit',
+		path: '/newspack/v1/plugins/google-site-kitf',
 	},
 };
 
 function PluginConnectButton( { plugin }: { plugin: PluginCard } ) {
 	if ( plugin.pluginSlug ) {
-		return (
-			<Handoff plugin={ plugin.pluginSlug } editLink={ plugin.editLink } compact isLink>
-				{ __( 'Connect', 'newspack-plugin' ) }
-			</Handoff>
-		);
+		return <a href={ plugin.editLink }>{ __( 'Connect', 'newspack-plugin' ) }</a>;
 	}
 	if ( plugin.url ) {
 		return (
@@ -56,30 +51,27 @@ function PluginConnectButton( { plugin }: { plugin: PluginCard } ) {
 	return null;
 }
 
-const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
-	const { error, setError } = useWizardError(
-		'newspack/settings',
-		`connections/plugins${ plugin.pluginSlug }`
+function Plugin( { plugin }: { plugin: PluginCard } ) {
+	const { wizardApiFetch, isFetching, errorMessage } = useWizardApiFetch(
+		`/newspack-settings/connections/plugins/${ plugin.pluginSlug }`
 	);
-	const { wizardApiFetch, isFetching } = useWizardApiFetch();
 	const [ status, setStatus ] = useState( 'inactive' );
 
 	useEffect( () => {
-		wizardApiFetch(
+		wizardApiFetch< null | { Status: string; Configured: boolean } >(
 			{ path: plugin.path },
 			{
-				onSuccess( result: { Status: string; Configured: boolean } ) {
-					setStatus( result.Configured ? result.Status : 'inactive' );
-				},
-				onError( err: any ) {
-					setError( err );
+				onSuccess( result ) {
+					if ( result ) {
+						setStatus( result.Configured ? result.Status : 'inactive' );
+					}
 				},
 			}
 		);
 	}, [] );
 
-	const getDescription = () => {
-		if ( error ) {
+	function getDescription() {
+		if ( errorMessage ) {
 			return __( 'Error!', 'newspack-plugin' );
 		}
 		if ( isFetching ) {
@@ -92,23 +84,26 @@ const Plugin = ( { plugin }: { plugin: PluginCard } ) => {
 			return __( 'Not connected', 'newspack-plugin' );
 		}
 		return __( 'Connected', 'newspack-plugin' );
-	};
+	}
 
 	return (
-		<WizardsActionCard
-			title={ plugin.name }
-			description={ getDescription() }
-			actionText={ status === 'inactive' ? <PluginConnectButton plugin={ plugin } /> : null }
-			isChecked={ ! ( status === 'inactive' || isFetching ) }
-			badge={ plugin.badge }
-			indent={ plugin.indent }
-			error={ error }
-			isMedium
-		/>
+		<>
+			{ /* <pre>{ JSON.stringify( { isFetching }, null, 2 ) }</pre> */ }
+			<WizardsActionCard
+				title={ plugin.name }
+				description={ getDescription() }
+				actionText={ status === 'inactive' ? <PluginConnectButton plugin={ plugin } /> : null }
+				isChecked={ ! ( status === 'inactive' || isFetching ) }
+				badge={ plugin.badge }
+				indent={ plugin.indent }
+				error={ errorMessage }
+				isMedium
+			/>
+		</>
 	);
-};
+}
 
-const Plugins = () => {
+function Plugins() {
 	return (
 		<Fragment>
 			{ Object.keys( PLUGINS ).map( pluginKey => {
@@ -116,6 +111,6 @@ const Plugins = () => {
 			} ) }
 		</Fragment>
 	);
-};
+}
 
 export default Plugins;

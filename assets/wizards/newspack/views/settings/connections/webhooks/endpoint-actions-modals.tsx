@@ -19,7 +19,6 @@ import moment from 'moment';
  */
 import { useWizardApiFetch } from '../../../../../hooks/use-wizard-api-fetch';
 import { Card, Button, Notice, Modal, Grid } from '../../../../../../components/src';
-import useWizardError from '../../../../../hooks/use-wizard-error';
 import { getDisplayUrl, getEndpointLabel, getRequestStatusIcon, hasEndpointErrors } from './utils';
 
 const ConfirmationModal = ( {
@@ -62,6 +61,11 @@ const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckb
 	return <WpCheckboxControl { ...props } />;
 };
 
+/**
+ * Endpoints main GET cache key.
+ */
+const NAMESPACE = '/newspack-settings/connections/webhooks';
+
 const EndpointActionsModals = ( {
 	endpoint,
 	actions,
@@ -77,71 +81,67 @@ const EndpointActionsModals = ( {
 } ) => {
 	const [ editing, setEditing ] = useState< Endpoint >( endpoint );
 
-	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch();
+	const { wizardApiFetch, isFetching: inFlight, errorMessage } = useWizardApiFetch( NAMESPACE );
 
-	const { error, setError } = useWizardError(
-		'newspack/settings',
-		`connections/webhooks/${ endpoint.id }`
-	);
 	const {
-		error: testError,
-		setError: setTestError,
+		wizardApiFetch: testWizardApiFetch,
+		errorMessage: testError,
 		resetError: resetTestError,
-	} = useWizardError( 'newspack/settings', `connections/webhooks/tests/${ endpoint.id }` );
+	} = useWizardApiFetch( `${ NAMESPACE }/test` );
+
+	const ENDPOINTS_CACHE_KEY = { '/newspack/v1/webhooks/endpoints': 'GET' };
 
 	// API
-	const toggleEndpoint = ( endpointToToggle: Endpoint ) => {
+	function toggleEndpoint( endpointToToggle: Endpoint ) {
 		wizardApiFetch< Endpoint[] >(
 			{
 				path: `/newspack/v1/webhooks/endpoints/${ endpointToToggle.id }`,
 				method: 'POST',
 				data: { disabled: ! endpointToToggle.disabled },
+				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
 				onSuccess: endpoints => setEndpoints( endpoints ),
-				onError: e => setError( e ),
 				onFinally: () => setAction( null, endpointToToggle.id ),
 			}
 		);
-	};
-	const deleteEndpoint = ( endpointToDelete: Endpoint ) => {
+	}
+	function deleteEndpoint( endpointToDelete: Endpoint ) {
 		wizardApiFetch< Endpoint[] >(
 			{
 				path: `/newspack/v1/webhooks/endpoints/${ endpointToDelete.id }`,
 				method: 'DELETE',
+				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
 				onSuccess: endpoints => setEndpoints( endpoints ),
-				onError: e => setError( e ),
 				onFinally: () => setAction( null, endpointToDelete.id ),
 			}
 		);
-	};
-	const upsertEndpoint = ( endpointToUpsert: Endpoint ) => {
+	}
+	function upsertEndpoint( endpointToUpsert: Endpoint ) {
 		wizardApiFetch< Endpoint[] >(
 			{
 				path: `/newspack/v1/webhooks/endpoints/${ endpointToUpsert.id || '' }`,
 				method: 'POST',
 				data: endpointToUpsert,
+				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
-				onSuccess( res ) {
-					setEndpoints( res );
-					setAction( null, endpointToUpsert.id );
-				},
-				onError( e ) {
-					setError( e );
-				},
+				onSuccess: endpoints => setEndpoints( endpoints ),
+				onFinally: () => setAction( null, endpointToUpsert.id ),
 			}
 		);
-	};
+	}
 
 	// Test request
-	const [ testResponse, setTestResponse ] = useState<
-		{ success: boolean; code: number; message: string } | false
-	>( false );
-	const sendTestRequest = ( url: string | undefined, bearer_token: string | undefined ) => {
-		wizardApiFetch< { success: boolean; code: number; message: string } >(
+	const [ testResponse, setTestResponse ] = useState< {
+		success?: boolean;
+		code?: number;
+		message?: string;
+	} >( {} );
+	function sendTestRequest( url: string | undefined, bearer_token: string | undefined ) {
+		testWizardApiFetch< { success: boolean; code: number; message: string } >(
 			{
 				path: '/newspack/v1/webhooks/endpoints/test',
 				method: 'POST',
@@ -150,21 +150,17 @@ const EndpointActionsModals = ( {
 			{
 				onStart() {
 					resetTestError();
-					setTestResponse( false );
+					setTestResponse( {} );
 				},
 				onSuccess( res ) {
 					setTestResponse( res );
 				},
-				onError( e ) {
-					setTestError( e );
-				},
 			}
 		);
-	};
+	}
 
 	return (
 		<Fragment>
-			{ /* Modals */ }
 			{ action === 'delete' && (
 				<ConfirmationModal
 					title={ __( 'Remove Endpoint', 'newspack-plugin' ) }
@@ -285,7 +281,7 @@ const EndpointActionsModals = ( {
 						setAction( null, endpoint.id );
 					} }
 				>
-					{ error && <Notice isError noticeText={ error } /> }
+					{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 					{ true === editing.disabled && (
 						<Notice
 							noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack-plugin' ) }
@@ -302,7 +298,7 @@ const EndpointActionsModals = ( {
 					{ testError && (
 						<Notice
 							isError
-							noticeText={ __( 'Test Error: ', 'newspack-plugin' ) + testError.message }
+							noticeText={ __( 'Test Error: ', 'newspack-plugin' ) + testError }
 							className="mt0"
 						/>
 					) }

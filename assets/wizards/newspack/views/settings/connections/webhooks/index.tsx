@@ -15,7 +15,6 @@ import { Card, Button, Notice, SectionHeader } from '../../../../../../component
 import EndpointActionsCard from './endpoint-actions-card';
 import EndpointActionsModals from './endpoint-actions-modals';
 import { useWizardApiFetch } from '../../../../../hooks/use-wizard-api-fetch';
-import useWizardError from '../../../../../hooks/use-wizard-error';
 
 const defaultEndpoint: Endpoint = {
 	url: '',
@@ -31,7 +30,11 @@ const defaultEndpoint: Endpoint = {
 };
 
 const Webhooks = () => {
-	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch();
+	const {
+		wizardApiFetch,
+		isFetching: inFlight,
+		errorMessage,
+	} = useWizardApiFetch( '/newspack-settings/connections/webhooks' );
 
 	const [ action, setAction ] = useState< Actions >( null );
 	const [ actions, setActions ] = useState< string[] >( [] );
@@ -43,14 +46,6 @@ const Webhooks = () => {
 		fetchEndpoints();
 	}, [] );
 
-	/**
-	 * Component state for error handling.
-	 */
-	const { error, setError, isError } = useWizardError(
-		'newspack/settings',
-		'connections/webhooks'
-	);
-
 	function fetchActions() {
 		wizardApiFetch< never[] >(
 			{
@@ -58,7 +53,6 @@ const Webhooks = () => {
 			},
 			{
 				onSuccess: newActions => setActions( newActions ),
-				onError: e => setError( e ),
 			}
 		);
 	}
@@ -68,7 +62,6 @@ const Webhooks = () => {
 			{ path: '/newspack/v1/webhooks/endpoints' },
 			{
 				onSuccess: newEndpoints => setEndpoints( newEndpoints ),
-				onError: e => setError( e ),
 			}
 		);
 	}
@@ -102,7 +95,7 @@ const Webhooks = () => {
 						: __( 'Add New Endpoint', 'newspack-plugin' ) }
 				</Button>
 			</div>
-			{ isError && <Notice isError noticeText={ error } /> }
+			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			{ endpoints.length > 0 && (
 				<Fragment>
 					{ endpoints.map( endpoint => (

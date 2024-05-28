@@ -15,8 +15,9 @@ type ActionCardProps = {
 	hasGreyHeader?: boolean;
 	toggleChecked?: boolean;
 	toggleOnChange?: () => void;
-	actionContent?: boolean | JSX.Element;
-	error?: string;
+	actionContent?: boolean | JSX.Element | null;
+	error?: string | null;
+	handoff?: string | null;
 	isErrorStatus?: boolean;
 	isChecked?: boolean;
 	children?: boolean | JSX.Element | ( () => JSX.Element );

@@ -13,7 +13,6 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import { Button } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
-import useWizardError from '../../../../hooks/use-wizard-error';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 const getURLParams = () => {
@@ -36,24 +35,33 @@ const GoogleOAuth = ( {
 	const [ authState, setAuthState ] = useState< OAuthData >( {} );
 
 	const userBasicInfo = authState?.user_basic_info;
-
-	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch();
-	const { error, setError, resetError } = useWizardError(
-		'newspack/settings',
-		'connections/apis/googleoauth'
-	);
-
 	const isConnected = Boolean( userBasicInfo && userBasicInfo.email );
+
+	const {
+		setError,
+		errorMessage,
+		wizardApiFetch,
+		isFetching: inFlight,
+	} = useWizardApiFetch( '/newspack-settings/connections/apis/google-oauth' );
+
+	// We only want to autofetch the current auth state if we're not onboarding.
+	useEffect( () => {
+		if ( ! isOnboarding ) {
+			getCurrentAuth();
+		}
+	}, [] );
 
 	useEffect( () => {
 		if ( isConnected && userBasicInfo && ! userBasicInfo.has_refresh_token ) {
 			setError(
-				__( 'Missing Google refresh token. Please re-authenticate site.', 'newspack-plugin' )
+				new Error(
+					__( 'Missing Google refresh token. Please re-authenticate site.', 'newspack-plugin' )
+				)
 			);
 		}
 	}, [ isConnected ] );
 
-	const getCurrentAuth = () => {
+	function getCurrentAuth() {
 		const params = getURLParams();
 		if ( ! params.access_token ) {
 			wizardApiFetch< OAuthData >(
@@ -67,25 +75,14 @@ const GoogleOAuth = ( {
 							if ( typeof onSuccess === 'function' ) {
 								onSuccess( data );
 							}
-							resetError();
 						}
-					},
-					onError( e ) {
-						setError( e );
 					},
 				}
 			);
 		}
-	};
+	}
 
-	// We only want to autofetch the current auth state if we're not onboarding.
-	useEffect( () => {
-		if ( ! isOnboarding ) {
-			getCurrentAuth();
-		}
-	}, [] );
-
-	const openAuth = () => {
+	function openAuth() {
 		const authWindow = window.open(
 			'about:blank',
 			'newspack_google_oauth',
@@ -94,7 +91,6 @@ const GoogleOAuth = ( {
 		wizardApiFetch< string >(
 			{
 				path: '/newspack/v1/oauth/google/start',
-				isLocalError: true,
 			},
 			{
 				onSuccess( url ) {
@@ -105,41 +101,33 @@ const GoogleOAuth = ( {
 							if ( authWindow?.closed ) {
 								clearInterval( interval );
 								getCurrentAuth();
-								resetError();
 							}
 						}, 500 );
 					}
 				},
-				onError( e ) {
+				onError() {
 					if ( authWindow ) {
 						authWindow.close();
 					}
-					setError( e );
 				},
 			}
 		);
-	};
+	}
 
 	// Redirect user to Google auth screen.
-	const disconnect = () => {
+	function disconnect() {
 		wizardApiFetch< void >(
 			{
 				path: '/newspack/v1/oauth/google/revoke',
 				method: 'DELETE',
 			},
 			{
-				onSuccess() {
-					setAuthState( {} );
-					resetError();
-				},
-				onError( e ) {
-					setError( e );
-				},
+				onSuccess: () => setAuthState( {} ),
 			}
 		);
-	};
+	}
 
-	const getDescription = () => {
+	function getDescription() {
 		if ( inFlight ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
@@ -151,7 +139,7 @@ const GoogleOAuth = ( {
 			);
 		}
 		return __( 'Not connected', 'newspack-plugin' );
-	};
+	}
 
 	return (
 		<WizardsActionCard
@@ -170,7 +158,7 @@ const GoogleOAuth = ( {
 						: __( 'Connect', 'newspack-plugin' ) }
 				</Button>
 			}
-			error={ error }
+			error={ errorMessage }
 			isMedium
 		/>
 	);
