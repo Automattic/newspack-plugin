@@ -35,15 +35,7 @@ class Newspack_Settings extends Wizard {
 	 *
 	 * @var int.
 	 */
-	protected $menu_priority = 1;
-
-	/**
-	 * Initialize.
-	 */
-	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-	}
+	protected $menu_priority = 2;
 
 	/**
 	 * Get Dashboard data
@@ -51,7 +43,50 @@ class Newspack_Settings extends Wizard {
 	 * @return [] 
 	 */
 	public function get_local_data() {
-		return [];
+		return [
+			'connections'       => [
+				'label'        => __( 'Connections', 'newspack-plugin' ),
+				'path'         => '/',
+				'dependencies' => [
+					'google' => OAuth::is_proxy_configured( 'google' ),
+				],
+				'sections'     => [
+					'plugins'   => [],
+					'apis'      => [
+						'dependencies' => [
+							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
+						],
+					],
+					'recaptcha' => [],
+					'analytics' => [
+						'editLink'                    => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
+						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
+						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
+					],
+				],
+			],
+			'emails'            => [
+				'label' => __( 'Emails', 'newspack-plugin' ),
+			],
+			'social'            => [
+				'label' => __( 'Social', 'newspack-plugin' ),
+			],
+			'syndication'       => [
+				'label' => __( 'Syndication', 'newspack-plugin' ),
+			],
+			'seo'               => [
+				'label' => __( 'SEO', 'newspack-plugin' ),
+			],
+			'theme-and-brand'   => [
+				'label' => __( 'Theme and Brand', 'newspack-plugin' ),
+			],
+			'display-settings'  => [
+				'label' => __( 'Display Settings', 'newspack-plugin' ),
+			],
+			'additional-brands' => [
+				'label' => __( 'Additional Brands', 'newspack-plugin' ),
+			],
+		];
 	}
 
 	/**
@@ -100,47 +135,7 @@ class Newspack_Settings extends Wizard {
 		wp_localize_script(
 			$this->slug, 
 			'newspackSettings',
-			[
-				'connections'       => [
-					'label'        => __( 'Connections', 'newspack-plugin' ),
-					'path'         => '/',
-					'dependencies' => [
-						'google'   => OAuth::is_proxy_configured( 'google' ),
-						'webhooks' => defined( 'NEWSPACK_EXPERIMENTAL_WEBHOOKS' ) && NEWSPACK_EXPERIMENTAL_WEBHOOKS,
-					],
-					'sections'     => [
-						'plugins'   => [],
-						'apis'      => [],
-						'recaptcha' => [],
-						'analytics' => [
-							'editLink'                    => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
-							'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
-							'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
-						],
-					],
-				],
-				'emails'            => [
-					'label' => __( 'Emails', 'newspack-plugin' ),
-				],
-				'social'            => [
-					'label' => __( 'Social', 'newspack-plugin' ),
-				],
-				'syndication'       => [
-					'label' => __( 'Syndication', 'newspack-plugin' ),
-				],
-				'seo'               => [
-					'label' => __( 'SEO', 'newspack-plugin' ),
-				],
-				'theme-and-brand'   => [
-					'label' => __( 'Theme and Brand', 'newspack-plugin' ),
-				],
-				'display-settings'  => [
-					'label' => __( 'Display Settings', 'newspack-plugin' ),
-				],
-				'additional-brands' => [
-					'label' => __( 'Additional Brands', 'newspack-plugin' ),
-				],
-			]
+			$this->get_local_data()
 		);
 		wp_enqueue_script( $this->slug );
 	}
