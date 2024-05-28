@@ -38,8 +38,13 @@ declare global {
 			connections: {
 				label: string;
 				path?: string;
-				dependencies: Record< string, boolean >;
-				sections: Record< string, any >;
+				// dependencies: Record< string, boolean >;
+				sections: {
+					[ k: string ]: { editLink: string; dependencies: Record< string, string > } & Record<
+						string,
+						string
+					>;
+				};
 			};
 		};
 		newspack_aux_data: {
