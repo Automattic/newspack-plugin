@@ -16,8 +16,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class Memberships {
 
-	const GATE_CPT  = 'np_memberships_gate';
+	const GATE_CPT = 'np_memberships_gate';
 	const CRON_HOOK = 'np_memberships_fix_expired_memberships';
+	const SKIP_RESTRICTION_IN_RSS_OPTION_NAME = 'newspack_skip_content_restriction_in_rss_feeds';
 
 	/**
 	 * Whether the gate has been rendered in this execution.
@@ -48,6 +49,8 @@ class Memberships {
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'wc_memberships_excerpt' ], 100, 3 );
 		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
 		add_filter( 'wc_memberships_admin_screen_ids', [ __CLASS__, 'admin_screens' ] );
+		add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'wc_memberships_general_settings' ] );
+		add_filter( 'wc_memberships_is_post_public', [ __CLASS__, 'wc_memberships_is_post_public' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
@@ -1021,6 +1024,39 @@ class Memberships {
 			}
 		);
 		return $screen_ids;
+	}
+
+	/**
+	 * Check if the content should be restricted by WooCommerce Memberships.
+	 *
+	 * @param bool $is_public whether the post is public (default false unless explicitly marked as public by an admin).
+	 */
+	public static function wc_memberships_is_post_public( $is_public ) {
+		if ( is_feed() && 'yes' === get_option( self::SKIP_RESTRICTION_IN_RSS_OPTION_NAME ) ) {
+			return true;
+		}
+		return $is_public;
+	}
+
+	/**
+	 * Add a setting to skip content restrictions in RSS feeds.
+	 *
+	 * @param array $settings associative array of the plugin settings.
+	 */
+	public static function wc_memberships_general_settings( $settings ) {
+		$setting = [
+			'type'    => 'checkbox',
+			'id'      => self::SKIP_RESTRICTION_IN_RSS_OPTION_NAME,
+			'name'    => __( 'Skip content restriction in RSS feeds', 'newspack-plugin' ),
+			'desc'    =>
+				'<span class="show-if-hide-content-only-restriction-mode">' . __( 'If enabled, full content will be availabe in RSS feeds.', 'newspack-plugin' ) . '</span>',
+			'default' => 'no',
+		];
+
+		$position_of_show_excerpts_setting = array_search( 'wc_memberships_show_excerpts', array_column( $settings, 'id' ) );
+		return array_slice( $settings, 0, $position_of_show_excerpts_setting, true ) +
+			[ $setting['id'] => $setting ] +
+			array_slice( $settings, $position_of_show_excerpts_setting, null, true );
 	}
 }
 Memberships::init();
