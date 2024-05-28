@@ -37,6 +37,30 @@ export const isEmpty = data => {
 	return ! Boolean( data );
 };
 
+/**
+ * Debugging utility to log the current state. With text and background color,
+ * font-size styling based on status type (error, warning, success, info). `isCollapsed` is used to collapse the log.
+ */
+export const debug = ( label, state, status = 'info', size = 's', isCollapsed = false ) => {
+	const color = {
+		error: 'red',
+		warning: 'orange',
+		success: 'green',
+		info: 'blue',
+	}[ status ];
+	const sizeMap = {
+		s: '1em',
+		m: '1.5em',
+		l: '2em',
+	};
+	console[ isCollapsed ? 'groupCollapsed' : 'group' ](
+		`%c${ label.toUpperCase() }`,
+		`color: white; background-color: ${ color }; font-size: ${ sizeMap[ size ] };`
+	);
+	console.log( state );
+	console.groupEnd();
+};
+
 export default {
 	InteractiveDiv,
 	confirmAction,
