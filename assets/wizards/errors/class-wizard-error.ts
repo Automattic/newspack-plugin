@@ -3,7 +3,7 @@ class WizardError extends Error {
 	errorCode: string;
 	details: string;
 
-	constructor( message: string, statusCode: number, errorCode: string, details: string = '' ) {
+	constructor( message: string, statusCode: number, errorCode: string, details = '' ) {
 		super( message );
 		this.name = 'WizardError';
 		this.statusCode = statusCode;
