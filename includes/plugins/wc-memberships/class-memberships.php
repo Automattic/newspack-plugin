@@ -47,6 +47,7 @@ class Memberships {
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'wc_memberships_notice_html' ], 100, 4 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'wc_memberships_excerpt' ], 100, 3 );
 		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
+		add_filter( 'wc_memberships_admin_screen_ids', [ __CLASS__, 'admin_screens' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
@@ -996,6 +997,30 @@ class Memberships {
 			remove_filter( 'the_content', [ $posts_restrictions_instance, 'handle_restricted_post_content_filtering' ], 999 );
 			remove_action( 'loop_start', [ $posts_restrictions_instance, 'display_restricted_taxonomy_term_notice' ], 1 );
 		}
+	}
+
+	/**
+	 * Admin meta boxes handling.
+	 *
+	 * @param array $screen_ids associative array organized by context.
+	 */
+	public static function admin_screens( $screen_ids ) {
+		$unrestrictable_post_types = [ 'partner_rss_feed' ];
+		$screen_ids['meta_boxes'] = array_filter(
+			$screen_ids['meta_boxes'],
+			function( $screen_id ) use ( $unrestrictable_post_types ) {
+				$allow_restrictions = true;
+				foreach ( $unrestrictable_post_types as $post_type ) {
+					// Use strpos instead of full string match, because each CPT get two items in this array:
+					// the `<CPT>` and `edit-<CPT>`.
+					if ( strpos( $screen_id, $post_type ) !== false ) {
+						$allow_restrictions = false;
+					}
+				}
+				return $allow_restrictions;
+			}
+		);
+		return $screen_ids;
 	}
 }
 Memberships::init();
