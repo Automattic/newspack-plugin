@@ -291,7 +291,6 @@ const BillingFields = () => {
 
 	const availableFields = wizardData.available_billing_fields;
 	const orderNotesField = wizardData.order_notes_field;
-	console.log( wizardData );
 	if ( ! availableFields || ! Object.keys( availableFields ).length ) {
 		return null;
 	}

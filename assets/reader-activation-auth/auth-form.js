@@ -172,7 +172,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 								body.set( 'captcha_token', captchaToken );
 							} )
 							.catch( e => {
-								console.log( { e } );
+								console.log( { e } ); // eslint-disable-line no-console
 							} )
 							.finally( () => {
 								fetch( form.getAttribute( 'action' ) || window.location.pathname, {
@@ -189,7 +189,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 										readerActivation.setOTPTimer();
 									} )
 									.catch( e => {
-										console.log( e );
+										console.log( e ); // eslint-disable-line no-console
 									} )
 									.finally( () => {
 										handleOTPTimer();
