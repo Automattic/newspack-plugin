@@ -307,7 +307,9 @@ function attachAuthCookiesListener() {
  * Set the reader as newsletter subscriber once a newsletter form is submitted.
  */
 function attachNewsletterFormListener() {
-	const forms = document.querySelectorAll( '.newspack-subscribe-form,.mc4wp-form' );
+	const forms = document.querySelectorAll(
+		'.newspack-newsletters-subscribe,.newspack-subscribe-form,.mc4wp-form'
+	);
 	if ( ! forms.length ) {
 		return;
 	}

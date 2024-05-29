@@ -1,6 +1,6 @@
 {
 	"name": "newspack",
-	"version": "3.8.7",
+	"version": "4.0.0",
 	"description": "The Newspack plugin. https://newspack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -18,13 +18,13 @@
 		"@types/wordpress__block-editor": "^11.5.14",
 		"@types/wordpress__blocks": "^12.5.14",
 		"@types/wordpress__components": "^23.0.12",
-		"@wordpress/browserslist-config": "^5.39.0",
+		"@wordpress/browserslist-config": "^5.40.0",
 		"eslint": "^7.32.0",
 		"lint-staged": "^15.2.2",
 		"newspack-scripts": "^5.3.0",
 		"postcss-scss": "^4.0.9",
 		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
-		"stylelint": "^16.3.1"
+		"stylelint": "^16.5.0"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -56,7 +56,7 @@
 	},
 	"dependencies": {
 		"@babel/plugin-transform-runtime": "^7.24.3",
-		"@babel/preset-env": "^7.24.4",
+		"@babel/preset-env": "^7.24.5",
 		"classnames": "^2.5.1",
 		"colord": "^2.9.3",
 		"deep-map-keys": "^2.0.1",
