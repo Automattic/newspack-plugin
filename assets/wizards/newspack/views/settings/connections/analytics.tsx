@@ -21,15 +21,25 @@ const Analytics = ( { editLink }: { editLink: string } ) => {
 	 */
 	return (
 		<WizardsPluginCard
-			plugin={ {
-				pluginSlug: 'google-site-kit',
+			{ ...{
+				slug: 'google-site-kit',
 				editLink,
 				name: __( 'Google Analytics', 'newspack-plugin' ),
 				path: '/newspack/v1/plugins/google-site-kit',
+				description( errorMessage, isFetching, status ) {
+					if ( errorMessage ) {
+						return __( 'Error!', 'newspack-plugin' );
+					}
+					if ( isFetching ) {
+						return __( 'Loading…', 'newspack-plugin' );
+					}
+					if ( status === 'inactive' ) {
+						return __( 'Not connected', 'newspack-plugin' );
+					}
+					return __( 'Connected', 'newspack-plugin' );
+				},
+				actionText: __( 'View', 'newspack-plugin' ),
 			} }
-			description={ __( 'Configure and view site analytics', 'newspack-plugin' ) }
-			actionText={ __( 'View', 'newspack-plugin' ) }
-			handoff="google-site-kit"
 		/>
 	);
 };

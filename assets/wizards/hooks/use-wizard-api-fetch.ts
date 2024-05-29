@@ -25,10 +25,10 @@ type WpFetchError = Error & {
 type WizardData = {
 	error: WizardApiError | null;
 } & {
-	[ key: string ]: { [ k in 'GET' | 'POST' | 'PUT' | 'DELETE' ]?: any };
+	[ key: string ]: { [ k in 'GET' | 'POST' | 'PUT' | 'DELETE' ]?: Record< string, any > | null };
 };
 
-const promiseCache: Record< string, any > = {};
+let promiseCache: Record< string, any > = {};
 
 const parseApiError = ( error: WpFetchError | string ): WizardApiError | null => {
 	const newError = {
@@ -67,7 +67,6 @@ const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
 } );
 
 export function useWizardApiFetch( slug: string ) {
-	/** Hooks */
 	const [ error, setError ] = useState< WizardApiError | null >( null );
 	const [ isFetching, setIsFetching ] = useState( false );
 	const { wizardApiFetch, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
@@ -79,17 +78,11 @@ export function useWizardApiFetch( slug: string ) {
 			path: [ 'error' ],
 			value: error,
 		} );
-		debug( 'Error effect', { error, data: getWizardData( slug ), slug }, 'error', 'l' );
 	}, [ error ] );
 
-	const wizardData: { error: WizardApiError | null } & {
-		[ key: string ]: { [ k in 'GET' | 'POST' | 'PUT' | 'DELETE' ]: any };
-	} = getWizardData( slug );
-
-	console.log( 'wizardData', wizardData );
+	const wizardData: WizardData = getWizardData( slug );
 
 	function resetError() {
-		debug( 'reseting error', { error, data: getWizardData( slug ) }, 'warning', 's' );
 		setError( null );
 	}
 
@@ -120,26 +113,14 @@ export function useWizardApiFetch( slug: string ) {
 				...options
 			} = opts;
 
-			const { error: cachedError, [ path ]: { [ method ]: cachedMethod } = {} }: WizardData =
+			const { error: cachedError, [ path ]: { [ method ]: cachedMethod = null } = {} }: WizardData =
 				wizardData;
 
 			function thenCallback( response: T ) {
 				if ( isCached ) {
 					updateSettings( method, response );
 				}
-				if ( updateCacheKey && typeof updateCacheKey === 'object' ) {
-					debug(
-						' Updating wizard data ',
-						{
-							slug,
-							updateCacheKey,
-							update: Object.entries( updateCacheKey )[ 0 ],
-							cache: getWizardData( slug ),
-							wizardData,
-						},
-						'warning',
-						'l'
-					);
+				if ( updateCacheKey && updateCacheKey instanceof Object ) {
 					updateSettings( Object.entries( updateCacheKey )[ 0 ], response, null );
 				}
 				for ( const replaceMethod of updateCacheMethods ) {
@@ -149,26 +130,25 @@ export function useWizardApiFetch( slug: string ) {
 				return response;
 			}
 
-			function catchCallback( err: any ) {
-				const newError = parseApiError( err as WpFetchError );
-				debug( 'Catch callback', { newError }, 'error', 'l' );
+			function catchCallback( err: WpFetchError ) {
+				const newError = parseApiError( err );
 				setError( newError );
-				// updateSettings( 'error', newError );
 				on( 'onError', err );
 				throw err;
 			}
 
 			function finallyCallback() {
 				setIsFetching( false );
-				delete promiseCache[ path ];
+				// Remove the promise from the cache if it's done.
+				const { [ path ]: removed, ...newData } = promiseCache;
+				promiseCache = newData;
 				on( 'onFinally' );
 			}
 
 			/**
-			 * If the promise is already in the cache, return it before making a new request.
+			 * If the promise is already in progress, return it before making a new request.
 			 */
 			if ( promiseCache[ path ] ) {
-				debug( 'Promise exists', promiseCache, 'warning', 'm', true );
 				return promiseCache[ path ]
 					.then( thenCallback )
 					.catch( catchCallback )
@@ -178,21 +158,7 @@ export function useWizardApiFetch( slug: string ) {
 			/**
 			 * Cache exists and is not empty, return it.
 			 */
-			debug(
-				'Checking cache',
-				{
-					isCached,
-					cachedMethod,
-					ccachedMethod: ! isEmpty( cachedMethod ),
-					cachedError,
-					C: isCached && ( cachedError || ! ( cachedMethod && isEmpty( cachedMethod ) ) ),
-				},
-				'info',
-				'm',
-				true
-			);
-			if ( isCached && ( cachedError || ( cachedMethod && ! isEmpty( cachedMethod ) ) ) ) {
-				debug( 'Cache exists', { wizardData, path, method }, 'success', 'm', true );
+			if ( isCached && ( cachedError || cachedMethod ) ) {
 				setError( cachedError );
 				on( 'onSuccess', cachedMethod );
 				return cachedMethod;
@@ -201,7 +167,6 @@ export function useWizardApiFetch( slug: string ) {
 			setIsFetching( true );
 			on( 'onStart' );
 
-			debug( 'Making request', { path, method, isCached }, 'info', 'm', true );
 			promiseCache[ path ] = wizardApiFetch< Promise< T > >( {
 				isQuietFetch: true,
 				isLocalError: true,

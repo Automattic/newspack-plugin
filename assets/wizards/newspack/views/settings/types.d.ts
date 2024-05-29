@@ -58,22 +58,4 @@ type RecaptchaData = {
 	site_secret?: string;
 };
 
-/**
- * Plugin data type
- */
-type PluginCard = {
-	description?: string;
-	path: string;
-	pluginSlug: string;
-	editLink: string;
-	name: string;
-	url?: string;
-	status?: string;
-	badge?: string;
-	indent?: string;
-	error?: {
-		code: string;
-	};
-};
-
 type Ga4Credentials = Record< string, string >;

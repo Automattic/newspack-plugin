@@ -22,3 +22,22 @@ type ActionCardProps = Partial< {
 	isChecked: boolean;
 	children: boolean | JSX.Element | ( () => JSX.Element );
 } >;
+
+/**
+ * Plugin data type
+ */
+type PluginCard = {
+	actionText?: JSX.Element | string | null;
+	path: string;
+	slug: string;
+	editLink: string;
+	description?: ( errorMessage: string | null, isFetching: boolean, status: string ) => string;
+	name: string;
+	url?: string;
+	status?: string;
+	badge?: string;
+	indent?: string;
+	error?: null | {
+		errorCode: string;
+	};
+};

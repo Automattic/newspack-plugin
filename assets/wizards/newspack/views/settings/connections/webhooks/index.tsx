@@ -38,7 +38,7 @@ const Webhooks = () => {
 
 	const [ action, setAction ] = useState< Actions >( null );
 	const [ actions, setActions ] = useState< string[] >( [] );
-	const [ endpoints, setEndpoints ] = useState< Endpoint[] >( [] );
+	const [ endpoints, setEndpoints ] = useState< Endpoint[] | null >( null );
 	const [ selectedEndpoint, setSelectedEndpoint ] = useState< Endpoint | null >( null );
 
 	useEffect( () => {
@@ -72,7 +72,7 @@ const Webhooks = () => {
 			setSelectedEndpoint( null );
 		} else if ( newAction === 'new' ) {
 			setSelectedEndpoint( { ...defaultEndpoint } );
-		} else if ( [ 'edit', 'delete', 'view' ].includes( newAction ) ) {
+		} else if ( endpoints && [ 'edit', 'delete', 'view' ].includes( newAction ) ) {
 			setSelectedEndpoint( endpoints.find( endpoint => endpoint.id === id ) || null );
 		}
 	}
@@ -96,7 +96,7 @@ const Webhooks = () => {
 				</Button>
 			</div>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
-			{ endpoints.length > 0 && (
+			{ endpoints && endpoints.length > 0 && (
 				<Fragment>
 					{ endpoints.map( endpoint => (
 						<EndpointActionsCard

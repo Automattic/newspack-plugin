@@ -36,10 +36,7 @@ const Mailchimp = () => {
 					path: '/newspack/v1/oauth/mailchimp',
 				},
 				{
-					onSuccess( response ) {
-						setAuthState( response );
-						console.log( { response } );
-					},
+					onSuccess: res => setAuthState( res ),
 				}
 			);
 		};
