@@ -267,13 +267,6 @@ class Newspack_Dashboard extends Wizard {
 		/**
 		 * JavaScript
 		 */
-		wp_register_script(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/wizards.js',
-			$this->get_script_dependencies(),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
 		
 		$site_name = get_bloginfo( 'name' );
 		$theme_mods = get_theme_mods();
