@@ -21,7 +21,7 @@ import { SectionHeader } from '../../../../../components/src';
 
 const { connections } = window.newspackSettings;
 
-const Section = ( {
+function Section( {
 	title,
 	description,
 	children = null,
@@ -29,16 +29,16 @@ const Section = ( {
 	title?: string;
 	description?: string;
 	children: React.ReactNode;
-} ) => {
+} ) {
 	return (
 		<div className="newspack-wizard__section">
 			{ title && <SectionHeader heading={ 3 } title={ title } description={ description } /> }
 			{ children }
 		</div>
 	);
-};
+}
 
-const Connections = () => {
+function Connections() {
 	return (
 		<div className="newspack-wizard__sections">
 			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
@@ -80,6 +80,6 @@ const Connections = () => {
 			</Section>
 		</div>
 	);
-};
+}
 
 export default Connections;

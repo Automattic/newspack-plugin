@@ -24,7 +24,7 @@ const settingsDefault: RecaptchaData = {
 	site_secret: undefined,
 };
 
-const Recaptcha = () => {
+function Recaptcha() {
 	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
 		'/newspack-settings/connections/recaptchaV3'
 	);
@@ -169,6 +169,6 @@ const Recaptcha = () => {
 			</WizardsActionCard>
 		</>
 	);
-};
+}
 
 export default Recaptcha;

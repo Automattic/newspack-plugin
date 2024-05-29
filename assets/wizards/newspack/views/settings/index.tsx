@@ -22,7 +22,7 @@ const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
 } = window;
 
-const Settings = () => {
+function Settings() {
 	return (
 		<Fragment>
 			{ isDebugMode && <Notice debugMode /> }
@@ -34,6 +34,6 @@ const Settings = () => {
 			/>
 		</Fragment>
 	);
-};
+}
 
 export default Settings;

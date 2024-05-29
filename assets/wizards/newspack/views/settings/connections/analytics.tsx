@@ -15,7 +15,7 @@ import WizardsPluginCard from '../../../../wizards-plugin-card';
 /**
  * Analytics Plugins screen.
  */
-const Analytics = ( { editLink }: { editLink: string } ) => {
+function Analytics( { editLink }: { editLink: string } ) {
 	/**
 	 * Render.
 	 */
@@ -42,6 +42,6 @@ const Analytics = ( { editLink }: { editLink: string } ) => {
 			} }
 		/>
 	);
-};
+}
 
 export default Analytics;

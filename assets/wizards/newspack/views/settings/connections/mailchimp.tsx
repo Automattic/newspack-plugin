@@ -18,7 +18,7 @@ import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { WIZARD_ERROR_MESSAGES, WizardApiError } from '../../../../errors';
 import { Button, Card, Grid, Modal, TextControl } from '../../../../../components/src';
 
-const Mailchimp = () => {
+function Mailchimp() {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
 		'/newspack-settings/connections/apis/mailchimp'
@@ -189,6 +189,6 @@ const Mailchimp = () => {
 			) }
 		</Fragment>
 	);
-};
+}
 
 export default Mailchimp;

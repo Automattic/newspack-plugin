@@ -11,7 +11,7 @@ import { moreVertical } from '@wordpress/icons';
 import { useState, useEffect, Fragment } from '@wordpress/element';
 import { Tooltip, Button, Popover, MenuItem } from '@wordpress/components';
 
-const EndpointActions = ( {
+function EndpointActions( {
 	endpoint,
 	disabled = undefined,
 	position = 'bottom left',
@@ -23,7 +23,7 @@ const EndpointActions = ( {
 	isSystem: string;
 	position?: Tooltip.Props[ 'position' ] | undefined;
 	setAction: ( action: Actions, id: number | string ) => void;
-} ) => {
+} ) {
 	const [ popoverVisible, setPopoverVisible ] = useState( false );
 
 	useEffect( () => {
@@ -73,6 +73,6 @@ const EndpointActions = ( {
 			) }
 		</Fragment>
 	);
-};
+}
 
 export default EndpointActions;

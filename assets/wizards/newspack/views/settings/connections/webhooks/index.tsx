@@ -29,7 +29,7 @@ const defaultEndpoint: Endpoint = {
 	bearer_token: '',
 };
 
-const Webhooks = () => {
+function Webhooks() {
 	const {
 		wizardApiFetch,
 		isFetching: inFlight,
@@ -118,6 +118,6 @@ const Webhooks = () => {
 			) }
 		</Card>
 	);
-};
+}
 
 export default Webhooks;

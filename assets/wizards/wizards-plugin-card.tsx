@@ -52,7 +52,7 @@ function WizardsPluginCard( {
 
 	useEffect( () => {
 		wizardApiFetch< null | { Status: string; Configured: boolean } >(
-			{ path: path },
+			{ path },
 			{
 				onSuccess( result ) {
 					if ( result ) {

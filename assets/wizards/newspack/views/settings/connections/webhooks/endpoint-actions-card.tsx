@@ -15,13 +15,13 @@ import { getEndpointTitle } from './utils';
 import EndpointActions from './endpoint-actions';
 import WizardsActionCard from '../../../../../wizards-action-card';
 
-const EndpointActionsCard = ( {
+function EndpointActionsCard( {
 	endpoint,
 	setAction,
 }: {
 	endpoint: Endpoint;
 	setAction: ( action: Actions, id: number | string ) => void;
-} ) => {
+} ) {
 	return (
 		<WizardsActionCard
 			isMedium
@@ -59,6 +59,6 @@ const EndpointActionsCard = ( {
 			}
 		/>
 	);
-};
+}
 
 export default EndpointActionsCard;

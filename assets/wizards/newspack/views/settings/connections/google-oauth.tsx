@@ -15,23 +15,23 @@ import { Button } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
-const getURLParams = () => {
+function getURLParams() {
 	const searchParams = new URLSearchParams( window.location.search );
 	const params: { [ key: string ]: string } = {};
 	for ( const [ key, value ] of searchParams.entries() ) {
 		params[ key ] = value;
 	}
 	return params;
-};
+}
 
-const GoogleOAuth = ( {
+function GoogleOAuth( {
 	onSuccess,
 	isOnboarding,
 }: {
 	onInit?: ( str: Error | null ) => void;
 	onSuccess?: ( arg: OAuthData ) => void;
 	isOnboarding?: ( str: string ) => void;
-} ) => {
+} ) {
 	const [ authState, setAuthState ] = useState< OAuthData >( {} );
 
 	const userBasicInfo = authState?.user_basic_info;
@@ -162,6 +162,6 @@ const GoogleOAuth = ( {
 			isMedium
 		/>
 	);
-};
+}
 
 export default GoogleOAuth;

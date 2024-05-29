@@ -13,57 +13,37 @@ import { Fragment } from '@wordpress/element';
  */
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
-function description( errorMessage: string | null, isFetching: boolean, status: string ) {
-	if ( errorMessage ) {
-		return __( 'Status: Error!', 'newspack-plugin' );
-	}
-	if ( isFetching ) {
-		return __( 'Loading…', 'newspack-plugin' );
-	}
-	if ( status === 'inactive' ) {
-		return __( 'Status: Not connected for this user', 'newspack-plugin' );
-	}
-	return __( 'Status: Connected', 'newspack-plugin' );
-}
-
 const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
 		slug: 'jetpack',
 		path: '/newspack/v1/plugins/jetpack',
 		name: __( 'Jetpack', 'newspack-plugin' ),
 		editLink: 'admin.php?page=jetpack#/settings',
-		description( errorMessage: string | null, isFetching: boolean, status: string ) {
-			if ( errorMessage ) {
-				return __( 'Status: Error!', 'newspack-plugin' );
-			}
-			if ( isFetching ) {
-				return __( 'Loading…', 'newspack-plugin' );
-			}
-			if ( status === 'inactive' ) {
-				return __( 'Status: Not connected', 'newspack-plugin' );
-			}
-			return __( 'Status: Connected', 'newspack-plugin' );
-		},
+		description: createDescription( 'jetpack' ),
 	},
 	'google-site-kit': {
 		slug: 'google-site-kit',
 		path: '/newspack/v1/plugins/google-site-kit',
 		name: __( 'Site Kit by Google', 'newspack-plugin' ),
 		editLink: 'admin.php?page=googlesitekit-splash',
-		description( errorMessage: string | null, isFetching: boolean, status: string ) {
-			if ( errorMessage ) {
-				return __( 'Status: Error!', 'newspack-plugin' );
-			}
-			if ( isFetching ) {
-				return __( 'Loading…', 'newspack-plugin' );
-			}
-			if ( status === 'inactive' ) {
-				return __( 'Status: Not connected for this user', 'newspack-plugin' );
-			}
-			return __( 'Status: Connected', 'newspack-plugin' );
-		},
+		description: createDescription( 'google-site-kit' ),
 	},
 };
+
+function createDescription( pluginKey: string ): PluginCard[ 'description' ] {
+	return ( errorMessage: string | null, isFetching: boolean, status: string ) => {
+		if ( errorMessage ) {
+			return __( 'Status: Error!', 'newspack-plugin' );
+		}
+		if ( isFetching ) {
+			return __( 'Loading…', 'newspack-plugin' );
+		}
+		if ( status === 'inactive' ) {
+			return __( `Status: Not connected for ${ PLUGINS[ pluginKey ] }`, 'newspack-plugin' );
+		}
+		return __( 'Status: Connected', 'newspack-plugin' );
+	};
+}
 
 function Plugins() {
 	return (
