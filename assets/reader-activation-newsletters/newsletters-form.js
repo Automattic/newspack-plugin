@@ -21,13 +21,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				return;
 			}
 
-			// Populate email if not already set.
-			const emailInput = form.querySelector( 'input[name="email_address"]' );
-			if ( emailInput && ! emailInput.value ) {
-				const reader = readerActivation?.getReader();
-				emailInput.value = reader?.email || '';
-			}
-
 			/**
 			 * Handle newsletters signup form submission.
 			 */
@@ -41,15 +34,21 @@ window.newspackRAS.push( function ( readerActivation ) {
 				form.classList.add( 'processing' );
 				form.querySelector( 'button' ).setAttribute( 'disabled', 'disabled' );
 
-				const formData = new FormData( form );
+				// Populate email if not already set.
+				const emailInput = form.querySelector( 'input[name="email_address"]' );
+				if ( emailInput && ! emailInput.value ) {
+					const reader = readerActivation?.getReader();
+					emailInput.value = reader?.email || '';
+				}
 
-				formData.append( 'security', newspack_reader_activation_newsletters.security );
-				formData.append( 'action', 'newspack_reader_activation_newsletters_signup' );
+				const data = new FormData( form );
+
+				data.append( 'action', 'newspack_reader_activation_newsletters_signup' );
 
 				// Ajax request.
-				fetch( newspack_reader_activation_newsletters.ajax_url, {
+				fetch( newspack_reader_activation_newsletters.newspack_ajax_url, {
 					method: 'POST',
-					body: formData,
+					body: data,
 				} ).finally( () => {
 					if ( container?.newslettersSignupCallback ) {
 						container.newslettersSignupCallback();

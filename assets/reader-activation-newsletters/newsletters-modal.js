@@ -79,7 +79,6 @@ export function openNewslettersSignupModal( config = {} ) {
 
 	// Populate email if not already set.
 	const emailInput = modal.querySelector( 'span.email' );
-	console.log( emailInput );
 	if ( emailInput && ! emailInput.innerText ) {
 		const reader = window?.newspackReaderActivation?.getReader();
 		emailInput.textContent = reader?.email || '';
