@@ -1,3 +1,6 @@
+/**
+ * Custom error class for Newspack Wizards.
+ */
 class WizardError extends Error {
 	statusCode: number;
 	errorCode: string;
@@ -15,6 +18,11 @@ class WizardError extends Error {
 		}
 	}
 
+	/**
+	 * For when this class is serialized outside of the API.
+	 *
+	 * @return JSON representation of the error.
+	 */
 	toJSON() {
 		return {
 			name: this.name,

@@ -16,6 +16,7 @@ import WizardsActionCard from '../../../../wizards-action-card';
 import { Grid, Button, TextControl } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import WizardError from '../../../../errors/class-wizard-error';
+import { WIZARD_ERROR_MESSAGES } from '../../../../errors';
 
 const settingsDefault: RecaptchaData = {
 	site_key: undefined,
@@ -42,7 +43,7 @@ function Recaptcha() {
 			}
 			setError(
 				new WizardError(
-					__( 'You must enter a valid site key and secret to use reCAPTCHA.', 'newspack-plugin' ),
+					WIZARD_ERROR_MESSAGES.RECAPTCHA_KEY_SECRET_INVALID,
 					400,
 					'key_secret_invalid'
 				)

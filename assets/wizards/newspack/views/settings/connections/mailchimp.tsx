@@ -15,7 +15,7 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
  */
 import WizardsActionCard from '../../../../wizards-action-card';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import { WIZARD_ERROR_MESSAGES, WizardApiError } from '../../../../errors';
+import { WIZARD_ERROR_MESSAGES, WizardError } from '../../../../errors';
 import { Button, Card, Grid, Modal, TextControl } from '../../../../../components/src';
 
 function Mailchimp() {
@@ -94,7 +94,7 @@ function Mailchimp() {
 				onSuccess( data ) {
 					setAuthState( data );
 					setError(
-						new WizardApiError(
+						new WizardError(
 							WIZARD_ERROR_MESSAGES.MAILCHIMP_API_KEY_INVALID,
 							500,
 							'MAILCHIMP_API_KEY_INVALID'

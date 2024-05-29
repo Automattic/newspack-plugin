@@ -14,6 +14,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { Button } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import { WizardError, WIZARD_ERROR_MESSAGES } from '../../../../errors';
 
 function getURLParams() {
 	const searchParams = new URLSearchParams( window.location.search );
@@ -54,8 +55,10 @@ function GoogleOAuth( {
 	useEffect( () => {
 		if ( isConnected && userBasicInfo && ! userBasicInfo.has_refresh_token ) {
 			setError(
-				new Error(
-					__( 'Missing Google refresh token. Please re-authenticate site.', 'newspack-plugin' )
+				new WizardError(
+					WIZARD_ERROR_MESSAGES.GOOGLEOAUTH_REFRESH_TOKEN_EXPIRED,
+					400,
+					'googleoauth_refresh_token_expired'
 				)
 			);
 		}
