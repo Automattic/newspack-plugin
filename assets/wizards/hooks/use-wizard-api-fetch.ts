@@ -13,7 +13,6 @@ import { useState, useCallback, useEffect } from '@wordpress/element';
  */
 import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
 import { WizardApiError } from '../errors';
-import { debug, isEmpty } from '../../components/src/utils';
 
 type WpFetchError = Error & {
 	code: string;
@@ -139,8 +138,8 @@ export function useWizardApiFetch( slug: string ) {
 
 			function finallyCallback() {
 				setIsFetching( false );
-				// Remove the promise from the cache if it's done.
-				const { [ path ]: removed, ...newData } = promiseCache;
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const { [ path ]: _removed, ...newData } = promiseCache;
 				promiseCache = newData;
 				on( 'onFinally' );
 			}
