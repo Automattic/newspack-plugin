@@ -56,6 +56,11 @@ final class Reader_Activation {
 	const SSO_REGISTRATION_METHODS = [ 'google' ];
 
 	/**
+	 * Newsletters signup form.
+	 */
+	const NEWSLETTERS_SIGNUP_FORM_ACTION = 'reader-activation-newsletters-signup';
+
+	/**
 	 * Whether the session is authenticating a newly registered reader
 	 *
 	 * @var bool
@@ -185,11 +190,11 @@ final class Reader_Activation {
 				self::NEWSLETTERS_SCRIPT_HANDLE,
 				'newspack_reader_activation_newsletters',
 				[
-					'security' => wp_create_nonce( 'newspack_reader_activation_newsletters_signup' ),
-					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'newspack_ajax_url' => admin_url( 'admin-ajax.php' ),
 				]
 			);
 
+			\wp_script_add_data( self::NEWSLETTERS_SCRIPT_HANDLE, 'async', true );
 			\wp_enqueue_style(
 				self::NEWSLETTERS_SCRIPT_HANDLE,
 				Newspack::plugin_url() . '/dist/newsletters-signup.css',
@@ -1340,6 +1345,7 @@ final class Reader_Activation {
 		?>
 			<div class="newspack-ui newspack-newsletters-signup">
 				<form method="post" target="_top">
+					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
 					<?php
 					foreach ( $newsletters_lists as $list ) {
@@ -1401,12 +1407,14 @@ final class Reader_Activation {
 					<p class="newspack-ui__font--xs details">
 						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
 					</p>
-					<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
-						<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
-						<span class="email">
-							<?php echo esc_html( $email_address ); ?>
-						</span>
-					</p>
+					<?php if ( ! empty( $email_address ) ) : ?>
+						<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
+							<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
+							<span class="email">
+								<?php echo esc_html( $email_address ); ?>
+							</span>
+						</p>
+					<?php endif; ?>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
 				</div>
 			</div>
@@ -1421,11 +1429,11 @@ final class Reader_Activation {
 	 */
 	public static function newsletters_signup() {
 		if ( ! self::is_newsletters_signup_available() ) {
-			return;
+			wp_die();
 		}
 
-		$nonce = filter_input( INPUT_POST, 'security', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'newspack_reader_activation_newsletters_signup' ) ) {
+		$action = filter_input( INPUT_POST, self::NEWSLETTERS_SIGNUP_FORM_ACTION, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $action ) {
 			wp_die();
 		}
 
@@ -1455,6 +1463,8 @@ final class Reader_Activation {
 		if ( \is_wp_error( $result ) ) {
 			return $result;
 		}
+
+		wp_die();
 	}
 
 	/**
