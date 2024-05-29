@@ -1424,12 +1424,14 @@ final class Reader_Activation {
 			return;
 		}
 		?>
-		<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
-			<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
-			<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
-		</button>
-		<div class="newspack-ui__word-divider">
-			<?php echo \esc_html__( 'Or', 'newspack-plugin' ); ?>
+		<div class="newspack-ui">
+			<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
+				<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
+				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
+			</button>
+			<div class="newspack-ui__word-divider">
+				<?php echo \esc_html__( 'Or', 'newspack-plugin' ); ?>
+			</div>
 		</div>
 		<?php
 	}
