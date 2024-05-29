@@ -81,7 +81,6 @@ domReady( function () {
 					}
 				} )
 				.catch( error => {
-					console.log( error );
 					if ( googleLoginForm?.endLoginFlow ) {
 						googleLoginForm.endLoginFlow( error?.message, 400 );
 					}

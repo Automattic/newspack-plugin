@@ -531,6 +531,9 @@ class WooCommerce_Connection {
 		if ( ! is_a( $order, 'WC_Order' ) || ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
 			return $enable;
 		}
+		if ( $order->get_meta( '_newspack_receipt_email_sent', true ) ) {
+			return $enable;
+		}
 
 		$frequencies = [
 			'month' => __( 'Monthly', 'newspack-plugin' ),
@@ -592,8 +595,11 @@ class WooCommerce_Connection {
 			$order->get_billing_email(),
 			$placeholders
 		);
-
-		return false;
+		if ( $sent ) {
+			$order->add_meta_data( '_newspack_receipt_email_sent', true, true );
+			return false;
+		}
+		return $enable;
 	}
 
 	/**
