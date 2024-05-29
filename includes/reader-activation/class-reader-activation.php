@@ -1079,33 +1079,6 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Get the account icon SVG markup.
-	 *
-	 * @return string The account icon SVG markup.
-	 */
-	private static function get_account_icon() {
-		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 16.4371C6.16445 15.2755 5.5 13.7153 5.5 12C5.5 8.41015 8.41015 5.5 12 5.5C15.5899 5.5 18.5 8.41015 18.5 12C18.5 13.7153 17.8356 15.2755 16.75 16.4371V16C16.75 14.4812 15.5188 13.25 14 13.25L10 13.25C8.48122 13.25 7.25 14.4812 7.25 16V16.4371ZM8.75 17.6304C9.70606 18.1835 10.8161 18.5 12 18.5C13.1839 18.5 14.2939 18.1835 15.25 17.6304V16C15.25 15.3096 14.6904 14.75 14 14.75L10 14.75C9.30964 14.75 8.75 15.3096 8.75 16V17.6304ZM4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM14 10C14 11.1046 13.1046 12 12 12C10.8954 12 10 11.1046 10 10C10 8.89543 10.8954 8 12 8C13.1046 8 14 8.89543 14 10Z" /></svg>';
-	}
-
-	/**
-	 * Get the error icon SVG markup.
-	 *
-	 * @return string The error icon SVG markup.
-	 */
-	private static function get_error_icon() {
-		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20.8C16.8 20.8 20.8 16.9 20.8 12C20.8 7.2 16.9 3.2 12 3.2C7.2 3.2 3.2 7.1 3.2 12C3.2 16.8 7.2 20.8 12 20.8V20.8ZM12 4.8C16 4.8 19.2 8.1 19.2 12C19.2 16 16 19.2 12 19.2C8 19.2 4.8 15.9 4.8 12C4.8 8 8 4.8 12 4.8ZM13 7H11V13H13L13 7ZM13 15H11V17H13V15Z" /></svg>';
-	}
-
-	/**
-	 * Get the check icon SVG markup.
-	 *
-	 * @return string The check icon SVG markup.
-	 */
-	private static function get_check_icon() {
-		return '<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" /></svg>';
-	}
-
-	/**
 	 * Get account link.
 	 *
 	 * @return string Account link HTML or empty string.
@@ -1131,7 +1104,7 @@ final class Reader_Activation {
 
 		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
 		$link .= '<span class="' . \esc_attr( $class( 'icon' ) ) . '">';
-		$link .= self::get_account_icon();
+		$link .= \Newspack\Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';
 		$link .= '<span class="' . \esc_attr( $class( 'label' ) ) . '">' . \esc_html( $labels[ $label ] ) . '</span>';
 		$link .= '</a>';
@@ -1196,9 +1169,7 @@ final class Reader_Activation {
 		<div class="newspack-ui newspack-reader-auth">
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
-					<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
-					</svg>
+					<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
 				</span>
 				<p>
 					<strong class="success-title"></strong>
@@ -1290,9 +1261,7 @@ final class Reader_Activation {
 					<h2><?php echo \esc_html( $label ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
-							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-						</svg>
+						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
 					</button>
 				</div>
 				<div class="newspack-ui__modal__content">
@@ -1456,10 +1425,8 @@ final class Reader_Activation {
 		}
 		?>
 		<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
-			<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-			<span>
-				<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
-			</span>
+			<?php \Newspack\Newspack_UI_Icons::print_svg( 'google' ); ?>
+			<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
 		</button>
 		<div class="newspack-ui__word-divider">
 			<?php echo \esc_html__( 'Or', 'newspack-plugin' ); ?>
