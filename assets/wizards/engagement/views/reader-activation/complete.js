@@ -112,7 +112,7 @@ export default withWizardScreen( () => {
 			setProgressLabel( __( 'Done!', 'newspack-plugin' ) );
 			setTimeout( () => {
 				setInFlight( false );
-				window.location = reader_activation_url;
+				window.location.replace( reader_activation_url );
 			}, 3000 );
 		}
 	}, [ completed, progress ] );
