@@ -1,4 +1,4 @@
-/* globals newspack_reader_activation_newsletters */
+/* globals newspack_reader_activation_labels */
 
 /**
  * Internal dependencies.
@@ -44,7 +44,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				data.append( 'action', 'newspack_reader_activation_newsletters_signup' );
 
 				// Ajax request.
-				fetch( newspack_reader_activation_newsletters.newspack_ajax_url, {
+				fetch( newspack_reader_activation_labels.newspack_ajax_url, {
 					method: 'POST',
 					body: data,
 				} ).finally( () => {

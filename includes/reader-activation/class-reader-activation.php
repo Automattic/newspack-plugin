@@ -175,7 +175,7 @@ final class Reader_Activation {
 			if ( self::is_newsletters_signup_available() ) {
 				$auth_data['newspack_ajax_url'] = \admin_url( 'admin-ajax.php' );
 			}
-			\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_activation_labels', self::get_reader_activation_labels() );
+			\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_activation_labels', $auth_data );
 		}
 	}
 
