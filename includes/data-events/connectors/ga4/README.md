@@ -33,8 +33,8 @@ If the user is logged in, these parameters will also be added:
 
 * `email_hash`: The anonymized user email
 * `is_newsletter_subscriber`: If the reader is signed up for any newsletters
-* `is_subsciber`: If reader has donated
-* `is_donor`: If reader has any currently active non-donation subscriptions
+* `is_subscriber`: If reader has any currently active non-donation subscriptions
+* `is_donor`: If reader has donated (one-time or subscription)
 
 Note: All paramaters are strings
 
