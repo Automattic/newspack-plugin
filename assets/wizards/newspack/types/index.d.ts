@@ -21,12 +21,12 @@ declare global {
 				href: string;
 				title: string;
 				icon: keyof typeof icons;
-			}[],
+			}[];
 			sections: {
 				[ k: string ]: {
 					title: string;
 					desc: string;
-					cards: { href: string; title: string; desc: string; icon: keyof typeof icons; }[];
+					cards: { href: string; title: string; desc: string; icon: keyof typeof icons }[];
 				};
 			};
 			settings: {
@@ -35,13 +35,17 @@ declare global {
 			};
 		};
 		newspackSettings: {
-			sections: Record<
-				string,
-				{
-					label: string;
-					path?: string;
-				}
-			>;
+			connections: {
+				label: string;
+				path?: string;
+				// dependencies: Record< string, boolean >;
+				sections: {
+					[ k: string ]: { editLink: string; dependencies: Record< string, string > } & Record<
+						string,
+						string
+					>;
+				};
+			};
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;
@@ -49,4 +53,4 @@ declare global {
 	}
 }
 
-export {}
+export {};
