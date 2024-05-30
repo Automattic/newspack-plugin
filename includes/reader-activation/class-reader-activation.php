@@ -163,7 +163,7 @@ final class Reader_Activation {
 				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
-			\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_activation_labels', self::get_reader_activation_labels() );
+			$auth_data = self::get_reader_activation_labels();
 			\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
 			\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'amp-plus', true );
 			\wp_enqueue_style(
@@ -172,35 +172,10 @@ final class Reader_Activation {
 				[],
 				NEWSPACK_PLUGIN_VERSION
 			);
-		}
-
-		if ( self::is_newsletters_signup_available() ) {
-			/**
-			* Newsletters Signup.
-			*/
-			\wp_enqueue_script(
-				self::NEWSLETTERS_SCRIPT_HANDLE,
-				Newspack::plugin_url() . '/dist/newsletters-signup.js',
-				[ self::SCRIPT_HANDLE ],
-				NEWSPACK_PLUGIN_VERSION,
-				true
-			);
-
-			\wp_localize_script(
-				self::NEWSLETTERS_SCRIPT_HANDLE,
-				'newspack_reader_activation_newsletters',
-				[
-					'newspack_ajax_url' => admin_url( 'admin-ajax.php' ),
-				]
-			);
-
-			\wp_script_add_data( self::NEWSLETTERS_SCRIPT_HANDLE, 'async', true );
-			\wp_enqueue_style(
-				self::NEWSLETTERS_SCRIPT_HANDLE,
-				Newspack::plugin_url() . '/dist/newsletters-signup.css',
-				[],
-				NEWSPACK_PLUGIN_VERSION
-			);
+			if ( self::is_newsletters_signup_available() ) {
+				$auth_data['newspack_ajax_url'] = \admin_url( 'admin-ajax.php' );
+			}
+			\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_activation_labels', self::get_reader_activation_labels() );
 		}
 	}
 
