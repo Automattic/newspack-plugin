@@ -524,7 +524,7 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Send the customizable receipt email instead of WooCommerce's default receipt.
+	 * Send the customizable receipt or welcome email instead of WooCommerce's default receipt.
 	 *
 	 * @param bool     $enable Whether to send the default receipt email.
 	 * @param WC_Order $order The order object for the receipt email.
@@ -533,11 +533,25 @@ class WooCommerce_Connection {
 	 * @return bool
 	 */
 	public static function send_customizable_receipt_email( $enable, $order, $class ) {
-		// If we don't have a valid order, or the customizable email isn't enabled, bail.
-		if ( ! is_a( $order, 'WC_Order' ) || ! Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ) ) {
+		// If we don't have a valid order bail.
+		if ( ! is_a( $order, 'WC_Order' ) ) {
 			return $enable;
 		}
-		if ( $order->get_meta( '_newspack_receipt_email_sent', true ) ) {
+
+		$email_type      = Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'];
+		$email_sent_meta = '_newspack_receipt_email_sent';
+
+		if ( $order->get_meta( '_newspack_checkout_registration', false ) ) {
+			$email_type      = Reader_Revenue_Emails::EMAIL_TYPES['WELCOME'];
+			$email_sent_meta = '_newspack_welcome_email_sent';
+		}
+
+		// if the customizable email isn't enabled bail.
+		if ( ! Emails::can_send_email( $email_type ) ) {
+			return $enable;
+		}
+
+		if ( $order->get_meta( $email_sent_meta, true ) ) {
 			return $enable;
 		}
 
@@ -597,12 +611,12 @@ class WooCommerce_Connection {
 		];
 
 		$sent = Emails::send_email(
-			Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'],
+			$email_type,
 			$order->get_billing_email(),
 			$placeholders
 		);
 		if ( $sent ) {
-			$order->add_meta_data( '_newspack_receipt_email_sent', true, true );
+			$order->add_meta_data( $email_sent_meta, true, true );
 			return false;
 		}
 		return $enable;

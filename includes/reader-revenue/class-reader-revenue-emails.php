@@ -16,6 +16,7 @@ class Reader_Revenue_Emails {
 	const EMAIL_TYPES = [
 		'CANCELLATION' => 'cancellation',
 		'RECEIPT'      => 'receipt',
+		'WELCOME'      => 'welcome',
 	];
 
 	/**
@@ -97,6 +98,35 @@ class Reader_Revenue_Emails {
 			'description'            => __( "Email sent to the donor after they've donated.", 'newspack-plugin' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
 			'editor_notice'          => __( 'This email will be sent to a reader after they contribute to your site.', 'newspack-plugin' ),
+			'from_email'             => self::get_from_email(),
+			'available_placeholders' => array_merge(
+				$available_placeholders,
+				[
+					[
+						'label'    => __( 'automatically-generated receipt link', 'newspack-plugin' ),
+						'template' => '*RECEIPT_URL*',
+					],
+					[
+						'label'    => __( 'the payment amount', 'newspack-plugin' ),
+						'template' => '*AMOUNT*',
+					],
+					[
+						'label'    => __( 'payment date', 'newspack-plugin' ),
+						'template' => '*DATE*',
+					],
+					[
+						'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
+						'template' => '*PAYMENT_METHOD*',
+					],
+				]
+			),
+		];
+		$configs[ self::EMAIL_TYPES['WELCOME'] ]      = [
+			'name'                   => self::EMAIL_TYPES['WELCOME'],
+			'label'                  => __( 'Welcome', 'newspack-plugin' ),
+			'description'            => __( "Email sent to the donor after they've registered via the checkout process.", 'newspack-plugin' ),
+			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
+			'editor_notice'          => __( 'This email will be sent to a reader after they sign up while contributing to your site.', 'newspack-plugin' ),
 			'from_email'             => self::get_from_email(),
 			'available_placeholders' => array_merge(
 				$available_placeholders,
