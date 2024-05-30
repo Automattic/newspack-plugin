@@ -8,22 +8,23 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { Fragment } from '@wordpress/element';
 
 /**
- * Internal Imports
+ * Internal dependencies.
  */
+import './style.scss';
 import sections from './sections';
 import Wizard from '../../../../components/src/wizard';
-import { GlobalNotices, Footer, Notice } from '../../../../components/src/';
-import './style.scss';
+import { GlobalNotices, Notice } from '../../../../components/src/';
 
 const {
 	newspack_aux_data: { is_debug_mode: isDebugMode = false },
 } = window;
 
-const Settings = () => {
+function Settings() {
 	return (
-		<>
+		<Fragment>
 			{ isDebugMode && <Notice debugMode /> }
 			<GlobalNotices />
 			<Wizard
@@ -31,9 +32,8 @@ const Settings = () => {
 				headerText={ __( 'Newspack / Settings', 'newspack' ) }
 				sections={ sections }
 			/>
-			<Footer />
-		</>
+		</Fragment>
 	);
-};
+}
 
 export default Settings;
