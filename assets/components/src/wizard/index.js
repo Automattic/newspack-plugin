@@ -138,12 +138,7 @@ const Wizard = ( {
 							const SectionComponent = section.render;
 							return (
 								<Route key={ index } exact={ section.exact ?? false } path={ section.path }>
-									<div
-										className={ classnames(
-											'newspack-wizard newspack-wizard__content',
-											className
-										) }
-									>
+									<div className={ classnames( 'newspack-wizard__content', className ) }>
 										{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
 										<SectionComponent />
 									</div>
