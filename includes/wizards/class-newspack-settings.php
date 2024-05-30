@@ -114,13 +114,6 @@ class Newspack_Settings extends Wizard {
 		/**
 		 * JavaScript
 		 */
-		wp_register_script(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/wizards.js',
-			$this->get_script_dependencies(),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
 		wp_localize_script(
 			$this->slug, 
 			'newspackSettings',

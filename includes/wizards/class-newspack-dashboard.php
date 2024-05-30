@@ -345,29 +345,12 @@ class Newspack_Dashboard extends Wizard {
 		/**
 		 * JavaScript
 		 */
-		wp_register_script(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/wizards.js',
-			$this->get_script_dependencies(),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-		
-		$site_name = get_bloginfo( 'name' );
-		$theme_mods = get_theme_mods();
-
 		wp_localize_script(
 			$this->slug, 
 			'newspackDashboard',
 			$this->get_local_data()
 		);
 		wp_enqueue_script( $this->slug );
-		wp_register_style(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/newspack.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
 		wp_style_add_data( $this->slug, 'rtl', 'replace' );
-		wp_enqueue_style( $this->slug );    }
+	}
 }
