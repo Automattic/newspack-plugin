@@ -29,8 +29,6 @@ function Section( {
 	);
 }
 
-const { connections } = window.newspackSettings;
-
 function Connections() {
 	return (
 		<div className="newspack-wizard__sections">
