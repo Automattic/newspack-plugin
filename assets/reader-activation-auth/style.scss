@@ -180,3 +180,18 @@ li.menu-item .newspack-reader__account-link {
 .woocommerce-account .entry-header .entry-title {
 	display: none;
 }
+
+.newspack-newsletters-signup-modal {
+	.processing {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
+	p.details {
+		margin-bottom: 4px;
+	}
+
+	p.recipient {
+		margin-top: 0;
+	}
+}

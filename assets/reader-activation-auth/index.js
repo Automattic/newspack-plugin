@@ -6,6 +6,7 @@ import { domReady } from './utils';
 import { SIGN_IN_MODAL_HASHES, getModalContainer, openAuthModal } from './auth-modal.js';
 
 import './auth-form.js';
+import './newsletters.js';
 
 window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( readerActivation => {

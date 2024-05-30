@@ -1,10 +1,10 @@
 /**
  * Internal dependencies
  */
-import { domReady } from '../reader-activation-auth/utils';
+import { domReady } from './utils';
 import { openNewslettersSignupModal } from './newsletters-modal';
 
-import './newsletters-form.js';
+import './newsletters-form';
 
 window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( readerActivation => {

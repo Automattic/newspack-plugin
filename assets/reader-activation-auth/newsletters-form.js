@@ -3,9 +3,7 @@
 /**
  * Internal dependencies.
  */
-import { domReady } from '../reader-activation-auth/utils';
-
-import './style.scss';
+import { domReady } from './utils';
 
 window.newspackRAS = window.newspackRAS || [];
 window.newspackRAS.push( function ( readerActivation ) {
