@@ -114,7 +114,7 @@ class GA4 {
 		}
 
 		$params    = $data['ga_params'];
-		$client_id = $data['ga_client_id'];
+		$client_id = isset( $data['ga_client_id'] ) ? $data['ga_client_id'] : null;
 
 		if ( empty( $client_id ) ) {
 			$client_id = 'AnonymousUser-' . md5( $user_id );
