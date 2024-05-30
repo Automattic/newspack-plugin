@@ -26,6 +26,10 @@
 			}
 		}
 
+		&:focus {
+			outline: unset;
+		}
+
 		&:focus-visible {
 			outline: 2px solid var( --newspack-ui-color-neutral-90 );
 			outline-offset: 1px;
