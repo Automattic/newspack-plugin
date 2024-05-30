@@ -35,18 +35,10 @@ class Newspack_Settings extends Wizard {
 	 *
 	 * @var int.
 	 */
-	protected $menu_priority = 1;
+	protected $menu_priority = 2;
 
 	/**
-	 * Initialize.
-	 */
-	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-	}
-
-	/**
-	 * Get Dashboard data
+	 * Get Settings local data
 	 *
 	 * @return [] 
 	 */
