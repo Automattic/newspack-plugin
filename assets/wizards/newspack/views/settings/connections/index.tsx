@@ -36,8 +36,34 @@ function Connections() {
 		<div className="newspack-wizard__sections">
 			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
 
-			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>
-				Plugins component - coming soon!
+			{ /* Plugins */ }
+			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>Plugins section coming soon</Section>
+
+			{ /* APIs; google */ }
+			<Section title={ __( 'APIs', 'newspack-plugin' ) }>Mailchimp section coming soon</Section>
+
+			{ /* reCAPTCHA */ }
+			<Section title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
+				reCAPTCHA section coming soon
+			</Section>
+
+			{ /* Webhooks */ }
+			<Section title={ __( 'Webhooks', 'newspack-plugin' ) }>Webhooks section coming soon</Section>
+
+			{ /* Analytics */ }
+			<Section title={ __( 'Analytics', 'newspack-plugin' ) }>
+				Analytics section coming soon
+			</Section>
+
+			{ /* Custom Events */ }
+			<Section
+				title={ __( 'Activate Newspack Custom Events', 'newspack-plugin' ) }
+				description={ __(
+					'Allows Newspack to send enhanced custom event data to your Google Analytics.',
+					'newspack-plugin'
+				) }
+			>
+				Custom Events section coming soon
 			</Section>
 		</div>
 	);
