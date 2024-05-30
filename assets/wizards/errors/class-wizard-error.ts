@@ -2,14 +2,12 @@
  * Custom error class for Newspack Wizards.
  */
 class WizardError extends Error {
-	statusCode: number;
 	errorCode: string;
 	details: string;
 
-	constructor( message: string, statusCode: number, errorCode: string, details = '' ) {
+	constructor( message: string, errorCode: string, details: any = '' ) {
 		super( message );
 		this.name = 'WizardError';
-		this.statusCode = statusCode;
 		this.errorCode = errorCode;
 		this.details = details;
 
@@ -27,9 +25,9 @@ class WizardError extends Error {
 		return {
 			name: this.name,
 			message: this.message,
-			statusCode: this.statusCode,
 			errorCode: this.errorCode,
 			details: this.details,
+			stackTrace: this.stack,
 		};
 	}
 }
