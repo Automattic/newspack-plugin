@@ -219,7 +219,6 @@ const getFavoriteCategoryNamesFn = async favoriteCategories => {
 				} );
 				return category.name;
 			} catch ( e ) {
-				console.warn( e );
 				return '';
 			}
 		} )
@@ -269,7 +268,6 @@ const getItems = memoize( async path => {
 			label: item.title || item.name,
 		} ) );
 	} catch ( e ) {
-		console.warn( e );
 		return [];
 	}
 } );

@@ -4,6 +4,10 @@
 	margin-top: 0 !important;
 }
 
+span.is-skipped {
+	color: wp-colors.$gray-700;
+}
+
 .newspack-ras-campaign {
 	&__prompt-wizard,
 	&__completed {

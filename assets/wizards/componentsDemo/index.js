@@ -1,6 +1,6 @@
 import '../../shared/js/public-path';
 
-/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/anchor-is-valid, no-console */
 
 /**
  * Components Demo
