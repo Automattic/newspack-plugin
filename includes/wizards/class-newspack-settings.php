@@ -45,24 +45,13 @@ class Newspack_Settings extends Wizard {
 	public function get_local_data() {
 		return [
 			'connections'       => [
-				'label'        => __( 'Connections', 'newspack-plugin' ),
-				'path'         => '/',
-				'dependencies' => [
-					'google' => OAuth::is_proxy_configured( 'google' ),
-				],
-				'sections'     => [
+				'label'    => __( 'Connections', 'newspack-plugin' ),
+				'path'     => '/',
+				'sections' => [
 					'plugins'   => [],
-					'apis'      => [
-						'dependencies' => [
-							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
-						],
-					],
+					'apis'      => [],
 					'recaptcha' => [],
-					'analytics' => [
-						'editLink'                    => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
-						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
-						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
-					],
+					'analytics' => [],
 				],
 			],
 			'emails'            => [
