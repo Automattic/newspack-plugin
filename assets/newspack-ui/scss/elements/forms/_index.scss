@@ -1,6 +1,7 @@
 @use 'buttons';
 @use 'checkbox-radio';
 @use 'labels';
+@use 'select';
 @use 'spinner';
 @use 'text-inputs';
 
@@ -14,11 +15,6 @@
 
 	& &__last-child {
 		margin-bottom: 0;
-	}
-
-	select {
-		font-family: var( --newspack-ui-font-family );
-		line-height: var( --newspack-ui-line-height-l );
 	}
 
 	// Container for displaying grid of inputs.

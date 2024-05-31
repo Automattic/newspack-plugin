@@ -37,14 +37,20 @@
 		}
 	}
 
-	// Override checkout and billing form headings spacing.
-	.woocommerce-billing-fields h3,
-	.woocommerce-additional-fields h3,
-	.woocommerce-checkout h3,
-	.woocommerce-form-coupon h3 {
-		font-size: var(--newspack-ui-font-size-s);
-		margin: 1rem 0 !important;
+	// Different shipping address
+	#ship-to-different-address {
+		margin-bottom: 0;
+
+		&,
+		label {
+			display: block;
+		}
 	}
+
+	.shipping_address {
+		margin-top: var( --newspack-ui-spacer-5 );
+	}
+
 
 	// Override checkout payment method box.
 	.wc_payment_method {
@@ -72,11 +78,18 @@
 			}
 
 			ul.wc-saved-payment-methods {
+				padding: 0;
+
 				li {
 					margin-bottom: var(--newspack-ui-spacer-3);
 
+					label {
+						font-size: var(--newspack-ui-font-size-xs);
+						font-weight: normal;
+					}
+
 					input {
-						margin-right: 8px;
+						margin-right: var( --newspack-ui-spacer-base );
 					}
 				}
 			}
@@ -95,10 +108,11 @@
 
 					&.form-row {
 						display: flex;
+						gap: var(--newspack-ui-spacer-2);
 						align-items: flex-start;
 
 						input {
-							margin-right: var(--newspack-ui-spacer-2);
+							margin: 0;
 						}
 
 						label {
@@ -106,6 +120,18 @@
 							font-weight: normal;
 						}
 					}
+				}
+			}
+
+			.newspack-cover-fees,
+			.woocommerce-SavedPaymentMethods-saveNew {
+				label {
+					font-size: var( --newspack-ui-font-size-xs );
+					line-height: var( --newspack-ui-line-height-xs );
+				}
+
+				&::before {
+					display: none;
 				}
 			}
 		}
@@ -123,6 +149,13 @@
 			input.input-radio[name="payment_method"] {
 				display: none;
 			}
+		}
+	}
+
+	// WooCommerce Payments
+	#payment {
+		.payment_method_woocommerce_payments .testmode-info {
+			margin-bottom: 0;
 		}
 	}
 
@@ -162,41 +195,96 @@
 		}
 	}
 
-	.wc_payment_methods label[for="payment_method_stripe"] {
-		&.newspack-ui__input-card {
-			padding: var( --newspack-ui-spacer-3 ) !important;
+	.wc_payment_methods {
+		margin: 0;
+
+		label[for="payment_method_stripe"] {
+			&.newspack-ui__input-card {
+				padding: var( --newspack-ui-spacer-3 ) !important;
+			}
 		}
 	}
 
 	// Woo Payments inputs
 	#wcpay-upe-element,
 	.wcpay-upe-element {
-		margin: var(--newspack-ui-spacer-5) 0;
+		margin: var(--newspack-ui-spacer-3) 0;
 		padding: 0;
 	}
 
-	// Override billing details spacing.
-	.billing-details {
-		p {
-			margin: 0;
+	.woocommerce-checkout {
+		h3 {
+			font-size: var(--newspack-ui-font-size-s);
+			line-height: var(--newspack-ui-line-height-s);
+			margin: 0 0 var( --newspack-ui-spacer-5 );
 		}
 
+		.woocommerce-billing-fields h3 {
+			margin: 0 0 var( --newspack-ui-spacer-5 );
+		}
+
+		// After Customer Details
+		// stylelint-disable-next-line selector-id-pattern
+		#after_customer_details {
+			h3 {
+				margin-bottom: var( --newspack-ui-spacer-2 );
+			}
+		}
+
+		// Override label styles from theme
+		.woocommerce-billing-fields,
+		.woocommerce-account-fields,
+		.woocommerce-shipping-fields,
+		.woocommerce-additional-fields {
+			label {
+				font-size: var( --newspack-ui-font-size-s );
+			}
+
+		}
+	}
+
+	// Override billing details spacing.
+	// stylelint-disable-next-line selector-id-pattern
+	#checkout_details {
+		margin-bottom: var(--newspack-ui-spacer-5);
+
 		h3 {
-			margin-bottom: var(--newspack-ui-spacer-base);
+			margin: 0 0 var( --newspack-ui-spacer-base );
+		}
+	}
+
+	.billing-details,
+	.shipping-details {
+		&:not(:last-child ) {
+			margin-bottom: var( --newspack-ui-spacer-5 );
+		}
+
+		p {
+			margin: 0;
 		}
 	}
 
 	// Order review table.
 	.woocommerce-checkout-review-order-table {
+		th,
+		td,
+		label,
+		small {
+			font-size: var( --newspack-font-size-xs ) !important;
+			line-height: var( --newspack-line-height-xs ) !important;
+		}
+
 		thead th,
 		.recurring-totals th {
 			background: transparent;
 		}
 
-		.cart-subtotal th,
-		.cart-subtotal td,
-		small {
-			font-size: var( --newspack-font-size-xs );
+		// stylelint-disable-next-line selector-id-pattern
+		.woocommerce-shipping-totals #shipping_method {
+			li,
+			label {
+				margin: 0;
+			}
 		}
 	}
 
@@ -212,17 +300,25 @@
 
 	// Override checkout form coupon field.
 	.woocommerce-form-coupon {
-		p:first-of-type {
-			display: flex;
-			align-items: center;
-			margin: var(--newspack-ui-spacer-2) 0;
+		margin-bottom: var(--newspack-ui-spacer-5);
 
-			input {
-				margin-right: var(--newspack-ui-spacer-base);
+		h3 {
+			color: var( --newspack-ui-label-color );
+			margin-bottom: var( --newspack-ui-spacer-base );
+		}
+
+		p:first-of-type {
+			align-items: center;
+			display: flex;
+			gap: var( --newspack-ui-spacer-base );
+
+			input,
+			button {
+				margin: 0 !important;
 			}
 
-			button {
-				margin-bottom: 0;
+			+ .newspack-ui__helper-text {
+				margin-top: calc( var( --newspack-ui-spacer-3 ) * -1 );
 			}
 		}
 	}

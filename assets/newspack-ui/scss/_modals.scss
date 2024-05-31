@@ -78,7 +78,7 @@
 		}
 
 		&__close {
-			margin: -6px -6px -6px 0; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
+			margin: -6px -6px -6px 0 !important; // Accounts for the header padding. TODO: Can this be improved to work w/variables?
 		}
 
 		&__content {
@@ -207,6 +207,7 @@
 						padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-2 ) 0;
 						button {
 							display: block;
+							margin-top: 0 !important;
 							width: 100%;
 						}
 					}
