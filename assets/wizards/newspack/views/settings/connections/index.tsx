@@ -35,22 +35,29 @@ function Connections() {
 			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
 
 			{ /* Plugins */ }
-			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>Plugins section coming soon</Section>
+			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>
+				<div className="newspack-card">Coming soon</div>
+				<div className="newspack-card">Coming soon</div>
+			</Section>
 
 			{ /* APIs; google */ }
-			<Section title={ __( 'APIs', 'newspack-plugin' ) }>Mailchimp section coming soon</Section>
+			<Section title={ __( 'APIs', 'newspack-plugin' ) }>
+				<div className="newspack-card">Coming soon</div>
+			</Section>
 
 			{ /* reCAPTCHA */ }
 			<Section title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
-				reCAPTCHA section coming soon
+				<div className="newspack-card">Coming soon</div>
 			</Section>
 
 			{ /* Webhooks */ }
-			<Section title={ __( 'Webhooks', 'newspack-plugin' ) }>Webhooks section coming soon</Section>
+			<Section title={ __( 'Webhooks', 'newspack-plugin' ) }>
+				<div className="newspack-card">Coming soon</div>
+			</Section>
 
 			{ /* Analytics */ }
 			<Section title={ __( 'Analytics', 'newspack-plugin' ) }>
-				Analytics section coming soon
+				<div className="newspack-card">Coming soon</div>
 			</Section>
 
 			{ /* Custom Events */ }
@@ -61,7 +68,7 @@ function Connections() {
 					'newspack-plugin'
 				) }
 			>
-				Custom Events section coming soon
+				<div className="newspack-card">Coming soon</div>
 			</Section>
 		</div>
 	);

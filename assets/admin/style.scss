@@ -81,9 +81,9 @@ h1 {
 
 
 	>h3 {
-		font-size: 20px;
+		font-size: 1.25rem;
 		font-weight: normal;
-		line-height: 28px;
+		line-height: 1.75;
 		margin-bottom: calc(var(--np-section-child-space) / 2);
 	}
 
@@ -99,7 +99,7 @@ h1 {
 	.newspack-grid:not(.newspack-grid--no-margin) {
 		--np-dash-card-icon-size: 80px;
 
-		margin: 24px 0 32px;
+		margin: 1.5rem 0 2rem;
 	}
 }
 
@@ -115,7 +115,7 @@ h1 {
 }
 
 .newspack-card {
-	margin-block: 0 1em;
+	margin-block: 0 1rem;
 
 	&:last-child {
 		margin-bottom: 0;
@@ -125,7 +125,7 @@ h1 {
 		.newspack-action-card__notification {
 			&.newspack-action-card__region-children {
 				.newspack-notice {
-					margin-top: 16px;
+					margin-top: 1rem;
 				}
 			}
 		}
@@ -133,7 +133,7 @@ h1 {
 		&.is-medium {
 			.newspack-action-card__region-children:not(:last-child) {
 				padding-bottom: 0;
-				padding-top: 32px;
+				padding-top: 2rem;
 
 				.newspack-notice {
 					margin-top: 0;
