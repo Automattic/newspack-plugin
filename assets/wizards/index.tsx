@@ -72,7 +72,7 @@ const AdminPages = () => {
 				<AdminPageLoader label={ components[ pageParam ].label ?? components.default.label } />
 			}
 		>
-			<PageComponent />;
+			<PageComponent />
 		</Suspense>
 	);
 };
