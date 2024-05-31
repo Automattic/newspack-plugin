@@ -3,7 +3,7 @@
 /**
  * Internal dependencies.
  */
-import { domReady } from '../reader-activation-auth/utils';
+import { domReady } from '../utils';
 
 import './style.scss';
 

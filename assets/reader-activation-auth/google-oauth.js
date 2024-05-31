@@ -3,7 +3,7 @@
 /**
  * Internal dependencies.
  */
-import { domReady, convertFormDataToObject } from './utils';
+import { domReady, convertFormDataToObject } from '../utils';
 
 domReady( function () {
 	const loginsElements = document.querySelectorAll( '.newspack-reader__logins' );

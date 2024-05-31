@@ -1,8 +1,9 @@
 /**
  * Internal dependencies
  */
-import { domReady } from '../reader-activation-auth/utils';
 import { openNewslettersSignupModal } from './newsletters-modal';
+
+import { domReady } from '../utils';
 
 import './newsletters-form.js';
 

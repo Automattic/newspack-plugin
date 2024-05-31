@@ -3,7 +3,7 @@
 /**
  * Internal dependencies.
  */
-import { domReady, formatTime } from './utils';
+import { domReady, formatTime } from '../utils';
 
 import './google-oauth';
 import './otp-input';

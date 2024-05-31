@@ -2,8 +2,9 @@
 /**
  * Internal dependencies
  */
-import { domReady } from './utils';
 import { SIGN_IN_MODAL_HASHES, getModalContainer, openAuthModal } from './auth-modal.js';
+
+import { domReady } from '../utils';
 
 import './auth-form.js';
 

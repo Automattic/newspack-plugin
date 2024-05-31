@@ -135,6 +135,8 @@ final class Reader_Activation {
 				$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
 			}
 
+			Newspack::load_common_assets();
+
 			/**
 			* Reader Activation Frontend Library.
 			*/

@@ -60,18 +60,18 @@ const webpackConfig = getBaseWebpackConfig(
 			blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
 			'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
 			'reader-auth': path.join( __dirname, 'assets', 'reader-activation-auth', 'index.js' ),
+			'newsletters-signup': path.join(
+				__dirname,
+				'assets',
+				'reader-activation-newsletters',
+				'index.js'
+			),
 			'reader-registration-block': path.join(
 				__dirname,
 				'assets',
 				'blocks',
 				'reader-registration',
 				'view.js'
-			),
-			'newsletters-signup': path.join(
-				__dirname,
-				'assets',
-				'reader-activation-newsletters',
-				'index.js'
 			),
 			'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
 			admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
