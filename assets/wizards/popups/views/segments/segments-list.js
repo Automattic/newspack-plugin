@@ -268,8 +268,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				setInFlight( false );
 				setSegments( _segments );
 			} )
-			.catch( e => {
-				console.error( e );
+			.catch( () => {
 				setInFlight( false );
 			} );
 	};
@@ -285,8 +284,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				setInFlight( false );
 				setSegments( _segments );
 			} )
-			.catch( e => {
-				console.error( e );
+			.catch( () => {
 				setInFlight( false );
 			} );
 	};
