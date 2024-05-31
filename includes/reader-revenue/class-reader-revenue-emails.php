@@ -124,9 +124,9 @@ class Reader_Revenue_Emails {
 		$configs[ self::EMAIL_TYPES['WELCOME'] ]      = [
 			'name'                   => self::EMAIL_TYPES['WELCOME'],
 			'label'                  => __( 'Welcome', 'newspack-plugin' ),
-			'description'            => __( "Email sent to the donor after they've registered via the checkout process.", 'newspack-plugin' ),
-			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
-			'editor_notice'          => __( 'This email will be sent to a reader after they sign up while contributing to your site.', 'newspack-plugin' ),
+			'description'            => __( "Email sent to the donor after they've registered while donating.", 'newspack-plugin' ),
+			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/welcome.php',
+			'editor_notice'          => __( 'This email will be sent to a reader after they sign up and contribute to your site.', 'newspack-plugin' ),
 			'from_email'             => self::get_from_email(),
 			'available_placeholders' => array_merge(
 				$available_placeholders,

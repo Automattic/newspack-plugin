@@ -541,7 +541,8 @@ class WooCommerce_Connection {
 		$email_type      = Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'];
 		$email_sent_meta = '_newspack_receipt_email_sent';
 
-		if ( $order->get_meta( '_newspack_checkout_registration', false ) ) {
+		// If this is a new registration, and the welcome email is enabled, send the welcome email instead.
+		if ( $order->get_meta( '_newspack_checkout_registration_meta' ) && Emails::can_send_email( Reader_Revenue_Emails::EMAIL_TYPES['WELCOME'] ) ) {
 			$email_type      = Reader_Revenue_Emails::EMAIL_TYPES['WELCOME'];
 			$email_sent_meta = '_newspack_welcome_email_sent';
 		}
