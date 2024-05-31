@@ -194,7 +194,7 @@ export function openNewslettersSignupModal( config = {} ) {
 	if ( readerActivation?._openNewslettersSignupModal ) {
 		readerActivation._openNewslettersSignupModal( config );
 	} else {
-		console.warn( 'Newsletters signup modal not available' );
+		console.warn( 'Newsletters signup modal not available' ); // eslint-disable-line no-console
 		if ( config?.callback ) {
 			config.callback();
 		}
