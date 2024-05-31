@@ -87,6 +87,7 @@ const selectors = {
 	isLoading: state => state.isLoading,
 	isQuietLoading: state => state.isQuietLoading,
 	getWizardAPIData: ( state, slug ) => state.apiData[ slug ] || {},
+	getWizardData: ( state, slug ) => state.apiData[ slug ] ?? {},
 	getError: state => state.error,
 };
 
@@ -97,8 +98,9 @@ const store = createReduxStore( WIZARD_STORE_NAMESPACE, {
 
 	controls: {
 		FETCH_FROM_API: action => {
+			const { isLocalError = false, isQuietFetch = false } = action.payload;
 			dispatch( WIZARD_STORE_NAMESPACE ).startLoadingData( {
-				isQuietLoading: Boolean( action.payload.isQuietFetch ),
+				isQuietLoading: Boolean( isQuietFetch ),
 			} );
 			return apiFetch( action.payload )
 				.then( data => {
@@ -106,8 +108,10 @@ const store = createReduxStore( WIZARD_STORE_NAMESPACE, {
 					return data;
 				} )
 				.catch( error => {
+					if ( isLocalError ) {
+						throw error;
+					}
 					dispatch( WIZARD_STORE_NAMESPACE ).setError( error );
-					return { error };
 				} )
 				.finally( result => {
 					dispatch( WIZARD_STORE_NAMESPACE ).finishLoadingData();
