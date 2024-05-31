@@ -1,6 +1,6 @@
 <?php
 /**
- * Receipt Email Template.
+ * Welcome Email Template.
  *
  * @package Newspack
  */
