@@ -18,6 +18,25 @@ import './style.scss';
  */
 import classnames from 'classnames';
 
+/**
+ * Represents a section header component.
+ *
+ * @typedef {Object} SectionHeaderProps
+ * @property {boolean}  [centered=false]   - Indicates if the header is centered.
+ * @property {?string}  [className=null]   - Additional CSS class name.
+ * @property {string}   [description]      - Description of the section.
+ * @property {number}   [heading=2]        - HTML heading level, e.g., 1 for h1, 2 for h2, etc.
+ * @property {boolean}  [isWhite=false]    - Indicates if the header should use a white theme.
+ * @property {boolean}  [noMargin=false]   - Indicates if the header should have no margin.
+ * @property {string}   title              - The title of the section.
+ * @property {?string}  [id=null]          - Optional ID for the header element.
+ */
+
+/**
+ * Creates a section header.
+ *
+ * @param {SectionHeaderProps} props - The properties for the section header.
+ */
 const SectionHeader = ( {
 	centered = false,
 	className = null,

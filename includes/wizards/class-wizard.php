@@ -109,8 +109,6 @@ abstract class Wizard {
 			'support_email'  => $support_email,
 		];
 
-		$screen = get_current_screen();
-
 		if ( Starter_Content::has_created_starter_content() ) {
 			$urls['remove_starter_content'] = esc_url(
 				add_query_arg(
@@ -146,6 +144,18 @@ abstract class Wizard {
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
 		wp_localize_script( 'newspack_data', 'newspack_aux_data', $aux_data );
 		wp_enqueue_script( 'newspack_data' );
+
+		/**
+		 * Register wizards.js with cache busting
+		 */
+		$asset_file = include plugin_dir_path( __FILE__ ) . 'build/wizards.asset.php';
+		wp_register_script(
+			$this->slug,
+			Newspack::plugin_url() . '/dist/wizards.js',
+			$this->get_script_dependencies(),
+			$asset_file['version'] ?? NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 	}
 
 	/**
