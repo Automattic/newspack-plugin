@@ -10,12 +10,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import './style.scss';
 import Plugins from './plugins';
-import GoogleOAuth from './google-oauth';
-import Mailchimp from './mailchimp';
-import Recaptcha from './recaptcha';
 import Webhooks from './webhooks';
 import Analytics from './analytics';
+import Mailchimp from './mailchimp';
+import Recaptcha from './recaptcha';
+import GoogleOAuth from './google-oauth';
 import CustomEvents from './custom-events';
 import { SectionHeader } from '../../../../../components/src';
 
