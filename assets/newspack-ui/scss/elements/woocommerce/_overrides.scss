@@ -5,14 +5,6 @@
 		font-weight: 400;
 	}
 
-	form p {
-		margin: 0 0 var( --newspack-ui-spacer-5 );
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
-
 	&__modal--small {
 		form p {
 			margin: 0 0 var( --newspack-ui-spacer-2 );
