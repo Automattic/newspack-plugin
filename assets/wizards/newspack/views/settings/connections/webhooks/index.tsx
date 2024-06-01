@@ -78,7 +78,7 @@ function Webhooks() {
 	}
 
 	return (
-		<Card noBorder>
+		<Card noBorder className="newspack-webhooks">
 			<div className="flex justify-between items-end mb4">
 				<SectionHeader
 					title={ __( 'Webhook Endpoints', 'newspack-plugin' ) }

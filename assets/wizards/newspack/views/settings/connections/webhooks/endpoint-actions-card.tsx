@@ -33,20 +33,25 @@ function EndpointActionsCard( {
 			disabled={ endpoint.system }
 			description={ () => {
 				if ( endpoint.disabled && endpoint.disabled_error ) {
-					return (
-						__( 'This endpoint is disabled due to excessive request errors', 'newspack-plugin' ) +
-						': ' +
-						endpoint.disabled_error
-					);
+					return `${ __(
+						'This endpoint is disabled due to excessive request errors',
+						'newspack-plugin'
+					) }: ${ endpoint.disabled_error }`;
 				}
 				return (
 					<Fragment>
-						<span className="newspack-webhooks__endpoint__action newspack-text-overflow">
-							{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
-							{ endpoint.global
-								? __( 'global', 'newspack-plugin' )
-								: endpoint.actions.join( ', ' ) }
-						</span>
+						{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
+						{ endpoint.global ? (
+							<span className="newspack-webhooks__endpoint-action">
+								{ __( 'global', 'newspack-plugin' ) }
+							</span>
+						) : (
+							endpoint.actions.map( action => (
+								<span key={ action } className="newspack-webhooks__endpoint-action">
+									{ action }
+								</span>
+							) )
+						) }
 					</Fragment>
 				);
 			} }
