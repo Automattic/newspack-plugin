@@ -38,7 +38,7 @@ class Newspack_Settings extends Wizard {
 	protected $menu_priority = 2;
 
 	/**
-	 * Get Dashboard data
+	 * Get Settings local data
 	 *
 	 * @return [] 
 	 */
