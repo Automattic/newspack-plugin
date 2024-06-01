@@ -48,7 +48,7 @@ function WizardsPluginCard( {
 	const { wizardApiFetch, isFetching, errorMessage, error } = useWizardApiFetch(
 		`/newspack-settings/connections/plugins/${ slug }`
 	);
-	const [ status, setStatus ] = useState( 'inactive' );
+	const [ status, setStatus ] = useState< string | null >( null );
 
 	useEffect( () => {
 		wizardApiFetch< null | { Status: string; Configured: boolean } >(

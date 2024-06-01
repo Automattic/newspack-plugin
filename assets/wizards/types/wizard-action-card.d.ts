@@ -30,8 +30,12 @@ type PluginCard = {
 	actionText?: JSX.Element | string | null;
 	path: string;
 	slug: string;
-	editLink: string;
-	description?: ( errorMessage: string | null, isFetching: boolean, status: string ) => string;
+	editLink?: string;
+	description?: (
+		errorMessage: string | null,
+		isFetching: boolean,
+		status: string | null
+	) => string;
 	name: string;
 	url?: string;
 	status?: string;

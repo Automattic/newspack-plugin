@@ -77,7 +77,7 @@ export function useWizardApiFetch( slug: string ) {
 			path: [ 'error' ],
 			value: error,
 		} );
-	}, [ error ] );
+	}, [ error, updateWizardSettings, slug ] );
 
 	const wizardData: WizardData = getWizardData( slug );
 
@@ -148,6 +148,7 @@ export function useWizardApiFetch( slug: string ) {
 			 * If the promise is already in progress, return it before making a new request.
 			 */
 			if ( promiseCache[ path ] ) {
+				setIsFetching( true );
 				return promiseCache[ path ]
 					.then( thenCallback )
 					.catch( catchCallback )
