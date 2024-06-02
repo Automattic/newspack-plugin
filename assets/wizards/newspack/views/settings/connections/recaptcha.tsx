@@ -42,11 +42,7 @@ function Recaptcha() {
 				return;
 			}
 			setError(
-				new WizardError(
-					WIZARD_ERROR_MESSAGES.RECAPTCHA_KEY_SECRET_INVALID,
-					400,
-					'key_secret_invalid'
-				)
+				new WizardError( WIZARD_ERROR_MESSAGES.RECAPTCHA_KEY_SECRET_INVALID, 'key_secret_invalid' )
 			);
 		}
 	}, [ settings.use_captcha, settings.site_key, settings.site_secret ] );

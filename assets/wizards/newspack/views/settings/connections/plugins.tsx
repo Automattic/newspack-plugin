@@ -31,7 +31,7 @@ const PLUGINS: Record< string, PluginCard > = {
 };
 
 function createDescription( pluginKey: string ): PluginCard[ 'description' ] {
-	return ( errorMessage: string | null, isFetching: boolean, status: string ) => {
+	return ( errorMessage: string | null, isFetching: boolean, status: string | null ) => {
 		if ( errorMessage ) {
 			return __( 'Status: Error!', 'newspack-plugin' );
 		}
@@ -40,8 +40,8 @@ function createDescription( pluginKey: string ): PluginCard[ 'description' ] {
 		}
 		if ( status === 'inactive' ) {
 			return pluginKey === 'google-site-kit'
-				? __( `Status: Not connected for user`, 'newspack-plugin' )
-				: __( `Status: Not connected`, 'newspack-plugin' );
+				? __( 'Status: Not connected for user', 'newspack-plugin' )
+				: __( 'Status: Not connected', 'newspack-plugin' );
 		}
 		return __( 'Status: Connected', 'newspack-plugin' );
 	};

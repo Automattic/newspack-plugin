@@ -57,7 +57,6 @@ function GoogleOAuth( {
 			setError(
 				new WizardError(
 					WIZARD_ERROR_MESSAGES.GOOGLEOAUTH_REFRESH_TOKEN_EXPIRED,
-					400,
 					'googleoauth_refresh_token_expired'
 				)
 			);

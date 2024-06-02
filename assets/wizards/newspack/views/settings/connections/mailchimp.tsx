@@ -96,7 +96,6 @@ function Mailchimp() {
 					setError(
 						new WizardError(
 							WIZARD_ERROR_MESSAGES.MAILCHIMP_API_KEY_INVALID,
-							500,
 							'MAILCHIMP_API_KEY_INVALID'
 						)
 					);
