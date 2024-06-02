@@ -5,8 +5,8 @@
 /**
  * WordPress dependencies
  */
-import { useState, Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useState, Fragment } from '@wordpress/element';
 import { CheckboxControl as WpCheckboxControl, Icon, TextControl } from '@wordpress/components';
 
 /**
@@ -38,10 +38,10 @@ const ConfirmationModal = ( {
 		<Modal title={ title } onRequestClose={ onClose }>
 			<p>{ description }</p>
 			<Card buttonsCard noBorder className="justify-end">
-				<Button isSecondary onClick={ onClose } disabled={ disabled }>
+				<Button variant="secondary" onClick={ onClose } disabled={ disabled }>
 					{ __( 'Cancel', 'newspack-plugin' ) }
 				</Button>
-				<Button isPrimary onClick={ onConfirm } disabled={ disabled }>
+				<Button variant="primary" onClick={ onConfirm } disabled={ disabled }>
 					{ __( 'Confirm', 'newspack-plugin' ) }
 				</Button>
 			</Card>
@@ -87,9 +87,14 @@ const EndpointActionsModals = ( {
 		wizardApiFetch: testWizardApiFetch,
 		errorMessage: testError,
 		resetError: resetTestError,
-	} = useWizardApiFetch( `${ NAMESPACE }/test` );
+	} = useWizardApiFetch( `${ NAMESPACE }/tests` );
 
 	const ENDPOINTS_CACHE_KEY = { '/newspack/v1/webhooks/endpoints': 'GET' };
+
+	const onSuccess = ( endpointId: string | number, response: Endpoint[] ) => {
+		setEndpoints( response );
+		setAction( null, endpointId );
+	};
 
 	// API
 	function toggleEndpoint( endpointToToggle: Endpoint ) {
@@ -101,8 +106,7 @@ const EndpointActionsModals = ( {
 				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
-				onSuccess: endpoints => setEndpoints( endpoints ),
-				onFinally: () => setAction( null, endpointToToggle.id ),
+				onSuccess: endpoints => onSuccess( endpointToToggle.id, endpoints ),
 			}
 		);
 	}
@@ -114,8 +118,7 @@ const EndpointActionsModals = ( {
 				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
-				onSuccess: endpoints => setEndpoints( endpoints ),
-				onFinally: () => setAction( null, endpointToDelete.id ),
+				onSuccess: endpoints => onSuccess( endpointToDelete.id, endpoints ),
 			}
 		);
 	}
@@ -128,8 +131,7 @@ const EndpointActionsModals = ( {
 				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
-				onSuccess: endpoints => setEndpoints( endpoints ),
-				onFinally: () => setAction( null, endpointToUpsert.id ),
+				onSuccess: endpoints => onSuccess( endpointToUpsert.id, endpoints ),
 			}
 		);
 	}
@@ -336,9 +338,9 @@ const EndpointActionsModals = ( {
 								</div>
 							) }
 							<Button
-								isSecondary
-								onClick={ () => sendTestRequest( editing.url, editing.bearer_token ) }
+								variant="secondary"
 								disabled={ inFlight || ! editing.url }
+								onClick={ () => sendTestRequest( editing.url, editing.bearer_token ) }
 							>
 								{ __( 'Send a test request', 'newspack-plugin' ) }
 							</Button>
