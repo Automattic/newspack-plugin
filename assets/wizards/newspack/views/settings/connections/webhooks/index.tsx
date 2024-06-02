@@ -30,11 +30,9 @@ const defaultEndpoint: Endpoint = {
 };
 
 function Webhooks() {
-	const {
-		wizardApiFetch,
-		isFetching: inFlight,
-		errorMessage,
-	} = useWizardApiFetch( '/newspack-settings/connections/webhooks' );
+	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch(
+		'/newspack-settings/connections/webhooks'
+	);
 
 	const [ action, setAction ] = useState< Actions >( null );
 	const [ actions, setActions ] = useState< string[] >( [] );
@@ -95,18 +93,20 @@ function Webhooks() {
 						: __( 'Add New Endpoint', 'newspack-plugin' ) }
 				</Button>
 			</div>
-			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
-			{ endpoints && endpoints.length > 0 && (
-				<Fragment>
-					{ endpoints.map( endpoint => (
-						<EndpointActionsCard
-							key={ endpoint.id }
-							endpoint={ endpoint }
-							setAction={ setActionHandler }
-						/>
-					) ) }
-				</Fragment>
-			) }
+			{ ! inFlight &&
+				( endpoints && endpoints.length > 0 ? (
+					<Fragment>
+						{ endpoints.map( endpoint => (
+							<EndpointActionsCard
+								key={ endpoint.id }
+								endpoint={ endpoint }
+								setAction={ setActionHandler }
+							/>
+						) ) }
+					</Fragment>
+				) : (
+					<Notice noticeText={ __( 'No endpoints found', 'newspack-plugin' ) } />
+				) ) }
 			{ selectedEndpoint && (
 				<EndpointActionsModals
 					actions={ actions }
