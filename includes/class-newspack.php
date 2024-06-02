@@ -121,7 +121,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-wordpress.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-dashboard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newspack-dashboard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 
 		/* Unified Wizards */

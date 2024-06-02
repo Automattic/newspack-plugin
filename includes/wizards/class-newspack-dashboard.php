@@ -221,6 +221,84 @@ class Newspack_Dashboard extends Wizard {
 	}
 
 	/**
+	 * Get Dashboard local data
+	 *
+	 * @return [] 
+	 */
+	public function get_local_data() {
+		$site_name = get_bloginfo( 'name' );
+		$theme_mods = get_theme_mods();
+		return [
+			'settings'     => [
+				'siteName'      => $site_name,
+				'headerBgColor' => $theme_mods['header_color_hex'],
+			],
+			'sections'     => $this->get_dashboard(),
+			'plugins'      => get_plugins(),
+			'siteStatuses' => [
+				'readerActivation' => [
+					'label'        => __( 'Reader Activation', 'newspack-plugin' ),
+					'statuses'     => [
+						'success' => __( 'Enabled', 'newspack-plugin' ),
+						'error'   => __( 'Disabled', 'newspack-plugin' ),
+					],
+					'endpoint'     => '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
+					'configLink'   => admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
+					'dependencies' => [
+						'woocommerce' => [
+							'label'    => __( 'Woocommerce', 'newspack-plugin' ),
+							'isActive' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+						],
+					],
+				],
+				'googleAdManager'  => [
+					'label'            => __( 'Google Ad Manager', 'newspack-plugin' ),
+					'statuses'         => [
+						'error-preflight' => __( 'Proxy Not Configured', 'newspack-plugin' ),
+					],
+					'endpoint'         => '/newspack/v1/wizard/billboard',
+					'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
+					'configLink'       => admin_url( 'admin.php?page=newspack-advertising-wizard' ),
+					'dependencies'     => [
+						'newspack-ads' => [
+							'label'    => __( 'Newspack Ads', 'newspack-plugin' ),
+							'isActive' => is_plugin_active( 'newspack-ads/newspack-ads.php' ),
+						],
+					],
+				],
+				'googleAnalytics'  => [
+					'label'        => __( 'Google Analytics', 'newspack-plugin' ),
+					'endpoint'     => '/google-site-kit/v1/modules/analytics-4/data/settings',
+					'configLink'   => in_array( 'analytics', get_option( 'googlesitekit_active_modules', [] ) ) ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
+					'dependencies' => [
+						'google-site-kit' => [
+							'label'    => __( 'Google Site Kit', 'newspack-plugin' ),
+							'isActive' => is_plugin_active( 'google-site-kit/google-site-kit.php' ),
+						],
+					],
+				],
+			],
+			'quickActions' => [
+				[
+					'href'  => admin_url( 'post-new.php' ),
+					'title' => __( 'Start a new post', 'newspack-plugin' ),
+					'icon'  => 'post',
+				],
+				[
+					'href'  => admin_url( 'post-new.php?post_type=newspack_nl_cpt' ),
+					'title' => __( 'Draft a newsletter', 'newspack-plugin' ),
+					'icon'  => 'mail',
+				],
+				[
+					'href'  => 'https://lookerstudio.google.com/u/0/reporting/b7026fea-8c2c-4c4b-be95-f582ed94f097/page/p_3eqlhk5odd',
+					'title' => __( 'Open data dashboard', 'newspack-plugin' ),
+					'icon'  => 'dashboard',
+				],
+			],
+		];
+	}
+
+	/**
 	 * Get the name for this wizard.
 	 *
 	 * @return string The wizard name.
@@ -267,96 +345,12 @@ class Newspack_Dashboard extends Wizard {
 		/**
 		 * JavaScript
 		 */
-		wp_register_script(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/wizards.js',
-			$this->get_script_dependencies(),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-		
-		$site_name = get_bloginfo( 'name' );
-		$theme_mods = get_theme_mods();
-
 		wp_localize_script(
 			$this->slug, 
 			'newspackDashboard',
-			[
-				'settings'     => [
-					'siteName'      => $site_name,
-					'headerBgColor' => $theme_mods['header_color_hex'],
-				],
-				'sections'     => $this->get_dashboard(),
-				'plugins'      => get_plugins(),
-				'siteStatuses' => [
-					'readerActivation' => [
-						'label'        => __( 'Reader Activation', 'newspack-plugin' ),
-						'statuses'     => [
-							'success' => __( 'Enabled', 'newspack-plugin' ),
-							'error'   => __( 'Disabled', 'newspack-plugin' ),
-						],
-						'endpoint'     => '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
-						'configLink'   => admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
-						'dependencies' => [
-							'woocommerce' => [
-								'label'    => __( 'Woocommerce', 'newspack-plugin' ),
-								'isActive' => is_plugin_active( 'woocommerce/woocommerce.php' ),
-							],
-						],
-					],
-					'googleAdManager'  => [
-						'label'            => __( 'Google Ad Manager', 'newspack-plugin' ),
-						'statuses'         => [
-							'error-preflight' => __( 'Proxy Not Configured', 'newspack-plugin' ),
-						],
-						'endpoint'         => '/newspack/v1/wizard/billboard',
-						'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
-						'configLink'       => admin_url( 'admin.php?page=newspack-advertising-wizard' ),
-						'dependencies'     => [
-							'newspack-ads' => [
-								'label'    => __( 'Newspack Ads', 'newspack-plugin' ),
-								'isActive' => is_plugin_active( 'newspack-ads/newspack-ads.php' ),
-							],
-						],
-					],
-					'googleAnalytics'  => [
-						'label'        => __( 'Google Analytics', 'newspack-plugin' ),
-						'endpoint'     => '/google-site-kit/v1/modules/analytics-4/data/settings',
-						'configLink'   => in_array( 'analytics', get_option( 'googlesitekit_active_modules', [] ) ) ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
-						'dependencies' => [
-							'google-site-kit' => [
-								'label'    => __( 'Google Site Kit', 'newspack-plugin' ),
-								'isActive' => is_plugin_active( 'google-site-kit/google-site-kit.php' ),
-							],
-						],
-					],
-				],
-				'quickActions' => [
-					[
-						'href'  => admin_url( 'post-new.php' ),
-						'title' => __( 'Start a new post', 'newspack-plugin' ),
-						'icon'  => 'post',
-					],
-					[
-						'href'  => admin_url( 'post-new.php?post_type=newspack_nl_cpt' ),
-						'title' => __( 'Draft a newsletter', 'newspack-plugin' ),
-						'icon'  => 'mail',
-					],
-					[
-						'href'  => 'https://lookerstudio.google.com/u/0/reporting/b7026fea-8c2c-4c4b-be95-f582ed94f097/page/p_3eqlhk5odd',
-						'title' => __( 'Open data dashboard', 'newspack-plugin' ),
-						'icon'  => 'dashboard',
-					],
-				],
-			]
+			$this->get_local_data()
 		);
 		wp_enqueue_script( $this->slug );
-		wp_register_style(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/newspack.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
 		wp_style_add_data( $this->slug, 'rtl', 'replace' );
-		wp_enqueue_style( $this->slug );    }
+	}
 }

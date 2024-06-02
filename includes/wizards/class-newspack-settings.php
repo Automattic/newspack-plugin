@@ -35,23 +35,47 @@ class Newspack_Settings extends Wizard {
 	 *
 	 * @var int.
 	 */
-	protected $menu_priority = 1;
+	protected $menu_priority = 2;
 
 	/**
-	 * Initialize.
-	 */
-	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-	}
-
-	/**
-	 * Get Dashboard data
+	 * Get Settings local data
 	 *
 	 * @return [] 
 	 */
 	public function get_local_data() {
-		return [];
+		return [
+			'connections'       => [
+				'label'    => __( 'Connections', 'newspack-plugin' ),
+				'path'     => '/',
+				'sections' => [
+					'plugins'   => [],
+					'apis'      => [],
+					'recaptcha' => [],
+					'analytics' => [],
+				],
+			],
+			'emails'            => [
+				'label' => __( 'Emails', 'newspack-plugin' ),
+			],
+			'social'            => [
+				'label' => __( 'Social', 'newspack-plugin' ),
+			],
+			'syndication'       => [
+				'label' => __( 'Syndication', 'newspack-plugin' ),
+			],
+			'seo'               => [
+				'label' => __( 'SEO', 'newspack-plugin' ),
+			],
+			'theme-and-brand'   => [
+				'label' => __( 'Theme and Brand', 'newspack-plugin' ),
+			],
+			'display-settings'  => [
+				'label' => __( 'Display Settings', 'newspack-plugin' ),
+			],
+			'additional-brands' => [
+				'label' => __( 'Additional Brands', 'newspack-plugin' ),
+			],
+		];
 	}
 
 	/**
@@ -90,45 +114,10 @@ class Newspack_Settings extends Wizard {
 		/**
 		 * JavaScript
 		 */
-		wp_register_script(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/wizards.js',
-			$this->get_script_dependencies(),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
 		wp_localize_script(
 			$this->slug, 
 			'newspackSettings',
-			[
-				'sections' => [
-					'connections'       => [
-						'label' => __( 'Connections', 'newspack-plugin' ),
-						'path'  => '/',
-					],
-					'emails'            => [
-						'label' => __( 'Emails', 'newspack-plugin' ),
-					],
-					'social'            => [
-						'label' => __( 'Social', 'newspack-plugin' ),
-					],
-					'syndication'       => [
-						'label' => __( 'Syndication', 'newspack-plugin' ),
-					],
-					'seo'               => [
-						'label' => __( 'SEO', 'newspack-plugin' ),
-					],
-					'theme-and-brand'   => [
-						'label' => __( 'Theme and Brand', 'newspack-plugin' ),
-					],
-					'display-settings'  => [
-						'label' => __( 'Display Settings', 'newspack-plugin' ),
-					],
-					'additional-brands' => [
-						'label' => __( 'Additional Brands', 'newspack-plugin' ),
-					],
-				],
-			]
+			$this->get_local_data()
 		);
 		wp_enqueue_script( $this->slug );
 	}

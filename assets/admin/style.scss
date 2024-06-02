@@ -19,6 +19,13 @@ html {
 	font-size: 16px;
 }
 
+h1 {
+	font-size: 2rem;
+	font-weight: 400;
+	line-height: 1.25;
+	margin-block: 0 2.5rem;
+}
+
 .newspack-wizard {
 
 	.newspack-wizard__loader {
@@ -39,14 +46,31 @@ html {
 			animation: opacity-pulse 1.4s infinite ease-in-out;
 		}
 	}
+
+	&.newspack-dashboard {
+		.newspack-dashboard__section {
+			&:first-of-type {
+				margin-top: 3.5rem;
+			}
+		}
+	}
 }
 
-.newspack-admin__tabs {
-	h2 {
-		font-size: 2rem;
-		font-style: normal;
-		font-weight: 400;
-		line-height: 40px;
+.newspack-wizard__sections {
+	margin: 0 auto;
+	padding: 2.5rem 1rem 0;
+	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
+}
+
+.newspack-wizard__section {
+	margin-block-end: 4rem;
+
+	&:last-child {
+		margin-block-end: 0;
+	}
+
+	p {
+		margin-block: 0 1.5rem;
 	}
 }
 
@@ -55,18 +79,15 @@ html {
 	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
 	padding: 0 var(--np-section-space);
 
-	&:first-of-type {
-		margin-top: 56px;
-	}
 
-	h3 {
-		font-size: 20px;
+	>h3 {
+		font-size: 1.25rem;
 		font-weight: normal;
-		line-height: 28px;
+		line-height: 1.75;
 		margin-bottom: calc(var(--np-section-child-space) / 2);
 	}
 
-	p {
+	>p {
 		color: var(--np-color-wp-gray-700);
 		margin: 0;
 	}
@@ -75,10 +96,50 @@ html {
 		text-decoration: none;
 	}
 
-	.newspack-grid {
+	.newspack-grid:not(.newspack-grid--no-margin) {
 		--np-dash-card-icon-size: 80px;
 
-		margin: 24px 0 32px;
+		margin: 1.5rem 0 2rem;
+	}
+}
+
+// Overrides
+.newspack-wizard__sections .newspack-wizard__section {
+	.newspack-section-header:first-child {
+		margin-block: 0 2rem;
+	}
+}
+
+.newspack-card.newspack-action-card+.newspack-card.newspack-action-card {
+	margin-top: 0;
+}
+
+.newspack-card {
+	margin-block: 0 1rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	&.newspack-action-card {
+		.newspack-action-card__notification {
+			&.newspack-action-card__region-children {
+				.newspack-notice {
+					margin-top: 1rem;
+				}
+			}
+		}
+
+		&.is-medium {
+			.newspack-action-card__region-children:not(:last-child) {
+				padding-bottom: 0;
+				padding-top: 2rem;
+
+				.newspack-notice {
+					margin-top: 0;
+				}
+			}
+		}
 	}
 }
 
