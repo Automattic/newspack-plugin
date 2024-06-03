@@ -19,6 +19,12 @@ import { WizardApiError } from '../errors';
  */
 let promiseCache: Record< string, any > = {};
 
+/**
+ * Parses the API error response into a WizardApiError object.
+ *
+ * @param error The error response from the API.
+ * @return Parsed error object or null if no error.
+ */
 const parseApiError = ( error: WpFetchError | string ): WizardApiError | null => {
 	const newError = {
 		message: 'An unknown API error occurred.',
@@ -46,6 +52,13 @@ const parseApiError = ( error: WpFetchError | string ): WizardApiError | null =>
 	);
 };
 
+/**
+ * Executes the provided callback function if it exists.
+ *
+ * @template T
+ * @param callbacks Object containing callback functions.
+ * @return Object with an `on` method to trigger callbacks.
+ */
 const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
 	on( cb: keyof ApiFetchCallbacks< T >, d: any = null ) {
 		const callback = callbacks?.[ cb ];
@@ -55,6 +68,12 @@ const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
 	},
 } );
 
+/**
+ * Custom hook to perform API fetch requests using the wizard API.
+ *
+ * @param slug Unique identifier for the wizard data.
+ * @return Object containing fetch function, error handlers and state.
+ */
 export function useWizardApiFetch( slug: string ) {
 	const [ isFetching, setIsFetching ] = useState( false );
 	const { wizardApiFetch, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
@@ -75,18 +94,31 @@ export function useWizardApiFetch( slug: string ) {
 		setError( null );
 	}
 
+	/**
+	 * Updates the wizard data at the specified path.
+	 *
+	 * @param path The path to update in the wizard data.
+	 * @return Function to update the wizard data.
+	 */
 	function updateWizardData( path: string | null ) {
-		return ( prop: string | string[], value: any, p = path ) => {
-			return updateWizardSettings( {
+		return ( prop: string | string[], value: any, p = path ) =>
+			updateWizardSettings( {
 				slug,
 				path: [ p, ...( Array.isArray( prop ) ? prop : [ prop ] ) ].filter(
 					str => typeof str === 'string'
 				),
 				value,
 			} );
-		};
 	}
 
+	/**
+	 * Makes an API fetch request using the wizard API.
+	 *
+	 * @template T
+	 * @param opts The options for the API fetch request.
+	 * @param [callbacks] Optional callback functions for different stages of the fetch request.
+	 * @returns The result of the API fetch request.
+	 */
 	const apiFetch = useCallback(
 		async < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => {
 			if ( isFetching ) {
@@ -134,9 +166,7 @@ export function useWizardApiFetch( slug: string ) {
 				on( 'onFinally' );
 			}
 
-			/**
-			 * If the promise is already in progress, return it before making a new request.
-			 */
+			// If the promise is already in progress, return it before making a new request.
 			if ( promiseCache[ path ] ) {
 				setIsFetching( true );
 				return promiseCache[ path ]
@@ -145,9 +175,7 @@ export function useWizardApiFetch( slug: string ) {
 					.finally( finallyCallback );
 			}
 
-			/**
-			 * Cache exists and is not empty, return it.
-			 */
+			// Cache exists and is not empty, return it.
 			if ( isCached && ( cachedError || cachedMethod ) ) {
 				setError( cachedError );
 				on( 'onSuccess', cachedMethod );

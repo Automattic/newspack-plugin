@@ -33,41 +33,50 @@ function Section( {
 	);
 }
 
+const CACHE_KEY = '/newspack-settings/connections';
+
 function Connections() {
-	const { wizardApiFetch, isFetching, error } = useWizardApiFetch(
-		`/newspack-settings/connections`
+	const { wizardApiFetch, isFetching, error } = useWizardApiFetch( CACHE_KEY );
+
+	const wizardData: any = useSelect( select =>
+		select( WIZARD_STORE_NAMESPACE ).getWizardData( CACHE_KEY )
 	);
-	const { getWizardData } = useSelect( select => select( WIZARD_STORE_NAMESPACE ) );
-	const [ result, setResult ] = useState( null );
-	const [ errorObj, setErrorObj ] = useState( null );
+
+	const [ status, setStatus ] = useState( 'idle' );
+	const [ statusTwo, setStatusTwo ] = useState( 'idle' );
+
 	useEffect( () => {
-		wizardApiFetch(
-			{ path: '/newspack/v1/plugins/jetpack' },
-			{
-				onSuccess( result ) {
-					console.log( result );
-					setResult( result );
-				},
-			}
-		);
-		wizardApiFetch(
-			{ path: '/newspack/v1/plugins/jetpacks' },
-			{
-				onError( error ) {
-					setErrorObj( error );
-				},
-			}
-		);
+		for ( const plugin of [ 'jetpack', 'google-site-kits' ] ) {
+			const stateHandler = plugin === 'jetpack' ? setStatus : setStatusTwo;
+			wizardApiFetch(
+				{ path: `/newspack/v1/plugins/${ plugin }` },
+				{
+					onStart() {
+						stateHandler( 'Start' );
+					},
+					onSuccess( data ) {
+						stateHandler( 'Success' );
+					},
+					onError( error ) {
+						stateHandler( 'Error' );
+					},
+					onFinally() {
+						stateHandler( 'Finally' );
+					},
+				}
+			);
+		}
 	}, [] );
+
 	return (
 		<div className="newspack-wizard__sections">
 			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
 			<pre>
 				{ JSON.stringify(
 					{
-						getter: getWizardData( `/newspack-settings/connections` ),
-						'GET:/newspack/v1/plugins/jetpack': result,
-						'GET:/newspack/v1/plugins/jetpacks': errorObj,
+						status,
+						statusTwo,
+						wizardData,
 						isFetching,
 						error,
 					},
