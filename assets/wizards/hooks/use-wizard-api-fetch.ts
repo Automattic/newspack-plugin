@@ -14,19 +14,9 @@ import { useState, useCallback, useEffect } from '@wordpress/element';
 import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
 import { WizardApiError } from '../errors';
 
-type WpFetchError = Error & {
-	code: string;
-	data?: null | {
-		status: 404;
-	};
-};
-
-type WizardData = {
-	error: WizardApiError | null;
-} & {
-	[ key: string ]: { [ k in 'GET' | 'POST' | 'PUT' | 'DELETE' ]?: Record< string, any > | null };
-};
-
+/**
+ * Holds in-progress promises for each fetch request.
+ */
 let promiseCache: Record< string, any > = {};
 
 const parseApiError = ( error: WpFetchError | string ): WizardApiError | null => {

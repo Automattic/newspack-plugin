@@ -71,29 +71,26 @@ function WizardsPluginCard( {
 	}
 
 	return (
-		<>
-			<pre>{ JSON.stringify( { isFetching } ) }</pre>
-			<WizardsActionCard
-				title={ name }
-				description={ getDescription() }
-				actionText={
-					status === 'inactive' ? (
-						<WizardsPluginConnectButton
-							slug={ slug }
-							url={ url }
-							editLink={ editLink }
-							path={ path }
-							name={ name }
-							error={ error }
-							actionText={ actionText }
-						/>
-					) : null
-				}
-				isChecked={ ! ( status === 'inactive' || isFetching ) }
-				error={ errorMessage }
-				isMedium
-			/>
-		</>
+		<WizardsActionCard
+			title={ name }
+			description={ getDescription() }
+			actionText={
+				status === 'inactive' ? (
+					<WizardsPluginConnectButton
+						slug={ slug }
+						url={ url }
+						editLink={ editLink }
+						path={ path }
+						name={ name }
+						error={ error }
+						actionText={ actionText }
+					/>
+				) : null
+			}
+			isChecked={ ! ( status === 'inactive' || isFetching ) }
+			error={ errorMessage }
+			isMedium
+		/>
 	);
 }
 
