@@ -354,6 +354,19 @@
 		}
 	}
 
+	.woocommerce-message,
+	.woocommerce-error,
+	.woocommerce-info {
+		background: transparent;
+		color: var( --newspack-ui-color-neutral-90 );
+		font-family: var( --newspack-ui-font-family);
+		padding: 0;
+	}
+
+	.woocommerce-error {
+		color: var( --newspack-ui-color-error-50 );
+	}
+
 	// Privacy Policy
 	.woocommerce-privacy-policy-text {
 		color: var( --newspack-ui-color-neutral-60 );

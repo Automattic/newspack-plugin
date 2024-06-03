@@ -1256,9 +1256,9 @@ final class Reader_Activation {
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth-modal">
 			<div class="newspack-ui__modal-container__overlay"></div>
-			<div class="newspack-ui__modal newspack-ui__modal--small">
+			<div class="newspack-ui__modal newspack-ui__modal--small" role="dialog" aria-modal="true" aria-labelledby="newspack-reader-auth-modal-label">
 				<div class="newspack-ui__modal__header">
-					<h2><?php echo \esc_html( $label ); ?></h2>
+					<h2 id="newspack-reader-auth-modal-label"><?php echo \esc_html( $label ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
