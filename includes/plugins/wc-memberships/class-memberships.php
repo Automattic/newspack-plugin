@@ -1049,7 +1049,7 @@ class Memberships {
 			'id'      => self::SKIP_RESTRICTION_IN_RSS_OPTION_NAME,
 			'name'    => __( 'Skip content restriction in RSS feeds', 'newspack-plugin' ),
 			'desc'    =>
-				'<span class="show-if-hide-content-only-restriction-mode">' . __( 'If enabled, full content will be availabe in RSS feeds.', 'newspack-plugin' ) . '</span>',
+				'<span class="show-if-hide-content-only-restriction-mode">' . __( 'If enabled, full content will be available in RSS feeds.', 'newspack-plugin' ) . '</span>',
 			'default' => 'no',
 		];
 
