@@ -46,7 +46,7 @@ function Connections() {
 	const [ statusTwo, setStatusTwo ] = useState( 'idle' );
 
 	useEffect( () => {
-		for ( const plugin of [ 'jetpack', 'google-site-kits' ] ) {
+		for ( const plugin of [ 'jetpack', 'jetpacks' ] ) {
 			const stateHandler = plugin === 'jetpack' ? setStatus : setStatusTwo;
 			wizardApiFetch(
 				{ path: `/newspack/v1/plugins/${ plugin }` },
@@ -59,9 +59,6 @@ function Connections() {
 					},
 					onError() {
 						stateHandler( 'Error' );
-					},
-					onFinally() {
-						stateHandler( 'Finally' );
 					},
 				}
 			);
