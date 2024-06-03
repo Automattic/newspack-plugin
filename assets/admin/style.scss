@@ -26,14 +26,6 @@ h1 {
 	margin-block: 0 2.5rem;
 }
 
-/* Utils */
-
-p:has(span.newspack-text-overflow) {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
 .newspack-wizard {
 
 	.newspack-wizard__loader {
