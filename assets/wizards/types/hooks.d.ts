@@ -27,3 +27,22 @@ interface ApiFetchCallbacks< T > {
 	onError?: ( error: any ) => void;
 	onFinally?: () => void;
 }
+
+/**
+ * WP API Fetch error
+ */
+type WpFetchError = Error & {
+	code: string;
+	data?: null | {
+		status: number;
+	};
+};
+
+/**
+ * Wizard store schema
+ */
+type WizardData = {
+	error: WizardApiError | null;
+} & {
+	[ key: string ]: { [ k in 'GET' | 'POST' | 'PUT' | 'DELETE' ]?: Record< string, any > | null };
+};
