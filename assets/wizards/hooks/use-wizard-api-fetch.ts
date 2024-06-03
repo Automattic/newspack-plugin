@@ -12,19 +12,7 @@ import { useState, useCallback, useEffect } from '@wordpress/element';
  * Internal dependencies
  */
 import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
-
-class WizardApiError extends Error {
-	statusCode: number;
-	errorCode: string;
-	details: string;
-
-	constructor( message: string, statusCode: number, errorCode: string, details: string ) {
-		super( message );
-		this.statusCode = statusCode;
-		this.errorCode = errorCode;
-		this.details = details;
-	}
-}
+import { WizardApiError } from '../errors';
 
 type WpFetchError = Error & {
 	code: string;
@@ -78,10 +66,12 @@ const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
 } );
 
 export function useWizardApiFetch( slug: string ) {
-	const [ error, setError ] = useState< WizardApiError | null >( null );
 	const [ isFetching, setIsFetching ] = useState( false );
 	const { wizardApiFetch, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const { getWizardData } = useSelect( select => select( WIZARD_STORE_NAMESPACE ) );
+	const wizardData: WizardData = useSelect( select =>
+		select( WIZARD_STORE_NAMESPACE ).getWizardData( slug )
+	);
+	const [ error, setError ] = useState< WizardApiError | null >( wizardData.error ?? null );
 
 	useEffect( () => {
 		updateWizardSettings( {
@@ -90,8 +80,6 @@ export function useWizardApiFetch( slug: string ) {
 			value: error,
 		} );
 	}, [ error, updateWizardSettings, slug ] );
-
-	const wizardData: WizardData = getWizardData( slug );
 
 	function resetError() {
 		setError( null );
@@ -144,8 +132,8 @@ export function useWizardApiFetch( slug: string ) {
 			function catchCallback( err: WpFetchError ) {
 				const newError = parseApiError( err );
 				setError( newError );
-				on( 'onError', err );
-				throw err;
+				on( 'onError', newError );
+				throw newError;
 			}
 
 			function finallyCallback() {
