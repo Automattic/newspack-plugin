@@ -23,7 +23,7 @@ let promiseCache: Record< string, any > = {};
  * Parses the API error response into a WizardApiError object.
  *
  * @param error The error response from the API.
- * @return Parsed error object or null if no error.
+ * @return      Parsed error object or null if no error.
  */
 const parseApiError = ( error: WpFetchError | string ): WizardApiError | null => {
 	const newError = {
@@ -57,7 +57,7 @@ const parseApiError = ( error: WpFetchError | string ): WizardApiError | null =>
  *
  * @template T
  * @param callbacks Object containing callback functions.
- * @return Object with an `on` method to trigger callbacks.
+ * @return          Object with an `on` method to trigger callbacks.
  */
 const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
 	on( cb: keyof ApiFetchCallbacks< T >, d: any = null ) {
@@ -72,7 +72,7 @@ const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
  * Custom hook to perform API fetch requests using the wizard API.
  *
  * @param slug Unique identifier for the wizard data.
- * @return Object containing fetch function, error handlers and state.
+ * @return     Object containing fetch function, error handlers and state.
  */
 export function useWizardApiFetch( slug: string ) {
 	const [ isFetching, setIsFetching ] = useState( false );
@@ -98,7 +98,7 @@ export function useWizardApiFetch( slug: string ) {
 	 * Updates the wizard data at the specified path.
 	 *
 	 * @param path The path to update in the wizard data.
-	 * @return Function to update the wizard data.
+	 * @return     Function to update the wizard data.
 	 */
 	function updateWizardData( path: string | null ) {
 		return ( prop: string | string[], value: any, p = path ) =>
@@ -115,9 +115,9 @@ export function useWizardApiFetch( slug: string ) {
 	 * Makes an API fetch request using the wizard API.
 	 *
 	 * @template T
-	 * @param opts The options for the API fetch request.
+	 * @param opts        The options for the API fetch request.
 	 * @param [callbacks] Optional callback functions for different stages of the fetch request.
-	 * @returns The result of the API fetch request.
+	 * @return            The result of the API fetch request.
 	 */
 	const apiFetch = useCallback(
 		async < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => {
