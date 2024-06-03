@@ -54,10 +54,10 @@ function Connections() {
 					onStart() {
 						stateHandler( 'Start' );
 					},
-					onSuccess( data ) {
+					onSuccess() {
 						stateHandler( 'Success' );
 					},
-					onError( error ) {
+					onError() {
 						stateHandler( 'Error' );
 					},
 					onFinally() {
