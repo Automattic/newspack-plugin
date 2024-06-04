@@ -48,7 +48,7 @@ declare global {
 			};
 		};
 		newspack_aux_data: {
-			is_debug_mode: boolean;
+			is_debug_mode: '1' | '';
 		};
 	}
 }
