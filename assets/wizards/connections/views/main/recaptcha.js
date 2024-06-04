@@ -124,7 +124,7 @@ const Recaptcha = () => {
 									onChange={ value =>
 										setSettingsToUpdate( { ...settingsToUpdate, version: value } )
 									}
-									buttonOptions={ [
+									options={ [
 										{ value: 'v3', label: __( 'v3', 'newspack-plugin' ) },
 										{ value: 'v2_invisible', label: __( 'v2 invisible', 'newspack-plugin' ) },
 									] }
