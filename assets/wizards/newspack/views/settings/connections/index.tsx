@@ -12,9 +12,9 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import Plugins from './plugins';
+import Analytics from './analytics';
 import { SectionHeader } from '../../../../../components/src';
-import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
 
 function Section( {
 	title,
@@ -83,8 +83,7 @@ function Connections() {
 			</pre>
 			{ /* Plugins */ }
 			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
-				<div className="newspack-card">Coming soon</div>
+				<Plugins />
 			</Section>
 
 			{ /* APIs; google */ }
@@ -104,7 +103,7 @@ function Connections() {
 
 			{ /* Analytics */ }
 			<Section title={ __( 'Analytics', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
+				<Analytics editLink={ connections.sections.analytics.editLink } />
 			</Section>
 
 			{ /* Custom Events */ }

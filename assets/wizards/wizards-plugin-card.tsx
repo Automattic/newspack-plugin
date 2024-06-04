@@ -21,7 +21,7 @@ function WizardsPluginConnectButton( { slug, url, editLink, error, actionText }:
 	}
 	if ( url ) {
 		return (
-			<Button isLink href={ url } target="_blank">
+			<Button variant="link" href={ url } target="_blank">
 				{ actionText ?? __( 'Connect', 'newspack-plugin' ) }
 			</Button>
 		);
@@ -48,7 +48,7 @@ function WizardsPluginCard( {
 	const { wizardApiFetch, isFetching, errorMessage, error } = useWizardApiFetch(
 		`/newspack-settings/connections/plugins/${ slug }`
 	);
-	const [ status, setStatus ] = useState< string | null >( null );
+	const [ status, setStatus ] = useState< string >( 'inactive' );
 
 	useEffect( () => {
 		wizardApiFetch< null | { Status: string; Configured: boolean } >(
@@ -67,7 +67,21 @@ function WizardsPluginCard( {
 		if ( typeof description === 'function' ) {
 			return description( errorMessage, isFetching, status );
 		}
-		return description;
+		if ( typeof description === 'string' ) {
+			return description;
+		}
+
+		// Description if not provided.
+		if ( errorMessage ) {
+			return __( 'Status: Error!', 'newspack-plugin' );
+		}
+		if ( isFetching ) {
+			return __( 'Loading…', 'newspack-plugin' );
+		}
+		if ( status === 'inactive' ) {
+			return __( 'Status: Not connected', 'newspack-plugin' );
+		}
+		return __( 'Status: Connected', 'newspack-plugin' );
 	}
 
 	return (
@@ -87,7 +101,7 @@ function WizardsPluginCard( {
 					/>
 				) : null
 			}
-			isChecked={ ! ( status === 'inactive' || isFetching ) }
+			isChecked={ status !== 'inactive' }
 			error={ errorMessage }
 			isMedium
 		/>
