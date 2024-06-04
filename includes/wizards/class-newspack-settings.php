@@ -51,7 +51,11 @@ class Newspack_Settings extends Wizard {
 					'plugins'   => [],
 					'apis'      => [],
 					'recaptcha' => [],
-					'analytics' => [],
+					'analytics' => [
+						'editLink'                    => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
+						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
+						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
+					],
 				],
 			],
 			'emails'            => [
