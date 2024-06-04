@@ -14,7 +14,7 @@ import { ExternalLink } from '@wordpress/components';
 import { PatronsLogo } from '../';
 import './style.scss';
 
-const Footer = ( { simple = undefined } ) => {
+const Footer = ( { simple } ) => {
 	const {
 		components_demo: componentsDemo = false,
 		support = false,

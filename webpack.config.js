@@ -15,10 +15,8 @@ const wizardsDir = path.join( __dirname, 'assets', 'wizards' );
 // Get files for wizards scripts.
 const wizardsScripts = fs
 	.readdirSync( wizardsDir )
-	.filter(
-		wizard =>
-			fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' ) ) ||
-			fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' ) )
+	.filter( wizard =>
+		fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' ) )
 	);
 const wizardsScriptFiles = {
 	'plugins-screen': path.join( __dirname, 'assets', 'plugins-screen', 'plugins-screen.js' ),
@@ -34,9 +32,7 @@ wizardsScripts.forEach( function ( wizard ) {
 		'assets',
 		'wizards',
 		wizard,
-		fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' ) )
-			? 'index.tsx'
-			: 'index.js'
+		'index.js'
 	);
 } );
 
@@ -87,7 +83,6 @@ const webpackConfig = getBaseWebpackConfig(
 				'memberships-gate',
 				'block-patterns.js'
 			),
-			wizards: path.join( __dirname, 'assets', 'wizards', 'index.tsx' ),
 		},
 	}
 );
