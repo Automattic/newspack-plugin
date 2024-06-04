@@ -4,7 +4,7 @@ import './style.scss';
 
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
 	widgets: {},
-	getCaptchaToken,
+	getCaptchaV3Token,
 };
 
 const isV2 = 'v2' === newspack_recaptcha_data.version.substring( 0, 2 );
@@ -49,11 +49,15 @@ function refreshCaptchas() {
 }
 
 /**
- * Get a reCAPTCHA token on form submission. Only needed for v3.
+ * Fetch a reCAPTCHA token via the v3 JS API. Only needed for reCAPTCHA v3.
+ * v2 automatically generates a token on form submission, so if using v2 the
+ * promise can be silently resolved.
  *
- * @return {Promise<string>} A promise that resolves with a reCAPTCHA token.
+ * See: https://developers.google.com/recaptcha/docs/v3#programmatically_invoke_the_challenge
+ *
+ * @return {Promise<string>} The reCAPTCHA token, if needed, or an empty string.
  */
-function getCaptchaToken() {
+function getCaptchaV3Token() {
 	return new Promise( ( res, rej ) => {
 		if ( ! grecaptcha || ! isV3 ) {
 			return res( '' );

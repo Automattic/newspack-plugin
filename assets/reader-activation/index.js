@@ -312,8 +312,8 @@ const readerActivation = {
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
-	getCaptchaToken: window.newspack_grecaptcha
-		? window.newspack_grecaptcha?.getCaptchaToken
+	getCaptchaV3Token: window.newspack_grecaptcha
+		? window.newspack_grecaptcha?.getCaptchaV3Token
 		: () => new Promise( res => res( '' ) ), // Empty promise.
 };
 

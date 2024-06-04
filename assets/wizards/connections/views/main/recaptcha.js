@@ -42,6 +42,20 @@ const Recaptcha = () => {
 		fetchSettings();
 	}, [] );
 
+	// Clear out site key + secret if changing the version.
+	useEffect( () => {
+		if ( settings?.version && settingsToUpdate?.version !== settings.version ) {
+			setSettingsToUpdate( { ...settingsToUpdate, site_key: '', site_secret: '' } );
+		} else {
+			// If changing back to the current version, restore the settings.
+			setSettingsToUpdate( {
+				...settingsToUpdate,
+				site_key: settings?.site_key || '',
+				site_secret: settings?.site_secret || '',
+			} );
+		}
+	}, [ settingsToUpdate?.version ] );
+
 	const updateSettings = async data => {
 		setError( null );
 		setIsLoading( true );

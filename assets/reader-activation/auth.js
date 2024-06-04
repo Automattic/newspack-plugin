@@ -362,8 +362,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 
 				readerActivation
-					.getCaptchaToken()
+					.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
 					.then( captchaToken => {
+						// If there's no token, we don't need to do anything.
 						if ( ! captchaToken ) {
 							return;
 						}
