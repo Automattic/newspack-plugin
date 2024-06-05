@@ -49,7 +49,11 @@ class Newspack_Settings extends Wizard {
 				'path'     => '/',
 				'sections' => [
 					'plugins'   => [],
-					'apis'      => [],
+					'apis'      => [
+						'dependencies' => [
+							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
+						],
+					],
 					'recaptcha' => [],
 					'analytics' => [],
 				],
