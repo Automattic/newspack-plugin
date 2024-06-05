@@ -44,8 +44,14 @@ const Recaptcha = () => {
 
 	// Clear out site key + secret if changing the version.
 	useEffect( () => {
-		if ( settings?.version && settingsToUpdate?.version !== settings.version ) {
+		if ( settingsToUpdate?.version !== settings.version ) {
 			setSettingsToUpdate( { ...settingsToUpdate, site_key: '', site_secret: '' } );
+			setError(
+				__(
+					'Your site key and secret must match the selected reCAPTCHA version. Please enter new credentials.',
+					'newspack-plugin'
+				)
+			);
 		} else {
 			// If changing back to the current version, restore the settings.
 			setSettingsToUpdate( {
@@ -53,6 +59,7 @@ const Recaptcha = () => {
 				site_key: settings?.site_key || '',
 				site_secret: settings?.site_secret || '',
 			} );
+			setError( null );
 		}
 	}, [ settingsToUpdate?.version ] );
 
@@ -149,10 +156,6 @@ const Recaptcha = () => {
 							<TextControl
 								value={ settingsToUpdate?.site_key || '' }
 								label={ __( 'Site Key', 'newspack-plugin' ) }
-								help={ __(
-									'Your site key and secret must match the selected reCAPTCHA version.',
-									'newspack-plugin'
-								) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
 								}

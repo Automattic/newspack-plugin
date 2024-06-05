@@ -286,6 +286,10 @@ final class Recaptcha {
 	 * @return mixed[] Updated settings, or WP_Error.
 	 */
 	public static function update_settings( $settings ) {
+		// Avoid notoptions cache issue.
+		wp_cache_delete( 'notoptions', 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
+
 		foreach ( $settings as $key => $value ) {
 			if ( in_array( $key, array_keys( self::get_settings_config() ), true ) ) {
 				\update_option( self::OPTIONS_PREFIX . $key, $value );
