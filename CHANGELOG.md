@@ -1,3 +1,17 @@
+# [4.1.0](https://github.com/Automattic/newspack-plugin/compare/v4.0.1...v4.1.0) (2024-05-30)
+
+
+### Features
+
+* **ga4-events:** add author name(s), category, RAS statuses to event payload ([#3129](https://github.com/Automattic/newspack-plugin/issues/3129)) ([d1af9bb](https://github.com/Automattic/newspack-plugin/commit/d1af9bbc3d57f4460f1e9d4fb4dee74f5ffb77a4))
+
+## [4.0.1](https://github.com/Automattic/newspack-plugin/compare/v4.0.0...v4.0.1) (2024-05-29)
+
+
+### Bug Fixes
+
+* **ras-sync:** allow active subscription to take precendence over orders ([#3141](https://github.com/Automattic/newspack-plugin/issues/3141)) ([eef6dfb](https://github.com/Automattic/newspack-plugin/commit/eef6dfb18448c036f45ac4246664a752d8e4388e))
+
 # [4.0.0](https://github.com/Automattic/newspack-plugin/compare/v3.8.8...v4.0.0) (2024-05-28)
 
 

@@ -26,7 +26,15 @@ These parameters are added to all events:
 * `ga_session_id`: The GA Session ID, retrieved from the cookie
 * `logged_in`: Whether the user is logged in when the event got fired
 * `is_reader`: Whether the user is a RAS reader
-* `email_hash`: The anonymized user email, if the user is logged in
+* `author`: Name of the author (or authors) of the currently viewed post
+* `category`: Category of the currently viewed post
+
+If the user is logged in, these parameters will also be added:
+
+* `email_hash`: The anonymized user email
+* `is_newsletter_subscriber`: If the reader is signed up for any newsletters
+* `is_subscriber`: If reader has any currently active non-donation subscriptions
+* `is_donor`: If reader has donated (one-time or subscription)
 
 Note: All paramaters are strings
 
