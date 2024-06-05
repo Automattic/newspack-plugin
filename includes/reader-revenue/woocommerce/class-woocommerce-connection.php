@@ -609,6 +609,10 @@ class WooCommerce_Connection {
 				'template' => '*RECEIPT_URL*',
 				'value'    => sprintf( '<a href="%s">%s</a>', $order->get_view_order_url(), __( 'My Account', 'newspack-plugin' ) ),
 			],
+			[
+				'template' => '*ACCOUNT_URL*',
+				'value'    => function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : get_bloginfo( 'wpurl' ),
+			],
 		];
 
 		$sent = Emails::send_email(

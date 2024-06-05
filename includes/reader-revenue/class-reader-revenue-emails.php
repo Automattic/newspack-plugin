@@ -124,9 +124,9 @@ class Reader_Revenue_Emails {
 		$configs[ self::EMAIL_TYPES['WELCOME'] ]      = [
 			'name'                   => self::EMAIL_TYPES['WELCOME'],
 			'label'                  => __( 'Welcome', 'newspack-plugin' ),
-			'description'            => __( "Email sent to the donor after they've registered while donating.", 'newspack-plugin' ),
+			'description'            => __( 'Email sent to new reader accounts registered during a transaction.', 'newspack-plugin' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/welcome.php',
-			'editor_notice'          => __( 'This email will be sent to a reader after they sign up and contribute to your site.', 'newspack-plugin' ),
+			'editor_notice'          => __( 'This email will be sent to readers when they register an account during a transaction.', 'newspack-plugin' ),
 			'from_email'             => self::get_from_email(),
 			'available_placeholders' => array_merge(
 				$available_placeholders,
@@ -146,6 +146,10 @@ class Reader_Revenue_Emails {
 					[
 						'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
 						'template' => '*PAYMENT_METHOD*',
+					],
+					[
+						'label'    => __( 'user account link', 'newspack' ),
+						'template' => '*ACCOUNT_URL*',
 					],
 				]
 			),
