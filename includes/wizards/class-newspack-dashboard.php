@@ -346,11 +346,10 @@ class Newspack_Dashboard extends Wizard {
 		 * JavaScript
 		 */
 		wp_localize_script(
-			$this->slug, 
+			'newspack-wizards', 
 			'newspackDashboard',
 			$this->get_local_data()
 		);
-		wp_enqueue_script( $this->slug );
-		wp_style_add_data( $this->slug, 'rtl', 'replace' );
+		wp_enqueue_script( 'newspack-wizards' );
 	}
 }
