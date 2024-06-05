@@ -44,7 +44,7 @@ const Recaptcha = () => {
 
 	// Clear out site key + secret if changing the version.
 	useEffect( () => {
-		if ( settingsToUpdate?.version !== settings.version ) {
+		if ( settingsToUpdate?.version !== settings?.version ) {
 			setSettingsToUpdate( { ...settingsToUpdate, site_key: '', site_secret: '' } );
 			setError(
 				__(
