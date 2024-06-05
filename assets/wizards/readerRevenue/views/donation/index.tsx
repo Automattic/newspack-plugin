@@ -132,15 +132,15 @@ export const DonationAmounts = () => {
 				) }
 			</Card>
 			{ tiered ? (
-				<Grid columns={ 1 } gutter={ 16 }>
+				<Grid columns={ 1 }>
 					{ availableFrequencies.map( section => {
 						const isFrequencyDisabled = disabledFrequencies[ section.key ];
 						const isOneFrequencyActive =
 							Object.values( disabledFrequencies ).filter( Boolean ).length ===
 							FREQUENCY_SLUGS.length - 1;
 						return (
-							<Card isMedium key={ section.key }>
-								<Grid columns={ 1 } gutter={ 16 }>
+							<Card noBorder key={ section.key }>
+								<Grid columns={ 1 } gutter={ 8 }>
 									<ToggleControl
 										checked={ ! isFrequencyDisabled }
 										onChange={ () =>
@@ -206,50 +206,52 @@ export const DonationAmounts = () => {
 					} ) }
 				</Grid>
 			) : (
-				<Card isMedium>
-					<Grid columns={ 3 } rowGap={ 16 }>
-						{ availableFrequencies.map( section => {
-							const isFrequencyDisabled = disabledFrequencies[ section.key ];
-							const isOneFrequencyActive =
-								Object.values( disabledFrequencies ).filter( Boolean ).length ===
-								FREQUENCY_SLUGS.length - 1;
-							return (
-								<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
-									<ToggleControl
-										checked={ ! isFrequencyDisabled }
-										onChange={ () =>
-											changeHandler( [ 'disabledFrequencies', section.key ] )(
-												! isFrequencyDisabled
-											)
-										}
-										label={ section.tieredLabel }
-										disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
-									/>
-									{ ! isFrequencyDisabled && (
-										<MoneyInput
-											currencySymbol={ currencySymbol }
-											label={ section.staticLabel }
-											value={ amounts[ section.key ][ 3 ] }
-											min={ minimumDonationFloat }
-											error={
-												amounts[ section.key ][ 3 ] < minimumDonationFloat
-													? __(
-															'Warning: suggested donations should be at least the minimum donation amount.',
-															'newspack-plugin'
-													  )
-													: null
+				<Grid columns={ 1 }>
+					<Card noBorder>
+						<Grid columns={ 3 } rowGap={ 16 }>
+							{ availableFrequencies.map( section => {
+								const isFrequencyDisabled = disabledFrequencies[ section.key ];
+								const isOneFrequencyActive =
+									Object.values( disabledFrequencies ).filter( Boolean ).length ===
+									FREQUENCY_SLUGS.length - 1;
+								return (
+									<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
+										<ToggleControl
+											checked={ ! isFrequencyDisabled }
+											onChange={ () =>
+												changeHandler( [ 'disabledFrequencies', section.key ] )(
+													! isFrequencyDisabled
+												)
 											}
-											onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
-											key={ section.key }
+											label={ section.tieredLabel }
+											disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
 										/>
-									) }
-								</Grid>
-							);
-						} ) }
-					</Grid>
-				</Card>
+										{ ! isFrequencyDisabled && (
+											<MoneyInput
+												currencySymbol={ currencySymbol }
+												label={ section.staticLabel }
+												value={ amounts[ section.key ][ 3 ] }
+												min={ minimumDonationFloat }
+												error={
+													amounts[ section.key ][ 3 ] < minimumDonationFloat
+														? __(
+																'Warning: suggested donations should be at least the minimum donation amount.',
+																'newspack-plugin'
+														)
+														: null
+												}
+												onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
+												key={ section.key }
+											/>
+										) }
+									</Grid>
+								);
+							} ) }
+						</Grid>
+					</Card>
+				</Grid>
 			) }
-			<Grid columns={ 2 } rowGap={ 16 }>
+			<Grid columns={ 3 }>
 				<TextControl
 					label={ __( 'Minimum donation', 'newspack-plugin' ) }
 					help={ __(
