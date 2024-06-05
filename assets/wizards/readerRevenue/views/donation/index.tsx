@@ -237,7 +237,7 @@ export const DonationAmounts = () => {
 														? __(
 																'Warning: suggested donations should be at least the minimum donation amount.',
 																'newspack-plugin'
-														)
+														  )
 														: null
 												}
 												onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
