@@ -174,6 +174,34 @@ export function openAuthModal( config = {} ) {
 }
 
 /**
+ * Start the newsletter signup modal with an optional custom callback.
+ *
+ * @param {Object} config Config.
+ */
+export function openNewslettersSignupModal( config = {} ) {
+	// Set default config.
+	config = {
+		...{
+			callback: null,
+			initialState: null,
+			skipSuccess: false,
+			labels: {},
+			content: null,
+		},
+		...config,
+	};
+
+	if ( readerActivation?._openNewslettersSignupModal ) {
+		readerActivation._openNewslettersSignupModal( config );
+	} else {
+		console.warn( 'Newsletters signup modal not available' ); // eslint-disable-line no-console
+		if ( config?.callback ) {
+			config.callback();
+		}
+	}
+}
+
+/**
  * Get the reader's OTP hash for the current authentication request.
  *
  * @return {string} OTP hash.
@@ -387,6 +415,7 @@ const readerActivation = {
 	refreshAuthentication,
 	getReader,
 	openAuthModal,
+	openNewslettersSignupModal,
 	hasAuthLink,
 	getOTPHash,
 	setOTPTimer,
