@@ -18,10 +18,11 @@ final class Reader_Activation {
 
 	const OPTIONS_PREFIX = 'newspack_reader_activation_';
 
-	const AUTH_READER_COOKIE    = 'np_auth_reader';
-	const AUTH_INTENTION_COOKIE = 'np_auth_intention';
-	const SCRIPT_HANDLE         = 'newspack-reader-activation';
-	const AUTH_SCRIPT_HANDLE    = 'newspack-reader-auth';
+	const AUTH_READER_COOKIE        = 'np_auth_reader';
+	const AUTH_INTENTION_COOKIE     = 'np_auth_intention';
+	const SCRIPT_HANDLE             = 'newspack-reader-activation';
+	const AUTH_SCRIPT_HANDLE        = 'newspack-reader-auth';
+	const NEWSLETTERS_SCRIPT_HANDLE = 'newspack-newsletters-signup';
 
 	/**
 	 * Reader user meta keys.
@@ -55,6 +56,11 @@ final class Reader_Activation {
 	const SSO_REGISTRATION_METHODS = [ 'google' ];
 
 	/**
+	 * Newsletters signup form.
+	 */
+	const NEWSLETTERS_SIGNUP_FORM_ACTION = 'reader-activation-newsletters-signup';
+
+	/**
 	 * Whether the session is authenticating a newly registered reader
 	 *
 	 * @var bool
@@ -62,11 +68,11 @@ final class Reader_Activation {
 	private static $is_new_reader_auth = false;
 
 	/**
-	 * UI labels for reader auth flow.
+	 * UI labels for reader activation flows.
 	 *
 	 * @var mixed[]
 	 */
-	private static $reader_auth_labels = [];
+	private static $reader_activation_labels = [];
 
 	/**
 	 * Initialize hooks.
@@ -74,6 +80,8 @@ final class Reader_Activation {
 	public static function init() {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		\add_action( 'wp_footer', [ __CLASS__, 'render_auth_modal' ] );
+		\add_action( 'wp_footer', [ __CLASS__, 'render_newsletters_signup_modal' ] );
+		\add_action( 'wp_ajax_newspack_reader_activation_newsletters_signup', [ __CLASS__, 'newsletters_signup' ] );
 
 		if ( self::is_enabled() ) {
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -109,88 +117,113 @@ final class Reader_Activation {
 		 *
 		 * @param bool $allow_reg_block_render Whether to allow the registration block to render.
 		 */
-		if ( ! apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
-			return;
+		if ( apply_filters( 'newspack_reader_activation_should_render_auth', true ) ) {
+			$authenticated_email = self::get_logged_in_reader_email_address();
+			$script_dependencies = [];
+			$script_data         = [
+				'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
+				'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
+				'is_logged_in'          => \is_user_logged_in(),
+				'authenticated_email'   => $authenticated_email,
+				'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
+				'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
+				'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
+			];
+
+			if ( Recaptcha::can_use_captcha() ) {
+				$script_dependencies[]           = Recaptcha::SCRIPT_HANDLE;
+				$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
+			}
+
+			Newspack::load_common_assets();
+
+			/**
+			* Reader Activation Frontend Library.
+			*/
+			\wp_enqueue_script(
+				self::SCRIPT_HANDLE,
+				Newspack::plugin_url() . '/dist/reader-activation.js',
+				$script_dependencies,
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				self::SCRIPT_HANDLE,
+				'newspack_ras_config',
+				$script_data
+			);
+			\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
+			\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
+
+			/**
+			* Reader Authentication
+			*/
+			\wp_enqueue_script(
+				self::AUTH_SCRIPT_HANDLE,
+				Newspack::plugin_url() . '/dist/reader-auth.js',
+				[ self::SCRIPT_HANDLE ],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_activation_labels', self::get_reader_activation_labels() );
+			\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
+			\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'amp-plus', true );
+			\wp_enqueue_style(
+				self::AUTH_SCRIPT_HANDLE,
+				Newspack::plugin_url() . '/dist/reader-auth.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
+			);
 		}
 
-		$authenticated_email = '';
-		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
-			$authenticated_email = \wp_get_current_user()->user_email;
+		if ( self::is_newsletters_signup_available() ) {
+			/**
+			* Newsletters Signup.
+			*/
+			\wp_enqueue_script(
+				self::NEWSLETTERS_SCRIPT_HANDLE,
+				Newspack::plugin_url() . '/dist/newsletters-signup.js',
+				[ self::SCRIPT_HANDLE ],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+
+			\wp_localize_script(
+				self::NEWSLETTERS_SCRIPT_HANDLE,
+				'newspack_reader_activation_newsletters',
+				[
+					'newspack_ajax_url' => admin_url( 'admin-ajax.php' ),
+				]
+			);
+
+			\wp_script_add_data( self::NEWSLETTERS_SCRIPT_HANDLE, 'async', true );
+			\wp_enqueue_style(
+				self::NEWSLETTERS_SCRIPT_HANDLE,
+				Newspack::plugin_url() . '/dist/newsletters-signup.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
+			);
 		}
-		$script_dependencies = [];
-		$script_data         = [
-			'auth_intention_cookie' => self::AUTH_INTENTION_COOKIE,
-			'cid_cookie'            => NEWSPACK_CLIENT_ID_COOKIE_NAME,
-			'is_logged_in'          => \is_user_logged_in(),
-			'authenticated_email'   => $authenticated_email,
-			'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
-			'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
-			'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
-		];
-
-		if ( Recaptcha::can_use_captcha() ) {
-			$script_dependencies[]           = Recaptcha::SCRIPT_HANDLE;
-			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
-		}
-
-		/**
-		 * Reader Activation Frontend Library.
-		 */
-		\wp_enqueue_script(
-			self::SCRIPT_HANDLE,
-			Newspack::plugin_url() . '/dist/reader-activation.js',
-			$script_dependencies,
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-		\wp_localize_script(
-			self::SCRIPT_HANDLE,
-			'newspack_ras_config',
-			$script_data
-		);
-		\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
-		\wp_script_add_data( self::SCRIPT_HANDLE, 'amp-plus', true );
-
-		/**
-		 * Reader Authentication
-		 */
-		\wp_enqueue_script(
-			self::AUTH_SCRIPT_HANDLE,
-			Newspack::plugin_url() . '/dist/reader-auth.js',
-			[ self::SCRIPT_HANDLE ],
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-		\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_auth_labels', self::get_reader_auth_labels() );
-		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
-		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'amp-plus', true );
-		\wp_enqueue_style(
-			self::AUTH_SCRIPT_HANDLE,
-			Newspack::plugin_url() . '/dist/reader-auth.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
 	}
 
 	/**
-	 * Get reader activation auth flow labels.
+	 * Get labels for reader activation flows.
 	 *
 	 * @param string|null $key Key of the label to return (optional).
 	 *
 	 * @return mixed[]|string The label string or an array of labels keyed by string.
 	 */
-	private static function get_reader_auth_labels( $key = null ) {
-		if ( empty( self::$reader_auth_labels ) ) {
+	private static function get_reader_activation_labels( $key = null ) {
+		if ( empty( self::$reader_activation_labels ) ) {
 			$default_labels = [
-				'title'                   => __( 'Sign in', 'newspack-plugin' ),
-				'invalid_email'           => __( 'Please enter a valid email address.', 'newspack-plugin' ),
-				'invalid_password'        => __( 'Please enter a password.', 'newspack-plugin' ),
-				'invalid_display'         => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
-				'blocked_popup'           => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
-				'login_canceled'          => __( 'Login canceled.', 'newspack-plugin' ),
-				'code_resent'             => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
-				'create_account'          => __( 'Create an account', 'newspack-plugin' ),
-				'signin'                  => [
+				'title'                    => __( 'Sign in', 'newspack-plugin' ),
+				'invalid_email'            => __( 'Please enter a valid email address.', 'newspack-plugin' ),
+				'invalid_password'         => __( 'Please enter a password.', 'newspack-plugin' ),
+				'invalid_display'          => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
+				'blocked_popup'            => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+				'code_resent'              => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
+				'create_account'           => __( 'Create an account', 'newspack-plugin' ),
+				'signin'                   => [
 					'title'           => __( 'Sign in', 'newspack-plugin' ),
 					'success_title'   => __( 'Success! You’re signed in.', 'newspack-plugin' ),
 					'success_message' => __( 'Login successful!', 'newspack-plugin' ),
@@ -204,19 +237,32 @@ final class Reader_Activation {
 					'go_back'         => __( 'Go back', 'newspack-plugin' ),
 					'set_password'    => __( 'Set a password (optional)', 'newspack-plugin' ),
 				],
-				'register'                => [
+				'register'                 => [
 					'title'               => __( 'Create an account', 'newspack-plugin' ),
 					'success_title'       => __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
 					'success_description' => __( 'In the future, you’ll sign in with a magic link, or a code sent to your email. If you’d rather use a password, you can set one below.', 'newspack-plugin' ),
 				],
-				'verify'                  => __( 'Thank you for verifying your account!', 'newspack-plugin' ),
-				'magic_link'              => __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ),
-				'password_reset_interval' => __( 'Please wait a moment before requesting another password reset email.', 'newspack-plugin' ),
-				'account_link'            => [
+				'verify'                   => __( 'Thank you for verifying your account!', 'newspack-plugin' ),
+				'magic_link'               => __( 'Please check your inbox for an authentication link.', 'newspack-plugin' ),
+				'password_reset_interval'  => __( 'Please wait a moment before requesting another password reset email.', 'newspack-plugin' ),
+				'account_link'             => [
 					'signedin'  => __( 'My Account', 'newspack-plugin' ),
 					'signedout' => __( 'Sign In', 'newspack-plugin' ),
 				],
-				'newsletters'             => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
+				'newsletters_cta'          => __( 'Subscribe to our newsletter', 'newspack-plugin' ),
+				'newsletters_confirmation' => sprintf(
+					// Translators: %s is the site name.
+					__( 'Thanks for supporting %s.', 'newspack-plugin' ),
+					get_option( 'blogname' )
+				),
+				'newsletters_continue'     => __( 'Continue', 'newspack-plugin' ),
+				'newsletters_details'      => sprintf(
+					// Translators: %s is the site name.
+					__( 'Get the best of %s directly in your email inbox.', 'newspack-plugin' ),
+					get_bloginfo( 'name' )
+				),
+				'newsletters_success'      => __( 'Signup successful!', 'newspack-plugin' ),
+				'newsletters_title'        => __( 'Sign up for newsletters', 'newspack-plugin' ),
 			];
 
 			/**
@@ -229,24 +275,24 @@ final class Reader_Activation {
 			foreach ( $default_labels as $key => $label ) {
 				if ( isset( $filtered_labels[ $key ] ) ) {
 					if ( is_array( $label ) && is_array( $filtered_labels[ $key ] ) ) {
-						self::$reader_auth_labels[ $key ] = array_merge( $label, $filtered_labels[ $key ] );
+						self::$reader_activation_labels[ $key ] = array_merge( $label, $filtered_labels[ $key ] );
 					} elseif ( is_string( $label ) && is_string( $filtered_labels[ $key ] ) ) {
-						self::$reader_auth_labels[ $key ] = $filtered_labels[ $key ];
+						self::$reader_activation_labels[ $key ] = $filtered_labels[ $key ];
 					} else {
 						// If filtered label type doesn't match, fallback to default.
-						self::$reader_auth_labels[ $key ] = $label;
+						self::$reader_activation_labels[ $key ] = $label;
 					}
 				} else {
-					self::$reader_auth_labels[ $key ] = $label;
+					self::$reader_activation_labels[ $key ] = $label;
 				}
 			}
 		}
 
 		if ( ! $key ) {
-			return self::$reader_auth_labels;
+			return self::$reader_activation_labels;
 		}
 
-		return self::$reader_auth_labels[ $key ] ?? '';
+		return self::$reader_activation_labels[ $key ] ?? '';
 	}
 
 	/**
@@ -255,7 +301,7 @@ final class Reader_Activation {
 	 * @return mixed[] Settings default values keyed by their name.
 	 */
 	private static function get_settings_config() {
-		$label           = self::get_reader_auth_labels( 'newsletters' );
+		$label           = self::get_reader_activation_labels( 'newsletters_cta' );
 		$settings_config = [
 			'enabled'                         => false,
 			'enabled_account_link'            => true,
@@ -423,29 +469,19 @@ final class Reader_Activation {
 	/**
 	 * Get the newsletter lists that should be rendered after checkout.
 	 *
-	 * @param string $email Email address.
+	 * @param string $email_address Email address. Optional.
 	 *
 	 * @return array
 	 */
-	public static function get_post_checkout_newsletter_lists( $email ) {
-		$available_lists    = self::get_available_newsletter_lists();
+	public static function get_post_checkout_newsletter_lists( $email_address = '' ) {
+		$available_lists    = self::get_available_newsletter_lists( $email_address );
 		$registration_lists = [];
 
-		if ( empty( $available_lists ) || ! method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
-			return [];
-		}
-
-		$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email );
-		if ( \is_wp_error( $current_lists ) || ! is_array( $current_lists ) ) {
+		if ( empty( $available_lists ) ) {
 			return [];
 		}
 
 		foreach ( $available_lists as $list_id => $list ) {
-			// Skip any lists the reader is already signed up for.
-			if ( in_array( $list_id, $current_lists, true ) ) {
-				continue;
-			}
-
 			// Skip any premium lists since the reader has already made a purchase at this stage.
 			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_subscription_list_tied_to_plan' ) && \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_subscription_list_tied_to_plan( $list['db_id'] ) ) {
 				continue;
@@ -465,14 +501,17 @@ final class Reader_Activation {
 	/**
 	 * Get all available newsletter lists.
 	 *
+	 * @param string $email_address Email address. Optional.
+	 *
 	 * @return array
 	 */
-	public static function get_available_newsletter_lists() {
+	public static function get_available_newsletter_lists( $email_address = '' ) {
 		if ( ! method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
 			return [];
 		}
-		$use_custom_lists = self::get_setting( 'use_custom_lists' );
-		$available_lists  = \Newspack_Newsletters_Subscription::get_lists_config();
+		$use_custom_lists   = self::get_setting( 'use_custom_lists' );
+		$available_lists    = \Newspack_Newsletters_Subscription::get_lists_config();
+		$registration_lists = [];
 		if ( \is_wp_error( $available_lists ) ) {
 			return [];
 		}
@@ -483,12 +522,28 @@ final class Reader_Activation {
 			if ( empty( $lists ) ) {
 				return [];
 			}
-			$registration_lists = [];
 			foreach ( $lists as $list ) {
 				if ( isset( $available_lists[ $list['id'] ] ) ) {
 					$registration_lists[ $list['id'] ]            = $available_lists[ $list['id'] ];
 					$registration_lists[ $list['id'] ]['checked'] = $list['checked'] ?? false;
 				}
+			}
+		}
+
+		// Filter out any lists the reader is already signed up for if an email address is provided.
+		if ( $email_address && method_exists( '\Newspack_Newsletters_Subscription', 'get_contact_lists' ) ) {
+			$current_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $email_address );
+			if ( ! \is_wp_error( $current_lists ) && is_array( $current_lists ) ) {
+				$filtered_lists = [];
+				foreach ( $registration_lists as $list ) {
+					// Skip any lists the reader is already signed up for.
+					if ( in_array( $list['id'], $current_lists, true ) ) {
+						continue;
+					}
+
+					$filtered_lists[ $list['id'] ] = $list;
+				}
+				$registration_lists = $filtered_lists;
 			}
 		}
 
@@ -884,7 +939,7 @@ final class Reader_Activation {
 
 		\update_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
 
-		WooCommerce_Connection::add_wc_notice( self::get_reader_auth_labels( 'verify' ), 'success' );
+		WooCommerce_Connection::add_wc_notice( self::get_reader_activation_labels( 'verify' ), 'success' );
 
 		/**
 		 * Fires after a reader's email address is verified.
@@ -1099,7 +1154,7 @@ final class Reader_Activation {
 			return self::get_element_class_name( $parts );
 		};
 
-		$labels = self::get_reader_auth_labels( 'account_link' );
+		$labels = self::get_reader_activation_labels( 'account_link' );
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
 
 		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
@@ -1164,7 +1219,7 @@ final class Reader_Activation {
 		// phpcs:enable
 
 		$referer = \wp_parse_url( \wp_get_referer() );
-		$labels  = self::get_reader_auth_labels( 'signin' );
+		$labels  = self::get_reader_activation_labels( 'signin' );
 		?>
 		<div class="newspack-ui newspack-reader-auth">
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
@@ -1252,7 +1307,7 @@ final class Reader_Activation {
 		}
 
 		$terms = self::get_auth_footer();
-		$label = self::get_reader_auth_labels( 'title' );
+		$label = self::get_reader_activation_labels( 'title' );
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth-modal">
 			<div class="newspack-ui__modal-container__overlay"></div>
@@ -1277,6 +1332,148 @@ final class Reader_Activation {
 			</div>
 		</div>
 		<?php
+	}
+
+
+	/**
+	 * Renders newsletters signup form.
+	 *
+	 * @param string $email_address     Email address.
+	 * @param array  $newsletters_lists Array of newsletters lists.
+	 *
+	 * @return void
+	 */
+	private static function render_newsletters_signup_form( $email_address, $newsletters_lists ) {
+		?>
+			<div class="newspack-ui newspack-newsletters-signup">
+				<form method="post" target="_top">
+					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
+					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
+					<?php
+					foreach ( $newsletters_lists as $list ) {
+						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
+						?>
+						<label class="newspack-ui__input-card">
+							<input
+								type="checkbox"
+								name="lists[]"
+								value="<?php echo \esc_attr( $list['id'] ); ?>"
+								id="<?php echo \esc_attr( $checkbox_id ); ?>"
+								<?php
+								if ( isset( $list['checked'] ) && $list['checked'] ) {
+									echo 'checked';
+								}
+								?>
+							>
+							<strong><?php echo \esc_html( $list['title'] ); ?></strong>
+							<?php if ( ! empty( $list['description'] ) ) : ?>
+								<span class="newspack-ui__helper-text"><?php echo \esc_html( $list['description'] ); ?></span>
+							<?php endif; ?>
+						</label>
+						<?php
+					}
+					?>
+					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
+				</form>
+			</div>
+		<?php
+	}
+
+	/**
+	 * Renders the newsletter signup modal.
+	 */
+	public static function render_newsletters_signup_modal() {
+		if ( ! self::is_newsletters_signup_available() ) {
+			return;
+		}
+
+		$email_address     = self::get_logged_in_reader_email_address();
+		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
+		if ( empty( $newsletters_lists ) ) {
+			return;
+		}
+		?>
+		<div class="newspack-ui newspack-ui__modal-container newspack-newsletters-signup-modal">
+			<div class="newspack-ui__modal-container__overlay"></div>
+			<div class="newspack-ui__modal newspack-ui__modal--small">
+				<div class="newspack-ui__modal__header">
+					<h2><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_title' ) ); ?></h2>
+					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
+						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false">
+							<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+						</svg>
+					</button>
+				</div>
+				<div class="newspack-ui__modal__content">
+					<p class="newspack-ui__font--xs details">
+						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
+					</p>
+					<?php if ( ! empty( $email_address ) ) : ?>
+						<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
+							<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
+							<span class="email">
+								<?php echo esc_html( $email_address ); ?>
+							</span>
+						</p>
+					<?php endif; ?>
+					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Handle newsletters signup submission.
+	 *
+	 * @return void|WP_Error
+	 */
+	public static function newsletters_signup() {
+		if ( ! self::is_newsletters_signup_available() ) {
+			wp_die();
+		}
+
+		$action = filter_input( INPUT_POST, self::NEWSLETTERS_SIGNUP_FORM_ACTION, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $action ) {
+			wp_die();
+		}
+
+		$email_address = filter_input( INPUT_POST, 'email_address', FILTER_SANITIZE_EMAIL );
+		if ( empty( $email_address ) ) {
+			return new \WP_Error( 'invalid_email_address', __( 'Invalid email address.', 'newspack-plugin' ) );
+		}
+
+		$lists = filter_input( INPUT_POST, 'lists', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
+		if ( empty( $lists ) ) {
+			return new \WP_Error( 'no_lists_selected', __( 'No lists selected.', 'newspack-plugin' ) );
+		}
+
+		$result = \Newspack_Newsletters_Subscription::add_contact(
+			[
+				'email'    => $email_address,
+				'metadata' => [
+					'current_page_url'                => home_url( add_query_arg( array(), \wp_get_referer() ) ),
+					// Right now the newsletters signup modal flow only applies to post checkout.
+					'newsletters_subscription_method' => 'post-checkout',
+				],
+			],
+			$lists,
+			true // Async.
+		);
+
+		if ( \is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		wp_die();
+	}
+
+	/**
+	 * Should post-checkout newsletter signup be available?
+	 */
+	private static function is_newsletters_signup_available() {
+		return (bool) self::get_setting( 'use_custom_lists' );
 	}
 
 	/**
@@ -1311,7 +1508,7 @@ final class Reader_Activation {
 	private static function send_auth_form_response( $data = [], $message = false ) {
 		$is_error = \is_wp_error( $data );
 		if ( empty( $message ) ) {
-			$labels  = self::get_reader_auth_labels( 'signin' );
+			$labels  = self::get_reader_activation_labels( 'signin' );
 			$message = $is_error ? $data->get_error_message() : $labels['success_message'];
 		}
 		\wp_send_json( compact( 'message', 'data' ), \is_wp_error( $data ) ? 400 : 200 );
@@ -1337,7 +1534,7 @@ final class Reader_Activation {
 	 * }
 	 */
 	public static function render_subscription_lists_inputs( $lists = [], $checked = [], $config = [] ) {
-		$label = self::get_reader_auth_labels( 'newsletters' );
+		$label = self::get_reader_activation_labels( 'newsletters_cta' );
 		$config = \wp_parse_args(
 			$config,
 			[
@@ -1518,7 +1715,7 @@ final class Reader_Activation {
 			'authenticated' => 0,
 		];
 
-		$magic_link_label = self::get_reader_auth_labels( 'magic_link' );
+		$magic_link_label = self::get_reader_activation_labels( 'magic_link' );
 
 		switch ( $action ) {
 			case 'signin':
@@ -1844,7 +2041,7 @@ final class Reader_Activation {
 	 */
 	public static function better_display_name_error( $message ) {
 		if ( 'Display name cannot be changed to email address due to privacy concern.' === $message ) {
-			return self::get_reader_auth_labels( 'invalid_display' );
+			return self::get_reader_activation_labels( 'invalid_display' );
 		}
 
 		return $message;
@@ -2043,11 +2240,26 @@ final class Reader_Activation {
 	 */
 	public static function rate_limit_lost_password( $errors, $user_data ) {
 		if ( $user_data && self::is_reader_email_rate_limited( $user_data ) ) {
-			$errors->add( 'newspack_password_reset_interval', self::get_reader_auth_labels( 'password_reset_interval' ) );
+			$errors->add( 'newspack_password_reset_interval', self::get_reader_activation_labels( 'password_reset_interval' ) );
 		} else {
 			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
 		}
 		return $errors;
+	}
+
+	/**
+	 * Gets the logged in reader's email address.
+	 *
+	 * @return string The reader's email address. Empty string if user is not logged in.
+	 */
+	private static function get_logged_in_reader_email_address() {
+		$email_address = '';
+
+		if ( \is_user_logged_in() && self::is_user_reader( \wp_get_current_user() ) ) {
+			$email_address = \wp_get_current_user()->user_email;
+		}
+
+		return $email_address;
 	}
 }
 Reader_Activation::init();

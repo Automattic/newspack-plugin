@@ -1,7 +1,7 @@
 /**
  * Internal dependencies.
  */
-import { domReady } from './utils';
+import { domReady } from '../utils';
 
 domReady( function () {
 	/**
