@@ -15,7 +15,17 @@ import { Button } from '../components/src';
 import WizardsActionCard from './wizards-action-card';
 import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 
-function WizardsPluginConnectButton( { slug, url, editLink, error, actionText }: PluginCard ) {
+function WizardsPluginConnectButton( {
+	slug,
+	url,
+	editLink,
+	error,
+	actionText,
+	isFetching,
+}: PluginCard ) {
+	if ( isFetching ) {
+		return <span className="gray-700">{ __( 'Retrieving Plugin Info…', 'newspack-plugin' ) }</span>;
+	}
 	if ( slug ) {
 		return <a href={ editLink }>{ actionText ?? __( 'Connect', 'newspack-plugin' ) }</a>;
 	}
@@ -97,6 +107,7 @@ function WizardsPluginCard( {
 						path={ path }
 						name={ name }
 						error={ error }
+						isFetching={ isFetching }
 						actionText={ actionText }
 					/>
 				) : null
