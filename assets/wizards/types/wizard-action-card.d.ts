@@ -31,6 +31,7 @@ type PluginCard = {
 	path: string;
 	slug: string;
 	editLink?: string;
+	isFetching?: boolean;
 	description?: (
 		errorMessage: string | null,
 		isFetching: boolean,
