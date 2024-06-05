@@ -150,7 +150,7 @@ abstract class Wizard {
 		 */
 		$asset_file = include plugin_dir_path( __FILE__ ) . 'build/wizards.asset.php';
 		wp_register_script(
-			$this->slug,
+			'newspack-wizards',
 			Newspack::plugin_url() . '/dist/wizards.js',
 			$this->get_script_dependencies(),
 			$asset_file['version'] ?? NEWSPACK_PLUGIN_VERSION,

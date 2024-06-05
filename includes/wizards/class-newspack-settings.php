@@ -126,10 +126,10 @@ class Newspack_Settings extends Wizard {
 		 * JavaScript
 		 */
 		wp_localize_script(
-			$this->slug, 
+			'newspack-wizards', 
 			'newspackSettings',
 			$this->get_local_data()
 		);
-		wp_enqueue_script( $this->slug );
+		wp_enqueue_script( 'newspack-wizards' );
 	}
 }
