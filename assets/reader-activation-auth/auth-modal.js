@@ -1,4 +1,4 @@
-/* globals newspack_reader_auth_labels */
+/* globals newspack_reader_activation_labels */
 export const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
 
 /**
@@ -67,7 +67,7 @@ export function openAuthModal( config = {} ) {
 	}
 
 	config.labels = {
-		...newspack_reader_auth_labels,
+		...newspack_reader_activation_labels,
 		...config?.labels,
 	};
 

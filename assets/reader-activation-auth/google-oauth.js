@@ -1,9 +1,9 @@
-/* globals newspack_reader_auth_labels */
+/* globals newspack_reader_activation_labels */
 
 /**
  * Internal dependencies.
  */
-import { domReady, convertFormDataToObject } from './utils';
+import { domReady, convertFormDataToObject } from '../utils';
 
 domReady( function () {
 	const loginsElements = document.querySelectorAll( '.newspack-reader__logins' );
@@ -71,13 +71,16 @@ domReady( function () {
 						const interval = setInterval( () => {
 							if ( ! googleOAuthSuccess && authWindow.closed ) {
 								if ( googleLoginForm?.endLoginFlow ) {
-									googleLoginForm.endLoginFlow( newspack_reader_auth_labels.login_canceled, 401 );
+									googleLoginForm.endLoginFlow(
+										newspack_reader_activation_labels.login_canceled,
+										401
+									);
 								}
 								clearInterval( interval );
 							}
 						}, 500 );
 					} else if ( googleLoginForm?.endLoginFlow ) {
-						googleLoginForm.endLoginFlow( newspack_reader_auth_labels.blocked_popup );
+						googleLoginForm.endLoginFlow( newspack_reader_activation_labels.blocked_popup );
 					}
 				} )
 				.catch( error => {
