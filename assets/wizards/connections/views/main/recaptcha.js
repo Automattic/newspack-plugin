@@ -146,8 +146,11 @@ const Recaptcha = () => {
 										setSettingsToUpdate( { ...settingsToUpdate, version: value } )
 									}
 									options={ [
-										{ value: 'v3', label: __( 'v3', 'newspack-plugin' ) },
-										{ value: 'v2_invisible', label: __( 'v2 invisible', 'newspack-plugin' ) },
+										{ value: 'v3', label: __( 'Score based (v3)', 'newspack-plugin' ) },
+										{
+											value: 'v2_invisible',
+											label: __( 'Challenge (v2) - invisible reCAPTCHA badge', 'newspack-plugin' ),
+										},
 									] }
 								/>
 							</BaseControl>
