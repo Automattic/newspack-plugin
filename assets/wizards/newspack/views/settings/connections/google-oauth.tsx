@@ -150,7 +150,7 @@ function GoogleOAuth( {
 			isChecked={ isConnected }
 			actionText={
 				<Button
-					isLink
+					variant="link"
 					isDestructive={ isConnected }
 					onClick={ isConnected ? disconnect : openAuth }
 					disabled={ inFlight }
