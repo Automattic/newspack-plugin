@@ -1895,6 +1895,15 @@ final class Reader_Activation {
 					'user_email'   => $email,
 				]
 			);
+
+			// Clear the WC session if it exists.
+			if ( \function_exists( '\WC' ) ) {
+				$session = \WC()->session;
+				if ( $session->has_session() ) {
+					$session->destroy_session();
+				}
+			}
+
 			if ( function_exists( '\wc_create_new_customer' ) ) {
 				/**
 				 * Create WooCommerce Customer if possible.
