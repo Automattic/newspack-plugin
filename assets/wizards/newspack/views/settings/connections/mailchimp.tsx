@@ -26,26 +26,23 @@ function Mailchimp() {
 	const [ authState, setAuthState ] = useState< OAuthData >();
 	const [ apiKey, setAPIKey ] = useState< string | undefined >();
 
-	const modalTextRef = useRef< HTMLDivElement >( null );
+	const modalTextRef = useRef< HTMLDivElement | null >( null );
 	const isConnected = Boolean( authState && authState.username );
 
 	useEffect( () => {
-		const fetchData = () => {
-			wizardApiFetch< OAuthData >(
-				{
-					path: '/newspack/v1/oauth/mailchimp',
-				},
-				{
-					onSuccess: res => setAuthState( res ),
-				}
-			);
-		};
-		fetchData();
+		wizardApiFetch< OAuthData >(
+			{
+				path: '/newspack/v1/oauth/mailchimp',
+			},
+			{
+				onSuccess: res => setAuthState( res ),
+			}
+		);
 	}, [] );
 
 	useEffect( () => {
 		if ( isModalOpen && modalTextRef.current ) {
-			const inputElement = modalTextRef.current.querySelector( 'input' );
+			const [ inputElement ] = modalTextRef.current.getElementsByTagName( 'input' );
 			if ( inputElement ) {
 				inputElement.focus();
 			}
