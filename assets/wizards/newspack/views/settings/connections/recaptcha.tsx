@@ -118,7 +118,7 @@ function Recaptcha() {
 						</Button>
 					)
 				}
-				error={ errorMessage }
+				error={ settings.use_captcha ? errorMessage : null }
 				disabled={ isFetching }
 			>
 				{ settings.use_captcha && (
