@@ -48,10 +48,14 @@ class Newspack_Settings extends Wizard {
 				'label'    => __( 'Connections', 'newspack-plugin' ),
 				'path'     => '/',
 				'sections' => [
-					'plugins'   => [],
-					'apis'      => [],
-					'recaptcha' => [],
-					'analytics' => [],
+					'plugins'      => [],
+					'apis'         => [],
+					'recaptcha'    => [],
+					'analytics'    => [],
+					'customEvents' => [
+						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
+						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
+					],
 				],
 			],
 			'emails'            => [
