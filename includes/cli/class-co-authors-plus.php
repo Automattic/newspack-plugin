@@ -132,6 +132,18 @@ class Co_Authors_Plus {
 					$user_data['meta_input'][ $meta_key ] = $post_meta[ 'cap-' . $meta_key ];
 				}
 			}
+
+			// Check if a user with this email address already exists (they might be a Subscriber).
+			$user = get_user_by( 'email', $user_data['user_email'] );
+			if ( $user !== false ) {
+				if ( self::$verbose ) {
+					WP_CLI::line( sprintf( 'User with email %s already exists, email address will be updated.', $user_data['user_email'] ) );
+				}
+				// Update the new user (non-editing contributor) email address.
+				// Since they won't need to log in, this email address does not have to be real.
+				$user_data['user_email'] = '_migrated-' . $guest_author->ID . '-' . $user_data['user_email'];
+			}
+
 			if ( self::$live ) {
 				$user_id = \wp_insert_user( $user_data );
 				if ( is_wp_error( $user_id ) ) {
