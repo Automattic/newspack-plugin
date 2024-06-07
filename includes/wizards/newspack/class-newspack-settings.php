@@ -5,11 +5,11 @@
  * @package Newspack
  */
 
-namespace Newspack;
+namespace Newspack\Wizards\Newspack;
+
+use Newspack\Wizard;
 
 defined( 'ABSPATH' ) || exit;
-
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
  * Common functionality for admin wizards. Override this class.
