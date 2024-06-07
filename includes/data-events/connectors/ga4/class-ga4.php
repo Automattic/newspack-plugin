@@ -207,8 +207,8 @@ class GA4 {
 
 		$params['is_reader'] = 'no';
 		if ( is_user_logged_in() ) {
-			$current_user                            = wp_get_current_user();
-			$params['is_reader']  = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+			$current_user = wp_get_current_user();
+			$params['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
 			$params['email_hash'] = md5( $current_user->user_email );
 
 			if ( method_exists( 'Newspack\Reader_Data', 'get_data' ) ) {
