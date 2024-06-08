@@ -8,6 +8,8 @@
 namespace Newspack;
 
 use Newspack\Starter_Content;
+use Newspack\Wizards\Section;
+
 defined( 'ABSPATH' ) || exit;
 
 define( 'NEWSPACK_WIZARD_COMPLETED_OPTION_PREFIX', 'newspack_wizard_completed_' );
@@ -46,11 +48,24 @@ abstract class Wizard {
 	protected $menu_priority = 2;
 
 	/**
-	 * Initialize.
+	 * Array to store instances of section objects.
+	 *
+	 * @var Wizards\Section[]
 	 */
-	public function __construct() {
+	protected $sections = [];
+
+	/**
+	 * Initialize.
+	 *
+	 * @param array $args Array of optional arguments. i.e. `sections`.
+	 * @return void 
+	 */
+	public function __construct( $args = [] ) {
 		add_action( 'admin_menu', [ $this, 'add_page' ], $this->menu_priority );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
+		if ( isset( $args['sections'] ) ) {
+			$this->load_wizard_sections( $args['sections'] );
+		}
 	}
 
 	/**
@@ -247,4 +262,15 @@ abstract class Wizard {
 	 * @return string The wizard name.
 	 */
 	abstract public function get_name();
+
+	/**
+	 * Load wizard sections.
+	 * 
+	 * @param Section[] $sections Array of Section objects.
+	 */
+	public function load_wizard_sections( $sections ) {
+		foreach ( $sections as $section_slug => $section_class ) {
+			$this->sections[ $section_slug ] = new $section_class();
+		}
+	}
 }
