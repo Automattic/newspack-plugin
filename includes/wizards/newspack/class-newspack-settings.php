@@ -52,10 +52,7 @@ class Newspack_Settings extends Wizard {
 					'apis'         => [],
 					'recaptcha'    => [],
 					'analytics'    => [],
-					'customEvents' => [
-						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
-						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
-					],
+					'customEvents' => $this->sections['custom-events']->get_data(),
 				],
 			],
 			'emails'            => [
