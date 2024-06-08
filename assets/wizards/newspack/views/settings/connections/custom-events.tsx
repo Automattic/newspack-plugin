@@ -18,11 +18,12 @@ import { Button, Grid, Notice, TextControl } from '../../../../../components/src
 /**
  * Validate GA4 Measurement ID.
  *
- * @link https://measureschool.com/ga4-measurement-id/
+ * @see   https://measureschool.com/ga4-measurement-id/
+ *
  * @param measurementId Measurement ID to validate
- * @return boolean True if the measurement ID is valid, false otherwise
+ * @return boolean      True if the measurement ID is valid, false otherwise
  */
-function isValidGA4MeasurementID( measurementId: string = '' ) {
+function isValidGA4MeasurementID( measurementId = '' ) {
 	const ga4Pattern = /^G-[A-Za-z0-9]{10,}$/;
 	return ga4Pattern.test( measurementId );
 }
