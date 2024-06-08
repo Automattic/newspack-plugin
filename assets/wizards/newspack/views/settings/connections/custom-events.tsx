@@ -69,7 +69,7 @@ function CustomEvents() {
 	function updateGa4Credentials() {
 		wizardApiFetch< Ga4Credentials >(
 			{
-				path: '/newspack/v1/wizard/analytics/ga4-credentials',
+				path: '/newspack/v2/wizard/analytics/ga4-credentials',
 				method: 'POST',
 				data: {
 					measurement_id: ga4Credentials.measurement_id,
