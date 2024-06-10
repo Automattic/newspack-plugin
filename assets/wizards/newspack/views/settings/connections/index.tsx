@@ -6,11 +6,15 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { SectionHeader } from '../../../../../components/src';
+import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
 
 function Section( {
 	title,
@@ -29,11 +33,54 @@ function Section( {
 	);
 }
 
+const CACHE_KEY = '/newspack-settings/connections';
+
 function Connections() {
+	const { wizardApiFetch, isFetching, error } = useWizardApiFetch( CACHE_KEY );
+
+	const wizardData: any = useSelect( select =>
+		select( WIZARD_STORE_NAMESPACE ).getWizardData( CACHE_KEY )
+	);
+
+	const [ status, setStatus ] = useState( 'idle' );
+	const [ statusTwo, setStatusTwo ] = useState( 'idle' );
+
+	useEffect( () => {
+		for ( const plugin of [ 'jetpack', 'jetpacks' ] ) {
+			const stateHandler = plugin === 'jetpack' ? setStatus : setStatusTwo;
+			wizardApiFetch(
+				{ path: `/newspack/v1/plugins/${ plugin }` },
+				{
+					onStart() {
+						stateHandler( 'Start' );
+					},
+					onSuccess() {
+						stateHandler( 'Success' );
+					},
+					onError() {
+						stateHandler( 'Error' );
+					},
+				}
+			);
+		}
+	}, [] );
+
 	return (
 		<div className="newspack-wizard__sections">
 			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
-
+			<pre>
+				{ JSON.stringify(
+					{
+						status,
+						statusTwo,
+						wizardData,
+						isFetching,
+						error,
+					},
+					null,
+					2
+				) }
+			</pre>
 			{ /* Plugins */ }
 			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>
 				<div className="newspack-card">Coming soon</div>
