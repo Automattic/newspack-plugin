@@ -163,7 +163,7 @@ class GA4 {
 	 * Get custom parameters for a GA configuration or event body.
 	 */
 	public static function get_custom_parameters() {
-		$parms = [
+		$params = [
 			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
 		];
 		$session_id = self::extract_sid_from_cookies();
