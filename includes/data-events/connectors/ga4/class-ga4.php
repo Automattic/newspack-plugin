@@ -39,6 +39,7 @@ class GA4 {
 		'newsletter_subscribed',
 		'prompt_interaction',
 		'gate_interaction',
+		'modal_checkout_interaction',
 	];
 
 	/**
@@ -106,6 +107,7 @@ class GA4 {
 	 * @return void
 	 */
 	public static function global_handler( $event_name, $timestamp, $data, $user_id ) {
+		self::log( $event_name . ' fired' );
 		if ( ! in_array( $event_name, self::$watched_events, true ) ) {
 			return;
 		}
@@ -435,6 +437,12 @@ class GA4 {
 		$transformed_data = Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $transformed_data );
 
 		return array_merge( $params, $transformed_data );
+	}
+
+	/** WTF */
+	public static function handle_modal_checkout_interaction( $params, $data ) {
+		Logger::log( 'in handle method: ' . print_r( $data, true ) );
+		return $params;
 	}
 
 	/**
