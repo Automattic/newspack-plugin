@@ -1,3 +1,10 @@
+# [4.2.0](https://github.com/Automattic/newspack-plugin/compare/v4.1.0...v4.2.0) (2024-06-11)
+
+
+### Features
+
+* **ga:** add custom parameters to FE-originating GA requests ([#3178](https://github.com/Automattic/newspack-plugin/issues/3178)) ([860791f](https://github.com/Automattic/newspack-plugin/commit/860791fe9e0f77aa34e85a9a155316868ad77844))
+
 # [4.1.0](https://github.com/Automattic/newspack-plugin/compare/v4.0.1...v4.1.0) (2024-05-30)
 
 
