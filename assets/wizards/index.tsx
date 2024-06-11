@@ -74,5 +74,6 @@ const AdminPages = () => {
 if ( rootElement && ALLOWED_PAGES.includes( pageParam ) ) {
 	render( <AdminPages />, rootElement );
 } else {
+	// eslint-disable-next-line no-console
 	console.error( `${ pageParam } not found!` );
 }

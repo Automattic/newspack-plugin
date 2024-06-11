@@ -271,6 +271,9 @@ final class Reader_Data {
 	 * @param array $data      Data.
 	 */
 	public static function update_newsletter_subscribed_lists( $timestamp, $data ) {
+		if ( ! isset( $data['user_id'] ) ) {
+			return;
+		}
 		if ( ! empty( $data['lists'] ) ) {
 			self::update_item( $data['user_id'], 'is_newsletter_subscriber', true );
 			self::update_item( $data['user_id'], 'newsletter_subscribed_lists', wp_json_encode( $data['lists'] ) );
@@ -390,7 +393,7 @@ final class Reader_Data {
 	/**
 	 * Data event handler to update a user's list of active non-donation subscriptions.
 	 * The active_subscriptions key stores an array of the user's active non-donation subscriptions.
-	 * 
+	 *
 	 * @param int   $timestamp Timestamp.
 	 * @param array $data      Data.
 	 */
@@ -401,7 +404,7 @@ final class Reader_Data {
 
 		$existing_subscriptions = self::get_data( $data['user_id'], 'active_subscriptions' );
 		$active_subscriptions   = $existing_subscriptions ? json_decode( $existing_subscriptions ) : [];
-		if ( 'active' === $data['status_after'] ) {
+		if ( WooCommerce_Connection::is_subscription_active( $data['status_after'] ) ) {
 			$active_subscriptions = array_merge( $active_subscriptions, $data['product_ids'] );
 		} else {
 			$active_subscriptions = array_values( array_diff( $active_subscriptions, $data['product_ids'] ) );
@@ -414,7 +417,7 @@ final class Reader_Data {
 	/**
 	 * Data event handler to check if the user has active subscriptions and
 	 * set the data item on login.
-	 * 
+	 *
 	 * @param int   $timestamp Timestamp.
 	 * @param array $data      Data.
 	 */
@@ -430,7 +433,7 @@ final class Reader_Data {
 		$active_subscriptions = \wcs_get_subscriptions(
 			[
 				'customer_id'         => $data['user_id'],
-				'subscription_status' => 'active',
+				'subscription_status' => WooCommerce_Connection::$active_subscription_statuses,
 			]
 		);
 
@@ -448,7 +451,7 @@ final class Reader_Data {
 
 	/**
 	 * Data event handler to update a user's list of active memberships.
-	 * 
+	 *
 	 * @param int   $timestamp Timestamp.
 	 * @param array $data      Data.
 	 */
@@ -472,7 +475,7 @@ final class Reader_Data {
 	/**
 	 * Data event handler to check if the user has active memberships and
 	 * set the data item on login.
-	 * 
+	 *
 	 * @param int   $timestamp Timestamp.
 	 * @param array $data      Data.
 	 */

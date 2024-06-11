@@ -583,7 +583,10 @@ class Plugin_Manager {
 	 * @return array of 'plugin_slug => []' entries for all installed plugins.
 	 */
 	public static function get_installed_plugins_info() {
-		$plugins = array_merge( \get_plugins(), \wp_get_themes() );
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$plugins = array_merge( get_plugins(), wp_get_themes() );
 
 		$installed_plugins_info = [];
 		foreach ( self::get_installed_plugins() as $key => $path ) {
