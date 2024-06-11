@@ -35,7 +35,7 @@ export default function ActiveCampaign( { value, onChange } ) {
 				/>
 			) }
 			<SectionHeader
-				title={ __( 'ActiveCampaign', 'newspack-plugin' ) }
+				title={ __( 'ActiveCampaign settings', 'newspack-plugin' ) }
 				description={ __( 'Settings for the ActiveCampaign integration.', 'newspack-plugin' ) }
 			/>
 			<SelectControl

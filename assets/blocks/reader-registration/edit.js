@@ -117,7 +117,7 @@ export default function ReaderRegistrationEdit( {
 	};
 
 	const isListSelected = listId => {
-		return ! listsCheckboxes.hasOwnProperty( listId ) || listsCheckboxes[ listId ];
+		return listsCheckboxes.hasOwnProperty( listId ) && listsCheckboxes[ listId ];
 	};
 	const toggleListCheckbox = listId => () => {
 		const newListsCheckboxes = { ...listsCheckboxes };

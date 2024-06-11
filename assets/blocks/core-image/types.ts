@@ -1,5 +1,3 @@
-import { BlockControls } from '@wordpress/block-editor';
-
 type UnknownObject = Record< string, unknown >;
 
 /**
@@ -38,13 +36,6 @@ export interface BaseProps< T = UnknownObject, O = Attributes > {
 	className?: string;
 	setAttributes: SetAttributes< Partial< O > >;
 }
-
-/**
- * Add prop `group` to BlockControl allowed props
- */
-export type BlockControls = typeof BlockControls & {
-	( props: BlockControls.Props & { group: 'block' } ): JSX.Element;
-};
 
 /**
  * Typical props used across components

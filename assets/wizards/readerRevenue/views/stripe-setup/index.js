@@ -158,7 +158,6 @@ const StripeSetup = () => {
 					plugins={ [ 'woocommerce-gateway-stripe' ] }
 					onStatus={ ( { complete } ) => {
 						if ( complete ) {
-							console.log( complete );
 							updateWizardSettings( {
 								slug: 'newspack-reader-revenue-wizard',
 								path: [ 'stripe_data' ],
