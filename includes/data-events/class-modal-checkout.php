@@ -28,13 +28,13 @@ final class Modal_Checkout {
 	 */
 	public static function init() {
 		Data_Events::register_listener(
-			'newspack_checkout_button_modal',
+			'newspack_blocks_checkout_button_modal',
 			'modal_checkout_interaction',
 			[ __CLASS__, 'checkout_button_purchase' ]
 		);
 
 		Data_Events::register_listener(
-			'newspack_donate_block_modal',
+			'newspack_blocks_donate_block_modal',
 			'modal_checkout_interaction',
 			[ __CLASS__, 'donate_button_purchase' ]
 		);
