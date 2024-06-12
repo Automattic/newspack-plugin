@@ -18,6 +18,14 @@
 * **memberships:** remove content restriction handling on the homepage ([b63a3fa](https://github.com/Automattic/newspack-plugin/commit/b63a3fa8ad9317aa5bf92416a398e58808502f40))
 * update donation landing page ([#3109](https://github.com/Automattic/newspack-plugin/issues/3109)) ([96218c1](https://github.com/Automattic/newspack-plugin/commit/96218c18f206c330e36c0472253b6c79b70c9791))
 
+# [4.2.0](https://github.com/Automattic/newspack-plugin/compare/v4.1.0...v4.2.0) (2024-06-11)
+
+
+### Bug Fixes
+
+* **ga:** add custom parameters to FE-originating GA requests ([#3178](https://github.com/Automattic/newspack-plugin/issues/3178)) ([860791f](https://github.com/Automattic/newspack-plugin/commit/860791fe9e0f77aa34e85a9a155316868ad77844))
+
+
 # [4.1.0](https://github.com/Automattic/newspack-plugin/compare/v4.0.1...v4.1.0) (2024-05-30)
 
 
