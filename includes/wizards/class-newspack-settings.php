@@ -55,7 +55,15 @@ class Newspack_Settings extends Wizard {
 				],
 			],
 			'emails'            => [
-				'label' => __( 'Emails', 'newspack-plugin' ),
+				'label'    => __( 'Emails', 'newspack-plugin' ),
+				'sections' => [
+					'emails' => [
+						'all'                    => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+						'postType'               => Emails::POST_TYPE,
+						'salesforceRedirectUrl'  => Salesforce::get_redirect_url(),
+						'isNameYourPriceEnabled' => Donations::can_use_name_your_price(),
+					],
+				],
 			],
 			'social'            => [
 				'label' => __( 'Social', 'newspack-plugin' ),
