@@ -439,10 +439,16 @@ class GA4 {
 		return array_merge( $params, $transformed_data );
 	}
 
-	/** WTF */
+	/**
+	 * Handler for modal_checkout_interaction event.
+	 *
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
 	public static function handle_modal_checkout_interaction( $params, $data ) {
-		Logger::log( 'in handle method: ' . print_r( $data, true ) );
-		return $params;
+		return array_merge( $params, $data );
 	}
 
 	/**

@@ -776,6 +776,14 @@ class Donations {
 			$is_wc ? \wc_get_page_permalink( 'checkout' ) : ''
 		);
 
+		/**
+		 * Action to fire for donate checkout modal.
+		 *
+		 * @param string $price Donation price.
+		 * @param string $product_id Donation product ID.
+		 */
+		\do_action( 'newspack_donate_block_modal', $price, $product_id );
+
 		// Redirect to checkout.
 		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency ) );
 		exit;
