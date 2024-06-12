@@ -36,7 +36,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 			}
 
 			const messageElement = container.querySelector( '.newspack-registration__response' );
-			const submitElement = form.querySelector( 'input[type="submit"]' );
+			const submitElement = form.querySelector( 'button[type="submit"]' );
+			const spinner = document.createElement( 'span' );
 			let successElement = container.querySelector(
 				'.newspack-registration__registration-success'
 			);
@@ -45,6 +46,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				messageElement.classList.add( 'newspack-registration--hidden' );
 				messageElement.innerHTML = '';
 				submitElement.disabled = true;
+				submitElement.appendChild( spinner );
 				container.classList.add( 'newspack-registration--in-progress' );
 			};
 
@@ -80,6 +82,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageElement.appendChild( messageNode );
 					messageElement.classList.remove( 'newspack-registration--hidden' );
 				}
+				submitElement.removeChild( spinner );
 				submitElement.disabled = false;
 				container.classList.remove( 'newspack-registration--in-progress' );
 			};
