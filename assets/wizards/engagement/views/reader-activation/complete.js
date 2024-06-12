@@ -44,13 +44,11 @@ const listItems = [
 	},
 ];
 
-const activationSteps = [
-	__( 'Setting up new segments…', 'newspack-plugin' ),
-	__( 'Activating reader registration…', 'newspack-plugin' ),
-	__( 'Activating Reader Activation Campaign…', 'newspack-plugin' ),
-];
-
-const activationStepsCount = activationSteps.length;
+const DEFAULT_ACTIVATION_STEPS = {
+	campaignsSegments: __( 'Setting up new segments…', 'newspack-plugin' ),
+	readerRegistration: __( 'Activating reader registration…', 'newspack-plugin' ),
+	campaignsPrompts: __( 'Activating Reader Activation Campaign…', 'newspack-plugin' ),
+};
 
 /**
  * Get a random number between min and max.
@@ -70,15 +68,17 @@ export default withWizardScreen( () => {
 	const [ progressLabel, setProgressLabel ] = useState( false );
 	const [ completed, setCompleted ] = useState( false );
 	const timer = useRef();
+	const [ activationSteps, setActivationSteps ] = useState(
+		Object.values( DEFAULT_ACTIVATION_STEPS )
+	);
 	const { reader_activation_url, is_skipped_campaign_setup = '' } = newspack_engagement_wizard;
 	const isSkippedCampaignSetup = is_skipped_campaign_setup === '1';
 
-	/**
-	 * If skipped, remove first item.
-	 */
-	if ( isSkippedCampaignSetup && activationSteps.length !== activationStepsCount - 1 ) {
-		activationSteps.shift();
-	}
+	useEffect( () => {
+		if ( isSkippedCampaignSetup ) {
+			setActivationSteps( [ DEFAULT_ACTIVATION_STEPS.readerRegistration ] );
+		}
+	}, [ isSkippedCampaignSetup ] );
 
 	/**
 	 * Generate step list strings
@@ -107,12 +107,12 @@ export default withWizardScreen( () => {
 				setProgress( _progress => _progress + 1 );
 			}, generateRandomNumber( 1000, 2000 ) );
 		}
-		if ( progress === activationSteps.length && completed ) {
+		if ( progress >= activationSteps.length && completed ) {
 			setProgress( activationSteps.length + 1 ); // Plus one to account for the "Done!" step.
 			setProgressLabel( __( 'Done!', 'newspack-plugin' ) );
 			setTimeout( () => {
 				setInFlight( false );
-				// window.location = reader_activation_url;
+				window.location.replace( reader_activation_url );
 			}, 3000 );
 		}
 	}, [ completed, progress ] );
