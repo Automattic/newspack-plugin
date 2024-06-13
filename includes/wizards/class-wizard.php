@@ -143,6 +143,7 @@ abstract class Wizard {
 
 		wp_localize_script( 'newspack_data', 'newspack_urls', $urls );
 		wp_localize_script( 'newspack_data', 'newspack_aux_data', $aux_data );
+		wp_localize_script( 'newspack_data', 'newspackPlugins', Plugin_Manager::get_managed_plugins() );
 		wp_enqueue_script( 'newspack_data' );
 
 		/**

@@ -13,10 +13,15 @@ type ActionCardProps = Partial< {
 	isMedium: boolean;
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
-	toggleChecked: boolean;
-	toggleOnChange: () => void;
+	toggleChecked: any;
+	toggleOnChange: any;
 	actionContent: boolean | JSX.Element | null;
-	error: string | null;
+	error?:
+		| null
+		| string
+		| {
+				errorCode: string;
+		  };
 	handoff: string | null;
 	isErrorStatus: boolean;
 	isChecked: boolean;
@@ -31,17 +36,24 @@ type PluginCard = {
 	path: string;
 	slug: string;
 	editLink?: string;
-	description?: (
-		errorMessage: string | null,
-		isFetching: boolean,
-		status: string | null
-	) => string;
+	isChecked?: boolean;
+	disabled?: boolean;
+	description?:
+		| string
+		| ( ( errorMessage: string | null, isFetching: boolean, status: string | null ) => string );
 	name: string;
 	url?: string;
 	status?: string;
 	badge?: string;
 	indent?: string;
-	error?: null | {
-		errorCode: string;
-	};
+	error?:
+		| null
+		| string
+		| {
+				errorCode: string;
+		  };
+	toggleChecked?: any; // @TODO: Fix this
+	toggleOnChange?: any; // @TODO: Type right
+	isToggle?: boolean;
+	activeStatus?: 'Configured' | 'Active';
 };

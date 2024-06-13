@@ -26,7 +26,7 @@ function WizardsPluginConnectButton( { slug, url, editLink, error, actionText }:
 			</Button>
 		);
 	}
-	if ( error && error.errorCode === 'unavailable_site_id' ) {
+	if ( error instanceof Object && error.errorCode === 'unavailable_site_id' ) {
 		return (
 			<span className="i newspack-error">
 				{ __( 'Jetpack connection required', 'newspack-plugin' ) }
@@ -44,6 +44,7 @@ function WizardsPluginCard( {
 	url,
 	editLink,
 	actionText,
+	...props
 }: PluginCard ) {
 	const { wizardApiFetch, isFetching, errorMessage, error } = useWizardApiFetch(
 		`/newspack-settings/connections/plugins/${ slug }`
@@ -90,6 +91,7 @@ function WizardsPluginCard( {
 			isChecked={ ! ( status === 'inactive' || isFetching ) }
 			error={ errorMessage }
 			isMedium
+			{ ...props }
 		/>
 	);
 }

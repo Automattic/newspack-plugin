@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 const settingsTabs = window.newspackSettings;
 
 import Connections from './connections';
+import Syndication from './syndication';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -15,7 +16,7 @@ const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = 
 	connections: Connections,
 	// emails: Emails,
 	// social: Social,
-	// syndication: Syndication,
+	syndication: Syndication,
 	// seo: Seo,
 	// 'theme-and-brand': ThemeAndBrand,
 	// 'display-settings': DisplaySettings,
