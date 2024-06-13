@@ -102,7 +102,7 @@ final class Modal_Checkout {
 	 */
 	public static function checkout_attempt() {
 		$data = [
-			'trigger' => 'checkout_attempt',
+			'is_checkout_attempt' => 'yes',
 		];
 		return $data;
 	}
@@ -115,7 +115,7 @@ final class Modal_Checkout {
 	public static function redirect_test() {
 		\Newspack\Logger::log( 'This fires when the template is reloaded' );
 		$data = [
-			'trigger' => 'checkout_attempt',
+			'trigger' => 'something_else',
 		];
 		return $data;
 	}
