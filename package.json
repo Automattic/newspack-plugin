@@ -6,24 +6,18 @@
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
 	},
 	"homepage": "https://newspack.com",
-	"engines": {
-		"node": "16",
-		"npm": "8"
-	},
 	"devDependencies": {
-		"@rushstack/eslint-patch": "^1.10.2",
+		"@rushstack/eslint-patch": "^1.10.3",
 		"@testing-library/react": "^12.1.4",
 		"@types/qs": "^6.9.15",
 		"@types/react": "^17.0.75",
 		"@types/wordpress__block-editor": "^11.5.14",
 		"@types/wordpress__blocks": "^12.5.14",
 		"@types/wordpress__components": "^23.0.12",
-		"@wordpress/browserslist-config": "^5.40.0",
+		"@wordpress/browserslist-config": "^6.0.0",
 		"eslint": "^7.32.0",
 		"lint-staged": "^15.2.2",
-		"newspack-scripts": "^5.3.0",
-		"postcss-scss": "^4.0.9",
-		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
+		"newspack-scripts": "file:~/Repositories/newspack-scripts",
 		"stylelint": "^16.5.0"
 	},
 	"browserslist": [
@@ -42,10 +36,10 @@
 		"watch": "newspack-scripts watch",
 		"test": "newspack-scripts test",
 		"lint": "npm run lint:scss && npm run lint:js",
-		"lint:js": "eslint --ext .js,.jsx,.ts,.tsx assets",
+		"lint:js": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
 		"lint:js:staged": "eslint --ext .js,.jsx,.ts,.tsx",
 		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
-		"format:js": "prettier 'assets/**/*.{js,jsx,ts,tsx}' --write",
+		"format:js": "prettier 'src/**/*.{js,jsx,ts,tsx}' --write",
 		"typescript:check": "newspack-scripts typescript-check",
 		"lint:scss": "stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
 		"format:scss": "prettier --write '**/*.scss'",
@@ -61,13 +55,11 @@
 		"colord": "^2.9.3",
 		"deep-map-keys": "^2.0.1",
 		"js-cookie": "^3.0.5",
-		"lodash": "^4.17.21",
 		"moment": "^2.30.1",
 		"moment-range": "^3.1.1",
 		"qs": "^6.12.1",
-		"react": "^17.0.2",
 		"react-daterange-picker": "^2.0.1",
-		"react-router-dom": "^5.3.4",
+		"react-router-dom": "^6.23",
 		"recursive-copy": "^2.0.14",
 		"tachyons": "^4.12.0"
 	}

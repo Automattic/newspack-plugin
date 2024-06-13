@@ -32,7 +32,7 @@ import {
  */
 import './editor.scss';
 
-const getListCheckboxId = listId => {
+const getListCheckboxId = ( listId ) => {
 	return 'newspack-reader-registration-list-checkbox-' + listId;
 };
 
@@ -116,10 +116,10 @@ export default function ReaderRegistrationEdit( {
 		return lists.length === 1 && hideSubscriptionInput;
 	};
 
-	const isListSelected = listId => {
+	const isListSelected = ( listId ) => {
 		return listsCheckboxes.hasOwnProperty( listId ) && listsCheckboxes[ listId ];
 	};
-	const toggleListCheckbox = listId => () => {
+	const toggleListCheckbox = ( listId ) => () => {
 		const newListsCheckboxes = { ...listsCheckboxes };
 		newListsCheckboxes[ listId ] = ! isListSelected( listId );
 		setAttributes( { listsCheckboxes: newListsCheckboxes } );
@@ -133,7 +133,7 @@ export default function ReaderRegistrationEdit( {
 						label={ __( 'Input placeholder', 'newspack-plugin' ) }
 						value={ placeholder }
 						disabled={ inFlight }
-						onChange={ value => setAttributes( { placeholder: value } ) }
+						onChange={ ( value ) => setAttributes( { placeholder: value } ) }
 					/>
 				</PanelBody>
 				{ newspack_blocks.has_newsletters && (
@@ -188,7 +188,7 @@ export default function ReaderRegistrationEdit( {
 										{ Object.keys( listConfig ).length > 0 && (
 											<p>{ __( 'Lists', 'newspack-plugin' ) }:</p>
 										) }
-										{ Object.keys( listConfig ).map( listId => (
+										{ Object.keys( listConfig ).map( ( listId ) => (
 											<ToggleControl
 												key={ listId }
 												label={ listConfig[ listId ].title }
@@ -198,7 +198,7 @@ export default function ReaderRegistrationEdit( {
 													if ( ! lists.includes( listId ) ) {
 														setAttributes( { lists: lists.concat( listId ) } );
 													} else {
-														setAttributes( { lists: lists.filter( id => id !== listId ) } );
+														setAttributes( { lists: lists.filter( ( id ) => id !== listId ) } );
 													}
 												} }
 											/>
@@ -244,7 +244,7 @@ export default function ReaderRegistrationEdit( {
 				<div className="newspack-registration__state-bar">
 					<span>{ __( 'Edited State', 'newspack-plugin' ) }</span>
 					<div>
-						{ editedStateOptions.map( option => (
+						{ editedStateOptions.map( ( option ) => (
 							<Button
 								key={ option.value }
 								data-is-active={ editedState === option.value }
@@ -257,17 +257,17 @@ export default function ReaderRegistrationEdit( {
 				</div>
 				{ editedState === 'initial' && (
 					<div className={ `newspack-registration ${ className }` }>
-						<form onSubmit={ ev => ev.preventDefault() }>
+						<form onSubmit={ ( ev ) => ev.preventDefault() }>
 							<div className="newspack-registration__have-account">
 								<RichText
-									onChange={ value => setAttributes( { haveAccountLabel: value } ) }
+									onChange={ ( value ) => setAttributes( { haveAccountLabel: value } ) }
 									placeholder={ __( 'Already have an account?', 'newspack-plugin' ) }
 									value={ haveAccountLabel }
 									tagName="span"
 								/>{ ' ' }
-								<a href="/my-account" onClick={ ev => ev.preventDefault() }>
+								<a href="/my-account" onClick={ ( ev ) => ev.preventDefault() }>
 									<RichText
-										onChange={ value => setAttributes( { signInLabel: value } ) }
+										onChange={ ( value ) => setAttributes( { signInLabel: value } ) }
 										placeholder={ __( 'Sign In', 'newspack-plugin' ) }
 										value={ signInLabel }
 										tagName="span"
@@ -276,14 +276,14 @@ export default function ReaderRegistrationEdit( {
 							</div>
 							<div className="newspack-registration__header">
 								<RichText
-									onChange={ value => setAttributes( { title: value } ) }
+									onChange={ ( value ) => setAttributes( { title: value } ) }
 									placeholder={ __( 'Add title', 'newspack-plugin' ) }
 									value={ title }
 									tagName="h2"
 								/>
 							</div>
 							<RichText
-								onChange={ value => setAttributes( { description: value } ) }
+								onChange={ ( value ) => setAttributes( { description: value } ) }
 								placeholder={ __( 'Add description', 'newspack-plugin' ) }
 								value={ description }
 								tagName="p"
@@ -293,14 +293,14 @@ export default function ReaderRegistrationEdit( {
 									<div className="newspack-reader__lists">
 										{ lists?.length > 1 && (
 											<RichText
-												onChange={ value => setAttributes( { newsletterTitle: value } ) }
+												onChange={ ( value ) => setAttributes( { newsletterTitle: value } ) }
 												placeholder={ __( 'Newsletters title…', 'newspack-plugin' ) }
 												value={ newsletterTitle }
 												tagName="h3"
 											/>
 										) }
 										<ul>
-											{ lists.map( listId => (
+											{ lists.map( ( listId ) => (
 												<li key={ listId }>
 													<span className="newspack-reader__lists__checkbox">
 														<input
@@ -318,7 +318,7 @@ export default function ReaderRegistrationEdit( {
 															<span className="newspack-reader__lists__title">
 																{ lists.length === 1 ? (
 																	<RichText
-																		onChange={ value =>
+																		onChange={ ( value ) =>
 																			setAttributes( { newsletterLabel: value } )
 																		}
 																		placeholder={ __(
@@ -350,7 +350,7 @@ export default function ReaderRegistrationEdit( {
 											<input type="email" placeholder={ placeholder } />
 											<button type="submit">
 												<RichText
-													onChange={ value => setAttributes( { label: value } ) }
+													onChange={ ( value ) => setAttributes( { label: value } ) }
 													placeholder={ __( 'Sign up', 'newspack-plugin' ) }
 													value={ label }
 													tagName="span"
@@ -377,7 +377,7 @@ export default function ReaderRegistrationEdit( {
 									</div>
 									<div className="newspack-registration__help-text">
 										<RichText
-											onChange={ value => setAttributes( { privacyLabel: value } ) }
+											onChange={ ( value ) => setAttributes( { privacyLabel: value } ) }
 											placeholder={ __( 'Terms & Conditions statement…', 'newspack-plugin' ) }
 											value={ privacyLabel || defaultTermsText }
 											tagName="p"
@@ -399,7 +399,7 @@ export default function ReaderRegistrationEdit( {
 						<div className="newspack-registration__icon" />
 						<RichText
 							align="center"
-							onChange={ value => setAttributes( { signedInLabel: value } ) }
+							onChange={ ( value ) => setAttributes( { signedInLabel: value } ) }
 							placeholder={ __( 'Logged in message…', 'newspack-plugin' ) }
 							value={ signedInLabel }
 							tagName="p"

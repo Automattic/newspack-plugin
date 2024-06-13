@@ -9,5 +9,5 @@ module.exports = {
 	rules: {
 		'@typescript-eslint/ban-ts-comment': 'warn',
 	},
-	ignorePatterns: [ 'dist/', 'node_modules/', 'assets/components/node_modules' ],
+	ignorePatterns: [ 'dist/', 'node_modules/', 'src/components/node_modules' ],
 };

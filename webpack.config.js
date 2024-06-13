@@ -10,16 +10,16 @@
 const fs = require( 'fs' );
 const getBaseWebpackConfig = require( 'newspack-scripts/config/getWebpackConfig' );
 const path = require( 'path' );
-const wizardsDir = path.join( __dirname, 'assets', 'wizards' );
+const wizardsDir = path.join( __dirname, 'src', 'wizards' );
 
 // Get files for wizards scripts.
 const wizardsScripts = fs
 	.readdirSync( wizardsDir )
 	.filter( wizard =>
-		fs.existsSync( path.join( __dirname, 'assets', 'wizards', wizard, 'index.js' ) )
+		fs.existsSync( path.join( __dirname, 'src', 'wizards', wizard, 'index.js' ) )
 	);
 const wizardsScriptFiles = {
-	'plugins-screen': path.join( __dirname, 'assets', 'plugins-screen', 'plugins-screen.js' ),
+	'plugins-screen': path.join( __dirname, 'src', 'plugins-screen', 'plugins-screen.js' ),
 };
 wizardsScripts.forEach( function ( wizard ) {
 	let wizardFileName = wizard;
@@ -29,7 +29,7 @@ wizardsScripts.forEach( function ( wizard ) {
 	}
 	wizardsScriptFiles[ wizardFileName ] = path.join(
 		__dirname,
-		'assets',
+		'src',
 		'wizards',
 		wizard,
 		'index.js'
@@ -38,14 +38,14 @@ wizardsScripts.forEach( function ( wizard ) {
 
 // Get files for other scripts.
 const otherScripts = fs
-	.readdirSync( path.join( __dirname, 'assets', 'other-scripts' ) )
+	.readdirSync( path.join( __dirname, 'src', 'other-scripts' ) )
 	.filter( script =>
-		fs.existsSync( path.join( __dirname, 'assets', 'other-scripts', script, 'index.js' ) )
+		fs.existsSync( path.join( __dirname, 'src', 'other-scripts', script, 'index.js' ) )
 	);
 otherScripts.forEach( function ( script ) {
 	wizardsScriptFiles[ `other-scripts/${ script }` ] = path.join(
 		__dirname,
-		'assets',
+		'src',
 		'other-scripts',
 		script,
 		'index.js'
@@ -53,33 +53,32 @@ otherScripts.forEach( function ( script ) {
 } );
 
 const webpackConfig = getBaseWebpackConfig(
-	{ WP: true },
 	{
 		entry: {
 			...wizardsScriptFiles,
-			blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
-			'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
-			'reader-auth': path.join( __dirname, 'assets', 'reader-activation', 'auth.js' ),
+			blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
+			'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
+			'reader-auth': path.join( __dirname, 'src', 'reader-activation', 'auth.js' ),
 			'reader-registration-block': path.join(
 				__dirname,
-				'assets',
+				'src',
 				'blocks',
 				'reader-registration',
 				'view.js'
 			),
 			'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
-			admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
-			'memberships-gate-editor': path.join( __dirname, 'assets', 'memberships-gate', 'editor.js' ),
-			'memberships-gate': path.join( __dirname, 'assets', 'memberships-gate', 'gate.js' ),
+			admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
+			'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
+			'memberships-gate': path.join( __dirname, 'src', 'memberships-gate', 'gate.js' ),
 			'memberships-gate-metering': path.join(
 				__dirname,
-				'assets',
+				'src',
 				'memberships-gate',
 				'metering.js'
 			),
 			'memberships-gate-block-patterns': path.join(
 				__dirname,
-				'assets',
+				'src',
 				'memberships-gate',
 				'block-patterns.js'
 			),
@@ -87,17 +86,13 @@ const webpackConfig = getBaseWebpackConfig(
 	}
 );
 
-// overwrite Calypso's optimisation
-webpackConfig.optimization = {
-	splitChunks: {
-		cacheGroups: {
-			commons: {
-				name: 'commons',
-				chunks: 'initial',
-				minChunks: 2,
-			},
-		},
-	},
+// Overwrite default optimisation.
+webpackConfig.optimization.splitChunks.cacheGroups.commons = {
+	name: 'commons',
+	chunks: 'initial',
+	minChunks: 2,
 };
+
+console.log( webpackConfig.optimization.splitChunks.cacheGroups );
 
 module.exports = webpackConfig;

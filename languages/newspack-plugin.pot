@@ -30,72 +30,72 @@ msgstr ""
 msgid "https://newspack.com/"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:39
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:39
+#: src/blocks/reader-registration/index.php:39
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:39
 msgid "Stacked"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:47
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:47
+#: src/blocks/reader-registration/index.php:47
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:47
 msgid "Columns (newsletter subscription)"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:110
-#: assets/blocks/reader-registration/index.php:343
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:110
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:343
+#: src/blocks/reader-registration/index.php:110
+#: src/blocks/reader-registration/index.php:343
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:110
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:343
 msgid "Thank you for registering!"
 msgstr ""
 
 #. Translators: %s is a link to My Account.
-#: assets/blocks/reader-registration/index.php:115
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:115
+#: src/blocks/reader-registration/index.php:115
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:115
 msgid "Please visit %s to verify and manage your account."
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:116
+#: src/blocks/reader-registration/index.php:116
 #: includes/reader-activation/class-reader-activation.php:928
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:116
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:116
 #: release/newspack-plugin/includes/reader-activation/class-reader-activation.php:928
 msgid "My Account"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:123
+#: src/blocks/reader-registration/index.php:123
 #: includes/reader-activation/class-reader-activation.php:1144
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:123
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:123
 #: release/newspack-plugin/includes/reader-activation/class-reader-activation.php:1144
 msgid "Sign up"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:124
+#: src/blocks/reader-registration/index.php:124
 #: includes/reader-activation/class-reader-activation.php:1220
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:124
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:124
 #: release/newspack-plugin/includes/reader-activation/class-reader-activation.php:1220
 msgid "Subscribe to our newsletter"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:125
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:125
+#: src/blocks/reader-registration/index.php:125
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:125
 msgid "Already have an account?"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:126
+#: src/blocks/reader-registration/index.php:126
 #: includes/reader-activation/class-reader-activation.php:1108
 #: includes/reader-activation/class-reader-activation.php:1121
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:126
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:126
 #: release/newspack-plugin/includes/reader-activation/class-reader-activation.php:1108
 #: release/newspack-plugin/includes/reader-activation/class-reader-activation.php:1121
 msgid "Sign in"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:127
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:127
+#: src/blocks/reader-registration/index.php:127
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:127
 msgid "An account was already registered with this email. Please check your inbox for an authentication link."
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:410
+#: src/blocks/reader-registration/index.php:410
 #: includes/reader-activation/class-reader-activation.php:1390
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:410
+#: release/newspack-plugin/src/blocks/reader-registration/index.php:410
 #: release/newspack-plugin/includes/reader-activation/class-reader-activation.php:1390
 msgid "You must enter a valid email address."
 msgstr ""
