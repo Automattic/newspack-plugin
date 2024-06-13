@@ -45,12 +45,24 @@ final class Modal_Checkout {
 			[ __CLASS__, 'checkout_attempt' ]
 		);
 
-		// WTF.
 		Data_Events::register_listener(
-			'template_redirect',
+			'action_TBD',
 			'modal_checkout_interaction',
-			[ __CLASS__, 'redirect_test' ]
+			[ __CLASS__, 'modal_pagination' ]
 		);
+	}
+
+	/**
+	 * Returns whether a product is a one time purchase, or recurring and when.
+	 *
+	 * @param string $product_id Product's ID.
+	 */
+	public static function get_purchase_recurrrence( $product_id ) {
+		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
+		if ( empty( $recurrence ) ) {
+			$recurrence = 'once';
+		}
+		return $recurrence;
 	}
 
 	/**
@@ -65,13 +77,13 @@ final class Modal_Checkout {
 	 */
 	public static function checkout_button_purchase( $price, $currency, $product_id, $referer ) {
 		$data = [
-			'action'           => self::FORM_SUBMISSION,
-			'action_type'      => 'purchase',
-			'referer'          => $referer,
-			'amount'           => $price,
-			'currency'         => $currency,
-			'product_id'       => $product_id,
-			'checkout_trigger' => 'checkout_button_block',
+			'action'      => self::FORM_SUBMISSION, // not sure if needed/correct here? Fires when modal opens, not when form is submitted.
+			'action_type' => 'paid_membership', // TODO: is this okay? The Checkout Button Block can technically be used for ANY Woo product.
+			'referer'     => $referer,
+			'amount'      => $price,
+			'currency'    => $currency,
+			'product_id'  => $product_id,
+			'recurrence'  => self::get_purchase_recurrrence( $product_id ),
 		];
 		return $data;
 	}
@@ -88,13 +100,13 @@ final class Modal_Checkout {
 	 */
 	public static function donate_button_purchase( $price, $currency, $product_id, $referer ) {
 		$data = [
-			'action'           => self::FORM_SUBMISSION,
-			'action_type'      => 'donation',
-			'referer'          => $referer,
-			'amount'           => $price,
-			'currency'         => $currency,
-			'product_id'       => $product_id,
-			'checkout_trigger' => 'donate_block',
+			'action'      => self::FORM_SUBMISSION, // not sure if needed/correct here? Fires when modal opens, not when form is submitted.
+			'action_type' => 'donation',
+			'referer'     => $referer,
+			'amount'      => $price,
+			'currency'    => $currency,
+			'product_id'  => $product_id,
+			'recurrence'  => self::get_purchase_recurrrence( $product_id ),
 		];
 		return $data;
 	}
@@ -102,12 +114,15 @@ final class Modal_Checkout {
 	/**
 	 * Fires when a reader attempts to complete an order with the modal checkout.
 	 *
+	 * @param array $order WooCommerce order information.
+	 *
 	 * @return ?array
 	 */
-	public static function checkout_attempt() {
+	public static function checkout_attempt( $order ) {
+		$order_id = $order->get_id();
 		$data = [
-			'action'              => self::FORM_SUBMISSION,
-			'is_checkout_attempt' => 'yes',
+			'action'   => self::FORM_SUBMISSION, // Replaces a 'is_checkout_attempt tracking?
+			'order_id' => $order_id,
 		];
 		return $data;
 	}
@@ -117,10 +132,9 @@ final class Modal_Checkout {
 	 *
 	 * @return ?array
 	 */
-	public static function redirect_test() {
-		\Newspack\Logger::log( 'This fires when the template is reloaded' );
+	public static function modal_pagination() {
 		$data = [
-			'trigger' => 'something_else',
+			'modal_pagination' => 'TK', // returns 2, 3, etc.
 		];
 		return $data;
 	}
