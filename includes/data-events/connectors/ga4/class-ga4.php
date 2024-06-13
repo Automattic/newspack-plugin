@@ -107,7 +107,6 @@ class GA4 {
 	 * @return void
 	 */
 	public static function global_handler( $event_name, $timestamp, $data, $user_id ) {
-		self::log( $event_name . ' fired' );
 		if ( ! in_array( $event_name, self::$watched_events, true ) ) {
 			return;
 		}
