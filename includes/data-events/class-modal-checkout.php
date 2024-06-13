@@ -44,24 +44,32 @@ final class Modal_Checkout {
 			'modal_checkout_interaction',
 			[ __CLASS__, 'checkout_attempt' ]
 		);
+
+		// WTF.
+		Data_Events::register_listener(
+			'template_redirect',
+			'modal_checkout_interaction',
+			[ __CLASS__, 'redirect_test' ]
+		);
 	}
 
 	/**
-	 * TODO: Add some words here
+	 * TODO: Add some words here.
 	 *
 	 * @param string $price Purchase price.
-	 * @param string $product_id Purchase product ID.
+	 * @param string $product_id Purchased product ID.
+	 * @param string $referer Purchased product referer.
 	 *
 	 * @return ?array
 	 */
-	public static function checkout_button_purchase( $price, $product_id ) {
+	public static function checkout_button_purchase( $price, $product_id, $referer ) {
 		$data = [
-			'action'          => self::FORM_SUBMISSION,
-			'action_type'     => 'registration',
-			'referer'         => $metadata['referer'],
-			'product_price'   => $price,
-			'product_id'      => $product_id,
-			'product_trigger' => 'checkout_button',
+			'action'              => self::FORM_SUBMISSION,
+			'action_type'         => 'registration',
+			'referer'             => $referer,
+			'checkout_price'      => $price,
+			'checkout_product_id' => $product_id,
+			'checkout_trigger'    => 'checkout_button',
 		];
 		return $data;
 	}
@@ -71,27 +79,41 @@ final class Modal_Checkout {
 	 *
 	 * @param string $price Donation price.
 	 * @param string $product_id Donation product ID.
+	 * @param string $referer Donation referrer.
 	 *
 	 * @return ?array
 	 */
-	public static function donate_button_purchase( $price, $product_id ) {
+	public static function donate_button_purchase( $price, $product_id, $referer ) {
 		$data = [
-			'action'          => self::FORM_SUBMISSION,
-			'action_type'     => 'registration',
-			'referer'         => $metadata['referer'],
-			'product_price'   => $price,
-			'product_id'      => $product_id,
-			'product_trigger' => 'donate_button',
+			'action'              => self::FORM_SUBMISSION,
+			'action_type'         => 'registration',
+			'referer'             => $referer,
+			'checkout_price'      => $price,
+			'checkout_product_id' => $product_id,
+			'checkout_trigger'    => 'donate_button',
 		];
 		return $data;
 	}
 
 	/**
-	 * TODO: Add some words here
+	 * TODO: Add some words here.
 	 *
 	 * @return ?array
 	 */
 	public static function checkout_attempt() {
+		$data = [
+			'trigger' => 'checkout_attempt',
+		];
+		return $data;
+	}
+
+	/**
+	 * TODO: Add some words here.
+	 *
+	 * @return ?array
+	 */
+	public static function redirect_test() {
+		\Newspack\Logger::log( 'This fires when the template is reloaded' );
 		$data = [
 			'trigger' => 'checkout_attempt',
 		];

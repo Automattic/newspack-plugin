@@ -448,7 +448,12 @@ class GA4 {
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
 	public static function handle_modal_checkout_interaction( $params, $data ) {
-		return array_merge( $params, $data );
+		$transformed_data = $data;
+		// remove data added in the body filter.
+		unset( $transformed_data['ga_params'] );
+		unset( $transformed_data['ga_client_id'] );
+
+		return array_merge( $params, $transformed_data );
 	}
 
 	/**
