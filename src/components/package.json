@@ -38,6 +38,8 @@
 	"devDependencies": {
 		"@babel/cli": "^7.24.0",
 		"@babel/core": "^7.24.0",
+		"@babel/preset-env": "^7.24.7",
+		"@babel/preset-react": "^7.24.7",
 		"recursive-copy": "^2.0.0"
 	},
 	"babel": {
@@ -46,7 +48,7 @@
 		]
 	},
 	"scripts": {
-		"prepublishOnly": "transpile && node copy-styles.js",
+		"prepublishOnly": "npx babel src && node copy-styles.js",
 		"postpublish": "rm -r dist && rm -r shared"
 	}
 }
