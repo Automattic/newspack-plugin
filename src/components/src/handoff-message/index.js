@@ -34,6 +34,8 @@ export default function HandoffMessage() {
 		// Clean up the notification when unmounting.
 		return () => window.localStorage.removeItem( HANDOFF_KEY );
 	}, [] );
-	if ( ! handoffMessage ) return null;
+	if ( ! handoffMessage ) {
+		return null;
+	}
 	return <Notice isHandoff isDismissible={ false } rawHTML noticeText={ handoffMessage } />;
 }

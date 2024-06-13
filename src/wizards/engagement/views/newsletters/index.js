@@ -309,11 +309,10 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 					error
 						? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
 						: lockedLists
-						? __(
+							? __(
 								'Please save your ESP settings before changing your subscription lists.',
 								'newspack-plugin'
-						  )
-						: null
+							) : null
 				}
 				notificationLevel={ error ? 'error' : 'warning' }
 				hasGreyHeader

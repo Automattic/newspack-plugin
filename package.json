@@ -38,6 +38,7 @@
 		"lint": "npm run lint:scss && npm run lint:js",
 		"lint:js": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
 		"lint:js:staged": "eslint --ext .js,.jsx,.ts,.tsx",
+		"fix:js": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
 		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
 		"format:js": "prettier 'src/**/*.{js,jsx,ts,tsx}' --write",
 		"typescript:check": "newspack-scripts typescript-check",

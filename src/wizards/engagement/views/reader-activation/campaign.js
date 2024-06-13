@@ -141,8 +141,8 @@ export default withWizardScreen( () => {
 					{ skipped.status === 'pending'
 						? __( 'Skipping…', 'newspack-plugin' )
 						: skipped.isSkipped
-						? __( 'Skipped', 'newspack-plugin' )
-						: __( 'Skip', 'newspack-plugin' ) }
+							? __( 'Skipped', 'newspack-plugin' )
+							: __( 'Skip', 'newspack-plugin' ) }
 				</Button>
 				<Button
 					isPrimary

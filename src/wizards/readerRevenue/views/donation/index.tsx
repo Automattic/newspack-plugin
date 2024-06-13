@@ -55,7 +55,7 @@ type WizardData = {
 				tiered: boolean;
 				minimumDonation: string;
 				billingFields: string[];
-		  };
+		};
 	platform_data: {
 		platform: string;
 	};
@@ -159,10 +159,9 @@ export const DonationAmounts = () => {
 												error={
 													amounts[ section.key ][ 0 ] < minimumDonationFloat
 														? __(
-																'Warning: suggested donations should be at least the minimum donation amount.',
-																'newspack'
-														  )
-														: null
+															'Warning: suggested donations should be at least the minimum donation amount.',
+															'newspack'
+														) : null
 												}
 												value={ amounts[ section.key ][ 0 ] }
 												min={ minimumDonationFloat }
@@ -174,10 +173,9 @@ export const DonationAmounts = () => {
 												error={
 													amounts[ section.key ][ 1 ] < minimumDonationFloat
 														? __(
-																'Warning: suggested donations should be at least the minimum donation amount.',
-																'newspack'
-														  )
-														: null
+															'Warning: suggested donations should be at least the minimum donation amount.',
+															'newspack'
+														) : null
 												}
 												value={ amounts[ section.key ][ 1 ] }
 												min={ minimumDonationFloat }
@@ -189,10 +187,9 @@ export const DonationAmounts = () => {
 												error={
 													amounts[ section.key ][ 2 ] < minimumDonationFloat
 														? __(
-																'Warning: suggested donations should be at least the minimum donation amount.',
-																'newspack'
-														  )
-														: null
+															'Warning: suggested donations should be at least the minimum donation amount.',
+															'newspack'
+														) : null
 												}
 												value={ amounts[ section.key ][ 2 ] }
 												min={ minimumDonationFloat }
@@ -234,10 +231,9 @@ export const DonationAmounts = () => {
 											error={
 												amounts[ section.key ][ 3 ] < minimumDonationFloat
 													? __(
-															'Warning: suggested donations should be at least the minimum donation amount.',
-															'newspack'
-													  )
-													: null
+														'Warning: suggested donations should be at least the minimum donation amount.',
+														'newspack'
+													) : null
 											}
 											onChange={ changeHandler( [ 'amounts', section.key, 3 ] ) }
 											key={ section.key }

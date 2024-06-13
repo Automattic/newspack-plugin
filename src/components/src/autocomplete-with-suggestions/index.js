@@ -81,24 +81,24 @@ const AutocompleteWithSuggestions = ( {
 	const handleFetchSaved = fetchSavedPosts
 		? fetchSavedPosts
 		: async ( postIds = [], searchSlug = null ) => {
-				const postTypeSlug = searchSlug || postTypeToSearch;
-				const endpoint =
+			const postTypeSlug = searchSlug || postTypeToSearch;
+			const endpoint =
 					'post' === postTypeSlug || 'page' === postTypeSlug
 						? postTypeSlug + 's' // Default post type endpoints are plural.
 						: postTypeSlug; // Custom post type endpoints are singular.
-				const posts = await apiFetch( {
-					path: addQueryArgs( '/wp/v2/' + endpoint, {
-						per_page: 100,
-						include: postIds.join( ',' ),
-						_fields: 'id,title',
-					} ),
-				} );
+			const posts = await apiFetch( {
+				path: addQueryArgs( '/wp/v2/' + endpoint, {
+					per_page: 100,
+					include: postIds.join( ',' ),
+					_fields: 'id,title',
+				} ),
+			} );
 
-				return posts.map( post => ( {
-					value: parseInt( post.id ),
-					label: decodeEntities( post.title ) || __( '(no title)', 'newspack-plugin' ),
-				} ) );
-		  };
+			return posts.map( post => ( {
+				value: parseInt( post.id ),
+				label: decodeEntities( post.title ) || __( '(no title)', 'newspack-plugin' ),
+			} ) );
+		};
 
 	/**
 	 * If passed a `fetchSuggestions` prop, use that, otherwise, build it based on the selected post type.
@@ -106,36 +106,36 @@ const AutocompleteWithSuggestions = ( {
 	const handleFetchSuggestions = fetchSuggestions
 		? fetchSuggestions
 		: async ( search = null, offset = 0, searchSlug = null ) => {
-				const postTypeSlug = searchSlug || postTypeToSearch;
-				const endpoint =
+			const postTypeSlug = searchSlug || postTypeToSearch;
+			const endpoint =
 					'post' === postTypeSlug || 'page' === postTypeSlug
 						? postTypeSlug + 's' // Default post type endpoints are plural.
 						: postTypeSlug; // Custom post type endpoints are singular.
-				const response = await apiFetch( {
-					parse: false,
-					path: addQueryArgs( '/wp/v2/' + endpoint, {
-						search,
-						offset,
-						per_page: suggestionsToFetch,
-						_fields: 'id,title',
-					} ),
+			const response = await apiFetch( {
+				parse: false,
+				path: addQueryArgs( '/wp/v2/' + endpoint, {
+					search,
+					offset,
+					per_page: suggestionsToFetch,
+					_fields: 'id,title',
+				} ),
+			} );
+
+			const total = parseInt( response.headers.get( 'x-wp-total' ) || 0 );
+			const posts = await response.json();
+
+			setMaxSuggestions( total );
+
+			// Format suggestions for FormTokenField display.
+			return posts.reduce( ( acc, post ) => {
+				acc.push( {
+					value: parseInt( post.id ),
+					label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack-plugin' ),
 				} );
 
-				const total = parseInt( response.headers.get( 'x-wp-total' ) || 0 );
-				const posts = await response.json();
-
-				setMaxSuggestions( total );
-
-				// Format suggestions for FormTokenField display.
-				return posts.reduce( ( acc, post ) => {
-					acc.push( {
-						value: parseInt( post.id ),
-						label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack-plugin' ),
-					} );
-
-					return acc;
-				}, [] );
-		  };
+				return acc;
+			}, [] );
+		};
 
 	/**
 	 * Intercept onChange callback so we can decide whether to allow multiple selections.
@@ -176,13 +176,15 @@ const AutocompleteWithSuggestions = ( {
 		const selections = selectedPost ? [ ...selectedItems, selectedPost ] : selectedItems;
 		const selectedMessage = multiSelect
 			? sprintf(
-					// Translators: %1: the length of selections. %2: the selection leabel.
-					__( '%1$s %2$s selected', 'newspack-plugin' ),
-					selections.length,
-					selections.length > 1 ? postTypeLabelPlural : postTypeLabel
-			  )
-			: // Translators: %s: The label for the selection.
-			  sprintf( __( 'Selected %s', 'newspack-plugin' ), postTypeLabel );
+				// Translators: %1: the length of selections. %2: the selection leabel.
+				__( '%1$s %2$s selected', 'newspack-plugin' ),
+				selections.length,
+				selections.length > 1 ? postTypeLabelPlural : postTypeLabel
+			) : sprintf(
+				// Translators: %s: The label for the selection.
+				__( 'Selected %s', 'newspack-plugin' ),
+				postTypeLabel
+			);
 
 		return (
 			<div className="newspack-autocomplete-with-suggestions__selected-items">

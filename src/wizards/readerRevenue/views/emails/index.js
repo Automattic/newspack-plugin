@@ -89,12 +89,12 @@ const Emails = () => {
 						{ ...( isActive
 							? {}
 							: {
-									notification: __(
-										'This email is not active. The default receipt will be used.',
-										'newspack'
-									),
-									notificationLevel: 'info',
-							  } ) }
+								notification: __(
+									'This email is not active. The default receipt will be used.',
+									'newspack'
+								),
+								notificationLevel: 'info',
+							} ) }
 					>
 						{ error && (
 							<Notice

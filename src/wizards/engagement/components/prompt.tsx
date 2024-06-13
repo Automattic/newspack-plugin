@@ -171,8 +171,8 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 				isDirty
 					? __( 'Unsaved changes', 'newspack-plugin' )
 					: prompt.ready
-					? __( 'Ready', 'newspack-plugin' )
-					: __( 'Pending', 'newspack-plugin' )
+						? __( 'Ready', 'newspack-plugin' )
+						: __( 'Pending', 'newspack-plugin' )
 			) }
 			checkbox={ prompt.ready && ! isDirty ? 'checked' : 'unchecked' }
 		>
@@ -314,12 +314,12 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 								{ inFlight
 									? __( 'Saving…', 'newspack-plugin' )
 									: sprintf(
-											// Translators: Save or Update settings.
-											__( '%s prompt settings', 'newspack-plugin' ),
-											prompt.ready
-												? __( 'Update', 'newspack-plugin' )
-												: __( 'Save', 'newspack-plugin' )
-									  ) }
+										// Translators: Save or Update settings.
+										__( '%s prompt settings', 'newspack-plugin' ),
+										prompt.ready
+											? __( 'Update', 'newspack-plugin' )
+											: __( 'Save', 'newspack-plugin' )
+									) }
 							</Button>
 							<WebPreview
 								url={ getPreviewUrl( prompt ) }
