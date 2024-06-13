@@ -54,61 +54,66 @@ final class Modal_Checkout {
 	}
 
 	/**
-	 * TODO: Add some words here.
+	 * Fires when a reader opens the modal checkout from a checkout button block.
 	 *
 	 * @param string $price Purchase price.
+	 * @param string $currency Purchase price currency.
 	 * @param string $product_id Purchased product ID.
 	 * @param string $referer Purchased product referer.
 	 *
 	 * @return ?array
 	 */
-	public static function checkout_button_purchase( $price, $product_id, $referer ) {
+	public static function checkout_button_purchase( $price, $currency, $product_id, $referer ) {
 		$data = [
-			'action'              => self::FORM_SUBMISSION,
-			'action_type'         => 'registration',
-			'referer'             => $referer,
-			'checkout_price'      => $price,
-			'checkout_product_id' => $product_id,
-			'checkout_trigger'    => 'checkout_button',
+			'action'           => self::FORM_SUBMISSION,
+			'action_type'      => 'purchase',
+			'referer'          => $referer,
+			'amount'           => $price,
+			'currency'         => $currency,
+			'product_id'       => $product_id,
+			'checkout_trigger' => 'checkout_button_block',
 		];
 		return $data;
 	}
 
 	/**
-	 * TODO: Add some words here.
+	 * Fires when a reader opens the modal checkout from a donate block.
 	 *
 	 * @param string $price Donation price.
+	 * @param string $currency Donation price currency.
 	 * @param string $product_id Donation product ID.
 	 * @param string $referer Donation referrer.
 	 *
 	 * @return ?array
 	 */
-	public static function donate_button_purchase( $price, $product_id, $referer ) {
+	public static function donate_button_purchase( $price, $currency, $product_id, $referer ) {
 		$data = [
-			'action'              => self::FORM_SUBMISSION,
-			'action_type'         => 'registration',
-			'referer'             => $referer,
-			'checkout_price'      => $price,
-			'checkout_product_id' => $product_id,
-			'checkout_trigger'    => 'donate_button',
+			'action'           => self::FORM_SUBMISSION,
+			'action_type'      => 'donation',
+			'referer'          => $referer,
+			'amount'           => $price,
+			'currency'         => $currency,
+			'product_id'       => $product_id,
+			'checkout_trigger' => 'donate_block',
 		];
 		return $data;
 	}
 
 	/**
-	 * TODO: Add some words here.
+	 * Fires when a reader attempts to complete an order with the modal checkout.
 	 *
 	 * @return ?array
 	 */
 	public static function checkout_attempt() {
 		$data = [
+			'action'              => self::FORM_SUBMISSION,
 			'is_checkout_attempt' => 'yes',
 		];
 		return $data;
 	}
 
 	/**
-	 * TODO: Add some words here.
+	 * TODO: trying to nail down when the Continue button is clicked.
 	 *
 	 * @return ?array
 	 */
