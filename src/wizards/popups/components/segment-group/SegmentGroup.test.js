@@ -9,6 +9,16 @@ import { render } from '@testing-library/react';
  */
 import SegmentGroup from './index';
 
+/**
+ * Mocks
+ */
+jest.mock( 'react-router-dom', () => ( {
+	...jest.requireActual( 'react-router-dom' ),
+	useHistory: () => ( {
+		push: jest.fn(),
+	} ),
+} ) );
+
 // Mock component props.
 const CAMPAIGN = {
 	campaignData: null,

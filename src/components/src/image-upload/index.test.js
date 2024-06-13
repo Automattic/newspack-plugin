@@ -1,7 +1,22 @@
-import React from 'react';
+/**
+ * External dependencies
+ */
 import { render } from '@testing-library/react';
 
+/**
+ * Internal dependencies
+ */
 import ImageUpload from './';
+
+/**
+ * Mocks
+ */
+jest.mock( 'react-router-dom', () => ( {
+	...jest.requireActual( 'react-router-dom' ),
+	useHistory: () => ( {
+		push: jest.fn(),
+	} ),
+} ) );
 
 describe( 'ImageUpload', () => {
 	it( 'should render an add image button', () => {
