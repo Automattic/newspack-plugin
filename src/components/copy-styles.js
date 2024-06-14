@@ -9,8 +9,7 @@ const rcopy = require( 'recursive-copy' );
 const dir = process.cwd();
 
 const inputDir = path.join( dir, 'src' );
-const outputDirEsm = path.join( dir, 'dist', 'esm' );
-const outputDirCommon = path.join( dir, 'dist', 'cjs' );
+const outputDir = path.join( dir, 'dist' );
 
 console.log( 'Copying styles %s', dir );
 
@@ -21,14 +20,7 @@ const copyOptions = {
 	debug: true,
 };
 
-rcopy( inputDir, outputDirEsm, copyOptions )
-	.then( results => {
-		console.log( 'copied %d files', results.length );
-	} )
-	.catch( err => {
-		console.error( err );
-	} );
-rcopy( inputDir, outputDirCommon, copyOptions )
+rcopy( inputDir, outputDir, copyOptions )
 	.then( results => {
 		console.log( 'copied %d files', results.length );
 	} )
