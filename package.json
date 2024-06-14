@@ -39,9 +39,9 @@
 		"fix:js": "newspack-scripts eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
 		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
 		"typescript:check": "newspack-scripts typescript-check",
-		"lint:scss": "stylelint '**/*.scss' --custom-syntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
+		"lint:scss": "newspack-scripts stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
+		"lint:scss:staged": "newspack-scripts stylelint --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
 		"format:scss": "npx prettier --write '**/*.scss'",
-		"lint:scss:staged": "stylelint --custom-syntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
 		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
 		"release": "npm run build && npm run semantic-release",
 		"postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
