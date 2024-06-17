@@ -14,7 +14,7 @@
 		"@wordpress/browserslist-config": "^6.0.0",
 		"eslint": "^8.57.0",
 		"lint-staged": "^15.2.2",
-		"newspack-scripts": "^5.5.1-alpha.2",
+		"newspack-scripts": "github:Automattic/newspack-scripts#epic/update-dependencies",
 		"postcss-scss": "^4.0.9"
 	},
 	"browserslist": [
@@ -57,9 +57,5 @@
 		"react-router-dom": "^5.3.4",
 		"recursive-copy": "^2.0.14",
 		"tachyons": "^4.12.0"
-	},
-	"overrides": {
-		"history": "4.9.0",
-		"path-to-regexp": "1.7.0"
 	}
 }
