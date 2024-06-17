@@ -278,7 +278,9 @@ function attachAuthCookiesListener() {
  * Set the reader as newsletter subscriber once a newsletter form is submitted.
  */
 function attachNewsletterFormListener() {
-	const forms = document.querySelectorAll( '.newspack-subscribe-form,.mc4wp-form' );
+	const forms = document.querySelectorAll(
+		'.newspack-newsletters-subscribe,.newspack-subscribe-form,.mc4wp-form'
+	);
 	if ( ! forms.length ) {
 		return;
 	}
@@ -331,7 +333,7 @@ function handlePush( ...args ) {
 		} else if ( typeof arg === 'function' ) {
 			arg( readerActivation );
 		} else {
-			console.warn( 'Invalid newspackRAS.push argument', arg );
+			console.warn( 'Invalid newspackRAS.push argument', arg ); // eslint-disable-line no-console
 		}
 	} );
 }
