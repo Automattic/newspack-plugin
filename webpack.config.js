@@ -93,6 +93,4 @@ webpackConfig.optimization.splitChunks.cacheGroups.commons = {
 	minChunks: 2,
 };
 
-console.log( webpackConfig.optimization.splitChunks.cacheGroups );
-
 module.exports = webpackConfig;
