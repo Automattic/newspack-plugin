@@ -6,17 +6,6 @@ import { MemoryRouter } from 'react-router-dom';
 
 import SingleSegment from './single-segment';
 
-/**
- * Mocks
- */
-jest.mock( 'react-router-dom', () => ( {
-	...jest.requireActual( 'react-router-dom' ),
-	useHistory: () => ( {
-		push: jest.fn(),
-		block: jest.fn(),
-	} ),
-} ) );
-
 // Sample criteria for input testing.
 const criteria = [
 	{

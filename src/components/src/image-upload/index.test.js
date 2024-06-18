@@ -8,16 +8,6 @@ import { render } from '@testing-library/react';
  */
 import ImageUpload from './';
 
-/**
- * Mocks
- */
-jest.mock( 'react-router-dom', () => ( {
-	...jest.requireActual( 'react-router-dom' ),
-	useHistory: () => ( {
-		push: jest.fn(),
-	} ),
-} ) );
-
 describe( 'ImageUpload', () => {
 	it( 'should render an add image button', () => {
 		const { getByText } = render( <ImageUpload /> );
