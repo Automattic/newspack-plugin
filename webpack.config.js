@@ -53,7 +53,6 @@ otherScripts.forEach( function ( script ) {
 } );
 
 const webpackConfig = getBaseWebpackConfig(
-	{ WP: true },
 	{
 		entry: {
 			...wizardsScriptFiles,
