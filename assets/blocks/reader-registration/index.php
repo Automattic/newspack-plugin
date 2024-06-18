@@ -279,7 +279,7 @@ function render_block( $attrs, $content ) {
 									<?php endif; ?>
 									type="submit"
 								>
-									<?php echo \esc_attr( $attrs['label'] ); ?>
+									<span class="submit"><?php echo \esc_html( $attrs['label'] ); ?></span>
 								</button>
 							</div>
 							<?php Reader_Activation::render_third_party_auth(); ?>

@@ -38,6 +38,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const messageElement = container.querySelector( '.newspack-registration__response' );
 			const submitElement = form.querySelector( 'button[type="submit"]' );
 			const spinner = document.createElement( 'span' );
+			spinner.classList.add( 'spinner' );
 			let successElement = container.querySelector(
 				'.newspack-registration__registration-success'
 			);

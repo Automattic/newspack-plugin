@@ -170,14 +170,17 @@
 		}
 
 		button[type='submit'] {
-			color: var( --newspack-cta-color );
 			position: relative;
 
-			span {
+			span.submit {
+				visibility: hidden;
+			}
+
+			span.spinner {
 				--animation-duration: 900ms;
 				--animation-timing-function: linear;
-				--color-spinner-primary: var( --newspack-cta-contrast-color );
-				--color-spinner-background: var( --newspack-cta-color );
+				--color-spinner-primary: transparent;
+				--color-spinner-background: currentcolor;
 				--size: 18px;
 				--stroke-width: 1.5px;
 
