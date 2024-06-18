@@ -34,33 +34,43 @@ function domReady( callback ) {
 	document.addEventListener( 'DOMContentLoaded', callback );
 }
 
-domReady( function () {
-	if ( isV2 ) {
-		window.renderCaptchas = () => {
-			const widgetContainers = [ ...document.querySelectorAll( '.grecaptcha-container' ) ];
-			widgetContainers.forEach( container => {
-				const containerId = container.id;
-				const form = container.closest( 'form' );
-				const submitButtons = isInvisible &&
-					form && [ ...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ) ]; // If using the invisible widget, the target element must be the form's submit button.
-				const options = {
-					sitekey: siteKey,
-					size: isInvisible ? 'invisible' : 'normal',
-				};
+/**
+ * We need to chain these callbacks to avoid two potential race conditions.
+ */
+if ( isV2 ) {
+	domReady( function () {
+		grecaptcha.ready( function () {
+			renderCaptchas();
+		} );
+	} );
+}
 
-				if ( isV2 && isInvisible && 0 < submitButtons.length ) {
-					submitButtons.forEach( submitButton => {
-						submitButton.addEventListener( 'click', e => e.preventDefault() ); // Prevent the submit button from submitting the form so reCAPTCHA can intervene.
-						options.callback = () => form.requestSubmit( submitButton ); // If reCAPTCHA passes the action with a token, submit the form.
-
-						const widgetId = grecaptcha.render( submitButton || container, options );
-						newspack_grecaptcha.widgets[ containerId ] = widgetId;
-					} );
-				}
-			} );
+/**
+ * Render reCAPTCHA v2 widgets.
+ */
+function renderCaptchas() {
+	const widgetContainers = [ ...document.querySelectorAll( '.grecaptcha-container' ) ];
+	widgetContainers.forEach( container => {
+		const containerId = container.id;
+		const form = container.closest( 'form' );
+		const submitButtons = isInvisible &&
+			form && [ ...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ) ]; // If using the invisible widget, the target element must be the form's submit button.
+		const options = {
+			sitekey: siteKey,
+			size: isInvisible ? 'invisible' : 'normal',
 		};
-	}
-} );
+
+		if ( isV2 && isInvisible && 0 < submitButtons.length ) {
+			submitButtons.forEach( submitButton => {
+				submitButton.addEventListener( 'click', e => e.preventDefault() ); // Prevent the submit button from submitting the form so reCAPTCHA can intervene.
+				options.callback = () => form.requestSubmit( submitButton ); // If reCAPTCHA passes the action with a token, submit the form.
+
+				const widgetId = grecaptcha.render( submitButton || container, options );
+				newspack_grecaptcha.widgets[ containerId ] = widgetId;
+			} );
+		}
+	} );
+}
 
 /**
  * Refresh all reCAPTCHA tokens.
@@ -107,6 +117,6 @@ function getCaptchaV3Token() {
 	if ( ! $ ) {
 		return;
 	}
-	$( document ).on( 'update_checkout', refreshCaptchas );
+	$( document ).on( 'updated_checkout', renderCaptchas );
 	$( document.body ).on( 'checkout_error', refreshCaptchas );
 } )( jQuery );

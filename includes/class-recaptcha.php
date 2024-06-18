@@ -15,9 +15,9 @@ defined( 'ABSPATH' ) || exit;
  * Class for reCAPTCHA integration.
  */
 final class Recaptcha {
-	const SCRIPT_HANDLE_NEWSPACK  = 'newspack-recaptcha';
-	const SCRIPT_HANDLE  = 'newspack-recaptcha-api';
-	const OPTIONS_PREFIX = 'newspack_recaptcha_';
+	const SCRIPT_HANDLE      = 'newspack-recaptcha';
+	const SCRIPT_HANDLE_API  = 'newspack-recaptcha-api';
+	const OPTIONS_PREFIX     = 'newspack_recaptcha_';
 	const SUPPORTED_VERSIONS = [ 'v3', 'v2_checkbox', 'v2_invisible' ];
 
 	/**
@@ -94,7 +94,6 @@ final class Recaptcha {
 			return \add_query_arg(
 				[
 					'render' => 'explicit',
-					'onload' => 'renderCaptchas',
 				],
 				$base_url
 			);
@@ -112,43 +111,48 @@ final class Recaptcha {
 	 * Register the reCAPTCHA script.
 	 */
 	public static function register_scripts() {
+		// Styles only apply to the visible v2 widgets.
 		if ( self::can_use_captcha( 'v2' ) ) {
 			\wp_enqueue_style(
-				self::SCRIPT_HANDLE_NEWSPACK,
+				self::SCRIPT_HANDLE,
 				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.css',
 				[],
 				NEWSPACK_PLUGIN_VERSION
 			);
 		}
 
-		// Enqueue the reCAPTCHA API from Google's servers.
 		if ( self::can_use_captcha() ) {
-			\wp_enqueue_script(
-				self::SCRIPT_HANDLE_NEWSPACK,
-				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.js',
-				\is_admin() ? [ 'newspack-connections-wizard' ] : [], // So we can test the reCAPTCHA API connection in the admin wizard.
-				NEWSPACK_PLUGIN_VERSION,
-				true
-			);
-			\wp_localize_script(
-				self::SCRIPT_HANDLE_NEWSPACK,
-				'newspack_recaptcha_data',
-				[
-					'site_key' => self::get_site_key(),
-					'version'  => self::get_setting( 'version' ),
-				]
-			);
-
+			// Enqueue the reCAPTCHA API from Google's servers.
 			// Note: version arg Must be null to avoid the &ver param being read as part of the reCAPTCHA site key.
 			\wp_register_script(
-				self::SCRIPT_HANDLE,
+				self::SCRIPT_HANDLE_API,
 				\esc_url( self::get_script_url() ), // The Google API script.
-				[ self::SCRIPT_HANDLE_NEWSPACK ],
+				[],
 				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+				false
+			);
+			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'async', true );
+			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'defer', true );
+
+			\wp_enqueue_script(
+				self::SCRIPT_HANDLE,
+				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.js',
+				[ self::SCRIPT_HANDLE_API ],
+				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
 			\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
 			\wp_script_add_data( self::SCRIPT_HANDLE, 'defer', true );
+
+			\wp_localize_script(
+				self::SCRIPT_HANDLE,
+				'newspack_recaptcha_data',
+				[
+					'site_key' => self::get_site_key(),
+					'version'  => self::get_setting( 'version' ),
+					'api_url'  => \esc_url( self::get_script_url() ), // The Google API script.
+				]
+			);
 		}
 	}
 
@@ -409,9 +413,6 @@ final class Recaptcha {
 	 */
 	public static function add_recaptcha_v2_to_checkout() {
 		self::render_recaptcha_v2_container();
-		?>
-		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
-		<?php
 	}
 
 	/**
