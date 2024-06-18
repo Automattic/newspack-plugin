@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEWSPACK_PLUGIN_VERSION', '4.3.0-recaptcha.4' );
+define( 'NEWSPACK_PLUGIN_VERSION', '4.3.0' );
 
 // Load language files.
 load_plugin_textdomain( 'newspack-plugin', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
