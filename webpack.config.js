@@ -21,7 +21,7 @@ const wizardsScripts = fs
 const wizardsScriptFiles = {
 	'plugins-screen': path.join( __dirname, 'src', 'plugins-screen', 'plugins-screen.js' ),
 };
-wizardsScripts.forEach( function ( wizard ) {
+wizardsScripts.forEach( function( wizard ) {
 	let wizardFileName = wizard;
 	if ( wizard === 'advertising' ) {
 		// "advertising.js" might be blocked by ad-blocking extensions.
@@ -42,7 +42,7 @@ const otherScripts = fs
 	.filter( script =>
 		fs.existsSync( path.join( __dirname, 'src', 'other-scripts', script, 'index.js' ) )
 	);
-otherScripts.forEach( function ( script ) {
+otherScripts.forEach( function( script ) {
 	wizardsScriptFiles[ `other-scripts/${ script }` ] = path.join(
 		__dirname,
 		'src',
@@ -82,6 +82,7 @@ const webpackConfig = getBaseWebpackConfig(
 				'memberships-gate',
 				'block-patterns.js'
 			),
+			'revisions-control': path.join( __dirname, 'includes', 'revisions-control', 'newspack-revisions.js' ),
 		},
 	}
 );
