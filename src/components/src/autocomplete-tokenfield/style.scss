@@ -2,7 +2,7 @@
  * Autocomplete Token Field
  */
 
-@use '~@wordpress/base-styles/colors' as wp-colors;
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 .newspack-autocomplete-tokenfield {
 	.components-spinner {
@@ -43,7 +43,7 @@
 		padding-left: 0;
 	}
 
-	.components-button:focus:not( :disabled ) {
-		box-shadow: inset 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color );
+	.components-button:focus:not(:disabled) {
+		box-shadow: inset 0 0 0 var(--wp-admin-border-width-focus) var(--wp-admin-theme-color);
 	}
 }

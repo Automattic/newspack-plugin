@@ -2,8 +2,8 @@
  * Campaign group
  */
 
-@use '~@wordpress/base-styles/colors' as wp-colors;
-@use '../../../../shared/scss/colors';
+@use "~@wordpress/base-styles/colors" as wp-colors;
+@use "../../../../shared/scss/colors";
 
 .newspack-campaigns__campaign-group {
 	&__card {
@@ -29,9 +29,7 @@
 			margin-left: 8px;
 
 			.newspack-popover {
-				margin-left: calc(
-					25px - 36px / 2
-				); // 25px is set by Gutenberg, 36px / 2 is half of the button's width
+				margin-left: calc(25px - 36px / 2); // 25px is set by Gutenberg, 36px / 2 is half of the button's width
 			}
 		}
 	}

@@ -2,8 +2,8 @@
  * With Wizard Screen
  */
 
-@use '~@wordpress/base-styles/colors' as wp-colors;
-@use '../../../shared/scss/colors';
+@use "~@wordpress/base-styles/colors" as wp-colors;
+@use "../../../shared/scss/colors";
 
 .newspack-wizard {
 	// Color
@@ -29,16 +29,16 @@
 
 	// Links
 	a {
-		color: var( --wp-admin-theme-color );
+		color: var(--wp-admin-theme-color);
 
 		&:active,
 		&:focus,
 		&:hover {
-			color: var( --wp-admin-theme-color-darker-10 );
+			color: var(--wp-admin-theme-color-darker-10);
 		}
 
 		&:focus {
-			box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color );
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) var(--wp-admin-theme-color);
 			outline: 3px solid transparent;
 		}
 	}
@@ -82,7 +82,7 @@
 				margin-bottom: -1px !important;
 			}
 
-			&:not( .newspack-icon ) {
+			&:not(.newspack-icon) {
 				background: colors.$primary-500;
 				left: 50%;
 				margin: -28px 0 0 -28px !important;
@@ -110,7 +110,7 @@
 				&::before {
 					border: 2px solid white;
 					border-radius: 2px;
-					content: '';
+					content: "";
 					display: block;
 					inset: 6px 6px 5px;
 					position: absolute;

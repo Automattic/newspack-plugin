@@ -2,7 +2,7 @@
  * Custom Select Control
  */
 
-@use '~@wordpress/base-styles/colors' as wp-colors;
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 .newspack-custom-select-control {
 	label {
@@ -22,13 +22,13 @@
 		&:active,
 		&:focus,
 		&:hover,
-		&[aria-expanded='true'] {
+		&[aria-expanded="true"] {
 			color: wp-colors.$gray-900;
 		}
 
 		&:focus {
-			border-color: var( --wp-admin-theme-color );
-			box-shadow: inset 0 0 0 1px var( --wp-admin-theme-color );
+			border-color: var(--wp-admin-theme-color);
+			box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color);
 		}
 
 		&-icon {
@@ -36,15 +36,15 @@
 			width: 18px;
 		}
 
-		&[aria-expanded='true'] svg {
-			transform: rotate( 180deg );
+		&[aria-expanded="true"] svg {
+			transform: rotate(180deg);
 		}
 	}
 
 	.components-custom-select-control__menu {
 		border-color: wp-colors.$gray-700;
 		border-radius: 2px;
-		box-shadow: 0 4px 8px rgba( black, 0.08 );
+		box-shadow: 0 4px 8px rgba(black, 0.08);
 		margin: 8px 0 0;
 		min-width: 222px;
 	}
@@ -72,16 +72,17 @@
 
 		&.is-highlighted {
 			background: white;
-			color: var( --wp-admin-theme-color );
+			color: var(--wp-admin-theme-color);
 		}
 
 		&.is-selected {
 			margin-left: 0;
 
 			&::before {
-				background: url( 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNMTguMyA1LjZMOS45IDE2LjlsLTQuNi0zLjQtLjkgMS4yIDUuOCA0LjMgOS4zLTEyLjZ6IiBmaWxsPSIjMzM2NmZmIj48L3BhdGg+PC9zdmc+Cg==' )
+				background:
+					url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBkPSJNMTguMyA1LjZMOS45IDE2LjlsLTQuNi0zLjQtLjkgMS4yIDUuOCA0LjMgOS4zLTEyLjZ6IiBmaWxsPSIjMzM2NmZmIj48L3BhdGg+PC9zdmc+Cg==")
 					0 0 no-repeat;
-				content: '';
+				content: "";
 				display: block;
 				height: 24px;
 				margin: 0 4px 0 0;
