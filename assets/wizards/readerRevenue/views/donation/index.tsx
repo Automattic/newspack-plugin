@@ -345,7 +345,7 @@ const BillingFields = () => {
 					/>
 				) }
 			</Grid>
-		</Grid>
+		</>
 	);
 };
 
