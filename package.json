@@ -14,7 +14,7 @@
 		"@wordpress/browserslist-config": "^6.0.0",
 		"eslint": "^8.57.0",
 		"lint-staged": "^15.2.2",
-		"newspack-scripts": "^5.6.0-alpha.2",
+		"newspack-scripts": "^5.6.0-alpha.3",
 		"postcss-scss": "^4.0.9"
 	},
 	"browserslist": [
@@ -41,7 +41,6 @@
 		"lint:scss": "newspack-scripts wp-scripts lint-style '**/{src,includes}/**/*.scss' --customSyntax postcss-scss",
 		"lint:scss:staged": "newspack-scripts wp-scripts lint-style --customSyntax postcss-scss",
 		"format:scss": "newspack-scripts wp-scripts lint-style '**/{src,includes}/**/*.scss' --customSyntax postcss-scss --fix",
-		"i18n": "NODE_ENV=production npm run build; bash ./bin/update-translations.sh",
 		"typescript:check": "newspack-scripts typescript-check",
 		"release": "npm run build && npm run semantic-release",
 		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin"
