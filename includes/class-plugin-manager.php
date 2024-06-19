@@ -331,12 +331,12 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 			],
 			'everlit'                     => [
-				'Name'        => \esc_html__( 'Everlit', 'newspack' ),
-				'Description' => \esc_html__( 'Using a new generation of ultra realistic, AI-driven speech synthesis, we are bringing a backlog of human interest stories, fiction, and knowledge to the present day.', 'newspack' ),
+				'Name'        => esc_html__( 'Everlit', 'newspack' ),
+				'Description' => esc_html__( 'Using a new generation of ultra realistic, AI-driven speech synthesis, we are bringing a backlog of human interest stories, fiction, and knowledge to the present day.', 'newspack' ),
 				'Author'      => 'Everlit',
-				'AuthorURI'   => \esc_url( 'https://everlit.audio' ),
-				'PluginURI'   => \esc_url( 'https://everlit.audio' ),
-				'Download'    => \esc_url( 'https://creator.everlit.audio/wordpress/everlit-wordpress.zip' ),
+				'AuthorURI'   => esc_url( 'https://everlit.audio' ),
+				'PluginURI'   => esc_url( 'https://everlit.audio' ),
+				'Download'    => esc_url( 'https://creator.everlit.audio/wordpress/everlit-wordpress.zip' ),
 				'EditPath'    => 'admin.php?page=everlit_settings',
 			],
 		];
