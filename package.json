@@ -30,7 +30,7 @@
 		"cm": "newspack-scripts commit",
 		"semantic-release": "newspack-scripts release --files=newspack.php",
 		"build": "newspack-scripts wp-scripts build",
-		"start": "npm ci && newspack-scripts watch",
+		"start": "npm ci && npm run watch",
 		"watch": "newspack-scripts wp-scripts start",
 		"test": "newspack-scripts test",
 		"lint": "npm run lint:scss && npm run lint:js",
