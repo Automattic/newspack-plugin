@@ -144,7 +144,8 @@ const Plugin = ( { plugin, setError } ) => {
 		}
 		return (
 			<>
-				{ __( 'Status:', 'newspack-plugin' ) } { description } { descriptionSuffix }
+				{ __( 'Status:', 'newspack-plugin' ) } { description }{ ' ' }
+				{ ! isSetup ? descriptionSuffix : '' }
 			</>
 		);
 	};
