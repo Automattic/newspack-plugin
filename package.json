@@ -14,7 +14,7 @@
 		"@wordpress/browserslist-config": "^6.0.0",
 		"eslint": "^8.57.0",
 		"lint-staged": "^15.2.2",
-		"newspack-scripts": "^5.6.0-alpha.1",
+		"newspack-scripts": "~/Repositories/newspack-scripts",
 		"postcss-scss": "^4.0.9"
 	},
 	"browserslist": [
@@ -33,17 +33,17 @@
 		"watch": "newspack-scripts watch",
 		"test": "newspack-scripts test",
 		"lint": "npm run lint:scss && npm run lint:js",
-		"lint:js": "newspack-scripts proxy eslint 'src/**/*.{js,jsx,ts,tsx}'",
-		"lint:js:staged": "newspack-scripts proxy eslint --ext .js,.jsx,.ts,.tsx",
-		"fix:js": "newspack-scripts proxy eslint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+		"lint:js": "newspack-scripts proxy wp-scripts lint-js '**/{src,includes}/**/*.{js,jsx,ts,tsx}'",
+		"lint:js:staged": "newspack-scripts proxy wp-scripts lint-js --ext .js,.jsx,.ts,.tsx",
+		"format:js": "newspack-scripts proxy wp-scripts format '**/{src,includes}/**/*.{js,jsx,ts,tsx}'",
 		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
+		"lint:scss": "newspack-scripts proxy wp-scripts lint-style '**/*.scss' --customSyntax postcss-scss",
+		"lint:scss:staged": "newspack-scripts proxy wp-scripts lint-style --customSyntax postcss-scss",
+		"format:scss": "newspack-scripts proxy wp-scripts format --ext scss '**/*.scss'",
+		"i18n": "NODE_ENV=production npm run build; bash ./bin/update-translations.sh",
 		"typescript:check": "newspack-scripts proxy tsc",
-		"lint:scss": "newspack-scripts proxy stylelint '**/*.scss' --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
-		"lint:scss:staged": "newspack-scripts proxy stylelint --customSyntax postcss-scss --config=./node_modules/newspack-scripts/config/stylelint.config.js",
-		"format:scss": "npx prettier --write '**/*.scss'",
-		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin",
 		"release": "npm run build && npm run semantic-release",
-		"postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
+		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin"
 	},
 	"dependencies": {
 		"classnames": "^2.5.1",
