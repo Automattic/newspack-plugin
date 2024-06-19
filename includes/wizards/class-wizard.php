@@ -148,7 +148,7 @@ abstract class Wizard {
 		/**
 		 * Register wizards.js with cache busting
 		 */
-		$asset_file = include plugin_dir_path( __FILE__ ) . 'build/wizards.asset.php';
+		$asset_file = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/wizards.asset.php';
 		wp_register_script(
 			'newspack-wizards',
 			Newspack::plugin_url() . '/dist/wizards.js',
