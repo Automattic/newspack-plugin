@@ -1,17 +1,17 @@
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-accordion {
 	border: 1px solid wp-colors.$gray-300;
 
 	&__icon {
 		transition: transform 200ms ease-out;
-		transform: rotate(90deg);
+		transform: rotate( 90deg );
 	}
 
 	&--is-open {
 		.newspack-accordion {
 			&__icon {
-				transform: rotate(-90deg);
+				transform: rotate( -90deg );
 			}
 		}
 	}

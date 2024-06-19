@@ -2,7 +2,7 @@
  * Money Input
  */
 
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-donations-wizard {
 	&__money-input {
@@ -34,7 +34,7 @@
 				max-width: 100%;
 			}
 
-			input[type="number"] {
+			input[type='number'] {
 				border-radius: 0 2px 2px 0;
 			}
 

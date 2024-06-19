@@ -1,4 +1,4 @@
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack__analytics-configuration {
 	&__header {
@@ -47,7 +47,7 @@
 		}
 		> * {
 			margin: 0 !important;
-			&:not(:last-child) {
+			&:not( :last-child ) {
 				margin-right: 32px !important;
 			}
 		}

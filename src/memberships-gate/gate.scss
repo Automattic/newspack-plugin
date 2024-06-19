@@ -1,4 +1,4 @@
-@use "vars" as gate;
+@use 'vars' as gate;
 
 .newspack-memberships {
 	&__overlay-gate {
@@ -8,14 +8,14 @@
 		pointer-events: none;
 		overflow: hidden;
 		&::before {
-			content: "";
+			content: '';
 			position: absolute;
 			inset: 0;
 			background: #000;
 			opacity: 0;
 			transition: opacity 200ms ease;
 		}
-		&[data-visible="true"] {
+		&[data-visible='true'] {
 			pointer-events: auto;
 			&::before {
 				opacity: 0.75;
@@ -28,36 +28,36 @@
 			max-height: 100%;
 			left: 50%;
 			bottom: 0;
-			transform: translate(-50%, 50px);
+			transform: translate( -50%, 50px );
 			opacity: 0;
 			transition: transform 200ms ease, opacity 200ms ease;
-			[data-visible="true"] & {
-				transform: translate(-50%, 0);
+			[data-visible='true'] & {
+				transform: translate( -50%, 0 );
 				opacity: 1;
 			}
-			[data-size="x-small"] & {
+			[data-size='x-small'] & {
 				max-width: gate.$size__x-small;
 			}
-			[data-size="small"] & {
+			[data-size='small'] & {
 				max-width: gate.$size__small;
 			}
-			[data-size="medium"] & {
+			[data-size='medium'] & {
 				max-width: gate.$size__medium;
 			}
-			[data-size="large"] & {
+			[data-size='large'] & {
 				max-width: gate.$size__large;
 			}
-			[data-size="full-width"] & {
+			[data-size='full-width'] & {
 				background: #fff;
 			}
 			@media ( min-width: 600px ) {
-				[data-position="center"] & {
+				[data-position='center'] & {
 					bottom: auto;
 					top: 50%;
-					transform: translate(-50%, calc(-50% + 50px));
+					transform: translate( -50%, calc( -50% + 50px ) );
 				}
-				[data-position="center"][data-visible="true"] & {
-					transform: translate(-50%, -50%);
+				[data-position='center'][data-visible='true'] & {
+					transform: translate( -50%, -50% );
 				}
 			}
 		}
@@ -71,7 +71,7 @@
 			@media ( min-width: 600px ) {
 				border-radius: 5px 5px 0 0;
 				padding: 32px;
-				[data-position="center"] & {
+				[data-position='center'] & {
 					border-radius: 5px;
 				}
 			}

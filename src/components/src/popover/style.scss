@@ -2,8 +2,8 @@
  * Popover
  */
 
-@use "../../../shared/scss/colors";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-popover {
 	.components-popover__content {
@@ -23,7 +23,7 @@
 				}
 			}
 
-			&:focus:not(:disabled) {
+			&:focus:not( :disabled ) {
 				box-shadow: inset 0 0 0 2px colors.$primary-500;
 				position: relative;
 				z-index: 1;
@@ -34,14 +34,14 @@
 				padding: 6px 8px;
 				text-decoration: none;
 
-				&:not(.is-destructive) {
+				&:not( .is-destructive ) {
 					color: wp-colors.$gray-700;
 
 					&:active,
 					&:active:enabled,
 					&:focus,
 					&:focus:enabled &:hover,
-					&:not(:disabled, [aria-disabled="true"], .is-default):hover {
+					&:not( :disabled, [aria-disabled='true'], .is-default ):hover {
 						color: colors.$primary-500;
 					}
 				}
@@ -52,7 +52,7 @@
 				}
 			}
 
-			&.is-destructive:not(:focus) {
+			&.is-destructive:not( :focus ) {
 				box-shadow: none !important;
 			}
 
@@ -131,7 +131,7 @@
 		}
 	}
 
-	&:not(.is-without-arrow)::before {
+	&:not( .is-without-arrow )::before {
 		border-color: wp-colors.$gray-300;
 	}
 

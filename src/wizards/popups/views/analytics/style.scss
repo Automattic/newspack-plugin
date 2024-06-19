@@ -2,8 +2,8 @@
  * Popups Analytics
  */
 
-@use "../../../../shared/scss/colors";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '../../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-campaigns-wizard-analytics {
 	&__wrapper {
@@ -65,7 +65,7 @@
 				&--with-separator {
 					position: relative;
 					&::after {
-						content: "";
+						content: '';
 						position: absolute;
 						height: 100%;
 						width: 1px;

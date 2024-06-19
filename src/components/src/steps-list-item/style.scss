@@ -1,5 +1,5 @@
-@use "../../../shared/scss/colors";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .steps-list-item {
 	align-items: center;
@@ -9,9 +9,9 @@
 	position: relative;
 
 	&::before {
-		border: 1px solid #f0f0f0;
+		border: 1px solid #F0F0F0;
 		bottom: -16px;
-		content: "";
+		content: '';
 		display: block;
 		left: 14px;
 		position: absolute;

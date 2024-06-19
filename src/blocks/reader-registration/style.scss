@@ -1,5 +1,5 @@
-@use "~@wordpress/base-styles/colors" as wp-colors;
-@use "../../shared/scss/mixins";
+@use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../../shared/scss/mixins';
 
 .newspack-registration {
 	font-size: 0.8rem;
@@ -69,12 +69,12 @@
 		justify-content: flex-end;
 		min-width: 250px;
 
-		input[type="email"] {
+		input[type='email'] {
 			flex: 1 1 auto;
 		}
-		[type="submit"] {
-			background-color: var(--newspack-cta-color);
-			color: var(--newspack-cta-contrast-color);
+		[type='submit'] {
+			background-color: var( --newspack-cta-color );
+			color: var( --newspack-cta-contrast-color );
 			margin-top: 0.5rem;
 			width: 100%;
 
@@ -185,11 +185,11 @@
 			animation: bounce 125ms ease-in;
 			animation-delay: 500ms;
 			animation-fill-mode: forwards;
-			background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z' fill='white'/%3E%3C/svg%3E");
-			content: "";
+			background-image: url( "data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z' fill='white'/%3E%3C/svg%3E" );
+			content: '';
 			display: block;
 			height: 24px;
-			transform: scale(0);
+			transform: scale( 0 );
 			width: 24px;
 		}
 	}
@@ -198,7 +198,7 @@
 		margin: 0 auto;
 		max-width: 780px;
 
-		&:not([class*="--hidden"]) {
+		&:not( [class*='--hidden'] ) {
 			.newspack-registration__icon {
 				animation: fadein 125ms ease-in;
 
@@ -230,7 +230,7 @@
 	}
 
 	.nphp,
-	input[type="email"].nphp {
+	input[type='email'].nphp {
 		@include mixins.visuallyHidden;
 	}
 }
@@ -257,12 +257,12 @@
 
 @keyframes bounce {
 	0% {
-		transform: scale(0);
+		transform: scale( 0 );
 	}
 	90% {
-		transform: scale(1.4);
+		transform: scale( 1.4 );
 	}
 	100% {
-		transform: scale(1);
+		transform: scale( 1 );
 	}
 }

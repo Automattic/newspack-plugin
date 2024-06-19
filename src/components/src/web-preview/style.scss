@@ -2,8 +2,8 @@
  * Web Preview
  */
 
-@use "../../../shared/scss/colors";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-web-preview {
 	// Color
@@ -14,7 +14,7 @@
 	--wp-admin-theme-color-darker-20: #{colors.$primary-700};
 	--wp-admin-theme-color-darker-20--rgb: #{colors.$primary-700--rgb};
 
-	background: rgba(black, 0.7);
+	background: rgba( black, 0.7 );
 	box-sizing: border-box;
 	height: 100%;
 	left: 0;
@@ -54,7 +54,7 @@
 
 	&__content {
 		background: wp-colors.$gray-100;
-		height: calc(100% - 49px);
+		height: calc( 100% - 49px );
 		-webkit-overflow-scrolling: touch;
 		overflow-x: hidden;
 		width: 100%;
@@ -81,7 +81,7 @@
 		margin: -12px 0 0;
 		position: absolute;
 		top: 50%;
-		transform: translateX(-50%);
+		transform: translateX( -50% );
 	}
 
 	&__toolbar {

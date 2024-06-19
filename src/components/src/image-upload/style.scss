@@ -2,7 +2,7 @@
  * Image Upload
  */
 
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-image-upload {
 	margin: 32px 0;
@@ -27,7 +27,7 @@
 		&--covering {
 			background-size: cover;
 		}
-		&:not(&--has-image) {
+		&:not( &--has-image ) {
 			.newspack-button {
 				background: white !important;
 				border-radius: 2px !important;
@@ -49,9 +49,9 @@
 			overflow: hidden;
 			&::before,
 			&::after {
-				border: 1px solid rgba(black, 0.54);
+				border: 1px solid rgba( black, 0.54 );
 				border-radius: 2px;
-				content: "";
+				content: '';
 				inset: 0;
 				position: absolute;
 				z-index: 0;
@@ -66,7 +66,7 @@
 				position: relative;
 			}
 			&::after {
-				background: rgba(white, 0.9);
+				background: rgba( white, 0.9 );
 				border-color: wp-colors.$gray-700;
 			}
 			&:focus-within,

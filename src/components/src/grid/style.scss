@@ -2,7 +2,7 @@
  * Grid
  */
 
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-grid {
 	display: grid;
@@ -68,7 +68,7 @@
 
 	// Columns 6
 	&__columns-6 {
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat( 2, 1fr );
 	}
 
 	// Media Queries - 744px
@@ -76,11 +76,11 @@
 		&__columns-2,
 		&__columns-3,
 		&__columns-4 {
-			grid-template-columns: repeat(2, 1fr);
+			grid-template-columns: repeat( 2, 1fr );
 		}
 
 		&__columns-6 {
-			grid-template-columns: repeat(3, 1fr);
+			grid-template-columns: repeat( 3, 1fr );
 		}
 	}
 
@@ -88,17 +88,17 @@
 	@media screen and ( min-width: 1128px ) {
 		// Columns 3
 		&__columns-3 {
-			grid-template-columns: repeat(3, 1fr);
+			grid-template-columns: repeat( 3, 1fr );
 		}
 
 		// Columns 4
 		&__columns-4 {
-			grid-template-columns: repeat(4, 1fr);
+			grid-template-columns: repeat( 4, 1fr );
 		}
 
 		// Columns 6
 		&__columns-6 {
-			grid-template-columns: repeat(6, 1fr);
+			grid-template-columns: repeat( 6, 1fr );
 		}
 
 		// Gutter 48
@@ -144,12 +144,12 @@
 
 	// Table-like
 	&__thead {
-		background: rgba(black, 0.025);
+		background: rgba( black, 0.025 );
 		border-bottom: 1px solid wp-colors.$gray-300;
 		border-top: 1px solid wp-colors.$gray-300;
 		color: wp-colors.$gray-900;
 
-		> *:not(.screen-reader-text) {
+		> *:not( .screen-reader-text ) {
 			padding: 8px;
 		}
 	}

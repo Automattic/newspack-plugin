@@ -2,14 +2,14 @@
  * With Wizard
  */
 
-@use "~@wordpress/base-styles/colors" as wp-colors;
-@use "../../../shared/scss/colors";
+@use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../../../shared/scss/colors';
 
 // Reset Padding of the Admin Page
 
-.toplevel_page_newspack:not(.menu-top),
-body[class*="newspack_page_newspack-"],
-body[class*="admin_page_newspack-"] {
+.toplevel_page_newspack:not( .menu-top ),
+body[class*='newspack_page_newspack-'],
+body[class*='admin_page_newspack-'] {
 	background: white;
 
 	#wpcontent {
@@ -33,7 +33,7 @@ body[class*="admin_page_newspack-"] {
 svg {
 	&.newspack--error {
 		fill: wp-colors.$alert-red;
-		transform: rotate(180deg);
+		transform: rotate( 180deg );
 	}
 	&.newspack--success {
 		fill: wp-colors.$alert-green;
@@ -87,51 +87,38 @@ svg {
 	&::before,
 	&::after {
 		animation: loading 2s ease-in-out infinite;
-		content: "";
+		content: '';
 		display: block;
 	}
 
 	&::before {
 		background: colors.$primary-500;
-		box-shadow:
-			24px 0 0 white,
-			69px 0 0 -15px wp-colors.$gray-900,
-			99px 0 0 -15px wp-colors.$gray-900,
-			129px 0 0 -15px wp-colors.$gray-900,
-			159px 0 0 -15px wp-colors.$gray-900,
-			189px 0 0 -15px wp-colors.$gray-900;
+		box-shadow: 24px 0 0 white, 69px 0 0 -15px wp-colors.$gray-900,
+			99px 0 0 -15px wp-colors.$gray-900, 129px 0 0 -15px wp-colors.$gray-900,
+			159px 0 0 -15px wp-colors.$gray-900, 189px 0 0 -15px wp-colors.$gray-900;
 		height: 60px;
 		width: 60px;
 	}
 
 	&::after {
 		background: wp-colors.$gray-900;
-		box-shadow:
-			inset -40vw 0 0 0 white,
-			0 64px 0 0 wp-colors.$gray-700,
-			40vw 96px 0 0 white,
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 40vw 96px 0 0 white,
 			0 96px 0 0 wp-colors.$gray-700;
 		height: 24px;
 		margin: 68px auto 0;
 		max-width: 1040px;
-		width: calc(100% - ( 32px * 2 ));
+		width: calc( 100% - ( 32px * 2 ) );
 
 		@media screen and ( min-width: 744px ) {
-			box-shadow:
-				inset -400px 0 0 0 white,
-				0 64px 0 0 wp-colors.$gray-700,
-				200px 96px 0 0 white,
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 200px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
-			width: calc(100% - ( 64px * 2 ));
+			width: calc( 100% - ( 64px * 2 ) );
 		}
 
 		@media screen and ( min-width: 1224px ) {
-			box-shadow:
-				inset -600px 0 0 0 white,
-				0 64px 0 0 wp-colors.$gray-700,
-				512px 96px 0 0 white,
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 512px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
-			width: calc(100% - ( 64px * 2 ));
+			width: calc( 100% - ( 64px * 2 ) );
 		}
 	}
 
@@ -164,7 +151,7 @@ svg {
 
 		&::before,
 		&::after {
-			content: "";
+			content: '';
 			cursor: wait;
 			display: block;
 			left: 0;
@@ -200,7 +187,7 @@ svg {
 		}
 
 		&::after {
-			background: rgba(white, 0.7);
+			background: rgba( white, 0.7 );
 			bottom: 0;
 			right: 0;
 			z-index: 9998;
@@ -219,13 +206,10 @@ svg {
 
 	&::after {
 		animation: loading 2s ease-in-out infinite;
-		content: "";
+		content: '';
 		display: block;
 		background: wp-colors.$gray-900;
-		box-shadow:
-			inset -40vw 0 0 0 white,
-			0 64px 0 0 wp-colors.$gray-700,
-			40vw 96px 0 0 white,
+		box-shadow: inset -40vw 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 40vw 96px 0 0 white,
 			0 96px 0 0 wp-colors.$gray-700;
 		height: 24px;
 		margin: 0 auto;
@@ -233,18 +217,12 @@ svg {
 		width: 100%;
 
 		@media screen and ( min-width: 744px ) {
-			box-shadow:
-				inset -400px 0 0 0 white,
-				0 64px 0 0 wp-colors.$gray-700,
-				200px 96px 0 0 white,
+			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 200px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
 		}
 
 		@media screen and ( min-width: 1224px ) {
-			box-shadow:
-				inset -600px 0 0 0 white,
-				0 64px 0 0 wp-colors.$gray-700,
-				520px 96px 0 0 white,
+			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 520px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
 		}
 	}

@@ -19,10 +19,10 @@
 	&__suggestions-spinner {
 		position: absolute;
 		right: 1px;
-		top: calc(1.4em + 8px);
+		top: calc( 1.4em + 8px );
 		z-index: 2;
 
-		[class*="--label-hidden"] + & {
+		[class*='--label-hidden'] + & {
 			top: 0;
 		}
 

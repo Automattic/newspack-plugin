@@ -1,5 +1,5 @@
-@use "sass:color";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use 'sass:color';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-webhooks {
 	&__endpoint {
@@ -57,7 +57,7 @@
 		th {
 			text-align: left;
 		}
-		tr:nth-child(odd) td {
+		tr:nth-child( odd ) td {
 			background-color: wp-colors.$gray-100;
 		}
 		th,
@@ -96,15 +96,15 @@
 				white-space: normal;
 			}
 			.error-count {
-				background: rgba(black, 0.025);
-				color: color.adjust(wp-colors.$gray-700, $lightness: -0.75%);
+				background: rgba( black, 0.025 );
+				color: color.adjust( wp-colors.$gray-700, $lightness: -0.75% );
 				padding: 1px 3px;
 				margin-right: 4px;
 				border-radius: 1px;
 				display: inline-block;
 			}
 		}
-		&:not(.has-error) {
+		&:not( .has-error ) {
 			.action-name {
 				width: 100%;
 			}

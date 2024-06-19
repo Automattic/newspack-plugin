@@ -1,5 +1,5 @@
-@use "../../../../shared/scss/colors";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '../../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-campaigns-wizard-segments {
 	&__list {
@@ -41,7 +41,7 @@
 	&.is-drop-target::before,
 	&.drop-target-after::after {
 		background-color: colors.$primary-500;
-		content: "";
+		content: '';
 		display: block;
 		height: 2px;
 		margin-bottom: 16px;
@@ -113,6 +113,6 @@
 
 .components-draggable__clone {
 	.newspack-card {
-		box-shadow: 0 0 8px 4px rgba(black, 0.08);
+		box-shadow: 0 0 8px 4px rgba( black, 0.08 );
 	}
 }

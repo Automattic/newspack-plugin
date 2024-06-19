@@ -2,7 +2,7 @@
  * Select Control
  */
 
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .components-select-control {
 	&__input {
@@ -22,7 +22,7 @@
 				padding: 8px;
 
 				&:checked {
-					background: var(--wp-admin-theme-color);
+					background: var( --wp-admin-theme-color );
 					color: white;
 				}
 			}
@@ -64,8 +64,8 @@
 			}
 
 			&:focus {
-				border-color: var(--wp-admin-theme-color-darker-10) !important;
-				box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color-darker-10) !important;
+				border-color: var( --wp-admin-theme-color-darker-10 ) !important;
+				box-shadow: inset 0 0 0 1px var( --wp-admin-theme-color-darker-10 ) !important;
 				color: inherit;
 			}
 		}

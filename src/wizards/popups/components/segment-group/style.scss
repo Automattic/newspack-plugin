@@ -2,8 +2,8 @@
  * Segment group
  */
 
-@use "sass:color";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use 'sass:color';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-campaigns__segment-group {
 	&__select-control-group-header {
@@ -13,7 +13,7 @@
 		padding-left: 36px;
 	}
 	&__description {
-		color: color.adjust(wp-colors.$gray-700, $lightness: -0.75%);
+		color: color.adjust( wp-colors.$gray-700, $lightness: -0.75% );
 		display: block;
 		font-size: 12px;
 		font-weight: normal;
@@ -29,7 +29,7 @@
 
 		&__segment {
 			align-items: center;
-			background: rgba(black, 0.025);
+			background: rgba( black, 0.025 );
 			border-bottom: 1px solid wp-colors.$gray-300;
 			display: flex;
 			justify-content: space-between;
@@ -43,7 +43,7 @@
 				h3 {
 					margin: 0;
 
-					.components-button.is-link:not(.is-destructive) {
+					.components-button.is-link:not( .is-destructive ) {
 						color: inherit;
 						font-size: inherit;
 						font-weight: inherit;

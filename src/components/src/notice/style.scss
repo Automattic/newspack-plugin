@@ -2,9 +2,9 @@
  * Notice
  */
 
-@use "sass:color";
-@use "~@wordpress/base-styles/colors" as wp-colors;
-@use "../../../shared/scss/colors";
+@use 'sass:color';
+@use '~@wordpress/base-styles/colors' as wp-colors;
+@use '../../../shared/scss/colors';
 
 .newspack-notice {
 	align-items: center;
@@ -26,7 +26,7 @@
 		background: colors.$primary-700;
 		border-radius: 2px;
 		bottom: 16px;
-		box-shadow: 0 0 8px 4px rgba(black, 0.08);
+		box-shadow: 0 0 8px 4px rgba( black, 0.08 );
 		color: white;
 		font-weight: bold;
 		margin: 0 16px;
@@ -40,16 +40,16 @@
 	}
 
 	&__is-error {
-		background: color.adjust(wp-colors.$alert-red, $lightness: 51%);
+		background: color.adjust( wp-colors.$alert-red, $lightness: 51% );
 
 		> svg {
 			fill: wp-colors.$alert-red;
-			transform: rotate(180deg);
+			transform: rotate( 180deg );
 		}
 	}
 
 	&__is-handoff {
-		background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
+		background: color.adjust( wp-colors.$alert-yellow, $lightness: 30% );
 		margin-top: 0;
 		position: sticky;
 		top: 46px;
@@ -69,7 +69,7 @@
 	}
 
 	&__is-success {
-		background: color.adjust(wp-colors.$alert-green, $lightness: 42%);
+		background: color.adjust( wp-colors.$alert-green, $lightness: 42% );
 
 		> svg {
 			fill: wp-colors.$alert-green;
@@ -77,11 +77,11 @@
 	}
 
 	&__is-warning {
-		background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
+		background: color.adjust( wp-colors.$alert-yellow, $lightness: 30% );
 
 		> svg {
 			fill: wp-colors.$alert-yellow;
-			transform: rotate(180deg);
+			transform: rotate( 180deg );
 		}
 	}
 
@@ -100,7 +100,7 @@
 			}
 
 			&:focus {
-				box-shadow: 0 0 0 var(--wp-admin-border-width-focus) currentcolor;
+				box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) currentcolor;
 			}
 		}
 	}

@@ -2,8 +2,8 @@
  * Radio Control
  */
 
-@use "../../../shared/scss/colors";
-@use "~@wordpress/base-styles/colors" as wp-colors;
+@use '../../../shared/scss/colors';
+@use '~@wordpress/base-styles/colors' as wp-colors;
 
 .newspack-radio-control {
 	color: wp-colors.$gray-700;
@@ -41,7 +41,7 @@
 
 	// Radio
 
-	input[type="radio"] {
+	input[type='radio'] {
 		height: 24px;
 		margin-right: 8px;
 		width: 24px;
