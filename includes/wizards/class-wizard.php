@@ -269,10 +269,13 @@ abstract class Wizard {
 	/**
 	 * Load wizard sections.
 	 * 
-	 * @param Section[] $sections Array of Section objects.
+	 * @param string[] $sections Array of Section class names.
 	 */
 	public function load_wizard_sections( $sections ) {
 		foreach ( $sections as $section_slug => $section_class ) {
+			if ( ! class_exists( $section_class ) ) {
+				wp_die( '<pre>' . esc_html( $section_class ) . '</pre> class does not exist.' );
+			}
 			$this->sections[ $section_slug ] = new $section_class();
 		}
 	}
