@@ -13,7 +13,7 @@ import { useState, useEffect } from '@wordpress/element';
  */
 import { WizardError } from '../../../../errors';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import { Button, Grid, Notice, TextControl } from '../../../../../components/src';
+import { Button, Grid, Notice, TextControl, utils } from '../../../../../components/src';
 
 /**
  * Validate GA4 Measurement ID.
@@ -96,7 +96,9 @@ function CustomEvents() {
 
 	function resetGa4Credentials() {
 		if (
-			! confirm( __( 'Are you sure you want to reset the GA4 credentials?', 'newspack-plugin' ) )
+			! utils.confirmAction(
+				__( 'Are you sure you want to reset the GA4 credentials?', 'newspack-plugin' )
+			)
 		) {
 			return;
 		}
