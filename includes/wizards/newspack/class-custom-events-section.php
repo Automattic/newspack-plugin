@@ -48,6 +48,15 @@ class Custom_Events_Section extends Wizard_Section {
 				],
 			]
 		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE_V2,
+			'/wizard/analytics/ga4-credentials/reset',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_reset_ga4_credentials' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -71,7 +80,28 @@ class Custom_Events_Section extends Wizard_Section {
 		update_option( 'ga4_measurement_id', sanitize_text_field( $measurement_id ) );
 		update_option( 'ga4_measurement_protocol_secret', sanitize_text_field( $measurement_protocol_secret ) );
 
-		return rest_ensure_response( $this->get_data() );
+		return rest_ensure_response(
+			[
+				'measurement_id'              => esc_html( $measurement_id ),
+				'measurement_protocol_secret' => esc_html( $measurement_protocol_secret ),
+			] 
+		);
+	}
+
+	/**
+	 * Reset the GA4 crendetials
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function api_reset_ga4_credentials() {
+		delete_option( 'ga4_measurement_id' );
+		delete_option( 'ga4_measurement_protocol_secret' );
+		return rest_ensure_response(
+			[
+				'measurement_id'              => '',
+				'measurement_protocol_secret' => '',
+			] 
+		);
 	}
 
 	/**
