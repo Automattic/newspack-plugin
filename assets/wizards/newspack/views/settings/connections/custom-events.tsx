@@ -156,10 +156,10 @@ function CustomEvents() {
 			</Grid>
 			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<Button
-				className="newspack__analytics-newspack-custom-events__save-button"
+				className="mr2"
 				variant="primary"
 				onClick={ updateGa4Credentials }
-				disabled={ !! errorMessage }
+				disabled={ isInputsEmpty() || !! errorMessage }
 			>
 				{ __( 'Save', 'newspack-plugin' ) }
 			</Button>
