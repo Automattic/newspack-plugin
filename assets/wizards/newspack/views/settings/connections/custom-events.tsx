@@ -79,9 +79,29 @@ function CustomEvents() {
 			},
 			{
 				onSuccess( fetchedData ) {
-					window.newspackSettings.connections.sections.customEvents = {
-						...window.newspackSettings.connections.sections.customEvents,
-						...fetchedData,
+					customEvents = fetchedData;
+					setGa4Credentials( fetchedData );
+				},
+			}
+		);
+	}
+
+	function resetGa4Credentials() {
+		if (
+			! confirm( __( 'Are you sure you want to reset the GA4 credentials?', 'newspack-plugin' ) )
+		) {
+			return;
+		}
+		wizardApiFetch< Ga4Credentials >(
+			{
+				path: '/newspack/v2/wizard/analytics/ga4-credentials/reset',
+				method: 'POST',
+			},
+			{
+				onSuccess( fetchedData ) {
+					customEvents = {
+						measurement_id: '',
+						measurement_protocol_secret: '',
 					};
 					setGa4Credentials( fetchedData );
 				},
@@ -135,6 +155,9 @@ function CustomEvents() {
 				disabled={ !! errorMessage }
 			>
 				{ __( 'Save', 'newspack-plugin' ) }
+			</Button>
+			<Button variant="secondary" onClick={ resetGa4Credentials } disabled={ isInputsEmpty() }>
+				{ __( 'Reset', 'newspack-plugin' ) }
 			</Button>
 		</div>
 	);
