@@ -159,7 +159,7 @@
 		.newspack-registration__logins {
 			display: none;
 		}
-		&:not( [class*='--hidden'] ) {
+		&:not([class*="--hidden"]) {
 			.newspack-registration__icon {
 				animation: fadein 125ms ease-in;
 
