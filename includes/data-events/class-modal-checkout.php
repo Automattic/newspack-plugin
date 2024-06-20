@@ -45,11 +45,13 @@ final class Modal_Checkout {
 			[ __CLASS__, 'checkout_attempt' ]
 		);
 
+		/*
 		Data_Events::register_listener(
-			'action_TBD',
+			'wp_loaded',
 			'modal_checkout_interaction',
 			[ __CLASS__, 'modal_pagination' ]
 		);
+		*/
 	}
 
 	/**
@@ -133,10 +135,17 @@ final class Modal_Checkout {
 	 * @return ?array
 	 */
 	public static function modal_pagination() {
+		/*
 		$data = [
 			'modal_pagination' => 'TK', // returns 2, 3, etc.
 		];
 		return $data;
+		*/
+
+		if ( empty( $_REQUEST['newspack_modal_checkout_submit_billing_details'] ) ) {
+			return;
+		}
+		error_log( '##############CONTINUE BUTTON CLICKED' );
 	}
 }
 Modal_Checkout::init();
