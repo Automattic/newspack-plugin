@@ -28,13 +28,13 @@ function isValidGA4MeasurementID( measurementId = '' ) {
 	return ga4Pattern.test( measurementId );
 }
 
+let { customEvents } = window.newspackSettings.connections.sections;
+
 /**
  * Analytics Custom Events screen.
  */
 function CustomEvents() {
-	const [ ga4Credentials, setGa4Credentials ] = useState< Ga4Credentials >(
-		window.newspackSettings.connections.sections.customEvents
-	);
+	const [ ga4Credentials, setGa4Credentials ] = useState< Ga4Credentials >( customEvents );
 	const { wizardApiFetch, errorMessage, resetError, setError } = useWizardApiFetch(
 		'newspack-settings/connections/custom-events'
 	);
