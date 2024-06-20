@@ -17,6 +17,7 @@ import moment from 'moment';
 /**
  * Internal dependencies
  */
+import { API_NAMESPACE } from './constants';
 import { useWizardApiFetch } from '../../../../../hooks/use-wizard-api-fetch';
 import { Card, Button, Notice, Modal, Grid } from '../../../../../../components/src';
 import { getDisplayUrl, getEndpointLabel, getRequestStatusIcon, hasEndpointErrors } from './utils';
@@ -61,11 +62,6 @@ const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckb
 	return <WpCheckboxControl { ...props } />;
 };
 
-/**
- * Endpoints main GET cache key.
- */
-const NAMESPACE = '/newspack-settings/connections/webhooks';
-
 const EndpointActionsModals = ( {
 	endpoint,
 	actions,
@@ -81,13 +77,13 @@ const EndpointActionsModals = ( {
 } ) => {
 	const [ editing, setEditing ] = useState< Endpoint >( endpoint );
 
-	const { wizardApiFetch, isFetching: inFlight, errorMessage } = useWizardApiFetch( NAMESPACE );
+	const { wizardApiFetch, isFetching: inFlight, errorMessage } = useWizardApiFetch( API_NAMESPACE );
 
 	const {
 		wizardApiFetch: testWizardApiFetch,
 		errorMessage: testError,
 		resetError: resetTestError,
-	} = useWizardApiFetch( `${ NAMESPACE }/tests` );
+	} = useWizardApiFetch( `${ API_NAMESPACE }/tests` );
 
 	const ENDPOINTS_CACHE_KEY = { '/newspack/v1/webhooks/endpoints': 'GET' };
 
