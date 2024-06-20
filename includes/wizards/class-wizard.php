@@ -59,6 +59,9 @@ abstract class Wizard {
 	 *
 	 * @param array $args Array of optional arguments. i.e. `sections`.
 	 * @return void 
+	 * 
+	 * @example
+	 * $my_wizard = new My_Wizard( [ 'sections' => [ 'my-wizard-section' => 'Newspack\Wizards\My_Wizard\My_Wizard_Section' ] ] );
 	 */
 	public function __construct( $args = [] ) {
 		add_action( 'admin_menu', [ $this, 'add_page' ], $this->menu_priority );
