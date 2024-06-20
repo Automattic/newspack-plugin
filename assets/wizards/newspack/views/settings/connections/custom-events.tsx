@@ -127,8 +127,6 @@ function CustomEvents() {
 					) }
 				</p>
 			</div>
-
-			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<Grid noMargin rowGap={ 16 }>
 				<TextControl
 					value={ ga4Credentials.measurement_id }
@@ -156,6 +154,7 @@ function CustomEvents() {
 					autoComplete="one-time-code"
 				/>
 			</Grid>
+			{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
 			<Button
 				className="newspack__analytics-newspack-custom-events__save-button"
 				variant="primary"
