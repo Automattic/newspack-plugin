@@ -30,7 +30,6 @@ function EndpointActionsCard( {
 			toggleOnChange={ () => setAction( 'toggle', endpoint.id ) }
 			key={ endpoint.id }
 			title={ getEndpointTitle( endpoint ) }
-			disabled={ endpoint.system }
 			description={ () => {
 				if ( endpoint.disabled && endpoint.disabled_error ) {
 					return `${ __(

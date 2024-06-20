@@ -70,7 +70,7 @@ function Webhooks() {
 			setSelectedEndpoint( null );
 		} else if ( newAction === 'new' ) {
 			setSelectedEndpoint( { ...defaultEndpoint } );
-		} else if ( endpoints && [ 'edit', 'delete', 'view' ].includes( newAction ) ) {
+		} else if ( endpoints && [ 'edit', 'delete', 'view', 'toggle' ].includes( newAction ) ) {
 			setSelectedEndpoint( endpoints.find( endpoint => endpoint.id === id ) || null );
 		}
 	}
