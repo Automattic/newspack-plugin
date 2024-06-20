@@ -45,13 +45,11 @@ final class Modal_Checkout {
 			[ __CLASS__, 'checkout_attempt' ]
 		);
 
-		/*
 		Data_Events::register_listener(
-			'wp_loaded',
+			'woocommerce_checkout_process',
 			'modal_checkout_interaction',
 			[ __CLASS__, 'modal_pagination' ]
 		);
-		*/
 	}
 
 	/**
@@ -130,22 +128,18 @@ final class Modal_Checkout {
 	}
 
 	/**
-	 * TODO: trying to nail down when the Continue button is clicked.
+	 * Capture modal pagination (when the Continue button is clicked).
 	 *
 	 * @return ?array
 	 */
 	public static function modal_pagination() {
-		/*
-		$data = [
-			'modal_pagination' => 'TK', // returns 2, 3, etc.
-		];
-		return $data;
-		*/
-
-		if ( empty( $_REQUEST['newspack_modal_checkout_submit_billing_details'] ) ) {
+		if ( empty( $_REQUEST['newspack_modal_checkout_submit_billing_details'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
-		error_log( '##############CONTINUE BUTTON CLICKED' );
+		$data = [
+			'modal_pagination' => '2', // TODO: not sure if we need a page 1, so this needs confirmation.
+		];
+		return $data;
 	}
 }
 Modal_Checkout::init();
