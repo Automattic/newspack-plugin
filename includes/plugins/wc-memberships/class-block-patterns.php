@@ -68,7 +68,7 @@ class Block_Patterns {
 		if ( ! class_exists( 'WC_Memberships' ) ) {
 			return false;
 		}
-		\register_block_pattern_category( 'newspack-memberships', [ 'label' => __( 'Memberships', 'newspack' ) ] );
+		\register_block_pattern_category( 'newspack-memberships', [ 'label' => __( 'Newspack Memberships', 'newspack' ) ] );
 		$patterns = self::get_block_patterns();
 		foreach ( $patterns as $slug => $title ) {
 			$path = __DIR__ . '/block-patterns/' . $slug . '.php';
