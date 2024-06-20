@@ -39,7 +39,15 @@ function CustomEvents() {
 		'newspack-settings/connections/custom-events'
 	);
 
+	function isInputsEmpty() {
+		return ! ga4Credentials.measurement_id && ! ga4Credentials.measurement_protocol_secret;
+	}
+
 	useEffect( () => {
+		if ( isInputsEmpty() ) {
+			resetError();
+			return;
+		}
 		if ( ! isValidGA4MeasurementID( ga4Credentials.measurement_id ) ) {
 			setError(
 				new WizardError(
