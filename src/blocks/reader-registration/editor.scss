@@ -1,6 +1,6 @@
-@use './style';
-@use '../../reader-activation/auth';
-@use '~@wordpress/base-styles/colors' as wp-colors;
+@use "./style";
+@use "../../reader-activation/auth";
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 .newspack-registration {
 	font-size: inherit;
@@ -8,7 +8,7 @@
 	form {
 		padding-top: 0;
 
-		input[type='email'] {
+		input[type="email"] {
 			background: #fff;
 			border: solid 1px #ccc;
 			box-sizing: border-box;
@@ -19,7 +19,7 @@
 			outline-offset: 0;
 			border-radius: 0;
 		}
-		[type='submit'] {
+		[type="submit"] {
 			transition: background-color 150ms ease-in-out;
 			background-color: #d33;
 			border: none;
@@ -27,8 +27,18 @@
 			box-sizing: border-box;
 			display: inline-block;
 			color: #fff;
-			font-family: -apple-system, blinkmacsystemfont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-				'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+			font-family:
+				-apple-system,
+				blinkmacsystemfont,
+				"Segoe UI",
+				Roboto,
+				Oxygen,
+				Ubuntu,
+				Cantarell,
+				"Fira Sans",
+				"Droid Sans",
+				"Helvetica Neue",
+				sans-serif;
 			font-size: 0.8em;
 			font-weight: 700;
 			line-height: 1.2;
@@ -43,8 +53,18 @@
 		border: 1px solid wp-colors.$gray-900;
 		border-radius: 2px;
 		display: flex;
-		font-family: -apple-system, blinkmacsystemfont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-			'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+		font-family:
+			-apple-system,
+			blinkmacsystemfont,
+			"Segoe UI",
+			Roboto,
+			Oxygen,
+			Ubuntu,
+			Cantarell,
+			"Fira Sans",
+			"Droid Sans",
+			"Helvetica Neue",
+			sans-serif;
 		flex-wrap: wrap;
 		font-size: 13px;
 		gap: 8px;
@@ -56,12 +76,12 @@
 			box-shadow: none !important;
 			color: wp-colors.$gray-900 !important;
 			height: 32px !important;
-			&[data-is-active='true'] {
+			&[data-is-active="true"] {
 				background-color: wp-colors.$gray-900;
 				color: white !important;
 			}
-			&:hover:not( [data-is-active='true'] ) {
-				color: var( --wp-admin-theme-color ) !important;
+			&:hover:not([data-is-active="true"]) {
+				color: var(--wp-admin-theme-color) !important;
 			}
 		}
 		span {

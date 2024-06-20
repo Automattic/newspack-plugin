@@ -2,8 +2,8 @@
  * Action Card
  */
 
-@use 'sass:color';
-@use '~@wordpress/base-styles/colors' as wp-colors;
+@use "sass:color";
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 .newspack-card.newspack-action-card {
 	padding: 0;
@@ -15,7 +15,7 @@
 		transition: box-shadow 125ms ease-in-out;
 
 		&:hover {
-			box-shadow: 0 4px 8px rgba( black, 0.08 );
+			box-shadow: 0 4px 8px rgba(black, 0.08);
 		}
 	}
 
@@ -34,7 +34,7 @@
 	}
 
 	&.newspack-card__is-primary {
-		box-shadow: inset 4px 0 0 var( --wp-admin-theme-color );
+		box-shadow: inset 4px 0 0 var(--wp-admin-theme-color);
 	}
 
 	&.newspack-card__is-secondary {
@@ -181,12 +181,12 @@
 		}
 
 		.newspack-action-card__region-top {
-			background-color: rgba( black, 0.025 );
+			background-color: rgba(black, 0.025);
 		}
 
 		.newspack-action-card__region-center {
 			p {
-				color: color.adjust( wp-colors.$gray-700, $lightness: -0.75% );
+				color: color.adjust(wp-colors.$gray-700, $lightness: -0.75%);
 			}
 		}
 	}
@@ -209,7 +209,7 @@
 			border-left-width: 1px;
 			border-bottom-width: 1px;
 			border-radius: 0 0 0 2px;
-			content: '';
+			content: "";
 			display: block;
 			position: absolute;
 			inset: -17px 100% 50% -28px;
@@ -219,7 +219,7 @@
 	// Typography
 
 	h2,
-	p:not( [class*='components-base-control'] ) {
+	p:not([class*="components-base-control"]) {
 		margin: 0;
 		max-width: 100%;
 		width: 100%;
@@ -242,7 +242,7 @@
 			&:active,
 			&:focus,
 			&:hover {
-				color: var( --wp-admin-theme-color );
+				color: var(--wp-admin-theme-color);
 			}
 		}
 	}

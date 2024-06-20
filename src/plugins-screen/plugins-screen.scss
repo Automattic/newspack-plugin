@@ -1,11 +1,11 @@
-@use '~@wordpress/base-styles/colors' as wp-colors;
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 /**
  * Plugins table.
  */
 table.plugins {
 	.newspack-plugin {
-		&.uninstalled .check-column input[type='checkbox'] {
+		&.uninstalled .check-column input[type="checkbox"] {
 			display: none;
 		}
 	}
@@ -21,7 +21,7 @@ table.plugins {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background: rgba( 0, 0, 0, 0.5 );
+	background: rgba(0, 0, 0, 0.5);
 	&--hidden {
 		display: none;
 	}
@@ -43,7 +43,7 @@ table.plugins {
 		padding-bottom: 32px;
 		flex-direction: column;
 		background-color: wp-colors.$white;
-		box-shadow: 0 10px 10px rgb( 0 0 0 / 25% );
+		box-shadow: 0 10px 10px rgb(0 0 0 / 25%);
 		max-width: 80vw;
 		@media screen and ( min-width: 700px ) {
 			max-width: 570px;

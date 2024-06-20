@@ -44,7 +44,7 @@
 					align-items: center;
 					justify-content: space-between;
 					flex-wrap: wrap;
-					> *:not( [class*='help'], [class*='label'] ) {
+					> *:not([class*="help"], [class*="label"]) {
 						margin: 0;
 					}
 				}
