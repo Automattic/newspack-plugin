@@ -21,6 +21,11 @@ final class Modal_Checkout {
 	const FORM_SUBMISSION = 'form_submission_received';
 
 	/**
+	 * The name of the action for form submissions
+	 */
+	const FORM_SUBMISSION_SUCCESS = 'form_submission_success';
+
+	/**
 	 * Initialize the class by registering the listeners.
 	 *
 	 * @return void
@@ -67,23 +72,23 @@ final class Modal_Checkout {
 	/**
 	 * Fires when a reader opens the modal checkout from a checkout button block.
 	 *
-	 * @param string $price Purchase price.
-	 * @param string $currency Purchase price currency.
-	 * @param string $product_id Purchased product ID.
-	 * @param string $referer Purchased product referer.
+	 * @param array $checkout_button_metadata Information about the purchase.
 	 *
 	 * @return ?array
 	 */
-	public static function checkout_button_purchase( $price, $currency, $product_id, $referer ) {
+	public static function checkout_button_purchase( $checkout_button_metadata ) {
+		$metadata = [];
+		foreach ( $checkout_button_metadata as $key => $value ) {
+			$metadata[ $key ] = $value;
+		}
+
 		$data = [
-			'action'      => self::FORM_SUBMISSION, // Not sure if this is correct?
-			'action_type' => 'paid_membership', // TODO: is this okay? The Checkout Button Block can technically be used for ANY Woo product.
-			'referer'     => $referer,
-			'amount'      => $price,
-			'currency'    => $currency,
-			'product_id'  => $product_id,
-			'recurrence'  => self::get_purchase_recurrence( $product_id ),
+			'action'      => self::FORM_SUBMISSION_SUCCESS, // Not sure if this is required, but set to 'success' since it fires when the modal opens.
+			'action_type' => 'paid_membership',
+			'recurrence'  => self::get_purchase_recurrence( $metadata['product_id'] ),
 		];
+
+		$data = array_merge( $data, $metadata );
 
 		return $data;
 	}
@@ -91,23 +96,23 @@ final class Modal_Checkout {
 	/**
 	 * Fires when a reader opens the modal checkout from a donate block.
 	 *
-	 * @param string $price Donation price.
-	 * @param string $currency Donation price currency.
-	 * @param string $product_id Donation product ID.
-	 * @param string $referer Donation referrer.
+	 * @param array $donation_metadata Information about the donation.
 	 *
 	 * @return ?array
 	 */
-	public static function donate_button_purchase( $price, $currency, $product_id, $referer ) {
+	public static function donate_button_purchase( $donation_metadata ) {
+		$metadata = [];
+		foreach ( $donation_metadata as $key => $value ) {
+			$metadata[ $key ] = $value;
+		}
+
 		$data = [
-			'action'      => self::FORM_SUBMISSION, // Not sure if this is correct?
+			'action'      => self::FORM_SUBMISSION_SUCCESS, // Not sure if this is required, but set to 'success' since it fires when the modal opens.
 			'action_type' => 'donation',
-			'referer'     => $referer,
-			'amount'      => $price,
-			'currency'    => $currency,
-			'product_id'  => $product_id,
-			'recurrence'  => self::get_purchase_recurrence( $product_id ),
+			'recurrence'  => self::get_purchase_recurrence( $metadata['product_id'] ),
 		];
+
+		$data = array_merge( $data, $metadata );
 
 		return $data;
 	}
@@ -120,7 +125,6 @@ final class Modal_Checkout {
 	 * @return ?array
 	 */
 	public static function checkout_attempt( $order ) {
-
 		$data = [
 			'action'   => self::FORM_SUBMISSION,
 			'order_id' => $order->get_id(),
@@ -133,17 +137,23 @@ final class Modal_Checkout {
 	/**
 	 * Capture modal pagination (when the Continue button is clicked).
 	 *
-	 * @param array $metadata Information passed by action.
+	 * @param array $continue_metadata Information passed by action.
 	 *
 	 * @return ?array
 	 */
-	public static function modal_pagination( $metadata ) {
+	public static function modal_pagination( $continue_metadata ) {
 		check_ajax_referer( 'newspack_checkout_continue' );
 
+		$metadata = [];
+		foreach ( $continue_metadata as $key => $value ) {
+			$metadata[ $key ] = $value;
+		}
+
 		$data = [
-			'action'           => self::FORM_SUBMISSION,
-			'modal_pagination' => $metadata['current_modal_page'],
+			'action' => self::FORM_SUBMISSION,
 		];
+
+		$data = array_merge( $data, $metadata );
 
 		return $data;
 	}

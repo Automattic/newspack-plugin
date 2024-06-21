@@ -776,17 +776,17 @@ class Donations {
 			$is_wc ? \wc_get_page_permalink( 'checkout' ) : ''
 		);
 
-		$currency = \get_woocommerce_currency();
+		$donation_metadata = [
+			'currency'   => \get_woocommerce_currency(),
+			'amount'     => $donation_value,
+			'product_id' => $product_id,
+			'referer'    => $referer,
+		];
 
 		/**
 		 * Action to fire for donate checkout modal.
-		 *
-		 * @param string $donation_value Donation price.
-		 * @param string $currency Type of currency.
-		 * @param string $product_id Donation product ID.
-		 * @param string $referer Purchase referer.
 		 */
-		\do_action( 'newspack_blocks_donate_block_modal', $donation_value, $currency, $product_id, $referer );
+		\do_action( 'newspack_blocks_donate_block_modal', $donation_metadata );
 
 		// Redirect to checkout.
 		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency ) );
