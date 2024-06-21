@@ -66,18 +66,22 @@ const EndpointActionsModals = ( {
 	endpoint,
 	actions,
 	action = null,
+	errorMessage = null,
+	inFlight = false,
 	setAction,
 	setEndpoints,
+	wizardApiFetch,
 }: {
 	endpoint: Endpoint;
 	actions: string[];
+	errorMessage: string | null;
+	inFlight: boolean;
 	action: WebhookActions;
 	setAction: ( action: WebhookActions, id: number | string ) => void;
+	wizardApiFetch: < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => void;
 	setEndpoints: ( endpoints: Endpoint[] ) => void;
 } ) => {
 	const [ editing, setEditing ] = useState< Endpoint >( endpoint );
-
-	const { wizardApiFetch, isFetching: inFlight, errorMessage } = useWizardApiFetch( API_NAMESPACE );
 
 	const {
 		wizardApiFetch: testWizardApiFetch,

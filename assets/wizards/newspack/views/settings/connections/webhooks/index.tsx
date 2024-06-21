@@ -15,6 +15,7 @@ import { Card, Button, Notice, SectionHeader } from '../../../../../../component
 import EndpointActionsCard from './endpoint-actions-card';
 import EndpointActionsModals from './endpoint-actions-modals';
 import { useWizardApiFetch } from '../../../../../hooks/use-wizard-api-fetch';
+import { API_NAMESPACE } from './constants';
 
 const defaultEndpoint: Endpoint = {
 	url: '',
@@ -30,9 +31,12 @@ const defaultEndpoint: Endpoint = {
 };
 
 function Webhooks() {
-	const { wizardApiFetch, isFetching: inFlight } = useWizardApiFetch(
-		'/newspack-settings/connections/webhooks'
-	);
+	const {
+		resetError,
+		errorMessage,
+		wizardApiFetch,
+		isFetching: inFlight,
+	} = useWizardApiFetch( API_NAMESPACE );
 
 	const [ action, setAction ] = useState< WebhookActions >( null );
 	const [ actions, setActions ] = useState< string[] >( [] );
@@ -65,10 +69,12 @@ function Webhooks() {
 	}
 
 	function setActionHandler( newAction: WebhookActions, id?: number | string ) {
+		resetError();
 		setAction( newAction );
 		if ( newAction === null ) {
 			setSelectedEndpoint( null );
 		} else if ( newAction === 'new' ) {
+			resetError();
 			setSelectedEndpoint( { ...defaultEndpoint } );
 		} else if ( endpoints && [ 'edit', 'delete', 'view', 'toggle' ].includes( newAction ) ) {
 			setSelectedEndpoint( endpoints.find( endpoint => endpoint.id === id ) || null );
@@ -111,6 +117,9 @@ function Webhooks() {
 				<EndpointActionsModals
 					actions={ actions }
 					action={ action }
+					errorMessage={ errorMessage }
+					inFlight={ inFlight }
+					wizardApiFetch={ wizardApiFetch }
 					endpoint={ selectedEndpoint }
 					setAction={ setActionHandler }
 					setEndpoints={ setEndpoints }
