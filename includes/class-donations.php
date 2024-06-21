@@ -782,7 +782,9 @@ class Donations {
 		 * Action to fire for donate checkout modal.
 		 *
 		 * @param string $donation_value Donation price.
+		 * @param string $currency Type of currency.
 		 * @param string $product_id Donation product ID.
+		 * @param string $referer Purchase referer.
 		 */
 		\do_action( 'newspack_blocks_donate_block_modal', $donation_value, $currency, $product_id, $referer );
 

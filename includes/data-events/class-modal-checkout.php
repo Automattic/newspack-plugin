@@ -21,16 +21,6 @@ final class Modal_Checkout {
 	const FORM_SUBMISSION = 'form_submission_received';
 
 	/**
-	 * The name of the action for form submissions
-	 */
-	const FORM_SUBMISSION_SUCCESS = 'form_submission_success';
-
-	/**
-	 * The name of the action for form submissions
-	 */
-	const FORM_SUBMISSION_FAILURE = 'form_submission_failure';
-
-	/**
 	 * Initialize the class by registering the listeners.
 	 *
 	 * @return void
@@ -130,10 +120,17 @@ final class Modal_Checkout {
 	 * @return ?array
 	 */
 	public static function checkout_attempt( $order ) {
-		$order_id = $order->get_id();
+		foreach ( $order->get_items() as $item_id => $item ) {
+			$product_id = $item->get_product_id();
+		}
+
 		$data = [
-			'action'   => self::FORM_SUBMISSION, // We only need to capture if form is submitted, not success/failure.
-			'order_id' => $order_id,
+			'action'     => self::FORM_SUBMISSION,
+			'order_id'   => $order->get_id(),
+			'amount'     => $order->get_total(),
+			'currency'   => $order->get_currency(),
+			'product_id' => $product_id,
+			'recurrence' => self::get_purchase_recurrence( $product_id ),
 		];
 		return $data;
 	}
@@ -141,18 +138,16 @@ final class Modal_Checkout {
 	/**
 	 * Capture modal pagination (when the Continue button is clicked).
 	 *
-	 * @param string $current_modal_page Current page of modal checkout.
+	 * @param array $metadata Information passed by action.
 	 *
 	 * @return ?array
 	 */
 	public static function modal_pagination( $metadata ) {
 		check_ajax_referer( 'newspack_checkout_continue' );
 
-		error_log( print_r( $metadata, true ) );
-
 		$data = [
-			'action'           => self::FORM_SUBMISSION, // not sure if needed/correct here?
-			'modal_pagination' => $$metadata['current_modal_page'],
+			'action'           => self::FORM_SUBMISSION,
+			'modal_pagination' => $metadata['current_modal_page'],
 		];
 
 		return $data;
