@@ -1,6 +1,6 @@
 <?php
 /**
- * Memberships Pay Wall with One Tier and Metering Pattern.
+ * Memberships Paywall with One Tier and Metering Pattern.
  *
  * @package Newspack
  */

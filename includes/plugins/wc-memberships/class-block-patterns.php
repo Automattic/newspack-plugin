@@ -54,9 +54,10 @@ class Block_Patterns {
 		return [
 			'registration-wall'          => __( 'Registration Wall', 'newspack' ),
 			'donation-wall'              => __( 'Donation Wall', 'newspack' ),
-			'pay-wall-one-tier'          => __( 'Pay Wall with One Tier', 'newspack' ),
-			'pay-wall-one-tier-metering' => __( 'Pay Wall with One Tier and Metering', 'newspack' ),
-			'pay-wall-two-tiers'         => __( 'Pay Wall with Two Tiers', 'newspack' ),
+			'pay-wall-one-tier'          => __( 'Paywall with One Tier', 'newspack' ),
+			'pay-wall-one-tier-metering' => __( 'Paywall with One Tier and Metering', 'newspack' ),
+			'pay-wall-two-tiers'         => __( 'Paywall with Two Tiers', 'newspack' ),
+			'pay-wall-three-tiers'       => __( 'Paywall with Three Tiers', 'newspack' ),
 		];
 	}
 
