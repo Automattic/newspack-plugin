@@ -153,7 +153,6 @@ class GA4 {
 			}
 
 			$event = new Event( $event_name, $params );
-			error_log( print_r( $event, true ) );
 			self::send_event( $event, $client_id, $timestamp, $user_id );
 
 		} else {
