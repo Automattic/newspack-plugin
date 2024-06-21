@@ -16,10 +16,19 @@ use WP_Error;
 final class Modal_Checkout {
 
 	/**
-	 * The name of the action for form submissions.
+	 * The name of the action for form submissions
 	 */
 	const FORM_SUBMISSION = 'form_submission_received';
 
+	/**
+	 * The name of the action for form submissions
+	 */
+	const FORM_SUBMISSION_SUCCESS = 'form_submission_success';
+
+	/**
+	 * The name of the action for form submissions
+	 */
+	const FORM_SUBMISSION_FAILURE = 'form_submission_failure';
 
 	/**
 	 * Initialize the class by registering the listeners.
@@ -46,7 +55,7 @@ final class Modal_Checkout {
 		);
 
 		Data_Events::register_listener(
-			'woocommerce_checkout_process',
+			'newspack_blocks_modal_continue',
 			'modal_checkout_interaction',
 			[ __CLASS__, 'modal_pagination' ]
 		);
@@ -57,7 +66,7 @@ final class Modal_Checkout {
 	 *
 	 * @param string $product_id Product's ID.
 	 */
-	public static function get_purchase_recurrrence( $product_id ) {
+	public static function get_purchase_recurrence( $product_id ) {
 		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
 		if ( empty( $recurrence ) ) {
 			$recurrence = 'once';
@@ -77,14 +86,15 @@ final class Modal_Checkout {
 	 */
 	public static function checkout_button_purchase( $price, $currency, $product_id, $referer ) {
 		$data = [
-			'action'      => self::FORM_SUBMISSION, // not sure if needed/correct here? Fires when modal opens, not when form is submitted.
+			'action'      => self::FORM_SUBMISSION, // Not sure if this is correct?
 			'action_type' => 'paid_membership', // TODO: is this okay? The Checkout Button Block can technically be used for ANY Woo product.
 			'referer'     => $referer,
 			'amount'      => $price,
 			'currency'    => $currency,
 			'product_id'  => $product_id,
-			'recurrence'  => self::get_purchase_recurrrence( $product_id ),
+			'recurrence'  => self::get_purchase_recurrence( $product_id ),
 		];
+
 		return $data;
 	}
 
@@ -100,14 +110,15 @@ final class Modal_Checkout {
 	 */
 	public static function donate_button_purchase( $price, $currency, $product_id, $referer ) {
 		$data = [
-			'action'      => self::FORM_SUBMISSION, // not sure if needed/correct here? Fires when modal opens, not when form is submitted.
+			'action'      => self::FORM_SUBMISSION, // Not sure if this is correct?
 			'action_type' => 'donation',
 			'referer'     => $referer,
 			'amount'      => $price,
 			'currency'    => $currency,
 			'product_id'  => $product_id,
-			'recurrence'  => self::get_purchase_recurrrence( $product_id ),
+			'recurrence'  => self::get_purchase_recurrence( $product_id ),
 		];
+
 		return $data;
 	}
 
@@ -121,7 +132,7 @@ final class Modal_Checkout {
 	public static function checkout_attempt( $order ) {
 		$order_id = $order->get_id();
 		$data = [
-			'action'   => self::FORM_SUBMISSION, // Replaces a 'is_checkout_attempt tracking?
+			'action'   => self::FORM_SUBMISSION, // We only need to capture if form is submitted, not success/failure.
 			'order_id' => $order_id,
 		];
 		return $data;
@@ -130,15 +141,20 @@ final class Modal_Checkout {
 	/**
 	 * Capture modal pagination (when the Continue button is clicked).
 	 *
+	 * @param string $current_modal_page Current page of modal checkout.
+	 *
 	 * @return ?array
 	 */
-	public static function modal_pagination() {
-		if ( empty( $_REQUEST['newspack_modal_checkout_submit_billing_details'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return;
-		}
+	public static function modal_pagination( $metadata ) {
+		check_ajax_referer( 'newspack_checkout_continue' );
+
+		error_log( print_r( $metadata, true ) );
+
 		$data = [
-			'modal_pagination' => '2', // TODO: not sure if we need a page 1, so this needs confirmation.
+			'action'           => self::FORM_SUBMISSION, // not sure if needed/correct here?
+			'modal_pagination' => $$metadata['current_modal_page'],
 		];
+
 		return $data;
 	}
 }

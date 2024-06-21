@@ -781,10 +781,10 @@ class Donations {
 		/**
 		 * Action to fire for donate checkout modal.
 		 *
-		 * @param string $price Donation price.
+		 * @param string $donation_value Donation price.
 		 * @param string $product_id Donation product ID.
 		 */
-		\do_action( 'newspack_blocks_donate_block_modal', $price, $currency, $product_id, $referer );
+		\do_action( 'newspack_blocks_donate_block_modal', $donation_value, $currency, $product_id, $referer );
 
 		// Redirect to checkout.
 		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency ) );
