@@ -120,17 +120,12 @@ final class Modal_Checkout {
 	 * @return ?array
 	 */
 	public static function checkout_attempt( $order ) {
-		foreach ( $order->get_items() as $item_id => $item ) {
-			$product_id = $item->get_product_id();
-		}
 
 		$data = [
-			'action'     => self::FORM_SUBMISSION,
-			'order_id'   => $order->get_id(),
-			'amount'     => $order->get_total(),
-			'currency'   => $order->get_currency(),
-			'product_id' => $product_id,
-			'recurrence' => self::get_purchase_recurrence( $product_id ),
+			'action'   => self::FORM_SUBMISSION,
+			'order_id' => $order->get_id(),
+			'amount'   => $order->get_total(),
+			'currency' => $order->get_currency(),
 		];
 		return $data;
 	}
