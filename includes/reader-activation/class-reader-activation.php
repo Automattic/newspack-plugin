@@ -2023,7 +2023,7 @@ final class Reader_Activation {
 
 		$site_url = strtolower( untrailingslashit( get_site_url() ) );
 		if ( false !== stripos( $site_url, '.newspackstaging.com' ) ) {
-			$value = false;
+			return false;
 		}
 
 		// Neither WCS_Staging::is_duplicate_site() nor is_plugin_active() are initialized early enough for all situations.
@@ -2033,7 +2033,7 @@ final class Reader_Activation {
 			if ( $subscriptions_site_url ) {
 				$cleaned_subscriptions_site_url = strtolower( untrailingslashit( str_ireplace( '_[wc_subscriptions_siteurl]_', '', $subscriptions_site_url ) ) );
 				if ( $cleaned_subscriptions_site_url !== $site_url ) {
-					$value = false;
+					return false;
 				}
 			}
 		}
