@@ -59,7 +59,9 @@ class Block_Patterns {
 			'pay-wall-one-tier'          => __( 'Paywall with One Tier', 'newspack' ),
 			'pay-wall-one-tier-metering' => __( 'Paywall with One Tier and Metering', 'newspack' ),
 			'pay-wall-two-tiers'         => __( 'Paywall with Two Tiers', 'newspack' ),
+			'pay-wall-two-tiers-alt'     => __( 'Paywall with Two Tiers (Alt)', 'newspack' ),
 			'pay-wall-three-tiers'       => __( 'Paywall with Three Tiers', 'newspack' ),
+			'pay-wall-three-tiers-alt'   => __( 'Paywall with Three Tiers (Alt)', 'newspack' ),
 		];
 	}
 
