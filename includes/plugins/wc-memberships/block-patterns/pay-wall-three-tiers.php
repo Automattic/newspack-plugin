@@ -43,160 +43,164 @@ $vip_features = [
 	</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Tiers', 'newspack' ); ?>"},"align":"wide","className":"is-style-borders"} -->
-	<div class="wp-block-columns alignwide is-style-borders">
+	<!-- wp:group {"align":"wide","layout":{"type":"constrained","wideSize":"964px"}} -->
+	<div class="wp-block-group alignwide">
+		<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Tiers', 'newspack' ); ?>"},"align":"wide","className":"is-style-borders"} -->
+		<div class="wp-block-columns alignwide is-style-borders">
 
-		<!-- wp:column -->
-		<div class="wp-block-column">
+			<!-- wp:column -->
+			<div class="wp-block-column">
 
-			<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
-			<div class="wp-block-group" style="min-height:100%">
-				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-				<div class="wp-block-group">
-					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
+				<div class="wp-block-group" style="min-height:100%">
+					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 					<div class="wp-block-group">
-						<!-- wp:heading {"level":4} -->
-						<h4 class="wp-block-heading">
-							<?php esc_html_e( 'Member', 'newspack' ); ?>
-						</h4>
-						<!-- /wp:heading -->
-						<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Price', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"className":"align-items\u002d\u002dbaseline","layout":{"type":"flex","flexWrap":"nowrap"}} -->
-						<div class="wp-block-group align-items--baseline">
-							<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Amount', 'newspack' ); ?>"},"fontSize":"xx-large"} -->
-							<p class="has-xx-large-font-size"><strong><?php esc_html_e( '$7', 'newspack' ); ?></strong></p>
-							<!-- /wp:paragraph -->
-							<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Frequency', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast-3"}}}},"textColor":"contrast-3","fontSize":"x-small"} -->
-							<p class="has-contrast-3-color has-text-color has-link-color has-x-small-font-size"><?php esc_html_e( 'per month', 'newspack' ); ?></p>
-							<!-- /wp:paragraph -->
-						</div>
-						<!-- /wp:group -->
-					</div>
-					<!-- /wp:group -->
-
-					<!-- wp:list {"className":"is-style-checked","fontSize":"small"} -->
-					<ul class="is-style-checked has-small-font-size">
-						<?php foreach ( $member_features as $feature ) : ?>
-							<!-- wp:list-item -->
-							<li><?php echo esc_html( $feature ); ?></li>
-							<!-- /wp:list-item -->
-						<?php endforeach; ?>
-					</ul>
-					<!-- /wp:list -->
-				</div>
-				<!-- /wp:group -->
-
-				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Member', 'newspack' ); ?>","width":100,"className":"is-style-outline"} /-->
-			</div>
-			<!-- /wp:group -->
-
-		</div>
-		<!-- /wp:column -->
-
-		<!-- wp:column -->
-		<div class="wp-block-column">
-
-			<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
-			<div class="wp-block-group" style="min-height:100%">
-				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-				<div class="wp-block-group">
-					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-					<div class="wp-block-group">
-						<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Title', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between"}} -->
+						<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 						<div class="wp-block-group">
 							<!-- wp:heading {"level":4} -->
 							<h4 class="wp-block-heading">
-								<?php esc_html_e( 'Patron', 'newspack' ); ?>
+								<?php esc_html_e( 'Member', 'newspack' ); ?>
 							</h4>
 							<!-- /wp:heading -->
-							<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Badge', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|base"}}},"border":{"radius":"4px"},"spacing":{"padding":{"top":"0","bottom":"0","left":"var:preset|spacing|20","right":"var:preset|spacing|20"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"600"},"dimensions":{"minHeight":"1.75rem"}},"backgroundColor":"contrast","textColor":"base","layout":{"type":"flex","flexWrap":"nowrap"},"fontSize":"x-small"} -->
-							<div class="wp-block-group has-base-color has-contrast-background-color has-text-color has-background has-link-color has-x-small-font-size" style="border-radius:4px;min-height:1.75rem;padding-top:0;padding-right:var(--wp--preset--spacing--20);padding-bottom:0;padding-left:var(--wp--preset--spacing--20);font-style:normal;font-weight:600;text-transform:uppercase">
-								<!-- wp:paragraph -->
-								<p><?php esc_html_e( 'Best value', 'newspack' ); ?></p>
+							<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Price', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"className":"align-items\u002d\u002dbaseline","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+							<div class="wp-block-group align-items--baseline">
+								<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Amount', 'newspack' ); ?>"},"fontSize":"xx-large"} -->
+								<p class="has-xx-large-font-size"><strong><?php esc_html_e( '$7', 'newspack' ); ?></strong></p>
+								<!-- /wp:paragraph -->
+								<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Frequency', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast-3"}}}},"textColor":"contrast-3","fontSize":"x-small"} -->
+								<p class="has-contrast-3-color has-text-color has-link-color has-x-small-font-size"><?php esc_html_e( 'per month', 'newspack' ); ?></p>
 								<!-- /wp:paragraph -->
 							</div>
 							<!-- /wp:group -->
 						</div>
 						<!-- /wp:group -->
-						<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Price', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"className":"align-items\u002d\u002dbaseline","layout":{"type":"flex","flexWrap":"nowrap"}} -->
-						<div class="wp-block-group align-items--baseline">
-							<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Amount', 'newspack' ); ?>"},"fontSize":"xx-large"} -->
-							<p class="has-xx-large-font-size"><strong><?php esc_html_e( '$15', 'newspack' ); ?></strong></p>
-							<!-- /wp:paragraph -->
-							<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Frequency', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast-3"}}}},"textColor":"contrast-3","fontSize":"x-small"} -->
-							<p class="has-contrast-3-color has-text-color has-link-color has-x-small-font-size"><?php esc_html_e( 'per month', 'newspack' ); ?></p>
-							<!-- /wp:paragraph -->
-						</div>
-						<!-- /wp:group -->
+
+						<!-- wp:list {"className":"is-style-checked","fontSize":"small"} -->
+						<ul class="is-style-checked has-small-font-size">
+							<?php foreach ( $member_features as $feature ) : ?>
+								<!-- wp:list-item -->
+								<li><?php echo esc_html( $feature ); ?></li>
+								<!-- /wp:list-item -->
+							<?php endforeach; ?>
+						</ul>
+						<!-- /wp:list -->
 					</div>
 					<!-- /wp:group -->
 
-					<!-- wp:list {"className":"is-style-checked","fontSize":"small"} -->
-					<ul class="is-style-checked has-small-font-size">
-						<?php foreach ( $patron_features as $feature ) : ?>
-							<!-- wp:list-item -->
-							<li><?php echo esc_html( $feature ); ?></li>
-							<!-- /wp:list-item -->
-						<?php endforeach; ?>
-					</ul>
-					<!-- /wp:list -->
+					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Member', 'newspack' ); ?>","width":100,"className":"is-style-outline"} /-->
 				</div>
 				<!-- /wp:group -->
 
-				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Patron', 'newspack' ); ?>","width":100} /-->
 			</div>
-			<!-- /wp:group -->
+			<!-- /wp:column -->
 
-		</div>
-		<!-- /wp:column -->
+			<!-- wp:column -->
+			<div class="wp-block-column">
 
-		<!-- wp:column -->
-		<div class="wp-block-column">
-
-			<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
-			<div class="wp-block-group" style="min-height:100%">
-				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
-				<div class="wp-block-group">
-					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
+				<div class="wp-block-group" style="min-height:100%">
+					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 					<div class="wp-block-group">
-						<!-- wp:heading {"level":4} -->
-						<h4 class="wp-block-heading">
-							<?php esc_html_e( 'VIP', 'newspack' ); ?>
-						</h4>
-						<!-- /wp:heading -->
-						<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Price', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"className":"align-items\u002d\u002dbaseline","layout":{"type":"flex","flexWrap":"nowrap"}} -->
-						<div class="wp-block-group align-items--baseline">
-							<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Amount', 'newspack' ); ?>"},"fontSize":"xx-large"} -->
-							<p class="has-xx-large-font-size"><strong><?php esc_html_e( '$30', 'newspack' ); ?></strong></p>
-							<!-- /wp:paragraph -->
-							<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Frequency', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast-3"}}}},"textColor":"contrast-3","fontSize":"x-small"} -->
-							<p class="has-contrast-3-color has-text-color has-link-color has-x-small-font-size"><?php esc_html_e( 'per month', 'newspack' ); ?></p>
-							<!-- /wp:paragraph -->
+						<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+						<div class="wp-block-group">
+							<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Title', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between"}} -->
+							<div class="wp-block-group">
+								<!-- wp:heading {"level":4} -->
+								<h4 class="wp-block-heading">
+									<?php esc_html_e( 'Patron', 'newspack' ); ?>
+								</h4>
+								<!-- /wp:heading -->
+								<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Badge', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|base"}}},"border":{"radius":"0.125rem"},"spacing":{"padding":{"top":"0.125rem","bottom":"0.125rem","left":"0.375rem","right":"0.375rem"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"600"}},"backgroundColor":"contrast","textColor":"base","layout":{"type":"flex","flexWrap":"nowrap"},"fontSize":"x-small"} -->
+								<div class="wp-block-group has-base-color has-contrast-background-color has-text-color has-background has-link-color has-x-small-font-size" style="border-radius:0.125rem;padding-top:0.125rem;padding-right:0.375rem;padding-bottom:0.125rem;padding-left:0.375rem;font-style:normal;font-weight:600;text-transform:uppercase">
+									<!-- wp:paragraph -->
+									<p><?php esc_html_e( 'Best value', 'newspack' ); ?></p>
+									<!-- /wp:paragraph -->
+								</div>
+								<!-- /wp:group -->
+							</div>
+							<!-- /wp:group -->
+							<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Price', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"className":"align-items\u002d\u002dbaseline","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+							<div class="wp-block-group align-items--baseline">
+								<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Amount', 'newspack' ); ?>"},"fontSize":"xx-large"} -->
+								<p class="has-xx-large-font-size"><strong><?php esc_html_e( '$15', 'newspack' ); ?></strong></p>
+								<!-- /wp:paragraph -->
+								<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Frequency', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast-3"}}}},"textColor":"contrast-3","fontSize":"x-small"} -->
+								<p class="has-contrast-3-color has-text-color has-link-color has-x-small-font-size"><?php esc_html_e( 'per month', 'newspack' ); ?></p>
+								<!-- /wp:paragraph -->
+							</div>
+							<!-- /wp:group -->
 						</div>
 						<!-- /wp:group -->
+
+						<!-- wp:list {"className":"is-style-checked","fontSize":"small"} -->
+						<ul class="is-style-checked has-small-font-size">
+							<?php foreach ( $patron_features as $feature ) : ?>
+								<!-- wp:list-item -->
+								<li><?php echo esc_html( $feature ); ?></li>
+								<!-- /wp:list-item -->
+							<?php endforeach; ?>
+						</ul>
+						<!-- /wp:list -->
 					</div>
 					<!-- /wp:group -->
 
-					<!-- wp:list {"className":"is-style-checked","fontSize":"small"} -->
-					<ul class="is-style-checked has-small-font-size">
-						<?php foreach ( $vip_features as $feature ) : ?>
-							<!-- wp:list-item -->
-							<li><?php echo esc_html( $feature ); ?></li>
-							<!-- /wp:list-item -->
-						<?php endforeach; ?>
-					</ul>
-					<!-- /wp:list -->
+					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Patron', 'newspack' ); ?>","width":100} /-->
 				</div>
 				<!-- /wp:group -->
 
-				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a VIP', 'newspack' ); ?>","width":100,"className":"is-style-outline"} /-->
 			</div>
-			<!-- /wp:group -->
+			<!-- /wp:column -->
+
+			<!-- wp:column -->
+			<div class="wp-block-column">
+
+				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
+				<div class="wp-block-group" style="min-height:100%">
+					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+					<div class="wp-block-group">
+						<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+						<div class="wp-block-group">
+							<!-- wp:heading {"level":4} -->
+							<h4 class="wp-block-heading">
+								<?php esc_html_e( 'VIP', 'newspack' ); ?>
+							</h4>
+							<!-- /wp:heading -->
+							<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Price', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"className":"align-items\u002d\u002dbaseline","layout":{"type":"flex","flexWrap":"nowrap"}} -->
+							<div class="wp-block-group align-items--baseline">
+								<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Amount', 'newspack' ); ?>"},"fontSize":"xx-large"} -->
+								<p class="has-xx-large-font-size"><strong><?php esc_html_e( '$30', 'newspack' ); ?></strong></p>
+								<!-- /wp:paragraph -->
+								<!-- wp:paragraph {"metadata":{"name":"<?php esc_html_e( 'Frequency', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|contrast-3"}}}},"textColor":"contrast-3","fontSize":"x-small"} -->
+								<p class="has-contrast-3-color has-text-color has-link-color has-x-small-font-size"><?php esc_html_e( 'per month', 'newspack' ); ?></p>
+								<!-- /wp:paragraph -->
+							</div>
+							<!-- /wp:group -->
+						</div>
+						<!-- /wp:group -->
+
+						<!-- wp:list {"className":"is-style-checked","fontSize":"small"} -->
+						<ul class="is-style-checked has-small-font-size">
+							<?php foreach ( $vip_features as $feature ) : ?>
+								<!-- wp:list-item -->
+								<li><?php echo esc_html( $feature ); ?></li>
+								<!-- /wp:list-item -->
+							<?php endforeach; ?>
+						</ul>
+						<!-- /wp:list -->
+					</div>
+					<!-- /wp:group -->
+
+					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a VIP', 'newspack' ); ?>","width":100,"className":"is-style-outline"} /-->
+				</div>
+				<!-- /wp:group -->
+
+			</div>
+			<!-- /wp:column -->
 
 		</div>
-		<!-- /wp:column -->
-
+		<!-- /wp:columns -->
 	</div>
-	<!-- /wp:columns -->
+	<!-- /wp:group -->
 
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
 	<div class="wp-block-buttons">

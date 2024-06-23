@@ -102,8 +102,8 @@ $patron_features = [
 								<?php esc_html_e( 'Patron', 'newspack' ); ?>
 							</h4>
 							<!-- /wp:heading -->
-							<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Badge', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|base"}}},"border":{"radius":"4px"},"spacing":{"padding":{"top":"0","bottom":"0","left":"var:preset|spacing|20","right":"var:preset|spacing|20"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"600"},"dimensions":{"minHeight":"1.75rem"}},"backgroundColor":"contrast","textColor":"base","layout":{"type":"flex","flexWrap":"nowrap"},"fontSize":"x-small"} -->
-							<div class="wp-block-group has-base-color has-contrast-background-color has-text-color has-background has-link-color has-x-small-font-size" style="border-radius:4px;min-height:1.75rem;padding-top:0;padding-right:var(--wp--preset--spacing--20);padding-bottom:0;padding-left:var(--wp--preset--spacing--20);font-style:normal;font-weight:600;text-transform:uppercase">
+							<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Badge', 'newspack' ); ?>"},"style":{"elements":{"link":{"color":{"text":"var:preset|color|base"}}},"border":{"radius":"0.125rem"},"spacing":{"padding":{"top":"0.125rem","bottom":"0.125rem","left":"0.375rem","right":"0.375rem"}},"typography":{"textTransform":"uppercase","fontStyle":"normal","fontWeight":"600"}},"backgroundColor":"contrast","textColor":"base","layout":{"type":"flex","flexWrap":"nowrap"},"fontSize":"x-small"} -->
+							<div class="wp-block-group has-base-color has-contrast-background-color has-text-color has-background has-link-color has-x-small-font-size" style="border-radius:0.125rem;padding-top:0.125rem;padding-right:0.375rem;padding-bottom:0.125rem;padding-left:0.375rem;font-style:normal;font-weight:600;text-transform:uppercase">
 								<!-- wp:paragraph -->
 								<p><?php esc_html_e( 'Best value', 'newspack' ); ?></p>
 								<!-- /wp:paragraph -->
