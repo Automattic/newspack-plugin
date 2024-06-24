@@ -1,3 +1,10 @@
+## [4.3.2](https://github.com/Automattic/newspack-plugin/compare/v4.3.1...v4.3.2) (2024-06-24)
+
+
+### Bug Fixes
+
+* slash get_option ([#3194](https://github.com/Automattic/newspack-plugin/issues/3194)) ([2a3955e](https://github.com/Automattic/newspack-plugin/commit/2a3955ee98f7c46099a5d029822df4ad2098499a))
+
 ## [4.3.1](https://github.com/Automattic/newspack-plugin/compare/v4.3.0...v4.3.1) (2024-06-24)
 
 
