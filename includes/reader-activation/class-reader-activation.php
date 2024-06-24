@@ -2021,7 +2021,7 @@ final class Reader_Activation {
 			return $value;
 		}
 
-		$site_url = strtolower( untrailingslashit( get_site_url() ) );
+		$site_url = strtolower( \untrailingslashit( \get_site_url() ) );
 		if ( false !== stripos( $site_url, '.newspackstaging.com' ) ) {
 			return false;
 		}
