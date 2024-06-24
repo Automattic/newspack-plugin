@@ -2028,7 +2028,7 @@ final class Reader_Activation {
 
 		// Neither WCS_Staging::is_duplicate_site() nor is_plugin_active() are initialized early enough for all situations.
 		// So we need to re-create the logic from both.
-		if ( in_array( 'woocommerce-subscriptions/woocommerce-subscriptions.php', (array) get_option( 'active_plugins', [] ), true ) ) {
+		if ( in_array( 'woocommerce-subscriptions/woocommerce-subscriptions.php', (array) \get_option( 'active_plugins', [] ), true ) ) {
 			$subscriptions_site_url = \get_option( 'wc_subscriptions_siteurl', false );
 			if ( $subscriptions_site_url ) {
 				$cleaned_subscriptions_site_url = strtolower( untrailingslashit( str_ireplace( '_[wc_subscriptions_siteurl]_', '', $subscriptions_site_url ) ) );
