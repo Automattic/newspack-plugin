@@ -19,7 +19,7 @@ import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression, AddOns }
 import { getSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
-const { HashRouter, Redirect, Route, Switch } = Router;
+const { HashRouter, Route, Switch } = Router;
 const CREATE_AD_ID_PARAM = 'create';
 
 class AdvertisingWizard extends Component {
@@ -317,7 +317,6 @@ class AdvertisingWizard extends Component {
 								/>
 							) }
 						/>
-						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
 			</Fragment>

@@ -13,7 +13,7 @@ import { withWizard, utils } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { ThemeSettings, Main } from './views';
 
-const { HashRouter, Redirect, Route, Switch } = Router;
+const { HashRouter, Route, Switch } = Router;
 
 /**
  * Site Design Wizard.
@@ -134,7 +134,6 @@ class SiteDesignWizard extends Component {
 								);
 							} }
 						/>
-						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
 			</Fragment>

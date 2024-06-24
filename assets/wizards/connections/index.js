@@ -15,7 +15,7 @@ import { Main } from './views';
 
 import './style.scss';
 
-const { HashRouter, Redirect, Route, Switch } = Router;
+const { HashRouter, Route, Switch } = Router;
 
 const MainScreen = withWizardScreen( Main );
 
@@ -32,7 +32,6 @@ const ConnectionsWizard = ( { pluginRequirements, wizardApiFetch, startLoading, 
 			<Switch>
 				{ pluginRequirements }
 				<Route exact path="/" render={ () => <MainScreen { ...wizardScreenProps } /> } />
-				<Redirect to="/" />
 			</Switch>
 		</HashRouter>
 	);

@@ -27,7 +27,7 @@ const TabbedNavigation = ( { items, className, disableUpcoming, children = null 
 								if ( item.activeTabPaths ) {
 									return item.activeTabPaths.includes( pathname );
 								}
-								return match;
+								return pathname === item.path;
 							} }
 							exact
 							activeClassName={ 'selected' }

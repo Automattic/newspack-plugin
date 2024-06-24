@@ -23,7 +23,7 @@ import { Settings } from './views';
 import camelCase from 'lodash/camelCase';
 import snakeCase from 'lodash/snakeCase';
 
-const { HashRouter, Redirect, Route, Switch } = Router;
+const { HashRouter, Route, Switch } = Router;
 
 /**
  * Check whether the given object is a pure object with key/value pairs.
@@ -139,7 +139,6 @@ class SEOWizard extends Component {
 								/>
 							) }
 						/>
-						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
 			</Fragment>

@@ -17,7 +17,7 @@ import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import { Configuration, Plugins } from './views';
 
-const { HashRouter, Redirect, Route, Switch } = Router;
+const { HashRouter, Route, Switch } = Router;
 
 class HealthCheckWizard extends Component {
 	constructor( props ) {
@@ -111,7 +111,6 @@ class HealthCheckWizard extends Component {
 								/>
 							) }
 						/>
-						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
 			</Fragment>

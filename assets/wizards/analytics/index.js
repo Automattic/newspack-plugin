@@ -18,7 +18,7 @@ import Router from '../../components/src/proxied-imports/router';
 import { Plugins, NewspackCustomEvents } from './views';
 import './style.scss';
 
-const { HashRouter, Redirect, Route, Switch } = Router;
+const { HashRouter, Route, Switch } = Router;
 
 const TABS = [
 	{
@@ -56,7 +56,6 @@ class AnalyticsWizard extends Component {
 							render={ () => <NewspackCustomEvents { ...sharedProps } /> }
 						/>
 						<Route path="/" exact render={ () => <Plugins { ...sharedProps } /> } />
-						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
 			</Fragment>
