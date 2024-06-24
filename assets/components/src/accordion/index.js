@@ -20,7 +20,8 @@ const Accordion = ( { children, title } ) => {
 		<details
 			className={ classNames( 'newspack-accordion', { 'newspack-accordion--is-open': isOpen } ) }
 		>
-			<summary onClick={ () => setIsOpen( ! isOpen ) }>
+			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events */ }
+			<summary onClick={ () => setIsOpen( ! isOpen ) } role="button" tabIndex="0">
 				{ title }
 				<Icon className="newspack-accordion__icon" icon={ chevronRight } size={ 24 } />
 			</summary>

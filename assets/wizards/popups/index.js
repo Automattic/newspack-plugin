@@ -368,7 +368,7 @@ class PopupsWizard extends Component {
 								/>
 								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
-								<Route path="/" render={() => <Redirect to="campaigns" />} />
+								<Route path="/" render={ () => <Redirect to="campaigns" /> } />
 							</Switch>
 						</HashRouter>
 					);
