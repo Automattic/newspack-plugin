@@ -31,7 +31,6 @@ const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckb
 const Upsert = ( {
 	endpoint,
 	actions,
-	action = null,
 	errorMessage = null,
 	inFlight = false,
 	setAction,
@@ -42,7 +41,6 @@ const Upsert = ( {
 	actions: string[];
 	errorMessage: string | null;
 	inFlight: boolean;
-	action: WebhookActions;
 	setAction: ( action: WebhookActions, id: number | string ) => void;
 	wizardApiFetch: < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => void;
 	setEndpoints: ( endpoints: Endpoint[] ) => void;
