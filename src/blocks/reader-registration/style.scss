@@ -169,7 +169,7 @@
 			pointer-events: none;
 		}
 
-		button[type='submit'] {
+		button[type="submit"] {
 			position: relative;
 
 			span.submit {
@@ -193,7 +193,7 @@
 				transform: rotate(0deg);
 				width: var(--size);
 				position: absolute;
-				left: calc( 50% - ( var(--size) / 2 ) );
+				left: calc(50% - ( var(--size) / 2 ));
 			}
 		}
 	}
@@ -296,10 +296,10 @@
 }
 
 @keyframes spin {
-  from {
-    transform: rotate( 0deg );
-  }
-  to {
-    transform: rotate( 360deg );
-  }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
