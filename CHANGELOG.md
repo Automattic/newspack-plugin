@@ -1,3 +1,10 @@
+## [4.3.1](https://github.com/Automattic/newspack-plugin/compare/v4.3.0...v4.3.1) (2024-06-24)
+
+
+### Bug Fixes
+
+* dont sync to ESP on staging sites ([#3192](https://github.com/Automattic/newspack-plugin/issues/3192)) ([07ae90f](https://github.com/Automattic/newspack-plugin/commit/07ae90f99249f67e6bdff90047a7977486355a0f))
+
 # [4.3.0](https://github.com/Automattic/newspack-plugin/compare/v4.2.0...v4.3.0) (2024-06-12)
 
 
