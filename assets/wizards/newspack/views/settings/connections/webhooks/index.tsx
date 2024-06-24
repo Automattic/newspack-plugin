@@ -11,11 +11,11 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Card, Button, Notice, SectionHeader } from '../../../../../../components/src';
+import { API_NAMESPACE } from './constants';
 import EndpointActionsCard from './endpoint-actions-card';
 import EndpointActionsModals from './endpoint-actions-modals';
 import { useWizardApiFetch } from '../../../../../hooks/use-wizard-api-fetch';
-import { API_NAMESPACE } from './constants';
+import { Card, Button, Notice, SectionHeader } from '../../../../../../components/src';
 
 const defaultEndpoint: Endpoint = {
 	url: '',
