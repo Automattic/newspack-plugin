@@ -32,10 +32,9 @@ function EndpointActionsCard( {
 			title={ getEndpointTitle( endpoint ) }
 			description={ () => {
 				if ( endpoint.disabled && endpoint.disabled_error ) {
-					return `${ __(
-						'This endpoint is disabled due to excessive request errors',
-						'newspack-plugin'
-					) }: ${ endpoint.disabled_error }`;
+					return `${ __( 'Endpoint disabled due to error:', 'newspack-plugin' ) }: ${
+						endpoint.disabled_error
+					}`;
 				}
 				return (
 					<Fragment>
