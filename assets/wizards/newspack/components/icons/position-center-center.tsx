@@ -5,7 +5,8 @@
 /**
  * WordPress dependencies
  */
-import { SVG, Rect } from '@wordpress/primitives';
+import SVG from './svg';
+import { Rect } from '@wordpress/primitives';
 
 const positionCenterCenter = (
 	<SVG xmlns="http://www.w3.org/2000/SVG" width="33" height="32" viewBox="0 0 33 32" fill="none">
