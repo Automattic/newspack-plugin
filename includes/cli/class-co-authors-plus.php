@@ -18,6 +18,7 @@ class Co_Authors_Plus {
 	private static $live = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $verbose = true; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $user_logins = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+	private static $guest_author_ids = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 
 	/**
 	 * Migrate Co-Authors Plus guest authors to regular users.
@@ -33,6 +34,9 @@ class Co_Authors_Plus {
 	 * [--user_logins]
 	 * : Comma-separated list of user logins. If provided, only WP Users with these logins will be processed.
 	 *
+	 * [--guest_author_ids]
+	 * : Comma-separated list of Guest Author IDs. If provided, only Gues Authors with these IDs will be processed.
+	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
 	 * @return void
@@ -43,6 +47,7 @@ class Co_Authors_Plus {
 		self::$live = isset( $assoc_args['live'] ) ? true : false;
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
 		self::$user_logins = isset( $assoc_args['user_logins'] ) ? explode( ',', $assoc_args['user_logins'] ) : false;
+		self::$guest_author_ids = isset( $assoc_args['guest_author_ids'] ) ? explode( ',', $assoc_args['guest_author_ids'] ) : false;
 
 		if ( self::$live ) {
 			WP_CLI::line( 'Live mode - data will be changed.' );
@@ -56,7 +61,11 @@ class Co_Authors_Plus {
 			WP_CLI::line( '' );
 		}
 
-		self::migrate_linked_guest_authors();
+		if ( self::$guest_author_ids === false ) {
+			self::migrate_linked_guest_authors();
+		} else {
+			WP_CLI::line( 'Skipping linked Guest Authors, since guest_author_ids argument was provided.' );
+		}
 		WP_CLI::line( '' );
 		if ( self::$user_logins === false ) {
 			self::migrate_unlinked_guest_authors();
@@ -75,25 +84,28 @@ class Co_Authors_Plus {
 	 * reassign the posts, and remove the guest author.
 	 */
 	private static function migrate_unlinked_guest_authors() {
-		$unlinked_guest_authors = get_posts(
-			[
-				'post_type'      => 'guest-author',
-				'posts_per_page' => -1,
-				'post_status'    => 'any',
-				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation' => 'OR',
-					[
-						'key'     => 'cap-linked_account',
-						'compare' => 'NOT EXISTS',
-					],
-					[
-						'key'     => 'cap-linked_account',
-						'compare' => '=',
-						'value'   => '',
-					],
+		$get_posts_args = [
+			'post_type'      => 'guest-author',
+			'posts_per_page' => -1,
+			'post_status'    => 'any',
+		];
+		if ( self::$guest_author_ids !== false && is_array( self::$guest_author_ids ) ) {
+			$get_posts_args['post__in'] = self::$guest_author_ids;
+		} else {
+			$get_posts_args['meta_query'] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'OR',
+				[
+					'key'     => 'cap-linked_account',
+					'compare' => 'NOT EXISTS',
 				],
-			]
-		);
+				[
+					'key'     => 'cap-linked_account',
+					'compare' => '=',
+					'value'   => '',
+				],
+			];
+		}
+		$unlinked_guest_authors = get_posts( $get_posts_args );
 		WP_CLI::line( sprintf( 'Found %d guest author(s) not linked to any WP User.', count( $unlinked_guest_authors ) ) );
 
 		foreach ( $unlinked_guest_authors as $guest_author ) {
