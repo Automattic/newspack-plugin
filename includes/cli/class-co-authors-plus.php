@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 class Co_Authors_Plus {
 	private static $live = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $verbose = true; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+	private static $user_logins = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 
 	/**
 	 * Migrate Co-Authors Plus guest authors to regular users.
@@ -29,6 +30,9 @@ class Co_Authors_Plus {
 	 * [--verbose]
 	 * : Produce more output.
 	 *
+	 * [--user_logins]
+	 * : Comma-separated list of user logins. If provided, only WP Users with these logins will be processed.
+	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
 	 * @return void
@@ -38,6 +42,7 @@ class Co_Authors_Plus {
 
 		self::$live = isset( $assoc_args['live'] ) ? true : false;
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
+		self::$user_logins = isset( $assoc_args['user_logins'] ) ? explode( ',', $assoc_args['user_logins'] ) : false;
 
 		if ( self::$live ) {
 			WP_CLI::line( 'Live mode - data will be changed.' );
@@ -52,7 +57,12 @@ class Co_Authors_Plus {
 		}
 
 		self::migrate_linked_guest_authors();
-		self::migrate_unlinked_guest_authors();
+		WP_CLI::line( '' );
+		if ( self::$user_logins === false ) {
+			self::migrate_unlinked_guest_authors();
+		} else {
+			WP_CLI::line( 'Skipping unlinked Guest Authors, since user_logins argument was provided.' );
+		}
 
 		WP_CLI::line( '' );
 	}
@@ -166,18 +176,21 @@ class Co_Authors_Plus {
 	 * reassign the posts, and remove the guest author.
 	 */
 	private static function migrate_linked_guest_authors() {
+		$meta_query = is_array( self::$user_logins ) ? [
+			'key'     => 'cap-linked_account',
+			'compare' => 'IN',
+			'value'   => self::$user_logins,
+		] : [
+			'key'     => 'cap-linked_account',
+			'compare' => '!=',
+			'value'   => '',
+		];
 		$linked_guest_authors = get_posts(
 			[
 				'post_type'      => 'guest-author',
 				'posts_per_page' => -1,
 				'post_status'    => 'any',
-				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					[
-						'key'     => 'cap-linked_account',
-						'compare' => '!=',
-						'value'   => '',
-					],
-				],
+				'meta_query'     => [ $meta_query ], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 			]
 		);
 		WP_CLI::line( sprintf( 'Found %d guest author(s) linked to WP Users.', count( $linked_guest_authors ) ) );
