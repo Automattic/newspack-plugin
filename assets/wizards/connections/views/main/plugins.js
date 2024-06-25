@@ -47,6 +47,7 @@ const PLUGINS = {
 		editLink: 'admin.php?page=everlit_settings',
 		title: __( 'Everlit', 'newspack-plugin' ),
 		subTitle: __( 'AI-Generated Audio Stories', 'newspack-plugin' ),
+		hidden: window.newspack_connections_data.can_use_everlit !== '1',
 		description: (
 			<>
 				{ __(
@@ -193,7 +194,11 @@ const Plugins = ( { setError } ) => {
 	return (
 		<>
 			{ Object.entries( PLUGINS ).map( ( [ slug, plugin ] ) => {
-				return <Plugin key={ slug } plugin={ plugin } setError={ setError } />;
+				return (
+					! Boolean( plugin.hidden ) && (
+						<Plugin key={ slug } plugin={ plugin } setError={ setError } />
+					)
+				);
 			} ) }
 		</>
 	);
