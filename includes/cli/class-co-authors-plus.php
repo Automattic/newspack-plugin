@@ -136,12 +136,13 @@ class Co_Authors_Plus {
 			// Check if a user with this email address already exists (they might be a Subscriber).
 			$user = get_user_by( 'email', $user_data['user_email'] );
 			if ( $user !== false ) {
+				$new_email_address = '_migrated-' . $guest_author->ID . '-' . $user_data['user_email'];
 				if ( self::$verbose ) {
-					WP_CLI::line( sprintf( 'User with email %s already exists, email address will be updated.', $user_data['user_email'] ) );
+					WP_CLI::line( sprintf( 'User with email %s already exists, email address will be updated to %s.', $user_data['user_email'], $new_email_address ) );
 				}
 				// Update the new user (non-editing contributor) email address.
 				// Since they won't need to log in, this email address does not have to be real.
-				$user_data['user_email'] = '_migrated-' . $guest_author->ID . '-' . $user_data['user_email'];
+				$user_data['user_email'] = $new_email_address;
 			}
 
 			if ( self::$live ) {
