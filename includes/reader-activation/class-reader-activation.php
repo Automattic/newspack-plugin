@@ -1145,8 +1145,12 @@ final class Reader_Activation {
 		}
 
 		/** Do not render link for authenticated readers if account page doesn't exist. */
-		if ( empty( $account_url ) && \is_user_logged_in() ) {
-			return '';
+		if ( empty( $account_url ) ) {
+			if ( \is_user_logged_in() ) {
+				return '';
+			} else {
+				$account_url = '#';
+			}
 		}
 
 		$class = function( ...$parts ) {
@@ -1156,8 +1160,9 @@ final class Reader_Activation {
 
 		$labels = self::get_reader_activation_labels( 'account_link' );
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
+		$href   = \is_user_logged_in() ? $account_url : '#';
 
-		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
+		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $href ) . '" data-newspack-reader-account-link>';
 		$link .= '<span class="' . \esc_attr( $class( 'icon' ) ) . '">';
 		$link .= \Newspack\Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';
