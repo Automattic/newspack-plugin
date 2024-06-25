@@ -15,7 +15,7 @@ const wizardsDir = path.join( __dirname, 'src', 'wizards' );
 // Get files for wizards scripts.
 const wizardsScripts = fs
 	.readdirSync( wizardsDir )
-	.filter( wizard =>
+	.filter( ( wizard ) =>
 		fs.existsSync( path.join( __dirname, 'src', 'wizards', wizard, 'index.js' ) )
 	);
 const wizardsScriptFiles = {
@@ -39,7 +39,7 @@ wizardsScripts.forEach( function( wizard ) {
 // Get files for other scripts.
 const otherScripts = fs
 	.readdirSync( path.join( __dirname, 'src', 'other-scripts' ) )
-	.filter( script =>
+	.filter( ( script ) =>
 		fs.existsSync( path.join( __dirname, 'src', 'other-scripts', script, 'index.js' ) )
 	);
 otherScripts.forEach( function( script ) {
@@ -52,38 +52,34 @@ otherScripts.forEach( function( script ) {
 	);
 } );
 
+const entry = {
+	...wizardsScriptFiles,
+	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
+	'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
+	'reader-auth': path.join( __dirname, 'src', 'reader-activation', 'auth.js' ),
+	'reader-registration-block': path.join(
+		__dirname,
+		'src',
+		'blocks',
+		'reader-registration',
+		'view.js'
+	),
+	'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
+	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
+	'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
+	'memberships-gate': path.join( __dirname, 'src', 'memberships-gate', 'gate.js' ),
+	'memberships-gate-metering': path.join( __dirname, 'src', 'memberships-gate', 'metering.js' ),
+	'memberships-gate-block-patterns': path.join(
+		__dirname,
+		'src',
+		'memberships-gate',
+		'block-patterns.js'
+	),
+};
+
 const webpackConfig = getBaseWebpackConfig(
 	{
-		entry: {
-			...wizardsScriptFiles,
-			blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
-			'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
-			'reader-auth': path.join( __dirname, 'src', 'reader-activation', 'auth.js' ),
-			'reader-registration-block': path.join(
-				__dirname,
-				'src',
-				'blocks',
-				'reader-registration',
-				'view.js'
-			),
-			'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
-			admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
-			'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
-			'memberships-gate': path.join( __dirname, 'src', 'memberships-gate', 'gate.js' ),
-			'memberships-gate-metering': path.join(
-				__dirname,
-				'src',
-				'memberships-gate',
-				'metering.js'
-			),
-			'memberships-gate-block-patterns': path.join(
-				__dirname,
-				'src',
-				'memberships-gate',
-				'block-patterns.js'
-			),
-			'revisions-control': path.join( __dirname, 'includes', 'revisions-control', 'newspack-revisions.js' ),
-		},
+		entry,
 	}
 );
 
