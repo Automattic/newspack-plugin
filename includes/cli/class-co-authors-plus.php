@@ -132,7 +132,6 @@ class Co_Authors_Plus {
 				'user_url'        => isset( $post_meta['cap-website'] ) ? $post_meta['cap-website'] : '',
 				'user_pass'       => wp_generate_password(),
 				'role'            => \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
-				'user_email'      => isset( $post_meta['cap-user_email'] ) ? $post_meta['cap-user_email'] : '',
 				'display_name'    => isset( $post_meta['cap-display_name'] ) ? $post_meta['cap-display_name'] : '',
 				'first_name'      => isset( $post_meta['cap-first_name'] ) ? $post_meta['cap-first_name'] : '',
 				'last_name'       => isset( $post_meta['cap-last_name'] ) ? $post_meta['cap-last_name'] : '',
@@ -142,6 +141,16 @@ class Co_Authors_Plus {
 					'_np_migrated_cap_guest_author' => $guest_author->ID,
 				],
 			];
+
+			if ( isset( $post_meta['cap-user_email'] ) && ! empty( $post_meta['cap-user_email'] ) ) {
+				$user_data['user_email'] = $post_meta['cap-user_email'];
+			} else {
+				$dummy_email = '_migrated-' . $guest_author->ID . '-' . $user_login . '@example.com';
+				$user_data['user_email'] = $dummy_email;
+				if ( self::$verbose ) {
+					WP_CLI::line( sprintf( 'Missing email for Guest Author, email address will be updated to %s.', $dummy_email ) );
+				}
+			}
 
 			$existing_user = get_user_by( 'login', $user_login );
 			if ( $existing_user !== false ) {
