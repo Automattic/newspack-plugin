@@ -30,16 +30,6 @@ msgstr ""
 msgid "https://newspack.com/"
 msgstr ""
 
-#: assets/blocks/reader-registration/index.php:39
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:39
-msgid "Stacked"
-msgstr ""
-
-#: assets/blocks/reader-registration/index.php:47
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:47
-msgid "Columns (newsletter subscription)"
-msgstr ""
-
 #: assets/blocks/reader-registration/index.php:110
 #: assets/blocks/reader-registration/index.php:343
 #: release/newspack-plugin/assets/blocks/reader-registration/index.php:110
@@ -72,11 +62,6 @@ msgstr ""
 #: release/newspack-plugin/assets/blocks/reader-registration/index.php:124
 #: release/newspack-plugin/includes/reader-activation/class-reader-activation.php:1220
 msgid "Subscribe to our newsletter"
-msgstr ""
-
-#: assets/blocks/reader-registration/index.php:125
-#: release/newspack-plugin/assets/blocks/reader-registration/index.php:125
-msgid "Already have an account?"
 msgstr ""
 
 #: assets/blocks/reader-registration/index.php:126

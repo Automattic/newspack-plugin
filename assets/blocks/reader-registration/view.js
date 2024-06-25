@@ -57,7 +57,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 				if ( message ) {
 					messageNode = document.createElement( 'p' );
-					messageNode.classList.add( 'has-text-align-center' );
 					messageNode.textContent = message;
 
 					const defaultMessage = successElement.querySelector( 'p' );
