@@ -8,7 +8,7 @@
 		background: white;
 		border: 1px solid wp-colors.$gray-900;
 		border-radius: 2px;
-		display: flex;
+		display: none;
 		font-family: system-ui, sans-serif;
 		flex-wrap: wrap;
 		font-size: 13px;
@@ -155,6 +155,14 @@
 
 		> :last-child {
 			margin-bottom: 0;
+		}
+	}
+}
+
+.wp-block-newspack-reader-registration {
+	&.is-selected {
+		.newspack-registration__state-bar {
+			display: flex;
 		}
 	}
 }
