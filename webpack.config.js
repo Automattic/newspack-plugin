@@ -21,7 +21,7 @@ const wizardsScripts = fs
 const wizardsScriptFiles = {
 	'plugins-screen': path.join( __dirname, 'assets', 'plugins-screen', 'plugins-screen.js' ),
 };
-wizardsScripts.forEach( function( wizard ) {
+wizardsScripts.forEach( function ( wizard ) {
 	let wizardFileName = wizard;
 	if ( wizard === 'advertising' ) {
 		// "advertising.js" might be blocked by ad-blocking extensions.
@@ -42,7 +42,7 @@ const otherScripts = fs
 	.filter( script =>
 		fs.existsSync( path.join( __dirname, 'assets', 'other-scripts', script, 'index.js' ) )
 	);
-otherScripts.forEach( function( script ) {
+otherScripts.forEach( function ( script ) {
 	wizardsScriptFiles[ `other-scripts/${ script }` ] = path.join(
 		__dirname,
 		'assets',
@@ -68,12 +68,7 @@ const entry = {
 	admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
 	'memberships-gate-editor': path.join( __dirname, 'assets', 'memberships-gate', 'editor.js' ),
 	'memberships-gate': path.join( __dirname, 'assets', 'memberships-gate', 'gate.js' ),
-	'memberships-gate-metering': path.join(
-		__dirname,
-		'assets',
-		'memberships-gate',
-		'metering.js'
-	),
+	'memberships-gate-metering': path.join( __dirname, 'assets', 'memberships-gate', 'metering.js' ),
 	'memberships-gate-block-patterns': path.join(
 		__dirname,
 		'assets',
@@ -85,8 +80,6 @@ const entry = {
 Object.keys( entry ).forEach( key => {
 	entry[ key ] = [ 'regenerator-runtime/runtime', entry[ key ] ];
 } );
-
-console.log( entry );
 
 const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
