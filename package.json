@@ -14,7 +14,7 @@
 		"@wordpress/browserslist-config": "^6.0.0",
 		"eslint": "^8.57.0",
 		"lint-staged": "^15.2.2",
-		"newspack-scripts": "5.6.0-alpha.7",
+		"newspack-scripts": "5.6.0-alpha.8",
 		"postcss-scss": "^4.0.9"
 	},
 	"browserslist": [
@@ -37,6 +37,7 @@
 		"lint:js": "newspack-scripts wp-scripts lint-js '**/{src,includes}/**/*.{js,jsx,ts,tsx}'",
 		"lint:js:staged": "newspack-scripts wp-scripts lint-js --ext .js,.jsx,.ts,.tsx",
 		"fix:js": "newspack-scripts wp-scripts lint-js --fix '**/{src,includes}/**/*.{js,jsx,ts,tsx}'",
+		"format:js": "newspack-scripts wp-scripts format '**/{src,includes}/**/*.{js,jsx,ts,tsx}'",
 		"lint:php:staged": "./vendor/bin/phpcs --filter=GitStaged",
 		"lint:scss": "newspack-scripts wp-scripts lint-style '**/*.scss' --customSyntax postcss-scss",
 		"lint:scss:staged": "newspack-scripts wp-scripts lint-style --customSyntax postcss-scss",
