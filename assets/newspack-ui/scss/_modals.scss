@@ -26,7 +26,7 @@
 			transform: translateY( 50px );
 			opacity: 0;
 			transition: transform 0.125s linear, opacity 0.125s linear;
-			@include mixins.newspack-ui-elevation(3);
+			@include mixins.newspack-ui-elevation( 3 );
 		}
 		&[data-state='open'] {
 			z-index: 99999;

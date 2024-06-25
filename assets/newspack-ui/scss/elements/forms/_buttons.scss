@@ -5,6 +5,7 @@
 		border: 0;
 		border-radius: var( --newspack-ui-border-radius-m );
 		color: var( --newspack-ui-color-neutral-90 );
+		cursor: pointer;
 		display: inline-flex;
 		font-family: var( --newspack-ui-font-family );
 		font-size: var( --newspack-ui-font-size-s );
@@ -15,7 +16,9 @@
 		margin-bottom: var( --newspack-ui-spacer-2 );
 		min-height: var( --newspack-ui-spacer-9 );
 		padding: var( --newspack-ui-spacer-2 ) var( --newspack-ui-spacer-5 );
-		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out, outline 125ms ease-in-out;
+		text-decoration: none;
+		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out,
+			outline 125ms ease-in-out;
 
 		&:last-child {
 			margin-bottom: 0;
@@ -79,7 +82,7 @@
 			color: var( --newspack-ui-color-against-primary );
 
 			&:hover {
-				background: color-mix(in srgb, var( --newspack-ui-color-primary ) 80%, black);
+				background: color-mix( in srgb, var( --newspack-ui-color-primary ) 80%, black );
 				color: var( --newspack-ui-color-against-primary );
 			}
 
@@ -88,7 +91,7 @@
 			}
 
 			&:disabled {
-				background: color-mix(in srgb, var( --newspack-ui-color-primary ) 20%, white) !important;
+				background: color-mix( in srgb, var( --newspack-ui-color-primary ) 20%, white ) !important;
 				color: var( --newspack-ui-color-against-primary ) !important;
 			}
 		}

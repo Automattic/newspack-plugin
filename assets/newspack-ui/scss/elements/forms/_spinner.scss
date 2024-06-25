@@ -15,10 +15,11 @@
 		> span {
 			animation: spin 900ms infinite linear;
 			border: 1.5px solid;
-			border-color: var( --newspack-ui-color-neutral-90 ) var( --newspack-ui-color-neutral-90 ) var( --newspack-ui-color-body-bg ) var( --newspack-ui-color-body-bg );
+			border-color: var( --newspack-ui-color-neutral-90 ) var( --newspack-ui-color-neutral-90 )
+				var( --newspack-ui-color-body-bg ) var( --newspack-ui-color-body-bg );
 			border-radius: 50%;
 			height: calc( var( --newspack-ui-spacer-base ) * 2.25 );
-			width: calc( var( --newspack-ui-spacer-base ) * 2.25 );;
+			width: calc( var( --newspack-ui-spacer-base ) * 2.25 );
 		}
 	}
 }

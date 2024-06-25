@@ -1,7 +1,16 @@
 @font-face {
 	font-family: Inter;
+	font-style: normal;
+	font-weight: 100 900;
 	font-display: swap;
-	src: url('./fonts/Inter-VariableFont_slnt,wght.ttf');
+	src: url( './fonts/InterVariable.woff2?v=4.0' ) format( 'woff2' );
+}
+@font-face {
+	font-family: Inter;
+	font-style: italic;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url( './fonts/InterVariable-Italic.woff2?v=4.0' ) format( 'woff2' );
 }
 
 :root {
@@ -13,7 +22,7 @@
 	--newspack-ui-font-size-2xs: 12px;
 	--newspack-ui-font-size-xs: 14px;
 	--newspack-ui-font-size-s: 16px;
-	--newspack-ui-font-size-m: clamp(1.125rem, 0.929rem + 0.402vw, 1.25rem); // 18px - 20px
+	--newspack-ui-font-size-m: clamp( 1.125rem, 0.929rem + 0.402vw, 1.25rem ); // 18px - 20px
 	--newspack-ui-font-size-l: clamp( 1.25rem, 0.857rem + 0.803vw, 1.5rem ); // 20px - 24px
 	--newspack-ui-font-size-xl: clamp( 1.375rem, 0.394rem + 2.008vw, 2rem ); // 22px - 32px
 	--newspack-ui-font-size-2xl: clamp( 1.625rem, 0.055rem + 3.213vw, 2.625rem ); // 26px - 42px
