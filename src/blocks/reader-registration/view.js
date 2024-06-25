@@ -27,8 +27,8 @@ function domReady( callback ) {
 
 window.newspackRAS = window.newspackRAS || [];
 
-window.newspackRAS.push( function ( readerActivation ) {
-	domReady( function () {
+window.newspackRAS.push( function( readerActivation ) {
+	domReady( function() {
 		document.querySelectorAll( '.newspack-registration' ).forEach( container => {
 			const form = container.querySelector( 'form' );
 			if ( ! form ) {
