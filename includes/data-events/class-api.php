@@ -198,7 +198,8 @@ final class Api {
 		}
 		return \rest_ensure_response(
 			[
-				'success' => $code && 200 >= $code && 300 > $code,
+				// Success if response code is in 2xx range.
+				'success' => $code && $code > 199 && $code < 300,
 				'code'    => $code,
 				'message' => $message,
 			]
