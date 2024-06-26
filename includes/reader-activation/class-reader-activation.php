@@ -1897,6 +1897,7 @@ final class Reader_Activation {
 					'user_email'   => $email,
 				]
 			);
+
 			if ( function_exists( '\wc_create_new_customer' ) ) {
 				/**
 				 * Create WooCommerce Customer if possible.

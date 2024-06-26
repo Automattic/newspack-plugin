@@ -87,10 +87,22 @@ const Emails = () => {
 		<>
 			{ emails.map( email => {
 				const isActive = email.status === 'publish';
-				const notification =
-					email.type === 'receipt'
-						? __( 'This email is not active. The default receipt will be used.', 'newspack-plugin' )
-						: __( 'This email is not active.', 'newspack-plugin' );
+
+				let notification = __( 'This email is not active.', 'newspack-plugin' );
+				if ( email.type === 'receipt' ) {
+					notification = __(
+						'This email is not active. The default receipt will be used.',
+						'newspack-plugin'
+					);
+				}
+
+				if ( email.type === 'welcome' ) {
+					notification = __(
+						'This email is not active. The receipt template will be used if active.',
+						'newspack-plugin'
+					);
+				}
+
 				return (
 					<ActionCard
 						key={ email.post_id }
