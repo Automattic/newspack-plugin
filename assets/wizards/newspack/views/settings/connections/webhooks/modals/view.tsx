@@ -24,8 +24,8 @@ const View = ( {
 	endpoint,
 	setAction,
 }: {
-	endpoint: Endpoint;
-	setAction: ( action: WebhookActions, id: number | string ) => void;
+	endpoint: ModalComponentProps[ 'endpoint' ];
+	setAction: ModalComponentProps[ 'setAction' ];
 } ) => {
 	return (
 		<Modal

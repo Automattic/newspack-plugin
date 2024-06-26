@@ -33,3 +33,18 @@ type WpCheckboxControlPropsOverride< T > = React.ComponentProps< T > & {
 	indeterminate?: boolean;
 	key?: React.Key | null;
 };
+
+/**
+ * Modals component props.
+ */
+type ModalComponentProps = {
+	endpoint: Endpoint;
+	actions: string[];
+	errorMessage: string | null;
+	inFlight: boolean;
+	action: WebhookActions;
+	setError: ( err: WizardErrorType | null | string ) => void;
+	setAction: ( action: WebhookActions, id: number | string ) => void;
+	wizardApiFetch: < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => void;
+	setEndpoints: ( endpoints: Endpoint[] ) => void;
+};

@@ -24,18 +24,10 @@ const EndpointActionsModals = ( {
 	errorMessage = null,
 	inFlight = false,
 	setAction,
+	setError,
 	setEndpoints,
 	wizardApiFetch,
-}: {
-	endpoint: Endpoint;
-	actions: string[];
-	errorMessage: string | null;
-	inFlight: boolean;
-	action: WebhookActions;
-	setAction: ( action: WebhookActions, id: number | string ) => void;
-	wizardApiFetch: < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => void;
-	setEndpoints: ( endpoints: Endpoint[] ) => void;
-} ) => {
+}: ModalComponentProps ) => {
 	const onSuccess = ( endpointId: string | number, response: Endpoint[] ) => {
 		setEndpoints( response );
 		setAction( null, endpointId );
@@ -116,6 +108,7 @@ const EndpointActionsModals = ( {
 						endpoint,
 						inFlight,
 						setAction,
+						setError,
 						errorMessage,
 						setEndpoints,
 						wizardApiFetch,
@@ -125,12 +118,12 @@ const EndpointActionsModals = ( {
 			{ [ 'edit', 'new' ].includes( action ?? '' ) && (
 				<ModalUpsert
 					{ ...{
-						action,
-						actions,
 						endpoint,
-						inFlight,
-						setAction,
+						actions,
 						errorMessage,
+						inFlight,
+						setError,
+						setAction,
 						setEndpoints,
 						wizardApiFetch,
 					} }

@@ -12,8 +12,8 @@ import { CheckboxControl as WpCheckboxControl, TextControl } from '@wordpress/co
 /**
  * Internal dependencies
  */
-import { API_NAMESPACE, ENDPOINTS_CACHE_KEY } from '../constants';
-import { useWizardApiFetch } from '../../../../../../hooks/use-wizard-api-fetch';
+import { ENDPOINTS_CACHE_KEY } from '../constants';
+import { WizardApiError } from '../../../../../../errors';
 import { Card, Button, Notice, Modal, Grid } from '../../../../../../../components/src';
 
 /**
@@ -33,25 +33,18 @@ const Upsert = ( {
 	actions,
 	errorMessage = null,
 	inFlight = false,
+	setError,
 	setAction,
 	setEndpoints,
 	wizardApiFetch,
-}: {
-	endpoint: Endpoint;
-	actions: string[];
-	errorMessage: string | null;
-	inFlight: boolean;
-	setAction: ( action: WebhookActions, id: number | string ) => void;
-	wizardApiFetch: < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => void;
-	setEndpoints: ( endpoints: Endpoint[] ) => void;
-} ) => {
+}: Omit< ModalComponentProps, 'action' > ) => {
 	const [ editing, setEditing ] = useState< Endpoint >( endpoint );
-
-	const {
-		wizardApiFetch: testWizardApiFetch,
-		errorMessage: testError,
-		resetError: resetTestError,
-	} = useWizardApiFetch( `${ API_NAMESPACE }/tests` );
+	// Test request
+	const [ testResponse, setTestResponse ] = useState< {
+		success?: boolean;
+		code?: number;
+		message?: string;
+	} >( {} );
 
 	const onSuccess = ( endpointId: string | number, response: Endpoint[] ) => {
 		setEndpoints( response );
