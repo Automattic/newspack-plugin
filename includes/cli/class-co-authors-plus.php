@@ -76,6 +76,53 @@ class Co_Authors_Plus {
 		WP_CLI::line( '' );
 	}
 
+	/**
+	 * Backfill Non-Editing Contributor role. Will add this role to any Subscriber/Customer
+	 * who has any posts assigned to them.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--live]
+	 * : Run the command in live mode, updating the subscriptions.
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Assoc arguments.
+	 * @return void
+	 */
+	public function backfill_non_editing_contributor( $args, $assoc_args ) {
+		WP_CLI::line( '' );
+
+		self::$live = isset( $assoc_args['live'] ) ? true : false;
+
+		if ( self::$live ) {
+			WP_CLI::line( 'Live mode - data will be changed.' );
+		} else {
+			WP_CLI::line( 'Dry run. Use --live flag to run in live mode.' );
+		}
+		WP_CLI::line( '' );
+
+		// Find all WP Users who have Subscriber or Customer role, and at least one post authored.
+		$users = get_users(
+			[
+				'role__in'     => [ 'subscriber', 'customer' ],
+				'role__not_in' => [ \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME, 'administrator', 'editor', 'author', 'contributor' ],
+				'fields'       => 'ID',
+				'number'       => -1,
+			]
+		);
+		foreach ( $users as $user_id ) {
+			if ( count_user_posts( $user_id ) > 0 ) { // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.count_user_posts_count_user_posts
+				if ( self::$live ) {
+					WP_CLI::line( sprintf( 'Will add the Non-Editing Contributor role to user %d.', $user_id ) );
+					get_user_by( 'id', $user_id )->add_role( \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
+				} else {
+					WP_CLI::line( sprintf( 'Would add the Non-Editing Contributor role to user %d.', $user_id ) );
+				}
+			}
+		}
+
+		WP_CLI::line( '' );
+	}
 
 	/**
 	 * Migrate unlinked guest authors to regular users.
@@ -281,6 +328,9 @@ class Co_Authors_Plus {
 
 			self::assign_user_props( $guest_author_data, $user_id );
 			self::assign_user_meta( $guest_author, $user_id );
+
+			// Add the Non-Editing Contributor role.
+			$linked_user->add_role( \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
 		}
 	}
 
