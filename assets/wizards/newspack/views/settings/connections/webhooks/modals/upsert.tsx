@@ -119,7 +119,7 @@ const Upsert = ( {
 				{ testResponse.success && (
 					<Notice
 						isSuccess
-						noticeText={ `${ testResponse.message } ${ testResponse.code }` }
+						noticeText={ `${ testResponse.message }: ${ testResponse.code }` }
 						className="mt0"
 					/>
 				) }
