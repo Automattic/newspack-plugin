@@ -116,13 +116,6 @@ const Upsert = ( {
 						className="mt0"
 					/>
 				) }
-				{ testError && (
-					<Notice
-						isError
-						noticeText={ __( 'Test Error: ', 'newspack-plugin' ) + testError }
-						className="mt0"
-					/>
-				) }
 				<Grid columns={ 1 } gutter={ 16 } className="mt0">
 					<TextControl
 						label={ __( 'URL', 'newspack-plugin' ) }
@@ -146,20 +139,20 @@ const Upsert = ( {
 						disabled={ inFlight }
 					/>
 					<Card buttonsCard noBorder className="justify-end">
-						{ testResponse && (
+						{ testResponse.success && (
 							<div
 								className={ `newspack-webhooks__test-response status--${
 									testResponse.success ? 'success' : 'error'
 								}` }
 							>
-								<span className="message">{ testResponse.message }</span>
+								<span className="message">{ testResponse.message }</span>{ ' ' }
 								<span className="code">{ testResponse.code }</span>
 							</div>
 						) }
 						<Button
 							variant="secondary"
 							disabled={ inFlight || ! editing.url }
-							onClick={ () => sendTestRequest( editing.url, editing.bearer_token ) }
+							onClick={ () => testEndpoint( editing.url, editing.bearer_token ) }
 						>
 							{ __( 'Send a test request', 'newspack-plugin' ) }
 						</Button>
