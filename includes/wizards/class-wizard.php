@@ -109,7 +109,7 @@ abstract class Wizard {
 			'support_email'  => $support_email,
 		];
 
-		if ( Starter_Content::has_created_starter_content() ) {
+		if ( Starter_Content::has_created_starter_content() && current_user_can( 'manage_options' ) ) {
 			$urls['remove_starter_content'] = esc_url(
 				add_query_arg(
 					array(
@@ -120,7 +120,7 @@ abstract class Wizard {
 			);
 		}
 
-		if ( Newspack::is_debug_mode() ) {
+		if ( Newspack::is_debug_mode() && current_user_can( 'manage_options' ) ) {
 			$urls['components_demo'] = esc_url( admin_url( 'admin.php?page=newspack-components-demo' ) );
 			$urls['setup_wizard']    = esc_url( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 			$urls['reset_url']       = esc_url(
@@ -148,7 +148,7 @@ abstract class Wizard {
 		/**
 		 * Register wizards.js with cache busting
 		 */
-		$asset_file = include plugin_dir_path( __FILE__ ) . 'build/wizards.asset.php';
+		$asset_file = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/wizards.asset.php';
 		wp_register_script(
 			'newspack-wizards',
 			Newspack::plugin_url() . '/dist/wizards.js',
