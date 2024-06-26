@@ -272,15 +272,16 @@ function render_block( $attrs, $content ) {
 									placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>"
 								/>
 								<?php Reader_Activation::render_honeypot_field( $attrs['placeholder'] ); ?>
-								<input
+								<button
 								<?php
 								if ( $is_admin_preview ) :
 									?>
 									disabled
 									<?php endif; ?>
 									type="submit"
-									value="<?php echo \esc_attr( $attrs['label'] ); ?>"
-								/>
+								>
+									<span class="submit"><?php echo \esc_html( $attrs['label'] ); ?></span>
+								</button>
 							</div>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
 								<?php if ( ! empty( $message ) ) : ?>

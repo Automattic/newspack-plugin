@@ -370,21 +370,27 @@ class Donations {
 			if ( $parent_product ) {
 				$suggested_amounts         = $parent_product->get_meta( 'newspack_donation_suggested_amount', true );
 				$untiered_suggested_amount = $parent_product->get_meta( 'newspack_donation_untiered_suggested_amount', true );
+				$parent_product_modified   = false;
 				if ( $suggested_amounts ) {
 					$legacy_settings['suggestedAmounts'] = $suggested_amounts;
 					$parent_product->delete_meta_data( 'newspack_donation_suggested_amount' );
+					$parent_product_modified = true;
 				}
 				if ( $untiered_suggested_amount ) {
 					$legacy_settings['suggestedAmountUntiered'] = $untiered_suggested_amount;
 					$parent_product->delete_meta_data( 'newspack_donation_untiered_suggested_amount' );
+					$parent_product_modified = true;
 				}
 				$tiered = $parent_product->get_meta( 'newspack_donation_is_tiered', true );
 
 				if ( ! empty( $tiered ) && is_int( intval( $tiered ) ) ) {
 					$legacy_settings['tiered'] = $tiered;
 					$parent_product->delete_meta_data( 'newspack_donation_is_tiered' );
+					$parent_product_modified = true;
 				}
-				$parent_product->save();
+				if ( $parent_product_modified ) {
+					$parent_product->save();
+				}
 			}
 		}
 
