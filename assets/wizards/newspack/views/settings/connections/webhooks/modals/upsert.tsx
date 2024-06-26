@@ -65,14 +65,8 @@ const Upsert = ( {
 		);
 	}
 
-	// Test request
-	const [ testResponse, setTestResponse ] = useState< {
-		success?: boolean;
-		code?: number;
-		message?: string;
-	} >( {} );
-	function sendTestRequest( url: string | undefined, bearer_token: string | undefined ) {
-		testWizardApiFetch< { success: boolean; code: number; message: string } >(
+	function testEndpoint( url: string | undefined, bearer_token: string | undefined ) {
+		wizardApiFetch< { success: boolean; code: number; message: string } >(
 			{
 				path: '/newspack/v1/webhooks/endpoints/test',
 				method: 'POST',
@@ -80,10 +74,20 @@ const Upsert = ( {
 			},
 			{
 				onStart() {
-					resetTestError();
+					setError( null );
 					setTestResponse( {} );
 				},
 				onSuccess( res ) {
+					if ( ! res.success ) {
+						setError(
+							new WizardApiError(
+								`${ res.code ? `${ res.code }: ` : '' }${ res.message }`,
+								res.code,
+								'endpoint_test'
+							)
+						);
+						return;
+					}
 					setTestResponse( res );
 				},
 			}

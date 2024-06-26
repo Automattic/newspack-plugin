@@ -32,6 +32,7 @@ const defaultEndpoint: Endpoint = {
 
 function Webhooks() {
 	const {
+		setError,
 		resetError,
 		errorMessage,
 		wizardApiFetch,
@@ -116,6 +117,7 @@ function Webhooks() {
 			{ selectedEndpoint && (
 				<EndpointActionsModals
 					actions={ actions }
+					setError={ setError }
 					action={ action }
 					errorMessage={ errorMessage }
 					inFlight={ inFlight }
