@@ -116,6 +116,13 @@ const Upsert = ( {
 						className="mt0"
 					/>
 				) }
+				{ testResponse.success && (
+					<Notice
+						isSuccess
+						noticeText={ `${ testResponse.message } ${ testResponse.code }` }
+						className="mt0"
+					/>
+				) }
 				<Grid columns={ 1 } gutter={ 16 } className="mt0">
 					<TextControl
 						label={ __( 'URL', 'newspack-plugin' ) }
@@ -139,16 +146,6 @@ const Upsert = ( {
 						disabled={ inFlight }
 					/>
 					<Card buttonsCard noBorder className="justify-end">
-						{ testResponse.success && (
-							<div
-								className={ `newspack-webhooks__test-response status--${
-									testResponse.success ? 'success' : 'error'
-								}` }
-							>
-								<span className="message">{ testResponse.message }</span>{ ' ' }
-								<span className="code">{ testResponse.code }</span>
-							</div>
-						) }
 						<Button
 							variant="secondary"
 							disabled={ inFlight || ! editing.url }
