@@ -242,8 +242,9 @@ class WooCommerce_Cover_Fees {
 	public static function get_fee_display_value( $subtotal ) {
 		$total = self::get_total_with_fee( $subtotal );
 		if ( ! function_exists( 'wc_price' ) ) {
+			$donation_settings = Donations::get_donation_settings();
 			// Just one decimal place, please.
-			return ( (float) number_format( ( ( $total - $subtotal ) * 100 ) / $subtotal, 1 ) ) . '%';
+			return $donation_settings['currencySymbol'] . ( (float) number_format( $total - $subtotal, 2 ) );
 		}
 		return \wc_price( $total - $subtotal );
 	}
