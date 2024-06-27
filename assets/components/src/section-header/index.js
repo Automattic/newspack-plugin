@@ -40,7 +40,7 @@ import classnames from 'classnames';
 const SectionHeader = ( {
 	centered = false,
 	className = null,
-	description,
+	description = '',
 	heading = 2,
 	isWhite = false,
 	noMargin = false,
@@ -75,7 +75,7 @@ const SectionHeader = ( {
 			<Grid columns={ 1 } gutter={ 8 } className={ classes }>
 				{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }
 				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
-				{ typeof description === 'string' && <p>{ description }</p> }
+				{ description && typeof description === 'string' && <p>{ description }</p> }
 				{ typeof description === 'function' && <p>{ description() }</p> }
 			</Grid>
 		</div>

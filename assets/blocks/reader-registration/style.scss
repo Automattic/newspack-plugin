@@ -168,6 +168,34 @@
 		input {
 			pointer-events: none;
 		}
+
+		button[type='submit'] {
+			position: relative;
+
+			span.submit {
+				visibility: hidden;
+			}
+
+			span.spinner {
+				--animation-duration: 900ms;
+				--animation-timing-function: linear;
+				--color-spinner-primary: transparent;
+				--color-spinner-background: currentcolor;
+				--size: 18px;
+				--stroke-width: 1.5px;
+
+				animation: var(--animation-timing-function) var(--animation-duration) infinite spin;
+				border-color: var(--color-spinner-primary) var(--color-spinner-primary) var(--color-spinner-background) var(--color-spinner-background);
+				border-radius: 50%;
+				border-style: solid;
+				border-width: var(--stroke-width);
+				height: var(--size);
+				transform: rotate(0deg);
+				width: var(--size);
+				position: absolute;
+				left: calc( 50% - ( var(--size) / 2 ) );
+			}
+		}
 	}
 
 	&__icon {
@@ -265,4 +293,13 @@
 	100% {
 		transform: scale( 1 );
 	}
+}
+
+@keyframes spin {
+  from {
+    transform: rotate( 0deg );
+  }
+  to {
+    transform: rotate( 360deg );
+  }
 }
