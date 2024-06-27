@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Wizards\Newspack\Newspack_Settings;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -42,7 +44,13 @@ class Wizards {
 			'settings'           => new Settings(),
 			// v2 Information Architecture.
 			'newspack-dashboard' => new Newspack_Dashboard(),
-			'newspack-settings'  => new Newspack_Settings(),
+			'newspack-settings'  => new Newspack_Settings( 
+				[
+					'sections' => [
+						'custom-events' => 'Newspack\Wizards\Newspack\Custom_Events_Section',
+					],
+				] 
+			),
 		];
 	}
 

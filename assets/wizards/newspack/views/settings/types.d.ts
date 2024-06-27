@@ -48,3 +48,8 @@ type ModalComponentProps = {
 	wizardApiFetch: < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => void;
 	setEndpoints: ( endpoints: Endpoint[] ) => void;
 };
+
+/*
+ * Google Analytics 4 credentials Type.
+ */
+type Ga4Credentials = Record< string, string >;

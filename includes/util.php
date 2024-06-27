@@ -10,6 +10,7 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 define( 'NEWSPACK_API_NAMESPACE', 'newspack/v1' );
+define( 'NEWSPACK_API_NAMESPACE_V2', 'newspack/v2' );
 define( 'NEWSPACK_API_URL', get_site_url() . '/wp-json/' . NEWSPACK_API_NAMESPACE );
 
 /**
