@@ -17,48 +17,87 @@ class Newspack_Newsletters {
 	const METADATA_PREFIX        = 'NP_';
 	const METADATA_PREFIX_OPTION = '_newspack_metadata_prefix';
 
+	/**
+	 * The option name for choosing which metadata fields to sync.
+	 *
+	 * @var string
+	 */
+	const METADATA_FIELDS_OPTION = '_newspack_metadata_fields';
 
 	/**
 	 * Metadata keys map for Reader Activation.
 	 *
 	 * @var array
 	 */
-	public static $metadata_keys = [
-		'account'              => 'Account',
-		'registration_date'    => 'Registration Date',
-		'connected_account'    => 'Connected Account',
-		'signup_page'          => 'Signup Page',
-		'signup_page_utm'      => 'Signup UTM: ',
-		'newsletter_selection' => 'Newsletter Selection',
-		'referer'              => 'Referrer Path',
-		'registration_page'    => 'Registration Page',
-		'current_page_url'     => 'Registration Page',
-		'registration_method'  => 'Registration Method',
-
-		// Payment-related.
-		'membership_status'    => 'Membership Status',
-		'payment_page'         => 'Payment Page',
-		'payment_page_utm'     => 'Payment UTM: ',
-		'sub_start_date'       => 'Current Subscription Start Date',
-		'sub_end_date'         => 'Current Subscription End Date',
-		'billing_cycle'        => 'Billing Cycle',
-		'recurring_payment'    => 'Recurring Payment',
-		'last_payment_date'    => 'Last Payment Date',
-		'last_payment_amount'  => 'Last Payment Amount',
-		'product_name'         => 'Product Name',
-		'next_payment_date'    => 'Next Payment Date',
-		'total_paid'           => 'Total Paid',
-	];
+	public static $metadata_keys = [];
 
 	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		/**
+		 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 *
+		 * @param array $metadata_keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
+		 */
+		self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_metadata_fields() );
+
 		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
 
 		if ( self::should_sync_ras_metadata() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
+	}
+
+	/**
+	 * Get basic contact metadata fields.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_basic_metadata_fields() {
+		return [
+			'account'              => 'Account',
+			'registration_date'    => 'Registration Date',
+			'connected_account'    => 'Connected Account',
+			'signup_page'          => 'Signup Page',
+			'signup_page_utm'      => 'Signup UTM: ',
+			'newsletter_selection' => 'Newsletter Selection',
+			'referer'              => 'Referrer Path',
+			'registration_page'    => 'Registration Page',
+			'current_page_url'     => 'Registration Page',
+			'registration_method'  => 'Registration Method',
+		];
+	}
+
+	/**
+	 * Get payment-related metadata fields.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_payment_metadata_fields() {
+		return [
+			'membership_status'   => 'Membership Status',
+			'payment_page'        => 'Payment Page',
+			'payment_page_utm'    => 'Payment UTM: ',
+			'sub_start_date'      => 'Current Subscription Start Date',
+			'sub_end_date'        => 'Current Subscription End Date',
+			'billing_cycle'       => 'Billing Cycle',
+			'recurring_payment'   => 'Recurring Payment',
+			'last_payment_date'   => 'Last Payment Date',
+			'last_payment_amount' => 'Last Payment Amount',
+			'product_name'        => 'Product Name',
+			'next_payment_date'   => 'Next Payment Date',
+			'total_paid'          => 'Total Paid',
+		];
+	}
+
+	/**
+	 * Get all metdata fields.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_all_metadata_fields() {
+		return array_merge( self::get_basic_metadata_fields(), self::get_payment_metadata_fields() );
 	}
 
 	/**
@@ -108,6 +147,73 @@ class Newspack_Newsletters {
 	}
 
 	/**
+	 * Get the list of possible fields to be synced to the connected ESP.
+	 *
+	 * @return string[] List of fields.
+	 */
+	public static function get_default_metadata_fields() {
+		return array_values( array_unique( array_values( self::$metadata_keys ) ) );
+	}
+
+	/**
+	 * Get the list of fields to be synced to the connected ESP.
+	 *
+	 * @return string[] List of fields to be synced.
+	 */
+	public static function get_metadata_fields() {
+		return array_values( \get_option( self::METADATA_FIELDS_OPTION, self::get_default_metadata_fields() ) );
+	}
+
+	/**
+	 * Update the list of fields to be synced to the connected ESP.
+	 *
+	 * @param array $fields List of fields to sync.
+	 *
+	 * @return boolean True if updated, false otherwise.
+	 */
+	public static function update_metadata_fields( $fields ) {
+		// Only allow fields that are in the metadata keys map.
+		$fields = array_intersect( self::get_default_metadata_fields(), $fields );
+		return \update_option( self::METADATA_FIELDS_OPTION, array_values( $fields ) );
+	}
+
+	/**
+	 * Get the "raw" unprefixed metadata keys. Only return fields selected to sync to the ESP.
+	 *
+	 * @return string[] List of raw metadata keys.
+	 */
+	public static function get_raw_metadata_keys() {
+		$fields_to_sync = self::get_metadata_fields();
+		$raw_keys       = [];
+
+		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+			if ( in_array( $field_name, $fields_to_sync, true ) ) {
+				$raw_keys[] = $raw_key;
+			}
+		}
+
+		return array_unique( $raw_keys );
+	}
+
+	/**
+	 * Get the "prefixed" metadata keys. Only return fields selected to sync to the ESP.
+	 *
+	 * @return string[] List of prefixed metadata keys.
+	 */
+	public static function get_prefixed_metadata_keys() {
+		$fields_to_sync = self::get_metadata_fields();
+		$prefixed_keys  = [];
+
+		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+			if ( in_array( $field_name, $fields_to_sync, true ) ) {
+				$prefixed_keys[] = self::get_metadata_key( $raw_key );
+			}
+		}
+
+		return array_unique( $prefixed_keys );
+	}
+
+	/**
 	 * Given a field name, prepend it with the metadata field prefix.
 	 *
 	 * @param string $key Metadata field to fetch.
@@ -143,13 +249,8 @@ class Newspack_Newsletters {
 		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
 		if ( isset( $contact['metadata'] ) ) {
 			$normalized_metadata = [];
-			$raw_keys            = array_values( array_flip( self::$metadata_keys ) );
-			$prefixed_keys       = array_map(
-				function( $key ) {
-					return self::get_metadata_key( $key );
-				},
-				$raw_keys
-			);
+			$raw_keys            = self::get_raw_metadata_keys();
+			$prefixed_keys       = self::get_prefixed_metadata_keys();
 
 			// Capture UTM params and signup/payment page URLs as meta for registration or payment.
 			if (
@@ -178,7 +279,7 @@ class Newspack_Newsletters {
 						if ( 'utm' === substr( $param, 0, 3 ) ) {
 							$param = str_replace( 'utm_', '', $param );
 							$key   = self::get_metadata_key( $utm_key_prefix ) . $param;
-							if ( ! isset( $contact['metadata'][ $key ] ) ) {
+							if ( ! isset( $contact['metadata'][ $key ] ) || empty( $contact['metadata'][ $key ] ) ) {
 								$contact['metadata'][ $key ] = $value;
 							}
 						}
@@ -192,7 +293,11 @@ class Newspack_Newsletters {
 						$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
 					} elseif (
 						in_array( $meta_key, $prefixed_keys, true ) ||
-						( false !== strpos( $meta_key, self::get_metadata_key( 'signup_page_utm' ) ) || false !== strpos( $meta_key, self::get_metadata_key( 'payment_page_utm' ) ) ) // UTM meta keys can have arbitrary suffixes.
+						(
+							// UTM meta keys can have arbitrary suffixes.
+							( in_array( self::get_metadata_key( 'signup_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_metadata_key( 'signup_page_utm' ) ) ) ||
+							( in_array( self::get_metadata_key( 'payment_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_metadata_key( 'payment_page_utm' ) ) )
+						)
 					) {
 						$normalized_metadata[ $meta_key ] = $meta_value;
 					}
@@ -212,7 +317,7 @@ class Newspack_Newsletters {
 		}
 
 		// Parse full name into first + last for MC, which stores these as separate merge fields.
-		if ( method_exists( 'Newspack_Newsletters', 'service_provider' ) && 'mailchimp' === \Newspack_Newsletters::service_provider() ) {
+		if ( 'mailchimp' === \get_option( 'newspack_newsletters_service_provider', false ) ) {
 			if ( isset( $contact['name'] ) ) {
 				if ( ! isset( $contact['metadata'] ) ) {
 					$contact['metadata'] = [];

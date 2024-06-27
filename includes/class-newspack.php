@@ -86,6 +86,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-popups.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/ga4/class-ga4.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-connector.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-mailchimp.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-activecampaign.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-woo-user-registration.php';
@@ -101,6 +102,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/my-account/class-woocommerce-my-account.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/class-reader-revenue-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-oauth.php';
+		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-oauth-transients.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-oauth.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-services-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-mailchimp-api.php';
@@ -113,16 +115,19 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/revisions-control/class-revisions-control.php';
 		include_once NEWSPACK_ABSPATH . 'includes/authors/class-authors-custom-fields.php';
 
-		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
-		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-media-partners.php';
-
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-wordpress.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard-section.php';
+
+		// Newspack Wizards and Sections.
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
+
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newspack-dashboard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 
 		/* Unified Wizards */
@@ -159,11 +164,15 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-onesignal.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-co-authors-plus.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-performance.php';
+
+		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
+		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-media-partners.php';
 
 		if ( Donations::is_platform_nrh() ) {
 			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';
@@ -207,6 +216,9 @@ final class Newspack {
 	 * Handle resetting of various options and content.
 	 */
 	public function handle_resets() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 		$redirect_url   = admin_url( 'admin.php?page=newspack' );
 		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'starter-content' === $newspack_reset ) {

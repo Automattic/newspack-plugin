@@ -5,11 +5,12 @@
  * @package Newspack
  */
 
-namespace Newspack;
+namespace Newspack\Wizards\Newspack;
+
+use Newspack\Wizard;
+use function Newspack\google_site_kit_available;
 
 defined( 'ABSPATH' ) || exit;
-
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
  * Common functionality for admin wizards. Override this class.
@@ -48,14 +49,15 @@ class Newspack_Settings extends Wizard {
 				'label'    => __( 'Connections', 'newspack-plugin' ),
 				'path'     => '/',
 				'sections' => [
-					'plugins'   => [],
-					'apis'      => [],
-					'recaptcha' => [],
-					'analytics' => [
+					'plugins'      => [],
+					'apis'         => [],
+					'recaptcha'    => [],
+					'analytics'    => [
 						'editLink'                    => google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' ),
 						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
 						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
 					],
+					'customEvents' => $this->sections['custom-events']->get_data(),
 				],
 			],
 			'emails'            => [

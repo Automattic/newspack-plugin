@@ -1,27 +1,14 @@
 /**
- * Newspack Core Image group of components for overriding
- * caption behavior.
+ * External dependencies
  */
-
-/**
- * Dependencies
- */
-// External
-import classnames from 'classnames';
-// WordPress
-import { useSelect } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
-import { useState, useEffect } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
-// Internal
-import './style.scss';
-import Loader from './loader';
-import Toolbar from './toolbar';
-import Figcaption from './figcaption';
-/**
- * TS
- */
-import * as CoreImageBlockTypes from './types';
+
+import * as ImageBlockTypes from './types';
+
+const currentUrl = window.location.href;
 
 /**
  * Add image credit meta to core/image block attributes
@@ -47,58 +34,58 @@ addFilter(
 );
 
 /**
+ * Display spinner and lock post saving until meta attributes are added to block
+ */
+const AttributesLoader = ( { setAttributes, attributes }: ImageBlockTypes.AttributeProps ) => {
+	const imageId = attributes.id;
+	const { meta }: { meta: ImageBlockTypes.AttributesMeta } = useSelect(
+		select => select( 'core' ).getMedia( imageId ),
+		[ imageId ]
+	) ?? {
+		meta: {},
+	};
+	useEffect( () => {
+		// Meta added, proceed
+		if ( Object.keys( meta ).length ) {
+			const { _media_credit, _media_credit_url, _navis_media_credit_org } = meta;
+			setAttributes( { meta: { _media_credit, _media_credit_url, _navis_media_credit_org } } );
+		}
+	}, [ Object.keys( meta ).length ] );
+
+	return <></>;
+};
+
+/**
+ * Compare two urls strings and determine if they're from the same origin.
+ */
+const isSameOrigin = ( urlOne: string, urlTwo = currentUrl ) => {
+	const hostOne = new URL( urlOne ).hostname;
+	const hostTwo = new URL( urlTwo ).hostname;
+	return hostOne === hostTwo;
+};
+
+/**
  * Populate attributes with meta data.
  */
 addFilter(
 	'editor.BlockEdit',
 	'newspack-plugin/block-edit-hook/core-image',
-	createHigherOrderComponent( Edit => {
-		const BlockEditHoc = (
-			props: CoreImageBlockTypes.BaseProps< CoreImageBlockTypes.Attributes >
+	createHigherOrderComponent( BlockEdit => {
+		const blockEditComponent = (
+			props: ImageBlockTypes.BaseProps< ImageBlockTypes.Attributes >
 		) => {
-			const caption = ( props.attributes.caption ?? '' ).trim();
-			const [ isCaptionVisible, setIsCaptionVisible ] = useState< boolean >( '' !== caption );
-			const { url: siteUrl }: { url: string } = useSelect(
-				select => select( 'core' ).getSite(),
-				[ props.attributes.url ]
-			) ?? {
-				url: '',
-			};
-
-			// If caption visibility is toggled off, clear the caption
-			useEffect( () => {
-				if ( ! isCaptionVisible && '' !== caption ) {
-					props.setAttributes( { caption: '' } );
-				}
-			}, [ isCaptionVisible ] );
-
 			if ( props.name === 'core/image' ) {
-				const id = props.attributes.id ?? 0;
-				const classes = classnames( props.className, 'newspack-block__core-image' );
 				return (
-					<div className={ classes }>
-						<Edit { ...props } />
-						{ id !== 0 && (
-							<>
-								<Figcaption
-									attributes={ props.attributes }
-									setAttributes={ props.setAttributes }
-									isCaptionVisible={ isCaptionVisible }
-								/>
-								{ siteUrl && props.attributes.url.includes( siteUrl ) && (
-									<Loader attributes={ props.attributes } setAttributes={ props.setAttributes } />
-								) }
-								<Toolbar
-									isCaptionVisible={ isCaptionVisible }
-									setIsCaptionVisible={ setIsCaptionVisible }
-								/>
-							</>
+					<>
+						<BlockEdit { ...props } />
+						{ props.attributes.url && isSameOrigin( props.attributes.url ) && (
+							<AttributesLoader { ...props } />
 						) }
-					</div>
+					</>
 				);
 			}
-			return <Edit { ...props } />;
+			return <BlockEdit { ...props } />;
 		};
-		return BlockEditHoc;
+		return blockEditComponent;
 	}, 'withCustomMetaData' )
 );

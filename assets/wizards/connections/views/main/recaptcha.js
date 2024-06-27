@@ -45,14 +45,13 @@ const Recaptcha = () => {
 		setError( null );
 		setIsLoading( true );
 		try {
-			setSettings(
-				await apiFetch( {
-					path: '/newspack/v1/recaptcha',
-					method: 'POST',
-					data,
-				} )
-			);
-			setSettingsToUpdate( {} );
+			const newSettings = await apiFetch( {
+				path: '/newspack/v1/recaptcha',
+				method: 'POST',
+				data,
+			} );
+			setSettings( newSettings );
+			setSettingsToUpdate( newSettings );
 		} catch ( e ) {
 			setError( e?.message || __( 'Error updating settings.', 'newspack-plugin' ) );
 		} finally {
@@ -129,7 +128,7 @@ const Recaptcha = () => {
 								step="0.05"
 								min="0"
 								max="1"
-								value={ settingsToUpdate?.threshold || '' }
+								value={ parseFloat( settingsToUpdate?.threshold || '' ) }
 								label={ __( 'Threshold', 'newspack-plugin' ) }
 								onChange={ value =>
 									setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )

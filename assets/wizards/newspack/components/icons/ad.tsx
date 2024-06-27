@@ -5,7 +5,8 @@
 /**
  * WordPress dependencies
  */
-import { Path, SVG, Rect } from '@wordpress/primitives';
+import { Path, Rect } from '@wordpress/primitives';
+import SVG from './svg';
 
 const ad = (
 	<SVG width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import Plugins from './plugins';
 import Analytics from './analytics';
+import CustomEvents from './custom-events';
 import { SectionHeader } from '../../../../../components/src';
 
 function Section( {
@@ -71,7 +72,7 @@ function Connections() {
 					'newspack-plugin'
 				) }
 			>
-				<div className="newspack-card">Coming soon</div>
+				<CustomEvents />
 			</Section>
 		</div>
 	);

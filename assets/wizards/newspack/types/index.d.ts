@@ -38,9 +38,8 @@ declare global {
 			connections: {
 				label: string;
 				path?: string;
-				// dependencies: Record< string, boolean >;
 				sections: {
-					[ k: string ]: { editLink: string; dependencies: Record< string, string > } & Record<
+					[ k: string ]: { editLink?: string; dependencies?: Record< string, string > } & Record<
 						string,
 						string
 					>;
