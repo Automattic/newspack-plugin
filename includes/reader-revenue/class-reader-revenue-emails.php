@@ -16,6 +16,7 @@ class Reader_Revenue_Emails {
 	const EMAIL_TYPES = [
 		'CANCELLATION' => 'cancellation',
 		'RECEIPT'      => 'receipt',
+		'WELCOME'      => 'welcome',
 	];
 
 	/**
@@ -116,6 +117,39 @@ class Reader_Revenue_Emails {
 					[
 						'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
 						'template' => '*PAYMENT_METHOD*',
+					],
+				]
+			),
+		];
+		$configs[ self::EMAIL_TYPES['WELCOME'] ]      = [
+			'name'                   => self::EMAIL_TYPES['WELCOME'],
+			'label'                  => __( 'Welcome', 'newspack-plugin' ),
+			'description'            => __( 'Email sent to new reader accounts registered during a transaction.', 'newspack-plugin' ),
+			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/welcome.php',
+			'editor_notice'          => __( 'This email will be sent to readers when they register an account during a transaction.', 'newspack-plugin' ),
+			'from_email'             => self::get_from_email(),
+			'available_placeholders' => array_merge(
+				$available_placeholders,
+				[
+					[
+						'label'    => __( 'automatically-generated receipt link', 'newspack-plugin' ),
+						'template' => '*RECEIPT_URL*',
+					],
+					[
+						'label'    => __( 'the payment amount', 'newspack-plugin' ),
+						'template' => '*AMOUNT*',
+					],
+					[
+						'label'    => __( 'payment date', 'newspack-plugin' ),
+						'template' => '*DATE*',
+					],
+					[
+						'label'    => __( 'payment method (last four digits of the card used)', 'newspack-plugin' ),
+						'template' => '*PAYMENT_METHOD*',
+					],
+					[
+						'label'    => __( 'user account link', 'newspack' ),
+						'template' => '*ACCOUNT_URL*',
 					],
 				]
 			),

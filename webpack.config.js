@@ -52,45 +52,46 @@ otherScripts.forEach( function ( script ) {
 	);
 } );
 
+const entry = {
+	...wizardsScriptFiles,
+	blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
+	'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
+	'reader-auth': path.join( __dirname, 'assets', 'reader-activation-auth', 'index.js' ),
+	'newsletters-signup': path.join(
+		__dirname,
+		'assets',
+		'reader-activation-newsletters',
+		'index.js'
+	),
+	'reader-registration-block': path.join(
+		__dirname,
+		'assets',
+		'blocks',
+		'reader-registration',
+		'view.js'
+	),
+	'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
+	admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
+	'memberships-gate-editor': path.join( __dirname, 'assets', 'memberships-gate', 'editor.js' ),
+	'memberships-gate': path.join( __dirname, 'assets', 'memberships-gate', 'gate.js' ),
+	'memberships-gate-metering': path.join( __dirname, 'assets', 'memberships-gate', 'metering.js' ),
+	'memberships-gate-block-patterns': path.join(
+		__dirname,
+		'assets',
+		'memberships-gate',
+		'block-patterns.js'
+	),
+	'newspack-ui': path.join( __dirname, 'assets', 'newspack-ui', 'index.js' ),
+};
+
+Object.keys( entry ).forEach( key => {
+	entry[ key ] = [ 'regenerator-runtime/runtime', entry[ key ] ];
+} );
+
 const webpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
-		entry: {
-			...wizardsScriptFiles,
-			blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
-			'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
-			'reader-auth': path.join( __dirname, 'assets', 'reader-activation-auth', 'index.js' ),
-			'newsletters-signup': path.join(
-				__dirname,
-				'assets',
-				'reader-activation-newsletters',
-				'index.js'
-			),
-			'reader-registration-block': path.join(
-				__dirname,
-				'assets',
-				'blocks',
-				'reader-registration',
-				'view.js'
-			),
-			'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
-			admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
-			'memberships-gate-editor': path.join( __dirname, 'assets', 'memberships-gate', 'editor.js' ),
-			'memberships-gate': path.join( __dirname, 'assets', 'memberships-gate', 'gate.js' ),
-			'memberships-gate-metering': path.join(
-				__dirname,
-				'assets',
-				'memberships-gate',
-				'metering.js'
-			),
-			'memberships-gate-block-patterns': path.join(
-				__dirname,
-				'assets',
-				'memberships-gate',
-				'block-patterns.js'
-			),
-			'newspack-ui': path.join( __dirname, 'assets', 'newspack-ui', 'index.js' ),
-		},
+		entry,
 	}
 );
 
