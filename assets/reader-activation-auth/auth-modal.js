@@ -19,6 +19,8 @@ export function getModalContainer() {
  */
 export function openAuthModal( config = {} ) {
 	const reader = window.newspackReaderActivation.getReader();
+	const modalTrigger = config.trigger;
+
 	if ( reader?.authenticated ) {
 		if ( config.callback ) {
 			config.callback();
@@ -53,6 +55,10 @@ export function openAuthModal( config = {} ) {
 		const openerContent = container.querySelector( '.opener-content' );
 		if ( openerContent ) {
 			openerContent.remove();
+		}
+
+		if ( modalTrigger ) {
+			modalTrigger.focus();
 		}
 	};
 
