@@ -145,6 +145,7 @@ const Recaptcha = () => {
 									onChange={ value =>
 										setSettingsToUpdate( { ...settingsToUpdate, version: value } )
 									}
+									// Note: add 'v2_checkbox' here and in Recaptcha::SUPPORTED_VERSIONS to add support for the Checkbox flavor of reCAPTCHA v2.
 									options={ [
 										{ value: 'v3', label: __( 'Score based (v3)', 'newspack-plugin' ) },
 										{

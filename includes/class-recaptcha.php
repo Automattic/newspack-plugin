@@ -18,7 +18,7 @@ final class Recaptcha {
 	const SCRIPT_HANDLE      = 'newspack-recaptcha';
 	const SCRIPT_HANDLE_API  = 'newspack-recaptcha-api';
 	const OPTIONS_PREFIX     = 'newspack_recaptcha_';
-	const SUPPORTED_VERSIONS = [ 'v3', 'v2_checkbox', 'v2_invisible' ];
+	const SUPPORTED_VERSIONS = [ 'v3', 'v2_invisible' ]; // Note: add 'v2_checkbox' here and in the Connections UI to add support for the Checkbox flavor of reCAPTCHA v2.
 
 	/**
 	 * Initialize hooks.
