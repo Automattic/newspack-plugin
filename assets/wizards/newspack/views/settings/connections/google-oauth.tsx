@@ -85,17 +85,18 @@ function GoogleOAuth( {
 	}
 
 	function openAuth() {
-		const authWindow = window.open(
-			'about:blank',
-			'newspack_google_oauth',
-			'width=500,height=600'
-		);
+		let authWindow: Window | null = null;
 		wizardApiFetch< string >(
 			{
 				path: '/newspack/v1/oauth/google/start',
 			},
 			{
 				onSuccess( url ) {
+					authWindow = window.open(
+						'about:blank',
+						'newspack_google_oauth',
+						'width=500,height=600'
+					);
 					/** authWindow can be 'null' due to browser's popup blocker. */
 					if ( authWindow ) {
 						authWindow.location = url;
