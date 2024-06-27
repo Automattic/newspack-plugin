@@ -23,6 +23,7 @@ import {
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
+import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
@@ -95,7 +96,9 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		const _allReady =
 			! missingPlugins.length &&
 			prerequisites &&
-			Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active );
+			Object.keys( prerequisites ).every(
+				key => prerequisites[ key ]?.active || prerequisites[ key ]?.skipped
+			);
 
 		setAllReady( _allReady );
 
@@ -222,7 +225,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			{ config.enabled && (
 				<>
 					<hr />
-					<Button variant="link" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
+					<Button variant="secondary" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
 						{ sprintf(
 							// Translators: Show or Hide advanced settings.
 							__( '%s Advanced Settings', 'newspack-plugin' ),
@@ -262,6 +265,17 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									toggleChecked={ membershipsConfig.require_all_plans }
 								/>
 							) }
+							<ActionCard
+								title={ __( 'Display memberships on the subscriptions tab', 'newspack-plugin' ) }
+								description={ __(
+									"Display memberships that don't have active subscriptions on the My Account Subscriptions tab, so readers can see information like expiration dates.",
+									'newspack-plugin'
+								) }
+								toggleOnChange={ value =>
+									setMembershipsConfig( { ...membershipsConfig, show_on_subscription_tab: value } )
+								}
+								toggleChecked={ membershipsConfig.show_on_subscription_tab }
+							/>
 							<hr />
 						</>
 					) : null }
@@ -325,50 +339,70 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						) }
 						{ ...getSharedProps( 'newsletters_label', 'text' ) }
 					/>
-					{ config.sync_esp && (
-						<>
-							<TextControl
-								label={ __( 'Metadata field prefix', 'newspack-plugin' ) }
-								help={ __(
-									'A string to prefix metadata fields attached to each contact synced to the ESP. Required to ensure that metadata field names are unique. Default: NP_',
-									'newspack-plugin'
+					<ActionCard
+						description={ __(
+							'Configure options for syncing reader data to the connected ESP.',
+							'newspack-plugin'
+						) }
+						hasGreyHeader={ true }
+						isMedium
+						title={ __( 'Sync contacts to ESP', 'newspack-plugin' ) }
+						toggleChecked={ config.sync_esp }
+						toggleOnChange={ value => updateConfig( 'sync_esp', value ) }
+					>
+						{ config.sync_esp && (
+							<>
+								{ isMailchimp && (
+									<Mailchimp
+										value={ {
+											audienceId: config.mailchimp_audience_id,
+											readerDefaultStatus: config.mailchimp_reader_default_status,
+										} }
+										onChange={ ( key, value ) => {
+											if ( key === 'audienceId' ) {
+												updateConfig( 'mailchimp_audience_id', value );
+											}
+											if ( key === 'readerDefaultStatus' ) {
+												updateConfig( 'mailchimp_reader_default_status', value );
+											}
+										} }
+									/>
 								) }
-								{ ...getSharedProps( 'metadata_prefix', 'text' ) }
-							/>
-							{ isMailchimp && (
-								<Mailchimp
-									value={ { audienceId: config.mailchimp_audience_id } }
-									onChange={ ( key, value ) => {
-										if ( key === 'audienceId' ) {
-											updateConfig( 'mailchimp_audience_id', value );
-										}
-									} }
+								{ isActiveCampaign && (
+									<ActiveCampaign
+										value={ { masterList: config.active_campaign_master_list } }
+										onChange={ ( key, value ) => {
+											if ( key === 'masterList' ) {
+												updateConfig( 'active_campaign_master_list', value );
+											}
+										} }
+									/>
+								) }
+								<MetadataFields
+									availableFields={ newspack_engagement_wizard.esp_metadata_fields || [] }
+									selectedFields={ config.metadata_fields }
+									updateConfig={ updateConfig }
+									getSharedProps={ getSharedProps }
 								/>
-							) }
-							{ isActiveCampaign && (
-								<ActiveCampaign
-									value={ { masterList: config.active_campaign_master_list } }
-									onChange={ ( key, value ) => {
-										if ( key === 'masterList' ) {
-											updateConfig( 'active_campaign_master_list', value );
-										}
-									} }
-								/>
-							) }
-						</>
-					) }
+							</>
+						) }
+					</ActionCard>
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
 							onClick={ () => {
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
-									metadata_prefix: config.metadata_prefix,
 									mailchimp_audience_id: config.mailchimp_audience_id,
+									mailchimp_reader_default_status: config.mailchimp_reader_default_status,
 									active_campaign_master_list: config.active_campaign_master_list,
 									memberships_require_all_plans: membershipsConfig.require_all_plans,
+									memberships_show_on_subscription_tab: membershipsConfig.show_on_subscription_tab,
 									use_custom_lists: config.use_custom_lists,
 									newsletter_lists: config.newsletter_lists,
+									sync_esp: config.sync_esp,
+									metadata_fields: config.metadata_fields,
+									metadata_prefix: config.metadata_prefix,
 								} );
 							} }
 							disabled={ inFlight }
