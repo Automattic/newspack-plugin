@@ -15,7 +15,7 @@ import WizardsPluginCard from '../../../../wizards-plugin-card';
 /**
  * Analytics Plugins screen.
  */
-function Analytics( { editLink }: { editLink: string } ) {
+function Analytics( { editLink }: { editLink?: string } ) {
 	/**
 	 * Render.
 	 */
