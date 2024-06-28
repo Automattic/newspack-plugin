@@ -86,12 +86,7 @@ Object.keys( entry ).forEach( key => {
 	entry[ key ] = [ 'regenerator-runtime/runtime', entry[ key ] ];
 } );
 
-const webpackConfig = getBaseWebpackConfig(
-	{ WP: true },
-	{
-		entry,
-	}
-);
+const webpackConfig = getBaseWebpackConfig( { WP: true }, { entry } );
 
 // overwrite Calypso's optimisation
 webpackConfig.optimization = {

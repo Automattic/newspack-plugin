@@ -260,6 +260,9 @@ function render_block( $attrs, $content ) {
 					?>
 					<div class="newspack-registration__main">
 						<div>
+							<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
+								<?php Recaptcha::render_recaptcha_v2_container(); ?>
+							<?php endif; ?>
 							<div class="newspack-registration__inputs">
 								<input
 								<?php
@@ -411,8 +414,7 @@ function process_form() {
 
 	// reCAPTCHA test.
 	if ( Recaptcha::can_use_captcha() ) {
-		$captcha_token  = isset( $_REQUEST['captcha_token'] ) ? \sanitize_text_field( $_REQUEST['captcha_token'] ) : '';
-		$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+		$captcha_result = Recaptcha::verify_captcha();
 		if ( \is_wp_error( $captcha_result ) ) {
 			return send_form_response( $captcha_result );
 		}
