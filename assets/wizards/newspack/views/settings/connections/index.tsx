@@ -10,10 +10,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import './style.scss';
 import Mailchimp from './mailchimp';
 import GoogleOAuth from './google-oauth';
-import { SectionHeader } from '../../../../../components/src';
 import CustomEvents from './custom-events';
+import { SectionHeader } from '../../../../../components/src';
 
 const { connections } = window.newspackSettings;
 
