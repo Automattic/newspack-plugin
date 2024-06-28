@@ -169,8 +169,10 @@ function WizardsPluginCard( {
 		}
 		return (
 			<>
-				{ /* Translators: %s: Plugin description */ }
-				{ sprintf( __( 'Status: %s', 'newspack-plugin' ), newDescription ) }{ ' ' }
+				{
+					// Translators: %s: Plugin description
+					sprintf( __( 'Status: %s', 'newspack-plugin' ), newDescription )
+				}{ ' ' }
 				{ ! statuses.isSetup ? descriptionSuffix : '' }
 			</>
 		);
