@@ -15,6 +15,15 @@ import { Button, hooks, Waiting } from '../components/src';
 import WizardsActionCard from './wizards-action-card';
 import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 
+/**
+ * Helper for managing plugins API requests.
+ *
+ * @param slug Plugin slug to fetch
+ * @param action Endpoint action to request
+ * @param apiFetch Wizard API Fetch instance
+ * @param callbacks Wizard API Fetch callbacks
+ * @return Wizard API Fetch response
+ */
 function fetchHandler(
 	slug: string,
 	action = '',
@@ -28,7 +37,21 @@ function fetchHandler(
 	return apiFetch( { path, method }, callbacks );
 }
 
-function WizardsPluginConnectButton( {
+/**
+ * Wizard Plugin Action Card component.
+ *
+ * @param {Object} props Component props.
+ * @param {boolean} props.isLoading Whether the plugin is performing an API request.
+ * @param {boolean} props.isSetup Whether the plugin is install, active and configured.
+ * @param {boolean} props.isActive Whether the plugin is active.
+ * @param {Function} props.onActivate Callback to activate the plugin.
+ * @param {Function} props.onInstall Callback to install the plugin.
+ * @param {boolean} props.isInstalled Whether the plugin is installed.
+ * @param {string} props.status Plugin status.
+ * @param {string} props.title Plugin title.
+ * @param {string} props.editLink Plugin edit link.
+ */
+function WizardsPluginCardButton( {
 	isLoading,
 	isSetup,
 	isActive,
@@ -79,6 +102,17 @@ function WizardsPluginConnectButton( {
 	return null;
 }
 
+/**
+ * Wizard Plugin Card component.
+ *
+ * @param {Object} props Component props.
+ * @param {string} props.slug Plugin slug.
+ * @param {string} props.title Plugin title.
+ * @param {string} props.subTitle Plugin subtitle. String appended to title.
+ * @param {string} props.editLink Plugin edit link.
+ * @param {string} props.description Plugin description.
+ * @param {string} props.statusDescription Plugin status description.
+ */
 function WizardsPluginCard( {
 	slug,
 	title,
@@ -103,6 +137,7 @@ function WizardsPluginCard( {
 		isLoading: ! pluginState.status,
 		isInstalled: pluginState.status !== 'uninstalled',
 		isConfigured: pluginState.configured,
+		isError: Boolean( errorMessage ),
 	};
 
 	const on: PluginCallbacks = {
@@ -150,6 +185,9 @@ function WizardsPluginCard( {
 	}
 
 	function getDescription() {
+		if ( statuses.isError ) {
+			return __( 'Status: Error!', 'newspack-plugin' );
+		}
 		if ( statuses.isLoading ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
@@ -179,30 +217,27 @@ function WizardsPluginCard( {
 	}
 
 	return (
-		<>
-			{ /* <pre>{ JSON.stringify( { statuses }, null, 2 ) }</pre> */ }
-			<WizardsActionCard
-				title={ `${ title }${ subTitle ? `: ${ subTitle }` : '' }` }
-				description={ getDescription }
-				actionText={
-					! statuses.isSetup ? (
-						<WizardsPluginConnectButton
-							{ ...{
-								title,
-								editLink,
-								onActivate,
-								onInstall,
-								...statuses,
-								...pluginState,
-							} }
-						/>
-					) : null
-				}
-				isChecked={ statuses.isSetup }
-				error={ errorMessage }
-				isMedium
-			/>
-		</>
+		<WizardsActionCard
+			title={ `${ title }${ subTitle ? `: ${ subTitle }` : '' }` }
+			description={ getDescription }
+			actionText={
+				! statuses.isSetup && ! statuses.isError ? (
+					<WizardsPluginCardButton
+						{ ...{
+							title,
+							editLink,
+							onActivate,
+							onInstall,
+							...statuses,
+							...pluginState,
+						} }
+					/>
+				) : null
+			}
+			isChecked={ statuses.isSetup }
+			error={ errorMessage }
+			isMedium
+		/>
 	);
 }
 

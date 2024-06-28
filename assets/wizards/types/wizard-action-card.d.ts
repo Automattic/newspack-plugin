@@ -54,5 +54,6 @@ type PluginCard = {
 		inactive: string;
 		notConfigured: string;
 	} >;
-	hidden?: boolean;
+	isHidden?: boolean;
+	isManageable?: boolean;
 };

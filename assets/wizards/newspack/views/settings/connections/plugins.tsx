@@ -18,8 +18,8 @@ const { plugins: pluginsSection, analytics: analyticsSection } =
 
 const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
-		slug: 'jetpack',
-		path: '/newspack/v1/plugins/jetpack',
+		slug: 'jetpacks',
+		path: '/newspack/v1/plugins/jetpacks',
 		title: __( 'Jetpack', 'newspack-plugin' ),
 		editLink: 'admin.php?page=jetpack#/settings',
 	},
@@ -57,13 +57,16 @@ const PLUGINS: Record< string, PluginCard > = {
 	},
 };
 
+/**
+ * Newspack Settings Plugins section.
+ */
 function Plugins() {
 	const plugins = Object.keys( PLUGINS ).reduce(
 		( acc: Record< string, PluginCard >, pluginKey ) => {
-			if ( ! Boolean( PLUGINS[ pluginKey ].hidden ) ) {
+			if ( ! Boolean( PLUGINS[ pluginKey ].isHidden ) ) {
 				acc[ pluginKey ] = {
 					...PLUGINS[ pluginKey ],
-					hidden: pluginsSection.enabled?.[ pluginKey ] ?? false,
+					isHidden: ( pluginsSection.enabled?.[ pluginKey ] ?? false ) === false,
 				};
 			}
 			return acc;
