@@ -330,6 +330,15 @@ class Plugin_Manager {
 				'PluginURI'   => \esc_url( 'https://wordpress.org/plugins/broadstreet/' ),
 				'Download'    => 'wporg',
 			],
+			'everlit'                     => [
+				'Name'        => esc_html__( 'Everlit', 'newspack' ),
+				'Description' => esc_html__( 'Using a new generation of ultra realistic, AI-driven speech synthesis, we are bringing a backlog of human interest stories, fiction, and knowledge to the present day.', 'newspack' ),
+				'Author'      => 'Everlit',
+				'AuthorURI'   => esc_url( 'https://everlit.audio' ),
+				'PluginURI'   => esc_url( 'https://everlit.audio' ),
+				'Download'    => esc_url( 'https://creator.everlit.audio/wordpress/everlit-wordpress.zip' ),
+				'EditPath'    => 'admin.php?page=everlit_settings',
+			],
 		];
 
 		$default_info = [
@@ -583,7 +592,10 @@ class Plugin_Manager {
 	 * @return array of 'plugin_slug => []' entries for all installed plugins.
 	 */
 	public static function get_installed_plugins_info() {
-		$plugins = array_merge( \get_plugins(), \wp_get_themes() );
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$plugins = array_merge( get_plugins(), wp_get_themes() );
 
 		$installed_plugins_info = [];
 		foreach ( self::get_installed_plugins() as $key => $path ) {

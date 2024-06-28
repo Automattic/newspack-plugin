@@ -5,11 +5,12 @@
  * @package Newspack
  */
 
-namespace Newspack;
+namespace Newspack\Wizards\Newspack;
+
+use Newspack\OAuth;
+use Newspack\Wizard;
 
 defined( 'ABSPATH' ) || exit;
-
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
 /**
  * Common functionality for admin wizards. Override this class.
@@ -48,14 +49,15 @@ class Newspack_Settings extends Wizard {
 				'label'    => __( 'Connections', 'newspack-plugin' ),
 				'path'     => '/',
 				'sections' => [
-					'plugins'   => [],
-					'apis'      => [
+					'plugins'      => [],
+					'apis'         => [
 						'dependencies' => [
 							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
 						],
 					],
-					'recaptcha' => [],
-					'analytics' => [],
+					'recaptcha'    => [],
+					'analytics'    => [],
+					'customEvents' => $this->sections['custom-events']->get_data(),
 				],
 			],
 			'emails'            => [

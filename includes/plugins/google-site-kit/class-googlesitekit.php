@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Google\Site_Kit\Context;
+use Google\Site_Kit\Modules\Analytics_4\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,6 +25,7 @@ class GoogleSiteKit {
 		add_action( 'admin_init', [ __CLASS__, 'setup_sitekit_ga4' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'insert_ga4_analytics' ] );
 		add_filter( 'option_googlesitekit_analytics_settings', [ __CLASS__, 'filter_ga_settings' ] );
+		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'add_ga_custom_parameters' ] );
 	}
 
 	/**
@@ -91,8 +93,8 @@ class GoogleSiteKit {
 	 * Get the name of the option under which Site Kit's GA4 settings are stored.
 	 */
 	private static function get_sitekit_ga4_settings_option_name() {
-		if ( class_exists( '\Google\Site_Kit\Modules\Analytics_4\Settings' ) ) {
-			return \Google\Site_Kit\Modules\Analytics_4\Settings::OPTION;
+		if ( class_exists( 'Google\Site_Kit\Modules\Analytics_4\Settings' ) ) {
+			return Settings::OPTION;
 		}
 		return false;
 	}
@@ -133,10 +135,11 @@ class GoogleSiteKit {
 			return;
 		}
 
-		$sitekit_ga_settings = get_option( \Google\Site_Kit\Modules\Analytics\Settings::OPTION, false );
+		$sitekit_ga_settings = get_option( Settings::OPTION, false );
 		if ( false === $sitekit_ga_settings || ! isset( $sitekit_ga_settings['accountID'] ) ) {
 			return;
 		}
+
 		$account_id = $sitekit_ga_settings['accountID'];
 
 		try {
@@ -155,6 +158,22 @@ class GoogleSiteKit {
 		} catch ( \Throwable $e ) {
 			Logger::error( 'Failed updating Site Kit GA4 settings option: ' . $e->getMessage() );
 		}
+	}
+
+	/**
+	 * Filter the GA config to add custom parameters.
+	 *
+	 * @param array $gtag_opt gtag config options.
+	 */
+	public static function add_ga_custom_parameters( $gtag_opt ) {
+		// The custom params might interfere with caching, since they are based on cookies.
+		// This environment variable allows for disabling this feature if the effects on caching are detrimental.
+		$disable_fe_custom_params = defined( 'NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS' ) && NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS;
+		if ( $disable_fe_custom_params ) {
+			return $gtag_opt;
+		}
+		$custom_params = \Newspack\Data_Events\Connectors\GA4::get_custom_parameters();
+		return array_merge( $custom_params, $gtag_opt );
 	}
 }
 GoogleSiteKit::init();

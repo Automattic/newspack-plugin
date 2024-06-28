@@ -7,7 +7,10 @@
 
 namespace Newspack;
 
-use WP_Error, WP_Query;
+use TypeError;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,6 +20,8 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  * Easy interface for setting up general store info.
  */
 class Engagement_Wizard extends Wizard {
+
+	const SKIP_CAMPAIGN_SETUP_OPTION = '_newspack_ras_skip_campaign_setup';
 
 	/**
 	 * The slug of this wizard.
@@ -105,6 +110,24 @@ class Engagement_Wizard extends Wizard {
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_activate_reader_activation' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/skip-campaign-setup',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => function( $request ) {
+					$skip = $request->get_param( 'skip' );
+					$skip_campaign_setup = update_option( static::SKIP_CAMPAIGN_SETUP_OPTION, $skip );
+					return rest_ensure_response( 
+						[ 
+							'skipped' => $skip,
+							'updated' => $skip_campaign_setup,
+						]
+					);
+				},
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -204,10 +227,11 @@ class Engagement_Wizard extends Wizard {
 	 */
 	private static function get_memberships_settings() {
 		return [
-			'edit_gate_url'     => Memberships::get_edit_gate_url(),
-			'gate_status'       => get_post_status( Memberships::get_gate_post_id() ),
-			'plans'             => Memberships::get_plans(),
-			'require_all_plans' => Memberships::get_require_all_plans_setting(),
+			'edit_gate_url'            => Memberships::get_edit_gate_url(),
+			'gate_status'              => \get_post_status( Memberships::get_gate_post_id() ),
+			'plans'                    => Memberships::get_plans(),
+			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
+			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
 		];
 	}
 
@@ -244,6 +268,11 @@ class Engagement_Wizard extends Wizard {
 			Memberships::set_require_all_plans_setting( (bool) $args['memberships_require_all_plans'] );
 		}
 
+		// Update Memberships options.
+		if ( isset( $args['memberships_show_on_subscription_tab'] ) ) {
+			Memberships::set_show_on_subscription_tab_setting( (bool) $args['memberships_show_on_subscription_tab'] );
+		}
+
 		return rest_ensure_response(
 			[
 				'config'               => Reader_Activation::get_settings(),
@@ -256,10 +285,12 @@ class Engagement_Wizard extends Wizard {
 	/**
 	 * Activate reader activation and publish RAS prompts/segments.
 	 *
+	 * @param WP_REST_Request $request WP Rest Request object.
 	 * @return WP_REST_Response
 	 */
-	public function api_activate_reader_activation() {
-		$response = Reader_Activation::activate();
+	public function api_activate_reader_activation( WP_REST_Request $request ) {
+		$skip_activation = $request->get_param( 'skip_activation' ) ?? false;
+		$response = $skip_activation ? true : Reader_Activation::activate();
 
 		if ( \is_wp_error( $response ) ) {
 			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
@@ -405,6 +436,7 @@ class Engagement_Wizard extends Wizard {
 		$data = [
 			'has_memberships'       => class_exists( 'WC_Memberships' ),
 			'reader_activation_url' => \admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
+			'esp_metadata_fields'   => Newspack_Newsletters::get_default_metadata_fields(),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
@@ -421,6 +453,8 @@ class Engagement_Wizard extends Wizard {
 			$data['preview_post']       = $newspack_popups->preview_post();
 			$data['preview_archive']    = $newspack_popups->preview_archive();
 		}
+
+		$data['is_skipped_campaign_setup'] = get_option( static::SKIP_CAMPAIGN_SETUP_OPTION, '' );
 
 		\wp_localize_script(
 			'newspack-engagement-wizard',

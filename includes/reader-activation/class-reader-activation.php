@@ -90,6 +90,8 @@ final class Reader_Activation {
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
 		}
+
+		\add_filter( 'newspack_reader_activation_setting', [ __CLASS__, 'disable_esp_sync_on_staging_sites' ], 10, 2 );
 	}
 
 	/**
@@ -119,8 +121,11 @@ final class Reader_Activation {
 		];
 
 		if ( Recaptcha::can_use_captcha() ) {
-			$script_dependencies[]           = Recaptcha::SCRIPT_HANDLE;
-			$script_data['captcha_site_key'] = Recaptcha::get_setting( 'site_key' );
+			$recaptcha_version                = Recaptcha::get_setting( 'version' );
+			$script_dependencies[]            = Recaptcha::SCRIPT_HANDLE;
+			if ( 'v3' === $recaptcha_version ) {
+				$script_data['captcha_site_key'] = Recaptcha::get_site_key();
+			}
 		}
 
 		/**
@@ -158,6 +163,7 @@ final class Reader_Activation {
 				'invalid_email'    => __( 'Please enter a valid email address.', 'newspack-plugin' ),
 				'invalid_password' => __( 'Please enter a password.', 'newspack-plugin' ),
 				'blocked_popup'    => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+				'login_canceled'   => __( 'Login canceled.', 'newspack-plugin' ),
 			]
 		);
 		\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
@@ -177,23 +183,25 @@ final class Reader_Activation {
 	 */
 	private static function get_settings_config() {
 		$settings_config = [
-			'enabled'                     => false,
-			'enabled_account_link'        => true,
-			'account_link_menu_locations' => [ 'tertiary-menu' ],
-			'newsletters_label'           => __( 'Subscribe to our newsletters:', 'newspack-plugin' ),
-			'use_custom_lists'            => false,
-			'newsletter_lists'            => [],
-			'terms_text'                  => '',
-			'terms_url'                   => '',
-			'sync_esp'                    => true,
-			'metadata_prefix'             => Newspack_Newsletters::get_metadata_prefix(),
-			'sync_esp_delete'             => true,
-			'active_campaign_master_list' => '',
-			'mailchimp_audience_id'       => '',
-			'emails'                      => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
-			'sender_name'                 => Emails::get_from_name(),
-			'sender_email_address'        => Emails::get_from_email(),
-			'contact_email_address'       => Emails::get_reply_to_email(),
+			'enabled'                         => false,
+			'enabled_account_link'            => true,
+			'account_link_menu_locations'     => [ 'tertiary-menu' ],
+			'newsletters_label'               => __( 'Subscribe to our newsletters:', 'newspack-plugin' ),
+			'use_custom_lists'                => false,
+			'newsletter_lists'                => [],
+			'terms_text'                      => '',
+			'terms_url'                       => '',
+			'sync_esp'                        => true,
+			'metadata_prefix'                 => Newspack_Newsletters::get_metadata_prefix(),
+			'metadata_fields'                 => Newspack_Newsletters::get_metadata_fields(),
+			'sync_esp_delete'                 => true,
+			'active_campaign_master_list'     => '',
+			'mailchimp_audience_id'           => '',
+			'mailchimp_reader_default_status' => 'transactional',
+			'emails'                          => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
+			'sender_name'                     => Emails::get_from_name(),
+			'sender_email_address'            => Emails::get_from_email(),
+			'contact_email_address'           => Emails::get_reply_to_email(),
 		];
 
 		/**
@@ -238,7 +246,7 @@ final class Reader_Activation {
 		if ( is_bool( $config[ $name ] ) ) {
 			$value = (bool) $value;
 		}
-		return $value;
+		return apply_filters( 'newspack_reader_activation_setting', $value, $name );
 	}
 
 	/**
@@ -259,6 +267,9 @@ final class Reader_Activation {
 		}
 		if ( 'metadata_prefix' === $key ) {
 			return Newspack_Newsletters::update_metadata_prefix( $value );
+		}
+		if ( 'metadata_fields' === $key ) {
+			return Newspack_Newsletters::update_metadata_fields( $value );
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
@@ -402,7 +413,7 @@ final class Reader_Activation {
 	 * TODO: Make this dynamic once the third UI screen to generate the prompts is built.
 	 */
 	public static function is_ras_campaign_configured() {
-		return self::is_enabled();
+		return self::is_enabled() || get_option( Engagement_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, '' ) === '1';
 	}
 
 	/**
@@ -472,9 +483,9 @@ final class Reader_Activation {
 			],
 			'recaptcha'        => [
 				'active'       => method_exists( '\Newspack\Recaptcha', 'can_use_captcha' ) && \Newspack\Recaptcha::can_use_captcha(),
-				'label'        => __( 'reCAPTCHA v3', 'newspack-plugin' ),
-				'description'  => __( 'Connecting to a Google reCAPTCHA v3 account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
-				'instructions' => __( 'Enable reCAPTCHA v3 and enter your account credentials.', 'newspack-plugin' ),
+				'label'        => __( 'reCAPTCHA', 'newspack-plugin' ),
+				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
+				'instructions' => __( 'Enable reCAPTCHA and enter your account credentials.', 'newspack-plugin' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
 				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard&scrollTo=recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),
@@ -495,6 +506,7 @@ final class Reader_Activation {
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),
+				'is_skipped'     => get_option( Engagement_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, '' ) === '1',
 				'plugins'        => [
 					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
 				],
@@ -1183,6 +1195,9 @@ final class Reader_Activation {
 						<div class="components-form__field" data-action="pwd">
 							<input name="password" type="password" placeholder="<?php \esc_attr_e( 'Enter your password', 'newspack-plugin' ); ?>" />
 						</div>
+						<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
+							<?php Recaptcha::render_recaptcha_v2_container(); ?>
+						<?php endif; ?>
 						<div class="<?php echo \esc_attr( $class( 'actions' ) ); ?>" data-action="pwd">
 							<div class="components-form__submit">
 								<button type="submit"><?php \esc_html_e( 'Sign in', 'newspack-plugin' ); ?></button>
@@ -1439,7 +1454,6 @@ final class Reader_Activation {
 		$redirect         = isset( $_POST['redirect'] ) ? \esc_url_raw( $_POST['redirect'] ) : '';
 		$lists            = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		$honeypot         = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
-		$captcha_token    = isset( $_POST['captcha_token'] ) ? \sanitize_text_field( $_POST['captcha_token'] ) : '';
 		// phpcs:enable
 
 		if ( ! empty( $current_page_url['path'] ) ) {
@@ -1456,9 +1470,9 @@ final class Reader_Activation {
 			);
 		}
 
-		// reCAPTCHA test.
-		if ( Recaptcha::can_use_captcha() ) {
-			$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+		// reCAPTCHA test on account registration only.
+		if ( 'register' === $action && Recaptcha::can_use_captcha() ) {
+			$captcha_result = Recaptcha::verify_captcha();
 			if ( \is_wp_error( $captcha_result ) ) {
 				return self::send_auth_form_response( $captcha_result );
 			}
@@ -1549,6 +1563,10 @@ final class Reader_Activation {
 		/** Should not verify email if user is not a reader. */
 		if ( ! self::is_user_reader( $user ) ) {
 			return null;
+		}
+
+		if ( defined( 'NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION' ) && NEWSPACK_ALLOW_MY_ACCOUNT_ACCESS_WITHOUT_VERIFICATION ) {
+			return true;
 		}
 
 		return (bool) \get_user_meta( $user->ID, self::EMAIL_VERIFIED, true );
@@ -1716,9 +1734,7 @@ final class Reader_Activation {
 			return $user_data;
 		}
 
-		$user_login      = str_replace( '+', '_', \sanitize_user( $user_data['user_email'] ) ); // Matches the email address, but replace + with _ to allow for Gmail aliases.
-		$random_password = \wp_generate_password();
-		$user_nicename   = self::generate_user_nicename( ! empty( $user_data['display_name'] ) ? $user_data['display_name'] : $user_data['user_email'] );
+		$user_nicename = self::generate_user_nicename( ! empty( $user_data['display_name'] ) ? $user_data['display_name'] : $user_data['user_email'] );
 
 		// If we don't have a display name, make it match the nicename.
 		if ( empty( $user_data['display_name'] ) ) {
@@ -1728,9 +1744,10 @@ final class Reader_Activation {
 		$user_data = array_merge(
 			$user_data,
 			[
-				'user_login'    => $user_login,
+				'user_login'    => $user_nicename,
 				'user_nicename' => $user_nicename,
-				'user_pass'     => $random_password,
+				'display_name'  => $user_nicename,
+				'user_pass'     => \wp_generate_password(),
 			]
 		);
 
@@ -1991,6 +2008,42 @@ final class Reader_Activation {
 			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
 		}
 		return $errors;
+	}
+
+	/**
+	 * Automatically force deactivate the ESP sync on staging sites to prevent polluting the data in ESPs.
+	 *
+	 * @param mixed  $value Setting value.
+	 * @param string $setting Setting name.
+	 * @return mixed Possibly modified $value.
+	 */
+	public static function disable_esp_sync_on_staging_sites( $value, $setting ) {
+		if ( 'sync_esp' !== $setting ) {
+			return $value;
+		}
+
+		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
+			return $value;
+		}
+
+		$site_url = strtolower( \untrailingslashit( \get_site_url() ) );
+		if ( false !== stripos( $site_url, '.newspackstaging.com' ) ) {
+			return false;
+		}
+
+		// Neither WCS_Staging::is_duplicate_site() nor is_plugin_active() are initialized early enough for all situations.
+		// So we need to re-create the logic from both.
+		if ( in_array( 'woocommerce-subscriptions/woocommerce-subscriptions.php', (array) \get_option( 'active_plugins', [] ), true ) ) {
+			$subscriptions_site_url = \get_option( 'wc_subscriptions_siteurl', false );
+			if ( $subscriptions_site_url ) {
+				$cleaned_subscriptions_site_url = strtolower( untrailingslashit( str_ireplace( '_[wc_subscriptions_siteurl]_', '', $subscriptions_site_url ) ) );
+				if ( $cleaned_subscriptions_site_url !== $site_url ) {
+					return false;
+				}
+			}
+		}
+
+		return $value;
 	}
 }
 Reader_Activation::init();

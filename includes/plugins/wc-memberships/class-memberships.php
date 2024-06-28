@@ -17,6 +17,8 @@ defined( 'ABSPATH' ) || exit;
 class Memberships {
 
 	const GATE_CPT = 'np_memberships_gate';
+	const CRON_HOOK = 'np_memberships_fix_expired_memberships';
+	const SKIP_RESTRICTION_IN_RSS_OPTION_NAME = 'newspack_skip_content_restriction_in_rss_feeds';
 
 	/**
 	 * Whether the gate has been rendered in this execution.
@@ -46,11 +48,15 @@ class Memberships {
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'wc_memberships_notice_html' ], 100, 4 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'wc_memberships_excerpt' ], 100, 3 );
 		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
+		add_filter( 'wc_memberships_admin_screen_ids', [ __CLASS__, 'admin_screens' ] );
+		add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'wc_memberships_general_settings' ] );
+		add_filter( 'wc_memberships_is_post_public', [ __CLASS__, 'wc_memberships_is_post_public' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
+		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -63,6 +69,10 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
+
+		// Scheduled fix for prematurely expired memberships.
+		add_action( 'init', [ __CLASS__, 'cron_init' ] );
+		add_action( self::CRON_HOOK, [ __CLASS__, 'fix_expired_memberships_for_active_subscriptions' ] );
 
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
@@ -371,6 +381,27 @@ class Memberships {
 	 */
 	public static function set_require_all_plans_setting( $require = false ) {
 		return \update_option( 'newspack_memberships_require_all_plans', $require );
+	}
+
+	/**
+	 * Get the current setting of the "Display memberships on the subscriptions tab" option.
+	 *
+	 * @return boolean
+	 */
+	public static function get_show_on_subscription_tab_setting() {
+		return \get_option( 'newspack_memberships_show_on_subscription_tab', false );
+	}
+
+	/**
+	 * Set the "Display memberships on the subscriptions tab" option.
+	 *
+	 * @param boolean $show False to show memberships without subscriptions on the subscriptions tab (default)
+	 *                      or true to display those memberships on the subscriptions tab..
+	 *
+	 * @return boolean
+	 */
+	public static function set_show_on_subscription_tab_setting( $show = false ) {
+		return \update_option( 'newspack_memberships_show_on_subscription_tab', $show );
 	}
 
 	/**
@@ -868,6 +899,165 @@ class Memberships {
 		}
 
 		return $has_access;
+	}
+
+	/**
+	 * Deactivate the cron job.
+	 */
+	public static function cron_deactivate() {
+		\wp_clear_scheduled_hook( self::CRON_HOOK );
+	}
+
+	/**
+	 * Schedule an hourly cron job to check for and fix expired memberships linked to active subscriptions.
+	 */
+	public static function cron_init() {
+		\register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'cron_deactivate' ] );
+
+		if ( defined( 'NEWSPACK_ENABLE_MEMBERSHIPS_FIX_CRON' ) && NEWSPACK_ENABLE_MEMBERSHIPS_FIX_CRON ) {
+			if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
+				\wp_schedule_event( time(), 'hourly', self::CRON_HOOK );
+			}
+		} else {
+			self::cron_deactivate();
+		}
+	}
+
+	/**
+	 * Ensure that memberships tied to active subscriptions haven't expired prematurely.
+	 * Will loop through all active subscriptions on the site and check all memberships associated with it.
+	 */
+	public static function fix_expired_memberships_for_active_subscriptions() {
+		if ( ! function_exists( 'wc_memberships' ) ) {
+			return;
+		}
+
+
+		$max_per_batch           = 100;
+		$processed_batches       = 0;
+		$reactivated_memberships = 0;
+		$active_subscriptions    = WooCommerce_Connection::get_batch_of_active_subscriptions( $max_per_batch, $processed_batches );
+		if ( empty( $active_subscriptions ) ) {
+			return;
+		}
+
+		Logger::log( __( 'Checking for expired memberships linked to active subscriptions...', 'newspack-plugin' ) );
+
+		$active_membership_statuses = \wc_memberships()->get_user_memberships_instance()->get_active_access_membership_statuses();
+		while ( ! empty( $active_subscriptions ) ) {
+			$subscription = array_shift( $active_subscriptions );
+			try {
+				$memberships = \wc_memberships_get_memberships_from_subscription( $subscription );
+				if ( $memberships ) {
+					foreach ( $memberships as $membership ) {
+						// If the membership is not active and has an end date in the past, reactivate it.
+						if ( $membership && ! $membership->has_status( $active_membership_statuses ) && $membership->has_end_date() && $membership->get_end_date( 'timestamp' ) < time() ) {
+							$membership->set_end_date(); // Clear the end date.
+							$membership->update_status( 'active' ); // Reactivate the membership.
+							$reactivated_memberships++;
+						}
+					}
+				}
+			} catch ( Exception $e ) {
+				// Log the error.
+				Logger::log(
+					sprintf(
+						// Translators: %1$d is the membership ID, %2$s is the subscription ID.
+						__( 'Failed to reactivate membership %1$d linked to active subscription %2$s.', 'newspack-plugin' ),
+						$membership->get_id(),
+						$subscription->get_id()
+					)
+				);
+			}
+
+			// Get the next batch of active subscriptions.
+			if ( empty( $active_subscriptions ) ) {
+				$processed_batches++;
+				$active_subscriptions = WooCommerce_Connection::get_batch_of_active_subscriptions( $max_per_batch, $processed_batches * $max_per_batch );
+			}
+		}
+
+		if ( 0 < $reactivated_memberships ) {
+			Logger::log(
+				sprintf(
+					// Translators: %d is the number of reactivated memberships.
+					__( 'Reactivated %d memberships linked to active subscriptions.', 'newspack-plugin' ),
+					$reactivated_memberships
+				)
+			);
+		}
+	}
+
+	/**
+	 * Remove content restriction on the front page and archives, to increase performance.
+	 * The only thing Memberships would really do on these pages is add a "You need a membership"-type message in excerpts.
+	 */
+	public static function remove_unnecessary_content_restriction() {
+		if ( ( is_front_page() || is_archive() ) && function_exists( 'wc_memberships' ) ) {
+			$memberships = wc_memberships();
+			$restrictions_instance = $memberships->get_restrictions_instance();
+			$posts_restrictions_instance = $restrictions_instance->get_posts_restrictions_instance();
+			remove_action( 'the_post', [ $posts_restrictions_instance, 'restrict_post' ], 0 );
+			remove_filter( 'the_content', [ $posts_restrictions_instance, 'handle_restricted_post_content_filtering' ], 999 );
+			remove_action( 'loop_start', [ $posts_restrictions_instance, 'display_restricted_taxonomy_term_notice' ], 1 );
+		}
+	}
+
+	/**
+	 * Admin meta boxes handling.
+	 *
+	 * @param array $screen_ids associative array organized by context.
+	 */
+	public static function admin_screens( $screen_ids ) {
+		$unrestrictable_post_types = [ 'partner_rss_feed' ];
+		$screen_ids['meta_boxes'] = array_filter(
+			$screen_ids['meta_boxes'],
+			function( $screen_id ) use ( $unrestrictable_post_types ) {
+				$allow_restrictions = true;
+				foreach ( $unrestrictable_post_types as $post_type ) {
+					// Use strpos instead of full string match, because each CPT get two items in this array:
+					// the `<CPT>` and `edit-<CPT>`.
+					if ( strpos( $screen_id, $post_type ) !== false ) {
+						$allow_restrictions = false;
+					}
+				}
+				return $allow_restrictions;
+			}
+		);
+		return $screen_ids;
+	}
+
+	/**
+	 * Check if the content should be restricted by WooCommerce Memberships.
+	 *
+	 * @param bool $is_public whether the post is public (default false unless explicitly marked as public by an admin).
+	 */
+	public static function wc_memberships_is_post_public( $is_public ) {
+		if ( is_feed() && 'yes' === get_option( self::SKIP_RESTRICTION_IN_RSS_OPTION_NAME ) ) {
+			return true;
+		}
+		return $is_public;
+	}
+
+	/**
+	 * Add a setting to skip content restrictions in RSS feeds.
+	 *
+	 * @param array $settings associative array of the plugin settings.
+	 */
+	public static function wc_memberships_general_settings( $settings ) {
+		$setting = [
+			'type'    => 'checkbox',
+			'id'      => self::SKIP_RESTRICTION_IN_RSS_OPTION_NAME,
+			'name'    => __( 'Skip content restriction in RSS feeds', 'newspack-plugin' ),
+			'desc'    =>
+				'<span class="show-if-hide-content-only-restriction-mode">' . __( 'If enabled, full content will be available in RSS feeds.', 'newspack-plugin' ) . '</span>',
+			'default' => 'no',
+		];
+
+		$position_of_show_excerpts_setting = array_search( 'wc_memberships_show_excerpts', array_column( $settings, 'id' ) );
+		return array_slice( $settings, 0, $position_of_show_excerpts_setting, true ) +
+			[ $setting['id'] => $setting ] +
+			array_slice( $settings, $position_of_show_excerpts_setting, null, true );
 	}
 }
 Memberships::init();

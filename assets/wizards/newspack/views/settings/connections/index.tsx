@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 import Mailchimp from './mailchimp';
 import GoogleOAuth from './google-oauth';
 import { SectionHeader } from '../../../../../components/src';
+import CustomEvents from './custom-events';
 
 const { connections } = window.newspackSettings;
 
@@ -46,7 +47,7 @@ function Connections() {
 
 			{ /* APIs; google */ }
 			<Section title={ __( 'APIs', 'newspack-plugin' ) }>
-				{ connections.sections.apis.dependencies.googleOAuth && <GoogleOAuth /> }
+				{ connections.sections.apis.dependencies?.googleOAuth && <GoogleOAuth /> }
 				<Mailchimp />
 			</Section>
 
@@ -73,7 +74,7 @@ function Connections() {
 					'newspack-plugin'
 				) }
 			>
-				<div className="newspack-card">Coming soon</div>
+				<CustomEvents />
 			</Section>
 		</div>
 	);

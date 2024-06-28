@@ -144,11 +144,11 @@ function render_block( $attrs, $content ) {
 	}
 
 	/** Setup list subscription */
+	$lists = [];
 	if ( $attrs['newsletterSubscription'] && method_exists( 'Newspack_Newsletters_Subscription', 'get_lists_config' ) ) {
 		$list_config = \Newspack_Newsletters_Subscription::get_lists_config();
 		if ( ! \is_wp_error( $list_config ) ) {
 			// get existing lists preserving the order.
-			$lists = [];
 			foreach ( $attrs['lists'] as $list_id ) {
 				if ( isset( $list_config[ $list_id ] ) ) {
 					$lists[ $list_id ] = $list_config[ $list_id ];
@@ -260,6 +260,9 @@ function render_block( $attrs, $content ) {
 					?>
 					<div class="newspack-registration__main">
 						<div>
+							<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
+								<?php Recaptcha::render_recaptcha_v2_container(); ?>
+							<?php endif; ?>
 							<div class="newspack-registration__inputs">
 								<input
 								<?php
@@ -271,15 +274,16 @@ function render_block( $attrs, $content ) {
 									placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>"
 								/>
 								<?php Reader_Activation::render_honeypot_field( $attrs['placeholder'] ); ?>
-								<input
+								<button
 								<?php
 								if ( $is_admin_preview ) :
 									?>
 									disabled
 									<?php endif; ?>
 									type="submit"
-									value="<?php echo \esc_attr( $attrs['label'] ); ?>"
-								/>
+								>
+									<span class="submit"><?php echo \esc_html( $attrs['label'] ); ?></span>
+								</button>
 							</div>
 							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
@@ -410,8 +414,7 @@ function process_form() {
 
 	// reCAPTCHA test.
 	if ( Recaptcha::can_use_captcha() ) {
-		$captcha_token  = isset( $_REQUEST['captcha_token'] ) ? \sanitize_text_field( $_REQUEST['captcha_token'] ) : '';
-		$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+		$captcha_result = Recaptcha::verify_captcha();
 		if ( \is_wp_error( $captcha_result ) ) {
 			return send_form_response( $captcha_result );
 		}

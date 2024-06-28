@@ -68,10 +68,7 @@ class SiteDesignWizard extends Component {
 				const { theme, theme_mods } = response;
 				this.setState( { theme, themeSettings: theme_mods } );
 			} )
-			.catch( error => {
-				console.log( '[Theme Update Error]', error );
-				setError( { error } );
-			} );
+			.catch( error => setError( { error } ) );
 	};
 
 	state = {};
