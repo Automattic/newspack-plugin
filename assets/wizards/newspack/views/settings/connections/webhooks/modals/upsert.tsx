@@ -106,22 +106,16 @@ const Upsert = ( {
 				{ true === editing.disabled && (
 					<Notice
 						noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack-plugin' ) }
-						className="mt0"
 					/>
 				) }
 				{ editing.disabled && editing.disabled_error && (
 					<Notice
 						isError
 						noticeText={ __( 'Request Error: ', 'newspack-plugin' ) + editing.disabled_error }
-						className="mt0"
 					/>
 				) }
 				{ testResponse.success && (
-					<Notice
-						isSuccess
-						noticeText={ `${ testResponse.message }: ${ testResponse.code }` }
-						className="mt0"
-					/>
+					<Notice isSuccess noticeText={ `${ testResponse.message }: ${ testResponse.code }` } />
 				) }
 				<Grid columns={ 1 } gutter={ 16 } className="mt0">
 					<TextControl
