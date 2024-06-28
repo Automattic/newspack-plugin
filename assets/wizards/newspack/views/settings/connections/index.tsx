@@ -10,7 +10,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import './style.scss';
 import Plugins from './plugins';
+import Webhooks from './webhooks';
 import Analytics from './analytics';
 import CustomEvents from './custom-events';
 import { SectionHeader } from '../../../../../components/src';
@@ -53,8 +55,8 @@ function Connections() {
 			</Section>
 
 			{ /* Webhooks */ }
-			<Section title={ __( 'Webhooks', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
+			<Section>
+				<Webhooks />
 			</Section>
 
 			{ /* Analytics */ }
