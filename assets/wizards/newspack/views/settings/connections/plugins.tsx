@@ -18,8 +18,8 @@ const { plugins: pluginsSection, analytics: analyticsSection } =
 
 const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
-		slug: 'jetpacks',
-		path: '/newspack/v1/plugins/jetpacks',
+		slug: 'jetpack',
+		path: '/newspack/v1/plugins/jetpack',
 		title: __( 'Jetpack', 'newspack-plugin' ),
 		editLink: 'admin.php?page=jetpack#/settings',
 	},
