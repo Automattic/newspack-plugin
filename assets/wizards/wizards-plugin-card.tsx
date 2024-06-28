@@ -84,7 +84,6 @@ function WizardsPluginCard( {
 	title,
 	subTitle,
 	editLink,
-	// callbacks,
 	description,
 	statusDescription,
 }: PluginCard ) {
@@ -118,7 +117,6 @@ function WizardsPluginCard( {
 	useEffect( () => {
 		on.init( {
 			onSuccess( update ) {
-				console.log( { update } );
 				setPluginState( {
 					status: update.Status,
 					configured: update.Configured,
@@ -171,6 +169,7 @@ function WizardsPluginCard( {
 		}
 		return (
 			<>
+				{ /* Translators: %s: Plugin description */ }
 				{ sprintf( __( 'Status: %s', 'newspack-plugin' ), newDescription ) }{ ' ' }
 				{ ! statuses.isSetup ? descriptionSuffix : '' }
 			</>

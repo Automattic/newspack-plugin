@@ -55,7 +55,4 @@ type PluginCard = {
 		notConfigured: string;
 	} >;
 	hidden?: boolean;
-	callbacks?: (
-		waf: WizardApiFetch< { Status: string; Configured: boolean } >
-	) => Partial< PluginCallbacks >;
 };
