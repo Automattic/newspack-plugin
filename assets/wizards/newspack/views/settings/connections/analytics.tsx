@@ -12,19 +12,18 @@ import { __ } from '@wordpress/i18n';
  */
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
+const { analytics } = window.newspackSettings.connections.sections;
+
 /**
- * Analytics Plugins screen.
+ * Analytics Plugins Section
  */
-function Analytics( { editLink }: { editLink?: string } ) {
-	/**
-	 * Render.
-	 */
+function Analytics() {
 	return (
 		<WizardsPluginCard
 			{ ...{
-				editLink,
+				editLink: analytics.editLink,
 				slug: 'google-site-kit',
-				name: __( 'Google Analytics', 'newspack-plugin' ),
+				title: __( 'Google Analytics', 'newspack-plugin' ),
 				path: '/newspack/v1/plugins/google-site-kit',
 				actionText: __( 'View', 'newspack-plugin' ),
 			} }

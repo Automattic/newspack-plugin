@@ -13,38 +13,67 @@ import { Fragment } from '@wordpress/element';
  */
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
+const { plugins: pluginsSection, analytics: analyticsSection } =
+	window.newspackSettings.connections.sections;
+
 const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
 		slug: 'jetpack',
 		path: '/newspack/v1/plugins/jetpack',
-		name: __( 'Jetpack', 'newspack-plugin' ),
+		title: __( 'Jetpack', 'newspack-plugin' ),
 		editLink: 'admin.php?page=jetpack#/settings',
 	},
 	'google-site-kit': {
 		slug: 'google-site-kit',
 		path: '/newspack/v1/plugins/google-site-kit',
-		name: __( 'Site Kit by Google', 'newspack-plugin' ),
-		editLink: 'admin.php?page=googlesitekit-splash',
-		description( errorMessage, isFetching, status ) {
-			if ( errorMessage ) {
-				return __( 'Status: Error!', 'newspack-plugin' );
-			}
-			if ( isFetching ) {
-				return __( 'Loading…', 'newspack-plugin' );
-			}
-			if ( status === 'inactive' ) {
-				return __( 'Status: Not connected for user', 'newspack-plugin' );
-			}
-			return __( 'Status: Connected', 'newspack-plugin' );
+		editLink: analyticsSection.editLink,
+		title: __( 'Site Kit by Google', 'newspack-plugin' ),
+		statusDescription: {
+			notConfigured: __( 'Not connected for this user', 'newspack-plugin' ),
+		},
+	},
+	everlit: {
+		slug: 'everlit',
+		path: '/newspack/v1/plugins/everlit',
+		editLink: 'admin.php?page=everlit_settings',
+		title: __( 'Everlit', 'newspack-plugin' ),
+		subTitle: __( 'AI-Generated Audio Stories', 'newspack-plugin' ),
+		description: (
+			<>
+				{ __(
+					'Complete setup and licensing agreement to unlock 5 free audio stories per month.',
+					'newspack-plugin'
+				) }{ ' ' }
+				<a href="https://everlit.audio/" target="_blank" rel="noreferrer">
+					{ __( 'Learn more', 'newspack-plugin' ) }
+				</a>
+			</>
+		),
+		statusDescription: {
+			uninstalled: __( 'Not installed.', 'newspack-plugin' ),
+			inactive: __( 'Inactive.', 'newspack-plugin' ),
+			notConfigured: __( 'Pending.', 'newspack-plugin' ),
 		},
 	},
 };
 
 function Plugins() {
+	const plugins = Object.keys( PLUGINS ).reduce(
+		( acc: Record< string, PluginCard >, pluginKey ) => {
+			if ( ! Boolean( PLUGINS[ pluginKey ].hidden ) ) {
+				acc[ pluginKey ] = {
+					...PLUGINS[ pluginKey ],
+					hidden: pluginsSection.enabled?.[ pluginKey ] ?? false,
+				};
+			}
+			return acc;
+		},
+		{}
+	);
 	return (
 		<Fragment>
-			{ Object.keys( PLUGINS ).map( pluginKey => {
-				return <WizardsPluginCard key={ pluginKey } { ...PLUGINS[ pluginKey ] } />;
+			{ Object.keys( plugins ).map( pluginKey => {
+				return <WizardsPluginCard key={ pluginKey } { ...plugins[ pluginKey ] } />;
 			} ) }
 		</Fragment>
 	);

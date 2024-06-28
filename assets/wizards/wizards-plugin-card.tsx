@@ -5,117 +5,203 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
+import { sprintf, __ } from '@wordpress/i18n';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { Button } from '../components/src';
+import { Button, hooks, Waiting } from '../components/src';
 import WizardsActionCard from './wizards-action-card';
 import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 
+function fetchHandler(
+	slug: string,
+	action = '',
+	apiFetch: WizardApiFetch< { Status: string; Configured: boolean } >,
+	callbacks?: ApiFetchCallbacks< { Status: string; Configured: boolean } >
+) {
+	const path = action
+		? `/newspack/v1/plugins/${ slug }/${ action }`
+		: `/newspack/v1/plugins/${ slug }`;
+	const method = action ? 'POST' : 'GET';
+	return apiFetch( { path, method }, callbacks );
+}
+
 function WizardsPluginConnectButton( {
-	slug,
-	url,
-	editLink,
-	error,
-	actionText,
-	isFetching,
-}: PluginCard ) {
-	if ( isFetching ) {
-		return <span className="gray-700">{ __( 'Retrieving Plugin Info…', 'newspack-plugin' ) }</span>;
+	isLoading,
+	isSetup,
+	isActive,
+	onActivate,
+	onInstall,
+	isInstalled,
+	...plugin
+}: {
+	status: string;
+	title: string;
+	editLink?: string;
+	isLoading: boolean;
+	isSetup: boolean;
+	isActive: boolean;
+	onActivate: () => void;
+	onInstall: () => void;
+	isInstalled: boolean;
+} ) {
+	if ( plugin.status === 'page-reload' ) {
+		return <span className="gray">{ __( 'Page reloading…', 'newspack-plugin' ) }</span>;
 	}
-	if ( slug ) {
-		return <a href={ editLink }>{ actionText ?? __( 'Connect', 'newspack-plugin' ) }</a>;
+	if ( isLoading ) {
+		return <Waiting />;
 	}
-	if ( url ) {
+	if ( ! isInstalled ) {
 		return (
-			<Button variant="link" href={ url } target="_blank">
-				{ actionText ?? __( 'Connect', 'newspack-plugin' ) }
+			<Button isLink onClick={ onInstall }>
+				{
+					/* translators: %s: Plugin name */
+					sprintf( __( 'Install %s', 'newspack-plugin' ), plugin.title )
+				}
 			</Button>
 		);
 	}
-	if ( error && error.errorCode === 'unavailable_site_id' ) {
+	if ( ! isActive ) {
 		return (
-			<span className="i newspack-error">
-				{ __( 'Jetpack connection required', 'newspack-plugin' ) }
-			</span>
+			<Button isLink onClick={ onActivate }>
+				{
+					/* translators: %s: Plugin name */
+					sprintf( __( 'Activate %s', 'newspack-plugin' ), plugin.title )
+				}
+			</Button>
 		);
+	}
+	if ( ! isSetup && plugin.editLink ) {
+		return <a href={ plugin.editLink }>{ __( 'Complete Setup', 'newspack-plugin' ) }</a>;
 	}
 	return null;
 }
 
 function WizardsPluginCard( {
 	slug,
-	path,
-	description,
-	name,
-	url,
+	title,
+	subTitle,
 	editLink,
-	actionText,
+	// callbacks,
+	description,
+	statusDescription,
 }: PluginCard ) {
-	const { wizardApiFetch, isFetching, errorMessage, error } = useWizardApiFetch(
+	const { wizardApiFetch, errorMessage } = useWizardApiFetch(
 		`/newspack-settings/connections/plugins/${ slug }`
 	);
-	const [ status, setStatus ] = useState< string >( 'inactive' );
+	const [ pluginState, setPluginState ] = hooks.useObjectState( {
+		slug,
+		status: '',
+		statusDescription,
+		configured: false,
+	} );
+
+	const statuses = {
+		isSetup: pluginState.status === 'active' && pluginState.configured,
+		isActive: pluginState.status === 'active',
+		isLoading: ! pluginState.status,
+		isInstalled: pluginState.status !== 'uninstalled',
+		isConfigured: pluginState.configured,
+	};
+
+	const on: PluginCallbacks = {
+		init: fetchCallbacks =>
+			fetchHandler( pluginState.slug, undefined, wizardApiFetch, fetchCallbacks ),
+		activate: fetchCallbacks =>
+			fetchHandler( pluginState.slug, 'activate', wizardApiFetch, fetchCallbacks ),
+		install: fetchCallbacks =>
+			fetchHandler( pluginState.slug, 'install', wizardApiFetch, fetchCallbacks ),
+	};
 
 	useEffect( () => {
-		wizardApiFetch< null | { Status: string; Configured: boolean } >(
-			{ path },
-			{
-				onSuccess( result ) {
-					if ( result ) {
-						setStatus( result.Configured ? result.Status : 'inactive' );
-					}
-				},
-			}
-		);
+		on.init( {
+			onSuccess( update ) {
+				console.log( { update } );
+				setPluginState( {
+					status: update.Status,
+					configured: update.Configured,
+				} );
+			},
+		} );
 	}, [] );
 
-	function getDescription() {
-		if ( typeof description === 'function' ) {
-			return description( errorMessage, isFetching, status );
-		}
-		if ( typeof description === 'string' ) {
-			return description;
-		}
+	function onActivate() {
+		setPluginState( { status: '' } );
+		on.activate( {
+			onSuccess() {
+				setPluginState( { status: 'page-reload' } );
+			},
+			onFinally() {
+				window.location.reload();
+			},
+		} );
+	}
 
-		// Description if not provided.
-		if ( errorMessage ) {
-			return __( 'Status: Error!', 'newspack-plugin' );
-		}
-		if ( isFetching ) {
+	function onInstall() {
+		setPluginState( { status: '' } );
+		on.install( {
+			onSuccess( update ) {
+				setPluginState( {
+					status: update.Status,
+					configured: update.Configured,
+				} );
+			},
+		} );
+	}
+
+	function getDescription() {
+		if ( statuses.isLoading ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
-		if ( status === 'inactive' ) {
-			return __( 'Status: Not connected', 'newspack-plugin' );
+		const descriptionSuffix = description ?? '';
+		let newDescription = '';
+		if ( ! statuses.isInstalled ) {
+			newDescription =
+				pluginState.statusDescription?.uninstalled ?? __( 'Uninstalled.', 'newspack-plugin' );
+		} else if ( ! statuses.isActive ) {
+			newDescription =
+				pluginState.statusDescription?.inactive ?? __( 'Inactive.', 'newspack-plugin' );
+		} else if ( ! statuses.isConfigured ) {
+			newDescription =
+				pluginState.statusDescription?.notConfigured ?? __( 'Not connected.', 'newspack-plugin' );
+		} else {
+			newDescription = __( 'Connected.', 'newspack-plugin' );
 		}
-		return __( 'Status: Connected', 'newspack-plugin' );
+		return (
+			<>
+				{ sprintf( __( 'Status: %s', 'newspack-plugin' ), newDescription ) }{ ' ' }
+				{ ! statuses.isSetup ? descriptionSuffix : '' }
+			</>
+		);
 	}
 
 	return (
-		<WizardsActionCard
-			title={ name }
-			description={ getDescription() }
-			actionText={
-				status === 'inactive' ? (
-					<WizardsPluginConnectButton
-						slug={ slug }
-						url={ url }
-						editLink={ editLink }
-						path={ path }
-						name={ name }
-						error={ error }
-						isFetching={ isFetching }
-						actionText={ actionText }
-					/>
-				) : null
-			}
-			isChecked={ status !== 'inactive' }
-			error={ errorMessage }
-			isMedium
-		/>
+		<>
+			{ /* <pre>{ JSON.stringify( { statuses }, null, 2 ) }</pre> */ }
+			<WizardsActionCard
+				title={ `${ title }${ subTitle ? `: ${ subTitle }` : '' }` }
+				description={ getDescription }
+				actionText={
+					! statuses.isSetup ? (
+						<WizardsPluginConnectButton
+							{ ...{
+								title,
+								editLink,
+								onActivate,
+								onInstall,
+								...statuses,
+								...pluginState,
+							} }
+						/>
+					) : null
+				}
+				isChecked={ statuses.isSetup }
+				error={ errorMessage }
+				isMedium
+			/>
+		</>
 	);
 }
 

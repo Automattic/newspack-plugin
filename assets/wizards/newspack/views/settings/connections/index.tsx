@@ -32,8 +32,6 @@ function Section( {
 	);
 }
 
-const { connections } = window.newspackSettings;
-
 function Connections() {
 	return (
 		<div className="newspack-wizard__sections">
@@ -61,7 +59,7 @@ function Connections() {
 
 			{ /* Analytics */ }
 			<Section title={ __( 'Analytics', 'newspack-plugin' ) }>
-				<Analytics editLink={ connections.sections.analytics.editLink } />
+				<Analytics />
 			</Section>
 
 			{ /* Custom Events */ }
