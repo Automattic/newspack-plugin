@@ -204,8 +204,12 @@ export function useWizardApiFetch( slug: string ) {
 		isFetching,
 		errorMessage: error ? error.message : null,
 		error,
-		setError( value: string | Error | { message: string } ) {
-			setError( parseApiError( value as WpFetchError ) );
+		setError( value: string | WizardErrorType | null | { message: string } ) {
+			if ( value === null ) {
+				resetError();
+			} else {
+				setError( parseApiError( value as WpFetchError ) );
+			}
 		},
 		resetError,
 	};

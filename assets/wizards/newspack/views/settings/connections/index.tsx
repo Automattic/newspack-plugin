@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
+import Webhooks from './webhooks';
 import Mailchimp from './mailchimp';
 import GoogleOAuth from './google-oauth';
 import CustomEvents from './custom-events';
@@ -58,8 +59,8 @@ function Connections() {
 			</Section>
 
 			{ /* Webhooks */ }
-			<Section title={ __( 'Webhooks', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
+			<Section>
+				<Webhooks />
 			</Section>
 
 			{ /* Analytics */ }
