@@ -83,7 +83,7 @@ final class Modal_Checkout {
 		}
 
 		$data = [
-			'action'      => self::FORM_SUBMISSION_SUCCESS, // Not sure if this is required, but set to 'success' since it fires when the modal opens.
+			'action'      => self::FORM_SUBMISSION_SUCCESS,
 			'action_type' => 'paid_membership',
 			'recurrence'  => self::get_purchase_recurrence( $metadata['product_id'] ),
 		];
@@ -107,30 +107,13 @@ final class Modal_Checkout {
 		}
 
 		$data = [
-			'action'      => self::FORM_SUBMISSION_SUCCESS, // Not sure if this is required, but set to 'success' since it fires when the modal opens.
+			'action'      => self::FORM_SUBMISSION_SUCCESS,
 			'action_type' => 'donation',
 			'recurrence'  => self::get_purchase_recurrence( $metadata['product_id'] ),
 		];
 
 		$data = array_merge( $data, $metadata );
 
-		return $data;
-	}
-
-	/**
-	 * Fires when a reader attempts to complete an order with the modal checkout.
-	 *
-	 * @param array $order WooCommerce order information.
-	 *
-	 * @return ?array
-	 */
-	public static function checkout_attempt( $order ) {
-		$data = [
-			'action'   => self::FORM_SUBMISSION,
-			'order_id' => $order->get_id(),
-			'amount'   => $order->get_total(),
-			'currency' => $order->get_currency(),
-		];
 		return $data;
 	}
 
@@ -150,11 +133,33 @@ final class Modal_Checkout {
 		}
 
 		$data = [
-			'action' => self::FORM_SUBMISSION,
+			'action'     => self::FORM_SUBMISSION,
+			'recurrence' => self::get_purchase_recurrence( $metadata['product_id'] ),
 		];
 
 		$data = array_merge( $data, $metadata );
 
+		return $data;
+	}
+
+	/**
+	 * Fires when a reader attempts to complete an order with the modal checkout.
+	 *
+	 * @param array $order WooCommerce order information.
+	 *
+	 * @return ?array
+	 */
+	public static function checkout_attempt( $order ) {
+		$order_data = \Newspack\Data_Events\Utils::get_order_data( $order->get_id(), true );
+
+		$data = [
+			'action'     => self::FORM_SUBMISSION,
+			'order_id'   => $order->get_id(),
+			'amount'     => $order->get_total(),
+			'currency'   => $order->get_currency(),
+			'recurrence' => $order_data['recurrence'],
+			'product_id' => $order_data['platform_data']['product_id'],
+		];
 		return $data;
 	}
 }
