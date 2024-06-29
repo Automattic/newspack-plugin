@@ -106,6 +106,8 @@ final class Reader_Activation {
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
 		}
+
+		\add_filter( 'newspack_reader_activation_setting', [ __CLASS__, 'disable_esp_sync_on_staging_sites' ], 10, 2 );
 	}
 
 	/**
@@ -366,7 +368,7 @@ final class Reader_Activation {
 		if ( is_bool( $config[ $name ] ) ) {
 			$value = (bool) $value;
 		}
-		return $value;
+		return apply_filters( 'newspack_reader_activation_setting', $value, $name );
 	}
 
 	/**
@@ -1145,8 +1147,12 @@ final class Reader_Activation {
 		}
 
 		/** Do not render link for authenticated readers if account page doesn't exist. */
-		if ( empty( $account_url ) && \is_user_logged_in() ) {
-			return '';
+		if ( empty( $account_url ) ) {
+			if ( \is_user_logged_in() ) {
+				return '';
+			} else {
+				$account_url = '#';
+			}
 		}
 
 		$class = function( ...$parts ) {
@@ -1156,8 +1162,9 @@ final class Reader_Activation {
 
 		$labels = self::get_reader_activation_labels( 'account_link' );
 		$label  = \is_user_logged_in() ? 'signedin' : 'signedout';
+		$href   = \is_user_logged_in() ? $account_url : '#';
 
-		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $account_url ?? '#' ) . '" data-newspack-reader-account-link>';
+		$link  = '<a class="' . \esc_attr( $class() ) . '" data-labels="' . \esc_attr( htmlspecialchars( \wp_json_encode( $labels ), ENT_QUOTES, 'UTF-8' ) ) . '" href="' . \esc_url_raw( $href ) . '" data-newspack-reader-account-link>';
 		$link .= '<span class="' . \esc_attr( $class( 'icon' ) ) . '">';
 		$link .= \Newspack\Newspack_UI_Icons::get_svg( 'account' );
 		$link .= '</span>';
@@ -1895,6 +1902,7 @@ final class Reader_Activation {
 					'user_email'   => $email,
 				]
 			);
+
 			if ( function_exists( '\wc_create_new_customer' ) ) {
 				/**
 				 * Create WooCommerce Customer if possible.
@@ -2245,6 +2253,42 @@ final class Reader_Activation {
 			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
 		}
 		return $errors;
+	}
+
+	/**
+	 * Automatically force deactivate the ESP sync on staging sites to prevent polluting the data in ESPs.
+	 *
+	 * @param mixed  $value Setting value.
+	 * @param string $setting Setting name.
+	 * @return mixed Possibly modified $value.
+	 */
+	public static function disable_esp_sync_on_staging_sites( $value, $setting ) {
+		if ( 'sync_esp' !== $setting ) {
+			return $value;
+		}
+
+		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
+			return $value;
+		}
+
+		$site_url = strtolower( \untrailingslashit( \get_site_url() ) );
+		if ( false !== stripos( $site_url, '.newspackstaging.com' ) ) {
+			return false;
+		}
+
+		// Neither WCS_Staging::is_duplicate_site() nor is_plugin_active() are initialized early enough for all situations.
+		// So we need to re-create the logic from both.
+		if ( in_array( 'woocommerce-subscriptions/woocommerce-subscriptions.php', (array) \get_option( 'active_plugins', [] ), true ) ) {
+			$subscriptions_site_url = \get_option( 'wc_subscriptions_siteurl', false );
+			if ( $subscriptions_site_url ) {
+				$cleaned_subscriptions_site_url = strtolower( untrailingslashit( str_ireplace( '_[wc_subscriptions_siteurl]_', '', $subscriptions_site_url ) ) );
+				if ( $cleaned_subscriptions_site_url !== $site_url ) {
+					return false;
+				}
+			}
+		}
+
+		return $value;
 	}
 
 	/**
