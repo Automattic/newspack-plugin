@@ -1,3 +1,10 @@
+## [4.3.4](https://github.com/Automattic/newspack-plugin/compare/v4.3.3...v4.3.4) (2024-06-27)
+
+
+### Bug Fixes
+
+* variable name > constant ([#3203](https://github.com/Automattic/newspack-plugin/issues/3203)) ([46c5651](https://github.com/Automattic/newspack-plugin/commit/46c5651cf48e88abef3b8f3855b8fd3f5860c2a3))
+
 ## [4.3.3](https://github.com/Automattic/newspack-plugin/compare/v4.3.2...v4.3.3) (2024-06-24)
 
 

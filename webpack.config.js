@@ -36,25 +36,7 @@ wizardsScripts.forEach( function( wizard ) {
 	);
 } );
 
-// Get files for other scripts.
-const otherScripts = fs
-	.readdirSync( path.join( __dirname, 'src', 'other-scripts' ) )
-	.filter( ( script ) =>
-		fs.existsSync( path.join( __dirname, 'src', 'other-scripts', script, 'index.js' ) )
-	);
-otherScripts.forEach( function( script ) {
-	wizardsScriptFiles[ `other-scripts/${ script }` ] = path.join(
-		__dirname,
-		'src',
-		'other-scripts',
-		script,
-		'index.js'
-	);
-} );
-
 const entry = {
-	...wizardsScriptFiles,
-	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
 	'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
 	'reader-auth': path.join( __dirname, 'src', 'reader-activation', 'auth.js' ),
 	'reader-registration-block': path.join(
@@ -66,9 +48,13 @@ const entry = {
 	),
 	'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
 	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
-	'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
 	'memberships-gate': path.join( __dirname, 'src', 'memberships-gate', 'gate.js' ),
 	'memberships-gate-metering': path.join( __dirname, 'src', 'memberships-gate', 'metering.js' ),
+
+	// Newspack wizard assets.
+	...wizardsScriptFiles,
+	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
+	'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
 	'memberships-gate-block-patterns': path.join(
 		__dirname,
 		'src',
@@ -76,6 +62,22 @@ const entry = {
 		'block-patterns.js'
 	),
 };
+
+// Get files for other scripts.
+const otherScripts = fs
+	.readdirSync( path.join( __dirname, 'src', 'other-scripts' ) )
+	.filter( script =>
+		fs.existsSync( path.join( __dirname, 'src', 'other-scripts', script, 'index.js' ) )
+	);
+otherScripts.forEach( function ( script ) {
+	entry[ `other-scripts/${ script }` ] = path.join(
+		__dirname,
+		'src',
+		'other-scripts',
+		script,
+		'index.js'
+	);
+} );
 
 const webpackConfig = getBaseWebpackConfig(
 	{
