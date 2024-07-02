@@ -6,5 +6,5 @@ module.exports = {
 		newspack_urls: 'readonly',
 		newspack_aux_data: 'readonly',
 	},
-	ignorePatterns: [ 'dist/', 'node_modules/', 'src/components/node_modules' ],
+	ignorePatterns: [ '*/dist/', '*/node_modules/', '*/release' ],
 };
