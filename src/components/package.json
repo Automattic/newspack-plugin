@@ -18,7 +18,7 @@
 		"url": "https://github.com/Automattic/newspack-plugin.git",
 		"directory": "src/components"
 	},
-	"main": "dist/index.js",
+	"main": "dist/esm/index.js",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -49,7 +49,10 @@
 		]
 	},
 	"scripts": {
-		"prepublishOnly": "npx babel src --out-dir dist && node copy-styles.js",
-		"postpublish": "rm -r dist && rm -r shared"
+		"clean": "rm -rf dist && rm -rf shared",
+		"compile-cjs": "npx babel src --config-file ./babel.config.cjs.js --out-dir dist/cjs",
+		"compile-esm": "npx babel src --out-dir dist/esm",
+		"prepublishOnly": "npm run clean && npm run compile-esm && npm run compile-cjs && node copy-styles.js",
+		"postpublish": "npm run clean && rm -rf node_modules"
 	}
 }
