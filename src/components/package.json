@@ -1,6 +1,6 @@
 {
 	"name": "newspack-components",
-	"version": "2.2.1",
+	"version": "3.0.0",
 	"description": "Newspack design system components",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -50,9 +50,10 @@
 	},
 	"scripts": {
 		"clean": "rm -rf dist && rm -rf shared",
-		"compile-cjs": "npx babel src --config-file ./babel.config.cjs.js --out-dir dist/cjs",
-		"compile-esm": "npx babel src --out-dir dist/esm",
-		"prepublishOnly": "npm run clean && npm run compile-esm && npm run compile-cjs && node copy-styles.js",
+		"compile:cjs": "npx babel src --config-file ./babel.config.cjs.js --extensions='.js,.jsx,.ts,.tsx' --out-dir dist/cjs",
+		"compile:esm": "npx babel src --extensions='.js,.jsx,.ts,.tsx' --out-dir dist/esm",
+		"compile": "npm run compile:cjs && npm run compile:esm",
+		"prepublishOnly": "npm run clean && npm run compile && node copy-styles.js",
 		"postpublish": "npm run clean && rm -rf node_modules"
 	}
 }
