@@ -101,12 +101,7 @@ function GoogleOAuth( {
 						);
 						return;
 					}
-					authWindow = window.open(
-						'about:blank',
-						'newspack_google_oauth',
-						'width=500,height=600'
-					);
-
+					authWindow = window.open( url, 'newspack_google_oauth', 'width=500,height=600' );
 					/** authWindow can be 'null' due to browser's popup blocker. */
 					if ( authWindow === null ) {
 						setError(
@@ -117,7 +112,6 @@ function GoogleOAuth( {
 						);
 						return;
 					}
-					authWindow.location = url;
 					const interval = setInterval( () => {
 						if ( authWindow?.closed ) {
 							clearInterval( interval );
