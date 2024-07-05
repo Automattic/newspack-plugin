@@ -117,7 +117,7 @@ function Recaptcha() {
 		} );
 	}, [ settingsToUpdate.version ] );
 
-	function updateSettings( data: RecaptchaData, isToggleSave: boolean = false ) {
+	function updateSettings( data: RecaptchaData, isToggleSave = false ) {
 		resetError();
 
 		// Perform validation on non `use_captcha` updates.
