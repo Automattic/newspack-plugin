@@ -92,21 +92,38 @@ function GoogleOAuth( {
 			},
 			{
 				onSuccess( url ) {
+					if ( url === null ) {
+						setError(
+							new WizardError(
+								WIZARD_ERROR_MESSAGES.GOOGLE.URL_INVALID,
+								'googleoauth_popup_blocked'
+							)
+						);
+						return;
+					}
 					authWindow = window.open(
 						'about:blank',
 						'newspack_google_oauth',
 						'width=500,height=600'
 					);
+
 					/** authWindow can be 'null' due to browser's popup blocker. */
-					if ( authWindow ) {
-						authWindow.location = url;
-						const interval = setInterval( () => {
-							if ( authWindow?.closed ) {
-								clearInterval( interval );
-								getCurrentAuth();
-							}
-						}, 500 );
+					if ( authWindow === null ) {
+						setError(
+							new WizardError(
+								WIZARD_ERROR_MESSAGES.GOOGLE.OAUTH_POPUP_BLOCKED,
+								'googleoauth_popup_blocked'
+							)
+						);
+						return;
 					}
+					authWindow.location = url;
+					const interval = setInterval( () => {
+						if ( authWindow?.closed ) {
+							clearInterval( interval );
+							getCurrentAuth();
+						}
+					}, 500 );
 				},
 				onError() {
 					if ( authWindow ) {
