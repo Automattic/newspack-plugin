@@ -246,6 +246,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 * Handle auth form action selection.
 			 */
 			function setFormAction( action, shouldFocus = false ) {
+				container.setAttribute( 'data-action', action );
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
 						return;
@@ -361,16 +362,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 
 				readerActivation
-					.getCaptchaToken()
+					.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
 					.then( captchaToken => {
+						// If there's no token, we don't need to do anything.
 						if ( ! captchaToken ) {
 							return;
 						}
-						let tokenField = form.captcha_token;
+						let tokenField = form[ 'g-recaptcha-response' ];
 						if ( ! tokenField ) {
 							tokenField = document.createElement( 'input' );
 							tokenField.setAttribute( 'type', 'hidden' );
-							tokenField.setAttribute( 'name', 'captcha_token' );
+							tokenField.setAttribute( 'name', 'g-recaptcha-response' );
 							tokenField.setAttribute( 'autocomplete', 'off' );
 							form.appendChild( tokenField );
 						}
