@@ -43,7 +43,6 @@ type PluginWizardApiFetchCallback = (
  * Plugin data type
  */
 type PluginCard = {
-	path: string;
 	slug: string;
 	editLink?: string;
 	description?: JSX.Element;

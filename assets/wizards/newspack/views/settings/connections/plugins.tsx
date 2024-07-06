@@ -19,13 +19,11 @@ const { plugins: pluginsSection, analytics: analyticsSection } =
 const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
 		slug: 'jetpack',
-		path: '/newspack/v1/plugins/jetpack',
 		title: __( 'Jetpack', 'newspack-plugin' ),
 		editLink: 'admin.php?page=jetpack#/settings',
 	},
 	'google-site-kit': {
 		slug: 'google-site-kit',
-		path: '/newspack/v1/plugins/google-site-kit',
 		editLink: analyticsSection.editLink,
 		title: __( 'Site Kit by Google', 'newspack-plugin' ),
 		statusDescription: {
@@ -34,7 +32,6 @@ const PLUGINS: Record< string, PluginCard > = {
 	},
 	everlit: {
 		slug: 'everlit',
-		path: '/newspack/v1/plugins/everlit',
 		editLink: 'admin.php?page=everlit_settings',
 		title: __( 'Everlit', 'newspack-plugin' ),
 		subTitle: __( 'AI-Generated Audio Stories', 'newspack-plugin' ),
