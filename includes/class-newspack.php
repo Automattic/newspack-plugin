@@ -119,9 +119,15 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-wordpress.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard-section.php';
+
+		// Newspack Wizards and Sections.
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
+
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newspack-dashboard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 
 		/* Unified Wizards */
