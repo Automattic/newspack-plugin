@@ -63,12 +63,10 @@ const PLUGINS: Record< string, PluginCard > = {
 function Plugins() {
 	const plugins = Object.keys( PLUGINS ).reduce(
 		( acc: Record< string, PluginCard >, pluginKey ) => {
-			if ( ! Boolean( PLUGINS[ pluginKey ].isHidden ) ) {
-				acc[ pluginKey ] = {
-					...PLUGINS[ pluginKey ],
-					isHidden: ( pluginsSection.enabled?.[ pluginKey ] ?? false ) === false,
-				};
-			}
+			acc[ pluginKey ] = {
+				...PLUGINS[ pluginKey ],
+				isEnabled: pluginsSection.enabled?.[ pluginKey ] ?? true,
+			};
 			return acc;
 		},
 		{}
@@ -76,7 +74,11 @@ function Plugins() {
 	return (
 		<Fragment>
 			{ Object.keys( plugins ).map( pluginKey => {
-				return <WizardsPluginCard key={ pluginKey } { ...plugins[ pluginKey ] } />;
+				return (
+					plugins[ pluginKey ].isEnabled && (
+						<WizardsPluginCard key={ pluginKey } { ...plugins[ pluginKey ] } />
+					)
+				);
 			} ) }
 		</Fragment>
 	);
