@@ -13,24 +13,7 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 import Webhooks from './webhooks';
 import CustomEvents from './custom-events';
-import { SectionHeader } from '../../../../../components/src';
-
-function Section( {
-	title,
-	description,
-	children = null,
-}: {
-	title?: string;
-	description?: string;
-	children: React.ReactNode;
-} ) {
-	return (
-		<div className="newspack-wizard__section">
-			{ title && <SectionHeader heading={ 3 } title={ title } description={ description } /> }
-			{ children }
-		</div>
-	);
-}
+import Section from '../../../../wizards-section';
 
 function Connections() {
 	return (

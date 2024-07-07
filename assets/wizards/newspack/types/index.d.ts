@@ -45,6 +45,30 @@ declare global {
 					>;
 				};
 			};
+			emails: {
+				label: string;
+				path?: string;
+				sections: {
+					emails: {
+						all: {
+							[ str: string ]: {
+								label: string;
+								description: string;
+								post_id: number;
+								edit_link: string;
+								subject: string;
+								from_name: string;
+								from_email: string;
+								reply_to_email: string;
+								status: string;
+							};
+						};
+						email_cpt: string;
+						salesforce_redirect_url: string;
+						can_use_name_your_price: boolean;
+					};
+				};
+			};
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;

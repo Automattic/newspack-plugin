@@ -7,7 +7,11 @@
 
 namespace Newspack\Wizards\Newspack;
 
+use Newspack\Donations;
+use Newspack\Emails;
+use Newspack\Reader_Revenue_Emails;
 use Newspack\Wizard;
+use Newspack\Salesforce;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -59,10 +63,10 @@ class Newspack_Settings extends Wizard {
 				'label'    => __( 'Emails', 'newspack-plugin' ),
 				'sections' => [
 					'emails' => [
-						'all'                    => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
-						'postType'               => Emails::POST_TYPE,
-						'salesforceRedirectUrl'  => Salesforce::get_redirect_url(),
-						'isNameYourPriceEnabled' => Donations::can_use_name_your_price(),
+						'all'                     => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+						'email_cpt'               => Emails::POST_TYPE,
+						'salesforce_redirect_url' => Salesforce::get_redirect_url(),
+						'can_use_name_your_price' => Donations::can_use_name_your_price(),
 					],
 				],
 			],
