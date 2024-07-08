@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 import Webhooks from './webhooks';
+import Recaptcha from './recaptcha';
 import Mailchimp from './mailchimp';
 import GoogleOAuth from './google-oauth';
 import CustomEvents from './custom-events';
@@ -38,7 +39,7 @@ function Connections() {
 
 			{ /* reCAPTCHA */ }
 			<WizardSection title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
+				<Recaptcha />
 			</WizardSection>
 
 			{ /* Webhooks */ }
