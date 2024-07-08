@@ -11,6 +11,15 @@ type RecaptchaData = {
 };
 
 /**
+ * OAuth payload
+ */
+type OAuthData = {
+	user_basic_info?: { email: string; has_refresh_token: boolean };
+	username?: string;
+	error?: Error;
+};
+
+/**
  * Webhook actions data type.
  */
 type WebhookActions = 'edit' | 'delete' | 'view' | 'toggle' | 'new' | null;
