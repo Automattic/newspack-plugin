@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -19,12 +19,13 @@ import values from 'lodash/values';
  */
 import { PluginInstaller, Notice } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
+import WizardsPluginCard from '../../../../wizards-plugin-card';
 
 const EMAILS = values( window.newspackSettings.emails.sections.emails.all );
 const postType = window.newspackSettings.emails.sections.emails.email_cpt;
 
 const Emails = () => {
-	const [ pluginsReady, setPluginsReady ] = useState( null );
+	const [ pluginsReady, setPluginsReady ] = useState( false );
 	const [ error, setError ] = useState< boolean | Error >( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ emails, setEmails ] = useState( EMAILS );
@@ -59,16 +60,21 @@ const Emails = () => {
 						'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.',
 						'newspack'
 					) }
-				</Notice>
-				<Notice isError>
+					<br />
 					{ __( 'Until this feature is configured, default receipts will be used.', 'newspack' ) }
 				</Notice>
-				<PluginInstaller
-					style={ pluginsReady ? { display: 'none' } : {} }
-					plugins={ [ 'newspack-newsletters' ] }
-					onStatus={ ( res: any ) => setPluginsReady( res.complete ) }
-					onInstalled={ () => window.location.reload() }
-					withoutFooterButton={ true }
+				<WizardsPluginCard
+					slug="newspack-newsletters"
+					title={ __( 'Newspack Newsletters', 'newspack' ) }
+					description={ __(
+						'Newspack Newsletters is the plugin that powers Newspack email receipts.',
+						'newspack'
+					) }
+					onStatusChange={ ( statuses: Record< string, boolean > ) => {
+						if ( ! statuses.isLoading ) {
+							setPluginsReady( statuses.isSetup );
+						}
+					} }
 				/>
 			</>
 		);

@@ -120,9 +120,10 @@ function WizardsPluginCard( {
 	editLink,
 	description,
 	statusDescription,
-}: PluginCard ) {
+	onStatusChange = () => {},
+}: PluginCard & { onStatusChange?: ( statuses: Record< string, boolean > ) => void } ) {
 	const { wizardApiFetch, errorMessage } = useWizardApiFetch(
-		`/newspack-settings/connections/plugins/${ slug }`
+		`/newspack/wizards/plugins/${ slug }`
 	);
 	const [ pluginState, setPluginState ] = hooks.useObjectState( {
 		slug,
@@ -159,6 +160,10 @@ function WizardsPluginCard( {
 			},
 		} );
 	}, [] );
+
+	useEffect( () => {
+		onStatusChange( statuses );
+	}, [ statuses ] );
 
 	function onActivate() {
 		setPluginState( { status: '' } );

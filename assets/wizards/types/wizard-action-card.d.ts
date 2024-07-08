@@ -47,7 +47,7 @@ type PluginWizardApiFetchCallback = (
 type PluginCard = {
 	slug: string;
 	editLink?: string;
-	description?: JSX.Element;
+	description?: JSX.Element | string;
 	title: string;
 	subTitle?: string;
 	statusDescription?: Partial< {
