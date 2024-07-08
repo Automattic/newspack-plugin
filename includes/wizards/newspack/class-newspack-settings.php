@@ -7,6 +7,7 @@
 
 namespace Newspack\Wizards\Newspack;
 
+use Newspack\OAuth;
 use Newspack\Wizard;
 
 defined( 'ABSPATH' ) || exit;
@@ -49,7 +50,11 @@ class Newspack_Settings extends Wizard {
 				'path'     => '/',
 				'sections' => [
 					'plugins'      => [],
-					'apis'         => [],
+					'apis'         => [
+						'dependencies' => [
+							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
+						],
+					],
 					'recaptcha'    => [],
 					'analytics'    => [],
 					'customEvents' => $this->sections['custom-events']->get_data(),
