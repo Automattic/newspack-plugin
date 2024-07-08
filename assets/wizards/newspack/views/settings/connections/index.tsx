@@ -15,61 +15,44 @@ import Webhooks from './webhooks';
 import Mailchimp from './mailchimp';
 import GoogleOAuth from './google-oauth';
 import CustomEvents from './custom-events';
-import { SectionHeader } from '../../../../../components/src';
+
+import WizardsTab from '../../../../wizards-tab';
+import WizardSection from '../../../../wizards-section';
 
 const { connections } = window.newspackSettings;
 
-function Section( {
-	title,
-	description,
-	children = null,
-}: {
-	title?: string;
-	description?: string;
-	children: React.ReactNode;
-} ) {
-	return (
-		<div className="newspack-wizard__section">
-			{ title && <SectionHeader heading={ 3 } title={ title } description={ description } /> }
-			{ children }
-		</div>
-	);
-}
-
 function Connections() {
 	return (
-		<div className="newspack-wizard__sections">
-			<h1>{ __( 'Connections', 'newspack-plugin' ) }</h1>
-
+		<WizardsTab title={ __( 'Connections', 'newspack-plugin' ) }>
 			{ /* Plugins */ }
-			<Section title={ __( 'Plugins', 'newspack-plugin' ) }>
+			<WizardSection title={ __( 'Plugins', 'newspack-plugin' ) }>
 				<div className="newspack-card">Coming soon</div>
 				<div className="newspack-card">Coming soon</div>
-			</Section>
+			</WizardSection>
 
 			{ /* APIs; google */ }
-			<Section title={ __( 'APIs', 'newspack-plugin' ) }>
+			<WizardSection title={ __( 'APIs', 'newspack-plugin' ) }>
 				{ connections.sections.apis.dependencies?.googleOAuth && <GoogleOAuth /> }
 				<Mailchimp />
-			</Section>
+			</WizardSection>
 
 			{ /* reCAPTCHA */ }
-			<Section title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
+			<WizardSection title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
 				<div className="newspack-card">Coming soon</div>
-			</Section>
+			</WizardSection>
 
 			{ /* Webhooks */ }
-			<Section>
+			<WizardSection>
 				<Webhooks />
-			</Section>
+			</WizardSection>
 
 			{ /* Analytics */ }
-			<Section title={ __( 'Analytics', 'newspack-plugin' ) }>
+			<WizardSection title={ __( 'Analytics', 'newspack-plugin' ) }>
 				<div className="newspack-card">Coming soon</div>
-			</Section>
+			</WizardSection>
 
 			{ /* Custom Events */ }
-			<Section
+			<WizardSection
 				title={ __( 'Activate Newspack Custom Events', 'newspack-plugin' ) }
 				description={ __(
 					'Allows Newspack to send enhanced custom event data to your Google Analytics.',
@@ -77,8 +60,8 @@ function Connections() {
 				) }
 			>
 				<CustomEvents />
-			</Section>
-		</div>
+			</WizardSection>
+		</WizardsTab>
 	);
 }
 
