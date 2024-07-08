@@ -164,7 +164,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
 						readerActivation
-							.getCaptchaToken()
+							.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
 							.then( captchaToken => {
 								if ( ! captchaToken ) {
 									return;
@@ -292,7 +292,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 
 				readerActivation
-					.getCaptchaToken()
+					.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
 					.then( captchaToken => {
 						if ( ! captchaToken ) {
 							return;
