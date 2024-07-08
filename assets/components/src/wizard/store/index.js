@@ -59,17 +59,24 @@ const actions = {
 	setError: createAction( 'SET_ERROR' ),
 
 	// Async actions. These will not show up in Redux devtools.
-	*saveWizardSettings( { slug, section = '', payloadPath = false, updatePayload = null } ) {
+	*saveWizardSettings( {
+		slug,
+		section = '',
+		payloadPath = false,
+		auxData = {},
+		updatePayload = null,
+	} ) {
 		// Optionally data can be updated before saving - an immediate update case
 		// (without an explicit "save" action).
 		if ( updatePayload ) {
 			yield actions.updateWizardSettings( { slug, ...updatePayload } );
 		}
 		const wizardState = select( WIZARD_STORE_NAMESPACE ).getWizardAPIData( slug );
+		const data = payloadPath ? get( wizardState, payloadPath ) : wizardState;
 		const updatedData = yield actions.fetchFromAPI( {
 			path: `/newspack/v1/wizard/${ slug }/${ section }`,
 			method: 'POST',
-			data: payloadPath ? get( wizardState, payloadPath ) : wizardState,
+			data: { ...data, ...auxData },
 			isQuietFetch: true,
 		} );
 		if ( ! isEmpty( updatedData ) && ! updatedData.error ) {

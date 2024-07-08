@@ -11,7 +11,7 @@ type WizardTab = {
 	label: string;
 	path?: string;
 	sections: {
-		[ k: string ]: { editLink: string; dependencies: Record< string, string > } & Record<
+		[ k: string ]: { editLink?: string; dependencies?: Record< string, string > } & Record<
 			string,
 			string
 		>;
