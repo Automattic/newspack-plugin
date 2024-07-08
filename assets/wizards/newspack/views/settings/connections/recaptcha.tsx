@@ -251,7 +251,7 @@ function Recaptcha() {
 								<TextControl
 									type="number"
 									step="0.05"
-									min="0"
+									min="0.1"
 									max="1"
 									value={ parseFloat( settingsToUpdate?.threshold || '0' ) }
 									label={ __( 'Threshold', 'newspack-plugin' ) }
