@@ -1,19 +1,21 @@
-/* globals newspack_reader_revenue*/
+/**
+ * Newspack > Settings > Emails > Emails section
+ */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * External dependencies
+ * External dependencies.
  */
 import values from 'lodash/values';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
 import { PluginInstaller, Notice } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';

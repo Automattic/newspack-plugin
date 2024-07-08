@@ -1,12 +1,14 @@
-/* globals newspack_reader_revenue*/
+/**
+ * Newspack > Settings > Emails
+ */
 
 /**
- * WordPress dependencies
+ * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal dependencies
+ * Internal dependencies.
  */
 import Section from '../../../../wizards-section';
 import { default as EmailsSection } from './emails';
