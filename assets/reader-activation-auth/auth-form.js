@@ -1,4 +1,4 @@
-/* globals newspack_reader_activation_labels */
+/* globals newspack_reader_activation_labels, newspack_grecaptcha */
 
 /**
  * Internal dependencies.
@@ -31,10 +31,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const emailInput = form.querySelector( 'input[name="npe"]' );
 			const otpCodeInput = form.querySelector( 'input[name="otp_code"]' );
 			const passwordInput = form.querySelector( 'input[name="password"]' );
-			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const backButtons = container.querySelectorAll( '[data-back]' );
 			const sendCodeButtons = container.querySelectorAll( '[data-send-code]' );
 			const messageContentElement = container.querySelector( '.response' );
+			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 
 			/**
 			 * Set action listener on the given item.
@@ -53,6 +53,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.setFormAction = ( action, shouldFocus = false ) => {
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
+				}
+				if ( newspack_grecaptcha?.disableCaptchasForForm ) {
+					newspack_grecaptcha.disableCaptchasForForm( form, 'register' !== action );
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
@@ -164,7 +167,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
 						readerActivation
-							.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
+							.getCaptchaV3Token( form.hasAttribute( 'data-skip-captcha' ) ) // Get a token for reCAPTCHA v3, if needed.
 							.then( captchaToken => {
 								if ( ! captchaToken ) {
 									return;
@@ -292,7 +295,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 
 				readerActivation
-					.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
+					.getCaptchaV3Token( form.hasAttribute( 'data-skip-captcha' ) ) // Get a token for reCAPTCHA v3, if needed.
 					.then( captchaToken => {
 						if ( ! captchaToken ) {
 							return;

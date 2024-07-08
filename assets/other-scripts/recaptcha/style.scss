@@ -7,3 +7,8 @@
 		margin: 16px 0;
 	}
 }
+
+// Hide reCAPTCHA badge
+.grecaptcha-badge {
+	visibility: hidden !important;
+}

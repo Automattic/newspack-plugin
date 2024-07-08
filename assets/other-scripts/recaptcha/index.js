@@ -5,6 +5,7 @@ import './style.scss';
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
 	widgets: {},
 	getCaptchaV3Token,
+	disableCaptchasForForm,
 };
 
 const isV2 = 'v2' === newspack_recaptcha_data.version.substring( 0, 2 );
@@ -62,13 +63,42 @@ function renderCaptchas() {
 
 		if ( isV2 && isInvisible && 0 < submitButtons.length ) {
 			submitButtons.forEach( submitButton => {
-				submitButton.addEventListener( 'click', e => e.preventDefault() ); // Prevent the submit button from submitting the form so reCAPTCHA can intervene.
-				options.callback = () => form.requestSubmit( submitButton ); // If reCAPTCHA passes the action with a token, submit the form.
+				if ( ! form.hasAttribute( 'data-skip-captcha' ) ) {
+					submitButton.addEventListener( 'click', e => {
+						// Prevent the submit button from submitting the form so reCAPTCHA can intervene.
+						e.preventDefault();
+					} );
+					options.callback = () => form.requestSubmit( submitButton ); // If reCAPTCHA passes the action with a token, submit the form.
 
-				const widgetId = grecaptcha.render( submitButton || container, options );
-				newspack_grecaptcha.widgets[ containerId ] = widgetId;
+					const widgetId = grecaptcha.render( submitButton || container, options );
+					newspack_grecaptcha.widgets[ containerId ] = widgetId;
+				}
 			} );
 		}
+	} );
+}
+
+/**
+ * Enable or disable reCAPTCHA for the given form.
+ *
+ * @param {HTMLElement} form    The form element.
+ * @param {boolean}     disable If true, disable reCAPTCHA for the form. Otherwise, enable it.
+ */
+function disableCaptchasForForm( form, disable = false ) {
+	if ( disable ) {
+		form.setAttribute( 'data-skip-captcha', 'true' );
+	} else {
+		form.removeAttribute( 'data-skip-captcha' );
+	}
+	let submitButtons = isInvisible &&
+		form && [ ...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ) ];
+
+	submitButtons.forEach( submitButton => {
+		// Replace the submit button with a clone of itself to detach event listeners.
+		const clone = submitButton.cloneNode( true );
+		submitButton.replaceWith( clone );
+		submitButtons = form.querySelectorAll( '[type="submit"]' );
+		renderCaptchas();
 	} );
 }
 
@@ -91,11 +121,13 @@ function refreshCaptchas() {
  *
  * See: https://developers.google.com/recaptcha/docs/v3#programmatically_invoke_the_challenge
  *
+ * @param {boolean} skip If true, skip reCAPTCHA verification and allow the action to proceed.
+ *
  * @return {Promise<string>} The reCAPTCHA token, if needed, or an empty string.
  */
-function getCaptchaV3Token() {
+function getCaptchaV3Token( skip = false ) {
 	return new Promise( ( res, rej ) => {
-		if ( ! grecaptcha || ! isV3 ) {
+		if ( ! grecaptcha || ! isV3 || skip ) {
 			return res( '' );
 		}
 
