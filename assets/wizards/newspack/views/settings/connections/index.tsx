@@ -11,7 +11,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
+import Plugins from './plugins';
 import Webhooks from './webhooks';
+import Analytics from './analytics';
 import Recaptcha from './recaptcha';
 import Mailchimp from './mailchimp';
 import GoogleOAuth from './google-oauth';
@@ -27,8 +29,7 @@ function Connections() {
 		<WizardsTab title={ __( 'Connections', 'newspack-plugin' ) }>
 			{ /* Plugins */ }
 			<WizardSection title={ __( 'Plugins', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
-				<div className="newspack-card">Coming soon</div>
+				<Plugins />
 			</WizardSection>
 
 			{ /* APIs; google */ }
@@ -49,7 +50,7 @@ function Connections() {
 
 			{ /* Analytics */ }
 			<WizardSection title={ __( 'Analytics', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
+				<Analytics />
 			</WizardSection>
 
 			{ /* Custom Events */ }
