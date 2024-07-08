@@ -1,4 +1,8 @@
 /**
+ * Wizards Section component.
+ */
+
+/**
  * Internal dependencies.
  */
 import { SectionHeader } from '../components/src';
@@ -13,7 +17,7 @@ import { SectionHeader } from '../components/src';
  *
  * @return Component.
  */
-export default function Section( {
+export default function WizardSection( {
 	title,
 	description,
 	children = null,

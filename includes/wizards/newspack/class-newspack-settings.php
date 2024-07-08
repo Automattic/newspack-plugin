@@ -12,6 +12,8 @@ use Newspack\Emails;
 use Newspack\Reader_Revenue_Emails;
 use Newspack\Wizard;
 use Newspack\Salesforce;
+use Newspack\Everlit_Configuration_Manager;
+use function Newspack\google_site_kit_available;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -47,15 +49,29 @@ class Newspack_Settings extends Wizard {
 	 * @return [] 
 	 */
 	public function get_local_data() {
+		$google_site_kit_url = google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' );
 		return [
 			'connections'       => [
 				'label'    => __( 'Connections', 'newspack-plugin' ),
 				'path'     => '/',
 				'sections' => [
-					'plugins'      => [],
+					'plugins'      => [
+						'editLink' => [
+							'everlit'         => 'admin.php?page=everlit_settings',
+							'jetpack'         => 'admin.php?page=jetpack#/settings',
+							'google-site-kit' => $google_site_kit_url,
+						],
+						'enabled'  => [
+							'everlit' => Everlit_Configuration_Manager::is_enabled(),
+						],
+					],
 					'apis'         => [],
 					'recaptcha'    => [],
-					'analytics'    => [],
+					'analytics'    => [
+						'editLink'                    => $google_site_kit_url,
+						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
+						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
+					],
 					'customEvents' => $this->sections['custom-events']->get_data(),
 				],
 			],
