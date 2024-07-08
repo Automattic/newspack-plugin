@@ -16,7 +16,7 @@ type ActionCardProps = Partial< {
 	toggleChecked: boolean;
 	toggleOnChange: () => void;
 	actionContent: boolean | JSX.Element | null;
-	error: string | null;
+	error: Error | string | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
 	isChecked: boolean;
@@ -31,17 +31,13 @@ type PluginCard = {
 	path: string;
 	slug: string;
 	editLink?: string;
-	description?: (
-		errorMessage: string | null,
-		isFetching: boolean,
-		status: string | null
-	) => string;
+	description?:
+		| string
+		| ( ( errorMessage: string | null, isFetching: boolean, status: string | null ) => string );
 	name: string;
 	url?: string;
 	status?: string;
 	badge?: string;
 	indent?: string;
-	error?: null | {
-		errorCode: string;
-	};
+	error?: string | null | Error;
 };
