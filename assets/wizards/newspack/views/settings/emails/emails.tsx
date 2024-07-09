@@ -9,11 +9,6 @@ import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
 
 /**
- * External dependencies.
- */
-import values from 'lodash/values';
-
-/**
  * Internal dependencies.
  */
 import { Notice } from '../../../../../components/src';
@@ -22,7 +17,7 @@ import WizardsActionCard from '../../../../wizards-action-card';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
 const emailSections = window.newspackSettings.emails.sections;
-const emailsCache = values( emailSections.emails.all );
+const emailsCache = Object.values( emailSections.emails.all );
 const postType = emailSections.emails.postType;
 
 const Emails = () => {
