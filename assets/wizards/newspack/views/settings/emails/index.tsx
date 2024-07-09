@@ -10,17 +10,17 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import Section from '../../../../wizards-section';
+import WizardsTab from '../../../../wizards-tab';
 import { default as EmailsSection } from './emails';
+import WizardSection from '../../../../wizards-section';
 
 function Emails() {
 	return (
-		<div className="newspack-wizard__sections">
-			<h1>{ __( 'Emails', 'newspack-plugin' ) }</h1>
-			<Section>
+		<WizardsTab title={ __( 'Emails', 'newspack-plugin' ) }>
+			<WizardSection>
 				<EmailsSection />
-			</Section>
-		</div>
+			</WizardSection>
+		</WizardsTab>
 	);
 }
 
