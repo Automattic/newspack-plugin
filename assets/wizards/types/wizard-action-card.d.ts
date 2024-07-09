@@ -29,31 +29,35 @@ type ActionCardProps = Partial< {
 } >;
 
 /**
+ * Plugin callbacks for install, activate and init states
+ */
+type PluginCallbacks = {
+	init: PluginWizardApiFetchCallback;
+	activate: PluginWizardApiFetchCallback;
+	install: PluginWizardApiFetchCallback;
+};
+
+/**
+ * Plugin Wizard API fetch callback
+ */
+type PluginWizardApiFetchCallback = (
+	callbacks?: ApiFetchCallbacks< { Status: string; Configured: boolean } >
+) => Promise< { Status: string; Configured: boolean } >;
+
+/**
  * Plugin data type
  */
 type PluginCard = {
-	actionText?: JSX.Element | string | null;
-	path: string;
 	slug: string;
 	editLink?: string;
-	isChecked?: boolean;
-	disabled?: boolean;
-	description?:
-		| string
-		| ( ( errorMessage: string | null, isFetching: boolean, status: string | null ) => string );
-	name: string;
-	url?: string;
-	status?: string;
-	badge?: string;
-	indent?: string;
-	error?:
-		| null
-		| string
-		| {
-				errorCode: string;
-		  };
-	toggleChecked?: any; // @TODO: Fix this
-	toggleOnChange?: any; // @TODO: Type right
-	isToggle?: boolean;
-	activeStatus?: 'Configured' | 'Active';
+	description?: JSX.Element;
+	title: string;
+	subTitle?: string;
+	statusDescription?: Partial< {
+		uninstalled: string;
+		inactive: string;
+		notConfigured: string;
+	} >;
+	isEnabled?: boolean;
+	isManageable?: boolean;
 };

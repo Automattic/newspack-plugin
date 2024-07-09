@@ -1,12 +1,23 @@
 /**
- * Wizards Sectional Component
- *
- * Component for wrapping wizard field groups
+ * Wizards Section component.
  */
 
+/**
+ * Internal dependencies.
+ */
 import { SectionHeader } from '../components/src';
 
-function WizardsSection( {
+/**
+ * Section component.
+ *
+ * @param props Component props.
+ * @param props.title Section title.
+ * @param props.description Section description.
+ * @param props.children Section children.
+ *
+ * @return Component.
+ */
+export default function WizardSection( {
 	title,
 	description,
 	children = null,
@@ -22,5 +33,3 @@ function WizardsSection( {
 		</div>
 	);
 }
-
-export default WizardsSection;

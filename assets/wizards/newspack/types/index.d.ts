@@ -47,7 +47,6 @@ declare global {
 		};
 		newspackSettings: {
 			connections: WizardTab;
-			syndication: WizardTab;
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;

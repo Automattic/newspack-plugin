@@ -493,3 +493,13 @@ function newspack_get_countries() {
 	}
 	return $countries_options;
 }
+
+
+/**
+ * Determine Google Site Kit availability.
+ *
+ * @return bool True if available, false otherwise.
+ */
+function google_site_kit_available() {
+	return get_option( 'googlesitekit_has_connected_admins' ) && in_array( 'analytics', get_option( 'googlesitekit_active_modules', [] ) );
+}

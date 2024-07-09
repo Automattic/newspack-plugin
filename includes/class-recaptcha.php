@@ -306,7 +306,7 @@ final class Recaptcha {
 	/**
 	 * Check whether reCaptcha is enabled and that we have all required settings.
 	 *
-	 * @param string $version If specified, chedk whether the given version of reCaptcha is enabled.
+	 * @param string $version If specified, check whether the given version of reCaptcha is enabled.
 	 *
 	 * @return boolean True if we can use reCaptcha to secure checkout requests.
 	 */
