@@ -56,6 +56,7 @@ const entry = {
 	admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
 	'memberships-gate': path.join( __dirname, 'assets', 'memberships-gate', 'gate.js' ),
 	'memberships-gate-metering': path.join( __dirname, 'assets', 'memberships-gate', 'metering.js' ),
+	'newspack-ui': path.join( __dirname, 'assets', 'newspack-ui', 'index.js' ),
 };
 
 // Get files for other scripts.
@@ -85,7 +86,6 @@ const wpAdminEntries = {
 		'memberships-gate',
 		'block-patterns.js'
 	),
-	'newspack-ui': path.join( __dirname, 'assets', 'newspack-ui', 'index.js' ),
 };
 
 Object.keys( wpAdminEntries ).forEach( key => {
