@@ -12,17 +12,17 @@ import { __ } from '@wordpress/i18n';
  */
 import Rss from './rss';
 import Plugins from './plugins';
-import Section from '../../../../wizards-section';
+import WizardsTab from '../../../../wizards-tab';
+import WizardSection from '../../../../wizards-section';
 
 function Syndication() {
 	return (
-		<div className="newspack-wizard__sections">
-			<h1>{ __( 'Syndication', 'newspack-plugin' ) }</h1>
-			<Section>
+		<WizardsTab title={ __( 'Syndication', 'newspack-plugin' ) }>
+			<WizardSection>
 				<Rss />
 				<Plugins />
-			</Section>
-		</div>
+			</WizardSection>
+		</WizardsTab>
 	);
 }
 

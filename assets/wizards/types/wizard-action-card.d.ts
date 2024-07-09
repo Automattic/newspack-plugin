@@ -49,8 +49,9 @@ type PluginWizardApiFetchCallback = (
  */
 type PluginCard = {
 	slug: string;
+	actionText?: string | null;
 	editLink?: string;
-	description?: JSX.Element;
+	description?: string | React.ReactNode;
 	title: string;
 	subTitle?: string;
 	statusDescription?: Partial< {
@@ -60,4 +61,7 @@ type PluginCard = {
 	} >;
 	isEnabled?: boolean;
 	isManageable?: boolean;
+	// Toggle card props
+	toggleChecked?: boolean;
+	toggleOnChange?: ( value: boolean ) => void;
 };

@@ -11,10 +11,11 @@ type WizardTab = {
 	label: string;
 	path?: string;
 	sections: {
-		[ k: string ]: { editLink?: string; dependencies?: Record< string, string > } & Record<
-			string,
-			string
-		>;
+		[ k: string ]: {
+			editLink?: string;
+			dependencies?: Record< string, string >;
+			enabled?: Record< string, boolean >;
+		} & Record< string, any >;
 	};
 };
 
@@ -47,6 +48,7 @@ declare global {
 		};
 		newspackSettings: {
 			connections: WizardTab;
+			syndication: WizardTab;
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;

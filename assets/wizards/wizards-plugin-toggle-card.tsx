@@ -16,31 +16,35 @@ import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 
 function WizardsPluginToggleCard( {
 	slug,
-	path,
-	url,
-	editLink,
-	actionText,
-	isToggle = false,
-	activeStatus = 'Configured',
+	// path,
+	// url,
+	// editLink,
+	// actionText,
+	// isToggle = false,
+	// activeStatus = 'Configured',
 	...props
 }: PluginCard ) {
 	const { wizardApiFetch, isFetching, errorMessage } = useWizardApiFetch(
 		`/newspack-settings/connections/plugins/${ slug }`
 	);
-	const [ status, setStatus ] = useState< string | null >( null );
+	const [ statuses, setStatuses ] = useState< Record< string, boolean > | null >( null );
 
-	const isActive = status === 'active';
+	// const { isActive = false } = statuses ?? {};
+
+	function onStatusChange( statuses: Record< string, boolean > ) {
+		setStatuses( statuses );
+	}
 
 	function updatePluginStatus( value: boolean ) {
 		wizardApiFetch(
 			{
-				path: `${ path }/${ value ? 'configure' : 'deactivate' }`,
+				path: `/newspack/v1/plugins/${ slug }/${ value ? 'configure' : 'deactivate' }`,
 				method: 'POST',
 			},
 			{
 				onSuccess( result ) {
 					if ( result ) {
-						setStatus( result.Status );
+						setStatuses( result.Status );
 					}
 				},
 			}
@@ -48,16 +52,18 @@ function WizardsPluginToggleCard( {
 	}
 
 	return (
-		<WizardsPluginCard
-			slug={ slug }
-			path={ path }
-			actionText={ actionText === null && ! isActive ? null : actionText }
-			disabled={ isFetching }
-			error={ errorMessage }
-			toggleChecked={ isFetching ? false : isActive }
-			toggleOnChange={ ( v: boolean ) => updatePluginStatus( v ) }
-			{ ...props }
-		/>
+		<>
+			{ /* <pre>{ JSON.stringify( { statuses }, null, 2 ) }</pre> */ }
+
+			<WizardsPluginCard
+				slug={ slug }
+				onStatusChange={ onStatusChange }
+				// actionText={ actionText === null && ! isActive ? null : actionText }
+				toggleChecked={ isFetching ? false : statuses?.isActive ?? false }
+				toggleOnChange={ ( v: boolean ) => updatePluginStatus( v ) }
+				{ ...props }
+			/>
+		</>
 	);
 }
 
