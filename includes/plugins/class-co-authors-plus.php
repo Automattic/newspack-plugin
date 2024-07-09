@@ -37,6 +37,7 @@ class Co_Authors_Plus {
 		add_filter( 'coauthors_edit_author_cap', [ __CLASS__, 'coauthors_edit_author_cap' ] );
 		add_action( 'admin_init', [ __CLASS__, 'setup_custom_role_and_capability' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'prevent_myaccount_update' ] );
+		add_action( 'admin_menu', [ __CLASS__, 'remove_guest_authors_menu_item' ], PHP_INT_MAX );
 	}
 
 	/**
@@ -102,6 +103,33 @@ class Co_Authors_Plus {
 		}
 
 		\update_option( self::SETTINGS_VERSION_OPTION_NAME, $current_settings_version );
+	}
+
+	/**
+	 * Remove the Guest Authors menu item from the admin menu.
+	 */
+	public static function remove_guest_authors_menu_item() {
+		if ( ! defined( 'NEWSPACK_DISABLE_GUEST_AUTHORS' ) || ! NEWSPACK_DISABLE_GUEST_AUTHORS ) {
+			return;
+		}
+		remove_submenu_page( 'users.php', 'view-guest-authors' );
+		add_submenu_page(
+			'users.php',
+			__( 'Guest Authors', 'newspack-plugin' ),
+			__( 'Guest Authors', 'newspack-plugin' ),
+			'list_users',
+			'newspack-view-guest-authors',
+			[ __CLASS__, 'render_page' ]
+		);
+	}
+
+	/**
+	 * Render the replacement Guest Authors page.
+	 */
+	public static function render_page() {
+		?>
+			<h1><?php echo esc_html__( 'Please use regular WP Users with "Non-Editing Contributor" role.', 'newspack-plugin' ); ?></h1>
+		<?php
 	}
 }
 Co_Authors_Plus::init();
