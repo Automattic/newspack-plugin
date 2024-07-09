@@ -65,9 +65,7 @@ declare global {
 							};
 						};
 						dependencies: Record< string, boolean >;
-						email_cpt: string;
-						salesforce_redirect_url: string;
-						can_use_name_your_price: boolean;
+						postType: string;
 					};
 				};
 			};
