@@ -22,7 +22,7 @@ import WizardsActionCard from '../../../../wizards-action-card';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
 const emailSections = window.newspackSettings.emails.sections;
-const EMAILS = values( emailSections.emails.all );
+const emailsCache = values( emailSections.emails.all );
 const postType = emailSections.emails.postType;
 
 const Emails = () => {
@@ -34,7 +34,7 @@ const Emails = () => {
 		'newspack-settings/emails'
 	);
 
-	const [ emails, setEmails ] = useState( EMAILS );
+	const [ emails, setEmails ] = useState( emailsCache );
 
 	const updateStatus = ( postId: number, status: string ) => {
 		wizardApiFetch(
