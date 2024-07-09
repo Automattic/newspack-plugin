@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -17,15 +17,18 @@ import values from 'lodash/values';
 /**
  * Internal dependencies.
  */
-import { PluginInstaller, Notice } from '../../../../../components/src';
+import { Notice } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
-const EMAILS = values( window.newspackSettings.emails.sections.emails.all );
-const postType = window.newspackSettings.emails.sections.emails.email_cpt;
+const emailSections = window.newspackSettings.emails.sections;
+const EMAILS = values( emailSections.emails.all );
+const postType = emailSections.emails.email_cpt;
 
 const Emails = () => {
-	const [ pluginsReady, setPluginsReady ] = useState( false );
+	const [ pluginsReady, setPluginsReady ] = useState(
+		emailSections.emails.dependencies.newspackNewsletters
+	);
 	const [ error, setError ] = useState< boolean | Error >( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ emails, setEmails ] = useState( EMAILS );
@@ -81,8 +84,7 @@ const Emails = () => {
 	}
 
 	return (
-		<>
-			<pre>{ JSON.stringify( { pluginsReady, emails }, null, 2 ) }</pre>
+		<Fragment>
 			{ emails.map( email => {
 				const isActive = email.status === 'publish';
 				return (
@@ -115,7 +117,7 @@ const Emails = () => {
 					</WizardsActionCard>
 				);
 			} ) }
-		</>
+		</Fragment>
 	);
 };
 

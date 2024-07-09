@@ -79,8 +79,11 @@ class Newspack_Settings extends Wizard {
 				'label'    => __( 'Emails', 'newspack-plugin' ),
 				'sections' => [
 					'emails' => [
-						'all'      => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
-						'postType' => Emails::POST_TYPE,
+						'dependencies' => [
+							'newspackNewsletters' => is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ),
+						],
+						'all'          => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+						'postType'     => Emails::POST_TYPE,
 					],
 				],
 			],
