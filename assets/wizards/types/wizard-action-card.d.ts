@@ -2,11 +2,11 @@
  * Wizard Action Card Props
  */
 type ActionCardProps = Partial< {
-	title: string | JSX.Element;
+	title: string | React.ReactNode;
 	titleLink?: string;
 	href?: string;
-	description: string | JSX.Element | ( () => JSX.Element | string );
-	actionText: JSX.Element | string | null;
+	description: string | React.ReactNode;
+	actionText: React.ReactNode | string | null;
 	badge: string;
 	className: string;
 	indent: string;
@@ -17,12 +17,12 @@ type ActionCardProps = Partial< {
 	hasGreyHeader: boolean;
 	toggleChecked: boolean;
 	toggleOnChange: ( a?: boolean ) => void;
-	actionContent: boolean | JSX.Element | null;
+	actionContent: boolean | React.ReactNode | null;
 	error: string | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
 	isChecked: boolean;
-	children: boolean | JSX.Element | ( () => JSX.Element );
+	children: boolean | React.ReactNode;
 } >;
 
 /**
