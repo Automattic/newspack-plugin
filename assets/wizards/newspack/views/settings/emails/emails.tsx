@@ -5,9 +5,8 @@
 /**
  * WordPress dependencies.
  */
-import apiFetch from '@wordpress/api-fetch';
-import { useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useState, Fragment } from '@wordpress/element';
 
 /**
  * External dependencies.
@@ -18,46 +17,53 @@ import values from 'lodash/values';
  * Internal dependencies.
  */
 import { Notice } from '../../../../../components/src';
+import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import WizardsActionCard from '../../../../wizards-action-card';
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
 const emailSections = window.newspackSettings.emails.sections;
 const EMAILS = values( emailSections.emails.all );
-const postType = emailSections.emails.email_cpt;
+const postType = emailSections.emails.postType;
 
 const Emails = () => {
 	const [ pluginsReady, setPluginsReady ] = useState(
 		emailSections.emails.dependencies.newspackNewsletters
 	);
-	const [ error, setError ] = useState< boolean | Error >( false );
-	const [ inFlight, setInFlight ] = useState( false );
+
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch(
+		'newspack-settings/emails'
+	);
+
 	const [ emails, setEmails ] = useState( EMAILS );
 
 	const updateStatus = ( postId: number, status: string ) => {
-		setError( false );
-		setInFlight( true );
-		apiFetch( {
-			path: `/wp/v2/${ postType }/${ postId }`,
-			method: 'post',
-			data: { status },
-		} )
-			.then( () => {
-				setEmails(
-					emails.map( email => {
-						if ( email.post_id === postId ) {
-							return { ...email, status };
-						}
-						return email;
-					} )
-				);
-			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
+		wizardApiFetch(
+			{
+				path: `/wp/v2/${ postType }/${ postId }`,
+				method: 'POST',
+				data: { status },
+			},
+			{
+				onStart() {
+					resetError();
+				},
+				onSuccess() {
+					setEmails(
+						emails.map( email => {
+							if ( email.post_id === postId ) {
+								return { ...email, status };
+							}
+							return email;
+						} )
+					);
+				},
+			}
+		);
 	};
 
 	if ( false === pluginsReady ) {
 		return (
-			<>
+			<Fragment>
 				<Notice isError>
 					{ __(
 						'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.',
@@ -79,7 +85,7 @@ const Emails = () => {
 						}
 					} }
 				/>
-			</>
+			</Fragment>
 		);
 	}
 
@@ -90,7 +96,7 @@ const Emails = () => {
 				return (
 					<WizardsActionCard
 						key={ email.post_id }
-						disabled={ inFlight }
+						disabled={ isFetching }
 						title={ email.label }
 						titleLink={ email.edit_link }
 						href={ email.edit_link }
@@ -108,9 +114,9 @@ const Emails = () => {
 									notificationLevel: 'info',
 							  } ) }
 					>
-						{ error instanceof Object && (
+						{ errorMessage && (
 							<Notice
-								noticeText={ error?.message ?? __( 'Something went wrong.', 'newspack' ) }
+								noticeText={ errorMessage || __( 'Something went wrong.', 'newspack' ) }
 								isError
 							/>
 						) }
