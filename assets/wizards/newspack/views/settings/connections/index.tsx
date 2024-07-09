@@ -14,9 +14,15 @@ import './style.scss';
 import Plugins from './plugins';
 import Webhooks from './webhooks';
 import Analytics from './analytics';
+import Recaptcha from './recaptcha';
+import Mailchimp from './mailchimp';
+import GoogleOAuth from './google-oauth';
 import CustomEvents from './custom-events';
+
 import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
+
+const { connections } = window.newspackSettings;
 
 function Connections() {
 	return (
@@ -28,12 +34,13 @@ function Connections() {
 
 			{ /* APIs; google */ }
 			<WizardSection title={ __( 'APIs', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
+				{ connections.sections.apis.dependencies?.googleOAuth && <GoogleOAuth /> }
+				<Mailchimp />
 			</WizardSection>
 
 			{ /* reCAPTCHA */ }
 			<WizardSection title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
-				<div className="newspack-card">Coming soon</div>
+				<Recaptcha />
 			</WizardSection>
 
 			{ /* Webhooks */ }

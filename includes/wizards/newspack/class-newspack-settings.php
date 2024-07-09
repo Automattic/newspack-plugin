@@ -7,11 +7,10 @@
 
 namespace Newspack\Wizards\Newspack;
 
-use Newspack\Donations;
 use Newspack\Emails;
-use Newspack\Reader_Revenue_Emails;
+use Newspack\OAuth;
 use Newspack\Wizard;
-use Newspack\Salesforce;
+use Newspack\Reader_Revenue_Emails;
 use Newspack\Everlit_Configuration_Manager;
 use function Newspack\google_site_kit_available;
 
@@ -65,7 +64,11 @@ class Newspack_Settings extends Wizard {
 							'everlit' => Everlit_Configuration_Manager::is_enabled(),
 						],
 					],
-					'apis'         => [],
+					'apis'         => [
+						'dependencies' => [
+							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
+						],
+					],
 					'recaptcha'    => [],
 					'analytics'    => [
 						'editLink'                    => $google_site_kit_url,
