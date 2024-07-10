@@ -1,0 +1,62 @@
+.newspack-ui {
+	.newspack-ui {
+		&__notice {
+			align-items: center;
+			background: var( --newspack-ui-color-neutral-5 );
+			border-left-width: 5px;
+			border-left-style: solid;
+			border-left-color: var( --newspack-ui-color-neutral-50 ); /* stylelint-disable-line */
+			border-radius: var( --newspack-ui-border-radius-s );
+			box-sizing: border-box;
+			color: var( --newspack-ui-color-neutral-90 );
+			display: flex;
+			justify-content: flex-start;
+			margin: var( --newspack-ui-spacer-6 ) 0;
+			padding: var( --newspack-ui-spacer-base ) var( --newspack-ui-spacer-4 );
+
+			> svg {
+				display: block;
+				fill: var( --newspack-ui-color-neutral-50 );
+				flex: 0 0 24px;
+				margin-right: var( --newspack-ui-spacer-base );
+			}
+
+			// Backgrounds & Borders
+			&--success {
+				background: var( --newspack-ui-color-success-0 );
+				border-left-color: var( --newspack-ui-color-success-50 );
+
+				> svg {
+					fill: var( --newspack-ui-color-success-50 );
+				}
+			}
+
+			&--warning {
+				background: var( --newspack-ui-color-warning-0 );
+				border-left-color: var( --newspack-ui-color-warning-40 );
+
+				> svg {
+					fill: var( --newspack-ui-color-warning-40 );
+				}
+			}
+
+			&--error {
+				background: var( --newspack-ui-color-error-0 );
+				border-left-color: var( --newspack-ui-color-error-50 );
+
+				> svg {
+					fill: var( --newspack-ui-color-error-50 );
+				}
+			}
+
+			// Some style resets.
+			> *:first-child {
+				margin-top: 0;
+			}
+
+			> *:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+}
