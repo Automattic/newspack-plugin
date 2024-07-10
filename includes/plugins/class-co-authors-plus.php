@@ -1,7 +1,6 @@
 <?php
 /**
- * Co_Authors_Plus integration class.
- * https://wordpress.org/plugins/co-authors-plus
+ * Co-Authors Plus integration class.
  *
  * @package Newspack
  */
@@ -15,12 +14,9 @@ defined( 'ABSPATH' ) || exit;
  */
 class Co_Authors_Plus {
 	/**
-	 * Custom capability name.
-	 */
-	const ASSIGNABLE_TO_POSTS_CAPABILITY_NAME = 'edit_cap_posts';
-
-	/**
 	 * Custom role name for users who are assignable as post authors but aren't allowed to edit posts.
+	 *
+	 * @var string
 	 */
 	const CONTRIBUTOR_NO_EDIT_ROLE_NAME = 'contributor_no_edit';
 
@@ -34,74 +30,212 @@ class Co_Authors_Plus {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_filter( 'coauthors_edit_author_cap', [ __CLASS__, 'coauthors_edit_author_cap' ] );
-		add_action( 'admin_init', [ __CLASS__, 'setup_custom_role_and_capability' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'prevent_myaccount_update' ] );
-	}
+		if ( defined( 'COAUTHORS_PLUS_VERSION' ) ) {
 
-	/**
-	 * Override the capability required to assign a user as a co-author.
-	 *
-	 * @param string $edit_cap Capability required for a user to be assigned as a co-author.
-	 */
-	public static function coauthors_edit_author_cap( $edit_cap ) {
-		return self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME;
-	}
-
-	/**
-	 * Prevent users from updating their account details in My Account, if they have the custom role.
-	 */
-	public static function prevent_myaccount_update() {
-		$action = filter_input( INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( empty( $action ) || 'save_account_details' !== $action ) {
-			return;
-		}
-
-		$user_id = \get_current_user_id();
-		if ( $user_id <= 0 ) {
-			return;
-		}
-		$user = \get_user_by( 'id', $user_id );
-
-		$is_contributor_no_edit = in_array( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME, $user->roles );
-		if ( $is_contributor_no_edit ) {
-			if ( function_exists( 'wc_add_notice' ) ) {
-				/* translators: %s is the custom role name. */
-				\wc_add_notice( sprintf( __( 'Can\'t update details of a "%s" user.', 'newspack-plugin' ), self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ), 'error' );
+			if ( defined( 'NEWSPACK_DISABLE_CAP_GUEST_AUTHORS' ) && NEWSPACK_DISABLE_CAP_GUEST_AUTHORS ) {
+				\add_filter( 'coauthors_guest_authors_enabled', '__return_false' );
 			}
-			return;
+
+			// Register new role.
+			\add_action( 'admin_init', [ __CLASS__, 'add_role' ] );
+			\add_filter( 'map_meta_cap', [ __CLASS__, 'map_meta_cap' ], 10, 3 );
+
+			// Do not allow guest authors to login.
+			\add_filter( 'wp_authenticate_user', [ __CLASS__, 'wp_authenticate_user' ], 10, 2 );
+
+			// Modify the user profile and user creation forms.
+			\add_action( 'admin_footer', [ __CLASS__, 'admin_footer' ] );
+			\add_filter( 'user_profile_update_errors', [ __CLASS__, 'user_profile_update_errors' ], 10, 3 );
+			\add_action( 'admin_print_scripts-user-new.php', [ __CLASS__, 'admin_footer' ] );
+			\add_action( 'admin_print_scripts-user-edit.php', [ __CLASS__, 'admin_footer' ] );
+
+			// Disable some features from the user profile.
+			\add_filter( 'show_password_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
+			\add_filter( 'wp_is_application_passwords_available_for_user', [ __CLASS__, 'disable_feature' ], 10, 2 );
+			\add_filter( 'allow_password_reset', [ __CLASS__, 'disable_feature' ], 10, 2 );
+			\add_filter( 'woocommerce_current_user_can_edit_customer_meta_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
 		}
 	}
 
 	/**
-	 * Create the custom role and then add custom capability.
+	 * Adds the guest author role.
+	 *
+	 * @return void
 	 */
-	public static function setup_custom_role_and_capability() {
-		$current_settings_version = '1';
+	public static function add_role() {
+
+		$current_settings_version = '2';
+
 		if ( \get_option( self::SETTINGS_VERSION_OPTION_NAME ) === $current_settings_version ) {
 			return;
 		}
 
-		// Create the custom role if it doesn't exist.
-		if ( get_role( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) === null ) {
-			add_role( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.custom_role_add_role
-				self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
-				__( 'Non-Editing Contributor', 'newspack-plugin' ),
-				[
-					self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME => true,
-				]
-			);
-		}
+		\remove_role( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
 
-		$wp_roles = wp_roles();
-		foreach ( $wp_roles->roles as $role_name => $role ) {
-			$role = $wp_roles->get_role( $role_name );
-			if ( $role->has_cap( 'edit_posts' ) || $role_name === self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) {
-				$role->add_cap( self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME );
-			}
-		}
+		\add_role( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.custom_role_add_role
+			self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			__( 'Non-Editing Contributor', 'newspack-plugin' ),
+			[
+				'read' => true,
+				\apply_filters( 'coauthors_edit_author_cap', 'edit_posts' ) => true, // Make sure CAP considers this a role that can author posts.
+			]
+		);
 
 		\update_option( self::SETTINGS_VERSION_OPTION_NAME, $current_settings_version );
 	}
+
+	/**
+	 * Makes sure that users with the 'contributor_no_edit' role can't edit posts.
+	 *
+	 * By default, Co-Authors Plus requires user to have the 'edit_posts' capability to be able to be assigned to posts.
+	 * This filter makes sure that users with the 'contributor_no_edit' role can't edit posts even having that cap.
+	 *
+	 * We are already preventing these users from logging in, so this is just an additional layer for consistency.
+	 *
+	 * @param array  $caps Array of primitive caps that will be checked.
+	 * @param string $cap The meta capability being checked.
+	 * @param int    $user_id The user ID.
+	 * @return array
+	 */
+	public static function map_meta_cap( $caps, $cap, $user_id ) {
+		if ( 'edit_post' !== $cap ) {
+			return $caps;
+		}
+
+		$user_meta = get_userdata( $user_id );
+
+		if ( in_array( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME, $user_meta->roles, true ) ) {
+			$caps = [ 'do_not_allow' ];
+		}
+		return $caps;
+	}
+
+	/**
+	 * Filters user validation to allow empty emails for guest authors
+	 *
+	 * When creating a new user, also automatically generate a username from the display name.
+	 *
+	 * @param WP_Error $errors WP_Error object (passed by reference).
+	 * @param bool     $update Whether this is a user update.
+	 * @param stdClass $user   User object (passed by reference).
+	 * @return WP_Error
+	 */
+	public static function user_profile_update_errors( $errors, $update, $user ) {
+
+		if ( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
+			return $errors;
+		}
+
+		if ( ! empty( $errors->errors['empty_email'] ) ) {
+			$errors->remove( 'empty_email' );
+		}
+
+		if ( ! empty( $errors->errors['user_login'] ) ) {
+			$errors->remove( 'user_login' );
+		}
+
+		// We still don't want users with duplicate emails.
+		if ( ! empty( $errors->errors['email_exists'] ) ) {
+			return $errors;
+		}
+
+		if ( ! $update ) {
+			// For guest authors, the form is modified via JS and we get the display name in the username field.
+			$user->display_name = $user->user_login;
+
+			// Create user name from Display name.
+			$user->user_login = self::generate_username( $user->display_name );
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * Generates a unique username from a display name.
+	 *
+	 * @param string $display_name The user's display name.
+	 * @return string
+	 */
+	public static function generate_username( $display_name ) {
+		$username = \sanitize_user( $display_name, true );
+		$username = \sanitize_title( $username );
+
+		while ( \username_exists( $username ) ) {
+			$username = $username . '-' . \wp_rand( 1, 100 );
+		}
+
+		return $username;
+	}
+
+	/**
+	 * Enqueues the JS that modifies the user profile and user creation forms.
+	 *
+	 * @return void
+	 */
+	public static function admin_footer() {
+		global $pagenow;
+		\wp_enqueue_script(
+			'newspack-co-authors-plus',
+			Newspack::plugin_url() . '/dist/other-scripts/co-authors-plus.js',
+			[ 'jquery' ],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'newspack-co-authors-plus',
+			'guestAuthorRole',
+			[
+				'role'             => self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+				'displayNameLabel' => __( 'Display name', 'newspack-plugin' ),
+				'screen'           => $pagenow === 'user-new.php' ? 'new' : 'edit',
+			]
+		);
+	}
+
+	/**
+	 * A generic callback applied to filters that check if a user has access to a feature, or if a certain field should be displayed in its profile.
+	 *
+	 * These callbacks pass the return of the check as the first argument ant the user or user ID as the second.
+	 *
+	 * @param bool        $result The result of the check.
+	 * @param int|WP_User $user A user ID or user object.
+	 * @return bool
+	 */
+	public static function disable_feature( $result, $user ) {
+		if ( is_int( $user ) ) {
+			$user = \get_user_by( 'id', $user );
+		}
+
+		if ( ! is_a( $user, 'WP_User' ) ) {
+			return $result;
+		}
+
+		if ( in_array( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME, $user->roles, true ) ) {
+			return false;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Filters user authentication to prevent guest authors from logging in.
+	 *
+	 * @param WP_Error|WP_User $user The logged in user or login error.
+	 * @param string           $password The user's password.
+	 * @return WP_Error|WP_User
+	 */
+	public static function wp_authenticate_user( $user, $password ) {
+		if ( ! is_a( $user, 'WP_User' ) ) {
+			return $user;
+		}
+
+		if ( in_array( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME, $user->roles, true ) ) {
+			return new WP_Error( 'guest_authors_cannot_login', __( 'Guest authors cannot login.', 'newspack-plugin' ) );
+		}
+
+		return $user;
+	}
 }
+
 Co_Authors_Plus::init();
