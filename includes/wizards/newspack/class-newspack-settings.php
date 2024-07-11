@@ -7,8 +7,10 @@
 
 namespace Newspack\Wizards\Newspack;
 
+use Newspack\Emails;
 use Newspack\OAuth;
 use Newspack\Wizard;
+use Newspack\Reader_Revenue_Emails;
 use Newspack\Everlit_Configuration_Manager;
 use function Newspack\google_site_kit_available;
 
@@ -77,7 +79,16 @@ class Newspack_Settings extends Wizard {
 				],
 			],
 			'emails'            => [
-				'label' => __( 'Emails', 'newspack-plugin' ),
+				'label'    => __( 'Emails', 'newspack-plugin' ),
+				'sections' => [
+					'emails' => [
+						'dependencies' => [
+							'newspackNewsletters' => is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ),
+						],
+						'all'          => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+						'postType'     => Emails::POST_TYPE,
+					],
+				],
 			],
 			'social'            => [
 				'label' => __( 'Social', 'newspack-plugin' ),

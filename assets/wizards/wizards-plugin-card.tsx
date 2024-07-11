@@ -105,13 +105,14 @@ function WizardsPluginCardButton( {
 /**
  * Wizard Plugin Card component.
  *
- * @param {Object} props Component props.
- * @param {string} props.slug Plugin slug.
- * @param {string} props.title Plugin title.
- * @param {string} props.subTitle Plugin subtitle. String appended to title.
- * @param {string} props.editLink Plugin edit link.
- * @param {string} props.description Plugin description.
- * @param {string} props.statusDescription Plugin status description.
+ * @param props Component props.
+ * @param props.slug Plugin slug.
+ * @param props.title Plugin title.
+ * @param props.subTitle Plugin subtitle. String appended to title.
+ * @param props.editLink Plugin edit link.
+ * @param props.description Plugin description.
+ * @param props.statusDescription Plugin status description.
+ * @param props.onStatusChange Callback invoked when the plugin status changes.
  */
 function WizardsPluginCard( {
 	slug,
@@ -120,9 +121,10 @@ function WizardsPluginCard( {
 	editLink,
 	description,
 	statusDescription,
-}: PluginCard ) {
+	onStatusChange = () => {},
+}: PluginCard & { onStatusChange?: ( statuses: Record< string, boolean > ) => void } ) {
 	const { wizardApiFetch, errorMessage } = useWizardApiFetch(
-		`/newspack-settings/connections/plugins/${ slug }`
+		`/newspack/wizards/plugins/${ slug }`
 	);
 	const [ pluginState, setPluginState ] = hooks.useObjectState( {
 		slug,
@@ -159,6 +161,10 @@ function WizardsPluginCard( {
 			},
 		} );
 	}, [] );
+
+	useEffect( () => {
+		onStatusChange( statuses );
+	}, [ statuses ] );
 
 	function onActivate() {
 		setPluginState( { status: '' } );

@@ -2,25 +2,27 @@
  * Wizard Action Card Props
  */
 type ActionCardProps = Partial< {
-	title: string | JSX.Element;
-	description: string | JSX.Element | ( () => JSX.Element | string );
-	actionText: JSX.Element | string | null;
+	title: string | React.ReactNode;
+	titleLink?: string;
+	href?: string;
+	description: string | React.ReactNode;
+	actionText: React.ReactNode | string | null;
 	badge: string;
 	className: string;
 	indent: string;
 	notification: string;
-	notificationLevel: 'error' | 'warning';
+	notificationLevel: 'error' | 'warning' | 'info';
 	isMedium: boolean;
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
 	toggleChecked: boolean;
-	toggleOnChange: () => void;
-	actionContent: boolean | JSX.Element | null;
+	toggleOnChange: ( a?: boolean ) => void;
+	actionContent: boolean | React.ReactNode | null;
 	error: string | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
 	isChecked: boolean;
-	children: boolean | JSX.Element | ( () => JSX.Element );
+	children: boolean | React.ReactNode;
 } >;
 
 /**
@@ -45,7 +47,7 @@ type PluginWizardApiFetchCallback = (
 type PluginCard = {
 	slug: string;
 	editLink?: string;
-	description?: JSX.Element;
+	description?: JSX.Element | string;
 	title: string;
 	subTitle?: string;
 	statusDescription?: Partial< {
