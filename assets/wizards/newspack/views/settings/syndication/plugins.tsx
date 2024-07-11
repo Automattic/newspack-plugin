@@ -11,14 +11,16 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import WizardsPluginToggleCard from '../../../../wizards-plugin-toggle-card';
+import WizardsPluginCard from '../../../../wizards-plugin-card';
 
-const PLUGINS: Record< string, PluginCard > = {
+const PLUGINS: Record< string, PluginCard & { isConfigurable: boolean; isTogglable: boolean } > = {
 	'publish-to-apple-news': {
 		slug: 'publish-to-apple-news',
 		title: __( 'Apple News', 'newspack-plugin' ),
-		editLink: 'admin.php?page=jetpack#/settings',
-		actionText: __( 'Configure', 'newspack-plugin' ),
+		editLink: 'admin.php?page=apple_news_index',
+		isConfigurable: true,
+		isTogglable: true,
+		// actionText: __( 'Configure', 'newspack-plugin' ),
 		description: __( 'Export and synchronize posts to Apple format', 'newspack-plugin' ),
 	},
 	// distributor: {
@@ -42,7 +44,7 @@ function Plugins() {
 	return (
 		<Fragment>
 			{ Object.keys( PLUGINS ).map( pluginKey => {
-				return <WizardsPluginToggleCard key={ pluginKey } { ...PLUGINS[ pluginKey ] } />;
+				return <WizardsPluginCard key={ pluginKey } { ...PLUGINS[ pluginKey ] } />;
 			} ) }
 		</Fragment>
 	);

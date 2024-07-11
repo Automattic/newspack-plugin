@@ -14,53 +14,62 @@ import { useState } from '@wordpress/element';
 import WizardsPluginCard from './wizards-plugin-card';
 import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 
-function WizardsPluginToggleCard( {
-	slug,
-	// path,
-	// url,
-	// editLink,
-	// actionText,
-	// isToggle = false,
-	// activeStatus = 'Configured',
-	...props
-}: PluginCard ) {
-	const { wizardApiFetch, isFetching, errorMessage } = useWizardApiFetch(
-		`/newspack-settings/connections/plugins/${ slug }`
+function WizardsPluginToggleCard( { slug, ...props }: PluginCard ) {
+	const { wizardApiFetch, errorMessage, isFetching } = useWizardApiFetch(
+		`/newspack/wizards/plugins/${ slug }`
 	);
-	const [ statuses, setStatuses ] = useState< Record< string, boolean > | null >( null );
 
-	// const { isActive = false } = statuses ?? {};
+	const [ isEnabled, setIsEnabled ] = useState< boolean | null >( null );
+	const [ isLoading, setIsLoading ] = useState( isFetching );
 
 	function onStatusChange( statuses: Record< string, boolean > ) {
-		setStatuses( statuses );
+		console.log( 'onStatusChange', statuses );
+		setIsLoading( statuses.isLoading );
+		if ( ! statuses.isLoading && null === isEnabled ) {
+			setIsEnabled( statuses.isSetup );
+		}
 	}
 
-	function updatePluginStatus( value: boolean ) {
-		wizardApiFetch(
+	function updatePluginStatus( activate: boolean ) {
+		if ( isFetching ) {
+			return;
+		}
+		setIsEnabled( ! isEnabled );
+		wizardApiFetch< PluginResponse >(
 			{
-				path: `/newspack/v1/plugins/${ slug }/${ value ? 'configure' : 'deactivate' }`,
+				path: `/newspack/v1/plugins/${ slug }/${ activate ? 'activate' : 'deactivate' }`,
 				method: 'POST',
 			},
 			{
 				onSuccess( result ) {
+					console.log( { result, isActive: result.Status === 'active' && result.Configured } );
 					if ( result ) {
-						setStatuses( result.Status );
+						setIsEnabled( result.Status === 'active' && result.Configured );
 					}
 				},
 			}
 		);
 	}
 
+	const optionalProps: Partial< PluginCard > = {};
+
+	// if ( ! isLoading ) {
+	// 	optionalProps.actionText = __( 'Configure', 'newspack-plugin' );
+	// }
+
 	return (
 		<>
-			{ /* <pre>{ JSON.stringify( { statuses }, null, 2 ) }</pre> */ }
+			<pre>{ JSON.stringify( { isEnabled }, null, 2 ) }</pre>
 
 			<WizardsPluginCard
 				slug={ slug }
+				isStatusPrepended={ false }
 				onStatusChange={ onStatusChange }
-				// actionText={ actionText === null && ! isActive ? null : actionText }
-				toggleChecked={ isFetching ? false : statuses?.isActive ?? false }
-				toggleOnChange={ ( v: boolean ) => updatePluginStatus( v ) }
+				isTogglable
+				// toggleChecked={ isEnabled ?? false }
+				// toggleOnChange={ ( v: boolean ) => updatePluginStatus( v ) }
+				error={ errorMessage }
+				{ ...optionalProps }
 				{ ...props }
 			/>
 		</>

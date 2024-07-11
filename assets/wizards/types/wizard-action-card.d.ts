@@ -3,7 +3,7 @@
  */
 type ActionCardProps = Partial< {
 	title: string | JSX.Element;
-	description: string | JSX.Element | ( () => JSX.Element | string );
+	description: React.ReactNode;
 	actionText: JSX.Element | string | null;
 	badge: string;
 	className: string;
@@ -34,15 +34,22 @@ type ActionCardProps = Partial< {
 type PluginCallbacks = {
 	init: PluginWizardApiFetchCallback;
 	activate: PluginWizardApiFetchCallback;
+	deactivate: PluginWizardApiFetchCallback;
 	install: PluginWizardApiFetchCallback;
+	configure: PluginWizardApiFetchCallback;
 };
+
+/**
+ * Plugin partial response
+ */
+type PluginResponse = { Status: string; Configured: boolean };
 
 /**
  * Plugin Wizard API fetch callback
  */
 type PluginWizardApiFetchCallback = (
-	callbacks?: ApiFetchCallbacks< { Status: string; Configured: boolean } >
-) => Promise< { Status: string; Configured: boolean } >;
+	callbacks?: ApiFetchCallbacks< PluginResponse >
+) => Promise< PluginResponse >;
 
 /**
  * Plugin data type
@@ -64,4 +71,5 @@ type PluginCard = {
 	// Toggle card props
 	toggleChecked?: boolean;
 	toggleOnChange?: ( value: boolean ) => void;
+	isStatusPrepended?: boolean;
 };

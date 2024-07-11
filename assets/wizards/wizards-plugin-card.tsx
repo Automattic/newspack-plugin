@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { sprintf, __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -57,7 +57,9 @@ function WizardsPluginCardButton( {
 	isActive,
 	onActivate,
 	onInstall,
+	onConfigure,
 	isInstalled,
+	isConfigurable,
 	...plugin
 }: {
 	status: string;
@@ -66,8 +68,10 @@ function WizardsPluginCardButton( {
 	isLoading: boolean;
 	isSetup: boolean;
 	isActive: boolean;
+	isConfigurable: boolean;
 	onActivate: () => void;
 	onInstall: () => void;
+	onConfigure: () => void;
 	isInstalled: boolean;
 } ) {
 	if ( plugin.status === 'page-reload' ) {
@@ -96,8 +100,20 @@ function WizardsPluginCardButton( {
 			</Button>
 		);
 	}
-	if ( ! isSetup && plugin.editLink ) {
-		return <a href={ plugin.editLink }>{ __( 'Complete Setup', 'newspack-plugin' ) }</a>;
+	if ( ! isSetup ) {
+		if ( isConfigurable ) {
+			return (
+				<Button isLink onClick={ onConfigure }>
+					{
+						/* translators: %s: Plugin name */
+						sprintf( __( 'Configure %s', 'newspack-plugin' ), plugin.title )
+					}
+				</Button>
+			);
+		}
+		if ( plugin.editLink ) {
+			return <a href={ plugin.editLink }>{ __( 'Complete Setup', 'newspack-plugin' ) }</a>;
+		}
 	}
 	return null;
 }
@@ -122,8 +138,16 @@ function WizardsPluginCard( {
 	description,
 	statusDescription,
 	onStatusChange = () => {},
+	isStatusPrepended = true,
+	isConfigurable,
+	isTogglable,
 	...props
-}: PluginCard & { onStatusChange?: ( statuses: Record< string, boolean > ) => void } ) {
+}: PluginCard & {
+	error?: string | null;
+	onStatusChange?: ( statuses: Record< string, boolean > ) => void;
+	isConfigurable?: boolean;
+	isTogglable?: boolean;
+} ) {
 	const { wizardApiFetch, errorMessage } = useWizardApiFetch(
 		`/newspack/wizards/plugins/${ slug }`
 	);
@@ -148,8 +172,12 @@ function WizardsPluginCard( {
 			fetchHandler( pluginState.slug, undefined, wizardApiFetch, fetchCallbacks ),
 		activate: fetchCallbacks =>
 			fetchHandler( pluginState.slug, 'activate', wizardApiFetch, fetchCallbacks ),
+		deactivate: fetchCallbacks =>
+			fetchHandler( pluginState.slug, 'deactivate', wizardApiFetch, fetchCallbacks ),
 		install: fetchCallbacks =>
 			fetchHandler( pluginState.slug, 'install', wizardApiFetch, fetchCallbacks ),
+		configure: fetchCallbacks =>
+			fetchHandler( pluginState.slug, 'configure', wizardApiFetch, fetchCallbacks ),
 	};
 
 	useEffect( () => {
@@ -164,11 +192,22 @@ function WizardsPluginCard( {
 	}, [] );
 
 	useEffect( () => {
-		console.log( statuses );
 		onStatusChange( statuses );
 	}, [ statuses ] );
 
 	function onActivate() {
+		setPluginState( { status: '' } );
+		on.activate( {
+			onSuccess() {
+				setPluginState( { status: 'page-reload' } );
+			},
+			onFinally() {
+				window.location.reload();
+			},
+		} );
+	}
+
+	function onDeactivate() {
 		setPluginState( { status: '' } );
 		on.activate( {
 			onSuccess() {
@@ -192,6 +231,19 @@ function WizardsPluginCard( {
 		} );
 	}
 
+	function onConfigure() {
+		setPluginState( { status: '' } );
+		on.configure( {
+			onSuccess( update ) {
+				console.log( { update } );
+				setPluginState( {
+					status: update.Status,
+					configured: update.Configured,
+				} );
+			},
+		} );
+	}
+
 	function getDescription() {
 		if ( statuses.isError ) {
 			return __( 'Status: Error!', 'newspack-plugin' );
@@ -199,7 +251,10 @@ function WizardsPluginCard( {
 		if ( statuses.isLoading ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
-		const descriptionSuffix = description ?? '';
+		const descriptionAppend = description ?? '';
+		if ( ! isStatusPrepended ) {
+			return descriptionAppend;
+		}
 		let newDescription = '';
 		if ( ! statuses.isInstalled ) {
 			newDescription =
@@ -219,9 +274,19 @@ function WizardsPluginCard( {
 					// Translators: %s: Plugin description
 					sprintf( __( 'Status: %s', 'newspack-plugin' ), newDescription )
 				}{ ' ' }
-				{ ! statuses.isSetup ? descriptionSuffix : '' }
+				{ ! statuses.isSetup ? descriptionAppend : '' }
 			</>
 		);
+	}
+
+	const conditionalProps: Partial< PluginCard > = {};
+
+	if ( isTogglable ) {
+		conditionalProps.toggleChecked = true;
+		if ( ! statuses.isSetup ) {
+			conditionalProps.toggleOnChange = ( v: boolean ) =>
+				! statuses.isSetup ? onActivate() : onDeactivate();
+		}
 	}
 
 	return (
@@ -236,6 +301,8 @@ function WizardsPluginCard( {
 							editLink,
 							onActivate,
 							onInstall,
+							isConfigurable: true,
+							onConfigure,
 							...statuses,
 							...pluginState,
 						} }
@@ -243,7 +310,7 @@ function WizardsPluginCard( {
 				) : null
 			}
 			isChecked={ statuses.isSetup }
-			error={ errorMessage }
+			error={ props.error ?? errorMessage }
 			isMedium
 			{ ...props }
 		/>
