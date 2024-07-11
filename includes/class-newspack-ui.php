@@ -147,7 +147,7 @@ class Newspack_UI {
 
 			<hr>
 
-			<h2 id="boxes">Notices</h2>
+			<h2 id="notices">Notices</h2>
 
 			<div class="newspack-ui__notice">
 				<div>
