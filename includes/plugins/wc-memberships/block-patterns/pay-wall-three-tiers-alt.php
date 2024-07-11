@@ -87,7 +87,7 @@ $vip_features = [
 					</div>
 					<!-- /wp:group -->
 
-					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Member', 'newspack' ); ?>","width":100,"className":"is-style-outline"} /-->
+					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Member', 'newspack' ); ?>","width":100,"className":"is-style-outline","style":{"border":{"radius":"3px"}}} /-->
 				</div>
 				<!-- /wp:group -->
 
@@ -144,7 +144,7 @@ $vip_features = [
 					</div>
 					<!-- /wp:group -->
 
-					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Patron', 'newspack' ); ?>","width":100} /-->
+					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Patron', 'newspack' ); ?>","width":100,"style":{"border":{"radius":"3px"}}} /-->
 				</div>
 				<!-- /wp:group -->
 
@@ -190,7 +190,7 @@ $vip_features = [
 					</div>
 					<!-- /wp:group -->
 
-					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a VIP', 'newspack' ); ?>","width":100,"className":"is-style-outline"} /-->
+					<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a VIP', 'newspack' ); ?>","width":100,"className":"is-style-outline","style":{"border":{"radius":"3px"}}} /-->
 				</div>
 				<!-- /wp:group -->
 
