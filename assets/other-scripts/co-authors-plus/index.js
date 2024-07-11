@@ -63,6 +63,13 @@ jQuery( document ).ready( function ( $ ) {
 		$( 'tr.user-admin-color-wrap' ).show();
 	}
 
+	// Check for the role query argument for a quick link to add guest authors.
+	const urlParams = new URLSearchParams( window.location.search );
+	const role = urlParams.get( 'role' );
+	if ( role === guestAuthorRole.role ) {
+		$( 'select#role' ).val( role );
+	}
+
 	// Trigger change event on page load.
 	$( 'select#role' ).change();
 } );

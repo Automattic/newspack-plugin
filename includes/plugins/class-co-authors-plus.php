@@ -34,6 +34,7 @@ class Co_Authors_Plus {
 
 			if ( defined( 'NEWSPACK_DISABLE_CAP_GUEST_AUTHORS' ) && NEWSPACK_DISABLE_CAP_GUEST_AUTHORS ) {
 				\add_filter( 'coauthors_guest_authors_enabled', '__return_false' );
+				add_action( 'admin_menu', [ __CLASS__, 'guest_author_menu_replacement' ] );
 			}
 
 			// Register new role.
@@ -74,7 +75,7 @@ class Co_Authors_Plus {
 
 		\add_role( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.custom_role_add_role
 			self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
-			__( 'Non-Editing Contributor', 'newspack-plugin' ),
+			__( 'Guest Author', 'newspack-plugin' ),
 			[
 				'read' => true,
 				\apply_filters( 'coauthors_edit_author_cap', 'edit_posts' ) => true, // Make sure CAP considers this a role that can author posts.
@@ -235,6 +236,37 @@ class Co_Authors_Plus {
 		}
 
 		return $user;
+	}
+
+	/**
+	 * Adds a replacement Guest Authors menu item.
+	 */
+	public static function guest_author_menu_replacement() {
+		add_submenu_page(
+			'users.php',
+			__( 'Guest Authors', 'newspack-plugin' ),
+			__( 'Guest Authors', 'newspack-plugin' ),
+			'list_users',
+			'newspack-view-guest-authors',
+			[ __CLASS__, 'render_guest_authors_replacement_page' ]
+		);
+	}
+
+	/**
+	 * Render the replacement Guest Authors page.
+	 */
+	public static function render_guest_authors_replacement_page() {
+		?>
+			<div class="wrap">
+				<h1><?php echo esc_html__( 'Guest Authors', 'newspack-plugin' ); ?></h1>
+
+				<p><?php echo esc_html__( "Co-Authors-Plus' Guest Authors are disabled in this site. Use the Guest Author user role instead.", 'newspack-plugin' ); ?></p>
+				<p><?php echo esc_html__( 'You can use one of the shortcuts below:', 'newspack-plugin' ); ?></p>
+
+				<a href="<?php echo esc_url( admin_url( 'user-new.php?role=' . self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) ); ?>" class="page-title-action"><?php echo esc_html__( 'Add new Guest Author', 'newspack-plugin' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'users.php?role=' . self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) ); ?>" class="page-title-action"><?php echo esc_html__( 'View all Guest Authors', 'newspack-plugin' ); ?></a>
+			</div>
+		<?php
 	}
 }
 
