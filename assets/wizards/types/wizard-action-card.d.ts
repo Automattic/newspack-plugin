@@ -2,30 +2,32 @@
  * Wizard Action Card Props
  */
 type ActionCardProps = Partial< {
-	title: string | JSX.Element;
-	description: React.ReactNode;
-	actionText: JSX.Element | string | null;
+	title: string | React.ReactNode;
+	titleLink?: string;
+	href?: string;
+	description: string | React.ReactNode;
+	actionText: React.ReactNode | string | null;
 	badge: string;
 	className: string;
 	indent: string;
 	notification: string;
-	notificationLevel: 'error' | 'warning';
+	notificationLevel: 'error' | 'warning' | 'info';
 	isMedium: boolean;
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
-	toggleChecked: any;
-	toggleOnChange: any;
-	actionContent: boolean | JSX.Element | null;
 	error?:
 		| null
 		| string
 		| {
 				errorCode: string;
 		  };
+	toggleChecked: boolean;
+	toggleOnChange: ( a?: boolean ) => void;
+	actionContent: boolean | React.ReactNode | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
 	isChecked: boolean;
-	children: boolean | JSX.Element | ( () => JSX.Element );
+	children: boolean | React.ReactNode;
 } >;
 
 /**
@@ -70,6 +72,6 @@ type PluginCard = {
 	isManageable?: boolean;
 	// Toggle card props
 	toggleChecked?: boolean;
-	toggleOnChange?: ( value: boolean ) => void;
+	toggleOnChange?: ( value?: boolean ) => void;
 	isStatusPrepended?: boolean;
 };

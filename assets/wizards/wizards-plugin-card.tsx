@@ -209,7 +209,7 @@ function WizardsPluginCard( {
 
 	function onDeactivate() {
 		setPluginState( { status: '' } );
-		on.activate( {
+		on.deactivate( {
 			onSuccess() {
 				setPluginState( { status: 'page-reload' } );
 			},
@@ -284,7 +284,7 @@ function WizardsPluginCard( {
 	if ( isTogglable ) {
 		conditionalProps.toggleChecked = true;
 		if ( ! statuses.isSetup ) {
-			conditionalProps.toggleOnChange = ( v: boolean ) =>
+			conditionalProps.toggleOnChange = () =>
 				! statuses.isSetup ? onActivate() : onDeactivate();
 		}
 	}
