@@ -1,3 +1,10 @@
+# [4.5.0](https://github.com/Automattic/newspack-plugin/compare/v4.4.2...v4.5.0) (2024-07-11)
+
+
+### Features
+
+* remove 'Patterns' link from Appearance menu ([#3236](https://github.com/Automattic/newspack-plugin/issues/3236)) ([b1150f5](https://github.com/Automattic/newspack-plugin/commit/b1150f54eee24b07ecc9d083b64b787cefa8e414))
+
 ## [4.4.2](https://github.com/Automattic/newspack-plugin/compare/v4.4.1...v4.4.2) (2024-07-10)
 
 
