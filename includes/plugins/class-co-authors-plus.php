@@ -105,6 +105,10 @@ class Co_Authors_Plus {
 
 		$user_meta = get_userdata( $user_id );
 
+		if ( ! $user_meta ) {
+			return $caps;
+		}
+
 		if ( in_array( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME, $user_meta->roles, true ) ) {
 			$caps = [ 'do_not_allow' ];
 		}
