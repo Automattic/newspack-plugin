@@ -112,7 +112,7 @@ final class Recaptcha {
 	 */
 	public static function register_scripts() {
 		// Styles only apply to the visible v2 widgets.
-		if ( self::can_use_captcha() ) {
+		if ( self::can_use_captcha( 'v2' ) ) {
 			\wp_enqueue_style(
 				self::SCRIPT_HANDLE,
 				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.css',

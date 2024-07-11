@@ -134,6 +134,8 @@ export function hasAuthLink() {
 	return !! ( reader?.email && otpHash );
 }
 
+const authStrategies = [ 'pwd', 'link' ];
+
 /**
  * Start the authentication modal with an optional custom callback.
  *
@@ -299,6 +301,33 @@ export function authenticateOTP( code ) {
 }
 
 /**
+ * Set the reader preferred authentication strategy.
+ *
+ * @param {string} strategy Authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function setAuthStrategy( strategy ) {
+	if ( ! authStrategies.includes( strategy ) ) {
+		throw new Error( 'Invalid authentication strategy' );
+	}
+	setCookie( 'np_auth_strategy', strategy );
+	return strategy;
+}
+
+/**
+ * Get the reader preferred authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function getAuthStrategy() {
+	if ( getOTPHash() ) {
+		return 'otp';
+	}
+	return getCookie( 'np_auth_strategy' );
+}
+
+/**
  * Ensure the client ID cookie is set.
  */
 function fixClientID() {
@@ -393,6 +422,8 @@ const readerActivation = {
 	clearOTPTimer,
 	getOTPTimeRemaining,
 	authenticateOTP,
+	setAuthStrategy,
+	getAuthStrategy,
 	getCaptchaV3Token: window.newspack_grecaptcha
 		? window.newspack_grecaptcha?.getCaptchaV3Token
 		: () => new Promise( res => res( '' ) ), // Empty promise.
