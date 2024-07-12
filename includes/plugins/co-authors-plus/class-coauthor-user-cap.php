@@ -35,6 +35,7 @@ class Coauthor_User_Cap {
 	public static function init() {
 		add_filter( 'coauthors_edit_author_cap', [ __CLASS__, 'coauthors_edit_author_cap' ] );
 		add_action( 'admin_init', [ __CLASS__, 'setup_custom_capability' ] );
+		add_action( 'newspack_before_delete_account', [ __CLASS__, 'before_delete_account' ] );
 	}
 
 	/**
@@ -64,6 +65,27 @@ class Coauthor_User_Cap {
 		}
 
 		\update_option( self::SETTINGS_VERSION_OPTION_NAME, $current_settings_version );
+	}
+
+	/**
+	 * Prevents the Delete Account email to be sent and display an error message to the user
+	 *
+	 * @param int $user_id The user ID trying to delete the account.
+	 * @return void
+	 */
+	public static function before_delete_account( $user_id ) {
+		if ( user_can( $user_id, self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME ) ) {
+			\wp_safe_redirect(
+				\add_query_arg(
+					[
+						'message'  => __( 'It looks like you are an author on this site. Please contact a site adminstrator to get your account deactivated.', 'newspack-plugin' ),
+						'is_error' => true,
+					],
+					\remove_query_arg( WooCommerce_My_Account::DELETE_ACCOUNT_URL_PARAM )
+				)
+			);
+			exit;
+		}
 	}
 }
 

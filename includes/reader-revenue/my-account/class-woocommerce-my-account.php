@@ -204,6 +204,13 @@ class WooCommerce_My_Account {
 			return;
 		}
 
+		/**
+		 * Fires before the account deletion email is sent.
+		 *
+		 * @param int $user_id The user ID of the account being deleted.
+		 */
+		do_action( 'newspack_before_delete_account', $user_id );
+
 		$token      = \wp_generate_password( 43, false, false );
 		$form_nonce = \wp_create_nonce( self::DELETE_ACCOUNT_FORM );
 
