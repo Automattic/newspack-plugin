@@ -10,9 +10,9 @@ namespace Newspack;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Main class.
+ * This class implements a custom role called Guest Authors to be used instead of the regular CO-Authors Plus guest authors.
  */
-class Co_Authors_Plus {
+class Guest_Author_Role {
 	/**
 	 * Custom role name for users who are assignable as post authors but aren't allowed to edit posts.
 	 *
@@ -274,4 +274,4 @@ class Co_Authors_Plus {
 	}
 }
 
-Co_Authors_Plus::init();
+Guest_Author_Role::init();

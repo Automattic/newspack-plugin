@@ -157,7 +157,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-onesignal.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
-		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-co-authors-plus.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-guest-author-role.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-coauthor-user-cap.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
