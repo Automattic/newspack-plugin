@@ -263,7 +263,6 @@ function render_block( $attrs, $content ) {
 							<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
 								<?php Recaptcha::render_recaptcha_v2_container(); ?>
 							<?php endif; ?>
-							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__inputs">
 								<input
 								<?php
@@ -286,6 +285,7 @@ function render_block( $attrs, $content ) {
 									<span class="submit"><?php echo \esc_html( $attrs['label'] ); ?></span>
 								</button>
 							</div>
+							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>

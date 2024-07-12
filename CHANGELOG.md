@@ -1,3 +1,17 @@
+# [4.5.0](https://github.com/Automattic/newspack-plugin/compare/v4.4.2...v4.5.0) (2024-07-11)
+
+
+### Features
+
+* remove 'Patterns' link from Appearance menu ([#3236](https://github.com/Automattic/newspack-plugin/issues/3236)) ([b1150f5](https://github.com/Automattic/newspack-plugin/commit/b1150f54eee24b07ecc9d083b64b787cefa8e414))
+
+## [4.4.2](https://github.com/Automattic/newspack-plugin/compare/v4.4.1...v4.4.2) (2024-07-10)
+
+
+### Bug Fixes
+
+* add credits meta attributes check and dependencies to image block effect hook ([#3230](https://github.com/Automattic/newspack-plugin/issues/3230)) ([b257d2b](https://github.com/Automattic/newspack-plugin/commit/b257d2bfcd6127908c015963c467c596a7cbc89b))
+
 ## [4.4.1](https://github.com/Automattic/newspack-plugin/compare/v4.4.0...v4.4.1) (2024-07-08)
 
 
@@ -5,16 +19,7 @@
 
 * update text domain ([#3222](https://github.com/Automattic/newspack-plugin/issues/3222)) ([ac9da56](https://github.com/Automattic/newspack-plugin/commit/ac9da56d80d1362cc8cc6c5ab0264ce55c2e2ed4))
 
-
-## [4.3.4](https://github.com/Automattic/newspack-plugin/compare/v4.3.3...v4.3.4) (2024-06-27)
-
-
-### Bug Fixes
-
-* variable name > constant ([#3203](https://github.com/Automattic/newspack-plugin/issues/3203)) ([46c5651](https://github.com/Automattic/newspack-plugin/commit/46c5651cf48e88abef3b8f3855b8fd3f5860c2a3))
-
 # [4.4.0](https://github.com/Automattic/newspack-plugin/compare/v4.3.4...v4.4.0) (2024-07-01)
-
 
 ### Bug Fixes
 
@@ -121,6 +126,13 @@
 ### Reverts
 
 * **ia:** back to `trunk` ([69b2ba0](https://github.com/Automattic/newspack-plugin/commit/69b2ba09a222e7c1b84b9cba0b97c36881cda63f))
+
+## [4.3.4](https://github.com/Automattic/newspack-plugin/compare/v4.3.3...v4.3.4) (2024-06-27)
+
+### Bug Fixes
+
+* variable name > constant ([#3203](https://github.com/Automattic/newspack-plugin/issues/3203)) ([46c5651](https://github.com/Automattic/newspack-plugin/commit/46c5651cf48e88abef3b8f3855b8fd3f5860c2a3))
+
 
 ## [4.3.3](https://github.com/Automattic/newspack-plugin/compare/v4.3.2...v4.3.3) (2024-06-24)
 
