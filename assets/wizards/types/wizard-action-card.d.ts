@@ -53,12 +53,19 @@ type PluginWizardApiFetchCallback = (
 	callbacks?: ApiFetchCallbacks< PluginResponse >
 ) => Promise< PluginResponse >;
 
+type PluginCardActionText = {
+	complete?: string;
+	configure?: string;
+	activate?: string;
+	install?: string;
+};
+
 /**
  * Plugin data type
  */
 type PluginCard = {
 	slug: string;
-	actionText?: string | null;
+	actionText?: PluginCardActionText;
 	editLink?: string;
 	description?: string | React.ReactNode;
 	title: string;
@@ -67,6 +74,7 @@ type PluginCard = {
 		uninstalled: string;
 		inactive: string;
 		notConfigured: string;
+		connected: string;
 	} >;
 	isEnabled?: boolean;
 	isManageable?: boolean;
@@ -74,4 +82,10 @@ type PluginCard = {
 	toggleChecked?: boolean;
 	toggleOnChange?: ( value?: boolean ) => void;
 	isStatusPrepended?: boolean;
+	error?: string | null;
+	onStatusChange?: ( statuses: Record< string, boolean > ) => void;
+	isConfigurable?: boolean;
+	isTogglable?: boolean;
+	isMedium?: boolean;
+	disabled?: boolean;
 };
