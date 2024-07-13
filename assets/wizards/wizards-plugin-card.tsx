@@ -18,9 +18,9 @@ import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 /**
  * Helper for managing plugins API requests.
  *
- * @param slug Plugin slug to fetch
- * @param action Endpoint action to request
- * @param apiFetch Wizard API Fetch instance
+ * @param slug      Plugin slug to fetch
+ * @param action    Endpoint action to request
+ * @param apiFetch  Wizard API Fetch instance
  * @param callbacks Wizard API Fetch callbacks
  * @return Wizard API Fetch response
  */
@@ -40,18 +40,19 @@ function fetchHandler(
 /**
  * Wizard Plugin Action Card component.
  *
- * @param props Component props.
- * @param props.isLoading Whether the plugin is performing an API request.
- * @param props.isSetup Whether the plugin is install, active and configured.
- * @param props.isActive Whether the plugin is active.
- * @param props.isInstalled Whether the plugin is installed.
- * @param props.onActivate Callback to activate the plugin.
- * @param props.onInstall Callback to install the plugin.
- * @param props.onConfigure Callback to configure the plugin.
- * @param props.status Plugin status.
- * @param props.title Plugin title.
- * @param props.editLink Plugin edit link.
- * @param props.actionText Plugin action texts.
+ * @param props                Component props.
+ * @param props.isLoading      Whether the plugin is performing an API request.
+ * @param props.isSetup        Whether the plugin is install, active and configured.
+ * @param props.isActive       Whether the plugin is active.
+ * @param props.isInstalled    Whether the plugin is installed.
+ * @param props.isConfigurable Whether the plugin is configurable.
+ * @param props.onActivate     Callback to activate the plugin.
+ * @param props.onInstall      Callback to install the plugin.
+ * @param props.onConfigure    Callback to configure the plugin.
+ * @param props.status         Plugin status.
+ * @param props.title          Plugin title.
+ * @param props.editLink       Plugin edit link.
+ * @param props.actionText     Plugin action texts.
  */
 function WizardsPluginCardButton( {
 	isLoading,
@@ -135,14 +136,18 @@ function WizardsPluginCardButton( {
 /**
  * Wizard Plugin Card component.
  *
- * @param props Component props.
- * @param props.slug Plugin slug.
- * @param props.title Plugin title.
- * @param props.subTitle Plugin subtitle. String appended to title.
- * @param props.editLink Plugin edit link.
- * @param props.description Plugin description.
+ * @param props 				  Component props.
+ * @param props.slug 			  Plugin slug.
+ * @param props.title             Plugin title.
+ * @param props.subTitle          Plugin subtitle. String appended to title.
+ * @param props.editLink          Plugin edit link.
+ * @param props.description       Plugin description.
+ * @param props.onStatusChange    Callback invoked when the plugin status changes.
+ * @param props.isStatusPrepended Should status be prepended to description.
+ * @param props.isConfigurable    Whether the plugin is configurable.
+ * @param props.isTogglable       Whether the plugin is togglable.
+ * @param props.actionText        Action card action text.
  * @param props.statusDescription Plugin status description.
- * @param props.onStatusChange Callback invoked when the plugin status changes.
  */
 function WizardsPluginCard( {
 	slug,
@@ -192,6 +197,7 @@ function WizardsPluginCard( {
 
 	/**
 	 * Set plugin state.
+	 *
 	 * @param callbacksKey Callback key to dictate action to perform.
 	 */
 	function setPluginAction( callbacksKey: keyof PluginCallbacks ) {

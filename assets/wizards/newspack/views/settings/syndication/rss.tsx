@@ -33,7 +33,7 @@ function Rss() {
 			actionText={ actionText }
 			error={ errorMessage }
 			toggleChecked={ apiData.module_enabled_rss }
-			toggleOnChange={ ( value: any ) =>
+			toggleOnChange={ ( value: boolean ) =>
 				apiFetchToggle( { ...apiData, module_enabled_rss: Boolean( value ) }, value )
 			}
 		/>

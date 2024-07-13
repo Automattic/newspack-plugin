@@ -22,7 +22,7 @@ type ActionCardProps = Partial< {
 				errorCode: string;
 		  };
 	toggleChecked: boolean;
-	toggleOnChange: ( a?: boolean ) => void;
+	toggleOnChange: ( a: boolean ) => void;
 	actionContent: boolean | React.ReactNode | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
