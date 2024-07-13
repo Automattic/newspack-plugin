@@ -7,8 +7,8 @@ import { useState, useEffect, createElement } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import { useWizardApiFetch } from './use-wizard-api-fetch';
 import { Waiting } from '../../components/src';
+import { useWizardApiFetch } from './use-wizard-api-fetch';
 
 /**
  * Hook to perform toggle operations using the Wizard API.
@@ -42,17 +42,18 @@ function useWizardApiFetchToggle< T >( {
 	/**
 	 * Toggle function for the Wizard API fetch.
 	 *
+	 * @param dataToSend Data to send to endpoint.
 	 * @param isToggleOn If set method will default to POST, otherwise GET.
 	 */
-	function apiFetchToggle( data?: T, isToggleOn?: boolean ) {
-		const method = typeof isToggleOn === 'boolean' ? 'POST' : 'GET';
+	function apiFetchToggle( dataToSend?: T, isToggleOn?: boolean ) {
+		const method = typeof isToggleOn === 'boolean' && isToggleOn ? 'POST' : 'GET';
 
 		const options: ApiFetchOptions = {
 			path,
 			method,
 		};
-		if ( data ) {
-			options.data = data;
+		if ( dataToSend ) {
+			options.data = dataToSend;
 		}
 		wizardApiFetch< T >( options, {
 			onSuccess: setApiData,
@@ -74,9 +75,9 @@ function useWizardApiFetchToggle< T >( {
 		actionText: isFetching ? createElement( Waiting ) : actionText,
 		apiData,
 		apiFetchToggle,
-		isFetching,
-		errorMessage,
 		description: isFetching ? __( 'Loading…', 'newspack-plugin' ) : description,
+		errorMessage,
+		isFetching,
 	};
 }
 
