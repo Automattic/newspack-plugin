@@ -6,6 +6,8 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import MetaPixel from '../../../../engagement/views/social/meta-pixel';
+import TwitterPixel from '../../../../engagement/views/social/twitter-pixel';
 
 /**
  * Internal dependencies
@@ -20,6 +22,8 @@ function Social() {
 
 			<Section>
 				<Publicize />
+				<MetaPixel />
+				<TwitterPixel />
 			</Section>
 		</div>
 	);
