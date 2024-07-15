@@ -14,6 +14,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { WizardError } from '../../../../errors';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { Button, Grid, Notice, TextControl, utils } from '../../../../../components/src';
+import { ERROR_MESSAGES } from './constants';
 
 /**
  * Validate GA4 Measurement ID.
@@ -51,10 +52,7 @@ function CustomEvents() {
 		if ( ! isValidGA4MeasurementID( ga4Credentials.measurement_id ) ) {
 			setError(
 				new WizardError(
-					__(
-						'You need a valid Measurement ID (e.g. "G-ABCDE12345") to activate Newspack Custom Events.',
-						'newspack-plugin'
-					),
+					ERROR_MESSAGES.CUSTOM_EVENTS.INVALID_MEASUREMENT_ID,
 					'ga4_invalid_measurement_id'
 				)
 			);
@@ -63,10 +61,7 @@ function CustomEvents() {
 		if ( ! ga4Credentials.measurement_protocol_secret ) {
 			setError(
 				new WizardError(
-					__(
-						'You need a valid Measurement API Secret to activate Newspack Custom Events.',
-						'newspack-plugin'
-					),
+					ERROR_MESSAGES.CUSTOM_EVENTS.INVALID_MEASUREMENT_PROTOCOL_SECRET,
 					'ga4_invalid_measurement_protocol_secret'
 				)
 			);

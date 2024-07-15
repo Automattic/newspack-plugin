@@ -1,4 +1,25 @@
 /**
+ * reCAPTCHA state params
+ */
+type RecaptchaVersions = 'v2_invisible' | 'v3';
+type RecaptchaData = {
+	site_key: string;
+	threshold: string;
+	use_captcha: boolean;
+	site_secret: string;
+	version: RecaptchaVersions | '';
+};
+
+/**
+ * OAuth payload
+ */
+type OAuthData = {
+	user_basic_info?: { email: string; has_refresh_token: boolean };
+	username?: string;
+	error?: Error;
+};
+
+/**
  * Webhook actions data type.
  */
 type WebhookActions = 'edit' | 'delete' | 'view' | 'toggle' | 'new' | null;

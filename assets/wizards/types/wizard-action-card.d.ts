@@ -2,42 +2,71 @@
  * Wizard Action Card Props
  */
 type ActionCardProps = Partial< {
-	title: string | JSX.Element;
-	description: string | JSX.Element | ( () => JSX.Element | string );
-	actionText: JSX.Element | string | null;
+	title: string | React.ReactNode;
+	titleLink?: string;
+	href?: string;
+	description: string | React.ReactNode;
+	actionText: React.ReactNode | string | null;
 	badge: string;
 	className: string;
 	indent: string;
 	notification: string;
-	notificationLevel: 'error' | 'warning';
+	notificationLevel: 'error' | 'warning' | 'info';
 	isMedium: boolean;
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
 	toggleChecked: boolean;
-	toggleOnChange: () => void;
+	toggleOnChange: ( a?: boolean ) => void;
 	actionContent: boolean | JSX.Element | null;
 	error: Error | string | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
 	isChecked: boolean;
-	children: boolean | JSX.Element | ( () => JSX.Element );
+	children: boolean | React.ReactNode;
 } >;
+
+/**
+ * Plugin callbacks for install, activate and init states
+ */
+type PluginCallbacks = {
+	init: PluginWizardApiFetchCallback;
+	activate: PluginWizardApiFetchCallback;
+	install: PluginWizardApiFetchCallback;
+};
+
+/**
+ * Plugin Wizard API fetch callback
+ */
+type PluginWizardApiFetchCallback = (
+	callbacks?: ApiFetchCallbacks< { Status: string; Configured: boolean } >
+) => Promise< { Status: string; Configured: boolean } >;
+
+/**
+ * Plugin card action texts
+ */
+type PluginCardActionText = {
+	complete?: string;
+	configure?: string;
+	activate?: string;
+	install?: string;
+};
 
 /**
  * Plugin data type
  */
 type PluginCard = {
-	actionText?: JSX.Element | string | null;
-	path: string;
 	slug: string;
+	actionText?: PluginCardActionText;
 	editLink?: string;
-	description?:
-		| string
-		| ( ( errorMessage: string | null, isFetching: boolean, status: string | null ) => string );
-	name: string;
-	url?: string;
-	status?: string;
 	badge?: string;
-	indent?: string;
-	error?: string | null | Error;
+	description?: JSX.Element | string;
+	title: string;
+	subTitle?: string;
+	statusDescription?: Partial< {
+		uninstalled: string;
+		inactive: string;
+		notConfigured: string;
+	} >;
+	isEnabled?: boolean;
+	isManageable?: boolean;
 };

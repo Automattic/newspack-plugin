@@ -7,6 +7,18 @@ declare module 'react' {
 	}
 }
 
+type WizardTab = {
+	label: string;
+	path?: string;
+	sections: {
+		[ k: string ]: {
+			editLink?: string;
+			dependencies?: Record< string, string >;
+			enabled?: Record< string, boolean >;
+		} & Record< string, any >;
+	};
+};
+
 declare global {
 	interface Window {
 		newspackDashboard: {
@@ -35,14 +47,27 @@ declare global {
 			};
 		};
 		newspackSettings: {
-			connections: {
-				label: string;
-				path?: string;
+			social: WizardTab;
+			connections: WizardTab;
+			emails: WizardTab & {
 				sections: {
-					[ k: string ]: { editLink?: string; dependencies?: Record< string, string > } & Record<
-						string,
-						string
-					>;
+					emails: {
+						all: {
+							[ str: string ]: {
+								label: string;
+								description: string;
+								post_id: number;
+								edit_link: string;
+								subject: string;
+								from_name: string;
+								from_email: string;
+								reply_to_email: string;
+								status: string;
+							};
+						};
+						dependencies: Record< string, boolean >;
+						postType: string;
+					};
 				};
 			};
 		};

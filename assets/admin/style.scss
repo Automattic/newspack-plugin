@@ -26,6 +26,12 @@ h1 {
 	margin-block: 0 2.5rem;
 }
 
+/**
+ * Utils
+ */
+.gray-700 {
+	color: var(--np-color-wp-gray-700);
+}
 .newspack-wizard {
 
 	.newspack-wizard__loader {

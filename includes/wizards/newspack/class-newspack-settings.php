@@ -7,7 +7,12 @@
 
 namespace Newspack\Wizards\Newspack;
 
+use Newspack\Emails;
+use Newspack\OAuth;
 use Newspack\Wizard;
+use Newspack\Reader_Revenue_Emails;
+use Newspack\Everlit_Configuration_Manager;
+use function Newspack\google_site_kit_available;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,20 +48,47 @@ class Newspack_Settings extends Wizard {
 	 * @return [] 
 	 */
 	public function get_local_data() {
+		$google_site_kit_url = google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' );
 		return [
 			'connections'       => [
 				'label'    => __( 'Connections', 'newspack-plugin' ),
 				'path'     => '/',
 				'sections' => [
-					'plugins'      => [],
-					'apis'         => [],
+					'plugins'      => [
+						'editLink' => [
+							'everlit'         => 'admin.php?page=everlit_settings',
+							'jetpack'         => 'admin.php?page=jetpack#/settings',
+							'google-site-kit' => $google_site_kit_url,
+						],
+						'enabled'  => [
+							'everlit' => Everlit_Configuration_Manager::is_enabled(),
+						],
+					],
+					'apis'         => [
+						'dependencies' => [
+							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
+						],
+					],
 					'recaptcha'    => [],
-					'analytics'    => [],
+					'analytics'    => [
+						'editLink'                    => $google_site_kit_url,
+						'measurement_id'              => get_option( 'ga4_measurement_id', '' ),
+						'measurement_protocol_secret' => get_option( 'ga4_measurement_protocol_secret', '' ),
+					],
 					'customEvents' => $this->sections['custom-events']->get_data(),
 				],
 			],
 			'emails'            => [
-				'label' => __( 'Emails', 'newspack-plugin' ),
+				'label'    => __( 'Emails', 'newspack-plugin' ),
+				'sections' => [
+					'emails' => [
+						'dependencies' => [
+							'newspackNewsletters' => is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ),
+						],
+						'all'          => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
+						'postType'     => Emails::POST_TYPE,
+					],
+				],
 			],
 			'social'            => [
 				'label' => __( 'Social', 'newspack-plugin' ),
