@@ -74,3 +74,12 @@ type ModalComponentProps = {
  * Google Analytics 4 credentials Type.
  */
 type Ga4Credentials = Record< string, string >;
+
+/** Syndication */
+/**
+ * RSS API data
+ */
+type RssData = {
+	module_enabled_rss: boolean;
+	'module_enabled_media-partners': boolean;
+};

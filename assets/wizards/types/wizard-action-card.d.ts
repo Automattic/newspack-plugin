@@ -15,9 +15,15 @@ type ActionCardProps = Partial< {
 	isMedium: boolean;
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
+	error?:
+		| null
+		| string
+		| {
+				errorCode: string;
+		  };
 	toggleChecked: boolean;
-	toggleOnChange: ( a?: boolean ) => void;
-	actionContent: boolean | JSX.Element | null;
+	toggleOnChange: ( a: boolean ) => void;
+	actionContent: boolean | React.ReactNode | null;
 	error: Error | string | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
@@ -31,15 +37,29 @@ type ActionCardProps = Partial< {
 type PluginCallbacks = {
 	init: PluginWizardApiFetchCallback;
 	activate: PluginWizardApiFetchCallback;
+	deactivate: PluginWizardApiFetchCallback;
 	install: PluginWizardApiFetchCallback;
+	configure: PluginWizardApiFetchCallback;
 };
+
+/**
+ * Plugin partial response
+ */
+type PluginResponse = { Status: string; Configured: boolean };
 
 /**
  * Plugin Wizard API fetch callback
  */
 type PluginWizardApiFetchCallback = (
-	callbacks?: ApiFetchCallbacks< { Status: string; Configured: boolean } >
-) => Promise< { Status: string; Configured: boolean } >;
+	callbacks?: ApiFetchCallbacks< PluginResponse >
+) => Promise< PluginResponse >;
+
+type PluginCardActionText = {
+	complete?: string;
+	configure?: string;
+	activate?: string;
+	install?: string;
+};
 
 /**
  * Plugin card action texts
@@ -59,14 +79,25 @@ type PluginCard = {
 	actionText?: PluginCardActionText;
 	editLink?: string;
 	badge?: string;
-	description?: JSX.Element | string;
+	description?: string | React.ReactNode;
 	title: string;
 	subTitle?: string;
 	statusDescription?: Partial< {
 		uninstalled: string;
 		inactive: string;
 		notConfigured: string;
+		connected: string;
 	} >;
 	isEnabled?: boolean;
 	isManageable?: boolean;
+	// Toggle card props
+	toggleChecked?: boolean;
+	toggleOnChange?: ( value?: boolean ) => void;
+	isStatusPrepended?: boolean;
+	error?: string | null;
+	onStatusChange?: ( statuses: Record< string, boolean > ) => void;
+	isConfigurable?: boolean;
+	isTogglable?: boolean;
+	isMedium?: boolean;
+	disabled?: boolean;
 };
