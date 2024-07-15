@@ -54,13 +54,6 @@ type PluginWizardApiFetchCallback = (
 	callbacks?: ApiFetchCallbacks< PluginResponse >
 ) => Promise< PluginResponse >;
 
-type PluginCardActionText = {
-	complete?: string;
-	configure?: string;
-	activate?: string;
-	install?: string;
-};
-
 /**
  * Plugin card action texts
  */

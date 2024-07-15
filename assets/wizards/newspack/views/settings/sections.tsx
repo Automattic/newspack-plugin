@@ -16,7 +16,6 @@ type SectionKeys = keyof typeof settingsTabs;
 
 const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = {
 	connections: Connections,
-	// emails: Emails,
 	social: Social,
 	emails: Emails,
 	// social: Social,
