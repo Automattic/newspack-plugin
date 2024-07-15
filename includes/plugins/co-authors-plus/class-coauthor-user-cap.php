@@ -25,7 +25,7 @@ class Coauthor_User_Cap {
 	 * Option name to mark the version of the settings. If the implementation details
 	 * change, the expected option value should be updated to trigger a reset of the settings.
 	 */
-	const SETTINGS_VERSION_OPTION_NAME = 'newsroomnz_coauthors_plus_tweaks_settings_version';
+	const SETTINGS_VERSION_OPTION_NAME = 'newspack_coauthors_plus_settings_version';
 
 	/**
 	 * Initializes the class.
