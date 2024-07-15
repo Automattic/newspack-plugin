@@ -19,7 +19,6 @@ function Publicize() {
 				'newspack-plugin'
 			) }
 			actionText={ { complete: __( 'Configure', 'newspack-plugin' ) } }
-			// handoff="jetpack"
 			editLink="admin.php?page=jetpack#/sharing"
 		/>
 	);
