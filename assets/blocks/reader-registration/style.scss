@@ -190,16 +190,6 @@
 			pointer-events: none;
 		}
 
-		.newspack-registration__main {
-			.newspack-ui__button {
-				display: none !important;
-
-				&.newspack-ui__button--loading {
-					display: inline-flex !important;
-				}
-			}
-		}
-
 		button[type='submit'] {
 			position: relative;
 
@@ -225,6 +215,16 @@
 				width: var(--size);
 				position: absolute;
 				left: calc( 50% - ( var(--size) / 2 ) );
+			}
+		}
+
+		.newspack-registration__main {
+			.newspack-ui__button {
+				display: none !important;
+
+				&.newspack-ui__button--loading {
+					display: inline-flex !important;
+				}
 			}
 		}
 	}
@@ -255,5 +255,14 @@
 		@media screen and ( min-width: 600px ) {
 			padding-right: 0;
 		}
+	}
+}
+
+@keyframes spin {
+	from {
+		transform: rotate( 0deg );
+	}
+	to {
+		transform: rotate( 360deg );
 	}
 }
