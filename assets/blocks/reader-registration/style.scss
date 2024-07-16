@@ -85,6 +85,14 @@
 		}
 	}
 
+	& &__main {
+		.newspack-ui {
+			button {
+				font-family: inherit;
+			}
+		}
+	}
+
 	& &__title {
 		font-size: var( --newspack-ui-font-size-l );
 		line-height: var( --newspack-ui-line-height-l );
@@ -162,6 +170,7 @@
 	}
 
 	.newspack-ui__box--success {
+		.block-editor-block-list__layout,
 		.wp-block-newspack-reader-registration {
 			font-weight: 600;
 			margin: var( --newspack-ui-spacer-2 ) 0;
@@ -178,6 +187,10 @@
 			> :last-child {
 				margin-bottom: 0;
 			}
+		}
+
+		.wp-block-list {
+			text-align: initial;
 		}
 	}
 
