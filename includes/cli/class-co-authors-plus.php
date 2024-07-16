@@ -294,7 +294,7 @@ class Co_Authors_Plus {
 				WP_CLI::warning( sprintf( 'No term found for user %d.', $user_id ) );
 			}
 
-			$author_slug = str_replace( 'cap-', '', $guest_term->slug );
+			$author_slug = preg_replace( '/^cap-/', '', $guest_term->slug );
 
 			if ( self::$live ) {
 				if ( $wp_user_term ) {
