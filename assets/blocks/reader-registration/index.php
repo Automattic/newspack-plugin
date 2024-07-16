@@ -263,6 +263,7 @@ function render_block( $attrs, $content ) {
 								/>
 								<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--loading">
 									<span><?php echo \esc_html( $attrs['label'] ); ?></span>
+									<span class="submit"><?php echo \esc_html( $attrs['label'] ); ?></span>
 								</button>
 							</div>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
