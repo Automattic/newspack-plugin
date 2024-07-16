@@ -260,6 +260,7 @@ function render_block( $attrs, $content ) {
 									disabled
 									<?php endif; ?>
 									type="submit"
+									class="newspack-ui__button newspack-ui__button--primary"
 								>
 									<span class="submit"><?php echo \esc_html( $attrs['label'] ); ?></span>
 								</button>

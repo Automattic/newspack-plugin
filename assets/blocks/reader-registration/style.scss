@@ -217,16 +217,6 @@
 				left: calc( 50% - ( var(--size) / 2 ) );
 			}
 		}
-
-		.newspack-registration__main {
-			.newspack-ui__button {
-				display: none !important;
-
-				&.newspack-ui__button--loading {
-					display: inline-flex !important;
-				}
-			}
-		}
 	}
 
 	&--hidden,
