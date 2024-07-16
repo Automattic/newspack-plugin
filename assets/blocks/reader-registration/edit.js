@@ -390,13 +390,13 @@ export default function ReaderRegistrationEdit( {
 				) }
 				{ editedState === 'registration' && (
 					<>
-						<div className="newspack-registration__icon" />
+						<span className="newspack-registration__icon" />
 						<div { ...innerBlocksProps } />
 					</>
 				) }
 				{ editedState === 'login' && (
 					<>
-						<div className="newspack-registration__icon" />
+						<span className="newspack-registration__icon" />
 						<RichText
 							align="center"
 							onChange={ value => setAttributes( { signedInLabel: value } ) }

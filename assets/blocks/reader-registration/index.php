@@ -201,7 +201,7 @@ function render_block( $attrs, $content ) {
 	<div class="newspack-registration <?php echo esc_attr( get_block_classes( $attrs ) ); ?>">
 		<?php if ( $registered ) : ?>
 			<div class="newspack-registration__registration-success">
-				<div class="newspack-registration__icon"></div>
+				<span class="newspack-registration__icon"></span>
 				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
@@ -314,11 +314,11 @@ function render_block( $attrs, $content ) {
 				</div>
 			</form>
 			<div class="newspack-registration__registration-success newspack-registration--hidden">
-				<div class="newspack-registration__icon"></div>
+				<span class="newspack-registration__icon"></span>
 				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 			<div class="newspack-registration__login-success newspack-registration--hidden">
-				<div class="newspack-registration__icon"></div>
+				<span class="newspack-registration__icon"></span>
 				<?php echo \wp_kses_post( $success_login_markup ); ?>
 			</div>
 		<?php endif; ?>
