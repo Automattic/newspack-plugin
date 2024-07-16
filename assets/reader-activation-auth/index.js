@@ -59,10 +59,13 @@ window.newspackRAS.push( readerActivation => {
 					}
 				}
 			}
-			if ( redirect ) {
+			if ( redirect !== '#' ) {
 				callback = () => {
 					window.location.href = redirect;
 				};
+			} else {
+				// Set account URL after logging in.
+				ev.target.href = newspack_ras_config.account_url;
 			}
 			openAuthModal( { callback } );
 		}

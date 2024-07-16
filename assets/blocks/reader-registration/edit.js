@@ -221,7 +221,7 @@ export default function ReaderRegistrationEdit( {
 					<p>
 						{ sprintf(
 							// translators: %s is either 'enabled' or 'disabled'.
-							__( 'reCAPTCHA v3 is currently %s.', 'newspack-plugin' ),
+							__( 'reCAPTCHA is currently %s.', 'newspack-plugin' ),
 							newspack_blocks.has_recaptcha
 								? __( 'enabled', 'newspack-plugin' )
 								: __( 'disabled', 'newspack-plugin' )
@@ -230,7 +230,7 @@ export default function ReaderRegistrationEdit( {
 					{ ! newspack_blocks.has_recaptcha && (
 						<p>
 							{ __(
-								"It's highly recommended that you enable reCAPTCHA v3 protection to prevent spambots from using this form!",
+								"It's highly recommended that you enable reCAPTCHA protection to prevent spambots from using this form!",
 								'newspack-plugin'
 							) }
 						</p>

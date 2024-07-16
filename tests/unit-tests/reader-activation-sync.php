@@ -185,4 +185,44 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
 	}
+
+	/**
+	 * Test that ESP syncing is disabled on newspackstaging sites automatically.
+	 */
+	public function test_staging_mode_esp_sync_deactivation() {
+		/**
+		 * Force site URL to a newspackstaging.com URL.
+		 *
+		 * @param string $site_url The site url.
+		 * @return string Modified $site_url.
+		 */
+		function newspack_test_filter_site_url_for_staging( $site_url ) {
+			return 'example.newspackstaging.com';
+		}
+
+		/**
+		 * Force site URL to example.com.
+		 *
+		 * @param string $site_url The site url.
+		 * @return string Modified $site_url.
+		 */
+		function newspack_test_filter_site_url_for_live( $site_url ) {
+			return 'example.com';
+		}
+
+		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be enabled by default' );
+
+		add_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
+		$this->assertFalse( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be disabled by default on newspackstaging.com sites' );
+		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
+
+		add_filter( 'site_url', 'newspack_test_filter_site_url_for_live' );
+		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be enabled by default on non-newspackstaging.com sites' );
+		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_live' );
+
+		define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
+		add_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
+		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync deactivation can be bypassed with a constant' );
+		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
+	}
 }

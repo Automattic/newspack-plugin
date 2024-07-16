@@ -239,7 +239,9 @@ function render_block( $attrs, $content ) {
 					?>
 					<div class="newspack-registration__main">
 						<div>
-							<?php Reader_Activation::render_third_party_auth(); ?>
+							<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
+								<?php Recaptcha::render_recaptcha_v2_container(); ?>
+							<?php endif; ?>
 							<div class="newspack-registration__inputs">
 								<input
 								<?php
@@ -251,21 +253,18 @@ function render_block( $attrs, $content ) {
 									placeholder="<?php echo \esc_attr( $attrs['placeholder'] ); ?>"
 								/>
 								<?php Reader_Activation::render_honeypot_field( $attrs['placeholder'] ); ?>
-								<input
+								<button
 								<?php
 								if ( $is_admin_preview ) :
 									?>
 									disabled
 									<?php endif; ?>
 									type="submit"
-									class="newspack-ui__button newspack-ui__button--primary"
-									value="<?php echo \esc_attr( $attrs['label'] ); ?>"
-								/>
-								<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--loading">
-									<span><?php echo \esc_html( $attrs['label'] ); ?></span>
+								>
 									<span class="submit"><?php echo \esc_html( $attrs['label'] ); ?></span>
 								</button>
 							</div>
+							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__response <?php echo ( empty( $message ) ) ? 'newspack-registration--hidden' : null; ?>">
 								<?php if ( ! empty( $message ) ) : ?>
 									<p><?php echo \esc_html( $message ); ?></p>
@@ -402,8 +401,7 @@ function process_form() {
 
 	// reCAPTCHA test.
 	if ( Recaptcha::can_use_captcha() ) {
-		$captcha_token  = isset( $_REQUEST['captcha_token'] ) ? \sanitize_text_field( $_REQUEST['captcha_token'] ) : '';
-		$captcha_result = Recaptcha::verify_captcha( $captcha_token );
+		$captcha_result = Recaptcha::verify_captcha();
 		if ( \is_wp_error( $captcha_result ) ) {
 			return send_form_response( $captcha_result );
 		}
