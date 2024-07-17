@@ -39,6 +39,9 @@ class Coauthor_User_Cap {
 
 		add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
 		add_action( 'edit_user_profile_update', [ __CLASS__, 'edit_user_profile_update' ] );
+
+		add_filter( 'views_users', [ __CLASS__, 'add_custom_role_filter' ] );
+		add_filter( 'users_list_table_query_args', [ __CLASS__, 'filter_users_table' ] );
 	}
 
 	/**
@@ -145,6 +148,80 @@ class Coauthor_User_Cap {
 			</table>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Gets a list of roles that have the edit_posts cap
+	 *
+	 * @return array
+	 */
+	private static function get_roles_with_edit_posts() {
+		$wp_roles = wp_roles();
+		$excluded_roles = [];
+		foreach ( $wp_roles->roles as $role_name => $role ) {
+			$role = $wp_roles->get_role( $role_name );
+			if ( $role->has_cap( 'edit_posts' ) ) {
+				$excluded_roles[] = $role_name;
+			}
+		}
+		return $excluded_roles;
+	}
+
+	/**
+	 * Add custom role filter.
+	 *
+	 * @param array $views The user views.
+	 */
+	public static function add_custom_role_filter( $views ) {
+
+		$count_users = ! wp_is_large_user_count();
+		$count_label = '';
+		$current = ! empty( $_REQUEST['has_cap_edit_posts'] ); //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( $count_users ) {
+			$users = new \WP_User_Query(
+				[
+					'fields'       => 'ID',
+					'capability'   => self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME,
+					'role__not_in' => self::get_roles_with_edit_posts(),
+				]
+			);
+			$count = $users->get_total();
+			$count_label = sprintf( '<span class="count">(%s)</span>', $count );
+		}
+
+		$views[ self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME ] = sprintf(
+			'<a %s href="%s">%s %s</a>',
+			$current ? ' class="current"' : '',
+			esc_url(
+				add_query_arg(
+					[
+						'has_cap_edit_posts' => 1,
+						'role'               => null,
+					]
+				)
+			),
+			__( 'Non Editing Contributors', 'newspack-plugin' ),
+			$count_label
+		);
+
+		return $views;
+	}
+
+	/**
+	 * Filters the users table
+	 *
+	 * @param array $args The User Query args.
+	 * @return array
+	 */
+	public static function filter_users_table( $args ) {
+
+		if ( ! empty( $_REQUEST['has_cap_edit_posts'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$args['capability'] = self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME;
+			$args['role__not_in'] = self::get_roles_with_edit_posts();
+		}
+
+		return $args;
 	}
 }
 
