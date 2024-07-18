@@ -219,7 +219,7 @@ function WizardsPluginCard( {
 				} );
 			},
 			onFinally() {
-				if ( isPluginStateUpdate ) {
+				if ( isPluginStateUpdate && ! errorMessage ) {
 					window.location.reload();
 				}
 				if ( editLink && callbacksKey === 'configure' ) {
