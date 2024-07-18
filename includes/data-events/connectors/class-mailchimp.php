@@ -44,6 +44,7 @@ class Mailchimp extends Connector {
 			Data_Events::register_handler( [ __CLASS__, 'order_completed' ], 'order_completed' );
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_changed' );
+			Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
 		}
 	}
 
