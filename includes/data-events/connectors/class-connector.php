@@ -119,4 +119,17 @@ abstract class Connector {
 
 		static::put( $contact );
 	}
+
+	/**
+	 * Handle a user deletion.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function reader_deleted( $timestamp, $data, $client_id ) {
+		if ( true === \Newspack\Reader_Activation::get_setting( 'sync_esp_delete' ) ) {
+			return Newspack_Newsletters_Contacts::delete( $data['user_id'] );
+		}
+	}
 }

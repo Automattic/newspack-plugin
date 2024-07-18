@@ -39,6 +39,7 @@ class Mailchimp extends Connector {
 			'mailchimp' === \Newspack_Newsletters::service_provider()
 		) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
+			Data_Events::register_handler( [ __CLASS__, 'reader_deleted' ], 'reader_deleted' );
 			Data_Events::register_handler( [ __CLASS__, 'reader_logged_in' ], 'reader_logged_in' );
 			Data_Events::register_handler( [ __CLASS__, 'order_completed' ], 'order_completed' );
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
