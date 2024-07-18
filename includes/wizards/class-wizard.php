@@ -276,7 +276,7 @@ abstract class Wizard {
 			if ( ! class_exists( $section_class ) ) {
 				wp_die( '<pre>' . esc_html( $section_class ) . '</pre> class does not exist.' );
 			}
-			$this->sections[ $section_slug ] = new $section_class();
+			$this->sections[ $section_slug ] = new $section_class( [ 'wizard_slug' => $this->slug ] );
 		}
 	}
 }

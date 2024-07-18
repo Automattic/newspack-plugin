@@ -5,16 +5,16 @@ import { PAGE_NAMESPACE } from '../constants';
 import { TextControl } from '../../../../../components/src';
 import WizardsToggleHeaderCard from '../../../../wizards-toggle-header-card';
 
-const MetaPixel = () => {
+const XPixel = () => {
 	return (
 		<WizardsToggleHeaderCard< PixelData >
-			title={ __( 'Meta Pixel', 'newspack-plugin' ) }
-			namespace={ `${ PAGE_NAMESPACE }/social/pixels/meta` }
+			title={ __( 'X Pixel', 'newspack-plugin' ) }
+			namespace={ `${ PAGE_NAMESPACE }/social/pixel/x` }
 			description={ __(
-				'Add the Meta pixel (formerly known as Facebook pixel) to your site.',
+				'Add the X pixel (formerly known as Twitter pixel) to your site.',
 				'newspack-plugin'
 			) }
-			path="/newspack/v1/wizard/newspack-settings/social/meta_pixel"
+			path="/newspack/v1/wizard/newspack-settings/social/twitter_pixel"
 			defaultValue={ {
 				active: false,
 				pixel_id: '',
@@ -29,7 +29,7 @@ const MetaPixel = () => {
 				[
 					'pixel_id',
 					{
-						callback: 'isNonEmptyNumber',
+						callback: 'isNonEmptyString',
 					},
 				],
 			] }
@@ -42,7 +42,7 @@ const MetaPixel = () => {
 					}
 					help={ createInterpolateElement(
 						__(
-							'The Meta Pixel ID. You only need to add the number, not the full code. Example: 123456789123456789. You can get this information <linkToFb>here</linkToFb>.',
+							'The X Pixel ID. You only need to add the number, not the full code. Example: 123456789123456789. You can get this information <linkToFb>here</linkToFb>.',
 							'newspack-plugin'
 						),
 						{
@@ -63,4 +63,4 @@ const MetaPixel = () => {
 	);
 };
 
-export default MetaPixel;
+export default XPixel;

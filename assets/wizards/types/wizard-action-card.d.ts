@@ -3,8 +3,8 @@
  */
 type ActionCardProps = Partial< {
 	title: string | React.ReactNode;
-	titleLink?: string;
-	href?: string;
+	titleLink: string;
+	href: string;
 	description: string | React.ReactNode;
 	actionText: React.ReactNode | string | null;
 	badge: string;
@@ -15,12 +15,6 @@ type ActionCardProps = Partial< {
 	isMedium: boolean;
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
-	error?:
-		| null
-		| string
-		| {
-				errorCode: string;
-		  };
 	toggleChecked: boolean;
 	toggleOnChange: ( a: boolean ) => void;
 	actionContent: boolean | React.ReactNode | null;
@@ -94,3 +88,14 @@ type PluginCard = {
 	isMedium?: boolean;
 	disabled?: boolean;
 };
+
+/**
+ * Toggle Header Card props
+ */
+type ToggleHeaderCardProps< T > = {
+	path: `/newspack/v${ string }`;
+	namespace: string;
+	children: React.ReactNode;
+	defaultValue: T;
+	fieldValidationMap: Array< [ keyof T, Record< string, ( v: any ) => string > ] >;
+} & ActionCardProps;
