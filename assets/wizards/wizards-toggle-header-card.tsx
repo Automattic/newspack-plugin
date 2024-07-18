@@ -6,8 +6,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
-import { useEffect, useState } from '@wordpress/element';
+import { Fragment, useEffect, useState, useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -24,8 +23,9 @@ function validationCallbacks( { setError }: { setError: ( value: WizardErrorType
 	return {
 		/**
 		 * Check if the value is a non-empty number
+		 *
 		 * @param value String value to validate
-		 * @return boolean
+		 * @return true if string is all numbers, false otherwise
 		 */
 		isIntegerId( value: string ) {
 			const trimmedValue = value.trim();
@@ -38,7 +38,7 @@ function validationCallbacks( { setError }: { setError: ( value: WizardErrorType
 				);
 				return false;
 			}
-			if ( trimmedValue !== '0' ) {
+			if ( trimmedValue === '0' ) {
 				setError(
 					new WizardError(
 						__( 'Value cannot be zero!', 'newspack-plugin' ),
@@ -49,6 +49,12 @@ function validationCallbacks( { setError }: { setError: ( value: WizardErrorType
 			}
 			return trimmedValue.length > 0 && Number( trimmedValue ) > 0;
 		},
+		/**
+		 * Check if the value is a non-empty string
+		 *
+		 * @param value String value to validate
+		 * @return true if string is non-empty, false otherwise
+		 */
 		isId( value: string ) {
 			if ( /^[a-zA-Z0-9]+$/.test( value.trim() ) ) {
 				return true;
@@ -75,6 +81,8 @@ function validationCallbacks( { setError }: { setError: ( value: WizardErrorType
  * @param props.defaultValue       Default value and schema for storage
  * @param props.fieldValidationMap Array of field id and validation callback
  * @param props.renderProp         Render prop for the card children
+ * @param props.onToggle           Callback for the toggle
+ * @param props.onChecked          Callback for the checked state
  */
 const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 	title,
@@ -106,53 +114,65 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 		);
 	}, [] );
 
-	const updateSettings = ( data: T, isToggleSave = false ) => {
-		resetError();
+	const updateSettings = useCallback(
+		( data: T, isToggleSave = false ) => {
+			resetError();
 
-		if ( ! isToggleSave ) {
-			for ( const [ field, validate ] of fieldValidationMap ) {
-				if ( validate.dependsOn ) {
-					const [ [ key, value ] ] = Object.entries( validate.dependsOn );
-					if ( settingsUpdates[ key as keyof T ] !== value ) {
-						continue;
+			if ( ! isToggleSave ) {
+				for ( const [ field, validate ] of fieldValidationMap ) {
+					if ( validate.dependsOn ) {
+						const [ [ key, value ] ] = Object.entries( validate.dependsOn );
+						if ( settingsUpdates[ key as keyof T ] !== value ) {
+							continue;
+						}
 					}
-				}
-				if ( typeof validate.callback === 'string' ) {
-					if ( ! fieldValidations[ validate.callback ]( settingsUpdates[ field ] ) ) {
-						return;
-					}
-				} else if ( typeof validate.callback === 'function' ) {
-					const validationError = validate.callback( settingsUpdates[ field ] );
-					if ( validationError ) {
-						setError( new WizardError( validationError, `invalid_${ field.toString() }` ) );
-						return;
+					if ( typeof validate.callback === 'string' ) {
+						if ( ! fieldValidations[ validate.callback ]( settingsUpdates[ field ] ) ) {
+							return;
+						}
+					} else if ( typeof validate.callback === 'function' ) {
+						const validationError = validate.callback( settingsUpdates[ field ] );
+						if ( validationError ) {
+							setError( new WizardError( validationError, `invalid_${ field.toString() }` ) );
+							return;
+						}
 					}
 				}
 			}
-		}
 
-		wizardApiFetch< T >(
-			{
-				path,
-				method: 'POST',
-				data,
-				updateCacheMethods: [ 'GET' ],
-			},
-			{
-				onSuccess: ( res: T ) => {
-					setSettings( res );
-					setSettingsUpdates( res );
+			wizardApiFetch< T >(
+				{
+					path,
+					method: 'POST',
+					data,
+					updateCacheMethods: [ 'GET' ],
 				},
-			}
-		);
-	};
+				{
+					onSuccess: ( res: T ) => {
+						setSettings( res );
+						setSettingsUpdates( res );
+					},
+				}
+			);
+		},
+		[ fieldValidationMap, fieldValidations, resetError, settingsUpdates, wizardApiFetch ]
+	);
 
-	const renderCard = ( renderCallback: ( a: any ) => React.ReactNode ) => {
+	const renderCard = (
+		renderCallback: ( a: {
+			updates: T;
+			settings: T;
+			isFetching?: boolean;
+			setSettingsUpdates: React.Dispatch< React.SetStateAction< T > >;
+		} ) => React.ReactNode
+	) => {
 		const isChecked = onChecked( settingsUpdates );
 		return (
 			<WizardsActionCard
 				title={ title }
-				description={ description }
+				description={
+					isFetching && ! isChecked ? __( 'Loading…', 'newspack-plugin' ) : description
+				}
 				hasGreyHeader={ isChecked }
 				actionContent={
 					isChecked && (
@@ -174,12 +194,13 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 				} }
 				toggleChecked={ isChecked }
 			>
-				{ isChecked && renderCallback( { settingsUpdates, setSettingsUpdates, settings } ) }
+				{ isChecked &&
+					renderCallback( { updates: settingsUpdates, setSettingsUpdates, settings } ) }
 			</WizardsActionCard>
 		);
 	};
 
-	return renderCard( ( { settingsUpdates, isFetching } ) => (
+	return renderCard( () => (
 		<Fragment>
 			<Grid noMargin rowGap={ 16 } columns={ 1 }>
 				{ renderProp( { settingsUpdates, setSettingsUpdates, isFetching } ) }
