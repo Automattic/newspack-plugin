@@ -41,6 +41,7 @@ const XPixel = () => {
 						),
 						{
 							linkToFb: (
+								/* eslint-disable-next-line jsx-a11y/anchor-has-content */
 								<a
 									href="https://www.facebook.com/ads/manager/pixel/facebook_pixel"
 									target="_blank"
