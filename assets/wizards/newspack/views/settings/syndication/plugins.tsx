@@ -17,7 +17,7 @@ const PLUGINS: Record< string, PluginCard > = {
 	'publish-to-apple-news': {
 		slug: 'publish-to-apple-news',
 		title: __( 'Apple News', 'newspack-plugin' ),
-		editLink: 'admin.php?page=apple_news_index',
+		editLink: 'admin.php?page=apple-news-options',
 		isConfigurable: true,
 		description: __( 'Export and synchronize posts to Apple format', 'newspack-plugin' ),
 	},
