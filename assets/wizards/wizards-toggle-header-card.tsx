@@ -1,4 +1,8 @@
 /**
+ * Wizards Toggle Header Card Component. Uses render props pattern to allow for custom card content that can update state in card.
+ */
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -13,57 +17,65 @@ import WizardsActionCard from './wizards-action-card';
 import WizardError from './errors/class-wizard-error';
 import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 
-type ToggleHeaderCardProps< T > = {
-	title: string;
-	description: string;
-	namespace: string;
-	path: string;
-	defaultValue: T;
-	fieldValidationMap: Array<
-		[
-			keyof T,
-			{
-				callback: 'isNonEmptyNumber' | 'isNonEmptyString' | ( ( v: any ) => string );
-				dependsOn?: { [ k in keyof T ]?: string };
-			}
-		]
-	>;
-	renderProp: ( props: {
-		settingsUpdates: T;
-		setSettingsUpdates: React.Dispatch< React.SetStateAction< T > >;
-		isFetching: boolean;
-	} ) => React.ReactNode;
-};
-
+/**
+ * A few helper validation callbacks. Allows consuming components to define validation callbacks by string i.e. 'isNonEmptyString'
+ */
 function validationCallbacks( { setError }: { setError: ( value: WizardErrorType ) => void } ) {
 	return {
-		isNonEmptyNumber( value: string ) {
-			if ( ! value || isNaN( parseInt( value ) ) ) {
+		/**
+		 * Check if the value is a non-empty number
+		 * @param value String value to validate
+		 * @return boolean
+		 */
+		isIntegerId( value: string ) {
+			const trimmedValue = value.trim();
+			if ( ! /^[0-9]+$/.test( trimmedValue ) ) {
 				setError(
 					new WizardError(
-						__( 'Please enter a valid number.', 'newspack-plugin' ),
-						`invalid_${ value }`
+						__( 'Value may only contain numbers!', 'newspack-plugin' ),
+						'invalid_value_number'
 					)
 				);
 				return false;
 			}
-			return true;
+			if ( trimmedValue !== '0' ) {
+				setError(
+					new WizardError(
+						__( 'Value cannot be zero!', 'newspack-plugin' ),
+						'invalid_value_number'
+					)
+				);
+				return false;
+			}
+			return trimmedValue.length > 0 && Number( trimmedValue ) > 0;
 		},
-		isNonEmptyString( value: string ) {
-			if ( ! value ) {
-				setError(
-					new WizardError(
-						__( 'Please enter a valid value.', 'newspack-plugin' ),
-						`invalid_${ value }`
-					)
-				);
-				return false;
+		isId( value: string ) {
+			if ( /^[a-zA-Z0-9]+$/.test( value.trim() ) ) {
+				return true;
 			}
-			return true;
+			setError(
+				new WizardError(
+					__( 'Value may only contain numbers and letters.', 'newspack-plugin' ),
+					'invalid_value_string'
+				)
+			);
+			return false;
 		},
 	};
 }
 
+/**
+ * Wizard Toggle Header Card Component
+ *
+ * @param props                    Wizard Toggle Header Card Component props
+ * @param props.title              Title of the card
+ * @param props.description        Card description
+ * @param props.namespace          Namespace for the wizard API
+ * @param props.path               Path for the wizard API requests
+ * @param props.defaultValue       Default value and schema for storage
+ * @param props.fieldValidationMap Array of field id and validation callback
+ * @param props.renderProp         Render prop for the card children
+ */
 const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 	title,
 	description,
@@ -72,11 +84,15 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 	defaultValue,
 	fieldValidationMap,
 	renderProp,
-}: ToggleHeaderCardProps< T > ) => {
+	onToggle = ( active, data ) => ( { ...data, active } ),
+	onChecked = ( data: T ) => data.active,
+}: WizardsToggleHeaderCardProps< T > ) => {
 	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } =
 		useWizardApiFetch( namespace );
 	const [ settings, setSettings ] = useState< T >( { ...defaultValue } );
 	const [ settingsUpdates, setSettingsUpdates ] = useState< T >( { ...defaultValue } );
+
+	const fieldValidations = validationCallbacks( { setError } );
 
 	useEffect( () => {
 		wizardApiFetch< T >(
@@ -90,8 +106,6 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 		);
 	}, [] );
 
-	const validations = validationCallbacks( { setError } );
-
 	const updateSettings = ( data: T, isToggleSave = false ) => {
 		resetError();
 
@@ -104,10 +118,10 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 					}
 				}
 				if ( typeof validate.callback === 'string' ) {
-					if ( ! validations[ validate.callback ]( settingsUpdates[ field ] ) ) {
+					if ( ! fieldValidations[ validate.callback ]( settingsUpdates[ field ] ) ) {
 						return;
 					}
-				} else {
+				} else if ( typeof validate.callback === 'function' ) {
 					const validationError = validate.callback( settingsUpdates[ field ] );
 					if ( validationError ) {
 						setError( new WizardError( validationError, `invalid_${ field.toString() }` ) );
@@ -126,7 +140,6 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 			},
 			{
 				onSuccess: ( res: T ) => {
-					console.log( { res } );
 					setSettings( res );
 					setSettingsUpdates( res );
 				},
@@ -134,11 +147,7 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 		);
 	};
 
-	const renderCard = (
-		onToggle: ( a: boolean, d: T ) => T,
-		onChecked: ( a: T ) => boolean,
-		renderCallback: ( a: any ) => React.ReactNode
-	) => {
+	const renderCard = ( renderCallback: ( a: any ) => React.ReactNode ) => {
 		const isChecked = onChecked( settingsUpdates );
 		return (
 			<WizardsActionCard
@@ -170,17 +179,13 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 		);
 	};
 
-	return renderCard(
-		( active, settingsUpdates ) => ( { ...settingsUpdates, active } ),
-		( data: T ) => data.active,
-		( { settingsUpdates, isFetching } ) => (
-			<Fragment>
-				<Grid noMargin rowGap={ 16 } columns={ 1 }>
-					{ renderProp( { settingsUpdates, setSettingsUpdates, isFetching } ) }
-				</Grid>
-			</Fragment>
-		)
-	);
+	return renderCard( ( { settingsUpdates, isFetching } ) => (
+		<Fragment>
+			<Grid noMargin rowGap={ 16 } columns={ 1 }>
+				{ renderProp( { settingsUpdates, setSettingsUpdates, isFetching } ) }
+			</Grid>
+		</Fragment>
+	) );
 };
 
 export default WizardsToggleHeaderCard;

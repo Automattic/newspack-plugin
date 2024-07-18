@@ -21,15 +21,9 @@ const MetaPixel = () => {
 			} }
 			fieldValidationMap={ [
 				[
-					'active',
-					{
-						callback: value => '',
-					},
-				],
-				[
 					'pixel_id',
 					{
-						callback: 'isNonEmptyNumber',
+						callback: 'isIntegerId',
 					},
 				],
 			] }

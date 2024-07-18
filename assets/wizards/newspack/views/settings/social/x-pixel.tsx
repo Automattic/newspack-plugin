@@ -14,22 +14,16 @@ const XPixel = () => {
 				'Add the X pixel (formerly known as Twitter pixel) to your site.',
 				'newspack-plugin'
 			) }
-			path="/newspack/v1/wizard/newspack-settings/social/twitter_pixel"
+			path="/newspack/v1/wizard/newspack-settings/social/x_pixel"
 			defaultValue={ {
 				active: false,
 				pixel_id: '',
 			} }
 			fieldValidationMap={ [
 				[
-					'active',
-					{
-						callback: value => '',
-					},
-				],
-				[
 					'pixel_id',
 					{
-						callback: 'isNonEmptyString',
+						callback: 'isId',
 					},
 				],
 			] }

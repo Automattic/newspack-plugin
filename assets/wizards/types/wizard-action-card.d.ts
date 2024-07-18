@@ -90,12 +90,30 @@ type PluginCard = {
 };
 
 /**
- * Toggle Header Card props
+ * Wizard Toggle Header Card Props
  */
-type ToggleHeaderCardProps< T > = {
-	path: `/newspack/v${ string }`;
+type WizardsToggleHeaderCardProps< T > = {
+	title: string;
+	description: string;
 	namespace: string;
-	children: React.ReactNode;
+	path: string;
 	defaultValue: T;
-	fieldValidationMap: Array< [ keyof T, Record< string, ( v: any ) => string > ] >;
-} & ActionCardProps;
+	fieldValidationMap: Array<
+		[
+			keyof T,
+			{
+				callback?: 'isIntegerId' | 'isId' | ( ( v: any ) => string );
+				dependsOn?: { [ k in keyof T ]?: string };
+			}
+		]
+	>;
+	renderProp: ( props: {
+		settingsUpdates: T;
+		setSettingsUpdates: React.Dispatch< React.SetStateAction< T > >;
+		isFetching: boolean;
+	} ) => React.ReactNode;
+	/** Optional prop to override conditions for toggling. Default uses `active` prop to dictate if toggled on/off */
+	onToggle?: ( active: boolean, data: T ) => T;
+	/** Optional prop to override conditions for isToggled. Default uses `active` prop to dictate if toggled on/off */
+	onChecked?: ( data: T ) => boolean;
+};
