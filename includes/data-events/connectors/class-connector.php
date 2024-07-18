@@ -9,6 +9,7 @@ namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Newspack_Newsletters;
 use Newspack\WooCommerce_Connection;
+use Newspack_Newsletters_Contacts;
 
 defined( 'ABSPATH' ) || exit;
 
