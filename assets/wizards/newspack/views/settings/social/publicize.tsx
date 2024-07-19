@@ -18,7 +18,10 @@ function Publicize() {
 				"Publicize makes it easy to share your site's posts on several social media networks automatically when you publish a new post.",
 				'newspack-plugin'
 			) }
-			actionText={ { complete: __( 'Configure', 'newspack-plugin' ) } }
+			actionText={ {
+				complete: __( 'Configure', 'newspack-plugin' ),
+				activate: __( 'Activate Jetpack', 'newspack-plugin' ),
+			} }
 			editLink="admin.php?page=jetpack#/sharing"
 		/>
 	);
