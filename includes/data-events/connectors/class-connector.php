@@ -9,6 +9,7 @@ namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Newspack_Newsletters;
 use Newspack\WooCommerce_Connection;
+use Newspack_Newsletters_Contacts;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -116,6 +117,50 @@ abstract class Connector {
 		if ( ! $contact ) {
 			return;
 		}
+
+		static::put( $contact );
+	}
+
+	/**
+	 * Handle a user deletion.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function reader_deleted( $timestamp, $data, $client_id ) {
+		if ( true === \Newspack\Reader_Activation::get_setting( 'sync_esp_delete' ) ) {
+			return Newspack_Newsletters_Contacts::delete( $data['user_id'] );
+		}
+	}
+
+	/**
+	 * Handle a a new network added in the Newspack Network plugin.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function network_new_reader( $timestamp, $data, $client_id ) {
+		$user_id = $data['user_id'];
+		$registration_site = $data['registration_site'];
+
+		$contact = WooCommerce_Connection::get_contact_from_customer( new \WC_Customer( $user_id ) );
+
+		if ( ! $contact ) {
+			return;
+		}
+
+		// Ensure email is set as the user probably won't have a billing email.
+		if ( ! isset( $contact['email'] ) ) {
+			$contact['email'] = $user->user_email;
+		}
+
+		if ( empty( $contact['metadata'] ) ) {
+			$contact['metadata'] = [];
+		}
+
+		$contact['metadata']['network_registration_site'] = $registration_site;
 
 		static::put( $contact );
 	}

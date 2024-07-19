@@ -37,12 +37,14 @@ class ActiveCampaign extends Connector {
 			'active_campaign' === \Newspack_Newsletters::service_provider()
 		) {
 			Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
+			Data_Events::register_handler( [ __CLASS__, 'reader_deleted' ], 'reader_deleted' );
 			Data_Events::register_handler( [ __CLASS__, 'reader_logged_in' ], 'reader_logged_in' );
 			Data_Events::register_handler( [ __CLASS__, 'order_completed' ], 'order_completed' );
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_changed' );
 			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
 			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
+			Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
 		}
 	}
 
