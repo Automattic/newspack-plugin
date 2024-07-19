@@ -1753,6 +1753,11 @@ final class Reader_Activation {
 			]
 		);
 
+		// Check if a user with this login exists.
+		if ( \username_exists( $user_data['user_login'] ) ) {
+			$user_data['user_login'] = $user_data['user_login'] . '-' . \wp_generate_password( 4, false );
+		}
+
 		/*
 		 * Filters the user_data used to register a new RAS reader account.
 		 * See https://developer.wordpress.org/reference/functions/wp_insert_user/ for supported args.
