@@ -9,7 +9,6 @@ namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Logger;
 use Newspack\Data_Events;
-use Newspack\Mailchimp_API;
 use Newspack\Newspack_Newsletters;
 use Newspack\Reader_Activation;
 
@@ -79,11 +78,11 @@ class Mailchimp extends Connector {
 	/**
 	 * Update a Mailchimp contact
 	 *
-	 * @param array $contact Contact info to sync to ESP without lists.
-	 *
+	 * @param array  $contact Contact info to sync to ESP without lists.
+	 * @param string $context Context of the update for logging purposes.
 	 * @return array|WP_Error response body or error.
 	 */
-	public static function put( $contact ) {
+	protected static function put( $contact, $context ) {
 		$audience_id = self::get_audience_id();
 		if ( ! $audience_id ) {
 			return;
@@ -95,7 +94,7 @@ class Mailchimp extends Connector {
 
 		$contact['metadata']['status'] = self::get_default_reader_status();
 
-		return \Newspack_Newsletters_Contacts::upsert( $contact, $audience_id );
+		return \Newspack_Newsletters_Contacts::upsert( $contact, $audience_id, false, $context );
 	}
 }
 new Mailchimp();

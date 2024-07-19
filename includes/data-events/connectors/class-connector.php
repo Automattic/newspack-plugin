@@ -51,7 +51,7 @@ abstract class Connector {
 			'metadata' => $metadata,
 		];
 
-		static::put( $contact );
+		static::put( $contact, 'RAS Reader registration' );
 	}
 
 	/**
@@ -75,7 +75,7 @@ abstract class Connector {
 
 		$contact = WooCommerce_Connection::get_contact_from_customer( $customer );
 
-		static::put( $contact );
+		static::put( $contact, 'RAS Reader login' );
 	}
 
 	/**
@@ -97,7 +97,7 @@ abstract class Connector {
 			return;
 		}
 
-		static::put( $contact );
+		static::put( $contact, 'RAS Order completed' );
 	}
 
 	/**
@@ -118,7 +118,7 @@ abstract class Connector {
 			return;
 		}
 
-		static::put( $contact );
+		static::put( $contact, 'RAS Woo Subscription updated' );
 	}
 
 	/**
@@ -130,7 +130,7 @@ abstract class Connector {
 	 */
 	public static function reader_deleted( $timestamp, $data, $client_id ) {
 		if ( true === \Newspack\Reader_Activation::get_setting( 'sync_esp_delete' ) ) {
-			return Newspack_Newsletters_Contacts::delete( $data['user_id'] );
+			return Newspack_Newsletters_Contacts::delete( $data['user_id'], 'RAS Reader deleted' );
 		}
 	}
 
@@ -162,6 +162,6 @@ abstract class Connector {
 
 		$contact['metadata']['network_registration_site'] = $registration_site;
 
-		static::put( $contact );
+		static::put( $contact, 'RAS Newspack Network: user propagated from another site in the network' );
 	}
 }
