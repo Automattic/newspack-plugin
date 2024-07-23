@@ -24,7 +24,7 @@ function Analytics() {
 				editLink: analytics.editLink,
 				slug: 'google-site-kit',
 				title: __( 'Google Analytics', 'newspack-plugin' ),
-				actionText: __( 'View', 'newspack-plugin' ),
+				actionText: { complete: __( 'View', 'newspack-plugin' ) },
 			} }
 		/>
 	);
