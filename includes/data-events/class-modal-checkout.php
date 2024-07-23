@@ -152,6 +152,10 @@ final class Modal_Checkout {
 	public static function checkout_attempt( $order ) {
 		$order_data = \Newspack\Data_Events\Utils::get_order_data( $order->get_id(), true );
 
+		if ( empty( $order_data ) ) {
+			return;
+		}
+
 		$data = [
 			'action'     => self::FORM_SUBMISSION,
 			'order_id'   => $order->get_id(),
