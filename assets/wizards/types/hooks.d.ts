@@ -1,9 +1,14 @@
 /**
+ * API Method types
+ */
+type ApiMethods = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+/**
  * useWizardApiFetch hook types
  */
 interface ApiFetchOptions {
 	path: string;
-	method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+	method?: ApiMethods;
 	/** Data to send along with request */
 	data?: any;
 	/** Display simplified loading status during request */
@@ -15,7 +20,7 @@ interface ApiFetchOptions {
 	/** Update a specific cacheKey, requires `{ [path]: method }` format */
 	updateCacheKey?: { [ k: string ]: string };
 	/** Will purge and replace cache keys matching method. Well suited for endpoints where only the `method` changes */
-	updateCacheMethods?: ( 'GET' | 'POST' | 'PUT' | 'DELETE' )[];
+	updateCacheMethods?: ApiMethods[];
 }
 
 /**
@@ -44,5 +49,5 @@ type WpFetchError = Error & {
 type WizardData = {
 	error: WizardApiError | null;
 } & {
-	[ key: string ]: { [ k in 'GET' | 'POST' | 'PUT' | 'DELETE' ]?: Record< string, any > | null };
+	[ key: string ]: { [ k in ApiMethods ]?: Record< string, any > | null };
 };
