@@ -174,8 +174,6 @@ class WooCommerce_Connection {
 					} else {
 						$acc[] = $subscription_id;
 					}
-
-					return $acc;
 				}
 				return $acc;
 			},
