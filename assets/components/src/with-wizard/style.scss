@@ -7,9 +7,11 @@
 
 // Reset Padding of the Admin Page
 
-.toplevel_page_newspack-dashboard:not( .menu-top ),
-.toplevel_page_newspack:not( .menu-top ),
+.toplevel_page_newspack-dashboard:not(.menu-top),
+.toplevel_page_newspack:not(.menu-top),
+body[class*='toplevel_page_newspack-']:not(.menu-top),
 body[class*='newspack_page_newspack-'],
+body[class*='toplevel_page_advertising-'],
 body[class*='admin_page_newspack-'] {
 	background: white;
 
@@ -21,11 +23,11 @@ body[class*='admin_page_newspack-'] {
 		padding-bottom: 220px;
 		min-height: 100vh;
 
-		@media screen and ( min-width: 783px ) {
+		@media screen and (min-width: 783px) {
 			padding-bottom: 202px;
 		}
 
-		@media screen and ( min-width: 1128px ) {
+		@media screen and (min-width: 1128px) {
 			padding-bottom: 168px;
 		}
 	}
@@ -34,8 +36,9 @@ body[class*='admin_page_newspack-'] {
 svg {
 	&.newspack--error {
 		fill: wp-colors.$alert-red;
-		transform: rotate( 180deg );
+		transform: rotate(180deg);
 	}
+
 	&.newspack--success {
 		fill: wp-colors.$alert-green;
 	}
@@ -81,7 +84,7 @@ svg {
 	inset: 0;
 	position: absolute;
 
-	> * {
+	>* {
 		display: none !important;
 	}
 
@@ -108,18 +111,18 @@ svg {
 		height: 24px;
 		margin: 68px auto 0;
 		max-width: 1040px;
-		width: calc( 100% - ( 32px * 2 ) );
+		width: calc(100% - (32px * 2));
 
-		@media screen and ( min-width: 744px ) {
+		@media screen and (min-width: 744px) {
 			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 200px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
-			width: calc( 100% - ( 64px * 2 ) );
+			width: calc(100% - (64px * 2));
 		}
 
-		@media screen and ( min-width: 1224px ) {
+		@media screen and (min-width: 1224px) {
 			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 512px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
-			width: calc( 100% - ( 64px * 2 ) );
+			width: calc(100% - (64px * 2));
 		}
 	}
 
@@ -159,7 +162,7 @@ svg {
 			position: fixed;
 			top: 46px;
 
-			@media screen and ( min-width: 783px ) {
+			@media screen and (min-width: 783px) {
 				top: 32px;
 				margin-left: 160px;
 
@@ -168,7 +171,7 @@ svg {
 				}
 			}
 
-			@media screen and ( min-width: 961px ) {
+			@media screen and (min-width: 961px) {
 				body.auto-fold & {
 					margin-left: 160px;
 				}
@@ -188,7 +191,7 @@ svg {
 		}
 
 		&::after {
-			background: rgba( white, 0.7 );
+			background: rgba(white, 0.7);
 			bottom: 0;
 			right: 0;
 			z-index: 9998;
@@ -201,7 +204,7 @@ svg {
 	cursor: wait;
 	min-height: 150px;
 
-	> * {
+	>* {
 		display: none !important;
 	}
 
@@ -217,12 +220,12 @@ svg {
 		max-width: 1040px;
 		width: 100%;
 
-		@media screen and ( min-width: 744px ) {
+		@media screen and (min-width: 744px) {
 			box-shadow: inset -400px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 200px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
 		}
 
-		@media screen and ( min-width: 1224px ) {
+		@media screen and (min-width: 1224px) {
 			box-shadow: inset -600px 0 0 0 white, 0 64px 0 0 wp-colors.$gray-700, 520px 96px 0 0 white,
 				0 96px 0 0 wp-colors.$gray-700;
 		}

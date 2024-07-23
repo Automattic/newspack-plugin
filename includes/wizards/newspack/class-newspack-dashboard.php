@@ -118,7 +118,7 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'ad',
 						'title' => __( 'Display Ads', 'newspack-plugin' ),
 						'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
-						'href'  => admin_url( 'admin.php?page=newspack-advertising-wizard#/' ),
+						'href'  => admin_url( 'admin.php?page=advertising-display-ads#/' ),
 					],
 					[
 						'icon'  => 'currencyDollar',
@@ -256,7 +256,7 @@ class Newspack_Dashboard extends Wizard {
 					],
 					'endpoint'         => '/newspack/v1/wizard/billboard',
 					'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
-					'configLink'       => admin_url( 'admin.php?page=newspack-advertising-wizard' ),
+					'configLink'       => admin_url( 'admin.php?page=advertising-display-ads' ),
 					'dependencies'     => [
 						'newspack-ads' => [
 							'label'    => __( 'Newspack Ads', 'newspack-plugin' ),

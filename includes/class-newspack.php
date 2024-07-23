@@ -122,17 +122,20 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard-section.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
+		
 		// Newspack Wizards and Sections.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
-
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
+		
+		// Advertising Wizard. 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-display-ads.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-sponsors.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-advertising-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-reader-revenue-wizard.php';

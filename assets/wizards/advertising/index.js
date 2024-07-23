@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard, utils } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression, AddOns } from './views';
+import { AdUnit, AdUnits, Providers, Settings, Placements } from './views';
 import { getSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -158,14 +158,14 @@ class AdvertisingWizard extends Component {
 				label: __( 'Settings', 'newspack-plugin' ),
 				path: '/settings',
 			},
-			{
-				label: __( 'Suppression', 'newspack-plugin' ),
-				path: '/suppression',
-			},
-			{
-				label: __( 'Add-Ons', 'newspack-plugin' ),
-				path: '/addons',
-			},
+			// {
+			// 	label: __( 'Suppression', 'newspack-plugin' ),
+			// 	path: '/suppression',
+			// },
+			// {
+			// 	label: __( 'Add-Ons', 'newspack-plugin' ),
+			// 	path: '/addons',
+			// },
 		];
 		return (
 			<Fragment>
@@ -206,11 +206,7 @@ class AdvertisingWizard extends Component {
 							path="/settings"
 							render={ () => (
 								<Settings
-									headerText={ __( 'Advertising', 'newspack-plugin' ) }
-									subHeaderText={ __(
-										'Configure display and advanced settings for your ads',
-										'newspack-plugin'
-									) }
+									headerText={ __( 'Advertising / Display Ads', 'newspack-plugin' ) }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -292,31 +288,6 @@ class AdvertisingWizard extends Component {
 								);
 							} }
 						/>
-						<Route
-							path="/suppression"
-							render={ () => (
-								<Suppression
-									headerText={ __( 'Advertising', 'newspack-plugin' ) }
-									subHeaderText={ __(
-										'Allows you to manage site-wide ad suppression',
-										'newspack-plugin'
-									) }
-									tabbedNavigation={ tabs }
-									config={ advertisingData.suppression }
-									onChange={ config => this.updateAdSuppression( config ) }
-								/>
-							) }
-						/>
-						<Route
-							path="/addons"
-							render={ () => (
-								<AddOns
-									headerText={ __( 'Advertising', 'newspack-plugin' ) }
-									subHeaderText={ __( 'Add-ons for enhanced advertising', 'newspack-plugin' ) }
-									tabbedNavigation={ tabs }
-								/>
-							) }
-						/>
 						<Redirect to="/" />
 					</Switch>
 				</HashRouter>
@@ -327,5 +298,5 @@ class AdvertisingWizard extends Component {
 
 render(
 	createElement( withWizard( AdvertisingWizard, [ 'newspack-ads' ] ) ),
-	document.getElementById( 'newspack-advertising-wizard' )
+	document.getElementById( 'advertising-display-ads' )
 );

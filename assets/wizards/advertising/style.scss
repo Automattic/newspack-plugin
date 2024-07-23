@@ -1,4 +1,4 @@
-.newspack-advertising-wizard {
+.advertising-display-ads {
 	.newspack-button-card .newspack-notice {
 		margin: 24px 0 0;
 	}
@@ -12,19 +12,20 @@
 	}
 
 	.newspack-grid {
+
 		&__thead,
 		&__tbody {
 			align-items: center;
-			grid-template-columns: repeat( 3, calc( 33.33% - 24px ) ) 36px;
+			grid-template-columns: repeat(3, calc(33.33% - 24px)) 36px;
 		}
 
-		.newspack-button.has-icon:not( .has-text ) {
+		.newspack-button.has-icon:not(.has-text) {
 			height: 48px;
 			min-width: 48px;
 			width: 48px;
 		}
 
-		+ .newspack-card__header-actions {
+		+.newspack-card__header-actions {
 			margin-top: 64px;
 		}
 	}
