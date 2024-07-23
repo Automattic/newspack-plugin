@@ -147,6 +147,62 @@ class Newspack_UI {
 
 			<hr>
 
+			<h2 id="notices">Notices</h2>
+
+			<div class="newspack-ui__notice">
+				<div>
+					<p>Default notice style</p>
+				</div>
+			</div>
+
+			<div class="newspack-ui__notice newspack-ui__notice--success">
+				<div>
+					<p>"Success" notice style</p>
+				</div>
+			</div>
+
+			<div class="newspack-ui__notice newspack-ui__notice--warning">
+				<div>
+					<p>"Warning" notice style</p>
+				</div>
+			</div>
+
+			<div class="newspack-ui__notice newspack-ui__notice--error">
+				<div>
+					<p>"Error" notice style</p>
+				</div>
+			</div>
+
+			<div class="newspack-ui__notice">
+				<?php \Newspack\Newspack_UI_Icons::print_svg( 'info' ); ?>
+				<div>
+					<p>Default notice with icon style</p>
+				</div>
+			</div>
+
+			<div class="newspack-ui__notice newspack-ui__notice--success">
+				<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
+				<div>
+					<p>"Success" notice with icon style</p>
+				</div>
+			</div>
+
+			<div class="newspack-ui__notice newspack-ui__notice--warning">
+				<?php \Newspack\Newspack_UI_Icons::print_svg( 'info' ); ?>
+				<div>
+					<p>"Warning" notice with icon style</p>
+				</div>
+			</div>
+
+			<div class="newspack-ui__notice newspack-ui__notice--error">
+				<?php \Newspack\Newspack_UI_Icons::print_svg( 'error' ); ?>
+				<div>
+					<p>"Error" notice with icon style</p>
+				</div>
+			</div>
+
+			<hr>
+
 			<h2 id="form-elements">Form elements</h2>
 			<form>
 				<p>

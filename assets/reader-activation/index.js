@@ -1,4 +1,5 @@
 /* globals newspack_ras_config, newspack_reader_data */
+
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
@@ -132,6 +133,8 @@ export function hasAuthLink() {
 	const otpHash = getCookie( 'np_otp_hash' );
 	return !! ( reader?.email && otpHash );
 }
+
+const authStrategies = [ 'pwd', 'link' ];
 
 /**
  * Start the authentication modal with an optional custom callback.
@@ -298,33 +301,30 @@ export function authenticateOTP( code ) {
 }
 
 /**
- * Get a captcha token based on user input
+ * Set the reader preferred authentication strategy.
+ *
+ * @param {string} strategy Authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
  */
-export function getCaptchaToken( action = 'submit' ) {
-	return new Promise( ( res, rej ) => {
-		const { grecaptcha } = window;
-		if ( ! grecaptcha || ! newspack_ras_config ) {
-			return res( '' );
-		}
+export function setAuthStrategy( strategy ) {
+	if ( ! authStrategies.includes( strategy ) ) {
+		throw new Error( 'Invalid authentication strategy' );
+	}
+	setCookie( 'np_auth_strategy', strategy );
+	return strategy;
+}
 
-		const { captcha_site_key: captchaSiteKey } = newspack_ras_config;
-
-		// If the site key is not set, bail with an empty token.
-		if ( ! captchaSiteKey ) {
-			return res( '' );
-		}
-
-		if ( ! grecaptcha?.ready ) {
-			rej( 'Error loading the reCaptcha library.' );
-		}
-
-		grecaptcha.ready( () => {
-			grecaptcha
-				.execute( captchaSiteKey, { action } )
-				.then( token => res( token ) )
-				.catch( e => rej( e ) );
-		} );
-	} );
+/**
+ * Get the reader preferred authentication strategy.
+ *
+ * @return {string} Reader preferred authentication strategy.
+ */
+export function getAuthStrategy() {
+	if ( getOTPHash() ) {
+		return 'otp';
+	}
+	return getCookie( 'np_auth_strategy' );
 }
 
 /**
@@ -422,7 +422,11 @@ const readerActivation = {
 	clearOTPTimer,
 	getOTPTimeRemaining,
 	authenticateOTP,
-	getCaptchaToken,
+	setAuthStrategy,
+	getAuthStrategy,
+	getCaptchaV3Token: window.newspack_grecaptcha
+		? window.newspack_grecaptcha?.getCaptchaV3Token
+		: () => new Promise( res => res( '' ) ), // Empty promise.
 };
 
 /**

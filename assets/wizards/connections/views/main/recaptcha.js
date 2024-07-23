@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { BaseControl, ExternalLink } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -15,6 +15,7 @@ import {
 	Grid,
 	Notice,
 	SectionHeader,
+	SelectControl,
 	TextControl,
 } from '../../../../components/src';
 
@@ -41,6 +42,27 @@ const Recaptcha = () => {
 		fetchSettings();
 	}, [] );
 
+	// Clear out site key + secret if changing the version.
+	useEffect( () => {
+		if ( settingsToUpdate?.version !== settings?.version ) {
+			setSettingsToUpdate( { ...settingsToUpdate, site_key: '', site_secret: '' } );
+			setError(
+				__(
+					'Your site key and secret must match the selected reCAPTCHA version. Please enter new credentials.',
+					'newspack-plugin'
+				)
+			);
+		} else {
+			// If changing back to the current version, restore the settings.
+			setSettingsToUpdate( {
+				...settingsToUpdate,
+				site_key: settings?.site_key || '',
+				site_secret: settings?.site_secret || '',
+			} );
+			setError( null );
+		}
+	}, [ settingsToUpdate?.version ] );
+
 	const updateSettings = async data => {
 		setError( null );
 		setIsLoading( true );
@@ -59,16 +81,19 @@ const Recaptcha = () => {
 		}
 	};
 
+	const isV3 = 'v3' === settingsToUpdate?.version;
+	const hasRequiredSettings = settings.site_key && settings.site_secret;
+
 	return (
 		<>
-			<SectionHeader id="recaptcha" title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) } />
+			<SectionHeader id="recaptcha" title={ __( 'reCAPTCHA', 'newspack-plugin' ) } />
 			<ActionCard
 				isMedium
-				title={ __( 'Enable reCAPTCHA v3', 'newspack-plugin' ) }
+				title={ __( 'Use reCAPTCHA', 'newspack-plugin' ) }
 				description={ () => (
 					<>
 						{ __(
-							'Enabling reCAPTCHA v3 can help protect your site against bot attacks and credit card testing.',
+							'Enabling reCAPTCHA can help protect your site against bot attacks and credit card testing.',
 							'newspack-plugin'
 						) }{ ' ' }
 						<ExternalLink href="https://www.google.com/recaptcha/admin/create">
@@ -95,7 +120,7 @@ const Recaptcha = () => {
 				{ settings.use_captcha && (
 					<>
 						{ error && <Notice isError noticeText={ error } /> }
-						{ settings.use_captcha && ( ! settings.site_key || ! settings.site_secret ) && (
+						{ ! hasRequiredSettings && (
 							<Notice
 								noticeText={ __(
 									'You must enter a valid site key and secret to use reCAPTCHA.',
@@ -103,6 +128,34 @@ const Recaptcha = () => {
 								) }
 							/>
 						) }
+						<Grid noMargin rowGap={ 16 }>
+							<BaseControl
+								id="recaptcha-version"
+								label={ __( 'reCAPTCHA Version', 'newspack-plugin' ) }
+								help={
+									<ExternalLink href="https://developers.google.com/recaptcha/docs/versions">
+										{ __( 'Learn more about reCAPTCHA versions', 'newspack-plugin' ) }
+									</ExternalLink>
+								}
+							>
+								<SelectControl
+									label={ __( 'reCAPTCHA Version', 'newspack-plugin' ) }
+									hideLabelFromVision
+									value={ settingsToUpdate?.version || 'v3' }
+									onChange={ value =>
+										setSettingsToUpdate( { ...settingsToUpdate, version: value } )
+									}
+									// Note: add 'v2_checkbox' here and in Recaptcha::SUPPORTED_VERSIONS to add support for the Checkbox flavor of reCAPTCHA v2.
+									options={ [
+										{ value: 'v3', label: __( 'Score based (v3)', 'newspack-plugin' ) },
+										{
+											value: 'v2_invisible',
+											label: __( 'Challenge (v2) - invisible reCAPTCHA badge', 'newspack-plugin' ),
+										},
+									] }
+								/>
+							</BaseControl>
+						</Grid>
 						<Grid noMargin rowGap={ 16 }>
 							<TextControl
 								value={ settingsToUpdate?.site_key || '' }
@@ -123,23 +176,25 @@ const Recaptcha = () => {
 								disabled={ isLoading }
 								autoComplete="off"
 							/>
-							<TextControl
-								type="number"
-								step="0.05"
-								min="0"
-								max="1"
-								value={ parseFloat( settingsToUpdate?.threshold || '' ) }
-								label={ __( 'Threshold', 'newspack-plugin' ) }
-								onChange={ value =>
-									setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
-								}
-								disabled={ isLoading }
-								help={
-									<ExternalLink href="https://developers.google.com/recaptcha/docs/v3#interpreting_the_score">
-										{ __( 'Learn more about the threshold value', 'newspack-plugin' ) }
-									</ExternalLink>
-								}
-							/>
+							{ isV3 && (
+								<TextControl
+									type="number"
+									step="0.05"
+									min="0"
+									max="1"
+									value={ parseFloat( settingsToUpdate?.threshold || '' ) }
+									label={ __( 'Threshold', 'newspack-plugin' ) }
+									onChange={ value =>
+										setSettingsToUpdate( { ...settingsToUpdate, threshold: value } )
+									}
+									disabled={ isLoading }
+									help={
+										<ExternalLink href="https://developers.google.com/recaptcha/docs/v3#interpreting_the_score">
+											{ __( 'Learn more about the threshold value', 'newspack-plugin' ) }
+										</ExternalLink>
+									}
+								/>
+							) }
 						</Grid>
 					</>
 				) }
