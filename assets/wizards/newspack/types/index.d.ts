@@ -47,6 +47,7 @@ declare global {
 			};
 		};
 		newspackSettings: {
+			social: WizardTab;
 			connections: WizardTab;
 			syndication: WizardTab;
 			emails: WizardTab & {

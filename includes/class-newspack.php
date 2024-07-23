@@ -254,7 +254,7 @@ final class Newspack {
 	public function remove_notifications() {
 		$screen = get_current_screen();
 
-		$is_newspack_screen = ( 'newspack' === $screen->parent_base ) || ( 'admin_page_newspack-' === substr( $screen->base, 0, 20 ) );
+		$is_newspack_screen = str_contains( $screen->base, 'newspack_page_' );
 		if ( ! $screen || ! $is_newspack_screen ) {
 			return;
 		}
