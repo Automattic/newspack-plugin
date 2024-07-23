@@ -72,7 +72,6 @@
 			h2 {
 				font-family: var( --newspack-ui-font-family );
 				font-size: var( --newspack-ui-font-size-s );
-				font-weight: 600;
 				line-height: var( --newspack-ui-line-height-s );
 				margin: 0;
 			}
@@ -122,6 +121,10 @@
 			> *:last-child {
 				margin-bottom: 0;
 			}
+		}
+
+		h1, h2, h3, h4, h5, h6, strong {
+			font-weight: 600;
 		}
 	}
 }
