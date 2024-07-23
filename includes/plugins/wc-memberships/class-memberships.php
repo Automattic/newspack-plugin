@@ -933,14 +933,14 @@ class Memberships {
 	 * @return string
 	 */
 	public static function check_membership_status( $post_status, $post ) {
-		if ( 'wc_user_membership' !== $post->post_type || ! self::has_memberships() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
+		if ( 'wc_user_membership' !== $post->post_type || 'wcm-active' !== $post->post_status || ! self::has_memberships() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
 			return $post_status;
 		}
 		$integrations = wc_memberships()->get_integrations_instance();
 		$integration  = $integrations ? $integrations->get_subscriptions_instance() : null;
 		$membership   = wc_memberships_get_user_membership( $post->ID );
 		$plan_id      = $membership->get_plan_id();
-		if ( ! $membership->has_status( 'active' ) && $integration && $integration->has_membership_plan_subscription( $plan_id ) ) {
+		if ( $integration && $integration->has_membership_plan_subscription( $plan_id ) ) {
 			$subscription_plan    = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $plan_id );
 			$required_products    = $subscription_plan->get_subscription_product_ids();
 			$active_subscriptions = WooCommerce_Connection::get_active_subscriptions_for_user( $membership->get_user_id(), $required_products );

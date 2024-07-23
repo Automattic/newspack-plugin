@@ -151,7 +151,7 @@ class WooCommerce_Connection {
 	/**
 	 * Does the given user have any subscriptions with an active status?
 	 * Can optionally pass an array of product IDs. If given, only subscriptions
-	 * that have all of the given product IDs will be returned.
+	 * that have at least one of the given product IDs will be returned.
 	 *
 	 * @param int   $user_id User ID.
 	 * @param array $product_ids Optional array of product IDs to filter by.
@@ -166,7 +166,8 @@ class WooCommerce_Connection {
 				if ( $subscription->has_status( self::ACTIVE_SUBSCRIPTION_STATUSES ) ) {
 					if ( ! empty( $product_ids ) ) {
 						foreach ( $product_ids as $product_id ) {
-							if ( ! $subscription->has_product( $product_id ) ) {
+							if ( $subscription->has_product( $product_id ) ) {
+								$acc[] = $subscription_id;
 								return $acc;
 							}
 						}
