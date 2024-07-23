@@ -24,6 +24,7 @@ type ActionCardProps = Partial< {
 	toggleChecked: boolean;
 	toggleOnChange: ( a: boolean ) => void;
 	actionContent: boolean | React.ReactNode | null;
+	error: Error | string | null;
 	handoff: string | null;
 	isErrorStatus: boolean;
 	isChecked: boolean;
@@ -53,6 +54,9 @@ type PluginWizardApiFetchCallback = (
 	callbacks?: ApiFetchCallbacks< PluginResponse >
 ) => Promise< PluginResponse >;
 
+/**
+ * Plugin card action texts
+ */
 type PluginCardActionText = {
 	complete?: string;
 	configure?: string;
@@ -67,6 +71,7 @@ type PluginCard = {
 	slug: string;
 	actionText?: PluginCardActionText;
 	editLink?: string;
+	badge?: string;
 	description?: string | React.ReactNode;
 	title: string;
 	subTitle?: string;
