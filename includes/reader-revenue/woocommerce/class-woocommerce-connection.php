@@ -171,8 +171,11 @@ class WooCommerce_Connection {
 								return $acc;
 							}
 						}
+					} else {
+						$acc[] = $subscription_id;
 					}
-					$acc[] = $subscription_id;
+
+					return $acc;
 				}
 				return $acc;
 			},
