@@ -59,13 +59,10 @@ window.newspackRAS.push( readerActivation => {
 					}
 				}
 			}
-			if ( redirect !== '#' ) {
+			if ( redirect && redirect !== '#' ) {
 				callback = () => {
 					window.location.href = redirect;
 				};
-			} else {
-				// Set account URL after logging in.
-				ev.target.href = newspack_ras_config.account_url;
 			}
 			openAuthModal( { callback } );
 		}
@@ -97,6 +94,11 @@ window.newspackRAS.push( readerActivation => {
 					const labelEl = link.querySelector( '.newspack-reader__account-link__label' );
 					if ( labelEl ) {
 						labelEl.textContent = reader?.authenticated ? labels.signedin : labels.signedout;
+
+						// Set my account link href if the reader is authenticated.
+						if ( reader?.authenticated ) {
+							link.setAttribute( 'href', newspack_ras_config.account_url );
+						}
 					}
 				} );
 			}
