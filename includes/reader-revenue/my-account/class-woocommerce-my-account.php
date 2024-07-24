@@ -42,12 +42,12 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_home' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 			\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'verify_saved_account_details' ] );
-			\add_action( 'logout_redirect', [ __CLASS__, 'add_param_after_logout' ] );
-			\add_action( 'template_redirect', [ __CLASS__, 'show_message_after_logout' ] );
+			\add_action( 'logout_redirect', [ __CLASS__, 'redirect_to_home_after_logout' ] );
 			\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'append_membership_table' ], 11 );
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
@@ -362,6 +362,21 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Redirect to "Home" if accessing "My Account" directly when not logged in.
+	 */
+	public static function redirect_to_home() {
+		if ( ! \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) ) {
+			global $wp;
+			$current_url               = \home_url( $wp->request );
+			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
+			if ( \trailingslashit( $current_url ) === \trailingslashit( $my_account_page_permalink ) ) {
+				\wp_safe_redirect( \get_home_url() );
+				exit;
+			}
+		}
+	}
+
+	/**
 	 * Remove WC's required fields.
 	 *
 	 * @param array $required_fields Required fields.
@@ -520,34 +535,22 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Append a logout param after a reader logs out from My Account.
+	 * Modify redurect url to home after a reader logs out from My Account.
 	 *
 	 * @param string $redirect_to The redirect destination URL.
 	 *
 	 * @return string The filtered destination URL.
 	 */
-	public static function add_param_after_logout( $redirect_to ) {
+	public static function redirect_to_home_after_logout( $redirect_to ) {
 		if ( ! function_exists( 'wc_get_page_permalink' ) ) {
 			return;
 		}
 
 		if ( \wc_get_page_permalink( 'myaccount' ) === $redirect_to ) {
-			$redirect_to = \add_query_arg(
-				[ 'logged_out' => 1 ],
-				$redirect_to
-			);
+			$redirect_to = \get_home_url();
 		}
 
 		return $redirect_to;
-	}
-
-	/**
-	 * Show a logout success message to readers after logging out via My Account.
-	 */
-	public static function show_message_after_logout() {
-		if ( isset( $_GET['logged_out'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			WooCommerce_Connection::add_wc_notice( __( 'You have successfully logged out.', 'newspack-plugin' ), 'success' );
-		}
 	}
 
 	/**
