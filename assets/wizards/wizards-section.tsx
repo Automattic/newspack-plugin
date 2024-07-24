@@ -21,22 +21,14 @@ export default function WizardSection( {
 	title,
 	description,
 	children = null,
-	heading = 3,
-	className = '',
-	titleClassName = '',
 }: {
 	title?: string;
 	description?: string;
 	children: React.ReactNode;
-	heading?: number;
-	className?: string;
-	titleClassName?: string;
 } ) {
 	return (
-		<div className={ `${ className } newspack-wizard__section` }>
-			{ title && (
-				<SectionHeader { ...{ title, description, heading } } className={ titleClassName } />
-			) }
+		<div className="newspack-wizard__section">
+			{ title && <SectionHeader heading={ 3 } title={ title } description={ description } /> }
 			{ children }
 		</div>
 	);

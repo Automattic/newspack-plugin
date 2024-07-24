@@ -7,8 +7,7 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { PluginSettings, withWizardScreen } from '../../../../components/src';
-import WizardSection from '../../../wizards-section';
+import { PluginSettings, SectionHeader, withWizardScreen } from '../../../../components/src';
 import AdRefreshControlSettings from '../../components/ad-refresh-control';
 import AddOns from '../../components/add-ons';
 import Suppression from '../suppression';
@@ -20,16 +19,13 @@ function Settings() {
 	return (
 		<Fragment>
 			<h1>{ __( 'Settings', 'newspack-plugin' ) }</h1>
-			<PluginSettings pluginSlug="newspack-ads" title={ null } />
-			<WizardSection heading={ 2 }>
+			<PluginSettings pluginSlug="newspack-ads" title={ null }>
 				<AdRefreshControlSettings />
-			</WizardSection>
-			<WizardSection heading={ 2 } title={ __( 'Suppression', 'newspack-plugin' ) }>
+				<SectionHeader className="heading-1" title={ __( 'Suppression', 'newspack-plugin' ) } />
 				<Suppression />
-			</WizardSection>
-			<WizardSection heading={ 2 } title={ __( 'Plugins', 'newspack-plugin' ) }>
+				<SectionHeader className="heading-1" title={ __( 'Plugins', 'newspack-plugin' ) } />
 				<AddOns />
-			</WizardSection>
+			</PluginSettings>
 		</Fragment>
 	);
 }
