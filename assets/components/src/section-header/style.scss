@@ -25,12 +25,12 @@
 		text-align: center;
 	}
 
-	&:not( #{&}--no-margin ) + *:not( #{&} ) {
+	&:not(#{&}--no-margin)+*:not(#{&}) {
 		margin-top: -16px !important;
 	}
 
 	&#{&}--is-white {
-		> * {
+		>* {
 			color: white;
 		}
 	}

@@ -21,10 +21,14 @@ function Settings() {
 			<h1>{ __( 'Settings', 'newspack-plugin' ) }</h1>
 			<PluginSettings pluginSlug="newspack-ads" title={ null }>
 				<AdRefreshControlSettings />
-				<SectionHeader className="heading-1" title={ __( 'Suppression', 'newspack-plugin' ) } />
-				<Suppression />
-				<SectionHeader className="heading-1" title={ __( 'Plugins', 'newspack-plugin' ) } />
-				<AddOns />
+				<div className="newspack-wizard__section">
+					<SectionHeader className="heading-1" title={ __( 'Suppression', 'newspack-plugin' ) } />
+					<Suppression />
+				</div>
+				<div className="newspack-wizard__section">
+					<SectionHeader className="heading-1" title={ __( 'Plugins', 'newspack-plugin' ) } />
+					<AddOns />
+				</div>
 			</PluginSettings>
 		</Fragment>
 	);
