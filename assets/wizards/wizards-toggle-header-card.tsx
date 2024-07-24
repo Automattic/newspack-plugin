@@ -19,7 +19,7 @@ import { useWizardApiFetch } from './hooks/use-wizard-api-fetch';
 /**
  * A few helper validation callbacks. Allows consuming components to define validation callbacks by string i.e. 'isNonEmptyString'
  */
-function validationCallbacks( { setError }: { setError: ( value: WizardErrorType ) => void } ) {
+function validationErrorHandler( { setError }: { setError: ( value: WizardErrorType ) => void } ) {
 	return {
 		/**
 		 * Check if the value is a non-empty number
@@ -100,7 +100,7 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 	const [ settings, setSettings ] = useState< T >( { ...defaultValue } );
 	const [ settingsUpdates, setSettingsUpdates ] = useState< T >( { ...defaultValue } );
 
-	const fieldValidations = validationCallbacks( { setError } );
+	const fieldValidations = validationErrorHandler( { setError } );
 
 	useEffect( () => {
 		wizardApiFetch< T >(
