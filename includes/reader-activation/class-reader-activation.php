@@ -851,7 +851,9 @@ final class Reader_Activation {
 	 * Setup nav menu hooks.
 	 */
 	public static function setup_nav_menu() {
-		if ( ! self::get_setting( 'enabled_account_link' ) || ! self::is_woocommerce_active() ) {
+		// Not checking if the whole WC suite is active (self::is_woocommerce_active()),
+		// because only the main WooCommerce plugin is actually required for this to work.
+		if ( ! self::get_setting( 'enabled_account_link' ) || ! function_exists( 'WC' ) ) {
 			return;
 		}
 
@@ -1750,6 +1752,11 @@ final class Reader_Activation {
 				'user_pass'     => \wp_generate_password(),
 			]
 		);
+
+		// Check if a user with this login exists.
+		if ( \username_exists( $user_data['user_login'] ) ) {
+			$user_data['user_login'] = $user_data['user_login'] . '-' . \wp_generate_password( 4, false );
+		}
 
 		/*
 		 * Filters the user_data used to register a new RAS reader account.
