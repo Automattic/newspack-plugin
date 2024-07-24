@@ -66,7 +66,9 @@ function useWizardApiFetchToggle< T >( {
 							__( 'Page reloading…', 'newspack-plugin' )
 						)
 					);
-					window.location.reload();
+					if ( ! errorMessage ) {
+						window.location.reload();
+					}
 				}
 			},
 		} );

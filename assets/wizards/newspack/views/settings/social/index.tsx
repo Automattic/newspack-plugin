@@ -17,6 +17,7 @@ import MetaPixel from './meta-pixel';
  * Internal dependencies
  */
 import Section from '../../../../wizards-section';
+import Publicize from './publicize';
 
 function Social() {
 	return (
@@ -24,6 +25,7 @@ function Social() {
 			<h1>{ __( 'Social', 'newspack-plugin' ) }</h1>
 
 			<Section>
+				<Publicize />
 				<MetaPixel />
 				<XPixel />
 			</Section>

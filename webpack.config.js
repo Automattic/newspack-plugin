@@ -40,25 +40,7 @@ wizardsScripts.forEach( function ( wizard ) {
 	);
 } );
 
-// Get files for other scripts.
-const otherScripts = fs
-	.readdirSync( path.join( __dirname, 'assets', 'other-scripts' ) )
-	.filter( script =>
-		fs.existsSync( path.join( __dirname, 'assets', 'other-scripts', script, 'index.js' ) )
-	);
-otherScripts.forEach( function ( script ) {
-	wizardsScriptFiles[ `other-scripts/${ script }` ] = path.join(
-		__dirname,
-		'assets',
-		'other-scripts',
-		script,
-		'index.js'
-	);
-} );
-
 const entry = {
-	...wizardsScriptFiles,
-	blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
 	'reader-activation': path.join( __dirname, 'assets', 'reader-activation', 'index.js' ),
 	'reader-auth': path.join( __dirname, 'assets', 'reader-activation', 'auth.js' ),
 	'reader-registration-block': path.join(
@@ -70,9 +52,31 @@ const entry = {
 	),
 	'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
 	admin: path.join( __dirname, 'assets', 'admin', 'index.js' ),
-	'memberships-gate-editor': path.join( __dirname, 'assets', 'memberships-gate', 'editor.js' ),
 	'memberships-gate': path.join( __dirname, 'assets', 'memberships-gate', 'gate.js' ),
 	'memberships-gate-metering': path.join( __dirname, 'assets', 'memberships-gate', 'metering.js' ),
+};
+
+// Get files for other scripts.
+const otherScripts = fs
+	.readdirSync( path.join( __dirname, 'assets', 'other-scripts' ) )
+	.filter( script =>
+		fs.existsSync( path.join( __dirname, 'assets', 'other-scripts', script, 'index.js' ) )
+	);
+otherScripts.forEach( function ( script ) {
+	entry[ `other-scripts/${ script }` ] = path.join(
+		__dirname,
+		'assets',
+		'other-scripts',
+		script,
+		'index.js'
+	);
+} );
+
+// These files will need `regenerator-runtime` as of WP 6.6.
+const wpAdminEntries = {
+	...wizardsScriptFiles,
+	blocks: path.join( __dirname, 'assets', 'blocks', 'index.js' ),
+	'memberships-gate-editor': path.join( __dirname, 'assets', 'memberships-gate', 'editor.js' ),
 	'memberships-gate-block-patterns': path.join(
 		__dirname,
 		'assets',
@@ -82,8 +86,8 @@ const entry = {
 	wizards: path.join( __dirname, 'assets', 'wizards', 'index.tsx' ),
 };
 
-Object.keys( entry ).forEach( key => {
-	entry[ key ] = [ 'regenerator-runtime/runtime', entry[ key ] ];
+Object.keys( wpAdminEntries ).forEach( key => {
+	entry[ key ] = [ 'regenerator-runtime/runtime', wpAdminEntries[ key ] ];
 } );
 
 const webpackConfig = getBaseWebpackConfig( { WP: true }, { entry } );

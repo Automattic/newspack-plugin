@@ -1,6 +1,6 @@
 {
 	"name": "newspack",
-	"version": "4.3.4",
+	"version": "4.6.0",
 	"description": "The Newspack plugin. https://newspack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/newspack-plugin/issues"
@@ -11,23 +11,23 @@
 		"npm": "8"
 	},
 	"devDependencies": {
-		"@rushstack/eslint-patch": "^1.10.2",
+		"@rushstack/eslint-patch": "^1.10.3",
 		"@testing-library/react": "^12.1.4",
 		"@types/lodash": "^4.17.0",
 		"@types/wordpress__api-fetch": "^3.23.1",
 		"@types/qs": "^6.9.15",
 		"@types/react": "^17.0.75",
-		"@types/wordpress__block-editor": "^11.5.14",
+		"@types/wordpress__block-editor": "^11.5.15",
 		"@types/wordpress__blocks": "^12.5.14",
 		"@types/wordpress__components": "^23.0.12",
 		"@wordpress/browserslist-config": "^5.40.0",
 		"eslint": "^7.32.0",
-		"lint-staged": "^15.2.2",
+		"lint-staged": "^15.2.7",
 		"newspack-scripts": "^5.5.1",
 		"postcss-scss": "^4.0.9",
 		"prettier": "npm:wp-prettier@^2.6.2-beta-1",
 		"regenerator-runtime": "^0.14.1",
-		"stylelint": "^16.5.0"
+		"stylelint": "^16.7.0"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -59,8 +59,8 @@
 		"postinstall": "rm -rf node_modules/newspack-scripts/node_modules/prettier"
 	},
 	"dependencies": {
-		"@babel/plugin-transform-runtime": "^7.24.3",
-		"@babel/preset-env": "^7.24.5",
+		"@babel/plugin-transform-runtime": "^7.24.7",
+		"@babel/preset-env": "^7.24.8",
 		"classnames": "^2.5.1",
 		"colord": "^2.9.3",
 		"deep-map-keys": "^2.0.1",
@@ -68,7 +68,7 @@
 		"lodash": "^4.17.21",
 		"moment": "^2.30.1",
 		"moment-range": "^3.1.1",
-		"qs": "^6.12.1",
+		"qs": "^6.12.3",
 		"react": "^17.0.2",
 		"react-daterange-picker": "^2.0.1",
 		"react-router-dom": "^5.3.4",

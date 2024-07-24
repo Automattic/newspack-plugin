@@ -82,6 +82,9 @@ function WizardsPluginCardButton( {
 	if ( plugin.status === 'page-reload' ) {
 		return <span className="gray">{ __( 'Page reloading…', 'newspack-plugin' ) }</span>;
 	}
+	if ( plugin.status === 'page-redirect' ) {
+		return <span className="gray">{ __( 'Page redirecting…', 'newspack-plugin' ) }</span>;
+	}
 	if ( isLoading ) {
 		return <Waiting />;
 	}
@@ -216,8 +219,12 @@ function WizardsPluginCard( {
 				} );
 			},
 			onFinally() {
-				if ( isPluginStateUpdate ) {
+				if ( isPluginStateUpdate && ! errorMessage ) {
 					window.location.reload();
+				}
+				if ( editLink && callbacksKey === 'configure' ) {
+					window.location.href = editLink;
+					setPluginState( { status: 'page-redirect' } );
 				}
 			},
 		} );
