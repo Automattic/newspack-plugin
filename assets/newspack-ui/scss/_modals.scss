@@ -86,8 +86,9 @@
 			color: var( --newspack-ui-color-neutral-90 );
 			padding: var( --newspack-ui-spacer-5 );
 
-			// Make sure there's enough space above the first button in modals
-			.newspack-ui__button:not( :first-child ):first-of-type {
+			// Make sure there's enough space above the first button in modals.
+			// Ignore a tag buttons as they will never be first.
+			.newspack-ui__button:not( :first-child, a.newspack-ui__button ):first-of-type {
 				margin-top: var( --newspack-ui-spacer-5 );
 			}
 		}
