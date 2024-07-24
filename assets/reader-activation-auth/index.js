@@ -43,24 +43,27 @@ window.newspackRAS.push( readerActivation => {
 		 */
 		function handleAccountLinkClick( ev ) {
 			ev.preventDefault();
-			const el = ev.target.closest( 'a' );
 			let callback, redirect;
 			if ( ev.target.getAttribute( 'data-redirect' ) ) {
-				redirect = el.getAttribute( 'data-redirect' );
+				redirect = ev.target.getAttribute( 'data-redirect' );
 			} else {
-				redirect = el.getAttribute( 'href' );
+				redirect = ev.target.getAttribute( 'href' );
+			}
+			if ( ! redirect ) {
+				const closestEl = ev.target.closest( 'a' );
+				if ( closestEl ) {
+					if ( closestEl.getAttribute( 'data-redirect' ) ) {
+						redirect = closestEl.getAttribute( 'data-redirect' );
+					} else {
+						redirect = closestEl.getAttribute( 'href' );
+					}
+				}
 			}
 			if ( redirect && redirect !== '#' ) {
 				callback = () => {
 					window.location.href = redirect;
 				};
-			} else {
-				callback = () => {
-					// Set account URL after logging in.
-					el.href = newspack_ras_config.account_url;
-				};
 			}
-
 			openAuthModal( { callback } );
 		}
 
@@ -91,6 +94,11 @@ window.newspackRAS.push( readerActivation => {
 					const labelEl = link.querySelector( '.newspack-reader__account-link__label' );
 					if ( labelEl ) {
 						labelEl.textContent = reader?.authenticated ? labels.signedin : labels.signedout;
+
+						// Set my account link href if the reader is authenticated.
+						if ( reader?.authenticated ) {
+							link.setAttribute( 'href', newspack_ras_config.account_url );
+						}
 					}
 				} );
 			}
