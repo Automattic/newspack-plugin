@@ -43,30 +43,24 @@ window.newspackRAS.push( readerActivation => {
 		 */
 		function handleAccountLinkClick( ev ) {
 			ev.preventDefault();
+			const el = ev.target.closest( 'a' );
 			let callback, redirect;
 			if ( ev.target.getAttribute( 'data-redirect' ) ) {
-				redirect = ev.target.getAttribute( 'data-redirect' );
+				redirect = el.getAttribute( 'data-redirect' );
 			} else {
-				redirect = ev.target.getAttribute( 'href' );
+				redirect = el.getAttribute( 'href' );
 			}
-			if ( ! redirect ) {
-				const closestEl = ev.target.closest( 'a' );
-				if ( closestEl ) {
-					if ( closestEl.getAttribute( 'data-redirect' ) ) {
-						redirect = closestEl.getAttribute( 'data-redirect' );
-					} else {
-						redirect = closestEl.getAttribute( 'href' );
-					}
-				}
-			}
-			if ( redirect !== '#' ) {
+			if ( redirect && redirect !== '#' ) {
 				callback = () => {
 					window.location.href = redirect;
 				};
 			} else {
-				// Set account URL after logging in.
-				ev.target.href = newspack_ras_config.account_url;
+				callback = () => {
+					// Set account URL after logging in.
+					el.href = newspack_ras_config.account_url;
+				};
 			}
+
 			openAuthModal( { callback } );
 		}
 
