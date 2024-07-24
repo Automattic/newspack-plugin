@@ -74,7 +74,9 @@ h1 {
 	&:last-child {
 		margin-block-end: 0;
 	}
+}
 
+.newspack-section-header__container {
 	p {
 		margin-block: 0 1.5rem;
 	}
@@ -136,16 +138,15 @@ h1 {
 			}
 		}
 
-		&.is-medium {
-			.newspack-action-card__region-children:not(:last-child) {
-				padding-bottom: 0;
-				padding-top: 2rem;
+		.newspack-action-card__region-children:not(:last-child) {
+			padding-bottom: 0;
+			padding-top: 2rem;
 
-				.newspack-notice {
-					margin-top: 0;
-				}
+			.newspack-notice {
+				margin-top: 0;
 			}
 		}
+		
 	}
 }
 

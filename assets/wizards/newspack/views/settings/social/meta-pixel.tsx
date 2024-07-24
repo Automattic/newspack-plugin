@@ -31,6 +31,7 @@ const MetaPixel = () => {
 				<TextControl
 					value={ settingsUpdates?.pixel_id ?? '' }
 					label={ __( 'Pixel ID', 'newspack-plugin' ) }
+					type="number"
 					onChange={ ( pixel_id: string ) =>
 						setSettingsUpdates( { ...settingsUpdates, pixel_id } )
 					}

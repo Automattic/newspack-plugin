@@ -29,25 +29,19 @@ function validationErrorHandler( { setError }: { setError: ( value: WizardErrorT
 		 */
 		isIntegerId( value: string ) {
 			const trimmedValue = value.trim();
-			if ( ! /^[0-9]+$/.test( trimmedValue ) ) {
-				setError(
-					new WizardError(
-						__( 'Value may only contain numbers!', 'newspack-plugin' ),
-						'invalid_value_number'
-					)
-				);
+			let errorMessage = '';
+			if ( trimmedValue === '' ) {
+				errorMessage = __( 'Value cannot be empty!', 'newspack-plugin' );
+			} else if ( ! /^[0-9]+$/.test( trimmedValue ) ) {
+				errorMessage = __( 'Value may only contain numbers!', 'newspack-plugin' );
+			} else if ( trimmedValue === '0' ) {
+				errorMessage = __( 'Value cannot be zero!', 'newspack-plugin' );
+			}
+			if ( errorMessage ) {
+				setError( new WizardError( errorMessage, 'invalid_input_int_id' ) );
 				return false;
 			}
-			if ( trimmedValue === '0' ) {
-				setError(
-					new WizardError(
-						__( 'Value cannot be zero!', 'newspack-plugin' ),
-						'invalid_value_number'
-					)
-				);
-				return false;
-			}
-			return trimmedValue.length > 0 && Number( trimmedValue ) > 0;
+			return Number( trimmedValue ) > 0;
 		},
 		/**
 		 * Check if the value is a non-empty string
@@ -56,16 +50,18 @@ function validationErrorHandler( { setError }: { setError: ( value: WizardErrorT
 		 * @return true if string is non-empty, false otherwise
 		 */
 		isId( value: string ) {
-			if ( /^[a-zA-Z0-9]+$/.test( value.trim() ) ) {
-				return true;
+			const trimmedValue = value.trim();
+			let errorMessage = '';
+			if ( trimmedValue === '' ) {
+				errorMessage = __( 'Value cannot be empty!', 'newspack-plugin' );
+			} else if ( ! /^[a-zA-Z0-9]+$/.test( value.trim() ) ) {
+				errorMessage = __( 'Value may only contain numbers and letters.', 'newspack-plugin' );
 			}
-			setError(
-				new WizardError(
-					__( 'Value may only contain numbers and letters.', 'newspack-plugin' ),
-					'invalid_value_string'
-				)
-			);
-			return false;
+			if ( errorMessage ) {
+				setError( new WizardError( errorMessage, 'invalid_input_id' ) );
+				return false;
+			}
+			return true;
 		},
 	};
 }
