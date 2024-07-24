@@ -4,6 +4,7 @@
  * Internal dependencies.
  */
 import { domReady, formatTime } from '../utils';
+import { openNewslettersSignupModal } from '../reader-activation-newsletters/newsletters-modal';
 
 import './google-oauth';
 import './otp-input';
@@ -235,10 +236,20 @@ window.newspackRAS.push( function ( readerActivation ) {
 						readerActivation.setAuthenticated( !! data.authenticated );
 					}
 
+					let callback;
+					if ( container.authCallback && data?.registered ) {
+						callback = ( authMessage, authData ) =>
+							openNewslettersSignupModal( {
+								callback: container.authCallback( authMessage, authData ),
+							} );
+					} else {
+						callback = container.authCallback;
+					}
+
 					/** Resolve the modal immediately or display the "success" state. */
 					if ( container.config?.skipSuccess ) {
-						if ( container.authCallback ) {
-							container.authCallback( message, data );
+						if ( callback ) {
+							callback( message, data );
 						}
 					} else {
 						let labels = newspack_reader_activation_labels.signin;
@@ -253,8 +264,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 						if ( callbackButton ) {
 							callbackButton.addEventListener( 'click', ev => {
 								ev.preventDefault();
-								if ( container.authCallback ) {
-									container.authCallback( message, data );
+								if ( callback ) {
+									callback( message, data );
 								}
 							} );
 						}
