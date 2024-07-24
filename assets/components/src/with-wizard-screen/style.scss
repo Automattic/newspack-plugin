@@ -29,16 +29,16 @@
 
 	// Links
 	a {
-		color: var(--wp-admin-theme-color);
+		color: var( --wp-admin-theme-color );
 
 		&:active,
 		&:focus,
 		&:hover {
-			color: var(--wp-admin-theme-color-darker-10);
+			color: var( --wp-admin-theme-color-darker-10 );
 		}
 
 		&:focus {
-			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) var(--wp-admin-theme-color);
+			box-shadow: 0 0 0 var( --wp-admin-border-width-focus ) var( --wp-admin-theme-color );
 			outline: 3px solid transparent;
 		}
 	}
@@ -57,7 +57,7 @@
 			padding: 0;
 		}
 
-		>div {
+		> div {
 			align-items: baseline;
 			display: flex;
 			padding: 0 24px;
@@ -67,7 +67,7 @@
 				display: none;
 				margin-left: 8px;
 
-				@media screen and (min-width: 744px) {
+				@media screen and ( min-width: 744px ) {
 					display: block;
 				}
 			}
@@ -82,7 +82,7 @@
 				margin-bottom: -1px !important;
 			}
 
-			&:not(.newspack-icon) {
+			&:not( .newspack-icon ) {
 				background: colors.$primary-500;
 				left: 50%;
 				margin: -28px 0 0 -28px !important;
@@ -124,7 +124,7 @@
 		max-width: 1208px;
 		padding: 0 16px;
 
-		@media screen and (min-width: 744px) {
+		@media screen and ( min-width: 744px ) {
 			padding: 40px 84px;
 		}
 
@@ -147,7 +147,7 @@
 			height: 1px;
 			margin: 48px 0;
 
-			@media screen and (min-width: 744px) {
+			@media screen and ( min-width: 744px ) {
 				margin: 64px 0;
 			}
 		}
