@@ -7,6 +7,10 @@
 	input[type='email'].nphp {
 		@include mixins.visuallyHidden;
 	}
+
+	.response-container {
+		margin-bottom: 12px;
+	}
 }
 
 .entry-content .newspack-reader,
@@ -179,8 +183,4 @@ li.menu-item .newspack-reader__account-link {
  */
 .woocommerce-account .entry-header .entry-title {
 	display: none;
-}
-
-.response-container {
-	margin-bottom: 12px;
 }

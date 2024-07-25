@@ -221,10 +221,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.innerHTML = message;
-					form.setMessageContent( message, status !== 200 );
-					messageContentElement
-						.querySelectorAll( '[data-set-action]' )
-						.forEach( setActionListener );
+
+					if ( status !== 200 ) {
+						form.setMessageContent( message, true );
+						messageContentElement
+							.querySelectorAll( '[data-set-action]' )
+							.forEach( setActionListener );
+					}
 				}
 				if ( status === 200 ) {
 					if ( data ) {
@@ -275,6 +278,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 							} else {
 								setPasswordButton.style.display = 'none';
 								setPasswordButton.setAttribute( 'href', '#' );
+								const continueButton = container.querySelector( '.auth-callback' );
+								if ( continueButton ) {
+									continueButton.classList.add( 'newspack-ui__last-child' );
+								}
 							}
 						}
 					}
