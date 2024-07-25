@@ -42,7 +42,6 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
-			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_home' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 			\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
@@ -356,21 +355,6 @@ class WooCommerce_My_Account {
 			$logout_url                = \wc_get_account_endpoint_url( 'customer-logout' );
 			if ( \trailingslashit( $current_url ) === \trailingslashit( $my_account_page_permalink ) ) {
 				\wp_safe_redirect( \wc_get_account_endpoint_url( 'edit-account' ) );
-				exit;
-			}
-		}
-	}
-
-	/**
-	 * Redirect to "Home" if accessing "My Account" directly when not logged in.
-	 */
-	public static function redirect_to_home() {
-		if ( ! \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) ) {
-			global $wp;
-			$current_url               = \home_url( $wp->request );
-			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
-			if ( \trailingslashit( $current_url ) === \trailingslashit( $my_account_page_permalink ) ) {
-				\wp_safe_redirect( \get_home_url() );
 				exit;
 			}
 		}
