@@ -190,7 +190,7 @@ export const NewspackNewsletters = ( {
 					) }
 					{ 'campaign_monitor' ===
 						config?.settings?.newspack_newsletters_service_provider?.value && (
-						<Notice isWarning isDismissible={ false }>
+						<Notice status="warning" isDismissible={ false }>
 							<h2>{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }</h2>
 							<p>
 								{ __(
