@@ -76,11 +76,7 @@ class WooCommerce_Cover_Fees {
 			return;
 		}
 		$cart->add_fee(
-			sprintf(
-				// Translators: %s is the fee percentage.
-				__( 'Transaction fee (%s)', 'newspack-plugin' ),
-				self::get_cart_fee_display_value()
-			),
+			__( 'Transaction fee', 'newspack-plugin' ),
 			self::get_cart_fee_value()
 		);
 	}
