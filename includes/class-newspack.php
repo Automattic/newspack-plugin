@@ -255,7 +255,11 @@ final class Newspack {
 		$screen = get_current_screen();
 
 		$is_newspack_screen = str_contains( $screen->base, 'newspack_page_' );
-		if ( ! $screen || ! $is_newspack_screen ) {
+		$is_advertising_screen = str_contains( $screen->base, 'toplevel_page_advertising' );
+
+		$is_wizard = $is_newspack_screen || $is_advertising_screen;
+
+		if ( ! $screen || ! $is_wizard ) {
 			return;
 		}
 		remove_all_actions( current_action() );
