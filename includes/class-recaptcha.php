@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Error;
+use Google\Service\Docs\PinTableHeaderRowsRequest;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -178,8 +179,7 @@ final class Recaptcha {
 	public static function get_settings_config() {
 		return [
 			'use_captcha' => false,
-			'site_key'    => '',
-			'site_secret' => '',
+			'credentials' => [],
 			'threshold'   => 0.5,
 			'version'     => 'v3',
 		];
@@ -202,7 +202,19 @@ final class Recaptcha {
 	 * @return WP_REST_Response containing the settings list.
 	 */
 	public static function api_update_settings( $request ) {
-		return \rest_ensure_response( self::update_settings( $request->get_params() ) );
+		$params = $request->get_params();
+		if ( isset( $params['site_key'] ) || isset( $params['site_secret'] ) ) {
+			$version     = $params['version'] ?? self::get_setting( 'version' );
+			$credentials = self::get_setting( 'credentials' );
+			if ( isset( $params['site_key'] ) ) {
+				$credentials[ $version ]['site_key'] = $params['site_key'];
+			}
+			if ( isset( $params['site_secret'] ) ) {
+				$credentials[ $version ]['site_secret'] = $params['site_secret'];
+			}
+			$params['credentials'] = $credentials;
+		}
+		return \rest_ensure_response( self::update_settings( $params ) );
 	}
 
 	/**
@@ -217,22 +229,32 @@ final class Recaptcha {
 			$settings[ $key ] = self::get_setting( $key );
 		}
 
-		// Migrate reCAPTCHA settings from Stripe wizard, for more generalized usage.
-		if ( ! $settings['use_captcha'] && empty( $settings['site_key'] ) && empty( $settings['site_secret'] ) ) {
-			$stripe_settings = Stripe_Connection::get_stripe_data();
-			if ( ! empty( $stripe_settings['useCaptcha'] ) && ! empty( $stripe_settings['captchaSiteKey'] ) && ! empty( $stripe_settings['captchaSiteSecret'] ) ) {
-				// If we have all of the required settings in Stripe settings, migrate them here.
-				self::update_settings(
-					[
-						'use_captcha' => $stripe_settings['useCaptcha'],
-						'site_key'    => $stripe_settings['captchaSiteKey'],
-						'site_secret' => $stripe_settings['captchaSiteSecret'],
-					]
-				);
+		// Migrate reCAPTCHA settings from separate site_key/site_secret options to credentials array.
+		$current_version = $settings['version'];
+		if (
+			$settings['use_captcha'] &&
+				(
+					empty( $settings['credentials'][ $current_version ]['site_key'] ) ||
+					empty( $settings['credentials'][ $current_version ]['site_secret'] )
+				)
+			) {
+			$legacy_key      = \get_option( self::OPTIONS_PREFIX . 'site_key', false );
+			$legacy_secret   = \get_option( self::OPTIONS_PREFIX . 'site_key', false );
 
-				$settings['use_captcha'] = $stripe_settings['useCaptcha'];
-				$settings['site_key']    = $stripe_settings['captchaSiteKey'];
-				$settings['site_secret'] = $stripe_settings['captchaSiteSecret'];
+			if ( ! empty( $legacy_key ) ) {
+				$settings['credentials'][ $current_version ]['site_key'] = $legacy_key;
+			}
+			if ( ! empty( $legacy_secret ) ) {
+				$settings['credentials'][ $current_version ]['site_secret'] = $legacy_secret;
+			}
+
+			// Avoid notoptions cache issue.
+			wp_cache_delete( 'notoptions', 'options' );
+			wp_cache_delete( 'alloptions', 'options' );
+			$updated = \update_option( self::OPTIONS_PREFIX . 'credentials', $settings['credentials'] );
+			if ( $updated ) {
+				\delete_option( self::OPTIONS_PREFIX . 'site_key' );
+				\delete_option( self::OPTIONS_PREFIX . 'site_secret' );
 			}
 		}
 
@@ -268,14 +290,18 @@ final class Recaptcha {
 	 * Get the reCAPTCHA site key.
 	 */
 	public static function get_site_key() {
-		return self::get_setting( 'site_key' );
+		$version     = self::get_setting( 'version' );
+		$credentials = self::get_setting( 'credentials' );
+		return $credentials[ $version ]['site_key'] ?? '';
 	}
 
 	/**
 	 * Get the reCAPTCHA site secret.
 	 */
 	public static function get_site_secret() {
-		return self::get_setting( 'site_secret' );
+		$version     = self::get_setting( 'version' );
+		$credentials = self::get_setting( 'credentials' );
+		return $credentials[ $version ]['site_secret'] ?? '';
 	}
 
 	/**
