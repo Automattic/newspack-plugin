@@ -60,6 +60,9 @@ class Co_Authors_Plus {
 		\add_action( 'admin_print_scripts-user-new.php', [ __CLASS__, 'admin_footer' ] );
 		\add_action( 'admin_print_scripts-user-edit.php', [ __CLASS__, 'admin_footer' ] );
 
+		\add_filter( 'option_default_role', [ __CLASS__, 'create_user_default_role' ] );
+		\add_filter( 'option_cme_capabilities_add_user_multi_roles', [ __CLASS__, 'cme_capabilities_add_user_multi_roles' ] );
+
 		// Disable some features from the user profile.
 		\add_filter( 'show_password_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
 		\add_filter( 'wp_is_application_passwords_available_for_user', [ __CLASS__, 'disable_feature' ], 10, 2 );
@@ -392,6 +395,38 @@ class Co_Authors_Plus {
 			</table>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Is creating a new user with the no-edit role?
+	 */
+	public static function is_adding_user_with_no_edit_role() {
+		global $pagenow;
+		return $pagenow === 'user-new.php' && isset( $_GET['role'] ) && $_GET['role'] === self::CONTRIBUTOR_NO_EDIT_ROLE_NAME; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Filter the `default_role` option value.
+	 *
+	 * @param string $default_role The default role slug.
+	 */
+	public static function create_user_default_role( $default_role ) {
+		if ( self::is_adding_user_with_no_edit_role() ) {
+			return self::CONTRIBUTOR_NO_EDIT_ROLE_NAME;
+		}
+		return $default_role;
+	}
+
+	/**
+	 * Handle the `capability-manager-enhanced` plugin - disable multi-role UI if adding a new no-edit role user.
+	 *
+	 * @param bool $value Whether to enable the multi-role UI.
+	 */
+	public static function cme_capabilities_add_user_multi_roles( $value ) {
+		if ( self::is_adding_user_with_no_edit_role() ) {
+			return false;
+		}
+		return $value;
 	}
 }
 Co_Authors_Plus::init();
