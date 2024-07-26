@@ -1,7 +1,28 @@
 /* globals jQuery, grecaptcha, newspack_recaptcha_data, newspack_grecaptcha */
 
-import { domReady } from '../../utils';
 import './style.scss';
+
+/**
+ * Specify a function to execute when the DOM is fully loaded.
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dom-ready/
+ *
+ * @param {Function} callback A function to execute after the DOM is ready.
+ * @return {void}
+ */
+function domReady( callback ) {
+	if ( typeof document === 'undefined' ) {
+		return;
+	}
+	if (
+		document.readyState === 'complete' || // DOMContentLoaded + Images/Styles/etc loaded, so we call directly.
+		document.readyState === 'interactive' // DOMContentLoaded fires at this point, so we call directly.
+	) {
+		return void callback();
+	}
+	// DOMContentLoaded has not fired yet, delay callback until then.
+	document.addEventListener( 'DOMContentLoaded', callback );
+}
 
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
 	destroyV3Captchas,
@@ -48,6 +69,15 @@ function renderV3Captchas( forms = [] ) {
 			const action = form.getAttribute( 'data-newspack-recaptcha' ) || 'submit';
 			refreshV3Token( field, action );
 			setInterval( () => refreshV3Token( field, action ), 30000 ); // Refresh token every 30 seconds.
+
+			// Refresh reCAPTCHAs on Woo checkout update and error.
+			( function ( $ ) {
+				if ( ! $ ) {
+					return;
+				}
+				$( document ).on( 'updated_checkout', () => refreshV3Token( field, action ) );
+				$( document.body ).on( 'checkout_error', () => refreshV3Token( field, action ) );
+			} )( jQuery );
 		}
 	} );
 }
@@ -120,12 +150,3 @@ function refreshCaptchas() {
 		}
 	}
 }
-
-// Refresh reCAPTCHAs on Woo checkout update and error.
-( function ( $ ) {
-	if ( ! $ ) {
-		return;
-	}
-	$( document ).on( 'updated_checkout', renderCaptchas );
-	$( document.body ).on( 'checkout_error', refreshCaptchas );
-} )( jQuery );
