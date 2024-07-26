@@ -1,10 +1,12 @@
 /* globals jQuery, grecaptcha, newspack_recaptcha_data, newspack_grecaptcha */
 
+import { domReady } from '../../utils';
 import './style.scss';
 
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
+	destroyV3Captchas,
+	renderV3Captchas,
 	widgets: {},
-	getCaptchaV3Token,
 };
 
 const isV2 = 'v2' === newspack_recaptcha_data.version.substring( 0, 2 );
@@ -13,37 +15,72 @@ const siteKey = newspack_recaptcha_data.site_key;
 const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
 
 /**
- * Specify a function to execute when the DOM is fully loaded.
  *
- * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dom-ready/
+ * @param {HTMLElement} field  The hidden input field storing the token for a form.
+ * @param {string}      action The action name to pass to reCAPTCHA.
  *
- * @param {Function} callback A function to execute after the DOM is ready.
- * @return {void}
+ * @return {Promise<void>}
  */
-function domReady( callback ) {
-	if ( typeof document === 'undefined' ) {
-		return;
-	}
-	if (
-		document.readyState === 'complete' || // DOMContentLoaded + Images/Styles/etc loaded, so we call directly.
-		document.readyState === 'interactive' // DOMContentLoaded fires at this point, so we call directly.
-	) {
-		return void callback();
-	}
-	// DOMContentLoaded has not fired yet, delay callback until then.
-	document.addEventListener( 'DOMContentLoaded', callback );
+function refreshV3Token( field, action = 'submit' ) {
+	return grecaptcha.execute( siteKey, { action } ).then( token => {
+		if ( field ) {
+			field.value = token;
+		}
+	} );
+}
+
+/**
+ * Attach hidden reCAPTCHA v3 token fields to forms with the expected data attribute.
+ */
+function renderV3Captchas( forms = [] ) {
+	const formsToHandle = forms.length
+		? forms
+		: [ ...document.querySelectorAll( 'form[data-recaptcha]' ) ];
+
+	formsToHandle.forEach( form => {
+		let field = form.querySelector( 'input[name="g-recaptcha-response"]' );
+		if ( ! field ) {
+			field = document.createElement( 'input' );
+			field.type = 'hidden';
+			field.name = 'g-recaptcha-response';
+			form.appendChild( field );
+
+			const action = form.getAttribute( 'data-recaptcha' ) || 'submit';
+			refreshV3Token( field, action );
+			setInterval( () => refreshV3Token( field, action ), 30000 ); // Refresh token every 30 seconds.
+		}
+	} );
+}
+
+/**
+ * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
+ */
+function destroyV3Captchas( forms = [] ) {
+	const formsToHandle = forms.length
+		? forms
+		: [ ...document.querySelectorAll( 'form[data-recaptcha]' ) ];
+
+	formsToHandle.forEach( form => {
+		const field = form.querySelector( 'input[name="g-recaptcha-response"]' );
+		if ( field ) {
+			field.parentElement.removeChild( field );
+		}
+	} );
 }
 
 /**
  * We need to chain these callbacks to avoid two potential race conditions.
  */
-if ( isV2 ) {
-	domReady( function () {
-		grecaptcha.ready( function () {
+domReady( function () {
+	grecaptcha.ready( function () {
+		if ( isV2 ) {
 			renderCaptchas();
-		} );
+		}
+		if ( isV3 ) {
+			renderV3Captchas();
+		}
 	} );
-}
+} );
 
 /**
  * Render reCAPTCHA v2 widgets.
@@ -82,34 +119,6 @@ function refreshCaptchas() {
 			grecaptcha.reset( newspack_grecaptcha.widgets[ containerId ] );
 		}
 	}
-}
-
-/**
- * Fetch a reCAPTCHA token via the v3 JS API. Only needed for reCAPTCHA v3.
- * v2 automatically generates a token on form submission, so if using v2 the
- * promise can be silently resolved.
- *
- * See: https://developers.google.com/recaptcha/docs/v3#programmatically_invoke_the_challenge
- *
- * @return {Promise<string>} The reCAPTCHA token, if needed, or an empty string.
- */
-function getCaptchaV3Token() {
-	return new Promise( ( res, rej ) => {
-		if ( ! grecaptcha || ! isV3 ) {
-			return res( '' );
-		}
-
-		if ( ! grecaptcha?.ready ) {
-			rej( 'Error loading the reCAPTCHA library.' );
-		}
-
-		grecaptcha.ready( () => {
-			grecaptcha
-				.execute( siteKey, { action: 'submit' } )
-				.then( token => res( token ) )
-				.catch( e => rej( e ) );
-		} );
-	} );
 }
 
 // Refresh reCAPTCHAs on Woo checkout update and error.
