@@ -30,7 +30,6 @@ final class Recaptcha {
 
 		// Add reCAPTCHA to the Woo checkout form.
 		\add_action( 'woocommerce_review_order_before_submit', [ __CLASS__, 'add_recaptcha_v2_to_checkout' ] );
-		\add_action( 'woocommerce_checkout_after_customer_details', [ __CLASS__, 'add_recaptcha_v3_to_checkout' ] );
 
 		// Verify reCAPTCHA on checkout submission.
 		\add_action( 'woocommerce_checkout_process', [ __CLASS__, 'verify_recaptcha_on_checkout' ] );
@@ -111,17 +110,14 @@ final class Recaptcha {
 	 * Register the reCAPTCHA script.
 	 */
 	public static function register_scripts() {
-		// Styles only apply to the visible v2 widgets.
-		if ( self::can_use_captcha( 'v2' ) ) {
+		if ( self::can_use_captcha() ) {
 			\wp_enqueue_style(
 				self::SCRIPT_HANDLE,
 				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.css',
 				[],
 				NEWSPACK_PLUGIN_VERSION
 			);
-		}
 
-		if ( self::can_use_captcha() ) {
 			// Enqueue the reCAPTCHA API from Google's servers.
 			// Note: version arg Must be null to avoid the &ver param being read as part of the reCAPTCHA site key.
 			\wp_register_script(
@@ -428,58 +424,11 @@ final class Recaptcha {
 	}
 
 	/**
-	 * Add reCAPTCHA v3 to Woo checkout.
-	 */
-	public static function add_recaptcha_v3_to_checkout() {
-		if ( ! self::can_use_captcha( 'v3' ) ) {
-			return;
-		}
-		$site_key = self::get_site_key();
-		?>
-		<script src="<?php echo \esc_url( self::get_script_url() ); ?>"></script>
-		<script>
-			grecaptcha.ready( function() {
-				var field;
-				function refreshToken() {
-					grecaptcha.execute(
-						'<?php echo \esc_attr( $site_key ); ?>',
-						{ action: 'checkout' }
-					).then( function( token ) {
-						if ( field ) {
-							field.value = token;
-						}
-					} );
-				}
-				setInterval( refreshToken, 30000 );
-				( function( $ ) {
-					if ( ! $ ) { return; }
-					$( document ).on( 'updated_checkout', refreshToken );
-					$( document.body ).on( 'checkout_error', refreshToken );
-				} )( jQuery );
-				grecaptcha.execute(
-					'<?php echo \esc_attr( $site_key ); ?>',
-					{ action: 'checkout' }
-				).then( function( token ) {
-					field       = document.createElement('input');
-					field.type  = 'hidden';
-					field.name  = 'g-recaptcha-response';
-					field.value = token;
-					var form = document.querySelector('form.checkout');
-					if ( form ) {
-						form.appendChild( field );
-					}
-				} );
-			} );
-		</script>
-		<?php
-	}
-
-	/**
 	 * Verify reCAPTCHA on checkout submission.
 	 */
 	public static function verify_recaptcha_on_checkout() {
 		$url                   = \home_url( \add_query_arg( null, null ) );
-		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha( 'v3' ), $url );
 		if ( ! $should_verify_captcha ) {
 			return;
 		}
