@@ -152,7 +152,8 @@ abstract class Connector {
 		}
 
 		// Ensure email is set as the user probably won't have a billing email.
-		if ( ! isset( $contact['email'] ) ) {
+		if ( empty( $contact['email'] ) ) {
+			$user = get_userdata( $user_id );
 			$contact['email'] = $user->user_email;
 		}
 
