@@ -35,7 +35,7 @@ function refreshV3Token( field, action = 'submit' ) {
 function renderV3Captchas( forms = [] ) {
 	const formsToHandle = forms.length
 		? forms
-		: [ ...document.querySelectorAll( 'form[data-recaptcha]' ) ];
+		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
 		let field = form.querySelector( 'input[name="g-recaptcha-response"]' );
@@ -45,7 +45,7 @@ function renderV3Captchas( forms = [] ) {
 			field.name = 'g-recaptcha-response';
 			form.appendChild( field );
 
-			const action = form.getAttribute( 'data-recaptcha' ) || 'submit';
+			const action = form.getAttribute( 'data-newspack-recaptcha' ) || 'submit';
 			refreshV3Token( field, action );
 			setInterval( () => refreshV3Token( field, action ), 30000 ); // Refresh token every 30 seconds.
 		}
@@ -58,7 +58,7 @@ function renderV3Captchas( forms = [] ) {
 function destroyV3Captchas( forms = [] ) {
 	const formsToHandle = forms.length
 		? forms
-		: [ ...document.querySelectorAll( 'form[data-recaptcha]' ) ];
+		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
 		const field = form.querySelector( 'input[name="g-recaptcha-response"]' );
