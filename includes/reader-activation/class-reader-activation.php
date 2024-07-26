@@ -1256,7 +1256,7 @@ final class Reader_Activation {
 				</p>
 				<p class="newspack-ui__font--xs success-description"></p>
 			</div>
-			<form method="post" target="_top">
+			<form method="post" target="_top" data-recaptcha="register">
 				<div data-action="signin register">
 					<?php self::render_third_party_auth(); ?>
 				</div>
@@ -1717,7 +1717,7 @@ final class Reader_Activation {
 		}
 
 		// reCAPTCHA test on account registration only.
-		if ( 'register' === $action && Recaptcha::can_use_captcha() ) {
+		if ( 'register' === $action && Recaptcha::can_use_captcha( 'v3' ) ) {
 			$captcha_result = Recaptcha::verify_captcha();
 			if ( \is_wp_error( $captcha_result ) ) {
 				return self::send_auth_form_response( $captcha_result );
