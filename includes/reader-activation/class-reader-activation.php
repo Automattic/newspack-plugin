@@ -269,6 +269,7 @@ final class Reader_Activation {
 				),
 				'newsletters_success'      => __( 'Signup successful!', 'newspack-plugin' ),
 				'newsletters_title'        => __( 'Sign up for newsletters', 'newspack-plugin' ),
+				'auth_form_action'         => self::AUTH_FORM_ACTION,
 			];
 
 			/**
@@ -1256,7 +1257,7 @@ final class Reader_Activation {
 				</p>
 				<p class="newspack-ui__font--xs success-description"></p>
 			</div>
-			<form method="post" target="_top" data-newspack-recaptcha="register">
+			<form method="post" target="_top" data-newspack-recaptcha="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>">
 				<div data-action="signin register">
 					<?php self::render_third_party_auth(); ?>
 				</div>
@@ -1282,9 +1283,6 @@ final class Reader_Activation {
 					<label for="newspack-reader-auth-password-input"><?php esc_html_e( 'Enter your password', 'newspack-plugin' ); ?></label>
 					<input id="newspack-reader-auth-password-input" name="password" type="password" />
 				</p>
-				<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
-					<?php Recaptcha::render_recaptcha_v2_container(); ?>
-				<?php endif; ?>
 				<div class="response-container">
 					<div class="response">
 						<?php if ( ! empty( $message ) ) : ?>

@@ -1,4 +1,4 @@
-/* globals jQuery, grecaptcha, newspack_recaptcha_data, newspack_grecaptcha */
+/* globals jQuery, grecaptcha, newspack_recaptcha_data */
 
 import './style.scss';
 
@@ -25,9 +25,9 @@ function domReady( callback ) {
 }
 
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
-	destroyV3Captchas,
-	renderV3Captchas,
-	widgets: {},
+	destroy,
+	render,
+	version: newspack_recaptcha_data.version,
 };
 
 const isV2 = 'v2' === newspack_recaptcha_data.version.substring( 0, 2 );
@@ -36,48 +36,146 @@ const siteKey = newspack_recaptcha_data.site_key;
 const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
 
 /**
+ * Refresh the reCAPTCHA v3 token for the given form and action.
  *
  * @param {HTMLElement} field  The hidden input field storing the token for a form.
  * @param {string}      action The action name to pass to reCAPTCHA.
  *
  * @return {Promise<void>}
  */
-function refreshV3Token( field, action = 'submit' ) {
-	return grecaptcha.execute( siteKey, { action } ).then( token => {
-		if ( field ) {
+function refresh( field, action = 'submit' ) {
+	if ( field ) {
+		return grecaptcha.execute( siteKey, { action } ).then( token => {
 			field.value = token;
+		} );
+	}
+}
+
+/**
+ * Append a hidden reCAPTCHA v3 token field to the given form.
+ *
+ * @param {HTMLElement} form The form element.
+ */
+function addHiddenField( form ) {
+	let field = form.querySelector( 'input[name="g-recaptcha-response"]' );
+	if ( ! field ) {
+		field = document.createElement( 'input' );
+		field.type = 'hidden';
+		field.name = 'g-recaptcha-response';
+		form.appendChild( field );
+
+		const action = form.getAttribute( 'data-newspack-recaptcha' ) || 'submit';
+		refresh( field, action );
+		setInterval( () => refresh( field, action ), 30000 ); // Refresh token every 30 seconds.
+
+		// Refresh reCAPTCHAs on Woo checkout update and error.
+		( function ( $ ) {
+			if ( ! $ ) {
+				return;
+			}
+			$( document ).on( 'updated_checkout', () => refresh( field, action ) );
+			$( document.body ).on( 'checkout_error', () => refresh( field, action ) );
+		} )( jQuery );
+	}
+}
+
+/**
+ * Remove the hidden reCAPTCHA v3 token field from the given form.
+ *
+ * @param {HTMLElement} form The form element.
+ */
+function removeHiddenField( form ) {
+	const field = form.querySelector( 'input[name="g-recaptcha-response"]' );
+	if ( field ) {
+		field.parentElement.removeChild( field );
+	}
+}
+
+/**
+ * Refresh the reCAPTCHA v2 widget attached to the given element.
+ *
+ * @param {HTMLElement} el Element with the reCAPTCHA widget to refresh.
+ */
+function refreshWidget( el ) {
+	const widgetId = parseInt( el.getAttribute( 'data-recaptcha-widget-id' ) );
+	if ( ! isNaN( widgetId ) ) {
+		grecaptcha.reset( widgetId );
+	}
+}
+
+/**
+ * Render reCAPTCHA v2 widget on the given form.
+ *
+ * @param {HTMLElement} form The form element.
+ */
+function renderWidget( form ) {
+	const submitButtons = [
+		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ),
+	];
+	const options = {
+		sitekey: siteKey,
+		size: isInvisible ? 'invisible' : 'normal',
+	};
+
+	submitButtons.forEach( button => {
+		// Don't render widget if the button has a data-skip-recaptcha attribute.
+		if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+			return;
 		}
+
+		// Refresh widget if it already exists.
+		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
+			refreshWidget( button );
+			return;
+		}
+
+		// Callback when reCAPTCHA passes validation.
+		const callback = () => {
+			form.requestSubmit( button );
+			refreshWidget( button );
+		};
+		const widgetId = grecaptcha.render( button, {
+			...options,
+			callback,
+		} );
+		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
+		setInterval( () => refreshWidget( button ), 30000 ); // Refresh widget every 30 seconds.
+
+		// Refresh reCAPTCHAs on Woo checkout update and error.
+		( function ( $ ) {
+			if ( ! $ ) {
+				return;
+			}
+			$( document ).on( 'updated_checkout', () => renderWidget( form ) );
+			$( document.body ).on( 'checkout_error', () => renderWidget( form ) );
+		} )( jQuery );
+
+		button.addEventListener( 'click', e => {
+			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
+			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+				callback();
+			} else {
+				e.preventDefault();
+				grecaptcha.execute( widgetId );
+			}
+		} );
 	} );
 }
 
 /**
- * Attach hidden reCAPTCHA v3 token fields to forms with the expected data attribute.
+ * Render reCAPTCHA elements.
  */
-function renderV3Captchas( forms = [] ) {
+function render( forms = [] ) {
 	const formsToHandle = forms.length
 		? forms
 		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
-		let field = form.querySelector( 'input[name="g-recaptcha-response"]' );
-		if ( ! field ) {
-			field = document.createElement( 'input' );
-			field.type = 'hidden';
-			field.name = 'g-recaptcha-response';
-			form.appendChild( field );
-
-			const action = form.getAttribute( 'data-newspack-recaptcha' ) || 'submit';
-			refreshV3Token( field, action );
-			setInterval( () => refreshV3Token( field, action ), 30000 ); // Refresh token every 30 seconds.
-
-			// Refresh reCAPTCHAs on Woo checkout update and error.
-			( function ( $ ) {
-				if ( ! $ ) {
-					return;
-				}
-				$( document ).on( 'updated_checkout', () => refreshV3Token( field, action ) );
-				$( document.body ).on( 'checkout_error', () => refreshV3Token( field, action ) );
-			} )( jQuery );
+		if ( isV3 ) {
+			addHiddenField( form );
+		}
+		if ( isV2 ) {
+			renderWidget( form );
 		}
 	} );
 }
@@ -85,68 +183,21 @@ function renderV3Captchas( forms = [] ) {
 /**
  * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
  */
-function destroyV3Captchas( forms = [] ) {
-	const formsToHandle = forms.length
-		? forms
-		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
+function destroy( forms = [] ) {
+	if ( isV3 ) {
+		const formsToHandle = forms.length
+			? forms
+			: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
-	formsToHandle.forEach( form => {
-		const field = form.querySelector( 'input[name="g-recaptcha-response"]' );
-		if ( field ) {
-			field.parentElement.removeChild( field );
-		}
-	} );
-}
-
-/**
- * We need to chain these callbacks to avoid two potential race conditions.
- */
-domReady( function () {
-	grecaptcha.ready( function () {
-		if ( isV2 ) {
-			renderCaptchas();
-		}
-		if ( isV3 ) {
-			renderV3Captchas();
-		}
-	} );
-} );
-
-/**
- * Render reCAPTCHA v2 widgets.
- */
-function renderCaptchas() {
-	const widgetContainers = [ ...document.querySelectorAll( '.grecaptcha-container' ) ];
-	widgetContainers.forEach( container => {
-		const containerId = container.id;
-		const form = container.closest( 'form' );
-		const submitButtons = isInvisible &&
-			form && [ ...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ) ]; // If using the invisible widget, the target element must be the form's submit button.
-		const options = {
-			sitekey: siteKey,
-			size: isInvisible ? 'invisible' : 'normal',
-		};
-
-		if ( isV2 && isInvisible && 0 < submitButtons.length ) {
-			submitButtons.forEach( submitButton => {
-				submitButton.addEventListener( 'click', e => e.preventDefault() ); // Prevent the submit button from submitting the form so reCAPTCHA can intervene.
-				options.callback = () => form.requestSubmit( submitButton ); // If reCAPTCHA passes the action with a token, submit the form.
-
-				const widgetId = grecaptcha.render( submitButton || container, options );
-				newspack_grecaptcha.widgets[ containerId ] = widgetId;
-			} );
-		}
-	} );
-}
-
-/**
- * Refresh all reCAPTCHA tokens.
- */
-function refreshCaptchas() {
-	if ( isV2 ) {
-		const { widgets } = newspack_grecaptcha;
-		for ( const containerId in widgets ) {
-			grecaptcha.reset( newspack_grecaptcha.widgets[ containerId ] );
-		}
+		formsToHandle.forEach( form => {
+			removeHiddenField( form );
+		} );
 	}
 }
+
+/**
+ * Invoke only after reCAPTCHA API is ready.
+ */
+domReady( function () {
+	grecaptcha.ready( render );
+} );

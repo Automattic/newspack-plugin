@@ -1,4 +1,4 @@
-/* globals newspack_reader_activation_labels */
+/* globals newspack_reader_activation_labels, newspack_grecaptcha */
 
 /**
  * Internal dependencies.
@@ -56,6 +56,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.setFormAction = ( action, shouldFocus = false ) => {
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
+				}
+				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
+					if ( 'register' === action ) {
+						submitButtons.forEach( button => button.removeAttribute( 'data-skip-recaptcha' ) );
+					} else {
+						submitButtons.forEach( button => button.setAttribute( 'data-skip-recaptcha', '' ) );
+					}
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
