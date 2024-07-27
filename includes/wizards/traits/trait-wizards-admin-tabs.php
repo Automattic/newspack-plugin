@@ -36,6 +36,14 @@ trait Admin_Tabs {
 		}
 		$this->tabs = $tabs;
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_tabs_js' ] );
+		add_action(
+			'all_admin_notices',
+			function () {
+				?>
+			<div id="newspack-wizards-admin-tabs" class="newspack-wizards-admin-tabs"></div>
+				<?php
+			} 
+		);
 	}
 
 	/**

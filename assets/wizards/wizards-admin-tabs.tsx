@@ -1,4 +1,5 @@
-import { Fragment, render } from '@wordpress/element';
+import { render, Fragment } from '@wordpress/element';
+import { NewspackIcon } from '../components/src';
 
 export function WizardsAdminTabs( {
 	title,
@@ -10,18 +11,34 @@ export function WizardsAdminTabs( {
 		href: string;
 	} >;
 } ) {
-	console.log( { title, tabs } );
 	return (
 		<Fragment>
-			{ title }
-			{ tabs.map( ( tab, index ) => {
-				return <p>Tab</p>;
-			} ) }
+			<div className="newspack-wizard__header">
+				<div className="newspack-wizard__header__inner">
+					<div className="newspack-wizard__title">
+						<NewspackIcon size={ 36 } />
+						<div>
+							<h2>{ title }</h2>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div className="newspack-tabbed-navigation">
+				<ul>
+					{ tabs.map( ( tab, i ) => {
+						return (
+							<li key={ `${ tab.textContent }:${ i }` }>
+								<a href={ tab.href }>{ tab.textContent }</a>
+							</li>
+						);
+					} ) }
+				</ul>
+			</div>
 		</Fragment>
 	);
 }
 
 render(
 	<WizardsAdminTabs title={ 'Hello' } tabs={ window.newspackWizardsAdminTabs } />,
-	document.getElementById( 'wizards-admin-tabs' )
+	document.getElementById( 'newspack-wizards-admin-tabs' )
 );

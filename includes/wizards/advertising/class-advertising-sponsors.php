@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Wizards\Traits\Admin_Tabs;
+use Newspack_Sponsors\Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -56,19 +57,31 @@ class Advertising_Sponsors extends Wizard {
 		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
-		// Enqueue Wizards Admin Tabs script.
-		$this->enqueue_admin_tabs(
-			[
-				[
-					'textContent' => esc_html__( 'All Sponsors', 'newspack' ),
-					'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
-				],
-				[
-					'textContent' => esc_html__( 'Settings', 'newspack' ),
-					'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt&page=newspack-sponsors-settings-admin' ),
-				],
-			]
+		add_filter(
+			'admin_page_newspack-sponsors-settings-admin',
+			function( $t, $e = '' ) {
+				$stop = true;
+				return $t;
+			},
+			10,
+			2 
 		);
+
+		if ( $this->is_edit_screen() ) {
+			// Enqueue Wizards Admin Tabs script.
+			$this->enqueue_admin_tabs(
+				[
+					[
+						'textContent' => esc_html__( 'All Sponsors', 'newspack' ),
+						'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
+					],
+					[
+						'textContent' => esc_html__( 'Settings', 'newspack' ),
+						'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt&page=newspack-sponsors-settings-admin' ),
+					],
+				]
+			);
+		}
 	}
 
 	/**
@@ -78,6 +91,37 @@ class Advertising_Sponsors extends Wizard {
 	 */
 	public function get_name() {
 		return esc_html__( 'Sponsors', 'newspack' );
+	}
+
+	/**
+	 * Check if we are on the Sponsors CPT edit screen.
+	 *
+	 * @return bool true if browsing `edit.php?post_type=newspack_spnsrs_cpt`, false otherwise.
+	 */
+	private function is_edit_screen() {
+		global $pagenow;
+		if ( 'edit.php' !== $pagenow ) {
+			return false;
+		}
+		return isset( $_GET['post_type'] ) && 'newspack_spnsrs_cpt' === $_GET['post_type']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Enqueue scripts and styles.
+	 */
+	public function enqueue_scripts_and_styles() {
+		if ( ! $this->is_edit_screen() ) {
+			return;
+		}
+		Newspack::load_common_assets();
+		wp_register_style(
+			'advertising-display-ads',
+			Newspack::plugin_url() . '/dist/billboard.css',
+			$this->get_style_dependencies(),
+			NEWSPACK_PLUGIN_VERSION
+		);
+		wp_style_add_data( 'advertising-display-ads', 'rtl', 'replace' );
+		wp_enqueue_style( 'advertising-display-ads' );
 	}
 
 	/**
@@ -92,6 +136,16 @@ class Advertising_Sponsors extends Wizard {
 				'edit.php?post_type=newspack_spnsrs_cpt',
 			);
 		}
+
+		// Register Settings.
+		add_submenu_page(
+			null, // No parent menu.
+			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
+			__( 'Settings', 'newspack-sponsors' ),
+			'manage_options',
+			'newspack-sponsors-settings-admin',
+			[ Settings::class, 'create_admin_page' ]
+		);
 	}
 
 	/**

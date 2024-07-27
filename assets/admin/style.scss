@@ -109,6 +109,15 @@ h1 {
 	}
 }
 
+// tachyons overrides
+table.fixed {
+	position: static;
+	table-layout: fixed;
+}
+.wrap * {
+	box-sizing: unset;
+}
+
 // Overrides
 .newspack-wizard__sections .newspack-wizard__section {
 	.newspack-section-header:first-child {
