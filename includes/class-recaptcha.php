@@ -7,9 +7,6 @@
 
 namespace Newspack;
 
-use Error;
-use Google\Service\Docs\PinTableHeaderRowsRequest;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
