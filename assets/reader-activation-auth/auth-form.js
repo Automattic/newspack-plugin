@@ -1,4 +1,4 @@
-/* globals newspack_reader_activation_labels, newspack_grecaptcha */
+/* globals newspack_reader_activation_labels */
 
 /**
  * Internal dependencies.
@@ -52,6 +52,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 */
 			let formAction;
 			container.setFormAction = ( action, shouldFocus = false ) => {
+				const newspack_grecaptcha = window.newspack_grecaptcha || {};
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
 				}

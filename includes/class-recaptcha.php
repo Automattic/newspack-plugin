@@ -232,7 +232,7 @@ final class Recaptcha {
 				)
 			) {
 			$legacy_key      = \get_option( self::OPTIONS_PREFIX . 'site_key', false );
-			$legacy_secret   = \get_option( self::OPTIONS_PREFIX . 'site_key', false );
+			$legacy_secret   = \get_option( self::OPTIONS_PREFIX . 'site_secret', false );
 
 			if ( ! empty( $legacy_key ) ) {
 				$settings['credentials'][ $current_version ]['site_key'] = $legacy_key;

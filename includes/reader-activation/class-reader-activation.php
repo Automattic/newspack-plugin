@@ -1244,7 +1244,7 @@ final class Reader_Activation {
 				</p>
 				<p class="newspack-ui__font--xs success-description"></p>
 			</div>
-			<form method="post" target="_top" data-newspack-recaptcha="<?php echo \esc_attr( self::AUTH_FORM_ACTION ); ?>">
+			<form method="post" target="_top" data-newspack-recaptcha="newspack_register">
 				<div data-action="signin register">
 					<?php self::render_third_party_auth(); ?>
 				</div>
