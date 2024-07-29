@@ -154,3 +154,20 @@
 		}
 	}
 }
+
+.newspack-ui__word-divider {
+	align-items: center;
+	display: flex;
+	font-size: 14px;
+	gap: 12px;
+	justify-content: space-evenly;
+	margin: 24px 0;
+
+	&::before,
+	&::after {
+		border-top: 1px solid #ddd;
+		content: '';
+		display: block;
+		width: 100%;
+	}
+}
