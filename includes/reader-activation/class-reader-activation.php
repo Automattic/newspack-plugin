@@ -1153,12 +1153,8 @@ final class Reader_Activation {
 		}
 
 		/** Do not render link for authenticated readers if account page doesn't exist. */
-		if ( empty( $account_url ) ) {
-			if ( \is_user_logged_in() ) {
-				return '';
-			} else {
-				$account_url = '#';
-			}
+		if ( empty( $account_url ) && \is_user_logged_in() ) {
+			return '';
 		}
 
 		$class = function( ...$parts ) {
@@ -1231,8 +1227,13 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 
-		$referer = \wp_parse_url( \wp_get_referer() );
-		$labels  = self::get_reader_activation_labels( 'signin' );
+		$referer           = \wp_parse_url( \wp_get_referer() );
+		$labels            = self::get_reader_activation_labels( 'signin' );
+		$auth_callback_url = '#';
+		// If we are already on the my account page, set the my account URL so the page reloads on submit.
+		if ( function_exists( 'wc_get_page_permalink' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
+			$auth_callback_url = \wc_get_page_permalink( 'myaccount' );
+		}
 		?>
 		<div class="newspack-ui newspack-reader-auth">
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
@@ -1271,7 +1272,7 @@ final class Reader_Activation {
 					<input id="newspack-reader-auth-password-input" name="password" type="password" />
 				</p>
 				<div class="response-container">
-					<div class="response newspack-ui__inline-error">
+					<div class="response">
 						<?php if ( ! empty( $message ) ) : ?>
 							<p><?php echo \esc_html( $message ); ?></p>
 						<?php endif; ?>
@@ -1296,7 +1297,7 @@ final class Reader_Activation {
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="register" data-set-action="signin"><?php echo \esc_html( $labels['register'] ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="otp pwd"  data-back><?php echo \esc_html( $labels['go_back'] ); ?></button>
 			</form>
-			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
+			<a href="<?php echo \esc_url( $auth_callback_url ); ?>" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
 			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php echo \esc_html( $labels['set_password'] ); ?></a>
 		</div>
 		<?php

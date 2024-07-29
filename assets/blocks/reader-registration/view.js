@@ -83,7 +83,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageElement.appendChild( messageNode );
 					messageElement.classList.remove( 'newspack-registration--hidden' );
 				}
-				submitElement.removeChild( spinner );
+				if ( submitElement.contains( spinner ) ) {
+					submitElement.removeChild( spinner );
+				}
 				submitElement.disabled = false;
 				container.classList.remove( 'newspack-registration--in-progress' );
 			};
