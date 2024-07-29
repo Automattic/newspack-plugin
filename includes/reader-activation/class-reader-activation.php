@@ -1273,7 +1273,7 @@ final class Reader_Activation {
 					<?php Recaptcha::render_recaptcha_v2_container(); ?>
 				<?php endif; ?>
 				<div class="response-container">
-					<div class="response newspack-ui__inline-error">
+					<div class="response">
 						<?php if ( ! empty( $message ) ) : ?>
 							<p><?php echo \esc_html( $message ); ?></p>
 						<?php endif; ?>

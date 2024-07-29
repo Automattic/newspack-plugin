@@ -72,8 +72,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				formAction = action;
 				actionInput.value = action;
 				container.removeAttribute( 'data-form-status' );
-				messageContentElement.style.display = 'none';
-				messageContentElement.innerHTML = '';
 				container.querySelectorAll( '[data-action]' ).forEach( item => {
 					if ( 'none' !== item.style.display ) {
 						item.prevDisplay = item.style.display;
@@ -157,7 +155,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				handleOTPTimer();
 				sendCodeButtons.forEach( button => {
 					button.addEventListener( 'click', function ( ev ) {
-						messageContentElement.innerHTML = '';
+						form.setMessageContent();
 						ev.preventDefault();
 						form.startLoginFlow();
 						const body = new FormData();
@@ -184,8 +182,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									body,
 								} )
 									.then( () => {
-										messageContentElement.style.display = 'block';
-										messageContentElement.innerHTML = newspack_reader_activation_labels.code_resent;
+										form.setMessageContent( newspack_reader_activation_labels.code_resent );
 										container.setFormAction( 'otp' );
 										readerActivation.setOTPTimer();
 									} )
@@ -211,7 +208,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				submitButtons.forEach( button => {
 					button.disabled = true;
 				} );
-				messageContentElement.innerHTML = '';
+				form.setMessageContent();
 				form.style.opacity = 0.5;
 			};
 
@@ -224,11 +221,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( message ) {
 					const messageNode = document.createElement( 'p' );
 					messageNode.innerHTML = message;
-					messageContentElement.style.display = 'block';
-					messageContentElement.appendChild( messageNode );
-					messageContentElement
-						.querySelectorAll( '[data-set-action]' )
-						.forEach( setActionListener );
+
+					if ( status !== 200 ) {
+						form.setMessageContent( message, true );
+						messageContentElement
+							.querySelectorAll( '[data-set-action]' )
+							.forEach( setActionListener );
+					}
 				}
 				if ( status === 200 ) {
 					if ( data ) {
@@ -279,9 +278,46 @@ window.newspackRAS.push( function ( readerActivation ) {
 							} else {
 								setPasswordButton.style.display = 'none';
 								setPasswordButton.setAttribute( 'href', '#' );
+								const continueButton = container.querySelector( '.auth-callback' );
+								if ( continueButton ) {
+									continueButton.classList.add( 'newspack-ui__last-child' );
+								}
 							}
 						}
 					}
+				}
+			};
+
+			/**
+			 * Sets response message content.
+			 *
+			 * @param {string|HTMLElement} message Message content.
+			 * @param {boolean}            isError Whether the message is an error.
+			 *
+			 * @return {void}
+			 */
+			form.setMessageContent = ( message = '', isError = false ) => {
+				if ( message ) {
+					if ( typeof message === 'string' ) {
+						messageContentElement.innerHTML = message;
+					} else {
+						messageContentElement.appendChild( message );
+					}
+					if ( isError ) {
+						messageContentElement.classList.remove( 'newspack-ui__helper-text' );
+						messageContentElement.classList.add( 'newspack-ui__inline-error' );
+					} else {
+						messageContentElement.classList.remove( 'newspack-ui__inline-error' );
+						messageContentElement.classList.add( 'newspack-ui__helper-text' );
+					}
+					messageContentElement.style.display = 'block';
+				} else {
+					messageContentElement.style.display = 'none';
+					messageContentElement.innerHTML = '';
+					messageContentElement.classList.remove(
+						'newspack-ui__inline-error',
+						'newspack-ui__helper-text'
+					);
 				}
 			};
 
