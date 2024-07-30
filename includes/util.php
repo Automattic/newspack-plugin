@@ -503,3 +503,13 @@ function newspack_get_countries() {
 function google_site_kit_available() {
 	return get_option( 'googlesitekit_has_connected_admins' ) && in_array( 'analytics', get_option( 'googlesitekit_active_modules', [] ) );
 }
+
+/**
+ * Determine if a plugin is active. Similar to WP core `is_plugin_active` but is available immediately.
+ *
+ * @param string $plugin_file `plugin-directory/plugin-file.php` path to the plugin file.
+ * @return bool 
+ */
+function is_plugin_active( string $plugin_file ) {
+	return in_array( $plugin_file, get_option( 'active_plugins' ), true );
+}

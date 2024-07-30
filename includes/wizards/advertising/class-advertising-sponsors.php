@@ -7,8 +7,8 @@
 
 namespace Newspack;
 
-use Newspack\Wizards\Traits\Admin_Tabs;
 use Newspack_Sponsors\Settings;
+use Newspack\Wizards\Traits\Admin_Tabs;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -52,6 +52,9 @@ class Advertising_Sponsors extends Wizard {
 	 * Advertising_Sponsors Constructor.
 	 */
 	public function __construct() {
+		if ( ! is_plugin_active( 'newspack-sponsors/newspack-sponsors.php' ) ) {
+			return;
+		}
 		parent::__construct();
 
 		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
@@ -135,16 +138,14 @@ class Advertising_Sponsors extends Wizard {
 		}
 
 		// Register Settings.
-		if ( class_exists( 'Newspack_Sponsors\Settings' ) ) {
-			add_submenu_page(
-				null, // No parent menu.
-				__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
-				__( 'Settings', 'newspack-sponsors' ),
-				'manage_options',
-				'newspack-sponsors-settings-admin',
-				[ Settings::class, 'create_admin_page' ]
-			);
-		}
+		add_submenu_page(
+			null, // No parent menu.
+			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
+			__( 'Settings', 'newspack-sponsors' ),
+			'manage_options',
+			'newspack-sponsors-settings-admin',
+			[ Settings::class, 'create_admin_page' ]
+		);
 	}
 
 	/**
