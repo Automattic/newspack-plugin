@@ -28,7 +28,12 @@ export function WizardsAdminTabs( {
 					{ tabs.map( ( tab, i ) => {
 						return (
 							<li key={ `${ tab.textContent }:${ i }` }>
-								<a href={ tab.href }>{ tab.textContent }</a>
+								<a
+									href={ tab.href }
+									className={ window.location.href === tab.href ? 'selected' : '' }
+								>
+									{ tab.textContent }
+								</a>
 							</li>
 						);
 					} ) }
@@ -39,6 +44,9 @@ export function WizardsAdminTabs( {
 }
 
 render(
-	<WizardsAdminTabs title={ 'Hello' } tabs={ window.newspackWizardsAdminTabs } />,
+	<WizardsAdminTabs
+		title={ window.newspackWizardsAdminTabs.title }
+		tabs={ window.newspackWizardsAdminTabs.tabs }
+	/>,
 	document.getElementById( 'newspack-wizards-admin-tabs' )
 );
