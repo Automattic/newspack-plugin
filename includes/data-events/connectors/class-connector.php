@@ -118,7 +118,7 @@ abstract class Connector {
 			return;
 		}
 
-		static::put( $contact, 'RAS Woo Subscription updated' );
+		static::put( $contact, sprintf( 'RAS Woo Subscription updated. Status changed from %s to %s', $data['status_before'], $data['status_after'] ) );
 	}
 
 	/**
@@ -162,6 +162,7 @@ abstract class Connector {
 
 		$contact['metadata']['network_registration_site'] = $registration_site;
 
-		static::put( $contact, 'RAS Newspack Network: user propagated from another site in the network' );
+		$site_url = get_site_url();
+		static::put( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );
 	}
 }

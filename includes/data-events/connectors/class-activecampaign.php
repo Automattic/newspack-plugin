@@ -103,7 +103,7 @@ class ActiveCampaign extends Connector {
 			'email'    => $data['email'],
 			'metadata' => $metadata,
 		];
-		self::put( $contact, sprintf( 'Updating the account and newsletter_selection fields after a change in the subscription lists. User ID: %d', $data['user_id'] ) );
+		self::put( $contact, 'Updating the account and newsletter_selection fields after a change in the subscription lists.' );
 	}
 }
 new ActiveCampaign();
