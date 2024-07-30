@@ -386,10 +386,6 @@ function attachNewsletterFormListener() {
 	const newspackForms = [ '.newspack-newsletters-subscribe', '.newspack-subscribe-form' ];
 	const thirdPartyForms = [ '.mc4wp-form' ];
 
-	if ( ! newspackForms.length && ! thirdPartyForms.length ) {
-		return;
-	}
-
 	const attachHandler = ( el, eventToListenTo = 'submit' ) => {
 		const form = 'FORM' === el.tagName ? el : el.querySelector( 'form' );
 		if ( ! form ) {
