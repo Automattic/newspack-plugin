@@ -120,24 +120,6 @@
 	&__logins {
 		font-size: 1rem;
 		margin-top: 0.8rem;
-		&__separator {
-			align-items: center;
-			display: flex;
-			margin: 0.8rem 0;
-			div {
-				text-align: center;
-				&:nth-child( 2 ) {
-					font-size: 0.8rem;
-					line-height: 1.5;
-					padding: 0 0.5em;
-				}
-				&:first-child,
-				&:last-child {
-					flex: 1;
-					border-top: 1px solid wp-colors.$gray-200;
-				}
-			}
-		}
 		&--disabled {
 			button {
 				opacity: 0.5;
@@ -184,3 +166,5 @@ li.menu-item .newspack-reader__account-link {
 .woocommerce-account .entry-header .entry-title {
 	display: none;
 }
+
+

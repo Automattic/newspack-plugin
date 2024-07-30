@@ -345,6 +345,19 @@ export default function ReaderRegistrationEdit( {
 									</div>
 								) : null }
 								<div className="newspack-registration__main">
+									{ newspack_blocks.has_google_oauth && (
+										<div className="newspack-reader__logins">
+											<button className="newspack-reader__logins__google">
+												<span
+													dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+												/>
+												<span>{ __( 'Sign in with Google', 'newspack-plugin' ) }</span>
+											</button>
+											<div className="newspack-ui__word-divider">
+												{ __( 'Or', 'newspack-plugin' ) }
+											</div>
+										</div>
+									) }
 									<div>
 										<div className="newspack-registration__inputs">
 											<input type="email" placeholder={ placeholder } />
@@ -358,21 +371,6 @@ export default function ReaderRegistrationEdit( {
 											</button>
 										</div>
 
-										{ newspack_blocks.has_google_oauth && (
-											<div className="newspack-reader__logins">
-												<div className="newspack-reader__logins__separator">
-													<div />
-													<div>{ __( 'OR', 'newspack-plugin' ) }</div>
-													<div />
-												</div>
-												<button className="newspack-reader__logins__google">
-													<span
-														dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
-													/>
-													<span>{ __( 'Sign in with Google', 'newspack-plugin' ) }</span>
-												</button>
-											</div>
-										) }
 										<div className="newspack-registration__response" />
 									</div>
 									<div className="newspack-registration__help-text">
