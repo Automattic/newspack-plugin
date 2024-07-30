@@ -2,7 +2,6 @@
   "extends": "newspack-scripts/config/tsconfig.json",
   "compilerOptions": {
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "rootDir": "assets",
     "jsx": "react-jsx"
   },
