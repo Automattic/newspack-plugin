@@ -1,6 +1,6 @@
 <?php
 /**
- * Memberships Paywall with Two Tiers Pattern.
+ * Memberships Paywall with Two Tiers Pattern (Alt).
  *
  * @package Newspack
  */
@@ -37,15 +37,15 @@ $patron_features = [
 	</p>
 	<!-- /wp:paragraph -->
 
-	<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Tiers', 'newspack' ); ?>"},"className":"is-style-borders"} -->
-	<div class="wp-block-columns is-style-borders">
+	<!-- wp:columns {"metadata":{"name":"<?php esc_html_e( 'Tiers', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":{"top":"0.75rem","left":"0.75rem"}}}} -->
+	<div class="wp-block-columns">
 
-		<!-- wp:column -->
-		<div class="wp-block-column">
+		<!-- wp:column {"style":{"border":{"width":"1px"},"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}}},"borderColor":"base-3","className":"is-style-rounded"} -->
+		<div class="wp-block-column is-style-rounded has-border-color has-base-3-border-color" style="border-width:1px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)">
 
-			<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
+			<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"},"spacing":{"blockGap":"var:preset|spacing|40"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
 			<div class="wp-block-group" style="min-height:100%">
-				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|40"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 				<div class="wp-block-group">
 					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 					<div class="wp-block-group">
@@ -79,19 +79,19 @@ $patron_features = [
 				</div>
 				<!-- /wp:group -->
 
-				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Member', 'newspack' ); ?>","width":100,"className":"is-style-outline"} /-->
+				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Member', 'newspack' ); ?>","width":100,"className":"is-style-outline","style":{"border":{"radius":"3px"}}} /-->
 			</div>
 			<!-- /wp:group -->
 
 		</div>
 		<!-- /wp:column -->
 
-		<!-- wp:column -->
-		<div class="wp-block-column">
+		<!-- wp:column {"style":{"spacing":{"padding":{"top":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40","right":"var:preset|spacing|40"}},"shadow":"var:preset|shadow|inset-1","border":{"width":"1px"}},"borderColor":"contrast","className":"is-style-rounded"} -->
+		<div class="wp-block-column is-style-rounded has-border-color has-contrast-border-color" style="border-width:1px;padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40);box-shadow:var(--wp--preset--shadow--inset-1)">
 
-			<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
+			<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Content', 'newspack' ); ?>"},"style":{"dimensions":{"minHeight":"100%"},"spacing":{"blockGap":"var:preset|spacing|40"}},"layout":{"type":"flex","orientation":"vertical","verticalAlignment":"space-between","justifyContent":"stretch"}} -->
 			<div class="wp-block-group" style="min-height:100%">
-				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
+				<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Details', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|40"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 				<div class="wp-block-group">
 					<!-- wp:group {"metadata":{"name":"<?php esc_html_e( 'Top', 'newspack' ); ?>"},"style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"stretch"}} -->
 					<div class="wp-block-group">
@@ -136,7 +136,7 @@ $patron_features = [
 				</div>
 				<!-- /wp:group -->
 
-				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Patron', 'newspack' ); ?>","width":100} /-->
+				<!-- wp:newspack-blocks/checkout-button {"text":"<?php esc_html_e( 'Become a Patron', 'newspack' ); ?>","width":100,"style":{"border":{"radius":"3px"}}} /-->
 			</div>
 			<!-- /wp:group -->
 
