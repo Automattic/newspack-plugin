@@ -1152,12 +1152,8 @@ final class Reader_Activation {
 		}
 
 		/** Do not render link for authenticated readers if account page doesn't exist. */
-		if ( empty( $account_url ) ) {
-			if ( \is_user_logged_in() ) {
-				return '';
-			} else {
-				$account_url = '#';
-			}
+		if ( empty( $account_url ) && \is_user_logged_in() ) {
+			return '';
 		}
 
 		$class = function( ...$parts ) {
@@ -1230,8 +1226,13 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 
-		$referer = \wp_parse_url( \wp_get_referer() );
-		$labels  = self::get_reader_activation_labels( 'signin' );
+		$referer           = \wp_parse_url( \wp_get_referer() );
+		$labels            = self::get_reader_activation_labels( 'signin' );
+		$auth_callback_url = '#';
+		// If we are already on the my account page, set the my account URL so the page reloads on submit.
+		if ( function_exists( 'wc_get_page_permalink' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
+			$auth_callback_url = \wc_get_page_permalink( 'myaccount' );
+		}
 		?>
 		<div class="newspack-ui newspack-reader-auth">
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
@@ -1273,7 +1274,7 @@ final class Reader_Activation {
 					<?php Recaptcha::render_recaptcha_v2_container(); ?>
 				<?php endif; ?>
 				<div class="response-container">
-					<div class="response newspack-ui__inline-error">
+					<div class="response">
 						<?php if ( ! empty( $message ) ) : ?>
 							<p><?php echo \esc_html( $message ); ?></p>
 						<?php endif; ?>
@@ -1298,7 +1299,7 @@ final class Reader_Activation {
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="register" data-set-action="signin"><?php echo \esc_html( $labels['register'] ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="otp pwd"  data-back><?php echo \esc_html( $labels['go_back'] ); ?></button>
 			</form>
-			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
+			<a href="<?php echo \esc_url( $auth_callback_url ); ?>" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
 			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php echo \esc_html( $labels['set_password'] ); ?></a>
 		</div>
 		<?php
@@ -1424,14 +1425,12 @@ final class Reader_Activation {
 					<p class="newspack-ui__font--xs details">
 						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
 					</p>
-					<?php if ( ! empty( $email_address ) ) : ?>
-						<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
-							<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
-							<span class="email">
-								<?php echo esc_html( $email_address ); ?>
-							</span>
-						</p>
-					<?php endif; ?>
+					<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
+						<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
+						<span class="email">
+							<?php echo esc_html( $email_address ); ?>
+						</span>
+					</p>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
 				</div>
 			</div>
@@ -2002,6 +2001,11 @@ final class Reader_Activation {
 				'user_pass'     => \wp_generate_password(),
 			]
 		);
+
+		// Check if a user with this login exists.
+		if ( \username_exists( $user_data['user_login'] ) ) {
+			$user_data['user_login'] = $user_data['user_login'] . '-' . \wp_generate_password( 4, false );
+		}
 
 		/*
 		 * Filters the user_data used to register a new RAS reader account.

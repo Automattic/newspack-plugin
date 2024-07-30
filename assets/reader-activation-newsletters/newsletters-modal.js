@@ -81,7 +81,13 @@ export function openNewslettersSignupModal( config = {} ) {
 	const emailInput = modal.querySelector( 'span.email' );
 	if ( emailInput && ! emailInput.innerText ) {
 		const reader = window?.newspackReaderActivation?.getReader();
-		emailInput.textContent = reader?.email || '';
+
+		if ( reader?.email ) {
+			emailInput.textContent = reader.email;
+		} else {
+			// Remove parent element of emailInput if no email is found.
+			emailInput.parentElement.remove();
+		}
 	}
 
 	modal.setAttribute( 'data-state', 'open' );
