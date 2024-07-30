@@ -32,6 +32,16 @@ h1 {
 .gray-700 {
 	color: var(--np-color-wp-gray-700);
 }
+
+/**
+ * Wizards
+ */
+.newspack-wizard-page {
+	#screen-meta-links {
+		position: absolute;
+		right: 0;
+	}
+}
 .newspack-wizard {
 
 	.newspack-wizard__loader {
@@ -114,7 +124,7 @@ table.fixed {
 	position: static;
 	table-layout: fixed;
 }
-.wrap * {
+.wrap *:not( textarea, input ) {
 	box-sizing: unset;
 }
 
