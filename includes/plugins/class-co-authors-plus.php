@@ -209,7 +209,9 @@ class Co_Authors_Plus {
 
 			// Create user name from Display name.
 			$user->user_login = self::generate_username( $user->display_name );
+		}
 
+		if ( empty( $user->user_email ) ) {
 			// Create a placeholder email address to avoid any issues with empty emails.
 			$user->user_email = $user->user_login . '@example.com';
 		}
