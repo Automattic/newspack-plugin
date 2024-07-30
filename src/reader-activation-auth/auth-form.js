@@ -61,6 +61,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
 					if ( 'register' === action ) {
 						submitButtons.forEach( button => button.removeAttribute( 'data-skip-recaptcha' ) );
+						newspack_grecaptcha.render( [ form ] );
 					} else {
 						submitButtons.forEach( button => button.setAttribute( 'data-skip-recaptcha', '' ) );
 					}
@@ -179,7 +180,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 							},
 							body,
 						} )
-							.then( () => {
+							.then( response => {
+								if ( 200 !== response.status ) {
+									return response.json().then( ( { message } ) => {
+										form.endLoginFlow( message, response.status );
+									} );
+								}
 								form.setMessageContent(
 									formAction === 'pwd'
 										? newspack_reader_activation_labels.code_sent
@@ -189,9 +195,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 								if ( ! readerActivation.getOTPTimeRemaining() ) {
 									readerActivation.setOTPTimer();
 								}
-							} )
-							.catch( e => {
-								console.log( e ); // eslint-disable-line no-console
 							} )
 							.finally( () => {
 								handleOTPTimer();
