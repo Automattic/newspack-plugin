@@ -57,28 +57,25 @@ class Advertising_Sponsors extends Wizard {
 		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
-		add_filter(
-			'admin_page_newspack-sponsors-settings-admin',
-			function( $t, $e = '' ) {
-				$stop = true;
-				return $t;
-			},
-			10,
-			2 
-		);
+		// Add `current` class to Sponsor submenu item when on Sponsor settings page.
+		add_filter( 'parent_file', [ $this, 'parent_file' ] );
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
-		if ( $this->is_edit_screen() ) {
+		if ( $this->is_wizard_page() ) {
 			// Enqueue Wizards Admin Tabs script.
 			$this->enqueue_admin_tabs(
 				[
-					[
-						'textContent' => esc_html__( 'All Sponsors', 'newspack' ),
-						'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
-					],
-					[
-						'textContent' => esc_html__( 'Settings', 'newspack' ),
-						'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt&page=newspack-sponsors-settings-admin' ),
-					],
+					'tabs'  => [
+						[
+							'textContent' => esc_html__( 'All Sponsors', 'newspack' ),
+							'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
+						],
+						[
+							'textContent' => esc_html__( 'Settings', 'newspack' ),
+							'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt&page=newspack-sponsors-settings-admin' ),
+						],
+					], 
+					'title' => $this->get_name(), 
 				]
 			);
 		}
@@ -90,7 +87,7 @@ class Advertising_Sponsors extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Sponsors', 'newspack' );
+		return esc_html__( 'Advertising / Sponsors', 'newspack' );
 	}
 
 	/**
@@ -98,7 +95,7 @@ class Advertising_Sponsors extends Wizard {
 	 *
 	 * @return bool true if browsing `edit.php?post_type=newspack_spnsrs_cpt`, false otherwise.
 	 */
-	private function is_edit_screen() {
+	public function is_wizard_page() {
 		global $pagenow;
 		if ( 'edit.php' !== $pagenow ) {
 			return false;
@@ -110,7 +107,7 @@ class Advertising_Sponsors extends Wizard {
 	 * Enqueue scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
-		if ( ! $this->is_edit_screen() ) {
+		if ( ! $this->is_wizard_page() ) {
 			return;
 		}
 		Newspack::load_common_assets();
@@ -138,14 +135,16 @@ class Advertising_Sponsors extends Wizard {
 		}
 
 		// Register Settings.
-		add_submenu_page(
-			null, // No parent menu.
-			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
-			__( 'Settings', 'newspack-sponsors' ),
-			'manage_options',
-			'newspack-sponsors-settings-admin',
-			[ Settings::class, 'create_admin_page' ]
-		);
+		if ( class_exists( 'Newspack_Sponsors\Settings' ) ) {
+			add_submenu_page(
+				null, // No parent menu.
+				__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
+				__( 'Settings', 'newspack-sponsors' ),
+				'manage_options',
+				'newspack-sponsors-settings-admin',
+				[ Settings::class, 'create_admin_page' ]
+			);
+		}
 	}
 
 	/**
@@ -161,5 +160,36 @@ class Advertising_Sponsors extends Wizard {
 			$args['show_in_menu'] = 'admin.php?page=advertising-display-ads';
 		}
 		return $args;
+	}
+
+	/**
+	 * Parent file filter. Used to determine active menu items.
+	 *
+	 * @param string $parent_file Parent file to be overridden.
+	 * @return string 
+	 */
+	public function parent_file( $parent_file ) {
+		global $submenu_file;
+		
+		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$parent_file = 'admin.php?page=advertising-display-ads';
+			$submenu_file = 'edit.php?post_type=newspack_spnsrs_cpt'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	
+		return $parent_file;
+	}
+
+	/**
+	 * Submenu file filter. Used to determine active submenu items.
+	 *
+	 * @param string $submenu_file Submenu file to be overridden.
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$submenu_file = 'edit.php?post_type=newspack_spnsrs_cpt';
+		}
+	
+		return $submenu_file;
 	}
 }
