@@ -139,7 +139,7 @@ function renderWidget( form ) {
 			callback,
 		} );
 		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
-		setInterval( () => refreshWidget( button ), 30000 ); // Refresh widget every 30 seconds.
+		setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
 
 		// Refresh reCAPTCHAs on Woo checkout update and error.
 		( function ( $ ) {
@@ -155,8 +155,13 @@ function renderWidget( form ) {
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				callback();
 			} else {
-				e.preventDefault();
 				grecaptcha.execute( widgetId );
+
+				// For some reason, WooCommerce checkout forms don't properly pin the widget in a fixed location, so we need to scroll to the top of the page to ensure it's visible.
+				if ( 'newspack_modal_checkout_container' === document.body.getAttribute( 'id' ) ) {
+					document.body.scrollIntoView( { behavior: 'smooth' } );
+				}
+				e.preventDefault();
 			}
 		} );
 	} );
