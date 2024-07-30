@@ -8,7 +8,6 @@
 namespace Newspack;
 
 use Newspack\Starter_Content;
-use Newspack\Wizards\Section;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -69,6 +68,7 @@ abstract class Wizard {
 		if ( isset( $args['sections'] ) ) {
 			$this->load_wizard_sections( $args['sections'] );
 		}
+		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 	}
 
 	/**
@@ -93,6 +93,15 @@ abstract class Wizard {
 		<div class="newspack-wizard <?php echo esc_attr( $this->slug ); ?>" id="<?php echo esc_attr( $this->slug ); ?>">
 		</div>
 		<?php
+	}
+
+	/**
+	 * Is Wizard admin page being viewed.
+	 *
+	 * @return bool 
+	 */
+	public function is_wizard_page() {
+		return filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) === $this->slug;
 	}
 
 	/**
@@ -278,5 +287,18 @@ abstract class Wizard {
 			}
 			$this->sections[ $section_slug ] = new $section_class();
 		}
+	}
+
+	/**
+	 * Add body class for wizard pages.
+	 * 
+	 * @param string $classes The current body classes.
+	 */
+	public function add_body_class( $classes ) {
+		if ( ! $this->is_wizard_page() ) {
+			return $classes;
+		}
+		$classes .= ' newspack-wizard-page';
+		return $classes;
 	}
 }
