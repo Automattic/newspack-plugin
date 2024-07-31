@@ -39,6 +39,7 @@ class GA4 {
 		'newsletter_subscribed',
 		'prompt_interaction',
 		'gate_interaction',
+		'modal_checkout_interaction',
 	];
 
 	/**
@@ -442,6 +443,23 @@ class GA4 {
 		unset( $transformed_data['ga_client_id'] );
 
 		$transformed_data = Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $transformed_data );
+
+		return array_merge( $params, $transformed_data );
+	}
+
+	/**
+	 * Handler for modal_checkout_interaction event.
+	 *
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_modal_checkout_interaction( $params, $data ) {
+		$transformed_data = $data;
+		// remove data added in the body filter.
+		unset( $transformed_data['ga_params'] );
+		unset( $transformed_data['ga_client_id'] );
 
 		return array_merge( $params, $transformed_data );
 	}
