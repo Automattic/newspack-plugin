@@ -1,3 +1,22 @@
+# [4.7.0](https://github.com/Automattic/newspack-plugin/compare/v4.6.1...v4.7.0) (2024-07-30)
+
+
+### Bug Fixes
+
+* **reader-activation:** handle user login clash ([10dfcd1](https://github.com/Automattic/newspack-plugin/commit/10dfcd166eb533c0fc89f73487f6dd4f45237275))
+
+
+### Features
+
+* **cli-co-authors-plus:** ensure correct author slug is set ([#3248](https://github.com/Automattic/newspack-plugin/issues/3248)) ([14ad71b](https://github.com/Automattic/newspack-plugin/commit/14ad71bd98a24466da188a56f8e5f7e6d6e80930))
+
+## [4.6.1](https://github.com/Automattic/newspack-plugin/compare/v4.6.0...v4.6.1) (2024-07-29)
+
+
+### Bug Fixes
+
+* use percentage rather than value for cover fee text ([#3280](https://github.com/Automattic/newspack-plugin/issues/3280)) ([e76d8af](https://github.com/Automattic/newspack-plugin/commit/e76d8af7d0a239e46bceb8de44accbf9a7063b1e))
+
 # [4.6.0](https://github.com/Automattic/newspack-plugin/compare/v4.5.0...v4.6.0) (2024-07-15)
 
 
