@@ -326,6 +326,26 @@ export function getAuthStrategy() {
 	}
 	return getCookie( 'np_auth_strategy' );
 }
+/**
+ * Set the reader checkout status.
+ *
+ * @param {boolean} status Checkout status. Default is false.
+ *
+ * @return {void}
+ */
+export function setCheckoutStatus( status = false ) {
+	setCookie( 'np_auth_checkout_status', status );
+	emit( EVENTS.reader, getReader() );
+	return status;
+}
+/**
+ * Get the reader checkout status.
+ *
+ * @return {boolean} Reader checkout status.
+ */
+export function getCheckoutStatus() {
+	return 'true' === getCookie( 'np_auth_checkout_status' );
+}
 
 /**
  * Ensure the client ID cookie is set.
@@ -425,6 +445,8 @@ const readerActivation = {
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
+	setCheckoutStatus,
+	getCheckoutStatus,
 };
 
 /**
