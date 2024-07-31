@@ -83,7 +83,7 @@ class Memberships {
 	/**
 	 * Check if Memberships is available.
 	 */
-	public static function has_memberships() {
+	public static function is_active() {
 		return class_exists( 'WC_Memberships' ) && function_exists( 'wc_memberships' );
 	}
 
@@ -330,7 +330,7 @@ class Memberships {
 	 * @return string[] Plan names keyed by plan ID.
 	 */
 	private static function get_gate_plans( $gate_id ) {
-		if ( ! self::has_memberships() || ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
 			return [];
 		}
 		$ids = get_post_meta( $gate_id, 'plans', true );
@@ -353,7 +353,7 @@ class Memberships {
 	 * @return array
 	 */
 	public static function get_plans() {
-		if ( ! self::has_memberships() || ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
 			return [];
 		}
 		$membership_plans = wc_memberships_get_membership_plans();
@@ -424,7 +424,7 @@ class Memberships {
 		if ( ! \is_user_logged_in() ) {
 			return false;
 		}
-		if ( ! self::has_memberships() || ! function_exists( 'wc_memberships_is_user_active_or_delayed_member' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_is_user_active_or_delayed_member' ) ) {
 			return false;
 		}
 		return \wc_memberships_is_user_active_or_delayed_member( \get_current_user_id(), $plan_id );
@@ -489,7 +489,7 @@ class Memberships {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		if ( ! self::has_memberships() || ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! \wc_memberships_is_post_content_restricted( $post_id ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! \wc_memberships_is_post_content_restricted( $post_id ) ) {
 			return false;
 		}
 		return ! is_user_logged_in() || ! current_user_can( 'wc_memberships_view_restricted_post_content', $post_id ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
@@ -804,7 +804,7 @@ class Memberships {
 	 */
 	public static function user_has_cap( $all_caps, $caps, $args ) {
 		// Bail if Woo Memberships is not active.
-		if ( ! self::has_memberships() ) {
+		if ( ! self::is_active() ) {
 			return $all_caps;
 		}
 
@@ -933,7 +933,7 @@ class Memberships {
 	 * @return string
 	 */
 	public static function check_membership_status( $post_status, $post ) {
-		if ( 'wc_user_membership' !== $post->post_type || 'wcm-active' === $post->post_status || ! self::has_memberships() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
+		if ( 'wc_user_membership' !== $post->post_type || 'wcm-active' === $post->post_status || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
 			return $post_status;
 		}
 		$integrations = wc_memberships()->get_integrations_instance();

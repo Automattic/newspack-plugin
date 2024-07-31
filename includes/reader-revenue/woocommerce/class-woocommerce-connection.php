@@ -198,7 +198,7 @@ class WooCommerce_Connection {
 		$user_id = $customer->get_id();
 
 		// Prioritize any currently active subscriptions.
-		$active_subscriptions = self::get_active_subscriptions_for_user( $user_id() );
+		$active_subscriptions = self::get_active_subscriptions_for_user( $user_id );
 		if ( ! empty( $active_subscriptions ) ) {
 			return reset( $active_subscriptions );
 		}
@@ -206,7 +206,7 @@ class WooCommerce_Connection {
 		// If no active subscriptions, get the most recent completed order.
 		// See https://github.com/woocommerce/woocommerce/wiki/wc_get_orders-and-WC_Order_Query for query args.
 		$args = [
-			'customer_id' => $user_id(),
+			'customer_id' => $user_id,
 			'status'      => [ 'wc-completed' ],
 			'limit'       => 1,
 			'order'       => 'DESC',
