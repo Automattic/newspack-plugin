@@ -45,6 +45,7 @@ const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
  */
 function refresh( field, action = 'submit' ) {
 	if ( field ) {
+		// Get a token to pass to the server. See https://developers.google.com/recaptcha/docs/v3 for API reference.
 		return grecaptcha.execute( siteKey, { action } ).then( token => {
 			field.value = token;
 		} );
@@ -112,9 +113,12 @@ function renderWidget( form ) {
 	const submitButtons = [
 		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ),
 	];
+
+	// Common render options for reCAPTCHA v2 widget. See https://developers.google.com/recaptcha/docs/invisible#render_param for supported params.
 	const options = {
 		sitekey: siteKey,
 		size: isInvisible ? 'invisible' : 'normal',
+		isolated: true, // Seems to avoid a "Cannot contact reCAPTCHA" connection error in some browsers.
 	};
 
 	submitButtons.forEach( button => {
@@ -134,6 +138,8 @@ function renderWidget( form ) {
 			form.requestSubmit( button );
 			refreshWidget( button );
 		};
+
+		// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
 		const widgetId = grecaptcha.render( button, {
 			...options,
 			callback,
@@ -171,6 +177,11 @@ function renderWidget( form ) {
  * Render reCAPTCHA elements.
  */
 function render( forms = [] ) {
+	// In case some other file calls this function before the reCAPTCHA API is ready.
+	if ( ! grecaptcha ) {
+		return domReady( () => grecaptcha.ready( () => render( forms ) ) );
+	}
+
 	const formsToHandle = forms.length
 		? forms
 		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
@@ -203,6 +214,4 @@ function destroy( forms = [] ) {
 /**
  * Invoke only after reCAPTCHA API is ready.
  */
-domReady( function () {
-	grecaptcha.ready( render );
-} );
+domReady( () => grecaptcha.ready( render ) );
