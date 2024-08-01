@@ -44,7 +44,7 @@ class Advertising_Sponsors extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Sponsors', 'newspack' );
+		return \esc_html__( 'Sponsors', 'newspack-plugin' );
 	}
 
 	/**

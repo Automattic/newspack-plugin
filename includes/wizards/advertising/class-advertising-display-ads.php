@@ -69,7 +69,7 @@ class Advertising_Display_Ads extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return \esc_html__( 'Advertising', 'newspack' );
+		return \esc_html__( 'Advertising', 'newspack-plugin' );
 	}
 
 	/**
@@ -411,7 +411,7 @@ class Advertising_Display_Ads extends Wizard {
 			$ad_units = $configuration_manager->get_ad_units();
 		} catch ( \Exception $error ) {
 			$message = $error->getMessage();
-			$error   = new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack' ) );
+			$error   = new WP_Error( 'newspack_ad_units', $message ? $message : __( 'Ad Units failed to fetch.', 'newspack-plugin' ) );
 		}
 
 		if ( \is_wp_error( $ad_units ) ) {
