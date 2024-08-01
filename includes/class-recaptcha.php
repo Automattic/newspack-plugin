@@ -121,8 +121,6 @@ final class Recaptcha {
 				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 				false
 			);
-			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'async', true );
-			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'defer', true );
 
 			\wp_enqueue_script(
 				self::SCRIPT_HANDLE,
@@ -131,8 +129,6 @@ final class Recaptcha {
 				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
-			\wp_script_add_data( self::SCRIPT_HANDLE, 'async', true );
-			\wp_script_add_data( self::SCRIPT_HANDLE, 'defer', true );
 
 			\wp_localize_script(
 				self::SCRIPT_HANDLE,
