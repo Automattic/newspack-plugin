@@ -214,4 +214,6 @@ function destroy( forms = [] ) {
 /**
  * Invoke only after reCAPTCHA API is ready.
  */
-domReady( () => grecaptcha.ready( render ) );
+domReady( function () {
+	grecaptcha.ready( render );
+} );
