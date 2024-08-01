@@ -200,7 +200,7 @@ class WooCommerce_Connection {
 		// Prioritize any currently active subscriptions.
 		$active_subscriptions = self::get_active_subscriptions_for_user( $user_id );
 		if ( ! empty( $active_subscriptions ) ) {
-			return reset( $active_subscriptions );
+			return \wcs_get_subscription( reset( $active_subscriptions ) );
 		}
 
 		// If no active subscriptions, get the most recent completed order.
