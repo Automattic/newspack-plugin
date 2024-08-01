@@ -64,7 +64,7 @@ class Advertising_Sponsors extends Wizard {
 		add_filter( 'parent_file', [ $this, 'parent_file' ] );
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
-		if ( $this->is_wizard_page() ) {
+		if ( $this->is_sponsors_edit() ) {
 			// Enqueue Wizards Admin Tabs script.
 			$this->enqueue_admin_tabs(
 				[
@@ -98,7 +98,7 @@ class Advertising_Sponsors extends Wizard {
 	 *
 	 * @return bool true if browsing `edit.php?post_type=newspack_spnsrs_cpt`, false otherwise.
 	 */
-	public function is_wizard_page() {
+	public function is_sponsors_edit() {
 		global $pagenow;
 		if ( 'edit.php' !== $pagenow ) {
 			return false;
@@ -110,7 +110,7 @@ class Advertising_Sponsors extends Wizard {
 	 * Enqueue scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
-		if ( ! $this->is_wizard_page() ) {
+		if ( ! $this->is_sponsors_edit() ) {
 			return;
 		}
 		Newspack::load_common_assets();
@@ -131,7 +131,7 @@ class Advertising_Sponsors extends Wizard {
 		global $submenu;
 		if ( isset( $submenu[ $this->parent_slug ] ) ) {
 			$submenu[ $this->parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				__( 'Sponsors', 'textdomain' ),
+				__( 'Sponsors', 'newspack-plugin' ),
 				'manage_options',
 				'edit.php?post_type=newspack_spnsrs_cpt',
 			);
