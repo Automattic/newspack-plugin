@@ -392,6 +392,18 @@ class Plugin_Manager {
 		}
 		$status            = 'uninstalled';
 		$installed_plugins = self::get_installed_plugins();
+
+		// Also check for release, epic, or other non-release versions of newspack plugins.
+		if ( str_contains( $plugin_slug, 'newspack' ) ) {
+			foreach ( $installed_plugins as $slug => $path ) {
+				// If there is a non-release slug installed, inject the release slug/path into the installed plugins array.
+				// We need to do this because the `is_plugin_active` function only depends on the "standard" slug and path.
+				if ( $slug !== $plugin_slug && str_contains( $slug, $plugin_slug ) ) {
+					$installed_plugins[ $plugin_slug ] = $plugin_slug . '/' . $plugin_slug . '.php';
+				}
+			}
+		}
+
 		if ( isset( $installed_plugins[ $plugin_slug ] ) ) {
 			if ( \is_plugin_active( $installed_plugins[ $plugin_slug ] ) ) {
 				$status = 'active';
