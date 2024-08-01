@@ -64,7 +64,7 @@ class Advertising_Sponsors extends Wizard {
 		add_filter( 'parent_file', [ $this, 'parent_file' ] );
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
-		if ( $this->is_sponsors_edit() ) {
+		if ( $this->is_wizard_page() ) {
 			// Enqueue Wizards Admin Tabs script.
 			$this->enqueue_admin_tabs(
 				[
@@ -98,7 +98,7 @@ class Advertising_Sponsors extends Wizard {
 	 *
 	 * @return bool true if browsing `edit.php?post_type=newspack_spnsrs_cpt`, false otherwise.
 	 */
-	public function is_sponsors_edit() {
+	public function is_wizard_page() {
 		global $pagenow;
 		if ( 'edit.php' !== $pagenow ) {
 			return false;
@@ -110,7 +110,7 @@ class Advertising_Sponsors extends Wizard {
 	 * Enqueue scripts and styles.
 	 */
 	public function enqueue_scripts_and_styles() {
-		if ( ! $this->is_sponsors_edit() ) {
+		if ( ! $this->is_wizard_page() ) {
 			return;
 		}
 		Newspack::load_common_assets();
