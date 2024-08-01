@@ -1204,8 +1204,10 @@ final class Reader_Activation {
 
 	/**
 	 * Renders reader authentication form.
+	 *
+	 * @param boolean $in_modal Whether the form is rendiner in a modal; defaults to true.
 	 */
-	public static function render_auth_form() {
+	public static function render_auth_form( $in_modal = true ) {
 		/**
 		 * Filters whether to render reader auth form.
 		 *
@@ -1235,6 +1237,10 @@ final class Reader_Activation {
 		}
 		?>
 		<div class="newspack-ui newspack-reader-auth">
+			<?php if ( false === $in_modal ) { ?>
+				<h2 data-action="signin"><?php echo wp_kses_post( self::get_reader_activation_labels( 'title' ) ); ?></h2>
+				<h2 data-action="register"><?php echo wp_kses_post( self::get_reader_activation_labels( 'create_account' ) ); ?></h2>
+			<?php } ?>
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
 					<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
