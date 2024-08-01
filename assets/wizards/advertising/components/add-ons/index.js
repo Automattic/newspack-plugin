@@ -19,11 +19,17 @@ export default function AddOns() {
 			plugins={ {
 				'super-cool-ad-inserter': {
 					actionText: __( 'Configure', 'newspack-plugin' ),
-					href: '#/settings',
+					href: '#/settings/scaip',
+					onClick() {
+						document.getElementById( 'plugin-settings-scaip' ).scrollIntoView();
+					},
 				},
 				'ad-refresh-control': {
 					actionText: __( 'Configure', 'newspack-plugin' ),
-					href: '#/settings',
+					onClick() {
+						document.getElementById( 'ad-refresh-control' ).scrollIntoView();
+					},
+					href: '#/settings/ad-refresh-control',
 				},
 				'publisher-media-kit': {
 					shouldRefreshAfterUpdate: true,
