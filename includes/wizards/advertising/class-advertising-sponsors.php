@@ -70,11 +70,11 @@ class Advertising_Sponsors extends Wizard {
 				[
 					'tabs'  => [
 						[
-							'textContent' => esc_html__( 'All Sponsors', 'newspack' ),
+							'textContent' => esc_html__( 'All Sponsors', 'newspack-plugin' ),
 							'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
 						],
 						[
-							'textContent' => esc_html__( 'Settings', 'newspack' ),
+							'textContent' => esc_html__( 'Settings', 'newspack-plugin' ),
 							'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt&page=newspack-sponsors-settings-admin' ),
 						],
 					], 
@@ -90,7 +90,7 @@ class Advertising_Sponsors extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Advertising / Sponsors', 'newspack' );
+		return esc_html__( 'Advertising / Sponsors', 'newspack-plugin' );
 	}
 
 	/**
