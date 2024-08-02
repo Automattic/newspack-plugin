@@ -147,21 +147,20 @@ class Co_Authors_Plus {
 	 * Create the custom role and then add custom capability.
 	 */
 	public static function setup_custom_role_and_capability() {
-		$current_settings_version = '1';
+		$current_settings_version = '2';
 		if ( \get_option( self::SETTINGS_VERSION_OPTION_NAME ) === $current_settings_version ) {
 			return;
 		}
 
-		// Create the custom role if it doesn't exist.
-		if ( get_role( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) === null ) {
-			add_role( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.custom_role_add_role
-				self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
-				__( 'Non-Editing Contributor', 'newspack-plugin' ),
-				[
-					self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME => true,
-				]
-			);
-		}
+		// Update the custom role.
+		remove_role( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
+		add_role( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.custom_role_add_role
+			self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+			__( 'Guest Contributor', 'newspack-plugin' ),
+			[
+				self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME => true,
+			]
+		);
 
 		$wp_roles = wp_roles();
 		foreach ( $wp_roles->roles as $role_name => $role ) {
@@ -300,7 +299,7 @@ class Co_Authors_Plus {
 		}
 
 		if ( self::is_guest_author( $user ) ) {
-			return new WP_Error( 'guest_authors_cannot_login', __( 'Non-Editing Contributors cannot login.', 'newspack-plugin' ) );
+			return new WP_Error( 'guest_authors_cannot_login', __( 'Guest Contributors cannot login.', 'newspack-plugin' ) );
 		}
 
 		return $user;
@@ -328,11 +327,11 @@ class Co_Authors_Plus {
 			<div class="wrap">
 				<h1><?php echo esc_html__( 'Guest Authors', 'newspack-plugin' ); ?></h1>
 
-				<p><?php echo esc_html__( "Co-Authors-Plus' Guest Authors are disabled in this site. Use the Non-Editing Contributor user role instead.", 'newspack-plugin' ); ?></p>
+				<p><?php echo esc_html__( "Co-Authors-Plus' Guest Authors are disabled in this site. Use the Guest Contributor user role instead.", 'newspack-plugin' ); ?></p>
 				<p><?php echo esc_html__( 'You can use one of the shortcuts below:', 'newspack-plugin' ); ?></p>
 
-				<a href="<?php echo esc_url( admin_url( 'user-new.php?role=' . self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) ); ?>" class="page-title-action"><?php echo esc_html__( 'Create a new Non-Editing Contributor', 'newspack-plugin' ); ?></a>
-				<a href="<?php echo esc_url( admin_url( 'users.php?role=' . self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) ); ?>" class="page-title-action"><?php echo esc_html__( 'View all Non-Editing Contributors', 'newspack-plugin' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'user-new.php?role=' . self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) ); ?>" class="page-title-action"><?php echo esc_html__( 'Create a new Guest Contributor', 'newspack-plugin' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'users.php?role=' . self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ) ); ?>" class="page-title-action"><?php echo esc_html__( 'View all Guest Contributors', 'newspack-plugin' ); ?></a>
 			</div>
 		<?php
 	}
