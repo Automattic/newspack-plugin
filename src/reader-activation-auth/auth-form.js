@@ -57,6 +57,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
+						form.setMessageContent();
+						container.setFormAction( 'signin', true );
 						return;
 					}
 					const emailAddressElements = container.querySelectorAll( '.email-address' );

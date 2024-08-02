@@ -45,6 +45,7 @@ export function openAuthModal( config = {} ) {
 	const close = () => {
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
+		window?.newspackReaderActivation?.clearOTPRequest();
 		document.body.classList.remove( 'newspack-signin' );
 		document.body.style.overflow = 'auto';
 		if ( modal.overlayId && window.newspackReaderActivation?.overlays ) {
