@@ -69,7 +69,7 @@ class Advertising_Display_Ads extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return \esc_html__( 'Advertising', 'newspack-plugin' );
+		return esc_html__( 'Advertising', 'newspack-plugin' );
 	}
 
 	/**

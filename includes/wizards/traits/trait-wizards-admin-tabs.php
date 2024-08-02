@@ -17,8 +17,6 @@ use Newspack\Newspack;
  * @package Newspack\Wizards\Traits
  */
 trait Admin_Tabs {
-
-
 	/**
 	 * Holds the admin tabs data.
 	 *
