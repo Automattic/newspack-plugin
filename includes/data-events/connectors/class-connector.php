@@ -119,4 +119,38 @@ abstract class Connector {
 
 		static::put( $contact );
 	}
+
+	/**
+	 * Handle a change in membership status.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function membership_status_changed( $timestamp, $data, $client_id ) {
+		if ( empty( $data['membership_id'] ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'wc_memberships_get_user_membership' ) ) {
+			return;
+		}
+
+		$membership          = \wc_memberships_get_user_membership( $data['membership_id'] );
+		$membership_order_id = $membership->get_order_id();
+
+		// If the membership is not tied to a subscription order (manually granted),
+		// we can't perform this sync.
+		if ( ! $membership_order_id ) {
+			return;
+		}
+
+		$contact = WooCommerce_Connection::get_contact_from_order( $membership_order_id );
+
+		if ( ! $contact ) {
+			return;
+		}
+
+		static::put( $contact );
+	}
 }

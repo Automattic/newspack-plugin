@@ -134,18 +134,18 @@ When there's a new donation.
 
 When any WooCommerce order is completed with a successful payment.
 
-| Name              | Type     | Obs                                                    |
-| ----------------- | -------- | ------------------------------------------------------ |
-| `user_id`         | `int`    |                                                        |
-| `email`           | `string` |                                                        |
-| `amount`          | `float`  |                                                        |
-| `currency`        | `string` |                                                        |
-| `platform`        | `string` |                                                        |
-| `referer`         | `string` |                                                        |
-| `popup_id`        | `string` | If the order was triggered by a popup, the popup ID    |
-| `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
-| `subscription_id` | `int`    | The related subscription id (if any)                   |
-| `platform_data`   | `array`  |                                                        |
+| Name              | Type     | Obs                                                   |
+| ----------------- | -------- | ----------------------------------------------------- |
+| `user_id`         | `int`    |                                                       |
+| `email`           | `string` |                                                       |
+| `amount`          | `float`  |                                                       |
+| `currency`        | `string` |                                                       |
+| `platform`        | `string` |                                                       |
+| `referer`         | `string` |                                                       |
+| `popup_id`        | `string` | If the order was triggered by a popup, the popup ID   |
+| `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment) |
+| `subscription_id` | `int`    | The related subscription id (if any)                  |
+| `platform_data`   | `array`  |                                                       |
 
 ### `donation_subscription_new`
 
@@ -265,6 +265,43 @@ If `action_type` is `donation`:
 | `donation_currency`   | `string` |                                                                                                  |
 | `donation_recurrence` | `string` |                                                                                                  |
 | `donation_platform`   | `string` |                                                                                                  |
+
+### `membership_status_changed`
+
+When a WooCommerce Membership plan changes for a reader. This is not triggered on membership creation.
+
+| Name            | Type     |
+| --------------- | -------- |
+| `user_id`       | `int`    |
+| `email`         | `string` |
+| `membership_id` | `int`    |
+| `plan_id`       | `int`    |
+| `status_before` | `string` |
+| `status_after`  | `string` |
+
+### `membership_status_active`
+
+When a WooCommerce Membership plan becomes active for a reader, also triggered on membership first activation/creation.
+
+| Name            | Type     |
+| --------------- | -------- |
+| `user_id`       | `int`    |
+| `email`         | `string` |
+| `membership_id` | `int`    |
+| `plan_id`       | `int`    |
+
+### `membership_status_inactive`
+
+When a WooCommerce Membership plan becomes inactive for a reader. It's considered inactive any membership status that prevents the reader from accessing content restricted by the membership plan. Read more at https://woocommerce.com/document/woocommerce-memberships-user-memberships/#section-4
+
+| Name            | Type     |
+| --------------- | -------- |
+| `user_id`       | `int`    |
+| `email`         | `string` |
+| `membership_id` | `int`    |
+| `plan_id`       | `int`    |
+| `status_before` | `string` |
+| `status_after`  | `string` |
 
 ## Registering a new action
 

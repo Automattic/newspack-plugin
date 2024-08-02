@@ -276,7 +276,8 @@ Data_Events::register_listener(
 
 /**
  * When a WooCommerce Memberships plan becomes active for a reader.
- * This hook is fired whenever a user is granted access to a membership plan.
+ *
+ * This listener is fired whenever a user is granted access to a membership plan.
  * The membership plan will be add to the user's list of active memberships.
  */
 Data_Events::register_listener(
@@ -293,17 +294,43 @@ Data_Events::register_listener(
 		$user       = \get_user_by( 'id', $args['user_id'] );
 		$user_email = $user ? $user->user_email : '';
 		return [
-			'user_id' => $args['user_id'],
-			'email'   => $user_email,
-			'plan_id' => $membership_plan->get_id(),
+			'user_id'       => $args['user_id'],
+			'email'         => $user_email,
+			'membership_id' => $membership->get_id(),
+			'plan_id'       => $membership_plan->get_id(),
+		];
+	}
+);
+
+/**
+ * When a WooCoomerce Memberships plan changes status for a reader.
+ *
+ * This listener is fired when an existing user membership is updated, but not
+ * when created.
+ */
+Data_Events::register_listener(
+	'wc_memberships_user_membership_status_changed',
+	'membership_status_changed',
+	function( $membership, $old_status, $new_status ) {
+		$user_id    = $membership->get_user_id();
+		$user       = \get_user_by( 'id', $user_id );
+		$user_email = $user ? $user->user_email : '';
+		return [
+			'user_id'       => $user_id,
+			'email'         => $user_email,
+			'membership_id' => $membership->get_id(),
+			'plan_id'       => $membership->get_plan_id(),
+			'status_before' => $old_status,
+			'status_after'  => $new_status,
 		];
 	}
 );
 
 /**
  * When a WooCommerce Memberships plan becomes inactive for a reader.
- * This hook is fired when an existing user membership is updated, but not when created.
- * The membership plan will be removed from the user's list of active memberships.
+ *
+ * This listener is fired when an existing user membership is updated, but not
+ * when created.
  */
 Data_Events::register_listener(
 	'wc_memberships_user_membership_status_changed',
@@ -320,6 +347,7 @@ Data_Events::register_listener(
 		return [
 			'user_id'       => $user_id,
 			'email'         => $user_email,
+			'membership_id' => $membership->get_id(),
 			'plan_id'       => $membership->get_plan_id(),
 			'status_before' => $old_status,
 			'status_after'  => $new_status,
