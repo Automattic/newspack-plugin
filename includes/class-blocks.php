@@ -17,7 +17,7 @@ final class Blocks {
 	 * Initialize Hooks.
 	 */
 	public static function init() {
-		require_once NEWSPACK_ABSPATH . 'assets/blocks/reader-registration/index.php';
+		require_once NEWSPACK_ABSPATH . 'src/blocks/reader-registration/index.php';
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 	}
 
@@ -42,7 +42,7 @@ final class Blocks {
 				'has_reader_activation'   => Reader_Activation::is_enabled(),
 				'newsletters_url'         => Wizards::get_wizard( 'engagement' )->newsletters_settings_url(),
 				'has_google_oauth'        => Google_OAuth::is_oauth_configured(),
-				'google_logo_svg'         => file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ),
+				'google_logo_svg'         => file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/src/blocks/reader-registration/icons/google.svg' ),
 				'reader_activation_terms' => Reader_Activation::get_setting( 'terms_text' ),
 				'reader_activation_url'   => Reader_Activation::get_setting( 'terms_url' ),
 				'has_recaptcha'           => Recaptcha::can_use_captcha(),
