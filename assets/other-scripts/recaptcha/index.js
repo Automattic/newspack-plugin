@@ -162,12 +162,8 @@ function renderWidget( form ) {
 		if ( ! $ ) {
 			return;
 		}
-		$( document ).on( 'updated_checkout', () => {
-			renderWidget( form );
-		} );
-		$( document.body ).on( 'checkout_error', () => {
-			renderWidget( form );
-		} );
+		$( document ).on( 'updated_checkout', () => renderWidget( form ) );
+		$( document.body ).on( 'checkout_error', () => renderWidget( form ) );
 	} )( jQuery );
 }
 
