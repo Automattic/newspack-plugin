@@ -20,6 +20,27 @@ class Advertising_Sponsors extends Wizard {
 	use Admin_Tabs;
 
 	/**
+	 * Newspack Sponsors CPT name.
+	 * 
+	 * @var string
+	 */
+	const NEWSPACK_SPONSORS_CPT = 'newspack_spnsrs_cpt';
+
+	/**
+	 * Sponsors CPT list path.
+	 * 
+	 * @var string
+	 */
+	const SPONSORS_EDIT_PAGE = 'edit.php?post_type=newspack_spnsrs_cpt';
+
+	/** 
+	 * Advertising Page path.
+	 * 
+	 * @var string
+	 */
+	const ADVERTISING_PAGE = 'admin.php?page=advertising-display-ads';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -60,7 +81,7 @@ class Advertising_Sponsors extends Wizard {
 		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
-		// Add `current` class to Sponsor submenu item when on Sponsor settings page.
+		// Below filters are used to determine active menu items.
 		add_filter( 'parent_file', [ $this, 'parent_file' ] );
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
@@ -71,11 +92,11 @@ class Advertising_Sponsors extends Wizard {
 					'tabs'  => [
 						[
 							'textContent' => esc_html__( 'All Sponsors', 'newspack-plugin' ),
-							'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
+							'href'        => admin_url( static::SPONSORS_EDIT_PAGE ),
 						],
 						[
 							'textContent' => esc_html__( 'Settings', 'newspack-plugin' ),
-							'href'        => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt&page=newspack-sponsors-settings-admin' ),
+							'href'        => admin_url( static::SPONSORS_EDIT_PAGE . '&page=newspack-sponsors-settings-admin' ),
 						],
 					], 
 					'title' => $this->get_name(), 
@@ -103,7 +124,7 @@ class Advertising_Sponsors extends Wizard {
 		if ( 'edit.php' !== $pagenow ) {
 			return false;
 		}
-		return isset( $_GET['post_type'] ) && 'newspack_spnsrs_cpt' === $_GET['post_type']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['post_type'] ) && $_GET['post_type'] === static::NEWSPACK_SPONSORS_CPT; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**
@@ -133,13 +154,13 @@ class Advertising_Sponsors extends Wizard {
 			$submenu[ $this->parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				__( 'Sponsors', 'newspack-plugin' ),
 				'manage_options',
-				'edit.php?post_type=newspack_spnsrs_cpt',
+				static::SPONSORS_EDIT_PAGE,
 			);
 		}
 
-		// Register Settings.
+		// Register Settings page.
 		add_submenu_page(
-			null, // No parent menu.
+			null, // No parent menu item, means its not on the menu.
 			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
 			__( 'Settings', 'newspack-sponsors' ),
 			'manage_options',
@@ -156,9 +177,9 @@ class Advertising_Sponsors extends Wizard {
 	 * @return array Modified sponsor cpt args.
 	 */
 	public function update_sponsors_cpt_args( $args, $post_type ) {
-		if ( 'newspack_spnsrs_cpt' === $post_type ) {
+		if ( $post_type === static::NEWSPACK_SPONSORS_CPT ) {
 			// Move the CPT under the Advertising menu. Necessary to hide default Sponsors CPT menu item.
-			$args['show_in_menu'] = 'admin.php?page=advertising-display-ads';
+			$args['show_in_menu'] = static::ADVERTISING_PAGE;
 		}
 		return $args;
 	}
@@ -170,11 +191,14 @@ class Advertising_Sponsors extends Wizard {
 	 * @return string 
 	 */
 	public function parent_file( $parent_file ) {
-		global $submenu_file;
+		global $pagenow, $typenow;
+
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::NEWSPACK_SPONSORS_CPT ) {
+			return 'advertising-display-ads';
+		}
 		
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$parent_file = 'admin.php?page=advertising-display-ads';
-			$submenu_file = 'edit.php?post_type=newspack_spnsrs_cpt'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			return static::ADVERTISING_PAGE;
 		}
 	
 		return $parent_file;
@@ -188,7 +212,7 @@ class Advertising_Sponsors extends Wizard {
 	 */
 	public function submenu_file( $submenu_file ) {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$submenu_file = 'edit.php?post_type=newspack_spnsrs_cpt';
+			return static::SPONSORS_EDIT_PAGE;
 		}
 	
 		return $submenu_file;
