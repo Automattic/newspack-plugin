@@ -10,6 +10,7 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+use WP_Error;
 use WP_User;
 
 /**
