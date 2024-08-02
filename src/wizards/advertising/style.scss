@@ -1,0 +1,31 @@
+.newspack-advertising-wizard {
+	.newspack-button-card .newspack-notice {
+		margin: 24px 0 0;
+	}
+
+	&__ad-unit-fluid {
+		align-items: center;
+		display: flex;
+		font-size: 12px;
+		grid-column: 2 / 4;
+		line-height: 16px;
+	}
+
+	.newspack-grid {
+		&__thead,
+		&__tbody {
+			align-items: center;
+			grid-template-columns: repeat(3, calc(33.33% - 24px)) 36px;
+		}
+
+		.newspack-button.has-icon:not(.has-text) {
+			height: 48px;
+			min-width: 48px;
+			width: 48px;
+		}
+
+		+ .newspack-card__header-actions {
+			margin-top: 64px;
+		}
+	}
+}

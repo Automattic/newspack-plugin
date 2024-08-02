@@ -1,0 +1,176 @@
+@use "./style";
+@use "../../reader-activation/auth";
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+.newspack-registration {
+	font-size: inherit;
+
+	form {
+		padding-top: 0;
+
+		input[type="email"] {
+			background: #fff;
+			border: solid 1px #ccc;
+			box-sizing: border-box;
+			font-size: inherit;
+			outline: none;
+			padding: 0.36rem 0.66rem;
+			appearance: none;
+			outline-offset: 0;
+			border-radius: 0;
+		}
+		[type="submit"] {
+			transition: background-color 150ms ease-in-out;
+			background-color: #d33;
+			border: none;
+			border-radius: 5px;
+			box-sizing: border-box;
+			display: inline-block;
+			color: #fff;
+			font-family:
+				-apple-system,
+				blinkmacsystemfont,
+				"Segoe UI",
+				Roboto,
+				Oxygen,
+				Ubuntu,
+				Cantarell,
+				"Fira Sans",
+				"Droid Sans",
+				"Helvetica Neue",
+				sans-serif;
+			font-size: 0.8em;
+			font-weight: 700;
+			line-height: 1.2;
+			outline: none;
+			padding: 0.76rem 1rem;
+			text-decoration: none;
+			vertical-align: bottom;
+		}
+	}
+	&__state-bar {
+		align-items: center;
+		border: 1px solid wp-colors.$gray-900;
+		border-radius: 2px;
+		display: flex;
+		font-family:
+			-apple-system,
+			blinkmacsystemfont,
+			"Segoe UI",
+			Roboto,
+			Oxygen,
+			Ubuntu,
+			Cantarell,
+			"Fira Sans",
+			"Droid Sans",
+			"Helvetica Neue",
+			sans-serif;
+		flex-wrap: wrap;
+		font-size: 13px;
+		gap: 8px;
+		justify-content: space-between;
+		line-height: 1.4;
+		margin-bottom: 12px;
+		padding: 7px 8px;
+		button {
+			box-shadow: none !important;
+			color: wp-colors.$gray-900 !important;
+			height: 32px !important;
+			&[data-is-active="true"] {
+				background-color: wp-colors.$gray-900;
+				color: white !important;
+			}
+			&:hover:not([data-is-active="true"]) {
+				color: var(--wp-admin-theme-color) !important;
+			}
+		}
+		span {
+			font-weight: 500;
+		}
+		div {
+			display: flex;
+			gap: 4px;
+		}
+	}
+	& &__header {
+		font-size: 0.8em;
+
+		h2 {
+			font-size: 1rem;
+			line-height: 1.3333;
+
+			@media screen and ( min-width: 600px ) {
+				font-size: 1.3125em;
+				line-height: 1.5238;
+			}
+		}
+
+		p {
+			font-size: 1em;
+		}
+	}
+	&__help-text {
+		margin-top: 1em;
+
+		p {
+			font-size: 0.55em !important;
+			margin: 0;
+		}
+	}
+	&__response {
+		display: none;
+	}
+	&__icon {
+		+ .block-editor-block-list__layout p,
+		+ .block-editor-rich-text__editable {
+			font-size: 0.8em;
+		}
+	}
+}
+
+.newspack-reader {
+	&__logins {
+		button {
+			padding: 0.76rem 1rem;
+			border: none;
+			border-radius: 5px;
+			font-size: 0.8em;
+			font-family: sans-serif;
+			font-weight: 700;
+		}
+	}
+}
+
+.wp-block-newspack-reader-registration {
+	.block-editor-block-list__layout {
+		margin: 0 auto;
+		max-width: 780px;
+
+		.block-list-appender {
+			position: relative;
+		}
+	}
+
+	.newspack-registration {
+		div {
+			a {
+				color: inherit;
+				cursor: pointer;
+				text-decoration: underline;
+
+				&:active,
+				&:focus,
+				&:hover {
+					color: inherit;
+					text-decoration: none;
+				}
+			}
+		}
+
+		form {
+			> p {
+				font-size: 0.8em;
+			}
+		}
+	}
+}

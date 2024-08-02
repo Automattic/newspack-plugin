@@ -1,0 +1,61 @@
+{
+	"name": "newspack-components",
+	"version": "3.0.0",
+	"description": "Newspack design system components",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"newspack",
+		"components"
+	],
+	"bugs": {
+		"url": "https://github.com/Automattic/newspack-plugin/issues"
+	},
+	"homepage": "https://github.com/Automattic/newspack-plugin",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/newspack-plugin.git",
+		"directory": "src/components"
+	},
+	"main": "dist/esm/index.js",
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {
+		"@wordpress/base-styles": "^5.0.0",
+		"@wordpress/components": "^28.0.0",
+		"@wordpress/element": "^6.0.0",
+		"@wordpress/i18n": "^5.0.0",
+		"@wordpress/icons": "^10.0.0",
+		"classnames": "^2.3.1",
+		"lodash": "^4.17.21",
+		"moment-range": "^3.1.1",
+		"qs": "^6.10.1",
+		"react-daterange-picker": "^2.0.1",
+		"react-router-dom": "^5.3.4"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.24.0",
+		"@babel/core": "^7.24.0",
+		"@babel/preset-env": "^7.24.7",
+		"@babel/preset-react": "^7.24.7",
+		"@babel/preset-typescript": "^7.24.7",
+		"recursive-copy": "^2.0.0"
+	},
+	"babel": {
+		"ignore": [
+			"./node_modules",
+			"./dist",
+			"./shared"
+		]
+	},
+	"scripts": {
+		"clean": "rm -rf dist && rm -rf shared",
+		"compile:cjs": "babel src --config-file ./babel.config.cjs.js --extensions='.js,.jsx,.ts,.tsx' --out-dir dist/cjs",
+		"compile:esm": "babel src --extensions='.js,.jsx,.ts,.tsx' --out-dir dist/esm",
+		"compile": "npm run compile:cjs && npm run compile:esm",
+		"prepublishOnly": "npm run clean && npm run compile && node copy-styles.js",
+		"postpublish": "npm run clean"
+	}
+}
