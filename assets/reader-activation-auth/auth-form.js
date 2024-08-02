@@ -56,13 +56,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
 				}
-				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
-					if ( 'register' === action ) {
-						submitButtons.forEach( button => button.removeAttribute( 'data-skip-recaptcha' ) );
-						newspack_grecaptcha.render( [ form ] );
-					} else {
-						submitButtons.forEach( button => button.setAttribute( 'data-skip-recaptcha', '' ) );
-					}
+
+				// Enable reCAPTCHA verification only on registration attempts.
+				if ( newspack_grecaptcha?.version && 'register' === action ) {
+					form.setAttribute( 'data-newspack-recaptcha', '' );
+				} else {
+					form.removeAttribute( 'data-newspack-recaptcha' );
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {

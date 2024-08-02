@@ -27,6 +27,9 @@ final class Recaptcha {
 
 		// Verify reCAPTCHA on checkout submission.
 		\add_action( 'woocommerce_checkout_process', [ __CLASS__, 'verify_recaptcha_on_checkout' ] );
+
+		// Add reCAPTCHA v2 invisible widget container to page.
+		\add_action( 'wp_footer', [ __CLASS__, 'add_widget_container' ] );
 	}
 
 	/**
@@ -84,12 +87,7 @@ final class Recaptcha {
 	public static function get_script_url() {
 		$base_url = 'https://www.google.com/recaptcha/api.js';
 		if ( self::can_use_captcha( 'v2' ) ) {
-			return \add_query_arg(
-				[
-					'render' => 'explicit',
-				],
-				$base_url
-			);
+			return $base_url;
 		}
 		if ( self::can_use_captcha( 'v3' ) ) {
 			return \add_query_arg(
@@ -112,23 +110,27 @@ final class Recaptcha {
 				NEWSPACK_PLUGIN_VERSION
 			);
 
-			// Enqueue the reCAPTCHA API from Google's servers.
-			// Note: version arg Must be null to avoid the &ver param being read as part of the reCAPTCHA site key.
-			\wp_register_script(
-				self::SCRIPT_HANDLE_API,
-				\esc_url( self::get_script_url() ), // The Google API script.
-				[],
-				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-				false
-			);
-
 			\wp_enqueue_script(
 				self::SCRIPT_HANDLE,
 				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.js',
-				[ self::SCRIPT_HANDLE_API ],
+				[],
 				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
+			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'async', true );
+			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'defer', true );
+
+			// Enqueue the reCAPTCHA API from Google's servers.
+			// Note: version arg Must be null to avoid the &ver param being read as part of the reCAPTCHA site key.
+			\wp_enqueue_script(
+				self::SCRIPT_HANDLE_API,
+				\esc_url( self::get_script_url() ), // The Google API script.
+				[ self::SCRIPT_HANDLE ],
+				null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+				false
+			);
+			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'async', true );
+			\wp_script_add_data( self::SCRIPT_HANDLE_API, 'defer', true );
 
 			\wp_localize_script(
 				self::SCRIPT_HANDLE,
@@ -431,6 +433,23 @@ final class Recaptcha {
 		$check = self::verify_captcha();
 		if ( \is_wp_error( $check ) ) {
 			WooCommerce_Connection::add_wc_notice( $check->get_error_message(), 'error' );
+		}
+	}
+
+	/**
+	 * Add a container to the page to render the reCAPTCHA v2 invisible widget. (v2 only)
+	 */
+	public static function add_widget_container() {
+		if ( self::can_use_captcha( 'v2' ) ) {
+			?>
+			<div
+				id="recaptcha"
+				class="g-recaptcha"
+				data-sitekey="<?php echo esc_attr( self::get_site_key() ); ?>"
+				data-size="invisible"
+				data-callback="newspack_grecaptcha_callback"
+			></div>
+			<?php
 		}
 	}
 }
