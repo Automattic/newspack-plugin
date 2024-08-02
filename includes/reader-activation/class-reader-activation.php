@@ -1237,7 +1237,7 @@ final class Reader_Activation {
 		}
 		?>
 		<div class="newspack-ui newspack-reader-auth">
-			<?php if ( false === $in_modal ) { ?>
+			<?php if ( ! $in_modal ) { ?>
 				<h2 data-action="signin"><?php echo wp_kses_post( self::get_reader_activation_labels( 'title' ) ); ?></h2>
 				<h2 data-action="register"><?php echo wp_kses_post( self::get_reader_activation_labels( 'create_account' ) ); ?></h2>
 			<?php } ?>
