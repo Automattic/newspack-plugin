@@ -24,36 +24,21 @@ class Advertising_Sponsors extends Wizard {
 	 * 
 	 * @var string
 	 */
-	const NEWSPACK_SPONSORS_CPT = 'newspack_spnsrs_cpt';
+	const CPT_NAME = 'newspack_spnsrs_cpt';
 
 	/**
 	 * Sponsors CPT list path.
 	 * 
 	 * @var string
 	 */
-	const SPONSORS_EDIT_PAGE = 'edit.php?post_type=newspack_spnsrs_cpt';
+	const URL = 'edit.php?post_type=newspack_spnsrs_cpt';
 
 	/** 
 	 * Advertising Page path.
 	 * 
 	 * @var string
 	 */
-	const ADVERTISING_PAGE = 'admin.php?page=advertising-display-ads';
-
-	/**
-	 * The slug of this wizard.
-	 *
-	 * @var string
-	 */
-	protected $slug = 'advertising-sponsors';
-
-
-	/**
-	 * Parent Wizard slug
-	 *
-	 * @var string
-	 */
-	protected $parent_slug = 'advertising-display-ads';
+	const PARENT_URL = 'admin.php?page=advertising-display-ads';
 
 	/**
 	 * The capability required to access this wizard.
@@ -92,11 +77,11 @@ class Advertising_Sponsors extends Wizard {
 					'tabs'  => [
 						[
 							'textContent' => esc_html__( 'All Sponsors', 'newspack-plugin' ),
-							'href'        => admin_url( static::SPONSORS_EDIT_PAGE ),
+							'href'        => admin_url( static::URL ),
 						],
 						[
 							'textContent' => esc_html__( 'Settings', 'newspack-plugin' ),
-							'href'        => admin_url( static::SPONSORS_EDIT_PAGE . '&page=newspack-sponsors-settings-admin' ),
+							'href'        => admin_url( static::URL . '&page=newspack-sponsors-settings-admin' ),
 						],
 					], 
 					'title' => $this->get_name(), 
@@ -124,7 +109,7 @@ class Advertising_Sponsors extends Wizard {
 		if ( 'edit.php' !== $pagenow ) {
 			return false;
 		}
-		return isset( $_GET['post_type'] ) && $_GET['post_type'] === static::NEWSPACK_SPONSORS_CPT; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return isset( $_GET['post_type'] ) && $_GET['post_type'] === static::CPT_NAME; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**
@@ -150,11 +135,12 @@ class Advertising_Sponsors extends Wizard {
 	 */
 	public function move_sponsors_cpt_menu() {
 		global $submenu;
-		if ( isset( $submenu[ $this->parent_slug ] ) ) {
-			$submenu[ $this->parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$parent_slug = 'advertising-display-ads';
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			$submenu[ $parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				__( 'Sponsors', 'newspack-plugin' ),
 				'manage_options',
-				static::SPONSORS_EDIT_PAGE,
+				static::URL,
 			);
 		}
 
@@ -177,9 +163,9 @@ class Advertising_Sponsors extends Wizard {
 	 * @return array Modified sponsor cpt args.
 	 */
 	public function update_sponsors_cpt_args( $args, $post_type ) {
-		if ( $post_type === static::NEWSPACK_SPONSORS_CPT ) {
+		if ( $post_type === static::CPT_NAME ) {
 			// Move the CPT under the Advertising menu. Necessary to hide default Sponsors CPT menu item.
-			$args['show_in_menu'] = static::ADVERTISING_PAGE;
+			$args['show_in_menu'] = static::PARENT_URL;
 		}
 		return $args;
 	}
@@ -193,12 +179,12 @@ class Advertising_Sponsors extends Wizard {
 	public function parent_file( $parent_file ) {
 		global $pagenow, $typenow;
 
-		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::NEWSPACK_SPONSORS_CPT ) {
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
 			return 'advertising-display-ads';
 		}
 		
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return static::ADVERTISING_PAGE;
+			return static::PARENT_URL;
 		}
 	
 		return $parent_file;
@@ -212,7 +198,7 @@ class Advertising_Sponsors extends Wizard {
 	 */
 	public function submenu_file( $submenu_file ) {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return static::SPONSORS_EDIT_PAGE;
+			return static::URL;
 		}
 	
 		return $submenu_file;
