@@ -51,14 +51,15 @@ class ActiveCampaign extends Connector {
 	/**
 	 * Upsert the contact.
 	 *
-	 * @param array $contact Contact info to sync to ESP.
+	 * @param array  $contact Contact info to sync to ESP.
+	 * @param string $context Context of the update for logging purposes.
 	 */
-	public static function put( $contact ) {
+	protected static function put( $contact, $context ) {
 		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
 		if ( ! $master_list_id ) {
 			return;
 		}
-		return \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id );
+		return \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, false, $context );
 	}
 
 	/**
@@ -102,7 +103,7 @@ class ActiveCampaign extends Connector {
 			'email'    => $data['email'],
 			'metadata' => $metadata,
 		];
-		self::put( $contact );
+		self::put( $contact, 'Updating the account and newsletter_selection fields after a change in the subscription lists.' );
 	}
 }
 new ActiveCampaign();
