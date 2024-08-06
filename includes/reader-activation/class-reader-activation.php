@@ -226,6 +226,7 @@ final class Reader_Activation {
 				'invalid_password'         => __( 'Please enter a password.', 'newspack-plugin' ),
 				'invalid_display'          => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
 				'blocked_popup'            => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+				'code_sent'                => __( 'Code sent! Check your inbox.', 'newspack-plugin' ),
 				'code_resent'              => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
 				'create_account'           => __( 'Create an account', 'newspack-plugin' ),
 				'signin'                   => [

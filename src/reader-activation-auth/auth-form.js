@@ -57,8 +57,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
-						form.setMessageContent();
-						container.setFormAction( 'signin', true );
 						return;
 					}
 					const emailAddressElements = container.querySelectorAll( '.email-address' );
@@ -184,7 +182,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 									body,
 								} )
 									.then( () => {
-										form.setMessageContent( newspack_reader_activation_labels.code_resent );
+										form.setMessageContent(
+											formAction === 'pwd'
+												? newspack_reader_activation_labels.code_sent
+												: newspack_reader_activation_labels.code_resent
+										);
 										container.setFormAction( 'otp' );
 										readerActivation.setOTPTimer();
 									} )
@@ -206,6 +208,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.querySelectorAll( '[data-set-action]' ).forEach( setActionListener );
 
 			form.startLoginFlow = () => {
+				form.setMessageContent();
 				container.removeAttribute( 'data-form-status' );
 				submitButtons.forEach( button => {
 					button.disabled = true;
@@ -260,6 +263,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 						let labels = newspack_reader_activation_labels.signin;
 						if ( data?.registered ) {
 							labels = newspack_reader_activation_labels.register;
+						}
+						if ( formAction === 'otp' ) {
+							// Reset OTP on successful OTP login.
+							window?.newspackReaderActivation?.resetOTP?.();
 						}
 						container.setFormAction( 'success' );
 						container.querySelector( '.success-title' ).innerHTML = labels.success_title || '';
@@ -347,6 +354,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 */
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
+				form.setMessageContent();
 				form.startLoginFlow();
 
 				const action = form.action?.value;
