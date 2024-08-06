@@ -116,6 +116,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			backButtons.forEach( backButton => {
 				backButton.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
+					form.setMessageContent();
 					container.setFormAction( 'signin', true );
 				} );
 			} );
@@ -208,7 +209,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.querySelectorAll( '[data-set-action]' ).forEach( setActionListener );
 
 			form.startLoginFlow = () => {
-				form.setMessageContent();
 				container.removeAttribute( 'data-form-status' );
 				submitButtons.forEach( button => {
 					button.disabled = true;
@@ -354,7 +354,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 */
 			form.addEventListener( 'submit', ev => {
 				ev.preventDefault();
-				form.setMessageContent();
 				form.startLoginFlow();
 
 				const action = form.action?.value;
