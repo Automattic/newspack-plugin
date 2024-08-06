@@ -13,9 +13,6 @@
 			font-size: var( --newspack-ui-font-size-xs ); // Prevent relative font size
 			padding: calc( var( --newspack-ui-spacer-base ) / 2 ) 0;
 			vertical-align: top;
-			> * {
-				white-space: nowrap;
-			}
 		}
 		th {
 			font-weight: 600;
