@@ -117,6 +117,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				backButton.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
 					form.setMessageContent();
+					resetOTPTimer();
 					container.setFormAction( 'signin', true );
 				} );
 			} );
@@ -149,6 +150,24 @@ window.newspackRAS.push( function ( readerActivation ) {
 						button.otpTimerInterval = setInterval( updateButton, 1000 );
 						updateButton();
 					}
+				} );
+			};
+
+			/**
+			 * Reset OTP Timer.
+			 */
+			const resetOTPTimer = () => {
+				if ( ! sendCodeButtons.length ) {
+					return;
+				}
+				sendCodeButtons.forEach( button => {
+					button.buttonText = button.textContent;
+					if ( button.otpTimerInterval ) {
+						clearInterval( button.otpTimerInterval );
+					}
+
+					// If the button text has a countdown, remove it.
+					button.textContent = button.buttonText.replace( /\s\(\d{1,}:\d{2}\)/, '' );
 				} );
 			};
 
@@ -266,7 +285,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 						if ( formAction === 'otp' ) {
 							// Reset OTP on successful OTP login.
-							window?.newspackReaderActivation?.resetOTP?.();
+							readerActivation.resetOTP();
 						}
 						container.setFormAction( 'success' );
 						container.querySelector( '.success-title' ).innerHTML = labels.success_title || '';
