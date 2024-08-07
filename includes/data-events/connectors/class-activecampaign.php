@@ -59,7 +59,7 @@ class ActiveCampaign extends Connector {
 		if ( ! $master_list_id ) {
 			return;
 		}
-		return \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, false, $context );
+		return \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 	}
 
 	/**

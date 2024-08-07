@@ -97,7 +97,7 @@ Data_Events::register_listener(
  * For when a new contact is added to newsletter lists for the first time.
  */
 Data_Events::register_listener(
-	'newspack_newsletters_add_contact',
+	'newspack_newsletters_contact_subscribed',
 	'newsletter_subscribed',
 	function( $provider, $contact, $lists, $result, $is_updating ) {
 		if ( empty( $lists ) ) {
