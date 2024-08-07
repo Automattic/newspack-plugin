@@ -26,6 +26,13 @@ final class Modal_Checkout {
 	const FORM_SUBMISSION_SUCCESS = 'form_submission_success';
 
 	/**
+	 * The rendered popups data.
+	 *
+	 * @var array
+	 */
+	protected static $modalCheckouts = [];
+
+	/**
 	 * Initialize the class by registering the listeners.
 	 *
 	 * @return void
@@ -37,17 +44,22 @@ final class Modal_Checkout {
 			[ __CLASS__, 'checkout_button_purchase' ]
 		);
 
+		/*
 		Data_Events::register_listener(
 			'newspack_blocks_donate_block_modal',
 			'modal_checkout_interaction',
 			[ __CLASS__, 'donate_button_purchase' ]
 		);
+		*/
 
 		Data_Events::register_listener(
 			'woocommerce_checkout_order_created',
 			'modal_checkout_interaction',
 			[ __CLASS__, 'checkout_attempt' ]
 		);
+
+		\add_action( 'wp_footer', [ __CLASS__, 'print_popups_data' ], 999 );
+		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 	}
 
 	/**
@@ -84,7 +96,7 @@ final class Modal_Checkout {
 
 		$data = array_merge( $data, $metadata );
 
-		return $data;
+		// return $data;
 	}
 
 	/**
@@ -117,6 +129,8 @@ final class Modal_Checkout {
 	 * @param array $order WooCommerce order information.
 	 *
 	 * @return ?array
+	 *
+	 * TODO: Move to front end -- check-out attempt
 	 */
 	public static function checkout_attempt( $order ) {
 		$order_data = \Newspack\Data_Events\Utils::get_order_data( $order->get_id(), true );
@@ -134,6 +148,54 @@ final class Modal_Checkout {
 			'product_id' => $order_data['platform_data']['product_id'],
 		];
 		return $data;
+	}
+
+	/**
+	 * Store the rendered popups data.
+	 *
+	 * @param array $popup The popup array representation.
+	 * @return void
+	 */
+	/*
+	public static function get_rendered_popups( $modalCheckout ) {
+		$data = self::get_popup_metadata( $modalCheckout );
+		if ( ! empty( $data['prompt_id'] ) ) {
+			self::$modalCheckouts[ $data['prompt_id'] ] = $data;
+		}
+	}
+	*/
+
+	/**
+	 * Output the rendered popups data as a JS variable.
+	 *
+	 * @return void
+	 */
+	public static function print_popups_data() {
+		/*
+		if ( empty( self::$popups ) ) {
+			return;
+		}
+		$popups = array_map( [ __CLASS__, 'prepare_popup_params_for_ga' ], self::$popups );
+		 */
+		?>
+
+
+
+		<script>
+			var newspackModalCheckoutData = <?php echo \wp_json_encode( 'whatever' ); ?>;
+		</script>
+		<?php
+	}
+
+	// TODO: this is terrible, fix it.
+	public static function enqueue_scripts() {
+		wp_enqueue_script(
+				'ga4',
+				\Newspack\Newspack::plugin_url() . '/dist/ga4.js',
+				[],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+		);
 	}
 }
 Modal_Checkout::init();

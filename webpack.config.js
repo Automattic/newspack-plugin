@@ -57,6 +57,7 @@ const entry = {
 	'memberships-gate': path.join( __dirname, 'assets', 'memberships-gate', 'gate.js' ),
 	'memberships-gate-metering': path.join( __dirname, 'assets', 'memberships-gate', 'metering.js' ),
 	'newspack-ui': path.join( __dirname, 'assets', 'newspack-ui', 'index.js' ),
+	'ga4': path.join( __dirname, 'assets', 'ga4', 'index.js' ),
 };
 
 // Get files for other scripts.
