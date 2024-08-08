@@ -1,0 +1,82 @@
+/**
+ * Footer
+ */
+
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+.newspack-footer {
+	align-items: stretch;
+	background: white;
+	border: 0 solid wp-colors.$gray-300;
+	border-width: 1px 0;
+	bottom: 0;
+	color: wp-colors.$gray-700;
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 12px;
+	justify-content: space-between;
+	left: 0;
+	line-height: 16px;
+	position: absolute;
+	right: 0;
+
+	@media screen and ( min-width: 783px ) {
+		bottom: 40px;
+		flex-wrap: nowrap;
+	}
+
+	&__inner {
+		align-items: center;
+		display: flex;
+		flex: 0 0 100%;
+
+		@media screen and ( min-width: 783px ) {
+			flex: 1 1 auto;
+		}
+	}
+
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		margin: 0;
+		padding: 7px 8px;
+	}
+
+	li {
+		margin: 8px;
+
+		a {
+			align-items: flex-end;
+			color: inherit;
+			display: flex;
+
+			&:active,
+			&:focus,
+			&:hover {
+				color: wp-colors.$gray-900;
+			}
+		}
+	}
+
+	&__logo {
+		align-items: center;
+		background: wp-colors.$gray-900;
+		display: flex;
+		margin: 0 0 -1px;
+		padding: 16px;
+		width: 100%;
+
+		@media screen and ( min-width: 783px ) {
+			margin: -1px 0 -1px 8px;
+			max-width: 33.33%;
+			width: auto;
+		}
+
+		.patrons-logo {
+			display: block;
+			fill: white;
+			max-height: 16px;
+			width: auto;
+		}
+	}
+}
