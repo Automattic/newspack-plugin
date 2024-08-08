@@ -320,6 +320,10 @@ class Newspack_Newsletters {
 			if ( isset( $contact['metadata']['status'] ) ) {
 				$normalized_metadata['status'] = $contact['metadata']['status'];
 			}
+			if ( isset( $contact['metadata']['status_if_new'] ) ) {
+				$normalized_metadata['status_if_new'] = $contact['metadata']['status_if_new'];
+			}
+
 			$contact['metadata'] = $normalized_metadata;
 		}
 
