@@ -99,14 +99,11 @@ Data_Events::register_listener(
 Data_Events::register_listener(
 	'newspack_newsletters_contact_subscribed',
 	'newsletter_subscribed',
-	function( $provider, $contact, $lists, $result, $is_updating ) {
+	function( $provider, $contact, $lists, $result ) {
 		if ( empty( $lists ) ) {
 			return;
 		}
 		if ( is_wp_error( $result ) ) {
-			return;
-		}
-		if ( $is_updating ) {
 			return;
 		}
 		$user = get_user_by( 'email', $contact['email'] );
