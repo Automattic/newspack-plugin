@@ -89,6 +89,12 @@ abstract class Connector {
 			return;
 		}
 
+		// If order is a subscription renewal, ignore it here as it's handled by
+		// the subscription_updated event.
+		if ( ! empty( $data['is_renewal'] ) ) {
+			return;
+		}
+
 		$order_id = $data['platform_data']['order_id'];
 		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id, $data['referer'], true );
 
