@@ -13,10 +13,32 @@
 	/* node_modules/@wordpress/base-styles/_colors.scss */
 	--np-color-wp-gray-700: #757575;
 	--np-color-wp-gray-900: #1e1e1e;
+
+	/**
+	 * Dimensions
+	 */
+	--np-wizard-tabs-height: 60px;
+
+	/**
+	 * WP Admin
+	 */
+	--wp-adminbar-height: 32px;
 }
 
 html {
 	font-size: 16px;
+	scroll-padding-top: calc(var(--wp-adminbar-height) + var(--np-wizard-tabs-height));
+	
+	@media (max-width: 782px) {
+		--wp-adminbar-height: 46px;
+		--np-wizard-tabs-height: 48px;
+
+		scroll-padding-top: calc(var(--wp-adminbar-height) + var(--np-wizard-tabs-height) + 1rem);
+	}
+
+	@media screen and (max-width: 600px) {
+		scroll-padding-top: 1rem;
+	}
 }
 
 h1 {
@@ -31,6 +53,16 @@ h1 {
  */
 .gray-700 {
 	color: var(--np-color-wp-gray-700);
+}
+
+/**
+ * Wizards
+ */
+.newspack-wizard-page {
+	#screen-meta-links {
+		position: absolute;
+		right: 0;
+	}
 }
 .newspack-wizard {
 
@@ -111,6 +143,15 @@ h1 {
 	}
 }
 
+// tachyons overrides
+table.fixed {
+	position: static;
+	table-layout: fixed;
+}
+.wrap *:not( textarea, input ) {
+	box-sizing: unset;
+}
+
 // Overrides
 .newspack-wizard__sections .newspack-wizard__section {
 	.newspack-section-header:first-child {
@@ -120,6 +161,10 @@ h1 {
 
 .newspack-card.newspack-action-card+.newspack-card.newspack-action-card {
 	margin-top: 0;
+}
+
+.newspack-card.newspack-action-card.is-small + .newspack-card.newspack-action-card.is-small {
+	margin-block: 0 1rem;
 }
 
 .newspack-card {

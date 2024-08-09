@@ -122,6 +122,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-wizard-section.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
+		
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/traits/trait-wizards-admin-tabs.php';
+
 		// Newspack Wizards and Sections.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
@@ -130,10 +135,13 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
+		
+		// Advertising Wizard. 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-display-ads.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-sponsors.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-advertising-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-reader-revenue-wizard.php';
@@ -253,7 +261,11 @@ final class Newspack {
 		$screen = get_current_screen();
 
 		$is_newspack_screen = str_contains( $screen->base, 'newspack_page_' );
-		if ( ! $screen || ! $is_newspack_screen ) {
+		$is_advertising_screen = str_contains( $screen->base, 'toplevel_page_advertising' );
+
+		$is_wizard = $is_newspack_screen || $is_advertising_screen;
+
+		if ( ! $screen || ! $is_wizard ) {
 			return;
 		}
 		remove_all_actions( current_action() );

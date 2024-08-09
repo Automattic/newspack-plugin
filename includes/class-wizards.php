@@ -29,22 +29,22 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'setup'              => new Setup_Wizard(),
-			'site-design'        => new Site_Design_Wizard(),
-			'reader-revenue'     => new Reader_Revenue_Wizard(),
-			'advertising'        => new Advertising_Wizard(),
-			'syndication'        => new Syndication_Wizard(),
-			'analytics'          => new Analytics_Wizard(),
-			'components-demo'    => new Components_Demo(),
-			'seo'                => new SEO_Wizard(),
-			'health-check'       => new Health_Check_Wizard(),
-			'engagement'         => new Engagement_Wizard(),
-			'popups'             => new Popups_Wizard(),
-			'connections'        => new Connections_Wizard(),
-			'settings'           => new Settings(),
+			'setup'                   => new Setup_Wizard(),
+			'site-design'             => new Site_Design_Wizard(),
+			'reader-revenue'          => new Reader_Revenue_Wizard(),
+			'advertising'             => new Advertising_Wizard(),
+			'syndication'             => new Syndication_Wizard(),
+			'analytics'               => new Analytics_Wizard(),
+			'components-demo'         => new Components_Demo(),
+			'seo'                     => new SEO_Wizard(),
+			'health-check'            => new Health_Check_Wizard(),
+			'engagement'              => new Engagement_Wizard(),
+			'popups'                  => new Popups_Wizard(),
+			'connections'             => new Connections_Wizard(),
+			'settings'                => new Settings(),
 			// v2 Information Architecture.
-			'newspack-dashboard' => new Newspack_Dashboard(),
-			'newspack-settings'  => new Newspack_Settings( 
+			'newspack-dashboard'      => new Newspack_Dashboard(),
+			'newspack-settings'       => new Newspack_Settings( 
 				[
 					'sections' => [
 						'custom-events' => 'Newspack\Wizards\Newspack\Custom_Events_Section',
@@ -52,6 +52,8 @@ class Wizards {
 					],
 				] 
 			),
+			'advertising-display-ads' => new Advertising_Display_Ads(),
+			'advertising-sponsors'    => new Advertising_Sponsors(),
 		];
 	}
 
