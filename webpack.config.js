@@ -56,6 +56,17 @@ const entry = {
 	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
 	'memberships-gate': path.join( __dirname, 'src', 'memberships-gate', 'gate.js' ),
 	'memberships-gate-metering': path.join( __dirname, 'src', 'memberships-gate', 'metering.js' ),
+
+	// Newspack wizard assets.
+	...wizardsScriptFiles,
+	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
+	'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
+	'memberships-gate-block-patterns': path.join(
+		__dirname,
+		'src',
+		'memberships-gate',
+		'block-patterns.js'
+	),
 	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
 };
 
