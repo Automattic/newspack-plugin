@@ -1,0 +1,85 @@
+:root {
+	// Neutral:
+	--newspack-ui-color-neutral-0: #fff;
+	--newspack-ui-color-neutral-5: #f7f7f7;
+	--newspack-ui-color-neutral-10: #f0f0f0;
+	--newspack-ui-color-neutral-20: #e0e0e0;
+	--newspack-ui-color-neutral-30: #ddd;
+	--newspack-ui-color-neutral-40: #ccc;
+	--newspack-ui-color-neutral-50: #949494;
+	--newspack-ui-color-neutral-60: #6c6c6c;
+	--newspack-ui-color-neutral-70: #00000070;
+	--newspack-ui-color-neutral-80: #3e3e3e;
+	--newspack-ui-color-neutral-90: #1e1e1e;
+	--newspack-ui-color-neutral-100: #000;
+
+	// Primary:
+	--newspack-ui-color-primary-0: #f5fdff;
+	--newspack-ui-color-primary-5: #d6f6ff;
+	--newspack-ui-color-primary-10: #b4e4ff;
+	--newspack-ui-color-primary-20: #93ccfd;
+	--newspack-ui-color-primary-30: #72affb;
+	--newspack-ui-color-primary-40: #528dfc;
+	--newspack-ui-color-primary-50: #36f;
+	--newspack-ui-color-primary-60: #2240d5;
+	--newspack-ui-color-primary-70: #1522af;
+	--newspack-ui-color-primary-80: #0b0b8d;
+	--newspack-ui-color-primary-90: #0d046e;
+	--newspack-ui-color-primary-100: #0e0052;
+
+	// Secondary:
+	--newspack-ui-color-secondary-30: #fffff0;
+	--newspack-ui-color-secondary-40: #ffffd3;
+	--newspack-ui-color-secondary-50: #ff0;
+	--newspack-ui-color-secondary-60: #f2f200;
+	--newspack-ui-color-secondary-70: #e4e400;
+
+	// Success:
+	--newspack-ui-color-success-0: #edfaef;
+	--newspack-ui-color-success-5: #b8e6bf;
+	--newspack-ui-color-success-50: #008a20;
+	--newspack-ui-color-success-60: #007017;
+
+	// Error:
+	--newspack-ui-color-error-0: #fcf0f1;
+	--newspack-ui-color-error-5: #facfd2;
+	--newspack-ui-color-error-50: #d63638;
+	--newspack-ui-color-error-60: #b32d2e;
+
+	//Warning:
+	--newspack-ui-color-warning-0: #fcf9e8;
+	--newspack-ui-color-warning-5: #f5e6ab;
+	--newspack-ui-color-warning-30: #dba617;
+	--newspack-ui-color-warning-40: #bd8600;
+
+	// Theme variables - from the classic theme; overridden in class-newspack-ui.php for block theme.
+	// TODO: commented out for now with the assumption all should be blue when used.
+	// --newspack-ui-color-primary: var(--newspack-theme-color-primary, var(--newspack-ui-color-neutral-90));
+	// --newspack-ui-color-against-primary: var(--newspack-theme-color-against-primary, var(--newspack-ui-color-neutral-0));
+	--newspack-ui-color-primary: var(--newspack-ui-color-primary-60);
+	--newspack-ui-color-against-primary: var(--newspack-ui-color-neutral-0);
+
+	// Specific assignments - general:
+	--newspack-ui-color-border: var(--newspack-ui-color-neutral-30);
+	--newspack-ui-color-body-bg: var(--newspack-ui-color-neutral-0);
+
+	// Specific assignments - form elements - buttons:
+	--newspack-ui-color-button-bg: var(--newspack-ui-color-neutral-90);
+	--newspack-ui-color-button-bg-hover: var(--newspack-ui-color-neutral-60);
+	--newspack-ui-color-button-text: var(--newspack-ui-color-neutral-0);
+	--newspack-ui-color-button-text-hover: var(--newspack-ui-color-neutral-0);
+
+	// Specific assignments - form elements - inputs:
+	--newspack-ui-color-input-border: var(--newspack-ui-color-neutral-40);
+	--newspack-ui-color-input-border-focus: var(--newspack-ui-color-neutral-90);
+	--newspack-ui-color-input-border-disabled: var(--newspack-ui-color-neutral-40);
+	--newspack-ui-color-input-background-disabled: var(--newspack-ui-color-neutral-10);
+	--newspack-ui-label-color: var(--newspack-ui-color-neutral-90);
+
+	// Alternatives for when prefers-contrast is set to 'more':
+	@media (prefers-contrast: more) {
+		--newspack-ui-color-input-border: var(--newspack-ui-color-neutral-60);
+		--newspack-ui-color-input-border-disabled: var(--newspack-ui-color-neutral-50);
+		--newspack-ui-color-input-background-disabled: var(--newspack-ui-color-neutral-30);
+	}
+}
