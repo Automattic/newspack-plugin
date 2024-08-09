@@ -89,6 +89,7 @@ const SettingsSection = props => {
 	}
 	return (
 		<ActionCard
+			id={ props.id ?? null }
 			isMedium
 			disabled={ disabled }
 			title={ title }

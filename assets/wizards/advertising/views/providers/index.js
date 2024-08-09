@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { ExternalLink } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -77,7 +77,8 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 	}
 
 	return (
-		<>
+		<Fragment>
+			<h1>{ __( 'Providers', 'newspack-plugin' ) }</h1>
 			<ActionCard
 				title={ __( 'Google Ad Manager', 'newspack-plugin' ) }
 				description={ __(
@@ -139,7 +140,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 					</Card>
 				</Modal>
 			) }
-		</>
+		</Fragment>
 	);
 };
 

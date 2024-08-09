@@ -131,6 +131,7 @@ const Placements = () => {
 
 	return (
 		<Fragment>
+			<h1>{ __( 'Placements', 'newspack-plugin' ) }</h1>
 			{ ! inFlight && ! providers.length && (
 				<Notice
 					isWarning
