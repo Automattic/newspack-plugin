@@ -84,6 +84,7 @@ const wpAdminEntries = {
 		'block-patterns.js'
 	),
 	wizards: path.join( __dirname, 'assets', 'wizards', 'index.tsx' ),
+	'wizards-admin-tabs': path.join( __dirname, 'assets', 'wizards', 'wizards-admin-tabs.tsx' ),
 };
 
 Object.keys( wpAdminEntries ).forEach( key => {
