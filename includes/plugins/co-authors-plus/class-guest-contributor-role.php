@@ -1,6 +1,6 @@
 <?php
 /**
- * Co_Authors_Plus integration class.
+ * Guest_Contributor_Role class.
  * https://wordpress.org/plugins/co-authors-plus
  *
  * @package Newspack
@@ -21,7 +21,7 @@ use WP_User;
  * This role can also be assigned to users who have other roles, so they can be assigned as co-authors of a post without having the capability to edit posts.
  * This is done via a custom UI in the user profile.
  */
-class Co_Authors_Plus {
+class Guest_Contributor_Role {
 	/**
 	 * Custom capability name.
 	 */
@@ -434,4 +434,4 @@ class Co_Authors_Plus {
 		return $value;
 	}
 }
-Co_Authors_Plus::init();
+Guest_Contributor_Role::init();
