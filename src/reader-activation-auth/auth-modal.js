@@ -129,7 +129,6 @@ export function openAuthModal( config = {} ) {
 		window?.newspackReaderActivation?.getOTPTimeRemaining() <= 0
 	) {
 		container.setFormAction( 'signin' );
-		window?.newspackReaderActivation?.resetOTP();
 	}
 	document.body.classList.add( 'newspack-signin' );
 	document.body.style.overflow = 'hidden';

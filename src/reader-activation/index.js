@@ -233,14 +233,6 @@ export function clearOTPTimer() {
 }
 
 /**
- * Resets the reader's OTP hash and timer for the current authentication request.
- */
-export function resetOTP() {
-	setCookie( 'np_otp_hash', ' ', 0 );
-	clearOTPTimer();
-}
-
-/**
  * Get the time remaining for the OTP timer.
  *
  * @return {number} Time remaining in seconds
@@ -448,7 +440,6 @@ const readerActivation = {
 	getOTPHash,
 	setOTPTimer,
 	clearOTPTimer,
-	resetOTP,
 	getOTPTimeRemaining,
 	authenticateOTP,
 	setAuthStrategy,
