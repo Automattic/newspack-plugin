@@ -59,7 +59,7 @@ $post_content =
 
 	$social_links .
 
-	'<!-- wp:paragraph ==>
+	'<!-- wp:paragraph -->
 	<p class="has-small-font-size">' . sprintf( /* Translators: 1: site title 2: site base address. */ __( '%1$s - %2$s', 'newspack-plugin' ), '<strong>*SITE_TITLE*</strong>', '*SITE_ADDRESS*' ) . '<br>' . sprintf( /* Translators: 1: link to site url. */ __( 'You received this email because you requested to reset your password to %s', 'newspack-plugin' ), '<a href="*SITE_URL*">*SITE_URL*</a>' ) . '</p>
 	<!-- /wp:paragraph -->
 
