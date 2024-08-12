@@ -509,6 +509,8 @@ class Emails {
 			$email_post_data['meta_input']  = [
 				self::EMAIL_CONFIG_NAME_META           => $type,
 				\Newspack_Newsletters::EMAIL_HTML_META => $email_post_data['email_html'],
+				'font_body'                            => 'Arial, Helvetica, sans-serif',
+				'font_header'                          => 'Arial, Helvetica, sans-serif',
 			];
 			$post_id                        = wp_insert_post( $email_post_data );
 			Logger::log( sprintf( 'Creating email of type %s (id: %s).', $type, $post_id ) );
