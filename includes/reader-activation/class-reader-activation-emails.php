@@ -49,6 +49,10 @@ class Reader_Activation_Emails {
 				'template' => '*SITE_ADDRESS*',
 			],
 			[
+				'label'    => __( 'the site contact info, including site name and address', 'newspack' ),
+				'template' => '*SITE_CONTACT*',
+			],
+			[
 				'label'    => __( 'the site title', 'newspack' ),
 				'template' => '*SITE_TITLE*',
 			],

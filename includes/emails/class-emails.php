@@ -172,28 +172,43 @@ class Emails {
 		$email_config   = self::get_email_config_by_type( $config_name );
 		$html           = $email_config['html_payload'];
 		$reply_to_email = $email_config['reply_to_email'];
+		$site_address   = '';
 
 		if ( class_exists( 'WC' ) ) {
 			$base_address  = WC()->countries->get_base_address();
 			$base_city     = WC()->countries->get_base_city();
 			$base_postcode = WC()->countries->get_base_postcode();
+		} else {
+			$base_address  = get_option( 'woocommerce_store_address', '' );
+			$base_city     = get_option( 'woocommerce_store_city', '' );
+			$base_postcode = get_option( 'woocommerce_store_postcode', '' );
+		}
 
-			$site_address = sprintf(
-				// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
-				__( '%1$s, %2$s %3$s', 'newspack' ),
-				$base_address,
-				$base_city,
-				$base_postcode
+		if ( $base_address ) {
+			if ( ! $base_city && ! $base_postcode ) {
+				$site_address = $base_address;
+			} else {
+				$site_address = sprintf(
+					// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
+					__( '%1$s, %2$s %3$s', 'newspack' ),
+					$base_address,
+					$base_city,
+					$base_postcode
+				);
+			}
+		}
+
+		if ( $site_address ) {
+			$site_contact = sprintf(
+				/* Translators: 1: site title 2: site base address. */
+				__( '%1$s — %2$s', 'newspack-plugin' ),
+				'<strong>' . get_bloginfo( 'name' ) . '</strong>',
+				$site_address
 			);
 		} else {
-			$site_address = sprintf(
-				// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
-				__( '%1$s, %2$s %3$s', 'newspack' ),
-				get_option( 'woocommerce_store_address', '' ),
-				get_option( 'woocommerce_store_city', '' ),
-				get_option( 'woocommerce_store_postcode', '' )
-			);
+			$site_contact = get_bloginfo( 'name' );
 		}
+
 		$placeholders = array_merge(
 			[
 				[
@@ -203,6 +218,10 @@ class Emails {
 				[
 					'template' => '*SITE_ADDRESS*',
 					'value'    => $site_address,
+				],
+				[
+					'template' => '*SITE_CONTACT*',
+					'value'    => $site_contact,
 				],
 				[
 					'template' => '*SITE_LOGO*',
