@@ -375,6 +375,38 @@ final class Magic_Link {
 	}
 
 	/**
+	 * Check for active magic link tokens.
+	 *
+	 * @param \WP_User $user User to check the active magic link token for.
+	 *
+	 * @return bool|\WP_Error
+	 */
+	public static function has_active_token( $user ) {
+		if ( ! self::can_magic_link( $user->ID ) ) {
+			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack' ) );
+		}
+
+		$now    = time();
+		$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
+
+		$expire = $now - MINUTE_IN_SECONDS;
+		if ( ! empty( $tokens ) ) {
+			foreach ( $tokens as $index => $token_data ) {
+				/** Clear expired tokens. */
+				if ( $token_data['time'] < $expire ) {
+					unset( $tokens[ $index ] );
+				}
+			}
+		}
+
+		if ( empty( $tokens ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Generate a magic link.
 	 *
 	 * @param \WP_User $user User to generate the magic link for.

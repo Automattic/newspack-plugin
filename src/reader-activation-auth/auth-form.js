@@ -414,7 +414,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 											if ( data.action ) {
 												container.setFormAction( data.action, true );
 												if ( data.action === 'otp' ) {
-													readerActivation.setOTPTimer();
+													if ( ! readerActivation.getOTPTimeRemaining() ) {
+														readerActivation.setOTPTimer();
+													}
 													handleOTPTimer();
 												}
 											} else {
