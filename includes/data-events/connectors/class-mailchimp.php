@@ -92,7 +92,7 @@ class Mailchimp extends Connector {
 			$contact['metadata'] = [];
 		}
 
-		$contact['metadata']['status'] = self::get_default_reader_status();
+		$contact['metadata']['status_if_new'] = self::get_default_reader_status();
 
 		return \Newspack_Newsletters_Contacts::upsert( $contact, $audience_id, $context );
 	}
