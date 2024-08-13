@@ -1,0 +1,70 @@
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+.newspack__analytics-configuration {
+	&__header {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		margin: 32px 0;
+	}
+	th {
+		background: wp-colors.$gray-100;
+		border-bottom: 1px solid wp-colors.$gray-300;
+		border-top: 1px solid wp-colors.$gray-300;
+		color: wp-colors.$gray-900;
+		font-weight: normal;
+		padding: 8px;
+		text-align: left;
+	}
+	table {
+		width: 100%;
+		margin: 32px 0;
+		border-spacing: 0;
+	}
+	tbody {
+		td {
+			padding: 8px;
+			border-bottom: 1px solid wp-colors.$gray-300;
+		}
+		.newspack-checkbox-control {
+			margin: 0;
+		}
+	}
+	&__form {
+		display: flex;
+		align-items: flex-end;
+		margin: 32px 0;
+		@media screen and ( max-width: 600px ) {
+			flex-wrap: wrap;
+		}
+		.newspack-select-control,
+		.newspack-text-control {
+			flex: 1;
+
+			.components-base-control__field {
+				margin: 0;
+			}
+		}
+		> * {
+			margin: 0 !important;
+			&:not(:last-child) {
+				margin-right: 32px !important;
+			}
+		}
+		button {
+			overflow: visible;
+			@media screen and ( max-width: 600px ) {
+				margin-top: 10px !important;
+			}
+		}
+	}
+	&__select {
+		.components-base-control__field {
+			margin: 0;
+		}
+	}
+}
+
+.newspack__analytics-newspack-custom-events__save-button {
+	margin-top: 15px;
+}

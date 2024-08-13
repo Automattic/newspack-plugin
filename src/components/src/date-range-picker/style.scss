@@ -1,0 +1,148 @@
+@use "../../../shared/scss/colors";
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
+.DateRangePicker {
+	margin: 32px 0;
+	max-width: 296px;
+	width: 100%;
+
+	&__PaginationArrow {
+		background: transparent 50% 50% no-repeat;
+		background-size: 24px 24px;
+		border-radius: 3px;
+		height: 36px;
+		transition: background-image 125ms ease-in-out;
+		width: 36px;
+
+		&--previous {
+			background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z" fill="%231e1e1e"/%3E%3C/svg%3E');
+			left: 0;
+
+			&:hover {
+				background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath d="M14.6 7l-1.2-1L8 12l5.4 6 1.2-1-4.6-5z" fill="%2336f"/%3E%3C/svg%3E');
+			}
+		}
+
+		&--next {
+			background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath d="M10.6 6L9.4 7l4.6 5-4.6 5 1.2 1 5.4-6z" fill="%231e1e1e"/%3E%3C/svg%3E');
+			right: 0;
+
+			&:hover {
+				background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath d="M10.6 6L9.4 7l4.6 5-4.6 5 1.2 1 5.4-6z" fill="%2336f"/%3E%3C/svg%3E');
+			}
+		}
+
+		&:hover {
+			background-color: transparent;
+		}
+	}
+
+	&__PaginationArrowIcon {
+		display: none;
+	}
+
+	&__Month {
+		margin: 0;
+		width: inherit;
+	}
+
+	&__MonthHeader {
+		color: wp-colors.$gray-900;
+		font-size: 17px;
+		height: auto;
+		line-height: 24px;
+		padding: 6px 44px;
+	}
+
+	&__WeekdayHeading,
+	&__Date {
+		font-size: 14px;
+		line-height: 24px;
+		padding: 6px 0;
+	}
+
+	&__WeekdayHeading {
+		border-bottom-color: wp-colors.$gray-300;
+		color: wp-colors.$gray-900;
+
+		abbr[title] {
+			color: inherit;
+		}
+	}
+
+	&__MonthDates {
+		border: 0;
+		border-spacing: 0;
+	}
+
+	&__Date {
+		border-color: wp-colors.$gray-300;
+		border-bottom-width: 1px;
+
+		&--weekend {
+			background-color: wp-colors.$gray-100;
+		}
+
+		&--otherMonth {
+			color: wp-colors.$gray-200;
+			opacity: 1;
+		}
+
+		&--is-disabled {
+			color: wp-colors.$gray-100;
+			cursor: not-allowed;
+		}
+
+		&--is-highlighted {
+			color: white;
+		}
+	}
+
+	&__CalendarSelection,
+	&__CalendarHighlight {
+		border-color: colors.$primary-500;
+		bottom: 4px;
+		top: 4px;
+
+		&--inOtherMonth {
+			opacity: 1;
+		}
+
+		&--start {
+			border-bottom-left-radius: 3px;
+			border-top-left-radius: 3px;
+			left: 4px;
+		}
+
+		&--end {
+			border-bottom-right-radius: 3px;
+			border-top-right-radius: 3px;
+			right: 4px;
+		}
+
+		&--single {
+			border: none;
+			border-radius: 3px;
+			left: 4px;
+			right: 4px;
+		}
+	}
+
+	&__CalendarSelection {
+		background-color: colors.$primary-500;
+	}
+
+	&__CalendarHighlight {
+		background: colors.$primary-500;
+		border: none;
+		bottom: 0;
+		top: 0;
+
+		&--single {
+			border: none;
+			border-radius: 0;
+			left: 0;
+			right: 0;
+		}
+	}
+}

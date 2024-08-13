@@ -1,4 +1,4 @@
-const apiFetch = ( { path } ) =>
+const apiFetch = () =>
 	new Promise( resolve => {
 		resolve();
 	} );
