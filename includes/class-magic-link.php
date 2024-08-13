@@ -375,7 +375,7 @@ final class Magic_Link {
 	}
 
 	/**
-	 * Check for active magic link tokens.
+	 * Check for magic link tokens generated within the last 60 seconds.
 	 *
 	 * @param \WP_User $user User to check the active magic link token for.
 	 *

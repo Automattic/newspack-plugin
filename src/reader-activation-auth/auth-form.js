@@ -408,17 +408,18 @@ window.newspackRAS.push( function ( readerActivation ) {
 										.json()
 										.then( ( { message, data } ) => {
 											const status = res.status;
+											const prevEmail = readerActivation.getReader?.()?.email;
 											if ( status === 200 ) {
 												readerActivation.setReaderEmail( body.get( 'npe' ) );
 											}
 											if ( data.action ) {
 												container.setFormAction( data.action, true );
 												if ( data.action === 'otp' ) {
-													if ( ! readerActivation.getOTPTimeRemaining() ) {
+													form.setMessageContent( newspack_reader_activation_labels.code_sent );
+													if ( data.email !== prevEmail || ! readerActivation.getOTPTimeRemaining() ) {
 														readerActivation.setOTPTimer();
 													}
 													handleOTPTimer();
-													form.setMessageContent( newspack_reader_activation_labels.code_sent );
 												}
 											} else {
 												form.endLoginFlow( message, status, data );
