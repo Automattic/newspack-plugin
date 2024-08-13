@@ -300,7 +300,7 @@ class Co_Authors_Plus {
 		}
 
 		if ( self::is_guest_author( $user ) ) {
-			return new WP_Error( 'guest_authors_cannot_login', __( 'Guest Contributors cannot login.', 'newspack-plugin' ) );
+			return new \WP_Error( 'guest_authors_cannot_login', __( 'Guest Contributors cannot login.', 'newspack-plugin' ) );
 		}
 
 		return $user;
