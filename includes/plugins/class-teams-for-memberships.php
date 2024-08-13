@@ -69,17 +69,26 @@ class Teams_For_Memberships {
 			$contact['metadata'] = [];
 		}
 
-		$existing_membership_teams = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare( "SELECT * FROM $wpdb->postmeta WHERE meta_key = '_member_id' AND meta_value = %d", $user->ID ),
-			ARRAY_A
+		global $wpdb;
+
+		$existing_membership_teams = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_member_id' AND meta_value = %d", $user->ID )
 		);
 		if ( empty( $existing_membership_teams ) || empty( $existing_membership_teams[0] ) ) {
 			return $contact;
 		}
-		$team_id = $existing_membership_teams[0]['post_id'];
-		$team    = get_post( $team_id );
-		if ( $team ) {
-			$contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'woo_team' ) ] = $team->post_title;
+
+		$team_slugs = [];
+
+		foreach ( $existing_membership_teams as $post_id ) {
+			$team = get_post( $post_id );
+			if ( $team ) {
+				$team_slugs[] = $team->post_name;
+			}
+		}
+		$team_slugs = implode( ',', $team_slugs );
+		if ( $team_slugs ) {
+			$contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'woo_team' ) ] = $team_slugs;
 		}
 
 		return $contact;
