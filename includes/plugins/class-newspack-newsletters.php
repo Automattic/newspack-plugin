@@ -35,14 +35,15 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
-		\add_action( 'init', [ __CLASS__, 'register_hooks' ], 15 );
+		\add_action( 'init', [ __CLASS__, 'setup_hooks' ], 15 );
 	}
 
 	/**
-	 * Initialize hooks and filters on init hook.
+	 * Setup hooks.
 	 */
-	public static function register_hooks() {
+	public static function setup_hooks() {
+		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ], 99 );
+
 		// this condition triggers filters that should not be fired before init.
 		if ( self::should_sync_ras_metadata() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
