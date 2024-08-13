@@ -418,6 +418,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 														readerActivation.setOTPTimer();
 													}
 													handleOTPTimer();
+													form.setMessageContent( newspack_reader_activation_labels.code_sent );
 												}
 											} else {
 												form.endLoginFlow( message, status, data );
