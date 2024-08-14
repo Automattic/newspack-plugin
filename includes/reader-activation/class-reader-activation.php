@@ -948,6 +948,20 @@ final class Reader_Activation {
 		WooCommerce_Connection::add_wc_notice( self::get_reader_activation_labels( 'verify' ), 'success' );
 
 		/**
+		 * Upon verification we want to destroy existing sessions to prevent a bad
+		 * actor having originated the account creation from accessing the, now
+		 * verified, account.
+		 *
+		 * If the verification is for the current user, we destroy other sessions.
+		 */
+		if ( get_current_user_id() === $user->ID ) {
+			\wp_destroy_other_sessions();
+		} else {
+			$session_tokens = \WP_Session_Tokens::get_instance( $user->ID );
+			$session_tokens->destroy_all();
+		}
+
+		/**
 		 * Fires after a reader's email address is verified.
 		 *
 		 * @param \WP_User $user User object.
@@ -1015,15 +1029,6 @@ final class Reader_Activation {
 			if ( $user && self::is_user_reader( $user ) ) {
 				$length = YEAR_IN_SECONDS;
 			}
-		}
-
-		/**
-		 * If the session is authenticating a newly registered reader we want the
-		 * auth cookie to be short lived since the email ownership has not yet been
-		 * verified.
-		 */
-		if ( true === self::$is_new_reader_auth ) {
-			$length = 24 * HOUR_IN_SECONDS;
 		}
 		return $length;
 	}
@@ -1949,7 +1954,6 @@ final class Reader_Activation {
 			Logger::log( 'Created new reader user with ID ' . $user_id );
 
 			if ( $authenticate ) {
-				self::$is_new_reader_auth = true;
 				self::set_current_reader( $user_id );
 			}
 		}
