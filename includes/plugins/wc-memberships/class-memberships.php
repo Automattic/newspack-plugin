@@ -57,7 +57,7 @@ class Memberships {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
-		add_filter( 'get_post_status', [ __CLASS__, 'check_membership_status' ], 10, 2 );
+		// add_filter( 'get_post_status', [ __CLASS__, 'check_membership_status' ], 10, 2 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
