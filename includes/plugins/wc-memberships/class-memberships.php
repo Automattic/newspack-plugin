@@ -925,7 +925,8 @@ class Memberships {
 
 	/**
 	 * Check if a user has an active subscription with the required products when checking membership status.
-	 * If they have an active subscription, reset inactive memberships to active link to the active subscription.
+	 * If they have an active subscription, but the membership is cancelled,
+	 * reset inactive memberships to active link to the active subscription.
 	 *
 	 * @param string  $post_status Post status.
 	 * @param WP_Post $post Post object.
@@ -933,7 +934,7 @@ class Memberships {
 	 * @return string
 	 */
 	public static function check_membership_status( $post_status, $post ) {
-		if ( 'wc_user_membership' !== $post->post_type || 'wcm-active' === $post->post_status || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
+		if ( 'wc_user_membership' !== $post->post_type || ! in_array( $post->post_type, [ 'wcm-cancelled', 'wcm-expired', 'wcm-paused' ], true ) || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
 			return $post_status;
 		}
 		$integrations = wc_memberships()->get_integrations_instance();
