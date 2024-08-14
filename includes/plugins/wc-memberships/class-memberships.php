@@ -934,7 +934,7 @@ class Memberships {
 	 * @return string
 	 */
 	public static function check_membership_status( $post_status, $post ) {
-		if ( 'wc_user_membership' !== $post->post_type || 'wcm-cancelled' !== $post->post_status || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
+		if ( 'wc_user_membership' !== $post->post_type || ! in_array( $post->post_type, [ 'wcm-cancelled', 'wcm-expired', 'wcm-paused' ], true ) || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
 			return $post_status;
 		}
 		$integrations = wc_memberships()->get_integrations_instance();
