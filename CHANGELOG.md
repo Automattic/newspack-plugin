@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/Automattic/newspack-plugin/compare/v5.0.0...v5.0.1) (2024-08-14)
+
+
+### Bug Fixes
+
+* **woocommerce-memberships:** membership status check ([#3338](https://github.com/Automattic/newspack-plugin/issues/3338)) ([d424f53](https://github.com/Automattic/newspack-plugin/commit/d424f53a98cf92092aab75e6007bb9e9d0ac1ff7))
+
 # [5.0.0](https://github.com/Automattic/newspack-plugin/compare/v4.7.0...v5.0.0) (2024-08-13)
 
 
