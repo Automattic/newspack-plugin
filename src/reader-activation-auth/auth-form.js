@@ -34,7 +34,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 			const passwordInput = form.querySelector( 'input[name="password"]' );
 			const submitButtons = form.querySelectorAll( '[type="submit"]' );
 			const backButtons = container.querySelectorAll( '[data-back]' );
-			const sendCodeButtons = container.querySelectorAll( '[data-send-code]' );
+			const sendCodeButton = container.querySelector( '[data-send-code]' );
+			const resendCodeButton = container.querySelector( '[data-resend-code]' );
 			const messageContentElement = container.querySelector( '.response' );
 
 			/**
@@ -116,6 +117,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 			backButtons.forEach( backButton => {
 				backButton.addEventListener( 'click', function ( ev ) {
 					ev.preventDefault();
+					form.setMessageContent();
 					container.setFormAction( 'signin', true );
 				} );
 			} );
@@ -124,36 +126,29 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 * Handle OTP Timer.
 			 */
 			const handleOTPTimer = () => {
-				if ( ! sendCodeButtons.length ) {
+				if ( ! resendCodeButton ) {
 					return;
 				}
-				sendCodeButtons.forEach( button => {
-					button.originalButtonText = button.textContent;
-					if ( button.otpTimerInterval ) {
-						clearInterval( button.otpTimerInterval );
-					}
-					const updateButton = () => {
-						const remaining = readerActivation.getOTPTimeRemaining();
-						if ( remaining ) {
-							button.textContent = `${ button.originalButtonText } (${ formatTime( remaining ) })`;
-							button.disabled = true;
-						} else {
-							button.textContent = button.originalButtonText;
-							button.disabled = false;
-							clearInterval( button.otpTimerInterval );
-						}
-					};
+				resendCodeButton.originalButtonText = resendCodeButton.textContent.replace( /\s\(\d{1,}:\d{2}\)/, '' );
+				const updateButton = () => {
 					const remaining = readerActivation.getOTPTimeRemaining();
 					if ( remaining ) {
-						button.otpTimerInterval = setInterval( updateButton, 1000 );
-						updateButton();
+						resendCodeButton.textContent = `${ resendCodeButton.originalButtonText } (${ formatTime( remaining ) })`;
+					} else {
+						resendCodeButton.textContent = resendCodeButton.originalButtonText;
+						clearInterval( resendCodeButton.otpTimerInterval );
 					}
-				} );
+					resendCodeButton.disabled = !!remaining;
+				};
+				const remaining = readerActivation.getOTPTimeRemaining();
+				if ( remaining ) {
+					resendCodeButton.otpTimerInterval = setInterval( updateButton, 1000 );
+					updateButton();
+				}
 			};
 
-			if ( sendCodeButtons.length ) {
-				handleOTPTimer();
-				sendCodeButtons.forEach( button => {
+			if ( sendCodeButton || resendCodeButton ) {
+				[ sendCodeButton, resendCodeButton ].forEach( button => {
 					button.addEventListener( 'click', function ( ev ) {
 						form.setMessageContent();
 						ev.preventDefault();
@@ -182,9 +177,15 @@ window.newspackRAS.push( function ( readerActivation ) {
 									body,
 								} )
 									.then( () => {
-										form.setMessageContent( newspack_reader_activation_labels.code_resent );
+										form.setMessageContent(
+											formAction === 'pwd'
+												? newspack_reader_activation_labels.code_sent
+												: newspack_reader_activation_labels.code_resent
+										);
 										container.setFormAction( 'otp' );
-										readerActivation.setOTPTimer();
+										if ( ! readerActivation.getOTPTimeRemaining() ) {
+											readerActivation.setOTPTimer();
+										}
 									} )
 									.catch( e => {
 										console.log( e ); // eslint-disable-line no-console
@@ -407,13 +408,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 										.json()
 										.then( ( { message, data } ) => {
 											const status = res.status;
+											const prevEmail = readerActivation.getReader?.()?.email;
 											if ( status === 200 ) {
 												readerActivation.setReaderEmail( body.get( 'npe' ) );
 											}
 											if ( data.action ) {
 												container.setFormAction( data.action, true );
 												if ( data.action === 'otp' ) {
-													readerActivation.setOTPTimer();
+													form.setMessageContent( newspack_reader_activation_labels.code_sent );
+													if ( data.email !== prevEmail || ! readerActivation.getOTPTimeRemaining() ) {
+														readerActivation.setOTPTimer();
+													}
 													handleOTPTimer();
 												}
 											} else {

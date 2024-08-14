@@ -226,6 +226,7 @@ final class Reader_Activation {
 				'invalid_password'         => __( 'Please enter a password.', 'newspack-plugin' ),
 				'invalid_display'          => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
 				'blocked_popup'            => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+				'code_sent'                => __( 'Code sent! Check your inbox.', 'newspack-plugin' ),
 				'code_resent'              => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
 				'create_account'           => __( 'Create an account', 'newspack-plugin' ),
 				'signin'                   => [
@@ -1298,7 +1299,7 @@ final class Reader_Activation {
 					?>
 				</p>
 				<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="register signin pwd otp"><?php echo \esc_html( $labels['continue'] ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php echo \esc_html( $labels['resend_code'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-resend-code><?php echo \esc_html( $labels['resend_code'] ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php echo \esc_html( $labels['otp'] ); ?></button>
 				<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php echo \esc_html( $labels['forgot_password'] ); ?></a>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="signin" data-set-action="register"><?php echo \esc_html( $labels['create_account'] ); ?></button>
@@ -1683,6 +1684,7 @@ final class Reader_Activation {
 		if ( ! isset( $_POST[ self::AUTH_FORM_ACTION ] ) ) {
 			return;
 		}
+
 		$action           = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
 		$referer          = isset( $_POST['referer'] ) ? \sanitize_text_field( $_POST['referer'] ) : '';
 		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referer is the current page URL because the form is submitted via AJAX.
@@ -1738,6 +1740,10 @@ final class Reader_Activation {
 
 		switch ( $action ) {
 			case 'signin':
+				if ( Magic_Link::has_active_token( $user ) ) {
+					$payload['action'] = 'otp';
+					return self::send_auth_form_response( $payload, false );
+				}
 				if ( self::is_reader_without_password( $user ) ) {
 					$sent = Magic_Link::send_email( $user, $current_page_url );
 					if ( true !== $sent ) {
