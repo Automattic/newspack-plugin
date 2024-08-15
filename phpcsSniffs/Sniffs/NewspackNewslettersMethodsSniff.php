@@ -99,7 +99,6 @@ class NewspackNewslettersMethodsSniff implements PHP_CodeSniffer_Sniff {
 
 			if ( $operator['type'] === 'T_DOUBLE_COLON' ) {
 
-
 				$class_name = $tokens[ $stack_ptr - 2 ]['content'];
 				if ( in_array( $class_name, $this->static_classes, true ) ) {
 
