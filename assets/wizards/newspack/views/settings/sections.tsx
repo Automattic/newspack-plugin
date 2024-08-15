@@ -11,6 +11,7 @@ import Social from './social';
 import Connections from './connections';
 import Syndication from './syndication';
 import Emails from './emails';
+import Seo from './seo';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -18,9 +19,8 @@ const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = 
 	connections: Connections,
 	social: Social,
 	emails: Emails,
-	// social: Social,
 	syndication: Syndication,
-	// seo: Seo,
+	seo: Seo,
 	// 'theme-and-brand': ThemeAndBrand,
 	// 'display-settings': DisplaySettings,
 	// 'additional-brands': AdditionalBrands,
