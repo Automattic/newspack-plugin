@@ -328,26 +328,6 @@ export function getAuthStrategy() {
 	}
 	return getCookie( 'np_auth_strategy' );
 }
-/**
- * Set the reader checkout status.
- *
- * @param {boolean} status Checkout status. Default is false.
- *
- * @return {void}
- */
-export function setCheckoutStatus( status = false ) {
-	setCookie( 'np_auth_checkout_status', status );
-	emit( EVENTS.reader, getReader() );
-	return status;
-}
-/**
- * Get the reader checkout status.
- *
- * @return {boolean} Reader checkout status.
- */
-export function getCheckoutStatus() {
-	return 'true' === getCookie( 'np_auth_checkout_status' );
-}
 
 /**
  * Ensure the client ID cookie is set.
@@ -424,6 +404,71 @@ function attachNewsletterFormListener() {
 	} );
 }
 
+
+/**
+ * Checkout functions.
+ */
+
+/**
+ * Get the current checkout.
+ *
+ * @return {Object} Checkout data.
+ */
+export function getCheckout() {
+	return store.get( 'checkout' ) || {};
+}
+
+/**
+ * Set the current checkout data.
+ *
+ * @param {Object} data Optiona. Checkout data.
+ *                      If empty or not provided, the checkout data will be cleared.
+ */
+export function setCheckoutData( data = {} ) {
+	const checkout = getCheckout();
+	const update = Object.keys( data ).length ? { ...checkout, ...data } : data;
+	store.set( 'checkout', update, false );
+	emit( EVENTS.reader, getReader() );
+}
+
+/**
+ * Set the reader checkout status.
+ *
+ * @param {boolean} status Optional. Checkout status. Default is false.
+ */
+export function setCheckoutStatus( status = false ) {
+	setCheckoutData( { status } );
+}
+
+/**
+ * Get the reader checkout data.
+ * @param {string} key Checkout data key. Optional.
+ *
+ * @return {any} Reader checkout data.
+ */
+export function getCheckoutData( key ) {
+	const checkout = getCheckout();
+	if ( ! key ) {
+		return checkout;
+	}
+	return checkout?.[ key ];
+}
+
+/**
+ * Get the reader checkout status.
+ * @return {boolean} Reader checkout status.
+ */
+export function getCheckoutStatus() {
+	return getCheckoutData( 'status' );
+}
+
+/**
+ * Reset the reader checkout data.
+ */
+export function resetCheckoutData() {
+	setCheckoutData();
+}
+
 const readerActivation = {
 	store,
 	overlays,
@@ -446,8 +491,11 @@ const readerActivation = {
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
+	setCheckoutData,
 	setCheckoutStatus,
+	getCheckoutData,
 	getCheckoutStatus,
+	resetCheckoutData,
 	getCaptchaV3Token: window.newspack_grecaptcha
 		? window.newspack_grecaptcha?.getCaptchaV3Token
 		: () => new Promise( res => res( '' ) ), // Empty promise.

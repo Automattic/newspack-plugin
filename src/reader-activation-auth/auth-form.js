@@ -382,6 +382,15 @@ window.newspackRAS.push( function ( readerActivation ) {
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 							return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 						}
+						if ( readerActivation.getCheckoutStatus() ) {
+							const checkoutType = readerActivation.getCheckoutData( 'type' );
+							const buttonText = readerActivation.getCheckoutData( 'button_text' );
+							const redirectUrl = new URL( window.location.href );
+							redirectUrl.searchParams.set( 'modal_checkout', 1 );
+							redirectUrl.searchParams.set( 'type', checkoutType );
+							redirectUrl.searchParams.set( 'button_text', buttonText );
+							body.set( 'redirect_url', redirectUrl.href );
+						}
 						if ( 'otp' === action ) {
 							readerActivation
 								.authenticateOTP( body.get( 'otp_code' ) )

@@ -450,8 +450,7 @@ final class Magic_Link {
 		if ( is_wp_error( $key ) ) {
 			return $key;
 		}
-
-		$url                = \add_query_arg(
+		$url = \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
 				'email'  => urlencode( $user->user_email ),
@@ -469,7 +468,6 @@ final class Magic_Link {
 				'template' => '*SET_PASSWORD_LINK*',
 				'value'    => Emails::get_password_reset_url( $user, $key ),
 			],
-
 		];
 		if ( $use_otp && ! empty( $token_data['otp'] ) ) {
 			$email_type           = 'OTP_AUTH';
@@ -761,7 +759,7 @@ final class Magic_Link {
 
 		$redirect = \wp_validate_redirect(
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\sanitize_text_field( \wp_unslash( $_GET['redirect'] ?? '' ) ),
+			\sanitize_url( \wp_unslash( $_GET['redirect'] ?? '' ) ),
 			\remove_query_arg( [ 'action', 'email', 'token' ] )
 		);
 
