@@ -1,5 +1,5 @@
 type SeoData = {
-	underConstruction: boolean;
+	under_construction: boolean;
 	urls: {
 		facebook: string;
 		twitter: string;

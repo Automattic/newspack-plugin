@@ -5,8 +5,9 @@
 /**
  * WordPress dependencies.
  */
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Fragment } from '@wordpress/element';
+import { ExternalLink } from '@wordpress/components';
 
 /**
  * Internal dependencies.
@@ -19,11 +20,11 @@ type VerificationData = {
 };
 
 function VerificationCodes( {
-	setData,
 	data,
+	setData,
 }: {
-	setData: ( v: SeoData[ 'verification' ] ) => void;
 	data: VerificationData;
+	setData: ( v: SeoData[ 'verification' ] ) => void;
 } ) {
 	return (
 		<Grid>
@@ -32,12 +33,12 @@ function VerificationCodes( {
 				onChange={ ( google: string ) => setData( { ...data, google } ) }
 				value={ data.google }
 				help={
-					<>
+					<Fragment>
 						{ __( 'Get your verification code in', 'newspack' ) + ' ' }
 						<ExternalLink href="https://www.google.com/webmasters/verification/verification?tid=alternate">
 							{ __( 'Google Search Console', 'newspack' ) }
 						</ExternalLink>
-					</>
+					</Fragment>
 				}
 			/>
 			<TextControl
@@ -45,12 +46,12 @@ function VerificationCodes( {
 				onChange={ ( bing: string ) => setData( { ...data, bing } ) }
 				value={ data.bing }
 				help={
-					<>
+					<Fragment>
 						{ `${ __( 'Get your verification code in', 'newspack' ) } ` }
 						<ExternalLink href="https://www.bing.com/toolbox/webmaster/#/Dashboard/">
 							{ __( 'Bing Webmaster Tool', 'newspack' ) }
 						</ExternalLink>
-					</>
+					</Fragment>
 				}
 			/>
 		</Grid>

@@ -6,7 +6,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -14,18 +14,19 @@ import { useState } from '@wordpress/element';
 import Accounts from './accounts';
 import WizardsTab from '../../../../wizards-tab';
 import VerificationCodes from './verification-codes';
+import { Button } from '../../../../../components/src';
 import WizardSection from '../../../../wizards-section';
-import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import WizardsActionCard from '../../../../wizards-action-card';
+import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 const PATH = '/newspack/v1/wizard/newspack-seo-wizard/settings';
 
 function Seo() {
-	const { wizardApiFetch, errorMessage, resetError, setError } =
+	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } =
 		useWizardApiFetch( 'newspack-settings/seo' );
 
 	const [ data, setData ] = useState< SeoData >( {
-		underConstruction: false,
+		under_construction: false,
 		urls: {
 			facebook: '',
 			twitter: '',
@@ -40,6 +41,8 @@ function Seo() {
 		},
 	} );
 
+	useEffect( get, [] );
+
 	function get() {
 		wizardApiFetch(
 			{
@@ -50,7 +53,7 @@ function Seo() {
 			}
 		);
 	}
-	function post( data: SeoData ) {
+	function post() {
 		wizardApiFetch(
 			{
 				path: PATH,
@@ -63,8 +66,10 @@ function Seo() {
 		);
 	}
 	return (
-		<WizardsTab title={ __( 'SEO', 'newspack-plugin' ) }>
-			<pre>{ JSON.stringify( data, null, 2 ) }</pre>
+		<WizardsTab
+			title={ __( 'SEO', 'newspack-plugin' ) }
+			className={ isFetching ? 'inputs-disabled' : '' }
+		>
 			<WizardSection
 				title={ __( 'Webmaster Tools', 'newspack-plugin' ) }
 				description={ __( 'Add verification meta tags to your site', 'newspack-plugin' ) }
@@ -83,13 +88,23 @@ function Seo() {
 			>
 				<Accounts setData={ urls => setData( { ...data, urls } ) } data={ data.urls } />
 			</WizardSection>
-			<WizardsActionCard
-				isMedium
-				title={ __( 'Under construction', 'newspack' ) }
-				description={ __( 'Discourage search engines from indexing this site.', 'newspack' ) }
-				toggleChecked={ underConstruction }
-				toggleOnChange={ value => onChange( { underConstruction: value } ) }
-			/>
+			<WizardSection>
+				<WizardsActionCard
+					isMedium
+					disabled={ isFetching }
+					toggleChecked={ data.under_construction }
+					title={ __( 'Under construction', 'newspack' ) }
+					toggleOnChange={ under_construction => setData( { ...data, under_construction } ) }
+					description={ __( 'Discourage search engines from indexing this site.', 'newspack' ) }
+				/>
+			</WizardSection>
+			<div className="newspack-buttons-card">
+				<Button isPrimary onClick={ post }>
+					{ isFetching
+						? __( 'Loading…', 'newspack-plugin' )
+						: __( 'Save Settings', 'newspack-plugin' ) }
+				</Button>
+			</div>
 		</WizardsTab>
 	);
 }

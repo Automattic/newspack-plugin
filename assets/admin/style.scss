@@ -54,6 +54,12 @@ h1 {
 .gray-700 {
 	color: var(--np-color-wp-gray-700);
 }
+.inputs-disabled {
+	input[type="text"] {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+}
 
 /**
  * Wizards
