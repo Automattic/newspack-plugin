@@ -22,8 +22,7 @@ import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 const PATH = '/newspack/v1/wizard/newspack-seo-wizard/settings';
 
 function Seo() {
-	const { wizardApiFetch, isFetching, errorMessage, resetError, setError } =
-		useWizardApiFetch( 'newspack-settings/seo' );
+	const { wizardApiFetch, isFetching } = useWizardApiFetch( 'newspack-settings/seo' );
 
 	const [ data, setData ] = useState< SeoData >( {
 		under_construction: false,
