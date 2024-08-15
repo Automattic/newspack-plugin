@@ -11,7 +11,7 @@
 		"@testing-library/react": "^12.1.4",
 		"@types/qs": "^6.9.15",
 		"@types/react": "^17.0.75",
-		"@wordpress/browserslist-config": "^6.0.0",
+		"@wordpress/browserslist-config": "^6.5.0",
 		"eslint": "^8.57.0",
 		"lint-staged": "^15.2.8",
 		"newspack-scripts": "^5.5.2",
