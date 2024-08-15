@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Memberships\Metering;
+use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -56,6 +57,7 @@ class Memberships {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
+		add_filter( 'get_post_status', [ __CLASS__, 'check_membership_status' ], 10, 2 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
@@ -76,6 +78,13 @@ class Memberships {
 
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+	}
+
+	/**
+	 * Check if Memberships is available.
+	 */
+	public static function is_active() {
+		return class_exists( 'WC_Memberships' ) && function_exists( 'wc_memberships' );
 	}
 
 	/**
@@ -321,7 +330,7 @@ class Memberships {
 	 * @return string[] Plan names keyed by plan ID.
 	 */
 	private static function get_gate_plans( $gate_id ) {
-		if ( ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
 			return [];
 		}
 		$ids = get_post_meta( $gate_id, 'plans', true );
@@ -344,7 +353,7 @@ class Memberships {
 	 * @return array
 	 */
 	public static function get_plans() {
-		if ( ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
 			return [];
 		}
 		$membership_plans = wc_memberships_get_membership_plans();
@@ -415,7 +424,7 @@ class Memberships {
 		if ( ! \is_user_logged_in() ) {
 			return false;
 		}
-		if ( ! function_exists( 'wc_memberships_is_user_active_or_delayed_member' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_is_user_active_or_delayed_member' ) ) {
 			return false;
 		}
 		return \wc_memberships_is_user_active_or_delayed_member( \get_current_user_id(), $plan_id );
@@ -480,7 +489,7 @@ class Memberships {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		if ( ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! \wc_memberships_is_post_content_restricted( $post_id ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! \wc_memberships_is_post_content_restricted( $post_id ) ) {
 			return false;
 		}
 		return ! is_user_logged_in() || ! current_user_can( 'wc_memberships_view_restricted_post_content', $post_id ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
@@ -795,7 +804,7 @@ class Memberships {
 	 */
 	public static function user_has_cap( $all_caps, $caps, $args ) {
 		// Bail if Woo Memberships is not active.
-		if ( ! class_exists( 'WC_Memberships' ) || ! function_exists( 'wc_memberships' ) ) {
+		if ( ! self::is_active() ) {
 			return $all_caps;
 		}
 
@@ -803,6 +812,18 @@ class Memberships {
 			foreach ( $caps as $cap ) {
 
 				switch ( $cap ) {
+					case 'wc_memberships_access_all_restricted_content':
+					case 'wc_memberships_view_restricted_product':
+					case 'wc_memberships_purchase_restricted_product':
+					case 'wc_memberships_view_restricted_product_taxonomy_term':
+					case 'wc_memberships_view_delayed_product_taxonomy_term':
+					case 'wc_memberships_view_restricted_taxonomy_term':
+					case 'wc_memberships_view_restricted_taxonomy':
+					case 'wc_memberships_view_restricted_post_type':
+					case 'wc_memberships_view_delayed_post_type':
+					case 'wc_memberships_view_delayed_taxonomy':
+					case 'wc_memberships_view_delayed_taxonomy_term':
+					case 'wc_memberships_view_delayed_post_content':
 					case 'wc_memberships_view_restricted_post_content':
 						if ( self::can_manage_woocommerce( $all_caps ) ) {
 							$all_caps[ $cap ] = true;
@@ -812,6 +833,10 @@ class Memberships {
 						// Allow user who can edit posts (by default: editors, authors, contributors).
 						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
 							$all_caps[ $cap ] = true;
+							break;
+						}
+
+						if ( ! isset( $args[1] ) || ! isset( $args[2] ) ) {
 							break;
 						}
 
@@ -828,20 +853,8 @@ class Memberships {
 
 						break;
 
-					case 'wc_memberships_access_all_restricted_content':
-					case 'wc_memberships_view_restricted_product':
-					case 'wc_memberships_purchase_restricted_product':
-					case 'wc_memberships_view_restricted_product_taxonomy_term':
-					case 'wc_memberships_view_delayed_product_taxonomy_term':
-					case 'wc_memberships_view_restricted_taxonomy_term':
-					case 'wc_memberships_view_restricted_taxonomy':
-					case 'wc_memberships_view_restricted_post_type':
-					case 'wc_memberships_view_delayed_post_type':
-					case 'wc_memberships_view_delayed_taxonomy':
-					case 'wc_memberships_view_delayed_taxonomy_term':
-					case 'wc_memberships_view_delayed_post_content':
 					case 'wc_memberships_view_delayed_product':
-						// Allow user who can edit posts (by default: editors, authors, contributors).
+						// Allow users who can edit posts (by default: editors, authors, contributors).
 						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
 							$all_caps[ $cap ] = true;
 							break;
@@ -876,10 +889,19 @@ class Memberships {
 			return true;
 		}
 
+		$integrations      = wc_memberships()->get_integrations_instance();
+		$integration       = $integrations ? $integrations->get_subscriptions_instance() : null;
 		$require_all_plans = self::get_require_all_plans_setting();
 		$has_access        = false;
+		$has_subscription  = false;
 
 		foreach ( $rules as $rule ) {
+			$membership_plan_id = $rule->get_membership_plan_id();
+			if ( $integration && $integration->has_membership_plan_subscription( $membership_plan_id ) ) {
+				$subscription_plan  = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $membership_plan_id );
+				$required_products  = $subscription_plan->get_subscription_product_ids();
+				$has_subscription   = ! empty( WooCommerce_Connection::get_active_subscriptions_for_user( $user_id, $required_products ) );
+			}
 
 			// If no object ID is provided, then we are looking at rules that apply to whole post types or taxonomies.
 			// In this case, rules that apply to specific objects should be skipped.
@@ -887,7 +909,7 @@ class Memberships {
 				continue;
 			}
 
-			if ( wc_memberships_is_user_active_or_delayed_member( $user_id, $rule->get_membership_plan_id() ) ) {
+			if ( $has_subscription || wc_memberships_is_user_active_or_delayed_member( $user_id, $rule->get_membership_plan_id() ) ) {
 				$has_access = true;
 				if ( ! $require_all_plans ) {
 					break;
@@ -899,6 +921,42 @@ class Memberships {
 		}
 
 		return $has_access;
+	}
+
+	/**
+	 * Check if a user has an active subscription with the required products when checking membership status.
+	 * If they have an active subscription, but the membership is cancelled,
+	 * reset inactive memberships to active link to the active subscription.
+	 *
+	 * @param string  $post_status Post status.
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public static function check_membership_status( $post_status, $post ) {
+		if ( 'wc_user_membership' !== $post->post_type || ! in_array( $post->post_type, [ 'wcm-cancelled', 'wcm-expired', 'wcm-paused' ], true ) || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
+			return $post_status;
+		}
+		$integrations = wc_memberships()->get_integrations_instance();
+		$integration  = $integrations ? $integrations->get_subscriptions_instance() : null;
+		$membership   = wc_memberships_get_user_membership( $post->ID );
+		$plan_id      = $membership->get_plan_id();
+		if ( $integration && $integration->has_membership_plan_subscription( $plan_id ) ) {
+			$subscription_plan    = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $plan_id );
+			$required_products    = $subscription_plan->get_subscription_product_ids();
+			$active_subscriptions = WooCommerce_Connection::get_active_subscriptions_for_user( $membership->get_user_id(), $required_products );
+			$has_subscription     = ! empty( $active_subscriptions );
+			if ( $has_subscription ) {
+				$post_status = 'wcm-active';
+				$membership  = new \WC_Memberships_Integration_Subscriptions_User_Membership( $post->ID );
+				$membership->unschedule_expiration_events();
+				$membership->set_subscription_id( $active_subscriptions[0] );
+				$membership->set_end_date(); // Clear the end date.
+				$membership->update_status( 'active' );
+			}
+		}
+
+		return $post_status;
 	}
 
 	/**
@@ -952,6 +1010,7 @@ class Memberships {
 					foreach ( $memberships as $membership ) {
 						// If the membership is not active and has an end date in the past, reactivate it.
 						if ( $membership && ! $membership->has_status( $active_membership_statuses ) && $membership->has_end_date() && $membership->get_end_date( 'timestamp' ) < time() ) {
+							$membership->unschedule_expiration_events();
 							$membership->set_end_date(); // Clear the end date.
 							$membership->update_status( 'active' ); // Reactivate the membership.
 							$reactivated_memberships++;
