@@ -54,11 +54,11 @@
 
 	// Error class to apply to specific fields.
 	&__field-error,
-	[data-form-status='400'] {
+	[data-form-status="400"] {
 		// Attribute added to sign-up modal form on failure.
-		--newspack-ui-color-input-border: var( --newspack-ui-color-error-50 );
-		--newspack-ui-color-input-border-focus: var( --newspack-ui-color-error-50 );
-		--newspack-ui-label-color: var( --newspack-ui-color-error-50 );
+		--newspack-ui-color-input-border: var(--newspack-ui-color-error-50);
+		--newspack-ui-color-input-border-focus: var(--newspack-ui-color-error-50);
+		--newspack-ui-label-color: var(--newspack-ui-color-error-50);
 
 		.newspack-ui__label-optional {
 			color: inherit;

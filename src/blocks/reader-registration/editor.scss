@@ -1,6 +1,6 @@
-@use './style';
-@use '../../reader-activation-auth/style' as auth;
-@use '~@wordpress/base-styles/colors' as wp-colors;
+@use "./style";
+@use "../../reader-activation-auth/style" as auth;
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 .newspack-registration {
 	&__state-bar {
@@ -23,12 +23,12 @@
 			box-shadow: none !important;
 			color: wp-colors.$gray-900 !important;
 			height: 32px !important;
-			&[data-is-active='true'] {
+			&[data-is-active="true"] {
 				background: wp-colors.$gray-900 !important;
 				color: white !important;
 			}
-			&:hover:not( [data-is-active='true'] ) {
-				color: var( --wp-admin-theme-color ) !important;
+			&:hover:not([data-is-active="true"]) {
+				color: var(--wp-admin-theme-color) !important;
 			}
 		}
 		span {
@@ -41,13 +41,13 @@
 	}
 
 	& &__title {
-		font-family: var( --newspack-ui-font-family );
+		font-family: var(--newspack-ui-font-family);
 	}
 
 	&__main {
 		gap: 0;
 
-		button[class*='oauth'] {
+		button[class*="oauth"] {
 			svg {
 				display: block;
 			}
@@ -55,7 +55,7 @@
 	}
 
 	&__form-content {
-		&:not( :has( .newspack-ui__helper-text ) ) {
+		&:not(:has(.newspack-ui__helper-text)) {
 			.newspack-ui__input-card {
 				border-bottom-width: 0 !important;
 				border-radius: 0 !important;
@@ -65,25 +65,25 @@
 					font-weight: 400;
 				}
 
-				&:has( input[type='checkbox']:checked ) {
+				&:has(input[type="checkbox"]:checked) {
 					background: transparent;
-					border-color: var( --newspack-ui-color-border );
+					border-color: var(--newspack-ui-color-border);
 				}
 
 				&:first-of-type {
-					border-top-left-radius: var( --newspack-ui-border-radius-m ) !important;
-					border-top-right-radius: var( --newspack-ui-border-radius-m ) !important;
+					border-top-left-radius: var(--newspack-ui-border-radius-m) !important;
+					border-top-right-radius: var(--newspack-ui-border-radius-m) !important;
 					border-top-width: 1px !important;
 				}
 
 				&:last-of-type {
-					border-bottom-left-radius: var( --newspack-ui-border-radius-m ) !important;
-					border-bottom-right-radius: var( --newspack-ui-border-radius-m ) !important;
+					border-bottom-left-radius: var(--newspack-ui-border-radius-m) !important;
+					border-bottom-right-radius: var(--newspack-ui-border-radius-m) !important;
 					border-bottom-width: 1px !important;
 				}
 
 				+ .newspack-ui__input-card {
-					margin-top: calc( -1 * var( --newspack-ui-spacer-2 ) ) !important;
+					margin-top: calc(-1 * var(--newspack-ui-spacer-2)) !important;
 					padding-top: 0 !important;
 				}
 			}
@@ -94,7 +94,7 @@
 	&__have-account {
 		.newspack-ui__button {
 			cursor: default;
-			font-family: var( --newspack-ui-font-family ) !important;
+			font-family: var(--newspack-ui-font-family) !important;
 
 			&:focus {
 				box-shadow: none;
@@ -113,8 +113,8 @@
 
 	&__help-text {
 		.rich-text {
-			font-size: var( --newspack-ui-font-size-xs );
-			line-height: var( --newspack-ui-line-height-xs );
+			font-size: var(--newspack-ui-font-size-xs);
+			line-height: var(--newspack-ui-line-height-xs);
 		}
 	}
 
@@ -128,9 +128,9 @@
 	}
 
 	.newspack-ui__box--success {
-		font-size: var( --newspack-ui-font-size-s );
+		font-size: var(--newspack-ui-font-size-s);
 		font-weight: 600;
-		line-height: var( --newspack-ui-line-height-s );
+		line-height: var(--newspack-ui-line-height-s);
 		margin: 0 !important;
 
 		.block-list-appender {
@@ -145,8 +145,8 @@
 		}
 
 		> * {
-			margin-bottom: var( --newspack-ui-spacer-2 );
-			margin-top: var( --newspack-ui-spacer-2 );
+			margin-bottom: var(--newspack-ui-spacer-2);
+			margin-top: var(--newspack-ui-spacer-2);
 		}
 
 		> :first-child {
