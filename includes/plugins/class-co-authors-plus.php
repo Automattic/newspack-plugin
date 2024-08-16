@@ -70,7 +70,7 @@ class Co_Authors_Plus {
 		\add_filter( 'allow_password_reset', [ __CLASS__, 'disable_feature' ], 10, 2 );
 		\add_filter( 'woocommerce_current_user_can_edit_customer_meta_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
 
-		// Members plugin is active, and it has its own UI for roles.
+		// Only if Members plugin is not active, because it has its own UI for roles.
 		if ( ! class_exists( 'Members_Plugin' ) ) {
 			// Add UI to the user profile to assign the custom role.
 			add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
