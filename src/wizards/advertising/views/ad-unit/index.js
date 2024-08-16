@@ -31,7 +31,6 @@ class AdUnit extends Component {
 	 *
 	 * @param {string|Object} adUnitChangesOrKey Ad Unit field name or object containing changes.
 	 * @param {any}           value              New value for field.
-	 *
 	 */
 	handleOnChange( adUnitChangesOrKey, value ) {
 		const { adUnit, onChange, service } = this.props;
@@ -102,9 +101,9 @@ class AdUnit extends Component {
 								isLegacy
 									? undefined
 									: __(
-											"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
-											'newspack-plugin'
-									  )
+										"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
+										'newspack-plugin'
+									)
 							}
 							disabled={ ! isLegacy }
 							onChange={ value => this.handleOnChange( 'code', value ) }

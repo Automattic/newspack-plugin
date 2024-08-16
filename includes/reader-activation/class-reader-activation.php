@@ -226,6 +226,7 @@ final class Reader_Activation {
 				'invalid_password'         => __( 'Please enter a password.', 'newspack-plugin' ),
 				'invalid_display'          => __( 'Display name cannot match your email address. Please choose a different display name.', 'newspack-plugin' ),
 				'blocked_popup'            => __( 'The popup has been blocked. Allow popups for the site and try again.', 'newspack-plugin' ),
+				'code_sent'                => __( 'Code sent! Check your inbox.', 'newspack-plugin' ),
 				'code_resent'              => __( 'Code resent! Check your inbox.', 'newspack-plugin' ),
 				'create_account'           => __( 'Create an account', 'newspack-plugin' ),
 				'signin'                   => [
@@ -947,6 +948,20 @@ final class Reader_Activation {
 		WooCommerce_Connection::add_wc_notice( self::get_reader_activation_labels( 'verify' ), 'success' );
 
 		/**
+		 * Upon verification we want to destroy existing sessions to prevent a bad
+		 * actor having originated the account creation from accessing the, now
+		 * verified, account.
+		 *
+		 * If the verification is for the current user, we destroy other sessions.
+		 */
+		if ( get_current_user_id() === $user->ID ) {
+			\wp_destroy_other_sessions();
+		} else {
+			$session_tokens = \WP_Session_Tokens::get_instance( $user->ID );
+			$session_tokens->destroy_all();
+		}
+
+		/**
 		 * Fires after a reader's email address is verified.
 		 *
 		 * @param \WP_User $user User object.
@@ -1014,15 +1029,6 @@ final class Reader_Activation {
 			if ( $user && self::is_user_reader( $user ) ) {
 				$length = YEAR_IN_SECONDS;
 			}
-		}
-
-		/**
-		 * If the session is authenticating a newly registered reader we want the
-		 * auth cookie to be short lived since the email ownership has not yet been
-		 * verified.
-		 */
-		if ( true === self::$is_new_reader_auth ) {
-			$length = 24 * HOUR_IN_SECONDS;
 		}
 		return $length;
 	}
@@ -1152,12 +1158,8 @@ final class Reader_Activation {
 		}
 
 		/** Do not render link for authenticated readers if account page doesn't exist. */
-		if ( empty( $account_url ) ) {
-			if ( \is_user_logged_in() ) {
-				return '';
-			} else {
-				$account_url = '#';
-			}
+		if ( empty( $account_url ) && \is_user_logged_in() ) {
+			return '';
 		}
 
 		$class = function( ...$parts ) {
@@ -1208,8 +1210,10 @@ final class Reader_Activation {
 
 	/**
 	 * Renders reader authentication form.
+	 *
+	 * @param boolean $in_modal Whether the form is rendiner in a modal; defaults to true.
 	 */
-	public static function render_auth_form() {
+	public static function render_auth_form( $in_modal = true ) {
 		/**
 		 * Filters whether to render reader auth form.
 		 *
@@ -1230,10 +1234,19 @@ final class Reader_Activation {
 		}
 		// phpcs:enable
 
-		$referer = \wp_parse_url( \wp_get_referer() );
-		$labels  = self::get_reader_activation_labels( 'signin' );
+		$referer           = \wp_parse_url( \wp_get_referer() );
+		$labels            = self::get_reader_activation_labels( 'signin' );
+		$auth_callback_url = '#';
+		// If we are already on the my account page, set the my account URL so the page reloads on submit.
+		if ( function_exists( 'wc_get_page_permalink' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
+			$auth_callback_url = \wc_get_page_permalink( 'myaccount' );
+		}
 		?>
 		<div class="newspack-ui newspack-reader-auth">
+			<?php if ( ! $in_modal ) { ?>
+				<h2 data-action="signin"><?php echo wp_kses_post( self::get_reader_activation_labels( 'title' ) ); ?></h2>
+				<h2 data-action="register"><?php echo wp_kses_post( self::get_reader_activation_labels( 'create_account' ) ); ?></h2>
+			<?php } ?>
 			<div class="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center" data-action="success">
 				<span class="newspack-ui__icon newspack-ui__icon--success">
 					<?php \Newspack\Newspack_UI_Icons::print_svg( 'check' ); ?>
@@ -1273,7 +1286,7 @@ final class Reader_Activation {
 					<?php Recaptcha::render_recaptcha_v2_container(); ?>
 				<?php endif; ?>
 				<div class="response-container">
-					<div class="response newspack-ui__inline-error">
+					<div class="response">
 						<?php if ( ! empty( $message ) ) : ?>
 							<p><?php echo \esc_html( $message ); ?></p>
 						<?php endif; ?>
@@ -1291,14 +1304,14 @@ final class Reader_Activation {
 					?>
 				</p>
 				<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="register signin pwd otp"><?php echo \esc_html( $labels['continue'] ); ?></button>
-				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-send-code><?php echo \esc_html( $labels['resend_code'] ); ?></button>
+				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="otp" data-resend-code><?php echo \esc_html( $labels['resend_code'] ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" data-send-code><?php echo \esc_html( $labels['otp'] ); ?></button>
 				<a class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="pwd" href="<?php echo \esc_url( \wp_lostpassword_url() ); ?>"><?php echo \esc_html( $labels['forgot_password'] ); ?></a>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="signin" data-set-action="register"><?php echo \esc_html( $labels['create_account'] ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="register" data-set-action="signin"><?php echo \esc_html( $labels['register'] ); ?></button>
 				<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--ghost newspack-ui__last-child" data-action="otp pwd"  data-back><?php echo \esc_html( $labels['go_back'] ); ?></button>
 			</form>
-			<a href="#" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
+			<a href="<?php echo \esc_url( $auth_callback_url ); ?>" class="auth-callback newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary" data-action="success"><?php echo \esc_html( $labels['continue'] ); ?></a>
 			<a href="#" class="set-password newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary" data-action="success"><?php echo \esc_html( $labels['set_password'] ); ?></a>
 		</div>
 		<?php
@@ -1424,14 +1437,12 @@ final class Reader_Activation {
 					<p class="newspack-ui__font--xs details">
 						<?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_details' ) ); ?>
 					</p>
-					<?php if ( ! empty( $email_address ) ) : ?>
-						<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
-							<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
-							<span class="email">
-								<?php echo esc_html( $email_address ); ?>
-							</span>
-						</p>
-					<?php endif; ?>
+					<p class="newspack-ui__font--xs newspack-ui__color-text-gray recipient">
+						<?php echo esc_html( __( 'Sending to: ', 'newspack-plugin' ) ); ?>
+						<span class="email">
+							<?php echo esc_html( $email_address ); ?>
+						</span>
+					</p>
 					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
 				</div>
 			</div>
@@ -1674,6 +1685,7 @@ final class Reader_Activation {
 		if ( ! isset( $_POST[ self::AUTH_FORM_ACTION ] ) ) {
 			return;
 		}
+
 		$action           = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
 		$referer          = isset( $_POST['referer'] ) ? \sanitize_text_field( $_POST['referer'] ) : '';
 		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referer is the current page URL because the form is submitted via AJAX.
@@ -1729,6 +1741,10 @@ final class Reader_Activation {
 
 		switch ( $action ) {
 			case 'signin':
+				if ( Magic_Link::has_active_token( $user ) ) {
+					$payload['action'] = 'otp';
+					return self::send_auth_form_response( $payload, false );
+				}
 				if ( self::is_reader_without_password( $user ) ) {
 					$sent = Magic_Link::send_email( $user, $current_page_url );
 					if ( true !== $sent ) {
@@ -1934,7 +1950,6 @@ final class Reader_Activation {
 			Logger::log( 'Created new reader user with ID ' . $user_id );
 
 			if ( $authenticate ) {
-				self::$is_new_reader_auth = true;
 				self::set_current_reader( $user_id );
 			}
 		}
@@ -1998,6 +2013,11 @@ final class Reader_Activation {
 				'user_pass'     => \wp_generate_password(),
 			]
 		);
+
+		// Check if a user with this login exists.
+		if ( \username_exists( $user_data['user_login'] ) ) {
+			$user_data['user_login'] = $user_data['user_login'] . '-' . \wp_generate_password( 4, false );
+		}
 
 		/*
 		 * Filters the user_data used to register a new RAS reader account.

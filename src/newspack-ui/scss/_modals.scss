@@ -1,4 +1,4 @@
-@use 'mixins';
+@use "mixins";
 
 .newspack-ui {
 	&__modal-container {
@@ -16,19 +16,19 @@
 			z-index: 1;
 			inset: 0;
 			opacity: 0;
-			background: rgba( 0, 0, 0, 0.7 );
+			background: rgba(0, 0, 0, 0.7);
 			transition: opacity 0.125s linear;
 		}
 		.newspack-ui__modal {
 			position: relative;
 			z-index: 2;
 			width: 100%;
-			transform: translateY( 50px );
+			transform: translateY(50px);
 			opacity: 0;
 			transition: transform 0.125s linear, opacity 0.125s linear;
 			@include mixins.newspack-ui-elevation( 3 );
 		}
-		&[data-state='open'] {
+		&[data-state="open"] {
 			z-index: 99999;
 			visibility: visible;
 			pointer-events: auto;
@@ -37,32 +37,32 @@
 			}
 			.newspack-ui__modal {
 				opacity: 1;
-				transform: translateY( 0 );
+				transform: translateY(0);
 			}
 		}
 	}
 
 	&__modal {
 		// Modal styles
-		background: var( --newspack-ui-color-body-bg );
-		border-radius: var( --newspack-ui-border-radius-m );
+		background: var(--newspack-ui-color-body-bg);
+		border-radius: var(--newspack-ui-border-radius-m);
 		display: flex;
 		flex-direction: column;
-		max-height: 90vh;
-		max-width: var( --newspack-ui-modal-width-m );
+		max-height: 90%;
+		max-width: var(--newspack-ui-modal-width-m);
 		overflow: auto;
 
 		// Modal header & footer
 		&__header,
 		&__footer {
-			padding: var( --newspack-ui-spacer-4 ) var( --newspack-ui-spacer-5 );
+			padding: var(--newspack-ui-spacer-4) var(--newspack-ui-spacer-5);
 		}
 
 		&__header {
 			align-items: center;
-			background: var( --newspack-ui-color-body-bg );
-			border-bottom: 1px solid var( --newspack-ui-color-border );
-			color: var( --newspack-ui-color-neutral-90 );
+			background: var(--newspack-ui-color-body-bg);
+			border-bottom: 1px solid var(--newspack-ui-color-border);
+			color: var(--newspack-ui-color-neutral-90);
 			display: flex;
 			justify-content: space-between;
 			position: sticky;
@@ -70,9 +70,9 @@
 			z-index: 10;
 
 			h2 {
-				font-family: var( --newspack-ui-font-family );
-				font-size: var( --newspack-ui-font-size-s );
-				line-height: var( --newspack-ui-line-height-s );
+				font-family: var(--newspack-ui-font-family);
+				font-size: var(--newspack-ui-font-size-s);
+				line-height: var(--newspack-ui-line-height-s);
 				margin: 0;
 			}
 		}
@@ -83,20 +83,21 @@
 
 		&__content {
 			backface-visibility: visible;
-			color: var( --newspack-ui-color-neutral-90 );
-			padding: var( --newspack-ui-spacer-5 );
+			color: var(--newspack-ui-color-neutral-90);
+			padding: var(--newspack-ui-spacer-5);
 
-			// Make sure there's enough space above the first button in modals
-			.newspack-ui__button:not( :first-child ):first-of-type {
-				margin-top: var( --newspack-ui-spacer-5 );
+			// Make sure there's enough space above the first button in modals.
+			// Ignore a tag buttons as they will never be first.
+			.newspack-ui__button:not(:first-child, a.newspack-ui__button):first-of-type {
+				margin-top: var(--newspack-ui-spacer-5);
 			}
 		}
 
 		&__footer {
-			background: var( --newspack-ui-color-neutral-5 );
-			color: var( --newspack-ui-color-neutral-60 );
-			font-size: var( --newspack-ui-font-size-xs );
-			line-height: var( --newspack-ui-line-height-xs );
+			background: var(--newspack-ui-color-neutral-5);
+			color: var(--newspack-ui-color-neutral-60);
+			font-size: var(--newspack-ui-font-size-xs);
+			line-height: var(--newspack-ui-line-height-xs);
 			a {
 				text-decoration: underline;
 			}
@@ -104,12 +105,12 @@
 
 		// Narrow modal
 		&--small {
-			max-width: var( --newspack-ui-modal-width-s );
+			max-width: var(--newspack-ui-modal-width-s);
 		}
 
 		// Contents
 		h3 {
-			font-size: var( --newspack-ui-font-size-s );
+			font-size: var(--newspack-ui-font-size-s);
 		}
 
 		&__footer,
@@ -121,6 +122,16 @@
 			> *:last-child {
 				margin-bottom: 0;
 			}
+		}
+
+		h1,
+		h2,
+		h3,
+		h4,
+		h5,
+		h6,
+		strong {
+			font-weight: 600;
 		}
 	}
 }

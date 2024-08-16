@@ -1,7 +1,7 @@
 .newspack-ui {
 	select {
-		font-family: var( --newspack-ui-font-family );
-		line-height: var( --newspack-ui-line-height-l );
+		font-family: var(--newspack-ui-font-family);
+		line-height: var(--newspack-ui-line-height-l);
 	}
 
 	.select2-container--default .select2-results__option {
@@ -13,7 +13,7 @@
 		&--highlighted {
 			&[aria-selected],
 			&[data-selected] {
-				background: var( --newspack-ui-color-neutral-90 );
+				background: var(--newspack-ui-color-neutral-90);
 			}
 		}
 	}

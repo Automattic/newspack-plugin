@@ -23,7 +23,9 @@
 		} );
 		// Trigger checkout update on payment method change so it updates the fee.
 		$( document ).on( 'payment_method_selected', function () {
-			$body.trigger( 'update_checkout', { update_shipping_method: false } );
+			if ( checked ) {
+				$body.trigger( 'update_checkout', { update_shipping_method: false } );
+			}
 		} );
 	} );
 } )( jQuery );

@@ -6,8 +6,5 @@ module.exports = {
 		newspack_urls: 'readonly',
 		newspack_aux_data: 'readonly',
 	},
-	rules: {
-		'@typescript-eslint/ban-ts-comment': 'warn',
-	},
-	ignorePatterns: [ 'dist/', 'node_modules/', 'assets/components/node_modules' ],
+	ignorePatterns: [ '*/dist/', '*/node_modules/', '*/release' ],
 };

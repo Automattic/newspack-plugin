@@ -1,11 +1,15 @@
-@use 'sass:color';
-@use '~@wordpress/base-styles/colors' as wp-colors;
-@use '../shared/scss/mixins';
+@use "sass:color";
+@use "~@wordpress/base-styles/colors" as wp-colors;
+@use "../shared/scss/mixins";
 
 .newspack-reader-auth {
 	.nphp,
-	input[type='email'].nphp {
+	input[type="email"].nphp {
 		@include mixins.visuallyHidden;
+	}
+
+	.response-container {
+		margin-bottom: 12px;
 	}
 }
 
@@ -27,7 +31,7 @@
 			justify-content: center;
 			margin-left: 0.5rem;
 
-			@media screen and ( min-width: 960px ) {
+			@media screen and (min-width: 960px) {
 				display: none;
 			}
 
@@ -41,7 +45,7 @@
 			height: 24px;
 			width: 24px;
 
-			@media screen and ( min-width: 960px ) {
+			@media screen and (min-width: 960px) {
 				margin-left: -4px;
 				margin-top: -12px;
 				position: absolute;
@@ -50,9 +54,9 @@
 		}
 
 		&__label {
-			margin-left: calc( 16px + 0.4rem );
+			margin-left: calc(16px + 0.4rem);
 
-			@media screen and ( max-width: 959px ) {
+			@media screen and (max-width: 959px) {
 				@include mixins.visuallyHidden;
 			}
 		}
@@ -116,24 +120,6 @@
 	&__logins {
 		font-size: 1rem;
 		margin-top: 0.8rem;
-		&__separator {
-			align-items: center;
-			display: flex;
-			margin: 0.8rem 0;
-			div {
-				text-align: center;
-				&:nth-child( 2 ) {
-					font-size: 0.8rem;
-					line-height: 1.5;
-					padding: 0 0.5em;
-				}
-				&:first-child,
-				&:last-child {
-					flex: 1;
-					border-top: 1px solid wp-colors.$gray-200;
-				}
-			}
-		}
 		&--disabled {
 			button {
 				opacity: 0.5;
@@ -160,7 +146,7 @@
  */
 ul.newspack-reader__account-menu,
 li.menu-item .newspack-reader__account-link {
-	@media screen and ( max-width: 959px ) {
+	@media screen and (max-width: 959px) {
 		display: none !important;
 	}
 }

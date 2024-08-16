@@ -92,7 +92,7 @@ class ImageUpload extends Component {
 		return (
 			<div className={ classnames( 'newspack-image-upload', className ) }>
 				<div className="newspack-image-upload__header">
-					{ /* eslint-disable-next-line jsx-a11y/label-has-for */ }
+					{ /* eslint-disable-next-line jsx-a11y/label-has-for, jsx-a11y/label-has-associated-control */ }
 					{ label && <label className="newspack-image-upload__label">{ label }</label> }
 					{ info && <InfoButton text={ info } /> }
 				</div>

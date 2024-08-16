@@ -285,9 +285,9 @@ const ItemNames = ( { label, ids, path } ) => {
 			{ label }{ ' ' }
 			{ items.length
 				? items
-						.filter( item => ids.includes( item.id ) )
-						.map( item => item.label )
-						.join( ', ' )
+					.filter( item => ids.includes( item.id ) )
+					.map( item => item.label )
+					.join( ', ' )
 				: '' }
 		</span>
 	);

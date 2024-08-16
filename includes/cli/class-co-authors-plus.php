@@ -294,6 +294,8 @@ class Co_Authors_Plus {
 				WP_CLI::warning( sprintf( 'No term found for user %d.', $user_id ) );
 			}
 
+			$author_slug = preg_replace( '/^cap-/', '', $guest_term->slug );
+
 			if ( self::$live ) {
 				if ( $wp_user_term ) {
 					// If the WP User term exists, delete the Guest Author term and reassign the posts.
@@ -326,7 +328,7 @@ class Co_Authors_Plus {
 				}
 			}
 
-			self::assign_user_props( $guest_author_data, $user_id );
+			self::assign_user_props( $guest_author_data, $user_id, $author_slug );
 			self::assign_user_meta( $guest_author, $user_id );
 
 			// Add the Non-Editing Contributor role.
@@ -355,11 +357,12 @@ class Co_Authors_Plus {
 	/**
 	 * Assign user props from guest author post's data.
 	 *
-	 * @param array $guest_author_data The guest author post's data.
-	 * @param int   $user_id The user ID to update the avatar for.
+	 * @param array  $guest_author_data The guest author post's data.
+	 * @param int    $user_id The user ID to update the avatar for.
+	 * @param string $author_slug Intended author slug. Must match the of the Guest Author slug (w/o "cap-" prefix).
 	 * @return bool True if the user meta was updated, false otherwise.
 	 */
-	private static function assign_user_props( $guest_author_data, $user_id ) {
+	private static function assign_user_props( $guest_author_data, $user_id, $author_slug ) {
 		$display_name = $guest_author_data['cap-display_name'][0];
 		$user_login = $guest_author_data['cap-user_login'][0];
 
@@ -371,7 +374,7 @@ class Co_Authors_Plus {
 				[
 					'ID'            => $user_id,
 					'display_name'  => $display_name,
-					'user_nicename' => $display_name,
+					'user_nicename' => $author_slug,
 				]
 			);
 		}

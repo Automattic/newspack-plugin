@@ -35,6 +35,13 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		\add_action( 'init', [ __CLASS__, 'setup_hooks' ] );
+	}
+
+	/**
+	 * Setup hooks.
+	 */
+	public static function setup_hooks() {
 		/**
 		 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
 		 *
@@ -42,7 +49,7 @@ class Newspack_Newsletters {
 		 */
 		self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_metadata_fields() );
 
-		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
+		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ], 99 );
 
 		if ( self::should_sync_ras_metadata() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
@@ -313,6 +320,10 @@ class Newspack_Newsletters {
 			if ( isset( $contact['metadata']['status'] ) ) {
 				$normalized_metadata['status'] = $contact['metadata']['status'];
 			}
+			if ( isset( $contact['metadata']['status_if_new'] ) ) {
+				$normalized_metadata['status_if_new'] = $contact['metadata']['status_if_new'];
+			}
+
 			$contact['metadata'] = $normalized_metadata;
 		}
 

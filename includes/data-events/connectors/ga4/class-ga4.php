@@ -222,7 +222,12 @@ class GA4 {
 			}
 		}
 
-		return $params;
+		/**
+		 * Filters the custom parameters passed to GA4.
+		 *
+		 * @param array $params Custom parameters sent to GA4.
+		 */
+		return apply_filters( 'newspack_ga4_custom_parameters', $params );
 	}
 
 	/**

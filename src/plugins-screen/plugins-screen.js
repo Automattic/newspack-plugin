@@ -7,21 +7,21 @@ import './plugins-screen.scss';
 
 const getCreateButton =
 	targetEl =>
-	( text, hrefOrCallback, isPrimary = false ) => {
-		const buttonEl = document.createElement( 'a' );
-		if ( typeof hrefOrCallback === 'string' ) {
-			buttonEl.setAttribute( 'href', hrefOrCallback );
-		} else if ( typeof hrefOrCallback === 'function' ) {
-			buttonEl.onclick = hrefOrCallback;
-		} else {
-			return;
-		}
-		buttonEl.setAttribute( 'target', '_blank' );
-		buttonEl.classList.add( `button-${ isPrimary ? 'primary' : 'secondary' }` );
-		buttonEl.innerText = text;
-		targetEl.appendChild( buttonEl );
-		return buttonEl;
-	};
+		( text, hrefOrCallback, isPrimary = false ) => {
+			const buttonEl = document.createElement( 'a' );
+			if ( typeof hrefOrCallback === 'string' ) {
+				buttonEl.setAttribute( 'href', hrefOrCallback );
+			} else if ( typeof hrefOrCallback === 'function' ) {
+				buttonEl.onclick = hrefOrCallback;
+			} else {
+				return;
+			}
+			buttonEl.setAttribute( 'target', '_blank' );
+			buttonEl.classList.add( `button-${ isPrimary ? 'primary' : 'secondary' }` );
+			buttonEl.innerText = text;
+			targetEl.appendChild( buttonEl );
+			return buttonEl;
+		};
 
 /**
  * Extra zazz for the WP Admin Plugins page.

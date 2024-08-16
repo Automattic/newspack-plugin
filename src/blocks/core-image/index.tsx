@@ -39,6 +39,7 @@ addFilter(
 const AttributesLoader = ( { setAttributes, attributes }: ImageBlockTypes.AttributeProps ) => {
 	const imageId = attributes.id;
 	const { meta }: { meta: ImageBlockTypes.AttributesMeta } = useSelect(
+		// @ts-ignore Not sure why this is throwing an error.
 		select => select( 'core' ).getMedia( imageId ),
 		[ imageId ]
 	) ?? {

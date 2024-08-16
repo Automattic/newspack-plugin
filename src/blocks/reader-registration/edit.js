@@ -34,7 +34,7 @@ import {
  */
 import './editor.scss';
 
-const getListCheckboxId = listId => {
+const getListCheckboxId = ( listId ) => {
 	return 'newspack-reader-registration-list-checkbox-' + listId;
 };
 
@@ -118,10 +118,10 @@ export default function ReaderRegistrationEdit( {
 		return lists.length === 1 && hideSubscriptionInput;
 	};
 
-	const isListSelected = listId => {
+	const isListSelected = ( listId ) => {
 		return listsCheckboxes.hasOwnProperty( listId ) && listsCheckboxes[ listId ];
 	};
-	const toggleListCheckbox = listId => () => {
+	const toggleListCheckbox = ( listId ) => () => {
 		const newListsCheckboxes = { ...listsCheckboxes };
 		newListsCheckboxes[ listId ] = ! isListSelected( listId );
 		setAttributes( { listsCheckboxes: newListsCheckboxes } );
@@ -135,7 +135,7 @@ export default function ReaderRegistrationEdit( {
 						label={ __( 'Input placeholder', 'newspack-plugin' ) }
 						value={ placeholder }
 						disabled={ inFlight }
-						onChange={ value => setAttributes( { placeholder: value } ) }
+						onChange={ ( value ) => setAttributes( { placeholder: value } ) }
 					/>
 				</PanelBody>
 				{ newspack_blocks.has_newsletters && (
@@ -190,7 +190,7 @@ export default function ReaderRegistrationEdit( {
 										{ Object.keys( listConfig ).length > 0 && (
 											<p>{ __( 'Lists', 'newspack-plugin' ) }:</p>
 										) }
-										{ Object.keys( listConfig ).map( listId => (
+										{ Object.keys( listConfig ).map( ( listId ) => (
 											<ToggleControl
 												key={ listId }
 												label={ listConfig[ listId ].title }
@@ -200,7 +200,7 @@ export default function ReaderRegistrationEdit( {
 													if ( ! lists.includes( listId ) ) {
 														setAttributes( { lists: lists.concat( listId ) } );
 													} else {
-														setAttributes( { lists: lists.filter( id => id !== listId ) } );
+														setAttributes( { lists: lists.filter( ( id ) => id !== listId ) } );
 													}
 												} }
 											/>
@@ -246,7 +246,7 @@ export default function ReaderRegistrationEdit( {
 				<div className="newspack-registration__state-bar">
 					<span>{ __( 'Edited State', 'newspack-plugin' ) }</span>
 					<div>
-						{ editedStateOptions.map( option => (
+						{ editedStateOptions.map( ( option ) => (
 							<Button
 								key={ option.value }
 								data-is-active={ editedState === option.value }
@@ -262,7 +262,7 @@ export default function ReaderRegistrationEdit( {
 						<form onSubmit={ ev => ev.preventDefault() }>
 							<div className="newspack-registration__header">
 								<RichText
-									onChange={ value => setAttributes( { title: value } ) }
+									onChange={ ( value ) => setAttributes( { title: value } ) }
 									placeholder={ __( 'Add title', 'newspack-plugin' ) }
 									value={ title }
 									allowedFormats={ [] }
@@ -271,7 +271,7 @@ export default function ReaderRegistrationEdit( {
 								/>
 							</div>
 							<RichText
-								onChange={ value => setAttributes( { description: value } ) }
+								onChange={ ( value ) => setAttributes( { description: value } ) }
 								placeholder={ __( 'Add description', 'newspack-plugin' ) }
 								value={ description }
 								tagName="p"
@@ -336,7 +336,7 @@ export default function ReaderRegistrationEdit( {
 												className="newspack-ui__button newspack-ui__button--primary"
 											>
 												<RichText
-													onChange={ value => setAttributes( { label: value } ) }
+													onChange={ ( value ) => setAttributes( { label: value } ) }
 													placeholder={ __( 'Sign up', 'newspack-plugin' ) }
 													value={ label }
 													allowedFormats={ [] }

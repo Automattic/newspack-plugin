@@ -1,3 +1,148 @@
+# [5.0.0](https://github.com/Automattic/newspack-plugin/compare/v4.7.0...v5.0.0) (2024-08-13)
+
+
+### Bug Fixes
+
+* **data-events:** ensure get_last_successful_order returns WC_Order ([222f58c](https://github.com/Automattic/newspack-plugin/commit/222f58c3e28bdf9c6acc33d1c9afa0d88df94025))
+* **data-events:** ensure get_last_successful_order returns WC_Order ([#3299](https://github.com/Automattic/newspack-plugin/issues/3299)) ([da21561](https://github.com/Automattic/newspack-plugin/commit/da21561290e722910707653d2f32f3949d3d0cb8))
+* **data-events:** race condition between `order_completed` and `subscription_updated` ([#3314](https://github.com/Automattic/newspack-plugin/issues/3314)) ([afbf2e8](https://github.com/Automattic/newspack-plugin/commit/afbf2e890a69a7bbbdc91eeacd0902a45dd7db4d))
+* force active membership if the user has active subs ([#3268](https://github.com/Automattic/newspack-plugin/issues/3268)) ([aebe581](https://github.com/Automattic/newspack-plugin/commit/aebe581d451dc27429b40a222a9c712227fa44d9))
+* namespacing issue ([7b1506a](https://github.com/Automattic/newspack-plugin/commit/7b1506a9855349698b211fb296d57c59bc3becdd))
+* update dependencies to support `@wordpress/scripts` ([#3181](https://github.com/Automattic/newspack-plugin/issues/3181)) ([0d35ac8](https://github.com/Automattic/newspack-plugin/commit/0d35ac862242d35e29127988cce003f4a64bd2c5))
+* **woocommerce:** prevent /shop redirect from author archives ([46db669](https://github.com/Automattic/newspack-plugin/commit/46db669d9faa19c6350768ac1cca692ecfe05b80))
+
+
+### Features
+
+* enhancements for the Non editing contributor role ([#3277](https://github.com/Automattic/newspack-plugin/issues/3277)) ([e47e422](https://github.com/Automattic/newspack-plugin/commit/e47e42274cf446ec5882c01edc2b4a081be846b7))
+* **ga4:** filter custom params ([eda5553](https://github.com/Automattic/newspack-plugin/commit/eda5553bf5fcf84b060aa433894a16e50827dee1))
+* rename guest contributor role ([#3302](https://github.com/Automattic/newspack-plugin/issues/3302)) ([76ac05e](https://github.com/Automattic/newspack-plugin/commit/76ac05e740f007c5894d538226beea06ee097a0c))
+* rename guest contributor role ([#3302](https://github.com/Automattic/newspack-plugin/issues/3302)) ([c7f6917](https://github.com/Automattic/newspack-plugin/commit/c7f691753f62605178caccd4bf486d6490d5b718))
+* show deprecation warning for CM in Engagement wizard ([#3264](https://github.com/Automattic/newspack-plugin/issues/3264)) ([0813369](https://github.com/Automattic/newspack-plugin/commit/0813369e0a904ebf4b4f0a17d7bbc8c59f29d749))
+
+
+### BREAKING CHANGES
+
+* Updates dependencies for compatibility with WordPress 6.6.*, but breaks JS in WordPress 6.5.* and below. If you need support for WP 6.5.*, please do not upgrade to this new major version.
+
+* chore: refactor for updating dependencies in newspack-scripts
+
+* chore: JS formatting fixes for eslint errors
+
+* chore: update NPM scripts and other dependencies
+
+* chore: fix jest unit tests
+
+* chore: update dependencies in newspack-components
+
+* fix: peer dependency conflicts with @wordp
+ress/* packages
+
+* chore: update newspack-components dependencies
+
+* chore: proxy stylelint from newspack-scripts
+
+* chore: remove unnecessary stylelint
+
+* refactor: use proxy script for eslint and stylelint scripts
+
+* chore: remove console.log
+
+* chore: update newspack-scripts to NPM alpha version
+
+* chore: update newspack-scripts to git branch
+
+* chore: update newspack-scripts to alpha.3
+
+* test: remove unneeded mocks
+
+* deps: newspack-scripts@5.6.0-alpha.1
+
+* chore: fix scripts
+
+* fix: update newspack-scripts to v5.6.0-alpha.2
+
+* fix: add newspack-revisions.js to webpack build for linting
+
+* fix: update stylelint and format CSS for errors
+
+* chore: clear TS check errors
+
+* fix: start command
+
+* fix: remove i18n script (Blocks only)
+
+* temporarily revert stylelint autoformat to avoid merge conflicts
+
+* chore: add .stylelintrc.js
+
+* fix: reformat SCSS
+
+* chore: update newspack-scripts to v5.6.0-alpha.4
+
+* fix: add missing Prettier config files
+
+* chore: update newspack-scripts to 5.6.0-alpha.5
+
+* chore: update newspack-scripts to v5.6.0-alpha.7
+
+* style: stylelint autofixes
+
+* fix: add fix:js script; temporarily remove format:js
+
+* fix: update newspack-scripts to v5.5.0-alpha.8 and restore format:js script
+
+* chore: add NPM scripts for PHP
+
+* refactor: move recaptcha JS to src directory
+
+* fix: ignore dist and node_modules inside src/components, too
+
+* fix: update Babel configs for components
+
+* fix(components): output TS and JS, and publish new major version to NPM
+
+* fix: do not delete node_modules after post-publish
+
+* chore: bump newspack-scripts to v5.5.2
+
+# [4.7.0](https://github.com/Automattic/newspack-plugin/compare/v4.6.1...v4.7.0) (2024-07-30)
+
+
+### Bug Fixes
+
+* **reader-activation:** handle user login clash ([10dfcd1](https://github.com/Automattic/newspack-plugin/commit/10dfcd166eb533c0fc89f73487f6dd4f45237275))
+
+
+### Features
+
+* **cli-co-authors-plus:** ensure correct author slug is set ([#3248](https://github.com/Automattic/newspack-plugin/issues/3248)) ([14ad71b](https://github.com/Automattic/newspack-plugin/commit/14ad71bd98a24466da188a56f8e5f7e6d6e80930))
+
+## [4.6.1](https://github.com/Automattic/newspack-plugin/compare/v4.6.0...v4.6.1) (2024-07-29)
+
+
+### Bug Fixes
+
+* use percentage rather than value for cover fee text ([#3280](https://github.com/Automattic/newspack-plugin/issues/3280)) ([e76d8af](https://github.com/Automattic/newspack-plugin/commit/e76d8af7d0a239e46bceb8de44accbf9a7063b1e))
+
+# [4.6.0](https://github.com/Automattic/newspack-plugin/compare/v4.5.0...v4.6.0) (2024-07-15)
+
+
+### Bug Fixes
+
+* display transaction fee as an amount instead of a percentage ([#3206](https://github.com/Automattic/newspack-plugin/issues/3206)) ([b977c01](https://github.com/Automattic/newspack-plugin/commit/b977c018b6ae8004aa96e78dd73141a4e05fe5c8))
+* **js:** skip regenerator-runtime fix for some files ([#3205](https://github.com/Automattic/newspack-plugin/issues/3205)) ([0a7d5c5](https://github.com/Automattic/newspack-plugin/commit/0a7d5c5e18fbd420dcd04497804af19bfbcc1c63))
+
+
+### Features
+
+* add support for reCAPTCHA v2 ([#3126](https://github.com/Automattic/newspack-plugin/issues/3126)) ([1a1bd30](https://github.com/Automattic/newspack-plugin/commit/1a1bd30682366c2546789bba94c0b8a8de1cb608))
+* **cli:** cap-migration tweaks ([#3198](https://github.com/Automattic/newspack-plugin/issues/3198)) ([9b372e9](https://github.com/Automattic/newspack-plugin/commit/9b372e9e866c9584c62e9aec04c250ce3396486d))
+* **cli:** setup - set permalinks to pretty unless already set ([f0c44d9](https://github.com/Automattic/newspack-plugin/commit/f0c44d90b91f7cb64f4067859a322365bb86c59a))
+* **ras:** don't require WC Subscriptions for displaying auth link ([b6d6589](https://github.com/Automattic/newspack-plugin/commit/b6d65890d76586d3fc57d329319e9db6e810397d))
+* update membership patterns ([#3193](https://github.com/Automattic/newspack-plugin/issues/3193)) ([c595329](https://github.com/Automattic/newspack-plugin/commit/c5953294b16df0ed813796b52bfceb238c3442f8))
+* **wc-memberships:** update two and three tiers patterns with checkout-button border radius ([#3208](https://github.com/Automattic/newspack-plugin/issues/3208)) ([c57b58b](https://github.com/Automattic/newspack-plugin/commit/c57b58ba6601b449b4666ae96dc3303725f6b701))
+
 # [4.5.0](https://github.com/Automattic/newspack-plugin/compare/v4.4.2...v4.5.0) (2024-07-11)
 
 
