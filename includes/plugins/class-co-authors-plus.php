@@ -71,8 +71,11 @@ class Co_Authors_Plus {
 		\add_filter( 'woocommerce_current_user_can_edit_customer_meta_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
 
 		// Add UI to the user profile to assign the custom role.
-		add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
-		add_action( 'wp_update_user', [ __CLASS__, 'edit_user_profile_update' ] );
+		if ( ! class_exists( 'Members_Plugin' ) ) {
+			// Members plugin is active, and it has its own UI for roles.
+			add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
+			add_action( 'wp_update_user', [ __CLASS__, 'edit_user_profile_update' ] );
+		}
 	}
 
 	/**
