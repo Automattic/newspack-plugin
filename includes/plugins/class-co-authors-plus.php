@@ -95,7 +95,7 @@ class Co_Authors_Plus {
 	 * @return bool
 	 */
 	private static function is_guest_author( WP_User $user ) {
-		return 1 === count( $user->roles ) && self::CONTRIBUTOR_NO_EDIT_ROLE_NAME === array_shift( $user->roles );
+		return 1 === count( $user->roles ) && self::CONTRIBUTOR_NO_EDIT_ROLE_NAME === current( $user->roles );
 	}
 
 	/**
@@ -186,7 +186,7 @@ class Co_Authors_Plus {
 		 */
 	public static function user_profile_update_errors( $errors, $update, $user ) {
 
-		if ( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
+		if ( ! isset( $user->role ) || self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
 			return $errors;
 		}
 
