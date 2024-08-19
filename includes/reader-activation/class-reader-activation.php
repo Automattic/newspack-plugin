@@ -1692,19 +1692,19 @@ final class Reader_Activation {
 
 		$action           = isset( $_POST['action'] ) ? \sanitize_text_field( $_POST['action'] ) : '';
 		$referer          = isset( $_POST['referer'] ) ? \sanitize_text_field( $_POST['referer'] ) : '';
+		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referer is the current page URL because the form is submitted via AJAX.
 		$email            = isset( $_POST['npe'] ) ? \sanitize_email( $_POST['npe'] ) : '';
 		$password         = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$lists            = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		$honeypot         = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
-		$redirect_url     = isset( $_POST['redirect_url'] ) ? \sanitize_text_field( $_POST['redirect_url'] ) : '';
-		$current_page_url = \wp_parse_url( \wp_get_raw_referer() ); // Referer is the current page URL because the form is submitted via AJAX.
+		$redirect_url     = isset( $_POST['redirect_url'] ) ? \esc_url_raw( $_POST['redirect_url'] ) : '';
 		// phpcs:enable
 
-		if ( ! $redirect_url ) {
-			if ( ! empty( $current_page_url['path'] ) ) {
-				$redirect_url = \esc_url( \home_url( $current_page_url['path'] ) );
-			}
+		if ( ! empty( $current_page_url['path'] ) ) {
+			$current_page_url = \esc_url( \home_url( $current_page_url['path'] ) );
 		}
+
+		$redirect = ! empty( $redirect_url ) ? $redirect_url : $current_page_url;
 
 		// Honeypot trap.
 		if ( ! empty( $honeypot ) ) {
@@ -1753,7 +1753,7 @@ final class Reader_Activation {
 					return self::send_auth_form_response( $payload, false );
 				}
 				if ( self::is_reader_without_password( $user ) ) {
-					$sent = Magic_Link::send_email( $user, $redirect_url );
+					$sent = Magic_Link::send_email( $user, $redirect );
 					if ( true !== $sent ) {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
@@ -1775,7 +1775,7 @@ final class Reader_Activation {
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
 				return self::send_auth_form_response( $payload, false );
 			case 'link':
-				$sent = Magic_Link::send_email( $user, $redirect_url );
+				$sent = Magic_Link::send_email( $user, $redirect );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}

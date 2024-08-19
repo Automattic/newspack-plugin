@@ -34,6 +34,16 @@ final class Magic_Link {
 	const OTP_MAX_ATTEMPTS = 5;
 	const OTP_AUTH_ACTION  = 'np_otp_auth';
 	const OTP_HASH_COOKIE  = 'np_otp_hash';
+	const ACCEPTED_PARAMS  = [
+		'newspack_modal_checkout',
+		'type',
+		'layout',
+		'frequency',
+		'amount',
+		'other',
+		'product_id',
+		'variation_id',
+	];
 
 	/**
 	 * Current session secret.
@@ -757,18 +767,21 @@ final class Magic_Link {
 			$authenticated = self::authenticate( $user->ID, $token );
 		}
 
-		$redirect = \wp_validate_redirect(
+		$query_args = [ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ];
+		foreach ( self::ACCEPTED_PARAMS as $param ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\sanitize_url( \wp_unslash( $_GET['redirect'] ?? '' ) ),
+			if ( isset( $_GET[ $param ] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$query_args[ $param ] = \sanitize_text_field( \wp_unslash( $_GET[ $param ] ) );
+			}
+		}
+		$redirect = \sanitize_url( \wp_unslash( $_GET['redirect'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$redirect = \wp_validate_redirect(
+			\add_query_arg( $query_args, $redirect ),
 			\remove_query_arg( [ 'action', 'email', 'token' ] )
 		);
 
-		\wp_safe_redirect(
-			\add_query_arg(
-				[ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ],
-				$redirect
-			)
-		);
+		\wp_safe_redirect( $redirect );
 		exit;
 	}
 

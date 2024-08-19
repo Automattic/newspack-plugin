@@ -384,12 +384,24 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 						if ( readerActivation.getCheckoutStatus() ) {
 							const checkoutType = readerActivation.getCheckoutData( 'type' );
-							const buttonText = readerActivation.getCheckoutData( 'button_text' );
-							const redirectUrl = new URL( window.location.href );
-							redirectUrl.searchParams.set( 'modal_checkout', 1 );
-							redirectUrl.searchParams.set( 'type', checkoutType );
-							redirectUrl.searchParams.set( 'button_text', buttonText );
-							body.set( 'redirect_url', redirectUrl.href );
+							if ( checkoutType ) {
+								const redirectUrl = new URL( window.location.href );
+								redirectUrl.searchParams.set( 'newspack_modal_checkout', 1 );
+								redirectUrl.searchParams.set( 'type', checkoutType );
+								// Add checkout button params.
+								if ( checkoutType === 'checkout_button' ) {
+									redirectUrl.searchParams.set( 'product_id', readerActivation.getCheckoutData( 'productId' ) );
+									redirectUrl.searchParams.set( 'variation_id', readerActivation.getCheckoutData( 'variationId' ) );
+								}
+								// Add donate params.
+								if ( checkoutType === 'donate' ) {
+									redirectUrl.searchParams.set( 'layout', readerActivation.getCheckoutData( 'layout' ) );
+									redirectUrl.searchParams.set( 'frequency', readerActivation.getCheckoutData( 'frequency' ) );
+									redirectUrl.searchParams.set( 'amount', readerActivation.getCheckoutData( 'amount' ) );
+									redirectUrl.searchParams.set( 'other', readerActivation.getCheckoutData( 'other' ) );
+								}
+								body.set( 'redirect_url', redirectUrl.href );
+							}
 						}
 						if ( 'otp' === action ) {
 							readerActivation
