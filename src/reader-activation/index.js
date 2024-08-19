@@ -425,19 +425,8 @@ export function getCheckout() {
  *                      If empty or not provided, the checkout data will be cleared.
  */
 export function setCheckoutData( data = {} ) {
-	const checkout = getCheckout();
-	const update = Object.keys( data ).length ? { ...checkout, ...data } : data;
-	store.set( 'checkout', update, false );
+	store.set( 'checkout', data, false );
 	emit( EVENTS.reader, getReader() );
-}
-
-/**
- * Set the reader checkout status.
- *
- * @param {boolean} status Optional. Checkout status. Default is false.
- */
-export function setCheckoutStatus( status = false ) {
-	setCheckoutData( { status } );
 }
 
 /**
@@ -492,7 +481,6 @@ const readerActivation = {
 	setAuthStrategy,
 	getAuthStrategy,
 	setCheckoutData,
-	setCheckoutStatus,
 	getCheckoutData,
 	getCheckoutStatus,
 	resetCheckoutData,

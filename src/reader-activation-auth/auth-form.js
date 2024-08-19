@@ -98,6 +98,32 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.setFormAction( 'signin' );
 
 			/**
+			 * Get the redirect URL.
+			 */
+			const getRedirectUrl = () => {
+				const checkoutType = readerActivation.getCheckoutData( 'type' );
+				if ( ! checkoutType ) {
+					return;
+				}
+				const redirectUrl = new URL( window.location.href );
+				redirectUrl.searchParams.set( 'newspack_modal_checkout', 1 );
+				redirectUrl.searchParams.set( 'type', checkoutType );
+				// Add checkout button params.
+				if ( checkoutType === 'checkout_button' ) {
+					redirectUrl.searchParams.set( 'product_id', readerActivation.getCheckoutData( 'product_id' ) ?? '' );
+					redirectUrl.searchParams.set( 'variation_id', readerActivation.getCheckoutData( 'variation_id' ) ?? '' );
+				}
+				// Add donate params.
+				if ( checkoutType === 'donate' ) {
+					redirectUrl.searchParams.set( 'layout', readerActivation.getCheckoutData( 'layout' ) ?? '' );
+					redirectUrl.searchParams.set( 'frequency', readerActivation.getCheckoutData( 'frequency' ?? '' ) );
+					redirectUrl.searchParams.set( 'amount', readerActivation.getCheckoutData( 'amount' ) ?? '' );
+					redirectUrl.searchParams.set( 'other', readerActivation.getCheckoutData( 'other' ) ?? '' );
+				}
+				return redirectUrl.href;
+			}
+
+			/**
 			 * Handle reader changes.
 			 */
 			const handleReaderChanges = () => {
@@ -157,6 +183,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'reader-activation-auth-form', 1 );
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
+						if ( readerActivation.getCheckoutStatus() ) {
+							const redirectUrl = getRedirectUrl();
+							if ( redirectUrl ) {
+								body.set( 'redirect_url', redirectUrl );
+							}
+						}
 						readerActivation
 							.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
 							.then( captchaToken => {
@@ -383,24 +415,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 							return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 						}
 						if ( readerActivation.getCheckoutStatus() ) {
-							const checkoutType = readerActivation.getCheckoutData( 'type' );
-							if ( checkoutType ) {
-								const redirectUrl = new URL( window.location.href );
-								redirectUrl.searchParams.set( 'newspack_modal_checkout', 1 );
-								redirectUrl.searchParams.set( 'type', checkoutType );
-								// Add checkout button params.
-								if ( checkoutType === 'checkout_button' ) {
-									redirectUrl.searchParams.set( 'product_id', readerActivation.getCheckoutData( 'productId' ) );
-									redirectUrl.searchParams.set( 'variation_id', readerActivation.getCheckoutData( 'variationId' ) );
-								}
-								// Add donate params.
-								if ( checkoutType === 'donate' ) {
-									redirectUrl.searchParams.set( 'layout', readerActivation.getCheckoutData( 'layout' ) );
-									redirectUrl.searchParams.set( 'frequency', readerActivation.getCheckoutData( 'frequency' ) );
-									redirectUrl.searchParams.set( 'amount', readerActivation.getCheckoutData( 'amount' ) );
-									redirectUrl.searchParams.set( 'other', readerActivation.getCheckoutData( 'other' ) );
-								}
-								body.set( 'redirect_url', redirectUrl.href );
+							const redirectUrl = getRedirectUrl();
+							if ( redirectUrl ) {
+								body.set( 'redirect_url', redirectUrl );
 							}
 						}
 						if ( 'otp' === action ) {
