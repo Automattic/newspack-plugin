@@ -8,9 +8,10 @@ import { __ } from '@wordpress/i18n';
 const settingsTabs = window.newspackSettings;
 
 import Social from './social';
+import Emails from './emails';
 import Connections from './connections';
 import Syndication from './syndication';
-import Emails from './emails';
+import ThemeAndBrand from './theme-and-brand';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -18,10 +19,9 @@ const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = 
 	connections: Connections,
 	social: Social,
 	emails: Emails,
-	// social: Social,
 	syndication: Syndication,
 	// seo: Seo,
-	// 'theme-and-brand': ThemeAndBrand,
+	'theme-and-brand': ThemeAndBrand,
 	// 'display-settings': DisplaySettings,
 	// 'additional-brands': AdditionalBrands,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,

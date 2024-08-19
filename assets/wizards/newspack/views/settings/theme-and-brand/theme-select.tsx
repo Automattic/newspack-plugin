@@ -9,10 +9,6 @@ import KatharineImg from './images/katharine.png';
 import SachaImg from './images/sacha.png';
 import JosephImg from './images/joseph.png';
 
-type ThemeNames = 'theme' | 'scott' | 'nelson' | 'katharine' | 'sacha' | 'joseph';
-
-type NewspackThemes = `newspack-${ ThemeNames }`;
-
 const ThemeSelection = ( {
 	theme,
 	updateTheme,

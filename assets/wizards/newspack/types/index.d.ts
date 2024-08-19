@@ -50,6 +50,7 @@ declare global {
 			social: WizardTab;
 			connections: WizardTab;
 			syndication: WizardTab;
+			'theme-and-brand': WizardTab;
 			emails: WizardTab & {
 				sections: {
 					emails: {
@@ -76,6 +77,11 @@ declare global {
 			is_debug_mode: boolean;
 		};
 	}
+}
+
+declare module '*.png' {
+	const path: string;
+	export default path;
 }
 
 export {};
