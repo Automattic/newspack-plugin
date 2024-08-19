@@ -1,3 +1,5 @@
+import * as a11y from '../reader-activation-auth/accessibility.js';
+
 /**
  * Get the newsletters signup modal container.
  *
@@ -91,6 +93,7 @@ export function openNewslettersSignupModal( config = {} ) {
 	}
 
 	modal.setAttribute( 'data-state', 'open' );
+	a11y.trapFocus( modal );
 	if ( window?.newspackReaderActivation?.overlays ) {
 		modal.overlayId = window.newspackReaderActivation.overlays.add();
 	}
