@@ -57,6 +57,7 @@ function Seo() {
 			{
 				path: PATH,
 				method: 'POST',
+				updateCacheMethods: [ 'GET' ],
 				data,
 			},
 			{
