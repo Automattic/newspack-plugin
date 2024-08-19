@@ -1,12 +1,12 @@
-@use 'sass:color';
-@use '~@wordpress/base-styles/colors' as wp-colors;
+@use "sass:color";
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 .woocommerce-account {
 	.newspack-wc-message,
 	.woocommerce-message,
 	.woocommerce-info,
 	.woocommerce-error {
-		background: color.adjust( wp-colors.$alert-green, $lightness: 42% );
+		background: color.adjust(wp-colors.$alert-green, $lightness: 42%);
 		border: 1px solid wp-colors.$alert-green;
 		color: inherit;
 		display: block;
@@ -20,7 +20,7 @@
 
 		&--error,
 		&.woocommerce-error {
-			background: color.adjust( wp-colors.$alert-red, $lightness: 51% );
+			background: color.adjust(wp-colors.$alert-red, $lightness: 51%);
 			border-color: wp-colors.$alert-red;
 			color: inherit;
 		}
@@ -41,7 +41,7 @@
 
 	.woocommerce-info {
 		background: white;
-		border-color: var( --newspack-primary-color );
+		border-color: var(--newspack-primary-color);
 	}
 
 	.edit-account {
@@ -113,11 +113,14 @@
 		}
 	}
 
-	.woocommerce_account_subscriptions:has( ~ .woocommerce-memberships-without-subs ) {
+	.woocommerce_account_subscriptions:has(~ .woocommerce-memberships-without-subs) {
 		margin-bottom: 2rem;
 
-		// Hide the 'You have no active subscriptions' message if memberships table is present.
-		&:has( > .no_subscriptions ) {
+		/*
+		 * Hide the "You have no active subscriptions" message
+		 * if memberships table is present.
+		 */
+		&:has(> .no_subscriptions) {
 			display: none;
 		}
 	}

@@ -46,8 +46,7 @@ class WooCommerce_My_Account {
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 			\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'verify_saved_account_details' ] );
-			\add_action( 'logout_redirect', [ __CLASS__, 'add_param_after_logout' ] );
-			\add_action( 'template_redirect', [ __CLASS__, 'show_message_after_logout' ] );
+			\add_action( 'logout_redirect', [ __CLASS__, 'redirect_to_home_after_logout' ] );
 			\add_action( 'woocommerce_account_subscriptions_endpoint', [ __CLASS__, 'append_membership_table' ], 11 );
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
@@ -208,6 +207,13 @@ class WooCommerce_My_Account {
 
 		$token      = \wp_generate_password( 43, false, false );
 		$form_nonce = \wp_create_nonce( self::DELETE_ACCOUNT_FORM );
+
+		/**
+		 * Fires before the account deletion email is sent.
+		 *
+		 * @param int $user_id The user ID of the account being deleted.
+		 */
+		do_action( 'newspack_before_delete_account', $user_id );
 
 		$url = \add_query_arg(
 			[
@@ -520,34 +526,22 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Append a logout param after a reader logs out from My Account.
+	 * Modify redurect url to home after a reader logs out from My Account.
 	 *
 	 * @param string $redirect_to The redirect destination URL.
 	 *
 	 * @return string The filtered destination URL.
 	 */
-	public static function add_param_after_logout( $redirect_to ) {
+	public static function redirect_to_home_after_logout( $redirect_to ) {
 		if ( ! function_exists( 'wc_get_page_permalink' ) ) {
 			return;
 		}
 
 		if ( \wc_get_page_permalink( 'myaccount' ) === $redirect_to ) {
-			$redirect_to = \add_query_arg(
-				[ 'logged_out' => 1 ],
-				$redirect_to
-			);
+			$redirect_to = \get_home_url();
 		}
 
 		return $redirect_to;
-	}
-
-	/**
-	 * Show a logout success message to readers after logging out via My Account.
-	 */
-	public static function show_message_after_logout() {
-		if ( isset( $_GET['logged_out'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			WooCommerce_Connection::add_wc_notice( __( 'You have successfully logged out.', 'newspack-plugin' ), 'success' );
-		}
 	}
 
 	/**
