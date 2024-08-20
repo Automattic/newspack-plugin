@@ -3,11 +3,17 @@
  * See: https://uxdesign.cc/how-to-trap-focus-inside-modal-to-make-it-ada-compliant-6a50f9a70700
  */
 export function trapFocus( currentModal ) {
+
 	const focusableEls =
 		'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])';
 	const visibleFocusableEls = [];
-
 	const focusableElsAll = currentModal.querySelectorAll( focusableEls );
+
+	// Make sure we have elements to focus on before continuing.
+	if ( 0 === focusableElsAll.length ) {
+		return false;
+	}
+
 	const firstFocusableEl = focusableElsAll?.[ 0 ]; // get first element to be focused inside modal
 
 	// Get rid of elements that aren't visible:
@@ -22,7 +28,6 @@ export function trapFocus( currentModal ) {
 
 	document.addEventListener( 'keydown', function ( e ) {
 		const isTabPressed = e.key === 'Tab' || e.keyCode === 9;
-
 		if ( ! isTabPressed ) {
 			return;
 		}
