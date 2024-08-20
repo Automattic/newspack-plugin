@@ -7,8 +7,8 @@ export function trapFocus( currentModal ) {
 		'button, [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])';
 	const visibleFocusableEls = [];
 
-	const firstFocusableEl = currentModal.querySelectorAll( focusableEls )[ 0 ]; // get first element to be focused inside modal
 	const focusableElsAll = currentModal.querySelectorAll( focusableEls );
+	const firstFocusableEl = focusableElsAll?.[ 0 ]; // get first element to be focused inside modal
 
 	// Get rid of elements that aren't visible:
 	focusableElsAll.forEach( function ( el, index ) {
