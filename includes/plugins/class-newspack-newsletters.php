@@ -77,18 +77,28 @@ class Newspack_Newsletters {
 	 */
 	public static function get_payment_metadata_fields() {
 		return [
-			'membership_status'   => 'Membership Status',
-			'payment_page'        => 'Payment Page',
-			'payment_page_utm'    => 'Payment UTM: ',
-			'sub_start_date'      => 'Current Subscription Start Date',
-			'sub_end_date'        => 'Current Subscription End Date',
-			'billing_cycle'       => 'Billing Cycle',
-			'recurring_payment'   => 'Recurring Payment',
-			'last_payment_date'   => 'Last Payment Date',
-			'last_payment_amount' => 'Last Payment Amount',
-			'product_name'        => 'Product Name',
-			'next_payment_date'   => 'Next Payment Date',
-			'total_paid'          => 'Total Paid',
+			'membership_status'     => 'Membership Status',
+			'membership_plan'       => 'Membership Plan',
+			// In most cases these fields won't be needed, because their values will match
+			// linked subscription dates. But some setups use memberships w/out subscriptions.
+			'membership_start_date' => 'Current Membership Start Date',
+			'membership_end_date'   => 'Current Membership End Date',
+			// URL of the page on which the payment has happened.
+			'payment_page'          => 'Payment Page',
+			'payment_page_utm'      => 'Payment UTM: ',
+			'sub_start_date'        => 'Current Subscription Start Date',
+			'sub_end_date'          => 'Current Subscription End Date',
+			// At what interval does the recurring payment occur – e.g. day, week, month or year.
+			'billing_cycle'         => 'Billing Cycle',
+			// The total value of the recurring payment.
+			'recurring_payment'     => 'Recurring Payment',
+			'last_payment_date'     => 'Last Payment Date',
+			'last_payment_amount'   => 'Last Payment Amount',
+			// Product name, as it appears in WooCommerce.
+			'product_name'          => 'Product Name',
+			'next_payment_date'     => 'Next Payment Date',
+			// Total value spent by this customer on the site.
+			'total_paid'            => 'Total Paid',
 		];
 	}
 
@@ -180,6 +190,23 @@ class Newspack_Newsletters {
 	 */
 	public static function get_metadata_fields() {
 		return array_values( \get_option( self::METADATA_FIELDS_OPTION, self::get_default_metadata_fields() ) );
+	}
+
+	/**
+	 * Get enabled fields which match provided keys.
+	 * Will return key-value pairs of enabled fields which match the keys provided.
+	 *
+	 * @param string[] $keys Array of keys to match.
+	 */
+	public static function get_applicable_fields( $keys ) {
+		$enabled_fields = self::get_metadata_fields();
+		return array_filter(
+			self::get_metadata_keys(),
+			function( $val, $key ) use ( $keys, $enabled_fields ) {
+				return in_array( $key, $keys ) && in_array( $val, $enabled_fields );
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
 	}
 
 	/**

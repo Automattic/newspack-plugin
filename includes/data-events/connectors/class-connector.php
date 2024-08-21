@@ -107,6 +107,35 @@ abstract class Connector {
 	}
 
 	/**
+	 * Handle membership creation or update.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function membership_saved( $timestamp, $data, $client_id ) {
+		$applicable_fields = Newspack_Newsletters::get_applicable_fields(
+			[
+				'membership_status',
+				'membership_plan',
+				'membership_start_date',
+				'membership_end_date',
+			]
+		);
+		if ( empty( $applicable_fields ) ) {
+			return;
+		}
+		$contact = [ 'email' => $data['email'] ];
+		foreach ( $applicable_fields as $key => $value ) {
+			if ( isset( $data[ $key ] ) ) {
+				$contact['metadata'][ Newspack_Newsletters::get_metadata_key( $key ) ] = $data[ $key ];
+			}
+		}
+
+		static::put( $contact, 'RAS Woo Membership created or updated.' );
+	}
+
+	/**
 	 * Handle a change in subscription status.
 	 *
 	 * @param int   $timestamp Timestamp of the event.
