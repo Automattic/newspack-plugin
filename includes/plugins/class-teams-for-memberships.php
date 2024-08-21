@@ -14,6 +14,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Teams_For_Memberships {
 
+	const METADATA_FIELD_LABEL = 'Woo Team';
+
 	/**
 	 * Initialize hooks and filters.
 	 */
@@ -39,7 +41,7 @@ class Teams_For_Memberships {
 	 */
 	public static function add_teams_metadata_keys( $metadata_keys ) {
 		if ( self::is_enabled() ) {
-			$metadata_keys['woo_team'] = 'Woo Team';
+			$metadata_keys['woo_team'] = self::METADATA_FIELD_LABEL;
 		}
 		return $metadata_keys;
 	}
@@ -52,6 +54,11 @@ class Teams_For_Memberships {
 	 */
 	public static function normalize_contact( $contact ) {
 		if ( ! self::is_enabled() ) {
+			return $contact;
+		}
+
+		$enabled_fields = Newspack_Newsletters::get_metadata_fields();
+		if ( ! in_array( self::METADATA_FIELD_LABEL, $enabled_fields ) ) {
 			return $contact;
 		}
 
