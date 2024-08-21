@@ -258,6 +258,15 @@ final class Reader_Activation {
 		if ( is_bool( $value ) ) {
 			$value = intval( $value );
 		}
+
+		/**
+		 * Fires just before a Reader Activation setting is updated
+		 *
+		 * @param string $key   Option name.
+		 * @param mixed  $value Option value.
+		 */
+		do_action( 'newspack_reader_activation_update_setting', $key, $value );
+
 		if ( 'metadata_prefix' === $key ) {
 			return Newspack_Newsletters::update_metadata_prefix( $value );
 		}
