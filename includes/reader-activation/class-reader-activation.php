@@ -324,7 +324,7 @@ final class Reader_Activation {
 	 *
 	 * @param string $provider Optional ESP provider. Defaults to the configured ESP.
 	 *
-	 * @return string|bool Master list ID or false if not set or not available
+	 * @return string|bool Master list ID or false if not set or not available.
 	 */
 	public static function get_esp_master_list_id( $provider = '' ) {
 		if ( ! self::is_esp_configured() ) {
@@ -342,7 +342,7 @@ final class Reader_Activation {
 				if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
 					$audience_id = \mailchimp_get_list_id();
 				}
-				return $audience_id;
+				return ! empty( $audience_id ) ? $audience_id : false;
 			default:
 				return false;
 		}
