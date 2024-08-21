@@ -1475,7 +1475,7 @@ final class Reader_Activation {
 			return new \WP_Error( 'no_lists_selected', __( 'No lists selected.', 'newspack-plugin' ) );
 		}
 
-		$result = \Newspack_Newsletters_Subscription::add_contact(
+		$result = \Newspack_Newsletters_Contacts::subscribe(
 			[
 				'email'    => $email_address,
 				'metadata' => [
