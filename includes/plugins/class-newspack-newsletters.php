@@ -35,22 +35,16 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		\add_action( 'init', [ __CLASS__, 'setup_hooks' ] );
+		\add_action( 'init', [ __CLASS__, 'setup_hooks' ], 15 );
 	}
 
 	/**
 	 * Setup hooks.
 	 */
 	public static function setup_hooks() {
-		/**
-		 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
-		 *
-		 * @param array $metadata_keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
-		 */
-		self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_metadata_fields() );
-
 		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ], 99 );
 
+		// this condition triggers filters that should not be fired before init.
 		if ( self::should_sync_ras_metadata() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
@@ -108,6 +102,23 @@ class Newspack_Newsletters {
 	}
 
 	/**
+	 * Get the metadata keys map for Reader Activation.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_metadata_keys() {
+		if ( empty( self::$metadata_keys ) ) {
+			/**
+			 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
+			 *
+			 * @param array $metadata_keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
+			 */
+			self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_metadata_fields() );
+		}
+		return self::$metadata_keys;
+	}
+
+	/**
 	 * Whether or not we should use the special metadata keys for RAS sites.
 	 *
 	 * @return boolean True if a RAS sync, otherwise false.
@@ -159,7 +170,7 @@ class Newspack_Newsletters {
 	 * @return string[] List of fields.
 	 */
 	public static function get_default_metadata_fields() {
-		return array_values( array_unique( array_values( self::$metadata_keys ) ) );
+		return array_values( array_unique( array_values( self::get_metadata_keys() ) ) );
 	}
 
 	/**
@@ -193,7 +204,7 @@ class Newspack_Newsletters {
 		$fields_to_sync = self::get_metadata_fields();
 		$raw_keys       = [];
 
-		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+		foreach ( self::get_metadata_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $fields_to_sync, true ) ) {
 				$raw_keys[] = $raw_key;
 			}
@@ -211,7 +222,7 @@ class Newspack_Newsletters {
 		$fields_to_sync = self::get_metadata_fields();
 		$prefixed_keys  = [];
 
-		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+		foreach ( self::get_metadata_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $fields_to_sync, true ) ) {
 				$prefixed_keys[] = self::get_metadata_key( $raw_key );
 			}
@@ -228,12 +239,12 @@ class Newspack_Newsletters {
 	 * @return string Prefixed field name.
 	 */
 	public static function get_metadata_key( $key ) {
-		if ( ! isset( self::$metadata_keys[ $key ] ) ) {
+		if ( ! isset( self::get_metadata_keys()[ $key ] ) ) {
 			return false;
 		}
 
 		$prefix = self::get_metadata_prefix();
-		$name   = self::$metadata_keys[ $key ];
+		$name   = self::get_metadata_keys()[ $key ];
 		$key    = $prefix . $name;
 
 		/**

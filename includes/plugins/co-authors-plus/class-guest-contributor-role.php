@@ -1,6 +1,6 @@
 <?php
 /**
- * Co_Authors_Plus integration class.
+ * Guest_Contributor_Role class.
  * https://wordpress.org/plugins/co-authors-plus
  *
  * @package Newspack
@@ -21,7 +21,7 @@ use WP_User;
  * This role can also be assigned to users who have other roles, so they can be assigned as co-authors of a post without having the capability to edit posts.
  * This is done via a custom UI in the user profile.
  */
-class Co_Authors_Plus {
+class Guest_Contributor_Role {
 	/**
 	 * Custom capability name.
 	 */
@@ -70,9 +70,12 @@ class Co_Authors_Plus {
 		\add_filter( 'allow_password_reset', [ __CLASS__, 'disable_feature' ], 10, 2 );
 		\add_filter( 'woocommerce_current_user_can_edit_customer_meta_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
 
-		// Add UI to the user profile to assign the custom role.
-		add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
-		add_action( 'wp_update_user', [ __CLASS__, 'edit_user_profile_update' ] );
+		// Only if Members plugin is not active, because it has its own UI for roles.
+		if ( ! class_exists( 'Members_Plugin' ) ) {
+			// Add UI to the user profile to assign the custom role.
+			add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
+			add_action( 'wp_update_user', [ __CLASS__, 'edit_user_profile_update' ] );
+		}
 	}
 
 	/**
@@ -95,7 +98,7 @@ class Co_Authors_Plus {
 	 * @return bool
 	 */
 	private static function is_guest_author( WP_User $user ) {
-		return 1 === count( $user->roles ) && self::CONTRIBUTOR_NO_EDIT_ROLE_NAME === array_shift( $user->roles );
+		return 1 === count( $user->roles ) && self::CONTRIBUTOR_NO_EDIT_ROLE_NAME === current( $user->roles );
 	}
 
 	/**
@@ -186,7 +189,7 @@ class Co_Authors_Plus {
 		 */
 	public static function user_profile_update_errors( $errors, $update, $user ) {
 
-		if ( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
+		if ( ! isset( $user->role ) || self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
 			return $errors;
 		}
 
@@ -434,4 +437,4 @@ class Co_Authors_Plus {
 		return $value;
 	}
 }
-Co_Authors_Plus::init();
+Guest_Contributor_Role::init();
