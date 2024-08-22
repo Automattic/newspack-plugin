@@ -89,8 +89,8 @@ abstract class ESP_Sync {
 	/**
 	 * Sync contact to the ESP.
 	 *
-	 * @param array $contact The contact data to sync.
-	 * @param array $context The context of the sync.
+	 * @param array  $contact The contact data to sync.
+	 * @param string $context The context of the sync.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
