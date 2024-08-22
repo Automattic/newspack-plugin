@@ -25,7 +25,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	 *
 	 * @var string
 	 */
-	protected static $context = 'CLI ESP Sync';
+	protected static $context = 'Contact sync manually triggered via CLI';
 
 	/**
 	 * The final results object.
