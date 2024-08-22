@@ -39,7 +39,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	}
 
 	/**
-	 * Resync reader contact data to the connected ESP.
+	 * Sync reader contact data to the connected ESP.
 	 *
 	 * @param array $config {
 	 *   Configuration options.
@@ -56,9 +56,9 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	 *   @type bool        $config['is_dry_run'] True if a dry run.
 	 * }
 	 *
-	 * @return int|\WP_Error Number of resynced contacts or WP_Error.
+	 * @return int|\WP_Error Number of synced contacts or WP_Error.
 	 */
-	private static function resync_contacts( $config ) {
+	private static function sync_contacts( $config ) {
 		$default_config = [
 			'active_only'      => false,
 			'migrated_only'    => false,
@@ -72,14 +72,14 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 		];
 		$config = \wp_parse_args( $config, $default_config );
 
-		static::log( __( 'Running WooCommerce-to-ESP contact resync...', 'newspack-plugin' ) );
+		static::log( __( 'Running ESP contact sync...', 'newspack-plugin' ) );
 
 		$can_sync = static::can_sync_contacts( true );
 		if ( ! $config['is_dry_run'] && $can_sync->has_errors() ) {
 			return $can_sync;
 		}
 
-		// If resyncing only migrated subscriptions.
+		// If syncing only migrated subscriptions.
 		if ( $config['migrated_only'] ) {
 			$config['subscription_ids'] = static::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $config['offset'], $config['active_only'] );
 			if ( \is_wp_error( $config['subscription_ids'] ) ) {
@@ -107,12 +107,12 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					continue;
 				}
 
-				$result = static::resync_contact( $subscription, $config['is_dry_run'] );
+				$result = static::sync_contact( $subscription, $config['is_dry_run'] );
 				if ( \is_wp_error( $result ) ) {
 					static::log(
 						sprintf(
 							// Translators: %1$d is the subscription ID arg passed to the script. %2$s is the error message.
-							__( 'Error resyncing contact info for subscription ID %1$d. %2$s', 'newspack-plugin' ),
+							__( 'Error syncing contact info for subscription ID %1$d. %2$s', 'newspack-plugin' ),
 							$subscription_id,
 							$result->get_error_message()
 						)
@@ -133,7 +133,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			}
 		}
 
-		// If order-ids flag is passed, resync contacts for those orders.
+		// If order-ids flag is passed, sync contacts for those orders.
 		if ( ! empty( $config['order_ids'] ) ) {
 			static::log( __( 'Syncing by order ID...', 'newspack-plugin' ) );
 			foreach ( $config['order_ids'] as $order_id ) {
@@ -151,12 +151,12 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					continue;
 				}
 
-				$result = static::resync_contact( $order, $config['is_dry_run'] );
+				$result = static::sync_contact( $order, $config['is_dry_run'] );
 				if ( \is_wp_error( $result ) ) {
 					static::log(
 						sprintf(
 							// Translators: %1$d is the order ID arg passed to the script. %2$s is the error message.
-							__( 'Error resyncing contact info for order ID %1$d. %2$s', 'newspack-plugin' ),
+							__( 'Error syncing contact info for order ID %1$d. %2$s', 'newspack-plugin' ),
 							$order_id,
 							$result->get_error_message()
 						)
@@ -165,17 +165,17 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			}
 		}
 
-		// If user-ids flag is passed, resync those users.
+		// If user-ids flag is passed, sync those users.
 		if ( ! empty( $config['user_ids'] ) ) {
 			static::log( __( 'Syncing by customer user ID...', 'newspack-plugin' ) );
 			foreach ( $config['user_ids'] as $user_id ) {
 				if ( ! $config['active_only'] || static::user_has_active_subscriptions( $user_id ) ) {
-					$result = static::resync_contact( $user_id, $config['is_dry_run'] );
+					$result = static::sync_contact( $user_id, $config['is_dry_run'] );
 					if ( \is_wp_error( $result ) ) {
 						static::log(
 							sprintf(
 								// Translators: %1$d is the user ID arg passed to the script. %2$s is the error message.
-								__( 'Error resyncing contact info for user ID %1$d. %2$s', 'newspack-plugin' ),
+								__( 'Error syncing contact info for user ID %1$d. %2$s', 'newspack-plugin' ),
 								$user_id,
 								$result->get_error_message()
 							)
@@ -185,7 +185,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			}
 		}
 
-		// Default behavior: resync all readers.
+		// Default behavior: sync all readers.
 		if (
 			false === $config['user_ids'] &&
 			false === $config['order_ids'] &&
@@ -199,12 +199,12 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			while ( $user_ids ) {
 				$user_id = array_shift( $user_ids );
 				if ( ! $config['active_only'] || static::user_has_active_subscriptions( $user_id ) ) {
-					$result = static::resync_contact( $user_id, $config['is_dry_run'] );
+					$result = static::sync_contact( $user_id, $config['is_dry_run'] );
 					if ( \is_wp_error( $result ) ) {
 						static::log(
 							sprintf(
 								// Translators: $1$s is the contact's email address. %2$s is the error message.
-								__( 'Error resyncing contact info for %1$s. %2$s' ),
+								__( 'Error syncing contact info for %1$s. %2$s' ),
 								$customer->get_email(),
 								$result->get_error_message()
 							)
@@ -270,7 +270,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			! class_exists( '\Newspack_Subscription_Migrations\CSV_Importers\CSV_Importer' )
 		) {
 			return new \WP_Error(
-				'newspack_woo_resync_contact',
+				'newspack_esp_sync_contact',
 				__( 'The migrated-subscriptions flag requires the Newspack_Subscription_Migrations plugin to be installed and active.', 'newspack-plugin' )
 			);
 		}
@@ -287,7 +287,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 				break;
 			default:
 				return new \WP_Error(
-					'newspack_woo_resync_contact',
+					'newspack_esp_sync_contact',
 					sprintf(
 						// Translators: %s is the source of the subscriptions.
 						__( 'Invalid subscription migration type: %s', 'newspack-plugin' ),
@@ -326,12 +326,12 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	}
 
 	/**
-	 * CLI command for resyncing contact data from WooCommerce customers to the connected ESP.
+	 * CLI command for syncing reader data to the connected ESP.
 	 *
 	 * @param array $args Positional args.
 	 * @param array $assoc_args Associative args.
 	 */
-	public static function cli_resync_contacts( $args, $assoc_args ) {
+	public static function cli_sync_contacts( $args, $assoc_args ) {
 		$config = [];
 		$config['is_dry_run']       = ! empty( $assoc_args['dry-run'] );
 		$config['active_only']      = ! empty( $assoc_args['active-only'] );
@@ -343,7 +343,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 		$config['offset']           = ! empty( $assoc_args['offset'] ) ? intval( $assoc_args['offset'] ) : 0;
 		$config['max_batches']      = ! empty( $assoc_args['max-batches'] ) ? intval( $assoc_args['max-batches'] ) : 0;
 
-		$processed = static::resync_contacts( $config );
+		$processed = static::sync_contacts( $config );
 
 		if ( \is_wp_error( $processed ) ) {
 			WP_CLI::error( $processed->get_error_message() );
@@ -352,9 +352,9 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 		WP_CLI::line( "\n" );
 		WP_CLI::success(
 			sprintf(
-				// Translators: total number of resynced contacts.
+				// Translators: total number of synced contacts.
 				__(
-					'Resynced %d contacts.',
+					'Synced %d contacts.',
 					'newspack-plugin'
 				),
 				$processed

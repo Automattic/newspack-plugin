@@ -48,7 +48,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 	}
 
 	/**
-	 * Adds resync action to user row actions.
+	 * Adds sync action to user row actions.
 	 *
 	 * @param string[] $actions User row actions.
 	 * @param \WP_User $user    User object.
@@ -106,7 +106,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack-plugin' ) );
 		}
 		foreach ( $items as $user_id ) {
-			$result = static::resync_contact( $user_id );
+			$result = static::sync_contact( $user_id );
 			if ( \is_wp_error( $result ) ) {
 				\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
@@ -159,7 +159,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		$config = [
 			'user_ids' => [ $user_id ],
 		];
-		$result = static::resync_contact( $user_id );
+		$result = static::sync_contact( $user_id );
 		if ( \is_wp_error( $result ) ) {
 			\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}

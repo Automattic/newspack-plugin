@@ -116,15 +116,15 @@ abstract class ESP_Sync {
 	}
 
 	/**
-	 * Given a WP user ID for a Woo customer or order ID, resync that customer's
-	 * contact data in the connected ESP.
+	 * Given a user ID or WooCommerce Order, sync that reader's contact data to
+	 * the connected ESP.
 	 *
 	 * @param int|\WC_order $user_id_or_order User ID or WC_Order object.
 	 * @param bool          $is_dry_run       True if a dry run.
 	 *
-	 * @return true|\WP_Error True if the contact was resynced successfully, WP_Error otherwise.
+	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
 	 */
-	protected static function resync_contact( $user_id_or_order, $is_dry_run = false ) {
+	protected static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
 		$can_sync = static::can_sync_contacts( true );
 		if ( ! $is_dry_run && $can_sync->has_errors() ) {
 			return $can_sync;
@@ -150,7 +150,7 @@ abstract class ESP_Sync {
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
 			return new \WP_Error(
-				'newspack_woo_resync_contact',
+				'newspack_esp_sync_contact',
 				sprintf(
 				// Translators: %d is the user ID.
 					__( 'Customer with ID %d does not exist.', 'newspack-plugin' ),
@@ -174,9 +174,9 @@ abstract class ESP_Sync {
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(
 				sprintf(
-					// Translators: %1$s is the resync status and %2$s is the contact's email address.
+					// Translators: %1$s is the status and %2$s is the contact's email address.
 					__( '%1$s contact data for %2$s.', 'newspack-plugin' ),
-					$is_dry_run ? __( 'Would resync', 'newspack-plugin' ) : __( 'Resynced', 'newspack-plugin' ),
+					$is_dry_run ? __( 'Would sync', 'newspack-plugin' ) : __( 'Synced', 'newspack-plugin' ),
 					$customer->get_email()
 				)
 			);
