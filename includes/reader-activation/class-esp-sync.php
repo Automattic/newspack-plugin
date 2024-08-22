@@ -43,13 +43,6 @@ abstract class ESP_Sync {
 			);
 		}
 
-		if ( ! Reader_Activation::get_esp_master_list_id() ) {
-			$errors->add(
-				'ras_esp_master_list_id_not_found',
-				__( 'ESP master list ID is not set.', 'newspack-plugin' )
-			);
-		}
-
 		if ( ! Reader_Activation::is_enabled() ) {
 			$errors->add(
 				'ras_not_enabled',
