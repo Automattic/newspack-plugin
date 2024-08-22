@@ -10,7 +10,6 @@ namespace Newspack\Reader_Activation;
 use Newspack\Donations;
 use Newspack\WooCommerce_Connection;
 use Newspack\WooCommerce_Order_UTM;
-use Newspack\Newspack_Newsletters;
 use Newspack\Reader_Activation;
 use Newspack\Logger;
 
@@ -20,6 +19,9 @@ defined( 'ABSPATH' ) || exit;
  * Sync Class.
  */
 abstract class Sync {
+
+	const METADATA_DATE_FORMAT = 'Y-m-d';
+
 	/**
 	 * Should a WooCommerce order be synchronized?
 	 *
@@ -40,6 +42,68 @@ abstract class Sync {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Get basic metadata fields.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_basic_metadata_fields() {
+		return [
+			'account'              => 'Account',
+			'registration_date'    => 'Registration Date',
+			'connected_account'    => 'Connected Account',
+			'signup_page'          => 'Signup Page',
+			'signup_page_utm'      => 'Signup UTM: ',
+			'newsletter_selection' => 'Newsletter Selection',
+			'referer'              => 'Referrer Path',
+			'registration_page'    => 'Registration Page',
+			'current_page_url'     => 'Registration Page',
+			'registration_method'  => 'Registration Method',
+		];
+	}
+
+	/**
+	 * Get payment-related metadata fields.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_payment_metadata_fields() {
+		return [
+			'membership_status'   => 'Membership Status',
+			'payment_page'        => 'Payment Page',
+			'payment_page_utm'    => 'Payment UTM: ',
+			'sub_start_date'      => 'Current Subscription Start Date',
+			'sub_end_date'        => 'Current Subscription End Date',
+			'billing_cycle'       => 'Billing Cycle',
+			'recurring_payment'   => 'Recurring Payment',
+			'last_payment_date'   => 'Last Payment Date',
+			'last_payment_amount' => 'Last Payment Amount',
+			'product_name'        => 'Product Name',
+			'next_payment_date'   => 'Next Payment Date',
+			'total_paid'          => 'Total Paid',
+		];
+	}
+
+	/**
+	 * Get all metadata fields.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_all_metadata_fields() {
+		return array_merge( self::get_basic_metadata_fields(), self::get_payment_metadata_fields() );
+	}
+
+	/**
+	 * The field name for a given key.
+	 *
+	 * @param string $key Metadata field to fetch.
+	 *
+	 * @return string Prefixed field name.
+	 */
+	protected static function get_metadata_key( $key ) {
+		return ucfirst( $key );
 	}
 
 	/**
@@ -73,12 +137,12 @@ abstract class Sync {
 				$payment_page_url = $referer_from_order;
 			}
 		}
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page' ) ] = $payment_page_url;
+		$metadata[ static::get_metadata_key( 'payment_page' ) ] = $payment_page_url;
 
 		$utm = $order->get_meta( 'utm' );
 		if ( ! empty( $utm ) ) {
 			foreach ( $utm as $key => $value ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page_utm' ) . $key ] = $value;
+				$metadata[ static::get_metadata_key( 'payment_page_utm' ) . $key ] = $value;
 			}
 		}
 
@@ -93,20 +157,20 @@ abstract class Sync {
 			 * For non-donation-type products, we just need to know that the reader is a customer.
 			 */
 			if ( $is_donation_order ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'Donor';
+				$metadata[ static::get_metadata_key( 'membership_status' ) ] = 'Donor';
 			} else {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = 'customer';
+				$metadata[ static::get_metadata_key( 'membership_status' ) ] = 'customer';
 			}
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
+			$metadata[ static::get_metadata_key( 'product_name' ) ] = '';
 			$order_items = $order->get_items();
 			if ( $order_items ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
+				$metadata[ static::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
 			}
 			$order_date_paid = $order->get_date_paid();
 			if ( $payment_received && ! empty( $order_date_paid ) ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $order->get_total() );
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $order_date_paid->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
+				$metadata[ static::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $order->get_total() );
+				$metadata[ static::get_metadata_key( 'last_payment_date' ) ]   = $order_date_paid->date( self::METADATA_DATE_FORMAT );
 			}
 
 			// Subscription transaction.
@@ -130,41 +194,41 @@ abstract class Sync {
 				if ( $current_subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
 					$donor_status = 'Ex-' . $donor_status;
 				}
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $donor_status;
+				$metadata[ static::get_metadata_key( 'membership_status' ) ] = $donor_status;
 			} else {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'membership_status' ) ] = $current_subscription->get_status();
+				$metadata[ static::get_metadata_key( 'membership_status' ) ] = $current_subscription->get_status();
 			}
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_start_date' ) ]    = $current_subscription->get_date( 'start' );
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'sub_end_date' ) ]      = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'billing_cycle' ) ]     = $current_subscription->get_billing_period();
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'recurring_payment' ) ] = $current_subscription->get_total();
+			$metadata[ static::get_metadata_key( 'sub_start_date' ) ]    = $current_subscription->get_date( 'start' );
+			$metadata[ static::get_metadata_key( 'sub_end_date' ) ]      = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$metadata[ static::get_metadata_key( 'billing_cycle' ) ]     = $current_subscription->get_billing_period();
+			$metadata[ static::get_metadata_key( 'recurring_payment' ) ] = $current_subscription->get_total();
 
 			if ( $payment_received ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $current_subscription->get_total() );
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT );
+				$metadata[ static::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $current_subscription->get_total() );
+				$metadata[ static::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( static::METADATA_DATE_FORMAT );
 			}
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
 			$next_payment_date = $current_subscription->get_date( 'next_payment' );
 			if ( $next_payment_date ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
+				$metadata[ static::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
 			}
 
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = '';
+			$metadata[ static::get_metadata_key( 'product_name' ) ] = '';
 			if ( $current_subscription ) {
 				$subscription_order_items = $current_subscription->get_items();
 				if ( $subscription_order_items ) {
-					$metadata[ Newspack_Newsletters::get_metadata_key( 'product_name' ) ] = reset( $subscription_order_items )->get_name();
+					$metadata[ static::get_metadata_key( 'product_name' ) ] = reset( $subscription_order_items )->get_name();
 				}
 			}
 		}
 
 		// Clear out any payment-related fields that don't relate to the current order.
-		$payment_fields = array_keys( Newspack_Newsletters::get_payment_metadata_fields() );
+		$payment_fields = array_keys( static::get_payment_metadata_fields() );
 		foreach ( $payment_fields as $meta_key ) {
-			$meta_field = Newspack_Newsletters::get_metadata_key( $meta_key );
+			$meta_field = static::get_metadata_key( $meta_key );
 			if ( ! isset( $metadata[ $meta_field ] ) ) {
 				if ( 'payment_page_utm' === $meta_key ) {
 					foreach ( WooCommerce_Order_UTM::$params as $param ) {
@@ -198,9 +262,9 @@ abstract class Sync {
 		$order_metadata = [];
 		$last_order     = WooCommerce_Connection::get_last_successful_order( $customer );
 
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $customer->get_id();
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
-		$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = \wc_format_localized_price( $customer->get_total_spent() );
+		$metadata[ static::get_metadata_key( 'account' ) ]           = $customer->get_id();
+		$metadata[ static::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( static::METADATA_DATE_FORMAT );
+		$metadata[ static::get_metadata_key( 'total_paid' ) ]        = \wc_format_localized_price( $customer->get_total_spent() );
 
 		// If a more recent order exists, use it to sync.
 		if ( ! $order || ( $last_order && $order->get_id() !== $last_order->get_id() ) ) {
@@ -212,9 +276,9 @@ abstract class Sync {
 			$order_metadata = self::get_order_metadata( $order, $payment_page_url, $is_new );
 		} else {
 			// If the customer has no successful orders, clear out subscription-related fields.
-			$payment_fields = array_keys( Newspack_Newsletters::get_payment_metadata_fields() );
+			$payment_fields = array_keys( static::get_payment_metadata_fields() );
 			foreach ( $payment_fields as $meta_key ) {
-				$metadata[ Newspack_Newsletters::get_metadata_key( $meta_key ) ] = '';
+				$metadata[ static::get_metadata_key( $meta_key ) ] = '';
 			}
 		}
 

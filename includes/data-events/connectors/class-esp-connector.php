@@ -8,7 +8,6 @@
 namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Data_Events;
-use Newspack\Newspack_Newsletters;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 
@@ -51,17 +50,17 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$account_key           = Newspack_Newsletters::get_metadata_key( 'account' );
-		$registration_date_key = Newspack_Newsletters::get_metadata_key( 'registration_date' );
+		$account_key           = static::get_metadata_key( 'account' );
+		$registration_date_key = static::get_metadata_key( 'registration_date' );
 		$metadata              = [
 			$account_key           => $data['user_id'],
-			$registration_date_key => gmdate( Newspack_Newsletters::METADATA_DATE_FORMAT, $timestamp ),
+			$registration_date_key => gmdate( static::METADATA_DATE_FORMAT, $timestamp ),
 		];
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_page' ) ] = $data['metadata']['current_page_url'];
+			$metadata[ static::get_metadata_key( 'registration_page' ) ] = $data['metadata']['current_page_url'];
 		}
 		if ( isset( $data['metadata']['registration_method'] ) ) {
-			$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_method' ) ] = $data['metadata']['registration_method'];
+			$metadata[ static::get_metadata_key( 'registration_method' ) ] = $data['metadata']['registration_method'];
 		}
 		/**
 		 * Filters the contact metadata sent to the ESP when a reader account is registered for the first time.
@@ -193,8 +192,8 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			}
 		}
 
-		$account_key              = Newspack_Newsletters::get_metadata_key( 'account' );
-		$newsletter_selection_key = Newspack_Newsletters::get_metadata_key( 'newsletter_selection' );
+		$account_key              = static::get_metadata_key( 'account' );
+		$newsletter_selection_key = static::get_metadata_key( 'newsletter_selection' );
 
 		$metadata = [
 			$account_key              => $data['user_id'],

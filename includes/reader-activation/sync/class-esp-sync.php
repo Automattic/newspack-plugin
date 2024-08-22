@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation;
 
+use Newspack\Newspack_Newsletters;
 use Newspack\Reader_Activation;
 use Newspack\Logger;
 
@@ -31,6 +32,17 @@ abstract class ESP_Sync extends Sync {
 	 */
 	protected static function log( $message ) {
 		Logger::log( $message );
+	}
+
+	/**
+	 * Get the metadata key for the ESP.
+	 *
+	 * @param string $key The key to get the metadata key for.
+	 *
+	 * @return string The metadata key.
+	 */
+	protected static function get_metadata_key( $key ) {
+		return Newspack_Newsletters::get_metadata_key( $key );
 	}
 
 	/**
