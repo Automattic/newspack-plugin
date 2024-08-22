@@ -18,7 +18,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * WooCommerce Sync CLI Class.
  */
-class Woo_Sync extends Reader_Activation\Woo_Sync {
+class RAS_Woo_Sync extends Reader_Activation\Woo_Sync {
 
 	/**
 	 * The final results object.

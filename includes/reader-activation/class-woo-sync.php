@@ -35,12 +35,14 @@ abstract class Woo_Sync {
 	 */
 	protected static function can_sync_contacts( $return_errors = false ) {
 		$errors = new \WP_Error();
+
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			$errors->add(
 				'newspack_newsletters_contacts_not_found',
 				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
 			);
 		}
+
 		if ( ! Reader_Activation::is_enabled() ) {
 			$errors->add(
 				'ras_not_enabled',

@@ -25,7 +25,7 @@ class Initializer {
 		add_action( 'init', [ __CLASS__, 'register_comands' ] );
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ras.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-co-authors-plus.php';
-		include_once NEWSPACK_ABSPATH . 'includes/cli/class-woo-sync.php';
+		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ras-woo-sync.php';
 	}
 
 	/**
@@ -65,7 +65,7 @@ class Initializer {
 
 		WP_CLI::add_command(
 			'newspack woo resync',
-			[ 'Newspack\CLI\Woo_Sync', 'cli_resync_woo_contacts' ],
+			[ 'Newspack\CLI\RAS_Woo_Sync', 'cli_resync_woo_contacts' ],
 			[
 				'shortdesc' => __( 'Resync customer and transaction data to the connected ESP.', 'newspack-newsletters' ),
 				'synopsis'  => [
