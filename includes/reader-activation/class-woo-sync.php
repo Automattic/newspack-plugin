@@ -9,6 +9,7 @@ namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
 use Newspack\Logger;
+use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -143,7 +144,7 @@ abstract class Woo_Sync {
 			$customer->save();
 		}
 
-		$contact = $is_order ? \Newspack\WooCommerce_Connection::get_contact_from_order( $order ) : \Newspack\WooCommerce_Connection::get_contact_from_customer( $customer );
+		$contact = $is_order ? WooCommerce_Connection::get_contact_from_order( $order ) : WooCommerce_Connection::get_contact_from_customer( $customer );
 		if ( $registration_site ) {
 			$contact['metadata']['network_registration_site'] = $registration_site;
 		}
