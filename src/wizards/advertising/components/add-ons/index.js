@@ -1,4 +1,3 @@
-/* globals newspack_ads_wizard */
 /**
  * Ad Add-ons component
  */
@@ -24,11 +23,6 @@ export default function AddOns() {
 				'ad-refresh-control': {
 					actionText: __( 'Configure', 'newspack-plugin' ),
 					href: '#/settings',
-				},
-				'publisher-media-kit': {
-					shouldRefreshAfterUpdate: true,
-					actionText: __( 'Edit Media Kit', 'newspack-plugin' ),
-					href: newspack_ads_wizard.mediakit_edit_url ? newspack_ads_wizard.mediakit_edit_url : '',
 				},
 			} }
 		/>
