@@ -20,9 +20,9 @@ const knownValidationCallbacks = {
 	/**
 	 * Is string a valid ID?
 	 *
-	 * @param value ID string to test
+	 * @param value        ID string to test
 	 * @param errorMessage Optional error message to display on failure
-	 * @return Empty string if ID is valid, error message otherwise
+	 * @return             Empty string if ID is valid, error message otherwise
 	 */
 	isId( value: string, errorMessage: string = __( 'Field cannot be empty!', 'newspack-plugin' ) ) {
 		return /^[A-Za-z0-9_-]*$/.test( value ) ? '' : errorMessage;
@@ -30,9 +30,9 @@ const knownValidationCallbacks = {
 	/**
 	 * Is string a valid url?
 	 *
-	 * @param value Url string to test
+	 * @param value        Url string to test
 	 * @param errorMessage Optional error message to display on failure
-	 * @return Empty string if URL is valid, error message otherwise
+	 * @return             Empty string if URL is valid, error message otherwise
 	 */
 	isUrl( value: string, errorMessage: string = __( 'Invalid URL!', 'newspack-plugin' ) ) {
 		return '' === value || /^https?:\/\/[^\s]*$/.test( value ) ? '' : errorMessage;
@@ -45,7 +45,7 @@ const knownValidationCallbacks = {
  * 2. Validation callback name or custom validation callback
  * 3. (Optional) Configuration object
  */
-type ValidationMap< TData, TConfig = {} > = [
+type ValidationMap< TData, TConfig > = [
 	keyof TData,
 	keyof typeof knownValidationCallbacks | ( ( inputValue: string ) => string ),
 	( TConfig & {
@@ -57,7 +57,10 @@ type ValidationMap< TData, TConfig = {} > = [
 /**
  * React hook for validating form fields.
  */
-export function useFieldsValidation< T = {}, C = {} >( config: ValidationMap< T, C >, data: T ) {
+export function useFieldsValidation< TData, TConfig = Record< string, unknown > >(
+	config: ValidationMap< TData, TConfig >,
+	data: TData
+) {
 	const [ errorMessage, setErrorMessage ] = useState< WizardError | null >( null );
 	return {
 		isInputsValid() {
