@@ -8,7 +8,6 @@
 namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Data_Events;
-use Newspack\WooCommerce_Connection;
 use Newspack\Newspack_Newsletters;
 use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
@@ -100,7 +99,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		$contact = WooCommerce_Connection::get_contact_from_customer( $customer );
+		$contact = static::get_contact_from_customer( $customer );
 
 		static::sync( $contact, 'RAS Reader login' );
 	}
@@ -124,7 +123,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		}
 
 		$order_id = $data['platform_data']['order_id'];
-		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id, $data['referer'], true );
+		$contact  = static::get_contact_from_order( $order_id, $data['referer'], true );
 
 		if ( ! $contact ) {
 			return;
@@ -145,7 +144,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		$contact = WooCommerce_Connection::get_contact_from_order( $data['subscription_id'] );
+		$contact = static::get_contact_from_order( $data['subscription_id'] );
 
 		if ( ! $contact ) {
 			return;
@@ -219,7 +218,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		$user_id = $data['user_id'];
 		$registration_site = $data['registration_site'];
 
-		$contact = WooCommerce_Connection::get_contact_from_customer( new \WC_Customer( $user_id ) );
+		$contact = static::get_contact_from_customer( new \WC_Customer( $user_id ) );
 
 		if ( ! $contact ) {
 			return;
