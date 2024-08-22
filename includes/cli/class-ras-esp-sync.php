@@ -1,6 +1,6 @@
 <?php
 /**
- * CLI tools for the WooCommerce Sync.
+ * CLI tools for the RAS ESP Sync.
  *
  * @package Newspack
  */
@@ -16,9 +16,9 @@ use Newspack_Subscription_Migrations\Stripe_Sync;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce Sync CLI Class.
+ * RAS ESP Sync CLI Class.
  */
-class RAS_Woo_Sync extends Reader_Activation\Woo_Sync {
+class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 
 	/**
 	 * The final results object.
@@ -39,7 +39,7 @@ class RAS_Woo_Sync extends Reader_Activation\Woo_Sync {
 	}
 
 	/**
-	 * Resync contact data from WooCommerce customers to the connected ESP.
+	 * Resync reader contact data to the connected ESP.
 	 *
 	 * @param array $config {
 	 *   Configuration options.
@@ -58,7 +58,7 @@ class RAS_Woo_Sync extends Reader_Activation\Woo_Sync {
 	 *
 	 * @return int|\WP_Error Number of resynced contacts or WP_Error.
 	 */
-	private static function resync_woo_contacts( $config ) {
+	private static function resync_contacts( $config ) {
 		$default_config = [
 			'active_only'      => false,
 			'migrated_only'    => false,
@@ -331,7 +331,7 @@ class RAS_Woo_Sync extends Reader_Activation\Woo_Sync {
 	 * @param array $args Positional args.
 	 * @param array $assoc_args Associative args.
 	 */
-	public static function cli_resync_woo_contacts( $args, $assoc_args ) {
+	public static function cli_resync_contacts( $args, $assoc_args ) {
 		$config = [];
 		$config['is_dry_run']       = ! empty( $assoc_args['dry-run'] );
 		$config['active_only']      = ! empty( $assoc_args['active-only'] );
@@ -343,7 +343,7 @@ class RAS_Woo_Sync extends Reader_Activation\Woo_Sync {
 		$config['offset']           = ! empty( $assoc_args['offset'] ) ? intval( $assoc_args['offset'] ) : 0;
 		$config['max_batches']      = ! empty( $assoc_args['max-batches'] ) ? intval( $assoc_args['max-batches'] ) : 0;
 
-		$processed = static::resync_woo_contacts( $config );
+		$processed = static::resync_contacts( $config );
 
 		if ( \is_wp_error( $processed ) ) {
 			WP_CLI::error( $processed->get_error_message() );

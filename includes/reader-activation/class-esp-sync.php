@@ -1,6 +1,6 @@
 <?php
 /**
- * WooCommerce Reader Revenue data syncing with the connected ESP.
+ * Reader contact data syncing with the connected ESP.
  *
  * @package Newspack
  */
@@ -14,9 +14,9 @@ use Newspack\WooCommerce_Connection;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce Sync Class.
+ * ESP Sync Class.
  */
-abstract class Woo_Sync {
+abstract class ESP_Sync {
 	/**
 	 * Log a message to the Newspack Logger.
 	 *

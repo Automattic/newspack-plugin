@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin panel tools for the WooCommerce Sync.
+ * Admin panel tools for the ESP Sync.
  *
  * @package Newspack
  */
@@ -10,11 +10,11 @@ namespace Newspack\Reader_Activation;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce Sync Admin Class.
+ * ESP Sync Admin Class.
  */
-class Woo_Sync_Admin extends Woo_Sync {
+class ESP_Sync_Admin extends ESP_Sync {
 
-	const ADMIN_ACTION = 'newspack-woo-sync';
+	const ADMIN_ACTION = 'newspack-esp-sync';
 
 	/**
 	 * Initializes hooks.
@@ -198,4 +198,4 @@ class Woo_Sync_Admin extends Woo_Sync {
 		// phpcs:enable
 	}
 }
-Woo_Sync_Admin::init_hooks();
+ESP_Sync_Admin::init_hooks();
