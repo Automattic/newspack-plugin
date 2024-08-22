@@ -37,20 +37,20 @@ abstract class Woo_Sync {
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			$errors->add(
 				'newspack_newsletters_contacts_not_found',
-				__( 'Newspack Newsletters is not available.', 'newspack-newsletters' )
+				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
 			);
 		}
 		if ( ! Reader_Activation::is_enabled() ) {
 			$errors->add(
 				'ras_not_enabled',
-				__( 'Reader Activation is not enabled.', 'newspack-newsletters' )
+				__( 'Reader Activation is not enabled.', 'newspack-plugin' )
 			);
 		}
 
 		if ( ! Reader_Activation::get_setting( 'sync_esp' ) ) {
 			$errors->add(
 				'ras_esp_sync_not_enabled',
-				__( 'ESP sync is not enabled.', 'newspack-newsletters' )
+				__( 'ESP sync is not enabled.', 'newspack-plugin' )
 			);
 		}
 
@@ -61,7 +61,7 @@ abstract class Woo_Sync {
 		) {
 			$errors->add(
 				'esp_sync_not_allowed',
-				__( 'ESP sync is disabled for non-production sites. Set NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC to allow sync.', 'newspack-newsletters' )
+				__( 'ESP sync is disabled for non-production sites. Set NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC to allow sync.', 'newspack-plugin' )
 			);
 		}
 
@@ -105,7 +105,7 @@ abstract class Woo_Sync {
 		}
 
 		if ( ! $user_id_or_order ) {
-			return new \WP_Error( 'newspack_newsletters_resync_contact', __( 'Must pass either a user ID or order.', 'newspack-newsletters' ) );
+			return new \WP_Error( 'newspack_woo_resync_contact', __( 'Must pass either a user ID or order.', 'newspack-plugin' ) );
 		}
 
 		$is_order = $user_id_or_order instanceof \WC_Order;
@@ -128,10 +128,10 @@ abstract class Woo_Sync {
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
 			return new \WP_Error(
-				'newspack_newsletters_resync_contact',
+				'newspack_woo_resync_contact',
 				sprintf(
 				// Translators: %d is the user ID.
-					__( 'Customer with ID %d does not exist.', 'newspack-newsletters' ),
+					__( 'Customer with ID %d does not exist.', 'newspack-plugin' ),
 					$user_id
 				)
 			);
@@ -153,8 +153,8 @@ abstract class Woo_Sync {
 			static::log(
 				sprintf(
 					// Translators: %1$s is the resync status and %2$s is the contact's email address.
-					__( '%1$s contact data for %2$s.', 'newspack-newsletters' ),
-					$is_dry_run ? __( 'Would resync', 'newspack-newsletters' ) : __( 'Resynced', 'newspack-newsletters' ),
+					__( '%1$s contact data for %2$s.', 'newspack-plugin' ),
+					$is_dry_run ? __( 'Would resync', 'newspack-plugin' ) : __( 'Resynced', 'newspack-plugin' ),
 					$customer->get_email()
 				)
 			);

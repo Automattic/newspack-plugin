@@ -72,7 +72,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 		];
 		$config = \wp_parse_args( $config, $default_config );
 
-		static::log( __( 'Running WooCommerce-to-ESP contact resync...', 'newspack-newsletters' ) );
+		static::log( __( 'Running WooCommerce-to-ESP contact resync...', 'newspack-plugin' ) );
 
 		$can_sync = static::can_sync_contacts( true );
 		if ( ! $config['is_dry_run'] && $can_sync->has_errors() ) {
@@ -89,7 +89,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 		}
 
 		if ( ! empty( $config['subscription_ids'] ) ) {
-			static::log( __( 'Syncing by subscription ID...', 'newspack-newsletters' ) );
+			static::log( __( 'Syncing by subscription ID...', 'newspack-plugin' ) );
 
 			while ( ! empty( $config['subscription_ids'] ) ) {
 				$subscription_id = array_shift( $config['subscription_ids'] );
@@ -99,7 +99,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 					static::log(
 						sprintf(
 							// Translators: %d is the subscription ID arg passed to the script.
-							__( 'No subscription with ID %d. Skipping.', 'newspack-newsletters' ),
+							__( 'No subscription with ID %d. Skipping.', 'newspack-plugin' ),
 							$subscription_id
 						)
 					);
@@ -112,7 +112,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 					static::log(
 						sprintf(
 							// Translators: %1$d is the subscription ID arg passed to the script. %2$s is the error message.
-							__( 'Error resyncing contact info for subscription ID %1$d. %2$s', 'newspack-newsletters' ),
+							__( 'Error resyncing contact info for subscription ID %1$d. %2$s', 'newspack-plugin' ),
 							$subscription_id,
 							$result->get_error_message()
 						)
@@ -135,7 +135,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 
 		// If order-ids flag is passed, resync contacts for those orders.
 		if ( ! empty( $config['order_ids'] ) ) {
-			static::log( __( 'Syncing by order ID...', 'newspack-newsletters' ) );
+			static::log( __( 'Syncing by order ID...', 'newspack-plugin' ) );
 			foreach ( $config['order_ids'] as $order_id ) {
 				$order = new \WC_Order( $order_id );
 
@@ -143,7 +143,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 					static::log(
 						sprintf(
 							// Translators: %d is the order ID.
-							__( 'No order with ID %d. Skipping.', 'newspack-newsletters' ),
+							__( 'No order with ID %d. Skipping.', 'newspack-plugin' ),
 							$order_id
 						)
 					);
@@ -156,7 +156,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 					static::log(
 						sprintf(
 							// Translators: %1$d is the order ID arg passed to the script. %2$s is the error message.
-							__( 'Error resyncing contact info for order ID %1$d. %2$s', 'newspack-newsletters' ),
+							__( 'Error resyncing contact info for order ID %1$d. %2$s', 'newspack-plugin' ),
 							$order_id,
 							$result->get_error_message()
 						)
@@ -167,7 +167,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 
 		// If user-ids flag is passed, resync those users.
 		if ( ! empty( $config['user_ids'] ) ) {
-			static::log( __( 'Syncing by customer user ID...', 'newspack-newsletters' ) );
+			static::log( __( 'Syncing by customer user ID...', 'newspack-plugin' ) );
 			foreach ( $config['user_ids'] as $user_id ) {
 				if ( ! $config['active_only'] || static::user_has_active_subscriptions( $user_id ) ) {
 					$result = static::resync_contact( $user_id, $config['is_dry_run'] );
@@ -175,7 +175,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 						static::log(
 							sprintf(
 								// Translators: %1$d is the user ID arg passed to the script. %2$s is the error message.
-								__( 'Error resyncing contact info for user ID %1$d. %2$s', 'newspack-newsletters' ),
+								__( 'Error resyncing contact info for user ID %1$d. %2$s', 'newspack-plugin' ),
 								$user_id,
 								$result->get_error_message()
 							)
@@ -192,7 +192,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 			false === $config['subscription_ids'] &&
 			false === $config['migrated_only']
 		) {
-			static::log( __( 'Syncing all readers...', 'newspack-newsletters' ) );
+			static::log( __( 'Syncing all readers...', 'newspack-plugin' ) );
 			$user_ids = static::get_batch_of_readers( $config['batch_size'], $config['offset'] );
 			$batches  = 0;
 
@@ -270,8 +270,8 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 			! class_exists( '\Newspack_Subscription_Migrations\CSV_Importers\CSV_Importer' )
 		) {
 			return new \WP_Error(
-				'newspack_newsletters_resync_woo_contacts',
-				__( 'The migrated-subscriptions flag requires the Newspack_Subscription_Migrations plugin to be installed and active.', 'newspack-newsletters' )
+				'newspack_woo_resync_contact',
+				__( 'The migrated-subscriptions flag requires the Newspack_Subscription_Migrations plugin to be installed and active.', 'newspack-plugin' )
 			);
 		}
 		$subscription_ids = [];
@@ -287,10 +287,10 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 				break;
 			default:
 				return new \WP_Error(
-					'newspack_newsletters_resync_woo_contacts',
+					'newspack_woo_resync_contact',
 					sprintf(
 						// Translators: %s is the source of the subscriptions.
-						__( 'Invalid subscription migration type: %s', 'newspack-newsletters' ),
+						__( 'Invalid subscription migration type: %s', 'newspack-plugin' ),
 						$source
 					)
 				);
@@ -355,7 +355,7 @@ class Woo_Sync extends Reader_Activation\Woo_Sync {
 				// Translators: total number of resynced contacts.
 				__(
 					'Resynced %d contacts.',
-					'newspack-newsletters'
+					'newspack-plugin'
 				),
 				$processed
 			)
