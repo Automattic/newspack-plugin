@@ -21,6 +21,13 @@ defined( 'ABSPATH' ) || exit;
 class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 
 	/**
+	 * Context of the sync.
+	 *
+	 * @var string
+	 */
+	protected static $context = 'CLI ESP Sync';
+
+	/**
 	 * The final results object.
 	 *
 	 * @var array
@@ -54,6 +61,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	 *   @type int         $config['offset'] Number of contacts to skip.
 	 *   @type int         $config['max_batches'] Maximum number of batches to process.
 	 *   @type bool        $config['is_dry_run'] True if a dry run.
+	 *   @type string      $config['context'] Context of the sync.
 	 * }
 	 *
 	 * @return int|\WP_Error Number of synced contacts or WP_Error.
@@ -69,8 +77,11 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			'offset'           => 0,
 			'max_batches'      => 0,
 			'is_dry_run'       => false,
+			'context'          => static::$context,
 		];
 		$config = \wp_parse_args( $config, $default_config );
+
+		static::$context = $config['context'];
 
 		static::log( __( 'Running ESP contact sync...', 'newspack-plugin' ) );
 
@@ -342,6 +353,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 		$config['batch_size']       = ! empty( $assoc_args['batch-size'] ) ? intval( $assoc_args['batch-size'] ) : 10;
 		$config['offset']           = ! empty( $assoc_args['offset'] ) ? intval( $assoc_args['offset'] ) : 0;
 		$config['max_batches']      = ! empty( $assoc_args['max-batches'] ) ? intval( $assoc_args['max-batches'] ) : 0;
+		$config['context']          = ! empty( $assoc_args['sync-context'] ) ? $assoc_args['sync-context'] : static::$context;
 
 		$processed = static::sync_contacts( $config );
 

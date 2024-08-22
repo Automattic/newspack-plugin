@@ -122,6 +122,11 @@ class Initializer {
 						'default'  => 0,
 						'optional' => true,
 					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'sync-context',
+						'optional' => true,
+					],
 				],
 			]
 		);
