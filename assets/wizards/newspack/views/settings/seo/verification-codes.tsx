@@ -1,5 +1,5 @@
 /**
- * Components for managing SEO accounts.
+ * Components for managing SEO verification codes.
  */
 
 /**
@@ -14,16 +14,11 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { Grid, TextControl } from '../../../../../components/src';
 
-type VerificationData = {
-	google: string;
-	bing: string;
-};
-
 function VerificationCodes( {
 	data,
 	setData,
 }: {
-	data: VerificationData;
+	data: SeoData[ 'verification' ];
 	setData: ( v: SeoData[ 'verification' ] ) => void;
 } ) {
 	return (

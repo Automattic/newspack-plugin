@@ -5,18 +5,20 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
 import Accounts from './accounts';
+import { ACCOUNTS } from './constants';
 import WizardsTab from '../../../../wizards-tab';
 import VerificationCodes from './verification-codes';
-import { Button } from '../../../../../components/src';
 import WizardSection from '../../../../wizards-section';
+import { Button, Notice } from '../../../../../components/src';
 import WizardsActionCard from '../../../../wizards-action-card';
+import useFieldsValidation from '../../../../hooks/use-fields-validation';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 const PATH = '/newspack/v1/wizard/newspack-seo-wizard/settings';
@@ -40,6 +42,43 @@ function Seo() {
 		},
 	} );
 
+	const codesValidation = useFieldsValidation< SeoData[ 'verification' ] >(
+		[
+			[
+				'google',
+				'isId',
+				{ message: __( 'Invalid Google verification code!', 'newspack-plugin' ) },
+			],
+			[
+				'bing',
+				/** Modified version of [WPSEO PHP regex](https://github.com/Yoast/wordpress-seo/blob/trunk/inc/options/class-wpseo-option.php#L313) */
+				v =>
+					/^[A-Fa-f0-9_-]*$/.test( v )
+						? ''
+						: __( 'Invalid Bing verification code!', 'newspack-plugin' ),
+			],
+		],
+		data.verification
+	);
+
+	const urlValidation = useFieldsValidation< SeoData[ 'urls' ] >(
+		ACCOUNTS.map(
+			( [ key, label, placeholder ] ) => [
+				key,
+				'isUrl',
+				{
+					message: sprintf(
+						__( 'Invalid URL for "%s", correct format is "%s"', 'newspack-plugin' ),
+						label,
+						placeholder
+					),
+				},
+			],
+			[]
+		),
+		data.urls
+	);
+
 	useEffect( get, [] );
 
 	function get() {
@@ -52,7 +91,11 @@ function Seo() {
 			}
 		);
 	}
+
 	function post() {
+		if ( ! codesValidation.isInputsValid() || ! urlValidation.isInputsValid() ) {
+			return;
+		}
 		wizardApiFetch(
 			{
 				path: PATH,
@@ -74,6 +117,9 @@ function Seo() {
 				title={ __( 'Webmaster Tools', 'newspack-plugin' ) }
 				description={ __( 'Add verification meta tags to your site', 'newspack-plugin' ) }
 			>
+				{ codesValidation.errorMessage && (
+					<Notice isError noticeText={ codesValidation.errorMessage } />
+				) }
 				<VerificationCodes
 					setData={ verification => setData( { ...data, verification } ) }
 					data={ data.verification }
@@ -86,6 +132,9 @@ function Seo() {
 					'newspack-plugin'
 				) }
 			>
+				{ urlValidation.errorMessage && (
+					<Notice isError noticeText={ urlValidation.errorMessage } />
+				) }
 				<Accounts setData={ urls => setData( { ...data, urls } ) } data={ data.urls } />
 			</WizardSection>
 			<WizardSection>
@@ -99,7 +148,7 @@ function Seo() {
 				/>
 			</WizardSection>
 			<div className="newspack-buttons-card">
-				<Button isPrimary onClick={ post }>
+				<Button isPrimary onClick={ post } disabled={ isFetching }>
 					{ isFetching
 						? __( 'Loading…', 'newspack-plugin' )
 						: __( 'Save Settings', 'newspack-plugin' ) }
