@@ -21,7 +21,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 	 *
 	 * @var string
 	 */
-	protected static $context = 'Dashboard ESP Sync';
+	protected static $context = 'Contact sync manually triggered via wp-admin';
 
 	/**
 	 * Initializes hooks.
