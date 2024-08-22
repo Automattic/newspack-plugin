@@ -146,7 +146,7 @@ abstract class Woo_Sync {
 		if ( $registration_site ) {
 			$contact['metadata']['network_registration_site'] = $registration_site;
 		}
-		$result = $is_dry_run ? true : static::sync( $contact );
+		$result = $is_dry_run ? true : self::sync( $contact );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(
