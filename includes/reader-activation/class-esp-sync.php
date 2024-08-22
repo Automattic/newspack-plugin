@@ -43,6 +43,13 @@ abstract class ESP_Sync {
 			);
 		}
 
+		if ( ! Reader_Activation::get_esp_master_list_id() ) {
+			$errors->add(
+				'ras_esp_master_list_id_not_found',
+				__( 'ESP master list ID is not set.', 'newspack-plugin' )
+			);
+		}
+
 		if ( ! Reader_Activation::is_enabled() ) {
 			$errors->add(
 				'ras_not_enabled',
@@ -82,13 +89,29 @@ abstract class ESP_Sync {
 	/**
 	 * Sync contact to the ESP.
 	 *
-	 * @param array $contact The contact data to sync.
+	 * @param array  $contact The contact data to sync.
+	 * @param string $context The context of the sync.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
-	private static function sync( $contact ) {
+	protected static function sync( $contact, $context = 'ESP Sync' ) {
+		$can_sync = static::can_sync_contacts( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
-		$result         = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, 'WooCommerce Sync' );
+
+		/**
+		 * Filters the contact data before syncing to the ESP.
+		 *
+		 * @param array  $contact The contact data to sync.
+		 * @param string $context The context of the sync.
+		 */
+		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
+
+		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
+
 		return \is_wp_error( $result ) ? $result : true;
 	}
 

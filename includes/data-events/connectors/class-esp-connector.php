@@ -1,22 +1,49 @@
 <?php
 /**
- * Abstract Newspack Data Events Connector class
+ * Newspack Data Events ESP Connector.
  *
  * @package Newspack
  */
 
 namespace Newspack\Data_Events\Connectors;
 
-use Newspack\Newspack_Newsletters;
+use Newspack\Data_Events;
 use Newspack\WooCommerce_Connection;
+use Newspack\Newspack_Newsletters;
+use Newspack\Reader_Activation;
 use Newspack_Newsletters_Contacts;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Standard methods shared by all connectors.
+ * ESP Connector Class.
  */
-abstract class Connector {
+class ESP_Connector extends Reader_Activation\ESP_Sync {
+	/**
+	 * Initialize hooks.
+	 */
+	public static function init_hooks() {
+		add_action( 'init', [ __CLASS__, 'register_handlers' ] );
+	}
+
+	/**
+	 * Register handlers.
+	 */
+	public static function register_handlers() {
+		if ( ! static::can_sync_contacts() ) {
+			return;
+		}
+		Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
+		Data_Events::register_handler( [ __CLASS__, 'reader_deleted' ], 'reader_deleted' );
+		Data_Events::register_handler( [ __CLASS__, 'reader_logged_in' ], 'reader_logged_in' );
+		Data_Events::register_handler( [ __CLASS__, 'order_completed' ], 'order_completed' );
+		Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
+		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
+		Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
+	}
+
 	/**
 	 * Handle a reader registering.
 	 *
@@ -51,7 +78,7 @@ abstract class Connector {
 			'metadata' => $metadata,
 		];
 
-		static::put( $contact, 'RAS Reader registration' );
+		static::sync( $contact, 'RAS Reader registration' );
 	}
 
 	/**
@@ -75,7 +102,7 @@ abstract class Connector {
 
 		$contact = WooCommerce_Connection::get_contact_from_customer( $customer );
 
-		static::put( $contact, 'RAS Reader login' );
+		static::sync( $contact, 'RAS Reader login' );
 	}
 
 	/**
@@ -103,7 +130,7 @@ abstract class Connector {
 			return;
 		}
 
-		static::put( $contact, 'RAS Order completed' );
+		static::sync( $contact, 'RAS Order completed' );
 	}
 
 	/**
@@ -124,7 +151,7 @@ abstract class Connector {
 			return;
 		}
 
-		static::put( $contact, sprintf( 'RAS Woo Subscription updated. Status changed from %s to %s', $data['status_before'], $data['status_after'] ) );
+		static::sync( $contact, sprintf( 'RAS Woo Subscription updated. Status changed from %s to %s', $data['status_before'], $data['status_after'] ) );
 	}
 
 	/**
@@ -135,9 +162,50 @@ abstract class Connector {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_deleted( $timestamp, $data, $client_id ) {
-		if ( true === \Newspack\Reader_Activation::get_setting( 'sync_esp_delete' ) ) {
+		if ( true === Reader_Activation::get_setting( 'sync_esp_delete' ) ) {
 			return Newspack_Newsletters_Contacts::delete( $data['user_id'], 'RAS Reader deleted' );
 		}
+	}
+
+	/**
+	 * Handle newsletter subscription update.
+	 *
+	 * @param int   $timestamp Timestamp.
+	 * @param array $data      Data.
+	 */
+	public static function newsletter_updated( $timestamp, $data ) {
+		if ( empty( $data['user_id'] ) || empty( $data['email'] ) ) {
+			return;
+		}
+		$subscribed_lists = \Newspack_Newsletters_Subscription::get_contact_lists( $data['email'] );
+		if ( is_wp_error( $subscribed_lists ) || ! is_array( $subscribed_lists ) ) {
+			return;
+		}
+		$lists = \Newspack_Newsletters_Subscription::get_lists();
+		if ( is_wp_error( $lists ) ) {
+			return;
+		}
+		$lists_names = [];
+		foreach ( $subscribed_lists as $subscribed_list_id ) {
+			foreach ( $lists as $list ) {
+				if ( $list['id'] === $subscribed_list_id ) {
+					$lists_names[] = $list['name'];
+				}
+			}
+		}
+
+		$account_key              = Newspack_Newsletters::get_metadata_key( 'account' );
+		$newsletter_selection_key = Newspack_Newsletters::get_metadata_key( 'newsletter_selection' );
+
+		$metadata = [
+			$account_key              => $data['user_id'],
+			$newsletter_selection_key => implode( ', ', $lists_names ),
+		];
+		$contact  = [
+			'email'    => $data['email'],
+			'metadata' => $metadata,
+		];
+		static::sync( $contact, 'Updating the account and newsletter_selection fields after a change in the subscription lists.' );
 	}
 
 	/**
@@ -170,6 +238,7 @@ abstract class Connector {
 		$contact['metadata']['network_registration_site'] = $registration_site;
 
 		$site_url = get_site_url();
-		static::put( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );
+		static::sync( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );
 	}
 }
+ESP_Connector::init_hooks();
