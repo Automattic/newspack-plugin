@@ -51,7 +51,7 @@ function Seo() {
 			],
 			[
 				'bing',
-				/** Modified version of [WPSEO PHP regex](https://github.com/Yoast/wordpress-seo/blob/trunk/inc/options/class-wpseo-option.php#L313) */
+				/** JS version of [WPSEO PHP regex](https://github.com/Yoast/wordpress-seo/blob/trunk/inc/options/class-wpseo-option.php#L313) */
 				v =>
 					/^[A-Fa-f0-9_-]*$/.test( v )
 						? ''
@@ -68,7 +68,8 @@ function Seo() {
 				'isUrl',
 				{
 					message: sprintf(
-						__( 'Invalid URL for "%s", correct format is "%s"', 'newspack-plugin' ),
+						/* translators: %1$s: label, %2$s: placeholder */
+						__( 'Invalid URL for "%1$s", correct format is "%2$s"', 'newspack-plugin' ),
 						label,
 						placeholder
 					),

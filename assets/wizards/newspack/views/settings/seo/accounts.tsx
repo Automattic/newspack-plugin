@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
 import { Grid, TextControl } from '../../../../../components/src';
 import { ACCOUNTS } from './constants';
 

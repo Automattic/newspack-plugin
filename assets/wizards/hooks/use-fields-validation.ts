@@ -18,20 +18,6 @@ import { WizardError } from '../errors';
  */
 const knownValidationCallbacks = {
 	/**
-	 * Is string not empty?
-	 *
-	 * @param value String to test
-	 * @param errorMessage Optional error message to display on failure
-	 * @return Empty string if string is not empty, error message otherwise
-	 */
-	isNotEmpty(
-		value: string,
-		errorMessage: string = __( 'Field cannot be empty!', 'newspack-plugin' )
-	) {
-		return value.length === 0 || value.length > 1 ? '' : errorMessage;
-	},
-
-	/**
 	 * Is string a valid ID?
 	 *
 	 * @param value ID string to test
