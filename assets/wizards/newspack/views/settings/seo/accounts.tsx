@@ -1,5 +1,5 @@
 /**
- * Components for managing SEO accounts.
+ * Component for managing SEO accounts.
  */
 
 /**
@@ -7,6 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Grid, TextControl } from '../../../../../components/src';
+import { ACCOUNTS } from './constants';
 
 /**
  * Internal dependencies.
@@ -17,46 +18,19 @@ function Accounts( {
 	data,
 }: {
 	setData: ( v: SeoData[ 'urls' ] ) => void;
-	data: SeoData[ 'urls' ];
+	data: SeoData[ 'urls' ] & { [ k: string ]: string };
 } ) {
 	return (
 		<Grid columns={ 3 } rowGap={ 16 }>
-			<TextControl
-				label={ __( 'Facebook Page', 'newspack' ) }
-				onChange={ ( facebook: string ) => setData( { ...data, facebook } ) }
-				value={ data.facebook }
-				placeholder={ __( 'https://facebook.com/page', 'newspack' ) }
-			/>
-			<TextControl
-				label={ __( 'Twitter', 'newspack' ) }
-				onChange={ ( twitter: string ) => setData( { ...data, twitter } ) }
-				value={ data.twitter }
-				placeholder={ __( 'username', 'newspack' ) }
-			/>
-			<TextControl
-				label="Instagram"
-				onChange={ ( instagram: string ) => setData( { ...data, instagram } ) }
-				value={ data.instagram }
-				placeholder={ __( 'https://instagram.com/user', 'newspack' ) }
-			/>
-			<TextControl
-				label="LinkedIn"
-				onChange={ ( linkedin: string ) => setData( { ...data, linkedin } ) }
-				value={ data.linkedin }
-				placeholder={ __( 'https://linkedin.com/user', 'newspack' ) }
-			/>
-			<TextControl
-				label="YouTube"
-				onChange={ ( youtube: string ) => setData( { ...data, youtube } ) }
-				value={ data.youtube }
-				placeholder={ __( 'https://youtube.com/c/channel', 'newspack' ) }
-			/>
-			<TextControl
-				label="Pinterest"
-				onChange={ ( pinterest: string ) => setData( { ...data, pinterest } ) }
-				value={ data.pinterest }
-				placeholder={ __( 'https://pinterest.com/user', 'newspack' ) }
-			/>
+			{ ACCOUNTS.map( ( [ key, label, placholder, display ] ) => (
+				<TextControl
+					key={ key }
+					label={ label }
+					onChange={ ( value: string ) => setData( { ...data, [ key ]: value } ) }
+					value={ display ? display( data[ key ] ) : data[ key ] }
+					placeholder={ placholder }
+				/>
+			) ) }
 		</Grid>
 	);
 }
