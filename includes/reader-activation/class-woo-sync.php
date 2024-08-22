@@ -101,14 +101,10 @@ abstract class Woo_Sync {
 	 *
 	 * @return true|\WP_Error True if the contact was resynced successfully, WP_Error otherwise.
 	 */
-	protected static function resync_contact( $user_id_or_order = 0, $is_dry_run = false ) {
+	protected static function resync_contact( $user_id_or_order, $is_dry_run = false ) {
 		$can_sync = static::can_sync_contacts( true );
 		if ( ! $is_dry_run && $can_sync->has_errors() ) {
 			return $can_sync;
-		}
-
-		if ( ! $user_id_or_order ) {
-			return new \WP_Error( 'newspack_woo_resync_contact', __( 'Must pass either a user ID or order.', 'newspack-plugin' ) );
 		}
 
 		$is_order = $user_id_or_order instanceof \WC_Order;
