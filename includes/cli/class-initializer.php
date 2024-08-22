@@ -64,10 +64,10 @@ class Initializer {
 		);
 
 		WP_CLI::add_command(
-			'newspack esp resync',
-			[ 'Newspack\CLI\RAS_ESP_Sync', 'cli_resync_contacts' ],
+			'newspack esp sync',
+			[ 'Newspack\CLI\RAS_ESP_Sync', 'cli_sync_contacts' ],
 			[
-				'shortdesc' => __( 'Resync reader data to the connected ESP.', 'newspack-plugin' ),
+				'shortdesc' => __( 'Sync reader data to the connected ESP.', 'newspack-plugin' ),
 				'synopsis'  => [
 					[
 						'type'     => 'flag',
