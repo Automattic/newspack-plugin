@@ -17,6 +17,13 @@ class ESP_Sync_Admin extends ESP_Sync {
 	const ADMIN_ACTION = 'newspack-esp-sync';
 
 	/**
+	 * Context of the sync.
+	 *
+	 * @var string
+	 */
+	protected static $context = 'Dashboard ESP Sync';
+
+	/**
 	 * Initializes hooks.
 	 */
 	public static function init_hooks() {

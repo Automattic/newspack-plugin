@@ -17,6 +17,14 @@ defined( 'ABSPATH' ) || exit;
  * ESP Sync Class.
  */
 abstract class ESP_Sync {
+
+	/**
+	 * Context of the sync.
+	 *
+	 * @var string
+	 */
+	protected static $context = 'ESP Sync';
+
 	/**
 	 * Log a message to the Newspack Logger.
 	 *
@@ -90,14 +98,18 @@ abstract class ESP_Sync {
 	 * Sync contact to the ESP.
 	 *
 	 * @param array  $contact The contact data to sync.
-	 * @param string $context The context of the sync.
+	 * @param string $context The context of the sync. Defaults to static::$context.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
-	protected static function sync( $contact, $context = 'ESP Sync' ) {
+	protected static function sync( $contact, $context = '' ) {
 		$can_sync = static::can_sync_contacts( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
+		}
+
+		if ( empty( $context ) ) {
+			$context = static::$context;
 		}
 
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
