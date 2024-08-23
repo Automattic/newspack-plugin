@@ -7,6 +7,10 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
+use Newspack\Donations;
+use Newspack\WooCommerce_Connection;
+use Newspack\WooCommerce_Order_UTM;
+
 defined( 'ABSPATH' ) || exit;
 
 /**

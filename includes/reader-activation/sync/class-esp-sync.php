@@ -7,9 +7,7 @@
 
 namespace Newspack\Reader_Activation;
 
-use Newspack\Newspack_Newsletters;
 use Newspack\Reader_Activation;
-use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -24,15 +22,6 @@ abstract class ESP_Sync extends Sync {
 	 * @var string
 	 */
 	protected static $context = 'ESP Sync';
-
-	/**
-	 * Log a message to the Newspack Logger.
-	 *
-	 * @param string $message The message to log.
-	 */
-	protected static function log( $message ) {
-		Logger::log( $message );
-	}
 
 	/**
 	 * Whether contacts can be synced to the ESP.

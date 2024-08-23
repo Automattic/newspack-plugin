@@ -7,9 +7,6 @@
 
 namespace Newspack\Reader_Activation;
 
-use Newspack\Donations;
-use Newspack\WooCommerce_Connection;
-use Newspack\WooCommerce_Order_UTM;
 use Newspack\Reader_Activation;
 use Newspack\Logger;
 
@@ -36,6 +33,15 @@ abstract class Sync {
 	 */
 	use Sync\Metadata;
 	use Sync\WooCommerce;
+
+	/**
+	 * Log a message to the Newspack Logger.
+	 *
+	 * @param string $message The message to log.
+	 */
+	protected static function log( $message ) {
+		Logger::log( $message );
+	}
 
 	/**
 	 * Whether reader data can be synced.
