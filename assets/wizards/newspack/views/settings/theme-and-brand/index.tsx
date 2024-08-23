@@ -24,7 +24,7 @@ function ThemeBrand() {
 	} );
 
 	function setData( d: ThemeBrandData ) {
-		// Remove unwanted properties
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { theme_mods, homepage_patterns, ...newData } = d;
 		setDataState( { ...data, ...newData } );
 	}
@@ -38,9 +38,7 @@ function ThemeBrand() {
 				updateCacheMethods: [ 'GET' ],
 			},
 			{
-				onSuccess( data ) {
-					setData( data );
-				},
+				onSuccess: setData,
 			}
 		);
 	}
@@ -51,9 +49,7 @@ function ThemeBrand() {
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 			},
 			{
-				onSuccess( data ) {
-					setData( data );
-				},
+				onSuccess: setData,
 			}
 		);
 	}, [] );
