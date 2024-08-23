@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader contact data syncing.
+ * Reader Activation Data Syncing.
  *
  * @package Newspack
  */
@@ -15,24 +15,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Sync Class.
  */
-abstract class Sync {
-
-	const METADATA_DATE_FORMAT   = 'Y-m-d';
-	const METADATA_PREFIX        = 'NP_';
-	const METADATA_PREFIX_OPTION = '_newspack_metadata_prefix';
-
-	/**
-	 * The option name for choosing which metadata fields to sync.
-	 *
-	 * @var string
-	 */
-	const METADATA_FIELDS_OPTION = '_newspack_metadata_fields';
-
-	/**
-	 * Traits.
-	 */
-	use Sync\Metadata;
-	use Sync\WooCommerce;
+class Sync {
 
 	/**
 	 * Log a message to the Newspack Logger.

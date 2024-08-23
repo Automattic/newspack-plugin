@@ -6,7 +6,7 @@
  */
 
 use Newspack\Newspack_Newsletters as Newspack_Newsletters_Internal;
-use Newspack\Reader_Activation\ESP_Sync;
+use Newspack\Reader_Activation\Sync;
 
 /**
  * Test the Esp_Metadata_Sync class.
@@ -23,8 +23,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'name'     => 'Test Contact',
 			'metadata' => [],
 		];
-		foreach ( array_keys( ESP_Sync::$metadata_keys ) as $key ) {
-			$contact['metadata'][ ESP_Sync::get_metadata_key( $key ) ] = 'value';
+		foreach ( array_keys( Sync\Metadata::$keys ) as $key ) {
+			$contact['metadata'][ Sync\Metadata::get_key( $key ) ] = 'value';
 		}
 		return $contact;
 	}
@@ -35,7 +35,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * @param array|string $value The value to set the option to.
 	 */
 	public function set_option( $value ) {
-		ESP_Sync::update_metadata_fields( $value );
+		Sync\Metadata::update_fields( $value );
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 
-		ESP_Sync::update_metadata_prefix( 'CU_' );
+		Sync\Metadata::update_prefix( 'CU_' );
 
 		// Metadata keys should be prefixed with the custom prefix, if set.
 		$this->assertEquals(
@@ -87,7 +87,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		);
 
 		// Clear from last test.
-		\delete_option( ESP_Sync::METADATA_PREFIX_OPTION );
+		\delete_option( Sync\Metadata::PREFIX_OPTION );
 
 		// Most keys should be exact.
 		$contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] = 'Invalid data';
@@ -146,13 +146,13 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_all_valid_selected() {
 		$contact = $this->get_sample_contact();
-		$defaults = array_keys( ESP_Sync::$metadata_keys );
-		$this->set_option( [ ESP_Sync::$metadata_keys[ $defaults[0] ], ESP_Sync::$metadata_keys[ $defaults[1] ] ] );
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ] ] );
 		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
-		$this->assertArrayHasKey( ESP_Sync::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
-		$this->assertArrayHasKey( ESP_Sync::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( ESP_Sync::get_metadata_key( $defaults[2] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( ESP_Sync::get_metadata_key( $defaults[3] ), $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[2] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[3] ), $normalized['metadata'] );
 	}
 
 	/**
@@ -160,13 +160,13 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_valid_and_invalid_selected() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( ESP_Sync::$metadata_keys );
-		$this->set_option( [ ESP_Sync::$metadata_keys[ $defaults[0] ], ESP_Sync::$metadata_keys[ $defaults[1] ], 'invalid' ] );
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ], 'invalid' ] );
 		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
-		$this->assertArrayHasKey( ESP_Sync::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
-		$this->assertArrayHasKey( ESP_Sync::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( ESP_Sync::get_metadata_key( $defaults[2] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( ESP_Sync::get_metadata_key( $defaults[3] ), $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[2] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[3] ), $normalized['metadata'] );
 		$this->assertCount( 2, $normalized['metadata'] );
 	}
 
@@ -176,15 +176,15 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_utm_fields() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( ESP_Sync::$metadata_keys );
-		$this->set_option( [ ESP_Sync::$metadata_keys['signup_page_utm'], ESP_Sync::$metadata_keys['payment_page_utm'] ] );
-		$contact['metadata'][ ESP_Sync::get_metadata_key( 'signup_page_utm' ) . 'foo' ] = 'bar';
-		$contact['metadata'][ ESP_Sync::get_metadata_key( 'payment_page_utm' ) . 'yyy' ] = 'zzz';
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$contact['metadata'][ Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo' ] = 'bar';
+		$contact['metadata'][ Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy' ] = 'zzz';
 		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
-		$this->assertArrayHasKey( ESP_Sync::get_metadata_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
-		$this->assertArrayHasKey( ESP_Sync::get_metadata_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
-		$this->assertArrayNotHasKey( ESP_Sync::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( ESP_Sync::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
 	}
 
 	/**

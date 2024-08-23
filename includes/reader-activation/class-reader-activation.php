@@ -8,7 +8,7 @@
 namespace Newspack;
 
 use Newspack\Recaptcha;
-use Newspack\Reader_Activation\ESP_Sync;
+use Newspack\Reader_Activation\Sync;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -187,8 +187,8 @@ final class Reader_Activation {
 			'terms_text'                      => '',
 			'terms_url'                       => '',
 			'sync_esp'                        => true,
-			'metadata_prefix'                 => ESP_Sync::get_metadata_prefix(),
-			'metadata_fields'                 => ESP_Sync::get_metadata_fields(),
+			'metadata_prefix'                 => Sync\Metadata::get_prefix(),
+			'metadata_fields'                 => Sync\Metadata::get_fields(),
 			'sync_esp_delete'                 => true,
 			'active_campaign_master_list'     => '',
 			'mailchimp_audience_id'           => '',
@@ -261,10 +261,10 @@ final class Reader_Activation {
 			$value = intval( $value );
 		}
 		if ( 'metadata_prefix' === $key ) {
-			return ESP_Sync::update_metadata_prefix( $value );
+			return Sync\Metadata::update_prefix( $value );
 		}
 		if ( 'metadata_fields' === $key ) {
-			return ESP_Sync::update_metadata_fields( $value );
+			return Sync\Metadata::update_fields( $value );
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );

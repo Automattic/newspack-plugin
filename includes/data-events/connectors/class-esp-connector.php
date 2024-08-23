@@ -9,6 +9,7 @@ namespace Newspack\Data_Events\Connectors;
 
 use Newspack\Data_Events;
 use Newspack\Reader_Activation;
+use Newspack\Reader_Activation\Sync;
 use Newspack_Newsletters_Contacts;
 
 defined( 'ABSPATH' ) || exit;
@@ -50,17 +51,17 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$account_key           = static::get_metadata_key( 'account' );
-		$registration_date_key = static::get_metadata_key( 'registration_date' );
+		$account_key           = Sync\Metadata::get_key( 'account' );
+		$registration_date_key = Sync\Metadata::get_key( 'registration_date' );
 		$metadata              = [
 			$account_key           => $data['user_id'],
-			$registration_date_key => gmdate( static::METADATA_DATE_FORMAT, $timestamp ),
+			$registration_date_key => gmdate( Sync\Metadata::DATE_FORMAT, $timestamp ),
 		];
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
-			$metadata[ static::get_metadata_key( 'registration_page' ) ] = $data['metadata']['current_page_url'];
+			$metadata[ Sync\Metadata::get_key( 'registration_page' ) ] = $data['metadata']['current_page_url'];
 		}
 		if ( isset( $data['metadata']['registration_method'] ) ) {
-			$metadata[ static::get_metadata_key( 'registration_method' ) ] = $data['metadata']['registration_method'];
+			$metadata[ Sync\Metadata::get_key( 'registration_method' ) ] = $data['metadata']['registration_method'];
 		}
 		/**
 		 * Filters the contact metadata sent to the ESP when a reader account is registered for the first time.
@@ -98,7 +99,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		$contact = static::get_contact_from_customer( $customer );
+		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
 
 		static::sync( $contact, 'RAS Reader login' );
 	}
@@ -122,7 +123,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		}
 
 		$order_id = $data['platform_data']['order_id'];
-		$contact  = static::get_contact_from_order( $order_id, $data['referer'], true );
+		$contact  = Sync\WooCommerce::get_contact_from_order( $order_id, $data['referer'], true );
 
 		if ( ! $contact ) {
 			return;
@@ -143,7 +144,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		$contact = static::get_contact_from_order( $data['subscription_id'] );
+		$contact = Sync\WooCommerce::get_contact_from_order( $data['subscription_id'] );
 
 		if ( ! $contact ) {
 			return;
@@ -192,8 +193,8 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			}
 		}
 
-		$account_key              = static::get_metadata_key( 'account' );
-		$newsletter_selection_key = static::get_metadata_key( 'newsletter_selection' );
+		$account_key              = Sync\Metadata::get_key( 'account' );
+		$newsletter_selection_key = Sync\Metadata::get_key( 'newsletter_selection' );
 
 		$metadata = [
 			$account_key              => $data['user_id'],
@@ -217,7 +218,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		$user_id = $data['user_id'];
 		$registration_site = $data['registration_site'];
 
-		$contact = static::get_contact_from_customer( new \WC_Customer( $user_id ) );
+		$contact = Sync\WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
 
 		if ( ! $contact ) {
 			return;

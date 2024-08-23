@@ -7,6 +7,7 @@
 
 namespace Newspack;
 
+use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation\ESP_Sync;
 
 defined( 'ABSPATH' ) || exit;
@@ -44,22 +45,22 @@ class Newspack_Newsletters {
 		// If syncing for RAS, ensure that metadata keys are normalized with the correct RAS metadata keys.
 		if ( isset( $contact['metadata'] ) ) {
 			$normalized_metadata = [];
-			$raw_keys            = ESP_Sync::get_raw_metadata_keys();
-			$prefixed_keys       = ESP_Sync::get_prefixed_metadata_keys();
+			$raw_keys            = Sync\Metadata::get_raw_keys();
+			$prefixed_keys       = Sync\Metadata::get_prefixed_keys();
 
 			// Capture UTM params and signup/payment page URLs as meta for registration or payment.
 			if (
 				isset( $contact['metadata']['current_page_url'] ) ||
-				isset( $contact['metadata'][ ESP_Sync::get_metadata_key( 'current_page_url' ) ] ) ||
+				isset( $contact['metadata'][ Sync\Metadata::get_key( 'current_page_url' ) ] ) ||
 				isset( $contact['metadata']['payment_page'] ) ||
-				isset( $contact['metadata'][ ESP_Sync::get_metadata_key( 'payment_page' ) ] )
+				isset( $contact['metadata'][ Sync\Metadata::get_key( 'payment_page' ) ] )
 			) {
-				$is_payment = isset( $contact['metadata']['payment_page'] ) || isset( $contact['metadata'][ ESP_Sync::get_metadata_key( 'payment_page' ) ] );
+				$is_payment = isset( $contact['metadata']['payment_page'] ) || isset( $contact['metadata'][ Sync\Metadata::get_key( 'payment_page' ) ] );
 				$raw_url    = false;
 				if ( $is_payment ) {
-					$raw_url = isset( $contact['metadata']['payment_page'] ) ? $contact['metadata']['payment_page'] : $contact['metadata'][ ESP_Sync::get_metadata_key( 'payment_page' ) ];
+					$raw_url = isset( $contact['metadata']['payment_page'] ) ? $contact['metadata']['payment_page'] : $contact['metadata'][ Sync\Metadata::get_key( 'payment_page' ) ];
 				} else {
-					$raw_url = isset( $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : $contact['metadata'][ ESP_Sync::get_metadata_key( 'current_page_url' ) ];
+					$raw_url = isset( $contact['metadata']['current_page_url'] ) ? $contact['metadata']['current_page_url'] : $contact['metadata'][ Sync\Metadata::get_key( 'current_page_url' ) ];
 				}
 
 				$parsed_url = \wp_parse_url( $raw_url );
@@ -73,7 +74,7 @@ class Newspack_Newsletters {
 						$param = \sanitize_text_field( $param );
 						if ( 'utm' === substr( $param, 0, 3 ) ) {
 							$param = str_replace( 'utm_', '', $param );
-							$key   = ESP_Sync::get_metadata_key( $utm_key_prefix ) . $param;
+							$key   = Sync\Metadata::get_key( $utm_key_prefix ) . $param;
 							if ( ! isset( $contact['metadata'][ $key ] ) || empty( $contact['metadata'][ $key ] ) ) {
 								$contact['metadata'][ $key ] = $value;
 							}
@@ -85,13 +86,13 @@ class Newspack_Newsletters {
 			foreach ( $contact['metadata'] as $meta_key => $meta_value ) {
 				if ( ESP_Sync::can_esp_sync() ) {
 					if ( in_array( $meta_key, $raw_keys, true ) ) {
-						$normalized_metadata[ ESP_Sync::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
+						$normalized_metadata[ Sync\Metadata::get_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
 					} elseif (
 						in_array( $meta_key, $prefixed_keys, true ) ||
 						(
 							// UTM meta keys can have arbitrary suffixes.
-							( in_array( ESP_Sync::get_metadata_key( 'signup_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, ESP_Sync::get_metadata_key( 'signup_page_utm' ) ) ) ||
-							( in_array( ESP_Sync::get_metadata_key( 'payment_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, ESP_Sync::get_metadata_key( 'payment_page_utm' ) ) )
+							( in_array( Sync\Metadata::get_key( 'signup_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, Sync\Metadata::get_key( 'signup_page_utm' ) ) ) ||
+							( in_array( Sync\Metadata::get_key( 'payment_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, Sync\Metadata::get_key( 'payment_page_utm' ) ) )
 						)
 					) {
 						$normalized_metadata[ $meta_key ] = $meta_value;

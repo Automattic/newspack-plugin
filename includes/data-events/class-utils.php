@@ -24,7 +24,7 @@ final class Utils {
 		if ( ! $order ) {
 			return;
 		}
-		if ( ! \Newspack\Reader_Activation\Sync::should_sync_order( $order ) ) {
+		if ( ! \Newspack\Reader_Activation\Sync\WooCommerce::should_sync_order( $order ) ) {
 			return;
 		}
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader Activation Sync Metadata Trait.
+ * Reader Activation Sync Metadata.
  *
  * @package Newspack
  */
@@ -10,31 +10,43 @@ namespace Newspack\Reader_Activation\Sync;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Metadata Trait.
+ * Metadata Class.
  */
-trait Metadata {
+class Metadata {
+
+	const DATE_FORMAT   = 'Y-m-d';
+	const PREFIX        = 'NP_';
+	const PREFIX_OPTION = '_newspack_metadata_prefix';
+
+	/**
+	 * The option name for choosing which metadata fields to sync.
+	 *
+	 * @var string
+	 */
+	const METADATA_FIELDS_OPTION = '_newspack_metadata_fields';
+
 	/**
 	 * Metadata keys map for Reader Activation.
 	 *
 	 * @var array
 	 */
-	public static $metadata_keys = [];
+	public static $keys = [];
 
 	/**
 	 * Get the metadata keys map for Reader Activation.
 	 *
 	 * @return array List of fields.
 	 */
-	public static function get_metadata_keys() {
-		if ( empty( self::$metadata_keys ) ) {
+	public static function get_keys() {
+		if ( empty( self::$keys ) ) {
 			/**
 			 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
 			 *
-			 * @param array $metadata_keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
+			 * @param array $keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
 			 */
-			self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', static::get_all_metadata_fields() );
+			self::$keys = \apply_filters( 'newspack_ras_metadata_keys', static::get_all_fields() );
 		}
-		return self::$metadata_keys;
+		return self::$keys;
 	}
 
 	/**
@@ -43,12 +55,12 @@ trait Metadata {
 	 *
 	 * @return string
 	 */
-	public static function get_metadata_prefix() {
-		$prefix = \get_option( self::METADATA_PREFIX_OPTION, self::METADATA_PREFIX );
+	public static function get_prefix() {
+		$prefix = \get_option( self::PREFIX_OPTION, self::PREFIX );
 
 		// Guard against empty strings and falsy values.
 		if ( empty( $prefix ) ) {
-			return self::METADATA_PREFIX;
+			return self::PREFIX;
 		}
 
 		/**
@@ -66,12 +78,12 @@ trait Metadata {
 	 *
 	 * @return boolean True if updated, false otherwise.
 	 */
-	public static function update_metadata_prefix( $prefix ) {
+	public static function update_prefix( $prefix ) {
 		if ( empty( $prefix ) ) {
-			$prefix = self::METADATA_PREFIX;
+			$prefix = self::PREFIX;
 		}
 
-		return \update_option( self::METADATA_PREFIX_OPTION, $prefix );
+		return \update_option( self::PREFIX_OPTION, $prefix );
 	}
 
 	/**
@@ -79,8 +91,8 @@ trait Metadata {
 	 *
 	 * @return string[] List of fields.
 	 */
-	public static function get_default_metadata_fields() {
-		return array_values( array_unique( array_values( self::get_metadata_keys() ) ) );
+	public static function get_default_fields() {
+		return array_values( array_unique( array_values( self::get_keys() ) ) );
 	}
 
 	/**
@@ -88,8 +100,8 @@ trait Metadata {
 	 *
 	 * @return string[] List of fields to be synced.
 	 */
-	public static function get_metadata_fields() {
-		return array_values( \get_option( self::METADATA_FIELDS_OPTION, self::get_default_metadata_fields() ) );
+	public static function get_fields() {
+		return array_values( \get_option( self::METADATA_FIELDS_OPTION, self::get_default_fields() ) );
 	}
 
 	/**
@@ -99,9 +111,9 @@ trait Metadata {
 	 *
 	 * @return boolean True if updated, false otherwise.
 	 */
-	public static function update_metadata_fields( $fields ) {
+	public static function update_fields( $fields ) {
 		// Only allow fields that are in the metadata keys map.
-		$fields = array_intersect( self::get_default_metadata_fields(), $fields );
+		$fields = array_intersect( self::get_default_fields(), $fields );
 		return \update_option( self::METADATA_FIELDS_OPTION, array_values( $fields ) );
 	}
 
@@ -110,11 +122,11 @@ trait Metadata {
 	 *
 	 * @return string[] List of raw metadata keys.
 	 */
-	public static function get_raw_metadata_keys() {
-		$fields_to_sync = self::get_metadata_fields();
+	public static function get_raw_keys() {
+		$fields_to_sync = self::get_fields();
 		$raw_keys       = [];
 
-		foreach ( self::get_metadata_keys() as $raw_key => $field_name ) {
+		foreach ( self::get_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $fields_to_sync, true ) ) {
 				$raw_keys[] = $raw_key;
 			}
@@ -128,13 +140,13 @@ trait Metadata {
 	 *
 	 * @return string[] List of prefixed metadata keys.
 	 */
-	public static function get_prefixed_metadata_keys() {
-		$fields_to_sync = self::get_metadata_fields();
+	public static function get_prefixed_keys() {
+		$fields_to_sync = self::get_fields();
 		$prefixed_keys  = [];
 
-		foreach ( self::get_metadata_keys() as $raw_key => $field_name ) {
+		foreach ( self::get_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $fields_to_sync, true ) ) {
-				$prefixed_keys[] = self::get_metadata_key( $raw_key );
+				$prefixed_keys[] = self::get_key( $raw_key );
 			}
 		}
 
@@ -148,13 +160,13 @@ trait Metadata {
 	 *
 	 * @return string Prefixed field name.
 	 */
-	public static function get_metadata_key( $key ) {
-		if ( ! isset( self::get_metadata_keys()[ $key ] ) ) {
+	public static function get_key( $key ) {
+		if ( ! isset( self::get_keys()[ $key ] ) ) {
 			return false;
 		}
 
-		$prefix = self::get_metadata_prefix();
-		$name   = self::get_metadata_keys()[ $key ];
+		$prefix = self::get_prefix();
+		$name   = self::get_keys()[ $key ];
 		$key    = $prefix . $name;
 
 		/**
@@ -172,7 +184,7 @@ trait Metadata {
 	 *
 	 * @return array List of fields.
 	 */
-	public static function get_basic_metadata_fields() {
+	public static function get_basic_fields() {
 		return [
 			'account'              => 'Account',
 			'registration_date'    => 'Registration Date',
@@ -192,7 +204,7 @@ trait Metadata {
 	 *
 	 * @return array List of fields.
 	 */
-	public static function get_payment_metadata_fields() {
+	public static function get_payment_fields() {
 		return [
 			'membership_status'   => 'Membership Status',
 			'payment_page'        => 'Payment Page',
@@ -214,7 +226,7 @@ trait Metadata {
 	 *
 	 * @return array List of fields.
 	 */
-	public static function get_all_metadata_fields() {
-		return array_merge( self::get_basic_metadata_fields(), self::get_payment_metadata_fields() );
+	public static function get_all_fields() {
+		return array_merge( self::get_basic_fields(), self::get_payment_fields() );
 	}
 }

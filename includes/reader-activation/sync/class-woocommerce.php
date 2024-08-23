@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader Activation Sync WooCommerce Trait.
+ * Reader Activation Sync WooCommerce.
  *
  * @package Newspack
  */
@@ -14,9 +14,10 @@ use Newspack\WooCommerce_Order_UTM;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * WooCommerce Trait.
+ * WooCommerce Class.
  */
-trait WooCommerce {
+class WooCommerce {
+
 	/**
 	 * Should a WooCommerce order be synchronized?
 	 *
@@ -103,7 +104,7 @@ trait WooCommerce {
 			$order_date_paid = $order->get_date_paid();
 			if ( $payment_received && ! empty( $order_date_paid ) ) {
 				$metadata['last_payment_amount'] = \wc_format_localized_price( $order->get_total() );
-				$metadata['last_payment_date']   = $order_date_paid->date( self::METADATA_DATE_FORMAT );
+				$metadata['last_payment_date']   = $order_date_paid->date( Metadata::DATE_FORMAT );
 			}
 
 			// Subscription transaction.
@@ -139,7 +140,7 @@ trait WooCommerce {
 
 			if ( $payment_received ) {
 				$metadata['last_payment_amount'] = \wc_format_localized_price( $current_subscription->get_total() );
-				$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( self::METADATA_DATE_FORMAT );
+				$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
 			}
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
@@ -159,7 +160,7 @@ trait WooCommerce {
 		}
 
 		// Clear out any payment-related fields that don't relate to the current order.
-		$payment_fields = array_keys( static::get_payment_metadata_fields() );
+		$payment_fields = array_keys( Metadata::get_payment_fields() );
 		foreach ( $payment_fields as $meta_key ) {
 			if ( ! isset( $metadata[ $meta_key ] ) ) {
 				if ( 'payment_page_utm' === $meta_key ) {
@@ -175,7 +176,7 @@ trait WooCommerce {
 		// Transform meta keys to use the correct format.
 		foreach ( $metadata as $key => $value ) {
 			unset( $metadata[ $key ] );
-			$metadata[ static::get_metadata_key( $key ) ] = $value;
+			$metadata[ Metadata::get_key( $key ) ] = $value;
 		}
 
 		return $metadata;
@@ -191,7 +192,7 @@ trait WooCommerce {
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	protected static function get_contact_from_customer( $customer, $order = false, $payment_page_url = false, $is_new = false ) {
+	public static function get_contact_from_customer( $customer, $order = false, $payment_page_url = false, $is_new = false ) {
 		if ( ! is_a( $customer, 'WC_Customer' ) ) {
 			return false;
 		}
@@ -201,7 +202,7 @@ trait WooCommerce {
 		$last_order     = WooCommerce_Connection::get_last_successful_order( $customer );
 
 		$metadata['account']           = $customer->get_id();
-		$metadata['registration_date'] = $customer->get_date_created()->date( static::METADATA_DATE_FORMAT );
+		$metadata['registration_date'] = $customer->get_date_created()->date( Metadata::DATE_FORMAT );
 		$metadata['total_paid']        = \wc_format_localized_price( $customer->get_total_spent() );
 
 		// If a more recent order exists, use it to sync.
@@ -214,7 +215,7 @@ trait WooCommerce {
 			$order_metadata = self::get_order_metadata( $order, $payment_page_url, $is_new );
 		} else {
 			// If the customer has no successful orders, clear out subscription-related fields.
-			$payment_fields = array_keys( static::get_payment_metadata_fields() );
+			$payment_fields = array_keys( Metadata::get_payment_fields() );
 			foreach ( $payment_fields as $meta_key ) {
 				$metadata[ $meta_key ] = '';
 			}
@@ -235,7 +236,7 @@ trait WooCommerce {
 		// Transform meta keys to use the correct format.
 		foreach ( $contact['metadata'] as $key => $value ) {
 			unset( $contact['metadata'][ $key ] );
-			$contact['metadata'][ static::get_metadata_key( $key ) ] = $value;
+			$contact['metadata'][ Metadata::get_key( $key ) ] = $value;
 		}
 
 		return $contact;
@@ -250,7 +251,7 @@ trait WooCommerce {
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	protected static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
+	public static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
 		if ( ! is_a( $order, 'WC_Order' ) ) {
 			$order = \wc_get_order( $order );
 		}

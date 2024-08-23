@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader contact data syncing with the connected ESP.
+ * Reader contact data syncing with the connected ESP using Newspack Newsletters.
  *
  * @package Newspack
  */
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * ESP Sync Class.
  */
-abstract class ESP_Sync extends Sync {
+class ESP_Sync extends Sync {
 
 	/**
 	 * Context of the sync.
@@ -153,7 +153,7 @@ abstract class ESP_Sync extends Sync {
 			$customer->save();
 		}
 
-		$contact = $is_order ? static::get_contact_from_order( $order ) : static::get_contact_from_customer( $customer );
+		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : Sync\WooCommerce::get_contact_from_customer( $customer );
 		if ( $registration_site ) {
 			$contact['metadata']['network_registration_site'] = $registration_site;
 		}
