@@ -194,6 +194,17 @@ table.fixed {
 	}
 }
 
+.newspack-style-card .newspack-style-card__image {
+	position: relative;
+	padding-bottom: 75%;
+
+	> img {
+		height: 100%;
+		position: absolute;
+		width: 100%;
+	}
+}
+
 @keyframes gradient-left-to-right {
 	to {
 		transform: translateX(100%);

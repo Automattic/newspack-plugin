@@ -1,4 +1,7 @@
 /**
+ *  Theme Selection component
+ */
+/**
  * Internal dependencies
  */
 import { Grid, StyleCard } from '../../../../../components/src';
