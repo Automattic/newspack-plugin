@@ -54,10 +54,16 @@ h1 {
 .gray-700 {
 	color: var(--np-color-wp-gray-700);
 }
-.inputs-disabled {
+.is-fetching {
 	input[type="text"] {
-		opacity: 0.5;
 		pointer-events: none;
+		background-color: #f1f1f1;
+		border: 1px solid #f1f1f1;
+		animation: opacity-pulse 1.4s infinite ease-in-out;
+
+		&::placeholder {
+			color: transparent;
+		}
 	}
 }
 

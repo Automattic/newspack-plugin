@@ -6,8 +6,8 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Grid, TextControl } from '../../../../../components/src';
 import { ACCOUNTS } from './constants';
+import { Grid, TextControl } from '../../../../../components/src';
 
 /**
  * Internal dependencies.
@@ -22,13 +22,13 @@ function Accounts( {
 } ) {
 	return (
 		<Grid columns={ 3 } rowGap={ 16 }>
-			{ ACCOUNTS.map( ( [ key, label, placholder ] ) => (
+			{ ACCOUNTS.map( ( [ key, label, placeholder ] ) => (
 				<TextControl
 					key={ key }
 					label={ label }
 					onChange={ ( value: string ) => setData( { ...data, [ key ]: value } ) }
 					value={ data[ key ] }
-					placeholder={ placholder }
+					placeholder={ placeholder }
 				/>
 			) ) }
 		</Grid>

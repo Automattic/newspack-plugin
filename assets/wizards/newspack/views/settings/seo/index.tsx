@@ -114,7 +114,7 @@ function Seo() {
 	return (
 		<WizardsTab
 			title={ __( 'SEO', 'newspack-plugin' ) }
-			className={ isFetching ? 'inputs-disabled' : '' }
+			className={ isFetching ? 'is-fetching' : '' }
 		>
 			<WizardSection
 				title={ __( 'Webmaster Tools', 'newspack-plugin' ) }

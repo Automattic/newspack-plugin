@@ -11,18 +11,18 @@ import { __ } from '@wordpress/i18n';
 export const ACCOUNTS = [
 	[
 		'twitter',
-		__( 'X (formerly Twitter)', 'newspack-plugin' ),
+		__( 'X (formerly Twitter) Handle', 'newspack-plugin' ),
 		'username',
 		( inputValue: string ) => {
 			if ( inputValue.length === 0 ) {
 				return '';
 			}
 			if ( inputValue.length > 15 ) {
-				return __( 'X usernames cannot exceed 15 characters!', 'newspack-plugin' );
+				return __( 'X handle cannot exceed 15 characters!', 'newspack-plugin' );
 			}
 			if ( ! /^[a-zA-Z0-9_]+$/.test( inputValue ) ) {
 				return __(
-					'X usernames may only contain letters, numbers, and underscores!',
+					'X handle may only contain letters, numbers, and underscores!',
 					'newspack-plugin'
 				);
 			}
