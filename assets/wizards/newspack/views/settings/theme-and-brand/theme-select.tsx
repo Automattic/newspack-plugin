@@ -4,19 +4,19 @@
 /**
  * Internal dependencies
  */
-import { Grid, StyleCard } from '../../../../../components/src';
-import NewspackImg from './images/newspack.png';
 import ScottImg from './images/scott.png';
-import NelsonImg from './images/nelson.png';
-import KatharineImg from './images/katharine.png';
 import SachaImg from './images/sacha.png';
+import NelsonImg from './images/nelson.png';
 import JosephImg from './images/joseph.png';
+import NewspackImg from './images/newspack.png';
+import KatharineImg from './images/katharine.png';
+import { Grid, StyleCard } from '../../../../../components/src';
 
 const ThemeSelection = ( {
 	theme,
 	updateTheme,
 }: {
-	theme: NewspackThemes;
+	theme: null | NewspackThemes;
 	updateTheme: ( a: NewspackThemes ) => void;
 } ) => (
 	<Grid columns={ 3 } gutter={ 32 }>

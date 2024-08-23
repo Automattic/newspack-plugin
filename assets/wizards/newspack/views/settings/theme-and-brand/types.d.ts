@@ -12,7 +12,7 @@ type NewspackThemes = `newspack-${ ThemeNames }`;
  * Theme and brand data.
  */
 type ThemeBrandData = {
-	theme: NewspackThemes;
+	theme: null | NewspackThemes;
 	theme_mods?: {};
 	homepage_patterns?: {};
 };

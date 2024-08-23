@@ -20,7 +20,7 @@ import { Button } from '../../../../../components/src';
 function ThemeBrand() {
 	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/theme-and-brand' );
 	const [ data, setDataState ] = useState< ThemeBrandData >( {
-		theme: 'newspack-theme',
+		theme: null,
 	} );
 
 	function setData( d: ThemeBrandData ) {
