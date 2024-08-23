@@ -41,7 +41,7 @@ abstract class ESP_Sync {
 	 *
 	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
 	 */
-	protected static function can_sync_contacts( $return_errors = false ) {
+	protected static function can_esp_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
 
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
@@ -103,7 +103,7 @@ abstract class ESP_Sync {
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
 	protected static function sync( $contact, $context = '' ) {
-		$can_sync = static::can_sync_contacts( true );
+		$can_sync = static::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
 		}
@@ -137,7 +137,7 @@ abstract class ESP_Sync {
 	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
 	 */
 	protected static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
-		$can_sync = static::can_sync_contacts( true );
+		$can_sync = static::can_esp_sync( true );
 		if ( ! $is_dry_run && $can_sync->has_errors() ) {
 			return $can_sync;
 		}

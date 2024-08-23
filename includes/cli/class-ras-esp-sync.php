@@ -85,7 +85,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 
 		static::log( __( 'Running ESP contact sync...', 'newspack-plugin' ) );
 
-		$can_sync = static::can_sync_contacts( true );
+		$can_sync = static::can_esp_sync( true );
 		if ( ! $config['is_dry_run'] && $can_sync->has_errors() ) {
 			return $can_sync;
 		}
