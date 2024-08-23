@@ -24,11 +24,13 @@ window.newspackRAS.push( readerActivation => {
 			if ( ! container ) {
 				return;
 			}
+
 			const currentHash = window.location.hash.replace( '#', '' );
 			if ( SIGN_IN_MODAL_HASHES.includes( currentHash ) ) {
 				if ( ev ) {
 					ev.preventDefault();
 				}
+
 				container.setFormAction( currentHash === 'register_modal' ? 'register' : 'signin' );
 				openAuthModal();
 			}
@@ -43,6 +45,7 @@ window.newspackRAS.push( readerActivation => {
 		 */
 		function handleAccountLinkClick( ev ) {
 			ev.preventDefault();
+			const modalTrigger = ev.target;
 			let callback, redirect;
 			if ( ev.target.getAttribute( 'data-redirect' ) ) {
 				redirect = ev.target.getAttribute( 'data-redirect' );
@@ -64,7 +67,11 @@ window.newspackRAS.push( readerActivation => {
 					window.location.href = redirect;
 				};
 			}
-			openAuthModal( { callback } );
+
+			openAuthModal( {
+				callback,
+				trigger: modalTrigger,
+			} );
 		}
 
 		/**

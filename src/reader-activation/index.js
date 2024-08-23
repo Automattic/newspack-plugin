@@ -157,9 +157,11 @@ export function openAuthModal( config = {} ) {
 				},
 			},
 			content: null,
+			trigger: null,
 		},
 		...config,
 	};
+
 	if ( newspack_ras_config.is_logged_in ) {
 		if ( config.callback ) {
 			config.callback();

@@ -37,6 +37,10 @@
 		}
 
 		&:focus {
+			outline: none; // override theme default style.
+		}
+
+		&:focus-visible {
 			outline: 2px solid var(--newspack-ui-color-button-bg);
 			outline-offset: 1px;
 		}
@@ -86,7 +90,7 @@
 				color: var(--newspack-ui-color-against-primary);
 			}
 
-			&:focus {
+			&:focus-visible {
 				outline-color: var(--newspack-ui-color-primary);
 			}
 
@@ -151,7 +155,7 @@
 				color: var(--newspack-ui-color-neutral-0);
 			}
 
-			&:focus {
+			&:focus-visible {
 				outline-color: var(--newspack-ui-color-error-50);
 			}
 
