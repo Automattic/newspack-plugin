@@ -23,7 +23,7 @@ class Metadata {
 	 *
 	 * @var string
 	 */
-	const METADATA_FIELDS_OPTION = '_newspack_metadata_fields';
+	const FIELDS_OPTION = '_newspack_metadata_fields';
 
 	/**
 	 * Metadata keys map for Reader Activation.
@@ -101,7 +101,7 @@ class Metadata {
 	 * @return string[] List of fields to be synced.
 	 */
 	public static function get_fields() {
-		return array_values( \get_option( self::METADATA_FIELDS_OPTION, self::get_default_fields() ) );
+		return array_values( \get_option( self::FIELDS_OPTION, self::get_default_fields() ) );
 	}
 
 	/**
@@ -114,7 +114,7 @@ class Metadata {
 	public static function update_fields( $fields ) {
 		// Only allow fields that are in the metadata keys map.
 		$fields = array_intersect( self::get_default_fields(), $fields );
-		return \update_option( self::METADATA_FIELDS_OPTION, array_values( $fields ) );
+		return \update_option( self::FIELDS_OPTION, array_values( $fields ) );
 	}
 
 	/**
