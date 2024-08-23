@@ -81,6 +81,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/trait-metadata.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/trait-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-esp-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/sync/class-esp-sync-admin.php';
