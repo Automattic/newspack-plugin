@@ -1,3 +1,6 @@
+/**
+ * SEO data type.
+ */
 type SeoData = {
 	under_construction: boolean;
 	urls: {

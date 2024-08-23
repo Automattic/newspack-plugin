@@ -9,13 +9,27 @@ import { __ } from '@wordpress/i18n';
  * 5. (Optional) Field error message.
  */
 export const ACCOUNTS = [
-	[ 'facebook', __( 'Facebook', 'newspack-plugin' ), 'https://facebook.com/page' ],
 	[
 		'twitter',
 		__( 'X (formerly Twitter)', 'newspack-plugin' ),
-		'https://twitter.com/user',
-		( value: string ) => ( value ? `https://twitter.com/${ value }` : '' ),
+		'username',
+		( inputValue: string ) => {
+			if ( inputValue.length === 0 ) {
+				return '';
+			}
+			if ( inputValue.length > 15 ) {
+				return __( 'X usernames cannot exceed 15 characters!', 'newspack-plugin' );
+			}
+			if ( ! /^[a-zA-Z0-9_]+$/.test( inputValue ) ) {
+				return __(
+					'X usernames may only contain letters, numbers, and underscores!',
+					'newspack-plugin'
+				);
+			}
+			return '';
+		},
 	],
+	[ 'facebook', __( 'Facebook', 'newspack-plugin' ), 'https://facebook.com/page' ],
 	[ 'instagram', __( 'Instagram', 'newspack-plugin' ), 'https://instagram.com/user' ],
 	[ 'youtube', __( 'YouTube', 'newspack-plugin' ), 'https://youtube.com/c/channel' ],
 	[ 'linkedin', __( 'LinkedIn', 'newspack-plugin' ), 'https://linkedin.com/user' ],

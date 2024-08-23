@@ -63,17 +63,19 @@ function Seo() {
 
 	const urlValidation = useFieldsValidation< SeoData[ 'urls' ] >(
 		ACCOUNTS.map(
-			( [ key, label, placeholder ] ) => [
+			( [ key, label, placeholder, validation ] ) => [
 				key,
-				'isUrl',
-				{
-					message: sprintf(
-						/* translators: %1$s: label, %2$s: placeholder */
-						__( 'Invalid URL for "%1$s", correct format is "%2$s"', 'newspack-plugin' ),
-						label,
-						placeholder
-					),
-				},
+				validation ?? 'isUrl',
+				validation
+					? {}
+					: {
+							message: sprintf(
+								/* translators: %1$s: label, %2$s: placeholder */
+								__( 'Invalid URL for "%1$s", correct format is "%2$s"', 'newspack-plugin' ),
+								label,
+								placeholder
+							),
+					  },
 			],
 			[]
 		),

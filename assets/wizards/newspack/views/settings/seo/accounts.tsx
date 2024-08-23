@@ -1,10 +1,11 @@
 /**
- * Component for managing SEO accounts.
+ * Components for managing SEO accounts.
  */
 
 /**
  * WordPress dependencies.
  */
+import { __ } from '@wordpress/i18n';
 import { Grid, TextControl } from '../../../../../components/src';
 import { ACCOUNTS } from './constants';
 
@@ -21,12 +22,12 @@ function Accounts( {
 } ) {
 	return (
 		<Grid columns={ 3 } rowGap={ 16 }>
-			{ ACCOUNTS.map( ( [ key, label, placholder, display ] ) => (
+			{ ACCOUNTS.map( ( [ key, label, placholder ] ) => (
 				<TextControl
 					key={ key }
 					label={ label }
 					onChange={ ( value: string ) => setData( { ...data, [ key ]: value } ) }
-					value={ display ? display( data[ key ] ) : data[ key ] }
+					value={ data[ key ] }
 					placeholder={ placholder }
 				/>
 			) ) }
