@@ -29,12 +29,6 @@ class Newspack_Test_Newspack_Newsletters extends WP_UnitTestCase {
 			'Expected to get the same lists back when other provider is set.'
 		);
 
-		self::assertEquals(
-			$list_ids,
-			Newspack_Newsletters::get_lists_without_active_campaign_master_list( $list_ids ),
-			'Expected to get the same lists back when no master list is set.'
-		);
-
 		// Set the master list.
 		$master_list_id = 2;
 		Reader_Activation::update_setting( 'active_campaign_master_list', $master_list_id );
@@ -49,12 +43,6 @@ class Newspack_Test_Newspack_Newsletters extends WP_UnitTestCase {
 			[ 4, 5, $master_list_id ],
 			Newspack_Newsletters::add_activecampaign_master_list( [ 4, 5 ], '', 'active_campaign' ),
 			'Master list id is appended.'
-		);
-
-		self::assertEquals(
-			[ 1, 3 ],
-			Newspack_Newsletters::get_lists_without_active_campaign_master_list( $list_ids ),
-			'Expected to get the same lists back when no master list is set.'
 		);
 	}
 }

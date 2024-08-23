@@ -9,6 +9,8 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+use Newspack\Reader_Activation\ESP_Sync;
+
 /**
  * Main class.
  */
@@ -88,7 +90,7 @@ class Teams_For_Memberships {
 		}
 		$team_slugs = implode( ',', $team_slugs );
 		if ( $team_slugs ) {
-			$contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'woo_team' ) ] = $team_slugs;
+			$contact['metadata'][ ESP_Sync::get_metadata_key( 'woo_team' ) ] = $team_slugs;
 		}
 
 		return $contact;

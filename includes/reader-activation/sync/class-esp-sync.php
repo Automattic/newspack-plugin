@@ -35,17 +35,6 @@ abstract class ESP_Sync extends Sync {
 	}
 
 	/**
-	 * Get the metadata key for the ESP.
-	 *
-	 * @param string $key The key to get the metadata key for.
-	 *
-	 * @return string The metadata key.
-	 */
-	protected static function get_metadata_key( $key ) {
-		return Newspack_Newsletters::get_metadata_key( $key );
-	}
-
-	/**
 	 * Whether contacts can be synced to the ESP.
 	 *
 	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.

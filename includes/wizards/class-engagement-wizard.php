@@ -121,8 +121,8 @@ class Engagement_Wizard extends Wizard {
 				'callback'            => function( $request ) {
 					$skip = $request->get_param( 'skip' );
 					$skip_campaign_setup = update_option( static::SKIP_CAMPAIGN_SETUP_OPTION, $skip );
-					return rest_ensure_response( 
-						[ 
+					return rest_ensure_response(
+						[
 							'skipped' => $skip,
 							'updated' => $skip_campaign_setup,
 						]
@@ -436,7 +436,7 @@ class Engagement_Wizard extends Wizard {
 		$data = [
 			'has_memberships'       => class_exists( 'WC_Memberships' ),
 			'reader_activation_url' => \admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
-			'esp_metadata_fields'   => Newspack_Newsletters::get_default_metadata_fields(),
+			'esp_metadata_fields'   => Reader_Activation\ESP_Sync::get_default_metadata_fields(),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
