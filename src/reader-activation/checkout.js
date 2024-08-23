@@ -58,3 +58,32 @@ export function isPendingCheckout() {
 export function resetCheckoutData() {
 	setCheckoutData();
 }
+
+/**
+ * Get a checkout redirect URL.
+ *
+ * @return {string} A checkout redirect URL if checkout data is present.
+ *                  Otherwise, an empty string
+ */
+export function getCheckoutRedirectUrl() {
+	const checkoutType = getCheckoutData( 'type' );
+	if ( ! checkoutType ) {
+		return '';
+	}
+	const redirectUrl = new URL( window.location.href );
+	redirectUrl.searchParams.set( 'newspack_modal_checkout', 1 );
+	redirectUrl.searchParams.set( 'type', checkoutType );
+	// Add checkout button params.
+	if ( checkoutType === 'checkout_button' ) {
+		redirectUrl.searchParams.set( 'product_id', getCheckoutData( 'product_id' ) ?? '' );
+		redirectUrl.searchParams.set( 'variation_id', getCheckoutData( 'variation_id' ) ?? '' );
+	}
+	// Add donate params.
+	if ( checkoutType === 'donate' ) {
+		redirectUrl.searchParams.set( 'layout', getCheckoutData( 'layout' ) ?? '' );
+		redirectUrl.searchParams.set( 'frequency', getCheckoutData( 'frequency' ?? '' ) );
+		redirectUrl.searchParams.set( 'amount', getCheckoutData( 'amount' ) ?? '' );
+		redirectUrl.searchParams.set( 'other', getCheckoutData( 'other' ) ?? '' );
+	}
+	return redirectUrl.href;
+}

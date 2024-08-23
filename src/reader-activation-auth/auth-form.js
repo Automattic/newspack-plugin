@@ -4,6 +4,7 @@
  * Internal dependencies.
  */
 import { domReady, formatTime } from '../utils';
+import { getCheckoutRedirectUrl } from '../reader-activation/checkout';
 import { openNewslettersSignupModal } from '../reader-activation-newsletters/newsletters-modal';
 
 import './google-oauth';
@@ -96,32 +97,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 			};
 			container.setFormAction( 'signin' );
-
-			/**
-			 * Get the checkout redirect URL.
-			 */
-			const getCheckoutRedirectUrl = () => {
-				const checkoutType = readerActivation.getCheckoutData( 'type' );
-				if ( ! checkoutType ) {
-					return;
-				}
-				const redirectUrl = new URL( window.location.href );
-				redirectUrl.searchParams.set( 'newspack_modal_checkout', 1 );
-				redirectUrl.searchParams.set( 'type', checkoutType );
-				// Add checkout button params.
-				if ( checkoutType === 'checkout_button' ) {
-					redirectUrl.searchParams.set( 'product_id', readerActivation.getCheckoutData( 'product_id' ) ?? '' );
-					redirectUrl.searchParams.set( 'variation_id', readerActivation.getCheckoutData( 'variation_id' ) ?? '' );
-				}
-				// Add donate params.
-				if ( checkoutType === 'donate' ) {
-					redirectUrl.searchParams.set( 'layout', readerActivation.getCheckoutData( 'layout' ) ?? '' );
-					redirectUrl.searchParams.set( 'frequency', readerActivation.getCheckoutData( 'frequency' ?? '' ) );
-					redirectUrl.searchParams.set( 'amount', readerActivation.getCheckoutData( 'amount' ) ?? '' );
-					redirectUrl.searchParams.set( 'other', readerActivation.getCheckoutData( 'other' ) ?? '' );
-				}
-				return redirectUrl.href;
-			}
 
 			/**
 			 * Handle reader changes.
