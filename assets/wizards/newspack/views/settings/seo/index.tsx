@@ -61,7 +61,7 @@ function Seo() {
 		data.verification
 	);
 
-	const urlValidation = useFieldsValidation< SeoData[ 'urls' ] >(
+	const accountsValidation = useFieldsValidation< SeoData[ 'urls' ] >(
 		ACCOUNTS.map(
 			( [ key, label, placeholder, validation ] ) => [
 				key,
@@ -96,7 +96,9 @@ function Seo() {
 	}
 
 	function post() {
-		if ( ! codesValidation.isInputsValid() || ! urlValidation.isInputsValid() ) {
+		const isVerificationCodesValid = codesValidation.isInputsValid();
+		const isAccountsValid = accountsValidation.isInputsValid();
+		if ( ! isVerificationCodesValid || ! isAccountsValid ) {
 			return;
 		}
 		wizardApiFetch(
@@ -135,8 +137,8 @@ function Seo() {
 					'newspack-plugin'
 				) }
 			>
-				{ urlValidation.errorMessage && (
-					<Notice isError noticeText={ urlValidation.errorMessage } />
+				{ accountsValidation.errorMessage && (
+					<Notice isError noticeText={ accountsValidation.errorMessage } />
 				) }
 				<Accounts setData={ urls => setData( { ...data, urls } ) } data={ data.urls } />
 			</WizardSection>
