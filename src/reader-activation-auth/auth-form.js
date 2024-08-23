@@ -98,9 +98,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 			container.setFormAction( 'signin' );
 
 			/**
-			 * Get the redirect URL.
+			 * Get the checkout redirect URL.
 			 */
-			const getRedirectUrl = () => {
+			const getCheckoutRedirectUrl = () => {
 				const checkoutType = readerActivation.getCheckoutData( 'type' );
 				if ( ! checkoutType ) {
 					return;
@@ -183,8 +183,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'reader-activation-auth-form', 1 );
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
-						if ( readerActivation.getCheckoutStatus() ) {
-							const redirectUrl = getRedirectUrl();
+						if ( readerActivation.isPendingCheckout() ) {
+							const redirectUrl = getCheckoutRedirectUrl();
 							if ( redirectUrl ) {
 								body.set( 'redirect_url', redirectUrl );
 							}
@@ -272,7 +272,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if (
 						container.authCallback &&
 						data?.registered &&
-						! readerActivation.getCheckoutStatus()
+						! readerActivation.isPendingCheckout()
 					) {
 						callback = ( authMessage, authData ) =>
 							openNewslettersSignupModal( {
@@ -414,8 +414,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 							return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 						}
-						if ( readerActivation.getCheckoutStatus() ) {
-							const redirectUrl = getRedirectUrl();
+						if ( readerActivation.isPendingCheckout() ) {
+							const redirectUrl = getCheckoutRedirectUrl();
 							if ( redirectUrl ) {
 								body.set( 'redirect_url', redirectUrl );
 							}

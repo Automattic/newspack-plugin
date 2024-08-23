@@ -3,6 +3,7 @@
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
+import { isPendingCheckout, setCheckoutData, getCheckoutData, resetCheckoutData } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 import overlays from './overlays.js';
@@ -404,60 +405,6 @@ function attachNewsletterFormListener() {
 	} );
 }
 
-
-/**
- * Checkout functions.
- */
-
-/**
- * Get the current checkout.
- *
- * @return {Object} Checkout data.
- */
-export function getCheckout() {
-	return store.get( 'checkout' ) || {};
-}
-
-/**
- * Set the current checkout data.
- *
- * @param {Object} data Optiona. Checkout data.
- *                      If empty or not provided, the checkout data will be cleared.
- */
-export function setCheckoutData( data = {} ) {
-	store.set( 'checkout', data, false );
-	emit( EVENTS.reader, getReader() );
-}
-
-/**
- * Get the reader checkout data.
- * @param {string} key Checkout data key. Optional.
- *
- * @return {any} Reader checkout data.
- */
-export function getCheckoutData( key ) {
-	const checkout = getCheckout();
-	if ( ! key ) {
-		return checkout;
-	}
-	return checkout?.[ key ];
-}
-
-/**
- * Get the reader checkout status.
- * @return {boolean} Reader checkout status.
- */
-export function getCheckoutStatus() {
-	return getCheckoutData( 'status' );
-}
-
-/**
- * Reset the reader checkout data.
- */
-export function resetCheckoutData() {
-	setCheckoutData();
-}
-
 const readerActivation = {
 	store,
 	overlays,
@@ -482,7 +429,7 @@ const readerActivation = {
 	getAuthStrategy,
 	setCheckoutData,
 	getCheckoutData,
-	getCheckoutStatus,
+	isPendingCheckout,
 	resetCheckoutData,
 	getCaptchaV3Token: window.newspack_grecaptcha
 		? window.newspack_grecaptcha?.getCaptchaV3Token
