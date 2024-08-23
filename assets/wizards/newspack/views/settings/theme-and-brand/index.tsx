@@ -15,6 +15,7 @@ import ThemeSelection from './theme-select';
 import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import { Button } from '../../../../../components/src';
 
 function ThemeBrand() {
 	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/theme-and-brand' );
@@ -33,8 +34,14 @@ function ThemeBrand() {
 			{
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 				method: 'POST',
+				data,
+				updateCacheMethods: [ 'GET' ],
 			},
-			{}
+			{
+				onSuccess( data ) {
+					setData( data );
+				},
+			}
 		);
 	}
 
@@ -53,9 +60,19 @@ function ThemeBrand() {
 
 	return (
 		<WizardsTab title={ __( 'Theme and Brand', 'newspack-plugin' ) }>
-			<pre>{ JSON.stringify( data, null, 2 ) }</pre>
-			<WizardSection>
-				<ThemeSelection theme="newspack-theme" updateTheme={ e => console.log( 'updating', e ) } />
+			<WizardSection
+				title={ __( 'Theme', 'newspack-plugin' ) }
+				description={ __( 'Update your sites theme.', 'newspack-plugin' ) }
+			>
+				<ThemeSelection
+					theme={ data.theme }
+					updateTheme={ theme => setData( { ...data, theme } ) }
+				/>
+				<div className="newspack-buttons-card">
+					<Button isPrimary onClick={ save }>
+						{ __( 'Save', 'newspack-plugin' ) }
+					</Button>
+				</div>
 			</WizardSection>
 		</WizardsTab>
 	);
