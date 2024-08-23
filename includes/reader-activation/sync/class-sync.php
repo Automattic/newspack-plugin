@@ -23,6 +23,45 @@ abstract class Sync {
 	const METADATA_DATE_FORMAT = 'Y-m-d';
 
 	/**
+	 * Whether reader data can be synced.
+	 *
+	 * @param bool $return_errors Optional. Whether to return a WP_Error object. Default false.
+	 *
+	 * @return bool|WP_Error True if reader data can be synced, false otherwise. WP_Error if return_errors is true.
+	 */
+	public static function can_sync( $return_errors = false ) {
+		$errors = new \WP_Error();
+
+		if ( ! Reader_Activation::is_enabled() ) {
+			$errors->add(
+				'ras_not_enabled',
+				__( 'Reader Activation is not enabled.', 'newspack-plugin' )
+			);
+		}
+
+		// If not a production site, only sync if the NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC constant is set.
+		if (
+			( ! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) || ! \Newspack_Manager::is_connected_to_production_manager() ) &&
+			( ! defined( 'NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC' ) || ! NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC )
+		) {
+			$errors->add(
+				'sync_not_allowed',
+				__( 'Sync is disabled for non-production sites. Set NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC to allow sync.', 'newspack-plugin' )
+			);
+		}
+
+		if ( $return_errors ) {
+			return $errors;
+		}
+
+		if ( $errors->has_errors() ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Should a WooCommerce order be synchronized?
 	 *
 	 * @param WC_Order $order Order object.
@@ -137,12 +176,12 @@ abstract class Sync {
 				$payment_page_url = $referer_from_order;
 			}
 		}
-		$metadata[ static::get_metadata_key( 'payment_page' ) ] = $payment_page_url;
+		$metadata['payment_page'] = $payment_page_url;
 
 		$utm = $order->get_meta( 'utm' );
 		if ( ! empty( $utm ) ) {
 			foreach ( $utm as $key => $value ) {
-				$metadata[ static::get_metadata_key( 'payment_page_utm' ) . $key ] = $value;
+				$metadata[ 'payment_page_utm' . $key ] = $value;
 			}
 		}
 
@@ -157,20 +196,20 @@ abstract class Sync {
 			 * For non-donation-type products, we just need to know that the reader is a customer.
 			 */
 			if ( $is_donation_order ) {
-				$metadata[ static::get_metadata_key( 'membership_status' ) ] = 'Donor';
+				$metadata['membership_status'] = 'Donor';
 			} else {
-				$metadata[ static::get_metadata_key( 'membership_status' ) ] = 'customer';
+				$metadata['membership_status'] = 'customer';
 			}
 
-			$metadata[ static::get_metadata_key( 'product_name' ) ] = '';
+			$metadata['product_name'] = '';
 			$order_items = $order->get_items();
 			if ( $order_items ) {
-				$metadata[ static::get_metadata_key( 'product_name' ) ] = reset( $order_items )->get_name();
+				$metadata['product_name'] = reset( $order_items )->get_name();
 			}
 			$order_date_paid = $order->get_date_paid();
 			if ( $payment_received && ! empty( $order_date_paid ) ) {
-				$metadata[ static::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $order->get_total() );
-				$metadata[ static::get_metadata_key( 'last_payment_date' ) ]   = $order_date_paid->date( self::METADATA_DATE_FORMAT );
+				$metadata['last_payment_amount'] = \wc_format_localized_price( $order->get_total() );
+				$metadata['last_payment_date']   = $order_date_paid->date( self::METADATA_DATE_FORMAT );
 			}
 
 			// Subscription transaction.
@@ -194,33 +233,33 @@ abstract class Sync {
 				if ( $current_subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
 					$donor_status = 'Ex-' . $donor_status;
 				}
-				$metadata[ static::get_metadata_key( 'membership_status' ) ] = $donor_status;
+				$metadata['membership_status'] = $donor_status;
 			} else {
-				$metadata[ static::get_metadata_key( 'membership_status' ) ] = $current_subscription->get_status();
+				$metadata['membership_status'] = $current_subscription->get_status();
 			}
 
-			$metadata[ static::get_metadata_key( 'sub_start_date' ) ]    = $current_subscription->get_date( 'start' );
-			$metadata[ static::get_metadata_key( 'sub_end_date' ) ]      = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
-			$metadata[ static::get_metadata_key( 'billing_cycle' ) ]     = $current_subscription->get_billing_period();
-			$metadata[ static::get_metadata_key( 'recurring_payment' ) ] = $current_subscription->get_total();
+			$metadata['sub_start_date']    = $current_subscription->get_date( 'start' );
+			$metadata['sub_end_date']      = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$metadata['billing_cycle']     = $current_subscription->get_billing_period();
+			$metadata['recurring_payment'] = $current_subscription->get_total();
 
 			if ( $payment_received ) {
-				$metadata[ static::get_metadata_key( 'last_payment_amount' ) ] = \wc_format_localized_price( $current_subscription->get_total() );
-				$metadata[ static::get_metadata_key( 'last_payment_date' ) ]   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( self::METADATA_DATE_FORMAT );
+				$metadata['last_payment_amount'] = \wc_format_localized_price( $current_subscription->get_total() );
+				$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( self::METADATA_DATE_FORMAT );
 			}
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
 			$next_payment_date = $current_subscription->get_date( 'next_payment' );
 			if ( $next_payment_date ) {
-				$metadata[ static::get_metadata_key( 'next_payment_date' ) ] = $next_payment_date;
+				$metadata['next_payment_date'] = $next_payment_date;
 			}
 
-			$metadata[ static::get_metadata_key( 'product_name' ) ] = '';
+			$metadata['product_name'] = '';
 			if ( $current_subscription ) {
 				$subscription_order_items = $current_subscription->get_items();
 				if ( $subscription_order_items ) {
-					$metadata[ static::get_metadata_key( 'product_name' ) ] = reset( $subscription_order_items )->get_name();
+					$metadata['product_name'] = reset( $subscription_order_items )->get_name();
 				}
 			}
 		}
@@ -228,16 +267,21 @@ abstract class Sync {
 		// Clear out any payment-related fields that don't relate to the current order.
 		$payment_fields = array_keys( static::get_payment_metadata_fields() );
 		foreach ( $payment_fields as $meta_key ) {
-			$meta_field = static::get_metadata_key( $meta_key );
-			if ( ! isset( $metadata[ $meta_field ] ) ) {
+			if ( ! isset( $metadata[ $meta_key ] ) ) {
 				if ( 'payment_page_utm' === $meta_key ) {
 					foreach ( WooCommerce_Order_UTM::$params as $param ) {
-						$metadata[ $meta_field . $param ] = '';
+						$metadata[ $meta_key . $param ] = '';
 					}
 				} else {
-					$metadata[ $meta_field ] = '';
+					$metadata[ $meta_key ] = '';
 				}
 			}
+		}
+
+		// Transform meta keys to use the correct format.
+		foreach ( $metadata as $key => $value ) {
+			unset( $metadata[ $key ] );
+			$metadata[ static::get_metadata_key( $key ) ] = $value;
 		}
 
 		return $metadata;
@@ -262,9 +306,9 @@ abstract class Sync {
 		$order_metadata = [];
 		$last_order     = WooCommerce_Connection::get_last_successful_order( $customer );
 
-		$metadata[ static::get_metadata_key( 'account' ) ]           = $customer->get_id();
-		$metadata[ static::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( static::METADATA_DATE_FORMAT );
-		$metadata[ static::get_metadata_key( 'total_paid' ) ]        = \wc_format_localized_price( $customer->get_total_spent() );
+		$metadata['account']           = $customer->get_id();
+		$metadata['registration_date'] = $customer->get_date_created()->date( static::METADATA_DATE_FORMAT );
+		$metadata['total_paid']        = \wc_format_localized_price( $customer->get_total_spent() );
 
 		// If a more recent order exists, use it to sync.
 		if ( ! $order || ( $last_order && $order->get_id() !== $last_order->get_id() ) ) {
@@ -278,7 +322,7 @@ abstract class Sync {
 			// If the customer has no successful orders, clear out subscription-related fields.
 			$payment_fields = array_keys( static::get_payment_metadata_fields() );
 			foreach ( $payment_fields as $meta_key ) {
-				$metadata[ static::get_metadata_key( $meta_key ) ] = '';
+				$metadata[ $meta_key ] = '';
 			}
 		}
 
@@ -294,6 +338,12 @@ abstract class Sync {
 		if ( ! empty( $full_name ) ) {
 			$contact['name'] = $full_name;
 		}
+		// Transform meta keys to use the correct format.
+		foreach ( $contact['metadata'] as $key => $value ) {
+			unset( $contact['metadata'][ $key ] );
+			$contact['metadata'][ static::get_metadata_key( $key ) ] = $value;
+		}
+
 		return $contact;
 	}
 

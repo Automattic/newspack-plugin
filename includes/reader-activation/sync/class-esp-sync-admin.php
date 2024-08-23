@@ -66,7 +66,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( ! \current_user_can( 'edit_user', $user->ID ) ) {
 			return $actions;
 		}
-		if ( ! self::can_sync_contacts() ) {
+		if ( ! self::can_esp_sync() ) {
 			return $actions;
 		}
 		$url = static::get_admin_action_url( $user->ID );
@@ -85,7 +85,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( ! current_user_can( 'edit_users' ) ) {
 			return $actions;
 		}
-		if ( ! self::can_sync_contacts() ) {
+		if ( ! self::can_esp_sync() ) {
 			return $actions;
 		}
 		$actions[ self::ADMIN_ACTION ] = \esc_html__( 'Resync to the ESP', 'newspack-plugin' );
@@ -105,7 +105,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( self::ADMIN_ACTION !== $doaction ) {
 			return $sendback;
 		}
-		$can_sync = self::can_sync_contacts( true );
+		$can_sync = self::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			\wp_die( $can_sync ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}

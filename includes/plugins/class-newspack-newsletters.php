@@ -44,7 +44,7 @@ class Newspack_Newsletters {
 		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ], 99 );
 
 		// this condition triggers filters that should not be fired before init.
-		if ( self::should_sync_ras_metadata() ) {
+		if ( Reader_Activation\ESP_Sync::can_esp_sync() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
 	}
@@ -64,15 +64,6 @@ class Newspack_Newsletters {
 			self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', Reader_Activation\Sync::get_all_metadata_fields() );
 		}
 		return self::$metadata_keys;
-	}
-
-	/**
-	 * Whether or not we should use the special metadata keys for RAS sites.
-	 *
-	 * @return boolean True if a RAS sync, otherwise false.
-	 */
-	public static function should_sync_ras_metadata() {
-		return Reader_Activation::is_enabled() && Reader_Activation::get_setting( 'sync_esp' );
 	}
 
 	/**
@@ -254,7 +245,7 @@ class Newspack_Newsletters {
 			}
 
 			foreach ( $contact['metadata'] as $meta_key => $meta_value ) {
-				if ( self::should_sync_ras_metadata() ) {
+				if ( Reader_Activation\ESP_Sync::can_esp_sync() ) {
 					if ( in_array( $meta_key, $raw_keys, true ) ) {
 						$normalized_metadata[ self::get_metadata_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
 					} elseif (

@@ -52,20 +52,18 @@ abstract class ESP_Sync extends Sync {
 	 *
 	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
 	 */
-	protected static function can_sync_contacts( $return_errors = false ) {
+	public static function can_esp_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
+
+		$can_sync = static::can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			$errors->add( 'ras_sync_not_available', $can_sync->get_error_message() );
+		}
 
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			$errors->add(
 				'newspack_newsletters_contacts_not_found',
 				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
-			);
-		}
-
-		if ( ! Reader_Activation::is_enabled() ) {
-			$errors->add(
-				'ras_not_enabled',
-				__( 'Reader Activation is not enabled.', 'newspack-plugin' )
 			);
 		}
 
@@ -80,17 +78,6 @@ abstract class ESP_Sync extends Sync {
 			$errors->add(
 				'ras_esp_master_list_id_not_found',
 				__( 'ESP master list ID is not set.', 'newspack-plugin' )
-			);
-		}
-
-		// If not a production site, only sync if the NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC constant is set.
-		if (
-			( ! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) || ! \Newspack_Manager::is_connected_to_production_manager() ) &&
-			( ! defined( 'NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC' ) || ! NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC )
-		) {
-			$errors->add(
-				'esp_sync_not_allowed',
-				__( 'ESP sync is disabled for non-production sites. Set NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC to allow sync.', 'newspack-plugin' )
 			);
 		}
 
@@ -114,7 +101,7 @@ abstract class ESP_Sync extends Sync {
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
 	protected static function sync( $contact, $context = '' ) {
-		$can_sync = static::can_sync_contacts( true );
+		$can_sync = static::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
 		}
@@ -148,7 +135,7 @@ abstract class ESP_Sync extends Sync {
 	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
 	 */
 	protected static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
-		$can_sync = static::can_sync_contacts( true );
+		$can_sync = static::can_esp_sync( true );
 		if ( ! $is_dry_run && $can_sync->has_errors() ) {
 			return $can_sync;
 		}
