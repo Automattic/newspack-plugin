@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * ESP Sync Class.
  */
-abstract class ESP_Sync {
+class ESP_Sync {
 
 	/**
 	 * Context of the sync.
@@ -41,7 +41,7 @@ abstract class ESP_Sync {
 	 *
 	 * @return bool|WP_Error True if contacts can be synced, false otherwise. WP_Error if return_errors is true.
 	 */
-	protected static function can_esp_sync( $return_errors = false ) {
+	public static function can_esp_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
 
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
