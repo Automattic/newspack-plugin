@@ -337,18 +337,6 @@ class Metadata extends Sync {
 
 		$contact['metadata'] = $normalized_metadata;
 
-		// Parse full name into first + last for MC, which stores these as separate merge fields.
-		// TODO Move this to Newspack Newsletters.
-		if ( 'mailchimp' === \get_option( 'newspack_newsletters_service_provider', false ) ) {
-			if ( isset( $contact['name'] ) ) {
-				$name_fragments                    = explode( ' ', $contact['name'], 2 );
-				$contact['metadata']['First Name'] = $name_fragments[0];
-				if ( isset( $name_fragments[1] ) ) {
-					$contact['metadata']['Last Name'] = $name_fragments[1];
-				}
-			}
-		}
-
 		static::log( 'Normalizing contact data for reader ESP sync:' );
 		static::log( $contact );
 
