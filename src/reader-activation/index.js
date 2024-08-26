@@ -3,6 +3,7 @@
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
+import { isPendingCheckout, setCheckoutData, getCheckoutData, resetCheckoutData } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 import overlays from './overlays.js';
@@ -328,26 +329,6 @@ export function getAuthStrategy() {
 	}
 	return getCookie( 'np_auth_strategy' );
 }
-/**
- * Set the reader checkout status.
- *
- * @param {boolean} status Checkout status. Default is false.
- *
- * @return {void}
- */
-export function setCheckoutStatus( status = false ) {
-	setCookie( 'np_auth_checkout_status', status );
-	emit( EVENTS.reader, getReader() );
-	return status;
-}
-/**
- * Get the reader checkout status.
- *
- * @return {boolean} Reader checkout status.
- */
-export function getCheckoutStatus() {
-	return 'true' === getCookie( 'np_auth_checkout_status' );
-}
 
 /**
  * Ensure the client ID cookie is set.
@@ -446,8 +427,10 @@ const readerActivation = {
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
-	setCheckoutStatus,
-	getCheckoutStatus,
+	setCheckoutData,
+	getCheckoutData,
+	isPendingCheckout,
+	resetCheckoutData,
 	getCaptchaV3Token: window.newspack_grecaptcha
 		? window.newspack_grecaptcha?.getCaptchaV3Token
 		: () => new Promise( res => res( '' ) ), // Empty promise.

@@ -1697,11 +1697,14 @@ final class Reader_Activation {
 		$password         = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$lists            = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		$honeypot         = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
+		$redirect_url     = isset( $_POST['redirect_url'] ) ? \esc_url_raw( $_POST['redirect_url'] ) : '';
 		// phpcs:enable
 
 		if ( ! empty( $current_page_url['path'] ) ) {
 			$current_page_url = \esc_url( \home_url( $current_page_url['path'] ) );
 		}
+
+		$redirect = ! empty( $redirect_url ) ? $redirect_url : $current_page_url;
 
 		// Honeypot trap.
 		if ( ! empty( $honeypot ) ) {
@@ -1750,7 +1753,7 @@ final class Reader_Activation {
 					return self::send_auth_form_response( $payload, false );
 				}
 				if ( self::is_reader_without_password( $user ) ) {
-					$sent = Magic_Link::send_email( $user, $current_page_url );
+					$sent = Magic_Link::send_email( $user, $redirect );
 					if ( true !== $sent ) {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
@@ -1772,7 +1775,7 @@ final class Reader_Activation {
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
 				return self::send_auth_form_response( $payload, false );
 			case 'link':
-				$sent = Magic_Link::send_email( $user, $current_page_url );
+				$sent = Magic_Link::send_email( $user, $redirect );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}

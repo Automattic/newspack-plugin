@@ -726,7 +726,7 @@ class Memberships {
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
 				ras.on( 'reader', function( ev ) {
-					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getCheckoutStatus() ) {
+					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.isPendingCheckout() ) {
 						if ( ras.overlays.get().length ) {
 							ras.on( 'overlay', function( ev ) {
 								if ( ! ev.detail.overlays.length ) {

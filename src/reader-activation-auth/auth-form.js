@@ -4,6 +4,7 @@
  * Internal dependencies.
  */
 import { domReady, formatTime } from '../utils';
+import { getCheckoutRedirectUrl } from '../reader-activation/checkout';
 import { openNewslettersSignupModal } from '../reader-activation-newsletters/newsletters-modal';
 
 import './google-oauth';
@@ -157,6 +158,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 						body.set( 'reader-activation-auth-form', 1 );
 						body.set( 'npe', emailInput.value );
 						body.set( 'action', 'link' );
+						if ( readerActivation.isPendingCheckout() ) {
+							const redirectUrl = getCheckoutRedirectUrl();
+							if ( redirectUrl ) {
+								body.set( 'redirect_url', redirectUrl );
+							}
+						}
 						readerActivation
 							.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
 							.then( captchaToken => {
@@ -240,7 +247,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if (
 						container.authCallback &&
 						data?.registered &&
-						! readerActivation.getCheckoutStatus()
+						! readerActivation.isPendingCheckout()
 					) {
 						callback = ( authMessage, authData ) =>
 							openNewslettersSignupModal( {
@@ -381,6 +388,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 						const body = new FormData( ev.target );
 						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 							return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
+						}
+						if ( readerActivation.isPendingCheckout() ) {
+							const redirectUrl = getCheckoutRedirectUrl();
+							if ( redirectUrl ) {
+								body.set( 'redirect_url', redirectUrl );
+							}
 						}
 						if ( 'otp' === action ) {
 							readerActivation
