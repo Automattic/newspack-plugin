@@ -98,7 +98,7 @@ class ESP_Sync extends Sync {
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 
-		$contact = Sync\Metadata::normalize_contact_metadata( $contact );
+		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 

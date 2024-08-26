@@ -269,7 +269,7 @@ class Metadata extends Sync {
 	 * @param array $contact Contact data.
 	 * @return array Normalized contact data.
 	 */
-	public static function normalize_contact_metadata( $contact ) {
+	public static function normalize_contact_data( $contact ) {
 		if ( ! isset( $contact['metadata'] ) ) {
 			$contact['metadata'] = [];
 		}
