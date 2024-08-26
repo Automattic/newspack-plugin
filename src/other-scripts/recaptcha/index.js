@@ -41,7 +41,7 @@ const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
  * @param {HTMLElement} field  The hidden input field storing the token for a form.
  * @param {string}      action The action name to pass to reCAPTCHA.
  *
- * @return {Promise<void>}
+ * @return {Promise<void>|void} A promise that resolves when the token is refreshed.
  */
 function refresh( field, action = 'submit' ) {
 	if ( field ) {
