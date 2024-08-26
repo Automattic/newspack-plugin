@@ -30,7 +30,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * Register handlers.
 	 */
 	public static function register_handlers() {
-		if ( ! static::can_sync_contacts() ) {
+		if ( ! static::can_esp_sync() ) {
 			return;
 		}
 		Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
