@@ -183,6 +183,23 @@ class Newspack_Newsletters {
 	}
 
 	/**
+	 * Get enabled fields which match provided keys.
+	 * Will return key-value pairs of enabled fields which match the keys provided.
+	 *
+	 * @param string[] $keys Array of keys to match.
+	 */
+	public static function filter_enabled_fields( $keys ) {
+		$enabled_fields = self::get_metadata_fields();
+		return array_filter(
+			self::get_metadata_keys(),
+			function( $val, $key ) use ( $keys, $enabled_fields ) {
+				return in_array( $key, $keys ) && in_array( $val, $enabled_fields );
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
+	}
+
+	/**
 	 * Update the list of fields to be synced to the connected ESP.
 	 *
 	 * @param array $fields List of fields to sync.
