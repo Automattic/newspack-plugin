@@ -321,6 +321,9 @@ class Metadata extends Sync {
 				)
 			) {
 				$normalized_metadata[ $meta_key ] = $meta_value;
+			} else {
+				// If the key is not in the list of fields to sync, ignore it.
+				static::log( 'Ignoring metadata key: ' . $meta_key );
 			}
 		}
 
