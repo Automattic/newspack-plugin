@@ -18,9 +18,9 @@ import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { Button } from '../../../../../components/src';
 
 function ThemeBrand() {
-	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/theme-and-brand' );
+	const { wizardApiFetch, isFetching } = useWizardApiFetch( 'newspack-settings/theme-and-brand' );
 	const [ data, setDataState ] = useState< ThemeBrandData >( {
-		theme: null,
+		theme: '',
 	} );
 
 	function setData( d: ThemeBrandData ) {
@@ -44,6 +44,7 @@ function ThemeBrand() {
 	}
 
 	useEffect( () => {
+		setData( { ...data, theme: 'newspack-theme' } );
 		wizardApiFetch(
 			{
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
@@ -60,9 +61,14 @@ function ThemeBrand() {
 				title={ __( 'Theme', 'newspack-plugin' ) }
 				description={ __( 'Update your sites theme.', 'newspack-plugin' ) }
 			>
+				{ isFetching && <p>{ __( 'Loading...', 'newspack-plugin' ) }</p> }
+				<pre>{ JSON.stringify( data, null, 2 ) }</pre>
 				<ThemeSelection
-					theme={ data.theme }
-					updateTheme={ theme => setData( { ...data, theme } ) }
+					theme={ isFetching ? '' : data.theme || 'newspack-theme' }
+					updateTheme={ theme => {
+						console.log( { theme } );
+						setData( { ...data, theme } );
+					} }
 				/>
 				<div className="newspack-buttons-card">
 					<Button isPrimary onClick={ save }>

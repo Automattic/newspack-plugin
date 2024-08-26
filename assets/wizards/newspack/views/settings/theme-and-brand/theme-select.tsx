@@ -16,8 +16,8 @@ const ThemeSelection = ( {
 	theme,
 	updateTheme,
 }: {
-	theme: null | NewspackThemes;
-	updateTheme: ( a: NewspackThemes ) => void;
+	theme: ThemeBrandData[ 'theme' ];
+	updateTheme: ( a: ThemeBrandData[ 'theme' ] ) => void;
 } ) => (
 	<Grid columns={ 3 } gutter={ 32 }>
 		<StyleCard
