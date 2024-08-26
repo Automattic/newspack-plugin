@@ -198,7 +198,7 @@ class Newspack_Newsletters {
 	 *
 	 * @param string[] $keys Array of keys to match.
 	 */
-	public static function get_applicable_fields( $keys ) {
+	public static function filter_enabled_fields( $keys ) {
 		$enabled_fields = self::get_metadata_fields();
 		return array_filter(
 			self::get_metadata_keys(),

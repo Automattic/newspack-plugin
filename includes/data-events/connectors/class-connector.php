@@ -114,7 +114,7 @@ abstract class Connector {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function membership_saved( $timestamp, $data, $client_id ) {
-		$applicable_fields = Newspack_Newsletters::get_applicable_fields(
+		$filtered_enabled_fields = Newspack_Newsletters::filter_enabled_fields(
 			[
 				'membership_status',
 				'membership_plan',
@@ -122,11 +122,11 @@ abstract class Connector {
 				'membership_end_date',
 			]
 		);
-		if ( empty( $applicable_fields ) ) {
+		if ( empty( $filtered_enabled_fields ) ) {
 			return;
 		}
 		$contact = [ 'email' => $data['email'] ];
-		foreach ( $applicable_fields as $key => $value ) {
+		foreach ( $filtered_enabled_fields as $key => $value ) {
 			if ( isset( $data[ $key ] ) ) {
 				$contact['metadata'][ Newspack_Newsletters::get_metadata_key( $key ) ] = $data[ $key ];
 			}
