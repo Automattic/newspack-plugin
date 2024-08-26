@@ -51,17 +51,17 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$account_key           = Sync\Metadata::get_key( 'account' );
-		$registration_date_key = Sync\Metadata::get_key( 'registration_date' );
+		$account_key           = 'account';
+		$registration_date_key = 'registration_date';
 		$metadata              = [
 			$account_key           => $data['user_id'],
 			$registration_date_key => gmdate( Sync\Metadata::DATE_FORMAT, $timestamp ),
 		];
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
-			$metadata[ Sync\Metadata::get_key( 'registration_page' ) ] = $data['metadata']['current_page_url'];
+			$metadata['registration_page'] = $data['metadata']['current_page_url'];
 		}
 		if ( isset( $data['metadata']['registration_method'] ) ) {
-			$metadata[ Sync\Metadata::get_key( 'registration_method' ) ] = $data['metadata']['registration_method'];
+			$metadata['registration_method'] = $data['metadata']['registration_method'];
 		}
 		/**
 		 * Filters the contact metadata sent to the ESP when a reader account is registered for the first time.
@@ -193,12 +193,9 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			}
 		}
 
-		$account_key              = Sync\Metadata::get_key( 'account' );
-		$newsletter_selection_key = Sync\Metadata::get_key( 'newsletter_selection' );
-
 		$metadata = [
-			$account_key              => $data['user_id'],
-			$newsletter_selection_key => implode( ', ', $lists_names ),
+			'account'              => $data['user_id'],
+			'newsletter_selection' => implode( ', ', $lists_names ),
 		];
 		$contact  = [
 			'email'    => $data['email'],
