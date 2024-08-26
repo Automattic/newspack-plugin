@@ -377,12 +377,11 @@ class WooCommerce_Connection {
 	 * Get data for a customer to sync to the connected ESP.
 	 *
 	 * @param int|\WC_Customer $customer Customer object or customer ID.
-	 * @param \WC_Order|false  $order Order object to sync with. If not given, the last successful order will be used.
 	 * @param bool|string      $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	public static function get_contact_from_customer( $customer, $order = false, $payment_page_url = false ) {
+	public static function get_contact_from_customer( $customer, $payment_page_url = false ) {
 		if ( ! is_a( $customer, 'WC_Customer' ) ) {
 			$customer = new \WC_Customer( $customer );
 		}
@@ -393,17 +392,14 @@ class WooCommerce_Connection {
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = \wc_format_localized_price( $customer->get_total_spent() );
 
-		// If no order is passed as the argument, use the last successful order.
-		if ( $order === false ) {
-			$order = self::get_last_successful_order( $customer );
-		}
+		$order = self::get_last_successful_order( $customer );
 
 		// Get the order metadata.
 		$order_metadata = [];
 		if ( $order ) {
 			$order_metadata = self::get_contact_order_metadata( $order, $payment_page_url );
 		} else {
-			// If the customer has no successful orders or if no order is provided???, clear out subscription-related fields.
+			// If the customer has no successful orders, clear out subscription-related fields.
 			$payment_fields = array_keys( Newspack_Newsletters::get_payment_metadata_fields() );
 			foreach ( $payment_fields as $meta_key ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( $meta_key ) ] = '';
@@ -442,7 +438,7 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		return self::get_contact_from_customer( $order->get_customer_id(), $order, $payment_page_url );
+		return self::get_contact_from_customer( $order->get_customer_id(), $payment_page_url );
 	}
 
 	/**
