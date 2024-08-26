@@ -55,8 +55,8 @@ class Teams_For_Memberships {
 			return $contact;
 		}
 
-		$applicable_fields = Newspack_Newsletters::get_applicable_fields( [ 'woo_team' ] );
-		if ( count( $applicable_fields ) === 0 ) {
+		$filtered_enabled_fields = Newspack_Newsletters::filter_enabled_fields( [ 'woo_team' ] );
+		if ( count( $filtered_enabled_fields ) === 0 ) {
 			return $contact;
 		}
 
