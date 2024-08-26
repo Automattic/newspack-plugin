@@ -309,6 +309,9 @@ class Metadata extends Sync {
 			}
 		}
 
+		// Keys allowed to pass through without prefixing.
+		$allowed_keys = [ 'status', 'status_if_new' ];
+
 		foreach ( $metadata as $meta_key => $meta_value ) {
 			if ( in_array( $meta_key, $raw_keys, true ) ) {
 				$normalized_metadata[ self::get_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
@@ -321,18 +324,12 @@ class Metadata extends Sync {
 				)
 			) {
 				$normalized_metadata[ $meta_key ] = $meta_value;
+			} elseif ( in_array( $meta_key, $allowed_keys, true ) ) {
+				$normalized_metadata[ $meta_key ] = $meta_value;
 			} else {
 				// If the key is not in the list of fields to sync, ignore it.
 				static::log( 'Ignoring metadata key: ' . $meta_key );
 			}
-		}
-
-		// Ensure status is passed, if given.
-		if ( isset( $metadata['status'] ) ) {
-			$normalized_metadata['status'] = $metadata['status'];
-		}
-		if ( isset( $metadata['status_if_new'] ) ) {
-			$normalized_metadata['status_if_new'] = $metadata['status_if_new'];
 		}
 
 		$contact['metadata'] = $normalized_metadata;

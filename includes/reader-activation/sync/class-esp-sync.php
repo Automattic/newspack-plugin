@@ -91,7 +91,7 @@ class ESP_Sync extends Sync {
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
 		/**
-		 * Filters the contact data before syncing to the ESP.
+		 * Filters the contact data before normalizing and syncing to the ESP.
 		 *
 		 * @param array  $contact The contact data to sync.
 		 * @param string $context The context of the sync.
