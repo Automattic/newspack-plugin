@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
+use Newspack\Reader_Activation\Sync;
 use Newspack\Donations;
 use Newspack\WooCommerce_Connection;
 use Newspack\WooCommerce_Order_UTM;
@@ -16,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * WooCommerce Class.
  */
-class WooCommerce {
+class WooCommerce extends Sync {
 
 	/**
 	 * Should a WooCommerce order be synchronized?
@@ -172,13 +173,6 @@ class WooCommerce {
 				}
 			}
 		}
-
-		// Transform meta keys to use the correct format.
-		foreach ( $metadata as $key => $value ) {
-			unset( $metadata[ $key ] );
-			$metadata[ Metadata::get_key( $key ) ] = $value;
-		}
-
 		return $metadata;
 	}
 
@@ -233,12 +227,6 @@ class WooCommerce {
 		if ( ! empty( $full_name ) ) {
 			$contact['name'] = $full_name;
 		}
-		// Transform meta keys to use the correct format.
-		foreach ( $contact['metadata'] as $key => $value ) {
-			unset( $contact['metadata'][ $key ] );
-			$contact['metadata'][ Metadata::get_key( $key ) ] = $value;
-		}
-
 		return $contact;
 	}
 

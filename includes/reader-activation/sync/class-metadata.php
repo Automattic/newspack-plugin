@@ -7,12 +7,15 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
+use Newspack\Reader_Activation\Sync;
+use Newspack\Reader_Activation\ESP_Sync;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Metadata Class.
  */
-class Metadata {
+class Metadata extends Sync {
 
 	const DATE_FORMAT   = 'Y-m-d';
 	const PREFIX        = 'NP_';
@@ -44,7 +47,7 @@ class Metadata {
 			 *
 			 * @param array $keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
 			 */
-			self::$keys = \apply_filters( 'newspack_ras_metadata_keys', static::get_all_fields() );
+			self::$keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_fields() );
 		}
 		return self::$keys;
 	}
@@ -228,5 +231,129 @@ class Metadata {
 	 */
 	public static function get_all_fields() {
 		return array_merge( self::get_basic_fields(), self::get_payment_fields() );
+	}
+
+	/**
+	 * Check if a metadata key exists in the given metadata.
+	 *
+	 * @param string $key      Metadata key to check.
+	 * @param array  $metadata Metadata to check.
+	 *
+	 * @return boolean
+	 */
+	private static function has_key( $key, $metadata ) {
+		return isset( $metadata[ $key ] ) || isset( $metadata[ self::get_key( $key ) ] );
+	}
+
+	/**
+	 * Get a metadata key value from the given metadata.
+	 *
+	 * @param string $key      Metadata key to fetch.
+	 * @param array  $metadata Metadata to fetch from.
+	 *
+	 * @return mixed|null Metadata value or null if not found.
+	 */
+	private static function get_key_value( $key, $metadata ) {
+		if ( isset( $metadata[ $key ] ) ) {
+			return $metadata[ $key ];
+		}
+		if ( isset( $metadata[ self::get_key( $key ) ] ) ) {
+			return $metadata[ self::get_key( $key ) ];
+		}
+		return null;
+	}
+
+	/**
+	 * Normalizes contact metadata keys before syncing to ESP.
+	 *
+	 * @param array $contact Contact data.
+	 * @return array Normalized contact data.
+	 */
+	public static function normalize_contact_metadata( $contact ) {
+		if ( ! isset( $contact['metadata'] ) ) {
+			$contact['metadata'] = [];
+		}
+
+		$metadata            = $contact['metadata'];
+		$normalized_metadata = [];
+		$raw_keys            = self::get_raw_keys();
+		$prefixed_keys       = self::get_prefixed_keys();
+
+		// Capture UTM params and signup/payment page URLs as meta for registration or payment.
+		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
+			$is_payment = self::has_key( 'payment_page', $metadata );
+			$raw_url    = false;
+			if ( $is_payment ) {
+				$raw_url = self::get_key_value( 'payment_page', $metadata );
+			} else {
+				$raw_url = self::get_key_value( 'current_page_url', $metadata );
+			}
+
+			$parsed_url = \wp_parse_url( $raw_url );
+
+			// Maybe set UTM meta.
+			if ( ! empty( $parsed_url['query'] ) ) {
+				$utm_key_prefix = $is_payment ? 'payment_page_utm' : 'signup_page_utm';
+				$params         = [];
+				\wp_parse_str( $parsed_url['query'], $params );
+				foreach ( $params as $param => $value ) {
+					$param = \sanitize_text_field( $param );
+					if ( 'utm' === substr( $param, 0, 3 ) ) {
+						$param = str_replace( 'utm_', '', $param );
+						$key   = self::get_key( $utm_key_prefix ) . $param;
+						if ( ! isset( $metadata[ $key ] ) || empty( $metadata[ $key ] ) ) {
+							$metadata[ $key ] = $value;
+						}
+					}
+				}
+			}
+		}
+
+		foreach ( $metadata as $meta_key => $meta_value ) {
+			if ( in_array( $meta_key, $raw_keys, true ) ) {
+				$normalized_metadata[ self::get_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
+			} elseif (
+				in_array( $meta_key, $prefixed_keys, true ) ||
+				(
+					// UTM meta keys can have arbitrary suffixes.
+					( in_array( self::get_key( 'signup_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_key( 'signup_page_utm' ) ) ) ||
+					( in_array( self::get_key( 'payment_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_key( 'payment_page_utm' ) ) )
+				)
+			) {
+				$normalized_metadata[ $meta_key ] = $meta_value;
+			}
+		}
+
+		// Ensure status is passed, if given.
+		if ( isset( $metadata['status'] ) ) {
+			$normalized_metadata['status'] = $metadata['status'];
+		}
+		if ( isset( $metadata['status_if_new'] ) ) {
+			$normalized_metadata['status_if_new'] = $metadata['status_if_new'];
+		}
+
+		$contact['metadata'] = $normalized_metadata;
+
+		// Parse full name into first + last for MC, which stores these as separate merge fields.
+		// TODO Move this to Newspack Newsletters.
+		if ( 'mailchimp' === \get_option( 'newspack_newsletters_service_provider', false ) ) {
+			if ( isset( $contact['name'] ) ) {
+				$name_fragments                    = explode( ' ', $contact['name'], 2 );
+				$contact['metadata']['First Name'] = $name_fragments[0];
+				if ( isset( $name_fragments[1] ) ) {
+					$contact['metadata']['Last Name'] = $name_fragments[1];
+				}
+			}
+		}
+
+		static::log( 'Normalizing contact data for reader ESP sync:' );
+		static::log( $contact );
+
+		/**
+		 * Filters the normalized contact data before syncing to the ESP.
+		 *
+		 * @param array $contact Contact data.
+		 */
+		return apply_filters( 'newspack_esp_sync_normalize_contact', $contact );
 	}
 }
