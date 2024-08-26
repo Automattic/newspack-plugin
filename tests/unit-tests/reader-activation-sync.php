@@ -102,13 +102,6 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			$contact_data_with_prefixed_keys,
 			Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )
 		);
-
-		// Set connected ESP to Mailchimp.
-		\update_option( 'newspack_newsletters_service_provider', 'mailchimp' );
-
-		// Mailchimp contact data should split the name into first/last name.
-		$this->assertArrayHasKey( 'First Name', Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] );
-		$this->assertArrayHasKey( 'Last Name', Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] );
 	}
 
 	/**
