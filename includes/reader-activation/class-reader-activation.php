@@ -54,13 +54,6 @@ final class Reader_Activation {
 	const SSO_REGISTRATION_METHODS = [ 'google' ];
 
 	/**
-	 * Whether the session is authenticating a newly registered reader
-	 *
-	 * @var bool
-	 */
-	private static $is_new_reader_auth = false;
-
-	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -324,6 +317,35 @@ final class Reader_Activation {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the master list ID for the ESP.
+	 *
+	 * @param string $provider Optional ESP provider. Defaults to the configured ESP.
+	 *
+	 * @return string|bool Master list ID or false if not set or not available.
+	 */
+	public static function get_esp_master_list_id( $provider = '' ) {
+		if ( ! self::is_esp_configured() ) {
+			return false;
+		}
+		if ( empty( $provider ) ) {
+			$provider = \Newspack_Newsletters::service_provider();
+		}
+		switch ( $provider ) {
+			case 'active_campaign':
+				return self::get_setting( 'active_campaign_master_list' );
+			case 'mailchimp':
+				$audience_id = self::get_setting( 'mailchimp_audience_id' );
+				/** Attempt to use list ID from "Mailchimp for WooCommerce" */
+				if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
+					$audience_id = \mailchimp_get_list_id();
+				}
+				return ! empty( $audience_id ) ? $audience_id : false;
+			default:
+				return false;
+		}
 	}
 
 	/**
@@ -751,6 +773,20 @@ final class Reader_Activation {
 		WooCommerce_Connection::add_wc_notice( __( 'Thank you for verifying your account!', 'newspack-plugin' ), 'success' );
 
 		/**
+		 * Upon verification we want to destroy existing sessions to prevent a bad
+		 * actor having originated the account creation from accessing the, now
+		 * verified, account.
+		 *
+		 * If the verification is for the current user, we destroy other sessions.
+		 */
+		if ( get_current_user_id() === $user->ID ) {
+			\wp_destroy_other_sessions();
+		} else {
+			$session_tokens = \WP_Session_Tokens::get_instance( $user->ID );
+			$session_tokens->destroy_all();
+		}
+
+		/**
 		 * Fires after a reader's email address is verified.
 		 *
 		 * @param \WP_User $user User object.
@@ -818,15 +854,6 @@ final class Reader_Activation {
 			if ( $user && self::is_user_reader( $user ) ) {
 				$length = YEAR_IN_SECONDS;
 			}
-		}
-
-		/**
-		 * If the session is authenticating a newly registered reader we want the
-		 * auth cookie to be short lived since the email ownership has not yet been
-		 * verified.
-		 */
-		if ( true === self::$is_new_reader_auth ) {
-			$length = 24 * HOUR_IN_SECONDS;
 		}
 		return $length;
 	}
@@ -1409,7 +1436,7 @@ final class Reader_Activation {
 				<div></div>
 			</div>
 			<button type="button" class="<?php echo \esc_attr( $class( 'google' ) ); ?>">
-				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/assets/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/src/blocks/reader-registration/icons/google.svg' ); // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<span>
 					<?php echo \esc_html__( 'Sign in with Google', 'newspack-plugin' ); ?>
 				</span>
@@ -1688,7 +1715,6 @@ final class Reader_Activation {
 			Logger::log( 'Created new reader user with ID ' . $user_id );
 
 			if ( $authenticate ) {
-				self::$is_new_reader_auth = true;
 				self::set_current_reader( $user_id );
 			}
 		}
