@@ -260,9 +260,6 @@ function render_block( $attrs, $content ) {
 					?>
 					<div class="newspack-registration__main">
 						<div>
-							<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
-								<?php Recaptcha::render_recaptcha_v2_container(); ?>
-							<?php endif; ?>
 							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__inputs">
 								<input
