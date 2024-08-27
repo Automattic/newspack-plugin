@@ -16,11 +16,15 @@ import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { Button } from '../../../../../components/src';
+// CSS.
+import './style.scss';
 
 function ThemeBrand() {
-	const { wizardApiFetch, isFetching } = useWizardApiFetch( 'newspack-settings/theme-and-brand' );
+	const { wizardApiFetch, isFetching } = useWizardApiFetch(
+		'newspack-settings/theme-and-brand'
+	);
 	const [ data, setDataState ] = useState< ThemeBrandData >( {
-		theme: '',
+		theme: 'newspack-theme',
 	} );
 
 	function setData( d: ThemeBrandData ) {
@@ -32,9 +36,9 @@ function ThemeBrand() {
 	function save() {
 		wizardApiFetch(
 			{
+				data,
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 				method: 'POST',
-				data,
 				updateCacheMethods: [ 'GET' ],
 			},
 			{
@@ -44,7 +48,6 @@ function ThemeBrand() {
 	}
 
 	useEffect( () => {
-		setData( { ...data, theme: 'newspack-theme' } );
 		wizardApiFetch(
 			{
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
@@ -56,13 +59,17 @@ function ThemeBrand() {
 	}, [] );
 
 	return (
-		<WizardsTab title={ __( 'Theme and Brand', 'newspack-plugin' ) }>
+		<WizardsTab
+			title={ __( 'Theme and Brand', 'newspack-plugin' ) }
+			className={ isFetching ? 'is-fetching' : '' }
+		>
 			<WizardSection
 				title={ __( 'Theme', 'newspack-plugin' ) }
-				description={ __( 'Update your sites theme.', 'newspack-plugin' ) }
+				description={ __(
+					'Update your sites theme.',
+					'newspack-plugin'
+				) }
 			>
-				{ isFetching && <p>{ __( 'Loading...', 'newspack-plugin' ) }</p> }
-				<pre>{ JSON.stringify( data, null, 2 ) }</pre>
 				<ThemeSelection
 					theme={ isFetching ? '' : data.theme || 'newspack-theme' }
 					updateTheme={ theme => {
@@ -71,7 +78,7 @@ function ThemeBrand() {
 					} }
 				/>
 				<div className="newspack-buttons-card">
-					<Button isPrimary onClick={ save }>
+					<Button variant="primary" onClick={ save }>
 						{ __( 'Save', 'newspack-plugin' ) }
 					</Button>
 				</div>

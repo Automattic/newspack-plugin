@@ -1,0 +1,17 @@
+.is-fetching {
+	.newspack-style-card {
+		cursor: progress;
+
+		.newspack-style-card__title {
+			opacity: 0.5;
+		}
+
+		.newspack-style-card__actions {
+			opacity: 1;
+
+			> * {
+				display: none;
+			}
+		}
+	}
+}
