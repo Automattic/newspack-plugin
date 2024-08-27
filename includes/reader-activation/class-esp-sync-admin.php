@@ -69,7 +69,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( ! self::can_esp_sync() ) {
 			return $actions;
 		}
-		$url = static::get_admin_action_url( $user->ID );
+		$url = self::get_admin_action_url( $user->ID );
 		$actions[ self::ADMIN_ACTION ] = '<a href="' . $url . '">' . \esc_html__( 'Resync contact to ESP', 'newspack-plugin' ) . '</a>';
 		return $actions;
 	}
@@ -113,7 +113,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack-plugin' ) );
 		}
 		foreach ( $items as $user_id ) {
-			$result = static::sync_contact( $user_id );
+			$result = self::sync_contact( $user_id );
 			if ( \is_wp_error( $result ) ) {
 				\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
@@ -163,10 +163,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 			\wp_die( \esc_html__( 'User not found.', 'newspack-plugin' ) );
 		}
 
-		$config = [
-			'user_ids' => [ $user_id ],
-		];
-		$result = static::sync_contact( $user_id );
+		$result = self::sync_contact( $user_id );
 		if ( \is_wp_error( $result ) ) {
 			\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
@@ -185,7 +182,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 			return;
 		}
 		$update = sanitize_text_field( wp_unslash( $_GET['update'] ) );
-		if ( static::ADMIN_ACTION !== $update ) {
+		if ( self::ADMIN_ACTION !== $update ) {
 			return;
 		}
 		$message = __( 'Contact resynced to the ESP.', 'newspack-plugin' );
