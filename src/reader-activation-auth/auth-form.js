@@ -54,8 +54,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 			 */
 			let formAction;
 			container.setFormAction = ( action, shouldFocus = false ) => {
+				const newspack_grecaptcha = window.newspack_grecaptcha || {};
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
+				}
+				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
+					if ( 'register' === action ) {
+						submitButtons.forEach( button => button.removeAttribute( 'data-skip-recaptcha' ) );
+						newspack_grecaptcha.render( [ form ] );
+					} else {
+						submitButtons.forEach( button => button.setAttribute( 'data-skip-recaptcha', '' ) );
+					}
 				}
 				if ( 'otp' === action ) {
 					if ( ! readerActivation.getOTPHash() ) {
@@ -164,46 +173,35 @@ window.newspackRAS.push( function ( readerActivation ) {
 								body.set( 'redirect_url', redirectUrl );
 							}
 						}
-						readerActivation
-							.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
-							.then( captchaToken => {
-								if ( ! captchaToken ) {
-									return;
+						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+							method: 'POST',
+							headers: {
+								Accept: 'application/json',
+							},
+							body,
+						} )
+							.then( response => {
+								if ( 200 !== response.status ) {
+									return response.json().then( ( { message } ) => {
+										form.endLoginFlow( message, response.status );
+									} );
 								}
-								body.set( 'captcha_token', captchaToken );
-							} )
-							.catch( e => {
-								console.log( { e } ); // eslint-disable-line no-console
+								form.setMessageContent(
+									formAction === 'pwd'
+										? newspack_reader_activation_labels.code_sent
+										: newspack_reader_activation_labels.code_resent
+								);
+								container.setFormAction( 'otp' );
+								if ( ! readerActivation.getOTPTimeRemaining() ) {
+									readerActivation.setOTPTimer();
+								}
 							} )
 							.finally( () => {
-								fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-									method: 'POST',
-									headers: {
-										Accept: 'application/json',
-									},
-									body,
-								} )
-									.then( () => {
-										form.setMessageContent(
-											formAction === 'pwd'
-												? newspack_reader_activation_labels.code_sent
-												: newspack_reader_activation_labels.code_resent
-										);
-										container.setFormAction( 'otp' );
-										if ( ! readerActivation.getOTPTimeRemaining() ) {
-											readerActivation.setOTPTimer();
-										}
-									} )
-									.catch( e => {
-										console.log( e ); // eslint-disable-line no-console
-									} )
-									.finally( () => {
-										handleOTPTimer();
-										form.style.opacity = 1;
-										submitButtons.forEach( submitButton => {
-											submitButton.disabled = false;
-										} );
-									} );
+								handleOTPTimer();
+								form.style.opacity = 1;
+								submitButtons.forEach( submitButton => {
+									submitButton.disabled = false;
+								} );
 							} );
 					} );
 				} );
@@ -365,94 +363,63 @@ window.newspackRAS.push( function ( readerActivation ) {
 					return form.endLoginFlow( newspack_reader_activation_labels.invalid_password, 400 );
 				}
 
-				readerActivation
-					.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
-					.then( captchaToken => {
-						if ( ! captchaToken ) {
-							return;
-						}
-						let tokenField = form.captcha_token;
-						if ( ! tokenField ) {
-							tokenField = document.createElement( 'input' );
-							tokenField.setAttribute( 'type', 'hidden' );
-							tokenField.setAttribute( 'name', 'captcha_token' );
-							tokenField.setAttribute( 'autocomplete', 'off' );
-							form.appendChild( tokenField );
-						}
-						tokenField.value = captchaToken;
-					} )
-					.catch( e => {
-						form.endLoginFlow( e, 400 );
-					} )
-					.finally( () => {
-						const body = new FormData( ev.target );
-						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-							return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
-						}
-						if ( readerActivation.isPendingCheckout() ) {
-							const redirectUrl = getCheckoutRedirectUrl();
-							if ( redirectUrl ) {
-								body.set( 'redirect_url', redirectUrl );
+				const body = new FormData( ev.target );
+				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+					return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
+				}
+				if ( 'otp' === action ) {
+					readerActivation
+						.authenticateOTP( body.get( 'otp_code' ) )
+						.then( data => {
+							form.endLoginFlow( data.message, 200, data );
+						} )
+						.catch( data => {
+							if ( data.expired ) {
+								container.setFormAction( 'signin' );
 							}
-						}
-						if ( 'otp' === action ) {
-							readerActivation
-								.authenticateOTP( body.get( 'otp_code' ) )
-								.then( data => {
-									form.endLoginFlow( data.message, 200, data );
-								} )
-								.catch( data => {
-									if ( data.expired ) {
-										container.setFormAction( 'signin' );
+							form.endLoginFlow( data.message, 400 );
+						} );
+				} else {
+					fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+						method: 'POST',
+						headers: {
+							Accept: 'application/json',
+						},
+						body,
+					} )
+						.then( res => {
+							container.setAttribute( 'data-form-status', res.status );
+							res
+								.json()
+								.then( ( { message, data } ) => {
+									const status = res.status;
+									if ( status === 200 ) {
+										readerActivation.setReaderEmail( body.get( 'npe' ) );
 									}
-									form.endLoginFlow( data.message, 400 );
-								} );
-						} else {
-							fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-								method: 'POST',
-								headers: {
-									Accept: 'application/json',
-								},
-								body,
-							} )
-								.then( res => {
-									container.setAttribute( 'data-form-status', res.status );
-									res
-										.json()
-										.then( ( { message, data } ) => {
-											const status = res.status;
-											const prevEmail = readerActivation.getReader?.()?.email;
-											if ( status === 200 ) {
-												readerActivation.setReaderEmail( body.get( 'npe' ) );
-											}
-											if ( data.action ) {
-												container.setFormAction( data.action, true );
-												if ( data.action === 'otp' ) {
-													form.setMessageContent( newspack_reader_activation_labels.code_sent );
-													if ( data.email !== prevEmail || ! readerActivation.getOTPTimeRemaining() ) {
-														readerActivation.setOTPTimer();
-													}
-													handleOTPTimer();
-												}
-											} else {
-												form.endLoginFlow( message, status, data );
-											}
-										} )
-										.catch( () => {
-											form.endLoginFlow();
-										} )
-										.finally( () => {
-											form.style.opacity = 1;
-											submitButtons.forEach( button => {
-												button.disabled = false;
-											} );
-										} );
+									if ( data.action ) {
+										container.setFormAction( data.action, true );
+										if ( data.action === 'otp' ) {
+											readerActivation.setOTPTimer();
+											handleOTPTimer();
+										}
+									} else {
+										form.endLoginFlow( message, status, data );
+									}
 								} )
 								.catch( () => {
 									form.endLoginFlow();
+								} )
+								.finally( () => {
+									form.style.opacity = 1;
+									submitButtons.forEach( button => {
+										button.disabled = false;
+									} );
 								} );
-						}
-					} );
+						} )
+						.catch( () => {
+							form.endLoginFlow();
+						} );
+				}
 			} );
 		} );
 	} );

@@ -386,23 +386,24 @@ function attachAuthCookiesListener() {
  * Set the reader as newsletter subscriber once a newsletter form is submitted.
  */
 function attachNewsletterFormListener() {
-	const forms = document.querySelectorAll(
-		'.newspack-newsletters-subscribe,.newspack-subscribe-form,.mc4wp-form'
-	);
-	if ( ! forms.length ) {
-		return;
-	}
-	forms.forEach( form => {
-		if ( form.tagName !== 'FORM' ) {
-			form = form.querySelector( 'form' );
-		}
+	const newspackForms = [ '.newspack-newsletters-subscribe', '.newspack-subscribe-form' ];
+	const thirdPartyForms = [ '.mc4wp-form' ];
+
+	const attachHandler = ( el, eventToListenTo = 'submit' ) => {
+		const form = 'FORM' === el.tagName ? el : el.querySelector( 'form' );
 		if ( ! form ) {
 			return;
 		}
-		form.addEventListener( 'submit', () => {
+		form.addEventListener( eventToListenTo, () => {
 			store.set( 'is_newsletter_subscriber', true );
 		} );
-	} );
+	};
+
+	// For third-party forms, set reader data on form submit. For first-party forms, listen for the custom event upon successful signup response.
+	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => attachHandler( el ) );
+	document
+		.querySelectorAll( newspackForms.join( ',' ) )
+		.forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
 }
 
 const readerActivation = {
@@ -431,9 +432,6 @@ const readerActivation = {
 	getCheckoutData,
 	isPendingCheckout,
 	resetCheckoutData,
-	getCaptchaV3Token: window.newspack_grecaptcha
-		? window.newspack_grecaptcha?.getCaptchaV3Token
-		: () => new Promise( res => res( '' ) ), // Empty promise.
 };
 
 /**
