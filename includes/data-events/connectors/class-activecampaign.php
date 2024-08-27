@@ -45,6 +45,7 @@ class ActiveCampaign extends Connector {
 			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
 			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 			Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
+			Data_Events::register_handler( [ __CLASS__, 'membership_saved' ], 'membership_saved' );
 		}
 	}
 
