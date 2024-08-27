@@ -91,7 +91,9 @@ class Newspack_Test_Newspack_Newsletters extends WP_UnitTestCase {
 			],
 		];
 		$normalized_contact = Newspack_Newsletters::normalize_contact_data( $contact );
-		self::assertEquals( $normalized_contact['email'], $contact['email'] );
-		self::assertEquals( $normalized_contact['metadata']['NP_Payment UTM: campaign'], $utm_params['campaign'] );
+		self::assertEquals( $contact['email'], $normalized_contact['email'] );
+		self::assertEquals( $utm_params['campaign'], $normalized_contact['metadata']['NP_Payment UTM: campaign'] );
+		self::assertEquals( $utm_params['content'], $normalized_contact['metadata']['NP_Payment UTM: content'] );
+		self::assertEquals( '', $normalized_contact['metadata']['NP_Payment UTM: term'] );
 	}
 }

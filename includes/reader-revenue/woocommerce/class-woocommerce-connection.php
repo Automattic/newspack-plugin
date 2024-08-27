@@ -267,6 +267,17 @@ class WooCommerce_Connection {
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page' ) ] = $payment_page_url;
 
 		$utm = $order->get_meta( 'utm' );
+		if ( empty( $utm ) ) {
+			$utm = [];
+			// Try the explicit `utm_<name>` meta.
+			foreach ( WooCommerce_Order_UTM::$params as $param ) {
+				$param_name = 'utm_' . $param;
+				$utm_value = $order->get_meta( $param_name );
+				if ( ! empty( $utm_value ) ) {
+					$utm[ $param ] = $utm_value;
+				}
+			}
+		}
 		if ( ! empty( $utm ) ) {
 			foreach ( $utm as $key => $value ) {
 				$metadata[ Newspack_Newsletters::get_metadata_key( 'payment_page_utm' ) . $key ] = $value;

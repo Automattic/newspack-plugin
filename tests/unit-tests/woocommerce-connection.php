@@ -43,7 +43,6 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 	 * Test payment metadata extraction - basic shape of the data.
 	 */
 	public function test_woocommerce_connection_payment_metadata_basic() {
-		$customer = new WC_Customer( self::$user_id );
 		$order_data = [
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
@@ -90,6 +89,27 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Test payment metadata extraction - with different location of UTM meta.
+	 * Newspack will set the 'utm' order meta, but when importing data, a one-to-one relation
+	 * might be needed. In such a case, a field in the imported data would correspond to
+	 * a string meta field, instead of the UTM params being stored as serialized values.
+	 */
+	public function test_woocommerce_connection_payment_metadata_utm() {
+		$order_data = [
+			'customer_id' => self::$user_id,
+			'status'      => 'completed',
+			'total'       => 50,
+			'meta'        => [
+				'utm_source'   => 'test_source',
+				'utm_campaign' => 'test_campaign',
+			],
+		];
+		$order = \wc_create_order( $order_data );
+		$contact_data = WooCommerce_Connection::get_contact_from_order( $order );
+		$this->assertEquals( 'test_source', $contact_data['metadata']['NP_Payment UTM: source'] );
+		$this->assertEquals( 'test_campaign', $contact_data['metadata']['NP_Payment UTM: campaign'] );
+	}
 
 	/**
 	 * Test payment metadata extraction using a failed order.

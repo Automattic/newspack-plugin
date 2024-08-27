@@ -101,7 +101,7 @@ class WC_Order {
 		return $this->data['customer_id'];
 	}
 	public function get_meta( $field_name ) {
-		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : null;
+		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : '';
 	}
 	public function has_status( $statuses ) {
 		return in_array( $this->data['status'], $statuses );
