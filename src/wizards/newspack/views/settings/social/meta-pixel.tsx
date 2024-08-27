@@ -1,6 +1,16 @@
+/**
+ * Meta Pixel component. Used in Settings > Social > Meta Pixel.
+ */
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
 import { PAGE_NAMESPACE } from '../constants';
 import { TextControl } from '../../../../../components/src';
 import WizardsToggleHeaderCard from '../../../../wizards-toggle-header-card';
@@ -27,7 +37,11 @@ const MetaPixel = () => {
 					},
 				],
 			] }
-			renderProp={ ( { settingsUpdates, setSettingsUpdates, isFetching } ) => (
+			renderProp={ ( {
+				settingsUpdates,
+				setSettingsUpdates,
+				isFetching,
+			} ) => (
 				<TextControl
 					value={ settingsUpdates?.pixel_id ?? '' }
 					label={ __( 'Pixel ID', 'newspack-plugin' ) }
