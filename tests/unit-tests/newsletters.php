@@ -57,4 +57,41 @@ class Newspack_Test_Newspack_Newsletters extends WP_UnitTestCase {
 			'Expected to get the same lists back when no master list is set.'
 		);
 	}
+
+	/**
+	 * Contact handling.
+	 */
+	public static function test_newsletters_contact_handling() {
+		$utm_params = [
+			'campaign' => 'test_campaign',
+			'content'  => 'test_content',
+		];
+		$contact = [
+			'email'    => 'test@email.com',
+			'name'     => 'John Doe',
+			'metadata' => [
+				'NP_Payment Page'                    => '/donate/?utm_campaign=' . $utm_params['campaign'] . '&utm_content=' . $utm_params['content'],
+				'NP_Payment UTM: campaign'           => $utm_params['campaign'],
+				'NP_Membership Status'               => 'Donor',
+				'NP_Product Name'                    => 'Donate: One-Time',
+				'NP_Last Payment Amount'             => '20.00',
+				'NP_Last Payment Date'               => '2024-08-27',
+				'NP_Payment UTM: source'             => '',
+				'NP_Payment UTM: medium'             => '',
+				'NP_Payment UTM: term'               => '',
+				'NP_Payment UTM: content'            => $utm_params['content'],
+				'NP_Current Subscription Start Date' => '',
+				'NP_Current Subscription End Date'   => '',
+				'NP_Billing Cycle'                   => '',
+				'NP_Recurring Payment'               => '',
+				'NP_Next Payment Date'               => '',
+				'NP_Total Paid'                      => '109.00',
+				'NP_Account'                         => '492',
+				'NP_Registration Date'               => '2024-08-26',
+			],
+		];
+		$normalized_contact = Newspack_Newsletters::normalize_contact_data( $contact );
+		self::assertEquals( $normalized_contact['email'], $contact['email'] );
+		self::assertEquals( $normalized_contact['metadata']['NP_Payment UTM: campaign'], $utm_params['campaign'] );
+	}
 }

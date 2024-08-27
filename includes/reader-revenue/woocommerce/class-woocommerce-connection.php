@@ -357,16 +357,16 @@ class WooCommerce_Connection {
 
 		// Clear out any payment-related fields that don't relate to the current order.
 		$payment_fields = array_keys( Newspack_Newsletters::get_payment_metadata_fields() );
+		$utm_meta_field = Newspack_Newsletters::get_metadata_key( 'payment_page_utm' );
+		foreach ( WooCommerce_Order_UTM::$params as $param ) {
+			if ( ! isset( $metadata[ $utm_meta_field . $param ] ) ) {
+				$metadata[ $utm_meta_field . $param ] = '';
+			}
+		}
 		foreach ( $payment_fields as $meta_key ) {
 			$meta_field = Newspack_Newsletters::get_metadata_key( $meta_key );
-			if ( ! isset( $metadata[ $meta_field ] ) ) {
-				if ( 'payment_page_utm' === $meta_key ) {
-					foreach ( WooCommerce_Order_UTM::$params as $param ) {
-						$metadata[ $meta_field . $param ] = '';
-					}
-				} else {
-					$metadata[ $meta_field ] = '';
-				}
+			if ( ! isset( $metadata[ $meta_field ] ) && 'payment_page_utm' !== $meta_key ) {
+				$metadata[ $meta_field ] = '';
 			}
 		}
 

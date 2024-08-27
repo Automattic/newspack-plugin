@@ -48,6 +48,14 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
 			'total'       => 50,
+			'meta'        => [
+				'utm' => [
+					'source'   => 'test_source',
+					'campaign' => 'test_campaign',
+					'term'     => 'test_term',
+					'content'  => 'test_content',
+				],
+			],
 		];
 		$order = \wc_create_order( $order_data );
 		$payment_page_url = 'https://example.com/donate';
@@ -63,11 +71,11 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 					'NP_Product Name'                    => '',
 					'NP_Last Payment Amount'             => '$' . $order_data['total'],
 					'NP_Last Payment Date'               => $today,
-					'NP_Payment UTM: source'             => '',
+					'NP_Payment UTM: source'             => 'test_source',
 					'NP_Payment UTM: medium'             => '',
-					'NP_Payment UTM: campaign'           => '',
-					'NP_Payment UTM: term'               => '',
-					'NP_Payment UTM: content'            => '',
+					'NP_Payment UTM: campaign'           => 'test_campaign',
+					'NP_Payment UTM: term'               => 'test_term',
+					'NP_Payment UTM: content'            => 'test_content',
 					'NP_Current Subscription Start Date' => '',
 					'NP_Current Subscription End Date'   => '',
 					'NP_Billing Cycle'                   => '',
