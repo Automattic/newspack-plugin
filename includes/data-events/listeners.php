@@ -340,3 +340,27 @@ Data_Events::register_listener(
 		];
 	}
 );
+
+/**
+ * When a membership is created or updated.
+ */
+Data_Events::register_listener(
+	'wc_memberships_user_membership_saved',
+	'membership_saved',
+	function( $membership_plan, $args ) {
+		if ( ! $membership_plan ) {
+			return;
+		}
+		$membership = \wc_memberships_get_user_membership( $args['user_membership_id'] );
+		$user       = \get_user_by( 'id', $args['user_id'] );
+		$user_email = $user ? $user->user_email : '';
+		return [
+			'user_id'               => $args['user_id'],
+			'email'                 => $user_email,
+			'membership_plan'       => $membership_plan->get_name(),
+			'membership_status'     => $membership->get_status(),
+			'membership_start_date' => $membership->get_start_date(),
+			'membership_end_date'   => $membership->get_end_date(),
+		];
+	}
+);
