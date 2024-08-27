@@ -80,10 +80,18 @@ function WizardsPluginCardButton( {
 	actionText?: PluginCardActionText;
 } ) {
 	if ( plugin.status === 'page-reload' ) {
-		return <span className="gray">{ __( 'Page reloading…', 'newspack-plugin' ) }</span>;
+		return (
+			<span className="gray">
+				{ __( 'Page reloading…', 'newspack-plugin' ) }
+			</span>
+		);
 	}
 	if ( plugin.status === 'page-redirect' ) {
-		return <span className="gray">{ __( 'Page redirecting…', 'newspack-plugin' ) }</span>;
+		return (
+			<span className="gray">
+				{ __( 'Page redirecting…', 'newspack-plugin' ) }
+			</span>
+		);
 	}
 	if ( isLoading ) {
 		return <Waiting />;
@@ -128,7 +136,8 @@ function WizardsPluginCardButton( {
 		if ( plugin.editLink ) {
 			return (
 				<a href={ plugin.editLink }>
-					{ actionText.complete ?? __( 'Complete Setup', 'newspack-plugin' ) }
+					{ actionText.complete ??
+						__( 'Complete Setup', 'newspack-plugin' ) }
 				</a>
 			);
 		}
@@ -187,15 +196,40 @@ function WizardsPluginCard( {
 
 	const on: PluginCallbacks = {
 		init: fetchCallbacks =>
-			fetchHandler( pluginState.slug, undefined, wizardApiFetch, fetchCallbacks ),
+			fetchHandler(
+				pluginState.slug,
+				undefined,
+				wizardApiFetch,
+				fetchCallbacks
+			),
 		activate: fetchCallbacks =>
-			fetchHandler( pluginState.slug, 'activate', wizardApiFetch, fetchCallbacks ),
+			fetchHandler(
+				pluginState.slug,
+				'activate',
+				wizardApiFetch,
+				fetchCallbacks
+			),
 		deactivate: fetchCallbacks =>
-			fetchHandler( pluginState.slug, 'deactivate', wizardApiFetch, fetchCallbacks ),
+			fetchHandler(
+				pluginState.slug,
+				'deactivate',
+				wizardApiFetch,
+				fetchCallbacks
+			),
 		install: fetchCallbacks =>
-			fetchHandler( pluginState.slug, 'install', wizardApiFetch, fetchCallbacks ),
+			fetchHandler(
+				pluginState.slug,
+				'install',
+				wizardApiFetch,
+				fetchCallbacks
+			),
 		configure: fetchCallbacks =>
-			fetchHandler( pluginState.slug, 'configure', wizardApiFetch, fetchCallbacks ),
+			fetchHandler(
+				pluginState.slug,
+				'configure',
+				wizardApiFetch,
+				fetchCallbacks
+			),
 	};
 
 	/**
@@ -205,7 +239,9 @@ function WizardsPluginCard( {
 	 */
 	function setPluginAction( callbacksKey: keyof PluginCallbacks ) {
 		// If action is activating or deactivating.
-		const isPluginStateUpdate = [ 'activate', 'deactivate' ].includes( callbacksKey );
+		const isPluginStateUpdate = [ 'activate', 'deactivate' ].includes(
+			callbacksKey
+		);
 		setPluginState( { status: '' } );
 		on[ callbacksKey ]( {
 			onSuccess( update ) {
@@ -257,22 +293,30 @@ function WizardsPluginCard( {
 		let newDescription = '';
 		if ( ! statuses.isInstalled ) {
 			newDescription =
-				pluginState.statusDescription?.uninstalled ?? __( 'Uninstalled.', 'newspack-plugin' );
+				pluginState.statusDescription?.uninstalled ??
+				__( 'Uninstalled.', 'newspack-plugin' );
 		} else if ( ! statuses.isActive ) {
 			newDescription =
-				pluginState.statusDescription?.inactive ?? __( 'Inactive.', 'newspack-plugin' );
+				pluginState.statusDescription?.inactive ??
+				__( 'Inactive.', 'newspack-plugin' );
 		} else if ( ! statuses.isConfigured ) {
 			newDescription =
-				pluginState.statusDescription?.notConfigured ?? __( 'Not connected.', 'newspack-plugin' );
+				pluginState.statusDescription?.notConfigured ??
+				__( 'Not connected.', 'newspack-plugin' );
 		} else {
 			newDescription =
-				pluginState.statusDescription?.connected ?? __( 'Connected.', 'newspack-plugin' );
+				pluginState.statusDescription?.connected ??
+				__( 'Connected.', 'newspack-plugin' );
 		}
 		return (
 			<>
 				{
 					// Translators: %s: Plugin status
-					isStatusPrepended && sprintf( __( 'Status: %s', 'newspack-plugin' ), newDescription )
+					isStatusPrepended &&
+						sprintf(
+							__( 'Status: %s', 'newspack-plugin' ),
+							newDescription
+						)
 				}{ ' ' }
 				{ descriptionAppend }
 			</>
@@ -284,7 +328,8 @@ function WizardsPluginCard( {
 	// Add toggle specific props if the card is togglable.
 	if ( isTogglable ) {
 		conditionalProps.toggleChecked = statuses.isActive;
-		conditionalProps.toggleOnChange = () => ( ! statuses.isSetup ? onActivate() : onDeactivate() );
+		conditionalProps.toggleOnChange = () =>
+			! statuses.isSetup ? onActivate() : onDeactivate();
 		conditionalProps.disabled = isFetching;
 	}
 

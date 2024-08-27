@@ -114,6 +114,7 @@ function Mailchimp() {
 		if ( isConnected ) {
 			// Translators: user connection status message.
 			return sprintf(
+				/* translators: %s: username */
 				__( 'Connected as %s', 'newspack-plugin' ),
 				authState?.username ?? {}
 			);

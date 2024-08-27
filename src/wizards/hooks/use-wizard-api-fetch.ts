@@ -58,8 +58,8 @@ const parseApiError = (
  * Executes the provided callback function if it exists.
  *
  * @template T
- * @param callbacks Object containing callback functions.
- * @return          Object with an `on` method to trigger callbacks.
+ * @param    callbacks Object containing callback functions.
+ * @return             Object with an `on` method to trigger callbacks.
  */
 const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
 	on( cb: keyof ApiFetchCallbacks< T >, d: any = null ) {
@@ -124,9 +124,9 @@ export function useWizardApiFetch( slug: string ) {
 	 * Makes an API fetch request using the wizard API.
 	 *
 	 * @template T
-	 * @param opts        The options for the API fetch request.
-	 * @param [callbacks] Optional callback functions for different stages of the fetch request.
-	 * @return            The result of the API fetch request.
+	 * @param    opts        The options for the API fetch request.
+	 * @param    [callbacks] Optional callback functions for different stages of the fetch request.
+	 * @return               The result of the API fetch request.
 	 */
 	const apiFetch = useCallback(
 		async < T = any >(
