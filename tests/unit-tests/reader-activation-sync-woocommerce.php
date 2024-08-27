@@ -98,8 +98,8 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			]
 		);
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
-		$this->assertEmpty( $contact_data['metadata']['NP_Last Payment Date'] );
-		$this->assertEmpty( $contact_data['metadata']['NP_Last Payment Amount'] );
+		$this->assertEmpty( $contact_data['metadata']['last_payment_date'] );
+		$this->assertEmpty( $contact_data['metadata']['last_payment_amount'] );
 	}
 
 	/**
@@ -113,8 +113,8 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 		];
 		$order = \wc_create_order( $order_data );
 		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
-		$this->assertEquals( '$' . $order_data['total'], $contact_data['metadata']['NP_Last Payment Amount'] );
-		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['NP_Last Payment Date'] );
+		$this->assertEquals( '$' . $order_data['total'], $contact_data['metadata']['last_payment_amount'] );
+		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['last_payment_date'] );
 	}
 
 	/**
@@ -136,7 +136,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 		];
 		$order = \wc_create_order( $failed_order_data );
 		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
-		$this->assertEquals( '$' . $completed_order_data['total'], $contact_data['metadata']['NP_Last Payment Amount'] );
-		$this->assertEquals( $completed_order_data['date_paid'], $contact_data['metadata']['NP_Last Payment Date'] );
+		$this->assertEquals( '$' . $completed_order_data['total'], $contact_data['metadata']['last_payment_amount'] );
+		$this->assertEquals( $completed_order_data['date_paid'], $contact_data['metadata']['last_payment_date'] );
 	}
 }
