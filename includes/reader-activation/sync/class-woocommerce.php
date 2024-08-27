@@ -203,7 +203,7 @@ class WooCommerce extends Sync {
 		$metadata['registration_date'] = $customer->get_date_created()->date( Metadata::DATE_FORMAT );
 		$metadata['total_paid']        = \wc_format_localized_price( $customer->get_total_spent() );
 
-		$order = self::get_last_successful_order( $customer );
+		$order = WooCommerce_Connection::get_last_successful_order( $customer );
 
 		// Get the order metadata.
 		$order_metadata = [];
