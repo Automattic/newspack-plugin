@@ -42,6 +42,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 		Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
+		Data_Events::register_handler( [ __CLASS__, 'membership_saved' ], 'membership_saved' );
 	}
 
 	/**
