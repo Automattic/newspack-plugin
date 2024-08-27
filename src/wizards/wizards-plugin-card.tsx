@@ -310,14 +310,12 @@ function WizardsPluginCard( {
 		}
 		return (
 			<>
-				{
-					// Translators: %s: Plugin status
-					isStatusPrepended &&
-						sprintf(
-							__( 'Status: %s', 'newspack-plugin' ),
-							newDescription
-						)
-				}{ ' ' }
+				{ isStatusPrepended &&
+					sprintf(
+						// Translators: %s: Plugin status
+						__( 'Status: %s', 'newspack-plugin' ),
+						newDescription
+					) }{ ' ' }
 				{ descriptionAppend }
 			</>
 		);
