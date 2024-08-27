@@ -76,6 +76,9 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 					'NP_Total Paid'                      => '$' . ( self::USER_DATA['meta_input']['wc_total_spent'] + $order_data['total'] ),
 					'NP_Account'                         => self::$user_id,
 					'NP_Registration Date'               => $today,
+					'NP_Membership Plan'                 => '',
+					'NP_Current Membership Start Date'   => '',
+					'NP_Current Membership End Date'     => '',
 				],
 			],
 			$contact_data
