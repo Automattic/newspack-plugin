@@ -148,8 +148,8 @@ function WizardsPluginCardButton( {
 /**
  * Wizard Plugin Card component.
  *
- * @param props 				  Component props.
- * @param props.slug 			  Plugin slug.
+ * @param props                   Component props.
+ * @param props.slug              Plugin slug.
  * @param props.title             Plugin title.
  * @param props.subTitle          Plugin subtitle. String appended to title.
  * @param props.editLink          Plugin edit link.
