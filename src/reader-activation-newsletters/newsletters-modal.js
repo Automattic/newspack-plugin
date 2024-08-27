@@ -65,7 +65,7 @@ export function openNewslettersSignupModal( config = {} ) {
 	container.config = config;
 
 	container.newslettersSignupCallback = ( message, data ) => {
-		if ( ! config?.skipClose ) {
+		if ( config?.closeOnSuccess ) {
 			close();
 		}
 		if ( config?.callback ) {
