@@ -15,8 +15,6 @@ const blockPostDate = (
 		viewBox="0 0 33 32"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg"
-		onPointerEnterCapture={ undefined }
-		onPointerLeaveCapture={ undefined }
 	>
 		<Path
 			d="M7.16667 5H25.8333C26.7538 5 27.5 5.74619 27.5 6.66667V25.3333C27.5 26.2538 26.7538 27 25.8333 27H7.16667C6.24619 27 5.5 26.2538 5.5 25.3333V6.66667C5.5 5.74619 6.24619 5 7.16667 5Z"
