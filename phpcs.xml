@@ -6,6 +6,9 @@
 	<rule ref="WordPress-Docs" />
 	<rule ref="WordPress-VIP-Go" />
 
+	<!-- Newspack Plugin rules -->
+	<rule ref="phpcsSniffs" />
+
 	<rule ref="WordPress">
 		<exclude name="Generic.Arrays.DisallowShortArraySyntax.Found" />
 		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
@@ -33,4 +36,5 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/dist/*</exclude-pattern>
+	<exclude-pattern>*/release/*</exclude-pattern>
 </ruleset>

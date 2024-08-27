@@ -29,9 +29,9 @@ Thumbs.db
 
 # Built files
 /dist
-/assets/components/dist
-/assets/components/shared
-/assets/components/node_modules
+/src/components/dist
+/src/components/shared
+/src/components/node_modules
 release
 
 # Tests

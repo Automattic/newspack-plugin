@@ -16,8 +16,8 @@ updates:
 
   # Enable version updates for npm
   - package-ecosystem: 'npm'
-    # Look for `package.json` and `lock` files in the `assets/components` directory
-    directory: '/assets/components'
+    # Look for `package.json` and `lock` files in the `src/components` directory
+    directory: '/src/components'
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: 'weekly'
