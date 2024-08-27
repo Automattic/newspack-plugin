@@ -1,4 +1,6 @@
-import React from 'react';
+/**
+ * External dependencies
+ */
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 

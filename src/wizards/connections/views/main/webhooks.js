@@ -347,15 +347,14 @@ const Webhooks = () => {
 					description={
 						toggling.disabled
 							? sprintf(
-									/* translators: %s: endpoint title */
-									__( 'Are you sure you want to enable the endpoint %s?', 'newspack-plugin' ),
-									`"${ getDisplayUrl( toggling.url ) }"`
-							  )
-							: sprintf(
-									/* translators: %s: endpoint title */
-									__( 'Are you sure you want to disable the endpoint %s?', 'newspack-plugin' ),
-									`"${ getDisplayUrl( toggling.url ) }"`
-							  )
+								/* translators: %s: endpoint title */
+								__( 'Are you sure you want to enable the endpoint %s?', 'newspack-plugin' ),
+								`"${ getDisplayUrl( toggling.url ) }"`
+							) : sprintf(
+								/* translators: %s: endpoint title */
+								__( 'Are you sure you want to disable the endpoint %s?', 'newspack-plugin' ),
+								`"${ getDisplayUrl( toggling.url ) }"`
+							)
 					}
 					endpoint={ toggling }
 					onClose={ () => setToggling( false ) }
@@ -397,15 +396,15 @@ const Webhooks = () => {
 									<td className="scheduled">
 										{ 'pending' === request.status
 											? sprintf(
-													// translators: %s is a human-readable time difference.
-													__( 'sending in %s', 'newspack-plugin' ),
-													moment( parseInt( request.scheduled ) * 1000 ).fromNow( true )
-											  )
+												// translators: %s is a human-readable time difference.
+												__( 'sending in %s', 'newspack-plugin' ),
+												moment( parseInt( request.scheduled ) * 1000 ).fromNow( true )
+											)
 											: sprintf(
-													// translators: %s is a human-readable time difference.
-													__( 'processed %s', 'newspack-plugin' ),
-													moment( parseInt( request.scheduled ) * 1000 ).fromNow()
-											  ) }
+												// translators: %s is a human-readable time difference.
+												__( 'processed %s', 'newspack-plugin' ),
+												moment( parseInt( request.scheduled ) * 1000 ).fromNow()
+											) }
 									</td>
 									{ hasEndpointErrors( viewing ) && (
 										<>

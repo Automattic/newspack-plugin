@@ -172,21 +172,19 @@ const Campaigns = props => {
 		},
 		...( hasUnassigned
 			? [
-					{
-						key: 'unassigned',
-						name: __( 'Unassigned Prompts', 'newspack-plugin' ),
-					},
-			  ]
-			: [] ),
+				{
+					key: 'unassigned',
+					name: __( 'Unassigned Prompts', 'newspack-plugin' ),
+				},
+			] : [] ),
 		...( activeCampaigns.length
 			? [
-					{
-						key: 'header-campaigns',
-						name: __( 'Campaigns', 'newspack-plugin' ),
-						className: 'is-header',
-					},
-			  ]
-			: [] ),
+				{
+					key: 'header-campaigns',
+					name: __( 'Campaigns', 'newspack-plugin' ),
+					className: 'is-header',
+				},
+			] : [] ),
 		...activeCampaigns.map( ( { term_id: id, name } ) => ( {
 			key: String( id ),
 			name,
@@ -194,13 +192,12 @@ const Campaigns = props => {
 		} ) ),
 		...( archivedCampaigns.length
 			? [
-					{
-						key: 'header-archived-campaigns',
-						name: __( 'Archived Campaigns', 'newspack-plugin' ),
-						className: 'is-header',
-					},
-			  ]
-			: [] ),
+				{
+					key: 'header-archived-campaigns',
+					name: __( 'Archived Campaigns', 'newspack-plugin' ),
+					className: 'is-header',
+				},
+			] : [] ),
 		...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
 			key: String( id ),
 			name: name + ' ' + __( '(archived)', 'newspack-plugin' ),

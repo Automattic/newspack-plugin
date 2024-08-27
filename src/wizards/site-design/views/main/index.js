@@ -290,9 +290,8 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 						style={ {
 							...( mods.header_solid_background
 								? {
-										backgroundColor: mods.header_color_hex,
-								  }
-								: {} ),
+									backgroundColor: mods.header_color_hex,
+								} : {} ),
 						} }
 						label={ __( 'Logo', 'newspack' ) }
 						image={ mods.custom_logo }
@@ -391,13 +390,12 @@ const Main = ( { wizardApiFetch, setError, renderPrimaryButton, isPartOfSetup = 
 				{ renderPrimaryButton(
 					isPartOfSetup
 						? {
-								onClick: () => saveSettings().then( finishSetup ),
-								children: __( 'Finish', 'newspack' ),
-						  }
-						: {
-								onClick: () => saveSettings(),
-								children: __( 'Save', 'newspack' ),
-						  }
+							onClick: () => saveSettings().then( finishSetup ),
+							children: __( 'Finish', 'newspack' ),
+						} : {
+							onClick: () => saveSettings(),
+							children: __( 'Save', 'newspack' ),
+						}
 				) }
 			</div>
 		</Card>

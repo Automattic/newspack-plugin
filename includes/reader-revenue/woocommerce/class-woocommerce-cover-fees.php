@@ -79,7 +79,7 @@ class WooCommerce_Cover_Fees {
 			sprintf(
 				// Translators: %s is the fee percentage.
 				__( 'Transaction fee (%s)', 'newspack-plugin' ),
-				self::get_cart_fee_display_value()
+				self::get_cart_fee_percentage()
 			),
 			self::get_cart_fee_value()
 		);
@@ -262,9 +262,24 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
+	 * Get the fee percentage.
+	 *
+	 * @param float $subtotal The subtotal to calculate the fee for.
+	 *
+	 * @return string
+	 */
+	public static function get_fee_percentage( $subtotal ) {
+		$total = self::get_total_with_fee( $subtotal );
+		// Just one decimal place, please.
+		$flat_percentage = (float) number_format( ( ( $total - $subtotal ) * 100 ) / $subtotal, 1 );
+		return $flat_percentage . '%';
+	}
+
+	/**
 	 * Calculate the adjusted total, taking the fee into account.
 	 *
 	 * @param float $subtotal The subtotal to calculate the total for.
+	 *
 	 * @return float
 	 */
 	public static function get_total_with_fee( $subtotal ) {
@@ -278,6 +293,15 @@ class WooCommerce_Cover_Fees {
 	 */
 	public static function get_cart_fee_value() {
 		return self::get_fee_value( WC()->cart->get_subtotal() );
+	}
+
+	/**
+	 * Get the fee percentage for the current cart.
+	 *
+	 * @return float
+	 */
+	public static function get_cart_fee_percentage() {
+		return self::get_fee_percentage( WC()->cart->get_subtotal() );
 	}
 
 	/**

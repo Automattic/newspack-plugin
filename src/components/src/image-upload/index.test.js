@@ -1,6 +1,11 @@
-import React from 'react';
+/**
+ * External dependencies
+ */
 import { render } from '@testing-library/react';
 
+/**
+ * Internal dependencies
+ */
 import ImageUpload from './';
 
 describe( 'ImageUpload', () => {

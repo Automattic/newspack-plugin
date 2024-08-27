@@ -14,7 +14,7 @@ import once from 'lodash/once';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
-import { CheckboxControl, TextareaControl, ExternalLink } from '@wordpress/components';
+import { CheckboxControl, TextareaControl, ExternalLink, Notice } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -188,6 +188,18 @@ export const NewspackNewsletters = ( {
 							</Button>
 						</Card>
 					) }
+					{ 'campaign_monitor' ===
+						config?.settings?.newspack_newsletters_service_provider?.value && (
+						<Notice status="warning" isDismissible={ false }>
+							<h2>{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }</h2>
+							<p>
+								{ __(
+									'Please connect a different service provider to ensure continued support.',
+									'newspack-'
+								) }
+							</p>
+						</Notice>
+					) }
 					{ values( config.settings )
 						.filter(
 							setting => ! setting.provider || setting.provider === providerSelectProps.value
@@ -309,11 +321,10 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 					error
 						? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
 						: lockedLists
-						? __(
+							? __(
 								'Please save your ESP settings before changing your subscription lists.',
 								'newspack-plugin'
-						  )
-						: null
+							) : null
 				}
 				notificationLevel={ error ? 'error' : 'warning' }
 				hasGreyHeader

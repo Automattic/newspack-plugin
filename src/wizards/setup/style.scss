@@ -65,7 +65,7 @@
 	grid-template-columns: 1fr;
 
 	@media screen and ( min-width: 744px ) {
-		grid-template-columns: 102px auto calc( ( 100% - 64px ) / 3 );
+		grid-template-columns: 102px auto calc(( 100% - 64px ) / 3);
 	}
 }
 
@@ -75,7 +75,7 @@
 			pointer-events: none;
 		}
 
-		svg:not( .newspack-icon ) {
+		svg:not(.newspack-icon) {
 			display: none;
 		}
 	}

@@ -29,69 +29,68 @@ export default function PositionControl( {
 	const options =
 		size === 'full-width'
 			? [
-					{
-						value: 'top',
-						/* translators: Overlay Position */
-						label: __( 'Top', 'newspack-plugin' ),
-					},
-					{
-						value: 'center',
-						/* translators: Overlay Position */
-						label: __( 'Center', 'newspack-plugin' ),
-					},
-					{
-						value: 'bottom',
-						/* translators: Overlay Position */
-						label: __( 'Bottom', 'newspack-plugin' ),
-					},
-			  ]
-			: [
-					{
-						value: 'top_left',
-						/* translators: Overlay Position */
-						label: __( 'Top Left', 'newspack-plugin' ),
-					},
-					{
-						value: 'top',
-						/* translators: Overlay Position */
-						label: __( 'Top Center', 'newspack-plugin' ),
-					},
-					{
-						value: 'top_right',
-						/* translators: Overlay Position */
-						label: __( 'Top Right', 'newspack-plugin' ),
-					},
-					{
-						value: 'center_left',
-						/* translators: Overlay Position */
-						label: __( 'Center Left', 'newspack-plugin' ),
-					},
-					{
-						value: 'center',
-						/* translators: Overlay Position */
-						label: __( 'Center', 'newspack-plugin' ),
-					},
-					{
-						value: 'center_right',
-						/* translators: Overlay Position */
-						label: __( 'Center Right', 'newspack-plugin' ),
-					},
-					{
-						value: 'bottom_left',
-						/* translators: Overlay Position */
-						label: __( 'Bottom Left', 'newspack-plugin' ),
-					},
-					{
-						value: 'bottom',
-						/* translators: Overlay Position */
-						label: __( 'Bottom Center', 'newspack-plugin' ),
-					},
-					{
-						value: 'bottom_right',
-						/* translators: Overlay Position */
-						label: __( 'Bottom Right', 'newspack-plugin' ),
-					},
-			  ];
+				{
+					value: 'top',
+					/* translators: Overlay Position */
+					label: __( 'Top', 'newspack-plugin' ),
+				},
+				{
+					value: 'center',
+					/* translators: Overlay Position */
+					label: __( 'Center', 'newspack-plugin' ),
+				},
+				{
+					value: 'bottom',
+					/* translators: Overlay Position */
+					label: __( 'Bottom', 'newspack-plugin' ),
+				},
+			] : [
+				{
+					value: 'top_left',
+					/* translators: Overlay Position */
+					label: __( 'Top Left', 'newspack-plugin' ),
+				},
+				{
+					value: 'top',
+					/* translators: Overlay Position */
+					label: __( 'Top Center', 'newspack-plugin' ),
+				},
+				{
+					value: 'top_right',
+					/* translators: Overlay Position */
+					label: __( 'Top Right', 'newspack-plugin' ),
+				},
+				{
+					value: 'center_left',
+					/* translators: Overlay Position */
+					label: __( 'Center Left', 'newspack-plugin' ),
+				},
+				{
+					value: 'center',
+					/* translators: Overlay Position */
+					label: __( 'Center', 'newspack-plugin' ),
+				},
+				{
+					value: 'center_right',
+					/* translators: Overlay Position */
+					label: __( 'Center Right', 'newspack-plugin' ),
+				},
+				{
+					value: 'bottom_left',
+					/* translators: Overlay Position */
+					label: __( 'Bottom Left', 'newspack-plugin' ),
+				},
+				{
+					value: 'bottom',
+					/* translators: Overlay Position */
+					label: __( 'Bottom Center', 'newspack-plugin' ),
+				},
+				{
+					value: 'bottom_right',
+					/* translators: Overlay Position */
+					label: __( 'Bottom Right', 'newspack-plugin' ),
+				},
+			];
 	return (
 		<div className={ classnames( 'newspack-position-placement-control', 'size-' + size ) }>
 			<p className="components-base-control__label">{ label }</p>

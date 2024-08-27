@@ -31,7 +31,9 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 		} )
 			.then( () => {
 				setIsConnected( true );
-				if ( typeof onSuccess === 'function' ) onSuccess();
+				if ( typeof onSuccess === 'function' ) {
+					onSuccess();
+				}
 			} )
 			.finally( () => {
 				setInFlight( false );

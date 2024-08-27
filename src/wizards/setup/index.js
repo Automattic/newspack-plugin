@@ -65,9 +65,8 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 					const nextRoute = ROUTES[ index + 1 ]?.path;
 					const buttonAction = nextRoute
 						? {
-								href: '#' + nextRoute,
-						  }
-						: {};
+							href: '#' + nextRoute,
+						} : {};
 					return (
 						<Route
 							key={ index }

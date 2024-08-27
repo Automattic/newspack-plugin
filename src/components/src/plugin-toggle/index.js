@@ -118,14 +118,13 @@ class PluginToggle extends Component {
 			.map( pluginSlug =>
 				pluginsFromAPI[ pluginSlug ]
 					? Object.keys( pluginsFromAPI[ pluginSlug ] ).reduce(
-							( accumulator, key ) => ( {
-								...accumulator,
-								[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]:
+						( accumulator, key ) => ( {
+							...accumulator,
+							[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]:
 									pluginsFromAPI[ pluginSlug ][ key ],
-							} ),
-							{}
-					  )
-					: {}
+						} ),
+						{}
+					) : {}
 			)
 			.map( plugin => Object.assign( plugin, pluginsFromProps[ plugin.slug ] ) );
 

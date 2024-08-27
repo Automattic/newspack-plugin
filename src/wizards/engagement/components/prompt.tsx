@@ -171,8 +171,8 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 				isDirty
 					? __( 'Unsaved changes', 'newspack-plugin' )
 					: prompt.ready
-					? __( 'Ready', 'newspack-plugin' )
-					: __( 'Pending', 'newspack-plugin' )
+						? __( 'Ready', 'newspack-plugin' )
+						: __( 'Pending', 'newspack-plugin' )
 			) }
 			checkbox={ prompt.ready && ! isDirty ? 'checked' : 'unchecked' }
 		>
@@ -180,6 +180,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 				<Grid columns={ 2 } gutter={ 64 } className="newspack-ras-campaign__grid">
 					<div className="newspack-ras-campaign__fields">
 						{ prompt.user_input_fields.map( ( field: InputField ) => (
+							// @ts-ignore TS doesn't like Fragments when used in a map function in this way.
 							<Fragment key={ field.name }>
 								{ 'array' === field.type && Array.isArray( field.options ) && (
 									<BaseControl
@@ -314,12 +315,12 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 								{ inFlight
 									? __( 'Saving…', 'newspack-plugin' )
 									: sprintf(
-											// Translators: Save or Update settings.
-											__( '%s prompt settings', 'newspack-plugin' ),
-											prompt.ready
-												? __( 'Update', 'newspack-plugin' )
-												: __( 'Save', 'newspack-plugin' )
-									  ) }
+										// Translators: Save or Update settings.
+										__( '%s prompt settings', 'newspack-plugin' ),
+										prompt.ready
+											? __( 'Update', 'newspack-plugin' )
+											: __( 'Save', 'newspack-plugin' )
+									) }
 							</Button>
 							<WebPreview
 								url={ getPreviewUrl( prompt ) }

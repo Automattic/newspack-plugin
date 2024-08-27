@@ -1,4 +1,4 @@
-@import url('~tachyons/css/tachyons.min.css');
+@import url("~tachyons/css/tachyons.min.css");
 
 :root {
 	--np-font-size: 16px;
@@ -7,8 +7,8 @@
 	--np-section-width: 1040px;
 	--np-section-space: 24px;
 	--np-section-child-space: 16px;
-	/** 
-	 * Colors 
+	/**
+	 * Colors
 	 */
 	/* node_modules/@wordpress/base-styles/_colors.scss */
 	--np-color-wp-gray-700: #757575;
@@ -28,7 +28,7 @@
 html {
 	font-size: 16px;
 	scroll-padding-top: calc(var(--wp-adminbar-height) + var(--np-wizard-tabs-height));
-	
+
 	@media (max-width: 782px) {
 		--wp-adminbar-height: 46px;
 		--np-wizard-tabs-height: 48px;
@@ -65,14 +65,13 @@ h1 {
 	}
 }
 .newspack-wizard {
-
 	.newspack-wizard__loader {
 		height: 100%;
 		position: absolute;
 		width: 100%;
 		display: flex;
 
-		>div {
+		> div {
 			position: relative;
 			margin: auto;
 			text-align: center;
@@ -117,15 +116,14 @@ h1 {
 	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
 	padding: 0 var(--np-section-space);
 
-
-	>h3 {
+	> h3 {
 		font-size: 1.25rem;
 		font-weight: normal;
 		line-height: 1.75;
 		margin-bottom: calc(var(--np-section-child-space) / 2);
 	}
 
-	>p {
+	> p {
 		color: var(--np-color-wp-gray-700);
 		margin: 0;
 	}
@@ -146,7 +144,7 @@ table.fixed {
 	position: static;
 	table-layout: fixed;
 }
-.wrap *:not( textarea, input ) {
+.wrap *:not(textarea, input) {
 	box-sizing: unset;
 }
 
@@ -157,7 +155,7 @@ table.fixed {
 	}
 }
 
-.newspack-card.newspack-action-card+.newspack-card.newspack-action-card {
+.newspack-card.newspack-action-card + .newspack-card.newspack-action-card {
 	margin-top: 0;
 }
 
@@ -201,7 +199,6 @@ table.fixed {
 }
 
 @keyframes opacity-pulse {
-
 	0%,
 	100% {
 		opacity: 1;

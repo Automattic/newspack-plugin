@@ -92,10 +92,10 @@ export default function Prerequisite( {
 								{ inFlight
 									? __( 'Saving…', 'newspack-plugin' )
 									: sprintf(
-											// Translators: Save or Update settings.
-											__( '%s settings', 'newspack-plugin' ),
-											isValid ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
-									  ) }
+										// Translators: Save or Update settings.
+										__( '%s settings', 'newspack-plugin' ),
+										isValid ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
+									) }
 							</Button>
 						</div>
 					</Grid>
@@ -140,8 +140,8 @@ export default function Prerequisite( {
 									{ ( isValid
 										? __( 'Update ', 'newspack-plugin' )
 										: prerequisite.fields
-										? __( 'Save ', 'newspack-plugin' )
-										: __( 'Configure ', 'newspack-plugin' ) ) + prerequisite.action_text }
+											? __( 'Save ', 'newspack-plugin' )
+											: __( 'Configure ', 'newspack-plugin' ) ) + prerequisite.action_text }
 								</Button>
 							) }
 							{ prerequisite.hasOwnProperty( 'action_enabled' ) && ! prerequisite.action_enabled && (
