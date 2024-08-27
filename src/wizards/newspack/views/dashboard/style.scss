@@ -2,8 +2,8 @@
  * Dashboard
  */
 
-@use '~@wordpress/base-styles/colors' as wp-colors;
-@use '../../../../shared/scss/colors';
+@use "~@wordpress/base-styles/colors" as wp-colors;
+@use "../../../../shared/scss/colors";
 
 .newspack-icon {
 	background-color: colors.$primary-600;
