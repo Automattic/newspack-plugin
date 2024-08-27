@@ -319,7 +319,7 @@ Example with an array of strings to map the hook's arguments:
 
 ```php
 Newspack\Data_Events::register_listener(
-	'newspack_newsletters_add_contact',
+	'newspack_newsletters_contact_subscribed',
 	'newsletter_subscribed',
 	[ 'provider', 'contact', 'lists', 'result' ]
 );
