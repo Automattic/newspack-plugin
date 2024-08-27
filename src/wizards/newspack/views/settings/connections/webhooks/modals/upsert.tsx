@@ -7,14 +7,23 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
-import { CheckboxControl as WpCheckboxControl, TextControl } from '@wordpress/components';
+import {
+	CheckboxControl as WpCheckboxControl,
+	TextControl,
+} from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import { ENDPOINTS_CACHE_KEY } from '../constants';
 import { WizardApiError } from '../../../../../../errors';
-import { Card, Button, Notice, Modal, Grid } from '../../../../../../../components/src';
+import {
+	Card,
+	Button,
+	Notice,
+	Modal,
+	Grid,
+} from '../../../../../../../components/src';
 
 /**
  * Checkbox control props override.
@@ -22,9 +31,9 @@ import { Card, Button, Notice, Modal, Grid } from '../../../../../../../componen
  * @param param WP CheckboxControl Component props.
  * @return      JSX.Element
  */
-const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckboxControl > > = ( {
-	...props
-} ) => {
+const CheckboxControl: React.FC<
+	WpCheckboxControlPropsOverride< typeof WpCheckboxControl >
+> = ( { ...props } ) => {
 	return <WpCheckboxControl { ...props } />;
 };
 
@@ -54,18 +63,24 @@ const Upsert = ( {
 	function upsertEndpoint( endpointToUpsert: Endpoint ) {
 		wizardApiFetch< Endpoint[] >(
 			{
-				path: `/newspack/v1/webhooks/endpoints/${ endpointToUpsert.id || '' }`,
+				path: `/newspack/v1/webhooks/endpoints/${
+					endpointToUpsert.id || ''
+				}`,
 				method: 'POST',
 				data: endpointToUpsert,
 				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
-				onSuccess: endpoints => onSuccess( endpointToUpsert.id, endpoints ),
+				onSuccess: endpoints =>
+					onSuccess( endpointToUpsert.id, endpoints ),
 			}
 		);
 	}
 
-	function testEndpoint( url: string | undefined, bearer_token: string | undefined ) {
+	function testEndpoint(
+		url: string | undefined,
+		bearer_token: string | undefined
+	) {
 		wizardApiFetch< { success: boolean; code: number; message: string } >(
 			{
 				path: '/newspack/v1/webhooks/endpoints/test',
@@ -81,7 +96,9 @@ const Upsert = ( {
 					if ( ! res.success ) {
 						setError(
 							new WizardApiError(
-								`${ res.code ? `${ res.code }: ` : '' }${ res.message }`,
+								`${ res.code ? `${ res.code }: ` : '' }${
+									res.message
+								}`,
 								res.code,
 								'endpoint_test'
 							)
@@ -102,20 +119,31 @@ const Upsert = ( {
 					setAction( null, endpoint.id );
 				} }
 			>
-				{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
+				{ errorMessage && (
+					<Notice isError noticeText={ errorMessage } />
+				) }
 				{ true === editing.disabled && (
 					<Notice
-						noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack-plugin' ) }
+						noticeText={ __(
+							'This webhook endpoint is currently disabled.',
+							'newspack-plugin'
+						) }
 					/>
 				) }
 				{ editing.disabled && editing.disabled_error && (
 					<Notice
 						isError
-						noticeText={ __( 'Request Error: ', 'newspack-plugin' ) + editing.disabled_error }
+						noticeText={
+							__( 'Request Error: ', 'newspack-plugin' ) +
+							editing.disabled_error
+						}
 					/>
 				) }
 				{ testResponse.success && (
-					<Notice isSuccess noticeText={ `${ testResponse.message }: ${ testResponse.code }` } />
+					<Notice
+						isSuccess
+						noticeText={ `${ testResponse.message }: ${ testResponse.code }` }
+					/>
 				) }
 				<Grid columns={ 1 } gutter={ 16 } className="mt0">
 					<TextControl
@@ -126,24 +154,36 @@ const Upsert = ( {
 						) }
 						className="code"
 						value={ editing.url }
-						onChange={ ( value: string ) => setEditing( { ...editing, url: value } ) }
+						onChange={ ( value: string ) =>
+							setEditing( { ...editing, url: value } )
+						}
 						disabled={ inFlight }
 					/>
 					<TextControl
-						label={ __( 'Authentication token (optional)', 'newspack-plugin' ) }
+						label={ __(
+							'Authentication token (optional)',
+							'newspack-plugin'
+						) }
 						help={ __(
 							'If your endpoint requires a token authentication, enter it here. It will be sent as a Bearer token in the Authorization header.',
 							'newspack-plugin'
 						) }
 						value={ editing.bearer_token ?? '' }
-						onChange={ ( value: string ) => setEditing( { ...editing, bearer_token: value } ) }
+						onChange={ ( value: string ) =>
+							setEditing( { ...editing, bearer_token: value } )
+						}
 						disabled={ inFlight }
 					/>
 					<Card buttonsCard noBorder className="justify-end">
 						<Button
 							variant="secondary"
 							disabled={ inFlight || ! editing.url }
-							onClick={ () => testEndpoint( editing.url, editing.bearer_token ) }
+							onClick={ () =>
+								testEndpoint(
+									editing.url,
+									editing.bearer_token
+								)
+							}
 						>
 							{ __( 'Send a test request', 'newspack-plugin' ) }
 						</Button>
@@ -157,14 +197,18 @@ const Upsert = ( {
 						'newspack-plugin'
 					) }
 					value={ editing.label }
-					onChange={ ( value: string ) => setEditing( { ...editing, label: value } ) }
+					onChange={ ( value: string ) =>
+						setEditing( { ...editing, label: value } )
+					}
 					disabled={ inFlight }
 				/>
 				<Grid columns={ 1 } gutter={ 16 }>
 					<h3>{ __( 'Actions', 'newspack-plugin' ) }</h3>
 					<CheckboxControl
 						checked={ editing.global }
-						onChange={ ( value: boolean ) => setEditing( { ...editing, global: value } ) }
+						onChange={ ( value: boolean ) =>
+							setEditing( { ...editing, global: value } )
+						}
 						label={ __( 'Global', 'newspack-plugin' ) }
 						help={ __(
 							'Leave this checked if you want this endpoint to receive data from all actions.',
@@ -187,17 +231,36 @@ const Upsert = ( {
 										disabled={ editing.global || inFlight }
 										label={ actionKey }
 										checked={
-											( editing.actions && editing.actions.includes( actionKey ) ) || false
+											( editing.actions &&
+												editing.actions.includes(
+													actionKey
+												) ) ||
+											false
 										}
 										indeterminate={ editing.global }
 										onChange={ () => {
-											const currentActions = editing.actions || [];
-											if ( currentActions.includes( actionKey ) ) {
-												currentActions.splice( currentActions.indexOf( actionKey ), 1 );
+											const currentActions =
+												editing.actions || [];
+											if (
+												currentActions.includes(
+													actionKey
+												)
+											) {
+												currentActions.splice(
+													currentActions.indexOf(
+														actionKey
+													),
+													1
+												);
 											} else {
-												currentActions.push( actionKey );
+												currentActions.push(
+													actionKey
+												);
 											}
-											setEditing( { ...editing, actions: currentActions } );
+											setEditing( {
+												...editing,
+												actions: currentActions,
+											} );
 										} }
 									/>
 								) ) }

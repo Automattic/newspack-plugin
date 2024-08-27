@@ -25,9 +25,8 @@ const Emails = () => {
 		emailSections.emails.dependencies.newspackNewsletters
 	);
 
-	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch(
-		'newspack-settings/emails'
-	);
+	const { wizardApiFetch, isFetching, errorMessage, resetError } =
+		useWizardApiFetch( 'newspack-settings/emails' );
 
 	const [ emails, setEmails ] = useState( emailsCache );
 
@@ -65,7 +64,10 @@ const Emails = () => {
 						'newspack'
 					) }
 					<br />
-					{ __( 'Until this feature is configured, default receipts will be used.', 'newspack' ) }
+					{ __(
+						'Until this feature is configured, default receipts will be used.',
+						'newspack'
+					) }
 				</Notice>
 				<WizardsPluginCard
 					slug="newspack-newsletters"
@@ -74,7 +76,9 @@ const Emails = () => {
 						'Newspack Newsletters is the plugin that powers Newspack email receipts.',
 						'newspack'
 					) }
-					onStatusChange={ ( statuses: Record< string, boolean > ) => {
+					onStatusChange={ (
+						statuses: Record< string, boolean >
+					) => {
 						if ( ! statuses.isLoading ) {
 							setPluginsReady( statuses.isSetup );
 						}
@@ -98,7 +102,12 @@ const Emails = () => {
 						description={ email.description }
 						actionText={ __( 'Edit', 'newspack' ) }
 						toggleChecked={ isActive }
-						toggleOnChange={ value => updateStatus( email.post_id, value ? 'publish' : 'draft' ) }
+						toggleOnChange={ value =>
+							updateStatus(
+								email.post_id,
+								value ? 'publish' : 'draft'
+							)
+						}
 						{ ...( isActive
 							? {}
 							: {
@@ -111,7 +120,10 @@ const Emails = () => {
 					>
 						{ errorMessage && (
 							<Notice
-								noticeText={ errorMessage || __( 'Something went wrong.', 'newspack' ) }
+								noticeText={
+									errorMessage ||
+									__( 'Something went wrong.', 'newspack' )
+								}
 								isError
 							/>
 						) }

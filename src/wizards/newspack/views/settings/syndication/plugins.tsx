@@ -19,7 +19,10 @@ const PLUGINS: Record< string, PluginCard > = {
 		title: __( 'Apple News', 'newspack-plugin' ),
 		editLink: 'admin.php?page=apple-news-options',
 		isConfigurable: true,
-		description: __( 'Export and synchronize posts to Apple format', 'newspack-plugin' ),
+		description: __(
+			'Export and synchronize posts to Apple format',
+			'newspack-plugin'
+		),
 	},
 	distributor: {
 		slug: 'distributor',

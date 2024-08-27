@@ -51,3 +51,8 @@ type WizardData = {
 } & {
 	[ key: string ]: { [ k in ApiMethods ]?: Record< string, any > | null };
 };
+
+// Define the type for the selector's return value
+type WizardSelector = {
+	getWizardData: ( slug: string ) => WizardData;
+};

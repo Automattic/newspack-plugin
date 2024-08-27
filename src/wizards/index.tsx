@@ -20,7 +20,8 @@ import * as Components from '../components/src';
  */
 import '../shared/js/public-path';
 
-const pageParam = new URLSearchParams( window.location.search ).get( 'page' ) ?? '';
+const pageParam =
+	new URLSearchParams( window.location.search ).get( 'page' ) ?? '';
 const rootElement = document.getElementById( pageParam );
 
 const ALLOWED_PAGES = [ 'newspack-dashboard', 'newspack-settings' ];
@@ -32,13 +33,19 @@ const components: Record< string, any > = {
 	'newspack-dashboard': {
 		label: __( 'Dashboard', 'newspack-plugin' ),
 		component: lazy(
-			() => import( /* webpackChunkName: "newspack-wizards" */ './newspack/views/dashboard' )
+			() =>
+				import(
+					/* webpackChunkName: "newspack-wizards" */ './newspack/views/dashboard'
+				)
 		),
 	},
 	'newspack-settings': {
 		label: __( 'Settings', 'newspack-plugin' ),
 		component: lazy(
-			() => import( /* webpackChunkName: "newspack-wizards" */ './newspack/views/settings' )
+			() =>
+				import(
+					/* webpackChunkName: "newspack-wizards" */ './newspack/views/settings'
+				)
 		),
 	},
 } as const;
@@ -65,7 +72,11 @@ const AdminPageLoader = ( { label }: { label: string } ) => {
 const AdminPages = () => {
 	const PageComponent = components[ pageParam ].component;
 	return (
-		<Suspense fallback={ <AdminPageLoader label={ components[ pageParam ].label } /> }>
+		<Suspense
+			fallback={
+				<AdminPageLoader label={ components[ pageParam ].label } />
+			}
+		>
 			<PageComponent />
 		</Suspense>
 	);

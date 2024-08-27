@@ -32,9 +32,10 @@ function EndpointActionsCard( {
 			title={ getEndpointTitle( endpoint ) }
 			description={ () => {
 				if ( endpoint.disabled && endpoint.disabled_error ) {
-					return `${ __( 'Endpoint disabled due to error:', 'newspack-plugin' ) }: ${
-						endpoint.disabled_error
-					}`;
+					return `${ __(
+						'Endpoint disabled due to error:',
+						'newspack-plugin'
+					) }: ${ endpoint.disabled_error }`;
 				}
 				return (
 					<Fragment>
@@ -45,7 +46,10 @@ function EndpointActionsCard( {
 							</span>
 						) : (
 							endpoint.actions.map( action => (
-								<span key={ action } className="newspack-webhooks__endpoint-action">
+								<span
+									key={ action }
+									className="newspack-webhooks__endpoint-action"
+								>
 									{ action }
 								</span>
 							) )

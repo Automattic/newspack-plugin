@@ -25,7 +25,9 @@ let promiseCache: Record< string, any > = {};
  * @param error The error response from the API.
  * @return      Parsed error object or null if no error.
  */
-const parseApiError = ( error: WpFetchError | string ): WizardApiError | null => {
+const parseApiError = (
+	error: WpFetchError | string
+): WizardApiError | null => {
 	const newError = {
 		message: 'An unknown API error occurred.',
 		statusCode: 500,
@@ -76,11 +78,17 @@ const onCallbacks = < T >( callbacks: ApiFetchCallbacks< T > ) => ( {
  */
 export function useWizardApiFetch( slug: string ) {
 	const [ isFetching, setIsFetching ] = useState( false );
-	const { wizardApiFetch, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const wizardData: WizardData = useSelect( select =>
-		select( WIZARD_STORE_NAMESPACE ).getWizardData( slug )
+	const { wizardApiFetch, updateWizardSettings } = useDispatch(
+		WIZARD_STORE_NAMESPACE
 	);
-	const [ error, setError ] = useState< WizardApiError | null >( wizardData.error ?? null );
+	const wizardData: WizardData = useSelect(
+		( select: ( namespace: string ) => WizardSelector ) =>
+			select( WIZARD_STORE_NAMESPACE ).getWizardData( slug ),
+		[ slug ]
+	);
+	const [ error, setError ] = useState< WizardApiError | null >(
+		wizardData.error ?? null
+	);
 
 	useEffect( () => {
 		updateWizardSettings( {
@@ -104,9 +112,10 @@ export function useWizardApiFetch( slug: string ) {
 		return ( prop: string | string[], value: any, p = path ) =>
 			updateWizardSettings( {
 				slug,
-				path: [ p, ...( Array.isArray( prop ) ? prop : [ prop ] ) ].filter(
-					str => typeof str === 'string'
-				),
+				path: [
+					p,
+					...( Array.isArray( prop ) ? prop : [ prop ] ),
+				].filter( str => typeof str === 'string' ),
 				value,
 			} );
 	}
@@ -120,7 +129,10 @@ export function useWizardApiFetch( slug: string ) {
 	 * @return            The result of the API fetch request.
 	 */
 	const apiFetch = useCallback(
-		async < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => {
+		async < T = any >(
+			opts: ApiFetchOptions,
+			callbacks?: ApiFetchCallbacks< T >
+		) => {
 			if ( isFetching ) {
 				return;
 			}
@@ -134,15 +146,21 @@ export function useWizardApiFetch( slug: string ) {
 				...options
 			} = opts;
 
-			const { error: cachedError, [ path ]: { [ method ]: cachedMethod = null } = {} }: WizardData =
-				wizardData;
+			const {
+				error: cachedError,
+				[ path ]: { [ method ]: cachedMethod = null } = {},
+			}: WizardData = wizardData;
 
 			function thenCallback( response: T ) {
 				if ( isCached ) {
 					updateSettings( method, response );
 				}
 				if ( updateCacheKey && updateCacheKey instanceof Object ) {
-					updateSettings( Object.entries( updateCacheKey )[ 0 ], response, null );
+					updateSettings(
+						Object.entries( updateCacheKey )[ 0 ],
+						response,
+						null
+					);
 				}
 				for ( const replaceMethod of updateCacheMethods ) {
 					updateSettings( replaceMethod, response );
@@ -185,7 +203,7 @@ export function useWizardApiFetch( slug: string ) {
 			setIsFetching( true );
 			on( 'onStart' );
 
-			promiseCache[ path ] = wizardApiFetch< Promise< T > >( {
+			promiseCache[ path ] = wizardApiFetch( {
 				isQuietFetch: true,
 				isLocalError: true,
 				...options,
@@ -204,7 +222,9 @@ export function useWizardApiFetch( slug: string ) {
 		isFetching,
 		errorMessage: error ? error.message : null,
 		error,
-		setError( value: string | WizardErrorType | null | { message: string } ) {
+		setError(
+			value: string | WizardErrorType | null | { message: string }
+		) {
 			if ( value === null ) {
 				resetError();
 			} else {

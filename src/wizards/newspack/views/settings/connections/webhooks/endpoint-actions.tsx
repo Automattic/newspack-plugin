@@ -9,19 +9,17 @@ import { __ } from '@wordpress/i18n';
 import { ESCAPE } from '@wordpress/keycodes';
 import { moreVertical } from '@wordpress/icons';
 import { useState, useEffect, Fragment } from '@wordpress/element';
-import { Tooltip, Button, Popover, MenuItem } from '@wordpress/components';
+import { Button, Popover, MenuItem } from '@wordpress/components';
 
 function EndpointActions( {
 	endpoint,
 	disabled = undefined,
-	position = 'bottom left',
 	isSystem,
 	setAction,
 }: {
 	endpoint: Endpoint;
 	disabled?: boolean;
 	isSystem: string;
-	position?: Tooltip.Props[ 'position' ] | undefined;
 	setAction: ( action: WebhookActions, id: number | string ) => void;
 } ) {
 	const [ popoverVisible, setPopoverVisible ] = useState( false );
@@ -38,18 +36,26 @@ function EndpointActions( {
 				icon={ moreVertical }
 				disabled={ disabled }
 				label={ __( 'Endpoint Actions', 'newspack-plugin' ) }
-				tooltipPosition={ position }
+				tooltipPosition={ 'bottom left' }
 			/>
 			{ popoverVisible && (
 				<Popover
-					position={ position }
+					position={ 'bottom left' }
 					onFocusOutside={ () => setPopoverVisible( false ) }
-					onKeyDown={ event => ESCAPE === event.keyCode && setPopoverVisible( false ) }
+					onKeyDown={ ( event: KeyboardEvent ) =>
+						ESCAPE === event.keyCode && setPopoverVisible( false )
+					}
 				>
-					<MenuItem onClick={ () => setPopoverVisible( false ) } className="screen-reader-text">
+					<MenuItem
+						onClick={ () => setPopoverVisible( false ) }
+						className="screen-reader-text"
+					>
 						{ __( 'Close Endpoint Actions', 'newspack-plugin' ) }
 					</MenuItem>
-					<MenuItem onClick={ () => setAction( 'view', endpoint.id ) } className="newspack-button">
+					<MenuItem
+						onClick={ () => setAction( 'view', endpoint.id ) }
+						className="newspack-button"
+					>
 						{ __( 'View Requests', 'newspack-plugin' ) }
 					</MenuItem>
 					{ ! isSystem && (

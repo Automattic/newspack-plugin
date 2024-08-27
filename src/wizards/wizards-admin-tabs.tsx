@@ -30,7 +30,11 @@ export function WizardsAdminTabs( {
 							<li key={ `${ tab.textContent }:${ i }` }>
 								<a
 									href={ tab.href }
-									className={ window.location.href === tab.href ? 'selected' : '' }
+									className={
+										window.location.href === tab.href
+											? 'selected'
+											: ''
+									}
 								>
 									{ tab.textContent }
 								</a>

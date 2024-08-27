@@ -3,7 +3,12 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "rootDir": "src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "react": [
+        "./node_modules/@types/react"
+      ]
+    }
   },
   "include": [
     "src",
