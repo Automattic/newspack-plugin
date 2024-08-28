@@ -72,10 +72,7 @@ function ThemeBrand() {
 			>
 				<ThemeSelection
 					theme={ isFetching ? '' : data.theme || 'newspack-theme' }
-					updateTheme={ theme => {
-						console.log( { theme } );
-						setData( { ...data, theme } );
-					} }
+					updateTheme={ theme => setData( { ...data, theme } ) }
 				/>
 				<div className="newspack-buttons-card">
 					<Button variant="primary" onClick={ save }>
