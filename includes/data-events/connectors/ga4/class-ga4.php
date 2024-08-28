@@ -153,7 +153,6 @@ class GA4 {
 			}
 
 			$event = new Event( $event_name, $params );
-			error_log( print_r( $event, true ) );
 			self::send_event( $event, $client_id, $timestamp, $user_id );
 
 		} else {
@@ -457,12 +456,12 @@ class GA4 {
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
 	public static function handle_modal_checkout_interaction( $params, $data ) {
-		$transformed_data = $data;
 		// remove data added in the body filter.
-		unset( $transformed_data['ga_params'] );
-		unset( $transformed_data['ga_client_id'] );
+		unset( $data['ga_params'] );
+		unset( $data['ga_client_id'] );
+		unset( $data['platform_data'] );
 
-		return array_merge( $params, $transformed_data );
+		return array_merge( $params, $data );
 	}
 
 	/**
