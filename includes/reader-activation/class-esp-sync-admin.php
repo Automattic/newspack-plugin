@@ -203,7 +203,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 			<p>
 				<?php echo esc_html( $message ); ?>
 				<?php if ( isset( $_GET['scheduled-sync-contacts'] ) ) : ?>
-					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-status&tab=action-scheduler&s=newspack_sync_admin_batch' ) ); ?>">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-status&tab=action-scheduler&s=newspack_sync_admin_batch&orderby=schedule&order=desc' ) ); ?>">
 						<?php echo esc_html__( 'Click here to monitor progress.', 'newspack-plugin' ); ?>
 					</a>
 				<?php endif; ?>
