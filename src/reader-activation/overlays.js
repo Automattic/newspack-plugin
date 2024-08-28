@@ -47,8 +47,29 @@ function remove( overlayId ) {
 	return overlays;
 }
 
+/**
+ * Replace an overlay.
+ *
+ * @param {string} initialOverlayId Initial overlay ID.
+ * @param {string} overlayId        Overlay ID to replace with.
+ *
+ * @return {Array} Overlays.
+ */
+function replace( initialOverlayId, overlayId ) {
+	if ( ! initialOverlayId || ! overlayId ) {
+		return overlays;
+	}
+	const index = overlays.indexOf( initialOverlayId );
+	if ( index > -1 ) {
+		overlays.splice( index, 1, overlayId );
+	}
+	emit( EVENTS.overlay, { overlays } );
+	return overlays;
+}
+
 export default {
 	get,
 	add,
 	remove,
+	replace,
 };
