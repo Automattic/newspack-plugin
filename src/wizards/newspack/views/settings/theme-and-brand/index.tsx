@@ -20,7 +20,7 @@ import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 // CSS.
 import './style.scss';
 
-function ThemeBrand( { isPartOfSetup = true } ) {
+function ThemeBrand( { isPartOfSetup = false } ) {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/theme-and-brand'
 	);
