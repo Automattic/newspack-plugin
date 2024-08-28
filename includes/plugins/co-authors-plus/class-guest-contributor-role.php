@@ -78,7 +78,7 @@ class Guest_Contributor_Role {
 		}
 
 		// Hide author email on the frontend, if it's a placeholder email.
-		\add_filter( 'theme_mod_show_author_email', [ __CLASS__, 'hide_author_email_on_archives' ] );
+		\add_filter( 'theme_mod_show_author_email', [ __CLASS__, 'hide_author_email' ] );
 	}
 
 	/**
@@ -474,7 +474,7 @@ class Guest_Contributor_Role {
 	 *
 	 * @param bool $value Whether to show the author email.
 	 */
-	public static function hide_author_email_on_archives( $value ) {
+	public static function hide_author_email( $value ) {
 		if ( is_author() || is_singular() ) { // Run on archive pages and single posts/pages.
 			$author_id = get_the_author_meta( 'ID' );
 			$user = get_userdata( $author_id );
