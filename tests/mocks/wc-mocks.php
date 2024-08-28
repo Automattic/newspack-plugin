@@ -74,6 +74,7 @@ $orders_database = [];
 
 class WC_Order {
 	public $data = [ 'items' => [] ];
+	public $meta = [];
 	public function __construct( $data ) {
 		global $orders_database;
 		$data['id'] = count( $orders_database ) + 1;
@@ -88,6 +89,9 @@ class WC_Order {
 			update_user_meta( $customer->get_id(), 'wc_total_spent', $total_spent );
 			// Add the order to the mock DB.
 		}
+		if ( isset( $data['meta'] ) ) {
+			$this->meta = $data['meta'];
+		}
 		$orders_database[] = $this;
 	}
 	public function get_id() {
@@ -97,7 +101,7 @@ class WC_Order {
 		return $this->data['customer_id'];
 	}
 	public function get_meta( $field_name ) {
-		return null;
+		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : '';
 	}
 	public function has_status( $statuses ) {
 		return in_array( $this->data['status'], $statuses );
