@@ -478,7 +478,7 @@ class Guest_Contributor_Role {
 		if ( is_author() || is_singular() ) { // Run on archive pages and single posts/pages.
 			$author_id = get_the_author_meta( 'ID' );
 			$user = get_userdata( $author_id );
-			if ( self::is_guest_author( $user ) && self::is_dummy_email_address( $user->user_email ) ) {
+			if ( false !== $user && self::is_guest_author( $user ) && self::is_dummy_email_address( $user->user_email ) ) {
 				return false;
 			}
 		}
