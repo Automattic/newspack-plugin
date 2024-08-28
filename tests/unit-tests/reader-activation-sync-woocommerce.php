@@ -43,11 +43,18 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 	 * Test payment metadata extraction - basic shape of the data.
 	 */
 	public function test_payment_metadata_basic() {
-		$customer = new WC_Customer( self::$user_id );
 		$order_data = [
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
 			'total'       => 50,
+			'meta'        => [
+				'utm' => [
+					'source'   => 'test_source',
+					'campaign' => 'test_campaign',
+					'term'     => 'test_term',
+					'content'  => 'test_content',
+				],
+			],
 		];
 		$order = \wc_create_order( $order_data );
 		$payment_page_url = 'https://example.com/donate';
@@ -63,11 +70,11 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 					'product_name'             => '',
 					'last_payment_amount'      => '$' . $order_data['total'],
 					'last_payment_date'        => $today,
-					'payment_page_utmsource'   => '',
+					'payment_page_utmsource'   => 'test_source',
 					'payment_page_utmmedium'   => '',
-					'payment_page_utmcampaign' => '',
-					'payment_page_utmterm'     => '',
-					'payment_page_utmcontent'  => '',
+					'payment_page_utmcampaign' => 'test_campaign',
+					'payment_page_utmterm'     => 'test_term',
+					'payment_page_utmcontent'  => 'test_content',
 					'sub_start_date'           => '',
 					'sub_end_date'             => '',
 					'billing_cycle'            => '',
@@ -85,6 +92,27 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Test payment metadata extraction - with different location of UTM meta.
+	 * Newspack will set the 'utm' order meta, but when importing data, a one-to-one relation
+	 * might be needed. In such a case, a field in the imported data would correspond to
+	 * a string meta field, instead of the UTM params being stored as serialized values.
+	 */
+	public function test_payment_metadata_utm() {
+		$order_data = [
+			'customer_id' => self::$user_id,
+			'status'      => 'completed',
+			'total'       => 50,
+			'meta'        => [
+				'utm_source'   => 'test_source',
+				'utm_campaign' => 'test_campaign',
+			],
+		];
+		$order = \wc_create_order( $order_data );
+		$contact_data = WooCommerce_Connection::get_contact_from_order( $order );
+		$this->assertEquals( 'test_source', $contact_data['metadata']['payment_page_utmsource'] );
+		$this->assertEquals( 'test_campaign', $contact_data['metadata']['payment_page_utmcampaign'] );
+	}
 
 	/**
 	 * Test payment metadata extraction using a failed order.

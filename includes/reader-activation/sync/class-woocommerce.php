@@ -80,6 +80,17 @@ class WooCommerce extends Sync {
 		$metadata['payment_page'] = $payment_page_url;
 
 		$utm = $order->get_meta( 'utm' );
+		if ( empty( $utm ) ) {
+			$utm = [];
+			// Try the explicit `utm_<name>` meta.
+			foreach ( WooCommerce_Order_UTM::$params as $param ) {
+				$param_name = 'utm_' . $param;
+				$utm_value = $order->get_meta( $param_name );
+				if ( ! empty( $utm_value ) ) {
+					$utm[ $param ] = $utm_value;
+				}
+			}
+		}
 		if ( ! empty( $utm ) ) {
 			foreach ( $utm as $key => $value ) {
 				$metadata[ 'payment_page_utm' . $key ] = $value;
@@ -170,15 +181,14 @@ class WooCommerce extends Sync {
 
 		// Clear out any payment-related fields that don't relate to the current order.
 		$payment_fields = array_keys( Metadata::get_payment_fields() );
+		foreach ( WooCommerce_Order_UTM::$params as $param ) {
+			if ( ! isset( $metadata[ 'payment_page_utm' . $param ] ) ) {
+				$metadata[ 'payment_page_utm' . $param ] = '';
+			}
+		}
 		foreach ( $payment_fields as $meta_key ) {
-			if ( ! isset( $metadata[ $meta_key ] ) ) {
-				if ( 'payment_page_utm' === $meta_key ) {
-					foreach ( WooCommerce_Order_UTM::$params as $param ) {
-						$metadata[ $meta_key . $param ] = '';
-					}
-				} else {
-					$metadata[ $meta_key ] = '';
-				}
+			if ( ! isset( $metadata[ $meta_key ] ) && 'payment_page_utm' !== $meta_key ) {
+				$metadata[ $meta_field ] = '';
 			}
 		}
 		return $metadata;
