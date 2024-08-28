@@ -76,6 +76,9 @@ class Guest_Contributor_Role {
 			add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
 			add_action( 'wp_update_user', [ __CLASS__, 'edit_user_profile_update' ] );
 		}
+
+		// Hide author email on the frontend, if it's a placeholder email.
+		\add_filter( 'theme_mod_show_author_email', [ __CLASS__, 'hide_author_email' ] );
 	}
 
 	/**
@@ -177,16 +180,45 @@ class Guest_Contributor_Role {
 		\update_option( self::SETTINGS_VERSION_OPTION_NAME, $current_settings_version );
 	}
 
-		/**
-		 * Filters user validation to allow empty emails for guest authors
-		 *
-		 * When creating a new user, also automatically generate a username from the display name.
-		 *
-		 * @param WP_Error $errors WP_Error object (passed by reference).
-		 * @param bool     $update Whether this is a user update.
-		 * @param stdClass $user   User object (passed by reference).
-		 * @return WP_Error
-		 */
+	/**
+	 * Get dummy email domain.
+	 */
+	public static function get_dummy_email_domain() {
+		return \apply_filters( 'newspack_guest_author_email_domain', 'example.com' );
+	}
+
+	/**
+	 * Is a dummy email address?
+	 *
+	 * @param string $email_address Email address to check.
+	 */
+	public static function is_dummy_email_address( $email_address ) {
+		return strpos( $email_address, '@' . self::get_dummy_email_domain() ) !== false;
+	}
+
+	/**
+	 * Create a placeholder/dummy email address.
+	 *
+	 * @param WP_User|string $user_or_name The user, or just the name.
+	 */
+	public static function get_dummy_email_address( $user_or_name ) {
+		$email_domain = self::get_dummy_email_domain();
+		if ( is_string( $user_or_name ) ) {
+			return $user_or_name . '@' . $email_domain;
+		}
+		return $user->user_login . '@' . $email_domain;
+	}
+
+	/**
+	 * Filters user validation to allow empty emails for guest authors
+	 *
+	 * When creating a new user, also automatically generate a username from the display name.
+	 *
+	 * @param WP_Error $errors WP_Error object (passed by reference).
+	 * @param bool     $update Whether this is a user update.
+	 * @param stdClass $user   User object (passed by reference).
+	 * @return WP_Error
+	 */
 	public static function user_profile_update_errors( $errors, $update, $user ) {
 
 		if ( ! isset( $user->role ) || self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
@@ -216,7 +248,7 @@ class Guest_Contributor_Role {
 
 		if ( empty( $user->user_email ) ) {
 			// Create a placeholder email address to avoid any issues with empty emails.
-			$user->user_email = $user->user_login . '@example.com';
+			$user->user_email = self::get_dummy_email_address( $user );
 		}
 
 		return $errors;
@@ -433,6 +465,22 @@ class Guest_Contributor_Role {
 	public static function cme_capabilities_add_user_multi_roles( $value ) {
 		if ( self::is_adding_user_with_no_edit_role() ) {
 			return false;
+		}
+		return $value;
+	}
+
+	/**
+	 * Hide the author email on the frontend if it's a placeholder email.
+	 *
+	 * @param bool $value Whether to show the author email.
+	 */
+	public static function hide_author_email( $value ) {
+		if ( is_author() || is_singular() ) { // Run on archive pages and single posts/pages.
+			$author_id = get_the_author_meta( 'ID' );
+			$user = get_userdata( $author_id );
+			if ( $user && self::is_guest_author( $user ) && self::is_dummy_email_address( $user->user_email ) ) {
+				return false;
+			}
 		}
 		return $value;
 	}
