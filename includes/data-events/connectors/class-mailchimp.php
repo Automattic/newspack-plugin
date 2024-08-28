@@ -44,21 +44,8 @@ class Mailchimp extends Connector {
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
 			Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_changed' );
 			Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
+			Data_Events::register_handler( [ __CLASS__, 'membership_saved' ], 'membership_saved' );
 		}
-	}
-
-	/**
-	 * Get audience ID.
-	 *
-	 * @return string|bool Audience ID or false if not set.
-	 */
-	private static function get_audience_id() {
-		$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
-		/** Attempt to use list ID from "Mailchimp for WooCommerce" */
-		if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
-			$audience_id = \mailchimp_get_list_id();
-		}
-		return ! empty( $audience_id ) ? $audience_id : false;
 	}
 
 	/**
@@ -83,7 +70,7 @@ class Mailchimp extends Connector {
 	 * @return array|WP_Error response body or error.
 	 */
 	protected static function put( $contact, $context ) {
-		$audience_id = self::get_audience_id();
+		$audience_id = Reader_Activation::get_esp_master_list_id( 'mailchimp' );
 		if ( ! $audience_id ) {
 			return;
 		}

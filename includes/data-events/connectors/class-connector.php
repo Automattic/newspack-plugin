@@ -97,13 +97,42 @@ abstract class Connector {
 		}
 
 		$order_id = $data['platform_data']['order_id'];
-		$contact  = WooCommerce_Connection::get_contact_from_order( $order_id, $data['referer'], true );
+		$contact = WooCommerce_Connection::get_contact_from_order( $order_id, $data['referer'] );
 
 		if ( ! $contact ) {
 			return;
 		}
 
 		static::put( $contact, 'RAS Order completed' );
+	}
+
+	/**
+	 * Handle membership creation or update.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function membership_saved( $timestamp, $data, $client_id ) {
+		$filtered_enabled_fields = Newspack_Newsletters::filter_enabled_fields(
+			[
+				'membership_status',
+				'membership_plan',
+				'membership_start_date',
+				'membership_end_date',
+			]
+		);
+		if ( empty( $filtered_enabled_fields ) ) {
+			return;
+		}
+		$contact = [ 'email' => $data['email'] ];
+		foreach ( $filtered_enabled_fields as $key => $value ) {
+			if ( isset( $data[ $key ] ) ) {
+				$contact['metadata'][ Newspack_Newsletters::get_metadata_key( $key ) ] = $data[ $key ];
+			}
+		}
+
+		static::put( $contact, 'RAS Woo Membership created or updated.' );
 	}
 
 	/**
