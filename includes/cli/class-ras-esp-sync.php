@@ -85,14 +85,14 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 
 		static::log( __( 'Running ESP contact sync...', 'newspack-plugin' ) );
 
-		$can_sync = static::can_esp_sync( true );
+		$can_sync = self::can_esp_sync( true );
 		if ( ! $config['is_dry_run'] && $can_sync->has_errors() ) {
 			return $can_sync;
 		}
 
 		// If syncing only migrated subscriptions.
 		if ( $config['migrated_only'] ) {
-			$config['subscription_ids'] = static::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $config['offset'], $config['active_only'] );
+			$config['subscription_ids'] = self::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $config['offset'], $config['active_only'] );
 			if ( \is_wp_error( $config['subscription_ids'] ) ) {
 				return $config['subscription_ids'];
 			}
@@ -118,7 +118,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					continue;
 				}
 
-				$result = static::sync_contact( $subscription, $config['is_dry_run'] );
+				$result = self::sync_contact( $subscription, $config['is_dry_run'] );
 				if ( \is_wp_error( $result ) ) {
 					static::log(
 						sprintf(
@@ -139,7 +139,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					}
 
 					$next_batch_offset = $config['offset'] + ( $batches * $config['batch_size'] );
-					$config['subscription_ids'] = static::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $next_batch_offset, $config['active_only'] );
+					$config['subscription_ids'] = self::get_migrated_subscriptions( $config['migrated_only'], $config['batch_size'], $next_batch_offset, $config['active_only'] );
 				}
 			}
 		}
@@ -162,7 +162,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					continue;
 				}
 
-				$result = static::sync_contact( $order, $config['is_dry_run'] );
+				$result = self::sync_contact( $order, $config['is_dry_run'] );
 				if ( \is_wp_error( $result ) ) {
 					static::log(
 						sprintf(
@@ -180,8 +180,8 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 		if ( ! empty( $config['user_ids'] ) ) {
 			static::log( __( 'Syncing by customer user ID...', 'newspack-plugin' ) );
 			foreach ( $config['user_ids'] as $user_id ) {
-				if ( ! $config['active_only'] || static::user_has_active_subscriptions( $user_id ) ) {
-					$result = static::sync_contact( $user_id, $config['is_dry_run'] );
+				if ( ! $config['active_only'] || self::user_has_active_subscriptions( $user_id ) ) {
+					$result = self::sync_contact( $user_id, $config['is_dry_run'] );
 					if ( \is_wp_error( $result ) ) {
 						static::log(
 							sprintf(
@@ -204,13 +204,13 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			false === $config['migrated_only']
 		) {
 			static::log( __( 'Syncing all readers...', 'newspack-plugin' ) );
-			$user_ids = static::get_batch_of_readers( $config['batch_size'], $config['offset'] );
+			$user_ids = self::get_batch_of_readers( $config['batch_size'], $config['offset'] );
 			$batches  = 0;
 
 			while ( $user_ids ) {
 				$user_id = array_shift( $user_ids );
-				if ( ! $config['active_only'] || static::user_has_active_subscriptions( $user_id ) ) {
-					$result = static::sync_contact( $user_id, $config['is_dry_run'] );
+				if ( ! $config['active_only'] || self::user_has_active_subscriptions( $user_id ) ) {
+					$result = self::sync_contact( $user_id, $config['is_dry_run'] );
 					if ( \is_wp_error( $result ) ) {
 						static::log(
 							sprintf(
@@ -231,7 +231,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 						break;
 					}
 
-					$user_ids = static::get_batch_of_readers( $config['batch_size'], $config['offset'] + ( $batches * $config['batch_size'] ) );
+					$user_ids = self::get_batch_of_readers( $config['batch_size'], $config['offset'] + ( $batches * $config['batch_size'] ) );
 				}
 			}
 		}
@@ -355,7 +355,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 		$config['max_batches']      = ! empty( $assoc_args['max-batches'] ) ? intval( $assoc_args['max-batches'] ) : 0;
 		$config['context']          = ! empty( $assoc_args['sync-context'] ) ? $assoc_args['sync-context'] : static::$context;
 
-		$processed = static::sync_contacts( $config );
+		$processed = self::sync_contacts( $config );
 
 		if ( \is_wp_error( $processed ) ) {
 			WP_CLI::error( $processed->get_error_message() );
