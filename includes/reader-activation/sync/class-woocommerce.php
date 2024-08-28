@@ -188,7 +188,7 @@ class WooCommerce extends Sync {
 		}
 		foreach ( $payment_fields as $meta_key ) {
 			if ( ! isset( $metadata[ $meta_key ] ) && 'payment_page_utm' !== $meta_key ) {
-				$metadata[ $meta_field ] = '';
+				$metadata[ $meta_key ] = '';
 			}
 		}
 		return $metadata;
