@@ -15,10 +15,18 @@ type ThemeNames =
 type NewspackThemes = `newspack-${ ThemeNames }`;
 
 /**
- * Theme and brand data.
+ * Homepage pattern schema.
+ */
+type HomepagePattern = {
+	content: string;
+	image: string;
+};
+
+/**
+ * Theme and brand schema.
  */
 type ThemeBrandData = {
 	theme: '' | NewspackThemes;
-	theme_mods?: {};
-	homepage_patterns?: {};
+	theme_mods: Record< string, unknown > & { homepage_pattern_index: number };
+	homepage_patterns: HomepagePattern[];
 };

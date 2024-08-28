@@ -15,7 +15,10 @@ import ThemeAndBrand from './theme-and-brand';
 
 type SectionKeys = keyof typeof settingsTabs;
 
-const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = {
+const sectionComponents: Record<
+	SectionKeys | 'default',
+	( a: { isPartOfSetup?: boolean } ) => React.ReactNode
+> = {
 	connections: Connections,
 	social: Social,
 	emails: Emails,
