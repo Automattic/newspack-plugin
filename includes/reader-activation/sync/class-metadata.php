@@ -355,14 +355,14 @@ class Metadata extends Sync {
 				$normalized_metadata[ $meta_key ] = $meta_value;
 			} else {
 				// If the key is not in the list of fields to sync, ignore it.
-				static::log( 'Ignoring metadata key: ' . $meta_key );
+				self::log( 'Ignoring metadata key: ' . $meta_key );
 			}
 		}
 
 		$contact['metadata'] = $normalized_metadata;
 
-		static::log( 'Normalizing contact data for reader ESP sync:' );
-		static::log( $contact );
+		self::log( 'Normalizing contact data for reader ESP sync:' );
+		self::log( $contact );
 
 		/**
 		 * Filters the normalized contact data before syncing to the ESP.
