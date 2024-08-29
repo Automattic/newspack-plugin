@@ -45,6 +45,7 @@ class ActiveCampaign extends Connector {
 			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
 			Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 			Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
+			Data_Events::register_handler( [ __CLASS__, 'membership_saved' ], 'membership_saved' );
 		}
 	}
 
@@ -55,7 +56,7 @@ class ActiveCampaign extends Connector {
 	 * @param string $context Context of the update for logging purposes.
 	 */
 	protected static function put( $contact, $context ) {
-		$master_list_id = Reader_Activation::get_setting( 'active_campaign_master_list' );
+		$master_list_id = Reader_Activation::get_esp_master_list_id( 'active_campaign' );
 		if ( ! $master_list_id ) {
 			return;
 		}

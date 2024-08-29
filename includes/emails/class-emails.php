@@ -418,6 +418,8 @@ class Emails {
 				'post_status'    => 'any',
 				'meta_key'       => self::EMAIL_CONFIG_NAME_META,
 				'meta_value'     => $type, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
 			]
 		);
 		if ( $emails_query->post ) {
