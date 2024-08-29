@@ -192,10 +192,9 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( isset( $_GET['scheduled-sync-contacts'] ) ) {
 			$scheduled_syncs = absint( wp_unslash( $_GET['scheduled-sync-contacts'] ) );
 			$message         = sprintf(
-				// translators: %1$d: number of contacts resynced. %2$d: estimated time in seconds.
-				__( '%1$d contacts scheculed for resync to the ESP. This should take approximately %2$d seconds.', 'newspack-plugin' ),
-				$scheduled_syncs,
-				$scheduled_syncs * 2
+				// translators: %d: number of contacts resynced.
+				__( '%d contacts scheculed for resync to the ESP and should complete in a couple of minutes.', 'newspack-plugin' ),
+				$scheduled_syncs
 			);
 		}
 		?>
