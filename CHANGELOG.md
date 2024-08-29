@@ -1,3 +1,10 @@
+## [5.3.3](https://github.com/Automattic/newspack-plugin/compare/v5.3.2...v5.3.3) (2024-08-29)
+
+
+### Bug Fixes
+
+* hide dummy guest author email address ([#3375](https://github.com/Automattic/newspack-plugin/issues/3375)) ([3d899cc](https://github.com/Automattic/newspack-plugin/commit/3d899cc19d8091e6a79f7e60a7bd1ddddf506c79))
+
 ## [5.3.2](https://github.com/Automattic/newspack-plugin/compare/v5.3.1...v5.3.2) (2024-08-28)
 
 
