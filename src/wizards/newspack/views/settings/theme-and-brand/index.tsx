@@ -6,30 +6,31 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
 import ThemeSelection from './theme-select';
 import WizardsTab from '../../../../wizards-tab';
+import { HomepageSelect } from './homepage-select';
+import { Button } from '../../../../../components/src';
 import WizardSection from '../../../../wizards-section';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import { Button } from '../../../../../components/src';
 // CSS.
 import './style.scss';
 
-function ThemeBrand() {
+function ThemeBrand( { isPartOfSetup = false } ) {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/theme-and-brand'
 	);
 	const [ data, setDataState ] = useState< ThemeBrandData >( {
 		theme: 'newspack-theme',
+		homepage_patterns: [],
+		theme_mods: { homepage_pattern_index: -1 },
 	} );
 
-	function setData( d: ThemeBrandData ) {
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { theme_mods, homepage_patterns, ...newData } = d;
+	function setData( newData: ThemeBrandData ) {
 		setDataState( { ...data, ...newData } );
 	}
 
@@ -63,23 +64,57 @@ function ThemeBrand() {
 			title={ __( 'Theme and Brand', 'newspack-plugin' ) }
 			className={ isFetching ? 'is-fetching' : '' }
 		>
-			<WizardSection
-				title={ __( 'Theme', 'newspack-plugin' ) }
-				description={ __(
-					'Update your sites theme.',
-					'newspack-plugin'
-				) }
-			>
-				<ThemeSelection
-					theme={ isFetching ? '' : data.theme || 'newspack-theme' }
-					updateTheme={ theme => setData( { ...data, theme } ) }
-				/>
-				<div className="newspack-buttons-card">
-					<Button variant="primary" onClick={ save }>
-						{ __( 'Save', 'newspack-plugin' ) }
-					</Button>
-				</div>
-			</WizardSection>
+			{ ! isPartOfSetup && (
+				<Fragment>
+					<WizardSection
+						title={ __( 'Theme', 'newspack-plugin' ) }
+						description={ __(
+							'Update your sites theme.',
+							'newspack-plugin'
+						) }
+					>
+						<ThemeSelection
+							theme={
+								isFetching ? '' : data.theme || 'newspack-theme'
+							}
+							updateTheme={ theme =>
+								setData( { ...data, theme } )
+							}
+						/>
+					</WizardSection>
+				</Fragment>
+			) }
+			{ isPartOfSetup && (
+				<WizardSection
+					title={ __( 'Homepage', 'newspack-plugin' ) }
+					description={ __(
+						'Select a homepage layout.',
+						'newspack-plugin'
+					) }
+				>
+					<HomepageSelect
+						isFetching={ isFetching }
+						homepagePatternIndex={
+							data.theme_mods.homepage_pattern_index
+						}
+						homepagePatterns={ data.homepage_patterns }
+						updateHomepagePattern={ homepage_pattern_index => {
+							setData( {
+								...data,
+								theme_mods: {
+									...data.theme_mods,
+									homepage_pattern_index,
+								},
+							} );
+						} }
+					/>
+				</WizardSection>
+			) }
+			<div className="newspack-buttons-card">
+				<Button variant="primary" onClick={ save }>
+					{ __( 'Save', 'newspack-plugin' ) }
+				</Button>
+			</div>
 		</WizardsTab>
 	);
 }

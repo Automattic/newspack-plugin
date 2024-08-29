@@ -11,8 +11,9 @@
 	 * Colors
 	 */
 	/* node_modules/@wordpress/base-styles/_colors.scss */
-	--np-color-wp-gray-700: #757575;
 	--np-color-wp-gray-900: #1e1e1e;
+	--np-color-wp-gray-700: #757575;
+	--np-color-wp-gray-100: #f0f0f0;
 
 	/**
 	 * Dimensions
@@ -196,7 +197,8 @@ table.fixed {
 	position: relative;
 	padding-bottom: 75%;
 
-	> img {
+	> img,
+	.newspack-style-card__image-html {
 		height: 100%;
 		position: absolute;
 		width: 100%;

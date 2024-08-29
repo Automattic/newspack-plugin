@@ -36,7 +36,7 @@ class StyleCard extends Component {
 			<div className={ classes } id={ id }>
 				<div className="newspack-style-card__image">
 					{ imageType === 'html' ? (
-						<div dangerouslySetInnerHTML={ image } />
+						<div className="newspack-style-card__image-html" dangerouslySetInnerHTML={ image } />
 					) : (
 						<img src={ image } alt={ cardTitle + ' ' + __( 'Thumbnail', 'newspack-plugin' ) } />
 					) }
