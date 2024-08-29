@@ -203,7 +203,11 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			false === $config['subscription_ids'] &&
 			false === $config['migrated_only']
 		) {
-			static::log( __( 'Syncing all readers...', 'newspack-plugin' ) );
+			if ( $config['active_only'] ) {
+				static::log( __( 'Syncing all readers with active subscriptions...', 'newspack-plugin' ) );
+			} else {
+				static::log( __( 'Syncing all readers...', 'newspack-plugin' ) );
+			}
 			$user_ids = self::get_batch_of_readers( $config['batch_size'], $config['offset'] );
 			$batches  = 0;
 
@@ -319,9 +323,6 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	 */
 	private static function get_batch_of_readers( $batch_size, $offset = 0 ) {
 		$roles = Reader_Activation::get_reader_roles();
-		if ( defined( 'NEWSPACK_NETWORK_READER_ROLE' ) && ! in_array( NEWSPACK_NETWORK_READER_ROLE, $roles, true ) ) {
-			$roles[] = NEWSPACK_NETWORK_READER_ROLE;
-		}
 		$query = new \WP_User_Query(
 			[
 				'fields'   => 'ID',

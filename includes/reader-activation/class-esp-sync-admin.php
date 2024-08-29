@@ -32,6 +32,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 		add_filter( 'bulk_actions-users', [ __CLASS__, 'bulk_actions' ] );
 		add_filter( 'handle_bulk_actions-users', [ __CLASS__, 'handle_bulk_actions' ], 10, 3 );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notices' ] );
+		add_action( 'newspack_sync_admin_batch', [ __CLASS__, 'sync_contact' ], 10, 1 ); // ActionScheduler hook.
 	}
 
 	/**
@@ -88,6 +89,10 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( ! self::can_esp_sync() ) {
 			return $actions;
 		}
+		// Bulk action requires ActionScheduler, so we don't show it if it's not available.
+		if ( ! class_exists( 'ActionScheduler' ) ) {
+			return $actions;
+		}
 		$actions[ self::ADMIN_ACTION ] = \esc_html__( 'Resync to the ESP', 'newspack-plugin' );
 		return $actions;
 	}
@@ -105,6 +110,10 @@ class ESP_Sync_Admin extends ESP_Sync {
 		if ( self::ADMIN_ACTION !== $doaction ) {
 			return $sendback;
 		}
+		// Bulk action requires ActionScheduler, so we don't show it if it's not available.
+		if ( ! class_exists( 'ActionScheduler' ) ) {
+			\wp_die( \esc_html__( 'ActionScheduler is not available to perform the bulk action.', 'newspack-plugin' ) );
+		}
 		$can_sync = self::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			\wp_die( $can_sync ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -113,18 +122,12 @@ class ESP_Sync_Admin extends ESP_Sync {
 			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack-plugin' ) );
 		}
 		foreach ( $items as $user_id ) {
-			$result = self::sync_contact( $user_id );
-			if ( \is_wp_error( $result ) ) {
-				\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			}
-		}
-		if ( \is_wp_error( $result ) ) {
-			\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			as_schedule_single_action( time(), 'newspack_sync_admin_batch', [ 'user_id' => $user_id ] );
 		}
 		$sendback = \add_query_arg(
 			[
-				'update'          => self::ADMIN_ACTION,
-				'synced-contacts' => count( $items ),
+				'update'                  => self::ADMIN_ACTION,
+				'scheduled-sync-contacts' => count( $items ),
 			],
 			$sendback
 		);
@@ -168,7 +171,7 @@ class ESP_Sync_Admin extends ESP_Sync {
 			\wp_die( $result ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		$redirect = \add_query_arg( [ 'update' => $action ], \remove_query_arg( [ 'action', 'uid', '_wpnonce', 'synced-contacts' ] ) );
+		$redirect = \add_query_arg( [ 'update' => $action ], \remove_query_arg( [ 'action', 'uid', '_wpnonce', 'scheduled-sync-contacts' ] ) );
 		\wp_safe_redirect( $redirect );
 		exit;
 	}
@@ -186,17 +189,24 @@ class ESP_Sync_Admin extends ESP_Sync {
 			return;
 		}
 		$message = __( 'Contact resynced to the ESP.', 'newspack-plugin' );
-		if ( isset( $_GET['synced-contacts'] ) && 1 < $_GET['synced-contacts'] ) {
-			$synced_contacts = absint( wp_unslash( $_GET['synced-contacts'] ) );
-			$message = sprintf(
+		if ( isset( $_GET['scheduled-sync-contacts'] ) ) {
+			$scheduled_syncs = absint( wp_unslash( $_GET['scheduled-sync-contacts'] ) );
+			$message         = sprintf(
 				// translators: %d: number of contacts resynced.
-				__( '%d contacts resynced to the ESP.', 'newspack-plugin' ),
-				$synced_contacts
+				__( '%d contacts scheculed for resync to the ESP and should complete in a couple of minutes.', 'newspack-plugin' ),
+				$scheduled_syncs
 			);
 		}
 		?>
 		<div class="notice notice-success is-dismissible">
-			<p><?php echo esc_html( $message ); ?></p>
+			<p>
+				<?php echo esc_html( $message ); ?>
+				<?php if ( isset( $_GET['scheduled-sync-contacts'] ) ) : ?>
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=wc-status&tab=action-scheduler&s=newspack_sync_admin_batch&orderby=schedule&order=desc' ) ); ?>">
+						<?php echo esc_html__( 'Click here to monitor progress.', 'newspack-plugin' ); ?>
+					</a>
+				<?php endif; ?>
+			</p>
 		</div>
 		<?php
 		// phpcs:enable
