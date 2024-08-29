@@ -456,10 +456,12 @@ class GA4 {
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
 	public static function handle_modal_checkout_interaction( $params, $data ) {
+
 		// remove data added in the body filter.
 		unset( $data['ga_params'] );
 		unset( $data['ga_client_id'] );
 		unset( $data['platform_data'] );
+		$data['referer'] = substr( $data['referer'], strlen( home_url() ) ); // remove domain from referer.
 
 		return array_merge( $params, $data );
 	}
