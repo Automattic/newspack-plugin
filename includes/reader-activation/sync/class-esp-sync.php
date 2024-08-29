@@ -114,7 +114,7 @@ class ESP_Sync extends Sync {
 	 *
 	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
 	 */
-	protected static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
+	public static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
 		$can_sync = static::can_esp_sync( true );
 		if ( ! $is_dry_run && $can_sync->has_errors() ) {
 			return $can_sync;

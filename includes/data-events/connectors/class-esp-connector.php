@@ -29,7 +29,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * Register handlers.
 	 */
 	public static function register_handlers() {
-		if ( ! static::can_esp_sync() ) {
+		if ( ! self::can_esp_sync() ) {
 			return;
 		}
 		Data_Events::register_handler( [ __CLASS__, 'reader_registered' ], 'reader_registered' );
@@ -78,7 +78,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			'metadata' => $metadata,
 		];
 
-		static::sync( $contact, 'RAS Reader registration' );
+		self::sync( $contact, 'RAS Reader registration' );
 	}
 
 	/**
@@ -102,7 +102,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 
 		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
 
-		static::sync( $contact, 'RAS Reader login' );
+		self::sync( $contact, 'RAS Reader login' );
 	}
 
 	/**
@@ -130,7 +130,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		static::sync( $contact, 'RAS Order completed' );
+		self::sync( $contact, 'RAS Order completed' );
 	}
 
 	/**
@@ -159,7 +159,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			}
 		}
 
-		static::put( $contact, 'RAS Woo Membership created or updated.' );
+		self::sync( $contact, 'RAS Woo Membership created or updated.' );
 	}
 
 	/**
@@ -180,7 +180,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		static::sync( $contact, sprintf( 'RAS Woo Subscription updated. Status changed from %s to %s', $data['status_before'], $data['status_after'] ) );
+		self::sync( $contact, sprintf( 'RAS Woo Subscription updated. Status changed from %s to %s', $data['status_before'], $data['status_after'] ) );
 	}
 
 	/**
@@ -231,7 +231,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			'email'    => $data['email'],
 			'metadata' => $metadata,
 		];
-		static::sync( $contact, 'Updating the account and newsletter_selection fields after a change in the subscription lists.' );
+		self::sync( $contact, 'Updating the account and newsletter_selection fields after a change in the subscription lists.' );
 	}
 
 	/**
@@ -264,7 +264,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		$contact['metadata']['network_registration_site'] = $registration_site;
 
 		$site_url = get_site_url();
-		static::sync( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );
+		self::sync( $contact, sprintf( 'RAS Newspack Network: User propagated from another site in the network. Propagated from %s to %s.', $registration_site, $site_url ) );
 	}
 }
 ESP_Connector::init_hooks();
