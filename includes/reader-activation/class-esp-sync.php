@@ -72,14 +72,14 @@ class ESP_Sync {
 			);
 		}
 
-		// If not a production site, only sync if the NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC constant is set.
+		// If not a production site, only sync if the NEWSPACK_ALLOW_READER_SYNC constant is set.
 		if (
 			( ! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) || ! \Newspack_Manager::is_connected_to_production_manager() ) &&
-			( ! defined( 'NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC' ) || ! NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC )
+			( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) || ! NEWSPACK_ALLOW_READER_SYNC )
 		) {
 			$errors->add(
 				'esp_sync_not_allowed',
-				__( 'ESP sync is disabled for non-production sites. Set NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC to allow sync.', 'newspack-plugin' )
+				__( 'Sync is disabled for non-production sites. Set NEWSPACK_ALLOW_READER_SYNC to allow sync.', 'newspack-plugin' )
 			);
 		}
 
