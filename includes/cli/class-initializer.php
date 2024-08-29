@@ -24,6 +24,7 @@ class Initializer {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_comands' ] );
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ras.php';
+		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ras-esp-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-co-authors-plus.php';
 	}
 
@@ -57,6 +58,74 @@ class Initializer {
 						'description' => 'ID or email of the user account . ',
 						'optional'    => false,
 						'repeating'   => false,
+					],
+				],
+			]
+		);
+
+		WP_CLI::add_command(
+			'newspack esp sync',
+			[ 'Newspack\CLI\RAS_ESP_Sync', 'cli_sync_contacts' ],
+			[
+				'shortdesc' => __( 'Sync reader data to the connected ESP.', 'newspack-plugin' ),
+				'synopsis'  => [
+					[
+						'type'     => 'flag',
+						'name'     => 'dry-run',
+						'optional' => true,
+					],
+					[
+						'type'     => 'flag',
+						'name'     => 'active-only',
+						'optional' => true,
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'migrated-subscriptions',
+						'default'  => false,
+						'optional' => true,
+						'options'  => [ 'stripe', 'piano-csv', 'stripe-csv', false ],
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'subscription-ids',
+						'default'  => false,
+						'optional' => true,
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'user-ids',
+						'default'  => false,
+						'optional' => true,
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'order-ids',
+						'default'  => false,
+						'optional' => true,
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'batch-size',
+						'default'  => 10,
+						'optional' => true,
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'offset',
+						'default'  => 0,
+						'optional' => true,
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'max-batches',
+						'default'  => 0,
+						'optional' => true,
+					],
+					[
+						'type'     => 'assoc',
+						'name'     => 'sync-context',
+						'optional' => true,
 					],
 				],
 			]
