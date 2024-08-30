@@ -125,18 +125,6 @@ class ESP_Sync extends Sync {
 		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
 		$user     = \get_userdata( $user_id );
 
-		// Backfill Network Registration Site field if needed.
-		$registration_site = false;
-		if ( $user && defined( 'NEWSPACK_NETWORK_READER_ROLE' ) && defined( 'Newspack_Network\Utils\Users::USER_META_REMOTE_SITE' ) ) {
-			if ( ! empty( array_intersect( $user->roles, \Newspack_Network\Utils\Users::get_synced_user_roles() ) ) ) {
-				$registration_site = \esc_url( \get_site_url() ); // Default to current site.
-				$remote_site       = \get_user_meta( $user->ID, \Newspack_Network\Utils\Users::USER_META_REMOTE_SITE, true );
-				if ( ! empty( \wp_http_validate_url( $remote_site ) ) ) {
-					$registration_site = \esc_url( $remote_site );
-				}
-			}
-		}
-
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
 			return new \WP_Error(
@@ -156,10 +144,7 @@ class ESP_Sync extends Sync {
 		}
 
 		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : Sync\WooCommerce::get_contact_from_customer( $customer );
-		if ( $registration_site ) {
-			$contact['metadata']['network_registration_site'] = $registration_site;
-		}
-		$result = $is_dry_run ? true : self::sync( $contact );
+		$result  = $is_dry_run ? true : self::sync( $contact );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(

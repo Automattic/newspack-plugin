@@ -64,16 +64,8 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		if ( isset( $data['metadata']['registration_method'] ) ) {
 			$metadata['registration_method'] = $data['metadata']['registration_method'];
 		}
-		/**
-		 * Filters the contact metadata sent to the ESP when a reader account is registered for the first time.
-		 *
-		 * @param array $metadata The contact metadata.
-		 * @param int   $user_id The ID of the user.
-		 *
-		 * @return array The modified contact metadata.
-		 */
-		$metadata = \apply_filters( 'newspack_data_events_reader_registered_metadata', $metadata, $data['user_id'] );
-		$contact  = [
+
+		$contact = [
 			'email'    => $data['email'],
 			'metadata' => $metadata,
 		];
