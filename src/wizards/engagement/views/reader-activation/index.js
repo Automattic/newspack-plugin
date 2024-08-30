@@ -391,6 +391,11 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						<Button
 							isPrimary
 							onClick={ () => {
+								if (isMailchimp && config.sync_esp && config.mailchimp_audience_id === '') {
+									// eslint-disable-next-line no-alert
+									alert( __( 'Please select a Mailchimp Audience ID.', 'newspack-plugin' ) );
+									return
+								}
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
 									mailchimp_audience_id: config.mailchimp_audience_id,
