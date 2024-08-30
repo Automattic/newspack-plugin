@@ -145,7 +145,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		$contact = [ 'email' => $data['email'] ];
 		foreach ( $filtered_enabled_fields as $key => $value ) {
 			if ( isset( $data[ $key ] ) ) {
-				$contact['metadata'][ Newspack_Newsletters::get_metadata_key( $key ) ] = $data[ $key ];
+				$contact['metadata'][ $key ] = $data[ $key ];
 			}
 		}
 
