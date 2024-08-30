@@ -16,17 +16,14 @@ export default function Colors( {
 	colors,
 	updateColors,
 }: {
-	colors: {
-		primary_color_hex: string;
-		secondary_color_hex: string;
-	};
+	colors: ThemeColors;
 	updateColors: ( a: Record< string, string > ) => void;
 } ) {
 	return (
 		<Grid gutter={ 32 }>
 			{ /* This UI does not enable setting 'theme_colors' to 'default'. As soon as a color is picked, 'theme_colors' will be 'custom'. */ }
 			<ColorPicker
-				label={ __( 'Primary' ) }
+				label={ __( 'Primary', 'newspack-plugin' ) }
 				color={ colors.primary_color_hex }
 				onChange={ ( primary_color_hex: string ) =>
 					updateColors( {
@@ -37,7 +34,7 @@ export default function Colors( {
 				}
 			/>
 			<ColorPicker
-				label={ __( 'Secondary' ) }
+				label={ __( 'Secondary', 'newspack-plugin' ) }
 				color={ colors.secondary_color_hex }
 				onChange={ ( secondary_color_hex: string ) =>
 					updateColors( {

@@ -50,15 +50,19 @@ type FontGroup = {
 };
 
 /**
+ * Colors settings schema.
+ */
+type ThemeColors = {
+	primary_color_hex: string;
+	secondary_color_hex: string;
+	theme_colors: string;
+};
+
+/**
  * Theme and brand schema.
  */
 type ThemeBrandData = {
 	theme: '' | NewspackThemes;
-	theme_mods: Record< string, unknown > & {
-		homepage_pattern_index: number;
-		primary_color_hex: string;
-		secondary_color_hex: string;
-		theme_colors: 'default' | 'custom';
-	} & Typography;
+	theme_mods: { homepage_pattern_index: number } & ThemeColors & Typography;
 	homepage_patterns: HomepagePattern[];
 };

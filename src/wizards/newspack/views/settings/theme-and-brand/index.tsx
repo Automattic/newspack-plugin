@@ -13,9 +13,9 @@ import { useState, useEffect, Fragment } from '@wordpress/element';
  */
 import ThemeSelection from './theme-select';
 import WizardsTab from '../../../../wizards-tab';
-import { HomepageSelect } from './homepage-select';
-import { Button, Wizard } from '../../../../../components/src';
 import WizardSection from '../../../../wizards-section';
+import { HomepageSelect } from './homepage-select';
+import { Button } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 // CSS.
 import './style.scss';
@@ -34,7 +34,7 @@ const DEFAULT_DATA: ThemeBrandData = {
 		font_body: '',
 		accent_allcaps: false,
 		custom_font_import_code: undefined,
-		custom_font_import_code_alternative: undefined,
+		custom_font_import_code_alternate: undefined,
 	},
 };
 
@@ -124,7 +124,6 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 					/>
 				</WizardSection>
 			) }
-			<pre>{ JSON.stringify( data.theme_mods, null, 2 ) }</pre>
 			<WizardSection
 				title={ __( 'Colors', 'newspack-plugin' ) }
 				description={ __(
@@ -135,6 +134,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 				<Colors
 					colors={ data.theme_mods }
 					updateColors={ ( {
+						theme_colors,
 						primary_color_hex,
 						secondary_color_hex,
 					} ) => {
@@ -142,6 +142,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 							...data,
 							theme_mods: {
 								...data.theme_mods,
+								theme_colors,
 								primary_color_hex,
 								secondary_color_hex,
 							},
@@ -167,7 +168,6 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 						custom_font_import_code,
 						custom_font_import_code_alternate,
 					} ) => {
-						console.log( { data } );
 						setData( {
 							...data,
 							theme_mods: {
