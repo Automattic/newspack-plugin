@@ -22,9 +22,19 @@ abstract class Wizard_Section {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Initialize.
+	 * Parent tab slug.
+	 * 
+	 * @var string
 	 */
-	public function __construct() {
+	protected $wizard_slug = '';
+
+	/**
+	 * Initialize.
+	 * 
+	 * @param array $args Section arguments.
+	 */
+	public function __construct( $args = [] ) {
+		$this->wizard_slug = $args['wizard_slug'] ?? '';
 		// If inheriting class has method `register_rest_routes` bind method to action.
 		if ( method_exists( $this, 'register_rest_routes' ) ) {
 			add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );

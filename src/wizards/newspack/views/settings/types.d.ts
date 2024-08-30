@@ -75,6 +75,12 @@ type ModalComponentProps = {
  */
 type Ga4Credentials = Record< string, string >;
 
+/** Social */
+type PixelData = {
+	active: boolean;
+	pixel_id: string;
+};
+
 /** Syndication */
 /**
  * RSS API data

@@ -3,8 +3,8 @@
  */
 type ActionCardProps = Partial< {
 	title: string | React.ReactNode;
-	titleLink?: string;
-	href?: string;
+	titleLink: string;
+	href: string;
 	description: string | React.ReactNode;
 	actionText: React.ReactNode | string | null;
 	badge: string;
@@ -15,12 +15,6 @@ type ActionCardProps = Partial< {
 	isMedium: boolean;
 	disabled: boolean | string;
 	hasGreyHeader: boolean;
-	error?:
-		| null
-		| string
-		| {
-				errorCode: string;
-		  };
 	toggleChecked: boolean;
 	toggleOnChange: ( a: boolean ) => void;
 	actionContent: boolean | React.ReactNode | null;
@@ -93,4 +87,33 @@ type PluginCard = {
 	isTogglable?: boolean;
 	isMedium?: boolean;
 	disabled?: boolean;
+};
+
+/**
+ * Wizard Toggle Header Card Props
+ */
+type WizardsToggleHeaderCardProps< T > = {
+	title: string;
+	description: string;
+	namespace: string;
+	path: string;
+	defaultValue: T;
+	fieldValidationMap: Array<
+		[
+			keyof T,
+			{
+				callback?: 'isIntegerId' | 'isId' | ( ( v: any ) => string );
+				dependsOn?: { [ k in keyof T ]?: string };
+			}
+		]
+	>;
+	renderProp: ( props: {
+		settingsUpdates: T;
+		setSettingsUpdates: React.Dispatch< React.SetStateAction< T > >;
+		isFetching: boolean;
+	} ) => React.ReactNode;
+	/** Optional prop to override conditions for toggling. Default uses `active` prop to dictate if toggled on/off */
+	onToggle?: ( active: boolean, data: T ) => T;
+	/** Optional prop to override conditions for isToggled. Default uses `active` prop to dictate if toggled on/off */
+	onChecked?: ( data: T ) => boolean;
 };
