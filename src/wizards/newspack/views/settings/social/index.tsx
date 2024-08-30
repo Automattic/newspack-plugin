@@ -10,6 +10,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import XPixel from './x-pixel';
+import MetaPixel from './meta-pixel';
+
+/**
+ * Internal dependencies
+ */
 import Section from '../../../../wizards-section';
 import Publicize from './publicize';
 
@@ -20,6 +26,8 @@ function Social() {
 
 			<Section>
 				<Publicize />
+				<MetaPixel />
+				<XPixel />
 			</Section>
 		</div>
 	);

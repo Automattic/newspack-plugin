@@ -36,7 +36,7 @@ class Newspack_Settings extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Priority setting for ordering admin submenu items. Dashboard must come first.
+	 * Priority setting for ordering admin submenu items. Settings must come second.
 	 *
 	 * @var int.
 	 */
