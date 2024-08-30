@@ -52,11 +52,9 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function reader_registered( $timestamp, $data, $client_id ) {
-		$account_key           = 'account';
-		$registration_date_key = 'registration_date';
-		$metadata              = [
-			$account_key           => $data['user_id'],
-			$registration_date_key => gmdate( Sync\Metadata::DATE_FORMAT, $timestamp ),
+		$metadata = [
+			'account'           => $data['user_id'],
+			'registration_date' => gmdate( Sync\Metadata::DATE_FORMAT, $timestamp ),
 		];
 		if ( isset( $data['metadata']['current_page_url'] ) ) {
 			$metadata['registration_page'] = $data['metadata']['current_page_url'];
