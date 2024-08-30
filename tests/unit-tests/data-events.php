@@ -256,19 +256,19 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 		Data_Events::register_action( 'test_action2' );
 
 		$handler = function() {
-			$this->assertEquals( 'test_action', Data_Events::get_current_event(), 'Current event should be set and equal to the action name' );
+			$this->assertEquals( 'test_action', Data_Events::current_event(), 'Current event should be set and equal to the action name' );
 		};
 		Data_Events::register_handler( $handler, 'test_action' );
 		Data_Events::handle( 'test_action', time(), [], 'test-client-id' );
 
-		$this->assertNull( Data_Events::get_current_event(), 'Current event should be null after handling' );
+		$this->assertNull( Data_Events::current_event(), 'Current event should be null after handling' );
 
 		$handler2 = function() {
-			$this->assertEquals( 'test_action2', Data_Events::get_current_event(), 'Current event should be set and equal to the action name' );
+			$this->assertEquals( 'test_action2', Data_Events::current_event(), 'Current event should be set and equal to the action name' );
 		};
 		Data_Events::register_handler( $handler2, 'test_action2' );
 		Data_Events::handle( 'test_action2', time(), [], 'test-client-id' );
 
-		$this->assertNull( Data_Events::get_current_event(), 'Current event should be null after handling' );
+		$this->assertNull( Data_Events::current_event(), 'Current event should be null after handling' );
 	}
 }
