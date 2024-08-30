@@ -99,9 +99,14 @@ const MONOSPACE_FONTS = [
 	{ label: 'Space Mono' },
 	{ label: 'Roboto Mono' },
 ];
-const ALL_FONTS = [ ...SERIF_FONTS, ...SANS_SERIF_FONTS, ...DISPLAY_FONTS, ...MONOSPACE_FONTS ];
+const ALL_FONTS = [
+	...SERIF_FONTS,
+	...SANS_SERIF_FONTS,
+	...DISPLAY_FONTS,
+	...MONOSPACE_FONTS,
+];
 
-export const getFontsList = ( headingsOnly: boolean ) =>
+export const getFontsList = ( headingsOnly: boolean = false ) =>
 	[
 		{
 			label: __( 'Serif', 'newspack' ),
@@ -124,11 +129,15 @@ export const getFontsList = ( headingsOnly: boolean ) =>
 			options: MONOSPACE_FONTS,
 		},
 	]
-		.map( group => ( { ...group, options: processFontOptions( headingsOnly, group.options ) } ) )
+		.map( group => ( {
+			...group,
+			options: processFontOptions( headingsOnly, group.options ),
+		} ) )
 		.filter( group => group.options.length );
 
 export const isFontInOptions = ( label: string ) =>
-	ALL_FONTS.filter( option => option.label.indexOf( label ) === 0 ).length >= 1;
+	ALL_FONTS.filter( option => option.label.indexOf( label ) === 0 ).length >=
+	1;
 
 export const getFontImportURL = ( value: string ) =>
 	`//fonts.googleapis.com/css2?family=${ value.replace(
