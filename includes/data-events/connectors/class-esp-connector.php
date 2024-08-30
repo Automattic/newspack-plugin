@@ -227,7 +227,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			'email'    => $data['email'],
 			'metadata' => $metadata,
 		];
-		self::sync( $contact, 'Updating the account and newsletter_selection fields after a change in the subscription lists.' );
+		self::sync( $contact, 'Updating newsletter_selection field after a change in the subscription lists.' );
 	}
 
 	/**
