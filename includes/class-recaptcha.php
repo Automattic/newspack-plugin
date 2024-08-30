@@ -151,7 +151,7 @@ final class Recaptcha {
 		if ( ! \current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
-				\esc_html__( 'You cannot use this resource.', 'newspack' ),
+				\esc_html__( 'You cannot use this resource.', 'newspack-plugin' ),
 				[
 					'status' => 403,
 				]
@@ -350,7 +350,7 @@ final class Recaptcha {
 	public static function get_terms_text() {
 		return sprintf(
 			/* translators: 1: Privacy Policy URL, 2: Terms of Service URL. */
-			__( 'This site is protected by reCAPTCHA and the Google <a href="%1$s" rel="noopener noreferrer" target="_blank">Privacy Policy</a> and <a href="%2$s" rel="external" target="_blank">Terms of Service</a> apply.', 'newspack' ),
+			__( 'This site is protected by reCAPTCHA and the Google <a href="%1$s" rel="noopener noreferrer" target="_blank">Privacy Policy</a> and <a href="%2$s" rel="external" target="_blank">Terms of Service</a> apply.', 'newspack-plugin' ),
 			'https://policies.google.com/privacy',
 			'https://policies.google.com/terms'
 		);

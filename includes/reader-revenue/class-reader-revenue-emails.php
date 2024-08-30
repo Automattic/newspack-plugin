@@ -148,7 +148,7 @@ class Reader_Revenue_Emails {
 						'template' => '*PAYMENT_METHOD*',
 					],
 					[
-						'label'    => __( 'user account link', 'newspack' ),
+						'label'    => __( 'user account link', 'newspack-plugin' ),
 						'template' => '*ACCOUNT_URL*',
 					],
 				]
