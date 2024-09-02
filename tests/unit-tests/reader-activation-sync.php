@@ -52,14 +52,17 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertTrue( $errors->has_errors() );
 		$error_codes = $errors->get_error_codes();
 		$this->assertNotContains( 'ras_not_enabled', $error_codes, 'Reader Activation is always enabled in test env' );
-		$this->assertContains( 'ras_esp_sync_not_enabled', $error_codes, 'RAS ESP Sync is not enabled' );
+		$this->assertNotContains( 'ras_esp_sync_not_enabled', $error_codes, 'RAS ESP Sync is enabled by default' );
 		$this->assertContains( 'esp_sync_not_allowed', $error_codes, 'RAS ESP Sync is not allowed on non-production site' );
 		$this->assertContains( 'ras_esp_master_list_id_not_found', $error_codes, 'Missing master list ID' );
 
-		// Enable ESP sync.
-		Reader_Activation::update_setting( 'sync_esp', true );
+		// Disable ESP sync.
+		Reader_Activation::update_setting( 'sync_esp', false );
 		$errors = ESP_Sync::can_esp_sync( true );
-		$this->assertNotContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is enabled' );
+		$this->assertContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is disabled' );
+
+		// Reenable ESP sync.
+		Reader_Activation::update_setting( 'sync_esp', true );
 
 		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
 		\define( 'NEWSPACK_ALLOW_READER_SYNC', true );
