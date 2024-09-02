@@ -327,10 +327,7 @@ final class Reader_Activation {
 	 * @return string|bool Master list ID or false if not set or not available.
 	 */
 	public static function get_esp_master_list_id( $provider = '' ) {
-		if ( ! self::is_esp_configured() ) {
-			return false;
-		}
-		if ( empty( $provider ) ) {
+		if ( empty( $provider ) && class_exists( 'Newspack_Newsletters' ) ) {
 			$provider = \Newspack_Newsletters::service_provider();
 		}
 		switch ( $provider ) {
