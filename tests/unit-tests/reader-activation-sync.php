@@ -7,6 +7,8 @@
 
 use Newspack\Reader_Activation\Sync;
 
+require_once __DIR__ . '/../mocks/newspack-newsletters-mocks.php';
+
 /**
  * Test the Esp_Metadata_Sync class.
  */
@@ -35,6 +37,50 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function set_option( $value ) {
 		Sync\Metadata::update_fields( $value );
+	}
+
+	/**
+	 * Test whether reader data can be synced.
+	 */
+	public function test_can_esp_sync() {
+		$this->assertFalse( Sync\ESP_Sync::can_esp_sync(), 'Reader data should not be syncable by default' );
+
+		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$this->assertInstanceOf( 'WP_Error', $errors );
+
+		// Assert all errors.
+		$this->assertTrue( $errors->has_errors() );
+		$error_codes = $errors->get_error_codes();
+		$this->assertContains( 'ras_esp_sync_not_enabled', $error_codes, 'RAS ESP Sync is not enabled' );
+		$this->assertContains( 'esp_sync_not_allowed', $error_codes, 'RAS ESP Sync is not allowed on non-production site' );
+		$this->assertContains( 'ras_esp_master_list_id_not_found', $error_codes, 'Missing master list ID' );
+
+		// Enable ESP sync.
+		Reader_Activation::update_setting( 'sync_esp', true );
+		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$this->assertNotContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is enabled' );
+
+		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
+		\define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
+
+		// Set master list ID.
+		Reader_Activation::set_setting( 'mailchimp_audience_id', '123' );
+		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
+
+		$this->assertTrue( Sync\ESP_Sync::can_esp_sync(), 'Reader data should be syncable' );
+	}
+
+	/**
+	 * Test whether reader data can be synced with a force constant.
+	 */
+	public function test_can_esp_sync_force() {
+		define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
+		$this->assertTrue( Sync\ESP_Sync::can_esp_sync(), 'Reader data should be syncable with a force constant' );
+		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$this->assertFalse( $errors->has_errors(), 'No errors should be returned with a force constant' );
 	}
 
 	/**
@@ -177,45 +223,5 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
 		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
-	}
-
-	/**
-	 * Test that ESP syncing is disabled on newspackstaging sites automatically.
-	 */
-	public function test_staging_mode_esp_sync_deactivation() {
-		/**
-		 * Force site URL to a newspackstaging.com URL.
-		 *
-		 * @param string $site_url The site url.
-		 * @return string Modified $site_url.
-		 */
-		function newspack_test_filter_site_url_for_staging( $site_url ) {
-			return 'example.newspackstaging.com';
-		}
-
-		/**
-		 * Force site URL to example.com.
-		 *
-		 * @param string $site_url The site url.
-		 * @return string Modified $site_url.
-		 */
-		function newspack_test_filter_site_url_for_live( $site_url ) {
-			return 'example.com';
-		}
-
-		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be enabled by default' );
-
-		add_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
-		$this->assertFalse( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be disabled by default on newspackstaging.com sites' );
-		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
-
-		add_filter( 'site_url', 'newspack_test_filter_site_url_for_live' );
-		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be enabled by default on non-newspackstaging.com sites' );
-		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_live' );
-
-		define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
-		add_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
-		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync deactivation can be bypassed with a constant' );
-		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
 	}
 }

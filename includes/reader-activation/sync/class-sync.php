@@ -23,7 +23,7 @@ class Sync {
 	 * @param string $message The message to log.
 	 */
 	protected static function log( $message ) {
-		Logger::log( $message );
+		Logger::log( $message, 'NEWSPACK-SYNC' );
 	}
 
 	/**
@@ -40,6 +40,21 @@ class Sync {
 			$errors->add(
 				'ras_not_enabled',
 				__( 'Reader Activation is not enabled.', 'newspack-plugin' )
+			);
+		}
+
+		if ( class_exists( 'WCS_Staging' ) && \WCS_Staging::is_duplicate_site() ) {
+			$errors->add(
+				'wcs_duplicate_site',
+				__( 'Reader Activation sync is disabled for cloned sites.', 'newspack-plugin' )
+			);
+		}
+
+		$site_url = strtolower( \untrailingslashit( \get_site_url() ) );
+		if ( false !== stripos( $site_url, '.newspackstaging.com' ) ) {
+			$errors->add(
+				'esp_sync_staging_site',
+				__( 'Sync is disabled for Newspack staging sites.', 'newspack-plugin' )
 			);
 		}
 

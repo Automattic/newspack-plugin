@@ -33,9 +33,13 @@ class ESP_Sync extends Sync {
 	public static function can_esp_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
 
+		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
+			return $returns_errors ? $errors : true;
+		}
+
 		$can_sync = static::can_sync( true );
 		if ( $can_sync->has_errors() ) {
-			$errors->add( 'ras_sync_not_available', $can_sync->get_error_message() );
+			$can_sync->export_to( $errors );
 		}
 
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
