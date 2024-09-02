@@ -107,9 +107,10 @@ function refreshWidget( el ) {
 /**
  * Render reCAPTCHA v2 widget on the given form.
  *
- * @param {HTMLElement} form The form element.
+ * @param {HTMLElement}   form         The form element.
+ * @param {Function|null} errorHandler Function to handle errors. Optional.
  */
-function renderWidget( form ) {
+function renderWidget( form, errorHandler = null ) {
 	const submitButtons = [
 		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ),
 	];
@@ -118,7 +119,7 @@ function renderWidget( form ) {
 	const options = {
 		sitekey: siteKey,
 		size: isInvisible ? 'invisible' : 'normal',
-		isolated: true, // Seems to avoid a "Cannot contact reCAPTCHA" connection error in some browsers.
+		isolated: true,
 	};
 
 	submitButtons.forEach( button => {
@@ -139,11 +140,24 @@ function renderWidget( form ) {
 			refreshWidget( button );
 		};
 
+		const errorCallback = () => {
+			refreshWidget( button );
+			const message = wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' );
+			if ( errorHandler ) {
+				errorHandler( message );
+			} else {
+				// eslint-disable-next-line no-alert
+				alert( message );
+			}
+		}
+
 		// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
 		const widgetId = grecaptcha.render( button, {
 			...options,
 			callback,
+			'error-callback': errorCallback,
 		} );
+
 		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
 		setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
 
@@ -161,13 +175,13 @@ function renderWidget( form ) {
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				callback();
 			} else {
+				e.preventDefault();
 				grecaptcha.execute( widgetId );
 
 				// For some reason, WooCommerce checkout forms don't properly pin the widget in a fixed location, so we need to scroll to the top of the page to ensure it's visible.
 				if ( 'newspack_modal_checkout_container' === document.body.getAttribute( 'id' ) ) {
 					document.body.scrollIntoView( { behavior: 'smooth' } );
 				}
-				e.preventDefault();
 			}
 		} );
 	} );
@@ -175,8 +189,11 @@ function renderWidget( form ) {
 
 /**
  * Render reCAPTCHA elements.
+ *
+ * @param {Array}         forms        Array of form elements to render reCAPTCHA on.
+ * @param {Function|null} errorHandler Callback to handle errors. Optional.
  */
-function render( forms = [] ) {
+function render( forms = [], errorHandler = null ) {
 	// In case some other file calls this function before the reCAPTCHA API is ready.
 	if ( ! grecaptcha ) {
 		return domReady( () => grecaptcha.ready( () => render( forms ) ) );
@@ -191,7 +208,7 @@ function render( forms = [] ) {
 			addHiddenField( form );
 		}
 		if ( isV2 ) {
-			renderWidget( form );
+			renderWidget( form, errorHandler );
 		}
 	} );
 }
