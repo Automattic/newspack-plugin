@@ -34,7 +34,7 @@ class ESP_Sync extends Sync {
 		$errors = new \WP_Error();
 
 		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
-			return $returns_errors ? $errors : true;
+			return $return_errors ? $errors : true;
 		}
 
 		$can_sync = static::can_sync( true );
