@@ -75,7 +75,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$errors = ESP_Sync::can_esp_sync( true );
 		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
 
-		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable' );
+		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable after conditions are met' );
 	}
 
 	/**

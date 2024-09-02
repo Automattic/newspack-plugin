@@ -51,16 +51,13 @@ class Sync {
 		}
 
 		$site_url = strtolower( \untrailingslashit( \get_site_url() ) );
-		if ( false !== stripos( $site_url, '.newspackstaging.com' ) ) {
-			$errors->add(
-				'esp_sync_staging_site',
-				__( 'Sync is disabled for Newspack staging sites.', 'newspack-plugin' )
-			);
-		}
-
 		// If not a production site, only sync if the NEWSPACK_ALLOW_READER_SYNC constant is set.
 		if (
-			( ! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) || ! \Newspack_Manager::is_connected_to_production_manager() ) &&
+			(
+				false !== stripos( $site_url, '.newspackstaging.com' ) ||
+				! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) ||
+				! \Newspack_Manager::is_connected_to_production_manager()
+			) &&
 			( ! defined( 'NEWSPACK_ALLOW_READER_SYNC' ) || ! NEWSPACK_ALLOW_READER_SYNC )
 		) {
 			$errors->add(
