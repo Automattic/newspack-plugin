@@ -391,10 +391,17 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						<Button
 							isPrimary
 							onClick={ () => {
-								if (isMailchimp && config.sync_esp && config.mailchimp_audience_id === '') {
-									// eslint-disable-next-line no-alert
-									alert( __( 'Please select a Mailchimp Audience ID.', 'newspack-plugin' ) );
-									return
+								if ( config.sync_esp ) {
+									if (isMailchimp && config.mailchimp_audience_id === '') {
+										// eslint-disable-next-line no-alert
+										alert( __( 'Please select a Mailchimp Audience ID.', 'newspack-plugin' ) );
+										return
+									}
+									if (isActiveCampaign && config.active_campaign_master_list === '') {
+										// eslint-disable-next-line no-alert
+										alert( __( 'Please select an ActiveCampaign Master List.', 'newspack-plugin' ) );
+										return
+									}
 								}
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
