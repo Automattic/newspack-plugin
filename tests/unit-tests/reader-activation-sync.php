@@ -7,8 +7,6 @@
 
 use Newspack\Reader_Activation\Sync;
 
-require_once __DIR__ . '/../mocks/newspack-newsletters-mocks.php';
-
 /**
  * Test the Esp_Metadata_Sync class.
  */
@@ -51,6 +49,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Assert all errors.
 		$this->assertTrue( $errors->has_errors() );
 		$error_codes = $errors->get_error_codes();
+		$this->assertNotContains( 'ras_not_enabled', $error_codes, 'Reader Activation is always enabled in test env' );
 		$this->assertContains( 'ras_esp_sync_not_enabled', $error_codes, 'RAS ESP Sync is not enabled' );
 		$this->assertContains( 'esp_sync_not_allowed', $error_codes, 'RAS ESP Sync is not allowed on non-production site' );
 		$this->assertContains( 'ras_esp_master_list_id_not_found', $error_codes, 'Missing master list ID' );
