@@ -66,7 +66,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
 
 		// Set master list ID.
-		Reader_Activation::set_setting( 'mailchimp_audience_id', '123' );
+		Reader_Activation::update_setting( 'mailchimp_audience_id', '123' );
 		$errors = Sync\ESP_Sync::can_esp_sync( true );
 		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
 
