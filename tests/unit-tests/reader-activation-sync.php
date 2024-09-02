@@ -5,7 +5,9 @@
  * @package Newspack\Tests
  */
 
+use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync;
+use Newspack\Reader_Activation\ESP_Sync;
 
 /**
  * Test the Esp_Metadata_Sync class.
@@ -41,9 +43,9 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * Test whether reader data can be synced.
 	 */
 	public function test_can_esp_sync() {
-		$this->assertFalse( Sync\ESP_Sync::can_esp_sync(), 'Reader data should not be syncable by default' );
+		$this->assertFalse( ESP_Sync::can_esp_sync(), 'Reader data should not be syncable by default' );
 
-		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$errors = ESP_Sync::can_esp_sync( true );
 		$this->assertInstanceOf( 'WP_Error', $errors );
 
 		// Assert all errors.
@@ -56,20 +58,20 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 
 		// Enable ESP sync.
 		Reader_Activation::update_setting( 'sync_esp', true );
-		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$errors = ESP_Sync::can_esp_sync( true );
 		$this->assertNotContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is enabled' );
 
 		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
 		\define( 'NEWSPACK_ALLOW_READER_SYNC', true );
-		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$errors = ESP_Sync::can_esp_sync( true );
 		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
 
 		// Set master list ID.
 		Reader_Activation::update_setting( 'mailchimp_audience_id', '123' );
-		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$errors = ESP_Sync::can_esp_sync( true );
 		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
 
-		$this->assertTrue( Sync\ESP_Sync::can_esp_sync(), 'Reader data should be syncable' );
+		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable' );
 	}
 
 	/**
@@ -77,8 +79,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_can_esp_sync_force() {
 		define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
-		$this->assertTrue( Sync\ESP_Sync::can_esp_sync(), 'Reader data should be syncable with a force constant' );
-		$errors = Sync\ESP_Sync::can_esp_sync( true );
+		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable with a force constant' );
+		$errors = ESP_Sync::can_esp_sync( true );
 		$this->assertFalse( $errors->has_errors(), 'No errors should be returned with a force constant' );
 	}
 
