@@ -127,7 +127,10 @@ final class Recaptcha {
 				Newspack::plugin_url() . '/dist/other-scripts/recaptcha.js',
 				[ self::SCRIPT_HANDLE_API, 'wp-i18n' ],
 				NEWSPACK_PLUGIN_VERSION,
-				true
+				[
+					'strategy'  => 'async',
+					'in_footer' => true,
+				]
 			);
 
 			\wp_localize_script(
