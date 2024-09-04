@@ -105,6 +105,7 @@ final class Reader_Activation {
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
+			\add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'set_mailchimp_sync_contact_status' ], 10, 2 );
 		}
 
 		\add_filter( 'newspack_reader_activation_setting', [ __CLASS__, 'disable_esp_sync_on_staging_sites' ], 10, 2 );
@@ -480,6 +481,26 @@ final class Reader_Activation {
 			default:
 				return false;
 		}
+	}
+
+	/**
+	 * Set the contact metadata status for Mailchimp.
+	 *
+	 * @param array $contact The contact data to sync.
+	 *
+	 * @return array Modified contact data.
+	 */
+	public static function set_mailchimp_sync_contact_status( $contact ) {
+		$allowed_statuses = [
+			'transactional',
+			'subscribed',
+		];
+		$default_status = self::get_setting( 'mailchimp_reader_default_status' );
+		$status = in_array( $default_status, $allowed_statuses, true ) ? $default_status : 'transactional';
+
+		$contact['metadata']['status_if_new'] = $status;
+
+		return $contact;
 	}
 
 	/**
