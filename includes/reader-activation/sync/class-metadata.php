@@ -302,8 +302,12 @@ class Metadata extends Sync {
 	 * @return string|false Formatted key if it is a UTM key, false otherwise.
 	 */
 	private static function get_utm_key( $key ) {
-		$keys = [ 'signup_page_utm', 'payment_page_utm' ];
+		$keys     = [ 'signup_page_utm', 'payment_page_utm' ];
+		$raw_keys = self::get_raw_keys();
 		foreach ( $keys as $utm_key ) {
+			if ( ! in_array( $utm_key, $raw_keys, true ) ) { // Skip if the UTM key is not in the list of fields to sync.
+				continue;
+			}
 			if ( 0 === strpos( $key, $utm_key ) ) {
 				$suffix = str_replace( $utm_key . '_', '', $key );
 				return self::get_key( $utm_key ) . $suffix;
