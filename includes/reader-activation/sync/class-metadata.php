@@ -263,6 +263,8 @@ class Metadata extends Sync {
 	/**
 	 * Check if a metadata key exists in the given metadata.
 	 *
+	 * This method checks for both raw and prefixed keys.
+	 *
 	 * @param string $key      Metadata key to check.
 	 * @param array  $metadata Metadata to check.
 	 *
@@ -274,6 +276,8 @@ class Metadata extends Sync {
 
 	/**
 	 * Get a metadata key value from the given metadata.
+	 *
+	 * This method checks for both raw and prefixed keys.
 	 *
 	 * @param string $key      Metadata key to fetch.
 	 * @param array  $metadata Metadata to fetch from.
@@ -288,6 +292,27 @@ class Metadata extends Sync {
 			return $metadata[ self::get_key( $key ) ];
 		}
 		return null;
+	}
+
+	/**
+	 * Check if a key is a UTM key.
+	 *
+	 * @param string $key Key to check.
+	 *
+	 * @return string|false Formatted key if it is a UTM key, false otherwise.
+	 */
+	private static function get_utm_key( $key ) {
+		$keys = [ 'signup_page_utm', 'payment_page_utm' ];
+		foreach ( $keys as $utm_key ) {
+			if ( 0 === strpos( $key, $utm_key ) ) {
+				$suffix = str_replace( $utm_key . '_', '', $key );
+				return self::get_key( $utm_key ) . $suffix;
+			}
+			if ( 0 === strpos( $key, self::get_key( $utm_key ) ) ) {
+				return $key;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -340,21 +365,15 @@ class Metadata extends Sync {
 		$allowed_keys = [ 'status', 'status_if_new' ];
 
 		foreach ( $metadata as $meta_key => $meta_value ) {
-			if ( in_array( $meta_key, $raw_keys, true ) ) {
-				$normalized_metadata[ self::get_key( $meta_key ) ] = $meta_value; // If passed a raw key, map it to the prefixed key.
-			} elseif (
-				in_array( $meta_key, $prefixed_keys, true ) ||
-				(
-					// UTM meta keys can have arbitrary suffixes.
-					( in_array( self::get_key( 'signup_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_key( 'signup_page_utm' ) ) ) ||
-					( in_array( self::get_key( 'payment_page_utm' ), $prefixed_keys, true ) && false !== strpos( $meta_key, self::get_key( 'payment_page_utm' ) ) )
-				)
-			) {
+			if ( in_array( $meta_key, $raw_keys, true ) ) { // Handle raw keys.
+				$normalized_metadata[ self::get_key( $meta_key ) ] = $meta_value;
+			} elseif ( in_array( $meta_key, $prefixed_keys, true ) ) { // Handle prefixed keys.
 				$normalized_metadata[ $meta_key ] = $meta_value;
-			} elseif ( in_array( $meta_key, $allowed_keys, true ) ) {
+			} elseif ( self::get_utm_key( $meta_key ) ) { // Handle UTM keys.
+				$normalized_metadata[ self::get_utm_key( $meta_key ) ] = $meta_value;
+			} elseif ( in_array( $meta_key, $allowed_keys, true ) ) { // Handle allowed keys.
 				$normalized_metadata[ $meta_key ] = $meta_value;
-			} else {
-				// If the key is not in the list of fields to sync, ignore it.
+			} else { // If the key is not in the list of fields to sync, ignore it.
 				self::log( 'Ignoring metadata key: ' . $meta_key );
 			}
 		}

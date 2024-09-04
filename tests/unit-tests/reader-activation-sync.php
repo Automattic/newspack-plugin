@@ -229,4 +229,18 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
 		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
 	}
+
+	/**
+	 * Test the normalize_contact_data method with the option containing raw UTM values.
+	 */
+	public function test_with_raw_utm_fields() {
+		$contact  = $this->get_sample_contact();
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$contact['metadata']['signup_page_utm_foo'] = 'bar';
+		$contact['metadata']['payment_page_utm_yyy'] = 'zzz';
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
+	}
 }

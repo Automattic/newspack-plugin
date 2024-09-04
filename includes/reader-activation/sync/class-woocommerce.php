@@ -93,7 +93,7 @@ class WooCommerce extends Sync {
 		}
 		if ( ! empty( $utm ) ) {
 			foreach ( $utm as $key => $value ) {
-				$metadata[ Metadata::get_key( 'payment_page_utm' ) . $key ] = $value;
+				$metadata[ 'payment_page_utm_' . $key ] = $value;
 			}
 		}
 
@@ -182,8 +182,8 @@ class WooCommerce extends Sync {
 		// Clear out any payment-related fields that don't relate to the current order.
 		$payment_fields = array_keys( Metadata::get_payment_fields() );
 		foreach ( WooCommerce_Order_UTM::$params as $param ) {
-			if ( ! isset( $metadata[ Metadata::get_key( 'payment_page_utm' ) . $param ] ) ) {
-				$metadata[ Metadata::get_key( 'payment_page_utm' ) . $param ] = '';
+			if ( ! isset( $metadata[ 'payment_page_utm_' . $param ] ) ) {
+				$metadata[ 'payment_page_utm_' . $param ] = '';
 			}
 		}
 		foreach ( $payment_fields as $meta_key ) {
