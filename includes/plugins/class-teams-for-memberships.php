@@ -96,7 +96,7 @@ class Teams_For_Memberships {
 		}
 		$team_slugs = implode( ',', $team_slugs );
 		if ( $team_slugs ) {
-			$contact['metadata'][ Sync\Metadata::get_key( 'woo_team' ) ] = $team_slugs;
+			$contact['metadata']['woo_team'] = $team_slugs;
 		}
 
 		return $contact;
