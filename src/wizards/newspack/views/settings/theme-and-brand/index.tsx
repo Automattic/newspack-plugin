@@ -80,7 +80,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 		>
 			{ ! isPartOfSetup && (
 				<Fragment>
-					{ /* <WizardSection
+					<WizardSection
 						title={ __( 'Theme', 'newspack-plugin' ) }
 						description={ __(
 							'Update your sites theme.',
@@ -95,7 +95,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 								setData( { ...data, theme } )
 							}
 						/>
-					</WizardSection> */ }
+					</WizardSection>
 				</Fragment>
 			) }
 			{ isPartOfSetup && (
@@ -159,6 +159,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 			>
 				<Typography
 					typography={ data.theme_mods }
+					isFetching={ isFetching }
 					updateTypography={ ( {
 						accent_allcaps,
 						font_body,

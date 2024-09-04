@@ -26,9 +26,11 @@ import {
 
 export default function Typography( {
 	typography,
+	isFetching,
 	updateTypography,
 }: {
 	typography: Typography;
+	isFetching: boolean;
 	updateTypography: ( a: Typography ) => void;
 } ) {
 	const [ typographyOptionsType, updateTypographyOptionsType ] =
@@ -166,11 +168,21 @@ export default function Typography( {
 			<SelectControl
 				label={ __( 'Typography Options', 'newspack-plugin' ) }
 				hideLabelFromVision
+				disabled={ true }
 				value={
 					typographyOptionsType ? typographyOptionsType : 'curated'
 				}
 				onChange={ updateTypographyOptionsType }
-				buttonOptions={ TYPOGRAPHY_OPTIONS }
+				buttonOptions={
+					isFetching
+						? [
+								{
+									label: __( 'Loading…', 'newspack-plugin' ),
+									value: null,
+								},
+						  ]
+						: TYPOGRAPHY_OPTIONS
+				}
 			/>
 			<Grid gutter={ 32 }>
 				{ typographyOptionsType === 'curated' ||
