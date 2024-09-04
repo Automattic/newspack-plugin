@@ -17,12 +17,12 @@ import {
 	SelectControl,
 	TextControl,
 } from '../../../../../components/src';
-import { getFontImportURL, getFontsList, isFontInOptions } from './utils';
-
-const TYPOGRAPHY_OPTIONS: { value: TypographyOptions; label: string }[] = [
-	{ value: 'curated', label: __( 'Default', 'newspack-plugin' ) },
-	{ value: 'custom', label: __( 'Custom', 'newspack-plugin' ) },
-];
+import {
+	getFontImportURL,
+	getFontsList,
+	isFontInOptions,
+	TYPOGRAPHY_OPTIONS,
+} from './utils';
 
 export default function Typography( {
 	typography,

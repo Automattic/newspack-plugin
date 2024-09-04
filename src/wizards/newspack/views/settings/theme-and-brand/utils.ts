@@ -106,6 +106,12 @@ const ALL_FONTS = [
 	...MONOSPACE_FONTS,
 ];
 
+export const TYPOGRAPHY_OPTIONS: { value: TypographyOptions; label: string }[] =
+	[
+		{ value: 'curated', label: __( 'Default', 'newspack-plugin' ) },
+		{ value: 'custom', label: __( 'Custom', 'newspack-plugin' ) },
+	];
+
 export const getFontsList = ( headingsOnly: boolean = false ) =>
 	[
 		{
