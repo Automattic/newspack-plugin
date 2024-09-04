@@ -80,7 +80,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 		>
 			{ ! isPartOfSetup && (
 				<Fragment>
-					<WizardSection
+					{ /* <WizardSection
 						title={ __( 'Theme', 'newspack-plugin' ) }
 						description={ __(
 							'Update your sites theme.',
@@ -95,7 +95,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 								setData( { ...data, theme } )
 							}
 						/>
-					</WizardSection>
+					</WizardSection> */ }
 				</Fragment>
 			) }
 			{ isPartOfSetup && (

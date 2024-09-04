@@ -45,7 +45,9 @@ export function HomepageSelect( {
 						updateHomepagePattern( i );
 					} }
 					ariaLabel={
-						__( 'Activate Layout', 'newspack' ) + ' ' + ( i + 1 )
+						__( 'Activate Layout', 'newspack-plugin' ) +
+						' ' +
+						( i + 1 )
 					}
 				/>
 			) ) }

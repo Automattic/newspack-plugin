@@ -23,10 +23,14 @@ type HomepagePattern = {
 };
 
 /**
+ * Typography option types.
+ */
+type TypographyOptions = 'curated' | 'custom';
+
+/**
  * Typography schema.
  */
 type Typography = {
-	type?: 'curated' | 'custom';
 	font_header: string;
 	font_body: string;
 	accent_allcaps: boolean;
