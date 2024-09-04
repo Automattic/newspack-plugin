@@ -295,7 +295,7 @@ class Metadata extends Sync {
 	}
 
 	/**
-	 * Check if a key is a UTM key.
+	 * Get the UTM key from a raw or prefixed key.
 	 *
 	 * @param string $key Key to check.
 	 *

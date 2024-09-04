@@ -110,8 +110,8 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 		];
 		$order = \wc_create_order( $order_data );
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
-		$this->assertEquals( 'test_source', $contact_data['metadata']['payment_page_utmsource'] );
-		$this->assertEquals( 'test_campaign', $contact_data['metadata']['payment_page_utmcampaign'] );
+		$this->assertEquals( 'test_source', $contact_data['metadata']['payment_page_utm_source'] );
+		$this->assertEquals( 'test_campaign', $contact_data['metadata']['payment_page_utm_campaign'] );
 	}
 
 	/**
