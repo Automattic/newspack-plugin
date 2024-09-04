@@ -367,6 +367,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
 					return form.endLoginFlow( newspack_reader_activation_labels.invalid_email, 400 );
 				}
+				if ( readerActivation.isPendingCheckout() ) {
+					const redirectUrl = getCheckoutRedirectUrl();
+					if ( redirectUrl ) {
+						body.set( 'redirect_url', redirectUrl );
+					}
+				}
 				if ( 'otp' === action ) {
 					readerActivation
 						.authenticateOTP( body.get( 'otp_code' ) )
