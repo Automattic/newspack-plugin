@@ -7,7 +7,6 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
-use Newspack\Reader_Activation\Sync;
 use Newspack\Donations;
 use Newspack\WooCommerce_Connection;
 use Newspack\WooCommerce_Order_UTM;
@@ -17,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * WooCommerce Class.
  */
-class WooCommerce extends Sync {
+class WooCommerce {
 
 	/**
 	 * Should a WooCommerce order be synchronized?

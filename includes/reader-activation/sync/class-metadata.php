@@ -7,15 +7,14 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
-use Newspack\Reader_Activation\Sync;
-use Newspack\Reader_Activation\ESP_Sync;
+use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Metadata Class.
  */
-class Metadata extends Sync {
+class Metadata {
 
 	const DATE_FORMAT   = 'Y-m-d';
 	const PREFIX        = 'NP_';
@@ -378,14 +377,14 @@ class Metadata extends Sync {
 			} elseif ( in_array( $meta_key, $allowed_keys, true ) ) { // Handle allowed keys.
 				$normalized_metadata[ $meta_key ] = $meta_value;
 			} else { // If the key is not in the list of fields to sync, ignore it.
-				self::log( 'Ignoring metadata key: ' . $meta_key );
+				Logger::log( 'Ignoring metadata key: ' . $meta_key );
 			}
 		}
 
 		$contact['metadata'] = $normalized_metadata;
 
-		self::log( 'Normalizing contact data for reader ESP sync:' );
-		self::log( $contact );
+		Logger::log( 'Normalizing contact data for reader ESP sync:' );
+		Logger::log( $contact );
 
 		/**
 		 * Filters the normalized contact data before syncing to the ESP.
