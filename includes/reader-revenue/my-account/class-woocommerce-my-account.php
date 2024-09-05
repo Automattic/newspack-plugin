@@ -126,13 +126,21 @@ class WooCommerce_My_Account {
 				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $billing_address ) ) ) {
 					$default_disabled_items[] = 'edit-address';
 				}
+
+				// Hide Orders and Payment Methods if the reader has no orders.
+				if ( ! $customer->get_is_paying_customer() ) {
+					$default_disabled_items[] = 'orders';
+					$default_disabled_items[] = 'payment-methods';
+				}
 			}
 			if ( function_exists( 'wc_get_customer_available_downloads' ) ) {
-				$customer_id           = \get_current_user_id();
 				$wc_customer_downloads = \wc_get_customer_available_downloads( $customer_id );
 				if ( empty( $wc_customer_downloads ) ) {
 					$default_disabled_items[] = 'downloads';
 				}
+			}
+			if ( function_exists( 'wcs_user_has_subscription' ) && ! \wcs_user_has_subscription( $customer_id ) ) {
+				$default_disabled_items[] = 'subscriptions';
 			}
 
 			$disabled_wc_menu_items = \apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
