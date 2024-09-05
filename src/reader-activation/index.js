@@ -170,7 +170,6 @@ export function openAuthModal( config = {} ) {
 		}
 		return;
 	}
-
 	if ( readerActivation._openAuthModal ) {
 		readerActivation._openAuthModal( config );
 	} else {
