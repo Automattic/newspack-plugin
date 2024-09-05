@@ -13,21 +13,21 @@ import { __ } from '@wordpress/i18n';
 import { ColorPicker, Grid } from '../../../../../components/src';
 
 export default function Colors( {
-	colors,
+	themeMods,
 	updateColors,
 }: {
-	colors: ThemeColors;
-	updateColors: ( a: Record< string, string > ) => void;
+	themeMods: ThemeMods;
+	updateColors: ( a: ThemeMods ) => void;
 } ) {
 	return (
 		<Grid gutter={ 32 }>
 			{ /* This UI does not enable setting 'theme_colors' to 'default'. As soon as a color is picked, 'theme_colors' will be 'custom'. */ }
 			<ColorPicker
 				label={ __( 'Primary', 'newspack-plugin' ) }
-				color={ colors.primary_color_hex }
+				color={ themeMods.primary_color_hex }
 				onChange={ ( primary_color_hex: string ) =>
 					updateColors( {
-						...colors,
+						...themeMods,
 						primary_color_hex,
 						theme_colors: 'custom',
 					} )
@@ -35,10 +35,10 @@ export default function Colors( {
 			/>
 			<ColorPicker
 				label={ __( 'Secondary', 'newspack-plugin' ) }
-				color={ colors.secondary_color_hex }
+				color={ themeMods.secondary_color_hex }
 				onChange={ ( secondary_color_hex: string ) =>
 					updateColors( {
-						...colors,
+						...themeMods,
 						secondary_color_hex,
 						theme_colors: 'custom',
 					} )

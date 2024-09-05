@@ -63,10 +63,15 @@ type ThemeColors = {
 };
 
 /**
+ * Theme mods schema.
+ */
+type ThemeMods = { homepage_pattern_index: number } & ThemeColors & Typography;
+
+/**
  * Theme and brand schema.
  */
 type ThemeBrandData = {
 	theme: '' | NewspackThemes;
-	theme_mods: { homepage_pattern_index: number } & ThemeColors & Typography;
+	theme_mods: ThemeMods;
 	homepage_patterns: HomepagePattern[];
 };

@@ -132,20 +132,11 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 				) }
 			>
 				<Colors
-					colors={ data.theme_mods }
-					updateColors={ ( {
-						theme_colors,
-						primary_color_hex,
-						secondary_color_hex,
-					} ) => {
+					themeMods={ data.theme_mods }
+					updateColors={ theme_mods => {
 						setData( {
 							...data,
-							theme_mods: {
-								...data.theme_mods,
-								theme_colors,
-								primary_color_hex,
-								secondary_color_hex,
-							},
+							theme_mods,
 						} );
 					} }
 				/>
@@ -158,29 +149,12 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 				) }
 			>
 				<Typography
-					typography={ data.theme_mods }
+					themeMods={ data.theme_mods }
 					isFetching={ isFetching }
-					updateTypography={ ( {
-						accent_allcaps,
-						font_body,
-						font_header,
-						font_body_stack,
-						font_header_stack,
-						custom_font_import_code,
-						custom_font_import_code_alternate,
-					} ) => {
+					updateTypography={ theme_mods => {
 						setData( {
 							...data,
-							theme_mods: {
-								...data.theme_mods,
-								accent_allcaps,
-								font_body,
-								font_header,
-								font_body_stack,
-								font_header_stack,
-								custom_font_import_code,
-								custom_font_import_code_alternate,
-							},
+							theme_mods,
 						} );
 					} }
 				/>
