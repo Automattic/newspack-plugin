@@ -31,6 +31,8 @@ class WooCommerce_My_Account {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		\add_filter( 'woocommerce_default_address_fields', [ __CLASS__, 'required_address_fields' ] );
 		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'required_address_fields' ] );
+		\add_filter( 'woocommerce_get_checkout_url', [ __CLASS__, 'get_checkout_url' ] );
+		\add_filter( 'woocommerce_get_checkout_payment_url', [ __CLASS__, 'get_checkout_url' ] );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
@@ -353,6 +355,7 @@ class WooCommerce_My_Account {
 		$is_resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === \get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false;
 		$is_renewal_request           = isset( $_REQUEST['subscription_renewal'] ) ? true : false;
 		$is_cancel_membership_request = isset( $_REQUEST['cancel_membership'] ) ? true : false;
+		$is_checkout_request          = isset( $_REQUEST['my_account_checkout'] ) ? true : false;
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if (
@@ -361,7 +364,8 @@ class WooCommerce_My_Account {
 			function_exists( 'wc_get_page_permalink' ) &&
 			! $is_resubscribe_request &&
 			! $is_renewal_request &&
-			! $is_cancel_membership_request
+			! $is_cancel_membership_request &&
+			! $is_checkout_request
 			) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
@@ -425,51 +429,46 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Check if the given URL is a My Account page or subpage.
-	 *
-	 * @param string $url URL to check.
-	 *
-	 * @return bool True if the URL is verifiably a My Account page or subpage, false otherwise.
-	 */
-	public static function is_my_account_url( $url ) {
-		if ( ! function_exists( 'wc_get_page_id' ) ) {
-			return false;
-		}
-		$my_account_url = \get_permalink( \wc_get_page_id( 'myaccount' ) );
-		if ( ! $my_account_url ) {
-			return false;
-		}
-		return false !== strpos( $url, rtrim( $my_account_url, '/\\' ) );
-	}
-
-	/**
 	 * Detect if the current checkout page is coming from a My Account referrer.
 	 *
 	 * @return bool True if the current checkout page is coming from a My Account referrer, false otherwise.
 	 */
 	public static function is_from_my_account() {
 		// If we got posted a `is_my_account` param, return true.
-		$is_my_account_param = filter_input( INPUT_POST, 'is_my_account', FILTER_SANITIZE_NUMBER_INT );
+		$is_my_account_param = rest_sanitize_boolean( $_REQUEST['my_account_checkout'] ?? false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( $is_my_account_param ) {
 			return true;
 		}
 
 		$referrer = \wp_get_referer();
-
-		// If we can't get the referrer directly, it may have been a POST request.
-		if ( ! $referrer ) {
-			$referrer = filter_input( INPUT_POST, '_wp_http_referer', FILTER_SANITIZE_URL );
-		}
-		if ( ! $referrer ) {
-			return false;
-		}
-
-		// Ensure the URL is a full URL and not a slug.
-		if ( 0 !== strpos( $referrer, \get_home_url() ) ) {
-			$referrer = \home_url( $referrer );
+		if ( $referrer ) {
+			$referrer_query = \wp_parse_url( $referrer, PHP_URL_QUERY );
+			\wp_parse_str( $referrer_query, $referrer_query_params );
+			if ( ! empty( $referrer_query_params['my_account_checkout'] ) ) {
+				return true;
+			}
 		}
 
-		return self::is_my_account_url( $referrer );
+		return false;
+	}
+
+	/**
+	 * On My Account pages, append a query param to the checkout URL to indicate the user is coming from My Account.
+	 *
+	 * @param string $url Checkout URL.
+	 *
+	 * @return string
+	 */
+	public static function get_checkout_url( $url ) {
+		if ( \is_account_page() || self::is_from_my_account() ) {
+			return \add_query_arg(
+				[
+					'my_account_checkout' => 1,
+				],
+				$url
+			);
+		}
+		return $url;
 	}
 
 	/**
@@ -497,8 +496,8 @@ class WooCommerce_My_Account {
 		}
 
 		// Add a hidden field so we can pass this onto subsequent pages in the Checkout flow.
-		if ( ! isset( $fields['is_my_account'] ) ) {
-			$fields['is_my_account'] = [
+		if ( ! isset( $fields['my_account_checkout'] ) ) {
+			$fields['my_account_checkout'] = [
 				'type'    => 'hidden',
 				'default' => 1,
 			];
