@@ -149,6 +149,12 @@ class WooCommerce_My_Account {
 					unset( $items[ $key ] );
 				}
 			}
+
+			// Move "Account Details" and "S"ubscriptions" to the top of the menu.
+			if ( isset( $items['subscriptions'] ) ) {
+				$items = [ 'subscriptions' => $items['subscriptions'] ] + $items;
+			}
+			$items = [ 'edit-account' => $items['edit-account'] ] + $items;
 		}
 
 		return $items;
