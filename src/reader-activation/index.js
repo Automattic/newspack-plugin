@@ -170,6 +170,7 @@ export function openAuthModal( config = {} ) {
 		}
 		return;
 	}
+
 	if ( readerActivation._openAuthModal ) {
 		readerActivation._openAuthModal( config );
 	} else {
@@ -419,7 +420,6 @@ const readerActivation = {
 	setAuthenticated,
 	refreshAuthentication,
 	getReader,
-	openAuthModal,
 	openNewslettersSignupModal,
 	hasAuthLink,
 	getOTPHash,
@@ -433,6 +433,7 @@ const readerActivation = {
 	getCheckoutData,
 	isPendingCheckout,
 	resetCheckoutData,
+	...( newspack_ras_config.ras_is_enabled && { openAuthModal } )
 };
 
 /**
