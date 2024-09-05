@@ -57,6 +57,7 @@ class Memberships {
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
+		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'handle_subscription_status_change' ], 10, 3 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -987,6 +988,36 @@ class Memberships {
 		return array_slice( $settings, 0, $position_of_show_excerpts_setting, true ) +
 			[ $setting['id'] => $setting ] +
 			array_slice( $settings, $position_of_show_excerpts_setting, null, true );
+	}
+
+	/**
+	 * Unschedule membership expiration events when a subscription reactivates a membership.
+	 * Otherwise, an expired memberhip that's reactivated because of a new subscription
+	 * purchase will become expired a while later, due to a scheduled expiration.
+	 *
+	 * @param \WC_Subscription $subscription Subscription being changed.
+	 * @param string           $new_subscription_status Subscription status changing to.
+	 * @param string           $old_subscription_status Subscription status changing from.
+	 */
+	public static function handle_subscription_status_change( \WC_Subscription $subscription, $new_subscription_status, $old_subscription_status ) {
+		if ( $new_subscription_status !== 'active' || ! function_exists( 'wc_memberships' ) ) {
+			return;
+		}
+		$integrations = \wc_memberships()->get_integrations_instance();
+		if ( ! $integrations ) {
+			return;
+		}
+		$integration = $integrations->get_subscriptions_instance();
+		// Get Memberships tied to the Subscription.
+		$user_memberships = $integration->get_memberships_from_subscription( $subscription->get_id() );
+		if ( ! $user_memberships ) {
+			return;
+		}
+
+		// For each, unschedule expiration events.
+		foreach ( $user_memberships as $user_membership ) {
+			$user_membership->unschedule_expiration_events();
+		}
 	}
 }
 Memberships::init();
