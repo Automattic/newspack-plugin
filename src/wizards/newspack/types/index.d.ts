@@ -38,7 +38,12 @@ declare global {
 				[ k: string ]: {
 					title: string;
 					desc: string;
-					cards: { href: string; title: string; desc: string; icon: keyof typeof icons }[];
+					cards: {
+						href: string;
+						title: string;
+						desc: string;
+						icon: keyof typeof icons;
+					}[];
 				};
 			};
 			settings: {
@@ -71,6 +76,7 @@ declare global {
 					};
 				};
 			};
+			'display-settings': WizardTab;
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;

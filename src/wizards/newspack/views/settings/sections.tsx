@@ -11,21 +11,23 @@ import Social from './social';
 import Connections from './connections';
 import Syndication from './syndication';
 import Emails from './emails';
+import DisplaySettings from './display-settings';
 
 type SectionKeys = keyof typeof settingsTabs;
 
-const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > = {
-	connections: Connections,
-	social: Social,
-	emails: Emails,
-	// social: Social,
-	syndication: Syndication,
-	// seo: Seo,
-	// 'theme-and-brand': ThemeAndBrand,
-	// 'display-settings': DisplaySettings,
-	// 'additional-brands': AdditionalBrands,
-	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
-};
+const sectionComponents: Record< SectionKeys | 'default', () => JSX.Element > =
+	{
+		connections: Connections,
+		social: Social,
+		emails: Emails,
+		// social: Social,
+		syndication: Syndication,
+		// seo: Seo,
+		// 'theme-and-brand': ThemeAndBrand,
+		'display-settings': DisplaySettings,
+		// 'additional-brands': AdditionalBrands,
+		default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
+	};
 
 const settingsSectionKeys = Object.keys( settingsTabs ) as SectionKeys[];
 
