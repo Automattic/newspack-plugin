@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Theme and Brand > Colors. Component for setting colors to use in your theme.
+ * Newspack > Settings > Theme and Brand > Header.
  */
 
 /**

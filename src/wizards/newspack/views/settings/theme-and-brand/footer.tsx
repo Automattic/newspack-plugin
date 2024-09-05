@@ -1,12 +1,11 @@
 /**
- * Newspack > Settings > Theme and Brand > Colors. Component for setting colors to use in your theme.
+ * Newspack > Settings > Theme and Brand > Footer.
  */
 
 /**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { alignCenter, alignLeft } from '@wordpress/icons';
 import { ToggleControl } from '@wordpress/components';
 
 /**
@@ -19,7 +18,6 @@ import {
 	SelectControl,
 	TextControl,
 } from '../../../../../components/src';
-import { LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
 
 export default function Footer( {
 	themeMods,
