@@ -21,6 +21,8 @@ import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import './style.scss';
 import Colors from './colors';
 import Typography from './typography';
+import Header from './header';
+import Footer from './footer';
 
 const DEFAULT_DATA: ThemeBrandData = {
 	theme: 'newspack-theme',
@@ -35,6 +37,19 @@ const DEFAULT_DATA: ThemeBrandData = {
 		accent_allcaps: false,
 		custom_font_import_code: undefined,
 		custom_font_import_code_alternate: undefined,
+		header_center_logo: false,
+		header_simplified: false,
+		header_solid_background: false,
+		header_color_hex: '',
+		custom_logo: '',
+		logo_size: 0,
+		header_text: false,
+		header_display_tagline: false,
+		footer_color: '',
+		footer_copyright: '',
+		footer_color_hex: '',
+		newspack_footer_logo: '',
+		footer_logo_size: 'small',
 	},
 };
 
@@ -152,6 +167,40 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 					themeMods={ data.theme_mods }
 					isFetching={ isFetching }
 					updateTypography={ theme_mods => {
+						setData( {
+							...data,
+							theme_mods,
+						} );
+					} }
+				/>
+			</WizardSection>
+			<WizardSection
+				title={ __( 'Header', 'newspack-plugin' ) }
+				description={ __(
+					'Update the header and add your logo.',
+					'newspack-plugin'
+				) }
+			>
+				<Header
+					themeMods={ data.theme_mods }
+					updateHeader={ theme_mods => {
+						setData( {
+							...data,
+							theme_mods,
+						} );
+					} }
+				/>
+			</WizardSection>
+			<WizardSection
+				title={ __( 'Footer', 'newspack-plugin' ) }
+				description={ __(
+					'Personalize the footer of your site.',
+					'newspack-plugin'
+				) }
+			>
+				<Footer
+					themeMods={ data.theme_mods }
+					onUpdate={ theme_mods => {
 						setData( {
 							...data,
 							theme_mods,

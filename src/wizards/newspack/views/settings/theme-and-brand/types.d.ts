@@ -63,9 +63,37 @@ type ThemeColors = {
 };
 
 /**
+ * Header schema.
+ */
+type Header = {
+	header_center_logo: boolean;
+	header_simplified: boolean;
+	header_solid_background: boolean;
+	header_color_hex: string;
+	custom_logo: string;
+	logo_size: number;
+	header_text: boolean;
+	header_display_tagline: boolean;
+};
+
+/**
+ * Footer schema.
+ */
+type Footer = {
+	footer_color: string;
+	footer_copyright: string;
+	footer_color_hex: string;
+	newspack_footer_logo: string;
+	footer_logo_size: string;
+};
+
+/**
  * Theme mods schema.
  */
-type ThemeMods = { homepage_pattern_index: number } & ThemeColors & Typography;
+type ThemeMods = { homepage_pattern_index: number } & ThemeColors &
+	Typography &
+	Header &
+	Footer;
 
 /**
  * Theme and brand schema.
