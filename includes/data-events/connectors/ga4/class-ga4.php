@@ -461,7 +461,7 @@ class GA4 {
 		unset( $data['ga_params'] );
 		unset( $data['ga_client_id'] );
 		unset( $data['platform_data'] );
-		$data['referer'] = substr( $data['referer'], strlen( home_url() ) ); // remove domain from referer.
+		$data['referrer'] = substr( $data['referer'], strlen( home_url() ) ); // remove domain from referrer.
 
 		return array_merge( $params, $data );
 	}
