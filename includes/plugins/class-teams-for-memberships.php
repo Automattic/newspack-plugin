@@ -9,6 +9,8 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+use Newspack\Reader_Activation\Sync;
+
 /**
  * Main class.
  */
@@ -56,7 +58,7 @@ class Teams_For_Memberships {
 			return $contact;
 		}
 
-		$filtered_enabled_fields = Newspack_Newsletters::filter_enabled_fields( [ 'woo_team' ] );
+		$filtered_enabled_fields = Sync\Metadata::filter_enabled_fields( [ 'woo_team' ] );
 		if ( count( $filtered_enabled_fields ) === 0 ) {
 			return $contact;
 		}
@@ -94,7 +96,7 @@ class Teams_For_Memberships {
 		}
 		$team_slugs = implode( ',', $team_slugs );
 		if ( $team_slugs ) {
-			$contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'woo_team' ) ] = $team_slugs;
+			$contact['metadata']['woo_team'] = $team_slugs;
 		}
 
 		return $contact;
