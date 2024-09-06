@@ -1959,7 +1959,7 @@ final class Reader_Activation {
 
 		$user_id = false;
 
-		if ( $existing_user ) {
+		if ( $existing_user && self::is_reader_without_password( $existing_user ) ) {
 			// Don't send OTP email for newsletter signup.
 			if ( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) ) {
 				Logger::log( "User with $email already exists. Sending magic link." );
