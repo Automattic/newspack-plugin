@@ -62,7 +62,7 @@ class Sync {
 		) {
 			$errors->add(
 				'esp_sync_not_allowed',
-				__( 'Sync is disabled for non-production sites. Set NEWSPACK_ALLOW_READER_SYNC to allow sync.', 'newspack-plugin' )
+				__( 'Sync is disabled for staging sites. To bypass this check, set the NEWSPACK_ALLOW_READER_SYNC constant in your wp-config.php.', 'newspack-plugin' )
 			);
 		}
 
