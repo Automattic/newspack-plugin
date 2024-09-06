@@ -66,11 +66,11 @@ const Emails = () => {
 				<Notice isError>
 					{ __(
 						'Newspack uses Newspack Newsletters to handle editing email-type content. Please activate this plugin to proceed.',
-						'newspack'
+						'newspack-plugin'
 					) }
 				</Notice>
 				<Notice isError>
-					{ __( 'Until this feature is configured, default receipts will be used.', 'newspack' ) }
+					{ __( 'Until this feature is configured, default receipts will be used.', 'newspack-plugin' ) }
 				</Notice>
 				<PluginInstaller
 					style={ pluginsReady ? { display: 'none' } : {} }
@@ -111,8 +111,8 @@ const Emails = () => {
 						titleLink={ email.edit_link }
 						href={ email.edit_link }
 						description={ email.description }
-						actionText={ __( 'Edit', 'newspack' ) }
-						secondaryActionText={ __( 'Reset', 'newspack' ) }
+						actionText={ __( 'Edit', 'newspack-plugin' ) }
+						secondaryActionText={ __( 'Reset', 'newspack-plugin' ) }
 						onSecondaryActionClick={ () => {
 							if (
 								utils.confirmAction(
@@ -137,7 +137,7 @@ const Emails = () => {
 					>
 						{ error && (
 							<Notice
-								noticeText={ error?.message || __( 'Something went wrong.', 'newspack' ) }
+								noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
 								isError
 							/>
 						) }

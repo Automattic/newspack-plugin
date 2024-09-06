@@ -59,6 +59,7 @@ class Memberships {
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
 		add_filter( 'get_post_status', [ __CLASS__, 'check_membership_status' ], 10, 2 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
+		add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -726,7 +727,7 @@ class Memberships {
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
 				ras.on( 'reader', function( ev ) {
-					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getCheckoutStatus() ) {
+					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.isPendingCheckout() ) {
 						if ( ras.overlays.get().length ) {
 							ras.on( 'overlay', function( ev ) {
 								if ( ! ev.detail.overlays.length ) {
@@ -937,7 +938,7 @@ class Memberships {
 		if ( ! property_exists( $post, 'post_type' ) ) {
 			return $post_status;
 		}
-		if ( 'wc_user_membership' !== $post->post_type || ! in_array( $post->post_type, [ 'wcm-cancelled', 'wcm-expired', 'wcm-paused' ], true ) || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
+		if ( 'wc_user_membership' !== $post->post_type || ! in_array( $post->post_status, [ 'wcm-cancelled', 'wcm-expired', 'wcm-paused' ], true ) || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
 			return $post_status;
 		}
 		$integrations = wc_memberships()->get_integrations_instance();
@@ -1120,6 +1121,32 @@ class Memberships {
 		return array_slice( $settings, 0, $position_of_show_excerpts_setting, true ) +
 			[ $setting['id'] => $setting ] +
 			array_slice( $settings, $position_of_show_excerpts_setting, null, true );
+	}
+
+	/**
+	 * Add relevant body CSS classnames.
+	 *
+	 * @param array $classes Array of body class names.
+	 */
+	public static function add_body_class( $classes ) {
+		// If a user has a paid membership, add a body class.
+		if ( ! function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
+			return $classes;
+		}
+
+		$user_active_memberships = \wc_memberships_get_user_active_memberships();
+		foreach ( $user_active_memberships as $membership ) {
+			$plan = $membership->plan;
+			if ( $plan ) {
+				$plan_products = $membership->get_plan()->get_product_ids();
+				$classes[] = 'is-member-' . $plan->slug;
+				$paid_plan_classname = 'is-paid-plan-member';
+				if ( ! empty( $plan_products ) && ! in_array( $paid_plan_classname, $classes ) ) {
+					$classes[] = $paid_plan_classname;
+				}
+			}
+		}
+		return $classes;
 	}
 }
 Memberships::init();

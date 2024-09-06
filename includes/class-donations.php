@@ -64,7 +64,7 @@ class Donations {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
-		self::$donation_product_name = __( 'Donate', 'newspack' );
+		self::$donation_product_name = __( 'Donate', 'newspack-plugin' );
 
 		add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
 		add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );

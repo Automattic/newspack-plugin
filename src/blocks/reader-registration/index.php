@@ -205,7 +205,7 @@ function render_block( $attrs, $content ) {
 				<?php echo $success_registration_markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		<?php else : ?>
-			<form id="<?php echo esc_attr( get_form_id() ); ?>">
+			<form id="<?php echo esc_attr( get_form_id() ); ?>" data-newspack-recaptcha="newspack_register">
 				<div class="newspack-registration__have-account">
 					<?php echo \wp_kses_post( $attrs['haveAccountLabel'] ); ?>
 					<a href="<?php echo \esc_url( $sign_in_url ); ?>" data-newspack-reader-account-link>
@@ -260,9 +260,6 @@ function render_block( $attrs, $content ) {
 					?>
 					<div class="newspack-registration__main">
 						<div>
-							<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
-								<?php Recaptcha::render_recaptcha_v2_container(); ?>
-							<?php endif; ?>
 							<?php Reader_Activation::render_third_party_auth(); ?>
 							<div class="newspack-registration__inputs">
 								<input
@@ -409,7 +406,7 @@ function process_form() {
 	}
 
 	// reCAPTCHA test.
-	if ( Recaptcha::can_use_captcha() ) {
+	if ( Recaptcha::can_use_captcha( 'v3' ) ) {
 		$captcha_result = Recaptcha::verify_captcha();
 		if ( \is_wp_error( $captcha_result ) ) {
 			return send_form_response( $captcha_result );

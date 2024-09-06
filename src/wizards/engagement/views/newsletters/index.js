@@ -25,7 +25,6 @@ import {
 	ActionCard,
 	Grid,
 	PluginInstaller,
-	SectionHeader,
 	SelectControl,
 	TextControl,
 	Waiting,
@@ -413,13 +412,6 @@ const Newsletters = () => {
 				setInitialProvider={ setInitialProvider }
 			/>
 			<SubscriptionLists lockedLists={ lockedLists } initialProvider={ initialProvider } />
-			{ 'mailchimp' === newslettersConfig?.newspack_newsletters_service_provider && (
-				<>
-					<hr />
-					<SectionHeader title={ __( 'WooCommerce integration', 'newspack-plugin' ) } />
-					<PluginInstaller plugins={ [ 'mailchimp-for-woocommerce' ] } withoutFooterButton />
-				</>
-			) }
 		</>
 	);
 };

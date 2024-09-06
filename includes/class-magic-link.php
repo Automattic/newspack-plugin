@@ -34,6 +34,16 @@ final class Magic_Link {
 	const OTP_MAX_ATTEMPTS = 5;
 	const OTP_AUTH_ACTION  = 'np_otp_auth';
 	const OTP_HASH_COOKIE  = 'np_otp_hash';
+	const ACCEPTED_PARAMS  = [
+		'newspack_modal_checkout',
+		'type',
+		'layout',
+		'frequency',
+		'amount',
+		'other',
+		'product_id',
+		'variation_id',
+	];
 
 	/**
 	 * Current session secret.
@@ -334,7 +344,7 @@ final class Magic_Link {
 	 */
 	public static function generate_token( $user ) {
 		if ( ! self::can_magic_link( $user->ID ) ) {
-			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack' ) );
+			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack-plugin' ) );
 		}
 
 		$now    = time();
@@ -354,7 +364,7 @@ final class Magic_Link {
 				}
 				/** Rate limit token generation. */
 				if ( $token_data['time'] + self::RATE_INTERVAL > $now ) {
-					return new \WP_Error( 'rate_limit_exceeded', __( 'Please wait a minute before requesting another authorization code.', 'newspack' ) );
+					return new \WP_Error( 'rate_limit_exceeded', __( 'Please wait a minute before requesting another authorization code.', 'newspack-plugin' ) );
 				}
 			}
 			$tokens = array_values( $tokens );
@@ -383,7 +393,7 @@ final class Magic_Link {
 	 */
 	public static function has_active_token( $user ) {
 		if ( ! self::can_magic_link( $user->ID ) ) {
-			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack' ) );
+			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack-plugin' ) );
 		}
 
 		$now    = time();
@@ -450,8 +460,7 @@ final class Magic_Link {
 		if ( is_wp_error( $key ) ) {
 			return $key;
 		}
-
-		$url                = \add_query_arg(
+		$url = \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
 				'email'  => urlencode( $user->user_email ),
@@ -469,7 +478,6 @@ final class Magic_Link {
 				'template' => '*SET_PASSWORD_LINK*',
 				'value'    => Emails::get_password_reset_url( $user, $key ),
 			],
-
 		];
 		if ( $use_otp && ! empty( $token_data['otp'] ) ) {
 			$email_type           = 'OTP_AUTH';
@@ -509,13 +517,13 @@ final class Magic_Link {
 		$user   = \get_user_by( 'id', $user_id );
 
 		if ( ! $user ) {
-			$errors->add( 'invalid_user', __( 'User not found.', 'newspack' ) );
+			$errors->add( 'invalid_user', __( 'User not found.', 'newspack-plugin' ) );
 		} elseif ( ! self::can_magic_link( $user->ID ) ) {
-			$errors->add( 'invalid_user_type', __( 'Not allowed for this user', 'newspack' ) );
+			$errors->add( 'invalid_user_type', __( 'Not allowed for this user', 'newspack-plugin' ) );
 		} else {
 			$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
 			if ( empty( $tokens ) || empty( $token ) ) {
-				$errors->add( 'invalid_token', __( 'Invalid token.', 'newspack' ) );
+				$errors->add( 'invalid_token', __( 'Invalid token.', 'newspack-plugin' ) );
 			}
 		}
 
@@ -536,7 +544,7 @@ final class Magic_Link {
 
 				/** If token data has a client hash, it must be equal to the user's. */
 				if ( ! empty( $token_data['client'] ) && $token_data['client'] !== $client ) {
-					$errors->add( 'invalid_client', __( 'Invalid client.', 'newspack' ) );
+					$errors->add( 'invalid_client', __( 'Invalid client.', 'newspack-plugin' ) );
 				}
 
 				unset( $tokens[ $index ] );
@@ -545,7 +553,7 @@ final class Magic_Link {
 		}
 
 		if ( empty( $valid_token ) ) {
-			$errors->add( 'invalid_token', __( 'Invalid token.', 'newspack' ) );
+			$errors->add( 'invalid_token', __( 'Invalid token.', 'newspack-plugin' ) );
 		}
 		self::clear_token_cookies();
 
@@ -579,17 +587,17 @@ final class Magic_Link {
 		$user   = \get_user_by( 'id', $user_id );
 
 		if ( ! $user ) {
-			$errors->add( 'invalid_user', __( 'User not found.', 'newspack' ) );
+			$errors->add( 'invalid_user', __( 'User not found.', 'newspack-plugin' ) );
 		} elseif ( ! self::can_magic_link( $user->ID ) ) {
-			$errors->add( 'invalid_user_type', __( 'Not allowed for this user', 'newspack' ) );
+			$errors->add( 'invalid_user_type', __( 'Not allowed for this user', 'newspack-plugin' ) );
 		} elseif ( ! self::is_otp_enabled( $user ) ) {
-			$errors->add( 'invalid_otp', __( 'OTP is not enabled.', 'newspack' ) );
+			$errors->add( 'invalid_otp', __( 'OTP is not enabled.', 'newspack-plugin' ) );
 		} else {
 			$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
 			if ( empty( $tokens ) || empty( $hash ) ) {
-				$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack' ) );
+				$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack-plugin' ) );
 			} elseif ( empty( $code ) ) {
-				$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
+				$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack-plugin' ) );
 			}
 		}
 
@@ -615,18 +623,18 @@ final class Magic_Link {
 					// Handle OTP attempts from given hash.
 					$tokens[ $index ]['otp']['attempts']++;
 					if ( $token_data['otp']['attempts'] >= self::OTP_MAX_ATTEMPTS ) {
-						$errors->add( 'max_otp_attempts', __( 'Maximum OTP attempts reached.', 'newspack' ) );
+						$errors->add( 'max_otp_attempts', __( 'Maximum OTP attempts reached.', 'newspack-plugin' ) );
 						unset( $tokens[ $index ] );
 						self::clear_token_cookies();
 					}
-					$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack' ) );
+					$errors->add( 'invalid_otp', __( 'Invalid OTP.', 'newspack-plugin' ) );
 				}
 				break;
 			}
 		}
 
 		if ( empty( $valid_token ) ) {
-			$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack' ) );
+			$errors->add( 'invalid_hash', __( 'Invalid hash.', 'newspack-plugin' ) );
 		}
 
 		$tokens = array_values( $tokens );
@@ -662,12 +670,12 @@ final class Magic_Link {
 		$user = \get_user_by( 'id', $user_id );
 
 		if ( ! $user ) {
-			return new \WP_Error( 'invalid_user', __( 'User not found.', 'newspack' ) );
+			return new \WP_Error( 'invalid_user', __( 'User not found.', 'newspack-plugin' ) );
 		}
 
 		if ( ! empty( $otp_hash ) ) {
 			if ( ! self::is_otp_enabled( $user ) ) {
-				return new \WP_Error( 'invalid_otp', __( 'OTP is not enabled.', 'newspack' ) );
+				return new \WP_Error( 'invalid_otp', __( 'OTP is not enabled.', 'newspack-plugin' ) );
 			}
 			$token_data = self::validate_otp( $user_id, $otp_hash, $otp_code );
 		} else {
@@ -719,7 +727,7 @@ final class Magic_Link {
 						}
 					</style>
 					<div class="newspack-magic-link-error">
-						<?php \esc_html_e( 'We were not able to authenticate your account. Please try logging in again.', 'newspack' ); ?>
+						<?php \esc_html_e( 'We were not able to authenticate your account. Please try logging in again.', 'newspack-plugin' ); ?>
 					</div>
 					<?php
 				},
@@ -759,18 +767,21 @@ final class Magic_Link {
 			$authenticated = self::authenticate( $user->ID, $token );
 		}
 
-		$redirect = \wp_validate_redirect(
+		$query_args = [ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ];
+		foreach ( self::ACCEPTED_PARAMS as $param ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\sanitize_text_field( \wp_unslash( $_GET['redirect'] ?? '' ) ),
+			if ( isset( $_GET[ $param ] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$query_args[ $param ] = \sanitize_text_field( \wp_unslash( $_GET[ $param ] ) );
+			}
+		}
+		$redirect = \sanitize_url( \wp_unslash( $_GET['redirect'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$redirect = \wp_validate_redirect(
+			\add_query_arg( $query_args, $redirect ),
 			\remove_query_arg( [ 'action', 'email', 'token' ] )
 		);
 
-		\wp_safe_redirect(
-			\add_query_arg(
-				[ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ],
-				$redirect
-			)
-		);
+		\wp_safe_redirect( $redirect );
 		exit;
 	}
 
@@ -783,7 +794,7 @@ final class Magic_Link {
 	 */
 	private static function send_otp_request_response( $message = '', $success = false, $data = [] ) {
 		if ( ! \wp_is_json_request() ) {
-			\wp_die( \esc_html__( 'Unsupported request method', 'newspack' ) );
+			\wp_die( \esc_html__( 'Unsupported request method', 'newspack-plugin' ) );
 		}
 		\wp_send_json(
 			[
@@ -816,16 +827,16 @@ final class Magic_Link {
 		// phpcs:enable
 
 		if ( ! \wp_is_json_request() ) {
-			\wp_die( \esc_html__( 'Unsupported request method', 'newspack' ) );
+			\wp_die( \esc_html__( 'Unsupported request method', 'newspack-plugin' ) );
 		}
 
 		if ( empty( $hash ) || empty( $code ) || empty( $email ) ) {
-			return self::send_otp_request_response( __( 'Missing required parameters', 'newspack' ), false );
+			return self::send_otp_request_response( __( 'Missing required parameters', 'newspack-plugin' ), false );
 		}
 
 		$user = \get_user_by( 'email', $email );
 		if ( ! $user ) {
-			return self::send_otp_request_response( __( 'Invalid user', 'newspack' ), false );
+			return self::send_otp_request_response( __( 'Invalid user', 'newspack-plugin' ), false );
 		}
 		if ( ! self::is_otp_enabled( $user ) ) {
 			return;
@@ -835,18 +846,18 @@ final class Magic_Link {
 
 		if ( is_wp_error( $authenticated ) ) {
 			if ( 'max_otp_attempts' === $authenticated->get_error_code() ) {
-				return self::send_otp_request_response( __( "You've reached the maximum attempts for this code, try again.", 'newspack' ), false, [ 'expired' => true ] );
+				return self::send_otp_request_response( __( "You've reached the maximum attempts for this code, try again.", 'newspack-plugin' ), false, [ 'expired' => true ] );
 			}
 			if ( 'invalid_otp' === $authenticated->get_error_code() ) {
-				return self::send_otp_request_response( __( 'Code not recognized, try again.', 'newspack' ), false );
+				return self::send_otp_request_response( __( 'Code not recognized, try again.', 'newspack-plugin' ), false );
 			}
 		}
 
 		if ( true !== $authenticated ) {
-			return self::send_otp_request_response( __( 'Unable to authenticated, try again.', 'newspack' ), false, [ 'expired' => true ] );
+			return self::send_otp_request_response( __( 'Unable to authenticated, try again.', 'newspack-plugin' ), false, [ 'expired' => true ] );
 		}
 
-		return self::send_otp_request_response( __( 'Login successful!', 'newspack' ), true );
+		return self::send_otp_request_response( __( 'Login successful!', 'newspack-plugin' ), true );
 	}
 
 	/**
@@ -888,7 +899,7 @@ final class Magic_Link {
 			}
 
 			if ( ! $user || \is_wp_error( $user ) ) {
-				\WP_CLI::error( __( 'User not found.', 'newspack' ) );
+				\WP_CLI::error( __( 'User not found.', 'newspack-plugin' ) );
 			}
 
 			$result = self::send_email( $user );
@@ -898,13 +909,13 @@ final class Magic_Link {
 			}
 
 			// translators: %s is the email address of the user.
-			\WP_CLI::success( sprintf( __( 'Email sent to %s.', 'newspack' ), $user->user_email ) );
+			\WP_CLI::success( sprintf( __( 'Email sent to %s.', 'newspack-plugin' ), $user->user_email ) );
 		};
 		\WP_CLI::add_command(
 			'newspack magic-link send',
 			$send,
 			[
-				'shortdesc' => __( 'Send a magic link to a reader.', 'newspack' ),
+				'shortdesc' => __( 'Send a magic link to a reader.', 'newspack-plugin' ),
 			]
 		);
 	}
@@ -948,7 +959,7 @@ final class Magic_Link {
 		}
 		if ( self::can_magic_link( $user->ID ) && \current_user_can( 'edit_user', $user->ID ) ) {
 			$url                                 = self::get_admin_action_url( 'send', $user->ID );
-			$actions['newspack-magic-link-send'] = '<a href="' . $url . '">' . \esc_html__( 'Send authentication link', 'newspack' ) . '</a>';
+			$actions['newspack-magic-link-send'] = '<a href="' . $url . '">' . \esc_html__( 'Send authentication link', 'newspack-plugin' ) . '</a>';
 		}
 		return $actions;
 	}
@@ -969,16 +980,16 @@ final class Magic_Link {
 			$message = '';
 			switch ( $update ) {
 				case $actions['send']:
-					$message = __( 'Authentication link sent.', 'newspack' );
+					$message = __( 'Authentication link sent.', 'newspack-plugin' );
 					break;
 				case $actions['clear']:
-					$message = __( 'All authentication link tokens were removed.', 'newspack' );
+					$message = __( 'All authentication link tokens were removed.', 'newspack-plugin' );
 					break;
 				case $actions['disable']:
-					$message = __( 'Authentication links are now disabled.', 'newspack' );
+					$message = __( 'Authentication links are now disabled.', 'newspack-plugin' );
 					break;
 				case $actions['enable']:
-					$message = __( 'Authentication links are now enabled.', 'newspack' );
+					$message = __( 'Authentication links are now enabled.', 'newspack-plugin' );
 					break;
 			}
 			if ( ! empty( $message ) ) {
@@ -1000,23 +1011,23 @@ final class Magic_Link {
 		$action = \sanitize_text_field( \wp_unslash( $_GET['action'] ) );
 
 		if ( ! isset( $_GET['uid'] ) ) {
-			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
+			\wp_die( \esc_html__( 'Invalid request.', 'newspack-plugin' ) );
 		}
 
 		if ( ! \check_admin_referer( $action ) ) {
-			\wp_die( \esc_html__( 'Invalid request.', 'newspack' ) );
+			\wp_die( \esc_html__( 'Invalid request.', 'newspack-plugin' ) );
 		}
 
 		$user_id = \absint( \wp_unslash( $_GET['uid'] ) );
 
 		if ( ! \current_user_can( 'edit_user', $user_id ) ) {
-			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack' ) );
+			\wp_die( \esc_html__( 'You do not have permission to do that.', 'newspack-plugin' ) );
 		}
 
 		$user = \get_user_by( 'id', $user_id );
 
 		if ( ! $user || \is_wp_error( $user ) ) {
-			\wp_die( \esc_html__( 'User not found.', 'newspack' ) );
+			\wp_die( \esc_html__( 'User not found.', 'newspack-plugin' ) );
 		}
 
 		switch ( $action ) {
@@ -1060,10 +1071,10 @@ final class Magic_Link {
 		$disabled = (bool) \get_user_meta( $user->ID, self::DISABLED_META, true );
 		?>
 		<div class="newspack-magic-link-management">
-			<h2><?php _e( 'Passwordless Authentication Management', 'newspack' ); ?></h2>
+			<h2><?php _e( 'Passwordless Authentication Management', 'newspack-plugin' ); ?></h2>
 			<table class="form-table" role="presentation">
 				<tr id="newspack-magic-link-support">
-					<th><label><?php _e( 'Authentication Link Support', 'newspack' ); ?></label></th>
+					<th><label><?php _e( 'Authentication Link Support', 'newspack-plugin' ); ?></label></th>
 					<td>
 						<?php if ( $disabled ) : ?>
 							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'enable', $user->ID ) ); ?>"><?php _e( 'Enable Authentication Links' ); ?></a>
@@ -1074,8 +1085,8 @@ final class Magic_Link {
 								<?php
 								printf(
 									/* translators: %1$s: Disabled or enabled. %2$s: User's display name. */
-									\esc_html__( 'Authentication links support is currently %1$s for %2$s.', 'newspack' ),
-									$disabled ? \esc_html__( 'disabled', 'newspack' ) : \esc_html__( 'enabled', 'newspack' ),
+									\esc_html__( 'Authentication links support is currently %1$s for %2$s.', 'newspack-plugin' ),
+									$disabled ? \esc_html__( 'disabled', 'newspack-plugin' ) : \esc_html__( 'enabled', 'newspack-plugin' ),
 									\esc_html( $user->display_name )
 								);
 								?>
@@ -1084,14 +1095,14 @@ final class Magic_Link {
 				</tr>
 				<?php if ( ! $disabled ) : ?>
 					<tr id="newspack-magic-link-send">
-						<th><label><?php _e( 'Send Authentication Link', 'newspack' ); ?></label></th>
+						<th><label><?php _e( 'Send Authentication Link', 'newspack-plugin' ); ?></label></th>
 						<td>
 							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'send', $user->ID ) ); ?>"><?php _e( 'Send Authentication Link' ); ?></a>
 							<p class="description">
 								<?php
 								printf(
 									/* translators: %1$s: User's display name. %2$d is the expiration period in minutes. */
-									\esc_html__( 'Generate and send a new link to %1$s, which will authenticate them instantly. The link will be valid for %2$d minutes after its creation.', 'newspack' ),
+									\esc_html__( 'Generate and send a new link to %1$s, which will authenticate them instantly. The link will be valid for %2$d minutes after its creation.', 'newspack-plugin' ),
 									\esc_html( $user->display_name ),
 									\esc_html( \absint( self::get_token_expiration_period() ) / MINUTE_IN_SECONDS )
 								);
@@ -1100,14 +1111,14 @@ final class Magic_Link {
 						</td>
 					</tr>
 					<tr id="newspack-magic-link-clear">
-						<th><label><?php _e( 'Clear All Tokens', 'newspack' ); ?></label></th>
+						<th><label><?php _e( 'Clear All Tokens', 'newspack-plugin' ); ?></label></th>
 						<td>
 							<a class="button" href="<?php echo \esc_url( self::get_admin_action_url( 'clear', $user->ID ) ); ?>"><?php _e( 'Clear All Tokens' ); ?></a>
 							<p class="description">
 								<?php
 								printf(
 									/* translators: %s: User's display name. */
-									\esc_html__( 'Clear all existing authentication link tokens for %s.', 'newspack' ),
+									\esc_html__( 'Clear all existing authentication link tokens for %s.', 'newspack-plugin' ),
 									\esc_html( $user->display_name )
 								);
 								?>
