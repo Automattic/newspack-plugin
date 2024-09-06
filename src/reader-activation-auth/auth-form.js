@@ -105,8 +105,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
 				}
-				// Sign in step should clear any modal errors or messages.
-				if ( 'signin' === action ) {
+				// Signin and success steps should clear any modal errors or messages.
+				if ( 'signin' === action || 'success' === action ) {
 					form.setMessageContent();
 				}
 				const newspack_grecaptcha = window.newspack_grecaptcha || {};
