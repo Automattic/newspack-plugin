@@ -50,14 +50,66 @@ window.newspackRAS.push( function ( readerActivation ) {
 			};
 
 			/**
+			 * Sets response message content.
+			 *
+			 * @param {string|HTMLElement} message Message content.
+			 * @param {boolean}            isError Whether the message is an error.
+			 *
+			 * @return {void}
+			 */
+			form.setMessageContent = ( message = '', isError = false ) => {
+				if ( message ) {
+					if ( typeof message === 'string' ) {
+						messageContentElement.innerHTML = message;
+					} else {
+						messageContentElement.appendChild( message );
+					}
+					if ( isError ) {
+						messageContentElement.classList.remove( 'newspack-ui__helper-text' );
+						messageContentElement.classList.add( 'newspack-ui__inline-error' );
+					} else {
+						messageContentElement.classList.remove( 'newspack-ui__inline-error' );
+						messageContentElement.classList.add( 'newspack-ui__helper-text' );
+					}
+					messageContentElement.style.display = 'block';
+
+					// If the message includes a registration toggle, hide the message when clicked.
+					messageContentElement
+						.querySelectorAll( 'a[data-set-action="register"], a[data-set-action="signin"]' )
+						.forEach( registerLink => {
+							registerLink.parentNode.setAttribute( 'data-action', 'signin' );
+
+							registerLink.addEventListener(
+								'click',
+								function () {
+									messageContentElement.innerHTML = '';
+								},
+								false
+							);
+						} );
+				} else {
+					messageContentElement.style.display = 'none';
+					messageContentElement.innerHTML = '';
+					messageContentElement.classList.remove(
+						'newspack-ui__inline-error',
+						'newspack-ui__helper-text'
+					);
+				}
+			};
+
+			/**
 			 * Handle auth form action selection.
 			 */
 			let formAction;
 			container.setFormAction = ( action, shouldFocus = false ) => {
-				const newspack_grecaptcha = window.newspack_grecaptcha || {};
 				if ( ! FORM_ALLOWED_ACTIONS.includes( action ) ) {
 					action = 'signin';
 				}
+				// Sign in step should clear any modal errors or messages.
+				if ( 'signin' === action ) {
+					form.setMessageContent();
+				}
+				const newspack_grecaptcha = window.newspack_grecaptcha || {};
 				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
 					if ( 'register' === action ) {
 						submitButtons.forEach( button => button.removeAttribute( 'data-skip-recaptcha' ) );
@@ -160,8 +212,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 			if ( sendCodeButton || resendCodeButton ) {
 				[ sendCodeButton, resendCodeButton ].forEach( button => {
 					button.addEventListener( 'click', function ( ev ) {
-						form.setMessageContent();
 						ev.preventDefault();
+						form.setMessageContent();
 						form.startLoginFlow();
 						const body = new FormData();
 						body.set( 'reader-activation-auth-form', 1 );
@@ -295,54 +347,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 							}
 						}
 					}
-				}
-			};
-
-			/**
-			 * Sets response message content.
-			 *
-			 * @param {string|HTMLElement} message Message content.
-			 * @param {boolean}            isError Whether the message is an error.
-			 *
-			 * @return {void}
-			 */
-			form.setMessageContent = ( message = '', isError = false ) => {
-				if ( message ) {
-					if ( typeof message === 'string' ) {
-						messageContentElement.innerHTML = message;
-					} else {
-						messageContentElement.appendChild( message );
-					}
-					if ( isError ) {
-						messageContentElement.classList.remove( 'newspack-ui__helper-text' );
-						messageContentElement.classList.add( 'newspack-ui__inline-error' );
-					} else {
-						messageContentElement.classList.remove( 'newspack-ui__inline-error' );
-						messageContentElement.classList.add( 'newspack-ui__helper-text' );
-					}
-					messageContentElement.style.display = 'block';
-
-					// If the message includes a registration toggle, hide the message when clicked.
-					messageContentElement
-						.querySelectorAll( 'a[data-set-action="register"], a[data-set-action="signin"]' )
-						.forEach( registerLink => {
-							registerLink.parentNode.setAttribute( 'data-action', 'signin' );
-
-							registerLink.addEventListener(
-								'click',
-								function () {
-									messageContentElement.innerHTML = '';
-								},
-								false
-							);
-						} );
-				} else {
-					messageContentElement.style.display = 'none';
-					messageContentElement.innerHTML = '';
-					messageContentElement.classList.remove(
-						'newspack-ui__inline-error',
-						'newspack-ui__helper-text'
-					);
 				}
 			};
 
