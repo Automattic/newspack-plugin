@@ -433,7 +433,7 @@ const readerActivation = {
 	getCheckoutData,
 	isPendingCheckout,
 	resetCheckoutData,
-	...( newspack_ras_config.ras_is_enabled && { openAuthModal } )
+	...( newspack_ras_config.is_ras_enabled && { openAuthModal } )
 };
 
 /**
