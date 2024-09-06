@@ -434,12 +434,18 @@ class WooCommerce_My_Account {
 	 * @return bool True if the current checkout page is coming from a My Account referrer, false otherwise.
 	 */
 	public static function is_from_my_account() {
-		// If we got posted a `is_my_account` param, return true.
+		// If we're in My Account.
+		if ( \is_account_page() ) {
+			return true;
+		}
+
+		// If we have an `is_my_account` param in POST or GET.
 		$is_my_account_param = rest_sanitize_boolean( $_REQUEST['my_account_checkout'] ?? false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( $is_my_account_param ) {
 			return true;
 		}
 
+		// If the referrer URL had a `my_account_checkout` param.
 		$referrer = \wp_get_referer();
 		if ( $referrer ) {
 			$referrer_query = \wp_parse_url( $referrer, PHP_URL_QUERY );
@@ -460,7 +466,7 @@ class WooCommerce_My_Account {
 	 * @return string
 	 */
 	public static function get_checkout_url( $url ) {
-		if ( \is_account_page() || self::is_from_my_account() ) {
+		if ( self::is_from_my_account() ) {
 			return \add_query_arg(
 				[
 					'my_account_checkout' => 1,
