@@ -131,6 +131,7 @@ final class Reader_Activation {
 				'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
 				'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
 				'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
+				'is_ras_enabled'        => self::is_enabled(),
 			];
 
 			if ( Recaptcha::can_use_captcha() ) {

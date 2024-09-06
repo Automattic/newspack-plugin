@@ -419,7 +419,6 @@ const readerActivation = {
 	setAuthenticated,
 	refreshAuthentication,
 	getReader,
-	openAuthModal,
 	openNewslettersSignupModal,
 	hasAuthLink,
 	getOTPHash,
@@ -433,6 +432,7 @@ const readerActivation = {
 	getCheckoutData,
 	isPendingCheckout,
 	resetCheckoutData,
+	...( newspack_ras_config.is_ras_enabled && { openAuthModal } )
 };
 
 /**
