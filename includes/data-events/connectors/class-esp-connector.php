@@ -131,7 +131,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
 	public static function membership_saved( $timestamp, $data, $client_id ) {
-		$filtered_enabled_fields = Newspack_Newsletters::filter_enabled_fields(
+		$filtered_enabled_fields = Sync\Metadata::filter_enabled_fields(
 			[
 				'membership_status',
 				'membership_plan',
