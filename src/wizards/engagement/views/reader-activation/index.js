@@ -357,7 +357,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							<>
 								{ 0 < Object.keys(espSyncErrors).length && (
 									<Notice
-										noticeText={ Object.values(espSyncErrors).join( ', ' ) }
+										noticeText={ Object.values(espSyncErrors).join( ' ' ) }
 										isError
 									/>
 								) }
