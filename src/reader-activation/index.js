@@ -3,6 +3,7 @@
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
+import { isPendingCheckout, setCheckoutData, getCheckoutData, resetCheckoutData } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 import overlays from './overlays.js';
@@ -157,9 +158,12 @@ export function openAuthModal( config = {} ) {
 				},
 			},
 			content: null,
+			trigger: null,
+			closeOnSuccess: true,
 		},
 		...config,
 	};
+
 	if ( newspack_ras_config.is_logged_in ) {
 		if ( config.callback ) {
 			config.callback();
@@ -326,26 +330,6 @@ export function getAuthStrategy() {
 	}
 	return getCookie( 'np_auth_strategy' );
 }
-/**
- * Set the reader checkout status.
- *
- * @param {boolean} status Checkout status. Default is false.
- *
- * @return {void}
- */
-export function setCheckoutStatus( status = false ) {
-	setCookie( 'np_auth_checkout_status', status );
-	emit( EVENTS.reader, getReader() );
-	return status;
-}
-/**
- * Get the reader checkout status.
- *
- * @return {boolean} Reader checkout status.
- */
-export function getCheckoutStatus() {
-	return 'true' === getCookie( 'np_auth_checkout_status' );
-}
 
 /**
  * Ensure the client ID cookie is set.
@@ -403,23 +387,24 @@ function attachAuthCookiesListener() {
  * Set the reader as newsletter subscriber once a newsletter form is submitted.
  */
 function attachNewsletterFormListener() {
-	const forms = document.querySelectorAll(
-		'.newspack-newsletters-subscribe,.newspack-subscribe-form,.mc4wp-form'
-	);
-	if ( ! forms.length ) {
-		return;
-	}
-	forms.forEach( form => {
-		if ( form.tagName !== 'FORM' ) {
-			form = form.querySelector( 'form' );
-		}
+	const newspackForms = [ '.newspack-newsletters-subscribe', '.newspack-subscribe-form' ];
+	const thirdPartyForms = [ '.mc4wp-form' ];
+
+	const attachHandler = ( el, eventToListenTo = 'submit' ) => {
+		const form = 'FORM' === el.tagName ? el : el.querySelector( 'form' );
 		if ( ! form ) {
 			return;
 		}
-		form.addEventListener( 'submit', () => {
+		form.addEventListener( eventToListenTo, () => {
 			store.set( 'is_newsletter_subscriber', true );
 		} );
-	} );
+	};
+
+	// For third-party forms, set reader data on form submit. For first-party forms, listen for the custom event upon successful signup response.
+	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => attachHandler( el ) );
+	document
+		.querySelectorAll( newspackForms.join( ',' ) )
+		.forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
 }
 
 const readerActivation = {
@@ -444,11 +429,10 @@ const readerActivation = {
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
-	setCheckoutStatus,
-	getCheckoutStatus,
-	getCaptchaV3Token: window.newspack_grecaptcha
-		? window.newspack_grecaptcha?.getCaptchaV3Token
-		: () => new Promise( res => res( '' ) ), // Empty promise.
+	setCheckoutData,
+	getCheckoutData,
+	isPendingCheckout,
+	resetCheckoutData,
 };
 
 /**

@@ -105,6 +105,7 @@ final class Reader_Activation {
 			\add_filter( 'retrieve_password_notification_email', [ __CLASS__, 'password_reset_configuration' ], 10, 4 );
 			\add_action( 'lostpassword_post', [ __CLASS__, 'set_password_reset_mail_content_type' ] );
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
+			\add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'set_mailchimp_sync_contact_status' ], 10, 2 );
 		}
 
 		\add_filter( 'newspack_reader_activation_setting', [ __CLASS__, 'disable_esp_sync_on_staging_sites' ], 10, 2 );
@@ -269,6 +270,7 @@ final class Reader_Activation {
 				),
 				'newsletters_success'      => __( 'Signup successful!', 'newspack-plugin' ),
 				'newsletters_title'        => __( 'Sign up for newsletters', 'newspack-plugin' ),
+				'auth_form_action'         => self::AUTH_FORM_ACTION,
 			];
 
 			/**
@@ -450,6 +452,55 @@ final class Reader_Activation {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the master list ID for the ESP.
+	 *
+	 * @param string $provider Optional ESP provider. Defaults to the configured ESP.
+	 *
+	 * @return string|bool Master list ID or false if not set or not available.
+	 */
+	public static function get_esp_master_list_id( $provider = '' ) {
+		if ( ! self::is_esp_configured() ) {
+			return false;
+		}
+		if ( empty( $provider ) ) {
+			$provider = \Newspack_Newsletters::service_provider();
+		}
+		switch ( $provider ) {
+			case 'active_campaign':
+				return self::get_setting( 'active_campaign_master_list' );
+			case 'mailchimp':
+				$audience_id = self::get_setting( 'mailchimp_audience_id' );
+				/** Attempt to use list ID from "Mailchimp for WooCommerce" */
+				if ( ! $audience_id && function_exists( 'mailchimp_get_list_id' ) ) {
+					$audience_id = \mailchimp_get_list_id();
+				}
+				return ! empty( $audience_id ) ? $audience_id : false;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Set the contact metadata status for Mailchimp.
+	 *
+	 * @param array $contact The contact data to sync.
+	 *
+	 * @return array Modified contact data.
+	 */
+	public static function set_mailchimp_sync_contact_status( $contact ) {
+		$allowed_statuses = [
+			'transactional',
+			'subscribed',
+		];
+		$default_status = self::get_setting( 'mailchimp_reader_default_status' );
+		$status = in_array( $default_status, $allowed_statuses, true ) ? $default_status : 'transactional';
+
+		$contact['metadata']['status_if_new'] = $status;
+
+		return $contact;
 	}
 
 	/**
@@ -1256,7 +1307,7 @@ final class Reader_Activation {
 				</p>
 				<p class="newspack-ui__font--xs success-description"></p>
 			</div>
-			<form method="post" target="_top">
+			<form method="post" target="_top" data-newspack-recaptcha="newspack_register">
 				<div data-action="signin register">
 					<?php self::render_third_party_auth(); ?>
 				</div>
@@ -1282,9 +1333,6 @@ final class Reader_Activation {
 					<label for="newspack-reader-auth-password-input"><?php esc_html_e( 'Enter your password', 'newspack-plugin' ); ?></label>
 					<input id="newspack-reader-auth-password-input" name="password" type="password" />
 				</p>
-				<?php if ( Recaptcha::can_use_captcha( 'v2' ) ) : ?>
-					<?php Recaptcha::render_recaptcha_v2_container(); ?>
-				<?php endif; ?>
 				<div class="response-container">
 					<div class="response">
 						<?php if ( ! empty( $message ) ) : ?>
@@ -1339,9 +1387,9 @@ final class Reader_Activation {
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-reader-auth-modal">
 			<div class="newspack-ui__modal-container__overlay"></div>
-			<div class="newspack-ui__modal newspack-ui__modal--small">
+			<div class="newspack-ui__modal newspack-ui__modal--small" role="dialog" aria-modal="true" aria-labelledby="newspack-reader-auth-modal-label">
 				<div class="newspack-ui__modal__header">
-					<h2><?php echo \esc_html( $label ); ?></h2>
+					<h2 id="newspack-reader-auth-modal-label"><?php echo \esc_html( $label ); ?></h2>
 					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
 						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
 						<?php \Newspack\Newspack_UI_Icons::print_svg( 'close' ); ?>
@@ -1475,7 +1523,7 @@ final class Reader_Activation {
 			return new \WP_Error( 'no_lists_selected', __( 'No lists selected.', 'newspack-plugin' ) );
 		}
 
-		$result = \Newspack_Newsletters_Subscription::add_contact(
+		$result = \Newspack_Newsletters_Contacts::subscribe(
 			[
 				'email'    => $email_address,
 				'metadata' => [
@@ -1693,11 +1741,14 @@ final class Reader_Activation {
 		$password         = isset( $_POST['password'] ) ? \sanitize_text_field( $_POST['password'] ) : '';
 		$lists            = isset( $_POST['lists'] ) ? array_map( 'sanitize_text_field', $_POST['lists'] ) : [];
 		$honeypot         = isset( $_POST['email'] ) ? \sanitize_text_field( $_POST['email'] ) : '';
+		$redirect_url     = isset( $_POST['redirect_url'] ) ? \esc_url_raw( $_POST['redirect_url'] ) : '';
 		// phpcs:enable
 
 		if ( ! empty( $current_page_url['path'] ) ) {
 			$current_page_url = \esc_url( \home_url( $current_page_url['path'] ) );
 		}
+
+		$redirect = ! empty( $redirect_url ) ? $redirect_url : $current_page_url;
 
 		// Honeypot trap.
 		if ( ! empty( $honeypot ) ) {
@@ -1710,7 +1761,7 @@ final class Reader_Activation {
 		}
 
 		// reCAPTCHA test on account registration only.
-		if ( 'register' === $action && Recaptcha::can_use_captcha() ) {
+		if ( 'register' === $action && Recaptcha::can_use_captcha( 'v3' ) ) {
 			$captcha_result = Recaptcha::verify_captcha();
 			if ( \is_wp_error( $captcha_result ) ) {
 				return self::send_auth_form_response( $captcha_result );
@@ -1746,7 +1797,7 @@ final class Reader_Activation {
 					return self::send_auth_form_response( $payload, false );
 				}
 				if ( self::is_reader_without_password( $user ) ) {
-					$sent = Magic_Link::send_email( $user, $current_page_url );
+					$sent = Magic_Link::send_email( $user, $redirect );
 					if ( true !== $sent ) {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
@@ -1768,7 +1819,7 @@ final class Reader_Activation {
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
 				return self::send_auth_form_response( $payload, false );
 			case 'link':
-				$sent = Magic_Link::send_email( $user, $current_page_url );
+				$sent = Magic_Link::send_email( $user, $redirect );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}

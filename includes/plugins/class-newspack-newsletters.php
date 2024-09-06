@@ -35,22 +35,16 @@ class Newspack_Newsletters {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		\add_action( 'init', [ __CLASS__, 'setup_hooks' ] );
+		\add_action( 'init', [ __CLASS__, 'setup_hooks' ], 15 );
 	}
 
 	/**
 	 * Setup hooks.
 	 */
 	public static function setup_hooks() {
-		/**
-		 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
-		 *
-		 * @param array $metadata_keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
-		 */
-		self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_metadata_fields() );
-
 		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ], 99 );
 
+		// this condition triggers filters that should not be fired before init.
 		if ( self::should_sync_ras_metadata() ) {
 			\add_filter( 'newspack_newsletters_contact_lists', [ __CLASS__, 'add_activecampaign_master_list' ], 10, 3 );
 		}
@@ -83,18 +77,28 @@ class Newspack_Newsletters {
 	 */
 	public static function get_payment_metadata_fields() {
 		return [
-			'membership_status'   => 'Membership Status',
-			'payment_page'        => 'Payment Page',
-			'payment_page_utm'    => 'Payment UTM: ',
-			'sub_start_date'      => 'Current Subscription Start Date',
-			'sub_end_date'        => 'Current Subscription End Date',
-			'billing_cycle'       => 'Billing Cycle',
-			'recurring_payment'   => 'Recurring Payment',
-			'last_payment_date'   => 'Last Payment Date',
-			'last_payment_amount' => 'Last Payment Amount',
-			'product_name'        => 'Product Name',
-			'next_payment_date'   => 'Next Payment Date',
-			'total_paid'          => 'Total Paid',
+			'membership_status'     => 'Membership Status',
+			'membership_plan'       => 'Membership Plan',
+			// In most cases these fields won't be needed, because their values will match
+			// linked subscription dates. But some setups use memberships w/out subscriptions.
+			'membership_start_date' => 'Current Membership Start Date',
+			'membership_end_date'   => 'Current Membership End Date',
+			// URL of the page on which the payment has happened.
+			'payment_page'          => 'Payment Page',
+			'payment_page_utm'      => 'Payment UTM: ',
+			'sub_start_date'        => 'Current Subscription Start Date',
+			'sub_end_date'          => 'Current Subscription End Date',
+			// At what interval does the recurring payment occur – e.g. day, week, month or year.
+			'billing_cycle'         => 'Billing Cycle',
+			// The total value of the recurring payment.
+			'recurring_payment'     => 'Recurring Payment',
+			'last_payment_date'     => 'Last Payment Date',
+			'last_payment_amount'   => 'Last Payment Amount',
+			// Product name, as it appears in WooCommerce.
+			'product_name'          => 'Product Name',
+			'next_payment_date'     => 'Next Payment Date',
+			// Total value spent by this customer on the site.
+			'total_paid'            => 'Total Paid',
 		];
 	}
 
@@ -105,6 +109,23 @@ class Newspack_Newsletters {
 	 */
 	public static function get_all_metadata_fields() {
 		return array_merge( self::get_basic_metadata_fields(), self::get_payment_metadata_fields() );
+	}
+
+	/**
+	 * Get the metadata keys map for Reader Activation.
+	 *
+	 * @return array List of fields.
+	 */
+	public static function get_metadata_keys() {
+		if ( empty( self::$metadata_keys ) ) {
+			/**
+			 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
+			 *
+			 * @param array $metadata_keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
+			 */
+			self::$metadata_keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_metadata_fields() );
+		}
+		return self::$metadata_keys;
 	}
 
 	/**
@@ -159,7 +180,7 @@ class Newspack_Newsletters {
 	 * @return string[] List of fields.
 	 */
 	public static function get_default_metadata_fields() {
-		return array_values( array_unique( array_values( self::$metadata_keys ) ) );
+		return array_values( array_unique( array_values( self::get_metadata_keys() ) ) );
 	}
 
 	/**
@@ -169,6 +190,23 @@ class Newspack_Newsletters {
 	 */
 	public static function get_metadata_fields() {
 		return array_values( \get_option( self::METADATA_FIELDS_OPTION, self::get_default_metadata_fields() ) );
+	}
+
+	/**
+	 * Get enabled fields which match provided keys.
+	 * Will return key-value pairs of enabled fields which match the keys provided.
+	 *
+	 * @param string[] $keys Array of keys to match.
+	 */
+	public static function filter_enabled_fields( $keys ) {
+		$enabled_fields = self::get_metadata_fields();
+		return array_filter(
+			self::get_metadata_keys(),
+			function( $val, $key ) use ( $keys, $enabled_fields ) {
+				return in_array( $key, $keys ) && in_array( $val, $enabled_fields );
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
 	}
 
 	/**
@@ -193,7 +231,7 @@ class Newspack_Newsletters {
 		$fields_to_sync = self::get_metadata_fields();
 		$raw_keys       = [];
 
-		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+		foreach ( self::get_metadata_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $fields_to_sync, true ) ) {
 				$raw_keys[] = $raw_key;
 			}
@@ -211,7 +249,7 @@ class Newspack_Newsletters {
 		$fields_to_sync = self::get_metadata_fields();
 		$prefixed_keys  = [];
 
-		foreach ( self::$metadata_keys as $raw_key => $field_name ) {
+		foreach ( self::get_metadata_keys() as $raw_key => $field_name ) {
 			if ( in_array( $field_name, $fields_to_sync, true ) ) {
 				$prefixed_keys[] = self::get_metadata_key( $raw_key );
 			}
@@ -228,12 +266,12 @@ class Newspack_Newsletters {
 	 * @return string Prefixed field name.
 	 */
 	public static function get_metadata_key( $key ) {
-		if ( ! isset( self::$metadata_keys[ $key ] ) ) {
+		if ( ! isset( self::get_metadata_keys()[ $key ] ) ) {
 			return false;
 		}
 
 		$prefix = self::get_metadata_prefix();
-		$name   = self::$metadata_keys[ $key ];
+		$name   = self::get_metadata_keys()[ $key ];
 		$key    = $prefix . $name;
 
 		/**

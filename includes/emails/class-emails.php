@@ -65,26 +65,26 @@ class Emails {
 		}
 
 		$labels = [
-			'name'                     => _x( 'Newspack Emails', 'post type general name', 'newspack' ),
-			'singular_name'            => _x( 'Newspack Email', 'post type singular name', 'newspack' ),
-			'menu_name'                => _x( 'Newspack Emails', 'admin menu', 'newspack' ),
-			'name_admin_bar'           => _x( 'Newspack Email', 'add new on admin bar', 'newspack' ),
-			'add_new'                  => _x( 'Add New', 'popup', 'newspack' ),
-			'add_new_item'             => __( 'Add New Newspack Email', 'newspack' ),
-			'new_item'                 => __( 'New Newspack Email', 'newspack' ),
-			'edit_item'                => __( 'Edit Newspack Email', 'newspack' ),
-			'view_item'                => __( 'View Newspack Email', 'newspack' ),
-			'all_items'                => __( 'All Newspack Emails', 'newspack' ),
-			'search_items'             => __( 'Search Newspack Emails', 'newspack' ),
-			'parent_item_colon'        => __( 'Parent Newspack Emails:', 'newspack' ),
-			'not_found'                => __( 'No Newspack Emails found.', 'newspack' ),
-			'not_found_in_trash'       => __( 'No Newspack Emails found in Trash.', 'newspack' ),
-			'items_list'               => __( 'Newspack Emails list', 'newspack' ),
-			'item_published'           => __( 'Newspack Email published', 'newspack' ),
-			'item_published_privately' => __( 'Newspack Email published privately', 'newspack' ),
-			'item_reverted_to_draft'   => __( 'Newspack Email reverted to draft', 'newspack' ),
-			'item_scheduled'           => __( 'Newspack Email scheduled', 'newspack' ),
-			'item_updated'             => __( 'Newspack Email updated', 'newspack' ),
+			'name'                     => _x( 'Newspack Emails', 'post type general name', 'newspack-plugin' ),
+			'singular_name'            => _x( 'Newspack Email', 'post type singular name', 'newspack-plugin' ),
+			'menu_name'                => _x( 'Newspack Emails', 'admin menu', 'newspack-plugin' ),
+			'name_admin_bar'           => _x( 'Newspack Email', 'add new on admin bar', 'newspack-plugin' ),
+			'add_new'                  => _x( 'Add New', 'popup', 'newspack-plugin' ),
+			'add_new_item'             => __( 'Add New Newspack Email', 'newspack-plugin' ),
+			'new_item'                 => __( 'New Newspack Email', 'newspack-plugin' ),
+			'edit_item'                => __( 'Edit Newspack Email', 'newspack-plugin' ),
+			'view_item'                => __( 'View Newspack Email', 'newspack-plugin' ),
+			'all_items'                => __( 'All Newspack Emails', 'newspack-plugin' ),
+			'search_items'             => __( 'Search Newspack Emails', 'newspack-plugin' ),
+			'parent_item_colon'        => __( 'Parent Newspack Emails:', 'newspack-plugin' ),
+			'not_found'                => __( 'No Newspack Emails found.', 'newspack-plugin' ),
+			'not_found_in_trash'       => __( 'No Newspack Emails found in Trash.', 'newspack-plugin' ),
+			'items_list'               => __( 'Newspack Emails list', 'newspack-plugin' ),
+			'item_published'           => __( 'Newspack Email published', 'newspack-plugin' ),
+			'item_published_privately' => __( 'Newspack Email published privately', 'newspack-plugin' ),
+			'item_reverted_to_draft'   => __( 'Newspack Email reverted to draft', 'newspack-plugin' ),
+			'item_scheduled'           => __( 'Newspack Email scheduled', 'newspack-plugin' ),
+			'item_updated'             => __( 'Newspack Email updated', 'newspack-plugin' ),
 		];
 
 		\register_post_type(
@@ -172,28 +172,43 @@ class Emails {
 		$email_config   = self::get_email_config_by_type( $config_name );
 		$html           = $email_config['html_payload'];
 		$reply_to_email = $email_config['reply_to_email'];
+		$site_address   = '';
 
 		if ( class_exists( 'WC' ) ) {
 			$base_address  = WC()->countries->get_base_address();
 			$base_city     = WC()->countries->get_base_city();
 			$base_postcode = WC()->countries->get_base_postcode();
+		} else {
+			$base_address  = get_option( 'woocommerce_store_address', '' );
+			$base_city     = get_option( 'woocommerce_store_city', '' );
+			$base_postcode = get_option( 'woocommerce_store_postcode', '' );
+		}
 
-			$site_address = sprintf(
-				// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
-				__( '%1$s, %2$s %3$s', 'newspack' ),
-				$base_address,
-				$base_city,
-				$base_postcode
+		if ( $base_address ) {
+			if ( ! $base_city && ! $base_postcode ) {
+				$site_address = $base_address;
+			} else {
+				$site_address = sprintf(
+					// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
+					__( '%1$s, %2$s %3$s', 'newspack-plugin' ),
+					$base_address,
+					$base_city,
+					$base_postcode
+				);
+			}
+		}
+
+		if ( $site_address ) {
+			$site_contact = sprintf(
+				/* Translators: 1: site title 2: site base address. */
+				__( '%1$s — %2$s', 'newspack-plugin' ),
+				'<strong>' . get_bloginfo( 'name' ) . '</strong>',
+				$site_address
 			);
 		} else {
-			$site_address = sprintf(
-				// translators: formatted store address where 1 is street address, 2 is city, and 3 is postcode.
-				__( '%1$s, %2$s %3$s', 'newspack' ),
-				get_option( 'woocommerce_store_address', '' ),
-				get_option( 'woocommerce_store_city', '' ),
-				get_option( 'woocommerce_store_postcode', '' )
-			);
+			$site_contact = get_bloginfo( 'name' );
 		}
+
 		$placeholders = array_merge(
 			[
 				[
@@ -203,6 +218,10 @@ class Emails {
 				[
 					'template' => '*SITE_ADDRESS*',
 					'value'    => $site_address,
+				],
+				[
+					'template' => '*SITE_CONTACT*',
+					'value'    => $site_contact,
 				],
 				[
 					'template' => '*SITE_LOGO*',
@@ -480,6 +499,8 @@ class Emails {
 				'post_status'    => 'any',
 				'meta_key'       => self::EMAIL_CONFIG_NAME_META,
 				'meta_value'     => $type, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
 			]
 		);
 		if ( $emails_query->post ) {
@@ -563,7 +584,7 @@ class Emails {
 		} else {
 			return new \WP_Error(
 				'newspack_test_email_not_sent',
-				__( 'Test email was not sent.', 'newspack' )
+				__( 'Test email was not sent.', 'newspack-plugin' )
 			);
 		}
 	}
@@ -604,7 +625,7 @@ class Emails {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				esc_html__( 'You cannot use this resource.', 'newspack-plugin' ),
 				[
 					'status' => 403,
 				]

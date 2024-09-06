@@ -78,6 +78,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-plugin-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-theme-manager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-admin-plugins-screen.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-esp-sync.php';
+		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-esp-sync-admin.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-utils.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-data-events.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-webhooks.php';
@@ -86,15 +91,10 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-popups.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/ga4/class-ga4.php';
-		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-connector.php';
-		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-mailchimp.php';
-		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-activecampaign.php';
+		include_once NEWSPACK_ABSPATH . 'includes/data-events/connectors/class-esp-connector.php';
 		include_once NEWSPACK_ABSPATH . 'includes/data-events/class-woo-user-registration.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-api.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-profile.php';
-		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation-emails.php';
-		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-activation.php';
-		include_once NEWSPACK_ABSPATH . 'includes/reader-activation/class-reader-data.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-recaptcha.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-magic-link.php';
 		include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/stripe/class-stripe-connection.php';
@@ -157,9 +157,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-onesignal.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
-		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-co-authors-plus.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-guest-contributor-role.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-search-authors-limit.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';

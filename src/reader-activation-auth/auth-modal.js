@@ -1,6 +1,6 @@
 /* globals newspack_reader_activation_labels */
 export const SIGN_IN_MODAL_HASHES = [ 'signin_modal', 'register_modal' ];
-
+import * as a11y from './accessibility.js';
 /**
  * Get the authentication modal container.
  *
@@ -19,6 +19,8 @@ export function getModalContainer() {
  */
 export function openAuthModal( config = {} ) {
 	const reader = window.newspackReaderActivation.getReader();
+	const modalTrigger = config.trigger;
+
 	if ( reader?.authenticated ) {
 		if ( config.callback ) {
 			config.callback();
@@ -54,6 +56,10 @@ export function openAuthModal( config = {} ) {
 		if ( openerContent ) {
 			openerContent.remove();
 		}
+
+		if ( modalTrigger ) {
+			modalTrigger.focus();
+		}
 	};
 
 	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
@@ -65,6 +71,12 @@ export function openAuthModal( config = {} ) {
 			} );
 		} );
 	}
+
+	document.addEventListener( 'keydown', function ( ev ) {
+		if ( ev.key === 'Escape' ) {
+			close();
+		}
+	} );
 
 	config.labels = {
 		...newspack_reader_activation_labels,
@@ -95,6 +107,7 @@ export function openAuthModal( config = {} ) {
 		modal.querySelectorAll( '[data-action~="' + action + '"]' ).forEach( item => {
 			item.style.display = item.prevDisplay;
 		} );
+		a11y.trapFocus( modal );
 	};
 
 	if ( config.content ) {
@@ -135,6 +148,7 @@ export function openAuthModal( config = {} ) {
 	modal.setAttribute( 'data-state', 'open' );
 	if ( window.newspackReaderActivation?.overlays ) {
 		modal.overlayId = window.newspackReaderActivation.overlays.add();
+		a11y.trapFocus( modal );
 	}
 
 	/** Remove the modal hash from the URL if any. */
