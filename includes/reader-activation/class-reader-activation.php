@@ -152,7 +152,10 @@ final class Reader_Activation {
 				Newspack::plugin_url() . '/dist/reader-activation.js',
 				$script_dependencies,
 				NEWSPACK_PLUGIN_VERSION,
-				true
+				[
+					'strategy'  => 'async',
+					'in_footer' => true,
+				]
 			);
 			\wp_localize_script(
 				self::SCRIPT_HANDLE,
@@ -170,7 +173,10 @@ final class Reader_Activation {
 				Newspack::plugin_url() . '/dist/reader-auth.js',
 				[ self::SCRIPT_HANDLE ],
 				NEWSPACK_PLUGIN_VERSION,
-				true
+				[
+					'strategy'  => 'async',
+					'in_footer' => true,
+				]
 			);
 			\wp_localize_script( self::AUTH_SCRIPT_HANDLE, 'newspack_reader_activation_labels', self::get_reader_activation_labels() );
 			\wp_script_add_data( self::AUTH_SCRIPT_HANDLE, 'async', true );
@@ -192,7 +198,10 @@ final class Reader_Activation {
 				Newspack::plugin_url() . '/dist/newsletters-signup.js',
 				[ self::SCRIPT_HANDLE ],
 				NEWSPACK_PLUGIN_VERSION,
-				true
+				[
+					'strategy'  => 'async',
+					'in_footer' => true,
+				]
 			);
 
 			\wp_localize_script(

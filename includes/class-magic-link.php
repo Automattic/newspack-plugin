@@ -854,7 +854,7 @@ final class Magic_Link {
 		}
 
 		if ( true !== $authenticated ) {
-			return self::send_otp_request_response( __( 'Unable to authenticated, try again.', 'newspack-plugin' ), false, [ 'expired' => true ] );
+			return self::send_otp_request_response( __( 'Unable to authenticate, try again.', 'newspack-plugin' ), false, [ 'expired' => true ] );
 		}
 
 		return self::send_otp_request_response( __( 'Login successful!', 'newspack-plugin' ), true );
