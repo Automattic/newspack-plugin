@@ -295,9 +295,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 					let callback;
 					if (
-						container.authCallback &&
+						! container.config?.skipNewslettersSignup &&
 						data?.registered &&
-						! readerActivation.isPendingCheckout()
+						container.authCallback
 					) {
 						callback = ( authMessage, authData ) =>
 							openNewslettersSignupModal( {
