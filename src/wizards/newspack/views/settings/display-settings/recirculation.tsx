@@ -8,7 +8,7 @@ export default function Recirculation( {
 	data,
 }: {
 	data: RecirculationData;
-	update: ( a: Partial< {} > ) => void;
+	update: ( a: Partial< RecirculationData > ) => void;
 } ) {
 	return (
 		<>
