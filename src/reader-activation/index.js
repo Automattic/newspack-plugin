@@ -194,6 +194,8 @@ export function openNewslettersSignupModal( config = {} ) {
 			skipSuccess: false,
 			labels: {},
 			content: null,
+			closeOnSuccess: true,
+
 		},
 		...config,
 	};

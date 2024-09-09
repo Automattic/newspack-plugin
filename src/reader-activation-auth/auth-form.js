@@ -250,7 +250,6 @@ window.newspackRAS.push( function ( readerActivation ) {
 						callback = ( authMessage, authData ) =>
 							openNewslettersSignupModal( {
 								callback: container.authCallback( authMessage, authData ),
-								closeOnSuccess: true,
 							} );
 					} else {
 						callback = container.authCallback;
