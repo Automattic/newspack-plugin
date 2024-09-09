@@ -58,6 +58,7 @@ class Memberships {
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
 		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'handle_subscription_status_change' ], 10, 3 );
+		add_filter( 'wc_memberships_expire_user_membership', [ __CLASS__, 'handle_wc_memberships_expire_user_membership' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -1018,6 +1019,34 @@ class Memberships {
 		foreach ( $user_memberships as $user_membership ) {
 			$user_membership->unschedule_expiration_events();
 		}
+	}
+	/**
+	 * Prevent User Membership expiring, if run in the CRON job. This is another way of
+	 * preventing expiration, in addition to handle_subscription_status_change.
+	 *
+	 * It appears that there's a race condition between the results of the unschedule_expiration_events
+	 * method call in handle_subscription_status_change, and the scheduled expiration events.
+	 * This filter ensures that even if the unschedule_expiration_events doesn't fire early enough,
+	 * this filter will catch the issue.
+	 *
+	 * @param bool                            $expire true will expire this membership, false will retain it - default: true, expire it.
+	 * @param \WC_Memberships_User_Membership $user_membership the User Membership object being expired.
+	 */
+	public static function handle_wc_memberships_expire_user_membership( $expire, $user_membership ) {
+		// Check if the user membership has an active subscription.
+		$integration = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
+		if ( ! $integration ) {
+			return $expire;
+		}
+		$subscription = $integration->get_subscription_from_membership( $user_membership->get_id() );
+		if ( $subscription ) {
+			// Get subscription status.
+			$subscription_status = $integration->get_subscription_status( $subscription );
+			if ( 'active' === $subscription_status ) {
+				return false;
+			}
+		}
+		return $expire;
 	}
 }
 Memberships::init();
