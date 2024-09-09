@@ -1,9 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
 
 import WizardsActionCard from '../../../../wizards-action-card';
-import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import { Card, Grid, hooks, TextControl } from '../../../../../components/src';
+import { Button, Card, Grid, TextControl } from '../../../../../components/src';
 
 export default function Recirculation( {
 	update,
@@ -14,22 +12,29 @@ export default function Recirculation( {
 } ) {
 	return (
 		<>
-			<pre>{ JSON.stringify( settings, null, 2 ) }</pre>
 			<WizardsActionCard
 				title={ __( 'Related Posts', 'newspack-plugin' ) }
 				badge="Jetpack"
-				description={
+				description={ () => (
 					<>
 						{ __(
 							'Automatically add related content at the bottom of each post.',
 							'newspack-plugin'
 						) }
 					</>
-				}
+				) }
 				editLink="admin.php?page=jetpack#/traffic"
+				actionText={
+					<Button
+						variant="link"
+						href="admin.php?page=jetpack#/traffic"
+					>
+						{ __( 'Configure', 'newspack-plugin' ) }
+					</Button>
+				}
 			/>
 
-			{ settings.relatedPostsEnabled && (
+			{ data.relatedPostsEnabled && (
 				<Grid>
 					<Card noBorder>
 						<TextControl
@@ -49,7 +54,7 @@ export default function Recirculation( {
 								'newspack-plugin'
 							) }
 							type="number"
-							value={ settings.relatedPostsMaxAge || 0 }
+							value={ data.relatedPostsMaxAge || 0 }
 						/>
 					</Card>
 				</Grid>
