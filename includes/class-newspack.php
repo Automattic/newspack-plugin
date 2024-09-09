@@ -131,6 +131,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-pixels-section.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
@@ -145,13 +146,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-reader-revenue-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-seo-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-site-design-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-popups-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-connections-wizard.php';
-
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';

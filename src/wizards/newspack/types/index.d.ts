@@ -50,6 +50,7 @@ declare global {
 			social: WizardTab;
 			connections: WizardTab;
 			syndication: WizardTab;
+			seo: WizardTab;
 			emails: WizardTab & {
 				sections: {
 					emails: {

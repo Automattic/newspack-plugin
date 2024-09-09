@@ -1,5 +1,6 @@
 @import url("~tachyons/css/tachyons.min.css");
 
+
 :root {
 	--np-font-size: 16px;
 	--np-header-height: 64px;
@@ -11,8 +12,9 @@
 	 * Colors
 	 */
 	/* node_modules/@wordpress/base-styles/_colors.scss */
-	--np-color-wp-gray-700: #757575;
 	--np-color-wp-gray-900: #1e1e1e;
+	--np-color-wp-gray-700: #757575;
+	--np-color-wp-gray-100: #f0f0f0;
 
 	/**
 	 * Dimensions
@@ -53,6 +55,18 @@ h1 {
  */
 .gray-700 {
 	color: var(--np-color-wp-gray-700);
+}
+.is-fetching {
+	input[type="text"] {
+		pointer-events: none;
+		background-color: var(--np-color-wp-gray-100);
+		border: 1px solid var(--np-color-wp-gray-100);
+		animation: opacity-pulse 1.4s infinite ease-in-out;
+
+		&::placeholder {
+			color: transparent;
+		}
+	}
 }
 
 /**
