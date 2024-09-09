@@ -33,7 +33,11 @@ function VerificationCodes( {
 					<Fragment>
 						{ __( 'Get your verification code in', 'newspack' ) +
 							' ' }
-						<ExternalLink href="https://www.google.com/webmasters/verification/verification?tid=alternate">
+						<ExternalLink
+							href={ `https://search.google.com/search-console/ownership?resource_id=${ encodeURIComponent(
+								window.location.origin
+							) }` }
+						>
 							{ __( 'Google Search Console', 'newspack' ) }
 						</ExternalLink>
 					</Fragment>
