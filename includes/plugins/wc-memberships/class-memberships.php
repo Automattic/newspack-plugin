@@ -18,7 +18,6 @@ defined( 'ABSPATH' ) || exit;
 class Memberships {
 
 	const GATE_CPT = 'np_memberships_gate';
-	const CRON_HOOK = 'np_memberships_fix_expired_memberships';
 	const SKIP_RESTRICTION_IN_RSS_OPTION_NAME = 'newspack_skip_content_restriction_in_rss_feeds';
 
 	/**
@@ -57,8 +56,8 @@ class Memberships {
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
-		add_filter( 'get_post_status', [ __CLASS__, 'check_membership_status' ], 10, 2 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
+		add_filter( 'wc_memberships_expire_user_membership', [ __CLASS__, 'handle_wc_memberships_expire_user_membership' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -71,10 +70,6 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'wp_filter_content_tags' );
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
-
-		// Scheduled fix for prematurely expired memberships.
-		add_action( 'init', [ __CLASS__, 'cron_init' ] );
-		add_action( self::CRON_HOOK, [ __CLASS__, 'fix_expired_memberships_for_active_subscriptions' ] );
 
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
@@ -924,133 +919,6 @@ class Memberships {
 	}
 
 	/**
-	 * Check if a user has an active subscription with the required products when checking membership status.
-	 * If they have an active subscription, but the membership is cancelled,
-	 * reset inactive memberships to active link to the active subscription.
-	 *
-	 * @param string  $post_status Post status.
-	 * @param WP_Post $post Post object.
-	 *
-	 * @return string
-	 */
-	public static function check_membership_status( $post_status, $post ) {
-		if ( ! property_exists( $post, 'post_type' ) ) {
-			return $post_status;
-		}
-		if ( 'wc_user_membership' !== $post->post_type || ! in_array( $post->post_status, [ 'wcm-cancelled', 'wcm-expired', 'wcm-paused' ], true ) || ! self::is_active() || ! function_exists( 'wc_memberships_get_user_membership' ) ) {
-			return $post_status;
-		}
-		$integrations = wc_memberships()->get_integrations_instance();
-		$integration  = $integrations ? $integrations->get_subscriptions_instance() : null;
-		$membership   = wc_memberships_get_user_membership( $post->ID );
-		$plan_id      = $membership->get_plan_id();
-		if ( $integration && $integration->has_membership_plan_subscription( $plan_id ) ) {
-			$subscription_plan    = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $plan_id );
-			$required_products    = $subscription_plan->get_subscription_product_ids();
-			$active_subscriptions = WooCommerce_Connection::get_active_subscriptions_for_user( $membership->get_user_id(), $required_products );
-			$has_subscription     = ! empty( $active_subscriptions );
-			if ( $has_subscription ) {
-				$post_status = 'wcm-active';
-				$membership  = new \WC_Memberships_Integration_Subscriptions_User_Membership( $post->ID );
-				$membership->unschedule_expiration_events();
-				$membership->set_subscription_id( $active_subscriptions[0] );
-				$membership->set_end_date(); // Clear the end date.
-				$membership->update_status( 'active' );
-			}
-		}
-
-		return $post_status;
-	}
-
-	/**
-	 * Deactivate the cron job.
-	 */
-	public static function cron_deactivate() {
-		\wp_clear_scheduled_hook( self::CRON_HOOK );
-	}
-
-	/**
-	 * Schedule an hourly cron job to check for and fix expired memberships linked to active subscriptions.
-	 */
-	public static function cron_init() {
-		\register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'cron_deactivate' ] );
-
-		if ( defined( 'NEWSPACK_ENABLE_MEMBERSHIPS_FIX_CRON' ) && NEWSPACK_ENABLE_MEMBERSHIPS_FIX_CRON ) {
-			if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-				\wp_schedule_event( time(), 'hourly', self::CRON_HOOK );
-			}
-		} else {
-			self::cron_deactivate();
-		}
-	}
-
-	/**
-	 * Ensure that memberships tied to active subscriptions haven't expired prematurely.
-	 * Will loop through all active subscriptions on the site and check all memberships associated with it.
-	 */
-	public static function fix_expired_memberships_for_active_subscriptions() {
-		if ( ! function_exists( 'wc_memberships' ) ) {
-			return;
-		}
-
-
-		$max_per_batch           = 100;
-		$processed_batches       = 0;
-		$reactivated_memberships = 0;
-		$active_subscriptions    = WooCommerce_Connection::get_batch_of_active_subscriptions( $max_per_batch, $processed_batches );
-		if ( empty( $active_subscriptions ) ) {
-			return;
-		}
-
-		Logger::log( __( 'Checking for expired memberships linked to active subscriptions...', 'newspack-plugin' ) );
-
-		$active_membership_statuses = \wc_memberships()->get_user_memberships_instance()->get_active_access_membership_statuses();
-		while ( ! empty( $active_subscriptions ) ) {
-			$subscription = array_shift( $active_subscriptions );
-			try {
-				$memberships = \wc_memberships_get_memberships_from_subscription( $subscription );
-				if ( $memberships ) {
-					foreach ( $memberships as $membership ) {
-						// If the membership is not active and has an end date in the past, reactivate it.
-						if ( $membership && ! $membership->has_status( $active_membership_statuses ) && $membership->has_end_date() && $membership->get_end_date( 'timestamp' ) < time() ) {
-							$membership->unschedule_expiration_events();
-							$membership->set_end_date(); // Clear the end date.
-							$membership->update_status( 'active' ); // Reactivate the membership.
-							$reactivated_memberships++;
-						}
-					}
-				}
-			} catch ( Exception $e ) {
-				// Log the error.
-				Logger::log(
-					sprintf(
-						// Translators: %1$d is the membership ID, %2$s is the subscription ID.
-						__( 'Failed to reactivate membership %1$d linked to active subscription %2$s.', 'newspack-plugin' ),
-						$membership->get_id(),
-						$subscription->get_id()
-					)
-				);
-			}
-
-			// Get the next batch of active subscriptions.
-			if ( empty( $active_subscriptions ) ) {
-				$processed_batches++;
-				$active_subscriptions = WooCommerce_Connection::get_batch_of_active_subscriptions( $max_per_batch, $processed_batches * $max_per_batch );
-			}
-		}
-
-		if ( 0 < $reactivated_memberships ) {
-			Logger::log(
-				sprintf(
-					// Translators: %d is the number of reactivated memberships.
-					__( 'Reactivated %d memberships linked to active subscriptions.', 'newspack-plugin' ),
-					$reactivated_memberships
-				)
-			);
-		}
-	}
-
-	/**
 	 * Remove content restriction on the front page and archives, to increase performance.
 	 * The only thing Memberships would really do on these pages is add a "You need a membership"-type message in excerpts.
 	 */
@@ -1120,6 +988,27 @@ class Memberships {
 		return array_slice( $settings, 0, $position_of_show_excerpts_setting, true ) +
 			[ $setting['id'] => $setting ] +
 			array_slice( $settings, $position_of_show_excerpts_setting, null, true );
+	}
+
+	/**
+	 * Prevent User Membership expiring, if the linked subscription is active.
+	 *
+	 * @param bool                            $expire true will expire this membership, false will retain it - default: true, expire it.
+	 * @param \WC_Memberships_User_Membership $user_membership the User Membership object being expired.
+	 */
+	public static function handle_wc_memberships_expire_user_membership( $expire, $user_membership ) {
+		$integration = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
+		if ( ! $integration ) {
+			return $expire;
+		}
+		$subscription = $integration->get_subscription_from_membership( $user_membership->get_id() );
+		if ( $subscription ) {
+			$subscription_status = $integration->get_subscription_status( $subscription );
+			if ( 'active' === $subscription_status ) {
+				return false;
+			}
+		}
+		return $expire;
 	}
 }
 Memberships::init();
