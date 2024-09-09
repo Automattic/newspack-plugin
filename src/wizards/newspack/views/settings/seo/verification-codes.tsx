@@ -25,11 +25,14 @@ function VerificationCodes( {
 		<Grid>
 			<TextControl
 				label="Google"
-				onChange={ ( google: string ) => setData( { ...data, google } ) }
+				onChange={ ( google: string ) =>
+					setData( { ...data, google } )
+				}
 				value={ data.google }
 				help={
 					<Fragment>
-						{ __( 'Get your verification code in', 'newspack' ) + ' ' }
+						{ __( 'Get your verification code in', 'newspack' ) +
+							' ' }
 						<ExternalLink href="https://www.google.com/webmasters/verification/verification?tid=alternate">
 							{ __( 'Google Search Console', 'newspack' ) }
 						</ExternalLink>
@@ -42,9 +45,12 @@ function VerificationCodes( {
 				value={ data.bing }
 				help={
 					<Fragment>
-						{ `${ __( 'Get your verification code in', 'newspack' ) } ` }
+						{ `${ __(
+							'Get your verification code in',
+							'newspack'
+						) } ` }
 						<ExternalLink href="https://www.bing.com/toolbox/webmaster/#/Dashboard/">
-							{ __( 'Bing Webmaster Tool', 'newspack' ) }
+							{ __( 'Bing Webmaster Tools', 'newspack' ) }
 						</ExternalLink>
 					</Fragment>
 				}
