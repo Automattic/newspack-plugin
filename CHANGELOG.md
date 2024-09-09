@@ -1,3 +1,10 @@
+## [5.3.5](https://github.com/Automattic/newspack-plugin/compare/v5.3.4...v5.3.5) (2024-09-07)
+
+
+### Bug Fixes
+
+* expedite email template fix ([#3403](https://github.com/Automattic/newspack-plugin/issues/3403)) ([92c57a9](https://github.com/Automattic/newspack-plugin/commit/92c57a9b10daf64b01bee52271938ec0dabb0d1f))
+
 ## [5.3.4](https://github.com/Automattic/newspack-plugin/compare/v5.3.3...v5.3.4) (2024-09-03)
 
 
