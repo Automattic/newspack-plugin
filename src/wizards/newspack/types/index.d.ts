@@ -38,7 +38,12 @@ declare global {
 				[ k: string ]: {
 					title: string;
 					desc: string;
-					cards: { href: string; title: string; desc: string; icon: keyof typeof icons }[];
+					cards: {
+						href: string;
+						title: string;
+						desc: string;
+						icon: keyof typeof icons;
+					}[];
 				};
 			};
 			settings: {
@@ -51,6 +56,7 @@ declare global {
 			connections: WizardTab;
 			syndication: WizardTab;
 			'theme-and-brand': WizardTab;
+			seo: WizardTab;
 			emails: WizardTab & {
 				sections: {
 					emails: {
