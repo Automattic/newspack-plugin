@@ -12,6 +12,7 @@ import Emails from './emails';
 import Connections from './connections';
 import Syndication from './syndication';
 import ThemeAndBrand from './theme-and-brand';
+import Seo from './seo';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -23,8 +24,8 @@ const sectionComponents: Record<
 	social: Social,
 	emails: Emails,
 	syndication: Syndication,
-	// seo: Seo,
 	'theme-and-brand': ThemeAndBrand,
+	seo: Seo,
 	// 'display-settings': DisplaySettings,
 	// 'additional-brands': AdditionalBrands,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
