@@ -991,26 +991,18 @@ class Memberships {
 	}
 
 	/**
-	 * Prevent User Membership expiring, if run in the CRON job. This is another way of
-	 * preventing expiration, in addition to handle_subscription_status_change.
-	 *
-	 * It appears that there's a race condition between the results of the unschedule_expiration_events
-	 * method call in handle_subscription_status_change, and the scheduled expiration events.
-	 * This filter ensures that even if the unschedule_expiration_events doesn't fire early enough,
-	 * this filter will catch the issue.
+	 * Prevent User Membership expiring, if the linked subscription is active.
 	 *
 	 * @param bool                            $expire true will expire this membership, false will retain it - default: true, expire it.
 	 * @param \WC_Memberships_User_Membership $user_membership the User Membership object being expired.
 	 */
 	public static function handle_wc_memberships_expire_user_membership( $expire, $user_membership ) {
-		// Check if the user membership has an active subscription.
 		$integration = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
 		if ( ! $integration ) {
 			return $expire;
 		}
 		$subscription = $integration->get_subscription_from_membership( $user_membership->get_id() );
 		if ( $subscription ) {
-			// Get subscription status.
 			$subscription_status = $integration->get_subscription_status( $subscription );
 			if ( 'active' === $subscription_status ) {
 				return false;
