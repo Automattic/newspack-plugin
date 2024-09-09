@@ -459,12 +459,15 @@ class GA4 {
 		$params['action']       = $data['action'] ?? '';
 		$params['action_type']  = $data['action_type'] ?? '';
 		$params['referrer']     = $data['referer'] ?? '';
-		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
-		$params['referer']      = $data['referer'] ?? '';
+		$params['referer']      = $data['referer'] ?? ''; // Retain both instances of referrer spelling to ensure publisher reports are not broken.
 		$params['order_id']     = $data['order_id'] ?? '';
 		$params['product_id']   = $data['product_id'] ?? '';
 		$params['amount']       = $data['amount'] ?? '';
 		$params['currency']     = $data['currency'] ?? '';
+		// Check for meaningful blocks.
+		$params['gate_has_donation_block']     = in_array( 'newspack-blocks/donate', $data['gate_blocks'] ) ? 'yes' : 'no';
+		$params['gate_has_registration_block'] = in_array( 'newspack/reader-registration', $data['gate_blocks'] ) ? 'yes' : 'no';
+		$params['gate_has_checkout_button']    = in_array( 'newspack-blocks/checkout-button', $data['gate_blocks'] ) ? 'yes' : 'no';
 		return $params;
 	}
 

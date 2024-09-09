@@ -128,11 +128,41 @@ final class Memberships {
 	}
 
 	/**
+	 * Recursively get the unique block names from the post content.
+	 *
+	 * @param array $blocks The blocks.
+	 *
+	 * @return array
+	 */
+	private static function get_block_names_recursive( $blocks ) {
+		$block_names = [];
+		foreach ( $blocks as $block ) {
+			if ( ! empty( $block['blockName'] ) ) {
+				$block_names[] = $block['blockName'];
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block_names = array_merge( $block_names, self::get_block_names_recursive( $block['innerBlocks'] ) );
+			}
+		}
+		return array_unique( $block_names );
+	}
+
+	/**
 	 * Get common metadata to be sent with all gate interaction events.
+	 *
+	 * @return array {
+	 *   The gate metadata.
+	 *
+	 *   @type int    $gate_post_id The gate post ID.
+	 *   @type array  $gate_blocks  Names of unique blocks in the gate post.
+	 * }
 	 */
 	private static function get_gate_metadata() {
+		$post_id = NewspackMemberships::get_gate_post_id();
+		$blocks  = self::get_block_names_recursive( parse_blocks( get_post_field( 'post_content', $post_id ) ) );
 		return [
-			'gate_post_id' => NewspackMemberships::get_gate_post_id(),
+			'gate_post_id' => $post_id,
+			'gate_blocks'  => $blocks,
 		];
 	}
 
