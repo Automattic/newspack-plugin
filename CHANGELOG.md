@@ -1,3 +1,24 @@
+## [5.3.6](https://github.com/Automattic/newspack-plugin/compare/v5.3.5...v5.3.6) (2024-09-09)
+
+
+### Bug Fixes
+
+* woo subs vs memberships expiration ([#3393](https://github.com/Automattic/newspack-plugin/issues/3393)) ([96e57e0](https://github.com/Automattic/newspack-plugin/commit/96e57e06e4c4ea03a5dec78fb01d35662995d9ea))
+
+## [5.3.5](https://github.com/Automattic/newspack-plugin/compare/v5.3.4...v5.3.5) (2024-09-07)
+
+
+### Bug Fixes
+
+* expedite email template fix ([#3403](https://github.com/Automattic/newspack-plugin/issues/3403)) ([92c57a9](https://github.com/Automattic/newspack-plugin/commit/92c57a9b10daf64b01bee52271938ec0dabb0d1f))
+
+## [5.3.4](https://github.com/Automattic/newspack-plugin/compare/v5.3.3...v5.3.4) (2024-09-03)
+
+
+### Bug Fixes
+
+* **woocommerce-memberships:** membership status check with post status instead of type ([#3380](https://github.com/Automattic/newspack-plugin/issues/3380)) ([39e67f7](https://github.com/Automattic/newspack-plugin/commit/39e67f798550f8a76b3dbda135faabce90656662))
+
 ## [5.3.3](https://github.com/Automattic/newspack-plugin/compare/v5.3.2...v5.3.3) (2024-08-29)
 
 
