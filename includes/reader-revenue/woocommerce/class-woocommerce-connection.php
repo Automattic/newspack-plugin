@@ -14,9 +14,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Connection {
 	/**
-	 * Statuses considered active subscriptions.
+	 * Statuses considered active.
 	 */
 	const ACTIVE_SUBSCRIPTION_STATUSES = [ 'active', 'pending', 'pending-cancel' ];
+	const ACTIVE_ORDER_STATUSES = [ 'processing', 'completed' ];
 
 	/**
 	 * Initialize.
@@ -125,30 +126,6 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get a batch of active Woo Subscriptions.
-	 *
-	 * @param int $batch_size Max number of subscriptions to get.
-	 * @param int $offset     Number to skip.
-	 *
-	 * @return array|false Array of subscription objects, or false if no more to fetch.
-	 */
-	public static function get_batch_of_active_subscriptions( $batch_size = 100, $offset = 0 ) {
-		if ( ! function_exists( 'wcs_get_subscriptions' ) ) {
-			return false;
-		}
-
-		$subscriptions = \wcs_get_subscriptions(
-			[
-				'status'                 => self::ACTIVE_SUBSCRIPTION_STATUSES,
-				'subscriptions_per_page' => $batch_size,
-				'offset'                 => $offset,
-			]
-		);
-
-		return ! empty( $subscriptions ) ? array_values( $subscriptions ) : false;
-	}
-
-	/**
 	 * Does the given user have any subscriptions with an active status?
 	 * Can optionally pass an array of product IDs. If given, only subscriptions
 	 * that have at least one of the given product IDs will be returned.
@@ -233,11 +210,10 @@ class WooCommerce_Connection {
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
-	 * @param bool          $is_new Whether the order is new and should count as the last payment amount.
 	 *
 	 * @return array Contact order metadata.
 	 */
-	public static function get_contact_order_metadata( $order, $payment_page_url = false, $is_new = false ) {
+	private static function get_contact_order_metadata( $order, $payment_page_url = false ) {
 		if ( ! is_a( $order, 'WC_Order' ) ) {
 			$order = \wc_get_order( $order );
 		}
@@ -246,8 +222,13 @@ class WooCommerce_Connection {
 			return [];
 		}
 
+		$is_subscription = false;
+		if ( function_exists( 'wcs_is_subscription' ) ) {
+			$is_subscription = \wcs_is_subscription( $order );
+		}
 		// Only update last payment data if new payment has been received.
-		$payment_received = $is_new && $order->has_status( [ 'processing', 'completed' ] );
+		$active_statuses = $is_subscription ? self::ACTIVE_SUBSCRIPTION_STATUSES : self::ACTIVE_ORDER_STATUSES;
+		$payment_received = $order->has_status( $active_statuses );
 
 		$metadata = [];
 
@@ -268,8 +249,11 @@ class WooCommerce_Connection {
 			}
 		}
 
-		$order_subscriptions = \wcs_is_subscription( $order ) ? [ $order ] : \wcs_get_subscriptions_for_order( $order->get_id(), [ 'order_type' => 'any' ] );
-		$is_donation_order   = Donations::is_donation_order( $order );
+		$order_subscriptions = [];
+		if ( function_exists( 'wcs_is_subscription' ) ) {
+			$order_subscriptions = \wcs_is_subscription( $order ) ? [ $order ] : \wcs_get_subscriptions_for_order( $order->get_id(), [ 'order_type' => 'any' ] );
+		}
+		$is_donation_order = Donations::is_donation_order( $order );
 
 		// One-time transaction.
 		if ( empty( $order_subscriptions ) ) {
@@ -368,34 +352,28 @@ class WooCommerce_Connection {
 	/**
 	 * Get data for a customer to sync to the connected ESP.
 	 *
-	 * @param \WC_Customer    $customer Customer object.
-	 * @param \WC_Order|false $order Order object to sync with. If not given, the last successful order will be used.
-	 * @param bool|string     $payment_page_url Payment page URL. If not provided, checkout URL will be used.
-	 * @param bool            $is_new Whether the order is new and should count as the last payment amount.
+	 * @param int|\WC_Customer $customer Customer object or customer ID.
+	 * @param bool|string      $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	public static function get_contact_from_customer( $customer, $order = false, $payment_page_url = false, $is_new = false ) {
+	public static function get_contact_from_customer( $customer, $payment_page_url = false ) {
 		if ( ! is_a( $customer, 'WC_Customer' ) ) {
-			return false;
+			$customer = new \WC_Customer( $customer );
 		}
 
-		$metadata       = [];
-		$order_metadata = [];
-		$last_order     = self::get_last_successful_order( $customer );
+		$metadata = [];
 
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'account' ) ]           = $customer->get_id();
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'registration_date' ) ] = $customer->get_date_created()->date( Newspack_Newsletters::METADATA_DATE_FORMAT );
 		$metadata[ Newspack_Newsletters::get_metadata_key( 'total_paid' ) ]        = \wc_format_localized_price( $customer->get_total_spent() );
 
-		// If a more recent order exists, use it to sync.
-		if ( ! $order || ( $last_order && $order->get_id() !== $last_order->get_id() ) ) {
-			$order = $last_order;
-		}
+		$order = self::get_last_successful_order( $customer );
 
 		// Get the order metadata.
+		$order_metadata = [];
 		if ( $order ) {
-			$order_metadata = self::get_contact_order_metadata( $order, $payment_page_url, $is_new );
+			$order_metadata = self::get_contact_order_metadata( $order, $payment_page_url );
 		} else {
 			// If the customer has no successful orders, clear out subscription-related fields.
 			$payment_fields = array_keys( Newspack_Newsletters::get_payment_metadata_fields() );
@@ -424,11 +402,10 @@ class WooCommerce_Connection {
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
-	 * @param bool          $is_new Whether the order is new and should count as the last payment amount.
 	 *
 	 * @return array|false Contact data or false.
 	 */
-	public static function get_contact_from_order( $order, $payment_page_url = false, $is_new = false ) {
+	public static function get_contact_from_order( $order, $payment_page_url = false ) {
 		if ( ! is_a( $order, 'WC_Order' ) ) {
 			$order = \wc_get_order( $order );
 		}
@@ -437,10 +414,7 @@ class WooCommerce_Connection {
 			return;
 		}
 
-		$user_id  = $order->get_customer_id();
-		$customer = new \WC_Customer( $user_id );
-
-		return self::get_contact_from_customer( $customer, $order, $payment_page_url, $is_new );
+		return self::get_contact_from_customer( $order->get_customer_id(), $payment_page_url );
 	}
 
 	/**
