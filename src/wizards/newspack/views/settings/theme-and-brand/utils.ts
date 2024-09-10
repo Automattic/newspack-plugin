@@ -99,36 +99,50 @@ const MONOSPACE_FONTS = [
 	{ label: 'Space Mono' },
 	{ label: 'Roboto Mono' },
 ];
-const ALL_FONTS = [ ...SERIF_FONTS, ...SANS_SERIF_FONTS, ...DISPLAY_FONTS, ...MONOSPACE_FONTS ];
+const ALL_FONTS = [
+	...SERIF_FONTS,
+	...SANS_SERIF_FONTS,
+	...DISPLAY_FONTS,
+	...MONOSPACE_FONTS,
+];
 
-export const getFontsList = ( headingsOnly: boolean ) =>
+export const TYPOGRAPHY_OPTIONS: { value: TypographyOptions; label: string }[] =
+	[
+		{ value: 'curated', label: __( 'Default', 'newspack-plugin' ) },
+		{ value: 'custom', label: __( 'Custom', 'newspack-plugin' ) },
+	];
+
+export const getFontsList = ( headingsOnly: boolean = false ) =>
 	[
 		{
-			label: __( 'Serif', 'newspack' ),
+			label: __( 'Serif', 'newspack-plugin' ),
 			fallback: 'serif',
 			options: SERIF_FONTS,
 		},
 		{
-			label: __( 'Sans Serif', 'newspack' ),
+			label: __( 'Sans Serif', 'newspack-plugin' ),
 			fallback: 'sans_serif',
 			options: SANS_SERIF_FONTS,
 		},
 		{
-			label: __( 'Display', 'newspack' ),
+			label: __( 'Display', 'newspack-plugin' ),
 			fallback: 'display',
 			options: DISPLAY_FONTS,
 		},
 		{
-			label: __( 'Monospace', 'newspack' ),
+			label: __( 'Monospace', 'newspack-plugin' ),
 			fallback: 'monospace',
 			options: MONOSPACE_FONTS,
 		},
 	]
-		.map( group => ( { ...group, options: processFontOptions( headingsOnly, group.options ) } ) )
+		.map( group => ( {
+			...group,
+			options: processFontOptions( headingsOnly, group.options ),
+		} ) )
 		.filter( group => group.options.length );
 
 export const isFontInOptions = ( label: string ) =>
-	ALL_FONTS.filter( option => option.label.indexOf( label ) === 0 ).length >= 1;
+	ALL_FONTS.filter( option => ! option.label.includes( label ) ).length >= 1;
 
 export const getFontImportURL = ( value: string ) =>
 	`//fonts.googleapis.com/css2?family=${ value.replace(
@@ -137,11 +151,11 @@ export const getFontImportURL = ( value: string ) =>
 	) }:ital,wght@0,400;0,700;1,400;1,700&display=swap`;
 
 export const LOGO_SIZE_OPTIONS = [
-	{ value: 0, label: __( 'XS', 'newspack' ) },
-	{ value: 19, label: __( 'S', 'newspack' ) },
-	{ value: 48, label: __( 'M', 'newspack' ) },
-	{ value: 72, label: __( 'L', 'newspack' ) },
-	{ value: 91, label: __( 'XL', 'newspack' ) },
+	{ value: 0, label: __( 'XS', 'newspack-plugin' ) },
+	{ value: 19, label: __( 'S', 'newspack-plugin' ) },
+	{ value: 48, label: __( 'M', 'newspack-plugin' ) },
+	{ value: 72, label: __( 'L', 'newspack-plugin' ) },
+	{ value: 91, label: __( 'XL', 'newspack-plugin' ) },
 ];
 
 /**

@@ -21,7 +21,7 @@ import './style.scss';
 extend( [ a11yPlugin ] );
 const { InteractiveDiv } = utils;
 
-const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
+const ColorPicker = ( { label, color = '#fff', onChange, className = undefined } ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const ref = useRef();
 	const colordColor = colord( color );

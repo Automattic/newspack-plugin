@@ -44,9 +44,10 @@ export function HomepageSelect( {
 					onClick={ () => {
 						updateHomepagePattern( i );
 					} }
-					ariaLabel={
-						__( 'Activate Layout', 'newspack' ) + ' ' + ( i + 1 )
-					}
+					ariaLabel={ `${ __(
+						'Activate Layout',
+						'newspack-plugin'
+					) } ${ i + 1 }` }
 				/>
 			) ) }
 		</Grid>
