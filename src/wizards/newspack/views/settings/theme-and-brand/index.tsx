@@ -17,40 +17,18 @@ import WizardSection from '../../../../wizards-section';
 import { HomepageSelect } from './homepage-select';
 import { Button } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-// CSS.
-import './style.scss';
-import Colors from './colors';
-import Typography from './typography';
 import Header from './header';
 import Footer from './footer';
+import Colors from './colors';
+import Typography from './typography';
+import { DEFAULT_THEME_MODS } from '../constants';
+// CSS.
+import './style.scss';
 
 const DEFAULT_DATA: ThemeBrandData = {
 	theme: 'newspack-theme',
 	homepage_patterns: [],
-	theme_mods: {
-		homepage_pattern_index: -1,
-		theme_colors: 'default',
-		primary_color_hex: '',
-		secondary_color_hex: '',
-		font_header: '',
-		font_body: '',
-		accent_allcaps: false,
-		custom_font_import_code: undefined,
-		custom_font_import_code_alternate: undefined,
-		header_center_logo: false,
-		header_simplified: false,
-		header_solid_background: false,
-		header_color_hex: '',
-		custom_logo: '',
-		logo_size: 0,
-		header_text: false,
-		header_display_tagline: false,
-		footer_color: '',
-		footer_copyright: '',
-		footer_color_hex: '',
-		newspack_footer_logo: '',
-		footer_logo_size: 'small',
-	},
+	theme_mods: DEFAULT_THEME_MODS,
 };
 
 function ThemeBrand( { isPartOfSetup = false } ) {
