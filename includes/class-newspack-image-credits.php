@@ -421,7 +421,8 @@ class Newspack_Image_Credits {
 					return $setting['key'] === $key;
 				}
 			);
-			return reset( array_values( $setting ) );
+			$settings_values = array_values( $setting );
+			return reset( $settings_values );
 		}
 
 		return $default_settings;

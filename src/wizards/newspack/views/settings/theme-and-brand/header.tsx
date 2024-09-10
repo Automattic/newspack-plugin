@@ -70,7 +70,7 @@ export default function Header( {
 					/>
 				</Grid>
 				<ToggleControl
-					checked={ themeMods.header_solid_background }
+					checked={ Boolean( themeMods.header_solid_background ) }
 					onChange={ header_solid_background =>
 						updateHeader( {
 							...themeMods,
