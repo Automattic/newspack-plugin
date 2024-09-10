@@ -35,6 +35,14 @@ class Metadata {
 	public static $keys = [];
 
 	/**
+	 * Initialize hooks.
+	 */
+	public static function init_hooks() {
+		// Normalize contact data on upsert calls directly from Newsletters plugin (e.g. Subscription Form block).
+		add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
+	}
+
+	/**
 	 * Get the metadata keys map for Reader Activation.
 	 *
 	 * @return array List of fields.
@@ -394,3 +402,4 @@ class Metadata {
 		return apply_filters( 'newspack_esp_sync_normalize_contact', $contact );
 	}
 }
+Metadata::init_hooks();
