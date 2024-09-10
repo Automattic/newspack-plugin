@@ -142,8 +142,7 @@ export const getFontsList = ( headingsOnly: boolean = false ) =>
 		.filter( group => group.options.length );
 
 export const isFontInOptions = ( label: string ) =>
-	ALL_FONTS.filter( option => option.label.indexOf( label ) === 0 ).length >=
-	1;
+	ALL_FONTS.filter( option => ! option.label.includes( label ) ).length >= 1;
 
 export const getFontImportURL = ( value: string ) =>
 	`//fonts.googleapis.com/css2?family=${ value.replace(
