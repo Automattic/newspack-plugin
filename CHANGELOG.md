@@ -1,3 +1,10 @@
+## [5.3.7](https://github.com/Automattic/newspack-plugin/compare/v5.3.6...v5.3.7) (2024-09-10)
+
+
+### Bug Fixes
+
+* **esp-wc-metadata:** last payment date & amount handling ([#3363](https://github.com/Automattic/newspack-plugin/issues/3363)) ([#3409](https://github.com/Automattic/newspack-plugin/issues/3409)) ([155fd65](https://github.com/Automattic/newspack-plugin/commit/155fd65e7a4fb59e8da4292a489e09bf2756e420))
+
 ## [5.3.6](https://github.com/Automattic/newspack-plugin/compare/v5.3.5...v5.3.6) (2024-09-09)
 
 
