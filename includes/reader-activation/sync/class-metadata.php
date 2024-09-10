@@ -7,6 +7,8 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
+use Error;
+use Newspack\Reader_Activation;
 use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
@@ -330,9 +332,24 @@ class Metadata {
 		}
 
 		$metadata            = $contact['metadata'];
+		$user                = ! empty( $metadata['account'] ) ? \get_user_by( 'id', $metadata['account'] ) : false;
 		$normalized_metadata = [];
 		$raw_keys            = self::get_raw_keys();
 		$prefixed_keys       = self::get_prefixed_keys();
+
+		// Registration-related fields.
+		if ( $user ) {
+			$registration_method             = ! empty( $metadata['registration_method'] ) ? $metadata['registration_method'] : \get_user_meta( $user->ID, Reader_Activation::REGISTRATION_METHOD, true );
+			$connected_account               = ! empty( $metadata['connected_account'] ) ? $metadata['connected_account'] : \get_user_meta( $user->ID, Reader_Activation::CONNECTED_ACCOUNT, true );
+			if ( ! empty( $registration_method ) ) {
+				$metadata['registration_method'] = $registration_method;
+			}
+			if ( $connected_account && in_array( $connected_account, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
+				$metadata['connected_account'] = $connected_account;
+			} elseif ( $registration_method && in_array( $registration_method, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
+				$metadata['connected_account'] = $registration_method;
+			}
+		}
 
 		// Capture UTM params and signup/payment page URLs as meta for registration or payment.
 		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {

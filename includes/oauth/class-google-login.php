@@ -226,6 +226,9 @@ class Google_Login {
 			];
 
 			if ( $existing_user ) {
+				// Update user meta with connected account info.
+				\update_user_meta( $existing_user->ID, Reader_Activation::CONNECTED_ACCOUNT, 'google' );
+
 				// Log the user in.
 				$result  = Reader_Activation::set_current_reader( $existing_user->ID );
 				$message = __( 'Thank you for signing in!', 'newspack-plugin' );
