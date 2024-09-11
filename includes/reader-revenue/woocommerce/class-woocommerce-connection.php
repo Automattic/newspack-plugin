@@ -161,51 +161,6 @@ class WooCommerce_Connection {
 	}
 
 	/**
-	 * Get the most recent active subscription, or the last successful order for a given customer.
-	 *
-	 * @param \WC_Customer $customer Customer object.
-	 *
-	 * @return \WC_Order|false Order object or false.
-	 */
-	public static function get_last_successful_order( $customer ) {
-		if ( ! is_a( $customer, 'WC_Customer' ) ) {
-			return false;
-		}
-
-		$user_id = $customer->get_id();
-
-		// Prioritize any currently active subscriptions.
-		$active_subscriptions = self::get_active_subscriptions_for_user( $user_id );
-		if ( ! empty( $active_subscriptions ) ) {
-			return \wcs_get_subscription( reset( $active_subscriptions ) );
-		}
-
-		// If no active subscriptions, get the most recent completed order.
-		// See https://github.com/woocommerce/woocommerce/wiki/wc_get_orders-and-WC_Order_Query for query args.
-		$args = [
-			'customer_id' => $user_id,
-			'status'      => [ 'wc-completed' ],
-			'limit'       => 1,
-			'order'       => 'DESC',
-			'orderby'     => 'date',
-			'return'      => 'objects',
-		];
-
-		// Return the most recent completed order.
-		$orders = \wc_get_orders( $args );
-		if ( ! empty( $orders ) ) {
-			return reset( $orders );
-		}
-
-		// If no completed orders or active subscriptions, they might still have an inactive subscription.
-		if ( ! empty( $user_subscriptions ) ) {
-			return reset( $user_subscriptions );
-		}
-
-		return false;
-	}
-
-	/**
 	 * Filter post request made by the Stripe Gateway for Stripe payments.
 	 *
 	 * @param array     $post_data An array of metadata.
