@@ -7,7 +7,6 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
-use Error;
 use Newspack\Reader_Activation;
 use Newspack\Logger;
 
