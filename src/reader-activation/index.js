@@ -149,6 +149,7 @@ export function openAuthModal( config = {} ) {
 			callback: null,
 			initialState: null,
 			skipSuccess: false,
+			skipNewslettersSignup: false,
 			labels: {
 				signin: {
 					title: null,
@@ -159,7 +160,6 @@ export function openAuthModal( config = {} ) {
 			},
 			content: null,
 			trigger: null,
-			closeOnSuccess: true,
 		},
 		...config,
 	};
@@ -194,6 +194,7 @@ export function openNewslettersSignupModal( config = {} ) {
 			skipSuccess: false,
 			labels: {},
 			content: null,
+			closeOnSuccess: true,
 		},
 		...config,
 	};

@@ -385,7 +385,7 @@ final class Magic_Link {
 	}
 
 	/**
-	 * Check for magic link tokens generated within the last 60 seconds.
+	 * Check for active magic link tokens.
 	 *
 	 * @param \WP_User $user User to check the active magic link token for.
 	 *
@@ -399,7 +399,7 @@ final class Magic_Link {
 		$now    = time();
 		$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
 
-		$expire = $now - MINUTE_IN_SECONDS;
+		$expire = $now - self::get_token_expiration_period();
 		if ( ! empty( $tokens ) ) {
 			foreach ( $tokens as $index => $token_data ) {
 				/** Clear expired tokens. */
@@ -854,7 +854,7 @@ final class Magic_Link {
 		}
 
 		if ( true !== $authenticated ) {
-			return self::send_otp_request_response( __( 'Unable to authenticated, try again.', 'newspack-plugin' ), false, [ 'expired' => true ] );
+			return self::send_otp_request_response( __( 'Unable to authenticate, try again.', 'newspack-plugin' ), false, [ 'expired' => true ] );
 		}
 
 		return self::send_otp_request_response( __( 'Login successful!', 'newspack-plugin' ), true );

@@ -49,7 +49,11 @@ export function getCheckoutData( key ) {
  * @return {boolean} Whether checkout is pending.
  */
 export function isPendingCheckout() {
-	return getCheckoutData( 'is_pending_checkout' );
+	const checkout = getCheckout();
+	if ( Object.keys( checkout ).length ) {
+		return true;
+	}
+	return false;
 }
 
 /**

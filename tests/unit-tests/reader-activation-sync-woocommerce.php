@@ -1,18 +1,18 @@
 <?php
 /**
- * Tests WooCommerce connection.
+ * Tests Reader Activation Sync WooCommerce.
  *
  * @package Newspack\Tests
  */
 
-use Newspack\WooCommerce_Connection;
+use Newspack\Reader_Activation\Sync;
 
 require_once __DIR__ . '/../mocks/wc-mocks.php';
 
 /**
- * Tests WooCommerce connection.
+ * Tests Reader Activation Sync WooCommerce.
  */
-class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
+class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 	const USER_DATA = [
 		'user_login' => 'test_user',
 		'user_email' => 'test@example.com',
@@ -42,7 +42,7 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 	/**
 	 * Test payment metadata extraction - basic shape of the data.
 	 */
-	public function test_woocommerce_connection_payment_metadata_basic() {
+	public function test_payment_metadata_basic() {
 		$order_data = [
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
@@ -58,34 +58,34 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 		];
 		$order = \wc_create_order( $order_data );
 		$payment_page_url = 'https://example.com/donate';
-		$contact_data = WooCommerce_Connection::get_contact_from_order( $order, $payment_page_url );
+		$contact_data = Sync\WooCommerce::get_contact_from_order( $order, $payment_page_url );
 		$today = gmdate( 'Y-m-d' );
 		$this->assertEquals(
 			[
 				'email'    => self::USER_DATA['user_email'],
 				'name'     => self::USER_DATA['meta_input']['first_name'] . ' ' . self::USER_DATA['meta_input']['last_name'],
 				'metadata' => [
-					'NP_Payment Page'                    => $payment_page_url,
-					'NP_Membership Status'               => 'customer',
-					'NP_Product Name'                    => '',
-					'NP_Last Payment Amount'             => '$' . $order_data['total'],
-					'NP_Last Payment Date'               => $today,
-					'NP_Payment UTM: source'             => 'test_source',
-					'NP_Payment UTM: medium'             => '',
-					'NP_Payment UTM: campaign'           => 'test_campaign',
-					'NP_Payment UTM: term'               => 'test_term',
-					'NP_Payment UTM: content'            => 'test_content',
-					'NP_Current Subscription Start Date' => '',
-					'NP_Current Subscription End Date'   => '',
-					'NP_Billing Cycle'                   => '',
-					'NP_Recurring Payment'               => '',
-					'NP_Next Payment Date'               => '',
-					'NP_Total Paid'                      => '$' . ( self::USER_DATA['meta_input']['wc_total_spent'] + $order_data['total'] ),
-					'NP_Account'                         => self::$user_id,
-					'NP_Registration Date'               => $today,
-					'NP_Membership Plan'                 => '',
-					'NP_Current Membership Start Date'   => '',
-					'NP_Current Membership End Date'     => '',
+					'payment_page'              => $payment_page_url,
+					'membership_status'         => 'customer',
+					'product_name'              => '',
+					'last_payment_amount'       => '$' . $order_data['total'],
+					'last_payment_date'         => $today,
+					'payment_page_utm_source'   => 'test_source',
+					'payment_page_utm_medium'   => '',
+					'payment_page_utm_campaign' => 'test_campaign',
+					'payment_page_utm_term'     => 'test_term',
+					'payment_page_utm_content'  => 'test_content',
+					'sub_start_date'            => '',
+					'sub_end_date'              => '',
+					'billing_cycle'             => '',
+					'recurring_payment'         => '',
+					'next_payment_date'         => '',
+					'total_paid'                => '$' . ( self::USER_DATA['meta_input']['wc_total_spent'] + $order_data['total'] ),
+					'account'                   => self::$user_id,
+					'registration_date'         => $today,
+					'membership_plan'           => '',
+					'membership_start_date'     => '',
+					'membership_end_date'       => '',
 				],
 			],
 			$contact_data
@@ -98,7 +98,7 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 	 * might be needed. In such a case, a field in the imported data would correspond to
 	 * a string meta field, instead of the UTM params being stored as serialized values.
 	 */
-	public function test_woocommerce_connection_payment_metadata_utm() {
+	public function test_payment_metadata_utm() {
 		$order_data = [
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
@@ -109,15 +109,15 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 			],
 		];
 		$order = \wc_create_order( $order_data );
-		$contact_data = WooCommerce_Connection::get_contact_from_order( $order );
-		$this->assertEquals( 'test_source', $contact_data['metadata']['NP_Payment UTM: source'] );
-		$this->assertEquals( 'test_campaign', $contact_data['metadata']['NP_Payment UTM: campaign'] );
+		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
+		$this->assertEquals( 'test_source', $contact_data['metadata']['payment_page_utm_source'] );
+		$this->assertEquals( 'test_campaign', $contact_data['metadata']['payment_page_utm_campaign'] );
 	}
 
 	/**
 	 * Test payment metadata extraction using a failed order.
 	 */
-	public function test_woocommerce_connection_payment_metadata_with_failed_order() {
+	public function test_payment_metadata_with_failed_order() {
 		$order = \wc_create_order(
 			[
 				'customer_id' => self::$user_id,
@@ -125,30 +125,30 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 				'total'       => 60,
 			]
 		);
-		$contact_data = WooCommerce_Connection::get_contact_from_order( $order );
-		$this->assertEmpty( $contact_data['metadata']['NP_Last Payment Date'] );
-		$this->assertEmpty( $contact_data['metadata']['NP_Last Payment Amount'] );
+		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
+		$this->assertEmpty( $contact_data['metadata']['last_payment_date'] );
+		$this->assertEmpty( $contact_data['metadata']['last_payment_amount'] );
 	}
 
 	/**
 	 * Test payment metadata extraction - using customer as source.
 	 */
-	public function test_woocommerce_connection_payment_metadata_from_customer() {
+	public function test_payment_metadata_from_customer() {
 		$order_data = [
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
 			'total'       => 70,
 		];
 		$order = \wc_create_order( $order_data );
-		$contact_data = WooCommerce_Connection::get_contact_from_customer( self::$user_id );
-		$this->assertEquals( '$' . $order_data['total'], $contact_data['metadata']['NP_Last Payment Amount'] );
-		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['NP_Last Payment Date'] );
+		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
+		$this->assertEquals( '$' . $order_data['total'], $contact_data['metadata']['last_payment_amount'] );
+		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['last_payment_date'] );
 	}
 
 	/**
 	 * Test payment metadata extraction - using customer who's last order was failed as source.
 	 */
-	public function test_woocommerce_connection_payment_metadata_from_customer_with_last_order_failed() {
+	public function test_payment_metadata_from_customer_with_last_order_failed() {
 		$completed_order_data = [
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
@@ -163,8 +163,8 @@ class Newspack_Test_WooCommerce_Connection extends WP_UnitTestCase {
 			'total'       => 89,
 		];
 		$order = \wc_create_order( $failed_order_data );
-		$contact_data = WooCommerce_Connection::get_contact_from_customer( self::$user_id );
-		$this->assertEquals( '$' . $completed_order_data['total'], $contact_data['metadata']['NP_Last Payment Amount'] );
-		$this->assertEquals( $completed_order_data['date_paid'], $contact_data['metadata']['NP_Last Payment Date'] );
+		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
+		$this->assertEquals( '$' . $completed_order_data['total'], $contact_data['metadata']['last_payment_amount'] );
+		$this->assertEquals( $completed_order_data['date_paid'], $contact_data['metadata']['last_payment_date'] );
 	}
 }

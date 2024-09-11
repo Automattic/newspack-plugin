@@ -171,11 +171,11 @@ function renderWidget( form, errorHandler = null ) {
 		} )( jQuery );
 
 		button.addEventListener( 'click', e => {
+			e.preventDefault();
 			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				callback();
 			} else {
-				e.preventDefault();
 				grecaptcha.execute( widgetId );
 
 				// For some reason, WooCommerce checkout forms don't properly pin the widget in a fixed location, so we need to scroll to the top of the page to ensure it's visible.
