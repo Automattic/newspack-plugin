@@ -26,9 +26,8 @@ const sectionComponents: Record<
 	emails: Emails,
 	syndication: Syndication,
 	seo: Seo,
-	'display-settings': DisplaySettings,
 	'theme-and-brand': ThemeAndBrand,
-	// 'display-settings': DisplaySettings,
+	'display-settings': DisplaySettings,
 	// 'additional-brands': AdditionalBrands,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
