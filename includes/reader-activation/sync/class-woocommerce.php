@@ -92,7 +92,7 @@ class WooCommerce {
 	private static function get_most_recent_cancelled_or_expired_subscription( $user_id ) {
 		$subcriptions = array_reduce(
 			array_keys( \wcs_get_users_subscriptions( $user_id ) ),
-			function( $acc, $subscription_id ) use ( $product_ids ) {
+			function( $acc, $subscription_id ) {
 				$subscription = \wcs_get_subscription( $subscription_id );
 				if ( $subscription->has_status( [ 'on-hold', 'cancelled', 'expired' ] ) ) {
 					$acc[] = $subscription_id;
@@ -116,7 +116,10 @@ class WooCommerce {
 	 */
 	private static function get_one_time_donation_order_for_user( $user_id ) {
 		$donation_product = Donations::get_donation_product( 'once' );
-		$user_has_donated = wc_customer_bought_product( null, $user_id, $donation_product->get_id() );
+		if ( ! $donation_product ) {
+			return;
+		}
+		$user_has_donated = \wc_customer_bought_product( null, $user_id, $donation_product );
 		if ( ! $user_has_donated ) {
 			return;
 		}
