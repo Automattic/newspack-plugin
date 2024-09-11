@@ -1,3 +1,4 @@
+/* globals newspack_memberships_gate */
 /**
  * Internal dependencies
  */
@@ -45,6 +46,20 @@ function addFormInputs( gate ) {
 }
 
 /**
+ * Get the full event payload for GA4.
+ *
+ * @param {Array} payload The event payload.
+ *
+ * @return {Array} The full event payload
+ */
+function getEventPayload( payload ) {
+	return {
+		...newspack_memberships_gate.metadata,
+		...payload,
+	}
+}
+
+/**
  * Handle when the gate is seen.
  */
 function handleSeen( gate ) {
@@ -56,7 +71,7 @@ function handleSeen( gate ) {
 		action: 'seen',
 	};
 	if ( 'function' === typeof window.gtag && payload ) {
-		window.gtag( 'event', eventName, payload );
+		window.gtag( 'event', eventName, getEventPayload( payload ) );
 	}
 }
 

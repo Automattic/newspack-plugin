@@ -464,10 +464,10 @@ class GA4 {
 		$params['product_id']   = $data['product_id'] ?? '';
 		$params['amount']       = $data['amount'] ?? '';
 		$params['currency']     = $data['currency'] ?? '';
-		// Check for meaningful blocks.
-		$params['gate_has_donation_block']     = in_array( 'newspack-blocks/donate', $data['gate_blocks'] ) ? 'yes' : 'no';
-		$params['gate_has_registration_block'] = in_array( 'newspack/reader-registration', $data['gate_blocks'] ) ? 'yes' : 'no';
-		$params['gate_has_checkout_button']    = in_array( 'newspack-blocks/checkout-button', $data['gate_blocks'] ) ? 'yes' : 'no';
+		// Meaningful blocks.
+		$params['gate_has_donation_block']     = $data['gate_has_donation_block'];
+		$params['gate_has_registration_block'] = $data['gate_has_registration_block'];
+		$params['gate_has_checkout_button']    = $data['gate_has_checkout_button'];
 		return $params;
 	}
 
