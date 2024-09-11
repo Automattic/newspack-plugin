@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Recaptcha;
+use Newspack\Reader_Activation\Sync;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -107,8 +108,6 @@ final class Reader_Activation {
 			\add_filter( 'lostpassword_errors', [ __CLASS__, 'rate_limit_lost_password' ], 10, 2 );
 			\add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'set_mailchimp_sync_contact_status' ], 10, 2 );
 		}
-
-		\add_filter( 'newspack_reader_activation_setting', [ __CLASS__, 'disable_esp_sync_on_staging_sites' ], 10, 2 );
 	}
 
 	/**
@@ -330,8 +329,8 @@ final class Reader_Activation {
 			'terms_text'                      => '',
 			'terms_url'                       => '',
 			'sync_esp'                        => true,
-			'metadata_prefix'                 => Newspack_Newsletters::get_metadata_prefix(),
-			'metadata_fields'                 => Newspack_Newsletters::get_metadata_fields(),
+			'metadata_prefix'                 => Sync\Metadata::get_prefix(),
+			'metadata_fields'                 => Sync\Metadata::get_fields(),
 			'sync_esp_delete'                 => true,
 			'active_campaign_master_list'     => '',
 			'mailchimp_audience_id'           => '',
@@ -404,10 +403,10 @@ final class Reader_Activation {
 			$value = intval( $value );
 		}
 		if ( 'metadata_prefix' === $key ) {
-			return Newspack_Newsletters::update_metadata_prefix( $value );
+			return Sync\Metadata::update_prefix( $value );
 		}
 		if ( 'metadata_fields' === $key ) {
-			return Newspack_Newsletters::update_metadata_fields( $value );
+			return Sync\Metadata::update_fields( $value );
 		}
 
 		return \update_option( self::OPTIONS_PREFIX . $key, $value );
@@ -472,10 +471,7 @@ final class Reader_Activation {
 	 * @return string|bool Master list ID or false if not set or not available.
 	 */
 	public static function get_esp_master_list_id( $provider = '' ) {
-		if ( ! self::is_esp_configured() ) {
-			return false;
-		}
-		if ( empty( $provider ) ) {
+		if ( empty( $provider ) && class_exists( 'Newspack_Newsletters' ) ) {
 			$provider = \Newspack_Newsletters::service_provider();
 		}
 		switch ( $provider ) {
@@ -2341,42 +2337,6 @@ final class Reader_Activation {
 			\update_user_meta( $user_data->ID, self::LAST_EMAIL_DATE, time() );
 		}
 		return $errors;
-	}
-
-	/**
-	 * Automatically force deactivate the ESP sync on staging sites to prevent polluting the data in ESPs.
-	 *
-	 * @param mixed  $value Setting value.
-	 * @param string $setting Setting name.
-	 * @return mixed Possibly modified $value.
-	 */
-	public static function disable_esp_sync_on_staging_sites( $value, $setting ) {
-		if ( 'sync_esp' !== $setting ) {
-			return $value;
-		}
-
-		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
-			return $value;
-		}
-
-		$site_url = strtolower( \untrailingslashit( \get_site_url() ) );
-		if ( false !== stripos( $site_url, '.newspackstaging.com' ) ) {
-			return false;
-		}
-
-		// Neither WCS_Staging::is_duplicate_site() nor is_plugin_active() are initialized early enough for all situations.
-		// So we need to re-create the logic from both.
-		if ( in_array( 'woocommerce-subscriptions/woocommerce-subscriptions.php', (array) \get_option( 'active_plugins', [] ), true ) ) {
-			$subscriptions_site_url = \get_option( 'wc_subscriptions_siteurl', false );
-			if ( $subscriptions_site_url ) {
-				$cleaned_subscriptions_site_url = strtolower( untrailingslashit( str_ireplace( '_[wc_subscriptions_siteurl]_', '', $subscriptions_site_url ) ) );
-				if ( $cleaned_subscriptions_site_url !== $site_url ) {
-					return false;
-				}
-			}
-		}
-
-		return $value;
 	}
 
 	/**
