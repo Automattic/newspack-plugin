@@ -31,6 +31,7 @@ final class Reader_Activation {
 	const EMAIL_VERIFIED                    = 'np_reader_email_verified';
 	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
 	const REGISTRATION_METHOD               = 'np_reader_registration_method';
+	const CONNECTED_ACCOUNT                 = 'np_reader_connected_account';
 	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
 	/**

@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
+use Newspack\Reader_Activation;
 use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
@@ -319,29 +320,52 @@ class Metadata {
 	}
 
 	/**
-	 * Normalizes contact metadata keys before syncing to ESP.
+	 * Add user's registration-related data to the given metadata.
+	 * These won't be included in every sync request, but they might be stored as user meta.
 	 *
-	 * @param array $contact Contact data.
-	 * @return array Normalized contact data.
+	 * @param array $metadata Metadata to add to.
+	 *
+	 * @return array Metadata with registration data added.
 	 */
-	public static function normalize_contact_data( $contact ) {
-		if ( ! isset( $contact['metadata'] ) ) {
-			$contact['metadata'] = [];
+	private static function add_registration_data( $metadata ) {
+		$user = self::has_key( 'account', $metadata ) ? \get_user_by( 'id', self::get_key_value( 'account', $metadata ) ) : false;
+		if ( ! $user ) {
+			return $metadata;
 		}
 
-		$metadata            = $contact['metadata'];
-		$normalized_metadata = [];
-		$raw_keys            = self::get_raw_keys();
-		$prefixed_keys       = self::get_prefixed_keys();
+		$registration_method = self::has_key( 'registration_method', $metadata ) ? self::get_key_value( 'registration_method', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::REGISTRATION_METHOD, true );
+		if ( ! empty( $registration_method ) ) {
+			$metadata['registration_method'] = $registration_method;
+		}
 
+		$connected_account = self::has_key( 'connected_account', $metadata ) ? self::get_key_value( 'connected_account', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::CONNECTED_ACCOUNT, true );
+		if ( ! empty( $connected_account ) && in_array( $connected_account, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
+			$metadata['connected_account'] = $connected_account;
+		} elseif ( ! empty( $registration_method ) && in_array( $registration_method, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
+			$metadata['connected_account'] = $registration_method;
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Add UTM fields to the given metadata.
+	 *
+	 * @param array $metadata Metadata to add to.
+	 *
+	 * @return array Metadata with UTM fields added.
+	 */
+	private static function add_utm_data( $metadata ) {
 		// Capture UTM params and signup/payment page URLs as meta for registration or payment.
-		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
+		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'registration_page', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
 			$is_payment = self::has_key( 'payment_page', $metadata );
 			$raw_url    = false;
 			if ( $is_payment ) {
 				$raw_url = self::get_key_value( 'payment_page', $metadata );
-			} else {
+			} elseif ( self::has_key( 'current_page_url', $metadata ) ) {
 				$raw_url = self::get_key_value( 'current_page_url', $metadata );
+			} else {
+				$raw_url = self::get_key_value( 'registration_page', $metadata );
 			}
 
 			$parsed_url = \wp_parse_url( $raw_url );
@@ -363,6 +387,27 @@ class Metadata {
 				}
 			}
 		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Normalizes contact metadata keys before syncing to ESP.
+	 *
+	 * @param array $contact Contact data.
+	 * @return array Normalized contact data.
+	 */
+	public static function normalize_contact_data( $contact ) {
+		if ( ! isset( $contact['metadata'] ) ) {
+			$contact['metadata'] = [];
+		}
+
+		$metadata            = $contact['metadata'];
+		$metadata            = self::add_registration_data( $metadata );
+		$metadata            = self::add_utm_data( $metadata );
+		$raw_keys            = self::get_raw_keys();
+		$prefixed_keys       = self::get_prefixed_keys();
+		$normalized_metadata = [];
 
 		// Keys allowed to pass through without prefixing.
 		$allowed_keys = [ 'status', 'status_if_new' ];
