@@ -6,7 +6,7 @@ import { Grid, TextControl } from '../../../../../components/src';
 export default function AuthorBio( {
 	update,
 	data,
-}: SectionComponentProps< DisplaySettings > ) {
+}: ThemeModComponentProps< DisplaySettings > ) {
 	return (
 		<Grid gutter={ 32 }>
 			<Grid columns={ 1 } gutter={ 16 }>

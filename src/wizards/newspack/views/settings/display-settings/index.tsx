@@ -23,7 +23,7 @@ export default function DisplaySettings() {
 	const [ data, setData ] =
 		hooks.useObjectState< DisplaySettings >( DEFAULT_THEME_MODS );
 
-	const { wizardApiFetch } = useWizardApiFetch(
+	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/display-settings'
 	);
 
@@ -63,8 +63,11 @@ export default function DisplaySettings() {
 	}
 
 	return (
-		<WizardsTab title={ __( 'Display Settings', 'newspack-plugin' ) }>
-			<pre>{ JSON.stringify( data, null, 2 ) }</pre>
+		<WizardsTab
+			title={ __( 'Display Settings', 'newspack-plugin' ) }
+			className={ isFetching ? 'is-fetching' : '' }
+		>
+			{ /* <pre>{ JSON.stringify( data, null, 2 ) }</pre> */ }
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
 				<Recirculation update={ setData } data={ data } />
 			</WizardSection>
