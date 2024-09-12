@@ -357,13 +357,15 @@ class Metadata {
 	 */
 	private static function add_utm_data( $metadata ) {
 		// Capture UTM params and signup/payment page URLs as meta for registration or payment.
-		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
+		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'registration_page', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
 			$is_payment = self::has_key( 'payment_page', $metadata );
 			$raw_url    = false;
 			if ( $is_payment ) {
 				$raw_url = self::get_key_value( 'payment_page', $metadata );
-			} else {
+			} elseif ( self::has_key( 'current_page_url', $metadata ) ) {
 				$raw_url = self::get_key_value( 'current_page_url', $metadata );
+			} else {
+				$raw_url = self::get_key_value( 'registration_page', $metadata );
 			}
 
 			$parsed_url = \wp_parse_url( $raw_url );

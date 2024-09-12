@@ -215,6 +215,12 @@ class Google_Login {
 			}
 		}
 		$metadata['registration_method'] = 'google';
+		if ( ! isset( $metadata['current_page_url'] ) ) {
+			$referrer = $request->get_header( 'referer' );
+			if ( \wp_http_validate_url( $referrer ) ) {
+				$metadata['current_page_url'] = $referrer;
+			}
+		}
 		if ( $email ) {
 			$existing_user = \get_user_by( 'email', $email );
 			$message       = __( 'Thank you for registering!', 'newspack-plugin' );
