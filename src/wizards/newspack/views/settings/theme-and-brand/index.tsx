@@ -25,7 +25,7 @@ import { DEFAULT_THEME_MODS } from '../constants';
 // CSS.
 import './style.scss';
 
-const DEFAULT_DATA: ThemeBrandData = {
+const DEFAULT_DATA: ThemeData = {
 	theme: 'newspack-theme',
 	homepage_patterns: [],
 	theme_mods: DEFAULT_THEME_MODS,
@@ -35,9 +35,9 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/theme-and-brand'
 	);
-	const [ data, setDataState ] = useState< ThemeBrandData >( DEFAULT_DATA );
+	const [ data, setDataState ] = useState< ThemeData >( DEFAULT_DATA );
 
-	function setData( newData: ThemeBrandData ) {
+	function setData( newData: ThemeData ) {
 		setDataState( { ...data, ...newData } );
 	}
 
@@ -142,9 +142,9 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 				) }
 			>
 				<Typography
-					themeMods={ data.theme_mods }
+					data={ data.theme_mods }
 					isFetching={ isFetching }
-					updateTypography={ theme_mods => {
+					update={ theme_mods => {
 						setData( {
 							...data,
 							theme_mods,

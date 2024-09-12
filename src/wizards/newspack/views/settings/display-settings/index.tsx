@@ -17,35 +17,18 @@ import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
 import { Button, hooks } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import { DEFAULT_THEME_MODS } from '../constants';
 
 export default function DisplaySettings() {
-	const [ data, setData ] = hooks.useObjectState< DisplaySettingsData >( {
-		// Recirculation.
-		relatedPostsEnabled: false,
-		relatedPostsError: null,
-		relatedPostsMaxAge: 0,
-		relatedPostsUpdated: false,
-		// Author Bio.
-		show_author_bio: true,
-		show_author_email: false,
-		author_bio_length: 200,
-		// Default settings.
-		featured_image_default: 'large',
-		post_template_default: 'default',
-		featured_image_all_posts: 'none',
-		post_template_all_posts: 'none',
-		newspack_image_credits_placeholder_url: '',
-		newspack_image_credits_class_name: '',
-		newspack_image_credits_prefix_label: '',
-		newspack_image_credits_auto_populate: false,
-	} );
+	const [ data, setData ] =
+		hooks.useObjectState< DisplaySettings >( DEFAULT_THEME_MODS );
 
 	const { wizardApiFetch } = useWizardApiFetch(
 		'newspack-settings/display-settings'
 	);
 
 	useEffect( () => {
-		wizardApiFetch< RecirculationData >(
+		wizardApiFetch< DisplaySettings >(
 			{
 				path: '/newspack/v1/wizard/newspack-settings/related-content',
 			},
@@ -53,14 +36,14 @@ export default function DisplaySettings() {
 				onSuccess: setData,
 			}
 		);
-		wizardApiFetch< RecirculationData >(
+		wizardApiFetch< ThemeData >(
 			{
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 			},
 			{
-				// onSuccess( { theme_mods } ) {
-				// 	setData( theme_mods );
-				// },
+				onSuccess( { theme_mods } ) {
+					setData( theme_mods );
+				},
 			}
 		);
 	}, [] );
@@ -86,10 +69,7 @@ export default function DisplaySettings() {
 				<Recirculation update={ setData } data={ data } />
 			</WizardSection>
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
-				<AuthorBio
-					update={ theme_mods => setData( {} /* { theme_mods } */ ) }
-					data={ data }
-				/>
+				<AuthorBio update={ setData } data={ data } />
 			</WizardSection>
 			<div className="newspack-buttons-card">
 				<Button variant="tertiary">

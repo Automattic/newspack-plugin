@@ -6,10 +6,7 @@ import { Button, Card, Grid, TextControl } from '../../../../../components/src';
 export default function Recirculation( {
 	update,
 	data,
-}: {
-	data: RecirculationData;
-	update: ( a: Partial< RecirculationData > ) => void;
-} ) {
+}: ThemeModComponentProps< DisplaySettings > ) {
 	return (
 		<>
 			<WizardsActionCard
