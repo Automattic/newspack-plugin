@@ -28,7 +28,7 @@ import './style.scss';
 const DEFAULT_DATA: ThemeData = {
 	theme: 'newspack-theme',
 	homepage_patterns: [],
-	theme_mods: DEFAULT_THEME_MODS,
+	theme_mods: { ...DEFAULT_THEME_MODS },
 };
 
 function ThemeBrand( { isPartOfSetup = false } ) {
@@ -69,7 +69,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 	return (
 		<WizardsTab
 			title={ __( 'Theme and Brand', 'newspack-plugin' ) }
-			className={ isFetching ? 'is-fetching' : '' }
+			isFetching={ isFetching }
 		>
 			{ ! isPartOfSetup && (
 				<Fragment>

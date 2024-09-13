@@ -18,22 +18,32 @@ import WizardSection from '../../../../wizards-section';
 import { Button, hooks } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { DEFAULT_THEME_MODS } from '../constants';
+import { set } from 'lodash';
 
 export default function DisplaySettings() {
-	const [ data, setData ] =
-		hooks.useObjectState< DisplaySettings >( DEFAULT_THEME_MODS );
+	const [ data, setData ] = hooks.useObjectState< DisplaySettings >( {
+		...DEFAULT_THEME_MODS,
+	} );
+
+	const [ recirculationData, setRecirculationData ] =
+		hooks.useObjectState< Recirculation >( {
+			relatedPostsMaxAge: 0,
+			relatedPostsEnabled: false,
+			relatedPostsError: null,
+			relatedPostsUpdated: false,
+		} );
 
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/display-settings'
 	);
 
 	useEffect( () => {
-		wizardApiFetch< DisplaySettings >(
+		wizardApiFetch< Recirculation >(
 			{
 				path: '/newspack/v1/wizard/newspack-settings/related-content',
 			},
 			{
-				onSuccess: setData,
+				onSuccess: setRecirculationData,
 			}
 		);
 		wizardApiFetch< ThemeData >(
@@ -60,16 +70,32 @@ export default function DisplaySettings() {
 				onSuccess: setData,
 			}
 		);
+		wizardApiFetch(
+			{
+				path: '/newspack/v1/wizard/newspack-settings/related-posts-max-age',
+				method: 'POST',
+				updateCacheKey: {
+					'/newspack/v1/wizard/newspack-settings/related-content':
+						'GET',
+				},
+				data: recirculationData,
+			},
+			{
+				onSuccess: setRecirculationData,
+			}
+		);
 	}
 
 	return (
 		<WizardsTab
 			title={ __( 'Display Settings', 'newspack-plugin' ) }
-			className={ isFetching ? 'is-fetching' : '' }
+			isFetching={ isFetching }
 		>
-			{ /* <pre>{ JSON.stringify( data, null, 2 ) }</pre> */ }
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
-				<Recirculation update={ setData } data={ data } />
+				<Recirculation
+					update={ setRecirculationData }
+					data={ recirculationData }
+				/>
 			</WizardSection>
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
 				<AuthorBio update={ setData } data={ data } />

@@ -42,11 +42,6 @@ export const THEME_BRAND_DEFAULTS = {
 };
 
 export const DISPLAY_SETTINGS_DEFAULTS = {
-	// Recirculation.
-	relatedPostsEnabled: false,
-	relatedPostsError: null,
-	relatedPostsMaxAge: 0,
-	relatedPostsUpdated: false,
 	// Author Bio.
 	show_author_bio: true,
 	show_author_email: false,

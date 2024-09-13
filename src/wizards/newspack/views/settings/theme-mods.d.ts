@@ -80,15 +80,19 @@ type ThemeModComponentProps< T = ThemeMods > = {
 };
 
 /**
- * Display settings.
+ * Recirculation schema.
  */
-interface DisplaySettings {
-	// Recirculation.
+interface Recirculation {
 	relatedPostsEnabled: boolean;
 	relatedPostsError: WizardApiErrorType | null;
 	relatedPostsMaxAge: number;
 	relatedPostsUpdated: boolean;
+}
 
+/**
+ * Display settings.
+ */
+interface DisplaySettings {
 	// Author Bio.
 	show_author_bio: boolean;
 	show_author_email: boolean;

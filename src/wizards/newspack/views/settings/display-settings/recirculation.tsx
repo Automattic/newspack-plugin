@@ -6,7 +6,7 @@ import { Button, Card, Grid, TextControl } from '../../../../../components/src';
 export default function Recirculation( {
 	update,
 	data,
-}: ThemeModComponentProps< DisplaySettings > ) {
+}: ThemeModComponentProps< Recirculation > ) {
 	return (
 		<>
 			<WizardsActionCard
