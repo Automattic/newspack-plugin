@@ -4,8 +4,9 @@ import { ToggleControl } from '@wordpress/components';
 import { Grid, TextControl } from '../../../../../components/src';
 
 export default function AuthorBio( {
-	update,
 	data,
+	isFetching,
+	update,
 }: ThemeModComponentProps< DisplaySettings > ) {
 	return (
 		<Grid gutter={ 32 }>
@@ -16,6 +17,7 @@ export default function AuthorBio( {
 						'Display an author bio under individual posts.',
 						'newspack-plugin'
 					) }
+					disabled={ isFetching }
 					checked={ data.show_author_bio }
 					onChange={ show_author_bio =>
 						update( { show_author_bio } )
@@ -28,6 +30,7 @@ export default function AuthorBio( {
 							'Display the author email with bio on individual posts.',
 							'newspack-plugin'
 						) }
+						disabled={ isFetching }
 						checked={ data.show_author_email }
 						onChange={ show_author_email =>
 							update( { show_author_email } )

@@ -1,11 +1,19 @@
 import { __ } from '@wordpress/i18n';
+import { Fragment } from '@wordpress/element';
 
 import WizardsActionCard from '../../../../wizards-action-card';
-import { Button, Card, Grid, TextControl } from '../../../../../components/src';
+import {
+	Button,
+	Card,
+	Grid,
+	TextControl,
+	Waiting,
+} from '../../../../../components/src';
 
 export default function Recirculation( {
-	update,
 	data,
+	update,
+	isFetching,
 }: ThemeModComponentProps< Recirculation > ) {
 	return (
 		<>
@@ -13,21 +21,29 @@ export default function Recirculation( {
 				title={ __( 'Related Posts', 'newspack-plugin' ) }
 				badge="Jetpack"
 				description={ () => (
-					<>
-						{ __(
-							'Automatically add related content at the bottom of each post.',
-							'newspack-plugin'
-						) }
-					</>
+					<Fragment>
+						{ isFetching
+							? __( 'Loading…', 'newspack-plugin' )
+							: __(
+									'Automatically add related content at the bottom of each post.',
+									'newspack-plugin'
+							  ) }
+					</Fragment>
 				) }
 				editLink="admin.php?page=jetpack#/traffic"
 				actionText={
-					<Button
-						variant="link"
-						href="admin.php?page=jetpack#/traffic"
-					>
-						{ __( 'Configure', 'newspack-plugin' ) }
-					</Button>
+					<Fragment>
+						{ isFetching ? (
+							<Waiting />
+						) : (
+							<Button
+								variant="link"
+								href="admin.php?page=jetpack#/traffic"
+							>
+								{ __( 'Configure', 'newspack-plugin' ) }
+							</Button>
+						) }
+					</Fragment>
 				}
 			/>
 

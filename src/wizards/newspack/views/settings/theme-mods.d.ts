@@ -76,6 +76,7 @@ interface ThemeAndBrand {
  */
 type ThemeModComponentProps< T = ThemeMods > = {
 	update: ( a: Partial< T > ) => void;
+	isFetching?: boolean;
 	data: T;
 };
 

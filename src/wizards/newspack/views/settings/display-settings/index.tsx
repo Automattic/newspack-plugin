@@ -92,12 +92,17 @@ export default function DisplaySettings() {
 		>
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
 				<Recirculation
+					isFetching={ isFetching }
 					update={ setRecirculationData }
 					data={ recirculationData }
 				/>
 			</WizardSection>
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
-				<AuthorBio update={ setData } data={ data } />
+				<AuthorBio
+					update={ setData }
+					data={ data }
+					isFetching={ isFetching }
+				/>
 			</WizardSection>
 			<div className="newspack-buttons-card">
 				<Button variant="tertiary">
