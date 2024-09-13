@@ -13,12 +13,11 @@ import { useEffect } from '@wordpress/element';
  */
 import AuthorBio from './author-bio';
 import Recirculation from './recirculation';
+import { DEFAULT_THEME_MODS } from '../constants';
 import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
 import { Button, hooks } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import { DEFAULT_THEME_MODS } from '../constants';
-import { set } from 'lodash';
 
 export default function DisplaySettings() {
 	const [ data, setData ] = hooks.useObjectState< DisplaySettings >( {
