@@ -12,12 +12,12 @@ namespace Newspack\Wizards\Newspack;
  */
 
 use Newspack\Configuration_Managers;
-use WP_Error, WP_REST_Server;
 
 /**
  * Internal dependencies
  */
 use Newspack\Wizards\Wizard_Section;
+use WP_Error;
 
 /**
  * Custom Events Section Object.
@@ -72,6 +72,35 @@ class Recirculation_Section extends Wizard_Section {
 			[
 				'relatedPostsEnabled' => $jetpack_configuration_manager->is_related_posts_enabled(),
 				'relatedPostsMaxAge'  => get_option( $this->related_posts_option, 0 ),
+			]
+		);
+	}
+
+	/**
+	 * Update the Related Posts Max Age setting.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Updated value, if successful, or WP_Error.
+	 */
+	public function api_update_related_posts_max_age( $request ) {
+		$args = $request->get_params();
+
+		if ( is_numeric( $args['relatedPostsMaxAge'] ) && 0 <= $args['relatedPostsMaxAge'] ) {
+			update_option( $this->related_posts_option, $args['relatedPostsMaxAge'] );
+		} else {
+			return new WP_Error(
+				'newspack_related_posts_invalid_arg',
+				esc_html__( 'Invalid argument: max age must be a number greater than zero.', 'newspack' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+		}
+
+		return rest_ensure_response(
+			[
+				'relatedPostsMaxAge' => $args['relatedPostsMaxAge'],
 			]
 		);
 	}
