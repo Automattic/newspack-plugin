@@ -227,7 +227,7 @@ class Metadata {
 	public static function get_payment_fields() {
 		return [
 			'membership_status'     => 'Membership Status',
-			'membership_plan'       => 'Membership Plan',
+			'membership_plans'      => 'Membership Plans',
 			// In most cases these fields won't be needed, because their values will match
 			// linked subscription dates. But some setups use memberships w/out subscriptions.
 			'membership_start_date' => 'Current Membership Start Date',

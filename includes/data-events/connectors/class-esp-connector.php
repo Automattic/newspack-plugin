@@ -134,7 +134,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		$filtered_enabled_fields = Sync\Metadata::filter_enabled_fields(
 			[
 				'membership_status',
-				'membership_plan',
+				'membership_plans',
 				'membership_start_date',
 				'membership_end_date',
 			]

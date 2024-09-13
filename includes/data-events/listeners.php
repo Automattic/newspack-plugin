@@ -351,16 +351,21 @@ Data_Events::register_listener(
 		if ( ! $membership_plan ) {
 			return;
 		}
-		$membership = \wc_memberships_get_user_membership( $args['user_membership_id'] );
+		$latest_membership = \wc_memberships_get_user_membership( $args['user_membership_id'] );
+		$memberships = \wc_memberships_get_user_memberships( $args['user_id'] );
 		$user       = \get_user_by( 'id', $args['user_id'] );
 		$user_email = $user ? $user->user_email : '';
+		$membership_plans_names = [];
+		foreach ( $memberships as $membership ) {
+			$membership_plans_names[] = $membership->get_plan()->get_name();
+		}
 		return [
 			'user_id'               => $args['user_id'],
 			'email'                 => $user_email,
-			'membership_plan'       => $membership_plan->get_name(),
-			'membership_status'     => $membership->get_status(),
-			'membership_start_date' => $membership->get_start_date(),
-			'membership_end_date'   => $membership->get_end_date(),
+			'membership_plans'      => implode( ', ', $membership_plans_names ),
+			'membership_status'     => $latest_membership->get_status(),
+			'membership_start_date' => $latest_membership->get_start_date(),
+			'membership_end_date'   => $latest_membership->get_end_date(),
 		];
 	}
 );

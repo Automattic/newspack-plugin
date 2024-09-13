@@ -83,7 +83,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 					'total_paid'                => '$' . ( self::USER_DATA['meta_input']['wc_total_spent'] + $order_data['total'] ),
 					'account'                   => self::$user_id,
 					'registration_date'         => $today,
-					'membership_plan'           => '',
+					'membership_plans'          => '',
 					'membership_start_date'     => '',
 					'membership_end_date'       => '',
 				],
