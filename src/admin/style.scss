@@ -57,10 +57,12 @@ h1 {
 	color: var(--np-color-wp-gray-700);
 }
 .is-fetching {
-	input[type="text"] {
-		pointer-events: none;
+	input[type="text"],
+	input[type="number"] {
 		background-color: var(--np-color-wp-gray-100);
 		border: 1px solid var(--np-color-wp-gray-100);
+		color: transparent;
+		pointer-events: none;
 		animation: opacity-pulse 1.4s infinite ease-in-out;
 
 		&::placeholder {
