@@ -17,8 +17,8 @@ function WizardsTab( {
 	return (
 		<div
 			className={ `${
-				isFetching ? '' : 'is-fetching'
-			} ${ className } newspack-wizard__sections` }
+				isFetching ? 'is-fetching ' : ''
+			}${ className } newspack-wizard__sections` }
 		>
 			<h1>{ title }</h1>
 			{ children }
