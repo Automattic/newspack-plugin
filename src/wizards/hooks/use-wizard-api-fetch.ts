@@ -156,9 +156,18 @@ export function useWizardApiFetch( slug: string ) {
 					updateSettings( method, response );
 				}
 				if ( updateCacheKey && updateCacheKey instanceof Object ) {
+					const [ key, method ]: [ keyof WizardData, ApiMethods ] =
+						Object.entries( updateCacheKey )[ 0 ];
+
+					const newCache =
+						wizardData[ key ][ method ] instanceof Object
+							? { ...wizardData[ key ][ method ], ...response }
+							: response;
+
+					// If the cached value is an object, merge the new response with existing cache.
 					updateSettings(
 						Object.entries( updateCacheKey )[ 0 ],
-						response,
+						newCache,
 						null
 					);
 				}
