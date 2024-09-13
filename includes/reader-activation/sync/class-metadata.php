@@ -206,16 +206,23 @@ class Metadata {
 	 */
 	public static function get_basic_fields() {
 		return [
-			'account'              => 'Account',
-			'registration_date'    => 'Registration Date',
-			'connected_account'    => 'Connected Account',
-			'signup_page'          => 'Signup Page',
-			'signup_page_utm'      => 'Signup UTM: ',
-			'newsletter_selection' => 'Newsletter Selection',
-			'referer'              => 'Referrer Path',
-			'registration_page'    => 'Registration Page',
-			'current_page_url'     => 'Registration Page',
-			'registration_method'  => 'Registration Method',
+			'account'               => 'Account',
+			'registration_date'     => 'Registration Date',
+			'connected_account'     => 'Connected Account',
+			'signup_page'           => 'Signup Page',
+			'signup_page_utm'       => 'Signup UTM: ',
+			'newsletter_selection'  => 'Newsletter Selection',
+			'referer'               => 'Referrer Path',
+			'registration_page'     => 'Registration Page',
+			'current_page_url'      => 'Registration Page',
+			'registration_method'   => 'Registration Method',
+			// Membership fields.
+			'membership_status'     => 'Membership Status',
+			'membership_plans'      => 'Membership Plans',
+			// In most cases the fields below won't be needed, because their values will match
+			// linked subscription dates. But some setups use memberships w/out subscriptions.
+			'membership_start_date' => 'Current Membership Start Date',
+			'membership_end_date'   => 'Current Membership End Date',
 		];
 	}
 
@@ -226,28 +233,22 @@ class Metadata {
 	 */
 	public static function get_payment_fields() {
 		return [
-			'membership_status'     => 'Membership Status',
-			'membership_plans'      => 'Membership Plans',
-			// In most cases these fields won't be needed, because their values will match
-			// linked subscription dates. But some setups use memberships w/out subscriptions.
-			'membership_start_date' => 'Current Membership Start Date',
-			'membership_end_date'   => 'Current Membership End Date',
 			// URL of the page on which the payment has happened.
-			'payment_page'          => 'Payment Page',
-			'payment_page_utm'      => 'Payment UTM: ',
-			'sub_start_date'        => 'Current Subscription Start Date',
-			'sub_end_date'          => 'Current Subscription End Date',
+			'payment_page'        => 'Payment Page',
+			'payment_page_utm'    => 'Payment UTM: ',
+			'sub_start_date'      => 'Current Subscription Start Date',
+			'sub_end_date'        => 'Current Subscription End Date',
 			// At what interval does the recurring payment occur – e.g. day, week, month or year.
-			'billing_cycle'         => 'Billing Cycle',
+			'billing_cycle'       => 'Billing Cycle',
 			// The total value of the recurring payment.
-			'recurring_payment'     => 'Recurring Payment',
-			'last_payment_date'     => 'Last Payment Date',
-			'last_payment_amount'   => 'Last Payment Amount',
+			'recurring_payment'   => 'Recurring Payment',
+			'last_payment_date'   => 'Last Payment Date',
+			'last_payment_amount' => 'Last Payment Amount',
 			// Product name, as it appears in WooCommerce.
-			'product_name'          => 'Product Name',
-			'next_payment_date'     => 'Next Payment Date',
+			'product_name'        => 'Product Name',
+			'next_payment_date'   => 'Next Payment Date',
 			// Total value spent by this customer on the site.
-			'total_paid'            => 'Total Paid',
+			'total_paid'          => 'Total Paid',
 		];
 	}
 
