@@ -141,6 +141,9 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-display-ads.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-sponsors.php';
 
+		// Network Wizard.
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network.php';
+
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';

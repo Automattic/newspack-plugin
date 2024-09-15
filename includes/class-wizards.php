@@ -54,6 +54,7 @@ class Wizards {
 			),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
+			'network'                 => new Network(),
 		];
 	}
 

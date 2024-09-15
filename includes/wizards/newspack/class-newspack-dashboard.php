@@ -180,7 +180,7 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'admin.php?page=network' ),
 					],
 				] : [
 					[
@@ -211,7 +211,7 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'admin.php?page=network' ),
 					],
 				],
 			],
