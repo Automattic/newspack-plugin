@@ -1,6 +1,6 @@
 <?php
 /**
- * Network Wizard
+ * Network Settings Wizard
  *
  * @package Newspack
  */
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Easy interface for setting up info.
  */
-class Network extends Wizard {
+class Network_Settings extends Wizard {
 
 	use Admin_Tabs;
 
@@ -26,7 +26,7 @@ class Network extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'network';
+	protected $slug = 'network-settings';
 
 	/**
 	 * Constructor.
@@ -39,21 +39,13 @@ class Network extends Wizard {
 
 		add_action( 'admin_menu', [ $this, 'add_page' ], 99 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
+        add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
 		if ( $this->is_wizard_page() ) {
 			// Enqueue Wizards Admin Tabs script.
 			$this->enqueue_admin_tabs(
 				[
-					'tabs'  => [
-						[
-							'textContent' => esc_html__( 'Network', 'newspack-plugin' ),
-							'href'        => admin_url( static::URL ),
-						],
-						[
-							'textContent' => esc_html__( 'Settings', 'newspack-plugin' ),
-							'href'        => admin_url( static::URL . '&page=newspack-network-settings-admin' ),
-						],
-					], 
+					'tabs'  => [], 
 					'title' => $this->get_name(), 
 				]
 			);
@@ -66,7 +58,7 @@ class Network extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Network', 'newspack-plugin' );
+		return esc_html__( 'Network / Settings', 'newspack-plugin' );
 	}
 
 	/**
@@ -108,18 +100,45 @@ class Network extends Wizard {
 		if ( false == class_exists( '\Newspack_Network\Admin' ) ) {
 			return;
 		}
-		// @todo: also check render_page function exits on class.
+
+        if ( false == method_exists( '\Newspack_Network\Admin', 'render_page' ) ) {
+            return;
+        }
+
+		// @todo: also check render_page function exits on class / ronchambers
 
 		// @todo fix blue tint / ronchambers
-		$icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="1.5"/><path d="M12 4.36719C9.97145 5.3866 8.5 8.41883 8.5 12.0009C8.5 15.6603 10.0356 18.7459 12.1321 19.6979" stroke="white" stroke-width="1.5"/><path d="M12 4.3653C14.0286 5.38471 15.5 8.41694 15.5 11.9991C15.5 15.5812 14.0286 18.6134 12 19.6328" stroke="white" stroke-width="1.5"/><line x1="20" y1="14.5" x2="4" y2="14.5" stroke="white" stroke-width="1.5"/><line x1="4" y1="9.5" x2="20" y2="9.5" stroke="white" stroke-width="1.5"/></svg>' );
-		add_menu_page(
-			$this->get_name(),
-			$this->get_name(),
-			$this->capability,
-			$this->slug,
-			array( '\Newspack_Network\Admin', 'render_page' ),
-			$icon,
-			3.9
-		);
-	}
+		
+        $icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="1.5"/><path d="M12 4.36719C9.97145 5.3866 8.5 8.41883 8.5 12.0009C8.5 15.6603 10.0356 18.7459 12.1321 19.6979" stroke="white" stroke-width="1.5"/><path d="M12 4.3653C14.0286 5.38471 15.5 8.41694 15.5 11.9991C15.5 15.5812 14.0286 18.6134 12 19.6328" stroke="white" stroke-width="1.5"/><line x1="20" y1="14.5" x2="4" y2="14.5" stroke="white" stroke-width="1.5"/><line x1="4" y1="9.5" x2="20" y2="9.5" stroke="white" stroke-width="1.5"/></svg>' );
+
+        // If no site role, Settings becomes the parent menu item.
+        if( empty( get_option( 'newspack_network_site_role', '' ) ) ) {
+
+            // Parent menu page
+            add_menu_page(
+                $this->get_name(),
+                'Network',
+                $this->capability,
+                $this->slug,
+                array( '\Newspack_Network\Admin', 'render_page' ),
+                $icon,
+                3.9
+            );
+
+        } else {
+
+            add_submenu_page(
+                'edit.php?post_type=newspack_hub_nodes',
+                $this->get_name(),
+                __( 'Settings', 'newspack-plugin' ),
+                $this->capability,
+                $this->slug,
+                array( '\Newspack_Network\Admin', 'render_page' ),
+            );
+    
+        }
+
+
+
+    }
 }

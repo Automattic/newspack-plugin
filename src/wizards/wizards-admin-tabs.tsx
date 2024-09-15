@@ -23,6 +23,7 @@ export function WizardsAdminTabs( {
 					</div>
 				</div>
 			</div>
+			{ tabs && (
 			<div className="newspack-tabbed-navigation">
 				<ul>
 					{ tabs.map( ( tab, i ) => {
@@ -43,6 +44,7 @@ export function WizardsAdminTabs( {
 					} ) }
 				</ul>
 			</div>
+			) }
 		</Fragment>
 	);
 }
