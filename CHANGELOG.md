@@ -1,3 +1,17 @@
+## [5.3.9](https://github.com/Automattic/newspack-plugin/compare/v5.3.8...v5.3.9) (2024-09-16)
+
+
+### Bug Fixes
+
+* required billing fields in My Account ([#3389](https://github.com/Automattic/newspack-plugin/issues/3389)) ([eb58c6b](https://github.com/Automattic/newspack-plugin/commit/eb58c6b6b4cac568d27f088cdd4d95663b4aed08))
+
+## [5.3.8](https://github.com/Automattic/newspack-plugin/compare/v5.3.7...v5.3.8) (2024-09-16)
+
+
+### Bug Fixes
+
+* **onboarding:** add expected localized variable for GAM setup ([#3420](https://github.com/Automattic/newspack-plugin/issues/3420)) ([ed29b2b](https://github.com/Automattic/newspack-plugin/commit/ed29b2ba19912dff7dc427ebc3d22180e4956113))
+
 ## [5.3.7](https://github.com/Automattic/newspack-plugin/compare/v5.3.6...v5.3.7) (2024-09-10)
 
 
