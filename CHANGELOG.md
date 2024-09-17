@@ -1,3 +1,10 @@
+## [5.3.10](https://github.com/Automattic/newspack-plugin/compare/v5.3.9...v5.3.10) (2024-09-17)
+
+
+### Bug Fixes
+
+* **my-account:** check if `is_account_page()` exists ([#3427](https://github.com/Automattic/newspack-plugin/issues/3427)) ([d115641](https://github.com/Automattic/newspack-plugin/commit/d115641a03a3bed4197b5d6281536cfc40725da2))
+
 ## [5.3.9](https://github.com/Automattic/newspack-plugin/compare/v5.3.8...v5.3.9) (2024-09-16)
 
 
