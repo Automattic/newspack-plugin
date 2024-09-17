@@ -15,6 +15,8 @@ defined( 'ABSPATH' ) || exit;
  * Co-Authors Plus CLI commands.
  */
 class Co_Authors_Plus {
+	const NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL = 'newspack_cap_author_term_backfill';
+
 	private static $live = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $verbose = true; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $user_logins = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
@@ -119,6 +121,46 @@ class Co_Authors_Plus {
 					WP_CLI::line( sprintf( 'Would add the Non-Editing Contributor role to user %d.', $user_id ) );
 				}
 			}
+		}
+
+		WP_CLI::line( '' );
+	}
+
+	/**
+	 * This function handles setting up a cron job to backfill author terms for posts.
+	 *
+	 * @return void
+	 * @throws WP_CLI\ExitException When the command fails.
+	 */
+	public function schedule_author_term_backfill() {
+		WP_CLI::line( '' );
+
+		if ( has_action( self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL ) ) {
+			remove_action(
+				self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL,
+				function () {
+					// Do Nothing.
+				}
+			);
+		}
+
+		add_action(
+			self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL,
+			function () {
+				WP_CLI::runcommand( 'co-authors-plus create-author-terms-for-posts --batched --records-per-batch=50' );
+			}
+		);
+
+		if ( ! wp_next_scheduled( self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL ) ) {
+			$result = wp_schedule_event( time(), 'hourly', self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL );
+
+			if ( $result ) {
+				WP_CLI::success( 'Scheduled author term backfill.' );
+			} else {
+				WP_CLI::error( 'Could not schedule author term backfill.' );
+			}
+		} else {
+			WP_CLI::warning( 'Author term backfill already scheduled. Remove it by running `wp cron event delete ' . self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL . '`.' );
 		}
 
 		WP_CLI::line( '' );
