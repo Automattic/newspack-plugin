@@ -31,8 +31,7 @@ trait Admin_Tabs {
 	 */
 	public function enqueue_admin_tabs( $args = [] ) {
 		if ( empty( $args['tabs'] ) ) {
-			// @todo: is this ok to have blank tabs? / ronchambers
-			// return;
+			return;
 		}
 		$this->tabs = $args['tabs'];
 		$this->title = $args['title'] ?? __( 'Newspack Settings', 'newspack-plugin' );
@@ -67,7 +66,7 @@ trait Admin_Tabs {
 	/**
 	 * Add necessary markup to bind React app to. The initial markup is replaced by React app and serves as a loading screen.
 	 */
-	public function render() {
+	public static function render() {
 		?>
 		<div id="newspack-wizards-admin-tabs" class="newspack-wizards-admin-tabs">
 			<div class="newspack-wizard__header">
@@ -82,17 +81,11 @@ trait Admin_Tabs {
 					</div>
 				</div>
 			</div>
-			<?php
-			if ( ! empty( $this->tabs ) ) {
-			?>
 			<div class="newspack-tabbed-navigation">
 				<ul>
 					<li><a href="#"></a></li>
 				</ul>
 			</div>
-			<?php
-			}
-			?>
 		</div>
 		<?php
 	}
