@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use Newspack\Wizards\Traits\Admin_Tabs;
+use Newspack\Wizards\Traits\Admin_Header;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Network_Nodes extends Wizard {
 
-	use Admin_Tabs;
+	use Admin_Header;
 
 	const PLUGIN_OVERRIDE = 'newspack-network/newspack-network.php';
 	const URL = 'admin.php?page=newspack-network';
@@ -38,13 +38,16 @@ class Network_Nodes extends Wizard {
 			return;
 		}
 
+		// @todo: can more of these hooks be moved into if( is_wizard_page() )??
+		// review what needs to load or not on each page...
+
 		add_action( 'admin_menu', [ $this, 'add_page' ], 99 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
         add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
 		if ( $this->is_wizard_page() ) {
 			// Enqueue Wizards Admin Tabs script.
-			$this->enqueue_admin_tabs(
+			$this->admin_header_init(
 				[
 					'tabs'  => [], 
 					'title' => $this->get_name(), 
@@ -100,14 +103,6 @@ class Network_Nodes extends Wizard {
 			return;
 		}
 		Newspack::load_common_assets();
-		wp_register_style(
-			'network',
-			Newspack::plugin_url() . '/dist/network.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
-		wp_style_add_data( 'network', 'rtl', 'replace' );
-		wp_enqueue_style( 'network' );
 	}
 
 	/**
