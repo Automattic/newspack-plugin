@@ -71,7 +71,6 @@ trait Admin_Header {
 		);
 		wp_style_add_data( 'newspack-wizards-admin-header', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-wizards-admin-header' );
-		
 	}
 
 	/**
@@ -93,15 +92,16 @@ trait Admin_Header {
 				</div>
 			</div>
 			<?php
-			if( ! empty( $this->tabs ) ) {
+			if ( ! empty( $this->tabs ) ) {
+			// phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
 			?>
 			<div class="newspack-tabbed-navigation">
 				<ul>
 					<li><a href="#"></a></li>
 				</ul>
 			</div>
-			<?php
-			}
+			<?php // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
+			} 
 			?>
 		</div>
 		<?php
