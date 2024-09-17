@@ -12,7 +12,7 @@ use Newspack\Newspack;
 /**
  * Trait Admin_Header
  *
- * Provides methods to enqueue admin header JavaScript and localize script data.
+ * Provides methods to enqueue admin header CSS, JavaScript, and localize script data.
  *
  * @package Newspack\Wizards\Traits
  */
@@ -25,21 +25,23 @@ trait Admin_Header {
 	protected $tabs = [];
 
 	/**
-	 * Enqueue the admin header script with localized data.
+	 * Initialize the admin header script with localized data.
 	 *
 	 * @param array $args Title and tabs array.
 	 */
-	public function enqueue_admin_header( $args = [] ) {
+	public function admin_header_init( $args = [] ) {
 		$this->tabs = $args['tabs'] ?? array();
 		$this->title = $args['title'] ?? __( 'Newspack Settings', 'newspack-plugin' );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_header_js' ] );
-		add_action( 'all_admin_notices', [ $this, 'render' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'admin_header_enqueue' ] );
+		add_action( 'all_admin_notices', [ $this, 'admin_header_render' ] );
 	}
 
 	/**
-	 * Enqueue the admin header JavaScript file and localize the data.
+	 * Enqueue the admin header css, JavaScript file, and localize the data.
 	 */
-	public function enqueue_admin_header_js() {
+	public function admin_header_enqueue() {
+		
+		// JS.
 		$wizards_admin_header = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/wizards-admin-header.asset.php';
 		wp_register_script(
 			'newspack-wizards-admin-header',
@@ -49,6 +51,7 @@ trait Admin_Header {
 			true
 		);
 
+		// Localized data.
 		wp_enqueue_script( 'newspack-wizards-admin-header' );
 		wp_localize_script(
 			'newspack-wizards-admin-header',
@@ -58,12 +61,23 @@ trait Admin_Header {
 				'title' => $this->title,
 			] 
 		);
+
+		// CSS.
+		wp_register_style(
+			'newspack-wizards-admin-header',
+			Newspack::plugin_url() . '/dist/wizards-admin-header.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+		wp_style_add_data( 'newspack-wizards-admin-header', 'rtl', 'replace' );
+		wp_enqueue_style( 'newspack-wizards-admin-header' );
+		
 	}
 
 	/**
 	 * Add necessary markup to bind React app to. The initial markup is replaced by React app and serves as a loading screen.
 	 */
-	public function render() {
+	public function admin_header_render() {
 		?>
 		<div id="newspack-wizards-admin-header" class="newspack-wizards-admin-header">
 			<div class="newspack-wizard__header">

@@ -71,8 +71,8 @@ class Advertising_Sponsors extends Wizard {
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
 		if ( $this->is_wizard_page() ) {
-			// Enqueue Wizards Admin Header script.
-			$this->enqueue_admin_header(
+			// Initialize Wizards Admin Header.
+			$this->admin_header_init(
 				[
 					'tabs'  => [
 						[
