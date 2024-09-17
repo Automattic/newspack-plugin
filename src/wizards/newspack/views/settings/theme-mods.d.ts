@@ -14,10 +14,15 @@ type ThemeNames =
  */
 type NewspackThemes = `newspack-${ ThemeNames }`;
 
+interface Etc {
+	post_count: string;
+}
+
 /**
  * Theme and brand schema.
  */
 interface ThemeData< T = {} > {
+	etc: Etc;
 	theme: '' | NewspackThemes;
 	theme_mods: ThemeMods< T >;
 	homepage_patterns: HomepagePattern[];
@@ -74,8 +79,11 @@ interface ThemeAndBrand {
 /**
  * Theme mods component.
  */
-type ThemeModComponentProps< T = ThemeMods > = {
-	update: ( a: Partial< T > ) => void;
+type ThemeModComponentProps<
+	TypeData = ThemeMods,
+	TypeExtra = {},
+> = TypeExtra & {
+	update: ( a: Partial< TypeData > ) => void;
 	isFetching?: boolean;
 	data: T;
 };
