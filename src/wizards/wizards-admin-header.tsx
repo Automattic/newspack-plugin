@@ -1,5 +1,6 @@
 import { render, Fragment } from '@wordpress/element';
 import { NewspackIcon } from '../components/src';
+import './wizards-admin-header.scss';
 
 export function WizardsAdminHeader( {
 	title,
