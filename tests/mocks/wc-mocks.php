@@ -167,3 +167,7 @@ function wc_get_orders( $args ) {
 	);
 	return $orders;
 }
+
+function wc_customer_bought_product( $customer_email, $user_id, $product_id ) {
+	return false;
+}

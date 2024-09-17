@@ -79,7 +79,15 @@ class WooCommerce {
 			return $one_time_donation_order;
 		}
 
-		return false;
+		/**
+		 * Filter the order containing what we consider to be the "Current Product" for a given user when nothing is found.
+		 *
+		 * This is used for tests to mock the return value.
+		 *
+		 * @param false $current_product_order The returned value.
+		 * @return int $user_id The user ID.
+		 */
+		return apply_filters( 'newspack_reader_activation_get_current_product_order_for_sync', false, $user_id );
 	}
 
 	/**

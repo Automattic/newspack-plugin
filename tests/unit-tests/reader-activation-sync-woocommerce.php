@@ -57,6 +57,14 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			],
 		];
 		$order = \wc_create_order( $order_data );
+
+		add_filter(
+			'newspack_reader_activation_get_current_product_order_for_sync',
+			function() use ( $order ) {
+				return $order;
+			}
+		);
+
 		$payment_page_url = 'https://example.com/donate';
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order, $payment_page_url );
 		$today = gmdate( 'Y-m-d' );
@@ -109,6 +117,15 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			],
 		];
 		$order = \wc_create_order( $order_data );
+
+
+		add_filter(
+			'newspack_reader_activation_get_current_product_order_for_sync',
+			function() use ( $order ) {
+				return $order;
+			}
+		);
+
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
 		$this->assertEquals( 'test_source', $contact_data['metadata']['payment_page_utm_source'] );
 		$this->assertEquals( 'test_campaign', $contact_data['metadata']['payment_page_utm_campaign'] );
@@ -125,6 +142,15 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 				'total'       => 60,
 			]
 		);
+
+
+		add_filter(
+			'newspack_reader_activation_get_current_product_order_for_sync',
+			function() use ( $order ) {
+				return $order;
+			}
+		);
+
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
 		$this->assertEmpty( $contact_data['metadata']['last_payment_date'] );
 		$this->assertEmpty( $contact_data['metadata']['last_payment_amount'] );
@@ -140,6 +166,14 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			'total'       => 70,
 		];
 		$order = \wc_create_order( $order_data );
+
+		add_filter(
+			'newspack_reader_activation_get_current_product_order_for_sync',
+			function() use ( $order ) {
+				return $order;
+			}
+		);
+
 		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
 		$this->assertEquals( '$' . $order_data['total'], $contact_data['metadata']['last_payment_amount'] );
 		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['last_payment_date'] );
@@ -156,6 +190,14 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			'date_paid'   => gmdate( 'Y-m-d', strtotime( '-1 week' ) ),
 		];
 		$order = \wc_create_order( $completed_order_data );
+
+		add_filter(
+			'newspack_reader_activation_get_current_product_order_for_sync',
+			function() use ( $order ) {
+				return $order;
+			}
+		);
+
 		// A more recent, but failed, order.
 		$failed_order_data = [
 			'customer_id' => self::$user_id,
