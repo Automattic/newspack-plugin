@@ -8,7 +8,7 @@
 namespace Newspack;
 
 use Newspack_Sponsors\Settings;
-use Newspack\Wizards\Traits\Admin_Tabs;
+use Newspack\Wizards\Traits\Admin_Header;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Advertising_Sponsors extends Wizard {
 
-	use Admin_Tabs;
+	use Admin_Header;
 
 	/**
 	 * Newspack Sponsors CPT name.
@@ -71,8 +71,8 @@ class Advertising_Sponsors extends Wizard {
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
 		if ( $this->is_wizard_page() ) {
-			// Enqueue Wizards Admin Tabs script.
-			$this->enqueue_admin_tabs(
+			// Enqueue Wizards Admin Header script.
+			$this->enqueue_admin_header(
 				[
 					'tabs'  => [
 						[

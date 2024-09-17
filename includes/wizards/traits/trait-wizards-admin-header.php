@@ -1,6 +1,6 @@
 <?php
 /**
- * Wizard Traits - Admin Tabs
+ * Wizard Traits - Admin Header
  * 
  * @package Newspack
  */
@@ -10,13 +10,13 @@ namespace Newspack\Wizards\Traits;
 use Newspack\Newspack;
 
 /**
- * Trait Admin_Tabs
+ * Trait Admin_Header
  *
- * Provides methods to enqueue admin tabs JavaScript and localize script data.
+ * Provides methods to enqueue admin header JavaScript and localize script data.
  *
  * @package Newspack\Wizards\Traits
  */
-trait Admin_Tabs {
+trait Admin_Header {
 	/**
 	 * Holds the admin tabs data.
 	 *
@@ -25,37 +25,34 @@ trait Admin_Tabs {
 	protected $tabs = [];
 
 	/**
-	 * Enqueue the admin tabs script with localized data.
+	 * Enqueue the admin header script with localized data.
 	 *
-	 * @param array $args Tabs arguments. Title and tabs array.
+	 * @param array $args Title and tabs array.
 	 */
-	public function enqueue_admin_tabs( $args = [] ) {
-		if ( empty( $args['tabs'] ) ) {
-			return;
-		}
-		$this->tabs = $args['tabs'];
+	public function enqueue_admin_header( $args = [] ) {
+		$this->tabs = $args['tabs'] ?? array();
 		$this->title = $args['title'] ?? __( 'Newspack Settings', 'newspack-plugin' );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_tabs_js' ] );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_header_js' ] );
 		add_action( 'all_admin_notices', [ $this, 'render' ] );
 	}
 
 	/**
-	 * Enqueue the admin tabs JavaScript file and localize the tabs data.
+	 * Enqueue the admin header JavaScript file and localize the data.
 	 */
-	public function enqueue_admin_tabs_js() {
-		$wizards_admin_tabs = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/wizards-admin-tabs.asset.php';
+	public function enqueue_admin_header_js() {
+		$wizards_admin_header = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/wizards-admin-header.asset.php';
 		wp_register_script(
-			'newspack-wizards-admin-tabs',
-			Newspack::plugin_url() . '/dist/wizards-admin-tabs.js',
+			'newspack-wizards-admin-header',
+			Newspack::plugin_url() . '/dist/wizards-admin-header.js',
 			[ 'wp-components' ],
-			$wizards_admin_tabs['version'] ?? NEWSPACK_PLUGIN_VERSION,
+			$wizards_admin_header['version'] ?? NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 
-		wp_enqueue_script( 'newspack-wizards-admin-tabs' );
+		wp_enqueue_script( 'newspack-wizards-admin-header' );
 		wp_localize_script(
-			'newspack-wizards-admin-tabs',
-			'newspackWizardsAdminTabs',
+			'newspack-wizards-admin-header',
+			'newspackWizardsAdminHeader',
 			[
 				'tabs'  => $this->tabs,
 				'title' => $this->title,
@@ -66,9 +63,9 @@ trait Admin_Tabs {
 	/**
 	 * Add necessary markup to bind React app to. The initial markup is replaced by React app and serves as a loading screen.
 	 */
-	public static function render() {
+	public function render() {
 		?>
-		<div id="newspack-wizards-admin-tabs" class="newspack-wizards-admin-tabs">
+		<div id="newspack-wizards-admin-header" class="newspack-wizards-admin-header">
 			<div class="newspack-wizard__header">
 				<div class="newspack-wizard__header__inner">
 					<div class="newspack-wizard__title">
@@ -81,11 +78,17 @@ trait Admin_Tabs {
 					</div>
 				</div>
 			</div>
+			<?php
+			if( ! empty( $this->tabs ) ) {
+			?>
 			<div class="newspack-tabbed-navigation">
 				<ul>
 					<li><a href="#"></a></li>
 				</ul>
 			</div>
+			<?php
+			}
+			?>
 		</div>
 		<?php
 	}

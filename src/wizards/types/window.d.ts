@@ -1,6 +1,6 @@
 declare global {
 	interface Window {
-		newspackWizardsAdminTabs: {
+		newspackWizardsAdminHeader: {
 			tabs: Array< {
 				textContent: string;
 				href: string;

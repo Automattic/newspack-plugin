@@ -125,7 +125,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
 		
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/traits/trait-wizards-admin-tabs.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/traits/trait-wizards-admin-header.php';
 
 		// Newspack Wizards and Sections.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
