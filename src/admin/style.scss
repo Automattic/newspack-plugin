@@ -69,6 +69,58 @@ h1 {
 			color: transparent;
 		}
 	}
+	* {
+		cursor: progress;
+	}
+
+	// Theme
+	.newspack-style-card {
+		opacity: 0.9;
+
+		.newspack-style-card__image {
+			overflow: hidden;
+			animation: opacity-pulse 1.4s infinite;
+		}
+
+		.newspack-style-card__image-html:empty {
+			background-color: var(--np-color-wp-gray-100);
+		}
+
+		.newspack-style-card__actions {
+			display: none;
+		}
+	}
+
+	// Color
+	.newspack-color-picker {
+		.newspack-color-picker__expander {
+			background-color: var(--np-color-wp-gray-100);
+			animation: opacity-pulse 1.4s infinite;
+		}
+	}
+
+	.newspack-select-control {
+		animation: opacity-pulse 1.4s infinite;
+
+		// Specificity necessary to override @emotion/* styles
+		select.components-select-control__input {
+			background-color: var(--np-color-wp-gray-100);
+			border: 1px solid var(--np-color-wp-gray-100);
+			cursor: progress;
+		}
+
+		// Specificity necessary to override @emotion/* styles
+		div.components-input-control__backdrop {
+			border: none;
+		}
+
+		optgroup,
+		option,
+		.components-input-control__suffix,
+		.components-select-control__arrow-wrapper {
+			display: none;
+		}
+	}
 }
 
 /**
