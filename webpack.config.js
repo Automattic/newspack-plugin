@@ -108,11 +108,11 @@ const entry = {
 		'block-patterns.js'
 	),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),
-	'wizards-admin-tabs': path.join(
+	'wizards-admin-header': path.join(
 		__dirname,
 		'src',
 		'wizards',
-		'wizards-admin-tabs.tsx'
+		'wizards-admin-header.tsx'
 	),
 };
 
