@@ -23,6 +23,37 @@ class Co_Authors_Plus {
 	private static $guest_author_ids = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 
 	/**
+	 * Add hooks.
+	 */
+	public static function init() {
+		add_action( self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL, [ __CLASS__, 'run_cap_cli_command' ] );
+		add_action( 'init', [ __CLASS__, 'register_deactivation_hook' ] );
+	}
+
+	/**
+	 * Execute the co-authors-plus create-terms-for-posts CLI command.
+	 */
+	public static function run_cap_cli_command() {
+		if ( method_exists( 'WP_CLI', 'runcommand' ) ) {
+			WP_CLI::runcommand( 'co-authors-plus create-terms-for-posts --batched --records-per-batch=50' );
+		}
+	}
+
+	/**
+	 * Unschedule any unexecuted jobs upon plugin deactivation.
+	 */
+	public static function register_deactivation_hook() {
+		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ __CLASS__, 'unschedule_author_term_backfill' ] );
+	}
+
+	/**
+	 * Clear the cron job when this plugin is deactivated.
+	 */
+	public static function unschedule_author_term_backfill() {
+		wp_clear_scheduled_hook( self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL );
+	}
+
+	/**
 	 * Migrate Co-Authors Plus guest authors to regular users.
 	 *
 	 * ## OPTIONS
@@ -138,29 +169,21 @@ class Co_Authors_Plus {
 		if ( has_action( self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL ) ) {
 			remove_action(
 				self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL,
-				function () {
-					// Do Nothing.
-				}
+				[ __CLASS__, 'run_cap_cli_command' ]
 			);
 		}
 
-		add_action(
-			self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL,
-			function () {
-				WP_CLI::runcommand( 'co-authors-plus create-author-terms-for-posts --batched --records-per-batch=50' );
-			}
-		);
-
 		if ( ! wp_next_scheduled( self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL ) ) {
 			$result = wp_schedule_event( time(), 'hourly', self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL );
-
 			if ( $result ) {
 				WP_CLI::success( 'Scheduled author term backfill.' );
 			} else {
 				WP_CLI::error( 'Could not schedule author term backfill.' );
 			}
 		} else {
-			WP_CLI::warning( 'Author term backfill already scheduled. Remove it by running `wp cron event delete ' . self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL . '`.' );
+			// Unschedule and reschedule.
+			self::unschedule_author_term_backfill();
+			self::schedule_author_term_backfill();
 		}
 
 		WP_CLI::line( '' );
@@ -531,3 +554,4 @@ class Co_Authors_Plus {
 		}
 	}
 }
+Co_Authors_Plus::init();
