@@ -115,7 +115,7 @@ class WooCommerce_Memberships {
 		";
 
 
-		$results = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$results = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		$site_url = get_option( 'siteurl' );
 
@@ -174,7 +174,7 @@ class WooCommerce_Memberships {
 					AND pm.meta_key = '_product_ids'
 					AND {$subscription_product_ids_meta_value_sql}
 				";
-				$result = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$result = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 				$plan_id = isset( $result[0]['membership_plan_id'] ) ? $result[0]['membership_plan_id'] : false;
 				if ( $plan_id === false ) {
 					WP_CLI::warning( sprintf( 'Could not determine plan id for subscription %d items, skipping.', $latest_active_subscription_id ) );
