@@ -18,8 +18,9 @@ import { Button, hooks, utils } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import Recirculation from './recirculation';
 import AuthorBio from './author-bio';
-import FeaturedImage from './featured-image-posts-all';
-import DefaultFeaturedImage from './featured-image-posts-new';
+import FeaturedImagePostsAll from './featured-image-posts-all';
+import FeaturedImagePostsNew from './featured-image-posts-new';
+import MediaCredits from './media-credits';
 
 export default function DisplaySettings() {
 	const [ data, setData ] = hooks.useObjectState< DisplaySettings >( {
@@ -47,9 +48,9 @@ export default function DisplaySettings() {
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
 			},
 			{
-				onSuccess( { theme_mods, etc } ) {
+				onSuccess( { theme_mods, etc: newEtc } ) {
 					setData( theme_mods );
-					setEtc( etc );
+					setEtc( newEtc );
 				},
 			}
 		);
@@ -142,7 +143,7 @@ export default function DisplaySettings() {
 					'newspack-plugin'
 				) }
 			>
-				<DefaultFeaturedImage data={ data } update={ setData } />
+				<FeaturedImagePostsNew data={ data } update={ setData } />
 			</WizardSection>
 			<WizardSection
 				title={ __(
@@ -154,11 +155,24 @@ export default function DisplaySettings() {
 					'newspack-plugin'
 				) }
 			>
-				<FeaturedImage
+				<FeaturedImagePostsAll
 					data={ data }
 					postCount={ etc.post_count }
 					update={ setData }
 				/>
+			</WizardSection>
+			<WizardSection title={ __( 'Media Credits', 'newspack-plugin' ) }>
+				<pre>
+					{ JSON.stringify(
+						{
+							id: data.newspack_image_credits_placeholder,
+							url: data.newspack_image_credits_placeholder_url,
+						},
+						null,
+						2
+					) }
+				</pre>
+				<MediaCredits data={ data } update={ setData } />
 			</WizardSection>
 			<div className="newspack-buttons-card">
 				<Button variant="tertiary">

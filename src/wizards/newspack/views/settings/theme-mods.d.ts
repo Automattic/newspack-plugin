@@ -119,7 +119,7 @@ interface DisplaySettings {
 	newspack_image_credits_placeholder_url?: string;
 	newspack_image_credits_class_name: string;
 	newspack_image_credits_prefix_label: string;
-	newspack_image_credits_placeholder: string | null;
+	newspack_image_credits_placeholder: number | null;
 	newspack_image_credits_auto_populate: boolean;
 }
 
