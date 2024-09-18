@@ -13,6 +13,14 @@ require_once __DIR__ . '/../mocks/wc-mocks.php';
  * Tests Reader Activation Sync WooCommerce.
  */
 class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
+
+	/**
+	 * The current order that will be returned in the filter
+	 *
+	 * @var ?WC_Order
+	 */
+	public static $current_order = false;
+
 	const USER_DATA = [
 		'user_login' => 'test_user',
 		'user_email' => 'test@example.com',
@@ -37,6 +45,32 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 		// Reset the user.
 		wp_delete_user( self::$user_id );
 		self::$user_id = wp_insert_user( self::USER_DATA );
+
+		add_filter(
+			'newspack_reader_activation_get_current_product_order_for_sync',
+			[ __CLASS__, 'get_current_order' ]
+		);
+	}
+
+	/**
+	 * Tear down the test.
+	 *
+	 * @return void
+	 */
+	public function tear_down() {
+		remove_filter(
+			'newspack_reader_activation_get_current_product_order_for_sync',
+			[ __CLASS__, 'get_current_order' ]
+		);
+	}
+
+	/**
+	 * Get the current order for the test.
+	 *
+	 * @return ?WC_Order
+	 */
+	public static function get_current_order() {
+		return self::$current_order;
 	}
 
 	/**
@@ -57,6 +91,8 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			],
 		];
 		$order = \wc_create_order( $order_data );
+		self::$current_order = $order;
+
 		$payment_page_url = 'https://example.com/donate';
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order, $payment_page_url );
 		$today = gmdate( 'Y-m-d' );
@@ -109,6 +145,8 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			],
 		];
 		$order = \wc_create_order( $order_data );
+		self::$current_order = $order;
+
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
 		$this->assertEquals( 'test_source', $contact_data['metadata']['payment_page_utm_source'] );
 		$this->assertEquals( 'test_campaign', $contact_data['metadata']['payment_page_utm_campaign'] );
@@ -125,6 +163,9 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 				'total'       => 60,
 			]
 		);
+
+		self::$current_order = $order;
+
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
 		$this->assertEmpty( $contact_data['metadata']['last_payment_date'] );
 		$this->assertEmpty( $contact_data['metadata']['last_payment_amount'] );
@@ -140,6 +181,9 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			'total'       => 70,
 		];
 		$order = \wc_create_order( $order_data );
+
+		self::$current_order = $order;
+
 		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
 		$this->assertEquals( '$' . $order_data['total'], $contact_data['metadata']['last_payment_amount'] );
 		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['last_payment_date'] );
@@ -156,6 +200,9 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			'date_paid'   => gmdate( 'Y-m-d', strtotime( '-1 week' ) ),
 		];
 		$order = \wc_create_order( $completed_order_data );
+
+		self::$current_order = $order;
+
 		// A more recent, but failed, order.
 		$failed_order_data = [
 			'customer_id' => self::$user_id,
