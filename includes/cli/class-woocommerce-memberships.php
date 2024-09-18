@@ -30,6 +30,9 @@ class WooCommerce_Memberships {
 	 * [--verbose]
 	 * : Produce more output.
 	 *
+	 * [--limit]
+	 * : Limit processed customers.
+	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
 	 * @return void
@@ -41,8 +44,13 @@ class WooCommerce_Memberships {
 			'processed' => [],
 		];
 
+		// Disable membership activation emails.
+		add_filter( 'woocommerce_email_enabled_WC_Memberships_User_Membership_Activated_Email', '__return_false' );
+
 		self::$live = isset( $assoc_args['live'] ) ? true : false;
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
+
+		$limit = isset( $assoc_args['limit'] ) ? $assoc_args['limit'] : false;
 
 		if ( self::$live ) {
 			WP_CLI::line( 'Live mode - data will be changed.' );
@@ -122,6 +130,14 @@ class WooCommerce_Memberships {
 		$affected_users_query_result = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		$site_url = get_option( 'siteurl' );
+
+		if ( $limit !== false ) {
+			WP_CLI::warning( sprintf( 'Results limited to %d.', $limit ) );
+			$affected_users_query_result = array_slice( $affected_users_query_result, 0, $limit );
+		}
+
+		WP_CLI::line( sprintf( 'Will process %d customers.', count( $affected_users_query_result ) ) );
+		WP_CLI::line( '' );
 
 		foreach ( $affected_users_query_result as $result ) {
 			$subscription_ids = array_filter( explode( ',', $result['subscription_ids'] ?? '' ) );
@@ -227,6 +243,7 @@ class WooCommerce_Memberships {
 				$log_line = sprintf( 'Activated membership (#%d) and relinked to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email );
 				if ( self::$live ) {
 					$membership->unschedule_expiration_events();
+					$membership->set_order_id( $latest_active_subscription->get_parent_id() );
 					$membership->set_subscription_id( $latest_active_subscription_id );
 					$membership->set_end_date();
 					$membership->update_status( 'active' );
