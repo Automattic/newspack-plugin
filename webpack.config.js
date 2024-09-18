@@ -112,6 +112,7 @@ const entry = {
 		__dirname,
 		'src',
 		'wizards',
+		'admin-header',
 		'wizards-admin-header.tsx'
 	),
 };
