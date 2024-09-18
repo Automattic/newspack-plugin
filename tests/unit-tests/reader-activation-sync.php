@@ -9,6 +9,8 @@ use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation\ESP_Sync;
 
+require_once __DIR__ . '/../mocks/newsletters-mocks.php';
+
 /**
  * Test the Esp_Metadata_Sync class.
  */
@@ -74,6 +76,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		Reader_Activation::update_setting( 'mailchimp_audience_id', '123' );
 		$errors = ESP_Sync::can_esp_sync( true );
 		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
+
+		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable after conditions are met' );
 	}
 
 	/**
