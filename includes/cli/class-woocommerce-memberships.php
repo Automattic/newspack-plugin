@@ -36,6 +36,10 @@ class WooCommerce_Memberships {
 	 */
 	public function fix_memberships( $args, $assoc_args ) {
 		WP_CLI::line( '' );
+		$command_results = [
+			'skipped'   => [],
+			'processed' => [],
+		];
 
 		self::$live = isset( $assoc_args['live'] ) ? true : false;
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
@@ -115,21 +119,25 @@ class WooCommerce_Memberships {
 		";
 
 
-		$results = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$affected_users_query_result = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		$site_url = get_option( 'siteurl' );
 
-		foreach ( $results as $result ) {
+		foreach ( $affected_users_query_result as $result ) {
 			$subscription_ids = array_filter( explode( ',', $result['subscription_ids'] ?? '' ) );
 			$membership_ids = array_filter( explode( ',', $result['membership_ids'] ?? '' ) );
 
 			if ( empty( $subscription_ids ) ) {
-				WP_CLI::warning( 'No subscription IDs, skipping.' );
+				$log_line = 'No subscription IDs, skipping.';
+				WP_CLI::warning( $log_line );
+				$command_results['skipped'][] = $log_line;
 				continue;
 			}
 
 			if ( count( $membership_ids ) > 1 ) {
-				WP_CLI::warning( 'More than one membership ID, skipping.' );
+				$log_line = 'More than one membership ID, skipping.';
+				WP_CLI::warning( $log_line );
+				$command_results['skipped'][] = $log_line;
 				continue;
 			}
 
@@ -141,15 +149,17 @@ class WooCommerce_Memberships {
 				WP_CLI::line( sprintf( '    - subscriptions: %s/wp-admin/edit.php?s=%s&post_type=shop_subscription', $site_url, $user->user_email ) );
 			}
 			$latest_active_subscription_id = max( $subscription_ids );
+			$latest_active_subscription = \wcs_get_subscription( $latest_active_subscription_id );
+
+			if ( (float) $latest_active_subscription->get_total() === 0.0 ) {
+				WP_CLI::warning( sprintf( 'Latest subscription (#%d) total is 0, skipping.', $latest_active_subscription_id ) );
+				WP_CLI::line( '' );
+				$command_results['skipped'][] = sprintf( '%s has a subscription with 0 value.', $user->user_email );
+				continue;
+			}
 
 			if ( empty( $membership_ids ) ) {
 				// Determine the membership plan from the subscrption product.
-				$latest_active_subscription = \wcs_get_subscription( $latest_active_subscription_id );
-				$latest_active_subscription_total = (float) $latest_active_subscription->get_total();
-				if ( $latest_active_subscription_total === 0 ) {
-					WP_CLI::warning( sprintf( 'Latest subscription %d total is 0, skipping.', $latest_active_subscription_id ) );
-					continue;
-				}
 				$subscription_product_ids = array_reduce(
 					$latest_active_subscription->get_items(),
 					function( $acc, $item ) {
@@ -174,17 +184,21 @@ class WooCommerce_Memberships {
 					AND pm.meta_key = '_product_ids'
 					AND {$subscription_product_ids_meta_value_sql}
 				";
-				$result = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-				$plan_id = isset( $result[0]['membership_plan_id'] ) ? $result[0]['membership_plan_id'] : false;
+				$membership_plans_query_result = $wpdb->get_results( $sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$plan_id = isset( $membership_plans_query_result[0]['membership_plan_id'] ) ? $membership_plans_query_result[0]['membership_plan_id'] : false;
 				if ( $plan_id === false ) {
-					WP_CLI::warning( sprintf( 'Could not determine plan id for subscription %d items, skipping.', $latest_active_subscription_id ) );
+					$log_line = sprintf( 'Could not determine plan id for subscription (#%d) items, skipping.', $latest_active_subscription_id );
+					WP_CLI::warning( $log_line );
+					$command_results['skipped'][] = $log_line;
 					continue;
 				}
 				$plan = \wc_memberships_get_membership_plan( $plan_id );
 				$plan_product_ids = $plan->get_product_ids();
 				$product_ids = array_intersect( $subscription_product_ids, $plan_product_ids );
 				if ( empty( $product_ids ) ) {
-					WP_CLI::warning( sprintf( 'Could not determine product id for subscription %d and plan %d, skipping.', $latest_active_subscription_id, $plan_id ) );
+					$log_line = sprintf( 'Could not determine product id for subscription (#%d) and plan (#%d), skipping.', $latest_active_subscription_id, $plan_id );
+					WP_CLI::warning( $log_line );
+					$command_results['skipped'][] = $log_line;
 					continue;
 				}
 				if ( self::$live ) {
@@ -194,9 +208,12 @@ class WooCommerce_Memberships {
 								'user_id'    => $user_id,
 								'plan_id'    => $plan_id,
 								'product_id' => $product_ids[0],
-								'order_id'   => $latest_active_subscription_id,
+								'order_id'   => $latest_active_subscription->get_parent_id(),
 							]
 						);
+						$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership->get_id() );
+						$membership->set_start_date( $latest_active_subscription->get_date( 'start' ) );
+						$membership->set_subscription_id( $latest_active_subscription_id );
 						WP_CLI::success( sprintf( 'Created a membership (#%d) for user %s.', $membership->get_id(), $user->user_email ) );
 					} catch ( \Throwable $th ) {
 						WP_CLI::warning( sprintf( 'Could not create a membership for user %s.', $user->user_email ) );
@@ -204,19 +221,41 @@ class WooCommerce_Memberships {
 				} else {
 					WP_CLI::line( sprintf( 'In live mode, would create a membership for user %s.', $user->user_email ) );
 				}
+				$command_results['processed'][] = sprintf( 'Created a membership for user %s.', $user->user_email );
 			} else {
-				$membership = \wc_memberships_get_user_membership( $membership_ids[0] );
+				$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership_ids[0] );
+				$log_line = sprintf( 'Activated membership (#%d) and relinked to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email );
 				if ( self::$live ) {
 					$membership->unschedule_expiration_events();
 					$membership->set_subscription_id( $latest_active_subscription_id );
 					$membership->set_end_date();
 					$membership->update_status( 'active' );
-					WP_CLI::success( sprintf( 'Activated membership (#%d) and relinked to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email ) );
+					WP_CLI::success( $log_line );
 				} else {
 					WP_CLI::line( sprintf( 'In live mode, would activate membership (#%d) and relink to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email ) );
 				}
+				$command_results['processed'][] = $log_line;
 			}
 			WP_CLI::line( '' );
 		}
+
+		WP_CLI::line( 'Done, here are the results:' );
+		if ( ! empty( $command_results['skipped'] ) ) {
+			WP_CLI::line( 'Skipped:' );
+			foreach ( $command_results['skipped'] as $line ) {
+				WP_CLI::line( '    ' . $line );
+			}
+		}
+		if ( ! empty( $command_results['processed'] ) ) {
+			if ( self::$live ) {
+				WP_CLI::line( 'Processed:' );
+			} else {
+				WP_CLI::line( 'Would process:' );
+			}
+			foreach ( $command_results['processed'] as $line ) {
+				WP_CLI::line( '    ' . $line );
+			}
+		}
+		WP_CLI::line( '' );
 	}
 }
