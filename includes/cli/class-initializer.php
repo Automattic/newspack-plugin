@@ -25,6 +25,7 @@ class Initializer {
 		add_action( 'init', [ __CLASS__, 'register_comands' ] );
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ras.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-co-authors-plus.php';
+		include_once NEWSPACK_ABSPATH . 'includes/cli/class-woocommerce-memberships.php';
 	}
 
 	/**
@@ -64,5 +65,7 @@ class Initializer {
 
 		WP_CLI::add_command( 'newspack migrate-co-authors-guest-authors', [ 'Newspack\CLI\Co_Authors_Plus', 'migrate_guest_authors' ] );
 		WP_CLI::add_command( 'newspack backfill-non-editing-contributors', [ 'Newspack\CLI\Co_Authors_Plus', 'backfill_non_editing_contributor' ] );
+
+		WP_CLI::add_command( 'newspack fix-wc-memberships', [ 'Newspack\CLI\WooCommerce_Memberships', 'fix_memberships' ] );
 	}
 }
