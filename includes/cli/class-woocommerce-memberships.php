@@ -214,6 +214,8 @@ class WooCommerce_Memberships {
 					continue;
 				}
 
+				$product_id = $product_ids[0];
+
 				/**
 				 * Check if the subscription is linked to any membership. Sometimes the membership
 				 * is missing the _product_id meta, which results in a false-positive.
@@ -230,10 +232,10 @@ class WooCommerce_Memberships {
 				if ( count( $linked_membership_sql_query_result ) ) {
 					$found_membership_id = $linked_membership_sql_query_result[0]['membership_id'];
 
-					$log_line = sprintf( 'Latest subscription (#%d) is linked to a membership (#%d), possibly the membership is missing the product ID, fixing.', $latest_active_subscription_id, $found_membership_id );
+					$log_line = sprintf( 'Latest subscription (#%d) is linked to a membership (#%d), possibly the membership is missing the product ID, setting product ID to %d.', $latest_active_subscription_id, $found_membership_id, $product_id );
 					$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $found_membership_id );
 					if ( self::$live ) {
-						$membership->set_product_id( $product_ids[0] );
+						$membership->set_product_id( $product_id );
 						WP_CLI::success( $log_line );
 					} else {
 						WP_CLI::line( $log_line );
@@ -252,7 +254,7 @@ class WooCommerce_Memberships {
 							[
 								'user_id'    => $user_id,
 								'plan_id'    => $plan_id,
-								'product_id' => $product_ids[0],
+								'product_id' => $product_id,
 								'order_id'   => $latest_active_subscription->get_parent_id(),
 							]
 						);
