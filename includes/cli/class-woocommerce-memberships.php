@@ -175,7 +175,9 @@ class WooCommerce_Memberships {
 			}
 
 			if ( empty( $membership_ids ) ) {
-				// Determine the membership plan from the subscrption product.
+				/**
+				 * Determine the membership plan from the subscrption product.
+				 */
 				$subscription_product_ids = array_reduce(
 					$latest_active_subscription->get_items(),
 					function( $acc, $item ) {
@@ -217,6 +219,35 @@ class WooCommerce_Memberships {
 					$command_results['skipped'][] = $log_line;
 					continue;
 				}
+
+				/**
+				 * Check if the subscription is linked to any membership. Sometimes the membership
+				 * is missing the _product_id meta, which results in a false-positive.
+				 */
+				$linked_membership_sql_query = "
+				SELECT p.ID AS membership_id, p.post_title AS membership_name
+				FROM {$wpdb->prefix}posts p
+				LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+				WHERE p.post_type = 'wc_user_membership'
+				  AND pm.meta_key = '_subscription_id'
+				  AND pm.meta_value = '{$latest_active_subscription_id}';
+				";
+				$linked_membership_sql_query_result = $wpdb->get_results( $linked_membership_sql_query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				if ( count( $linked_membership_sql_query_result ) ) {
+					$found_membership_id = $linked_membership_sql_query_result[0]['membership_id'];
+
+					$log_line = sprintf( 'Latest subscription (#%d) is linked to a membership (#%d), possibly the membership is missing the product ID, fixing.', $latest_active_subscription_id, $found_membership_id );
+					$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $found_membership_id );
+					if ( self::$live ) {
+						$membership->set_product_id( $product_ids[0] );
+						WP_CLI::success( $log_line );
+					} else {
+						WP_CLI::line( $log_line );
+					}
+					$command_results['processed'][] = $log_line;
+					continue;
+				}
+
 				if ( self::$live ) {
 					try {
 						$membership = \wc_memberships_create_user_membership(
@@ -256,6 +287,7 @@ class WooCommerce_Memberships {
 			WP_CLI::line( '' );
 		}
 
+		WP_CLI::line( '' );
 		WP_CLI::line( 'Done, here are the results:' );
 		if ( ! empty( $command_results['skipped'] ) ) {
 			WP_CLI::line( 'Skipped:' );
