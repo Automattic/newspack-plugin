@@ -145,6 +145,11 @@ class WooCommerce_Memberships {
 			if ( empty( $membership_ids ) ) {
 				// Determine the membership plan from the subscrption product.
 				$latest_active_subscription = \wcs_get_subscription( $latest_active_subscription_id );
+				$latest_active_subscription_total = (float) $latest_active_subscription->get_total();
+				if ( $latest_active_subscription_total === 0 ) {
+					WP_CLI::warning( sprintf( 'Latest subscription %d total is 0, skipping.', $latest_active_subscription_id ) );
+					continue;
+				}
 				$subscription_product_ids = array_reduce(
 					$latest_active_subscription->get_items(),
 					function( $acc, $item ) {
