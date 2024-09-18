@@ -44,7 +44,7 @@ wizardsScripts.forEach( function ( wizard ) {
 		'wizards',
 		wizard,
 		fs.existsSync(
-			path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' )
+			path.join( __dirname, 'src', 'wizards', wizard, 'index.tsx' )
 		)
 			? 'index.tsx'
 			: 'index.js'
@@ -108,13 +108,6 @@ const entry = {
 		'block-patterns.js'
 	),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),
-	'wizards-admin-header': path.join(
-		__dirname,
-		'src',
-		'wizards',
-		'admin-header',
-		'wizards-admin-header.tsx'
-	),
 };
 
 // Get files for other scripts.
