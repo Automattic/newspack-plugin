@@ -18,6 +18,10 @@ defined( 'ABSPATH' ) || exit;
 class WooCommerce_Memberships {
 	private static $live = false; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
 	private static $verbose = true; // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+	private static $command_results = [ // phpcs:ignore Squiz.Commenting.VariableComment.Missing
+		'skipped'   => [],
+		'processed' => [],
+	];
 
 	/**
 	 * Migrate WooCommerce Memberships guest authors to regular users.
@@ -39,10 +43,6 @@ class WooCommerce_Memberships {
 	 */
 	public function fix_memberships( $args, $assoc_args ) {
 		WP_CLI::line( '' );
-		$command_results = [
-			'skipped'   => [],
-			'processed' => [],
-		];
 
 		// Disable membership activation emails.
 		add_filter( 'woocommerce_email_enabled_WC_Memberships_User_Membership_Activated_Email', '__return_false' );
@@ -146,14 +146,14 @@ class WooCommerce_Memberships {
 			if ( empty( $subscription_ids ) ) {
 				$log_line = 'No subscription IDs, skipping.';
 				WP_CLI::warning( $log_line );
-				$command_results['skipped'][] = $log_line;
+				self::$command_results['skipped'][] = $log_line;
 				continue;
 			}
 
 			if ( count( $membership_ids ) > 1 ) {
 				$log_line = 'More than one membership ID, skipping.';
 				WP_CLI::warning( $log_line );
-				$command_results['skipped'][] = $log_line;
+				self::$command_results['skipped'][] = $log_line;
 				continue;
 			}
 
@@ -164,15 +164,9 @@ class WooCommerce_Memberships {
 				WP_CLI::line( sprintf( '    - memberships: %s/wp-admin/edit.php?s=%s&post_type=wc_user_membership', $site_url, $user->user_email ) );
 				WP_CLI::line( sprintf( '    - subscriptions: %s/wp-admin/edit.php?s=%s&post_type=shop_subscription', $site_url, $user->user_email ) );
 			}
+
 			$latest_active_subscription_id = max( $subscription_ids );
 			$latest_active_subscription = \wcs_get_subscription( $latest_active_subscription_id );
-
-			if ( (float) $latest_active_subscription->get_total() === 0.0 ) {
-				WP_CLI::warning( sprintf( 'Latest subscription (#%d) total is 0, skipping.', $latest_active_subscription_id ) );
-				WP_CLI::line( '' );
-				$command_results['skipped'][] = sprintf( '%s has a subscription with 0 value.', $user->user_email );
-				continue;
-			}
 
 			if ( empty( $membership_ids ) ) {
 				/**
@@ -207,7 +201,7 @@ class WooCommerce_Memberships {
 				if ( $plan_id === false ) {
 					$log_line = sprintf( 'Could not determine plan id for subscription (#%d) items, skipping.', $latest_active_subscription_id );
 					WP_CLI::warning( $log_line );
-					$command_results['skipped'][] = $log_line;
+					self::$command_results['skipped'][] = $log_line;
 					continue;
 				}
 				$plan = \wc_memberships_get_membership_plan( $plan_id );
@@ -216,7 +210,7 @@ class WooCommerce_Memberships {
 				if ( empty( $product_ids ) ) {
 					$log_line = sprintf( 'Could not determine product id for subscription (#%d) and plan (#%d), skipping.', $latest_active_subscription_id, $plan_id );
 					WP_CLI::warning( $log_line );
-					$command_results['skipped'][] = $log_line;
+					self::$command_results['skipped'][] = $log_line;
 					continue;
 				}
 
@@ -244,7 +238,11 @@ class WooCommerce_Memberships {
 					} else {
 						WP_CLI::line( $log_line );
 					}
-					$command_results['processed'][] = $log_line;
+					self::$command_results['processed'][] = $log_line;
+					continue;
+				}
+
+				if ( self::has_zero_value_subscription( $latest_active_subscription, $user ) ) {
 					continue;
 				}
 
@@ -268,8 +266,12 @@ class WooCommerce_Memberships {
 				} else {
 					WP_CLI::line( sprintf( 'In live mode, would create a membership for user %s.', $user->user_email ) );
 				}
-				$command_results['processed'][] = sprintf( 'Created a membership for user %s.', $user->user_email );
+				self::$command_results['processed'][] = sprintf( 'Created a membership for user %s.', $user->user_email );
 			} else {
+				if ( self::has_zero_value_subscription( $latest_active_subscription, $user ) ) {
+					continue;
+				}
+
 				$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership_ids[0] );
 				$log_line = sprintf( 'Activated membership (#%d) and relinked to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email );
 				if ( self::$live ) {
@@ -282,29 +284,45 @@ class WooCommerce_Memberships {
 				} else {
 					WP_CLI::line( sprintf( 'In live mode, would activate membership (#%d) and relink to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email ) );
 				}
-				$command_results['processed'][] = $log_line;
+				self::$command_results['processed'][] = $log_line;
 			}
 			WP_CLI::line( '' );
 		}
 
 		WP_CLI::line( '' );
 		WP_CLI::line( 'Done, here are the results:' );
-		if ( ! empty( $command_results['skipped'] ) ) {
+		if ( ! empty( self::$command_results['skipped'] ) ) {
 			WP_CLI::line( 'Skipped:' );
-			foreach ( $command_results['skipped'] as $line ) {
+			foreach ( self::$command_results['skipped'] as $line ) {
 				WP_CLI::line( '    ' . $line );
 			}
 		}
-		if ( ! empty( $command_results['processed'] ) ) {
+		if ( ! empty( self::$command_results['processed'] ) ) {
 			if ( self::$live ) {
 				WP_CLI::line( 'Processed:' );
 			} else {
 				WP_CLI::line( 'Would process:' );
 			}
-			foreach ( $command_results['processed'] as $line ) {
+			foreach ( self::$command_results['processed'] as $line ) {
 				WP_CLI::line( '    ' . $line );
 			}
 		}
 		WP_CLI::line( '' );
+	}
+
+	/**
+	 * Check for 0 value subscriptions.
+	 *
+	 * @param WC_Subscription $subscription WC Subscription.
+	 * @param WP_User         $user WP User.
+	 */
+	public static function has_zero_value_subscription( $subscription, $user ) {
+		if ( (float) $subscription->get_total() === 0.0 ) {
+			WP_CLI::warning( sprintf( 'Latest subscription (#%d) total is 0, skipping.', $subscription->get_id() ) );
+			WP_CLI::line( '' );
+			self::$command_results['skipped'][] = sprintf( '%s has a subscription with 0 value.', $user->user_email );
+			return true;
+		}
+		return false;
 	}
 }
