@@ -102,7 +102,7 @@ class WooCommerce {
 			array_keys( \wcs_get_users_subscriptions( $user_id ) ),
 			function( $acc, $subscription_id ) {
 				$subscription = \wcs_get_subscription( $subscription_id );
-				if ( $subscription->has_status( [ 'on-hold', 'cancelled', 'expired' ] ) ) {
+				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
 					$acc[] = $subscription_id;
 				}
 				return $acc;

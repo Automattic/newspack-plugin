@@ -19,6 +19,12 @@ class WooCommerce_Connection {
 	const ACTIVE_SUBSCRIPTION_STATUSES = [ 'active', 'pending', 'pending-cancel' ];
 	const ACTIVE_ORDER_STATUSES = [ 'processing', 'completed' ];
 
+
+	/**
+	 * These are the status a subscription can have for us to consider it from a former subscriber.
+	 */
+	const FORMER_SUBSCRIBER_STATUSES = [ 'on-hold', 'cancelled', 'expired' ];
+
 	/**
 	 * Initialize.
 	 *
