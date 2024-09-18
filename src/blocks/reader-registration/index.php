@@ -190,7 +190,7 @@ function render_block( $attrs, $content ) {
 	$checked = [];
 	if ( ! empty( $attrs['listsCheckboxes'] ) ) {
 		foreach ( $lists as $list_id => $list_name ) {
-			if ( ! isset( $attrs['listsCheckboxes'][ $list_id ] ) || false !== $attrs['listsCheckboxes'][ $list_id ] ) {
+			if ( isset( $attrs['listsCheckboxes'][ $list_id ] ) && true === $attrs['listsCheckboxes'][ $list_id ] ) {
 				$checked[] = $list_id;
 			}
 		}
