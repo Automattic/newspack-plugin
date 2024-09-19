@@ -5,7 +5,11 @@
  * @package Newspack\Tests
  */
 
-use Newspack\Newspack_Newsletters as Newspack_Newsletters_Internal;
+use Newspack\Reader_Activation;
+use Newspack\Reader_Activation\Sync;
+use Newspack\Reader_Activation\ESP_Sync;
+
+require_once __DIR__ . '/../mocks/newsletters-mocks.php';
 
 /**
  * Test the Esp_Metadata_Sync class.
@@ -22,8 +26,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			'name'     => 'Test Contact',
 			'metadata' => [],
 		];
-		foreach ( array_keys( Newspack_Newsletters_Internal::$metadata_keys ) as $key ) {
-			$contact['metadata'][ Newspack_Newsletters_Internal::get_metadata_key( $key ) ] = 'value';
+		foreach ( array_keys( Sync\Metadata::$keys ) as $key ) {
+			$contact['metadata'][ Sync\Metadata::get_key( $key ) ] = 'value';
 		}
 		return $contact;
 	}
@@ -34,7 +38,56 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 * @param array|string $value The value to set the option to.
 	 */
 	public function set_option( $value ) {
-		Newspack_Newsletters_Internal::update_metadata_fields( $value );
+		Sync\Metadata::update_fields( $value );
+	}
+
+	/**
+	 * Test whether reader data can be synced.
+	 */
+	public function test_can_esp_sync() {
+		$this->assertFalse( ESP_Sync::can_esp_sync(), 'Reader data should not be syncable by default' );
+
+		$errors = ESP_Sync::can_esp_sync( true );
+		$this->assertInstanceOf( 'WP_Error', $errors );
+
+		// Assert all errors.
+		$this->assertTrue( $errors->has_errors() );
+		$error_codes = $errors->get_error_codes();
+		$this->assertNotContains( 'ras_not_enabled', $error_codes, 'Reader Activation is always enabled in test env' );
+		$this->assertNotContains( 'ras_esp_sync_not_enabled', $error_codes, 'RAS ESP Sync is enabled by default' );
+		$this->assertContains( 'esp_sync_not_allowed', $error_codes, 'RAS ESP Sync is not allowed on non-production site' );
+		$this->assertContains( 'ras_esp_master_list_id_not_found', $error_codes, 'Missing master list ID' );
+
+		// Disable ESP sync.
+		Reader_Activation::update_setting( 'sync_esp', false );
+		$errors = ESP_Sync::can_esp_sync( true );
+		$this->assertContains( 'ras_esp_sync_not_enabled', $errors->get_error_codes(), 'RAS ESP Sync is disabled' );
+
+		// Reenable ESP sync.
+		Reader_Activation::update_setting( 'sync_esp', true );
+
+		// Allow ESP sync via constant. We're not testing `Newspack_Manager::is_connected_to_production_manager()` here.
+		define( 'NEWSPACK_ALLOW_READER_SYNC', true );
+		$errors = ESP_Sync::can_esp_sync( true );
+		$this->assertNotContains( 'esp_sync_not_allowed', $errors->get_error_codes(), 'RAS ESP Sync is allowed via constant' );
+
+		// Set master list ID.
+		update_option( 'newspack_newsletters_service_provider', 'mailchimp' );
+		Reader_Activation::update_setting( 'mailchimp_audience_id', '123' );
+		$errors = ESP_Sync::can_esp_sync( true );
+		$this->assertNotContains( 'ras_esp_master_list_id_not_found', $errors->get_error_codes(), 'Master list ID is set' );
+
+		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable after conditions are met' );
+	}
+
+	/**
+	 * Test whether reader data can be synced with a force constant.
+	 */
+	public function test_can_esp_sync_force() {
+		define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
+		$this->assertTrue( ESP_Sync::can_esp_sync(), 'Reader data should be syncable with a force constant' );
+		$errors = ESP_Sync::can_esp_sync( true );
+		$this->assertFalse( $errors->has_errors(), 'No errors should be returned with a force constant' );
 	}
 
 	/**
@@ -74,24 +127,24 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		// Raw metadata keys should be converted to prefixed keys.
 		$this->assertEquals(
 			$contact_data_with_prefixed_keys,
-			Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_raw_keys )
+			Sync\Metadata::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 
-		Newspack_Newsletters_Internal::update_metadata_prefix( 'CU_' );
+		Sync\Metadata::update_prefix( 'CU_' );
 
 		// Metadata keys should be prefixed with the custom prefix, if set.
 		$this->assertEquals(
 			$contact_data_with_custom_prefix,
-			Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_raw_keys )
+			Sync\Metadata::normalize_contact_data( $contact_data_with_raw_keys )
 		);
 
 		// Clear from last test.
-		\delete_option( Newspack_Newsletters_Internal::METADATA_PREFIX_OPTION );
+		\delete_option( Sync\Metadata::PREFIX_OPTION );
 
 		// Most keys should be exact.
 		$contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] = 'Invalid data';
 		$this->assertEquals(
-			array_diff( $contact_data_with_prefixed_keys['metadata'], Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] ),
+			array_diff( $contact_data_with_prefixed_keys['metadata'], Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] ),
 			[ 'NP_Invalid_Key' => 'Invalid data' ]
 		);
 
@@ -100,15 +153,8 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$contact_data_with_prefixed_keys['metadata']['NP_Signup UTM: foo'] = 'bar';
 		$this->assertEquals(
 			$contact_data_with_prefixed_keys,
-			Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_prefixed_keys )
+			Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )
 		);
-
-		// Set connected ESP to Mailchimp.
-		\update_option( 'newspack_newsletters_service_provider', 'mailchimp' );
-
-		// Mailchimp contact data should split the name into first/last name.
-		$this->assertArrayHasKey( 'First Name', Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] );
-		$this->assertArrayHasKey( 'Last Name', Newspack_Newsletters_Internal::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] );
 	}
 
 	/**
@@ -116,7 +162,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_default_option() {
 		$contact = $this->get_sample_contact();
-		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertSame( $contact, $normalized );
 	}
 
@@ -126,7 +172,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	public function test_with_empty_selected() {
 		$contact = $this->get_sample_contact();
 		$this->set_option( [] );
-		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertEmpty( $normalized['metadata'] );
 	}
 
@@ -136,7 +182,7 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	public function test_with_all_invalid_selected() {
 		$contact = $this->get_sample_contact();
 		$this->set_option( [ 'invalid_1', 'invalid_2' ] );
-		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
 		$this->assertEmpty( $normalized['metadata'] );
 	}
 
@@ -145,13 +191,13 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_all_valid_selected() {
 		$contact = $this->get_sample_contact();
-		$defaults = array_keys( Newspack_Newsletters_Internal::$metadata_keys );
-		$this->set_option( [ Newspack_Newsletters_Internal::$metadata_keys[ $defaults[0] ], Newspack_Newsletters_Internal::$metadata_keys[ $defaults[1] ] ] );
-		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
-		$this->assertArrayHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
-		$this->assertArrayHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[2] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[3] ), $normalized['metadata'] );
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ] ] );
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[2] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[3] ), $normalized['metadata'] );
 	}
 
 	/**
@@ -159,13 +205,13 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_valid_and_invalid_selected() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Newspack_Newsletters_Internal::$metadata_keys );
-		$this->set_option( [ Newspack_Newsletters_Internal::$metadata_keys[ $defaults[0] ], Newspack_Newsletters_Internal::$metadata_keys[ $defaults[1] ], 'invalid' ] );
-		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
-		$this->assertArrayHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
-		$this->assertArrayHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[2] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[3] ), $normalized['metadata'] );
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys[ $defaults[0] ], Sync\Metadata::$keys[ $defaults[1] ], 'invalid' ] );
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[2] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[3] ), $normalized['metadata'] );
 		$this->assertCount( 2, $normalized['metadata'] );
 	}
 
@@ -175,54 +221,28 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	 */
 	public function test_with_utm_fields() {
 		$contact  = $this->get_sample_contact();
-		$defaults = array_keys( Newspack_Newsletters_Internal::$metadata_keys );
-		$this->set_option( [ Newspack_Newsletters_Internal::$metadata_keys['signup_page_utm'], Newspack_Newsletters_Internal::$metadata_keys['payment_page_utm'] ] );
-		$contact['metadata'][ Newspack_Newsletters_Internal::get_metadata_key( 'signup_page_utm' ) . 'foo' ] = 'bar';
-		$contact['metadata'][ Newspack_Newsletters_Internal::get_metadata_key( 'payment_page_utm' ) . 'yyy' ] = 'zzz';
-		$normalized = Newspack_Newsletters_Internal::normalize_contact_data( $contact );
-		$this->assertArrayHasKey( Newspack_Newsletters_Internal::get_metadata_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
-		$this->assertArrayHasKey( Newspack_Newsletters_Internal::get_metadata_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
-		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[0] ), $normalized['metadata'] );
-		$this->assertArrayNotHasKey( Newspack_Newsletters_Internal::get_metadata_key( $defaults[1] ), $normalized['metadata'] );
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$contact['metadata'][ Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo' ] = 'bar';
+		$contact['metadata'][ Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy' ] = 'zzz';
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[0] ), $normalized['metadata'] );
+		$this->assertArrayNotHasKey( Sync\Metadata::get_key( $defaults[1] ), $normalized['metadata'] );
 	}
 
 	/**
-	 * Test that ESP syncing is disabled on newspackstaging sites automatically.
+	 * Test the normalize_contact_data method with the option containing raw UTM values.
 	 */
-	public function test_staging_mode_esp_sync_deactivation() {
-		/**
-		 * Force site URL to a newspackstaging.com URL.
-		 *
-		 * @param string $site_url The site url.
-		 * @return string Modified $site_url.
-		 */
-		function newspack_test_filter_site_url_for_staging( $site_url ) {
-			return 'example.newspackstaging.com';
-		}
-
-		/**
-		 * Force site URL to example.com.
-		 *
-		 * @param string $site_url The site url.
-		 * @return string Modified $site_url.
-		 */
-		function newspack_test_filter_site_url_for_live( $site_url ) {
-			return 'example.com';
-		}
-
-		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be enabled by default' );
-
-		add_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
-		$this->assertFalse( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be disabled by default on newspackstaging.com sites' );
-		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
-
-		add_filter( 'site_url', 'newspack_test_filter_site_url_for_live' );
-		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync should be enabled by default on non-newspackstaging.com sites' );
-		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_live' );
-
-		define( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC', true );
-		add_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
-		$this->assertTrue( Newspack\Reader_Activation::get_setting( 'sync_esp' ), 'ESP sync deactivation can be bypassed with a constant' );
-		remove_filter( 'site_url', 'newspack_test_filter_site_url_for_staging' );
+	public function test_with_raw_utm_fields() {
+		$contact  = $this->get_sample_contact();
+		$defaults = array_keys( Sync\Metadata::$keys );
+		$this->set_option( [ Sync\Metadata::$keys['signup_page_utm'], Sync\Metadata::$keys['payment_page_utm'] ] );
+		$contact['metadata']['signup_page_utm_foo'] = 'bar';
+		$contact['metadata']['payment_page_utm_yyy'] = 'zzz';
+		$normalized = Sync\Metadata::normalize_contact_data( $contact );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
+		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
 	}
 }

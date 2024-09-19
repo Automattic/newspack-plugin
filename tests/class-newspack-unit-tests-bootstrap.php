@@ -31,6 +31,7 @@ class Newspack_Unit_Tests_Bootstrap {
 
 		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted, WordPress.PHP.IniSet.display_errors_Disallowed
 		ini_set( 'display_errors', 'on' );
+		ini_set( 'error_log', 'php://stdout' ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 		error_reporting( E_ALL );
 		// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted, WordPress.PHP.IniSet.display_errors_Disallowed
 
@@ -68,6 +69,8 @@ class Newspack_Unit_Tests_Bootstrap {
 
 		// Load the WP testing environment.
 		require_once $_tests_dir . '/includes/bootstrap.php';
+
+		ini_set( 'error_log', 'php://stdout' ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 
 		define( 'IS_TEST_ENV', 1 );
 	}

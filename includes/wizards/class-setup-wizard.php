@@ -653,6 +653,13 @@ class Setup_Wizard extends Wizard {
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
+		\wp_localize_script(
+			'newspack-setup-wizard',
+			'newspack_ads_wizard',
+			array(
+				'can_connect_google' => OAuth::is_proxy_configured( 'google' ),
+			)
+		);
 		wp_style_add_data( 'newspack-setup-wizard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-setup-wizard' );
 	}
