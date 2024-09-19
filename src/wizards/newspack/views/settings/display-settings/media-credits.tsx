@@ -14,11 +14,6 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
  */
 import { Grid, ImageUpload, TextControl } from '../../../../../components/src';
 
-type PlaceholderImage = {
-	url: string;
-	id: number;
-};
-
 export default function MediaCredits( {
 	data,
 	update,

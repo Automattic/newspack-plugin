@@ -41,6 +41,10 @@ export default function DisplaySettings() {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/theme-mods'
 	);
+	const {
+		wizardApiFetch: wizardApiFetchRecirculation,
+		isFetching: isFetchingRecirculation,
+	} = useWizardApiFetch( 'newspack-settings/display-settings/recirculation' );
 
 	useEffect( () => {
 		wizardApiFetch< ThemeData >(
@@ -54,7 +58,7 @@ export default function DisplaySettings() {
 				},
 			}
 		);
-		wizardApiFetch< Recirculation >(
+		wizardApiFetchRecirculation< Recirculation >(
 			{
 				path: '/newspack/v1/wizard/newspack-settings/related-content',
 			},
@@ -65,7 +69,7 @@ export default function DisplaySettings() {
 	}, [] );
 
 	function save() {
-		wizardApiFetch(
+		wizardApiFetchRecirculation(
 			{
 				path: '/newspack/v1/wizard/newspack-settings/related-posts-max-age',
 				method: 'POST',
@@ -117,11 +121,11 @@ export default function DisplaySettings() {
 	return (
 		<WizardsTab
 			title={ __( 'Display Settings', 'newspack-plugin' ) }
-			isFetching={ isFetching }
+			isFetching={ isFetching || isFetchingRecirculation }
 		>
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
 				<Recirculation
-					isFetching={ isFetching }
+					isFetching={ isFetchingRecirculation }
 					update={ setRecirculationData }
 					data={ recirculationData }
 				/>
