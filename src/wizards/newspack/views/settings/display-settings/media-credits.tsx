@@ -1,7 +1,17 @@
+/**
+ * Newspack > Settings > Display Settings > Media Credits
+ */
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
 import { Grid, ImageUpload, TextControl } from '../../../../../components/src';
 
 type PlaceholderImage = {

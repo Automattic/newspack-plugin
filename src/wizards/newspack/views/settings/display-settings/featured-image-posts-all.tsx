@@ -1,6 +1,16 @@
-import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+/**
+ * Newspack > Settings > Display Settings > Featured Image Posts All
+ */
 
+/**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+import { Fragment } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
 import { Grid, Notice, SelectControl } from '../../../../../components/src';
 
 export default function FeaturedImagePostsAll( {

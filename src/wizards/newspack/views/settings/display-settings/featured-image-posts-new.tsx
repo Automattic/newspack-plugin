@@ -1,5 +1,15 @@
+/**
+ * Newspack > Settings > Display Settings > Featured Image Posts New
+ */
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
 import { Grid, SelectControl } from '../../../../../components/src';
 
 export default function FeaturedImagePostsNew( {
