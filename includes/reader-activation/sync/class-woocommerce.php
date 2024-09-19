@@ -234,7 +234,7 @@ class WooCommerce {
 			}
 			$order_date_paid = $order->get_date_paid();
 			if ( $payment_received && ! empty( $order_date_paid ) ) {
-				$metadata['last_payment_amount'] = \wc_format_localized_price( $order->get_total() );
+				$metadata['last_payment_amount'] = $order->get_total();
 				$metadata['last_payment_date']   = $order_date_paid->date( Metadata::DATE_FORMAT );
 			}
 
@@ -270,7 +270,7 @@ class WooCommerce {
 			$metadata['recurring_payment'] = $current_subscription->get_total();
 
 			if ( $payment_received ) {
-				$metadata['last_payment_amount'] = \wc_format_localized_price( $current_subscription->get_total() );
+				$metadata['last_payment_amount'] = $current_subscription->get_total();
 				$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
 			}
 
@@ -322,7 +322,7 @@ class WooCommerce {
 
 		$metadata['account']           = $customer->get_id();
 		$metadata['registration_date'] = $customer->get_date_created()->date( Metadata::DATE_FORMAT );
-		$metadata['total_paid']        = \wc_format_localized_price( $customer->get_total_spent() );
+		$metadata['total_paid']        = $customer->get_total_spent();
 
 		$order = self::get_current_product_order_for_sync( $customer );
 
