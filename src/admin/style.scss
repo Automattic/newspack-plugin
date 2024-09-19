@@ -57,6 +57,9 @@ h1 {
 	color: var(--np-color-wp-gray-700);
 }
 .is-fetching {
+	* {
+		cursor: progress;
+	}
 	input[type="text"],
 	input[type="number"] {
 		background-color: var(--np-color-wp-gray-100);
@@ -68,9 +71,6 @@ h1 {
 		&::placeholder {
 			color: transparent;
 		}
-	}
-	* {
-		cursor: progress;
 	}
 
 	// Theme
@@ -120,6 +120,10 @@ h1 {
 		.components-select-control__arrow-wrapper {
 			display: none;
 		}
+	}
+
+	.newspack-image-upload__image {
+		animation: opacity-pulse 1.4s infinite;
 	}
 }
 
