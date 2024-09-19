@@ -162,16 +162,6 @@ export default function DisplaySettings() {
 				/>
 			</WizardSection>
 			<WizardSection title={ __( 'Media Credits', 'newspack-plugin' ) }>
-				<pre>
-					{ JSON.stringify(
-						{
-							id: data.newspack_image_credits_placeholder,
-							url: data.newspack_image_credits_placeholder_url,
-						},
-						null,
-						2
-					) }
-				</pre>
 				<MediaCredits data={ data } update={ setData } />
 			</WizardSection>
 			<div className="newspack-buttons-card">

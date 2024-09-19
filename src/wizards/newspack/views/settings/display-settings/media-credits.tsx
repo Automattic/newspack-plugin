@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { useState, Fragment } from '@wordpress/element';
 import { ToggleControl } from '@wordpress/components';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 
 import { Grid, ImageUpload, TextControl } from '../../../../../components/src';
 
@@ -16,6 +16,11 @@ export default function MediaCredits( {
 	const [ imageThumbnail, setImageThumbnail ] = useState< null | string >(
 		null
 	);
+	useEffect( () => {
+		if ( data.newspack_image_credits_placeholder_url ) {
+			setImageThumbnail( data.newspack_image_credits_placeholder_url );
+		}
+	}, [ data.newspack_image_credits_placeholder_url ] );
 	return (
 		<Fragment>
 			<Grid gutter={ 32 }>
