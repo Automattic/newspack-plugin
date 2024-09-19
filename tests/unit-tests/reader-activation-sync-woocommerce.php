@@ -104,7 +104,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 					'payment_page'              => $payment_page_url,
 					'membership_status'         => 'customer',
 					'product_name'              => '',
-					'last_payment_amount'       => '$' . $order_data['total'],
+					'last_payment_amount'       => $order_data['total'],
 					'last_payment_date'         => $today,
 					'payment_page_utm_source'   => 'test_source',
 					'payment_page_utm_medium'   => '',
@@ -116,7 +116,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 					'billing_cycle'             => '',
 					'recurring_payment'         => '',
 					'next_payment_date'         => '',
-					'total_paid'                => '$' . ( self::USER_DATA['meta_input']['wc_total_spent'] + $order_data['total'] ),
+					'total_paid'                => self::USER_DATA['meta_input']['wc_total_spent'] + $order_data['total'],
 					'account'                   => self::$user_id,
 					'registration_date'         => $today,
 				],
@@ -182,7 +182,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 		self::$current_order = $order;
 
 		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
-		$this->assertEquals( '$' . $order_data['total'], $contact_data['metadata']['last_payment_amount'] );
+		$this->assertEquals( $order_data['total'], $contact_data['metadata']['last_payment_amount'] );
 		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['last_payment_date'] );
 	}
 
@@ -208,7 +208,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 		];
 		$order = \wc_create_order( $failed_order_data );
 		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
-		$this->assertEquals( '$' . $completed_order_data['total'], $contact_data['metadata']['last_payment_amount'] );
+		$this->assertEquals( $completed_order_data['total'], $contact_data['metadata']['last_payment_amount'] );
 		$this->assertEquals( $completed_order_data['date_paid'], $contact_data['metadata']['last_payment_date'] );
 	}
 }
