@@ -123,9 +123,6 @@ class WC_Order {
 function wc_create_order( $data ) {
 	return new WC_Order( $data );
 }
-function wc_format_localized_price( $price ) {
-	return '$' . $price;
-}
 function wc_get_checkout_url() {
 	return 'https://example.com/checkout';
 }
