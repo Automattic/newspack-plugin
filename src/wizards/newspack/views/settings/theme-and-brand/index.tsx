@@ -22,8 +22,6 @@ import Footer from './footer';
 import Colors from './colors';
 import Typography from './typography';
 import { DEFAULT_THEME_MODS } from '../constants';
-// CSS.
-import './style.scss';
 
 const DEFAULT_DATA: ThemeData = {
 	theme: 'newspack-theme',
@@ -33,7 +31,7 @@ const DEFAULT_DATA: ThemeData = {
 
 function ThemeBrand( { isPartOfSetup = false } ) {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
-		'newspack-settings/theme-and-brand'
+		'newspack-settings/theme-mods'
 	);
 	const [ data, setDataState ] = useState< ThemeData >( DEFAULT_DATA );
 
