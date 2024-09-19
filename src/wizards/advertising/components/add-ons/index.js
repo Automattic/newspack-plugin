@@ -25,11 +25,13 @@ const MediaKitToggle = () => {
 		newspack_ads_wizard.media_kit_page_status
 	);
 
+	const isPagePublished = pageStatus === 'publish';
+
 	const toggleMediaKit = () => {
 		setInFlight( true );
 		apiFetch( {
 			path: '/newspack/v1/wizard/billboard/media-kit',
-			method: pageStatus === 'publish' ? 'DELETE' : 'POST',
+			method: isPagePublished ? 'DELETE' : 'POST',
 		} )
 			.then( ( { edit_url, page_status } ) => {
 				setEditURL( edit_url );
@@ -41,12 +43,14 @@ const MediaKitToggle = () => {
 	const props = editURL
 		? {
 				href: editURL,
-				actionText: __( 'Edit Media Kit page', 'newspack-plugin' ),
+				actionText: isPagePublished
+					? __( 'Edit Media Kit page', 'newspack-plugin' )
+					: __( 'Review draft page', 'newspack-plugin' ),
 		  }
 		: {};
 
 	let description = __(
-		'Media Kit page is not published. Click the link to edit and publish it.',
+		'Media kit page is created but unpublished, click the link to review and publish.',
 		'newspack-plugin'
 	);
 	let toggleEnabled = false;
@@ -70,10 +74,11 @@ const MediaKitToggle = () => {
 	return (
 		<ActionCard
 			disabled={ isInFlight || ! toggleEnabled }
+			isButtonEnabled={ true }
 			title={ __( 'Media Kit', 'newspack-plugin' ) }
 			description={ description }
 			toggle
-			toggleChecked={ Boolean( editURL ) }
+			toggleChecked={ Boolean( editURL ) && isPagePublished }
 			toggleOnChange={ toggleMediaKit }
 			{ ...props }
 		/>
