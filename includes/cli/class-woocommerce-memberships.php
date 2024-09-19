@@ -153,13 +153,6 @@ class WooCommerce_Memberships {
 				continue;
 			}
 
-			if ( count( $membership_ids ) > 1 ) {
-				$log_line = sprintf( 'More than one membership ID for user %s, skipping.', $user->user_email );
-				WP_CLI::warning( $log_line );
-				self::$command_results['skipped'][] = $log_line;
-				continue;
-			}
-
 			if ( self::$verbose ) {
 				WP_CLI::line( sprintf( 'User: %s', $user->user_email ) );
 				WP_CLI::line( sprintf( '    - memberships: %s/wp-admin/edit.php?s=%s&post_type=wc_user_membership', $site_url, $user->user_email ) );
@@ -241,13 +234,12 @@ class WooCommerce_Memberships {
 					} else {
 						WP_CLI::line( $log_line );
 					}
+					WP_CLI::line( '' );
 					self::$command_results['processed'][] = $log_line;
 					continue;
 				}
 
-				if ( self::has_zero_value_subscription( $latest_active_subscription, $user ) ) {
-					continue;
-				}
+				self::flag_zero_value_subscription( $latest_active_subscription, $user );
 
 				if ( self::$live ) {
 					try {
@@ -271,9 +263,7 @@ class WooCommerce_Memberships {
 				}
 				self::$command_results['processed'][] = sprintf( 'Created a membership for user %s.', $user->user_email );
 			} else {
-				if ( self::has_zero_value_subscription( $latest_active_subscription, $user ) ) {
-					continue;
-				}
+				self::flag_zero_value_subscription( $latest_active_subscription, $user );
 
 				$membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $membership_ids[0] );
 				$log_line = sprintf( 'Activated membership (#%d) and relinked to subscription (#%d) for user %s.', $membership->get_id(), $latest_active_subscription_id, $user->user_email );
@@ -295,16 +285,16 @@ class WooCommerce_Memberships {
 		WP_CLI::line( '' );
 		WP_CLI::line( 'Done, here are the results:' );
 		if ( ! empty( self::$command_results['skipped'] ) ) {
-			WP_CLI::line( 'Skipped:' );
+			WP_CLI::line( sprintf( 'Skipped %d:', count( self::$command_results['skipped'] ) ) );
 			foreach ( self::$command_results['skipped'] as $line ) {
 				WP_CLI::line( '    ' . $line );
 			}
 		}
 		if ( ! empty( self::$command_results['processed'] ) ) {
 			if ( self::$live ) {
-				WP_CLI::line( 'Processed:' );
+				WP_CLI::line( sprintf( 'Processed %d:', count( self::$command_results['processed'] ) ) );
 			} else {
-				WP_CLI::line( 'Would process:' );
+				WP_CLI::line( sprintf( 'Would process %d:', count( self::$command_results['processed'] ) ) );
 			}
 			foreach ( self::$command_results['processed'] as $line ) {
 				WP_CLI::line( '    ' . $line );
@@ -319,13 +309,10 @@ class WooCommerce_Memberships {
 	 * @param WC_Subscription $subscription WC Subscription.
 	 * @param WP_User         $user WP User.
 	 */
-	public static function has_zero_value_subscription( $subscription, $user ) {
+	public static function flag_zero_value_subscription( $subscription, $user ) {
 		if ( (float) $subscription->get_total() === 0.0 ) {
-			WP_CLI::warning( sprintf( 'Latest subscription (#%d) total is 0, skipping.', $subscription->get_id() ) );
+			WP_CLI::warning( sprintf( 'Latest subscription (#%d) total for user %s is 0.', $subscription->get_id(), $user->user_email ) );
 			WP_CLI::line( '' );
-			self::$command_results['skipped'][] = sprintf( '%s has a subscription with 0 value.', $user->user_email );
-			return true;
 		}
-		return false;
 	}
 }
