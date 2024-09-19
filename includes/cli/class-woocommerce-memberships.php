@@ -143,6 +143,9 @@ class WooCommerce_Memberships {
 			$subscription_ids = array_filter( explode( ',', $result['subscription_ids'] ?? '' ) );
 			$membership_ids = array_filter( explode( ',', $result['membership_ids'] ?? '' ) );
 
+			$user_id = $result['customer_user_id'];
+			$user = get_userdata( $user_id );
+
 			if ( empty( $subscription_ids ) ) {
 				$log_line = 'No subscription IDs, skipping.';
 				WP_CLI::warning( $log_line );
@@ -151,14 +154,12 @@ class WooCommerce_Memberships {
 			}
 
 			if ( count( $membership_ids ) > 1 ) {
-				$log_line = 'More than one membership ID, skipping.';
+				$log_line = sprintf( 'More than one membership ID for user %s, skipping.', $user->user_email );
 				WP_CLI::warning( $log_line );
 				self::$command_results['skipped'][] = $log_line;
 				continue;
 			}
 
-			$user_id = $result['customer_user_id'];
-			$user = get_userdata( $user_id );
 			if ( self::$verbose ) {
 				WP_CLI::line( sprintf( 'User: %s', $user->user_email ) );
 				WP_CLI::line( sprintf( '    - memberships: %s/wp-admin/edit.php?s=%s&post_type=wc_user_membership', $site_url, $user->user_email ) );
