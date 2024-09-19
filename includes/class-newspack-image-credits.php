@@ -403,7 +403,7 @@ class Newspack_Image_Credits {
 				'key'         => 'newspack_image_credits_placeholder',
 				'label'       => __( 'Placeholder Image', 'newspack-image-credits' ),
 				'type'        => 'image',
-				'value'       => null,
+				'value'       => '',
 			],
 			[
 				'description' => __( 'Automatically populate image credits from EXIF or IPTC metadata when uploading new images.', 'newspack-image-credits' ),
