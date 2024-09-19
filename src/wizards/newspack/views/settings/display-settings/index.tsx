@@ -39,7 +39,7 @@ export default function DisplaySettings() {
 		} );
 
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
-		'newspack-settings/display-settings'
+		'newspack-settings/theme-mods'
 	);
 
 	useEffect( () => {

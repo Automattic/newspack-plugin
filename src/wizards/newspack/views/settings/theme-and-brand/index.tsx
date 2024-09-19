@@ -32,7 +32,7 @@ const DEFAULT_DATA: ThemeData = {
 
 function ThemeBrand( { isPartOfSetup = false } ) {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
-		'newspack-settings/theme-and-brand'
+		'newspack-settings/theme-mods'
 	);
 	const [ data, setDataState ] = useState< ThemeData >( DEFAULT_DATA );
 
