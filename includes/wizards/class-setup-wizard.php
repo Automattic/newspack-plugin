@@ -520,7 +520,7 @@ class Setup_Wizard extends Wizard {
 				continue;
 			}
 
-			if ( '' !== $value && in_array( $key, $this->media_theme_mods ) ) {
+			if ( ! empty( $value ) && in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}
 			set_theme_mod( $key, $value );
