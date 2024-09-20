@@ -7,11 +7,12 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+import { Notice } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { Grid, Notice, SelectControl } from '../../../../../components/src';
+import { Grid, SelectControl } from '../../../../../components/src';
 
 export default function FeaturedImagePostsAll( {
 	data,
