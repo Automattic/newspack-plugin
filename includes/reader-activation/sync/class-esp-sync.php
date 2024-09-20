@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader contact data syncing with the connected ESP.
+ * Reader contact data syncing with the connected ESP using Newspack Newsletters.
  *
  * @package Newspack
  */
@@ -8,15 +8,13 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
-use Newspack\Logger;
-use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * ESP Sync Class.
  */
-class ESP_Sync {
+class ESP_Sync extends Sync {
 
 	/**
 	 * Context of the sync.
@@ -24,15 +22,6 @@ class ESP_Sync {
 	 * @var string
 	 */
 	protected static $context = 'ESP Sync';
-
-	/**
-	 * Log a message to the Newspack Logger.
-	 *
-	 * @param string $message The message to log.
-	 */
-	protected static function log( $message ) {
-		Logger::log( $message );
-	}
 
 	/**
 	 * Whether contacts can be synced to the ESP.
@@ -44,17 +33,19 @@ class ESP_Sync {
 	public static function can_esp_sync( $return_errors = false ) {
 		$errors = new \WP_Error();
 
+		if ( defined( 'NEWSPACK_FORCE_ALLOW_ESP_SYNC' ) && NEWSPACK_FORCE_ALLOW_ESP_SYNC ) {
+			return $return_errors ? $errors : true;
+		}
+
+		$can_sync = static::can_sync( true );
+		if ( $can_sync->has_errors() ) {
+			$can_sync->export_to( $errors );
+		}
+
 		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
 			$errors->add(
 				'newspack_newsletters_contacts_not_found',
 				__( 'Newspack Newsletters is not available.', 'newspack-plugin' )
-			);
-		}
-
-		if ( ! Reader_Activation::is_enabled() ) {
-			$errors->add(
-				'ras_not_enabled',
-				__( 'Reader Activation is not enabled.', 'newspack-plugin' )
 			);
 		}
 
@@ -69,17 +60,6 @@ class ESP_Sync {
 			$errors->add(
 				'ras_esp_master_list_id_not_found',
 				__( 'ESP master list ID is not set.', 'newspack-plugin' )
-			);
-		}
-
-		// If not a production site, only sync if the NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC constant is set.
-		if (
-			( ! method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' ) || ! \Newspack_Manager::is_connected_to_production_manager() ) &&
-			( ! defined( 'NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC' ) || ! NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC )
-		) {
-			$errors->add(
-				'esp_sync_not_allowed',
-				__( 'ESP sync is disabled for non-production sites. Set NEWSPACK_SUBSCRIPTION_MIGRATIONS_ALLOW_ESP_SYNC to allow sync.', 'newspack-plugin' )
 			);
 		}
 
@@ -115,12 +95,14 @@ class ESP_Sync {
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
 		/**
-		 * Filters the contact data before syncing to the ESP.
+		 * Filters the contact data before normalizing and syncing to the ESP.
 		 *
 		 * @param array  $contact The contact data to sync.
 		 * @param string $context The context of the sync.
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
+
+		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 
@@ -147,18 +129,6 @@ class ESP_Sync {
 		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
 		$user     = \get_userdata( $user_id );
 
-		// Backfill Network Registration Site field if needed.
-		$registration_site = false;
-		if ( $user && defined( 'NEWSPACK_NETWORK_READER_ROLE' ) && defined( 'Newspack_Network\Utils\Users::USER_META_REMOTE_SITE' ) ) {
-			if ( ! empty( array_intersect( $user->roles, \Newspack_Network\Utils\Users::get_synced_user_roles() ) ) ) {
-				$registration_site = \esc_url( \get_site_url() ); // Default to current site.
-				$remote_site       = \get_user_meta( $user->ID, \Newspack_Network\Utils\Users::USER_META_REMOTE_SITE, true );
-				if ( ! empty( \wp_http_validate_url( $remote_site ) ) ) {
-					$registration_site = \esc_url( $remote_site );
-				}
-			}
-		}
-
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
 			return new \WP_Error(
@@ -177,11 +147,8 @@ class ESP_Sync {
 			$customer->save();
 		}
 
-		$contact = $is_order ? WooCommerce_Connection::get_contact_from_order( $order ) : WooCommerce_Connection::get_contact_from_customer( $customer );
-		if ( $registration_site ) {
-			$contact['metadata']['network_registration_site'] = $registration_site;
-		}
-		$result = $is_dry_run ? true : self::sync( $contact );
+		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : Sync\WooCommerce::get_contact_from_customer( $customer );
+		$result  = $is_dry_run ? true : self::sync( $contact );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(

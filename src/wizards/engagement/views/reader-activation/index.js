@@ -39,6 +39,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ prerequisites, setPrerequisites ] = useState( null );
 	const [ missingPlugins, setMissingPlugins ] = useState( [] );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
+	const [ espSyncErrors, setEspSyncErrors ] = useState( [] );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
 	};
@@ -48,10 +49,11 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
 		} )
-			.then( ( { config: fetchedConfig, prerequisites_status, memberships } ) => {
+			.then( ( { config: fetchedConfig, prerequisites_status, memberships, can_esp_sync } ) => {
 				setPrerequisites( prerequisites_status );
 				setConfig( fetchedConfig );
 				setMembershipsConfig( memberships );
+				setEspSyncErrors( can_esp_sync.errors );
 			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
@@ -65,10 +67,11 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			quiet: true,
 			data,
 		} )
-			.then( ( { config: fetchedConfig, prerequisites_status, memberships } ) => {
+			.then( ( { config: fetchedConfig, prerequisites_status, memberships, can_esp_sync } ) => {
 				setPrerequisites( prerequisites_status );
 				setConfig( fetchedConfig );
 				setMembershipsConfig( memberships );
+				setEspSyncErrors( can_esp_sync.errors );
 			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
@@ -352,6 +355,12 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 					>
 						{ config.sync_esp && (
 							<>
+								{ 0 < Object.keys(espSyncErrors).length && (
+									<Notice
+										noticeText={ Object.values(espSyncErrors).join( ' ' ) }
+										isError
+									/>
+								) }
 								{ isMailchimp && (
 									<Mailchimp
 										value={ {
@@ -391,6 +400,18 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						<Button
 							isPrimary
 							onClick={ () => {
+								if ( config.sync_esp ) {
+									if (isMailchimp && config.mailchimp_audience_id === '') {
+										// eslint-disable-next-line no-alert
+										alert( __( 'Please select a Mailchimp Audience ID.', 'newspack-plugin' ) );
+										return
+									}
+									if (isActiveCampaign && config.active_campaign_master_list === '') {
+										// eslint-disable-next-line no-alert
+										alert( __( 'Please select an ActiveCampaign Master List.', 'newspack-plugin' ) );
+										return
+									}
+								}
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
 									mailchimp_audience_id: config.mailchimp_audience_id,
