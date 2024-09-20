@@ -14,6 +14,9 @@ type ThemeNames =
  */
 type NewspackThemes = `newspack-${ ThemeNames }`;
 
+/**
+ * Property on theme mods endpoint.
+ */
 interface Etc {
 	post_count: string;
 }
@@ -79,11 +82,8 @@ interface ThemeAndBrand {
 /**
  * Theme mods component.
  */
-type ThemeModComponentProps<
-	TypeData = ThemeMods,
-	TypeExtra = {},
-> = TypeExtra & {
-	update: ( a: Partial< TypeData > ) => void;
+type ThemeModComponentProps< T = ThemeMods > = {
+	update: ( a: Partial< T > ) => void;
 	isFetching?: boolean;
 	data: T;
 };

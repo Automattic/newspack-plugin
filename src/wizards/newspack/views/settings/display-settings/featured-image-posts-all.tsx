@@ -17,7 +17,7 @@ export default function FeaturedImagePostsAll( {
 	data,
 	update,
 	postCount,
-}: ThemeModComponentProps< DisplaySettings, { postCount: string } > ) {
+}: ThemeModComponentProps< DisplaySettings > & { postCount: string } ) {
 	return (
 		<Fragment>
 			{ Number( postCount ) > 1000 && (
