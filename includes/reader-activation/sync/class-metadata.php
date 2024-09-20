@@ -209,7 +209,6 @@ class Metadata {
 			'account'              => 'Account',
 			'registration_date'    => 'Registration Date',
 			'connected_account'    => 'Connected Account',
-			'signup_page'          => 'Signup Page',
 			'signup_page_utm'      => 'Signup UTM: ',
 			'newsletter_selection' => 'Newsletter Selection',
 			'referer'              => 'Referrer Path',
