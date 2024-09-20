@@ -4,7 +4,7 @@
 
 The purpose of this tool is to unify the strategy for sending reader activity data to third-party services, focused primarily on analytics, ESPs, and CRMs.
 
-<img src="data-events-flow.jpg" width="720" alt="Newspack Data Events Flow" />
+<img src="data-events-flow.jpg" width="1000" alt="Newspack Data Events Flow" />
 
 Once an action is registered, dispatches can be called with an arbitrary payload. These events will call the registered handlers. Handlers should be created and registered by the third-party integration/connector.
 
