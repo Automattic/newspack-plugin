@@ -9,6 +9,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
+import { Notice } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -24,6 +25,20 @@ const MediaKitToggle = () => {
 	const [ pageStatus, setPageStatus ] = useState(
 		newspack_ads_wizard.media_kit_page_status
 	);
+
+	if (
+		! newspack_ads_wizard.media_kit_page_status &&
+		! newspack_ads_wizard.media_kit_page_edit_url
+	) {
+		return (
+			<Notice isDismissible={ false } status="error">
+				{ __(
+					'Something went wrong, the Media Kit feature is unavailable.',
+					'newspack-plugin'
+				) }
+			</Notice>
+		);
+	}
 
 	const isPagePublished = pageStatus === 'publish';
 
@@ -62,7 +77,7 @@ const MediaKitToggle = () => {
 			);
 			toggleEnabled = true;
 			break;
-		case '':
+		case 'non-existent':
 			description = __(
 				'Media Kit page has not been created. Toggle this card to create it.',
 				'newspack-plugin'

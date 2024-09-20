@@ -208,6 +208,9 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	 */
 	public function get_media_kit_page_edit_url() {
 		$raw_url = get_edit_post_link( $this->get_media_kit_page_id(), '' );
+		if ( ! $raw_url ) {
+			return false;
+		}
 		$parsed_url = wp_parse_url( $raw_url );
 		return $parsed_url['path'] . '?' . $parsed_url['query'];
 	}
