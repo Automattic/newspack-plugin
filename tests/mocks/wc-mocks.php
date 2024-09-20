@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Squiz.Commenting.FunctionComment.Missing, Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.VariableComment.Missing, Squiz.Commenting.FileComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Squiz.Commenting.FunctionComment.Missing, Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.VariableComment.Missing, Squiz.Commenting.FileComment.Missing, Generic.Files.OneObjectStructurePerFile.MultipleFound, Universal.Files.SeparateFunctionsFromOO.Mixed
 
 class WC_Install {
 	public static function create_pages() {
@@ -34,4 +34,137 @@ class WC_Payment_Gateways {
 	public function payment_gateways() {
 		return self::$gateways;
 	}
+}
+
+class WC_DateTime extends DateTime {
+	public function date( $format ) {
+		return gmdate( $format, $this->getTimestamp() );
+	}
+}
+
+class WC_Customer {
+	public $data = [];
+	public function __construct( $user_id ) {
+		$this->data = [
+			'user_id'      => $user_id,
+			'date_created' => gmdate( 'Y-m-d H:i:s' ),
+		];
+	}
+	public function get_id() {
+		return $this->data['user_id'];
+	}
+	public function get_date_created() {
+		return new WC_DateTime( $this->data['date_created'] );
+	}
+	public function get_total_spent() {
+		return get_user_meta( $this->get_id(), 'wc_total_spent', true );
+	}
+	public function get_billing_first_name() {
+		return get_user_meta( $this->get_id(), 'first_name', true );
+	}
+	public function get_billing_last_name() {
+		return get_user_meta( $this->get_id(), 'last_name', true );
+	}
+	public function get_billing_email() {
+		return get_userdata( $this->get_id() )->user_email;
+	}
+}
+
+$orders_database = [];
+
+class WC_Order {
+	public $data = [ 'items' => [] ];
+	public $meta = [];
+	public function __construct( $data ) {
+		global $orders_database;
+		$data['id'] = count( $orders_database ) + 1;
+		if ( ! isset( $data['date_paid'] ) ) {
+			$data['date_paid'] = gmdate( 'Y-m-d H:i:s' );
+		}
+		$this->data = array_merge( $data, $this->data );
+		if ( $data['status'] === 'completed' ) {
+			// Update customer's total spent.
+			$customer = new WC_Customer( $this->get_customer_id() );
+			$total_spent = $customer->get_total_spent() + $this->get_total();
+			update_user_meta( $customer->get_id(), 'wc_total_spent', $total_spent );
+			// Add the order to the mock DB.
+		}
+		if ( isset( $data['meta'] ) ) {
+			$this->meta = $data['meta'];
+		}
+		$orders_database[] = $this;
+	}
+	public function get_id() {
+		return $this->data['id'];
+	}
+	public function get_customer_id() {
+		return $this->data['customer_id'];
+	}
+	public function get_meta( $field_name ) {
+		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : '';
+	}
+	public function has_status( $statuses ) {
+		return in_array( $this->data['status'], $statuses );
+	}
+	public function get_items() {
+		return $this->data['items'];
+	}
+	public function get_date_paid() {
+		return new WC_DateTime( $this->data['date_paid'] );
+	}
+	public function get_total() {
+		return $this->data['total'];
+	}
+	public function get_status() {
+		return $this->data['status'];
+	}
+}
+
+function wc_create_order( $data ) {
+	return new WC_Order( $data );
+}
+function wc_get_checkout_url() {
+	return 'https://example.com/checkout';
+}
+function wcs_is_subscription( $order ) {
+	return false;
+}
+function wcs_get_subscriptions_for_order( $order ) {
+	return [];
+}
+function wcs_get_users_subscriptions( $order ) {
+	return [];
+}
+function wc_get_orders( $args ) {
+	global $orders_database;
+	$orders = $orders_database;
+	if ( isset( $args['customer_id'] ) ) {
+		// Filter by customer.
+		$orders = array_filter(
+			$orders_database,
+			function( $order ) use ( $args ) {
+				return $order->get_customer_id() === $args['customer_id'];
+			}
+		);
+	}
+	if ( isset( $args['status'] ) ) {
+		// Filter by status.
+		$orders = array_filter(
+			$orders_database,
+			function( $order ) use ( $args ) {
+				return 'wc-' . $order->get_status() === $args['status'][0];
+			}
+		);
+	}
+	usort(
+		$orders,
+		function( $a, $b ) {
+			return $b->get_date_paid()->getTimestamp() <=> $a->get_date_paid()->getTimestamp();
+		}
+	);
+	return $orders;
+}
+
+function wc_customer_bought_product( $customer_email, $user_id, $product_id ) {
+	return false;
 }

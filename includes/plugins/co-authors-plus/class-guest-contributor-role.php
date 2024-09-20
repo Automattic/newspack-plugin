@@ -69,9 +69,15 @@ class Guest_Contributor_Role {
 		\add_filter( 'allow_password_reset', [ __CLASS__, 'disable_feature' ], 10, 2 );
 		\add_filter( 'woocommerce_current_user_can_edit_customer_meta_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
 
-		// Add UI to the user profile to assign the custom role.
-		add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
-		add_action( 'wp_update_user', [ __CLASS__, 'edit_user_profile_update' ] );
+		// Only if Members plugin is not active, because it has its own UI for roles.
+		if ( ! class_exists( 'Members_Plugin' ) ) {
+			// Add UI to the user profile to assign the custom role.
+			add_action( 'edit_user_profile', [ __CLASS__, 'edit_user_profile' ] );
+			add_action( 'wp_update_user', [ __CLASS__, 'edit_user_profile_update' ] );
+		}
+
+		// Hide author email on the frontend, if it's a placeholder email.
+		\add_filter( 'theme_mod_show_author_email', [ __CLASS__, 'should_display_author_email' ] );
 	}
 
 	/**
@@ -135,7 +141,7 @@ class Guest_Contributor_Role {
 	 * @return bool
 	 */
 	private static function is_guest_author( WP_User $user ) {
-		return 1 === count( $user->roles ) && self::CONTRIBUTOR_NO_EDIT_ROLE_NAME === array_shift( $user->roles );
+		return 1 === count( $user->roles ) && self::CONTRIBUTOR_NO_EDIT_ROLE_NAME === current( $user->roles );
 	}
 
 	/**
@@ -214,19 +220,48 @@ class Guest_Contributor_Role {
 		\update_option( self::SETTINGS_VERSION_OPTION_NAME, $current_settings_version );
 	}
 
-		/**
-		 * Filters user validation to allow empty emails for guest authors
-		 *
-		 * When creating a new user, also automatically generate a username from the display name.
-		 *
-		 * @param WP_Error $errors WP_Error object (passed by reference).
-		 * @param bool     $update Whether this is a user update.
-		 * @param stdClass $user   User object (passed by reference).
-		 * @return WP_Error
-		 */
+	/**
+	 * Get dummy email domain.
+	 */
+	public static function get_dummy_email_domain() {
+		return \apply_filters( 'newspack_guest_author_email_domain', 'example.com' );
+	}
+
+	/**
+	 * Is a dummy email address?
+	 *
+	 * @param string $email_address Email address to check.
+	 */
+	public static function is_dummy_email_address( $email_address ) {
+		return strpos( $email_address, '@' . self::get_dummy_email_domain() ) !== false;
+	}
+
+	/**
+	 * Create a placeholder/dummy email address.
+	 *
+	 * @param WP_User|string $user_or_name The user, or just the name.
+	 */
+	public static function get_dummy_email_address( $user_or_name ) {
+		$email_domain = self::get_dummy_email_domain();
+		if ( is_string( $user_or_name ) ) {
+			return $user_or_name . '@' . $email_domain;
+		}
+		return $user->user_login . '@' . $email_domain;
+	}
+
+	/**
+	 * Filters user validation to allow empty emails for guest authors
+	 *
+	 * When creating a new user, also automatically generate a username from the display name.
+	 *
+	 * @param WP_Error $errors WP_Error object (passed by reference).
+	 * @param bool     $update Whether this is a user update.
+	 * @param stdClass $user   User object (passed by reference).
+	 * @return WP_Error
+	 */
 	public static function user_profile_update_errors( $errors, $update, $user ) {
 
-		if ( self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
+		if ( ! isset( $user->role ) || self::CONTRIBUTOR_NO_EDIT_ROLE_NAME !== $user->role ) {
 			return $errors;
 		}
 
@@ -253,7 +288,7 @@ class Guest_Contributor_Role {
 
 		if ( empty( $user->user_email ) ) {
 			// Create a placeholder email address to avoid any issues with empty emails.
-			$user->user_email = $user->user_login . '@example.com';
+			$user->user_email = self::get_dummy_email_address( $user );
 		}
 
 		return $errors;
@@ -283,6 +318,9 @@ class Guest_Contributor_Role {
 	 */
 	public static function admin_footer() {
 		global $pagenow;
+		if ( ! in_array( $pagenow, [ 'user-edit.php','user-new.php' ] ) ) {
+			return;
+		}
 		\wp_enqueue_script(
 			'newspack-co-authors-plus',
 			Newspack::plugin_url() . '/dist/other-scripts/co-authors-plus.js',
@@ -470,6 +508,22 @@ class Guest_Contributor_Role {
 	public static function cme_capabilities_add_user_multi_roles( $value ) {
 		if ( self::is_adding_user_with_no_edit_role() ) {
 			return false;
+		}
+		return $value;
+	}
+
+	/**
+	 * Hide the author email on the frontend if it's a placeholder email.
+	 *
+	 * @param bool $value Whether to show the author email.
+	 */
+	public static function should_display_author_email( $value ) {
+		if ( is_author() || is_singular() ) { // Run on archive pages and single posts/pages.
+			$author_id = get_the_author_meta( 'ID' );
+			$user = get_userdata( $author_id );
+			if ( $user && self::is_guest_author( $user ) && self::is_dummy_email_address( $user->user_email ) ) {
+				return false;
+			}
 		}
 		return $value;
 	}

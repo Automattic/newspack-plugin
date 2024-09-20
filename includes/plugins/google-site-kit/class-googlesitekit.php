@@ -34,11 +34,8 @@ class GoogleSiteKit {
 	 * @param array $googlesitekit_analytics_settings GA settings.
 	 */
 	public static function filter_ga_settings( $googlesitekit_analytics_settings ) {
-		if ( Reader_Activation::is_enabled() ) {
-			// If RA is enabled, readers will become logged in users. They should still be tracked in GA.
-			if ( in_array( 'loggedinUsers', $googlesitekit_analytics_settings['trackingDisabled'] ) ) {
-				$googlesitekit_analytics_settings['trackingDisabled'] = [ 'contentCreators' ];
-			}
+		if ( in_array( 'loggedinUsers', $googlesitekit_analytics_settings['trackingDisabled'] ) ) {
+			$googlesitekit_analytics_settings['trackingDisabled'] = [ 'contentCreators' ];
 		}
 		return $googlesitekit_analytics_settings;
 	}
@@ -166,10 +163,8 @@ class GoogleSiteKit {
 	 * @param array $gtag_opt gtag config options.
 	 */
 	public static function add_ga_custom_parameters( $gtag_opt ) {
-		// The custom params might interfere with caching, since they are based on cookies.
-		// This environment variable allows for disabling this feature if the effects on caching are detrimental.
-		$disable_fe_custom_params = defined( 'NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS' ) && NEWSPACK_GA_DISABLE_CUSTOM_FE_PARAMS;
-		if ( $disable_fe_custom_params ) {
+		$enable_fe_custom_params = defined( 'NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS' ) && NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS;
+		if ( ! $enable_fe_custom_params ) {
 			return $gtag_opt;
 		}
 		$custom_params = \Newspack\Data_Events\Connectors\GA4::get_custom_parameters();
