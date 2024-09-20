@@ -14,7 +14,7 @@ import { useEffect } from '@wordpress/element';
 import { DEFAULT_THEME_MODS } from '../constants';
 import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
-import { Button, hooks, utils } from '../../../../../components/src';
+import { Button, hooks, Notice, utils } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import Recirculation from './recirculation';
 import AuthorBio from './author-bio';
@@ -38,7 +38,7 @@ export default function DisplaySettings() {
 			relatedPostsUpdated: false,
 		} );
 
-	const { wizardApiFetch, isFetching } = useWizardApiFetch(
+	const { wizardApiFetch, isFetching, errorMessage } = useWizardApiFetch(
 		'newspack-settings/theme-mods'
 	);
 	const {
@@ -168,6 +168,7 @@ export default function DisplaySettings() {
 			<WizardSection title={ __( 'Media Credits', 'newspack-plugin' ) }>
 				<MediaCredits data={ data } update={ setData } />
 			</WizardSection>
+			{ errorMessage && <Notice /> }
 			<div className="newspack-buttons-card">
 				<Button variant="tertiary">
 					{ __( 'Advanced Settings', 'newspack-plugin' ) }
