@@ -41,6 +41,11 @@ class Guest_Contributor_Role {
 	const SETTINGS_VERSION_OPTION_NAME = 'newspack_coauthors_plus_settings_version';
 
 	/**
+	 * The option where we store if the site has CAP's guest authors.
+	 */
+	const SITE_HAS_GUEST_AUTHORS_OPTION_NAME = 'newspack_check_site_has_cap_guest_authors';
+
+	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function initialize() {
@@ -78,6 +83,13 @@ class Guest_Contributor_Role {
 
 		// Hide author email on the frontend, if it's a placeholder email.
 		\add_filter( 'theme_mod_show_author_email', [ __CLASS__, 'should_display_author_email' ] );
+
+		// Make sure we check again if the site has guest authors evey hour.
+		$re_check_guest_authors = 'newspack_re_check_guest_authors';
+		if ( ! \wp_next_scheduled( $re_check_guest_authors ) ) {
+			\wp_schedule_event( time(), 'hourly', $re_check_guest_authors );
+		}
+		add_action( $re_check_guest_authors, [ __CLASS__, 'clear_site_has_cap_guest_authors_check' ] );
 	}
 
 	/**
@@ -96,13 +108,23 @@ class Guest_Contributor_Role {
 	}
 
 	/**
+	 * Clear the option that stores if the site has CAP's guest authors.
+	 * This will enforce a new check in the next request.
+	 * This will make sure we update the option if all guest authors are deleted.
+	 */
+	public static function clear_site_has_cap_guest_authors_check() {
+		if ( self::site_has_cap_guest_authors() ) {
+			delete_option( self::SITE_HAS_GUEST_AUTHORS_OPTION_NAME );
+		}
+	}
+
+	/**
 	 * Checks if the site has any guest authors. Will check it once in the database and store the result in an option.
 	 *
 	 * @return bool
 	 */
 	private static function site_has_cap_guest_authors() {
-		$option_name = 'newspack_check_site_has_cap_guest_authors';
-		$response    = get_option( $option_name );
+		$response = get_option( self::SITE_HAS_GUEST_AUTHORS_OPTION_NAME );
 
 		// Only check in the database once.
 		if ( false === $response ) {
@@ -115,7 +137,7 @@ class Guest_Contributor_Role {
 				]
 			);
 			$response = $query->have_posts() ? 'yes' : 'no';
-			add_option( $option_name, $response, '', true );
+			add_option( self::SITE_HAS_GUEST_AUTHORS_OPTION_NAME, $response, '', true );
 		}
 
 		return 'yes' === $response;
