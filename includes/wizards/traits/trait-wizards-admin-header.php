@@ -101,7 +101,7 @@ trait Admin_Header {
 				</ul>
 			</div>
 			<?php // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
-			}
+			} 
 			?>
 		</div>
 		<?php
