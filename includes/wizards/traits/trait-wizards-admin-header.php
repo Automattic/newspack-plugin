@@ -42,10 +42,10 @@ trait Admin_Header {
 	public function admin_header_enqueue() {
 		
 		// JS.
-		$wizards_admin_header = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/wizards-admin-header.asset.php';
+		$wizards_admin_header = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/admin-header.asset.php';
 		wp_register_script(
 			'newspack-wizards-admin-header',
-			Newspack::plugin_url() . '/dist/wizards-admin-header.js',
+			Newspack::plugin_url() . '/dist/admin-header.js',
 			[ 'wp-components' ],
 			$wizards_admin_header['version'] ?? NEWSPACK_PLUGIN_VERSION,
 			true
@@ -65,13 +65,12 @@ trait Admin_Header {
 		// CSS.
 		wp_register_style(
 			'newspack-wizards-admin-header',
-			Newspack::plugin_url() . '/dist/wizards-admin-header.css',
+			Newspack::plugin_url() . '/dist/admin-header.css',
 			[],
 			NEWSPACK_PLUGIN_VERSION
 		);
 		wp_style_add_data( 'newspack-wizards-admin-header', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-wizards-admin-header' );
-		
 	}
 
 	/**
@@ -93,14 +92,15 @@ trait Admin_Header {
 				</div>
 			</div>
 			<?php
-			if( ! empty( $this->tabs ) ) {
+			if ( ! empty( $this->tabs ) ) {
+			// phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
 			?>
 			<div class="newspack-tabbed-navigation">
 				<ul>
 					<li><a href="#"></a></li>
 				</ul>
 			</div>
-			<?php
+			<?php // phpcs:ignore Generic.WhiteSpace.ScopeIndent.Incorrect
 			}
 			?>
 		</div>
