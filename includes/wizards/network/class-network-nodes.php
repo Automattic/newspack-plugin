@@ -37,6 +37,9 @@ class Network_Nodes extends Wizard {
 			return;
 		}
 
+		// Include Network Utils
+		include_once 'class-network-utils.php';
+
 		// @todo: can more of these hooks be moved into if( is_wizard_page() )??
 		// review what needs to load or not on each page...
 
@@ -119,10 +122,6 @@ class Network_Nodes extends Wizard {
 
 		// @todo: also check render_page function exits on class / ronchambers
 
-		// @todo fix blue tint / ronchambers
-		
-        $icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="1.5"/><path d="M12 4.36719C9.97145 5.3866 8.5 8.41883 8.5 12.0009C8.5 15.6603 10.0356 18.7459 12.1321 19.6979" stroke="white" stroke-width="1.5"/><path d="M12 4.3653C14.0286 5.38471 15.5 8.41694 15.5 11.9991C15.5 15.5812 14.0286 18.6134 12 19.6328" stroke="white" stroke-width="1.5"/><line x1="20" y1="14.5" x2="4" y2="14.5" stroke="white" stroke-width="1.5"/><line x1="4" y1="9.5" x2="20" y2="9.5" stroke="white" stroke-width="1.5"/></svg>' );
-
         // If Hub, this Wizard is the parent menu item.
         if( 'hub' === get_option( 'newspack_network_site_role', '' ) ) {
 
@@ -133,8 +132,8 @@ class Network_Nodes extends Wizard {
                 $this->capability,
                 'edit.php?post_type=newspack_hub_nodes',
                 '',
-                $icon,
-                3.9
+                Network_Utils::get_menu_icon(),
+                Network_Utils::get_menu_position(),
             );
 
         } else {
