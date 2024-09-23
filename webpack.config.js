@@ -44,7 +44,7 @@ wizardsScripts.forEach( function ( wizard ) {
 		'wizards',
 		wizard,
 		fs.existsSync(
-			path.join( __dirname, 'assets', 'wizards', wizard, 'index.tsx' )
+			path.join( __dirname, 'src', 'wizards', wizard, 'index.tsx' )
 		)
 			? 'index.tsx'
 			: 'index.js'
