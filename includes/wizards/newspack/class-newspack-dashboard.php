@@ -168,7 +168,7 @@ class Newspack_Dashboard extends Wizard {
 				],
 				
 			],
-			// @TODO HUB vs NODE
+			// @TODO HUB vs NODE -- ronchambers
 			'network'              => [
 				'title'        => __( 'Network', 'newspack-plugin' ),
 				'desc'         => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),

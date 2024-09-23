@@ -54,9 +54,13 @@ class Wizards {
 			),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
-			'network-nodes'           => new Network_Nodes(),
-			'network-settings'        => new Network_Settings(),
 		];
+
+		// Network Wizard.
+		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
+			self::$wizards['network-nodes'] = new Network_Nodes();
+			self::$wizards['network-settings'] = new Network_Settings();
+		}
 	}
 
 	/**

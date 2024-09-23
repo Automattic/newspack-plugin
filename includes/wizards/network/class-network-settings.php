@@ -18,7 +18,6 @@ class Network_Settings extends Wizard {
 
 	use Admin_Header;
 
-	const PLUGIN_OVERRIDE = 'newspack-network/newspack-network.php';
 	const URL = 'admin.php?page=newspack-network';
 
 	/**
@@ -33,7 +32,7 @@ class Network_Settings extends Wizard {
 	 */
 	public function __construct() {
 		
-		if ( ! is_plugin_active( static::PLUGIN_OVERRIDE ) ) {
+		if ( ! is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
 			return;
 		}
 
