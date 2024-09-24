@@ -58,8 +58,9 @@ class Wizards {
 
 		// Network Wizard.
 		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
-			self::$wizards['network-nodes'] = new Network_Nodes();
-			self::$wizards['network-settings'] = new Network_Settings();
+			// self::$wizards['network-event-log'] = new Network_Event_Log();
+			// self::$wizards['network-nodes']     = new Network_Nodes();
+			self::$wizards['network-settings']  = new Network_Settings();
 		}
 	}
 

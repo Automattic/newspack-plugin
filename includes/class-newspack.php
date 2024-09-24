@@ -146,6 +146,7 @@ final class Newspack {
 
 		// Network Wizard.
 		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
+			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-event-log.php';
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-nodes.php';
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-settings.php';	
 		}
