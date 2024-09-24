@@ -191,6 +191,61 @@ class Newspack_Ads_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get Media Kit page ID.
+	 */
+	public static function get_media_kit_page_id() {
+		$page_id = false;
+		try {
+			$page_id = \Newspack_Ads\Media_Kit::get_existing_page_id();
+		} catch ( \Throwable $th ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Do nothing.
+		}
+		return $page_id;
+	}
+
+	/**
+	 * Get Media Kit page.
+	 */
+	public function get_media_kit_page_edit_url() {
+		$raw_url = get_edit_post_link( $this->get_media_kit_page_id(), '' );
+		if ( ! $raw_url ) {
+			return false;
+		}
+		$parsed_url = wp_parse_url( $raw_url );
+		return $parsed_url['path'] . '?' . $parsed_url['query'];
+	}
+
+	/**
+	 * Get Media Kit page status.
+	 */
+	public function get_media_kit_page_status() {
+		if ( method_exists( '\Newspack_Ads\Media_Kit', 'get_page_status' ) ) {
+			return \Newspack_Ads\Media_Kit::get_page_status();
+		}
+		return false;
+	}
+
+	/**
+	 * Create the Media Kit page.
+	 */
+	public function create_media_kit_page() {
+		if ( method_exists( '\Newspack_Ads\Media_Kit', 'create_media_kit_page' ) ) {
+			return \Newspack_Ads\Media_Kit::create_media_kit_page();
+		}
+		return false;
+	}
+
+	/**
+	 * Unpublish the Media Kit page.
+	 */
+	public function unpublish_media_kit_page() {
+		if ( method_exists( '\Newspack_Ads\Media_Kit', 'create_media_kit_page' ) ) {
+			return \Newspack_Ads\Media_Kit::create_media_kit_page();
+		}
+		return false;
+	}
+
+	/**
 	 * Configure Newspack Ads for Newspack use.
 	 *
 	 * @return bool || WP_Error Return true if successful, or WP_Error if not.
