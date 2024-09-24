@@ -1,7 +1,8 @@
 import { render, Fragment } from '@wordpress/element';
-import { NewspackIcon } from '../components/src';
+import { NewspackIcon } from '../../components/src';
+import './style.scss';
 
-export function WizardsAdminTabs( {
+export function WizardsAdminHeader( {
 	title,
 	tabs,
 }: {
@@ -23,6 +24,7 @@ export function WizardsAdminTabs( {
 					</div>
 				</div>
 			</div>
+			{ tabs && (
 			<div className="newspack-tabbed-navigation">
 				<ul>
 					{ tabs.map( ( tab, i ) => {
@@ -43,14 +45,15 @@ export function WizardsAdminTabs( {
 					} ) }
 				</ul>
 			</div>
+			) }
 		</Fragment>
 	);
 }
 
 render(
-	<WizardsAdminTabs
-		title={ window.newspackWizardsAdminTabs.title }
-		tabs={ window.newspackWizardsAdminTabs.tabs }
+	<WizardsAdminHeader
+		title={ window.newspackWizardsAdminHeader.title }
+		tabs={ window.newspackWizardsAdminHeader.tabs }
 	/>,
-	document.getElementById( 'newspack-wizards-admin-tabs' )
+	document.getElementById( 'newspack-wizards-admin-header' )
 );
