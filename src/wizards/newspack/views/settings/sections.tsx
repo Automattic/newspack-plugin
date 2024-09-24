@@ -13,6 +13,7 @@ import Connections from './connections';
 import Syndication from './syndication';
 import ThemeAndBrand from './theme-and-brand';
 import Seo from './seo';
+import AdditionalBrands from './additional-brands';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -27,7 +28,7 @@ const sectionComponents: Record<
 	seo: Seo,
 	'theme-and-brand': ThemeAndBrand,
 	// 'display-settings': DisplaySettings,
-	// 'additional-brands': AdditionalBrands,
+	'additional-brands': AdditionalBrands,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
 
