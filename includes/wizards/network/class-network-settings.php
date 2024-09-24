@@ -29,6 +29,13 @@ class Network_Settings extends Wizard {
 	protected $slug = 'newspack-network';
 
 	/**
+	 * High menu priority since we need Newspack Plugin to exist before we can modify it.
+	 *
+	 * @var int
+	 */
+	protected $menu_priority = 99;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -40,16 +47,12 @@ class Network_Settings extends Wizard {
 		// Include Network Utils
 		include_once 'class-network-utils.php';
 
-
-		// @todo: can more of these hooks be moved into if( is_wizard_page() )??
-		// review what needs to load or not on each page...
-
-		add_action( 'admin_menu', [ $this, 'add_page' ] );
+		// Override parent hooks.
+		add_action( 'admin_menu', [ $this, 'add_page' ], $this->menu_priority );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-        add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
 		if ( $this->is_wizard_page() ) {
-			// Enqueue Wizards Admin Tabs script.
+			// Enqueue Wizards Admin Header.
 			$this->admin_header_init(
 				[
 					'tabs'  => [], 
@@ -69,6 +72,17 @@ class Network_Settings extends Wizard {
 	}
 
 	/**
+	 * Load up common JS/CSS for wizards.
+	 */
+	public function enqueue_scripts_and_styles() {
+		
+		if ( false == $this->is_wizard_page() ) return;
+		
+		Newspack::load_common_assets();
+
+	}
+
+	/**
 	 * Add an admin page for the wizard to live on.
 	 */
 	public function add_page() {
@@ -76,13 +90,16 @@ class Network_Settings extends Wizard {
         // If no site role, Settings becomes the parent menu item.
         if( empty( get_option( 'newspack_network_site_role', '' ) ) ) {
 
-            // Parent menu page only
+			// Remove Network Plugin menu.
+			remove_menu_page( 'newspack-network' );
+
+            // Add parent menu.
             add_menu_page(
                 $this->get_name(),
                 static::MENU_TITLE,
                 $this->capability,
                 $this->slug,
-                [ $this, 'render_wizard' ],
+                '', // No rendering, let the Newspack Plugin render itself.
                 Network_Utils::get_parent_menu_icon(),
                 Network_Utils::$parent_menu_position
             );
@@ -100,39 +117,5 @@ class Network_Settings extends Wizard {
     
         }
 
-
-
     }
-
-	/**
-	 * Render the container for the wizard.
-	 */
-	public function render_wizard() {
-
-		// Call render page in the Network plugin.
-		$plugin_render_function = [ '\Newspack_Network\Admin', 'render_page' ];
-		if ( is_callable( $plugin_render_function ) ) {
-			call_user_func( $plugin_render_function );
-		} 
-		// Not callable.
-		else {
-			?>
-			<div class="newspack-wizard <?php echo esc_attr( $this->slug ); ?>" id="<?php echo esc_attr( $this->slug ); ?>">
-				Render function is not callable.
-			</div>
-			<?php	
-		}
-	}
-
-	/**
-	 * Load up common JS/CSS for wizards.
-	 */
-	public function enqueue_scripts_and_styles() {
-		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== $this->slug ) {
-			return;
-		}
-
-		Newspack::load_common_assets();
-	}
-
 }
