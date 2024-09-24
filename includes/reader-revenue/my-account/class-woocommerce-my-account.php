@@ -449,7 +449,7 @@ class WooCommerce_My_Account {
 	 */
 	public static function is_from_my_account() {
 		// If we're in My Account.
-		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+		if ( did_action( 'wp' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
 			return true;
 		}
 
