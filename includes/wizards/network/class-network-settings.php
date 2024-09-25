@@ -19,7 +19,6 @@ class Network_Settings extends Wizard {
 	use Admin_Header;
 
 	const PAGE_TITLE = 'Network / Settings';
-	const MENU_TITLE = 'Network';
 
 	/**
 	 * The slug of this wizard.
@@ -87,16 +86,16 @@ class Network_Settings extends Wizard {
 	 */
 	public function add_page() {
 
-        // If no site role, Settings becomes the parent menu item.
-        if( empty( get_option( 'newspack_network_site_role', '' ) ) ) {
+        // If site role is not a hub (ie: node or ''), then is the parent menu item.
+        if( false == Network_Utils::is_hub() ) {
 
 			// Remove Network Plugin menu.
-			remove_menu_page( 'newspack-network' );
+			remove_menu_page( $this->slug );
 
             // Add parent menu.
             add_menu_page(
                 $this->get_name(),
-                static::MENU_TITLE,
+                Network_Utils::$parent_menu_title,
                 $this->capability,
                 $this->slug,
                 '', // No rendering, let the Newspack Plugin render itself.
@@ -106,14 +105,14 @@ class Network_Settings extends Wizard {
 
         } else {
 
-            add_submenu_page(
-                'edit.php?post_type=newspack_hub_nodes',
-                $this->get_name(),
-                __( 'Settings', 'newspack-plugin' ),
-                $this->capability,
-                $this->slug,
-                array( '\Newspack_Network\Admin', 'render_page' ),
-            );
+            // add_submenu_page(
+            //     'edit.php?post_type=newspack_hub_nodes',
+            //     $this->get_name(),
+            //     __( 'Settings', 'newspack-plugin' ),
+            //     $this->capability,
+            //     $this->slug,
+            //     array( '\Newspack_Network\Admin', 'render_page' ),
+            // );
     
         }
 

@@ -176,14 +176,14 @@ class Network_Nodes extends Wizard {
 
         } else {
 
-            add_submenu_page(
-                $this->slug,
-                __( 'Advertising / Display Ads', 'newspack-plugin' ),
-                __( 'Display Ads', 'newspack-plugin' ),
-                $this->capability,
-                $this->slug,
-                array( $this, 'render_wizard' )
-            );
+            // add_submenu_page(
+            //     $this->slug,
+            //     __( 'Advertising / Display Ads', 'newspack-plugin' ),
+            //     __( 'Display Ads', 'newspack-plugin' ),
+            //     $this->capability,
+            //     $this->slug,
+            //     array( $this, 'render_wizard' )
+            // );
     
         }
 

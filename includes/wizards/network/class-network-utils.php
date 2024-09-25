@@ -47,4 +47,38 @@ class Network_Utils {
         return 'edit.php?post_type=newspack_hub_nodes';
 	}
 
+	/**
+	 * Check if site role is not set.
+	 * 
+	 * @return bool
+	 */
+	public static function has_site_role(): bool {
+		return ( self::is_hub() || self::is_node() );
+	}
+
+	/**
+	 * Check if site role is hub.
+	 * 
+	 * @return bool
+	 */
+	public static function is_hub(): bool {
+		$fn = [ '\Newspack_Network\Site_Role', 'is_hub' ];
+		if( is_callable( $fn ) ) {
+			return call_user_func( $fn );
+		}
+		return false;
+	}
+
+	/**
+	 * Check if site role is node.
+	 * 
+	 * @return bool
+	 */
+	public static function is_node(): bool {
+		$fn = [ '\Newspack_Network\Site_Role', 'is_node' ];
+		if( is_callable( $fn ) ) {
+			return call_user_func( $fn );
+		}
+		return false;
+	}
 }
