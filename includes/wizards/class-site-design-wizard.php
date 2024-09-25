@@ -19,6 +19,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Site_Design_Wizard extends Wizard {
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Site Design';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -31,15 +38,6 @@ class Site_Design_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Site Design', 'newspack' );
-	}
 
 	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.

@@ -19,6 +19,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Connections_Wizard extends Wizard {
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Connections';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -31,15 +38,6 @@ class Connections_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Connections', 'newspack' );
-	}
 
 	/**
 	 * Enqueue Connections Wizard scripts and styles.

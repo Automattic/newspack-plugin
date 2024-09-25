@@ -19,6 +19,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class SEO_Wizard extends Wizard {
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'SEO';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -39,15 +46,6 @@ class SEO_Wizard extends Wizard {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'wpseo_image_image_weight_limit', [ $this, 'ignore_yoast_weight_limit' ] );
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'SEO', 'newspack' );
 	}
 
 	/**

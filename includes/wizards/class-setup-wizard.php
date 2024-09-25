@@ -30,6 +30,13 @@ class Setup_Wizard extends Wizard {
 	];
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Setup';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -62,15 +69,6 @@ class Setup_Wizard extends Wizard {
 		}
 		add_filter( 'show_admin_bar', [ $this, 'show_admin_bar' ], 10, 2 ); // phpcs:ignore WordPressVIPMinimum.UserExperience.AdminBarRemoval.RemovalDetected
 		$this->hidden = get_option( NEWSPACK_SETUP_COMPLETE, false );
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return esc_html__( 'Setup', 'newspack' );
 	}
 
 	/**

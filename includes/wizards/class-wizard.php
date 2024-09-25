@@ -19,6 +19,13 @@ define( 'NEWSPACK_WIZARD_COMPLETED_OPTION_PREFIX', 'newspack_wizard_completed_' 
 abstract class Wizard {
 
 	/**
+	 * The name of this wizard. Override this.
+	 *
+	 * @var string
+	 */
+	protected $name = '';
+
+	/**
 	 * The slug of this wizard. Override this.
 	 *
 	 * @var string
@@ -273,7 +280,9 @@ abstract class Wizard {
 	 *
 	 * @return string The wizard name.
 	 */
-	abstract public function get_name();
+	public function get_name() {
+		return esc_html__( $this->name, 'newspack-plugin' );
+	}
 
 	/**
 	 * Load wizard sections.

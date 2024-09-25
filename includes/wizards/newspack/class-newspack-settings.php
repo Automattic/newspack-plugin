@@ -22,6 +22,13 @@ defined( 'ABSPATH' ) || exit;
 class Newspack_Settings extends Wizard {
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Newspack';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -109,15 +116,6 @@ class Newspack_Settings extends Wizard {
 				'label' => __( 'Additional Brands', 'newspack-plugin' ),
 			],
 		];
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return esc_html__( 'Newspack', 'newspack' );
 	}
 
 	/**

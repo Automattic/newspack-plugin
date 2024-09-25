@@ -20,6 +20,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Popups_Wizard extends Wizard {
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Campaigns';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -40,15 +47,6 @@ class Popups_Wizard extends Wizard {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'newspack_popups_registered_criteria', [ $this, 'maybe_unregister_memberships_criteria' ] );
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Campaigns', 'newspack' );
 	}
 
 	/**

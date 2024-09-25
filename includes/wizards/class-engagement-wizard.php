@@ -24,6 +24,13 @@ class Engagement_Wizard extends Wizard {
 	const SKIP_CAMPAIGN_SETUP_OPTION = '_newspack_ras_skip_campaign_setup';
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Engagement';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -52,15 +59,6 @@ class Engagement_Wizard extends Wizard {
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'jetpack_relatedposts_filter_date_range', [ $this, 'restrict_age_of_related_posts' ] );
 		add_filter( 'newspack_newsletters_settings_url', [ $this, 'newsletters_settings_url' ] );
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Engagement', 'newspack' );
 	}
 
 	/**

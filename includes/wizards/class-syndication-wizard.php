@@ -19,6 +19,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Syndication_Wizard extends Wizard {
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Syndication';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -38,15 +45,6 @@ class Syndication_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Syndication', 'newspack' );
 	}
 
 	/**

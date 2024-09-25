@@ -31,6 +31,13 @@ class Advertising_Wizard extends Wizard {
 	const OPTION_NAME_GAM_NETWORK_CODE = '_newspack_ads_gam_network_code';
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Advertising';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -61,15 +68,6 @@ class Advertising_Wizard extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Advertising', 'newspack' );
 	}
 
 	/**

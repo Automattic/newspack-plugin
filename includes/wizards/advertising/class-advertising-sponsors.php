@@ -20,6 +20,13 @@ class Advertising_Sponsors extends Wizard {
 	use Admin_Header;
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Advertising / Sponsors';
+
+	/**
 	 * Newspack Sponsors CPT name.
 	 * 
 	 * @var string
@@ -88,15 +95,6 @@ class Advertising_Sponsors extends Wizard {
 				]
 			);
 		}
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return esc_html__( 'Advertising / Sponsors', 'newspack-plugin' );
 	}
 
 	/**

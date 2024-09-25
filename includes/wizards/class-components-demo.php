@@ -17,6 +17,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 class Components_Demo extends Wizard {
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Components demo';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -43,15 +50,6 @@ class Components_Demo extends Wizard {
 	 * @var bool.
 	 */
 	protected $hidden = true;
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return esc_html__( 'Components demo', 'newspack' );
-	}
 
 	/**
 	 * Enqueue Subscriptions Wizard scripts and styles.

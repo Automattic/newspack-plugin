@@ -20,6 +20,13 @@ class Settings extends Wizard {
 	const MODULE_ENABLED_PREFIX = 'module_enabled_';
 
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Settings';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -156,15 +163,6 @@ class Settings extends Wizard {
 				'args'                => $required_args,
 			]
 		);
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Settings', 'newspack' );
 	}
 
 	/**

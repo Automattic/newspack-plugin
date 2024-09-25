@@ -18,6 +18,13 @@ require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
  */
 class Reader_Revenue_Wizard extends Wizard {
 	/**
+	 * The name of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $name = 'Reader Revenue';
+
+	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
@@ -30,15 +37,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'Reader Revenue', 'newspack' );
-	}
 
 	/**
 	 * Constructor.
