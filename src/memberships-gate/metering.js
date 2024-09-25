@@ -77,6 +77,7 @@ function meter( ras ) {
 	// Lock content if reached limit, remove gate content if not.
 	if ( settings.count <= data.content.length && ! data.content.includes( settings.post_id ) ) {
 		lockContent();
+		ras.dispatchActivity( 'metering_restricted', { post_id: settings.post_id, metering: data } );
 		locked = true;
 	} else {
 		const gates = document.querySelectorAll( '.newspack-memberships__gate' );
