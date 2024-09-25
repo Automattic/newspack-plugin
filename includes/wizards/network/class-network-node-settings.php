@@ -1,6 +1,6 @@
 <?php
 /**
- * Network Event Log Wizard
+ * Network Node Settings Wizard
  *
  * @package Newspack
  */
@@ -14,18 +14,18 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Easy interface for setting up info.
  */
-class Network_Event_Log extends Wizard {
+class Network_Node_Settings extends Wizard {
 
 	use Admin_Header;
 
-	const PAGE_TITLE = 'Network / Event Log';
+	const PAGE_TITLE = 'Network / Node Settings';
 
 	/**
 	 * The slug of this wizard.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-network-event-log';
+	protected $slug = 'newspack-network-node';
 
 	/**
 	 * Constructor.

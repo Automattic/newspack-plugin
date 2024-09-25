@@ -47,7 +47,8 @@ class Network_Settings extends Wizard {
 		include_once 'class-network-utils.php';
 
 		// Override parent hooks.
-		add_action( 'admin_menu', [ $this, 'add_page' ], $this->menu_priority );
+		// add_action( 'admin_menu', [ $this, 'add_page' ], $this->menu_priority );
+		add_action( 'admin_menu', [ Network_Utils::class, 'move_network_menu' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 
 		if ( $this->is_wizard_page() ) {

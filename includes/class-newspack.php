@@ -146,7 +146,10 @@ final class Newspack {
 
 		// Network Wizard.
 		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
+			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-distributor-settings.php';
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-event-log.php';
+			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-membership-plans.php';
+			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-node-settings.php';
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-nodes.php';
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-settings.php';	
 		}
