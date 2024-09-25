@@ -9,6 +9,8 @@ use Newspack\Reader_Activation;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Reader_Activation\ESP_Sync;
 
+require_once __DIR__ . '/../mocks/newsletters-mocks.php';
+
 /**
  * Test the Esp_Metadata_Sync class.
  */

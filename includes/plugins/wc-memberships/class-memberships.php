@@ -219,6 +219,13 @@ class Memberships {
 			true
 		);
 		\wp_script_add_data( $handle, 'async', true );
+		\wp_localize_script(
+			$handle,
+			'newspack_memberships_gate',
+			[
+				'metadata' => self::get_gate_metadata(),
+			]
+		);
 		\wp_enqueue_style(
 			$handle,
 			Newspack::plugin_url() . '/dist/memberships-gate.css',
@@ -292,6 +299,47 @@ class Memberships {
 			}
 		}
 		return $gate_post_id ? $gate_post_id : false;
+	}
+
+	/**
+	 * Recursively get the unique block names from the post content.
+	 *
+	 * @param array $blocks The blocks.
+	 *
+	 * @return array
+	 */
+	private static function get_block_names_recursive( $blocks ) {
+		$block_names = [];
+		foreach ( $blocks as $block ) {
+			if ( ! empty( $block['blockName'] ) ) {
+				$block_names[] = $block['blockName'];
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block_names = array_merge( $block_names, self::get_block_names_recursive( $block['innerBlocks'] ) );
+			}
+		}
+		return array_unique( $block_names );
+	}
+
+	/**
+	 * Get gate metadata to be used for analytics purposes.
+	 *
+	 * @return array {
+	 *   The gate metadata.
+	 *
+	 *   @type int    $gate_post_id The gate post ID.
+	 *   @type array  $gate_blocks  Names of unique blocks in the gate post.
+	 * }
+	 */
+	public static function get_gate_metadata() {
+		$post_id = self::get_gate_post_id();
+		$blocks  = self::get_block_names_recursive( parse_blocks( get_post_field( 'post_content', $post_id ) ) );
+		return [
+			'gate_post_id'                => $post_id,
+			'gate_has_donation_block'     => in_array( 'newspack-blocks/donate', $blocks ) ? 'yes' : 'no',
+			'gate_has_registration_block' => in_array( 'newspack/reader-registration', $blocks ) ? 'yes' : 'no',
+			'gate_has_checkout_button'    => in_array( 'newspack-blocks/checkout-button', $blocks ) ? 'yes' : 'no',
+		];
 	}
 
 	/**

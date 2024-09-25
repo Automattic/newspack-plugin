@@ -27,6 +27,9 @@ class ESP_Sync_Admin extends ESP_Sync {
 	 * Initializes hooks.
 	 */
 	public static function init_hooks() {
+		if ( ! defined( 'NEWSPACK_ESP_SYNC_ADMIN' ) || ! NEWSPACK_ESP_SYNC_ADMIN ) {
+			return;
+		}
 		add_action( 'admin_init', [ __CLASS__, 'process_admin_action' ] );
 		add_filter( 'user_row_actions', [ __CLASS__, 'user_row_actions' ], 100, 2 );
 		add_filter( 'bulk_actions-users', [ __CLASS__, 'bulk_actions' ] );
