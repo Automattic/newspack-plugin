@@ -20,6 +20,20 @@ class Network_Utils {
      * @var string
      */
     static $parent_menu_position = '3.9';
+	
+    /**
+     * Parent Menu Position Increment
+     *
+     * @var string
+     */
+    static $parent_menu_position_increment = '9';
+
+	/**
+	 * Parent Menu Slug
+	 * 
+	 * @var string
+	 */
+    static $parent_menu_slug = 'newspack-network';
 
 	/**
 	 * Parent Menu Title
@@ -81,4 +95,36 @@ class Network_Utils {
 		}
 		return false;
 	}
+
+	public static function move_network_menu() {
+
+		global $menu;
+		
+		// Pluck the Newspack Network menu item from the list.
+		$item = (function() use( &$menu ) {
+			foreach ( $menu as $key => $value) {
+				if ( $value[2] == self::$parent_menu_slug ) {
+					unset( $menu[$key] );
+					return $value;
+				}
+			}
+		})();
+
+		// Adjust values.
+		$item[0] = self::$parent_menu_title;
+		$item[6] = Network_Utils::get_parent_menu_icon();
+		
+		// add it back at (string) postion 
+		$new_index = (string) Network_Utils::$parent_menu_position;
+
+		// if key collision found, keep increasing increments.
+		while( array_key_exists( $new_index, $menu ) ) {
+			$new_index .= (string) Network_Utils::$parent_menu_position_increment;
+		}
+
+		// Add to menu.
+		$menu[$new_index] = $item;
+
+	}
+
 }

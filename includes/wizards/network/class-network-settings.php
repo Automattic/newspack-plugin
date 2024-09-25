@@ -86,22 +86,24 @@ class Network_Settings extends Wizard {
 	 */
 	public function add_page() {
 
-        // If site role is not a hub (ie: node or ''), then is the parent menu item.
-        if( false == Network_Utils::is_hub() ) {
+        // if site role isn't set or is "node".
+        if ( false == Network_Utils::has_site_role() || Network_Utils::is_node() ) {
+			
+			Network_Utils::move_network_menu();
 
 			// Remove Network Plugin menu.
-			remove_menu_page( $this->slug );
+			// remove_menu_page( $this->slug );
 
-            // Add parent menu.
-            add_menu_page(
-                $this->get_name(),
-                Network_Utils::$parent_menu_title,
-                $this->capability,
-                $this->slug,
-                '', // No rendering, let the Newspack Plugin render itself.
-                Network_Utils::get_parent_menu_icon(),
-                Network_Utils::$parent_menu_position
-            );
+			// Add parent menu.
+			// add_menu_page(
+			// 	$this->get_name(),
+			// 	Network_Utils::$parent_menu_title,
+			// 	$this->capability,
+			// 	$this->slug,
+			// 	'', // No rendering, let the Newspack Plugin render itself.
+			// 	Network_Utils::get_parent_menu_icon(),
+			// 	Network_Utils::$parent_menu_position
+			// );
 
         } else {
 
