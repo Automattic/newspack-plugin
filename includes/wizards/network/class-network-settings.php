@@ -39,13 +39,10 @@ class Network_Settings extends Wizard {
 			return;
 		}
 
-		// Include Network Utils
-		// @TODO MOVE THIS include code back into THIS CLASS.  this is the only class that needs it.
-		include_once 'class-network-utils.php';
+		// Load admin menu hook on all Network pages, not just this page. Use a high priority.
+		add_action( 'admin_menu', [ $this, 'admin_menu' ], $this->menu_priority );
 
-		// Override parent hooks.
-		add_action( 'admin_menu', [ Network_Utils::class, 'move_network_menu' ], $this->menu_priority );
-
+		// Load header only on this page.
 		if ( $this->is_wizard_page() ) {
 			$this->admin_header_init( [ 'title' => $this->get_name() ] );
 		}
@@ -70,7 +67,7 @@ class Network_Settings extends Wizard {
 	// 	return;
 
     //     // if site role isn't set or is "node".
-    //     if ( false == Network_Utils::has_site_role() || Network_Utils::is_node() ) {
+    //     if ( false == $this->has_site_role() || $this->is_node() ) {
 			
 	// 		// Remove Network Plugin menu.
 	// 		// remove_menu_page( $this->slug );
@@ -78,12 +75,12 @@ class Network_Settings extends Wizard {
 	// 		// Add parent menu.
 	// 		// add_menu_page(
 	// 		// 	$this->get_name(),
-	// 		// 	Network_Utils::$parent_menu_title,
+	// 		// 	'Network',
 	// 		// 	$this->capability,
 	// 		// 	$this->slug,
 	// 		// 	'', // No rendering, let the Newspack Plugin render itself.
-	// 		// 	Network_Utils::get_parent_menu_icon(),
-	// 		// 	Network_Utils::$parent_menu_position
+	// 		// 	$this->get_parent_menu_icon(),
+	// 		// 	'3.9'
 	// 		// );
 
     //     } else {
@@ -100,4 +97,98 @@ class Network_Settings extends Wizard {
     //     }
 
     // }
+
+	/**
+	 * Get Parent Menu Icon
+	 *
+	 * @return string
+	 */
+	public function get_parent_menu_icon(): string {
+        
+		// @todo fix blue tint / ronchambers
+        
+		return 'data:image/svg+xml;base64,' . base64_encode( '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="1.5"/><path d="M12 4.36719C9.97145 5.3866 8.5 8.41883 8.5 12.0009C8.5 15.6603 10.0356 18.7459 12.1321 19.6979" stroke="white" stroke-width="1.5"/><path d="M12 4.3653C14.0286 5.38471 15.5 8.41694 15.5 11.9991C15.5 15.5812 14.0286 18.6134 12 19.6328" stroke="white" stroke-width="1.5"/><line x1="20" y1="14.5" x2="4" y2="14.5" stroke="white" stroke-width="1.5"/><line x1="4" y1="9.5" x2="20" y2="9.5" stroke="white" stroke-width="1.5"/></svg>' );
+	}
+
+	/**
+	 * Network Plugin: Check if a site role is set.
+	 * 
+	 * @return bool
+	 */
+	public function has_site_role(): bool {
+		return ( self::is_hub() || self::is_node() );
+	}
+
+	/**
+	 * Network Plugin: Check if site role is hub.
+	 * 
+	 * @return bool
+	 */
+	public function is_hub(): bool {
+		$fn = [ '\Newspack_Network\Site_Role', 'is_hub' ];
+		if( is_callable( $fn ) ) {
+			return call_user_func( $fn );
+		}
+		return false;
+	}
+
+	/**
+	 * Network Plugin: Check if site role is node.
+	 * 
+	 * @return bool
+	 */
+	public function is_node(): bool {
+		$fn = [ '\Newspack_Network\Site_Role', 'is_node' ];
+		if( is_callable( $fn ) ) {
+			return call_user_func( $fn );
+		}
+		return false;
+	}
+
+	/**
+	 * Admin Menu hook to move Network admin menu higher into the Newspack area.
+	 * Hook priority should be high so this code runs after Network plugin loads.
+	 *
+	 * @return void
+	 */
+	public function admin_menu() {
+
+		if ( ! is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
+			return;
+		}
+
+		global $menu;
+		
+		// Find the Newspack Network menu item in the admin menu.
+		$network_key = null;
+		foreach ( $menu as $k => $v ) {
+			// Get the network key from the menu array.
+			if ( $v[2] == 'newspack-network' ) {
+				$network_key = $k;
+				break;
+			}
+		}
+		
+		// Verify a key was found
+		if( empty( $network_key ) ) {
+			return;
+		}
+		
+		// Adjust the network menu attributes.
+		$menu[$network_key][0] = 'Network';
+		$menu[$network_key][6] = $this->get_parent_menu_icon();
+		
+		// Try to move the network item to a higher position near "Newspack".
+		$new_position = '3.9';
+
+		// if position/key collision, keep increasing increment.
+		while( array_key_exists( $new_position, $menu ) ) {
+			$new_position .= '9';
+		}
+
+		// Move network menu in the array.
+		$menu[$new_position] = $menu[$network_key];
+		unset( $menu[$network_key] );
+
+	}
 }
