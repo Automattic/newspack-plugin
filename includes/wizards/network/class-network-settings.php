@@ -44,6 +44,7 @@ class Network_Settings extends Wizard {
 
 		// Load header only on this page.
 		if ( $this->is_wizard_page() ) {
+			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 			$this->admin_header_init( [ 'title' => $this->get_name() ] );
 		}
 	}
@@ -149,5 +150,19 @@ class Network_Settings extends Wizard {
 		$menu[$new_position] = $menu[$network_key];
 		unset( $menu[$network_key] );
 
+	}
+
+	/**
+	 * Add body class for wizard pages.
+	 * 
+	 * @param string $classes The current body classes.
+	 */
+	public function add_body_class( $classes ) {
+		if ( ! $this->is_wizard_page() ) {
+			return $classes;
+		}
+		// Don't do the body reset: src/components/src/with-wizard/style.scss
+		$classes .= ' newspack-wizard-no-body-reset';
+		return $classes;
 	}
 }
