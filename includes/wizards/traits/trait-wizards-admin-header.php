@@ -41,6 +41,8 @@ trait Admin_Header {
 	 */
 	public function admin_header_enqueue() {
 		
+		Newspack::load_common_assets();
+		
 		// JS.
 		$wizards_admin_header = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/admin-header.asset.php';
 		wp_register_script(

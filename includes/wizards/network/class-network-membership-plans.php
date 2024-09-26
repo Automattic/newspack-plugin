@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-use Newspack\Wizards\Traits\Admin_Header;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -16,9 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Network_Membership_Plans extends Wizard {
 
-	use Admin_Header;
-
-	const PAGE_TITLE = 'Network / Membership Plans';
+	use \Newspack\Wizards\Traits\Admin_Header;
 
 	/**
 	 * The slug of this wizard.
@@ -40,16 +36,7 @@ class Network_Membership_Plans extends Wizard {
 			return;
 		}
 
-		// Override parent hooks.
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-
-		// Enqueue Wizards Admin Header.
-		$this->admin_header_init(
-			[
-				'tabs'  => [], 
-				'title' => $this->get_name(), 
-			]
-		);
+		$this->admin_header_init( [ 'title' => $this->get_name() ] );
 	}
 
 	/**
@@ -58,18 +45,6 @@ class Network_Membership_Plans extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( static::PAGE_TITLE, 'newspack-plugin' );
+		return esc_html__( 'Network / Membership Plans', 'newspack-plugin' );
 	}
-
-	/**
-	 * Load up common JS/CSS for wizards.
-	 */
-	public function enqueue_scripts_and_styles() {
-		
-		if ( false == $this->is_wizard_page() ) return;
-		
-		Newspack::load_common_assets();
-
-	}
-
 }
