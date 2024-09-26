@@ -24,7 +24,7 @@ export function WizardsAdminHeader( {
 					</div>
 				</div>
 			</div>
-			{ tabs && (
+			{ tabs.length > 0 && (
 			<div className="newspack-tabbed-navigation">
 				<ul>
 					{ tabs.map( ( tab, i ) => {
