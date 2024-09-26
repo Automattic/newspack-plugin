@@ -57,47 +57,6 @@ class Network_Settings extends Wizard {
 		return esc_html__( 'Network / Settings', 'newspack-plugin' );
 	}
 
-
-	/**
-	 * Add an admin page for the wizard to live on.
-	 */
-	// public function add_page() {
-
-	// 	// @todo: remove these comments
-	// 	return;
-
-    //     // if site role isn't set or is "node".
-    //     if ( false == $this->has_site_role() || $this->is_node() ) {
-			
-	// 		// Remove Network Plugin menu.
-	// 		// remove_menu_page( $this->slug );
-
-	// 		// Add parent menu.
-	// 		// add_menu_page(
-	// 		// 	$this->get_name(),
-	// 		// 	'Network',
-	// 		// 	$this->capability,
-	// 		// 	$this->slug,
-	// 		// 	'', // No rendering, let the Newspack Plugin render itself.
-	// 		// 	$this->get_parent_menu_icon(),
-	// 		// 	'3.9'
-	// 		// );
-
-    //     } else {
-
-    //         // add_submenu_page(
-    //         //     'edit.php?post_type=newspack_hub_nodes',
-    //         //     $this->get_name(),
-    //         //     __( 'Settings', 'newspack-plugin' ),
-    //         //     $this->capability,
-    //         //     $this->slug,
-    //         //     array( '\Newspack_Network\Admin', 'render_page' ),
-    //         // );
-    
-    //     }
-
-    // }
-
 	/**
 	 * Get Parent Menu Icon
 	 *
