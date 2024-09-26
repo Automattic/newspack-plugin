@@ -44,6 +44,7 @@ class Network_Settings extends Wizard {
 		}
 
 		// Include Network Utils
+		// @TODO MOVE THIS include code back into THIS CLASS.  this is the only class that needs it.
 		include_once 'class-network-utils.php';
 
 		// Override parent hooks.

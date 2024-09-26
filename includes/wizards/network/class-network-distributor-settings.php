@@ -40,9 +40,6 @@ class Network_Distributor_Settings extends Wizard {
 			return;
 		}
 
-		// Include Network Utils
-		include_once 'class-network-utils.php';
-
 		// Override parent hooks.
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 
