@@ -41,6 +41,7 @@ class Newspack_Dashboard extends Wizard {
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
+		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 	}
 
 	/**
