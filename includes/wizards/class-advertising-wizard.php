@@ -272,6 +272,28 @@ class Advertising_Wizard extends Wizard {
 				],
 			]
 		);
+
+		// Create the Media Kit page.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/billboard/media-kit',
+			[
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => [ $this, 'api_create_media_kit_page' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Unpublish the Media Kit page.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/billboard/media-kit',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_unpublish_media_kit_page' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -398,6 +420,48 @@ class Advertising_Wizard extends Wizard {
 	}
 
 	/**
+	 * Create the Media Kit page.
+	 */
+	public static function api_create_media_kit_page() {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$edit_url = $configuration_manager->get_media_kit_page_edit_url();
+		if ( ! $edit_url ) {
+			$configuration_manager->create_media_kit_page();
+		}
+		return \rest_ensure_response(
+			[
+				'edit_url'    => $configuration_manager->get_media_kit_page_edit_url(),
+				'page_status' => $configuration_manager->get_media_kit_page_status(),
+			]
+		);
+	}
+
+	/**
+	 * Unpublish (revert to draft) the Media Kit page.
+	 */
+	public static function api_unpublish_media_kit_page() {
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
+		$page_id = $configuration_manager->get_media_kit_page_id();
+		if ( $page_id ) {
+			$update = wp_update_post(
+				[
+					'ID'          => $page_id,
+					'post_status' => 'draft',
+				]
+			);
+			if ( $update === 0 || is_wp_error( $update ) ) {
+				return rest_ensure_response( new WP_Error( 'update_failed', __( 'Failed to update page status.', 'newspack' ) ) );
+			}
+		}
+		return \rest_ensure_response(
+			[
+				'edit_url'    => $configuration_manager->get_media_kit_page_edit_url(),
+				'page_status' => $configuration_manager->get_media_kit_page_status(),
+			]
+		);
+	}
+
+	/**
 	 * Retrieve all advertising data.
 	 *
 	 * @return array Advertising data.
@@ -504,13 +568,15 @@ class Advertising_Wizard extends Wizard {
 		\wp_style_add_data( 'newspack-advertising-wizard', 'rtl', 'replace' );
 		\wp_enqueue_style( 'newspack-advertising-wizard' );
 
+		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 		\wp_localize_script(
 			'newspack-advertising-wizard',
 			'newspack_ads_wizard',
 			array(
-				'iab_sizes'          => function_exists( '\Newspack_Ads\get_iab_sizes' ) ? \Newspack_Ads\get_iab_sizes() : [],
-				'mediakit_edit_url'  => get_option( 'pmk-page' ) ? get_edit_post_link( get_option( 'pmk-page' ) ) : '',
-				'can_connect_google' => OAuth::is_proxy_configured( 'google' ),
+				'iab_sizes'               => function_exists( '\Newspack_Ads\get_iab_sizes' ) ? \Newspack_Ads\get_iab_sizes() : [],
+				'media_kit_page_edit_url' => $configuration_manager->get_media_kit_page_edit_url(),
+				'media_kit_page_status'   => $configuration_manager->get_media_kit_page_status(),
+				'can_connect_google'      => OAuth::is_proxy_configured( 'google' ),
 			)
 		);
 	}
