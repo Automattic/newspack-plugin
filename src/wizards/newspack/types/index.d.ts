@@ -82,6 +82,9 @@ declare global {
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;
+			theme_colors: Record< string, string >;
+			menu_locations: Record< string, string >;
+			menus: Record< string, string >;
 		};
 	}
 }
