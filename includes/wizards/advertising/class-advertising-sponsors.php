@@ -203,4 +203,17 @@ class Advertising_Sponsors extends Wizard {
 	
 		return $submenu_file;
 	}
+
+	/**
+	 * Add body class for wizard pages.
+	 * 
+	 * @param string $classes The current body classes.
+	 */
+	public function add_body_class( $classes ) {
+		if ( ! $this->is_wizard_page() ) {
+			return $classes;
+		}
+		$classes .= parent::add_body_class( $classes ) . ' newspack-wizard-partial-react';
+		return $classes;
+	}
 }
