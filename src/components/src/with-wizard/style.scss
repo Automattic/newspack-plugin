@@ -5,8 +5,8 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "../../../shared/scss/colors";
 
-// Reset Padding of the Admin Page for full react pages (ignoring partial react pages).
-body.newspack-wizard-page:not(.newspack-wizard-partial-react) {
+// Reset Padding of the Admin Page for full react pages (ignoring admin-header-only pages).
+body.newspack-wizard-page:not(.newspack-admin-header) {
 
 	background: white;
 
