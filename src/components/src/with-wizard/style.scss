@@ -5,12 +5,9 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "../../../shared/scss/colors";
 
-// Reset Padding of the Admin Page
+// Reset Padding of the Admin Page for full react pages (ignoring admin-header-only pages).
+body.newspack-wizard-page:not(.newspack-admin-header) {
 
-.toplevel_page_newspack-dashboard:not(.menu-top),
-.toplevel_page_newspack:not(.menu-top),
-body[class*="newspack_page_newspack-"],
-body[class*="toplevel_page_advertising-"] {
 	background: white;
 
 	#wpcontent {
