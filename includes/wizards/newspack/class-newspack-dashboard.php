@@ -169,54 +169,126 @@ class Newspack_Dashboard extends Wizard {
 				],
 				
 			],
-			// @TODO HUB vs NODE -- ronchambers
 			'network'              => [
 				'title'        => __( 'Network', 'newspack-plugin' ),
 				'desc'         => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
 				'dependencies' => [
 					'newspack-network',
 				],
-				'cards'        => 'node' === get_option( 'newspack_network_site_role', '' ) ? [
-					[
-						'icon'  => 'tool',
-						'title' => __( 'Settings', 'newspack-plugin' ),
-						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
-						'href'  => admin_url( 'admin.php?page=network' ),
-					],
-				] : [
-					[
-						'icon'  => 'positionCenterCenter',
-						'title' => __( 'Nodes', 'newspack-plugin' ),
-						'desc'  => __( 'Manage which sites are part of your content network.', 'newspack-plugin' ),
-						'href'  => admin_url( 'edit.php?post_type=newspack_hub_nodes' ),
-					],
-					[
-						'icon'  => 'rotateRight',
-						'title' => __( 'Subscriptions', 'newspack-plugin' ),
-						'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
-						'href'  => admin_url( 'edit.php?post_type=np_hub_subscriptions' ),
-					],
-					[
-						'icon'  => 'currencyDollar',
-						'title' => __( 'Orders', 'newspack-plugin' ),
-						'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
-						'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
-					],
-					[
-						'icon'  => 'formatListBullets',
-						'title' => __( 'Event Log', 'newspack-plugin' ),
-						'desc'  => __( 'Troubleshoot issues by viewing all events across your network.', 'newspack-plugin' ),
-						'href'  => admin_url( 'admin.php?page=newspack-network-event-log' ),
-					],
-					[
-						'icon'  => 'tool',
-						'title' => __( 'Settings', 'newspack-plugin' ),
-						'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
-						'href'  => admin_url( 'admin.php?page=network' ),
-					],
-				],
+				'cards'        => $this->get_dashboard_network_cards()
 			],
 		];
+	}
+
+	/**
+	 * Get Newspack Network plugin dashboard cards.
+	 *
+	 * @return [] 
+	 */
+	public function get_dashboard_network_cards() {
+	
+		// Plugin not active.
+		if ( false == is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
+
+			return [
+				[
+					'icon'  => 'tool',
+					'title' => __( 'Settings', 'newspack-plugin' ),
+					'desc'  => __( 'Activate the Newspack Network plugin.', 'newspack-plugin' ),
+					'href'  => admin_url( 'plugins.php' ),
+				]
+			];
+
+		}
+
+		// Plugin is active, get the site role.
+		$site_role = ( function() {
+			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
+			if( is_callable( $is_node ) && call_user_func( $is_node ) ) {
+				return 'node';
+			}
+			$is_hub = [ '\Newspack_Network\Site_Role', 'is_hub' ];
+			if( is_callable( $is_hub ) && call_user_func( $is_hub ) ) {
+				return 'hub';
+			}
+			return '';
+		})();
+
+		$settings_card = [
+			'icon'  => 'tool',
+			'title' => __( 'Settings', 'newspack-plugin' ),
+			'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
+			'href'  => admin_url( 'admin.php?page=newspack-network' ),
+		];
+
+		// If no role.
+		if ( '' === $site_role ) {
+
+			return [ 
+				$settings_card,
+			];
+
+		}
+
+		// If node.
+		if ( 'node' === $site_role ) {
+
+			return [
+				$settings_card,
+				[
+					'icon'  => 'positionCenterCenter',
+					'title' => __( 'Node', 'newspack-plugin' ),
+					'desc'  => __( 'Manage this Node\'s settings.', 'newspack-plugin' ),
+					'href'  => admin_url( 'admin.php?page=newspack-network-node' ),
+				],
+			];
+
+		}
+
+		// If hub.
+		if ( 'hub' === $site_role ) {
+			return [
+				[
+					'icon'  => 'positionCenterCenter',
+					'title' => __( 'Nodes', 'newspack-plugin' ),
+					'desc'  => __( 'Manage which sites are part of your content network.', 'newspack-plugin' ),
+					'href'  => admin_url( 'edit.php?post_type=newspack_hub_nodes' ),
+				],
+				[
+					'icon'  => 'rotateRight',
+					'title' => __( 'Subscriptions', 'newspack-plugin' ),
+					'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
+					'href'  => admin_url( 'edit.php?post_type=np_hub_subscriptions' ),
+				],
+				[
+					'icon'  => 'currencyDollar',
+					'title' => __( 'Orders', 'newspack-plugin' ),
+					'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
+					'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
+				],
+				[
+					'icon'  => 'formatListBullets',
+					'title' => __( 'Event Log', 'newspack-plugin' ),
+					'desc'  => __( 'Troubleshoot issues by viewing all events across your network.', 'newspack-plugin' ),
+					'href'  => admin_url( 'admin.php?page=newspack-network-event-log' ),
+				],
+				[
+					'icon'  => 'postList',
+					'title' => __( 'Membership Plans', 'newspack-plugin' ),
+					'desc'  => __( 'View membership plans.', 'newspack-plugin' ),
+					'href'  => admin_url( 'admin.php?page=newspack-network-membership-plans' ),
+				],
+				$settings_card,
+				[
+					'icon'  => 'tool',
+					'title' => __( 'Distributor Settings', 'newspack-plugin' ),
+					'desc'  => __( 'Configure the Distributor plugin behavior.', 'newspack-plugin' ),
+					'href'  => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
+				],
+			];
+
+		}
+
 	}
 
 	/**

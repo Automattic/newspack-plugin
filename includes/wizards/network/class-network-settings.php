@@ -39,14 +39,17 @@ class Network_Settings extends Wizard {
 			return;
 		}
 
-		// Load admin menu hook on all Network pages, not just this page. Use a high priority.
+		// Load on ALL Network pages. Use a high priority.
 		add_action( 'admin_menu', [ $this, 'admin_menu' ], $this->menu_priority );
 
-		// Load header only on this page.
-		if ( $this->is_wizard_page() ) {
-			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-			$this->admin_header_init( [ 'title' => $this->get_name() ] );
+		// Only continue for the current page.
+		if ( false == $this->is_wizard_page() ) {
+			return;
 		}
+
+		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
+		$this->admin_header_init( [ 'title' => $this->get_name() ] );
+
 	}
 
 	/**
@@ -56,53 +59,6 @@ class Network_Settings extends Wizard {
 	 */
 	public function get_name() {
 		return esc_html__( 'Network / Settings', 'newspack-plugin' );
-	}
-
-	/**
-	 * Get Parent Menu Icon
-	 *
-	 * @return string
-	 */
-	public function get_parent_menu_icon(): string {
-        
-		// @todo fix blue tint / ronchambers
-        
-		return 'data:image/svg+xml;base64,' . base64_encode( '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="1.5"/><path d="M12 4.36719C9.97145 5.3866 8.5 8.41883 8.5 12.0009C8.5 15.6603 10.0356 18.7459 12.1321 19.6979" stroke="white" stroke-width="1.5"/><path d="M12 4.3653C14.0286 5.38471 15.5 8.41694 15.5 11.9991C15.5 15.5812 14.0286 18.6134 12 19.6328" stroke="white" stroke-width="1.5"/><line x1="20" y1="14.5" x2="4" y2="14.5" stroke="white" stroke-width="1.5"/><line x1="4" y1="9.5" x2="20" y2="9.5" stroke="white" stroke-width="1.5"/></svg>' );
-	}
-
-	/**
-	 * Network Plugin: Check if a site role is set.
-	 * 
-	 * @return bool
-	 */
-	public function has_site_role(): bool {
-		return ( self::is_hub() || self::is_node() );
-	}
-
-	/**
-	 * Network Plugin: Check if site role is hub.
-	 * 
-	 * @return bool
-	 */
-	public function is_hub(): bool {
-		$fn = [ '\Newspack_Network\Site_Role', 'is_hub' ];
-		if( is_callable( $fn ) ) {
-			return call_user_func( $fn );
-		}
-		return false;
-	}
-
-	/**
-	 * Network Plugin: Check if site role is node.
-	 * 
-	 * @return bool
-	 */
-	public function is_node(): bool {
-		$fn = [ '\Newspack_Network\Site_Role', 'is_node' ];
-		if( is_callable( $fn ) ) {
-			return call_user_func( $fn );
-		}
-		return false;
 	}
 
 	/**
@@ -136,7 +92,8 @@ class Network_Settings extends Wizard {
 		
 		// Adjust the network menu attributes.
 		$menu[$network_key][0] = 'Network';
-		$menu[$network_key][6] = $this->get_parent_menu_icon();
+		// @todo fix blue tint and/or mouseover: ronchambers
+		$menu[$network_key][6] = 'data:image/svg+xml;base64,' . base64_encode( '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="white" stroke-width="1.5"/><path d="M12 4.36719C9.97145 5.3866 8.5 8.41883 8.5 12.0009C8.5 15.6603 10.0356 18.7459 12.1321 19.6979" stroke="white" stroke-width="1.5"/><path d="M12 4.3653C14.0286 5.38471 15.5 8.41694 15.5 11.9991C15.5 15.5812 14.0286 18.6134 12 19.6328" stroke="white" stroke-width="1.5"/><line x1="20" y1="14.5" x2="4" y2="14.5" stroke="white" stroke-width="1.5"/><line x1="4" y1="9.5" x2="20" y2="9.5" stroke="white" stroke-width="1.5"/></svg>');
 		
 		// Try to move the network item to a higher position near "Newspack".
 		$new_position = '3.9';
@@ -150,19 +107,5 @@ class Network_Settings extends Wizard {
 		$menu[$new_position] = $menu[$network_key];
 		unset( $menu[$network_key] );
 
-	}
-
-	/**
-	 * Add body class for wizard pages.
-	 * 
-	 * @param string $classes The current body classes.
-	 */
-	public function add_body_class( $classes ) {
-		if ( ! $this->is_wizard_page() ) {
-			return $classes;
-		}
-		// Don't do the body reset: src/components/src/with-wizard/style.scss
-		$classes .= ' newspack-wizard-no-body-reset';
-		return $classes;
 	}
 }

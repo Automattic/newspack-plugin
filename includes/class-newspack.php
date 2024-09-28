@@ -151,6 +151,7 @@ final class Newspack {
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-membership-plans.php';
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-node-settings.php';
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-nodes.php';
+			// @todo orders
 			include_once NEWSPACK_ABSPATH . 'includes/wizards/network/class-network-settings.php';	
 		}
 
