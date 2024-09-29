@@ -65,6 +65,7 @@ class Wizards {
 			self::$wizards['network-nodes']                = new Network_Nodes();
 			// @todo orders
 			self::$wizards['network-settings']             = new Network_Settings();
+			self::$wizards['network-subscriptions']        = new Network_Subscriptions();
 		}
 	}
 

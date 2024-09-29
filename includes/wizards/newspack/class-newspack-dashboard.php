@@ -258,7 +258,7 @@ class Newspack_Dashboard extends Wizard {
 					'icon'  => 'rotateRight',
 					'title' => __( 'Subscriptions', 'newspack-plugin' ),
 					'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
-					'href'  => admin_url( 'edit.php?post_type=np_hub_subscriptions' ),
+					'href'  => admin_url( 'admin.php?page=newspack-network-subscriptions' ),
 				],
 				[
 					'icon'  => 'currencyDollar',
