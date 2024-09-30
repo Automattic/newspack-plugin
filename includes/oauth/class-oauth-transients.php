@@ -207,7 +207,7 @@ class OAuth_Transients {
 	public static function cleanup() {
 		global $wpdb;
 		$table_name = self::get_table_name();
-		$wpdb->query( "DELETE FROM $table_name WHERE created_at < now() - interval 30 MINUTE LIMIT 1000" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "DELETE FROM $table_name WHERE created_at < utc_timestamp() - interval 30 MINUTE LIMIT 1000" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }
 
