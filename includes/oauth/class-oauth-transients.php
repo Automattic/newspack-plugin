@@ -106,10 +106,11 @@ class OAuth_Transients {
 	 * @param string $id The reader's unique ID.
 	 * @param string $scope The scope of the data to get.
 	 * @param string $field_to_get The column to get. Defaults to 'value'.
+	 * @param bool   $delete Whether to delete the row after getting the value.
 	 *
 	 * @return mixed The value of the data, or false if not found.
 	 */
-	public static function get( $id, $scope, $field_to_get = 'value' ) {
+	public static function get( $id, $scope, $field_to_get = 'value', $delete = true ) {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
@@ -124,7 +125,7 @@ class OAuth_Transients {
 		);
 
 		// Burn after reading.
-		if ( ! empty( $value ) && ( ! defined( 'NEWSPACK_OAUTH_TRANSIENTS_DEBUG' ) || ! NEWSPACK_OAUTH_TRANSIENTS_DEBUG ) ) {
+		if ( $delete && ! empty( $value ) && ( ! defined( 'NEWSPACK_OAUTH_TRANSIENTS_DEBUG' ) || ! NEWSPACK_OAUTH_TRANSIENTS_DEBUG ) ) {
 			self::delete( $id, $scope );
 		}
 
@@ -165,9 +166,13 @@ class OAuth_Transients {
 	 * @return mixed The value if it was set, false otherwise.
 	 */
 	public static function set( $id, $scope, $value ) {
+		if ( empty( $id ) ) {
+			return false;
+		}
+
 		global $wpdb;
 
-		$existing = self::get( $id, $scope );
+		$existing = self::get( $id, $scope, 'value', false );
 		if ( $existing ) {
 			return $existing;
 		}
