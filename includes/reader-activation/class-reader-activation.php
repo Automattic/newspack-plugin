@@ -31,6 +31,7 @@ final class Reader_Activation {
 	const EMAIL_VERIFIED                    = 'np_reader_email_verified';
 	const WITHOUT_PASSWORD                  = 'np_reader_without_password';
 	const REGISTRATION_METHOD               = 'np_reader_registration_method';
+	const CONNECTED_ACCOUNT                 = 'np_reader_connected_account';
 	const READER_SAVED_GENERIC_DISPLAY_NAME = 'np_reader_saved_generic_display_name';
 
 	/**
@@ -258,6 +259,15 @@ final class Reader_Activation {
 		if ( is_bool( $value ) ) {
 			$value = intval( $value );
 		}
+
+		/**
+		 * Fires just before a Reader Activation setting is updated
+		 *
+		 * @param string $key   Option name.
+		 * @param mixed  $value Option value.
+		 */
+		do_action( 'newspack_reader_activation_update_setting', $key, $value );
+
 		if ( 'metadata_prefix' === $key ) {
 			return Sync\Metadata::update_prefix( $value );
 		}

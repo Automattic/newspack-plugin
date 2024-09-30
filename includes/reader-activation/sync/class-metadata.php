@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
+use Newspack\Reader_Activation;
 use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
@@ -208,7 +209,6 @@ class Metadata {
 			'account'              => 'Account',
 			'registration_date'    => 'Registration Date',
 			'connected_account'    => 'Connected Account',
-			'signup_page'          => 'Signup Page',
 			'signup_page_utm'      => 'Signup UTM: ',
 			'newsletter_selection' => 'Newsletter Selection',
 			'referer'              => 'Referrer Path',
@@ -225,28 +225,23 @@ class Metadata {
 	 */
 	public static function get_payment_fields() {
 		return [
-			'membership_status'     => 'Membership Status',
-			'membership_plan'       => 'Membership Plan',
-			// In most cases these fields won't be needed, because their values will match
-			// linked subscription dates. But some setups use memberships w/out subscriptions.
-			'membership_start_date' => 'Current Membership Start Date',
-			'membership_end_date'   => 'Current Membership End Date',
+			'membership_status'   => 'Membership Status',
 			// URL of the page on which the payment has happened.
-			'payment_page'          => 'Payment Page',
-			'payment_page_utm'      => 'Payment UTM: ',
-			'sub_start_date'        => 'Current Subscription Start Date',
-			'sub_end_date'          => 'Current Subscription End Date',
+			'payment_page'        => 'Payment Page',
+			'payment_page_utm'    => 'Payment UTM: ',
+			'sub_start_date'      => 'Current Subscription Start Date',
+			'sub_end_date'        => 'Current Subscription End Date',
 			// At what interval does the recurring payment occur – e.g. day, week, month or year.
-			'billing_cycle'         => 'Billing Cycle',
+			'billing_cycle'       => 'Billing Cycle',
 			// The total value of the recurring payment.
-			'recurring_payment'     => 'Recurring Payment',
-			'last_payment_date'     => 'Last Payment Date',
-			'last_payment_amount'   => 'Last Payment Amount',
+			'recurring_payment'   => 'Recurring Payment',
+			'last_payment_date'   => 'Last Payment Date',
+			'last_payment_amount' => 'Last Payment Amount',
 			// Product name, as it appears in WooCommerce.
-			'product_name'          => 'Product Name',
-			'next_payment_date'     => 'Next Payment Date',
+			'product_name'        => 'Product Name',
+			'next_payment_date'   => 'Next Payment Date',
 			// Total value spent by this customer on the site.
-			'total_paid'            => 'Total Paid',
+			'total_paid'          => 'Total Paid',
 		];
 	}
 
@@ -319,29 +314,52 @@ class Metadata {
 	}
 
 	/**
-	 * Normalizes contact metadata keys before syncing to ESP.
+	 * Add user's registration-related data to the given metadata.
+	 * These won't be included in every sync request, but they might be stored as user meta.
 	 *
-	 * @param array $contact Contact data.
-	 * @return array Normalized contact data.
+	 * @param array $metadata Metadata to add to.
+	 *
+	 * @return array Metadata with registration data added.
 	 */
-	public static function normalize_contact_data( $contact ) {
-		if ( ! isset( $contact['metadata'] ) ) {
-			$contact['metadata'] = [];
+	private static function add_registration_data( $metadata ) {
+		$user = self::has_key( 'account', $metadata ) ? \get_user_by( 'id', self::get_key_value( 'account', $metadata ) ) : false;
+		if ( ! $user ) {
+			return $metadata;
 		}
 
-		$metadata            = $contact['metadata'];
-		$normalized_metadata = [];
-		$raw_keys            = self::get_raw_keys();
-		$prefixed_keys       = self::get_prefixed_keys();
+		$registration_method = self::has_key( 'registration_method', $metadata ) ? self::get_key_value( 'registration_method', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::REGISTRATION_METHOD, true );
+		if ( ! empty( $registration_method ) ) {
+			$metadata['registration_method'] = $registration_method;
+		}
 
+		$connected_account = self::has_key( 'connected_account', $metadata ) ? self::get_key_value( 'connected_account', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::CONNECTED_ACCOUNT, true );
+		if ( ! empty( $connected_account ) && in_array( $connected_account, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
+			$metadata['connected_account'] = $connected_account;
+		} elseif ( ! empty( $registration_method ) && in_array( $registration_method, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
+			$metadata['connected_account'] = $registration_method;
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Add UTM fields to the given metadata.
+	 *
+	 * @param array $metadata Metadata to add to.
+	 *
+	 * @return array Metadata with UTM fields added.
+	 */
+	private static function add_utm_data( $metadata ) {
 		// Capture UTM params and signup/payment page URLs as meta for registration or payment.
-		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
+		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'registration_page', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
 			$is_payment = self::has_key( 'payment_page', $metadata );
 			$raw_url    = false;
 			if ( $is_payment ) {
 				$raw_url = self::get_key_value( 'payment_page', $metadata );
-			} else {
+			} elseif ( self::has_key( 'current_page_url', $metadata ) ) {
 				$raw_url = self::get_key_value( 'current_page_url', $metadata );
+			} else {
+				$raw_url = self::get_key_value( 'registration_page', $metadata );
 			}
 
 			$parsed_url = \wp_parse_url( $raw_url );
@@ -363,6 +381,27 @@ class Metadata {
 				}
 			}
 		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Normalizes contact metadata keys before syncing to ESP.
+	 *
+	 * @param array $contact Contact data.
+	 * @return array Normalized contact data.
+	 */
+	public static function normalize_contact_data( $contact ) {
+		if ( ! isset( $contact['metadata'] ) ) {
+			$contact['metadata'] = [];
+		}
+
+		$metadata            = $contact['metadata'];
+		$metadata            = self::add_registration_data( $metadata );
+		$metadata            = self::add_utm_data( $metadata );
+		$raw_keys            = self::get_raw_keys();
+		$prefixed_keys       = self::get_prefixed_keys();
+		$normalized_metadata = [];
 
 		// Keys allowed to pass through without prefixing.
 		$allowed_keys = [ 'status', 'status_if_new' ];

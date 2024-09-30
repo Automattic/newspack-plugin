@@ -520,7 +520,7 @@ class Setup_Wizard extends Wizard {
 				continue;
 			}
 
-			if ( null !== $value && in_array( $key, $this->media_theme_mods ) ) {
+			if ( ! empty( $value['id'] ) && in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}
 			set_theme_mod( $key, $value );
@@ -652,6 +652,13 @@ class Setup_Wizard extends Wizard {
 			Newspack::plugin_url() . '/dist/setup.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_localize_script(
+			'newspack-setup-wizard',
+			'newspack_ads_wizard',
+			array(
+				'can_connect_google' => OAuth::is_proxy_configured( 'google' ),
+			)
 		);
 		wp_style_add_data( 'newspack-setup-wizard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-setup-wizard' );

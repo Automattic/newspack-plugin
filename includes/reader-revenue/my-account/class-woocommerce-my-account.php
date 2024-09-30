@@ -29,7 +29,10 @@ class WooCommerce_My_Account {
 	 */
 	public static function init() {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
-		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'edit_address_required_fields' ] );
+		\add_filter( 'woocommerce_default_address_fields', [ __CLASS__, 'required_address_fields' ] );
+		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'required_address_fields' ] );
+		\add_filter( 'woocommerce_get_checkout_url', [ __CLASS__, 'get_checkout_url' ] );
+		\add_filter( 'woocommerce_get_checkout_payment_url', [ __CLASS__, 'get_checkout_url' ] );
 
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
@@ -126,13 +129,21 @@ class WooCommerce_My_Account {
 				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $billing_address ) ) ) {
 					$default_disabled_items[] = 'edit-address';
 				}
+
+				// Hide Orders and Payment Methods if the reader has no orders.
+				if ( ! $customer->get_is_paying_customer() ) {
+					$default_disabled_items[] = 'orders';
+					$default_disabled_items[] = 'payment-methods';
+				}
 			}
 			if ( function_exists( 'wc_get_customer_available_downloads' ) ) {
-				$customer_id           = \get_current_user_id();
 				$wc_customer_downloads = \wc_get_customer_available_downloads( $customer_id );
 				if ( empty( $wc_customer_downloads ) ) {
 					$default_disabled_items[] = 'downloads';
 				}
+			}
+			if ( function_exists( 'wcs_user_has_subscription' ) && ! \wcs_user_has_subscription( $customer_id ) ) {
+				$default_disabled_items[] = 'subscriptions';
 			}
 
 			$disabled_wc_menu_items = \apply_filters( 'newspack_my_account_disabled_pages', $default_disabled_items );
@@ -141,6 +152,12 @@ class WooCommerce_My_Account {
 					unset( $items[ $key ] );
 				}
 			}
+
+			// Move "Account Details" and "S"ubscriptions" to the top of the menu.
+			if ( isset( $items['subscriptions'] ) ) {
+				$items = [ 'subscriptions' => $items['subscriptions'] ] + $items;
+			}
+			$items = [ 'edit-account' => $items['edit-account'] ] + $items;
 		}
 
 		return $items;
@@ -348,10 +365,22 @@ class WooCommerce_My_Account {
 	 * Do not redirect if this request is a membership cancellation.
 	 */
 	public static function redirect_to_account_details() {
-		$resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === \get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$cancel_membership_request = isset( $_REQUEST['cancel_membership'] ) ? true : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$is_resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === \get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false;
+		$is_renewal_request           = isset( $_REQUEST['subscription_renewal'] ) ? true : false;
+		$is_cancel_membership_request = isset( $_REQUEST['cancel_membership'] ) ? true : false;
+		$is_checkout_request          = isset( $_REQUEST['my_account_checkout'] ) ? true : false;
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		if ( \is_user_logged_in() && Reader_Activation::is_enabled() && function_exists( 'wc_get_page_permalink' ) && ! $resubscribe_request && ! $cancel_membership_request ) {
+		if (
+			\is_user_logged_in() &&
+			Reader_Activation::is_enabled() &&
+			function_exists( 'wc_get_page_permalink' ) &&
+			! $is_resubscribe_request &&
+			! $is_renewal_request &&
+			! $is_cancel_membership_request &&
+			! $is_checkout_request
+			) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
 			$my_account_page_permalink = \wc_get_page_permalink( 'myaccount' );
@@ -414,29 +443,107 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Detect if the current checkout page is coming from a My Account referrer.
+	 *
+	 * @return bool True if the current checkout page is coming from a My Account referrer, false otherwise.
+	 */
+	public static function is_from_my_account() {
+		// If we're in My Account.
+		if ( did_action( 'wp' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return true;
+		}
+
+		// If we have an `is_my_account` param in POST or GET.
+		$is_my_account_param = rest_sanitize_boolean( $_REQUEST['my_account_checkout'] ?? false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( $is_my_account_param ) {
+			return true;
+		}
+
+		// If the referrer URL had a `my_account_checkout` param.
+		$referrer = \wp_get_referer();
+		if ( $referrer ) {
+			$referrer_query = \wp_parse_url( $referrer, PHP_URL_QUERY );
+			\wp_parse_str( $referrer_query, $referrer_query_params );
+			if ( ! empty( $referrer_query_params['my_account_checkout'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * On My Account pages, append a query param to the checkout URL to indicate the user is coming from My Account.
+	 *
+	 * @param string $url Checkout URL.
+	 *
+	 * @return string
+	 */
+	public static function get_checkout_url( $url ) {
+		if ( self::is_from_my_account() ) {
+			return \add_query_arg(
+				[
+					'my_account_checkout' => 1,
+				],
+				$url
+			);
+		}
+		return $url;
+	}
+
+	/**
+	 * Ensure that only billing address fields enabled in Reader Revenue settings are required.
+	 *
+	 * @param array $fields Billing fields.
+	 *
+	 * @return array Filtered billing fields.
+	 */
+	public static function get_required_fields( $fields ) {
+		$billing_fields = apply_filters( 'newspack_blocks_donate_billing_fields_keys', [] );
+		if ( empty( $billing_fields ) ) {
+			return $fields;
+		}
+
+		foreach ( $fields as $field_name => $field_config ) {
+			if (
+				! in_array( $field_name, $billing_fields, true ) &&
+				! in_array( 'billing_' . $field_name, $billing_fields, true ) &&
+				is_array( $field_config )
+			) {
+				$field_config['required'] = false;
+				$fields[ $field_name ] = $field_config;
+			}
+		}
+
+		// Add a hidden field so we can pass this onto subsequent pages in the Checkout flow.
+		if ( ! isset( $fields['my_account_checkout'] ) ) {
+			$fields['my_account_checkout'] = [
+				'type'    => 'hidden',
+				'default' => 1,
+			];
+		}
+
+		return $fields;
+	}
+
+	/**
 	 * Ensure that only billing address fields enabled in Reader Revenue settings
 	 * are required in My Account edit billing address page.
 	 *
 	 * @param array $fields Address fields.
 	 * @return array Filtered address fields.
 	 */
-	public static function edit_address_required_fields( $fields ) {
+	public static function required_address_fields( $fields ) {
 		global $wp;
 
 		if (
-			! function_exists( 'is_account_page' ) ||
-			! \is_account_page() || // Only on My Account page.
-			! isset( $wp->query_vars['edit-address'] ) || // Only when editing address.
-			'billing' !== $wp->query_vars['edit-address'] // Only when editing billing address.
-			) {
-			return $fields;
-		}
-
-		$required_fields = Donations::get_billing_fields();
-		foreach ( $fields as $field_name => $field_config ) {
-			if ( ! in_array( $field_name, $required_fields, true ) ) {
-				$fields[ $field_name ]['required'] = false;
-			}
+			self::is_from_my_account() && // Only when coming from My Account.
+			(
+				( function_exists( 'is_checkout' ) && is_checkout() ) || // If on the checkout page.
+				( isset( $wp->query_vars['edit-address'] ) && 'billing' === $wp->query_vars['edit-address'] ) // If editing billing address.
+			)
+		) {
+			$fields = self::get_required_fields( $fields );
 		}
 
 		return $fields;

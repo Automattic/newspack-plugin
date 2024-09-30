@@ -41,6 +41,118 @@ class WooCommerce {
 	}
 
 	/**
+	 * Get the order containing what we consider to be the "Current Product" for a given user.
+	 *
+	 * All the payment fields that are synced relate to this product.
+	 *
+	 * The criteria for the "Current Product" are:
+	 * 1. The most recent subscription (either regular subscriptions or recurring donations).
+	 * 2. If no active subscriptions, the most recently cancelled or expired subscription.
+	 * 3. If no subscriptions at all, the most recent one-time donation.
+	 *
+	 * @param \WC_Customer $customer Customer object.
+	 *
+	 * @return \WC_Order|false Order object or false.
+	 */
+	private static function get_current_product_order_for_sync( $customer ) {
+		if ( ! is_a( $customer, 'WC_Customer' ) ) {
+			return false;
+		}
+
+		$user_id = $customer->get_id();
+
+		// 1. The most recent subscription (either regular subscriptions or recurring donations).
+		$active_subscriptions = WooCommerce_Connection::get_active_subscriptions_for_user( $user_id );
+		if ( ! empty( $active_subscriptions ) ) {
+			return \wcs_get_subscription( reset( $active_subscriptions ) );
+		}
+
+		// 2. If no active subscriptions, the most recently cancelled or expired subscription.
+		$most_recent_cancelled_or_expired_subscription = self::get_most_recent_cancelled_or_expired_subscription( $user_id );
+		if ( $most_recent_cancelled_or_expired_subscription ) {
+			return \wcs_get_subscription( $most_recent_cancelled_or_expired_subscription );
+		}
+
+		// 3. If no subscriptions at all, the most recent one-time donation.
+		$one_time_donation_order = self::get_one_time_donation_order_for_user( $user_id );
+		if ( $one_time_donation_order ) {
+			return $one_time_donation_order;
+		}
+
+		/**
+		 * Filter the order containing what we consider to be the "Current Product" for a given user when nothing is found.
+		 *
+		 * This is used for tests to mock the return value.
+		 *
+		 * @param false $current_product_order The returned value.
+		 * @return int $user_id The user ID.
+		 */
+		return apply_filters( 'newspack_reader_activation_get_current_product_order_for_sync', false, $user_id );
+	}
+
+	/**
+	 * Get the most recent cancelled or expired subscription for a user.
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return ?WCS_Subscription A Subscription object or null.
+	 */
+	private static function get_most_recent_cancelled_or_expired_subscription( $user_id ) {
+		$subcriptions = array_reduce(
+			array_keys( \wcs_get_users_subscriptions( $user_id ) ),
+			function( $acc, $subscription_id ) {
+				$subscription = \wcs_get_subscription( $subscription_id );
+				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
+					$acc[] = $subscription_id;
+				}
+				return $acc;
+			},
+			[]
+		);
+
+		if ( ! empty( $subcriptions ) ) {
+			return reset( $subcriptions );
+		}
+	}
+
+	/**
+	 * Get the most recent one-time donation order for a user.
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return ?WC_Order An Order object or null.
+	 */
+	private static function get_one_time_donation_order_for_user( $user_id ) {
+		$donation_product = Donations::get_donation_product( 'once' );
+		if ( ! $donation_product ) {
+			return;
+		}
+		$user_has_donated = \wc_customer_bought_product( null, $user_id, $donation_product );
+		if ( ! $user_has_donated ) {
+			return;
+		}
+
+		// If user has donated, we'll loop through their orders to find the most recent donation.
+		// If this method was called, that's because they don't have any active subscriptions, so there shouldn't be too many.
+		$args = [
+			'customer_id' => $user_id,
+			'status'      => [ 'wc-completed' ],
+			'limit'       => -1,
+			'order'       => 'DESC',
+			'orderby'     => 'date',
+			'return'      => 'objects',
+		];
+
+		// Return the most recent completed order.
+		$orders = \wc_get_orders( $args );
+		foreach ( $orders as $order ) {
+			if ( Donations::is_donation_order( $order ) ) {
+				return $order;
+			}
+		}
+	}
+
+	/**
 	 * Get data about a customer's order to sync to the connected ESP.
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
@@ -122,7 +234,7 @@ class WooCommerce {
 			}
 			$order_date_paid = $order->get_date_paid();
 			if ( $payment_received && ! empty( $order_date_paid ) ) {
-				$metadata['last_payment_amount'] = \wc_format_localized_price( $order->get_total() );
+				$metadata['last_payment_amount'] = $order->get_total();
 				$metadata['last_payment_date']   = $order_date_paid->date( Metadata::DATE_FORMAT );
 			}
 
@@ -158,7 +270,7 @@ class WooCommerce {
 			$metadata['recurring_payment'] = $current_subscription->get_total();
 
 			if ( $payment_received ) {
-				$metadata['last_payment_amount'] = \wc_format_localized_price( $current_subscription->get_total() );
+				$metadata['last_payment_amount'] = $current_subscription->get_total();
 				$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
 			}
 
@@ -210,9 +322,9 @@ class WooCommerce {
 
 		$metadata['account']           = $customer->get_id();
 		$metadata['registration_date'] = $customer->get_date_created()->date( Metadata::DATE_FORMAT );
-		$metadata['total_paid']        = \wc_format_localized_price( $customer->get_total_spent() );
+		$metadata['total_paid']        = $customer->get_total_spent();
 
-		$order = WooCommerce_Connection::get_last_successful_order( $customer );
+		$order = self::get_current_product_order_for_sync( $customer );
 
 		// Get the order metadata.
 		$order_metadata = [];
@@ -232,7 +344,7 @@ class WooCommerce {
 		$last_name  = $customer->get_billing_last_name();
 		$full_name  = trim( "$first_name $last_name" );
 		$contact    = [
-			'email'    => $customer->get_billing_email(),
+			'email'    => ! empty( $customer->get_billing_email() ) ? $customer->get_billing_email() : $customer->get_email(),
 			'metadata' => $metadata,
 		];
 		if ( ! empty( $full_name ) ) {

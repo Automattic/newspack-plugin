@@ -41,7 +41,6 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 		Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
-		Data_Events::register_handler( [ __CLASS__, 'membership_saved' ], 'membership_saved' );
 	}
 
 	/**
@@ -121,35 +120,6 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		}
 
 		self::sync( $contact, 'RAS Order completed' );
-	}
-
-	/**
-	 * Handle membership creation or update.
-	 *
-	 * @param int   $timestamp Timestamp of the event.
-	 * @param array $data      Data associated with the event.
-	 * @param int   $client_id ID of the client that triggered the event.
-	 */
-	public static function membership_saved( $timestamp, $data, $client_id ) {
-		$filtered_enabled_fields = Sync\Metadata::filter_enabled_fields(
-			[
-				'membership_status',
-				'membership_plan',
-				'membership_start_date',
-				'membership_end_date',
-			]
-		);
-		if ( empty( $filtered_enabled_fields ) ) {
-			return;
-		}
-		$contact = [ 'email' => $data['email'] ];
-		foreach ( $filtered_enabled_fields as $key => $value ) {
-			if ( isset( $data[ $key ] ) ) {
-				$contact['metadata'][ $key ] = $data[ $key ];
-			}
-		}
-
-		self::sync( $contact, 'RAS Woo Membership created or updated.' );
 	}
 
 	/**
