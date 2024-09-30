@@ -38,7 +38,7 @@ class OAuth_Transients {
 		if ( defined( 'NEWSPACK_CRON_DISABLE' ) && is_array( NEWSPACK_CRON_DISABLE ) && in_array( self::CRON_HOOK, NEWSPACK_CRON_DISABLE, true ) ) {
 			self::cron_deactivate();
 		} elseif ( ! \wp_next_scheduled( self::CRON_HOOK ) ) {
-				\wp_schedule_event( time(), 'weekly', self::CRON_HOOK );
+				\wp_schedule_event( time(), 'hourly', self::CRON_HOOK );
 		}
 	}
 
