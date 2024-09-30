@@ -114,6 +114,10 @@ class OAuth_Transients {
 		global $wpdb;
 		$table_name = self::get_table_name();
 
+		if ( empty( $id ) ) {
+			return false;
+		}
+
 		$value = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->prepare(
 				'SELECT %1$s FROM %2$s WHERE id = "%3$s" AND scope = "%4$s"', // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
