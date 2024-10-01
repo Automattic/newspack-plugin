@@ -1,3 +1,10 @@
+## [5.3.12](https://github.com/Automattic/newspack-plugin/compare/v5.3.11...v5.3.12) (2024-10-01)
+
+
+### Bug Fixes
+
+* handle zero cover fee percentage ([#3452](https://github.com/Automattic/newspack-plugin/issues/3452)) ([742b378](https://github.com/Automattic/newspack-plugin/commit/742b378d0399ab9359e82ad7aa4d999d78566ebd))
+
 ## [5.3.11](https://github.com/Automattic/newspack-plugin/compare/v5.3.10...v5.3.11) (2024-10-01)
 
 
