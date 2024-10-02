@@ -248,6 +248,20 @@ class Google_Login {
 		}
 		$metadata['registration_method'] = 'google';
 		if ( $email ) {
+			do_action(
+				'newspack_log',
+				'newspack_google_login',
+				'Google Login Success',
+				[
+					'type'       => 'debug',
+					'data'       => [
+						'uid' => OAuth::get_unique_id(),
+					],
+					'user_email' => $email,
+					'file'       => 'newspack_google_login',
+				]
+			);
+
 			$existing_user = \get_user_by( 'email', $email );
 			$message       = __( 'Thank you for registering!', 'newspack-plugin' );
 			$data          = [
@@ -268,20 +282,6 @@ class Google_Login {
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
-
-			do_action(
-				'newspack_log',
-				'newspack_google_login',
-				'Google Login Success',
-				[
-					'type'       => 'debug',
-					'data'       => [
-						'uid' => OAuth::get_unique_id(),
-					],
-					'user_email' => $email,
-					'file'       => 'newspack_google_login',
-				]
-			);
 
 			return \rest_ensure_response(
 				[
