@@ -24,12 +24,12 @@ const { InteractiveDiv } = utils;
 /**
  * ColorPicker component.
  *
- * @param {Object}   props             - Component props.
- * @param {Function} props.label       - Label for the color picker.
- * @param {string}   [props.color]     - Default color.
- * @param {Function} props.onChange    - Function to call when the color changes.
- * @param {string}   [props.className] - Additional class name.
- * @return {Function} ColorPicker component.
+ * @param {Object}             props             - Component props.
+ * @param {JSX.Element|string} props.label       - Label for the color picker.
+ * @param {string}             [props.color]     - Default color.
+ * @param {Function}           props.onChange    - Function to call when the color changes.
+ * @param {string}             [props.className] - Additional class name.
+ * @return {JSX.Element} ColorPicker component.
  */
 const ColorPicker = ( { label, color = '#fff', onChange, className = undefined } ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
