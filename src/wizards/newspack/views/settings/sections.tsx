@@ -39,6 +39,7 @@ export default settingsSectionKeys.map( sectionPath => {
 		label: settingsTabs[ sectionPath ].label,
 		exact: '/' === ( settingsTabs[ sectionPath ].path ?? '' ),
 		path: settingsTabs[ sectionPath ].path ?? `/${ sectionPath }`,
+		activeTabPaths: settingsTabs[ sectionPath ].activeTabPaths ?? undefined,
 		render: sectionComponents[ sectionPath ] ?? sectionComponents.default,
 	};
 } );
