@@ -71,6 +71,7 @@ final class Magic_Link {
 
 		/** Replace Newspack Newsletters Verification Email */
 		\add_filter( 'newspack_newsletters_email_verification_email', [ __CLASS__, 'newsletters_email_verification_email' ], 10, 3 );
+		\add_action( 'wp_logout', [ __CLASS__, 'clear_user_tokens' ], 10, 1 );
 	}
 
 	/**
@@ -265,10 +266,11 @@ final class Magic_Link {
 	/**
 	 * Clear all user tokens.
 	 *
-	 * @param \WP_User $user User to clear tokens for.
+	 * @param \WP_User|int $user User or user ID to clear tokens for.
 	 */
 	public static function clear_user_tokens( $user ) {
-		\delete_user_meta( $user->ID, self::TOKENS_META );
+		$user_id = $user instanceof \WP_User ? $user->ID : $user;
+		\delete_user_meta( $user_id, self::TOKENS_META );
 
 		/**
 		 * Fires after all user tokens are cleared.
