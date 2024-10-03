@@ -1,16 +1,16 @@
 <?php
 /**
- * Govpack
+ * Newspack Elections Block Patterns.
  *
- * @package Govpack
+ * @package Newspack
  */
 
 namespace Newspack;
 
 /**
- *
+ * Newspack_Elections class.
  */
-class Elections_Block_Patterns {
+class Newspack_Elections {
 	/**
 	 * Initialize hooks.
 	 */
@@ -71,4 +71,4 @@ class Elections_Block_Patterns {
 		}
 	}
 }
-Elections_Block_Patterns::init();
+Newspack_Elections::init();
