@@ -35,7 +35,27 @@ class Co_Authors_Plus {
 	 */
 	public static function run_cap_cli_command() {
 		if ( method_exists( 'WP_CLI', 'runcommand' ) ) {
-			WP_CLI::runcommand( 'co-authors-plus create-terms-for-posts --batched --records-per-batch=50' );
+			$result = WP_CLI::runcommand(
+				'co-authors-plus create-author-terms-for-posts --batched --records-per-batch=50',
+				[
+					'launch' => false, // This keeps any formatting that's been set.
+					'return' => 'all', // This ensures we get stdout, stderr, and return code.
+				]
+			);
+
+			WP_CLI::out( $result->stdout );
+
+			do_action(
+				'newspack_log',
+				$result->return_code,
+				self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL,
+				[
+					'type'      => 0 === $result->return_code ? 'success' : 'error',
+					'stdout'    => $result->stdout,
+					'timestamp' => gmdate( 'c', time() ),
+					'file'      => 'newspack_cap_author_terms_backfill',
+				]
+			);
 		}
 	}
 
