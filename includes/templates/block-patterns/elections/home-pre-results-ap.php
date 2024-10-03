@@ -8,11 +8,11 @@
 ?>
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:heading {"textAlign":"center","level":1} -->
-<h1 class="wp-block-heading has-text-align-center"><a href="#"><?php _e( 'Demonyms Head to the Polls!', 'newspack-plugin' ); ?></a></h1>
+<h1 class="wp-block-heading has-text-align-center"><a href="#"><?php _e( '[Our Community] Heads to the Polls!', 'newspack-plugin' ); ?></a></h1>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph {"align":"center","style":{"color":{"background":"#fff562"}}} -->
-<p class="has-text-align-center has-background" style="background-color:#fff562"><?php _e( 'Update the above headline throughout election night. Set it to link to your primary election results story. Delete these yellow paragraphs before publishing.', 'newspack-plugin' ); ?></p>
+<p class="has-text-align-center has-background" style="background-color:#fff562"><?php _e( 'Update the above headline throughout election night. Set it to link to your primary election results story. Delete these yellow paragraphs before publishing. To find out more about how to use these patterns, see the <a target="_blank" href="https://help.newspack.com/newspack-election-results-patterns/">Help Site documentation</a>.', 'newspack-plugin' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:columns {"className":"is-style-borders"} -->
@@ -61,7 +61,7 @@
 
 <!-- wp:column {"width":"100%"} -->
 <div class="wp-block-column" style="flex-basis:100%"><!-- wp:paragraph {"align":"center"} -->
-<p class="has-text-align-center"><?php _e( 'We\'ll be monitoring Pittsburgh\'s key races until the results are in. Sign up for our mailing list to get the latest updates sent directly to your inbox.', 'newspack-plugin' ); ?></p>
+<p class="has-text-align-center"><?php _e( 'We\'ll be monitoring [our community]\'s key races until the results are in. Sign up for our mailing list to get the latest updates sent directly to your inbox.', 'newspack-plugin' ); ?></p>
 <!-- /wp:paragraph --></div>
 <!-- /wp:column -->
 

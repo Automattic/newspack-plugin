@@ -8,7 +8,7 @@
 ?>
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph {"className":"np-template-helper","style":{"color":{"background":"#fff562"}}} -->
-<p class="np-template-helper has-background" style="background-color:#fff562"><?php _e( 'Welcome to Newspack\'s Election Results template. This article pattern is designed to work with DDHQ results embeds. If you\'re not sure how to access those, contact DDHQ. We\'ve included guidance throughout the template to help you build an election results page that highlights your unique value to your audience and drives engagement. <strong>Make sure to delete these guide paragraphs with yellow backgrounds before publishing.</strong>', 'newspack-plugin' ); ?></p>
+<p class="np-template-helper has-background" style="background-color:#fff562"><?php _e( 'Welcome to Newspack\'s Election Results template. This article pattern is designed to work with DDHQ results embeds. If you\'re not sure how to access those, contact DDHQ. We\'ve included guidance throughout the template to help you build an election results page that highlights your unique value to your audience and drives engagement. <strong>Make sure to delete these guide paragraphs with yellow backgrounds before publishing.</strong> To find out more about how to use these patterns, see the <a target="_blank" href="https://help.newspack.com/newspack-election-results-patterns/">Help Site documentation</a>.', 'newspack-plugin' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
