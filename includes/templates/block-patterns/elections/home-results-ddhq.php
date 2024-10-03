@@ -2,7 +2,7 @@
 /**
  * Homepage Results Module — DDHQ.
  *
- * @package Govpack
+ * @package Newspack
  */
 
 ?>

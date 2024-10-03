@@ -2,7 +2,7 @@
 /**
  * Live Election Results Post — AP.
  *
- * @package Govpack
+ * @package Newspack
  */
 
 ?>

@@ -2,7 +2,7 @@
 /**
  * Homepage Results Module — AP.
  *
- * @package Govpack
+ * @package Newspack
  */
 
 ?>

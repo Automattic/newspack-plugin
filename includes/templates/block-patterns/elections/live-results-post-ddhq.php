@@ -2,7 +2,7 @@
 /**
  * Live Election Results Post — DDHQ.
  *
- * @package Govpack
+ * @package Newspack
  */
 
 ?>
