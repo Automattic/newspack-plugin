@@ -1,40 +1,27 @@
-import {
-	Card,
-	ActionCard,
-	Button,
-	Popover,
-	Router,
-} from '../../../../../components/src';
-
-const { NavLink, useHistory } = Router;
-
 import { __ } from '@wordpress/i18n';
 import { ESCAPE } from '@wordpress/keycodes';
+import { useState } from '@wordpress/element';
 import { moreVertical } from '@wordpress/icons';
 import { MenuItem } from '@wordpress/components';
-import { useState, Fragment } from '@wordpress/element';
 
-const AddNewBrandLink = () => (
-	<NavLink to="/additional-brands/brands/new">
-		<Button variant="primary">
-			{ __( 'Add New Brand', 'newspack-plugin' ) }
-		</Button>
-	</NavLink>
-);
+import WizardsActionCard from '../../../../wizards-action-card';
+import { Button, Popover, Router } from '../../../../../components/src';
 
-const BrandActionCard = ( {
+const { useHistory } = Router;
+
+export default function BrandActionCard( {
 	brand,
 	deleteBrand,
 }: {
 	brand: Brand;
 	deleteBrand: ( brand: Brand ) => void;
-} ) => {
+} ) {
 	const [ popoverVisibility, setPopoverVisibility ] = useState( false );
 	const onFocusOutside = () => setPopoverVisibility( false );
 	const history = useHistory();
 
 	return (
-		<ActionCard
+		<WizardsActionCard
 			isSmall
 			title={ brand.name }
 			actionText={
@@ -64,7 +51,7 @@ const BrandActionCard = ( {
 							<MenuItem
 								onClick={ () =>
 									history.push(
-										`/additional-brands/brands/${ brand.id }`
+										`/additional-brands/${ brand.id }`
 									)
 								}
 								className="newspack-button"
@@ -82,44 +69,5 @@ const BrandActionCard = ( {
 				</>
 			}
 		/>
-	);
-};
-
-export default function BrandsList( {
-	brands,
-	deleteBrand,
-}: {
-	brands: Brand[];
-	deleteBrand: ( brand: Brand ) => void;
-} ) {
-	return brands.length ? (
-		<Fragment>
-			<Card headerActions noBorder>
-				<h2>{ __( 'Site brands', 'newspack-plugin' ) }</h2>
-				<AddNewBrandLink />
-			</Card>
-			{ brands.map( brand => (
-				<BrandActionCard
-					key={ brand.id }
-					brand={ brand }
-					deleteBrand={ deleteBrand }
-				/>
-			) ) }
-		</Fragment>
-	) : (
-		<Fragment>
-			<Card headerActions noBorder>
-				<h2>
-					{ __( 'You have no saved brands.', 'newspack-plugin' ) }
-				</h2>
-				<AddNewBrandLink />
-			</Card>
-			<p>
-				{ __(
-					'Create brands to enhance your readers experience.',
-					'newspack-plugin'
-				) }
-			</p>
-		</Fragment>
 	);
 }

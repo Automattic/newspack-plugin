@@ -23,6 +23,7 @@ type ActionCardProps = Partial< {
 	isErrorStatus: boolean;
 	isChecked: boolean;
 	children: boolean | React.ReactNode;
+	isSmall: boolean;
 } >;
 
 /**
@@ -104,7 +105,7 @@ type WizardsToggleHeaderCardProps< T > = {
 			{
 				callback?: 'isIntegerId' | 'isId' | ( ( v: any ) => string );
 				dependsOn?: { [ k in keyof T ]?: string };
-			}
+			},
 		]
 	>;
 	renderProp: ( props: {
