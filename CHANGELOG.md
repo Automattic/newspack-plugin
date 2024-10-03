@@ -1,3 +1,17 @@
+## [5.3.14](https://github.com/Automattic/newspack-plugin/compare/v5.3.13...v5.3.14) (2024-10-03)
+
+
+### Bug Fixes
+
+* cache bust the /login/google API request ([ee92ded](https://github.com/Automattic/newspack-plugin/commit/ee92dedfdd365c7c69b877cd98cad15f976b6627))
+
+## [5.3.13](https://github.com/Automattic/newspack-plugin/compare/v5.3.12...v5.3.13) (2024-10-02)
+
+
+### Bug Fixes
+
+* **oauth:** tweak precision of success google auth log ([#3453](https://github.com/Automattic/newspack-plugin/issues/3453)) ([bed1e67](https://github.com/Automattic/newspack-plugin/commit/bed1e673be1e48444ad09680647f9f0fd80472ba))
+
 ## [5.3.12](https://github.com/Automattic/newspack-plugin/compare/v5.3.11...v5.3.12) (2024-10-01)
 
 
