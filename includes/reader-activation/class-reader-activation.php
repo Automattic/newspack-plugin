@@ -1926,8 +1926,7 @@ final class Reader_Activation {
 		$user_id = \absint( $user->ID );
 
 		\wp_clear_auth_cookie();
-		\wp_set_current_user( $user->ID );
-		\wp_set_auth_cookie( $user->ID, true );
+		self::set_current_user( $user->ID );
 		\do_action( 'wp_login', $user->user_login, $user );
 		Logger::log( 'Logged in user ' . $user->ID );
 
@@ -2358,6 +2357,21 @@ final class Reader_Activation {
 		}
 
 		return $email_address;
+	}
+
+	/**
+	 * Sets the current WP user and sets cookie data.
+	 *
+	 * @param int $user_id The user ID.
+	 */
+	private static function set_current_user( $user_id ) {
+		// If Woo is active, use its method to set the customer auth cookie.
+		if ( function_exists( 'wc_set_customer_auth_cookie' ) ) {
+			\wc_set_customer_auth_cookie( $user_id );
+		} else {
+			\wp_set_current_user( $user_id );
+			\wp_set_auth_cookie( $user_id, true );
+		}
 	}
 }
 Reader_Activation::init();
