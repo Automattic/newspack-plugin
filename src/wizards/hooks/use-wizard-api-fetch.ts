@@ -167,7 +167,7 @@ export function useWizardApiFetch( slug: string ) {
 				return cachedMethod as T;
 			}
 
-			const executeRequest = async (): Promise< T > => {
+			async function executeRequest(): Promise< T > {
 				on( 'onStart' );
 
 				try {
@@ -203,7 +203,7 @@ export function useWizardApiFetch( slug: string ) {
 					const { [ path ]: _removed, ...newData } = promiseCache;
 					promiseCache = newData;
 				}
-			};
+			}
 
 			// For non-cached requests, use the queue system
 			if ( ! isCached ) {

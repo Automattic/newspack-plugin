@@ -19,7 +19,12 @@ const WizardsActionCard = ( {
 		<ActionCard
 			{ ...{
 				description,
-				checkbox: isChecked ? 'checked' : 'unchecked',
+				checkbox:
+					typeof isChecked === 'undefined'
+						? undefined
+						: isChecked
+						? 'checked'
+						: 'unchecked',
 				notification: error,
 				notificationLevel,
 				...props,

@@ -3,26 +3,23 @@ const { Route, Switch, useHistory, useLocation, useParams, useRouteMatch } =
 
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import { useState, useEffect, Fragment } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 
 import Brand from './brand';
 import BrandsList from './list';
 import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
-import { Router } from '../../../../../components/src';
+import { Router, utils } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 export default function AdditionalBrands() {
-	const { wizardApiFetch, setError, isFetching } = useWizardApiFetch(
+	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/additional-brands'
 	);
 
 	const [ brands, setBrands ] = useState< Brand[] >( [] );
 	const history = useHistory();
-
-	const location = useLocation();
-	const params = useParams();
-	const { path, url } = useRouteMatch();
+	const { path } = useRouteMatch();
 
 	const headerText = __( 'Brands', 'newspack' );
 	const subHeaderText = __( 'Configure brands settings', 'newspack' );
@@ -36,34 +33,25 @@ export default function AdditionalBrands() {
 	 * Fetching brands data.
 	 */
 	const fetchBrands = () => {
-		wizardApiFetch(
+		wizardApiFetch< Brand[] >(
 			{
 				path: addQueryArgs( '/wp/v2/brand', { per_page: 100 } ),
 			},
 			{
 				onSuccess( response ) {
 					setBrands(
-						response.map(
-							( brand: {
-								meta: {
-									_theme_colors: string | any[];
-									_menus: string | any[];
-								};
-							} ) => ( {
-								...brand,
-								meta: {
-									...brand.meta,
-									_theme_colors:
-										0 === brand.meta._theme_colors?.length
-											? null
-											: brand.meta._theme_colors,
-									_menus:
-										0 === brand.meta._menus?.length
-											? null
-											: brand.meta._menus,
-								},
-							} )
-						)
+						response.map( ( brand: Brand ) => ( {
+							...brand,
+							meta: {
+								...brand.meta,
+								_theme_colors: brand.meta._theme_colors?.length
+									? brand.meta._theme_colors
+									: [],
+								_menus: brand.meta._menus?.length
+									? brand.meta._menus
+									: [],
+							},
+						} ) )
 					);
 				},
 			}
@@ -71,7 +59,7 @@ export default function AdditionalBrands() {
 	};
 
 	const saveBrand = ( brandId: number, brand: Brand ) => {
-		wizardApiFetch(
+		wizardApiFetch< Brand >(
 			{
 				path: brandId ? `/wp/v2/brand/${ brandId }` : '/wp/v2/brand',
 				method: 'POST',
@@ -92,7 +80,7 @@ export default function AdditionalBrands() {
 				onSuccess( result ) {
 					setBrands( ( brandsList: Brand[] ) => {
 						// The result from the API call doesn't contain the logo details.
-						const newBrand: Brand = { ...brand, id: result.id };
+						const newBrand = { ...brand, id: result.id };
 						if ( brandId ) {
 							const brandIndex = brandsList.findIndex(
 								_brand => brandId === _brand.id
@@ -113,13 +101,12 @@ export default function AdditionalBrands() {
 	};
 
 	const deleteBrand = ( brand: Brand ) => {
-		// eslint-disable-next-line no-alert
 		if (
-			confirm(
+			utils.confirmAction(
 				__( 'Are you sure you want to delete this brand?', 'newspack' )
 			)
 		) {
-			wizardApiFetch(
+			wizardApiFetch< { deleted: boolean; previous: Brand } >(
 				{
 					path: addQueryArgs( `/wp/v2/brand/${ brand.id }`, {
 						force: true,
@@ -145,17 +132,12 @@ export default function AdditionalBrands() {
 		if ( ! attachmentId ) {
 			return;
 		}
-		console.log( { brandId, attachmentId } );
 		wizardApiFetch(
 			{
 				path: `/wp/v2/media/${ attachmentId }`,
 			},
 			{
-				onStart: () => {
-					console.log( 'onStart' );
-				},
 				onSuccess( attachment ) {
-					console.log( { attachment } );
 					setBrands( brandsList => {
 						const brandIndex = brandsList.findIndex(
 							_brand => brandId === _brand.id
@@ -187,6 +169,7 @@ export default function AdditionalBrands() {
 	return (
 		<WizardsTab title={ __( 'Additional Brands', 'newspack-plugin' ) }>
 			<WizardSection>
+				<pre>{ JSON.stringify( { isFetching }, null, 2 ) }</pre>
 				<Switch>
 					<Route
 						exact
