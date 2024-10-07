@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useCallback, useRef } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -90,25 +90,13 @@ export function useWizardApiFetch( slug: string ) {
 		wizardData.error ?? null
 	);
 
-	const requestQueue = useRef< Array< () => Promise< any > > >( [] );
-	const processingQueue = useRef( false );
-
-	const processQueue = useCallback( async () => {
-		if ( requestQueue.current.length === 0 ) {
-			processingQueue.current = false;
-			setIsFetching( false );
-			return;
-		}
-
-		processingQueue.current = true;
-		setIsFetching( true );
-
-		const nextRequest = requestQueue.current.shift();
-		if ( nextRequest ) {
-			await nextRequest();
-			processQueue();
-		}
-	}, [] );
+	useEffect( () => {
+		updateWizardSettings( {
+			slug,
+			path: [ 'error' ],
+			value: error,
+		} );
+	}, [ error, updateWizardSettings, slug ] );
 
 	function resetError() {
 		setError( null );
@@ -160,77 +148,70 @@ export function useWizardApiFetch( slug: string ) {
 				[ path ]: { [ method ]: cachedMethod = null } = {},
 			}: WizardData = wizardData;
 
-			// Handle cached requests immediately
+			function thenCallback( response: T ) {
+				if ( isCached ) {
+					updateSettings( method, response );
+				}
+				if ( updateCacheKey && updateCacheKey instanceof Object ) {
+					updateSettings(
+						Object.entries( updateCacheKey )[ 0 ],
+						response,
+						null
+					);
+				}
+				for ( const replaceMethod of updateCacheMethods ) {
+					updateSettings( replaceMethod, response );
+				}
+				on( 'onSuccess', response );
+				return response;
+			}
+
+			function catchCallback( err: WpFetchError ) {
+				const newError = parseApiError( err );
+				setError( newError );
+				on( 'onError', newError );
+				throw newError;
+			}
+
+			function finallyCallback() {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const { [ path ]: _removed, ...newData } = promiseCache;
+				promiseCache = newData;
+				setIsFetching( Object.keys( promiseCache ).length > 0 );
+				on( 'onFinally' );
+			}
+
+			// If the promise is already in progress, return it before making a new request.
+			if ( promiseCache[ path ] ) {
+				setIsFetching( true );
+				return promiseCache[ path ]
+					.then( thenCallback )
+					.catch( catchCallback )
+					.finally( finallyCallback );
+			}
+
+			// Cache exists and is not empty, return it.
 			if ( isCached && ( cachedError || cachedMethod ) ) {
 				setError( cachedError );
 				on( 'onSuccess', cachedMethod );
-				return cachedMethod as T;
+				return cachedMethod;
 			}
 
-			async function executeRequest(): Promise< T > {
-				on( 'onStart' );
+			setIsFetching( true );
+			on( 'onStart' );
 
-				try {
-					const response: Promise< T > = await wizardApiFetch( {
-						isQuietFetch: true,
-						isLocalError: true,
-						...options,
-					} );
+			promiseCache[ path ] = wizardApiFetch( {
+				isQuietFetch: true,
+				isLocalError: true,
+				...options,
+			} )
+				.then( thenCallback )
+				.catch( catchCallback )
+				.finally( finallyCallback );
 
-					if ( isCached ) {
-						updateSettings( method, response );
-					}
-					if ( updateCacheKey && updateCacheKey instanceof Object ) {
-						updateSettings(
-							Object.entries( updateCacheKey )[ 0 ],
-							response,
-							null
-						);
-					}
-					for ( const replaceMethod of updateCacheMethods ) {
-						updateSettings( replaceMethod, response );
-					}
-					on( 'onSuccess', response );
-					return response;
-				} catch ( err ) {
-					const newError = parseApiError( err as WpFetchError );
-					setError( newError );
-					on( 'onError', newError );
-					throw newError;
-				} finally {
-					on( 'onFinally' );
-					// Remove the current request from promiseCache
-					const { [ path ]: _removed, ...newData } = promiseCache;
-					promiseCache = newData;
-				}
-			}
-
-			// For non-cached requests, use the queue system
-			if ( ! isCached ) {
-				requestQueue.current.push( executeRequest );
-
-				if ( ! processingQueue.current ) {
-					processQueue();
-				}
-
-				return new Promise< T >( resolve => {
-					const checkResult = setInterval( () => {
-						if (
-							! processingQueue.current &&
-							! requestQueue.current.includes( executeRequest )
-						) {
-							clearInterval( checkResult );
-							// The request has been processed, resolve with the cached result
-							resolve( wizardData[ path ]?.[ method ] as T );
-						}
-					}, 100 );
-				} );
-			}
-
-			// For cached requests that weren't in the cache, execute immediately
-			return executeRequest();
+			return promiseCache[ slug ];
 		},
-		[ wizardApiFetch, wizardData, updateWizardSettings, slug, processQueue ]
+		[ wizardApiFetch, wizardData, updateWizardSettings, isFetching, slug ]
 	);
 
 	return {
