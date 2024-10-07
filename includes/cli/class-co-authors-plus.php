@@ -38,8 +38,9 @@ class Co_Authors_Plus {
 			$result = WP_CLI::runcommand(
 				'co-authors-plus create-author-terms-for-posts --batched --records-per-batch=50',
 				[
-					'launch' => false, // This keeps any formatting that's been set.
-					'return' => 'all', // This ensures we get stdout, stderr, and return code.
+					'exit_error' => false, // This allows us to capture any errors that occur during script execution.
+					'launch'     => false, // This keeps any formatting that's been set.
+					'return'     => 'all', // This ensures we get stdout, stderr, and return code.
 				]
 			);
 
