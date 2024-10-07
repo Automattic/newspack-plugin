@@ -5,11 +5,16 @@
 	}
 
 	p.details {
-		margin-bottom: 4px;
+		margin-bottom: 0;
 	}
 
 	p.recipient {
-		margin-top: 0;
+		margin-top: 4px;
+		margin-bottom: 0;
+	}
+
+	.newspack-newsletters-signup {
+		margin-top: var(--newspack-ui-spacer-5);
 	}
 }
 
