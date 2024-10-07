@@ -20,6 +20,7 @@ const WizardsActionCard = ( {
 			{ ...{
 				description,
 				checkbox:
+					// eslint-disable-next-line no-nested-ternary
 					typeof isChecked === 'undefined'
 						? undefined
 						: isChecked

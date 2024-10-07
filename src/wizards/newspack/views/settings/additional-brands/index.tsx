@@ -1,5 +1,4 @@
-const { Route, Switch, useHistory, useLocation, useParams, useRouteMatch } =
-	Router;
+const { Route, Switch, useHistory, useRouteMatch } = Router;
 
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';

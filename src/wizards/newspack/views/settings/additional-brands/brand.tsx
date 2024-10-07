@@ -56,7 +56,12 @@ export default function Brand( {
 		taxonomy: '',
 		parent: 0,
 	} );
-	const [ publicPages, setPublicPages ] = useState< any[] >( [] );
+	const [ publicPages, setPublicPages ] = useState<
+		{
+			id: string;
+			title: { rendered: string };
+		}[]
+	>( [] );
 	const [ showOnFrontSelect, setShowOnFrontSelect ] =
 		useState< string >( 'no' );
 
@@ -68,7 +73,6 @@ export default function Brand( {
 			typeof selectedBrand?.meta._logo === 'number' &&
 			selectedBrand?.meta._logo
 		) {
-			console.log( 'fetching logo', selectedBrand.meta._logo );
 			fetchLogoAttachment( Number( brandId ), selectedBrand.meta._logo );
 		}
 	}, [ selectedBrand?.meta._logo ] );
