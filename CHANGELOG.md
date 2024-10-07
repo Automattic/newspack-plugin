@@ -1,3 +1,10 @@
+## [5.4.1](https://github.com/Automattic/newspack-plugin/compare/v5.4.0...v5.4.1) (2024-10-07)
+
+
+### Bug Fixes
+
+* remove Newspack Elections requirement from patterns ([049c9b6](https://github.com/Automattic/newspack-plugin/commit/049c9b6a3a23f92f9f34a1b15a3037adb29eb26f))
+
 # [5.4.0](https://github.com/Automattic/newspack-plugin/compare/v5.3.14...v5.4.0) (2024-10-03)
 
 
