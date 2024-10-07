@@ -48,13 +48,15 @@ class Co_Authors_Plus {
 
 			do_action(
 				'newspack_log',
-				$result->return_code,
 				self::NEWSPACK_SCHEDULE_AUTHOR_TERM_BACKFILL,
+				! empty( $result->stderr ) ? $result->stderr : $result->stdout,
 				[
-					'type'      => 0 === $result->return_code ? 'success' : 'error',
-					'stdout'    => $result->stdout,
-					'timestamp' => gmdate( 'c', time() ),
-					'file'      => 'newspack_cap_author_terms_backfill',
+					'type' => 0 !== $result->return_code || ! empty( $result->stderr ) ? 'error' : 'success',
+					'data' => [
+						'stdout'    => $result->stdout,
+						'timestamp' => gmdate( 'c', time() ),
+					],
+					'file' => 'newspack_cap_author_terms_backfill',
 				]
 			);
 		}
