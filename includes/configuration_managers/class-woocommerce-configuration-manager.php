@@ -248,8 +248,10 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		update_option( 'woocommerce_enable_coupons', 'no' );
 		update_option( 'woocommerce_enable_reviews', 'no' );
 
-		// Enables checkout without login.
-		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
-		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
+		if ( ! Reader_Activation::is_enabled() ) {
+			// Enables checkout without login when RAS is not enabled.
+			update_option( 'woocommerce_enable_guest_checkout', 'yes' );
+			update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
+		}
 	}
 }
