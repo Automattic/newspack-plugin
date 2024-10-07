@@ -41,11 +41,6 @@ class Newspack_Elections {
 	 * Register block patterns.
 	 */
 	public static function register_block_patterns() {
-		// Bail if Newspack Elections is not active.
-		if ( ! class_exists( '\Govpack\Core\Govpack' ) ) {
-			return false;
-		}
-
 		\register_block_pattern_category( 'newspack-plugin', [ 'label' => __( 'Newspack Elections', 'newspack-plugin' ) ] );
 		$patterns = self::get_block_patterns();
 		foreach ( $patterns as $slug => $title ) {
