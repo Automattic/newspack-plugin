@@ -34,14 +34,15 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 
 /**
  * @typedef  {Object}     WizardProps
- * @property {string}     headerText            The header text.
- * @property {string}     [subHeaderText]       The sub-header text, optional.
- * @property {string}     [apiSlug]             The API slug, optional.
- * @property {string}     [className]           CSS classes, optional.
- * @property {any[]}      sections              Array of sections.
- * @property {boolean}    [hasSimpleFooter]     Indicates if a simple footer is used, optional.
- * @property {() => void} [renderAboveSections] Function to render content above sections, optional.
- * @property {string[]}   [requiredPlugins]     Array of required plugin strings, optional.
+ * @property {string}     headerText                The header text.
+ * @property {string}     [subHeaderText]           The sub-header text, optional.
+ * @property {string}     [apiSlug]                 The API slug, optional.
+ * @property {string}     [className]               CSS classes, optional.
+ * @property {any[]}      sections                  Array of sections.
+ * @property {boolean}    [hasSimpleFooter]         Indicates if a simple footer is used, optional.
+ * @property {() => void} [renderAboveSections]     Function to render content above sections, optional.
+ * @property {string[]}   [requiredPlugins]         Array of required plugin strings, optional.
+ * @property {boolean}    [isInitialFetchTriggered] Indicates if the initial fetch should be triggered, optional.
  */
 
 /**
@@ -61,6 +62,7 @@ const Wizard = ( {
 	className,
 	renderAboveSections,
 	requiredPlugins = [],
+	isInitialFetchTriggered = true,
 } ) => {
 	const isLoading = useSelect( select =>
 		select( WIZARD_STORE_NAMESPACE ).isLoading()
@@ -72,7 +74,7 @@ const Wizard = ( {
 	// Trigger initial data fetch. Some sections might not use the wizard data,
 	// but for consistency, fetching is triggered regardless of the section.
 	useSelect( select =>
-		select( WIZARD_STORE_NAMESPACE ).getWizardAPIData( apiSlug )
+		isInitialFetchTriggered && select( WIZARD_STORE_NAMESPACE ).getWizardAPIData( apiSlug )
 	);
 
 	let displayedSections = sections.filter( section => ! section.isHidden );

@@ -16,7 +16,7 @@ import { createAction } from './utils.js';
 export const WIZARD_STORE_NAMESPACE = 'newspack/wizards';
 
 const DEFAULT_STATE = {
-	isLoading: true,
+	isLoading: false,
 	isQuietLoading: false,
 	apiData: {},
 	error: null,
