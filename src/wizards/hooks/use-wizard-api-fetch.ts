@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -90,6 +90,8 @@ export function useWizardApiFetch( slug: string ) {
 		wizardData.error ?? null
 	);
 
+	const requests = useRef< string[] >( [] );
+
 	useEffect( () => {
 		updateWizardSettings( {
 			slug,
@@ -133,9 +135,6 @@ export function useWizardApiFetch( slug: string ) {
 			opts: ApiFetchOptions,
 			callbacks?: ApiFetchCallbacks< T >
 		) => {
-			if ( isFetching ) {
-				return;
-			}
 			const { on } = onCallbacks< T >( callbacks ?? {} );
 			const updateSettings = updateWizardData( opts.path );
 			const { path, method = 'GET' } = opts;
@@ -177,10 +176,13 @@ export function useWizardApiFetch( slug: string ) {
 			}
 
 			function finallyCallback() {
-				setIsFetching( false );
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { [ path ]: _removed, ...newData } = promiseCache;
 				promiseCache = newData;
+				requests.current = requests.current.filter(
+					request => request !== path
+				);
+				setIsFetching( requests.current.length > 0 );
 				on( 'onFinally' );
 			}
 
@@ -202,6 +204,7 @@ export function useWizardApiFetch( slug: string ) {
 
 			setIsFetching( true );
 			on( 'onStart' );
+			requests.current.push( path );
 
 			promiseCache[ path ] = wizardApiFetch( {
 				isQuietFetch: true,
