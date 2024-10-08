@@ -11,6 +11,7 @@ import Social from './social';
 import Emails from './emails';
 import Connections from './connections';
 import Syndication from './syndication';
+import DisplaySettings from './display-settings';
 import ThemeAndBrand from './theme-and-brand';
 import Seo from './seo';
 import AdditionalBrands from './additional-brands';
@@ -27,7 +28,7 @@ const sectionComponents: Record<
 	syndication: Syndication,
 	seo: Seo,
 	'theme-and-brand': ThemeAndBrand,
-	// 'display-settings': DisplaySettings,
+	'display-settings': DisplaySettings,
 	'additional-brands': AdditionalBrands,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
