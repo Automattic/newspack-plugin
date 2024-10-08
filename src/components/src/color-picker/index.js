@@ -31,7 +31,7 @@ const { InteractiveDiv } = utils;
  * @param {string}             [props.className] - Additional class name.
  * @return {JSX.Element} ColorPicker component.
  */
-const ColorPicker = ( { label, color = '#fff', onChange, className = undefined } ) => {
+const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const ref = useRef();
 	const colordColor = colord( color );
