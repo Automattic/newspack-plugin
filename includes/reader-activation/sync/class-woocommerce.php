@@ -98,20 +98,24 @@ class WooCommerce {
 	 * @return ?WCS_Subscription A Subscription object or null.
 	 */
 	private static function get_most_recent_cancelled_or_expired_subscription( $user_id ) {
-		$subcriptions = array_reduce(
+		$subscriptions = array_reduce(
 			array_keys( \wcs_get_users_subscriptions( $user_id ) ),
 			function( $acc, $subscription_id ) {
 				$subscription = \wcs_get_subscription( $subscription_id );
 				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
-					$acc[] = $subscription_id;
+
+					// Only subscriptions that had a completed order are considered.
+					if ( ! empty( $subscription->get_date( 'last_order_date_completed' ) ) ) {
+						$acc[] = $subscription_id;
+					}
 				}
 				return $acc;
 			},
 			[]
 		);
 
-		if ( ! empty( $subcriptions ) ) {
-			return reset( $subcriptions );
+		if ( ! empty( $subscriptions ) ) {
+			return reset( $subscriptions );
 		}
 	}
 
@@ -174,10 +178,6 @@ class WooCommerce {
 			$is_subscription = \wcs_is_subscription( $order );
 		}
 
-		// Only update last payment data if new payment has been received.
-		$active_statuses = $is_subscription ? WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES : WooCommerce_Connection::ACTIVE_ORDER_STATUSES;
-		$payment_received = $order->has_status( $active_statuses );
-
 		$metadata = [];
 
 		if ( empty( $payment_page_url ) ) {
@@ -233,7 +233,7 @@ class WooCommerce {
 				$metadata['product_name'] = reset( $order_items )->get_name();
 			}
 			$order_date_paid = $order->get_date_paid();
-			if ( $payment_received && ! empty( $order_date_paid ) ) {
+			if ( ! empty( $order_date_paid ) ) {
 				$metadata['last_payment_amount'] = $order->get_total();
 				$metadata['last_payment_date']   = $order_date_paid->date( Metadata::DATE_FORMAT );
 			}
@@ -268,11 +268,8 @@ class WooCommerce {
 			$metadata['sub_end_date']      = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
 			$metadata['billing_cycle']     = $current_subscription->get_billing_period();
 			$metadata['recurring_payment'] = $current_subscription->get_total();
-
-			if ( $payment_received ) {
-				$metadata['last_payment_amount'] = $current_subscription->get_total();
-				$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
-			}
+			$metadata['last_payment_amount'] = $current_subscription->get_total();
+			$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
