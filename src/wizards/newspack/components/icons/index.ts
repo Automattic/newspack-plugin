@@ -18,6 +18,7 @@ import {
 	rotateRight,
 	currencyDollar,
 	formatListBullets,
+	plugins,
 } from '@wordpress/icons';
 
 /**
@@ -46,6 +47,7 @@ export const icons = {
 	rotateRight,
 	currencyDollar,
 	formatListBullets,
+	plugins,
 	// Custom
 	post,
 	blockPostDate,

@@ -192,9 +192,9 @@ class Newspack_Dashboard extends Wizard {
 
 			return [
 				[
-					'icon'  => 'tool',
-					'title' => __( 'Settings', 'newspack-plugin' ),
-					'desc'  => __( 'Activate the Newspack Network plugin.', 'newspack-plugin' ),
+					'icon'  => 'plugins',
+					'title' => __( 'Install Plugin', 'newspack-plugin' ),
+					'desc'  => __( 'Install and activate the Newspack Network plugin.', 'newspack-plugin' ),
 					'href'  => admin_url( 'plugins.php' ),
 				]
 			];
@@ -260,12 +260,12 @@ class Newspack_Dashboard extends Wizard {
 					'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
 					'href'  => admin_url( 'admin.php?page=newspack-network-subscriptions' ),
 				],
-				[
-					'icon'  => 'currencyDollar',
-					'title' => __( 'Orders', 'newspack-plugin' ),
-					'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
-					'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
-				],
+				// [
+				// 	'icon'  => 'currencyDollar',
+				// 	'title' => __( 'Orders', 'newspack-plugin' ),
+				// 	'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
+				// 	'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
+				// ],
 				[
 					'icon'  => 'formatListBullets',
 					'title' => __( 'Event Log', 'newspack-plugin' ),
@@ -282,7 +282,7 @@ class Newspack_Dashboard extends Wizard {
 				[
 					'icon'  => 'tool',
 					'title' => __( 'Distributor Settings', 'newspack-plugin' ),
-					'desc'  => __( 'Configure the Distributor plugin behavior.', 'newspack-plugin' ),
+					'desc'  => __( 'Modify the Distributor plugin behavior.', 'newspack-plugin' ),
 					'href'  => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
 				],
 			];
