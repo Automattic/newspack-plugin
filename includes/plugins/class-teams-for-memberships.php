@@ -9,6 +9,8 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+use Newspack\Reader_Activation\Sync;
+
 /**
  * Main class.
  */
@@ -19,7 +21,7 @@ class Teams_For_Memberships {
 	 */
 	public static function init() {
 		add_filter( 'newspack_ras_metadata_keys', [ __CLASS__, 'add_teams_metadata_keys' ] );
-		add_filter( 'newspack_esp_sync_normalize_contact', [ __CLASS__, 'normalize_contact' ] );
+		add_filter( 'newspack_esp_sync_contact', [ __CLASS__, 'handle_esp_sync_contact' ] );
 	}
 
 	/**
@@ -45,13 +47,19 @@ class Teams_For_Memberships {
 	}
 
 	/**
-	 * Normalize contact data.
+	 * Add Teams metadata to contact data.
 	 *
 	 * @param array $contact Contact data.
-	 * @return array Normalized contact data.
+	 *
+	 * @return array Updated contact data.
 	 */
-	public static function normalize_contact( $contact ) {
+	public static function handle_esp_sync_contact( $contact ) {
 		if ( ! self::is_enabled() ) {
+			return $contact;
+		}
+
+		$filtered_enabled_fields = Sync\Metadata::filter_enabled_fields( [ 'woo_team' ] );
+		if ( count( $filtered_enabled_fields ) === 0 ) {
 			return $contact;
 		}
 
@@ -88,7 +96,7 @@ class Teams_For_Memberships {
 		}
 		$team_slugs = implode( ',', $team_slugs );
 		if ( $team_slugs ) {
-			$contact['metadata'][ Newspack_Newsletters::get_metadata_key( 'woo_team' ) ] = $team_slugs;
+			$contact['metadata']['woo_team'] = $team_slugs;
 		}
 
 		return $contact;

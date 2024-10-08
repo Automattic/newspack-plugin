@@ -72,6 +72,7 @@ class ActionCard extends Component {
 			hasWhiteHeader,
 			isPending,
 			expandable = false,
+			isButtonEnabled = false
 		} = this.props;
 
 		const { expanded } = this.state;
@@ -173,7 +174,7 @@ class ActionCard extends Component {
 									</Handoff>
 								) : onClick || hasInternalLink ? (
 									<Button
-										disabled={ disabled }
+										disabled={ disabled && ! isButtonEnabled }
 										isLink
 										href={ href }
 										onClick={ onClick }

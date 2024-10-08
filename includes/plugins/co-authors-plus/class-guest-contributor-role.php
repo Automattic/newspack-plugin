@@ -278,6 +278,9 @@ class Guest_Contributor_Role {
 	 */
 	public static function admin_footer() {
 		global $pagenow;
+		if ( ! in_array( $pagenow, [ 'user-edit.php','user-new.php' ] ) ) {
+			return;
+		}
 		\wp_enqueue_script(
 			'newspack-co-authors-plus',
 			Newspack::plugin_url() . '/dist/other-scripts/co-authors-plus.js',

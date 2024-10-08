@@ -38,6 +38,15 @@ export default function Mailchimp( { value, onChange } ) {
 				title={ __( 'Mailchimp settings', 'newspack-plugin' ) }
 				description={ __( 'Settings for the Mailchimp integration.', 'newspack-plugin' ) }
 			/>
+			{ value.audienceId === '' && (
+				<Notice
+					noticeText={ __(
+						'No Mailchimp audience selected. You will not be able to send reader activity data to Mailchimp.',
+						'newspack-plugin'
+					) }
+					isError
+				/>
+			)}
 			<SelectControl
 				label={ __( 'Audience ID', 'newspack-plugin' ) }
 				help={ __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ) }
@@ -51,17 +60,17 @@ export default function Mailchimp( { value, onChange } ) {
 			/>
 			{ value.audienceId && (
 				<SelectControl
-					label={ __( 'Default reader status', 'newspack' ) }
+					label={ __( 'Default reader status', 'newspack-plugin' ) }
 					help={ __(
 						'Choose which MailChimp status readers should have by default if they are not subscribed to any newsletters',
-						'newspack'
+						'newspack-plugin'
 					) }
 					disabled={ inFlight }
 					value={ value.readerDefaultStatus }
 					onChange={ handleChange( 'readerDefaultStatus' ) }
 					options={ [
-						{ value: 'transactional', label: __( 'Transactional/Non-Subscribed', 'newspack' ) },
-						{ value: 'subscribed', label: __( 'Subscribed', 'newspack' ) },
+						{ value: 'transactional', label: __( 'Transactional/Non-Subscribed', 'newspack-plugin' ) },
+						{ value: 'subscribed', label: __( 'Subscribed', 'newspack-plugin' ) },
 					] }
 				/>
 			) }

@@ -247,6 +247,12 @@ class Google_Login {
 			}
 		}
 		$metadata['registration_method'] = 'google';
+		if ( ! isset( $metadata['current_page_url'] ) ) {
+			$referrer = $request->get_header( 'referer' );
+			if ( \wp_http_validate_url( $referrer ) ) {
+				$metadata['current_page_url'] = $referrer;
+			}
+		}
 		if ( $email ) {
 			do_action(
 				'newspack_log',
@@ -272,6 +278,9 @@ class Google_Login {
 			];
 
 			if ( $existing_user ) {
+				// Update user meta with connected account info.
+				\update_user_meta( $existing_user->ID, Reader_Activation::CONNECTED_ACCOUNT, 'google' );
+
 				// Log the user in.
 				$result  = Reader_Activation::set_current_reader( $existing_user->ID );
 				$message = __( 'Thank you for signing in!', 'newspack-plugin' );

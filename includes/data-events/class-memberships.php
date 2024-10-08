@@ -128,15 +128,6 @@ final class Memberships {
 	}
 
 	/**
-	 * Get common metadata to be sent with all gate interaction events.
-	 */
-	private static function get_gate_metadata() {
-		return [
-			'gate_post_id' => NewspackMemberships::get_gate_post_id(),
-		];
-	}
-
-	/**
 	 * A listener for the registration block form submission
 	 *
 	 * Will trigger the event with "form_submission" as action in all cases.
@@ -154,7 +145,7 @@ final class Memberships {
 			return;
 		}
 		$data = array_merge(
-			self::get_gate_metadata(),
+			NewspackMemberships::get_gate_metadata(),
 			[
 				'action'      => self::FORM_SUBMISSION,
 				'action_type' => 'registration',
@@ -187,7 +178,7 @@ final class Memberships {
 			$action = self::FORM_SUBMISSION_FAILURE;
 		}
 		$data = array_merge(
-			self::get_gate_metadata(),
+			NewspackMemberships::get_gate_metadata(),
 			[
 				'action'      => $action,
 				'action_type' => 'registration',
@@ -213,7 +204,7 @@ final class Memberships {
 		}
 		$item = array_shift( $order->get_items() );
 		$data = array_merge(
-			self::get_gate_metadata(),
+			NewspackMemberships::get_gate_metadata(),
 			[
 				'action_type' => 'paid_membership',
 				'order_id'    => $order_id,
@@ -235,7 +226,7 @@ final class Memberships {
 	 */
 	public static function woocommerce_checkout_order_processed( $order_id ) {
 		$order = \wc_get_order( $order_id );
-		if ( ! \Newspack\WooCommerce_Connection::should_sync_order( $order ) ) {
+		if ( ! Reader_Activation\Sync\WooCommerce::should_sync_order( $order ) ) {
 			return;
 		}
 		$data = self::get_order_data( $order_id, $order );

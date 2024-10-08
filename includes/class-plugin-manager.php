@@ -314,14 +314,6 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'options-general.php?page=adstxt-settings',
 			],
-			'publisher-media-kit'         => [
-				'Name'        => \esc_html__( 'Publisher Media Kit', 'newspack' ),
-				'Description' => \esc_html__( 'Quick and easy option for small to medium sized publishers to digitize their media kit.', 'newspack' ),
-				'Author'      => \esc_html__( '10up', 'newspack' ),
-				'AuthorURI'   => \esc_url( 'https://10up.com' ),
-				'PluginURI'   => \esc_url( 'https://wordpress.org/plugins/publisher-media-kit/' ),
-				'Download'    => 'wporg',
-			],
 			'broadstreet'                 => [
 				'Name'        => \esc_html__( 'Broadstreet', 'newspack' ),
 				'Description' => \esc_html__( 'Integrate Broadstreet’s business directory and ad-serving features into your site.', 'newspack' ),

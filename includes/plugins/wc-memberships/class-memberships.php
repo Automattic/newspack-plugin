@@ -57,6 +57,7 @@ class Memberships {
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
+		add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		add_filter( 'wc_memberships_expire_user_membership', [ __CLASS__, 'handle_wc_memberships_expire_user_membership' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
@@ -218,6 +219,13 @@ class Memberships {
 			true
 		);
 		\wp_script_add_data( $handle, 'async', true );
+		\wp_localize_script(
+			$handle,
+			'newspack_memberships_gate',
+			[
+				'metadata' => self::get_gate_metadata(),
+			]
+		);
 		\wp_enqueue_style(
 			$handle,
 			Newspack::plugin_url() . '/dist/memberships-gate.css',
@@ -291,6 +299,47 @@ class Memberships {
 			}
 		}
 		return $gate_post_id ? $gate_post_id : false;
+	}
+
+	/**
+	 * Recursively get the unique block names from the post content.
+	 *
+	 * @param array $blocks The blocks.
+	 *
+	 * @return array
+	 */
+	private static function get_block_names_recursive( $blocks ) {
+		$block_names = [];
+		foreach ( $blocks as $block ) {
+			if ( ! empty( $block['blockName'] ) ) {
+				$block_names[] = $block['blockName'];
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block_names = array_merge( $block_names, self::get_block_names_recursive( $block['innerBlocks'] ) );
+			}
+		}
+		return array_unique( $block_names );
+	}
+
+	/**
+	 * Get gate metadata to be used for analytics purposes.
+	 *
+	 * @return array {
+	 *   The gate metadata.
+	 *
+	 *   @type int    $gate_post_id The gate post ID.
+	 *   @type array  $gate_blocks  Names of unique blocks in the gate post.
+	 * }
+	 */
+	public static function get_gate_metadata() {
+		$post_id = self::get_gate_post_id();
+		$blocks  = self::get_block_names_recursive( parse_blocks( get_post_field( 'post_content', $post_id ) ) );
+		return [
+			'gate_post_id'                => $post_id,
+			'gate_has_donation_block'     => in_array( 'newspack-blocks/donate', $blocks ) ? 'yes' : 'no',
+			'gate_has_registration_block' => in_array( 'newspack/reader-registration', $blocks ) ? 'yes' : 'no',
+			'gate_has_checkout_button'    => in_array( 'newspack-blocks/checkout-button', $blocks ) ? 'yes' : 'no',
+		];
 	}
 
 	/**
@@ -988,6 +1037,32 @@ class Memberships {
 		return array_slice( $settings, 0, $position_of_show_excerpts_setting, true ) +
 			[ $setting['id'] => $setting ] +
 			array_slice( $settings, $position_of_show_excerpts_setting, null, true );
+	}
+
+	/**
+	 * Add relevant body CSS classnames.
+	 *
+	 * @param array $classes Array of body class names.
+	 */
+	public static function add_body_class( $classes ) {
+		// If a user has a paid membership, add a body class.
+		if ( ! function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
+			return $classes;
+		}
+
+		$user_active_memberships = \wc_memberships_get_user_active_memberships();
+		foreach ( $user_active_memberships as $membership ) {
+			$plan = $membership->plan;
+			if ( $plan ) {
+				$plan_products = $membership->get_plan()->get_product_ids();
+				$classes[] = 'is-member-' . $plan->slug;
+				$paid_plan_classname = 'is-paid-plan-member';
+				if ( ! empty( $plan_products ) && ! in_array( $paid_plan_classname, $classes ) ) {
+					$classes[] = $paid_plan_classname;
+				}
+			}
+		}
+		return $classes;
 	}
 
 	/**
