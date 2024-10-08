@@ -39,7 +39,7 @@ class Network_Settings extends Wizard {
 			return;
 		}
 
-		// Load on ALL Network pages. Use a high priority.
+		// Load on ALL Network pages. Use a high priority to load after Network Plugin itself loads.
 		add_action( 'admin_menu', [ $this, 'admin_menu' ], $this->menu_priority );
 
 		// Only continue for the current page.
@@ -47,7 +47,6 @@ class Network_Settings extends Wizard {
 			return;
 		}
 
-		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 		$this->admin_header_init( [ 'title' => $this->get_name() ] );
 
 	}
