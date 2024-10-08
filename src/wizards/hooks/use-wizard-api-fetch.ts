@@ -90,6 +90,8 @@ export function useWizardApiFetch( slug: string ) {
 		wizardData.error ?? null
 	);
 
+	const requests = useRef< string[] >( [] );
+
 	useEffect( () => {
 		updateWizardSettings( {
 			slug,
@@ -177,7 +179,10 @@ export function useWizardApiFetch( slug: string ) {
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { [ path ]: _removed, ...newData } = promiseCache;
 				promiseCache = newData;
-				setIsFetching( Object.keys( promiseCache ).length > 0 );
+				requests.current = requests.current.filter(
+					request => request !== path
+				);
+				setIsFetching( requests.current.length > 0 );
 				on( 'onFinally' );
 			}
 
@@ -199,6 +204,7 @@ export function useWizardApiFetch( slug: string ) {
 
 			setIsFetching( true );
 			on( 'onStart' );
+			requests.current.push( path );
 
 			promiseCache[ path ] = wizardApiFetch( {
 				isQuietFetch: true,
