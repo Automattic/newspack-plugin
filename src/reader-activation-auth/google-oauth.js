@@ -56,7 +56,7 @@ domReady( function () {
 				checkLoginStatus( metadata );
 			} );
 
-			fetch( '/wp-json/newspack/v1/login/google' )
+			fetch( '/wp-json/newspack/v1/login/google?r=' + Math.random() )
 				.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )
 				.then( ( { data, status } ) => {
 					if ( status !== 200 ) {
