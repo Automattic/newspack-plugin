@@ -36,6 +36,10 @@ class OAuth {
 		if ( ! $id ) {
 			$id = session_id(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_id
 		}
+		if ( ! $id ) {
+			session_start(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_start
+			$id = session_id(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_id
+		}
 		return $id;
 	}
 
