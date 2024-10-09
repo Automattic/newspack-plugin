@@ -175,7 +175,7 @@ class Newspack_Dashboard extends Wizard {
 				'dependencies' => [
 					'newspack-network',
 				],
-				'cards'        => $this->get_dashboard_network_cards()
+				'cards'        => $this->get_dashboard_network_cards(),
 			],
 		];
 	}
@@ -196,7 +196,7 @@ class Newspack_Dashboard extends Wizard {
 					'title' => __( 'Install Plugin', 'newspack-plugin' ),
 					'desc'  => __( 'Install and activate the Newspack Network plugin.', 'newspack-plugin' ),
 					'href'  => admin_url( 'plugins.php' ),
-				]
+				],
 			];
 
 		}
@@ -204,15 +204,15 @@ class Newspack_Dashboard extends Wizard {
 		// Plugin is active, get the site role.
 		$site_role = ( function() {
 			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
-			if( is_callable( $is_node ) && call_user_func( $is_node ) ) {
+			if ( is_callable( $is_node ) && call_user_func( $is_node ) ) {
 				return 'node';
 			}
 			$is_hub = [ '\Newspack_Network\Site_Role', 'is_hub' ];
-			if( is_callable( $is_hub ) && call_user_func( $is_hub ) ) {
+			if ( is_callable( $is_hub ) && call_user_func( $is_hub ) ) {
 				return 'hub';
 			}
 			return '';
-		})();
+		} )();
 
 		$settings_card = [
 			'icon'  => 'tool',
@@ -260,11 +260,13 @@ class Newspack_Dashboard extends Wizard {
 					'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
 					'href'  => admin_url( 'admin.php?page=newspack-network-subscriptions' ),
 				],
+				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// @todo After new Network release
 				// [
-				// 	'icon'  => 'currencyDollar',
-				// 	'title' => __( 'Orders', 'newspack-plugin' ),
-				// 	'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
-				// 	'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
+				// 'icon'  => 'currencyDollar',
+				// 'title' => __( 'Orders', 'newspack-plugin' ),
+				// 'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
+				// 'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
 				// ],
 				[
 					'icon'  => 'formatListBullets',
@@ -288,7 +290,6 @@ class Newspack_Dashboard extends Wizard {
 			];
 
 		}
-
 	}
 
 	/**

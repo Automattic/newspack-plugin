@@ -30,19 +30,21 @@ class Network_Nodes extends Wizard {
 		// post-new.php?post_type=newspack_hub_nodes
 		// post.php?post=139&action=edit (EDIT SCREEN)
 		// Move constructor logic into current_screen.
-		add_action( 'current_screen', function() {
+		add_action(
+			'current_screen',
+			function() {
 			
-			global $current_screen;
+				global $current_screen;
 
-			// Return if not current CPT.
-			if( empty( $current_screen->post_type ) || 'newspack_hub_nodes' !== $current_screen->post_type ) {
-				return;
+				// Return if not current CPT.
+				if ( empty( $current_screen->post_type ) || 'newspack_hub_nodes' !== $current_screen->post_type ) {
+					return;
+				}
+	
+				// Enqueue Wizards Admin Header.
+				$this->admin_header_init( [ 'title' => $this->get_name() ] );
 			}
-	
-			// Enqueue Wizards Admin Header.
-			$this->admin_header_init( [ 'title' => $this->get_name() ] );
-	
-		});
+		);
 	}
 
 	/**
