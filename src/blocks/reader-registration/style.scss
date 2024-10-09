@@ -95,8 +95,8 @@
 	}
 
 	& &__title {
-		font-size: var(--newspack-ui-font-size-l);
-		line-height: var(--newspack-ui-line-height-l);
+		font-size: var(--newspack-ui-font-size-l) !important;
+		line-height: var(--newspack-ui-line-height-l) !important;
 		margin: 0;
 	}
 
