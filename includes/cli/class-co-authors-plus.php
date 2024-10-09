@@ -36,7 +36,7 @@ class Co_Authors_Plus {
 	public static function run_cap_cli_command() {
 		if ( method_exists( 'WP_CLI', 'runcommand' ) ) {
 			$result = WP_CLI::runcommand(
-				'co-authors-plus create-author-terms-for-posts --batched --records-per-batch=50',
+				'co-authors-plus create-author-terms-for-posts --records-per-batch=50',
 				[
 					'exit_error' => false, // This allows us to capture any errors that occur during script execution.
 					'launch'     => false, // This keeps any formatting that's been set.
