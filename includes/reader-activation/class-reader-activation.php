@@ -1930,6 +1930,13 @@ final class Reader_Activation {
 		\do_action( 'wp_login', $user->user_login, $user );
 		Logger::log( 'Logged in user ' . $user->ID );
 
+		/**
+		 * Action after authenticating a reader.
+		 *
+		 * @param int $user_id The user.
+		 */
+		\do_action( 'newspack_reader_activation_authenticated', $user_id );
+
 		return $user;
 	}
 
