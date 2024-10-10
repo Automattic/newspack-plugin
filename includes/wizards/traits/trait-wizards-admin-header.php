@@ -34,6 +34,7 @@ trait Admin_Header {
 		$this->title = $args['title'] ?? __( 'Newspack Settings', 'newspack-plugin' );
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_header_enqueue' ] );
 		add_action( 'all_admin_notices', [ $this, 'admin_header_render' ] );
+		add_filter( 'admin_body_class', [ $this, 'admin_header_body_class' ] );
 	}
 
 	/**
@@ -105,5 +106,14 @@ trait Admin_Header {
 			?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Add body class for admin header.
+	 * 
+	 * @param string $classes The current body classes.
+	 */
+	public function admin_header_body_class( $classes ) {
+		return $classes . ' newspack-admin-header';
 	}
 }

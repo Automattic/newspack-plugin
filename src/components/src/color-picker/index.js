@@ -21,7 +21,17 @@ import './style.scss';
 extend( [ a11yPlugin ] );
 const { InteractiveDiv } = utils;
 
-const ColorPicker = ( { label, color = '#fff', onChange, className = undefined } ) => {
+/**
+ * ColorPicker component.
+ *
+ * @param {Object}             props             - Component props.
+ * @param {JSX.Element|string} props.label       - Label for the color picker.
+ * @param {string}             [props.color]     - Default color.
+ * @param {Function}           props.onChange    - Function to call when the color changes.
+ * @param {string}             [props.className] - Additional class name.
+ * @return {JSX.Element} ColorPicker component.
+ */
+const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const ref = useRef();
 	const colordColor = colord( color );
