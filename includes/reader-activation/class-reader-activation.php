@@ -1445,7 +1445,7 @@ final class Reader_Activation {
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
 						?>
-						<label class="newspack-ui__input-card">
+						<label class="newspack-ui__input-card" for="<?php echo \esc_attr( $checkbox_id ); ?>">
 							<input
 								type="checkbox"
 								name="lists[]"
@@ -1659,47 +1659,43 @@ final class Reader_Activation {
 
 		$checked_map = array_flip( $checked );
 		?>
-		<div class="<?php echo \esc_attr( $class() ); ?>">
 			<?php if ( 1 < count( $lists ) && ! empty( $config['title'] ) ) : ?>
-				<h3><?php echo \esc_html( $config['title'] ); ?></h3>
+				<h3 class="screen-reader-text"><?php echo \esc_html( $config['title'] ); ?></h3>
 			<?php endif; ?>
-			<ul>
+			<?php if ( ! $config['show_description'] ) : ?>
+				<div class="newspack-ui__box newspack-ui__box--border">
+			<?php endif; ?>
 				<?php
 				foreach ( $lists as $list_id => $list ) :
 					$checkbox_id = sprintf( 'newspack-%s-list-checkbox-%s', $id, $list_id );
 					?>
-					<li>
-						<span class="<?php echo \esc_attr( $class( 'checkbox' ) ); ?>">
-							<input
-								type="checkbox"
-								name="<?php echo \esc_attr( $config['name'] ); ?>[]"
-								value="<?php echo \esc_attr( $list_id ); ?>"
-								id="<?php echo \esc_attr( $checkbox_id ); ?>"
-								<?php if ( isset( $checked_map[ $list_id ] ) ) : ?>
-									checked
-								<?php endif; ?>
-							/>
-						</span>
-						<span class="<?php echo \esc_attr( $class( 'details' ) ); ?>">
-							<label class="<?php echo \esc_attr( $class( 'label' ) ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
-								<span class="<?php echo \esc_attr( $class( 'title' ) ); ?>">
-									<?php
-									if ( 1 === count( $lists ) ) {
-										echo \wp_kses_post( $config['single_label'] );
-									} else {
-										echo \esc_html( $list['title'] );
-									}
-									?>
-								</span>
-								<?php if ( $config['show_description'] ) : ?>
-									<span class="<?php echo \esc_attr( $class( 'description' ) ); ?>"><?php echo \esc_html( $list['description'] ); ?></span>
-								<?php endif; ?>
-							</label>
-						</span>
-					</li>
+					<label class="newspack-ui__input-card" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+						<input
+							type="checkbox"
+							name="<?php echo \esc_attr( $config['name'] ); ?>[]"
+							value="<?php echo \esc_attr( $list_id ); ?>"
+							id="<?php echo \esc_attr( $checkbox_id ); ?>"
+							<?php if ( isset( $checked_map[ $list_id ] ) ) : ?>
+								checked
+							<?php endif; ?>
+						/>
+						<strong>
+							<?php
+							if ( 1 === count( $lists ) ) {
+								echo \wp_kses_post( $config['single_label'] );
+							} else {
+								echo \esc_html( $list['title'] );
+							}
+							?>
+						</strong>
+						<?php if ( $config['show_description'] ) : ?>
+							<span class="newspack-ui__helper-text"><?php echo \esc_html( $list['description'] ); ?></span>
+						<?php endif; ?>
+					</label>
 				<?php endforeach; ?>
-			</ul>
-		</div>
+			<?php if ( ! $config['show_description'] ) : ?>
+				</div>
+			<?php endif; ?>
 		<?php
 	}
 

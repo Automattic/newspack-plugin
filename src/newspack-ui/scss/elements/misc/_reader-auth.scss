@@ -1,5 +1,4 @@
 // Re-adds some modal-like spacing for when the sign up form ends up embedded in a page.
-// Ignore a tag buttons as they will never be first..
 .newspack-ui {
 	&.newspack-reader-auth {
 		.newspack-ui__button:not(:first-child, a.newspack-ui__button):first-of-type {

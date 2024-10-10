@@ -18,6 +18,7 @@ class Newspack_UI {
 	 */
 	public static function init() {
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_styles' ] );
+		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_styles' ] );
 		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
 		// Only run if the site is using a block theme.
 		if ( wp_theme_has_theme_json() ) {

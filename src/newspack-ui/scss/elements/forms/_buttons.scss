@@ -5,20 +5,24 @@
 		border: 0;
 		border-radius: var(--newspack-ui-border-radius-m);
 		color: var(--newspack-ui-color-neutral-90);
+		cursor: pointer;
 		display: inline-flex;
 		font-family: var(--newspack-ui-font-family);
 		font-size: var(--newspack-ui-font-size-s);
 		font-weight: 600;
-		letter-spacing: initial;
-		text-transform: none;
-		gap: var(--newspack-ui-spacer-2);
+		gap: calc(var(--newspack-ui-spacer-base) / 2);
+		letter-spacing: initial; // Override for custom styles.
+		text-transform: none; // Override for custom styles.
 		justify-content: center;
 		line-height: var(--newspack-ui-line-height-s);
 		margin-bottom: var(--newspack-ui-spacer-2);
 		min-height: var(--newspack-ui-spacer-9);
 		padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-5);
 		text-decoration: none;
-		transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out, outline 125ms ease-in-out;
+		transition:
+			background-color 125ms ease-in-out,
+			border-color 125ms ease-in-out,
+			outline 125ms ease-in-out;
 
 		&:last-child {
 			margin-bottom: 0;
