@@ -509,6 +509,9 @@ class Setup_Wizard extends Wizard {
 
 			// All-posts updates: featured image and post template.
 			if ( substr_compare( $key, '_all_posts', -strlen( '_all_posts' ) ) === 0 ) {
+				if ( 'none' === $value ) {
+					continue;
+				}
 				switch ( $key ) {
 					case 'featured_image_all_posts':
 						self::update_meta_key_in_batches( 'newspack_featured_image_position', $value );
@@ -541,10 +544,15 @@ class Setup_Wizard extends Wizard {
 			'post_type'      => 'post',
 			'fields'         => 'ids',
 			'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'OR',
 				[
 					'key'     => $meta_key,
 					'value'   => $value,
 					'compare' => '!=',
+				],
+				[
+					'key'     => $meta_key,
+					'compare' => 'NOT EXISTS',
 				],
 			],
 		];
