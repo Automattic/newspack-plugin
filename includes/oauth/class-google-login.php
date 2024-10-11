@@ -122,7 +122,8 @@ class Google_Login {
 		}
 
 		if ( ! wp_verify_nonce( sanitize_text_field( $_GET[ self::AUTH_CALLBACK ] ), self::AUTH_CALLBACK ) ) {
-			self::handle_error( __( 'Nonce verification failed.', 'newspack-plugin' ) );
+			/* translators: %s is a unique user id */
+			self::handle_error( sprintf( __( 'Nonce verification failed for id: %s', 'newspack-plugin' ), OAuth::get_unique_id() ) );
 			wp_die( esc_html__( 'Invalid nonce.', 'newspack-plugin' ) );
 			return;
 		}
