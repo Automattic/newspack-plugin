@@ -9,6 +9,7 @@ namespace Newspack;
 
 use Google\Site_Kit\Context;
 use Google\Site_Kit\Modules\Analytics_4\Settings;
+use Google\Site_Kit\Core\Authentication\Disconnected_Reason;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -26,6 +27,7 @@ class GoogleSiteKit {
 		add_action( 'wp_footer', [ __CLASS__, 'insert_ga4_analytics' ] );
 		add_filter( 'option_googlesitekit_analytics_settings', [ __CLASS__, 'filter_ga_settings' ] );
 		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'add_ga_custom_parameters' ] );
+		add_action( 'updated_user_meta', [ __CLASS__, 'maybe_log_disconnect' ], 10, 5 );
 	}
 
 	/**
@@ -169,6 +171,22 @@ class GoogleSiteKit {
 		}
 		$custom_params = \Newspack\Data_Events\Connectors\GA4::get_custom_parameters();
 		return array_merge( $custom_params, $gtag_opt );
+	}
+
+	/**
+	 * Log when a user disconnects from Google Site Kit.
+	 *
+	 * @param int    $meta_id    Meta ID.
+	 * @param int    $object_id  Object ID.
+	 * @param string $meta_key   Meta key.
+	 * @param mixed  $meta_value Meta value.
+	 */
+	public static function maybe_log_disconnect( $meta_id, $object_id, $meta_key, $meta_value ) {
+		if ( str_contains( $meta_key, Disconnected_Reason::OPTION ) ) {
+			// TODO: Determine what needs to be logged/alerted.
+			Logger::log( 'User has been disconnected from Google Site Kit.' );
+			Logger::log( 'Disconnect reason: ' . $meta_value );
+		}
 	}
 }
 GoogleSiteKit::init();
