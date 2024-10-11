@@ -56,16 +56,9 @@ class Wizards {
 			'advertising-sponsors'    => new Advertising_Sponsors(),
 		];
 
-		// Network Wizard.
-		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
-			self::$wizards['network-distributor-settings'] = new Network_Distributor_Settings();
-			self::$wizards['network-event-log']            = new Network_Event_Log();
-			self::$wizards['network-membership-plans']     = new Network_Membership_Plans();
-			self::$wizards['network-node-settings']        = new Network_Node_Settings();
-			self::$wizards['network-nodes']                = new Network_Nodes();
-			self::$wizards['network-settings']             = new Network_Settings();
-			self::$wizards['network-subscriptions']        = new Network_Subscriptions();
-		}
+		// Not needed in $wizards[] since it's just for Admin Headers, not full react pages.
+		new Network_Wizard();
+
 	}
 
 	/**
