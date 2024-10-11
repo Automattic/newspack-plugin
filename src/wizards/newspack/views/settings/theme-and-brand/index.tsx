@@ -17,49 +17,25 @@ import WizardSection from '../../../../wizards-section';
 import { HomepageSelect } from './homepage-select';
 import { Button } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-// CSS.
-import './style.scss';
-import Colors from './colors';
-import Typography from './typography';
 import Header from './header';
 import Footer from './footer';
+import Colors from './colors';
+import Typography from './typography';
+import { DEFAULT_THEME_MODS } from '../constants';
 
-const DEFAULT_DATA: ThemeBrandData = {
+const DEFAULT_DATA: ThemeData = {
 	theme: 'newspack-theme',
 	homepage_patterns: [],
-	theme_mods: {
-		homepage_pattern_index: -1,
-		theme_colors: 'default',
-		primary_color_hex: '',
-		secondary_color_hex: '',
-		font_header: '',
-		font_body: '',
-		accent_allcaps: false,
-		custom_font_import_code: undefined,
-		custom_font_import_code_alternate: undefined,
-		header_center_logo: false,
-		header_simplified: false,
-		header_solid_background: false,
-		header_color_hex: '',
-		custom_logo: '',
-		logo_size: 0,
-		header_text: false,
-		header_display_tagline: false,
-		footer_color: '',
-		footer_copyright: '',
-		footer_color_hex: '',
-		newspack_footer_logo: '',
-		footer_logo_size: 'small',
-	},
+	theme_mods: { ...DEFAULT_THEME_MODS },
 };
 
 function ThemeBrand( { isPartOfSetup = false } ) {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
-		'newspack-settings/theme-and-brand'
+		'newspack-settings/theme-mods'
 	);
-	const [ data, setDataState ] = useState< ThemeBrandData >( DEFAULT_DATA );
+	const [ data, setDataState ] = useState< ThemeData >( DEFAULT_DATA );
 
-	function setData( newData: ThemeBrandData ) {
+	function setData( newData: ThemeData ) {
 		setDataState( { ...data, ...newData } );
 	}
 
@@ -91,7 +67,7 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 	return (
 		<WizardsTab
 			title={ __( 'Theme and Brand', 'newspack-plugin' ) }
-			className={ isFetching ? 'is-fetching' : '' }
+			isFetching={ isFetching }
 		>
 			{ ! isPartOfSetup && (
 				<Fragment>
@@ -164,9 +140,9 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 				) }
 			>
 				<Typography
-					themeMods={ data.theme_mods }
+					data={ data.theme_mods }
 					isFetching={ isFetching }
-					updateTypography={ theme_mods => {
+					update={ theme_mods => {
 						setData( {
 							...data,
 							theme_mods,

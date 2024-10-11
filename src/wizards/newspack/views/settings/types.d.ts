@@ -66,7 +66,10 @@ type ModalComponentProps = {
 	action: WebhookActions;
 	setError: ( err: WizardErrorType | null | string ) => void;
 	setAction: ( action: WebhookActions, id: number | string ) => void;
-	wizardApiFetch: < T = any >( opts: ApiFetchOptions, callbacks?: ApiFetchCallbacks< T > ) => void;
+	wizardApiFetch: < T = any >(
+		opts: ApiFetchOptions,
+		callbacks?: ApiFetchCallbacks< T >
+	) => void;
 	setEndpoints: ( endpoints: Endpoint[] ) => void;
 };
 
