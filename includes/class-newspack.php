@@ -143,6 +143,9 @@ final class Newspack {
 		// Advertising Wizard. 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-display-ads.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-sponsors.php';
+		
+		// Audience Wizard. 
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-configuration.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
@@ -266,8 +269,9 @@ final class Newspack {
 
 		$is_newspack_screen = str_contains( $screen->base, 'newspack_page_' );
 		$is_advertising_screen = str_contains( $screen->base, 'toplevel_page_advertising' );
+		$is_audience_screen = str_contains( $screen->parent_base, 'audience-configuration' );
 
-		$is_wizard = $is_newspack_screen || $is_advertising_screen;
+		$is_wizard = $is_newspack_screen || $is_advertising_screen || $is_audience_screen;
 
 		if ( ! $screen || ! $is_wizard ) {
 			return;
