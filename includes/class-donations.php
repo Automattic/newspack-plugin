@@ -66,7 +66,11 @@ class Donations {
 	public static function init() {
 		self::$donation_product_name = __( 'Donate', 'newspack-plugin' );
 
-		add_action( 'wp_loaded', [ __CLASS__, 'process_donation_form' ], 99 );
+		// Process donation request.
+		add_action( 'wp_ajax_modal_checkout_request', [ __CLASS__, 'process_donation_request' ] );
+		add_action( 'wp_ajax_nopriv_modal_checkout_request', [ __CLASS__, 'process_donation_request' ] );
+		add_action( 'wp_loaded', [ __CLASS__, 'process_donation_request' ], 99 );
+
 		add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
 		add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
 		add_filter( 'pre_option_woocommerce_enable_guest_checkout', [ __CLASS__, 'disable_guest_checkout' ] );
@@ -649,8 +653,8 @@ class Donations {
 	/**
 	 * Handle submission of the donation form.
 	 */
-	public static function process_donation_form() {
-		if ( is_admin() ) {
+	public static function process_donation_request() {
+		if ( is_admin() && ! defined( 'DOING_AJAX' ) ) {
 			return;
 		}
 
@@ -777,8 +781,16 @@ class Donations {
 		);
 
 		// Redirect to checkout.
-		\wp_safe_redirect( apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency ) );
-		exit;
+		$checkout_url = apply_filters( 'newspack_donation_checkout_url', $checkout_url, $donation_value, $donation_frequency );
+
+		if ( defined( 'DOING_AJAX' ) ) {
+			echo wp_json_encode( [ 'url' => $checkout_url ] );
+			exit;
+		} else {
+			// Redirect to checkout.
+			\wp_safe_redirect( $checkout_url );
+			exit;
+		}
 	}
 
 	/**

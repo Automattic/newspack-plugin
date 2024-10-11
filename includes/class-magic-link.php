@@ -35,14 +35,7 @@ final class Magic_Link {
 	const OTP_AUTH_ACTION  = 'np_otp_auth';
 	const OTP_HASH_COOKIE  = 'np_otp_hash';
 	const ACCEPTED_PARAMS  = [
-		'newspack_modal_checkout',
-		'type',
-		'layout',
-		'frequency',
-		'amount',
-		'other',
-		'product_id',
-		'variation_id',
+		'checkout',
 	];
 
 	/**
