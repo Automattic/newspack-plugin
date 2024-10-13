@@ -17,25 +17,18 @@ class Network_Wizard extends Wizard {
 	use \Newspack\Wizards\Traits\Admin_Header;
 
 	/**
-	 * The slug of this wizard.
+	 * Newspack Network plugin's Admin pages.
 	 *
-	 * @var string
+	 * @var array
 	 */
-	protected $slug = '';
+	private $admin_pages = [];
 
 	/**
-	 * High menu priority to allow Network Plugin to load before modifying it.
+	 * Admin page or post type.
 	 *
-	 * @var int.
+	 * @var array
 	 */
-	protected $menu_priority = 99;
-
-	/**
-	 * The title of this wizard. 
-	 *
-	 * @var string
-	 */
-	private $title = '';
+	private $admin_page_type = '';
 
 	/**
 	 * Constructor.
@@ -45,20 +38,41 @@ class Network_Wizard extends Wizard {
 		if ( ! is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
 			return;
 		}
+		
+		// Admin pages based on Newspack Network plugin's admin pages and post types.
+		$this->admin_pages = [
+			'page' => [
+				'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
+				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
+				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
+				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
+				'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
+				'newspack-network-subscriptions'        => __( 'Network / Subscriptions', 'newspack-plugin' ),
+			],
+			'post_type' => [
+				'newspack_hub_nodes'                     => __( 'Network / Nodes', 'newspack-plugin' ),
+				// @todo in latest Network release: 'np_hub_orders',
+				// @todo in latest Network release: 'np_hub_subscriptions',
+'newspack_spnsrs_cpt'                     => __( 'RGCTEST', 'newspack-plugin' ),
+			],
+		];
 
 		// Load on ALL Network pages. Use a high priority to load after Network Plugin itself loads.
 		add_action( 'admin_menu', [ $this, 'admin_menu' ], 99 );
 
-		// Either set this as the current wizard page or return.
-		if( false == $this->set_this_wizard_page() ) {
+		// Either set the current wizard page / post type, or return so nothing is displayed.
+		if( false == $this->set_wizard() ) {
 			return;
 		}
 
+		return;
+
+// Add CSS to body.
+add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
+// above or below admin header init??
+
 		// Enqueue Wizards Admin Header.
 		$this->admin_header_init( [ 'title' => $this->get_name() ] );
-
-		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-
 	}
 
 	/**
@@ -67,145 +81,87 @@ class Network_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html( $this->title );
+		return esc_html( $this->admin_pages[$this->admin_page_type][$this->slug] );
 	}
 
+	/**
+	 * Is a Network admin page or post_type being viewed. Used by 'add_body_class' callback.
+	 *
+	 * @return bool Is current wizard page or not.
+	 */
+	public function is_wizard_page() {
+		return isset( $this->admin_pages[$this->admin_page_type][$this->slug] );
+	}
 
 	/**
-	 * Is Wizard admin page or post_type being viewed.
+	 * Sets vars based on if/which Wizard admin page or post_type being viewed.
 	 *
 	 * @return bool 
 	 */
-	public function is_wizard_page() {
+	public function set_wizard() {
 
 		global $pagenow;
 
-		// Admin pages.
-		if( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) === $this->slug ) {
+		// Check if current page is defined in admin_pages.
+		if ( 'admin.php' === $pagenow ) {
+			$this->admin_page_type = 'page';
+			$get_var = filter_input( INPUT_GET, $this->admin_page_type, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			if( empty( $get_var ) || empty( $this->admin_pages[$this->admin_page_type][$get_var] ) ) {
+				return false;
+			}
+			$this->slug = $get_var;
 			return true;
 		}
 
-		// Post Type pages.
-		$post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if( empty( $post_type ) ) {
-			return false;
-		}
+		// Check if current page is a post type page defined in admin_pages.
+		$this->admin_page_type = 'post_type';
 
-		// Post Type admin listings.
+		// Filter the GET var, but note that not all $pagenow checks below require this query var.
+		$get_var = filter_input( INPUT_GET, $this->admin_page_type, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		// Check Post Type admin listings page.
 		if ( 'edit.php' === $pagenow ) {
-			return $post_type === $this->slug;
+			if( empty( $get_var ) || empty( $this->admin_pages[$this->admin_page_type][$get_var] ) ) {
+				return false;
+			}
+			$this->slug = $get_var;
+			return true;
 		}
 
 		// If Gutenburg - don't load Wizard / Admin_Header.
-		if( use_block_editor_for_post_type( $post_type ) ) {
+		if( use_block_editor_for_post_type( $get_var ) ) {
 			return false;
 		}
 
-		// Post Type 'add new'.
+		// Post Type 'add new' for classic editor.
 		if ( 'post-new.php' === $pagenow ) {
-			return $post_type === $this->slug;
+			if( empty( $get_var ) || empty( $this->admin_pages[$this->admin_page_type][$get_var] ) ) {
+				return false;
+			}
+			$this->slug = $get_var;
+			return true;
 		}
 
-		// Post Type edit existing post (url format: post.php?post={ID}&action=edit )
+		// Post Type edit existing post with classic editor. URL format: post.php?post={ID}&action=edit )
 		if ( 'post.php' === $pagenow ) {
-			return get_post_type( filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) ) === $this->slug;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Sets vars based on which Wizard admin page or post_type being viewed.
-	 *
-	 * @return bool 
-	 */
-	public function set_this_wizard_page() {
-
-		global $pagenow;
-
-		$POST_TYPES = [
-			'newspack_hub_nodes'                     => __( 'Network / Nodes', 'newspack-plugin' ),
-			// 'np_hub_subscriptions',
-			// 'np_hub_orders',
-		];
-		
-		$ADMIN_PAGES = [
-			'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
-			'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
-			'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
-			'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
-			'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
-			'newspack-network-subscriptions'        => __( 'Network / Subscriptions', 'newspack-plugin' ),
-		];
-
-		// Admin pages.
-		$admin_page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if( ! empty( $admin_page ) ) {
-			if( in_array( $admin_page, $ADMIN_PAGES, true ) ) {
-				$this->slug = $admin_page;
-				$this->title = $ADMIN_PAGES[$admin_page];
-				return true;
-			}
-			return false;
-		}
-
-		// Post Type pages.
-		$post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if( empty( $post_type ) ) {
-			return false;
-		}
-
-		// Post Type admin listings.
-		if ( 'edit.php' === $pagenow ) {
-			if ( in_array( $post_type, $POST_TYPES, true ) ) {
-				$this->slug = $post_type;
-				$this->title = $POST_TYPES[$post_type];
-				return true;
-			}
-			return false;
-		}
-
-		// If Gutenburg - don't load Wizard / Admin_Header.
-		if( use_block_editor_for_post_type( $post_type ) ) {
-			return false;
-		}
-
-		// Post Type 'add new'.
-		if ( 'post-new.php' === $pagenow ) {
-			if ( in_array( $post_type, $POST_TYPES, true ) ) {
-				$this->slug = $post_type;
-				$this->title = $POST_TYPES[$post_type];
-				return true;
-			}
-			return false;
-		}
-
-		// Post Type edit existing post (url format: post.php?post={ID}&action=edit )
-		if ( 'post.php' === $pagenow ) {
+			// Get post type based in ID from the URL.
 			$post_type = get_post_type( filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) );
-			if ( in_array( $post_type, $POST_TYPES, true ) ) {
-				$this->slug = $post_type;
-				$this->title = $POST_TYPES[$post_type];
-				return true;
+			if( empty( $post_type ) || empty( $this->admin_pages[$this->admin_page_type][$post_type] ) ) {
+				return false;
 			}
-			return false;
+			$this->slug = $post_type;
+			return true;
 		}
 
 		return false;
 	}
 
-	
 	/**
-	 * Admin Menu hook to move Network admin menu higher into the Newspack area.
-	 * Hook priority should be high so this code runs after Network plugin loads.
+	 * Admin Menu hook to move entire Network admin menu higher into the Newspack area.
 	 *
 	 * @return void
 	 */
 	public function admin_menu() {
-
-		if ( ! is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
-			return;
-		}
 
 		global $menu;
 		
