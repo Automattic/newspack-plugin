@@ -50,7 +50,7 @@ class Newspack_Dashboard extends Wizard {
 	 * @return [] 
 	 */
 	public function get_dashboard() {
-		return [
+		$dashboard = [
 			'audience_development' => [
 				'title' => __( 'Audience development', 'newspack-plugin' ),
 				'desc'  => __( 'Engage your readers more deeply with tools to build customer relationships that drive towards sustainable revenue.', 'newspack-plugin' ),
@@ -168,23 +168,31 @@ class Newspack_Dashboard extends Wizard {
 					],
 				],	
 			],
-			'network' => $this->get_dashboard_network(),
 		];
+
+		// Newspack Network Plugin
+		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
+			$dashboard['network'] = [
+				'title'        => __( 'Network', 'newspack-plugin' ),
+				'desc'         => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
+				'dependencies' => [
+					'newspack-network',
+				],
+				'cards'        => $this->get_dashboard_network_cards(),
+			];
+		}
+		
+		return $dashboard;
 	}
 
 	/**
-	 * Get Newspack Network plugin dashboard section and cards.
+	 * Get Newspack Network plugin dashboard cards.
 	 *
-	 * @return array Section and Cards
+	 * @return array Cards
 	 */
-	public function get_dashboard_network() {
-	
-		// Plugin not active.
-		if ( false == is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
-			return [];
-		}
-	
-		// Plugin is active, get the site role.
+	public function get_dashboard_network_cards() {
+		
+		// Get the site role.
 		$site_role = ( function() {
 			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
 			if ( is_callable( $is_node ) && call_user_func( $is_node ) ) {
@@ -204,19 +212,10 @@ class Newspack_Dashboard extends Wizard {
 			'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
 			'href'  => admin_url( 'admin.php?page=newspack-network' ),
 		];
-
-		// All cards.
-		$cards = [];
-
-		// If no role.
-		if ( '' === $site_role ) {
-			$cards = [ 
-				$settings_card,
-			];
-		}
+		
 		// If node.
-		else if ( 'node' === $site_role ) {
-			$cards = [
+		if ( 'node' === $site_role ) {
+			return  [
 				$settings_card,
 				[
 					'icon'  => 'positionCenterCenter',
@@ -226,9 +225,10 @@ class Newspack_Dashboard extends Wizard {
 				],
 			];
 		}
+		
 		// If hub.
-		else if ( 'hub' === $site_role ) {
-			$cards = [
+		if ( 'hub' === $site_role ) {
+			return [
 				[
 					'icon'  => 'positionCenterCenter',
 					'title' => __( 'Nodes', 'newspack-plugin' ),
@@ -267,18 +267,12 @@ class Newspack_Dashboard extends Wizard {
 					'href'  => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
 				],
 			];
-
 		}
 
-		return [
-			'title'        => __( 'Network', 'newspack-plugin' ),
-			'desc'         => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
-			'dependencies' => [
-				'newspack-network',
-			],
-			'cards'        => $cards,
+		// Default / no role.
+		return [ 
+			$settings_card,
 		];
-
 	}
 
 	/**
