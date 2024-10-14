@@ -166,41 +166,24 @@ class Newspack_Dashboard extends Wizard {
 						'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
 						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ), 
 					],
-				],
-				
+				],	
 			],
-			'network'              => [
-				'title'        => __( 'Network', 'newspack-plugin' ),
-				'desc'         => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
-				'dependencies' => [
-					'newspack-network',
-				],
-				'cards'        => $this->get_dashboard_network_cards(),
-			],
+			'network' => $this->get_dashboard_network(),
 		];
 	}
 
 	/**
-	 * Get Newspack Network plugin dashboard cards.
+	 * Get Newspack Network plugin dashboard section and cards.
 	 *
-	 * @return [] 
+	 * @return array Section and Cards
 	 */
-	public function get_dashboard_network_cards() {
+	public function get_dashboard_network() {
 	
 		// Plugin not active.
 		if ( false == is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
-
-			return [
-				[
-					'icon'  => 'plugins',
-					'title' => __( 'Install Plugin', 'newspack-plugin' ),
-					'desc'  => __( 'Install and activate the Newspack Network plugin.', 'newspack-plugin' ),
-					'href'  => admin_url( 'plugins.php' ),
-				],
-			];
-
+			return [];
 		}
-
+	
 		// Plugin is active, get the site role.
 		$site_role = ( function() {
 			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
@@ -214,6 +197,7 @@ class Newspack_Dashboard extends Wizard {
 			return '';
 		} )();
 
+		// Reusable card.
 		$settings_card = [
 			'icon'  => 'tool',
 			'title' => __( 'Settings', 'newspack-plugin' ),
@@ -221,19 +205,18 @@ class Newspack_Dashboard extends Wizard {
 			'href'  => admin_url( 'admin.php?page=newspack-network' ),
 		];
 
+		// All cards.
+		$cards = [];
+
 		// If no role.
 		if ( '' === $site_role ) {
-
-			return [ 
+			$cards = [ 
 				$settings_card,
 			];
-
 		}
-
 		// If node.
-		if ( 'node' === $site_role ) {
-
-			return [
+		else if ( 'node' === $site_role ) {
+			$cards = [
 				$settings_card,
 				[
 					'icon'  => 'positionCenterCenter',
@@ -242,12 +225,10 @@ class Newspack_Dashboard extends Wizard {
 					'href'  => admin_url( 'admin.php?page=newspack-network-node' ),
 				],
 			];
-
 		}
-
 		// If hub.
-		if ( 'hub' === $site_role ) {
-			return [
+		else if ( 'hub' === $site_role ) {
+			$cards = [
 				[
 					'icon'  => 'positionCenterCenter',
 					'title' => __( 'Nodes', 'newspack-plugin' ),
@@ -258,16 +239,14 @@ class Newspack_Dashboard extends Wizard {
 					'icon'  => 'rotateRight',
 					'title' => __( 'Subscriptions', 'newspack-plugin' ),
 					'desc'  => __( 'View all subscriptions across your network.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-network-subscriptions' ),
+					'href'  => admin_url( 'edit.php?post_type=np_hub_subscriptions' ),
 				],
-				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-				// @todo After new Network release
-				// [
-				// 'icon'  => 'currencyDollar',
-				// 'title' => __( 'Orders', 'newspack-plugin' ),
-				// 'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
-				// 'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
-				// ],
+				[
+					'icon'  => 'currencyDollar',
+					'title' => __( 'Orders', 'newspack-plugin' ),
+					'desc'  => __( 'View all payments across your network.', 'newspack-plugin' ),
+					'href'  => admin_url( 'edit.php?post_type=np_hub_orders' ),
+				],
 				[
 					'icon'  => 'formatListBullets',
 					'title' => __( 'Event Log', 'newspack-plugin' ),
@@ -290,6 +269,16 @@ class Newspack_Dashboard extends Wizard {
 			];
 
 		}
+
+		return [
+			'title'        => __( 'Network', 'newspack-plugin' ),
+			'desc'         => __( 'Manage the way your site\'s content flows across your publishing network.', 'newspack-plugin' ),
+			'dependencies' => [
+				'newspack-network',
+			],
+			'cards'        => $cards,
+		];
+
 	}
 
 	/**

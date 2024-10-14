@@ -26,7 +26,7 @@ class Network_Wizard extends Wizard {
 	/**
 	 * Screen type: admin page or post type.
 	 *
-	 * @var array
+	 * @var string
 	 */
 	private $screen_type = '';
 
@@ -47,26 +47,23 @@ class Network_Wizard extends Wizard {
 				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
 				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
 				'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
-// 'newspack-network-subscriptions'        => __( 'Network / Subscriptions', 'newspack-plugin' ),
 			],
 			'post_type' => [
 				'newspack_hub_nodes'                     => __( 'Network / Nodes', 'newspack-plugin' ),
-// @todo in latest Network release: 'np_hub_orders',
-// @todo in latest Network release: 'np_hub_subscriptions',
+				'np_hub_orders'                          => __( 'Network / Orders', 'newspack-plugin' ),
+				'np_hub_subscriptions'                   => __( 'Network / Subscriptions', 'newspack-plugin' ),
 			],
 		];
 
-		// Move entire Network Menu. Do on all page loads.
-		// Use a high priority to load after Network Plugin itself loads.
+		// Move entire Network Menu. Use a high priority to load after Network Plugin itself loads.
 		add_action( 'admin_menu', [ $this, 'move_menu' ], 99 );
 
 		// Use current_screen for better detection of which admin screen we might be on.
 		add_action( 'current_screen', [ $this, 'current_screen' ] );
-
 	}
 
 	/**
-	 * Current screen callback to determine if this is a Network screen and setup display too.
+	 * Current screen callback to detect Network admin screens.
 	 *
 	 * @return void
 	 */
@@ -76,14 +73,14 @@ class Network_Wizard extends Wizard {
 
 		$set_and_show = function( $slug, $screen_type ) {
 
-			// Need to set for get_name and is_wizard_page functions.
+			// Set properties for use by get_name and is_wizard_page functions.
 			$this->slug = $slug;
 			$this->screen_type = $screen_type;
 
 			// Add CSS to body.
 			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
-			// Enqueue Wizards Admin Header.
+			// Display Wizard Admin Header.
 			$this->admin_header_init( [ 'title' => $this->get_name() ] );
 
 		};
@@ -95,10 +92,9 @@ class Network_Wizard extends Wizard {
 		}
 
 		// Check for admin post type screen: Listings page and classic editor (add new + edit), but not block editor.
-		if ( ! empty( $current_screen->post_type ) ) {
-			if( empty( $this->admin_screens['post_type'][$current_screen->post_type] ) || $current_screen->is_block_editor ) {
-				return;
-			}
+		if ( ! empty( $current_screen->post_type ) 
+			&& ! empty( $this->admin_screens['post_type'][$current_screen->post_type] )
+			&& false == $current_screen->is_block_editor ) {
 			$set_and_show( $current_screen->post_type, 'post_type' );
 			return;
 		}
