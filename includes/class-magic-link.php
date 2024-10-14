@@ -1197,7 +1197,7 @@ final class Magic_Link {
 		$verification_url   = \add_query_arg(
 			[
 				'action'   => self::AUTH_ACTION,
-				'email'    => self::generate_secret( $user ),
+				'secret'   => self::generate_secret( $user ),
 				'token'    => $token_data['token'],
 				'redirect' => urlencode( $url ),
 			],
