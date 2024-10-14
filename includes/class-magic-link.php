@@ -65,7 +65,7 @@ final class Magic_Link {
 
 		/** Replace Newspack Newsletters Verification Email */
 		\add_filter( 'newspack_newsletters_email_verification_email', [ __CLASS__, 'newsletters_email_verification_email' ], 10, 3 );
-		\add_action( 'wp_logout', [ __CLASS__, 'clear_user_data' ], 10, 1 );
+		\add_action( 'wp_logout', [ __CLASS__, 'clear_user_tokens' ], 10, 1 );
 	}
 
 	/**
@@ -275,33 +275,6 @@ final class Magic_Link {
 	}
 
 	/**
-	 * Clear user secret.
-	 *
-	 * @param \WP_User|int $user User or user ID to clear tokens for.
-	 */
-	public static function clear_user_secret( $user ) {
-		$user_id = $user instanceof \WP_User ? $user->ID : $user;
-		\delete_user_meta( $user_id, self::USER_SECRET_META );
-
-		/**
-		 * Fires after user secret is cleared.
-		 *
-		 * @param \WP_User $user User for which tokens were cleared.
-		 */
-		do_action( 'newspack_magic_link_user_secret_cleared', $user );
-	}
-
-	/**
-	 * Clear all user data.
-	 *
-	 * @param \WP_User|int $user User or user ID to clear tokens for.
-	 */
-	public static function clear_user_data( $user ) {
-		self::clear_user_tokens( $user );
-		self::clear_user_secret( $user );
-	}
-
-	/**
 	 * Get a random OTP code.
 	 *
 	 * @return string Random OTP code.
@@ -415,7 +388,11 @@ final class Magic_Link {
 	 * @return string
 	 */
 	public static function generate_secret( $user ) {
-		$secret = str_replace( '-', '', wp_generate_uuid4() );
+		$secret = \get_user_meta( $user->ID, self::USER_SECRET_META, true );
+		if ( ! empty( $secret ) ) {
+			return $secret;
+		}
+		$secret = wp_hash( $user->user_email );
 		\update_user_meta( $user->ID, self::USER_SECRET_META, $secret );
 		return $secret;
 	}
@@ -730,9 +707,6 @@ final class Magic_Link {
 		// Authenticate the reader.
 		Reader_Activation::set_current_reader( $user->ID );
 
-		// Clear user secret after login.
-		self::clear_user_secret( $user );
-
 		/**
 		 * Fires after a reader has been authenticated via magic link.
 		 *
@@ -805,7 +779,6 @@ final class Magic_Link {
 		if ( ! $errored && ! empty( $user ) ) {
 			$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$authenticated = self::authenticate( $user->ID, $token );
-			self::clear_user_secret( $user );
 		}
 		$query_args = [ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ];
 		foreach ( self::ACCEPTED_PARAMS as $param ) {
