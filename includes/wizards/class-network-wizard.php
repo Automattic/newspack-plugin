@@ -41,7 +41,7 @@ class Network_Wizard extends Wizard {
 		
 		// Admin screens based on Newspack Network plugin's admin pages and post types.
 		$this->admin_screens = [
-			'page' => [
+			'page'      => [
 				'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
 				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
 				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
@@ -49,9 +49,9 @@ class Network_Wizard extends Wizard {
 				'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
 			],
 			'post_type' => [
-				'newspack_hub_nodes'                     => __( 'Network / Nodes', 'newspack-plugin' ),
-				'np_hub_orders'                          => __( 'Network / Orders', 'newspack-plugin' ),
-				'np_hub_subscriptions'                   => __( 'Network / Subscriptions', 'newspack-plugin' ),
+				'newspack_hub_nodes'   => __( 'Network / Nodes', 'newspack-plugin' ),
+				'np_hub_orders'        => __( 'Network / Orders', 'newspack-plugin' ),
+				'np_hub_subscriptions' => __( 'Network / Subscriptions', 'newspack-plugin' ),
 			],
 		];
 
@@ -67,12 +67,11 @@ class Network_Wizard extends Wizard {
 	 *
 	 * @return void
 	 */
-	public function current_screen():void {
+	public function current_screen(): void {
 
 		global $current_screen, $plugin_page;
 
 		$set_and_show = function( $slug, $screen_type ) {
-
 			// Set properties for use by get_name and is_wizard_page functions.
 			$this->slug = $slug;
 			$this->screen_type = $screen_type;
@@ -82,18 +81,17 @@ class Network_Wizard extends Wizard {
 
 			// Display Wizard Admin Header.
 			$this->admin_header_init( [ 'title' => $this->get_name() ] );
-
 		};
 
 		// Check for admin page screen type.
-		if ( isset( $this->admin_screens['page'][$plugin_page] ) ) {
+		if ( isset( $this->admin_screens['page'][ $plugin_page ] ) ) {
 			$set_and_show( $plugin_page, 'page' );
 			return;
 		}
 
 		// Check for admin post type screen: Listings page and classic editor (add new + edit), but not block editor.
 		if ( ! empty( $current_screen->post_type ) 
-			&& ! empty( $this->admin_screens['post_type'][$current_screen->post_type] )
+			&& ! empty( $this->admin_screens['post_type'][ $current_screen->post_type ] )
 			&& false == $current_screen->is_block_editor ) {
 			$set_and_show( $current_screen->post_type, 'post_type' );
 			return;
@@ -106,7 +104,7 @@ class Network_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html( $this->admin_screens[$this->screen_type][$this->slug] );
+		return esc_html( $this->admin_screens[ $this->screen_type ][ $this->slug ] );
 	}
 
 	/**
@@ -115,7 +113,7 @@ class Network_Wizard extends Wizard {
 	 * @return bool Is current wizard page or not.
 	 */
 	public function is_wizard_page() {
-		return isset( $this->admin_screens[$this->screen_type][$this->slug] );
+		return isset( $this->admin_screens[ $this->screen_type ][ $this->slug ] );
 	}
 
 	/**

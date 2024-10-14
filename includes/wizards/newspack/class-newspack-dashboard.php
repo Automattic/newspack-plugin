@@ -166,11 +166,11 @@ class Newspack_Dashboard extends Wizard {
 						'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
 						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ), 
 					],
-				],	
+				],
 			],
 		];
 
-		// Newspack Network Plugin
+		// Newspack Network Plugin.
 		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
 			$dashboard['network'] = [
 				'title'        => __( 'Network', 'newspack-plugin' ),
@@ -215,7 +215,7 @@ class Newspack_Dashboard extends Wizard {
 		
 		// If node.
 		if ( 'node' === $site_role ) {
-			return  [
+			return [
 				$settings_card,
 				[
 					'icon'  => 'positionCenterCenter',
