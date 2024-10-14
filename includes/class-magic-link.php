@@ -21,12 +21,12 @@ final class Magic_Link {
 		'enable'  => 'np_magic_link_enable',
 	];
 
-	const TOKENS_META   = 'np_magic_link_tokens';
-	const DISABLED_META = 'np_magic_link_disabled';
+	const TOKENS_META      = 'np_magic_link_tokens';
+	const DISABLED_META    = 'np_magic_link_disabled';
+	const USER_SECRET_META = 'np_magic_link_secret';
 
 	const AUTH_ACTION        = 'np_auth_link';
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
-	const AUTH_USER_META     = 'np_auth_link_user_meta';
 	const COOKIE             = 'np_auth_link';
 
 	const RATE_INTERVAL = 60; // Interval in seconds to rate limit token generation.
@@ -65,7 +65,7 @@ final class Magic_Link {
 
 		/** Replace Newspack Newsletters Verification Email */
 		\add_filter( 'newspack_newsletters_email_verification_email', [ __CLASS__, 'newsletters_email_verification_email' ], 10, 3 );
-		\add_action( 'wp_logout', [ __CLASS__, 'clear_user_tokens' ], 10, 1 );
+		\add_action( 'wp_logout', [ __CLASS__, 'clear_user_data' ], 10, 1 );
 	}
 
 	/**
@@ -275,6 +275,33 @@ final class Magic_Link {
 	}
 
 	/**
+	 * Clear user secret.
+	 *
+	 * @param \WP_User|int $user User or user ID to clear tokens for.
+	 */
+	public static function clear_user_secret( $user ) {
+		$user_id = $user instanceof \WP_User ? $user->ID : $user;
+		\delete_user_meta( $user_id, self::USER_SECRET_META );
+
+		/**
+		 * Fires after user secret is cleared.
+		 *
+		 * @param \WP_User $user User for which tokens were cleared.
+		 */
+		do_action( 'newspack_magic_link_user_secret_cleared', $user );
+	}
+
+	/**
+	 * Clear all user data.
+	 *
+	 * @param \WP_User|int $user User or user ID to clear tokens for.
+	 */
+	public static function clear_user_data( $user ) {
+		self::clear_user_tokens( $user );
+		self::clear_user_secret( $user );
+	}
+
+	/**
 	 * Get a random OTP code.
 	 *
 	 * @return string Random OTP code.
@@ -381,6 +408,19 @@ final class Magic_Link {
 	}
 
 	/**
+	 * Generate secret.
+	 *
+	 * @param \WP_User $user User to generate the secret for.
+	 *
+	 * @return string
+	 */
+	public static function generate_secret( $user ) {
+		$secret = str_replace( '-', '', wp_generate_uuid4() );
+		\update_user_meta( $user->ID, self::USER_SECRET_META, $secret );
+		return $secret;
+	}
+
+	/**
 	 * Check for active magic link tokens.
 	 *
 	 * @param \WP_User $user User to check the active magic link token for.
@@ -430,8 +470,8 @@ final class Magic_Link {
 		return \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'email'  => urlencode( $user->user_email ),
 				'token'  => $token_data['token'],
+				'secret' => self::generate_secret( $user ),
 			],
 			! empty( $url ) ? $url : \home_url()
 		);
@@ -459,8 +499,8 @@ final class Magic_Link {
 		$url = \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'email'  => urlencode( $user->user_email ),
 				'token'  => $token_data['token'],
+				'secret' => self::generate_secret( $user ),
 			],
 			! empty( $redirect_to ) ? $redirect_to : \home_url()
 		);
@@ -690,6 +730,9 @@ final class Magic_Link {
 		// Authenticate the reader.
 		Reader_Activation::set_current_reader( $user->ID );
 
+		// Clear user secret after login.
+		self::clear_user_secret( $user );
+
 		/**
 		 * Fires after a reader has been authenticated via magic link.
 		 *
@@ -707,7 +750,6 @@ final class Magic_Link {
 		if ( ! Reader_Activation::is_enabled() ) {
 			return;
 		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET[ self::AUTH_ACTION_RESULT ] ) && 0 === \absint( $_GET[ self::AUTH_ACTION_RESULT ] ) ) {
 			\add_action(
@@ -730,44 +772,41 @@ final class Magic_Link {
 				1
 			);
 		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['action'] ) || self::AUTH_ACTION !== $_GET['action'] ) {
 			return;
 		}
-
 		$errored = false;
+		$user    = false;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['token'] ) || ! isset( $_GET[ self::AUTH_USER_META ] ) ) {
+		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['secret'] ) ) {
 			$errored = true;
 		}
-
 		if ( ! $errored ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$meta_value = filter_input( INPUT_GET, self::AUTH_USER_META, FILTER_SANITIZE_SPECIAL_CHARS );
-			if ( $meta_key ) {
+			$secret = filter_input( INPUT_GET, 'secret', FILTER_SANITIZE_STRING );
+			if ( $secret ) {
 				$users = \get_users(
 					[
-						'meta_key'   => self::AUTH_USER_META,
-						'meta_value' => $meta_value, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						'meta_key'   => self::USER_SECRET_META,
+						'meta_value' => $secret, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 					]
 				);
 				if ( empty( $users ) || count( $users ) > 1 ) {
 					$errored = true;
+				} else {
+					$user = $users[0];
 				}
 			} else {
 				$errored = true;
 			}
 		}
-
 		$authenticated = false;
-
-		if ( ! $errored ) {
-			$user          = $users[0];
+		if ( ! $errored && ! empty( $user ) ) {
 			$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$authenticated = self::authenticate( $user->ID, $token );
+			self::clear_user_secret( $user );
 		}
-
 		$query_args = [ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ];
 		foreach ( self::ACCEPTED_PARAMS as $param ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -779,9 +818,8 @@ final class Magic_Link {
 		$redirect = \sanitize_url( \wp_unslash( $_GET['redirect'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$redirect = \wp_validate_redirect(
 			\add_query_arg( $query_args, $redirect ),
-			\remove_query_arg( [ 'action', 'email', 'token' ] )
+			\remove_query_arg( [ 'action', 'secret', 'token' ] )
 		);
-
 		\wp_safe_redirect( $redirect );
 		exit;
 	}
@@ -1159,7 +1197,7 @@ final class Magic_Link {
 		$verification_url   = \add_query_arg(
 			[
 				'action'   => self::AUTH_ACTION,
-				'email'    => urlencode( $user->user_email ),
+				'email'    => self::generate_secret( $user ),
 				'token'    => $token_data['token'],
 				'redirect' => urlencode( $url ),
 			],
