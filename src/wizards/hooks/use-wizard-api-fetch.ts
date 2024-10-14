@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -90,6 +90,8 @@ export function useWizardApiFetch( slug: string ) {
 		wizardData.error ?? null
 	);
 
+	const requests = useRef< string[] >( [] );
+
 	useEffect( () => {
 		updateWizardSettings( {
 			slug,
@@ -133,9 +135,6 @@ export function useWizardApiFetch( slug: string ) {
 			opts: ApiFetchOptions,
 			callbacks?: ApiFetchCallbacks< T >
 		) => {
-			if ( isFetching ) {
-				return;
-			}
 			const { on } = onCallbacks< T >( callbacks ?? {} );
 			const updateSettings = updateWizardData( opts.path );
 			const { path, method = 'GET' } = opts;
@@ -155,10 +154,30 @@ export function useWizardApiFetch( slug: string ) {
 				if ( isCached ) {
 					updateSettings( method, response );
 				}
+
 				if ( updateCacheKey && updateCacheKey instanceof Object ) {
+					// Derive the key and method from the updateCacheKey object.
+					const [ updateCacheKeyKey, updateCacheKeyMethod ]: [
+						keyof WizardData,
+						ApiMethods,
+					] = Object.entries( updateCacheKey )[ 0 ];
+
+					// If the cached value is an object, merge the new response with existing cache.
+					const newCache =
+						wizardData[ updateCacheKeyKey ][
+							updateCacheKeyMethod
+						] instanceof Object
+							? {
+									...wizardData[ updateCacheKeyKey ][
+										updateCacheKeyMethod
+									],
+									...response,
+							  }
+							: response;
+
 					updateSettings(
 						Object.entries( updateCacheKey )[ 0 ],
-						response,
+						newCache,
 						null
 					);
 				}
@@ -177,10 +196,13 @@ export function useWizardApiFetch( slug: string ) {
 			}
 
 			function finallyCallback() {
-				setIsFetching( false );
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { [ path ]: _removed, ...newData } = promiseCache;
 				promiseCache = newData;
+				requests.current = requests.current.filter(
+					request => request !== path
+				);
+				setIsFetching( requests.current.length > 0 );
 				on( 'onFinally' );
 			}
 
@@ -202,6 +224,7 @@ export function useWizardApiFetch( slug: string ) {
 
 			setIsFetching( true );
 			on( 'onStart' );
+			requests.current.push( path );
 
 			promiseCache[ path ] = wizardApiFetch( {
 				isQuietFetch: true,

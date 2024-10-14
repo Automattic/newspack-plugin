@@ -6,7 +6,9 @@
 export const API_NAMESPACE = '/newspack-settings/connections/webhooks';
 
 /** Cache key for get requests, primary storage for endpoints */
-export const ENDPOINTS_CACHE_KEY = { '/newspack/v1/webhooks/endpoints': 'GET' };
+export const ENDPOINTS_CACHE_KEY: Record< string, ApiMethods > = {
+	'/newspack/v1/webhooks/endpoints': 'GET',
+};
 
 export default {
 	API_NAMESPACE,
