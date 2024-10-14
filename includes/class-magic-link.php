@@ -351,6 +351,14 @@ final class Magic_Link {
 
 		$expire = $now - self::get_token_expiration_period();
 		if ( ! empty( $tokens ) ) {
+
+			/**
+			 * Filters the magic link rate interval.
+			 *
+			 * @param int $rate_interval Magic link rate interval.
+			 */
+			$rate_interval = apply_filters( 'newspack_magic_link_rate_interval', self::RATE_INTERVAL );
+
 			/** Limit maximum tokens to 5. */
 			$tokens = array_slice( $tokens, -4, 4 );
 			foreach ( $tokens as $index => $token_data ) {
@@ -359,7 +367,7 @@ final class Magic_Link {
 					unset( $tokens[ $index ] );
 				}
 				/** Rate limit token generation. */
-				if ( $token_data['time'] + self::RATE_INTERVAL > $now ) {
+				if ( $token_data['time'] + $rate_interval > $now ) {
 					return new \WP_Error( 'rate_limit_exceeded', __( 'Please wait a minute before requesting another authorization code.', 'newspack-plugin' ) );
 				}
 			}

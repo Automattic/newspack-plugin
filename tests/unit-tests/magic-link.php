@@ -130,6 +130,33 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test whether up to five tokens can be generated and validated.
+	 */
+	public function test_multiple_tokens() {
+		/**
+		 * Filter the rate interval to 0 seconds.
+		 *
+		 * @param int $rate_interval The rate interval in seconds.
+		 */
+		function modify_magic_link_rate_interval( $rate_interval ) {
+			return 0;
+		}
+		add_filter( 'newspack_magic_link_rate_interval', 'modify_magic_link_rate_interval', 10 );
+		$tokens = [];
+		for ( $i = 0; $i <= 5; $i++ ) {
+			$tokens[] = Magic_Link::generate_token( get_user_by( 'id', self::$user_id ) );
+		}
+		remove_filter( 'newspack_magic_link_rate_interval', 'modify_magic_link_rate_interval', 10 );
+		foreach ( $tokens as $index => $token ) {
+			if ( $index < 1 ) {
+				$this->assertTrue( is_wp_error( Magic_Link::validate_token( self::$user_id, $token['client'], $token['token'] ) ) );
+			} else {
+				$this->assertTokenIsValid( Magic_Link::validate_token( self::$user_id, $token['client'], $token['token'] ) );
+			}
+		}
+	}
+
+	/**
 	 * Test single-use quality of a token.
 	 */
 	public function test_single_use_token() {
