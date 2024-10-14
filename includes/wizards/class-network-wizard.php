@@ -65,11 +65,8 @@ class Network_Wizard extends Wizard {
 			return;
 		}
 
-		return;
-
-// Add CSS to body.
-add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-// above or below admin header init??
+		// Add CSS to body.
+		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
 		// Enqueue Wizards Admin Header.
 		$this->admin_header_init( [ 'title' => $this->get_name() ] );
@@ -104,52 +101,54 @@ add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
 		// Check if current page is defined in admin_pages.
 		if ( 'admin.php' === $pagenow ) {
-			$this->admin_page_type = 'page';
-			$get_var = filter_input( INPUT_GET, $this->admin_page_type, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-			if( empty( $get_var ) || empty( $this->admin_pages[$this->admin_page_type][$get_var] ) ) {
+			$page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			if( empty( $page ) || empty( $this->admin_pages['page'][$page] ) ) {
 				return false;
 			}
-			$this->slug = $get_var;
+			$this->slug = $page;
+			$this->admin_page_type = 'page';
 			return true;
 		}
 
 		// Check if current page is a post type page defined in admin_pages.
-		$this->admin_page_type = 'post_type';
-
-		// Filter the GET var, but note that not all $pagenow checks below require this query var.
-		$get_var = filter_input( INPUT_GET, $this->admin_page_type, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		// Note: not all $pagenow checks below require this query var.
+		$post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		// Check Post Type admin listings page.
 		if ( 'edit.php' === $pagenow ) {
-			if( empty( $get_var ) || empty( $this->admin_pages[$this->admin_page_type][$get_var] ) ) {
+			if( empty( $post_type ) || empty( $this->admin_pages['post_type'][$post_type] ) ) {
 				return false;
 			}
-			$this->slug = $get_var;
+			$this->slug = $post_type;
+			$this->admin_page_type = 'post_type';
 			return true;
 		}
 
 		// If Gutenburg - don't load Wizard / Admin_Header.
-		if( use_block_editor_for_post_type( $get_var ) ) {
+// @ todo: test for "is_real_post_type?" to verify GET var.
+		if( use_block_editor_for_post_type( $post_type ) ) {
 			return false;
 		}
 
 		// Post Type 'add new' for classic editor.
 		if ( 'post-new.php' === $pagenow ) {
-			if( empty( $get_var ) || empty( $this->admin_pages[$this->admin_page_type][$get_var] ) ) {
-				return false;
-			}
-			$this->slug = $get_var;
-			return true;
-		}
-
-		// Post Type edit existing post with classic editor. URL format: post.php?post={ID}&action=edit )
-		if ( 'post.php' === $pagenow ) {
-			// Get post type based in ID from the URL.
-			$post_type = get_post_type( filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) );
-			if( empty( $post_type ) || empty( $this->admin_pages[$this->admin_page_type][$post_type] ) ) {
+			if( empty( $post_type ) || empty( $this->admin_pages['post_type'][$post_type] ) ) {
 				return false;
 			}
 			$this->slug = $post_type;
+			$this->admin_page_type = 'post_type';
+			return true;
+		}
+
+		// Post Type "edit existing post" with classic editor. URL format: post.php?post={ID}&action=edit )
+		if ( 'post.php' === $pagenow ) {
+			// Get post type based in ID from the URL.
+			$post_type = get_post_type( filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) );
+			if( empty( $post_type ) || empty( $this->admin_pages['post_type'][$post_type] ) ) {
+				return false;
+			}
+			$this->slug = $post_type;
+			$this->admin_page_type = 'post_type';
 			return true;
 		}
 
