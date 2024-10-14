@@ -51,10 +51,12 @@ export default function BrandsList( {
 	deleteBrand: ( brand: Brand ) => void;
 } ) {
 	if ( isFetching ) {
-		<BrandsListHeader
-			title={ __( 'Fetching brands…', 'newspack-plugin' ) }
-			isFetching
-		/>;
+		return (
+			<BrandsListHeader
+				title={ __( 'Site brands', 'newspack-plugin' ) }
+				isFetching
+			/>
+		);
 	}
 	return brands.length ? (
 		<Fragment>
