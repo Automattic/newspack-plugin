@@ -17,18 +17,18 @@ class Network_Wizard extends Wizard {
 	use \Newspack\Wizards\Traits\Admin_Header;
 
 	/**
-	 * Newspack Network plugin's Admin pages.
+	 * Newspack Network plugin's Admin screen definitions (see below).
 	 *
 	 * @var array
 	 */
-	private $admin_pages = [];
+	private $admin_screens = [];
 
 	/**
-	 * Admin page or post type.
+	 * Screen type: admin page or post type.
 	 *
 	 * @var array
 	 */
-	private $admin_page_type = '';
+	private $screen_type = '';
 
 	/**
 	 * Constructor.
@@ -39,37 +39,69 @@ class Network_Wizard extends Wizard {
 			return;
 		}
 		
-		// Admin pages based on Newspack Network plugin's admin pages and post types.
-		$this->admin_pages = [
+		// Admin screens based on Newspack Network plugin's admin pages and post types.
+		$this->admin_screens = [
 			'page' => [
 				'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
 				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
 				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
 				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
 				'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
-				'newspack-network-subscriptions'        => __( 'Network / Subscriptions', 'newspack-plugin' ),
+// 'newspack-network-subscriptions'        => __( 'Network / Subscriptions', 'newspack-plugin' ),
 			],
 			'post_type' => [
 				'newspack_hub_nodes'                     => __( 'Network / Nodes', 'newspack-plugin' ),
-				// @todo in latest Network release: 'np_hub_orders',
-				// @todo in latest Network release: 'np_hub_subscriptions',
-'newspack_spnsrs_cpt'                     => __( 'RGCTEST', 'newspack-plugin' ),
+// @todo in latest Network release: 'np_hub_orders',
+// @todo in latest Network release: 'np_hub_subscriptions',
 			],
 		];
 
-		// Load on ALL Network pages. Use a high priority to load after Network Plugin itself loads.
-		add_action( 'admin_menu', [ $this, 'admin_menu' ], 99 );
+		// Move entire Network Menu. Do on all page loads.
+		// Use a high priority to load after Network Plugin itself loads.
+		add_action( 'admin_menu', [ $this, 'move_menu' ], 99 );
 
-		// Either set the current wizard page / post type, or return so nothing is displayed.
-		if( false == $this->set_wizard() ) {
+		// Use current_screen for better detection of which admin screen we might be on.
+		add_action( 'current_screen', [ $this, 'current_screen' ] );
+
+	}
+
+	/**
+	 * Current screen callback to determine if this is a Network screen and setup display too.
+	 *
+	 * @return void
+	 */
+	public function current_screen():void {
+
+		global $current_screen, $plugin_page;
+
+		$set_and_show = function( $slug, $screen_type ) {
+
+			// Need to set for get_name and is_wizard_page functions.
+			$this->slug = $slug;
+			$this->screen_type = $screen_type;
+
+			// Add CSS to body.
+			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
+
+			// Enqueue Wizards Admin Header.
+			$this->admin_header_init( [ 'title' => $this->get_name() ] );
+
+		};
+
+		// Check for admin page screen type.
+		if ( isset( $this->admin_screens['page'][$plugin_page] ) ) {
+			$set_and_show( $plugin_page, 'page' );
 			return;
 		}
 
-		// Add CSS to body.
-		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-
-		// Enqueue Wizards Admin Header.
-		$this->admin_header_init( [ 'title' => $this->get_name() ] );
+		// Check for admin post type screen: Listings page and classic editor (add new + edit), but not block editor.
+		if ( ! empty( $current_screen->post_type ) ) {
+			if( empty( $this->admin_screens['post_type'][$current_screen->post_type] ) || $current_screen->is_block_editor ) {
+				return;
+			}
+			$set_and_show( $current_screen->post_type, 'post_type' );
+			return;
+		}
 	}
 
 	/**
@@ -78,7 +110,7 @@ class Network_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html( $this->admin_pages[$this->admin_page_type][$this->slug] );
+		return esc_html( $this->admin_screens[$this->screen_type][$this->slug] );
 	}
 
 	/**
@@ -87,72 +119,7 @@ class Network_Wizard extends Wizard {
 	 * @return bool Is current wizard page or not.
 	 */
 	public function is_wizard_page() {
-		return isset( $this->admin_pages[$this->admin_page_type][$this->slug] );
-	}
-
-	/**
-	 * Sets vars based on if/which Wizard admin page or post_type being viewed.
-	 *
-	 * @return bool 
-	 */
-	public function set_wizard() {
-
-		global $pagenow;
-
-		// Check if current page is defined in admin_pages.
-		if ( 'admin.php' === $pagenow ) {
-			$page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-			if( empty( $page ) || empty( $this->admin_pages['page'][$page] ) ) {
-				return false;
-			}
-			$this->slug = $page;
-			$this->admin_page_type = 'page';
-			return true;
-		}
-
-		// Check if current page is a post type page defined in admin_pages.
-		// Note: not all $pagenow checks below require this query var.
-		$post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-		// Check Post Type admin listings page.
-		if ( 'edit.php' === $pagenow ) {
-			if( empty( $post_type ) || empty( $this->admin_pages['post_type'][$post_type] ) ) {
-				return false;
-			}
-			$this->slug = $post_type;
-			$this->admin_page_type = 'post_type';
-			return true;
-		}
-
-		// If Gutenburg - don't load Wizard / Admin_Header.
-// @ todo: test for "is_real_post_type?" to verify GET var.
-		if( use_block_editor_for_post_type( $post_type ) ) {
-			return false;
-		}
-
-		// Post Type 'add new' for classic editor.
-		if ( 'post-new.php' === $pagenow ) {
-			if( empty( $post_type ) || empty( $this->admin_pages['post_type'][$post_type] ) ) {
-				return false;
-			}
-			$this->slug = $post_type;
-			$this->admin_page_type = 'post_type';
-			return true;
-		}
-
-		// Post Type "edit existing post" with classic editor. URL format: post.php?post={ID}&action=edit )
-		if ( 'post.php' === $pagenow ) {
-			// Get post type based in ID from the URL.
-			$post_type = get_post_type( filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) );
-			if( empty( $post_type ) || empty( $this->admin_pages['post_type'][$post_type] ) ) {
-				return false;
-			}
-			$this->slug = $post_type;
-			$this->admin_page_type = 'post_type';
-			return true;
-		}
-
-		return false;
+		return isset( $this->admin_screens[$this->screen_type][$this->slug] );
 	}
 
 	/**
@@ -160,7 +127,7 @@ class Network_Wizard extends Wizard {
 	 *
 	 * @return void
 	 */
-	public function admin_menu() {
+	public function move_menu() {
 
 		global $menu;
 		
