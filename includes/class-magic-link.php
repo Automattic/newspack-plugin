@@ -26,6 +26,7 @@ final class Magic_Link {
 
 	const AUTH_ACTION        = 'np_auth_link';
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
+	const AUTH_USER_META     = 'np_auth_link_user_meta';
 	const COOKIE             = 'np_auth_link';
 
 	const RATE_INTERVAL = 60; // Interval in seconds to rate limit token generation.
@@ -737,16 +738,21 @@ final class Magic_Link {
 
 		$errored = false;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['email'] ) ) {
+		if ( ! isset( $_GET['token'] ) || ! isset( $_GET[ self::AUTH_USER_META ] ) ) {
 			$errored = true;
 		}
 
 		if ( ! $errored ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$email = \sanitize_email( $_GET['email'] );
-			if ( $email ) {
-				$user = \get_user_by( 'email', $email );
-				if ( ! $user ) {
+			$meta_value = filter_input( INPUT_GET, self::AUTH_USER_META, FILTER_SANITIZE_SPECIAL_CHARS );
+			if ( $meta_key ) {
+				$users = \get_users(
+					[
+						'meta_key'   => self::AUTH_USER_META,
+						'meta_value' => $meta_value, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+					]
+				);
+				if ( empty( $users ) || count( $users ) > 1 ) {
 					$errored = true;
 				}
 			} else {
@@ -757,8 +763,8 @@ final class Magic_Link {
 		$authenticated = false;
 
 		if ( ! $errored ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
+			$user          = $users[0];
+			$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$authenticated = self::authenticate( $user->ID, $token );
 		}
 
