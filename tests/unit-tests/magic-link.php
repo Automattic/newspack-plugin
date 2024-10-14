@@ -104,6 +104,14 @@ class Newspack_Test_Magic_Link extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test simple secret generation.
+	 */
+	public function test_generate_secret() {
+		$secret = Magic_Link::generate_secret( get_user_by( 'id', self::$user_id ) );
+		$this->assertEquals( $secret, wp_hash( 'reader@test.com' ) );
+	}
+
+	/**
 	 * Test rate limiting of token generation.
 	 */
 	public function test_rate_limit() {
