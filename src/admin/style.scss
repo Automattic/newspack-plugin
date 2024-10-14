@@ -102,20 +102,28 @@ h1 {
 	.newspack-select-control {
 		animation: opacity-pulse 1.4s infinite;
 
-		.components-select-control__input {
+		// Specificity necessary to override @emotion/* styles
+		select.components-select-control__input {
 			background-color: var(--np-color-wp-gray-100);
-		}
-
-		select {
 			border: 1px solid var(--np-color-wp-gray-100);
 			cursor: progress;
 		}
 
+		// Specificity necessary to override @emotion/* styles
+		div.components-input-control__backdrop {
+			border: none;
+		}
+
 		optgroup,
 		option,
+		.components-input-control__suffix,
 		.components-select-control__arrow-wrapper {
 			display: none;
 		}
+	}
+
+	.newspack-image-upload__image {
+		animation: opacity-pulse 1.4s infinite;
 	}
 }
 

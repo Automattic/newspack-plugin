@@ -24,6 +24,7 @@ import Typography from './typography';
 import { DEFAULT_THEME_MODS } from '../constants';
 
 const DEFAULT_DATA: ThemeData = {
+	etc: { post_count: '0' },
 	theme: 'newspack-theme',
 	homepage_patterns: [],
 	theme_mods: { ...DEFAULT_THEME_MODS },
