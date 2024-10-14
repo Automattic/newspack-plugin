@@ -38,6 +38,7 @@ class GA4 {
 		'donation_subscription_cancelled',
 		'newsletter_subscribed',
 		'prompt_interaction',
+		'gate_interaction',
 	];
 
 	/**
@@ -48,7 +49,6 @@ class GA4 {
 	public static function init() {
 		Data_Events::register_handler( [ __CLASS__, 'global_handler' ] );
 		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_event_body' ], 10, 2 );
-		add_filter( 'newspack_stripe_handle_donation_payment_metadata', [ __CLASS__, 'filter_donation_metadata' ], 10, 2 );
 
 		add_filter( 'newspack_data_events_dispatch_body', [ __CLASS__, 'filter_donation_new_event_body' ], 20, 2 );
 	}
@@ -114,10 +114,10 @@ class GA4 {
 		}
 
 		$params    = $data['ga_params'];
-		$client_id = $data['ga_client_id'];
+		$client_id = isset( $data['ga_client_id'] ) ? $data['ga_client_id'] : null;
 
 		if ( empty( $client_id ) ) {
-			throw new \Exception( 'Missing client ID' );
+			$client_id = 'AnonymousUser-' . md5( $user_id );
 		}
 
 		if ( method_exists( __CLASS__, 'handle_' . $event_name ) ) {
@@ -157,7 +157,77 @@ class GA4 {
 		} else {
 			throw new \Exception( 'Event handler method not found' );
 		}
+	}
 
+	/**
+	 * Get custom parameters for a GA configuration or event body.
+	 */
+	public static function get_custom_parameters() {
+		$params = [
+			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
+		];
+		$session_id = self::extract_sid_from_cookies();
+		if ( $session_id ) {
+			$params['ga_session_id'] = $session_id;
+		}
+
+		// Get current post author name.
+		$author_name = '';
+		if ( function_exists( 'get_coauthors' ) ) {
+			$author_name = implode(
+				', ',
+				array_map(
+					function( $author ) {
+						return $author->display_name;
+					},
+					get_coauthors()
+				)
+			);
+		} else {
+			// For some reason, get_the_author() does not work here.
+			$author_user = get_user_by( 'ID', get_post()->post_author );
+			if ( $author_user ) {
+				$author_name = $author_user->display_name;
+			}
+		}
+		if ( ! empty( $author_name ) ) {
+			$params['author'] = $author_name;
+		}
+
+		// Get current post categories.
+		$category_names = array_map(
+			function( $category ) {
+				return $category->name;
+			},
+			get_the_category()
+		);
+		if ( ! empty( $category_names ) ) {
+			$params['categories'] = implode( ', ', $category_names );
+		}
+
+		$params['is_reader'] = 'no';
+		if ( is_user_logged_in() ) {
+			$current_user = wp_get_current_user();
+			$params['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+			$params['email_hash'] = md5( $current_user->user_email );
+
+			if ( method_exists( 'Newspack\Reader_Data', 'get_data' ) ) {
+				$reader_data = \Newspack\Reader_Data::get_data( get_current_user_id() );
+				// If the reader is signed up for any newsletters.
+				$params['is_newsletter_subscriber'] = empty( $reader_data['is_newsletter_subscriber'] ) ? 'no' : 'yes';
+				// If reader has donated.
+				$params['is_donor'] = empty( $reader_data['is_donor'] ) ? 'no' : 'yes';
+				// If reader has any currently active non-donation subscriptions.
+				$params['is_subscriber'] = empty( $reader_data['active_subscriptions'] ) ? 'no' : 'yes';
+			}
+		}
+
+		/**
+		 * Filters the custom parameters passed to GA4.
+		 *
+		 * @param array $params Custom parameters sent to GA4.
+		 */
+		return apply_filters( 'newspack_ga4_custom_parameters', $params );
 	}
 
 	/**
@@ -174,35 +244,12 @@ class GA4 {
 		if ( ! self::can_use_ga4() ) {
 			return $body;
 		}
-
 		$body['data']['ga_client_id'] = self::extract_cid_from_cookies();
-
-		// Default params added to all events will go here.
-		$body['data']['ga_params'] = [
-			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
-		];
-
-		$session_id = self::extract_sid_from_cookies();
-		if ( $session_id ) {
-			$body['data']['ga_params']['ga_session_id'] = $session_id;
-		}
-
-		$body['data']['ga_params']['is_reader'] = 'no';
-		if ( is_user_logged_in() ) {
-			$current_user                            = wp_get_current_user();
-			$body['data']['ga_params']['is_reader']  = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
-			$body['data']['ga_params']['email_hash'] = md5( $current_user->user_email );
-		}
-
+		$body['data']['ga_params'] = self::get_custom_parameters();
 		return $body;
-
 	}
 
 	/**
-	 * When the donation_new event is dispatched from the Stripe webhook, it can't catch GA client ID from Cookies.
-	 *
-	 * In those cases, we rely on the metadata added to the order/subscription via the `newspack_stripe_handle_donation_payment_metadata` filter.
-	 *
 	 * This filter fixes both the donation_new event and the prompt_interaction with action form_submission_success that relies on this event.
 	 *
 	 * @param array  $body The event body.
@@ -221,6 +268,10 @@ class GA4 {
 			$order_id = $body['data']['platform_data']['order_id'];
 		} else { // prompt_interaction.
 			$order_id = $body['data']['interaction_data']['donation_order_id'] ?? false;
+		}
+
+		if ( ! function_exists( 'wc_get_order' ) ) {
+			return $body;
 		}
 
 		$order = wc_get_order( $order_id );
@@ -244,7 +295,6 @@ class GA4 {
 		}
 
 		return $body;
-
 	}
 
 	/**
@@ -273,6 +323,9 @@ class GA4 {
 			$params = array_merge( $params, self::get_sanitized_popup_params( $data['metadata']['newspack_popup_id'] ) );
 		}
 		if ( ! empty( $data['metadata']['referer'] ) ) {
+			$params['referrer'] = substr( $data['metadata']['referer'], 0, 100 );
+
+			// Retain both instances of referrer spelling to ensure publisher reports are not broken.
 			$params['referer'] = substr( $data['metadata']['referer'], 0, 100 );
 		}
 		return $params;
@@ -287,13 +340,17 @@ class GA4 {
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
 	public static function handle_donation_new( $params, $data ) {
-		$params['amount']     = $data['amount'];
-		$params['currency']   = $data['currency'];
-		$params['recurrence'] = $data['recurrence'];
-		$params['platform']   = $data['platform'];
-		$params['referer']    = $data['referer'] ?? '';
-		$params['popup_id']   = $data['popup_id'] ?? '';
-		$params['range']      = self::get_donation_amount_range( $data['amount'] );
+		$params['amount']          = $data['amount'];
+		$params['currency']        = $data['currency'];
+		$params['recurrence']      = $data['recurrence'];
+		$params['platform']        = $data['platform'];
+		$params['referrer']        = $data['referer'] ?? '';
+		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
+		$params['referer']         = $data['referer'] ?? '';
+		$params['popup_id']        = $data['popup_id'] ?? '';
+		$params['is_renewal']      = $data['is_renewal'] ? 'yes' : 'no';
+		$params['subscription_id'] = $data['subscription_id'] ?? '';
+		$params['range']           = self::get_donation_amount_range( $data['amount'] );
 		return $params;
 	}
 
@@ -355,7 +412,10 @@ class GA4 {
 			$params = array_merge( $params, self::get_sanitized_popup_params( $metadata['newspack_popup_id'] ) );
 		}
 		$params['newsletters_subscription_method'] = $metadata['newsletters_subscription_method'] ?? '';
-		$params['referer']                         = $metadata['current_page_url'] ?? '';
+		$params['referrer']                        = $metadata['current_page_url'] ?? '';
+
+		// Retain both instances of referrer spelling to ensure publisher reports are not broken.
+		$params['referer'] = $metadata['current_page_url'] ?? '';
 
 		// In case the subscription happened as part of the registration process, we should also have the registration method.
 		$params['registration_method'] = $metadata['registration_method'] ?? '';
@@ -370,8 +430,8 @@ class GA4 {
 	/**
 	 * Handler for the prompt_interaction event.
 	 *
-	 * @param int   $params The GA4 event parameters.
-	 * @param array $data      Data associated with the Data Events api event.
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
 	 *
 	 * @return array $params The final version of the GA4 event params that will be sent to GA.
 	 */
@@ -384,6 +444,31 @@ class GA4 {
 		$transformed_data = Newspack_Popups_Data_Api::prepare_popup_params_for_ga( $transformed_data );
 
 		return array_merge( $params, $transformed_data );
+	}
+
+	/**
+	 * Handler for the gate_interaction event.
+	 *
+	 * @param array $params The GA4 event parameters.
+	 * @param array $data   Data associated with the Data Events api event.
+	 *
+	 * @return array $params The final version of the GA4 event params that will be sent to GA.
+	 */
+	public static function handle_gate_interaction( $params, $data ) {
+		$params['gate_post_id'] = $data['gate_post_id'] ?? '';
+		$params['action']       = $data['action'] ?? '';
+		$params['action_type']  = $data['action_type'] ?? '';
+		$params['referrer']     = $data['referer'] ?? '';
+		$params['referer']      = $data['referer'] ?? ''; // Retain both instances of referrer spelling to ensure publisher reports are not broken.
+		$params['order_id']     = $data['order_id'] ?? '';
+		$params['product_id']   = $data['product_id'] ?? '';
+		$params['amount']       = $data['amount'] ?? '';
+		$params['currency']     = $data['currency'] ?? '';
+		// Meaningful blocks.
+		$params['gate_has_donation_block']     = $data['gate_has_donation_block'];
+		$params['gate_has_registration_block'] = $data['gate_has_registration_block'];
+		$params['gate_has_checkout_button']    = $data['gate_has_checkout_button'];
+		return $params;
 	}
 
 	/**
@@ -465,8 +550,8 @@ class GA4 {
 			);
 
 			self::log( sprintf( 'Event sent to %s - %s - Client ID: %s', $property['measurement_id'], $event->get_name(), $client_id ) );
+			self::log( sprintf( 'Event payload: %s', wp_json_encode( $payload ) ) );
 		}
-
 	}
 
 	/**
@@ -502,25 +587,6 @@ class GA4 {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Adds additional information about the current user and session to the payment metadata sent to Stripe
-	 *
-	 * @param array $payment_metadata The payment metadata.
-	 * @param array $config The donation configuration.
-	 * @return array
-	 */
-	public static function filter_donation_metadata( $payment_metadata, $config ) {
-		$payment_metadata['newspack_ga_session_id'] = self::extract_sid_from_cookies();
-		$payment_metadata['newspack_ga_client_id']  = self::extract_cid_from_cookies();
-		$payment_metadata['newspack_logged_in']     = is_user_logged_in() ? 'yes' : 'no';
-		$payment_metadata['newspack_is_reader']     = 'no';
-		if ( is_user_logged_in() ) {
-			$current_user                           = wp_get_current_user();
-			$payment_metadata['newspack_is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
-		}
-		return $payment_metadata;
 	}
 
 	/**

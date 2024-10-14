@@ -10,6 +10,7 @@ namespace Newspack\Data_Events;
 use Newspack\Data_Events;
 use Newspack\Reader_Activation;
 use Newspack\Donations;
+use Newspack\Memberships;
 
 /**
  * For when a reader registers.
@@ -25,6 +26,23 @@ Data_Events::register_listener(
 			'user_id'  => $user_id,
 			'email'    => $email,
 			'metadata' => $metadata,
+		];
+	}
+);
+
+/**
+ * For when a reader is deleted.
+ */
+Data_Events::register_listener(
+	'delete_user',
+	'reader_deleted',
+	function( $user_id, $reassign, $user ) {
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return;
+		}
+		return [
+			'user_id' => $user_id,
+			'user'    => $user,
 		];
 	}
 );
@@ -79,16 +97,13 @@ Data_Events::register_listener(
  * For when a new contact is added to newsletter lists for the first time.
  */
 Data_Events::register_listener(
-	'newspack_newsletters_add_contact',
+	'newspack_newsletters_contact_subscribed',
 	'newsletter_subscribed',
-	function( $provider, $contact, $lists, $result, $is_updating ) {
+	function( $provider, $contact, $lists, $result ) {
 		if ( empty( $lists ) ) {
 			return;
 		}
 		if ( is_wp_error( $result ) ) {
-			return;
-		}
-		if ( $is_updating ) {
 			return;
 		}
 		$user = get_user_by( 'email', $contact['email'] );
@@ -133,25 +148,7 @@ Data_Events::register_listener(
 	'newspack_donation_order_processed',
 	'woocommerce_donation_order_processed',
 	function( $order_id, $product_id ) {
-		$order = \wc_get_order( $order_id );
-		if ( ! $order ) {
-			return;
-		}
-		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
-		return [
-			'user_id'       => $order->get_customer_id(),
-			'email'         => $order->get_billing_email(),
-			'amount'        => (float) $order->get_total(),
-			'currency'      => $order->get_currency(),
-			'recurrence'    => empty( $recurrence ) ? 'once' : $recurrence,
-			'platform'      => 'wc',
-			'referer'       => $order->get_meta( '_newspack_referer' ),
-			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
-			'platform_data' => [
-				'order_id'   => $order_id,
-				'product_id' => $product_id,
-			],
-		];
+		return \Newspack\Data_Events\Utils::get_order_data( $order_id, true );
 	}
 );
 
@@ -165,27 +162,7 @@ Data_Events::register_listener(
 	'woocommerce_order_status_failed',
 	'woocommerce_order_failed',
 	function( $order_id, $order ) {
-		$product_id = Donations::get_order_donation_product_id( $order_id );
-		if ( ! $product_id ) {
-			return;
-		}
-		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
-
-		return [
-			'user_id'       => $order->get_customer_id(),
-			'email'         => $order->get_billing_email(),
-			'amount'        => (float) $order->get_total(),
-			'currency'      => $order->get_currency(),
-			'recurrence'    => empty( $recurrence ) ? 'once' : $recurrence,
-			'platform'      => Donations::get_platform_slug(),
-			'referer'       => $order->get_meta( '_newspack_referer' ),
-			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
-			'platform_data' => [
-				'order_id'   => $order_id,
-				'product_id' => $product_id,
-				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
-			],
-		];
+		return \Newspack\Data_Events\Utils::get_order_data( $order_id, true );
 	}
 );
 
@@ -224,33 +201,24 @@ Data_Events::register_listener(
 Data_Events::register_listener(
 	'woocommerce_order_status_completed',
 	'donation_new',
-	function( $order_id, $order ) {
-		$product_id = Donations::get_order_donation_product_id( $order_id );
-		if ( ! $product_id ) {
-			return;
-		}
-		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
-
-		return [
-			'user_id'       => $order->get_customer_id(),
-			'email'         => $order->get_billing_email(),
-			'amount'        => (float) $order->get_total(),
-			'currency'      => $order->get_currency(),
-			'recurrence'    => empty( $recurrence ) ? 'once' : $recurrence,
-			'platform'      => Donations::get_platform_slug(),
-			'referer'       => $order->get_meta( '_newspack_referer' ),
-			'popup_id'      => $order->get_meta( '_newspack_popup_id' ),
-			'platform_data' => [
-				'order_id'   => $order_id,
-				'product_id' => $product_id,
-				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
-			],
-		];
+	function ( $order_id, $order ) {
+		return \Newspack\Data_Events\Utils::get_order_data( $order_id, true );
 	}
 );
 
 /**
- * For when a WooCommerce Subscription is cancelled.
+ * For any completed purchase. This data event triggers a contact sync to the connected ESP.
+ */
+Data_Events::register_listener(
+	'woocommerce_order_status_completed',
+	'order_completed',
+	function( $order_id, $order ) {
+		return \Newspack\Data_Events\Utils::get_order_data( $order_id );
+	}
+);
+
+/**
+ * For when a donation subscription is cancelled.
  */
 Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
@@ -259,45 +227,140 @@ Data_Events::register_listener(
 		if ( 'cancelled' !== $status_to ) {
 			return;
 		}
-		$product_id = Donations::get_order_donation_product_id( $subscription->get_id() );
-		if ( ! $product_id ) {
-			return;
-		}
-		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
-		return [
-			'user_id'         => $subscription->get_customer_id(),
-			'email'           => $subscription->get_billing_email(),
-			'subscription_id' => $subscription->get_id(),
-			'amount'          => (float) $subscription->get_total(),
-			'currency'        => $subscription->get_currency(),
-			'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
-			'platform'        => Donations::get_platform_slug(),
-		];
+		return \Newspack\Data_Events\Utils::get_recurring_donation_data( $subscription );
 	}
 );
 
 /**
- * For when a WooCommerce Subscription status changes.
+ * For when a donation subscription status changes.
  */
 Data_Events::register_listener(
 	'woocommerce_subscription_status_updated',
 	'donation_subscription_changed',
 	function( $subscription, $status_to, $status_from ) {
-		$product_id = Donations::get_order_donation_product_id( $subscription->get_id() );
-		if ( ! $product_id ) {
+		$data = \Newspack\Data_Events\Utils::get_recurring_donation_data( $subscription );
+		if ( ! is_array( $data ) ) {
 			return;
 		}
-		$recurrence = get_post_meta( $product_id, '_subscription_period', true );
+		return array_merge(
+			$data,
+			[
+				'status_before' => $status_from,
+				'status_after'  => $status_to,
+			]
+		);
+	}
+);
+
+/**
+ * When a non-donation subscription status changes.
+ * The subscription will be removed from the user's list of active subscriptions.
+ */
+Data_Events::register_listener(
+	'woocommerce_subscription_status_updated',
+	'product_subscription_changed',
+	function( $subscription, $status_to, $status_from ) {
+		// We only want to fire this for non-donation products.
+		$product_ids = array_values(
+			array_filter(
+				\Newspack\WooCommerce_Connection::get_products_for_order( $subscription->get_id() ),
+				function( $product_id ) {
+					return ! Donations::is_donation_product( $product_id );
+				}
+			)
+		);
+
+		if ( empty( $product_ids ) ) {
+			return;
+		}
+
 		return [
 			'user_id'         => $subscription->get_customer_id(),
 			'email'           => $subscription->get_billing_email(),
 			'subscription_id' => $subscription->get_id(),
-			'status_before'   => $status_from,
-			'status_after'    => $status_to,
+			'product_ids'     => $product_ids,
 			'amount'          => (float) $subscription->get_total(),
 			'currency'        => $subscription->get_currency(),
-			'recurrence'      => empty( $recurrence ) ? 'once' : $recurrence,
-			'platform'        => Donations::get_platform_slug(),
+			'recurrence'      => $subscription->get_billing_period(),
+			'status_before'   => $status_from,
+			'status_after'    => $status_to,
+		];
+	}
+);
+
+/**
+ * When a WooCommerce Memberships plan becomes active for a reader.
+ * This hook is fired whenever a user is granted access to a membership plan.
+ * The membership plan will be add to the user's list of active memberships.
+ */
+Data_Events::register_listener(
+	'wc_memberships_user_membership_saved',
+	'membership_status_active',
+	function( $membership_plan, $args ) {
+		$membership = \wc_memberships_get_user_membership( $args['user_membership_id'] );
+
+		// Only fire for active statuses.
+		if ( ! in_array( $membership->get_status(), Memberships::$active_statuses, true ) ) {
+			return;
+		}
+
+		$user       = \get_user_by( 'id', $args['user_id'] );
+		$user_email = $user ? $user->user_email : '';
+		return [
+			'user_id' => $args['user_id'],
+			'email'   => $user_email,
+			'plan_id' => $membership_plan->get_id(),
+		];
+	}
+);
+
+/**
+ * When a WooCommerce Memberships plan becomes inactive for a reader.
+ * This hook is fired when an existing user membership is updated, but not when created.
+ * The membership plan will be removed from the user's list of active memberships.
+ */
+Data_Events::register_listener(
+	'wc_memberships_user_membership_status_changed',
+	'membership_status_inactive',
+	function( $membership, $old_status, $new_status ) {
+		// Only fire for inactive statuses.
+		if ( in_array( $new_status, Memberships::$active_statuses, true ) ) {
+			return;
+		}
+
+		$user_id    = $membership->get_user_id();
+		$user       = \get_user_by( 'id', $user_id );
+		$user_email = $user ? $user->user_email : '';
+		return [
+			'user_id'       => $user_id,
+			'email'         => $user_email,
+			'plan_id'       => $membership->get_plan_id(),
+			'status_before' => $old_status,
+			'status_after'  => $new_status,
+		];
+	}
+);
+
+/**
+ * When a membership is created or updated.
+ */
+Data_Events::register_listener(
+	'wc_memberships_user_membership_saved',
+	'membership_saved',
+	function( $membership_plan, $args ) {
+		if ( ! $membership_plan ) {
+			return;
+		}
+		$membership = \wc_memberships_get_user_membership( $args['user_membership_id'] );
+		$user       = \get_user_by( 'id', $args['user_id'] );
+		$user_email = $user ? $user->user_email : '';
+		return [
+			'user_id'               => $args['user_id'],
+			'email'                 => $user_email,
+			'membership_plan'       => $membership_plan->get_name(),
+			'membership_status'     => $membership->get_status(),
+			'membership_start_date' => $membership->get_start_date(),
+			'membership_end_date'   => $membership->get_end_date(),
 		];
 	}
 );

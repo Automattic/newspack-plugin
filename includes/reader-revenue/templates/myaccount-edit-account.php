@@ -4,7 +4,7 @@
  * Based on woocommerce/templates/myaccount/form-edit-account.php.
  *
  * @package Newspack
- * @version 7.0.1
+ * @version 8.7.0
  */
 
 namespace Newspack;
@@ -49,16 +49,41 @@ endif;
 
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide mt0">
 		<label for="account_display_name"><?php \esc_html_e( 'Display name', 'newspack-plugin' ); ?>&nbsp;<span class="required">*</span></label>
-		<input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="account_display_name" id="account_display_name" autocomplete="name" value="<?php echo \esc_attr( $user->display_name ); ?>" />
+		<input
+			type="text"
+			class="woocommerce-Input woocommerce-Input--text input-text"
+			name="account_display_name"
+			id="account_display_name"
+			autocomplete="name"
+			placeholder="<?php esc_attr_e( 'Your Name', 'newspack-plugin' ); ?>"
+			value="<?php echo ! Reader_Activation::reader_has_generic_display_name() ? \esc_attr( $user->display_name ) : ''; ?>"
+		/>
+		<span><em><?php esc_html_e( 'This is how your name is displayed publicly.', 'newspack-plugin' ); ?></em></span>
 	</p>
 
-	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-		<label for="account_email_display"><?php \esc_html_e( 'Email address', 'newspack-plugin' ); ?>&nbsp;<span class="required">*</span></label>
+	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide mt0">
+		<label for="account_email_display"><?php \esc_html_e( 'Email address', 'newspack-plugin' ); ?>
 		<input type="email" disabled class="woocommerce-Input woocommerce-Input--email input-text" name="account_email_display" id="account_email_display" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
 		<input type="hidden" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
 	</p>
 
-	<?php \do_action( 'newspack_woocommerce_edit_account_form' ); ?>
+	<?php
+		/**
+		 * Hook where additional fields should be rendered.
+		 *
+		 * Newspack equivalent of do_action( 'woocommerce_edit_account_form_fields' );
+		 */
+		do_action( 'newspack_woocommerce_edit_account_form_fields' );
+	?>
+
+	<?php
+		/**
+		 * My Account edit account form.
+		 *
+		 * Newspack equivalent of do_action( 'woocommerce_edit_account_form' );
+		 */
+		\do_action( 'newspack_woocommerce_edit_account_form' );
+	?>
 
 	<p class="woocommerce-buttons-card">
 		<?php \wp_nonce_field( 'save_account_details', 'save-account-details-nonce' ); ?>

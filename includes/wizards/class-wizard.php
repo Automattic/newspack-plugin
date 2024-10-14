@@ -58,7 +58,7 @@ abstract class Wizard {
 	 */
 	public function add_page() {
 		add_submenu_page(
-			$this->hidden ? null : 'newspack',
+			$this->hidden ? 'hidden' : 'newspack',
 			$this->get_name(),
 			$this->get_name(),
 			$this->capability,
@@ -111,7 +111,7 @@ abstract class Wizard {
 
 		$screen = get_current_screen();
 
-		if ( Starter_Content::has_created_starter_content() ) {
+		if ( Starter_Content::has_created_starter_content() && current_user_can( 'manage_options' ) ) {
 			$urls['remove_starter_content'] = esc_url(
 				add_query_arg(
 					array(
@@ -122,7 +122,7 @@ abstract class Wizard {
 			);
 		}
 
-		if ( Newspack::is_debug_mode() ) {
+		if ( Newspack::is_debug_mode() && current_user_can( 'manage_options' ) ) {
 			$urls['components_demo'] = esc_url( admin_url( 'admin.php?page=newspack-components-demo' ) );
 			$urls['setup_wizard']    = esc_url( admin_url( 'admin.php?page=newspack-setup-wizard' ) );
 			$urls['reset_url']       = esc_url(
@@ -156,25 +156,6 @@ abstract class Wizard {
 	 */
 	public function api_permissions_check( $request ) {
 		if ( ! current_user_can( $this->capability ) ) {
-			return new \WP_Error(
-				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
-				[
-					'status' => 403,
-				]
-			);
-		}
-		return true;
-	}
-
-	/**
-	 * Check capabilities for using API when endpoint involves unfiltered HTML.
-	 *
-	 * @param WP_REST_Request $request API request object.
-	 * @return bool|WP_Error
-	 */
-	public function api_permissions_check_unfiltered_html( $request ) {
-		if ( ! current_user_can( 'unfiltered_html' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
 				esc_html__( 'You cannot use this resource.', 'newspack' ),

@@ -66,7 +66,6 @@ class Major_Revisions {
 				add_action( 'admin_notices', array( __CLASS__, 'admin_notices' ) );
 			}
 		}
-
 	}
 
 	/**
@@ -165,7 +164,7 @@ class Major_Revisions {
 	public static function enqueue_scripts() {
 		wp_enqueue_script(
 			'newspack_revisions_control',
-			Newspack::plugin_url() . '/includes/revisions-control/newspack-revisions.js',
+			Newspack::plugin_url() . '/dist/revisions-control.js',
 			[ 'jquery' ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
@@ -187,7 +186,7 @@ class Major_Revisions {
 		);
 		wp_enqueue_style(
 			'newspack_revisions_control',
-			Newspack::plugin_url() . '/includes/revisions-control/newspack-revisions.css',
+			Newspack::plugin_url() . '/dist/revisions-control.css',
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
@@ -295,7 +294,6 @@ class Major_Revisions {
 		);
 		register_post_type( self::BKP_POST_TYPE, $args );
 	}
-
 }
 
 Major_Revisions::init();

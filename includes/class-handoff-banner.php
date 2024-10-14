@@ -38,7 +38,7 @@ class Handoff_Banner {
 			return;
 		}
 
-		echo sprintf( "<div id='newspack-handoff-banner' data-primary_button_url='%s'></div>", esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL ) ) );
+		printf( "<div id='newspack-handoff-banner' data-primary_button_url='%s'></div>", esc_url( get_option( NEWSPACK_HANDOFF_RETURN_URL ) ) );
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Handoff_Banner {
 		$handle = 'newspack-handoff-banner-block-editor';
 		wp_register_script(
 			$handle,
-			Newspack::plugin_url() . '/assets/wizards/handoff-banner/block-editor.js',
+			Newspack::plugin_url() . '/src/wizards/handoff-banner/block-editor.js',
 			[ 'wp-element', 'wp-editor', 'wp-components' ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
@@ -95,7 +95,6 @@ class Handoff_Banner {
 			true
 		);
 		wp_enqueue_script( $handle );
-
 	}
 
 	/**

@@ -44,6 +44,8 @@ class Newspack_Image_Credits {
 		add_filter( 'render_block', [ __CLASS__, 'add_credit_to_image_block' ], 10, 2 );
 		add_filter( 'wp_get_attachment_image_src', [ __CLASS__, 'maybe_show_placeholder_image' ], 11, 4 );
 		add_filter( 'ajax_query_attachments_args', [ __CLASS__, 'filter_ajax_query_attachments' ] );
+		add_filter( 'wp_generate_attachment_metadata', [ __CLASS__, 'populate_credit' ], 10, 3 );
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 	}
 
 	/**
@@ -91,14 +93,44 @@ class Newspack_Image_Credits {
 		return apply_filters( 'newspack_image_credits_media_credit', $output, $attachment_id );
 	}
 
+
+	/**
+	 * Parse Media Credit Meta Attributes
+	 *
+	 * @param int   $attachment_id Post ID of the attachment.
+	 * @param array $credit_attrs Array of credit properties to parse.
+	 * @return array Credit info. See $output at the top of this method.
+	 */
+	public static function parse_media_credit_attrs( $attachment_id, $credit_attrs ) {
+		/**
+		 * Filter for the media credit data from this plugin.
+		 * Allows third-party code to hook into and modify the credits info if needed.
+		 *
+		 * @param array $output Credit info for the attachment.
+		 * @param int   $attachment_id ID of the attachment whose credit is being filtered.
+		 */
+		return apply_filters(
+			'newspack_image_credits_media_credit',
+			[
+				'id'             => $attachment_id,
+				'credit'         => esc_html( $credit_attrs[ static::MEDIA_CREDIT_META ] ?? '' ),
+				'credit_url'     => esc_url( $credit_attrs[ static::MEDIA_CREDIT_URL_META ] ?? '' ),
+				'organization'   => esc_html( $credit_attrs[ static::MEDIA_CREDIT_ORG_META ] ?? '' ),
+				'can_distribute' => ( $credit_attrs[ static::MEDIA_CREDIT_CAN_DISTRIBUTE_META ] ?? '' ) === '1',
+			],
+			$attachment_id
+		);
+	}
+
 	/**
 	 * Get credit info as an HTML string.
 	 *
-	 * @param int $attachment_id Attachment post ID.
+	 * @param int   $attachment_id Attachment post ID.
+	 * @param array $meta_attributes Array of credit properties to parse.
 	 * @return string The credit ready for output.
 	 */
-	public static function get_media_credit_string( $attachment_id ) {
-		$credit_info = self::get_media_credit( $attachment_id );
+	public static function get_media_credit_string( $attachment_id, $meta_attributes = [] ) {
+		$credit_info = empty( $meta_attributes ) ? self::get_media_credit( $attachment_id ) : self::parse_media_credit_attrs( $attachment_id, $meta_attributes );
 		if ( ! $credit_info['credit'] ) {
 			return '';
 		}
@@ -109,7 +141,7 @@ class Newspack_Image_Credits {
 		}
 
 		if ( $credit_info['credit_url'] ) {
-			$credit = '<a href="' . $credit_info['credit_url'] . '" target="_blank">' . $credit . '</a>';
+			$credit = '<a href="' . $credit_info['credit_url'] . '">' . $credit . '</a>';
 		}
 
 		$class_name    = self::get_settings( 'newspack_image_credits_class_name' );
@@ -226,9 +258,12 @@ class Newspack_Image_Credits {
 
 			// If there's no credit, show placeholder image, if any.
 			if ( ! $credit_string ) {
-				$size         = ! empty( $block['attrs']['sizeSlug'] ) ? $block['attrs']['sizeSlug'] : null;
-				$block_output = self::maybe_show_placeholder_image_in_block( $block_output, $size );
-				return $block_output;
+				if ( empty( $block['attrs']['meta'][ static::MEDIA_CREDIT_META ] ) ) {
+					$size         = ! empty( $block['attrs']['sizeSlug'] ) ? $block['attrs']['sizeSlug'] : null;
+					$block_output = self::maybe_show_placeholder_image_in_block( $block_output, $size );
+					return $block_output;
+				}
+				$credit_string = self::get_media_credit_string( $block['attrs']['id'], $block['attrs']['meta'] );
 			}
 
 			if ( strpos( $block_output, '</figcaption>' ) ) {
@@ -253,7 +288,7 @@ class Newspack_Image_Credits {
 			$block_output = preg_replace_callback(
 				'/<figure>(.*?)<\/figure>/',
 				function( $matches ) use ( &$credit_strings, &$index ) {
-					$index       ++;
+					$index++;
 					$replacement = $matches[0];
 
 					if ( empty( $credit_strings[ $index ] ) ) {
@@ -300,7 +335,6 @@ class Newspack_Image_Credits {
 						$img_src = $placeholder_src;
 					}
 					return 'src="' . $img_src . '"';
-
 				},
 				$block_output
 			);
@@ -344,10 +378,12 @@ class Newspack_Image_Credits {
 	/**
 	 * Default values for site-wide settings.
 	 *
+	 * @param string|null $key (Optional) Key name of a single setting to get. If not given, will return all settings.
+	 *
 	 * @return array Array of default settings.
 	 */
-	public static function get_default_settings() {
-		return [
+	public static function get_default_settings( $key = null ) {
+		$default_settings = [
 			[
 				'description' => __( 'A CSS class name to be applied to all image credit elements. Leave blank to display no class name.', 'newspack-image-credits' ),
 				'key'         => 'newspack_image_credits_class_name',
@@ -367,9 +403,28 @@ class Newspack_Image_Credits {
 				'key'         => 'newspack_image_credits_placeholder',
 				'label'       => __( 'Placeholder Image', 'newspack-image-credits' ),
 				'type'        => 'image',
-				'value'       => null,
+				'value'       => '',
+			],
+			[
+				'description' => __( 'Automatically populate image credits from EXIF or IPTC metadata when uploading new images.', 'newspack-image-credits' ),
+				'key'         => 'newspack_image_credits_auto_populate',
+				'label'       => __( 'Auto-populate image credits', 'newspack-image-credits' ),
+				'type'        => 'boolean',
+				'value'       => false,
 			],
 		];
+
+		if ( $key ) {
+			$setting = array_filter(
+				$default_settings,
+				function( $setting ) use ( $key ) {
+					return $setting['key'] === $key;
+				}
+			);
+			return reset( array_values( $setting ) );
+		}
+
+		return $default_settings;
 	}
 
 	/**
@@ -387,7 +442,7 @@ class Newspack_Image_Credits {
 			$defaults,
 			function( $acc, $setting ) use ( $get_default ) {
 				$key         = $setting['key'];
-				$value       = $get_default ? $setting['value'] : get_option( $key, $setting['value'] );
+				$value       = $get_default ? $setting['value'] : get_theme_mod( $key, $setting['value'] );
 				$acc[ $key ] = $value;
 				return $acc;
 			},
@@ -410,11 +465,12 @@ class Newspack_Image_Credits {
 	 * @param mixed  $value Updated value.
 	 */
 	public static function update_setting( $key, $value ) {
-		$defaults = self::get_default_settings();
-
-		if ( in_array( $key, array_keys( $defaults ) ) ) {
-			update_option( $key, $value );
+		$default_setting = self::get_default_settings( $key );
+		if ( ! isset( $default_setting['value'] ) ) {
+			return;
 		}
+
+		set_theme_mod( $key, self::sanitize_option_value( $value ) );
 	}
 
 	/**
@@ -476,6 +532,51 @@ class Newspack_Image_Credits {
 		$post_ids          = array_map( 'absint', $post_ids );
 		$clauses['where'] .= " OR ( {$wpdb->posts}.ID IN ( " . implode( ',', $post_ids ) . ' ) )';
 		return $clauses;
+	}
+
+	/**
+	 * When a new image is uploaded, check if it has a credit in the EXIF/IPTC data and save it.
+	 *
+	 * @param array  $metadata      An array of attachment meta data.
+	 * @param int    $attachment_id Current attachment ID.
+	 * @param string $context       Additional context. Can be 'create' when metadata was initially created for new attachment
+	 *                              or 'update' when the metadata was updated.
+	 * @return array
+	 */
+	public static function populate_credit( $metadata, $attachment_id, $context ) {
+		if ( 'create' !== $context || ! self::get_settings( 'newspack_image_credits_auto_populate' ) ) {
+			return $metadata;
+		}
+
+		if ( ! empty( $metadata['image_meta']['credit'] ) ) {
+			update_post_meta( $attachment_id, self::MEDIA_CREDIT_META, $metadata['image_meta']['credit'] );
+		}
+
+		return $metadata;
+	}
+
+	/**
+	 * Register _media_credit* meta fields. Required for displaying in relevant REST endpoints.
+	 */
+	public static function register_meta() {
+		foreach ( [
+			static::MEDIA_CREDIT_META, 
+			static::MEDIA_CREDIT_URL_META,
+			static::MEDIA_CREDIT_ORG_META,
+			static::MEDIA_CREDIT_CAN_DISTRIBUTE_META,
+		]
+		as $meta ) {
+			register_meta(
+				'post',
+				$meta,
+				[
+					'object_subtype' => 'attachment',
+					'type'           => 'string',
+					'single'         => true,
+					'show_in_rest'   => true,
+				]
+			);
+		}
 	}
 }
 Newspack_Image_Credits::init();

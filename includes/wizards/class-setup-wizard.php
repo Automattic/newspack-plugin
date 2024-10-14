@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, WP_REST_Server;
+use WP_Error, WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
 require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
 
@@ -488,7 +488,7 @@ class Setup_Wizard extends Wizard {
 			$homepage_pattern       = $this->get_homepage_patterns( $homepage_pattern_index );
 			if ( false !== $homepage_pattern ) {
 				$homepage_id = get_option( 'page_on_front', false );
-				if ( $homepage_id ) {
+				if ( $homepage_id && ! get_option( NEWSPACK_SETUP_COMPLETE ) ) {
 					wp_update_post(
 						[
 							'ID'           => $homepage_id,
@@ -520,7 +520,7 @@ class Setup_Wizard extends Wizard {
 				continue;
 			}
 
-			if ( null !== $value && in_array( $key, $this->media_theme_mods ) ) {
+			if ( ! empty( $value['id'] ) && in_array( $key, $this->media_theme_mods ) ) {
 				$value = $value['id'];
 			}
 			set_theme_mod( $key, $value );
@@ -652,6 +652,13 @@ class Setup_Wizard extends Wizard {
 			Newspack::plugin_url() . '/dist/setup.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_localize_script(
+			'newspack-setup-wizard',
+			'newspack_ads_wizard',
+			array(
+				'can_connect_google' => OAuth::is_proxy_configured( 'google' ),
+			)
 		);
 		wp_style_add_data( 'newspack-setup-wizard', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-setup-wizard' );

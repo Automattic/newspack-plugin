@@ -14,14 +14,13 @@ workflows:
       - newspack/test-js:
           requires:
             - newspack/build
+      - newspack/check-typescript:
+          requires:
+            - newspack/build
       - newspack/build-distributable:
           requires:
             - newspack/build
           archive-name: 'newspack-plugin'
-          filters:
-            branches:
-              only:
-                - master
       - newspack/release:
           requires:
             - newspack/build
@@ -31,6 +30,7 @@ workflows:
                 - release
                 - alpha
                 - /^hotfix\/.*/
+                - /^epic\/.*/
       - newspack/post-release:
           requires:
             - newspack/release

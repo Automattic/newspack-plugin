@@ -418,6 +418,8 @@ class Emails {
 				'post_status'    => 'any',
 				'meta_key'       => self::EMAIL_CONFIG_NAME_META,
 				'meta_value'     => $type, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
 			]
 		);
 		if ( $emails_query->post ) {
@@ -545,13 +547,17 @@ class Emails {
 	 * @param string  $key Reset key.
 	 */
 	public static function get_password_reset_url( $user, $key ) {
-		return add_query_arg(
-			[
-				'key' => $key,
-				'id'  => $user->ID,
-			],
-			wc_get_account_endpoint_url( 'lost-password' )
-		);
+		if ( function_exists( 'wc_get_account_endpoint_url' ) ) {
+			return add_query_arg(
+				[
+					'key' => $key,
+					'id'  => $user->ID,
+				],
+				wc_get_account_endpoint_url( 'lost-password' )
+			);
+		}
+
+		return wp_lostpassword_url();
 	}
 }
 Emails::init();

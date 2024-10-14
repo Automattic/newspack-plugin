@@ -29,10 +29,11 @@ class Newspack_Unit_Tests_Bootstrap {
 	 */
 	public function __construct() {
 
-		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted
+		// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted, WordPress.PHP.IniSet.display_errors_Disallowed
 		ini_set( 'display_errors', 'on' );
+		ini_set( 'error_log', 'php://stdout' ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 		error_reporting( E_ALL );
-		// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted
+		// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.DevelopmentFunctions, WordPress.PHP.IniSet.display_errors_Blacklisted, WordPress.PHP.IniSet.display_errors_Disallowed
 
 		// Ensure server variable is set for WP email functions.
 		// phpcs:disable WordPress.VIP.SuperGlobalInputUsage.AccessDetected
@@ -52,7 +53,7 @@ class Newspack_Unit_Tests_Bootstrap {
 			exit( 1 );
 		}
 
-		$this->plugin_dir = dirname( dirname( __FILE__ ) );
+		$this->plugin_dir = dirname( __DIR__ );
 
 		// Load test function so tests_add_filter() is available.
 		require_once $_tests_dir . '/includes/functions.php';
@@ -68,6 +69,8 @@ class Newspack_Unit_Tests_Bootstrap {
 
 		// Load the WP testing environment.
 		require_once $_tests_dir . '/includes/bootstrap.php';
+
+		ini_set( 'error_log', 'php://stdout' ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 
 		define( 'IS_TEST_ENV', 1 );
 	}
@@ -90,9 +93,9 @@ class Newspack_Unit_Tests_Bootstrap {
 		// include $this->plugin_dir . '/uninstall.php';
 		// Install the plugin here if needed.
 		// Reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374.
-		// phpcs:disable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound
+		// phpcs:disable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound, WordPress.WP.GlobalVariablesOverride.Prohibited
 		$GLOBALS['wp_roles'] = null; // WPCS: override ok.
-		// phpcs:enable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.DeprecatedWhitelistCommentFound, WordPress.WP.GlobalVariablesOverride.Prohibited
 		wp_roles();
 
 		echo esc_html( 'Installing Newspack...' . PHP_EOL );

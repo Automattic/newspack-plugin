@@ -26,7 +26,15 @@ These parameters are added to all events:
 * `ga_session_id`: The GA Session ID, retrieved from the cookie
 * `logged_in`: Whether the user is logged in when the event got fired
 * `is_reader`: Whether the user is a RAS reader
-* `email_hash`: The anonymized user email, if the user is logged in
+* `author`: Name of the author (or authors) of the currently viewed post
+* `category`: Category of the currently viewed post
+
+If the user is logged in, these parameters will also be added:
+
+* `email_hash`: The anonymized user email
+* `is_newsletter_subscriber`: If the reader is signed up for any newsletters
+* `is_subscriber`: If reader has any currently active non-donation subscriptions
+* `is_donor`: If reader has donated (one-time or subscription)
 
 Note: All paramaters are strings
 
@@ -44,7 +52,7 @@ Additional parameters:
 
 * `registration_method`
 * `newspack_popup_id`: If the action was triggered from inside a popup, the popup id.
-* `referer`
+* `referrer`
 
 ### donation_new
 
@@ -56,10 +64,11 @@ Additional parameters:
 * `currency`
 * `recurrence`
 * `platform`
-* `referer`
+* `referrer`
+* `is_renewal`: If this is a subscription renewal (recurring payment).
+* `subscription_id`: The related subscription id (if any).
 * `popup_id`: If the action was triggered from inside a popup, the popup id.
 * `range`: The range of the donation amount: `under-20`, `20-50`, `51-100`, `101-200`, `201-500` or `over-500`.
-
 
 ### donation_subscription_cancelled
 
@@ -75,13 +84,11 @@ Additional parameters:
 
 ### newsletter_subscribed
 
-
-
 Additional parameters:
 
 * `newsletters_subscription_method`
 * `newspack_popup_id`: If the action was triggered from inside a popup, the popup id.
-* `referer`
+* `referrer`
 * `lists`: comma separated list of the list IDs the readers subscribed to (note: truncated at 100 characters)
 * `registration_method`: If the newsletter subscription was triggered by a registration form
 
@@ -89,7 +96,7 @@ Additional parameters:
 
 Additional parameters:
 
-* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.)
+* All default parameters from the `prompt_interaction` event (`prompt_id`, `prompt_frequency`, `action`, `action_type`, etc.). See [reference](../../README.md#prompt_interaction).
 * `prompt_has_donation_block`: If the donation block was present, the value will be 1
 * `prompt_has_registration_block`: If the registration block was present, the value will be 1
 * `prompt_has_newsletters_subscription_block`: If the newsletters_subscription block was present, the value will be 1

@@ -18,26 +18,9 @@ class RSS {
 	const FEED_SETTINGS_META = 'partner_feed_settings';
 
 	/**
-	 * Hooks and filters.
-	 */
-	public static function maybe_init() {
-		add_action( 'init', [ __CLASS__, 'init' ] );
-	}
-
-	/**
 	 * Initialise.
 	 */
 	public static function init() {
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			include_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		// If the standalone plugin is active, deactivate it and activate as a module.
-		if ( is_plugin_active( 'newspack-rss-enhancements/newspack-rss-enhancements.php' ) ) {
-			deactivate_plugins( 'newspack-rss-enhancements/newspack-rss-enhancements.php' );
-			Settings::activate_optional_module( 'rss' );
-		}
-
 		if ( ! Settings::is_optional_module_active( 'rss' ) ) {
 			return;
 		}
@@ -57,6 +40,7 @@ class RSS {
 		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
 		add_filter( 'wpseo_include_rss_footer', [ __CLASS__, 'maybe_suppress_yoast' ] );
 		add_action( 'rss2_ns', [ __CLASS__, 'maybe_inject_yahoo_namespace' ] );
+		add_filter( 'the_title_rss', [ __CLASS__, 'maybe_wrap_titles_in_cdata' ] );
 	}
 
 	/**
@@ -91,6 +75,9 @@ class RSS {
 			'content_featured_image' => false,
 			'suppress_yoast'         => false,
 			'yahoo_namespace'        => false,
+			'update_frequency'       => false,
+			'use_post_id_as_guid'    => false,
+			'cdata_titles'           => false,
 		];
 
 		if ( ! $feed_post ) {
@@ -278,6 +265,14 @@ class RSS {
 		$categories = get_categories();
 		wp_nonce_field( 'newspack_rss_enhancements_nonce', 'newspack_rss_enhancements_nonce' );
 		?>
+		<style>
+			table {
+				text-align: left;
+			}
+			table th, table td {
+				padding-bottom: 10px;
+			}
+		</style>
 		<table>
 			<tr>
 				<th><?php esc_html_e( 'Number of posts to display in feed:', 'newspack-plugin' ); ?></th>
@@ -326,6 +321,24 @@ class RSS {
 					</select>
 				</td>
 			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Update frequency:', 'newspack-plugin' ); ?></th>
+				<td>
+					<select name="update_frequency">
+						<option value="hourly-1" <?php selected( $settings['update_frequency'], 'hourly-1' ); ?> ><?php esc_html_e( 'Every hour', 'newspack-plugin' ); ?></option>
+						<option value="hourly-12" <?php selected( $settings['update_frequency'], 'hourly-12' ); ?> ><?php esc_html_e( 'Every 5 minutes', 'newspack-plugin' ); ?></option>
+						<option value="daily-8" <?php selected( $settings['update_frequency'], 'daily-8' ); ?> ><?php esc_html_e( 'Every 3 hours', 'newspack-plugin' ); ?></option>
+						<option value="daily-1" <?php selected( $settings['update_frequency'], 'daily' ); ?> ><?php esc_html_e( 'Daily', 'newspack-plugin' ); ?></option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Use post ID as the guid instead of post URL:', 'newspack-plugin' ); ?></th>
+				<td>
+					<input type="hidden" name="use_post_id_as_guid" value="0" />
+					<input type="checkbox" name="use_post_id_as_guid" value="1" <?php checked( $settings['use_post_id_as_guid'] ); ?> />
+				</td>
+			</tr>
 		</table>
 
 		<script>
@@ -345,7 +358,7 @@ class RSS {
 	public static function render_technical_settings_metabox( $feed_post ) {
 		$settings = self::get_feed_settings( $feed_post );
 		?>
-		<p><strong>Note:</strong> These settings are for modifying a feed to make it compatible with various integrations (SmartNews, PugPig, etc.). They should only be used if a specific integration requires a non-standard RSS feed. Consult the integration's documentation or support for information about which elements are required.</p>
+		<p><strong>Note:</strong> These settings are for modifying a feed to make it compatible with various integrations (SmartNews, Pugpig, etc.). They should only be used if a specific integration requires a non-standard RSS feed. Consult the integration's documentation or support for information about which elements are required.</p>
 
 		<table>
 			<tr>
@@ -390,11 +403,18 @@ class RSS {
 					<input type="checkbox" name="yahoo_namespace" value="1" <?php checked( $settings['yahoo_namespace'] ); ?> />
 				</td>
 			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Wrap the content of <title> elements in CDATA tags', 'newspack-plugin' ); ?></th>
+				<td>
+					<input type="hidden" name="cdata_titles" value="0" />
+					<input type="checkbox" name="cdata_titles" value="1" <?php checked( $settings['cdata_titles'] ); ?> />
+				</td>
+			</tr>
 			<?php if ( defined( 'WPSEO_VERSION' ) && WPSEO_VERSION ) : ?>
 				<tr>
 					<th>
 						<?php
-						echo sprintf(
+						printf(
 						/* translators: %s: URL to Yoast settings */
 							__( 'Suppress <a href="%s">Yoast RSS content at the top and bottom of feed posts</a>' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							admin_url( 'admin.php?page=wpseo_titles#top#rss' ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -461,6 +481,15 @@ class RSS {
 		$yahoo_namespace             = filter_input( INPUT_POST, 'yahoo_namespace', FILTER_SANITIZE_NUMBER_INT );
 		$settings['yahoo_namespace'] = (bool) $yahoo_namespace;
 
+		$update_frequency             = filter_input( INPUT_POST, 'update_frequency', FILTER_SANITIZE_SPECIAL_CHARS );
+		$settings['update_frequency'] = $update_frequency;
+
+		$use_post_id_as_guid             = filter_input( INPUT_POST, 'use_post_id_as_guid', FILTER_SANITIZE_NUMBER_INT );
+		$settings['use_post_id_as_guid'] = (bool) $use_post_id_as_guid;
+
+		$cdata_titles             = filter_input( INPUT_POST, 'cdata_titles', FILTER_SANITIZE_NUMBER_INT );
+		$settings['cdata_titles'] = (bool) $cdata_titles;
+
 		$category_settings = filter_input_array(
 			INPUT_POST,
 			[
@@ -521,6 +550,34 @@ class RSS {
 
 		if ( ! empty( $settings['category_exclude'] ) ) {
 			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
+		}
+
+		if ( ! empty( $settings['update_frequency'] ) ) {
+			// Split the string on the hyphen to get the update frequency and the number of times to update.
+			$settings['update_frequency'] = explode( '-', $settings['update_frequency'] );
+			add_filter(
+				'rss_update_period',
+				function() use ( $settings ) {
+					return $settings['update_frequency'][0];
+				}
+			);
+			add_filter(
+				'rss_update_frequency',
+				function() use ( $settings ) {
+					return $settings['update_frequency'][1];
+				}
+			);
+		}
+
+		if ( $settings['use_post_id_as_guid'] ) {
+			add_filter(
+				'the_guid',
+				function( $post_guid, $post_id ) {
+					return $post_id;
+				},
+				10,
+				2
+			);
 		}
 	}
 
@@ -650,5 +707,25 @@ xmlns:media="http://search.yahoo.com/mrss/"
 			<?php
 		}
 	}
+
+	/**
+	 * Wrap titles in CDATA tags if checked e.g. "<title><![CDATA[Post title]]></title>".
+	 * This is useful for certain parsers that don't support titles with special characters in them.
+	 *
+	 * @param string $title Post title for RSS feed.
+	 * @return string Modified $title.
+	 */
+	public static function maybe_wrap_titles_in_cdata( $title ) {
+		$settings = self::get_feed_settings();
+		if ( ! $settings ) {
+			return $title;
+		}
+
+		if ( $settings['cdata_titles'] ) {
+			$title = '<![CDATA[' . $title . ']]>';
+		}
+
+		return $title;
+	}
 }
-RSS::maybe_init();
+RSS::init();

@@ -176,11 +176,29 @@ final class Webhooks {
 	}
 
 	/**
+	 * Whether to use Action Scheduler if available.
+	 *
+	 * @return bool
+	 */
+	private static function use_action_scheduler() {
+		$use_action_scheduler = false;
+		if ( function_exists( 'as_enqueue_async_action' ) ) {
+			$use_action_scheduler = true;
+		}
+		/**
+		 * Filters whether to use the Action Scheduler if available.
+		 *
+		 * @param bool $use_action_scheduler
+		 */
+		return \apply_filters( 'newspack_data_events_use_action_scheduler', $use_action_scheduler );
+	}
+
+	/**
 	 * Send webhook requests that should've been sent but are still pending at
 	 * 'future' status.
 	 */
 	public static function send_late_requests() {
-		if ( Data_Events::use_action_scheduler() ) {
+		if ( self::use_action_scheduler() ) {
 			return;
 		}
 		$requests = \get_posts(
@@ -319,6 +337,21 @@ final class Webhooks {
 	}
 
 	/**
+	 * Update a webhook endpoint bearer token.
+	 *
+	 * @param int    $id           Endpoint ID.
+	 * @param string $bearer_token Endpoint bearer token.
+	 *
+	 * @return void|WP_Error Error if endpoint not found.
+	 */
+	public static function update_endpoint_bearer_token( $id, $bearer_token ) {
+		if ( ! get_term( $id, self::ENDPOINT_TAXONOMY ) ) {
+			return new \WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
+		}
+		\update_term_meta( $id, 'bearer_token', $bearer_token );
+	}
+
+	/**
 	 * Disable a webhook endpoint.
 	 *
 	 * @param int    $id    Endpoint ID.
@@ -356,6 +389,7 @@ final class Webhooks {
 			'actions'        => (array) \get_term_meta( $endpoint->term_id, 'actions', true ),
 			'global'         => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
 			'label'          => \get_term_meta( $endpoint->term_id, 'label', true ),
+			'bearer_token'   => \get_term_meta( $endpoint->term_id, 'bearer_token', true ),
 			'disabled'       => $disabled,
 			'disabled_error' => $disabled ? \get_term_meta( $endpoint->term_id, 'disabled_error', true ) : null,
 			'system'         => false,
@@ -385,7 +419,12 @@ final class Webhooks {
 	 * @return array Array of endpoints.
 	 */
 	public static function get_endpoints() {
-		$terms     = \get_terms( self::ENDPOINT_TAXONOMY, [ 'hide_empty' => false ] );
+		$terms     = \get_terms(
+			[
+				'taxonomy'   => self::ENDPOINT_TAXONOMY,
+				'hide_empty' => false,
+			]
+		);
 		$endpoints = array_map( [ __CLASS__, 'get_endpoint_by_term' ], $terms );
 
 		return array_values( array_merge( $endpoints, self::$system_endpoints ) );
@@ -482,6 +521,15 @@ final class Webhooks {
 	}
 
 	/**
+	 * Format request data for saving in the DB.
+	 *
+	 * @param array $data Request data.
+	 */
+	public static function format_request_data( $data ) {
+		return addslashes( \wp_json_encode( $data ) );
+	}
+
+	/**
 	 * Create webhook request.
 	 *
 	 * @param int    $endpoint_id Endpoint ID.
@@ -535,9 +583,11 @@ final class Webhooks {
 		$body = apply_filters( 'newspack_webhooks_request_body', $body, $endpoint_id );
 
 		// addslashes prevents JSON from breaking if the data contains quotes or another json encoded string inside it.
-		$body_value = addslashes( \wp_json_encode( $body ) );
+		$body_value = self::format_request_data( $body );
 
 		\update_post_meta( $request_id, 'body', $body_value );
+		\update_post_meta( $request_id, 'data', self::format_request_data( $data ) );
+		\update_post_meta( $request_id, 'timestamp', $timestamp );
 		\update_post_meta( $request_id, 'action_name', $action_name );
 		\update_post_meta( $request_id, 'client_id', $action_name );
 
@@ -602,7 +652,7 @@ final class Webhooks {
 			self::REQUEST_POST_TYPE === $post->post_type &&
 			'publish' === $new_status &&
 			'publish' !== $old_status &&
-			! Data_Events::use_action_scheduler()
+			! self::use_action_scheduler()
 		) {
 			self::process_request( $post->ID );
 		}
@@ -635,7 +685,7 @@ final class Webhooks {
 		$date     = date( 'Y-m-d H:i:s', $time ); // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 		$date_gmt = gmdate( 'Y-m-d H:i:s', strtotime( $date ) );
 		\update_post_meta( $request_id, 'scheduled', $time );
-		if ( Data_Events::use_action_scheduler() ) {
+		if ( self::use_action_scheduler() ) {
 			Logger::log( "Scheduling request {$request_id} for {$date_gmt} via Action Scheduler.", self::LOGGER_HEADER );
 			\as_schedule_single_action( $time, 'newspack_webhooks_as_process_request', [ $request_id ], 'newspack-data-events' );
 		} else {
@@ -661,7 +711,7 @@ final class Webhooks {
 		Logger::log( "Finishing request {$request_id}.", self::LOGGER_HEADER );
 		\update_post_meta( $request_id, 'status', 'finished' );
 		// If using ActionScheduler, manually set to publish.
-		if ( Data_Events::use_action_scheduler() ) {
+		if ( self::use_action_scheduler() ) {
 			\wp_publish_post( $request_id );
 		}
 	}
@@ -685,6 +735,17 @@ final class Webhooks {
 		}
 
 		$errors = self::get_request_errors( $request_id );
+
+		if ( ! empty( $errors ) ) {
+			/**
+			 * Hook to recover from errors with webhook_request before being processed.
+			 *
+			 * @param int    $request_id  Webhook Request id.
+			 * @param array  $errors      Previous errors array.
+			 * @param array  $endpoint    Webhook Request endpoint object.
+			 */
+			do_action( 'newspack_webhooks_process_request_errors', $request_id, $errors );
+		}
 
 		$response = self::send_request( $request_id );
 
@@ -742,14 +803,41 @@ final class Webhooks {
 			'body'    => $body,
 		];
 
+		if ( ! empty( $endpoint['bearer_token'] ) ) {
+			$args['headers']['Authorization'] = 'Bearer ' . $endpoint['bearer_token'];
+		}
+
+		/**
+		 * Filters the request arguments for webhook requests.
+		 *
+		 * @param array $args       Request arguments.
+		 * @param int   $request_id Request ID.
+		 * @param array $endpoint   Endpoint data.
+		 */
+		$args = apply_filters( 'newspack_webhooks_request_args', $args, $request_id, $endpoint );
+
+		/**
+		 * Filters the request URL for webhook requests.
+		 *
+		 * @param string $url        Request URL.
+		 * @param array  $args       Request arguments.
+		 * @param int    $request_id Request ID.
+		 * @param array  $endpoint   Endpoint data.
+		 */
+		$url = apply_filters( 'newspack_webhooks_request_url', $url, $args, $request_id, $endpoint );
+
 		$response = \wp_safe_remote_request( $url, $args );
 		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
 		$code    = \wp_remote_retrieve_response_code( $response );
 		$message = \wp_remote_retrieve_response_message( $response );
+		
+		$response_body = wp_remote_retrieve_body( $response );
+		$response_body = json_decode( $response_body, true );
+
 		if ( ! $code || $code < 200 || $code >= 300 ) {
-			return new WP_Error( 'newspack_webhooks_request_failed', $message ?? __( 'Request failed', 'newspack' ) );
+			return new WP_Error( 'newspack_webhooks_request_failed', $response_body['error'] ?? $message ?? __( 'Request failed', 'newspack' ) );
 		}
 		return true;
 	}
@@ -762,7 +850,7 @@ final class Webhooks {
 	 * @param array  $data        Event data.
 	 * @param string $client_id   Optional user session's client ID.
 	 */
-	public static function handle_dispatch( $action_name, $timestamp, $data, $client_id ) {
+	public static function handle_dispatch( $action_name, $timestamp, $data, $client_id = '' ) {
 		$endpoints = self::get_endpoints_for_action( $action_name );
 		if ( empty( $endpoints ) ) {
 			return;

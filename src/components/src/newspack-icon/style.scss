@@ -1,0 +1,26 @@
+/**
+ * Newspack Icon
+ */
+
+@use "../../../shared/scss/colors";
+
+.newspack-icon {
+	background: colors.$primary-500;
+	fill: white;
+	padding: 12px;
+
+	&--white {
+		background: white;
+		fill: colors.$primary-500;
+	}
+
+	&--simple {
+		background: none;
+		fill: colors.$primary-500;
+		padding: 0;
+	}
+
+	&#{&}--simple#{&}--white {
+		fill: white;
+	}
+}

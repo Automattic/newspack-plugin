@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error, \WC_Product_Simple, \WC_Product_Subscription, \WC_Name_Your_Price_Helpers;
+use WP_Error, WC_Product_Simple, WC_Product_Subscription, WC_Name_Your_Price_Helpers;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -74,6 +74,7 @@ class Donations {
 			add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
 			add_filter( 'newspack_blocks_donate_billing_fields_keys', [ __CLASS__, 'get_billing_fields' ] );
 			add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
+			add_action( 'woocommerce_coupons_enabled', [ __CLASS__, 'disable_coupons' ] );
 		}
 	}
 
@@ -106,7 +107,7 @@ class Donations {
 	 * @return bool|WP_Error True if active. WP_Error if not.
 	 */
 	public static function is_woocommerce_suite_active() {
-		if ( ! function_exists( 'WC' ) || ! class_exists( 'WC_Subscriptions_Product' ) || ! class_exists( 'WC_Name_Your_Price_Helpers' ) ) {
+		if ( ! function_exists( 'WC' ) || ! class_exists( 'WC_Subscriptions_Product' ) ) {
 			return new WP_Error(
 				'newspack_missing_required_plugin',
 				esc_html__( 'The required plugins are not installed and activated. Install and/or activate them to access this feature.', 'newspack' ),
@@ -118,6 +119,20 @@ class Donations {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check if the Name Your Price extension is available.
+	 *
+	 * @return bool True if available, false if not.
+	 */
+	public static function can_use_name_your_price() {
+		// If the donation platform is NRH, the Donate block should behave as if Name Your Price is available.
+		if ( self::is_platform_nrh() ) {
+			return true;
+		}
+
+		return class_exists( 'WC_Name_Your_Price_Helpers' );
 	}
 
 	/**
@@ -155,9 +170,6 @@ class Donations {
 					return \get_woocommerce_currency_symbol();
 				}
 				break;
-			case 'stripe':
-				$currency = Stripe_Connection::get_stripe_data()['currency'];
-				return newspack_get_currency_symbol( $currency );
 		}
 		return '$';
 	}
@@ -240,7 +252,7 @@ class Donations {
 			// Add the product IDs for each frequency.
 			foreach ( $product->get_children() as $child_id ) {
 				$child_product = wc_get_product( $child_id );
-				if ( ! $child_product || 'trash' === $child_product->get_status() || ! (bool) WC_Name_Your_Price_Helpers::is_nyp( $child_id ) ) {
+				if ( ! $child_product || 'trash' === $child_product->get_status() ) {
 					continue;
 				}
 				if ( 'subscription' === $child_product->get_type() ) {
@@ -256,6 +268,32 @@ class Donations {
 		}
 
 		return $child_products_ids;
+	}
+
+	/**
+	 * Check whether the given product ID is a donation product.
+	 *
+	 * @param int $product_id Product ID to check.
+	 * @return boolean True if a donation product, false if not.
+	 */
+	public static function is_donation_product( $product_id ) {
+		$donation_product_ids = array_values( self::get_donation_product_child_products_ids() );
+		return in_array( $product_id, $donation_product_ids, true );
+	}
+
+	/**
+	 * Whether the order is a donation.
+	 *
+	 * @param \WC_Order $order Order object.
+	 * @return boolean True if a donation, false if not.
+	 */
+	public static function is_donation_order( $order ) {
+		foreach ( $order->get_items() as $item ) {
+			if ( self::is_donation_product( $item->get_product_id() ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -279,6 +317,23 @@ class Donations {
 			}
 		);
 		return ! empty( $donation_items ) ? array_values( $donation_items )[0]->get_product_id() : false;
+	}
+
+	/**
+	 * Get recurrence of an order.
+	 *
+	 * @param \WC_Order $order Order object.
+	 */
+	public static function get_recurrence_of_order( $order ) {
+		$donation_product_id = self::get_order_donation_product_id( $order->get_id() );
+		if ( ! $donation_product_id ) {
+			return;
+		}
+		$recurrence = get_post_meta( $donation_product_id, '_subscription_period', true );
+		if ( empty( $recurrence ) ) {
+			$recurrence = 'once';
+		}
+		return $recurrence;
 	}
 
 	/**
@@ -308,31 +363,32 @@ class Donations {
 				return $ready;
 			}
 
-			$is_donation_product_valid = self::validate_donation_product();
-			if ( is_wp_error( $is_donation_product_valid ) ) {
-				return $is_donation_product_valid;
-			}
-
 			// Migrate legacy WC settings, stored as product meta.
 			$parent_product = self::get_parent_donation_product();
 			if ( $parent_product ) {
 				$suggested_amounts         = $parent_product->get_meta( 'newspack_donation_suggested_amount', true );
 				$untiered_suggested_amount = $parent_product->get_meta( 'newspack_donation_untiered_suggested_amount', true );
+				$parent_product_modified   = false;
 				if ( $suggested_amounts ) {
 					$legacy_settings['suggestedAmounts'] = $suggested_amounts;
 					$parent_product->delete_meta_data( 'newspack_donation_suggested_amount' );
+					$parent_product_modified = true;
 				}
 				if ( $untiered_suggested_amount ) {
 					$legacy_settings['suggestedAmountUntiered'] = $untiered_suggested_amount;
 					$parent_product->delete_meta_data( 'newspack_donation_untiered_suggested_amount' );
+					$parent_product_modified = true;
 				}
 				$tiered = $parent_product->get_meta( 'newspack_donation_is_tiered', true );
 
 				if ( ! empty( $tiered ) && is_int( intval( $tiered ) ) ) {
 					$legacy_settings['tiered'] = $tiered;
 					$parent_product->delete_meta_data( 'newspack_donation_is_tiered' );
+					$parent_product_modified = true;
 				}
-				$parent_product->save();
+				if ( $parent_product_modified ) {
+					$parent_product->save();
+				}
 			}
 		}
 
@@ -373,13 +429,13 @@ class Donations {
 			$parsed_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
 		}
 
-		// Ensure a minimum donation amount is set.
-		if ( ! isset( $saved_settings['minimumDonation'] ) && self::is_platform_wc() ) {
-			self::update_donation_product( [ 'minimumDonation' => $settings['minimumDonation'] ] );
-		}
-
 		$parsed_settings['platform']      = self::get_platform_slug();
 		$parsed_settings['billingFields'] = self::get_billing_fields();
+
+		// If NYP isn't available, force untiered config.
+		if ( ! self::can_use_name_your_price() ) {
+			$parsed_settings['tiered'] = false;
+		}
 
 		return $parsed_settings;
 	}
@@ -400,10 +456,14 @@ class Donations {
 			if ( is_wp_error( $ready ) ) {
 				return $ready;
 			}
-			self::update_donation_product( $configuration );
+			$existing_configuration = self::get_donation_settings();
+
+			if ( isset( $args['saveDonationProduct'] ) && $args['saveDonationProduct'] === true ) {
+				self::update_donation_product( $configuration );
+			}
 
 			// Update the billing fields.
-			$billing_fields = $args['billingFields'];
+			$billing_fields = isset( $args['billingFields'] ) ? $args['billingFields'] : [];
 			if ( ! empty( $billing_fields ) ) {
 				$billing_fields = array_map( 'sanitize_text_field', $billing_fields );
 				self::update_billing_fields( $billing_fields );
@@ -495,6 +555,7 @@ class Donations {
 			}
 
 			$child_product->set_name( $product_name );
+			$child_product->set_price( $price );
 			$child_product->set_regular_price( $price );
 			$child_product->update_meta_data( '_suggested_price', $price );
 			$child_product->update_meta_data( '_min_price', wc_format_decimal( $configuration['minimumDonation'] ) );
@@ -542,7 +603,14 @@ class Donations {
 	 * Get donation platform slug.
 	 */
 	public static function get_platform_slug() {
-		return get_option( self::NEWSPACK_READER_REVENUE_PLATFORM, 'wc' );
+		$default_platform = 'wc';
+		$saved_slug       = get_option( self::NEWSPACK_READER_REVENUE_PLATFORM, $default_platform );
+		if ( 'stripe' === $saved_slug ) {
+			// Stripe as a Reader Revenue platform is deprecated.
+			$saved_slug = $default_platform;
+			self::set_platform_slug( $saved_slug );
+		}
+		return $saved_slug;
 	}
 
 	/**
@@ -567,13 +635,6 @@ class Donations {
 	 */
 	public static function is_platform_wc() {
 		return 'wc' === self::get_platform_slug();
-	}
-
-	/**
-	 * Is Stripe the donation platform?
-	 */
-	public static function is_platform_stripe() {
-		return 'stripe' === self::get_platform_slug();
 	}
 
 	/**
@@ -661,16 +722,20 @@ class Donations {
 
 			\WC()->cart->empty_cart();
 
+			$cart_item_data = apply_filters(
+				'newspack_donations_cart_item_data',
+				[
+					'nyp'               => class_exists( 'WC_Name_Your_Price_Helpers' ) ? (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ) : null,
+					'referer'           => $referer,
+					'newspack_popup_id' => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
+				]
+			);
 			\WC()->cart->add_to_cart(
 				$product_id,
 				1,
 				0,
 				[],
-				[
-					'nyp'               => (float) \WC_Name_Your_Price_Helpers::standardize_number( $donation_value ),
-					'referer'           => $referer,
-					'newspack_popup_id' => filter_input( INPUT_GET, 'newspack_popup_id', FILTER_SANITIZE_NUMBER_INT ),
-				]
+				$cart_item_data
 			);
 		}
 
@@ -684,6 +749,12 @@ class Donations {
 		}
 		if ( $is_modal_checkout ) {
 			$query_args['modal_checkout'] = 1;
+		}
+		foreach ( [ 'after_success_behavior', 'after_success_button_label', 'after_success_url' ] as $attribute_name ) {
+			$value = filter_input( INPUT_GET, $attribute_name, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			if ( ! empty( $value ) ) {
+				$query_args[ $attribute_name ] = $value;
+			}
 		}
 
 		// Pass through UTM params so they can be forwarded to the WooCommerce checkout flow.
@@ -730,35 +801,60 @@ class Donations {
 	public static function create_donation_page() {
 		$revenue_model = 'donations';
 
-		$intro           = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
-		$content_heading = esc_html__( 'Donation', 'newspack' );
-		$content         = esc_html__( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack' );
+		$title   = esc_html__( 'Support our publication', 'newspack' );
+		$intro   = esc_html__( 'With the support of readers like you, we provide thoughtfully researched articles for a more informed and connected community. This is your chance to support credible, community-based, public-service journalism. Please join us!', 'newspack' );
+		$content = esc_html__( "Edit and add to this content to tell your publication's story and explain the benefits of becoming a member. This is a good place to mention any special member privileges, let people know that donations are tax-deductible, or provide any legal information.", 'newspack' );
+		$image   = Newspack::plugin_url() . '/includes/images/placeholder-donation.jpg';
 
+		$container_block       = '
+			<!-- wp:cover {"url":"' . $image . '","dimRatio":20,"overlayColor":"black","isUserOverlayColor":true,"minHeight":85,"minHeightUnit":"vh","align":"full","style":{"spacing":{"padding":{"top":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80","right":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
+				<div class="wp-block-cover alignfull" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80);min-height:85vh">
+					<span aria-hidden="true" class="wp-block-cover__background has-black-background-color has-background-dim-20 has-background-dim"></span>
+					<img class="wp-block-cover__image-background" alt="" src="' . $image . '" data-object-fit="cover"/>
+					<div class="wp-block-cover__inner-container">
+						<!-- wp:columns {"verticalAlignment":"center","align":"wide"} -->
+							<div class="wp-block-columns alignwide are-vertically-aligned-center">
+								<!-- wp:column {"verticalAlignment":"center"} -->
+									<div class="wp-block-column is-vertically-aligned-center">
+										%1$s
+									</div>
+								<!-- /wp:column -->
+								<!-- wp:column {"verticalAlignment":"center"} -->
+									<div class="wp-block-column is-vertically-aligned-center">
+										%2$s
+									</div>
+								<!-- /wp:column -->
+							</div>
+						<!-- /wp:columns -->
+					</div>
+				</div>
+			<!-- /wp:cover -->';
+		$heading_block = '
+			<!-- wp:heading -->
+				<h2>%s</h2>
+			<!-- /wp:heading -->';
 		$intro_block           = '
 			<!-- wp:paragraph -->
 				<p>%s</p>
 			<!-- /wp:paragraph -->';
-		$content_heading_block = '
-			<!-- wp:heading -->
-				<h2>%s</h2>
-			<!-- /wp:heading -->';
 		$content_block         = '
 			<!-- wp:paragraph -->
 				<p>%s</p>
 			<!-- /wp:paragraph -->';
 
-		$page_content = sprintf( $intro_block, $intro );
+		$column_content  = sprintf( $heading_block, $title );
+		$column_content .= sprintf( $intro_block, $intro );
+		$column_content .= sprintf( $content_block, $content );
+
 		if ( 'donations' === $revenue_model ) {
-			$page_content .= self::get_donations_block();
+			$page_content = sprintf( $container_block, $column_content, self::get_donations_block() );
 		} elseif ( 'subscriptions' === $revenue_model ) {
-			$page_content .= self::get_subscriptions_block();
+			$page_content = sprintf( $container_block, $column_content, self::get_subscriptions_block() );
 		}
-		$page_content .= sprintf( $content_heading_block, $content_heading );
-		$page_content .= sprintf( $content_block, $content );
 
 		$page_args = [
 			'post_type'      => 'page',
-			'post_title'     => __( 'Support our publication', 'newspack' ),
+			'post_title'     => $title,
 			'post_content'   => $page_content,
 			'post_excerpt'   => __( 'Support quality journalism by joining us today!', 'newspack' ),
 			'post_status'    => 'draft',
@@ -770,6 +866,7 @@ class Donations {
 		if ( is_numeric( $page_id ) ) {
 			self::set_donation_page( $page_id );
 			update_post_meta( $page_id, '_wp_page_template', 'single-feature.php' );
+			update_post_meta( $page_id, 'newspack_hide_page_title', true );
 		}
 
 		return $page_id;
@@ -811,7 +908,7 @@ class Donations {
 	 * @return string Raw block content.
 	 */
 	protected static function get_donations_block() {
-		$block = '<!-- wp:newspack-blocks/donate /-->';
+		$block = '<!-- wp:newspack-blocks/donate {"className":"is-style-modern"} /-->';
 		return $block;
 	}
 
@@ -908,32 +1005,6 @@ class Donations {
 	}
 
 	/**
-	 * Can Stripe platform be used?
-	 *
-	 * @return bool True if it can.
-	 */
-	public static function can_use_stripe_platform() {
-		$is_amp_plugin_active = is_plugin_active( 'amp/amp.php' );
-		$is_using_amp_plus    = AMP_Enhancements::is_amp_plus_configured();
-		// Only if AMP plugin is not active, or site is using AMP Plus.
-		return ! $is_amp_plugin_active || $is_using_amp_plus;
-	}
-
-	/**
-	 * Can the streamlined donate block be used?
-	 *
-	 * @return bool True if it can.
-	 */
-	public static function can_use_streamlined_donate_block() {
-		if ( self::can_use_stripe_platform() ) {
-			$payment_data    = Stripe_Connection::get_stripe_data();
-			$has_stripe_keys = isset( $payment_data['usedPublishableKey'], $payment_data['usedSecretKey'] ) && $payment_data['usedPublishableKey'] && $payment_data['usedSecretKey'];
-			return $has_stripe_keys;
-		}
-		return false;
-	}
-
-	/**
 	 * Whether the WC cart contains a donation product.
 	 *
 	 * @return bool
@@ -1004,6 +1075,24 @@ class Donations {
 	public static function update_billing_fields( $billing_fields ) {
 		update_option( self::DONATION_BILLING_FIELDS_OPTION, $billing_fields );
 		return $billing_fields;
+	}
+
+	/**
+	 * Disable coupons for donation checkouts.
+	 *
+	 * @param bool $enabled Whether coupons are enabled.
+	 *
+	 * @return bool
+	 */
+	public static function disable_coupons( $enabled ) {
+		$cart = WC()->cart;
+		if ( ! $cart ) {
+			return $enabled;
+		}
+		if ( ! self::is_donation_cart( $cart ) ) {
+			return $enabled;
+		}
+		return false;
 	}
 }
 Donations::init();

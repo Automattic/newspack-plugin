@@ -92,6 +92,5 @@ class Newspack_Test_Media_Meta_Search extends WP_UnitTestCase {
 		$this->assertSame( $media1, $wp_query->posts[0]->ID );
 		$this->assertSame( $media2, $wp_query->posts[1]->ID );
 		$this->assertSame( $media3, $wp_query->posts[2]->ID );
-
 	}
 }

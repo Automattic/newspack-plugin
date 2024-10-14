@@ -10,16 +10,15 @@
 	"require": {
 		"composer/installers": "~2.0",
 		"joshtronic/php-loremipsum": "^2.1",
-		"google/auth": "^1.15",
-		"stripe/stripe-php": "^12.6"
+		"google/auth": "^1.15"
 	},
 	"require-dev": {
-		"brainmaestro/composer-git-hooks": "^2.6",
-		"automattic/vipwpcs": "^2.0.0",
-		"wp-coding-standards/wpcs": "*",
+		"brainmaestro/composer-git-hooks": "^3.0",
+		"automattic/vipwpcs": "^3.0",
+		"wp-coding-standards/wpcs": "^3.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/phpcompatibility-wp": "*",
-		"yoast/phpunit-polyfills": "^1.0",
+		"yoast/phpunit-polyfills": "^3.0",
 		"phpunit/phpunit": "^7.0 || ^9.5"
 	},
 	"autoload": {
@@ -46,7 +45,7 @@
 	},
 	"config": {
 		"platform": {
-			"php": "7.4"
+			"php": "8.0"
 		},
 		"allow-plugins": {
 			"composer/installers": true,

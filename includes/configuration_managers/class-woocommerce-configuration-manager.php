@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WC_Payment_Gateways, \WC_Install, \WP_Error;
+use WC_Payment_Gateways, WC_Install, WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -86,7 +86,7 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	 * @return Array Array of payment gateways.
 	 */
 	public static function get_payment_gateways( $only_enabled = false ) {
-		if ( ! class_exists( '\WC_Payment_Gateways' ) ) {
+		if ( ! class_exists( 'WC_Payment_Gateways' ) ) {
 			return [];
 		}
 		$gateways = \WC_Payment_Gateways::instance()->payment_gateways();
@@ -99,29 +99,6 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 			);
 		}
 		return $gateways;
-	}
-
-	/**
-	 * Retrieve Stripe data
-	 *
-	 * @return Array Array of Stripe data.
-	 */
-	public function stripe_data() {
-		$gateways = self::get_payment_gateways();
-		$defaults = Stripe_Connection::get_default_stripe_data();
-		if ( ! isset( $gateways['stripe'] ) ) {
-			return $defaults;
-		}
-		$stripe      = $gateways['stripe'];
-		$stripe_data = [
-			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
-			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
-			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
-			'secretKey'          => $stripe->get_option( 'secret_key', '' ),
-			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
-			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
-		];
-		return \wp_parse_args( $stripe_data, $defaults );
 	}
 
 	/**
@@ -173,33 +150,86 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get Stripe payment gateway, if available.
+	 *
+	 * @param bool $only_enabled If true, only return the gateway if enabled.
+	 *
+	 * @return WC_Gateway_Stripe|bool WC_Gateway_Stripe instance if Stripe payment gateway is available, false if not.
+	 */
+	public static function get_stripe_gateway( $only_enabled = false ) {
+		$gateways = self::get_payment_gateways();
+		return isset( $gateways['stripe'] ) ? $gateways['stripe'] : false;
+	}
+
+	/**
+	 * Retrieve Stripe data
+	 *
+	 * @return Array|bool Array of Stripe data, or false if Stripe gateway isn't available.
+	 */
+	public function stripe_data() {
+		$stripe = self::get_stripe_gateway();
+		if ( ! $stripe ) {
+			return false;
+		}
+		return [
+			'enabled'            => 'yes' === $stripe->get_option( 'enabled', false ) ? true : false,
+			'testMode'           => 'yes' === $stripe->get_option( 'testmode', false ) ? true : false,
+			'publishableKey'     => $stripe->get_option( 'publishable_key', '' ),
+			'secretKey'          => $stripe->get_option( 'secret_key', '' ),
+			'testPublishableKey' => $stripe->get_option( 'test_publishable_key', '' ),
+			'testSecretKey'      => $stripe->get_option( 'test_secret_key', '' ),
+		];
+	}
+
+	/**
 	 * Update WooCommerce Stripe settings
 	 *
 	 * @param Array $args Address data.
 	 * @return Array|WP_Error The data that was updated or an error.
 	 */
 	public function update_wc_stripe_settings( $args ) {
-		$gateways = WC_Payment_Gateways::instance()->payment_gateways();
-		if ( ! isset( $gateways['stripe'] ) ) {
-			if ( $args['enabled'] ) {
-				// Stripe is not installed and we want to use it. Install/Activate/Initialize it.
+		if ( ! class_exists( 'WC_Payment_Gateways' ) ) {
+			return false;
+		}
+
+		// Get the Stripe payment gateway instance.
+		$stripe = self::get_stripe_gateway();
+
+		if ( ! $stripe ) {
+			if ( isset( $args['enabled'] ) && $args['enabled'] ) {
+				// Stripe gateway is not installed and we want to use it. Install/Activate/Initialize it.
 				Plugin_Manager::activate( 'woocommerce-gateway-stripe' );
 				do_action( 'plugins_loaded' );
-				WC_Payment_Gateways::instance()->init();
-				$gateways = WC_Payment_Gateways::instance()->payment_gateways();
+				\WC_Payment_Gateways::instance()->init();
+				$stripe = self::get_stripe_gateway();
+				if ( ! $stripe ) {
+					return new WP_Error( 'newspack_stripe_gateway_error', __( 'Error activating the Stripe payment gateway.', 'newspack-plugin' ) );
+				}
 			} else {
 				// Stripe is not installed and we don't want to use it. No settings needed.
 				return true;
 			}
 		}
 
-		$stripe = $gateways['stripe'];
-		$stripe->update_option( 'enabled', $args['enabled'] ? 'yes' : 'no' );
-		$stripe->update_option( 'testmode', $args['testMode'] ? 'yes' : 'no' );
-		$stripe->update_option( 'publishable_key', $args['publishableKey'] );
-		$stripe->update_option( 'secret_key', $args['secretKey'] );
-		$stripe->update_option( 'test_publishable_key', $args['testPublishableKey'] );
-		$stripe->update_option( 'test_secret_key', $args['testSecretKey'] );
+		// Update Stripe payment gateway settings.
+		if ( isset( $args['enabled'] ) ) {
+			$stripe->update_option( 'enabled', $args['enabled'] ? 'yes' : 'no' );
+		}
+		if ( isset( $args['testMode'] ) ) {
+			$stripe->update_option( 'testmode', $args['testMode'] ? 'yes' : 'no' );
+		}
+		if ( isset( $args['publishableKey'] ) ) {
+			$stripe->update_option( 'publishable_key', $args['publishableKey'] );
+		}
+		if ( isset( $args['secretKey'] ) ) {
+			$stripe->update_option( 'secret_key', $args['secretKey'] );
+		}
+		if ( isset( $args['testPublishableKey'] ) ) {
+			$stripe->update_option( 'test_publishable_key', $args['testPublishableKey'] );
+		}
+		if ( isset( $args['testSecretKey'] ) ) {
+			$stripe->update_option( 'test_secret_key', $args['testSecretKey'] );
+		}
 
 		// @todo when is the best time to do this?
 		$this->set_smart_defaults();

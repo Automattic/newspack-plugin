@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -63,6 +63,10 @@ class Configuration_Managers {
 		'wp-parsely'            => [
 			'filename'   => 'class-parsely-configuration-manager.php',
 			'class_name' => 'Parsely_Configuration_Manager',
+		],
+		'everlit'               => [
+			'filename'   => 'class-everlit-configuration-manager.php',
+			'class_name' => 'Everlit_Configuration_Manager',
 		],
 	];
 

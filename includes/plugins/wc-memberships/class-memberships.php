@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Memberships\Metering;
+use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,6 +18,7 @@ defined( 'ABSPATH' ) || exit;
 class Memberships {
 
 	const GATE_CPT = 'np_memberships_gate';
+	const SKIP_RESTRICTION_IN_RSS_OPTION_NAME = 'newspack_skip_content_restriction_in_rss_feeds';
 
 	/**
 	 * Whether the gate has been rendered in this execution.
@@ -24,6 +26,14 @@ class Memberships {
 	 * @var boolean
 	 */
 	private static $gate_rendered = false;
+
+	/**
+	 * Membership statuses that should grant access to restricted content.
+	 * See: https://woocommerce.com/document/woocommerce-memberships-user-memberships/#section-4
+	 *
+	 * @var array
+	 */
+	public static $active_statuses = [ 'active', 'complimentary', 'free-trial', 'pending' ];
 
 	/**
 	 * Initialize hooks and filters.
@@ -38,11 +48,17 @@ class Memberships {
 		add_filter( 'wc_memberships_notice_html', [ __CLASS__, 'wc_memberships_notice_html' ], 100, 4 );
 		add_filter( 'wc_memberships_restricted_content_excerpt', [ __CLASS__, 'wc_memberships_excerpt' ], 100, 3 );
 		add_filter( 'wc_memberships_message_excerpt_apply_the_content_filter', '__return_false' );
+		add_filter( 'wc_memberships_admin_screen_ids', [ __CLASS__, 'admin_screens' ] );
+		add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'wc_memberships_general_settings' ] );
+		add_filter( 'wc_memberships_is_post_public', [ __CLASS__, 'wc_memberships_is_post_public' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
+		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
+		add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
+		add_filter( 'wc_memberships_expire_user_membership', [ __CLASS__, 'handle_wc_memberships_expire_user_membership' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -58,6 +74,13 @@ class Memberships {
 
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
+	}
+
+	/**
+	 * Check if Memberships is available.
+	 */
+	public static function is_active() {
+		return class_exists( 'WC_Memberships' ) && function_exists( 'wc_memberships' );
 	}
 
 	/**
@@ -112,7 +135,7 @@ class Memberships {
 				'show_ui'      => true,
 				'show_in_menu' => false,
 				'show_in_rest' => true,
-				'supports'     => [ 'editor', 'custom-fields' ],
+				'supports'     => [ 'editor', 'custom-fields', 'revisions' ],
 			]
 		);
 	}
@@ -187,25 +210,27 @@ class Memberships {
 		if ( ! is_singular() || ! self::is_post_restricted() ) {
 			return;
 		}
-		$gate_post_id = self::get_gate_post_id();
-		$style        = \get_post_meta( $gate_post_id, 'style', true );
-		if ( 'overlay' !== $style ) {
-			return;
-		}
-		$handle = 'newspack-memberships-gate-overlay';
+		$handle = 'newspack-memberships-gate';
 		\wp_enqueue_script(
 			$handle,
-			Newspack::plugin_url() . '/dist/memberships-gate-overlay.js',
+			Newspack::plugin_url() . '/dist/memberships-gate.js',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.js' ),
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate.js' ),
 			true
 		);
 		\wp_script_add_data( $handle, 'async', true );
+		\wp_localize_script(
+			$handle,
+			'newspack_memberships_gate',
+			[
+				'metadata' => self::get_gate_metadata(),
+			]
+		);
 		\wp_enqueue_style(
 			$handle,
-			Newspack::plugin_url() . '/dist/memberships-gate-overlay.css',
+			Newspack::plugin_url() . '/dist/memberships-gate.css',
 			[],
-			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate-overlay.css' )
+			filemtime( dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/memberships-gate.css' )
 		);
 	}
 
@@ -277,6 +302,47 @@ class Memberships {
 	}
 
 	/**
+	 * Recursively get the unique block names from the post content.
+	 *
+	 * @param array $blocks The blocks.
+	 *
+	 * @return array
+	 */
+	private static function get_block_names_recursive( $blocks ) {
+		$block_names = [];
+		foreach ( $blocks as $block ) {
+			if ( ! empty( $block['blockName'] ) ) {
+				$block_names[] = $block['blockName'];
+			}
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block_names = array_merge( $block_names, self::get_block_names_recursive( $block['innerBlocks'] ) );
+			}
+		}
+		return array_unique( $block_names );
+	}
+
+	/**
+	 * Get gate metadata to be used for analytics purposes.
+	 *
+	 * @return array {
+	 *   The gate metadata.
+	 *
+	 *   @type int    $gate_post_id The gate post ID.
+	 *   @type array  $gate_blocks  Names of unique blocks in the gate post.
+	 * }
+	 */
+	public static function get_gate_metadata() {
+		$post_id = self::get_gate_post_id();
+		$blocks  = self::get_block_names_recursive( parse_blocks( get_post_field( 'post_content', $post_id ) ) );
+		return [
+			'gate_post_id'                => $post_id,
+			'gate_has_donation_block'     => in_array( 'newspack-blocks/donate', $blocks ) ? 'yes' : 'no',
+			'gate_has_registration_block' => in_array( 'newspack/reader-registration', $blocks ) ? 'yes' : 'no',
+			'gate_has_checkout_button'    => in_array( 'newspack-blocks/checkout-button', $blocks ) ? 'yes' : 'no',
+		];
+	}
+
+	/**
 	 * Get the gate post object for the given plan.
 	 *
 	 * @param int $plan_id Plan ID.
@@ -308,7 +374,7 @@ class Memberships {
 	 * @return string[] Plan names keyed by plan ID.
 	 */
 	private static function get_gate_plans( $gate_id ) {
-		if ( ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
 			return [];
 		}
 		$ids = get_post_meta( $gate_id, 'plans', true );
@@ -331,7 +397,7 @@ class Memberships {
 	 * @return array
 	 */
 	public static function get_plans() {
-		if ( ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_get_membership_plans' ) ) {
 			return [];
 		}
 		$membership_plans = wc_memberships_get_membership_plans();
@@ -371,6 +437,27 @@ class Memberships {
 	}
 
 	/**
+	 * Get the current setting of the "Display memberships on the subscriptions tab" option.
+	 *
+	 * @return boolean
+	 */
+	public static function get_show_on_subscription_tab_setting() {
+		return \get_option( 'newspack_memberships_show_on_subscription_tab', false );
+	}
+
+	/**
+	 * Set the "Display memberships on the subscriptions tab" option.
+	 *
+	 * @param boolean $show False to show memberships without subscriptions on the subscriptions tab (default)
+	 *                      or true to display those memberships on the subscriptions tab..
+	 *
+	 * @return boolean
+	 */
+	public static function set_show_on_subscription_tab_setting( $show = false ) {
+		return \update_option( 'newspack_memberships_show_on_subscription_tab', $show );
+	}
+
+	/**
 	 * Whether the current user is a member of the given plan.
 	 *
 	 * @param int $plan_id Plan ID.
@@ -381,7 +468,7 @@ class Memberships {
 		if ( ! \is_user_logged_in() ) {
 			return false;
 		}
-		if ( ! function_exists( 'wc_memberships_is_user_active_or_delayed_member' ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_is_user_active_or_delayed_member' ) ) {
 			return false;
 		}
 		return \wc_memberships_is_user_active_or_delayed_member( \get_current_user_id(), $plan_id );
@@ -446,10 +533,10 @@ class Memberships {
 		if ( ! $post_id ) {
 			$post_id = get_the_ID();
 		}
-		if ( ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! \wc_memberships_is_post_content_restricted( $post_id ) ) {
+		if ( ! self::is_active() || ! function_exists( 'wc_memberships_is_post_content_restricted' ) || ! \wc_memberships_is_post_content_restricted( $post_id ) ) {
 			return false;
 		}
-		return ! is_user_logged_in() || ! current_user_can( 'wc_memberships_view_restricted_post_content', $post_id );
+		return ! is_user_logged_in() || ! current_user_can( 'wc_memberships_view_restricted_post_content', $post_id ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
 	}
 
 	/**
@@ -590,6 +677,17 @@ class Memberships {
 		if ( get_queried_object_id() !== $post->ID ) {
 			return $excerpt;
 		}
+		return self::get_restricted_post_excerpt( $post );
+	}
+
+	/**
+	 * Get the post excerpt to be displayed in the gate.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public static function get_restricted_post_excerpt( $post ) {
 		$gate_post_id = self::get_gate_post_id();
 
 		$content = $post->post_content;
@@ -750,30 +848,62 @@ class Memberships {
 	 */
 	public static function user_has_cap( $all_caps, $caps, $args ) {
 		// Bail if Woo Memberships is not active.
-		if ( ! class_exists( 'WC_Memberships' ) || ! function_exists( 'wc_memberships' ) ) {
+		if ( ! self::is_active() ) {
 			return $all_caps;
 		}
 
 		if ( ! empty( $caps ) ) {
 			foreach ( $caps as $cap ) {
-				if ( 'wc_memberships_view_restricted_post_content' === $cap ) {
-					if ( self::can_manage_woocommerce( $all_caps ) ) {
-						$all_caps[ $cap ] = true;
+
+				switch ( $cap ) {
+					case 'wc_memberships_access_all_restricted_content':
+					case 'wc_memberships_view_restricted_product':
+					case 'wc_memberships_purchase_restricted_product':
+					case 'wc_memberships_view_restricted_product_taxonomy_term':
+					case 'wc_memberships_view_delayed_product_taxonomy_term':
+					case 'wc_memberships_view_restricted_taxonomy_term':
+					case 'wc_memberships_view_restricted_taxonomy':
+					case 'wc_memberships_view_restricted_post_type':
+					case 'wc_memberships_view_delayed_post_type':
+					case 'wc_memberships_view_delayed_taxonomy':
+					case 'wc_memberships_view_delayed_taxonomy_term':
+					case 'wc_memberships_view_delayed_post_content':
+					case 'wc_memberships_view_restricted_post_content':
+						if ( self::can_manage_woocommerce( $all_caps ) ) {
+							$all_caps[ $cap ] = true;
+							break;
+						}
+
+						// Allow user who can edit posts (by default: editors, authors, contributors).
+						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
+							$all_caps[ $cap ] = true;
+							break;
+						}
+
+						if ( ! isset( $args[1] ) || ! isset( $args[2] ) ) {
+							break;
+						}
+
+						$user_id = (int) $args[1];
+						$post_id = (int) $args[2];
+
+						if ( wc_memberships()->get_restrictions_instance()->is_post_public( $post_id ) ) {
+							$all_caps[ $cap ] = true;
+							break;
+						}
+
+						$rules            = wc_memberships()->get_rules_instance()->get_post_content_restriction_rules( $post_id );
+						$all_caps[ $cap ] = self::user_has_content_access_from_rules( $user_id, $rules, $post_id );
+
 						break;
-					}
 
-					$user_id = (int) $args[1];
-					$post_id = (int) $args[2];
-
-					if ( wc_memberships()->get_restrictions_instance()->is_post_public( $post_id ) ) {
-						$all_caps[ $cap ] = true;
+					case 'wc_memberships_view_delayed_product':
+						// Allow users who can edit posts (by default: editors, authors, contributors).
+						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
+							$all_caps[ $cap ] = true;
+							break;
+						}
 						break;
-					}
-
-					$rules            = wc_memberships()->get_rules_instance()->get_post_content_restriction_rules( $post_id );
-					$all_caps[ $cap ] = self::user_has_content_access_from_rules( $user_id, $rules, $post_id );
-
-					break;
 				}
 			}
 		}
@@ -803,10 +933,19 @@ class Memberships {
 			return true;
 		}
 
+		$integrations      = wc_memberships()->get_integrations_instance();
+		$integration       = $integrations ? $integrations->get_subscriptions_instance() : null;
 		$require_all_plans = self::get_require_all_plans_setting();
 		$has_access        = false;
+		$has_subscription  = false;
 
 		foreach ( $rules as $rule ) {
+			$membership_plan_id = $rule->get_membership_plan_id();
+			if ( $integration && $integration->has_membership_plan_subscription( $membership_plan_id ) ) {
+				$subscription_plan  = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $membership_plan_id );
+				$required_products  = $subscription_plan->get_subscription_product_ids();
+				$has_subscription   = ! empty( WooCommerce_Connection::get_active_subscriptions_for_user( $user_id, $required_products ) );
+			}
 
 			// If no object ID is provided, then we are looking at rules that apply to whole post types or taxonomies.
 			// In this case, rules that apply to specific objects should be skipped.
@@ -814,7 +953,7 @@ class Memberships {
 				continue;
 			}
 
-			if ( wc_memberships_is_user_active_or_delayed_member( $user_id, $rule->get_membership_plan_id() ) ) {
+			if ( $has_subscription || wc_memberships_is_user_active_or_delayed_member( $user_id, $rule->get_membership_plan_id() ) ) {
 				$has_access = true;
 				if ( ! $require_all_plans ) {
 					break;
@@ -826,6 +965,125 @@ class Memberships {
 		}
 
 		return $has_access;
+	}
+
+	/**
+	 * Remove content restriction on the front page and archives, to increase performance.
+	 * The only thing Memberships would really do on these pages is add a "You need a membership"-type message in excerpts.
+	 */
+	public static function remove_unnecessary_content_restriction() {
+		if ( ( is_front_page() || is_archive() ) && function_exists( 'wc_memberships' ) ) {
+			$memberships = wc_memberships();
+			$restrictions_instance = $memberships->get_restrictions_instance();
+			$posts_restrictions_instance = $restrictions_instance->get_posts_restrictions_instance();
+			remove_action( 'the_post', [ $posts_restrictions_instance, 'restrict_post' ], 0 );
+			remove_filter( 'the_content', [ $posts_restrictions_instance, 'handle_restricted_post_content_filtering' ], 999 );
+			remove_action( 'loop_start', [ $posts_restrictions_instance, 'display_restricted_taxonomy_term_notice' ], 1 );
+		}
+	}
+
+	/**
+	 * Admin meta boxes handling.
+	 *
+	 * @param array $screen_ids associative array organized by context.
+	 */
+	public static function admin_screens( $screen_ids ) {
+		$unrestrictable_post_types = [ 'partner_rss_feed' ];
+		$screen_ids['meta_boxes'] = array_filter(
+			$screen_ids['meta_boxes'],
+			function( $screen_id ) use ( $unrestrictable_post_types ) {
+				$allow_restrictions = true;
+				foreach ( $unrestrictable_post_types as $post_type ) {
+					// Use strpos instead of full string match, because each CPT get two items in this array:
+					// the `<CPT>` and `edit-<CPT>`.
+					if ( strpos( $screen_id, $post_type ) !== false ) {
+						$allow_restrictions = false;
+					}
+				}
+				return $allow_restrictions;
+			}
+		);
+		return $screen_ids;
+	}
+
+	/**
+	 * Check if the content should be restricted by WooCommerce Memberships.
+	 *
+	 * @param bool $is_public whether the post is public (default false unless explicitly marked as public by an admin).
+	 */
+	public static function wc_memberships_is_post_public( $is_public ) {
+		if ( is_feed() && 'yes' === get_option( self::SKIP_RESTRICTION_IN_RSS_OPTION_NAME ) ) {
+			return true;
+		}
+		return $is_public;
+	}
+
+	/**
+	 * Add a setting to skip content restrictions in RSS feeds.
+	 *
+	 * @param array $settings associative array of the plugin settings.
+	 */
+	public static function wc_memberships_general_settings( $settings ) {
+		$setting = [
+			'type'    => 'checkbox',
+			'id'      => self::SKIP_RESTRICTION_IN_RSS_OPTION_NAME,
+			'name'    => __( 'Skip content restriction in RSS feeds', 'newspack-plugin' ),
+			'desc'    =>
+				'<span class="show-if-hide-content-only-restriction-mode">' . __( 'If enabled, full content will be available in RSS feeds.', 'newspack-plugin' ) . '</span>',
+			'default' => 'no',
+		];
+
+		$position_of_show_excerpts_setting = array_search( 'wc_memberships_show_excerpts', array_column( $settings, 'id' ) );
+		return array_slice( $settings, 0, $position_of_show_excerpts_setting, true ) +
+			[ $setting['id'] => $setting ] +
+			array_slice( $settings, $position_of_show_excerpts_setting, null, true );
+	}
+
+	/**
+	 * Add relevant body CSS classnames.
+	 *
+	 * @param array $classes Array of body class names.
+	 */
+	public static function add_body_class( $classes ) {
+		// If a user has a paid membership, add a body class.
+		if ( ! function_exists( 'wc_memberships_get_user_active_memberships' ) ) {
+			return $classes;
+		}
+
+		$user_active_memberships = \wc_memberships_get_user_active_memberships();
+		foreach ( $user_active_memberships as $membership ) {
+			$plan = $membership->plan;
+			if ( $plan ) {
+				$plan_products = $membership->get_plan()->get_product_ids();
+				$classes[] = 'is-member-' . $plan->slug;
+				$paid_plan_classname = 'is-paid-plan-member';
+				if ( ! empty( $plan_products ) && ! in_array( $paid_plan_classname, $classes ) ) {
+					$classes[] = $paid_plan_classname;
+				}
+			}
+		}
+		return $classes;
+	}
+
+	/**
+	 * Prevent User Membership expiring, if the linked subscription is active.
+	 *
+	 * @param bool                            $expire true will expire this membership, false will retain it - default: true, expire it.
+	 * @param \WC_Memberships_User_Membership $user_membership the User Membership object being expired.
+	 */
+	public static function handle_wc_memberships_expire_user_membership( $expire, $user_membership ) {
+		$integration = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
+		if ( ! $integration ) {
+			return $expire;
+		}
+		$subscription = $integration->get_subscription_from_membership( $user_membership->get_id() );
+		if ( $subscription ) {
+			$subscription_status = $integration->get_subscription_status( $subscription );
+			if ( 'active' === $subscription_status ) {
+				return false;
+			}
+		}
+		return $expire;
 	}
 }
 Memberships::init();

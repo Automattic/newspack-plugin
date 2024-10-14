@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use \WP_Error;
+use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -155,28 +155,28 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_stripe_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'enabled'            => [
+					'enabled'                     => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'testMode'           => [
+					'testMode'                    => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'publishableKey'     => [
+					'publishableKey'              => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'secretKey'          => [
+					'secretKey'                   => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'testPublishableKey' => [
+					'testPublishableKey'          => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'testSecretKey'      => [
+					'testSecretKey'               => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'newsletter_list_id' => [
+					'newsletter_list_id'          => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'fee_multiplier'     => [
+					'fee_multiplier'              => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => function ( $value ) {
 							if ( (float) $value > 10 ) {
@@ -184,14 +184,23 @@ class Reader_Revenue_Wizard extends Wizard {
 									'newspack_invalid_param',
 									__( 'Fee multiplier must be smaller than 10.', 'newspack' )
 								);
-							};
+							}
 							return true;
 						},
 					],
-					'fee_static'         => [
+					'fee_static'                  => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'location_code'      => [
+					'allow_covering_fees'         => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_default' => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'allow_covering_fees_label'   => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'location_code'               => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
@@ -277,12 +286,11 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response Boolean success.
 	 */
 	public function api_update( $request ) {
-		$params   = $request->get_params();
-		$platform = $params['platform'];
-		Donations::set_platform_slug( $platform );
+		$params = $request->get_params();
+		Donations::set_platform_slug( $params['platform'] );
 
 		// Update NRH settings.
-		if ( 'nrh' === $platform ) {
+		if ( Donations::is_platform_nrh() ) {
 			NRH::update_settings( $params );
 		}
 
@@ -334,18 +342,11 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return WP_REST_Response with the latest settings.
 	 */
 	public function update_stripe_settings( $settings ) {
-		$is_platform_wc = Donations::is_platform_wc();
-		if ( $is_platform_wc ) {
-			$required_plugins_installed = $this->check_required_plugins_installed();
-			if ( is_wp_error( $required_plugins_installed ) ) {
-				return rest_ensure_response( $required_plugins_installed );
-			}
-		}
-
-		$args = wp_parse_args( $settings, Stripe_Connection::get_default_stripe_data() );
-		// For WC, Stripe has to be enabled explicitly.
-		if ( $is_platform_wc ? $args['enabled'] : true ) {
-			if ( $args['testMode'] && ( ! $this->api_validate_not_empty( $args['testPublishableKey'] ) || ! $this->api_validate_not_empty( $args['testSecretKey'] ) ) ) {
+		if ( ! empty( $settings['activate'] ) ) {
+			// If activating the Stripe Gateway plugin, let's enable it.
+			$settings = [ 'enabled' => true ];
+		} elseif ( $settings['enabled'] ) {
+			if ( $settings['testMode'] && ( ! $this->api_validate_not_empty( $settings['testPublishableKey'] ) || ! $this->api_validate_not_empty( $settings['testSecretKey'] ) ) ) {
 				return new WP_Error(
 					'newspack_missing_required_field',
 					esc_html__( 'Test Publishable Key and Test Secret Key are required to use Stripe in test mode.', 'newspack' ),
@@ -354,7 +355,7 @@ class Reader_Revenue_Wizard extends Wizard {
 						'level'  => 'notice',
 					]
 				);
-			} elseif ( ! $args['testMode'] && ( ! $this->api_validate_not_empty( $args['publishableKey'] ) || ! $this->api_validate_not_empty( $args['secretKey'] ) ) ) {
+			} elseif ( ! $settings['testMode'] && ( ! $this->api_validate_not_empty( $settings['publishableKey'] ) || ! $this->api_validate_not_empty( $settings['secretKey'] ) ) ) {
 				return new WP_Error(
 					'newspack_missing_required_field',
 					esc_html__( 'Publishable Key and Secret Key are required to use Stripe.', 'newspack' ),
@@ -364,9 +365,23 @@ class Reader_Revenue_Wizard extends Wizard {
 					]
 				);
 			}
+			if ( isset( $settings['allow_covering_fees'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees', $settings['allow_covering_fees'] );
+			}
+			if ( isset( $settings['allow_covering_fees_default'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees_default', $settings['allow_covering_fees_default'] );
+			}
+
+			if ( isset( $settings['allow_covering_fees_label'] ) ) {
+				update_option( 'newspack_donations_allow_covering_fees_label', $settings['allow_covering_fees_label'] );
+			}
 		}
 
-		Stripe_Connection::update_stripe_data( $args );
+		$result = Stripe_Connection::update_stripe_data( $settings );
+		if ( \is_wp_error( $result ) ) {
+			return $result;
+		}
+
 		return $this->fetch_all_data();
 	}
 
@@ -429,10 +444,7 @@ class Reader_Revenue_Wizard extends Wizard {
 		$platform                 = Donations::get_platform_slug();
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 		$wc_installed             = $wc_configuration_manager->is_active();
-
-		// Stipe data is used by both WC and Stripe platforms.
-		$stripe_data                            = Stripe_Connection::get_stripe_data();
-		$stripe_data['can_use_stripe_platform'] = Donations::can_use_stripe_platform();
+		$stripe_data              = Stripe_Connection::get_stripe_data();
 
 		$billing_fields = [];
 		if ( $wc_installed && Donations::is_platform_wc() ) {
@@ -463,8 +475,6 @@ class Reader_Revenue_Wizard extends Wizard {
 			$managed_plugins  = Plugin_Manager::get_managed_plugins();
 			$required_plugins = [
 				'woocommerce',
-				'woocommerce-gateway-stripe',
-				'woocommerce-name-your-price',
 				'woocommerce-subscriptions',
 			];
 			foreach ( $required_plugins as $required_plugin ) {
@@ -474,28 +484,14 @@ class Reader_Revenue_Wizard extends Wizard {
 			}
 			$args = wp_parse_args(
 				[
-					// A more complete list, with states for each country.
-					'country_state_fields' => $wc_configuration_manager->country_state_fields(),
-					'location_data'        => $wc_configuration_manager->location_data(),
-					'salesforce_settings'  => Salesforce::get_salesforce_settings(),
-					'plugin_status'        => $plugin_status,
+					'salesforce_settings' => Salesforce::get_salesforce_settings(),
+					'plugin_status'       => $plugin_status,
 				],
 				$args
 			);
 		} elseif ( Donations::is_platform_nrh() ) {
 			$nrh_config            = NRH::get_settings();
 			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
-		} elseif ( Donations::is_platform_stripe() ) {
-			$are_webhooks_valid = Stripe_Webhooks::validate_or_create_webhooks();
-			if ( is_wp_error( $are_webhooks_valid ) ) {
-				$args['errors'][] = [
-					'code'    => $are_webhooks_valid->get_error_code(),
-					'message' => $are_webhooks_valid->get_error_message(),
-				];
-			}
-			if ( Stripe_Connection::is_configured() ) {
-				$args['stripe_data']['connection_error'] = Stripe_Connection::get_connection_error();
-			}
 		}
 		return $args;
 	}
@@ -559,6 +555,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
 				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
+				'can_use_name_your_price' => Donations::can_use_name_your_price(),
 			]
 		);
 		\wp_enqueue_script( 'newspack-reader-revenue-wizard' );
@@ -571,6 +568,6 @@ class Reader_Revenue_Wizard extends Wizard {
 	 * @return bool
 	 */
 	public function api_validate_platform( $value ) {
-		return in_array( $value, [ 'nrh', 'wc', 'stripe', 'other' ] );
+		return in_array( $value, [ 'nrh', 'wc', 'other' ] );
 	}
 }

@@ -11,10 +11,9 @@ project.properties
 *.sublime-workspace
 .sublimelinterrc
 
-# Grunt
+# NPM
 .cache
 /node_modules/
-none
 
 # Sass
 .sass-cache/
@@ -30,12 +29,15 @@ Thumbs.db
 
 # Built files
 /dist
-/assets/components/dist
-/assets/components/shared
-/assets/components/node_modules
+/src/components/dist
+/src/components/shared
+/src/components/node_modules
 release
 
 # Tests
 codecov/
 coverage/
 .phpunit.result.cache
+
+# Misc
+tsconfig.tsbuildinfo
