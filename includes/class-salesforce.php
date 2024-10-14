@@ -1321,7 +1321,7 @@ class Salesforce {
 		if ( ! $order ) {
 			return;
 		}
-		$order->update_meta( $order_id, 'newspack_salesforce_opportunities', $opportunities );
+		$order->update_meta_data( $order_id, 'newspack_salesforce_opportunities', $opportunities );
 		$order->save();
 	}
 }

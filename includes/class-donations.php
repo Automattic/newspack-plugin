@@ -997,7 +997,7 @@ class Donations {
 					if ( ! $order ) {
 						continue;
 					}
-					$order->update_meta( $order_id, sanitize_text_field( $param ), sanitize_text_field( $value ) );
+					$order->update_meta_data( $order_id, sanitize_text_field( $param ), sanitize_text_field( $value ) );
 					$order->save();
 				}
 			}
