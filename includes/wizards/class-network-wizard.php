@@ -183,8 +183,8 @@ class Network_Wizard extends Wizard {
 	 * Add the Network menu page.
 	 */
 	public function add_page() {
-		if ( method_exists( Newspack_Network_Admin::class, 'render_page' ) ) {
-			add_menu_page(
+		if ( is_callable( [ Newspack_Network_Admin::class, 'render_page' ] ) ) {
+			$page_suffix = add_menu_page(
 				__( 'Network', 'newspack-plugin' ),
 				__( 'Network', 'newspack-plugin' ),
 				$this->capability,
@@ -201,6 +201,7 @@ class Network_Wizard extends Wizard {
 				$this->slug,
 				[ Newspack_Network_Admin::class, 'render_page' ]
 			);
+			add_action( 'load-' . $page_suffix, [ Newspack_Network_Admin::class, 'admin_init' ] );
 		}
 	}
 }
