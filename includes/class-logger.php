@@ -76,4 +76,36 @@ class Logger {
 	public static function error( $payload, $header = 'NEWSPACK' ) {
 		return self::log( $payload, $header, 'error' );
 	}
+
+	/**
+	 * A logger for newspack manager logging.
+	 *
+	 * @param string $code    The log code (i.e. newspack_google_login).
+	 * @param string $message The message to log.
+	 * @param array  $data    The data to log.
+	 * @param string $type    The type of log. Defaults to 'error'.
+	 */
+	public static function newspack_log( $code, $message, $data, $type = 'error' ) {
+		$email = '';
+		if ( isset( $data['user_email'] ) ) {
+			$email = $data['user_email'];
+			unset( $data['user_email'] );
+		}
+		$file = $code;
+		if ( isset( $data['file'] ) ) {
+			$file = $data['file'];
+			unset( $data['file'] );
+		}
+		do_action(
+			'newspack_log',
+			$code,
+			$message,
+			[
+				'type'       => $type,
+				'data'       => $data,
+				'user_email' => $email,
+				'file'       => $file,
+			]
+		);
+	}
 }

@@ -179,8 +179,13 @@ class GoogleSiteKit {
 	 * @param string $option Option being deleted.
 	 */
 	public static function maybe_log_disconnect( $option ) {
-		// TODO: Determine what needs to be logged/alerted.
-		Logger::log( 'Google Site Kit has been disconnected.' );
+		$message = 'Google Site Kit has been disconnected.';
+		// TODO: Determine what data needs to be logged.
+		$data = [
+			'user_email' => wp_get_current_user()->user_email,
+			'file'       => 'class-googlesitekit.php',
+		];
+		Logger::newspack_log( 'newspack_googlesitekit_disconnect', $message, $data );
 	}
 }
 GoogleSiteKit::init();
