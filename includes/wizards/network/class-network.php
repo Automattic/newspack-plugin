@@ -58,6 +58,19 @@ class Network extends Wizard {
 	 */
 	protected $slug = 'newspack-network';
 
+	/**
+	 * The current wp-admin post type.
+	 *
+	 * @var string
+	 */
+	protected $current_admin_post_type;
+
+	/**
+	 * The current wp-admin page.
+	 *
+	 * @var string
+	 */
+	protected $current_admin_page;
 
 	/**
 	 * Priority setting for ordering admin submenu items.
@@ -74,6 +87,9 @@ class Network extends Wizard {
 			return;
 		}
 		parent::__construct();
+
+		$this->current_admin_post_type = sanitize_text_field( $_GET['post_type'] ?? null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$this->current_admin_page = sanitize_text_field( $_GET['page'] ?? null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		remove_action( 'admin_menu', [ Newspack_Network_Admin::class, 'add_admin_menu' ], 10 );
 
