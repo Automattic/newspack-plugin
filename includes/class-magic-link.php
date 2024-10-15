@@ -768,13 +768,16 @@ final class Magic_Link {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$secret = filter_input( INPUT_GET, 'secret', FILTER_SANITIZE_STRING );
 			if ( $secret ) {
-				$users = \get_users(
+				$user_query = new \WP_User_Query(
 					[
-						'meta_key'   => self::USER_SECRET_META,
-						'meta_value' => $secret, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						'meta_key'    => self::USER_SECRET_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+						'meta_value'  => $secret, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						'number'      => 1,
+						'count_total' => false,
 					]
 				);
-				if ( empty( $users ) || count( $users ) > 1 ) {
+				$users      = $user_query->get_results();
+				if ( empty( $users ) ) {
 					$errored = true;
 				} else {
 					$user = $users[0];
