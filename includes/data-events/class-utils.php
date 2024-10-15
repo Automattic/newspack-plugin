@@ -63,8 +63,8 @@ final class Utils {
 				'product_id' => $product_id,
 				'client_id'  => $order->get_meta( NEWSPACK_CLIENT_ID_COOKIE_NAME ),
 			],
-			'user_first_name' => $subscription->get_billing_first_name(),
-			'user_last_name'  => $subscription->get_billing_last_name(),
+			'user_first_name' => $order->get_billing_first_name(),
+			'user_last_name'  => $order->get_billing_last_name(),
 		];
 	}
 
