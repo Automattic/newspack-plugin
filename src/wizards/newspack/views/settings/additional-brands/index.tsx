@@ -20,12 +20,10 @@ export default function AdditionalBrands() {
 	const history = useHistory();
 	const { path } = useRouteMatch();
 
-	const headerText = __( 'Brands', 'newspack' );
-	const subHeaderText = __( 'Configure brands settings', 'newspack' );
 	const wizardScreenProps = {
 		isFetching,
-		headerText,
-		subHeaderText,
+		headerText: __( 'Brands', 'newspack-plugin' ),
+		subHeaderText: __( 'Configure brands settings', 'newspack-plugin' ),
 	};
 
 	/**
@@ -166,9 +164,11 @@ export default function AdditionalBrands() {
 	useEffect( fetchBrands, [] );
 
 	return (
-		<WizardsTab title={ __( 'Additional Brands', 'newspack-plugin' ) }>
+		<WizardsTab
+			isFetching={ isFetching }
+			title={ __( 'Additional Brands', 'newspack-plugin' ) }
+		>
 			<WizardSection>
-				<pre>{ JSON.stringify( { isFetching }, null, 2 ) }</pre>
 				<Switch>
 					<Route
 						exact

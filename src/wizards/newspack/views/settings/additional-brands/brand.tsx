@@ -204,7 +204,7 @@ export default function Brand( {
 			( 'yes' === showOnFrontSelect &&
 				0 < brand.meta._show_page_on_front ) );
 
-	const findSelectedMenu = ( location: string ) => {
+	function findSelectedMenu( location: string ) {
 		if ( ! brand.meta._menus ) {
 			return 0;
 		}
@@ -212,7 +212,16 @@ export default function Brand( {
 			menu => menu.location === location
 		);
 		return selectedMenu ? selectedMenu.menu : 0;
-	};
+	}
+
+	/**
+	 * During logo fetch, the logo is set to a positive number.
+	 *
+	 * @return True if the logo is a positive number, false otherwise.
+	 */
+	function isFetchingLogo() {
+		return typeof brand.meta._logo === 'number' && brand.meta._logo > 0;
+	}
 
 	return (
 		<Fragment>
@@ -235,8 +244,15 @@ export default function Brand( {
 				<Grid columns={ 1 } gutter={ 16 }>
 					<ImageUpload
 						className="newspack-brand__header__logo"
+						buttonLabel={
+							isFetchingLogo()
+								? __( 'Fetching logo…', 'newspack-plugin' )
+								: undefined
+						}
 						label={ __( 'Logo', 'newspack-plugin' ) }
-						image={ brand.meta._logo }
+						image={
+							isFetchingLogo() ? undefined : brand.meta._logo
+						}
 						onChange={ ( logoId: number ) =>
 							updateBrand( {
 								meta: { ...brand.meta, _logo: logoId },
