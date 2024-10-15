@@ -174,35 +174,6 @@ class Network extends Wizard {
 	}
 
 	/**
-	 * Move Nodes CPT menu item under the ($) Network menu.
-	 */
-	public function move_node_cpt_menu() {
-		global $submenu;
-		if ( isset( $submenu[ $this->slug ] ) ) {
-			$submenu[ $this->slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				__( 'Nodes', 'newspack-plugin' ),
-				'manage_options',
-				static::URL,
-			);
-		}
-	}
-
-	/**
-	 * Update the Node CPT args.
-	 *
-	 * @param array $args The node args.
-	 * @param array $post_type The post type name.
-	 * @return array Modified node cpt args.
-	 */
-	public function update_node_cpt_args( $args, $post_type ) {
-		if ( $post_type === static::CPT_NAME ) {
-			// Move the CPT under the Network menu. Necessary to hide default Nodes CPT menu item.
-			$args['show_in_menu'] = static::PARENT_URL;
-		}
-		return $args;
-	}
-
-	/**
 	 * Add the Network menu page.
 	 */
 	public function add_page() {
