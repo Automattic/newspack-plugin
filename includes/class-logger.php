@@ -83,6 +83,9 @@ class Logger {
 	 * @param string $code    The log code (i.e. newspack_google_login).
 	 * @param string $message The message to log.
 	 * @param array  $data    The data to log.
+	 *      Optional. Additional parameters.
+	 *      @type string $user_email The current users email address.
+	 *      @type file   $file       The name of the file to write the local log to.
 	 * @param string $type    The type of log. Defaults to 'error'.
 	 */
 	public static function newspack_log( $code, $message, $data, $type = 'error' ) {

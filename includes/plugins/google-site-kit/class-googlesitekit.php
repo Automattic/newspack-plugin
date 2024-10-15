@@ -27,7 +27,7 @@ class GoogleSiteKit {
 		add_action( 'wp_footer', [ __CLASS__, 'insert_ga4_analytics' ] );
 		add_filter( 'option_googlesitekit_analytics_settings', [ __CLASS__, 'filter_ga_settings' ] );
 		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'add_ga_custom_parameters' ] );
-		add_action( 'delete_option_' . Has_Connected_Admins::OPTION, [ __CLASS__, 'maybe_log_disconnect' ] );
+		add_action( 'delete_option_' . self::get_sitekit_ga4_has_connected_admin_option_name(), [ __CLASS__, 'log_disconnect' ] );
 	}
 
 	/**
@@ -96,6 +96,16 @@ class GoogleSiteKit {
 			return Settings::OPTION;
 		}
 		return false;
+	}
+
+	/**
+	 * Get the name of the option under which Site Kit's GA4 has connected admin flag is stored.
+	 */
+	private static function get_sitekit_ga4_has_connected_admin_option_name() {
+		if ( class_exists( 'Google\Site_Kit\Core\Authentication\Has_Connected_Admins' ) ) {
+			return Has_Connected_Admins::OPTION;
+		}
+		return 'googlesitekit_has_connected_admins';
 	}
 
 	/**
@@ -178,14 +188,15 @@ class GoogleSiteKit {
 	 *
 	 * @param string $option Option being deleted.
 	 */
-	public static function maybe_log_disconnect( $option ) {
+	public static function log_disconnect( $option ) {
+		$code    = 'newspack_googlesitekit_disconnect';
 		$message = 'Google Site Kit has been disconnected.';
 		// TODO: Determine what data needs to be logged.
 		$data = [
 			'user_email' => wp_get_current_user()->user_email,
-			'file'       => 'class-googlesitekit.php',
+			'file'       => $code,
 		];
-		Logger::newspack_log( 'newspack_googlesitekit_disconnect', $message, $data );
+		Logger::newspack_log( $code, $message, $data );
 	}
 }
 GoogleSiteKit::init();
