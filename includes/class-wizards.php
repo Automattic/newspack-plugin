@@ -54,8 +54,10 @@ class Wizards {
 			),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
-			'network-nodes'           => new Network(),
 		];
+
+		// Non React wizards.
+		new Network_Wizard();
 	}
 
 	/**

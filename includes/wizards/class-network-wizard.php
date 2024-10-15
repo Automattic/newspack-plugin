@@ -16,33 +16,30 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Easy interface for setting up general store info.
  */
-class Network extends Wizard {
+class Network_Wizard extends Wizard {
 
 	use Admin_Header;
 
 	/**
-	 * Newspack Network CPT names.
-	 * 
-	 * @var array
-	 */
-	const CPT_NAMES = [
-		'newspack_hub_nodes',
-		'np_hub_subscriptions',
-		'np_hub_orders',
-	];
+	 * Screen type for admin pages.
+	 *
+	 * @var string
+	 */ 
+	const SCREEN_TYPE_PAGE = 'page';
 
 	/**
-	 * Refers to Newspack Network admin.php page slugs.
-	 * 
+	 * Screen type for admin post types.
+	 *
+	 * @var string
+	 */
+	const SCREEN_TYPE_POST_TYPE = 'post_type';
+
+	/**
+	 * Newspack Network plugin's Admin screen definitions (see below).
+	 *
 	 * @var array
 	 */
-	const ADMIN_PAGE_SLUGS = [
-		'newspack-network',
-		'newspack-network-event-log',
-		'newspack-network-membership-plans',
-		'newspack-network-distributor-settings',
-		'newspack-network-node',
-	];
+	protected $admin_screens = [];
 
 	/**
 	 * The capability required to access this wizard.
@@ -86,6 +83,22 @@ class Network extends Wizard {
 
 		remove_action( 'admin_menu', [ Newspack_Network_Admin::class, 'add_admin_menu' ], 10 );
 
+		// Admin screens based on Newspack Network plugin's admin pages and post types.
+		$this->admin_screens = [
+			static::SCREEN_TYPE_PAGE      => [
+				'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
+				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
+				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
+				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
+				'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
+			],
+			static::SCREEN_TYPE_POST_TYPE => [
+				'newspack_hub_nodes'   => __( 'Network / Nodes', 'newspack-plugin' ),
+				'np_hub_orders'        => __( 'Network / Orders', 'newspack-plugin' ),
+				'np_hub_subscriptions' => __( 'Network / Subscriptions', 'newspack-plugin' ),
+			],
+		];
+
 		if ( $this->is_wizard_page() ) {
 			$this->admin_header_init(
 				[ 
@@ -103,6 +116,24 @@ class Network extends Wizard {
 	public function get_name() {
 		return esc_html__( 'Network', 'newspack-plugin' );
 	}
+
+	/**
+	 * Check if we are on an admin page.
+	 *
+	 * @return bool true if browsing ?page=, false otherwise.
+	 */
+	private function is_admin_page() {
+		return isset( $this->admin_screens[ static::SCREEN_TYPE_PAGE ][ $this->current_admin_page ] );
+	}
+
+	/**
+	 * Check if we are on an admin post type page.
+	 *
+	 * @return bool true if browsing ?post_type=, false otherwise.
+	 */
+	private function is_admin_post_type() {
+		return isset( $this->admin_screens[ static::SCREEN_TYPE_POST_TYPE ][ $this->current_admin_post_type ] );
+	}
 	
 	/**
 	 * Derive the page name based on the current page or post_type parameter.
@@ -111,24 +142,14 @@ class Network extends Wizard {
 	 */
 	public function get_page_name() {
 
-		if ( in_array( $this->current_admin_post_type, static::CPT_NAMES, true ) ) {
-			return match ( $this->current_admin_post_type ) { 
-				'newspack_hub_nodes'   => __( 'Network / Node', 'newspack-plugin' ), 
-				'np_hub_subscriptions' => __( 'Network / Subscriptions', 'newspack-plugin' ), 
-				'np_hub_orders'        => __( 'Network / Orders', 'newspack-plugin' ),
-				default                => $this->get_name(),
-			};
+		// Is ?page=.
+		if ( $this->is_admin_page() ) {
+			return $this->admin_screens[ static::SCREEN_TYPE_PAGE ][ $this->current_admin_page ];
 		}
 
-		if ( in_array( $this->current_admin_page, static::ADMIN_PAGE_SLUGS, true ) ) {
-			return match ( $this->current_admin_page ) {
-				'newspack-network'                      => __( 'Network / Site Role', 'newspack-plugin' ),
-				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
-				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
-				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
-				'newspack-network-node'                 => __( 'Network / Node', 'newspack-plugin' ),
-				default                                 => $this->get_name(),
-			};
+		// Is ?post_type=.
+		if ( $this->is_admin_post_type() ) {
+			return $this->admin_screens[ static::SCREEN_TYPE_POST_TYPE ][ $this->current_admin_post_type ];
 		}
 
 		return $this->get_name();
@@ -155,14 +176,7 @@ class Network extends Wizard {
 			return false;
 		}
 		
-		// CPT page.
-		if ( isset( $this->current_admin_post_type ) && in_array( $this->current_admin_post_type, static::CPT_NAMES, true ) ) {
-			return true;
-		}
-		if ( isset( $this->current_admin_page ) && in_array( $this->current_admin_page, static::ADMIN_PAGE_SLUGS, true ) ) {
-			return true;
-		}
-		return false;
+		return $this->is_admin_page() || $this->is_admin_post_type();
 	}
 
 	/**
