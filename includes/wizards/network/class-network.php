@@ -9,10 +9,7 @@ namespace Newspack;
 
 use Newspack\Wizards\Traits\Admin_Header;
 
-use Newspack_Network\{
-	Admin as Newspack_Network_Admin, 
-	Site_Role as Newspack_Network_Site_Role
-};
+use Newspack_Network\Admin as Newspack_Network_Admin;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,13 +19,6 @@ defined( 'ABSPATH' ) || exit;
 class Network extends Wizard {
 
 	use Admin_Header;
-
-	/**
-	 * Newspack Network Spoke CPT name.
-	 * 
-	 * @var string
-	 */
-	const CPT_NAME = 'newspack_hub_nodes';
 
 	/**
 	 * Newspack Network CPT names.
@@ -55,20 +45,6 @@ class Network extends Wizard {
 	];
 
 	/**
-	 * Sponsors CPT list path.
-	 * 
-	 * @var string
-	 */
-	const URL = 'edit.php?post_type=newspack_hub_nodes';
-
-	/** 
-	 * Advertising Page path.
-	 * 
-	 * @var string
-	 */
-	const PARENT_URL = 'admin.php?page=newspack-network';
-
-	/**
 	 * The capability required to access this wizard.
 	 *
 	 * @var string
@@ -81,6 +57,14 @@ class Network extends Wizard {
 	 * @var string
 	 */
 	protected $slug = 'newspack-network';
+
+
+	/**
+	 * Priority setting for ordering admin submenu items.
+	 *
+	 * @var int.
+	 */
+	protected $menu_priority = 1;
 
 	/**
 	 * Network_Nodes Constructor.
@@ -125,8 +109,10 @@ class Network extends Wizard {
 				'newspack_hub_nodes'   => __( 'Network / Node', 'newspack-plugin' ), 
 				'np_hub_subscriptions' => __( 'Network / Subscriptions', 'newspack-plugin' ), 
 				'np_hub_orders'        => __( 'Network / Orders', 'newspack-plugin' ),
+				default                => $this->get_name(),
 			};
 		}
+
 		if ( in_array( $_page, static::ADMIN_PAGE_SLUGS, true ) ) {
 			return match ( $_page ) {
 				'newspack-network'                      => __( 'Network / Site Role', 'newspack-plugin' ),
@@ -134,9 +120,11 @@ class Network extends Wizard {
 				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
 				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
 				'newspack-network-node'                 => __( 'Network / Node', 'newspack-plugin' ),
+				default                                 => $this->get_name(),
 			};
 		}
-		return esc_html__( 'Network', 'newspack-plugin' );
+
+		return $this->get_name();
 	}
 	
 	/**
@@ -177,23 +165,25 @@ class Network extends Wizard {
 	 * Add the Network menu page.
 	 */
 	public function add_page() {
-		add_menu_page(
-			__( 'Network', 'newspack-plugin' ),
-			__( 'Network', 'newspack-plugin' ),
-			$this->capability,
-			$this->slug,
-			array( Newspack_Network_Admin::class, 'render_page' ),
-			'dashicons-admin-site-alt3',
-			3.6
-		);
-		add_submenu_page(
-			$this->slug,
-			__( 'Site Role', 'newspack-plugin' ),
-			__( 'Site Role', 'newspack-plugin' ),
-			$this->capability,
-			$this->slug,
-			array( Newspack_Network_Admin::class, 'render_page' ),
-			4
-		);
+		if ( method_exists( Newspack_Network_Admin::class, 'render_page' ) ) {
+			add_menu_page(
+				__( 'Network', 'newspack-plugin' ),
+				__( 'Network', 'newspack-plugin' ),
+				$this->capability,
+				$this->slug,
+				array( Newspack_Network_Admin::class, 'render_page' ),
+				'dashicons-admin-site-alt3',
+				5
+			);
+			add_submenu_page(
+				$this->slug,
+				__( 'Site Role', 'newspack-plugin' ),
+				__( 'Site Role', 'newspack-plugin' ),
+				$this->capability,
+				$this->slug,
+				array( Newspack_Network_Admin::class, 'render_page' ),
+				10
+			);
+		}
 	}
 }
