@@ -21,8 +21,9 @@ final class Magic_Link {
 		'enable'  => 'np_magic_link_enable',
 	];
 
-	const TOKENS_META   = 'np_magic_link_tokens';
-	const DISABLED_META = 'np_magic_link_disabled';
+	const TOKENS_META      = 'np_magic_link_tokens';
+	const DISABLED_META    = 'np_magic_link_disabled';
+	const USER_SECRET_META = 'np_magic_link_secret';
 
 	const AUTH_ACTION        = 'np_auth_link';
 	const AUTH_ACTION_RESULT = 'np_auth_link_result';
@@ -350,6 +351,14 @@ final class Magic_Link {
 
 		$expire = $now - self::get_token_expiration_period();
 		if ( ! empty( $tokens ) ) {
+
+			/**
+			 * Filters the magic link rate interval.
+			 *
+			 * @param int $rate_interval Magic link rate interval.
+			 */
+			$rate_interval = apply_filters( 'newspack_magic_link_rate_interval', self::RATE_INTERVAL );
+
 			/** Limit maximum tokens to 5. */
 			$tokens = array_slice( $tokens, -4, 4 );
 			foreach ( $tokens as $index => $token_data ) {
@@ -358,7 +367,7 @@ final class Magic_Link {
 					unset( $tokens[ $index ] );
 				}
 				/** Rate limit token generation. */
-				if ( $token_data['time'] + self::RATE_INTERVAL > $now ) {
+				if ( $token_data['time'] + $rate_interval > $now ) {
 					return new \WP_Error( 'rate_limit_exceeded', __( 'Please wait a minute before requesting another authorization code.', 'newspack-plugin' ) );
 				}
 			}
@@ -377,6 +386,23 @@ final class Magic_Link {
 		$tokens[]    = $token_data;
 		\update_user_meta( $user->ID, self::TOKENS_META, $tokens );
 		return $token_data;
+	}
+
+	/**
+	 * Generate secret.
+	 *
+	 * @param \WP_User $user User to generate the secret for.
+	 *
+	 * @return string
+	 */
+	public static function generate_secret( $user ) {
+		$secret = \get_user_meta( $user->ID, self::USER_SECRET_META, true );
+		if ( ! empty( $secret ) ) {
+			return $secret;
+		}
+		$secret = wp_hash( $user->user_email );
+		\update_user_meta( $user->ID, self::USER_SECRET_META, $secret );
+		return $secret;
 	}
 
 	/**
@@ -429,8 +455,8 @@ final class Magic_Link {
 		return \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'email'  => urlencode( $user->user_email ),
 				'token'  => $token_data['token'],
+				'secret' => self::generate_secret( $user ),
 			],
 			! empty( $url ) ? $url : \home_url()
 		);
@@ -458,8 +484,8 @@ final class Magic_Link {
 		$url = \add_query_arg(
 			[
 				'action' => self::AUTH_ACTION,
-				'email'  => urlencode( $user->user_email ),
 				'token'  => $token_data['token'],
+				'secret' => self::generate_secret( $user ),
 			],
 			! empty( $redirect_to ) ? $redirect_to : \home_url()
 		);
@@ -706,7 +732,6 @@ final class Magic_Link {
 		if ( ! Reader_Activation::is_enabled() ) {
 			return;
 		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET[ self::AUTH_ACTION_RESULT ] ) && 0 === \absint( $_GET[ self::AUTH_ACTION_RESULT ] ) ) {
 			\add_action(
@@ -729,39 +754,43 @@ final class Magic_Link {
 				1
 			);
 		}
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['action'] ) || self::AUTH_ACTION !== $_GET['action'] ) {
 			return;
 		}
-
 		$errored = false;
+		$user    = false;
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['email'] ) ) {
+		if ( ! isset( $_GET['token'] ) || ! isset( $_GET['secret'] ) ) {
 			$errored = true;
 		}
-
 		if ( ! $errored ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$email = \sanitize_email( $_GET['email'] );
-			if ( $email ) {
-				$user = \get_user_by( 'email', $email );
-				if ( ! $user ) {
+			$secret = filter_input( INPUT_GET, 'secret', FILTER_SANITIZE_STRING );
+			if ( $secret ) {
+				$user_query = new \WP_User_Query(
+					[
+						'meta_key'    => self::USER_SECRET_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+						'meta_value'  => $secret, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+						'number'      => 1,
+						'count_total' => false,
+					]
+				);
+				$users      = $user_query->get_results();
+				if ( empty( $users ) ) {
 					$errored = true;
+				} else {
+					$user = $users[0];
 				}
 			} else {
 				$errored = true;
 			}
 		}
-
 		$authenticated = false;
-
-		if ( ! $errored ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) );
+		if ( ! $errored && ! empty( $user ) ) {
+			$token         = \sanitize_text_field( \wp_unslash( $_GET['token'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$authenticated = self::authenticate( $user->ID, $token );
 		}
-
 		$query_args = [ self::AUTH_ACTION_RESULT => true === $authenticated ? '1' : '0' ];
 		foreach ( self::ACCEPTED_PARAMS as $param ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -773,9 +802,8 @@ final class Magic_Link {
 		$redirect = \sanitize_url( \wp_unslash( $_GET['redirect'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$redirect = \wp_validate_redirect(
 			\add_query_arg( $query_args, $redirect ),
-			\remove_query_arg( [ 'action', 'email', 'token' ] )
+			\remove_query_arg( [ 'action', 'secret', 'token' ] )
 		);
-
 		\wp_safe_redirect( $redirect );
 		exit;
 	}
@@ -1153,7 +1181,7 @@ final class Magic_Link {
 		$verification_url   = \add_query_arg(
 			[
 				'action'   => self::AUTH_ACTION,
-				'email'    => urlencode( $user->user_email ),
+				'secret'   => self::generate_secret( $user ),
 				'token'    => $token_data['token'],
 				'redirect' => urlencode( $url ),
 			],
