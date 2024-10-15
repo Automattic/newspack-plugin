@@ -73,13 +73,6 @@ class Network extends Wizard {
 	protected $current_admin_page;
 
 	/**
-	 * Priority setting for ordering admin submenu items.
-	 *
-	 * @var int.
-	 */
-	protected $menu_priority = 1;
-
-	/**
 	 * Network_Nodes Constructor.
 	 */
 	public function __construct() {
@@ -117,11 +110,9 @@ class Network extends Wizard {
 	 * @return string The page name.
 	 */
 	public function get_page_name() {
-		$_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$_page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( in_array( $_post_type, static::CPT_NAMES, true ) ) {
-			return match ( $_post_type ) { 
+		if ( in_array( $this->current_admin_post_type, static::CPT_NAMES, true ) ) {
+			return match ( $this->current_admin_post_type ) { 
 				'newspack_hub_nodes'   => __( 'Network / Node', 'newspack-plugin' ), 
 				'np_hub_subscriptions' => __( 'Network / Subscriptions', 'newspack-plugin' ), 
 				'np_hub_orders'        => __( 'Network / Orders', 'newspack-plugin' ),
@@ -129,8 +120,8 @@ class Network extends Wizard {
 			};
 		}
 
-		if ( in_array( $_page, static::ADMIN_PAGE_SLUGS, true ) ) {
-			return match ( $_page ) {
+		if ( in_array( $this->current_admin_page, static::ADMIN_PAGE_SLUGS, true ) ) {
+			return match ( $this->current_admin_page ) {
 				'newspack-network'                      => __( 'Network / Site Role', 'newspack-plugin' ),
 				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
 				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
@@ -164,14 +155,11 @@ class Network extends Wizard {
 			return false;
 		}
 		
-		$_post_type = sanitize_text_field( $_GET['post_type'] ?? null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$_page = sanitize_text_field( $_GET['page'] ?? null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
 		// CPT page.
-		if ( isset( $_post_type ) && in_array( $_post_type, static::CPT_NAMES, true ) ) {
+		if ( isset( $this->current_admin_post_type ) && in_array( $this->current_admin_post_type, static::CPT_NAMES, true ) ) {
 			return true;
 		}
-		if ( isset( $_page ) && in_array( $_page, static::ADMIN_PAGE_SLUGS, true ) ) {
+		if ( isset( $this->current_admin_page ) && in_array( $this->current_admin_page, static::ADMIN_PAGE_SLUGS, true ) ) {
 			return true;
 		}
 		return false;
@@ -188,8 +176,8 @@ class Network extends Wizard {
 				$this->capability,
 				$this->slug,
 				array( Newspack_Network_Admin::class, 'render_page' ),
-				'dashicons-admin-site-alt3',
-				5
+				'dashicons-admin-site-alt3', // Not correct, must be inline SVG.
+				3.6
 			);
 			add_submenu_page(
 				$this->slug,
@@ -197,8 +185,7 @@ class Network extends Wizard {
 				__( 'Site Role', 'newspack-plugin' ),
 				$this->capability,
 				$this->slug,
-				array( Newspack_Network_Admin::class, 'render_page' ),
-				10
+				array( Newspack_Network_Admin::class, 'render_page' )
 			);
 		}
 	}
