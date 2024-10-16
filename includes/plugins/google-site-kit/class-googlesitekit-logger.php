@@ -34,7 +34,7 @@ class GoogleSiteKit_Logger {
 			add_action( 'admin_init', [ __CLASS__, 'cron_init' ] );
 			add_action( 'delete_option_' . self::get_sitekit_ga4_has_connected_admin_option_name(), [ __CLASS__, 'log_disconnected_admins' ] );
 			add_filter( 'update_user_metadata', [ __CLASS__, 'maybe_log_disconnected_reason' ], 10, 5 );
-			add_action( self::CRON_HOOK, [ __CLASS__, 'maybe_log_disconnected_admins' ] );
+			add_action( self::CRON_HOOK, [ __CLASS__, 'handle_cron_event' ] );
 		}
 	}
 
@@ -105,9 +105,9 @@ class GoogleSiteKit_Logger {
 	/**
 	 * Logs when cron event runs and all admins are disconnected.
 	 */
-	public static function maybe_log_disconnected_admins() {
+	public static function handle_cron_event() {
 		if ( ! get_option( self::get_sitekit_ga4_has_connected_admin_option_name(), false ) ) {
-			self::log( self::LOG_CODE_DISCONNECTED, 'Google Site Kit has been disconnected', false );
+			self::log( self::LOG_CODE_DISCONNECTED, 'No active Google Site Kit connections found', false );
 		}
 	}
 
