@@ -193,17 +193,7 @@ class Newspack_Dashboard extends Wizard {
 	public function get_dashboard_network_cards() {
 		
 		// Get the site role.
-		$site_role = ( function() {
-			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
-			if ( is_callable( $is_node ) && call_user_func( $is_node ) ) {
-				return 'node';
-			}
-			$is_hub = [ '\Newspack_Network\Site_Role', 'is_hub' ];
-			if ( is_callable( $is_hub ) && call_user_func( $is_hub ) ) {
-				return 'hub';
-			}
-			return '';
-		} )();
+		$site_role = Network_Wizard::get_site_role();
 
 		// Reusable card.
 		$settings_card = [

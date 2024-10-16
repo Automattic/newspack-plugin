@@ -26,6 +26,13 @@ class Network_Wizard extends Wizard {
 	private $admin_screens = [];
 
 	/**
+	 * Priority setting for re-ordering admin submenu items after Network Plugin loaded.
+	 *
+	 * @var int.
+	 */
+	protected $menu_priority = 100;
+
+	/**
 	 * Screen type: admin page or post type.
 	 *
 	 * @var string
@@ -44,7 +51,7 @@ class Network_Wizard extends Wizard {
 		// Define admin screens based on Newspack Network plugin's admin pages and post types.
 		$this->admin_screens = [
 			'page'      => [
-				'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
+				'newspack-network'                      => __( 'Network / Site Role', 'newspack-plugin' ),
 				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
 				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
 				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
@@ -57,18 +64,32 @@ class Network_Wizard extends Wizard {
 			],
 		];
 
+
+		add_filter( 'add_menu_classes', function ( $menu ) {
+			//wp-has-submenu wp-has-current-submenu wp-menu-open
+			error_log( print_r( $menu, true ) );
+			return $menu;
+		});
+
+
+		
+
 		// Move entire Network Menu. Use a high priority to load after Network Plugin itself loads.
 		// This should fire for all admin screens, not just Network screens.
-		add_action( 'admin_menu', [ $this, 'move_entire_menu' ], 99 );
+		// add_action( 'admin_menu', [ $this, 'move_entire_menu' ], $this->menu_priority );
+
+		// Other adjustments to menu/submenu (run on all pages since it changes the menu).
+		add_filter( 'admin_menu', [ $this, 'adjust_submenu' ], $this->menu_priority );
+
+		// Below filters are used to determine active menu items.
+		// add_filter( 'parent_file', [ $this, 'parent_file' ], $this->menu_priority );
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ], $this->menu_priority );
 
 		// Test for Screen now, instead of waiting for hooks (admin_menu >> admin_init >> current_screen).
 		if( $this->set_screen() ) {
 
 			// Add CSS to body. ( calls is_wizard_page() ).
 			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-
-			// Other adjustments to menu/submenu now that Screen is known.
-			add_filter( 'admin_menu', [ $this, 'adjust_submenu' ] );
 
 			// Enqueue Wizard Admin Header for this Screen.
 			$this->admin_header_init([
@@ -86,9 +107,17 @@ class Network_Wizard extends Wizard {
 		
 		global $pagenow;
 
-		// Check for admin post type screens.
-		// edit.php?post_type={post_type}
-		// @todo post-new.php / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
+		// Check for normal admin page screen: admin.php?page={page}
+		if ( 'admin.php' === $pagenow ) {
+			$sanitized_page = sanitize_text_field( $_GET['page'] ?? null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $this->admin_screens['page'][ $sanitized_page ] ) ) {
+				$this->slug = $sanitized_page;
+				$this->screen_type = 'page';
+				return true;
+			}
+		}
+
+		// Check for admin post type listing screen: edit.php?post_type={post_type}
 		if( 'edit.php' === $pagenow ) {
 			$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if( empty( $sanitized_post_type ) || empty( $this->admin_screens['post_type'][ $sanitized_post_type ] ) ) {
@@ -99,16 +128,8 @@ class Network_Wizard extends Wizard {
 			return true;
 		}
 
-		// Check for admin page screen type.
-		// admin.php?page={page}
-		if ( 'admin.php' === $pagenow ) {
-			$sanitized_page = sanitize_text_field( $_GET['page'] ?? null ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( isset( $this->admin_screens['page'][ $sanitized_page ] ) ) {
-				$this->slug = $sanitized_page;
-				$this->screen_type = 'page';
-				return true;
-			}
-		}
+		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
+		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
 
 		return false;
 	}
@@ -188,38 +209,130 @@ class Network_Wizard extends Wizard {
 		unset( $menu[ $current_index ] );
 	}
 
+
 	public function adjust_submenu() {
 
 		global $submenu;
 
-		// @todo: move 'Site Role/Settings' to an arrya above for better editing in future.
+		remove_submenu_page( static::PARENT_SLUG, 'newspack-network-distributor-settings' );
+		add_submenu_page(
+			'', // No parent menu item, means its not on the menu.
+			'hi', // $this->admin_screens[ 'page' ][ 'newspack-network-distributor-settings' ],
+			'ehllo',
+			$this->capability,
+			'newspack-network-distributor-settings',
+			[ \Newspack_Network\Hub\Distributor_Settings::class, 'render' ]
+		);
+		// 
+
+		// error_log( print_r( $submenu['newspack-network'], true ) );
+		// error_log( print_r( $submenu[''], true ) );
+		
 		if ( isset( $submenu[ static::PARENT_SLUG ] ) ) {
-			foreach ( $submenu[ static::PARENT_SLUG ] as &$item ) {
+			foreach ( $submenu[ static::PARENT_SLUG ] as $index => &$item ) {
 				if ( $item[0] === 'Site Role' ) {
 					$item[0] = 'Settings';
 				}
+				// else if ( $item[2] === 'newspack-network-distributor-settings' ) {
+				// 	unset($submenu['newspack-network'][$index]);
+				// }
 			}
 		}
+
+		// $submenu[''][] = $item;
+
+		// error_log( print_r( $submenu['newspack-network'], true ) );
+		// error_log( print_r( $submenu[''], true ) );
+
+	}
+
+	/**
+	 * Parent file filter. Used to determine active menu items.
+	 *
+	 * @param string $parent_file Parent file to be overridden.
+	 * @return string 
+	 */
+	public function parent_file( $parent_file ) {
+		global $pagenow, $typenow;
+
+		// if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
+			// return 'newspack-network';
+			return 'edit.php?post_type=newspack_hub_nodes';
+			
+		// }
+		
+		// if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-network-distributor-settings' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			// @todo hub vs node: return 'admin.php?page=newspack-network';
+			// return 'edit.php?post_type=newspack_hub_nodes';
+		// }
+	
+		return $parent_file;
+	}
+
+	/**
+	 * Submenu file filter. Used to determine active submenu items.
+	 *
+	 * @param string $submenu_file Submenu file to be overridden.
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+
+		// Admin page:
+		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-network-distributor-settings' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return 'newspack-network';
+		}
+
+		// Admin post type:
+		// return 'edit.php?post_type=np_hub_orders';
+		// return 'edit.php?post_type=np_hub_subscriptions';
+	
+		return $submenu_file;
 	}
 
 	private function get_tabs() {
 		
-		if ( 'page' === $this->screen_type && 'newspack-network' === $this->slug ) {
-			return [
+		if ( 'page' === $this->screen_type && in_array( $this->slug, [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
+
+			$tabs = [
 				[
 					'textContent' => esc_html__( 'Site Role', 'newspack-plugin' ),
 					'href'        => admin_url( 'admin.php?page=newspack-network' ),
 				],
-				[
+			];
+
+			if ( 'hub' === static::get_site_role() ) {
+				$tabs[] = [
 					'textContent' => esc_html__( 'Distributor Settings', 'newspack-plugin' ),
 					'href'        => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
-				],
-			];
+				];
+			} else if ( 'node' === static::get_site_role() ) {
+				$tabs[] = [
+					'textContent' => esc_html__( 'Node Settings', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
+				];
+			}
+			
+			return $tabs;
 
 		}
 
 		return [];
 
+	}
+
+	public static function get_site_role() {
+	
+		$is_node_function = [ '\Newspack_Network\Site_Role', 'is_node' ];
+		if ( is_callable( $is_node_function ) && call_user_func( $is_node_function ) ) {
+			return 'node';
+		}
+
+		$is_hub_function = [ '\Newspack_Network\Site_Role', 'is_hub' ];
+		if ( is_callable( $is_hub_function ) && call_user_func( $is_hub_function ) ) {
+			return 'hub';
+		}
+
+		return '';
 	}
 
 }
