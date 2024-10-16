@@ -8,6 +8,8 @@
 namespace Newspack\CLI;
 
 use WP_CLI;
+use Newspack\Engagement_Wizard;
+use Newspack\Plugin_Manager;
 use Newspack\Reader_Activation;
 
 defined( 'ABSPATH' ) || exit;
@@ -17,34 +19,45 @@ defined( 'ABSPATH' ) || exit;
  */
 class RAS {
 	/**
-	 * Verify the given user, bypassing the need to complete the email-based verification flow.
+	 * Enable Reader Activation features without having to complete the onboarding wizard.
+	 *
+	 * @param array $args Positional args.
+	 * @param array $assoc_args Associative args.
 	 */
-	public static function cli_setup_ras() {
-		if ( Reader_Activation::is_ras_campaign_configured() ) {
+	public static function cli_setup_ras( $args, $assoc_args ) {
+		$skip_campaigns = ! empty( $assoc_args['skip-campaigns'] );
+		if ( ! $skip_campaigns && Reader_Activation::is_ras_campaign_configured() ) {
 			WP_CLI::error( __( 'RAS is already configured for this site.', 'newspack-plugin' ) );
 		}
 
 		if ( ! class_exists( '\Newspack_Popups_Presets' ) ) {
-			WP_CLI::error( __( 'Newspack Campaigns plugin not found.', 'newspack-plugin' ) );
+			WP_CLI::warning( __( 'Newspack Campaigns plugin not found. Activating...', 'newspack-plugin' ) );
+			Plugin_Manager::install( 'newspack-popups' ); // Must be installed before being activated to avoid a fatal.
+			Plugin_Manager::activate( 'newspack-popups' );
 		}
 
-		
 		if ( ! class_exists( '\Newspack_Newsletters_Subscription' ) ) {
-			WP_CLI::error( __( 'Newspack Newsletters plugin not found.', 'newspack-plugin' ) );
+			WP_CLI::warning( __( 'Newspack Newsletters plugin not found. Activating...', 'newspack-plugin' ) );
+			Plugin_Manager::activate( 'newspack-newsletters' );
 		}
 
-		if ( \is_wp_error( \Newspack_Newsletters_Subscription::get_lists() ) ) {
+		if ( ! $skip_campaigns && \is_wp_error( \Newspack_Newsletters_Subscription::get_lists() ) ) {
 			WP_CLI::error( __( 'Newspack Newsletters provider not set.', 'newspack-plugin' ) );
 		}
 
-		$result = \Newspack_Popups_Presets::activate_ras_presets();
-		
+		$result = $skip_campaigns ? Reader_Activation::update_setting( 'enabled', true ) : \Newspack_Popups_Presets::activate_ras_presets();
 		if ( ! $result ) {
 			WP_CLI::error( __( 'Something went wrong. Please check for required plugins and try again.', 'newspack-plugin' ) );
 			exit;
 		}
 
-		WP_CLI::success( __( 'RAS enabled with default prompts.', 'newspack-plugin' ) );
+		WP_CLI::success(
+			sprintf(
+				// Translators: 'with' or 'without' default prompts.
+				__( 'RAS enabled %s default prompts.', 'newspack-plugin' ),
+				$skip_campaigns ? 'without' : 'with'
+			)
+		);
 	}
 
 	/**

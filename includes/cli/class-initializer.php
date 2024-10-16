@@ -43,19 +43,31 @@ class Initializer {
 		// Utility commands for managing RAS data via WP CLI.
 		WP_CLI::add_command(
 			'newspack ras setup',
-			[ 'Newspack\CLI\RAS', 'cli_setup_ras' ]
+			[ 'Newspack\CLI\RAS', 'cli_setup_ras' ],
+			[
+				'shortdesc' => 'Enable Reader Activation features.',
+				'synopsis'  => [
+					[
+						'type'        => 'flag',
+						'name'        => 'skip-campaigns',
+						'default'     => false,
+						'description' => 'Skip the creation of default campaign prompts and segments.',
+						'optional'    => true,
+					],
+				],
+			]
 		);
 
 		WP_CLI::add_command(
 			'newspack verify-reader',
 			[ 'Newspack\CLI\RAS', 'cli_verify_reader' ],
 			[
-				'shortdesc' => 'Verify a reader account . ',
+				'shortdesc' => 'Verify a reader account.',
 				'synopsis'  => [
 					[
 						'type'        => 'positional',
 						'name'        => 'user',
-						'description' => 'ID or email of the user account . ',
+						'description' => 'ID or email of the user account.',
 						'optional'    => false,
 						'repeating'   => false,
 					],
