@@ -71,6 +71,15 @@ class GoogleSiteKit {
 	}
 
 	/**
+	 * Get whether Site Kit is active.
+	 *
+	 * @return bool Whether Site Kit is active.
+	 */
+	public static function is_active() {
+		return class_exists( 'Google\Site_Kit\Core\Modules\Module' );
+	}
+
+	/**
 	 * Get whether the current user is connected.
 	 *
 	 * @return bool Whether the user is connected to Google through Site Kit.
@@ -111,7 +120,7 @@ class GoogleSiteKit {
 	 * Fetch data for the GA account data and set up GA4.
 	 */
 	public static function setup_sitekit_ga4() {
-		if ( ! class_exists( 'Google\Site_Kit\Core\Modules\Module' ) ) {
+		if ( ! self::is_active() ) {
 			return;
 		}
 		require_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekitanalytics.php';
