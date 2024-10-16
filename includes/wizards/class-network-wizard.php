@@ -66,7 +66,7 @@ class Network_Wizard extends Wizard {
 
 
 		add_filter( 'add_menu_classes', function ( $menu ) {
-			//wp-has-submenu wp-has-current-submenu wp-menu-open
+			$menu[6][4] = 'wp-has-submenu wp-has-current-submenu wp-menu-open menu-top toplevel_page_newspack-network menu-top-first';
 			error_log( print_r( $menu, true ) );
 			return $menu;
 		});
@@ -223,6 +223,8 @@ class Network_Wizard extends Wizard {
 			'newspack-network-distributor-settings',
 			[ \Newspack_Network\Hub\Distributor_Settings::class, 'render' ]
 		);
+
+
 		// 
 
 		// error_log( print_r( $submenu['newspack-network'], true ) );
@@ -254,10 +256,11 @@ class Network_Wizard extends Wizard {
 	 */
 	public function parent_file( $parent_file ) {
 		global $pagenow, $typenow;
-
+		
+		return 'newspack-network';
+		
 		// if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
-			// return 'newspack-network';
-			return 'edit.php?post_type=newspack_hub_nodes';
+			// return 'edit.php?post_type=newspack_hub_nodes';
 			
 		// }
 		
