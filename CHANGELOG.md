@@ -1,3 +1,10 @@
+## [5.5.1](https://github.com/Automattic/newspack-plugin/compare/v5.5.0...v5.5.1) (2024-10-11)
+
+
+### Bug Fixes
+
+* **oauth:** start php session if no session available ([#3469](https://github.com/Automattic/newspack-plugin/issues/3469)) ([d3e8265](https://github.com/Automattic/newspack-plugin/commit/d3e82658b8d96fc3c08f21da0fd9a338b8de5b1e))
+
 # [5.5.0](https://github.com/Automattic/newspack-plugin/compare/v5.4.1...v5.5.0) (2024-10-08)
 
 

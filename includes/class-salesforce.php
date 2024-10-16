@@ -1017,7 +1017,11 @@ class Salesforce {
 
 		// If the order has opportunity IDs saved in post meta, query using those IDs.
 		// Otherwise, we'll have to query by matching order details.
-		$opportunities = get_post_meta( $order_id, 'newspack_salesforce_opportunities', true );
+		$order = \wc_get_order( $order_id );
+		if ( ! $order ) {
+			return false;
+		}
+		$opportunities = $order->get_meta( 'newspack_salesforce_opportunities', true );
 		if ( is_array( $opportunities ) ) {
 			$opportunities = array_map(
 				function( $opportunity_id ) {
@@ -1313,7 +1317,12 @@ class Salesforce {
 	 * @param array $opportunities Array of Opportunity IDs from Salesforce.
 	 */
 	private static function save_opportunity_ids( $order_id, $opportunities ) {
-		update_post_meta( $order_id, 'newspack_salesforce_opportunities', $opportunities );
+		$order = wc_get_order( $order_id );
+		if ( ! $order ) {
+			return;
+		}
+		$order->update_meta_data( $order_id, 'newspack_salesforce_opportunities', $opportunities );
+		$order->save();
 	}
 }
 
