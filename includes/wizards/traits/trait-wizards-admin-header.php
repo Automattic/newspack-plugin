@@ -25,6 +25,13 @@ trait Admin_Header {
 	protected $tabs = [];
 
 	/**
+	 * Holds the admin title.
+	 *
+	 * @var string
+	 */
+	protected $title = '';
+
+	/**
 	 * Initialize the admin header script with localized data.
 	 *
 	 * @param array $args Title and tabs array.
