@@ -9,8 +9,6 @@ namespace Newspack;
 
 use Google\Site_Kit\Context;
 use Google\Site_Kit\Modules\Analytics_4\Settings;
-use Google\Site_Kit\Core\Authentication\Has_Connected_Admins;
-use Google\Site_Kit\Core\Authentication\Disconnected_Reason;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,8 +26,6 @@ class GoogleSiteKit {
 		add_action( 'wp_footer', [ __CLASS__, 'insert_ga4_analytics' ] );
 		add_filter( 'option_googlesitekit_analytics_settings', [ __CLASS__, 'filter_ga_settings' ] );
 		add_filter( 'googlesitekit_gtag_opt', [ __CLASS__, 'add_ga_custom_parameters' ] );
-		add_action( 'delete_option_' . self::get_sitekit_ga4_has_connected_admin_option_name(), [ __CLASS__, 'log_disconnect' ] );
-		add_filter( 'update_user_metadata', [ __CLASS__, 'maybe_log_disconnect' ], 10, 5 );
 	}
 
 	/**
@@ -101,26 +97,6 @@ class GoogleSiteKit {
 	}
 
 	/**
-	 * Get the name of the option under which Site Kit's GA4 has connected admin flag is stored.
-	 */
-	private static function get_sitekit_ga4_has_connected_admin_option_name() {
-		if ( class_exists( 'Google\Site_Kit\Core\Authentication\Has_Connected_Admins' ) ) {
-			return Has_Connected_Admins::OPTION;
-		}
-		return 'googlesitekit_has_connected_admins';
-	}
-
-	/**
-	 * Get the name of the option under which Site Kit's disconnected reason is stored.
-	 */
-	private static function get_sitekit_ga4_disconnected_reason_option_name() {
-		if ( class_exists( 'Google\Site_Kit\Core\Authentication\Disconnected_Reason' ) ) {
-			return Disconnected_Reason::OPTION;
-		}
-		return 'googlesitekit_disconnected_reason';
-	}
-
-	/**
 	 * Get Site Kit's GA4 settings.
 	 */
 	private static function get_sitekit_ga4_settings() {
@@ -139,6 +115,7 @@ class GoogleSiteKit {
 			return;
 		}
 		require_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekitanalytics.php';
+		require_once NEWSPACK_ABSPATH . 'includes/plugins/google-site-kit/class-googlesitekit-logger.php';
 
 		if ( ! self::is_user_connected() ) {
 			return;
@@ -193,53 +170,6 @@ class GoogleSiteKit {
 		}
 		$custom_params = \Newspack\Data_Events\Connectors\GA4::get_custom_parameters();
 		return array_merge( $custom_params, $gtag_opt );
-	}
-
-	/**
-	 * Maybe log disconnect.
-	 *
-	 * @param bool   $check      Whether to update metadata.
-	 * @param int    $object_id  Object ID.
-	 * @param string $meta_key   Meta key.
-	 * @param mixed  $meta_value Meta value.
-	 * @param mixed  $prev_value Previous meta value.
-	 */
-	public static function maybe_log_disconnect( $check, $object_id, $meta_key, $meta_value, $prev_value ) {
-		if (
-			// The meta key will have the database prefixed so we need to use str_contains.
-			str_contains( $meta_key, self::get_sitekit_ga4_disconnected_reason_option_name() ) &&
-			$meta_value !== $prev_value
-		) {
-			self::log_disconnect(
-				self::get_sitekit_ga4_disconnected_reason_option_name(),
-				'Google Site Kit has been disconnected with reason ' . $meta_value
-			);
-		}
-		return $check;
-	}
-
-	/**
-	 * Log when a user disconnects from Google Site Kit.
-	 *
-	 * @param string $option  The option being updated.
-	 * @param string $message The message to log. Optional.
-	 */
-	public static function log_disconnect( $option, $message = '' ) {
-		$code = 'newspack_googlesitekit_disconnect';
-		if ( empty( $message ) ) {
-			if ( $option === self::get_sitekit_ga4_has_connected_admin_option_name() ) {
-				$message = 'Google Site Kit has been disconnected for all admins';
-			} else {
-				$message = 'Google Site Kit has been disconnected.';
-			}
-		}
-		$e    = new \Exception();
-		$data = [
-			'backtrace'  => $e->getTraceAsString(),
-			'file'       => $code,
-			'user_email' => wp_get_current_user()->user_email,
-		];
-		Logger::newspack_log( $code, $message, $data );
 	}
 }
 GoogleSiteKit::init();
