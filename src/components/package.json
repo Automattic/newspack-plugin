@@ -33,7 +33,7 @@
 		"moment-range": "^3.1.1",
 		"qs": "^6.10.1",
 		"react-daterange-picker": "^2.0.1",
-		"react-router-dom": "^5.3.4"
+		"react-router-dom": "^6.27.0"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.24.0",
