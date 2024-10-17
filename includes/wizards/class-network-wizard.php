@@ -10,6 +10,8 @@ namespace Newspack;
 use Newspack\Wizards\Traits\Admin_Header;
 use Newspack_Network\Admin as Newspack_Network_Admin;
 use Newspack_Network\Site_Role as Newspack_Network_Site_Role;
+use Newspack_Network\Hub\Distributor_Settings as Newspack_Network_Hub_Distributor_Settings;
+use Newspack_Network\Node\Settings as Newspack_Network_Node_Settings;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -57,22 +59,21 @@ class Network_Wizard extends Wizard {
 			'np_hub_subscriptions'                  => __( 'Network / Subscriptions', 'newspack-plugin' ),
 		];
 
+		// Hooks: 'admin_menu'=>'add_page', 'admin_enqueue_scripts'=>'enqueue_scripts_and_styles', 'admin_body_class'=>'add_body_class'.
 		parent::__construct();
 
+		// Remove Network plugin's menu setup.
 		remove_action( 'admin_menu', [ Newspack_Network_Admin::class, 'add_admin_menu' ], 10 );
 
-		// Other adjustments to menu/submenu (run on all pages since it changes the menu).
-		// add_filter( 'admin_menu', [ $this, 'submenu_adjustments' ], $this->menu_priority );
-
 		// Set active menu item for hidden screens.
-		// add_filter( 'parent_file', [ $this, 'parent_file' ], $this->menu_priority );
-		// add_filter( 'submenu_file', [ $this, 'submenu_file' ], $this->menu_priority );
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
+		// Dispaly screen.
 		if( $this->is_wizard_page() ) {
 
 			$this->admin_header_init([
 				'title' => $this->get_name(),
-				// 'tabs' => $this->get_tabs(),
+				'tabs' => $this->get_tabs(),
 			]);
 
 		}
@@ -105,9 +106,34 @@ class Network_Wizard extends Wizard {
 			);
 
 			add_action( 'load-' . $page_suffix, [ Newspack_Network_Admin::class, 'admin_init' ] );
-
 		}
 
+		if ( 'node' === static::get_site_role() && is_callable( [ Newspack_Network_Node_Settings::class, 'render ' ] ) ) {
+
+			remove_submenu_page( $this->slug, 'newspack-network-node' );
+			add_submenu_page(
+				'', // No parent menu item, means its not on the menu.
+				$this->admin_screens[ 'newspack-network-node' ],
+				$this->admin_screens[ 'newspack-network-node' ],
+				$this->capability,
+				'newspack-network-node',
+				[ Newspack_Network_Node_Settings::class, 'render' ]
+			);
+	
+		}
+
+		if ( 'hub' === static::get_site_role() && is_callable( [ Newspack_Network_Hub_Distributor_Settings::class, 'render ' ] ) ) {
+
+			remove_submenu_page( $this->slug, 'newspack-network-distributor-settings' );
+			add_submenu_page(
+				'', // No parent menu item, means its not on the menu.
+				$this->admin_screens[ 'newspack-network-distributor-settings' ],
+				$this->admin_screens[ 'newspack-network-distributor-settings' ],
+				$this->capability,
+				'newspack-network-distributor-settings',
+				[ Newspack_Network_Hub_Distributor_Settings::class, 'render' ]
+			);
+		}
 	}
 
 	/**
@@ -158,7 +184,7 @@ class Network_Wizard extends Wizard {
 	}
 
 	/**
-	 * Wrapper for Network Plugin's is_node/is_hub functions.
+	 * Wrapper for Network Plugin's is_node/is_hub functions. Called by Newspack_Dashboard.
 	 */
 	public static function get_site_role() {
 	
@@ -182,7 +208,9 @@ class Network_Wizard extends Wizard {
 	 */
 	private function get_tabs() {
 		
-		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
+		$settings_screens = [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ];
+
+		if ( in_array( $this->get_screen_slug(), $settings_screens, true ) ) {
 
 			$tabs = [
 				[
@@ -218,54 +246,6 @@ class Network_Wizard extends Wizard {
 	 */
 	public function is_wizard_page() {
 		return isset( $this->admin_screens[ $this->get_screen_slug() ] );
-	}
-
-	/**
-	 * Submenu adjustments for Network menu items.
-	 *
-	 * @return void
-	 */
-	public function submenu_adjustments() {
-
-		global $submenu;
-
-		if ( 'node' === static::get_site_role() ) {
-
-			// 
-			remove_submenu_page( $this->slug, 'newspack-network-node' );
-			add_submenu_page(
-				'', // No parent menu item, means its not on the menu.
-				$this->admin_screens[ 'page' ][ 'newspack-network-node' ],
-				$this->admin_screens[ 'page' ][ 'newspack-network-node' ],
-				$this->capability,
-				'newspack-network-node',
-				[ \Newspack_Network\Node\Settings::class, 'render' ]
-			);
-	
-		}
-
-		if ( 'hub' === static::get_site_role() ) {
-
-			remove_submenu_page( $this->slug, 'newspack-network-distributor-settings' );
-			add_submenu_page(
-				'', // No parent menu item, means its not on the menu.
-				$this->admin_screens[ 'page' ][ 'newspack-network-distributor-settings' ],
-				$this->admin_screens[ 'page' ][ 'newspack-network-distributor-settings' ],
-				$this->capability,
-				'newspack-network-distributor-settings',
-				[ \Newspack_Network\Hub\Distributor_Settings::class, 'render' ]
-			);
-		}
-
-		// Renaming.		
-		if ( isset( $submenu[ $this->slug ] ) ) {
-			// By reference.
-			foreach ( $submenu[ $this->slug ] as &$item ) {
-				if ( $item[0] === 'Site Role' ) {
-					$item[0] = 'Settings';
-				}
-			}
-		}
 	}
 
 	/**
