@@ -194,7 +194,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 
 		$query_args    = [
 			'subscriptions_per_page' => $batch_size,
-			'subscription_status'    => WooCommerce_Connection::ACTIVE_SUBSCRIPTION_STATUSES,
+			'subscription_status'    => [ 'active', 'pending' ],
 			'offset'                 => 0,
 		];
 		$processed     = 0;
@@ -223,6 +223,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 
 				$result   = [
 					'ID'                => $subscription->get_id(),
+					'status'            => $subscription->get_status(),
 					'start_date'        => $subscription_start,
 					'next_payment_date' => $next_payment_date,
 					'billing_period'    => $subscription->get_billing_period(),
@@ -269,6 +270,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 				$results,
 				[
 					'ID',
+					'status',
 					'start_date',
 					'next_payment_date',
 					'billing_period',
