@@ -68,7 +68,7 @@ class Network_Wizard extends Wizard {
 		// Set active menu item for hidden screens.
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
-		// Dispaly screen.
+		// Display screen.
 		if( $this->is_wizard_page() ) {
 
 			$this->admin_header_init([
