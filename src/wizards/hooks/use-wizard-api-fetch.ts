@@ -15,6 +15,17 @@ import { WIZARD_STORE_NAMESPACE } from '../../components/src/wizard/store';
 import { WizardApiError } from '../errors';
 
 /**
+ * Remove query arguments from a path. Similar to `removeQueryArgs` in `@wordpress/url`, but this function
+ * removes all query arguments from a string and returns it.
+ *
+ * @param str String to remove query arguments from.
+ * @returns The string without query arguments.
+ */
+function removeQueryArgs( str: string ) {
+	return str.split( '?' ).at( 0 ) ?? str;
+}
+
+/**
  * Holds in-progress promises for each fetch request.
  */
 let promiseCache: Record< string, any > = {};
@@ -107,19 +118,38 @@ export function useWizardApiFetch( slug: string ) {
 	/**
 	 * Updates the wizard data at the specified path.
 	 *
-	 * @param path The path to update in the wizard data.
+	 * @param cacheKeyPath The cacheKeyPath to update in the wizard data.
 	 * @return     Function to update the wizard data.
 	 */
-	function updateWizardData( path: string | null ) {
-		return ( prop: string | string[], value: any, p = path ) =>
+	function updateWizardData( cacheKeyPath: string | null ) {
+		/**
+		 * Updates the wizard data prop at the specified path.
+		 *
+		 * @param prop                 The property to update in the wizard path data. i.e. 'GET'
+		 * @param value                The value to set for the property.
+		 * @param cacheKeyPathOverride The path to update in the wizard data.
+		 * @return Function to update the wizard data.
+		 */
+		return (
+			prop: string | string[],
+			value: any,
+			cacheKeyPathOverride = cacheKeyPath
+		) => {
+			// Remove query parameters from the cacheKeyPath
+
+			const normalizedPath = cacheKeyPathOverride
+				? removeQueryArgs( cacheKeyPathOverride )
+				: cacheKeyPathOverride;
+
 			updateWizardSettings( {
 				slug,
 				path: [
-					p,
+					normalizedPath,
 					...( Array.isArray( prop ) ? prop : [ prop ] ),
 				].filter( str => typeof str === 'string' ),
 				value,
 			} );
+		};
 	}
 
 	/**
@@ -138,6 +168,7 @@ export function useWizardApiFetch( slug: string ) {
 			const { on } = onCallbacks< T >( callbacks ?? {} );
 			const updateSettings = updateWizardData( opts.path );
 			const { path, method = 'GET' } = opts;
+			const cacheKeyPath = removeQueryArgs( path ?? '' );
 			const {
 				isCached = method === 'GET',
 				updateCacheKey = null,
@@ -147,7 +178,7 @@ export function useWizardApiFetch( slug: string ) {
 
 			const {
 				error: cachedError,
-				[ path ]: { [ method ]: cachedMethod = null } = {},
+				[ cacheKeyPath ]: { [ method ]: cachedMethod = null } = {},
 			}: WizardData = wizardData;
 
 			function thenCallback( response: T ) {
@@ -197,19 +228,19 @@ export function useWizardApiFetch( slug: string ) {
 
 			function finallyCallback() {
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				const { [ path ]: _removed, ...newData } = promiseCache;
+				const { [ cacheKeyPath ]: _removed, ...newData } = promiseCache;
 				promiseCache = newData;
 				requests.current = requests.current.filter(
-					request => request !== path
+					request => request !== cacheKeyPath
 				);
 				setIsFetching( requests.current.length > 0 );
 				on( 'onFinally' );
 			}
 
 			// If the promise is already in progress, return it before making a new request.
-			if ( promiseCache[ path ] ) {
+			if ( promiseCache[ cacheKeyPath ] ) {
 				setIsFetching( true );
-				return promiseCache[ path ]
+				return promiseCache[ cacheKeyPath ]
 					.then( thenCallback )
 					.catch( catchCallback )
 					.finally( finallyCallback );
@@ -224,9 +255,9 @@ export function useWizardApiFetch( slug: string ) {
 
 			setIsFetching( true );
 			on( 'onStart' );
-			requests.current.push( path );
+			requests.current.push( cacheKeyPath );
 
-			promiseCache[ path ] = wizardApiFetch( {
+			promiseCache[ cacheKeyPath ] = wizardApiFetch( {
 				isQuietFetch: true,
 				isLocalError: true,
 				...options,
@@ -245,6 +276,20 @@ export function useWizardApiFetch( slug: string ) {
 		isFetching,
 		errorMessage: error ? error.message : null,
 		error,
+		cache( cacheKey: string ) {
+			return {
+				get( method: ApiMethods = 'GET' ) {
+					return wizardData[ cacheKey ][ method ];
+				},
+				set( value: any, method: ApiMethods = 'GET' ) {
+					updateWizardSettings( {
+						slug,
+						path: [ cacheKey, method ],
+						value,
+					} );
+				},
+			};
+		},
 		setError(
 			value: string | WizardErrorType | null | { message: string }
 		) {
