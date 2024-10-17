@@ -19,7 +19,7 @@ import { WizardApiError } from '../errors';
  * removes all query arguments from a string and returns it.
  *
  * @param str String to remove query arguments from.
- * @returns The string without query arguments.
+ * @return The string without query arguments.
  */
 function removeQueryArgs( str: string ) {
 	return str.split( '?' ).at( 0 ) ?? str;
@@ -128,7 +128,6 @@ export function useWizardApiFetch( slug: string ) {
 		 * @param prop                 The property to update in the wizard path data. i.e. 'GET'
 		 * @param value                The value to set for the property.
 		 * @param cacheKeyPathOverride The path to update in the wizard data.
-		 * @return Function to update the wizard data.
 		 */
 		return (
 			prop: string | string[],

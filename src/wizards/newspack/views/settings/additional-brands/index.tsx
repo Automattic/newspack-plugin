@@ -82,13 +82,6 @@ export default function AdditionalBrands() {
 			},
 			{
 				onSuccess( result ) {
-					console.log( {
-						brandId,
-						brand,
-						result,
-						merged: { ...brand, ...result },
-						cache: brandsCache.get(),
-					} );
 					setBrands( ( brandsList: Brand[] ) => {
 						// The result from the API call doesn't contain the logo details.
 						const newBrand = { ...brand, id: result.id };

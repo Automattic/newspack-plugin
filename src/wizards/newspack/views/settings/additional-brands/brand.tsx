@@ -113,7 +113,9 @@ export default function Brand( {
 		name: string | undefined,
 		color: string | undefined
 	) {
-		if ( ! name ) return;
+		if ( ! name ) {
+			return;
+		}
 
 		const existingColor = brand.meta._theme_colors?.find(
 			c => c.name === name
@@ -349,7 +351,11 @@ export default function Brand( {
 						] }
 						onChange={ ( _show_page_on_front: number ) =>
 							updateBrand( {
-								meta: { ...brand.meta, _show_page_on_front },
+								meta: {
+									...brand.meta,
+									_show_page_on_front:
+										Number( _show_page_on_front ),
+								},
 							} )
 						}
 						required
