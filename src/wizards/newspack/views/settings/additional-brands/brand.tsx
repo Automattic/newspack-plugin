@@ -1,7 +1,13 @@
+/**
+ * WordPress dependencies.
+ */
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, cleanForSlug } from '@wordpress/url';
 import { Fragment, useState, useEffect } from '@wordpress/element';
 
+/**
+ * Internal dependencies.
+ */
 import {
 	Router,
 	Card,
@@ -16,29 +22,34 @@ import {
 	hooks,
 } from '../../../../../components/src';
 
-const { useParams } = Router;
-
 import './style.scss';
+
+const { useParams } = Router;
 
 const additionalBrandsSettings =
 	window.newspackSettings[ 'additional-brands' ].sections.additionalBrands;
 
-const registeredThemeColors = additionalBrandsSettings.themeColors;
-const menuLocations = additionalBrandsSettings.menuLocations;
-const availableMenus = additionalBrandsSettings.menus;
+const {
+	themeColors: registeredThemeColors,
+	menuLocations,
+	menus: availableMenus,
+} = additionalBrandsSettings;
 
 export default function Brand( {
 	brands = [],
-	saveBrand,
+	upsertBrand,
 	wizardApiFetch,
 	fetchLogoAttachment,
 }: {
 	brands: Brand[];
 	editBrand?: number;
-	saveBrand: ( brandId: number, brand: Brand ) => void;
+	upsertBrand: ( brandId: number, brand: Brand ) => void;
 	wizardApiFetch: WizardApiFetch;
 	fetchLogoAttachment: ( brandId: number, logoId: number ) => void;
 } ) {
+	const { brandId = '0' } = useParams();
+	const selectedBrand = brands.find( ( { id } ) => id === Number( brandId ) );
+
 	const [ brand, updateBrand ] = hooks.useObjectState< Brand >( {
 		id: 0,
 		name: 'Brand Name',
@@ -56,23 +67,13 @@ export default function Brand( {
 		taxonomy: '',
 		parent: 0,
 	} );
-	const [ publicPages, setPublicPages ] = useState<
-		{
-			id: string;
-			title: { rendered: string };
-		}[]
-	>( [] );
+	const [ publicPages, setPublicPages ] = useState< PublicPage[] >( [] );
 	const [ showOnFrontSelect, setShowOnFrontSelect ] =
 		useState< string >( 'no' );
 
-	const { brandId } = useParams();
-	const selectedBrand = brands.find( ( { id } ) => id === Number( brandId ) );
-
 	useEffect( () => {
-		if (
-			typeof selectedBrand?.meta._logo === 'number' &&
-			selectedBrand?.meta._logo
-		) {
+		if ( selectedBrand && typeof selectedBrand.meta._logo === 'number' ) {
+			// Only fetch the logo if _logo is a number (ID) and not an `Attachment` object.
 			fetchLogoAttachment( Number( brandId ), selectedBrand.meta._logo );
 		}
 	}, [ selectedBrand?.meta._logo ] );
@@ -86,101 +87,7 @@ export default function Brand( {
 		}
 	}, [ selectedBrand ] );
 
-	const getThemeColor = ( colorName: string | undefined ) => {
-		const color = brand.meta._theme_colors?.find(
-			c => colorName === c.name
-		)?.color;
-		return color
-			? color
-			: Object.values( registeredThemeColors ).find(
-					c => colorName === c.theme_mod_name
-			  )?.default;
-	};
-
-	const hasCustomThemeColor = ( colorName: string | undefined ) => {
-		const color = brand.meta._theme_colors?.find(
-			c => colorName === c.name
-		)?.color;
-		return color ? true : false;
-	};
-
-	const setThemeColor = (
-		name: string | undefined,
-		color: string | undefined
-	) => {
-		const themeColors = brand.meta._theme_colors
-			? brand.meta._theme_colors
-			: [];
-		const colorIndex = themeColors.findIndex(
-			_color => name === _color.name
-		);
-		let updatedThemeColors: ThemeColorsMeta[] = [];
-
-		if ( ! color && colorIndex > -1 ) {
-			// Resetting default color.
-			themeColors.splice( colorIndex, 1 );
-			updatedThemeColors = themeColors;
-		} else if ( color && colorIndex > -1 ) {
-			// Updating color.
-			updatedThemeColors = themeColors.map( _color =>
-				name === _color.name ? { ..._color, color } : _color
-			);
-		} else if ( color && colorIndex === -1 && name ) {
-			// Adding color.
-			updatedThemeColors = [ ...themeColors, { name, color } ];
-		} else if ( ! color && colorIndex === -1 ) {
-			// should not happen.
-			return;
-		}
-
-		return updateBrand( {
-			meta: {
-				...brand.meta,
-				_theme_colors: updatedThemeColors,
-			},
-		} );
-	};
-
-	const updateSlugFromName = ( e: React.ChangeEvent< HTMLInputElement > ) => {
-		if ( '' === brand.slug ) {
-			updateBrand( { slug: cleanForSlug( e.target.value ) } );
-		}
-	};
-
-	const updateShowOnFront = ( value: string ) => {
-		if ( 'no' === value ) {
-			updateBrand( { meta: { ...brand.meta, _show_page_on_front: 0 } } );
-		}
-		setShowOnFrontSelect( value );
-	};
-
-	const updateMenus = ( location: string, menu: number ) => {
-		const menus = brand.meta._menus ? brand.meta._menus : [];
-		const menuIndex = menus.findIndex(
-			_menu => location === _menu.location
-		);
-
-		const updatedMenus =
-			menuIndex > -1
-				? menus.map( _menu =>
-						location === _menu.location ? { ..._menu, menu } : _menu
-				  )
-				: [ ...menus, { location, menu } ];
-
-		return updateBrand( {
-			meta: {
-				...brand.meta,
-				_menus: updatedMenus,
-			},
-		} );
-	};
-
-	const baseUrl = `${ window.newspack_urls.site }/${
-		'no' === brand.meta._custom_url ? 'brand/' : ''
-	}`;
-
-	const fetchPublicPages = () => {
-		// Limiting to 100 pages, just in case.
+	useEffect( () => {
 		wizardApiFetch(
 			{
 				path: addQueryArgs( '/wp/v2/pages', {
@@ -193,32 +100,89 @@ export default function Brand( {
 				onSuccess: setPublicPages,
 			}
 		);
-	};
+	}, [] );
 
-	useEffect( fetchPublicPages, [] );
-
-	// Brand is valid when it has a name, and if a page is selected to be shown in front, the page should be selected.
 	const isBrandValid =
-		0 < brand.name?.length &&
-		( 'no' === showOnFrontSelect ||
-			( 'yes' === showOnFrontSelect &&
-				0 < brand.meta._show_page_on_front ) );
+		brand.name?.length > 0 &&
+		( showOnFrontSelect === 'no' ||
+			( showOnFrontSelect === 'yes' &&
+				brand.meta._show_page_on_front > 0 ) );
 
-	function findSelectedMenu( location: string ) {
-		if ( ! brand.meta._menus ) {
-			return 0;
-		}
-		const selectedMenu = brand.meta._menus.find(
-			menu => menu.location === location
+	// Utility functions for brand updates
+	function updateThemeColor(
+		name: string | undefined,
+		color: string | undefined
+	) {
+		if ( ! name ) return;
+
+		const existingColor = brand.meta._theme_colors?.find(
+			c => c.name === name
 		);
-		return selectedMenu ? selectedMenu.menu : 0;
+		let updatedThemeColors = [ ...( brand.meta._theme_colors || [] ) ];
+
+		if ( color ) {
+			if ( existingColor ) {
+				// Update existing color
+				updatedThemeColors = updatedThemeColors.map( _color =>
+					_color.name === name ? { ..._color, color } : _color
+				);
+			} else {
+				// Add new color
+				updatedThemeColors.push( { name, color } );
+			}
+		} else {
+			// Reset to default
+			updatedThemeColors = updatedThemeColors.filter(
+				_color => _color.name !== name
+			);
+		}
+
+		updateBrand( {
+			meta: { ...brand.meta, _theme_colors: updatedThemeColors },
+		} );
 	}
 
-	/**
-	 * During logo fetch, the logo is set to a positive number.
-	 *
-	 * @return True if the logo is a positive number, false otherwise.
-	 */
+	function updateSlugFromName( e: React.ChangeEvent< HTMLInputElement > ) {
+		if ( ! brand.slug ) {
+			updateBrand( { slug: cleanForSlug( e.target.value ) } );
+		}
+	}
+
+	function updateShowOnFront( value: string ) {
+		setShowOnFrontSelect( value );
+		updateBrand( {
+			meta: {
+				...brand.meta,
+				_show_page_on_front: value === 'yes' ? 1 : 0,
+			},
+		} );
+	}
+
+	function updateMenus( location: string, menu: number ) {
+		const updatedMenus =
+			brand.meta._menus.map( _menu =>
+				_menu.location === location ? { ..._menu, menu } : _menu
+			) || [];
+
+		updateBrand( {
+			meta: {
+				...brand.meta,
+				_menus: [ ...updatedMenus, { location, menu } ],
+			},
+		} );
+	}
+
+	const baseUrl = `${ window.newspack_urls.site }/${
+		brand.meta._custom_url === 'no' ? 'brand/' : ''
+	}`;
+
+	function findSelectedMenu( location: string ) {
+		return (
+			brand.meta._menus.find( menu => menu.location === location )
+				?.menu || 0
+		);
+	}
+
 	function isFetchingLogo() {
 		return typeof brand.meta._logo === 'number' && brand.meta._logo > 0;
 	}
@@ -262,32 +226,30 @@ export default function Brand( {
 				</Grid>
 			</Grid>
 
+			{ /* Theme Colors Section */ }
 			{ registeredThemeColors && (
-				<SectionHeader
-					title={ __( 'Colors', 'newspack-plugin' ) }
-					description={ __(
-						'These are the colors you can customize for this brand in the active theme',
-						'newspack-plugin'
-					) }
-				/>
-			) }
-
-			{ registeredThemeColors &&
-				registeredThemeColors.map( color => {
-					return (
+				<Fragment>
+					<SectionHeader
+						title={ __( 'Colors', 'newspack-plugin' ) }
+						description={ __(
+							'These are the colors you can customize for this brand in the active theme',
+							'newspack-plugin'
+						) }
+					/>
+					{ registeredThemeColors.map( color => (
 						<Card noBorder key={ color.theme_mod_name }>
 							<ColorPicker
 								className="newspack-brand__theme-mod-color-picker"
 								label={
 									<Fragment>
 										<span>{ color.label }</span>
-										{ hasCustomThemeColor(
-											color.theme_mod_name
-										) && (
+										{ brand.meta._theme_colors.find(
+											c => c.name === color.theme_mod_name
+										)?.color && (
 											<Button
 												variant="link"
 												onClick={ () =>
-													setThemeColor(
+													updateThemeColor(
 														color.theme_mod_name,
 														''
 													)
@@ -301,24 +263,30 @@ export default function Brand( {
 										) }
 									</Fragment>
 								}
-								color={ getThemeColor( color.theme_mod_name ) }
+								color={
+									brand.meta._theme_colors.find(
+										c => c.name === color.theme_mod_name
+									)?.color || color.default
+								}
 								onChange={ ( newColor: string ) =>
-									setThemeColor(
+									updateThemeColor(
 										color.theme_mod_name,
 										newColor
 									)
 								}
 							/>
 						</Card>
-					);
-				} ) }
+					) ) }
+				</Fragment>
+			) }
 
+			{ /* URL Settings */ }
 			<SectionHeader title={ __( 'Settings', 'newspack-plugin' ) } />
 			<Card noBorder>
 				<RadioControl
 					className="newspack-brand__base-url-radio-control"
 					label={ __( 'URL Base', 'newspack-plugin' ) }
-					selected={ brand?.meta._custom_url || 'yes' }
+					selected={ brand.meta._custom_url || 'yes' }
 					options={ [
 						{
 							label: __( 'Homepage', 'newspack-plugin' ),
@@ -346,6 +314,7 @@ export default function Brand( {
 				</div>
 			</Card>
 
+			{ /* Front Page Settings */ }
 			<Card noBorder>
 				<RadioControl
 					className="newspack-brand__base-url-radio-control"
@@ -361,9 +330,9 @@ export default function Brand( {
 							value: 'yes',
 						},
 					] }
-					onChange={ ( value: string ) => updateShowOnFront( value ) }
+					onChange={ updateShowOnFront }
 				/>
-				{ 'yes' === showOnFrontSelect && (
+				{ showOnFrontSelect === 'yes' && (
 					<SelectControl
 						label={ __( 'Homepage URL', 'newspack-plugin' ) }
 						value={ brand.meta._show_page_on_front || 0 }
@@ -380,10 +349,7 @@ export default function Brand( {
 						] }
 						onChange={ ( _show_page_on_front: number ) =>
 							updateBrand( {
-								meta: {
-									...brand.meta,
-									_show_page_on_front,
-								},
+								meta: { ...brand.meta, _show_page_on_front },
 							} )
 						}
 						required
@@ -391,6 +357,7 @@ export default function Brand( {
 				) }
 			</Card>
 
+			{ /* Menu Settings */ }
 			<SectionHeader
 				title={ __( 'Menus', 'newspack-plugin' ) }
 				description={ __(
@@ -398,7 +365,6 @@ export default function Brand( {
 					'newspack-plugin'
 				) }
 			/>
-
 			{ menuLocations &&
 				Object.keys( menuLocations ).map( location => (
 					<SelectControl
@@ -409,7 +375,6 @@ export default function Brand( {
 							{
 								label: __( 'Same as site', 'newspack-plugin' ),
 								value: 0,
-								disabled: false,
 							},
 							...availableMenus,
 						] }
@@ -419,11 +384,12 @@ export default function Brand( {
 					/>
 				) ) }
 
+			{ /* Action Buttons */ }
 			<div className="newspack-buttons-card">
 				<Button
 					disabled={ ! isBrandValid }
 					variant="primary"
-					onClick={ () => saveBrand( Number( brandId ), brand ) }
+					onClick={ () => upsertBrand( Number( brandId ), brand ) }
 				>
 					{ __( 'Save', 'newspack-plugin' ) }
 				</Button>
