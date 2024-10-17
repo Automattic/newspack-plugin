@@ -12,13 +12,19 @@ import { Router, utils } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 export default function AdditionalBrands() {
-	const { wizardApiFetch, isFetching } = useWizardApiFetch(
+	const { wizardApiFetch, isFetching, cache } = useWizardApiFetch(
 		'newspack-settings/additional-brands'
 	);
+
+	const brandsCache = cache( '/wp/v2/brand' );
 
 	const [ brands, setBrands ] = useState< Brand[] >( [] );
 	const history = useHistory();
 	const { path } = useRouteMatch();
+
+	useEffect( () => {
+		brandsCache.set( brands );
+	}, [ brands ] );
 
 	const wizardScreenProps = {
 		isFetching,
@@ -55,7 +61,8 @@ export default function AdditionalBrands() {
 		);
 	};
 
-	const saveBrand = ( brandId: number, brand: Brand ) => {
+	const upsertBrand = ( brandId: number, brand: Brand ) => {
+		// BrandId is NaN when inserting new brand.
 		wizardApiFetch< Brand >(
 			{
 				path: brandId ? `/wp/v2/brand/${ brandId }` : '/wp/v2/brand',
@@ -75,21 +82,23 @@ export default function AdditionalBrands() {
 			},
 			{
 				onSuccess( result ) {
+					console.log( {
+						brandId,
+						brand,
+						result,
+						merged: { ...brand, ...result },
+						cache: brandsCache.get(),
+					} );
 					setBrands( ( brandsList: Brand[] ) => {
 						// The result from the API call doesn't contain the logo details.
 						const newBrand = { ...brand, id: result.id };
-						if ( brandId ) {
-							const brandIndex = brandsList.findIndex(
-								_brand => brandId === _brand.id
-							);
-							if ( brandIndex > -1 ) {
-								return brandsList.map( _brand =>
-									brandId === _brand.id ? newBrand : _brand
-								);
-							}
+						// Is update
+						if ( 0 === brandId ) {
+							return [ newBrand, ...brandsList ];
 						}
-
-						return [ newBrand, ...brandsList ];
+						return brandsList.map( b =>
+							brandId === b.id ? newBrand : b
+						);
 					} );
 					history.push( '/additional-brands' );
 				},
@@ -100,7 +109,10 @@ export default function AdditionalBrands() {
 	const deleteBrand = ( brand: Brand ) => {
 		if (
 			utils.confirmAction(
-				__( 'Are you sure you want to delete this brand?', 'newspack' )
+				__(
+					'Are you sure you want to delete this brand?',
+					'newspack-plugin'
+				)
 			)
 		) {
 			wizardApiFetch< { deleted: boolean; previous: Brand } >(
@@ -187,7 +199,7 @@ export default function AdditionalBrands() {
 							<Brand
 								{ ...wizardScreenProps }
 								brands={ brands }
-								saveBrand={ saveBrand }
+								upsertBrand={ upsertBrand }
 								fetchLogoAttachment={ fetchLogoAttachment }
 								wizardApiFetch={ wizardApiFetch }
 							/>
@@ -204,7 +216,7 @@ export default function AdditionalBrands() {
 								{ ...wizardScreenProps }
 								brands={ brands }
 								editBrand={ Number( match.params.brandId ) }
-								saveBrand={ saveBrand }
+								upsertBrand={ upsertBrand }
 								fetchLogoAttachment={ fetchLogoAttachment }
 								wizardApiFetch={ wizardApiFetch }
 							/>
