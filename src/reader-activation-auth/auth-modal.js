@@ -44,7 +44,12 @@ export function openAuthModal( config = {} ) {
 		return;
 	}
 
-	const close = () => {
+	/**
+	 * Close the auth modal.
+	 *
+	 * @param {boolean} silent Whether to close the modal without triggering the callback.
+	 */
+	const close = ( silent = false ) => {
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
 		document.body.classList.remove( 'newspack-signin' );
@@ -59,6 +64,10 @@ export function openAuthModal( config = {} ) {
 
 		if ( modalTrigger ) {
 			modalTrigger.focus();
+		}
+
+		if ( ! silent && config.onClose && typeof config.onClose === 'function' ) {
+			config.onClose();
 		}
 	};
 
@@ -87,7 +96,7 @@ export function openAuthModal( config = {} ) {
 	container.config = config;
 
 	container.authCallback = ( message, data ) => {
-		close();
+		close( true );
 		if ( config.callback ) {
 			config.callback( message, data );
 		}
