@@ -147,6 +147,7 @@ export function openAuthModal( config = {} ) {
 	config = {
 		...{
 			callback: null,
+			onClose: null,
 			initialState: null,
 			skipSuccess: false,
 			skipNewslettersSignup: false,
