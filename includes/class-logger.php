@@ -80,15 +80,16 @@ class Logger {
 	/**
 	 * A logger for newspack manager logging.
 	 *
-	 * @param string $code    The log code (i.e. newspack_google_login).
-	 * @param string $message The message to log.
-	 * @param array  $data    The data to log.
+	 * @param string $code      The log code (i.e. newspack_google_login).
+	 * @param string $message   The message to log.
+	 * @param array  $data      The data to log.
 	 *      Optional. Additional parameters.
 	 *      @type string $user_email The current users email address.
 	 *      @type file   $file       The name of the file to write the local log to.
-	 * @param string $type    The type of log. Defaults to 'error'.
+	 * @param string $type      The type of log. Defaults to 'error'.
+	 * @param string $log_level The Log level.
 	 */
-	public static function newspack_log( $code, $message, $data, $type = 'error' ) {
+	public static function newspack_log( $code, $message, $data, $type = 'error', $log_level = 2 ) {
 		$email = '';
 		if ( isset( $data['user_email'] ) ) {
 			$email = $data['user_email'];
@@ -108,6 +109,7 @@ class Logger {
 				'data'       => $data,
 				'user_email' => $email,
 				'file'       => $file,
+				'log_level'  => $log_level,
 			]
 		);
 	}

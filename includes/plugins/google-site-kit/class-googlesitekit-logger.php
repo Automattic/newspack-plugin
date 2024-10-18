@@ -107,7 +107,7 @@ class GoogleSiteKit_Logger {
 	 */
 	public static function handle_cron_event() {
 		if ( ! get_option( self::get_sitekit_ga4_has_connected_admin_option_name(), false ) ) {
-			self::log( self::LOG_CODE_DISCONNECTED, 'No active Google Site Kit connections found', false );
+			self::log( self::LOG_CODE_DISCONNECTED, 'No active Google Site Kit connections found', false, 3 );
 		}
 	}
 
@@ -124,8 +124,9 @@ class GoogleSiteKit_Logger {
 	 * @param string $code      The code for the log.
 	 * @param string $message   The message to log. Optional.
 	 * @param bool   $backtrace Whether to include a backtrace.
+	 * @param int    $log_level The log level.
 	 */
-	public static function log( $code, $message, $backtrace = true ) {
+	private static function log( $code, $message, $backtrace = true, $log_level = 2 ) {
 		$data = [
 			'file'       => $code,
 			'user_email' => wp_get_current_user()->user_email,
@@ -134,7 +135,7 @@ class GoogleSiteKit_Logger {
 			$e                 = new \Exception();
 			$data['backtrace'] = $e->getTraceAsString();
 		}
-		Logger::newspack_log( $code, $message, $data );
+		Logger::newspack_log( $code, $message, $data, 'error', $log_level );
 	}
 }
 GoogleSiteKit_Logger::init();
