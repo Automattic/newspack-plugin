@@ -28,11 +28,18 @@ class Listings_Wizard extends Wizard {
 	private $admin_screens = [];
 
 	/**
+	 * Must be run after Listings Plugin.
+	 *
+	 * @var int.
+	 */
+	protected $menu_priority = 11;
+
+	/**
 	 * Primary slug for these wizard screens.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack_lst_event';
+	protected $slug = 'newspack-listings';
 
 	/**
 	 * Constructor.
@@ -54,11 +61,11 @@ class Listings_Wizard extends Wizard {
 			'newspack-listings-settings-admin' => __( 'Listings / Settings', 'newspack-plugin' ),
 		];
 
-		// Hooks: 'admin_menu'=>'add_page', 'admin_enqueue_scripts'=>'enqueue_scripts_and_styles', 'admin_body_class'=>'add_body_class'.
-		parent::__construct();
-
 		// Remove Listings plugin's menu setup.
-		remove_action( 'admin_menu', [ Newspack_Listings_Core::class, 'add_plugin_page' ], 10 );
+		remove_action( 'admin_menu', [ Newspack_Listings_Core::class, 'add_plugin_page' ] );
+
+		// Hooks: 'admin_menu':'add_page', 'admin_enqueue_scripts':'enqueue_scripts_and_styles', 'admin_body_class':'add_body_class'.
+		parent::__construct();
 
 		// Display screen.
 		if( $this->is_wizard_page() ) {
@@ -72,32 +79,36 @@ class Listings_Wizard extends Wizard {
 
 	/**
 	 * Add the Listings menu page. Called from parent constructor 'admin_menu'.
+	 * 
+	 * Replaces Listings Plugin's 'admin_menu' action => Newspack_Listings\Core => 'add_plugin_page'
 	 */
 	public function add_page() {
 
 		// Top-level menu item.
 		add_menu_page(
-			'Newspack Listings',
-			'Listings',
-			'edit_posts',
-			'newspack-listings',
+			__( 'Listings', 'newspack-plugin'),
+			__( 'Listings', 'newspack-plugin'),
+			'edit_posts', // Copied from Listings plugin...see docblock note above.
+			$this->slug,
 			'',
-			'data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmIiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHdpZHRoPSIyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtNS41IDcuNWgydjJoLTJ6bTIgNGgtMnYyaDJ6bTEtNGg3djJoLTd6bTcgNGgtN3YyaDd6Ii8+PHBhdGggY2xpcC1ydWxlPSJldmVub2RkIiBkPSJtNC42MjUgM2MtLjg5NyAwLTEuNjI1LjcyOC0xLjYyNSAxLjYyNXYxMS43NWMwIC44OTguNzI4IDEuNjI1IDEuNjI1IDEuNjI1aDExLjc1Yy44OTggMCAxLjYyNS0uNzI3IDEuNjI1LTEuNjI1di0xMS43NWMwLS44OTctLjcyNy0xLjYyNS0xLjYyNS0xLjYyNXptMTEuNzUgMS41aC0xMS43NWEuMTI1LjEyNSAwIDAgMCAtLjEyNS4xMjV2MTEuNzVjMCAuMDY5LjA1Ni4xMjUuMTI1LjEyNWgxMS43NWEuMTI1LjEyNSAwIDAgMCAuMTI1LS4xMjV2LTExLjc1YS4xMjUuMTI1IDAgMCAwIC0uMTI1LS4xMjV6IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48cGF0aCBkPSJtMjEuNzUgOGgtMS41djExYzAgLjY5LS41NiAxLjI1LTEuMjQ5IDEuMjVoLTEzLjAwMXYxLjVoMTMuMDAxYTIuNzQ5IDIuNzQ5IDAgMCAwIDIuNzQ5LTIuNzV6Ii8+PC9zdmc+Cg==',
+			'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M18 5.5H6a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5ZM6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 5h1.5v1.5H7V9Zm1.5 4.5H7V15h1.5v-1.5ZM10 9h7v1.5h-7V9Zm7 4.5h-7V15h7v-1.5Z"></path></svg>'),
 			3.4
 		);
 
         if ( is_callable( [ Newspack_Listings_Settings::class, 'create_admin_page' ] ) ) {
+			
+			// Settings menu link.
+			add_submenu_page(
+				$this->slug,
+				$this->admin_screens['newspack-listings-settings-admin'],
+				__( 'Settings', 'newspack-plugin' ),
+				$this->capability,
+				'newspack-listings-settings-admin',
+				[ Newspack_Listings_Settings::class, 'create_admin_page' ]
+			);
 
-            add_submenu_page(
-                'newspack-listings',
-                __( 'Newspack Listings: Site-Wide Settings', 'newspack-listings' ),
-                __( 'Settings', 'newspack-listings' ),
-                'manage_options',
-                'newspack-listings-settings-admin',
-                [ Newspack_Listings_Settings::class, 'create_admin_page' ]
-            );
+		}
 
-        }
 	}
 
 	/**
