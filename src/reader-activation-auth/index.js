@@ -69,7 +69,8 @@ window.newspackRAS.push( readerActivation => {
 			}
 
 			openAuthModal( {
-				callback,
+				onSuccess: callback,
+				onError: callback,
 				trigger: modalTrigger,
 			} );
 		}
