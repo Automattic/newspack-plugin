@@ -118,94 +118,19 @@ const StripeSettings = ( { stripe, changeHandler, onSave } ) => {
 										) }
 									/>
 								</Grid>
-								<div className="newspack-buttons-card">
-									<Button isPrimary onClick={ onSave }>
-										{ __( 'Save Settings', 'newspack-plugin' ) }
-									</Button>
-								</div>
 							</>
 						) }
+						<div className="newspack-buttons-card">
+							<Button isPrimary onClick={ onSave }>
+								{ __( 'Save Settings', 'newspack-plugin' ) }
+							</Button>
+						</div>
 					</ActionCard>
 				</>
 			) }
 		</>
 	);
 }
-
-export const StripeKeysSettings = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' );
-	const {
-		testMode = false,
-		publishableKey = '',
-		secretKey = '',
-		testPublishableKey = '',
-		testSecretKey = '',
-	} = wizardData.stripe_data || {};
-
-	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
-	const changeHandler = key => value =>
-		updateWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			path: [ 'stripe_data', key ],
-			value,
-		} );
-
-	return (
-		<Grid columns={ 1 } gutter={ 16 }>
-			<Grid columns={ 1 } gutter={ 16 }>
-				<p className="newspack-payment-setup-screen__api-keys-instruction">
-					{ __( 'Configure Stripe and enter your API keys', 'newspack-plugin' ) }
-					{ ' – ' }
-					<ExternalLink href="https://stripe.com/docs/keys#api-keys">
-						{ __( 'learn how' ) }
-					</ExternalLink>
-				</p>
-				<CheckboxControl
-					label={ __( 'Use Stripe in test mode', 'newspack-plugin' ) }
-					checked={ testMode }
-					onChange={ changeHandler( 'testMode' ) }
-					help={ __(
-						'Test mode will not capture real payments. Use it for testing your purchase flow.',
-						'newspack-plugin'
-					) }
-				/>
-			</Grid>
-			<Grid noMargin rowGap={ 16 }>
-				{ testMode ? (
-					<>
-						<TextControl
-							type="password"
-							value={ testPublishableKey }
-							label={ __( 'Test Publishable Key', 'newspack-plugin' ) }
-							onChange={ changeHandler( 'testPublishableKey' ) }
-						/>
-						<TextControl
-							type="password"
-							value={ testSecretKey }
-							label={ __( 'Test Secret Key', 'newspack-plugin' ) }
-							onChange={ changeHandler( 'testSecretKey' ) }
-						/>
-					</>
-				) : (
-					<>
-						<TextControl
-							type="password"
-							value={ publishableKey }
-							label={ __( 'Publishable Key', 'newspack-plugin' ) }
-							onChange={ changeHandler( 'publishableKey' ) }
-						/>
-						<TextControl
-							type="password"
-							value={ secretKey }
-							label={ __( 'Secret Key', 'newspack-plugin' ) }
-							onChange={ changeHandler( 'secretKey' ) }
-						/>
-					</>
-				) }
-			</Grid>
-		</Grid>
-	);
-};
 
 const Stripe = (
 	{
@@ -252,6 +177,7 @@ const Stripe = (
 				</>
 			) }
 			hasGreyHeader={ !! stripe.enabled }
+			hasWhiteHeader={ ! stripe.enabled }
 			toggleChecked={ !! stripe.enabled }
 			toggleOnChange={ () => {
 				changeHandler( 'enabled', ! stripe.enabled );
@@ -324,11 +250,11 @@ const PaymentGateways = () => {
 	return (
 		<>
 			<SectionHeader
-				title={ __( 'Payment Gateways', 'newspack-plugin' ) }
+				title={ __( 'Payment Methods', 'newspack-plugin' ) }
 				description={ () => (
 					<>
 						{ __(
-							'Configure Newspack-supported payment gateways for WooCommerce. Payment gateways allow you to accept payments from your readers. ',
+							'Configure Newspack-supported payment gateways for WooCommerce. Payment gateways allow you to accept various payment methods from your readers. ',
 							'newspack-plugin'
 						) }
 						<ExternalLink href="https://woocommerce.com/document/premium-payment-gateway-extensions/">
