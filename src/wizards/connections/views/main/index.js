@@ -14,6 +14,7 @@ import Plugins from './plugins';
 import GoogleAuth from './google';
 import Mailchimp from './mailchimp';
 import FivetranConnection from './fivetran';
+import JetpackSSO from './jetpack-sso';
 import Recaptcha from './recaptcha';
 import Webhooks from './webhooks';
 
@@ -39,6 +40,7 @@ const Main = () => {
 					/>
 				</>
 			) }
+			<JetpackSSO setError={ setErrorWithPrefix( __( 'Jetpack SSO: ', 'newspack-plugin' ) ) } />
 			<Recaptcha setError={ setErrorWithPrefix( __( 'reCAPTCHA: ', 'newspack-plugin' ) ) } />
 			{ newspack_connections_data.can_use_webhooks && <Webhooks /> }
 		</>
