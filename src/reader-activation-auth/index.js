@@ -46,7 +46,7 @@ window.newspackRAS.push( readerActivation => {
 		function handleAccountLinkClick( ev ) {
 			ev.preventDefault();
 			const modalTrigger = ev.target;
-			let onSuccess, redirect;
+			let callback, redirect;
 			if ( ev.target.getAttribute( 'data-redirect' ) ) {
 				redirect = ev.target.getAttribute( 'data-redirect' );
 			} else {
@@ -63,14 +63,14 @@ window.newspackRAS.push( readerActivation => {
 				}
 			}
 			if ( redirect && redirect !== '#' ) {
-				onSuccess = () => {
+				callback = () => {
 					window.location.href = redirect;
 				};
 			}
 
 			openAuthModal( {
-				onSuccess,
-				onError: onSuccess,
+				onSuccess: callback,
+				onError: callback,
 				trigger: modalTrigger,
 			} );
 		}
