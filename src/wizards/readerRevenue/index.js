@@ -35,9 +35,9 @@ const ReaderRevenueWizard = () => {
 			isHidden: usedPlatform === OTHER,
 		},
 		{
-			label: __( 'Stripe Settings', 'newspack' ),
-			path: '/stripe-setup',
-			activeTabPaths: [ '/stripe-setup' ],
+			label: __( 'Payment Methods', 'newspack' ),
+			path: '/payment-methods',
+			activeTabPaths: [ '/payment-methods' ],
 			render: Views.StripeSetup,
 			isHidden: usedPlatform !== NEWSPACK,
 		},
