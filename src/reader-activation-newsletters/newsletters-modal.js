@@ -21,21 +21,26 @@ export function getModalContainer() {
 export function openNewslettersSignupModal( config = {} ) {
 	const container = getModalContainer();
 	if ( ! container ) {
-		if ( config?.callback ) {
-			config.callback();
+		if ( config?.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess();
 		}
 		return;
 	}
 
 	const modal = container.closest( '.newspack-newsletters-signup-modal' );
 	if ( ! modal ) {
-		if ( config?.callback ) {
-			config.callback();
+		if ( config?.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess();
 		}
 		return;
 	}
 
-	const close = () => {
+	/**
+	 * Close the modal.
+	 *
+	 * @param {boolean} dismiss Whether it's a dismiss action.
+	 */
+	const close = ( dismiss = true ) => {
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
 		if ( modal?.overlayId && window?.newspackReaderActivation?.overlays ) {
@@ -44,6 +49,9 @@ export function openNewslettersSignupModal( config = {} ) {
 		const openerContent = container.querySelector( '.opener-content' );
 		if ( openerContent ) {
 			openerContent.remove();
+		}
+		if ( dismiss && config.onDismiss && typeof config.onDismiss === 'function' ) {
+			config.onDismiss();
 		}
 	};
 
@@ -66,10 +74,10 @@ export function openNewslettersSignupModal( config = {} ) {
 
 	container.newslettersSignupCallback = ( message, data ) => {
 		if ( config?.closeOnSuccess ) {
-			close();
+			close( false );
 		}
-		if ( config?.callback ) {
-			config.callback( message, data );
+		if ( config?.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess( message, data );
 		}
 	};
 

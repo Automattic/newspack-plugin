@@ -146,8 +146,9 @@ export function openAuthModal( config = {} ) {
 	// Set default config.
 	config = {
 		...{
-			callback: null,
-			onClose: null,
+			onSuccess: null,
+			onDismiss: null,
+			onError: null,
 			initialState: null,
 			skipSuccess: false,
 			skipNewslettersSignup: false,
@@ -166,8 +167,8 @@ export function openAuthModal( config = {} ) {
 	};
 
 	if ( newspack_ras_config.is_logged_in ) {
-		if ( config.callback ) {
-			config.callback();
+		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess();
 		}
 		return;
 	}
@@ -175,8 +176,8 @@ export function openAuthModal( config = {} ) {
 		readerActivation._openAuthModal( config );
 	} else {
 		console.warn( 'Authentication modal not available' ); // eslint-disable-line no-console
-		if ( config.callback ) {
-			config.callback();
+		if ( config.onError && typeof config.onError === 'function' ) {
+			config.onError();
 		}
 	}
 }
@@ -190,7 +191,9 @@ export function openNewslettersSignupModal( config = {} ) {
 	// Set default config.
 	config = {
 		...{
-			callback: null,
+			onSuccess: null,
+			onDissmiss: null,
+			onError: null,
 			initialState: null,
 			skipSuccess: false,
 			labels: {},
@@ -204,8 +207,8 @@ export function openNewslettersSignupModal( config = {} ) {
 		readerActivation._openNewslettersSignupModal( config );
 	} else {
 		console.warn( 'Newsletters signup modal not available' ); // eslint-disable-line no-console
-		if ( config?.callback ) {
-			config.callback();
+		if ( config?.onError && typeof config.onError === 'function' ) {
+			config.onError();
 		}
 	}
 }

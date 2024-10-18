@@ -22,24 +22,24 @@ export function openAuthModal( config = {} ) {
 	const modalTrigger = config.trigger;
 
 	if ( reader?.authenticated ) {
-		if ( config.callback ) {
-			config.callback();
+		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess();
 		}
 		return;
 	}
 
 	const container = getModalContainer();
 	if ( ! container ) {
-		if ( config.callback ) {
-			config.callback();
+		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess();
 		}
 		return;
 	}
 
 	const modal = container.closest( '.newspack-reader-auth-modal' );
 	if ( ! modal ) {
-		if ( config.callback ) {
-			config.callback();
+		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess();
 		}
 		return;
 	}
@@ -47,9 +47,9 @@ export function openAuthModal( config = {} ) {
 	/**
 	 * Close the auth modal.
 	 *
-	 * @param {boolean} silent Whether to close the modal without triggering the callback.
+	 * @param {boolean} dismiss Whether it's a dismiss action.
 	 */
-	const close = ( silent = false ) => {
+	const close = ( dismiss = true ) => {
 		container.config = {};
 		modal.setAttribute( 'data-state', 'closed' );
 		document.body.classList.remove( 'newspack-signin' );
@@ -66,8 +66,8 @@ export function openAuthModal( config = {} ) {
 			modalTrigger.focus();
 		}
 
-		if ( ! silent && config.onClose && typeof config.onClose === 'function' ) {
-			config.onClose();
+		if ( dismiss && config.onDismiss && typeof config.onDismiss === 'function' ) {
+			config.onDismiss();
 		}
 	};
 
@@ -96,9 +96,9 @@ export function openAuthModal( config = {} ) {
 	container.config = config;
 
 	container.authCallback = ( message, data ) => {
-		close( true );
-		if ( config.callback ) {
-			config.callback( message, data );
+		close( false );
+		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess( message, data );
 		}
 	};
 
