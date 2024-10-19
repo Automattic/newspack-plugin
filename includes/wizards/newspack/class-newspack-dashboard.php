@@ -243,19 +243,7 @@ class Newspack_Dashboard extends Wizard {
 					'desc'  => __( 'Troubleshoot issues by viewing all events across your network.', 'newspack-plugin' ),
 					'href'  => admin_url( 'admin.php?page=newspack-network-event-log' ),
 				],
-				[
-					'icon'  => 'postList',
-					'title' => __( 'Membership Plans', 'newspack-plugin' ),
-					'desc'  => __( 'View membership plans.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-network-membership-plans' ),
-				],
 				$settings_card,
-				[
-					'icon'  => 'tool',
-					'title' => __( 'Distributor Settings', 'newspack-plugin' ),
-					'desc'  => __( 'Modify the Distributor plugin behavior.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
-				],
 			];
 		}
 
