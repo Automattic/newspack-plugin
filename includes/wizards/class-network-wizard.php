@@ -30,6 +30,13 @@ class Network_Wizard extends Wizard {
 	private $admin_screens = [];
 
 	/**
+	 * Must be run after Network Plugin.
+	 *
+	 * @var int.
+	 */
+	protected $menu_priority = 11;
+
+	/**
 	 * Primary slug for these wizard screens.
 	 *
 	 * @var string
@@ -59,11 +66,11 @@ class Network_Wizard extends Wizard {
 			'np_hub_subscriptions'                  => __( 'Network / Subscriptions', 'newspack-plugin' ),
 		];
 
+		// Remove Network plugin's menu setup.
+		remove_action( 'admin_menu', [ Newspack_Network_Admin::class, 'add_admin_menu' ] );
+
 		// Hooks: 'admin_menu'=>'add_page', 'admin_enqueue_scripts'=>'enqueue_scripts_and_styles', 'admin_body_class'=>'add_body_class'.
 		parent::__construct();
-
-		// Remove Network plugin's menu setup.
-		remove_action( 'admin_menu', [ Newspack_Network_Admin::class, 'add_admin_menu' ], 10 );
 
 		// Set active menu item for hidden screens.
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
