@@ -148,6 +148,9 @@ final class Newspack {
 		// Network Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-network-wizard.php';
 
+		// Newsletters Wizard.
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletters-wizard.php';
+
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
