@@ -134,7 +134,7 @@ class WooCommerce_Cover_Fees {
 		if ( ! self::should_allow_covering_fees() ) {
 			return false;
 		}
-		if ( ! isset( $data['payment_method'] ) ) {
+		if ( ! isset( $data['payment_method'] ) || 'stripe' !== $data['payment_method'] ) {
 			return false;
 		}
 		if ( ! isset( $data[ self::CUSTOM_FIELD_NAME ] ) || '1' !== $data[ self::CUSTOM_FIELD_NAME ] ) {
@@ -149,7 +149,7 @@ class WooCommerce_Cover_Fees {
 	 * @param string $payment_gateway The slug for the payment gateway rendering these payment fields.
 	 */
 	public static function render_stripe_input( $payment_gateway ) {
-		if ( ! self::should_allow_covering_fees() ) {
+		if ( ! self::should_allow_covering_fees() || 'stripe' !== $payment_gateway ) {
 			return;
 		}
 		?>
