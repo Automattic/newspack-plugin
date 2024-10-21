@@ -13,7 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * WooCommerce Order UTM class.
  */
 class WooCommerce_Cover_Fees {
-	const CUSTOM_FIELD_NAME = 'newspack-wc-pay-fees';
+	const CUSTOM_FIELD_NAME  = 'newspack-wc-pay-fees';
+	const SUPPORTED_GATEWAYS = [ 'stripe', 'woocommerce_payments' ];
 
 	/**
 	 * Initialize hooks.
@@ -134,7 +135,7 @@ class WooCommerce_Cover_Fees {
 		if ( ! self::should_allow_covering_fees() ) {
 			return false;
 		}
-		if ( ! isset( $data['payment_method'] ) || 'stripe' !== $data['payment_method'] ) {
+		if ( ! isset( $data['payment_method'] ) || ! in_array( $data['payment_method'], self::SUPPORTED_GATEWAYS, true ) ) {
 			return false;
 		}
 		if ( ! isset( $data[ self::CUSTOM_FIELD_NAME ] ) || '1' !== $data[ self::CUSTOM_FIELD_NAME ] ) {
@@ -149,7 +150,7 @@ class WooCommerce_Cover_Fees {
 	 * @param string $payment_gateway The slug for the payment gateway rendering these payment fields.
 	 */
 	public static function render_stripe_input( $payment_gateway ) {
-		if ( ! self::should_allow_covering_fees() || 'stripe' !== $payment_gateway ) {
+		if ( ! self::should_allow_covering_fees() || ! in_array( $payment_gateway, self::SUPPORTED_GATEWAYS, true ) ) {
 			return;
 		}
 		?>
