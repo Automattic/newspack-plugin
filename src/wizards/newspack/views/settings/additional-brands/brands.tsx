@@ -1,4 +1,8 @@
 /**
+ * Additional Brands Brands page.
+ */
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -7,34 +11,12 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import BrandActionCard from './list-card';
+import Brand from './brand';
 import { Card, Button, Router } from '../../../../../components/src';
 
 const { NavLink } = Router;
 
-function BrandsListHeader( {
-	isFetching = false,
-	title,
-}: {
-	title: string;
-	isFetching?: boolean;
-	children?: React.ReactNode;
-} ) {
-	return (
-		<Fragment>
-			<Card headerActions noBorder>
-				<h2>{ title }</h2>
-				<NavLink to="/additional-brands/new">
-					<Button variant="primary" disabled={ isFetching }>
-						{ __( 'Add New Brand', 'newspack-plugin' ) }
-					</Button>
-				</NavLink>
-			</Card>
-		</Fragment>
-	);
-}
-
-export default function BrandsList( {
+export default function Brands( {
 	brands,
 	isFetching,
 	deleteBrand,
@@ -45,17 +27,21 @@ export default function BrandsList( {
 } ) {
 	return (
 		<Fragment>
-			<BrandsListHeader
-				title={
-					! brands.length && ! isFetching
+			<Card headerActions noBorder>
+				<h2>
+					{ ! brands.length && ! isFetching
 						? __( 'You have no saved brands.', 'newspack-plugin' )
-						: __( 'Site brands', 'newspack-plugin' )
-				}
-				isFetching={ isFetching }
-			/>
+						: __( 'Site brands', 'newspack-plugin' ) }
+				</h2>
+				<NavLink to="/additional-brands/new">
+					<Button variant="primary" disabled={ isFetching }>
+						{ __( 'Add New Brand', 'newspack-plugin' ) }
+					</Button>
+				</NavLink>
+			</Card>
 			{ brands.length ? (
 				brands.map( brand => (
-					<BrandActionCard
+					<Brand
 						key={ brand.id }
 						brand={ brand }
 						deleteBrand={ deleteBrand }

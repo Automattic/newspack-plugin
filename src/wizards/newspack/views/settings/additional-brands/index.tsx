@@ -1,15 +1,25 @@
-const { Route, Switch, useHistory, useRouteMatch } = Router;
+/**
+ * Additional Brands page.
+ */
 
+/**
+ * WordPress dependencies.
+ */
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState, useEffect } from '@wordpress/element';
 
-import Brand from './brand';
-import BrandsList from './list';
+/**
+ * Internal dependencies.
+ */
+import Brands from './brands';
+import BrandUpsert from './brand-upsert';
 import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
 import { Router, utils } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+
+const { Route, Switch, useHistory, useRouteMatch } = Router;
 
 export default function AdditionalBrands() {
 	const { wizardApiFetch, isFetching, cache } = useWizardApiFetch(
@@ -22,6 +32,9 @@ export default function AdditionalBrands() {
 	const history = useHistory();
 	const { path } = useRouteMatch();
 
+	/**
+	 * Cache brands data.
+	 */
 	useEffect( () => {
 		brandsCache.set( brands );
 	}, [ brands ] );
@@ -179,7 +192,7 @@ export default function AdditionalBrands() {
 						exact
 						path={ path }
 						render={ () => (
-							<BrandsList
+							<Brands
 								{ ...wizardScreenProps }
 								brands={ brands }
 								deleteBrand={ deleteBrand }
@@ -189,7 +202,7 @@ export default function AdditionalBrands() {
 					<Route
 						path={ `${ path }/new` }
 						render={ () => (
-							<Brand
+							<BrandUpsert
 								{ ...wizardScreenProps }
 								brands={ brands }
 								upsertBrand={ upsertBrand }
@@ -205,7 +218,7 @@ export default function AdditionalBrands() {
 						}: {
 							match: { params: { brandId: string } };
 						} ) => (
-							<Brand
+							<BrandUpsert
 								{ ...wizardScreenProps }
 								brands={ brands }
 								editBrand={ Number( match.params.brandId ) }
