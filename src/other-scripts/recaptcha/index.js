@@ -107,10 +107,11 @@ function refreshWidget( el ) {
 /**
  * Render reCAPTCHA v2 widget on the given form.
  *
- * @param {HTMLElement}   form         The form element.
- * @param {Function|null} errorHandler Function to handle errors. Optional.
+ * @param {HTMLElement}   form      The form element.
+ * @param {Function|null} onSuccess Callback to handle success. Optional.
+ * @param {Function|null} onError   Callback to handle errors. Optional.
  */
-function renderWidget( form, errorHandler = null ) {
+function renderWidget( form, onSuccess = null, onError = null ) {
 	const submitButtons = [
 		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ),
 	];
@@ -143,9 +144,10 @@ function renderWidget( form, errorHandler = null ) {
 		const errorCallback = () => {
 			refreshWidget( button );
 			const message = wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' );
-			if ( errorHandler ) {
-				errorHandler( message );
+			if ( onError ) {
+				onError?.( message );
 			} else {
+				// Recaptcha's default error behavior is to alert with the above message.
 				// eslint-disable-next-line no-alert
 				alert( message );
 			}
@@ -176,12 +178,8 @@ function renderWidget( form, errorHandler = null ) {
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				callback();
 			} else {
-				grecaptcha.execute( widgetId );
-
-				// For some reason, WooCommerce checkout forms don't properly pin the widget in a fixed location, so we need to scroll to the top of the page to ensure it's visible.
-				if ( 'newspack_modal_checkout_container' === document.body.getAttribute( 'id' ) ) {
-					document.body.scrollIntoView( { behavior: 'smooth' } );
-				}
+				grecaptcha.execute( widgetId )
+					.then( () => onSuccess?.() );
 			}
 		} );
 	} );
@@ -190,10 +188,11 @@ function renderWidget( form, errorHandler = null ) {
 /**
  * Render reCAPTCHA elements.
  *
- * @param {Array}         forms        Array of form elements to render reCAPTCHA on.
- * @param {Function|null} errorHandler Callback to handle errors. Optional.
+ * @param {Array}         forms     Array of form elements to render reCAPTCHA on.
+ * @param {Function|null} onSuccess Callback to handle success. Optional.
+ * @param {Function|null} onError   Callback to handle errors. Optional.
  */
-function render( forms = [], errorHandler = null ) {
+function render( forms = [], onSuccess = null, onError = null ) {
 	// In case some other file calls this function before the reCAPTCHA API is ready.
 	if ( ! grecaptcha ) {
 		return domReady( () => grecaptcha.ready( () => render( forms ) ) );
@@ -208,7 +207,7 @@ function render( forms = [], errorHandler = null ) {
 			addHiddenField( form );
 		}
 		if ( isV2 ) {
-			renderWidget( form, errorHandler );
+			renderWidget( form, onSuccess, onError );
 		}
 	} );
 }
