@@ -25,7 +25,6 @@ const JetpackSSO = () => {
 	const [ settings, setSettings ] = useState( {} );
 	const [ settingsToUpdate, setSettingsToUpdate ] = useState( {} );
 
-	// Check the reCAPTCHA connectivity status.
 	useEffect( () => {
 		const fetchSettings = async () => {
 			setIsLoading( true );
