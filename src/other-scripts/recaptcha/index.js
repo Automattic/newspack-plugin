@@ -184,7 +184,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 function render( forms = [], onSuccess = null, onError = null ) {
 	// In case some other file calls this function before the reCAPTCHA API is ready.
 	if ( ! grecaptcha ) {
-		return domReady( () => grecaptcha.ready( () => render( forms ) ) );
+		return domReady( () => grecaptcha.ready( () => render( forms, onSuccess, onError ) ) );
 	}
 
 	const formsToHandle = forms.length
