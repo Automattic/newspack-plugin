@@ -30,7 +30,7 @@ const StripeSettings = ( { stripe, changeHandler, onSave } ) => {
 			return __( 'Not connected', 'newspack-plugin' );
 		}
 		if ( ! isConnectedOauth ) {
-			return __( 'Needs attention', 'newspack-plugin' );
+			return __( 'Needs attention: please reauthenticate', 'newspack-plugin' );
 		}
 		if ( testMode ) {
 			return __( 'Connected in test mode', 'newspack-plugin' );
