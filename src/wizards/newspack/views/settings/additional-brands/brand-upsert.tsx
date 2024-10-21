@@ -103,6 +103,8 @@ export default function Brand( {
 		);
 	}, [] );
 
+	const brandThemeColors = brand.meta._theme_colors;
+
 	const isBrandValid =
 		brand.name?.length > 0 &&
 		( showOnFrontSelect === 'no' ||
@@ -118,10 +120,8 @@ export default function Brand( {
 			return;
 		}
 
-		const existingColor = brand.meta._theme_colors?.find(
-			c => c.name === name
-		);
-		let updatedThemeColors = [ ...( brand.meta._theme_colors || [] ) ];
+		const existingColor = brandThemeColors.find( c => c.name === name );
+		let updatedThemeColors = [ ...( brandThemeColors || [] ) ];
 
 		if ( color ) {
 			if ( existingColor ) {
@@ -246,7 +246,7 @@ export default function Brand( {
 								label={
 									<Fragment>
 										<span>{ color.label }</span>
-										{ brand.meta._theme_colors.find(
+										{ brandThemeColors.find(
 											c => c.name === color.theme_mod_name
 										)?.color && (
 											<Button
@@ -267,9 +267,9 @@ export default function Brand( {
 									</Fragment>
 								}
 								color={
-									brand.meta._theme_colors.find(
+									brandThemeColors.find(
 										c => c.name === color.theme_mod_name
-									)?.color || color.default
+									)?.color ?? color.default
 								}
 								onChange={ ( newColor: string ) =>
 									updateThemeColor(
