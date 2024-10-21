@@ -57,6 +57,11 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 			'allow_covering_fees'         => true,
 			'allow_covering_fees_default' => false,
 			'allow_covering_fees_label'   => '',
+			'is_connected_api_test'       => false,
+			'is_connected_api_live'       => false,
+			'is_connected_oauth_test'     => false,
+			'is_connected_oauth_live'     => false,
+			'legacy_checkout_enabled'     => false,
 		];
 		self::assertEquals(
 			$expected_data,
