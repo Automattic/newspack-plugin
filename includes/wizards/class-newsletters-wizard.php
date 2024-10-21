@@ -50,9 +50,6 @@ class Newsletters_Wizard extends Wizard {
 			return;
 		}
 
-		// Hide Advertisers Taxonomy from menu.
-		add_filter( 'newspack_ia_nl_advertiser_tax_show_in_menu', '__return_false' );
-
 		// Define admin screens based on Newspack Newsletters plugin's admin pages and post types.
 		$this->admin_screens = [
 
@@ -69,8 +66,11 @@ class Newsletters_Wizard extends Wizard {
 
 		];
 
-		// Remove Newsletters plugin's menu setup.
-		remove_action( 'admin_menu', [ Newspack_Newsletters_Ads::class, 'add_ads_page' ] );
+		// Hide Advertisers Taxonomy from menu.
+		add_action( 'registered_taxonomy', [ $this, 'registered_taxonomy_advertiser' ] );
+		
+		// Change Newsletters icon in menu.
+		add_action( 'registered_post_type', [ $this, 'registered_post_type_newsletters' ] );
 
 		// Hooks: 'admin_menu':'add_page', 'admin_enqueue_scripts':'enqueue_scripts_and_styles', 'admin_body_class':'add_body_class'.
 		parent::__construct();
@@ -90,7 +90,7 @@ class Newsletters_Wizard extends Wizard {
 	/**
 	 * Adjusts the Newsletters menu. Called from parent constructor 'admin_menu'.
 	 * 
-	 * Replaces Newsletters Plugin's 'admin_menu' action => Newspack_Newsletters_Ads::class => 'add_ads_page'
+	 * Adjusts Newsletters Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT position and icon.
 	 */
 	public function add_page() {
 		
@@ -112,11 +112,6 @@ class Newsletters_Wizard extends Wizard {
 			return;
 		}
 		
-		// Adjust the menu attributes.
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		// @TODO get SVG from Figma? This one is "envelope" from: https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library
-		$menu[ $current_position ][6] = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"></path></svg>');
-
 		// Move the item to a higher position near "Newspack".
 		$new_position = '3.3';
 
@@ -129,17 +124,6 @@ class Newsletters_Wizard extends Wizard {
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$menu[ $new_position ] = $menu[ $current_position ];
 		unset( $menu[ $current_position ] );
-
-
-		add_submenu_page(
-			'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
-			__( 'Newsletters Ads', 'newspack-newsletters' ),
-			__( 'Ads', 'newspack-newsletters' ),
-			'edit_others_posts', // Copied from Newspack_Newsletters_Ads::class => 'add_ads_page'
-			'/edit.php?post_type=' . Newspack_Newsletters_Ads::CPT,
-			null,
-			2
-		);
 
 	}
 
@@ -197,6 +181,37 @@ class Newsletters_Wizard extends Wizard {
 	 */
 	public function is_wizard_page() {
 		return isset( $this->admin_screens[ $this->get_screen_slug() ] );
+	}
+
+	public function registered_post_type_newsletters( $post_type ) {
+
+		global $wp_post_types;
+
+		if ( Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT !== $post_type ) {
+			return;
+		}
+		if ( empty( $wp_post_types[ $post_type ] ) ) {
+			return;
+		}
+
+		// @TODO get SVG from Figma? This one is "envelope" from: https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library
+		$wp_post_types[ $post_type ]->menu_icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"></path></svg>');
+
+	}
+
+	public function registered_taxonomy_advertiser( $taxonomy ) {
+
+		global $wp_taxonomies;
+
+		if ( Newspack_Newsletters_Ads::ADVERTISER_TAX !== $taxonomy ) {
+			return;
+		}
+		if ( empty( $wp_taxonomies[ $taxonomy ] ) ) {
+			return;
+		}
+
+		$wp_taxonomies[ $taxonomy ]->show_in_menu = false;
+	
 	}
 
 }
