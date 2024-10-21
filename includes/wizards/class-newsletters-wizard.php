@@ -8,8 +8,8 @@
 namespace Newspack;
 
 use Newspack\Wizards\Traits\Admin_Header;
-// use Newspack_Newsletters\Core as Newspack_Newsletters_Core;
-// use Newspack_Newsletters\Settings as Newspack_Newsletters_Settings;
+use Newspack_Newsletters;
+use Newspack_Newsletters_Ads;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,7 +39,7 @@ class Newsletters_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-newsletters';
+	protected $slug = 'newspack_nl_cpt';
 
 	/**
 	 * Constructor.
@@ -50,19 +50,32 @@ class Newsletters_Wizard extends Wizard {
 			return;
 		}
 
+		// Hide Advertisers Taxonomy from menu.
+		add_filter( 'newspack_ia_nl_advertiser_tax_show_in_menu', '__return_false' );
+
 		// Define admin screens based on Newspack Newsletters plugin's admin pages and post types.
 		$this->admin_screens = [
+
 			// Admin post types:
-			'newspack_lst_event'               => __( 'Newsletters / Events', 'newspack-plugin' ),
+			'newspack_nl_cpt'                     => __( 'Newsletters / All Newsletters', 'newspack-plugin' ),
+			'newspack_nl_ads_cpt'                 => __( 'Newsletters / Advertising', 'newspack-plugin' ),
+			
+			// @todo: Admin taxonomies:
+			// 'edit-tags.php?taxonomy={taxonomy}&post_type={post_type}'
+			// 'newspack_nl_cpt-newspack_nl_advertiser' => __( 'Newsletters / Advertising', 'newspack-plugin' ),
+			
 			// Admin pages:
 			'newspack-newsletters-settings-admin' => __( 'Newsletters / Settings', 'newspack-plugin' ),
+
 		];
 
 		// Remove Newsletters plugin's menu setup.
-		remove_action( 'admin_menu', [ Newspack_Newsletters_Core::class, 'add_plugin_page' ] );
+		remove_action( 'admin_menu', [ Newspack_Newsletters_Ads::class, 'add_ads_page' ] );
 
 		// Hooks: 'admin_menu':'add_page', 'admin_enqueue_scripts':'enqueue_scripts_and_styles', 'admin_body_class':'add_body_class'.
 		parent::__construct();
+
+		return;
 
 		// Display screen.
 		if( $this->is_wizard_page() ) {
@@ -75,36 +88,58 @@ class Newsletters_Wizard extends Wizard {
 	}
 
 	/**
-	 * Add the Newsletters menu page. Called from parent constructor 'admin_menu'.
+	 * Adjusts the Newsletters menu. Called from parent constructor 'admin_menu'.
 	 * 
-	 * Replaces Newsletters Plugin's 'admin_menu' action => Newspack_Newsletters\Core => 'add_plugin_page'
+	 * Replaces Newsletters Plugin's 'admin_menu' action => Newspack_Newsletters_Ads::class => 'add_ads_page'
 	 */
 	public function add_page() {
-
-		// Top-level menu item.
-		add_menu_page(
-			__( 'Newsletters', 'newspack-plugin'),
-			__( 'Newsletters', 'newspack-plugin'),
-			'edit_posts', // Copied from Newsletters plugin...see docblock note above.
-			$this->slug,
-			'',
-			'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M18 5.5H6a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5ZM6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 5h1.5v1.5H7V9Zm1.5 4.5H7V15h1.5v-1.5ZM10 9h7v1.5h-7V9Zm7 4.5h-7V15h7v-1.5Z"></path></svg>'),
-			3.4
-		);
-
-        if ( is_callable( [ Newspack_Newsletters_Settings::class, 'create_admin_page' ] ) ) {
-			
-			// Settings menu link.
-			add_submenu_page(
-				$this->slug,
-				$this->admin_screens['newspack-newsletters-settings-admin'],
-				__( 'Settings', 'newspack-plugin' ),
-				$this->capability,
-				'newspack-newsletters-settings-admin',
-				[ Newspack_Newsletters_Settings::class, 'create_admin_page' ]
-			);
-
+		
+		// @todo: is this the only way to set a CPT to a decimal value????
+		global $menu;
+		
+		// Look for the Newsletters parent menu in the admin menu.
+		$current_position = null;
+		foreach ( $menu as $position => $item ) {
+			// Test each item until found.
+			if ( $item[2] === 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT ) {
+				$current_position = $position;
+				break;
+			}
 		}
+		
+		// Verify a key was found.
+		if ( empty( $current_position ) ) {
+			return;
+		}
+		
+		// Adjust the menu attributes.
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		// @TODO get SVG from Figma? This one is "envelope" from: https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library
+		$menu[ $current_position ][6] = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"></path></svg>');
+
+		// Move the item to a higher position near "Newspack".
+		$new_position = '3.3';
+
+		// if position/key collision, keep increasing increment... 3.3 => 3.33 => 3.333 ...
+		while ( array_key_exists( $new_position, $menu ) ) {
+			$new_position .= '3';
+		}
+
+		// Move menu in the array.
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$menu[ $new_position ] = $menu[ $current_position ];
+		unset( $menu[ $current_position ] );
+
+
+		add_submenu_page(
+			'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
+			__( 'Newsletters Ads', 'newspack-newsletters' ),
+			__( 'Ads', 'newspack-newsletters' ),
+			'edit_others_posts', // Copied from Newspack_Newsletters_Ads::class => 'add_ads_page'
+			'/edit.php?post_type=' . Newspack_Newsletters_Ads::CPT,
+			null,
+			2
+		);
 
 	}
 
