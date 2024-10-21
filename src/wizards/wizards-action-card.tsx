@@ -15,11 +15,15 @@ const WizardsActionCard = ( {
 	children,
 	...props
 }: ActionCardProps ) => {
+	let checkbox: 'checked' | 'unchecked' | undefined;
+	if ( typeof isChecked !== 'undefined' ) {
+		checkbox = isChecked ? 'checked' : 'unchecked';
+	}
 	return (
 		<ActionCard
 			{ ...{
 				description,
-				checkbox: isChecked ? 'checked' : 'unchecked',
+				checkbox,
 				notification: error,
 				notificationLevel,
 				...props,

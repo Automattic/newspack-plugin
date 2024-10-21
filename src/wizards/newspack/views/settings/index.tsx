@@ -31,6 +31,7 @@ function Settings() {
 				className="newspack-admin__tabs"
 				headerText={ __( 'Newspack / Settings', 'newspack' ) }
 				sections={ sections }
+				isInitialFetchTriggered={ false }
 			/>
 		</Fragment>
 	);

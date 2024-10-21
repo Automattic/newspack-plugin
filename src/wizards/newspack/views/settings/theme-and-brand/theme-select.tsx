@@ -16,8 +16,8 @@ const ThemeSelection = ( {
 	theme,
 	updateTheme,
 }: {
-	theme: ThemeBrandData[ 'theme' ];
-	updateTheme: ( a: ThemeBrandData[ 'theme' ] ) => void;
+	theme: ThemeData[ 'theme' ];
+	updateTheme: ( a: ThemeData[ 'theme' ] ) => void;
 } ) => (
 	<Grid columns={ 3 } gutter={ 32 }>
 		<StyleCard

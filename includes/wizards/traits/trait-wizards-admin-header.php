@@ -25,6 +25,13 @@ trait Admin_Header {
 	protected $tabs = [];
 
 	/**
+	 * Holds the admin title.
+	 *
+	 * @var string
+	 */
+	protected $title = '';
+
+	/**
 	 * Initialize the admin header script with localized data.
 	 *
 	 * @param array $args Title and tabs array.
@@ -41,6 +48,8 @@ trait Admin_Header {
 	 * Enqueue the admin header css, JavaScript file, and localize the data.
 	 */
 	public function admin_header_enqueue() {
+		
+		Newspack::load_common_assets();
 		
 		// JS.
 		$wizards_admin_header = include dirname( NEWSPACK_PLUGIN_FILE ) . '/dist/admin-header.asset.php';

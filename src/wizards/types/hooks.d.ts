@@ -18,7 +18,7 @@ interface ApiFetchOptions {
 	/** Should this request be cached. If omitted and `GET` method is used the request will cache automatically */
 	isCached?: boolean;
 	/** Update a specific cacheKey, requires `{ [path]: method }` format */
-	updateCacheKey?: { [ k: string ]: string };
+	updateCacheKey?: { [ k: string ]: ApiMethods };
 	/** Will purge and replace cache keys matching method. Well suited for endpoints where only the `method` changes */
 	updateCacheMethods?: ApiMethods[];
 }

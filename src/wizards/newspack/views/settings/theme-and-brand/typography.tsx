@@ -24,29 +24,38 @@ import {
 	TYPOGRAPHY_OPTIONS,
 } from './utils';
 
+/**
+ * Font Group schema.
+ */
+type FontGroup = {
+	label: string;
+	fallback?: string;
+	options: Array< {
+		label: string;
+		value: string;
+	} >;
+};
+
 export default function Typography( {
-	themeMods,
+	data,
 	isFetching,
-	updateTypography,
-}: {
-	themeMods: ThemeMods;
-	isFetching: boolean;
-	updateTypography: ( a: ThemeMods ) => void;
-} ) {
-	const [ typographyOptionsType, updateTypographyOptionsType ] =
-		useState< null | TypographyOptions >( null );
+	update,
+}: ThemeModComponentProps & { isFetching: boolean } ) {
+	const [ typographyOptionsType, updateTypographyOptionsType ] = useState<
+		null | 'curated' | 'custom'
+	>( null );
 
 	useEffect( () => {
 		if ( typographyOptionsType ) {
 			return;
 		}
-		if ( themeMods.font_body && themeMods.font_header ) {
+		if ( data.font_body && data.font_header ) {
 			updateTypographyOptionsType( getType() );
 		}
-	}, [ themeMods.font_body, themeMods.font_body ] );
+	}, [ data.font_body, data.font_body ] );
 
 	function getType() {
-		const { font_header: headerFont, font_body: bodyFont } = themeMods;
+		const { font_header: headerFont, font_body: bodyFont } = data;
 		if (
 			( headerFont && ! isFontInOptions( headerFont ) ) ||
 			( bodyFont && ! isFontInOptions( bodyFont ) )
@@ -61,13 +70,13 @@ export default function Typography( {
 		change?: string | boolean
 	) {
 		if ( objectOrKey instanceof Object ) {
-			updateTypography( { ...themeMods, ...objectOrKey } );
+			update( { ...data, ...objectOrKey } );
 			return;
 		}
 		if ( typeof change === 'undefined' ) {
 			return;
 		}
-		updateTypography( { ...themeMods, [ objectOrKey ]: change } );
+		update( { ...data, [ objectOrKey ]: change } );
 	}
 
 	const renderCustomFontChoice = ( type: string ) => {
@@ -91,9 +100,8 @@ export default function Typography( {
 					}
 					value={
 						( isHeadings
-							? themeMods.custom_font_import_code
-							: themeMods.custom_font_import_code_alternate ) ??
-						''
+							? data.custom_font_import_code
+							: data.custom_font_import_code_alternate ) ?? ''
 					}
 					onChange={ e => {
 						updateTypographyState(
@@ -109,9 +117,7 @@ export default function Typography( {
 					label={
 						label + ' - ' + __( 'Font name', 'newspack-plugin' )
 					}
-					value={
-						isHeadings ? themeMods.font_header : themeMods.font_body
-					}
+					value={ isHeadings ? data.font_header : data.font_body }
 					onChange={ ( e: string ) => {
 						updateTypographyState(
 							isHeadings ? 'font_header' : 'font_body',
@@ -145,8 +151,8 @@ export default function Typography( {
 					] }
 					value={
 						isHeadings
-							? themeMods.font_header_stack
-							: themeMods.font_body_stack
+							? data.font_header_stack
+							: data.font_body_stack
 					}
 					onChange={ ( e: string ) =>
 						updateTypographyState(
@@ -189,7 +195,7 @@ export default function Typography( {
 						<SelectControl
 							label={ __( 'Headings', 'newspack-plugin' ) }
 							optgroups={ getFontsList( true ) }
-							value={ themeMods.font_header }
+							value={ data.font_header }
 							onChange={ ( value: string, group: FontGroup ) => {
 								updateTypographyState( {
 									font_header: value,
@@ -202,7 +208,7 @@ export default function Typography( {
 						<SelectControl
 							label={ __( 'Body', 'newspack-plugin' ) }
 							optgroups={ getFontsList() }
-							value={ themeMods.font_body }
+							value={ data.font_body }
 							onChange={ ( value: string, group: FontGroup ) => {
 								updateTypographyState( {
 									font_body: value,
@@ -221,7 +227,7 @@ export default function Typography( {
 				) }
 			</Grid>
 			<ToggleControl
-				checked={ themeMods.accent_allcaps }
+				checked={ data.accent_allcaps }
 				onChange={ checked =>
 					updateTypographyState( 'accent_allcaps', checked )
 				}

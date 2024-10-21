@@ -49,6 +49,7 @@ class Wizards {
 					'sections' => [
 						'custom-events' => 'Newspack\Wizards\Newspack\Custom_Events_Section',
 						'social-pixels' => 'Newspack\Wizards\Newspack\Pixels_Section',
+						'recirculation' => 'Newspack\Wizards\Newspack\Recirculation_Section',
 					],
 				] 
 			),
@@ -56,6 +57,9 @@ class Wizards {
 			'advertising-sponsors'    => new Advertising_Sponsors(),
 			'audience-configuration'  => new Audience_Configuration(),
 		];
+
+		// Not needed in $wizards[] since it's just for Admin Headers, not full react pages.
+		new Network_Wizard();
 	}
 
 	/**
