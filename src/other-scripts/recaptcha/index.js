@@ -136,50 +136,39 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 		}
 
 		// Callback when reCAPTCHA passes validation.
-		const callback = () => {
+		const successCallback = () => {
+			onSuccess?.()
 			form.requestSubmit( button );
 			refreshWidget( button );
 		};
 
-		const errorCallback = () => {
-			refreshWidget( button );
-			const message = wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' );
-			if ( onError ) {
-				onError?.( message );
-			} else {
-				// Recaptcha's default error behavior is to alert with the above message.
-				// eslint-disable-next-line no-alert
-				alert( message );
-			}
-		}
-
 		// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
 		const widgetId = grecaptcha.render( button, {
 			...options,
-			callback,
-			'error-callback': errorCallback,
+			callback: successCallback,
+			'error-callback': () => {
+				refreshWidget( button );
+				const message = wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' );
+				if ( onError ) {
+					onError( message );
+				} else {
+					// Recaptcha's default error behavior is to alert with the above message.
+					// eslint-disable-next-line no-alert
+					alert( message );
+				}
+			},
 		} );
 
 		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
 		setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
 
-		// Refresh reCAPTCHAs on Woo checkout update and error.
-		( function ( $ ) {
-			if ( ! $ ) {
-				return;
-			}
-			$( document ).on( 'updated_checkout', () => renderWidget( form ) );
-			$( document.body ).on( 'checkout_error', () => renderWidget( form ) );
-		} )( jQuery );
-
 		button.addEventListener( 'click', e => {
 			e.preventDefault();
 			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-				callback();
+				successCallback();
 			} else {
-				grecaptcha.execute( widgetId )
-					.then( () => onSuccess?.() );
+				grecaptcha.execute( widgetId );
 			}
 		} );
 	} );
