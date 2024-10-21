@@ -23,7 +23,7 @@ class WooCommerce_Cover_Fees {
 		\add_action( 'woocommerce_checkout_update_order_review', [ __CLASS__, 'persist_fee_selection' ] );
 		\add_action( 'woocommerce_cart_calculate_fees', [ __CLASS__, 'add_transaction_fee' ] );
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'add_order_note' ], 1, 3 );
-		\add_action( 'wc_stripe_payment_fields_stripe', [ __CLASS__, 'render_stripe_input' ] );
+		\add_action( 'newspack_blocks_after_payment_fields', [ __CLASS__, 'render_stripe_input' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'print_checkout_helper_script' ] );
 	}
 
@@ -134,7 +134,7 @@ class WooCommerce_Cover_Fees {
 		if ( ! self::should_allow_covering_fees() ) {
 			return false;
 		}
-		if ( ! isset( $data['payment_method'] ) || 'stripe' !== $data['payment_method'] ) {
+		if ( ! isset( $data['payment_method'] ) ) {
 			return false;
 		}
 		if ( ! isset( $data[ self::CUSTOM_FIELD_NAME ] ) || '1' !== $data[ self::CUSTOM_FIELD_NAME ] ) {
@@ -145,8 +145,10 @@ class WooCommerce_Cover_Fees {
 
 	/**
 	 * Render the "cover fees" input for Stripe.
+	 *
+	 * @param string $payment_gateway The slug for the payment gateway rendering these payment fields.
 	 */
-	public static function render_stripe_input() {
+	public static function render_stripe_input( $payment_gateway ) {
 		if ( ! self::should_allow_covering_fees() ) {
 			return;
 		}
@@ -154,7 +156,7 @@ class WooCommerce_Cover_Fees {
 		<fieldset>
 			<p class="form-row newspack-cover-fees" style="display: flex;">
 				<input
-					id="<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>"
+					id="<?php echo esc_attr( self::CUSTOM_FIELD_NAME . '_' . $payment_gateway ); ?>"
 					name="<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>"
 					type="checkbox"
 					style="margin-right: 8px;"
@@ -163,7 +165,7 @@ class WooCommerce_Cover_Fees {
 						checked
 					<?php endif; ?>
 				/>
-				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
+				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME . '_' . $payment_gateway ); ?> style="display:inline;">
 					<?php
 					$custom_message = get_option( 'newspack_donations_allow_covering_fees_label', '' );
 					if ( ! empty( $custom_message ) ) {
@@ -210,13 +212,6 @@ class WooCommerce_Cover_Fees {
 			[ 'jquery' ],
 			NEWSPACK_PLUGIN_VERSION,
 			[ 'in_footer' => true ]
-		);
-		wp_localize_script(
-			$handler,
-			'newspack_wc_cover_fees',
-			[
-				'custom_field_name' => self::CUSTOM_FIELD_NAME,
-			]
 		);
 	}
 
