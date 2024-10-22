@@ -55,7 +55,7 @@ export default function Brand( {
 	const [ brand, updateBrand ] = hooks.useObjectState< Brand >( {
 		id: 0,
 		name: __( 'Brand Name', 'newspack-plugin' ),
-		slug: 'brand-slug',
+		slug: '',
 		meta: {
 			_show_page_on_front: 0,
 			_custom_url: 'yes',
@@ -314,6 +314,7 @@ export default function Brand( {
 						withMargin={ false }
 						value={ brand.slug || '' }
 						onChange={ ( slug: string ) => updateBrand( { slug } ) }
+						placeholder="brand-slug"
 					/>
 				</div>
 			</Card>
