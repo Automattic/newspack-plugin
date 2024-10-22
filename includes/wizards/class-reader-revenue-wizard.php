@@ -155,35 +155,27 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_stripe_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'enabled'                     => [
+					'enabled'       => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'fee_multiplier'              => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => function ( $value ) {
-							if ( (float) $value > 10 ) {
-								return new WP_Error(
-									'newspack_invalid_param',
-									__( 'Fee multiplier must be smaller than 10.', 'newspack' )
-								);
-							}
-							return true;
-						},
-					],
-					'fee_static'                  => [
+					'location_code' => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
-					'allow_covering_fees'         => [
+				],
+			]
+		);
+
+		// Save WooPayments info.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/woopayments/',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_woopayments_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'enabled' => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-					'allow_covering_fees_default' => [
-						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-					'allow_covering_fees_label'   => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-					],
-					'location_code'               => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
 			]
@@ -415,7 +407,24 @@ class Reader_Revenue_Wizard extends Wizard {
 	}
 
 	/**
+	 * Save WooPayments settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_update_woopayments_settings( $request ) {
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+
+		$params = $request->get_params();
+		$result = $wc_configuration_manager->update_wc_woopayments_settings( $params );
+		return \rest_ensure_response( $result );
+	}
+
+	/**
 	 * Save additional payment method settings (e.g. transaction fees).
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response.
 	 */
 	public function api_update_additional_settings( $request ) {
 		$params = $request->get_params();
@@ -486,7 +495,8 @@ class Reader_Revenue_Wizard extends Wizard {
 			'currency_fields'          => newspack_get_currencies_options(),
 			'location_data'            => [],
 			'payment_gateways'         => [
-				'stripe' => $stripe_data,
+				'stripe'      => $stripe_data,
+				'woopayments' => $wc_configuration_manager->woopayments_data(),
 			],
 			'additional_settings'      => [
 				'allow_covering_fees'         => get_option( 'newspack_donations_allow_covering_fees', true ),

@@ -9,12 +9,13 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { AdditionalSettings } from './additional-settings';
 import { Stripe } from './stripe';
+import { WooPayments } from './woopayments';
 import { Notice, SectionHeader, Wizard } from '../../../../components/src';
 import './style.scss';
 
 const PaymentGateways = () => {
 	const { payment_gateways: paymentGateways = {}, is_ssl, errors = [], additional_settings: settings = {} } = Wizard.useWizardData( 'reader-revenue' );
-	const { stripe = {} } = paymentGateways;
+	const { stripe = {}, woopayments = {} } = paymentGateways;
 
 	return (
 		<>
@@ -52,11 +53,8 @@ const PaymentGateways = () => {
 					}
 				/>
 			) }
-			<Stripe
-				errors={ errors }
-				is_ssl={ is_ssl }
-				stripe={ stripe }
-			/>
+			<Stripe stripe={ stripe } />
+			<WooPayments woopayments={ woopayments } />
 			{ 0 < Object.keys( 'paymentGateways' ).length && (
 				<AdditionalSettings
 					settings={ settings }
