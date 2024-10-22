@@ -141,14 +141,29 @@ class Newsletters_Wizard extends Wizard {
 
 		// Re-add Tracking page. ( See remove_action above.  See Newsletters Plugin: Newspack_Newsletters\Tracking\Admin > 'add_settings_page'.
 		if ( is_callable( [ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ] ) ) {
-			add_submenu_page(
-				'', // Hide.
+			
+			
+			// add_submenu_page(
+			// 	'', // Hide.
+			// 	esc_html__( 'Newsletters Tracking Options', 'newspack-newsletters' ),
+			// 	esc_html__( 'Tracking', 'newspack-newsletters' ),
+			// 	'manage_options', // As defined in original callback.
+			// 	'newspack-newsletters-tracking',
+			// 	[ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ]
+			// );
+
+			
+			\add_submenu_page(
+				// @ TODO: FIX!
+				// [22-Oct-2024 04:31:49 UTC] PHP Deprecated:  strip_tags(): Passing null to parameter #1 ($string) of type string is deprecated in C:\Users\ronch\p\wpdev\wp3\public_html\wp-admin\admin-header.php on line 36
+				'', // 'edit.php?post_type=' . \Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
 				esc_html__( 'Newsletters Tracking Options', 'newspack-newsletters' ),
 				esc_html__( 'Tracking', 'newspack-newsletters' ),
-				'manage_options', // As defined in original callback.
+				'manage_options',
 				'newspack-newsletters-tracking',
 				[ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ]
 			);
+	
 		}
 	}
 
