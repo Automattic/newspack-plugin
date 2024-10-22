@@ -13,6 +13,7 @@ import { Fragment } from '@wordpress/element';
  */
 import Brand from './brand';
 import { Card, Button, Router } from '../../../../../components/src';
+import { TAB_PATH } from './constants';
 
 const { NavLink } = Router;
 
@@ -33,7 +34,7 @@ export default function Brands( {
 						? __( 'You have no saved brands.', 'newspack-plugin' )
 						: __( 'Site brands', 'newspack-plugin' ) }
 				</h2>
-				<NavLink to="/additional-brands/new">
+				<NavLink to={ `${ TAB_PATH }/new` }>
 					<Button variant="primary" disabled={ isFetching }>
 						{ __( 'Add New Brand', 'newspack-plugin' ) }
 					</Button>

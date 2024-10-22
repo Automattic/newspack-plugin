@@ -18,6 +18,7 @@ import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
 import { Router, utils } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
+import { TAB_PATH } from './constants';
 
 const { Route, Switch, useHistory, useRouteMatch } = Router;
 
@@ -106,7 +107,7 @@ export default function AdditionalBrands() {
 							brandId === b.id ? newBrand : b
 						);
 					} );
-					history.push( '/additional-brands' );
+					history.push( TAB_PATH );
 				},
 			}
 		);

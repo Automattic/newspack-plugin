@@ -16,6 +16,7 @@ import { MenuItem } from '@wordpress/components';
  */
 import WizardsActionCard from '../../../../wizards-action-card';
 import { Button, Popover, Router } from '../../../../../components/src';
+import { TAB_PATH } from './constants';
 
 const { useHistory } = Router;
 
@@ -61,7 +62,7 @@ export default function Brand( {
 							<MenuItem
 								onClick={ () =>
 									history.push(
-										`/additional-brands/${ brand.id }`
+										`${ TAB_PATH }/${ brand.id }`
 									)
 								}
 								className="newspack-button"
