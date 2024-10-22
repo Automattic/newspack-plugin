@@ -42,6 +42,7 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 
 		$expected_data = [
 			'enabled'                 => true,
+			'testMode'                => false,
 			'currency'                => 'USD',
 			'location_code'           => 'US',
 			'is_connected_api_test'   => false,

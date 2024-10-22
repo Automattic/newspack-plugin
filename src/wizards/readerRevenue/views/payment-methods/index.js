@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl, ExternalLink } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -21,61 +21,9 @@ import {
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 import './style.scss';
 
-const StripeSettings = ( { stripe } ) => {
-	const testMode = stripe?.testMode;
-	const isConnectedApi = testMode ? stripe?.is_connected_api_test : stripe?.is_connected_api_live;
-	const isConnectedOauth = testMode ? stripe?.is_connected_oauth_test : stripe?.is_connected_oauth_live;
-	const getConnectionStatus = () => {
-		if ( ! isConnectedApi ) {
-			return __( 'Not connected', 'newspack-plugin' );
-		}
-		if ( ! isConnectedOauth ) {
-			return __( 'Needs attention', 'newspack-plugin' );
-		}
-		if ( testMode ) {
-			return __( 'Connected in test mode', 'newspack-plugin' );
-		}
-		return __( 'Connected', 'newspack-plugin' );
-	}
-	const getConnectionHint = () => {
-		if ( ! isConnectedApi ) {
-			return __( 'Authenticate with Stripe to collect payments on your site.', 'newspack-plugin' );
-		}
-		if ( ! isConnectedOauth ) {
-			return __( 'Reauthenticate with Stripe to continue collecting payments on your site.', 'newspack-plugin' );
-		}
-		if ( testMode ) {
-			return __( 'Your site is able to collect Stripe test payments.', 'newspack-plugin' );
-		}
-		return __( 'Your site is able to collect Stripe payments.', 'newspack-plugin' );
-	}
-	return (
-		<ActionCard
-			title={ getConnectionStatus() }
-			description={ getConnectionHint() }
-			actionText={
-				! isConnectedApi || ! isConnectedOauth ? (
-					<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=methods">
-						{ __( 'Connect', 'newspack-plugin' ) }
-					</ExternalLink>
-				) : null
-			}
-			checkbox={ isConnectedApi && isConnectedOauth ? 'checked' : 'unchecked' }
-			isPending={ ! isConnectedApi || ! isConnectedOauth }
-			hasWhiteHeader
-			noBorder
-			isSmall
-		/>
-	);
-}
-
-const Stripe = (
-	{
-		errors,
-		is_ssl,
-		stripe,
-	}
-) => {
+const Stripe = ( { stripe } ) => {
+	const isLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isLoading() );
+	const isQuietLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isQuietLoading() );
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
@@ -109,6 +57,39 @@ const Stripe = (
 			/>
 		);
 	}
+	const testMode = stripe?.testMode;
+	const isConnectedApi = testMode ? stripe?.is_connected_api_test : stripe?.is_connected_api_live;
+	const isConnectedOauth = testMode ? stripe?.is_connected_oauth_test : stripe?.is_connected_oauth_live;
+	const getConnectionStatus = () => {
+		if ( ! stripe?.enabled ) {
+			return null;
+		}
+		if ( isLoading || isQuietLoading ) {
+			return __( 'Loading…', 'newspack-plugin' );
+		}
+		if ( ! isConnectedApi ) {
+			return __( 'Not connected', 'newspack-plugin' );
+		}
+		if ( ! isConnectedOauth ) {
+			return __( 'Needs attention', 'newspack-plugin' );
+		}
+		if ( testMode ) {
+			return __( 'Connected - test mode', 'newspack-plugin' );
+		}
+		return __( 'Connected', 'newspack-plugin' );
+	}
+	const getBadgeLevel = () => {
+		if ( ! stripe?.enabled || isLoading || isQuietLoading ) {
+			return 'info';
+		}
+		if ( ! isConnectedApi ) {
+			return 'error';
+		}
+		if ( ! isConnectedOauth ) {
+			return 'warning';
+		}
+		return 'success';
+	}
 
 	return (
 		<ActionCard
@@ -125,14 +106,16 @@ const Stripe = (
 					</ExternalLink>
 				</>
 			) }
-			hasGreyHeader={ !! stripe.enabled }
-			hasWhiteHeader={ ! stripe.enabled }
+			hasWhiteHeader
 			toggleChecked={ !! stripe.enabled }
 			toggleOnChange={ () => {
 				changeHandler( 'enabled', ! stripe.enabled );
 				onSave();
 			} }
-			actionContent={ stripe.enabled && (
+			badge={ getConnectionStatus() }
+			badgeLevel={ getBadgeLevel() }
+			// eslint-disable-next-line no-nested-ternary
+			actionContent={ ( ! stripe?.enabled || isLoading || isQuietLoading ) ? null : isConnectedOauth ? (
 				<Button
 					variant="secondary"
 					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=settings"
@@ -141,39 +124,17 @@ const Stripe = (
 				>
 					{ __( 'Configure', 'newspack-plugin' ) }
 				</Button>
+			) : (
+				<Button
+					variant="primary"
+					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=payment-methods"
+					target="_blank"
+					rel="noreferrer"
+				>
+					{ __( 'Connect', 'newspack-plugin' ) }
+				</Button>
 			) }
-		>
-			{ stripe.enabled && (
-				<>
-					{ errors.length > 0 &&
-						errors.map( ( error, index ) => (
-							<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
-						) ) }
-					{ is_ssl === false && (
-						<Notice
-							isWarning
-							noticeText={
-								<>
-									{ __(
-										'Missing or invalid SSL configuration detected. To use Stripe, the site must be secured with SSL. ',
-										'newspack-plugin'
-									) }
-									<ExternalLink href="https://stripe.com/docs/security/guide">
-										{ __( 'Learn more', 'newspack-plugin' ) }
-									</ExternalLink>
-								</>
-							}
-						/>
-					) }
-					{ stripe && (
-						<StripeSettings
-							stripe={ stripe }
-							onSave={ onSave }
-						/>
-					) }
-				</>
-			) }
-		</ActionCard>
+		/>
 	);
 }
 
@@ -269,7 +230,7 @@ const PaymentGateways = () => {
 	return (
 		<>
 			<SectionHeader
-				title={ __( 'Payment Methods', 'newspack-plugin' ) }
+				title={ __( 'Payment Gateways', 'newspack-plugin' ) }
 				description={ () => (
 					<>
 						{ __(
@@ -282,6 +243,26 @@ const PaymentGateways = () => {
 					</>
 				) }
 			/>
+			{ errors.length > 0 &&
+				errors.map( ( error, index ) => (
+					<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
+				) ) }
+			{ is_ssl === false && (
+				<Notice
+					isWarning
+					noticeText={
+						<>
+							{ __(
+								'Missing or invalid SSL configuration detected. To collect payments, the site must be secured with SSL. ',
+								'newspack-plugin'
+							) }
+							<ExternalLink href="https://stripe.com/docs/security/guide">
+								{ __( 'Learn more', 'newspack-plugin' ) }
+							</ExternalLink>
+						</>
+					}
+				/>
+			) }
 			<Stripe
 				errors={ errors }
 				is_ssl={ is_ssl }
