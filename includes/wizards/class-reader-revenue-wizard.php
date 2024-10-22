@@ -155,6 +155,9 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_stripe_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
+					'activate'      => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
 					'enabled'       => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
@@ -174,7 +177,10 @@ class Reader_Revenue_Wizard extends Wizard {
 				'callback'            => [ $this, 'api_update_woopayments_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'enabled' => [
+					'activate' => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'enabled'  => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
 				],
@@ -478,7 +484,7 @@ class Reader_Revenue_Wizard extends Wizard {
 	public function fetch_all_data() {
 		$platform                 = Donations::get_platform_slug();
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$wc_installed             = $wc_configuration_manager->is_active();
+		$wc_installed             = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
 		$stripe_data              = Stripe_Connection::get_stripe_data();
 
 		$billing_fields = [];
@@ -515,7 +521,7 @@ class Reader_Revenue_Wizard extends Wizard {
 			'is_ssl'                   => is_ssl(),
 			'errors'                   => [],
 		];
-		if ( 'wc' === $platform && $wc_installed ) {
+		if ( 'wc' === $platform ) {
 			$plugin_status    = true;
 			$managed_plugins  = Plugin_Manager::get_managed_plugins();
 			$required_plugins = [

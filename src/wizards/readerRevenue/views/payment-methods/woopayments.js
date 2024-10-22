@@ -11,7 +11,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	ActionCard,
 	Button,
-	PluginInstaller,
 	Wizard,
 } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
@@ -34,24 +33,6 @@ export const WooPayments = ( { woopayments } ) => {
 			section: 'woopayments',
 			payloadPath: [ 'payment_gateways', 'woopayments' ],
 		} );
-	if ( ! woopayments ) {
-		return (
-			<PluginInstaller
-				plugins={ [ 'woocommerce-payments' ] }
-				onStatus={ ( { complete } ) => {
-					if ( complete ) {
-						updateWizardSettings( {
-							slug: 'newspack-reader-revenue-wizard',
-							path: [ 'payment_gateways', 'woopayments' ],
-							value: { activate: true },
-						} );
-						onSave();
-					}
-				} }
-				withoutFooterButton={ true }
-			/>
-		);
-	}
 	const testMode = woopayments?.test_mode;
 	const isConnected = woopayments?.is_connected;
 	const getConnectionStatus = () => {

@@ -14,9 +14,20 @@ import { Notice, SectionHeader, Wizard } from '../../../../components/src';
 import './style.scss';
 
 const PaymentGateways = () => {
-	const { payment_gateways: paymentGateways = {}, is_ssl, errors = [], additional_settings: settings = {} } = Wizard.useWizardData( 'reader-revenue' );
-	const { stripe = {}, woopayments = {} } = paymentGateways;
+	const {
+		payment_gateways: paymentGateways = {},
+		is_ssl,
+		errors = [],
+		additional_settings: settings = {},
+		plugin_status,
+		platform_data = {},
+	} = Wizard.useWizardData( 'reader-revenue' );
+	if ( false === plugin_status || 'wc' !== platform_data?.platform ) {
+		return null;
+	}
 
+	const { stripe = false, woopayments = false } = paymentGateways;
+	const hasPaymentGateway = Object.keys( paymentGateways ).some( gateway => paymentGateways[ gateway ]?.enabled );
 	return (
 		<>
 			<SectionHeader
@@ -55,7 +66,7 @@ const PaymentGateways = () => {
 			) }
 			<Stripe stripe={ stripe } />
 			<WooPayments woopayments={ woopayments } />
-			{ 0 < Object.keys( 'paymentGateways' ).length && (
+			{ hasPaymentGateway && (
 				<AdditionalSettings
 					settings={ settings }
 				/>

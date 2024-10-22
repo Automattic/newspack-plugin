@@ -11,7 +11,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	ActionCard,
 	Button,
-	PluginInstaller,
 	Wizard,
 } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
@@ -34,24 +33,6 @@ export const Stripe = ( { stripe } ) => {
 			section: 'stripe',
 			payloadPath: [ 'payment_gateways', 'stripe' ],
 		} );
-	if ( ! stripe ) {
-		return (
-			<PluginInstaller
-				plugins={ [ 'woocommerce-gateway-stripe' ] }
-				onStatus={ ( { complete } ) => {
-					if ( complete ) {
-						updateWizardSettings( {
-							slug: 'newspack-reader-revenue-wizard',
-							path: [ 'payment_gateways', 'stripe' ],
-							value: { activate: true },
-						} );
-						onSave();
-					}
-				} }
-				withoutFooterButton={ true }
-			/>
-		);
-	}
 	const testMode = stripe?.testMode;
 	const isConnectedApi = testMode ? stripe?.is_connected_api_test : stripe?.is_connected_api_live;
 	const isConnectedOauth = testMode ? stripe?.is_connected_oauth_test : stripe?.is_connected_oauth_live;
