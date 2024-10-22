@@ -21,7 +21,7 @@ import {
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 import './style.scss';
 
-const StripeSettings = ( { stripe, changeHandler, onSave } ) => {
+const StripeSettings = ( { stripe } ) => {
 	const testMode = stripe?.testMode;
 	const isConnectedApi = testMode ? stripe?.is_connected_api_test : stripe?.is_connected_api_live;
 	const isConnectedOauth = testMode ? stripe?.is_connected_oauth_test : stripe?.is_connected_oauth_live;
@@ -30,105 +30,42 @@ const StripeSettings = ( { stripe, changeHandler, onSave } ) => {
 			return __( 'Not connected', 'newspack-plugin' );
 		}
 		if ( ! isConnectedOauth ) {
-			return __( 'Needs attention: please reauthenticate', 'newspack-plugin' );
+			return __( 'Needs attention', 'newspack-plugin' );
 		}
 		if ( testMode ) {
 			return __( 'Connected in test mode', 'newspack-plugin' );
 		}
 		return __( 'Connected', 'newspack-plugin' );
 	}
+	const getConnectionHint = () => {
+		if ( ! isConnectedApi ) {
+			return __( 'Authenticate with Stripe to collect payments on your site.', 'newspack-plugin' );
+		}
+		if ( ! isConnectedOauth ) {
+			return __( 'Reauthenticate with Stripe to continue collecting payments on your site.', 'newspack-plugin' );
+		}
+		if ( testMode ) {
+			return __( 'Your site is able to collect Stripe test payments.', 'newspack-plugin' );
+		}
+		return __( 'Your site is able to collect Stripe payments.', 'newspack-plugin' );
+	}
 	return (
-		<>
-			<ActionCard
-				title={ __( 'Connection Status', 'newspack-plugin' ) }
-				description={ getConnectionStatus() }
-				actionText={
-					! isConnectedApi || ! isConnectedOauth ? (
-						<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=methods">
-							{ __( 'Connect', 'newspack-plugin' ) }
-						</ExternalLink>
-					) : null
-				}
-				checkbox={ isConnectedApi && isConnectedOauth ? 'checked' : 'unchecked' }
-				isPending={ ! isConnectedApi || ! isConnectedOauth }
-				hasWhiteHeader
-				isSmall
-			/>
-			{ ( isConnectedApi || isConnectedOauth ) && (
-				<>
-					<SectionHeader
-						title={ __( 'Additional Settings', 'newspack-plugin' ) }
-						description={ __(
-							'Configure Newspack-exclusive Stripe settings.',
-							'newspack-plugin'
-						) }
-					/>
-					<ActionCard
-						title={ __( 'Collect transaction fees', 'newspack-plugin' ) }
-						description={ __( 'Allow donors to optionally cover the Stripe transaction fee.', 'newspack-plugin' ) }
-						notificationLevel="info"
-						toggleChecked={ stripe.allow_covering_fees }
-						toggleOnChange={ () => changeHandler( 'allow_covering_fees', ! stripe.allow_covering_fees ) }
-						hasWhiteHeader
-						noBorder
-						isSmall
-					>
-						{ stripe.allow_covering_fees && (
-							<>
-								<p>
-									{ __(
-										'Stripe’s standard transaction fee is 2.9% + 30¢ per successful charge. If your account has different pricing, adjust the fee structure below. ',
-										'newspack-plugin'
-									) }
-									<ExternalLink href="https://stripe.com/pricing">
-										{ __( 'Learn more', 'newspack-plugin' ) }
-									</ExternalLink>
-								</p>
-								<Grid noMargin rowGap={ 16 }>
-									<TextControl
-										type="number"
-										step="0.1"
-										value={ stripe.fee_multiplier }
-										label={ __( 'Fee multiplier', 'newspack-plugin' ) }
-										onChange={ value => changeHandler( 'fee_multiplier', value ) }
-									/>
-									<TextControl
-										type="number"
-										step="0.1"
-										value={ stripe.fee_static }
-										label={ __( 'Fee static portion', 'newspack-plugin' ) }
-										onChange={ value => changeHandler( 'fee_static', value ) }
-									/>
-									<TextControl
-										value={ stripe.allow_covering_fees_label }
-										label={ __( 'Custom message', 'newspack-plugin' ) }
-										placeholder={ __(
-											'A message to explain the transaction fee option (optional).',
-											'newspack-plugin'
-										) }
-										onChange={ value => changeHandler( 'allow_covering_fees_label', value ) }
-									/>
-									<CheckboxControl
-										label={ __( 'Cover fees by default', 'newspack-plugin' ) }
-										checked={ stripe.allow_covering_fees_default }
-										onChange={ () => changeHandler( 'allow_covering_fees_default', ! stripe.allow_covering_fees_default ) }
-										help={ __(
-											'If enabled, the option to cover the transaction fee will be checked by default.',
-											'newspack-plugin'
-										) }
-									/>
-								</Grid>
-							</>
-						) }
-						<div className="newspack-buttons-card">
-							<Button isPrimary onClick={ onSave }>
-								{ __( 'Save Settings', 'newspack-plugin' ) }
-							</Button>
-						</div>
-					</ActionCard>
-				</>
-			) }
-		</>
+		<ActionCard
+			title={ getConnectionStatus() }
+			description={ getConnectionHint() }
+			actionText={
+				! isConnectedApi || ! isConnectedOauth ? (
+					<ExternalLink href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=methods">
+						{ __( 'Connect', 'newspack-plugin' ) }
+					</ExternalLink>
+				) : null
+			}
+			checkbox={ isConnectedApi && isConnectedOauth ? 'checked' : 'unchecked' }
+			isPending={ ! isConnectedApi || ! isConnectedOauth }
+			hasWhiteHeader
+			noBorder
+			isSmall
+		/>
 	);
 }
 
@@ -137,11 +74,23 @@ const Stripe = (
 		errors,
 		is_ssl,
 		stripe,
-		changeHandler,
-		onSave,
-		updateWizardSettings
 	}
 ) => {
+	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const changeHandler = ( key, value ) =>
+		updateWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			path: [ 'payment_gateways', 'stripe', key ],
+			value,
+		} );
+
+	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const onSave = () =>
+		saveWizardSettings( {
+			slug: READER_REVENUE_WIZARD_SLUG,
+			section: 'stripe',
+			payloadPath: [ 'payment_gateways', 'stripe' ],
+		} );
 	if ( ! stripe ) {
 		return (
 			<PluginInstaller
@@ -150,7 +99,7 @@ const Stripe = (
 					if ( complete ) {
 						updateWizardSettings( {
 							slug: 'newspack-reader-revenue-wizard',
-							path: [ 'stripe_data' ],
+							path: [ 'payment_gateways', 'stripe' ],
 							value: { activate: true },
 						} );
 						onSave();
@@ -219,9 +168,8 @@ const Stripe = (
 					{ stripe && (
 						<StripeSettings
 							stripe={ stripe }
-							changeHandler={ changeHandler }
 							onSave={ onSave }
-							/>
+						/>
 					) }
 				</>
 			) }
@@ -229,13 +177,12 @@ const Stripe = (
 	);
 }
 
-const PaymentGateways = () => {
-	const { stripe_data: stripe = {}, is_ssl, errors = [] } = Wizard.useWizardData( 'reader-revenue' );
+const AdditionalSettings = ( { settings } ) => {
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
-			path: [ 'stripe_data', key ],
+			path: [ 'additional_settings', key ],
 			value,
 		} );
 
@@ -243,9 +190,81 @@ const PaymentGateways = () => {
 	const onSave = () =>
 		saveWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
-			section: 'stripe',
-			payloadPath: [ 'stripe_data' ],
+			section: 'settings',
+			payloadPath: [ 'additional_settings' ],
 		} );
+
+	return (
+		<>
+			<SectionHeader
+				title={ __( 'Additional Settings', 'newspack-plugin' ) }
+				description={ __(
+					'Configure Newspack-exclusive settings.',
+					'newspack-plugin'
+				) }
+			/>
+			<ActionCard
+				isMedium
+				title={ __( 'Collect transaction fees', 'newspack-plugin' ) }
+				description={ __( 'Allow donors to optionally cover transaction fees imposed by payment processors.', 'newspack-plugin' ) }
+				notificationLevel="info"
+				toggleChecked={ settings.allow_covering_fees }
+				toggleOnChange={ () => {
+					changeHandler( 'allow_covering_fees', ! settings.allow_covering_fees );
+					onSave();
+				} }
+				hasGreyHeader={ settings.allow_covering_fees }
+				hasWhiteHeader={ ! settings.allow_covering_fees }
+				actionContent={ settings.allow_covering_fees && (
+					<Button isPrimary onClick={ onSave }>
+						{ __( 'Save Settings', 'newspack-plugin' ) }
+					</Button>
+				) }
+			>
+				{ settings.allow_covering_fees && (
+					<Grid noMargin rowGap={ 16 }>
+						<TextControl
+							type="number"
+							step="0.1"
+							value={ settings.fee_multiplier }
+							label={ __( 'Fee multiplier', 'newspack-plugin' ) }
+							onChange={ value => changeHandler( 'fee_multiplier', value ) }
+						/>
+						<TextControl
+							type="number"
+							step="0.1"
+							value={ settings.fee_static }
+							label={ __( 'Fee static portion', 'newspack-plugin' ) }
+							onChange={ value => changeHandler( 'fee_static', value ) }
+						/>
+						<TextControl
+							value={ settings.allow_covering_fees_label }
+							label={ __( 'Custom message', 'newspack-plugin' ) }
+							placeholder={ __(
+								'A message to explain the transaction fee option (optional).',
+								'newspack-plugin'
+							) }
+							onChange={ value => changeHandler( 'allow_covering_fees_label', value ) }
+						/>
+						<CheckboxControl
+							label={ __( 'Cover fees by default', 'newspack-plugin' ) }
+							checked={ settings.allow_covering_fees_default }
+							onChange={ () => changeHandler( 'allow_covering_fees_default', ! settings.allow_covering_fees_default ) }
+							help={ __(
+								'If enabled, the option to cover the transaction fee will be checked by default.',
+								'newspack-plugin'
+							) }
+						/>
+					</Grid>
+				) }
+			</ActionCard>
+		</>
+	);
+}
+
+const PaymentGateways = () => {
+	const { payment_gateways: paymentGateways = {}, is_ssl, errors = [], additional_settings: settings = {} } = Wizard.useWizardData( 'reader-revenue' );
+	const { stripe = {} } = paymentGateways;
 
 	return (
 		<>
@@ -267,10 +286,12 @@ const PaymentGateways = () => {
 				errors={ errors }
 				is_ssl={ is_ssl }
 				stripe={ stripe }
-				changeHandler={ changeHandler }
-				onSave={ onSave }
-				updateWizardSettings={ updateWizardSettings }
 			/>
+			{ 0 < Object.keys( 'paymentGateways' ).length && (
+				<AdditionalSettings
+					settings={ settings }
+				/>
+			) }
 		</>
 	);
 };
