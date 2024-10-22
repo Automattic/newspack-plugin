@@ -53,7 +53,7 @@ export default function Brand( {
 
 	const [ brand, updateBrand ] = hooks.useObjectState< Brand >( {
 		id: 0,
-		name: 'Brand Name',
+		name: '',
 		slug: 'brand-slug',
 		meta: {
 			_show_page_on_front: 0,
@@ -206,6 +206,7 @@ export default function Brand( {
 						value={ brand.name || '' }
 						onChange={ updateBrand( 'name' ) }
 						onBlur={ updateSlugFromName }
+						placeholder={ __( 'Brand Name', 'newspack-plugin' ) }
 					/>
 				</Grid>
 				<Grid columns={ 1 } gutter={ 16 }>
