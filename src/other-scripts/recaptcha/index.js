@@ -129,6 +129,11 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			return;
 		}
 
+		// Don't render widget if the button has been retried 3 times.
+		if ( button.hasAttribute( 'data-recaptcha-retry-count' ) && parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) >= 3 ) {
+			return;
+		}
+
 		// Refresh widget if it already exists.
 		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
 			refreshWidget( button );
@@ -147,8 +152,16 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			...options,
 			callback: successCallback,
 			'error-callback': () => {
-				refreshWidget( button );
-				const message = wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' );
+				const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
+				if ( retryCount < 3 ) {
+					button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
+					refreshWidget( button );
+				} else {
+					clearInterval( refreshIntervalId );
+				}
+				const message = retryCount < 3
+					? wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' )
+					: wp.i18n.__( 'There was an error with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
 				if ( onError ) {
 					onError( message );
 				} else {
@@ -160,7 +173,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 		} );
 
 		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
-		setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
+		const refreshIntervalId = setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
 
 		button.addEventListener( 'click', e => {
 			e.preventDefault();
