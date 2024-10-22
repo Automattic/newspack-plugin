@@ -175,11 +175,6 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		$stripe_connection = \WC_Stripe::get_instance()->connect;
 		return [
 			'enabled'                 => 'yes' === $stripe_gateway->get_option( 'enabled', false ) ? true : false,
-			'testMode'                => 'yes' === $stripe_gateway->get_option( 'testmode', false ) ? true : false,
-			'publishableKey'          => $stripe_gateway->get_option( 'publishable_key', '' ),
-			'secretKey'               => $stripe_gateway->get_option( 'secret_key', '' ),
-			'testPublishableKey'      => $stripe_gateway->get_option( 'test_publishable_key', '' ),
-			'testSecretKey'           => $stripe_gateway->get_option( 'test_secret_key', '' ),
 			'is_connected_api_test'   => $stripe_connection->is_connected( 'test' ),
 			'is_connected_api_live'   => $stripe_connection->is_connected( 'live' ),
 			'is_connected_oauth_test' => $stripe_connection->is_connected_via_oauth( 'test' ),

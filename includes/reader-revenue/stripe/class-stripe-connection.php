@@ -61,21 +61,6 @@ class Stripe_Connection {
 				'location_code' => $location_code,
 			]
 		);
-
-		// Read data from the legacy option.
-		$legacy_stripe_data = array_filter(
-			get_option( 'newspack_stripe_data', [] ),
-			[ __CLASS__, 'is_value_non_empty' ]
-		);
-		$stripe_data        = array_merge( $legacy_stripe_data, $stripe_data );
-
-		if ( isset( $stripe_data['testMode'] ) ) {
-			$stripe_data['usedPublishableKey'] = $stripe_data['testMode'] ? $stripe_data['testPublishableKey'] : $stripe_data['publishableKey'];
-			$stripe_data['usedSecretKey']      = $stripe_data['testMode'] ? $stripe_data['testSecretKey'] : $stripe_data['secretKey'];
-		} else {
-			$stripe_data['usedPublishableKey'] = '';
-			$stripe_data['usedSecretKey']      = '';
-		}
 		return $stripe_data;
 	}
 
