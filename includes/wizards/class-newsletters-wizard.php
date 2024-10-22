@@ -67,7 +67,7 @@ class Newsletters_Wizard extends Wizard {
 			'newspack_nl_advertiser'              => __( 'Newsletters / Advertising', 'newspack-plugin' ),
 
 		];
-	
+
 		// Menu removals.
 		remove_action( 'admin_menu', [ Newspack_Newsletters_Ads::class, 'add_ads_page' ] );
 		remove_action( 'admin_menu', [ Newspack_Newsletters_Settings::class, 'add_plugin_page' ] );
@@ -141,29 +141,25 @@ class Newsletters_Wizard extends Wizard {
 
 		// Re-add Tracking page. ( See remove_action above.  See Newsletters Plugin: Newspack_Newsletters\Tracking\Admin > 'add_settings_page'.
 		if ( is_callable( [ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ] ) ) {
-			
-			
-			// add_submenu_page(
-			// 	'', // Hide.
-			// 	esc_html__( 'Newsletters Tracking Options', 'newspack-newsletters' ),
-			// 	esc_html__( 'Tracking', 'newspack-newsletters' ),
-			// 	'manage_options', // As defined in original callback.
-			// 	'newspack-newsletters-tracking',
-			// 	[ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ]
-			// );
-
-			
-			\add_submenu_page(
-				// @ TODO: FIX!
-				// [22-Oct-2024 04:31:49 UTC] PHP Deprecated:  strip_tags(): Passing null to parameter #1 ($string) of type string is deprecated in C:\Users\ronch\p\wpdev\wp3\public_html\wp-admin\admin-header.php on line 36
-				'', // 'edit.php?post_type=' . \Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
-				esc_html__( 'Newsletters Tracking Options', 'newspack-newsletters' ),
-				esc_html__( 'Tracking', 'newspack-newsletters' ),
-				'manage_options',
+						
+			$tracking_title = esc_html__( 'Newsletters Tracking Options', 'newspack-plugin' );
+			$tracking_hook = add_submenu_page(
+				'',
+				$tracking_title,
+				esc_html__( 'Tracking', 'newspack-plugin' ),
+				'manage_options', // As defined in original callback.
 				'newspack-newsletters-tracking',
 				[ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ]
 			);
-	
+
+			// In cases where the $submenu hidden item array ( $submenu[''] = array of hidden submenu items ) is defined after the parent_slug's
+			// item array ( $submenu['post type url or menu-slug'] = array of submenu items ), the HTML Title will not be set and a debug.log
+			// deprecated notice will be written: 
+			//     PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
+			// If the hidden array is defined before the parent slug array, then the HTML Title is shown and no debug.log notice.
+			// To avoid this issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally
+			// set the title here just in case.
+			add_action( "load-{$tracking_hook}", fn() => $GLOBALS['title'] = $tracking_title );
 		}
 	}
 
@@ -385,7 +381,6 @@ class Newsletters_Wizard extends Wizard {
 
 		// Post type with settings page:
 		if ( 'newspack-newsletters-tracking' === $this->get_screen_slug() ) {
-			// return 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters-settings-admin'
 			return 'newspack-newsletters-settings-admin';
 		}
 

@@ -61,6 +61,7 @@ class Advertising_Sponsors extends Wizard {
 		if ( ! is_plugin_active( 'newspack-sponsors/newspack-sponsors.php' ) ) {
 			return;
 		}
+
 		parent::__construct();
 
 		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
