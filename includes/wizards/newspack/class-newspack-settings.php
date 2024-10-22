@@ -106,7 +106,7 @@ class Newspack_Settings extends Wizard {
 				'label' => __( 'Display Settings', 'newspack-plugin' ),
 			],
 		];
-		if ( is_plugin_active( 'newspack-multibranded-site/newspack-multibranded-site.php' ) ) {
+		if ( defined( 'NEWSPACK_MULTIBRANDED_SITE_PLUGIN_FILE' ) ) {
 			$newspack_settings['additional-brands'] = [
 				'label'          => __( 'Additional Brands', 'newspack-plugin' ),
 				'activeTabPaths' => [
