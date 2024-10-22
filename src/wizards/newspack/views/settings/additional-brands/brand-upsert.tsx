@@ -27,6 +27,7 @@ import {
 } from '../../../../../components/src';
 
 import './style.scss';
+import { TAB_PATH } from './constants';
 
 const { useParams } = Router;
 
@@ -401,7 +402,7 @@ export default function Brand( {
 				>
 					{ __( 'Save', 'newspack-plugin' ) }
 				</Button>
-				<Button variant="secondary" href="#/">
+				<Button variant="secondary" href={ `#${ TAB_PATH }` }>
 					{ __( 'Cancel', 'newspack-plugin' ) }
 				</Button>
 			</div>
