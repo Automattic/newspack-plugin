@@ -352,8 +352,10 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 							isSmall
 							simple
 							hasWhiteHeader
-							title={ list.name }
-							description={ list?.type_label ? list.type_label : null }
+							title={ list.remote_name }
+							description={
+								list?.type_label ? list.type_label : null
+							}
 							disabled={ inFlight }
 							toggleOnChange={ handleChange( index, 'active' ) }
 							toggleChecked={ list.active }
