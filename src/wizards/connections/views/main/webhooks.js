@@ -266,7 +266,7 @@ const Webhooks = () => {
 				/>
 				<Button
 					variant="primary"
-					onClick={ () => setEditing( { global: true } ) }
+					onClick={ () => setEditing( {} ) }
 					disabled={ inFlight }
 				>
 					{ __( 'Add New Endpoint', 'newspack-plugin' ) }
@@ -298,17 +298,10 @@ const Webhooks = () => {
 								return (
 									<>
 										{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
-										{ endpoint.global ? (
-											<span className="newspack-webhooks__endpoint__action">
-												{ __( 'global', 'newspack-plugin' ) }
-											</span>
-										) : (
-											endpoint.actions.map( action => (
-												<span key={ action } className="newspack-webhooks__endpoint__action">
-													{ action }
-												</span>
-											) )
-										) }
+										{ endpoint.actions.map( action => (
+											<span key={ action } className="newspack-webhooks__endpoint__action">
+												{ action }
+											</span> ) ) }
 									</>
 								);
 							} }
@@ -521,21 +514,11 @@ const Webhooks = () => {
 					/>
 					<Grid columns={ 1 } gutter={ 16 }>
 						<h3>{ __( 'Actions', 'newspack-plugin' ) }</h3>
-						<CheckboxControl
-							checked={ editing.global }
-							onChange={ value => setEditing( { ...editing, global: value } ) }
-							label={ __( 'Global', 'newspack-plugin' ) }
-							help={ __(
-								'Leave this checked if you want this endpoint to receive data from all actions.',
-								'newspack-plugin'
-							) }
-							disabled={ inFlight }
-						/>
 						{ actions.length > 0 && (
 							<>
 								<p>
 									{ __(
-										'If this endpoint is not global, select which actions should trigger this endpoint:',
+										'Select which actions should trigger this endpoint:',
 										'newspack-plugin'
 									) }
 								</p>
@@ -543,10 +526,9 @@ const Webhooks = () => {
 									{ actions.map( ( action, i ) => (
 										<CheckboxControl
 											key={ i }
-											disabled={ editing.global || inFlight }
+											disabled={ inFlight }
 											label={ action }
 											checked={ ( editing.actions && editing.actions.includes( action ) ) || false }
-											indeterminate={ editing.global }
 											onChange={ () => {
 												const currentActions = editing.actions || [];
 												if ( currentActions.includes( action ) ) {
