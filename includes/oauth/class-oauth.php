@@ -36,6 +36,12 @@ class OAuth {
 		if ( ! $id ) {
 			$id = session_id(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_id
 		}
+		if ( ! $id ) {
+			if ( session_status() !== PHP_SESSION_ACTIVE ) { // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_status
+				session_start(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_start
+			}
+			$id = session_id(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.session_session_id
+		}
 		return $id;
 	}
 
@@ -48,6 +54,11 @@ class OAuth {
 	public static function generate_csrf_token( $namespace ) {
 		$csrf_token = wp_generate_password( 40, false );
 		$transient_scope = self::CSRF_TOKEN_TRANSIENT_SCOPE_PREFIX . $namespace;
+		$unique_id = self::get_unique_id();
+		if ( ! $unique_id ) {
+			Logger::log( sprintf( 'Unable to get unique ID for CSRF token with "%s" namespace.', $namespace ) );
+			return false;
+		}
 		return OAuth_Transients::set( self::get_unique_id(), $transient_scope, $csrf_token );
 	}
 
