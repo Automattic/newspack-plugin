@@ -23,9 +23,8 @@ import { TAB_PATH } from './constants';
 const { Route, Switch, useHistory, useRouteMatch } = Router;
 
 export default function AdditionalBrands() {
-	const { wizardApiFetch, isFetching, cache } = useWizardApiFetch(
-		'newspack-settings/additional-brands'
-	);
+	const { wizardApiFetch, isFetching, cache, errorMessage } =
+		useWizardApiFetch( 'newspack-settings/additional-brands' );
 
 	const brandsCache = cache( '/wp/v2/brand' );
 
@@ -226,6 +225,7 @@ export default function AdditionalBrands() {
 								upsertBrand={ upsertBrand }
 								fetchLogoAttachment={ fetchLogoAttachment }
 								wizardApiFetch={ wizardApiFetch }
+								errorMessage={ errorMessage }
 							/>
 						) }
 					/>

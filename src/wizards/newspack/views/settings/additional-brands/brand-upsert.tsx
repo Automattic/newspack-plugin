@@ -24,6 +24,7 @@ import {
 	SelectControl,
 	RadioControl,
 	hooks,
+	Notice,
 } from '../../../../../components/src';
 
 import './style.scss';
@@ -42,12 +43,14 @@ export default function Brand( {
 	upsertBrand,
 	wizardApiFetch,
 	fetchLogoAttachment,
+	errorMessage,
 }: {
 	brands: Brand[];
 	editBrand?: number;
 	upsertBrand: ( brandId: number, brand: Brand ) => void;
 	wizardApiFetch: WizardApiFetch;
 	fetchLogoAttachment: ( brandId: number, logoId: number ) => void;
+	errorMessage?: string | null;
 } ) {
 	const { brandId = '0' } = useParams();
 	const selectedBrand = brands.find( ( { id } ) => id === Number( brandId ) );
@@ -393,7 +396,7 @@ export default function Brand( {
 						}
 					/>
 				) ) }
-
+			{ errorMessage && <Notice isError>{ errorMessage }</Notice> }
 			{ /* Action Buttons */ }
 			<div className="newspack-buttons-card">
 				<Button
