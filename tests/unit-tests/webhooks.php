@@ -68,6 +68,22 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Teardown.
+	 */
+	public function tear_down() {
+		// Remove all endpoints.
+		$terms = get_terms(
+			[
+				'taxonomy'   => Data_Events\Webhooks::ENDPOINT_TAXONOMY,
+				'hide_empty' => false,
+			]
+		);
+		foreach ( $terms as $term ) {
+			wp_delete_term( $term->term_id, Data_Events\Webhooks::ENDPOINT_TAXONOMY );
+		}
+	}
+
+	/**
 	 * Dispatch a sample data event.
 	 *
 	 * @param string $action_name Action name.
