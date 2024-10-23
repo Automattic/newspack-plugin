@@ -221,7 +221,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 					continue;
 				}
 
-				$result   = [
+				$result = [
 					'ID'                => $subscription->get_id(),
 					'status'            => $subscription->get_status(),
 					'start_date'        => $subscription_start,
@@ -230,10 +230,14 @@ Fetching active subscriptions with missing or missed next_payment dates...
 					'missed_periods'    => 0,
 					'missed_total'      => 0,
 				];
-				$min_date = strtotime( $subscription_start );
-				while ( $min_date <= $now ) {
-					$result['missed_periods']++;
-					$min_date = strtotime( '+1 ' . $result['billing_period'], $min_date );
+				if ( ! empty( $result['billing_period'] ) && ! empty( $result['billing_interval'] ) ) {
+					$period   = $result['billing_period'];
+					$interval = (int) $result['billing_interval'];
+					$min_date = strtotime( "+$interval $period", strtotime( $subscription_start ) ); // Start after first period so we don't count in-progress periods as missed.
+					while ( $min_date <= $now ) {
+						$result['missed_periods']++;
+						$min_date = strtotime( "+$interval $period", $min_date );
+					}
 				}
 
 				if ( $result['missed_periods'] ) {
