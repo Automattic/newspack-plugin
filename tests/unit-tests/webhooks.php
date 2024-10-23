@@ -148,7 +148,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	public function test_disable_endpoint() {
 		Data_Events\Webhooks::disable_endpoint( $this->action_endpoint );
 		$endpoint = Data_Events\Webhooks::get_endpoint( $this->action_endpoint );
-		$this->assertEquals( true, $endpoints['disabled'] );
+		$this->assertEquals( true, $endpoint['disabled'] );
 	}
 
 	/**
@@ -278,7 +278,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		}
 
 		$endpoint = Data_Events\Webhooks::get_endpoint( $this->action_endpoint );
-		$this->assertTrue( $endpoints['disabled'] );
+		$this->assertTrue( $endpoint['disabled'] );
 	}
 
 	/**
