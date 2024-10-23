@@ -96,18 +96,12 @@ export default function AdditionalBrands() {
 			{
 				onSuccess( result ) {
 					setBrands( ( brandsList: Brand[] ) => {
-						// The result from the API call doesn't contain the logo details.
-						const newBrand = {
-							...brand,
-							id: result.id,
-							slug: result.slug,
-						};
 						// Is update
 						if ( 0 === brandId ) {
-							return [ newBrand, ...brandsList ];
+							return [ result, ...brandsList ];
 						}
 						return brandsList.map( b =>
-							brandId === b.id ? newBrand : b
+							brandId === b.id ? result : b
 						);
 					} );
 					history.push( TAB_PATH );
