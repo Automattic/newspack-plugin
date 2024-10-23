@@ -102,7 +102,7 @@ final class Api {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				esc_html__( 'You cannot use this resource.', 'newspack-plugin' ),
 				[
 					'status' => 403,
 				]
@@ -165,7 +165,7 @@ final class Api {
 				[
 					'success' => false,
 					'code'    => false,
-					'message' => esc_html__( 'Invalid URL.', 'newspack' ),
+					'message' => esc_html__( 'Invalid URL.', 'newspack-plugin' ),
 				]
 			);
 		}
