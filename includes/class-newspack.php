@@ -275,7 +275,7 @@ final class Newspack {
 
 		$is_newspack_screen = str_contains( $screen->base, 'newspack_page_' );
 		$is_advertising_screen = str_contains( $screen->base, 'toplevel_page_advertising' );
-		$is_audience_screen = str_contains( $screen->parent_base, 'audience-configuration' );
+		$is_audience_screen = str_contains( $screen->parent_base, 'newspack-audience-configuration' );
 
 		$is_wizard = $is_newspack_screen || $is_advertising_screen || $is_audience_screen;
 

@@ -23,7 +23,7 @@ class Audience_Configuration extends Wizard {
 	 * 
 	 * @var string
 	 */
-	protected $slug = 'audience-configuration';
+	protected $slug = 'newspack-audience-configuration';
 
 	/**
 	 * Audience Configuration Constructor.

@@ -70,5 +70,5 @@ class AudienceConfiguration extends Component {
 
 render(
 	createElement( withWizard( AudienceConfiguration, [ 'jetpack' ] ) ),
-	document.getElementById( 'audience-configuration' )
+	document.getElementById( 'newspack-audience-configuration' )
 );
