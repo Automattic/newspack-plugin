@@ -11,14 +11,6 @@ use Newspack\Data_Events;
  * Tests the Webhooks functionality.
  */
 class Newspack_Test_Webhooks extends WP_UnitTestCase {
-
-	/**
-	 * Global endpoint ID
-	 *
-	 * @var int
-	 */
-	private $global_endpoint;
-
 	/**
 	 * Action endpoint ID
 	 *
@@ -61,11 +53,6 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		}
 
 		// Create sample endpoints.
-		$this->global_endpoint         = Data_Events\Webhooks::create_endpoint(
-			'https://example.com/webhook',
-			[],
-			true
-		)['id'];
 		$this->action_endpoint         = Data_Events\Webhooks::create_endpoint(
 			'https://example.com/webhook/test_action',
 			[ 'test_action' ]
@@ -75,7 +62,6 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			[ 'missing_action' ]
 		)['id'];
 		$this->endpoints               = [
-			$this->global_endpoint,
 			$this->action_endpoint,
 			$this->missing_action_endpoint,
 		];
@@ -96,23 +82,30 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 * Test creating an endpoint.
 	 */
 	public function test_create_endpoint() {
-		$id        = $this->global_endpoint;
+		$id        = $this->action_endpoint;
 		$endpoints = Data_Events\Webhooks::get_endpoints();
 		foreach ( $endpoints as $endpoint ) {
 			if ( $endpoint['id'] === $id ) {
-				$this->assertEquals( 'https://example.com/webhook', $endpoint['url'] );
-				$this->assertEquals( [], $endpoint['actions'] );
-				$this->assertEquals( true, $endpoint['global'] );
+				$this->assertEquals( 'https://example.com/webhook/test_action', $endpoint['url'] );
+				$this->assertEquals( [ 'test_action' ], $endpoint['actions'] );
 				$this->assertEquals( false, $endpoint['disabled'] );
 			}
 		}
 	}
 
 	/**
+	 * Test create endpoint with empty actions.
+	 */
+	public function test_create_endpoint_empty_actions() {
+		$result = Data_Events\Webhooks::create_endpoint( 'https://example.com/webhook/empty_actions', [] );
+		$this->assertTrue( is_wp_error( $result ) );
+	}
+
+	/**
 	 * Test updating an endpoint label.
 	 */
 	public function test_update_endpoint_label() {
-		$id = $this->global_endpoint;
+		$id = $this->action_endpoint;
 		Data_Events\Webhooks::update_endpoint_label( $id, 'Test Label' );
 		$endpoints = Data_Events\Webhooks::get_endpoints();
 		foreach ( $endpoints as $endpoint ) {
@@ -137,19 +130,9 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 * Test disabling an endpoint.
 	 */
 	public function test_disable_endpoint() {
-		Data_Events\Webhooks::disable_endpoint( $this->global_endpoint );
+		Data_Events\Webhooks::disable_endpoint( $this->action_endpoint );
 		$endpoints = Data_Events\Webhooks::get_endpoints();
 		$this->assertEquals( true, $endpoints[0]['disabled'] );
-	}
-
-	/**
-	 * Test that dispatching an action creates webhook requests for a global
-	 * endpoint.
-	 */
-	public function test_dispatch_create_request() {
-		$this->dispatch_event();
-		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
-		$this->assertEquals( 1, count( $requests ) );
 	}
 
 	/**
@@ -176,9 +159,9 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 * Test that a disabled endpoint doesn't create webhook requests.
 	 */
 	public function test_disabled_endpoints() {
-		Data_Events\Webhooks::disable_endpoint( $this->global_endpoint );
+		Data_Events\Webhooks::disable_endpoint( $this->action_endpoint );
 		$this->dispatch_event();
-		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
+		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint );
 		$this->assertEquals( 0, count( $requests ) );
 	}
 
@@ -187,7 +170,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 */
 	public function test_request_scheduling() {
 		$this->dispatch_event();
-		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
+		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint );
 		$post     = get_post( $requests[0]['id'] );
 		$this->assertEquals( 'future', $post->post_status );
 		$this->assertGreaterThan( time(), strtotime( $post->post_date ) );
@@ -215,7 +198,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			10,
 			3
 		);
-		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]['id'];
+		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint )[0]['id'];
 		wp_publish_post( $request_id );
 		$this->assertEquals( 'https://example.com/webhook', $http_url );
 		$this->assertEquals( 'POST', $http_args['method'] );
@@ -239,7 +222,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 				];
 			}
 		);
-		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]['id'];
+		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint )[0]['id'];
 		wp_publish_post( $request_id );
 		$this->assertEquals( 'future', get_post_status( $request_id ) );
 		$this->assertGreaterThan( time(), strtotime( get_post( $request_id )->post_date ) );
@@ -266,7 +249,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			}
 		);
 
-		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint )[0]['id'];
+		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint )[0]['id'];
 
 		while ( $retries <= $max_retries ) {
 			wp_publish_post( $request_id );
@@ -366,7 +349,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		Data_Events\Webhooks::register_system_endpoint( 'test-3', 'https://example2.com/test', [ 'test_action' ] );
 		$this->dispatch_event();
 
-		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->global_endpoint );
+		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint );
 		$this->assertSame( 1, count( $requests ) );
 
 		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-2' );
