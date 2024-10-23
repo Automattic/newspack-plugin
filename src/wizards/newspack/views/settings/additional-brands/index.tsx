@@ -20,17 +20,22 @@ import { Router, utils } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { TAB_PATH } from './constants';
 
-const { Route, Switch, useHistory, useRouteMatch } = Router;
+const { Route, Switch, useHistory, useRouteMatch, useLocation } = Router;
 
 export default function AdditionalBrands() {
-	const { wizardApiFetch, isFetching, cache, errorMessage } =
+	const { wizardApiFetch, isFetching, cache, errorMessage, resetError } =
 		useWizardApiFetch( 'newspack-settings/additional-brands' );
 
 	const brandsCache = cache( '/wp/v2/brand' );
 
 	const [ brands, setBrands ] = useState< Brand[] >( [] );
 	const history = useHistory();
+	const location = useLocation();
 	const { path } = useRouteMatch();
+
+	useEffect( () => {
+		resetError();
+	}, [ location.pathname ] );
 
 	/**
 	 * Cache brands data.
