@@ -10,6 +10,7 @@ export function WizardsAdminHeader( {
 	tabs: Array< {
 		textContent: string;
 		href: string;
+		forceSelected: boolean;
 	} >;
 } ) {
 	return (
@@ -28,12 +29,13 @@ export function WizardsAdminHeader( {
 			<div className="newspack-tabbed-navigation">
 				<ul>
 					{ tabs.map( ( tab, i ) => {
+						const selected = ( tab.forceSelected ) ? true : window.location.href === tab.href;
 						return (
 							<li key={ `${ tab.textContent }:${ i }` }>
 								<a
 									href={ tab.href }
 									className={
-										window.location.href === tab.href
+										selected
 											? 'selected'
 											: ''
 									}
