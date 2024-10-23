@@ -97,7 +97,11 @@ export default function AdditionalBrands() {
 				onSuccess( result ) {
 					setBrands( ( brandsList: Brand[] ) => {
 						// The result from the API call doesn't contain the logo details.
-						const newBrand = { ...brand, id: result.id };
+						const newBrand = {
+							...brand,
+							id: result.id,
+							slug: result.slug,
+						};
 						// Is update
 						if ( 0 === brandId ) {
 							return [ newBrand, ...brandsList ];
