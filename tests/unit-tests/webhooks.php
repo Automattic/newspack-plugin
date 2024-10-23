@@ -200,7 +200,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		);
 		$request_id = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint )[0]['id'];
 		wp_publish_post( $request_id );
-		$this->assertEquals( 'https://example.com/webhook', $http_url );
+		$this->assertEquals( 'https://example.com/webhook/test_action', $http_url );
 		$this->assertEquals( 'POST', $http_args['method'] );
 		$this->assertEquals( 'application/json', $http_args['headers']['Content-Type'] );
 		$this->assertEquals( get_post_meta( $request_id, 'body', true ), $http_args['body'] );
@@ -331,10 +331,10 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	public function test_system_endpoint() {
 		Data_Events\Webhooks::register_system_endpoint( 'test', 'https://example.com/test' );
 		$endpoints = Data_Events\Webhooks::get_endpoints();
-		$this->assertSame( 4, count( $endpoints ) );
-		$this->assertSame( 'test', $endpoints[3]['id'] );
-		$this->assertTrue( $endpoints[3]['system'] );
-		$this->assertFalse( $endpoints[2]['system'] );
+		$this->assertSame( 3, count( $endpoints ) );
+		$this->assertSame( 'test', $endpoints[2]['id'] );
+		$this->assertTrue( $endpoints[2]['system'] );
+		$this->assertFalse( $endpoints[1]['system'] );
 
 		$ep = Data_Events\Webhooks::get_endpoint( 'test' );
 		$this->assertSame( 'test', $ep['id'] );
@@ -345,17 +345,13 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 * Tests that getting endpoint requests fetch requests for system endpoints.
 	 */
 	public function test_get_endpoint_requests() {
-		Data_Events\Webhooks::register_system_endpoint( 'test-2', 'https://example.com/test', [], true );
-		Data_Events\Webhooks::register_system_endpoint( 'test-3', 'https://example2.com/test', [ 'test_action' ] );
+		Data_Events\Webhooks::register_system_endpoint( 'test-2', 'https://example2.com/test', [ 'test_action' ] );
 		$this->dispatch_event();
 
 		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint );
 		$this->assertSame( 1, count( $requests ) );
 
 		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-2' );
-		$this->assertSame( 1, count( $requests ) );
-
-		$requests = Data_Events\Webhooks::get_endpoint_requests( 'test-3' );
 		$this->assertSame( 1, count( $requests ) );
 	}
 
