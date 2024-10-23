@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { DonationAmounts } from '../../../readerRevenue/views/donation';
-import { StripeKeysSettings } from '../../../readerRevenue/views/stripe-setup';
+import PaymentGateways from '../../../readerRevenue/views/payment-methods';
 import { Wizard } from '../../../../components/src';
 
 const ReaderRevenue = ( { className } ) => {
@@ -30,8 +30,7 @@ const ReaderRevenue = ( { className } ) => {
 			) : (
 				<>
 					<DonationAmounts />
-					<h2>{ __( 'Payment gateway', 'newspack' ) }</h2>
-					<StripeKeysSettings />
+					<PaymentGateways />
 				</>
 			) }
 		</div>

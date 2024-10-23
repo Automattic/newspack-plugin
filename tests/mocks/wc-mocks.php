@@ -23,6 +23,30 @@ class WC_Gateway_Stripe {
 	}
 }
 
+class WC_Stripe {
+	protected static $instance = null;
+	public $connect = null;
+	public static function get_instance() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self();
+			self::$instance->connect = self::$instance;
+		}
+		return self::$instance;
+	}
+	public function is_connected( $mode = 'live' ) {
+		return false;
+	}
+	public function is_connected_via_oauth( $mode = 'live' ) {
+		return false;
+	}
+}
+
+class WC_Stripe_Feature_Flags {
+	public static function is_upe_checkout_enabled() {
+		return true;
+	}
+}
+
 class WC_Payment_Gateways {
 	private static $gateways = [];
 	public static function instance() {
