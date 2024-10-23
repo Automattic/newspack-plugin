@@ -147,8 +147,8 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 */
 	public function test_disable_endpoint() {
 		Data_Events\Webhooks::disable_endpoint( $this->action_endpoint );
-		$endpoints = Data_Events\Webhooks::get_endpoints();
-		$this->assertEquals( true, $endpoints[0]['disabled'] );
+		$endpoint = Data_Events\Webhooks::get_endpoint( $this->action_endpoint );
+		$this->assertEquals( true, $endpoints['disabled'] );
 	}
 
 	/**
@@ -277,8 +277,8 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 			$retries++;
 		}
 
-		$endpoints = Data_Events\Webhooks::get_endpoints();
-		$this->assertTrue( $endpoints[0]['disabled'] );
+		$endpoint = Data_Events\Webhooks::get_endpoint( $this->action_endpoint );
+		$this->assertTrue( $endpoints['disabled'] );
 	}
 
 	/**
