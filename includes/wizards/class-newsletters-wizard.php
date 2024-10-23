@@ -203,25 +203,31 @@ class Newsletters_Wizard extends Wizard {
 			return $sanitized_page;
 		}
 
+		// Check for edit.php.
 		if( 'edit.php' === $pagenow ) {
 
+			// Post type must exist.
 			if ( empty( $this->admin_screens[ $sanitized_post_type ] ) ) {
 				return '';
 			}
 
-			// Post Type with Page: edit.php?post_type={post_type}&page={page}
+			// Post Type with page: edit.php?post_type={post_type}&page={page}
 			if ( isset( $this->admin_screens[ $sanitized_page ] ) ) {
 				return $sanitized_page;
 			}
-			else {
-				// Post type list screen: edit.php?post_type={post_type}
-				return $sanitized_post_type;
-			}
+
+			// Post type list screen: edit.php?post_type={post_type}
+			return $sanitized_post_type;
 
 		}
 
-		// Check for taxonomy edit: edit-tags.php?taxonomy={taxonomy}&post_type={post_type}
+		// Check for taxonomy list: edit-tags.php?taxonomy={taxonomy}&post_type={post_type}
 		if( 'edit-tags.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) && isset( $this->admin_screens[ $sanitized_taxonomy ] ) ) {
+			return $sanitized_taxonomy;
+		}
+
+		// Check for taxonomy edit: term.php?taxonomy={taxonomy}&post_type={post_type}.....
+		if( 'term.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) && isset( $this->admin_screens[ $sanitized_taxonomy ] ) ) {
 			return $sanitized_taxonomy;
 		}
 
@@ -235,7 +241,9 @@ class Newsletters_Wizard extends Wizard {
 	 */
 	private function get_tabs() {
 
-		if ( in_array( $this->get_screen_slug(), [ 'newspack_nl_ads_cpt', 'newspack_nl_advertiser' ], true ) ) {
+		$screen_slug = $this->get_screen_slug();
+
+		if ( in_array( $screen_slug, [ 'newspack_nl_ads_cpt', 'newspack_nl_advertiser' ], true ) ) {
 
 			return [
 				[
@@ -243,14 +251,16 @@ class Newsletters_Wizard extends Wizard {
 					'href'        => admin_url( 'edit.php?post_type=newspack_nl_ads_cpt' ),
 				],
 				[
-					'textContent' => esc_html__( 'Advertisers', 'newspack-plugin' ),
-					'href'        => admin_url( 'edit-tags.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt' ),
+					'textContent'   => esc_html__( 'Advertisers', 'newspack-plugin' ),
+					'href'          => admin_url( 'edit-tags.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt' ),
+					// force selected tab for url: term.php?taxonomy=newspack_nl_advertiser&tag_ID=32&post_type=newspack_nl_cpt...
+					'forceSelected' => ( 'newspack_nl_advertiser' === $screen_slug ),
 				],
 			];
 
 		}
 
-		if ( in_array( $this->get_screen_slug(), [ 'newspack-newsletters-settings-admin', 'newspack-newsletters-tracking' ], true ) ) {
+		if ( in_array( $screen_slug, [ 'newspack-newsletters-settings-admin', 'newspack-newsletters-tracking' ], true ) ) {
 
 			return [
 				[
@@ -375,6 +385,7 @@ class Newsletters_Wizard extends Wizard {
 	public function submenu_file( $submenu_file ) {
 
 		// Advertisers Taxonomy: ( replace & with &amp; )
+		// Note, this will also match term edit: term.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt....
 		if ( 'edit-tags.php?taxonomy=newspack_nl_advertiser&amp;post_type=newspack_nl_cpt' === $submenu_file ) {
 			return 'edit.php?post_type=newspack_nl_ads_cpt';
 		}	

@@ -4,6 +4,7 @@ declare global {
 			tabs: Array< {
 				textContent: string;
 				href: string;
+				forceSelected: boolean;
 			} >;
 			title: string;
 		};
