@@ -35,6 +35,13 @@ class Listings_Wizard extends Wizard {
 	protected $menu_priority = 11;
 
 	/**
+	 * Slug for current wizard screen.
+	 *
+	 * @var string
+	 */
+	private $screen_slug;
+
+	/**
 	 * Primary slug for these wizard screens.
 	 *
 	 * @var string
@@ -137,25 +144,26 @@ class Listings_Wizard extends Wizard {
 		
 		global $pagenow;
 
-		// @todo: set return value to static var to only run the code below once.
+		if( isset( $this->screen_slug ) ) {
+			return $this->screen_slug;
+		}
 
 		$sanitized_page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-
-		// Check for normal admin page screen: admin.php?page={page}
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
-			return $sanitized_page;
+			// admin page screen: admin.php?page={page}
+			$this->screen_slug = $sanitized_page;
+		}
+		else if( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			// post type list screen: edit.php?post_type={post_type}
+			$this->screen_slug = $sanitized_post_type;
+		}
+		else {
+			$this->screen_slug = '';
 		}
 
-		// Check for admin post type listing screen: edit.php?post_type={post_type}
-		if( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
-			return $sanitized_post_type;
-		}
-
-		return '';
+		return $this->screen_slug;	
 	}
 
 	/**
