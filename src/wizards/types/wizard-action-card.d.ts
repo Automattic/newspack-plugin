@@ -23,6 +23,7 @@ type ActionCardProps = Partial< {
 	isErrorStatus: boolean;
 	isChecked: boolean;
 	children: boolean | React.ReactNode;
+	isSmall: boolean;
 	editLink: string;
 } >;
 

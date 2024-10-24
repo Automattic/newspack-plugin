@@ -10,6 +10,7 @@ declare module 'react' {
 type WizardTab = {
 	label: string;
 	path?: string;
+	activeTabPaths?: string[];
 	sections: {
 		[ k: string ]: {
 			editLink?: string;
@@ -78,10 +79,27 @@ declare global {
 					};
 				};
 			};
+			'additional-brands': WizardTab & {
+				sections: {
+					additionalBrands: {
+						themeColors: {
+							color: string;
+							label: string;
+							theme_mod_name?: string;
+							default?: string;
+						}[];
+						menuLocations: Record< string, string >;
+						menus: { label: string; value: number }[];
+					};
+				};
+			};
 			'display-settings': WizardTab;
 		};
 		newspack_aux_data: {
 			is_debug_mode: boolean;
+		};
+		newspack_urls: {
+			site: string;
 		};
 	}
 }
