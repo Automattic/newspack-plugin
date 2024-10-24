@@ -37,13 +37,6 @@ class Newsletters_Wizard extends Wizard {
 	protected $menu_priority = 11;
 
 	/**
-	 * Primary slug for these wizard screens.
-	 *
-	 * @var string
-	 */
-	// protected $slug = 'newspack_nl_cpt';
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -167,8 +160,7 @@ class Newsletters_Wizard extends Wizard {
 	 * Enqueue scripts and styles. Called by parent constructor 'admin_enqueue_scripts'.
 	 */
 	public function enqueue_scripts_and_styles() {
-		// Scripts and styles are enqueued by Admin Header.
-		return;
+		// Don't output anything...scripts and styles are enqueued by Admin Header.
 	}
 	
 	/**
@@ -189,49 +181,44 @@ class Newsletters_Wizard extends Wizard {
 		
 		global $pagenow;
 
-		// @todo: set return value to static var to only run the code below once.
+		static $screen_slug;
+
+		if ( isset( $screen_slug ) ) {
+			return $screen_slug;
+		}
 
 		$sanitized_page      = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sanitized_taxonomy  = sanitize_text_field( $_GET['taxonomy'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-
-		// Check for normal admin page screen: admin.php?page={page}
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
-			return $sanitized_page;
+			// admin page screen: admin.php?page={page} .
+			$screen_slug = $sanitized_page;
 		}
-
-		// Check for edit.php.
-		if( 'edit.php' === $pagenow ) {
-
-			// Post type must exist.
-			if ( empty( $this->admin_screens[ $sanitized_post_type ] ) ) {
-				return '';
+		elseif ( 'edit.php' === $pagenow ) {
+			if ( isset( $this->admin_screens[ $sanitized_post_type ] ) && isset( $this->admin_screens[ $sanitized_page ] ) ) {
+				// post type with page: edit.php?post_type={post_type}&page={page} .
+				$screen_slug = $sanitized_page;
+			} elseif ( isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+				// post type list screen: edit.php?post_type={post_type} .
+				$screen_slug = $sanitized_post_type;
+			} else {
+				$screen_slug = '';
 			}
-
-			// Post Type with page: edit.php?post_type={post_type}&page={page}
-			if ( isset( $this->admin_screens[ $sanitized_page ] ) ) {
-				return $sanitized_page;
-			}
-
-			// Post type list screen: edit.php?post_type={post_type}
-			return $sanitized_post_type;
-
+		}
+		elseif ( 'edit-tags.php' === $pagenow && isset( $this->admin_screens[ $sanitized_taxonomy ] ) && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			// taxonomy list: edit-tags.php?taxonomy={taxonomy}&post_type={post_type} .
+			$screen_slug = $sanitized_taxonomy;
+		}
+		else if( 'term.php' === $pagenow && isset( $this->admin_screens[ $sanitized_taxonomy ] ) && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			// taxonomy edit: term.php?taxonomy={taxonomy}&post_type={post_type}.....
+			$screen_slug = $sanitized_taxonomy;
+		}
+		else {
+			$screen_slug = '';
 		}
 
-		// Check for taxonomy list: edit-tags.php?taxonomy={taxonomy}&post_type={post_type}
-		if( 'edit-tags.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) && isset( $this->admin_screens[ $sanitized_taxonomy ] ) ) {
-			return $sanitized_taxonomy;
-		}
-
-		// Check for taxonomy edit: term.php?taxonomy={taxonomy}&post_type={post_type}.....
-		if( 'term.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) && isset( $this->admin_screens[ $sanitized_taxonomy ] ) ) {
-			return $sanitized_taxonomy;
-		}
-
-		return '';
+		return $screen_slug;
 	}
 
 	/**
@@ -241,9 +228,7 @@ class Newsletters_Wizard extends Wizard {
 	 */
 	private function get_tabs() {
 
-		$screen_slug = $this->get_screen_slug();
-
-		if ( in_array( $screen_slug, [ 'newspack_nl_ads_cpt', 'newspack_nl_advertiser' ], true ) ) {
+		if ( in_array( $this->get_screen_slug(), [ 'newspack_nl_ads_cpt', 'newspack_nl_advertiser' ], true ) ) {
 
 			return [
 				[
@@ -253,14 +238,14 @@ class Newsletters_Wizard extends Wizard {
 				[
 					'textContent'   => esc_html__( 'Advertisers', 'newspack-plugin' ),
 					'href'          => admin_url( 'edit-tags.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt' ),
-					// force selected tab for url: term.php?taxonomy=newspack_nl_advertiser&tag_ID=32&post_type=newspack_nl_cpt...
-					'forceSelected' => ( 'newspack_nl_advertiser' === $screen_slug ),
+					// also force selected tab for url: term.php?taxonomy=newspack_nl_advertiser&tag_ID=32&post_type=newspack_nl_cpt...
+					'forceSelected' => ( 'newspack_nl_advertiser' === $this->get_screen_slug() ),
 				],
 			];
 
 		}
 
-		if ( in_array( $screen_slug, [ 'newspack-newsletters-settings-admin', 'newspack-newsletters-tracking' ], true ) ) {
+		if ( in_array( $this->get_screen_slug(), [ 'newspack-newsletters-settings-admin', 'newspack-newsletters-tracking' ], true ) ) {
 
 			return [
 				[
@@ -384,8 +369,8 @@ class Newsletters_Wizard extends Wizard {
 	 */
 	public function submenu_file( $submenu_file ) {
 
-		// Advertisers Taxonomy: ( replace & with &amp; )
-		// Note, this will also match term edit: term.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt....
+		// Advertisers Taxonomy: ( replace url character & with &amp; )
+		// Bonus: due to $submenu_file arg, we'll also magically match term edit: term.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt....
 		if ( 'edit-tags.php?taxonomy=newspack_nl_advertiser&amp;post_type=newspack_nl_cpt' === $submenu_file ) {
 			return 'edit.php?post_type=newspack_nl_ads_cpt';
 		}	
