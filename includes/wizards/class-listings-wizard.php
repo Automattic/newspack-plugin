@@ -53,7 +53,7 @@ class Listings_Wizard extends Wizard {
 	 */
 	public function __construct() {
 		
-		if ( ! is_plugin_active( 'newspack-listings/newspack-listings.php' ) ) {
+		if ( ! defined( 'NEWSPACK_LISTINGS_FILE' ) ) {
 			return;
 		}
 
