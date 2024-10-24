@@ -221,15 +221,37 @@ final class Webhooks {
 	}
 
 	/**
+	 * Get endpoint errors.
+	 *
+	 * @param string $url     Endpoint URL.
+	 * @param array  $actions Array of action names.
+	 *
+	 * @return WP_Error
+	 */
+	private static function get_endpoint_errors( $url, $actions ) {
+		$errors = new WP_Error();
+		if ( empty( $url ) ) {
+			$errors->add( 'newspack_webhooks_invalid_url', __( 'Invalid URL.', 'newspack' ) );
+		}
+		if ( empty( $actions ) ) {
+			$errors->add( 'newspack_webhooks_empty_actions', __( 'The endpoint must have at least one action.', 'newspack' ) );
+		}
+		return $errors;
+	}
+
+	/**
 	 * Create a webhook endpoint.
 	 *
 	 * @param string $url     Endpoint URL.
 	 * @param array  $actions Array of action names.
-	 * @param bool   $global  Whether the endpoint should be triggered for all actions.
 	 *
 	 * @return array|WP_Error Endpoint or error.
 	 */
-	public static function create_endpoint( $url, $actions = [], $global = false ) {
+	public static function create_endpoint( $url, $actions ) {
+		$errors = self::get_endpoint_errors( $url, $actions );
+		if ( $errors->has_errors() ) {
+			return $errors;
+		}
 		$endpoint = \wp_insert_term(
 			$url,
 			self::ENDPOINT_TAXONOMY,
@@ -241,7 +263,6 @@ final class Webhooks {
 			return $endpoint;
 		}
 		\update_term_meta( $endpoint['term_id'], 'actions', $actions );
-		\update_term_meta( $endpoint['term_id'], 'global', $global );
 		return self::get_endpoint_by_term( $endpoint['term_id'] );
 	}
 
@@ -251,12 +272,11 @@ final class Webhooks {
 	 * @param string $id      An unique identifier for the endpoint.
 	 * @param string $url     Endpoint URL.
 	 * @param array  $actions Array of action names.
-	 * @param bool   $global  Whether the endpoint should be triggered for all actions.
 	 *
 	 * @throws \InvalidArgumentException If the ID is invalid.
 	 * @return void
 	 */
-	public static function register_system_endpoint( $id, $url, $actions = [], $global = false ) {
+	public static function register_system_endpoint( $id, $url, $actions = [] ) {
 
 		if ( ! is_string( $id ) || ctype_digit( $id ) || ! preg_match( '/^[a-z0-9-_]+$/', $id ) || ! empty( self::$system_endpoints[ $id ] ) ) {
 			throw new \InvalidArgumentException( 'Endpoint ID must be a unique string containing only lowercase letters, numbers, dashes and underscores, and it can not be only numerical.' );
@@ -266,7 +286,6 @@ final class Webhooks {
 			'id'             => $id,
 			'url'            => $url,
 			'actions'        => $actions,
-			'global'         => $global,
 			'label'          => $id,
 			'disabled'       => false,
 			'disabled_error' => null,
@@ -282,12 +301,15 @@ final class Webhooks {
 	 * @param int    $id       Endpoint ID.
 	 * @param string $url      Endpoint URL.
 	 * @param array  $actions  Array of action names.
-	 * @param bool   $global   Whether the endpoint should be triggered for all actions.
 	 * @param bool   $disabled Whether the endpoint is disabled.
 	 *
 	 * @return array|WP_Error Endpoint or error.
 	 */
-	public static function update_endpoint( $id, $url, $actions = [], $global = false, $disabled = false ) {
+	public static function update_endpoint( $id, $url, $actions = [], $disabled = false ) {
+		$errors = self::get_endpoint_errors( $url, $actions );
+		if ( $errors->has_errors() ) {
+			return $errors;
+		}
 		$endpoint = \get_term( $id, self::ENDPOINT_TAXONOMY, ARRAY_A );
 		if ( ! $endpoint ) {
 			return new WP_Error( 'newspack_webhooks_endpoint_not_found', __( 'Webhook endpoint not found.', 'newspack' ) );
@@ -301,7 +323,6 @@ final class Webhooks {
 			]
 		);
 		\update_term_meta( $endpoint['term_id'], 'actions', $actions );
-		\update_term_meta( $endpoint['term_id'], 'global', $global );
 		\update_term_meta( $endpoint['term_id'], 'disabled', $disabled );
 		return self::get_endpoint_by_term( $endpoint['term_id'] );
 	}
@@ -387,7 +408,6 @@ final class Webhooks {
 			'id'             => $endpoint->term_id,
 			'url'            => $endpoint->name,
 			'actions'        => (array) \get_term_meta( $endpoint->term_id, 'actions', true ),
-			'global'         => (bool) \get_term_meta( $endpoint->term_id, 'global', true ),
 			'label'          => \get_term_meta( $endpoint->term_id, 'label', true ),
 			'bearer_token'   => \get_term_meta( $endpoint->term_id, 'bearer_token', true ),
 			'disabled'       => $disabled,
@@ -514,7 +534,7 @@ final class Webhooks {
 			array_filter(
 				$endpoints,
 				function( $endpoint ) use ( $action_name ) {
-					return ! $endpoint['disabled'] && ( $endpoint['global'] || in_array( $action_name, $endpoint['actions'], true ) );
+					return ! $endpoint['disabled'] && in_array( $action_name, $endpoint['actions'], true );
 				}
 			)
 		);
@@ -832,7 +852,7 @@ final class Webhooks {
 		}
 		$code    = \wp_remote_retrieve_response_code( $response );
 		$message = \wp_remote_retrieve_response_message( $response );
-		
+
 		$response_body = wp_remote_retrieve_body( $response );
 		$response_body = json_decode( $response_body, true );
 
