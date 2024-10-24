@@ -9,6 +9,7 @@
 		display: inline-flex;
 		font-family: var(--newspack-ui-font-family);
 		font-size: var(--newspack-ui-font-size-s);
+		font-style: normal;
 		font-weight: 600;
 		gap: calc(var(--newspack-ui-spacer-base) / 2);
 		letter-spacing: initial; // Override for custom styles.
