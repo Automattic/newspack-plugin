@@ -132,7 +132,7 @@ class Newspack_Dashboard extends Wizard {
 		];
 
 		// Newspack Listings Plugin.
-		if ( is_plugin_active( 'newspack-listings/newspack-listings.php' ) ) {
+		if ( defined( 'NEWSPACK_LISTINGS_FILE' ) ) {
 			$dashboard['listings'] = [
 				'title'        => __( 'Listings', 'newspack-plugin' ),
 				'desc'         => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
