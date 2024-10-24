@@ -59,27 +59,29 @@ class Listings_Wizard extends Wizard {
 
 		// Define admin screens based on Newspack Listings plugin's admin pages and post types.
 		$this->admin_screens = [
-			// Admin post types:
+			// Admin post types.
 			'newspack_lst_event'               => __( 'Listings / Events', 'newspack-plugin' ),
 			'newspack_lst_generic'             => __( 'Listings / Generic Listings', 'newspack-plugin' ),
 			'newspack_lst_mktplce'             => __( 'Listings / Marketplace Listings', 'newspack-plugin' ),
 			'newspack_lst_place'               => __( 'Listings / Places', 'newspack-plugin' ),
-			// Admin pages:
+			// Admin pages.
 			'newspack-listings-settings-admin' => __( 'Listings / Settings', 'newspack-plugin' ),
 		];
 
 		// Remove Listings plugin's menu setup.
 		remove_action( 'admin_menu', [ Newspack_Listings_Core::class, 'add_plugin_page' ] );
 
-		// Hooks: 'admin_menu':'add_page', 'admin_enqueue_scripts':'enqueue_scripts_and_styles', 'admin_body_class':'add_body_class'.
+		// Hooks: admin_menu/add_page, admin_enqueue_scripts/enqueue_scripts_and_styles, admin_body_class/add_body_class.
 		parent::__construct();
 
 		// Display screen.
-		if( $this->is_wizard_page() ) {
+		if ( $this->is_wizard_page() ) {
 
-			$this->admin_header_init([
-				'title' => $this->get_name(),
-			]);
+			$this->admin_header_init(
+				[
+					'title' => $this->get_name(),
+				]
+			);
 
 		}
 	}
@@ -93,16 +95,16 @@ class Listings_Wizard extends Wizard {
 
 		// Top-level menu item.
 		add_menu_page(
-			__( 'Newspack Listings', 'newspack-plugin'),
-			__( 'Listings', 'newspack-plugin'),
+			__( 'Newspack Listings', 'newspack-plugin' ),
+			__( 'Listings', 'newspack-plugin' ),
 			'edit_posts', // Copied from Listings plugin...see docblock note above.
 			$this->slug,
 			'',
-			'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M18 5.5H6a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5ZM6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 5h1.5v1.5H7V9Zm1.5 4.5H7V15h1.5v-1.5ZM10 9h7v1.5h-7V9Zm7 4.5h-7V15h7v-1.5Z"></path></svg>'),
+			'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M18 5.5H6a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5ZM6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 5h1.5v1.5H7V9Zm1.5 4.5H7V15h1.5v-1.5ZM10 9h7v1.5h-7V9Zm7 4.5h-7V15h7v-1.5Z"></path></svg>' ),
 			3.4
 		);
 
-        if ( is_callable( [ Newspack_Listings_Settings::class, 'create_admin_page' ] ) ) {
+		if ( is_callable( [ Newspack_Listings_Settings::class, 'create_admin_page' ] ) ) {
 			
 			// Settings menu link.
 			add_submenu_page(
@@ -115,15 +117,13 @@ class Listings_Wizard extends Wizard {
 			);
 
 		}
-
 	}
 
 	/**
 	 * Enqueue scripts and styles. Called by parent constructor 'admin_enqueue_scripts'.
 	 */
 	public function enqueue_scripts_and_styles() {
-		// Scripts and styles are enqueued by Admin Header.
-		return;
+		// Don't output anything...scripts and styles are enqueued by Admin Header.
 	}
 	
 	/**
@@ -144,7 +144,7 @@ class Listings_Wizard extends Wizard {
 		
 		global $pagenow;
 
-		if( isset( $this->screen_slug ) ) {
+		if ( isset( $this->screen_slug ) ) {
 			return $this->screen_slug;
 		}
 
@@ -152,18 +152,16 @@ class Listings_Wizard extends Wizard {
 		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
-			// admin page screen: admin.php?page={page}
+			// admin page screen: admin.php?page={page} .
 			$this->screen_slug = $sanitized_page;
-		}
-		else if( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
-			// post type list screen: edit.php?post_type={post_type}
+		} elseif ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			// post type list screen: edit.php?post_type={post_type} .
 			$this->screen_slug = $sanitized_post_type;
-		}
-		else {
+		} else {
 			$this->screen_slug = '';
 		}
 
-		return $this->screen_slug;	
+		return $this->screen_slug;
 	}
 
 	/**
@@ -174,5 +172,4 @@ class Listings_Wizard extends Wizard {
 	public function is_wizard_page() {
 		return isset( $this->admin_screens[ $this->get_screen_slug() ] );
 	}
-
 }
