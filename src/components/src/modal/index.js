@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies.
  */
-import { Component } from '@wordpress/element';
+import { forwardRef } from '@wordpress/element';
 import { Modal as BaseComponent } from '@wordpress/components';
 
 /**
@@ -18,21 +18,15 @@ import './style.scss';
  */
 import classnames from 'classnames';
 
-class Modal extends Component {
-	/**
-	 * Render.
-	 */
-	render() {
-		const { className, isWide, isNarrow, ...otherProps } = this.props;
-		const classes = classnames(
-			'newspack-modal',
-			isWide && 'newspack-modal--wide',
-			isNarrow && 'newspack-modal--narrow',
-			className
-		);
+function Modal( { className, isWide, isNarrow, ...otherProps }, ref ) {
+	const classes = classnames(
+		'newspack-modal',
+		isWide && 'newspack-modal--wide',
+		isNarrow && 'newspack-modal--narrow',
+		className
+	);
 
-		return <BaseComponent className={ classes } { ...otherProps } />;
-	}
+	return <BaseComponent className={ classes } { ...otherProps } ref={ ref } />;
+
 }
-
-export default Modal;
+export default forwardRef( Modal );

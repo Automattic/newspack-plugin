@@ -8,7 +8,7 @@ import moment from 'moment';
  */
 import { sprintf, __ } from '@wordpress/i18n';
 import { CheckboxControl, MenuItem } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useRef } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { Icon, settings, check, close, reusableBlock, moreVertical } from '@wordpress/icons';
 import { ESCAPE } from '@wordpress/keycodes';
@@ -152,6 +152,8 @@ const Webhooks = () => {
 	const [ editing, setEditing ] = useState( false );
 	const [ editingError, setEditingError ] = useState( false );
 
+	const modalRef = useRef( null );
+
 	const fetchEndpoints = () => {
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/webhooks/endpoints' } )
@@ -200,9 +202,27 @@ const Webhooks = () => {
 				setDeleting( false );
 			} );
 	};
+	const validateEndpoint = endpoint => {
+		const errors = [];
+		if ( ! endpoint.url ) {
+			errors.push( __( 'URL is required.', 'newspack-plugin' ) );
+		}
+		if ( ! endpoint.actions || ! endpoint.actions.length ) {
+			errors.push( __( 'At least one action is required.', 'newspack-plugin' ) );
+		}
+		if ( errors.length ) {
+			setEditingError( { message: errors.join( ' ' ) } );
+		} else {
+			setEditingError( false );
+		}
+		return errors;
+	}
 	const upsertEndpoint = endpoint => {
+		const errors = validateEndpoint( endpoint );
+		if ( errors.length ) {
+			return;
+		}
 		setInFlight( true );
-		setEditingError( false );
 		apiFetch( {
 			path: `/newspack/v1/webhooks/endpoints/${ endpoint.id || '' }`,
 			method: 'POST',
@@ -250,6 +270,12 @@ const Webhooks = () => {
 		setEditingError( false );
 		setTestError( false );
 	}, [ editing ] );
+
+	useEffect( () => {
+		if ( editingError ) {
+			modalRef?.current?.querySelector('.components-modal__content')?.scrollTo( { top: 0, left: 0, behavior: 'smooth' } );
+		}
+	}, [ editingError ] );
 
 	return (
 		<Card noBorder className="mt64">
@@ -432,6 +458,7 @@ const Webhooks = () => {
 			) }
 			{ false !== editing && (
 				<Modal
+					ref={ modalRef }
 					title={ __( 'Webhook Endpoint', 'newspack-plugin' ) }
 					onRequestClose={ () => {
 						setEditing( false );
