@@ -130,6 +130,15 @@ h1 {
 /**
  * Wizards
  */
+.newspack-wizard__content {
+	margin: 0;
+	max-width: 100%;
+	padding: 0 0 32px;
+
+	* {
+		box-sizing: border-box;
+	}
+}
 .newspack-wizard-page {
 	#screen-meta-links {
 		position: absolute;
