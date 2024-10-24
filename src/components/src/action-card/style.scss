@@ -402,6 +402,16 @@
 		padding: 2px 8px;
 		text-transform: uppercase;
 
+		&.newspack-action-card__badge-level-warning {
+			background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
+		}
+		&.newspack-action-card__badge-level-error {
+			background: color.adjust(wp-colors.$alert-red, $lightness: 51%);
+		}
+		&.newspack-action-card__badge-level-success {
+			background: color.adjust(wp-colors.$alert-green, $lightness: 42%);
+		}
+
 		+ .newspack-action-card__badge {
 			margin-left: -4px;
 		}
