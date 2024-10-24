@@ -129,7 +129,11 @@ class Newspack_Dashboard extends Wizard {
 					],
 				],
 			],
-			'listings'             => [
+		];
+
+		// Newspack Listings Plugin.
+		if ( defined( 'NEWSPACK_LISTINGS_FILE' ) ) {
+			$dashboard['listings'] = [
 				'title'        => __( 'Listings', 'newspack-plugin' ),
 				'desc'         => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
 				'dependencies' => [
@@ -167,8 +171,8 @@ class Newspack_Dashboard extends Wizard {
 						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ), 
 					],
 				],
-			],
-		];
+			];
+		}
 
 		// Newspack Network Plugin.
 		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
