@@ -45,20 +45,16 @@ class Newsletters_Wizard extends Wizard {
 			return;
 		}
 
-		// Define admin screens based on Newspack Newsletters plugin's admin pages and post types.
+		// Define admin screens based on Newspack Newsletters plugin's admin pages, post types, and taxonomies.
 		$this->admin_screens = [
-
-			// Admin pages:
+			// Admin pages.
 			'newspack-newsletters-settings-admin' => __( 'Newsletters / Settings', 'newspack-plugin' ),
 			'newspack-newsletters-tracking'       => __( 'Newsletters / Settings', 'newspack-plugin' ),
-
-			// Admin post types:
+			// Admin post types.
 			'newspack_nl_cpt'                     => __( 'Newsletters / All Newsletters', 'newspack-plugin' ),
 			'newspack_nl_ads_cpt'                 => __( 'Newsletters / Advertising', 'newspack-plugin' ),
-			
-			// Admin taxonomies:
+			// Admin taxonomies.
 			'newspack_nl_advertiser'              => __( 'Newsletters / Advertising', 'newspack-plugin' ),
-
 		];
 
 		// Menu removals.
@@ -66,7 +62,7 @@ class Newsletters_Wizard extends Wizard {
 		remove_action( 'admin_menu', [ Newspack_Newsletters_Settings::class, 'add_plugin_page' ] );
 		remove_action( 'admin_menu', [ Newspack_Newsletters_Tracking_Admin::class, 'add_settings_page' ] );
 
-		// Hooks: 'admin_menu':'add_page', 'admin_enqueue_scripts':'enqueue_scripts_and_styles', 'admin_body_class':'add_body_class'.
+		// Hooks: admin_menu/add_page, admin_enqueue_scripts/enqueue_scripts_and_styles, admin_body_class/add_body_class .
 		parent::__construct();
 
 		// Adjust post types.
@@ -76,7 +72,7 @@ class Newsletters_Wizard extends Wizard {
 		add_action( 'registered_taxonomy', [ $this, 'registered_taxonomy_advertiser' ] );
 		
 		// Display screen.
-		if( $this->is_wizard_page() ) {
+		if ( $this->is_wizard_page() ) {
 
 			// Set active menu item for hidden screens.
 			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
@@ -85,17 +81,17 @@ class Newsletters_Wizard extends Wizard {
 			remove_action( 'admin_enqueue_scripts', [ Newspack_Newsletters::class, 'branding_scripts' ] );
 
 			// Add the admin header.
-			$this->admin_header_init([
-				'title' => $this->get_name(),
-				'tabs' => $this->get_tabs(),
-			]);
-
+			$this->admin_header_init(
+				[
+					'title' => $this->get_name(),
+					'tabs'  => $this->get_tabs(),
+				]
+			);
 		}
 	}
 
 	/**
 	 * Adjusts the Newsletters menu. Called from parent constructor 'admin_menu'.
-	 * 
 	 */
 	public function add_page() {
 		
@@ -103,13 +99,13 @@ class Newsletters_Wizard extends Wizard {
 		$this->move_cpt_menu();
 
 		// Remove "Add New" menu item.
-		remove_submenu_page('edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'post-new.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
+		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'post-new.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 
 		// Remove catetory and tags. For remove_submenu_page() to match (===) on submenu slug: "&" in urls need be replaced with "&amp;".
-		remove_submenu_page('edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=category&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
-		remove_submenu_page('edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=post_tag&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
+		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=category&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
+		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=post_tag&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 
-		// Re-add Ads (Advertising) item with updated title. ( See 'remove_action' above. See Newsletters Plugin: Newspack_Newsletters_Ads > 'add_ads_page' )
+		// Re-add Ads (Advertising) item with updated title. ( See 'remove_action' above. See Newsletters Plugin: Newspack_Newsletters_Ads > 'add_ads_page' ) .
 		add_submenu_page(
 			'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
 			__( 'Newsletters Advertising', 'newspack-plugin' ),
@@ -148,11 +144,17 @@ class Newsletters_Wizard extends Wizard {
 			// In cases where the $submenu hidden item array ( $submenu[''] = array of hidden submenu items ) is defined after the parent_slug's
 			// item array ( $submenu['post type url or menu-slug'] = array of submenu items ), the HTML Title will not be set and a debug.log
 			// deprecated notice will be written: 
-			//     PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
+			// PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
 			// If the hidden array is defined before the parent slug array, then the HTML Title is shown and no debug.log notice.
 			// To avoid this issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally
 			// set the title here just in case.
-			add_action( "load-{$tracking_hook}", fn() => $GLOBALS['title'] = $tracking_title );
+			add_action(
+				"load-{$tracking_hook}",
+				function() use ( $tracking_title ) {
+					global $title;
+					$title = $tracking_title; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				}
+			);
 		}
 	}
 
@@ -194,8 +196,7 @@ class Newsletters_Wizard extends Wizard {
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
 			// admin page screen: admin.php?page={page} .
 			$screen_slug = $sanitized_page;
-		}
-		elseif ( 'edit.php' === $pagenow ) {
+		} elseif ( 'edit.php' === $pagenow ) {
 			if ( isset( $this->admin_screens[ $sanitized_post_type ] ) && isset( $this->admin_screens[ $sanitized_page ] ) ) {
 				// post type with page: edit.php?post_type={post_type}&page={page} .
 				$screen_slug = $sanitized_page;
@@ -205,16 +206,13 @@ class Newsletters_Wizard extends Wizard {
 			} else {
 				$screen_slug = '';
 			}
-		}
-		elseif ( 'edit-tags.php' === $pagenow && isset( $this->admin_screens[ $sanitized_taxonomy ] ) && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
-			// taxonomy list: edit-tags.php?taxonomy={taxonomy}&post_type={post_type} .
+		} elseif ( 'edit-tags.php' === $pagenow && isset( $this->admin_screens[ $sanitized_taxonomy ] ) && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			// taxonomy list: edit-tags.php?taxonomy={taxonomy}&post_type={post_type} / phpcs:ignore Squiz.PHP.CommentedOutCode.Found .
 			$screen_slug = $sanitized_taxonomy;
-		}
-		else if( 'term.php' === $pagenow && isset( $this->admin_screens[ $sanitized_taxonomy ] ) && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
-			// taxonomy edit: term.php?taxonomy={taxonomy}&post_type={post_type}.....
+		} elseif ( 'term.php' === $pagenow && isset( $this->admin_screens[ $sanitized_taxonomy ] ) && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			// taxonomy edit: term.php?taxonomy={taxonomy}&post_type={post_type}.... / phpcs:ignore Squiz.PHP.CommentedOutCode.Found .
 			$screen_slug = $sanitized_taxonomy;
-		}
-		else {
+		} else {
 			$screen_slug = '';
 		}
 
@@ -261,7 +259,6 @@ class Newsletters_Wizard extends Wizard {
 		}
 
 		return [];
-
 	}
 
 	/**
@@ -311,13 +308,12 @@ class Newsletters_Wizard extends Wizard {
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$menu[ $new_position ] = $menu[ $current_position ];
 		unset( $menu[ $current_position ] );
-
 	}
 
 	/**
 	 * Callback when Newsletters CPT is registered.
 	 *
-	 * @param string $post_type
+	 * @param string $post_type Post type to check.
 	 * @return void
 	 */
 	public function registered_post_type_newsletters( $post_type ) {
@@ -327,20 +323,20 @@ class Newsletters_Wizard extends Wizard {
 		if ( Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT !== $post_type ) {
 			return;
 		}
+
 		if ( empty( $wp_post_types[ $post_type ] ) ) {
 			return;
 		}
-		
-		// Change menu icon.
-		// @TODO get SVG from Figma? This one is "envelope" from: https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library
-		$wp_post_types[ $post_type ]->menu_icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"></path></svg>');
 
+		// Change menu icon.
+		// @TODO get SVG from Figma? This one is "envelope" from: https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library .
+		$wp_post_types[ $post_type ]->menu_icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"></path></svg>' );
 	}
 
 	/**
 	 * Callback when Advertiser Taxonomy is registered.  Do not show in menu for IA Epic.
 	 *
-	 * @param string $taxonomy
+	 * @param string $taxonomy Taxonomy to check.
 	 * @return void
 	 */
 	public function registered_taxonomy_advertiser( $taxonomy ) {
@@ -350,12 +346,12 @@ class Newsletters_Wizard extends Wizard {
 		if ( Newspack_Newsletters_Ads::ADVERTISER_TAX !== $taxonomy ) {
 			return;
 		}
+
 		if ( empty( $wp_taxonomies[ $taxonomy ] ) ) {
 			return;
 		}
 
 		$wp_taxonomies[ $taxonomy ]->show_in_menu = false;
-	
 	}
 
 	/**
@@ -369,13 +365,13 @@ class Newsletters_Wizard extends Wizard {
 	 */
 	public function submenu_file( $submenu_file ) {
 
-		// Advertisers Taxonomy: ( replace url character & with &amp; )
+		// Advertisers Taxonomy: ( replace url character & with &amp; ) .
 		// Bonus: due to $submenu_file arg, we'll also magically match term edit: term.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt....
 		if ( 'edit-tags.php?taxonomy=newspack_nl_advertiser&amp;post_type=newspack_nl_cpt' === $submenu_file ) {
 			return 'edit.php?post_type=newspack_nl_ads_cpt';
-		}	
+		}
 
-		// Post type with settings page:
+		// Post type with settings page.
 		if ( 'newspack-newsletters-tracking' === $this->get_screen_slug() ) {
 			return 'newspack-newsletters-settings-admin';
 		}
