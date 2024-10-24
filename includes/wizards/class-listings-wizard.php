@@ -86,7 +86,7 @@ class Listings_Wizard extends Wizard {
 
 		// Top-level menu item.
 		add_menu_page(
-			__( 'Listings', 'newspack-plugin'),
+			__( 'Newspack Listings', 'newspack-plugin'),
 			__( 'Listings', 'newspack-plugin'),
 			'edit_posts', // Copied from Listings plugin...see docblock note above.
 			$this->slug,
@@ -100,9 +100,9 @@ class Listings_Wizard extends Wizard {
 			// Settings menu link.
 			add_submenu_page(
 				$this->slug,
-				$this->admin_screens['newspack-listings-settings-admin'],
+				__( 'Newspack Listings: Site-Wide Settings', 'newspack-plugin' ),
 				__( 'Settings', 'newspack-plugin' ),
-				$this->capability,
+				'manage_options', // Copied from Listings plugin...see docblock note above.
 				'newspack-listings-settings-admin',
 				[ Newspack_Listings_Settings::class, 'create_admin_page' ]
 			);
