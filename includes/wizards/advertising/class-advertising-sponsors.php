@@ -146,7 +146,7 @@ class Advertising_Sponsors extends Wizard {
 
 		// Register Settings page.
 		add_submenu_page(
-			'', // No parent menu item, means its not on the menu. (PHP 8: use '' instead of null)
+			'', // No parent menu item, means its not on the menu.
 			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
 			__( 'Settings', 'newspack-sponsors' ),
 			'manage_options',
