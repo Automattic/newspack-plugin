@@ -21,6 +21,7 @@ import {
 	Waiting,
 	withWizardScreen,
 } from '../../../../components/src';
+import WizardsTab from '../../../wizards-tab';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
 import MetadataFields from '../../components/metadata-fields';
@@ -160,31 +161,39 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	};
 
 	return (
-		<>
-			<SectionHeader
-				title={ __( 'Reader Activation', 'newspack-plugin' ) }
-				heading={ 1 }
-				description={ () => (
-					<>
-						{ __(
-							'Newspack\'s Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ',
-							'newspack-plugin'
-						) }
-						<ExternalLink href={ 'https://help.newspack.com/engagement/reader-activation-system' }>
-							{ __( 'Learn more', 'newspack-plugin' ) }
-						</ExternalLink>
-					</>
-				) }
-			/>
+		<WizardsTab
+			title={ __( 'Audience Development', 'newspack-plugin' ) }
+			description={ 
+				<>
+					{ __(
+						"Newspack's Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
+						'newspack-plugin'
+					) }
+					<ExternalLink
+						href={
+							'https://help.newspack.com/engagement/reader-activation-system'
+						}
+					>
+						{ __( 'Learn more', 'newspack-plugin' ) }
+					</ExternalLink>
+				</>
+			}
+		>
 			{ error && (
 				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
+					noticeText={
+						error?.message ||
+						__( 'Something went wrong.', 'newspack-plugin' )
+					}
 					isError
 				/>
 			) }
 			{ 0 < missingPlugins.length && (
 				<Notice
-					noticeText={ __( 'The following plugins are required.', 'newspack-plugin' ) }
+					noticeText={ __(
+						'The following plugins are required.',
+						'newspack-plugin'
+					) }
 					isWarning
 				/>
 			) }
@@ -198,7 +207,13 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 				/>
 			) }
 			{ prerequisites && allReady && config.enabled && (
-				<Notice noticeText={ __( 'Reader Activation is enabled.', 'newspack-plugin' ) } isSuccess />
+				<Notice
+					noticeText={ __(
+						'Reader Activation is enabled.',
+						'newspack-plugin'
+					) }
+					isSuccess
+				/>
 			) }
 			{ ! prerequisites && (
 				<>
@@ -229,56 +244,88 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			{ config.enabled && (
 				<>
 					<hr />
-					<Button variant="secondary" onClick={ () => setShowAdvanced( ! showAdvanced ) }>
+					<Button
+						variant="secondary"
+						onClick={ () => setShowAdvanced( ! showAdvanced ) }
+					>
 						{ sprintf(
 							// Translators: Show or Hide advanced settings.
 							__( '%s Advanced Settings', 'newspack-plugin' ),
-							showAdvanced ? __( 'Hide', 'newspack-plugin' ) : __( 'Show', 'newspack-plugin' )
+							showAdvanced
+								? __( 'Hide', 'newspack-plugin' )
+								: __( 'Show', 'newspack-plugin' )
 						) }
 					</Button>
 				</>
 			) }
 			{ showAdvanced && (
 				<Card noBorder>
-					{ newspackAudienceConfiguration.has_memberships && membershipsConfig ? (
+					{ newspackAudienceConfiguration.has_memberships &&
+					membershipsConfig ? (
 						<>
 							<SectionHeader
-								title={ __( 'Memberships Integration', 'newspack-plugin' ) }
+								title={ __(
+									'Memberships Integration',
+									'newspack-plugin'
+								) }
 								description={ __(
 									'Improve the reader experience on content gating.',
 									'newspack-plugin'
 								) }
 							/>
 							<ActionCard
-								title={ __( 'Content Gate', 'newspack-plugin' ) }
+								title={ __(
+									'Content Gate',
+									'newspack-plugin'
+								) }
 								titleLink={ membershipsConfig.edit_gate_url }
 								href={ membershipsConfig.edit_gate_url }
 								description={ getContentGateDescription() }
-								actionText={ __( 'Configure', 'newspack-plugin' ) }
+								actionText={ __(
+									'Configure',
+									'newspack-plugin'
+								) }
 							/>
-							{ membershipsConfig?.plans && 1 < membershipsConfig.plans.length && (
-								<ActionCard
-									title={ __( 'Require membership in all plans', 'newspack-plugin' ) }
-									description={ __(
-										'When enabled, readers must belong to all membership plans that apply to a restricted content item before they are granted access. Otherwise, they will be able to unlock access to that item with membership in any single plan that applies to it.',
-										'newspack-plugin'
-									) }
-									toggleOnChange={ value =>
-										setMembershipsConfig( { ...membershipsConfig, require_all_plans: value } )
-									}
-									toggleChecked={ membershipsConfig.require_all_plans }
-								/>
-							) }
+							{ membershipsConfig?.plans &&
+								1 < membershipsConfig.plans.length && (
+									<ActionCard
+										title={ __(
+											'Require membership in all plans',
+											'newspack-plugin'
+										) }
+										description={ __(
+											'When enabled, readers must belong to all membership plans that apply to a restricted content item before they are granted access. Otherwise, they will be able to unlock access to that item with membership in any single plan that applies to it.',
+											'newspack-plugin'
+										) }
+										toggleOnChange={ value =>
+											setMembershipsConfig( {
+												...membershipsConfig,
+												require_all_plans: value,
+											} )
+										}
+										toggleChecked={
+											membershipsConfig.require_all_plans
+										}
+									/>
+								) }
 							<ActionCard
-								title={ __( 'Display memberships on the subscriptions tab', 'newspack-plugin' ) }
+								title={ __(
+									'Display memberships on the subscriptions tab',
+									'newspack-plugin'
+								) }
 								description={ __(
 									"Display memberships that don't have active subscriptions on the My Account Subscriptions tab, so readers can see information like expiration dates.",
 									'newspack-plugin'
 								) }
 								toggleOnChange={ value =>
-									setMembershipsConfig( { ...membershipsConfig, show_on_subscription_tab: value } )
+									setMembershipsConfig( {
+										...membershipsConfig,
+										show_on_subscription_tab: value,
+									} )
 								}
-								toggleChecked={ membershipsConfig.show_on_subscription_tab }
+								toggleChecked={
+									membershipsConfig.show_on_subscription_tab
+								}
 							/>
 							<hr />
 						</>
@@ -287,7 +334,10 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 					{ emails?.length > 0 && (
 						<>
 							<SectionHeader
-								title={ __( 'Transactional Email Content', 'newspack-plugin' ) }
+								title={ __(
+									'Transactional Email Content',
+									'newspack-plugin'
+								) }
 								description={ __(
 									'Customize the content of transactional emails.',
 									'newspack-plugin'
@@ -300,7 +350,10 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									titleLink={ email.edit_link }
 									href={ email.edit_link }
 									description={ email.description }
-									actionText={ __( 'Edit', 'newspack-plugin' ) }
+									actionText={ __(
+										'Edit',
+										'newspack-plugin'
+									) }
 									isSmall
 								/>
 							) ) }
@@ -308,35 +361,55 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						</>
 					) }
 
-					<SectionHeader title={ __( 'Newsletter Subscription Lists', 'newspack-plugin' ) } />
+					<SectionHeader
+						title={ __(
+							'Newsletter Subscription Lists',
+							'newspack-plugin'
+						) }
+					/>
 					<ActionCard
-						title={ __( 'Custom newsletter lists on registration', 'newspack-plugin' ) }
+						title={ __(
+							'Custom newsletter lists on registration',
+							'newspack-plugin'
+						) }
 						description={ __(
 							"Choose which of the Newspack Newsletters's subscription lists should be available upon registration.",
 							'newspack-plugin'
 						) }
 						toggleChecked={ config.use_custom_lists }
-						toggleOnChange={ value => updateConfig( 'use_custom_lists', value ) }
+						toggleOnChange={ value =>
+							updateConfig( 'use_custom_lists', value )
+						}
 					/>
 					{ config.use_custom_lists && (
 						<SortableNewsletterListControl
-							lists={ newspackAudienceConfiguration.available_newsletter_lists }
+							lists={
+								newspackAudienceConfiguration.available_newsletter_lists
+							}
 							selected={ config.newsletter_lists }
-							onChange={ selected => updateConfig( 'newsletter_lists', selected ) }
+							onChange={ selected =>
+								updateConfig( 'newsletter_lists', selected )
+							}
 						/>
 					) }
 
 					<hr />
 
 					<SectionHeader
-						title={ __( 'Email Service Provider (ESP) Advanced Settings', 'newspack-plugin' ) }
+						title={ __(
+							'Email Service Provider (ESP) Advanced Settings',
+							'newspack-plugin'
+						) }
 						description={ __(
 							'Settings for Newspack Newsletters integration.',
 							'newspack-plugin'
 						) }
 					/>
 					<TextControl
-						label={ __( 'Newsletter subscription text on registration', 'newspack-plugin' ) }
+						label={ __(
+							'Newsletter subscription text on registration',
+							'newspack-plugin'
+						) }
 						help={ __(
 							'The text to display while subscribing to newsletters from the sign-in modal.',
 							'newspack-plugin'
@@ -350,46 +423,72 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						) }
 						hasGreyHeader={ true }
 						isMedium
-						title={ __( 'Sync contacts to ESP', 'newspack-plugin' ) }
+						title={ __(
+							'Sync contacts to ESP',
+							'newspack-plugin'
+						) }
 						toggleChecked={ config.sync_esp }
-						toggleOnChange={ value => updateConfig( 'sync_esp', value ) }
+						toggleOnChange={ value =>
+							updateConfig( 'sync_esp', value )
+						}
 					>
 						{ config.sync_esp && (
 							<>
-								{ 0 < Object.keys(espSyncErrors).length && (
+								{ 0 < Object.keys( espSyncErrors ).length && (
 									<Notice
-										noticeText={ Object.values(espSyncErrors).join( ' ' ) }
+										noticeText={ Object.values(
+											espSyncErrors
+										).join( ' ' ) }
 										isError
 									/>
 								) }
 								{ isMailchimp && (
 									<Mailchimp
 										value={ {
-											audienceId: config.mailchimp_audience_id,
-											readerDefaultStatus: config.mailchimp_reader_default_status,
+											audienceId:
+												config.mailchimp_audience_id,
+											readerDefaultStatus:
+												config.mailchimp_reader_default_status,
 										} }
 										onChange={ ( key, value ) => {
 											if ( key === 'audienceId' ) {
-												updateConfig( 'mailchimp_audience_id', value );
+												updateConfig(
+													'mailchimp_audience_id',
+													value
+												);
 											}
-											if ( key === 'readerDefaultStatus' ) {
-												updateConfig( 'mailchimp_reader_default_status', value );
+											if (
+												key === 'readerDefaultStatus'
+											) {
+												updateConfig(
+													'mailchimp_reader_default_status',
+													value
+												);
 											}
 										} }
 									/>
 								) }
 								{ isActiveCampaign && (
 									<ActiveCampaign
-										value={ { masterList: config.active_campaign_master_list } }
+										value={ {
+											masterList:
+												config.active_campaign_master_list,
+										} }
 										onChange={ ( key, value ) => {
 											if ( key === 'masterList' ) {
-												updateConfig( 'active_campaign_master_list', value );
+												updateConfig(
+													'active_campaign_master_list',
+													value
+												);
 											}
 										} }
 									/>
 								) }
 								<MetadataFields
-									availableFields={ newspackAudienceConfiguration.esp_metadata_fields || [] }
+									availableFields={
+										newspackAudienceConfiguration.esp_metadata_fields ||
+										[]
+									}
 									selectedFields={ config.metadata_fields }
 									updateConfig={ updateConfig }
 									getSharedProps={ getSharedProps }
@@ -402,24 +501,46 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							isPrimary
 							onClick={ () => {
 								if ( config.sync_esp ) {
-									if (isMailchimp && config.mailchimp_audience_id === '') {
+									if (
+										isMailchimp &&
+										config.mailchimp_audience_id === ''
+									) {
 										// eslint-disable-next-line no-alert
-										alert( __( 'Please select a Mailchimp Audience ID.', 'newspack-plugin' ) );
-										return
+										alert(
+											__(
+												'Please select a Mailchimp Audience ID.',
+												'newspack-plugin'
+											)
+										);
+										return;
 									}
-									if (isActiveCampaign && config.active_campaign_master_list === '') {
+									if (
+										isActiveCampaign &&
+										config.active_campaign_master_list ===
+											''
+									) {
 										// eslint-disable-next-line no-alert
-										alert( __( 'Please select an ActiveCampaign Master List.', 'newspack-plugin' ) );
-										return
+										alert(
+											__(
+												'Please select an ActiveCampaign Master List.',
+												'newspack-plugin'
+											)
+										);
+										return;
 									}
 								}
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
-									mailchimp_audience_id: config.mailchimp_audience_id,
-									mailchimp_reader_default_status: config.mailchimp_reader_default_status,
-									active_campaign_master_list: config.active_campaign_master_list,
-									memberships_require_all_plans: membershipsConfig.require_all_plans,
-									memberships_show_on_subscription_tab: membershipsConfig.show_on_subscription_tab,
+									mailchimp_audience_id:
+										config.mailchimp_audience_id,
+									mailchimp_reader_default_status:
+										config.mailchimp_reader_default_status,
+									active_campaign_master_list:
+										config.active_campaign_master_list,
+									memberships_require_all_plans:
+										membershipsConfig.require_all_plans,
+									memberships_show_on_subscription_tab:
+										membershipsConfig.show_on_subscription_tab,
 									use_custom_lists: config.use_custom_lists,
 									newsletter_lists: config.newsletter_lists,
 									sync_esp: config.sync_esp,
@@ -429,11 +550,14 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							} }
 							disabled={ inFlight }
 						>
-							{ __( 'Save advanced settings', 'newspack-plugin' ) }
+							{ __(
+								'Save advanced settings',
+								'newspack-plugin'
+							) }
 						</Button>
 					</div>
 				</Card>
 			) }
-		</>
+		</WizardsTab>
 	);
 } );
