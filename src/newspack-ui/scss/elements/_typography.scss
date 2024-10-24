@@ -6,6 +6,8 @@
 	-webkit-font-smoothing: antialiased;
 
 	p {
+		font-size: inherit;
+		line-height: inherit;
 		margin: var(--newspack-ui-spacer-2) 0;
 	}
 
@@ -30,57 +32,57 @@
 		font-weight: normal;
 	}
 
-	&__font--2xs {
+	.newspack-ui__font--2xs {
 		font-size: var(--newspack-ui-font-size-2xs);
 		line-height: var(--newspack-ui-line-height-2xs);
 	}
 
-	&__font--xs {
+	.newspack-ui__font--xs {
 		font-size: var(--newspack-ui-font-size-xs);
 		line-height: var(--newspack-ui-line-height-xs);
 	}
 
-	&__font--s {
+	.newspack-ui__font--s {
 		font-size: var(--newspack-ui-font-size-s);
 		line-height: var(--newspack-ui-line-height-s);
 	}
 
-	&__font--m {
+	.newspack-ui__font--m {
 		font-size: var(--newspack-ui-font-size-m);
 		line-height: var(--newspack-ui-line-height-m);
 	}
 
-	&__font--l {
+	.newspack-ui__font--l {
 		font-size: var(--newspack-ui-font-size-l);
 		line-height: var(--newspack-ui-line-height-l);
 	}
 
-	&__font--xl {
+	.newspack-ui__font--xl {
 		font-size: var(--newspack-ui-font-size-xl);
 		line-height: var(--newspack-ui-line-height-xl);
 	}
 
-	&__font--2xl {
+	.newspack-ui__font--2xl {
 		font-size: var(--newspack-ui-font-size-2xl);
 		line-height: var(--newspack-ui-line-height-2xl);
 	}
 
-	&__font--3xl {
+	.newspack-ui__font--3xl {
 		font-size: var(--newspack-ui-font-size-3xl);
 		line-height: var(--newspack-ui-line-height-3xl);
 	}
 
-	&__font--4xl {
+	.newspack-ui__font--4xl {
 		font-size: var(--newspack-ui-font-size-4xl);
 		line-height: var(--newspack-ui-line-height-4xl);
 	}
 
-	&__font--5xl {
+	.newspack-ui__font--5xl {
 		font-size: var(--newspack-ui-font-size-5xl);
 		line-height: var(--newspack-ui-line-height-5xl);
 	}
 
-	&__font--6xl {
+	.newspack-ui__font--6xl {
 		font-size: var(--newspack-ui-font-size-6xl);
 		line-height: var(--newspack-ui-line-height-6xl);
 	}
