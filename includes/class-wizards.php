@@ -59,6 +59,7 @@ class Wizards {
 
 		// Not needed in $wizards[] since it's just for Admin Headers, not full react pages.
 		new Network_Wizard();
+		new Newsletters_Wizard();
 	}
 
 	/**
