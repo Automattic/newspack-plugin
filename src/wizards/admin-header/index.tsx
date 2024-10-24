@@ -29,7 +29,7 @@ export function WizardsAdminHeader( {
 			<div className="newspack-tabbed-navigation">
 				<ul>
 					{ tabs.map( ( tab, i ) => {
-						const selected = ( tab.forceSelected ) ? true : window.location.href === tab.href;
+						const selected = tab.forceSelected ? true : window.location.href === tab.href;
 						return (
 							<li key={ `${ tab.textContent }:${ i }` }>
 								<a
