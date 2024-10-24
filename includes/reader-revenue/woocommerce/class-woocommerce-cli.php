@@ -163,6 +163,141 @@ class WooCommerce_Cli {
 	}
 
 	/**
+	 * Fixes or reports active subscriptions that have missed next payment dates.
+	 * By default, will only process subscriptions started in the past 90 days.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dry-run]
+	 * : If set, will report results but will not make any changes.
+	 *
+	 * [--batch-size=<batch-size>]
+	 * : The number of subscriptions to process in each batch. Default: 50.
+	 *
+	 * [--start-date=<date-string>]
+	 * : A date string in YYYY-MM-DD format to use as the start date for the script. Default: 90 days ago.
+	 *
+	 * @param array $args Positional args.
+	 * @param array $assoc_args Associative args.
+	 */
+	public function fix_missing_next_payment_dates( $args, $assoc_args ) {
+		$dry_run    = ! empty( $assoc_args['dry-run'] );
+		$now        = time();
+		$batch_size = ! empty( $assoc_args['batch-size'] ) ? intval( $assoc_args['batch-size'] ) : 50;
+		$start_date = ! empty( $assoc_args['start-date'] ) ? strtotime( $assoc_args['start-date'] ) : strtotime( '-90 days', $now );
+
+		\WP_CLI::log(
+			'
+Fetching active subscriptions with missing or missed next_payment dates...
+		'
+		);
+
+		$query_args    = [
+			'subscriptions_per_page' => $batch_size,
+			'subscription_status'    => [ 'active', 'pending' ],
+			'offset'                 => 0,
+		];
+		$processed     = 0;
+		$subscriptions = \wcs_get_subscriptions( $query_args );
+		$total_revenue = 0;
+		$results       = [];
+
+		while ( ! empty( $subscriptions ) ) {
+			foreach ( $subscriptions as $subscription_id => $subscription ) {
+				array_shift( $subscriptions );
+				$subscription_start = $subscription->get_date( 'start_date' );
+
+				// If the subscription start date is before the $args start date, we're done.
+				if ( strtotime( $subscription_start ) < $start_date ) {
+					$subscriptions = [];
+					break;
+				}
+
+				$next_payment_date = $subscription->get_date( 'next_payment' );
+				$is_in_past        = ! strtotime( $next_payment_date ) || strtotime( $next_payment_date ) < $now;
+
+				// Subscription has a valid next payment date and it's in the future, so skip.
+				if ( $next_payment_date && ! $is_in_past ) {
+					continue;
+				}
+
+				$result = [
+					'ID'                => $subscription->get_id(),
+					'status'            => $subscription->get_status(),
+					'start_date'        => $subscription_start,
+					'next_payment_date' => $next_payment_date,
+					'billing_period'    => $subscription->get_billing_period(),
+					'missed_periods'    => 0,
+					'missed_total'      => 0,
+				];
+
+				// Can't process a broken subscription (missing a billing period or interval).
+				if ( empty( $result['billing_period'] ) || empty( $result['billing_interval'] ) ) {
+					continue;
+				}
+
+				$period   = $result['billing_period'];
+				$interval = (int) $result['billing_interval'];
+				$min_date = strtotime( "+$interval $period", strtotime( $subscription_start ) ); // Start after first period so we don't count in-progress periods as missed.
+				while ( $min_date <= $now ) {
+					$result['missed_periods']++;
+					$min_date = strtotime( "+$interval $period", $min_date );
+				}
+
+				if ( $result['missed_periods'] ) {
+					$result['missed_total'] += $subscription->get_total() * $result['missed_periods'];
+					$total_revenue += $result['missed_total'];
+				}
+
+				if ( ! $dry_run ) {
+					$subscription->update_dates(
+						[
+							'next_payment' => $subscription->calculate_date( 'next_payment' ),
+						]
+					);
+					$subscription->save();
+					$result['next_payment_date'] = $subscription->get_date( 'next_payment' );
+				}
+
+				$results[] = $result;
+				$processed++;
+
+				// Get the next batch.
+				if ( empty( $subscriptions ) ) {
+					$query_args['offset'] += $batch_size;
+					$subscriptions        = \wcs_get_subscriptions( $query_args );
+				}
+			}
+		}
+
+		if ( empty( $results ) ) {
+			\WP_CLI::log( 'No subscriptions with missing next_payment dates found in the given time period.' );
+		} else {
+			\WP_CLI\Utils\format_items(
+				'table',
+				$results,
+				[
+					'ID',
+					'status',
+					'start_date',
+					'next_payment_date',
+					'billing_period',
+					'missed_periods',
+					'missed_total',
+				]
+			);
+			\WP_CLI::success(
+				sprintf(
+					'Finished processing %d subscriptions. %s',
+					$processed,
+					$total_revenue ? 'Total missed revenue: ' . \wp_strip_all_tags( html_entity_decode( \wc_price( $total_revenue ) ) ) : ''
+				)
+			);
+		}
+		\WP_CLI::line( '' );
+	}
+
+	/**
 	 * Outputs a list of subscription in CLI
 	 *
 	 * @param WC_Subscription[] $subscriptions The subscriptions.
