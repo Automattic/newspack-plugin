@@ -40,7 +40,7 @@ class Newsletters_Wizard extends Wizard {
 	 * Constructor.
 	 */
 	public function __construct() {
-		
+
 		if ( ! is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ) ) {
 			return;
 		}
@@ -67,10 +67,10 @@ class Newsletters_Wizard extends Wizard {
 
 		// Adjust post types.
 		add_action( 'registered_post_type', [ $this, 'registered_post_type_newsletters' ] );
-		
+
 		// Adjust taxonomies.
 		add_action( 'registered_taxonomy', [ $this, 'registered_taxonomy_advertiser' ] );
-		
+
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
 
@@ -94,7 +94,7 @@ class Newsletters_Wizard extends Wizard {
 	 * Adjusts the Newsletters menu. Called from parent constructor 'admin_menu'.
 	 */
 	public function add_page() {
-		
+
 		// Move the entire Newsletters CPT menu.
 		$this->move_cpt_menu();
 
@@ -130,7 +130,7 @@ class Newsletters_Wizard extends Wizard {
 
 		// Re-add Tracking page. ( See remove_action above.  See Newsletters Plugin: Newspack_Newsletters\Tracking\Admin > 'add_settings_page'.
 		if ( is_callable( [ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ] ) ) {
-						
+
 			$tracking_title = esc_html__( 'Newsletters Tracking Options', 'newspack-plugin' );
 			$tracking_hook = add_submenu_page(
 				'',
@@ -143,7 +143,7 @@ class Newsletters_Wizard extends Wizard {
 
 			// In cases where the $submenu hidden item array ( $submenu[''] = array of hidden submenu items ) is defined after the parent_slug's
 			// item array ( $submenu['post type url or menu-slug'] = array of submenu items ), the HTML Title will not be set and a debug.log
-			// deprecated notice will be written: 
+			// deprecated notice will be written:
 			// PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
 			// If the hidden array is defined before the parent slug array, then the HTML Title is shown and no debug.log notice.
 			// To avoid this issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally
@@ -164,7 +164,7 @@ class Newsletters_Wizard extends Wizard {
 	public function enqueue_scripts_and_styles() {
 		// Don't output anything...scripts and styles are enqueued by Admin Header.
 	}
-	
+
 	/**
 	 * Get the name for this current screen's wizard. Required by parent abstract.
 	 *
@@ -176,11 +176,11 @@ class Newsletters_Wizard extends Wizard {
 
 	/**
 	 * Get slug if we're currently viewing a Newsletters screen.
-	 * 
+	 *
 	 * @return string
 	 */
 	private function get_screen_slug() {
-		
+
 		global $pagenow;
 
 		static $screen_slug;
@@ -280,7 +280,7 @@ class Newsletters_Wizard extends Wizard {
 		// @todo: Is there a better way to set a CPT Menu position to a decimal value????
 
 		global $menu;
-		
+
 		// Look for the Newsletters parent menu in the admin menu.
 		$current_position = null;
 		foreach ( $menu as $position => $item ) {
@@ -290,12 +290,12 @@ class Newsletters_Wizard extends Wizard {
 				break;
 			}
 		}
-		
+
 		// Verify a key was found.
 		if ( empty( $current_position ) ) {
 			return;
 		}
-		
+
 		// Move the item to a higher position near "Newspack".
 		$new_position = '3.3';
 
@@ -329,8 +329,7 @@ class Newsletters_Wizard extends Wizard {
 		}
 
 		// Change menu icon.
-		// @TODO get SVG from Figma? This one is "envelope" from: https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library .
-		$wp_post_types[ $post_type ]->menu_icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"></path></svg>' );
+		$wp_post_types[ $post_type ]->menu_icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"></path></svg>' );
 	}
 
 	/**
@@ -356,10 +355,10 @@ class Newsletters_Wizard extends Wizard {
 
 	/**
 	 * Submenu file filter. Used to determine active submenu items.
-	 * 
+	 *
 	 * For admin pages return slug only.
 	 * For admin post types return url: edit.php?post_type={post_type}
-	 * 
+	 *
 	 * @param string $submenu_file Submenu file to be overridden.
 	 * @return string
 	 */
