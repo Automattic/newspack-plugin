@@ -6,6 +6,7 @@
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
+import { decodeEntities } from '@wordpress/html-entities';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 
 /**
@@ -273,7 +274,7 @@ export function useWizardApiFetch( slug: string ) {
 	return {
 		wizardApiFetch: apiFetch,
 		isFetching,
-		errorMessage: error ? error.message : null,
+		errorMessage: error ? decodeEntities( error.message ) : null,
 		error,
 		cache( cacheKey: string ) {
 			return {

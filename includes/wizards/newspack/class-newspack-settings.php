@@ -49,8 +49,8 @@ class Newspack_Settings extends Wizard {
 	 */
 	public function get_local_data() {
 		$google_site_kit_url = google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' );
-		return [
-			'connections'       => [
+		$newspack_settings = [
+			'connections'      => [
 				'label'    => __( 'Connections', 'newspack-plugin' ),
 				'path'     => '/',
 				'sections' => [
@@ -78,7 +78,7 @@ class Newspack_Settings extends Wizard {
 					'customEvents' => $this->sections['custom-events']->get_data(),
 				],
 			],
-			'emails'            => [
+			'emails'           => [
 				'label'    => __( 'Emails', 'newspack-plugin' ),
 				'sections' => [
 					'emails' => [
@@ -90,25 +90,46 @@ class Newspack_Settings extends Wizard {
 					],
 				],
 			],
-			'social'            => [
+			'social'           => [
 				'label' => __( 'Social', 'newspack-plugin' ),
 			],
-			'syndication'       => [
+			'syndication'      => [
 				'label' => __( 'Syndication', 'newspack-plugin' ),
 			],
-			'seo'               => [
+			'seo'              => [
 				'label' => __( 'SEO', 'newspack-plugin' ),
 			],
-			'theme-and-brand'   => [
+			'theme-and-brand'  => [
 				'label' => __( 'Theme and Brand', 'newspack-plugin' ),
 			],
-			'display-settings'  => [
+			'display-settings' => [
 				'label' => __( 'Display Settings', 'newspack-plugin' ),
 			],
-			'additional-brands' => [
-				'label' => __( 'Additional Brands', 'newspack-plugin' ),
-			],
 		];
+		if ( defined( 'NEWSPACK_MULTIBRANDED_SITE_PLUGIN_FILE' ) ) {
+			$newspack_settings['additional-brands'] = [
+				'label'          => __( 'Additional Brands', 'newspack-plugin' ),
+				'activeTabPaths' => [
+					'/additional-brands/*',
+				],
+				'sections'       => [
+					'additionalBrands' => [
+						'themeColors'   => \Newspack_Multibranded_Site\Customizations\Theme_Colors::get_registered_theme_colors(),
+						'menuLocations' => get_registered_nav_menus(),
+						'menus'         => array_map(
+							function( $menu ) {
+								return array(
+									'value' => $menu->term_id,
+									'label' => $menu->name,
+								);
+							},
+							wp_get_nav_menus()
+						),
+					],
+				],
+			];
+		}
+		return $newspack_settings;
 	}
 
 	/**
