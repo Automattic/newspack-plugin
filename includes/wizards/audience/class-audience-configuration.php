@@ -76,7 +76,7 @@ class Audience_Configuration extends Wizard {
 
 		wp_enqueue_script(
 			$this->slug,
-			Newspack::plugin_url() . '/dist/audience-configuration.js',
+			Newspack::plugin_url() . '/dist/audience.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
 			true
