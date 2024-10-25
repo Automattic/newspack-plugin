@@ -118,7 +118,7 @@ class WooCommerce_Cover_Fees {
 			// but at this point handling coupons + covering fees is an edge case.
 			return false;
 		}
-		if ( true !== boolval( get_option( 'newspack_donations_allow_covering_fees' ) ) ) {
+		if ( true !== boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ) ) {
 			return false;
 		}
 		return true;
