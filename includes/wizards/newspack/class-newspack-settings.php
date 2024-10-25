@@ -36,16 +36,9 @@ class Newspack_Settings extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Priority setting for ordering admin submenu items. Settings must come second.
-	 *
-	 * @var int.
-	 */
-	protected $menu_priority = 2;
-
-	/**
 	 * Get Settings local data
 	 *
-	 * @return [] 
+	 * @return []
 	 */
 	public function get_local_data() {
 		$google_site_kit_url = google_site_kit_available() ? admin_url( 'admin.php?page=googlesitekit-settings#/connected-services/analytics-4' ) : admin_url( 'admin.php?page=googlesitekit-splash' );
@@ -148,7 +141,7 @@ class Newspack_Settings extends Wizard {
 		 * JavaScript
 		 */
 		wp_localize_script(
-			'newspack-wizards', 
+			'newspack-wizards',
 			'newspackSettings',
 			$this->get_local_data()
 		);

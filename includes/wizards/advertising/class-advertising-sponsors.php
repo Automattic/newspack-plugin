@@ -21,21 +21,21 @@ class Advertising_Sponsors extends Wizard {
 
 	/**
 	 * Newspack Sponsors CPT name.
-	 * 
+	 *
 	 * @var string
 	 */
 	const CPT_NAME = 'newspack_spnsrs_cpt';
 
 	/**
 	 * Sponsors CPT list path.
-	 * 
+	 *
 	 * @var string
 	 */
 	const URL = 'edit.php?post_type=newspack_spnsrs_cpt';
 
-	/** 
+	/**
 	 * Advertising Page path.
-	 * 
+	 *
 	 * @var string
 	 */
 	const PARENT_URL = 'admin.php?page=advertising-display-ads';
@@ -46,13 +46,6 @@ class Advertising_Sponsors extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
-
-	/**
-	 * High menu priority since we need core registrations to exist before we can modify them.
-	 *
-	 * @var int
-	 */
-	protected $menu_priority = 99;
 
 	/**
 	 * Advertising_Sponsors Constructor.
@@ -83,8 +76,8 @@ class Advertising_Sponsors extends Wizard {
 							'textContent' => esc_html__( 'Settings', 'newspack-plugin' ),
 							'href'        => admin_url( static::URL . '&page=newspack-sponsors-settings-admin' ),
 						],
-					], 
-					'title' => $this->get_name(), 
+					],
+					'title' => $this->get_name(),
 				]
 			);
 		}
@@ -174,7 +167,7 @@ class Advertising_Sponsors extends Wizard {
 	 * Parent file filter. Used to determine active menu items.
 	 *
 	 * @param string $parent_file Parent file to be overridden.
-	 * @return string 
+	 * @return string
 	 */
 	public function parent_file( $parent_file ) {
 		global $pagenow, $typenow;
@@ -182,11 +175,11 @@ class Advertising_Sponsors extends Wizard {
 		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
 			return 'advertising-display-ads';
 		}
-		
+
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return static::PARENT_URL;
 		}
-	
+
 		return $parent_file;
 	}
 
@@ -200,7 +193,7 @@ class Advertising_Sponsors extends Wizard {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return static::URL;
 		}
-	
+
 		return $submenu_file;
 	}
 }
