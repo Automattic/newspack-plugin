@@ -131,7 +131,7 @@ class WooCommerce_My_Account {
 				}
 
 				// Hide Orders and Payment Methods if the reader has no orders.
-				if ( ! $customer->get_is_paying_customer() ) {
+				if ( ! $customer->get_is_paying_customer() && empty( wcs_get_users_subscriptions( $customer_id ) ) ) {
 					$default_disabled_items[] = 'orders';
 					$default_disabled_items[] = 'payment-methods';
 				}
