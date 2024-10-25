@@ -47,7 +47,7 @@ class Newspack_Dashboard extends Wizard {
 	/**
 	 * Get Dashboard data
 	 *
-	 * @return [] 
+	 * @return []
 	 */
 	public function get_dashboard() {
 		$dashboard = [
@@ -84,7 +84,7 @@ class Newspack_Dashboard extends Wizard {
 		];
 
 		// Newspack Newsletters Plugin.
-		if ( is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ) ) {
+		if ( defined( 'NEWSPACK_NEWSLETTERS_PLUGIN_FILE' ) ) {
 			$dashboard['newsletters'] = [
 				'title'        => __( 'Newsletters', 'newspack-plugin' ),
 				'desc'         => __( 'Engage your readers directly in their email inbox.', 'newspack-plugin' ),
@@ -171,7 +171,7 @@ class Newspack_Dashboard extends Wizard {
 					'icon'  => 'tool',
 					'title' => __( 'Settings', 'newspack-plugin' ),
 					'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ), 
+					'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ),
 				],
 			],
 		];
@@ -187,7 +187,7 @@ class Newspack_Dashboard extends Wizard {
 				'cards'        => $this->get_dashboard_network_cards(),
 			];
 		}
-		
+
 		return $dashboard;
 	}
 
@@ -197,7 +197,7 @@ class Newspack_Dashboard extends Wizard {
 	 * @return array Cards
 	 */
 	public function get_dashboard_network_cards() {
-		
+
 		// Get the site role.
 		$site_role = ( function() {
 			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
@@ -218,7 +218,7 @@ class Newspack_Dashboard extends Wizard {
 			'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
 			'href'  => admin_url( 'admin.php?page=newspack-network' ),
 		];
-		
+
 		// If node.
 		if ( 'node' === $site_role ) {
 			return [
@@ -231,7 +231,7 @@ class Newspack_Dashboard extends Wizard {
 				],
 			];
 		}
-		
+
 		// If hub.
 		if ( 'hub' === $site_role ) {
 			return [
@@ -276,7 +276,7 @@ class Newspack_Dashboard extends Wizard {
 		}
 
 		// Default / no role.
-		return [ 
+		return [
 			$settings_card,
 		];
 	}
@@ -284,7 +284,7 @@ class Newspack_Dashboard extends Wizard {
 	/**
 	 * Get Dashboard local data
 	 *
-	 * @return [] 
+	 * @return []
 	 */
 	public function get_local_data() {
 		$site_name = get_bloginfo( 'name' );
@@ -348,14 +348,14 @@ class Newspack_Dashboard extends Wizard {
 			'icon'  => 'post',
 		];
 
-		if ( is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ) ) {
+		if ( defined( 'NEWSPACK_NEWSLETTERS_PLUGIN_FILE' ) ) {
 			$local_data['quickActions'][] = [
 				'href'  => admin_url( 'post-new.php?post_type=newspack_nl_cpt' ),
 				'title' => __( 'Draft a newsletter', 'newspack-plugin' ),
 				'icon'  => 'mail',
 			];
 		}
-		
+
 		$local_data['quickActions'][] = [
 			'href'  => 'https://lookerstudio.google.com/u/0/reporting/b7026fea-8c2c-4c4b-be95-f582ed94f097/page/p_3eqlhk5odd',
 			'title' => __( 'Open data dashboard', 'newspack-plugin' ),
@@ -413,7 +413,7 @@ class Newspack_Dashboard extends Wizard {
 		 * JavaScript
 		 */
 		wp_localize_script(
-			'newspack-wizards', 
+			'newspack-wizards',
 			'newspackDashboard',
 			$this->get_local_data()
 		);
