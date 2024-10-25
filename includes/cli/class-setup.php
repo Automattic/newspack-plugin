@@ -121,8 +121,9 @@ class Setup {
 			return WP_CLI::error( $response->data['message'] );
 		}
 
-		WP_CLI::line( 'Creating Posts' );
-		for ( $i = 0; $i < 40; $i++ ) {
+		$posts_count = \Newspack\Starter_Content::is_e2e() ? 10 : 40;
+		WP_CLI::line( sprintf( 'Creating %d posts', $posts_count ) );
+		for ( $i = 0; $i < $posts_count; $i++ ) {
 			$request  = new WP_REST_Request( 'POST', '/' . NEWSPACK_API_NAMESPACE . '/wizard/newspack-setup-wizard/starter-content/post/' . $i );
 			$response = rest_do_request( $request );
 			echo '.';

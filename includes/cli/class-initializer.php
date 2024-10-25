@@ -39,6 +39,7 @@ class Initializer {
 		}
 
 		WP_CLI::add_command( 'newspack setup', 'Newspack\CLI\Setup' );
+		WP_CLI::add_command( 'newspack remove-starter-content', [ 'Newspack\Starter_Content','remove_starter_content' ] );
 
 		// Utility commands for managing RAS data via WP CLI.
 		WP_CLI::add_command(
