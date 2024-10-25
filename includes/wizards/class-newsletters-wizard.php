@@ -30,11 +30,18 @@ class Newsletters_Wizard extends Wizard {
 	private $admin_screens = [];
 
 	/**
-	 * Must be run after Newsletters Plugin.
+	 * The parent menu item name.
 	 *
-	 * @var int.
+	 * @var string
 	 */
-	protected $menu_priority = 11;
+	public $parent_menu = 'edit.php?post_type=newspack_nl_cpt';
+
+	/**
+	 * Order relative to the Newspack Dashboard menu item.
+	 *
+	 * @var int
+	 */
+	public $menu_order = 2;
 
 	/**
 	 * Constructor.
@@ -94,10 +101,6 @@ class Newsletters_Wizard extends Wizard {
 	 * Adjusts the Newsletters menu. Called from parent constructor 'admin_menu'.
 	 */
 	public function add_page() {
-
-		// Move the entire Newsletters CPT menu.
-		$this->move_cpt_menu();
-
 		// Remove "Add New" menu item.
 		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'post-new.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 
@@ -268,46 +271,6 @@ class Newsletters_Wizard extends Wizard {
 	 */
 	public function is_wizard_page() {
 		return isset( $this->admin_screens[ $this->get_screen_slug() ] );
-	}
-
-	/**
-	 * Move CPT Menu using a decimal value. (CPT objects only allow integer positions).
-	 *
-	 * @return void
-	 */
-	private function move_cpt_menu() {
-
-		// @todo: Is there a better way to set a CPT Menu position to a decimal value????
-
-		global $menu;
-
-		// Look for the Newsletters parent menu in the admin menu.
-		$current_position = null;
-		foreach ( $menu as $position => $item ) {
-			// Test each item until found.
-			if ( $item[2] === 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT ) {
-				$current_position = $position;
-				break;
-			}
-		}
-
-		// Verify a key was found.
-		if ( empty( $current_position ) ) {
-			return;
-		}
-
-		// Move the item to a higher position near "Newspack".
-		$new_position = '3.3';
-
-		// if position/key collision, keep increasing increment... 3.3 => 3.33 => 3.333 ...
-		while ( array_key_exists( $new_position, $menu ) ) {
-			$new_position .= '3';
-		}
-
-		// Move menu in the array.
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $new_position ] = $menu[ $current_position ];
-		unset( $menu[ $current_position ] );
 	}
 
 	/**

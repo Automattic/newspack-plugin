@@ -31,6 +31,20 @@ class Network_Wizard extends Wizard {
 	private $screen_type = '';
 
 	/**
+	 * The parent menu item name.
+	 *
+	 * @var string
+	 */
+	public $parent_menu = 'newspack-network';
+
+	/**
+	 * Order relative to the Newspack Dashboard menu item.
+	 *
+	 * @var int
+	 */
+	public $menu_order = 5;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -38,7 +52,7 @@ class Network_Wizard extends Wizard {
 		if ( ! is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
 			return;
 		}
-		
+
 		// Admin screens based on Newspack Network plugin's admin pages and post types.
 		$this->admin_screens = [
 			'page'      => [
@@ -55,8 +69,8 @@ class Network_Wizard extends Wizard {
 			],
 		];
 
-		// Move entire Network Menu. Use a high priority to load after Network Plugin itself loads.
-		add_action( 'admin_menu', [ $this, 'move_menu' ], 99 );
+		// Update menu information.
+		add_action( 'admin_menu', [ $this, 'modify_menu' ], 11 );
 
 		// Use current_screen for better detection of which admin screen we might be on.
 		add_action( 'current_screen', [ $this, 'current_screen' ] );
@@ -77,7 +91,7 @@ class Network_Wizard extends Wizard {
 		}
 
 		// Check for admin post type screen: Listings page and classic editor (add new + edit), but not block editor.
-		if ( ! empty( $current_screen->post_type ) 
+		if ( ! empty( $current_screen->post_type )
 			&& ! empty( $this->admin_screens['post_type'][ $current_screen->post_type ] )
 			&& false === $current_screen->is_block_editor ) {
 			$this->slug = $current_screen->post_type;
@@ -120,10 +134,9 @@ class Network_Wizard extends Wizard {
 	 *
 	 * @return void
 	 */
-	public function move_menu() {
-
+	public function modify_menu() {
 		global $menu;
-		
+
 		// Find the Newspack Network menu item in the admin menu.
 		$network_key = null;
 		foreach ( $menu as $k => $v ) {
@@ -133,29 +146,16 @@ class Network_Wizard extends Wizard {
 				break;
 			}
 		}
-		
+
 		// Verify a key was found.
 		if ( empty( $network_key ) ) {
 			return;
 		}
-		
+
 		// Adjust the network menu attributes.
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$menu[ $network_key ][0] = __( 'Network', 'newspack-plugin' );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$menu[ $network_key ][6] = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M12 3.3c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8s-4-8.8-8.8-8.8zm6.5 5.5h-2.6C15.4 7.3 14.8 6 14 5c2 .6 3.6 2 4.5 3.8zm.7 3.2c0 .6-.1 1.2-.2 1.8h-2.9c.1-.6.1-1.2.1-1.8s-.1-1.2-.1-1.8H19c.2.6.2 1.2.2 1.8zM12 18.7c-1-.7-1.8-1.9-2.3-3.5h4.6c-.5 1.6-1.3 2.9-2.3 3.5zm-2.6-4.9c-.1-.6-.1-1.1-.1-1.8 0-.6.1-1.2.1-1.8h5.2c.1.6.1 1.1.1 1.8s-.1 1.2-.1 1.8H9.4zM4.8 12c0-.6.1-1.2.2-1.8h2.9c-.1.6-.1 1.2-.1 1.8 0 .6.1 1.2.1 1.8H5c-.2-.6-.2-1.2-.2-1.8zM12 5.3c1 .7 1.8 1.9 2.3 3.5H9.7c.5-1.6 1.3-2.9 2.3-3.5zM10 5c-.8 1-1.4 2.3-1.8 3.8H5.5C6.4 7 8 5.6 10 5zM5.5 15.3h2.6c.4 1.5 1 2.8 1.8 3.7-1.8-.6-3.5-2-4.4-3.7zM14 19c.8-1 1.4-2.2 1.8-3.7h2.6C17.6 17 16 18.4 14 19z"></path></svg>' );
-
-		// Try to move the network item to a higher position near "Newspack".
-		$new_position = '3.9';
-
-		// if position/key collision, keep increasing increment.
-		while ( array_key_exists( $new_position, $menu ) ) {
-			$new_position .= '9';
-		}
-
-		// Move network menu in the array.
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $new_position ] = $menu[ $network_key ];
-		unset( $menu[ $network_key ] );
 	}
 }
