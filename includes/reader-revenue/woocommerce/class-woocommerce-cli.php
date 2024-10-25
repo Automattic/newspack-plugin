@@ -227,6 +227,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 					'start_date'        => $subscription_start,
 					'next_payment_date' => $next_payment_date,
 					'billing_period'    => $subscription->get_billing_period(),
+					'billing_interval'  => $subscription->get_billing_interval(),
 					'missed_periods'    => 0,
 					'missed_total'      => 0,
 				];
