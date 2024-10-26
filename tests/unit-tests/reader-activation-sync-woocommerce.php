@@ -6,6 +6,7 @@
  */
 
 use Newspack\Reader_Activation\Sync;
+use Newspack\Reader_Activation\Sync\Metadata;
 
 require_once __DIR__ . '/../mocks/wc-mocks.php';
 
@@ -95,7 +96,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 
 		$payment_page_url = 'https://example.com/donate';
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order, $payment_page_url );
-		$today = gmdate( 'Y-m-d' );
+		$today = gmdate( Metadata::DATE_FORMAT );
 		$this->assertEquals(
 			[
 				'email'    => self::USER_DATA['user_email'],
@@ -161,11 +162,12 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			]
 		);
 
+		$previous_order      = self::$current_order;
 		self::$current_order = $order;
 
 		$contact_data = Sync\WooCommerce::get_contact_from_order( $order );
-		$this->assertEmpty( $contact_data['metadata']['last_payment_date'] );
-		$this->assertEmpty( $contact_data['metadata']['last_payment_amount'] );
+		$this->assertEquals( $contact_data['metadata']['last_payment_date'], $previous_order->get_date_paid()->date( Metadata::DATE_FORMAT ) );
+		$this->assertEquals( $contact_data['metadata']['last_payment_amount'], self::$current_order->get_total() );
 	}
 
 	/**
@@ -183,7 +185,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 
 		$contact_data = Sync\WooCommerce::get_contact_from_customer( self::$user_id );
 		$this->assertEquals( $order_data['total'], $contact_data['metadata']['last_payment_amount'] );
-		$this->assertEquals( gmdate( 'Y-m-d' ), $contact_data['metadata']['last_payment_date'] );
+		$this->assertEquals( gmdate( Metadata::DATE_FORMAT ), $contact_data['metadata']['last_payment_date'] );
 	}
 
 	/**
@@ -194,7 +196,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 			'customer_id' => self::$user_id,
 			'status'      => 'completed',
 			'total'       => 70,
-			'date_paid'   => gmdate( 'Y-m-d', strtotime( '-1 week' ) ),
+			'date_paid'   => gmdate( Metadata::DATE_FORMAT, strtotime( '-1 week' ) ),
 		];
 		$order = \wc_create_order( $completed_order_data );
 

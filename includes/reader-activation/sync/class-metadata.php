@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Metadata {
 
-	const DATE_FORMAT   = 'Y-m-d';
+	const DATE_FORMAT   = 'Y-m-d H:i:s';
 	const PREFIX        = 'NP_';
 	const PREFIX_OPTION = '_newspack_metadata_prefix';
 
