@@ -993,7 +993,12 @@ class Donations {
 		if ( is_array( $params ) ) {
 			foreach ( $params as $param => $value ) {
 				if ( in_array( $param, array_keys( self::DONATION_ORDER_META_KEYS ) ) ) {
-					update_post_meta( $order_id, sanitize_text_field( $param ), sanitize_text_field( $value ) );
+					$order = wc_get_order( $order_id );
+					if ( ! $order ) {
+						continue;
+					}
+					$order->update_meta_data( $order_id, sanitize_text_field( $param ), sanitize_text_field( $value ) );
+					$order->save();
 				}
 			}
 		}
