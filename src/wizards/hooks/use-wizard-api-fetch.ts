@@ -186,25 +186,26 @@ export function useWizardApiFetch( slug: string ) {
 					updateSettings( method, response );
 				}
 
-				if ( updateCacheKey && updateCacheKey instanceof Object ) {
+				if ( updateCacheKey && updateCacheKey.constructor === Object ) {
 					// Derive the key and method from the updateCacheKey object.
 					const [ updateCacheKeyKey, updateCacheKeyMethod ]: [
 						keyof WizardData,
 						ApiMethods,
 					] = Object.entries( updateCacheKey )[ 0 ];
 
-					// If the cached value is an object, merge the new response with existing cache.
-					const newCache =
-						wizardData[ updateCacheKeyKey ][
-							updateCacheKeyMethod
-						] instanceof Object
-							? {
-									...wizardData[ updateCacheKeyKey ][
-										updateCacheKeyMethod
-									],
-									...response,
-							  }
-							: response;
+					const cachedValue =
+						wizardData[ updateCacheKeyKey ][ updateCacheKeyMethod ];
+
+					let newCache;
+
+					if ( cachedValue && cachedValue.constructor === Object ) {
+						newCache = {
+							...cachedValue,
+							...response,
+						};
+					} else {
+						newCache = response;
+					}
 
 					updateSettings(
 						Object.entries( updateCacheKey )[ 0 ],
@@ -212,6 +213,7 @@ export function useWizardApiFetch( slug: string ) {
 						null
 					);
 				}
+
 				for ( const replaceMethod of updateCacheMethods ) {
 					updateSettings( replaceMethod, response );
 				}
