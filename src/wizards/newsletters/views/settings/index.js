@@ -1,4 +1,4 @@
-/* global newspack_engagement_wizard */
+/* global newspack_newsletters_wizard */
 /**
  * Internal dependencies
  */
@@ -34,7 +34,7 @@ import {
 
 import './style.scss';
 
-export const NewspackNewsletters = ( {
+export const Settings = ( {
 	className,
 	onUpdate,
 	initialProvider,
@@ -329,11 +329,11 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 				hasGreyHeader
 				actionContent={
 					<>
-						{ newspack_engagement_wizard.new_subscription_lists_url && (
+						{ newspack_newsletters_wizard.new_subscription_lists_url && (
 							<Button
 								variant="secondary"
 								disabled={ inFlight || lockedLists }
-								href={ newspack_engagement_wizard.new_subscription_lists_url }
+								href={ newspack_newsletters_wizard.new_subscription_lists_url }
 							>
 								{ __( 'Add New', 'newspack-plugin' ) }
 							</Button>
@@ -393,7 +393,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 	);
 };
 
-const Newsletters = () => {
+const NewslettersSettings = () => {
 	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
 	const [ initialProvider, setInitialProvider ] = useState( '' );
 	const [ lockedLists, setLockedLists ] = useState( false );
@@ -401,7 +401,7 @@ const Newsletters = () => {
 
 	return (
 		<>
-			<NewspackNewsletters
+			<Settings
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 				authUrl={ authUrl }
@@ -418,6 +418,6 @@ const Newsletters = () => {
 
 export default withWizardScreen( () => (
 	<>
-		<Newsletters />
+		<NewslettersSettings />
 	</>
 ) );
