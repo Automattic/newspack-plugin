@@ -342,7 +342,7 @@ final class Reader_Activation {
 			'sender_name'                       => Emails::get_from_name(),
 			'sender_email_address'              => Emails::get_from_email(),
 			'contact_email_address'             => Emails::get_reply_to_email(),
-			'woocommerce_registration_required' => $woocommerce_configuration_manager->is_registration_required(),
+			'woocommerce_registration_required' => false,
 		];
 
 		/**

@@ -73,6 +73,7 @@ class Donations {
 
 		add_action( 'woocommerce_checkout_update_order_meta', [ __CLASS__, 'woocommerce_checkout_update_order_meta' ] );
 		add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'woocommerce_billing_fields' ] );
+		add_filter( 'pre_option_woocommerce_enable_guest_checkout', [ __CLASS__, 'disable_guest_checkout' ] );
 		add_action( 'woocommerce_check_cart_items', [ __CLASS__, 'handle_cart' ] );
 		add_filter( 'amp_skip_post', [ __CLASS__, 'should_skip_amp' ], 10, 2 );
 		add_filter( 'newspack_blocks_donate_billing_fields_keys', [ __CLASS__, 'get_billing_fields' ] );
@@ -981,6 +982,22 @@ class Donations {
 		}
 
 		return $form_fields;
+	}
+
+	/**
+	 * If Reader Activation is enabled, the reader will be registered upon donation.
+	 * Disable the guest checkout option in the checkout form.
+	 *
+	 * @param string $value Value of the guest checkout option from WC settings. Can be 'yes' or 'no'.
+	 *
+	 * @return string Filtered value.
+	 */
+	public static function disable_guest_checkout( $value ) {
+		if ( Reader_Activation::is_enabled() ) {
+			$value = 'no';
+		}
+
+		return $value;
 	}
 
 	/**

@@ -283,12 +283,6 @@ class Engagement_Wizard extends Wizard {
 			Memberships::set_show_on_subscription_tab_setting( (bool) $args['memberships_show_on_subscription_tab'] );
 		}
 
-		// Update WooCommerce registration required setting.
-		if ( isset( $args['woocommerce_registration_required'] ) ) {
-			$woocommerce_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-			$woocommerce_configuration_manager->update_registration_required( (bool) $args['woocommerce_registration_required'] );
-		}
-
 		return rest_ensure_response(
 			[
 				'config'               => Reader_Activation::get_settings(),
