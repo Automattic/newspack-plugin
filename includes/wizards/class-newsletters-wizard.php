@@ -160,6 +160,36 @@ class Newsletters_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings/tracking',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_tracking' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings/tracking',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_tracking' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'click' => [
+						'type'        => 'boolean',
+						'description' => __( 'Whether click tracking is enabled.', 'newspack-plugin' ),
+						'required'    => true,
+					],
+					'pixel' => [
+						'type'        => 'boolean',
+						'description' => __( 'Whether the tracking pixel is enabled.', 'newspack-plugin' ),
+						'required'    => true,
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -204,6 +234,7 @@ class Newsletters_Wizard extends Wizard {
 	 * Get Newspack Newsletters setttings.
 	 *
 	 * @param WP_REST_Request $request Request object.
+	 *
 	 * @return WP_REST_Response with the info.
 	 */
 	public function api_update_newsletters_settings( $request ) {
@@ -211,6 +242,38 @@ class Newsletters_Wizard extends Wizard {
 		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
 		$newsletters_configuration_manager->update_settings( $args );
 		return $this->api_get_newsletters_settings();
+	}
+
+	/**
+	 * Get tracking settings.
+	 *
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_get_tracking() {
+		$tracking = [
+			'click' => false,
+			'pixel' => false,
+		];
+		if ( method_exists( 'Newspack_Newsletters\Tracking\Admin', 'is_tracking_click_enabled' ) ) {
+			$tracking['click'] = Newspack_Newsletters_Tracking_Admin::is_tracking_click_enabled();
+		}
+		if ( method_exists( 'Newspack_Newsletters\Tracking\Admin', 'is_tracking_pixel_enabled' ) ) {
+			$tracking['pixel'] = Newspack_Newsletters_Tracking_Admin::is_tracking_pixel_enabled();
+		}
+		return rest_ensure_response( $tracking );
+	}
+
+	/**
+	 * Update tracking settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_update_tracking( $request ) {
+		update_option( 'newspack_newsletters_use_click_tracking', intval( $request->get_param( 'click' ) ) );
+		update_option( 'newspack_newsletters_use_tracking_pixel', intval( $request->get_param( 'pixel' ) ) );
+		return rest_ensure_response( true );
 	}
 
 	/**
