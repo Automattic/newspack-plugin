@@ -2372,5 +2372,14 @@ final class Reader_Activation {
 		}
 		set_current_reader( $user );
 	}
+
+	/**
+	 * Whether forced registration at checkout is enabled.
+	 *
+	 * @return bool True if forced registration at checkout is enabled.
+	 */
+	public static function is_woocommerce_registration_required() {
+		return (bool) \get_option( self::OPTIONS_PREFIX . 'woocommerce_registration_required', false );
+	}
 }
 Reader_Activation::init();
