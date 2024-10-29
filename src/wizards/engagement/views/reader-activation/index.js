@@ -426,6 +426,24 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							</>
 						) }
 					</ActionCard>
+
+					<hr />
+
+					<SectionHeader title={ __( 'Checkout Registration', 'newspack-plugin' ) } />
+
+					<ActionCard
+						title={ __(
+							'Prevent readers from checking out without an account',
+							'newspack-plugin'
+						) }
+						description={ __(
+							'Present logged out readers with account registration at the time of checkout.',
+							'newspack-plugin'
+						) }
+						toggleChecked={ config.woocommerce_registration_required }
+						toggleOnChange={ value => updateConfig( 'woocommerce_registration_required', value ) }
+					/>
+
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
@@ -454,6 +472,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									sync_esp: config.sync_esp,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
+									woocommerce_registration_required: config.woocommerce_registration_required,
 								} );
 							} }
 							disabled={ inFlight }

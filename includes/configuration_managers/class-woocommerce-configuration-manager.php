@@ -252,4 +252,32 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 		update_option( 'woocommerce_enable_guest_checkout', 'yes' );
 		update_option( 'woocommerce_enable_signup_and_login_from_checkout', 'yes' );
 	}
+
+	/**
+	 * Determine whether registration is required at checkout.
+	 *
+	 * @return bool Whether registration is required at checkout.
+	 */
+	public function is_registration_required() {
+		if ( ! function_exists( 'WC' ) ) {
+			return false;
+		}
+		return \WC()->checkout->is_registration_required();
+	}
+
+	/**
+	 * Update whether registration is required at checkout.
+	 *
+	 * @param bool $required Whether registration is required at checkout.
+	 *
+	 * @return bool Whether the update was successful.
+	 */
+	public function update_registration_required( $required ) {
+		if ( ! function_exists( 'WC' ) ) {
+			return false;
+		}
+
+		// Required registration is tied to the guest checkout option in Woo.
+		return update_option( 'woocommerce_enable_guest_checkout', $required ? 'no' : 'yes' );
+	}
 }
