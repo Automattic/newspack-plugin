@@ -23,6 +23,20 @@ class Newsletters_Wizard extends Wizard {
 	use Admin_Header;
 
 	/**
+	 * The slug of this wizard.
+	 *
+	 * @var string
+	 */
+	protected $slug = 'newspack-newsletters';
+
+	/**
+	 * The capability required to access this wizard.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'manage_options';
+
+	/**
 	 * Newsletters plugin's Admin screen definitions (see constructor).
 	 *
 	 * @var array
@@ -48,7 +62,7 @@ class Newsletters_Wizard extends Wizard {
 	 */
 	public function __construct() {
 
-		if ( ! is_plugin_active( 'newspack-newsletters/newspack-newsletters.php' ) ) {
+		if ( ! defined( 'NEWSPACK_NEWSLETTERS_PLUGIN_FILE' ) ) {
 			return;
 		}
 
@@ -62,6 +76,8 @@ class Newsletters_Wizard extends Wizard {
 			'newspack_nl_ads_cpt'                 => __( 'Newsletters / Advertising', 'newspack-plugin' ),
 			// Admin taxonomies.
 			'newspack_nl_advertiser'              => __( 'Newsletters / Advertising', 'newspack-plugin' ),
+			// Admin Newsletter Lists.
+			'newspack_nl_list'                    => __( 'Newsletters / Lists', 'newspack-plugin' ),
 		];
 
 		// Menu removals.
@@ -78,23 +94,123 @@ class Newsletters_Wizard extends Wizard {
 		// Adjust taxonomies.
 		add_action( 'registered_taxonomy', [ $this, 'registered_taxonomy_advertiser' ] );
 
+		// Set active menu item for hidden screens.
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ], 10, 2 );
+
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
-
-			// Set active menu item for hidden screens.
-			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
 			// Remove Newsletters branding (blue banner bar) from all screens.
 			remove_action( 'admin_enqueue_scripts', [ Newspack_Newsletters::class, 'branding_scripts' ] );
 
-			// Add the admin header.
-			$this->admin_header_init(
-				[
-					'title' => $this->get_name(),
-					'tabs'  => $this->get_tabs(),
-				]
-			);
+			// Only show the admin header on non-wizard pages.
+			if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== $this->slug ) {
+				// Add the admin header.
+				$this->admin_header_init(
+					[
+						'title' => $this->get_name(),
+						'tabs'  => $this->get_tabs(),
+					]
+				);
+			}
 		}
+
+		// Wizard REST API.
+		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+
+		// Modify newsletters settings URL.
+		add_filter( 'newspack_newsletters_settings_url', [ $this, 'newsletters_settings_url' ] );
+	}
+
+	/**
+	 * Modify newsletters settings URL.
+	 */
+	public function newsletters_settings_url() {
+		return admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' );
+	}
+
+	/**
+	 * Register REST API endpoints.
+	 */
+	public function register_api_endpoints() {
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_newsletters_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_newsletters_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/settings/lists',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_newsletters_lists' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+	}
+
+	/**
+	 * Get lists of configured ESP.
+	 */
+	public static function api_get_newsletters_lists() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		return $newsletters_configuration_manager->get_lists();
+	}
+
+	/**
+	 * Get Newspack Newsletters setttings.
+	 *
+	 * @return object with the info.
+	 */
+	private static function get_newsletters_settings() {
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		$settings                          = array_reduce(
+			$newsletters_configuration_manager->get_settings(),
+			function ( $acc, $value ) {
+				$acc[ $value['key'] ] = $value;
+				return $acc;
+			},
+			[]
+		);
+		return [
+			'configured' => $newsletters_configuration_manager->is_configured(),
+			'settings'   => $settings,
+		];
+	}
+
+	/**
+	 * Get Newspack Newsletters setttings API response.
+	 *
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_get_newsletters_settings() {
+		return rest_ensure_response( self::get_newsletters_settings() );
+	}
+
+	/**
+	 * Get Newspack Newsletters setttings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response with the info.
+	 */
+	public function api_update_newsletters_settings( $request ) {
+		$args                              = $request->get_params();
+		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
+		$newsletters_configuration_manager->update_settings( $args );
+		return $this->api_get_newsletters_settings();
 	}
 
 	/**
@@ -119,53 +235,53 @@ class Newsletters_Wizard extends Wizard {
 			2 // As defined in original callback.
 		);
 
-		// Re-add Settings page. (See remove_action above.  See Newsletters Plugin: Newspack_Newsletters_Settings > 'add_plugin_page'.
-		if ( is_callable( [ Newspack_Newsletters_Settings::class, 'create_admin_page' ] ) ) {
-			add_submenu_page(
-				'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
-				esc_html__( 'Newsletters Settings', 'newspack-plugin' ),
-				esc_html__( 'Settings', 'newspack-plugin' ),
-				'manage_options', // As defined in original callback.
-				'newspack-newsletters-settings-admin',
-				[ Newspack_Newsletters_Settings::class, 'create_admin_page' ]
-			);
-		}
-
-		// Re-add Tracking page. ( See remove_action above.  See Newsletters Plugin: Newspack_Newsletters\Tracking\Admin > 'add_settings_page'.
-		if ( is_callable( [ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ] ) ) {
-
-			$tracking_title = esc_html__( 'Newsletters Tracking Options', 'newspack-plugin' );
-			$tracking_hook = add_submenu_page(
-				'',
-				$tracking_title,
-				esc_html__( 'Tracking', 'newspack-plugin' ),
-				'manage_options', // As defined in original callback.
-				'newspack-newsletters-tracking',
-				[ Newspack_Newsletters_Tracking_Admin::class, 'render_settings_page' ]
-			);
-
-			// In cases where the $submenu hidden item array ( $submenu[''] = array of hidden submenu items ) is defined after the parent_slug's
-			// item array ( $submenu['post type url or menu-slug'] = array of submenu items ), the HTML Title will not be set and a debug.log
-			// deprecated notice will be written:
-			// PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
-			// If the hidden array is defined before the parent slug array, then the HTML Title is shown and no debug.log notice.
-			// To avoid this issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally
-			// set the title here just in case.
-			add_action(
-				"load-{$tracking_hook}",
-				function() use ( $tracking_title ) {
-					global $title;
-					$title = $tracking_title; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				}
-			);
-		}
+		add_submenu_page(
+			'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
+			__( 'Newsletters Settings', 'newspack-plugin' ),
+			__( 'Settings', 'newspack-plugin' ),
+			$this->capability,
+			$this->slug,
+			[ $this, 'render_wizard' ]
+		);
 	}
 
 	/**
 	 * Enqueue scripts and styles. Called by parent constructor 'admin_enqueue_scripts'.
 	 */
 	public function enqueue_scripts_and_styles() {
-		// Don't output anything...scripts and styles are enqueued by Admin Header.
+		parent::enqueue_scripts_and_styles();
+
+		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== $this->slug ) {
+			return;
+		}
+
+		\wp_enqueue_script(
+			'newspack-newsletters-wizard',
+			Newspack::plugin_url() . '/dist/newsletters.js',
+			$this->get_script_dependencies(),
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+
+		\wp_register_style(
+			'newspack-newsletters-wizard',
+			Newspack::plugin_url() . '/dist/newsletters.css',
+			$this->get_style_dependencies(),
+			NEWSPACK_PLUGIN_VERSION
+		);
+		\wp_style_add_data( 'newspack-newsletters-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-newsletters-wizard' );
+
+		$data = [];
+		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
+			$data['new_subscription_lists_url'] = \Newspack\Newsletters\Subscription_Lists::get_add_new_url();
+		}
+
+		\wp_localize_script(
+			'newspack-newsletters-wizard',
+			'newspack_newsletters_wizard',
+			$data
+		);
 	}
 
 	/**
@@ -194,12 +310,16 @@ class Newsletters_Wizard extends Wizard {
 
 		$sanitized_page      = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sanitized_post_id   = sanitize_text_field( $_GET['post'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sanitized_taxonomy  = sanitize_text_field( $_GET['taxonomy'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
 			// admin page screen: admin.php?page={page} .
 			$screen_slug = $sanitized_page;
-		} elseif ( 'edit.php' === $pagenow ) {
+		} elseif ( 'edit.php' === $pagenow || 'post-new.php' === $pagenow || 'post.php' === $pagenow ) {
+			if ( ! $sanitized_post_type ) {
+				$sanitized_post_type = get_post_type( $sanitized_post_id );
+			}
 			if ( isset( $this->admin_screens[ $sanitized_post_type ] ) && isset( $this->admin_screens[ $sanitized_page ] ) ) {
 				// post type with page: edit.php?post_type={post_type}&page={page} .
 				$screen_slug = $sanitized_page;
@@ -241,21 +361,6 @@ class Newsletters_Wizard extends Wizard {
 					'href'          => admin_url( 'edit-tags.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt' ),
 					// also force selected tab for url: term.php?taxonomy=newspack_nl_advertiser&tag_ID=32&post_type=newspack_nl_cpt...
 					'forceSelected' => ( 'newspack_nl_advertiser' === $this->get_screen_slug() ),
-				],
-			];
-
-		}
-
-		if ( in_array( $this->get_screen_slug(), [ 'newspack-newsletters-settings-admin', 'newspack-newsletters-tracking' ], true ) ) {
-
-			return [
-				[
-					'textContent' => esc_html__( 'Settings', 'newspack-plugin' ),
-					'href'        => admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters-settings-admin' ),
-				],
-				[
-					'textContent' => esc_html__( 'Tracking', 'newspack-plugin' ),
-					'href'        => admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters-tracking' ),
 				],
 			];
 
@@ -323,19 +428,22 @@ class Newsletters_Wizard extends Wizard {
 	 * For admin post types return url: edit.php?post_type={post_type}
 	 *
 	 * @param string $submenu_file Submenu file to be overridden.
+	 * @param string $parent_file  Parent file.
+	 *
 	 * @return string
 	 */
-	public function submenu_file( $submenu_file ) {
-
+	public function submenu_file( $submenu_file, $parent_file ) {
 		// Advertisers Taxonomy: ( replace url character & with &amp; ) .
 		// Bonus: due to $submenu_file arg, we'll also magically match term edit: term.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt....
 		if ( 'edit-tags.php?taxonomy=newspack_nl_advertiser&amp;post_type=newspack_nl_cpt' === $submenu_file ) {
 			return 'edit.php?post_type=newspack_nl_ads_cpt';
 		}
 
-		// Post type with settings page.
-		if ( 'newspack-newsletters-tracking' === $this->get_screen_slug() ) {
-			return 'newspack-newsletters-settings-admin';
+		if (
+			( ! empty( $parent_file ) && strpos( $parent_file, 'newspack_nl_list' ) !== false ) ||
+			( ! empty( $submenu_file ) && strpos( $submenu_file, 'newspack_nl_list' ) !== false )
+		) {
+			return 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters';
 		}
 
 		return $submenu_file;

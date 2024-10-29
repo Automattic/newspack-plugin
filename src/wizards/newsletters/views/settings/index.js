@@ -100,7 +100,7 @@ export const Settings = ( {
 	const fetchConfiguration = () => {
 		setError( false );
 		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
+			path: '/newspack/v1/wizard/newspack-newsletters/settings',
 		} )
 			.then( performConfigUpdate )
 			.catch( setError );
@@ -124,7 +124,7 @@ export const Settings = ( {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
+			path: '/newspack/v1/wizard/newspack-newsletters/settings',
 			method: 'POST',
 			data: newslettersConfig,
 		} ).finally( () => {
@@ -348,7 +348,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 				{ ! lockedLists &&
 					lists.map( ( list, index ) => (
 						<ActionCard
-							key={ list.id }
+							key={ index }
 							isSmall
 							simple
 							hasWhiteHeader

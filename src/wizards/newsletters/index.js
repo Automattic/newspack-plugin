@@ -21,59 +21,6 @@ const { HashRouter, Redirect, Route, Switch } = Router;
 
 class NewslettersWizard extends Component {
 	/**
-	 * Constructor.
-	 */
-	constructor() {
-		super( ...arguments );
-		this.state = {
-			advertisingData: {
-				adUnits: {},
-				services: {
-					google_ad_manager: {
-						status: {},
-					},
-				},
-				suppression: false,
-			},
-		};
-	}
-
-	/**
-	 * wizardReady will be called when all plugin requirements are met.
-	 */
-	onWizardReady = () => {
-		this.fetchAdvertisingData();
-	};
-
-	updateWithAPI = requestConfig =>
-		this.props
-			.wizardApiFetch( requestConfig )
-			.then(
-				response =>
-					new Promise( resolve => {
-						this.setState(
-							{
-								advertisingData: {
-									...response,
-									adUnits: response.ad_units.reduce( ( result, value ) => {
-										result[ value.id ] = value;
-										return result;
-									}, {} ),
-								},
-							},
-							() => {
-								this.props.setError();
-								resolve( this.state );
-							}
-						);
-					} )
-			)
-			.catch( err => {
-				this.props.setError( err );
-				throw err;
-			} );
-
-	/**
 	 * Render
 	 */
 	render() {
@@ -107,7 +54,7 @@ class NewslettersWizard extends Component {
 							path="/tracking"
 							render={ () => (
 								<Tracking
-									headerText={ __( 'Advertising / Tracking', 'newspack-plugin' ) }
+									headerText={ __( 'Newsletters / Tracking', 'newspack-plugin' ) }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -119,7 +66,6 @@ class NewslettersWizard extends Component {
 		);
 	}
 }
-
 render(
 	createElement( withWizard( NewslettersWizard, [ 'newspack-newsletters' ] ) ),
 	document.getElementById( 'newspack-newsletters' )
