@@ -95,7 +95,8 @@ class Newsletters_Wizard extends Wizard {
 		add_action( 'registered_taxonomy', [ $this, 'registered_taxonomy_advertiser' ] );
 
 		// Set active menu item for hidden screens.
-		add_filter( 'submenu_file', [ $this, 'submenu_file' ], 10, 2 );
+		add_filter( 'submenu_file', [ $this, 'menu_file' ] );
+		add_filter( 'parent_file', [ $this, 'menu_file' ] );
 
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
@@ -485,30 +486,29 @@ class Newsletters_Wizard extends Wizard {
 	}
 
 	/**
-	 * Submenu file filter. Used to determine active submenu items.
+	 * Menu file filter. Used to determine active menu items.
 	 *
 	 * For admin pages return slug only.
 	 * For admin post types return url: edit.php?post_type={post_type}
 	 *
-	 * @param string $submenu_file Submenu file to be overridden.
-	 * @param string $parent_file  Parent file.
+	 * @param string $file Submenu or parent file to be overridden.
 	 *
 	 * @return string
 	 */
-	public function submenu_file( $submenu_file, $parent_file ) {
-		// Advertisers Taxonomy: ( replace url character & with &amp; ) .
-		// Bonus: due to $submenu_file arg, we'll also magically match term edit: term.php?taxonomy=newspack_nl_advertiser&post_type=newspack_nl_cpt....
-		if ( 'edit-tags.php?taxonomy=newspack_nl_advertiser&amp;post_type=newspack_nl_cpt' === $submenu_file ) {
+	public function menu_file( $file ) {
+		// Move newsletter advertiser menu file.
+		if ( 'edit-tags.php?taxonomy=newspack_nl_advertiser&amp;post_type=newspack_nl_cpt' === $file ) {
 			return 'edit.php?post_type=newspack_nl_ads_cpt';
 		}
 
-		if (
-			( ! empty( $parent_file ) && strpos( $parent_file, 'newspack_nl_list' ) !== false ) ||
-			( ! empty( $submenu_file ) && strpos( $submenu_file, 'newspack_nl_list' ) !== false )
-		) {
-			return 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters';
+		// Move newsletter subscription list file.
+		if ( ! empty( $file ) && strpos( $file, 'newspack_nl_list' ) !== false ) {
+			// This would ideally be under &page=newspack-newsletters to match the
+			// Settings submenu, but it's not reachable so we go with the second best
+			// possibility.
+			return 'edit.php?post_type=newspack_nl_cpt';
 		}
 
-		return $submenu_file;
+		return $file;
 	}
 }
