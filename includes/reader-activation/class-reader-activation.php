@@ -1924,7 +1924,11 @@ final class Reader_Activation {
 			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack-plugin' ) );
 		}
 
-		self::log_in_reader( $user );
+		\wp_clear_auth_cookie();
+		\wp_set_current_user( $user->ID );
+		\wp_set_auth_cookie( $user->ID, true );
+		\do_action( 'wp_login', $user->user_login, $user );
+		Logger::log( 'Logged in user ' . $user->ID );
 
 		return $user;
 	}
@@ -2355,20 +2359,6 @@ final class Reader_Activation {
 		return $email_address;
 	}
 
-
-	/**
-	 * Log in a reader.
-	 *
-	 * @param WP_User $user WP_User object.
-	 */
-	private static function log_in_reader( $user ) {
-		\wp_clear_auth_cookie();
-		\wp_set_current_user( $user->ID );
-		\wp_set_auth_cookie( $user->ID, true );
-		\do_action( 'wp_login', $user->user_login, $user );
-		Logger::log( 'Logged in user ' . $user->ID );
-	}
-
 	/**
 	 * Login a reader after they have successfully reset their password.
 	 *
@@ -2378,7 +2368,7 @@ final class Reader_Activation {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
-		self::log_in_reader( $user );
+		set_current_reader( $user );
 	}
 }
 Reader_Activation::init();
