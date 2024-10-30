@@ -161,7 +161,7 @@ class Co_Authors_Plus {
 		$users = get_users(
 			[
 				'role__in'     => [ 'subscriber', 'customer' ],
-				'role__not_in' => [ \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME, 'administrator', 'editor', 'author', 'contributor' ],
+				'role__not_in' => [ \Newspack\Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME, 'administrator', 'editor', 'author', 'contributor' ],
 				'fields'       => 'ID',
 				'number'       => -1,
 			]
@@ -170,7 +170,7 @@ class Co_Authors_Plus {
 			if ( count_user_posts( $user_id ) > 0 ) { // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.count_user_posts_count_user_posts
 				if ( self::$live ) {
 					WP_CLI::line( sprintf( 'Will add the Non-Editing Contributor role to user %d.', $user_id ) );
-					get_user_by( 'id', $user_id )->add_role( \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
+					get_user_by( 'id', $user_id )->add_role( \Newspack\Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
 				} else {
 					WP_CLI::line( sprintf( 'Would add the Non-Editing Contributor role to user %d.', $user_id ) );
 				}
@@ -266,7 +266,7 @@ class Co_Authors_Plus {
 				'user_nicename'   => isset( $post_meta['cap-user_login'] ) ? $post_meta['cap-user_login'] : '',
 				'user_url'        => isset( $post_meta['cap-website'] ) ? $post_meta['cap-website'] : '',
 				'user_pass'       => wp_generate_password(),
-				'role'            => \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+				'role'            => \Newspack\Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
 				'display_name'    => isset( $post_meta['cap-display_name'] ) ? $post_meta['cap-display_name'] : '',
 				'first_name'      => isset( $post_meta['cap-first_name'] ) ? $post_meta['cap-first_name'] : '',
 				'last_name'       => isset( $post_meta['cap-last_name'] ) ? $post_meta['cap-last_name'] : '',
@@ -420,7 +420,7 @@ class Co_Authors_Plus {
 			self::assign_user_meta( $guest_author, $user_id );
 
 			// Add the Non-Editing Contributor role.
-			$linked_user->add_role( \Newspack\Co_Authors_Plus::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
+			$linked_user->add_role( \Newspack\Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME );
 		}
 	}
 
