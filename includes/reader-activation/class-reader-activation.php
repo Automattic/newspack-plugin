@@ -84,6 +84,7 @@ final class Reader_Activation {
 		\add_action( 'wp_footer', [ __CLASS__, 'render_auth_modal' ] );
 		\add_action( 'wp_footer', [ __CLASS__, 'render_newsletters_signup_modal' ] );
 		\add_action( 'wp_ajax_newspack_reader_activation_newsletters_signup', [ __CLASS__, 'newsletters_signup' ] );
+		\add_action( 'woocommerce_customer_reset_password', [ __CLASS__, 'login_after_password_reset' ] );
 
 		if ( self::is_enabled() ) {
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -1923,8 +1924,6 @@ final class Reader_Activation {
 			return new \WP_Error( 'newspack_authenticate_invalid_user', __( 'Invalid user.', 'newspack-plugin' ) );
 		}
 
-		$user_id = \absint( $user->ID );
-
 		\wp_clear_auth_cookie();
 		\wp_set_current_user( $user->ID );
 		\wp_set_auth_cookie( $user->ID, true );
@@ -2358,6 +2357,18 @@ final class Reader_Activation {
 		}
 
 		return $email_address;
+	}
+
+	/**
+	 * Login a reader after they have successfully reset their password.
+	 *
+	 * @param WP_User $user WP_User object.
+	 */
+	public static function login_after_password_reset( $user ) {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+		set_current_reader( $user );
 	}
 }
 Reader_Activation::init();
