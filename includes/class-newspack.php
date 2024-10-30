@@ -147,6 +147,7 @@ final class Newspack {
 		
 		// Audience Wizard. 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-configuration.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-campaigns.php';
 
 		// Network Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-network-wizard.php';

@@ -74,16 +74,10 @@ class Audience_Configuration extends Wizard {
 
 		$data['is_skipped_campaign_setup'] = get_option( static::SKIP_CAMPAIGN_SETUP_OPTION, '' );
 
-		wp_enqueue_script(
-			$this->slug,
-			Newspack::plugin_url() . '/dist/audience.js',
-			$this->get_script_dependencies(),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
+		wp_enqueue_script( 'newspack-wizards' );
 		
 		wp_localize_script(
-			$this->slug,
+			'newspack-wizards',
 			'newspackAudienceConfiguration',
 			$data
 		);

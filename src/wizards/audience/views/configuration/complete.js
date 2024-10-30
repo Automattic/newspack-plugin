@@ -11,9 +11,9 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import WizardsTab from '../../../wizards-tab';
 import {
 	Button,
-	SectionHeader,
 	withWizardScreen,
 	Card,
 	Notice,
@@ -139,9 +139,9 @@ export default withWizardScreen( () => {
 
 	return (
 		<div className="newspack-ras-campaign__completed">
-			<SectionHeader
+			<WizardsTab
 				title={ __( 'Enable Reader Activation', 'newspack-plugin' ) }
-				description={ () => (
+				description={ 
 					<>
 						{ __(
 							'An easy way to let your readers register for your site, sign up for newsletters, or become donors and paid members. ',
@@ -153,46 +153,48 @@ export default withWizardScreen( () => {
 							{ __( 'Learn more', 'newspack-plugin' ) }
 						</ExternalLink>
 					</>
-				) }
-			/>
-			{ inFlight && (
-				<Card className="newspack-ras-campaign__completed-card">
-					<ProgressBar
-						completed={ progress }
-						displayFraction={ false }
-						total={ activationSteps.length + 1 } // Plus one to account for the "Done!" step.
-						label={ progressLabel }
-					/>
-				</Card>
-			) }
-			{ ! inFlight && (
-				<Card className="newspack-ras-campaign__completed-card">
-					<h2>{ __( "You're all set to enable Reader Activation!", 'newspack-plugin' ) }</h2>
-					<p>{ __( 'This is what will happen next:', 'newspack-plugin' ) }</p>
+				}
+			>
 
-					<Card noBorder className="justify-center">
-						<StepsList stepsListItems={ listItems } narrowList />
-					</Card>
-
-					{ error && (
-						<Notice
-							noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-							isError
+				{ inFlight && (
+					<Card className="newspack-ras-campaign__completed-card">
+						<ProgressBar
+							completed={ progress }
+							displayFraction={ false }
+							total={ activationSteps.length + 1 } // Plus one to account for the "Done!" step.
+							label={ progressLabel }
 						/>
-					) }
-
-					<Card buttonsCard noBorder className="justify-center">
-						<Button isPrimary onClick={ () => activate() }>
-							{ __( 'Enable Reader Activation', 'newspack-plugin' ) }
-						</Button>
 					</Card>
-				</Card>
-			) }
-			<div className="newspack-buttons-card">
-				<Button isSecondary disabled={ inFlight } href={ `${ reader_activation_url }/campaign` }>
-					{ __( 'Back', 'newspack-plugin' ) }
-				</Button>
-			</div>
+				) }
+				{ ! inFlight && (
+					<Card className="newspack-ras-campaign__completed-card">
+						<h2>{ __( "You're all set to enable Reader Activation!", 'newspack-plugin' ) }</h2>
+						<p>{ __( 'This is what will happen next:', 'newspack-plugin' ) }</p>
+
+						<Card noBorder className="justify-center">
+							<StepsList stepsListItems={ listItems } narrowList />
+						</Card>
+
+						{ error && (
+							<Notice
+								noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
+								isError
+							/>
+						) }
+
+						<Card buttonsCard noBorder className="justify-center">
+							<Button isPrimary onClick={ () => activate() }>
+								{ __( 'Enable Reader Activation', 'newspack-plugin' ) }
+							</Button>
+						</Card>
+					</Card>
+				) }
+				<div className="newspack-buttons-card">
+					<Button isSecondary disabled={ inFlight } href={ `${ reader_activation_url }/campaign` }>
+						{ __( 'Back', 'newspack-plugin' ) }
+					</Button>
+				</div>
+			</WizardsTab>
 		</div>
 	);
 } );

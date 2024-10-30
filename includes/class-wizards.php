@@ -56,6 +56,7 @@ class Wizards {
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
 			'audience-configuration'  => new Audience_Configuration(),
+			'audience-campaigns'      => new Audience_Campaigns(),
 		];
 
 		// Not needed in $wizards[] since it's just for Admin Headers, not full react pages.

@@ -1,21 +1,21 @@
-import '../../shared/js/public-path';
-
 /**
- * Engagement
+ * Configuration
  */
 
 /**
  * WordPress dependencies.
  */
-import { Component, render, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Component, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
-import { withWizard } from '../../components/src';
-import Router from '../../components/src/proxied-imports/router';
-import { Main, Campaign, Complete } from './views';
+import Main from './settings';
+import Campaign from './campaign';
+import Complete from './complete';
+import { withWizard } from '../../../../components/src';
+import Router from '../../../../components/src/proxied-imports/router';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -68,7 +68,5 @@ class AudienceConfiguration extends Component {
 	}
 }
 
-render(
-	createElement( withWizard( AudienceConfiguration, [ 'jetpack' ] ) ),
-	document.getElementById( 'newspack-audience-configuration' )
-);
+export default withWizard( AudienceConfiguration );
+	

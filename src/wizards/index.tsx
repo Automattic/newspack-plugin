@@ -24,7 +24,7 @@ const pageParam =
 	new URLSearchParams( window.location.search ).get( 'page' ) ?? '';
 const rootElement = document.getElementById( pageParam );
 
-const ALLOWED_PAGES = [ 'newspack-dashboard', 'newspack-settings' ];
+// const ALLOWED_PAGES = [ 'newspack-dashboard', 'newspack-settings' ];
 
 const components: Record< string, any > = {
 	/**
@@ -45,6 +45,24 @@ const components: Record< string, any > = {
 			() =>
 				import(
 					/* webpackChunkName: "newspack-wizards" */ './newspack/views/settings'
+				)
+		),
+	},
+	'newspack-audience-configuration': {
+		label: __( 'Audience Configuration', 'newspack-plugin' ),
+		component: lazy(
+			() =>
+				import(
+					/* webpackChunkName: "audience-wizards" */ './audience/views/configuration'
+				)
+		),
+	},
+	'newspack-audience-campaigns': {
+		label: __( 'Audience Campaigns', 'newspack-plugin' ),
+		component: lazy(
+			() =>
+				import(
+					/* webpackChunkName: "audience-wizards" */ './audience/views/campaigns'
 				)
 		),
 	},
@@ -81,8 +99,8 @@ const AdminPages = () => {
 		</Suspense>
 	);
 };
-
-if ( rootElement && ALLOWED_PAGES.includes( pageParam ) ) {
+console.log( 'AdminPages' );
+if ( rootElement && pageParam in components ) {
 	render( <AdminPages />, rootElement );
 } else {
 	// eslint-disable-next-line no-console

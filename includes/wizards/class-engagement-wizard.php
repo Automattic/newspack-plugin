@@ -437,7 +437,7 @@ class Engagement_Wizard extends Wizard {
 
 		$data = [
 			'has_memberships'       => class_exists( 'WC_Memberships' ),
-			'reader_activation_url' => \admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
+			'reader_activation_url' => admin_url( 'admin.php?page=newspack-audience-configuration#/' ),
 			'esp_metadata_fields'   => Reader_Activation\Sync\Metadata::get_default_fields(),
 		];
 
