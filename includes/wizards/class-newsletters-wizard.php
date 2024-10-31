@@ -501,6 +501,11 @@ class Newsletters_Wizard extends Wizard {
 			return 'edit.php?post_type=newspack_nl_ads_cpt';
 		}
 
+		// Move new newsletter menu file.
+		if ( 'post-new.php?post_type=newspack_nl_cpt' === $file ) {
+			return 'edit.php?post_type=newspack_nl_cpt';
+		}
+
 		// Move newsletter subscription list file.
 		if ( ! empty( $file ) && strpos( $file, 'newspack_nl_list' ) !== false ) {
 			// This would ideally be under &page=newspack-newsletters to match the
