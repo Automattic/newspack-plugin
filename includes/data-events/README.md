@@ -179,7 +179,7 @@ When a WooCommerce Subscription is cancelled.
 
 ### `donation_subscription_changed`
 
-When a WooCommerce Subscription status changes.
+When a WooCommerce Subscription status changes, or when there's a subscription switch (change in the product within the subscription. Usually a change in the recurrence or the amount of the subscription).
 
 | Name              | Type     |
 | ----------------- | -------- |
@@ -195,7 +195,7 @@ When a WooCommerce Subscription status changes.
 
 ### `product_subscription_changed`
 
-When a non-donation subscription status changes.
+When a non-donation subscription status changes, or when there's a subscription switch (change in the product within the subscription. Usually an upgrade or downgrade, or a change in the recurrence or the amount of the subscription).
 
 | Name              | Type     |
 | ----------------- | -------- |
