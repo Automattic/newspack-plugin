@@ -429,7 +429,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 
 					<hr />
 
-					<SectionHeader title={ __( 'Modal Checkout Login and Registration', 'newspack-plugin' ) } />
+					<SectionHeader title={ __( 'Checkout Configuration', 'newspack-plugin' ) } />
 
 					<ActionCard
 						title={ __(
@@ -437,7 +437,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							'newspack-plugin'
 						) }
 						description={ __(
-							'Present logged out readers with the option to sign in or register a new account before proceeding to checkout.',
+							'Require logged out readers to sign in or register a new account before proceeding to checkout.',
 							'newspack-plugin'
 						) }
 						toggleChecked={ config.woocommerce_registration_required }
