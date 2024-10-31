@@ -52,6 +52,7 @@ export default withWizardScreen( () => {
 
 	return (
 		<>
+			<h1>{ __( 'Tracking', 'newspack-plugin' ) }</h1>
 			<ActionCard
 				title={ __( 'Click-tracking', 'newspack-plugin' ) }
 				description={ __( 'Track the clicks on the links in your newsletter.', 'newspack-plugin' ) }

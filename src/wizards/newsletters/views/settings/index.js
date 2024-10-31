@@ -401,6 +401,7 @@ const NewslettersSettings = () => {
 
 	return (
 		<>
+			<h1>{ __( 'Settings', 'newspack-plugin' ) }</h1>
 			<Settings
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
