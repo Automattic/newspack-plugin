@@ -49,6 +49,7 @@ const ReaderRevenueEmailSidebar = compose( [
 	useEffect( () => {
 		if ( config?.editor_notice ) {
 			createNotice( 'info', config.editor_notice, {
+				id: 'newspack_email_info',
 				isDismissible: false,
 			} );
 		}
@@ -61,6 +62,7 @@ const ReaderRevenueEmailSidebar = compose( [
 				config.from_email || newspack_emails.from_email
 			),
 			{
+				id: 'newspack_email_sender',
 				isDismissible: false,
 			}
 		);
