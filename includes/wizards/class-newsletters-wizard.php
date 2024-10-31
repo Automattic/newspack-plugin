@@ -69,15 +69,14 @@ class Newsletters_Wizard extends Wizard {
 		// Define admin screens based on Newspack Newsletters plugin's admin pages, post types, and taxonomies.
 		$this->admin_screens = [
 			// Admin pages.
-			'newspack-newsletters-settings-admin' => __( 'Newsletters / Settings', 'newspack-plugin' ),
-			'newspack-newsletters-tracking'       => __( 'Newsletters / Settings', 'newspack-plugin' ),
+			'newspack-newsletters-settings' => __( 'Newsletters / Settings', 'newspack-plugin' ),
 			// Admin post types.
-			'newspack_nl_cpt'                     => __( 'Newsletters / All Newsletters', 'newspack-plugin' ),
-			'newspack_nl_ads_cpt'                 => __( 'Newsletters / Advertising', 'newspack-plugin' ),
+			'newspack_nl_cpt'               => __( 'Newsletters / All Newsletters', 'newspack-plugin' ),
+			'newspack_nl_ads_cpt'           => __( 'Newsletters / Advertising', 'newspack-plugin' ),
 			// Admin taxonomies.
-			'newspack_nl_advertiser'              => __( 'Newsletters / Advertising', 'newspack-plugin' ),
+			'newspack_nl_advertiser'        => __( 'Newsletters / Advertising', 'newspack-plugin' ),
 			// Admin Newsletter Lists.
-			'newspack_nl_list'                    => __( 'Newsletters / Lists', 'newspack-plugin' ),
+			'newspack_nl_list'              => __( 'Newsletters / Lists', 'newspack-plugin' ),
 		];
 
 		// Menu removals.
@@ -94,9 +93,9 @@ class Newsletters_Wizard extends Wizard {
 		// Adjust taxonomies.
 		add_action( 'registered_taxonomy', [ $this, 'registered_taxonomy_advertiser' ] );
 
-		// Set active menu item for hidden screens.
-		add_filter( 'submenu_file', [ $this, 'menu_file' ] );
-		add_filter( 'parent_file', [ $this, 'menu_file' ] );
+		// Set active menu items for hidden screens.
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+		add_filter( 'parent_file', [ $this, 'parent_file' ] );
 
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
@@ -294,9 +293,7 @@ class Newsletters_Wizard extends Wizard {
 			__( 'Newsletters Advertising', 'newspack-plugin' ),
 			__( 'Advertising', 'newspack-plugin' ),
 			'edit_others_posts', // As defined in original callback.
-			'/edit.php?post_type=' . Newspack_Newsletters_Ads::CPT,
-			null, // As defined in original callback.
-			2 // As defined in original callback.
+			'/edit.php?post_type=' . Newspack_Newsletters_Ads::CPT
 		);
 
 		add_submenu_page(
@@ -488,32 +485,51 @@ class Newsletters_Wizard extends Wizard {
 	/**
 	 * Menu file filter. Used to determine active menu items.
 	 *
-	 * For admin pages return slug only.
-	 * For admin post types return url: edit.php?post_type={post_type}
-	 *
-	 * @param string $file Submenu or parent file to be overridden.
+	 * @param string $submenu_file Submenu file to be overridden.
 	 *
 	 * @return string
 	 */
-	public function menu_file( $file ) {
-		// Move newsletter advertiser menu file.
-		if ( 'edit-tags.php?taxonomy=newspack_nl_advertiser&amp;post_type=newspack_nl_cpt' === $file ) {
+	public function submenu_file( $submenu_file ) {
+		// Move newsletter ads menu file.
+		if ( ! empty( $submenu_file ) && strpos( $submenu_file, 'newspack_nl_ads_cpt' ) !== false ) {
+			return 'edit.php?post_type=newspack_nl_ads_cpt';
+		}
+		// Move newsletter ads taxonomy menu submenu_file.
+		if ( ! empty( $submenu_file ) && strpos( $submenu_file, 'newspack_nl_advertiser' ) !== false ) {
 			return 'edit.php?post_type=newspack_nl_ads_cpt';
 		}
 
-		// Move new newsletter menu file.
-		if ( 'post-new.php?post_type=newspack_nl_cpt' === $file ) {
+		// Move new newsletter menu submenu_file.
+		if ( 'post-new.php?post_type=newspack_nl_cpt' === $submenu_file ) {
 			return 'edit.php?post_type=newspack_nl_cpt';
 		}
 
-		// Move newsletter subscription list file.
-		if ( ! empty( $file ) && strpos( $file, 'newspack_nl_list' ) !== false ) {
+		// Move newsletter subscription list submenu_file.
+		if ( ! empty( $submenu_file ) && strpos( $submenu_file, 'newspack_nl_list' ) !== false ) {
 			// This would ideally be under &page=newspack-newsletters to match the
 			// Settings submenu, but it's not reachable so we go with the second best
 			// possibility.
 			return 'edit.php?post_type=newspack_nl_cpt';
 		}
 
-		return $file;
+		return $submenu_file;
+	}
+
+	/**
+	 * Modify the parent file.
+	 *
+	 * @param string $parent_file Parent file to be overridden.
+	 *
+	 * @return string
+	 */
+	public function parent_file( $parent_file ) {
+		if (
+			strpos( $parent_file, 'newspack_nl_ads_cpt' ) !== false || // Newsletter Ads.
+			strpos( $parent_file, 'newspack_nl_advertiser' ) !== false || // Newsletter Advertisers.
+			strpos( $parent_file, 'newspack_nl_list' ) !== false          // Newsletter Subscription Lists.
+		) {
+			return 'edit.php?post_type=newspack_nl_cpt';
+		}
+		return $parent_file;
 	}
 }
