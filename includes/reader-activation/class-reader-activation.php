@@ -320,29 +320,28 @@ final class Reader_Activation {
 	 * @return mixed[] Settings default values keyed by their name.
 	 */
 	private static function get_settings_config() {
-		$woocommerce_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$label                             = self::get_reader_activation_labels( 'newsletters_cta' );
-		$settings_config                   = [
-			'enabled'                           => false,
-			'enabled_account_link'              => true,
-			'account_link_menu_locations'       => [ 'tertiary-menu' ],
-			'newsletters_label'                 => $label,
-			'use_custom_lists'                  => false,
-			'newsletter_lists'                  => [],
-			'terms_text'                        => '',
-			'terms_url'                         => '',
-			'sync_esp'                          => true,
-			'metadata_prefix'                   => Sync\Metadata::get_prefix(),
-			'metadata_fields'                   => Sync\Metadata::get_fields(),
-			'sync_esp_delete'                   => true,
-			'active_campaign_master_list'       => '',
-			'mailchimp_audience_id'             => '',
-			'mailchimp_reader_default_status'   => 'transactional',
-			'emails'                            => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
-			'sender_name'                       => Emails::get_from_name(),
-			'sender_email_address'              => Emails::get_from_email(),
-			'contact_email_address'             => Emails::get_reply_to_email(),
-			'woocommerce_registration_required' => false,
+		$settings_config = [
+			'enabled'                                  => false,
+			'enabled_account_link'                     => true,
+			'account_link_menu_locations'              => [ 'tertiary-menu' ],
+			'newsletters_label'                        => self::get_reader_activation_labels( 'newsletters_cta' ),
+			'use_custom_lists'                         => false,
+			'newsletter_lists'                         => [],
+			'terms_text'                               => '',
+			'terms_url'                                => '',
+			'sync_esp'                                 => true,
+			'metadata_prefix'                          => Sync\Metadata::get_prefix(),
+			'metadata_fields'                          => Sync\Metadata::get_fields(),
+			'sync_esp_delete'                          => true,
+			'active_campaign_master_list'              => '',
+			'mailchimp_audience_id'                    => '',
+			'mailchimp_reader_default_status'          => 'transactional',
+			'emails'                                   => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
+			'sender_name'                              => Emails::get_from_name(),
+			'sender_email_address'                     => Emails::get_from_email(),
+			'contact_email_address'                    => Emails::get_reply_to_email(),
+			'woocommerce_registration_required'        => false,
+			'woocommerce_checkout_privacy_policy_text' => self::get_checkout_privacy_policy_text(),
 		];
 
 		/**
@@ -2380,6 +2379,22 @@ final class Reader_Activation {
 	 */
 	public static function is_woocommerce_registration_required() {
 		return (bool) \get_option( self::OPTIONS_PREFIX . 'woocommerce_registration_required', false );
+	}
+
+	/**
+	 * Modal checkout registration privacy policy text.
+	 *
+	 * @return string Privacy policy text.
+	 */
+	public static function get_checkout_privacy_policy_text() {
+		return \get_option(
+			self::OPTIONS_PREFIX . 'woocommerce_checkout_privacy_policy_text',
+			// New default WooCommerce privacy policy text to indicate we are creating an account for new user registrations.
+			__(
+				"Your personal data will be used to process your order and create an account if one doesn't exist. This information will also support your experience throughout this website, and be used for other purposes described in our privacy policy.",
+				'newspack-plugin'
+			)
+		);
 	}
 }
 Reader_Activation::init();

@@ -443,6 +443,14 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						toggleChecked={ config.woocommerce_registration_required }
 						toggleOnChange={ value => updateConfig( 'woocommerce_registration_required', value ) }
 					/>
+					<TextControl
+						label={ __( 'Checkout privacy policy text', 'newspack-plugin' ) }
+						help={ __(
+							'The privacy policy text to display at time of checkout for existing users. This will not show up unless a privacy page is set.',
+							'newspack-plugin'
+						) }
+						{ ...getSharedProps( 'woocommerce_checkout_privacy_policy_text', 'text' ) }
+					/>
 
 					<div className="newspack-buttons-card">
 						<Button
@@ -473,6 +481,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
 									woocommerce_registration_required: config.woocommerce_registration_required,
+									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
 								} );
 							} }
 							disabled={ inFlight }
