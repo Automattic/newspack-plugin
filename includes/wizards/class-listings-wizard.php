@@ -28,13 +28,6 @@ class Listings_Wizard extends Wizard {
 	private $admin_screens = [];
 
 	/**
-	 * Must be run after Listings Plugin.
-	 *
-	 * @var int.
-	 */
-	protected $menu_priority = 11;
-
-	/**
 	 * Slug for current wizard screen.
 	 *
 	 * @var string
@@ -49,10 +42,24 @@ class Listings_Wizard extends Wizard {
 	protected $slug = 'newspack-listings';
 
 	/**
+	 * The parent menu item name.
+	 *
+	 * @var string
+	 */
+	public $parent_menu = 'newspack-listings';
+
+	/**
+	 * Order relative to the Newspack Dashboard menu item.
+	 *
+	 * @var int
+	 */
+	public $menu_order = 2;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		
+
 		if ( ! defined( 'NEWSPACK_LISTINGS_FILE' ) ) {
 			return;
 		}
@@ -88,7 +95,7 @@ class Listings_Wizard extends Wizard {
 
 	/**
 	 * Add the Listings menu page. Called from parent constructor 'admin_menu'.
-	 * 
+	 *
 	 * Replaces Listings Plugin's 'admin_menu' action => Newspack_Listings\Core => 'add_plugin_page'
 	 */
 	public function add_page() {
@@ -100,12 +107,10 @@ class Listings_Wizard extends Wizard {
 			'edit_posts', // Copied from Listings plugin...see docblock note above.
 			$this->slug,
 			'',
-			'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M18 5.5H6a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5ZM6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 5h1.5v1.5H7V9Zm1.5 4.5H7V15h1.5v-1.5ZM10 9h7v1.5h-7V9Zm7 4.5h-7V15h7v-1.5Z"></path></svg>' ),
-			3.4
+			'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M18 5.5H6a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V6a.5.5 0 0 0-.5-.5ZM6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm1 5h1.5v1.5H7V9Zm1.5 4.5H7V15h1.5v-1.5ZM10 9h7v1.5h-7V9Zm7 4.5h-7V15h7v-1.5Z"></path></svg>' )
 		);
 
 		if ( is_callable( [ Newspack_Listings_Settings::class, 'create_admin_page' ] ) ) {
-			
 			// Settings menu link.
 			add_submenu_page(
 				$this->slug,
@@ -125,7 +130,7 @@ class Listings_Wizard extends Wizard {
 	public function enqueue_scripts_and_styles() {
 		// Don't output anything...scripts and styles are enqueued by Admin Header.
 	}
-	
+
 	/**
 	 * Get the name for this current screen's wizard. Required by parent abstract.
 	 *
@@ -137,11 +142,11 @@ class Listings_Wizard extends Wizard {
 
 	/**
 	 * Get slug if we're currently viewing a Listings screen.
-	 * 
+	 *
 	 * @return string
 	 */
 	private function get_screen_slug() {
-		
+
 		global $pagenow;
 
 		if ( isset( $this->screen_slug ) ) {
