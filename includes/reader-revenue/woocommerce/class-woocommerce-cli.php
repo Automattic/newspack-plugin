@@ -186,6 +186,13 @@ class WooCommerce_Cli {
 		$batch_size = ! empty( $assoc_args['batch-size'] ) ? intval( $assoc_args['batch-size'] ) : 50;
 		$start_date = ! empty( $assoc_args['start-date'] ) ? strtotime( $assoc_args['start-date'] ) : strtotime( '-90 days', $now );
 
+		if ( ! $dry_run ) {
+			\WP_CLI::line( "\n=====================\n=     LIVE MODE     =\n=====================\n" );
+		} else {
+			\WP_CLI::line( "\n===================\n=     DRY RUN     =\n===================\n" );
+		}
+		sleep( 2 );
+
 		\WP_CLI::log(
 			'
 Fetching active subscriptions with missing or missed next_payment dates...
@@ -205,59 +212,20 @@ Fetching active subscriptions with missing or missed next_payment dates...
 		while ( ! empty( $subscriptions ) ) {
 			foreach ( $subscriptions as $subscription_id => $subscription ) {
 				array_shift( $subscriptions );
-				$subscription_start = $subscription->get_date( 'start_date' );
 
 				// If the subscription start date is before the $args start date, we're done.
-				if ( strtotime( $subscription_start ) < $start_date ) {
+				if ( strtotime( $subscription->get_date( 'start_date' ) ) < $start_date ) {
 					$subscriptions = [];
 					break;
 				}
 
-				$next_payment_date = $subscription->get_date( 'next_payment' );
-				$is_in_past        = ! strtotime( $next_payment_date ) || strtotime( $next_payment_date ) < $now;
-
-				// Subscription has a valid next payment date and it's in the future, so skip.
-				if ( $next_payment_date && ! $is_in_past ) {
+				$result = self::calculate_next_payment_date( $subscription, $dry_run );
+				if ( ! $result ) {
 					continue;
-				}
-
-				$result = [
-					'ID'                => $subscription->get_id(),
-					'status'            => $subscription->get_status(),
-					'start_date'        => $subscription_start,
-					'next_payment_date' => $next_payment_date,
-					'billing_period'    => $subscription->get_billing_period(),
-					'billing_interval'  => $subscription->get_billing_interval(),
-					'missed_periods'    => 0,
-					'missed_total'      => 0,
-				];
-
-				// Can't process a broken subscription (missing a billing period or interval).
-				if ( empty( $result['billing_period'] ) || empty( $result['billing_interval'] ) ) {
-					continue;
-				}
-
-				$period   = $result['billing_period'];
-				$interval = (int) $result['billing_interval'];
-				$min_date = strtotime( "+$interval $period", strtotime( $subscription_start ) ); // Start after first period so we don't count in-progress periods as missed.
-				while ( $min_date <= $now ) {
-					$result['missed_periods']++;
-					$min_date = strtotime( "+$interval $period", $min_date );
 				}
 
 				if ( $result['missed_periods'] ) {
-					$result['missed_total'] += $subscription->get_total() * $result['missed_periods'];
 					$total_revenue += $result['missed_total'];
-				}
-
-				if ( ! $dry_run ) {
-					$subscription->update_dates(
-						[
-							'next_payment' => $subscription->calculate_date( 'next_payment' ),
-						]
-					);
-					$subscription->save();
-					$result['next_payment_date'] = $subscription->get_date( 'next_payment' );
 				}
 
 				$results[] = $result;
@@ -282,6 +250,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 					'status',
 					'start_date',
 					'next_payment_date',
+					'end_date',
 					'billing_period',
 					'missed_periods',
 					'missed_total',
@@ -296,6 +265,81 @@ Fetching active subscriptions with missing or missed next_payment dates...
 			);
 		}
 		\WP_CLI::line( '' );
+	}
+
+	/**
+	 * Given a subscription, calculates the next payment date and missed payments.
+	 *
+	 * @param WC_Subscription $subscription The subscription.
+	 * @param bool            $dry_run If set, will not make any changes.
+	 *
+	 * @return array|false The result array or false if the subscription is broken.
+	 */
+	public static function calculate_next_payment_date( $subscription, $dry_run = false ) {
+		$now                = time();
+		$subscription_start = $subscription->get_date( 'start_date' );
+		$next_payment_date  = $subscription->get_date( 'next_payment' );
+		$is_in_past         = ! strtotime( $next_payment_date ) || strtotime( $next_payment_date ) < $now;
+
+		// Subscription has a valid next payment date and it's in the future, so skip.
+		if ( $next_payment_date && ! $is_in_past ) {
+			return false;
+		}
+
+		$result = [
+			'ID'                => $subscription->get_id(),
+			'status'            => $subscription->get_status(),
+			'start_date'        => $subscription_start,
+			'next_payment_date' => $next_payment_date,
+			'end_date'          => $subscription->get_date( 'end' ),
+			'billing_period'    => $subscription->get_billing_period(),
+			'billing_interval'  => $subscription->get_billing_interval(),
+			'missed_periods'    => 0,
+			'missed_total'      => 0,
+		];
+
+		// Can't process a broken subscription (missing a billing period or interval).
+		if ( empty( $result['billing_period'] ) || empty( $result['billing_interval'] ) ) {
+			return false;
+		}
+
+		$period   = $result['billing_period'];
+		$interval = (int) $result['billing_interval'];
+		$min_date = strtotime( "+$interval $period", strtotime( $subscription_start ) ); // Start after first period so we don't count in-progress periods as missed.
+		$end_date = $now;
+
+		// If there were successful orders for this subscription, start from the last one.
+		$last_order = $subscription->get_last_order( 'all', 'any', [ 'pending', 'processing', 'on-hold', 'cancelled', 'refunded', 'failed' ] );
+		if ( $last_order && $last_order->get_date_completed() ) {
+			$min_date = strtotime( "+$interval $period", $last_order->get_date_completed()->getOffsetTimestamp() );
+		}
+
+		// If there's an end date, end there.
+		if ( ! empty( $result['end_date'] ) ) {
+			$end = strtotime( $result['end_date'] );
+		}
+
+		while ( $min_date <= $end ) {
+			$result['missed_periods']++;
+			$min_date = strtotime( "+$interval $period", $min_date );
+		}
+
+		if ( $result['missed_periods'] ) {
+			$result['missed_total'] += $subscription->get_total() * $result['missed_periods'];
+		}
+
+		$calculated_next_payment     = $subscription->calculate_date( 'next_payment' );
+		$result['next_payment_date'] = $calculated_next_payment;
+		if ( ! $dry_run && ( ! $end_date || $end > strtotime( $calculated_next_payment ) ) ) {
+			$subscription->update_dates(
+				[
+					'next_payment' => $calculated_next_payment,
+				]
+			);
+			$subscription->save();
+		}
+
+		return $result;
 	}
 
 	/**
