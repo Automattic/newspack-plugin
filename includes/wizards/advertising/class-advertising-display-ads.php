@@ -56,6 +56,20 @@ class Advertising_Display_Ads extends Wizard {
 	);
 
 	/**
+	 * The parent menu item name.
+	 *
+	 * @var string
+	 */
+	public $parent_menu = 'advertising-display-ads';
+
+	/**
+	 * Order relative to the Newspack Dashboard menu item.
+	 *
+	 * @var int
+	 */
+	public $menu_order = 4;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -546,8 +560,7 @@ class Advertising_Display_Ads extends Wizard {
 			$this->capability,
 			$this->slug,
 			array( $this, 'render_wizard' ),
-			$icon,
-			3.5
+			$icon
 		);
 		add_submenu_page(
 			$this->slug,

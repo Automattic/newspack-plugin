@@ -51,7 +51,6 @@ class Engagement_Wizard extends Wizard {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'jetpack_relatedposts_filter_date_range', [ $this, 'restrict_age_of_related_posts' ] );
-		add_filter( 'newspack_newsletters_settings_url', [ $this, 'newsletters_settings_url' ] );
 	}
 
 	/**
@@ -128,33 +127,6 @@ class Engagement_Wizard extends Wizard {
 						]
 					);
 				},
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/newsletters',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_newsletters_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/newsletters',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_newsletters_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/newsletters/lists',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_newsletters_lists' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -303,57 +275,6 @@ class Engagement_Wizard extends Wizard {
 		}
 
 		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Get lists of configured ESP.
-	 */
-	public static function api_get_newsletters_lists() {
-		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-		return $newsletters_configuration_manager->get_lists();
-	}
-
-	/**
-	 * Get Newspack Newsletters setttings.
-	 *
-	 * @return object with the info.
-	 */
-	private static function get_newsletters_settings() {
-		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-		$settings                          = array_reduce(
-			$newsletters_configuration_manager->get_settings(),
-			function ( $acc, $value ) {
-				$acc[ $value['key'] ] = $value;
-				return $acc;
-			},
-			[]
-		);
-		return [
-			'configured' => $newsletters_configuration_manager->is_configured(),
-			'settings'   => $settings,
-		];
-	}
-
-	/**
-	 * Get Newspack Newsletters setttings API response.
-	 *
-	 * @return WP_REST_Response with the info.
-	 */
-	public function api_get_newsletters_settings() {
-		return rest_ensure_response( self::get_newsletters_settings() );
-	}
-
-	/**
-	 * Get Newspack Newsletters setttings.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response with the info.
-	 */
-	public function api_update_newsletters_settings( $request ) {
-		$args                              = $request->get_params();
-		$newsletters_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-newsletters' );
-		$newsletters_configuration_manager->update_settings( $args );
-		return $this->api_get_newsletters_settings();
 	}
 
 	/**

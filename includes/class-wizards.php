@@ -44,21 +44,25 @@ class Wizards {
 			'settings'                => new Settings(),
 			// v2 Information Architecture.
 			'newspack-dashboard'      => new Newspack_Dashboard(),
-			'newspack-settings'       => new Newspack_Settings( 
+			'newspack-settings'       => new Newspack_Settings(
 				[
 					'sections' => [
 						'custom-events' => 'Newspack\Wizards\Newspack\Custom_Events_Section',
 						'social-pixels' => 'Newspack\Wizards\Newspack\Pixels_Section',
 						'recirculation' => 'Newspack\Wizards\Newspack\Recirculation_Section',
 					],
-				] 
+				]
 			),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
+			'network'                 => new Network_Wizard(),
+			'newsletters'             => new Newsletters_Wizard(),
 		];
 
-		// Not needed in $wizards[] since it's just for Admin Headers, not full react pages.
-		new Network_Wizard();
+		// Allow custom menu order.
+		add_filter( 'custom_menu_order', '__return_true' );
+		// Fix menu order for wizards with parent menu items.
+		add_filter( 'menu_order', [ __CLASS__, 'menu_order' ], 11 );
 	}
 
 	/**
@@ -132,6 +136,39 @@ class Wizards {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Update menu order for wizards with parent menu items.
+	 *
+	 * @param array $menu_order The current menu order.
+	 *
+	 * @return array The updated menu order.
+	 */
+	public static function menu_order( $menu_order ) {
+		$index = array_search( 'newspack-dashboard', $menu_order, true );
+		if ( false === $index ) {
+			return $menu_order;
+		}
+		$ordered_wizards = [];
+		foreach ( self::$wizards as $slug => $wizard ) {
+			if ( ! empty( $wizard->parent_menu ) && ! empty( $wizard->menu_order ) ) {
+				$ordered_wizards[ $wizard->menu_order ] = $wizard->parent_menu;
+			}
+		}
+		if ( empty( $ordered_wizards ) ) {
+			return $menu_order;
+		}
+		ksort( $ordered_wizards );
+		foreach ( array_reverse( $ordered_wizards ) as $menu_item ) {
+			$key = array_search( $menu_item, $menu_order, true );
+			if ( false === $key ) {
+				continue;
+			}
+			array_splice( $menu_order, $key, 1 );
+			array_splice( $menu_order, $index + 1, 0, $menu_item );
+		}
+		return $menu_order;
 	}
 }
 Wizards::init();

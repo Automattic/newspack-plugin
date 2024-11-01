@@ -40,13 +40,6 @@ abstract class Wizard {
 	protected $hidden = false;
 
 	/**
-	 * Priority setting for ordering admin submenu items.
-	 *
-	 * @var int.
-	 */
-	protected $menu_priority = 2;
-
-	/**
 	 * Array to store instances of section objects.
 	 *
 	 * @var Wizards\Section[]
@@ -54,16 +47,30 @@ abstract class Wizard {
 	protected $sections = [];
 
 	/**
+	 * The parent menu item name.
+	 *
+	 * @var string
+	 */
+	public $parent_menu = '';
+
+	/**
+	 * Order relative to the Newspack Dashboard menu item.
+	 *
+	 * @var int
+	 */
+	public $menu_order = 0;
+
+	/**
 	 * Initialize.
 	 *
 	 * @param array $args Array of optional arguments. i.e. `sections`.
-	 * @return void 
-	 * 
+	 * @return void
+	 *
 	 * @example
 	 * $my_wizard = new My_Wizard( [ 'sections' => [ 'my-wizard-section' => 'Newspack\Wizards\My_Wizard\My_Wizard_Section' ] ] );
 	 */
 	public function __construct( $args = [] ) {
-		add_action( 'admin_menu', [ $this, 'add_page' ], $this->menu_priority );
+		add_action( 'admin_menu', [ $this, 'add_page' ], 2 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		if ( isset( $args['sections'] ) ) {
 			$this->load_wizard_sections( $args['sections'] );
@@ -98,7 +105,7 @@ abstract class Wizard {
 	/**
 	 * Is Wizard admin page being viewed.
 	 *
-	 * @return bool 
+	 * @return bool
 	 */
 	public function is_wizard_page() {
 		return filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) === $this->slug;
@@ -277,7 +284,7 @@ abstract class Wizard {
 
 	/**
 	 * Load wizard sections.
-	 * 
+	 *
 	 * @param string[] $sections Array of Section class names.
 	 */
 	public function load_wizard_sections( $sections ) {
@@ -291,7 +298,7 @@ abstract class Wizard {
 
 	/**
 	 * Add body class for wizard pages.
-	 * 
+	 *
 	 * @param string $classes The current body classes.
 	 */
 	public function add_body_class( $classes ) {

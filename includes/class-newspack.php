@@ -127,7 +127,7 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
-		
+
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/traits/trait-wizards-admin-header.php';
 
 		// Newspack Wizards and Sections.
@@ -140,13 +140,16 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-setup-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-components-demo.php';
-		
-		// Advertising Wizard. 
+
+		// Advertising Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-display-ads.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/advertising/class-advertising-sponsors.php';
 
 		// Network Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-network-wizard.php';
+
+		// Newsletters Wizard.
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletters-wizard.php';
 
 		/* Unified Wizards */
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
