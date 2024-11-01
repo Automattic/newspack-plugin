@@ -29,13 +29,6 @@ class Newspack_Dashboard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Priority setting for ordering admin submenu items. Dashboard must come first.
-	 *
-	 * @var int.
-	 */
-	protected $menu_priority = 1;
-
-	/**
 	 * Initialize.
 	 */
 	public function __construct() {
@@ -47,7 +40,7 @@ class Newspack_Dashboard extends Wizard {
 	/**
 	 * Get Dashboard data
 	 *
-	 * @return [] 
+	 * @return []
 	 */
 	public function get_dashboard() {
 		$dashboard = [
@@ -81,7 +74,11 @@ class Newspack_Dashboard extends Wizard {
 					],
 				],
 			],
-			'newsletters'          => [
+		];
+
+		// Newspack Newsletters Plugin.
+		if ( defined( 'NEWSPACK_NEWSLETTERS_PLUGIN_FILE' ) ) {
+			$dashboard['newsletters'] = [
 				'title'        => __( 'Newsletters', 'newspack-plugin' ),
 				'desc'         => __( 'Engage your readers directly in their email inbox.', 'newspack-plugin' ),
 				'dependencies' => [
@@ -98,36 +95,45 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'ad',
 						'title' => __( 'Advertising', 'newspack-plugin' ),
 						'desc'  => __( 'Get advertising revenue from your newsletters.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_nl_ads_cpt' ),
 					],
 					[
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure tracking and other newsletter settings.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters-settings-admin' ),
 					],
+				],
+			];
+		}
+
+		$dashboard['advertising'] = [
+			'title'        => __( 'Advertising', 'newspack-plugin' ),
+			'desc'         => __( 'Sell space on your site to fund your operations.', 'newspack-plugin' ),
+			'dependencies' => [
+				'newspack-ads',
+			],
+			'cards'        => [
+				[
+					'icon'  => 'ad',
+					'title' => __( 'Display Ads', 'newspack-plugin' ),
+					'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
+					'href'  => admin_url( 'admin.php?page=advertising-display-ads#/' ),
+				],
+				[
+					'icon'  => 'currencyDollar',
+					'title' => __( 'Sponsors', 'newspack-plugin' ),
+					'desc'  => __( 'Sell sponsored content directly to purchasers.', 'newspack-plugin' ),
+					'href'  => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
 				],
 			],
-			'advertising'          => [
-				'title'        => __( 'Advertising', 'newspack-plugin' ),
-				'desc'         => __( 'Sell space on your site to fund your operations.', 'newspack-plugin' ),
-				'dependencies' => [
-					'newspack-ads',
-				],
-				'cards'        => [
-					[
-						'icon'  => 'ad',
-						'title' => __( 'Display Ads', 'newspack-plugin' ),
-						'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
-						'href'  => admin_url( 'admin.php?page=advertising-display-ads#/' ),
-					],
-					[
-						'icon'  => 'currencyDollar',
-						'title' => __( 'Sponsors', 'newspack-plugin' ),
-						'desc'  => __( 'Sell sponsored content directly to purchasers.', 'newspack-plugin' ),
-						'href'  => admin_url( 'edit.php?post_type=newspack_spnsrs_cpt' ),
-					],
-				],
+		];
+
+		$dashboard['listings'] = [
+			'title'        => __( 'Listings', 'newspack-plugin' ),
+			'desc'         => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
+			'dependencies' => [
+				'newspack-listings',
 			],
 		];
 
@@ -168,7 +174,7 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
-						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ), 
+						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ),
 					],
 				],
 			];
@@ -185,7 +191,7 @@ class Newspack_Dashboard extends Wizard {
 				'cards'        => $this->get_dashboard_network_cards(),
 			];
 		}
-		
+
 		return $dashboard;
 	}
 
@@ -195,7 +201,7 @@ class Newspack_Dashboard extends Wizard {
 	 * @return array Cards
 	 */
 	public function get_dashboard_network_cards() {
-		
+
 		// Get the site role.
 		$site_role = ( function() {
 			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
@@ -216,7 +222,7 @@ class Newspack_Dashboard extends Wizard {
 			'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
 			'href'  => admin_url( 'admin.php?page=newspack-network' ),
 		];
-		
+
 		// If node.
 		if ( 'node' === $site_role ) {
 			return [
@@ -229,7 +235,7 @@ class Newspack_Dashboard extends Wizard {
 				],
 			];
 		}
-		
+
 		// If hub.
 		if ( 'hub' === $site_role ) {
 			return [
@@ -274,7 +280,7 @@ class Newspack_Dashboard extends Wizard {
 		}
 
 		// Default / no role.
-		return [ 
+		return [
 			$settings_card,
 		];
 	}
@@ -282,12 +288,12 @@ class Newspack_Dashboard extends Wizard {
 	/**
 	 * Get Dashboard local data
 	 *
-	 * @return [] 
+	 * @return []
 	 */
 	public function get_local_data() {
 		$site_name = get_bloginfo( 'name' );
 		$theme_mods = get_theme_mods();
-		return [
+		$local_data = [
 			'settings'     => [
 				'siteName'      => $site_name,
 				'headerBgColor' => $theme_mods['header_color_hex'],
@@ -337,24 +343,30 @@ class Newspack_Dashboard extends Wizard {
 					],
 				],
 			],
-			'quickActions' => [
-				[
-					'href'  => admin_url( 'post-new.php' ),
-					'title' => __( 'Start a new post', 'newspack-plugin' ),
-					'icon'  => 'post',
-				],
-				[
-					'href'  => admin_url( 'post-new.php?post_type=newspack_nl_cpt' ),
-					'title' => __( 'Draft a newsletter', 'newspack-plugin' ),
-					'icon'  => 'mail',
-				],
-				[
-					'href'  => 'https://lookerstudio.google.com/u/0/reporting/b7026fea-8c2c-4c4b-be95-f582ed94f097/page/p_3eqlhk5odd',
-					'title' => __( 'Open data dashboard', 'newspack-plugin' ),
-					'icon'  => 'dashboard',
-				],
-			],
+			'quickActions' => [],
 		];
+
+		$local_data['quickActions'][] = [
+			'href'  => admin_url( 'post-new.php' ),
+			'title' => __( 'Start a new post', 'newspack-plugin' ),
+			'icon'  => 'post',
+		];
+
+		if ( defined( 'NEWSPACK_NEWSLETTERS_PLUGIN_FILE' ) ) {
+			$local_data['quickActions'][] = [
+				'href'  => admin_url( 'post-new.php?post_type=newspack_nl_cpt' ),
+				'title' => __( 'Draft a newsletter', 'newspack-plugin' ),
+				'icon'  => 'mail',
+			];
+		}
+
+		$local_data['quickActions'][] = [
+			'href'  => 'https://lookerstudio.google.com/u/0/reporting/b7026fea-8c2c-4c4b-be95-f582ed94f097/page/p_3eqlhk5odd',
+			'title' => __( 'Open data dashboard', 'newspack-plugin' ),
+			'icon'  => 'dashboard',
+		];
+
+		return $local_data;
 	}
 
 	/**
@@ -405,7 +417,7 @@ class Newspack_Dashboard extends Wizard {
 		 * JavaScript
 		 */
 		wp_localize_script(
-			'newspack-wizards', 
+			'newspack-wizards',
 			'newspackDashboard',
 			$this->get_local_data()
 		);

@@ -218,9 +218,6 @@ table.fixed {
 	position: static;
 	table-layout: fixed;
 }
-.wrap *:not(textarea, input) {
-	box-sizing: unset;
-}
 
 // Overrides
 .newspack-wizard__sections .newspack-wizard__section {
