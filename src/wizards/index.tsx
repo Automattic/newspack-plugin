@@ -99,7 +99,7 @@ const AdminPages = () => {
 		</Suspense>
 	);
 };
-console.log( 'AdminPages' );
+
 if ( rootElement && pageParam in components ) {
 	render( <AdminPages />, rootElement );
 } else {
