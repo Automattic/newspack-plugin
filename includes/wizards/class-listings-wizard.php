@@ -53,7 +53,7 @@ class Listings_Wizard extends Wizard {
 	 *
 	 * @var int
 	 */
-	public $menu_order = 2;
+	public $menu_order = 3;
 
 	/**
 	 * Constructor.
@@ -99,7 +99,6 @@ class Listings_Wizard extends Wizard {
 	 * Replaces Listings Plugin's 'admin_menu' action => Newspack_Listings\Core => 'add_plugin_page'
 	 */
 	public function add_page() {
-
 		// Top-level menu item.
 		add_menu_page(
 			__( 'Newspack Listings', 'newspack-plugin' ),
@@ -120,7 +119,6 @@ class Listings_Wizard extends Wizard {
 				'newspack-listings-settings-admin',
 				[ Newspack_Listings_Settings::class, 'create_admin_page' ]
 			);
-
 		}
 	}
 
