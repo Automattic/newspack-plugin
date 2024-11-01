@@ -214,7 +214,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 				array_shift( $subscriptions );
 
 				// If the subscription start date is before the $args start date, we're done.
-				if ( strtotime( $subscription->get_date( 'start_date' ) ) < $start_date ) {
+				if ( strtotime( $subscription->get_date( 'start' ) ) < $start_date ) {
 					$subscriptions = [];
 					break;
 				}
@@ -277,7 +277,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 	 */
 	public static function calculate_next_payment_date( $subscription, $dry_run = false ) {
 		$now                = time();
-		$subscription_start = $subscription->get_date( 'start_date' );
+		$subscription_start = $subscription->get_date( 'start' );
 		$next_payment_date  = $subscription->get_date( 'next_payment' );
 		$is_in_past         = ! strtotime( $next_payment_date ) || strtotime( $next_payment_date ) < $now;
 
@@ -316,10 +316,10 @@ Fetching active subscriptions with missing or missed next_payment dates...
 
 		// If there's an end date, end there.
 		if ( ! empty( $result['end_date'] ) ) {
-			$end = strtotime( $result['end_date'] );
+			$end_date = strtotime( $result['end_date'] );
 		}
 
-		while ( $min_date <= $end ) {
+		while ( $min_date <= $end_date ) {
 			$result['missed_periods']++;
 			$min_date = strtotime( "+$interval $period", $min_date );
 		}
@@ -328,15 +328,17 @@ Fetching active subscriptions with missing or missed next_payment dates...
 			$result['missed_total'] += $subscription->get_total() * $result['missed_periods'];
 		}
 
-		$calculated_next_payment     = $subscription->calculate_date( 'next_payment' );
-		$result['next_payment_date'] = $calculated_next_payment;
-		if ( ! $dry_run && ( ! $end_date || $end > strtotime( $calculated_next_payment ) ) ) {
-			$subscription->update_dates(
-				[
-					'next_payment' => $calculated_next_payment,
-				]
-			);
-			$subscription->save();
+		$calculated_next_payment = $subscription->calculate_date( 'next_payment' );
+		if ( ! $result['end_date'] || strtotime( $result['end_date'] ) > strtotime( $calculated_next_payment ) ) {
+			$result['next_payment_date'] = $calculated_next_payment;
+			if ( ! $dry_run ) {
+				$subscription->update_dates(
+					[
+						'next_payment' => $calculated_next_payment,
+					]
+				);
+				$subscription->save();
+			}
 		}
 
 		return $result;
