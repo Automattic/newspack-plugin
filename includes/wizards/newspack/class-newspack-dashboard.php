@@ -101,7 +101,7 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure tracking and other newsletter settings.', 'newspack-plugin' ),
-						'href'  => admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters-settings-admin' ),
+						'href'  => admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' ),
 					],
 				],
 			];
