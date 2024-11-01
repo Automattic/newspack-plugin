@@ -35,7 +35,6 @@ import {
 import './style.scss';
 
 export const Settings = ( {
-	className,
 	onUpdate,
 	initialProvider,
 	newslettersConfig,
@@ -242,7 +241,7 @@ export const Settings = ( {
 	}
 
 	return (
-		<div className={ className }>
+		<>
 			{ config.configured === false && (
 				<PluginInstaller
 					plugins={ [ 'newspack-newsletters' ] }
@@ -251,7 +250,7 @@ export const Settings = ( {
 				/>
 			) }
 			{ config.configured === true && renderProviderSettings() }
-		</div>
+		</>
 	);
 };
 
@@ -307,89 +306,87 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 	}
 
 	return (
-		<>
-			<ActionCard
-				isMedium
-				title={ __( 'Subscription Lists', 'newspack-plugin' ) }
-				description={ __(
-					'Manage the lists available to readers for subscription.',
-					'newspack-plugin'
-				) }
-				notification={
-					/* eslint-disable no-nested-ternary */
-					error
-						? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
-						: lockedLists
-							? __(
-								'Please save your ESP settings before changing your subscription lists.',
-								'newspack-plugin'
-							) : null
-				}
-				notificationLevel={ error ? 'error' : 'warning' }
-				hasGreyHeader
-				actionContent={
-					<>
-						{ newspack_newsletters_wizard.new_subscription_lists_url && (
-							<Button
-								variant="secondary"
-								disabled={ inFlight || lockedLists }
-								href={ newspack_newsletters_wizard.new_subscription_lists_url }
-							>
-								{ __( 'Add New', 'newspack-plugin' ) }
-							</Button>
-						) }
-						<Button isPrimary onClick={ saveLists } disabled={ inFlight || lockedLists }>
-							{ __( 'Save Subscription Lists', 'newspack-plugin' ) }
-						</Button>
-					</>
-				}
-				disabled={ inFlight || lockedLists }
-			>
-				{ ! lockedLists &&
-					lists.map( ( list, index ) => (
-						<ActionCard
-							key={ index }
-							isSmall
-							simple
-							hasWhiteHeader
-							title={ list.name }
-							description={ list?.type_label ? list.type_label : null }
-							disabled={ inFlight }
-							toggleOnChange={ handleChange( index, 'active' ) }
-							toggleChecked={ list.active }
-							className={
-								list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
-									? 'newspack-newsletters-sub-list-item'
-									: ''
-							}
-							actionText={
-								list?.edit_link ? (
-									<ExternalLink href={ list.edit_link }>
-										{ __( 'Edit', 'newspack-plugin' ) }
-									</ExternalLink>
-								) : null
-							}
+		<ActionCard
+			isMedium
+			title={ __( 'Subscription Lists', 'newspack-plugin' ) }
+			description={ __(
+				'Manage the lists available to readers for subscription.',
+				'newspack-plugin'
+			) }
+			notification={
+				/* eslint-disable no-nested-ternary */
+				error
+					? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
+					: lockedLists
+						? __(
+							'Please save your ESP settings before changing your subscription lists.',
+							'newspack-plugin'
+						) : null
+			}
+			notificationLevel={ error ? 'error' : 'warning' }
+			hasGreyHeader
+			actionContent={
+				<>
+					{ newspack_newsletters_wizard.new_subscription_lists_url && (
+						<Button
+							variant="secondary"
+							disabled={ inFlight || lockedLists }
+							href={ newspack_newsletters_wizard.new_subscription_lists_url }
 						>
-							{ list.active && 'local' !== list?.type && (
-								<>
-									<TextControl
-										label={ __( 'List title', 'newspack-plugin' ) }
-										value={ list.title }
-										disabled={ inFlight || 'local' === list?.type }
-										onChange={ handleChange( index, 'title' ) }
-									/>
-									<TextareaControl
-										label={ __( 'List description', 'newspack-plugin' ) }
-										value={ list.description }
-										disabled={ inFlight || 'local' === list?.type }
-										onChange={ handleChange( index, 'description' ) }
-									/>
-								</>
-							) }
-						</ActionCard>
-					) ) }
-			</ActionCard>
-		</>
+							{ __( 'Add New', 'newspack-plugin' ) }
+						</Button>
+					) }
+					<Button isPrimary onClick={ saveLists } disabled={ inFlight || lockedLists }>
+						{ __( 'Save Subscription Lists', 'newspack-plugin' ) }
+					</Button>
+				</>
+			}
+			disabled={ inFlight || lockedLists }
+		>
+			{ ! lockedLists &&
+				lists.map( ( list, index ) => (
+					<ActionCard
+						key={ index }
+						isSmall
+						simple
+						hasWhiteHeader
+						title={ list.name }
+						description={ list?.type_label ? list.type_label : null }
+						disabled={ inFlight }
+						toggleOnChange={ handleChange( index, 'active' ) }
+						toggleChecked={ list.active }
+						className={
+							list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
+								? 'newspack-newsletters-sub-list-item'
+								: ''
+						}
+						actionText={
+							list?.edit_link ? (
+								<ExternalLink href={ list.edit_link }>
+									{ __( 'Edit', 'newspack-plugin' ) }
+								</ExternalLink>
+							) : null
+						}
+					>
+						{ list.active && 'local' !== list?.type && (
+							<>
+								<TextControl
+									label={ __( 'List title', 'newspack-plugin' ) }
+									value={ list.title }
+									disabled={ inFlight || 'local' === list?.type }
+									onChange={ handleChange( index, 'title' ) }
+								/>
+								<TextareaControl
+									label={ __( 'List description', 'newspack-plugin' ) }
+									value={ list.description }
+									disabled={ inFlight || 'local' === list?.type }
+									onChange={ handleChange( index, 'description' ) }
+								/>
+							</>
+						) }
+					</ActionCard>
+				) ) }
+		</ActionCard>
 	);
 };
 
