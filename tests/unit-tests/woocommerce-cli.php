@@ -104,7 +104,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 		);
 
 		// Next payment date is now in the future.
-		$this->assertGreaterThan( time(), strtotime( $result['next_payment_date'] ) );
+		$this->assertGreaterThan( time(), strtotime( $subscription->get_date( 'next_payment' ) ) );
 	}
 
 	/**
@@ -152,7 +152,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 		);
 
 		// Next payment date is now in the future.
-		$this->assertGreaterThan( time(), strtotime( $result['next_payment_date'] ) );
+		$this->assertGreaterThan( time(), strtotime( $subscription->get_date( 'next_payment' ) ) );
 	}
 
 	/**
@@ -174,7 +174,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 		);
 		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
 
-		// Subscription was processed, but next payment date not set because the end date will occur first..
+		// Subscription was processed.
 		$this->assertEquals(
 			$result,
 			[
@@ -189,5 +189,8 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'missed_total'      => 60,
 			]
 		);
+
+		// Next payment date not set because the end date will occur first.
+		$this->assertEmpty( $subscription->get_date( 'next_payment' ) );
 	}
 }
