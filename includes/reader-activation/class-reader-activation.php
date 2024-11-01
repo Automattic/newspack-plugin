@@ -562,7 +562,7 @@ final class Reader_Activation {
 				'label'          => __( 'Reader Activation Campaign', 'newspack-plugin' ),
 				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.', 'newspack-plugin' ),
 				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'           => self::is_ras_campaign_configured() ? \admin_url( '/admin.php?page=newspack-popups-wizard#/campaigns' ) : \admin_url( '/admin.php?page=newspack-engagement-wizard#/reader-activation/campaign' ),
+				'href'           => self::is_ras_campaign_configured() ? \admin_url( '/admin.php?page=newspack-audience-campaigns#/campaigns' ) : \admin_url( '/admin.php?page=newspack-audience-configuration#/campaign' ),
 				'action_enabled' => self::is_ras_ready_to_configure(),
 				'action_text'    => __( 'Reader Activation campaign', 'newspack-plugin' ),
 				'disabled_text'  => __( 'Waiting for all settings to be ready', 'newspack-plugin' ),
