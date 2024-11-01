@@ -1,4 +1,3 @@
-export { default as Newsletters } from './newsletters';
 export { default as ReaderActivation } from './reader-activation';
 export { default as ReaderActivationCampaign } from './reader-activation/campaign';
 export { default as ReaderActivationComplete } from './reader-activation/complete';

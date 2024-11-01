@@ -18,7 +18,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../components/src';
 import ReaderRevenue from './ReaderRevenue';
-import { NewspackNewsletters } from '../../../engagement/views/newsletters';
+import { Settings as NewslettersSettings } from '../../../newsletters/views';
 import GAMOnboarding from '../../../advertising/components/onboarding';
 import './style.scss';
 
@@ -38,7 +38,7 @@ const SERVICES_LIST = {
 			'Create email newsletters and send them to your mail lists, all without leaving your website',
 			'newspack'
 		),
-		Component: NewspackNewsletters,
+		Component: NewslettersSettings,
 		configuration: { is_service_enabled: false },
 	},
 	'google-ad-manager': {
