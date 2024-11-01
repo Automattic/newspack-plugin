@@ -506,10 +506,7 @@ class Newsletters_Wizard extends Wizard {
 
 		// Move newsletter subscription list submenu_file.
 		if ( ! empty( $submenu_file ) && strpos( $submenu_file, 'newspack_nl_list' ) !== false ) {
-			// This would ideally be under &page=newspack-newsletters to match the
-			// Settings submenu, but it's not reachable so we go with the second best
-			// possibility.
-			return 'edit.php?post_type=newspack_nl_cpt';
+			return $this->slug;
 		}
 
 		return $submenu_file;
