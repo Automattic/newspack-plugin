@@ -219,7 +219,7 @@ Fetching active subscriptions with missing or missed next_payment dates...
 					break;
 				}
 
-				$result = self::calculate_next_payment_date( $subscription, $dry_run );
+				$result = self::validate_subscription_dates( $subscription, $dry_run );
 				if ( ! $result ) {
 					continue;
 				}
@@ -268,14 +268,16 @@ Fetching active subscriptions with missing or missed next_payment dates...
 	}
 
 	/**
-	 * Given a subscription, calculates the next payment date and missed payments.
+	 * Validate renewal date for the given subscription, accounting for end date.
+	 * If missing, calculates the next_payment date and reports missed payments
+	 * since the last successful order or subscription start.
 	 *
 	 * @param WC_Subscription $subscription The subscription.
 	 * @param bool            $dry_run If set, will not make any changes.
 	 *
 	 * @return array|false The result array or false if the subscription is broken.
 	 */
-	public static function calculate_next_payment_date( $subscription, $dry_run = false ) {
+	public static function validate_subscription_dates( $subscription, $dry_run = false ) {
 		$now                = time();
 		$subscription_start = $subscription->get_date( 'start' );
 		$next_payment_date  = $subscription->get_date( 'next_payment' );

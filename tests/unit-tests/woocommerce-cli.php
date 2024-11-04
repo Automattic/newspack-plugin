@@ -63,7 +63,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				],
 			]
 		);
-		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
+		$result = WooCommerce_Cli::validate_subscription_dates( $subscription );
 		$this->assertFalse( $result, 'Healthy subscription wasn’t processed.' );
 	}
 
@@ -83,7 +83,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				],
 			]
 		);
-		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
+		$result = WooCommerce_Cli::validate_subscription_dates( $subscription );
 		$this->assertEquals(
 			$result,
 			[
@@ -128,7 +128,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				],
 			]
 		);
-		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
+		$result = WooCommerce_Cli::validate_subscription_dates( $subscription );
 		$this->assertEquals(
 			$result,
 			[
@@ -164,7 +164,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				],
 			]
 		);
-		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
+		$result = WooCommerce_Cli::validate_subscription_dates( $subscription );
 		$this->assertEquals(
 			$result,
 			[
