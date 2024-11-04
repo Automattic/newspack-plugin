@@ -64,9 +64,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 			]
 		);
 		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
-
-		// Subscription wasn't processed.
-		$this->assertFalse( $result, Subscription wasn't processed. );
+		$this->assertFalse( $result, 'Healthy subscription wasn’t processed.' );
 	}
 
 	/**
@@ -86,8 +84,6 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 			]
 		);
 		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
-
-		// Subscription was processed.
 		$this->assertEquals(
 			$result,
 			[
@@ -100,11 +96,10 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'billing_interval'  => $subscription->get_billing_interval(),
 				'missed_periods'    => 6,
 				'missed_total'      => 60,
-			]
+			],
+			'Subscription was processed.'
 		);
-
-		// Next payment date is now in the future.
-		$this->assertGreaterThan( time(), strtotime( $subscription->get_date( 'next_payment' ) ) );
+		$this->assertGreaterThan( time(), strtotime( $subscription->get_date( 'next_payment' ) ), 'Next payment date is now in the future.' );
 	}
 
 	/**
@@ -134,8 +129,6 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 			]
 		);
 		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
-
-		// Subscription was processed.
 		$this->assertEquals(
 			$result,
 			[
@@ -148,11 +141,10 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'billing_interval'  => $subscription->get_billing_interval(),
 				'missed_periods'    => 3,
 				'missed_total'      => 30,
-			]
+			],
+			'Subscription was processed.'
 		);
-
-		// Next payment date is now in the future.
-		$this->assertGreaterThan( time(), strtotime( $subscription->get_date( 'next_payment' ) ) );
+		$this->assertGreaterThan( time(), strtotime( $subscription->get_date( 'next_payment' ) ), 'Next payment date is now in the future.' );
 	}
 
 	/**
@@ -173,8 +165,6 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 			]
 		);
 		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
-
-		// Subscription was processed.
 		$this->assertEquals(
 			$result,
 			[
@@ -187,10 +177,9 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'billing_interval'  => $subscription->get_billing_interval(),
 				'missed_periods'    => 6,
 				'missed_total'      => 60,
-			]
+			],
+			'Subscription was processed.'
 		);
-
-		// Next payment date not set because the end date will occur first.
-		$this->assertEmpty( $subscription->get_date( 'next_payment' ) );
+		$this->assertEmpty( $subscription->get_date( 'next_payment' ), 'Next payment date not set because the end date will occur first.' );
 	}
 }
