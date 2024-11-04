@@ -201,6 +201,9 @@ class Listings_Wizard extends Wizard {
 		if ( ! $post_type && $post_id ) {
 			$post_type = get_post_type( $post_id );
 		}
+		if ( ! $post_type ) {
+			return $submenu_file;
+		}
 		foreach ( $cpts as $listing_cpt ) {
 			if ( post_type_exists( $listing_cpt ) && strpos( $post_type, $listing_cpt ) !== false ) {
 				return 'edit.php?post_type=' . $post_type;
