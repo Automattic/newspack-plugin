@@ -68,7 +68,7 @@ class WC_Customer {
 	public function get_billing_last_name() {
 		return get_user_meta( $this->get_id(), 'last_name', true );
 	}
-	public function get_billing_email() {
+	public function get_email() {
 		return get_userdata( $this->get_id() )->user_email;
 	}
 }
