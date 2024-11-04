@@ -285,7 +285,7 @@ class Newspack_Dashboard extends Wizard {
 		$local_data = [
 			'settings'     => [
 				'siteName'      => $site_name,
-				'headerBgColor' => $theme_mods['header_color_hex'],
+				'headerBgColor' => $theme_mods['header_color_hex'] ?? '',
 			],
 			'sections'     => $this->get_dashboard(),
 			'plugins'      => get_plugins(),
