@@ -66,7 +66,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 		$result = WooCommerce_Cli::calculate_next_payment_date( $subscription );
 
 		// Subscription wasn't processed.
-		$this->assertFalse( $result );
+		$this->assertFalse( $result, Subscription wasn't processed. );
 	}
 
 	/**
