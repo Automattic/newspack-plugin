@@ -81,6 +81,8 @@ class Listings_Wizard extends Wizard {
 		// Hooks: admin_menu/add_page, admin_enqueue_scripts/enqueue_scripts_and_styles, admin_body_class/add_body_class.
 		parent::__construct();
 
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
 
@@ -174,5 +176,36 @@ class Listings_Wizard extends Wizard {
 	 */
 	public function is_wizard_page() {
 		return isset( $this->admin_screens[ $this->get_screen_slug() ] );
+	}
+
+	/**
+	 * Menu file filter. Used to determine active menu items.
+	 *
+	 * Because the CPTs are registered with 'show_in_menu' => 'newspack-listings',
+	 * the submenu_file is set to 'newspack-listings'. To work around this, we'll
+	 * use the $pagenow and $_GET['post_type'] to determine the correct
+	 * submenu_file.
+	 *
+	 * @param string $submenu_file Submenu file to be overridden.
+	 *
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+		$cpts = array_keys( $this->admin_screens );
+		global $pagenow;
+		if ( ! in_array( $pagenow, [ 'post-new.php', 'post.php' ] ) ) {
+			return $submenu_file;
+		}
+		$post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$post_id   = sanitize_text_field( $_GET['post'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $post_type && $post_id ) {
+			$post_type = get_post_type( $post_id );
+		}
+		foreach ( $cpts as $listing_cpt ) {
+			if ( post_type_exists( $listing_cpt ) && strpos( $post_type, $listing_cpt ) !== false ) {
+				return 'edit.php?post_type=' . $post_type;
+			}
+		}
+		return $submenu_file;
 	}
 }
