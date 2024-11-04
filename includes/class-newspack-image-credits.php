@@ -561,7 +561,7 @@ class Newspack_Image_Credits {
 	 */
 	public static function register_meta() {
 		foreach ( [
-			static::MEDIA_CREDIT_META, 
+			static::MEDIA_CREDIT_META,
 			static::MEDIA_CREDIT_URL_META,
 			static::MEDIA_CREDIT_ORG_META,
 			static::MEDIA_CREDIT_CAN_DISTRIBUTE_META,
