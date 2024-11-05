@@ -245,7 +245,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 				<>
 					<hr />
 					<Button
-						variant="secondary"
+						variant="link"
 						onClick={ () => setShowAdvanced( ! showAdvanced ) }
 					>
 						{ sprintf(
@@ -496,6 +496,9 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							</>
 						) }
 					</ActionCard>
+					{/* TODO: Add Platform from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/`*/}
+					{/* TODO: Add Stripe Setup from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/stripe-setup`*/}
+					{/* TODO: Add Saleforce Settings from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce`*/}
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
@@ -551,7 +554,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							disabled={ inFlight }
 						>
 							{ __(
-								'Save advanced settings',
+								'Save Settings',
 								'newspack-plugin'
 							) }
 						</Button>
