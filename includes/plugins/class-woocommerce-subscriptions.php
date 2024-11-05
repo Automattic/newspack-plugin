@@ -41,14 +41,21 @@ class WooCommerce_Subscriptions {
 		if ( ! wcs_user_has_subscription( $user_id ) ) {
 			return;
 		}
-		$subscriptions = wcs_get_subscriptions(
+		$pending_renewals = [];
+		$subscriptions    = wcs_get_subscriptions(
 			[
 				'customer_id' => $user_id,
 			]
 		);
 		foreach ( $subscriptions as $subscription ) {
-			if ( ! $subscription->needs_payment() ) {
-				continue;
+			if ( $subscription->needs_payment() ) {
+				$pending_renewals[] = $subscription;
+			}
+		}
+		foreach ( $pending_renewals as $subscription ) {
+			if ( count( $pending_renewals ) > 1 ) {
+				wp_safe_redirect( wc_get_account_endpoint_url( 'subscriptions' ) );
+				exit;
 			}
 			$renewal_orders = $subscription->get_related_orders( 'all', 'renewal' );
 			foreach ( $renewal_orders as $renewal_order ) {
