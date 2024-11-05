@@ -86,7 +86,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	}, [] );
 	useEffect( () => {
 		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
+			path: '/newspack/v1/wizard/newspack-newsletters/settings',
 		} ).then( data => {
 			setIsMailchimp(
 				data?.settings?.newspack_newsletters_service_provider?.value === 'mailchimp'
