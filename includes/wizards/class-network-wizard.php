@@ -103,7 +103,10 @@ class Network_Wizard extends Wizard {
 		
 		global $pagenow;
 
-		// @todo: set return value to static var to only run the code below once.
+		static $screen_slug;
+		if ( isset( $screen_slug ) ) {
+			return $screen_slug;
+		}
 
 		$sanitized_page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -111,17 +114,19 @@ class Network_Wizard extends Wizard {
 		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
 		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
 
-		// Check for normal admin page screen: admin.php?page={page} .
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
-			return $sanitized_page;
+			// admin page screen: admin.php?page={page} .
+			$screen_slug = $sanitized_page;
+		}
+		elseif ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			// post type list screen: edit.php?post_type={post_type} .
+			$screen_slug = $sanitized_post_type;
+		}
+		else {
+			$screen_slug = '';
 		}
 
-		// Check for admin post type listing screen: edit.php?post_type={post_type} .
-		if ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
-			return $sanitized_post_type;
-		}
-
-		return '';
+		return $screen_slug;
 	}
 
 	/**
@@ -149,9 +154,12 @@ class Network_Wizard extends Wizard {
 	 */
 	private function get_tabs() {
 		
-		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
+		$screen_slug = $this->get_screen_slug();
+		$site_role   = static::get_site_role();
 
-			if ( '' === static::get_site_role() ) {
+		if ( in_array( $screen_slug, [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
+
+			if ( '' === $site_role ) {
 				return [];
 			}
 
@@ -162,12 +170,12 @@ class Network_Wizard extends Wizard {
 				],
 			];
 
-			if ( 'hub' === static::get_site_role() ) {
+			if ( 'hub' === $site_role ) {
 				$tabs[] = [
 					'textContent' => esc_html__( 'Distributor Settings', 'newspack-plugin' ),
 					'href'        => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
 				];
-			} elseif ( 'node' === static::get_site_role() ) {
+			} elseif ( 'node' === $site_role ) {
 				$tabs[] = [
 					'textContent' => esc_html__( 'Node Settings', 'newspack-plugin' ),
 					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
@@ -196,24 +204,27 @@ class Network_Wizard extends Wizard {
 	 * The code below will modify the global $menu instead of overriding the different add_menu_page/add_submenu_page functions.
 	 * It's just a lot easier to use the code below because the Network Plugin has different submenu pages for each of the
 	 * different Site Roles (none, is_node, is_hub). It became difficult to try to rebuild the menu/submenus based on the current
-	 * Site Role, some of which have a first submenu item of an "admin page" for is_node, but "post type" for is_hub.
+	 * Site Role, some of which have a first submenu item of an admin page vs post type.
 	 * 
-	 * Page/Post Type loading order:
+	 * Network Plugin's submenu loading order:
 	 * 
-	 *  No site role: MENU PARENT URL: admin.php?page=newspack-network
-	 *    callback: class-admin.php add_admin_meun - doesn't display, most likely becasue wp is hiding single item menus
-	 *    callback: node settings (node) add menu  - doesn't show because if is_node is false.
-	 *  Node role: MENU PARENT URL: admin.php?page=newspack-network
-	 *    callback: class-admin.php add_admin_meun - yes it displays
-	 *    callback: node settings (node) add menu  - yes it displays
-	 *  Hub role: MENU PARENT URL: edit.php?post_type=newspack_hub_nodes
-	 *    callback: hub class nodes register post type - 'show_in_menu' is set to Network_Admin::PAGE_SLUG
-	 *    callback: hub db subscriptions cpt           - 'show_in_menu' is set to Network_Admin::PAGE_SLUG
-	 *    callback: hub db orders cpt                  - 'show_in_menu' is set to Network_Admin::PAGE_SLUG
-	 *    callback: class-admin.php add_admin_meun     - yes it displays (this defines the parent $menu item but shows 4th)
-	 *    callback: hub event log add menu             - yes it displays
-	 *    callback: hub membership menu                - yes it displays
-	 *    callback: hub districtubor settings add menu - yes it displays
+	 *  No site role: 
+	 *    MENU PARENT URL: admin.php?page=newspack-network
+	 *      site role     - not shown: because wp hides single item menus.
+	 *      node settings - not shown: because is_node is false.
+	 *  Node role:
+	 *    MENU PARENT URL: admin.php?page=newspack-network
+	 *      site role     - is shown.
+	 *      node settings - is shown.
+	 *  Hub role:
+	 *    MENU PARENT URL: edit.php?post_type=newspack_hub_nodes
+	 *      nodes         (post type) - is shown: 'show_in_menu' is set to Network_Admin::PAGE_SLUG .
+	 *      subscriptions (post type) - is shown: 'show_in_menu' is set to Network_Admin::PAGE_SLUG .
+	 *      orders        (post type) - is shown: 'show_in_menu' is set to Network_Admin::PAGE_SLUG .
+	 *      site role                 - is shown: this defines the parent $menu but shows 4th since register_post_type(s) run first.
+	 *      event log                 - is shown.
+	 *      membership plans          - is shown.
+	 *      distributor settings      - is shown.
 	 * 
 	 * @return void
 	 */
