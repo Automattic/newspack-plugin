@@ -347,6 +347,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 								}
 							}
 						}
+
+						if ( data?.redirect_to ) {
+							const continueButton = container.querySelector( '.auth-callback' );
+							if ( continueButton ) {
+								continueButton.setAttribute( 'href', data.redirect_to );
+							}
+						}
 					}
 				}
 			};

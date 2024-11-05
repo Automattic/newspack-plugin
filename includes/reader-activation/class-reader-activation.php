@@ -1874,6 +1874,11 @@ final class Reader_Activation {
 					function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'edit-account' ) : home_url()
 				);
 
+				// If we are on the my account page, add a redirect to the site's home page.
+				if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+					$payload['redirect_to'] = \home_url();
+				}
+
 				$payload['registered']    = 1;
 				$payload['authenticated'] = 1;
 				return self::send_auth_form_response( $payload, false );
