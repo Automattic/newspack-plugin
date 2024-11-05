@@ -129,45 +129,48 @@ class Newspack_Dashboard extends Wizard {
 			],
 		];
 
-		$dashboard['listings'] = [
-			'title'        => __( 'Listings', 'newspack-plugin' ),
-			'desc'         => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
-			'dependencies' => [
-				'newspack-listings',
-			],
-			'cards'        => [
-				[
-					'icon'  => 'blockPostDate',
-					'title' => __( 'Events', 'newspack-plugin' ),
-					'desc'  => __( 'Easily use the same event information across multiple posts.', 'newspack-plugin' ),
-					'href'  => admin_url( 'edit.php?post_type=newspack_lst_event' ),
+		// Newspack Listings Plugin.
+		if ( defined( 'NEWSPACK_LISTINGS_FILE' ) ) {
+			$dashboard['listings'] = [
+				'title'        => __( 'Listings', 'newspack-plugin' ),
+				'desc'         => __( 'Build databases of reusable or user-generated content to use on your site.', 'newspack-plugin' ),
+				'dependencies' => [
+					'newspack-listings',
 				],
-				[
-					'icon'  => 'store',
-					'title' => __( 'Marketplace Listings', 'newspack-plugin' ),
-					'desc'  => __( 'Allow users to list items and services for sale.', 'newspack-plugin' ),
-					'href'  => admin_url( 'edit.php?post_type=newspack_lst_mktplce' ),
+				'cards'        => [
+					[
+						'icon'  => 'blockPostDate',
+						'title' => __( 'Events', 'newspack-plugin' ),
+						'desc'  => __( 'Easily use the same event information across multiple posts.', 'newspack-plugin' ),
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_event' ),
+					],
+					[
+						'icon'  => 'store',
+						'title' => __( 'Marketplace Listings', 'newspack-plugin' ),
+						'desc'  => __( 'Allow users to list items and services for sale.', 'newspack-plugin' ),
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_mktplce' ),
+					],
+					[
+						'icon'  => 'postList',
+						'title' => __( 'Generic Listing', 'newspack-plugin' ),
+						'desc'  => __( 'Manage any structured data for use in posts.', 'newspack-plugin' ),
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_generic' ),
+					],
+					[
+						'icon'  => 'mapMarker',
+						'title' => __( 'Places', 'newspack-plugin' ),
+						'desc'  => __( 'Create a database of places in your coverage area.', 'newspack-plugin' ),
+						'href'  => admin_url( 'edit.php?post_type=newspack_lst_place' ),
+					],
+					[
+						'icon'  => 'tool',
+						'title' => __( 'Settings', 'newspack-plugin' ),
+						'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
+						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ),
+					],
 				],
-				[
-					'icon'  => 'postList',
-					'title' => __( 'Generic Listing', 'newspack-plugin' ),
-					'desc'  => __( 'Manage any structured data for use in posts.', 'newspack-plugin' ),
-					'href'  => admin_url( 'edit.php?post_type=newspack_lst_generic' ),
-				],
-				[
-					'icon'  => 'mapMarker',
-					'title' => __( 'Places', 'newspack-plugin' ),
-					'desc'  => __( 'Create a database of places in your coverage area.', 'newspack-plugin' ),
-					'href'  => admin_url( 'edit.php?post_type=newspack_lst_place' ),
-				],
-				[
-					'icon'  => 'tool',
-					'title' => __( 'Settings', 'newspack-plugin' ),
-					'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ),
-				],
-			],
-		];
+			];
+		}
 
 		// Newspack Network Plugin.
 		if ( is_plugin_active( 'newspack-network/newspack-network.php' ) ) {
@@ -285,7 +288,7 @@ class Newspack_Dashboard extends Wizard {
 		$local_data = [
 			'settings'     => [
 				'siteName'      => $site_name,
-				'headerBgColor' => $theme_mods['header_color_hex'],
+				'headerBgColor' => $theme_mods['header_color_hex'] ?? '',
 			],
 			'sections'     => $this->get_dashboard(),
 			'plugins'      => get_plugins(),
