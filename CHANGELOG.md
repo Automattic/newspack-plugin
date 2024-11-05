@@ -1,3 +1,25 @@
+# [5.6.0](https://github.com/Automattic/newspack-plugin/compare/v5.5.2...v5.6.0) (2024-10-28)
+
+
+### Bug Fixes
+
+* cancelled subscriptions sync ([#3466](https://github.com/Automattic/newspack-plugin/issues/3466)) ([6cad50a](https://github.com/Automattic/newspack-plugin/commit/6cad50a5254b55933bfe2ef17ee0d50782b9f5f7))
+* **woocommerce:** update how order meta are updated ([#2711](https://github.com/Automattic/newspack-plugin/issues/2711)) ([ae75548](https://github.com/Automattic/newspack-plugin/commit/ae755489148dac69720c264a79323d597dcd7ac7))
+
+
+### Features
+
+* add user name to woocommerce data events ([#3473](https://github.com/Automattic/newspack-plugin/issues/3473)) ([2b57d27](https://github.com/Automattic/newspack-plugin/commit/2b57d2745ef4359ff0d286e3b463071d98cb1290))
+* command to initialize cron job to slowly backfill CAP term data ([#3425](https://github.com/Automattic/newspack-plugin/issues/3425)) ([0b0d79a](https://github.com/Automattic/newspack-plugin/commit/0b0d79abb8a8747abf6b8dc30326f57e11423aa6))
+* **metering:** dispatch RAS activity on content restriction ([#3437](https://github.com/Automattic/newspack-plugin/issues/3437)) ([4e1c262](https://github.com/Automattic/newspack-plugin/commit/4e1c26226035af51e41752e1188d8f58140b7ff4))
+
+## [5.5.2](https://github.com/Automattic/newspack-plugin/compare/v5.5.1...v5.5.2) (2024-10-28)
+
+
+### Bug Fixes
+
+* let "Cover fees" checkbox work with any payment method ([#3491](https://github.com/Automattic/newspack-plugin/issues/3491)) ([74ea6cc](https://github.com/Automattic/newspack-plugin/commit/74ea6cc76a45cc76eb06d73444a9890031f0507c))
+
 ## [5.5.1](https://github.com/Automattic/newspack-plugin/compare/v5.5.0...v5.5.1) (2024-10-11)
 
 

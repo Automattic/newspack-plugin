@@ -91,6 +91,8 @@ For when there's a new donation processed through WooCommerce.
 | `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
 | `platform_data`   | `array`  |                                                        |
+| `user_first_name` | `string` | The Woocommerce customer billing first name            |
+| `user_last_name`  | `string` | The Woocommerce customer billing last name             |
 
 ### `woocommerce_order_failed`
 
@@ -111,6 +113,8 @@ the order is already marked as failed so this hook will not trigger.
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
 | `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
 | `platform_data`   | `array`  |                                                        |
+| `user_first_name` | `string` | The Woocommerce customer billing first name            |
+| `user_last_name`  | `string` | The Woocommerce customer billing last name             |
 
 ### `donation_new`
 
@@ -129,6 +133,8 @@ When there's a new donation.
 | `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
 | `platform_data`   | `array`  |                                                        |
+| `user_first_name` | `string` |                                                        |
+| `user_last_name`  | `string` |                                                        |
 
 ### `order_completed`
 
@@ -146,6 +152,8 @@ When any WooCommerce order is completed with a successful payment.
 | `is_renewal`      | `bool`   | If this is a subscription renewal (recurring payment)  |
 | `subscription_id` | `int`    | The related subscription id (if any)                   |
 | `platform_data`   | `array`  |                                                        |
+| `user_first_name` | `string` |                                                        |
+| `user_last_name`  | `string` |                                                        |
 
 ### `donation_subscription_new`
 
@@ -162,6 +170,8 @@ When there's a new WooCommerce Subscription. This action does not replace the `d
 | `platform`        | `string` |                                                        |
 | `referer`         | `string` |                                                        |
 | `popup_id`        | `string` | If the donation was triggered by a popup, the popup ID |
+| `user_first_name` | `string` |                                                        |
+| `user_last_name`  | `string` |                                                        |
 
 ### `donation_subscription_cancelled`
 
@@ -176,6 +186,8 @@ When a WooCommerce Subscription is cancelled.
 | `currency`        | `string` |
 | `recurrence`      | `string` |
 | `platform`        | `string` |
+| `user_first_name` | `string` |
+| `user_last_name`  | `string` |
 
 ### `donation_subscription_changed`
 
@@ -192,6 +204,8 @@ When a WooCommerce Subscription status changes.
 | `currency`        | `string` |
 | `recurrence`      | `string` |
 | `platform`        | `string` |
+| `user_first_name` | `string` |
+| `user_last_name`  | `string` |
 
 ### `product_subscription_changed`
 
@@ -207,6 +221,8 @@ When a non-donation subscription status changes.
 | `recurrence`      | `string` |
 | `status_before`   | `string` |
 | `status_after`    | `string` |
+| `user_first_name` | `string` |
+| `user_last_name`  | `string` |
 
 ## Membership Actions
 
