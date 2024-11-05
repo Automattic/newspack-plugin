@@ -536,7 +536,7 @@ final class Reader_Activation {
 				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
 				'instructions' => __( 'Enable reCAPTCHA and enter your account credentials.', 'newspack-plugin' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'         => \admin_url( '/admin.php?page=newspack-connections-wizard&scrollTo=recaptcha' ),
+				'href'         => \admin_url( '/admin.php?page=newspack-settings&scrollTo=recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
