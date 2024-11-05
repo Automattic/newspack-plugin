@@ -44,7 +44,8 @@ class WooCommerce_Subscriptions {
 		$pending_renewals = [];
 		$subscriptions    = wcs_get_subscriptions(
 			[
-				'customer_id' => $user_id,
+				'customer_id'         => $user_id,
+				'subscription_status' => [ 'pending', 'on-hold' ],
 			]
 		);
 		foreach ( $subscriptions as $subscription ) {
