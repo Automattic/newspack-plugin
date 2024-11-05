@@ -429,7 +429,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 
 					<hr />
 
-					<SectionHeader title={ __( 'Modal Checkout Login and Registration', 'newspack-plugin' ) } />
+					<SectionHeader title={ __( 'Checkout Configuration', 'newspack-plugin' ) } />
 
 					<ActionCard
 						title={ __(
@@ -437,11 +437,19 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							'newspack-plugin'
 						) }
 						description={ __(
-							'Present logged out readers with the option to sign in or register a new account before proceeding to checkout.',
+							'Require logged out readers to sign in or register a new account before proceeding to checkout.',
 							'newspack-plugin'
 						) }
 						toggleChecked={ config.woocommerce_registration_required }
 						toggleOnChange={ value => updateConfig( 'woocommerce_registration_required', value ) }
+					/>
+					<TextControl
+						label={ __( 'Checkout privacy policy text', 'newspack-plugin' ) }
+						help={ __(
+							'The privacy policy text to display at time of checkout for existing users. This will not show up unless a privacy page is set.',
+							'newspack-plugin'
+						) }
+						{ ...getSharedProps( 'woocommerce_checkout_privacy_policy_text', 'text' ) }
 					/>
 
 					<div className="newspack-buttons-card">
@@ -473,6 +481,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
 									woocommerce_registration_required: config.woocommerce_registration_required,
+									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
 								} );
 							} }
 							disabled={ inFlight }
