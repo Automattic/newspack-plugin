@@ -34,9 +34,18 @@ class WooCommerce_Subscriptions {
 	 * Redirect to subscriptions pending renewals my account page.
 	 */
 	public static function maybe_redirect_to_checkout_payment_page() {
-		if ( ! is_user_logged_in() || ! self::is_active() || ! isset( $_GET['np_renewal'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! self::is_active() || ! isset( $_GET['np_renewal'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return;
 		}
+
+		if ( ! is_user_logged_in() ) {
+			if ( ! is_account_page() ) {
+				wp_safe_redirect( wc_get_page_permalink( 'myaccount' ) );
+				exit;
+			}
+			return;
+		}
+
 		$user_id = get_current_user_id();
 		if ( ! wcs_user_has_subscription( $user_id ) ) {
 			return;
