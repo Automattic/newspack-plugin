@@ -24,8 +24,6 @@ const pageParam =
 	new URLSearchParams( window.location.search ).get( 'page' ) ?? '';
 const rootElement = document.getElementById( pageParam );
 
-// const ALLOWED_PAGES = [ 'newspack-dashboard', 'newspack-settings' ];
-
 const components: Record< string, any > = {
 	/**
 	 * `page` param with `newspack-*`.
