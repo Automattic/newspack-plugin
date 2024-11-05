@@ -84,7 +84,7 @@ class Guest_Contributor_Role {
 		// Hide author email on the frontend, if it's a placeholder email.
 		\add_filter( 'theme_mod_show_author_email', [ __CLASS__, 'should_display_author_email' ] );
 
-		// Make sure we check again if the site has guest authors evey hour.
+		// Make sure we check again if the site has guest authors every hour.
 		$re_check_guest_authors = 'newspack_re_check_guest_authors';
 		if ( ! \wp_next_scheduled( $re_check_guest_authors ) ) {
 			\wp_schedule_event( time(), 'hourly', $re_check_guest_authors );
