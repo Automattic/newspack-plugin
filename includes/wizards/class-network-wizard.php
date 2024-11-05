@@ -7,6 +7,7 @@
 
 namespace Newspack;
 
+use Newspack\Wizards\Traits\Admin_Header;
 use Newspack_Network\Site_Role as Newspack_Network_Site_Role;
 
 defined( 'ABSPATH' ) || exit;
@@ -16,21 +17,14 @@ defined( 'ABSPATH' ) || exit;
  */
 class Network_Wizard extends Wizard {
 
-	use \Newspack\Wizards\Traits\Admin_Header;
+	use Admin_Header;
 
 	/**
-	 * Newspack Network plugin's Admin screen definitions (see below).
+	 * Newspack Network plugin's Admin screen definitions (see constructor).
 	 *
 	 * @var array
 	 */
 	private $admin_screens = [];
-
-	/**
-	 * Screen type: admin page or post type.
-	 *
-	 * @var string
-	 */
-	private $screen_type = '';
 
 	/**
 	 * The parent menu item name.
@@ -57,83 +51,83 @@ class Network_Wizard extends Wizard {
 
 		// Admin screens based on Newspack Network plugin's admin pages and post types.
 		$this->admin_screens = [
-			'page'      => [
-				'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
-				'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
-				'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
-				'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
-				'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
-			],
-			'post_type' => [
-				'newspack_hub_nodes'   => __( 'Network / Nodes', 'newspack-plugin' ),
-				'np_hub_orders'        => __( 'Network / Orders', 'newspack-plugin' ),
-				'np_hub_subscriptions' => __( 'Network / Subscriptions', 'newspack-plugin' ),
-			],
+			// admin pages.
+			'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
+			'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
+			'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
+			'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
+			'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
+			// post types.
+			'newspack_hub_nodes'                    => __( 'Network / Nodes', 'newspack-plugin' ),
+			'np_hub_orders'                         => __( 'Network / Orders', 'newspack-plugin' ),
+			'np_hub_subscriptions'                  => __( 'Network / Subscriptions', 'newspack-plugin' ),
 		];
 
 		// Update menu information.
 		add_action( 'admin_menu', [ $this, 'modify_menu' ], 11 );
 
-		// Use current_screen for better detection of which admin screen we might be on.
-		add_action( 'current_screen', [ $this, 'current_screen' ] );
-	}
+		// Display screen.
+		if ( $this->is_wizard_page() ) {
+			
+			// Set active menu item for hidden screens.
+			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
-	/**
-	 * Current screen callback to detect Network admin screens.
-	 */
-	public function current_screen() {
+			// Add CSS to body.
+			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
-		global $current_screen, $plugin_page;
-
-		// Check for admin page screen type.
-		if ( isset( $this->admin_screens['page'][ $plugin_page ] ) ) {
-			$this->slug = $plugin_page;
-			$this->screen_type = 'page';
-			return $this->enable_display();
-		}
-
-		// Check for admin post type screen: Listings page and classic editor (add new + edit), but not block editor.
-		if ( ! empty( $current_screen->post_type )
-			&& ! empty( $this->admin_screens['post_type'][ $current_screen->post_type ] )
-			&& false === $current_screen->is_block_editor ) {
-			$this->slug = $current_screen->post_type;
-			$this->screen_type = 'post_type';
-			return $this->enable_display();
+			// Display header.
+			$this->admin_header_init(
+				[
+					'title' => $this->get_name(),
+					'tabs'  => $this->get_tabs(),
+				]
+			);
 		}
 	}
 
 	/**
-	 * Enable display of the Wizard Header with body CSS.
-	 */
-	protected function enable_display() {
-		// Add CSS to body.
-		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-
-		// Display Wizard Admin Header.
-		$this->admin_header_init( [ 'title' => $this->get_name() ] );
-	}
-
-	/**
-	 * Get the name for this wizard.
+	 * Get the name for this current screen's wizard. Required by parent abstract.
 	 *
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html( $this->admin_screens[ $this->screen_type ][ $this->slug ] );
+		return esc_html( $this->admin_screens[ $this->get_screen_slug() ] );
 	}
 
 	/**
-	 * Is a Network admin page or post_type being viewed. Used by 'add_body_class' callback.
+	 * Is a Network admin page or post_type being viewed. Needed for parent constructor => 'add_body_class' callback.
 	 *
 	 * @return bool Is current wizard page or not.
 	 */
 	public function is_wizard_page() {
-		return isset( $this->admin_screens[ $this->screen_type ][ $this->slug ] );
+		return isset( $this->admin_screens[ $this->get_screen_slug() ] );
 	}
 
 	/**
-	 * Admin Menu hook to move entire Network admin menu higher into the Newspack area.
-	 *
+	 * Admin Menu hook to modify Network admin menu.
+	 * 
+	 * The code below will modify the global $menu instead of overriding the different add_menu_page/add_submenu_page functions.
+	 * It's just a lot easier to use the code below because the Network Plugin has different submenu pages for each of the
+	 * different Site Roles (none, is_node, is_hub). It became difficult to try to rebuild the menu/submenus based on the current
+	 * Site Role, some of which have a first submenu item of an "admin page" for is_node, but "post type" for is_hub.
+	 * 
+	 * Page/Post Type loading order:
+	 * 
+	 *  No site role: MENU PARENT URL: admin.php?page=newspack-network
+	 *    callback: class-admin.php add_admin_meun - doesn't display, most likely becasue wp is hiding single item menus
+	 *    callback: node settings (node) add menu  - doesn't show because if is_node is false.
+	 *  Node role: MENU PARENT URL: admin.php?page=newspack-network
+	 *    callback: class-admin.php add_admin_meun - yes it displays
+	 *    callback: node settings (node) add menu  - yes it displays
+	 *  Hub role: MENU PARENT URL: edit.php?post_type=newspack_hub_nodes
+	 *    callback: hub class nodes register post type - 'show_in_menu' is set to Network_Admin::PAGE_SLUG
+	 *    callback: hub db subscriptions cpt           - 'show_in_menu' is set to Network_Admin::PAGE_SLUG
+	 *    callback: hub db orders cpt                  - 'show_in_menu' is set to Network_Admin::PAGE_SLUG
+	 *    callback: class-admin.php add_admin_meun     - yes it displays (this defines the parent $menu item but shows 4th)
+	 *    callback: hub event log add menu             - yes it displays
+	 *    callback: hub membership menu                - yes it displays
+	 *    callback: hub districtubor settings add menu - yes it displays
+	 * 
 	 * @return void
 	 */
 	public function modify_menu() {
@@ -143,7 +137,7 @@ class Network_Wizard extends Wizard {
 		$network_key = null;
 		foreach ( $menu as $k => $v ) {
 			// Get the network key from the menu array.
-			if ( $v[2] === 'newspack-network' ) {
+			if ( $v[2] === $this->parent_menu ) {
 				$network_key = $k;
 				break;
 			}
@@ -177,5 +171,90 @@ class Network_Wizard extends Wizard {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Get admin header tabs (if exists) for current sreen.
+	 *
+	 * @return array Tabs. Default []
+	 */
+	private function get_tabs() {
+		
+		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
+
+			if ( '' === static::get_site_role() ) {
+				return [];
+			}
+
+			$tabs = [
+				[
+					'textContent' => esc_html__( 'Site Role', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network' ),
+				],
+			];
+
+			if ( 'hub' === static::get_site_role() ) {
+				$tabs[] = [
+					'textContent' => esc_html__( 'Distributor Settings', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
+				];
+			} elseif ( 'node' === static::get_site_role() ) {
+				$tabs[] = [
+					'textContent' => esc_html__( 'Node Settings', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
+				];
+			}
+			
+			return $tabs;
+
+		}
+
+		return [];
+	}
+
+	/**
+	 * Get slug if we're currently viewing a Network screen.
+	 * 
+	 * @return string
+	 */
+	private function get_screen_slug() {
+		
+		global $pagenow;
+
+		// @todo: set return value to static var to only run the code below once.
+
+		$sanitized_page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
+		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
+
+		// Check for normal admin page screen: admin.php?page={page} .
+		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
+			return $sanitized_page;
+		}
+
+		// Check for admin post type listing screen: edit.php?post_type={post_type} .
+		if ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			return $sanitized_post_type;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Submenu file filter. Used to determine active submenu items.
+	 * 
+	 * For admin pages return slug only.
+	 * For admin post types return url: edit.php?post_type={post_type}
+	 * 
+	 * @param string $submenu_file Submenu file to be overridden.
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+		if ( 'newspack-network-distributor-settings' === filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) {
+			return 'newspack-network';
+		}
+		return $submenu_file;
 	}
 }
