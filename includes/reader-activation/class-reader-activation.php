@@ -507,7 +507,7 @@ final class Reader_Activation {
 				'description'  => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack-plugin' ),
 				'instructions' => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack-plugin' ),
 				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'         => \admin_url( '/admin.php?page=newspack-engagement-wizard#/newsletters' ),
+				'href'         => \admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' ),
 				'action_text'  => __( 'ESP settings' ),
 			],
 			'emails'           => [
