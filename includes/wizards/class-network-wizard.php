@@ -95,7 +95,94 @@ class Network_Wizard extends Wizard {
 	}
 
 	/**
-	 * Is a Network admin page or post_type being viewed. Needed for parent constructor => 'add_body_class' callback.
+	 * Get slug if we're currently viewing a Network screen.
+	 * 
+	 * @return string
+	 */
+	private function get_screen_slug() {
+		
+		global $pagenow;
+
+		// @todo: set return value to static var to only run the code below once.
+
+		$sanitized_page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
+		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
+
+		// Check for normal admin page screen: admin.php?page={page} .
+		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
+			return $sanitized_page;
+		}
+
+		// Check for admin post type listing screen: edit.php?post_type={post_type} .
+		if ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			return $sanitized_post_type;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Wrapper for Network Plugin's is_node/is_hub functions. Also called by Newspack_Dashboard.
+	 */
+	public static function get_site_role() {
+
+		$is_node_function = [ Newspack_Network_Site_Role::class, 'is_node' ];
+		if ( is_callable( $is_node_function ) && call_user_func( $is_node_function ) ) {
+			return 'node';
+		}
+
+		$is_hub_function = [ Newspack_Network_Site_Role::class, 'is_hub' ];
+		if ( is_callable( $is_hub_function ) && call_user_func( $is_hub_function ) ) {
+			return 'hub';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Get admin header tabs (if exists) for current sreen.
+	 *
+	 * @return array Tabs. Default []
+	 */
+	private function get_tabs() {
+		
+		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
+
+			if ( '' === static::get_site_role() ) {
+				return [];
+			}
+
+			$tabs = [
+				[
+					'textContent' => esc_html__( 'Site Role', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network' ),
+				],
+			];
+
+			if ( 'hub' === static::get_site_role() ) {
+				$tabs[] = [
+					'textContent' => esc_html__( 'Distributor Settings', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
+				];
+			} elseif ( 'node' === static::get_site_role() ) {
+				$tabs[] = [
+					'textContent' => esc_html__( 'Node Settings', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
+				];
+			}
+			
+			return $tabs;
+
+		}
+
+		return [];
+	}
+
+	/**
+	 * Is a Network admin page or post_type being viewed. Needed for 'add_body_class' callback.
 	 *
 	 * @return bool Is current wizard page or not.
 	 */
@@ -153,93 +240,6 @@ class Network_Wizard extends Wizard {
 		$menu[ $network_key ][0] = __( 'Network', 'newspack-plugin' );
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$menu[ $network_key ][6] = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M12 3.3c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8s-4-8.8-8.8-8.8zm6.5 5.5h-2.6C15.4 7.3 14.8 6 14 5c2 .6 3.6 2 4.5 3.8zm.7 3.2c0 .6-.1 1.2-.2 1.8h-2.9c.1-.6.1-1.2.1-1.8s-.1-1.2-.1-1.8H19c.2.6.2 1.2.2 1.8zM12 18.7c-1-.7-1.8-1.9-2.3-3.5h4.6c-.5 1.6-1.3 2.9-2.3 3.5zm-2.6-4.9c-.1-.6-.1-1.1-.1-1.8 0-.6.1-1.2.1-1.8h5.2c.1.6.1 1.1.1 1.8s-.1 1.2-.1 1.8H9.4zM4.8 12c0-.6.1-1.2.2-1.8h2.9c-.1.6-.1 1.2-.1 1.8 0 .6.1 1.2.1 1.8H5c-.2-.6-.2-1.2-.2-1.8zM12 5.3c1 .7 1.8 1.9 2.3 3.5H9.7c.5-1.6 1.3-2.9 2.3-3.5zM10 5c-.8 1-1.4 2.3-1.8 3.8H5.5C6.4 7 8 5.6 10 5zM5.5 15.3h2.6c.4 1.5 1 2.8 1.8 3.7-1.8-.6-3.5-2-4.4-3.7zM14 19c.8-1 1.4-2.2 1.8-3.7h2.6C17.6 17 16 18.4 14 19z"></path></svg>' );
-	}
-
-	/**
-	 * Wrapper for Network Plugin's is_node/is_hub functions. Called by Newspack_Dashboard.
-	 */
-	public static function get_site_role() {
-
-		$is_node_function = [ Newspack_Network_Site_Role::class, 'is_node' ];
-		if ( is_callable( $is_node_function ) && call_user_func( $is_node_function ) ) {
-			return 'node';
-		}
-
-		$is_hub_function = [ Newspack_Network_Site_Role::class, 'is_hub' ];
-		if ( is_callable( $is_hub_function ) && call_user_func( $is_hub_function ) ) {
-			return 'hub';
-		}
-
-		return '';
-	}
-
-	/**
-	 * Get admin header tabs (if exists) for current sreen.
-	 *
-	 * @return array Tabs. Default []
-	 */
-	private function get_tabs() {
-		
-		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
-
-			if ( '' === static::get_site_role() ) {
-				return [];
-			}
-
-			$tabs = [
-				[
-					'textContent' => esc_html__( 'Site Role', 'newspack-plugin' ),
-					'href'        => admin_url( 'admin.php?page=newspack-network' ),
-				],
-			];
-
-			if ( 'hub' === static::get_site_role() ) {
-				$tabs[] = [
-					'textContent' => esc_html__( 'Distributor Settings', 'newspack-plugin' ),
-					'href'        => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
-				];
-			} elseif ( 'node' === static::get_site_role() ) {
-				$tabs[] = [
-					'textContent' => esc_html__( 'Node Settings', 'newspack-plugin' ),
-					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
-				];
-			}
-			
-			return $tabs;
-
-		}
-
-		return [];
-	}
-
-	/**
-	 * Get slug if we're currently viewing a Network screen.
-	 * 
-	 * @return string
-	 */
-	private function get_screen_slug() {
-		
-		global $pagenow;
-
-		// @todo: set return value to static var to only run the code below once.
-
-		$sanitized_page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-
-		// Check for normal admin page screen: admin.php?page={page} .
-		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
-			return $sanitized_page;
-		}
-
-		// Check for admin post type listing screen: edit.php?post_type={post_type} .
-		if ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
-			return $sanitized_post_type;
-		}
-
-		return '';
 	}
 
 	/**
