@@ -372,7 +372,7 @@ class Salesforce {
 
 		// Check if the webhook is configured.
 		$webhook_id = self::get_webhook();
-		$webhook    = wc_get_webhook( $webhook_id );
+		$webhook    = \wc_get_webhook( $webhook_id );
 		if ( null == $webhook ) {
 			return \rest_ensure_response(
 				[
@@ -882,7 +882,7 @@ class Salesforce {
 	 */
 	private static function delete_webhook( $webhook_id ) {
 		delete_option( self::SALESFORCE_WEBHOOK_ID );
-		$webhook = wc_get_webhook( $webhook_id );
+		$webhook = \wc_get_webhook( $webhook_id );
 		if ( null !== $webhook ) {
 			$webhook->delete( true );
 		}
@@ -1317,7 +1317,7 @@ class Salesforce {
 	 * @param array $opportunities Array of Opportunity IDs from Salesforce.
 	 */
 	private static function save_opportunity_ids( $order_id, $opportunities ) {
-		$order = wc_get_order( $order_id );
+		$order = \wc_get_order( $order_id );
 		if ( ! $order ) {
 			return;
 		}
