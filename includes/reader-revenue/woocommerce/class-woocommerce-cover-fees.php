@@ -1,6 +1,6 @@
 <?php
 /**
- * Add ability to cover transaction fees for an order.
+ * Add ability to cover transaction fees for donations completed via supported payment gateways.
  *
  * @package Newspack
  */
@@ -13,7 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * WooCommerce Order UTM class.
  */
 class WooCommerce_Cover_Fees {
-	const CUSTOM_FIELD_NAME = 'newspack-wc-pay-fees';
+	const CUSTOM_FIELD_NAME  = 'newspack-wc-pay-fees';
+	const SUPPORTED_GATEWAYS = [ 'stripe' ];
 
 	/**
 	 * Initialize hooks.
@@ -23,7 +24,7 @@ class WooCommerce_Cover_Fees {
 		\add_action( 'woocommerce_checkout_update_order_review', [ __CLASS__, 'persist_fee_selection' ] );
 		\add_action( 'woocommerce_cart_calculate_fees', [ __CLASS__, 'add_transaction_fee' ] );
 		\add_action( 'woocommerce_checkout_order_processed', [ __CLASS__, 'add_order_note' ], 1, 3 );
-		\add_action( 'wc_stripe_payment_fields_stripe', [ __CLASS__, 'render_stripe_input' ] );
+		\add_action( 'newspack_blocks_after_payment_fields', [ __CLASS__, 'render_transaction_fee_input' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'print_checkout_helper_script' ] );
 	}
 
@@ -94,7 +95,7 @@ class WooCommerce_Cover_Fees {
 	 */
 	public static function add_order_note( $order_id, $posted_data, $order ) {
 		if ( \WC()->session->get( self::CUSTOM_FIELD_NAME ) ) {
-			$order->add_order_note( __( 'The donor opted to cover Stripe\'s transaction fee.', 'newspack-plugin' ) );
+			$order->add_order_note( __( 'The donor opted to cover transaction fees.', 'newspack-plugin' ) );
 		}
 	}
 
@@ -117,7 +118,7 @@ class WooCommerce_Cover_Fees {
 			// but at this point handling coupons + covering fees is an edge case.
 			return false;
 		}
-		if ( true !== boolval( get_option( 'newspack_donations_allow_covering_fees' ) ) ) {
+		if ( true !== boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ) ) {
 			return false;
 		}
 		return true;
@@ -134,7 +135,7 @@ class WooCommerce_Cover_Fees {
 		if ( ! self::should_allow_covering_fees() ) {
 			return false;
 		}
-		if ( ! isset( $data['payment_method'] ) || 'stripe' !== $data['payment_method'] ) {
+		if ( ! isset( $data['payment_method'] ) || ! in_array( $data['payment_method'], self::SUPPORTED_GATEWAYS, true ) ) {
 			return false;
 		}
 		if ( ! isset( $data[ self::CUSTOM_FIELD_NAME ] ) || '1' !== $data[ self::CUSTOM_FIELD_NAME ] ) {
@@ -144,17 +145,19 @@ class WooCommerce_Cover_Fees {
 	}
 
 	/**
-	 * Render the "cover fees" input for Stripe.
+	 * Render the "cover transaction fees" input for supported payment gateways.
+	 *
+	 * @param string $payment_gateway The slug for the payment gateway rendering these payment fields.
 	 */
-	public static function render_stripe_input() {
-		if ( ! self::should_allow_covering_fees() ) {
+	public static function render_transaction_fee_input( $payment_gateway ) {
+		if ( ! self::should_allow_covering_fees() || ! in_array( $payment_gateway, self::SUPPORTED_GATEWAYS, true ) ) {
 			return;
 		}
 		?>
 		<fieldset>
 			<p class="form-row newspack-cover-fees" style="display: flex;">
 				<input
-					id="<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>"
+					id="<?php echo esc_attr( self::CUSTOM_FIELD_NAME . '_' . $payment_gateway ); ?>"
 					name="<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>"
 					type="checkbox"
 					style="margin-right: 8px;"
@@ -163,7 +166,7 @@ class WooCommerce_Cover_Fees {
 						checked
 					<?php endif; ?>
 				/>
-				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?> style="display:inline;">
+				<label for=<?php echo esc_attr( self::CUSTOM_FIELD_NAME . '_' . $payment_gateway ); ?> style="display:inline;">
 					<?php
 					$custom_message = get_option( 'newspack_donations_allow_covering_fees_label', '' );
 					if ( ! empty( $custom_message ) ) {
@@ -211,26 +214,19 @@ class WooCommerce_Cover_Fees {
 			NEWSPACK_PLUGIN_VERSION,
 			[ 'in_footer' => true ]
 		);
-		wp_localize_script(
-			$handler,
-			'newspack_wc_cover_fees',
-			[
-				'custom_field_name' => self::CUSTOM_FIELD_NAME,
-			]
-		);
 	}
 
 	/**
 	 * Get the fee multiplier value.
 	 */
-	private static function get_stripe_fee_multiplier_value() {
+	private static function get_fee_multiplier_value() {
 		return floatval( get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ) );
 	}
 
 	/**
 	 * Get the fee static portion value.
 	 */
-	private static function get_stripe_fee_static_value() {
+	private static function get_fee_static_value() {
 		return floatval( get_option( 'newspack_blocks_donate_fee_static', '0.3' ) );
 	}
 
@@ -255,8 +251,8 @@ class WooCommerce_Cover_Fees {
 	 * @param float $subtotal The subtotal to calculate the fee for.
 	 */
 	public static function get_fee_value( $subtotal ) {
-		$fee_multiplier = self::get_stripe_fee_multiplier_value();
-		$fee_static     = self::get_stripe_fee_static_value();
+		$fee_multiplier = self::get_fee_multiplier_value();
+		$fee_static     = self::get_fee_static_value();
 		$fee            = ( ( ( $subtotal + $fee_static ) / ( 100 - $fee_multiplier ) ) * 100 - $subtotal );
 		return $fee;
 	}

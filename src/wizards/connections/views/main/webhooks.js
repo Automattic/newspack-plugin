@@ -8,7 +8,7 @@ import moment from 'moment';
  */
 import { sprintf, __ } from '@wordpress/i18n';
 import { CheckboxControl, MenuItem } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useRef } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { Icon, settings, check, close, reusableBlock, moreVertical } from '@wordpress/icons';
 import { ESCAPE } from '@wordpress/keycodes';
@@ -152,6 +152,8 @@ const Webhooks = () => {
 	const [ editing, setEditing ] = useState( false );
 	const [ editingError, setEditingError ] = useState( false );
 
+	const modalRef = useRef( null );
+
 	const fetchEndpoints = () => {
 		setInFlight( true );
 		apiFetch( { path: '/newspack/v1/webhooks/endpoints' } )
@@ -200,9 +202,27 @@ const Webhooks = () => {
 				setDeleting( false );
 			} );
 	};
+	const validateEndpoint = endpoint => {
+		const errors = [];
+		if ( ! endpoint.url ) {
+			errors.push( __( 'URL is required.', 'newspack-plugin' ) );
+		}
+		if ( ! endpoint.actions || ! endpoint.actions.length ) {
+			errors.push( __( 'At least one action is required.', 'newspack-plugin' ) );
+		}
+		if ( errors.length ) {
+			setEditingError( { message: errors.join( ' ' ) } );
+		} else {
+			setEditingError( false );
+		}
+		return errors;
+	}
 	const upsertEndpoint = endpoint => {
+		const errors = validateEndpoint( endpoint );
+		if ( errors.length ) {
+			return;
+		}
 		setInFlight( true );
-		setEditingError( false );
 		apiFetch( {
 			path: `/newspack/v1/webhooks/endpoints/${ endpoint.id || '' }`,
 			method: 'POST',
@@ -251,6 +271,12 @@ const Webhooks = () => {
 		setTestError( false );
 	}, [ editing ] );
 
+	useEffect( () => {
+		if ( editingError ) {
+			modalRef?.current?.querySelector('.components-modal__content')?.scrollTo( { top: 0, left: 0, behavior: 'smooth' } );
+		}
+	}, [ editingError ] );
+
 	return (
 		<Card noBorder className="mt64">
 			{ false !== error && <Notice isError noticeText={ error.message } /> }
@@ -266,7 +292,7 @@ const Webhooks = () => {
 				/>
 				<Button
 					variant="primary"
-					onClick={ () => setEditing( { global: true } ) }
+					onClick={ () => setEditing( {} ) }
 					disabled={ inFlight }
 				>
 					{ __( 'Add New Endpoint', 'newspack-plugin' ) }
@@ -298,17 +324,10 @@ const Webhooks = () => {
 								return (
 									<>
 										{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
-										{ endpoint.global ? (
-											<span className="newspack-webhooks__endpoint__action">
-												{ __( 'global', 'newspack-plugin' ) }
-											</span>
-										) : (
-											endpoint.actions.map( action => (
-												<span key={ action } className="newspack-webhooks__endpoint__action">
-													{ action }
-												</span>
-											) )
-										) }
+										{ endpoint.actions.map( action => (
+											<span key={ action } className="newspack-webhooks__endpoint__action">
+												{ action }
+											</span> ) ) }
 									</>
 								);
 							} }
@@ -439,6 +458,7 @@ const Webhooks = () => {
 			) }
 			{ false !== editing && (
 				<Modal
+					ref={ modalRef }
 					title={ __( 'Webhook Endpoint', 'newspack-plugin' ) }
 					onRequestClose={ () => {
 						setEditing( false );
@@ -521,21 +541,11 @@ const Webhooks = () => {
 					/>
 					<Grid columns={ 1 } gutter={ 16 }>
 						<h3>{ __( 'Actions', 'newspack-plugin' ) }</h3>
-						<CheckboxControl
-							checked={ editing.global }
-							onChange={ value => setEditing( { ...editing, global: value } ) }
-							label={ __( 'Global', 'newspack-plugin' ) }
-							help={ __(
-								'Leave this checked if you want this endpoint to receive data from all actions.',
-								'newspack-plugin'
-							) }
-							disabled={ inFlight }
-						/>
 						{ actions.length > 0 && (
 							<>
 								<p>
 									{ __(
-										'If this endpoint is not global, select which actions should trigger this endpoint:',
+										'Select which actions should trigger this endpoint:',
 										'newspack-plugin'
 									) }
 								</p>
@@ -543,10 +553,9 @@ const Webhooks = () => {
 									{ actions.map( ( action, i ) => (
 										<CheckboxControl
 											key={ i }
-											disabled={ editing.global || inFlight }
+											disabled={ inFlight }
 											label={ action }
 											checked={ ( editing.actions && editing.actions.includes( action ) ) || false }
-											indeterminate={ editing.global }
 											onChange={ () => {
 												const currentActions = editing.actions || [];
 												if ( currentActions.includes( action ) ) {

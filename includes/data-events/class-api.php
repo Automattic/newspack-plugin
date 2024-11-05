@@ -103,7 +103,7 @@ final class Api {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new \WP_Error(
 				'newspack_rest_forbidden',
-				esc_html__( 'You cannot use this resource.', 'newspack' ),
+				esc_html__( 'You cannot use this resource.', 'newspack-plugin' ),
 				[
 					'status' => 403,
 				]
@@ -129,9 +129,6 @@ final class Api {
 					'type'              => 'string',
 					'sanitize_callback' => 'sanitize_text_field',
 				],
-			],
-			'global'       => [
-				'type' => 'boolean',
 			],
 			'disabled'     => [
 				'type' => 'boolean',
@@ -169,7 +166,7 @@ final class Api {
 				[
 					'success' => false,
 					'code'    => false,
-					'message' => esc_html__( 'Invalid URL.', 'newspack' ),
+					'message' => esc_html__( 'Invalid URL.', 'newspack-plugin' ),
 				]
 			);
 		}
@@ -251,16 +248,16 @@ final class Api {
 		if ( empty( $args['url'] ) || \esc_url_raw( $args['url'], [ 'https' ] ) !== $args['url'] ) {
 			return new \WP_Error(
 				'newspack_webhooks_invalid_url',
-				esc_html__( 'Invalid URL.', 'newspack' ),
+				esc_html__( 'Invalid URL.', 'newspack-plugin' ),
 				[
 					'status' => 400,
 				]
 			);
 		}
-		if ( ! $args['global'] && empty( $args['actions'] ) ) {
+		if ( empty( $args['actions'] ) ) {
 			return new \WP_Error(
 				'newspack_webhooks_invalid_actions',
-				esc_html__( 'You must select actions to trigger this endpoint. Set it to global if this endpoint is meant for all actions.', 'newspack' ),
+				esc_html__( 'You must select actions to trigger this endpoint.', 'newspack-plugin' ),
 				[
 					'status' => 400,
 				]
@@ -269,15 +266,13 @@ final class Api {
 		if ( empty( $args['id'] ) ) {
 			$endpoint = Webhooks::create_endpoint(
 				$args['url'],
-				$args['actions'] ?? [],
-				$args['global']
+				$args['actions'] ?? []
 			);
 		} else {
 			$endpoint = Webhooks::update_endpoint(
 				$args['id'],
 				$args['url'],
 				$args['actions'] ?? [],
-				$args['global'],
 				$args['disabled']
 			);
 		}

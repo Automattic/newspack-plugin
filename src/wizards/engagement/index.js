@@ -19,7 +19,6 @@ import {
 	ReaderActivation,
 	ReaderActivationCampaign,
 	ReaderActivationComplete,
-	Newsletters,
 	Social,
 	RelatedContent,
 } from './views';
@@ -89,11 +88,6 @@ class EngagementWizard extends Component {
 				activeTabPaths: ['/reader-activation/*'],
 			},
 			{
-				label: __( 'Newsletters', 'newspack-plugin' ),
-				path: '/newsletters',
-				exact: true,
-			},
-			{
 				label: __( 'Social', 'newspack-plugin' ),
 				path: '/social',
 				exact: true,
@@ -146,15 +140,6 @@ class EngagementWizard extends Component {
 										'Preview and customize the reader activation prompts',
 										'newspack-plugin'
 									) }
-									{ ...props }
-								/>
-							) }
-						/>
-						<Route
-							path="/newsletters"
-							render={ () => (
-								<Newsletters
-									subHeaderText={ __( 'Configure your newsletter settings', 'newspack-plugin' ) }
 									{ ...props }
 								/>
 							) }
