@@ -79,20 +79,6 @@ class Co_Authors_Plus {
 	/**
 	 * Migrate Co-Authors Plus guest authors to regular users.
 	 *
-	 * ## OPTIONS
-	 *
-	 * [--live]
-	 * : Run the command in live mode, updating the subscriptions.
-	 *
-	 * [--verbose]
-	 * : Produce more output.
-	 *
-	 * [--user_logins]
-	 * : Comma-separated list of user logins. If provided, only WP Users with these logins will be processed.
-	 *
-	 * [--guest_author_ids]
-	 * : Comma-separated list of Guest Author IDs. If provided, only Gues Authors with these IDs will be processed.
-	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
 	 * @return void
@@ -135,11 +121,6 @@ class Co_Authors_Plus {
 	/**
 	 * Backfill Non-Editing Contributor role. Will add this role to any Subscriber/Customer
 	 * who has any posts assigned to them.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--live]
-	 * : Run the command in live mode, updating the subscriptions.
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
