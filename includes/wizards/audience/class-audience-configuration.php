@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack's Advertising Wizard
+ * Audience Configuration Wizard
  *
  * @package Newspack
  */
@@ -16,11 +16,16 @@ defined( 'ABSPATH' ) || exit;
  */
 class Audience_Configuration extends Wizard {
 
+	/**
+	 * Option to skip campaign setup.
+	 *
+	 * @var string
+	 */
 	const SKIP_CAMPAIGN_SETUP_OPTION = '_newspack_ras_skip_campaign_setup';
 
 	/**
 	 * Admin page slug.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $slug = 'newspack-audience-configuration';

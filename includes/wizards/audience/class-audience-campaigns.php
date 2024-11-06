@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack's Advertising Wizard
+ * Audience Campaigns Wizard
  *
  * @package Newspack
  */
