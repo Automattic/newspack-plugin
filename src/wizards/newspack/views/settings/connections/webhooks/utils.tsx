@@ -105,16 +105,16 @@ export function validateUrl( url: string ): string | false {
 /**
  * Validate an endpoint.
  *
- * @param endpointToValidate The endpoint to validate.
- * @return                   An array of error messages.
+ * @param endpoint The endpoint to validate.
+ * @return         An array of error messages.
  */
-export function validateEndpoint( endpointToValidate: Endpoint ): string[] {
+export function validateEndpoint( endpoint: Endpoint ): string[] {
 	const errors = [];
-	const urlError = validateUrl( endpointToValidate.url );
+	const urlError = validateUrl( endpoint.url );
 	if ( urlError ) {
 		errors.push( urlError );
 	}
-	if ( ! endpointToValidate.actions || ! endpointToValidate.actions.length ) {
+	if ( ! endpoint.actions || ! endpoint.actions.length ) {
 		errors.push( __( 'At least one action is required.', 'newspack-plugin' ) );
 	}
 	return errors;
