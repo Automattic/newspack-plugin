@@ -110,21 +110,28 @@ class Network_Wizard extends Wizard {
 		if ( isset( $screen_slug ) ) {
 			return $screen_slug;
 		}
+		$screen_slug = '';
 
-		$sanitized_page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sanitized_action    = sanitize_text_field( $_GET['action'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$sanitized_page      = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-		// @todo Post type add new: post-new.php?post_type={post_type} / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-		// @todo Post type edit: post.php?post={id}&action=edit / $current_screen->is_block_editor / stop css body class and admin header enqueue on block editor.
-
+		$sanitized_post_id   = sanitize_text_field( $_GET['post'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
 			// admin page screen: admin.php?page={page} .
 			$screen_slug = $sanitized_page;
 		} elseif ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
 			// post type list screen: edit.php?post_type={post_type} .
 			$screen_slug = $sanitized_post_type;
-		} else {
-			$screen_slug = '';
+		} elseif ( 'post-new.php' === $pagenow && 'newspack_hub_nodes' === $sanitized_post_type ) {
+			// add new node screen: post-new.php?post_type=newspack_hub_nodes .
+			// note: assumes non-block editor, otherwise we need to not set this.
+			$screen_slug = $sanitized_post_type;
+		}
+		elseif ( 'post.php' === $pagenow && 'edit' === $sanitized_action && 'newspack_hub_nodes' === get_post_type( $sanitized_post_id ) ) {
+			// edit node screen: post.php?post={ID}&action=edit
+			// note: assumes non-block editor, otherwise we need to not set this.
+			$screen_slug = 'newspack_hub_nodes';
 		}
 
 		return $screen_slug;
