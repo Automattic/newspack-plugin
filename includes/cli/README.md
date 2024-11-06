@@ -47,7 +47,7 @@ Set up a cron job to backfill any missing Co-Author plus author terms for posts.
 
 ### `wp newspack esp sync`
 
-Backfill script to resync of Reader Activation contact data to the connected ESP for all customers, migrated subscriptions, or specific customers, subscriptions, or orders by ID.
+Backfill script to resync Reader Activation contact data to the connected ESP for all customers, migrated subscriptions, or specific customers, subscriptions, or orders by ID.
 
 #### params
 - `--dry-run` - If passed, output results but do not execute the sync.
