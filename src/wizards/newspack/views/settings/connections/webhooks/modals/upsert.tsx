@@ -63,8 +63,6 @@ const Upsert = ( {
 		setAction( null, endpointId );
 	};
 
-
-
 	function upsertEndpoint( endpointToUpsert: Endpoint ) {
 		const errors = validateEndpoint( endpointToUpsert );
 		if ( errors.length ) {
