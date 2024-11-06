@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { settings, check, close, reusableBlock } from '@wordpress/icons';
 
@@ -80,4 +81,41 @@ export function getRequestStatusIcon(
  */
 export function hasEndpointErrors( endpoint: Endpoint ): boolean {
 	return endpoint.requests.some( request => request.errors.length );
+}
+
+/**
+ * Validate endpoint URL.
+ *
+ * @param url The URL to validate.
+ * @return    Error message if URL is invalid, false otherwise.
+ */
+export function validateUrl( url: string ): string | false {
+	if ( ! url ) {
+		return __( 'URL is required.', 'newspack-plugin' );
+	}
+	const pattern = new RegExp(
+		/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
+	);
+	if ( ! pattern.test( url ) ) {
+		return __( 'Invalid URL format.', 'newspack-plugin' );
+	}
+	return false;
+}
+
+/**
+ * Validate an endpoint.
+ *
+ * @param endpointToValidate The endpoint to validate.
+ * @return                   An array of error messages.
+ */
+export function validateEndpoint( endpointToValidate: Endpoint ): string[] {
+	const errors = [];
+	const urlError = validateUrl( endpointToValidate.url );
+	if ( urlError ) {
+		errors.push( urlError );
+	}
+	if ( ! endpointToValidate.actions || ! endpointToValidate.actions.length ) {
+		errors.push( __( 'At least one action is required.', 'newspack-plugin' ) );
+	}
+	return errors;
 }

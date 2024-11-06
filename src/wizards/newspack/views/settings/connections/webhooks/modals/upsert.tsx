@@ -24,6 +24,7 @@ import {
 	Modal,
 	Grid,
 } from '../../../../../../../components/src';
+import { validateEndpoint, validateUrl } from '../utils';
 
 /**
  * Checkbox control props override.
@@ -62,41 +63,15 @@ const Upsert = ( {
 		setAction( null, endpointId );
 	};
 
-	function validateUrl( url: string ): string | false {
-		if ( ! url ) {
-			return __( 'URL is required.', 'newspack-plugin' );
-		}
-		const pattern = new RegExp(
-			/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
-		);
-		if ( ! pattern.test( url ) ) {
-			return __( 'Invalid URL format.', 'newspack-plugin' );
-		}
-		return false;
-	}
 
-	function validateEndpoint( endpointToValidate: Endpoint ) {
-		const errors = [];
-		const urlError = validateUrl( endpointToValidate.url );
-		if ( urlError ) {
-			errors.push( urlError );
-		}
-		if ( ! endpointToValidate.actions || ! endpointToValidate.actions.length ) {
-			errors.push( __( 'At least one action is required.', 'newspack-plugin' ) );
-		}
-		if ( errors.length ) {
-			setError( errors.join( ' ' ) );
-		} else {
-			setError( null );
-		}
-		return errors;
-	}
 
 	function upsertEndpoint( endpointToUpsert: Endpoint ) {
 		const errors = validateEndpoint( endpointToUpsert );
 		if ( errors.length ) {
+			setError( errors.join( ' ' ) );
 			return;
 		}
+		setError( null );
 		wizardApiFetch< Endpoint[] >(
 			{
 				path: `/newspack/v1/webhooks/endpoints/${
