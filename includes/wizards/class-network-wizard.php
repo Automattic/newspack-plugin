@@ -127,8 +127,7 @@ class Network_Wizard extends Wizard {
 			// add new node screen: post-new.php?post_type=newspack_hub_nodes .
 			// note: assumes non-block editor, otherwise we need to not set this.
 			$screen_slug = $sanitized_post_type;
-		}
-		elseif ( 'post.php' === $pagenow && 'edit' === $sanitized_action && 'newspack_hub_nodes' === get_post_type( $sanitized_post_id ) ) {
+		} elseif ( 'post.php' === $pagenow && 'edit' === $sanitized_action && 'newspack_hub_nodes' === get_post_type( $sanitized_post_id ) ) {
 			// edit node screen: post.php?post={ID}&action=edit
 			// note: assumes non-block editor, otherwise we need to not set this.
 			$screen_slug = 'newspack_hub_nodes';
