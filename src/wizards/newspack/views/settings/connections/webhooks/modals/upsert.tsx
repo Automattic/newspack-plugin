@@ -6,7 +6,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useState, Fragment } from '@wordpress/element';
+import { useState, useEffect, useRef, Fragment } from '@wordpress/element';
 import {
 	CheckboxControl as WpCheckboxControl,
 	TextControl,
@@ -55,12 +55,48 @@ const Upsert = ( {
 		message?: string;
 	} >( {} );
 
+	const modalRef = useRef( null as HTMLElement | null );
+
 	const onSuccess = ( endpointId: string | number, response: Endpoint[] ) => {
 		setEndpoints( response );
 		setAction( null, endpointId );
 	};
 
+	function validateUrl( url: string ): string | false {
+		if ( ! url ) {
+			return __( 'URL is required.', 'newspack-plugin' );
+		}
+		const pattern = new RegExp(
+			/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
+		);
+		if ( ! pattern.test( url ) ) {
+			return __( 'Invalid URL format.', 'newspack-plugin' );
+		}
+		return false;
+	}
+
+	function validateEndpoint( endpointToValidate: Endpoint ) {
+		const errors = [];
+		const urlError = validateUrl( endpointToValidate.url );
+		if ( urlError ) {
+			errors.push( urlError );
+		}
+		if ( ! endpointToValidate.actions || ! endpointToValidate.actions.length ) {
+			errors.push( __( 'At least one action is required.', 'newspack-plugin' ) );
+		}
+		if ( errors.length ) {
+			setError( errors.join( ' ' ) );
+		} else {
+			setError( null );
+		}
+		return errors;
+	}
+
 	function upsertEndpoint( endpointToUpsert: Endpoint ) {
+		const errors = validateEndpoint( endpointToUpsert );
+		if ( errors.length ) {
+			return;
+		}
 		wizardApiFetch< Endpoint[] >(
 			{
 				path: `/newspack/v1/webhooks/endpoints/${
@@ -78,9 +114,14 @@ const Upsert = ( {
 	}
 
 	function testEndpoint(
-		url: string | undefined,
+		url: string,
 		bearer_token: string | undefined
 	) {
+		const urlError = validateUrl( url );
+		if ( urlError ) {
+			setError( urlError );
+			return;
+		}
 		wizardApiFetch< { success: boolean; code: number; message: string } >(
 			{
 				path: '/newspack/v1/webhooks/endpoints/test',
@@ -111,9 +152,16 @@ const Upsert = ( {
 		);
 	}
 
+	useEffect( () => {
+		if ( errorMessage ) {
+			modalRef?.current?.querySelector('.components-modal__content')?.scrollTo( { top: 0, left: 0, behavior: 'smooth' } );
+		}
+	}, [ errorMessage ] );
+
 	return (
 		<Fragment>
 			<Modal
+				ref={ modalRef }
 				title={ __( 'Webhook Endpoint', 'newspack-plugin' ) }
 				onRequestClose={ () => {
 					setAction( null, endpoint.id );
@@ -204,23 +252,11 @@ const Upsert = ( {
 				/>
 				<Grid columns={ 1 } gutter={ 16 }>
 					<h3>{ __( 'Actions', 'newspack-plugin' ) }</h3>
-					<CheckboxControl
-						checked={ editing.global }
-						onChange={ ( value: boolean ) =>
-							setEditing( { ...editing, global: value } )
-						}
-						label={ __( 'Global', 'newspack-plugin' ) }
-						help={ __(
-							'Leave this checked if you want this endpoint to receive data from all actions.',
-							'newspack-plugin'
-						) }
-						disabled={ inFlight }
-					/>
 					{ actions.length > 0 && (
 						<Fragment>
 							<p>
 								{ __(
-									'If this endpoint is not global, select which actions should trigger this endpoint:',
+									'Select which actions should trigger this endpoint:',
 									'newspack-plugin'
 								) }
 							</p>
@@ -228,7 +264,7 @@ const Upsert = ( {
 								{ actions.map( ( actionKey, i ) => (
 									<CheckboxControl
 										key={ i }
-										disabled={ editing.global || inFlight }
+										disabled={ inFlight }
 										label={ actionKey }
 										checked={
 											( editing.actions &&
@@ -237,7 +273,6 @@ const Upsert = ( {
 												) ) ||
 											false
 										}
-										indeterminate={ editing.global }
 										onChange={ () => {
 											const currentActions =
 												editing.actions || [];
