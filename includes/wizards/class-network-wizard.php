@@ -326,13 +326,16 @@ class Network_Wizard extends Wizard {
 	 * If the hidden array is defined before the parent slug array, then the HTML <title> is shown and no debug.log notice. To avoid this
 	 * issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally set the title here just in case.
 	 * 
-	 * @param string $hook Submenu hook
-	 * @param string $title HTML <title>
+	 * @param string $hook  Submenu hook.
+	 * @param string $title HTML <title>.
 	 * 
 	 * @return void
 	 */
 	public function set_html_title( $hook, $title ) {
-		add_action( "load-{$hook}", fn() => $GLOBALS['title'] = $title );
+		add_action(
+			"load-{$hook}",
+			fn() => $GLOBALS['title'] = $title // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, Squiz.PHP.DisallowMultipleAssignments.Found
+		);
 	}
 
 	/**
