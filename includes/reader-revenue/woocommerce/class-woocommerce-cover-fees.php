@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Cover_Fees {
 	const CUSTOM_FIELD_NAME  = 'newspack-wc-pay-fees';
-	const SUPPORTED_GATEWAYS = [ 'stripe' ];
+	const SUPPORTED_GATEWAYS = [ 'stripe', 'woocommerce_payments' ];
 
 	/**
 	 * Initialize hooks.
