@@ -31,6 +31,13 @@ class Components_Demo extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Admin Menu Hook Priority when calling 'admin_menu' action hook.
+	 *
+	 * @var int.
+	 */
+	protected $admin_menu_hook_priority = 100;
+
+	/**
 	 * Whether the wizard should be displayed in the Newspack submenu.
 	 *
 	 * @var bool.

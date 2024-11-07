@@ -48,6 +48,13 @@ class Advertising_Sponsors extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Admin Menu Hook Priority when calling 'admin_menu' action hook.
+	 *
+	 * @var int.
+	 */
+	protected $admin_menu_hook_priority = 99;
+
+	/**
 	 * Advertising_Sponsors Constructor.
 	 */
 	public function __construct() {
