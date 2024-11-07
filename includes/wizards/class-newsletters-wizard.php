@@ -324,15 +324,6 @@ class Newsletters_Wizard extends Wizard {
 			true
 		);
 
-		\wp_register_style(
-			'newspack-newsletters-wizard',
-			Newspack::plugin_url() . '/dist/newsletters.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
-		\wp_style_add_data( 'newspack-newsletters-wizard', 'rtl', 'replace' );
-		\wp_enqueue_style( 'newspack-newsletters-wizard' );
-
 		$data = [];
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
 			$data['new_subscription_lists_url'] = \Newspack\Newsletters\Subscription_Lists::get_add_new_url();
