@@ -10,10 +10,11 @@ import { SectionHeader } from '../components/src';
 /**
  * Section component.
  *
- * @param props             Component props.
- * @param props.title       Section title.
- * @param props.description Section description.
- * @param props.children    Section children.
+ * @param props                Component props.
+ * @param props.title          Section title.
+ * @param props.description    Section description.
+ * @param props.children       Section children.
+ * @param props.scrollToAnchor Scroll to anchor.
  *
  * @return Component.
  */
