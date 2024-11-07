@@ -7,10 +7,8 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { PrequisiteProps } from './types';
 import { ActionCard, Button, Grid, TextControl } from '../../../components/src';
 import { HANDOFF_KEY } from '../../../components/src/consts';
-import type { Config, ConfigKey } from './types';
 
 /**
  * Expandable ActionCard for RAS prerequisites checklist.
@@ -145,7 +143,7 @@ export default function Prerequisite( {
 													message: sprintf(
 														// Translators: %s is specific instructions for satisfying the prerequisite.
 														__(
-															'%1$s%2$sReturn to the Reader Activation page to complete the settings and activate%3$s.',
+															'%1$s%2$sReturn to the Audience Configuration page to complete the settings and activate%3$s.',
 															'newspack-plugin'
 														),
 														prerequisite.instructions +

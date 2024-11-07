@@ -2,7 +2,7 @@
  * Types for the Prequisite component.
  */
 
-export type PromptOptionsBase = {
+type PromptOptionsBase = {
 	background_color: string;
 	display_title: boolean;
 	hide_border: boolean;
@@ -26,27 +26,7 @@ export type PromptOptionsBase = {
 	utm_suppression: string;
 };
 
-export type PromptOptionsBaseKey = keyof PromptOptionsBase;
-
-declare global {
-	interface Window {
-		// Localized data on engagement wizard script.
-		newspackAudienceConfiguration: {
-			has_reader_activation: boolean;
-			has_memberships: boolean;
-			new_subscription_lists_url: string;
-			reader_activation_url: string;
-			preview_query_keys: {
-				[ K in PromptOptionsBaseKey ]: string;
-			};
-			preview_post: string;
-			preview_archive: string;
-		};
-		newspack_reader_revenue: {
-			can_use_name_your_price: boolean;
-		};
-	}
-}
+type PromptOptionsBaseKey = keyof PromptOptionsBase;
 
 // Available transactional email slugs.
 type EmailSlugs =
@@ -57,7 +37,7 @@ type EmailSlugs =
 	| 'reader-activation-delete-account';
 
 // RAS config inherited from RAS wizard view.
-export type Config = {
+type Config = {
 	enabled?: boolean;
 	enabled_account_link?: boolean;
 	account_link_menu_locations?: [ 'tertiary-menu' ];
@@ -88,10 +68,10 @@ export type Config = {
 	contact_email_address?: string;
 };
 
-export type ConfigKey = keyof Config;
+type ConfigKey = keyof Config;
 
 // Props for the Prequisite component.
-export type PrequisiteProps = {
+type PrequisiteProps = {
 	config: Config;
 	getSharedProps: (
 		configKey: string,
@@ -131,7 +111,7 @@ export type PrequisiteProps = {
 	};
 };
 
-export type InputField = {
+type InputField = {
 	name: string;
 	type: string;
 	label: string;
@@ -147,7 +127,7 @@ export type InputField = {
 };
 
 // Schema is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/trunk/includes/schemas/class-prompts.php
-export type PromptType = {
+type PromptType = {
 	status: string;
 	slug: string;
 	title: string;
@@ -170,7 +150,7 @@ export type PromptType = {
 	ready?: boolean;
 };
 
-export type PromptOptions = PromptOptionsBase & {
+type PromptOptions = PromptOptionsBase & {
 	post_types: Array< string >;
 	archive_page_types: Array< string >;
 	additional_classes: string;
@@ -206,13 +186,7 @@ export type PromptOptions = PromptOptionsBase & {
 	];
 };
 
-export type Attachment = {
-	id?: number;
-	source_url?: string;
-	url: string;
-};
-
-export type InputValues = {
+type InputValues = {
 	[ fieldName: string ]:
 		| string
 		| number
@@ -222,7 +196,7 @@ export type InputValues = {
 };
 
 // Props for the Prompt component.
-export type PromptProps = {
+type PromptProps = {
 	inFlight: boolean;
 	setInFlight: ( inFlight: boolean ) => void;
 	prompt: PromptType;

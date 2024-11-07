@@ -24,15 +24,6 @@ import { stringify } from 'qs';
  * Internal dependencies
  */
 import {
-	Attachment,
-	InputField,
-	InputValues,
-	PromptOptions,
-	PromptProps,
-	PromptType,
-	PromptOptionsBaseKey,
-} from './types';
-import {
 	ActionCard,
 	Button,
 	Grid,
@@ -42,6 +33,12 @@ import {
 	WebPreview,
 	hooks,
 } from '../../../components/src';
+
+type Attachment = {
+	id?: number;
+	source_url?: string;
+	url: string;
+};
 
 // Note: Schema and types for the `prompt` prop is defined in Newspack Campaigns: https://github.com/Automattic/newspack-popups/blob/trunk/includes/schemas/class-prompts.php
 export default function Prompt( {
@@ -370,9 +367,8 @@ export default function Prompt( {
 												label={ field.label }
 												disabled={ inFlight }
 												help={ `${
-													values[ field.name ]
 													// @ts-ignore To be fixed in the future perhaps.
-														?.length || 0
+													values[ field.name ]?.length || 0
 												} / ${ field.max_length }` }
 												onChange={ (
 													value: string
