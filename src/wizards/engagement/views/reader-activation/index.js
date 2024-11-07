@@ -451,7 +451,22 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						) }
 						{ ...getSharedProps( 'woocommerce_checkout_privacy_policy_text', 'text' ) }
 					/>
-
+					<TextControl
+						label={ __( 'Post-checkout success message', 'newspack-plugin' ) }
+						help={ __(
+							'The success message to display to readers after completing checkout.',
+							'newspack-plugin'
+						) }
+						{ ...getSharedProps( 'woocommerce_post_checkout_success_text', 'text' ) }
+					/>
+					<TextControl
+						label={ __( 'Post-checkout registration success message', 'newspack-plugin' ) }
+						help={ __(
+							'The success message to display to readers that have created a new account during checkout.',
+							'newspack-plugin'
+						) }
+						{ ...getSharedProps( 'woocommerce_post_checkout_registration_success_text', 'text' ) }
+					/>
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
@@ -482,6 +497,8 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									metadata_prefix: config.metadata_prefix,
 									woocommerce_registration_required: config.woocommerce_registration_required,
 									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
+									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
+									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
 								} );
 							} }
 							disabled={ inFlight }
