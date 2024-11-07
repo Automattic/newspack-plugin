@@ -73,6 +73,7 @@ class Network_Wizard extends Wizard {
 		if ( $this->is_wizard_page() ) {
 			
 			// Set active menu items for hidden screens.
+			add_filter( 'parent_file', [ $this, 'parent_file' ] );
 			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
 			// Add CSS to body.
@@ -314,6 +315,30 @@ class Network_Wizard extends Wizard {
 				$this->set_html_title( $hook, $title );
 			}
 		}
+	}
+
+	/**
+	 * Parent file filter. Used to determine active parent menu.
+	 * 
+	 * @param string $parent_file Parent file to be overridden.
+	 * 
+	 * @return string
+	 */
+	public function parent_file( $parent_file ) {
+
+		global $_wp_menu_nopriv, $_wp_real_parent_file;
+
+		$sanitized_page = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		// Note: get_admin_page_parent() in wp-admin/menu-header.php (line 50) could reset the returned parent_file.
+		// Hack: Try to make the returned value not get reset by adding to _wp_ arrays.
+		if ( empty( $parent_file ) && in_array( $sanitized_page, [ 'newspack-network-node', 'newspack-network-distributor-settings' ] ) ) {
+			$_wp_menu_nopriv[ $sanitized_page ] = true; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$_wp_real_parent_file[ $sanitized_page ] = 'newspack-network'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			return 'newspack-network';
+		}
+
+		return $parent_file;
 	}
 
 	/**
