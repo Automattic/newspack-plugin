@@ -72,7 +72,7 @@ export default withWizardScreen( () => {
 		setSkipped( { ...skipped, status: 'pending' } );
 		try {
 			const request = await apiFetch( {
-				path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/skip-campaign-setup',
+				path: '/newspack/v1/wizard/newspack-audience-configuration/reader-activation/skip-campaign-setup',
 				method: 'POST',
 				data: { skip: ! skipped.isSkipped },
 			} );
@@ -86,7 +86,7 @@ export default withWizardScreen( () => {
 			setSkipped( { isSkipped: Boolean( request.skipped ), status: '' } );
 			newspackAudienceConfiguration.is_skipped_campaign_setup =
 				request.skipped ? '1' : '';
-			history.push( '/reader-activation/complete' );
+			history.push( '/complete' );
 		} catch ( err ) {
 			setError( err );
 			setSkipped( { isSkipped: false, status: '' } );

@@ -48,7 +48,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
+			path: '/newspack/v1/wizard/newspack-audience-configuration/reader-activation',
 		} )
 			.then( ( { config: fetchedConfig, prerequisites_status, memberships, can_esp_sync } ) => {
 				setPrerequisites( prerequisites_status );
@@ -63,7 +63,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		setError( false );
 		setInFlight( true );
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
+			path: '/newspack/v1/wizard/newspack-audience-configuration/reader-activation',
 			method: 'post',
 			quiet: true,
 			data,
