@@ -7,6 +7,11 @@
 
 namespace Newspack;
 
+use Newspack\{
+	Newsletters,
+	Reader_Activation
+};
+use Newspack_Newsletters_Subscription;
 use WP_REST_Request, WP_REST_Response, WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
@@ -62,11 +67,11 @@ class Audience_Configuration extends Wizard {
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
-			$data['new_subscription_lists_url'] = \Newspack\Newsletters\Subscription_Lists::get_add_new_url();
+			$data['new_subscription_lists_url'] = Newsletters\Subscription_Lists::get_add_new_url();
 		}
 
 		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
-			$data['available_newsletter_lists'] = \Newspack_Newsletters_Subscription::get_lists();
+			$data['available_newsletter_lists'] = Newspack_Newsletters_Subscription::get_lists();
 		}
 
 		$newspack_popups = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
