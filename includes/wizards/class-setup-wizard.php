@@ -325,12 +325,14 @@ class Setup_Wizard extends Wizard {
 			}
 		}
 		$theme_mods['theme_colors'] = get_theme_mod( 'theme_colors', 'default' );
-		if ( 'default' === $theme_mods['theme_colors'] ) {
-			$theme_mods['primary_color_hex']   = newspack_get_primary_color();
-			$theme_mods['secondary_color_hex'] = newspack_get_secondary_color();
-		} else {
-			$theme_mods['primary_color_hex']   = get_theme_mod( 'primary_color_hex', newspack_get_primary_color() );
-			$theme_mods['secondary_color_hex'] = get_theme_mod( 'secondary_color_hex', newspack_get_secondary_color() );
+		if ( function_exists( '\newspack_get_primary_color' ) ) {
+			if ( 'default' === $theme_mods['theme_colors'] ) {
+				$theme_mods['primary_color_hex']   = \newspack_get_primary_color();
+				$theme_mods['secondary_color_hex'] = \newspack_get_secondary_color();
+			} else {
+				$theme_mods['primary_color_hex']   = get_theme_mod( 'primary_color_hex', \newspack_get_primary_color() );
+				$theme_mods['secondary_color_hex'] = get_theme_mod( 'secondary_color_hex', \newspack_get_secondary_color() );
+			}
 		}
 
 		// Set custom header color to primary, if not set.
