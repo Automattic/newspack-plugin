@@ -269,14 +269,16 @@ class Network_Wizard extends Wizard {
 			// Note: this will leave only "Site Role" in the submenu, so WordPress will collapse the menu.
 			if ( is_callable( [ Newspack_Network_Node_Settings::class, 'render' ] ) ) {
 				remove_submenu_page( $this->parent_menu, 'newspack-network-node' );
-				add_submenu_page(
+				$title = __( 'Node Settings', 'newspack-plugin' );
+				$hook = add_submenu_page(
 					'', // hidden.
-					__( 'Node Settings', 'newspack-plugin' ),
+					$title,
 					__( 'Node Settings', 'newspack-plugin' ),
 					'manage_options', // copied from original.
 					'newspack-network-node',
 					[ Newspack_Network_Node_Settings::class, 'render' ]
 				);
+				$this->set_html_title( $hook, $title );
 			}
 		}
 
@@ -300,16 +302,37 @@ class Network_Wizard extends Wizard {
 			// Re-add "Distributor Settings" as hidden page.
 			if ( is_callable( [ Newspack_Network_Hub_Distributor_Settings::class, 'render' ] ) ) {
 				remove_submenu_page( $this->parent_menu, 'newspack-network-distributor-settings' );
-				add_submenu_page(
+				$title = __( 'Distributor Settings', 'newspack-plugin' );
+				$hook = add_submenu_page(
 					'', // hidden.
-					__( 'Distributor Settings', 'newspack-plugin' ),
+					$title,
 					__( 'Distributor Settings', 'newspack-plugin' ),
 					'manage_options', // copied from original.
 					'newspack-network-distributor-settings',
 					[ Newspack_Network_Hub_Distributor_Settings::class, 'render' ]
 				);
+				$this->set_html_title( $hook, $title );
 			}
 		}
+	}
+
+	/**
+	 * Set HTML <title>
+	 * 
+	 * In cases where the $submenu hidden item array ( $submenu[''] = array of hidden submenu items ) is defined after the parent_slug's
+	 * item array ( $submenu['post type url or menu-slug'] = array of submenu items ), the HTML <title> will not be set and a debug.log
+	 * deprecated notice will be written: PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
+	 * 
+	 * If the hidden array is defined before the parent slug array, then the HTML <title> is shown and no debug.log notice. To avoid this
+	 * issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally set the title here just in case.
+	 * 
+	 * @param string $hook Submenu hook
+	 * @param string $title HTML <title>
+	 * 
+	 * @return void
+	 */
+	public function set_html_title( $hook, $title ) {
+		add_action( "load-{$hook}", fn() => $GLOBALS['title'] = $title );
 	}
 
 	/**
