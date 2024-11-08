@@ -438,7 +438,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							'newspack-plugin'
 						) }
 						help={ __(
-							'Prompt users who are not logged in to sign in or register a new account before proceeding to checkout.',
+							'Prompt users who are not logged in to sign in or register a new account before proceeding to checkout. When disabled, an account will automatically be created with the email address used at checkout.',
 							'newspack-plugin'
 						) }
 						checked={ config.woocommerce_registration_required }
