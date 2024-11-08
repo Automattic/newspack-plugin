@@ -2415,7 +2415,7 @@ final class Reader_Activation {
 			sprintf(
 				// Translators: %s is the name of the site.
 				__(
-					'Thank you for supporting %s. Your transaction was successful.',
+					'Thank you for supporting %s. Your transaction was completed successfully.',
 					'newspack-plugin'
 				),
 				html_entity_decode( get_bloginfo( 'name' ) )
@@ -2434,7 +2434,7 @@ final class Reader_Activation {
 			sprintf(
 				// Translators: %s is the name of the site.
 				__(
-					'Thank you for supporting %s. Your account was created and your transaction was completed successfully.',
+					'Thank you for supporting %s. Your account has been created, and your transaction was completed successfully.',
 					'newspack-plugin'
 				),
 				html_entity_decode( get_bloginfo( 'name' ) )
