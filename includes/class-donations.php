@@ -747,6 +747,11 @@ class Donations {
 				[],
 				$cart_item_data
 			);
+
+			// Set checkout registration flag if user is not logged in.
+			if ( ! is_user_logged_in() && class_exists( '\Newspack_Blocks\Modal_Checkout' ) ) {
+				\Newspack_Blocks\Modal_Checkout::set_checkout_registration_flag();
+			}
 		}
 
 		$query_args = [];
