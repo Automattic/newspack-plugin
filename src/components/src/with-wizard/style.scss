@@ -5,13 +5,6 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "../../../shared/scss/colors";
 
-// Fix update nag margins for admin-header-only pages.
-body.newspack-wizard-page.newspack-admin-header {
-	.update-nag {
-		margin-bottom: 25px;
-	}
-}
-
 // Reset Padding of the Admin Page for full react pages (ignoring admin-header-only pages).
 body.newspack-wizard-page:not(.newspack-admin-header) {
 
@@ -19,12 +12,6 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 
 	#wpcontent {
 		padding-left: 0;
-
-		// Fix update nag margins.
-		.update-nag {
-			margin-bottom: 25px;
-			margin-left: 22px;
-		}
 	}
 
 	#wpbody-content {
@@ -39,6 +26,17 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 			padding-bottom: 168px;
 		}
 	}
+}
+
+// Fix notifications margins for all wizards (full-react and admin-header-only pages).
+body.newspack-wizard-page {
+
+	// Only apply when notices are directly ">" at top of page above the header area (ie: not in "wrap" content).
+	#wpbody-content > .notice {
+		margin-bottom: 20px;
+		margin-left: 22px;
+	}
+
 }
 
 svg {
