@@ -55,6 +55,9 @@ class Salesforce {
 	 * doesn't exist, create it.
 	 */
 	public static function platform_check() {
+		if ( ! function_exists( 'wc_get_webhook' ) ) {
+			return;
+		}
 		$is_newspack = Donations::is_platform_wc();
 		$webhook_id  = self::get_webhook();
 
