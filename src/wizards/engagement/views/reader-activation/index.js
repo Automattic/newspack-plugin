@@ -453,14 +453,16 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							) }
 							{ ...getSharedProps( 'woocommerce_post_checkout_success_text', 'text' ) }
 						/>
-						<TextareaControl
-							label={ __( 'Post-checkout registration success message', 'newspack-plugin' ) }
-							help={ __(
-								'The success message to display to readers that have created a new account during checkout.',
-								'newspack-plugin'
-							) }
-							{ ...getSharedProps( 'woocommerce_post_checkout_registration_success_text', 'text' ) }
-						/>
+						{ config.woocommerce_registration_required && (
+							<TextareaControl
+								label={ __( 'Post-checkout registration success message', 'newspack-plugin' ) }
+								help={ __(
+									'The success message to display to readers that have created a new account during checkout.',
+									'newspack-plugin'
+								) }
+								{ ...getSharedProps( 'woocommerce_post_checkout_registration_success_text', 'text' ) }
+							/>
+						) }
 					</Grid>
 					<Grid>
 						<TextareaControl
