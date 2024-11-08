@@ -453,7 +453,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							) }
 							{ ...getSharedProps( 'woocommerce_post_checkout_success_text', 'text' ) }
 						/>
-						{ config.woocommerce_registration_required && (
+						{ ! config.woocommerce_registration_required && (
 							<TextareaControl
 								label={ __( 'Post-checkout registration success message', 'newspack-plugin' ) }
 								help={ __(
