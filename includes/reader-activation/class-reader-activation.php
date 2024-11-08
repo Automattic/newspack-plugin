@@ -342,6 +342,8 @@ final class Reader_Activation {
 			'contact_email_address'                    => Emails::get_reply_to_email(),
 			'woocommerce_registration_required'        => false,
 			'woocommerce_checkout_privacy_policy_text' => self::get_checkout_privacy_policy_text(),
+			'woocommerce_post_checkout_success_text'   => self::get_post_checkout_success_text(),
+			'woocommerce_post_checkout_registration_success_text' => self::get_post_checkout_registration_success_text(),
 		];
 
 		/**
@@ -2398,6 +2400,44 @@ final class Reader_Activation {
 			__(
 				"Your personal data will be used to process your order and create an account if one doesn't exist. This information will also support your experience throughout this website, and be used for other purposes described in our privacy policy.",
 				'newspack-plugin'
+			)
+		);
+	}
+
+	/**
+	 * Modal checkout success text.
+	 *
+	 * @return string Post checkout success text.
+	 */
+	public static function get_post_checkout_success_text() {
+		return \get_option(
+			self::OPTIONS_PREFIX . 'woocommerce_post_checkout_success_text',
+			sprintf(
+				// Translators: %s is the name of the site.
+				__(
+					'Thank you for supporting %s. Your transaction was completed successfully.',
+					'newspack-plugin'
+				),
+				html_entity_decode( get_bloginfo( 'name' ) )
+			)
+		);
+	}
+
+	/**
+	 * Modal checkout registration success text.
+	 *
+	 * @return string Post checkout registration success text.
+	 */
+	public static function get_post_checkout_registration_success_text() {
+		return \get_option(
+			self::OPTIONS_PREFIX . 'woocommerce_post_checkout_registration_success_text',
+			sprintf(
+				// Translators: %s is the name of the site.
+				__(
+					'Thank you for supporting %s. Your account has been created, and your transaction was completed successfully.',
+					'newspack-plugin'
+				),
+				html_entity_decode( get_bloginfo( 'name' ) )
 			)
 		);
 	}

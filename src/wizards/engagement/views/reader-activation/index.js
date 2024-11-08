@@ -3,7 +3,7 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, TextareaControl, ToggleControl } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -14,6 +14,7 @@ import {
 	ActionCard,
 	Button,
 	Card,
+	Grid,
 	Notice,
 	PluginInstaller,
 	SectionHeader,
@@ -431,27 +432,48 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 
 					<SectionHeader title={ __( 'Checkout Configuration', 'newspack-plugin' ) } />
 
-					<ActionCard
-						title={ __(
-							'Prompt logged out readers to sign in or register a new account before checkout',
+					<ToggleControl
+						label={ __(
+							'Require sign in or create account before checkout',
 							'newspack-plugin'
 						) }
-						description={ __(
-							'Require logged out readers to sign in or register a new account before proceeding to checkout.',
-							'newspack-plugin'
-						) }
-						toggleChecked={ config.woocommerce_registration_required }
-						toggleOnChange={ value => updateConfig( 'woocommerce_registration_required', value ) }
-					/>
-					<TextControl
-						label={ __( 'Checkout privacy policy text', 'newspack-plugin' ) }
 						help={ __(
-							'The privacy policy text to display at time of checkout for existing users. This will not show up unless a privacy page is set.',
+							'Prompt users who are not logged in to sign in or register a new account before proceeding to checkout. When disabled, an account will automatically be created with the email address used at checkout.',
 							'newspack-plugin'
 						) }
-						{ ...getSharedProps( 'woocommerce_checkout_privacy_policy_text', 'text' ) }
+						checked={ config.woocommerce_registration_required }
+						onChange={ value => updateConfig( 'woocommerce_registration_required', value ) }
 					/>
-
+					<Grid>
+						<TextareaControl
+							label={ __( 'Post-checkout success message', 'newspack-plugin' ) }
+							help={ __(
+								'The success message to display to readers after completing checkout.',
+								'newspack-plugin'
+							) }
+							{ ...getSharedProps( 'woocommerce_post_checkout_success_text', 'text' ) }
+						/>
+						{ ! config.woocommerce_registration_required && (
+							<TextareaControl
+								label={ __( 'Post-checkout registration success message', 'newspack-plugin' ) }
+								help={ __(
+									'The success message to display to new readers that have an account automatically created after completing checkout.',
+									'newspack-plugin'
+								) }
+								{ ...getSharedProps( 'woocommerce_post_checkout_registration_success_text', 'text' ) }
+							/>
+						) }
+					</Grid>
+					<Grid>
+						<TextareaControl
+							label={ __( 'Checkout privacy policy text', 'newspack-plugin' ) }
+							help={ __(
+								'The privacy policy text to display at time of checkout for existing users. This will not show up unless a privacy page is set.',
+								'newspack-plugin'
+							) }
+							{ ...getSharedProps( 'woocommerce_checkout_privacy_policy_text', 'text' ) }
+						/>
+					</Grid>
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
@@ -482,6 +504,8 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									metadata_prefix: config.metadata_prefix,
 									woocommerce_registration_required: config.woocommerce_registration_required,
 									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
+									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
+									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
 								} );
 							} }
 							disabled={ inFlight }
