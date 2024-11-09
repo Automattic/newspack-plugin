@@ -7,7 +7,7 @@
 
 namespace Newspack;
 
-use Newspack_Sponsors\Settings;
+use Newspack_Sponsors\Settings as Newspack_Sponsors_Settings;
 use Newspack\Wizards\Traits\Admin_Header;
 
 defined( 'ABSPATH' ) || exit;
@@ -48,13 +48,6 @@ class Advertising_Sponsors extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Admin Menu Hook Priority when calling 'admin_menu' action hook.
-	 *
-	 * @var int.
-	 */
-	protected $admin_menu_hook_priority = 99;
-
-	/**
 	 * Advertising_Sponsors Constructor.
 	 */
 	public function __construct() {
@@ -63,7 +56,9 @@ class Advertising_Sponsors extends Wizard {
 		}
 		parent::__construct();
 
-		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
+		// Must be run after Sponsors Plugin's 'admin_menu' has run.
+		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ], 11 );
+		// Remove Sponsors CPT from the parent menu.
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
 		// Below filters are used to determine active menu items.
@@ -134,24 +129,18 @@ class Advertising_Sponsors extends Wizard {
 	 * Move Sponsors CPT menu item under the ($) Advertising menu.
 	 */
 	public function move_sponsors_cpt_menu() {
-		global $submenu;
-		$parent_slug = 'advertising-display-ads';
-		if ( isset( $submenu[ $parent_slug ] ) ) {
-			$submenu[ $parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				__( 'Sponsors', 'newspack-plugin' ),
-				'manage_options',
-				static::URL,
-			);
-		}
 
-		// Register Settings page.
+		// Remove the Settings page added by Sponsors Plugin.
+		remove_submenu_page( 'edit.php?post_type=newspack_spnsrs_cpt', 'newspack-sponsors-settings-admin' );
+
+		// Re-add the Settings page as hidden.
 		add_submenu_page(
 			'', // No parent menu item, means its not on the menu.
-			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-sponsors' ),
-			__( 'Settings', 'newspack-sponsors' ),
+			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-plugin' ),
+			__( 'Settings', 'newspack-plugin' ),
 			'manage_options',
 			'newspack-sponsors-settings-admin',
-			[ Settings::class, 'create_admin_page' ]
+			[ Newspack_Sponsors_Settings::class, 'create_admin_page' ]
 		);
 	}
 
@@ -165,7 +154,7 @@ class Advertising_Sponsors extends Wizard {
 	public function update_sponsors_cpt_args( $args, $post_type ) {
 		if ( $post_type === static::CPT_NAME ) {
 			// Move the CPT under the Advertising menu. Necessary to hide default Sponsors CPT menu item.
-			$args['show_in_menu'] = static::PARENT_URL;
+			$args['show_in_menu'] = 'advertising-display-ads';
 		}
 		return $args;
 	}

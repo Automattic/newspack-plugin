@@ -70,15 +70,6 @@ class Advertising_Display_Ads extends Wizard {
 	public $menu_order = 4;
 
 	/**
-	 * Admin Menu Hook Priority when calling 'admin_menu' action hook.
-	 *
-	 * Important: keep this at 2 otherwise parent menu won't expand/highlight for class-advertising-sponsors.php
-	 * 
-	 * @var int.
-	 */
-	protected $admin_menu_hook_priority = 2;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -577,7 +568,8 @@ class Advertising_Display_Ads extends Wizard {
 			__( 'Display Ads', 'newspack-plugin' ),
 			$this->capability,
 			$this->slug,
-			array( $this, 'render_wizard' )
+			array( $this, 'render_wizard' ),
+			0 // Make sure this is first item in submenu. CPTs seem to be added at position "1" .
 		);
 	}
 }
