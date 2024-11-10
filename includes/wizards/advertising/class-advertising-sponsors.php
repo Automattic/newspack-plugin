@@ -68,11 +68,10 @@ class Advertising_Sponsors extends Wizard {
 		// Move Sponsors Settings page (after Sponsors Plugin loads - set priority > 10 ).
 		add_action( 'admin_menu', [ $this, 'move_sponsors_settings_menu' ], 11 );
 
+		// Determine active menu items.
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+		
 		if ( $this->is_wizard_page() ) {
-
-			// Below filters are used to determine active menu items.
-			add_filter( 'parent_file', [ $this, 'parent_file' ] );
-			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
 			// Add CSS classes by calling parent add_body_class() .
 			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
@@ -129,14 +128,16 @@ class Advertising_Sponsors extends Wizard {
 		// Re-add the Settings page as hidden if we're on the CPT screen.
 		if ( $this->is_wizard_page() ) {
 
-			add_submenu_page(
+			$title = __( 'Newspack Sponsors: Site-Wide Settings', 'newspack-plugin' );
+			$hook = add_submenu_page(
 				'', // No parent menu item, means its not on the menu.
-				__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-plugin' ),
+				$title,
 				__( 'Settings', 'newspack-plugin' ),
 				$this->capability,
 				'newspack-sponsors-settings-admin',
 				[ Newspack_Sponsors_Settings::class, 'create_admin_page' ]
 			);
+			$this->fix_hidden_screen_title( $hook, $title );
 
 		}
 	}
@@ -157,33 +158,13 @@ class Advertising_Sponsors extends Wizard {
 	}
 
 	/**
-	 * Parent file filter. Used to determine active menu items.
-	 *
-	 * @param string $parent_file Parent file to be overridden.
-	 * @return string
-	 */
-	public function parent_file( $parent_file ) {
-		global $pagenow, $typenow;
-
-		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
-			return static::PARENT_SLUG;
-		}
-
-		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return static::PARENT_URL;
-		}
-
-		return $parent_file;
-	}
-
-	/**
 	 * Submenu file filter. Used to determine active submenu items.
 	 *
 	 * @param string $submenu_file Submenu file to be overridden.
 	 * @return string
 	 */
 	public function submenu_file( $submenu_file ) {
-		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['post_type'] ) && $_GET['post_type'] === static::CPT_NAME ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return static::CPT_URL;
 		}
 

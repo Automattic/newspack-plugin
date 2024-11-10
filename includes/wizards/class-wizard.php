@@ -308,4 +308,26 @@ abstract class Wizard {
 		$classes .= ' newspack-wizard-page';
 		return $classes;
 	}
+
+	/**
+	 * Fix Hidden Screen's HTML <title>
+	 * 
+	 * In cases where the $submenu hidden item array ( $submenu[''] = array of hidden submenu items ) is defined after the parent_slug's
+	 * item array ( $submenu['post type url or menu-slug'] = array of submenu items ), the HTML <title> will not be set and a debug.log
+	 * deprecated notice will be written: PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
+	 * 
+	 * If the hidden array is defined before the parent slug array, then the HTML <title> is shown and no debug.log notice. To avoid this
+	 * issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally set the title here just in case.
+	 * 
+	 * @param string $hook  Submenu hook.
+	 * @param string $title HTML <title>.
+	 * 
+	 * @return void
+	 */
+	public function fix_hidden_screen_title( $hook, $title ) {
+		add_action(
+			"load-{$hook}",
+			fn() => $GLOBALS['title'] = $title // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited, Squiz.PHP.DisallowMultipleAssignments.Found
+		);
+	}
 }
