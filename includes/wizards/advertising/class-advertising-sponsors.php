@@ -129,7 +129,7 @@ class Advertising_Sponsors extends Wizard {
 		if ( $this->is_wizard_page() ) {
 
 			$title = __( 'Newspack Sponsors: Site-Wide Settings', 'newspack-plugin' );
-			$hook = add_submenu_page(
+			add_submenu_page(
 				'', // No parent menu item, means its not on the menu.
 				$title,
 				__( 'Settings', 'newspack-plugin' ),
@@ -137,7 +137,7 @@ class Advertising_Sponsors extends Wizard {
 				'newspack-sponsors-settings-admin',
 				[ Newspack_Sponsors_Settings::class, 'create_admin_page' ]
 			);
-			$this->fix_hidden_screen_title( $hook, $title );
+			$this->fix_hidden_screen_title( 'admin_page_newspack-sponsors-settings-admin', $title );
 
 		}
 	}
