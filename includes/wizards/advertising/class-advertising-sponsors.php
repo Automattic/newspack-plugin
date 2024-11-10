@@ -31,7 +31,14 @@ class Advertising_Sponsors extends Wizard {
 	 *
 	 * @var string
 	 */
-	const URL = 'edit.php?post_type=newspack_spnsrs_cpt';
+	const CPT_URL = 'edit.php?post_type=newspack_spnsrs_cpt';
+
+	/**
+	 * Advertising Page slug.
+	 *
+	 * @var string
+	 */
+	const PARENT_SLUG = 'advertising-display-ads';
 
 	/**
 	 * Advertising Page path.
@@ -54,29 +61,33 @@ class Advertising_Sponsors extends Wizard {
 		if ( ! is_plugin_active( 'newspack-sponsors/newspack-sponsors.php' ) ) {
 			return;
 		}
-		parent::__construct();
 
-		// Must be run after Sponsors Plugin's 'admin_menu' has run.
-		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ], 11 );
-		// Remove Sponsors CPT from the parent menu.
+		// Move Sponsors CPT under Advertising menu.
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
-		// Below filters are used to determine active menu items.
-		add_filter( 'parent_file', [ $this, 'parent_file' ] );
-		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+		// Move Sponsors Settings page (after Sponsors Plugin loads - set priority > 10 ).
+		add_action( 'admin_menu', [ $this, 'move_sponsors_settings_menu' ], 11 );
 
 		if ( $this->is_wizard_page() ) {
+
+			// Below filters are used to determine active menu items.
+			add_filter( 'parent_file', [ $this, 'parent_file' ] );
+			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+
+			// Add CSS classes by calling parent add_body_class() .
+			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
+
 			// Initialize Wizards Admin Header.
 			$this->admin_header_init(
 				[
 					'tabs'  => [
 						[
 							'textContent' => esc_html__( 'All Sponsors', 'newspack-plugin' ),
-							'href'        => admin_url( static::URL ),
+							'href'        => admin_url( static::CPT_URL ),
 						],
 						[
 							'textContent' => esc_html__( 'Settings', 'newspack-plugin' ),
-							'href'        => admin_url( static::URL . '&page=newspack-sponsors-settings-admin' ),
+							'href'        => admin_url( static::CPT_URL . '&page=newspack-sponsors-settings-admin' ),
 						],
 					],
 					'title' => $this->get_name(),
@@ -108,40 +119,26 @@ class Advertising_Sponsors extends Wizard {
 	}
 
 	/**
-	 * Enqueue scripts and styles.
+	 * Move the Sponsors Settings menu location.
 	 */
-	public function enqueue_scripts_and_styles() {
-		if ( ! $this->is_wizard_page() ) {
-			return;
+	public function move_sponsors_settings_menu() {
+
+		// Remove the Settings page that was added by Sponsors Plugin.
+		remove_submenu_page( static::CPT_URL, 'newspack-sponsors-settings-admin' );
+
+		// Re-add the Settings page as hidden if we're on the CPT screen.
+		if ( $this->is_wizard_page() ) {
+
+			add_submenu_page(
+				'', // No parent menu item, means its not on the menu.
+				__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-plugin' ),
+				__( 'Settings', 'newspack-plugin' ),
+				$this->capability,
+				'newspack-sponsors-settings-admin',
+				[ Newspack_Sponsors_Settings::class, 'create_admin_page' ]
+			);
+
 		}
-		Newspack::load_common_assets();
-		wp_register_style(
-			'advertising-display-ads',
-			Newspack::plugin_url() . '/dist/billboard.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
-		wp_style_add_data( 'advertising-display-ads', 'rtl', 'replace' );
-		wp_enqueue_style( 'advertising-display-ads' );
-	}
-
-	/**
-	 * Move Sponsors CPT menu item under the ($) Advertising menu.
-	 */
-	public function move_sponsors_cpt_menu() {
-
-		// Remove the Settings page added by Sponsors Plugin.
-		remove_submenu_page( 'edit.php?post_type=newspack_spnsrs_cpt', 'newspack-sponsors-settings-admin' );
-
-		// Re-add the Settings page as hidden.
-		add_submenu_page(
-			'', // No parent menu item, means its not on the menu.
-			__( 'Newspack Sponsors: Site-Wide Settings', 'newspack-plugin' ),
-			__( 'Settings', 'newspack-plugin' ),
-			'manage_options',
-			'newspack-sponsors-settings-admin',
-			[ Newspack_Sponsors_Settings::class, 'create_admin_page' ]
-		);
 	}
 
 	/**
@@ -154,7 +151,7 @@ class Advertising_Sponsors extends Wizard {
 	public function update_sponsors_cpt_args( $args, $post_type ) {
 		if ( $post_type === static::CPT_NAME ) {
 			// Move the CPT under the Advertising menu. Necessary to hide default Sponsors CPT menu item.
-			$args['show_in_menu'] = 'advertising-display-ads';
+			$args['show_in_menu'] = static::PARENT_SLUG;
 		}
 		return $args;
 	}
@@ -169,7 +166,7 @@ class Advertising_Sponsors extends Wizard {
 		global $pagenow, $typenow;
 
 		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
-			return 'advertising-display-ads';
+			return static::PARENT_SLUG;
 		}
 
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -187,7 +184,7 @@ class Advertising_Sponsors extends Wizard {
 	 */
 	public function submenu_file( $submenu_file ) {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return static::URL;
+			return static::CPT_URL;
 		}
 
 		return $submenu_file;

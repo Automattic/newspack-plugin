@@ -569,7 +569,7 @@ class Advertising_Display_Ads extends Wizard {
 			$this->capability,
 			$this->slug,
 			array( $this, 'render_wizard' ),
-			0 // Make sure this is first item in submenu. CPTs seem to be added at position "1" .
+			0 // Make sure this is first item in submenu.
 		);
 	}
 }
