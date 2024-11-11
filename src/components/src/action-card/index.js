@@ -40,6 +40,7 @@ class ActionCard extends Component {
 	render() {
 		const {
 			badge,
+			badgeLevel = 'info',
 			className,
 			checkbox,
 			children,
@@ -70,6 +71,7 @@ class ActionCard extends Component {
 			toggleOnChange,
 			hasGreyHeader,
 			hasWhiteHeader,
+			noBorder,
 			isPending,
 			expandable = false,
 			isButtonEnabled = false
@@ -103,7 +105,7 @@ class ActionCard extends Component {
 		const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 		return (
-			<Card className={ classes } onClick={ simple && onClick }>
+			<Card className={ classes } onClick={ simple && onClick } noBorder={ noBorder }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ toggleOnChange && (
 						<ToggleControl
@@ -150,7 +152,7 @@ class ActionCard extends Component {
 								</span>
 								{ badges?.length &&
 									badges.map( ( badgeText, i ) => (
-										<span key={ `badge-${ i }` } className="newspack-action-card__badge">
+										<span key={ `badge-${ i }` } className={ `newspack-action-card__badge newspack-action-card__badge-level-${ badgeLevel }` }>
 											{ badgeText }
 										</span>
 									) ) }

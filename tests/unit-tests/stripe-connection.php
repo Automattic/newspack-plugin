@@ -41,22 +41,15 @@ class Newspack_Test_Stripe extends WP_UnitTestCase {
 		Stripe_Connection::update_stripe_data( [ 'enabled' => true ] );
 
 		$expected_data = [
-			'enabled'                     => true,
-			'testMode'                    => false,
-			'usedPublishableKey'          => null,
-			'usedSecretKey'               => null,
-			'publishableKey'              => null,
-			'secretKey'                   => null,
-			'testPublishableKey'          => null,
-			'testSecretKey'               => null,
-			'fee_multiplier'              => '2.9',
-			'fee_static'                  => '0.3',
-			'currency'                    => 'USD',
-			'location_code'               => 'US',
-			'newsletter_list_id'          => '',
-			'allow_covering_fees'         => true,
-			'allow_covering_fees_default' => false,
-			'allow_covering_fees_label'   => '',
+			'enabled'                 => true,
+			'testMode'                => false,
+			'currency'                => 'USD',
+			'location_code'           => 'US',
+			'is_connected_api_test'   => false,
+			'is_connected_api_live'   => false,
+			'is_connected_oauth_test' => false,
+			'is_connected_oauth_live' => false,
+			'legacy_checkout_enabled' => false,
 		];
 		self::assertEquals(
 			$expected_data,

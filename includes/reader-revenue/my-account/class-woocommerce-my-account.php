@@ -130,8 +130,8 @@ class WooCommerce_My_Account {
 					$default_disabled_items[] = 'edit-address';
 				}
 
-				// Hide Orders and Payment Methods if the reader has no orders.
-				if ( ! $customer->get_is_paying_customer() ) {
+				// Hide Orders and Payment Methods if the reader has no orders and no subscriptions.
+				if ( ! $customer->get_is_paying_customer() && ( function_exists( 'wcs_get_users_subscriptions' ) && empty( \wcs_get_users_subscriptions( $customer_id ) ) ) ) {
 					$default_disabled_items[] = 'orders';
 					$default_disabled_items[] = 'payment-methods';
 				}
