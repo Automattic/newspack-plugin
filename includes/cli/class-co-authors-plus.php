@@ -77,7 +77,21 @@ class Co_Authors_Plus {
 	}
 
 	/**
-	 * Migrate Co-Authors Plus guest authors to regular users.
+	 * Migrate Co-Authors Plus guest authors to regular users with the [Guest Contributor role](https://help.newspack.com/publishing-and-appearance/guest-contributors/).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--live]
+	 * : Run the command in live mode, updating the subscriptions.
+	 *
+	 * [--verbose]
+	 * : Produce more output.
+	 *
+	 * [--user_logins]
+	 * : Comma-separated list of user logins. If provided, only WP Users with these logins will be processed.
+	 *
+	 * [--guest_author_ids]
+	 * : Comma-separated list of Guest Author IDs. If provided, only Gues Authors with these IDs will be processed.
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
@@ -122,6 +136,11 @@ class Co_Authors_Plus {
 	 * Backfill Non-Editing Contributor role. Will add this role to any Subscriber/Customer
 	 * who has any posts assigned to them.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--live]
+	 * : Run the command in live mode, updating the subscriptions.
+	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
 	 * @return void
@@ -162,7 +181,8 @@ class Co_Authors_Plus {
 	}
 
 	/**
-	 * This function handles setting up a cron job to backfill author terms for posts.
+	 * Set up a cron job to backfill any missing Co-Author plus author terms for posts.
+	 * Runs incrementally at a rate of up to 250 posts per hour to minimize performance impact.
 	 *
 	 * @return void
 	 * @throws WP_CLI\ExitException When the command fails.

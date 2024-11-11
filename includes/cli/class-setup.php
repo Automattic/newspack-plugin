@@ -19,9 +19,15 @@ defined( 'ABSPATH' ) || exit;
 class Setup {
 
 	/**
-	 * Sets up a testing site
+	 * Shortcut to skip the onboarding wizard for a brand-new or empty Newspack site.
 	 *
-	 * This is a command used to set up a testing site from scratch, installing required plugins and running the onboard wizard automatically
+	 * This is a command used to set up a testing site from scratch, installing
+	 * required plugins and running the onboard wizard automatically.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--site=<WordPress site url>]
+	 * : If passed, will use post content from the given URL to populate starter content.
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
