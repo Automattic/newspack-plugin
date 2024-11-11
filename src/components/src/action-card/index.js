@@ -40,6 +40,7 @@ class ActionCard extends Component {
 	render() {
 		const {
 			badge,
+			badgeLevel = 'info',
 			className,
 			checkbox,
 			children,
@@ -151,7 +152,7 @@ class ActionCard extends Component {
 								</span>
 								{ badges?.length &&
 									badges.map( ( badgeText, i ) => (
-										<span key={ `badge-${ i }` } className="newspack-action-card__badge">
+										<span key={ `badge-${ i }` } className={ `newspack-action-card__badge newspack-action-card__badge-level-${ badgeLevel }` }>
 											{ badgeText }
 										</span>
 									) ) }
