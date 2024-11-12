@@ -153,6 +153,8 @@ class Advertising_Sponsors extends Wizard {
 		if ( $post_type === static::CPT_NAME ) {
 			// Move the CPT under the Advertising menu. Necessary to hide default Sponsors CPT menu item.
 			$args['show_in_menu'] = static::PARENT_SLUG;
+			// Change CPT submenu text from "All Sponsors" to "Sponsors".
+			$args['labels']['all_items'] = __( 'Sponsors', 'newspack-plugin' );
 		}
 		return $args;
 	}
