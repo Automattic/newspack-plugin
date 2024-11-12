@@ -581,10 +581,10 @@ function newspack_get_theme_colors() {
 	return [
 		'primary_color'             => $primary_color,
 		'primary_text_color'        => newspack_get_color_contrast( $primary_color ),
-		'primary_color_variation'   => newspack_adjust_brightness( $primary_color, -40 ),
+		'primary_variation'   => newspack_adjust_brightness( $primary_color, -40 ),
 		'secondary_color'           => $secondary_color,
 		'secondary_text_color'      => newspack_get_color_contrast( $secondary_color ),
-		'secondary_color_variation' => newspack_adjust_brightness( $secondary_color, -40 ),
+		'secondary_variation' => newspack_adjust_brightness( $secondary_color, -40 ),
 	];
 }
 
