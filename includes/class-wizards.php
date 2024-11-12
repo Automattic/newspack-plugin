@@ -29,19 +29,6 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'setup'                   => new Setup_Wizard(),
-			'site-design'             => new Site_Design_Wizard(),
-			'reader-revenue'          => new Reader_Revenue_Wizard(),
-			'advertising'             => new Advertising_Wizard(),
-			'syndication'             => new Syndication_Wizard(),
-			'analytics'               => new Analytics_Wizard(),
-			'components-demo'         => new Components_Demo(),
-			'seo'                     => new SEO_Wizard(),
-			'health-check'            => new Health_Check_Wizard(),
-			'engagement'              => new Engagement_Wizard(),
-			'popups'                  => new Popups_Wizard(),
-			'connections'             => new Connections_Wizard(),
-			'settings'                => new Settings(),
 			// v2 Information Architecture.
 			'newspack-dashboard'      => new Newspack_Dashboard(),
 			'newspack-settings'       => new Newspack_Settings(
@@ -58,6 +45,20 @@ class Wizards {
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),
+			// Old pages.  Load after V2...remove when no longer needed.
+			'setup'                   => new Setup_Wizard(),
+			'site-design'             => new Site_Design_Wizard(),
+			'reader-revenue'          => new Reader_Revenue_Wizard(),
+			'advertising'             => new Advertising_Wizard(),
+			'syndication'             => new Syndication_Wizard(),
+			'analytics'               => new Analytics_Wizard(),
+			'components-demo'         => new Components_Demo(),
+			'seo'                     => new SEO_Wizard(),
+			'health-check'            => new Health_Check_Wizard(),
+			'engagement'              => new Engagement_Wizard(),
+			'popups'                  => new Popups_Wizard(),
+			'connections'             => new Connections_Wizard(),
+			'settings'                => new Settings(),
 		];
 
 		// Allow custom menu order.
