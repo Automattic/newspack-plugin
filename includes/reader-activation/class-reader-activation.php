@@ -1482,6 +1482,11 @@ final class Reader_Activation {
 	 * @return string Filtered template path.
 	 */
 	public static function replace_woocommerce_auth_form( $template, $template_name ) {
+		// Allow template rewriting for `woocommerce-memberships-for-teams` plugin. This includes
+		// a link to join a team.
+		if ( is_int( stripos( $template, 'woocommerce-memberships-for-teams' ) ) ) {
+			return $template;
+		}
 		if ( 'myaccount/form-login.php' === $template_name ) {
 			$template = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation/login-form.php';
 		}
