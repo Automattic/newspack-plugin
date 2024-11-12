@@ -538,17 +538,53 @@ function newspack_get_color_contrast( $hex ) {
 }
 
 /**
+ * Adjust a hexidecimal colour value to lighten or darken it.
+ *
+ * @param  string $hex Hexidecimal value of the color to adjust.
+ * @param  string $steps Number of 'steps' to adjust the hexidecimal value's brightness.
+ * @return string Updated hexidecimal value.
+ */
+function newspack_adjust_brightness( $hex, $steps ) {
+
+	$steps = max( -255, min( 255, $steps ) );
+
+	$hex = str_replace( '#', '', $hex );
+	if ( 3 == strlen( $hex ) ) {
+		$hex = str_repeat( substr( $hex, 0, 1 ), 2 ) . str_repeat( substr( $hex, 1, 1 ), 2 ) . str_repeat( substr( $hex, 2, 1 ), 2 );
+	}
+
+	// Split into three parts: R, G and B
+	$color_parts = str_split( $hex, 2 );
+	$new_shade   = '#';
+
+	foreach ( $color_parts as $color ) {
+		$color      = hexdec( $color ); // Convert to decimal
+		$color      = max( 0, min( 255, $color + $steps ) ); // Adjust color
+		$new_shade .= str_pad( dechex( $color ), 2, '0', STR_PAD_LEFT ); // Make two char hex code
+	}
+
+	return $new_shade;
+}
+
+
+/**
  * Get theme primary and secondary colors or defaults if none present.
  *
  * @return array An array containing primary and secondary colors.
  */
 function newspack_get_theme_colors() {
 	$default_primary_color   = function_exists( 'newspack_get_primary_color' ) ? newspack_get_primary_color() : '#3366ff';
+	$default_secondary_color = function_exists( 'newspack_get_secondary_color' ) ? newspack_get_secondary_color() : '#666666';
 	$primary_color           = get_theme_mod( 'primary_color_hex', $default_primary_color );
+	$secondary_color         = get_theme_mod( 'secondary_color_hex', $default_secondary_color );
 
 	return [
-		'primary_color'      => $primary_color,
-		'primary_text_color' => newspack_get_color_contrast( $primary_color ),
+		'primary_color'             => $primary_color,
+		'primary_text_color'        => newspack_get_color_contrast( $primary_color ),
+		'primary_color_variation'   => newspack_adjust_brightness( $primary_color, -40 ),
+		'secondary_color'           => $secondary_color,
+		'secondary_text_color'      => newspack_get_color_contrast( $secondary_color ),
+		'secondary_color_variation' => newspack_adjust_brightness( $secondary_color, -40 ),
 	];
 }
 
