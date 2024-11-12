@@ -2376,7 +2376,7 @@ final class Reader_Activation {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
-		set_current_reader( $user );
+		self::set_current_reader( $user );
 	}
 
 	/**
