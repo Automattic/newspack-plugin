@@ -29,25 +29,12 @@ class Newspack_Dashboard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Priority for this wizard's submenu item within the Newspack parent menu.
+	 * Use a high priorty so that the Newspack parent menu will be created
+	 * prior to submenu items being added.
 	 * 
 	 * @var int.
 	 */
-	protected $submenu_priority = 2;
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-
-		// Create parent menu for the Newspack wizards before any submenu items are added.
-		add_action( 'admin_menu', array( $this, 'add_parent_menu' ), 1 );
-		
-		// Add this wizard's page with $submenu_priority = 2 so it will be added directly after the parent menu is created.
-		parent::__construct();
-
-		add_action( 'rest_api_init', array( $this, 'register_api_endpoints' ) );
-	}
+	protected $add_page_priority = 1;
 
 	/**
 	 * Get Dashboard data
@@ -383,9 +370,9 @@ class Newspack_Dashboard extends Wizard {
 	}
 
 	/**
-	 * Add a parent menu for Newspack.
+	 * Add a parent menu for Newspack and the first submenu item.
 	 */
-	public function add_parent_menu() {
+	public function add_page() {
 		$icon = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjE4cHgiIGhlaWdodD0iNjE4cHgiIHZpZXdCb3g9IjAgMCA2MTggNjE4IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPHBhdGggZD0iTTMwOSwwIEM0NzkuNjU2NDk1LDAgNjE4LDEzOC4zNDQyOTMgNjE4LDMwOS4wMDE3NTkgQzYxOCw0NzkuNjU5MjI2IDQ3OS42NTY0OTUsNjE4IDMwOSw2MTggQzEzOC4zNDM1MDUsNjE4IDAsNDc5LjY1OTIyNiAwLDMwOS4wMDE3NTkgQzAsMTM4LjM0NDI5MyAxMzguMzQzNTA1LDAgMzA5LDAgWiBNMTc0LDE3MSBMMTc0LDI2Mi42NzEzNTYgTDE3NS4zMDUsMjY0IEwxNzQsMjY0IEwxNzQsNDQ2IEwyNDEsNDQ2IEwyNDEsMzMwLjkxMyBMMzUzLjk5Mjk2Miw0NDYgTDQ0NCw0NDYgTDE3NCwxNzEgWiBNNDQ0LDI5OSBMMzg5LDI5OSBMNDEwLjQ3NzYxLDMyMSBMNDQ0LDMyMSBMNDQ0LDI5OSBaIE00NDQsMjM1IEwzMjcsMjM1IEwzNDguMjQ1OTE5LDI1NyBMNDQ0LDI1NyBMNDQ0LDIzNSBaIE00NDQsMTcxIEwyNjQsMTcxIEwyODUuMjkwNTEyLDE5MyBMNDQ0LDE5MyBMNDQ0LDE3MSBaIiBpZD0iQ29tYmluZWQtU2hhcGUiIGZpbGw9IiMyQTdERTEiPjwvcGF0aD4KICAgIDwvZz4KPC9zdmc+';
 		add_menu_page(
 			$this->get_name(),
@@ -396,12 +383,6 @@ class Newspack_Dashboard extends Wizard {
 			$icon,
 			3
 		);
-	}
-
-	/**
-	 * Add the first submenu item.
-	 */
-	public function add_page() {
 		$first_subnav_title = get_option( NEWSPACK_SETUP_COMPLETE ) ? __( 'Dashboard', 'newspack' ) : __( 'Setup', 'newspack' );
 		add_submenu_page(
 			$this->slug,

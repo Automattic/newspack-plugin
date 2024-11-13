@@ -48,11 +48,12 @@ class Advertising_Sponsors extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Priority for this wizard's submenu adjustments after the Sponsors Plugin is done adding it's menu items.
+	 * Use a late priority for this wizard's menu adjustments so they happen
+	 * after the Sponsors Plugin is done adding it's menu items.
 	 * 
 	 * @var int.
 	 */
-	protected $submenu_priority = 11;
+	protected $add_page_priority = 11;
 
 	/**
 	 * Advertising_Sponsors Constructor.
