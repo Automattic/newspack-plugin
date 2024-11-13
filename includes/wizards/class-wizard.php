@@ -61,6 +61,15 @@ abstract class Wizard {
 	public $menu_order = 0;
 
 	/**
+	 * Admin Menu Hook Priority when calling parent 'admin_menu'/'add_page' hook
+	 * Default is WordPress's default hook priority: 10
+	 * Override this on a per-wizard basis.
+	 *
+	 * @var int.
+	 */
+	protected $admin_menu_hook_priority = 10;
+
+	/**
 	 * Initialize.
 	 *
 	 * @param array $args Array of optional arguments. i.e. `sections`.
@@ -70,7 +79,7 @@ abstract class Wizard {
 	 * $my_wizard = new My_Wizard( [ 'sections' => [ 'my-wizard-section' => 'Newspack\Wizards\My_Wizard\My_Wizard_Section' ] ] );
 	 */
 	public function __construct( $args = [] ) {
-		add_action( 'admin_menu', [ $this, 'add_page' ] );
+		add_action( 'admin_menu', [ $this, 'add_page' ], $this->admin_menu_hook_priority );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		if ( isset( $args['sections'] ) ) {
 			$this->load_wizard_sections( $args['sections'] );

@@ -59,7 +59,10 @@ class Advertising_Sponsors extends Wizard {
 			return;
 		}
 
-		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
+		// Adjust the Sponsors menu after the Sponsor Plugin has added it's items (priority > 10).
+		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ], 11 );
+
+		// Adjust the Sponsors CPT prior to registration.
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
 		// Below filters are used to determine active menu items.

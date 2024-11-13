@@ -29,13 +29,12 @@ class Newspack_Dashboard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Initialize.
+	 * Admin Menu Hook Priority when calling parent 'admin_menu'/'add_page' hook
+	 * Make sure this wizard's menu is added first.
+	 *
+	 * @var int.
 	 */
-	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-	}
+	protected $admin_menu_hook_priority = 1;
 
 	/**
 	 * Get Dashboard data
