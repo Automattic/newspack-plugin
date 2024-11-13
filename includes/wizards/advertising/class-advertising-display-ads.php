@@ -63,7 +63,7 @@ class Advertising_Display_Ads extends Wizard {
 	public $parent_menu = 'advertising-display-ads';
 
 	/**
-	 * Order of the Advertisers parent menu relative to the Newspack Dashboard parent menu.
+	 * Order relative to the Newspack Dashboard menu item.
 	 *
 	 * @var int
 	 */
