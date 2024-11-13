@@ -112,6 +112,9 @@ class Advertising_Sponsors extends Wizard {
 		return isset( $_GET['post_type'] ) && $_GET['post_type'] === static::CPT_NAME; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
+	/**
+	 * Move Sponsors CPT menu item under the ($) Advertising menu.
+	 */
 	public function move_sponsors_cpt_menu() {
 		global $submenu;
 		
@@ -183,7 +186,4 @@ class Advertising_Sponsors extends Wizard {
 
 		return $submenu_file;
 	}
-
-
-
 }

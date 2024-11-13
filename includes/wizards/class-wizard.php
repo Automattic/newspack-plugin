@@ -83,7 +83,7 @@ abstract class Wizard {
 	 */
 	public function add_page() {
 		add_submenu_page(
-			$this->hidden ? 'hidden' : 'newspack', // @TODO: change to 'newspack-dashboard'.
+			$this->hidden ? 'hidden' : 'newspack',
 			$this->get_name(),
 			$this->get_name(),
 			$this->capability,

@@ -56,12 +56,6 @@ class Listings_Wizard extends Wizard {
 	public $menu_order = 3;
 
 	/**
-	 * Admin Menu Hook Priority when calling 'admin_menu' action hook.
-	 *
-	 * @var int.
-	 */
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
