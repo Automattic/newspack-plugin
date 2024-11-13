@@ -54,20 +54,20 @@ abstract class Wizard {
 	public $parent_menu = '';
 
 	/**
-	 * Order relative to the Newspack Dashboard menu item.
+	 * Parent menu order relative to the Newspack Dashboard menu item.
 	 *
 	 * @var int
 	 */
-	public $menu_order = 0;
+	public $parent_menu_order = 0;
 
 	/**
-	 * Admin Menu Hook Priority when calling parent 'admin_menu'/'add_page' hook
+	 * Admin Menu Hook Priority when parent 'admin_menu'/'add_page' hook fires.
 	 * Default is WordPress's default hook priority: 10
-	 * Override this on a per-wizard basis.
+	 * Override this on a per-wizard basis to adjust submenus item within a parent menu.
 	 *
 	 * @var int.
 	 */
-	protected $admin_menu_hook_priority = 10;
+	protected $submenu_priority = 10;
 
 	/**
 	 * Initialize.
@@ -79,7 +79,8 @@ abstract class Wizard {
 	 * $my_wizard = new My_Wizard( [ 'sections' => [ 'my-wizard-section' => 'Newspack\Wizards\My_Wizard\My_Wizard_Section' ] ] );
 	 */
 	public function __construct( $args = [] ) {
-		add_action( 'admin_menu', [ $this, 'add_page' ], $this->admin_menu_hook_priority );
+
+		add_action( 'admin_menu', [ $this, 'add_page' ], $this->submenu_priority );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		if ( isset( $args['sections'] ) ) {
 			$this->load_wizard_sections( $args['sections'] );
@@ -92,7 +93,7 @@ abstract class Wizard {
 	 */
 	public function add_page() {
 		add_submenu_page(
-			$this->hidden ? 'hidden' : 'newspack',
+			$this->hidden ? 'hidden' : $this->parent_menu,
 			$this->get_name(),
 			$this->get_name(),
 			$this->capability,
