@@ -15,101 +15,115 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Subscriptions {
 	/**
-	 * Renewal URL query parameter.
+	 * Renewal endpoint.
+	 *
+	 * @var string
 	 */
-	const RENEWAL_QUERY_PARAM = 'np_renewal';
+	const RENEWALS_ENDPOINT = 'my-renewals';
 
 	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_action( 'init', [ __CLASS__, 'maybe_redirect_to_renewals' ] );
-	}
-
-	/**
-	 * Get my account subscriptions url.
-	 *
-	 * @param bool $add_renewal_param Whether to add the renewal query parameter. Default false.
-	 *
-	 * @return string My account subscriptions URL.
-	 */
-	public static function get_subscriptions_url( $add_renewal_param = false ) {
-		$url = wc_get_account_endpoint_url( 'subscriptions' );
-		if ( $add_renewal_param ) {
-			$url = add_query_arg(
-				[
-					self::RENEWAL_QUERY_PARAM => is_user_logged_in() ? 1 : 0,
-				],
-				$url
-			);
+		add_action( 'init', [ __CLASS__, 'add_renewals_endpoint' ] );
+		if ( ! is_admin() ) {
+			add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_renewals_query_var' ] );
+			add_filter( 'pre_get_posts', [ __CLASS__, 'maybe_redirect_renewals_endpoint' ] );
 		}
-		return $url;
 	}
 
 	/**
-	 * Determine whether WC and WC Subscriptions are active.
+	 * Add renewals endpoint.
+	 */
+	public static function add_renewals_endpoint() {
+		if ( self::is_active() ) {
+			add_rewrite_endpoint( self::RENEWALS_ENDPOINT, EP_ROOT | EP_PAGES );
+		}
+	}
+
+	/**
+	 * Add renewals query var.
+	 *
+	 * @param array $query_vars Query vars.
+	 *
+	 * @return array
+	 */
+	public static function add_renewals_query_var( $query_vars ) {
+		if ( self::is_active() ) {
+			$query_vars[ self::RENEWALS_ENDPOINT ] = self::RENEWALS_ENDPOINT;
+		}
+		return $query_vars;
+	}
+
+	/**
+	 * Get the URL for the My Account > Subscriptions page.
+	 *
+	 * @return string
+	 */
+	public static function get_subscriptions_url() {
+		return wc_get_account_endpoint_url( 'subscriptions' );
+	}
+
+	/**
+	 * Determine whether WC Subscriptions is active.
 	 *
 	 * @return bool
 	 */
 	public static function is_active() {
-		return function_exists( 'WC' ) && class_exists( 'WC_Subscriptions' );
+		return class_exists( 'WC_Subscriptions' );
 	}
 
 	/**
-	 * Whether the request is a renewal request.
+	 * Returns true when on the My Account > Subscriptions front end page.
 	 *
-	 * @param bool $logged_in_only Whether to check for logged out renewal param value. Default false.
-	 *
-	 * @return bool True if the request is a renewal request.
+	 * @return bool
 	 */
-	public static function is_renewal_request( $logged_in_only = false ) {
-		$np_renewal = filter_input( INPUT_GET, self::RENEWAL_QUERY_PARAM, FILTER_SANITIZE_NUMBER_INT );
-		if ( null === $np_renewal ) {
+	public static function is_subscriptions_page() {
+		if ( ! self::is_active() ) {
 			return false;
 		}
-		if ( $logged_in_only ) {
-			return ! is_numeric( $np_renewal ) || 1 === (int) $np_renewal;
-		}
-		return true;
+		return is_wc_endpoint_url( 'subscriptions' );
 	}
 
 	/**
-	 * Redirect to subscriptions pending renewals my account page.
+	 * Conditionally redirects the renewals endpoint url.
+	 *
+	 * @param \WP_Query $query Query object.
 	 */
-	public static function maybe_redirect_to_renewals() {
-		if ( ! self::is_active() || ! self::is_renewal_request( true ) ) {
+	public static function maybe_redirect_renewals_endpoint( $query ) { // phpcs:ignore WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.VoidReturn, WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.MissingReturnStatement
+		if (
+			! self::is_active() ||
+			! $query->is_main_query() ||
+			! isset( $query->query_vars[ self::RENEWALS_ENDPOINT ] )
+		) {
 			return;
 		}
-		$redirect_url = self::get_subscriptions_url( ! is_user_logged_in() );
-		if ( is_user_logged_in() ) {
-			$subscriptions = wcs_get_subscriptions(
-				[
-					'customer_id'         => get_current_user_id(),
-					'subscription_status' => [
-						'pending',
-						'on-hold',
-					],
-				]
-			);
-			if ( empty( $subscriptions ) ) {
-				// Reset redirect url if there are no pending or on-hold subscriptions.
-				$redirect_url = '';
-			} elseif ( count( $subscriptions ) === 1 ) {
-				foreach ( $subscriptions as $subscription ) {
-					$renewal_orders = $subscription->get_related_orders( 'all', 'renewal' );
-					foreach ( $renewal_orders as $renewal_order ) {
-						if ( $renewal_order->needs_payment() ) {
-							$redirect_url = $renewal_order->get_checkout_payment_url();
+		$redirect_url = wc_get_account_endpoint_url( 'dashboard' );
+		if ( self::is_active() ) {
+			$redirect_url = wc_get_account_endpoint_url( 'subscriptions' );
+			if ( is_user_logged_in() ) {
+				$pending_renewals = wcs_get_subscriptions(
+					[
+						'customer_id'         => get_current_user_id(),
+						'subscription_status' => [
+							'pending',
+							'on-hold',
+						],
+					]
+				);
+				if ( count( $pending_renewals ) === 1 ) {
+					$orders = $pending_renewals[0]->get_related_orders( 'all', 'renewal' );
+					foreach ( $orders as $order ) {
+						if ( $order->needs_payment() ) {
+							$redirect_url = $order->get_checkout_payment_url();
 							break;
 						}
 					}
 				}
 			}
 		}
-		if ( $redirect_url ) {
-			wp_safe_redirect( $redirect_url );
-			exit;
-		}
+		wp_safe_redirect( $redirect_url );
+		exit();
 	}
 }
 WooCommerce_Subscriptions::init();
