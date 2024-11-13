@@ -52,7 +52,6 @@ class Advertising_Sponsors extends Wizard {
 	 * 
 	 * Note: Do not call parent::__construct because we don't need a wizard page created since we're
 	 * using/modifying the pages (CPT + Settings) from the Newspack Sponsors plugin.
-	 * 
 	 */
 	public function __construct() {
 		if ( ! is_plugin_active( 'newspack-sponsors/newspack-sponsors.php' ) ) {

@@ -31,6 +31,9 @@ class Newspack_Dashboard extends Wizard {
 	/**
 	 * Admin Menu Hook Priority when calling parent 'admin_menu'/'add_page' hook
 	 * Make sure this wizard's menu is added first.
+	 * 
+	 * The value here is only for competing Wizards in the 'newspack-dashboard'
+	 * parent menu.
 	 *
 	 * @var int.
 	 */

@@ -74,6 +74,9 @@ class Advertising_Display_Ads extends Wizard {
 	 * and this wizard page itself too, using a priority < 10 so the Advertising parent menu exists
 	 * prior to other wizard and Sponsors Plugins submenu items being added.
 	 * 
+	 * The value here is only for competing Advertising menu items. It is not related to any 
+	 * 'newspack-dashboard' menu items.
+	 * 
 	 * @var int.
 	 */
 	protected $admin_menu_hook_priority = 9;
@@ -578,8 +581,7 @@ class Advertising_Display_Ads extends Wizard {
 			__( 'Display Ads', 'newspack-plugin' ),
 			$this->capability,
 			$this->slug,
-			array( $this, 'render_wizard' ),
-			0 // Make sure this is first item in submenu.
+			array( $this, 'render_wizard' )
 		);
 	}
 }
