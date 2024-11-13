@@ -55,7 +55,7 @@ class Newsletters_Wizard extends Wizard {
 	 *
 	 * @var int
 	 */
-	public $menu_order = 2;
+	public $parent_menu_order = 2;
 
 	/**
 	 * Constructor.
