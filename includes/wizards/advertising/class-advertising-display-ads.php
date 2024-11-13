@@ -556,6 +556,21 @@ class Advertising_Display_Ads extends Wizard {
 	}
 
 	/**
+	 * Add an admin page for this wizard to live on.
+	 */
+	public function add_page() {
+		add_submenu_page(
+			$this->slug,
+			__( 'Advertising / Display Ads', 'newspack-plugin' ),
+			__( 'Display Ads', 'newspack-plugin' ),
+			$this->capability,
+			$this->slug,
+			array( $this, 'render_wizard' ),
+			0 // Make sure this is first item in submenu.
+		);
+	}
+
+	/**
 	 * Add a parent menu for the Advertising wizards.
 	 */
 	public function add_parent_menu() {
@@ -577,20 +592,5 @@ class Advertising_Display_Ads extends Wizard {
 		// But that would mean copying all the funtions from parent::_construct into this class.
 		global $submenu;
 		$submenu[ $this->slug ] = array();
-	}
-
-	/**
-	 * Add an admin page for this wizard to live on.
-	 */
-	public function add_page() {
-		add_submenu_page(
-			$this->slug,
-			__( 'Advertising / Display Ads', 'newspack-plugin' ),
-			__( 'Display Ads', 'newspack-plugin' ),
-			$this->capability,
-			$this->slug,
-			array( $this, 'render_wizard' ),
-			0 // Make sure this is first item in submenu.
-		);
 	}
 }

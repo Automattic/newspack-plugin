@@ -117,7 +117,6 @@ class Advertising_Sponsors extends Wizard {
 	 */
 	public function move_sponsors_cpt_menu() {
 		global $submenu;
-		
 		$parent_slug = 'advertising-display-ads';
 		if ( isset( $submenu[ $parent_slug ] ) ) {
 			$submenu[ $parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
