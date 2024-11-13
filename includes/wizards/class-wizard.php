@@ -79,7 +79,6 @@ abstract class Wizard {
 	 * $my_wizard = new My_Wizard( [ 'sections' => [ 'my-wizard-section' => 'Newspack\Wizards\My_Wizard\My_Wizard_Section' ] ] );
 	 */
 	public function __construct( $args = [] ) {
-
 		add_action( 'admin_menu', [ $this, 'add_page' ], $this->submenu_priority );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		if ( isset( $args['sections'] ) ) {
