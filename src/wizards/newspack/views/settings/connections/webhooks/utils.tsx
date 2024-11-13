@@ -93,13 +93,15 @@ export function validateUrl( url: string ): string | false {
 	if ( ! url ) {
 		return __( 'URL is required.', 'newspack-plugin' );
 	}
-	const pattern = new RegExp(
-		/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
-	);
-	if ( ! pattern.test( url ) ) {
+	try {
+		const urlObject = new URL( url );
+		if ( urlObject.protocol !== 'https:' ) {
+			return __( 'HTTPS protocol is required for the endpoint URL.', 'newspack-plugin' );
+		}
+		return false;
+	} catch ( error ) {
 		return __( 'Invalid URL format.', 'newspack-plugin' );
 	}
-	return false;
 }
 
 /**
