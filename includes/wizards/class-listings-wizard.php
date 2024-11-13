@@ -60,7 +60,6 @@ class Listings_Wizard extends Wizard {
 	 *
 	 * @var int.
 	 */
-	protected $admin_menu_hook_priority = 99;
 
 	/**
 	 * Constructor.

@@ -61,13 +61,6 @@ abstract class Wizard {
 	public $menu_order = 0;
 
 	/**
-	 * Admin Menu Hook Priority when calling 'admin_menu' action hook.
-	 *
-	 * @var int.
-	 */
-	protected $admin_menu_hook_priority = 2;
-
-	/**
 	 * Initialize.
 	 *
 	 * @param array $args Array of optional arguments. i.e. `sections`.
@@ -77,7 +70,7 @@ abstract class Wizard {
 	 * $my_wizard = new My_Wizard( [ 'sections' => [ 'my-wizard-section' => 'Newspack\Wizards\My_Wizard\My_Wizard_Section' ] ] );
 	 */
 	public function __construct( $args = [] ) {
-		add_action( 'admin_menu', [ $this, 'add_page' ], $this->admin_menu_hook_priority );
+		add_action( 'admin_menu', [ $this, 'add_page' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		if ( isset( $args['sections'] ) ) {
 			$this->load_wizard_sections( $args['sections'] );
@@ -90,7 +83,7 @@ abstract class Wizard {
 	 */
 	public function add_page() {
 		add_submenu_page(
-			$this->hidden ? 'hidden' : 'newspack',
+			$this->hidden ? 'hidden' : 'newspack', // @TODO: change to 'newspack-dashboard'.
 			$this->get_name(),
 			$this->get_name(),
 			$this->capability,

@@ -48,20 +48,16 @@ class Advertising_Sponsors extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Admin Menu Hook Priority when calling 'admin_menu' action hook.
-	 *
-	 * @var int.
-	 */
-	protected $admin_menu_hook_priority = 99;
-
-	/**
 	 * Advertising_Sponsors Constructor.
+	 * 
+	 * Note: Do not call parent::__construct because we don't need a wizard page created since we're
+	 * using/modifying the pages (CPT + Settings) from the Newspack Sponsors plugin.
+	 * 
 	 */
 	public function __construct() {
 		if ( ! is_plugin_active( 'newspack-sponsors/newspack-sponsors.php' ) ) {
 			return;
 		}
-		parent::__construct();
 
 		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
@@ -71,6 +67,10 @@ class Advertising_Sponsors extends Wizard {
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 
 		if ( $this->is_wizard_page() ) {
+
+			// Add via parent function.
+			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
+
 			// Initialize Wizards Admin Header.
 			$this->admin_header_init(
 				[
@@ -112,29 +112,9 @@ class Advertising_Sponsors extends Wizard {
 		return isset( $_GET['post_type'] ) && $_GET['post_type'] === static::CPT_NAME; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
-	/**
-	 * Enqueue scripts and styles.
-	 */
-	public function enqueue_scripts_and_styles() {
-		if ( ! $this->is_wizard_page() ) {
-			return;
-		}
-		Newspack::load_common_assets();
-		wp_register_style(
-			'advertising-display-ads',
-			Newspack::plugin_url() . '/dist/billboard.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
-		wp_style_add_data( 'advertising-display-ads', 'rtl', 'replace' );
-		wp_enqueue_style( 'advertising-display-ads' );
-	}
-
-	/**
-	 * Move Sponsors CPT menu item under the ($) Advertising menu.
-	 */
 	public function move_sponsors_cpt_menu() {
 		global $submenu;
+		
 		$parent_slug = 'advertising-display-ads';
 		if ( isset( $submenu[ $parent_slug ] ) ) {
 			$submenu[ $parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -203,4 +183,7 @@ class Advertising_Sponsors extends Wizard {
 
 		return $submenu_file;
 	}
+
+
+
 }
