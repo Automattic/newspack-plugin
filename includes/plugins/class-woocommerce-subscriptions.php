@@ -98,26 +98,23 @@ class WooCommerce_Subscriptions {
 		) {
 			return;
 		}
-		$redirect_url = wc_get_account_endpoint_url( 'dashboard' );
-		if ( self::is_active() ) {
-			$redirect_url = wc_get_account_endpoint_url( 'subscriptions' );
-			if ( is_user_logged_in() ) {
-				$pending_renewals = wcs_get_subscriptions(
-					[
-						'customer_id'         => get_current_user_id(),
-						'subscription_status' => [
-							'pending',
-							'on-hold',
-						],
-					]
-				);
-				if ( count( $pending_renewals ) === 1 ) {
-					$orders = $pending_renewals[0]->get_related_orders( 'all', 'renewal' );
-					foreach ( $orders as $order ) {
-						if ( $order->needs_payment() ) {
-							$redirect_url = $order->get_checkout_payment_url();
-							break;
-						}
+		$redirect_url = wc_get_account_endpoint_url( 'subscriptions' );
+		if ( is_user_logged_in() ) {
+			$pending_renewals = wcs_get_subscriptions(
+				[
+					'customer_id'         => get_current_user_id(),
+					'subscription_status' => [
+						'pending',
+						'on-hold',
+					],
+				]
+			);
+			if ( count( $pending_renewals ) === 1 ) {
+				$orders = array_pop( $pending_renewals )->get_related_orders( 'all', 'renewal' );
+				foreach ( $orders as $order ) {
+					if ( $order->needs_payment() ) {
+						$redirect_url = $order->get_checkout_payment_url();
+						break;
 					}
 				}
 			}
