@@ -19,6 +19,7 @@ import {
 	SectionHeader,
 	TextControl,
 	Waiting,
+	RichTextEditor,
 	withWizardScreen,
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
@@ -239,6 +240,24 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			) }
 			{ showAdvanced && (
 				<Card noBorder>
+					<>
+						<SectionHeader
+							title={ __( 'Sign-in UI text', 'newspack-plugin' ) }
+							description={ __(
+								'Add custom text to the authorization modal.',
+								'newspack-plugin'
+							) }
+						/>
+						{Object.keys(config.auth_modal_text).map(authModalTextKey=>(
+							<div key={authModalTextKey}>
+								<RichTextEditor
+									value={config.auth_modal_text[authModalTextKey]}
+									onChange={value => updateConfig('auth_modal_text', { ...config.auth_modal_text, [authModalTextKey]: value })}
+								/>
+							</div>
+						))}
+
+				</>
 					{ newspack_engagement_wizard.has_memberships && membershipsConfig ? (
 						<>
 							<SectionHeader
@@ -424,6 +443,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									sync_esp: config.sync_esp,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
+									auth_modal_text: config.auth_modal_text
 								} );
 							} }
 							disabled={ inFlight }

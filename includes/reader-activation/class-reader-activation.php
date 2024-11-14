@@ -196,6 +196,11 @@ final class Reader_Activation {
 			'sender_name'                     => Emails::get_from_name(),
 			'sender_email_address'            => Emails::get_from_email(),
 			'contact_email_address'           => Emails::get_reply_to_email(),
+			'auth_modal_text'                 => [
+				'sign_up'                => '',
+				'sign_in_password_below' => '',
+				'sign_in_otp_below'      => '',
+			],
 		];
 
 		/**
@@ -1090,6 +1095,22 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Render auth form auxiliary text.
+	 *
+	 * @param string $key The key for the text.
+	 */
+	public static function render_auth_form_auxiliary_text( $key ) {
+		$auth_modal_text = self::get_setting( 'auth_modal_text' );
+		if ( ! empty( $auth_modal_text[ $key ] ) ) {
+			// Unwrap the text from p tags, which would prevent it from rendering in another p tag.
+			$auth_modal_text[ $key ] = preg_replace( '/^<p>(.*)<\/p>$/', '$1', $auth_modal_text[ $key ] );
+			?>
+			<span style="display: block; margin: 10px 0;"><?php echo wp_kses_post( $auth_modal_text[ $key ] ); ?></span>
+			<?php
+		}
+	}
+
+	/**
 	 * Renders reader authentication form.
 	 *
 	 * @param boolean $is_inline If true, render the form inline, otherwise render as a modal.
@@ -1194,6 +1215,7 @@ final class Reader_Activation {
 									)
 								);
 							?>
+							<?php self::render_auth_form_auxiliary_text( 'sign_in_password_below' ); ?>
 						</p>
 						<p data-action="link">
 							<?php
@@ -1205,6 +1227,7 @@ final class Reader_Activation {
 									)
 								);
 							?>
+							<?php self::render_auth_form_auxiliary_text( 'sign_in_otp_below' ); ?>
 						</p>
 						<p data-action="otp">
 							<?php
@@ -1220,6 +1243,7 @@ final class Reader_Activation {
 						<input type="hidden" name="redirect" value="<?php echo \esc_attr( $redirect ); ?>" />
 						<?php if ( isset( $lists ) && ! empty( $lists ) ) : ?>
 							<div data-action="register">
+								<?php self::render_auth_form_auxiliary_text( 'sign_up' ); ?>
 								<?php if ( 1 < count( $lists ) ) : ?>
 									<p><?php echo \esc_html( $newsletters_label ); ?></p>
 								<?php endif; ?>
