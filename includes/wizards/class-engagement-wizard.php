@@ -85,51 +85,6 @@ class Engagement_Wizard extends Wizard {
 				'sanitize_callback'   => 'sanitize_text_field',
 			]
 		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_reader_activation_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_reader_activation_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/activate',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_activate_reader_activation' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/skip-campaign-setup',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => function( $request ) {
-					$skip = $request->get_param( 'skip' );
-					$skip_campaign_setup = update_option( static::SKIP_CAMPAIGN_SETUP_OPTION, $skip );
-					return rest_ensure_response(
-						[
-							'skipped' => $skip,
-							'updated' => $skip_campaign_setup,
-						]
-					);
-				},
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
 
 		$meta_pixel = new Meta_Pixel();
 		register_rest_route(
@@ -190,91 +145,6 @@ class Engagement_Wizard extends Wizard {
 				],
 			]
 		);
-	}
-
-	/**
-	 * Get memberships settings.
-	 *
-	 * @return array
-	 */
-	private static function get_memberships_settings() {
-		return [
-			'edit_gate_url'            => Memberships::get_edit_gate_url(),
-			'gate_status'              => \get_post_status( Memberships::get_gate_post_id() ),
-			'plans'                    => Memberships::get_plans(),
-			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
-			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
-		];
-	}
-
-	/**
-	 * Get reader activation settings.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function api_get_reader_activation_settings() {
-		return rest_ensure_response(
-			[
-				'config'               => Reader_Activation::get_settings(),
-				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
-				'memberships'          => self::get_memberships_settings(),
-				'can_esp_sync'         => Reader_Activation\ESP_Sync::can_esp_sync( true ),
-			]
-		);
-	}
-
-	/**
-	 * Update reader activation settings.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public function api_update_reader_activation_settings( $request ) {
-		$args = $request->get_params();
-		foreach ( $args as $key => $value ) {
-			Reader_Activation::update_setting( $key, $value );
-		}
-
-		// Update Memberships options.
-		if ( isset( $args['memberships_require_all_plans'] ) ) {
-			Memberships::set_require_all_plans_setting( (bool) $args['memberships_require_all_plans'] );
-		}
-
-		// Update Memberships options.
-		if ( isset( $args['memberships_show_on_subscription_tab'] ) ) {
-			Memberships::set_show_on_subscription_tab_setting( (bool) $args['memberships_show_on_subscription_tab'] );
-		}
-
-		return rest_ensure_response(
-			[
-				'config'               => Reader_Activation::get_settings(),
-				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
-				'memberships'          => self::get_memberships_settings(),
-				'can_esp_sync'         => Reader_Activation\ESP_Sync::can_esp_sync( true ),
-			]
-		);
-	}
-
-	/**
-	 * Activate reader activation and publish RAS prompts/segments.
-	 *
-	 * @param WP_REST_Request $request WP Rest Request object.
-	 * @return WP_REST_Response
-	 */
-	public function api_activate_reader_activation( WP_REST_Request $request ) {
-		$skip_activation = $request->get_param( 'skip_activation' ) ?? false;
-		$response = $skip_activation ? true : Reader_Activation::activate();
-
-		if ( \is_wp_error( $response ) ) {
-			return new \WP_REST_Response( [ 'message' => $response->get_error_message() ], 400 );
-		}
-
-		if ( true === $response ) {
-			Reader_Activation::update_setting( 'enabled', true );
-		}
-
-		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -356,35 +226,6 @@ class Engagement_Wizard extends Wizard {
 			true
 		);
 
-		$data = [
-			'has_memberships'       => class_exists( 'WC_Memberships' ),
-			'reader_activation_url' => \admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
-			'esp_metadata_fields'   => Reader_Activation\Sync\Metadata::get_default_fields(),
-		];
-
-		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
-			$data['new_subscription_lists_url'] = \Newspack\Newsletters\Subscription_Lists::get_add_new_url();
-		}
-
-		if ( method_exists( 'Newspack_Newsletters_Subscription', 'get_lists' ) ) {
-			$data['available_newsletter_lists'] = \Newspack_Newsletters_Subscription::get_lists();
-		}
-
-		$newspack_popups = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-		if ( $newspack_popups->is_configured() ) {
-			$data['preview_query_keys'] = $newspack_popups->preview_query_keys();
-			$data['preview_post']       = $newspack_popups->preview_post();
-			$data['preview_archive']    = $newspack_popups->preview_archive();
-		}
-
-		$data['is_skipped_campaign_setup'] = get_option( static::SKIP_CAMPAIGN_SETUP_OPTION, '' );
-
-		\wp_localize_script(
-			'newspack-engagement-wizard',
-			'newspack_engagement_wizard',
-			$data
-		);
-
 		\wp_register_style(
 			'newspack-engagement-wizard',
 			Newspack::plugin_url() . '/dist/engagement.css',
@@ -410,16 +251,5 @@ class Engagement_Wizard extends Wizard {
 			$sanitized[]      = $category;
 		}
 		return $sanitized;
-	}
-
-	/**
-	 * Set the newsletters settings url
-	 *
-	 * @param string $url URL to the Newspack Newsletters settings page.
-	 *
-	 * @return string URL to the Newspack Newsletters settings page.
-	 */
-	public function newsletters_settings_url( $url = '' ) {
-		return admin_url( 'admin.php?page=newspack-engagement-wizard#/newsletters' );
 	}
 }

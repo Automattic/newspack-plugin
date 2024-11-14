@@ -40,7 +40,7 @@ final class Blocks {
 			[
 				'has_newsletters'         => class_exists( 'Newspack_Newsletters_Subscription' ),
 				'has_reader_activation'   => Reader_Activation::is_enabled(),
-				'newsletters_url'         => Wizards::get_wizard( 'engagement' )->newsletters_settings_url(),
+				'newsletters_url'         => Wizards::get_wizard( 'newsletters' )->newsletters_settings_url(),
 				'has_google_oauth'        => Google_OAuth::is_oauth_configured(),
 				'google_logo_svg'         => file_get_contents( dirname( NEWSPACK_PLUGIN_FILE ) . '/src/blocks/reader-registration/icons/google.svg' ),
 				'reader_activation_terms' => Reader_Activation::get_setting( 'terms_text' ),
