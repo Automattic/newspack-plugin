@@ -55,6 +55,10 @@ class Audience_Configuration extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
+
+		// Determine active menu items.
+		add_filter( 'parent_file', [ $this, 'parent_file' ] );
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 	}
 
 	/**
@@ -271,5 +275,47 @@ class Audience_Configuration extends Wizard {
 			'require_all_plans'        => Memberships::get_require_all_plans_setting(),
 			'show_on_subscription_tab' => Memberships::get_show_on_subscription_tab_setting(),
 		];
+	}
+
+	/**
+	 * Parent file filter. Used to determine active menu items.
+	 *
+	 * @param string $parent_file Parent file to be overridden.
+	 * @return string
+	 */
+	public function parent_file( $parent_file ) {
+		global $pagenow, $typenow;
+
+		$cpts = [
+			Memberships::GATE_CPT,
+			Emails::POST_TYPE,
+		];
+
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && in_array( $typenow, $cpts ) ) {
+			return $this->slug;
+		}
+
+		return $parent_file;
+	}
+
+	/**
+	 * Submenu file filter. Used to determine active submenu items.
+	 *
+	 * @param string $submenu_file Submenu file to be overridden.
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+		global $pagenow, $typenow;
+
+		$cpts = [
+			Memberships::GATE_CPT,
+			Emails::POST_TYPE,
+		];
+
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && in_array( $typenow, $cpts ) ) {
+			return $this->slug;
+		}
+
+		return $submenu_file;
 	}
 }
