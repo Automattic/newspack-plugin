@@ -35,7 +35,7 @@ class Advertising_Display_Ads extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'advertising-display-ads';
+	protected $slug = 'newspack-ads-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -60,7 +60,7 @@ class Advertising_Display_Ads extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $parent_menu = 'advertising-display-ads';
+	public $parent_menu = 'newspack-ads-wizard';
 
 	/**
 	 * Order relative to the Newspack Dashboard menu item.
@@ -502,7 +502,7 @@ class Advertising_Display_Ads extends Wizard {
 		}
 
 		\wp_enqueue_script(
-			'advertising-display-ads',
+			'newspack-ads-wizard',
 			Newspack::plugin_url() . '/dist/billboard.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
@@ -510,16 +510,16 @@ class Advertising_Display_Ads extends Wizard {
 		);
 
 		\wp_register_style(
-			'advertising-display-ads',
+			'newspack-ads-wizard',
 			Newspack::plugin_url() . '/dist/billboard.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
-		\wp_style_add_data( 'advertising-display-ads', 'rtl', 'replace' );
-		\wp_enqueue_style( 'advertising-display-ads' );
+		\wp_style_add_data( 'newspack-ads-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-ads-wizard' );
 
 		\wp_localize_script(
-			'advertising-display-ads',
+			'newspack-ads-wizard',
 			'newspack_ads_wizard',
 			array(
 				'iab_sizes'          => function_exists( '\Newspack_Ads\get_iab_sizes' ) ? \Newspack_Ads\get_iab_sizes() : array(),
