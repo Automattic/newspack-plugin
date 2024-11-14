@@ -43,11 +43,11 @@ class Audience_Configuration extends Wizard {
 	public $parent_menu = 'newspack-audience-configuration';
 
 	/**
-	 * Order relative to the Newspack Dashboard menu item.
+	 * Parent menu order relative to the Newspack Dashboard menu item.
 	 *
 	 * @var int
 	 */
-	public $menu_order = 1;
+	public $parent_menu_order = 1;
 
 	/**
 	 * Audience Configuration Constructor.
@@ -128,8 +128,7 @@ class Audience_Configuration extends Wizard {
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ],
-			$icon,
-			3.6
+			$icon
 		);
 		add_submenu_page(
 			$this->slug,
