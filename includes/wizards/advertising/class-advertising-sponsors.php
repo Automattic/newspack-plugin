@@ -48,6 +48,14 @@ class Advertising_Sponsors extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
+	 * Use a late priority for this wizard's menu adjustments so they happen
+	 * after the Sponsors Plugin is done adding it's menu items.
+	 * 
+	 * @var int.
+	 */
+	protected $admin_menu_priority = 11;
+
+	/**
 	 * Advertising_Sponsors Constructor.
 	 */
 	public function __construct() {
@@ -56,7 +64,6 @@ class Advertising_Sponsors extends Wizard {
 		}
 		parent::__construct();
 
-		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
 		// Below filters are used to determine active menu items.
@@ -126,7 +133,7 @@ class Advertising_Sponsors extends Wizard {
 	/**
 	 * Move Sponsors CPT menu item under the ($) Advertising menu.
 	 */
-	public function move_sponsors_cpt_menu() {
+	public function add_page() {
 		global $submenu;
 		$parent_slug = 'newspack-ads-wizard';
 		if ( isset( $submenu[ $parent_slug ] ) ) {

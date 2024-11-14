@@ -67,7 +67,15 @@ class Advertising_Display_Ads extends Wizard {
 	 *
 	 * @var int
 	 */
-	public $menu_order = 4;
+	public $parent_menu_order = 4;
+
+	/**
+	 * Use a high priorty so that the Advertising parent menu will be created
+	 * prior to submenu items being added.
+	 * 
+	 * @var int.
+	 */
+	protected $admin_menu_priority = 1;
 
 	/**
 	 * Constructor.
@@ -549,7 +557,8 @@ class Advertising_Display_Ads extends Wizard {
 	}
 
 	/**
-	 * Add an admin page for the wizard to live on.
+	 * Add a parent menu for all the Advertising wizards (Ads, Sponsors Plugin CPT + Settings tab),
+	 * and a first menu item too.
 	 */
 	public function add_page() {
 		// SVG generated via https://boxy-svg.com/ with path width/height 20px.
