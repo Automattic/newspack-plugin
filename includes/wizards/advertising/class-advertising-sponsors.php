@@ -53,7 +53,7 @@ class Advertising_Sponsors extends Wizard {
 	 * 
 	 * @var int.
 	 */
-	protected $add_page_priority = 11;
+	protected $admin_menu_priority = 11;
 
 	/**
 	 * Advertising_Sponsors Constructor.

@@ -75,7 +75,7 @@ class Advertising_Display_Ads extends Wizard {
 	 * 
 	 * @var int.
 	 */
-	protected $add_page_priority = 1;
+	protected $admin_menu_priority = 1;
 
 	/**
 	 * Constructor.
