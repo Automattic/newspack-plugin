@@ -153,8 +153,8 @@ class Wizards {
 		}
 		$ordered_wizards = [];
 		foreach ( self::$wizards as $slug => $wizard ) {
-			if ( ! empty( $wizard->parent_menu ) && ! empty( $wizard->menu_order ) ) {
-				$ordered_wizards[ $wizard->menu_order ] = $wizard->parent_menu;
+			if ( ! empty( $wizard->parent_menu ) && ! empty( $wizard->parent_menu_order ) ) {
+				$ordered_wizards[ $wizard->parent_menu_order ] = $wizard->parent_menu;
 			}
 		}
 		if ( empty( $ordered_wizards ) ) {

@@ -53,7 +53,7 @@ class Listings_Wizard extends Wizard {
 	 *
 	 * @var int
 	 */
-	public $menu_order = 3;
+	public $parent_menu_order = 3;
 
 	/**
 	 * Constructor.
