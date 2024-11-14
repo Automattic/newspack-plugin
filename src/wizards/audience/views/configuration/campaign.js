@@ -162,7 +162,7 @@ export default withWizardScreen( () => {
 					disabled={
 						inFlight || ( ! allReady && ! skipped.isSkipped )
 					}
-					href={ `${ reader_activation_url }/complete` }
+					href={ `${ reader_activation_url }complete` }
 				>
 					{ __( 'Continue', 'newspack-plugin' ) }
 				</Button>
