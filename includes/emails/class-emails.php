@@ -516,10 +516,10 @@ class Emails {
 					[
 						'primary'             => $theme_colors['primary_color'],
 						'primary-text'        => $theme_colors['primary_text_color'],
-						'primary-variation'   => $theme_colors['primary_color_variation'],
+						'primary-variation'   => $theme_colors['primary_variation'],
 						'secondary'           => $theme_colors['secondary_color'],
 						'secondary-text'      => $theme_colors['secondary_text_color'],
-						'secondary-variation' => $theme_colors['secondary_color_variation'],
+						'secondary-variation' => $theme_colors['secondary_variation'],
 					]
 				);
 			}
