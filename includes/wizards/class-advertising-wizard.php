@@ -35,7 +35,7 @@ class Advertising_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-ads-wizard';
+	protected $slug = 'newspack-advertising-wizard';
 
 	/**
 	 * The capability required to access this wizard.
@@ -552,7 +552,7 @@ class Advertising_Wizard extends Wizard {
 		}
 
 		\wp_enqueue_script(
-			'newspack-ads-wizard',
+			'newspack-advertising-wizard',
 			Newspack::plugin_url() . '/dist/billboard.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
@@ -560,17 +560,17 @@ class Advertising_Wizard extends Wizard {
 		);
 
 		\wp_register_style(
-			'newspack-ads-wizard',
+			'newspack-advertising-wizard',
 			Newspack::plugin_url() . '/dist/billboard.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
-		\wp_style_add_data( 'newspack-ads-wizard', 'rtl', 'replace' );
-		\wp_enqueue_style( 'newspack-ads-wizard' );
+		\wp_style_add_data( 'newspack-advertising-wizard', 'rtl', 'replace' );
+		\wp_enqueue_style( 'newspack-advertising-wizard' );
 
 		$configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-ads' );
 		\wp_localize_script(
-			'newspack-ads-wizard',
+			'newspack-advertising-wizard',
 			'newspack_ads_wizard',
 			array(
 				'iab_sizes'               => function_exists( '\Newspack_Ads\get_iab_sizes' ) ? \Newspack_Ads\get_iab_sizes() : [],
