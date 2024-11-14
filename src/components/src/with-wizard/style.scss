@@ -28,6 +28,17 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 	}
 }
 
+// Fix notifications margins for all wizards (full-react and admin-header-only pages).
+body.newspack-wizard-page {
+
+	// Only apply when notices are directly ">" at top of page above the header area (ie: not in "wrap" content).
+	#wpbody-content > .notice {
+		margin-bottom: 20px;
+		margin-left: 22px;
+	}
+
+}
+
 svg {
 	&.newspack--error {
 		fill: wp-colors.$alert-red;
