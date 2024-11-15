@@ -35,6 +35,10 @@ class Audience_Campaigns extends Wizard {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'newspack_popups_registered_criteria', [ $this, 'maybe_unregister_memberships_criteria' ] );
+
+		// Determine active menu items.
+		add_filter( 'parent_file', [ $this, 'parent_file' ] );
+		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
 	}
 
 	/**
@@ -994,5 +998,45 @@ class Audience_Campaigns extends Wizard {
 		}
 
 		return $criteria;
+	}
+
+	/**
+	 * Parent file filter. Used to determine active menu items.
+	 *
+	 * @param string $parent_file Parent file to be overridden.
+	 * @return string
+	 */
+	public function parent_file( $parent_file ) {
+		global $pagenow, $typenow;
+
+		if ( ! class_exists( 'Newspack_Popups' ) ) {
+			return $parent_file;
+		}
+
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === \Newspack_Popups::NEWSPACK_POPUPS_CPT ) {
+			return 'newspack-audience-configuration';
+		}
+
+		return $parent_file;
+	}
+
+	/**
+	 * Submenu file filter. Used to determine active submenu items.
+	 *
+	 * @param string $submenu_file Submenu file to be overridden.
+	 * @return string
+	 */
+	public function submenu_file( $submenu_file ) {
+		global $pagenow, $typenow;
+
+		if ( ! class_exists( 'Newspack_Popups' ) ) {
+			return $submenu_file;
+		}
+
+		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === \Newspack_Popups::NEWSPACK_POPUPS_CPT ) {
+			return $this->slug;
+		}
+
+		return $submenu_file;
 	}
 }
