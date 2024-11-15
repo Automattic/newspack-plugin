@@ -1,3 +1,4 @@
+/* globals newspackAudienceCampaigns */
 /**
  * WordPress dependencies.
  */
@@ -333,7 +334,7 @@ addFilter(
 							: __( 'Does not have active subscription(s):', 'newspack-plugin' )
 					}
 					ids={ item.value }
-					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
+					path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
 				/>
 			);
 		}

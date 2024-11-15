@@ -1,3 +1,4 @@
+/* globals newspackAudienceCampaigns */
 import '../../../../shared/js/public-path';
 
 /**
@@ -71,7 +72,7 @@ class CampaignsWizard extends Component {
 	refetch = () => {
 		const { setError, wizardApiFetch } = this.props;
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-popups-wizard/',
+			path: newspackAudienceCampaigns.api,
 		} )
 			.then( this.updateAfterAPI )
 			.catch( error => setError( error ) );
@@ -81,7 +82,7 @@ class CampaignsWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ id }`,
+			path: `${ newspackAudienceCampaigns.api }/${ id }`,
 			method: 'POST',
 			data: { config: promptConfig },
 			quiet: true,
@@ -98,7 +99,7 @@ class CampaignsWizard extends Component {
 	deletePopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }`,
+			path: `${ newspackAudienceCampaigns.api }/${ popupId }`,
 			method: 'DELETE',
 			quiet: true,
 		} )
@@ -114,7 +115,7 @@ class CampaignsWizard extends Component {
 	restorePopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/restore`,
+			path: `${ newspackAudienceCampaigns.api }/${ popupId }/restore`,
 			method: 'POST',
 			quiet: true,
 		} )
@@ -130,7 +131,7 @@ class CampaignsWizard extends Component {
 	publishPopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
+			path: `${ newspackAudienceCampaigns.api }/${ popupId }/publish`,
 			method: 'POST',
 			quiet: true,
 		} )
@@ -146,7 +147,7 @@ class CampaignsWizard extends Component {
 	unpublishPopup = popupId => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/publish`,
+			path: `${ newspackAudienceCampaigns.api }/${ popupId }/publish`,
 			method: 'DELETE',
 			quiet: true,
 		} )
@@ -164,7 +165,7 @@ class CampaignsWizard extends Component {
 		const { setError, wizardApiFetch } = this.props;
 		this.setState( { inFlight: true } );
 		return wizardApiFetch( {
-			path: addQueryArgs( `/newspack/v1/wizard/newspack-popups-wizard/${ popupId }/duplicate`, {
+			path: addQueryArgs( `${ newspackAudienceCampaigns.api }/${ popupId }/duplicate`, {
 				title,
 			} ),
 			method: 'POST',
@@ -209,7 +210,7 @@ class CampaignsWizard extends Component {
 	manageCampaignGroup = ( campaigns, method = 'POST' ) => {
 		const { setError, wizardApiFetch } = this.props;
 		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-popups-wizard/batch-publish/',
+			path: `${ newspackAudienceCampaigns.api }/batch-publish/`,
 			data: { ids: campaigns.map( campaign => campaign.id ) },
 			method,
 			quiet: true,
@@ -267,7 +268,7 @@ class CampaignsWizard extends Component {
 
 										const archiveCampaignGroup = ( id, status ) => {
 											return wizardApiFetch( {
-												path: `/newspack/v1/wizard/newspack-popups-wizard/archive-campaign/${ id }`,
+												path: `${ newspackAudienceCampaigns.api }/archive-campaign/${ id }`,
 												method: status ? 'POST' : 'DELETE',
 												quiet: true,
 											} )
@@ -276,7 +277,7 @@ class CampaignsWizard extends Component {
 										};
 										const createCampaignGroup = name => {
 											return wizardApiFetch( {
-												path: `/newspack/v1/wizard/newspack-popups-wizard/create-campaign/`,
+												path: `${ newspackAudienceCampaigns.api }/create-campaign/`,
 												method: 'POST',
 												data: { name },
 												quiet: true,
@@ -294,7 +295,7 @@ class CampaignsWizard extends Component {
 										};
 										const deleteCampaignGroup = id => {
 											return wizardApiFetch( {
-												path: `/newspack/v1/wizard/newspack-popups-wizard/delete-campaign/${ id }`,
+												path: `${ newspackAudienceCampaigns.api }/delete-campaign/${ id }`,
 												method: 'DELETE',
 												quiet: true,
 											} )
@@ -311,7 +312,7 @@ class CampaignsWizard extends Component {
 										};
 										const duplicateCampaignGroup = ( id, name ) => {
 											return wizardApiFetch( {
-												path: `/newspack/v1/wizard/newspack-popups-wizard/duplicate-campaign/${ id }`,
+												path: `${ newspackAudienceCampaigns.api }/duplicate-campaign/${ id }`,
 												method: 'POST',
 												data: { name },
 												quiet: true,
@@ -329,7 +330,7 @@ class CampaignsWizard extends Component {
 										};
 										const renameCampaignGroup = ( id, name ) => {
 											return wizardApiFetch( {
-												path: `/newspack/v1/wizard/newspack-popups-wizard/rename-campaign/${ id }`,
+												path: `${ newspackAudienceCampaigns.api }/rename-campaign/${ id }`,
 												method: 'POST',
 												data: { name },
 												quiet: true,

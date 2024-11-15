@@ -1,3 +1,4 @@
+/* globals newspackAudienceCampaigns */
 /**
  * WordPress dependencies.
  */
@@ -252,7 +253,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 		setInFlight( true );
 		setError( null );
 		wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
+			path: `${ newspackAudienceCampaigns.api }/segmentation/${ segment.id }`,
 			method: 'POST',
 			quiet: true,
 			data: {
@@ -276,7 +277,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 		setInFlight( true );
 		setError( null );
 		wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segment.id }`,
+			path: `${ newspackAudienceCampaigns.api }/segmentation/${ segment.id }`,
 			method: 'DELETE',
 			quiet: true,
 		} )
@@ -293,7 +294,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 		setSortedSegments( segmentsToSort );
 		setInFlight( true );
 		wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation-sort`,
+			path: `${ newspackAudienceCampaigns.api }/segmentation-sort`,
 			method: 'POST',
 			data: { segmentIds: segmentsToSort.map( _segment => _segment.id ) },
 			quiet: true,
