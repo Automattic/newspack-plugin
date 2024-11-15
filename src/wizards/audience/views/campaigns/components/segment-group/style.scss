@@ -22,10 +22,7 @@
 	&__card {
 		border-color: wp-colors.$gray-300;
 		overflow: hidden;
-
-		& > &__segment {
-			margin: -16px -16px 0 !important;
-		}
+		padding: 0;
 
 		&__segment {
 			align-items: center;
@@ -63,22 +60,19 @@
 	}
 
 	&__action-cards {
-		margin: 0 -16px;
+		margin: 0;
 
 		.newspack-card.newspack-action-card {
 			border-bottom: 0;
 			border-left: 0;
 			border-radius: 0;
 			border-right: 0;
-			margin-bottom: 16px;
+			margin-bottom: 0;
+			margin-block: 0 !important;
 
 			&:first-child {
 				border-top: 0;
 				margin-top: 0;
-			}
-
-			&:last-child {
-				margin-bottom: -16px;
 			}
 		}
 	}
