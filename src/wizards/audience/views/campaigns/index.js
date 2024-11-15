@@ -8,7 +8,7 @@ import '../../../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Component, render, createElement } from '@wordpress/element';
+import { Component  } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -377,7 +377,4 @@ class CampaignsWizard extends Component {
 	}
 }
 
-render(
-	createElement( withWizard( CampaignsWizard, [ 'newspack-campaigns' ] ) ),
-	document.getElementById( 'newspack-audience-campaigns' )
-);
+export default withWizard( CampaignsWizard );
