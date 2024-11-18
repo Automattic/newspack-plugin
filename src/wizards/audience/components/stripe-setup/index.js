@@ -16,8 +16,8 @@ import {
 	Settings,
 	TextControl,
 	Wizard,
-} from '../../../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
+} from '../../../../components/src';
+import { READER_REVENUE_WIZARD_SLUG } from '../../views/donations/constants';
 import './style.scss';
 
 const { SettingsCard } = Settings;

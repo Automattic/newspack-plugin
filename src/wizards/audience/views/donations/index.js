@@ -14,61 +14,30 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { withWizard, Wizard, Notice } from '../../../../components/src';
-import * as Views from './views';
-import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, OTHER } from './constants';
+import { READER_REVENUE_WIZARD_SLUG } from './constants';
+
+const headerText = __( 'Audience Development / Donations', 'newspack-plugin' );
+
+const tabbedNavigation = [
+	{
+		label: __( 'Configuration', 'newpack-plugin' ),
+		path: '/configuration',
+		exact: true,
+	},
+	{
+		label: __( 'Revenue', 'newpack-plugin' ),
+		path: '/revenue',
+		exact: false,
+	},
+];
 
 function AudienceDonations() {
-	const { platform_data, plugin_status, donation_data } = Wizard.useWizardData( 'reader-revenue' );
-	const usedPlatform = platform_data?.platform;
-
-	const platformSection = {
-		label: __( 'Platform', 'newspack' ),
-		path: '/',
-		render: Views.Platform,
-	};
-
-	let sections = [
-		{
-			label: __( 'Donations', 'newspack' ),
-			path: '/donations',
-			render: Views.Donation,
-			isHidden: usedPlatform === OTHER,
-		},
-		{
-			label: __( 'Stripe Settings', 'newspack' ),
-			path: '/stripe-setup',
-			activeTabPaths: [ '/stripe-setup' ],
-			render: Views.StripeSetup,
-			isHidden: usedPlatform !== NEWSPACK,
-		},
-		{
-			label: __( 'Emails', 'newspack' ),
-			path: '/emails',
-			render: Views.Emails,
-			isHidden: usedPlatform !== NEWSPACK,
-		},
-		{
-			label: __( 'Salesforce', 'newspack' ),
-			path: '/salesforce',
-			render: Views.Salesforce,
-			isHidden: usedPlatform !== NEWSPACK,
-		},
-		{
-			label: __( 'News Revenue Hub Settings', 'newspack' ),
-			path: '/settings',
-			render: Views.NRHSettings,
-			isHidden: usedPlatform !== NRH,
-		},
-		platformSection,
-	];
-	if ( usedPlatform === NEWSPACK && ! plugin_status ) {
-		sections = [ platformSection ];
-	}
+	const { donation_data } = Wizard.useWizardData( 'reader-revenue' );
 
 	return (
 		<Wizard
-			headerText={ __( 'Audience Development / Donations', 'newspack' ) }
-			sections={ sections }
+			headerText={ headerText }
+			sections={ tabbedNavigation }
 			apiSlug={ READER_REVENUE_WIZARD_SLUG }
 			renderAboveSections={ () =>
 				values( donation_data?.errors ).map( ( error, i ) => (

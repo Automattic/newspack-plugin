@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { DonationAmounts } from '../../../audience/views/donations/views/donation';
-import { StripeKeysSettings } from '../../../audience/views/donations/views/stripe-setup';
+import { StripeKeysSettings } from '../../../audience/components/stripe-setup';
 import { Wizard } from '../../../../components/src';
 
 const ReaderRevenue = ( { className } ) => {

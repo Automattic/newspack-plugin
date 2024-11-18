@@ -28,6 +28,9 @@ import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
+import Platform from '../../components/platform';
+import StripeSetup from '../../components/stripe-setup';
+import NRHSettings from '../../components/nrh-settings';
 
 export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
@@ -163,7 +166,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	return (
 		<WizardsTab
 			title={ __( 'Audience Development', 'newspack-plugin' ) }
-			description={ 
+			description={
 				<>
 					{ __(
 						"Newspack's Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
@@ -496,8 +499,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							</>
 						) }
 					</ActionCard>
-					{/* TODO: Add Platform from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/`*/}
-					{/* TODO: Add Stripe Setup from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/stripe-setup`*/}
+
 					{/* TODO: Add Saleforce Settings from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce`*/}
 					<div className="newspack-buttons-card">
 						<Button
@@ -559,6 +561,13 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							) }
 						</Button>
 					</div>
+
+					<hr />
+
+					<SectionHeader title={ __( 'Platform', 'newspack-plugin' ) } />
+					<Platform />
+					<StripeSetup />
+					<NRHSettings />
 				</Card>
 			) }
 		</WizardsTab>

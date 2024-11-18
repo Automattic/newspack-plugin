@@ -8,8 +8,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../../../components/src';
-import { NEWSPACK, NRH, OTHER } from '../../constants';
+import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
+import { NEWSPACK, NRH, OTHER } from '../../views/donations/constants';
 
 /**
  * Platform Selection  Screen Component

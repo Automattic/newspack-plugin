@@ -15,8 +15,8 @@ import {
 	Grid,
 	TextControl,
 	Wizard,
-} from '../../../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
+} from '../../../../components/src';
+import { READER_REVENUE_WIZARD_SLUG } from '../../views/donations/constants';
 
 const NRHSettings = () => {
 	const [ selectedPage, setSelectedPage ] = useState( null );
