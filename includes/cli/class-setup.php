@@ -26,7 +26,7 @@ class Setup {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--site=<WordPress site url>]
+	 * [--site=<WordPress-site-url>]
 	 * : If passed, will use post content from the given URL to populate starter content.
 	 *
 	 * @param array $args Positional arguments.
