@@ -52,7 +52,7 @@ const tabbedNavigation = [
 	},
 ];
 
-class CampaignsWizard extends Component {
+class AudienceCampaigns extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
@@ -377,4 +377,4 @@ class CampaignsWizard extends Component {
 	}
 }
 
-export default withWizard( CampaignsWizard );
+export default withWizard( AudienceCampaigns );
