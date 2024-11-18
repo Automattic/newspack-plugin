@@ -38,7 +38,7 @@ const tabbedNavigation = [
 	{
 		label: __( 'Segments', 'newpack-plugin' ),
 		path: '/segments',
-		exact: true,
+		exact: false,
 	},
 	{
 		label: __( 'Analytics', 'newpack-plugin' ),
