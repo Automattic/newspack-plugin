@@ -15,10 +15,10 @@ import { moreVertical, settings } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Modal, Notice, TextControl } from '../../../../../../components/src';
+import { ActionCard, Button, Card, Modal, Notice, TextControl } from '../../../../components/src';
 import PrimaryPromptPopover from '../prompt-popovers/primary';
 import PromptSettingsModal from '../settings-modal';
-import { placementForPopup } from '../../utils';
+import { placementForPopup } from '../../views/campaigns/utils';
 import './style.scss';
 
 const PromptActionCard = props => {

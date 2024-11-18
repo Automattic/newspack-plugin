@@ -19,8 +19,8 @@ import {
 	Settings,
 	TextControl,
 	hooks,
-} from '../../../../../../components/src';
-import ListsControl from '../../components/lists-control';
+} from '../../../../../components/src';
+import ListsControl from '../../../components/lists-control';
 
 const { useHistory } = Router;
 const { SettingsCard, SettingsSection, MinMaxSetting } = Settings;

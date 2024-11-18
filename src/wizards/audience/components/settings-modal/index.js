@@ -16,13 +16,13 @@ import {
 	SelectControl,
 	Settings,
 	hooks,
-} from '../../../../../../components/src';
+} from '../../../../components/src';
 import {
 	frequenciesForPopup,
 	isOverlay,
 	placementsForPopups,
 	overlaySizesForPopups,
-} from '../../utils';
+} from '../../views/campaigns/utils';
 
 const { SettingsCard } = Settings;
 

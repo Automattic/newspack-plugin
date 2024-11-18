@@ -21,11 +21,11 @@ import {
 	Router,
 	TextControl,
 	withWizardScreen,
-} from '../../../../../../components/src';
-import CampaignManagementPopover from '../../components/campaign-management-popover';
-import SegmentGroup from '../../components/segment-group';
-import { dataForCampaignId } from '../../utils';
-import { CampaignsContext } from '../../contexts';
+} from '../../../../../components/src';
+import CampaignManagementPopover from '../../../components/campaign-management-popover';
+import SegmentGroup from '../../../components/segment-group';
+import { dataForCampaignId } from '../utils';
+import { CampaignsContext } from '../../../contexts';
 import './style.scss';
 
 /**

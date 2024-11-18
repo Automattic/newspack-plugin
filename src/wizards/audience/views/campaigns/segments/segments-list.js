@@ -11,8 +11,8 @@ import { Icon, chevronDown, chevronUp, dragHandle, moreVertical } from '@wordpre
 /**
  * Internal dependencies.
  */
-import { ActionCard, Button, Card, Notice, Popover, Router } from '../../../../../../components/src';
-import { segmentDescription } from '../../utils';
+import { ActionCard, Button, Card, Notice, Popover, Router } from '../../../../../components/src';
+import { segmentDescription } from '../utils';
 
 const { NavLink, useHistory } = Router;
 

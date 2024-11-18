@@ -23,7 +23,7 @@ import { stringify } from 'qs';
 import { WebPreview, withWizard } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 import { Campaigns, Analytics, Settings, Segments } from './views';
-import { CampaignsContext } from './contexts';
+import { CampaignsContext } from '../../contexts';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 

@@ -12,7 +12,7 @@ import { header, layout } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Button, ButtonCard, Card, Grid, Modal } from '../../../../../../components/src';
+import { Button, ButtonCard, Card, Grid, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
 import {
@@ -20,7 +20,7 @@ import {
 	segmentDescription,
 	getCardClassName,
 	warningForPopup,
-} from '../../utils';
+} from '../../views/campaigns/utils';
 import {
 	iconInline,
 	iconOverlayBottom,
