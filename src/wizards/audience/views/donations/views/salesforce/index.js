@@ -15,7 +15,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies.
  */
-import { PluginSettings, Notice, Wizard } from '../../../../components/src';
+import { PluginSettings, Notice, Wizard } from '../../../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const Salesforce = () => {

@@ -19,7 +19,7 @@ import {
 	SelectControl,
 	TextControl,
 	Wizard,
-} from '../../../../components/src';
+} from '../../../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 type FrequencySlug = 'once' | 'month' | 'year';
@@ -104,7 +104,7 @@ export const DonationAmounts = () => {
 	const minimumDonationFloat = parseFloat( minimumDonation );
 
 	// Whether we can use the Name Your Price extension. If not, layout is forced to Tiered.
-	const canUseNameYourPrice = window.newspack_reader_revenue?.can_use_name_your_price;
+	const canUseNameYourPrice = window.newspackAudienceDonations?.can_use_name_your_price;
 
 	return (
 		<>

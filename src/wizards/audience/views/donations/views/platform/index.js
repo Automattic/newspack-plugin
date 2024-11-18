@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
+import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../../../components/src';
 import { NEWSPACK, NRH, OTHER } from '../../constants';
 
 /**

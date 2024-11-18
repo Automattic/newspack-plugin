@@ -1,4 +1,4 @@
-/* globals newspack_reader_revenue*/
+/* globals newspackAudienceDonations */
 
 /**
  * WordPress dependencies
@@ -15,10 +15,10 @@ import values from 'lodash/values';
 /**
  * Internal dependencies
  */
-import { PluginInstaller, ActionCard, Notice } from '../../../../components/src';
+import { PluginInstaller, ActionCard, Notice } from '../../../../../../components/src';
 
-const EMAILS = values( newspack_reader_revenue.emails );
-const postType = newspack_reader_revenue.email_cpt;
+const EMAILS = values( newspackAudienceDonations.emails );
+const postType = newspackAudienceDonations.email_cpt;
 
 const Emails = () => {
 	const [ pluginsReady, setPluginsReady ] = useState( null );

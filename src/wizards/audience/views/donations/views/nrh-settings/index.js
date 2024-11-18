@@ -15,7 +15,7 @@ import {
 	Grid,
 	TextControl,
 	Wizard,
-} from '../../../../components/src';
+} from '../../../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const NRHSettings = () => {

@@ -1,4 +1,4 @@
-import '../../shared/js/public-path';
+import '../../../../shared/js/public-path';
 
 /**
  * External dependencies.
@@ -8,19 +8,19 @@ import values from 'lodash/values';
 /**
  * WordPress dependencies.
  */
-import { render, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
  */
-import { Wizard, Notice } from '../../components/src';
+import { withWizard, Wizard, Notice } from '../../../../components/src';
 import * as Views from './views';
 import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, NRH, OTHER } from './constants';
 
-const ReaderRevenueWizard = () => {
+function AudienceDonations() {
 	const { platform_data, plugin_status, donation_data } = Wizard.useWizardData( 'reader-revenue' );
 	const usedPlatform = platform_data?.platform;
+
 	const platformSection = {
 		label: __( 'Platform', 'newspack' ),
 		path: '/',
@@ -64,10 +64,10 @@ const ReaderRevenueWizard = () => {
 	if ( usedPlatform === NEWSPACK && ! plugin_status ) {
 		sections = [ platformSection ];
 	}
+
 	return (
 		<Wizard
-			headerText={ __( 'Reader Revenue', 'newspack' ) }
-			subHeaderText={ __( 'Generate revenue from your customers', 'newspack' ) }
+			headerText={ __( 'Audience Development / Donations', 'newspack' ) }
 			sections={ sections }
 			apiSlug={ READER_REVENUE_WIZARD_SLUG }
 			renderAboveSections={ () =>
@@ -75,12 +75,7 @@ const ReaderRevenueWizard = () => {
 					<Notice key={ i } isError noticeText={ error } />
 				) )
 			}
-			requiredPlugins={ [ 'newspack-blocks' ] }
 		/>
 	);
-};
-
-render(
-	createElement( ReaderRevenueWizard ),
-	document.getElementById( 'newspack-reader-revenue-wizard' )
-);
+}
+export default withWizard( AudienceDonations, [ 'newspack-blocks' ] );
