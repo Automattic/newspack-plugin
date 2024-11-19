@@ -1,4 +1,3 @@
-/* globals newspack_connections_data */
 /**
  * WordPress dependencies
  */
@@ -15,25 +14,31 @@ import {
 	Button,
 	Grid,
 	Notice,
-	SectionHeader,
 	SelectControl,
-} from '../../../../components/src';
+} from '../../../../../components/src';
+
+const isValidError = ( e: unknown ): e is WpRestApiError => {
+	return e instanceof Error && 'message' in e;
+}
 
 const JetpackSSO = () => {
-	const [ error, setError ] = useState( null );
-	const [ isLoading, setIsLoading ] = useState( false );
-	const [ settings, setSettings ] = useState( {} );
-	const [ settingsToUpdate, setSettingsToUpdate ] = useState( {} );
+	const [ error, setError ] = useState<string>( '' );
+	const [ isLoading, setIsLoading ] = useState<boolean>( false );
+	const [ settings, setSettings ] = useState<JetpackSSOSettings>( {} );
+	const [ settingsToUpdate, setSettingsToUpdate ] = useState<JetpackSSOSettings>( {} );
+
+  const getCapLabel = ( cap: JetpackSSOCaps ): string | undefined =>
+    settings.available_caps ? settings.available_caps[ cap ] : undefined;
 
 	useEffect( () => {
 		const fetchSettings = async () => {
 			setIsLoading( true );
 			try {
-				const fetchedSettings = await apiFetch( { path: '/newspack-manager/v1/jetpack-sso' } );
+				const fetchedSettings = await apiFetch<JetpackSSOSettings>( { path: '/newspack-manager/v1/jetpack-sso' } );
 				setSettings( fetchedSettings );
 				setSettingsToUpdate( fetchedSettings );
-			} catch ( e ) {
-				setError( e.message || __( 'Error fetching settings.', 'newspack-plugin' ) );
+			} catch ( e: unknown ) {
+				setError( isValidError( e ) ? e.message : __( 'Error fetching settings.', 'newspack-plugin' ) );
 			} finally {
 				setIsLoading( false );
 			}
@@ -41,29 +46,25 @@ const JetpackSSO = () => {
 		fetchSettings();
 	}, [] );
 
-	const updateSettings = async data => {
-		setError( null );
+	const updateSettings = async ( data: JetpackSSOSettings ) => {
+		setError( '' );
 		setIsLoading( true );
 		try {
-			const newSettings = await apiFetch( {
+			const newSettings = await apiFetch<JetpackSSOSettings>( {
 				path: '/newspack-manager/v1/jetpack-sso',
 				method: 'POST',
 				data,
 			} );
 			setSettings( newSettings );
 			setSettingsToUpdate( newSettings );
-		} catch ( e ) {
-			setError( e?.message || __( 'Error updating settings.', 'newspack-plugin' ) );
+		} catch ( e: unknown ) {
+      setError( isValidError( e ) ? e.message : __( 'Error updating settings.', 'newspack-plugin' ) );
 		} finally {
 			setIsLoading( false );
 		}
 	};
-	if ( ! newspack_connections_data.can_use_jetpack_sso ) {
-		return null;
-	}
 	return (
 		<>
-			<SectionHeader id="jetpack-sso" title={ __( 'Jetpack SSO', 'newspack-plugin' ) } />
 			<ActionCard
 				isMedium
 				title={ __( 'Force two-factor authentication', 'newspack-plugin' ) }
@@ -120,12 +121,12 @@ const JetpackSSO = () => {
 									label={ __( 'Capability', 'newspack-plugin' ) }
 									hideLabelFromVision
 									value={ settingsToUpdate?.force_2fa_cap || '' }
-									onChange={ value =>
+									onChange={ ( value: JetpackSSOCaps ) =>
 										setSettingsToUpdate( { ...settingsToUpdate, force_2fa_cap: value } )
 									}
 									options={
-										Object.keys( settings.available_caps || {} ).map( cap => ( {
-											label: settings.available_caps[ cap ],
+										Object.keys( settings.available_caps || {} ).map( ( cap: string ) => ( {
+											label: getCapLabel( cap as JetpackSSOCaps ),
 											value: cap,
 										} ) )
 									}
