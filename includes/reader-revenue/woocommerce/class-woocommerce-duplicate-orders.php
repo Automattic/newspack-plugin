@@ -146,50 +146,52 @@ class WooCommerce_Duplicate_Orders {
 		?>
 		<div class="notice notice-info is-dismissible">
 			<!-- Admin notice added by newspack-plugin -->
-			<p>
-				<?php echo esc_html__( 'There are some potentially duplicate transactions to review. Some of these might be intentional:', 'newspack-plugin' ); ?>
-			</p>
-			<ul>
-				<?php foreach ( $order_series as $order_series ) : ?>
-					<li style="display: flex; align-items: center;">
-						<p style="margin: 0;">
+			<details>
+				<summary style="margin: 0.6em 0; cursor: pointer;">
+					<?php echo esc_html__( 'There are some potentially duplicate transactions to review. Some of these might be intentional. Click this message to display the list of possible duplicates.', 'newspack-plugin' ); ?>
+				</summary>
+				<ul>
+					<?php foreach ( $order_series as $order_series ) : ?>
+						<li style="display: flex; align-items: center;">
+							<p style="margin: 0;">
 
-						<?php
-						ob_start();
-						?>
-							<a href="<?php echo esc_url( admin_url( 'edit.php?s=' . urlencode( $order_series['email'] ) . '&post_type=shop_order' ) ); ?>"><?php echo esc_html( $order_series['email'] ); ?></a>
-						<?php
-						$customer_email = ob_get_clean();
-
-						ob_start();
-						$order_ids = explode( ',', $order_series['ids'] );
-						foreach ( $order_ids as $index => $order_id ) :
-							$order_url = admin_url( 'post.php?post=' . intval( $order_id ) . '&action=edit' );
-							?>
-								<a href="<?php echo esc_url( $order_url ); ?>"><?php echo esc_html( $order_id ); ?></a><?php echo ( $index < count( $order_ids ) - 1 ) ? ', ' : ''; ?>
 							<?php
-						endforeach;
-						$order_list = ob_get_clean();
+							ob_start();
+							?>
+								<a href="<?php echo esc_url( admin_url( 'edit.php?s=' . urlencode( $order_series['email'] ) . '&post_type=shop_order' ) ); ?>"><?php echo esc_html( $order_series['email'] ); ?></a>
+							<?php
+							$customer_email = ob_get_clean();
 
-						printf(
-							/* translators: 1: customer email, 2: order amount, 3: orders date, 4: order IDs */
-							wp_kses_post( __( 'Customer %1$s made multiple orders of %2$s on %3$s. Orders: %4$s.', 'newspack-plugin' ) ),
-							wp_kses_post( $customer_email ),
-							wp_kses_post( \wc_price( $order_series['amount'] ) ),
-							esc_html( date_i18n( get_option( 'date_format' ), strtotime( $order_series['date'] ) ) ),
-							wp_kses_post( trim( $order_list ) )
-						);
+							ob_start();
+							$order_ids = explode( ',', $order_series['ids'] );
+							foreach ( $order_ids as $index => $order_id ) :
+								$order_url = admin_url( 'post.php?post=' . intval( $order_id ) . '&action=edit' );
+								?>
+									<a href="<?php echo esc_url( $order_url ); ?>"><?php echo esc_html( $order_id ); ?></a><?php echo ( $index < count( $order_ids ) - 1 ) ? ', ' : ''; ?>
+								<?php
+							endforeach;
+							$order_list = ob_get_clean();
 
-						$order_series_id = implode( '-', $order_ids );
-					?>
-						</p>
-						<form method="post" style="display:inline; margin-left: 8px;">
-							<input type="hidden" name="dismiss_order_ids" value="<?php echo esc_attr( $order_series['ids'] ); ?>">
-							<?php submit_button( __( 'Dismiss', 'newspack-plugin' ), 'small', 'dismiss_order', false, [ 'id' => 'dismiss_order_series_' . $order_series_id ] ); ?>
-						</form>
-					</li>
-				<?php endforeach; ?>
-			</ul>
+							printf(
+								/* translators: 1: customer email, 2: order amount, 3: orders date, 4: order IDs */
+								wp_kses_post( __( 'Customer %1$s made multiple orders of %2$s on %3$s. Orders: %4$s.', 'newspack-plugin' ) ),
+								wp_kses_post( $customer_email ),
+								wp_kses_post( \wc_price( $order_series['amount'] ) ),
+								esc_html( date_i18n( get_option( 'date_format' ), strtotime( $order_series['date'] ) ) ),
+								wp_kses_post( trim( $order_list ) )
+							);
+
+							$order_series_id = implode( '-', $order_ids );
+						?>
+							</p>
+							<form method="post" style="display:inline; margin-left: 8px;">
+								<input type="hidden" name="dismiss_order_ids" value="<?php echo esc_attr( $order_series['ids'] ); ?>">
+								<?php submit_button( __( 'Dismiss', 'newspack-plugin' ), 'small', 'dismiss_order', false, [ 'id' => 'dismiss_order_series_' . $order_series_id ] ); ?>
+							</form>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</details>
 		</div>
 		<?php
 		if ( isset( $_POST['dismiss_order'] ) && isset( $_POST['dismiss_order_ids'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
