@@ -30,7 +30,6 @@ const defaultEndpoint: Endpoint = {
 	disabled_error: false,
 	id: 0,
 	system: '',
-	global: true,
 	actions: [],
 	bearer_token: '',
 };

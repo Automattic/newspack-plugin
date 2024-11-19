@@ -41,7 +41,6 @@ type Endpoint = {
 	disabled_error: boolean;
 	id: string | number;
 	system: string;
-	global: boolean;
 	actions: string[];
 	bearer_token?: string;
 };
