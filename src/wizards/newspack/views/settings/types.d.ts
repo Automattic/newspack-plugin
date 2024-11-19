@@ -41,7 +41,6 @@ type Endpoint = {
 	disabled_error: boolean;
 	id: string | number;
 	system: string;
-	global: boolean;
 	actions: string[];
 	bearer_token?: string;
 };
@@ -92,3 +91,15 @@ type RssData = {
 	module_enabled_rss: boolean;
 	'module_enabled_media-partners': boolean;
 };
+
+/** Jetpack SSO Caps */
+type JetpackSSOCaps = 'edit_posts' | 'publish_posts' | 'edit_others_posts' | 'manage_options';
+
+/** Jetpack SSO Settings */
+type JetpackSSOSettings = Partial<{
+	jetpack_sso_force_2fa: boolean;
+	force_2fa: boolean;
+	force_2fa_cap: JetpackSSOCaps;
+	obfuscate_account: boolean;
+	available_caps: { [key in JetpackSSOCaps]?: string };
+}>;

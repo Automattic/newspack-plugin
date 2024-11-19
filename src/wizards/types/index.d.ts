@@ -15,6 +15,18 @@ type WizardApiFetch< T = {} > = (
 ) => Promise< T >;
 
 /**
+ * WP REST API Error.
+ */
+type WpRestApiError = {
+	code: string;
+	message: string;
+	data: {
+		status: number;
+		params: Record< string, string >;
+	};
+};
+
+/**
  * Attachment object interface.
  */
 interface Attachment {
