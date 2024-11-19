@@ -33,27 +33,22 @@ function EndpointActionsCard( {
 			description={ () => {
 				if ( endpoint.disabled && endpoint.disabled_error ) {
 					return `${ __(
-						'Endpoint disabled due to error:',
+						'Endpoint disabled due to error',
 						'newspack-plugin'
 					) }: ${ endpoint.disabled_error }`;
 				}
 				return (
 					<Fragment>
 						{ __( 'Actions:', 'newspack-plugin' ) }{ ' ' }
-						{ endpoint.global ? (
-							<span className="newspack-webhooks__endpoint-action">
-								{ __( 'global', 'newspack-plugin' ) }
+						{ endpoint.actions.map( action => (
+							<span
+								key={ action }
+								className="newspack-webhooks__endpoint-action"
+							>
+								{ action }
 							</span>
-						) : (
-							endpoint.actions.map( action => (
-								<span
-									key={ action }
-									className="newspack-webhooks__endpoint-action"
-								>
-									{ action }
-								</span>
-							) )
-						) }
+						) )
+					 }
 					</Fragment>
 				);
 			} }
