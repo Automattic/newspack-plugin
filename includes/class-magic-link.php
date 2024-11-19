@@ -417,6 +417,11 @@ final class Magic_Link {
 			return new \WP_Error( 'newspack_magic_link_invalid_user', __( 'Invalid user.', 'newspack-plugin' ) );
 		}
 
+		// If an OTP hash cookie is not set, ignore any active tokens.
+		if ( ! isset( $_COOKIE[ self::OTP_HASH_COOKIE ] ) ) {
+			return false;
+		}
+
 		$now    = time();
 		$tokens = \get_user_meta( $user->ID, self::TOKENS_META, true );
 
