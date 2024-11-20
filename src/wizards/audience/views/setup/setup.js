@@ -318,9 +318,6 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 							</>
 						) }
 					</ActionCard>
-					{/* TODO: Add Platform from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/`*/}
-					{/* TODO: Add Stripe Setup from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/stripe-setup`*/}
-					{/* TODO: Add Saleforce Settings from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce`*/}
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
