@@ -20,7 +20,7 @@ import {
 	segmentDescription,
 	getCardClassName,
 	warningForPopup,
-} from '../../utils';
+} from '../../views/campaigns/utils';
 import {
 	iconInline,
 	iconOverlayBottom,
@@ -189,7 +189,7 @@ const SegmentGroup = props => {
 					/>
 				) ) }
 			</Card>
-			{ prompts.length < 1 ? <p>{ emptySegmentText }</p> : '' }
+			{ prompts.length < 1 ? <p className="newspack-campaigns__segment-group__empty-segment-text">{ emptySegmentText }</p> : '' }
 		</Card>
 	);
 };

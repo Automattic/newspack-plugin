@@ -1,3 +1,4 @@
+/* globals newspackAudienceCampaigns */
 /**
  * WordPress dependencies.
  */
@@ -18,8 +19,8 @@ import {
 	Settings,
 	TextControl,
 	hooks,
-} from '../../../../components/src';
-import ListsControl from '../../components/lists-control';
+} from '../../../../../components/src';
+import ListsControl from '../../../components/lists-control';
 
 const { useHistory } = Router;
 const { SettingsCard, SettingsSection, MinMaxSetting } = Settings;
@@ -29,7 +30,7 @@ const DEFAULT_CONFIG = {
 };
 
 const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
-	const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
+	const allCriteria = window.newspackAudienceCampaigns?.criteria || [];
 
 	const [ segmentConfig, updateSegmentConfig ] = hooks.useObjectState( DEFAULT_CONFIG );
 	const [ name, setName ] = useState( '' );
@@ -62,7 +63,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	useEffect( () => {
 		if ( ! isNew ) {
 			wizardApiFetch( {
-				path: `/newspack/v1/wizard/newspack-popups-wizard/segmentation`,
+				path: `${ newspackAudienceCampaigns.api }/segmentation`,
 			} ).then( segments => {
 				const foundSegment = find( segments, ( { id } ) => id === segmentId );
 				if ( foundSegment ) {
@@ -85,8 +86,8 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		unblock();
 
 		const path = isNew
-			? `/newspack/v1/wizard/newspack-popups-wizard/segmentation`
-			: `/newspack/v1/wizard/newspack-popups-wizard/segmentation/${ segmentId }`;
+			? `${ newspackAudienceCampaigns.api }/segmentation`
+			: `${ newspackAudienceCampaigns.api }/segmentation/${ segmentId }`;
 		wizardApiFetch( {
 			path,
 			method: 'POST',
@@ -364,7 +365,7 @@ addFilter(
 			return (
 				<ListsControl
 					placeholder={ __( 'Start typing to search for products…', 'newspack-plugin' ) }
-					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
+					path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
 					value={ value }
 					onChange={ update }
 				/>

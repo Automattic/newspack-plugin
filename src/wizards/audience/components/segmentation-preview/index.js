@@ -18,8 +18,8 @@ const SegmentationPreview = props => {
 	const [ decoratedUrl, setDecoratedUrl ] = useState( null );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ sessionId, setSessionId ] = useState( Math.floor( Math.random() * 9999 ) ); // A random ID that can be used to tie together all pageviews in a single preview session.
-	const postPreviewLink = window?.newspack_popups_wizard_data?.preview_post;
-	const frontendUrl = window?.newspack_popups_wizard_data?.frontend_url || '/';
+	const postPreviewLink = window?.newspackAudienceCampaigns?.preview_post;
+	const frontendUrl = window?.newspackAudienceCampaigns?.frontend_url || '/';
 
 	const {
 		campaign = false,
