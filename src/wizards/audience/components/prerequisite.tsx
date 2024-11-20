@@ -19,6 +19,8 @@ export default function Prerequisite( {
 	inFlight,
 	prerequisite,
 	saveConfig,
+	onClick,
+	children,
 }: PrequisiteProps ) {
 	const { href } = prerequisite;
 	const isValid = Boolean( prerequisite.active || prerequisite.is_skipped );
@@ -185,10 +187,21 @@ export default function Prerequisite( {
 											prerequisite.action_text }
 									</Button>
 								) }
+							{ prerequisite.is_child_component && onClick && (
+								<Button
+									variant={ 'primary' }
+									onClick={ onClick }
+								>
+									{ `${ __( 'Update', 'newspack-plugin' ) } ${
+										prerequisite.action_text
+									}` }
+								</Button>
+							) }
 						</div>
 					</Grid>
 				)
 			}
+			{ children }
 		</>
 	);
 

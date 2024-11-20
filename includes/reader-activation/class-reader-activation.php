@@ -540,19 +540,18 @@ final class Reader_Activation {
 				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
 			'reader_revenue'   => [
-				'active'       => self::is_reader_revenue_ready(),
-				'plugins'      => [
+				'active'             => self::is_reader_revenue_ready(),
+				'plugins'            => [
 					'newspack-blocks'           => class_exists( '\Newspack_Blocks' ),
 					'woocommerce'               => function_exists( 'WC' ),
 					'woocommerce-subscriptions' => class_exists( 'WC_Subscriptions_Product' ),
 				],
-				'label'        => __( 'Reader Revenue', 'newspack-plugin' ),
-				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
-				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
-				// @TODO: Update when platform is added.
-				'href'         => \admin_url( '/admin.php?page=newspack-reader-revenue-wizard' ),
-				'action_text'  => __( 'Reader Revenue settings' ),
+				'label'              => __( 'Reader Revenue', 'newspack-plugin' ),
+				'description'        => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
+				'instructions'       => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack-plugin' ),
+				'help_url'           => 'https://help.newspack.com/engagement/reader-activation-system',
+				'action_text'        => __( 'Reader Revenue settings' ),
+				'is_child_component' => true,
 			],
 			'ras_campaign'     => [
 				'active'         => self::is_ras_campaign_configured(),

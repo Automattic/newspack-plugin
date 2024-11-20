@@ -22,12 +22,17 @@ import {
 	withWizardScreen,
 } from '../../../../components/src';
 import WizardsTab from '../../../wizards-tab';
+import ReaderRevenue from './reader-revenue';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
 import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
+
+const prerequisitesComponents = {
+	reader_revenue: () => <ReaderRevenue />,
+};
 
 export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
@@ -163,7 +168,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	return (
 		<WizardsTab
 			title={ __( 'Audience Development', 'newspack-plugin' ) }
-			description={ 
+			description={
 				<>
 					{ __(
 						"Newspack's Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
@@ -239,7 +244,12 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 						prerequisite={ prerequisites[ key ] }
 						fetchConfig={ fetchConfig }
 						saveConfig={ saveConfig }
-					/>
+					>
+						{ prerequisitesComponents[ key ] &&
+							prerequisitesComponents[ key ](
+								prerequisites[ key ]
+							) }
+					</Prerequisite>
 				) ) }
 			{ config.enabled && (
 				<>
@@ -496,9 +506,9 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							</>
 						) }
 					</ActionCard>
-					{/* TODO: Add Platform from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/`*/}
-					{/* TODO: Add Stripe Setup from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/stripe-setup`*/}
-					{/* TODO: Add Saleforce Settings from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce`*/}
+					{ /* TODO: Add Platform from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/`*/ }
+					{ /* TODO: Add Stripe Setup from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/stripe-setup`*/ }
+					{ /* TODO: Add Saleforce Settings from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce`*/ }
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
@@ -553,10 +563,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							} }
 							disabled={ inFlight }
 						>
-							{ __(
-								'Save Settings',
-								'newspack-plugin'
-							) }
+							{ __( 'Save Settings', 'newspack-plugin' ) }
 						</Button>
 					</div>
 				</Card>

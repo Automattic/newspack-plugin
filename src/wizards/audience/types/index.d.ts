@@ -73,6 +73,7 @@ type ConfigKey = keyof Config;
 // Props for the Prequisite component.
 type PrequisiteProps = {
 	config: Config;
+	children?: React.ReactNode;
 	getSharedProps: (
 		configKey: string,
 		type: string
@@ -82,6 +83,7 @@ type PrequisiteProps = {
 		checked?: boolean;
 		value?: string;
 	};
+	onClick?: () => void;
 	inFlight: boolean;
 	saveConfig: ( config: Config ) => void;
 
@@ -108,6 +110,7 @@ type PrequisiteProps = {
 		disabled_text?: string;
 		is_unavailable?: boolean;
 		is_skipped?: boolean;
+		is_child_component?: boolean;
 	};
 };
 
