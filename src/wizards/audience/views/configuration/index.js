@@ -69,4 +69,3 @@ class AudienceConfiguration extends Component {
 }
 
 export default withWizard( AudienceConfiguration );
-	

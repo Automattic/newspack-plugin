@@ -67,7 +67,7 @@ describe( 'A new segment creation', () => {
 	};
 
 	beforeEach( () => {
-		window.newspack_popups_wizard_data = { criteria };
+		window.newspackAudienceConfiguration = { criteria };
 		render(
 			<MemoryRouter>
 				<SingleSegment { ...mockProps } />
