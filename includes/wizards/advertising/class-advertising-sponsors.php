@@ -38,7 +38,14 @@ class Advertising_Sponsors extends Wizard {
 	 *
 	 * @var string
 	 */
-	const PARENT_URL = 'admin.php?page=advertising-display-ads';
+	const PARENT_URL = 'admin.php?page=newspack-advertising-display-ads';
+
+	/**
+	 * The parent menu item name.
+	 *
+	 * @var string
+	 */
+	public $parent_menu = 'newspack-advertising-display-ads';
 
 	/**
 	 * The capability required to access this wizard.
@@ -121,13 +128,13 @@ class Advertising_Sponsors extends Wizard {
 		}
 		Newspack::load_common_assets();
 		wp_register_style(
-			'advertising-display-ads',
+			$this->parent_menu,
 			Newspack::plugin_url() . '/dist/billboard.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
-		wp_style_add_data( 'advertising-display-ads', 'rtl', 'replace' );
-		wp_enqueue_style( 'advertising-display-ads' );
+		wp_style_add_data( $this->parent_menu, 'rtl', 'replace' );
+		wp_enqueue_style( $this->parent_menu );
 	}
 
 	/**
@@ -135,9 +142,8 @@ class Advertising_Sponsors extends Wizard {
 	 */
 	public function add_page() {
 		global $submenu;
-		$parent_slug = 'advertising-display-ads';
-		if ( isset( $submenu[ $parent_slug ] ) ) {
-			$submenu[ $parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		if ( isset( $submenu[ $this->parent_menu ] ) ) {
+			$submenu[ $this->parent_menu ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				__( 'Sponsors', 'newspack-plugin' ),
 				'manage_options',
 				static::URL,
@@ -180,7 +186,7 @@ class Advertising_Sponsors extends Wizard {
 		global $pagenow, $typenow;
 
 		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
-			return 'advertising-display-ads';
+			return $this->parent_menu;
 		}
 
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
