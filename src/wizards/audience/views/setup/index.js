@@ -24,16 +24,6 @@ import WooCommerce from './woocommerce';
 const { HashRouter, Redirect, Route, Switch } = Router;
 
 function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
-
-	const props = {
-		headerText: __(
-			'Audience Development',
-			'newspack-plugin'
-		),
-		tabbedNavigation: [],
-		wizardApiFetch,
-	};
-
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
 	const [ prerequisites, setPrerequisites ] = useState( null );
@@ -106,6 +96,24 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		tabs = tabs.filter( tab => tab );
 	}
 
+	const props = {
+		headerText: __(
+			'Audience Development',
+			'newspack-plugin'
+		),
+		tabbedNavigation: tabs,
+		wizardApiFetch,
+		inFlight,
+		error,
+		fetchConfig,
+		updateConfig,
+		saveConfig,
+		espSyncErrors,
+		prerequisites,
+		config,
+		emails,
+	};
+
 	return (
 		<>
 			<HashRouter hashType="slash">
@@ -115,64 +123,37 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 						path="/"
 						exact
 						render={ () => (
-							<Setup
-								{ ...props }
-								inFlight={ inFlight }
-								error={ error }
-								fetchConfig={ fetchConfig }
-								updateConfig={ updateConfig }
-								saveConfig={ saveConfig }
-								espSyncErrors={ espSyncErrors }
-								prerequisites={ prerequisites }
-								config={ config }
-								tabbedNavigation={ tabs }
-							/>
+							<Setup { ...props } />
 						) }
 					/>
 					<Route
 						path="/content-gating"
 						render={ () => (
-							<ContentGating
-								{ ...props }
-								tabbedNavigation={ tabs }
-							/>
+							<ContentGating { ...props } />
 						) }
 					/>
 					<Route
 						path="/transactional-emails"
 						render={ () => (
-							<TransactionalEmails
-								{ ...props }
-								emails={ emails }
-								tabbedNavigation={ tabs }
-							/>
+							<TransactionalEmails { ...props } />
 						) }
 					/>
 					<Route
 						path="/woocommerce"
 						render={ () => (
-							<WooCommerce
-								{ ...props }
-								tabbedNavigation={ tabs }
-							/>
+							<WooCommerce { ...props } />
 						) }
 					/>
 					<Route
 						path="/campaign"
 						render={ () => (
-							<Campaign
-								{ ...props }
-								tabbedNavigation={ tabs }
-							/>
+							<Campaign { ...props } />
 						) }
 					/>
 					<Route
 						path="/complete"
 						render={ () => (
-							<Complete
-								{ ...props }
-								tabbedNavigation={ tabs }
-							/>
+							<Complete { ...props } />
 						) }
 					/>
 					<Redirect to="/" />
