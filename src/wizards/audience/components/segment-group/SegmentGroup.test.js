@@ -299,7 +299,7 @@ const PROMPTS = {
 describe( 'A segment with conflicting prompts', () => {
 	beforeEach( () => {
 		// Mock global vars for custom placements.
-		window.newspack_popups_wizard_data = {
+		window.newspackAudienceCampaigns = {
 			custom_placements: {
 				custom1: 'Custom Placement 1',
 			},

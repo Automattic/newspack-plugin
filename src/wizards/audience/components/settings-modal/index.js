@@ -22,7 +22,7 @@ import {
 	isOverlay,
 	placementsForPopups,
 	overlaySizesForPopups,
-} from '../../utils';
+} from '../../views/campaigns/utils';
 
 const { SettingsCard } = Settings;
 

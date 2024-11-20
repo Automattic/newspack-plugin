@@ -1,3 +1,4 @@
+/* globals newspackAudienceCampaigns */
 /**
  * WordPress dependencies.
  */
@@ -13,7 +14,7 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
 import memoize from 'lodash/memoize';
 import compact from 'lodash/compact';
 
-const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
+const allCriteria = window.newspackAudienceCampaigns?.criteria || [];
 
 /**
  * Check whether the given popup is an overlay.
@@ -22,7 +23,7 @@ const allCriteria = window.newspack_popups_wizard_data?.criteria || [];
  * @return {boolean} True if the popup is an overlay, otherwise false.
  */
 export const isOverlay = popup => {
-	const overlayPlacements = window.newspack_popups_wizard_data?.overlay_placements || [];
+	const overlayPlacements = window.newspackAudienceCampaigns?.overlay_placements || [];
 	return -1 < overlayPlacements.indexOf( popup.options.placement );
 };
 
@@ -35,7 +36,7 @@ export const isOverlay = popup => {
 export const isAboveHeader = popup => 'above_header' === popup.options.placement;
 
 export const isCustomPlacement = popup => {
-	const customPlacements = window.newspack_popups_wizard_data?.custom_placements || {};
+	const customPlacements = window.newspackAudienceCampaigns?.custom_placements || {};
 
 	return -1 < Object.keys( customPlacements ).indexOf( popup.options.placement );
 };
@@ -65,7 +66,7 @@ const placementMap = {
 };
 
 export const placementForPopup = ( { options: { frequency, placement } } ) => {
-	const customPlacements = window.newspack_popups_wizard_data?.custom_placements || {};
+	const customPlacements = window.newspackAudienceCampaigns?.custom_placements || {};
 	if ( 'manual' === frequency || customPlacements.hasOwnProperty( placement ) ) {
 		return __( 'Custom Placement', 'newspack-plugin' );
 	}
@@ -73,8 +74,8 @@ export const placementForPopup = ( { options: { frequency, placement } } ) => {
 };
 
 export const placementsForPopups = prompt => {
-	const customPlacements = window.newspack_popups_wizard_data?.custom_placements;
-	const overlayPlacements = window.newspack_popups_wizard_data?.overlay_placements;
+	const customPlacements = window.newspackAudienceCampaigns?.custom_placements;
+	const overlayPlacements = window.newspackAudienceCampaigns?.overlay_placements;
 	const options = Object.keys( placementMap )
 		.filter( key =>
 			isOverlay( prompt )
@@ -108,7 +109,7 @@ export const frequenciesForPopup = () => {
 };
 
 export const overlaySizesForPopups = () => {
-	return window.newspack_popups_wizard_data?.overlay_sizes;
+	return window.newspackAudienceCampaigns?.overlay_sizes;
 };
 
 export const getCardClassName = ( status, forceDisabled = false ) => {
@@ -333,7 +334,7 @@ addFilter(
 							: __( 'Does not have active subscription(s):', 'newspack-plugin' )
 					}
 					ids={ item.value }
-					path="/newspack/v1/wizard/newspack-popups-wizard/subscription-products"
+					path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
 				/>
 			);
 		}

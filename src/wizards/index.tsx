@@ -51,7 +51,7 @@ const components: Record< string, any > = {
 		component: lazy(
 			() =>
 				import(
-					/* webpackChunkName: "audience-wizards" */ './audience/views/setup'
+					/* webpackChunkName: "newspack-wizards" */ './audience/views/setup'
 				)
 		),
 	},
@@ -60,7 +60,7 @@ const components: Record< string, any > = {
 		component: lazy(
 			() =>
 				import(
-					/* webpackChunkName: "audience-wizards" */ './audience/views/campaigns'
+					/* webpackChunkName: "newspack-wizards" */ './audience/views/campaigns'
 				)
 		),
 	},

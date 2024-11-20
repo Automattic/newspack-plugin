@@ -166,7 +166,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-site-design-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-popups-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-connections-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 
@@ -358,7 +357,7 @@ final class Newspack {
 		if ( class_exists( '\Newspack_Popups' ) ) {
 			$post_type_mapping[ \Newspack_Popups::NEWSPACK_POPUPS_CPT ] = [
 				'base' => 'edit',
-				'url'  => esc_url( admin_url( 'admin.php?page=newspack-popups-wizard' ) ),
+				'url'  => esc_url( admin_url( 'admin.php?page=newspack-audience-campaigns' ) ),
 			];
 		}
 

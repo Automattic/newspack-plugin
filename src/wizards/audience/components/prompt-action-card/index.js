@@ -1,3 +1,4 @@
+/* globals newspackAudienceCampaigns */
 /**
  * Prompt Action Card
  */
@@ -17,7 +18,7 @@ import { moreVertical, settings } from '@wordpress/icons';
 import { ActionCard, Button, Card, Modal, Notice, TextControl } from '../../../../components/src';
 import PrimaryPromptPopover from '../prompt-popovers/primary';
 import PromptSettingsModal from '../settings-modal';
-import { placementForPopup } from '../../utils';
+import { placementForPopup } from '../../views/campaigns/utils';
 import './style.scss';
 
 const PromptActionCard = props => {
@@ -49,7 +50,7 @@ const PromptActionCard = props => {
 		const promptToDuplicate = parseInt( prompt?.duplicate_of || prompt.id );
 		try {
 			const defaultTitle = await apiFetch( {
-				path: `/newspack/v1/wizard/newspack-popups-wizard/${ promptToDuplicate }/${ prompt.id }/duplicate`,
+				path: `${ newspackAudienceCampaigns.api }/${ promptToDuplicate }/${ prompt.id }/duplicate`,
 			} );
 
 			setDuplicateTitle( defaultTitle );
@@ -72,7 +73,7 @@ const PromptActionCard = props => {
 				notificationLevel="error"
 				actionText={
 					<>
-						<div className="newspack-popups-wizard__buttons">
+						<div className="newspack-audience-campaigns__buttons">
 							<Button
 								className={ isSettingsModalVisible && 'popover-active' }
 								onClick={ () => setIsSettingsModalVisible( ! isSettingsModalVisible ) }
