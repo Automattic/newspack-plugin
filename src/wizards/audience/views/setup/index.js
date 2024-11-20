@@ -33,7 +33,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 	const fetchConfig = () => {
 		setError( false );
 		setInFlight( true );
-		wizardApiFetch( {
+		return wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/reader-activation',
 		} )
 			.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {

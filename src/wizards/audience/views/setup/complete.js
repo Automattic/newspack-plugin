@@ -61,7 +61,7 @@ const generateRandomNumber = ( min, max ) => {
 	return min + Math.random() * ( max - min );
 };
 
-export default withWizardScreen( () => {
+export default withWizardScreen( ( { fetchConfig } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ progress, setProgress ] = useState( null );
@@ -111,8 +111,10 @@ export default withWizardScreen( () => {
 			setProgress( activationSteps.length + 1 ); // Plus one to account for the "Done!" step.
 			setProgressLabel( __( 'Done!', 'newspack-plugin' ) );
 			setTimeout( () => {
-				setInFlight( false );
-				window.location.replace( reader_activation_url );
+				fetchConfig().finally( () => {
+					setInFlight( false );
+					window.location.replace( reader_activation_url );
+				} );
 			}, 3000 );
 		}
 	}, [ completed, progress ] );
