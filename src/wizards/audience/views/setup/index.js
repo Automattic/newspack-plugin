@@ -27,7 +27,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 
 	const props = {
 		headerText: __(
-			'Audience Development / Setup',
+			'Audience Development',
 			'newspack-plugin'
 		),
 		tabbedNavigation: [],
@@ -134,10 +134,6 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 						render={ () => (
 							<ContentGating
 								{ ...props }
-								headerText={ __(
-									'Audience Development / Content Gating',
-									'newspack-plugin'
-								) }
 								tabbedNavigation={ tabs }
 							/>
 						) }
@@ -148,10 +144,6 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 							<TransactionalEmails
 								{ ...props }
 								emails={ emails }
-								headerText={ __(
-									'Audience Development / Transactional Emails',
-									'newspack-plugin'
-								) }
 								tabbedNavigation={ tabs }
 							/>
 						) }
@@ -161,10 +153,6 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 						render={ () => (
 							<WooCommerce
 								{ ...props }
-								headerText={ __(
-									'Audience Development / Checkout & Payment',
-									'newspack-plugin'
-								) }
 								tabbedNavigation={ tabs }
 							/>
 						) }
@@ -174,10 +162,6 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 						render={ () => (
 							<Campaign
 								{ ...props }
-								headerText={ __(
-									'Audience Development / Campaigns',
-									'newspack-plugin'
-								) }
 								tabbedNavigation={ tabs }
 							/>
 						) }
