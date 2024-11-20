@@ -82,26 +82,29 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 
 	const emails = Object.values( config.emails || {} );
 
-	let tabs = [
-		{
-			label: __( 'Setup', 'newspack-plugin' ),
-			path: '/',
-		},
-		newspackAudience.has_memberships && {
-			label: __( 'Content Gating', 'newspack-plugin' ),
-			path: '/content-gating',
-		},
-		emails.length > 0 && {
-			label: __( 'Transacional Emails', 'newspack-plugin' ),
-			path: '/transactional-emails',
-		},
-		{
-			label: __( 'Checkout & Payment', 'newspack-plugin' ),
-			path: '/woocommerce',
-		},
-	];
+	let tabs = null;
 
-	tabs = tabs.filter( tab => tab );
+	if ( config.enabled ) {
+		tabs = [
+			{
+				label: __( 'Setup', 'newspack-plugin' ),
+				path: '/',
+			},
+			newspackAudience.has_memberships && {
+				label: __( 'Content Gating', 'newspack-plugin' ),
+				path: '/content-gating',
+			},
+			emails.length > 0 && {
+				label: __( 'Transacional Emails', 'newspack-plugin' ),
+				path: '/transactional-emails',
+			},
+			{
+				label: __( 'Checkout & Payment', 'newspack-plugin' ),
+				path: '/woocommerce',
+			},
+		];
+		tabs = tabs.filter( tab => tab );
+	}
 
 	return (
 		<>

@@ -6,21 +6,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { ActionCard, SectionHeader, withWizardScreen } from '../../../../components/src';
+import { ActionCard, withWizardScreen } from '../../../../components/src';
+import WizardsTab from '../../../wizards-tab';
 
 export default withWizardScreen( ( { emails } ) => {
 	return (
-		<>
-			<SectionHeader
-				title={ __(
-					'Transactional Email Content',
-					'newspack-plugin'
-				) }
-				description={ __(
-					'Customize the content of transactional emails.',
-					'newspack-plugin'
-				) }
-			/>
+		<WizardsTab
+			title={ __( 'Transactional Emails', 'newspack-plugin' ) }
+			description={ __(
+				"Customize the content of transactional emails.",
+				'newspack-plugin'
+			) }
+		>
 			{ emails.map( email => (
 				<ActionCard
 					key={ email.post_id }
@@ -32,6 +29,6 @@ export default withWizardScreen( ( { emails } ) => {
 					isSmall
 				/>
 			) ) }
-		</>
+		</WizardsTab>
 	);
 } );

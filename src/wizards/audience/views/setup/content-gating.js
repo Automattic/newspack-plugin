@@ -2,10 +2,12 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
-import { ActionCard, Notice, SectionHeader, withWizardScreen } from '../../../../components/src';
+import { ActionCard, Notice, withWizardScreen } from '../../../../components/src';
+import WizardsTab from '../../../wizards-tab';
 
 export default withWizardScreen( () => {
 	const [ inFlight, setInFlight ] = useState( false );
@@ -62,7 +64,24 @@ export default withWizardScreen( () => {
 	};
 
 	return (
-		<>
+		<WizardsTab
+			title={ __( 'Content Gating', 'newspack-plugin' ) }
+			description={
+				<>
+					{ __(
+						"WooCommerce Memberships integration to improve the reader experience with content gating. ",
+						'newspack-plugin'
+					) }
+					<ExternalLink
+						href={
+							'https://help.newspack.com/engagement/reader-activation-system/content-gating/'
+						}
+					>
+						{ __( 'Learn more', 'newspack-plugin' ) }
+					</ExternalLink>
+				</>
+			}
+		>
 			{ error && (
 				<Notice
 					noticeText={
@@ -72,16 +91,6 @@ export default withWizardScreen( () => {
 					isError
 				/>
 			) }
-			<SectionHeader
-				title={ __(
-					'Memberships Integration',
-					'newspack-plugin'
-				) }
-				description={ __(
-					'Improve the reader experience on content gating.',
-					'newspack-plugin'
-				) }
-			/>
 			<ActionCard
 				title={ __(
 					'Content Gate',
@@ -128,6 +137,6 @@ export default withWizardScreen( () => {
 				}
 				disabled={ inFlight }
 			/>
-		</>
+		</WizardsTab>
 	);
 } );
