@@ -15,13 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import {
-	ReaderActivation,
-	ReaderActivationCampaign,
-	ReaderActivationComplete,
-	Social,
-	RelatedContent,
-} from './views';
+import { Social, RelatedContent } from './views';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -79,14 +73,8 @@ class EngagementWizard extends Component {
 		const { relatedPostsEnabled, relatedPostsError, relatedPostsMaxAge, relatedPostsUpdated } =
 			this.state;
 
-		const defaultPath = '/reader-activation';
+		const defaultPath = '/social';
 		const tabbed_navigation = [
-			{
-				label: __( 'Reader Activation', 'newspack-plugin' ),
-				path: '/reader-activation',
-				exact: true,
-				activeTabPaths: ['/reader-activation/*'],
-			},
 			{
 				label: __( 'Social', 'newspack-plugin' ),
 				path: '/social',
@@ -107,43 +95,6 @@ class EngagementWizard extends Component {
 				<HashRouter hashType="slash">
 					<Switch>
 						{ pluginRequirements }
-						<Route
-							path="/reader-activation"
-							exact
-							render={ () => (
-								<ReaderActivation
-									subHeaderText={ __(
-										'Configure your reader activation settings',
-										'newspack-plugin'
-									) }
-									{ ...props }
-								/>
-							) }
-						/>
-						<Route
-							path="/reader-activation/campaign"
-							render={ () => (
-								<ReaderActivationCampaign
-									subHeaderText={ __(
-										'Preview and customize the reader activation prompts',
-										'newspack-plugin'
-									) }
-									{ ...props }
-								/>
-							) }
-						/>
-						<Route
-							path="/reader-activation/complete"
-							render={ () => (
-								<ReaderActivationComplete
-									subHeaderText={ __(
-										'Preview and customize the reader activation prompts',
-										'newspack-plugin'
-									) }
-									{ ...props }
-								/>
-							) }
-						/>
 						<Route
 							path="/social"
 							exact

@@ -35,7 +35,9 @@ function Connections() {
 
 			{ /* APIs; google */ }
 			<WizardSection title={ __( 'APIs', 'newspack-plugin' ) }>
-				{ connections.sections.apis.dependencies?.googleOAuth && <GoogleOAuth /> }
+				{ connections.sections.apis.dependencies?.googleOAuth && (
+					<GoogleOAuth />
+				) }
 				<Mailchimp />
 			</WizardSection>
 
@@ -47,7 +49,10 @@ function Connections() {
 			) : null }
 
 			{ /* reCAPTCHA */ }
-			<WizardSection title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }>
+			<WizardSection
+				scrollToAnchor="newspack-settings-recaptcha"
+				title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }
+			>
 				<Recaptcha />
 			</WizardSection>
 
@@ -63,7 +68,10 @@ function Connections() {
 
 			{ /* Custom Events */ }
 			<WizardSection
-				title={ __( 'Activate Newspack Custom Events', 'newspack-plugin' ) }
+				title={ __(
+					'Activate Newspack Custom Events',
+					'newspack-plugin'
+				) }
 				description={ __(
 					'Allows Newspack to send enhanced custom event data to your Google Analytics.',
 					'newspack-plugin'

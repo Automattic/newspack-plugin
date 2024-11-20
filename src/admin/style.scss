@@ -130,6 +130,16 @@ h1 {
 /**
  * Wizards
  */
+// Only apply styles if there are sections and is immediate descendent.
+.newspack-wizard__content:has(> .newspack-wizard__sections) {
+	margin: 0;
+	max-width: 100%;
+	padding: 0 0 32px;
+
+	* {
+		box-sizing: border-box;
+	}
+}
 .newspack-wizard-page {
 	#screen-meta-links {
 		position: absolute;

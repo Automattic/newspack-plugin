@@ -7,10 +7,8 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { PrequisiteProps } from './types';
 import { ActionCard, Button, Grid, TextControl } from '../../../components/src';
 import { HANDOFF_KEY } from '../../../components/src/consts';
-import type { Config, ConfigKey } from './types';
 
 /**
  * Expandable ActionCard for RAS prerequisites checklist.
@@ -62,15 +60,27 @@ export default function Prerequisite( {
 					<Grid columns={ 2 } gutter={ 16 }>
 						<div>
 							{ fieldKeys.map( fieldName => {
-								if ( ! prerequisite.fields || ! prerequisite.fields[ fieldName ] ) {
+								if (
+									! prerequisite.fields ||
+									! prerequisite.fields[ fieldName ]
+								) {
 									return undefined;
 								}
 								return (
 									<TextControl
 										key={ fieldName }
-										label={ prerequisite.fields[ fieldName ].label }
-										help={ prerequisite.fields[ fieldName ].description }
-										{ ...getSharedProps( fieldName, 'text' ) }
+										label={
+											prerequisite.fields[ fieldName ]
+												.label
+										}
+										help={
+											prerequisite.fields[ fieldName ]
+												.description
+										}
+										{ ...getSharedProps(
+											fieldName,
+											'text'
+										) }
 									/>
 								);
 							} ) }
@@ -82,7 +92,8 @@ export default function Prerequisite( {
 									fieldKeys.forEach( fieldName => {
 										if ( config[ fieldName ] ) {
 											// @ts-ignore - not sure what's the issue here.
-											dataToSave[ fieldName ] = config[ fieldName ];
+											dataToSave[ fieldName ] =
+												config[ fieldName ];
 										}
 									} );
 									saveConfig( dataToSave );
@@ -92,10 +103,21 @@ export default function Prerequisite( {
 								{ inFlight
 									? __( 'Saving…', 'newspack-plugin' )
 									: sprintf(
-										// Translators: Save or Update settings.
-										__( '%s settings', 'newspack-plugin' ),
-										isValid ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
-									) }
+											// Translators: Save or Update settings.
+											__(
+												'%s settings',
+												'newspack-plugin'
+											),
+											isValid
+												? __(
+														'Update',
+														'newspack-plugin'
+												  )
+												: __(
+														'Save',
+														'newspack-plugin'
+												  )
+									  ) }
 							</Button>
 						</div>
 					</Grid>
@@ -106,7 +128,9 @@ export default function Prerequisite( {
 				href && prerequisite.action_text && (
 					<Grid columns={ 2 } gutter={ 16 }>
 						<div>
-							{ ( ! prerequisite.hasOwnProperty( 'action_enabled' ) ||
+							{ ( ! prerequisite.hasOwnProperty(
+								'action_enabled'
+							) ||
 								prerequisite.action_enabled ) && (
 								<Button
 									variant={ 'primary' }
@@ -119,14 +143,21 @@ export default function Prerequisite( {
 													message: sprintf(
 														// Translators: %s is specific instructions for satisfying the prerequisite.
 														__(
-															'%1$s%2$sReturn to the Reader Activation page to complete the settings and activate%3$s.',
+															'%1$s%2$sReturn to the Audience Configuration page to complete the settings and activate%3$s.',
 															'newspack-plugin'
 														),
-														prerequisite.instructions + ' ',
-														window.newspack_engagement_wizard?.reader_activation_url
-															? `<a href="${ window.newspack_engagement_wizard.reader_activation_url }">`
+														prerequisite.instructions +
+															' ',
+														window
+															.newspackAudienceConfiguration
+															?.reader_activation_url
+															? `<a href="${ window.newspackAudienceConfiguration.reader_activation_url }">`
 															: '',
-														window.newspack_engagement_wizard?.reader_activation_url ? '</a>' : ''
+														window
+															.newspackAudienceConfiguration
+															?.reader_activation_url
+															? '</a>'
+															: ''
 													),
 													url: href,
 												} )
@@ -140,15 +171,20 @@ export default function Prerequisite( {
 									{ ( isValid
 										? __( 'Update ', 'newspack-plugin' )
 										: prerequisite.fields
-											? __( 'Save ', 'newspack-plugin' )
-											: __( 'Configure ', 'newspack-plugin' ) ) + prerequisite.action_text }
+										? __( 'Save ', 'newspack-plugin' )
+										: __(
+												'Configure ',
+												'newspack-plugin'
+										  ) ) + prerequisite.action_text }
 								</Button>
 							) }
-							{ prerequisite.hasOwnProperty( 'action_enabled' ) && ! prerequisite.action_enabled && (
-								<Button variant={ 'secondary' } disabled>
-									{ prerequisite.disabled_text || prerequisite.action_text }
-								</Button>
-							) }
+							{ prerequisite.hasOwnProperty( 'action_enabled' ) &&
+								! prerequisite.action_enabled && (
+									<Button variant={ 'secondary' } disabled>
+										{ prerequisite.disabled_text ||
+											prerequisite.action_text }
+									</Button>
+								) }
 						</div>
 					</Grid>
 				)
@@ -159,7 +195,9 @@ export default function Prerequisite( {
 	let status = __( 'Pending', 'newspack-plugin' );
 	if ( isValid ) {
 		status = `${ __( 'Ready', 'newspack-plugin' ) } ${
-			prerequisite.is_skipped ? `(${ __( 'Skipped', 'newspack-plugin' ) })` : ''
+			prerequisite.is_skipped
+				? `(${ __( 'Skipped', 'newspack-plugin' ) })`
+				: ''
 		}`;
 	}
 	if ( prerequisite.is_unavailable ) {

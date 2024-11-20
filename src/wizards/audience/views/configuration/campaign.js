@@ -1,4 +1,4 @@
-/* global newspack_engagement_wizard */
+/* global newspackAudienceConfiguration */
 
 /**
  * WordPress dependencies
@@ -10,10 +10,10 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import WizardsTab from '../../../wizards-tab';
 import {
 	Button,
 	Notice,
-	SectionHeader,
 	Waiting,
 	withWizardScreen,
 	utils,
@@ -25,7 +25,8 @@ import './style.scss';
 const { useHistory } = Router;
 
 export default withWizardScreen( () => {
-	const { is_skipped_campaign_setup, reader_activation_url } = newspack_engagement_wizard;
+	const { is_skipped_campaign_setup, reader_activation_url } =
+		newspackAudienceConfiguration;
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
@@ -71,18 +72,21 @@ export default withWizardScreen( () => {
 		setSkipped( { ...skipped, status: 'pending' } );
 		try {
 			const request = await apiFetch( {
-				path: '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/skip-campaign-setup',
+				path: '/newspack/v1/wizard/newspack-audience-configuration/reader-activation/skip-campaign-setup',
 				method: 'POST',
 				data: { skip: ! skipped.isSkipped },
 			} );
 			if ( ! request.updated ) {
-				setError( { message: __( 'Server not updated', 'newspack-plugin' ) } );
+				setError( {
+					message: __( 'Server not updated', 'newspack-plugin' ),
+				} );
 				setSkipped( { isSkipped: false, status: '' } );
 				return;
 			}
 			setSkipped( { isSkipped: Boolean( request.skipped ), status: '' } );
-			newspack_engagement_wizard.is_skipped_campaign_setup = request.skipped ? '1' : '';
-			history.push( '/reader-activation/complete' );
+			newspackAudienceConfiguration.is_skipped_campaign_setup =
+				request.skipped ? '1' : '';
+			history.push( '/complete' );
 		} catch ( err ) {
 			setError( err );
 			setSkipped( { isSkipped: false, status: '' } );
@@ -101,17 +105,22 @@ export default withWizardScreen( () => {
 	}, [ prompts ] );
 
 	return (
-		<div className="newspack-ras-campaign__prompt-wizard">
-			<SectionHeader
-				title={ __( 'Set Up Reader Activation Campaign', 'newspack-plugin' ) }
-				description={ __(
-					'Preview and customize the prompts, or use our suggested defaults.',
-					'newspack-plugin'
-				) }
-			/>
+		<WizardsTab
+			title={ __(
+				'Set Up Reader Activation Campaign',
+				'newspack-plugin'
+			) }
+			description={ __(
+				'Preview and customize the prompts, or use our suggested defaults.',
+				'newspack-plugin'
+			) }
+		>
 			{ error && (
 				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
+					noticeText={
+						error?.message ||
+						__( 'Something went wrong.', 'newspack-plugin' )
+					}
 					isError
 				/>
 			) }
@@ -134,27 +143,37 @@ export default withWizardScreen( () => {
 			<div className="newspack-buttons-card">
 				<Button
 					isTertiary
-					disabled={ inFlight || skipped.isSkipped || skipped.status === 'pending' }
+					disabled={
+						inFlight ||
+						skipped.isSkipped ||
+						skipped.status === 'pending'
+					}
 					onClick={ onSkipCampaignSetup }
 				>
 					{ /* eslint-disable-next-line no-nested-ternary */ }
 					{ skipped.status === 'pending'
 						? __( 'Skipping…', 'newspack-plugin' )
 						: skipped.isSkipped
-							? __( 'Skipped', 'newspack-plugin' )
-							: __( 'Skip', 'newspack-plugin' ) }
+						? __( 'Skipped', 'newspack-plugin' )
+						: __( 'Skip', 'newspack-plugin' ) }
 				</Button>
 				<Button
 					isPrimary
-					disabled={ inFlight || ( ! allReady && ! skipped.isSkipped ) }
-					href={ `${ reader_activation_url }/complete` }
+					disabled={
+						inFlight || ( ! allReady && ! skipped.isSkipped )
+					}
+					href={ `${ reader_activation_url }complete` }
 				>
 					{ __( 'Continue', 'newspack-plugin' ) }
 				</Button>
-				<Button isSecondary disabled={ inFlight } href={ reader_activation_url }>
+				<Button
+					isSecondary
+					disabled={ inFlight }
+					href={ reader_activation_url }
+				>
 					{ __( 'Back', 'newspack-plugin' ) }
 				</Button>
 			</div>
-		</div>
+		</WizardsTab>
 	);
 } );
