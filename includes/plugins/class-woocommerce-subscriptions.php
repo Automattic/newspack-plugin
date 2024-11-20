@@ -18,7 +18,7 @@ class WooCommerce_Subscriptions {
 	 */
 	public static function init() {
 		add_filter( 'woocommerce_subscription_settings', [ __CLASS__, 'add_post_retry_setting' ], 11, 1 );
-		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_post_retry' ], 99, 1 );
+		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_post_retry_rule' ], 99, 1 );
 	}
 
 	/**
@@ -84,20 +84,33 @@ class WooCommerce_Subscriptions {
 	 *
 	 * @param array $retry_rules Subscriptions retry rules.
 	 */
-	public static function maybe_apply_post_retry( $retry_rules ) {
+	public static function maybe_apply_post_retry_rule( $retry_rules ) {
 		if ( self::is_active() ) {
 			$post_retry_days = self::get_post_retry_days();
 			if ( $post_retry_days > 0 ) {
-				$final_retry_rule                                    = end( $retry_rules );
-				$post_retry_rule                                     = $final_retry_rule;
-				$final_order_status                                  = $final_retry_rule['status_to_apply_to_order'];
-				$final_subscription_status                           = $final_retry_rule['status_to_apply_to_subscription'];
-				$final_retry_rule['status_to_apply_to_order']        = 'pending';
-				$final_retry_rule['status_to_apply_to_subscription'] = 'on-hold';
-				$post_retry_rule['status_to_apply_to_order']         = $final_order_status;
-				$post_retry_rule['status_to_apply_to_subscription']  = $final_subscription_status;
-				$post_retry_rule['retry_after_interval']             = DAY_IN_SECONDS * $post_retry_days;
-				return array_merge( $retry_rules, [ $post_retry_rule ] );
+				$final_retry_rule          = array_pop( $retry_rules );
+				$final_order_status        = $final_retry_rule['status_to_apply_to_order'];
+				$final_subscription_status = $final_retry_rule['status_to_apply_to_subscription'];
+				$retry_rules               = array_merge(
+					$retry_rules,
+					[
+						array_merge(
+							$final_retry_rule,
+							[
+								'status_to_apply_to_order' => 'pending',
+								'status_to_apply_to_subscription' => 'on-hold',
+							]
+						),
+						array_merge(
+							$final_retry_rule,
+							[
+								'status_to_apply_to_order' => $final_order_status,
+								'status_to_apply_to_subscription' => $final_subscription_status,
+								'retry_after_interval'     => DAY_IN_SECONDS * $post_retry_days,
+							]
+						),
+					]
+				);
 			}
 		}
 		return $retry_rules;
