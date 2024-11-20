@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { category } from '@wordpress/icons';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -19,7 +20,10 @@ import classnames from 'classnames';
 /**
  * Higher-Order Component to provide plugin management and error handling to Newspack Wizards.
  */
-export default function withWizardScreen( WrappedComponent, { hidePrimaryButton } = {} ) {
+export default function withWizardScreen(
+	WrappedComponent,
+	{ hidePrimaryButton, scrollToTopOnMount = false } = {}
+) {
 	const WrappedWithWizardScreen = props => {
 		const {
 			className,
@@ -34,6 +38,12 @@ export default function withWizardScreen( WrappedComponent, { hidePrimaryButton 
 			renderAboveContent,
 			disableUpcomingInTabbedNavigation,
 		} = props;
+
+		useEffect( () => {
+			if ( scrollToTopOnMount ) {
+				window.scrollTo( 0, 0 );
+			}
+		}, [] );
 
 		const retrievedButtonProps = buttonProps( buttonAction );
 		const retrievedSecondaryButtonProps = buttonProps( secondaryButtonAction );

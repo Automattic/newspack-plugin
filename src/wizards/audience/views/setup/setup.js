@@ -35,9 +35,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 	const [ isMailchimp, setIsMailchimp ] = useState( false );
 	const [ missingPlugins, setMissingPlugins ] = useState( [] );
 
-
 	useEffect( () => {
-		window.scrollTo( 0, 0 );
 		// Clear the handoff when the component mounts.
 		window.localStorage.removeItem( HANDOFF_KEY );
 	}, [] );
@@ -378,4 +376,4 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 			) }
 		</WizardsTab>
 	);
-} );
+}, { scrollToTopOnMount: true } );

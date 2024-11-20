@@ -22,4 +22,4 @@ export default withWizardScreen( function () {
 			{/* TODO: Add Saleforce Settings from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce`*/}
 		</WizardsTab>
 	);
-} );
+}, { scrollToTopOnMount: true } );

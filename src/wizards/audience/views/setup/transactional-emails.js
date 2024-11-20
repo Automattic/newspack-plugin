@@ -31,4 +31,4 @@ export default withWizardScreen( ( { emails } ) => {
 			) ) }
 		</WizardsTab>
 	);
-} );
+}, { scrollToTopOnMount: true } );
