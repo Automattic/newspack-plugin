@@ -17,8 +17,8 @@ class WooCommerce_Subscriptions {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_filter( 'woocommerce_subscription_settings', [ __CLASS__, 'add_post_retry_setting' ], 11, 1 );
-		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_post_retry_rule' ], 99, 1 );
+		add_filter( 'woocommerce_subscription_settings', [ __CLASS__, 'add_on_hold_duration_setting' ], 11, 1 );
+		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_on_hold_duration_rule' ], 99, 1 );
 	}
 
 	/**
@@ -31,13 +31,13 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Add post-retry payment attempt setting.
+	 * Add on-hold duration setting.
 	 *
 	 * @param array $settings Subscription settings.
 	 *
 	 * @return array
 	 */
-	public static function add_post_retry_setting( $settings ) {
+	public static function add_on_hold_duration_setting( $settings ) {
 		if ( self::is_active() ) {
 			return array_merge(
 				$settings,
@@ -49,11 +49,11 @@ class WooCommerce_Subscriptions {
 						'id'   => 'newspack_subscriptions_options',
 					],
 					[
-						'name'              => __( 'Post-retry Payment Attempt', 'newspack-plugin' ),
-						'desc'              => __( 'The number of days after final retry to reattempt payment when automatic retries are enabled', 'newspack-plugin' ),
-						'id'                => 'newspack_subscriptions_post_retry_days',
+						'name'              => __( 'On-hold Duration', 'newspack-plugin' ),
+						'desc'              => __( 'The number of days after all automatic payment retries have failed before attempting a final payment attempt and ending retries.', 'newspack-plugin' ),
+						'id'                => 'newspack_subscriptions_on_hold_duration',
 						'css'               => 'max-width:80px;',
-						'value'             => self::get_post_retry_days(),
+						'value'             => self::get_on_hold_duration(),
 						'type'              => 'number',
 						'custom_attributes' => array(
 							'min'  => 0,
@@ -71,22 +71,22 @@ class WooCommerce_Subscriptions {
 	}
 
 	/**
-	 * Get post-retry payment attempt. Defaults to 0.
+	 * Get on-hold duration. Defaults to 0.
 	 *
 	 * @return int
 	 */
-	public static function get_post_retry_days() {
-		return absint( get_option( 'newspack_subscriptions_post_retry_days', 0 ) );
+	public static function get_on_hold_duration() {
+		return absint( get_option( 'newspack_subscriptions_on_hold_duration', 0 ) );
 	}
 
 	/**
-	 * Conditionally adds post-retry rule to retry rules.
+	 * Conditionally adds on-hold duration rule to retry rules.
 	 *
 	 * @param array $retry_rules Subscriptions retry rules.
 	 */
-	public static function maybe_apply_post_retry_rule( $retry_rules ) {
+	public static function maybe_apply_on_hold_duration_rule( $retry_rules ) {
 		if ( self::is_active() ) {
-			$post_retry_days = self::get_post_retry_days();
+			$post_retry_days = self::get_on_hold_duration();
 			if ( $post_retry_days > 0 ) {
 				$final_retry_rule          = array_pop( $retry_rules );
 				$final_order_status        = $final_retry_rule['status_to_apply_to_order'];
