@@ -67,12 +67,12 @@ class Listings_Wizard extends Wizard {
 		// Define admin screens based on Newspack Listings plugin's admin pages and post types.
 		$this->admin_screens = [
 			// Admin post types.
-			'newspack_lst_event'               => __( 'Listings / Events', 'newspack-plugin' ),
-			'newspack_lst_generic'             => __( 'Listings / Generic Listings', 'newspack-plugin' ),
-			'newspack_lst_mktplce'             => __( 'Listings / Marketplace Listings', 'newspack-plugin' ),
-			'newspack_lst_place'               => __( 'Listings / Places', 'newspack-plugin' ),
+			'newspack_lst_event'         => __( 'Listings / Events', 'newspack-plugin' ),
+			'newspack_lst_generic'       => __( 'Listings / Generic Listings', 'newspack-plugin' ),
+			'newspack_lst_mktplce'       => __( 'Listings / Marketplace Listings', 'newspack-plugin' ),
+			'newspack_lst_place'         => __( 'Listings / Places', 'newspack-plugin' ),
 			// Admin pages.
-			'newspack-listings-settings-admin' => __( 'Listings / Settings', 'newspack-plugin' ),
+			'newspack-listings-settings' => __( 'Listings / Settings', 'newspack-plugin' ),
 		];
 
 		// Remove Listings plugin's menu setup.
@@ -118,7 +118,7 @@ class Listings_Wizard extends Wizard {
 				__( 'Newspack Listings: Site-Wide Settings', 'newspack-plugin' ),
 				__( 'Settings', 'newspack-plugin' ),
 				'manage_options', // Copied from Listings plugin...see docblock note above.
-				'newspack-listings-settings-admin',
+				'newspack-listings-settings',
 				[ Newspack_Listings_Settings::class, 'create_admin_page' ]
 			);
 		}

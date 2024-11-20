@@ -165,7 +165,7 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'tool',
 						'title' => __( 'Settings', 'newspack-plugin' ),
 						'desc'  => __( 'Configure the way that Listings work on your site.', 'newspack-plugin' ),
-						'href'  => admin_url( 'admin.php?page=newspack-listings-settings-admin' ),
+						'href'  => admin_url( 'admin.php?page=newspack-listings-settings' ),
 					],
 				],
 			];
