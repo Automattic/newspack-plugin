@@ -8,7 +8,7 @@ declare global {
 			} >;
 			title: string;
 		};
-		newspackAudienceConfiguration: {
+		newspackAudience: {
 			has_reader_activation: boolean;
 			has_memberships: boolean;
 			new_subscription_lists_url: string;

@@ -1,4 +1,4 @@
-/* global newspackAudienceConfiguration */
+/* global newspackAudience */
 
 /**
  * WordPress dependencies
@@ -71,7 +71,7 @@ export default withWizardScreen( () => {
 	const [ activationSteps, setActivationSteps ] = useState(
 		Object.values( DEFAULT_ACTIVATION_STEPS )
 	);
-	const { reader_activation_url, is_skipped_campaign_setup = '' } = newspackAudienceConfiguration;
+	const { reader_activation_url, is_skipped_campaign_setup = '' } = newspackAudience;
 	const isSkippedCampaignSetup = is_skipped_campaign_setup === '1';
 
 	useEffect( () => {
@@ -125,7 +125,7 @@ export default withWizardScreen( () => {
 		try {
 			setCompleted(
 				await apiFetch( {
-					path: '/newspack/v1/wizard/newspack-audience-configuration/reader-activation/activate',
+					path: '/newspack/v1/wizard/newspack-audience/reader-activation/activate',
 					method: 'post',
 					data: {
 						skip_activation: isSkippedCampaignSetup,
@@ -141,7 +141,7 @@ export default withWizardScreen( () => {
 		<div className="newspack-ras-campaign__completed">
 			<WizardsTab
 				title={ __( 'Enable Reader Activation', 'newspack-plugin' ) }
-				description={ 
+				description={
 					<>
 						{ __(
 							'An easy way to let your readers register for your site, sign up for newsletters, or become donors and paid members. ',

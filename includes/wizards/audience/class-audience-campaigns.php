@@ -16,17 +16,17 @@ class Audience_Campaigns extends Wizard {
 
 	/**
 	 * Admin page slug.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $slug = 'newspack-audience-campaigns';
 
 	/**
 	 * Parent slug.
-	 * 
+	 *
 	 * @var string
 	 */
-	protected $parent_slug = 'newspack-audience-configuration';
+	protected $parent_slug = 'newspack-audience';
 
 	/**
 	 * Get the name for this wizard.
@@ -35,7 +35,7 @@ class Audience_Campaigns extends Wizard {
 	 */
 	public function get_name() {
 		return esc_html__( 'Audience Development / Campaigns', 'newspack-plugin' );
-	}   
+	}
 
 	/**
 	 * Enqueue scripts and styles.
