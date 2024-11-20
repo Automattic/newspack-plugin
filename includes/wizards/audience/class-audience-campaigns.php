@@ -133,7 +133,7 @@ class Audience_Campaigns extends Wizard {
 			'/wizard/' . $this->slug . '/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_popup' ],
+				'callback'            => [ $this, 'api_update_prompt' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -147,7 +147,7 @@ class Audience_Campaigns extends Wizard {
 			'/wizard/' . $this->slug . '/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => [ $this, 'api_delete_popup' ],
+				'callback'            => [ $this, 'api_delete_prompt' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -161,7 +161,7 @@ class Audience_Campaigns extends Wizard {
 			'/wizard/' . $this->slug . '/(?P<id>\d+)/restore',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_restore_popup' ],
+				'callback'            => [ $this, 'api_restore_prompt' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -192,7 +192,7 @@ class Audience_Campaigns extends Wizard {
 			'/wizard/' . $this->slug . '/(?P<id>\d+)/duplicate',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_duplicate_popup' ],
+				'callback'            => [ $this, 'api_duplicate_prompt' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id'    => [
@@ -209,7 +209,7 @@ class Audience_Campaigns extends Wizard {
 			'/wizard/' . $this->slug . '/(?P<id>\d+)/publish',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_publish_popup' ],
+				'callback'            => [ $this, 'api_publish_prompt' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -223,7 +223,7 @@ class Audience_Campaigns extends Wizard {
 			'/wizard/' . $this->slug . '/(?P<id>\d+)/publish',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
-				'callback'            => [ $this, 'api_unpublish_popup' ],
+				'callback'            => [ $this, 'api_unpublish_prompt' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'id' => [
@@ -499,34 +499,12 @@ class Audience_Campaigns extends Wizard {
 	}
 
 	/**
-	 * Set terms for one Popup.
+	 * Update settings for a prompt.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with the info.
 	 */
-	public function api_set_popup_terms( $request ) {
-		$id       = $request['id'];
-		$terms    = $request['terms'];
-		$taxonomy = $request['taxonomy'];
-
-		$newspack_popups_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
-
-		$response = $newspack_popups_configuration_manager->set_popup_terms( $id, $terms, $taxonomy );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return $this->api_get_settings();
-	}
-
-	/**
-	 * Update settings for a Pop-up.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return WP_REST_Response with the info.
-	 */
-	public function api_update_popup( $request ) {
+	public function api_update_prompt( $request ) {
 		$id     = $request['id'];
 		$config = $request['config'];
 
@@ -556,12 +534,12 @@ class Audience_Campaigns extends Wizard {
 	}
 
 	/**
-	 * Delete a Pop-up.
+	 * Delete a prompt.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
 	 */
-	public function api_delete_popup( $request ) {
+	public function api_delete_prompt( $request ) {
 		$id = $request['id'];
 
 		$popup = get_post( $id );
@@ -577,12 +555,12 @@ class Audience_Campaigns extends Wizard {
 	}
 
 	/**
-	 * Restore a deleted a Pop-up.
+	 * Restore a deleted a prompt.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
 	 */
-	public function api_restore_popup( $request ) {
+	public function api_restore_prompt( $request ) {
 		$id = $request['id'];
 
 		$popup = get_post( $id );
@@ -606,24 +584,24 @@ class Audience_Campaigns extends Wizard {
 	}
 
 	/**
-	 * Duplicate a Pop-up.
+	 * Duplicate a prompt.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
 	 */
-	public function api_duplicate_popup( $request ) {
+	public function api_duplicate_prompt( $request ) {
 		$cm           = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'newspack-popups' );
 		$duplicate_id = $cm->duplicate_popup( $request['id'], $request['title'] );
 		return $this->api_get_settings( [ 'duplicated' => $duplicate_id ] );
 	}
 
 	/**
-	 * Publish a Pop-up.
+	 * Publish a prompt.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
 	 */
-	public function api_publish_popup( $request ) {
+	public function api_publish_prompt( $request ) {
 		$id = $request['id'];
 
 		$popup = get_post( $id );
@@ -634,12 +612,12 @@ class Audience_Campaigns extends Wizard {
 	}
 
 	/**
-	 * Unpublish a Pop-up.
+	 * Unpublish a prompt.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response with complete info to render the Engagement Wizard.
 	 */
-	public function api_unpublish_popup( $request ) {
+	public function api_unpublish_prompt( $request ) {
 		$id = $request['id'];
 
 		$popup = get_post( $id );
