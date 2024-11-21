@@ -72,7 +72,7 @@ export default withWizardScreen( () => {
 		setSkipped( { ...skipped, status: 'pending' } );
 		try {
 			const request = await apiFetch( {
-				path: '/newspack/v1/wizard/newspack-audience/reader-activation/skip-campaign-setup',
+				path: '/newspack/v1/wizard/newspack-audience/reader-activation/skip-campaign',
 				method: 'POST',
 				data: { skip: ! skipped.isSkipped },
 			} );
