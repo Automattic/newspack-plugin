@@ -173,7 +173,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-donations.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-category-pager.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-salesforce.php';
-		include_once NEWSPACK_ABSPATH . 'includes/class-pwa.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-starter-content.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-image-credits.php';
@@ -188,6 +187,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-onesignal.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-organic-profile-block.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-pwa.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-guest-contributor-role.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-search-authors-limit.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
