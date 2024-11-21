@@ -56,3 +56,41 @@ type WizardData = {
 type WizardSelector = {
 	getWizardData: ( slug: string ) => WizardData;
 };
+
+/**
+ * Reader Revenue Wizard Data
+ */
+type ReaderRevenueWizardData = {
+	donation_data:
+		| { errors: { [ key: string ]: string[] } }
+		| {
+				amounts: {
+					[ Key in FrequencySlug as string ]: [ number, number, number, number ];
+				};
+				disabledFrequencies: {
+					[ Key in FrequencySlug as string ]: boolean;
+				};
+				currencySymbol: string;
+				tiered: boolean;
+				minimumDonation: string;
+				billingFields: string[];
+		};
+	platform_data: {
+		platform: string;
+	};
+	donation_page: {
+		editUrl: string;
+		status: string;
+	};
+	available_billing_fields: {
+		[ key: string ]: {
+			autocomplete: string;
+			class: string[];
+			label: string;
+			priority: number;
+			required: boolean;
+			type: string;
+			validate: string[];
+		};
+	};
+};

@@ -3,14 +3,13 @@
  */
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { ToggleControl, CheckboxControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies.
  */
-import { MoneyInput } from '../../components';
+import MoneyInput from '../../../components/money-input';
 import {
-	ActionCard,
 	Button,
 	Card,
 	Grid,
@@ -19,8 +18,9 @@ import {
 	SelectControl,
 	TextControl,
 	Wizard,
-} from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
+} from '../../../../../components/src';
+import WizardsTab from '../../../../wizards-tab';
+import { READER_REVENUE_WIZARD_SLUG } from '../../../constants';
 
 type FrequencySlug = 'once' | 'month' | 'year';
 
@@ -42,43 +42,8 @@ const FREQUENCIES: {
 };
 const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys( FREQUENCIES ) as FrequencySlug[];
 
-type WizardData = {
-	donation_data:
-		| { errors: { [ key: string ]: string[] } }
-		| {
-				amounts: {
-					[ Key in FrequencySlug as string ]: [ number, number, number, number ];
-				};
-				disabledFrequencies: {
-					[ Key in FrequencySlug as string ]: boolean;
-				};
-				currencySymbol: string;
-				tiered: boolean;
-				minimumDonation: string;
-				billingFields: string[];
-		};
-	platform_data: {
-		platform: string;
-	};
-	donation_page: {
-		editUrl: string;
-		status: string;
-	};
-	available_billing_fields: {
-		[ key: string ]: {
-			autocomplete: string;
-			class: string[];
-			label: string;
-			priority: number;
-			required: boolean;
-			type: string;
-			validate: string[];
-		};
-	};
-};
-
 export const DonationAmounts = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
+	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as ReaderRevenueWizardData;
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
@@ -104,7 +69,7 @@ export const DonationAmounts = () => {
 	const minimumDonationFloat = parseFloat( minimumDonation );
 
 	// Whether we can use the Name Your Price extension. If not, layout is forced to Tiered.
-	const canUseNameYourPrice = window.newspack_reader_revenue?.can_use_name_your_price;
+	const canUseNameYourPrice = window.newspackAudienceDonations?.can_use_name_your_price;
 
 	return (
 		<>
@@ -265,67 +230,8 @@ export const DonationAmounts = () => {
 	);
 };
 
-const BillingFields = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
-	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
-
-	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
-		return null;
-	}
-
-	const changeHandler = ( path: string[] ) => ( value: any ) =>
-		updateWizardSettings( {
-			slug: 'newspack-reader-revenue-wizard',
-			path: [ 'donation_data', ...path ],
-			value,
-		} );
-
-	const availableFields = wizardData.available_billing_fields;
-	if ( ! availableFields || ! Object.keys( availableFields ).length ) {
-		return null;
-	}
-
-	const billingFields = wizardData.donation_data.billingFields.length
-		? wizardData.donation_data.billingFields
-		: Object.keys( availableFields );
-
-	return (
-		<>
-			<Card noBorder headerActions>
-				<SectionHeader
-					title={ __( 'Billing Fields', 'newspack-plugin' ) }
-					description={ __(
-						'Configure the billing fields shown in the modal checkout form.',
-						'newspack-plugin'
-					) }
-					noMargin
-				/>
-			</Card>
-			<Grid columns={ 3 } rowGap={ 16 }>
-				{ Object.keys( availableFields ).map( fieldKey => (
-					<CheckboxControl
-						key={ fieldKey }
-						label={ availableFields[ fieldKey ].label }
-						checked={ billingFields.includes( fieldKey ) }
-						disabled={ fieldKey === 'billing_email' } // Email is always required.
-						onChange={ () => {
-							let newFields = [ ...billingFields ];
-							if ( billingFields.includes( fieldKey ) ) {
-								newFields = newFields.filter( field => field !== fieldKey );
-							} else {
-								newFields = [ ...newFields, fieldKey ];
-							}
-							changeHandler( [ 'billingFields' ] )( newFields );
-						} }
-					/>
-				) ) }
-			</Grid>
-		</>
-	);
-};
-
 const Donation = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
+	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as ReaderRevenueWizardData;
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSaveDonationSettings = () =>
 		saveWizardSettings( {
@@ -334,71 +240,45 @@ const Donation = () => {
 			payloadPath: [ 'donation_data' ],
 			auxData: { saveDonationProduct: true },
 		} );
-	const onSaveBillingFields = () =>
-		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			section: 'donations',
-			payloadPath: [ 'donation_data' ],
-		} );
 
 	return (
-		<>
-			<ActionCard
-				description={ __( 'Configure options for donations.', 'newspack-plugin' ) }
-				hasGreyHeader={ true }
-				isMedium
-				title={ __( 'Donation Settings', 'newspack-plugin' ) }
-				actionContent={
-					<Button variant="primary" onClick={ onSaveDonationSettings }>
-						{ __( 'Save Donation Settings', 'newspack-plugin' ) }
-					</Button>
-				}
-			>
-				{ wizardData.donation_page && (
-					<>
-						<Card noBorder headerActions>
-							<SectionHeader title={ __( 'Donations Landing Page', 'newspack-plugin' ) } noMargin />
-							<Button
-								variant="secondary"
-								isSmall
-								href={ wizardData.donation_page.editUrl }
-								onClick={ undefined }
-							>
-								{ __( 'Edit Page' ) }
-							</Button>
-						</Card>
-						{ 'publish' === wizardData.donation_page.status ? (
-							<Notice
-								isSuccess
-								noticeText={ __( 'Your donations landing page is published.', 'newspack-plugin' ) }
-							/>
-						) : (
-							<Notice
-								isError
-								noticeText={ __(
-									'Your donations landing page is not yet published.',
-									'newspack-plugin'
-								) }
-							/>
-						) }
-					</>
-				) }
-				<DonationAmounts />
-			</ActionCard>
-			<ActionCard
-				description={ __( 'Configure options for modal checkouts.', 'newspack-plugin' ) }
-				hasGreyHeader={ true }
-				isMedium
-				title={ __( 'Modal Checkout Settings', 'newspack-plugin' ) }
-				actionContent={
-					<Button variant="primary" onClick={ onSaveBillingFields }>
-						{ __( 'Save Modal Checkout Settings', 'newspack-plugin' ) }
-					</Button>
-				}
-			>
-				<BillingFields />
-			</ActionCard>
-		</>
+		<WizardsTab title={ __( 'Configuration', 'newspack-plugin' ) }>
+			{ wizardData.donation_page && (
+				<>
+					<Card noBorder headerActions>
+						<SectionHeader title={ __( 'Donations Landing Page', 'newspack-plugin' ) } noMargin />
+						<Button
+							variant="secondary"
+							isSmall
+							href={ wizardData.donation_page.editUrl }
+							onClick={ undefined }
+						>
+							{ __( 'Edit Page' ) }
+						</Button>
+					</Card>
+					{ 'publish' === wizardData.donation_page.status ? (
+						<Notice
+							isSuccess
+							noticeText={ __( 'Your donations landing page is published.', 'newspack-plugin' ) }
+						/>
+					) : (
+						<Notice
+							isError
+							noticeText={ __(
+								'Your donations landing page is not yet published.',
+								'newspack-plugin'
+							) }
+						/>
+					) }
+				</>
+			) }
+			<DonationAmounts />
+			<div className="newspack-buttons-card">
+				<Button variant="primary" onClick={ onSaveDonationSettings }>
+					{ __( 'Save Settings', 'newspack-plugin' ) }
+				</Button>
+			</div>
+		</WizardsTab>
 	);
 };
 

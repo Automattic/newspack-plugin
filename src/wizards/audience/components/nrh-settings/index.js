@@ -48,8 +48,8 @@ const NRHSettings = () => {
 		<ActionCard
 			hasGreyHeader
 			isMedium
-			title={ __( 'News Revenue Hub Settings', 'newspack' ) }
-			description={ __( 'Configure your site’s connection to News Revenue Hub.', 'newspack' ) }
+			title={ __( 'News Revenue Hub Settings', 'newspack-plugin' ) }
+			description={ __( 'Configure your site’s connection to News Revenue Hub.', 'newspack-plugin' ) }
 			actionContent={
 				<Button isPrimary onClick={ onSave }>
 					{ __( 'Save Settings' ) }
@@ -59,20 +59,20 @@ const NRHSettings = () => {
 			<div>
 				<Grid columns={ 3 }>
 					<TextControl
-						label={ __( 'Organization ID', 'newspack' ) }
+						label={ __( 'Organization ID', 'newspack-plugin' ) }
 						placeholder="exampleid"
 						value={ settings?.nrh_organization_id || '' }
 						onChange={ value => changeHandler( 'nrh_organization_id', value ) }
 					/>
 					<TextControl
-						label={ __( 'Custom domain (optional)', 'newspack' ) }
+						label={ __( 'Custom domain (optional)', 'newspack-plugin' ) }
 						help={ __( 'Enter the raw domain without protocol or slashes.' ) }
 						placeholder="donate.example.com"
 						value={ settings?.nrh_custom_domain || '' }
 						onChange={ value => changeHandler( 'nrh_custom_domain', value ) }
 					/>
 					<TextControl
-						label={ __( 'Salesforce Campaign ID (optional)', 'newspack' ) }
+						label={ __( 'Salesforce Campaign ID (optional)', 'newspack-plugin' ) }
 						placeholder="exampleid"
 						value={ settings?.nrh_salesforce_campaign_id || '' }
 						onChange={ value => changeHandler( 'nrh_salesforce_campaign_id', value ) }
@@ -82,7 +82,7 @@ const NRHSettings = () => {
 			{ settings.hasOwnProperty( 'donor_landing_page' ) && (
 				<div>
 					<hr />
-					<h3>{ __( 'Donor Landing Page', 'newspack' ) }</h3>
+					<h3>{ __( 'Donor Landing Page', 'newspack-plugin' ) }</h3>
 					<p className="components-base-control__help">
 						{ __(
 							'Set a page on your site as a donor landing page. Once a reader donates and lands on this page, they will be considered a donor.',
@@ -90,7 +90,7 @@ const NRHSettings = () => {
 						) }
 					</p>
 					<AutocompleteWithSuggestions
-						label={ __( 'Search for a New Donor Landing Page', 'newspack' ) }
+						label={ __( 'Search for a New Donor Landing Page', 'newspack-plugin' ) }
 						help={ __(
 							'Begin typing page title, click autocomplete result to select.',
 							'newspack'
@@ -105,8 +105,8 @@ const NRHSettings = () => {
 							return changeHandler( 'donor_landing_page', item );
 						} }
 						postTypes={ [ { slug: 'page', label: 'Page' } ] }
-						postTypeLabel={ __( 'page', 'newspack' ) }
-						postTypeLabelPlural={ __( 'pages', 'newspack' ) }
+						postTypeLabel={ __( 'page', 'newspack-plugin' ) }
+						postTypeLabelPlural={ __( 'pages', 'newspack-plugin' ) }
 						selectedItems={ selectedPage ? [ selectedPage ] : [] }
 					/>
 				</div>
