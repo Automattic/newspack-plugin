@@ -10,7 +10,6 @@ import { CheckboxControl } from '@wordpress/components';
  */
 import {
 	Button,
-	Card,
 	Grid,
 	SectionHeader,
 	Wizard,
