@@ -28,9 +28,6 @@ import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
-import Platform from '../../components/platform';
-import StripeSetup from '../../components/stripe-setup';
-import NRHSettings from '../../components/nrh-settings';
 
 export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
 	const [ allReady, setAllReady ] = useState( false );
@@ -378,13 +375,6 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 							) }
 						</Button>
 					</div>
-
-					<hr />
-
-					<SectionHeader title={ __( 'Platform', 'newspack-plugin' ) } />
-					<Platform />
-					<StripeSetup />
-					<NRHSettings />
 				</Card>
 			) }
 		</WizardsTab>
