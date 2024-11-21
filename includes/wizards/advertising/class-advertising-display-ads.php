@@ -31,11 +31,14 @@ class Advertising_Display_Ads extends Wizard {
 	const OPTION_NAME_GAM_NETWORK_CODE = '_newspack_ads_gam_network_code';
 
 	/**
-	 * The slug of this wizard.
+	 * The slug of this wizard. 
+	 * 
+	 * Note: `newspack-ads-display-ads` (vs. `newspack-advertising-display-ads`) is intentional to avoid 
+	 * Ad blockers from blocking the Advertising menu item.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-advertising-display-ads';
+	protected $slug = 'newspack-ads-display-ads';
 
 	/**
 	 * The capability required to access this wizard.
@@ -60,7 +63,7 @@ class Advertising_Display_Ads extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $parent_menu = 'newspack-advertising-display-ads';
+	public $parent_menu = 'newspack-ads-display-ads';
 
 	/**
 	 * Order relative to the Newspack Dashboard menu item.

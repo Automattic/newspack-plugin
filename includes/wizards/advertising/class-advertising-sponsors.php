@@ -38,14 +38,14 @@ class Advertising_Sponsors extends Wizard {
 	 *
 	 * @var string
 	 */
-	const PARENT_URL = 'admin.php?page=newspack-advertising-display-ads';
+	const PARENT_URL = 'admin.php?page=newspack-ads-display-ads';
 
 	/**
 	 * The parent menu item name.
 	 *
 	 * @var string
 	 */
-	public $parent_menu = 'newspack-advertising-display-ads';
+	public $parent_menu = 'newspack-ads-display-ads';
 
 	/**
 	 * The capability required to access this wizard.
