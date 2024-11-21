@@ -56,7 +56,7 @@ const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
-	const readerRevenueWizardData = Wizard.useWizardData( 'reader-revenue' );
+	const readerRevenueWizardData = Wizard.useWizardData( 'audience-donations' );
 
 	useEffect( () => {
 		apiFetch( {

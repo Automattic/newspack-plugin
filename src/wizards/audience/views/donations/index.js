@@ -18,7 +18,7 @@ import Configuration from './configuration';
 import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, OTHER } from '../../constants';
 
 const AudienceDonations = () => {
-	const { platform_data, donation_data } = Wizard.useWizardData( 'reader-revenue' );
+	const { platform_data, donation_data } = Wizard.useWizardData( 'audience-donations' );
 	const usedPlatform = platform_data?.platform;
 	const sections = [
 		{

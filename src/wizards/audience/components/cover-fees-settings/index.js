@@ -18,7 +18,7 @@ import {
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 export const CoverFeesSettings = () => {
-  const { additional_settings: settings = {} } = Wizard.useWizardData( 'reader-revenue' );
+  const { additional_settings: settings = {} } = Wizard.useWizardData( 'audience-donations' );
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {

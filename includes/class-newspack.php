@@ -357,7 +357,7 @@ final class Newspack {
 		if ( class_exists( '\Newspack_Popups' ) ) {
 			$post_type_mapping[ \Newspack_Popups::NEWSPACK_POPUPS_CPT ] = [
 				'base' => 'edit',
-				'url'  => esc_url( admin_url( 'admin.php?page=newspack-audience-campaigns' ) ),
+				'url'  => esc_url( admin_url( 'admin.php?page=newspack-audience-campaigns-wizard' ) ),
 			];
 		}
 

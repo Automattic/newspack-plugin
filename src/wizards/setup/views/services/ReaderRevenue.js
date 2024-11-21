@@ -17,7 +17,7 @@ import { DonationAmounts } from '../../../audience/views/donations/configuration
 import { Wizard } from '../../../../components/src';
 
 const ReaderRevenue = ( { className } ) => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const wizardData = Wizard.useWizardData( 'audience-donations' );
 	return (
 		<div className={ classnames( className, { 'o-50': isEmpty( wizardData ) } ) }>
 			<Platform />

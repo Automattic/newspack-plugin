@@ -20,7 +20,7 @@ import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const NRHSettings = () => {
 	const [ selectedPage, setSelectedPage ] = useState( null );
-	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const wizardData = Wizard.useWizardData( 'audience-donations' );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	useEffect( () => {

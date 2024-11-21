@@ -33,14 +33,14 @@ class Audience_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-audience';
+	protected $slug = 'newspack-audience-wizard';
 
 	/**
 	 * The parent menu item name.
 	 *
 	 * @var string
 	 */
-	public $parent_menu = 'newspack-audience';
+	public $parent_menu = 'newspack-audience-wizard';
 
 	/**
 	 * Parent menu order relative to the Newspack Dashboard menu item.

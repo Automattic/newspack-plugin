@@ -16,7 +16,7 @@ import {
 } from '../../../../components/src';
 
 const BillingFields = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( 'audience-donations' ) as ReaderRevenueWizardData;
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
@@ -25,14 +25,14 @@ const BillingFields = () => {
 
 	const changeHandler = ( path: string[] ) => ( value: any ) =>
 		updateWizardSettings( {
-			slug: 'newspack-audience-donations',
+			slug: 'newspack-audience-donations-wizard',
 			path: [ 'donation_data', ...path ],
 			value,
 		} );
 
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: 'newspack-audience-donations',
+			slug: 'newspack-audience-donations-wizard',
 			section: 'donations',
 			payloadPath: [ 'donation_data' ],
 		} );
