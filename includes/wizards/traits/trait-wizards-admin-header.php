@@ -40,7 +40,7 @@ trait Admin_Header {
 		$this->tabs = $args['tabs'] ?? array();
 		$this->title = $args['title'] ?? __( 'Newspack Settings', 'newspack-plugin' );
 		add_action( 'admin_enqueue_scripts', [ $this, 'admin_header_enqueue' ] );
-		add_action( 'all_admin_notices', [ $this, 'admin_header_render' ] );
+        add_action( 'in_admin_header', [ $this, 'admin_header_render' ] );
 		add_filter( 'admin_body_class', [ $this, 'admin_header_body_class' ] );
 	}
 

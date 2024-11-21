@@ -28,10 +28,13 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 	}
 }
 
-// Fix notifications margins for all wizards (full-react and admin-header-only pages).
-body.newspack-wizard-page {
-
-	// Only apply when notices are directly ">" at top of page above the header area (ie: not in "wrap" content).
+// Fix notifications margins for full-page-react wizards.
+// Typically this CSS won't be applied since we use PHP to hide all notices for wizards pages,
+// but there are still some notices that WordPress admin will still show, and just incase the PHP
+// doesn't work, let's just leave the styling so the notices will look ok.
+body.newspack-wizard-page:not(.newspack-admin-header) {
+	
+	// Only notices directly ">" at top of page above the Wizard header (even though PHP should hide these).
 	#wpbody-content > .notice {
 		margin-bottom: 20px;
 		margin-left: 22px;

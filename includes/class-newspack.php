@@ -275,80 +275,22 @@ final class Newspack {
 
 	/**
 	 * Remove notifications.
+	 * 
+	 * This will remove notifications/nags from all wizards: full-react and admin-header-only.
+	 * 
+	 * Many of our admin-header-only wizards are CPT list pages where users can do actions such
+	 * as "trash" a post or "bulk actions" like "edit (multiple)" in the dropbown.  Keep in mind
+	 * that these actions will still show notices like "1 post was trashed" or "5 posts were
+	 * updated".  WordPress shows these notices outside the actions that this function is removing.
+	 * 
 	 */
 	public function remove_notifications() {
-
 		global $admin_body_classes;
-
-		// Could we move this to the class-wizard.php class and set a flag? 
-		// this could help for allowing notifications on some admin-header-only pages
-
-		// or could we detect body_class in this existing function and test for css classes?
-
-		// If wizard page, but not an admin-header-only wizard page (since they use the 'all_admin_notices' hook for rendering).
-		if ( str_contains( $admin_body_classes, 'newspack-wizard-page' ) && ! str_contains( $admin_body_classes, 'newspack-admin-header' ) ) {
+		
+		// If wizard page
+		if ( str_contains( $admin_body_classes, 'newspack-wizard-page' ) ) {
 			remove_all_actions( current_action() );
 		}
-
-		return;
-
-		// Or see below....
-
-		$screen = get_current_screen();
-
-		
-		error_log( $_SERVER['REQUEST_URI'] );
-		// error_log( print_r( $screen, true ) );
-
-		// Please prefix all wizards with "newspack" so they follow url/querystring pattern: page=newspack-*
-		
-		// Newspack Menu matches:
-		// $screen->base => toplevel_page_newspack-dashboard (parent Newspack menu)
-		// $screen->base => newspack_page_newspack-*         (submenu items of Newspack)
-		
-		// Advertising menu matches:
-		// $screen->base => toplevel_page_newspack-ads-wizard (parent Advertising menu)
-		// $screen->base => advertising_page_newspack-*       (submenu items of Advertising)
-
-		// Audience menu matches:
-		// $screen->base => toplevel_page_newspack-audience-configuration (parent Audience menu)
-		// $screen->base => audience_page_newspack-*                      (submenu items of Audience)
-
-		// Newsletters menu matches for Wizards
-		// $screen->base => newspack_nl_cpt_page_newspack-newsletters (wizard in Newsletters CPT)
-
-		// Listings menu 
-    	// [base] => listings_page_newspack-listings-settings-admin
-
-		// Hidden menu items:
-		// $screen->base => admin_page_newspack-* (hidden items)
-
-		// Match all documented cases above.
-		$is_newspack_screen = str_contains( $screen->base, '_page_newspack' );
-
-		// Additional Advertising screens that are included from other plugins (Newspack Sponsors CPT)
-		$is_advertising_screen = ( 'advertising-display-ads' === $screen->parent_base );
-
-		$is_wizard = $is_newspack_screen || $is_advertising_screen;
-
-		if ( ! $screen || ! $is_wizard ) {
-			return;
-		}
-
-		// As for child plugin screens that the Admin Header Only get's added too, we can't remove the notices
-		// because the trait-wizards-admin-header.php uses the 'all_admin_notices' action to emit the header
-		// but that action is removed by this function.  
-		global $admin_body_classes;
-
-		if ( str_contains( $admin_body_classes, 'newspack-admin-header' ) ) {
-			error_log( 'rgc shortcircuit' );
-			return;
-		}
-
-
-		error_log( 'rgc: notifications removed' );
-
-		remove_all_actions( current_action() );
 	}
 
 	/**
