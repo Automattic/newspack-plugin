@@ -36,15 +36,12 @@ final class Sync_Reader_Data_CLI {
 	}
 
 	/**
-	 * Verify a reader account, allowing them to skip the account ownership verification flow.
+	 * Fix discrepancies between stored reader data and memberships.
 	 *
 	 * ## OPTIONS
 	 *
 	 * [--live]
 	 * : Live mode, performing the fix.
-	 *
-	 * [--verbose]
-	 * : Produce more output.
 	 *
 	 * @param array $args Positional args.
 	 * @param array $assoc_args Associative args.
@@ -52,7 +49,6 @@ final class Sync_Reader_Data_CLI {
 	public static function fix_reader_data_and_membership_discrepancy( $args, $assoc_args ) {
 		\WP_CLI::line( '' );
 		$live = isset( $assoc_args['live'] ) ? true : false;
-		$verbose = isset( $assoc_args['verbose'] ) ? true : false;
 
 		if ( $live ) {
 			\WP_CLI::line( 'Live mode - data will be changed.' );
