@@ -26,7 +26,7 @@ class Audience_Donations extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $parent_slug = 'newspack-audience-configuration';
+	protected $parent_slug = 'newspack-audience';
 
 	/**
 	 * Get the name for this wizard.
