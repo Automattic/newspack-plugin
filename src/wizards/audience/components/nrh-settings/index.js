@@ -9,10 +9,10 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import {
-	ActionCard,
 	AutocompleteWithSuggestions,
 	Button,
 	Grid,
+	SectionHeader,
 	TextControl,
 	Wizard,
 } from '../../../../components/src';
@@ -45,17 +45,11 @@ const NRHSettings = () => {
 	const settings = wizardData?.platform_data || {};
 
 	return (
-		<ActionCard
-			hasGreyHeader
-			isMedium
-			title={ __( 'News Revenue Hub Settings', 'newspack-plugin' ) }
-			description={ __( 'Configure your site’s connection to News Revenue Hub.', 'newspack-plugin' ) }
-			actionContent={
-				<Button isPrimary onClick={ onSave }>
-					{ __( 'Save Settings' ) }
-				</Button>
-			}
-		>
+		<>
+			<SectionHeader
+				title={ __( 'News Revenue Hub Settings', 'newspack-plugin' ) }
+				description={ __( 'Configure your site’s connection to News Revenue Hub.', 'newspack-plugin' ) }
+			/>
 			<div>
 				<Grid columns={ 3 }>
 					<TextControl
@@ -111,7 +105,12 @@ const NRHSettings = () => {
 					/>
 				</div>
 			) }
-		</ActionCard>
+			<div className="newspack-buttons-card">
+				<Button isPrimary onClick={ onSave }>
+					{ __( 'Save Settings' ) }
+				</Button>
+			</div>
+		</>
 	);
 };
 
