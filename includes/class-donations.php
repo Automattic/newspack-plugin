@@ -75,6 +75,7 @@ class Donations {
 			add_filter( 'newspack_blocks_donate_billing_fields_keys', [ __CLASS__, 'get_billing_fields' ] );
 			add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
 			add_action( 'woocommerce_coupons_enabled', [ __CLASS__, 'disable_coupons' ] );
+			add_filter( 'render_block', [ __CLASS__, 'prevent_rendering_donate_block' ], 10, 2 );
 		}
 	}
 
@@ -1093,6 +1094,23 @@ class Donations {
 			return $enabled;
 		}
 		return false;
+	}
+
+	/**
+	 * Prevent rendering of Donate block if Reader Revenue platform is set to 'other.
+	 *
+	 * @param string $block_content The block content about to be rendered.
+	 * @param array  $block The data of the block about to be rendered.
+	 */
+	public static function prevent_rendering_donate_block( $block_content, $block ) {
+		if (
+			isset( $block['blockName'] )
+			&& 'newspack-blocks/donate' === $block['blockName']
+			&& self::is_platform_other()
+		) {
+			return '';
+		}
+		return $block_content;
 	}
 }
 Donations::init();

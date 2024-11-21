@@ -33,7 +33,6 @@ class Audience_Donations extends Wizard {
 	public function __construct() {
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		add_filter( 'render_block', [ $this, 'prevent_rendering_donate_block' ], 10, 2 );
 	}
 
 	/**
@@ -79,23 +78,6 @@ class Audience_Donations extends Wizard {
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
 			]
 		);
-	}
-
-	/**
-	 * Prevent rendering of Donate block if Reader Revenue platform is set to 'other.
-	 *
-	 * @param string $block_content The block content about to be rendered.
-	 * @param array  $block The data of the block about to be rendered.
-	 */
-	public static function prevent_rendering_donate_block( $block_content, $block ) {
-		if (
-			isset( $block['blockName'] )
-			&& 'newspack-blocks/donate' === $block['blockName']
-			&& Donations::is_platform_other()
-		) {
-			return '';
-		}
-		return $block_content;
 	}
 
 	/**
