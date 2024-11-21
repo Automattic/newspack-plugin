@@ -26,7 +26,7 @@ class Audience_Campaigns extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $parent_slug = 'newspack-audience-configuration';
+	protected $parent_slug = 'newspack-audience';
 
 	/**
 	 * Constructor.

@@ -1,4 +1,4 @@
-/* global newspackAudienceConfiguration */
+/* global newspackAudience */
 
 /**
  * WordPress dependencies
@@ -26,7 +26,7 @@ const { useHistory } = Router;
 
 export default withWizardScreen( () => {
 	const { is_skipped_campaign_setup, reader_activation_url } =
-		newspackAudienceConfiguration;
+		newspackAudience;
 
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
@@ -72,7 +72,7 @@ export default withWizardScreen( () => {
 		setSkipped( { ...skipped, status: 'pending' } );
 		try {
 			const request = await apiFetch( {
-				path: '/newspack/v1/wizard/newspack-audience-configuration/reader-activation/skip-campaign-setup',
+				path: '/newspack/v1/wizard/newspack-audience/reader-activation/skip-campaign',
 				method: 'POST',
 				data: { skip: ! skipped.isSkipped },
 			} );
@@ -84,7 +84,7 @@ export default withWizardScreen( () => {
 				return;
 			}
 			setSkipped( { isSkipped: Boolean( request.skipped ), status: '' } );
-			newspackAudienceConfiguration.is_skipped_campaign_setup =
+			newspackAudience.is_skipped_campaign_setup =
 				request.skipped ? '1' : '';
 			history.push( '/complete' );
 		} catch ( err ) {

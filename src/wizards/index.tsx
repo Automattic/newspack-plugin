@@ -46,12 +46,12 @@ const components: Record< string, any > = {
 				)
 		),
 	},
-	'newspack-audience-configuration': {
-		label: __( 'Audience Configuration', 'newspack-plugin' ),
+	'newspack-audience': {
+		label: __( 'Audience', 'newspack-plugin' ),
 		component: lazy(
 			() =>
 				import(
-					/* webpackChunkName: "newspack-wizards" */ './audience/views/configuration'
+					/* webpackChunkName: "audience-wizards" */ './audience/views/setup'
 				)
 		),
 	},
@@ -60,7 +60,7 @@ const components: Record< string, any > = {
 		component: lazy(
 			() =>
 				import(
-					/* webpackChunkName: "newspack-wizards" */ './audience/views/campaigns'
+					/* webpackChunkName: "audience-wizards" */ './audience/views/campaigns'
 				)
 		),
 	},
