@@ -49,16 +49,14 @@ const BillingFields = () => {
 
 	return (
 		<>
-			<Card noBorder headerActions>
-				<SectionHeader
-					title={ __( 'Checkout Billing Fields', 'newspack-plugin' ) }
-					description={ __(
-						'Configure the billing fields shown in the modal checkout form.',
-						'newspack-plugin'
-					) }
-					noMargin
-				/>
-			</Card>
+			<SectionHeader
+				title={ __( 'Checkout Billing Fields', 'newspack-plugin' ) }
+				description={ __(
+					'Configure the billing fields shown in the modal checkout form.',
+					'newspack-plugin'
+				) }
+				noMargin
+			/>
 			<Grid columns={ 3 } rowGap={ 16 }>
 				{ Object.keys( availableFields ).map( fieldKey => (
 					<CheckboxControl

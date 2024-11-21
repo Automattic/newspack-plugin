@@ -22,9 +22,8 @@ export default withWizardScreen( function () {
 		>
 			<Platform />
 			{ data?.platform_data?.platform === 'wc' && <PaymentGateways /> }
+			{ data?.platform_data?.platform === 'wc' && <BillingFields /> }
 			{ data?.platform_data?.platform === 'nrh' && <NRHSettings /> }
-			<hr />
-			<BillingFields />
 		</WizardsTab>
 	);
 } );
