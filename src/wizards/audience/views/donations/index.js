@@ -15,7 +15,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { Wizard, Notice, withWizard } from '../../../../components/src';
 import Configuration from './configuration';
-import Emails from './emails';
 import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, OTHER } from '../../constants';
 
 const AudienceDonations = () => {
@@ -29,9 +28,9 @@ const AudienceDonations = () => {
 			isHidden: usedPlatform === OTHER,
 		},
 		{
-			label: __( 'Emails', 'newspack-plugin' ),
-			path: '/emails',
-			render: Emails,
+			label: __( 'Revenue', 'newspack-plugin' ),
+			path: '/revenue',
+			render: () => null,
 			isHidden: usedPlatform !== NEWSPACK,
 		},
 	];

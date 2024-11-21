@@ -75,8 +75,6 @@ class Audience_Donations extends Wizard {
 			'newspack-wizards',
 			'newspackAudienceDonations',
 			[
-				'emails'                  => Emails::get_emails( [ Reader_Revenue_Emails::EMAIL_TYPES['RECEIPT'] ], false ),
-				'email_cpt'               => Emails::POST_TYPE,
 				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
 			]
