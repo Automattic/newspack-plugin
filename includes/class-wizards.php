@@ -56,6 +56,7 @@ class Wizards {
 			'audience'                => new Audience_Wizard(),
 			'audience-campaigns'      => new Audience_Campaigns(),
 			'audience-donations'      => new Audience_Donations(),
+			'audience-subscriptions'  => new Audience_Subscriptions(),
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),

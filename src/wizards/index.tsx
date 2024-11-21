@@ -73,6 +73,15 @@ const components: Record< string, any > = {
 				)
 		),
 	},
+	'newspack-audience-subscriptions-wizard': {
+		label: __( 'Audience Subscriptions', 'newspack-plugin' ),
+		component: lazy(
+			() =>
+				import(
+					/* webpackChunkName: "audience-wizards" */ './audience/views/subscriptions'
+				)
+		),
+	},
 } as const;
 
 const AdminPageLoader = ( { label }: { label: string } ) => {

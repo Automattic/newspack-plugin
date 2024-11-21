@@ -1,0 +1,65 @@
+<?php
+/**
+ * Audience Subscriptions Wizard
+ *
+ * @package Newspack
+ */
+
+namespace Newspack;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Audience Subscriptions Wizard.
+ */
+class Audience_Subscriptions extends Wizard {
+	/**
+	 * Admin page slug.
+	 *
+	 * @var string
+	 */
+	protected $slug = 'newspack-audience-subscriptions-wizard';
+
+	/**
+	 * Parent slug.
+	 *
+	 * @var string
+	 */
+	protected $parent_slug = 'newspack-audience-wizard';
+
+
+	/**
+	 * Get the name for this wizard.
+	 *
+	 * @return string The wizard name.
+	 */
+	public function get_name() {
+		return esc_html__( 'Audience Development / Subscriptions', 'newspack-plugin' );
+	}
+
+	/**
+	 * Add Subscriptions page.
+	 */
+	public function add_page() {
+		add_submenu_page(
+			$this->parent_slug,
+			$this->get_name(),
+			esc_html__( 'Subscriptions', 'newspack-plugin' ),
+			$this->capability,
+			$this->slug,
+			[ $this, 'render_wizard' ]
+		);
+	}
+
+	/**
+	 * Enqueue scripts and styles.
+	 */
+	public function enqueue_scripts_and_styles() {
+		if ( ! $this->is_wizard_page() ) {
+			return;
+		}
+
+		parent::enqueue_scripts_and_styles();
+		wp_enqueue_script( 'newspack-wizards' );
+	}
+}
