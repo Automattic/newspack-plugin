@@ -50,7 +50,6 @@ class WooCommerce_Subscriptions {
 					],
 					[
 						'name'              => __( 'On-hold Duration', 'newspack-plugin' ),
-						'desc'              => __( 'The number of days after all automatic payment retries have failed before attempting a final payment attempt and ending retries.', 'newspack-plugin' ),
 						'id'                => 'newspack_subscriptions_on_hold_duration',
 						'css'               => 'max-width:80px;',
 						'value'             => self::get_on_hold_duration(),
@@ -58,6 +57,14 @@ class WooCommerce_Subscriptions {
 						'custom_attributes' => array(
 							'min'  => 0,
 							'step' => 1,
+						),
+						'desc'              => sprintf(
+							// Translators: %s is a line break.
+							__(
+								'Set the number of days a subscription remains in the On-Hold status after all automatic payment retries have failed.%sDuring this period, subscribers can update their payment details to restore the subscription at their current price. Once this time expires, the subscription will automatically transition to expired.',
+								'newspack-plugin'
+							),
+							'<br>'
 						),
 					],
 					[
@@ -85,33 +92,20 @@ class WooCommerce_Subscriptions {
 	 * @param array $retry_rules Subscriptions retry rules.
 	 */
 	public static function maybe_apply_on_hold_duration_rule( $retry_rules ) {
-		if ( self::is_active() ) {
-			$post_retry_days = self::get_on_hold_duration();
-			if ( $post_retry_days > 0 ) {
-				$final_retry_rule          = array_pop( $retry_rules );
-				$final_order_status        = $final_retry_rule['status_to_apply_to_order'];
-				$final_subscription_status = $final_retry_rule['status_to_apply_to_subscription'];
-				$retry_rules               = array_merge(
-					$retry_rules,
-					[
-						array_merge(
-							$final_retry_rule,
-							[
-								'status_to_apply_to_order' => 'pending',
-								'status_to_apply_to_subscription' => 'on-hold',
-							]
-						),
-						array_merge(
-							$final_retry_rule,
-							[
-								'status_to_apply_to_order' => $final_order_status,
-								'status_to_apply_to_subscription' => $final_subscription_status,
-								'retry_after_interval'     => DAY_IN_SECONDS * $post_retry_days,
-							]
-						),
-					]
-				);
+		if ( self::is_active() && count( $retry_rules ) > 0 ) {
+			$on_hold_duration = self::get_on_hold_duration();
+			if ( 0 < $on_hold_duration ) {
+				$retry_rules[] = [
+					'retry_after_interval'            => $on_hold_duration * DAY_IN_SECONDS,
+					'status_to_apply_to_order'        => 'pending',
+					'status_to_apply_to_subscription' => 'on-hold',
+				];
 			}
+			$retry_rules[] = [
+				'retry_after_interval'            => 0,
+				'status_to_apply_to_order'        => 'failed',
+				'status_to_apply_to_subscription' => 'expired',
+			];
 		}
 		return $retry_rules;
 	}
