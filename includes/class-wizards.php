@@ -54,7 +54,7 @@ class Wizards {
 			),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
-			'audience-configuration'  => new Audience_Configuration(),
+			'audience'                => new Audience_Wizard(),
 			'audience-campaigns'      => new Audience_Campaigns(),
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),

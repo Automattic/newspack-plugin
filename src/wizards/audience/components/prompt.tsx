@@ -116,7 +116,7 @@ export default function Prompt( {
 	} ) => {
 		const { placement, trigger_type: triggerType } = options;
 		const previewQueryKeys =
-			window.newspackAudienceConfiguration.preview_query_keys;
+			window.newspackAudience.preview_query_keys;
 		const abbreviatedKeys = { preset: slug, values };
 		const optionsKeys = Object.keys(
 			options
@@ -131,15 +131,15 @@ export default function Prompt( {
 		let previewURL = '/';
 		if (
 			'archives' === placement &&
-			window.newspackAudienceConfiguration?.preview_archive
+			window.newspackAudience?.preview_archive
 		) {
-			previewURL = window.newspackAudienceConfiguration.preview_archive;
+			previewURL = window.newspackAudience.preview_archive;
 		} else if (
 			( 'inline' === placement || 'scroll' === triggerType ) &&
 			window &&
-			window.newspackAudienceConfiguration?.preview_post
+			window.newspackAudience?.preview_post
 		) {
-			previewURL = window.newspackAudienceConfiguration?.preview_post;
+			previewURL = window.newspackAudience?.preview_post;
 		}
 
 		return `${ previewURL }?${ stringify( { ...abbreviatedKeys } ) }`;
