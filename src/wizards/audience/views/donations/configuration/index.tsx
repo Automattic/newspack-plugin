@@ -56,7 +56,7 @@ export const DonationAmounts = () => {
 
 	const changeHandler = ( path: ( string | number )[] ) => ( value: any ) =>
 		updateWizardSettings( {
-			slug: 'newspack-reader-revenue-wizard',
+			slug: 'newspack-audience-donations',
 			path: [ 'donation_data', ...path ],
 			value,
 		} );

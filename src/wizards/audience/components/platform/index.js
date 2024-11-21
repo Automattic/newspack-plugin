@@ -39,7 +39,7 @@ const Platform = () => {
 					] }
 					onChange={ value => {
 						saveWizardSettings( {
-							slug: 'newspack-reader-revenue-wizard',
+							slug: 'newspack-audience-donations',
 							payloadPath: [ 'platform_data' ],
 							updatePayload: {
 								path: [ 'platform_data', 'platform' ],
@@ -55,7 +55,7 @@ const Platform = () => {
 					onStatus={ ( { complete } ) => {
 						if ( complete ) {
 							updateWizardSettings( {
-								slug: 'newspack-reader-revenue-wizard',
+								slug: 'newspack-audience-donations',
 								path: [ 'plugin_status' ],
 								value: true,
 							} );

@@ -25,14 +25,14 @@ const BillingFields = () => {
 
 	const changeHandler = ( path: string[] ) => ( value: any ) =>
 		updateWizardSettings( {
-			slug: 'newspack-reader-revenue-wizard',
+			slug: 'newspack-audience-donations',
 			path: [ 'donation_data', ...path ],
 			value,
 		} );
 
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: 'newspack-reader-revenue-wizard',
+			slug: 'newspack-audience-donations',
 			section: 'donations',
 			payloadPath: [ 'donation_data' ],
 		} );
