@@ -15,7 +15,6 @@ export default withWizardScreen( () => {
 	const [ config, setConfig ] = useState( {} );
 
 	useEffect( () => {
-		window.scrollTo( 0, 0 );
 		fetchConfig();
 	}, [] );
 
