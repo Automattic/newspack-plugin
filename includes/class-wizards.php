@@ -39,7 +39,6 @@ class Wizards {
 			'seo'                     => new SEO_Wizard(),
 			'health-check'            => new Health_Check_Wizard(),
 			'engagement'              => new Engagement_Wizard(),
-			'popups'                  => new Popups_Wizard(),
 			'connections'             => new Connections_Wizard(),
 			'settings'                => new Settings(),
 			// v2 Information Architecture.
@@ -55,7 +54,7 @@ class Wizards {
 			),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
-			'audience-configuration'  => new Audience_Configuration(),
+			'audience'                => new Audience_Wizard(),
 			'audience-campaigns'      => new Audience_Campaigns(),
 			'audience-donations'      => new Audience_Donations(),
 			'listings'                => new Listings_Wizard(),

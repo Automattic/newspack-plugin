@@ -23,7 +23,7 @@ function WizardsTab( {
 			}${ className } newspack-wizard__sections` }
 		>
 			<h1>{ title }</h1>
-			{ description && <p>{ description }</p> }
+			{ description && <p className="newspack-wizard__sections__description">{ description }</p> }
 			{ children }
 		</div>
 	);

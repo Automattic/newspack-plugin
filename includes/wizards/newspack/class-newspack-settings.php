@@ -62,6 +62,11 @@ class Newspack_Settings extends Wizard {
 							'googleOAuth' => OAuth::is_proxy_configured( 'google' ),
 						],
 					],
+					'jetpack_sso'  => [
+						'dependencies' => [
+							'jetpack_sso' => class_exists( 'Jetpack' ) && defined( 'NEWSPACK_MANAGER_FILE' ),
+						],
+					],
 					'recaptcha'    => [],
 					'analytics'    => [
 						'editLink'                    => $google_site_kit_url,

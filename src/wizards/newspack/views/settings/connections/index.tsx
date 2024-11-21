@@ -15,6 +15,7 @@ import Plugins from './plugins';
 import Webhooks from './webhooks';
 import Analytics from './analytics';
 import Recaptcha from './recaptcha';
+import JetpackSSO from './jetpack-sso';
 import Mailchimp from './mailchimp';
 import GoogleOAuth from './google-oauth';
 import CustomEvents from './custom-events';
@@ -39,6 +40,13 @@ function Connections() {
 				) }
 				<Mailchimp />
 			</WizardSection>
+
+			{ /* Jetpack SSO */ }
+			{ connections.sections.jetpack_sso.dependencies?.jetpack_sso ? (
+				<WizardSection title={ __( 'Jetpack SSO', 'newspack-plugin' ) }>
+					<JetpackSSO />
+				</WizardSection>
+			) : null }
 
 			{ /* reCAPTCHA */ }
 			<WizardSection

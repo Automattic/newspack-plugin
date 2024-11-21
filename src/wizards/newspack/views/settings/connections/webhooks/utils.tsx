@@ -5,6 +5,7 @@
 /**
  * WordPress dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { settings, check, close, reusableBlock } from '@wordpress/icons';
 
@@ -80,4 +81,43 @@ export function getRequestStatusIcon(
  */
 export function hasEndpointErrors( endpoint: Endpoint ): boolean {
 	return endpoint.requests.some( request => request.errors.length );
+}
+
+/**
+ * Validate endpoint URL.
+ *
+ * @param url The URL to validate.
+ * @return    Error message if URL is invalid, false otherwise.
+ */
+export function validateUrl( url: string ): string | false {
+	if ( ! url ) {
+		return __( 'URL is required.', 'newspack-plugin' );
+	}
+	try {
+		const urlObject = new URL( url );
+		if ( urlObject.protocol !== 'https:' ) {
+			return __( 'HTTPS protocol is required for the endpoint URL.', 'newspack-plugin' );
+		}
+		return false;
+	} catch ( error ) {
+		return __( 'Invalid URL format.', 'newspack-plugin' );
+	}
+}
+
+/**
+ * Validate an endpoint.
+ *
+ * @param endpoint The endpoint to validate.
+ * @return         An array of error messages.
+ */
+export function validateEndpoint( endpoint: Endpoint ): string[] {
+	const errors = [];
+	const urlError = validateUrl( endpoint.url );
+	if ( urlError ) {
+		errors.push( urlError );
+	}
+	if ( ! endpoint.actions || ! endpoint.actions.length ) {
+		errors.push( __( 'At least one action is required.', 'newspack-plugin' ) );
+	}
+	return errors;
 }

@@ -149,12 +149,12 @@ export default function Prerequisite( {
 														prerequisite.instructions +
 															' ',
 														window
-															.newspackAudienceConfiguration
+															.newspackAudience
 															?.reader_activation_url
-															? `<a href="${ window.newspackAudienceConfiguration.reader_activation_url }">`
+															? `<a href="${ window.newspackAudience.reader_activation_url }">`
 															: '',
 														window
-															.newspackAudienceConfiguration
+															.newspackAudience
 															?.reader_activation_url
 															? '</a>'
 															: ''

@@ -32,7 +32,7 @@ const TabbedNavigation = ( { items, className, disableUpcoming, children = null 
 		}
 		return match;
 	}
-	
+
 	return (
 		<div className={ classnames( 'newspack-tabbed-navigation', className ) }>
 			<ul>
@@ -41,7 +41,7 @@ const TabbedNavigation = ( { items, className, disableUpcoming, children = null 
 						<NavLink
 							to={ item.path }
 							isActive={ ( match, { pathname } ) => isActive(item, match, pathname) }
-							exact
+							exact={ item.hasOwnProperty( 'exact' ) ? item.exact : true }
 							activeClassName={ 'selected' }
 							className={ classnames( {
 								disabled: disableUpcoming && index > currentIndex,
