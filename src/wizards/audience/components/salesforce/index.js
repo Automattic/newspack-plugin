@@ -15,8 +15,8 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies.
  */
-import { PluginSettings, Notice, Wizard } from '../../../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
+import { PluginSettings, Notice, Wizard } from '../../../../components/src';
+import { READER_REVENUE_WIZARD_SLUG } from '../../views/donations/constants';
 
 const Salesforce = () => {
 	const { salesforce_redirect_url: redirectUrl } = window?.newspack_reader_revenue || {};

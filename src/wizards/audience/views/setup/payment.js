@@ -6,25 +6,28 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { withWizardScreen } from '../../../../components/src';
+import { withWizardScreen, Wizard } from '../../../../components/src';
 import WizardsTab from '../../../wizards-tab';
 import Platform from '../../components/platform';
 import StripeSetup from '../../components/stripe-setup';
 import NRHSettings from '../../components/nrh-settings';
+import BillingFields from '../../components/billing-fields';
 
 export default withWizardScreen( function () {
+	const data = Wizard.useWizardData( 'reader-revenue' );
 	return (
 		<WizardsTab
 			title={ __( 'Checkout & Payment', 'newspack-plugin' ) }
 			description={ __(
-				'WooCommerce configuration for donors and subscribers.',
+				'Reader revenue configuration for donations and subscriptions.',
 				'newspack-plugin'
 			) }
 		>
 			<Platform />
-			<StripeSetup />
-			<NRHSettings />
-			{ /* TODO: Add Saleforce Settings from `/wp-admin/admin.php?page=newspack-reader-revenue-wizard#/salesforce`*/ }
+			{ data?.platform_data?.platform === 'wc' && <StripeSetup /> }
+			{ data?.platform_data?.platform === 'nrh' && <NRHSettings /> }
+			<hr />
+			<BillingFields />
 		</WizardsTab>
 	);
 } );

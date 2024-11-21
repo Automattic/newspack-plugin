@@ -26,6 +26,7 @@ import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
 import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
+import Salesforce from '../../components/salesforce';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
 
@@ -375,6 +376,8 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 							) }
 						</Button>
 					</div>
+					<hr />
+					<Salesforce />
 				</Card>
 			) }
 		</WizardsTab>

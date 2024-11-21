@@ -19,7 +19,7 @@ import { withWizard } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 import ContentGating from './content-gating';
 import TransactionalEmails from './transactional-emails';
-import WooCommerce from './woocommerce';
+import Payment from './payment';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -90,7 +90,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 			},
 			{
 				label: __( 'Checkout & Payment', 'newspack-plugin' ),
-				path: '/woocommerce',
+				path: '/payment',
 			},
 		];
 		tabs = tabs.filter( tab => tab );
@@ -139,9 +139,9 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 						) }
 					/>
 					<Route
-						path="/woocommerce"
+						path="/payment"
 						render={ () => (
-							<WooCommerce { ...props } />
+							<Payment { ...props } />
 						) }
 					/>
 					<Route
