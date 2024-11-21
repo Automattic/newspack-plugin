@@ -21,6 +21,7 @@ import {
 } from '../../../../../components/src';
 import WizardsTab from '../../../../wizards-tab';
 import { READER_REVENUE_WIZARD_SLUG } from '../../../constants';
+import { CoverFeesSettings } from '../../../components/cover-fees-settings';
 
 type FrequencySlug = 'once' | 'month' | 'year';
 
@@ -278,6 +279,8 @@ const Donation = () => {
 					{ __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
+			<SectionHeader title={ __( 'Additional Settings', 'newspack-plugin' ) } />
+			<CoverFeesSettings />
 		</WizardsTab>
 	);
 };
