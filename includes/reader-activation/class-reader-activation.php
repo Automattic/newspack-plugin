@@ -563,7 +563,7 @@ final class Reader_Activation {
 				'label'          => __( 'Reader Activation Campaign', 'newspack-plugin' ),
 				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.', 'newspack-plugin' ),
 				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
-				'href'           => self::is_ras_campaign_configured() ? admin_url( '/admin.php?page=newspack-audience-campaigns' ) : admin_url( '/admin.php?page=newspack-audience-configuration#/campaign' ),
+				'href'           => self::is_ras_campaign_configured() ? admin_url( '/admin.php?page=newspack-audience-campaigns' ) : admin_url( '/admin.php?page=newspack-audience#/campaign' ),
 				'action_enabled' => self::is_ras_ready_to_configure(),
 				'action_text'    => __( 'Reader Activation campaign', 'newspack-plugin' ),
 				'disabled_text'  => __( 'Waiting for all settings to be ready', 'newspack-plugin' ),
@@ -1483,6 +1483,11 @@ final class Reader_Activation {
 	 * @return string Filtered template path.
 	 */
 	public static function replace_woocommerce_auth_form( $template, $template_name ) {
+		// Allow template rewriting for `woocommerce-memberships-for-teams` plugin. This includes
+		// a link to join a team.
+		if ( is_int( stripos( $template, 'woocommerce-memberships-for-teams' ) ) ) {
+			return $template;
+		}
 		if ( 'myaccount/form-login.php' === $template_name ) {
 			$template = dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation/login-form.php';
 		}

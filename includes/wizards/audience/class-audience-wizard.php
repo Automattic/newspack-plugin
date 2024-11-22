@@ -1,6 +1,6 @@
 <?php
 /**
- * Audience Configuration Wizard
+ * Audience Wizard
  *
  * @package Newspack
  */
@@ -17,9 +17,9 @@ use WP_REST_Request, WP_REST_Response, WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Audience Configuration Wizard.
+ * Audience Wizard.
  */
-class Audience_Configuration extends Wizard {
+class Audience_Wizard extends Wizard {
 
 	/**
 	 * Option to skip campaign setup.
@@ -33,14 +33,14 @@ class Audience_Configuration extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-audience-configuration';
+	protected $slug = 'newspack-audience';
 
 	/**
 	 * The parent menu item name.
 	 *
 	 * @var string
 	 */
-	public $parent_menu = 'newspack-audience-configuration';
+	public $parent_menu = 'newspack-audience';
 
 	/**
 	 * Parent menu order relative to the Newspack Dashboard menu item.
@@ -67,7 +67,7 @@ class Audience_Configuration extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Development / Configuration', 'newspack-plugin' );
+		return esc_html__( 'Audience Development / Setup', 'newspack-plugin' );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Audience_Configuration extends Wizard {
 		parent::enqueue_scripts_and_styles();
 		$data = [
 			'has_memberships'       => class_exists( 'WC_Memberships' ),
-			'reader_activation_url' => admin_url( 'admin.php?page=newspack-audience-configuration#/' ),
+			'reader_activation_url' => admin_url( 'admin.php?page=newspack-audience#/' ),
 			'esp_metadata_fields'   => Reader_Activation\Sync\Metadata::get_default_fields(),
 		];
 
@@ -106,7 +106,7 @@ class Audience_Configuration extends Wizard {
 
 		wp_localize_script(
 			'newspack-wizards',
-			'newspackAudienceConfiguration',
+			'newspackAudience',
 			$data
 		);
 	}
@@ -133,7 +133,7 @@ class Audience_Configuration extends Wizard {
 		add_submenu_page(
 			$this->slug,
 			$this->get_name(),
-			__( 'Configuration', 'newspack-plugin' ),
+			__( 'Setup', 'newspack-plugin' ),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ]
@@ -173,7 +173,7 @@ class Audience_Configuration extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/skip-campaign-setup',
+			'/wizard/' . $this->slug . '/reader-activation/skip-campaign',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => function( $request ) {
@@ -186,6 +186,24 @@ class Audience_Configuration extends Wizard {
 						]
 					);
 				},
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/content-gating',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_content_gating_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/content-gating',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_content_gating_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -220,21 +238,10 @@ class Audience_Configuration extends Wizard {
 			Reader_Activation::update_setting( $key, $value );
 		}
 
-		// Update Memberships options.
-		if ( isset( $args['memberships_require_all_plans'] ) ) {
-			Memberships::set_require_all_plans_setting( (bool) $args['memberships_require_all_plans'] );
-		}
-
-		// Update Memberships options.
-		if ( isset( $args['memberships_show_on_subscription_tab'] ) ) {
-			Memberships::set_show_on_subscription_tab_setting( (bool) $args['memberships_show_on_subscription_tab'] );
-		}
-
 		return rest_ensure_response(
 			[
 				'config'               => Reader_Activation::get_settings(),
 				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
-				'memberships'          => self::get_memberships_settings(),
 				'can_esp_sync'         => Reader_Activation\ESP_Sync::can_esp_sync( true ),
 			]
 		);
@@ -259,6 +266,33 @@ class Audience_Configuration extends Wizard {
 		}
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Get content gating settings.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_get_content_gating_settings() {
+		return rest_ensure_response( self::get_memberships_settings() );
+	}
+
+	/**
+	 * Update content gating settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function api_update_content_gating_settings( $request ) {
+		$args = $request->get_params();
+		if ( isset( $args['require_all_plans'] ) ) {
+			Memberships::set_require_all_plans_setting( (bool) $args['require_all_plans'] );
+		}
+		if ( isset( $args['show_on_subscription_tab'] ) ) {
+			Memberships::set_show_on_subscription_tab_setting( (bool) $args['show_on_subscription_tab'] );
+		}
+		return rest_ensure_response( self::get_memberships_settings() );
 	}
 
 	/**

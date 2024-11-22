@@ -23,6 +23,30 @@ class WC_Gateway_Stripe {
 	}
 }
 
+class WC_Stripe {
+	protected static $instance = null;
+	public $connect = null;
+	public static function get_instance() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self();
+			self::$instance->connect = self::$instance;
+		}
+		return self::$instance;
+	}
+	public function is_connected( $mode = 'live' ) {
+		return false;
+	}
+	public function is_connected_via_oauth( $mode = 'live' ) {
+		return false;
+	}
+}
+
+class WC_Stripe_Feature_Flags {
+	public static function is_upe_checkout_enabled() {
+		return true;
+	}
+}
+
 class WC_Payment_Gateways {
 	private static $gateways = [];
 	public static function instance() {
@@ -39,6 +63,9 @@ class WC_Payment_Gateways {
 class WC_DateTime extends DateTime {
 	public function date( $format ) {
 		return gmdate( $format, $this->getTimestamp() );
+	}
+	public function getOffsetTimestamp() {
+		return $this->getTimestamp() + $this->getOffset();
 	}
 }
 
@@ -65,7 +92,7 @@ class WC_Customer {
 	public function get_billing_last_name() {
 		return get_user_meta( $this->get_id(), 'last_name', true );
 	}
-	public function get_billing_email() {
+	public function get_email() {
 		return get_userdata( $this->get_id() )->user_email;
 	}
 }
@@ -112,11 +139,90 @@ class WC_Order {
 	public function get_date_paid() {
 		return new WC_DateTime( $this->data['date_paid'] );
 	}
+	public function get_date_completed() {
+		return new WC_DateTime( $this->data['date_completed'] );
+	}
 	public function get_total() {
 		return $this->data['total'];
 	}
 	public function get_status() {
 		return $this->data['status'];
+	}
+}
+
+class WC_Subscription {
+	public $data = [];
+	public $meta = [];
+	public $orders = [];
+	public function __construct( $data ) {
+		$this->data = array_merge( $data, $this->data );
+		if ( isset( $data['meta'] ) ) {
+			$this->meta = $data['meta'];
+		}
+		if ( isset( $data['orders'] ) ) {
+			$this->orders = $data['orders'];
+			usort(
+				$this->orders,
+				function( $a, $b ) {
+					return $b->get_date_paid()->getTimestamp() <=> $a->get_date_paid()->getTimestamp();
+				}
+			);
+		}
+	}
+	public function get_id() {
+		return $this->data['id'];
+	}
+	public function get_customer_id() {
+		return $this->data['customer_id'];
+	}
+	public function get_meta( $field_name ) {
+		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : '';
+	}
+	public function has_status( $statuses ) {
+		return in_array( $this->data['status'], $statuses );
+	}
+	public function get_date_paid() {
+		return new WC_DateTime( $this->data['date_paid'] );
+	}
+	public function get_total() {
+		return $this->data['total'];
+	}
+	public function get_status() {
+		return $this->data['status'];
+	}
+	public function get_billing_period() {
+		return $this->data['billing_period'];
+	}
+	public function get_billing_interval() {
+		return $this->data['billing_interval'];
+	}
+	public function get_last_order() {
+		if ( ! empty( $this->orders ) ) {
+			return end( $this->orders );
+		}
+		return false;
+	}
+	public function get_date( $type ) {
+		return $this->data['dates'][ $type ] ?? 0;
+	}
+	public function calculate_date() {
+		$start    = strtotime( $this->get_date( 'start' ) );
+		$interval = $this->get_billing_interval();
+		$period   = $this->get_billing_period();
+		$end      = time();
+
+		while ( $start <= $end ) {
+			$start = strtotime( "+$interval $period", $start );
+		}
+		return gmdate( 'Y-m-d H:i:s', $start );
+	}
+	public function update_dates( $dates ) {
+		foreach ( $dates as $type => $date ) {
+			$this->data['dates'][ $type ] = $date;
+		}
+	}
+	public function save() {
+		return true;
 	}
 }
 
