@@ -36,6 +36,24 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 	}
 }
 
+// Styling for wizards that are admin-header-only.
+body.newspack-wizard-page.newspack-admin-header {
+
+	// For mobile.
+	@media screen and (max-width: 600px) {
+
+		// The header bar (and tabs) need padding.
+		#newspack-wizards-admin-header {
+			padding-top: 46px;
+		}
+
+		// Since the padding was added to the header bar, remove from body.
+		#wpbody {
+			padding-top: 0px;
+		}
+	}
+}
+
 svg {
 	&.newspack--error {
 		fill: wp-colors.$alert-red;

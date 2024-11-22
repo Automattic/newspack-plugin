@@ -140,7 +140,7 @@ h1 {
 		box-sizing: border-box;
 	}
 }
-.newspack-wizard-page {
+.newspack-wizard-page:not(.newspack-admin-header) {
 	#screen-meta-links {
 		position: absolute;
 		right: 0;
