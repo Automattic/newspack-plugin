@@ -283,12 +283,11 @@ final class Newspack {
 	 * that these actions will still show notices like "1 post was trashed" or "5 posts were
 	 * updated" since WordPress shows these notices outside the actions that the function below
 	 * is removing.
-	 * 
 	 */
 	public function remove_notifications() {
 		global $admin_body_classes;
 		
-		// If wizard page
+		// Wizard pages.
 		if ( str_contains( $admin_body_classes, 'newspack-wizard-page' ) ) {
 			remove_all_actions( current_action() );
 		}
