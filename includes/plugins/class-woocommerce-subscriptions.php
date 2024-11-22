@@ -49,6 +49,7 @@ class WooCommerce_Subscriptions {
 		if ( 'cancelled' === $to_status && ! in_array( $from_status, [ 'cancelled', 'expired' ], true ) ) {
 			$meta_value = is_admin() ? self::CANCELLATION_REASON_ADMIN_CANCELLED : self::CANCELLATION_REASON_USER_CANCELLED;
 			$subscription->update_meta_data( self::CANCELLATION_REASON_META_KEY, $meta_value );
+			$subscription->save();
 		}
 	}
 }
