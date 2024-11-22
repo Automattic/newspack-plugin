@@ -21,20 +21,22 @@ const {
 const actions: Statuses = {
 	readerActivation: {
 		...siteStatuses.readerActivation,
-		then( { config: { enabled = false } }: { config: { enabled: boolean } } ) {
-			return enabled;
+		then( { config } ) {
+			return Boolean( config?.enabled );
 		},
 	},
 	googleAnalytics: {
 		...siteStatuses.googleAnalytics,
-		then( { propertyID = '' }: { propertyID: string } ) {
+		then( { propertyID = '' } ) {
 			return propertyID !== '';
 		},
 	},
 	googleAdManager: {
 		...siteStatuses.googleAdManager,
 		then( { services: { google_ad_manager } } ) {
-			return google_ad_manager.available && google_ad_manager.enabled === '1';
+			return (
+				google_ad_manager.available && google_ad_manager.enabled === '1'
+			);
 		},
 	},
 } as const;

@@ -35,8 +35,11 @@ const SiteStatus = ( {
 }: Status ) => {
 	const parsedStatusLabels = { ...defaultStatuses, ...statuses };
 
-	const [ requestStatus, setRequestStatus ] = useState< StatusLabels >( 'idle' );
-	const [ failedDependencies, setFailedDependencies ] = useState< string[] >( [] );
+	const [ requestStatus, setRequestStatus ] =
+		useState< StatusLabels >( 'idle' );
+	const [ failedDependencies, setFailedDependencies ] = useState< string[] >(
+		[]
+	);
 	const [ isModalVisible, setIsModalVisible ] = useState( false );
 
 	const dependencies = structuredClone( dependenciesProp ) as Dependencies;
@@ -56,7 +59,10 @@ const SiteStatus = ( {
 			// Dependency check
 			if ( dependencies && Object.keys( dependencies ).length > 0 ) {
 				const failedDeps: string[] = [];
-				for ( const [ dependencyName, dependencyInfo ] of Object.entries( dependencies ) ) {
+				for ( const [
+					dependencyName,
+					dependencyInfo,
+				] of Object.entries( dependencies ) ) {
 					// Don't process active
 					if ( dependencyInfo.isActive ) {
 						continue;
@@ -86,7 +92,8 @@ const SiteStatus = ( {
 					setRequestStatus( apiRequest ? 'success' : 'error' );
 					resolve( apiRequest );
 				} )
-				.catch( () => {
+				.catch( e => {
+					console.log( e );
 					then( false );
 					setRequestStatus( 'error' );
 					reject();
@@ -107,9 +114,15 @@ const SiteStatus = ( {
 			) }
 			{ /* Error UI, link user to config */ }
 			{ requestStatus === 'error' && (
-				<Tooltip text={ __( 'Click to navigate to configuration', 'newspack-plugin' ) }>
+				<Tooltip
+					text={ __(
+						'Click to navigate to configuration',
+						'newspack-plugin'
+					) }
+				>
 					<a href={ configLink } className={ classes }>
-						{ label }: <span>{ parsedStatusLabels[ requestStatus ] }</span>
+						{ label }:{ ' ' }
+						<span>{ parsedStatusLabels[ requestStatus ] }</span>
 						<span className="hidden">{ __( 'Configure?' ) }</span>
 					</a>
 				</Tooltip>
@@ -120,10 +133,15 @@ const SiteStatus = ( {
 					text={ sprintf(
 						// translators: %s is a comma separated list of needed dependencies.
 						__( '%s must be installed & activated!' ),
-						failedDependencies.map( dep => dependencies[ dep ].label ).join( ', ' )
+						failedDependencies
+							.map( dep => dependencies[ dep ].label )
+							.join( ', ' )
 					) }
 				>
-					<button onClick={ () => setIsModalVisible( true ) } className={ classes }>
+					<button
+						onClick={ () => setIsModalVisible( true ) }
+						className={ classes }
+					>
 						{ label }:{ ' ' }
 						<span>
 							{ _n(
@@ -145,9 +163,12 @@ const SiteStatus = ( {
 				</Tooltip>
 			) }
 			{ /* Display standard UI for the rest */ }
-			{ [ 'error-preflight', 'success', 'idle', 'pending' ].includes( requestStatus ) && (
+			{ [ 'error-preflight', 'success', 'idle', 'pending' ].includes(
+				requestStatus
+			) && (
 				<div className={ classes }>
-					{ label }: <span>{ parsedStatusLabels[ requestStatus ] }</span>
+					{ label }:{ ' ' }
+					<span>{ parsedStatusLabels[ requestStatus ] }</span>
 				</div>
 			) }
 		</>
