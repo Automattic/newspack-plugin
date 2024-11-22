@@ -242,6 +242,7 @@ class Metadata {
 			'next_payment_date'   => 'Next Payment Date',
 			// Total value spent by this customer on the site.
 			'total_paid'          => 'Total Paid',
+			'cancellation_reason' => 'Cancellation Reason',
 		];
 	}
 

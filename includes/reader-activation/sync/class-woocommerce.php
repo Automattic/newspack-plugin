@@ -264,12 +264,13 @@ class WooCommerce {
 				$metadata['membership_status'] = $current_subscription->get_status();
 			}
 
-			$metadata['sub_start_date']    = $current_subscription->get_date( 'start' );
-			$metadata['sub_end_date']      = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
-			$metadata['billing_cycle']     = $current_subscription->get_billing_period();
-			$metadata['recurring_payment'] = $current_subscription->get_total();
+			$metadata['sub_start_date']      = $current_subscription->get_date( 'start' );
+			$metadata['sub_end_date']        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$metadata['billing_cycle']       = $current_subscription->get_billing_period();
+			$metadata['recurring_payment']   = $current_subscription->get_total();
 			$metadata['last_payment_amount'] = $current_subscription->get_total();
 			$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
+			$metadata['cancellation_reason'] = $current_subscription->get_meta( WooCommerce_Subscriptions::CANCELLATION_REASON_META_KEY );
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.

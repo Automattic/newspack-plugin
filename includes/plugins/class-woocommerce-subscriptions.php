@@ -15,7 +15,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Subscriptions {
 	const CANCELLATION_REASON_META_KEY        = 'newspack_subscriptions_cancellation_reason';
-	const CANCELLATION_REASON_EXPIRED         = 'expired';
 	const CANCELLATION_REASON_USER_CANCELLED  = 'user-cancelled';
 	const CANCELLATION_REASON_ADMIN_CANCELLED = 'manually-cancelled';
 
@@ -32,7 +31,7 @@ class WooCommerce_Subscriptions {
 	 * @return bool
 	 */
 	public static function is_active() {
-		return class_exists( 'WC_Subscriptions' ) && Reader_Activation::is_active();
+		return class_exists( 'WC_Subscriptions' ) && Reader_Activation::is_enabled();
 	}
 
 	/**
