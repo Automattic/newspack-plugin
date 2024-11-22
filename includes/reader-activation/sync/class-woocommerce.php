@@ -270,7 +270,6 @@ class WooCommerce {
 			$metadata['recurring_payment']   = $current_subscription->get_total();
 			$metadata['last_payment_amount'] = $current_subscription->get_total();
 			$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
-			$metadata['cancellation_reason'] = $current_subscription->get_meta( WooCommerce_Subscriptions::CANCELLATION_REASON_META_KEY );
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
@@ -285,6 +284,12 @@ class WooCommerce {
 				if ( $subscription_order_items ) {
 					$metadata['product_name'] = reset( $subscription_order_items )->get_name();
 				}
+			}
+
+			// Record the cancellation reason if the subscription was cancelled.
+			$cancellation_reason = $current_subscription->get_meta( WooCommerce_Subscriptions::CANCELLATION_REASON_META_KEY );
+			if ( ! empty( $cancellation_reason ) ) {
+				$metadata['cancellation_reason'] = $cancellation_reason;
 			}
 		}
 
