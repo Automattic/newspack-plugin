@@ -61,7 +61,10 @@ function GateEdit() {
 					// translators: %s is the list of plans.
 					__( "You're currently editing a gate for content restricted by: %s", 'newspack-plugin' ),
 					Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
-				)
+				),
+				{
+					id: 'newspack-memberships-gate-plan'
+				}
 			);
 		}
 	}, [] );

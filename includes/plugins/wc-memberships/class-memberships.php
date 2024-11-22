@@ -869,13 +869,7 @@ class Memberships {
 					case 'wc_memberships_view_delayed_taxonomy_term':
 					case 'wc_memberships_view_delayed_post_content':
 					case 'wc_memberships_view_restricted_post_content':
-						if ( self::can_manage_woocommerce( $all_caps ) ) {
-							$all_caps[ $cap ] = true;
-							break;
-						}
-
-						// Allow user who can edit posts (by default: editors, authors, contributors).
-						if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
+						if ( self::user_has_content_access_from_role( $all_caps ) ) {
 							$all_caps[ $cap ] = true;
 							break;
 						}
@@ -895,6 +889,17 @@ class Memberships {
 						$rules            = wc_memberships()->get_rules_instance()->get_post_content_restriction_rules( $post_id );
 						$all_caps[ $cap ] = self::user_has_content_access_from_rules( $user_id, $rules, $post_id );
 
+						/**
+						 * Filter the user's access to content.
+						 *
+						 * @param bool  $has_access Whether the user has access to the content.
+						 * @param string $cap The capability being checked.
+						 * @param int $user_id The user ID.
+						 * @param int $post_id The post ID.
+						 * @param \WC_Memberships_Membership_Plan_Rule[] $rules The rules that apply to the content.
+						 */
+						$all_caps[ $cap ] = apply_filters( 'newspack_memberships_user_has_content_access', $all_caps[ $cap ], $cap, $user_id, $post_id, $rules );
+
 						break;
 
 					case 'wc_memberships_view_delayed_product':
@@ -909,6 +914,25 @@ class Memberships {
 		}
 
 		return $all_caps;
+	}
+
+	/**
+	 * Checks if a user has content access from user role.
+	 * Overrides behavior from WooCommerce Memberships plugin.
+	 *
+	 * @param array $all_caps All the user's capabilities.
+	 */
+	public static function user_has_content_access_from_role( $all_caps ) {
+		// Allow users who can manage WooCommerce.
+		if ( self::can_manage_woocommerce( $all_caps ) ) {
+			return true;
+		}
+
+		// Allow users who can edit posts (by default: editors, authors, contributors).
+		if ( isset( $all_caps['edit_posts'] ) && true === $all_caps['edit_posts'] ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -933,33 +957,44 @@ class Memberships {
 			return true;
 		}
 
-		$integrations      = wc_memberships()->get_integrations_instance();
+		$wc_memberships    = wc_memberships();
+		$integrations      = $wc_memberships->get_integrations_instance();
 		$integration       = $integrations ? $integrations->get_subscriptions_instance() : null;
 		$require_all_plans = self::get_require_all_plans_setting();
 		$has_access        = false;
 		$has_subscription  = false;
+		$has_paywall       = false;
 
 		foreach ( $rules as $rule ) {
 			$membership_plan_id = $rule->get_membership_plan_id();
-			if ( $integration && $integration->has_membership_plan_subscription( $membership_plan_id ) ) {
+			$membership_plan    = $rule->get_membership_plan();
+			$is_regwall         = $membership_plan->is_access_method( 'signup' );
+			$is_paywall         = $membership_plan->is_access_method( 'purchase' );
+			if ( $is_paywall && $integration && $integration->has_membership_plan_subscription( $membership_plan_id ) ) {
+				$has_paywall        = true;
 				$subscription_plan  = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $membership_plan_id );
 				$required_products  = $subscription_plan->get_subscription_product_ids();
-				$has_subscription   = ! empty( WooCommerce_Connection::get_active_subscriptions_for_user( $user_id, $required_products ) );
+				$has_subscription   = $has_subscription || ! empty( WooCommerce_Connection::get_active_subscriptions_for_user( $user_id, $required_products ) );
 			}
 
-			// If no object ID is provided, then we are looking at rules that apply to whole post types or taxonomies.
+			// If no object ID is provided, then we are checking the user's access to entire post types or taxonomies.
 			// In this case, rules that apply to specific objects should be skipped.
 			if ( empty( $object_id ) && $rule->has_objects() ) {
 				continue;
 			}
 
-			if ( $has_subscription || wc_memberships_is_user_active_or_delayed_member( $user_id, $rule->get_membership_plan_id() ) ) {
-				$has_access = true;
-				if ( ! $require_all_plans ) {
+			// Check if the user should have free access to the content.
+			// If both a regwall and a paywall apply to the content, the paywall takes precedence.
+			// If the user has a manually-assigned membership plan, they should have access to the content even without owning a subscription.
+			$has_free_access = $is_regwall && $has_paywall ? $has_subscription : wc_memberships_is_user_active_or_delayed_member( $user_id, $rule->get_membership_plan_id() );
+			$has_access      = $has_subscription || $has_free_access;
+
+			// Check if the user has either paid or free access to the content, and if they need membership in all plans or just one.
+			if ( $has_access ) {
+				if ( ! $require_all_plans && ! $is_regwall ) {
 					break;
 				}
 			} elseif ( $require_all_plans ) {
-				$has_access = false;
 				break;
 			}
 		}
