@@ -49,7 +49,7 @@ body.newspack-wizard-page.newspack-admin-header {
 
 		// Since the padding was added to the header bar, remove from body.
 		#wpbody {
-			padding-top: none;
+			padding-top: 0;
 		}
 	}
 }
