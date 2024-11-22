@@ -1,7 +1,6 @@
 <?php
 /**
  * WooCommerce Subscriptions integration class.
- * https://wordpress.org/plugins/woocommerce
  *
  * @package Newspack
  */
