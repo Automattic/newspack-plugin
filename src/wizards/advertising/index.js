@@ -282,5 +282,5 @@ class AdvertisingWizard extends Component {
 
 render(
 	createElement( withWizard( AdvertisingWizard, [ 'newspack-ads' ] ) ),
-	document.getElementById( 'advertising-display-ads' )
+	document.getElementById( 'newspack-ads-display-ads' )
 );
