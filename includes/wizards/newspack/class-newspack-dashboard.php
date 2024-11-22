@@ -298,8 +298,8 @@ class Newspack_Dashboard extends Wizard {
 						'success' => __( 'Enabled', 'newspack-plugin' ),
 						'error'   => __( 'Disabled', 'newspack-plugin' ),
 					],
-					'endpoint'     => '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
-					'configLink'   => admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
+					'endpoint'     => '/newspack/v1/wizard/newspack-audience/reader-activation',
+					'configLink'   => admin_url( 'admin.php?page=newspack-audience#/' ),
 					'dependencies' => [
 						'woocommerce' => [
 							'label'    => __( 'Woocommerce', 'newspack-plugin' ),
