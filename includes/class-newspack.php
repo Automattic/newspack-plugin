@@ -281,7 +281,8 @@ final class Newspack {
 	 * Many of our admin-header-only wizards are CPT list pages where users can do actions such
 	 * as "trash" a post or "bulk actions" like "edit (multiple)" in the dropbown.  Keep in mind
 	 * that these actions will still show notices like "1 post was trashed" or "5 posts were
-	 * updated".  WordPress shows these notices outside the actions that this function is removing.
+	 * updated" since WordPress shows these notices outside the actions that the function below
+	 * is removing.
 	 * 
 	 */
 	public function remove_notifications() {
