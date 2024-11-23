@@ -1705,9 +1705,11 @@ final class Reader_Activation {
 
 	/**
 	 * Render third party auth buttons for an authentication form.
+	 *
+	 * If Google is connected to the site, this can be overridden by setting the `NEWSPACK_DISABLE_GOOGLE_OAUTH` environment constant.
 	 */
 	public static function render_third_party_auth() {
-		if ( ! Google_OAuth::is_oauth_configured() ) {
+		if ( ! Google_OAuth::is_oauth_configured() || ( defined( 'NEWSPACK_DISABLE_GOOGLE_OAUTH' ) && NEWSPACK_DISABLE_GOOGLE_OAUTH ) ) {
 			return;
 		}
 		?>
