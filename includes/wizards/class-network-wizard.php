@@ -41,7 +41,7 @@ class Network_Wizard extends Wizard {
 	 *
 	 * @var int
 	 */
-	public $menu_order = 5;
+	public $parent_menu_order = 5;
 
 	/**
 	 * Constructor.

@@ -55,7 +55,7 @@ class Newsletters_Wizard extends Wizard {
 	 *
 	 * @var int
 	 */
-	public $menu_order = 2;
+	public $parent_menu_order = 2;
 
 	/**
 	 * Constructor.
@@ -323,15 +323,6 @@ class Newsletters_Wizard extends Wizard {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
-
-		\wp_register_style(
-			'newspack-newsletters-wizard',
-			Newspack::plugin_url() . '/dist/newsletters.css',
-			$this->get_style_dependencies(),
-			NEWSPACK_PLUGIN_VERSION
-		);
-		\wp_style_add_data( 'newspack-newsletters-wizard', 'rtl', 'replace' );
-		\wp_enqueue_style( 'newspack-newsletters-wizard' );
 
 		$data = [];
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {

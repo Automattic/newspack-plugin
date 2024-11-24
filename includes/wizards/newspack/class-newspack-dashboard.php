@@ -29,13 +29,12 @@ class Newspack_Dashboard extends Wizard {
 	protected $capability = 'manage_options';
 
 	/**
-	 * Initialize.
+	 * Use a high priorty so that the Newspack parent menu will be created
+	 * prior to submenu items being added.
+	 * 
+	 * @var int.
 	 */
-	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_page' ], 1 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
-		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
-	}
+	protected $admin_menu_priority = 1;
 
 	/**
 	 * Get Dashboard data
@@ -118,7 +117,7 @@ class Newspack_Dashboard extends Wizard {
 					'icon'  => 'ad',
 					'title' => __( 'Display Ads', 'newspack-plugin' ),
 					'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=advertising-display-ads#/' ),
+					'href'  => admin_url( 'admin.php?page=newspack-ads-display-ads#/' ),
 				],
 				[
 					'icon'  => 'currencyDollar',
@@ -264,8 +263,8 @@ class Newspack_Dashboard extends Wizard {
 						'success' => __( 'Enabled', 'newspack-plugin' ),
 						'error'   => __( 'Disabled', 'newspack-plugin' ),
 					],
-					'endpoint'     => '/newspack/v1/wizard/newspack-engagement-wizard/reader-activation',
-					'configLink'   => admin_url( 'admin.php?page=newspack-engagement-wizard#/reader-activation' ),
+					'endpoint'     => '/newspack/v1/wizard/newspack-audience/reader-activation',
+					'configLink'   => admin_url( 'admin.php?page=newspack-audience#/' ),
 					'dependencies' => [
 						'woocommerce' => [
 							'label'    => __( 'Woocommerce', 'newspack-plugin' ),
@@ -280,7 +279,7 @@ class Newspack_Dashboard extends Wizard {
 					],
 					'endpoint'         => '/newspack/v1/wizard/billboard',
 					'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
-					'configLink'       => admin_url( 'admin.php?page=advertising-display-ads' ),
+					'configLink'       => admin_url( 'admin.php?page=newspack-ads-display-ads' ),
 					'dependencies'     => [
 						'newspack-ads' => [
 							'label'    => __( 'Newspack Ads', 'newspack-plugin' ),
@@ -336,7 +335,7 @@ class Newspack_Dashboard extends Wizard {
 	}
 
 	/**
-	 * Add an admin page for the wizard to live on.
+	 * Add a parent menu for Newspack and the first submenu item.
 	 */
 	public function add_page() {
 		$icon = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjE4cHgiIGhlaWdodD0iNjE4cHgiIHZpZXdCb3g9IjAgMCA2MTggNjE4IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPHBhdGggZD0iTTMwOSwwIEM0NzkuNjU2NDk1LDAgNjE4LDEzOC4zNDQyOTMgNjE4LDMwOS4wMDE3NTkgQzYxOCw0NzkuNjU5MjI2IDQ3OS42NTY0OTUsNjE4IDMwOSw2MTggQzEzOC4zNDM1MDUsNjE4IDAsNDc5LjY1OTIyNiAwLDMwOS4wMDE3NTkgQzAsMTM4LjM0NDI5MyAxMzguMzQzNTA1LDAgMzA5LDAgWiBNMTc0LDE3MSBMMTc0LDI2Mi42NzEzNTYgTDE3NS4zMDUsMjY0IEwxNzQsMjY0IEwxNzQsNDQ2IEwyNDEsNDQ2IEwyNDEsMzMwLjkxMyBMMzUzLjk5Mjk2Miw0NDYgTDQ0NCw0NDYgTDE3NCwxNzEgWiBNNDQ0LDI5OSBMMzg5LDI5OSBMNDEwLjQ3NzYxLDMyMSBMNDQ0LDMyMSBMNDQ0LDI5OSBaIE00NDQsMjM1IEwzMjcsMjM1IEwzNDguMjQ1OTE5LDI1NyBMNDQ0LDI1NyBMNDQ0LDIzNSBaIE00NDQsMTcxIEwyNjQsMTcxIEwyODUuMjkwNTEyLDE5MyBMNDQ0LDE5MyBMNDQ0LDE3MSBaIiBpZD0iQ29tYmluZWQtU2hhcGUiIGZpbGw9IiMyQTdERTEiPjwvcGF0aD4KICAgIDwvZz4KPC9zdmc+';

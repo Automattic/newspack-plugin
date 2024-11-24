@@ -31,11 +31,14 @@ class Advertising_Display_Ads extends Wizard {
 	const OPTION_NAME_GAM_NETWORK_CODE = '_newspack_ads_gam_network_code';
 
 	/**
-	 * The slug of this wizard.
+	 * The slug of this wizard. 
+	 * 
+	 * Note: `newspack-ads-display-ads` (vs. `newspack-advertising-display-ads`) is intentional to avoid 
+	 * Ad blockers from blocking the Advertising menu item.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'advertising-display-ads';
+	protected $slug = 'newspack-ads-display-ads';
 
 	/**
 	 * The capability required to access this wizard.
@@ -60,14 +63,22 @@ class Advertising_Display_Ads extends Wizard {
 	 *
 	 * @var string
 	 */
-	public $parent_menu = 'advertising-display-ads';
+	public $parent_menu = 'newspack-ads-display-ads';
 
 	/**
 	 * Order relative to the Newspack Dashboard menu item.
 	 *
 	 * @var int
 	 */
-	public $menu_order = 4;
+	public $parent_menu_order = 4;
+
+	/**
+	 * Use a high priorty so that the Advertising parent menu will be created
+	 * prior to submenu items being added.
+	 * 
+	 * @var int.
+	 */
+	protected $admin_menu_priority = 1;
 
 	/**
 	 * Constructor.
@@ -501,25 +512,25 @@ class Advertising_Display_Ads extends Wizard {
 			return;
 		}
 
-		\wp_enqueue_script(
-			'advertising-display-ads',
+		wp_enqueue_script(
+			$this->slug,
 			Newspack::plugin_url() . '/dist/billboard.js',
 			$this->get_script_dependencies(),
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 
-		\wp_register_style(
-			'advertising-display-ads',
+		wp_register_style(
+			$this->slug,
 			Newspack::plugin_url() . '/dist/billboard.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
-		\wp_style_add_data( 'advertising-display-ads', 'rtl', 'replace' );
-		\wp_enqueue_style( 'advertising-display-ads' );
+		wp_style_add_data( $this->slug, 'rtl', 'replace' );
+		wp_enqueue_style( $this->slug );
 
-		\wp_localize_script(
-			'advertising-display-ads',
+		wp_localize_script(
+			$this->slug,
 			'newspack_ads_wizard',
 			array(
 				'iab_sizes'          => function_exists( '\Newspack_Ads\get_iab_sizes' ) ? \Newspack_Ads\get_iab_sizes() : array(),
@@ -549,7 +560,8 @@ class Advertising_Display_Ads extends Wizard {
 	}
 
 	/**
-	 * Add an admin page for the wizard to live on.
+	 * Add a parent menu for all the Advertising wizards (Ads, Sponsors Plugin CPT + Settings tab),
+	 * and a first menu item too.
 	 */
 	public function add_page() {
 		// SVG generated via https://boxy-svg.com/ with path width/height 20px.

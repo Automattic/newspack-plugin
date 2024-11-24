@@ -613,21 +613,21 @@ class Setup_Wizard extends Wizard {
 			if ( isset( $request['reader-revenue']['donation_data'] ) ) {
 				$rr_wizard->update_donation_settings( $request['reader-revenue']['donation_data'] );
 			}
-			if ( isset( $request['reader-revenue']['stripe_data'] ) ) {
-				$stripe_settings            = $request['reader-revenue']['stripe_data'];
+			if ( ! empty( $request['reader-revenue']['payment_gateways']['stripe'] ) ) {
+				$stripe_settings            = $request['reader-revenue']['payment_gateways']['stripe'];
 				$stripe_settings['enabled'] = true;
 				$rr_wizard->update_stripe_settings( $stripe_settings );
 			}
 		}
 		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
 			$service = 'google_ad_manager';
-			update_option( Advertising_Wizard::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
+			update_option( Advertising_Display_Ads::NEWSPACK_ADVERTISING_SERVICE_PREFIX . $service, true );
 			if ( isset( $request['google-ad-manager']['networkCode'] ) && ! empty( $request['google-ad-manager']['networkCode'] ) ) {
 				$network_code = $request['google-ad-manager']['networkCode'];
 				// Update legacy network code in case service account credentials are not set.
-				update_option( Advertising_Wizard::OPTION_NAME_LEGACY_NETWORK_CODE, $network_code );
+				update_option( Advertising_Display_Ads::OPTION_NAME_LEGACY_NETWORK_CODE, $network_code );
 				// Update network code used by authenticated credentials. Ensures use of desired code in case the credentials are for multiple networks.
-				update_option( Advertising_Wizard::OPTION_NAME_GAM_NETWORK_CODE, $network_code );
+				update_option( Advertising_Display_Ads::OPTION_NAME_GAM_NETWORK_CODE, $network_code );
 			}
 			Plugin_Manager::activate( 'newspack-ads' );
 		}

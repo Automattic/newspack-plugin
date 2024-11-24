@@ -32,14 +32,12 @@ class Wizards {
 			'setup'                   => new Setup_Wizard(),
 			'site-design'             => new Site_Design_Wizard(),
 			'reader-revenue'          => new Reader_Revenue_Wizard(),
-			'advertising'             => new Advertising_Wizard(),
 			'syndication'             => new Syndication_Wizard(),
 			'analytics'               => new Analytics_Wizard(),
 			'components-demo'         => new Components_Demo(),
 			'seo'                     => new SEO_Wizard(),
 			'health-check'            => new Health_Check_Wizard(),
 			'engagement'              => new Engagement_Wizard(),
-			'popups'                  => new Popups_Wizard(),
 			'connections'             => new Connections_Wizard(),
 			'settings'                => new Settings(),
 			// v2 Information Architecture.
@@ -55,6 +53,8 @@ class Wizards {
 			),
 			'advertising-display-ads' => new Advertising_Display_Ads(),
 			'advertising-sponsors'    => new Advertising_Sponsors(),
+			'audience'                => new Audience_Wizard(),
+			'audience-campaigns'      => new Audience_Campaigns(),
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),
@@ -153,8 +153,8 @@ class Wizards {
 		}
 		$ordered_wizards = [];
 		foreach ( self::$wizards as $slug => $wizard ) {
-			if ( ! empty( $wizard->parent_menu ) && ! empty( $wizard->menu_order ) ) {
-				$ordered_wizards[ $wizard->menu_order ] = $wizard->parent_menu;
+			if ( ! empty( $wizard->parent_menu ) && ! empty( $wizard->parent_menu_order ) ) {
+				$ordered_wizards[ $wizard->parent_menu_order ] = $wizard->parent_menu;
 			}
 		}
 		if ( empty( $ordered_wizards ) ) {

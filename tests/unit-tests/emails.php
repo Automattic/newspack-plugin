@@ -51,26 +51,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	 * Email setup & defaults generation.
 	 */
 	public function test_emails_setup() {
-		self::assertEquals(
-			Emails::get_emails( [ 'test-email-config' ] ),
-			[],
-			'Emails are empty until configured.'
-		);
-		self::assertFalse(
-			Emails::can_send_email( 'test-email-config' ),
-			'Test email cannot be sent.'
-		);
-		self::assertFalse(
-			Emails::supports_emails(),
-			'Emails are not configured until the Newspack Newsletters plugin is active.'
-		);
-		$send_result = Emails::send_email(
-			'test-email-config',
-			'someone@example.com'
-		);
-		self::assertFalse( $send_result, 'Email cannot be sent until the instance is configured.' );
-
-		Plugin_Manager::activate( 'newspack-newsletters' );
 		self::assertTrue(
 			Emails::supports_emails(),
 			'Emails are configured after Newspack Newsletters plugin is active.'
@@ -104,8 +84,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	 * Email sending, with a template.
 	 */
 	public function test_emails_send_with_template() {
-		Plugin_Manager::activate( 'newspack-newsletters' );
-
 		$test_email = self::get_test_email( 'test-email-config' );
 
 		$recipient    = 'tester@tests.com';
@@ -152,7 +130,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	 * Sending by email id.
 	 */
 	public function test_emails_send_by_id() {
-		Plugin_Manager::activate( 'newspack-newsletters' );
 		$test_email = self::get_test_email( 'test-email-config' );
 
 		$send_result = Emails::send_email(
@@ -172,7 +149,6 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 	 * Email post status handling.
 	 */
 	public function test_emails_status() {
-		Plugin_Manager::activate( 'newspack-newsletters' );
 		$test_email = self::get_test_email( 'test-email-config' );
 		wp_update_post(
 			[

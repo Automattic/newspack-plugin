@@ -1,3 +1,32 @@
+# [5.7.0](https://github.com/Automattic/newspack-plugin/compare/v5.6.1...v5.7.0) (2024-11-11)
+
+
+### Bug Fixes
+
+* avoid duplicate info notices in email editors ([#3512](https://github.com/Automattic/newspack-plugin/issues/3512)) ([d38fc1a](https://github.com/Automattic/newspack-plugin/commit/d38fc1aa18f0571b2a48d1ead128347f10dce57b))
+* **co-authors-plus:** CLI for migrating from CAP GA ([9a81584](https://github.com/Automattic/newspack-plugin/commit/9a81584e5771ea15d2d9e3e96a9d782ec9936f26))
+* command to fix active subs w/ missing next_payment dates ([#3484](https://github.com/Automattic/newspack-plugin/issues/3484)) ([2e05fd4](https://github.com/Automattic/newspack-plugin/commit/2e05fd4a9e82c995be2a4d354112d41326017d38))
+* php fatal and warning ([#3502](https://github.com/Automattic/newspack-plugin/issues/3502)) ([e089172](https://github.com/Automattic/newspack-plugin/commit/e089172f75ccf7bd16e641a257ddcf29687c6a9f))
+* **site-kit:** update logger cron to hourly interval ([#3485](https://github.com/Automattic/newspack-plugin/issues/3485)) ([e3823e7](https://github.com/Automattic/newspack-plugin/commit/e3823e7b858c356b3e5e4a490e119b94e7f12285))
+* **webhooks:** deprecate global endpoint ([#3492](https://github.com/Automattic/newspack-plugin/issues/3492)) ([63e8ab2](https://github.com/Automattic/newspack-plugin/commit/63e8ab22674e001b27e5158afc25c83793aed824))
+* **wp-6.7:** update radio control styles ([#3518](https://github.com/Automattic/newspack-plugin/issues/3518)) ([831756e](https://github.com/Automattic/newspack-plugin/commit/831756e23c74357c88b9eb0a8d40007b7835f0cc))
+
+
+### Features
+
+* add user name to woocommerce data events ([#3473](https://github.com/Automattic/newspack-plugin/issues/3473)) ([5312d30](https://github.com/Automattic/newspack-plugin/commit/5312d30ba56d9f105d2548bc0dd6430b215cf877))
+* automatically disable guest authors ([#3345](https://github.com/Automattic/newspack-plugin/issues/3345)) ([d0db6ba](https://github.com/Automattic/newspack-plugin/commit/d0db6ba6500b140c672e544b8ea04c5e92bebfca))
+* **connections:** jetpack sso ([#3486](https://github.com/Automattic/newspack-plugin/issues/3486)) ([123408e](https://github.com/Automattic/newspack-plugin/commit/123408e1338491b5561b5e588d663d4184fa226b))
+* display list remote name on newsletter wizard ([#3478](https://github.com/Automattic/newspack-plugin/issues/3478)) ([cd0b859](https://github.com/Automattic/newspack-plugin/commit/cd0b859fad407f5de6b840bbe2da8c596a7793a5))
+* **site-kit:** add logging when site kit disconnects ([#3472](https://github.com/Automattic/newspack-plugin/issues/3472)) ([62bf98c](https://github.com/Automattic/newspack-plugin/commit/62bf98c16a17c877324e218c877ad7c33265b3bd))
+
+## [5.6.1](https://github.com/Automattic/newspack-plugin/compare/v5.6.0...v5.6.1) (2024-11-07)
+
+
+### Bug Fixes
+
+* **my-account:** show Orders & Payment Methods for migrated subscribers ([#3504](https://github.com/Automattic/newspack-plugin/issues/3504)) ([0673c24](https://github.com/Automattic/newspack-plugin/commit/0673c24a07f806326b51922946308a2fd84f1d89))
+
 # [5.6.0](https://github.com/Automattic/newspack-plugin/compare/v5.5.2...v5.6.0) (2024-10-28)
 
 

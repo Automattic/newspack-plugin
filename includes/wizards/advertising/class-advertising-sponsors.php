@@ -38,7 +38,14 @@ class Advertising_Sponsors extends Wizard {
 	 *
 	 * @var string
 	 */
-	const PARENT_URL = 'admin.php?page=advertising-display-ads';
+	const PARENT_URL = 'admin.php?page=newspack-ads-display-ads';
+
+	/**
+	 * The parent menu item name.
+	 *
+	 * @var string
+	 */
+	public $parent_menu = 'newspack-ads-display-ads';
 
 	/**
 	 * The capability required to access this wizard.
@@ -46,6 +53,14 @@ class Advertising_Sponsors extends Wizard {
 	 * @var string
 	 */
 	protected $capability = 'manage_options';
+
+	/**
+	 * Use a late priority for this wizard's menu adjustments so they happen
+	 * after the Sponsors Plugin is done adding it's menu items.
+	 * 
+	 * @var int.
+	 */
+	protected $admin_menu_priority = 11;
 
 	/**
 	 * Advertising_Sponsors Constructor.
@@ -56,7 +71,6 @@ class Advertising_Sponsors extends Wizard {
 		}
 		parent::__construct();
 
-		add_action( 'admin_menu', [ $this, 'move_sponsors_cpt_menu' ] );
 		add_action( 'register_post_type_args', [ $this, 'update_sponsors_cpt_args' ], 10, 2 );
 
 		// Below filters are used to determine active menu items.
@@ -114,23 +128,22 @@ class Advertising_Sponsors extends Wizard {
 		}
 		Newspack::load_common_assets();
 		wp_register_style(
-			'advertising-display-ads',
+			$this->parent_menu,
 			Newspack::plugin_url() . '/dist/billboard.css',
 			$this->get_style_dependencies(),
 			NEWSPACK_PLUGIN_VERSION
 		);
-		wp_style_add_data( 'advertising-display-ads', 'rtl', 'replace' );
-		wp_enqueue_style( 'advertising-display-ads' );
+		wp_style_add_data( $this->parent_menu, 'rtl', 'replace' );
+		wp_enqueue_style( $this->parent_menu );
 	}
 
 	/**
 	 * Move Sponsors CPT menu item under the ($) Advertising menu.
 	 */
-	public function move_sponsors_cpt_menu() {
+	public function add_page() {
 		global $submenu;
-		$parent_slug = 'advertising-display-ads';
-		if ( isset( $submenu[ $parent_slug ] ) ) {
-			$submenu[ $parent_slug ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		if ( isset( $submenu[ $this->parent_menu ] ) ) {
+			$submenu[ $this->parent_menu ][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				__( 'Sponsors', 'newspack-plugin' ),
 				'manage_options',
 				static::URL,
@@ -173,7 +186,7 @@ class Advertising_Sponsors extends Wizard {
 		global $pagenow, $typenow;
 
 		if ( in_array( $pagenow, [ 'post.php', 'post-new.php' ] ) && $typenow === static::CPT_NAME ) {
-			return 'advertising-display-ads';
+			return $this->parent_menu;
 		}
 
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'newspack-sponsors-settings-admin' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
