@@ -28,6 +28,7 @@ class Plugin_Manager {
 		'google-site-kit',
 		'newspack-blocks',
 		'wp-parsely',
+		'perfmatters',
 	];
 
 	/**
