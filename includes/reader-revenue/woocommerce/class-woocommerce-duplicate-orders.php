@@ -32,103 +32,72 @@ class WooCommerce_Duplicate_Orders {
 	}
 
 	/**
-	 * Is this site using HPOS?
-	 */
-	private static function is_using_hpos(): bool {
-		return class_exists( '\Automattic\WooCommerce\Utilities\OrderUtil' ) && \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
-	}
-
-	/**
 	 * Detect duplicate orders.
 	 * An order series will be detected if it the same amount, same day, from the same customer,
 	 * in the time span provided in the argument (in minutes).
 	 *
-	 * @param int $series_interval The interval to consider for matching transactions.
+	 * @param number $cutoff_time The cutoff time in the past (how many seconds ago).
 	 */
-	public static function detect_order_series( $series_interval = 10 ): array {
-		global $wpdb;
+	public static function get_order_series( $cutoff_time = MONTH_IN_SECONDS ): array {
+		$orders = wc_get_orders(
+			[
+				'limit'          => -1,
+				'status'         => [ 'wc-completed' ],
+				'date_completed' => '<' . ( time() - $cutoff_time ),
+			]
+		);
 
-		if ( self::is_using_hpos() ) {
-			$query = "
-			SELECT
-				o_billing.email AS email,
-				DATE(o.date_created_gmt) AS date,
-				o.total_amount AS amount,
-				GROUP_CONCAT(o.id) AS ids
-			FROM {$wpdb->prefix}wc_orders AS o
-			JOIN {$wpdb->prefix}wc_order_addresses AS o_billing
-				ON o.id = o_billing.order_id AND o_billing.address_type = 'billing'
-			LEFT JOIN {$wpdb->prefix}wc_orders_meta AS o_meta
-				ON o.id = o_meta.order_id AND o_meta.meta_key = '_subscription_renewal'
-			WHERE o_billing.email IS NOT NULL
-				AND o.total_amount > 0.00
-				AND o.status = 'wc-completed'
-				AND o_meta.order_id IS NULL
-				AND o.id NOT IN (
-					SELECT order_id
-					FROM {$wpdb->prefix}wc_orders_meta
-					WHERE meta_key = '" . self::DISMISSED_DUPLICATE_ORDER_META_NAME . "' AND meta_value = '1'
-				)
-				AND EXISTS (
-					SELECT 1
-					FROM {$wpdb->prefix}wc_orders AS o2
-					JOIN {$wpdb->prefix}wc_order_addresses AS o2_billing
-						ON o2.id = o2_billing.order_id AND o2_billing.address_type = 'billing'
-					WHERE o2_billing.email = o_billing.email
-					  AND o2.total_amount = o.total_amount
-					  AND ABS(TIMESTAMPDIFF(MINUTE, o2.date_created_gmt, o.date_created_gmt)) <= $series_interval
-					  AND o2.id != o.id
-				)
-			GROUP BY o_billing.email, DATE(o.date_created_gmt), o.total_amount
-			HAVING COUNT(*) > 1 -- Ensures only duplicates are included
-			";
-		} else {
-			$query = "
-			SELECT
-				pm_email.meta_value AS email,
-				DATE(p.post_date) AS date,
-				pm_amount.meta_value AS amount,
-				GROUP_CONCAT(p.ID) AS ids
-			FROM {$wpdb->posts} AS p
-			JOIN {$wpdb->postmeta} AS pm_email
-				ON p.ID = pm_email.post_id
-			JOIN {$wpdb->postmeta} AS pm_amount
-				ON p.ID = pm_amount.post_id
-			LEFT JOIN {$wpdb->postmeta} AS pm_renewal
-				ON p.ID = pm_renewal.post_id AND pm_renewal.meta_key = '_subscription_renewal'
-			WHERE p.post_type = 'shop_order'
-				AND p.post_status = 'wc-completed'
-				AND pm_email.meta_key = '_billing_email'
-				AND p.ID NOT IN (
-					SELECT post_id
-					FROM {$wpdb->postmeta}
-					WHERE meta_key = '" . self::DISMISSED_DUPLICATE_ORDER_META_NAME . "' AND meta_value = '1'
-				)
-				AND pm_amount.meta_key = '_order_total'
-				AND CAST(pm_amount.meta_value AS DECIMAL(10,2)) > 0.00
-				AND pm_renewal.post_id IS NULL
-				AND EXISTS (
-					SELECT 1
-					FROM {$wpdb->posts} AS p2
-					WHERE p2.post_type = 'shop_order'
-					AND pm_email.meta_value = (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p2.ID AND meta_key = '_billing_email')
-					AND pm_amount.meta_value = (SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = p2.ID AND meta_key = '_order_total')
-					AND ABS(TIMESTAMPDIFF(MINUTE, p2.post_date, p.post_date)) <= $series_interval
-					AND p2.ID != p.ID
-				)
-			GROUP BY pm_email.meta_value, DATE(p.post_date), pm_amount.meta_value
-			HAVING COUNT(*) > 1 -- Ensures only duplicates are included
-			";
+		$order_series = [];
+
+		foreach ( $orders as $order ) {
+			$email = $order->get_billing_email();
+			$amount = $order->get_total();
+			$date = $order->get_date_created()->date( 'Y-m-d' );
+
+			if ( \wcs_order_contains_renewal( $order ) || \wcs_order_contains_resubscribe( $order ) ) {
+				continue;
+			}
+
+			if ( ! isset( $order_series[ $email ] ) ) {
+				$order_series[ $email ] = [];
+			}
+
+			if ( ! isset( $order_series[ $email ][ $amount ] ) ) {
+				$order_series[ $email ][ $amount ] = [];
+			}
+
+			if ( ! isset( $order_series[ $email ][ $amount ][ $date ] ) ) {
+				$order_series[ $email ][ $amount ][ $date ] = [];
+			}
+
+			$order_series[ $email ][ $amount ][ $date ][] = $order->get_id();
 		}
 
-		return $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+		$duplicates = [];
+
+		foreach ( $order_series as $email => $amounts ) {
+			foreach ( $amounts as $amount => $dates ) {
+				foreach ( $dates as $date => $order_ids ) {
+					if ( count( $order_ids ) > 1 ) {
+						$duplicates[] = [
+							'email'  => $email,
+							'amount' => $amount,
+							'date'   => $date,
+							'ids'    => implode( ',', $order_ids ),
+						];
+					}
+				}
+			}
+		}
+
+		return $duplicates;
 	}
 
 	/**
 	 * Add an admin notice about the detected order series.
 	 */
 	public static function check_for_order_series(): void {
-		$order_series = self::detect_order_series();
+		$order_series = self::get_order_series();
 		if ( empty( $order_series ) ) {
 			return;
 		}
