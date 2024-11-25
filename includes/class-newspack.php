@@ -64,6 +64,7 @@ final class Newspack {
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
 		define( 'NEWSPACK_NRH_CONFIG', 'newspack_nrh_config' );
 		define( 'NEWSPACK_CLIENT_ID_COOKIE_NAME', 'newspack-cid' );
+		define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
 	}
 
 	/**
@@ -247,7 +248,7 @@ final class Newspack {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$redirect_url   = admin_url( 'admin.php?page=newspack' );
+		$redirect_url   = admin_url( 'admin.php?page=newspack-dashboard' );
 		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'starter-content' === $newspack_reset ) {
 			Starter_Content::remove_starter_content();
@@ -349,7 +350,7 @@ final class Newspack {
 		$post_type_mapping = [
 			Emails::POST_TYPE => [
 				'base' => 'edit',
-				'url'  => esc_url( admin_url( 'admin.php?page=newspack' ) ),
+				'url'  => esc_url( admin_url( 'admin.php?page=newspack-dashboard' ) ),
 			],
 		];
 
@@ -392,6 +393,13 @@ final class Newspack {
 	 */
 	public static function is_debug_mode() {
 		return defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG;
+	}
+
+	/**
+	 * Is the Setup completed?
+	 */
+	public static function is_setup_complete() {
+		return get_option( NEWSPACK_SETUP_COMPLETE );
 	}
 
 	/**

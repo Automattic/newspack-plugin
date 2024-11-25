@@ -9,9 +9,6 @@ namespace Newspack;
 
 use WP_Error, WP_REST_Server;
 defined( 'ABSPATH' ) || exit;
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
-
-define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
 
 /**
  * Setup Newspack.
@@ -35,6 +32,20 @@ class Setup_Wizard extends Wizard {
 	 * @var string
 	 */
 	protected $slug = 'newspack-setup-wizard';
+
+	/**
+	 * The parent menu item name.
+	 *
+	 * @var string
+	 */
+	public $parent_menu = 'newspack-dashboard';
+
+	/**
+	 * Make sure Setup is first submenu item (after the dashboard wizard creates the "Newspack" menu).
+	 *
+	 * @var int.
+	 */
+	protected $admin_menu_priority = 2;
 
 	/**
 	 * The capability required to access this wizard.
@@ -682,9 +693,9 @@ class Setup_Wizard extends Wizard {
 		if ( ! current_user_can( $this->capability ) ) {
 			return;
 		}
-		foreach ( $submenu['newspack'] as $key => $value ) {
+		foreach ( $submenu['newspack-dashboard'] as $key => $value ) {
 			if ( 'newspack-setup-wizard' !== $value[2] ) {
-				unset( $submenu['newspack'][ $key ] );
+				unset( $submenu['newspack-dashboard'][ $key ] );
 			}
 		}
 	}

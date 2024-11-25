@@ -66,6 +66,9 @@ class Advertising_Sponsors extends Wizard {
 	 * Advertising_Sponsors Constructor.
 	 */
 	public function __construct() {
+		if ( ! Newspack::is_setup_complete() ) { 
+			return;
+		}
 		if ( ! is_plugin_active( 'newspack-sponsors/newspack-sponsors.php' ) ) {
 			return;
 		}

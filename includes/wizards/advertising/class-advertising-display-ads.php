@@ -84,6 +84,9 @@ class Advertising_Display_Ads extends Wizard {
 	 * Constructor.
 	 */
 	public function __construct() {
+		if ( ! Newspack::is_setup_complete() ) { 
+			return;
+		}
 		parent::__construct();
 		add_action( 'rest_api_init', array( $this, 'register_api_endpoints' ) );
 	}
