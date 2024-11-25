@@ -53,14 +53,14 @@ const SiteStatus = ( {
 		makeRequest();
 	}, [] );
 
-	const makeRequest = ( pluginInfo = {} ) => {
+	function makeRequest( pluginInfo = {} ) {
 		// When/if a dependency is activated update reference.
 		if ( dependencies && Object.keys( pluginInfo ).length > 0 ) {
 			for ( const [ pluginName ] of Object.entries( pluginInfo ) ) {
 				dependencies[ pluginName ].isActive = true;
 			}
 		}
-		return new Promise( ( resolve, reject ) => {
+		return new Promise< void | boolean >( resolve => {
 			// Dependency check
 			if ( dependencies && Object.keys( dependencies ).length > 0 ) {
 				const failedDeps: string[] = [];
@@ -99,7 +99,7 @@ const SiteStatus = ( {
 					const data = await response.json();
 					const apiRequest = then( data );
 					setRequestStatus( apiRequest ? 'success' : 'error' );
-					resolve( data );
+					resolve( apiRequest );
 				} )
 				.catch( err => {
 					const status = err?.status ?? 500;
@@ -107,10 +107,10 @@ const SiteStatus = ( {
 						status > 399 ? 'error-request' : 'error'
 					);
 					setRequestCode( status );
-					reject();
+					resolve();
 				} );
 		} );
-	};
+	}
 
 	const classes = `newspack-site-status newspack-site-status__${ requestStatus }`;
 
