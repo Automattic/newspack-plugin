@@ -771,7 +771,7 @@ final class Magic_Link {
 		}
 		if ( ! $errored ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$secret = filter_input( INPUT_GET, 'secret', FILTER_SANITIZE_STRING );
+			$secret = filter_input( INPUT_GET, 'secret', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			if ( $secret ) {
 				$user_query = new \WP_User_Query(
 					[
