@@ -33,14 +33,14 @@ class Audience_Wizard extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-audience-wizard';
+	protected $slug = 'newspack-audience';
 
 	/**
 	 * The parent menu item name.
 	 *
 	 * @var string
 	 */
-	public $parent_menu = 'newspack-audience-wizard';
+	public $parent_menu = 'newspack-audience';
 
 	/**
 	 * Parent menu order relative to the Newspack Dashboard menu item.
@@ -207,6 +207,117 @@ class Audience_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
+
+		// Save Salesforce settings.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/salesforce',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_salesforce_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'client_id'     => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'client_secret' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'access_token'  => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'refresh_token' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+				],
+			]
+		);
+
+		// Get payment settings data.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/payment',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_payment_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Save basic data about reader revenue platform.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/payment',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_payment_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'platform'                   => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_platform' ],
+					],
+					'billing_fields'             => [
+						'sanitize_callback' => [ $this, 'sanitize_billing_fields' ],
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+					'nrh_organization_id'        => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+					'nrh_custom_domain'          => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'nrh_salesforce_campaign_id' => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+					'donor_landing_page'         => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+				],
+			]
+		);
+
+		// Save Stripe info.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/stripe/',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_stripe_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'activate'      => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'enabled'       => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'location_code' => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+				],
+			]
+		);
+
+		// Save WooPayments info.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/woopayments/',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_woopayments_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'activate' => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'enabled'  => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -293,6 +404,183 @@ class Audience_Wizard extends Wizard {
 			Memberships::set_show_on_subscription_tab_setting( (bool) $args['show_on_subscription_tab'] );
 		}
 		return rest_ensure_response( self::get_memberships_settings() );
+	}
+
+	/**
+	 * API endpoint for setting Salesforce settings.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function api_update_salesforce_settings( $request ) {
+		$salesforce_response = Salesforce::set_salesforce_settings( $request->get_params() );
+		if ( is_wp_error( $salesforce_response ) ) {
+			return rest_ensure_response( $salesforce_response );
+		}
+		return \rest_ensure_response( $this->get_payment_data() );
+	}
+
+	/**
+	 * Validate platform ID.
+	 *
+	 * @param mixed $value A param value.
+	 * @return bool
+	 */
+	public function api_validate_platform( $value ) {
+		return in_array( $value, [ 'nrh', 'wc', 'other' ] );
+	}
+
+	/**
+	 * Get payment settings.
+	 *
+	 * @return WP_REST_Response containing ad units info.
+	 */
+	public function api_get_payment_settings() {
+		return \rest_ensure_response( $this->get_payment_data() );
+	}
+
+	/**
+	 * Sanitize payment billing fields.
+	 *
+	 * @param mixed $value A param value.
+	 *
+	 * @return array
+	 */
+	public function sanitize_billing_fields( $value ) {
+		return is_array( $value ) ? array_map( 'sanitize_text_field', $value ) : [];
+	}
+
+	/**
+	 * Set payment settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Boolean success.
+	 */
+	public function api_update_payment_settings( $request ) {
+		$params = $request->get_params();
+		Donations::set_platform_slug( $params['platform'] );
+
+		// Update NRH settings.
+		if ( Donations::is_platform_nrh() ) {
+			NRH::update_settings( $params );
+		}
+
+		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products.
+		if ( Donations::is_platform_wc() ) {
+			Donations::update_donation_product( Donations::get_donation_settings() );
+		}
+
+		// Update billing fields.
+		if ( ! empty( $params['billing_fields'] ) ) {
+			Donations::update_billing_fields( $params['billing_fields'] );
+		}
+
+		return \rest_ensure_response( $this->get_payment_data() );
+	}
+
+	/**
+	 * Save Stripe settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_update_stripe_settings( $request ) {
+		$params = $request->get_params();
+		$result = $this->update_stripe_settings( $params );
+		return \rest_ensure_response( $result );
+	}
+
+	/**
+	 * Handler for setting Stripe settings.
+	 *
+	 * @param object $settings Stripe settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function update_stripe_settings( $settings ) {
+		if ( ! empty( $settings['activate'] ) ) {
+			// If activating the Stripe Gateway plugin, let's enable it.
+			$settings = [ 'enabled' => true ];
+		}
+		$result = Stripe_Connection::update_stripe_data( $settings );
+		if ( \is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->get_payment_data();
+	}
+
+	/**
+	 * Save WooPayments settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_update_woopayments_settings( $request ) {
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+
+		$params = $request->get_params();
+		$result = $wc_configuration_manager->update_wc_woopayments_settings( $params );
+		return \rest_ensure_response( $result );
+	}
+
+	/**
+	 * Get payment data for the wizard.
+	 *
+	 * @return Array
+	 */
+	public function get_payment_data() {
+		$platform                 = Donations::get_platform_slug();
+		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
+		$wc_installed             = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
+		$stripe_data              = Stripe_Connection::get_stripe_data();
+
+		$billing_fields = [];
+		if ( $wc_installed && Donations::is_platform_wc() ) {
+			$checkout = new \WC_Checkout();
+			$fields   = $checkout->get_checkout_fields();
+			if ( ! empty( $fields['billing'] ) ) {
+				$billing_fields = $fields['billing'];
+			}
+		}
+
+		$args = [
+			'payment_gateways'         => [
+				'stripe'      => $stripe_data,
+				'woopayments' => $wc_configuration_manager->woopayments_data(),
+			],
+			'available_billing_fields' => $billing_fields,
+			'billing_fields'           => Donations::get_billing_fields(),
+			'salesforce_settings'      => [],
+			'platform_data'            => [
+				'platform' => $platform,
+			],
+			'is_ssl'                   => is_ssl(),
+			'errors'                   => [],
+		];
+		if ( 'wc' === $platform ) {
+			$plugin_status    = true;
+			$managed_plugins  = Plugin_Manager::get_managed_plugins();
+			$required_plugins = [
+				'woocommerce',
+				'woocommerce-subscriptions',
+			];
+			foreach ( $required_plugins as $required_plugin ) {
+				if ( 'active' !== $managed_plugins[ $required_plugin ]['Status'] ) {
+					$plugin_status = false;
+				}
+			}
+			$args = wp_parse_args(
+				[
+					'salesforce_settings' => Salesforce::get_salesforce_settings(),
+					'plugin_status'       => $plugin_status,
+				],
+				$args
+			);
+		} elseif ( Donations::is_platform_nrh() ) {
+			$nrh_config            = NRH::get_settings();
+			$args['platform_data'] = wp_parse_args( $nrh_config, $args['platform_data'] );
+		}
+		return $args;
 	}
 
 	/**

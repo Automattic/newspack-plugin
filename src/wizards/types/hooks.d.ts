@@ -73,7 +73,6 @@ type ReaderRevenueWizardData = {
 				currencySymbol: string;
 				tiered: boolean;
 				minimumDonation: string;
-				billingFields: string[];
 		};
 	platform_data: {
 		platform: string;
@@ -93,4 +92,5 @@ type ReaderRevenueWizardData = {
 			validate: string[];
 		};
 	};
+	billing_fields: string[];
 };

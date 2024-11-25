@@ -16,25 +16,26 @@ import {
 } from '../../../../components/src';
 
 const BillingFields = () => {
-	const wizardData = Wizard.useWizardData( 'audience-donations' ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( 'newspack-audience/payment' ) as ReaderRevenueWizardData;
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
-	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
+	if ( ! wizardData ) {
 		return null;
 	}
 
-	const changeHandler = ( path: string[] ) => ( value: any ) =>
+	/* @TODO Check args */
+	const changeHandler = ( value: any ) =>
 		updateWizardSettings( {
-			slug: 'newspack-audience-donations-wizard',
-			path: [ 'donation_data', ...path ],
+			slug: 'newspack-audience/payment',
+			path: [ 'billing_fields' ],
 			value,
 		} );
 
+	/* @TODO Check args */
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: 'newspack-audience-donations-wizard',
-			section: 'donations',
-			payloadPath: [ 'donation_data' ],
+			slug: 'newspack-audience/payment',
+			payloadPath: [ 'billing_fields' ],
 		} );
 
 	const availableFields = wizardData.available_billing_fields;
@@ -42,8 +43,8 @@ const BillingFields = () => {
 		return null;
 	}
 
-	const billingFields = wizardData.donation_data.billingFields.length
-		? wizardData.donation_data.billingFields
+	const billingFields = wizardData.billing_fields.length
+		? wizardData.billing_fields
 		: Object.keys( availableFields );
 
 	return (
@@ -70,7 +71,7 @@ const BillingFields = () => {
 							} else {
 								newFields = [ ...newFields, fieldKey ];
 							}
-							changeHandler( [ 'billingFields' ] )( newFields );
+							changeHandler( newFields );
 						} }
 					/>
 				) ) }

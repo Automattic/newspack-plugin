@@ -22,7 +22,7 @@ export default withWizardScreen( () => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-audience-wizard/content-gating',
+			path: '/newspack/v1/wizard/newspack-audience/content-gating',
 		} )
 			.then( ( data ) => {
 				setConfig( data );
@@ -35,7 +35,7 @@ export default withWizardScreen( () => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack/v1/wizard/newspack-audience-wizard/content-gating',
+			path: '/newspack/v1/wizard/newspack-audience/content-gating',
 			method: 'POST',
 			data: newConfig,
 		} )

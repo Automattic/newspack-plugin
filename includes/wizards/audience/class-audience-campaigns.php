@@ -19,14 +19,14 @@ class Audience_Campaigns extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-audience-campaigns-wizard';
+	protected $slug = 'newspack-audience-campaigns';
 
 	/**
 	 * Parent slug.
 	 *
 	 * @var string
 	 */
-	protected $parent_slug = 'newspack-audience-wizard';
+	protected $parent_slug = 'newspack-audience';
 
 	/**
 	 * Constructor.
