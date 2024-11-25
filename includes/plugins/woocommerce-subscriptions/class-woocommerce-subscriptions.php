@@ -14,11 +14,6 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Subscriptions {
 	/**
-	 * Feature flag for the Newspack Subscriptions Expiration feature.
-	 */
-	const NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG = 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION';
-
-	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
@@ -46,7 +41,7 @@ class WooCommerce_Subscriptions {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return Reader_Activation::is_enabled() && defined( self::NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG ) && self::NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG;
+		return Reader_Activation::is_enabled() && defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) && NEWSPACK_SUBSCRIPTIONS_EXPIRATION;
 	}
 }
 WooCommerce_Subscriptions::init();
