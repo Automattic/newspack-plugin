@@ -22,8 +22,8 @@ const defaultStatuses = {
 	error: __( 'Disconnected', 'newspack-plugin' ),
 	'error-dependencies': undefined,
 	'error-preflight': undefined,
-	/* translators: %s is the HTTP status code */
-	'error-request': __( 'Request failed - %s', 'newspack-plugin' ),
+	/* translators: %d is the HTTP status code */
+	'error-request': __( 'Request failed - %d', 'newspack-plugin' ),
 };
 
 const SiteStatus = ( {
