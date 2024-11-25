@@ -45,9 +45,6 @@ final class Newspack {
 		add_action( 'current_screen', [ $this, 'wizard_redirect' ] );
 		add_action( 'admin_menu', [ $this, 'handle_resets' ], 1 );
 		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
-		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
-		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
-		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
 		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'deactivation_hook' ] );
 	}
@@ -270,26 +267,6 @@ final class Newspack {
 		if ( $newspack_reset ) {
 			wp_safe_redirect( $redirect_url );
 			exit;
-		}
-	}
-
-	/**
-	 * Remove notifications.
-	 * 
-	 * This will remove notifications/nags from all wizards: full-react and admin-header-only.
-	 * 
-	 * Many of our admin-header-only wizards are CPT list pages where users can do actions such
-	 * as "trash" a post or "bulk actions" like "edit (multiple)" in the dropbown.  Keep in mind
-	 * that these actions will still show notices like "1 post was trashed" or "5 posts were
-	 * updated" since WordPress shows these notices outside the actions that the function below
-	 * is removing.
-	 */
-	public function remove_notifications() {
-		global $admin_body_classes;
-		
-		// Wizard pages.
-		if ( str_contains( $admin_body_classes, 'newspack-wizard-page' ) ) {
-			remove_all_actions( current_action() );
 		}
 	}
 

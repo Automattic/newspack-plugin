@@ -71,6 +71,13 @@ abstract class Wizard {
 	protected $admin_menu_priority = 10;
 
 	/**
+	 * Remove notifications from the wizard screen.
+	 *
+	 * @var bool
+	 */
+	protected $remove_notifications = true;
+
+	/**
 	 * Initialize.
 	 *
 	 * @param array $args Array of optional arguments. i.e. `sections`.
@@ -86,6 +93,11 @@ abstract class Wizard {
 			$this->load_wizard_sections( $args['sections'] );
 		}
 		add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
+
+		// Remove Notices.
+		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
+		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
+		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 	}
 
 	/**
@@ -317,5 +329,27 @@ abstract class Wizard {
 		}
 		$classes .= ' newspack-wizard-page';
 		return $classes;
+	}
+
+	/**
+	 * Remove notifications.
+	 *
+	 * Note: Many of our admin-header-only wizards are CPT list pages where users can do actions such
+	 * as "trash" a post or "bulk actions" like "edit (multiple)" in the dropbown.  Keep in mind
+	 * that these actions will still show notices like "1 post was trashed" or "5 posts were
+	 * updated" since WordPress shows these notices outside the actions that the function below
+	 * is removing.
+	 *
+	 * Also "settings saved" notices on post-back of a custom options pages are not removed either. See core
+	 * function 'settings_errors()' here: https://developer.wordpress.org/plugins/settings/custom-settings-page/
+	 */
+	public function remove_notifications() {
+		if ( ! $this->is_wizard_page() ) {
+			return;
+		}
+		if ( ! $this->remove_notifications ) {
+			return;
+		}
+		remove_all_actions( current_action() );
 	}
 }
