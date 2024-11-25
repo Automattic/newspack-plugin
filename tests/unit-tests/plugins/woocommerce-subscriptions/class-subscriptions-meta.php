@@ -16,7 +16,7 @@ class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 	 * Setup for the tests.
 	 */
 	public function set_up() {
-		define( WooCommerce_Subscriptions::NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG, true );
+		define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
 		WooCommerce_Subscriptions::init();
 	}
 

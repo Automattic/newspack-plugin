@@ -22,11 +22,14 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 
 	/**
 	 * Test WooCommerce_Subscriptions::is_enabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_is_enabled() {
 		$is_active = WooCommerce_Subscriptions::is_enabled();
 		$this->assertFalse( $is_active, 'WooCommerce Subscriptions integration should be disabled when Feature Flag is not present.' );
-		define( WooCommerce_Subscriptions::NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG, true );
+		define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
 		$is_active = WooCommerce_Subscriptions::is_enabled();
 		$this->assertTrue( $is_active, 'WooCommerce Subscriptions integration should be enabled when Feature Flag is present.' );
 	}
