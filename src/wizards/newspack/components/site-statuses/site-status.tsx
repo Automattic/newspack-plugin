@@ -22,8 +22,7 @@ const defaultStatuses = {
 	error: __( 'Disconnected', 'newspack-plugin' ),
 	'error-dependencies': undefined,
 	'error-preflight': undefined,
-	/* translators: %d is the HTTP status code */
-	'error-request': __( 'Request failed - %d', 'newspack-plugin' ),
+	'error-request': undefined,
 };
 
 const SiteStatus = ( {
@@ -190,7 +189,11 @@ const SiteStatus = ( {
 					<span>
 						{ requestStatus === 'error-request'
 							? sprintf(
-									parsedStatusLabels[ requestStatus ],
+									/* translators: %d is the HTTP status code */
+									__(
+										'Request failed - %d',
+										'newspack-plugin'
+									),
 									requestCode
 							  )
 							: parsedStatusLabels[ requestStatus ] }
