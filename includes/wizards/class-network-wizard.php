@@ -44,6 +44,13 @@ class Network_Wizard extends Wizard {
 	public $parent_menu_order = 5;
 
 	/**
+	 * Adjust the menu after the Network plugin fully loads.
+	 *
+	 * @var int.
+	 */
+	protected $admin_menu_priority = 11;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -66,8 +73,8 @@ class Network_Wizard extends Wizard {
 			'np_hub_subscriptions'                  => __( 'Network / Subscriptions', 'newspack-plugin' ),
 		];
 
-		// Update menu information.
-		add_action( 'admin_menu', [ $this, 'modify_menu' ], 11 );
+		// Hooks: admin_menu/add_page, admin_enqueue_scripts/enqueue_scripts_and_styles, admin_body_class/add_body_class .
+		parent::__construct();
 
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
@@ -75,9 +82,6 @@ class Network_Wizard extends Wizard {
 			// Set active menu items for hidden screens.
 			add_filter( 'parent_file', [ $this, 'parent_file' ] );
 			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
-
-			// Add CSS to body.
-			add_filter( 'admin_body_class', [ $this, 'add_body_class' ] );
 
 			// Display header.
 			$this->admin_header_init(
@@ -201,6 +205,13 @@ class Network_Wizard extends Wizard {
 	}
 
 	/**
+	 * Callback for 'admin_enqueue_scripts' => 'enqueue_scripts_and_styles' inside parent::__construct().
+	 */
+	public function enqueue_scripts_and_styles() {
+		// No scripts or styles for this wizard besides whatever the Network Plugin itself enqueues.
+	}
+
+	/**
 	 * Is a Network admin page or post_type being viewed. Needed for 'add_body_class' callback.
 	 *
 	 * @return bool Is current wizard page or not.
@@ -239,7 +250,7 @@ class Network_Wizard extends Wizard {
 	 * 
 	 * @return void
 	 */
-	public function modify_menu() {
+	public function add_page() {
 		global $menu;
 
 		// Find the Newspack Network menu item in the admin menu.
