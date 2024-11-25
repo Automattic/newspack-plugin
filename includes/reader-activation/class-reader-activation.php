@@ -95,6 +95,7 @@ final class Reader_Activation {
 			\add_action( 'resetpass_form', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'password_reset', [ __CLASS__, 'set_reader_has_password' ] );
+			\add_action( 'profile_update', [ __CLASS__, 'maybe_set_reader_has_password' ], 10, 3 );
 			\add_action( 'newspack_magic_link_authenticated', [ __CLASS__, 'set_reader_verified' ] );
 			\add_action( 'auth_cookie_expiration', [ __CLASS__, 'auth_cookie_expiration' ], 10, 3 );
 			\add_action( 'init', [ __CLASS__, 'setup_nav_menu' ] );
@@ -1062,6 +1063,28 @@ final class Reader_Activation {
 
 		delete_user_meta( $user->ID, self::WITHOUT_PASSWORD );
 		return true;
+	}
+
+	/**
+	 * Conditionally remove "without password" meta from user.
+	 *
+	 * If the a password is being set via user profile update,
+	 * And a previous password was not set, we remove the meta.
+	 *
+	 * @param int      $user_id       User ID.
+	 * @param \WP_User $old_user_data Old user data.
+	 * @param array    $user_data     User data.
+	 */
+	public static function maybe_set_reader_has_password( $user_id, $old_user_data, $user_data ) {
+		if ( ! self::is_user_reader( $old_user_data ) ) {
+			return;
+		}
+
+		$old_password = $old_user_data->user_pass;
+		$new_password = isset( $user_data['user_pass'] ) ? $user_data['user_pass'] : '';
+		if ( ! empty( $new_password ) && $old_password !== $new_password ) {
+			self::set_reader_has_password( $user_id );
+		}
 	}
 
 	/**
