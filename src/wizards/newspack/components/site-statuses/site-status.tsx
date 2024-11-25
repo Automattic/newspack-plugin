@@ -189,8 +189,8 @@ const SiteStatus = ( {
 					<span>
 						{ requestStatus === 'error-request'
 							? sprintf(
-									/* translators: %d is the HTTP status code */
 									__(
+										/* translators: %d is the HTTP status code */
 										'Request failed - %d',
 										'newspack-plugin'
 									),
