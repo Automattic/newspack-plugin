@@ -22,6 +22,7 @@ const defaultStatuses = {
 	error: __( 'Disconnected', 'newspack-plugin' ),
 	'error-dependencies': undefined,
 	'error-preflight': undefined,
+	/* translators: %s is the HTTP status code */
 	'error-request': __( 'Request failed - %s', 'newspack-plugin' ),
 };
 
@@ -34,7 +35,10 @@ const SiteStatus = ( {
 	configLink,
 	then,
 }: Status ) => {
-	const parsedStatusLabels = { ...defaultStatuses, ...statuses };
+	const parsedStatusLabels: Record< StatusLabels, string > = {
+		...defaultStatuses,
+		...statuses,
+	};
 
 	const [ requestCode, setRequestCode ] = useState( 200 );
 
@@ -184,10 +188,12 @@ const SiteStatus = ( {
 				<div className={ classes }>
 					{ label }:{ ' ' }
 					<span>
-						{ sprintf(
-							parsedStatusLabels[ requestStatus ],
-							requestCode
-						) }
+						{ requestStatus === 'error-request'
+							? sprintf(
+									parsedStatusLabels[ requestStatus ],
+									requestCode
+							  )
+							: parsedStatusLabels[ requestStatus ] }
 					</span>
 				</div>
 			) }
