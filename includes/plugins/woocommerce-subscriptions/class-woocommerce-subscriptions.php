@@ -46,7 +46,7 @@ class WooCommerce_Subscriptions {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return Reader_Activation::is_enabled() && defined( self::NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG );
+		return Reader_Activation::is_enabled() && defined( self::NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG ) && self::NEWSPACK_SUBSCRIPTIONS_EXPIRATION_FEATURE_FLAG;
 	}
 }
 WooCommerce_Subscriptions::init();
