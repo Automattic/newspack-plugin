@@ -1,6 +1,6 @@
 <?php
 /**
- * WooCommerce Subscriptions integration class.
+ * WooCommerce Subscriptions On-Hold Duration class.
  *
  * @package Newspack
  */
@@ -12,22 +12,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Main class.
  */
-class WooCommerce_Subscriptions {
+class On_Hold_Duration {
 	/**
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
 		add_filter( 'woocommerce_subscription_settings', [ __CLASS__, 'add_on_hold_duration_setting' ], 11, 1 );
 		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_on_hold_duration_rule' ], 99, 1 );
-	}
-
-	/**
-	 * Check if WooCommerce Subscriptions is active.
-	 *
-	 * @return bool
-	 */
-	public static function is_active() {
-		return class_exists( 'WC_Subscriptions' );
 	}
 
 	/**
@@ -38,7 +29,7 @@ class WooCommerce_Subscriptions {
 	 * @return array
 	 */
 	public static function add_on_hold_duration_setting( $settings ) {
-		if ( self::is_active() ) {
+		if ( WooCommerce_Subscriptions::is_active() ) {
 			return array_merge(
 				$settings,
 				[
@@ -92,7 +83,7 @@ class WooCommerce_Subscriptions {
 	 * @param array $retry_rules Subscriptions retry rules.
 	 */
 	public static function maybe_apply_on_hold_duration_rule( $retry_rules ) {
-		if ( self::is_active() && count( $retry_rules ) > 0 ) {
+		if ( WooCommerce_Subscriptions::is_active() && count( $retry_rules ) > 0 ) {
 			$on_hold_duration = self::get_on_hold_duration();
 			if ( 0 < $on_hold_duration ) {
 				$retry_rules[] = [
@@ -110,4 +101,3 @@ class WooCommerce_Subscriptions {
 		return $retry_rules;
 	}
 }
-WooCommerce_Subscriptions::init();
