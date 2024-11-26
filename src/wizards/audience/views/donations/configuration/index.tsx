@@ -44,7 +44,7 @@ const FREQUENCIES: {
 const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys( FREQUENCIES ) as FrequencySlug[];
 
 export const DonationAmounts = () => {
-	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG ) as AudienceDonationsWizardData;
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
@@ -232,7 +232,7 @@ export const DonationAmounts = () => {
 };
 
 const Donation = () => {
-	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG ) as AudienceDonationsWizardData;
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSaveDonationSettings = () =>
 		saveWizardSettings( {

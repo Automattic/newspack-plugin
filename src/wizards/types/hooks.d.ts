@@ -60,7 +60,7 @@ type WizardSelector = {
 /**
  * Reader Revenue Wizard Data
  */
-type ReaderRevenueWizardData = {
+type AudienceDonationsWizardData = {
 	donation_data:
 		| { errors: { [ key: string ]: string[] } }
 		| {
@@ -81,16 +81,4 @@ type ReaderRevenueWizardData = {
 		editUrl: string;
 		status: string;
 	};
-	available_billing_fields: {
-		[ key: string ]: {
-			autocomplete: string;
-			class: string[];
-			label: string;
-			priority: number;
-			required: boolean;
-			type: string;
-			validate: string[];
-		};
-	};
-	billing_fields: string[];
 };

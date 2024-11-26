@@ -16,7 +16,7 @@ import {
 } from '../../../../components/src';
 
 const BillingFields = () => {
-	const wizardData = Wizard.useWizardData( 'newspack-audience/billing-fields' ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( 'newspack-audience/billing-fields' );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData ) {

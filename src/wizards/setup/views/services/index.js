@@ -56,7 +56,7 @@ const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
-	const readerRevenueWizardData = Wizard.useWizardData( 'audience-donations' );
+	const wizardData = Wizard.useWizardData( 'audience-donations' );
 
 	useEffect( () => {
 		apiFetch( {
@@ -72,7 +72,7 @@ const Services = ( { renderPrimaryButton } ) => {
 		// Add Reader Revenue Wizard data straight from the Wizard.
 		data[ 'reader-revenue' ] = {
 			...data[ 'reader-revenue' ],
-			...readerRevenueWizardData,
+			...wizardData,
 		};
 		return apiFetch( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/services',
