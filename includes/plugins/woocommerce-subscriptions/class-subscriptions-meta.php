@@ -21,18 +21,17 @@ class Subscriptions_Meta {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_action( 'woocommerce_subscription_status_changed', array( __CLASS__, 'maybe_record_cancelled_subscription_meta' ), 10, 4 );
+		add_action( 'woocommerce_subscription_status_updated', array( __CLASS__, 'maybe_record_cancelled_subscription_meta' ), 10, 3 );
 	}
 
 	/**
 	 * Record woo custom field for cancelled subscriptions.
 	 *
-	 * @param int             $id            The subscription ID.
-	 * @param string          $from_status   The status the subscription is changing from.
-	 * @param string          $to_status     The status the subscription is changing to.
 	 * @param WC_Subscription $subscription  The subscription object.
+	 * @param string          $to_status     The status the subscription is changing to.
+	 * @param string          $from_status   The status the subscription is changing from.
 	 */
-	public static function maybe_record_cancelled_subscription_meta( $id, $from_status, $to_status, $subscription ) {
+	public static function maybe_record_cancelled_subscription_meta( $subscription, $to_status, $from_status ) {
 		if ( ! WooCommerce_Subscriptions::is_active() ) {
 			return;
 		}

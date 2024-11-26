@@ -10,6 +10,7 @@ namespace Newspack\Reader_Activation\Sync;
 use Newspack\Donations;
 use Newspack\WooCommerce_Connection;
 use Newspack\WooCommerce_Order_UTM;
+use Newspack\Subscriptions_Meta;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -287,7 +288,7 @@ class WooCommerce {
 			}
 
 			// Record the cancellation reason if the subscription was cancelled.
-			$cancellation_reason = $current_subscription->get_meta( WooCommerce_Subscriptions::CANCELLATION_REASON_META_KEY, '' );
+			$cancellation_reason = $current_subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY );
 			if ( ! empty( $cancellation_reason ) ) {
 				$metadata['cancellation_reason'] = $cancellation_reason;
 			}
