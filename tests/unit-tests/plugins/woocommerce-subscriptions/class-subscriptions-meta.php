@@ -15,7 +15,7 @@ class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 	/**
 	 * Setup for the tests.
 	 */
-	public function set_up() {
+	public static function set_up_before_class() {
 		define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
 		WooCommerce_Subscriptions::init();
 	}
@@ -27,19 +27,19 @@ class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 		$subscription = wcs_create_subscription();
 		$this->assertEquals(
 			'',
-			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY, '' ),
+			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
 			'Cancellation reason meta should be empty before cancellation.'
 		);
-		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( 1, 'pending', 'active', $subscription );
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'active', 'pending' );
 		$this->assertEquals(
 			'',
-			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY, '' ),
+			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
 			'Cancellation reason meta should be empty when subscription status is not cancelled.'
 		);
-		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( 1, 'active', 'cancelled', $subscription );
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'cancelled', 'active', $subscription );
 		$this->assertEquals(
 			Subscriptions_Meta::CANCELLATION_REASON_USER_CANCELLED,
-			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY, '' ),
+			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
 			'Cancellation reason meta should be set to user-cancelled when subscription is cancelled.'
 		);
 	}
