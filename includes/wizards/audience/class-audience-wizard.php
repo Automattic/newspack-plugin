@@ -317,7 +317,7 @@ class Audience_Wizard extends Wizard {
 		// Save Stripe info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/stripe/',
+			'/wizard/' . $this->slug . '/payment/stripe/',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_stripe_settings' ],
@@ -339,7 +339,7 @@ class Audience_Wizard extends Wizard {
 		// Save WooPayments info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/woopayments/',
+			'/wizard/' . $this->slug . '/payment/woopayments/',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_woopayments_settings' ],

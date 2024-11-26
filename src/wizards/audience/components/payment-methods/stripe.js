@@ -13,7 +13,6 @@ import {
 	Button,
 	Wizard,
 } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 export const Stripe = ( { stripe } ) => {
 	const isLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isLoading() );
@@ -21,7 +20,7 @@ export const Stripe = ( { stripe } ) => {
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
+			slug: 'newspack-audience/payment',
 			path: [ 'payment_gateways', 'stripe', key ],
 			value,
 		} );
@@ -29,7 +28,7 @@ export const Stripe = ( { stripe } ) => {
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
+			slug: 'newspack-audience/payment',
 			section: 'stripe',
 			payloadPath: [ 'payment_gateways', 'stripe' ],
 		} );
