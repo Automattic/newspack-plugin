@@ -16,11 +16,10 @@ import {
 	TextControl,
 	Wizard,
 } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const NRHSettings = () => {
 	const [ selectedPage, setSelectedPage ] = useState( null );
-	const wizardData = Wizard.useWizardData( 'audience-donations' );
+	const wizardData = Wizard.useWizardData( 'newspack-audience/payment' );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	useEffect( () => {
@@ -31,14 +30,14 @@ const NRHSettings = () => {
 
 	const changeHandler = ( key, value ) => {
 		return updateWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
+			slug: 'newspack-audience/payment',
 			path: [ 'platform_data', key ],
 			value,
 		} );
 	};
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
+			slug: 'newspack-audience/payment',
 			payloadPath: [ 'platform_data' ],
 		} );
 

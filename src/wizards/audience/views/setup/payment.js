@@ -14,7 +14,7 @@ import NRHSettings from '../../components/nrh-settings';
 import BillingFields from '../../components/billing-fields';
 
 export default withWizardScreen( function () {
-	const data = Wizard.useWizardData( 'audience-donations' );
+	const data = Wizard.useWizardData( 'newspack-audience/payment' );
 	return (
 		<WizardsTab
 			title={ __( 'Checkout & Payment', 'newspack-plugin' ) }

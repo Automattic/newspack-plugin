@@ -15,14 +15,14 @@ import {
 	TextControl,
 	Wizard,
 } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
+import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../constants';
 
 export const CoverFeesSettings = () => {
-  const { additional_settings: settings = {} } = Wizard.useWizardData( 'audience-donations' );
+  const { additional_settings: settings = {} } = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
+			slug: AUDIENCE_DONATIONS_WIZARD_SLUG,
 			path: [ 'additional_settings', key ],
 			value,
 		} );
@@ -30,7 +30,7 @@ export const CoverFeesSettings = () => {
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
+			slug: AUDIENCE_DONATIONS_WIZARD_SLUG,
 			section: 'settings',
 			payloadPath: [ 'additional_settings' ],
 		} );

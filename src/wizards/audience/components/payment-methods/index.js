@@ -19,7 +19,7 @@ const PaymentGateways = () => {
 		errors = [],
 		plugin_status,
 		platform_data = {},
-	} = Wizard.useWizardData( 'audience-donations' );
+	} = Wizard.useWizardData( 'newspack-audience/payment' );
 	if ( false === plugin_status || 'wc' !== platform_data?.platform ) {
 		return null;
 	}

@@ -18,14 +18,14 @@ class Audience_Donations extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-audience-donations-wizard';
+	protected $slug = 'newspack-audience-donations';
 
 	/**
 	 * Parent slug.
 	 *
 	 * @var string
 	 */
-	protected $parent_slug = 'newspack-audience-wizard';
+	protected $parent_slug = 'newspack-audience';
 
 	/**
 	 * Constructor.
@@ -74,8 +74,8 @@ class Audience_Donations extends Wizard {
 			'newspack-wizards',
 			'newspackAudienceDonations',
 			[
-				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
+				'revenue_link'            => admin_url( 'admin.php?page=wc-reports' ),
 			]
 		);
 	}
@@ -84,124 +84,45 @@ class Audience_Donations extends Wizard {
 	 * Register the endpoints needed for the wizard screens.
 	 */
 	public function register_api_endpoints() {
-		// Get all data required to render the Wizard.
-		\register_rest_route(
+		// Get donations settings.
+		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug,
 			[
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_fetch' ],
+				'callback'            => [ $this, 'api_get_donation_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
-		// Save basic data about reader revenue platform.
-		\register_rest_route(
+
+		// Update donations settings.
+		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug,
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update' ],
+				'callback'            => [ $this, 'api_update_donation_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
-					'platform'                   => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_platform' ],
+					'amounts'             => [
+						'required' => false,
 					],
-					'nrh_organization_id'        => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					'tiered'              => [
+						'required'          => false,
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
 					],
-					'nrh_custom_domain'          => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
+					'disabledFrequencies' => [
+						'required' => false,
 					],
-					'nrh_salesforce_campaign_id' => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-					],
-					'donor_landing_page'         => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
+					'platform'            => [
+						'required'          => false,
+						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
 			]
 		);
 
-		// Save location info.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/location/',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_location' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'countrystate' => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
-					],
-					'address1'     => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
-					],
-					'address2'     => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-					],
-					'city'         => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
-					],
-					'postcode'     => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
-					],
-					'currency'     => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
-					],
-				],
-			]
-		);
-
-		// Save Stripe info.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/stripe/',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_stripe_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'activate'      => [
-						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-					'enabled'       => [
-						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-					'location_code' => [
-						'sanitize_callback' => 'Newspack\newspack_clean',
-					],
-				],
-			]
-		);
-
-		// Save WooPayments info.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/woopayments/',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_woopayments_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'activate' => [
-						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-					'enabled'  => [
-						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-				],
-			]
-		);
-
-		// Save additional settings info.
+		// Save additional settings.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/settings/',
@@ -240,152 +161,6 @@ class Audience_Donations extends Wizard {
 				],
 			]
 		);
-
-		// Update Donations settings.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/donations/',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_donation_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'amounts'             => [
-						'required' => false,
-					],
-					'tiered'              => [
-						'required'          => false,
-						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
-					],
-					'disabledFrequencies' => [
-						'required' => false,
-					],
-					'platform'            => [
-						'required'          => false,
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
-			]
-		);
-
-		// Save Salesforce settings.
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/salesforce/',
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_salesforce_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => [
-					'client_id'     => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'client_secret' => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'access_token'  => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-					'refresh_token' => [
-						'sanitize_callback' => 'sanitize_text_field',
-					],
-				],
-			]
-		);
-
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/donations/',
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_donation_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-	}
-
-	/**
-	 * Get all Wizard Data
-	 *
-	 * @return WP_REST_Response containing ad units info.
-	 */
-	public function api_fetch() {
-		return \rest_ensure_response( $this->fetch_all_data() );
-	}
-
-	/**
-	 * Save top-level data.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Boolean success.
-	 */
-	public function api_update( $request ) {
-		$params = $request->get_params();
-		Donations::set_platform_slug( $params['platform'] );
-
-		// Update NRH settings.
-		if ( Donations::is_platform_nrh() ) {
-			NRH::update_settings( $params );
-		}
-
-		// Ensure that any Reader Revenue settings changed while the platform wasn't WC are persisted to WC products.
-		if ( Donations::is_platform_wc() ) {
-			Donations::update_donation_product( Donations::get_donation_settings() );
-		}
-
-		return \rest_ensure_response( $this->fetch_all_data() );
-	}
-
-	/**
-	 * Save location info.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Boolean success.
-	 */
-	public function api_update_location( $request ) {
-		$required_plugins_installed = $this->check_required_plugins_installed();
-		if ( is_wp_error( $required_plugins_installed ) ) {
-			return rest_ensure_response( $required_plugins_installed );
-		}
-		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-
-		$params = $request->get_params();
-
-		$defaults = [
-			'countrystate' => '',
-			'address1'     => '',
-			'address2'     => '',
-			'city'         => '',
-			'postcode'     => '',
-			'currency'     => '',
-		];
-
-		$args = wp_parse_args( $params, $defaults );
-		$wc_configuration_manager->update_location( $args );
-
-		// @todo when is the best time to do this?
-		$wc_configuration_manager->set_smart_defaults();
-
-		return \rest_ensure_response( $this->fetch_all_data() );
-	}
-
-	/**
-	 * Handler for setting Stripe settings.
-	 *
-	 * @param object $settings Stripe settings.
-	 * @return WP_REST_Response with the latest settings.
-	 */
-	public function update_stripe_settings( $settings ) {
-		if ( ! empty( $settings['activate'] ) ) {
-			// If activating the Stripe Gateway plugin, let's enable it.
-			$settings = [ 'enabled' => true ];
-		}
-		$result = Stripe_Connection::update_stripe_data( $settings );
-		if ( \is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return $this->fetch_all_data();
 	}
 
 	/**
@@ -415,32 +190,6 @@ class Audience_Donations extends Wizard {
 	}
 
 	/**
-	 * Save Stripe settings.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response.
-	 */
-	public function api_update_stripe_settings( $request ) {
-		$params = $request->get_params();
-		$result = $this->update_stripe_settings( $params );
-		return \rest_ensure_response( $result );
-	}
-
-	/**
-	 * Save WooPayments settings.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response Response.
-	 */
-	public function api_update_woopayments_settings( $request ) {
-		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-
-		$params = $request->get_params();
-		$result = $wc_configuration_manager->update_wc_woopayments_settings( $params );
-		return \rest_ensure_response( $result );
-	}
-
-	/**
 	 * Save additional payment method settings (e.g. transaction fees).
 	 *
 	 * @param WP_REST_Request $request Request object.
@@ -450,6 +199,16 @@ class Audience_Donations extends Wizard {
 		$params = $request->get_params();
 		$result = $this->update_additional_settings( $params );
 		return \rest_ensure_response( $result );
+	}
+
+	/**
+	 * API endpoint for setting the donation settings.
+	 *
+	 * @param WP_REST_Request $request Request containing settings.
+	 * @return WP_REST_Response with the latest settings.
+	 */
+	public function api_update_donation_settings( $request ) {
+		return $this->update_donation_settings( $request->get_params() );
 	}
 
 	/**
@@ -467,30 +226,6 @@ class Audience_Donations extends Wizard {
 	}
 
 	/**
-	 * API endpoint for setting the donation settings.
-	 *
-	 * @param WP_REST_Request $request Request containing settings.
-	 * @return WP_REST_Response with the latest settings.
-	 */
-	public function api_update_donation_settings( $request ) {
-		return $this->update_donation_settings( $request->get_params() );
-	}
-
-	/**
-	 * API endpoint for setting Salesforce settings.
-	 *
-	 * @param WP_REST_Request $request Request containing settings.
-	 * @return WP_REST_Response with the latest settings.
-	 */
-	public function api_update_salesforce_settings( $request ) {
-		$salesforce_response = Salesforce::set_salesforce_settings( $request->get_params() );
-		if ( is_wp_error( $salesforce_response ) ) {
-			return rest_ensure_response( $salesforce_response );
-		}
-		return \rest_ensure_response( $this->fetch_all_data() );
-	}
-
-	/**
 	 * Fetch all data needed to render the Wizard
 	 *
 	 * @return Array
@@ -501,39 +236,19 @@ class Audience_Donations extends Wizard {
 		$wc_installed             = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
 		$stripe_data              = Stripe_Connection::get_stripe_data();
 
-		$billing_fields = [];
-		if ( $wc_installed && Donations::is_platform_wc() ) {
-			$checkout = new \WC_Checkout();
-			$fields   = $checkout->get_checkout_fields();
-			if ( ! empty( $fields['billing'] ) ) {
-				$billing_fields = $fields['billing'];
-			}
-		}
-
 		$args = [
-			'country_state_fields'     => newspack_get_countries(),
-			'currency_fields'          => newspack_get_currencies_options(),
-			'location_data'            => [],
-			'payment_gateways'         => [
-				'stripe'      => $stripe_data,
-				'woopayments' => $wc_configuration_manager->woopayments_data(),
+			'platform_data'       => [
+				'platform' => $platform,
 			],
-			'additional_settings'      => [
+			'additional_settings' => [
 				'allow_covering_fees'         => get_option( 'newspack_donations_allow_covering_fees', true ),
 				'allow_covering_fees_default' => get_option( 'newspack_donations_allow_covering_fees_default', false ),
 				'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
 				'fee_multiplier'              => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
 				'fee_static'                  => get_option( 'newspack_blocks_donate_fee_static', '0.3' ),
 			],
-			'donation_data'            => Donations::get_donation_settings(),
-			'donation_page'            => Donations::get_donation_page_info(),
-			'available_billing_fields' => $billing_fields,
-			'salesforce_settings'      => [],
-			'platform_data'            => [
-				'platform' => $platform,
-			],
-			'is_ssl'                   => is_ssl(),
-			'errors'                   => [],
+			'donation_data'       => Donations::get_donation_settings(),
+			'donation_page'       => Donations::get_donation_page_info(),
 		];
 		if ( 'wc' === $platform ) {
 			$plugin_status    = true;
@@ -549,8 +264,7 @@ class Audience_Donations extends Wizard {
 			}
 			$args = wp_parse_args(
 				[
-					'salesforce_settings' => Salesforce::get_salesforce_settings(),
-					'plugin_status'       => $plugin_status,
+					'plugin_status' => $plugin_status,
 				],
 				$args
 			);
@@ -574,7 +288,7 @@ class Audience_Donations extends Wizard {
 			}
 		}
 
-		return rest_ensure_response( Donations::get_donation_settings() );
+		return rest_ensure_response( $this->fetch_all_data() );
 	}
 
 	/**
@@ -595,15 +309,5 @@ class Audience_Donations extends Wizard {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Validate platform ID.
-	 *
-	 * @param mixed $value A param value.
-	 * @return bool
-	 */
-	public function api_validate_platform( $value ) {
-		return in_array( $value, [ 'nrh', 'wc', 'other' ] );
 	}
 }

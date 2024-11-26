@@ -15,10 +15,11 @@ import { __ } from '@wordpress/i18n';
  */
 import { Wizard, Notice, withWizard } from '../../../../components/src';
 import Configuration from './configuration';
-import { READER_REVENUE_WIZARD_SLUG, NEWSPACK, OTHER } from '../../constants';
+import Revenue from './revenue';
+import { AUDIENCE_DONATIONS_WIZARD_SLUG, NEWSPACK, OTHER } from '../../constants';
 
 const AudienceDonations = () => {
-	const { platform_data, donation_data } = Wizard.useWizardData( 'audience-donations' );
+	const { platform_data, donation_data } = Wizard.useWizardData( 'newspack-audience-donations' );
 	const usedPlatform = platform_data?.platform;
 	const sections = [
 		{
@@ -30,7 +31,7 @@ const AudienceDonations = () => {
 		{
 			label: __( 'Revenue', 'newspack-plugin' ),
 			path: '/revenue',
-			render: () => null,
+			render: Revenue,
 			isHidden: usedPlatform !== NEWSPACK,
 		},
 	];
@@ -38,7 +39,7 @@ const AudienceDonations = () => {
 		<Wizard
 			headerText={ __( 'Audience Development / Donations', 'newspack-plugin' ) }
 			sections={ sections }
-			apiSlug={ READER_REVENUE_WIZARD_SLUG }
+			apiSlug={ AUDIENCE_DONATIONS_WIZARD_SLUG }
 			renderAboveSections={ () =>
 				values( donation_data?.errors ).map( ( error, i ) => (
 					<Notice key={ i } isError noticeText={ error } />

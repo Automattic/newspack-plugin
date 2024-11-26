@@ -127,7 +127,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 		try {
 			setCompleted(
 				await apiFetch( {
-					path: '/newspack/v1/wizard/newspack-audience-wizard/reader-activation/activate',
+					path: '/newspack/v1/wizard/newspack-audience/reader-activation/activate',
 					method: 'post',
 					data: {
 						skip_activation: isSkippedCampaignSetup,

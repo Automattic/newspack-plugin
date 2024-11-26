@@ -20,7 +20,7 @@ import {
 	Wizard,
 } from '../../../../../components/src';
 import WizardsTab from '../../../../wizards-tab';
-import { READER_REVENUE_WIZARD_SLUG } from '../../../constants';
+import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../constants';
 import { CoverFeesSettings } from '../../../components/cover-fees-settings';
 
 type FrequencySlug = 'once' | 'month' | 'year';
@@ -44,7 +44,7 @@ const FREQUENCIES: {
 const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys( FREQUENCIES ) as FrequencySlug[];
 
 export const DonationAmounts = () => {
-	const wizardData = Wizard.useWizardData( 'audience-donations' ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG ) as AudienceDonationsWizardData;
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
@@ -56,7 +56,7 @@ export const DonationAmounts = () => {
 
 	const changeHandler = ( path: ( string | number )[] ) => ( value: any ) =>
 		updateWizardSettings( {
-			slug: 'newspack-audience-donations-wizard',
+			slug: AUDIENCE_DONATIONS_WIZARD_SLUG,
 			path: [ 'donation_data', ...path ],
 			value,
 		} );
@@ -232,12 +232,11 @@ export const DonationAmounts = () => {
 };
 
 const Donation = () => {
-	const wizardData = Wizard.useWizardData( 'audience-donations' ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG ) as AudienceDonationsWizardData;
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSaveDonationSettings = () =>
 		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			section: 'donations',
+			slug: AUDIENCE_DONATIONS_WIZARD_SLUG,
 			payloadPath: [ 'donation_data' ],
 			auxData: { saveDonationProduct: true },
 		} );

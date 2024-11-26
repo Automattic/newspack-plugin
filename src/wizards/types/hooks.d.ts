@@ -55,12 +55,13 @@ type WizardData = {
 // Define the type for the selector's return value
 type WizardSelector = {
 	getWizardData: ( slug: string ) => WizardData;
+	isLoading: () => boolean;
 };
 
 /**
  * Reader Revenue Wizard Data
  */
-type ReaderRevenueWizardData = {
+type AudienceDonationsWizardData = {
 	donation_data:
 		| { errors: { [ key: string ]: string[] } }
 		| {
@@ -73,7 +74,6 @@ type ReaderRevenueWizardData = {
 				currencySymbol: string;
 				tiered: boolean;
 				minimumDonation: string;
-				billingFields: string[];
 		};
 	platform_data: {
 		platform: string;
@@ -81,16 +81,5 @@ type ReaderRevenueWizardData = {
 	donation_page: {
 		editUrl: string;
 		status: string;
-	};
-	available_billing_fields: {
-		[ key: string ]: {
-			autocomplete: string;
-			class: string[];
-			label: string;
-			priority: number;
-			required: boolean;
-			type: string;
-			validate: string[];
-		};
 	};
 };

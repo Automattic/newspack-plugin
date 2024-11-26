@@ -430,8 +430,7 @@ class Donations {
 			$parsed_settings['amounts'][ $frequency ] = array_map( 'floatval', $amounts );
 		}
 
-		$parsed_settings['platform']      = self::get_platform_slug();
-		$parsed_settings['billingFields'] = self::get_billing_fields();
+		$parsed_settings['platform'] = self::get_platform_slug();
 
 		// If NYP isn't available, force untiered config.
 		if ( ! self::can_use_name_your_price() ) {
@@ -461,13 +460,6 @@ class Donations {
 
 			if ( isset( $args['saveDonationProduct'] ) && $args['saveDonationProduct'] === true ) {
 				self::update_donation_product( $configuration );
-			}
-
-			// Update the billing fields.
-			$billing_fields = isset( $args['billingFields'] ) ? $args['billingFields'] : [];
-			if ( ! empty( $billing_fields ) ) {
-				$billing_fields = array_map( 'sanitize_text_field', $billing_fields );
-				self::update_billing_fields( $billing_fields );
 			}
 		}
 
@@ -620,7 +612,6 @@ class Donations {
 	 * @param string $platform Platform slug.
 	 */
 	public static function set_platform_slug( $platform ) {
-		delete_option( self::NEWSPACK_READER_REVENUE_PLATFORM );
 		update_option( self::NEWSPACK_READER_REVENUE_PLATFORM, $platform, true );
 	}
 

@@ -46,7 +46,7 @@ const components: Record< string, any > = {
 				)
 		),
 	},
-	'newspack-audience-wizard': {
+	'newspack-audience': {
 		label: __( 'Audience', 'newspack-plugin' ),
 		component: lazy(
 			() =>
@@ -55,7 +55,7 @@ const components: Record< string, any > = {
 				)
 		),
 	},
-	'newspack-audience-campaigns-wizard': {
+	'newspack-audience-campaigns': {
 		label: __( 'Audience Campaigns', 'newspack-plugin' ),
 		component: lazy(
 			() =>
@@ -64,7 +64,7 @@ const components: Record< string, any > = {
 				)
 		),
 	},
-	'newspack-audience-donations-wizard': {
+	'newspack-audience-donations': {
 		label: __( 'Audience Donations', 'newspack-plugin' ),
 		component: lazy(
 			() =>
