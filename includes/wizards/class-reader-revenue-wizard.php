@@ -382,14 +382,14 @@ class Reader_Revenue_Wizard extends Wizard {
 	 */
 	public function update_additional_settings( $settings ) {
 		if ( isset( $settings['allow_covering_fees'] ) ) {
-			update_option( 'newspack_donations_allow_covering_fees', $settings['allow_covering_fees'] );
+			update_option( 'newspack_donations_allow_covering_fees', intval( $settings['allow_covering_fees'] ) );
 		}
 		if ( isset( $settings['allow_covering_fees_default'] ) ) {
 			update_option( 'newspack_donations_allow_covering_fees_default', $settings['allow_covering_fees_default'] );
 		}
 
 		if ( isset( $settings['allow_covering_fees_label'] ) ) {
-			update_option( 'newspack_donations_allow_covering_fees_label', $settings['allow_covering_fees_label'] );
+			update_option( 'newspack_donations_allow_covering_fees_label', intval( $settings['allow_covering_fees_label'] ) );
 		}
 		if ( isset( $settings['fee_multiplier'] ) ) {
 			update_option( 'newspack_blocks_donate_fee_multiplier', $settings['fee_multiplier'] );
@@ -505,8 +505,8 @@ class Reader_Revenue_Wizard extends Wizard {
 				'woopayments' => $wc_configuration_manager->woopayments_data(),
 			],
 			'additional_settings'      => [
-				'allow_covering_fees'         => get_option( 'newspack_donations_allow_covering_fees', true ),
-				'allow_covering_fees_default' => get_option( 'newspack_donations_allow_covering_fees_default', false ),
+				'allow_covering_fees'         => boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ),
+				'allow_covering_fees_default' => boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
 				'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
 				'fee_multiplier'              => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
 				'fee_static'                  => get_option( 'newspack_blocks_donate_fee_static', '0.3' ),
