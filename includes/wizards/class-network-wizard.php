@@ -116,27 +116,29 @@ class Network_Wizard extends Wizard {
 			return $screen_slug;
 		}
 		$screen_slug = '';
-
-		$sanitized_action    = sanitize_text_field( $_GET['action'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$sanitized_page      = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$sanitized_post_type = sanitize_text_field( $_GET['post_type'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$sanitized_post_id   = sanitize_text_field( $_GET['post'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		
-		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
+		$sanitized_action    = filter_input( INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$sanitized_page      = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$sanitized_post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$sanitized_post_id   = filter_input( INPUT_GET, 'post', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		$screen_slug = match ( true ) {
 			// admin page screen: admin.php?page={page} .
-			$screen_slug = $sanitized_page;
-		} elseif ( 'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) ) {
+			'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) 
+				=> $sanitized_page,
 			// post type list screen: edit.php?post_type={post_type} .
-			$screen_slug = $sanitized_post_type;
-		} elseif ( 'post-new.php' === $pagenow && 'newspack_hub_nodes' === $sanitized_post_type ) {
+			'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) 
+				=> $sanitized_post_type,
 			// add new node screen: post-new.php?post_type=newspack_hub_nodes .
 			// note: assumes non-block editor, otherwise we need to not set this.
-			$screen_slug = $sanitized_post_type;
-		} elseif ( 'post.php' === $pagenow && 'edit' === $sanitized_action && 'newspack_hub_nodes' === get_post_type( $sanitized_post_id ) ) {
+			'post-new.php' === $pagenow && 'newspack_hub_nodes' === $sanitized_post_type 
+				=> $sanitized_post_type,
 			// edit node screen: post.php?post={ID}&action=edit
 			// note: assumes non-block editor, otherwise we need to not set this.
-			$screen_slug = 'newspack_hub_nodes';
-		}
+			'post.php' === $pagenow && 'edit' === $sanitized_action && 'newspack_hub_nodes' === get_post_type( $sanitized_post_id ) 
+				=> 'newspack_hub_nodes',
+			default => '',
+		};
 
 		return $screen_slug;
 	}
