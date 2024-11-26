@@ -257,10 +257,6 @@ class Audience_Wizard extends Wizard {
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => [ $this, 'api_validate_platform' ],
 					],
-					'billing_fields'             => [
-						'sanitize_callback' => [ $this, 'sanitize_billing_fields' ],
-						'validate_callback' => [ $this, 'api_validate_not_empty' ],
-					],
 					'nrh_organization_id'        => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
@@ -273,6 +269,34 @@ class Audience_Wizard extends Wizard {
 					],
 					'donor_landing_page'         => [
 						'sanitize_callback' => 'Newspack\newspack_clean',
+					],
+				],
+			]
+		);
+
+		// Get billing fields info.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/billing-fields',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_billing_fields' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Update billing fields info.
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/billing-fields',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_billing_fields' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'billing_fields' => [
+						'sanitize_callback' => [ $this, 'sanitize_billing_fields' ],
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 				],
 			]
@@ -458,6 +482,7 @@ class Audience_Wizard extends Wizard {
 	 */
 	public function api_update_payment_settings( $request ) {
 		$params = $request->get_params();
+
 		Donations::set_platform_slug( $params['platform'] );
 
 		// Update NRH settings.
@@ -470,12 +495,44 @@ class Audience_Wizard extends Wizard {
 			Donations::update_donation_product( Donations::get_donation_settings() );
 		}
 
-		// Update billing fields.
-		if ( ! empty( $params['billing_fields'] ) ) {
-			Donations::update_billing_fields( $params['billing_fields'] );
-		}
-
 		return \rest_ensure_response( $this->get_payment_data() );
+	}
+
+	/**
+	 * API callback to get billing fields.
+	 *
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_get_billing_fields() {
+		return \rest_ensure_response( $this->get_billing_fields() );
+	}
+
+	/**
+	 * Update billing fields.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_update_billing_fields( $request ) {
+		$params = $request->get_params();
+		Donations::update_billing_fields( $params['billing_fields'] );
+		return \rest_ensure_response( $this->get_billing_fields() );
+	}
+
+	/**
+	 * Get billing fields data.
+	 */
+	public function get_billing_fields() {
+		$available_billing_fields = [];
+		$checkout = new \WC_Checkout();
+		$fields   = $checkout->get_checkout_fields();
+		if ( ! empty( $fields['billing'] ) ) {
+			$available_billing_fields = $fields['billing'];
+		}
+		return [
+			'available_billing_fields' => $available_billing_fields,
+			'billing_fields'           => Donations::get_billing_fields(),
+		];
 	}
 
 	/**
@@ -534,28 +591,17 @@ class Audience_Wizard extends Wizard {
 		$wc_installed             = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
 		$stripe_data              = Stripe_Connection::get_stripe_data();
 
-		$billing_fields = [];
-		if ( $wc_installed && Donations::is_platform_wc() ) {
-			$checkout = new \WC_Checkout();
-			$fields   = $checkout->get_checkout_fields();
-			if ( ! empty( $fields['billing'] ) ) {
-				$billing_fields = $fields['billing'];
-			}
-		}
-
 		$args = [
-			'payment_gateways'         => [
+			'payment_gateways'    => [
 				'stripe'      => $stripe_data,
 				'woopayments' => $wc_configuration_manager->woopayments_data(),
 			],
-			'available_billing_fields' => $billing_fields,
-			'billing_fields'           => Donations::get_billing_fields(),
-			'salesforce_settings'      => [],
-			'platform_data'            => [
+			'salesforce_settings' => [],
+			'platform_data'       => [
 				'platform' => $platform,
 			],
-			'is_ssl'                   => is_ssl(),
-			'errors'                   => [],
+			'is_ssl'              => is_ssl(),
+			'errors'              => [],
 		];
 		if ( 'wc' === $platform ) {
 			$plugin_status    = true;

@@ -612,7 +612,6 @@ class Donations {
 	 * @param string $platform Platform slug.
 	 */
 	public static function set_platform_slug( $platform ) {
-		delete_option( self::NEWSPACK_READER_REVENUE_PLATFORM );
 		update_option( self::NEWSPACK_READER_REVENUE_PLATFORM, $platform, true );
 	}
 

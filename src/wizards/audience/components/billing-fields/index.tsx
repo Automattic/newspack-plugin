@@ -16,26 +16,23 @@ import {
 } from '../../../../components/src';
 
 const BillingFields = () => {
-	const wizardData = Wizard.useWizardData( 'newspack-audience/payment' ) as ReaderRevenueWizardData;
+	const wizardData = Wizard.useWizardData( 'newspack-audience/billing-fields' ) as ReaderRevenueWizardData;
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 
 	if ( ! wizardData ) {
 		return null;
 	}
 
-	/* @TODO Check args */
 	const changeHandler = ( value: any ) =>
 		updateWizardSettings( {
-			slug: 'newspack-audience/payment',
+			slug: 'newspack-audience/billing-fields',
 			path: [ 'billing_fields' ],
 			value,
 		} );
 
-	/* @TODO Check args */
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: 'newspack-audience/payment',
-			payloadPath: [ 'billing_fields' ],
+			slug: 'newspack-audience/billing-fields',
 		} );
 
 	const availableFields = wizardData.available_billing_fields;
