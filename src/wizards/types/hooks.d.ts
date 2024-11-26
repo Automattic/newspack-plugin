@@ -55,6 +55,7 @@ type WizardData = {
 // Define the type for the selector's return value
 type WizardSelector = {
 	getWizardData: ( slug: string ) => WizardData;
+	isLoading: () => boolean;
 };
 
 /**
