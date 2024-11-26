@@ -29,20 +29,23 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'site-design'             => new Site_Design_Wizard(),
-			'reader-revenue'          => new Reader_Revenue_Wizard(),
-			'syndication'             => new Syndication_Wizard(),
-			'analytics'               => new Analytics_Wizard(),
-			'components-demo'         => new Components_Demo(),
-			'seo'                     => new SEO_Wizard(),
-			'health-check'            => new Health_Check_Wizard(),
-			'engagement'              => new Engagement_Wizard(),
-			'connections'             => new Connections_Wizard(),
-			'settings'                => new Settings(),
+			'site-design'     => new Site_Design_Wizard(),
+			'reader-revenue'  => new Reader_Revenue_Wizard(),
+			'syndication'     => new Syndication_Wizard(),
+			'analytics'       => new Analytics_Wizard(),
+			'components-demo' => new Components_Demo(),
+			'seo'             => new SEO_Wizard(),
+			'health-check'    => new Health_Check_Wizard(),
+			'engagement'      => new Engagement_Wizard(),
+			'connections'     => new Connections_Wizard(),
+			'settings'        => new Settings(),
 			// v2 Information Architecture.
-			'newspack-dashboard'      => new Newspack_Dashboard(),
-			'setup'                   => new Setup_Wizard(),
-			'newspack-settings'       => new Newspack_Settings(
+			'setup'           => new Setup_Wizard(),
+		];
+
+		if ( Newspack::is_setup_complete() ) {
+			static::$wizards['newspack-dashboard'] = new Newspack_Dashboard();
+			static::$wizards['newspack-settings'] = new Newspack_Settings(
 				[
 					'sections' => [
 						'custom-events' => 'Newspack\Wizards\Newspack\Custom_Events_Section',
@@ -50,15 +53,15 @@ class Wizards {
 						'recirculation' => 'Newspack\Wizards\Newspack\Recirculation_Section',
 					],
 				]
-			),
-			'advertising-display-ads' => new Advertising_Display_Ads(),
-			'advertising-sponsors'    => new Advertising_Sponsors(),
-			'audience'                => new Audience_Wizard(),
-			'audience-campaigns'      => new Audience_Campaigns(),
-			'listings'                => new Listings_Wizard(),
-			'network'                 => new Network_Wizard(),
-			'newsletters'             => new Newsletters_Wizard(),
-		];
+			);
+			static::$wizards['advertising-display-ads'] = new Advertising_Display_Ads();
+			static::$wizards['advertising-sponsors'] = new Advertising_Sponsors();
+			static::$wizards['audience'] = new Audience_Wizard();
+			static::$wizards['audience-campaigns'] = new Audience_Campaigns();
+			static::$wizards['listings'] = new Listings_Wizard();
+			static::$wizards['network'] = new Network_Wizard();
+			static::$wizards['newsletters'] = new Newsletters_Wizard();
+		}
 
 		// Allow custom menu order.
 		add_filter( 'custom_menu_order', '__return_true' );
