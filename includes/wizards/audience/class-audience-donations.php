@@ -261,8 +261,7 @@ class Audience_Donations extends Wizard {
 			}
 			$args = wp_parse_args(
 				[
-					'salesforce_settings' => Salesforce::get_salesforce_settings(),
-					'plugin_status'       => $plugin_status,
+					'plugin_status' => $plugin_status,
 				],
 				$args
 			);
@@ -286,7 +285,7 @@ class Audience_Donations extends Wizard {
 			}
 		}
 
-		return rest_ensure_response( Donations::get_donation_settings() );
+		return rest_ensure_response( $this->fetch_all_data() );
 	}
 
 	/**
