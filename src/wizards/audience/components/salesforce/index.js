@@ -16,20 +16,18 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies.
  */
 import { PluginSettings, Notice, Wizard } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const Salesforce = () => {
 	const { salesforce_redirect_url: redirectUrl } = window?.newspackAudienceDonations || {};
 	const [ hasCopied, setHasCopied ] = useState( false );
-	const { salesforce_settings: salesforceData = {} } = Wizard.useWizardData( 'audience-donations' );
+	const salesforceData = Wizard.useWizardData( 'newspack-audience/salesforce' );
 	const [ isConnected, setIsConnected ] = useState( salesforceData.refresh_token );
 	const [ error, setError ] = useState( null );
 
 	const { saveWizardSettings, wizardApiFetch } = useDispatch( Wizard.STORE_NAMESPACE );
 	const saveAllSettings = value =>
 		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			section: 'salesforce',
+			slug: 'newspack-audience/salesforce',
 			payloadPath: [ 'salesforce_settings' ],
 			updatePayload: {
 				path: [ 'salesforce_settings' ],

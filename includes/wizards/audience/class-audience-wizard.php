@@ -79,9 +79,10 @@ class Audience_Wizard extends Wizard {
 		}
 		parent::enqueue_scripts_and_styles();
 		$data = [
-			'has_memberships'       => class_exists( 'WC_Memberships' ),
-			'reader_activation_url' => admin_url( 'admin.php?page=newspack-audience#/' ),
-			'esp_metadata_fields'   => Reader_Activation\Sync\Metadata::get_default_fields(),
+			'has_memberships'         => class_exists( 'WC_Memberships' ),
+			'reader_activation_url'   => admin_url( 'admin.php?page=newspack-audience#/' ),
+			'esp_metadata_fields'     => Reader_Activation\Sync\Metadata::get_default_fields(),
+			'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 		];
 
 		if ( method_exists( 'Newspack\Newsletters\Subscription_Lists', 'get_add_new_url' ) ) {
@@ -204,6 +205,17 @@ class Audience_Wizard extends Wizard {
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_content_gating_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
+		// Get Salesforce settings.
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/salesforce',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_salesforce_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -431,6 +443,15 @@ class Audience_Wizard extends Wizard {
 	}
 
 	/**
+	 * API endpoint to get Salesforce settings.
+	 *
+	 * @return WP_REST_Response with Salesforce settings.
+	 */
+	public function api_get_salesforce_settings() {
+		return \rest_ensure_response( Salesforce::get_salesforce_settings() );
+	}
+
+	/**
 	 * API endpoint for setting Salesforce settings.
 	 *
 	 * @param WP_REST_Request $request Request containing settings.
@@ -441,7 +462,7 @@ class Audience_Wizard extends Wizard {
 		if ( is_wp_error( $salesforce_response ) ) {
 			return rest_ensure_response( $salesforce_response );
 		}
-		return \rest_ensure_response( $this->get_payment_data() );
+		return \rest_ensure_response( Salesforce::get_salesforce_settings() );
 	}
 
 	/**
@@ -592,16 +613,15 @@ class Audience_Wizard extends Wizard {
 		$stripe_data              = Stripe_Connection::get_stripe_data();
 
 		$args = [
-			'payment_gateways'    => [
+			'payment_gateways' => [
 				'stripe'      => $stripe_data,
 				'woopayments' => $wc_configuration_manager->woopayments_data(),
 			],
-			'salesforce_settings' => [],
-			'platform_data'       => [
+			'platform_data'    => [
 				'platform' => $platform,
 			],
-			'is_ssl'              => is_ssl(),
-			'errors'              => [],
+			'is_ssl'           => is_ssl(),
+			'errors'           => [],
 		];
 		if ( 'wc' === $platform ) {
 			$plugin_status    = true;
@@ -617,8 +637,7 @@ class Audience_Wizard extends Wizard {
 			}
 			$args = wp_parse_args(
 				[
-					'salesforce_settings' => Salesforce::get_salesforce_settings(),
-					'plugin_status'       => $plugin_status,
+					'plugin_status' => $plugin_status,
 				],
 				$args
 			);

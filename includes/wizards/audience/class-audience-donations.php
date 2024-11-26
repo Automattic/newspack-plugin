@@ -74,7 +74,6 @@ class Audience_Donations extends Wizard {
 			'newspack-wizards',
 			'newspackAudienceDonations',
 			[
-				'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
 			]
 		);
