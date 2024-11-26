@@ -162,7 +162,7 @@ class WooCommerce_Cover_Fees {
 					type="checkbox"
 					style="margin-right: 8px;"
 					value="1"
-					<?php if ( get_option( 'newspack_donations_allow_covering_fees_default', false ) ) : ?>
+					<?php if ( boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ) ) : ?>
 						checked
 					<?php endif; ?>
 				/>

@@ -505,7 +505,7 @@ class Reader_Revenue_Wizard extends Wizard {
 				'woopayments' => $wc_configuration_manager->woopayments_data(),
 			],
 			'additional_settings'      => [
-				'allow_covering_fees'         => boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ),
+				'allow_covering_fees'         => boolval( get_option( 'newspack_donations_allow_covering_fees', false ) ),
 				'allow_covering_fees_default' => boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
 				'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
 				'fee_multiplier'              => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
