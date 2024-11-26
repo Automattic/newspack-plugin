@@ -29,6 +29,14 @@ class PWA {
 
 		add_action( 'wp_front_service_worker', [ __CLASS__, 'bypass_service_worker' ], 100 );
 		add_action( 'wp_admin_service_worker', [ __CLASS__, 'bypass_service_worker' ], 100 );
+
+		// Replace the SW caching header ('no-cache' by default), so it can be cached (for a day).
+		add_action(
+			'wp_front_service_worker',
+			function () {
+				header( 'Cache-Control: max-age=86400, must-revalidate' );
+			} 
+		);
 	}
 
 	/**
@@ -107,7 +115,7 @@ class PWA {
 
 	/**
 	 * Temporary workaround to disable the offline post request handling script.
-	 * 
+	 *
 	 * @param WP_Service_Worker_Scripts $scripts The service worker scripts.
 	 *
 	 * @see - https://github.com/GoogleChromeLabs/pwa-wp/issues/1106

@@ -10,7 +10,6 @@
 	border-color: wp-colors.$gray-300;
 
 	// Clickable
-
 	&.newspack-card--is-clickable {
 		transition: box-shadow 125ms ease-in-out;
 
@@ -20,7 +19,6 @@
 	}
 
 	// Status
-
 	&.newspack-card__is-disabled,
 	&.newspack-card__is-primary,
 	&.newspack-card__is-secondary,
@@ -117,7 +115,6 @@
 	}
 
 	// Medium
-
 	&.is-medium {
 		.newspack-action-card__region-top {
 			padding: 16px;
@@ -147,7 +144,6 @@
 	}
 
 	// Nested children
-
 	&.newspack-card--has-children {
 		.newspack-action-card {
 			&:first-child {
@@ -165,7 +161,6 @@
 	}
 
 	// Has grey header
-
 	&.newspack-card--has-grey-header {
 		overflow: hidden;
 
@@ -199,7 +194,6 @@
 	}
 
 	// Indent
-
 	&.newspack-card--indent {
 		margin-left: 56px;
 		position: relative;
@@ -217,7 +211,6 @@
 	}
 
 	// Typography
-
 	h2,
 	p:not([class*="components-base-control"]) {
 		margin: 0;
@@ -248,7 +241,6 @@
 	}
 
 	// Regions
-
 	.newspack-action-card__region {
 		align-items: center;
 		display: flex;
@@ -360,13 +352,11 @@
 	}
 
 	// Waiting
-
 	.newspack-action-card__container {
 		display: flex;
 	}
 
 	// Notifications
-
 	.newspack-action-card__notification {
 		.newspack-notice {
 			margin: 0;
@@ -384,7 +374,6 @@
 	}
 
 	// Image
-
 	.newspack-action-card__image {
 		background-position: center;
 		background-repeat: no-repeat;
@@ -395,13 +384,11 @@
 	}
 
 	// Icon
-
 	.newspack_plugin-installer__icon {
 		margin: 0;
 	}
 
 	// Badge
-
 	.newspack-action-card__badge {
 		background: wp-colors.$gray-100;
 		border-radius: 2px;
@@ -415,19 +402,27 @@
 		padding: 2px 8px;
 		text-transform: uppercase;
 
+		&.newspack-action-card__badge-level-warning {
+			background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
+		}
+		&.newspack-action-card__badge-level-error {
+			background: color.adjust(wp-colors.$alert-red, $lightness: 51%);
+		}
+		&.newspack-action-card__badge-level-success {
+			background: color.adjust(wp-colors.$alert-green, $lightness: 42%);
+		}
+
 		+ .newspack-action-card__badge {
 			margin-left: -4px;
 		}
 	}
 
 	// Description Card
-
 	&.newspack-description-card {
 		font-style: italic;
 	}
 
 	// Expandable card children
-
 	&.is-expandable {
 		.newspack-action-card__title .components-button.is-link {
 			color: inherit;
@@ -470,7 +465,6 @@
 	}
 
 	// Multiple Cards
-
 	& + & {
 		margin-top: -16px;
 	}
@@ -478,6 +472,14 @@
 
 .newspack-card {
 	.newspack-card.newspack-action-card {
-		border: 1px solid wp-colors.$gray-200;
+		&:not(.newspack-card__no-border) {
+			border: 1px solid wp-colors.$gray-200;
+		}
+		&.newspack-card__no-border {
+			.newspack-action-card__region-top,
+			.newspack-action-card__region-children {
+				padding: 0;
+			}
+		}
 	}
 }

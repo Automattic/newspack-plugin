@@ -338,7 +338,36 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	}
 
 	/**
-	 * CLI command for syncing reader data to the connected ESP.
+	 * Sync Reader Activation contact data to the connected ESP for all customers, migrated subscriptions, or specific customers/subscriptions/orders.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dry-run]
+	 * : If passed, output results but do not execute the sync.
+	 *
+	 * [--active-only]
+	 * : If passed, only sync users who have active subscriptions, otherwise resync all users.
+	 *
+	 * [--migrated-subscriptions=<stripe|piano-csv|strive-csv>]
+	 * : If passed, will only query for subscriptions that were migrated via the Newspack Subscription Migrations plugin using the Stripe/Piano CSV importers, or the legacy Stripe migrator. The Newspack Subscription Migrations plugin must be active to use this flag.
+	 *
+	 * [--subscription-ids=<id1,id2...>]
+	 * : Comma-delimited list of subscription IDs. If passed, will only process those specific subscriptions.
+	 *
+	 * [--user-ids=<id1,id2...>]
+	 * : Comma-delimited list of user IDs. If passed, will only process subscriptions associated with those specific users.
+	 *
+	 * [--order-ids=<id1,id2...>]
+	 * : Comma-delimited list of order IDs. If passed, will only process subscriptions associated with those specific orders.
+	 *
+	 * [--batch-size=<number>]
+	 * : Number of subscriptions to query/process at once.
+	 *
+	 * [--max-batches=<number>]
+	 * : Maximum number of batches to process.
+	 *
+	 * [--offset=<number>]
+	 * : Offset value passed to the subscription query. Use with `--batch-size` and `--max-batches` to run multiple processes in parallel.
 	 *
 	 * @param array $args Positional args.
 	 * @param array $assoc_args Associative args.

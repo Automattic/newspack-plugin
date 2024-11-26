@@ -31,6 +31,30 @@
 		}
 	}
 
+	form {
+		> p {
+			margin: 1em 0;
+		}
+	}
+
+	@media only screen and ( min-width: 782px ) {
+		&.is-style-columns {
+			.newspack-registration__main {
+				flex: 1 1 63.4146%;
+			}
+			.newspack-reader__lists {
+				flex: 1 1 31.7073%;
+				h3 {
+					display: block;
+					margin: 0.4rem 0.4rem 0.8rem;
+				}
+				ul li {
+					flex: 1 1 100%;
+				}
+			}
+		}
+	}
+
 	&__form-content,
 	&__main,
 	&__inputs,

@@ -421,6 +421,36 @@ class ComponentsDemo extends Component {
 						} }
 					/>
 					<ActionCard
+						badge={ __( 'It works', 'newspack-plugin' ) }
+						badgeLevel="success"
+						title={ __( 'Example Fifteen', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with a success badge.', 'newspack-plugin' ) }
+						actionText={ __( 'Install', 'newspack-plugin' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
+						badge={ __( 'Uh oh', 'newspack-plugin' ) }
+						badgeLevel="warning"
+						title={ __( 'Example Sixteen', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with a warning badge.', 'newspack-plugin' ) }
+						actionText={ __( 'Install', 'newspack-plugin' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
+						badge={ __( 'Oh no', 'newspack-plugin' ) }
+						badgeLevel="error"
+						title={ __( 'Example Seventeen', 'newspack-plugin' ) }
+						description={ __( 'An example of an action card with an error badge.', 'newspack-plugin' ) }
+						actionText={ __( 'Install', 'newspack-plugin' ) }
+						onClick={ () => {
+							console.log( 'Install clicked' );
+						} }
+					/>
+					<ActionCard
 						title={ __( 'Handoff', 'newspack-plugin' ) }
 						description={ __( 'An example of an action card with Handoff.', 'newspack-plugin' ) }
 						actionText={ __( 'Configure', 'newspack-plugin' ) }

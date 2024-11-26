@@ -1,3 +1,29 @@
+## [5.8.1](https://github.com/Automattic/newspack-plugin/compare/v5.8.0...v5.8.1) (2024-11-26)
+
+
+### Bug Fixes
+
+* cast values for transaction fee options ([#3580](https://github.com/Automattic/newspack-plugin/issues/3580)) ([82a513f](https://github.com/Automattic/newspack-plugin/commit/82a513fd28d5db9a09de871527bc191923e20957))
+
+# [5.8.0](https://github.com/Automattic/newspack-plugin/compare/v5.7.0...v5.8.0) (2024-11-25)
+
+
+### Bug Fixes
+
+* **reader-registration-block:** fix styles of newsletter lists ([1e1d7a4](https://github.com/Automattic/newspack-plugin/commit/1e1d7a4a0e9945490d83b2f7e29a39dc4b3a09e6))
+* **salesforce:** handle woocommerce inactive ([#3521](https://github.com/Automattic/newspack-plugin/issues/3521)) ([bf868a4](https://github.com/Automattic/newspack-plugin/commit/bf868a4b9cc69b7ced5cbe7dd1bb6197f8de6573))
+* use user email for esp sync purposes ([#3520](https://github.com/Automattic/newspack-plugin/issues/3520)) ([d6925ff](https://github.com/Automattic/newspack-plugin/commit/d6925ffe8687da0a99ba05ce7ce588e850cd7d43))
+* **wc-memberships:** WC for Teams join-team link; team in my-account ([#3540](https://github.com/Automattic/newspack-plugin/issues/3540)) ([489ce0f](https://github.com/Automattic/newspack-plugin/commit/489ce0fb7390f9fabc5956844ac7b437c2c701ac))
+
+
+### Features
+
+* also trigger subscription change events on switch ([#3514](https://github.com/Automattic/newspack-plugin/issues/3514)) ([5a84949](https://github.com/Automattic/newspack-plugin/commit/5a849497afd67dd73dbf81a8df4d8a68fd8cf53a))
+* **pwa:** enable SW file caching ([82af7d4](https://github.com/Automattic/newspack-plugin/commit/82af7d4785e430c6d99b4399ea4e4ed5f1e09a17))
+* **starter-content:** e2e improvements; removal CLI command ([35431ac](https://github.com/Automattic/newspack-plugin/commit/35431ac7f1efc4f5048bc511e6b072d0b28e65f0))
+* update Stripe Settings dashboard UI ([#3488](https://github.com/Automattic/newspack-plugin/issues/3488)) ([7974fac](https://github.com/Automattic/newspack-plugin/commit/7974faccabff7dc85ce83c9f5d628e0bba20fd9d))
+* **wc-memberships:** support team data in import ([63c78b2](https://github.com/Automattic/newspack-plugin/commit/63c78b2a9303b5d0fb342ee27a5560f477cef884))
+
 # [5.7.0](https://github.com/Automattic/newspack-plugin/compare/v5.6.1...v5.7.0) (2024-11-11)
 
 
