@@ -85,7 +85,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 				path: '/content-gating',
 			},
 			emails.length > 0 && {
-				label: __( 'Transacional Emails', 'newspack-plugin' ),
+				label: __( 'Transactional Emails', 'newspack-plugin' ),
 				path: '/transactional-emails',
 			},
 			{
