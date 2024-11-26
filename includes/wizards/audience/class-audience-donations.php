@@ -75,6 +75,7 @@ class Audience_Donations extends Wizard {
 			'newspackAudienceDonations',
 			[
 				'can_use_name_your_price' => Donations::can_use_name_your_price(),
+				'revenue_link'            => admin_url( 'admin.php?page=wc-reports' ),
 			]
 		);
 	}
@@ -236,6 +237,9 @@ class Audience_Donations extends Wizard {
 		$stripe_data              = Stripe_Connection::get_stripe_data();
 
 		$args = [
+			'platform_data'       => [
+				'platform' => $platform,
+			],
 			'additional_settings' => [
 				'allow_covering_fees'         => get_option( 'newspack_donations_allow_covering_fees', true ),
 				'allow_covering_fees_default' => get_option( 'newspack_donations_allow_covering_fees_default', false ),
