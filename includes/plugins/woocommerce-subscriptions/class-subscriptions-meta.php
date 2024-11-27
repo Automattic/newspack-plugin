@@ -36,9 +36,12 @@ class Subscriptions_Meta {
 			return;
 		}
 		if ( 'cancelled' === $to_status && ! in_array( $from_status, [ 'cancelled', 'expired' ], true ) ) {
-			$meta_value = is_admin() ? self::CANCELLATION_REASON_ADMIN_CANCELLED : self::CANCELLATION_REASON_USER_CANCELLED;
-			$subscription->update_meta_data( self::CANCELLATION_REASON_META_KEY, $meta_value );
-			$subscription->save();
+			$meta_value = $subscription->get_meta( self::CANCELLATION_REASON_META_KEY, true );
+			if ( ! $meta_value ) {
+				$meta_value = is_admin() ? self::CANCELLATION_REASON_ADMIN_CANCELLED : self::CANCELLATION_REASON_USER_CANCELLED;
+				$subscription->update_meta_data( self::CANCELLATION_REASON_META_KEY, $meta_value );
+				$subscription->save();
+			}
 		}
 	}
 }
