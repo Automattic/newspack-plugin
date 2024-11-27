@@ -9,6 +9,7 @@ namespace Newspack;
 
 use Newspack\Recaptcha;
 use Newspack\Reader_Activation\Sync;
+use Newspack\Renewal;
 
 defined( 'ABSPATH' ) || exit;
 
