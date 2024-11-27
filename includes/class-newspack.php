@@ -45,9 +45,6 @@ final class Newspack {
 		add_action( 'current_screen', [ $this, 'wizard_redirect' ] );
 		add_action( 'admin_menu', [ $this, 'handle_resets' ], 1 );
 		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
-		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
-		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
-		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
 		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'deactivation_hook' ] );
 	}
@@ -271,23 +268,6 @@ final class Newspack {
 			wp_safe_redirect( $redirect_url );
 			exit;
 		}
-	}
-
-	/**
-	 * Remove notifications.
-	 */
-	public function remove_notifications() {
-		$screen = get_current_screen();
-
-		$is_newspack_screen = str_contains( $screen->base, 'newspack_page_' );
-		$is_advertising_screen = str_contains( $screen->base, 'toplevel_page_advertising' );
-
-		$is_wizard = $is_newspack_screen || $is_advertising_screen;
-
-		if ( ! $screen || ! $is_wizard ) {
-			return;
-		}
-		remove_all_actions( current_action() );
 	}
 
 	/**

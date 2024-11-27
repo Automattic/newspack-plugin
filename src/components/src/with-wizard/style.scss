@@ -5,11 +5,12 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "../../../shared/scss/colors";
 
-// Reset Padding of the Admin Page for full react pages (ignoring admin-header-only pages).
+// Styling for full-page-react Wizards (ignoring admin-header-only wizards).
 body.newspack-wizard-page:not(.newspack-admin-header) {
 
 	background: white;
 
+	// Reset Padding
 	#wpcontent {
 		padding-left: 0;
 	}
@@ -17,6 +18,13 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 	#wpbody-content {
 		padding-bottom: 220px;
 		min-height: 100vh;
+
+		// For admin notices directly ">" at top of page above the Wizard header.
+		// PHP code should hide these notices, but just incase add this style.
+		> .notice {
+			margin-bottom: 20px;
+			margin-left: 22px;
+		}
 
 		@media screen and ( min-width: 783px ) {
 			padding-bottom: 202px;
@@ -28,15 +36,22 @@ body.newspack-wizard-page:not(.newspack-admin-header) {
 	}
 }
 
-// Fix notifications margins for all wizards (full-react and admin-header-only pages).
-body.newspack-wizard-page {
+// Styling for wizards that are admin-header-only.
+body.newspack-wizard-page.newspack-admin-header {
 
-	// Only apply when notices are directly ">" at top of page above the header area (ie: not in "wrap" content).
-	#wpbody-content > .notice {
-		margin-bottom: 20px;
-		margin-left: 22px;
+	// For mobile.
+	@media screen and (max-width: 600px) {
+
+		// The header bar (and tabs) need padding.
+		#newspack-wizards-admin-header {
+			padding-top: 46px;
+		}
+
+		// Since the padding was added to the header bar, remove from body.
+		#wpbody {
+			padding-top: 0;
+		}
 	}
-
 }
 
 svg {
