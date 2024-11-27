@@ -145,23 +145,28 @@ class Network_Wizard extends Wizard {
 
 	/**
 	 * Wrapper for Network Plugin's is_node/is_hub functions. Also called by Newspack_Dashboard.
+	 *
+	 * @return string Blank '', 'node', or 'hub'.
 	 */
-	public static function get_site_role() {
+	public static function get_site_role(): string {
 
 		static $site_role;
 		if ( isset( $site_role ) ) {
 			return $site_role;
 		}
 
-		$is_node_function = [ Newspack_Network_Site_Role::class, 'is_node' ];
-		$is_hub_function  = [ Newspack_Network_Site_Role::class, 'is_hub' ];
+		// Function must exist and be callable.
+		$fn_get_role = [ Newspack_Network_Site_Role::class, 'get' ];
+		if ( ! is_callable( $fn_get_role ) ) {
+			return '';
+		}
 
-		if ( is_callable( $is_node_function ) && call_user_func( $is_node_function ) ) {
-			$site_role = 'node';
-		} elseif ( is_callable( $is_hub_function ) && call_user_func( $is_hub_function ) ) {
-			$site_role = 'hub';
-		} else {
-			$site_role = '';
+		// Get the role.
+		$site_role = call_user_func( $fn_get_role );
+
+		// In the case where return value isn't a string (possibly option/value not set yet), return blank.
+		if ( ! is_string( $site_role ) ) {
+			return '';
 		}
 
 		return $site_role;
