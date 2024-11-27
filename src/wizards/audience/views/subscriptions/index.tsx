@@ -7,23 +7,26 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Wizard, withWizard } from '../../../../components/src';
+import Configuration from './configuration';
+import Revenue from './revenue';
+import Settings from './settings';
 
 function AudienceSubscriptions() {
 	const tabs = [
 		{
 			label: __( 'Configuration', 'newspack-plugin' ),
 			path: '/configuration',
-			render: () => <>Configuration!</>,
+			render: () => <Configuration />,
 		},
 		{
 			label: __( 'Revenue', 'newspack-plugin' ),
 			path: '/revenue',
-			render: () => <>Revenue!</>,
+			render: () => <Revenue />,
 		},
 		{
 			label: __( 'Settings', 'newspack-plugin' ),
 			path: '/settings',
-			render: () => <>Settings!</>,
+			render: () => <Settings />,
 		},
 	];
 	return (
@@ -33,7 +36,7 @@ function AudienceSubscriptions() {
 				'newspack-plugin'
 			) }
 			sections={ tabs }
-			requiredPlugins={ [ 'woocommerce', 'woocommerce-memberships' ] }
+			// requiredPlugins={ [ 'woocommerce', 'woocommerce-memberships' ] }
 		/>
 	);
 }
