@@ -376,8 +376,12 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 							) }
 						</Button>
 					</div>
-					<hr />
-					<Salesforce />
+					{ newspackAudience.can_use_salesforce && (
+						<>
+							<hr />
+							<Salesforce />
+						</>
+					) }
 				</Card>
 			) }
 		</WizardsTab>

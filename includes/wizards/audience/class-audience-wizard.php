@@ -78,10 +78,12 @@ class Audience_Wizard extends Wizard {
 			return;
 		}
 		parent::enqueue_scripts_and_styles();
+		$salesforce_settings = Salesforce::get_salesforce_settings();
 		$data = [
 			'has_memberships'         => class_exists( 'WC_Memberships' ),
 			'reader_activation_url'   => admin_url( 'admin.php?page=newspack-audience#/' ),
 			'esp_metadata_fields'     => Reader_Activation\Sync\Metadata::get_default_fields(),
+			'can_use_salesforce'      => ! empty( $salesforce_settings['client_id'] ),
 			'salesforce_redirect_url' => Salesforce::get_redirect_url(),
 		];
 
