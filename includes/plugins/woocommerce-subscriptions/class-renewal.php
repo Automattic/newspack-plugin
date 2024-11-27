@@ -108,6 +108,8 @@ class Renewal {
 					}
 				}
 			}
+		} else {
+			$redirect_url .= '?redirect=' . wc_get_account_endpoint_url( self::RENEWAL_ENDPOINT );
 		}
 		wp_safe_redirect( $redirect_url );
 		exit();
