@@ -27,8 +27,8 @@
 	}
 
 	// Form inline text - helper and error.
-	&__helper-text,
-	&__inline-error {
+	& &__helper-text,
+	& &__inline-error {
 		color: var(--newspack-ui-color-neutral-60);
 		display: block;
 		font-size: var(--newspack-ui-font-size-xs);
@@ -48,12 +48,12 @@
 		}
 	}
 
-	&__inline-error {
+	& &__inline-error {
 		color: var(--newspack-ui-color-error-50);
 	}
 
 	// Error class to apply to specific fields.
-	&__field-error,
+	& &__field-error,
 	[data-form-status="400"] {
 		// Attribute added to sign-up modal form on failure.
 		--newspack-ui-color-input-border: var(--newspack-ui-color-error-50);
