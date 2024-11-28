@@ -611,7 +611,6 @@ class Audience_Wizard extends Wizard {
 	public function get_payment_data() {
 		$platform                 = Donations::get_platform_slug();
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$wc_installed             = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
 		$stripe_data              = Stripe_Connection::get_stripe_data();
 
 		$args = [

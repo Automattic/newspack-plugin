@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use WP_Error;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -231,10 +233,7 @@ class Audience_Donations extends Wizard {
 	 * @return Array
 	 */
 	public function fetch_all_data() {
-		$platform                 = Donations::get_platform_slug();
-		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$wc_installed             = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
-		$stripe_data              = Stripe_Connection::get_stripe_data();
+		$platform = Donations::get_platform_slug();
 
 		$args = [
 			'platform_data'       => [
