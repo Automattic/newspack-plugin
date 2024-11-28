@@ -16,7 +16,7 @@ class WooCommerce_Duplicate_Orders {
 	const CRON_HOOK_NAME = 'newspack_wc_check_order_duplicates';
 	const ADMIN_NOTICE_TRANSIENT_NAME = 'newspack_wc_check_order_duplicates_admin_notice';
 	const DUPLICATED_ORDERS_OPTION_NAME = 'newspack_wc_order_duplicates';
-	const DISMISSED_DUPLICATE_ORDER_META_NAME = '_newspack_dismissed_duplicate';
+	const DISMISSED_DUPLICATES_OPTION_NAME = 'newspack_wc_order_duplicates_dismissed';
 
 	/**
 	 * Initialize.
@@ -29,6 +29,10 @@ class WooCommerce_Duplicate_Orders {
 		}
 		add_action( self::CRON_HOOK_NAME, [ __CLASS__, 'check_for_order_duplicates' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'display_admin_notice' ] );
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::add_command( 'newspack detect-order-duplicates', [ __CLASS__, 'cli_upsert_order_duplicates' ] );
+		}
 	}
 
 	/**
@@ -37,7 +41,7 @@ class WooCommerce_Duplicate_Orders {
 	 *
 	 * @param number $cutoff_time The cutoff time in the past (how many seconds ago).
 	 */
-	public static function get_order_duplicates( $cutoff_time = MONTH_IN_SECONDS ): array {
+	private static function get_order_duplicates( $cutoff_time ): array {
 		$orders = wc_get_orders(
 			[
 				'limit'          => -1,
@@ -53,11 +57,7 @@ class WooCommerce_Duplicate_Orders {
 			$amount = $order->get_total();
 			$date = $order->get_date_created()->date( 'Y-m-d' );
 
-			if (
-				\wcs_order_contains_renewal( $order ) ||
-				\wcs_order_contains_resubscribe( $order ) ||
-				$order->get_meta( self::DISMISSED_DUPLICATE_ORDER_META_NAME )
-			) {
+			if ( \wcs_order_contains_renewal( $order ) || \wcs_order_contains_resubscribe( $order ) ) {
 				continue;
 			}
 
@@ -83,11 +83,12 @@ class WooCommerce_Duplicate_Orders {
 				foreach ( $dates as $date => $order_ids ) {
 					if ( count( $order_ids ) > 1 ) {
 						sort( $order_ids );
-						$results[] = [
+						$ids = implode( ',', $order_ids );
+						$results[ $ids ] = [
 							'email'  => $email,
 							'amount' => $amount,
 							'date'   => $date,
-							'ids'    => implode( ',', $order_ids ),
+							'ids'    => $ids,
 						];
 					}
 				}
@@ -99,13 +100,29 @@ class WooCommerce_Duplicate_Orders {
 
 	/**
 	 * Check for duplicate orders and save the result in an option.
+	 *
+	 * @param number $cutoff_time The cutoff time in the past (how many seconds ago).
+	 * @param bool   $save Whether to save the result as the option.
+	 * @param bool   $upsert Whether to upsert the option (merge with existing).
 	 */
-	public static function check_for_order_duplicates(): void {
-		$order_duplicates = self::get_order_duplicates();
+	public static function check_for_order_duplicates( $cutoff_time = MONTH_IN_SECONDS, $save = false, $upsert = true ): array {
+		$order_duplicates = self::get_order_duplicates( $cutoff_time );
 		if ( empty( $order_duplicates ) ) {
-			return;
+			return [];
 		}
-		update_option( self::DUPLICATED_ORDERS_OPTION_NAME, $order_duplicates );
+		if ( $save ) {
+			if ( $upsert ) {
+				$existing_order_duplicates = get_option( self::DUPLICATED_ORDERS_OPTION_NAME, [] );
+				foreach ( $existing_order_duplicates as $key => $value ) {
+					if ( isset( $order_duplicates[ $key ] ) ) {
+						continue;
+					}
+					$order_duplicates[ $key ] = $value;
+				}
+			}
+			update_option( self::DUPLICATED_ORDERS_OPTION_NAME, $order_duplicates );
+		}
+		return $order_duplicates;
 	}
 
 	/**
@@ -115,7 +132,8 @@ class WooCommerce_Duplicate_Orders {
 		if ( ! function_exists( 'wc_price' ) ) {
 			return;
 		}
-		$order_duplicates = get_option( self::DUPLICATED_ORDERS_OPTION_NAME, [] );
+		$existing_order_duplicates = get_option( self::DUPLICATED_ORDERS_OPTION_NAME, [] );
+		$dismissed_duplicates = get_option( self::DISMISSED_DUPLICATES_OPTION_NAME, [] );
 		?>
 		<div class="notice notice-info is-dismissible">
 			<!-- Admin notice added by newspack-plugin -->
@@ -124,7 +142,11 @@ class WooCommerce_Duplicate_Orders {
 					<?php echo esc_html__( 'There are some potentially duplicate transactions to review. Some of these might be intentional. Click this message to display the list of possible duplicates.', 'newspack-plugin' ); ?>
 				</summary>
 				<ul>
-					<?php foreach ( $order_duplicates as $order_duplicates ) : ?>
+					<?php foreach ( $existing_order_duplicates as $order_duplicates ) : ?>
+						<?php
+						if ( in_array( $order_duplicates['ids'], $dismissed_duplicates ) ) {
+							continue;}
+						?>
 						<li style="display: flex; align-items: center;">
 							<p style="margin: 0;">
 
@@ -168,18 +190,43 @@ class WooCommerce_Duplicate_Orders {
 		</div>
 		<?php
 		if ( isset( $_POST['dismiss_order'] ) && isset( $_POST['dismiss_order_ids'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$order_ids = explode( ',', sanitize_text_field( wp_unslash( $_POST['dismiss_order_ids'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			foreach ( $order_ids as $order_id ) {
-				$wc_order = \wc_get_order( $order_id );
-				if ( $wc_order ) {
-					$wc_order->add_meta_data( self::DISMISSED_DUPLICATE_ORDER_META_NAME, 1 );
-					$wc_order->save();
-				}
-			}
-			self::check_for_order_duplicates();
+			$dismissed_duplicates[] = $_POST['dismiss_order_ids']; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			update_option( self::DISMISSED_DUPLICATES_OPTION_NAME, $dismissed_duplicates );
 			// Refresh the page to reflect changes.
 			wp_safe_redirect( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : admin_url() );
 			exit;
+		}
+	}
+
+	/**
+	 * CLI handler to upsert the order duplicates with a specified timeframe.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--cutoff_time=<time-string>]
+	 * : The cutoff time in the past (e.g. "2 months").
+	 *
+	 * [--save]
+	 * : Whether to save the results for display in the admin panel.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp newspack detect-order-duplicates --cutoff_time='2 months' --save
+	 *
+	 * @param array $args Positional args.
+	 * @param array $assoc_args Associative args.
+	 */
+	public static function cli_upsert_order_duplicates( $args, $assoc_args ) {
+		$cutoff_time_str = isset( $assoc_args['cutoff_time'] ) ? $assoc_args['cutoff_time'] : '1 month';
+		$cutoff_time = strtotime( $cutoff_time_str ) - time();
+		$save_as_option = isset( $assoc_args['save'] ) ? $assoc_args['save'] : false;
+
+		$duplicates = self::check_for_order_duplicates( $cutoff_time, $save_as_option, false );
+
+		if ( empty( $duplicates ) ) {
+			\WP_CLI::success( 'No duplicate orders found.' );
+		} else {
+			\WP_CLI::success( sprintf( '%d duplicate order series found.', count( $duplicates ) ) );
 		}
 	}
 }
