@@ -40,16 +40,26 @@ class WooCommerce_Duplicate_Orders {
 	 * Duplicates will be detected if it the same amount, same day, from the same customer.
 	 *
 	 * @param number $cutoff_time The cutoff time in the past (how many seconds ago).
+	 * @param number $current_page Current page of results.
+	 * @param array  $results Results to be merged with new results.
 	 */
-	private static function get_order_duplicates( $cutoff_time ): array {
-		$orders = wc_get_orders(
+	public static function get_order_duplicates( $cutoff_time, $current_page = 0, $results = [] ): array {
+		$per_page = 100;
+		$order_result = wc_get_orders(
 			[
-				'limit'          => -1,
+				'paginate'       => true,
+				'limit'          => $per_page,
 				'status'         => [ 'wc-completed' ],
+				'offset'         => $current_page * $per_page,
 				'date_completed' => '>' . ( time() - $cutoff_time ),
 			]
 		);
 
+		if ( defined( 'WP_CLI' ) && WP_CLI && $order_result->max_num_pages > 0 ) {
+			\WP_CLI::line( sprintf( 'Processing page %d/%d of orders.', $current_page + 1, $order_result->max_num_pages ) );
+		}
+
+		$orders = $order_result->orders;
 		$order_duplicates = [];
 
 		foreach ( $orders as $order ) {
@@ -76,8 +86,6 @@ class WooCommerce_Duplicate_Orders {
 			$order_duplicates[ $email ][ $amount ][ $date ][] = $order->get_id();
 		}
 
-		$results = [];
-
 		foreach ( $order_duplicates as $email => $amounts ) {
 			foreach ( $amounts as $amount => $dates ) {
 				foreach ( $dates as $date => $order_ids ) {
@@ -93,6 +101,11 @@ class WooCommerce_Duplicate_Orders {
 					}
 				}
 			}
+		}
+
+		if ( $order_result->total > 0 ) {
+			$current_page++;
+			return self::get_order_duplicates( $cutoff_time, $current_page, $results );
 		}
 
 		return $results;
