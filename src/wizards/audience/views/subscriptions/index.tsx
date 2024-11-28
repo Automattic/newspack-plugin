@@ -36,7 +36,7 @@ function AudienceSubscriptions() {
 				'newspack-plugin'
 			) }
 			sections={ tabs }
-			// requiredPlugins={ [ 'woocommerce', 'woocommerce-memberships' ] }
+			requiredPlugins={ [ 'woocommerce', 'woocommerce-memberships' ] }
 		/>
 	);
 }

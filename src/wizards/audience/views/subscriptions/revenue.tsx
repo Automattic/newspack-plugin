@@ -6,8 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Button } from '../../../../components/src';
-import WizardsCard from '../../../wizards-card';
+import { Button, Card } from '../../../../components/src';
 import WizardSection from '../../../wizards-section';
 import WizardsTab from '../../../wizards-tab';
 
@@ -15,7 +14,7 @@ function Revenue() {
 	return (
 		<WizardsTab title={ __( 'Revenue', 'newspack-plugin' ) }>
 			<WizardSection>
-				<WizardsCard className="newspack-card__is-center">
+				<Card isNarrow>
 					<h2>
 						{ __(
 							'Manage Subscriptions settings in Woo Memberships',
@@ -31,7 +30,7 @@ function Revenue() {
 					<Button variant="primary" href={ '#' }>
 						{ __( 'Manage Subscriptions', 'newspack-plugin' ) }
 					</Button>
-				</WizardsCard>
+				</Card>
 			</WizardSection>
 		</WizardsTab>
 	);

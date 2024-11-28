@@ -273,16 +273,14 @@ table.fixed {
 		}
 	}
 
-	&.newspack-card__is-center {
-		margin-inline: auto;
-		max-width: 575px;
+	&.newspack-card__is-narrow {
 		padding: 3rem 4rem;
 
 		h2 {
 			margin-block-start: 0;
 		}
 
-		p {
+		p:last-of-type {
 			margin-block: 0 2rem;
 		}
 	}
