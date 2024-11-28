@@ -13,9 +13,9 @@ defined( 'ABSPATH' ) || exit;
  * Adds an admin notice when possibly duplicated orders are detected.
  */
 class WooCommerce_Duplicate_Orders {
-	const CRON_HOOK_NAME = 'newspack_wc_check_order_series';
-	const ADMIN_NOTICE_TRANSIENT_NAME = 'newspack_wc_check_order_series_admin_notice';
-	const DUPLICATED_ORDERS_OPTION_NAME = 'newspack_wc_order_series';
+	const CRON_HOOK_NAME = 'newspack_wc_check_order_duplicates';
+	const ADMIN_NOTICE_TRANSIENT_NAME = 'newspack_wc_check_order_duplicates_admin_notice';
+	const DUPLICATED_ORDERS_OPTION_NAME = 'newspack_wc_order_duplicates';
 	const DISMISSED_DUPLICATE_ORDER_META_NAME = '_newspack_dismissed_duplicate';
 
 	/**
@@ -27,27 +27,26 @@ class WooCommerce_Duplicate_Orders {
 		if ( ! wp_next_scheduled( self::CRON_HOOK_NAME ) ) {
 			wp_schedule_event( time(), 'daily', self::CRON_HOOK_NAME );
 		}
-		add_action( self::CRON_HOOK_NAME, [ __CLASS__, 'check_for_order_series' ] );
+		add_action( self::CRON_HOOK_NAME, [ __CLASS__, 'check_for_order_duplicates' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'display_admin_notice' ] );
 	}
 
 	/**
 	 * Detect duplicate orders.
-	 * An order series will be detected if it the same amount, same day, from the same customer,
-	 * in the time span provided in the argument (in minutes).
+	 * Duplicates will be detected if it the same amount, same day, from the same customer.
 	 *
 	 * @param number $cutoff_time The cutoff time in the past (how many seconds ago).
 	 */
-	public static function get_order_series( $cutoff_time = MONTH_IN_SECONDS ): array {
+	public static function get_order_duplicates( $cutoff_time = MONTH_IN_SECONDS ): array {
 		$orders = wc_get_orders(
 			[
 				'limit'          => -1,
 				'status'         => [ 'wc-completed' ],
-				'date_completed' => '<' . ( time() - $cutoff_time ),
+				'date_completed' => '>' . ( time() - $cutoff_time ),
 			]
 		);
 
-		$order_series = [];
+		$order_duplicates = [];
 
 		foreach ( $orders as $order ) {
 			$email = $order->get_billing_email();
@@ -58,28 +57,29 @@ class WooCommerce_Duplicate_Orders {
 				continue;
 			}
 
-			if ( ! isset( $order_series[ $email ] ) ) {
-				$order_series[ $email ] = [];
+			if ( ! isset( $order_duplicates[ $email ] ) ) {
+				$order_duplicates[ $email ] = [];
 			}
 
-			if ( ! isset( $order_series[ $email ][ $amount ] ) ) {
-				$order_series[ $email ][ $amount ] = [];
+			if ( ! isset( $order_duplicates[ $email ][ $amount ] ) ) {
+				$order_duplicates[ $email ][ $amount ] = [];
 			}
 
-			if ( ! isset( $order_series[ $email ][ $amount ][ $date ] ) ) {
-				$order_series[ $email ][ $amount ][ $date ] = [];
+			if ( ! isset( $order_duplicates[ $email ][ $amount ][ $date ] ) ) {
+				$order_duplicates[ $email ][ $amount ][ $date ] = [];
 			}
 
-			$order_series[ $email ][ $amount ][ $date ][] = $order->get_id();
+			$order_duplicates[ $email ][ $amount ][ $date ][] = $order->get_id();
 		}
 
-		$duplicates = [];
+		$results = [];
 
-		foreach ( $order_series as $email => $amounts ) {
+		foreach ( $order_duplicates as $email => $amounts ) {
 			foreach ( $amounts as $amount => $dates ) {
 				foreach ( $dates as $date => $order_ids ) {
 					if ( count( $order_ids ) > 1 ) {
-						$duplicates[] = [
+						sort( $order_ids );
+						$results[] = [
 							'email'  => $email,
 							'amount' => $amount,
 							'date'   => $date,
@@ -90,18 +90,18 @@ class WooCommerce_Duplicate_Orders {
 			}
 		}
 
-		return $duplicates;
+		return $results;
 	}
 
 	/**
-	 * Add an admin notice about the detected order series.
+	 * Check for duplicate orders and save the result in an option.
 	 */
-	public static function check_for_order_series(): void {
-		$order_series = self::get_order_series();
-		if ( empty( $order_series ) ) {
+	public static function check_for_order_duplicates(): void {
+		$order_duplicates = self::get_order_duplicates();
+		if ( empty( $order_duplicates ) ) {
 			return;
 		}
-		update_option( self::DUPLICATED_ORDERS_OPTION_NAME, $order_series );
+		update_option( self::DUPLICATED_ORDERS_OPTION_NAME, $order_duplicates );
 	}
 
 	/**
@@ -111,7 +111,7 @@ class WooCommerce_Duplicate_Orders {
 		if ( ! function_exists( 'wc_price' ) ) {
 			return;
 		}
-		$order_series = get_option( self::DUPLICATED_ORDERS_OPTION_NAME, [] );
+		$order_duplicates = get_option( self::DUPLICATED_ORDERS_OPTION_NAME, [] );
 		?>
 		<div class="notice notice-info is-dismissible">
 			<!-- Admin notice added by newspack-plugin -->
@@ -120,19 +120,19 @@ class WooCommerce_Duplicate_Orders {
 					<?php echo esc_html__( 'There are some potentially duplicate transactions to review. Some of these might be intentional. Click this message to display the list of possible duplicates.', 'newspack-plugin' ); ?>
 				</summary>
 				<ul>
-					<?php foreach ( $order_series as $order_series ) : ?>
+					<?php foreach ( $order_duplicates as $order_duplicates ) : ?>
 						<li style="display: flex; align-items: center;">
 							<p style="margin: 0;">
 
 							<?php
 							ob_start();
 							?>
-								<a href="<?php echo esc_url( admin_url( 'edit.php?s=' . urlencode( $order_series['email'] ) . '&post_type=shop_order' ) ); ?>"><?php echo esc_html( $order_series['email'] ); ?></a>
+								<a href="<?php echo esc_url( admin_url( 'edit.php?s=' . urlencode( $order_duplicates['email'] ) . '&post_type=shop_order' ) ); ?>"><?php echo esc_html( $order_duplicates['email'] ); ?></a>
 							<?php
 							$customer_email = ob_get_clean();
 
 							ob_start();
-							$order_ids = explode( ',', $order_series['ids'] );
+							$order_ids = explode( ',', $order_duplicates['ids'] );
 							foreach ( $order_ids as $index => $order_id ) :
 								$order_url = admin_url( 'post.php?post=' . intval( $order_id ) . '&action=edit' );
 								?>
@@ -145,17 +145,17 @@ class WooCommerce_Duplicate_Orders {
 								/* translators: 1: customer email, 2: order amount, 3: orders date, 4: order IDs */
 								wp_kses_post( __( 'Customer %1$s made multiple orders of %2$s on %3$s. Orders: %4$s.', 'newspack-plugin' ) ),
 								wp_kses_post( $customer_email ),
-								wp_kses_post( \wc_price( $order_series['amount'] ) ),
-								esc_html( date_i18n( get_option( 'date_format' ), strtotime( $order_series['date'] ) ) ),
+								wp_kses_post( \wc_price( $order_duplicates['amount'] ) ),
+								esc_html( date_i18n( get_option( 'date_format' ), strtotime( $order_duplicates['date'] ) ) ),
 								wp_kses_post( trim( $order_list ) )
 							);
 
-							$order_series_id = implode( '-', $order_ids );
+							$order_duplicates_id = implode( '-', $order_ids );
 						?>
 							</p>
 							<form method="post" style="display:inline; margin-left: 8px;">
-								<input type="hidden" name="dismiss_order_ids" value="<?php echo esc_attr( $order_series['ids'] ); ?>">
-								<?php submit_button( __( 'Dismiss', 'newspack-plugin' ), 'small', 'dismiss_order', false, [ 'id' => 'dismiss_order_series_' . $order_series_id ] ); ?>
+								<input type="hidden" name="dismiss_order_ids" value="<?php echo esc_attr( $order_duplicates['ids'] ); ?>">
+								<?php submit_button( __( 'Dismiss', 'newspack-plugin' ), 'small', 'dismiss_order', false, [ 'id' => 'dismiss_order_duplicates_' . $order_duplicates_id ] ); ?>
 							</form>
 						</li>
 					<?php endforeach; ?>
@@ -172,7 +172,7 @@ class WooCommerce_Duplicate_Orders {
 					$wc_order->save();
 				}
 			}
-			self::check_for_order_series();
+			self::check_for_order_duplicates();
 			// Refresh the page to reflect changes.
 			wp_safe_redirect( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : admin_url() );
 			exit;
