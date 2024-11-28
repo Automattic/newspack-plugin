@@ -53,7 +53,11 @@ class WooCommerce_Duplicate_Orders {
 			$amount = $order->get_total();
 			$date = $order->get_date_created()->date( 'Y-m-d' );
 
-			if ( \wcs_order_contains_renewal( $order ) || \wcs_order_contains_resubscribe( $order ) ) {
+			if (
+				\wcs_order_contains_renewal( $order ) ||
+				\wcs_order_contains_resubscribe( $order ) ||
+				$order->get_meta( self::DISMISSED_DUPLICATE_ORDER_META_NAME )
+			) {
 				continue;
 			}
 
