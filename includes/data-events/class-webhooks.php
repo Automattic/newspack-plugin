@@ -555,6 +555,8 @@ final class Webhooks {
 	 * This is only applicable if using Action Scheduler.
 	 *
 	 * @param int $request_id Request ID.
+	 *
+	 * @return int
 	 */
 	private static function get_request_priority( $request_id ) {
 		$action_name = \get_post_meta( $request_id, 'action_name', true );
