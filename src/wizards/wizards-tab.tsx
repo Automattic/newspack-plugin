@@ -1,4 +1,14 @@
 /**
+ * WordPress dependencies.
+ */
+import { useSelect } from '@wordpress/data';
+
+/**
+ * Internal dependencies.
+ */
+import { WIZARD_STORE_NAMESPACE } from '../components/src/wizard/store';
+
+/**
  * Wizards Tab component.
  */
 
@@ -15,11 +25,16 @@ function WizardsTab( {
 	className?: string;
 	description?: React.ReactNode;
 } ) {
+	const isWizardLoading = useSelect(
+		( select: ( namespace: string ) => WizardSelector ) =>
+			select( WIZARD_STORE_NAMESPACE ).isLoading(),
+		[]
+	);
 	const className = props.className || '';
 	return (
 		<div
 			className={ `${
-				isFetching ? 'is-fetching ' : ''
+				isWizardLoading || isFetching ? 'is-fetching ' : ''
 			}${ className } newspack-wizard__sections` }
 		>
 			<h1>{ title }</h1>

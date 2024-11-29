@@ -30,9 +30,6 @@ export default function HandoffMessage() {
 				setHandoffMessage( false );
 			}
 		}, 100 );
-
-		// Clean up the notification when unmounting.
-		return () => window.localStorage.removeItem( HANDOFF_KEY );
 	}, [] );
 	if ( ! handoffMessage ) {
 		return null;

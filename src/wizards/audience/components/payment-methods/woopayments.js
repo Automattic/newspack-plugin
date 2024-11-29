@@ -13,41 +13,36 @@ import {
 	Button,
 	Wizard,
 } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-export const Stripe = ( { stripe } ) => {
+export const WooPayments = ( { woopayments } ) => {
 	const isLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isLoading() );
 	const isQuietLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isQuietLoading() );
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			path: [ 'payment_gateways', 'stripe', key ],
+			slug: 'newspack-audience/payment',
+			path: [ 'payment_gateways', 'woopayments', key ],
 			value,
 		} );
 
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const onSave = () =>
 		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			section: 'stripe',
-			payloadPath: [ 'payment_gateways', 'stripe' ],
+			slug: 'newspack-audience/payment',
+			section: 'woopayments',
+			payloadPath: [ 'payment_gateways', 'woopayments' ],
 		} );
-	const testMode = stripe?.testMode;
-	const isConnectedApi = testMode ? stripe?.is_connected_api_test : stripe?.is_connected_api_live;
-	const isConnectedOauth = testMode ? stripe?.is_connected_oauth_test : stripe?.is_connected_oauth_live;
+	const testMode = woopayments?.test_mode;
+	const isConnected = woopayments?.is_connected;
 	const getConnectionStatus = () => {
-		if ( ! stripe?.enabled ) {
+		if ( ! woopayments?.enabled ) {
 			return null;
 		}
 		if ( isLoading || isQuietLoading ) {
 			return __( 'Loading…', 'newspack-plugin' );
 		}
-		if ( ! isConnectedApi ) {
+		if ( ! isConnected ) {
 			return __( 'Not connected', 'newspack-plugin' );
-		}
-		if ( ! isConnectedOauth ) {
-			return __( 'Needs attention', 'newspack-plugin' );
 		}
 		if ( testMode ) {
 			return __( 'Connected - test mode', 'newspack-plugin' );
@@ -55,14 +50,11 @@ export const Stripe = ( { stripe } ) => {
 		return __( 'Connected', 'newspack-plugin' );
 	}
 	const getBadgeLevel = () => {
-		if ( ! stripe?.enabled || isLoading || isQuietLoading ) {
+		if ( ! woopayments?.enabled || isLoading || isQuietLoading ) {
 			return 'info';
 		}
-		if ( ! isConnectedApi ) {
+		if ( ! isConnected ) {
 			return 'error';
-		}
-		if ( ! isConnectedOauth ) {
-			return 'warning';
 		}
 		return 'success';
 	}
@@ -70,31 +62,31 @@ export const Stripe = ( { stripe } ) => {
 	return (
 		<ActionCard
 			isMedium
-			title={ __( 'Stripe', 'newspack-plugin' ) }
+			title={ __( 'WooPayments', 'newspack-plugin' ) }
 			description={ () => (
 				<>
 					{ __(
-						'Enable the Stripe payment gateway for WooCommerce. ',
+						'Enable WooPayments. ',
 						'newspack-plugin'
 					) }
-					<ExternalLink href="https://woocommerce.com/document/stripe/">
+					<ExternalLink href="https://woocommerce.com/payments/">
 						{ __( 'Learn more', 'newspack-plugin' ) }
 					</ExternalLink>
 				</>
 			) }
 			hasWhiteHeader
-			toggleChecked={ !! stripe.enabled }
+			toggleChecked={ !! woopayments.enabled }
 			toggleOnChange={ () => {
-				changeHandler( 'enabled', ! stripe.enabled );
+				changeHandler( 'enabled', ! woopayments.enabled );
 				onSave();
 			} }
 			badge={ getConnectionStatus() }
 			badgeLevel={ getBadgeLevel() }
 			// eslint-disable-next-line no-nested-ternary
-			actionContent={ ( ! stripe?.enabled || isLoading || isQuietLoading ) ? null : isConnectedOauth ? (
+			actionContent={ ( ! woopayments?.enabled || isLoading || isQuietLoading ) ? null : isConnected ? (
 				<Button
 					variant="secondary"
-					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=settings"
+					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=woocommerce_payments"
 					target="_blank"
 					rel="noreferrer"
 				>
@@ -103,7 +95,7 @@ export const Stripe = ( { stripe } ) => {
 			) : (
 				<Button
 					variant="primary"
-					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=payment-methods"
+					href="/wp-admin/admin.php?page=wc-admin&path=%2Fpayments%2Foverview"
 					target="_blank"
 					rel="noreferrer"
 				>

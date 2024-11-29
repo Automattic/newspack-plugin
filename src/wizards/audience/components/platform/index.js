@@ -15,7 +15,7 @@ import { NEWSPACK, NRH, OTHER } from '../../constants';
  * Platform Selection  Screen Component
  */
 const Platform = () => {
-	const wizardData = Wizard.useWizardData( 'reader-revenue' );
+	const wizardData = Wizard.useWizardData( 'newspack-audience/payment' );
 	const { saveWizardSettings, updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	return (
 		<Fragment>
@@ -39,7 +39,7 @@ const Platform = () => {
 					] }
 					onChange={ value => {
 						saveWizardSettings( {
-							slug: 'newspack-reader-revenue-wizard',
+							slug: 'newspack-audience/payment',
 							payloadPath: [ 'platform_data' ],
 							updatePayload: {
 								path: [ 'platform_data', 'platform' ],
@@ -55,7 +55,7 @@ const Platform = () => {
 					onStatus={ ( { complete } ) => {
 						if ( complete ) {
 							updateWizardSettings( {
-								slug: 'newspack-reader-revenue-wizard',
+								slug: 'newspack-audience/payment',
 								path: [ 'plugin_status' ],
 								value: true,
 							} );

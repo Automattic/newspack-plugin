@@ -16,20 +16,18 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies.
  */
 import { PluginSettings, Notice, Wizard } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 const Salesforce = () => {
-	const { salesforce_redirect_url: redirectUrl } = window?.newspack_reader_revenue || {};
+	const { salesforce_redirect_url: redirectUrl } = window?.newspackAudience || {};
 	const [ hasCopied, setHasCopied ] = useState( false );
-	const { salesforce_settings: salesforceData = {} } = Wizard.useWizardData( 'reader-revenue' );
+	const salesforceData = Wizard.useWizardData( 'newspack-audience/salesforce' );
 	const [ isConnected, setIsConnected ] = useState( salesforceData.refresh_token );
 	const [ error, setError ] = useState( null );
 
 	const { saveWizardSettings, wizardApiFetch } = useDispatch( Wizard.STORE_NAMESPACE );
 	const saveAllSettings = value =>
 		saveWizardSettings( {
-			slug: READER_REVENUE_WIZARD_SLUG,
-			section: 'salesforce',
+			slug: 'newspack-audience/salesforce',
 			payloadPath: [ 'salesforce_settings' ],
 			updatePayload: {
 				path: [ 'salesforce_settings' ],
@@ -73,7 +71,7 @@ const Salesforce = () => {
 			setError(
 				__(
 					'We couldn’t establish a connection to Salesforce. Please verify your Consumer Key and Secret and try connecting again.',
-					'newspack'
+					'newspack-plugin'
 				)
 			);
 		}
@@ -143,21 +141,21 @@ const Salesforce = () => {
 					}
 				} }
 				pluginSlug="newspack/salesforce"
-				title={ __( 'Salesforce Settings', 'newspack' ) }
+				title={ __( 'Salesforce Settings', 'newspack-plugin' ) }
 				description={ () => (
 					<>
 						{ error && <Notice noticeText={ error } isWarning /> }
 
 						{ isConnected && ! error && (
 							<Notice
-								noticeText={ __( 'Your site is connected to Salesforce.', 'newspack' ) }
+								noticeText={ __( 'Your site is connected to Salesforce.', 'newspack-plugin' ) }
 								isSuccess
 							/>
 						) }
 
 						{ __(
 							'Establish a connection to sync WooCommerce order data to Salesforce. To connect with Salesforce, create or choose a Connected App for this site in your Salesforce dashboard. Make sure to paste the full URL for this page (',
-							'newspack'
+							'newspack-plugin'
 						) }
 
 						<ClipboardButton
@@ -167,17 +165,17 @@ const Salesforce = () => {
 							onFinishCopy={ () => setHasCopied( false ) }
 						>
 							{ hasCopied
-								? __( 'copied to clipboard!', 'newspack' )
-								: __( 'copy to clipboard', 'newspack' ) }
+								? __( 'copied to clipboard!', 'newspack-plugin' )
+								: __( 'copy to clipboard', 'newspack-plugin' ) }
 						</ClipboardButton>
 
 						{ __(
 							') into the “Callback URL” field in the Connected App’s settings. ',
-							'newspack'
+							'newspack-plugin'
 						) }
 
 						<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
-							{ __( 'Learn how to create a Connected App', 'newspack' ) }
+							{ __( 'Learn how to create a Connected App', 'newspack-plugin' ) }
 						</ExternalLink>
 					</>
 				) }

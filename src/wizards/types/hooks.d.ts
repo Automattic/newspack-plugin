@@ -55,4 +55,31 @@ type WizardData = {
 // Define the type for the selector's return value
 type WizardSelector = {
 	getWizardData: ( slug: string ) => WizardData;
+	isLoading: () => boolean;
+};
+
+/**
+ * Reader Revenue Wizard Data
+ */
+type AudienceDonationsWizardData = {
+	donation_data:
+		| { errors: { [ key: string ]: string[] } }
+		| {
+				amounts: {
+					[ Key in FrequencySlug as string ]: [ number, number, number, number ];
+				};
+				disabledFrequencies: {
+					[ Key in FrequencySlug as string ]: boolean;
+				};
+				currencySymbol: string;
+				tiered: boolean;
+				minimumDonation: string;
+		};
+	platform_data: {
+		platform: string;
+	};
+	donation_page: {
+		editUrl: string;
+		status: string;
+	};
 };

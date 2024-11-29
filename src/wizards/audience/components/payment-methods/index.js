@@ -7,7 +7,6 @@ import { ExternalLink } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { AdditionalSettings } from './additional-settings';
 import { Stripe } from './stripe';
 import { WooPayments } from './woopayments';
 import { Notice, SectionHeader, Wizard } from '../../../../components/src';
@@ -18,16 +17,14 @@ const PaymentGateways = () => {
 		payment_gateways: paymentGateways = {},
 		is_ssl,
 		errors = [],
-		additional_settings: settings = {},
 		plugin_status,
 		platform_data = {},
-	} = Wizard.useWizardData( 'reader-revenue' );
+	} = Wizard.useWizardData( 'newspack-audience/payment' );
 	if ( false === plugin_status || 'wc' !== platform_data?.platform ) {
 		return null;
 	}
 
 	const { stripe = false, woopayments = false } = paymentGateways;
-	const hasPaymentGateway = Object.keys( paymentGateways ).some( gateway => paymentGateways[ gateway ]?.enabled );
 	return (
 		<>
 			<SectionHeader
@@ -66,11 +63,6 @@ const PaymentGateways = () => {
 			) }
 			<Stripe stripe={ stripe } />
 			<WooPayments woopayments={ woopayments } />
-			{ hasPaymentGateway && (
-				<AdditionalSettings
-					settings={ settings }
-				/>
-			) }
 		</>
 	);
 };

@@ -28,6 +28,7 @@ import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
+import Salesforce from '../../components/salesforce';
 
 export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
 	const [ allReady, setAllReady ] = useState( false );
@@ -375,6 +376,12 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 							) }
 						</Button>
 					</div>
+					{ newspackAudience.can_use_salesforce && (
+						<>
+							<hr />
+							<Salesforce />
+						</>
+					) }
 				</Card>
 			) }
 		</WizardsTab>

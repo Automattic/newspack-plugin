@@ -45,7 +45,7 @@ declare global {
 				name: string;
 			} >;
 		};
-		newspack_reader_revenue: {
+		newspackAudienceDonations: {
 			can_use_name_your_price: boolean;
 		};
 	}
