@@ -118,7 +118,7 @@ class WooCommerce_Duplicate_Orders {
 	 * @param bool   $save Whether to save the result as the option.
 	 * @param bool   $upsert Whether to upsert the option (merge with existing).
 	 */
-	public static function check_for_order_duplicates( $cutoff_time = MONTH_IN_SECONDS, $save = false, $upsert = true ): array {
+	public static function check_for_order_duplicates( $cutoff_time = DAY_IN_SECONDS, $save = false, $upsert = true ): array {
 		$order_duplicates = self::get_order_duplicates( $cutoff_time );
 		if ( empty( $order_duplicates ) ) {
 			return [];
@@ -146,6 +146,9 @@ class WooCommerce_Duplicate_Orders {
 			return;
 		}
 		$existing_order_duplicates = get_option( self::DUPLICATED_ORDERS_OPTION_NAME, [] );
+		if ( empty( $existing_order_duplicates ) ) {
+			return;
+		}
 		$dismissed_duplicates = get_option( self::DISMISSED_DUPLICATES_OPTION_NAME, [] );
 		?>
 		<div class="notice notice-info is-dismissible">
@@ -212,7 +215,7 @@ class WooCommerce_Duplicate_Orders {
 	}
 
 	/**
-	 * CLI handler to upsert the order duplicates with a specified timeframe.
+	 * CLI handler to search for duplicates and optionally store this info to be displayed in the admin panel.
 	 *
 	 * ## OPTIONS
 	 *
