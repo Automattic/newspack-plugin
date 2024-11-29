@@ -268,7 +268,7 @@ class WooCommerce_Connection {
 	 */
 	public static function send_customizable_receipt_email( $enable, $order, $class ) {
 		// If there are no donation products in the order, do not override the default WC receipt email.
-		$has_donation_product = \Newspack\Donations::get_order_donation_product_id( $order_id ) !== false;
+		$has_donation_product = \Newspack\Donations::get_order_donation_product_id( $order->get_id() ) !== false;
 		if ( ! $has_donation_product ) {
 			return $enable;
 		}
