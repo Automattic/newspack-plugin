@@ -21,6 +21,10 @@ class Subscriptions_Meta {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		if ( ! WooCommerce_Subscriptions::is_enabled() ) {
+			return;
+		}
+
 		add_action( 'woocommerce_subscription_status_updated', array( __CLASS__, 'maybe_record_cancelled_subscription_meta' ), 10, 3 );
 	}
 

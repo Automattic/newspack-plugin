@@ -24,18 +24,13 @@ class WooCommerce_Subscriptions {
 	 * Initialize WooCommerce Subscriptions Integration.
 	 */
 	public static function woocommerce_subscriptions_integration_init() {
+		include_once __DIR__ . '/class-on-hold-duration.php';
 		include_once __DIR__ . '/class-renewal.php';
+		include_once __DIR__ . '/class-subscriptions-meta.php';
+
+		On_Hold_Duration::init();
 		Renewal::init();
-
-		// To be included only if WooCommerce Subscriptions Integration is enabled.
-		// See is_enabled() method.
-		if ( self::is_enabled() ) {
-			include_once __DIR__ . '/class-on-hold-duration.php';
-			include_once __DIR__ . '/class-subscriptions-meta.php';
-
-			On_Hold_Duration::init();
-			Subscriptions_Meta::init();
-		}
+		Subscriptions_Meta::init();
 	}
 
 
