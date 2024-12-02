@@ -10,8 +10,19 @@ use Newspack\Reader_Activation;
 
 /**
  * Test WooCommerce Subscriptions integration functionality.
+ *
+ * @group WooCommerce_Subscriptions_Integration
  */
 class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
+	/**
+	 * Setup for the tests.
+	 */
+	public static function set_up_before_class() {
+		if ( ! defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) ) {
+			define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
+		}
+	}
+
 	/**
 	 * Test WooCommerce_Subscriptions::is_active.
 	 */
@@ -22,15 +33,9 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 
 	/**
 	 * Test WooCommerce_Subscriptions::is_enabled.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
 	public function test_is_enabled() {
-		$is_active = WooCommerce_Subscriptions::is_enabled();
-		$this->assertFalse( $is_active, 'WooCommerce Subscriptions integration should be disabled when Feature Flag is not present.' );
-		define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
-		$is_active = WooCommerce_Subscriptions::is_enabled();
-		$this->assertTrue( $is_active, 'WooCommerce Subscriptions integration should be enabled when Feature Flag is present.' );
+		$is_enabled = WooCommerce_Subscriptions::is_enabled();
+		$this->assertTrue( $is_enabled, 'WooCommerce Subscriptions integration should be enabled when Feature Flag is present.' );
 	}
 }

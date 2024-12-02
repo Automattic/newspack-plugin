@@ -181,6 +181,9 @@ class WC_Subscription {
 	public function update_meta_data( $field_name, $value ) {
 		$this->meta[ $field_name ] = $value;
 	}
+	public function delete_meta_data( $field_name ) {
+		unset( $this->meta[ $field_name ] );
+	}
 	public function has_status( $statuses ) {
 		return in_array( $this->data['status'], $statuses );
 	}

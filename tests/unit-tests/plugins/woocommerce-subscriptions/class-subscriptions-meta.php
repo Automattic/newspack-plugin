@@ -10,14 +10,17 @@ use Newspack\WooCommerce_Subscriptions;
 
 /**
  * Test WooCommerce Subscriptions integration functionality.
+ *
+ * @group WooCommerce_Subscriptions_Integration
  */
 class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 	/**
 	 * Setup for the tests.
 	 */
 	public static function set_up_before_class() {
-		define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
-		WooCommerce_Subscriptions::init();
+		if ( ! defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) ) {
+			define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
+		}
 	}
 
 	/**
@@ -28,19 +31,31 @@ class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 		$this->assertEquals(
 			'',
 			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
-			'Cancellation reason meta should be empty before cancellation.'
+			'Cancellation reason meta should be empty before any updates.'
 		);
-		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'active', 'pending' );
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'pending-cancel', 'cancelled' );
 		$this->assertEquals(
 			'',
 			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
-			'Cancellation reason meta should be empty when subscription status is not cancelled.'
+			'Cancellation reason meta should be empty when subscription from-status is cancelled.'
 		);
-		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'cancelled', 'active', $subscription );
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'pending-cancel', 'active' );
+		$this->assertEquals(
+			Subscriptions_Meta::CANCELLATION_REASON_USER_PENDING_CANCEL,
+			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
+			'Cancellation reason meta should be user-pending-cancel when subscription is updated to pending-cancel from active status.'
+		);
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'active', 'pending-cancel' );
+		$this->assertEquals(
+			'',
+			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
+			'Cancellation reason meta should be reset when subscription is updated to active from pending-cancel status.'
+		);
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'cancelled', 'pending-cancel', $subscription );
 		$this->assertEquals(
 			Subscriptions_Meta::CANCELLATION_REASON_USER_CANCELLED,
 			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
-			'Cancellation reason meta should be set to user-cancelled when subscription is cancelled.'
+			'Cancellation reason meta should be set to user-cancelled when subscription is cancelled from pending-cancel status.'
 		);
 	}
 }

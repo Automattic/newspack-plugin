@@ -49,7 +49,7 @@ class WooCommerce_Subscriptions {
 	 * True if:
 	 * - WooCommerce Subscriptions is active and,
 	 * - Reader Activation is enabled and,
-	 * - NEWSPACK_SUBSCRIPTIONS_EXPIRATION is defined and true.
+	 * - The NEWSPACK_SUBSCRIPTIONS_EXPIRATION feature flag is defined and true.
 	 *
 	 * @return bool
 	 */
