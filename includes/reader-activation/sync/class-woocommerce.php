@@ -287,9 +287,9 @@ class WooCommerce {
 				}
 			}
 
-			// Record the cancellation reason if the subscription was cancelled.
+			// Record the cancellation reason if meta exists and is not a pending cancellation.
 			$cancellation_reason = $current_subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY );
-			if ( ! empty( $cancellation_reason ) ) {
+			if ( ! empty( $cancellation_reason ) && ! in_array( $cancellation_reason, [ Subscriptions_Meta::CANCELLATION_REASON_USER_PENDING_CANCEL, Subscriptions_Meta::CANCELLATION_REASON_ADMIN_PENDING_CANCEL ], true ) ) {
 				$metadata['cancellation_reason'] = $cancellation_reason;
 			}
 		}
