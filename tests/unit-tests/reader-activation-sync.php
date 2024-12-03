@@ -245,4 +245,17 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'signup_page_utm' ) . 'foo', $normalized['metadata'] );
 		$this->assertArrayHasKey( Sync\Metadata::get_key( 'payment_page_utm' ) . 'yyy', $normalized['metadata'] );
 	}
+
+	/**
+	 * Test sync method with delayed secondary sync.
+	 */
+	public function test_sync_with_backup() {
+		$contact = $this->get_sample_contact();
+		ESP_Sync::sync(
+			$contact,
+			'Testing contact sync with backup',
+			60
+		);
+		$this->assertTrue( ! empty( wp_next_scheduled( 'newspack_scheduled_esp_sync' ) ), 'Secondary backup sync is scheduled.' );
+	}
 }
