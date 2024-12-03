@@ -28,6 +28,7 @@ class Plugin_Manager {
 		'google-site-kit',
 		'newspack-blocks',
 		'wp-parsely',
+		'perfmatters',
 	];
 
 	/**
@@ -393,6 +394,7 @@ class Plugin_Manager {
 		}
 		$status            = 'uninstalled';
 		$installed_plugins = self::get_installed_plugins();
+
 		if ( isset( $installed_plugins[ $plugin_slug ] ) ) {
 			if ( \is_plugin_active( $installed_plugins[ $plugin_slug ] ) ) {
 				$status = 'active';
@@ -405,6 +407,25 @@ class Plugin_Manager {
 		if ( 'wordpress-seo' === $plugin_slug && 'active' !== $status && isset( $installed_plugins['wordpress-seo-premium'] ) && $installed_plugins['wordpress-seo-premium'] ) {
 			if ( \is_plugin_active( $installed_plugins['wordpress-seo-premium'] ) ) {
 				$status = 'active';
+			}
+		}
+
+		// Also check for alpha or epic versions of newspack plugins.
+		if ( 'active' !== $status && str_contains( $plugin_slug, 'newspack' ) ) {
+			foreach ( $installed_plugins as $slug => $path ) {
+				if ( $slug !== $plugin_slug && str_contains( $slug, $plugin_slug ) ) {
+					$versions = [
+						'alpha',
+						'epic',
+					];
+
+					foreach ( $versions as $version ) {
+						if ( str_contains( $slug, $version ) && \is_plugin_active( $path ) ) {
+							$status = 'active';
+							break;
+						}
+					}
+				}
 			}
 		}
 

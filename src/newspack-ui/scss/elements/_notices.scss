@@ -1,0 +1,65 @@
+.newspack-ui {
+	.newspack-ui {
+		&__notice {
+			align-items: center;
+			background: var(--newspack-ui-color-neutral-5);
+			border-left-width: 3px;
+			border-left-style: solid;
+			border-left-color: var(--newspack-ui-color-neutral-90);
+			border-radius: var(--newspack-ui-border-radius-xs);
+			color: var(--newspack-ui-color-neutral-90);
+			display: flex;
+			font-size: var(--newspack-ui-font-size-xs);
+			justify-content: flex-start;
+			margin: var(--newspack-ui-spacer-6) 0;
+			padding: var(--newspack-ui-spacer-3);
+			padding-left: calc(var(--newspack-ui-spacer-3) - 3px);
+
+			> svg {
+				display: block;
+				fill: var(--newspack-ui-color-neutral-90);
+				flex: 0 0 24px;
+				margin-right: var(--newspack-ui-spacer-base);
+			}
+
+			// Backgrounds & Borders
+			&--success {
+				background: var(--newspack-ui-color-success-0);
+				border-left-color: var(--newspack-ui-color-success-50);
+
+				> svg {
+					fill: var(--newspack-ui-color-success-60);
+				}
+			}
+
+			&--warning {
+				background: var(--newspack-ui-color-warning-0);
+				border-left-color: var(--newspack-ui-color-warning-30);
+
+				> svg {
+					fill: var(--newspack-ui-color-warning-40);
+				}
+			}
+
+			&--error {
+				background: var(--newspack-ui-color-error-0);
+				border-left-color: var(--newspack-ui-color-error-50);
+
+				> svg {
+					fill: var(--newspack-ui-color-error-60);
+				}
+			}
+
+			// Some style resets.
+			> div > *:first-child {
+				margin-top: 0;
+				padding-top: 0;
+			}
+
+			> div > *:last-child {
+				margin-bottom: 0;
+				padding-bottom: 0;
+			}
+		}
+	}
+}

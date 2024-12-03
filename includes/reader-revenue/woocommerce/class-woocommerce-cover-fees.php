@@ -160,9 +160,8 @@ class WooCommerce_Cover_Fees {
 					id="<?php echo esc_attr( self::CUSTOM_FIELD_NAME . '_' . $payment_gateway ); ?>"
 					name="<?php echo esc_attr( self::CUSTOM_FIELD_NAME ); ?>"
 					type="checkbox"
-					style="margin-right: 8px;"
 					value="1"
-					<?php if ( get_option( 'newspack_donations_allow_covering_fees_default', false ) ) : ?>
+					<?php if ( boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ) ) : ?>
 						checked
 					<?php endif; ?>
 				/>

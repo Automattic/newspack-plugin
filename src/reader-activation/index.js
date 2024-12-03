@@ -3,6 +3,7 @@
 window.newspack_ras_config = window.newspack_ras_config || {};
 
 import Store from './store.js';
+import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 import overlays from './overlays.js';
@@ -130,11 +131,87 @@ export function getReader() {
  */
 export function hasAuthLink() {
 	const reader = getReader();
-	const emailLinkSecret = getCookie( 'np_auth_link' );
-	return !! ( reader?.email && emailLinkSecret );
+	const otpHash = getCookie( 'np_otp_hash' );
+	return !! ( reader?.email && otpHash );
 }
 
 const authStrategies = [ 'pwd', 'link' ];
+
+/**
+ * Start the authentication modal with an optional custom callback.
+ *
+ * @param {Object} config Config.
+ */
+export function openAuthModal( config = {} ) {
+	// Set default config.
+	config = {
+		...{
+			onSuccess: null,
+			onDismiss: null,
+			onError: null,
+			initialState: null,
+			skipSuccess: false,
+			skipNewslettersSignup: false,
+			labels: {
+				signin: {
+					title: null,
+				},
+				register: {
+					title: null,
+				},
+			},
+			content: null,
+			trigger: null,
+		},
+		...config,
+	};
+
+	if ( newspack_ras_config.is_logged_in ) {
+		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
+			config.onSuccess();
+		}
+		return;
+	}
+	if ( readerActivation._openAuthModal ) {
+		readerActivation._openAuthModal( config );
+	} else {
+		console.warn( 'Authentication modal not available' ); // eslint-disable-line no-console
+		if ( config.onError && typeof config.onError === 'function' ) {
+			config.onError();
+		}
+	}
+}
+
+/**
+ * Start the newsletter signup modal with an optional custom callback.
+ *
+ * @param {Object} config Config.
+ */
+export function openNewslettersSignupModal( config = {} ) {
+	// Set default config.
+	config = {
+		...{
+			onSuccess: null,
+			onDissmiss: null,
+			onError: null,
+			initialState: null,
+			skipSuccess: false,
+			labels: {},
+			content: null,
+			closeOnSuccess: true,
+		},
+		...config,
+	};
+
+	if ( readerActivation?._openNewslettersSignupModal ) {
+		readerActivation._openNewslettersSignupModal( config );
+	} else {
+		console.warn( 'Newsletters signup modal not available' ); // eslint-disable-line no-console
+		if ( config?.onError && typeof config.onError === 'function' ) {
+			config.onError();
+		}
+	}
+}
 
 /**
  * Get the reader's OTP hash for the current authentication request.
@@ -143,6 +220,43 @@ const authStrategies = [ 'pwd', 'link' ];
  */
 export function getOTPHash() {
 	return getCookie( 'np_otp_hash' );
+}
+
+/**
+ * OTP timer storage key.
+ */
+const OTP_TIMER_STORAGE_KEY = 'newspack_otp_timer';
+
+/**
+ * Set the OTP timer to the current time.
+ */
+export function setOTPTimer() {
+	localStorage.setItem( OTP_TIMER_STORAGE_KEY, Math.floor( Date.now() / 1000 ) );
+}
+
+/**
+ * Clear the OTP timer.
+ */
+export function clearOTPTimer() {
+	localStorage.removeItem( OTP_TIMER_STORAGE_KEY );
+}
+
+/**
+ * Get the time remaining for the OTP timer.
+ *
+ * @return {number} Time remaining in seconds
+ */
+export function getOTPTimeRemaining() {
+	const timer = localStorage.getItem( OTP_TIMER_STORAGE_KEY );
+	if ( ! timer ) {
+		return 0;
+	}
+	const timeRemaining =
+		newspack_ras_config.otp_rate_interval - ( Math.floor( Date.now() / 1000 ) - timer );
+	if ( ! timeRemaining ) {
+		clearOTPTimer();
+	}
+	return timeRemaining > 0 ? timeRemaining : 0;
 }
 
 /**
@@ -278,23 +392,24 @@ function attachAuthCookiesListener() {
  * Set the reader as newsletter subscriber once a newsletter form is submitted.
  */
 function attachNewsletterFormListener() {
-	const forms = document.querySelectorAll(
-		'.newspack-newsletters-subscribe,.newspack-subscribe-form,.mc4wp-form'
-	);
-	if ( ! forms.length ) {
-		return;
-	}
-	forms.forEach( form => {
-		if ( form.tagName !== 'FORM' ) {
-			form = form.querySelector( 'form' );
-		}
+	const newspackForms = [ '.newspack-newsletters-subscribe', '.newspack-subscribe-form' ];
+	const thirdPartyForms = [ '.mc4wp-form' ];
+
+	const attachHandler = ( el, eventToListenTo = 'submit' ) => {
+		const form = 'FORM' === el.tagName ? el : el.querySelector( 'form' );
 		if ( ! form ) {
 			return;
 		}
-		form.addEventListener( 'submit', () => {
+		form.addEventListener( eventToListenTo, () => {
 			store.set( 'is_newsletter_subscriber', true );
 		} );
-	} );
+	};
+
+	// For third-party forms, set reader data on form submit. For first-party forms, listen for the custom event upon successful signup response.
+	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => attachHandler( el ) );
+	document
+		.querySelectorAll( newspackForms.join( ',' ) )
+		.forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
 }
 
 const readerActivation = {
@@ -309,14 +424,18 @@ const readerActivation = {
 	setAuthenticated,
 	refreshAuthentication,
 	getReader,
+	openNewslettersSignupModal,
 	hasAuthLink,
 	getOTPHash,
+	setOTPTimer,
+	clearOTPTimer,
+	getOTPTimeRemaining,
 	authenticateOTP,
 	setAuthStrategy,
 	getAuthStrategy,
-	getCaptchaV3Token: window.newspack_grecaptcha
-		? window.newspack_grecaptcha?.getCaptchaV3Token
-		: () => new Promise( res => res( '' ) ), // Empty promise.
+	setPendingCheckout,
+	getPendingCheckout,
+	...( newspack_ras_config.is_ras_enabled && { openAuthModal } )
 };
 
 /**
