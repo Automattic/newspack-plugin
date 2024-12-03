@@ -31,6 +31,13 @@ class WooCommerce_Subscriptions {
 	private static $verbose = false;
 
 	/**
+	 * Subscription ids to process.
+	 *
+	 * @var bool|array
+	 */
+	private static $ids = false;
+
+	/**
 	 * Migrate on-hold WooCommerce subscriptions with failed renewal orders to expired status.
 	 *
 	 * ## OPTIONS
@@ -40,6 +47,9 @@ class WooCommerce_Subscriptions {
 	 *
 	 * [--verbose]
 	 * : Produce more output.
+	 *
+	 * [--ids]
+	 * : Comma-separated list of subscription IDs. If provided, only ubscriptions with these IDs will be processed.
 	 *
 	 * @param array $args Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
@@ -52,6 +62,7 @@ class WooCommerce_Subscriptions {
 			WP_CLI::line( '' );
 			return;
 		}
+		self::$ids     = isset( $assoc_args['ids'] ) ? explode( ',', $assoc_args['ids'] ) : false;
 		self::$live    = isset( $assoc_args['live'] ) ? true : false;
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
 		if ( self::$live ) {
@@ -108,15 +119,37 @@ class WooCommerce_Subscriptions {
 					WP_CLI::line( '' );
 				}
 			}
-			$subscriptions = wcs_get_subscriptions(
-				[
-					'paged'                  => ++$page,
-					'subscriptions_per_page' => $per_page,
-					'subscription_status'    => 'on-hold',
-				]
-			);
+			$subscriptions = self::get_subscriptions( ++$page );
 		}
 		WP_CLI::success( 'Finished processing subscriptions. ' . $updated . ' subscriptions updated.' );
 		WP_CLI::line( '' );
+	}
+
+	/**
+	 * Get subscriptions to process.
+	 *
+	 * @param int $page Page number.
+	 *
+	 * @return array
+	 */
+	private static function get_subscriptions( $page = 1 ) {
+		$subscriptions = [];
+		if ( false === self::$ids ) {
+			$subscriptions = wcs_get_subscriptions(
+				[
+					'paged'                  => $page,
+					'subscriptions_per_page' => $per_page,
+					'subscrition_status'     => 'on-hold',
+				]
+			);
+		} else {
+			foreach ( self::$ids as $id ) {
+				$subscription = wcs_get_subscription( $id );
+				if ( $subscription ) {
+					$subscriptions[] = $subscription;
+				}
+			}
+		}
+		return $subscriptions;
 	}
 }
