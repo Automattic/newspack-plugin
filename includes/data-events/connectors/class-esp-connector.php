@@ -140,7 +140,18 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		self::sync( $contact, sprintf( 'RAS Woo Subscription updated. Status changed from %s to %s', $data['status_before'], $data['status_after'] ) );
+		// Schedule a backup sync in two minutes if the subscription is being reactivated, to get around potential race conditions.
+		$delay = 'active' === $data['status_after'] ? 120 : 0;
+
+		self::sync(
+			$contact,
+			sprintf(
+				'RAS Woo Subscription updated. Status changed from %s to %s',
+				$data['status_before'],
+				$data['status_after']
+			),
+			$delay
+		);
 	}
 
 	/**

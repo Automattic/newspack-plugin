@@ -22,6 +22,12 @@ class ESP_Sync extends Sync {
 	 * @var string
 	 */
 	protected static $context = 'ESP Sync';
+	/**
+	 * Initialize hooks.
+	 */
+	public static function init_hooks() {
+		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'sync' ], 10, 3 );
+	}
 
 	/**
 	 * Whether contacts can be synced to the ESP.
@@ -79,10 +85,11 @@ class ESP_Sync extends Sync {
 	 *
 	 * @param array  $contact The contact data to sync.
 	 * @param string $context The context of the sync. Defaults to static::$context.
+	 * @param int    $delay   Optional. If given, the sync will be dispatched a second time after the given number of seconds.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
-	protected static function sync( $contact, $context = '' ) {
+	public static function sync( $contact, $context = '', $delay = 0 ) {
 		$can_sync = static::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
@@ -105,6 +112,18 @@ class ESP_Sync extends Sync {
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
+
+		// If given a delay, schedule another sync in that number of seconds.
+		if ( is_int( $delay ) && 0 < $delay ) {
+			static::log(
+				sprintf(
+					// Translators: %s is the email address of the contact to synced.
+					__( 'Scheduling secondary sync for contact %s.', 'newspack-plugin' ),
+					$contact['email']
+				)
+			);
+			\wp_schedule_single_event( \time() + $delay, 'newspack_scheduled_esp_sync', [ $contact, $context ] );
+		}
 
 		return \is_wp_error( $result ) ? $result : true;
 	}
@@ -167,3 +186,4 @@ class ESP_Sync extends Sync {
 		return $result;
 	}
 }
+ESP_Sync::init_hooks();
