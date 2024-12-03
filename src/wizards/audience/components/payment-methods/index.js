@@ -9,7 +9,9 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { Stripe } from './stripe';
 import { WooPayments } from './woopayments';
-import { Notice, SectionHeader, Wizard } from '../../../../components/src';
+import { Notice, Wizard } from '../../../../components/src';
+import WizardsSection from '../../../wizards-section';
+
 import './style.scss';
 
 const PaymentGateways = () => {
@@ -26,24 +28,27 @@ const PaymentGateways = () => {
 
 	const { stripe = false, woopayments = false } = paymentGateways;
 	return (
-		<>
-			<SectionHeader
-				title={ __( 'Payment Gateways', 'newspack-plugin' ) }
-				description={ () => (
-					<>
-						{ __(
-							'Configure Newspack-supported payment gateways for WooCommerce. Payment gateways allow you to accept various payment methods from your readers. ',
-							'newspack-plugin'
-						) }
-						<ExternalLink href="https://woocommerce.com/document/premium-payment-gateway-extensions/">
-							{ __( 'Learn more', 'newspack-plugin' ) }
-						</ExternalLink>
-					</>
-				) }
-			/>
+		<WizardsSection
+			title={ __( 'Payment Gateways', 'newspack-plugin' ) }
+			description={ () => (
+				<>
+					{ __(
+						'Configure Newspack-supported payment gateways for WooCommerce. Payment gateways allow you to accept various payment methods from your readers. ',
+						'newspack-plugin'
+					) }
+					<ExternalLink href="https://woocommerce.com/document/premium-payment-gateway-extensions/">
+						{ __( 'Learn more', 'newspack-plugin' ) }
+					</ExternalLink>
+				</>
+			) }
+		>
 			{ errors.length > 0 &&
 				errors.map( ( error, index ) => (
-					<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
+					<Notice
+						isError
+						key={ index }
+						noticeText={ <span>{ error.message }</span> }
+					/>
 				) ) }
 			{ is_ssl === false && (
 				<Notice
@@ -63,7 +68,7 @@ const PaymentGateways = () => {
 			) }
 			<Stripe stripe={ stripe } />
 			<WooPayments woopayments={ woopayments } />
-		</>
+		</WizardsSection>
 	);
 };
 

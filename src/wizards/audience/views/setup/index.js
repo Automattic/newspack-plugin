@@ -96,6 +96,25 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		tabs = tabs.filter( tab => tab );
 	}
 
+	const getSharedProps = ( configKey, type = 'checkbox' ) => {
+		const props = {
+			onChange: val => updateConfig( configKey, val ),
+		};
+		if ( configKey !== 'enabled' ) {
+			props.disabled = inFlight;
+		}
+		switch ( type ) {
+			case 'checkbox':
+				props.checked = Boolean( config[ configKey ] );
+				break;
+			case 'text':
+				props.value = config[ configKey ] || '';
+				break;
+		}
+
+		return props;
+	};
+
 	const props = {
 		headerText: __(
 			'Audience Development',
@@ -108,6 +127,9 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		fetchConfig,
 		updateConfig,
 		saveConfig,
+		setInFlight,
+		setError,
+		getSharedProps,
 		espSyncErrors,
 		prerequisites,
 		config,

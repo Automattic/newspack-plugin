@@ -72,6 +72,7 @@ declare global {
 								from_email: string;
 								reply_to_email: string;
 								status: string;
+								type: string;
 							};
 						};
 						dependencies: Record< string, boolean >;

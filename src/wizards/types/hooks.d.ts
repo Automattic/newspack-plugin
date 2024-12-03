@@ -61,6 +61,15 @@ type WizardSelector = {
 /**
  * Reader Revenue Wizard Data
  */
+type AudienceFieldConfig = {
+	autocomplete: string;
+	class: string[];
+	label: string;
+	priority: number;
+	required: boolean;
+	type: string;
+	validate: string[];
+};
 type AudienceDonationsWizardData = {
 	donation_data:
 		| { errors: { [ key: string ]: string[] } }
@@ -74,6 +83,7 @@ type AudienceDonationsWizardData = {
 				currencySymbol: string;
 				tiered: boolean;
 				minimumDonation: string;
+				billingFields: string[];
 		};
 	platform_data: {
 		platform: string;
@@ -82,4 +92,8 @@ type AudienceDonationsWizardData = {
 		editUrl: string;
 		status: string;
 	};
+	available_billing_fields: {
+		[ key: string ]: AudienceFieldConfig;
+	};
+	order_notes_field: AudienceFieldConfig;
 };

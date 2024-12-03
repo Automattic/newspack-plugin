@@ -12,10 +12,10 @@ import {
 	AutocompleteWithSuggestions,
 	Button,
 	Grid,
-	SectionHeader,
 	TextControl,
 	Wizard,
 } from '../../../../components/src';
+import WizardsSection from '../../../wizards-section';
 
 const NRHSettings = () => {
 	const [ selectedPage, setSelectedPage ] = useState( null );
@@ -44,11 +44,10 @@ const NRHSettings = () => {
 	const settings = wizardData?.platform_data || {};
 
 	return (
-		<>
-			<SectionHeader
-				title={ __( 'News Revenue Hub Settings', 'newspack-plugin' ) }
-				description={ __( 'Configure your site’s connection to News Revenue Hub.', 'newspack-plugin' ) }
-			/>
+		<WizardsSection
+			title={ __( 'News Revenue Hub Settings', 'newspack-plugin' ) }
+			description={ __( 'Configure your site’s connection to News Revenue Hub.', 'newspack-plugin' ) }
+		>
 			<div>
 				<Grid columns={ 3 }>
 					<TextControl
@@ -109,7 +108,7 @@ const NRHSettings = () => {
 					{ __( 'Save Settings' ) }
 				</Button>
 			</div>
-		</>
+		</WizardsSection>
 	);
 };
 

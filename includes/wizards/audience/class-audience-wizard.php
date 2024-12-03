@@ -12,7 +12,7 @@ use Newspack\{
 	Reader_Activation
 };
 use Newspack_Newsletters_Subscription;
-use WP_REST_Request, WP_REST_Response, WP_REST_Server;
+use WP_Error, WP_REST_Request, WP_REST_Response, WP_REST_Server;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -171,6 +171,15 @@ class Audience_Wizard extends Wizard {
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_activate_reader_activation' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/reader-activation/emails/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_reset_reader_activation_email' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 			]
 		);
@@ -397,6 +406,44 @@ class Audience_Wizard extends Wizard {
 	}
 
 	/**
+	 * Reset reader activation email template.
+	 * We acheive this by trashing the email template post.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function api_reset_reader_activation_email( $request ) {
+		$params = $request->get_params();
+		$id     = $params['id'];
+		$email  = get_post( $id );
+
+		if ( $email === null || $email->post_type !== Emails::POST_TYPE ) {
+			return new WP_Error(
+				'newspack_reset_reader_activation_email_invalid_arg',
+				esc_html__( 'Invalid argument: no email template matches the provided id.', 'newspack-plugin' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+		}
+
+		if ( ! \wp_trash_post( $id ) ) {
+			return new WP_Error(
+				'newspack_reset_reader_activation_email_reset_failed',
+				esc_html__( 'Reset failed: unable to reset email template.', 'newspack-plugin' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+		}
+
+		return rest_ensure_response( Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ) );
+	}
+
+	/**
 	 * Activate reader activation and publish RAS prompts/segments.
 	 *
 	 * @param WP_REST_Request $request WP Rest Request object.
@@ -546,15 +593,25 @@ class Audience_Wizard extends Wizard {
 	 * Get billing fields data.
 	 */
 	public function get_billing_fields() {
+		$wc_installed = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
+		
 		$available_billing_fields = [];
-		$checkout = new \WC_Checkout();
-		$fields   = $checkout->get_checkout_fields();
-		if ( ! empty( $fields['billing'] ) ) {
-			$available_billing_fields = $fields['billing'];
+		$order_notes_field = [];
+
+		if ( $wc_installed && Donations::is_platform_wc() ) {
+			$checkout        = new \WC_Checkout();
+			$fields          = $checkout->get_checkout_fields();
+			if ( ! empty( $fields['order']['order_comments'] ) ) {
+				$order_notes_field = $fields['order']['order_comments'];
+			}
+			if ( ! empty( $fields['billing'] ) ) {
+				$available_billing_fields = $fields['billing'];
+			}
 		}
 		return [
 			'available_billing_fields' => $available_billing_fields,
 			'billing_fields'           => Donations::get_billing_fields(),
+			'order_notes_field'        => $order_notes_field,
 		];
 	}
 
