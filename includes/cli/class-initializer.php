@@ -26,6 +26,7 @@ class Initializer {
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ras.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-ras-esp-sync.php';
 		include_once NEWSPACK_ABSPATH . 'includes/cli/class-co-authors-plus.php';
+		include_once NEWSPACK_ABSPATH . 'includes/cli/class-woocommerce-subscriptions.php';
 	}
 
 	/**
@@ -66,5 +67,6 @@ class Initializer {
 				'schedule_author_term_backfill',
 			]
 		);
+		WP_CLI::add_command( 'newspack migrate-expired-subscriptions', [ 'Newspack\CLI\WooCommerce_Subscriptions', 'migrate_expired_subscriptions' ] );
 	}
 }
