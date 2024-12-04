@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Settings Wizard: Connections > reCAPTCHA
  */
@@ -25,35 +24,36 @@ import {
 } from '../../../../../components/src';
 
 const settingsDefault: RecaptchaData = {
-	site_key: '',
 	threshold: '',
 	use_captcha: false,
-	site_secret: '',
-	version: '',
+	version: 'v3',
+	credentials: {
+		v2_invisible: { site_key: '', site_secret: '' },
+		v3: { site_key: '', site_secret: '' },
+	},
 };
 
 type RecaptchaDependsOn = { [ k in keyof RecaptchaData ]?: string };
 
 const fieldValidationMap = new Map<
 	keyof Omit< RecaptchaData, 'use_captcha' >,
-	{ callback: ( value: string ) => string; dependsOn?: RecaptchaDependsOn }
+	{
+		callback: ( value: any, version?: RecaptchaVersions ) => string;
+		dependsOn?: RecaptchaDependsOn;
+	}
 >( [
 	[
-		'site_key',
+		'credentials',
 		{
-			callback: value => {
-				if ( ! value ) {
+			dependsOn: { version: 'v3' },
+			callback: (
+				credentials: RecaptchaData[ 'credentials' ],
+				version = 'v3'
+			) => {
+				if ( ! credentials[ version ].site_key ) {
 					return ERROR_MESSAGES.RECAPTCHA.SITE_KEY_EMPTY;
 				}
-				return '';
-			},
-		},
-	],
-	[
-		'site_secret',
-		{
-			callback: value => {
-				if ( ! value ) {
+				if ( ! credentials[ version ].site_secret ) {
 					return ERROR_MESSAGES.RECAPTCHA.SITE_SECRET_EMPTY;
 				}
 				return '';
@@ -109,34 +109,6 @@ function Recaptcha() {
 		);
 	}, [] );
 
-	// Clear out site key + secret if changing the version.
-	useEffect( () => {
-		if ( ! Boolean( settingsToUpdate.version ) ) {
-			return;
-		}
-		if ( settingsToUpdate.version !== settings.version ) {
-			setSettingsToUpdate( {
-				...settingsToUpdate,
-				site_key: '',
-				site_secret: '',
-			} );
-			setError(
-				new WizardError(
-					ERROR_MESSAGES.RECAPTCHA.VERSION_CHANGE,
-					'version_change'
-				)
-			);
-			return;
-		}
-		resetError();
-		// Update to saved key & secret.
-		setSettingsToUpdate( {
-			...settingsToUpdate,
-			site_key: settings.site_key || '',
-			site_secret: settings.site_secret || '',
-		} );
-	}, [ settingsToUpdate.version ] );
-
 	function updateSettings( data: RecaptchaData, isToggleSave = false ) {
 		resetError();
 
@@ -155,7 +127,8 @@ function Recaptcha() {
 					}
 				}
 				const validationError = validate.callback(
-					settingsToUpdate[ field ]
+					settingsToUpdate[ field ],
+					settingsToUpdate.version
 				);
 				if ( validationError ) {
 					setError( new WizardError( validationError, field ) );
@@ -233,6 +206,7 @@ function Recaptcha() {
 		>
 			{ settings.use_captcha && (
 				<Fragment>
+					<pre>{ JSON.stringify( settingsToUpdate, null, 2 ) }</pre>
 					<Grid noMargin rowGap={ 16 }>
 						<BaseControl
 							id="recaptcha-version"
@@ -284,12 +258,18 @@ function Recaptcha() {
 					</Grid>
 					<Grid noMargin rowGap={ 16 }>
 						<TextControl
-							value={ settingsToUpdate?.site_key || '' }
+							value={ versionCredentials.site_key || '' }
 							label={ __( 'Site Key', 'newspack-plugin' ) }
 							onChange={ ( value: string ) =>
 								setSettingsToUpdate( {
 									...settingsToUpdate,
-									site_key: value,
+									credentials: {
+										...settingsToUpdate.credentials,
+										[ settingsToUpdate.version ]: {
+											...versionCredentials,
+											site_key: value,
+										},
+									},
 								} )
 							}
 							disabled={ isFetching }
@@ -297,12 +277,18 @@ function Recaptcha() {
 						/>
 						<TextControl
 							type="password"
-							value={ settingsToUpdate?.site_secret || '' }
+							value={ versionCredentials.site_secret || '' }
 							label={ __( 'Site Secret', 'newspack-plugin' ) }
 							onChange={ ( value: string ) =>
 								setSettingsToUpdate( {
 									...settingsToUpdate,
-									site_secret: value,
+									credentials: {
+										...settingsToUpdate.credentials,
+										[ settingsToUpdate.version ]: {
+											...versionCredentials,
+											site_secret: value,
+										},
+									},
 								} )
 							}
 							disabled={ isFetching }
