@@ -153,6 +153,22 @@ function Recaptcha() {
 		);
 	}
 
+	function onCredentialsChange(
+		field: 'site_key' | 'site_secret',
+		value: string
+	) {
+		setSettingsToUpdate( prev => ( {
+			...prev,
+			credentials: {
+				...prev.credentials,
+				[ prev.version ]: {
+					...prev.credentials[ prev.version ],
+					[ field ]: value,
+				},
+			},
+		} ) );
+	}
+
 	return (
 		<WizardsActionCard
 			isMedium
@@ -206,7 +222,6 @@ function Recaptcha() {
 		>
 			{ settings.use_captcha && (
 				<Fragment>
-					<pre>{ JSON.stringify( settingsToUpdate, null, 2 ) }</pre>
 					<Grid noMargin rowGap={ 16 }>
 						<BaseControl
 							id="recaptcha-version"
@@ -261,16 +276,7 @@ function Recaptcha() {
 							value={ versionCredentials.site_key || '' }
 							label={ __( 'Site Key', 'newspack-plugin' ) }
 							onChange={ ( value: string ) =>
-								setSettingsToUpdate( {
-									...settingsToUpdate,
-									credentials: {
-										...settingsToUpdate.credentials,
-										[ settingsToUpdate.version ]: {
-											...versionCredentials,
-											site_key: value,
-										},
-									},
-								} )
+								onCredentialsChange( 'site_key', value )
 							}
 							disabled={ isFetching }
 							autoComplete="off"
@@ -280,16 +286,7 @@ function Recaptcha() {
 							value={ versionCredentials.site_secret || '' }
 							label={ __( 'Site Secret', 'newspack-plugin' ) }
 							onChange={ ( value: string ) =>
-								setSettingsToUpdate( {
-									...settingsToUpdate,
-									credentials: {
-										...settingsToUpdate.credentials,
-										[ settingsToUpdate.version ]: {
-											...versionCredentials,
-											site_secret: value,
-										},
-									},
-								} )
+								onCredentialsChange( 'site_secret', value )
 							}
 							disabled={ isFetching }
 							autoComplete="one-time-code"
