@@ -38,7 +38,7 @@ class WooCommerce_Subscriptions {
 	private static $ids = false;
 
 	/**
-	 * Migrate on-hold WooCommerce subscriptions with failed renewal orders to expired status.
+	 * Migrate status of on-hold WooCommerce subscriptions that have failed all payment retries to expired.
 	 *
 	 * ## OPTIONS
 	 *
@@ -51,8 +51,9 @@ class WooCommerce_Subscriptions {
 	 * [--ids]
 	 * : Comma-separated list of subscription IDs. If provided, only ubscriptions with these IDs will be processed.
 	 *
-	 * @param array $args Positional arguments.
+	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Assoc arguments.
+	 *
 	 * @return void
 	 */
 	public function migrate_expired_subscriptions( $args, $assoc_args ) {
@@ -65,27 +66,16 @@ class WooCommerce_Subscriptions {
 		self::$ids     = isset( $assoc_args['ids'] ) ? explode( ',', $assoc_args['ids'] ) : false;
 		self::$live    = isset( $assoc_args['live'] ) ? true : false;
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
-		if ( self::$live ) {
-			WP_CLI::line( 'Live mode - subscription statuses will be updated.' );
-		} else {
-			WP_CLI::line( 'Dry run. Use --live flag to run in live mode.' );
-		}
 		$updated       = 0;
 		$page          = 1;
 		$per_page      = 25;
-		$subscriptions = wcs_get_subscriptions(
-			[
-				'paged'                  => $page,
-				'subscriptions_per_page' => $per_page,
-				'subscrition_status'     => 'on-hold',
-			]
-		);
+		$subscriptions = self::get_subscriptions( $page );
 		if ( empty( $subscriptions ) ) {
 			WP_CLI::success( 'No on-hold subscriptions to process.' );
 			WP_CLI::line( '' );
 			return;
 		}
-		WP_CLI::line( 'Processing subscriptions...' );
+		WP_CLI::line( 'Processing subscriptions in ' . ( self::$live ? 'live' : 'dry run' ) . ' mode...' );
 		WP_CLI::line( '' );
 		while ( ! empty( $subscriptions ) ) {
 			foreach ( $subscriptions as $subscription ) {
@@ -93,26 +83,56 @@ class WooCommerce_Subscriptions {
 				if ( self::$verbose ) {
 					WP_CLI::line( 'Processing subscription ' . $id . '...' );
 				}
-				$renewal_orders = $subscription->get_related_orders( 'all', 'renewal' );
-				if ( empty( $renewal_orders ) ) {
+				// A pending retry indicates the subscription is awaiting payment retry.
+				if ( $subscription->get_date( 'payment_retry' ) > 0 ) {
 					if ( self::$verbose ) {
-						WP_CLI::line( 'Subscription ' . $id . ' has no renewal orders. Moving to next subscription...' );
+						WP_CLI::line( 'Subscription is awaiting payment retry. Moving to next subscription...' );
 						WP_CLI::line( '' );
 					}
 					continue;
 				}
-				foreach ( $renewal_orders as $renewal_order ) {
-					if ( 'failed' === $renewal_order->get_status() ) {
-						if ( self::$verbose ) {
-							WP_CLI::line( 'Updating status for subscription ' . $id );
-						}
-						// Update the subscription status to expired.
-						if ( self::$live ) {
-							$subscription->update_status( 'expired', __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
-						}
-						++$updated;
-						break;
+				$renewal_order = $subscription->get_last_order(
+					'all',
+					[ 'renewal' ],
+					[
+						'completed',
+						'processing',
+						'refunded',
+					]
+				);
+				// No failed or pending renewal orders indicates the subscription was likely manually placed on hold.
+				if ( empty( $renewal_order ) ) {
+					if ( self::$verbose ) {
+						WP_CLI::line( 'Subscription has no pending renewal orders. Moving to next subscription...' );
+						WP_CLI::line( '' );
 					}
+					continue;
+				}
+				$last_retry = \WCS_Retry_Manager::store()->get_last_retry_for_order( wcs_get_objects_property( $renewal_order, 'id' ) );
+				// No retries indicates the subscription was likely manually placed on hold.
+				if ( empty( $last_retry ) ) {
+					if ( self::$verbose ) {
+						WP_CLI::line( 'No retries scheduled. Moving to next subscription...' );
+						WP_CLI::line( '' );
+					}
+					continue;
+				}
+				// A non failed status indicates the retry was either manually cancelled
+				// or was successful at one point but likely placed on hold for some other reason.
+				if ( 'failed' !== $last_retry->get_status() ) {
+					if ( self::$verbose ) {
+						WP_CLI::line( 'Last retry does not have a failed status. Moving to next subscription...' );
+						WP_CLI::line( '' );
+					}
+					continue;
+				} else {
+					if ( self::$verbose ) {
+						WP_CLI::line( 'Updating subscription status to expired...' );
+					}
+					if ( self::$live ) {
+						$subscription->update_status( 'expired', __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
+					}
+					++$updated;
 				}
 				if ( self::$verbose ) {
 					WP_CLI::line( 'Finished processing subscription ' . $id );
@@ -122,6 +142,9 @@ class WooCommerce_Subscriptions {
 			$subscriptions = self::get_subscriptions( ++$page );
 		}
 		WP_CLI::success( 'Finished processing subscriptions. ' . $updated . ' subscriptions updated.' );
+		if ( ! self::$live ) {
+			WP_CLI::warning( 'Dry run. Use --live flag to process live subscriptions.' );
+		}
 		WP_CLI::line( '' );
 	}
 
@@ -134,21 +157,25 @@ class WooCommerce_Subscriptions {
 	 */
 	private static function get_subscriptions( $page = 1 ) {
 		$subscriptions = [];
-		if ( false === self::$ids ) {
-			$subscriptions = wcs_get_subscriptions(
-				[
-					'paged'                  => $page,
-					'subscriptions_per_page' => $per_page,
-					'subscrition_status'     => 'on-hold',
-				]
-			);
-		} else {
-			foreach ( self::$ids as $id ) {
+		if ( false !== self::$ids ) {
+			while ( ! empty( self::$ids ) ) {
+				$id = array_shift( self::$ids );
+				if ( ! is_numeric( $id ) ) {
+					continue;
+				}
 				$subscription = wcs_get_subscription( $id );
 				if ( $subscription ) {
 					$subscriptions[] = $subscription;
 				}
 			}
+		} else {
+			$subscriptions = wcs_get_subscriptions(
+				[
+					'paged'                  => $page,
+					'subscriptions_per_page' => 25,
+					'subscription_status'    => 'on-hold',
+				]
+			);
 		}
 		return $subscriptions;
 	}
