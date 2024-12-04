@@ -38,6 +38,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		Data_Events::register_handler( [ __CLASS__, 'order_completed' ], 'order_completed' );
 		Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_changed' );
+		Data_Events::register_handler( [ __CLASS__, 'subscription_renewed' ], 'subscription_renewed' );
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 		Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
@@ -140,17 +141,37 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
-		// Schedule a backup sync in two minutes if the subscription is being reactivated, to get around potential race conditions.
-		$delay = 'active' === $data['status_after'] ? 120 : 0;
-
 		self::sync(
 			$contact,
 			sprintf(
 				'RAS Woo Subscription updated. Status changed from %s to %s',
 				$data['status_before'],
 				$data['status_after']
+			)
+		);
+	}
+
+	/**
+	 * Handle a subscription renewal attempt.
+	 *
+	 * @param int   $timestamp Timestamp of the event.
+	 * @param array $data      Data associated with the event.
+	 * @param int   $client_id ID of the client that triggered the event.
+	 */
+	public static function subscription_renewed( $timestamp, $data, $client_id ) {
+		if ( empty( $data['subscription_id'] ) || empty( $data['user_id'] ) || empty( $data['email'] ) ) {
+			return;
+		}
+
+		self::schedule_sync(
+			$data['user_id'],
+			sprintf(
+				// Translators: %d is the subscription ID and %s is the customer's email address.
+				'RAS Woo subscription %d for %s renewed.',
+				$data['subscription_id'],
+				$data['email']
 			),
-			$delay
+			120 // Schedule an ESP sync in 2 minutes.
 		);
 	}
 
