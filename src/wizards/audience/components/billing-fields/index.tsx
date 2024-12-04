@@ -8,12 +8,7 @@ import { CheckboxControl } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	Grid,
-	SectionHeader,
-	Wizard,
-} from '../../../../components/src';
+import { Button, Grid, Wizard } from '../../../../components/src';
 import WizardsSection from '../../../wizards-section';
 
 const BillingFields = () => {
