@@ -120,7 +120,12 @@ class ESP_Sync extends Sync {
 					// Translators: %s is the email address of the contact to synced.
 					__( 'Scheduling secondary sync for contact %s.', 'newspack-plugin' ),
 					$contact['email']
-				)
+				),
+				[
+					'user_email' => $contact['email'],
+					'contact'    => $contact,
+					'context'    => $context,
+				]
 			);
 			\wp_schedule_single_event( \time() + $delay, 'newspack_scheduled_esp_sync', [ $contact, $context ] );
 		}
