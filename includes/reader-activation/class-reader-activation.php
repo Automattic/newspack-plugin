@@ -9,6 +9,7 @@ namespace Newspack;
 
 use Newspack\Recaptcha;
 use Newspack\Reader_Activation\Sync;
+use Newspack\Renewal;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -1330,10 +1331,16 @@ final class Reader_Activation {
 
 		$referer           = \wp_parse_url( \wp_get_referer() );
 		$labels            = self::get_reader_activation_labels( 'signin' );
-		$auth_callback_url = '#';
-		// If we are already on the my account page, set the my account URL so the page reloads on submit.
-		if ( function_exists( 'wc_get_page_permalink' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
-			$auth_callback_url = \wc_get_page_permalink( 'myaccount' );
+		// If there is a redirect parameter, use it as the auth callback URL.
+		$auth_callback_url = filter_input( INPUT_GET, 'redirect', FILTER_SANITIZE_URL ) ?? '#';
+		if ( '#' === $auth_callback_url ) {
+			if ( Renewal::is_subscriptions_page() ) {
+				// If we are on the subscriptions page, set the auth callback URL to the subscriptions page.
+				$auth_callback_url = Renewal::get_subscriptions_url();
+			} elseif ( function_exists( 'wc_get_page_permalink' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
+				// If we are already on the my account page, set the my account URL so the page reloads on submit.
+				$auth_callback_url = \wc_get_page_permalink( 'myaccount' );
+			}
 		}
 		?>
 		<div class="newspack-ui newspack-reader-auth">
