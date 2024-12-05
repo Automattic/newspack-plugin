@@ -3,11 +3,10 @@
  */
 type RecaptchaVersions = 'v2_invisible' | 'v3';
 type RecaptchaData = {
-	site_key: string;
 	threshold: string;
 	use_captcha: boolean;
-	site_secret: string;
-	version: RecaptchaVersions | '';
+	version: RecaptchaVersions;
+	credentials: Record< RecaptchaVersions, { site_key: string; site_secret: string } >;
 };
 
 /**

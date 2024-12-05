@@ -19,7 +19,7 @@ import Revenue from './revenue';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG, NEWSPACK, OTHER } from '../../constants';
 
 const AudienceDonations = () => {
-	const { platform_data, donation_data } = Wizard.useWizardData( 'newspack-audience-donations' );
+	const { platform_data, donation_data } = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
 	const usedPlatform = platform_data?.platform;
 	const sections = [
 		{

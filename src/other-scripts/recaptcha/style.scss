@@ -7,3 +7,9 @@
 		margin: 16px 0;
 	}
 }
+
+// Hide reCAPTCHA badge
+.grecaptcha-badge {
+	inset: 0 !important; // Prevents an odd side-scroll issue in the registration modal & block.
+	visibility: hidden !important;
+}

@@ -5,6 +5,7 @@ type StatusLabels =
 	| 'error'
 	| 'error-dependencies'
 	| 'error-preflight'
+	| 'error-request' // 404, 500
 	| 'pending'
 	| 'pending-install'
 	| 'idle';
@@ -15,7 +16,7 @@ type Status = {
 	isPreflightValid?: boolean;
 	configLink: string;
 	endpoint: string;
-	dependencies?: Dependencies | null;
+	dependencies?: Dependencies;
 	then: ( args: any ) => boolean;
 };
 

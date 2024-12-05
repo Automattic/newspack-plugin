@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { useDispatch } from '@wordpress/data';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -10,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
 import { NEWSPACK, NRH, OTHER } from '../../constants';
+import WizardsSection from '../../../wizards-section';
 
 /**
  * Platform Selection  Screen Component
@@ -18,7 +18,7 @@ const Platform = () => {
 	const wizardData = Wizard.useWizardData( 'newspack-audience/payment' );
 	const { saveWizardSettings, updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	return (
-		<Fragment>
+		<WizardsSection>
 			<Card noBorder>
 				<SelectControl
 					label={ __( 'Select Reader Revenue Platform', 'newspack' ) }
@@ -64,7 +64,7 @@ const Platform = () => {
 					withoutFooterButton={ true }
 				/>
 			) }
-		</Fragment>
+		</WizardsSection>
 	);
 };
 

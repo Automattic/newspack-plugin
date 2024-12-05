@@ -26,6 +26,9 @@ type ActionCardProps = Partial< {
 	isSmall: boolean;
 	editLink: string;
 	simple: boolean;
+	secondaryActionText: string;
+	onSecondaryActionClick: () => void;
+	secondaryDestructive: boolean;
 } >;
 
 /**

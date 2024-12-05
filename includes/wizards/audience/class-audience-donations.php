@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use WP_Error;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -161,6 +163,16 @@ class Audience_Donations extends Wizard {
 				],
 			]
 		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/emails/(?P<id>\d+)',
+			[
+				'methods'             => \WP_REST_Server::DELETABLE,
+				'callback'            => [ $this, 'api_reset_donation_email' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
 	}
 
 	/**
@@ -171,14 +183,14 @@ class Audience_Donations extends Wizard {
 	 */
 	public function update_additional_settings( $settings ) {
 		if ( isset( $settings['allow_covering_fees'] ) ) {
-			update_option( 'newspack_donations_allow_covering_fees', $settings['allow_covering_fees'] );
+			update_option( 'newspack_donations_allow_covering_fees', intval( $settings['allow_covering_fees'] ) );
 		}
 		if ( isset( $settings['allow_covering_fees_default'] ) ) {
 			update_option( 'newspack_donations_allow_covering_fees_default', $settings['allow_covering_fees_default'] );
 		}
 
 		if ( isset( $settings['allow_covering_fees_label'] ) ) {
-			update_option( 'newspack_donations_allow_covering_fees_label', $settings['allow_covering_fees_label'] );
+			update_option( 'newspack_donations_allow_covering_fees_label', intval( $settings['allow_covering_fees_label'] ) );
 		}
 		if ( isset( $settings['fee_multiplier'] ) ) {
 			update_option( 'newspack_blocks_donate_fee_multiplier', $settings['fee_multiplier'] );
@@ -231,18 +243,15 @@ class Audience_Donations extends Wizard {
 	 * @return Array
 	 */
 	public function fetch_all_data() {
-		$platform                 = Donations::get_platform_slug();
-		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$wc_installed             = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
-		$stripe_data              = Stripe_Connection::get_stripe_data();
+		$platform = Donations::get_platform_slug();
 
 		$args = [
 			'platform_data'       => [
 				'platform' => $platform,
 			],
 			'additional_settings' => [
-				'allow_covering_fees'         => get_option( 'newspack_donations_allow_covering_fees', true ),
-				'allow_covering_fees_default' => get_option( 'newspack_donations_allow_covering_fees_default', false ),
+				'allow_covering_fees'         => boolval( get_option( 'newspack_donations_allow_covering_fees', false ) ),
+				'allow_covering_fees_default' => boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
 				'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
 				'fee_multiplier'              => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
 				'fee_static'                  => get_option( 'newspack_blocks_donate_fee_static', '0.3' ),
@@ -289,6 +298,44 @@ class Audience_Donations extends Wizard {
 		}
 
 		return rest_ensure_response( $this->fetch_all_data() );
+	}
+
+	/**
+	 * Reset donation email template.
+	 * We acheive this by trashing the email template post.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 *
+	 * @return WP_Error|WP_REST_Response
+	 */
+	public function api_reset_donation_email( $request ) {
+		$params = $request->get_params();
+		$id     = $params['id'];
+		$email  = get_post( $id );
+
+		if ( $email === null || $email->post_type !== Emails::POST_TYPE ) {
+			return new WP_Error(
+				'newspack_reset_donation_email_invalid_arg',
+				esc_html__( 'Invalid argument: no email template matches the provided id.', 'newspack-plugin' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+		}
+
+		if ( ! wp_trash_post( $id ) ) {
+			return new WP_Error(
+				'newspack_reset_donation_email_reset_failed',
+				esc_html__( 'Reset failed: unable to reset email template.', 'newspack-plugin' ),
+				[
+					'status' => 400,
+					'level'  => 'notice',
+				]
+			);
+		}
+
+		return rest_ensure_response( Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ) );
 	}
 
 	/**

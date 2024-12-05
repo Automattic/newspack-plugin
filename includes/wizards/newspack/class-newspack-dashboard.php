@@ -194,17 +194,7 @@ class Newspack_Dashboard extends Wizard {
 	public function get_dashboard_network_cards() {
 
 		// Get the site role.
-		$site_role = ( function() {
-			$is_node = [ '\Newspack_Network\Site_Role', 'is_node' ];
-			if ( is_callable( $is_node ) && call_user_func( $is_node ) ) {
-				return 'node';
-			}
-			$is_hub = [ '\Newspack_Network\Site_Role', 'is_hub' ];
-			if ( is_callable( $is_hub ) && call_user_func( $is_hub ) ) {
-				return 'hub';
-			}
-			return '';
-		} )();
+		$site_role = Network_Wizard::get_site_role();
 
 		// Reusable card.
 		$settings_card = [
@@ -213,19 +203,6 @@ class Newspack_Dashboard extends Wizard {
 			'desc'  => __( 'Configure how Newspack Network functions.', 'newspack-plugin' ),
 			'href'  => admin_url( 'admin.php?page=newspack-network' ),
 		];
-
-		// If node.
-		if ( 'node' === $site_role ) {
-			return [
-				$settings_card,
-				[
-					'icon'  => 'positionCenterCenter',
-					'title' => __( 'Node', 'newspack-plugin' ),
-					'desc'  => __( 'Manage this Node\'s settings.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-network-node' ),
-				],
-			];
-		}
 
 		// If hub.
 		if ( 'hub' === $site_role ) {
@@ -254,23 +231,11 @@ class Newspack_Dashboard extends Wizard {
 					'desc'  => __( 'Troubleshoot issues by viewing all events across your network.', 'newspack-plugin' ),
 					'href'  => admin_url( 'admin.php?page=newspack-network-event-log' ),
 				],
-				[
-					'icon'  => 'postList',
-					'title' => __( 'Membership Plans', 'newspack-plugin' ),
-					'desc'  => __( 'View membership plans.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-network-membership-plans' ),
-				],
 				$settings_card,
-				[
-					'icon'  => 'tool',
-					'title' => __( 'Distributor Settings', 'newspack-plugin' ),
-					'desc'  => __( 'Modify the Distributor plugin behavior.', 'newspack-plugin' ),
-					'href'  => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
-				],
 			];
 		}
 
-		// Default / no role.
+		// Node or no role.
 		return [
 			$settings_card,
 		];

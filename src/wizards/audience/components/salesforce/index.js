@@ -18,7 +18,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { PluginSettings, Notice, Wizard } from '../../../../components/src';
 
 const Salesforce = () => {
-	const { salesforce_redirect_url: redirectUrl } = window?.newspackAudienceDonations || {};
+	const { salesforce_redirect_url: redirectUrl } = window?.newspackAudience || {};
 	const [ hasCopied, setHasCopied ] = useState( false );
 	const salesforceData = Wizard.useWizardData( 'newspack-audience/salesforce' );
 	const [ isConnected, setIsConnected ] = useState( salesforceData.refresh_token );

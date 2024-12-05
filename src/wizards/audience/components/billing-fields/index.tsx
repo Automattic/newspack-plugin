@@ -8,16 +8,16 @@ import { CheckboxControl } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	Grid,
-	SectionHeader,
-	Wizard,
-} from '../../../../components/src';
+import { Button, Grid, Wizard } from '../../../../components/src';
+import WizardsSection from '../../../wizards-section';
 
 const BillingFields = () => {
-	const wizardData = Wizard.useWizardData( 'newspack-audience/billing-fields' );
-	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const wizardData = Wizard.useWizardData(
+		'newspack-audience/billing-fields'
+	);
+	const { updateWizardSettings, saveWizardSettings } = useDispatch(
+		Wizard.STORE_NAMESPACE
+	);
 
 	if ( ! wizardData ) {
 		return null;
@@ -36,6 +36,7 @@ const BillingFields = () => {
 		} );
 
 	const availableFields = wizardData.available_billing_fields;
+	const orderNotesField = wizardData.order_notes_field;
 	if ( ! availableFields || ! Object.keys( availableFields ).length ) {
 		return null;
 	}
@@ -45,26 +46,29 @@ const BillingFields = () => {
 		: Object.keys( availableFields );
 
 	return (
-		<>
-			<SectionHeader
-				title={ __( 'Checkout Billing Fields', 'newspack-plugin' ) }
-				description={ __(
-					'Configure the billing fields shown in the modal checkout form.',
-					'newspack-plugin'
-				) }
-				noMargin
-			/>
+		<WizardsSection
+			title={ __( 'Billing Fields', 'newspack-plugin' ) }
+			description={ __(
+				'Configure the billing fields shown in the modal checkout form. Fields marked with (*) are required if shown. Note that for shippable products, address fields will always be shown.',
+				'newspack-plugin'
+			) }
+		>
 			<Grid columns={ 3 } rowGap={ 16 }>
 				{ Object.keys( availableFields ).map( fieldKey => (
 					<CheckboxControl
 						key={ fieldKey }
-						label={ availableFields[ fieldKey ].label }
+						label={
+							availableFields[ fieldKey ].label +
+							( availableFields[ fieldKey ].required ? ' *' : '' )
+						}
 						checked={ billingFields.includes( fieldKey ) }
 						disabled={ fieldKey === 'billing_email' } // Email is always required.
 						onChange={ () => {
 							let newFields = [ ...billingFields ];
 							if ( billingFields.includes( fieldKey ) ) {
-								newFields = newFields.filter( field => field !== fieldKey );
+								newFields = newFields.filter(
+									field => field !== fieldKey
+								);
 							} else {
 								newFields = [ ...newFields, fieldKey ];
 							}
@@ -72,13 +76,30 @@ const BillingFields = () => {
 						} }
 					/>
 				) ) }
+				{ orderNotesField && (
+					<CheckboxControl
+						label={ orderNotesField.label }
+						checked={ billingFields.includes( 'order_comments' ) }
+						onChange={ () => {
+							let newFields = [ ...billingFields ];
+							if ( billingFields.includes( 'order_comments' ) ) {
+								newFields = newFields.filter(
+									field => field !== 'order_comments'
+								);
+							} else {
+								newFields = [ ...newFields, 'order_comments' ];
+							}
+							changeHandler( newFields );
+						} }
+					/>
+				) }
 			</Grid>
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ onSave }>
 					{ __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
-		</>
+		</WizardsSection>
 	);
 };
 
