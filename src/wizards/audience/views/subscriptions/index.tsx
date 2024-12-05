@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
 import { Wizard, withWizard } from '../../../../components/src';
 import Configuration from './configuration';
 import Revenue from './revenue';
-import Settings from './settings';
 
 function AudienceSubscriptions() {
 	const tabs = [
@@ -22,11 +21,6 @@ function AudienceSubscriptions() {
 			label: __( 'Revenue', 'newspack-plugin' ),
 			path: '/revenue',
 			render: () => <Revenue />,
-		},
-		{
-			label: __( 'Settings', 'newspack-plugin' ),
-			path: '/settings',
-			render: () => <Settings />,
 		},
 	];
 	return (

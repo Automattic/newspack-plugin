@@ -10,8 +10,9 @@ import { Card } from '../components/src';
 /**
  * Wizards Card component.
  *
- * @param props          Component props.
- * @param props.children Component children.
+ * @param props           Component props.
+ * @param props.children  Component children.
+ * @param props.className Component classNames.
  *
  * @return Component.
  */
