@@ -171,7 +171,16 @@ final class Recaptcha {
 	public static function get_settings_config() {
 		return [
 			'use_captcha' => false,
-			'credentials' => [],
+			'credentials' => [
+				'v3'           => [
+					'site_key'    => '',
+					'site_secret' => '',
+				],
+				'v2_invisible' => [
+					'site_key'    => '',
+					'site_secret' => '',
+				],
+			],
 			'threshold'   => 0.5,
 			'version'     => 'v3',
 		];

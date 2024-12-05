@@ -92,8 +92,8 @@ function Recaptcha() {
 			...settingsDefault,
 		}
 	);
-	const credentials = settingsToUpdate?.credentials || {};
-	const versionCredentials = credentials[ settingsToUpdate?.version ];
+	const credentials = settingsToUpdate.credentials || {};
+	const versionCredentials = credentials[ settingsToUpdate.version ];
 
 	useEffect( () => {
 		wizardApiFetch< RecaptchaData >(
