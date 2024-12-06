@@ -250,7 +250,7 @@ final class Newspack {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$redirect_url   = admin_url( 'admin.php?page=newspack' );
+		$redirect_url   = admin_url( 'admin.php?page=newspack-dashboard' );
 		$newspack_reset = filter_input( INPUT_GET, 'newspack_reset', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( 'starter-content' === $newspack_reset ) {
 			Starter_Content::remove_starter_content();
@@ -335,7 +335,7 @@ final class Newspack {
 		$post_type_mapping = [
 			Emails::POST_TYPE => [
 				'base' => 'edit',
-				'url'  => esc_url( admin_url( 'admin.php?page=newspack' ) ),
+				'url'  => esc_url( admin_url( 'admin.php?page=newspack-dashboard' ) ),
 			],
 		];
 

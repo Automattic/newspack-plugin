@@ -20,7 +20,7 @@ const HandoffBanner = ( {
 	bodyText = __( 'Return to Newspack after completing configuration', 'newspack-plugin' ),
 	primaryButtonText = __( 'Back to Newspack', 'newspack-plugin' ),
 	dismissButtonText = __( 'Dismiss', 'newspack-plugin' ),
-	primaryButtonURL = '/wp-admin/admin.php?page=newspack',
+	primaryButtonURL = '/wp-admin/admin.php?page=newspack-dashboard',
 } ) => {
 	const [ visibility, setVisibility ] = useState( true );
 	return (

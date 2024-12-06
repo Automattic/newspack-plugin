@@ -2478,5 +2478,19 @@ final class Reader_Activation {
 			)
 		);
 	}
+
+	/**
+	 * Get the checkout configuration.
+	 *
+	 * @return array The checkout configuration.
+	 */
+	public static function get_checkout_configuration() {
+		return [
+			'woocommerce_registration_required'        => self::is_woocommerce_registration_required(),
+			'woocommerce_post_checkout_success_text'   => self::get_post_checkout_success_text(),
+			'woocommerce_checkout_privacy_policy_text' => self::get_checkout_privacy_policy_text(),
+			'woocommerce_post_checkout_registration_success_text' => self::get_post_checkout_registration_success_text(),
+		];
+	}
 }
 Reader_Activation::init();

@@ -15,6 +15,7 @@ import { SectionHeader } from '../components/src';
  * @param props.description    Section description.
  * @param props.children       Section children.
  * @param props.scrollToAnchor Scroll to anchor.
+ * @param props.className      Optional class name.
  *
  * @return Component.
  */
@@ -23,14 +24,19 @@ export default function WizardSection( {
 	description,
 	children = null,
 	scrollToAnchor = null,
+	className,
 }: {
 	title?: string;
 	description?: string;
 	children: React.ReactNode;
 	scrollToAnchor?: string | null;
+	className?: string;
 } ) {
+	const classNames = `newspack-wizard__section${
+		className ? ` ${ className }` : ''
+	}`;
 	return (
-		<div className="newspack-wizard__section">
+		<div className={ classNames }>
 			{ title && (
 				<SectionHeader
 					id={ scrollToAnchor }
