@@ -15,6 +15,7 @@ import { SectionHeader } from '../components/src';
  * @param props.description    Section description.
  * @param props.children       Section children.
  * @param props.scrollToAnchor Scroll to anchor.
+ * @param props.className      Optional class name.
  *
  * @return Component.
  */
