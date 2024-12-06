@@ -26,11 +26,11 @@ ActionCards for WooCommerce and Instant Articles for WP with custom text and URL
 	plugins={ {
 		woocommerce: {
 			actionText: __( 'Use WooCommerce' ),
-			href: '/wp-admin/admin.php?page=newspack',
+			href: '/wp-admin/admin.php?page=newspack-dashboard',
 		},
 		'fb-instant-articles': {
 			actionText: __( 'Configure Instant Articles' ),
-			href: '/wp-admin/admin.php?page=newspack',
+			href: '/wp-admin/admin.php?page=newspack-dashboard',
 		},
 	} }
 />
@@ -46,7 +46,7 @@ ActionCards for WooCommerce and Instant Articles for WP. Page will refresh after
 		},
 		'fb-instant-articles': {
 			actionText: __( 'Configure Instant Articles' ),
-			href: '/wp-admin/admin.php?page=newspack',
+			href: '/wp-admin/admin.php?page=newspack-dashboard',
 		},
 	} }
 />
