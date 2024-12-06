@@ -38,7 +38,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		Data_Events::register_handler( [ __CLASS__, 'order_completed' ], 'order_completed' );
 		Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'donation_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'subscription_updated' ], 'product_subscription_changed' );
-		Data_Events::register_handler( [ __CLASS__, 'subscription_renewed' ], 'subscription_renewed' );
+		Data_Events::register_handler( [ __CLASS__, 'subscription_renewal_attempt' ], 'subscription_renewal_attempt' );
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_subscribed' );
 		Data_Events::register_handler( [ __CLASS__, 'newsletter_updated' ], 'newsletter_updated' );
 		Data_Events::register_handler( [ __CLASS__, 'network_new_reader' ], 'network_new_reader' );
@@ -158,7 +158,7 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * @param array $data      Data associated with the event.
 	 * @param int   $client_id ID of the client that triggered the event.
 	 */
-	public static function subscription_renewed( $timestamp, $data, $client_id ) {
+	public static function subscription_renewal_attempt( $timestamp, $data, $client_id ) {
 		if ( empty( $data['subscription_id'] ) || empty( $data['user_id'] ) || empty( $data['email'] ) ) {
 			return;
 		}

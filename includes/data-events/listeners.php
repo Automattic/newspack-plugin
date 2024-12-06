@@ -333,7 +333,7 @@ Data_Events::register_listener(
  */
 Data_Events::register_listener(
 	'wcs_renewal_order_created',
-	'subscription_renewed',
+	'subscription_renewal_attempt',
 	function( $renewal_order, $subscription ) {
 		return [
 			'user_id'         => $subscription->get_customer_id(),

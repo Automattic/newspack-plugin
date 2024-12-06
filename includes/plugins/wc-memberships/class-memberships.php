@@ -1088,3 +1088,71 @@ class Memberships {
 	}
 }
 Memberships::init();
+
+$value = [
+	0                        => null,
+	'nav_menu_locations'     => [
+		'primary-menu'   => 2955,
+		'tertiary-menu'  => 14964,
+		'secondary-menu' => 0,
+		'highlight-menu' => 0,
+		'social'         => 0,
+	],
+	'custom_css_post_id'     => 68074,
+	'hide_front_page_title'  => true,
+	'header_text'            => 0,
+	'custom_logo'            => 68460,
+	'header_simplified'      => false,
+	'header_display_tagline' => false,
+	'logo_size'              => 50,
+	'active_style_pack'      => 'style-2',
+	'theme_colors'           => 'custom',
+	'primary_color_hex'      => '#aa986a',
+	'secondary_color_hex'    => '#eae3da',
+	'newspack_footer_logo'   => 0,
+	'featured_image_default' => 'small',
+	'sidebars_widgets'       => [
+		'time' => 1586119078,
+		'data' => [
+			'wp_inactive_widgets' => [
+				'text-6',
+				'text-7',
+				'meta-2',
+				'recent-posts-2',
+				'recent-comments-2',
+				'categories-2',
+				'archives-2',
+				'media_image-5',
+				'custom_html-4',
+				'custom_html-5',
+				'custom_html-6',
+				'media_image-2',
+				'nav_menu-2',
+				'media_image-3',
+				'nav_menu-4',
+				'custom_html-9',
+				'search-3',
+				'custom_html-3',
+				'text-4',
+				'custom_html-2',
+			],
+			'sidebar-1'           => [
+				'search-2',
+				'twitter_timeline-3',
+				'text-3',
+				'custom_html-7',
+			],
+			'header-1'            => [],
+			'footer-1'            => [
+				'nav_menu-8',
+				'nav_menu-9',
+				'search-5',
+			],
+			'footer-2'            => [
+				'nav_menu-6',
+			],
+			'article-1'           => [],
+			'article-2'           => [],
+		],
+	],
+];
