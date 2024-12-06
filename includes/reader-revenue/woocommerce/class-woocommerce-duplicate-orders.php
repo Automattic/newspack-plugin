@@ -118,7 +118,7 @@ class WooCommerce_Duplicate_Orders {
 	 * @param bool   $save Whether to save the result as the option.
 	 * @param bool   $upsert Whether to upsert the option (merge with existing).
 	 */
-	public static function check_for_order_duplicates( $cutoff_time = DAY_IN_SECONDS, $save = false, $upsert = true ): array {
+	public static function check_for_order_duplicates( $cutoff_time = DAY_IN_SECONDS, $save = true, $upsert = true ): array {
 		$order_duplicates = self::get_order_duplicates( $cutoff_time );
 		if ( empty( $order_duplicates ) ) {
 			return [];
@@ -237,7 +237,7 @@ class WooCommerce_Duplicate_Orders {
 		$cutoff_time = strtotime( $cutoff_time_str ) - time();
 		$save_as_option = isset( $assoc_args['save'] ) ? $assoc_args['save'] : false;
 
-		$duplicates = self::check_for_order_duplicates( $cutoff_time, $save_as_option, false );
+		$duplicates = self::check_for_order_duplicates( $cutoff_time, $save_as_option );
 
 		if ( empty( $duplicates ) ) {
 			\WP_CLI::success( 'No duplicate orders found.' );
