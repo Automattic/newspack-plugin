@@ -19,7 +19,7 @@ import { withWizard } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 import ContentGating from './content-gating';
 import TransactionalEmails from './transactional-emails';
-import WooCommerce from './woocommerce';
+import Payment from './payment';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
@@ -85,16 +85,35 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 				path: '/content-gating',
 			},
 			emails.length > 0 && {
-				label: __( 'Transacional Emails', 'newspack-plugin' ),
+				label: __( 'Transactional Emails', 'newspack-plugin' ),
 				path: '/transactional-emails',
 			},
 			{
 				label: __( 'Checkout & Payment', 'newspack-plugin' ),
-				path: '/woocommerce',
+				path: '/payment',
 			},
 		];
 		tabs = tabs.filter( tab => tab );
 	}
+
+	const getSharedProps = ( configKey, type = 'checkbox' ) => {
+		const props = {
+			onChange: val => updateConfig( configKey, val ),
+		};
+		if ( configKey !== 'enabled' ) {
+			props.disabled = inFlight;
+		}
+		switch ( type ) {
+			case 'checkbox':
+				props.checked = Boolean( config[ configKey ] );
+				break;
+			case 'text':
+				props.value = config[ configKey ] || '';
+				break;
+		}
+
+		return props;
+	};
 
 	const props = {
 		headerText: __(
@@ -108,6 +127,9 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		fetchConfig,
 		updateConfig,
 		saveConfig,
+		setInFlight,
+		setError,
+		getSharedProps,
 		espSyncErrors,
 		prerequisites,
 		config,
@@ -139,9 +161,9 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 						) }
 					/>
 					<Route
-						path="/woocommerce"
+						path="/payment"
 						render={ () => (
-							<WooCommerce { ...props } />
+							<Payment { ...props } />
 						) }
 					/>
 					<Route

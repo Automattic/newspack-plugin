@@ -10,7 +10,7 @@ import { useDispatch } from '@wordpress/data';
 import { PluginToggle, ActionCard, Wizard } from '../../../../components/src';
 
 const Intro = () => {
-	const settingsData = Wizard.useWizardData( 'settings' );
+	const settingsData = Wizard.useWizardData( 'newspack-settings-wizard' );
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	return (
 		<>

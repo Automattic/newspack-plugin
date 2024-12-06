@@ -29,22 +29,21 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'site-design'     => new Site_Design_Wizard(),
-			'reader-revenue'  => new Reader_Revenue_Wizard(),
-			'syndication'     => new Syndication_Wizard(),
-			'analytics'       => new Analytics_Wizard(),
-			'components-demo' => new Components_Demo(),
-			'seo'             => new SEO_Wizard(),
-			'health-check'    => new Health_Check_Wizard(),
-			'engagement'      => new Engagement_Wizard(),
-			'connections'     => new Connections_Wizard(),
-			'settings'        => new Settings(),
+			'site-design'        => new Site_Design_Wizard(),
+			'syndication'        => new Syndication_Wizard(),
+			'analytics'          => new Analytics_Wizard(),
+			'components-demo'    => new Components_Demo(),
+			'seo'                => new SEO_Wizard(),
+			'health-check'       => new Health_Check_Wizard(),
+			'engagement'         => new Engagement_Wizard(),
+			'connections'        => new Connections_Wizard(),
+			'settings'           => new Settings(),
 			// v2 Information Architecture.
-			'setup'           => new Setup_Wizard(),
+			'setup'              => new Setup_Wizard(),
+			'newspack-dashboard' => new Newspack_Dashboard(),
 		];
 
 		if ( Newspack::is_setup_complete() ) {
-			static::$wizards['newspack-dashboard'] = new Newspack_Dashboard();
 			static::$wizards['newspack-settings'] = new Newspack_Settings(
 				[
 					'sections' => [
@@ -58,6 +57,7 @@ class Wizards {
 			static::$wizards['advertising-sponsors'] = new Advertising_Sponsors();
 			static::$wizards['audience'] = new Audience_Wizard();
 			static::$wizards['audience-campaigns'] = new Audience_Campaigns();
+			static::$wizards['audience-donations'] = new Audience_Donations();
 			static::$wizards['listings'] = new Listings_Wizard();
 			static::$wizards['network'] = new Network_Wizard();
 			static::$wizards['newsletters'] = new Newsletters_Wizard();

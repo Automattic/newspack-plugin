@@ -64,6 +64,15 @@ const components: Record< string, any > = {
 				)
 		),
 	},
+	'newspack-audience-donations': {
+		label: __( 'Audience Donations', 'newspack-plugin' ),
+		component: lazy(
+			() =>
+				import(
+					/* webpackChunkName: "audience-wizards" */ './audience/views/donations'
+				)
+		),
+	},
 } as const;
 
 const AdminPageLoader = ( { label }: { label: string } ) => {

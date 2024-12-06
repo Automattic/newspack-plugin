@@ -1,0 +1,35 @@
+.newspack-ui {
+	&__spinner {
+		align-items: center;
+		background: var(--newspack-ui-color-neutral-0);
+		border-radius: var(--newspack-ui-border-radius-m);
+		display: flex;
+		height: 100%;
+		justify-content: center;
+		left: 50%;
+		opacity: 0.7;
+		position: absolute;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		width: 100%;
+		> span {
+			animation: spin 900ms infinite linear;
+			border: 1.5px solid;
+			border-color:
+				var(--newspack-ui-color-neutral-90) var(--newspack-ui-color-neutral-90)
+				var(--newspack-ui-color-body-bg) var(--newspack-ui-color-body-bg);
+			border-radius: 50%;
+			height: calc(var(--newspack-ui-spacer-base) * 2.25);
+			width: calc(var(--newspack-ui-spacer-base) * 2.25);
+		}
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

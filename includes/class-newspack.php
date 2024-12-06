@@ -45,9 +45,6 @@ final class Newspack {
 		add_action( 'current_screen', [ $this, 'wizard_redirect' ] );
 		add_action( 'admin_menu', [ $this, 'handle_resets' ], 1 );
 		add_action( 'admin_menu', [ $this, 'remove_newspack_suite_plugin_links' ], 1 );
-		add_action( 'admin_notices', [ $this, 'remove_notifications' ], -9999 );
-		add_action( 'network_admin_notices', [ $this, 'remove_notifications' ], -9999 );
-		add_action( 'all_admin_notices', [ $this, 'remove_notifications' ], -9999 );
 		register_activation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'activation_hook' ] );
 		register_deactivation_hook( NEWSPACK_PLUGIN_FILE, [ $this, 'deactivation_hook' ] );
 	}
@@ -152,6 +149,7 @@ final class Newspack {
 		// Audience Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-campaigns.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/audience/class-audience-donations.php';
 
 		// Network Wizard.
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-network-wizard.php';
@@ -163,7 +161,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-reader-revenue-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-site-design-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
@@ -193,6 +190,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-search-authors-limit.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-elections.php';
 
@@ -214,6 +212,10 @@ final class Newspack {
 
 		// Filter by authors in the Posts page.
 		include_once NEWSPACK_ABSPATH . 'includes/author-filter/class-author-filter.php';
+
+		// Load the general Newspack UI front-end styles.
+		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-ui.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-ui-icons.php';
 
 		\Newspack\CLI\Initializer::init();
 	}
@@ -272,23 +274,6 @@ final class Newspack {
 			wp_safe_redirect( $redirect_url );
 			exit;
 		}
-	}
-
-	/**
-	 * Remove notifications.
-	 */
-	public function remove_notifications() {
-		$screen = get_current_screen();
-
-		$is_newspack_screen = str_contains( $screen->base, 'newspack_page_' );
-		$is_advertising_screen = str_contains( $screen->base, 'toplevel_page_advertising' );
-
-		$is_wizard = $is_newspack_screen || $is_advertising_screen;
-
-		if ( ! $screen || ! $is_wizard ) {
-			return;
-		}
-		remove_all_actions( current_action() );
 	}
 
 	/**

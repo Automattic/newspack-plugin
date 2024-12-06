@@ -52,17 +52,13 @@ wizardsScripts.forEach( function ( wizard ) {
 } );
 
 const entry = {
-	'reader-activation': path.join(
+	'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
+	'reader-auth': path.join( __dirname, 'src', 'reader-activation-auth', 'index.js' ),
+	'newsletters-signup': path.join(
 		__dirname,
 		'src',
-		'reader-activation',
+		'reader-activation-newsletters',
 		'index.js'
-	),
-	'reader-auth': path.join(
-		__dirname,
-		'src',
-		'reader-activation',
-		'auth.js'
 	),
 	'reader-registration-block': path.join(
 		__dirname,
@@ -108,6 +104,7 @@ const entry = {
 		'block-patterns.js'
 	),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),
+	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
 };
 
 // Get files for other scripts.
@@ -138,5 +135,11 @@ webpackConfig.optimization.splitChunks.cacheGroups.commons = {
 	chunks: 'initial',
 	minChunks: 2,
 };
+
+// Fonts handling.
+webpackConfig.module.rules.push( {
+	test: /\.(woff|woff2|eot|ttf|otf)$/i,
+	type: 'asset/resource',
+} );
 
 module.exports = webpackConfig;

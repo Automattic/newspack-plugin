@@ -149,7 +149,7 @@ class ComponentsDemo extends Component {
 								},
 								'fb-instant-articles': {
 									actionText: __( 'Configure Instant Articles', 'newspack-plugin' ),
-									href: '/wp-admin/admin.php?page=newspack',
+									href: '/wp-admin/admin.php?page=newspack-dashboard',
 								},
 							} }
 						/>

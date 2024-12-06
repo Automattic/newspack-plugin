@@ -28,8 +28,9 @@ import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
+import Salesforce from '../../components/salesforce';
 
-export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
+export default withWizardScreen( ( { config, fetchConfig, updateConfig, getSharedProps, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
 	const [ allReady, setAllReady ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const [ isMailchimp, setIsMailchimp ] = useState( false );
@@ -80,25 +81,6 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 			);
 		}
 	}, [ prerequisites ] );
-
-	const getSharedProps = ( configKey, type = 'checkbox' ) => {
-		const props = {
-			onChange: val => updateConfig( configKey, val ),
-		};
-		if ( configKey !== 'enabled' ) {
-			props.disabled = inFlight;
-		}
-		switch ( type ) {
-			case 'checkbox':
-				props.checked = Boolean( config[ configKey ] );
-				break;
-			case 'text':
-				props.value = config[ configKey ] || '';
-				break;
-		}
-
-		return props;
-	};
 
 	return (
 		<WizardsTab
@@ -192,11 +174,11 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 					/>
 					<ActionCard
 						title={ __(
-							'Custom newsletter lists on registration',
+							'Present newsletter signup after checkout and registration',
 							'newspack-plugin'
 						) }
 						description={ __(
-							"Choose which of the Newspack Newsletters's subscription lists should be available upon registration.",
+							'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
 							'newspack-plugin'
 						) }
 						toggleChecked={ config.use_custom_lists }
@@ -365,6 +347,10 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 									sync_esp: config.sync_esp,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
+									woocommerce_registration_required: config.woocommerce_registration_required,
+									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
+									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
+									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
 								} );
 							} }
 							disabled={ inFlight }
@@ -375,6 +361,12 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, saveConf
 							) }
 						</Button>
 					</div>
+					{ newspackAudience.can_use_salesforce && (
+						<>
+							<hr />
+							<Salesforce />
+						</>
+					) }
 				</Card>
 			) }
 		</WizardsTab>
