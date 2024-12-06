@@ -42,6 +42,9 @@ class Subscriptions_Meta {
 		if ( ! in_array( $to_status, [ 'active', 'cancelled', 'pending-cancel' ], true ) || in_array( $from_status, [ 'cancelled', 'expired' ], true ) ) {
 			return;
 		}
+
+		remove_action( 'woocommerce_subscription_status_updated', array( __CLASS__, 'maybe_record_cancelled_subscription_meta' ) );
+
 		$meta_value = $subscription->get_meta( self::CANCELLATION_REASON_META_KEY, true );
 		if ( 'active' === $to_status && $meta_value ) {
 			$subscription->delete_meta_data( self::CANCELLATION_REASON_META_KEY );
@@ -63,5 +66,7 @@ class Subscriptions_Meta {
 			$subscription->update_meta_data( self::CANCELLATION_REASON_META_KEY, $meta_value );
 			$subscription->save();
 		}
+
+		add_action( 'woocommerce_subscription_status_updated', array( __CLASS__, 'maybe_record_cancelled_subscription_meta' ), 10, 3 );
 	}
 }
