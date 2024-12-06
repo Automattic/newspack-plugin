@@ -6,23 +6,34 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import { Wizard, withWizard } from '../../../../components/src';
-import Configuration from './configuration';
-import Revenue from './revenue';
+import { Button, Card, Wizard, withWizard } from '../../../../components/src';
+import WizardsTab from '../../../wizards-tab';
+import WizardSection from '../../../wizards-section';
+
+const subscriptionTabs = window.newspackAudienceSubscriptions.tabs;
 
 function AudienceSubscriptions() {
-	const tabs = [
-		{
-			label: __( 'Configuration', 'newspack-plugin' ),
-			path: '/configuration',
-			render: () => <Configuration />,
-		},
-		{
-			label: __( 'Revenue', 'newspack-plugin' ),
-			path: '/revenue',
-			render: () => <Revenue />,
-		},
-	];
+	const tabs = subscriptionTabs.map( tab => {
+		const render = () => (
+			<WizardsTab title={ tab.title }>
+				<WizardSection>
+					<Card isNarrow>
+						<h2>{ tab.header }</h2>
+						<p>{ tab.description }</p>
+						<Button variant="primary" href={ tab.href }>
+							{ tab.btn_text }
+						</Button>
+					</Card>
+				</WizardSection>
+			</WizardsTab>
+		);
+		return {
+			label: tab.title,
+			path: tab.path,
+			render,
+		};
+	} );
+
 	return (
 		<Wizard
 			headerText={ __(

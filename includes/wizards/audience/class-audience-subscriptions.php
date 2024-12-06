@@ -61,5 +61,29 @@ class Audience_Subscriptions extends Wizard {
 
 		parent::enqueue_scripts_and_styles();
 		wp_enqueue_script( 'newspack-wizards' );
+		wp_localize_script(
+			'newspack-wizards',
+			'newspackAudienceSubscriptions',
+			[
+				'tabs' => [
+					[
+						'path'        => '/configuration',
+						'title'       => esc_html__( 'Configuration', 'newspack-plugin' ),
+						'header'      => esc_html__( 'Manage Subscriptions settings in Woo Memberships', 'newspack-plugin' ),
+						'description' => esc_html__( 'You can manage the details of your subscription offerings in the Woo Memberships plugin.', 'newspack-plugin' ),
+						'href'        => admin_url( 'admin.php?page=wc-settings&tab=memberships' ),
+						'btn_text'    => esc_html__( 'Manage Subscriptions', 'newspack-plugin' ),
+					],
+					[
+						'path'        => '/revenue',
+						'title'       => esc_html__( 'Revenue', 'newspack-plugin' ),
+						'header'      => esc_html__( 'View Subscription Revenue in WooCommerce', 'newspack-plugin' ),
+						'description' => esc_html__( 'You can view revenue data from Donations and Subscriptions in the WooCommerce Plugin.', 'newspack-plugin' ),
+						'href'        => admin_url( 'admin.php?page=wc-reports' ),
+						'btn_text'    => esc_html__( 'View Subscription Revenue', 'newspack-plugin' ),
+					],
+				],
+			]
+		);
 	}
 }
