@@ -309,7 +309,7 @@ class Audience_Wizard extends Wizard {
 		);
 
 		// Update billing fields info.
-		\register_rest_route(
+		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
 			'/wizard/' . $this->slug . '/billing-fields',
 			[
@@ -318,7 +318,32 @@ class Audience_Wizard extends Wizard {
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'billing_fields' => [
-						'sanitize_callback' => [ $this, 'sanitize_billing_fields' ],
+						'sanitize_callback' => [ $this, 'sanitize_string_array' ],
+						'validate_callback' => [ $this, 'api_validate_not_empty' ],
+					],
+				],
+			]
+		);
+
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/checkout-configuration',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ Reader_Activation::class, 'get_checkout_configuration' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/checkout-configuration',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_checkout_configuration' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'billing_fields' => [
+						'sanitize_callback' => [ $this, 'sanitize_string_array' ],
 						'validate_callback' => [ $this, 'api_validate_not_empty' ],
 					],
 				],
@@ -540,7 +565,7 @@ class Audience_Wizard extends Wizard {
 	 *
 	 * @return array
 	 */
-	public function sanitize_billing_fields( $value ) {
+	public function sanitize_string_array( $value ) {
 		return is_array( $value ) ? array_map( 'sanitize_text_field', $value ) : [];
 	}
 
@@ -587,6 +612,27 @@ class Audience_Wizard extends Wizard {
 		$params = $request->get_params();
 		Donations::update_billing_fields( $params['billing_fields'] );
 		return \rest_ensure_response( $this->get_billing_fields() );
+	}
+
+	/**
+	 * API callback to update checkout configuration.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response.
+	 */
+	public function api_update_checkout_configuration( WP_REST_Request $request ): WP_REST_Response {
+		$params = $request->get_params();
+		$checkout_options = [
+			[ Reader_Activation::OPTIONS_PREFIX . 'woocommerce_registration_required', $params['woocommerce_registration_required'] ],
+			[ Reader_Activation::OPTIONS_PREFIX . 'woocommerce_post_checkout_success_text', $params['woocommerce_post_checkout_success_text'] ],
+			[ Reader_Activation::OPTIONS_PREFIX . 'woocommerce_checkout_privacy_policy_text', $params['woocommerce_checkout_privacy_policy_text'] ],
+			[ Reader_Activation::OPTIONS_PREFIX . 'woocommerce_post_checkout_registration_success_text', $params['woocommerce_post_checkout_registration_success_text'] ],
+		];
+		foreach ( $checkout_options as $option ) {
+			[ $key, $value ] = $option;
+			update_option( $key, $value );
+		}
+		return rest_ensure_response( Reader_Activation::get_checkout_configuration() );
 	}
 
 	/**
