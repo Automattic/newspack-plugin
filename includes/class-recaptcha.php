@@ -227,7 +227,11 @@ final class Recaptcha {
 		$config   = self::get_settings_config();
 		$settings = [];
 		foreach ( $config as $key => $default_value ) {
-			$settings[ $key ] = self::get_setting( $key );
+			if ( 'credentials' === $key ) {
+				$settings[ $key ] = wp_parse_args( self::get_setting( $key ), $default_value );
+			} else {
+				$settings[ $key ] = self::get_setting( $key );
+			}
 		}
 
 		// Migrate reCAPTCHA settings from separate site_key/site_secret options to credentials array.
