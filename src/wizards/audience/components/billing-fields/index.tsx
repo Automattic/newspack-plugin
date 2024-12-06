@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies.
  */
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { CheckboxControl } from '@wordpress/components';
 
@@ -17,6 +17,11 @@ const BillingFields = () => {
 	);
 	const { updateWizardSettings, saveWizardSettings } = useDispatch(
 		Wizard.STORE_NAMESPACE
+	);
+	const isQuietLoading = useSelect(
+		( select: any ) =>
+			select( Wizard.STORE_NAMESPACE ).isQuietLoading() ?? false,
+		[]
 	);
 
 	if ( ! wizardData ) {
@@ -52,6 +57,7 @@ const BillingFields = () => {
 				'Configure the billing fields shown in the modal checkout form. Fields marked with (*) are required if shown. Note that for shippable products, address fields will always be shown.',
 				'newspack-plugin'
 			) }
+			className={ isQuietLoading ? 'is-fetching' : '' }
 		>
 			<Grid columns={ 3 } rowGap={ 16 }>
 				{ Object.keys( availableFields ).map( fieldKey => (
@@ -95,8 +101,14 @@ const BillingFields = () => {
 				) }
 			</Grid>
 			<div className="newspack-buttons-card">
-				<Button variant="primary" onClick={ onSave }>
-					{ __( 'Save Settings', 'newspack-plugin' ) }
+				<Button
+					variant="primary"
+					onClick={ onSave }
+					disabled={ isQuietLoading }
+				>
+					{ isQuietLoading
+						? __( 'Saving…', 'newspack-plugin' )
+						: __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</WizardsSection>

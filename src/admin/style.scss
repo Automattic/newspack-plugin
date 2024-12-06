@@ -72,6 +72,17 @@ h1 {
 			color: transparent;
 		}
 	}
+	.components-checkbox-control {
+		animation: opacity-pulse 1.4s infinite ease-in-out;
+	}
+	.components-checkbox-control__input[type="checkbox"] {
+		border-color: var(--np-color-wp-gray-100);
+	}
+	.components-checkbox-control__input[type="checkbox"]:checked {
+		background: var(--np-color-wp-gray-100);
+		border-color: var(--np-color-wp-gray-100);
+		cursor: progress;
+	}
 
 	// Theme
 	.newspack-style-card {

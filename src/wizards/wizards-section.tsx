@@ -23,14 +23,19 @@ export default function WizardSection( {
 	description,
 	children = null,
 	scrollToAnchor = null,
+	className,
 }: {
 	title?: string;
 	description?: string;
 	children: React.ReactNode;
 	scrollToAnchor?: string | null;
+	className?: string;
 } ) {
+	const classNames = `newspack-wizard__section${
+		className ? ` ${ className }` : ''
+	}`;
 	return (
-		<div className="newspack-wizard__section">
+		<div className={ classNames }>
 			{ title && (
 				<SectionHeader
 					id={ scrollToAnchor }
