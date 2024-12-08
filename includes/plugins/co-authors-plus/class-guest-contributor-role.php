@@ -98,24 +98,16 @@ class Guest_Contributor_Role {
 	 * @return void
 	 */
 	public static function early_init() {
-
-		// Enable Guest Authors...
-		// -- if constant exists and is true.
 		if ( defined( 'NEWSPACK_ENABLE_CAP_GUEST_AUTHORS' ) && NEWSPACK_ENABLE_CAP_GUEST_AUTHORS ) {
 			return;
 		}
-		// -- if site already has Guest Authors. 
-		if ( self::site_has_cap_guest_authors() ) {
-			return;
-		}
-		// -- if CLI context.
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return;
 		}
-
-		// Disable Guest Authors.
-		add_filter( 'coauthors_guest_authors_enabled', '__return_false' );
-		add_action( 'admin_menu', [ __CLASS__, 'guest_author_menu_replacement' ] );
+		if ( ! self::site_has_cap_guest_authors() ) {
+			add_filter( 'coauthors_guest_authors_enabled', '__return_false' );
+			add_action( 'admin_menu', [ __CLASS__, 'guest_author_menu_replacement' ] );
+		}
 	}
 
 	/**
