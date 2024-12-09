@@ -38,13 +38,7 @@ wizardsScripts.forEach( function( wizard ) {
 
 const entry = {
 	'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
-	'reader-auth': path.join( __dirname, 'src', 'reader-activation-auth', 'index.js' ),
-	'newsletters-signup': path.join(
-		__dirname,
-		'src',
-		'reader-activation-newsletters',
-		'index.js'
-	),
+	'reader-auth': path.join( __dirname, 'src', 'reader-activation', 'auth.js' ),
 	'reader-registration-block': path.join(
 		__dirname,
 		'src',
@@ -67,7 +61,6 @@ const entry = {
 		'memberships-gate',
 		'block-patterns.js'
 	),
-	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
 };
 
 // Get files for other scripts.
@@ -98,11 +91,5 @@ webpackConfig.optimization.splitChunks.cacheGroups.commons = {
 	chunks: 'initial',
 	minChunks: 2,
 };
-
-// Fonts handling.
-webpackConfig.module.rules.push( {
-	test: /\.(woff|woff2|eot|ttf|otf)$/i,
-	type: 'asset/resource',
-} );
 
 module.exports = webpackConfig;

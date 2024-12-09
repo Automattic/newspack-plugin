@@ -42,16 +42,6 @@ const FREQUENCIES: {
 };
 const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys( FREQUENCIES ) as FrequencySlug[];
 
-type FieldConfig = {
-	autocomplete: string;
-	class: string[];
-	label: string;
-	priority: number;
-	required: boolean;
-	type: string;
-	validate: string[];
-};
-
 type WizardData = {
 	donation_data:
 		| { errors: { [ key: string ]: string[] } }
@@ -75,9 +65,16 @@ type WizardData = {
 		status: string;
 	};
 	available_billing_fields: {
-		[ key: string ]: FieldConfig;
+		[ key: string ]: {
+			autocomplete: string;
+			class: string[];
+			label: string;
+			priority: number;
+			required: boolean;
+			type: string;
+			validate: string[];
+		};
 	};
-	order_notes_field: FieldConfig;
 };
 
 export const DonationAmounts = () => {
@@ -284,7 +281,6 @@ const BillingFields = () => {
 		} );
 
 	const availableFields = wizardData.available_billing_fields;
-	const orderNotesField = wizardData.order_notes_field;
 	if ( ! availableFields || ! Object.keys( availableFields ).length ) {
 		return null;
 	}
@@ -299,7 +295,7 @@ const BillingFields = () => {
 				<SectionHeader
 					title={ __( 'Billing Fields', 'newspack-plugin' ) }
 					description={ __(
-						'Configure the billing fields shown in the modal checkout form. Fields marked with (*) are required if shown. Note that for shippable products, address fields will always be shown.',
+						'Configure the billing fields shown in the modal checkout form.',
 						'newspack-plugin'
 					) }
 					noMargin
@@ -309,10 +305,7 @@ const BillingFields = () => {
 				{ Object.keys( availableFields ).map( fieldKey => (
 					<CheckboxControl
 						key={ fieldKey }
-						label={
-							availableFields[ fieldKey ].label +
-							( availableFields[ fieldKey ].required ? ' *' : '' )
-						}
+						label={ availableFields[ fieldKey ].label }
 						checked={ billingFields.includes( fieldKey ) }
 						disabled={ fieldKey === 'billing_email' } // Email is always required.
 						onChange={ () => {
@@ -326,21 +319,6 @@ const BillingFields = () => {
 						} }
 					/>
 				) ) }
-				{ orderNotesField && (
-					<CheckboxControl
-						label={ orderNotesField.label }
-						checked={ billingFields.includes( 'order_comments' ) }
-						onChange={ () => {
-							let newFields = [ ...billingFields ];
-							if ( billingFields.includes( 'order_comments' ) ) {
-								newFields = newFields.filter( field => field !== 'order_comments' );
-							} else {
-								newFields = [ ...newFields, 'order_comments' ];
-							}
-							changeHandler( [ 'billingFields' ] )( newFields );
-						} }
-					/>
-				) }
 			</Grid>
 		</>
 	);

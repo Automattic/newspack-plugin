@@ -60,6 +60,7 @@ window.newspackRAS.push( function( readerActivation ) {
 
 				if ( message ) {
 					messageNode = document.createElement( 'p' );
+					messageNode.classList.add( 'has-text-align-center' );
 					messageNode.textContent = message;
 
 					const defaultMessage = successElement.querySelector( 'p' );
@@ -82,9 +83,7 @@ window.newspackRAS.push( function( readerActivation ) {
 					messageElement.appendChild( messageNode );
 					messageElement.classList.remove( 'newspack-registration--hidden' );
 				}
-				if ( submitElement.contains( spinner ) ) {
-					submitElement.removeChild( spinner );
-				}
+				submitElement.removeChild( spinner );
 				submitElement.disabled = false;
 				container.classList.remove( 'newspack-registration--in-progress' );
 			};
@@ -97,24 +96,46 @@ window.newspackRAS.push( function( readerActivation ) {
 					return form.endLoginFlow( 'Please enter a vaild email address.', 400 );
 				}
 
-				const body = new FormData( form );
-				if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
-					return form.endFlow( 'Please enter a vaild email address.', 400 );
-				}
-				fetch( form.getAttribute( 'action' ) || window.location.pathname, {
-					method: 'POST',
-					headers: {
-						Accept: 'application/json',
-					},
-					body,
-				} )
-					.then( res => {
-						res
-							.json()
-							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+				readerActivation
+					.getCaptchaV3Token() // Get a token for reCAPTCHA v3, if needed.
+					.then( captchaToken => {
+						// If there's no token, we don't need to do anything.
+						if ( ! captchaToken ) {
+							return;
+						}
+						let tokenField = form[ 'g-recaptcha-response' ];
+						if ( ! tokenField ) {
+							tokenField = document.createElement( 'input' );
+							tokenField.setAttribute( 'type', 'hidden' );
+							tokenField.setAttribute( 'name', 'g-recaptcha-response' );
+							tokenField.setAttribute( 'autocomplete', 'off' );
+							form.appendChild( tokenField );
+						}
+						tokenField.value = captchaToken;
 					} )
 					.catch( e => {
 						form.endLoginFlow( e, 400 );
+					} )
+					.finally( () => {
+						const body = new FormData( form );
+						if ( ! body.has( 'npe' ) || ! body.get( 'npe' ) ) {
+							return form.endFlow( 'Please enter a vaild email address.', 400 );
+						}
+						fetch( form.getAttribute( 'action' ) || window.location.pathname, {
+							method: 'POST',
+							headers: {
+								Accept: 'application/json',
+							},
+							body,
+						} )
+							.then( res => {
+								res
+									.json()
+									.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+							} )
+							.catch( e => {
+								form.endLoginFlow( e, 400 );
+							} );
 					} );
 			} );
 

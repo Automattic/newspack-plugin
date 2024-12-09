@@ -2,10 +2,10 @@
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { ExternalLink, TextareaControl, ToggleControl } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { ExternalLink } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -14,14 +14,12 @@ import {
 	ActionCard,
 	Button,
 	Card,
-	Grid,
 	Notice,
 	PluginInstaller,
 	SectionHeader,
 	TextControl,
 	Waiting,
 	withWizardScreen,
-	utils,
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
 import ActiveCampaign from '../../components/active-campaign';
@@ -75,18 +73,6 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 				setMembershipsConfig( memberships );
 				setEspSyncErrors( can_esp_sync.errors );
 			} )
-			.catch( setError )
-			.finally( () => setInFlight( false ) );
-	};
-	const resetEmail = postId => {
-		setError( false );
-		setInFlight( true );
-		wizardApiFetch( {
-			path: `/newspack/v1/wizard/newspack-engagement-wizard/reader-activation/emails/${ postId }`,
-			method: 'DELETE',
-			quiet: true,
-		} )
-			.then( emails => setConfig( { ...config, emails } ) )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
@@ -314,20 +300,6 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									href={ email.edit_link }
 									description={ email.description }
 									actionText={ __( 'Edit', 'newspack-plugin' ) }
-									onSecondaryActionClick={ () => {
-										if (
-											utils.confirmAction(
-												__(
-													'Are you sure you want to reset the contents of this email?',
-													'newspack-plugin'
-												)
-											)
-										) {
-											resetEmail( email.post_id );
-										}
-									} }
-									secondaryActionText={ __( 'Reset', 'newspack-plugin' ) }
-									secondaryDestructive={ true }
 									isSmall
 								/>
 							) ) }
@@ -337,12 +309,9 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 
 					<SectionHeader title={ __( 'Newsletter Subscription Lists', 'newspack-plugin' ) } />
 					<ActionCard
-						title={ __(
-							'Present newsletter signup after checkout and registration',
-							'newspack-plugin'
-						) }
+						title={ __( 'Custom newsletter lists on registration', 'newspack-plugin' ) }
 						description={ __(
-							'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
+							"Choose which of the Newspack Newsletters's subscription lists should be available upon registration.",
 							'newspack-plugin'
 						) }
 						toggleChecked={ config.use_custom_lists }
@@ -427,53 +396,6 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							</>
 						) }
 					</ActionCard>
-
-					<hr />
-
-					<SectionHeader title={ __( 'Checkout Configuration', 'newspack-plugin' ) } />
-
-					<ToggleControl
-						label={ __(
-							'Require sign in or create account before checkout',
-							'newspack-plugin'
-						) }
-						help={ __(
-							'Prompt users who are not logged in to sign in or register a new account before proceeding to checkout. When disabled, an account will automatically be created with the email address used at checkout.',
-							'newspack-plugin'
-						) }
-						checked={ config.woocommerce_registration_required }
-						onChange={ value => updateConfig( 'woocommerce_registration_required', value ) }
-					/>
-					<Grid>
-						<TextareaControl
-							label={ __( 'Post-checkout success message', 'newspack-plugin' ) }
-							help={ __(
-								'The success message to display to readers after completing checkout.',
-								'newspack-plugin'
-							) }
-							{ ...getSharedProps( 'woocommerce_post_checkout_success_text', 'text' ) }
-						/>
-						{ ! config.woocommerce_registration_required && (
-							<TextareaControl
-								label={ __( 'Post-checkout registration success message', 'newspack-plugin' ) }
-								help={ __(
-									'The success message to display to new readers that have an account automatically created after completing checkout.',
-									'newspack-plugin'
-								) }
-								{ ...getSharedProps( 'woocommerce_post_checkout_registration_success_text', 'text' ) }
-							/>
-						) }
-					</Grid>
-					<Grid>
-						<TextareaControl
-							label={ __( 'Checkout privacy policy text', 'newspack-plugin' ) }
-							help={ __(
-								'The privacy policy text to display at time of checkout for existing users. This will not show up unless a privacy page is set.',
-								'newspack-plugin'
-							) }
-							{ ...getSharedProps( 'woocommerce_checkout_privacy_policy_text', 'text' ) }
-						/>
-					</Grid>
 					<div className="newspack-buttons-card">
 						<Button
 							isPrimary
@@ -502,10 +424,6 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									sync_esp: config.sync_esp,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
-									woocommerce_registration_required: config.woocommerce_registration_required,
-									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
-									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
-									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
 								} );
 							} }
 							disabled={ inFlight }

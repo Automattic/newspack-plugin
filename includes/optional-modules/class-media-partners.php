@@ -247,12 +247,12 @@ class Media_Partners {
 			delete_term_meta( $term_id, 'logo' );
 		}
 
-		$partner_url = filter_input( INPUT_POST, 'partner_url', FILTER_SANITIZE_SPECIAL_CHARS );
+		$partner_url = filter_input( INPUT_POST, 'partner_url', FILTER_SANITIZE_STRING );
 		if ( $partner_url ) {
 			update_term_meta( $term_id, 'partner_homepage_url', esc_url( $partner_url ) );
 		}
 
-		$attribution_message = filter_input( INPUT_POST, 'attribution_message', FILTER_SANITIZE_SPECIAL_CHARS );
+		$attribution_message = filter_input( INPUT_POST, 'attribution_message', FILTER_SANITIZE_STRING );
 		if ( $attribution_message ) {
 			update_term_meta( $term_id, 'attribution_message', $attribution_message );
 		}
