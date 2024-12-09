@@ -430,7 +430,7 @@ final class Recaptcha {
 	 * Render a container for the reCAPTCHA v2 checkbox widget.
 	 */
 	public static function render_recaptcha_v2_container() {
-		if ( ! self::can_use_captcha( 'v2' ) ) {
+		if ( ! self::can_use_captcha( 'v2' ) || ( method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) && \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) ) {
 			return;
 		}
 		?>
@@ -449,7 +449,7 @@ final class Recaptcha {
 	 * Add reCAPTCHA v3 to Woo checkout.
 	 */
 	public static function add_recaptcha_v3_to_checkout() {
-		if ( ! self::can_use_captcha( 'v3' ) ) {
+		if ( ! self::can_use_captcha( 'v3' ) || ( method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) && \Newspack_Blocks\Modal_Checkout::is_modal_checkout() ) ) {
 			return;
 		}
 		$site_key = self::get_site_key();
