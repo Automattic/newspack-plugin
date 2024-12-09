@@ -40,9 +40,15 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	 * Log to WP CLI.
 	 *
 	 * @param string $message The message to log.
+	 * @param array  $data    Optional. Additional data to log.
 	 */
-	protected static function log( $message ) {
+	protected static function log( $message, $data = [] ) {
 		WP_CLI::log( $message );
+		if ( ! empty( $data ) ) {
+			WP_CLI::log(
+				wp_json_encode( $data )
+			);
+		}
 	}
 
 	/**

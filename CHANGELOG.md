@@ -1,3 +1,31 @@
+# [5.9.0](https://github.com/Automattic/newspack-plugin/compare/v5.8.2...v5.9.0) (2024-12-09)
+
+
+### Bug Fixes
+
+* **emails:** account for false order value ([#3590](https://github.com/Automattic/newspack-plugin/issues/3590)) ([a2e4042](https://github.com/Automattic/newspack-plugin/commit/a2e404287c7bdeba44689b1a98df9644322d4a71))
+* **ras-acc:** correct My Account custom font sizing clash ([#3588](https://github.com/Automattic/newspack-plugin/issues/3588)) ([080f1ce](https://github.com/Automattic/newspack-plugin/commit/080f1ce9e3ac102bdc475b1e5fac4016d48dee2a))
+* **ras-acc:** make helper text size more specific ([#3584](https://github.com/Automattic/newspack-plugin/issues/3584)) ([5bcc688](https://github.com/Automattic/newspack-plugin/commit/5bcc68812937ea979b9d28a08ca95e71fb19a341))
+* **ras-acc:** re-add recaptcha to the WooCommerce checkout ([#3605](https://github.com/Automattic/newspack-plugin/issues/3605)) ([07f46b3](https://github.com/Automattic/newspack-plugin/commit/07f46b3bfd7581a6e1e05490e1b2df06677ae59e))
+* undefined var ([#3585](https://github.com/Automattic/newspack-plugin/issues/3585)) ([00d8bc7](https://github.com/Automattic/newspack-plugin/commit/00d8bc7f4db78602e948a4ba7dfe5dad2b606672))
+* **woocommerce-emails:** use the default email payload if there are no donation products ([#3545](https://github.com/Automattic/newspack-plugin/issues/3545)) ([60c21f3](https://github.com/Automattic/newspack-plugin/commit/60c21f31641a9bbc906d4cc4319fa7d418f8fdf1))
+
+
+### Features
+
+* mark perfmatters as a required plugin ([#3578](https://github.com/Automattic/newspack-plugin/issues/3578)) ([f20291c](https://github.com/Automattic/newspack-plugin/commit/f20291c7899e99c5d52b8663a10a8e57b7ff1029))
+* **ras-acc:** add reader account creation and login improvements ([#3582](https://github.com/Automattic/newspack-plugin/issues/3582)) ([b66de08](https://github.com/Automattic/newspack-plugin/commit/b66de08dcf0a901063577c715257d7ffecd9908d))
+* **reader-data:** add a CLI command to align reader membership data ([#3548](https://github.com/Automattic/newspack-plugin/issues/3548)) ([8e49bf0](https://github.com/Automattic/newspack-plugin/commit/8e49bf0a2c9e74958f80de13a52b5fa720e87949))
+* **subscriptions:** add setting to reattempt payment after final retry ([#3560](https://github.com/Automattic/newspack-plugin/issues/3560)) ([553c3ac](https://github.com/Automattic/newspack-plugin/commit/553c3ac4327691b3f1826a7de6e3bd5f3d335ccf))
+* **woocommerce:** remove internal metadata from REST API response ([6b659a6](https://github.com/Automattic/newspack-plugin/commit/6b659a6afb38d235cf36e116a655352523a09725))
+
+## [5.8.2](https://github.com/Automattic/newspack-plugin/compare/v5.8.1...v5.8.2) (2024-12-09)
+
+
+### Bug Fixes
+
+* **esp-sync:** schedule second sync upon subscription reactivation, just in case ([#3603](https://github.com/Automattic/newspack-plugin/issues/3603)) ([9334295](https://github.com/Automattic/newspack-plugin/commit/93342955db2f70afa9feac6eb8fa349f3703fd72))
+
 ## [5.8.1](https://github.com/Automattic/newspack-plugin/compare/v5.8.0...v5.8.1) (2024-11-26)
 
 
