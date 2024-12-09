@@ -163,6 +163,11 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 			return;
 		}
 
+		/** 
+		* When a renewal happens, it triggers two syncs to the ESP, one setting the subscription as on hold, and a 
+		* second one setting it back to active. This sometimes creates a race condition on the ESP side. 
+		* This third request will make sure the ESP always has the correct and most up to date data about the reader.
+		*/
 		self::schedule_sync(
 			$data['user_id'],
 			sprintf(
