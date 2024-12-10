@@ -54,7 +54,16 @@ class WooCommerce_Subscriptions {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		return self::is_active() && Reader_Activation::is_enabled() && defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) && NEWSPACK_SUBSCRIPTIONS_EXPIRATION;
+		if ( ! defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) || ! NEWSPACK_SUBSCRIPTIONS_EXPIRATION ) {
+			return false;
+		}
+		$is_enabled = self::is_active() && Reader_Activation::is_enabled();
+		/**
+		 * Filters whether subscriptions expiration is enabled.
+		 *
+		 * @param bool $is_enabled
+		 */
+		return apply_filters( 'newspack_subscriptions_expiration_enabled', $is_enabled );
 	}
 }
 WooCommerce_Subscriptions::init();
