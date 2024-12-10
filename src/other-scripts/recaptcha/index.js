@@ -177,6 +177,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 
 		button.addEventListener( 'click', e => {
 			e.preventDefault();
+			e.stopImmediatePropagation();
 			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				successCallback();
