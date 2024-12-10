@@ -656,6 +656,22 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Get an array of required plugins for satisfying Reader Revenue prerequisites.
+	 * WooCommerce and Woo Subscriptions are required for Newspack, but not for NRH.
+	 */
+	public static function get_reader_revenue_required_plugins() {
+		$required_plugins = [
+			'newspack-blocks' => class_exists( '\Newspack_Blocks' ),
+		];
+
+		if ( Donations::is_platform_wc() ) {
+			$required_plugins['woocommerce'] = class_exists( 'WooCommerce' );
+			$required_plugins['woocommerce-subscriptions'] = class_exists( 'WCS_Query' );
+		}
+		return $required_plugins;
+	}
+
+	/**
 	 * Are the Legal Pages settings configured?
 	 * Allows for blank values.
 	 */
@@ -762,11 +778,7 @@ final class Reader_Activation {
 			],
 			'reader_revenue'   => [
 				'active'       => self::is_reader_revenue_ready(),
-				'plugins'      => [
-					'newspack-blocks'           => class_exists( '\Newspack_Blocks' ),
-					'woocommerce'               => function_exists( 'WC' ),
-					'woocommerce-subscriptions' => class_exists( 'WC_Subscriptions_Product' ),
-				],
+				'plugins'      => self::get_reader_revenue_required_plugins(),
 				'label'        => __( 'Reader Revenue', 'newspack-plugin' ),
 				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
 				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack-plugin' ),
