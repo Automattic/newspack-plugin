@@ -155,7 +155,7 @@ class PluginInstaller extends Component {
 	render() {
 		const { autoInstall, isSmall, withoutFooterButton } = this.props;
 		const { pluginInfo } = this.state;
-		const { is_atomic: isAtomic } = window;
+		const { is_atomic: isAtomic } = window.newspack_aux_data || {};
 		const slugs = Object.keys( pluginInfo );
 
 		// Store all plugin status info for installer button text value based on current status.
