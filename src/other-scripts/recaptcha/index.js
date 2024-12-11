@@ -116,8 +116,12 @@ function destroy( forms = [] ) {
  */
 function refreshWidget( el ) {
 	const widgetId = parseInt( el.getAttribute( 'data-recaptcha-widget-id' ) );
+	console.info( 'Refreshing widget ' + widgetId );
 	if ( ! isNaN( widgetId ) ) {
 		grecaptcha.reset( widgetId );
+		console.info ( ' -- Successfully refreshed' );
+	} else {
+		console.info( '  -- Bad widget ID. Did not refresh' );
 	}
 }
 
@@ -129,6 +133,9 @@ function refreshWidget( el ) {
  * @param {Function|null} onError   Callback to handle errors. Optional.
  */
 function renderWidget( form, onSuccess = null, onError = null ) {
+	console.info( 'Rendering recaptcha widget on form' );
+	console.info( form );
+
 	const submitButtons = [
 		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ),
 	];
@@ -143,16 +150,19 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 	submitButtons.forEach( button => {
 		// Don't render widget if the button has a data-skip-recaptcha attribute.
 		if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+			console.info( ' -- Has skip attribute. Skipping' );
 			return;
 		}
 
 		// Don't render widget if the button has been retried 3 times.
 		if ( button.hasAttribute( 'data-recaptcha-retry-count' ) && parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) >= 3 ) {
+			console.info( ' -- Retry limit reached. Skipping' );
 			return;
 		}
 
 		// Refresh widget if it already exists.
 		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
+			console.info( ' -- Already reCaptcha. Refreshing' );
 			refreshWidget( button );
 			return;
 		}
@@ -208,12 +218,15 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 		const refreshIntervalId = setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
 
 		button.addEventListener( 'click', e => {
+			console.info( 'Captcha button clicked' );
+			console.info( button );
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				successCallback();
 			} else {
+				console.info( ' -- Executing captcha for widget ' + widgetId );
 				grecaptcha.execute( widgetId );
 			}
 		} );
@@ -229,8 +242,10 @@ function renderWidget( form, onSuccess = null, onError = null ) {
  * @param {Function|null} onError   Callback to handle errors. Optional.
  */
 function render( forms = [], onSuccess = null, onError = null ) {
+	console.info( 'Rendering captcha elements' );
 	// In case some other file calls this function before the reCAPTCHA API is ready.
 	if ( ! grecaptcha ) {
+		console.info( 'Rendering but grecaptcha not ready. Waiting until domready' );
 		return domReady( () => grecaptcha.ready( () => render( forms, onSuccess, onError ) ) );
 	}
 
@@ -257,5 +272,6 @@ function render( forms = [], onSuccess = null, onError = null ) {
  * Invoke only after reCAPTCHA API is ready.
  */
 domReady( function () {
+	console.info( 'Domready. Attempting to render captcha elements' );
 	grecaptcha.ready( render );
 } );
