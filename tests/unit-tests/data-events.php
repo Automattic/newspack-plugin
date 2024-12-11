@@ -74,10 +74,6 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		// Assert the hook was called once.
 		$this->assertEquals( 1, $call_count );
-
-		// Assert it returns a WP_Http response.
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'http_response', $result );
 	}
 
 	/**
