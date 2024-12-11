@@ -35,6 +35,7 @@ const isV3 = 'v3' === newspack_recaptcha_data.version;
 const siteKey = newspack_recaptcha_data.site_key;
 const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
 
+/** reCAPTCHA v3 methods. */
 /**
  * Refresh the reCAPTCHA v3 token for the given form and action.
  *
@@ -93,6 +94,22 @@ function removeHiddenField( form ) {
 }
 
 /**
+ * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
+ */
+function destroy( forms = [] ) {
+	if ( isV3 ) {
+		const formsToHandle = forms.length
+			? forms
+			: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
+
+		formsToHandle.forEach( form => {
+			removeHiddenField( form );
+		} );
+	}
+}
+
+/** reCAPTCHA v2 methods. */
+/**
  * Refresh the reCAPTCHA v2 widget attached to the given element.
  *
  * @param {HTMLElement} el Element with the reCAPTCHA widget to refresh.
@@ -142,6 +159,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 
 		// Callback when reCAPTCHA passes validation.
 		const successCallback = () => {
+			console.info( 'reCAPTCHA validation passed.' ); // eslint-disable-line no-console
 			onSuccess?.()
 			form.requestSubmit( button );
 			refreshWidget( button );
@@ -162,6 +180,8 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 				const message = retryCount < 3
 					? wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' )
 					: wp.i18n.__( 'There was an error with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
+				console.info( message ); // eslint-disable-line no-console
+				console.info( 'grecaptcha and data globals:', grecaptcha, newspack_recaptcha_data ); // eslint-disable-line no-console
 				if ( onError ) {
 					onError( message );
 				} else {
@@ -169,6 +189,10 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 					// eslint-disable-next-line no-alert
 					alert( message );
 				}
+			},
+			'expired-callback': () => {
+				console.info( 'reCAPTCHA expired. Refreshing.' ); // eslint-disable-line no-console
+				refreshWidget( button );
 			},
 		} );
 
@@ -206,28 +230,18 @@ function render( forms = [], onSuccess = null, onError = null ) {
 		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
+		if ( form.hasAttribute( 'data-recaptcha-rendered' ) ) {
+			console.info( 'reCAPTCHA already rendered on this form.' ); // eslint-disable-line no-console
+			return;
+		}
 		if ( isV3 ) {
 			addHiddenField( form );
 		}
 		if ( isV2 ) {
 			renderWidget( form, onSuccess, onError );
 		}
+		form.setAttribute( 'data-recaptcha-rendered', 'true' );
 	} );
-}
-
-/**
- * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
- */
-function destroy( forms = [] ) {
-	if ( isV3 ) {
-		const formsToHandle = forms.length
-			? forms
-			: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
-
-		formsToHandle.forEach( form => {
-			removeHiddenField( form );
-		} );
-	}
 }
 
 /**
