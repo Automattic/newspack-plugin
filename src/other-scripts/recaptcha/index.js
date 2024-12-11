@@ -116,12 +116,8 @@ function destroy( forms = [] ) {
  */
 function refreshWidget( el ) {
 	const widgetId = parseInt( el.getAttribute( 'data-recaptcha-widget-id' ) );
-	console.info( 'Refreshing widget ' + widgetId );
 	if ( ! isNaN( widgetId ) ) {
 		grecaptcha.reset( widgetId );
-		console.info ( ' -- Successfully refreshed' );
-	} else {
-		console.info( '  -- Bad widget ID. Did not refresh' );
 	}
 }
 
@@ -133,9 +129,6 @@ function refreshWidget( el ) {
  * @param {Function|null} onError   Callback to handle errors. Optional.
  */
 function renderWidget( form, onSuccess = null, onError = null ) {
-	console.info( 'Rendering recaptcha widget on form' );
-	console.info( form );
-
 	const submitButtons = [
 		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ),
 	];
@@ -150,33 +143,28 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 	submitButtons.forEach( button => {
 		// Don't render widget if the button has a data-skip-recaptcha attribute.
 		if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-			console.info( ' -- Has skip attribute. Skipping' );
 			return;
 		}
 
 		// Don't render widget if the button has been retried 3 times.
 		if ( button.hasAttribute( 'data-recaptcha-retry-count' ) && parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) >= 3 ) {
-			console.info( ' -- Retry limit reached. Skipping' );
 			return;
 		}
 
 		// Refresh widget if it already exists.
 		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
-			console.info( ' -- Already reCaptcha. Refreshing' );
 			refreshWidget( button );
 			return;
 		}
 
 		// Don't render widget if the button is currently rendering recaptcha.
 		if ( button.hasAttribute( 'data-recaptcha-processing' ) ) {
-			console.info( 'reCAPTCHA is already processing on this button.' ); // eslint-disable-line no-console
 			return;
 		}
 		button.setAttribute( 'data-recaptcha-processing', 'true' );
 
 		// Callback when reCAPTCHA passes validation.
 		const successCallback = () => {
-			console.info( 'reCAPTCHA validation passed.' ); // eslint-disable-line no-console
 			onSuccess?.()
 			form.requestSubmit( button );
 			refreshWidget( button );
@@ -195,11 +183,8 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 					clearInterval( refreshIntervalId );
 				}
 				const message = retryCount < 3
-					? wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' )
-					: wp.i18n.__( 'There was an error with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
-				console.info( message ); // eslint-disable-line no-console
-				console.info( 'grecaptcha and data globals:', grecaptcha, newspack_recaptcha_data ); // eslint-disable-line no-console
-				console.info( 'reCAPTCHA response:', grecaptcha.getResponse() ); // eslint-disable-line no-console
+					? wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please try submitting again.', 'newspack-plugin' )
+					: wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
 				if ( onError ) {
 					onError( message );
 				} else {
@@ -209,7 +194,6 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 				}
 			},
 			'expired-callback': () => {
-				console.info( 'reCAPTCHA expired. Refreshing.' ); // eslint-disable-line no-console
 				refreshWidget( button );
 			},
 		} );
@@ -218,15 +202,12 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 		const refreshIntervalId = setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
 
 		button.addEventListener( 'click', e => {
-			console.info( 'Captcha button clicked' );
-			console.info( button );
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				successCallback();
 			} else {
-				console.info( ' -- Executing captcha for widget ' + widgetId );
 				grecaptcha.execute( widgetId );
 			}
 		} );
@@ -242,10 +223,8 @@ function renderWidget( form, onSuccess = null, onError = null ) {
  * @param {Function|null} onError   Callback to handle errors. Optional.
  */
 function render( forms = [], onSuccess = null, onError = null ) {
-	console.info( 'Rendering captcha elements' );
 	// In case some other file calls this function before the reCAPTCHA API is ready.
 	if ( ! grecaptcha ) {
-		console.info( 'Rendering but grecaptcha not ready. Waiting until domready' );
 		return domReady( () => grecaptcha.ready( () => render( forms, onSuccess, onError ) ) );
 	}
 
@@ -255,7 +234,6 @@ function render( forms = [], onSuccess = null, onError = null ) {
 
 	formsToHandle.forEach( form => {
 		if ( form.hasAttribute( 'data-recaptcha-rendered' ) ) {
-			console.info( 'reCAPTCHA already rendered on this form.' ); // eslint-disable-line no-console
 			return;
 		}
 		if ( isV3 ) {
@@ -272,6 +250,5 @@ function render( forms = [], onSuccess = null, onError = null ) {
  * Invoke only after reCAPTCHA API is ready.
  */
 domReady( function () {
-	console.info( 'Domready. Attempting to render captcha elements' );
 	grecaptcha.ready( render );
 } );
