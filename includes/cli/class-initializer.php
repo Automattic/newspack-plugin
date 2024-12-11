@@ -60,13 +60,6 @@ class Initializer {
 
 		WP_CLI::add_command( 'newspack migrate-co-authors-guest-authors', [ 'Newspack\CLI\Co_Authors_Plus', 'migrate_guest_authors' ] );
 		WP_CLI::add_command( 'newspack backfill-non-editing-contributors', [ 'Newspack\CLI\Co_Authors_Plus', 'backfill_non_editing_contributor' ] );
-		WP_CLI::add_command(
-			'newspack schedule-co-authors-author-term-backfill',
-			[
-				'Newspack\CLI\Co_Authors_Plus',
-				'schedule_author_term_backfill',
-			]
-		);
 		WP_CLI::add_command( 'newspack migrate-expired-subscriptions', [ 'Newspack\CLI\WooCommerce_Subscriptions', 'migrate_expired_subscriptions' ] );
 	}
 }
