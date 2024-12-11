@@ -132,6 +132,13 @@ class WooCommerce_Subscriptions {
 					$on_hold_duration = On_Hold_Duration::get_on_hold_duration();
 					// If the retry date is within the on-hold duration, schedule a final retry.
 					if ( wcs_date_to_time( $retry_date ) + ( $on_hold_duration * DAY_IN_SECONDS ) > time() ) {
+						if ( $subscription->is_manual() || ! $subscription->payment_method_supports( 'subscription_date_changes' ) ) {
+							if ( self::$verbose ) {
+								WP_CLI::line( 'Subscription does not support retries. Moving to next subscription...' );
+								WP_CLI::line( '' );
+							}
+							continue;
+						}
 						if ( self::$verbose ) {
 							WP_CLI::line( 'Retry date is within the on-hold duration. Scheduling final retry...' );
 						}
@@ -140,6 +147,13 @@ class WooCommerce_Subscriptions {
 							add_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
 							\WCS_Retry_Manager::maybe_apply_retry_rule( $subscription, $renewal_order );
 							remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
+							if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
+								if ( self::$verbose ) {
+									WP_CLI::error( 'Failed to schedule payment retry. Moving to next subscription...' );
+									WP_CLI::line( '' );
+								}
+								continue;
+							}
 						}
 						++$scheduled;
 					} else {
