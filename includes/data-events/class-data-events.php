@@ -328,6 +328,11 @@ final class Data_Events {
 		}
 
 		self::$queued_dispatches[] = $body;
+
+		// If we're in shutdown, execute the dispatches immediately.
+		if ( did_action( 'shutdown' ) ) {
+			self::execute_queued_dispatches();
+		}
 	}
 
 	/**
@@ -371,6 +376,9 @@ final class Data_Events {
 		 * @param array                     $queued_dispatches The queued dispatches.
 		 */
 		\do_action( 'newspack_data_events_dispatched', $request, self::$queued_dispatches );
+
+		// Clear the queue in case of a retry.
+		self::$queued_dispatches = [];
 	}
 }
 Data_Events::init();
