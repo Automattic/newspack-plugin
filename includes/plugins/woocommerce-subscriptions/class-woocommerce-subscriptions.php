@@ -49,14 +49,10 @@ class WooCommerce_Subscriptions {
 	 * True if:
 	 * - WooCommerce Subscriptions is active and,
 	 * - Reader Activation is enabled and,
-	 * - The NEWSPACK_SUBSCRIPTIONS_EXPIRATION feature flag is defined and true.
 	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		if ( ! defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) || ! NEWSPACK_SUBSCRIPTIONS_EXPIRATION ) {
-			return false;
-		}
 		$is_enabled = self::is_active() && Reader_Activation::is_enabled();
 		/**
 		 * Filters whether subscriptions expiration is enabled.
