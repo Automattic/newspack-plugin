@@ -216,6 +216,25 @@ When a non-donation subscription status changes, or when there's a subscription 
 | `user_id`         | `int`    |
 | `email`           | `string` |
 | `subscription_id` | `int`    |
+| `product_ids`     | `array`  |
+| `amount`          | `float`  |
+| `currency`        | `string` |
+| `recurrence`      | `string` |
+| `status_before`   | `string` |
+| `status_after`    | `string` |
+| `user_first_name` | `string` |
+| `user_last_name`  | `string` |
+
+### `subscription_renewal_attempt`
+
+When a subscription of any type (donation or non-donation) renews, a renewal order gets created for it in Woo. This indicates a renewal attempt (at this point the order might still succeed or fail when collecting payment). We can trigger actions based on the renewal attempt, such as a scheduled contact sync to the ESP.
+
+| Name              | Type     |
+| ----------------- | -------- |
+| `user_id`         | `int`    |
+| `email`           | `string` |
+| `order_id`        | `int`    |
+| `subscription_id` | `int`    |
 | `amount`          | `float`  |
 | `currency`        | `string` |
 | `recurrence`      | `string` |
