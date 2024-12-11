@@ -157,6 +157,13 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			return;
 		}
 
+		// Don't render widget if the button is currently rendering recaptcha.
+		if ( button.hasAttribute( 'data-recaptcha-processing' ) ) {
+			console.info( 'reCAPTCHA is already processing on this button.' ); // eslint-disable-line no-console
+			return;
+		}
+		button.setAttribute( 'data-recaptcha-processing', 'true' );
+
 		// Callback when reCAPTCHA passes validation.
 		const successCallback = () => {
 			console.info( 'reCAPTCHA validation passed.' ); // eslint-disable-line no-console
@@ -182,6 +189,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 					: wp.i18n.__( 'There was an error with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
 				console.info( message ); // eslint-disable-line no-console
 				console.info( 'grecaptcha and data globals:', grecaptcha, newspack_recaptcha_data ); // eslint-disable-line no-console
+				console.info( 'reCAPTCHA response:', grecaptcha.getResponse() ); // eslint-disable-line no-console
 				if ( onError ) {
 					onError( message );
 				} else {
@@ -209,6 +217,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 				grecaptcha.execute( widgetId );
 			}
 		} );
+		button.removeAttribute( 'data-recaptcha-processing' );
 	} );
 }
 
