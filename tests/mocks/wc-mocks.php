@@ -178,6 +178,12 @@ class WC_Subscription {
 	public function get_meta( $field_name ) {
 		return isset( $this->meta[ $field_name ] ) ? $this->meta[ $field_name ] : '';
 	}
+	public function update_meta_data( $field_name, $value ) {
+		$this->meta[ $field_name ] = $value;
+	}
+	public function delete_meta_data( $field_name ) {
+		unset( $this->meta[ $field_name ] );
+	}
 	public function has_status( $statuses ) {
 		return in_array( $this->data['status'], $statuses );
 	}
@@ -226,6 +232,9 @@ class WC_Subscription {
 	}
 }
 
+class WC_Subscriptions {
+}
+
 function wc_create_order( $data ) {
 	return new WC_Order( $data );
 }
@@ -234,6 +243,9 @@ function wc_get_checkout_url() {
 }
 function wcs_is_subscription( $order ) {
 	return false;
+}
+function wcs_create_subscription( $data = [] ) {
+	return new WC_Subscription( $data );
 }
 function wcs_get_subscriptions_for_order( $order ) {
 	return [];

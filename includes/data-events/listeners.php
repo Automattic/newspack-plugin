@@ -329,6 +329,25 @@ Data_Events::register_listener(
 );
 
 /**
+ * When a subscription of any type renews.
+ */
+Data_Events::register_listener(
+	'wcs_renewal_order_created',
+	'subscription_renewal_attempt',
+	function( $renewal_order, $subscription ) {
+		return [
+			'user_id'         => $subscription->get_customer_id(),
+			'email'           => $subscription->get_billing_email(),
+			'order_id'        => $renewal_order->get_id(),
+			'subscription_id' => $subscription->get_id(),
+			'amount'          => (float) $subscription->get_total(),
+			'currency'        => $subscription->get_currency(),
+			'recurrence'      => $subscription->get_billing_period(),
+		];
+	}
+);
+
+/**
  * For when a non-donation subscription is switched (recurrence/amount change).
  */
 Data_Events::register_listener(

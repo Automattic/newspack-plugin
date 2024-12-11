@@ -17,6 +17,10 @@ class On_Hold_Duration {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		if ( ! WooCommerce_Subscriptions::is_enabled() ) {
+			return;
+		}
+
 		add_filter( 'woocommerce_subscription_settings', [ __CLASS__, 'add_on_hold_duration_setting' ], 11, 1 );
 		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_on_hold_duration_rule' ], 99, 1 );
 	}
