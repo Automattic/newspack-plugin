@@ -32,11 +32,6 @@ class Audience_Campaigns extends Wizard {
 	 * Constructor.
 	 */
 	public function __construct() {
-
-		if ( ! Newspack::is_setup_complete() ) { 
-			return;
-		}
-
 		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		add_filter( 'newspack_popups_registered_criteria', [ $this, 'maybe_unregister_memberships_criteria' ] );
