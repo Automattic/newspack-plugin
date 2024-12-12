@@ -290,6 +290,7 @@ class Metadata {
 
 	/**
 	 * Get the UTM key from a raw or prefixed key.
+	 * The returned key must have a suffix (source, medium, campaign, content).
 	 *
 	 * @param string $key Key to check.
 	 *
@@ -302,11 +303,12 @@ class Metadata {
 			if ( ! in_array( $utm_key, $raw_keys, true ) ) { // Skip if the UTM key is not in the list of fields to sync.
 				continue;
 			}
+			$prefixed_key = self::get_key( $utm_key );
 			if ( 0 === strpos( $key, $utm_key ) ) {
 				$suffix = str_replace( $utm_key . '_', '', $key );
-				return self::get_key( $utm_key ) . $suffix;
+				return ! empty( trim( $suffix ) ) && $suffix !== $key ? $prefixed_key . $suffix : false;
 			}
-			if ( 0 === strpos( $key, self::get_key( $utm_key ) ) ) {
+			if ( 0 === strpos( $key, $prefixed_key ) && $key !== $prefixed_key ) {
 				return $key;
 			}
 		}
@@ -349,7 +351,7 @@ class Metadata {
 	 *
 	 * @return array Metadata with UTM fields added.
 	 */
-	private static function add_utm_data( $metadata ) {
+	public static function add_utm_data( $metadata ) {
 		// Capture UTM params and signup/payment page URLs as meta for registration or payment.
 		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'registration_page', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
 			$is_payment = self::has_key( 'payment_page', $metadata );
@@ -406,10 +408,20 @@ class Metadata {
 		// Keys allowed to pass through without prefixing.
 		$allowed_keys = [ 'status', 'status_if_new' ];
 
+		// UTM keys must be suffixed.
+		$disallowed_keys = [
+			'payment_page_utm',
+			'payment_page_utm_',
+			'signup_page_utm',
+			'signup_page_utm_',
+			self::get_key( 'payment_page_utm' ),
+			self::get_key( 'signup_page_utm' ),
+		];
+
 		foreach ( $metadata as $meta_key => $meta_value ) {
-			if ( in_array( $meta_key, $raw_keys, true ) ) { // Handle raw keys.
+			if ( in_array( $meta_key, $raw_keys, true ) && ! in_array( $meta_key, $disallowed_keys, true ) ) { // Handle raw keys.
 				$normalized_metadata[ self::get_key( $meta_key ) ] = $meta_value;
-			} elseif ( in_array( $meta_key, $prefixed_keys, true ) ) { // Handle prefixed keys.
+			} elseif ( in_array( $meta_key, $prefixed_keys, true ) && ! in_array( $meta_key, $disallowed_keys, true ) ) { // Handle prefixed keys.
 				$normalized_metadata[ $meta_key ] = $meta_value;
 			} elseif ( self::get_utm_key( $meta_key ) ) { // Handle UTM keys.
 				$normalized_metadata[ self::get_utm_key( $meta_key ) ] = $meta_value;
