@@ -705,7 +705,7 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function redirect_to_setup() {
 		$screen = get_current_screen();
-		if ( $screen && 'toplevel_page_newspack' === $screen->id ) {
+		if ( $screen && 'toplevel_page_newspack-dashboard' === $screen->id ) {
 			$setup_url = Wizards::get_url( 'setup' );
 			wp_safe_redirect( esc_url( $setup_url ) );
 			exit;

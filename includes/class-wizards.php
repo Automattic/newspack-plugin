@@ -40,6 +40,7 @@ class Wizards {
 			'settings'           => new Settings(),
 			// v2 Information Architecture.
 			'newspack-dashboard' => new Newspack_Dashboard(),
+			'setup'              => new Setup_Wizard(),
 		];
 
 		if ( Newspack::is_setup_complete() ) {
@@ -60,8 +61,6 @@ class Wizards {
 			static::$wizards['listings'] = new Listings_Wizard();
 			static::$wizards['network'] = new Network_Wizard();
 			static::$wizards['newsletters'] = new Newsletters_Wizard();
-		} else {
-			static::$wizards['setup'] = new Setup_Wizard();
 		}
 
 		// Allow custom menu order.
