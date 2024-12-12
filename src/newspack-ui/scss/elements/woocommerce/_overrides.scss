@@ -47,6 +47,6 @@
 /**
  * Flutterwave Payment Gateway work-around
  */
- .woocommerce-order-pay iframe[name="checkout"][src*="flutterwave.com"] {
+.woocommerce-order-pay iframe[name="checkout"][src*="flutterwave.com"] {
 	border: 30px solid #fff !important;
 }
