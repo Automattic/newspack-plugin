@@ -96,6 +96,37 @@ function addHiddenField( form ) {
 }
 
 /**
+ * Append a generic error message above the given form.
+ *
+ * @param {HTMLElement} form    The form element.
+ * @param {string}      message The error message to display.
+ */
+function addErrorMessage( form, message ) {
+	const errorText = document.createElement( 'p' );
+	errorText.textContent = message;
+	const container = document.createElement( 'div' );
+	container.classList.add(
+		'newspack-ui__notice',
+		'newspack-ui__notice--error',
+		'newspack-recaptcha-error'
+	);
+	container.appendChild( errorText );
+	form.insertBefore( container, form.firstChild );
+}
+
+/**
+ * Remove generic error messages from form if present.
+ *
+ * @param {HTMLElement} form The form element.
+ */
+function removeErrorMessages( form ) {
+	const errors = form.querySelectorAll( '.newspack-recaptcha-error' );
+	for ( const error of errors ) {
+		error.parentElement.removeChild( error );
+	}
+}
+
+/**
  * Remove the hidden reCAPTCHA v3 token field from the given form.
  *
  * @param {HTMLElement} form The form element.
@@ -168,10 +199,19 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			refreshWidget( button );
 		};
 
+		const errorCallback = ( message ) => {
+			if ( onError ) {
+				onError( message );
+			} else {
+				addErrorMessage( form, message );
+			}
+		}
+
 		// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
 		const widgetId = grecaptcha.render( button, {
 			...options,
-			callback: successCallback,
+			// callback: successCallback,
+			callback: () => errorCallback( 'Test recaptcha error message.' ),
 			'error-callback': () => {
 				const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
 				if ( retryCount < 3 ) {
@@ -179,17 +219,12 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 					refreshWidget( button );
 				} else {
 					clearInterval( refreshIntervalId );
+					button.disabled = true;
 				}
 				const message = retryCount < 3
 					? wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please try submitting again.', 'newspack-plugin' )
 					: wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
-				if ( onError ) {
-					onError( message );
-				} else {
-					// Recaptcha's default error behavior is to alert with the above message.
-					// eslint-disable-next-line no-alert
-					alert( message );
-				}
+				errorCallback( message );
 			},
 			'expired-callback': () => {
 				refreshWidget( button );
@@ -202,6 +237,8 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 		button.addEventListener( 'click', e => {
 			e.preventDefault();
 			e.stopImmediatePropagation();
+			// Empty error messages if present.
+			removeErrorMessages( form );
 			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				successCallback();
