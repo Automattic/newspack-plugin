@@ -58,6 +58,11 @@ class Initializer {
 		);
 
 		WP_CLI::add_command(
+			'newspack esp merge-fields list',
+			[ 'Newspack\CLI\RAS_ESP_Sync', 'cli_mailchimp_list_merge_fields' ]
+		);
+
+		WP_CLI::add_command(
 			'newspack esp merge-fields delete',
 			[ 'Newspack\CLI\RAS_ESP_Sync', 'cli_mailchimp_delete_merge_fields' ]
 		);

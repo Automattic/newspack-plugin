@@ -413,6 +413,88 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	}
 
 	/**
+	 * List all or matching merge fields in the connected Mailchimp audience.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--fields=<field1,field2,etc>]
+	 * : Field slugs to match. These should match raw field slugs as defined in Newspack\Reader_Activation\Sync\Metadata. If specified, only merge fields matching these slugs will be shown.
+	 *
+	 * [--prefix=<prefix>]
+	 * : If specified, only fields with a matching prefix will be shown.
+	 *
+	 * @param array $args Positional args.
+	 * @param array $assoc_args Associative args.
+	 */
+	public static function cli_mailchimp_list_merge_fields( $args, $assoc_args ) {
+		$is_dry_run    = ! empty( $assoc_args['dry-run'] );
+		$fields_to_show = ! empty( $assoc_args['fields'] ) ? explode( ',', $assoc_args['fields'] ) : false;
+		$prefix         = $assoc_args['prefix'] ?? '';
+
+		$all_fields = Metadata::get_all_fields();
+		if ( $fields_to_show ) {
+			$fields_to_show = array_reduce(
+				$fields_to_show,
+				function( $acc, $field_slug ) use ( $prefix, $all_fields ) {
+					if ( ! empty( $all_fields[ $field_slug ] ) ) {
+						$acc[] = trim( $prefix . $all_fields[ $field_slug ] );
+					} elseif ( ! empty( Metadata::get_utm_key( $field_slug ) ) && ( ! $prefix || 0 === strpos( Metadata::get_utm_key( $field_slug ), $prefix ) ) ) {
+						$acc[] = trim( $prefix . str_replace( Metadata::PREFIX, '', Metadata::get_utm_key( $field_slug ) ) );
+					} else {
+						\WP_CLI::warning( sprintf( 'Field %s not recognized.', $field_slug ) );
+					}
+					return $acc;
+				},
+				[]
+			);
+		}
+
+		$audience_id = Reader_Activation::get_setting( 'mailchimp_audience_id' );
+		if ( empty( $audience_id ) ) {
+			\WP_CLI::error( __( 'Mailchimp audience ID not set.', 'newspack-plugin' ) );
+		}
+
+		$result = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
+		if ( is_wp_error( $result ) || empty( $result['merge_fields'] || ! is_array( $result['merge_fields'] ) ) ) {
+			\WP_CLI::error( __( 'Could not connect to Mailchimp API. Is the site connected to Mailchimp?', 'newspack-subscription-migrations' ) );
+		}
+		$fields = $result['merge_fields'];
+
+		$matching = 0;
+		$results  = [];
+		foreach ( $fields as $field ) {
+			$name_parts = explode( '_', $field['name'] );
+			$field_name = $prefix ? $field['name'] : end( $name_parts );
+			if ( ( ! $fields_to_show || in_array( $field_name, $fields_to_show, true ) ) && ( ! $prefix || 0 === strpos( $field['name'], $prefix ) ) ) {
+				$results[] = [
+					'id'   => $field['merge_id'],
+					'tag'  => $field['tag'],
+					'name' => $field['name'],
+					'type' => $field['type'],
+				];
+				$matching++;
+			}
+		}
+
+		\WP_CLI\Utils\format_items(
+			'table',
+			$results,
+			[
+				'id',
+				'tag',
+				'name',
+				'type',
+			]
+		);
+		\WP_CLI::success(
+			sprintf(
+				'Found %d merge fields.',
+				$matching
+			)
+		);
+	}
+
+	/**
 	 * Delete the specified merge fields in the connected Mailchimp audience. WARNING: Any data in the deleted fields will be lost.
 	 *
 	 * ## OPTIONS
@@ -421,7 +503,7 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	 * : If passed, output results but do not modify any fields.
 	 *
 	 * [--fields=<field1,field2,etc>]
-	 * : (required) Field names to delete, comma-separated. These should match fields as defined in Newspack\Reader_Activation\Sync\Metadata.
+	 * : (required) Field slugs to delete, comma-separated. These should match raw field slugs as defined in Newspack\Reader_Activation\Sync\Metadata.
 	 *
 	 * [--prefix=<prefix>]
 	 * : If specified, only fields with a matching prefix will be deleted.
