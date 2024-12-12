@@ -60,13 +60,34 @@ h1 {
 	* {
 		cursor: progress;
 	}
+	// Inputs
 	input[type="text"],
 	input[type="number"] {
+		pointer-events: none;
+	}
+
+	// Universal borders and background color
+	textarea,
+	input[type="text"],
+	input[type="number"],
+	input[type="checkbox"],
+	.components-checkbox-control__input[type="checkbox"],
+	.components-checkbox-control__input[type="checkbox"]:checked {
 		background-color: var(--np-color-wp-gray-100);
 		border: 1px solid var(--np-color-wp-gray-100);
+	}
+	// Universal animations
+	textarea,
+	input[type="text"],
+	input[type="number"],
+	.components-checkbox-control {
+		animation: opacity-pulse 1.4s infinite;
+	}
+	// Transparent color for values
+	textarea,
+	input[type="text"],
+	input[type="number"] {
 		color: transparent;
-		pointer-events: none;
-		animation: opacity-pulse 1.4s infinite ease-in-out;
 
 		&::placeholder {
 			color: transparent;

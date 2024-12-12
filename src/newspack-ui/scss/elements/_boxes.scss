@@ -1,0 +1,46 @@
+.newspack-ui {
+	.newspack-ui {
+		&__box {
+			background: var(--newspack-ui-color-neutral-5);
+			border-radius: var(--newspack-ui-border-radius-m);
+			margin-bottom: var(--newspack-ui-spacer-5);
+			padding: var(--newspack-ui-spacer-5);
+
+			// Backgrounds & Borders
+			&--success {
+				background: var(--newspack-ui-color-success-0);
+			}
+
+			&--error {
+				background: var(--newspack-ui-color-error-0);
+			}
+
+			&--warning {
+				background: var(--newspack-ui-color-warning-0);
+			}
+
+			&--border {
+				background: transparent;
+				border: 1px solid var(--newspack-ui-color-border);
+			}
+
+			// Text alignments
+			&--text-center {
+				text-align: center;
+			}
+
+			// Some style resets.
+			h2:not([class*="font-size"]) {
+				font-size: 1em;
+			}
+
+			> *:first-child {
+				margin-top: 0;
+			}
+
+			> *:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+}

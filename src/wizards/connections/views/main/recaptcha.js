@@ -24,6 +24,8 @@ const Recaptcha = () => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ settings, setSettings ] = useState( {} );
 	const [ settingsToUpdate, setSettingsToUpdate ] = useState( {} );
+	const credentials = settingsToUpdate?.credentials || {};
+	const versionCredentials = credentials[ settingsToUpdate?.version ];
 
 	// Check the reCAPTCHA connectivity status.
 	useEffect( () => {
@@ -45,21 +47,15 @@ const Recaptcha = () => {
 	// Clear out site key + secret if changing the version.
 	useEffect( () => {
 		if ( settingsToUpdate?.version !== settings?.version ) {
-			setSettingsToUpdate( { ...settingsToUpdate, site_key: '', site_secret: '' } );
-			setError(
-				__(
-					'Your site key and secret must match the selected reCAPTCHA version. Please enter new credentials.',
-					'newspack-plugin'
-				)
-			);
-		} else {
-			// If changing back to the current version, restore the settings.
-			setSettingsToUpdate( {
-				...settingsToUpdate,
-				site_key: settings?.site_key || '',
-				site_secret: settings?.site_secret || '',
-			} );
-			setError( null );
+			const newCredentials = versionCredentials || {};
+			if ( ! newCredentials.site_key || ! newCredentials.site_secret ) {
+				setError(
+					__(
+						'Your site key and secret must match the selected reCAPTCHA version. Please enter new credentials.',
+						'newspack-plugin'
+					)
+				);
+			}
 		}
 	}, [ settingsToUpdate?.version ] );
 
@@ -82,7 +78,9 @@ const Recaptcha = () => {
 	};
 
 	const isV3 = 'v3' === settingsToUpdate?.version;
-	const hasRequiredSettings = settings.site_key && settings.site_secret;
+	const hasRequiredSettings = versionCredentials
+		? versionCredentials.site_key && versionCredentials.site_secret
+		: false;
 
 	return (
 		<>
@@ -158,21 +156,35 @@ const Recaptcha = () => {
 						</Grid>
 						<Grid noMargin rowGap={ 16 }>
 							<TextControl
-								value={ settingsToUpdate?.site_key || '' }
+								value={ versionCredentials?.site_key || '' }
 								label={ __( 'Site Key', 'newspack-plugin' ) }
-								onChange={ value =>
-									setSettingsToUpdate( { ...settingsToUpdate, site_key: value } )
-								}
+								onChange={ value => {
+									const newSettings = { ...settingsToUpdate };
+									const newCredentials = { ...credentials };
+									newCredentials[ newSettings.version ] =
+										newCredentials[ newSettings.version ] || {};
+									newCredentials[ newSettings.version ].site_key = value;
+									newSettings.credentials = newCredentials;
+
+									setSettingsToUpdate( newSettings );
+								} }
 								disabled={ isLoading }
 								autoComplete="off"
 							/>
 							<TextControl
 								type="password"
-								value={ settingsToUpdate?.site_secret || '' }
+								value={ versionCredentials?.site_secret || '' }
 								label={ __( 'Site Secret', 'newspack-plugin' ) }
-								onChange={ value =>
-									setSettingsToUpdate( { ...settingsToUpdate, site_secret: value } )
-								}
+								onChange={ value => {
+									const newSettings = { ...settingsToUpdate };
+									const newCredentials = { ...credentials };
+									newCredentials[ newSettings.version ] =
+										newCredentials[ newSettings.version ] || {};
+									newCredentials[ newSettings.version ].site_secret = value;
+									newSettings.credentials = newCredentials;
+
+									setSettingsToUpdate( newSettings );
+								} }
 								disabled={ isLoading }
 								autoComplete="off"
 							/>

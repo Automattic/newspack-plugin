@@ -1,0 +1,44 @@
+.newspack-ui {
+	// TODO: define some kind of size hierachy for buttons eg. small, medium, large;
+	// not needed for RAS, but likely for My Account.
+	input[type="text"],
+	input[type="email"],
+	input[type="url"],
+	input[type="password"],
+	input[type="search"],
+	input[type="number"],
+	input[type="tel"],
+	input[type="range"],
+	input[type="date"],
+	input[type="month"],
+	input[type="week"],
+	input[type="time"],
+	input[type="datetime"],
+	input[type="datetime-local"],
+	input[type="zip"],
+	input[type="color"],
+	textarea {
+		border-color: var(--newspack-ui-color-input-border);
+		border-radius: var(--newspack-ui-border-radius-m);
+		display: block;
+		font-family: var(--newspack-ui-font-family);
+		font-size: var(--newspack-ui-font-size-s);
+		line-height: var(--newspack-ui-line-height-l);
+		padding: calc(var(--newspack-ui-spacer-2) - 1px);
+		transition:
+			background-color 125ms ease-in-out,
+			border-color 125ms ease-in-out,
+			outline 125ms ease-in-out;
+		width: 100%;
+
+		&:focus-visible {
+			outline: 2px solid var(--newspack-ui-color-input-border-focus);
+			outline-offset: -1px;
+		}
+
+		&:disabled {
+			background-color: var(--newspack-ui-color-input-background-disabled);
+			border-color: var(--newspack-ui-color-input-border-disabled);
+		}
+	}
+}

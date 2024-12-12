@@ -25,6 +25,8 @@ import {
 	ToggleControl,
 	PanelBody,
 	Button,
+	SVG,
+	Path,
 } from '@wordpress/components';
 
 /**
@@ -52,14 +54,11 @@ export default function ReaderRegistrationEdit( {
 		newsletterSubscription,
 		displayListDescription,
 		hideSubscriptionInput,
-		newsletterTitle,
 		newsletterLabel,
-		haveAccountLabel,
 		signInLabel,
 		signedInLabel,
 		lists,
 		listsCheckboxes,
-		className,
 	},
 } ) {
 	const blockProps = useBlockProps();
@@ -82,7 +81,10 @@ export default function ReaderRegistrationEdit( {
 					'core/paragraph',
 					{
 						align: 'center',
-						content: __( 'Thank you for registering!', 'newspack-plugin' ),
+						content: __(
+							'Success! Your account was created and you’re signed in.',
+							'newspack-plugin'
+						),
 					},
 				],
 			],
@@ -256,30 +258,16 @@ export default function ReaderRegistrationEdit( {
 					</div>
 				</div>
 				{ editedState === 'initial' && (
-					<div className={ `newspack-registration ${ className }` }>
-						<form onSubmit={ ( ev ) => ev.preventDefault() }>
-							<div className="newspack-registration__have-account">
-								<RichText
-									onChange={ ( value ) => setAttributes( { haveAccountLabel: value } ) }
-									placeholder={ __( 'Already have an account?', 'newspack-plugin' ) }
-									value={ haveAccountLabel }
-									tagName="span"
-								/>{ ' ' }
-								<a href="/my-account" onClick={ ( ev ) => ev.preventDefault() }>
-									<RichText
-										onChange={ ( value ) => setAttributes( { signInLabel: value } ) }
-										placeholder={ __( 'Sign In', 'newspack-plugin' ) }
-										value={ signInLabel }
-										tagName="span"
-									/>
-								</a>
-							</div>
+					<div className="newspack-registration newspack-ui">
+						<form onSubmit={ ev => ev.preventDefault() }>
 							<div className="newspack-registration__header">
 								<RichText
 									onChange={ ( value ) => setAttributes( { title: value } ) }
 									placeholder={ __( 'Add title', 'newspack-plugin' ) }
 									value={ title }
-									tagName="h2"
+									allowedFormats={ [] }
+									tagName="h3"
+									className="newspack-registration__title"
 								/>
 							</div>
 							<RichText
@@ -287,124 +275,140 @@ export default function ReaderRegistrationEdit( {
 								placeholder={ __( 'Add description', 'newspack-plugin' ) }
 								value={ description }
 								tagName="p"
+								className="newspack-registration__description"
 							/>
 							<div className="newspack-registration__form-content">
 								{ ! shouldHideSubscribeInput() && newsletterSubscription && lists.length ? (
-									<div className="newspack-reader__lists">
-										{ lists?.length > 1 && (
-											<RichText
-												onChange={ ( value ) => setAttributes( { newsletterTitle: value } ) }
-												placeholder={ __( 'Newsletters title…', 'newspack-plugin' ) }
-												value={ newsletterTitle }
-												tagName="h3"
-											/>
-										) }
-										<ul>
-											{ lists.map( ( listId ) => (
-												<li key={ listId }>
-													<span className="newspack-reader__lists__checkbox">
-														<input
-															id={ getListCheckboxId( listId ) }
-															type="checkbox"
-															checked={ isListSelected( listId ) }
-															onChange={ toggleListCheckbox( listId ) }
+									<>
+										{ lists.map( listId => (
+											<label
+												key={ listId }
+												htmlFor={ getListCheckboxId( listId ) }
+												className="newspack-ui__input-card"
+											>
+												<input
+													id={ getListCheckboxId( listId ) }
+													type="checkbox"
+													checked={ isListSelected( listId ) }
+													onChange={ toggleListCheckbox( listId ) }
+												/>
+												<strong>
+													{ lists.length === 1 ? (
+														<RichText
+															onChange={ value => setAttributes( { newsletterLabel: value } ) }
+															placeholder={ __( 'Subscribe to our newsletter', 'newspack-plugin' ) }
+															value={ newsletterLabel }
+															allowedFormats={ [] }
+															tagName="span"
 														/>
+													) : (
+														listConfig[ listId ]?.title
+													) }
+												</strong>
+												{ displayListDescription && (
+													<span className="newspack-ui__helper-text">
+														{ listConfig[ listId ]?.description }
 													</span>
-													<span className="newspack-reader__lists__details">
-														<label
-															htmlFor={ getListCheckboxId( listId ) }
-															className="newspack-reader__lists__label"
-														>
-															<span className="newspack-reader__lists__title">
-																{ lists.length === 1 ? (
-																	<RichText
-																		onChange={ ( value ) =>
-																			setAttributes( { newsletterLabel: value } )
-																		}
-																		placeholder={ __(
-																			'Subscribe to our newsletter',
-																			'newspack-plugin'
-																		) }
-																		value={ newsletterLabel }
-																		tagName="span"
-																	/>
-																) : (
-																	listConfig[ listId ]?.title
-																) }
-															</span>
-															{ displayListDescription && (
-																<span className="newspack-reader__lists__description">
-																	{ listConfig[ listId ]?.description }
-																</span>
-															) }
-														</label>
-													</span>
-												</li>
-											) ) }
-										</ul>
-									</div>
+												) }
+											</label>
+										) ) }
+									</>
 								) : null }
 								<div className="newspack-registration__main">
+									{ newspack_blocks.has_google_oauth && (
+										<div className="newspack-ui">
+											<button className="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
+												<span
+													dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+												/>
+												{ __( 'Sign in with Google', 'newspack-plugin' ) }
+											</button>
+											<div className="newspack-ui__word-divider">
+												{ __( 'Or', 'newspack-plugin' ) }
+											</div>
+										</div>
+									) }
 									<div>
 										<div className="newspack-registration__inputs">
 											<input type="email" placeholder={ placeholder } />
-											<button type="submit">
+											<button
+												type="submit"
+												className="newspack-ui__button newspack-ui__button--primary"
+											>
 												<RichText
 													onChange={ ( value ) => setAttributes( { label: value } ) }
 													placeholder={ __( 'Sign up', 'newspack-plugin' ) }
 													value={ label }
+													allowedFormats={ [] }
 													tagName="span"
 												/>
 											</button>
 										</div>
-
-										{ newspack_blocks.has_google_oauth && (
-											<div className="newspack-reader__logins">
-												<div className="newspack-reader__logins__separator">
-													<div />
-													<div>{ __( 'OR', 'newspack-plugin' ) }</div>
-													<div />
-												</div>
-												<button className="newspack-reader__logins__google">
-													<span
-														dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
-													/>
-													<span>{ __( 'Sign in with Google', 'newspack-plugin' ) }</span>
-												</button>
-											</div>
-										) }
 										<div className="newspack-registration__response" />
 									</div>
-									<div className="newspack-registration__help-text">
-										<RichText
-											onChange={ ( value ) => setAttributes( { privacyLabel: value } ) }
-											placeholder={ __( 'Terms & Conditions statement…', 'newspack-plugin' ) }
-											value={ privacyLabel || defaultTermsText }
-											tagName="p"
-										/>
-									</div>
 								</div>
+							</div>
+							<div className="newspack-registration__have-account">
+								<a
+									href="/my-account"
+									onClick={ ev => ev.preventDefault() }
+									className="newspack-ui__button newspack-ui__button--ghost"
+								>
+									<RichText
+										onChange={ value => setAttributes( { signInLabel: value } ) }
+										placeholder={ __( 'Sign in to an existing account', 'newspack-plugin' ) }
+										value={ signInLabel }
+										allowedFormats={ [] }
+										tagName="span"
+									/>
+								</a>
+							</div>
+							<div className="newspack-registration__help-text">
+								<RichText
+									onChange={ value => setAttributes( { privacyLabel: value } ) }
+									placeholder={ __( 'Terms & Conditions statement…', 'newspack-plugin' ) }
+									value={ privacyLabel || defaultTermsText }
+									allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+									tagName="p"
+								/>
 							</div>
 						</form>
 					</div>
 				) }
 				{ editedState === 'registration' && (
-					<>
-						<div className="newspack-registration__icon" />
-						<div { ...innerBlocksProps } />
-					</>
+					<div className="newspack-registration newspack-ui">
+						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
+							<span className="newspack-ui__icon newspack-ui__icon--success">
+								<SVG width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+									<Path d="M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z" />
+								</SVG>
+							</span>
+							<div { ...innerBlocksProps } />
+						</div>
+					</div>
 				) }
 				{ editedState === 'login' && (
-					<>
-						<div className="newspack-registration__icon" />
-						<RichText
-							align="center"
-							onChange={ ( value ) => setAttributes( { signedInLabel: value } ) }
-							placeholder={ __( 'Logged in message…', 'newspack-plugin' ) }
-							value={ signedInLabel }
-							tagName="p"
-						/>
-					</>
+					<div className="newspack-registration newspack-ui">
+						<div className="newspack-ui__box newspack-ui__box--success newspack-ui__box--text-center">
+							<span className="newspack-ui__icon newspack-ui__icon--success">
+								<SVG width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+									<Path
+										fillRule="evenodd"
+										clipRule="evenodd"
+										d="M19.5854 12.6708C19.8395 12.5438 20 12.2841 20 12C20 11.7159 19.8395 11.4562 19.5854 11.3292L5.08543 4.0792C4.79841 3.93569 4.45187 3.99069 4.22339 4.21602C3.9949 4.44135 3.93509 4.78709 4.07461 5.07608L7.4172 12L4.07461 18.924C3.93509 19.213 3.9949 19.5587 4.22339 19.784C4.45187 20.0094 4.79841 20.0644 5.08543 19.9208L19.5854 12.6708ZM8.72077 11.25L6.38144 6.40425L17.573 12L6.38144 17.5958L8.72079 12.75H12V11.25H8.72077Z"
+									/>
+								</SVG>
+							</span>
+							<RichText
+								align="center"
+								onChange={ value => setAttributes( { signedInLabel: value } ) }
+								placeholder={ __( 'Logged in message…', 'newspack-plugin' ) }
+								value={ signedInLabel }
+								allowedFormats={ [] }
+								tagName="p"
+							/>
+						</div>
+					</div>
 				) }
 			</div>
 		</>
