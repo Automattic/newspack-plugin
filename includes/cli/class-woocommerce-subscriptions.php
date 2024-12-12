@@ -153,6 +153,12 @@ class WooCommerce_Subscriptions {
 									WP_CLI::line( '' );
 								}
 								continue;
+							} else {
+								$subscription->add_order_note(
+									__( 'Final payment retry scheduled by Newspack CLI command.', 'newspack-plugin' )
+								);
+								$subscription->update_meta_data( '_newspack_cli_retry_scheduled', true );
+								$subscription->save();
 							}
 						}
 						++$scheduled;
