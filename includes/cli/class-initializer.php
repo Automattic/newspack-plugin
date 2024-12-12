@@ -57,6 +57,11 @@ class Initializer {
 			[ 'Newspack\CLI\RAS_ESP_Sync', 'cli_sync_contacts' ]
 		);
 
+		WP_CLI::add_command(
+			'newspack esp merge-fields delete',
+			[ 'Newspack\CLI\RAS_ESP_Sync', 'cli_mailchimp_delete_merge_fields' ]
+		);
+
 		WP_CLI::add_command( 'newspack migrate-co-authors-guest-authors', [ 'Newspack\CLI\Co_Authors_Plus', 'migrate_guest_authors' ] );
 		WP_CLI::add_command( 'newspack backfill-non-editing-contributors', [ 'Newspack\CLI\Co_Authors_Plus', 'backfill_non_editing_contributor' ] );
 		WP_CLI::add_command(

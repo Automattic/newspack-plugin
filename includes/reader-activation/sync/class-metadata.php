@@ -296,7 +296,7 @@ class Metadata {
 	 *
 	 * @return string|false Formatted key if it is a UTM key, false otherwise.
 	 */
-	private static function get_utm_key( $key ) {
+	public static function get_utm_key( $key ) {
 		$keys     = [ 'signup_page_utm', 'payment_page_utm' ];
 		$raw_keys = self::get_raw_keys();
 		foreach ( $keys as $utm_key ) {
