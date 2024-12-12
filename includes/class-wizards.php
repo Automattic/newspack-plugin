@@ -39,7 +39,6 @@ class Wizards {
 			'connections'        => new Connections_Wizard(),
 			'settings'           => new Settings(),
 			// v2 Information Architecture.
-			'setup'              => new Setup_Wizard(),
 			'newspack-dashboard' => new Newspack_Dashboard(),
 		];
 
@@ -61,6 +60,8 @@ class Wizards {
 			static::$wizards['listings'] = new Listings_Wizard();
 			static::$wizards['network'] = new Network_Wizard();
 			static::$wizards['newsletters'] = new Newsletters_Wizard();
+		} else {
+			static::$wizards['setup'] = new Setup_Wizard();
 		}
 
 		// Allow custom menu order.
