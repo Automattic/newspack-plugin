@@ -51,25 +51,25 @@ class Newspack_Dashboard extends Wizard {
 						'icon'  => 'settings',
 						'title' => __( 'Configuration', 'newspack-plugin' ),
 						'desc'  => __( 'Manage your audience development setup.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'admin.php?page=newspack-audience' ),
 					],
 					[
 						'icon'  => 'megaphone',
 						'title' => __( 'Campaigns', 'newspack-plugin' ),
 						'desc'  => __( 'Coordinate prompts across your site to drive metrics.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'admin.php?page=newspack-audience-campaigns#/' ),
 					],
 					[
 						'icon'  => 'gift',
 						'title' => __( 'Donations', 'newspack-plugin' ),
 						'desc'  => __( 'Bring in revenue through voluntary gifts.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'admin.php?page=newspack-audience-donations#/' ),
 					],
 					[
 						'icon'  => 'payment',
 						'title' => __( 'Subscriptions', 'newspack-plugin' ),
 						'desc'  => __( 'Gate your site\'s content behind a paywall.', 'newspack-plugin' ),
-						'href'  => '#', // @TODO
+						'href'  => admin_url( 'admin.php?page=newspack-audience-subscriptions#/' ),
 					],
 				],
 			],
