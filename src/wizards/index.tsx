@@ -73,7 +73,7 @@ const components: Record< string, any > = {
 				)
 		),
 	},
-	'newspack-audience-subscriptions-wizard': {
+	'newspack-audience-subscriptions': {
 		label: __( 'Audience Subscriptions', 'newspack-plugin' ),
 		component: lazy(
 			() =>

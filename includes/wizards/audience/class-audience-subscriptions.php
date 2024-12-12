@@ -18,7 +18,7 @@ class Audience_Subscriptions extends Wizard {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-audience-subscriptions-wizard';
+	protected $slug = 'newspack-audience-subscriptions';
 
 	/**
 	 * Parent slug.
