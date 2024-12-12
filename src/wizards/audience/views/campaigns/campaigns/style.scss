@@ -53,7 +53,7 @@
 				}
 
 				.newspack-button.is-link {
-					color: colors.$primary-500;
+					color: colors.$primary-600;
 					padding: 0;
 					text-decoration: underline;
 
@@ -78,11 +78,11 @@
 		&:active,
 		&:focus,
 		&:hover {
-			color: colors.$primary-500;
+			color: colors.$primary-600;
 
 			svg {
 				background: wp-colors.$gray-100;
-				border-color: colors.$primary-500;
+				border-color: colors.$primary-600;
 			}
 		}
 
@@ -90,7 +90,7 @@
 			border: 1px solid wp-colors.$gray-300;
 			border-radius: 2px;
 			display: block;
-			fill: colors.$primary-500;
+			fill: colors.$primary-600;
 			margin: 0 0 8px;
 			padding: 23px;
 			transition: background-color 125ms ease-in-out, border-color 125ms ease-in-out;

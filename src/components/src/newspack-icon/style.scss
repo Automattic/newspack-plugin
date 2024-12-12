@@ -5,18 +5,18 @@
 @use "../../../shared/scss/colors";
 
 .newspack-icon {
-	background: colors.$primary-500;
+	background: colors.$primary-600;
 	fill: white;
 	padding: 12px;
 
 	&--white {
 		background: white;
-		fill: colors.$primary-500;
+		fill: colors.$primary-600;
 	}
 
 	&--simple {
 		background: none;
-		fill: colors.$primary-500;
+		fill: colors.$primary-600;
 		padding: 0;
 	}
 

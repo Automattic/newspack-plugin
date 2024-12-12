@@ -40,7 +40,7 @@
 
 	&.is-drop-target::before,
 	&.drop-target-after::after {
-		background-color: colors.$primary-500;
+		background-color: colors.$primary-600;
 		content: "";
 		display: block;
 		height: 2px;
