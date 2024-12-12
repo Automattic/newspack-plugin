@@ -128,17 +128,17 @@ class WooCommerce_Subscriptions {
 					}
 					continue;
 				} else {
+					if ( $subscription->is_manual() || ! $subscription->payment_method_supports( 'subscription_date_changes' ) ) {
+						if ( self::$verbose ) {
+							WP_CLI::line( 'Subscription does not support retries. Moving to next subscription...' );
+							WP_CLI::line( '' );
+						}
+						continue;
+					}
 					$retry_date       = $last_retry->get_date();
 					$on_hold_duration = On_Hold_Duration::get_on_hold_duration();
 					// If the retry date is within the on-hold duration, schedule a final retry.
 					if ( wcs_date_to_time( $retry_date ) + ( $on_hold_duration * DAY_IN_SECONDS ) > time() ) {
-						if ( $subscription->is_manual() || ! $subscription->payment_method_supports( 'subscription_date_changes' ) ) {
-							if ( self::$verbose ) {
-								WP_CLI::line( 'Subscription does not support retries. Moving to next subscription...' );
-								WP_CLI::line( '' );
-							}
-							continue;
-						}
 						if ( self::$verbose ) {
 							WP_CLI::line( 'Retry date is within the on-hold duration. Scheduling final retry...' );
 						}
