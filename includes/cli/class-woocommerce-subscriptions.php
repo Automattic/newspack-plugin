@@ -170,6 +170,7 @@ class WooCommerce_Subscriptions {
 						if ( self::$live ) {
 							$subscription->update_status( 'expired', __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
 							$subscription->set_end_date( $retry_date );
+							$subscription->update_meta_data( '_newspack_cli_status_updated', true );
 							$subscription->save();
 						}
 						++$updated;
