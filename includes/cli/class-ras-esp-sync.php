@@ -575,4 +575,343 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 			)
 		);
 	}
+
+	/**
+	 * Identifies duplicate merge fields with the same name in the connected Mailchimp account and consolidates all data into a single instance of the field.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--dry-run]
+	 * : If passed, output results but do not modify any data.
+	 *
+	 * @param array $args Positional args.
+	 * @param array $assoc_args Associative args.
+	 */
+	public static function cli_mailchimp_fix_duplicate_merge_fields( $args, $assoc_args ) {
+		$is_dry_run = ! empty( $assoc_args['dry-run'] );
+
+		// Filter request timeout.
+		add_filter( // phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_timeout
+			'http_request_timeout',
+			function() {
+				return 60;
+			}
+		);
+
+		$lists = Mailchimp_API::get( 'lists?count=1000' );
+		if ( \is_wp_error( $lists ) ) {
+			WP_CLI::error( 'Error fetching audiences: ' . $lists->get_error_message() );
+			return;
+		}
+
+		foreach ( $lists['lists'] as $list ) {
+			WP_CLI::log(
+				sprintf(
+					'Fixing duplicate merge fields in audience %s... %s',
+					$list['id'],
+					$is_dry_run ? '(DRY RUN MODE)' : ''
+				)
+			);
+			WP_CLI::line( '' );
+			$list_id = $list['id'];
+
+			// First, consolidate data in duplicate fields into one instance.
+			$fixed = self::fix_duplicate_fields_for_list( $list_id, $is_dry_run );
+			if ( \is_wp_error( $fixed ) ) {
+				WP_CLI::error( 'Error fixing audience ' . $list_id . ': ' . $fixed->get_error_message() );
+			}
+		}
+	}
+
+	/**
+	 * Fix duplicate merge fields for a list given its ID.
+	 *
+	 * @param string $list_id List ID.
+	 * @param bool   $is_dry_run Whether to run in dry-run mode.
+	 *
+	 * @return \WP_Error|void
+	 */
+	private static function fix_duplicate_fields_for_list( $list_id, $is_dry_run = true ) {
+		$config = self::get_duplicate_merge_fields_config( $list_id );
+		if ( \is_wp_error( $config ) ) {
+			return $config;
+		}
+		if ( empty( $config['duplicate'] ) ) {
+			WP_CLI::log( 'Skipping: no duplicate merge fields found.' );
+			return;
+		}
+
+		// Create segment for each duplicate.
+		$segment_groups = [];
+		foreach ( $config['duplicate'] as $merge_field_name => $merge_fields ) {
+			WP_CLI::log( 'Found ' . count( $merge_fields ) . " duplicate merge field(s) for $merge_field_name" );
+
+			if ( ! $is_dry_run ) {
+				$conditions = array_map(
+					function( $merge_field ) {
+						return [
+							'condition_type' => 'TextMerge',
+							'field'          => $merge_field['tag'],
+							'op'             => 'blank_not',
+						];
+					},
+					$merge_fields
+				);
+				// Split conditions in groups of 5. (Mailchimp limit).
+				$conditions_groups = array_chunk( $conditions, 5 );
+
+				// Create temporary segments to migrate date between fields.
+				foreach ( $conditions_groups as $i => $conditions_group ) {
+					$segment = Mailchimp_API::post(
+						"lists/$list_id/segments",
+						[
+							'name'    => "Merge field: $merge_field_name #$i",
+							'options' => [
+								'match'      => 'any',
+								'conditions' => $conditions_group,
+							],
+						]
+					);
+					if ( \is_wp_error( $segment ) ) {
+						return new \WP_Error( 'newspack_cli_mailchimp_error', "Error creating temporary segment #$i for $merge_field_name: " . $segment->get_error_message() );
+					} else {
+						WP_CLI::log( "Created segment {$segment['id']} for $merge_field_name" );
+					}
+					$segment_groups[ $merge_field_name ][] = $segment;
+				}
+			}
+		}
+
+		// Fix for each merge field using the temporary segments.
+		if ( ! $is_dry_run ) {
+			foreach ( $segment_groups as $merge_field_name => $segments ) {
+				foreach ( $segments as $i => $segment ) {
+					// Fetch segment members.
+					$members = Mailchimp_API::get(
+						"lists/$list_id/segments/{$segment['id']}/members?include_cleaned=1&include_transactional=1&include_unsubscribed=1&count=1000"
+					);
+					if ( \is_wp_error( $members ) ) {
+						return new \WP_Error( 'newspack_cli_mailchimp_error', "Error fetching members for temporary segment #$i for $merge_field_name: " . $members->get_error_message() );
+					}
+					WP_CLI::log( "$merge_field_name {$segment['id']}: Found " . count( $members['members'] ) . ' members' );
+					if ( empty( $members ) ) {
+						continue;
+					}
+
+					// Update members.
+					$merge_field = $config['unique'][ $merge_field_name ];
+					$duplicates = $config['duplicate'][ $merge_field_name ];
+					foreach ( $members['members'] as $member ) {
+						// If member already has a value for the merge field, skip.
+						if ( ! empty( $member[ $merge_field['tag'] ] ) ) {
+							continue;
+						}
+						// Get value from first duplicate that has a value.
+						$value = null;
+						$found_duplicate = null;
+						foreach ( $duplicates as $duplicate ) {
+							if ( ! empty( $member['merge_fields'][ $duplicate['tag'] ] ) ) {
+								$found_duplicate = $duplicate;
+								$value = $member['merge_fields'][ $duplicate['tag'] ];
+								break;
+							}
+						}
+						// Skip if no value found.
+						if ( empty( $value ) ) {
+							continue;
+						}
+						// Update member.
+						WP_CLI::log( "$merge_field_name #$i: Updating member \"{$member['email_address']}\" with value \"$value\" from tag \"{$found_duplicate['tag']}\"" );
+						Mailchimp_API::put(
+							"lists/$list_id/members/" . $member['id'],
+							[
+								'merge_fields' => [
+									$merge_field['tag'] => $value,
+									$found_duplicate['tag'] => '',
+								],
+							]
+						);
+					}
+					self::delete_segment( $list_id, $segment['id'] );
+				}
+			}
+		}
+
+		WP_CLI::line( '' );
+		WP_CLI::success(
+			sprintf(
+				'%s in duplicate fields for audience %s',
+				$is_dry_run ? 'Would consolidate data' : 'Consolidated data',
+				$list_id
+			)
+		);
+
+		// Next, delete the duplicate fields.
+		$deleted = self::delete_duplicate_fields_for_list( $list_id, $is_dry_run );
+		if ( \is_wp_error( $deleted ) ) {
+			WP_CLI::error( 'Error deleting duplicate fields for audience ' . $list_id . ': ' . $deleted->get_error_message() );
+		} elseif ( is_array( $deleted ) ) {
+			WP_CLI::line( '' );
+			WP_CLI::success(
+				sprintf(
+					'%s duplicate fields for audience %s: %s',
+					$is_dry_run ? 'Would delete' : 'Deleted',
+					$list_id,
+					implode( ', ', $deleted )
+				)
+			);
+		}
+	}
+
+	/**
+	 * Delete a segment.
+	 *
+	 * @param string $list_id List ID.
+	 * @param string $segment_id Segment ID.
+	 */
+	private static function delete_segment( $list_id, $segment_id ) {
+		try {
+			$res = Mailchimp_API::request( 'DELETE', "lists/$list_id/segments/$segment_id" );
+		} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// This will always throw an error, even on success.
+			return true;
+		}
+		if ( \is_wp_error( $res ) ) {
+			return $res;
+		}
+	}
+
+	/**
+	 * Delete duplicate merge fields for a list given its ID.
+	 *
+	 * @param string  $list_id List ID.
+	 * @param boolean $is_dry_run If true, log but don't execute the deletion.
+	 *
+	 * @return \WP_Error|void
+	 */
+	private static function delete_duplicate_fields_for_list( $list_id, $is_dry_run = true ) {
+		$config = self::get_duplicate_merge_fields_config( $list_id );
+		if ( \is_wp_error( $config ) ) {
+			return $config;
+		}
+		if ( empty( $config['duplicate'] ) ) {
+			WP_CLI::log( '		Skipping: no duplicate merge fields found.' );
+			return;
+		}
+
+		$deleted_merge_fields = [];
+
+		foreach ( $config['duplicate'] as $merge_field_name => $merge_fields ) {
+			foreach ( $merge_fields as $merge_field ) {
+				WP_CLI::log( "		Deleting merge field {$merge_field['tag']} ({$merge_field['merge_id']}) for $merge_field_name" );
+				try {
+					$res = true;
+					if ( $is_dry_run ) {
+						WP_CLI::log(
+							sprintf(
+								'		DRY RUN: would have deleted merge field %s (%s) in audience %s.',
+								$merge_field['tag'],
+								$merge_field_name,
+								$list_id
+							)
+						);
+					} else {
+						$res = Mailchimp_API::request( 'DELETE', "lists/$list_id/merge-fields/{$merge_field['merge_id']}" );
+						WP_CLI::success(
+							sprintf(
+								'		Deleted merge field %s in audience %s.',
+								$merge_field['tag'],
+								$list_id
+							)
+						);
+					}
+				} catch ( \Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// This will always throw an error, even on success.
+				}
+				if ( \is_wp_error( $res ) ) {
+					return new \WP_Error( 'newspack_cli_mailchimp_error', "Error deleting merge field {$merge_field['merge_id']} for $merge_field_name: " . $res->get_error_message() );
+				}
+
+				$deleted_merge_fields[] = $merge_field_name;
+			}
+		}
+		return $deleted_merge_fields;
+	}
+
+	/**
+	 * Determine which fields to check for duplicates.
+	 *
+	 * @return array
+	 */
+	private static function get_fields_to_check_for_duplicates() {
+		$all_fields = Metadata::get_all_fields();
+		$fields     = array_map(
+			function( $key ) {
+				return Metadata::get_key( $key );
+			},
+			array_keys( Metadata::get_all_fields() )
+		);
+
+		// Additional fields.
+		$fields = array_merge(
+			$fields,
+			[
+				'origin_newspack',
+				'newsletters_subscription_method',
+				'current_page_url',
+				'newspack_popup_id',
+				'registration_method',
+			]
+		);
+		return $fields;
+	}
+
+	/**
+	 * Get duplicate merge fields config for a list given its ID.
+	 *
+	 * @param string $list_id List ID.
+	 *
+	 * @return array|\WP_Error
+	 */
+	private static function get_duplicate_merge_fields_config( $list_id ) {
+		// Get all merge fields and sort by display order.
+		$merge_fields = Mailchimp_API::get( "lists/$list_id/merge-fields?count=1000" );
+		if ( \is_wp_error( $merge_fields ) ) {
+			return new \WP_Error( 'newspack_cli_mailchimp_error', 'Error fetching merge fields: ' . $merge_fields->get_error_message() );
+		}
+		usort(
+			$merge_fields['merge_fields'],
+			function( $a, $b ) {
+				return $a['display_order'] - $b['display_order'];
+			}
+		);
+
+		// Which field names to check for duplicates.
+		$fields = self::get_fields_to_check_for_duplicates();
+		if ( \is_wp_error( $fields ) ) {
+			return $fields;
+		}
+
+		// Group merge fields by name.
+		$unique = [];
+		$duplicate = [];
+		foreach ( $merge_fields['merge_fields'] as $merge_field ) {
+			if ( ! in_array( $merge_field['name'], $fields ) ) {
+				continue;
+			}
+			if ( ! isset( $unique[ $merge_field['name'] ] ) ) {
+				$unique[ $merge_field['name'] ] = $merge_field;
+			} else {
+				if ( ! isset( $duplicate[ $merge_field['name'] ] ) ) {
+					$duplicate[ $merge_field['name'] ] = [];
+				}
+				$duplicate[ $merge_field['name'] ][] = $merge_field;
+			}
+		}
+
+		return [
+			'unique'    => $unique,
+			'duplicate' => $duplicate,
+		];
+	}
 }
