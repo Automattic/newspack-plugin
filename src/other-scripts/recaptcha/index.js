@@ -210,8 +210,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 		// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
 		const widgetId = grecaptcha.render( button, {
 			...options,
-			// callback: successCallback,
-			callback: () => errorCallback( 'Test recaptcha error message.' ),
+			callback: successCallback,
 			'error-callback': () => {
 				const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
 				if ( retryCount < 3 ) {
