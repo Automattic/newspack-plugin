@@ -269,16 +269,20 @@ function render( forms = [], onSuccess = null, onError = null ) {
 		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
-		if ( form.hasAttribute( 'data-recaptcha-rendered' ) ) {
-			return;
-		}
-		if ( isV3 ) {
-			addHiddenField( form );
-		}
-		if ( isV2 ) {
-			renderWidget( form, onSuccess, onError );
-		}
-		form.setAttribute( 'data-recaptcha-rendered', 'true' );
+		form.addEventListener( 'submit', e => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			if ( ! form.hasAttribute( 'data-recaptcha-rendered' ) ) {
+				if ( isV3 ) {
+					addHiddenField( form );
+				}
+				if ( isV2 ) {
+					renderWidget( form, onSuccess, onError );
+				}
+				form.setAttribute( 'data-recaptcha-rendered', 'true' );
+			}
+			e.submitter.click();
+		} );
 	} );
 }
 
