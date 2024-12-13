@@ -23,7 +23,7 @@ if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
 
 // Define NEWSPACK_PLUGIN_BASEDIR.
 if ( ! defined( 'NEWSPACK_PLUGIN_BASEDIR' ) ) {
-	define( 'NEWSPACK_PLUGIN_BASEDIR', plugin_dir_path( __FILE__ ) );
+	define( 'NEWSPACK_PLUGIN_BASEDIR', dirname( plugin_basename( NEWSPACK_PLUGIN_FILE ) ) );
 }
 
 require_once 'vendor/autoload.php';
