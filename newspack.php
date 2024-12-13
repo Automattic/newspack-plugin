@@ -16,12 +16,14 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'NEWSPACK_PLUGIN_VERSION', '5.9.1' );
 
-// Load language files.
-load_plugin_textdomain( 'newspack-plugin', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-
 // Define NEWSPACK_PLUGIN_FILE.
 if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
 	define( 'NEWSPACK_PLUGIN_FILE', __FILE__ );
+}
+
+// Define NEWSPACK_PLUGIN_BASEDIR.
+if ( ! defined( 'NEWSPACK_PLUGIN_BASEDIR' ) ) {
+	define( 'NEWSPACK_PLUGIN_BASEDIR', plugin_dir_path( __FILE__ ) );
 }
 
 require_once 'vendor/autoload.php';
