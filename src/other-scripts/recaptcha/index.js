@@ -201,11 +201,23 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			refreshWidget( button );
 		};
 
-		const errorCallback = ( message ) => {
-			if ( onError ) {
-				onError( message );
+		const errorCallback = () => {
+			const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
+			if ( retryCount < 3 ) {
+				refreshWidget( button );
+				grecaptcha.execute( button.getAttribute( 'data-recaptcha-widget-id' ) );
+				button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
 			} else {
-				addErrorMessage( form, message );
+				clearInterval( refreshIntervalId );
+				button.removeAttribute( 'data-recaptcha-retry-count' );
+				const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
+				if ( onError ) {
+					onError( message );
+				} else {
+					// Recaptcha's default error behavior is to alert with the above message.
+					// eslint-disable-next-line no-alert
+					addErrorMessage( form, message );
+				}
 			}
 		}
 
@@ -213,23 +225,8 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 		const widgetId = grecaptcha.render( button, {
 			...options,
 			callback: successCallback,
-			'error-callback': () => {
-				const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
-				if ( retryCount < 3 ) {
-					button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
-					refreshWidget( button );
-				} else {
-					clearInterval( refreshIntervalId );
-					button.disabled = true;
-				}
-				const message = retryCount < 3
-					? wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please try submitting again.', 'newspack-plugin' )
-					: wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
-				errorCallback( message );
-			},
-			'expired-callback': () => {
-				refreshWidget( button );
-			},
+			'error-callback': errorCallback,
+			'expired-callback': errorCallback,
 		} );
 
 		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
@@ -270,9 +267,9 @@ function render( forms = [], onSuccess = null, onError = null ) {
 
 	formsToHandle.forEach( form => {
 		form.addEventListener( 'submit', e => {
-			e.preventDefault();
-			e.stopImmediatePropagation();
 			if ( ! form.hasAttribute( 'data-recaptcha-rendered' ) ) {
+				e.preventDefault();
+				e.stopImmediatePropagation();
 				if ( isV3 ) {
 					addHiddenField( form );
 				}
