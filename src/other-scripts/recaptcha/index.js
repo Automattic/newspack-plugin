@@ -172,35 +172,20 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 	};
 
 	submitButtons.forEach( button => {
-		// Don't render widget if the button has a data-skip-recaptcha attribute.
-		if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-			return;
-		}
-
-		// Don't render widget if the button has been retried 3 times.
-		if ( button.hasAttribute( 'data-recaptcha-retry-count' ) && parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) >= 3 ) {
-			return;
-		}
-
 		// Refresh widget if it already exists.
 		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
 			refreshWidget( button );
 			return;
 		}
 
-		// Don't render widget if the button is currently rendering recaptcha.
-		if ( button.hasAttribute( 'data-recaptcha-processing' ) ) {
-			return;
-		}
-		button.setAttribute( 'data-recaptcha-processing', 'true' );
-
-		// Callback when reCAPTCHA passes validation.
+		// Callback when reCAPTCHA passes validation or skip flag is present.
 		const successCallback = () => {
 			onSuccess?.()
 			form.requestSubmit( button );
 			refreshWidget( button );
 		};
 
+		// Callback when reCAPTCHA rendering fails or expires.
 		const errorCallback = () => {
 			const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
 			if ( retryCount < 3 ) {
@@ -208,7 +193,6 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 				grecaptcha.execute( button.getAttribute( 'data-recaptcha-widget-id' ) );
 				button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
 			} else {
-				clearInterval( refreshIntervalId );
 				button.removeAttribute( 'data-recaptcha-retry-count' );
 				const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
 				if ( onError ) {
@@ -221,17 +205,6 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			}
 		}
 
-		// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
-		const widgetId = grecaptcha.render( button, {
-			...options,
-			callback: successCallback,
-			'error-callback': errorCallback,
-			'expired-callback': errorCallback,
-		} );
-
-		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
-		const refreshIntervalId = setInterval( () => refreshWidget( button ), 120000 ); // Refresh widget every 2 minutes.
-
 		button.addEventListener( 'click', e => {
 			e.preventDefault();
 			e.stopImmediatePropagation();
@@ -241,10 +214,20 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				successCallback();
 			} else {
+				let widgetId = button.getAttribute( 'data-recaptcha-widget-id' );
+				if ( ! widgetId ) {
+					// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
+					widgetId = grecaptcha.render( button, {
+						...options,
+						callback: successCallback,
+						'error-callback': errorCallback,
+						'expired-callback': errorCallback,
+					} );
+					button.setAttribute( 'data-recaptcha-widget-id', widgetId );
+				}
 				grecaptcha.execute( widgetId );
 			}
 		} );
-		button.removeAttribute( 'data-recaptcha-processing' );
 	} );
 }
 
@@ -266,20 +249,15 @@ function render( forms = [], onSuccess = null, onError = null ) {
 		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
-		form.addEventListener( 'submit', e => {
-			if ( ! form.hasAttribute( 'data-recaptcha-rendered' ) ) {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-				if ( isV3 ) {
-					addHiddenField( form );
-				}
-				if ( isV2 ) {
-					renderWidget( form, onSuccess, onError );
-				}
-				form.setAttribute( 'data-recaptcha-rendered', 'true' );
+		if ( ! form.hasAttribute( 'data-recaptcha-rendered' ) ) {
+			if ( isV3 ) {
+				addHiddenField( form );
 			}
-			e.submitter.click();
-		} );
+			if ( isV2 ) {
+				renderWidget( form, onSuccess, onError );
+			}
+			form.setAttribute( 'data-recaptcha-rendered', 'true' );
+		}
 	} );
 }
 
