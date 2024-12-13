@@ -150,6 +150,17 @@ class WooCommerce_Duplicate_Orders {
 			return;
 		}
 		$dismissed_duplicates = get_option( self::DISMISSED_DUPLICATES_OPTION_NAME, [] );
+
+		$orders_to_display = array_filter(
+			$existing_order_duplicates,
+			function( $order_duplicates ) use ( $dismissed_duplicates ) {
+				return ! in_array( $order_duplicates['ids'], $dismissed_duplicates );
+			}
+		);
+
+		if ( empty( $orders_to_display ) ) {
+			return;
+		}
 		?>
 		<div class="notice notice-info is-dismissible">
 			<!-- Admin notice added by newspack-plugin -->
@@ -158,11 +169,7 @@ class WooCommerce_Duplicate_Orders {
 					<?php echo esc_html__( 'There are some potentially duplicate transactions to review. Some of these might be intentional. Click this message to display the list of possible duplicates.', 'newspack-plugin' ); ?>
 				</summary>
 				<ul>
-					<?php foreach ( $existing_order_duplicates as $order_duplicates ) : ?>
-						<?php
-						if ( in_array( $order_duplicates['ids'], $dismissed_duplicates ) ) {
-							continue;}
-						?>
+					<?php foreach ( $orders_to_display as $order_duplicates ) : ?>
 						<li style="display: flex; align-items: center;">
 							<p style="margin: 0;">
 
