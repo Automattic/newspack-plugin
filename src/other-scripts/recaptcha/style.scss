@@ -15,5 +15,7 @@
 }
 
 .newspack-recaptcha-error {
-	margin-top: 0 !important;
+	&.newspack-ui__notice--error {
+		margin-top: 0 !important;
+	}
 }

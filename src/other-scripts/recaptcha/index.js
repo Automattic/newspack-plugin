@@ -105,13 +105,15 @@ function addErrorMessage( form, message ) {
 	const errorText = document.createElement( 'p' );
 	errorText.textContent = message;
 	const container = document.createElement( 'div' );
-	container.classList.add(
-		'newspack-ui__notice',
-		'newspack-ui__notice--error',
-		'newspack-recaptcha-error'
-	);
+	container.classList.add( 'newspack-recaptcha-error' );
 	container.appendChild( errorText );
-	form.insertBefore( container, form.firstChild );
+	// Newsletters block errors render below the form.
+	if ( form.parentElement.classList.contains( 'newspack-newsletters-subscribe' ) ) {
+		form.append( container );
+	} else {
+		container.classList.add( 'newspack-ui__notice', 'newspack-ui__notice--error' );
+		form.insertBefore( container, form.firstChild );
+	}
 }
 
 /**
