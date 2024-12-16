@@ -120,6 +120,7 @@ class Newspack_Test_RAS_Sync_WooCommerce extends WP_UnitTestCase {
 					'total_paid'                => self::USER_DATA['meta_input']['wc_total_spent'] + $order_data['total'],
 					'account'                   => self::$user_id,
 					'registration_date'         => $today,
+					'cancellation_reason'       => '',
 				],
 			],
 			$contact_data

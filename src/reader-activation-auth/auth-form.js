@@ -323,12 +323,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 						container.querySelector( '.success-description' ).innerHTML =
 							labels.success_description || '';
 						const callbackButton = container.querySelector( '.auth-callback' );
-						if ( callbackButton ) {
+						if ( callbackButton && callback ) {
 							callbackButton.addEventListener( 'click', ev => {
 								ev.preventDefault();
-								if ( callback ) {
-									callback( message, data );
-								}
+								callback( message, data );
 							} );
 						}
 
