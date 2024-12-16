@@ -138,57 +138,60 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' )
 	];
 	submitButtons.forEach( button => {
-			// Don't render widget if the button has a data-skip-recaptcha attribute.
-			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-				return;
-			}
-			// Refresh widget if it already exists.
-			if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
+		// Don't render widget if the button has a data-skip-recaptcha attribute.
+		if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+			return;
+		}
+		// Refresh widget if it already exists.
+		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
+			refreshV2Widget( button );
+			return;
+		}
+		// Callback when reCAPTCHA passes validation or skip flag is present.
+		const successCallback = () => {
+			onSuccess?.()
+			form.requestSubmit( button );
+			refreshV2Widget( button );
+		};
+		// Callback when reCAPTCHA rendering fails or expires.
+		const errorCallback = () => {
+			const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
+			if ( retryCount < 3 ) {
 				refreshV2Widget( button );
-				return;
-			}
-			// Callback when reCAPTCHA passes validation or skip flag is present.
-			const successCallback = () => {
-				onSuccess?.()
-				form.requestSubmit( button );
-				refreshV2Widget( button );
-			};
-			// Callback when reCAPTCHA rendering fails or expires.
-			const errorCallback = () => {
-				const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
-				if ( retryCount < 3 ) {
-					refreshV2Widget( button );
-					grecaptcha.execute( button.getAttribute( 'data-recaptcha-widget-id' ) );
-					button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
+				grecaptcha.execute( button.getAttribute( 'data-recaptcha-widget-id' ) );
+				button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
+			} else {
+				const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
+				if ( onError ) {
+					onError( message );
 				} else {
-					const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
-					if ( onError ) {
-						onError( message );
-					} else {
-						addErrorMessage( form, message );
-					}
+					addErrorMessage( form, message );
 				}
 			}
-			const widgetId = grecaptcha.render( button, {
-				...options,
-				callback: successCallback,
-				'error-callback': errorCallback,
-				'expired-callback': errorCallback,
-			} );
-			button.setAttribute( 'data-recaptcha-widget-id', widgetId );
-			button.addEventListener( 'click', e => {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-				// Empty error messages if present.
-				removeErrorMessages( form );
-				// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
-				if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-					successCallback();
-				} else {
-					grecaptcha.execute( widgetId );
-				}
-			} );
+		}
+		const container = document.createElement( 'div' );
+		container.classList.add( 'grecaptcha-container' );
+		button.parentElement.append( container );
+		const widgetId = grecaptcha.render( container, {
+			...options,
+			callback: successCallback,
+			'error-callback': errorCallback,
+			'expired-callback': errorCallback,
 		} );
+		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
+		button.addEventListener( 'click', e => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			// Empty error messages if present.
+			removeErrorMessages( form );
+			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
+			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+				successCallback();
+			} else {
+				grecaptcha.execute( widgetId );
+			}
+		} );
+	} );
 }
 
 /**
