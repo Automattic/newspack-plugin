@@ -66,8 +66,9 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function __construct() {
 		parent::__construct();
+		add_action( 'admin_menu', [ $this, 'add_page' ], $this->admin_menu_priority );
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		if ( ! get_option( NEWSPACK_SETUP_COMPLETE ) ) {
+		if ( ! Newspack::is_setup_complete() ) {
 			add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
 			add_action( 'admin_menu', [ $this, 'hide_non_setup_menu_items' ], 1000 );
 		}
@@ -620,14 +621,15 @@ class Setup_Wizard extends Wizard {
 		}
 		if ( true === $request['reader-revenue']['is_service_enabled'] ) {
 			Plugin_Manager::activate( 'woocommerce' );
-			$rr_wizard = new Reader_Revenue_Wizard();
 			if ( isset( $request['reader-revenue']['donation_data'] ) ) {
+				$rr_wizard = new Audience_Donations();
 				$rr_wizard->update_donation_settings( $request['reader-revenue']['donation_data'] );
 			}
 			if ( ! empty( $request['reader-revenue']['payment_gateways']['stripe'] ) ) {
+				$audience_wizard = new Audience_Wizard();
 				$stripe_settings            = $request['reader-revenue']['payment_gateways']['stripe'];
 				$stripe_settings['enabled'] = true;
-				$rr_wizard->update_stripe_settings( $stripe_settings );
+				$audience_wizard->update_stripe_settings( $stripe_settings );
 			}
 		}
 		if ( true === $request['google-ad-manager']['is_service_enabled'] ) {
