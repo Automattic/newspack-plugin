@@ -20,6 +20,7 @@ import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../compone
 import ReaderRevenue from './ReaderRevenue';
 import { Settings as NewslettersSettings } from '../../../newsletters/views';
 import GAMOnboarding from '../../../advertising/components/onboarding';
+import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../audience/constants';
 import './style.scss';
 
 const SERVICES_LIST = {
@@ -56,7 +57,7 @@ const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
-	const wizardData = Wizard.useWizardData( 'audience-donations' );
+	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
 
 	useEffect( () => {
 		apiFetch( {
