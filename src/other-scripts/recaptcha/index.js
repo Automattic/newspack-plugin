@@ -247,14 +247,22 @@ function render( forms = [], onSuccess = null, onError = null ) {
 	formsToHandle.forEach( form => {
 		if ( ! form.hasAttribute( 'data-recaptcha-rendered' ) ) {
 			form.addEventListener( 'focusin', () => {
-				if ( isV3 ) {
-					addHiddenV3Field( form );
-				}
 				if ( isV2 ) {
 					renderV2Widget( form, onSuccess, onError );
 				}
+				if ( isV3 ) {
+					addHiddenV3Field( form );
+				}
 			} );
 			form.setAttribute( 'data-recaptcha-rendered', 'true' );
+		} else {
+			// Call render methods to trigger refresh.
+			if ( isV2 ) {
+				renderV2Widget( form, onSuccess, onError );
+			}
+			if ( isV3 ) {
+				addHiddenV3Field( form );
+			}
 		}
 	} );
 }
