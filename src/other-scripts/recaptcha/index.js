@@ -188,7 +188,8 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				successCallback();
 			} else {
-				grecaptcha.execute( widgetId );
+				// For some reason, WooCommerce checkout forms don't properly pin the widget in a fixed location, so we need to scroll to the top of the page to ensure it's visible.
+				grecaptcha.execute( widgetId ).then( () => document.documentElement.scrollIntoView( { behavior: 'smooth' } ) );
 			}
 		} );
 	} );
