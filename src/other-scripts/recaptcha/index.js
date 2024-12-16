@@ -25,7 +25,7 @@ function domReady( callback ) {
 }
 
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
-	destroy,
+	destroy: destroyV3Field,
 	render,
 	version: newspack_recaptcha_data.version,
 };
@@ -38,14 +38,14 @@ const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
 /**
  * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
  */
-function destroy( forms = [] ) {
+function destroyV3Field( forms = [] ) {
 	if ( isV3 ) {
 		const formsToHandle = forms.length
 			? forms
 			: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 		formsToHandle.forEach( form => {
-			removeHiddenField( form );
+			removeHiddenV3Field( form );
 		} );
 	}
 }
@@ -58,7 +58,7 @@ function destroy( forms = [] ) {
  *
  * @return {Promise<void>|void} A promise that resolves when the token is refreshed.
  */
-function refresh( field, action = 'submit' ) {
+function refreshV3Token( field, action = 'submit' ) {
 	if ( field ) {
 		// Get a token to pass to the server. See https://developers.google.com/recaptcha/docs/v3 for API reference.
 		return grecaptcha.execute( siteKey, { action } ).then( token => {
@@ -72,7 +72,7 @@ function refresh( field, action = 'submit' ) {
  *
  * @param {HTMLElement} form The form element.
  */
-function addHiddenField( form ) {
+function addHiddenV3Field( form ) {
 	let field = form.querySelector( 'input[name="g-recaptcha-response"]' );
 	if ( ! field ) {
 		field = document.createElement( 'input' );
@@ -81,18 +81,114 @@ function addHiddenField( form ) {
 		form.appendChild( field );
 
 		const action = form.getAttribute( 'data-newspack-recaptcha' ) || 'submit';
-		refresh( field, action );
-		setInterval( () => refresh( field, action ), 30000 ); // Refresh token every 30 seconds.
+		refreshV3Token( field, action );
+		setInterval( () => refreshV3Token( field, action ), 30000 ); // Refresh token every 30 seconds.
 
 		// Refresh reCAPTCHAs on Woo checkout update and error.
 		( function ( $ ) {
 			if ( ! $ ) {
 				return;
 			}
-			$( document ).on( 'updated_checkout', () => refresh( field, action ) );
-			$( document.body ).on( 'checkout_error', () => refresh( field, action ) );
+			$( document ).on( 'updated_checkout', () => refreshV3Token( field, action ) );
+			$( document.body ).on( 'checkout_error', () => refreshV3Token( field, action ) );
 		} )( jQuery );
 	}
+}
+
+/**
+ * Remove the hidden reCAPTCHA v3 token field from the given form.
+ *
+ * @param {HTMLElement} form The form element.
+ */
+function removeHiddenV3Field( form ) {
+	const field = form.querySelector( 'input[name="g-recaptcha-response"]' );
+	if ( field ) {
+		field.parentElement.removeChild( field );
+	}
+}
+
+/**
+ * Refresh the reCAPTCHA v2 widget attached to the given element.
+ *
+ * @param {HTMLElement} el Element with the reCAPTCHA widget to refresh.
+ */
+function refreshV2Widget( el ) {
+	const widgetId = parseInt( el.getAttribute( 'data-recaptcha-widget-id' ) );
+	if ( ! isNaN( widgetId ) ) {
+		grecaptcha.reset( widgetId );
+	}
+}
+
+/**
+ * Render reCAPTCHA v2 widget on the given form.
+ *
+ * @param {HTMLElement}   form      The form element.
+ * @param {Function|null} onSuccess Callback to handle success. Optional.
+ * @param {Function|null} onError   Callback to handle errors. Optional.
+ */
+function renderV2Widget( form, onSuccess = null, onError = null ) {
+	// Common render options for reCAPTCHA v2 widget. See https://developers.google.com/recaptcha/docs/invisible#render_param for supported params.
+	const options = {
+		sitekey: siteKey,
+		size: isInvisible ? 'invisible' : 'normal',
+		isolated: true,
+	};
+
+	const submitButtons = [
+		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' )
+	];
+	submitButtons.forEach( button => {
+			// Don't render widget if the button has a data-skip-recaptcha attribute.
+			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+				return;
+			}
+			// Refresh widget if it already exists.
+			if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
+				refreshV2Widget( button );
+				return;
+			}
+			// Callback when reCAPTCHA passes validation or skip flag is present.
+			const successCallback = () => {
+				onSuccess?.()
+				form.requestSubmit( button );
+				refreshV2Widget( button );
+			};
+			// Callback when reCAPTCHA rendering fails or expires.
+			const errorCallback = () => {
+				const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
+				if ( retryCount < 3 ) {
+					refreshV2Widget( button );
+					grecaptcha.execute( button.getAttribute( 'data-recaptcha-widget-id' ) );
+					button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
+				} else {
+					const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
+					if ( onError ) {
+						onError( message );
+					} else {
+						addErrorMessage( form, message );
+					}
+				}
+			}
+			const widgetId = grecaptcha.render( button, {
+				...options,
+				callback: successCallback,
+				'error-callback': errorCallback,
+				'expired-callback': errorCallback,
+			} );
+			button.setAttribute( 'data-recaptcha-widget-id', widgetId );
+			button.addEventListener( 'click', e => {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				// Empty error messages if present.
+				removeErrorMessages( form );
+				// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
+				if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+					successCallback();
+				} else {
+					grecaptcha.execute( widgetId );
+				}
+			} );
+		} );
 }
 
 /**
@@ -129,109 +225,6 @@ function removeErrorMessages( form ) {
 }
 
 /**
- * Remove the hidden reCAPTCHA v3 token field from the given form.
- *
- * @param {HTMLElement} form The form element.
- */
-function removeHiddenField( form ) {
-	const field = form.querySelector( 'input[name="g-recaptcha-response"]' );
-	if ( field ) {
-		field.parentElement.removeChild( field );
-	}
-}
-
-/**
- * Refresh the reCAPTCHA v2 widget attached to the given element.
- *
- * @param {HTMLElement} el Element with the reCAPTCHA widget to refresh.
- */
-function refreshWidget( el ) {
-	const widgetId = parseInt( el.getAttribute( 'data-recaptcha-widget-id' ) );
-	if ( ! isNaN( widgetId ) ) {
-		grecaptcha.reset( widgetId );
-	}
-}
-
-/**
- * Render reCAPTCHA v2 widget on the given form.
- *
- * @param {HTMLElement}   form      The form element.
- * @param {Function|null} onSuccess Callback to handle success. Optional.
- * @param {Function|null} onError   Callback to handle errors. Optional.
- */
-function renderWidget( form, onSuccess = null, onError = null ) {
-	const submitButtons = [
-		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' ),
-	];
-
-	// Common render options for reCAPTCHA v2 widget. See https://developers.google.com/recaptcha/docs/invisible#render_param for supported params.
-	const options = {
-		sitekey: siteKey,
-		size: isInvisible ? 'invisible' : 'normal',
-		isolated: true,
-	};
-
-	submitButtons.forEach( button => {
-		// Refresh widget if it already exists.
-		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
-			refreshWidget( button );
-			return;
-		}
-
-		// Callback when reCAPTCHA passes validation or skip flag is present.
-		const successCallback = () => {
-			onSuccess?.()
-			form.requestSubmit( button );
-			refreshWidget( button );
-		};
-
-		// Callback when reCAPTCHA rendering fails or expires.
-		const errorCallback = () => {
-			const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
-			if ( retryCount < 3 ) {
-				refreshWidget( button );
-				grecaptcha.execute( button.getAttribute( 'data-recaptcha-widget-id' ) );
-				button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
-			} else {
-				button.removeAttribute( 'data-recaptcha-retry-count' );
-				const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
-				if ( onError ) {
-					onError( message );
-				} else {
-					// Recaptcha's default error behavior is to alert with the above message.
-					// eslint-disable-next-line no-alert
-					addErrorMessage( form, message );
-				}
-			}
-		}
-
-		button.addEventListener( 'click', e => {
-			e.preventDefault();
-			e.stopImmediatePropagation();
-			// Empty error messages if present.
-			removeErrorMessages( form );
-			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
-			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-				successCallback();
-			} else {
-				let widgetId = button.getAttribute( 'data-recaptcha-widget-id' );
-				if ( ! widgetId ) {
-					// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
-					widgetId = grecaptcha.render( button, {
-						...options,
-						callback: successCallback,
-						'error-callback': errorCallback,
-						'expired-callback': errorCallback,
-					} );
-					button.setAttribute( 'data-recaptcha-widget-id', widgetId );
-				}
-				grecaptcha.execute( widgetId );
-			}
-		} );
-	} );
-}
-
-/**
  * Render reCAPTCHA elements.
  *
  * @param {Array}         forms     Array of form elements to render reCAPTCHA on.
@@ -250,12 +243,14 @@ function render( forms = [], onSuccess = null, onError = null ) {
 
 	formsToHandle.forEach( form => {
 		if ( ! form.hasAttribute( 'data-recaptcha-rendered' ) ) {
-			if ( isV3 ) {
-				addHiddenField( form );
-			}
-			if ( isV2 ) {
-				renderWidget( form, onSuccess, onError );
-			}
+			form.addEventListener( 'focusin', () => {
+				if ( isV3 ) {
+					addHiddenV3Field( form );
+				}
+				if ( isV2 ) {
+					renderV2Widget( form, onSuccess, onError );
+				}
+			} );
 			form.setAttribute( 'data-recaptcha-rendered', 'true' );
 		}
 	} );
