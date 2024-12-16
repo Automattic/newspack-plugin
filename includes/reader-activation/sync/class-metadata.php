@@ -231,6 +231,7 @@ class Metadata {
 			'payment_page_utm'    => 'Payment UTM: ',
 			'sub_start_date'      => 'Current Subscription Start Date',
 			'sub_end_date'        => 'Current Subscription End Date',
+			'cancellation_reason' => 'Subscription Cancellation Reason',
 			// At what interval does the recurring payment occur – e.g. day, week, month or year.
 			'billing_cycle'       => 'Billing Cycle',
 			// The total value of the recurring payment.
