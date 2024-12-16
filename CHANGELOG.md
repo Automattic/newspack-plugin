@@ -1,3 +1,10 @@
+## [5.9.2](https://github.com/Automattic/newspack-plugin/compare/v5.9.1...v5.9.2) (2024-12-13)
+
+
+### Bug Fixes
+
+* **recaptcha:** add safeguards against duplicate renders ([#3624](https://github.com/Automattic/newspack-plugin/issues/3624)) ([d95ee7e](https://github.com/Automattic/newspack-plugin/commit/d95ee7e05dc303c0a8fa6f50029e0ac7135e86b7))
+
 ## [5.9.1](https://github.com/Automattic/newspack-plugin/compare/v5.9.0...v5.9.1) (2024-12-11)
 
 
