@@ -1,20 +1,18 @@
-@import url("~tachyons/css/tachyons.min.css");
-
+@use "../newspack-ui/scss/variables/_colors.scss";
+@use "../../node_modules/tachyons/css/tachyons.min.css";
 
 :root {
-	--np-font-size: 16px;
-	--np-header-height: 64px;
 	/* Sections */
-	--np-section-width: 1040px;
-	--np-section-space: 24px;
-	--np-section-child-space: 16px;
+	--newspack-wizard-section-width: 1040px;
+	--newspack-wizard-section-space: 24px;
+	--newspack-wizard-section-child-space: 16px;
 	/**
 	 * Colors
 	 */
-	/* node_modules/@wordpress/base-styles/_colors.scss */
-	--np-color-wp-gray-900: #1e1e1e;
-	--np-color-wp-gray-700: #757575;
-	--np-color-wp-gray-100: #f0f0f0;
+	// Grays
+	--newspack-wizard-color-neutral-70: #757575;
+	// Primary
+	--newspack-wizard-color-primary: var(--newspack-ui-color-primary);
 
 	/**
 	 * Dimensions
@@ -54,7 +52,7 @@ h1 {
  * Utils
  */
 .gray-700 {
-	color: var(--np-color-wp-gray-700);
+	color: var(--newspack-wizard-color-neutral-70);
 }
 .is-fetching {
 	* {
@@ -73,8 +71,8 @@ h1 {
 	input[type="checkbox"],
 	.components-checkbox-control__input[type="checkbox"],
 	.components-checkbox-control__input[type="checkbox"]:checked {
-		background-color: var(--np-color-wp-gray-100);
-		border: 1px solid var(--np-color-wp-gray-100);
+		background-color: var(--newspack-ui-color-neutral-10);
+		border: 1px solid var(--newspack-ui-color-neutral-10);
 	}
 	// Universal animations
 	textarea,
@@ -104,7 +102,7 @@ h1 {
 		}
 
 		.newspack-style-card__image-html:empty {
-			background-color: var(--np-color-wp-gray-100);
+			background-color: var(--newspack-ui-color-neutral-10);
 		}
 
 		.newspack-style-card__actions {
@@ -115,7 +113,7 @@ h1 {
 	// Color
 	.newspack-color-picker {
 		.newspack-color-picker__expander {
-			background-color: var(--np-color-wp-gray-100);
+			background-color: var(--newspack-ui-color-neutral-10);
 			animation: opacity-pulse 1.4s infinite;
 		}
 	}
@@ -125,8 +123,8 @@ h1 {
 
 		// Specificity necessary to override @emotion/* styles
 		select.components-select-control__input {
-			background-color: var(--np-color-wp-gray-100);
-			border: 1px solid var(--np-color-wp-gray-100);
+			background-color: var(--newspack-ui-color-neutral-10);
+			border: 1px solid var(--newspack-ui-color-neutral-10);
 			cursor: progress;
 		}
 
@@ -199,7 +197,7 @@ h1 {
 .newspack-wizard__sections {
 	margin: 0 auto;
 	padding: 2.5rem 1rem 0;
-	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
+	max-width: calc(calc(var(--newspack-wizard-section-space) * 2) + var(--newspack-wizard-section-width));
 	&__description {
 		margin-bottom: 2rem;
 	}
@@ -221,18 +219,18 @@ h1 {
 
 .newspack-dashboard__section {
 	margin: 0 auto;
-	max-width: calc(calc(var(--np-section-space) * 2) + var(--np-section-width));
-	padding: 0 var(--np-section-space);
+	max-width: calc(calc(var(--newspack-wizard-section-space) * 2) + var(--newspack-wizard-section-width));
+	padding: 0 var(--newspack-wizard-section-space);
 
 	> h3 {
 		font-size: 1.25rem;
 		font-weight: normal;
 		line-height: 1.75;
-		margin-bottom: calc(var(--np-section-child-space) / 2);
+		margin-bottom: calc(var(--newspack-wizard-section-child-space) / 2);
 	}
 
 	> p {
-		color: var(--np-color-wp-gray-700);
+		color: var(--newspack-wizard-color-neutral-70);
 		margin: 0;
 	}
 
