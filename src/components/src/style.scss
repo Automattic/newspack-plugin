@@ -1,5 +1,9 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
+:root {
+	--newspack-ui-color-primary: #2240d5;
+}
+
 // Buttons Card
 
 .newspack-buttons-card {
