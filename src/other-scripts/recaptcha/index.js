@@ -85,13 +85,10 @@ function addHiddenV3Field( form ) {
 		setInterval( () => refreshV3Token( field, action ), 30000 ); // Refresh token every 30 seconds.
 
 		// Refresh reCAPTCHAs on Woo checkout update and error.
-		( function ( $ ) {
-			if ( ! $ ) {
-				return;
-			}
-			$( document ).on( 'updated_checkout', () => refreshV3Token( field, action ) );
-			$( document.body ).on( 'checkout_error', () => refreshV3Token( field, action ) );
-		} )( jQuery );
+		if ( jQuery ) {
+			jQuery( document ).on( 'updated_checkout', () => refreshV3Token( field, action ) );
+			jQuery( document.body ).on( 'checkout_error', () => refreshV3Token( field, action ) );
+		}
 	}
 }
 
@@ -179,6 +176,13 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 			'expired-callback': errorCallback,
 		} );
 		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
+
+		// Refresh reCAPTCHA widgets on Woo checkout update and error.
+		if ( jQuery ) {
+			jQuery( document ).on( 'updated_checkout', () => renderV2Widget( form, onSuccess, onError ) );
+			jQuery( document.body ).on( 'checkout_error', () => renderV2Widget( form, onSuccess, onError ) );
+		}
+
 		button.addEventListener( 'click', e => {
 			e.preventDefault();
 			e.stopImmediatePropagation();
