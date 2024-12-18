@@ -69,6 +69,7 @@ final class Newspack {
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
 		define( 'NEWSPACK_NRH_CONFIG', 'newspack_nrh_config' );
 		define( 'NEWSPACK_CLIENT_ID_COOKIE_NAME', 'newspack-cid' );
+		define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
 	}
 
 	/**
@@ -385,6 +386,13 @@ final class Newspack {
 	 */
 	public static function is_debug_mode() {
 		return defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG;
+	}
+
+	/**
+	 * Is the Setup completed?
+	 */
+	public static function is_setup_complete() {
+		return '1' === get_option( NEWSPACK_SETUP_COMPLETE, '0' );
 	}
 
 	/**
