@@ -18,6 +18,7 @@ class Subscriptions_Meta {
 	const CANCELLATION_REASON_ADMIN_PENDING_CANCEL = 'manually-pending-cancel';
 	const CANCELLATION_REASON_USER_CANCELLED       = 'user-cancelled';
 	const CANCELLATION_REASON_USER_PENDING_CANCEL  = 'user-pending-cancel';
+	const CANCELLATION_REASON_EXPIRED              = 'expired';
 
 	/**
 	 * Initialize hooks and filters.
@@ -38,8 +39,8 @@ class Subscriptions_Meta {
 	 * @param string          $from_status   The status the subscription is changing from.
 	 */
 	public static function maybe_record_cancelled_subscription_meta( $subscription, $to_status, $from_status ) {
-		// We only care about active, cancelled, and pending statuses.
-		if ( ! in_array( $to_status, [ 'active', 'cancelled', 'pending-cancel' ], true ) || in_array( $from_status, [ 'cancelled', 'expired' ], true ) ) {
+		// We only care about active, cancelled, expired, and pending statuses.
+		if ( ! in_array( $to_status, [ 'active', 'cancelled', 'expired', 'pending-cancel' ], true ) || in_array( $from_status, [ 'cancelled', 'expired' ], true ) ) {
 			return;
 		}
 
@@ -59,6 +60,10 @@ class Subscriptions_Meta {
 				$meta_value = is_admin() ? self::CANCELLATION_REASON_ADMIN_CANCELLED : self::CANCELLATION_REASON_USER_CANCELLED;
 				$subscription->update_meta_data( self::CANCELLATION_REASON_META_KEY, $meta_value );
 			}
+			$subscription->save();
+		}
+		if ( 'expired' === $to_status ) {
+			$subscription->update_meta_data( self::CANCELLATION_REASON_META_KEY, self::CANCELLATION_REASON_EXPIRED );
 			$subscription->save();
 		}
 		if ( 'pending-cancel' === $to_status ) {

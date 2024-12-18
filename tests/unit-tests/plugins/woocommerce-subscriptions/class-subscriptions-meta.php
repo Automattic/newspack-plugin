@@ -15,15 +15,6 @@ use Newspack\WooCommerce_Subscriptions;
  */
 class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 	/**
-	 * Setup for the tests.
-	 */
-	public static function set_up_before_class() {
-		if ( ! defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) ) {
-			define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
-		}
-	}
-
-	/**
 	 * Test Subscriptions_Meta::maybe_record_cancelled_subscription_meta.
 	 */
 	public function test_maybe_record_cancelled_subscription_meta() {
@@ -51,11 +42,17 @@ class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
 			'Cancellation reason meta should be reset when subscription is updated to active from pending-cancel status.'
 		);
-		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'cancelled', 'pending-cancel', $subscription );
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'cancelled', 'pending-cancel' );
 		$this->assertEquals(
 			Subscriptions_Meta::CANCELLATION_REASON_USER_CANCELLED,
 			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
 			'Cancellation reason meta should be set to user-cancelled when subscription is cancelled from pending-cancel status.'
+		);
+		Subscriptions_Meta::maybe_record_cancelled_subscription_meta( $subscription, 'expired', 'active' );
+		$this->assertEquals(
+			Subscriptions_Meta::CANCELLATION_REASON_EXPIRED,
+			$subscription->get_meta( Subscriptions_Meta::CANCELLATION_REASON_META_KEY ),
+			'Cancellation reason meta should be set to expired when subscription is expired from active status.'
 		);
 	}
 }
