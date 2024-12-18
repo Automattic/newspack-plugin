@@ -14,17 +14,17 @@ class Corrections {
 	/**
 	 * Post type for corrections.
 	 */
-	const POST_TYPE = 'np_correction';
+	const POST_TYPE = 'newspack_correction';
 
 	/**
 	 * Meta key for storing corrections.
 	 */
-	const CORRECTION_META = 'article-corrections';
+	const POST_ID_META = 'newspack_correction-post-id';
 
 	/**
-	 * Meta key for storing whether corrections are active.
+	 * Meta key for corrections active postmeta.
 	 */
-	const CORRECTION_ACTIVE_META = 'has_corrections';
+	const CORRECTIONS_ACTIVE_META = 'newspack_corrections_active';
 
 	/**
 	 * Initializes the class.
@@ -38,6 +38,8 @@ class Corrections {
 		add_action( 'add_meta_boxes', [ __CLASS__, 'add_corrections_metabox' ] );
 		add_action( 'save_post', [ __CLASS__, 'save_corrections_metabox' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 	}
 
 	/**
@@ -52,6 +54,29 @@ class Corrections {
 		return defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED;
 	}
 
+
+	/**
+	 * Enqueue scripts and styles.
+	 */
+	public static function wp_enqueue_scripts() {
+		if ( ! is_admin() || ! isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		\wp_enqueue_script(
+			'newspack-corrections',
+			Newspack::plugin_url() . '/dist/other-scripts/corrections.js',
+			[],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+		\wp_enqueue_style(
+			'newspack-corrections',
+			Newspack::plugin_url() . '/dist/other-scripts/corrections.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+	}
+
 	/**
 	 * Registers the corrections post type.
 	 *
@@ -63,6 +88,7 @@ class Corrections {
 			'editor',
 			'title',
 			'revisions',
+			'custom-fields',
 		];
 
 		$labels = [
@@ -115,6 +141,48 @@ class Corrections {
 	}
 
 	/**
+	 * Get corrections for post.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return array The corrections.
+	 */
+	public static function get_corrections( $post_id ) {
+		return get_posts(
+			[
+				'posts_per_page' => -1,
+				'post_type'      => self::POST_TYPE,
+				'meta_key'       => self::POST_ID_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => $post_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+			]
+		);
+	}
+
+	/**
+	 * Save corrections for post.
+	 *
+	 * @param int   $post_id     The post ID.
+	 * @param array $corrections The corrections.
+	 */
+	public static function save_corrections( $post_id, $corrections ) {
+		foreach ( $corrections as $correction ) {
+			$post_id = wp_insert_post(
+				[
+					'post_title'   => 'Correction for ' . get_the_title( $post_id ),
+					'post_content' => $correction,
+					'post_type'    => self::POST_TYPE,
+					'post_status'  => 'publish',
+					'meta_input'   => [
+						self::POST_ID_META => $post_id,
+					],
+				]
+			);
+		}
+	}
+
+	/**
 	 * Adds the corrections shortcode.
 	 */
 	public static function add_corrections_shortcode() {
@@ -132,7 +200,7 @@ class Corrections {
 		$post_ids = get_posts(
 			[
 				'posts_per_page' => -1,
-				'meta_key'       => self::CORRECTION_ACTIVE_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_key'       => self::CORRECTIONS_ACTIVE_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => 1, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'fields'         => 'ids',
 				'orderby'        => 'date',
@@ -142,7 +210,7 @@ class Corrections {
 
 		ob_start();
 		foreach ( $post_ids as $post_id ) :
-			$corrections = get_post_meta( $post_id, self::CORRECTION_META, true );
+			$corrections = self::get_corrections( $post_id );
 			if ( empty( $corrections ) ) {
 				continue;
 			}
@@ -195,53 +263,13 @@ class Corrections {
 	 * @param \WP_Post $post The post object.
 	 */
 	public static function render_corrections_metabox( $post ) {
-		$is_active            = (bool) get_post_meta( $post->ID, self::CORRECTION_ACTIVE_META, true );
-		$existing_corrections = get_post_meta( $post->ID, self::CORRECTION_META, true );
-		if ( ! is_array( $existing_corrections ) ) {
-			$existing_corrections = [];
-		}
+		$is_active            = (bool) get_post_meta( $post->ID, self::CORRECTIONS_ACTIVE_META, true );
+		$existing_corrections = self::get_corrections( $post->ID );
 		?>
-		<style>
-			.activate-corrections {
-				padding-top: 1em;
-				padding-bottom: 1em;
-				border-bottom: 2px solid silver;
-				margin-bottom: 1em;
-			}
-
-			.reveal-correction {
-				position: relative;
-				border-bottom: 1px solid silver;
-				padding-top: 1em;
-				padding-bottom: 1em;
-			}
-
-			.delete-correction {
-				position: absolute;
-				top: 2em;
-				right: 2em;
-				font-weight: bold;
-				color: silver;
-				border: 1px solid silver;
-				padding-left: .25em;
-				padding-right: .25em;
-				cursor: pointer;
-			}
-
-			.delete-correction:hover {
-				color: red;
-			}
-
-			.add-correction {
-				margin-top: 2em;
-				cursor: pointer;
-			}
-		</style>
-
 		<div class="corrections-metabox-container">
 			<div class="activate-corrections">
-				<input type="hidden" value="0" name="<?php echo esc_attr( self::CORRECTION_ACTIVE_META ); ?>" />
-				<input type="checkbox" value="1" name="<?php echo esc_attr( self::CORRECTION_ACTIVE_META ); ?>" <?php checked( $is_active ); ?> />
+				<input type="hidden" value="0" name="<?php echo esc_attr( self::CORRECTIONS_ACTIVE_META ); ?>" />
+				<input type="checkbox" value="1" name="<?php echo esc_attr( self::CORRECTIONS_ACTIVE_META ); ?>" <?php checked( $is_active ); ?> />
 				Activate Corrections
 			</div>
 			<div class="manage-corrections">
@@ -257,28 +285,9 @@ class Corrections {
 						</div>
 					<?php endforeach; ?>
 				</div>
-				<button type="button" class="add-correction">Add new Correction</button>
+				<button type="button" class="add-correction">Add new correction</button>
 			</div>
 		</div>
-
-		<script>
-			( function($) {
-				if ( ! $( '.corrections-metabox-container' ).length ) {
-					return;
-				}
-
-				// Click handler for Add Correction button.
-				$( '.add-correction' ).click( function() {
-					$( '.existing-corrections' ).append( '<div class="reveal-correction"><p>Article Correction</p><textarea name="reveal_correction[]" rows="3" cols="60"></textarea><br/><p>Date: <input type="date" name="reveal_correction_date[]"></p><span class="delete-correction">X</span>' );
-				} );
-
-				// Click handler for Delete Correction button.
-				$( document ).on( 'click', '.delete-correction', function( evt ) {
-					$( evt.target ).parent().remove();
-				} );
-			} )( jQuery );
-		</script>
-
 		<?php
 	}
 
@@ -288,20 +297,19 @@ class Corrections {
 	 * @param int $post_id The post ID.
 	 */
 	public static function save_corrections_metabox( $post_id ) {
-		if ( ! isset( $_POST[ self::CORRECTION_ACTIVE_META ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! isset( $_POST[ self::CORRECTIONS_ACTIVE_META ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return;
 		}
 
-		$is_active = (bool) filter_input( INPUT_POST, self::CORRECTION_ACTIVE_META, FILTER_SANITIZE_NUMBER_INT );
-
+		$is_active        = (bool) filter_input( INPUT_POST, self::CORRECTIONS_ACTIVE_META, FILTER_SANITIZE_NUMBER_INT );
 		$corrections_data = filter_input_array(
 			INPUT_POST,
 			[
-				'reveal_correction'      => [
+				'correction'      => [
 					'flags'  => FILTER_REQUIRE_ARRAY,
 					'filter' => FILTER_SANITIZE_STRING,
 				],
-				'reveal_correction_date' => [
+				'correction_date' => [
 					'flags'  => FILTER_REQUIRE_ARRAY,
 					'filter' => FILTER_SANITIZE_STRING,
 				],
@@ -316,8 +324,8 @@ class Corrections {
 			];
 		}
 
-		update_post_meta( $post_id, self::CORRECTION_ACTIVE_META, $is_active );
-		update_post_meta( $post_id, self::CORRECTION_META, $corrections );
+		self::save_corrections( $post_id, $corrections );
+		update_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, true );
 	}
 
 	/**
@@ -332,12 +340,12 @@ class Corrections {
 			return $content;
 		}
 
-		$corrections_active = get_post_meta( get_the_ID(), self::CORRECTION_ACTIVE_META, true );
+		$corrections_active = get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true );
 		if ( ! $corrections_active ) {
 			return $content;
 		}
 
-		$corrections          = get_post_meta( get_the_ID(), self::CORRECTION_META ) ?? [];
+		$corrections          = self::get_corrections( get_the_ID() );
 		$has_valid_correction = false;
 		foreach ( $corrections as $correction ) {
 			if ( ! empty( trim( $correction['correction'] ) ) ) {
