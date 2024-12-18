@@ -112,6 +112,13 @@ class ESP_Sync extends Sync {
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 
+		if ( ! \is_wp_error( $result ) ) {
+			$user = get_user_by( 'email', $contact['email'] );
+			if ( $user ) {
+				\delete_user_meta( $user->ID, 'newspack_sync_retries' );
+			}
+		}
+
 		return \is_wp_error( $result ) ? $result : true;
 	}
 
@@ -136,7 +143,7 @@ class ESP_Sync extends Sync {
 		static::log(
 			sprintf(
 				// Translators: %s is the email address of the contact to synced.
-				__( 'Scheduling secondary sync for contact %s.', 'newspack-plugin' ),
+				__( 'Scheduling sync for contact %s.', 'newspack-plugin' ),
 				$user->data->user_email
 			),
 			[
@@ -155,11 +162,31 @@ class ESP_Sync extends Sync {
 	 * @param string $context The context of the sync.
 	 */
 	public static function scheduled_sync( $user_id, $context ) {
+		$retries = (int) get_user_meta( $user_id, 'newspack_sync_retries', true );
+		$retries++;
+		if ( 5 < $retries ) {
+			static::log(
+				sprintf(
+					// Translators: %s is the email address of the contact to synced.
+					__( 'Failed to sync contact %s after 5 retries.', 'newspack-plugin' ),
+					$user_id
+				),
+				[
+					'user_id' => $user_id,
+					'context' => $context,
+				]
+			);
+			return;
+		}
+
 		$contact = Sync\WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
 		if ( ! $contact ) {
 			return;
 		}
-		self::sync( $contact, $context );
+		$result = self::sync( $contact, $context );
+		if ( true !== $result ) {
+			update_user_meta( $user_id, 'newspack_sync_retries', $retries );
+		}
 	}
 
 	/**
