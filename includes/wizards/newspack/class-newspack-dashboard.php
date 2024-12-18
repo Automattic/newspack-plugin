@@ -37,15 +37,6 @@ class Newspack_Dashboard extends Wizard {
 	protected $admin_menu_priority = 1;
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-		// Always show dashboard, even if setup is not complete.
-		add_action( 'admin_menu', [ $this, 'add_page' ], $this->admin_menu_priority );
-	}
-
-	/**
 	 * Get Dashboard data
 	 *
 	 * @return []
