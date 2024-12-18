@@ -9,6 +9,7 @@ namespace Newspack\CLI;
 
 use WP_CLI;
 use Newspack\Woocommerce_Subscriptions as WooCommerce_Subscriptions_Integration;
+use Newspack\On_Hold_Duration;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -66,6 +67,7 @@ class WooCommerce_Subscriptions {
 		self::$ids     = isset( $assoc_args['ids'] ) ? explode( ',', $assoc_args['ids'] ) : false;
 		self::$live    = isset( $assoc_args['live'] ) ? true : false;
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
+		$scheduled     = 0;
 		$updated       = 0;
 		$page          = 1;
 		$per_page      = 25;
@@ -126,15 +128,53 @@ class WooCommerce_Subscriptions {
 					}
 					continue;
 				} else {
-					if ( self::$verbose ) {
-						WP_CLI::line( 'Updating subscription status to expired...' );
+					if ( $subscription->is_manual() || ! $subscription->payment_method_supports( 'subscription_date_changes' ) ) {
+						if ( self::$verbose ) {
+							WP_CLI::line( 'Subscription does not support retries. Moving to next subscription...' );
+							WP_CLI::line( '' );
+						}
+						continue;
 					}
-					if ( self::$live ) {
-						$subscription->update_status( 'expired', __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
-						$subscription->set_end_date( $last_retry->get_date() );
-						$subscription->save();
+					$retry_date       = $last_retry->get_date();
+					$on_hold_duration = On_Hold_Duration::get_on_hold_duration();
+					// If the retry date is within the on-hold duration, schedule a final retry.
+					if ( wcs_date_to_time( $retry_date ) + ( $on_hold_duration * DAY_IN_SECONDS ) > time() ) {
+						if ( self::$verbose ) {
+							WP_CLI::line( 'Retry date is within the on-hold duration. Scheduling final retry...' );
+						}
+						if ( self::$live ) {
+							// Retry rules can only be applied when payment attempt flag is set.
+							add_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
+							\WCS_Retry_Manager::maybe_apply_retry_rule( $subscription, $renewal_order );
+							remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
+							if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
+								if ( self::$verbose ) {
+									WP_CLI::error( 'Failed to schedule payment retry. Moving to next subscription...' );
+									WP_CLI::line( '' );
+								}
+								continue;
+							} else {
+								$subscription->add_order_note(
+									__( 'Final payment retry scheduled by Newspack CLI command.', 'newspack-plugin' )
+								);
+								$subscription->update_meta_data( '_newspack_cli_retry_scheduled', true );
+								$subscription->save();
+							}
+						}
+						++$scheduled;
+					} else {
+						// Otherwise, if the retry date is past the on-hold duration, update the subscription status to expired.
+						if ( self::$verbose ) {
+							WP_CLI::line( 'Updating subscription status to expired...' );
+						}
+						if ( self::$live ) {
+							$subscription->update_status( 'expired', __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
+							$subscription->set_end_date( $retry_date );
+							$subscription->update_meta_data( '_newspack_cli_status_updated', true );
+							$subscription->save();
+						}
+						++$updated;
 					}
-					++$updated;
 				}
 				if ( self::$verbose ) {
 					WP_CLI::line( 'Finished processing subscription ' . $id );
@@ -143,7 +183,7 @@ class WooCommerce_Subscriptions {
 			}
 			$subscriptions = self::get_subscriptions( ++$page );
 		}
-		WP_CLI::success( 'Finished processing subscriptions. ' . $updated . ' subscriptions updated.' );
+		WP_CLI::success( 'Finished processing subscriptions. ' . $updated . ' subscriptions updated. ' . $scheduled . ' retries scheduled.' );
 		if ( ! self::$live ) {
 			WP_CLI::warning( 'Dry run. Use --live flag to process live subscriptions.' );
 		}

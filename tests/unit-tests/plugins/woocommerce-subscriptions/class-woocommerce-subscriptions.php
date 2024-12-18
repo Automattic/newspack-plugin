@@ -15,15 +15,6 @@ use Newspack\Reader_Activation;
  */
 class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	/**
-	 * Setup for the tests.
-	 */
-	public static function set_up_before_class() {
-		if ( ! defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) ) {
-			define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
-		}
-	}
-
-	/**
 	 * Test WooCommerce_Subscriptions::is_active.
 	 */
 	public function test_is_active() {
@@ -36,6 +27,6 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function test_is_enabled() {
 		$is_enabled = WooCommerce_Subscriptions::is_enabled();
-		$this->assertTrue( $is_enabled, 'WooCommerce Subscriptions integration should be enabled when Feature Flag is present.' );
+		$this->assertTrue( $is_enabled, 'WooCommerce Subscriptions integration should be enabled when RAS is enabled.' );
 	}
 }

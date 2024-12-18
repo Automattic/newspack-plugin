@@ -118,7 +118,7 @@ class WooCommerce_Duplicate_Orders {
 	 * @param bool   $save Whether to save the result as the option.
 	 * @param bool   $upsert Whether to upsert the option (merge with existing).
 	 */
-	public static function check_for_order_duplicates( $cutoff_time = DAY_IN_SECONDS, $save = false, $upsert = true ): array {
+	public static function check_for_order_duplicates( $cutoff_time = DAY_IN_SECONDS, $save = true, $upsert = true ): array {
 		$order_duplicates = self::get_order_duplicates( $cutoff_time );
 		if ( empty( $order_duplicates ) ) {
 			return [];
@@ -150,6 +150,17 @@ class WooCommerce_Duplicate_Orders {
 			return;
 		}
 		$dismissed_duplicates = get_option( self::DISMISSED_DUPLICATES_OPTION_NAME, [] );
+
+		$orders_to_display = array_filter(
+			$existing_order_duplicates,
+			function( $order_duplicates ) use ( $dismissed_duplicates ) {
+				return ! in_array( $order_duplicates['ids'], $dismissed_duplicates );
+			}
+		);
+
+		if ( empty( $orders_to_display ) ) {
+			return;
+		}
 		?>
 		<div class="notice notice-info is-dismissible">
 			<!-- Admin notice added by newspack-plugin -->
@@ -158,11 +169,7 @@ class WooCommerce_Duplicate_Orders {
 					<?php echo esc_html__( 'There are some potentially duplicate transactions to review. Some of these might be intentional. Click this message to display the list of possible duplicates.', 'newspack-plugin' ); ?>
 				</summary>
 				<ul>
-					<?php foreach ( $existing_order_duplicates as $order_duplicates ) : ?>
-						<?php
-						if ( in_array( $order_duplicates['ids'], $dismissed_duplicates ) ) {
-							continue;}
-						?>
+					<?php foreach ( $orders_to_display as $order_duplicates ) : ?>
 						<li style="display: flex; align-items: center;">
 							<p style="margin: 0;">
 
@@ -237,7 +244,7 @@ class WooCommerce_Duplicate_Orders {
 		$cutoff_time = strtotime( $cutoff_time_str ) - time();
 		$save_as_option = isset( $assoc_args['save'] ) ? $assoc_args['save'] : false;
 
-		$duplicates = self::check_for_order_duplicates( $cutoff_time, $save_as_option, false );
+		$duplicates = self::check_for_order_duplicates( $cutoff_time, $save_as_option );
 
 		if ( empty( $duplicates ) ) {
 			\WP_CLI::success( 'No duplicate orders found.' );
