@@ -62,7 +62,7 @@ class Mailchimp {
 
 		$result = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
 		if ( is_wp_error( $result ) || empty( $result['merge_fields'] || ! is_array( $result['merge_fields'] ) ) ) {
-			\WP_CLI::error( __( 'Could not connect to Mailchimp API. Is the site connected to Mailchimp?', 'newspack-subscription-migrations' ) );
+			\WP_CLI::error( __( 'Could not connect to Mailchimp API. Is the site connected to Mailchimp?', 'newspack-plugin' ) );
 		}
 		$fields = $result['merge_fields'];
 
@@ -123,7 +123,7 @@ class Mailchimp {
 		$prefix           = $assoc_args['prefix'] ?? '';
 
 		if ( empty( $fields_to_delete ) ) {
-			\WP_CLI::error( __( 'Please specify at least one field to delete.', 'newspack-subscription-migrations' ) );
+			\WP_CLI::error( __( 'Please specify at least one field to delete.', 'newspack-plugin' ) );
 		}
 
 		$all_fields       = Metadata::get_all_fields();
@@ -149,7 +149,7 @@ class Mailchimp {
 
 		$result = Mailchimp_API::get( "lists/$audience_id/merge-fields?count=1000" );
 		if ( is_wp_error( $result ) || empty( $result['merge_fields'] || ! is_array( $result['merge_fields'] ) ) ) {
-			\WP_CLI::error( __( 'Could not connect to Mailchimp API. Is the site connected to Mailchimp?', 'newspack-subscription-migrations' ) );
+			\WP_CLI::error( __( 'Could not connect to Mailchimp API. Is the site connected to Mailchimp?', 'newspack-plugin' ) );
 		}
 		$fields = $result['merge_fields'];
 
@@ -450,8 +450,7 @@ class Mailchimp {
 	 * @return array
 	 */
 	private static function get_fields_to_check_for_duplicates() {
-		$all_fields = Metadata::get_all_fields();
-		$fields     = array_map(
+		$fields = array_map(
 			function( $key ) {
 				return Metadata::get_key( $key );
 			},
@@ -462,6 +461,13 @@ class Mailchimp {
 		$fields = array_merge(
 			$fields,
 			[
+				// Standard Mailchimp merge fields.
+				'First Name',
+				'Last Name',
+				'Phone',
+				'Address',
+
+				// Other Newspack-specific fields.
 				'origin_newspack',
 				'newsletters_subscription_method',
 				'current_page_url',
