@@ -224,9 +224,9 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 					if ( \is_wp_error( $result ) ) {
 						static::log(
 							sprintf(
-								// Translators: $1$s is the contact's email address. %2$s is the error message.
-								__( 'Error syncing contact info for %1$s. %2$s' ),
-								$customer->get_email(),
+								// Translators: $1$s is the contact's user ID. %2$s is the error message.
+								__( 'Error syncing contact info for user ID %1$d. %2$s' ),
+								$user_id,
 								$result->get_error_message()
 							)
 						);
@@ -354,16 +354,16 @@ class RAS_ESP_Sync extends Reader_Activation\ESP_Sync {
 	 * [--active-only]
 	 * : If passed, only sync users who have active subscriptions, otherwise resync all users.
 	 *
-	 * [--migrated-subscriptions=<stripe|piano-csv|strive-csv>]
+	 * [--migrated-subscriptions=<stripe|piano-csv|stripe-csv>]
 	 * : If passed, will only query for subscriptions that were migrated via the Newspack Subscription Migrations plugin using the Stripe/Piano CSV importers, or the legacy Stripe migrator. The Newspack Subscription Migrations plugin must be active to use this flag.
 	 *
-	 * [--subscription-ids=<id1,id2...>]
+	 * [--subscription-ids=<id1,id2,etc>]
 	 * : Comma-delimited list of subscription IDs. If passed, will only process those specific subscriptions.
 	 *
-	 * [--user-ids=<id1,id2...>]
+	 * [--user-ids=<id1,id2,etc>]
 	 * : Comma-delimited list of user IDs. If passed, will only process subscriptions associated with those specific users.
 	 *
-	 * [--order-ids=<id1,id2...>]
+	 * [--order-ids=<id1,id2,etc>]
 	 * : Comma-delimited list of order IDs. If passed, will only process subscriptions associated with those specific orders.
 	 *
 	 * [--batch-size=<number>]

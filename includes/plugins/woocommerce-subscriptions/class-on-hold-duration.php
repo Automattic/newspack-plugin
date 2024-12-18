@@ -73,12 +73,12 @@ class On_Hold_Duration {
 	}
 
 	/**
-	 * Get on-hold duration. Defaults to 0.
+	 * Get on-hold duration. Defaults to 30.
 	 *
 	 * @return int
 	 */
 	public static function get_on_hold_duration() {
-		return absint( get_option( 'newspack_subscriptions_on_hold_duration', 0 ) );
+		return absint( get_option( 'newspack_subscriptions_on_hold_duration', 30 ) );
 	}
 
 	/**
