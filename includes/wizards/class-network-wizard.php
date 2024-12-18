@@ -76,12 +76,6 @@ class Network_Wizard extends Wizard {
 		// Hooks: admin_menu/add_page, admin_enqueue_scripts/enqueue_scripts_and_styles, admin_body_class/add_body_class .
 		parent::__construct();
 
-		// Remove Newspack Network admin menu if setup is incomplete.
-		// @TODO: move to standardized method for altering menu items.
-		if ( ! Newspack::is_setup_complete() ) {
-			remove_action( 'admin_menu', [ Newspack_Network_Admin::class, 'add_admin_menu' ] );
-		}
-
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
 			
