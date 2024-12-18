@@ -124,36 +124,56 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 			],
 		];
 
-		// Raw metadata keys should be converted to prefixed keys.
 		$this->assertEquals(
 			$contact_data_with_prefixed_keys,
-			Sync\Metadata::normalize_contact_data( $contact_data_with_raw_keys )
+			Sync\Metadata::normalize_contact_data( $contact_data_with_raw_keys ),
+			'Raw metadata keys should be converted to prefixed keys.'
 		);
 
 		Sync\Metadata::update_prefix( 'CU_' );
 
-		// Metadata keys should be prefixed with the custom prefix, if set.
 		$this->assertEquals(
 			$contact_data_with_custom_prefix,
-			Sync\Metadata::normalize_contact_data( $contact_data_with_raw_keys )
+			Sync\Metadata::normalize_contact_data( $contact_data_with_raw_keys ),
+			'Metadata keys should be prefixed with the custom prefix, if set.'
 		);
 
 		// Clear from last test.
 		\delete_option( Sync\Metadata::PREFIX_OPTION );
 
-		// Most keys should be exact.
 		$contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] = 'Invalid data';
 		$this->assertEquals(
 			array_diff( $contact_data_with_prefixed_keys['metadata'], Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'] ),
-			[ 'NP_Invalid_Key' => 'Invalid data' ]
+			[ 'NP_Invalid_Key' => 'Invalid data' ],
+			'Most keys should be exact.'
 		);
 
-		// But UTM keys can have arbitrary suffixes.
 		unset( $contact_data_with_prefixed_keys['metadata']['NP_Invalid_Key'] );
 		$contact_data_with_prefixed_keys['metadata']['NP_Signup UTM: foo'] = 'bar';
-		$this->assertEquals(
-			$contact_data_with_prefixed_keys,
-			Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )
+		$this->assertArrayHasKey(
+			'NP_Signup UTM: foo',
+			Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'],
+			'But UTM keys can have arbitrary suffixes.'
+		);
+
+		// And UTM keys MUST have a suffix.
+		$contact_data_with_prefixed_keys['metadata']['NP_Signup UTM: '] = 'foo';
+		$contact_data_with_prefixed_keys['metadata']['signup_page_utm'] = 'bar';
+		$contact_data_with_prefixed_keys['metadata']['signup_page_utm_'] = 'baz';
+		$this->assertArrayNotHasKey(
+			'NP_Signup UTM: ',
+			Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'],
+			'Prefixed UTM keys must have a suffix.'
+		);
+		$this->assertArrayNotHasKey(
+			'signup_page_utm',
+			Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'],
+			'Raw UTM keys must have a suffix.'
+		);
+		$this->assertArrayNotHasKey(
+			'NP_Signup UTM: ',
+			Sync\Metadata::normalize_contact_data( $contact_data_with_prefixed_keys )['metadata'],
+			'Raw UTM keys must have a suffix.'
 		);
 	}
 
@@ -163,7 +183,12 @@ class Newspack_Test_Reader_Activation_Sync extends WP_UnitTestCase {
 	public function test_with_default_option() {
 		$contact = $this->get_sample_contact();
 		$normalized = Sync\Metadata::normalize_contact_data( $contact );
-		$this->assertSame( $contact, $normalized );
+
+		// Strip unsuffixed UTM keys.
+		unset( $contact['metadata'][ Sync\Metadata::get_key( 'signup_page_utm' ) ] );
+		unset( $contact['metadata'][ Sync\Metadata::get_key( 'payment_page_utm' ) ] );
+
+		$this->assertSame( $contact, $normalized, 'All default keys pass normalization except for unsuffixed UTM keys.' );
 	}
 
 	/**
