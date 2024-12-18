@@ -64,7 +64,7 @@
 		background: colors.$primary-050;
 
 		> svg {
-			fill: colors.$primary-600;
+			fill: var(--newspack-ui-color-primary);
 		}
 	}
 

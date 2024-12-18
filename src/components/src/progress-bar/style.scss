@@ -35,7 +35,7 @@
 	}
 
 	&__bar {
-		background-color: colors.$primary-600;
+		background-color: var(--newspack-ui-color-primary);
 		height: 8px;
 		transition: width 125ms ease-in-out;
 	}

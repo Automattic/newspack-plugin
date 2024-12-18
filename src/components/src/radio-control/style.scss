@@ -55,8 +55,8 @@
 		}
 
 		&:checked {
-			background-color: colors.$primary-600;
-			border-color: colors.$primary-600;
+			background-color: var(--newspack-ui-color-primary);
+			border-color: var(--newspack-ui-color-primary);
 
 			&::before {
 				border: none;
@@ -64,8 +64,8 @@
 		}
 
 		&:focus {
-			border-color: colors.$primary-600;
-			box-shadow: 0 0 0 2px white, 0 0 0 3.5px colors.$primary-600;
+			border-color: var(--newspack-ui-color-primary);
+			box-shadow: 0 0 0 2px white, 0 0 0 3.5px var(--newspack-ui-color-primary);
 		}
 	}
 

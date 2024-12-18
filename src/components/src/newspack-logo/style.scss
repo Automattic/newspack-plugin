@@ -19,7 +19,7 @@
 	}
 
 	&__wrapper {
-		background: colors.$primary-600;
+		background: var(--newspack-ui-color-primary);
 		color: white;
 		position: relative;
 

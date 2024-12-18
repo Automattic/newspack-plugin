@@ -68,12 +68,12 @@ svg {
 
 .newspack-wizard__blue {
 	#wpwrap {
-		background: colors.$primary-600;
+		background: var(--newspack-ui-color-primary);
 	}
 
 	.newspack-footer {
-		background: colors.$primary-600;
-		border-color: colors.$primary-600;
+		background: var(--newspack-ui-color-primary);
+		border-color: var(--newspack-ui-color-primary);
 		justify-content: center;
 
 		&__logo {
@@ -116,7 +116,7 @@ svg {
 	}
 
 	&::before {
-		background: colors.$primary-600;
+		background: var(--newspack-ui-color-primary);
 		box-shadow:
 			24px 0 0 white,
 			69px 0 0 -15px wp-colors.$gray-900,
@@ -161,7 +161,7 @@ svg {
 
 	// Blue Screen
 	.newspack-wizard__blue & {
-		background: colors.$primary-600;
+		background: var(--newspack-ui-color-primary);
 
 		&::before {
 			animation: loading-quiet 1.25s ease-in-out infinite;
@@ -217,7 +217,7 @@ svg {
 
 		&::before {
 			animation: loading-quiet 1.25s ease-in-out infinite;
-			background: colors.$primary-600;
+			background: var(--newspack-ui-color-primary);
 			height: 8px;
 			right: 100%;
 			z-index: 9999;

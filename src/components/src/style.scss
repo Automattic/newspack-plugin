@@ -1,7 +1,13 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
 :root {
+	// Colors
 	--newspack-ui-color-primary: #2240d5;
+	--newspack-ui-color-primary-rgb: 34, 64, 213;
+
+	// WP Admin
+	--wp-admin-theme-color: var(--newspack-ui-color-primary);
+	--wp-admin-theme-color--rgb: var(--newspack-ui-color-primary-rgb);
 }
 
 // Buttons Card

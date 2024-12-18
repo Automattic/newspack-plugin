@@ -15,7 +15,7 @@
 		text-align: center;
 
 		.newspack-style-card__is-active & {
-			color: colors.$primary-600;
+			color: var(--newspack-ui-color-primary);
 		}
 	}
 
@@ -48,8 +48,8 @@
 		}
 
 		.newspack-style-card__is-active & {
-			border-color: colors.$primary-600;
-			box-shadow: inset 0 0 0 1px colors.$primary-600;
+			border-color: var(--newspack-ui-color-primary);
+			box-shadow: inset 0 0 0 1px var(--newspack-ui-color-primary);
 
 			img {
 				position: relative;
@@ -88,7 +88,7 @@
 		}
 
 		.newspack-style-card__is-active & {
-			box-shadow: inset 0 0 0 1px colors.$primary-600;
+			box-shadow: inset 0 0 0 1px var(--newspack-ui-color-primary);
 		}
 	}
 }
