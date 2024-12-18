@@ -12,6 +12,11 @@ namespace Newspack;
  */
 class Corrections {
 	/**
+	 * Post type for corrections.
+	 */
+	const POST_TYPE = 'np_correction';
+
+	/**
 	 * Meta key for storing corrections.
 	 */
 	const CORRECTION_META = 'article-corrections';
@@ -28,10 +33,11 @@ class Corrections {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
+		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
+		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
 		add_action( 'add_meta_boxes', [ __CLASS__, 'add_corrections_metabox' ] );
 		add_action( 'save_post', [ __CLASS__, 'save_corrections_metabox' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
-		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
 	}
 
 	/**
@@ -44,6 +50,68 @@ class Corrections {
 	 */
 	public static function is_enabled() {
 		return defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED;
+	}
+
+	/**
+	 * Registers the corrections post type.
+	 *
+	 * @return void
+	 */
+	public static function register_post_type() {
+		$supports = [
+			'author',
+			'editor',
+			'title',
+			'revisions',
+		];
+
+		$labels = [
+			'name'                     => _x( 'Corrections', 'post type general name', 'newspack-plugin' ),
+			'singular_name'            => _x( 'Correction', 'post type singular name', 'newspack-plugin' ),
+			'menu_name'                => _x( 'Corrections', 'admin menu', 'newspack-plugin' ),
+			'name_admin_bar'           => _x( 'Correction', 'add new on admin bar', 'newspack-plugin' ),
+			'add_new'                  => _x( 'Add New', 'correction', 'newspack-plugin' ),
+			'add_new_item'             => __( 'Add New Correction', 'newspack-plugin' ),
+			'new_item'                 => __( 'New Correction', 'newspack-plugin' ),
+			'edit_item'                => __( 'Edit Correction', 'newspack-plugin' ),
+			'view_item'                => __( 'View Correction', 'newspack-plugin' ),
+			'view_items'               => __( 'View Correction', 'newspack-plugin' ),
+			'all_items'                => __( 'All Corrections', 'newspack-plugin' ),
+			'search_items'             => __( 'Search Corrections', 'newspack-plugin' ),
+			'parent_item_colon'        => __( 'Parent Correction:', 'newspack-plugin' ),
+			'not_found'                => __( 'No corrections found.', 'newspack-plugin' ),
+			'not_found_in_trash'       => __( 'No corrections found in Trash.', 'newspack-plugin' ),
+			'archives'                 => __( 'Correction Archives', 'newspack-plugin' ),
+			'attributes'               => __( 'Correction Attributes', 'newspack-plugin' ),
+			'insert_into_item'         => __( 'Insert into correction', 'newspack-plugin' ),
+			'uploaded_to_this_item'    => __( 'Uploaded to this correction', 'newspack-plugin' ),
+			'filter_items_list'        => __( 'Filter corrections list', 'newspack-plugin' ),
+			'items_list_navigation'    => __( 'Corrections list navigation', 'newspack-plugin' ),
+			'items_list'               => __( 'Corrections list', 'newspack-plugin' ),
+			'item_published'           => __( 'Correction published.', 'newspack-plugin' ),
+			'item_published_privately' => __( 'Correction published privately.', 'newspack-plugin' ),
+			'item_reverted_to_draft'   => __( 'Correction reverted to draft.', 'newspack-plugin' ),
+			'item_scheduled'           => __( 'Correction scheduled.', 'newspack-plugin' ),
+			'item_updated'             => __( 'Correction updated.', 'newspack-plugin' ),
+			'item_link'                => __( 'Correction Link', 'newspack-plugin' ),
+			'item_link_description'    => __( 'A link to a correction.', 'newspack-plugin' ),
+		];
+
+		$args = array(
+			'labels'           => $labels,
+			'description'      => 'Post type used to store corrections and clarifications.',
+			'has_archive'      => true,
+			'public'           => true,
+			'public_queryable' => true,
+			'query_var'        => true,
+			'rewrite'          => [ 'slug' => 'correction' ],
+			'show_ui'          => true,
+			'show_in_rest'     => true,
+			'supports'         => $supports,
+			'taxonomies'       => [],
+			'menu_icon'        => 'dashicons-edit',
+		);
+		\register_post_type( self::POST_TYPE, $args );
 	}
 
 	/**
@@ -94,8 +162,8 @@ class Corrections {
 							</p>
 						<?php endforeach; ?>
 					</div>
-
-			</div></div>
+				</div>
+			</div>
 			<!-- /wp:group -->
 			<?php
 		endforeach;
