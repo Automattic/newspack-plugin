@@ -66,7 +66,6 @@ class Setup_Wizard extends Wizard {
 	 */
 	public function __construct() {
 		parent::__construct();
-		add_action( 'admin_menu', [ $this, 'add_page' ], $this->admin_menu_priority );
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
 		if ( ! Newspack::is_setup_complete() ) {
 			add_action( 'current_screen', [ $this, 'redirect_to_setup' ] );
