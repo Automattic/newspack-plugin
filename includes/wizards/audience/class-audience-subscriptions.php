@@ -71,7 +71,7 @@ class Audience_Subscriptions extends Wizard {
 						'title'       => esc_html__( 'Configuration', 'newspack-plugin' ),
 						'header'      => esc_html__( 'Manage Subscriptions settings in Woo Memberships', 'newspack-plugin' ),
 						'description' => esc_html__( 'You can manage the details of your subscription offerings in the Woo Memberships plugin.', 'newspack-plugin' ),
-						'href'        => admin_url( 'admin.php?page=wc-settings&tab=memberships' ),
+						'href'        => admin_url( 'edit.php?post_type=wc_membership_plan' ),
 						'btn_text'    => esc_html__( 'Manage Subscriptions', 'newspack-plugin' ),
 					],
 					[
