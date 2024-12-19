@@ -665,6 +665,12 @@ class Donations {
 			return;
 		}
 
+		// Nonce value defined in \Newpack_Blocks\Modal_Checkout.
+		if ( ! check_ajax_referer( 'newspack_checkout_nonce' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Invalid nonce.', 'newspack-blocks' ) ] );
+			wp_die();
+		}
+
 		$is_modal_checkout = filter_input( INPUT_GET, 'modal_checkout', FILTER_SANITIZE_NUMBER_INT );
 
 		// Parse values from the form.
@@ -672,6 +678,7 @@ class Donations {
 		if ( ! $donation_frequency ) {
 			return;
 		}
+
 		$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $donation_value ) {
 			$donation_value = filter_input( INPUT_GET, 'donation_value_' . $donation_frequency . '_untiered', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
