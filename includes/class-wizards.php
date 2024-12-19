@@ -36,8 +36,16 @@ class Wizards {
 			'seo'                     => new SEO_Wizard(),
 			'health-check'            => new Health_Check_Wizard(),
 			'engagement'              => new Engagement_Wizard(),
+			/**
+			 * `newspack-connections-wizard` is used throughout the plugin.
+			 */
 			'connections'             => new Connections_Wizard(),
-			'settings'                => new Settings(),
+			/**
+			 * - React component src/wizards/newspack/views/settings/syndication/rss.tsx
+			 * - Unit tests
+			 * - Optional Modules
+			 */
+			// 'settings'                => new Settings(),
 			// v2 Information Architecture.
 			'newspack-dashboard'      => new Newspack_Dashboard(),
 			'setup'                   => new Setup_Wizard(),
@@ -47,6 +55,7 @@ class Wizards {
 						'custom-events' => 'Newspack\Wizards\Newspack\Custom_Events_Section',
 						'social-pixels' => 'Newspack\Wizards\Newspack\Pixels_Section',
 						'recirculation' => 'Newspack\Wizards\Newspack\Recirculation_Section',
+						'syndication'   => 'Newspack\Wizards\Newspack\Syndication_Section',
 					],
 				]
 			),
