@@ -21,7 +21,7 @@ class RSS {
 	 * Initialise.
 	 */
 	public static function init() {
-		if ( ! Settings::is_optional_module_active( 'rss' ) ) {
+		if ( ! Syndication::is_optional_module_active( 'rss' ) ) {
 			return;
 		}
 

@@ -19,7 +19,7 @@ class Media_Partners {
 	 * Initialize everything.
 	 */
 	public static function init() {
-		if ( ! Settings::is_optional_module_active( 'media-partners' ) ) {
+		if ( ! Syndication::is_optional_module_active( 'media-partners' ) ) {
 			return;
 		}
 
