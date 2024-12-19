@@ -74,6 +74,13 @@ class Audience_Subscriptions extends Wizard {
 						'href'        => admin_url( 'edit.php?post_type=wc_membership_plan' ),
 						'btn_text'    => esc_html__( 'Manage Subscriptions', 'newspack-plugin' ),
 					],
+					/**
+					 * TODO: Add revenue tab when `custom revenue report` is completed, [see related comment](https://github.com/Automattic/newspack-plugin/pull/3565#discussion_r1891884248).
+					 */
+
+					// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+
+					/*
 					[
 						'path'        => '/revenue',
 						'title'       => esc_html__( 'Revenue', 'newspack-plugin' ),
@@ -82,6 +89,9 @@ class Audience_Subscriptions extends Wizard {
 						'href'        => admin_url( 'admin.php?page=wc-reports' ),
 						'btn_text'    => esc_html__( 'View Subscription Revenue', 'newspack-plugin' ),
 					],
+					*/
+
+					// phpcs:enable Squiz.PHP.CommentedOutCode.Found
 				],
 			]
 		);
