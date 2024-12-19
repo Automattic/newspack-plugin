@@ -1,16 +1,12 @@
 @use "../newspack-ui/scss/variables/_colors.scss";
 @use "../../node_modules/tachyons/css/tachyons.min.css";
+@use "~@wordpress/base-styles/colors" as wp-colors;
 
 :root {
 	/* Sections */
 	--newspack-wizard-section-width: 1040px;
 	--newspack-wizard-section-space: 24px;
 	--newspack-wizard-section-child-space: 16px;
-	/**
-	 * Colors
-	 */
-	// Grays
-	--newspack-wizard-color-neutral-70: #757575;
 
 	/**
 	 * Dimensions
@@ -50,7 +46,7 @@ h1 {
  * Utils
  */
 .gray-700 {
-	color: var(--newspack-wizard-color-neutral-70);
+	color: wp-colors.$gray-700;
 }
 .is-fetching {
 	* {
@@ -228,7 +224,7 @@ h1 {
 	}
 
 	> p {
-		color: var(--newspack-wizard-color-neutral-70);
+		color: wp-colors.$gray-700;
 		margin: 0;
 	}
 
