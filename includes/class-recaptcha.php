@@ -344,6 +344,18 @@ final class Recaptcha {
 			return false;
 		}
 
+		// Only use v2 if we are in modal checkout context.
+		// TODO: Remove this check once we have a way to enable v2 for non-modal checkouts.
+		if (
+			( 'v2' === $version || 'v2_invisible' === $settings['version'] ) &&
+			(
+				! method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) ||
+				! \Newspack_Blocks\Modal_Checkout::is_modal_checkout()
+			)
+		) {
+			return false;
+		}
+
 		if ( empty( self::get_site_key() ) || empty( self::get_site_secret() ) ) {
 			return false;
 		}
