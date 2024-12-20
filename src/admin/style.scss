@@ -65,8 +65,8 @@ h1 {
 	input[type="checkbox"],
 	.components-checkbox-control__input[type="checkbox"],
 	.components-checkbox-control__input[type="checkbox"]:checked {
-		background-color: var(--newspack-ui-color-neutral-10);
-		border: 1px solid var(--newspack-ui-color-neutral-10);
+		background-color: wp-colors.$gray-100;
+		border: 1px solid wp-colors.$gray-100;
 	}
 	// Universal animations
 	textarea,
@@ -96,7 +96,7 @@ h1 {
 		}
 
 		.newspack-style-card__image-html:empty {
-			background-color: var(--newspack-ui-color-neutral-10);
+			background-color: wp-colors.$gray-100;
 		}
 
 		.newspack-style-card__actions {
@@ -107,7 +107,7 @@ h1 {
 	// Color
 	.newspack-color-picker {
 		.newspack-color-picker__expander {
-			background-color: var(--newspack-ui-color-neutral-10);
+			background-color: wp-colors.$gray-100;
 			animation: opacity-pulse 1.4s infinite;
 		}
 	}
@@ -117,8 +117,8 @@ h1 {
 
 		// Specificity necessary to override @emotion/* styles
 		select.components-select-control__input {
-			background-color: var(--newspack-ui-color-neutral-10);
-			border: 1px solid var(--newspack-ui-color-neutral-10);
+			background-color: wp-colors.$gray-100;
+			border: 1px solid wp-colors.$gray-100;
 			cursor: progress;
 		}
 
