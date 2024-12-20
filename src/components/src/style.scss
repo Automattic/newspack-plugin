@@ -1,13 +1,14 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
+@use "../../shared/scss/colors" as colors;
 
 :root {
-	// Colors
-	--newspack-ui-color-primary: #2240d5;
-	--newspack-ui-color-primary-rgb: 34, 64, 213;
-
 	// WP Admin
-	--wp-admin-theme-color: var(--newspack-ui-color-primary);
-	--wp-admin-theme-color--rgb: var(--newspack-ui-color-primary-rgb);
+	--wp-admin-theme-color: #{colors.$primary-600};
+	--wp-admin-theme-color--rgb: rgb(#{colors.$primary-600--rgb});
+	--wp-admin-theme-color-darker-10: #{colors.$primary-700};
+	--wp-admin-theme-color-darker-10--rgb: rgb(#{colors.$primary-700--rgb});
+	--wp-admin-theme-color-darker-20: #{colors.$primary-800};
+	--wp-admin-theme-color-darker-20--rgb: rgb(#{colors.$primary-800--rgb});
 }
 
 // Buttons Card
