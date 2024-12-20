@@ -497,7 +497,7 @@ final class Recaptcha {
 	 */
 	public static function verify_recaptcha_on_checkout() {
 		$url                   = \home_url( \add_query_arg( null, null ) );
-		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha( 'v3' ), $url );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url );
 		if ( ! $should_verify_captcha ) {
 			return;
 		}
