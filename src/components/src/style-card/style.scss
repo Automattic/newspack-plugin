@@ -15,7 +15,7 @@
 		text-align: center;
 
 		.newspack-style-card__is-active & {
-			color: var(--newspack-ui-color-primary);
+			color: var(--wp-admin-theme-color);
 		}
 	}
 
@@ -48,8 +48,8 @@
 		}
 
 		.newspack-style-card__is-active & {
-			border-color: var(--newspack-ui-color-primary);
-			box-shadow: inset 0 0 0 1px var(--newspack-ui-color-primary);
+			border-color: var(--wp-admin-theme-color);
+			box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color);
 
 			img {
 				position: relative;
@@ -88,7 +88,7 @@
 		}
 
 		.newspack-style-card__is-active & {
-			box-shadow: inset 0 0 0 1px var(--newspack-ui-color-primary);
+			box-shadow: inset 0 0 0 1px var(--wp-admin-theme-color);
 		}
 	}
 }

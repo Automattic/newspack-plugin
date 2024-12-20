@@ -55,8 +55,8 @@
 		}
 
 		&:checked {
-			background-color: var(--newspack-ui-color-primary);
-			border-color: var(--newspack-ui-color-primary);
+			background-color: var(--wp-admin-theme-color);
+			border-color: var(--wp-admin-theme-color);
 
 			&::before {
 				border: none;
@@ -64,8 +64,8 @@
 		}
 
 		&:focus {
-			border-color: var(--newspack-ui-color-primary);
-			box-shadow: 0 0 0 2px white, 0 0 0 3.5px var(--newspack-ui-color-primary);
+			border-color: var(--wp-admin-theme-color);
+			box-shadow: 0 0 0 2px white, 0 0 0 3.5px var(--wp-admin-theme-color);
 		}
 	}
 
