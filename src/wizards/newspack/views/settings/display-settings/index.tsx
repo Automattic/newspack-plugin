@@ -170,7 +170,7 @@ export default function DisplaySettings() {
 			</WizardSection>
 			{ errorMessage && <Notice /> }
 			<div className="newspack-buttons-card">
-				<Button variant="tertiary">
+				<Button variant="tertiary" href="/wp-admin/customize.php">
 					{ __( 'Advanced Settings', 'newspack-plugin' ) }
 				</Button>
 				<Button variant="primary" onClick={ save }>
