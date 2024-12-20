@@ -5,18 +5,18 @@
 @use "../../../shared/scss/colors";
 
 .newspack-icon {
-	background: colors.$primary-500;
+	background: var(--wp-admin-theme-color);
 	fill: white;
 	padding: 12px;
 
 	&--white {
 		background: white;
-		fill: colors.$primary-500;
+		fill: var(--wp-admin-theme-color);
 	}
 
 	&--simple {
 		background: none;
-		fill: colors.$primary-500;
+		fill: var(--wp-admin-theme-color);
 		padding: 0;
 	}
 

@@ -55,8 +55,8 @@
 		}
 
 		&:checked {
-			background-color: colors.$primary-500;
-			border-color: colors.$primary-500;
+			background-color: var(--wp-admin-theme-color);
+			border-color: var(--wp-admin-theme-color);
 
 			&::before {
 				border: none;
@@ -64,8 +64,8 @@
 		}
 
 		&:focus {
-			border-color: colors.$primary-500;
-			box-shadow: 0 0 0 2px white, 0 0 0 3.5px colors.$primary-500;
+			border-color: var(--wp-admin-theme-color);
+			box-shadow: 0 0 0 2px white, 0 0 0 3.5px var(--wp-admin-theme-color);
 		}
 	}
 

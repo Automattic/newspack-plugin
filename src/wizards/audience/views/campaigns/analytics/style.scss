@@ -32,8 +32,8 @@
 					color: wp-colors.$gray-900 !important;
 				}
 				&:focus {
-					border-color: colors.$primary-500 !important;
-					box-shadow: inset 0 0 0 2px colors.$primary-500 !important;
+					border-color: var(--newspack-ui-color-primary) !important;
+					box-shadow: inset 0 0 0 2px var(--newspack-ui-color-primary) !important;
 				}
 				svg {
 					order: 2;

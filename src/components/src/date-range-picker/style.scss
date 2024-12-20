@@ -100,7 +100,7 @@
 
 	&__CalendarSelection,
 	&__CalendarHighlight {
-		border-color: colors.$primary-500;
+		border-color: var(--wp-admin-theme-color);
 		bottom: 4px;
 		top: 4px;
 
@@ -129,11 +129,11 @@
 	}
 
 	&__CalendarSelection {
-		background-color: colors.$primary-500;
+		background-color: var(--wp-admin-theme-color);
 	}
 
 	&__CalendarHighlight {
-		background: colors.$primary-500;
+		background: var(--wp-admin-theme-color);
 		border: none;
 		bottom: 0;
 		top: 0;
