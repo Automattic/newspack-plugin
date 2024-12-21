@@ -139,14 +139,18 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 		if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 			return;
 		}
-		// Refresh widget if it already exists.
-		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
-			refreshV2Widget( button );
-			return;
-		}
 		// Callback when reCAPTCHA passes validation or skip flag is present.
-		const successCallback = () => {
-			onSuccess?.()
+		const successCallback = token => {
+			onSuccess?.();
+			// Ensure the token gets submitted with the form submission.
+			let hiddenField = form.querySelector( '[name="g-recaptcha-response"]' );
+			if ( ! hiddenField ) {
+				hiddenField = document.createElement( 'input' );
+				hiddenField.type = 'hidden';
+				hiddenField.name = 'g-recaptcha-response';
+				form.appendChild( hiddenField );
+			}
+			hiddenField.value = token;
 			form.requestSubmit( button );
 			refreshV2Widget( button );
 		};
@@ -166,9 +170,40 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 				}
 			}
 		}
+		// Attach widget to form events.
+		const attachListeners = () => {
+			form.addEventListener( 'focusin', () => renderV2Widget( form, onSuccess, onError ) );
+			button.addEventListener( 'click', e => {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				// Empty error messages if present.
+				removeErrorMessages( form );
+				// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
+				if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
+					successCallback();
+				} else {
+					grecaptcha.execute( widgetId ).then( () => {
+						// If we are in an iframe scroll to top.
+						if ( window?.location !== window?.parent?.location ) {
+							document.body.scrollIntoView( { behavior: 'smooth' } );
+						}
+					} );
+				}
+			} );
+		}
+		// Refresh reCAPTCHA widgets on Woo checkout update and error.
+		if ( jQuery ) {
+			jQuery( document ).on( 'updated_checkout', () => attachListeners );
+			jQuery( document.body ).on( 'checkout_error', () => attachListeners );
+		}
+		// Refresh widget if it already exists.
+		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
+			refreshV2Widget( button );
+			return;
+		}
 		const container = document.createElement( 'div' );
 		container.classList.add( 'grecaptcha-container' );
-		button.parentElement.append( container );
+		document.body.append( container );
 		const widgetId = grecaptcha.render( container, {
 			...options,
 			callback: successCallback,
@@ -176,30 +211,7 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 			'expired-callback': errorCallback,
 		} );
 		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
-
-		// Refresh reCAPTCHA widgets on Woo checkout update and error.
-		if ( jQuery ) {
-			jQuery( document ).on( 'updated_checkout', () => renderV2Widget( form, onSuccess, onError ) );
-			jQuery( document.body ).on( 'checkout_error', () => renderV2Widget( form, onSuccess, onError ) );
-		}
-
-		button.addEventListener( 'click', e => {
-			e.preventDefault();
-			e.stopImmediatePropagation();
-			// Empty error messages if present.
-			removeErrorMessages( form );
-			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
-			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-				successCallback();
-			} else {
-				grecaptcha.execute( widgetId ).then( () => {
-					// If we are in an iframe scroll to top.
-					if ( window?.location !== window?.parent?.location ) {
-						document.body.scrollIntoView( { behavior: 'smooth' } );
-					}
-				} );
-			}
-		} );
+		attachListeners();
 	} );
 }
 
@@ -254,25 +266,14 @@ function render( forms = [], onSuccess = null, onError = null ) {
 		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
-		if ( ! form.hasAttribute( 'data-recaptcha-rendered' ) ) {
-			form.addEventListener( 'focusin', () => {
-				if ( isV2 ) {
-					renderV2Widget( form, onSuccess, onError );
-				}
-				if ( isV3 ) {
-					addHiddenV3Field( form );
-				}
-			} );
-			form.setAttribute( 'data-recaptcha-rendered', 'true' );
-		} else {
-			// Call render methods to trigger refresh.
+		form.addEventListener( 'focusin', () => {
 			if ( isV2 ) {
 				renderV2Widget( form, onSuccess, onError );
 			}
 			if ( isV3 ) {
 				addHiddenV3Field( form );
 			}
-		}
+		} );
 	} );
 }
 
