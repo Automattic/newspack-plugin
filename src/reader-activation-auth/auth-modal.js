@@ -96,7 +96,9 @@ export function openAuthModal( config = {} ) {
 	container.config = config;
 
 	container.authCallback = ( message, data ) => {
-		close( false );
+		if ( config?.closeOnSuccess ) {
+			close( false );
+		}
 		if ( config.onSuccess && typeof config.onSuccess === 'function' ) {
 			config.onSuccess( message, data );
 		}
