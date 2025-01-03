@@ -429,7 +429,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 									form.endLoginFlow();
 								} )
 								.finally( () => {
-									form.style.opacity = 1;
+									const status = res.status;
+									// Check if modal should close on success. If no, reset opacity to 1.
+									// If yes, only reset opacity to 1 if the status is not successful.
+									if ( container.config?.closeOnSuccess ) {
+										form.style.opacity = 1;
+									} else if ( status !== 200 ) {
+										form.style.opacity = 1;
+									}
 									submitButtons.forEach( button => {
 										button.disabled = false;
 									} );
