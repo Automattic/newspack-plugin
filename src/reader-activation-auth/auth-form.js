@@ -386,6 +386,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					url.searchParams.set( 'checkout', 1 );
 					body.set( 'redirect_url', url.toString() );
 				}
+
 				if ( 'otp' === action ) {
 					readerActivation
 						.authenticateOTP( body.get( 'otp_code' ) )
@@ -421,6 +422,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 											readerActivation.setOTPTimer();
 											handleOTPTimer();
 										}
+										if ( data.action === 'otp' || data.action === 'pwd' ) {
+											form.style.opacity = 1;
+										}
 									} else {
 										form.endLoginFlow( message, status, data );
 									}
@@ -434,7 +438,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									// If yes, only reset opacity to 1 if the status is not successful.
 									if ( container.config?.closeOnSuccess ) {
 										form.style.opacity = 1;
-									} else if ( status !== 200 ) {
+									} else if ( status !== 200 && ! container.config?.closeOnSuccess ) {
 										form.style.opacity = 1;
 									}
 									submitButtons.forEach( button => {
