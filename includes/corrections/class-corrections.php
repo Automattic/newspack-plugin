@@ -239,11 +239,19 @@ class Corrections {
 					<!-- wp:newspack-blocks/homepage-articles {"showExcerpt":false,"showDate":false,"showAuthor":false,"mediaPosition":"left","specificPosts":["<?php echo intval( $post_id ); ?>"],"imageScale":2,"specificMode":true} /-->
 
 					<div class="correction-list">
-						<?php foreach ( $corrections as $correction ) : ?>
-							<?php $correction_heading = ! empty( $correction['date'] ) ? 'Correction on ' . gmdate( 'M j, Y', strtotime( $correction['date'] ) ) : 'Correction'; ?>
+						<?php
+						foreach ( $corrections as $correction ) :
+							$correction_content = $correction->post_content;
+							$correction_date    = get_post_meta( $correction->ID, self::CORRECTION_DATE_META, true );
+							$correction_heading = sprintf(
+								// translators: %s: correction date.
+								__( 'Correction on %s', 'newspack-plugin' ),
+								gmdate( 'M j, Y', strtotime( $correction_date ) )
+							);
+							?>
 							<p>
 								<span class="correction-date"><?php echo esc_html( $correction_heading ); ?><span>:</span></span>
-								<?php echo esc_html( $correction['correction'] ); ?>
+								<?php echo esc_html( $correction_content ); ?>
 							</p>
 						<?php endforeach; ?>
 					</div>
