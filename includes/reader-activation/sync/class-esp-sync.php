@@ -15,6 +15,22 @@ defined( 'ABSPATH' ) || exit;
  * ESP Sync Class.
  */
 class ESP_Sync extends Sync {
+	/**
+	 * Hook name for sync events.
+	 */
+	const SYNC_EVENT_HOOK = 'newspack_scheduled_esp_sync';
+
+	/**
+	 * User meta field prefix for contact data.
+	 */
+	const USER_META_PREFIX = 'newspack_sync_';
+
+	/**
+	 * The standard number of seconds to wait before syncing a contact to the ESP.
+	 * If multiple sync requests happen within this timeframe, the request data will be consolidated and synced all at once.
+	 * It's a unique number so that we can schedule one-off syncs outside of the regular sync method.
+	 */
+	const STANDARD_SYNC_DELAY = 123;
 
 	/**
 	 * Context of the sync.
@@ -26,7 +42,7 @@ class ESP_Sync extends Sync {
 	 * Initialize hooks.
 	 */
 	public static function init_hooks() {
-		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
+		add_action( self::SYNC_EVENT_HOOK, [ __CLASS__, 'scheduled_sync' ], 10, 2 );
 	}
 
 	/**
@@ -81,14 +97,33 @@ class ESP_Sync extends Sync {
 	}
 
 	/**
-	 * Sync contact to the ESP.
+	 * Reconcile contact data for a user with data stored in user meta.
+	 *
+	 * @param int   $user_id The user ID.
+	 * @param array $contact The new contact data.
+	 */
+	public static function reconcile_contact_data( $user_id, $contact ) {
+		$existing_contact = \get_user_meta( $user_id, self::USER_META_PREFIX . 'contact', true );
+
+		// Merge existing contact data with new data and update in user meta.
+		if ( ! empty( $existing_contact['metadata'] ) ) {
+			$contact['metadata'] = \wp_parse_args( $contact['metadata'], $existing_contact['metadata'] );
+			$contact             = \wp_parse_args( $contact, $existing_contact );
+		}
+
+		return $contact;
+	}
+
+	/**
+	 * Queue a request to sync a contact to the ESP.
 	 *
 	 * @param array  $contact The contact data to sync.
 	 * @param string $context The context of the sync. Defaults to static::$context.
+	 * @param int    $delay   The number of seconds to wait before syncing.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
-	public static function sync( $contact, $context = '' ) {
+	public static function sync( $contact, $context = '', $delay = null ) {
 		$can_sync = static::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
@@ -98,19 +133,95 @@ class ESP_Sync extends Sync {
 			$context = static::$context;
 		}
 
-		$master_list_id = Reader_Activation::get_esp_master_list_id();
+		if ( ! is_int( $delay ) ) {
+			$delay = self::STANDARD_SYNC_DELAY;
+		}
 
 		/**
-		 * Filters the contact data before normalizing and syncing to the ESP.
+		 * Filters the contact data before normalizing for syncing to the ESP.
+		 *
+		 * @param array  $contact The contact data to sync.
+		 * @param string $context The context of the sync.
+		 */
+		$contact = \apply_filters( 'newspack_esp_presync_contact', $contact, $context );
+		$contact = Sync\Metadata::normalize_contact_data( $contact );
+
+		$user    = \get_user_by( 'email', $contact['email'] );
+		$contact = self::reconcile_contact_data( $user->ID, $contact );
+
+		// Merge existing contexts with new context and update in user meta.
+		$existing_context = \get_user_meta( $user->ID, self::USER_META_PREFIX . 'context', true );
+		if ( empty( $existing_context ) ) {
+			$existing_context = [];
+		}
+		$existing_context[] = $context;
+
+		\update_user_meta( $user->ID, self::USER_META_PREFIX . 'contact', $contact );
+		\update_user_meta( $user->ID, self::USER_META_PREFIX . 'context', $existing_context );
+
+		// If there's an unprocessed sync event for this user, cancel it.
+		$cleared = \wp_clear_scheduled_hook( self::SYNC_EVENT_HOOK, [ $user->ID ] );
+		if ( ! empty( $cleared ) ) {
+			static::log(
+				__( 'Scheduled sync cancelled due to debounce', 'newspack-plugin' ),
+				[
+					'cancelled'    => $cleared,
+					'contact'      => $contact,
+					'new_context'  => $context,
+					'all_contexts' => $existing_context,
+					'user_id'      => $user->ID,
+				]
+			);
+		}
+
+		// Execute sync immediately or schedule it.
+		if ( 0 === $delay ) {
+			return self::execute_sync( $user->ID, $context );
+		}
+		return self::schedule_sync( $user->ID, $delay, $context );
+	}
+
+	/**
+	 * Execute a sync request with the connected ESP.
+	 *
+	 * @param int    $user_id The user ID for the contact to sync.
+	 * @param string $context The context of the sync.
+	 */
+	public static function execute_sync( $user_id, $context = '' ) {
+		$can_sync = static::can_esp_sync( true );
+		if ( $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
+		$contact = Sync\WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
+
+		/**
+		 * Filters the contact data before normalizing for syncing to the ESP.
 		 *
 		 * @param array  $contact The contact data to sync.
 		 * @param string $context The context of the sync.
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
-
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
+		$contact = self::reconcile_contact_data( $user_id, $contact );
+
+		if ( empty( $context ) ) {
+			$stored_context = \get_user_meta( $user_id, self::USER_META_PREFIX . 'context', true );
+			if ( ! empty( $stored_context ) ) {
+				$context = end( $stored_context );
+			}
+		}
+
+		if ( empty( $context ) ) {
+			$context = static::$context;
+		}
+
+		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
+		if ( ! \is_wp_error( $result ) ) {
+			\delete_user_meta( $user_id, self::USER_META_PREFIX . 'context' );
+		}
 
 		return \is_wp_error( $result ) ? $result : true;
 	}
@@ -119,47 +230,40 @@ class ESP_Sync extends Sync {
 	 * Schedule a future sync.
 	 *
 	 * @param int    $user_id The user ID for the contact to sync.
-	 * @param string $context The context of the sync.
 	 * @param int    $delay   The delay in seconds.
+	 * @param string $context The context of the sync.
+	 *
+	 * @return bool|\WP_Error True if the sync was scheduled, WP_Error otherwise.
 	 */
-	public static function schedule_sync( $user_id, $context, $delay ) {
+	public static function schedule_sync( $user_id, $delay, $context = '' ) {
 		// Schedule another sync in $delay number of seconds.
 		if ( ! is_int( $delay ) ) {
-			return;
+			return false;
 		}
 
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
-			return;
+			return false;
 		}
 
 		static::log(
-			sprintf(
-				// Translators: %s is the email address of the contact to synced.
-				__( 'Scheduling secondary sync for contact %s.', 'newspack-plugin' ),
-				$user->data->user_email
-			),
+			__( 'Scheduling ESP sync for user', 'newspack-plugin' ),
 			[
 				'user_email' => $user->data->user_email,
 				'user_id'    => $user_id,
 				'context'    => $context,
 			]
 		);
-		\wp_schedule_single_event( \time() + $delay, 'newspack_scheduled_esp_sync', [ $user_id, $context ] );
+		return \wp_schedule_single_event( \time() + $delay, self::SYNC_EVENT_HOOK, [ $user_id ], true );
 	}
 
 	/**
 	 * Handle a scheduled sync event.
 	 *
-	 * @param int    $user_id The user ID for the contact to sync.
-	 * @param string $context The context of the sync.
+	 * @param int $user_id The user ID for the contact to sync.
 	 */
-	public static function scheduled_sync( $user_id, $context ) {
-		$contact = Sync\WooCommerce::get_contact_from_customer( new \WC_Customer( $user_id ) );
-		if ( ! $contact ) {
-			return;
-		}
-		self::sync( $contact, $context );
+	public static function scheduled_sync( $user_id ) {
+		self::execute_sync( $user_id );
 	}
 
 	/**
@@ -201,7 +305,7 @@ class ESP_Sync extends Sync {
 		}
 
 		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : Sync\WooCommerce::get_contact_from_customer( $customer );
-		$result  = $is_dry_run ? true : self::sync( $contact );
+		$result  = $is_dry_run ? true : self::sync( $contact, '', 0 );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
 			static::log(

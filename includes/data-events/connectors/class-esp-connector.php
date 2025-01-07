@@ -162,22 +162,6 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 		if ( empty( $data['subscription_id'] ) || empty( $data['user_id'] ) || empty( $data['email'] ) ) {
 			return;
 		}
-
-		/** 
-		* When a renewal happens, it triggers two syncs to the ESP, one setting the subscription as on hold, and a 
-		* second one setting it back to active. This sometimes creates a race condition on the ESP side. 
-		* This third request will make sure the ESP always has the correct and most up to date data about the reader.
-		*/
-		self::schedule_sync(
-			$data['user_id'],
-			sprintf(
-				// Translators: %d is the subscription ID and %s is the customer's email address.
-				'RAS Woo subscription %d for %s renewed.',
-				$data['subscription_id'],
-				$data['email']
-			),
-			120 // Schedule an ESP sync in 2 minutes.
-		);
 	}
 
 	/**
