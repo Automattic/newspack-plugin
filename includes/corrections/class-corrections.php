@@ -64,9 +64,10 @@ class Corrections {
 	 * Enqueue scripts and styles.
 	 */
 	public static function wp_enqueue_scripts() {
-		if ( ! is_admin() || ! isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! is_admin() || ! filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) ) {
 			return;
 		}
+
 		\wp_enqueue_script(
 			'newspack-corrections',
 			Newspack::plugin_url() . '/dist/other-scripts/corrections.js',
