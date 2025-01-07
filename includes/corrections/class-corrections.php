@@ -17,12 +17,17 @@ class Corrections {
 	const POST_TYPE = 'newspack_correction';
 
 	/**
-	 * Meta key for storing corrections.
+	 * Meta key for correction date meta.
 	 */
-	const POST_ID_META = 'newspack_correction-post-id';
+	const CORRECTION_DATE_META = 'newspack_correction_date';
 
 	/**
-	 * Meta key for corrections active postmeta.
+	 * Meta key for correction post ID meta.
+	 */
+	const CORRECTION_POST_ID_META = 'newspack_correction-post-id';
+
+	/**
+	 * Meta key for post corrections active meta.
 	 */
 	const CORRECTIONS_ACTIVE_META = 'newspack_corrections_active';
 
@@ -152,7 +157,7 @@ class Corrections {
 			[
 				'posts_per_page' => -1,
 				'post_type'      => self::POST_TYPE,
-				'meta_key'       => self::POST_ID_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_key'       => self::CORRECTION_POST_ID_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => $post_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'orderby'        => 'date',
 				'order'          => 'DESC',
@@ -171,14 +176,26 @@ class Corrections {
 			$post_id = wp_insert_post(
 				[
 					'post_title'   => 'Correction for ' . get_the_title( $post_id ),
-					'post_content' => $correction,
+					'post_content' => $correction['content'],
 					'post_type'    => self::POST_TYPE,
 					'post_status'  => 'publish',
 					'meta_input'   => [
-						self::POST_ID_META => $post_id,
+						self::CORRECTION_POST_ID_META => $post_id,
+						self::CORRECTION_DATE_META    => $correction['date'],
 					],
 				]
 			);
+		}
+	}
+
+	/**
+	 * Delete corrections for post.
+	 *
+	 * @param array $correction_ids Correction IDs.
+	 */
+	public static function delete_corrections( $correction_ids ) {
+		foreach ( $correction_ids as $id ) {
+			wp_delete_post( $id, true );
 		}
 	}
 
@@ -247,7 +264,7 @@ class Corrections {
 		$valid_post_types = [ 'article_legacy', 'content_type_blog', 'post', 'press_release' ];
 		if ( in_array( $post_type, $valid_post_types, true ) ) {
 			add_meta_box(
-				'reveal_corrections',
+				'corrections',
 				'Corrections',
 				[ __CLASS__, 'render_corrections_metabox' ],
 				$post_type,
@@ -263,29 +280,37 @@ class Corrections {
 	 * @param \WP_Post $post The post object.
 	 */
 	public static function render_corrections_metabox( $post ) {
-		$is_active            = (bool) get_post_meta( $post->ID, self::CORRECTIONS_ACTIVE_META, true );
-		$existing_corrections = self::get_corrections( $post->ID );
+		$is_active   = (bool) get_post_meta( $post->ID, self::CORRECTIONS_ACTIVE_META, true );
+		$corrections = self::get_corrections( $post->ID );
 		?>
 		<div class="corrections-metabox-container">
 			<div class="activate-corrections">
 				<input type="hidden" value="0" name="<?php echo esc_attr( self::CORRECTIONS_ACTIVE_META ); ?>" />
 				<input type="checkbox" value="1" name="<?php echo esc_attr( self::CORRECTIONS_ACTIVE_META ); ?>" <?php checked( $is_active ); ?> />
-				Activate Corrections
+				<?php echo esc_html( __( 'Activate Corrections', 'newspack-plugin' ) ); ?>
 			</div>
 			<div class="manage-corrections">
-				<div class="existing-corrections">
-					<?php foreach ( $existing_corrections as $existing_correction ) : ?>
-						<div class="reveal-correction">
-							<p>Article Correction</p>
-							<textarea name="reveal_correction[]" rows="3" cols="60">
-								<?php echo esc_attr( sanitize_textarea_field( $existing_correction['correction'] ) ); ?>
-							</textarea><br/>
-								<p>Date: <input type="date" name="reveal_correction_date[]" value="<?php echo esc_attr( sanitize_text_field( $existing_correction['date'] ) ); ?>"></p>
-							<span class="delete-correction">X</span>
-						</div>
+				<fieldset name="existing-corrections[]" class="existing-corrections">
+					<?php
+					foreach ( $corrections as $correction ) :
+						$correction_content = $correction->post_content;
+						$correction_date    = get_post_meta( $correction->ID, self::CORRECTION_DATE_META, true );
+						?>
+						<fieldset name="existing-corrections[<?php echo esc_attr( $correction->ID ); ?>]" class="correction">
+							<p><?php echo esc_html( __( 'Article Correction', 'newspack-plugin' ) ); ?></p>
+							<textarea name="existing-corrections[<?php echo esc_attr( $correction->ID ); ?>][content]" rows="3" cols="60"><?php echo esc_html( $correction_content ); ?></textarea>
+							<br/>
+							<p>
+								<?php echo esc_html( __( 'Date:', 'newspack_plugin' ) ); ?>
+								<input name="existing-corrections[<?php echo esc_attr( $correction->ID ); ?>][date]" type="date" value="<?php echo esc_attr( sanitize_text_field( $correction_date ) ); ?>">
+							</p>
+							<button class="delete-correction">X</button>
+						</fieldset>
 					<?php endforeach; ?>
-				</div>
-				<button type="button" class="add-correction">Add new correction</button>
+				</fieldset>
+				<fieldset name="new-corrections[]" class="new-corrections"></fieldset>
+				<fieldset name="deleted-corrections[]" class="deleted-corrections"></fieldset>
+				<button type="button" class="add-correction"><?php echo esc_html( __( 'Add new correction', 'newspack-plugin' ) ); ?></button>
 			</div>
 		</div>
 		<?php
@@ -297,35 +322,53 @@ class Corrections {
 	 * @param int $post_id The post ID.
 	 */
 	public static function save_corrections_metabox( $post_id ) {
-		if ( ! isset( $_POST[ self::CORRECTIONS_ACTIVE_META ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		// Return early if we are saving a correction.
+		if ( self::POST_TYPE === get_post_type( $post_id ) ) {
 			return;
 		}
 
-		$is_active        = (bool) filter_input( INPUT_POST, self::CORRECTIONS_ACTIVE_META, FILTER_SANITIZE_NUMBER_INT );
 		$corrections_data = filter_input_array(
 			INPUT_POST,
 			[
-				'correction'      => [
+				'new-corrections'             => [
 					'flags'  => FILTER_REQUIRE_ARRAY,
 					'filter' => FILTER_SANITIZE_STRING,
 				],
-				'correction_date' => [
+				'deleted-corrections'         => [
 					'flags'  => FILTER_REQUIRE_ARRAY,
-					'filter' => FILTER_SANITIZE_STRING,
+					'filter' => FILTER_SANITIZE_NUMBER_INT,
 				],
+				self::CORRECTIONS_ACTIVE_META => FILTER_SANITIZE_NUMBER_INT,
 			]
 		);
-
-		$corrections = [];
-		foreach ( $corrections_data['reveal_correction'] as $index => $correction_text ) {
-			$corrections[] = [
-				'correction' => sanitize_textarea_field( $correction_text ),
-				'date'       => ! empty( $corrections_data['reveal_correction_date'][ $index ] ) ? sanitize_text_field( $corrections_data['reveal_correction_date'][ $index ] ) : gmdate( 'Y-m-d' ),
-			];
+		// Return early if there is no corrections data.
+		if ( ! $corrections_data ) {
+			return;
 		}
-
-		self::save_corrections( $post_id, $corrections );
-		update_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, true );
+		// Save new corrections if present.
+		if ( ! empty( $corrections_data['new-corrections'] ) ) {
+			$corrections = [];
+			foreach ( $corrections_data['new-corrections'] as $correction ) {
+				// Don't save empty corrections.
+				if ( empty( trim( $correction['content'] ) ) ) {
+					continue;
+				}
+				$corrections[] = [
+					'content' => sanitize_textarea_field( $correction['content'] ),
+					'date'    => ! empty( $correction['date'] ) ? sanitize_text_field( $correction['date'] ) : gmdate( 'Y-m-d' ),
+				];
+			}
+			self::save_corrections( $post_id, $corrections );
+		}
+		// Delete corrections if present.
+		if ( ! empty( $corrections_data['deleted-corrections'] ) ) {
+			$correction_ids = array_map( 'intval', $corrections_data['deleted-corrections'] );
+			self::delete_corrections( $correction_ids );
+		}
+		// Update active flag if present.
+		if ( isset( $corrections_data[ self::CORRECTIONS_ACTIVE_META ] ) ) {
+			update_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, (bool) $corrections_data[ self::CORRECTIONS_ACTIVE_META ] );
+		}
 	}
 
 	/**
@@ -340,21 +383,12 @@ class Corrections {
 			return $content;
 		}
 
-		$corrections_active = get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true );
-		if ( ! $corrections_active ) {
+		if ( ! (bool) get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true ) ) {
 			return $content;
 		}
 
-		$corrections          = self::get_corrections( get_the_ID() );
-		$has_valid_correction = false;
-		foreach ( $corrections as $correction ) {
-			if ( ! empty( trim( $correction['correction'] ) ) ) {
-				$has_valid_correction = true;
-				break;
-			}
-		}
-
-		if ( ! $has_valid_correction ) {
+		$corrections = self::get_corrections( get_the_ID() );
+		if ( empty( $corrections ) ) {
 			return $content;
 		}
 
@@ -365,18 +399,20 @@ class Corrections {
 			<div class="wp-block-group__inner-container">
 			<?php
 			foreach ( $corrections as $correction ) :
-				if ( empty( trim( $correction['correction'] ) ) ) {
-					continue;
-				}
-
-				$correction_heading = ! empty( $correction['date'] ) ? 'Correction on ' . gmdate( 'M j, Y', strtotime( $correction['date'] ) ) : 'Correction';
+				$correction_content = $correction->post_content;
+				$correction_date    = get_post_meta( $correction->ID, self::CORRECTION_DATE_META, true );
+				$correction_heading = sprintf(
+					// translators: %s: correction date.
+					__( 'Correction on %s', 'newspack-plugin' ),
+					gmdate( 'M j, Y', strtotime( $correction_date ) )
+				);
 				?>
 				<!-- wp:paragraph {"fontSize":"small"} -->
 				<p class="has-small-font-size correction-heading"><?php echo esc_html( $correction_heading ); ?></p>
 				<!-- /wp:paragraph -->
 
 				<!-- wp:paragraph {"fontSize":"normal"} -->
-				<p class="has-normal-font-size correction-body"><?php echo esc_html( $correction['correction'] ); ?></p>
+				<p class="has-normal-font-size correction-body"><?php echo esc_html( $correction_content ); ?></p>
 				<!-- /wp:paragraph -->
 			<?php endforeach; ?>
 			</div>
