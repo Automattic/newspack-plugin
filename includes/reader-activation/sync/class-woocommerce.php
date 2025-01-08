@@ -108,7 +108,7 @@ class WooCommerce {
 					// Only subscriptions that have at least one completed order are considered.
 					$completed_orders = array_values(
 						array_filter(
-							$subscription->get_related_orders(),
+							array_keys( $subscription->get_related_orders() ),
 							function( $order_id ) {
 								$order = \wc_get_order( $order_id );
 								return 'completed' === $order->get_status();
