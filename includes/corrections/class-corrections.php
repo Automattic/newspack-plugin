@@ -32,6 +32,11 @@ class Corrections {
 	const CORRECTIONS_ACTIVE_META = 'newspack_corrections_active';
 
 	/**
+	 * Meta key for post corrections ids meta.
+	 */
+	const CORRECTIONS_IDS_META = 'newspack_corrections_ids';
+
+	/**
 	 * Initializes the class.
 	 */
 	public static function init() {
@@ -154,14 +159,15 @@ class Corrections {
 	 * @return array The corrections.
 	 */
 	public static function get_corrections( $post_id ) {
+		$correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
+		if ( ! is_array( $correction_ids ) ) {
+			return [];
+		}
 		return get_posts(
 			[
 				'posts_per_page' => -1,
 				'post_type'      => self::POST_TYPE,
-				'meta_key'       => self::CORRECTION_POST_ID_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-				'meta_value'     => $post_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'orderby'        => 'date',
-				'order'          => 'DESC',
+				'include'        => $correction_ids,
 			]
 		);
 	}
@@ -173,8 +179,12 @@ class Corrections {
 	 * @param array $corrections The corrections.
 	 */
 	public static function save_corrections( $post_id, $corrections ) {
+		$correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
+		if ( ! is_array( $correction_ids ) ) {
+			$correction_ids = [];
+		}
 		foreach ( $corrections as $correction ) {
-			$post_id = wp_insert_post(
+			$id = wp_insert_post(
 				[
 					'post_title'   => 'Correction for ' . get_the_title( $post_id ),
 					'post_content' => $correction['content'],
@@ -186,7 +196,27 @@ class Corrections {
 					],
 				]
 			);
+			if ( ! \is_wp_error( $id ) ) {
+				$correction_ids[] = $id;
+			}
 		}
+		update_post_meta( $post_id, self::CORRECTIONS_IDS_META, $correction_ids );
+	}
+
+	/**
+	 * Update correction.
+	 *
+	 * @param int   $correction_id The post ID.
+	 * @param array $correction    The correction.
+	 */
+	public static function update_correction( $correction_id, $correction ) {
+		wp_update_post(
+			[
+				'ID'           => $correction_id,
+				'post_content' => sanitize_textarea_field( $correction['content'] ),
+			]
+		);
+		update_post_meta( $correction_id, self::CORRECTION_DATE_META, sanitize_text_field( $correction['date'] ) );
 	}
 
 	/**
@@ -195,9 +225,17 @@ class Corrections {
 	 * @param array $correction_ids Correction IDs.
 	 */
 	public static function delete_corrections( $correction_ids ) {
+		$stored_correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
+		if ( ! is_array( $stored_correction_ids ) ) {
+			$stored_correction_ids = [];
+		}
 		foreach ( $correction_ids as $id ) {
 			wp_delete_post( $id, true );
+			if ( isset( $stored_correction_ids[ $id ] ) ) {
+				unset( $stored_correction_ids[ $id ] );
+			}
 		}
+		update_post_meta( $post_id, self::CORRECTIONS_IDS_META, $stored_correction_ids );
 	}
 
 	/**
@@ -336,23 +374,41 @@ class Corrections {
 			return;
 		}
 
-		$corrections_data = filter_input_array(
+		$corrections_active = filter_input( INPUT_POST, self::CORRECTIONS_ACTIVE_META, FILTER_VALIDATE_BOOLEAN );
+		$corrections_data   = filter_input_array(
 			INPUT_POST,
 			[
-				'new-corrections'             => [
+				'existing-corrections' => [
 					'flags'  => FILTER_REQUIRE_ARRAY,
 					'filter' => FILTER_SANITIZE_STRING,
 				],
-				'deleted-corrections'         => [
+				'new-corrections'      => [
+					'flags'  => FILTER_REQUIRE_ARRAY,
+					'filter' => FILTER_SANITIZE_STRING,
+				],
+				'deleted-corrections'  => [
 					'flags'  => FILTER_REQUIRE_ARRAY,
 					'filter' => FILTER_SANITIZE_NUMBER_INT,
 				],
-				self::CORRECTIONS_ACTIVE_META => FILTER_SANITIZE_NUMBER_INT,
 			]
 		);
 		// Return early if there is no corrections data.
-		if ( ! $corrections_data ) {
+		if ( false === $corrections_active && empty( $corrections_data ) ) {
 			return;
+		}
+		// Update active flag if present.
+		if ( (bool) $corrections_active !== (bool) get_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, true ) ) {
+			update_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, (bool) $corrections_active );
+		}
+		// Update existing corrections if present.
+		if ( ! empty( $corrections_data['existing-corrections'] ) ) {
+			foreach ( $corrections_data['existing-corrections'] as $correction_id => $correction ) {
+				// Don't save empty corrections.
+				if ( empty( trim( $correction['content'] ) ) ) {
+					continue;
+				}
+				self::update_correction( $correction_id, $correction );
+			}
 		}
 		// Save new corrections if present.
 		if ( ! empty( $corrections_data['new-corrections'] ) ) {
@@ -373,10 +429,6 @@ class Corrections {
 		if ( ! empty( $corrections_data['deleted-corrections'] ) ) {
 			$correction_ids = array_map( 'intval', $corrections_data['deleted-corrections'] );
 			self::delete_corrections( $correction_ids );
-		}
-		// Update active flag if present.
-		if ( isset( $corrections_data[ self::CORRECTIONS_ACTIVE_META ] ) ) {
-			update_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, (bool) $corrections_data[ self::CORRECTIONS_ACTIVE_META ] );
 		}
 	}
 
