@@ -266,7 +266,7 @@ class WooCommerce {
 				}
 
 				// If the subscription has moved to a cancelled or expired status.
-				if ( $current_subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
+				if ( $current_subscription->has_status( [ 'cancelled', 'expired', 'on-hold' ] ) ) {
 					$donor_status = 'Ex-' . $donor_status;
 				}
 				$metadata['membership_status'] = $donor_status;
