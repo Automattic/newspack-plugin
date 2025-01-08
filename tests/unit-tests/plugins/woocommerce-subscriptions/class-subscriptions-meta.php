@@ -15,15 +15,6 @@ use Newspack\WooCommerce_Subscriptions;
  */
 class Newspack_Test_Subscriptions_Meta extends WP_UnitTestCase {
 	/**
-	 * Setup for the tests.
-	 */
-	public static function set_up_before_class() {
-		if ( ! defined( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION' ) ) {
-			define( 'NEWSPACK_SUBSCRIPTIONS_EXPIRATION', true );
-		}
-	}
-
-	/**
 	 * Test Subscriptions_Meta::maybe_record_cancelled_subscription_meta.
 	 */
 	public function test_maybe_record_cancelled_subscription_meta() {

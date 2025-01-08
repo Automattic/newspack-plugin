@@ -13,3 +13,9 @@
 	inset: 0 !important; // Prevents an odd side-scroll issue in the registration modal & block.
 	visibility: hidden !important;
 }
+
+.newspack-recaptcha-error {
+	&.newspack-ui__notice--error {
+		margin-top: 0 !important;
+	}
+}

@@ -36,6 +36,21 @@ const siteKey = newspack_recaptcha_data.site_key;
 const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
 
 /**
+ * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
+ */
+function destroy( forms = [] ) {
+	if ( isV3 ) {
+		const formsToHandle = forms.length
+			? forms
+			: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
+
+		formsToHandle.forEach( form => {
+			removeHiddenField( form );
+		} );
+	}
+}
+
+/**
  * Refresh the reCAPTCHA v3 token for the given form and action.
  *
  * @param {HTMLElement} field  The hidden input field storing the token for a form.
@@ -77,6 +92,39 @@ function addHiddenField( form ) {
 			$( document ).on( 'updated_checkout', () => refresh( field, action ) );
 			$( document.body ).on( 'checkout_error', () => refresh( field, action ) );
 		} )( jQuery );
+	}
+}
+
+/**
+ * Append a generic error message above the given form.
+ *
+ * @param {HTMLElement} form    The form element.
+ * @param {string}      message The error message to display.
+ */
+function addErrorMessage( form, message ) {
+	const errorText = document.createElement( 'p' );
+	errorText.textContent = message;
+	const container = document.createElement( 'div' );
+	container.classList.add( 'newspack-recaptcha-error' );
+	container.appendChild( errorText );
+	// Newsletters block errors render below the form.
+	if ( form.parentElement.classList.contains( 'newspack-newsletters-subscribe' ) ) {
+		form.append( container );
+	} else {
+		container.classList.add( 'newspack-ui__notice', 'newspack-ui__notice--error' );
+		form.insertBefore( container, form.firstChild );
+	}
+}
+
+/**
+ * Remove generic error messages from form if present.
+ *
+ * @param {HTMLElement} form The form element.
+ */
+function removeErrorMessages( form ) {
+	const errors = form.querySelectorAll( '.newspack-recaptcha-error' );
+	for ( const error of errors ) {
+		error.parentElement.removeChild( error );
 	}
 }
 
@@ -140,12 +188,26 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 			return;
 		}
 
+		// Don't render widget if the button is currently rendering recaptcha.
+		if ( button.hasAttribute( 'data-recaptcha-processing' ) ) {
+			return;
+		}
+		button.setAttribute( 'data-recaptcha-processing', 'true' );
+
 		// Callback when reCAPTCHA passes validation.
 		const successCallback = () => {
 			onSuccess?.()
 			form.requestSubmit( button );
 			refreshWidget( button );
 		};
+
+		const errorCallback = ( message ) => {
+			if ( onError ) {
+				onError( message );
+			} else {
+				addErrorMessage( form, message );
+			}
+		}
 
 		// Render reCAPTCHA widget. See https://developers.google.com/recaptcha/docs/invisible#js_api for API reference.
 		const widgetId = grecaptcha.render( button, {
@@ -158,17 +220,15 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 					refreshWidget( button );
 				} else {
 					clearInterval( refreshIntervalId );
+					button.disabled = true;
 				}
 				const message = retryCount < 3
-					? wp.i18n.__( 'There was an error with reCAPTCHA. Please try again.', 'newspack-plugin' )
-					: wp.i18n.__( 'There was an error with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
-				if ( onError ) {
-					onError( message );
-				} else {
-					// Recaptcha's default error behavior is to alert with the above message.
-					// eslint-disable-next-line no-alert
-					alert( message );
-				}
+					? wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please try submitting again.', 'newspack-plugin' )
+					: wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
+				errorCallback( message );
+			},
+			'expired-callback': () => {
+				refreshWidget( button );
 			},
 		} );
 
@@ -177,6 +237,9 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 
 		button.addEventListener( 'click', e => {
 			e.preventDefault();
+			e.stopImmediatePropagation();
+			// Empty error messages if present.
+			removeErrorMessages( form );
 			// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
 			if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
 				successCallback();
@@ -184,6 +247,7 @@ function renderWidget( form, onSuccess = null, onError = null ) {
 				grecaptcha.execute( widgetId );
 			}
 		} );
+		button.removeAttribute( 'data-recaptcha-processing' );
 	} );
 }
 
@@ -205,28 +269,17 @@ function render( forms = [], onSuccess = null, onError = null ) {
 		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
+		if ( form.hasAttribute( 'data-recaptcha-rendered' ) ) {
+			return;
+		}
 		if ( isV3 ) {
 			addHiddenField( form );
 		}
 		if ( isV2 ) {
 			renderWidget( form, onSuccess, onError );
 		}
+		form.setAttribute( 'data-recaptcha-rendered', 'true' );
 	} );
-}
-
-/**
- * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
- */
-function destroy( forms = [] ) {
-	if ( isV3 ) {
-		const formsToHandle = forms.length
-			? forms
-			: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
-
-		formsToHandle.forEach( form => {
-			removeHiddenField( form );
-		} );
-	}
 }
 
 /**
