@@ -12,6 +12,15 @@ use Newspack\Data_Events;
  */
 class Newspack_Test_Data_Events extends WP_UnitTestCase {
 	/**
+	 * Tear down.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+		// Ensure queue is empty for next test.
+		Data_Events::execute_queued_dispatches();
+	}
+
+	/**
 	 * Test registering an action.
 	 */
 	public function test_register_action() {
@@ -268,5 +277,33 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			],
 			$parsed_data
 		);
+	}
+
+	/**
+	 * Test action unique event key.
+	 */
+	public function test_unique_event_key() {
+		$action_name      = 'test_unique_event_key';
+		$unique_event_key = 'email';
+		Data_Events::register_action( $action_name, $unique_event_key );
+
+		// Hook into the dispatch queue run.
+		$executed_dispatches = [];
+		$hook = function( $request, $dispatches ) use ( &$executed_dispatches ) {
+			$executed_dispatches = $dispatches;
+		};
+		add_action( 'newspack_data_events_dispatched', $hook, 10, 2 );
+
+		Data_Events::dispatch( $action_name, [ 'email' => 'test@test.com', 'foo' => 'bar' ] ); // phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+		Data_Events::dispatch( $action_name, [ 'email' => 'test@test.com', 'foo' => 'baz' ] ); // phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+
+		// Manually run queue.
+		Data_Events::execute_queued_dispatches();
+
+		// Assert only one dispatch was executed.
+		$this->assertEquals( 1, count( $executed_dispatches ) );
+
+		// Assert that the last dispatch was the one that was executed.
+		$this->assertEquals( [ 'email' => 'test@test.com', 'foo' => 'baz' ], $executed_dispatches[0]['data'] ); // phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
 	}
 }

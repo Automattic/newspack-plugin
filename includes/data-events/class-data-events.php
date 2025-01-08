@@ -31,6 +31,13 @@ final class Data_Events {
 	private static $actions = [];
 
 	/**
+	 * Unique event keys, keyed by their action name.
+	 *
+	 * @var callable[]
+	 */
+	private static $actions_unique_event_keys = [];
+
+	/**
 	 * Registered global callable handlers to be executed on all actions.
 	 *
 	 * @var callable[]
@@ -150,15 +157,17 @@ final class Data_Events {
 	/**
 	 * Register a triggerable action.
 	 *
-	 * @param string $action_name Action name.
+	 * @param string $action_name      Action name.
+	 * @param string $unique_event_key Optional unique event key to ensure a single dispatch per event that matches the key.
 	 *
 	 * @return void|WP_Error Error if action already registered.
 	 */
-	public static function register_action( $action_name ) {
+	public static function register_action( $action_name, $unique_event_key = '' ) {
 		if ( isset( self::$actions[ $action_name ] ) ) {
 			return new WP_Error( 'action_already_registered', __( 'Action already registered.', 'newspack' ) );
 		}
 		self::$actions[ $action_name ] = [];
+		self::$actions_unique_event_keys[ $action_name ] = $unique_event_key;
 	}
 
 	/**
@@ -196,9 +205,10 @@ final class Data_Events {
 	 * @param callable|array $callable    Optional callable to filter the data
 	 *                                    passed to dispatch or an array of
 	 *                                    strings to map argument names.
+	 * @param string         $unique_event_key Optional unique event key to ensure a single dispatch per event that matches the key.
 	 */
-	public static function register_listener( $hook_name, $action_name, $callable = null ) {
-		self::register_action( $action_name );
+	public static function register_listener( $hook_name, $action_name, $callable = null, $unique_event_key = '' ) {
+		self::register_action( $action_name, $unique_event_key );
 		\add_action(
 			$hook_name,
 			function() use ( $action_name, $callable ) {
@@ -343,6 +353,24 @@ final class Data_Events {
 			return;
 		}
 
+		$dispatches = [];
+		// Run through actions unique event keys to prevent duplicate dispatches.
+		foreach ( self::$queued_dispatches as $dispatch ) {
+			$action_name = $dispatch['action_name'];
+
+			if ( ! isset( $dispatches[ $action_name ] ) ) {
+				$dispatches[ $action_name ] = [];
+			}
+
+			$unique_event_key = self::$actions_unique_event_keys[ $action_name ] ?? '';
+			if ( empty( $unique_event_key ) ) {
+				$dispatches[ $action_name ][] = $dispatch;
+			} else {
+				$dispatches[ $action_name ][ $dispatch['data'][ $unique_event_key ] ] = $dispatch;
+			}
+		}
+		$dispatches = array_merge( ...array_values( array_map( 'array_values', $dispatches ) ) );
+
 		$actions = array_column( self::$queued_dispatches, 'action_name' );
 
 		Logger::log(
@@ -363,7 +391,7 @@ final class Data_Events {
 			[
 				'timeout'   => 0.01,
 				'blocking'  => false,
-				'body'      => [ 'dispatches' => self::$queued_dispatches ],
+				'body'      => [ 'dispatches' => $dispatches ],
 				'cookies'   => $_COOKIE, // phpcs:ignore
 				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
 			]
@@ -372,10 +400,10 @@ final class Data_Events {
 		/**
 		 * Fires after dispatching queued actions.
 		 *
-		 * @param WP_Error|WP_HTTP_Response $request           The request object.
-		 * @param array                     $queued_dispatches The queued dispatches.
+		 * @param WP_Error|WP_HTTP_Response $request    The request object.
+		 * @param array                     $dispatches The executed dispatches.
 		 */
-		\do_action( 'newspack_data_events_dispatched', $request, self::$queued_dispatches );
+		\do_action( 'newspack_data_events_dispatched', $request, $dispatches );
 
 		// Clear the queue in case of a retry.
 		self::$queued_dispatches = [];
