@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { select, subscribe } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -24,7 +25,6 @@ domReady( () => {
 				locationSelect.style.display = 'none';
 			}
 		} );
-
 		// Handle deletion of existing corrections.
 		metaboxContainer.querySelectorAll( '.existing-corrections button.delete-correction' )
 			.forEach( button => {
@@ -65,6 +65,26 @@ domReady( () => {
 				newCorrection.remove();
 			} );
 			newCorrectionsCount++;
+		} );
+		// Handle saving the post.
+		let hasSavedPost = false;
+		const unsubscribe = subscribe( () => {
+			// Return early if no new corrections have been added.
+			if ( ! newCorrectionsCount ) {
+				return;
+			}
+			const isSavingPost = select( 'core/editor' ).isSavingPost();
+			const isAutosavingPost = select('core/editor').isAutosavingPost();
+
+			if ( isSavingPost && ! isAutosavingPost && ! hasSavedPost ) {
+				hasSavedPost = true;
+			}
+
+			if ( ! isSavingPost && hasSavedPost ) {
+				// Unsubscribe from the store.
+				unsubscribe();
+				window.location.href = window.location.href;
+			}
 		} );
 	}
 } );
