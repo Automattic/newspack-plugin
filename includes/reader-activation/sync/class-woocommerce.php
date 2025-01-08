@@ -105,8 +105,17 @@ class WooCommerce {
 				$subscription = \wcs_get_subscription( $subscription_id );
 				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
 
-					// Only subscriptions that have at least one order are considered.
-					if ( ! empty( $subscription->get_related_orders() ) ) {
+					// Only subscriptions that have at least one completed order are considered.
+					$completed_orders = array_values(
+						array_filter(
+							$subscription->get_related_orders(),
+							function( $order_id ) {
+								$order = \wc_get_order( $order_id );
+								return 'completed' === $order->get_status();
+							}
+						)
+					);
+					if ( ! empty( $completed_orders ) ) {
 						$acc[] = $subscription_id;
 					}
 				}
