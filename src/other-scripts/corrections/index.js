@@ -13,6 +13,18 @@ domReady( () => {
 	// Handle admin metabox for article corrections.
 	const metaboxContainer = document.querySelector( '.corrections-metabox-container' );
 	if ( metaboxContainer ) {
+		// Handle displaying location select.
+		const activateCorrections = metaboxContainer.querySelector( 'input.activate-corrections-checkbox' );
+		const locationSelect = metaboxContainer.querySelector( '.display-corrections' );
+		locationSelect.style.display = activateCorrections.checked ? 'block' : 'none';
+		activateCorrections.addEventListener( 'change', () => {
+			if ( activateCorrections.checked ) {
+				locationSelect.style.display = 'block';
+			} else {
+				locationSelect.style.display = 'none';
+			}
+		} );
+
 		// Handle deletion of existing corrections.
 		metaboxContainer.querySelectorAll( '.existing-corrections button.delete-correction' )
 			.forEach( button => {
