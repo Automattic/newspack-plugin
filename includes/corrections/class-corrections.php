@@ -326,14 +326,14 @@ class Corrections {
 	 * @param \WP_Post $post the post object.
 	 */
 	public static function render_corrections_metabox( $post ) {
-		$is_active   = (bool) get_post_meta( $post->ID, self::CORRECTIONS_ACTIVE_META, true );
+		$is_active   = get_post_meta( $post->ID, self::CORRECTIONS_ACTIVE_META, true );
 		$location    = get_post_meta( $post->ID, self::CORRECTIONS_LOCATION_META, true );
 		$corrections = self::get_corrections( $post->ID );
 		?>
 		<div class="corrections-metabox-container">
 			<div class="activate-corrections">
 				<input type="hidden" value="0" name="<?php echo esc_attr( self::CORRECTIONS_ACTIVE_META ); ?>" />
-				<input type="checkbox" class="activate-corrections-checkbox" value="1" name="<?php echo esc_attr( self::CORRECTIONS_ACTIVE_META ); ?>" <?php checked( $is_active ); ?> />
+				<input type="checkbox" class="activate-corrections-checkbox" value="1" name="<?php echo esc_attr( self::CORRECTIONS_ACTIVE_META ); ?>" <?php checked( 0 != $is_active ); ?> />
 				<?php echo esc_html( __( 'activate corrections', 'newspack-plugin' ) ); ?>
 			</div>
 			<div class="display-corrections">
@@ -381,7 +381,7 @@ class Corrections {
 			return;
 		}
 
-		$corrections_active   = filter_input( INPUT_POST, self::CORRECTIONS_ACTIVE_META, FILTER_VALIDATE_BOOLEAN );
+		$corrections_active   = filter_input( INPUT_POST, self::CORRECTIONS_ACTIVE_META, FILTER_SANITIZE_NUMBER_INT );
 		$corrections_location = filter_input( INPUT_POST, self::CORRECTIONS_LOCATION_META, FILTER_SANITIZE_STRING );
 		$corrections_data     = filter_input_array(
 			INPUT_POST,
@@ -405,8 +405,8 @@ class Corrections {
 			return;
 		}
 		// update active flag if present.
-		if ( (bool) $corrections_active !== (bool) get_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, true ) ) {
-			update_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, (bool) $corrections_active );
+		if ( $corrections_active != get_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, true ) ) {
+			update_post_meta( $post_id, self::CORRECTIONS_ACTIVE_META, $corrections_active );
 		}
 		// update location flag if present.
 		if ( $corrections_location !== get_post_meta( $post_id, self::CORRECTIONS_LOCATION_META, true ) ) {
@@ -456,7 +456,7 @@ class Corrections {
 			return $content;
 		}
 
-		if ( ! (bool) get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true ) ) {
+		if ( 0 == get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true ) ) {
 			return $content;
 		}
 
