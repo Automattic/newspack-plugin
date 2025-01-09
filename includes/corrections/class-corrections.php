@@ -17,11 +17,6 @@ class Corrections {
 	const POST_TYPE = 'newspack_correction';
 
 	/**
-	 * Meta key for correction date meta.
-	 */
-	const CORRECTION_DATE_META = 'newspack_correction_date';
-
-	/**
 	 * Meta key for correction post ID meta.
 	 */
 	const CORRECTION_POST_ID_META = 'newspack_correction-post-id';
@@ -170,11 +165,11 @@ class Corrections {
 				[
 					'post_title'   => 'Correction for ' . get_the_title( $post_id ),
 					'post_content' => $correction['content'],
+					'post_date'    => $correction['date'],
 					'post_type'    => self::POST_TYPE,
 					'post_status'  => 'publish',
 					'meta_input'   => [
 						self::CORRECTION_POST_ID_META => $post_id,
-						self::CORRECTION_DATE_META    => $correction['date'],
 					],
 				]
 			);
@@ -217,9 +212,9 @@ class Corrections {
 			[
 				'ID'           => $correction_id,
 				'post_content' => sanitize_textarea_field( $correction['content'] ),
+				'post_date'    => sanitize_text_field( $correction['date'] ),
 			]
 		);
-		update_post_meta( $correction_id, self::CORRECTION_DATE_META, sanitize_text_field( $correction['date'] ) );
 	}
 
 	/**
@@ -285,11 +280,11 @@ class Corrections {
 						<?php
 						foreach ( $corrections as $correction ) :
 							$correction_content = $correction->post_content;
-							$correction_date    = get_post_meta( $correction->ID, self::CORRECTION_DATE_META, true );
+							$correction_date    = \get_the_date( 'M j, Y', $correction->ID );
 							$correction_heading = sprintf(
 								// translators: %s: correction date.
 								__( 'Correction on %s', 'newspack-plugin' ),
-								gmdate( 'M j, Y', strtotime( $correction_date ) )
+								$correction_date
 							);
 							?>
 							<p>
@@ -353,7 +348,7 @@ class Corrections {
 					<?php
 					foreach ( $corrections as $correction ) :
 						$correction_content = $correction->post_content;
-						$correction_date    = get_post_meta( $correction->ID, self::CORRECTION_DATE_META, true );
+						$correction_date    = \get_the_date( 'Y-m-d', $correction->ID );
 						?>
 						<fieldset name="existing-corrections[<?php echo esc_attr( $correction->ID ); ?>]" class="correction">
 							<p><?php echo esc_html( __( 'Article Correction', 'newspack-plugin' ) ); ?></p>
@@ -478,11 +473,11 @@ class Corrections {
 			<?php
 			foreach ( $corrections as $correction ) :
 				$correction_content = $correction->post_content;
-				$correction_date    = get_post_meta( $correction->ID, self::CORRECTION_DATE_META, true );
+				$correction_date    = \get_the_date( 'M j, Y', $correction->ID );
 				$correction_heading = sprintf(
 					// translators: %s: correction date.
 					__( 'Correction on %s', 'newspack-plugin' ),
-					gmdate( 'M j, Y', strtotime( $correction_date ) )
+					$correction_date
 				);
 				?>
 				<!-- wp:paragraph {"fontSize":"small"} -->

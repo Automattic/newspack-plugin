@@ -22,7 +22,7 @@ Corrections are stored as `newspack_correction` custom post type. A correction c
 | ----------------------------- | -------- | -------------- | --------------------------------------------------------------- |
 | `title`                       | `string` | `post_title`   | The correction title. Defaults to 'Correction for [post title]' |
 | `content`                     | `string` | `post_content` | The correction text.                                            |
-| `newspack_correction_date`    | `string` | `post_meta`    | Correction date. Note this is different from the post date.     |
+| `date`                        | `string` | `post_date`    | The date assigned to the correction.                            |
 | `newspack_correction-post-id` | `int`    | `post_meta`    | The ID of the post to which the correction is associated.       |
 
 In addition, some correction data is stored in the associated post as post meta:
