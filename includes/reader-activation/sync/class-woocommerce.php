@@ -106,15 +106,7 @@ class WooCommerce {
 				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
 
 					// Only subscriptions that have at least one completed order are considered.
-					$related_orders  = $subscription->get_related_orders( 'all' );
-					$completed_order = false;
-					foreach ( $related_orders as $order_id => $order ) {
-						if ( $order->has_status( 'completed' ) ) {
-							$completed_order = $order;
-							break;
-						}
-					}
-					if ( ! empty( $completed_order ) ) {
+					if ( 0 < $subscription->get_payment_count() ) {
 						$acc[] = $subscription_id;
 					}
 				}
