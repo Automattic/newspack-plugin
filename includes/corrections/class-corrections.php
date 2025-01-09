@@ -145,7 +145,7 @@ class Corrections {
 			'public_queryable' => true,
 			'query_var'        => true,
 			'rewrite'          => [ 'slug' => 'correction' ],
-			'show_ui'          => true,
+			'show_ui'          => false,
 			'show_in_rest'     => true,
 			'supports'         => $supports,
 			'taxonomies'       => [],
@@ -155,33 +155,12 @@ class Corrections {
 	}
 
 	/**
-	 * Get corrections for post.
-	 *
-	 * @param int $post_id The post ID.
-	 *
-	 * @return array The corrections.
-	 */
-	public static function get_corrections( $post_id ) {
-		$correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
-		if ( ! is_array( $correction_ids ) ) {
-			return [];
-		}
-		return get_posts(
-			[
-				'posts_per_page' => -1,
-				'post_type'      => self::POST_TYPE,
-				'include'        => $correction_ids,
-			]
-		);
-	}
-
-	/**
 	 * Save corrections for post.
 	 *
 	 * @param int   $post_id     The post ID.
 	 * @param array $corrections The corrections.
 	 */
-	public static function save_corrections( $post_id, $corrections ) {
+	public static function add_corrections( $post_id, $corrections ) {
 		$correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
 		if ( ! is_array( $correction_ids ) ) {
 			$correction_ids = [];
@@ -207,6 +186,27 @@ class Corrections {
 	}
 
 	/**
+	 * Get corrections for post.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return array The corrections.
+	 */
+	public static function get_corrections( $post_id ) {
+		$correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
+		if ( ! is_array( $correction_ids ) ) {
+			return [];
+		}
+		return get_posts(
+			[
+				'posts_per_page' => -1,
+				'post_type'      => self::POST_TYPE,
+				'include'        => $correction_ids,
+			]
+		);
+	}
+
+	/**
 	 * Update correction.
 	 *
 	 * @param int   $correction_id the post id.
@@ -225,9 +225,10 @@ class Corrections {
 	/**
 	 * Delete corrections for post.
 	 *
+	 * @param int   $post_id        the post id.
 	 * @param array $correction_ids correction ids.
 	 */
-	public static function delete_corrections( $correction_ids ) {
+	public static function delete_corrections( $post_id, $correction_ids ) {
 		$stored_correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
 		if ( ! is_array( $stored_correction_ids ) ) {
 			$stored_correction_ids = [];
@@ -439,12 +440,12 @@ class Corrections {
 					'date'    => ! empty( $correction['date'] ) ? sanitize_text_field( $correction['date'] ) : gmdate( 'Y-m-d' ),
 				];
 			}
-			self::save_corrections( $post_id, $corrections );
+			self::add_corrections( $post_id, $corrections );
 		}
 		// delete corrections if present.
 		if ( ! empty( $corrections_data['deleted-corrections'] ) ) {
 			$correction_ids = array_map( 'intval', $corrections_data['deleted-corrections'] );
-			self::delete_corrections( $correction_ids );
+			self::delete_corrections( $post_id, $correction_ids );
 		}
 	}
 
