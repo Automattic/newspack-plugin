@@ -8,6 +8,7 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
+use Newspack\Data_Events;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,11 +23,20 @@ class ESP_Sync extends Sync {
 	 * @var string
 	 */
 	protected static $context = 'ESP Sync';
+
+	/**
+	 * Queued syncs.
+	 *
+	 * @var string[]
+	 */
+	protected static $queued_syncs = [];
+
 	/**
 	 * Initialize hooks.
 	 */
 	public static function init_hooks() {
 		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
+		add_action( 'shutdown', [ __CLASS__, 'run_queued_syncs' ] );
 	}
 
 	/**
@@ -109,6 +119,12 @@ class ESP_Sync extends Sync {
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
+
+		// If we're running in a data event, queue the sync to run on shutdown.
+		if ( Data_Events::current_event() ) {
+			self::$queued_syncs[ $contact['email'] ] = [ $contact, $master_list_id, $context ];
+			return;
+		}
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 
@@ -218,6 +234,23 @@ class ESP_Sync extends Sync {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Run queued syncs.
+	 *
+	 * @return void
+	 */
+	public static function run_queued_syncs() {
+		if ( empty( self::$queued_syncs ) ) {
+			return;
+		}
+
+		foreach ( self::$queued_syncs as $sync ) {
+			self::sync( ...$sync );
+		}
+
+		self::$queued_syncs = [];
 	}
 }
 ESP_Sync::init_hooks();
