@@ -191,6 +191,15 @@ class WooCommerce_Configuration_Manager extends Configuration_Manager {
 	}
 
 	/**
+	 * Get slugs for supported payment gateways.
+	 *
+	 * @return array
+	 */
+	public function get_supported_payment_gateways() {
+		return array_keys( $this->supported_gateways );
+	}
+
+	/**
 	 * Get payment gateway by slug, if available.
 	 *
 	 * @param string $gateway The slug for the payment gateway to get.
