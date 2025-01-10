@@ -9,7 +9,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { AdditionalSettings } from './additional-settings';
 import { Stripe } from './stripe';
-import { WooPayments } from './woopayments';
+import { PaymentGateway } from './payment-gateway';
 import { Notice, SectionHeader, Wizard } from '../../../../components/src';
 import './style.scss';
 
@@ -26,7 +26,6 @@ const PaymentGateways = () => {
 		return null;
 	}
 
-	const { stripe = false, woopayments = false } = paymentGateways;
 	const hasPaymentGateway = Object.keys( paymentGateways ).some( gateway => paymentGateways[ gateway ]?.enabled );
 	return (
 		<>
@@ -64,8 +63,15 @@ const PaymentGateways = () => {
 					}
 				/>
 			) }
-			<Stripe stripe={ stripe } />
-			<WooPayments woopayments={ woopayments } />
+			{
+				Object.keys( paymentGateways ).map( gateway => {
+					// Stripe has unique connection status and badge level logic.
+					if ( 'stripe' === gateway ) {
+						return <Stripe key={ paymentGateways[ gateway ] } stripe={ paymentGateways[ gateway ] } />;
+					}
+					return <PaymentGateway key={ gateway } gateway={ paymentGateways[ gateway ] } />;
+				} )
+			}
 			{ hasPaymentGateway && (
 				<AdditionalSettings
 					settings={ settings }
