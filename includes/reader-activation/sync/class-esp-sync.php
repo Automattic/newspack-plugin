@@ -247,7 +247,7 @@ class ESP_Sync extends Sync {
 		}
 
 		foreach ( self::$queued_syncs as $sync ) {
-			self::sync( ...$sync );
+			\Newspack_Newsletters_Contacts::upsert( ...$sync );
 		}
 
 		self::$queued_syncs = [];
