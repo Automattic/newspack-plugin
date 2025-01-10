@@ -25,9 +25,9 @@ class ESP_Sync extends Sync {
 	protected static $context = 'ESP Sync';
 
 	/**
-	 * Queued syncs.
+	 * Queued syncs keyed by email address.
 	 *
-	 * @var string[]
+	 * @var array[]
 	 */
 	protected static $queued_syncs = [];
 
