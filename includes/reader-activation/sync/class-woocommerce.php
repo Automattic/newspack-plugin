@@ -105,8 +105,17 @@ class WooCommerce {
 				$subscription = \wcs_get_subscription( $subscription_id );
 				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
 
-					// Only subscriptions that had a completed order are considered.
-					if ( ! empty( $subscription->get_date( 'last_order_date_completed' ) ) ) {
+					// Only subscriptions that have at least one completed order are considered.
+					$related_orders  = $subscription->get_related_orders();
+					$completed_order = false;
+					foreach ( $related_orders as $order_id ) {
+						$order = \wc_get_order( $order_id );
+						if ( $order->has_status( 'completed' ) ) {
+							$completed_order = $order_id;
+							break;
+						}
+					}
+					if ( ! empty( $completed_order ) ) {
 						$acc[] = $subscription_id;
 					}
 				}
@@ -257,7 +266,7 @@ class WooCommerce {
 				}
 
 				// If the subscription has moved to a cancelled or expired status.
-				if ( $current_subscription->has_status( [ 'cancelled', 'expired' ] ) ) {
+				if ( $current_subscription->has_status( [ 'cancelled', 'expired', 'on-hold' ] ) ) {
 					$donor_status = 'Ex-' . $donor_status;
 				}
 				$metadata['membership_status'] = $donor_status;
