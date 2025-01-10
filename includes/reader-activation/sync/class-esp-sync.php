@@ -25,7 +25,7 @@ class ESP_Sync extends Sync {
 	protected static $context = 'ESP Sync';
 
 	/**
-	 * Queued syncs keyed by email address.
+	 * Queued syncs containing their contexts keyed by email address.
 	 *
 	 * @var array[]
 	 */
@@ -108,6 +108,16 @@ class ESP_Sync extends Sync {
 			$context = static::$context;
 		}
 
+
+		// If we're running in a data event, queue the sync to run on shutdown.
+		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
+			if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
+				self::$queued_syncs[ $contact['email'] ] = [];
+			}
+			self::$queued_syncs[ $contact['email'] ][] = $context;
+			return;
+		}
+
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
 		/**
@@ -119,12 +129,6 @@ class ESP_Sync extends Sync {
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
-
-		// If we're running in a data event, queue the sync to run on shutdown.
-		if ( Data_Events::current_event() ) {
-			self::$queued_syncs[ $contact['email'] ] = [ $contact, $master_list_id, $context ];
-			return;
-		}
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 
@@ -179,24 +183,12 @@ class ESP_Sync extends Sync {
 	}
 
 	/**
-	 * Given a user ID or WooCommerce Order, sync that reader's contact data to
-	 * the connected ESP.
+	 * Get contact data for syncing.
 	 *
-	 * @param int|\WC_order $user_id_or_order User ID or WC_Order object.
-	 * @param bool          $is_dry_run       True if a dry run.
-	 *
-	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
+	 * @param int $user_id The user ID.
 	 */
-	public static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
-		$can_sync = static::can_esp_sync( true );
-		if ( ! $is_dry_run && $can_sync->has_errors() ) {
-			return $can_sync;
-		}
-
-		$is_order = $user_id_or_order instanceof \WC_Order;
-		$order    = $is_order ? $user_id_or_order : false;
-		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
-		$user     = \get_userdata( $user_id );
+	protected static function get_contact_data( $user_id ) {
+		$user = \get_userdata( $user_id );
 
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
@@ -216,7 +208,29 @@ class ESP_Sync extends Sync {
 			$customer->save();
 		}
 
-		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : Sync\WooCommerce::get_contact_from_customer( $customer );
+		return Sync\WooCommerce::get_contact_from_customer( $customer );
+	}
+
+	/**
+	 * Given a user ID or WooCommerce Order, sync that reader's contact data to
+	 * the connected ESP.
+	 *
+	 * @param int|\WC_order $user_id_or_order User ID or WC_Order object.
+	 * @param bool          $is_dry_run       True if a dry run.
+	 *
+	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
+	 */
+	public static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
+		$can_sync = static::can_esp_sync( true );
+		if ( ! $is_dry_run && $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
+		$is_order = $user_id_or_order instanceof \WC_Order;
+		$order    = $is_order ? $user_id_or_order : false;
+		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
+
+		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : self::get_contact_data( $user_id );
 		$result  = $is_dry_run ? true : self::sync( $contact );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
@@ -246,8 +260,18 @@ class ESP_Sync extends Sync {
 			return;
 		}
 
-		foreach ( self::$queued_syncs as $sync ) {
-			\Newspack_Newsletters_Contacts::upsert( ...$sync );
+		foreach ( self::$queued_syncs as $email => $contexts ) {
+			$user = get_user_by( 'email', $email );
+			if ( ! $user ) {
+				continue;
+			}
+
+			$contact = self::get_contact_data( $user->ID );
+			if ( ! $contact ) {
+				continue;
+			}
+
+			self::sync( $contact, implode( ', ', $contexts ) );
 		}
 
 		self::$queued_syncs = [];
