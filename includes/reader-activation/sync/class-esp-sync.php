@@ -108,7 +108,6 @@ class ESP_Sync extends Sync {
 			$context = static::$context;
 		}
 
-
 		// If we're running in a data event, queue the sync to run on shutdown.
 		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
 			if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
@@ -271,7 +270,7 @@ class ESP_Sync extends Sync {
 				continue;
 			}
 
-			self::sync( $contact, implode( ', ', $contexts ) );
+			self::sync( $contact, implode( '; ', $contexts ) );
 		}
 
 		self::$queued_syncs = [];
