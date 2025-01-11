@@ -74,10 +74,32 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 
 		// Assert the hook was called once.
 		$this->assertEquals( 1, $call_count );
+	}
 
-		// Assert it returns a WP_Http response.
-		$this->assertIsArray( $result );
-		$this->assertArrayHasKey( 'http_response', $result );
+	/**
+	 * Test that executing queued dispatches triggers the dispatched action hook.
+	 */
+	public function test_execute_queued_dispatches() {
+		$action_name = 'test_action';
+		$data        = [ 'test' => 'data' ];
+
+		$hook_request = null;
+		$hook_queued_dispatches = null;
+
+		$hook = function( $request, $queued_dispatches ) use ( &$hook_request, &$hook_queued_dispatches ) {
+			$hook_request = $request;
+			$hook_queued_dispatches = $queued_dispatches;
+		};
+		add_action( 'newspack_data_events_dispatched', $hook, 10, 2 );
+
+		Data_Events::register_action( $action_name );
+		Data_Events::dispatch( $action_name, $data );
+		Data_Events::execute_queued_dispatches();
+
+		$this->assertIsArray( $hook_request );
+		$this->assertIsArray( $hook_queued_dispatches );
+		$this->assertEquals( $action_name, $hook_queued_dispatches[0]['action_name'] );
+		$this->assertEquals( $data, $hook_queued_dispatches[0]['data'] );
 	}
 
 	/**

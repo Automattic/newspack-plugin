@@ -55,14 +55,14 @@ class RAS {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--user=<user ID|email>]
+	 * [--user-id=<id|email>]
 	 * : The user ID or email address associated with the reader account to verify.
 	 *
 	 * @param array $args Positional args.
 	 * @param array $assoc_args Associative args.
 	 */
 	public static function cli_verify_reader( $args, $assoc_args ) {
-		$user_id_or_email = ! empty( $args ) ? reset( $args ) : false;
+		$user_id_or_email = ! empty( $assoc_args ) ? reset( $assoc_args ) : false;
 		if ( ! $user_id_or_email ) {
 			WP_CLI::error( __( 'Please provide a user ID or email address.', 'newspack-plugin' ) );
 			exit;

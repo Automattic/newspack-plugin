@@ -1,0 +1,41 @@
+// Admin metabox styles
+.corrections-metabox-container {
+	.activate-corrections {
+		padding-top: 1em;
+		padding-bottom: 1em;
+		border-bottom: 2px solid silver;
+		margin-bottom: 1em;
+	}
+
+	.deleted-corrections {
+		visibility: hidden;
+	}
+
+	.correction {
+		position: relative;
+		border-bottom: 1px solid silver;
+		padding-top: 1em;
+		padding-bottom: 1em;
+	}
+
+	.add-correction {
+		margin-top: 2em;
+		cursor: pointer;
+	}
+
+	.delete-correction {
+		position: absolute;
+		top: 2em;
+		right: 2em;
+		font-weight: bold;
+		color: silver;
+		border: 1px solid silver;
+		padding-left: 0.25em;
+		padding-right: 0.25em;
+		cursor: pointer;
+	}
+
+	.delete-correction:hover {
+		color: red;
+	}
+}

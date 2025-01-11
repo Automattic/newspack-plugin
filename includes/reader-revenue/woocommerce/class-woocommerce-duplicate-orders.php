@@ -44,6 +44,11 @@ class WooCommerce_Duplicate_Orders {
 	 * @param array  $results Results to be merged with new results.
 	 */
 	public static function get_order_duplicates( $cutoff_time, $current_page = 0, $results = [] ): array {
+
+		if ( ! function_exists( 'wc_get_orders' ) ) {
+			return [];
+		}
+
 		$per_page = 100;
 		$order_result = wc_get_orders(
 			[
