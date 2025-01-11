@@ -16,20 +16,22 @@ import { useState } from 'react';
 import './style.scss';
 
 // const ALLOWED_TAGS = [ 'Author' ];
+const META_KEY_ACTIVE = '_newspack_byline_active';
+const META_KEY_BYLINE = '_newspack_byline';
 
 const BylinesSettingsPanel = () => {
 	const { editPost } = useDispatch( 'core/editor' );
 	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ) );
-	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )?.newspack_byline_enabled );
-	const [ byline, setByline ] = useState( getEditedPostAttribute( 'meta' )?.newspack_byline ?? '' );
+	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ META_KEY_ACTIVE ] );
+	const [ byline, setByline ] = useState( getEditedPostAttribute( 'meta' )[ META_KEY_BYLINE ] || '' );
 	// Enabled toggle handler.
 	const handleEnableToggle = value => {
-		editPost( { meta: { newspack_byline_enabled: value } } );
+		editPost( { meta: { [ META_KEY_ACTIVE ]: value } } );
 		setIsEnabled( value );
 	}
 	// Byline change handler.
 	const handleBylineChange = value => {
-		editPost( { meta: { newspack_byline: value } } );
+		editPost( { meta: { [ META_KEY_BYLINE ]: value } } );
 		setByline( value );
 	}
 	return (

@@ -12,6 +12,20 @@ namespace Newspack;
  */
 class Bylines {
 	/**
+	 * Meta key for the active flag.
+	 *
+	 * @var string
+	 */
+	const META_KEY_ACTIVE = '_newspack_byline_active';
+
+	/**
+	 * Meta key for the byline.
+	 *
+	 * @var string
+	 */
+	const META_KEY_BYLINE = '_newspack_byline';
+
+	/**
 	 * Initializes the class.
 	 */
 	public static function init() {
@@ -63,26 +77,37 @@ class Bylines {
 	public static function register_post_meta() {
 		\register_post_meta(
 			'post',
-			'newspack_byline_enabled',
+			self::META_KEY_ACTIVE,
 			[
-				'default'      => false,
-				'description'  => 'Whether custom bylines is enabled for the post.',
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'boolean',
+				'default'       => false,
+				'description'   => 'Whether custom bylines is enabled for the post.',
+				'show_in_rest'  => true,
+				'single'        => true,
+				'type'          => 'boolean',
+				'auth_callback' => [ __CLASS__, 'auth_callback' ],
 			]
 		);
 		\register_post_meta(
 			'post',
-			'newspack_byline',
+			self::META_KEY_BYLINE,
 			[
-				'default'      => '',
-				'description'  => 'A custom byline for the post',
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'string',
+				'default'       => '',
+				'description'   => 'A custom byline for the post',
+				'show_in_rest'  => true,
+				'single'        => true,
+				'type'          => 'string',
+				'auth_callback' => [ __CLASS__, 'auth_callback' ],
 			]
 		);
+	}
+
+	/**
+	 * Auth callback for custom post meta.
+	 *
+	 * @return bool True if current user can access, false otherwise.
+	 */
+	public static function auth_callback() {
+		return \current_user_can( 'edit_posts' );
 	}
 }
 Bylines::init();
