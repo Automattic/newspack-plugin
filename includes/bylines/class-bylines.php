@@ -31,7 +31,7 @@ class Bylines {
 	 * @return bool True if the feature is enabled, false otherwise.
 	 */
 	public static function is_enabled() {
-		return defined( 'NEWSPACK_BYLINES_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED;
+		return defined( 'NEWSPACK_BYLINES_ENABLED' ) && NEWSPACK_BYLINES_ENABLED;
 	}
 
 
@@ -42,28 +42,45 @@ class Bylines {
 		if ( ! is_admin() || \get_current_screen()->id !== 'post' ) {
 			return;
 		}
-
 		\wp_enqueue_script(
 			'newspack-bylines',
 			Newspack::plugin_url() . '/dist/bylines.js',
-			[ 'wp-plugins', 'wp-editor', 'react' ],
+			[],
 			NEWSPACK_PLUGIN_VERSION,
 			true
+		);
+		\wp_enqueue_style(
+			'newspack-bylines',
+			Newspack::plugin_url() . '/dist/bylines.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
 		);
 	}
 
 	/**
-	 * Registers custom byline meta fields.
+	 * Registers custom byline post meta.
 	 */
 	public static function register_post_meta() {
 		\register_post_meta(
 			'post',
 			'newspack_byline_enabled',
 			[
-				'description'  => 'Whether a custom byline is enabled for the post.',
-				'single'       => true,
+				'default'      => false,
+				'description'  => 'Whether custom bylines is enabled for the post.',
 				'show_in_rest' => true,
+				'single'       => true,
 				'type'         => 'boolean',
+			]
+		);
+		\register_post_meta(
+			'post',
+			'newspack_byline',
+			[
+				'default'      => '',
+				'description'  => 'A custom byline for the post',
+				'show_in_rest' => true,
+				'single'       => true,
+				'type'         => 'string',
 			]
 		);
 	}
