@@ -637,8 +637,8 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'ButtonCard', 'newspack-plugin' ) }</h2>
 						<ButtonCard
-							href="admin.php?page=newspack-site-design-wizard"
-							title={ __( 'Site Design', 'newspack-plugin' ) }
+							href="admin.php?page=newspack-settings#/theme-and-brand"
+							title={ __( 'Theme and Brand', 'newspack-plugin' ) }
 							desc={ __( 'Customize the look and feel of your site', 'newspack-plugin' ) }
 							icon={ typography }
 							chevron
