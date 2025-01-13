@@ -1837,6 +1837,22 @@ final class Reader_Activation {
 			}
 		}
 
+		/**
+		 * Filter to allow short-circuiting the reader form processing.
+		 *
+		 * This runs after the honeypot trap and reCAPTCHA validation.
+		 *
+		 * @param bool|WP_Error $preempt Whether to short-circuit the form processing. Default false.
+		 * @param string        $action  The action being performed.
+		 * @param string        $email   The email address.
+		 * @param string        $current_page_url The current page URL.
+		 */
+		$preempt = apply_filters( 'newspack_reader_auth_form_preempt', false, $action, $email, $current_page_url );
+
+		if ( $preempt ) {
+			return self::send_auth_form_response( $preempt );
+		}
+
 		if ( ! in_array( $action, self::AUTH_FORM_OPTIONS, true ) ) {
 			return self::send_auth_form_response( new \WP_Error( 'invalid_request', __( 'Invalid request.', 'newspack-plugin' ) ) );
 		}
