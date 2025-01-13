@@ -136,7 +136,9 @@ function render( forms = [], onSuccess = null, onError = null ) {
 
 	const formsToHandle = forms.length
 		? forms
-		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
+		: [ ...document.querySelectorAll(
+			'form[data-newspack-recaptcha],form#add_payment_method',
+		) ];
 
 	formsToHandle.forEach( form => {
 		const renderForm = () => {
