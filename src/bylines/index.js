@@ -20,6 +20,16 @@ const BYLINE_ID = 'newspack-byline';
 const META_KEY_ACTIVE = '_newspack_byline_active';
 const META_KEY_BYLINE = '_newspack_byline';
 
+/**
+ * Get author url given the author id.
+ *
+ * @param {number} authorId The author ID.
+ *
+ * @return {string} The author URL.
+ */
+const getAuthorUrl = authorId => {
+	return `/author/${ authorId }`;
+}
 
 /**
  * Prepend byline to content in the Editor.
@@ -35,6 +45,11 @@ const prependBylineToContent = byline => {
 			bylineEl.id = BYLINE_ID;
 			contentEl.insertBefore( bylineEl, contentEl.firstChild );
 		}
+		// Search for <Author id="123"> tag and replace it with a link to the author page.
+		byline = byline.replace( /<Author id=(\d+)>/g, ( match, authorId ) => {
+			return `<a href="${ getAuthorUrl( authorId ) }">`;
+		} );
+		byline = byline.replace( /<\/Author>/g, '</a>' );
 		bylineEl.innerHTML = byline;
 	}
 };
@@ -56,6 +71,11 @@ const BylinesSettingsPanel = () => {
 	}
 	// Byline change handler.
 	const handleBylineChange = value => {
+		const tags = value.match( /<[^>]+>/g );
+		if ( tags && tags.some( tag => ! tag.startsWith( '<Author' ) && ! tag.startsWith( '</Author' ) ) ) {
+			alert( __( 'Only the <Author> tag is allowed.', 'newspack-plugin' ) ); // eslint-disable-line no-alert
+			return;
+		}
 		editPost( { meta: { [ META_KEY_BYLINE ]: value } } );
 		setByline( value );
 	}
@@ -88,4 +108,3 @@ registerPlugin( 'newspack-bylines-sidebar', {
 	render: BylinesSettingsPanel,
 	icon: false,
 } );
-
