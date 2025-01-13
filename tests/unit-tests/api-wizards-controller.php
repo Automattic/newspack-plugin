@@ -17,7 +17,7 @@ class Newspack_Test_Wizards_Controller extends WP_UnitTestCase {
 	 *
 	 * @var string
 	 */
-	protected $api_route = '/newspack/v1/wizards/site-design';
+	protected $api_route = '/newspack/v1/wizards/newspack-settings';
 
 	/**
 	 * Set up stuff for testing API requests.
