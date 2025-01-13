@@ -53,8 +53,8 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 				updateCacheMethods: [ 'GET' ],
 			},
 			{
-				onSuccess: data => {
-					setData( data );
+				onSuccess: res => {
+					setData( res );
 					history.push( '/completed' );
 				},
 			}
@@ -71,9 +71,9 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 					updateCacheMethods: [ 'GET' ],
 				},
 				{
-					onSuccess: data => {
-						setData( data );
-						resolve( data );
+					onSuccess: res => {
+						setData( res );
+						resolve( res );
 					},
 				}
 			)
