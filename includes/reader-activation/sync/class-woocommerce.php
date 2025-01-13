@@ -333,8 +333,11 @@ class WooCommerce {
 
 		$metadata = [];
 
-		$metadata['account']           = $customer->get_id();
-		$metadata['registration_date'] = $customer->get_date_created()->date( Metadata::DATE_FORMAT );
+		$customer_id                   = $customer->get_id();
+		$user                          = \get_user_by( 'id', $customer_id );
+		$created_date                  = $customer->get_date_created();
+		$metadata['account']           = $customer_id;
+		$metadata['registration_date'] = $created_date ? $created_date->date( Metadata::DATE_FORMAT ) : '';
 		$metadata['total_paid']        = $customer->get_total_spent();
 
 		$order = self::get_current_product_order_for_sync( $customer );
@@ -356,7 +359,16 @@ class WooCommerce {
 		$first_name = $customer->get_billing_first_name();
 		$last_name  = $customer->get_billing_last_name();
 		$full_name  = trim( "$first_name $last_name" );
-		$contact    = [
+
+		// Correct for empty First and Last Name fields.
+		if ( ! empty( trim( $first_name ) ) && empty( \get_user_meta( $customer_id, 'first_name', true ) ) ) {
+			\update_user_meta( $customer_id, 'first_name', $first_name );
+		}
+		if ( ! empty( trim( $last_name ) ) && empty( \get_user_meta( $customer_id, 'last_name', true ) ) ) {
+			\update_user_meta( $customer_id, 'last_name', $last_name );
+		}
+
+		$contact = [
 			'email'    => $customer->get_email(),
 			'metadata' => $metadata,
 		];
