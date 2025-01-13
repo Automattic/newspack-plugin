@@ -10,6 +10,7 @@ namespace Newspack;
 use WP_Error;
 
 use Newspack_Ads\Providers\GAM_Model;
+use Throwable;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -318,7 +319,17 @@ class Advertising_Display_Ads extends Wizard {
 	 * @return WP_REST_Response containing ad units info.
 	 */
 	public function api_get_advertising() {
-		return \rest_ensure_response( $this->retrieve_data() );
+		try {
+			return rest_ensure_response( $this->retrieve_data() );
+		} catch ( Throwable $th ) {
+			return rest_ensure_response(
+				new WP_Error(
+					' ',
+					__( 'Error fetching advertising data.', 'newspack-plugin' ),
+					[ 'status' => 403 ]
+				)
+			);
+		}
 	}
 
 	/**
