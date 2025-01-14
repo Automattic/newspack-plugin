@@ -81,7 +81,7 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 		form.addEventListener( 'submit', e => {
 			if ( ! form.hasAttribute( 'data-recaptcha-validated' ) && ! form.hasAttribute( 'data-skip-recaptcha' ) ) {
 				e.preventDefault();
-				e.stopPropagation();
+				e.stopImmediatePropagation();
 				// Empty error messages if present.
 				removeErrorMessages( form );
 
