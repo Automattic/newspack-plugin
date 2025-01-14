@@ -1,11 +1,12 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import apiFetch from '@wordpress/api-fetch';
+import { ToggleControl, TextareaControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-import { ToggleControl, TextareaControl } from '@wordpress/components';
 /**
  * External dependencies
  */
@@ -15,55 +16,30 @@ import { useEffect, useState } from 'react';
  */
 import './style.scss';
 
-// const ALLOWED_TAGS = [ 'Author' ];
 const BYLINE_ID = 'newspack-byline';
 const META_KEY_ACTIVE = '_newspack_byline_active';
 const META_KEY_BYLINE = '_newspack_byline';
 
-/**
- * Get author url given the author id.
- *
- * @param {number} authorId The author ID.
- *
- * @return {string} The author URL.
- */
-const getAuthorUrl = authorId => {
-	return `/author/${ authorId }`;
-}
-
-/**
- * Prepend byline to content in the Editor.
- *
- * @param {string} byline The byline
- */
-const prependBylineToContent = byline => {
-	const contentEl = document.querySelector( '.wp-block-post-content' );
-	if ( contentEl && typeof byline === 'string' ) {
-		let bylineEl = document.getElementById( BYLINE_ID );
-		if ( ! bylineEl ) {
-			bylineEl = document.createElement( 'div' );
-			bylineEl.id = BYLINE_ID;
-			contentEl.insertBefore( bylineEl, contentEl.firstChild );
-		}
-		// Search for <Author id="123"> tag and replace it with a link to the author page.
-		byline = byline.replace( /<Author id=(\d+)>/g, ( match, authorId ) => {
-			return `<a href="${ getAuthorUrl( authorId ) }">`;
-		} );
-		byline = byline.replace( /<\/Author>/g, '</a>' );
-		bylineEl.innerHTML = byline;
-	}
-};
-
 const BylinesSettingsPanel = () => {
 	const { editPost } = useDispatch( 'core/editor' );
 	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ) );
-	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ META_KEY_ACTIVE ] );
+	const [ authors, setAuthors ] = useState( [] );
 	const [ byline, setByline ] = useState( getEditedPostAttribute( 'meta' )[ META_KEY_BYLINE ] || '' );
-
+	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ META_KEY_ACTIVE ] );
+	const [ isFetching, setIsFetching ] = useState( true );
+	// Update byline text in editor.
 	useEffect( () => {
 		prependBylineToContent( isEnabled ? byline : '' );
-	}, [ byline, isEnabled ] );
-
+	}, [ authors, byline, isEnabled ] );
+	// Fetch authors.
+	useEffect( () => {
+		setIsFetching( true );
+		apiFetch( { path: '/wp/v2/users' } )
+			.then( data => {
+				setAuthors( data );
+				setIsFetching( false );
+			} );
+	}, [] );
 	// Enabled toggle handler.
 	const handleEnableToggle = value => {
 		editPost( { meta: { [ META_KEY_ACTIVE ]: value } } );
@@ -79,6 +55,29 @@ const BylinesSettingsPanel = () => {
 		editPost( { meta: { [ META_KEY_BYLINE ]: value } } );
 		setByline( value );
 	}
+	const prependBylineToContent = text => {
+		const contentEl = document.querySelector( '.wp-block-post-content' );
+		if ( contentEl ) {
+			let bylineEl = document.getElementById( BYLINE_ID );
+			if ( ! bylineEl ) {
+				bylineEl = document.createElement( 'div' );
+				bylineEl.id = BYLINE_ID;
+				contentEl.insertBefore( bylineEl, contentEl.firstChild );
+			}
+			if ( isFetching ) {
+				bylineEl.innerHTML = __( 'Loading…', 'newspack-plugin' );
+				return;
+			}
+			// If there are author tags
+			if ( /<Author id=(\d+)>/.test( text ) ) {
+				text = text.replace( /<Author id=(\d+)>([^<]+)<\/Author>/g, ( match, authorId, authorName ) => {
+					const authorData = authors.find( a => a.id === parseInt( authorId ) );
+					return authorData ? `<a href="/author/${ authorData.name }">${ authorName }</a>` : authorName;
+				} );
+			}
+			bylineEl.innerHTML = text;
+		}
+	};
 	return (
 		<PluginDocumentSettingPanel
 			className="newspack-byline"
