@@ -32,11 +32,6 @@ class Corrections {
 	const CORRECTIONS_LOCATION_META = 'newspack_corrections_location';
 
 	/**
-	 * Meta key for post corrections ids meta.
-	 */
-	const CORRECTIONS_IDS_META = 'newspack_corrections_ids';
-
-	/**
 	 * Initializes the class.
 	 */
 	public static function init() {
@@ -156,10 +151,6 @@ class Corrections {
 	 * @param array $corrections The corrections.
 	 */
 	public static function add_corrections( $post_id, $corrections ) {
-		$correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
-		if ( ! is_array( $correction_ids ) ) {
-			$correction_ids = [];
-		}
 		foreach ( $corrections as $correction ) {
 			$id = wp_insert_post(
 				[
@@ -177,7 +168,6 @@ class Corrections {
 				$correction_ids[] = $id;
 			}
 		}
-		update_post_meta( $post_id, self::CORRECTIONS_IDS_META, $correction_ids );
 	}
 
 	/**
@@ -188,15 +178,14 @@ class Corrections {
 	 * @return array The corrections.
 	 */
 	public static function get_corrections( $post_id ) {
-		$correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
-		if ( ! is_array( $correction_ids ) ) {
-			return [];
-		}
 		return get_posts(
 			[
 				'posts_per_page' => -1,
 				'post_type'      => self::POST_TYPE,
-				'include'        => $correction_ids,
+				'meta_key'       => self::CORRECTION_POST_ID_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => $post_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+				'orderby'        => 'date',
+				'order'          => 'DESC',
 			]
 		);
 	}
@@ -224,17 +213,9 @@ class Corrections {
 	 * @param array $correction_ids correction ids.
 	 */
 	public static function delete_corrections( $post_id, $correction_ids ) {
-		$stored_correction_ids = get_post_meta( $post_id, self::CORRECTIONS_IDS_META, true );
-		if ( ! is_array( $stored_correction_ids ) ) {
-			$stored_correction_ids = [];
-		}
 		foreach ( $correction_ids as $id ) {
 			wp_delete_post( $id, true );
-			if ( isset( $stored_correction_ids[ $id ] ) ) {
-				unset( $stored_correction_ids[ $id ] );
-			}
 		}
-		update_post_meta( $post_id, self::CORRECTIONS_IDS_META, $stored_correction_ids );
 	}
 
 	/**

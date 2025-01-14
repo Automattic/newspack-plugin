@@ -31,4 +31,3 @@ In addition, some correction data is stored in the associated post as post meta:
 | ------------------------------- | ----------------------- | ----------- | ------------------------------------------------------------- |
 | `newspack_corrections_active`   | `bool`                  | `post_meta` | Whether the feature is enabled for the post.                  |
 | `newspack_corrections_location` | `string`                | `post_meta` | Where the correction should be displayed. (`top` or `bottom`) |
-| `newspack_corrections_ids`      | `array`                 | `post_meta` | An array of IDs of the corrections associated with the post.  |
