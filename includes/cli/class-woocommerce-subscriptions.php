@@ -117,9 +117,11 @@ class WooCommerce_Subscriptions {
 					}
 					continue;
 				}
-				$end_date      = $subscription->is_manual() ? $subscription->get_date( 'next_payment' ) : $last_retry->get_date();
-				$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
+
 				if ( $subscription->is_manual() ) {
+					$end_date = $subscription->get_date( 'next_payment' );
+					$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
+
 					if ( ! $should_expire ) {
 						if ( self::$verbose ) {
 							WP_CLI::line( 'Subscription is within the on-hold duration. Moving to next subscription...' );
@@ -129,6 +131,7 @@ class WooCommerce_Subscriptions {
 					}
 				} else {
 					$last_retry = \WCS_Retry_Manager::store()->get_last_retry_for_order( wcs_get_objects_property( $renewal_order, 'id' ) );
+
 					// No retries indicates the subscription was likely manually placed on hold.
 					if ( empty( $last_retry ) ) {
 						if ( self::$verbose ) {
@@ -137,6 +140,10 @@ class WooCommerce_Subscriptions {
 						}
 						continue;
 					}
+
+					$end_date = $last_retry->get_date();
+					$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
+
 					// A non failed status indicates the retry was either manually cancelled
 					// or was successful at one point but likely placed on hold for some other reason.
 					if ( 'failed' !== $last_retry->get_status() ) {
