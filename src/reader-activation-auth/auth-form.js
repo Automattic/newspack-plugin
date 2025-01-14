@@ -112,10 +112,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 				const newspack_grecaptcha = window.newspack_grecaptcha || {};
 				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
 					if ( 'register' === action ) {
-						submitButtons.forEach( button => button.removeAttribute( 'data-skip-recaptcha' ) );
+						form.removeAttribute( 'data-skip-recaptcha' );
 						newspack_grecaptcha.render( [ form ], ( error ) => form.setMessageContent( error, true ) );
 					} else {
-						submitButtons.forEach( button => button.setAttribute( 'data-skip-recaptcha', '' ) );
+						form.setAttribute( 'data-skip-recaptcha', '1' );
 					}
 				}
 				if ( 'otp' === action ) {

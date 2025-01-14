@@ -501,7 +501,7 @@ final class Recaptcha {
 	 */
 	public static function verify_recaptcha_on_checkout() {
 		$url                   = \home_url( \add_query_arg( null, null ) );
-		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url, 'checkout' );
 		$version               = self::get_setting( 'version' );
 
 		if ( ! $should_verify_captcha ) {
@@ -522,7 +522,7 @@ final class Recaptcha {
 	 */
 	public static function verify_recaptcha_on_add_payment_method( $is_valid ) {
 		$url                   = \home_url( \add_query_arg( null, null ) );
-		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url, 'add_payment_method' );
 		if ( ! $should_verify_captcha ) {
 			return $is_valid;
 		}
