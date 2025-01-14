@@ -172,7 +172,7 @@ class WooCommerce_Subscriptions {
 						++$scheduled;
 					}
 				}
-				if ( should_expire ) {
+				if ( $should_expire ) {
 					// Otherwise, if the retry date is past the on-hold duration, update the subscription status to expired.
 					if ( self::$verbose ) {
 						WP_CLI::line( 'Updating subscription status to expired...' );
