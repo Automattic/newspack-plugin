@@ -157,6 +157,7 @@ class WooCommerce_Connection {
 
 	/**
 	 * Check the rate limit for the current user or IP.
+	 * Currently locked behind a NEWSPACK_CHECKOUT_RATE_LIMIT environment constant, for controlled rollout.
 	 *
 	 * @param string $error_message Error message to display or return if the user should be rate-limited.
 	 * @param bool   $return_error  If true and the user should be rate-limited, return a WP_Error with the given message instead of a boolean value.
@@ -164,12 +165,16 @@ class WooCommerce_Connection {
 	 * @return bool|WP_Error True or WP_Error if the rate limit is exceeded, false otherwise.
 	 */
 	public static function rate_limit_by_user( $error_message = '', $return_error = false ) {
+		if ( ! defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ) {
+			return false;
+		}
 		if ( ! $error_message ) {
 			$error_message = __( 'Please wait a moment before trying again.', 'newspack-plugin' );
 		}
 		$rate_limited = false;
 		$user_id      = get_current_user_id();
 		$now          = time();
+		$rate_limit   = defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ? (int) NEWSPACK_CHECKOUT_RATE_LIMIT : 90; // Number of seconds to wait before allowing the same user to attempt another checkout action. Default: 90.
 
 		// If not logged in, use IP.
 		if ( ! $user_id ) {
@@ -180,10 +185,10 @@ class WooCommerce_Connection {
 		}
 		$transient_name = 'last_checkout_attempt_' . \wp_hash( $user_id, 'nonce' );
 		$last_attempt = (int) \get_transient( $transient_name );
-		if ( $last_attempt && $now - $last_attempt < 90 ) {
+		if ( $last_attempt && $now - $last_attempt < $rate_limit ) {
 			$rate_limited = true;
 		}
-		\set_transient( $transient_name, $now, 90 );
+		\set_transient( $transient_name, $now, $rate_limit );
 
 		if ( $rate_limited ) {
 			if ( $return_error ) {
