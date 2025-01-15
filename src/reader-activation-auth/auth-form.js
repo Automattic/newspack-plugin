@@ -67,6 +67,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( isError ) {
 						messageContentElement.classList.remove( 'newspack-ui__helper-text' );
 						messageContentElement.classList.add( 'newspack-ui__inline-error' );
+						form.style.opacity = 1;
 					} else {
 						messageContentElement.classList.remove( 'newspack-ui__inline-error' );
 						messageContentElement.classList.add( 'newspack-ui__helper-text' );
