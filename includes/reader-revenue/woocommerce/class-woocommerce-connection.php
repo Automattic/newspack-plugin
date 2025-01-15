@@ -165,16 +165,19 @@ class WooCommerce_Connection {
 	 * @return bool|WP_Error True or WP_Error if the rate limit is exceeded, false otherwise.
 	 */
 	public static function rate_limit_by_user( $error_message = '', $return_error = false ) {
+		$rate_limited = false;
 		if ( ! defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ) {
-			return false;
+			return $rate_limited;
 		}
 		if ( ! $error_message ) {
 			$error_message = __( 'Please wait a moment before trying again.', 'newspack-plugin' );
 		}
-		$rate_limited = false;
-		$user_id      = get_current_user_id();
-		$now          = time();
-		$rate_limit   = defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ? (int) NEWSPACK_CHECKOUT_RATE_LIMIT : 90; // Number of seconds to wait before allowing the same user to attempt another checkout action. Default: 90.
+		$user_id    = get_current_user_id();
+		$now        = time();
+		$rate_limit = defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ? (int) NEWSPACK_CHECKOUT_RATE_LIMIT : 90; // Number of seconds to wait before allowing the same user to attempt another checkout action. Default: 90.
+		if ( 0 === $rate_limit ) {
+			return $rate_limited; // If $rate_limit is 0 seconds, bail early to avoid creating a non-expiring transient.
+		}
 
 		// If not logged in, use IP.
 		if ( ! $user_id ) {
@@ -214,6 +217,21 @@ class WooCommerce_Connection {
 			return;
 		}
 		self::rate_limit_by_user( __( 'Please wait a moment before trying to complete this transaction again.', 'newspack-plugin' ) );
+	}
+
+	/**
+	 * Rate limit new payment methods per user.
+	 *
+	 * @param bool $is_valid Whether the form is valid.
+	 *
+	 * @return bool
+	 */
+	public static function rate_limit_payment_methods( $is_valid ) {
+		if ( self::rate_limit_by_user( __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ) ) ) {
+			return false;
+		}
+
+		return $is_valid;
 	}
 
 	/**
