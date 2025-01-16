@@ -156,6 +156,15 @@ class WooCommerce_Connection {
 	}
 
 	/**
+	 * Check if rate limiting by user should be enabled for checkout and payment methods.
+	 *
+	 * @return bool
+	 */
+	public static function rate_limiting_enabled() {
+		return defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) && is_int( NEWSPACK_CHECKOUT_RATE_LIMIT ) && 0 !== NEWSPACK_CHECKOUT_RATE_LIMIT;
+	}
+
+	/**
 	 * Check the rate limit for the current user or IP.
 	 * Currently locked behind a NEWSPACK_CHECKOUT_RATE_LIMIT environment constant, for controlled rollout.
 	 *
@@ -166,7 +175,7 @@ class WooCommerce_Connection {
 	 */
 	public static function rate_limit_by_user( $error_message = '', $return_error = false ) {
 		$rate_limited = false;
-		if ( ! defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ) {
+		if ( ! self::rate_limiting_enabled() ) {
 			return $rate_limited;
 		}
 		if ( ! $error_message ) {

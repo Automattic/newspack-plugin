@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
+use Newspack\WooCommerce_Connection;
 use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
@@ -28,6 +29,7 @@ class WooCommerce_My_Account {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
 		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
@@ -60,6 +62,35 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Register routes.
+	 */
+	public static function register_routes() {
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/check-rate',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_check_rate_limit' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+	}
+
+	/**
+	 * REST API handler for rate limit check.
+	 */
+	public static function api_check_rate_limit() {
+		$rate_limited = WooCommerce_Connection::rate_limit_by_user( __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ), true );
+		$response     = [
+			'success' => ! \is_wp_error( $rate_limited ),
+		];
+		if ( \is_wp_error( $rate_limited ) ) {
+			$response['error'] = $rate_limited->get_error_message();
+		}
+		return new \WP_REST_Response( $response );
+	}
+
+	/**
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
@@ -75,9 +106,11 @@ class WooCommerce_My_Account {
 				'my-account',
 				'newspack_my_account',
 				[
-					'labels' => [
+					'labels'            => [
 						'cancel_subscription_message' => __( 'Are you sure you want to cancel this subscription?', 'newspack-plugin' ),
 					],
+					'rest_url'          => get_rest_url(),
+					'should_rate_limit' => WooCommerce_Connection::rate_limiting_enabled(),
 				]
 			);
 			\wp_enqueue_style(
