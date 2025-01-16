@@ -1,3 +1,17 @@
+## [5.11.1](https://github.com/Automattic/newspack-plugin/compare/v5.11.0...v5.11.1) (2025-01-14)
+
+
+### Bug Fixes
+
+* **recaptcha:** remove modal checkout restriction from v2 ([#3674](https://github.com/Automattic/newspack-plugin/issues/3674)) ([66bd2c8](https://github.com/Automattic/newspack-plugin/commit/66bd2c8df79f94b8ed1aca943e3081c1bd4e7529))
+
+# [5.11.0](https://github.com/Automattic/newspack-plugin/compare/v5.10.6...v5.11.0) (2025-01-13)
+
+
+### Features
+
+* **my-account:** reCAPTCHA check on add payment method ([#3673](https://github.com/Automattic/newspack-plugin/issues/3673)) ([4a46c8e](https://github.com/Automattic/newspack-plugin/commit/4a46c8e77f4b785bf5317812f8390cb7accddbc2))
+
 ## [5.10.6](https://github.com/Automattic/newspack-plugin/compare/v5.10.5...v5.10.6) (2025-01-09)
 
 

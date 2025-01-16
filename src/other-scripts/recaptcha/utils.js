@@ -4,7 +4,7 @@
 const MINIMUM_VISIBLE_TIME = 250;
 
 // The minimum percentage of an element that must be in the viewport before being considered visible.
-const MINIMUM_VISIBLE_PERCENTAGE = 0.5;
+const MINIMUM_VISIBLE_PERCENTAGE = 0.1;
 
 /**
  * Specify a function to execute when the DOM is fully loaded.

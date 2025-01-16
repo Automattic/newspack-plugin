@@ -28,9 +28,13 @@ final class Recaptcha {
 		// Add reCAPTCHA to the Woo checkout form.
 		\add_action( 'woocommerce_review_order_before_submit', [ __CLASS__, 'add_recaptcha_v2_to_checkout' ] );
 		\add_action( 'woocommerce_checkout_after_customer_details', [ __CLASS__, 'add_recaptcha_v3_to_checkout' ] );
+		\add_action( 'woocommerce_add_payment_method_form_bottom', [ __CLASS__, 'add_recaptcha_v3_to_checkout' ] );
 
 		// Verify reCAPTCHA on checkout submission.
 		\add_action( 'woocommerce_checkout_process', [ __CLASS__, 'verify_recaptcha_on_checkout' ] );
+
+		// Verify reCAPTCHA when adding new payment method.
+		\add_filter( 'woocommerce_add_payment_method_form_is_valid', [ __CLASS__, 'verify_recaptcha_on_add_payment_method' ] );
 	}
 
 	/**
@@ -497,20 +501,8 @@ final class Recaptcha {
 	 */
 	public static function verify_recaptcha_on_checkout() {
 		$url                   = \home_url( \add_query_arg( null, null ) );
-		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url, 'checkout' );
 		$version               = self::get_setting( 'version' );
-
-		// Only use v2 if we are in modal checkout context.
-		// TODO: Remove this check once we have a way to enable v2 for non-modal checkouts.
-		if (
-			( 'v2' === $version || 'v2_invisible' === $version ) &&
-			(
-				! method_exists( 'Newspack_Blocks\Modal_Checkout', 'is_modal_checkout' ) ||
-				! \Newspack_Blocks\Modal_Checkout::is_modal_checkout()
-			)
-		) {
-			$should_verify_captcha = false;
-		}
 
 		if ( ! $should_verify_captcha ) {
 			return;
@@ -519,6 +511,27 @@ final class Recaptcha {
 		if ( \is_wp_error( $check ) ) {
 			WooCommerce_Connection::add_wc_notice( $check->get_error_message(), 'error' );
 		}
+	}
+
+	/**
+	 * Verify reCAPTCHA when adding new payment method in My Account.
+	 *
+	 * @param bool $is_valid Whether the form is valid.
+	 *
+	 * @rturn bool
+	 */
+	public static function verify_recaptcha_on_add_payment_method( $is_valid ) {
+		$url                   = \home_url( \add_query_arg( null, null ) );
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', self::can_use_captcha(), $url, 'add_payment_method' );
+		if ( ! $should_verify_captcha ) {
+			return $is_valid;
+		}
+		$check = self::verify_captcha();
+		if ( \is_wp_error( $check ) ) {
+			WooCommerce_Connection::add_wc_notice( $check->get_error_message(), 'error' );
+			return false;
+		}
+		return $is_valid;
 	}
 }
 
