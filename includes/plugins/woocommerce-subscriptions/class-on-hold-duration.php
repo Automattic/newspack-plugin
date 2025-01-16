@@ -35,7 +35,7 @@ class On_Hold_Duration {
 		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_on_hold_duration_rule' ], 99, 1 );
 		add_action( 'woocommerce_generated_manual_renewal_order', [ __CLASS__, 'maybe_schedule_expiration' ], 10, 2 );
 		add_action( 'woocommerce_subscription_renewal_payment_complete', [ __CLASS__, 'maybe_unschedule_expiration_on_manual_renewal' ], 10, 2 );
-		add_action( self::AS_HOOK, [ __CLASS__, 'handle_cron_event' ] );
+		add_action( self::AS_HOOK, [ __CLASS__, 'handle_scheduled_action' ] );
 	}
 
 	/**
@@ -126,11 +126,10 @@ class On_Hold_Duration {
 	 */
 	public static function maybe_schedule_expiration( $order_id, $subscription ) {
 		if ( 'on-hold' === $subscription->get_status() ) {
-			$on_hold_duration = self::get_on_hold_duration();
-			if ( 0 < $on_hold_duration ) {
-				$timestamp = $subscription->get_time( 'next_payment' ) + $on_hold_duration * DAY_IN_SECONDS;
-				as_schedule_single_action( $timestamp, self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP );
-			}
+			$on_hold_duration    = self::get_on_hold_duration();
+			$on_hold_duration_ts = 0 < $on_hold_duration ? $on_hold_duration * DAY_IN_SECONDS : HOUR_IN_SECONDS;
+			$timestamp           = $subscription->get_time( 'next_payment' ) + $on_hold_duration_ts;
+			as_schedule_single_action( $timestamp, self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP );
 		}
 	}
 
@@ -147,11 +146,11 @@ class On_Hold_Duration {
 	}
 
 	/**
-	 * Handle newspack_expire_manual_subscription cron event.
+	 * Handle expiration scheduled action.
 	 *
 	 * @param int $subscription_id Subscription ID.
 	 */
-	public static function handle_cron_event( $subscription_id ) {
+	public static function handle_scheduled_action( $subscription_id ) {
 		$subscription = wcs_get_subscription( $subscription_id );
 		if ( $subscription && 'on-hold' === $subscription->get_status() ) {
 			$subscription->update_status( 'expired' );
