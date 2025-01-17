@@ -126,9 +126,9 @@ class On_Hold_Duration {
 	 */
 	public static function maybe_schedule_expiration( $order_id, $subscription ) {
 		if ( 'on-hold' === $subscription->get_status() ) {
-			$on_hold_duration    = self::get_on_hold_duration();
-			$on_hold_duration_ts = 0 < $on_hold_duration ? $on_hold_duration * DAY_IN_SECONDS : HOUR_IN_SECONDS;
-			$timestamp           = $subscription->get_time( 'next_payment' ) + $on_hold_duration_ts;
+			$default_grace_period = 7 * DAY_IN_SECONDS; // 7 days, the number of days the retry system normally waits before marking a subscription as expired.
+			$on_hold_duration     = self::get_on_hold_duration() * DAY_IN_SECONDS;
+			$timestamp            = $subscription->get_time( 'next_payment' ) + $default_grace_period + $on_hold_duration;
 			as_schedule_single_action( $timestamp, self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP );
 		}
 	}
