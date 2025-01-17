@@ -1,7 +1,8 @@
+/* globals newspackBylines */
+
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { ToggleControl, TextareaControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -17,32 +18,19 @@ import { useEffect, useState } from 'react';
 import './style.scss';
 
 const BYLINE_ID = 'newspack-byline';
-const META_KEY_ACTIVE = '_newspack_byline_active';
-const META_KEY_BYLINE = '_newspack_byline';
 
 const BylinesSettingsPanel = () => {
 	const { editPost } = useDispatch( 'core/editor' );
 	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ) );
-	const [ authors, setAuthors ] = useState( [] );
-	const [ byline, setByline ] = useState( getEditedPostAttribute( 'meta' )[ META_KEY_BYLINE ] || '' );
-	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ META_KEY_ACTIVE ] );
-	const [ isFetching, setIsFetching ] = useState( true );
+	const [ byline, setByline ] = useState( getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '' );
+	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ] );
 	// Update byline text in editor.
 	useEffect( () => {
 		prependBylineToContent( isEnabled ? byline : '' );
-	}, [ authors, byline, isEnabled ] );
-	// Fetch authors.
-	useEffect( () => {
-		setIsFetching( true );
-		apiFetch( { path: '/wp/v2/users' } )
-			.then( data => {
-				setAuthors( data );
-				setIsFetching( false );
-			} );
-	}, [] );
+	}, [ byline, isEnabled ] );
 	// Enabled toggle handler.
 	const handleEnableToggle = value => {
-		editPost( { meta: { [ META_KEY_ACTIVE ]: value } } );
+		editPost( { meta: { [ newspackBylines.metaKeyActive ]: value } } );
 		setIsEnabled( value );
 	}
 	// Byline change handler.
@@ -52,7 +40,7 @@ const BylinesSettingsPanel = () => {
 			alert( __( 'Only the <Author> tag is allowed.', 'newspack-plugin' ) ); // eslint-disable-line no-alert
 			return;
 		}
-		editPost( { meta: { [ META_KEY_BYLINE ]: value } } );
+		editPost( { meta: { [ newspackBylines.metaKeyByline ]: value } } );
 		setByline( value );
 	}
 	const prependBylineToContent = text => {
@@ -64,15 +52,10 @@ const BylinesSettingsPanel = () => {
 				bylineEl.id = BYLINE_ID;
 				contentEl.insertBefore( bylineEl, contentEl.firstChild );
 			}
-			if ( isFetching ) {
-				bylineEl.innerHTML = __( 'Loading…', 'newspack-plugin' );
-				return;
-			}
 			// If there are author tags
 			if ( /<Author id=(\d+)>/.test( text ) ) {
 				text = text.replace( /<Author id=(\d+)>([^<]+)<\/Author>/g, ( match, authorId, authorName ) => {
-					const authorData = authors.find( a => a.id === parseInt( authorId ) );
-					return authorData ? `<a href="/author/${ authorData.name }">${ authorName }</a>` : authorName;
+					return `<a href="${ newspackBylines.siteUrl }/?author=${ authorId }">${ authorName }</a>`;
 				} );
 			}
 			bylineEl.innerHTML = text;

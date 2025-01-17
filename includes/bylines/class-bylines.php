@@ -63,6 +63,15 @@ class Bylines {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
+		\wp_localize_script(
+			'newspack-bylines',
+			'newspackBylines',
+			[
+				'metaKeyActive' => self::META_KEY_ACTIVE,
+				'metaKeyByline' => self::META_KEY_BYLINE,
+				'siteUrl'       => \get_site_url(),
+			]
+		);
 		\wp_enqueue_style(
 			'newspack-bylines',
 			Newspack::plugin_url() . '/dist/bylines.css',
