@@ -38,6 +38,7 @@ class WooCommerce_Connection {
 		include_once __DIR__ . '/class-woocommerce-duplicate-orders.php';
 
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
+		\add_action( 'wp_loaded', [ __CLASS__, 'disable_legacy_form_checkout' ], 1 );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
@@ -94,6 +95,20 @@ class WooCommerce_Connection {
 			if ( $task_list ) {
 				$task_list->hide();
 			}
+		}
+	}
+
+	/**
+	 * Remove support for the legacy form-based checkout.
+	 * It's not necessary because all sites use modal or ajax checkout.
+	 */
+	public static function disable_legacy_form_checkout() {
+		if ( defined( 'NEWSPACK_ALLOW_LEGACY_FORM_CHECKOUT' ) && NEWSPACK_ALLOW_LEGACY_FORM_CHECKOUT ) {
+			return;
+		}
+
+		if ( class_exists( 'WC_Form_Handler' ) ) {
+			\remove_action( 'wp_loaded', [ 'WC_Form_Handler', 'checkout_action' ], 20 );
 		}
 	}
 
