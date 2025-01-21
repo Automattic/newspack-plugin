@@ -105,17 +105,29 @@ class WooCommerce {
 				$subscription = \wcs_get_subscription( $subscription_id );
 				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
 
-					// Only subscriptions that have at least one completed order are considered.
-					$related_orders  = $subscription->get_related_orders();
-					$completed_order = false;
-					foreach ( $related_orders as $order_id ) {
-						$order = \wc_get_order( $order_id );
-						if ( $order->has_status( 'completed' ) ) {
-							$completed_order = $order_id;
-							break;
+					// Only donation subscriptions that have at least one completed order are considered.
+					$is_donation = Donations::is_donation_order( $subscription );
+					$is_valid    = $is_donation ? false : true;
+					if ( $is_donation ) {
+						$related_orders = $subscription->get_related_orders();
+						foreach ( $related_orders as $order_id ) {
+							$order = \wc_get_order( $order_id );
+							if ( $order->has_status( 'completed' ) ) {
+								$is_valid = true;
+								break;
+							}
 						}
 					}
-					if ( ! empty( $completed_order ) ) {
+
+					/**
+					 * Filter to determine if a subscription with inactive status can be considered a contact's current product.
+					 * Allows for customizing the sync behavior to include or exclude certain types of subscriptions.
+					 *
+					 * @param bool            $is_valid If true, this subscription can be the contact's current product.
+					 * @param WC_Subscription $subscription The subscription object.
+					 */
+					$is_valid = \apply_filters( 'newspack_reader_activation_inactive_subscription_is_valid', $is_valid, $subscription );
+					if ( ! empty( $is_valid ) ) {
 						$acc[] = $subscription_id;
 					}
 				}

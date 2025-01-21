@@ -38,13 +38,20 @@ final class Data_Events {
 	private static $global_handlers = [];
 
 	/**
+	 * Dispatches queued for execution on shutdown.
+	 *
+	 * @var array[]
+	 */
+	private static $queued_dispatches = [];
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		\add_action( 'wp_ajax_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
 		\add_action( 'wp_ajax_nopriv_' . self::ACTION, [ __CLASS__, 'maybe_handle' ] );
+		\add_action( 'shutdown', [ __CLASS__, 'execute_queued_dispatches' ] );
 	}
-
 
 	/**
 	 * Maybe handle an event.
@@ -57,16 +64,24 @@ final class Data_Events {
 			\wp_die();
 		}
 
-		$action_name = isset( $_POST['action_name'] ) ? \sanitize_text_field( \wp_unslash( $_POST['action_name'] ) ) : null;
-		if ( empty( $action_name ) || ! isset( self::$actions[ $action_name ] ) ) {
+		$dispatches = isset( $_POST['dispatches'] ) ? $_POST['dispatches'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		if ( empty( $dispatches ) || ! is_array( $dispatches ) ) {
 			\wp_die();
 		}
 
-		$timestamp = isset( $_POST['timestamp'] ) ? \sanitize_text_field( \wp_unslash( $_POST['timestamp'] ) ) : null;
-		$data      = isset( $_POST['data'] ) ? $_POST['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$client_id = isset( $_POST['client_id'] ) ? \sanitize_text_field( \wp_unslash( $_POST['client_id'] ) ) : null;
+		foreach ( $dispatches as $dispatch ) {
+			$action_name = isset( $dispatch['action_name'] ) ? \sanitize_text_field( $dispatch['action_name'] ) : null;
+			if ( empty( $action_name ) || ! isset( self::$actions[ $action_name ] ) ) {
+				continue;
+			}
 
-		self::handle( $action_name, $timestamp, $data, $client_id );
+			$timestamp = isset( $dispatch['timestamp'] ) ? \sanitize_text_field( $dispatch['timestamp'] ) : null;
+			$data      = isset( $dispatch['data'] ) ? $dispatch['data'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$client_id = isset( $dispatch['client_id'] ) ? \sanitize_text_field( $dispatch['client_id'] ) : null;
+
+			self::handle( $action_name, $timestamp, $data, $client_id );
+		}
 
 		\wp_die();
 	}
@@ -312,8 +327,26 @@ final class Data_Events {
 			return $body;
 		}
 
+		self::$queued_dispatches[] = $body;
+
+		// If we're in shutdown, execute the dispatches immediately.
+		if ( did_action( 'shutdown' ) ) {
+			self::execute_queued_dispatches();
+		}
+	}
+
+	/**
+	 * Execute queued dispatches.
+	 */
+	public static function execute_queued_dispatches() {
+		if ( empty( self::$queued_dispatches ) ) {
+			return;
+		}
+
+		$actions = array_column( self::$queued_dispatches, 'action_name' );
+
 		Logger::log(
-			sprintf( 'Dispatching action "%s".', $action_name ),
+			sprintf( 'Dispatching actions: "%s".', implode( ', ', $actions ) ),
 			self::LOGGER_HEADER
 		);
 
@@ -325,16 +358,27 @@ final class Data_Events {
 			\admin_url( 'admin-ajax.php' )
 		);
 
-		return \wp_remote_post(
+		$request = \wp_remote_post(
 			$url,
 			[
 				'timeout'   => 0.01,
 				'blocking'  => false,
-				'body'      => $body,
+				'body'      => [ 'dispatches' => self::$queued_dispatches ],
 				'cookies'   => $_COOKIE, // phpcs:ignore
 				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
 			]
 		);
+
+		/**
+		 * Fires after dispatching queued actions.
+		 *
+		 * @param WP_Error|WP_HTTP_Response $request           The request object.
+		 * @param array                     $queued_dispatches The queued dispatches.
+		 */
+		\do_action( 'newspack_data_events_dispatched', $request, self::$queued_dispatches );
+
+		// Clear the queue in case of a retry.
+		self::$queued_dispatches = [];
 	}
 }
 Data_Events::init();

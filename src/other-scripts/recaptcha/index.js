@@ -30,6 +30,7 @@ const isInvisible = 'v2_invisible' === newspack_recaptcha_data.version;
  * @param {Function|null} onError   Callback to handle errors. Optional.
  */
 function renderV2Widget( form, onSuccess = null, onError = null ) {
+	form.removeAttribute( 'data-recaptcha-validated' );
 	// Common render options for reCAPTCHA v2 widget. See https://developers.google.com/recaptcha/docs/invisible#render_param for supported params.
 	const options = {
 		sitekey: siteKey,
@@ -37,88 +38,85 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 		isolated: true,
 	};
 
-	const submitButtons = [
-		...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' )
-	];
-	submitButtons.forEach( button => {
-		// Don't render widget if the button has a data-skip-recaptcha attribute.
-		if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-			return;
+	// Callback when reCAPTCHA passes validation or skip flag is present.
+	const successCallback = token => {
+		onSuccess?.();
+		// Ensure the token gets submitted with the form submission.
+		let hiddenField = form.querySelector( '[name="g-recaptcha-response"]' );
+		if ( ! hiddenField ) {
+			hiddenField = document.createElement( 'input' );
+			hiddenField.type = 'hidden';
+			hiddenField.name = 'g-recaptcha-response';
+			form.appendChild( hiddenField );
 		}
-		// Callback when reCAPTCHA passes validation or skip flag is present.
-		const successCallback = token => {
-			onSuccess?.();
-			// Ensure the token gets submitted with the form submission.
-			let hiddenField = form.querySelector( '[name="g-recaptcha-response"]' );
-			if ( ! hiddenField ) {
-				hiddenField = document.createElement( 'input' );
-				hiddenField.type = 'hidden';
-				hiddenField.name = 'g-recaptcha-response';
-				form.appendChild( hiddenField );
-			}
-			hiddenField.value = token;
-			form.requestSubmit( button );
-			refreshV2Widget( button );
-		};
-		// Callback when reCAPTCHA rendering fails or expires.
-		const errorCallback = () => {
-			const retryCount = parseInt( button.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
-			if ( retryCount < 3 ) {
-				refreshV2Widget( button );
-				grecaptcha.execute( button.getAttribute( 'data-recaptcha-widget-id' ) );
-				button.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
+		hiddenField.value = token;
+		const buttons = [
+			...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' )
+		];
+		form.setAttribute( 'data-recaptcha-validated', '1' );
+		form.requestSubmit( buttons[ buttons.length - 1 ] );
+		refreshV2Widget( form );
+	};
+	// Callback when reCAPTCHA rendering fails or expires.
+	const errorCallback = () => {
+		form.removeAttribute( 'data-recaptcha-validated' );
+		const retryCount = parseInt( form.getAttribute( 'data-recaptcha-retry-count' ) ) || 0;
+		if ( retryCount < 3 ) {
+			refreshV2Widget( form );
+			grecaptcha.execute( form.getAttribute( 'data-recaptcha-widget-id' ) );
+			form.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
+		} else {
+			const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
+			if ( onError ) {
+				onError( message );
 			} else {
-				const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
-				if ( onError ) {
-					onError( message );
-				} else {
-					addErrorMessage( form, message );
-				}
+				addErrorMessage( form, message );
 			}
 		}
-		// Attach widget to form events.
-		const attachListeners = () => {
-			getIntersectionObserver( () => renderV2Widget( form, onSuccess, onError ) ).observe( form, { attributes: true } );
-			button.addEventListener( 'click', e => {
+	};
+
+	// Attach widget to form events.
+	const attachListeners = () => {
+		getIntersectionObserver( () => renderV2Widget( form, onSuccess, onError ) ).observe( form, { attributes: true } );
+		form.addEventListener( 'submit', e => {
+			if ( ! form.hasAttribute( 'data-recaptcha-validated' ) && ! form.hasAttribute( 'data-skip-recaptcha' ) ) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				// Empty error messages if present.
 				removeErrorMessages( form );
-				// Skip reCAPTCHA verification if the button has a data-skip-recaptcha attribute.
-				if ( button.hasAttribute( 'data-skip-recaptcha' ) ) {
-					successCallback();
-				} else {
-					grecaptcha.execute( widgetId ).then( () => {
-						// If we are in an iframe scroll to top.
-						if ( window?.location !== window?.parent?.location ) {
-							document.body.scrollIntoView( { behavior: 'smooth' } );
-						}
-					} );
-				}
-			} );
-		}
-		// Refresh reCAPTCHA widgets on Woo checkout update and error.
-		if ( jQuery ) {
-			jQuery( document ).on( 'updated_checkout', () => attachListeners );
-			jQuery( document.body ).on( 'checkout_error', () => attachListeners );
-		}
-		// Refresh widget if it already exists.
-		if ( button.hasAttribute( 'data-recaptcha-widget-id' ) ) {
-			refreshV2Widget( button );
-			return;
-		}
-		const container = document.createElement( 'div' );
-		container.classList.add( 'grecaptcha-container' );
-		document.body.append( container );
-		const widgetId = grecaptcha.render( container, {
-			...options,
-			callback: successCallback,
-			'error-callback': errorCallback,
-			'expired-callback': errorCallback,
-		} );
-		button.setAttribute( 'data-recaptcha-widget-id', widgetId );
-		attachListeners();
+
+				grecaptcha.execute( widgetId ).then( () => {
+					// If we are in an iframe scroll to top.
+					if ( window?.location !== window?.parent?.location ) {
+						document.body.scrollIntoView( { behavior: 'smooth' } );
+					}
+				} );
+			} else {
+				form.removeAttribute( 'data-recaptcha-validated' );
+			}
+		}, true );
+	}
+	// Refresh reCAPTCHA widgets on Woo checkout update and error.
+	if ( jQuery ) {
+		jQuery( document ).on( 'updated_checkout', () => renderV2Widget( form, onSuccess, onError ) );
+		jQuery( document.body ).on( 'checkout_error', () => renderV2Widget( form, onSuccess, onError ) );
+	}
+	// Refresh widget if it already exists.
+	if ( form.hasAttribute( 'data-recaptcha-widget-id' ) ) {
+		refreshV2Widget( form );
+		return;
+	}
+	const container = document.createElement( 'div' );
+	container.classList.add( 'grecaptcha-container' );
+	document.body.append( container );
+	const widgetId = grecaptcha.render( container, {
+		...options,
+		callback: successCallback,
+		'error-callback': errorCallback,
+		'expired-callback': errorCallback,
 	} );
+	form.setAttribute( 'data-recaptcha-widget-id', widgetId );
+	attachListeners();
 }
 
 /**
@@ -137,7 +135,7 @@ function render( forms = [], onSuccess = null, onError = null ) {
 	const formsToHandle = forms.length
 		? forms
 		: [ ...document.querySelectorAll(
-			'form[data-newspack-recaptcha],form#add_payment_method',
+			'form[data-newspack-recaptcha],form#add_payment_method,form.checkout',
 		) ];
 
 	formsToHandle.forEach( form => {
