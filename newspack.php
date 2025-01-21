@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEWSPACK_PLUGIN_VERSION', '5.12.0--recaptcha-test.8' );
+define( 'NEWSPACK_PLUGIN_VERSION', '5.12.0' );
 
 // Define NEWSPACK_PLUGIN_FILE.
 if ( ! defined( 'NEWSPACK_PLUGIN_FILE' ) ) {
