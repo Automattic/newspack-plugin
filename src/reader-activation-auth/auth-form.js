@@ -67,6 +67,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( isError ) {
 						messageContentElement.classList.remove( 'newspack-ui__helper-text' );
 						messageContentElement.classList.add( 'newspack-ui__inline-error' );
+						form.style.opacity = 1;
 					} else {
 						messageContentElement.classList.remove( 'newspack-ui__inline-error' );
 						messageContentElement.classList.add( 'newspack-ui__helper-text' );
@@ -272,7 +273,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 			form.endLoginFlow = ( message = null, status = 500, data = null ) => {
 				container.setAttribute( 'data-form-status', status );
-				form.style.opacity = 1;
+				// Only reset opacity if modal should close on success.
+				if ( container.config?.closeOnSuccess ) {
+					form.style.opacity = 1;
+				}
 				submitButtons.forEach( button => {
 					button.disabled = false;
 				} );
@@ -383,6 +387,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					url.searchParams.set( 'checkout', 1 );
 					body.set( 'redirect_url', url.toString() );
 				}
+
 				if ( 'otp' === action ) {
 					readerActivation
 						.authenticateOTP( body.get( 'otp_code' ) )
@@ -418,6 +423,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 											readerActivation.setOTPTimer();
 											handleOTPTimer();
 										}
+										if ( data.action === 'otp' || data.action === 'pwd' ) {
+											form.style.opacity = 1;
+										}
 									} else {
 										form.endLoginFlow( message, status, data );
 									}
@@ -426,7 +434,14 @@ window.newspackRAS.push( function ( readerActivation ) {
 									form.endLoginFlow();
 								} )
 								.finally( () => {
-									form.style.opacity = 1;
+									const status = res.status;
+									// Check if modal should close on success. If no, reset opacity to 1.
+									// If yes, only reset opacity to 1 if the status is not successful.
+									if ( container.config?.closeOnSuccess ) {
+										form.style.opacity = 1;
+									} else if ( status !== 200 && ! container.config?.closeOnSuccess ) {
+										form.style.opacity = 1;
+									}
 									submitButtons.forEach( button => {
 										button.disabled = false;
 									} );
