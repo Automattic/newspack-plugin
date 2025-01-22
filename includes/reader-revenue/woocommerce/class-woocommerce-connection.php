@@ -174,14 +174,15 @@ class WooCommerce_Connection {
 	 * Check the rate limit for the current user or IP.
 	 * Currently locked behind a NEWSPACK_CHECKOUT_RATE_LIMIT environment constant, for controlled rollout.
 	 *
+	 * @param string $action_name   The action the user is trying to perform.
 	 * @param string $error_message Error message to display or return if the user should be rate-limited.
 	 * @param bool   $return_error  If true and the user should be rate-limited, return a WP_Error with the given message instead of a boolean value.
 	 *
 	 * @return bool|WP_Error True or WP_Error if the rate limit is exceeded, false otherwise.
 	 */
-	public static function rate_limit_by_user( $error_message = '', $return_error = false ) {
+	public static function rate_limit_by_user( $action_name, $error_message = '', $return_error = false ) {
 		$rate_limited = false;
-		if ( ! defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ) {
+		if ( ! defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) || ! class_exists( 'WC_Rate_Limiter' ) ) {
 			return $rate_limited;
 		}
 		if ( ! $error_message ) {
@@ -191,7 +192,7 @@ class WooCommerce_Connection {
 		$now        = time();
 		$rate_limit = defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ? (int) NEWSPACK_CHECKOUT_RATE_LIMIT : 90; // Number of seconds to wait before allowing the same user to attempt another checkout action. Default: 90.
 		if ( 0 === $rate_limit ) {
-			return $rate_limited; // If $rate_limit is 0 seconds, bail early to avoid creating a non-expiring transient.
+			return $rate_limited; // If $rate_limit is 0 seconds, no need to proceed.
 		}
 
 		// If not logged in, use IP.
@@ -201,13 +202,9 @@ class WooCommerce_Connection {
 		if ( ! $user_id ) {
 			return $rate_limited;
 		}
-		$transient_name = 'last_checkout_attempt_' . \wp_hash( $user_id, 'nonce' );
-		$last_attempt = (int) \get_transient( $transient_name );
-		if ( $last_attempt && $now - $last_attempt < $rate_limit ) {
-			$rate_limited = true;
-		}
-		\set_transient( $transient_name, $now, $rate_limit );
-
+		$hashed_user_id = \wp_hash( $user_id, 'nonce' );
+		$user_action    = "{$action_name}_{$hashed_user_id}";
+		$rate_limited   = \WC_Rate_Limiter::retried_too_soon( $user_action );
 		if ( $rate_limited ) {
 			if ( $return_error ) {
 				return new \WP_Error( 'newspack_rate_limit', $error_message );
@@ -215,6 +212,8 @@ class WooCommerce_Connection {
 				self::add_wc_notice( $error_message, 'error' );
 			}
 		}
+
+		\WC_Rate_Limiter::set_rate_limit( $user_action, $rate_limit );
 		return $rate_limited;
 	}
 
@@ -231,7 +230,7 @@ class WooCommerce_Connection {
 		if ( $is_validation_only || $errors->has_errors() ) {
 			return;
 		}
-		self::rate_limit_by_user( __( 'Please wait a moment before trying to complete this transaction again.', 'newspack-plugin' ) );
+		self::rate_limit_by_user( 'checkout', __( 'Please wait a moment before trying to complete this transaction again.', 'newspack-plugin' ) );
 	}
 
 	/**
@@ -242,7 +241,7 @@ class WooCommerce_Connection {
 	 * @return bool
 	 */
 	public static function rate_limit_payment_methods( $is_valid ) {
-		if ( self::rate_limit_by_user( __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ) ) ) {
+		if ( self::rate_limit_by_user( 'add_payment_method', __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ) ) ) {
 			return false;
 		}
 
