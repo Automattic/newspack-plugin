@@ -224,10 +224,8 @@ class WooCommerce_Connection {
 	 * @param  WP_Error $errors Validation error.
 	 */
 	public static function rate_limit_checkout( $posted_data, $errors ) {
-		$is_validation_only = boolval( filter_input( INPUT_POST, 'is_validation_only', FILTER_SANITIZE_NUMBER_INT ) );
-
-		// Don't rate limit if we're just validating checkout, or if there are other checkout errors.
-		if ( $is_validation_only || $errors->has_errors() ) {
+		// Don't rate limit if there are other checkout errors.
+		if ( $errors->has_errors() ) {
 			return;
 		}
 		self::rate_limit_by_user( 'checkout', __( 'Please wait a moment before trying to complete this transaction again.', 'newspack-plugin' ) );
