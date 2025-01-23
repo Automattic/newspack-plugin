@@ -109,6 +109,11 @@ function syncItem( key ) {
 		payload.value = JSON.stringify( value );
 	}
 
+	// Bail if value matches server value.
+	if ( newspack_reader_data?.items && newspack_reader_data.items[ key ] === payload.value ) {
+		return Promise.reject( 'Value is equal to the one stored.' );
+	}
+
 	const req = new XMLHttpRequest();
 	req.open( payload.value ? 'POST' : 'DELETE', newspack_reader_data.api_url, true );
 	req.setRequestHeader( 'Content-Type', 'application/json' );
@@ -125,6 +130,8 @@ function syncItem( key ) {
 			if ( 200 !== req.status ) {
 				return reject( req );
 			}
+			// Update the known server value.
+			newspack_reader_data.items[ key ] = payload.value;
 			return resolve( req );
 		};
 	} );
