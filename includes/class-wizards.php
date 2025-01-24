@@ -29,7 +29,6 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'syndication'             => new Syndication_Wizard(),
 			'analytics'               => new Analytics_Wizard(),
 			'components-demo'         => new Components_Demo(),
 			'seo'                     => new SEO_Wizard(),
