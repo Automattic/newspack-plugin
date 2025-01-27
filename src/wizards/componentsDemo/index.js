@@ -55,7 +55,7 @@ class ComponentsDemo extends Component {
 			selectValue3: '',
 			selectValues: [],
 			modalShown: false,
-			color1: '#3366ff',
+			color1: '#2240d5',
 		};
 	}
 
@@ -637,8 +637,8 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'ButtonCard', 'newspack-plugin' ) }</h2>
 						<ButtonCard
-							href="admin.php?page=newspack-site-design-wizard"
-							title={ __( 'Site Design', 'newspack-plugin' ) }
+							href="admin.php?page=newspack-settings#/theme-and-brand"
+							title={ __( 'Theme and Brand', 'newspack-plugin' ) }
 							desc={ __( 'Customize the look and feel of your site', 'newspack-plugin' ) }
 							icon={ typography }
 							chevron
@@ -755,9 +755,9 @@ class ComponentsDemo extends Component {
 							#e5bd13 / Inverted
 						</BoxContrast>
 						<h3>{ __( 'Demo 2:', 'newspack-plugin' ) }</h3>
-						<BoxContrast hexColor="#3366ff">#e5bd13</BoxContrast>
-						<BoxContrast hexColor="#3366ff" isInverted>
-							#3366ff / Inverted
+						<BoxContrast hexColor="#2240d5">#e5bd13</BoxContrast>
+						<BoxContrast hexColor="#2240d5" isInverted>
+							#2240d5 / Inverted
 						</BoxContrast>
 						<h3>{ __( 'Demo 3:', 'newspack-plugin' ) }</h3>
 						<BoxContrast hexColor="#51f1ff">#e5bd13</BoxContrast>

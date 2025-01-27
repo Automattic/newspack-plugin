@@ -35,7 +35,7 @@
 	}
 
 	&__bar {
-		background-color: colors.$primary-500;
+		background-color: var(--wp-admin-theme-color);
 		height: 8px;
 		transition: width 125ms ease-in-out;
 	}

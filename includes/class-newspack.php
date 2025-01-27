@@ -69,6 +69,7 @@ final class Newspack {
 		define( 'NEWSPACK_ACTIVATION_TRANSIENT', '_newspack_activation_redirect' );
 		define( 'NEWSPACK_NRH_CONFIG', 'newspack_nrh_config' );
 		define( 'NEWSPACK_CLIENT_ID_COOKIE_NAME', 'newspack-cid' );
+		define( 'NEWSPACK_SETUP_COMPLETE', 'newspack_setup_complete' );
 	}
 
 	/**
@@ -122,6 +123,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/tracking/class-twitter-pixel.php';
 		include_once NEWSPACK_ABSPATH . 'includes/revisions-control/class-revisions-control.php';
 		include_once NEWSPACK_ABSPATH . 'includes/authors/class-authors-custom-fields.php';
+		include_once NEWSPACK_ABSPATH . 'includes/corrections/class-corrections.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
@@ -168,7 +170,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-site-design-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-connections-wizard.php';
@@ -385,6 +386,13 @@ final class Newspack {
 	 */
 	public static function is_debug_mode() {
 		return defined( 'WP_NEWSPACK_DEBUG' ) && WP_NEWSPACK_DEBUG;
+	}
+
+	/**
+	 * Is the Setup completed?
+	 */
+	public static function is_setup_complete() {
+		return '1' === get_option( NEWSPACK_SETUP_COMPLETE, '0' );
 	}
 
 	/**

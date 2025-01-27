@@ -19,7 +19,7 @@
 	}
 
 	&__wrapper {
-		background: colors.$primary-500;
+		background: var(--wp-admin-theme-color);
 		color: white;
 		position: relative;
 

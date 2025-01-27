@@ -15,13 +15,15 @@ import ThemeSelection from './theme-select';
 import WizardsTab from '../../../../wizards-tab';
 import WizardSection from '../../../../wizards-section';
 import { HomepageSelect } from './homepage-select';
-import { Button } from '../../../../../components/src';
+import { Button, Router } from '../../../../../components/src';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import Header from './header';
 import Footer from './footer';
 import Colors from './colors';
 import Typography from './typography';
 import { DEFAULT_THEME_MODS } from '../constants';
+
+const { useHistory } = Router;
 
 const DEFAULT_DATA: ThemeData = {
 	etc: { post_count: '0' },
@@ -30,27 +32,51 @@ const DEFAULT_DATA: ThemeData = {
 	theme_mods: { ...DEFAULT_THEME_MODS },
 };
 
-function ThemeBrand( { isPartOfSetup = false } ) {
+const ThemeBrand = ( { isPartOfSetup = false } ) => {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch(
 		'newspack-settings/theme-mods'
 	);
 	const [ data, setDataState ] = useState< ThemeData >( DEFAULT_DATA );
 
+	const history = useHistory();
+
 	function setData( newData: ThemeData ) {
 		setDataState( { ...data, ...newData } );
 	}
 
-	function save() {
+	const finishSetup = () => {
 		wizardApiFetch(
 			{
 				data,
-				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
+				path: '/newspack/v1/wizard/newspack-setup-wizard/complete',
 				method: 'POST',
 				updateCacheMethods: [ 'GET' ],
 			},
 			{
-				onSuccess: setData,
+				onSuccess: res => {
+					setData( res );
+					history.push( '/completed' );
+				},
 			}
+		);
+	};
+
+	async function save() {
+		return new Promise( resolve =>
+			wizardApiFetch(
+				{
+					data,
+					path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
+					method: 'POST',
+					updateCacheMethods: [ 'GET' ],
+				},
+				{
+					onSuccess: res => {
+						setData( res );
+						resolve( res );
+					},
+				}
+			)
 		);
 	}
 
@@ -186,12 +212,21 @@ function ThemeBrand( { isPartOfSetup = false } ) {
 				/>
 			</WizardSection>
 			<div className="newspack-buttons-card">
-				<Button variant="primary" onClick={ save }>
-					{ __( 'Save', 'newspack-plugin' ) }
-				</Button>
+				{ isPartOfSetup ? (
+					<Button
+						variant="primary"
+						onClick={ () => save().then( finishSetup ) }
+					>
+						{ __( 'Finish', 'newspack-plugin' ) }
+					</Button>
+				) : (
+					<Button variant="primary" onClick={ save }>
+						{ __( 'Save', 'newspack-plugin' ) }
+					</Button>
+				) }
 			</div>
 		</WizardsTab>
 	);
-}
+};
 
 export default ThemeBrand;

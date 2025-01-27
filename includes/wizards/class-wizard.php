@@ -151,7 +151,7 @@ abstract class Wizard {
 		$support_email = ( defined( 'NEWSPACK_SUPPORT_EMAIL' ) && NEWSPACK_SUPPORT_EMAIL ) ? NEWSPACK_SUPPORT_EMAIL : false;
 
 		$urls = [
-			'dashboard'      => Wizards::get_url( 'dashboard' ),
+			'dashboard'      => Wizards::get_url( 'newspack-dashboard' ),
 			'public_path'    => Newspack::plugin_url() . '/dist/',
 			'bloginfo'       => [
 				'name' => get_bloginfo( 'name' ),
@@ -171,7 +171,7 @@ abstract class Wizard {
 					array(
 						'newspack_reset' => 'starter-content',
 					),
-					Wizards::get_url( 'dashboard' )
+					Wizards::get_url( 'newspack-dashboard' )
 				)
 			);
 		}
@@ -184,7 +184,7 @@ abstract class Wizard {
 					array(
 						'newspack_reset' => 'reset',
 					),
-					Wizards::get_url( 'dashboard' )
+					Wizards::get_url( 'newspack-dashboard' )
 				)
 			);
 		}

@@ -29,8 +29,6 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'setup'                   => new Setup_Wizard(),
-			'site-design'             => new Site_Design_Wizard(),
 			'syndication'             => new Syndication_Wizard(),
 			'analytics'               => new Analytics_Wizard(),
 			'components-demo'         => new Components_Demo(),
@@ -41,6 +39,7 @@ class Wizards {
 			'settings'                => new Settings(),
 			// v2 Information Architecture.
 			'newspack-dashboard'      => new Newspack_Dashboard(),
+			'setup'                   => new Setup_Wizard(),
 			'newspack-settings'       => new Newspack_Settings(
 				[
 					'sections' => [

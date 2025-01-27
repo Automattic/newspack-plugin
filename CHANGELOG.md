@@ -1,3 +1,38 @@
+## [5.10.6](https://github.com/Automattic/newspack-plugin/compare/v5.10.5...v5.10.6) (2025-01-09)
+
+
+### Bug Fixes
+
+* **esp-sync:** get inactive subscriptions with failed or pending orders ([#3658](https://github.com/Automattic/newspack-plugin/issues/3658)) ([cca29d3](https://github.com/Automattic/newspack-plugin/commit/cca29d31d4b489a0c23fcb1dfbc50ae10e4bdc85))
+
+## [5.10.5](https://github.com/Automattic/newspack-plugin/compare/v5.10.4...v5.10.5) (2025-01-07)
+
+
+### Bug Fixes
+
+* **recaptcha:** verify v2 on all modal checkout requests ([#3644](https://github.com/Automattic/newspack-plugin/issues/3644)) ([88277e9](https://github.com/Automattic/newspack-plugin/commit/88277e9b77151b8dc176cae09b2a92989ac4ddf4))
+
+## [5.10.4](https://github.com/Automattic/newspack-plugin/compare/v5.10.3...v5.10.4) (2024-12-23)
+
+
+### Bug Fixes
+
+* dont try to get orders if Woo is not active ([#3649](https://github.com/Automattic/newspack-plugin/issues/3649)) ([608f017](https://github.com/Automattic/newspack-plugin/commit/608f017000b59e8b3bdcd81b14d81969bc72b379))
+
+## [5.10.3](https://github.com/Automattic/newspack-plugin/compare/v5.10.2...v5.10.3) (2024-12-20)
+
+
+### Bug Fixes
+
+* **stripe:** when adding new card, update subs of all statuses ([#3643](https://github.com/Automattic/newspack-plugin/issues/3643)) ([62fe022](https://github.com/Automattic/newspack-plugin/commit/62fe02231e891fa7a9bc9d5f573ba336b6cb03f3))
+
+## [5.10.2](https://github.com/Automattic/newspack-plugin/compare/v5.10.1...v5.10.2) (2024-12-17)
+
+
+### Bug Fixes
+
+* **recaptcha:** various optimizations ([#3631](https://github.com/Automattic/newspack-plugin/issues/3631)) ([5d816bc](https://github.com/Automattic/newspack-plugin/commit/5d816bcc94f49538399bd44572f6d78e739806da)), closes [#3627](https://github.com/Automattic/newspack-plugin/issues/3627)
+
 ## [5.10.1](https://github.com/Automattic/newspack-plugin/compare/v5.10.0...v5.10.1) (2024-12-16)
 
 
