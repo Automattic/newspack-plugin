@@ -728,7 +728,7 @@ class Audience_Wizard extends Wizard {
 		$args = [
 			'payment_gateways' => [
 				'stripe'               => Stripe_Connection::get_stripe_data(),
-				'woopayments_payments' => $wc_configuration_manager->gateway_data( 'woopayments_payments' ),
+				'woocommerce_payments' => $wc_configuration_manager->gateway_data( 'woocommerce_payments' ),
 				'ppcp-gateway'         => $wc_configuration_manager->gateway_data( 'ppcp-gateway' ),
 			],
 			'platform_data'    => [
