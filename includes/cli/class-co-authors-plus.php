@@ -203,11 +203,13 @@ class Co_Authors_Plus {
 			 */
 			global $wpdb;
 			$existing_user = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->users WHERE user_nicename = %s", $guest_author_login ) ); //phpcs:ignore
+			$updating = false;
 
 			if ( $existing_user ) {
 				$updated_users_count++;
 				$user_data['ID'] = $existing_user->ID;
 				$user_data['user_login'] = $existing_user->user_login;
+				$updating = true;
 
 				if ( self::$verbose ) {
 					WP_CLI::line( sprintf( 'User with nicename %s already exists, it will be updated.', $guest_author_login ) );
@@ -262,12 +264,17 @@ class Co_Authors_Plus {
 			}
 
 			if ( self::$live ) {
-				$user_id = \wp_insert_user( $user_data );
+				if ( $updating ) {
+					$user_id = wp_update_user( $user_data );
+				} else {
+					$user_id = wp_insert_user( $user_data );
+				}
+
 				if ( is_wp_error( $user_id ) ) {
-					WP_CLI::warning( sprintf( 'Could not create user: %s', $user_id->get_error_message() ) );
+					WP_CLI::warning( sprintf( 'Could not create/update user: %s', $user_id->get_error_message() ) );
 					continue;
 				}
-				WP_CLI::success( sprintf( 'User created successfully (#%d).', $user_id ) );
+				WP_CLI::success( sprintf( 'User created/updated successfully (#%d).', $user_id ) );
 
 				self::assign_user_avatar( $guest_author, $user_id );
 				self::delete_guest_author_post( $guest_author->ID );
