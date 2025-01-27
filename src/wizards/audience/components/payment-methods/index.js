@@ -8,10 +8,9 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import { Stripe } from './stripe';
-import { WooPayments } from './woopayments';
 import { Notice, Wizard } from '../../../../components/src';
 import WizardsSection from '../../../wizards-section';
-
+import { PaymentGateway } from './payment-gateway';
 import './style.scss';
 
 const PaymentGateways = () => {
@@ -26,7 +25,6 @@ const PaymentGateways = () => {
 		return null;
 	}
 
-	const { stripe = false, woopayments = false } = paymentGateways;
 	return (
 		<WizardsSection
 			title={ __( 'Payment Gateways', 'newspack-plugin' ) }
@@ -66,8 +64,15 @@ const PaymentGateways = () => {
 					}
 				/>
 			) }
-			<Stripe stripe={ stripe } />
-			<WooPayments woopayments={ woopayments } />
+			{
+				Object.keys( paymentGateways ).map( gateway => {
+					// Stripe has unique connection status and badge level logic.
+					if ( 'stripe' === gateway ) {
+						return <Stripe key={ paymentGateways[ gateway ] } stripe={ paymentGateways[ gateway ] } />;
+					}
+					return <PaymentGateway key={ gateway } gateway={ paymentGateways[ gateway ] } />;
+				} )
+			}
 		</WizardsSection>
 	);
 };

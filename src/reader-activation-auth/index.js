@@ -72,6 +72,7 @@ window.newspackRAS.push( readerActivation => {
 				onSuccess: callback,
 				onError: callback,
 				trigger: modalTrigger,
+				closeOnSuccess: true,
 			} );
 		}
 
