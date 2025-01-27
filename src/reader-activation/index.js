@@ -162,6 +162,7 @@ export function openAuthModal( config = {} ) {
 			},
 			content: null,
 			trigger: null,
+			closeOnSuccess: true,
 		},
 		...config,
 	};

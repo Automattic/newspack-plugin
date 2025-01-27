@@ -398,7 +398,11 @@ function process_form() {
 	}
 
 	// reCAPTCHA test.
-	if ( Recaptcha::can_use_captcha( 'v3' ) ) {
+	$current_page_url = \wp_parse_url( \wp_get_raw_referer() );
+	if ( ! empty( $current_page_url['path'] ) ) {
+		$current_page_url = \esc_url( \home_url( $current_page_url['path'] ) );
+	}
+	if ( apply_filters( 'newspack_recaptcha_verify_captcha', Recaptcha::can_use_captcha(), $current_page_url, 'registration_block' ) ) {
 		$captcha_result = Recaptcha::verify_captcha();
 		if ( \is_wp_error( $captcha_result ) ) {
 			return send_form_response( $captcha_result );

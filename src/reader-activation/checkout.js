@@ -1,12 +1,6 @@
 import { EVENTS, emit } from './events.js';
 
-import { getReader } from './index.js';
-import Store from './store.js';
-
-/**
- * Reader Activation Library.
- */
-export const store = Store();
+import { store, getReader } from './index.js';
 
 /**
  * Set the pending checkout URL.

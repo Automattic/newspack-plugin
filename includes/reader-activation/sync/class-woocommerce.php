@@ -105,17 +105,29 @@ class WooCommerce {
 				$subscription = \wcs_get_subscription( $subscription_id );
 				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
 
-					// Only subscriptions that have at least one completed order are considered.
-					$related_orders  = $subscription->get_related_orders();
-					$completed_order = false;
-					foreach ( $related_orders as $order_id ) {
-						$order = \wc_get_order( $order_id );
-						if ( $order->has_status( 'completed' ) ) {
-							$completed_order = $order_id;
-							break;
+					// Only donation subscriptions that have at least one completed order are considered.
+					$is_donation = Donations::is_donation_order( $subscription );
+					$is_valid    = $is_donation ? false : true;
+					if ( $is_donation ) {
+						$related_orders = $subscription->get_related_orders();
+						foreach ( $related_orders as $order_id ) {
+							$order = \wc_get_order( $order_id );
+							if ( $order->has_status( 'completed' ) ) {
+								$is_valid = true;
+								break;
+							}
 						}
 					}
-					if ( ! empty( $completed_order ) ) {
+
+					/**
+					 * Filter to determine if a subscription with inactive status can be considered a contact's current product.
+					 * Allows for customizing the sync behavior to include or exclude certain types of subscriptions.
+					 *
+					 * @param bool            $is_valid If true, this subscription can be the contact's current product.
+					 * @param WC_Subscription $subscription The subscription object.
+					 */
+					$is_valid = \apply_filters( 'newspack_reader_activation_inactive_subscription_is_valid', $is_valid, $subscription );
+					if ( ! empty( $is_valid ) ) {
 						$acc[] = $subscription_id;
 					}
 				}
@@ -333,8 +345,11 @@ class WooCommerce {
 
 		$metadata = [];
 
-		$metadata['account']           = $customer->get_id();
-		$metadata['registration_date'] = $customer->get_date_created()->date( Metadata::DATE_FORMAT );
+		$customer_id                   = $customer->get_id();
+		$user                          = \get_user_by( 'id', $customer_id );
+		$created_date                  = $customer->get_date_created();
+		$metadata['account']           = $customer_id;
+		$metadata['registration_date'] = $created_date ? $created_date->date( Metadata::DATE_FORMAT ) : '';
 		$metadata['total_paid']        = $customer->get_total_spent();
 
 		$order = self::get_current_product_order_for_sync( $customer );
@@ -356,7 +371,16 @@ class WooCommerce {
 		$first_name = $customer->get_billing_first_name();
 		$last_name  = $customer->get_billing_last_name();
 		$full_name  = trim( "$first_name $last_name" );
-		$contact    = [
+
+		// Correct for empty First and Last Name fields.
+		if ( ! empty( trim( $first_name ) ) && empty( \get_user_meta( $customer_id, 'first_name', true ) ) ) {
+			\update_user_meta( $customer_id, 'first_name', $first_name );
+		}
+		if ( ! empty( trim( $last_name ) ) && empty( \get_user_meta( $customer_id, 'last_name', true ) ) ) {
+			\update_user_meta( $customer_id, 'last_name', $last_name );
+		}
+
+		$contact = [
 			'email'    => $customer->get_email(),
 			'metadata' => $metadata,
 		];

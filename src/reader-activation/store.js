@@ -23,22 +23,24 @@ const config = {
 };
 
 /**
- * Queue of keys to sync with the server every second.
- * No need to sync data for temporary sessions.
+ * Initialize sync interval.
  *
- * @type {string[]} Array of keys.
+ * @param {string[]} queue Store items keys to sync.
+ *
+ * @return {void}
  */
-const syncQueue = [];
-
-setInterval( () => {
-	if ( ! syncQueue.length || newspack_reader_data?.is_temporary ) {
-		return;
-	}
-	const key = syncQueue.shift();
-	syncItem( key )
-		.then( () => clearPendingSync( key ) )
-		.catch( () => setPendingSync( key ) );
-}, 1000 );
+function initializeSyncInterval( queue ) {
+	setInterval( () => {
+		// Bail if there are no items to sync or if it's a temporary session.
+		if ( ! queue.length || newspack_reader_data?.is_temporary ) {
+			return;
+		}
+		const key = queue.shift();
+		syncItem( key )
+			.then( () => clearPendingSync( key ) )
+			.catch( () => setPendingSync( key ) );
+	}, 1000 );
+}
 
 /**
  * Get store item key
@@ -109,6 +111,11 @@ function syncItem( key ) {
 		payload.value = JSON.stringify( value );
 	}
 
+	// Bail if value matches server value.
+	if ( newspack_reader_data?.items && newspack_reader_data.items[ key ] === payload.value ) {
+		return Promise.resolve();
+	}
+
 	const req = new XMLHttpRequest();
 	req.open( payload.value ? 'POST' : 'DELETE', newspack_reader_data.api_url, true );
 	req.setRequestHeader( 'Content-Type', 'application/json' );
@@ -125,6 +132,8 @@ function syncItem( key ) {
 			if ( 200 !== req.status ) {
 				return reject( req );
 			}
+			// Update the known server value.
+			newspack_reader_data.items[ key ] = payload.value;
 			return resolve( req );
 		};
 	} );
@@ -199,10 +208,27 @@ function _set( key, value, internal = false ) {
  * @return {Object} The store object.
  */
 export default function Store() {
+	/**
+	 * There should only be one store instance.
+	 */
+	if ( window.newspackRASInitialized && window.newspackReaderActivation?.store ) {
+		return window.newspackReaderActivation.store;
+	}
+
+	/**
+	 * Queue of keys to sync with the server every second.
+	 *
+	 * @type {string[]} Array of keys.
+	 */
+	const syncQueue = [];
+	initializeSyncInterval( syncQueue );
+
 	// Push unsynced items to the sync queue.
 	const unsynced = _get( 'unsynced', true ) || [];
 	for ( const key of unsynced ) {
-		syncQueue.push( key );
+		if ( ! syncQueue.includes( key ) ) {
+			syncQueue.push( key );
+		}
 	}
 
 	// Rehydrate items from server. No need to rehydrate for temporary sessions.

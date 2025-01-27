@@ -1,3 +1,72 @@
+## [5.12.3](https://github.com/Automattic/newspack-plugin/compare/v5.12.2...v5.12.3) (2025-01-23)
+
+
+### Bug Fixes
+
+* **reader-data:** reduce number of sync requests ([c23c580](https://github.com/Automattic/newspack-plugin/commit/c23c5805a72557b7e684b1bc50939603239733b8))
+
+## [5.12.2](https://github.com/Automattic/newspack-plugin/compare/v5.12.1...v5.12.2) (2025-01-23)
+
+
+### Bug Fixes
+
+* hotfix checkout tweaks ([#3693](https://github.com/Automattic/newspack-plugin/issues/3693)) ([7be88aa](https://github.com/Automattic/newspack-plugin/commit/7be88aa53786e2916151bd427980bdd1bcf56c6b))
+
+## [5.12.1](https://github.com/Automattic/newspack-plugin/compare/v5.12.0...v5.12.1) (2025-01-21)
+
+
+### Bug Fixes
+
+* **ras-sync:** account for missing creation data and first/last name ([#3677](https://github.com/Automattic/newspack-plugin/issues/3677)) ([9ed12bc](https://github.com/Automattic/newspack-plugin/commit/9ed12bc86eca956b2e4a047feba9042db168e46f))
+
+# [5.12.0](https://github.com/Automattic/newspack-plugin/compare/v5.11.3...v5.12.0) (2025-01-20)
+
+
+### Bug Fixes
+
+* **cli:** verify-reader CLI command ([#3660](https://github.com/Automattic/newspack-plugin/issues/3660)) ([c639af7](https://github.com/Automattic/newspack-plugin/commit/c639af78b9ba7cf73ef01e7f499a2389e0626343))
+* **recaptcha:** replace alerts with generic errors ([#3627](https://github.com/Automattic/newspack-plugin/issues/3627)) ([44ef2d2](https://github.com/Automattic/newspack-plugin/commit/44ef2d2a4b38483bce979a4c68b0aa2afb4d0a9a))
+* remove newspack_corrections_ids meta ([#3675](https://github.com/Automattic/newspack-plugin/issues/3675)) ([dad258b](https://github.com/Automattic/newspack-plugin/commit/dad258b2e113310fd312e345f80fc54bb84cf928))
+* **wcs:** migrate-expired-subscriptions handle manual subscriptions ([#3663](https://github.com/Automattic/newspack-plugin/issues/3663)) ([e0f32e8](https://github.com/Automattic/newspack-plugin/commit/e0f32e87eba3e9562f6f7b40d185c9308d86ae84))
+
+
+### Features
+
+* **corrections:** add corrections and clarifications behind feature flag ([#3638](https://github.com/Automattic/newspack-plugin/issues/3638)) ([ea745cf](https://github.com/Automattic/newspack-plugin/commit/ea745cff1a77bf422bb6f1c77b4dd2ca83e8ff69))
+
+
+### Performance Improvements
+
+* **data-events:** queue dispatches to execute on shutdown ([#3616](https://github.com/Automattic/newspack-plugin/issues/3616)) ([510a1a0](https://github.com/Automattic/newspack-plugin/commit/510a1a04881c9bccf3389ecd6dbf6b82a13d461b))
+
+## [5.11.3](https://github.com/Automattic/newspack-plugin/compare/v5.11.2...v5.11.3) (2025-01-17)
+
+
+### Bug Fixes
+
+* **esp-sync:** sync non-donation subscription data even if no completed orders ([#3680](https://github.com/Automattic/newspack-plugin/issues/3680)) ([dd0898f](https://github.com/Automattic/newspack-plugin/commit/dd0898fe92c851631687f78a24c42b4b74d2f0b1))
+
+## [5.11.2](https://github.com/Automattic/newspack-plugin/compare/v5.11.1...v5.11.2) (2025-01-16)
+
+
+### Bug Fixes
+
+* **mc:** handle standard MC merge fields when fixing duplicates ([#3637](https://github.com/Automattic/newspack-plugin/issues/3637)) ([80248a2](https://github.com/Automattic/newspack-plugin/commit/80248a235c6aa295bc38fe77e0ab489ac39ed46c))
+
+## [5.11.1](https://github.com/Automattic/newspack-plugin/compare/v5.11.0...v5.11.1) (2025-01-14)
+
+
+### Bug Fixes
+
+* **recaptcha:** remove modal checkout restriction from v2 ([#3674](https://github.com/Automattic/newspack-plugin/issues/3674)) ([66bd2c8](https://github.com/Automattic/newspack-plugin/commit/66bd2c8df79f94b8ed1aca943e3081c1bd4e7529))
+
+# [5.11.0](https://github.com/Automattic/newspack-plugin/compare/v5.10.6...v5.11.0) (2025-01-13)
+
+
+### Features
+
+* **my-account:** reCAPTCHA check on add payment method ([#3673](https://github.com/Automattic/newspack-plugin/issues/3673)) ([4a46c8e](https://github.com/Automattic/newspack-plugin/commit/4a46c8e77f4b785bf5317812f8390cb7accddbc2))
+
 ## [5.10.6](https://github.com/Automattic/newspack-plugin/compare/v5.10.5...v5.10.6) (2025-01-09)
 
 
