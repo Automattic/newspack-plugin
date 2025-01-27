@@ -134,7 +134,7 @@ class Corrections {
 			'public'           => true,
 			'public_queryable' => true,
 			'query_var'        => true,
-			'rewrite'          => [ 'slug' => 'correction' ],
+			'rewrite'          => [ 'slug' => 'corrections' ],
 			'show_ui'          => false,
 			'show_in_rest'     => true,
 			'supports'         => $supports,
@@ -142,6 +142,12 @@ class Corrections {
 			'menu_icon'        => 'dashicons-edit',
 		);
 		\register_post_type( self::POST_TYPE, $args );
+
+		$rewrite_rules_updated_option_name = 'newspack_corrections_rewrite_rules_updated';
+		if ( get_option( $rewrite_rules_updated_option_name ) !== true ) {
+			flush_rewrite_rules(); //phpcs:ignore
+			update_option( $rewrite_rules_updated_option_name, true );
+		}
 	}
 
 	/**
