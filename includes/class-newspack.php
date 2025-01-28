@@ -124,6 +124,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/revisions-control/class-revisions-control.php';
 		include_once NEWSPACK_ABSPATH . 'includes/authors/class-authors-custom-fields.php';
 		include_once NEWSPACK_ABSPATH . 'includes/corrections/class-corrections.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-syndication.php';
 		include_once NEWSPACK_ABSPATH . 'includes/bylines/class-bylines.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
@@ -142,6 +143,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-dashboard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-syndication-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-pixels-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-recirculation-section.php';
@@ -168,10 +170,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletters-wizard.php';
 
 		/* Unified Wizards */
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-syndication-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-connections-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';

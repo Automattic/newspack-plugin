@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack's Settings
+ * Newspack's Syndication Settings
  *
  * @package Newspack
  */
@@ -9,54 +9,48 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
-
 /**
- * Settings.
+ * Syndication
  */
-class Settings extends Wizard {
-	const SETTINGS_OPTION_NAME = 'newspack_settings';
+class Syndication {
+	/**
+	 * The name of the option that stores the settings.
+	 *
+	 * @TODO: Consider a more relevant option name e.g. 'newspack_syndication_settings'.
+	 *
+	 * @var string
+	 */
+	const OPTION_NAME = 'newspack_settings';
 
+	/**
+	 * The prefix for the module enabled settings.
+	 *
+	 * @var string
+	 */
 	const MODULE_ENABLED_PREFIX = 'module_enabled_';
-
-	/**
-	 * The slug of this wizard.
-	 *
-	 * @var string
-	 */
-	protected $slug = 'newspack-settings-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct();
 		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		$this->hidden = true;
 	}
 
 	/**
 	 * Get all settings.
 	 */
-	private static function get_settings() {
+	public static function get_settings() {
 		$default_settings = [
 			self::MODULE_ENABLED_PREFIX . 'rss'            => false,
 			self::MODULE_ENABLED_PREFIX . 'media-partners' => false,
 		];
-		return wp_parse_args( get_option( self::SETTINGS_OPTION_NAME ), $default_settings );
+		return wp_parse_args( get_option( self::OPTION_NAME ), $default_settings );
 	}
 
 	/**
 	 * Get the list of available optional modules.
 	 */
-	private static function get_available_optional_modules() {
+	public static function get_available_optional_modules() {
 		return [ 'rss' ];
 	}
 
@@ -73,7 +67,7 @@ class Settings extends Wizard {
 	 * @param string $module_name Name of the module.
 	 */
 	public static function is_optional_module_active( $module_name ) {
-		$settings     = self::api_get_settings();
+		$settings     = self::get_settings();
 		$setting_name = self::MODULE_ENABLED_PREFIX . $module_name;
 		if ( isset( $settings[ $setting_name ] ) ) {
 			return $settings[ $setting_name ];
@@ -100,7 +94,7 @@ class Settings extends Wizard {
 		$settings = self::get_settings();
 		if ( isset( $settings[ $key ] ) ) {
 			$settings[ $key ] = $value;
-			update_option( self::SETTINGS_OPTION_NAME, $settings );
+			update_option( self::OPTION_NAME, $settings );
 		}
 		return $settings;
 	}
@@ -117,45 +111,8 @@ class Settings extends Wizard {
 			$setting_name              = self::MODULE_ENABLED_PREFIX . $module_name;
 			$settings[ $setting_name ] = $request->get_param( $setting_name );
 		}
-		update_option( self::SETTINGS_OPTION_NAME, $settings );
-		return self::api_get_settings();
-	}
-
-	/**
-	 * Register the endpoints needed for the wizard screens.
-	 */
-	public function register_api_endpoints() {
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug,
-			[
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'api_get_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-			]
-		);
-
-		$required_args = array_reduce(
-			self::get_available_optional_modules(),
-			function( $acc, $module_name ) {
-				$acc[ self::MODULE_ENABLED_PREFIX . $module_name ] = [
-					'required'          => true,
-					'sanitize_callback' => 'rest_sanitize_boolean',
-				];
-				return $acc;
-			},
-			[]
-		);
-		register_rest_route(
-			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug,
-			[
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_settings' ],
-				'permission_callback' => [ $this, 'api_permissions_check' ],
-				'args'                => $required_args,
-			]
-		);
+		update_option( self::OPTION_NAME, $settings );
+		return self::get_settings();
 	}
 
 	/**
@@ -164,7 +121,7 @@ class Settings extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return \esc_html__( 'Settings', 'newspack' );
+		return esc_html__( 'Settings', 'newspack' );
 	}
 
 	/**
@@ -173,7 +130,7 @@ class Settings extends Wizard {
 	 * @return string The wizard description.
 	 */
 	public function get_description() {
-		return \esc_html__( 'Configure settings.', 'newspack' );
+		return esc_html__( 'Configure settings.', 'newspack' );
 	}
 
 	/**
