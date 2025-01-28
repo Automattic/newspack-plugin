@@ -368,7 +368,7 @@ class Newsletters_Wizard extends Wizard {
 		if ( 'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) ) {
 			// admin page screen: admin.php?page={page} .
 			$screen_slug = $sanitized_page;
-		} elseif ( 'edit.php' === $pagenow || 'post-new.php' === $pagenow || 'post.php' === $pagenow ) {
+		} elseif ( 'edit.php' === $pagenow ) {
 			if ( ! $sanitized_post_type ) {
 				$sanitized_post_type = get_post_type( $sanitized_post_id );
 			}
