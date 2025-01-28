@@ -156,18 +156,19 @@ function WizardsPluginCardButton( {
 /**
  * Wizard Plugin Card component.
  *
- * @param props                   Component props.
- * @param props.slug              Plugin slug.
- * @param props.title             Plugin title.
- * @param props.subTitle          Plugin subtitle. String appended to title.
- * @param props.editLink          Plugin edit link.
- * @param props.description       Plugin description.
- * @param props.onStatusChange    Callback invoked when the plugin status changes.
- * @param props.isStatusPrepended Should status be prepended to description.
- * @param props.isConfigurable    Whether the plugin is configurable.
- * @param props.isTogglable       Whether the plugin is togglable.
- * @param props.actionText        Action card action text.
- * @param props.statusDescription Plugin status description.
+ * @param props                      Component props.
+ * @param props.slug                 Plugin slug.
+ * @param props.title                Plugin title.
+ * @param props.subTitle             Plugin subtitle. String appended to title.
+ * @param props.editLink             Plugin edit link.
+ * @param props.description          Plugin description.
+ * @param props.onStatusChange       Callback invoked when the plugin status changes.
+ * @param props.reloadOnStatusChange Should the page reload on activation status change?
+ * @param props.isStatusPrepended    Should status be prepended to description.
+ * @param props.isConfigurable       Whether the plugin is configurable.
+ * @param props.isTogglable          Whether the plugin is togglable.
+ * @param props.actionText           Action card action text.
+ * @param props.statusDescription    Plugin status description.
  */
 function WizardsPluginCard( {
 	slug,
