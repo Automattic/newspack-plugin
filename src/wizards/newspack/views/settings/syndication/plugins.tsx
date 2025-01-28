@@ -19,6 +19,7 @@ const PLUGINS: Record< string, PluginCard > = {
 		title: __( 'Apple News', 'newspack-plugin' ),
 		editLink: 'admin.php?page=apple-news-options',
 		isConfigurable: true,
+		reloadOnStatusChange: false,
 		description: __(
 			'Export and synchronize posts to Apple format',
 			'newspack-plugin'
@@ -27,6 +28,8 @@ const PLUGINS: Record< string, PluginCard > = {
 	distributor: {
 		slug: 'distributor',
 		title: __( 'Distributor', 'newspack-plugin' ),
+		editLink: 'admin.php?page=distributor',
+		reloadOnStatusChange: false,
 		description: __(
 			'Distributor is a WordPress plugin that makes it easy to syndicate and reuse content across your websites — whether in a single multisite or across the web.',
 			'newspack-plugin'

@@ -142,6 +142,14 @@ function WizardsPluginCardButton( {
 			);
 		}
 	}
+	if ( plugin.editLink ) {
+		return (
+			<a href={ plugin.editLink }>
+				{ actionText.configure ??
+					__( 'Configure', 'newspack-plugin' ) }
+			</a>
+		);
+	}
 	return null;
 }
 
@@ -169,6 +177,7 @@ function WizardsPluginCard( {
 	description,
 	statusDescription,
 	onStatusChange = () => {},
+	reloadOnStatusChange = true,
 	isStatusPrepended = true,
 	isConfigurable,
 	isTogglable,
@@ -239,7 +248,8 @@ function WizardsPluginCard( {
 	 */
 	function setPluginAction( callbacksKey: keyof PluginCallbacks ) {
 		// If action is activating or deactivating.
-		const isPluginStateUpdate = [ 'activate', 'deactivate' ].includes(
+		const actions = reloadOnStatusChange ? [ 'activate', 'deactivate' ] : [ 'deactivate' ];
+		const isPluginStateUpdate = actions.includes(
 			callbacksKey
 		);
 		setPluginState( { status: '' } );
@@ -337,7 +347,7 @@ function WizardsPluginCard( {
 			description={ getDescription }
 			className={ `wizards-plugin-card ${ slug }` }
 			actionText={
-				! statuses.isSetup && ! statuses.isError ? (
+				! statuses.isError ? (
 					<WizardsPluginCardButton
 						{ ...{
 							title,
@@ -345,7 +355,7 @@ function WizardsPluginCard( {
 							onActivate,
 							actionText,
 							isConfigurable,
-							onInstall: () => setPluginAction( 'install' ),
+							onInstall: () => setPluginAction( 'activate' ),
 							onConfigure: () => setPluginAction( 'configure' ),
 							...statuses,
 							...pluginState,

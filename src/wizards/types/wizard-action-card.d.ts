@@ -89,6 +89,7 @@ type PluginCard = {
 	isStatusPrepended?: boolean;
 	error?: string | null;
 	onStatusChange?: ( statuses: Record< string, boolean > ) => void;
+	reloadOnStatusChange?: boolean;
 	isConfigurable?: boolean;
 	isTogglable?: boolean;
 	isMedium?: boolean;

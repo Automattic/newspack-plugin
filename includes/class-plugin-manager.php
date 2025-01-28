@@ -562,7 +562,7 @@ class Plugin_Manager {
 		}
 
 		if ( \is_plugin_active( $installed_plugins[ $plugin_slug ] ) ) {
-			return new WP_Error( 'newspack_plugin_already_active', __( 'The plugin is already active.', 'newspack-plugin' ) );
+			return true;
 		}
 
 		$activated = activate_plugin( $installed_plugins[ $plugin_slug ] );
