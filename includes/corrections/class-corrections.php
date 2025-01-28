@@ -508,11 +508,13 @@ class Corrections {
 			<?php
 			foreach ( $corrections as $correction ) :
 				$correction_content = $correction->post_content;
-				$correction_date    = \get_the_date( 'M j, Y', $correction->ID );
+				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
+				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );
 				$correction_heading = sprintf(
-					// translators: %s: correction date.
-					__( 'Correction on %s', 'newspack-plugin' ),
-					$correction_date
+					'%s, %s %s',
+					self::get_correction_type_label( get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true ) ),
+					$correction_date,
+					$correction_time
 				);
 				?>
 				<!-- wp:paragraph {"fontSize":"small"} -->
