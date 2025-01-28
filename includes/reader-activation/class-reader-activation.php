@@ -1830,7 +1830,8 @@ final class Reader_Activation {
 		}
 
 		// reCAPTCHA test on account registration only.
-		if ( 'register' === $action && Recaptcha::can_use_captcha( 'v3' ) ) {
+		$should_verify_captcha = apply_filters( 'newspack_recaptcha_verify_captcha', Recaptcha::can_use_captcha(), $current_page_url, 'auth_modal' );
+		if ( 'register' === $action && $should_verify_captcha ) {
 			$captcha_result = Recaptcha::verify_captcha();
 			if ( \is_wp_error( $captcha_result ) ) {
 				return self::send_auth_form_response( $captcha_result );

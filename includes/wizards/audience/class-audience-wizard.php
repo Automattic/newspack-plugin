@@ -372,13 +372,13 @@ class Audience_Wizard extends Wizard {
 			]
 		);
 
-		// Save WooPayments info.
+		// Save payment gatway info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/payment/woopayments/',
+			'/wizard/' . $this->slug . '/payment/gateway/',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => [ $this, 'api_update_woopayments_settings' ],
+				'callback'            => [ $this, 'api_update_gateway_settings' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
 				'args'                => [
 					'activate' => [
@@ -386,6 +386,9 @@ class Audience_Wizard extends Wizard {
 					],
 					'enabled'  => [
 						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+					'slug'     => [
+						'sanitize_callback' => 'Newspack\newspack_clean',
 					],
 				],
 			]
@@ -640,7 +643,7 @@ class Audience_Wizard extends Wizard {
 	 */
 	public function get_billing_fields() {
 		$wc_installed = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
-		
+
 		$available_billing_fields = [];
 		$order_notes_field = [];
 
@@ -698,11 +701,18 @@ class Audience_Wizard extends Wizard {
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response.
 	 */
-	public function api_update_woopayments_settings( $request ) {
+	public function api_update_gateway_settings( $request ) {
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
 
 		$params = $request->get_params();
-		$result = $wc_configuration_manager->update_wc_woopayments_settings( $params );
+		if ( ! isset( $params['slug'] ) ) {
+			return \rest_ensure_response(
+				new WP_Error( 'newspack_invalid_param', __( 'Gateway slug is required.', 'newspack' ) )
+			);
+		}
+		$slug = $params['slug'];
+		unset( $params['slug'] );
+		$result = $wc_configuration_manager->update_gateway_settings( $slug, $params );
 		return \rest_ensure_response( $result );
 	}
 
@@ -714,12 +724,12 @@ class Audience_Wizard extends Wizard {
 	public function get_payment_data() {
 		$platform                 = Donations::get_platform_slug();
 		$wc_configuration_manager = Configuration_Managers::configuration_manager_class_for_plugin_slug( 'woocommerce' );
-		$stripe_data              = Stripe_Connection::get_stripe_data();
 
 		$args = [
 			'payment_gateways' => [
-				'stripe'      => $stripe_data,
-				'woopayments' => $wc_configuration_manager->woopayments_data(),
+				'stripe'               => Stripe_Connection::get_stripe_data(),
+				'woocommerce_payments' => $wc_configuration_manager->gateway_data( 'woocommerce_payments' ),
+				'ppcp-gateway'         => $wc_configuration_manager->gateway_data( 'ppcp-gateway' ),
 			],
 			'platform_data'    => [
 				'platform' => $platform,
