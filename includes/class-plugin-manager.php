@@ -199,7 +199,7 @@ class Plugin_Manager {
 			],
 			'publish-to-apple-news'       => [
 				'Name'        => \esc_html__( 'Publish to Apple News', 'newspack-plugin' ),
-				'Description' => \esc_html__( 'Export and synchronize posts to Apple format', 'newspack-plugin' ),
+				'Description' => \esc_html__( 'Export and synchronize posts to Apple format.', 'newspack-plugin' ),
 				'Author'      => \esc_html__( 'Alley Interactive', 'newspack-plugin' ),
 				'AuthorURI'   => \esc_url( 'https://www.alleyinteractive.com' ),
 				'PluginURI'   => \esc_url( 'https://github.com/alleyinteractive/apple-news' ),
