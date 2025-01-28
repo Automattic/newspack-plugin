@@ -25,6 +25,7 @@ type ActionCardProps = Partial< {
 	children: boolean | React.ReactNode;
 	isSmall: boolean;
 	editLink: string;
+	simple: boolean;
 	secondaryActionText: string;
 	onSecondaryActionClick: () => void;
 	secondaryDestructive: boolean;

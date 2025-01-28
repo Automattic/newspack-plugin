@@ -34,7 +34,7 @@ declare global {
 			} >;
 			preview_query_keys: {
 				[ K in PromptOptionsBaseKey ]: string;
-			}
+			};
 			experimental: boolean;
 			criteria: Array< {
 				category: string;
@@ -47,6 +47,16 @@ declare global {
 		};
 		newspackAudienceDonations: {
 			can_use_name_your_price: boolean;
+		};
+		newspackAudienceSubscriptions: {
+			tabs: Array< {
+				title: string;
+				path: string;
+				header: string;
+				description: string;
+				href: string;
+				btn_text: string;
+			} >;
 		};
 	}
 }
