@@ -199,7 +199,7 @@ class Plugin_Manager {
 			],
 			'publish-to-apple-news'       => [
 				'Name'        => \esc_html__( 'Publish to Apple News', 'newspack-plugin' ),
-				'Description' => \esc_html__( 'Export and synchronize posts to Apple format', 'newspack-plugin' ),
+				'Description' => \esc_html__( 'Export and synchronize posts to Apple format.', 'newspack-plugin' ),
 				'Author'      => \esc_html__( 'Alley Interactive', 'newspack-plugin' ),
 				'AuthorURI'   => \esc_url( 'https://www.alleyinteractive.com' ),
 				'PluginURI'   => \esc_url( 'https://github.com/alleyinteractive/apple-news' ),
@@ -562,7 +562,7 @@ class Plugin_Manager {
 		}
 
 		if ( \is_plugin_active( $installed_plugins[ $plugin_slug ] ) ) {
-			return new WP_Error( 'newspack_plugin_already_active', __( 'The plugin is already active.', 'newspack-plugin' ) );
+			return true;
 		}
 
 		$activated = activate_plugin( $installed_plugins[ $plugin_slug ] );
