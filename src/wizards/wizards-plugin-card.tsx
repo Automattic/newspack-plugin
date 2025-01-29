@@ -338,7 +338,7 @@ function WizardsPluginCard( {
 	if ( isTogglable ) {
 		conditionalProps.toggleChecked = statuses.isActive;
 		conditionalProps.toggleOnChange = () =>
-			! statuses.isSetup ? onActivate() : onDeactivate();
+			! statuses.isActive ? onActivate() : onDeactivate();
 		conditionalProps.disabled = isFetching;
 	}
 
