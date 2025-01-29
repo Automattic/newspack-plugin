@@ -5,10 +5,6 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "../../../../shared/scss/colors";
 
-.newspack-icon {
-	background-color: var(--newspack-ui-color-primary);
-}
-
 .newspack-wizard__content {
 	margin: 0;
 	max-width: 100%;
