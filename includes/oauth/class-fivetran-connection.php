@@ -114,7 +114,7 @@ class Fivetran_Connection {
 			[
 				'service'        => $service,
 				'service_data'   => $service_data,
-				'redirect_after' => admin_url( 'admin.php?page=newspack-connections-wizard' ),
+				'redirect_after' => admin_url( 'admin.php?page=newspack-settings' ),
 			]
 		);
 		$response = self::process_proxy_response( \wp_safe_remote_post( $url, [ 'timeout' => 30 ] ) ); // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
