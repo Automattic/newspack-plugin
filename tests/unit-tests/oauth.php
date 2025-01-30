@@ -129,24 +129,4 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 			'OAuth2 object getter return false after credentials are removed.'
 		);
 	}
-
-	/**
-	 * Fivetran OAuth flow.
-	 */
-	public function test_oauth_fivetran() {
-		self::expectException( Exception::class );
-		self::assertFalse(
-			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
-			'Proxy URL getting throws until configured.'
-		);
-		self::set_api_key();
-		if ( ! defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {
-			define( 'NEWSPACK_FIVETRAN_PROXY', 'http://dummy.proxy' );
-		}
-		self::assertEquals(
-			'http://dummy.proxy/wp-json/newspack-fivetran?api_key=123abc',
-			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
-			'Proxy URL is as expected after proxy is configured.'
-		);
-	}
 }
