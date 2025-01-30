@@ -1,3 +1,10 @@
+## [5.12.4](https://github.com/Automattic/newspack-plugin/compare/v5.12.3...v5.12.4) (2025-01-28)
+
+
+### Bug Fixes
+
+* create guest contributors dummy emails ([#3705](https://github.com/Automattic/newspack-plugin/issues/3705)) ([528712c](https://github.com/Automattic/newspack-plugin/commit/528712c2638c105f15557facb3611585efda2398))
+
 ## [5.12.3](https://github.com/Automattic/newspack-plugin/compare/v5.12.2...v5.12.3) (2025-01-23)
 
 
