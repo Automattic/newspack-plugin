@@ -62,15 +62,16 @@ class Network_Wizard extends Wizard {
 		// Admin screens based on Newspack Network plugin's admin pages and post types.
 		$this->admin_screens = [
 			// admin pages.
-			'newspack-network'                      => __( 'Network / Settings', 'newspack-plugin' ),
-			'newspack-network-event-log'            => __( 'Network / Event Log', 'newspack-plugin' ),
-			'newspack-network-membership-plans'     => __( 'Network / Membership Plans', 'newspack-plugin' ),
-			'newspack-network-distributor-settings' => __( 'Network / Distributor Settings', 'newspack-plugin' ),
-			'newspack-network-node'                 => __( 'Network / Node Settings', 'newspack-plugin' ),
+			'newspack-network'                       => __( 'Network / Settings', 'newspack-plugin' ),
+			'newspack-network-event-log'             => __( 'Network / Event Log', 'newspack-plugin' ),
+			'newspack-network-membership-plans'      => __( 'Network / Membership Plans', 'newspack-plugin' ),
+			'newspack-network-distribution-settings' => __( 'Network / Content Distribution', 'newspack-plugin' ),
+			'newspack-network-distributor-settings'  => __( 'Network / Distributor Settings', 'newspack-plugin' ),
+			'newspack-network-node'                  => __( 'Network / Node Settings', 'newspack-plugin' ),
 			// post types.
-			'newspack_hub_nodes'                    => __( 'Network / Nodes', 'newspack-plugin' ),
-			'np_hub_orders'                         => __( 'Network / Orders', 'newspack-plugin' ),
-			'np_hub_subscriptions'                  => __( 'Network / Subscriptions', 'newspack-plugin' ),
+			'newspack_hub_nodes'                     => __( 'Network / Nodes', 'newspack-plugin' ),
+			'np_hub_orders'                          => __( 'Network / Orders', 'newspack-plugin' ),
+			'np_hub_subscriptions'                   => __( 'Network / Subscriptions', 'newspack-plugin' ),
 		];
 
 		// Hooks: admin_menu/add_page, admin_enqueue_scripts/enqueue_scripts_and_styles, admin_body_class/add_body_class .
@@ -78,7 +79,7 @@ class Network_Wizard extends Wizard {
 
 		// Display screen.
 		if ( $this->is_wizard_page() ) {
-			
+
 			// Set active menu items for hidden screens.
 			add_filter( 'parent_file', [ $this, 'parent_file' ] );
 			add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
@@ -104,11 +105,11 @@ class Network_Wizard extends Wizard {
 
 	/**
 	 * Get slug if we're currently viewing a Network screen.
-	 * 
+	 *
 	 * @return string
 	 */
 	private function get_screen_slug() {
-		
+
 		global $pagenow;
 
 		static $screen_slug;
@@ -116,7 +117,7 @@ class Network_Wizard extends Wizard {
 			return $screen_slug;
 		}
 		$screen_slug = '';
-		
+
 		$sanitized_action    = filter_input( INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$sanitized_page      = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$sanitized_post_type = filter_input( INPUT_GET, 'post_type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
@@ -124,18 +125,18 @@ class Network_Wizard extends Wizard {
 
 		$screen_slug = match ( true ) {
 			// admin page screen: admin.php?page={page} .
-			'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] ) 
+			'admin.php' === $pagenow && isset( $this->admin_screens[ $sanitized_page ] )
 				=> $sanitized_page,
 			// post type list screen: edit.php?post_type={post_type} .
-			'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] ) 
+			'edit.php' === $pagenow && isset( $this->admin_screens[ $sanitized_post_type ] )
 				=> $sanitized_post_type,
 			// add new node screen: post-new.php?post_type=newspack_hub_nodes .
 			// note: assumes non-block editor, otherwise we need to not set this.
-			'post-new.php' === $pagenow && 'newspack_hub_nodes' === $sanitized_post_type 
+			'post-new.php' === $pagenow && 'newspack_hub_nodes' === $sanitized_post_type
 				=> $sanitized_post_type,
 			// edit node screen: post.php?post={ID}&action=edit
 			// note: assumes non-block editor, otherwise we need to not set this.
-			'post.php' === $pagenow && 'edit' === $sanitized_action && 'newspack_hub_nodes' === get_post_type( $sanitized_post_id ) 
+			'post.php' === $pagenow && 'edit' === $sanitized_action && 'newspack_hub_nodes' === get_post_type( $sanitized_post_id )
 				=> 'newspack_hub_nodes',
 			default => '',
 		};
@@ -178,7 +179,7 @@ class Network_Wizard extends Wizard {
 	 * @return array Tabs. Default []
 	 */
 	private function get_tabs() {
-		
+
 		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
 
 			if ( '' === static::get_site_role() ) {
@@ -192,7 +193,7 @@ class Network_Wizard extends Wizard {
 				],
 			];
 
-			if ( 'hub' === static::get_site_role() ) {
+			if ( 'hub' === static::get_site_role() && ( ! defined( 'NEWPACK_NETWORK_CONTENT_DISTRIBUTION' ) || ! NEWPACK_NETWORK_CONTENT_DISTRIBUTION ) ) {
 				$tabs[] = [
 					'textContent' => esc_html__( 'Distributor Settings', 'newspack-plugin' ),
 					'href'        => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
@@ -203,7 +204,7 @@ class Network_Wizard extends Wizard {
 					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
 				];
 			}
-			
+
 			return $tabs;
 
 		}
@@ -229,15 +230,15 @@ class Network_Wizard extends Wizard {
 
 	/**
 	 * Admin Menu hook to modify Network admin menu.
-	 * 
+	 *
 	 * The code below will modify the global $menu instead of overriding the different add_menu_page/add_submenu_page functions.
 	 * It's just a lot easier to use the code below because the Network Plugin has different submenu pages for each of the
 	 * different Site Roles (none, is_node, is_hub). It became difficult to try to rebuild the menu/submenus based on the current
 	 * Site Role, some of which have a first submenu item of an admin page vs post type.
-	 * 
+	 *
 	 * Network Plugin's normal submenu loading order:
-	 * 
-	 *  No site role: 
+	 *
+	 *  No site role:
 	 *    MENU PARENT URL: admin.php?page=newspack-network
 	 *      site role     - not shown: because wp hides single item menus.
 	 *      node settings - not shown: because is_node is false.
@@ -254,7 +255,7 @@ class Network_Wizard extends Wizard {
 	 *      event log                 - is shown.
 	 *      membership plans          - is shown.
 	 *      distributor settings      - is shown.
-	 * 
+	 *
 	 * @return void
 	 */
 	public function add_page() {
@@ -283,7 +284,7 @@ class Network_Wizard extends Wizard {
 
 		// Adjust submenu items.
 		if ( 'node' === static::get_site_role() ) {
-			
+
 			// Re-add "Node Settings" as hidden page.
 			// Note: this will leave only "Site Role" in the submenu, so WordPress will collapse the menu.
 			if ( is_callable( [ Newspack_Network_Node_Settings::class, 'render' ] ) ) {
@@ -337,9 +338,9 @@ class Network_Wizard extends Wizard {
 
 	/**
 	 * Parent file filter. Used to determine active parent menu.
-	 * 
+	 *
 	 * @param string $parent_file Parent file to be overridden.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function parent_file( $parent_file ) {
@@ -361,17 +362,17 @@ class Network_Wizard extends Wizard {
 
 	/**
 	 * Set HTML <title>
-	 * 
+	 *
 	 * In cases where the $submenu hidden item array ( $submenu[''] = array of hidden submenu items ) is defined after the parent_slug's
 	 * item array ( $submenu['post type url or menu-slug'] = array of submenu items ), the HTML <title> will not be set and a debug.log
 	 * deprecated notice will be written: PHP Deprecated:  strip_tags(): Passing null ... is deprecated in wp-admin/admin-header.php on line 36
-	 * 
+	 *
 	 * If the hidden array is defined before the parent slug array, then the HTML <title> is shown and no debug.log notice. To avoid this
 	 * issue completely, so we don't need to worry about where things are in the $submenu array, we'll proactivally set the title here just in case.
-	 * 
+	 *
 	 * @param string $hook  Submenu hook.
 	 * @param string $title HTML <title>.
-	 * 
+	 *
 	 * @return void
 	 */
 	public function set_html_title( $hook, $title ) {
@@ -383,16 +384,16 @@ class Network_Wizard extends Wizard {
 
 	/**
 	 * Submenu file filter. Used to determine active submenu items.
-	 * 
+	 *
 	 * For admin pages return slug only.
 	 * For admin post types return url: edit.php?post_type={post_type}
-	 * 
+	 *
 	 * @param string $submenu_file Submenu file to be overridden.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function submenu_file( $submenu_file ) {
-		
+
 		if ( 'newspack-network-distributor-settings' === filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) {
 			return 'newspack-network';
 		}
