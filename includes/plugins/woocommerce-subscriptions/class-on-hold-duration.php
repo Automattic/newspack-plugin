@@ -35,6 +35,7 @@ class On_Hold_Duration {
 		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_on_hold_duration_rule' ], 99, 1 );
 		add_action( 'woocommerce_subscription_status_on-hold', [ __CLASS__, 'maybe_schedule_expiration' ], 10, 1 );
 		add_action( 'woocommerce_subscription_status_active', [ __CLASS__, 'maybe_unschedule_expiration_on_manual_renewal' ], 10, 1 );
+		add_action( 'woocommerce_subscription_payment_failed', [ __CLASS__, 'trash_subscription_on_failed_payment' ], 10, 2 );
 		add_action( self::AS_HOOK, [ __CLASS__, 'handle_scheduled_action' ] );
 	}
 
@@ -152,6 +153,20 @@ class On_Hold_Duration {
 		$subscription = wcs_get_subscription( $subscription_id );
 		if ( $subscription && 'on-hold' === $subscription->get_status() ) {
 			$subscription->update_status( 'expired' );
+		}
+	}
+
+	/**
+	 * Trash subscription on failed payment.
+	 *
+	 * @param \WC_Subscription $subscription The Subscription.
+	 * @param string           $status       The status.
+	 */
+	public static function trash_subscription_on_failed_payment( $subscription, $status ) {
+		$last_order = $subscription->get_last_order( 'all' );
+		if ( ! $last_order || $last_order->get_id() === $subscription->get_parent_id() ) {
+			$subscription->update_status( 'trash', __( 'Subscription status updated by Newspack.', 'newspack-plugin' ) );
+			$subscription->save();
 		}
 	}
 }
