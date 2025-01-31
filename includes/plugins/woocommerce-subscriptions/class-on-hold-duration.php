@@ -129,7 +129,19 @@ class On_Hold_Duration {
 			$default_grace_period = $subscription->is_manual() ? 7 * DAY_IN_SECONDS : 0; // Default grace period is 7 days if the subscription is manual otherwise 0.
 			$on_hold_duration     = self::get_on_hold_duration() * DAY_IN_SECONDS;
 			$timestamp            = $subscription->get_time( 'next_payment' ) + $default_grace_period + $on_hold_duration;
-			as_schedule_single_action( $timestamp, self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP );
+			self::schedule_expiration( $subscription->get_id(), $timestamp );
+		}
+	}
+
+	/**
+	 * Schedule expiration action.
+	 *
+	 * @param int $subscription_id Subscription ID.
+	 * @param int $timestamp       Timestamp.
+	 */
+	public static function schedule_expiration( $subscription_id, $timestamp ) {
+		if ( ! as_has_scheduled_action( self::AS_HOOK, [ $subscription_id ], self::AS_GROUP ) ) {
+			as_schedule_single_action( $timestamp, self::AS_HOOK, [ $subscription_id ], self::AS_GROUP );
 		}
 	}
 

@@ -69,6 +69,7 @@ class WooCommerce_Subscriptions {
 		self::$verbose = isset( $assoc_args['verbose'] ) ? true : false;
 		$scheduled     = 0;
 		$updated       = 0;
+		$trashed       = 0;
 		$page          = 1;
 		$per_page      = 25;
 		$subscriptions = self::get_subscriptions( $page );
@@ -105,19 +106,16 @@ class WooCommerce_Subscriptions {
 				// If the last order is the parent order and has a failed status, trash the subscription.
 				if ( ! $last_order ) {
 					$last_order = $subscription->get_parent();
-					if ( $last_order && 'failed' === $parent_order->get_status() ) {
-						if ( self::$verbose ) {
-							WP_CLI::line( 'Subscription parent order has failed status. Moving to trash...' );
-						}
+					if ( $last_order && 'failed' === $last_order->get_status() ) {
 						if ( self::$live ) {
 							$subscription->update_status( 'trash', __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
 							$subscription->set_end_date( $subscription->get_date( 'next_payment' ) );
 							$subscription->update_meta_data( '_newspack_cli_status_updated', true );
 							$subscription->save();
 						}
-						++$updated;
+						++$trashed;
 						if ( self::$verbose ) {
-							WP_CLI::line( 'Finished processing subscription ' . $id );
+							WP_CLI::line( 'Subscription parent order failed. Moving to trash...' );
 							WP_CLI::line( '' );
 						}
 						continue;
@@ -128,15 +126,13 @@ class WooCommerce_Subscriptions {
 					$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
 
 					if ( ! $should_expire ) {
-						if ( false !== as_has_scheduled_action( On_Hold_Duration::AS_HOOK, [ $subscription->get_id() ], On_Hold_Duration::AS_GROUP ) ) {
-							// If expiration action hasn't been scheduled, schedule it.
-							as_unschedule_action( On_Hold_Duration::AS_HOOK, [ $subscription->get_id() ], On_Hold_Duration::AS_GROUP );
-						}
 						if ( self::$verbose ) {
-							WP_CLI::line( 'Subscription is within the on-hold duration. Moving to next subscription...' );
-							WP_CLI::line( '' );
+							WP_CLI::line( 'Manual subscription is within the on-hold duration. Scheduling expiration...' );
 						}
-						continue;
+						if ( self::$live ) {
+							On_Hold_Duration::maybe_schedule_expiration( $subscription );
+						}
+						++$scheduled;
 					}
 				} else {
 					$last_retry = \WCS_Retry_Manager::store()->get_last_retry_for_order( wcs_get_objects_property( $last_order, 'id' ) );
@@ -147,29 +143,40 @@ class WooCommerce_Subscriptions {
 					}
 					$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
 					if ( ! $should_expire ) {
-						if ( self::$verbose ) {
-							WP_CLI::line( 'Retry date is within the on-hold duration. Scheduling final retry...' );
-						}
-						if ( self::$live ) {
-							// Retry rules can only be applied when payment attempt flag is set.
-							add_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
-							\WCS_Retry_Manager::maybe_apply_retry_rule( $subscription, $last_order );
-							remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
-							if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
-								if ( self::$verbose ) {
-									WP_CLI::error( 'Failed to schedule payment retry. Moving to next subscription...' );
-									WP_CLI::line( '' );
-								}
-								continue;
-							} else {
-								$subscription->add_order_note(
-									__( 'Final payment retry scheduled by Newspack CLI command.', 'newspack-plugin' )
-								);
-								$subscription->update_meta_data( '_newspack_cli_retry_scheduled', true );
-								$subscription->save();
+						if ( $last_retry ) {
+							if ( self::$verbose ) {
+								WP_CLI::line( 'Retry date is within the on-hold duration. Scheduling final retry...' );
 							}
+							if ( self::$live ) {
+								// Retry rules can only be applied when payment attempt flag is set.
+								add_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
+								\WCS_Retry_Manager::maybe_apply_retry_rule( $subscription, $last_order );
+								remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
+								if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
+									if ( self::$verbose ) {
+										WP_CLI::error( 'Failed to schedule payment retry. Moving to next subscription...' );
+										WP_CLI::line( '' );
+									}
+									continue;
+								} else {
+									$subscription->add_order_note(
+										__( 'Final payment retry scheduled by Newspack CLI command.', 'newspack-plugin' )
+									);
+									$subscription->update_meta_data( '_newspack_cli_retry_scheduled', true );
+									$subscription->save();
+								}
+							}
+							++$scheduled;
+						} else {
+							if ( self::$verbose ) {
+								WP_CLI::line( 'No retries found. Scheduling subscription expiration...' );
+							}
+							if ( self::$live ) {
+								$on_hold_duration = On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS;
+								On_Hold_Duration::schedule_expiration( $subscription->get_id(), $subscription->get_time( 'next_payment' ) + $on_hold_duration );
+							}
+							++$scheduled;
 						}
-						++$scheduled;
 					}
 				}
 				if ( $should_expire ) {
@@ -191,7 +198,7 @@ class WooCommerce_Subscriptions {
 			}
 			$subscriptions = self::get_subscriptions( ++$page );
 		}
-		WP_CLI::success( 'Finished processing subscriptions. ' . $updated . ' subscriptions updated. ' . $scheduled . ' retries scheduled.' );
+		WP_CLI::success( 'Finished processing subscriptions. ' . $updated . ' subscriptions updated. ' . $scheduled . ' retries scheduled. ' . $trashed . ' subscriptions trashed.' );
 		if ( ! self::$live ) {
 			WP_CLI::warning( 'Dry run. Use --live flag to process live subscriptions.' );
 		}
