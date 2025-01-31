@@ -33,8 +33,8 @@ class On_Hold_Duration {
 
 		add_filter( 'woocommerce_subscription_settings', [ __CLASS__, 'add_on_hold_duration_setting' ], 11, 1 );
 		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_on_hold_duration_rule' ], 99, 1 );
-		add_action( 'woocommerce_generated_manual_renewal_order', [ __CLASS__, 'maybe_schedule_expiration' ], 10, 2 );
-		add_action( 'woocommerce_subscription_renewal_payment_complete', [ __CLASS__, 'maybe_unschedule_expiration_on_manual_renewal' ], 10, 2 );
+		add_action( 'woocommerce_subscription_status_on-hold', [ __CLASS__, 'maybe_schedule_expiration' ], 10, 1 );
+		add_action( 'woocommerce_subscription_status_active', [ __CLASS__, 'maybe_unschedule_expiration_on_manual_renewal' ], 10, 1 );
 		add_action( self::AS_HOOK, [ __CLASS__, 'handle_scheduled_action' ] );
 	}
 
@@ -119,14 +119,13 @@ class On_Hold_Duration {
 	}
 
 	/**
-	 * Conditionally schedule expiration action.
+	 * Conditionally schedule expiration action if subscription is manual and/or retry system is disabled.
 	 *
-	 * @param int    $order_id     Order ID.
 	 * @param object $subscription Subscription object.
 	 */
-	public static function maybe_schedule_expiration( $order_id, $subscription ) {
-		if ( 'on-hold' === $subscription->get_status() ) {
-			$default_grace_period = 7 * DAY_IN_SECONDS; // 7 days, the number of days the retry system normally waits before marking a subscription as expired.
+	public static function maybe_schedule_expiration( $subscription ) {
+		if ( $subscription->is_manual() || ! \WCS_Retry_Manager::is_retry_enabled() ) {
+			$default_grace_period = $subscription->is_manual() ? 7 * DAY_IN_SECONDS : 0; // Default grace period is 7 days if the subscription is manual otherwise 0.
 			$on_hold_duration     = self::get_on_hold_duration() * DAY_IN_SECONDS;
 			$timestamp            = $subscription->get_time( 'next_payment' ) + $default_grace_period + $on_hold_duration;
 			as_schedule_single_action( $timestamp, self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP );
@@ -137,9 +136,8 @@ class On_Hold_Duration {
 	 * Unschedule expiration if scheduled when manual subscription is renewed.
 	 *
 	 * @param \WC_Subscription $subscription The Subscription.
-	 * @param \WC_Order        $order        The order.
 	 */
-	public static function maybe_unschedule_expiration_on_manual_renewal( $subscription, $order ) {
+	public static function maybe_unschedule_expiration_on_manual_renewal( $subscription ) {
 		if ( false !== as_has_scheduled_action( self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP ) ) {
 			as_unschedule_action( self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP );
 		}
