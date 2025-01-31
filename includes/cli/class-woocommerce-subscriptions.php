@@ -103,10 +103,14 @@ class WooCommerce_Subscriptions {
 						'refunded',
 					]
 				);
-				// If the last order is the parent order and has a failed status, trash the subscription.
 				if ( ! $last_order ) {
 					$last_order = $subscription->get_parent();
+					// If the last order is the parent order and has a failed status, trash the subscription.
 					if ( $last_order && 'failed' === $last_order->get_status() ) {
+						if ( self::$verbose ) {
+							WP_CLI::line( 'Subscription parent order failed. Moving to trash...' );
+							WP_CLI::line( '' );
+						}
 						if ( self::$live ) {
 							$subscription->update_status( 'trash', __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
 							$subscription->set_end_date( $subscription->get_date( 'next_payment' ) );
@@ -114,17 +118,13 @@ class WooCommerce_Subscriptions {
 							$subscription->save();
 						}
 						++$trashed;
-						if ( self::$verbose ) {
-							WP_CLI::line( 'Subscription parent order failed. Moving to trash...' );
-							WP_CLI::line( '' );
-						}
 						continue;
 					}
 				}
 				if ( $subscription->is_manual() ) {
 					$end_date = $subscription->get_date( 'next_payment' );
 					$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
-
+					// If the manual subscription is within the on-hold duration, schedule expiration.
 					if ( ! $should_expire ) {
 						if ( self::$verbose ) {
 							WP_CLI::line( 'Manual subscription is within the on-hold duration. Scheduling expiration...' );
@@ -135,14 +135,11 @@ class WooCommerce_Subscriptions {
 						++$scheduled;
 					}
 				} else {
-					$last_retry = \WCS_Retry_Manager::store()->get_last_retry_for_order( wcs_get_objects_property( $last_order, 'id' ) );
-					if ( ! $last_retry ) {
-						$end_date = $subscription->get_date( 'next_payment' );
-					} else {
-						$end_date = $last_retry->get_date();
-					}
+					$last_retry    = \WCS_Retry_Manager::store()->get_last_retry_for_order( wcs_get_objects_property( $last_order, 'id' ) );
+					$end_date      = $last_retry ? $last_retry->get_date() : $subscription->get_date( 'next_payment' );
 					$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
 					if ( ! $should_expire ) {
+						// If there have been retries, schedule the final retry.
 						if ( $last_retry ) {
 							if ( self::$verbose ) {
 								WP_CLI::line( 'Retry date is within the on-hold duration. Scheduling final retry...' );
@@ -168,6 +165,7 @@ class WooCommerce_Subscriptions {
 							}
 							++$scheduled;
 						} else {
+							// If there have been no retries, schedule expiration.
 							if ( self::$verbose ) {
 								WP_CLI::line( 'No retries found. Scheduling subscription expiration...' );
 							}
@@ -179,6 +177,7 @@ class WooCommerce_Subscriptions {
 						}
 					}
 				}
+				// Expire any subscriptinos that have passed the on-hold duration.
 				if ( $should_expire ) {
 					if ( self::$verbose ) {
 						WP_CLI::line( 'Updating subscription status to expired...' );
