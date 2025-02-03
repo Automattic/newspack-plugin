@@ -120,12 +120,12 @@ class On_Hold_Duration {
 	}
 
 	/**
-	 * Conditionally schedule expiration action if subscription is manual and/or retry system is disabled.
+	 * Conditionally schedule expiration action if no retries are scheduled.
 	 *
 	 * @param object $subscription Subscription object.
 	 */
 	public static function maybe_schedule_expiration( $subscription ) {
-		if ( $subscription->is_manual() || ! \WCS_Retry_Manager::is_retry_enabled() ) {
+		if ( $subscription->get_date( 'payment_retry' ) === 0 || ! \WCS_Retry_Manager::is_retry_enabled() ) {
 			$default_grace_period = $subscription->is_manual() ? 7 * DAY_IN_SECONDS : 0; // Default grace period is 7 days if the subscription is manual otherwise 0.
 			$on_hold_duration     = self::get_on_hold_duration() * DAY_IN_SECONDS;
 			$timestamp            = $subscription->get_time( 'next_payment' ) + $default_grace_period + $on_hold_duration;
