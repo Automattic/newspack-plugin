@@ -34,7 +34,8 @@ class On_Hold_Duration {
 		add_filter( 'woocommerce_subscription_settings', [ __CLASS__, 'add_on_hold_duration_setting' ], 11, 1 );
 		add_filter( 'wcs_default_retry_rules', [ __CLASS__, 'maybe_apply_on_hold_duration_rule' ], 99, 1 );
 		add_action( 'woocommerce_subscription_status_on-hold', [ __CLASS__, 'maybe_schedule_expiration' ], 10, 1 );
-		add_action( 'woocommerce_subscription_status_active', [ __CLASS__, 'maybe_unschedule_expiration_on_manual_renewal' ], 10, 1 );
+		add_action( 'woocommerce_subscription_status_active', [ __CLASS__, 'maybe_unschedule_expiration' ], 10, 1 );
+		add_action( 'woocommerce_subscriptions_after_apply_retry_rule', [ __CLASS__, 'maybe_unschedule_expiration_on_retry' ], 10, 3 );
 		add_action( 'woocommerce_subscription_payment_failed', [ __CLASS__, 'trash_subscription_on_failed_payment' ], 10, 2 );
 		add_action( self::AS_HOOK, [ __CLASS__, 'handle_scheduled_action' ] );
 	}
@@ -146,13 +147,26 @@ class On_Hold_Duration {
 	}
 
 	/**
-	 * Unschedule expiration if scheduled when manual subscription is renewed.
+	 * Unschedule expiration if scheduled.
 	 *
 	 * @param \WC_Subscription $subscription The Subscription.
 	 */
-	public static function maybe_unschedule_expiration_on_manual_renewal( $subscription ) {
+	public static function maybe_unschedule_expiration( $subscription ) {
 		if ( false !== as_has_scheduled_action( self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP ) ) {
 			as_unschedule_action( self::AS_HOOK, [ $subscription->get_id() ], self::AS_GROUP );
+		}
+	}
+
+	/**
+	 * Unschedule expiration if payment retry is scheduled.
+	 *
+	 * @param array            $retry_rule   Retry rule.
+	 * @param \WC_Order        $last_order   The last order.
+	 * @param \WC_Subscription $subscription The Subscription.
+	 */
+	public static function maybe_unschedule_expiration_on_retry( $retry_rule, $last_order, $subscription ) {
+		if ( $subscription->get_date( 'payment_retry' ) > 0 ) {
+			self::maybe_unschedule_expiration( $subscription );
 		}
 	}
 
