@@ -23,7 +23,7 @@ const BylinesSettingsPanel = () => {
 	const { editPost } = useDispatch( 'core/editor' );
 	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ) );
 	const [ byline, setByline ] = useState( getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '' );
-	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ] );
+	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ] || newspackBylines.metaKeyActive );
 	// Update byline text in editor.
 	useEffect( () => {
 		prependBylineToContent( isEnabled ? byline : '' );
