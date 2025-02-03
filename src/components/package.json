@@ -30,7 +30,7 @@
 		"@wordpress/icons": "^10.0.0",
 		"classnames": "^2.3.1",
 		"lodash": "^4.17.21",
-		"moment-range": "^3.1.1",
+		"moment-range": "^4.0.2",
 		"qs": "^6.10.1",
 		"react-daterange-picker": "^2.0.1",
 		"react-router-dom": "^5.3.4"
