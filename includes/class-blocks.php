@@ -46,7 +46,7 @@ final class Blocks {
 				'reader_activation_terms' => Reader_Activation::get_setting( 'terms_text' ),
 				'reader_activation_url'   => Reader_Activation::get_setting( 'terms_url' ),
 				'has_recaptcha'           => Recaptcha::can_use_captcha(),
-				'recaptcha_url'           => admin_url( 'admin.php?page=newspack-connections-wizard' ),
+				'recaptcha_url'           => admin_url( 'admin.php?page=newspack-settings' ),
 			]
 		);
 		\wp_enqueue_style(
