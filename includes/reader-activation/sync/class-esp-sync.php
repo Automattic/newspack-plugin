@@ -8,6 +8,7 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
+use Newspack\Reader_Activation\Sync\Metadata;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -109,6 +110,19 @@ class ESP_Sync extends Sync {
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
+
+		// Go over all values in the contact's metadata and if they look like dates, then convert them from UTC to the site's timezone.
+		if ( ! empty( $contact['metadata'] ) ) {
+			$timezone     = \wp_timezone();
+			$utc_timezone = new \DateTimeZone( 'UTC' );
+			foreach ( $contact['metadata'] as $key => $value ) {
+				if ( \is_string( $value ) && \preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value ) ) {
+					$date = \DateTime::createFromFormat( Metadata::DATE_FORMAT, $value, $utc_timezone );
+					$date->setTimezone( $timezone );
+					$contact['metadata'][ $key ] = $date->format( Metadata::DATE_FORMAT );
+				}
+			}
+		}
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 
