@@ -9,6 +9,7 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { RichText } from '@wordpress/block-editor';
+import apiFetch from '@wordpress/api-fetch';
 
 /**
  * External dependencies
@@ -21,28 +22,32 @@ import './style.scss';
 
 const BYLINE_ID = 'newspack-byline';
 
-const TagInlineBlock = ( { tag, onRemove, onEdit } ) => {
+const TokenInlineBlock = ( { token, onRemove, onEdit } ) => {
 	return (
 		<span
-			className="tag-inline-block"
+			className="token-inline-block"
 			style={ {
 				background: '#e1e1e1',
-				padding: '2px 6px',
+				padding: '6px 6px',
 				borderRadius: '4px',
-				margin: '0 4px',
+				margin: '2em 0',
 			} }
 		>
 			<Button
 				isLink
 				onClick={ onEdit }
-				style={ { padding: '0', margin: '0' } }
+				style={ { padding: '0', margin: '0', textDecoration: 'none' } }
 			>
-				{ tag.name }
+				{ token.name }
 			</Button>
 			<Button
 				isLink
 				onClick={ onRemove }
-				style={ { padding: '0', margin: '0 0 0 4px' } }
+				style={ {
+					padding: '0',
+					margin: '0 0 0 4px',
+					textDecoration: 'none',
+				} }
 			>
 				x
 			</Button>
@@ -51,28 +56,29 @@ const TagInlineBlock = ( { tag, onRemove, onEdit } ) => {
 };
 
 const BylinesSettingsPanel = ( { setAttributes } ) => {
-	const tags = [
-		{
-			id: 0,
-			name: 'Maria',
-		},
-		{
-			id: 1,
-			name: 'Jose',
-		},
-	];
+	const [ tokens, setTokens ] = useState( [] );
 
-	// Add a tag
-	const handleAddTag = tag => {
-		const updatedTags = [ ...tags, tag ];
-		setAttributes( { tags: updatedTags } );
+	// Get post data using useSelect
+	const { postId } = useSelect(
+		select => ( {
+			postId: select( 'core/editor' ).getCurrentPostId(),
+		} ),
+		[]
+	);
+
+	const transformAuthorsToTokens = coAuthors => {
+		return Object.values( coAuthors ).map( value => {
+			return { id: value.id, name: value.display_name };
+		} );
 	};
 
-	// Remove a tag
-	const handleRemoveTag = tagToRemove => {
-		const updatedTags = tags.filter( tag => tag.id !== tagToRemove.id );
-		setAttributes( { tags: updatedTags } );
-	};
+	const authorPlaceholder = useSelect(
+		select => select( 'co-authors-plus/blocks' ).getAuthorPlaceholder(),
+		[]
+	);
+	const [ coAuthors, setCoAuthors ] = useState( [ authorPlaceholder ] );
+
+	const noticesDispatch = useDispatch( 'core/notices' );
 
 	// Edit text
 	const handleChangeText = newText => {
@@ -93,10 +99,54 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
 
-	// Update byline text in editor.
+	useEffect( () => {
+		if ( coAuthors ) {
+			setTokens( transformAuthorsToTokens( coAuthors ) );
+		}
+	}, [ coAuthors ] );
+
+	/**
+	 * Fetch co-authors from Co-Authors Plus.
+	 */
+	useEffect( () => {
+		if ( ! postId ) {
+			return;
+		}
+
+		const controller = new AbortController();
+
+		apiFetch( {
+			path: `/coauthors/v1/coauthors?post_id=${ postId }`,
+			signal: controller.signal,
+		} )
+			.then( setCoAuthors )
+			.catch( handleError );
+
+		return () => {
+			controller.abort();
+		};
+	}, [ postId ] );
+
+	/**
+	 * Update byline text in editor.
+	 */
 	useEffect( () => {
 		prependBylineToContent( isEnabled ? byline : '' );
 	}, [ byline, isEnabled ] );
+
+	/**
+	 * Handle Error
+	 *
+	 * @param {Error} error
+	 */
+	function handleError( error ) {
+		if ( 'AbortError' === error.name ) {
+			return;
+		}
+		noticesDispatch.createErrorNotice( error.message, {
+			isDismissible: true,
+		} );
+	}
 
 	// Enabled toggle handler.
 	const handleEnableToggle = value => {
@@ -152,24 +202,15 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 						rows="4"
 					/>
 
-					<div className="tags">
-						{ tags.map( tag => (
-							<TagInlineBlock
-								key={ tag.id }
-								tag={ tag }
-								onRemove={ () => handleRemoveTag( tag ) }
+					<div className="tokens">
+						{ tokens.map( token => (
+							<TokenInlineBlock
+								key={ token.id }
+								token={ token }
+								onRemove={ () => {} }
 							/>
 						) ) }
 					</div>
-
-					{ /* Add tags button */ }
-					<Button
-						onClick={ () =>
-							handleAddTag( { id: Date.now(), name: 'New Tag' } )
-						}
-					>
-						{ __( 'Add Tag', 'textdomain' ) }
-					</Button>
 				</>
 			) }
 		</PluginDocumentSettingPanel>
