@@ -58,7 +58,6 @@ const TokenInlineBlock = ( { token, onRemove, onEdit } ) => {
 const BylinesSettingsPanel = ( { setAttributes } ) => {
 	const [ tokens, setTokens ] = useState( [] );
 
-	// Get post data using useSelect
 	const { postId } = useSelect(
 		select => ( {
 			postId: select( 'core/editor' ).getCurrentPostId(),
@@ -80,7 +79,6 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 
 	const noticesDispatch = useDispatch( 'core/notices' );
 
-	// Edit text
 	const handleChangeText = newText => {
 		setAttributes( { content: newText } );
 	};
@@ -99,6 +97,9 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
 
+	/**
+	 * Set tokens when coAuthors change.
+	 */
 	useEffect( () => {
 		if ( coAuthors ) {
 			setTokens( transformAuthorsToTokens( coAuthors ) );
@@ -148,12 +149,17 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 		} );
 	}
 
-	// Enabled toggle handler.
+	/**
+	 * Enabled toggle handler.
+	 */
 	const handleEnableToggle = value => {
 		editPost( { meta: { [ newspackBylines.metaKeyActive ]: value } } );
 		setIsEnabled( value );
 	};
 
+	/**
+	 * Prepend Byline to the content
+	 */
 	const prependBylineToContent = text => {
 		const contentEl = document.querySelector( '.wp-block-post-content' );
 		if ( contentEl ) {
