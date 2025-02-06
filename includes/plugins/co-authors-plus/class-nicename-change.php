@@ -59,7 +59,11 @@ class Nicename_Change {
 	}
 
 	/**
-	 * CLI command to change the nicename of a user.
+	 * CLI command to safely change the nicename of a user.
+	 *
+	 * This will check the nicename availability before doing anything. If it does, it will:
+	 * * Create a redirect from the old nicename to the new one.
+	 * * Update the author term created by Co-Authors Plus.
 	 *
 	 * Usage: wp newspack nicename-change <user_id> <new_nicename>
 	 *
