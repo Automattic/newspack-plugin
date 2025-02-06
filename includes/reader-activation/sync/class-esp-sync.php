@@ -116,7 +116,7 @@ class ESP_Sync extends Sync {
 			$timezone     = \wp_timezone();
 			$utc_timezone = new \DateTimeZone( 'UTC' );
 			foreach ( $contact['metadata'] as $key => $value ) {
-				if ( \is_string( $value ) && \preg_match( '/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value ) ) {
+				if ( is_string( $value ) && false !== \DateTime::createFromFormat( Metadata::DATE_FORMAT, $value ) ) {
 					$date = \DateTime::createFromFormat( Metadata::DATE_FORMAT, $value, $utc_timezone );
 					$date->setTimezone( $timezone );
 					$contact['metadata'][ $key ] = $date->format( Metadata::DATE_FORMAT );
