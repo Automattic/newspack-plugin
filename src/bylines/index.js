@@ -14,6 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
  * External dependencies
  */
 import { useEffect, useState } from 'react';
+
 /**
  * Internal dependencies
  */
@@ -93,7 +94,14 @@ const BylinesSettingsPanel = () => {
 	);
 
 	const insertToken = token => {
-		setByline( byline + ' ' + token.name );
+		setByline(
+			<>
+				{ byline }{ ' ' }
+				<span id={ token.id } className="author author-token">
+					{ token.name }
+				</span>
+			</>
+		);
 	};
 
 	/**
