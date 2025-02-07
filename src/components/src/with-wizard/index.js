@@ -4,7 +4,7 @@
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { home } from '@wordpress/icons';
+import { category } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -221,7 +221,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 												href={ newspack_urls.dashboard }
 												label={ __( 'Return to Dashboard', 'newspack-plugin' ) }
 												showTooltip={ true }
-												icon={ home }
+												icon={ category }
 												iconSize={ 36 }
 											>
 												<NewspackIcon size={ 36 } />

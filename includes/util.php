@@ -510,7 +510,7 @@ function google_site_kit_available() {
  * Determine if a plugin is active. Similar to WP core `is_plugin_active` but is available immediately.
  *
  * @param string $plugin_file `plugin-directory/plugin-file.php` path to the plugin file.
- * @return bool 
+ * @return bool
  */
 function is_plugin_active( string $plugin_file ) {
 	return in_array( $plugin_file, get_option( 'active_plugins' ), true );
@@ -594,7 +594,7 @@ function newspack_adjust_brightness( $hex, $steps ) {
  * @return array An array containing primary and secondary colors.
  */
 function newspack_get_theme_colors() {
-	$default_primary_color   = function_exists( 'newspack_get_primary_color' ) ? newspack_get_primary_color() : '#2240d5';
+	$default_primary_color   = function_exists( 'newspack_get_primary_color' ) ? newspack_get_primary_color() : '#003da5';
 	$default_secondary_color = function_exists( 'newspack_get_secondary_color' ) ? newspack_get_secondary_color() : '#666666';
 	$primary_color           = get_theme_mod( 'primary_color_hex', $default_primary_color );
 	$secondary_color         = get_theme_mod( 'secondary_color_hex', $default_secondary_color );

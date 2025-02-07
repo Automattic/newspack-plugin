@@ -33,9 +33,6 @@
 }
 
 .newspack-dashboard__card {
-	--np-card-icon-bg-color: #eaeefb;
-	--np-card-hover-bg-color: #fafbff;
-
 	align-items: center;
 	background-color: transparent;
 	border-color: wp-colors.$gray-300;
@@ -72,11 +69,11 @@
 }
 
 .newspack-dashboard__card-icon {
-	background-color: var(--np-card-icon-bg-color);
+	background-color: #{colors.$primary-000};
 	border: 1px solid white;
 	border-radius: 4px;
 	display: grid;
-	fill: var(--newspack-ui-color-primary);
+	fill: var(--wp-admin-theme-color);
 	grid-area: icon;
 	height: var(--np-dash-card-icon-size);
 	width: var(--np-dash-card-icon-size);
@@ -93,16 +90,11 @@ a {
 	&:hover,
 	&:focus {
 		.newspack-dashboard__card {
-			background-color: var(--np-card-hover-bg-color);
-			border-color: var(--newspack-ui-color-primary);
-
-			p {
-				opacity: 0.8;
-			}
+			border-color: var(--wp-admin-theme-color);
 
 			.newspack-dashboard__card-icon {
 				svg {
-					transform: scale(1.15);
+					transform: scale(1.25);
 				}
 			}
 		}
