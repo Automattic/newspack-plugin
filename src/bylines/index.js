@@ -8,7 +8,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-import { RichText } from '@wordpress/block-editor';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -22,7 +21,7 @@ import './style.scss';
 
 const BYLINE_ID = 'newspack-byline';
 
-const TokenInlineBlock = ( { token, onRemove, onEdit } ) => {
+const TokenInlineBlock = ( { token, onRemove, onInsert } ) => {
 	return (
 		<span
 			className="token-inline-block"
@@ -35,7 +34,7 @@ const TokenInlineBlock = ( { token, onRemove, onEdit } ) => {
 		>
 			<Button
 				isLink
-				onClick={ onEdit }
+				onClick={ onInsert }
 				style={ { padding: '0', margin: '0', textDecoration: 'none' } }
 			>
 				{ token.name }
@@ -55,7 +54,7 @@ const TokenInlineBlock = ( { token, onRemove, onEdit } ) => {
 	);
 };
 
-const BylinesSettingsPanel = ( { setAttributes } ) => {
+const BylinesSettingsPanel = () => {
 	const [ tokens, setTokens ] = useState( [] );
 
 	const { postId } = useSelect(
@@ -79,23 +78,23 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 
 	const noticesDispatch = useDispatch( 'core/notices' );
 
-	const handleChangeText = newText => {
-		setAttributes( { content: newText } );
-	};
-
 	const { editPost } = useDispatch( 'core/editor' );
 
 	const { getEditedPostAttribute } = useSelect( select =>
 		select( 'core/editor' )
 	);
 
-	const [ byline ] = useState(
+	const [ byline, setByline ] = useState(
 		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || ''
 	);
 
 	const [ isEnabled, setIsEnabled ] = useState(
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
+
+	const insertToken = token => {
+		setByline( byline + ' ' + token.name );
+	};
 
 	/**
 	 * Set tokens when coAuthors change.
@@ -196,17 +195,12 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 			/>
 			{ isEnabled && (
 				<>
-					<RichText
+					<div
 						className="newspack-byline-textarea"
-						tagName="div"
-						value={ byline }
-						onChange={ handleChangeText }
-						placeholder={ __(
-							'Enter custom byline…',
-							'newspack-plugin'
-						) }
-						rows="4"
-					/>
+						contentEditable="true"
+					>
+						{ byline }
+					</div>
 
 					<div className="tokens">
 						{ tokens.map( token => (
@@ -214,6 +208,7 @@ const BylinesSettingsPanel = ( { setAttributes } ) => {
 								key={ token.id }
 								token={ token }
 								onRemove={ () => {} }
+								onInsert={ () => insertToken( token ) }
 							/>
 						) ) }
 					</div>
