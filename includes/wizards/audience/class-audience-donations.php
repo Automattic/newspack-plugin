@@ -43,7 +43,7 @@ class Audience_Donations extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Development / Donations', 'newspack-plugin' );
+		return esc_html__( 'Audience Management / Donations', 'newspack-plugin' );
 	}
 
 	/**

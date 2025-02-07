@@ -34,7 +34,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		setError( false );
 		setInFlight( true );
 		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-audience/reader-activation',
+			path: '/newspack/v1/wizard/newspack-audience/audience-management',
 		} )
 			.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
 				setPrerequisites( prerequisites_status );
@@ -51,7 +51,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		setError( false );
 		setInFlight( true );
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-audience/reader-activation',
+			path: '/newspack/v1/wizard/newspack-audience/audience-management',
 			method: 'post',
 			quiet: true,
 			data,
@@ -117,7 +117,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 
 	const props = {
 		headerText: __(
-			'Audience Development',
+			'Audience Management',
 			'newspack-plugin'
 		),
 		tabbedNavigation: tabs,

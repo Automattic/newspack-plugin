@@ -15,7 +15,7 @@ export default withWizardScreen(
 			setError( false );
 			setInFlight( true );
 			wizardApiFetch( {
-				path: `/newspack/v1/wizard/newspack-audience/reader-activation/emails/${ postId }`,
+				path: `/newspack/v1/wizard/newspack-audience/audience-management/emails/${ postId }`,
 				method: 'DELETE',
 				quiet: true,
 			} )
