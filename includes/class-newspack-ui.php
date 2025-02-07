@@ -322,46 +322,64 @@ class Newspack_UI {
 
 			<hr>
 
-			<h2 id="order-table">Order table</h2>
-			<h3 id="order_review_heading">Transaction details</h3>
-			<div id="order_review" class="woocommerce-checkout-review-order newspack-ui__box">
-				<table class="shop_table woocommerce-checkout-review-order-table" style="position: static; zoom: 1;">
-					<thead>
-						<tr>
-							<th class="product-name">Product</th>
-							<th class="product-total">Subtotal</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="cart_item">
-							<td class="product-name">
-								Donate: Yearly&nbsp; <strong class="product-quantity">×&nbsp;1</strong>
-							</td>
-							<td class="product-total">
-								<span class="subscription-price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>180.00</bdi></span> <span class="subscription-details"> / year</span></span>
-							</td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr class="cart-subtotal">
-							<th>Subtotal</th>
-							<td><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>180.00</bdi></span></td>
-						</tr>
+			<div class="newspack-ui__toggle-section">
+				<h3 class="newspack-ui__toggle-section__header">Toggleable Section <?php \Newspack\Newspack_UI_Icons::print_svg( 'chevron' ); ?></h3>
+				<div class="newspack-ui__toggle-section__content">
+					<div class="newspack-ui__toggle-section__content__inner">
+						<p>Content that can be opened and closed.</p>
+						<p>Content that can be opened and closed.</p>
+					</div>
+				</div>
+			</div>
 
-						<tr class="tax-rate tax-rate-ca-bc-gst-5-1">
-							<th>GST 5%</th>
-							<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>9.00</span></td>
-						</tr>
-						<tr class="tax-rate tax-rate-ca-bc-pst-7-2">
-							<th>PST (7%)</th>
-							<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>12.60</span></td>
-						</tr>
-						<tr class="order-total">
-							<th>Total</th>
-							<td><strong><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>201.60</bdi></span></strong> </td>
-						</tr>
-					</tfoot>
-				</table>
+			<hr>
+
+			<h2 id="order-table">Order table</h2>
+			<div class="newspack-ui__toggle-section">
+				<h3 id="order_review_heading" class="newspack-ui__toggle-section__header">Transaction details <?php \Newspack\Newspack_UI_Icons::print_svg( 'chevron' ); ?></h3>
+				<div class="newspack-ui__toggle-section__content">
+					<div class="newspack-ui__toggle-section__content__inner">
+						<div id="order_review" class="woocommerce-checkout-review-order newspack-ui__box">
+							<table class="shop_table woocommerce-checkout-review-order-table" style="position: static; zoom: 1;">
+								<thead>
+									<tr>
+										<th class="product-name">Product</th>
+										<th class="product-total">Subtotal</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr class="cart_item">
+										<td class="product-name">
+											Donate: Yearly&nbsp; <strong class="product-quantity">×&nbsp;1</strong>
+										</td>
+										<td class="product-total">
+											<span class="subscription-price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>180.00</bdi></span> <span class="subscription-details"> / year</span></span>
+										</td>
+									</tr>
+								</tbody>
+								<tfoot>
+									<tr class="cart-subtotal">
+										<th>Subtotal</th>
+										<td><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>180.00</bdi></span></td>
+									</tr>
+
+									<tr class="tax-rate tax-rate-ca-bc-gst-5-1">
+										<th>GST 5%</th>
+										<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>9.00</span></td>
+									</tr>
+									<tr class="tax-rate tax-rate-ca-bc-pst-7-2">
+										<th>PST (7%)</th>
+										<td><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">$</span>12.60</span></td>
+									</tr>
+									<tr class="order-total">
+										<th>Total</th>
+										<td><strong><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>201.60</bdi></span></strong> </td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<hr>

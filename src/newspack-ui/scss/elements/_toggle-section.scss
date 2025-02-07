@@ -1,0 +1,37 @@
+.newspack-ui {
+	&__toggle-section {
+		&__header {
+			align-items: center;
+			cursor: pointer;
+			display: flex;
+
+			&:hover {
+				color: var(--newspack-ui-color-neutral-60);
+			}
+
+			svg {
+				transition: rotate 150ms ease-in-out;
+			}
+		}
+
+		&__content {
+			display: grid;
+			grid-template-rows: 0fr;
+			transition: grid-template-rows 150ms ease-in-out;
+
+			&__inner {
+				overflow: hidden;
+			}
+		}
+
+		&.expanded {
+			.newspack-ui__toggle-section__header svg {
+				rotate: 180deg;
+			}
+
+			.newspack-ui__toggle-section__content {
+				grid-template-rows: 1fr;
+			}
+		}
+	}
+}
