@@ -109,23 +109,12 @@ class ESP_Sync extends Sync {
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
 
-		$contact = Sync\Metadata::normalize_contact_data( $contact );
-
-		// Go over all values in the contact's metadata and if they look like dates, then convert them from UTC to the site's timezone.
-		if ( ! empty( $contact['metadata'] ) ) {
-			$timezone     = \wp_timezone();
-			$utc_timezone = new \DateTimeZone( 'UTC' );
-			foreach ( $contact['metadata'] as $key => $value ) {
-				if ( empty( $value ) || ! is_string( $value ) ) {
-					continue;
-				}
-				$date = \DateTime::createFromFormat( Metadata::DATE_FORMAT, $value, $utc_timezone );
-				if ( false !== $date ) {
-					$date->setTimezone( $timezone );
-					$contact['metadata'][ $key ] = $date->format( Metadata::DATE_FORMAT );
-				}
-			}
+		if ( ! empty( $contact['metadata']['registration_date'] ) ) {
+			// Convert date from UTC to the site's timezone.
+			$contact['metadata']['registration_date'] = get_date_from_gmt( $contact['metadata']['registration_date'] );
 		}
+
+		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
 		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 

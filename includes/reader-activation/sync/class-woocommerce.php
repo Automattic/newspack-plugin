@@ -217,6 +217,8 @@ class WooCommerce {
 	/**
 	 * Get data about a customer's order to sync to the connected ESP.
 	 *
+	 * Note that all dates are in the site's timezone.
+	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
 	 *
@@ -229,11 +231,6 @@ class WooCommerce {
 
 		if ( ! self::should_sync_order( $order ) ) {
 			return [];
-		}
-
-		$is_subscription = false;
-		if ( function_exists( 'wcs_is_subscription' ) ) {
-			$is_subscription = \wcs_is_subscription( $order );
 		}
 
 		$metadata = [];
@@ -322,16 +319,16 @@ class WooCommerce {
 				$metadata['membership_status'] = $current_subscription->get_status();
 			}
 
-			$metadata['sub_start_date']      = $current_subscription->get_date( 'start' );
-			$metadata['sub_end_date']        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$metadata['sub_start_date']      = $current_subscription->get_date( 'start', 'site' );
+			$metadata['sub_end_date']        = $current_subscription->get_date( 'end', 'site' ) ?? '';
 			$metadata['billing_cycle']       = $current_subscription->get_billing_period();
 			$metadata['recurring_payment']   = $current_subscription->get_total();
 			$metadata['last_payment_amount'] = self::get_last_payment_amount( $current_subscription );
-			$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
+			$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid', 'site' ) ?? current_time( Metadata::DATE_FORMAT );
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
-			$next_payment_date = $current_subscription->get_date( 'next_payment' );
+			$next_payment_date = $current_subscription->get_date( 'next_payment', 'site' );
 			if ( $next_payment_date ) {
 				$metadata['next_payment_date'] = $next_payment_date;
 			}
