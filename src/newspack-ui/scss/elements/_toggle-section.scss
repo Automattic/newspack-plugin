@@ -4,6 +4,7 @@
 			align-items: center;
 			cursor: pointer;
 			display: flex;
+			gap: calc(var(--newspack-ui-spacer-base)/2);
 
 			&:hover {
 				color: var(--newspack-ui-color-neutral-60);
