@@ -65,13 +65,24 @@ class GA4 {
 	}
 
 	/**
+	 * Gets the credentials for the GA4 API.
+	 *
+	 * @return array
+	 */
+	public static function get_ga4_credentials() {
+		$measurement_protocol_secret = get_option( 'ga4_measurement_protocol_secret', '' );
+		$measurement_id              = get_option( 'ga4_measurement_id', '' );
+		return compact( 'measurement_protocol_secret', 'measurement_id' );
+	}
+
+	/**
 	 * Get the GA4 properties to send events to.
 	 *
 	 * @return array
 	 */
 	private static function get_ga4_properties() {
 		$properties = [
-			Analytics_Wizard::get_ga4_credentials(),
+			self::get_ga4_credentials(),
 		];
 
 		/**
