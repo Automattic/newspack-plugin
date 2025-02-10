@@ -159,7 +159,7 @@ export default function Prompt( {
 			setSuccess( false );
 			setInFlight( true );
 			apiFetch< [ PromptType ] >( {
-				path: '/newspack-popups/v1/reader-activation/campaign',
+				path: '/newspack-popups/v1/audience-management/campaign',
 				method: 'post',
 				data: {
 					slug,

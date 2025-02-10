@@ -37,7 +37,7 @@ function AudienceSubscriptions() {
 	return (
 		<Wizard
 			headerText={ __(
-				'Audience Development / Subscriptions',
+				'Audience Management / Subscriptions',
 				'newspack-plugin'
 			) }
 			sections={ tabs }

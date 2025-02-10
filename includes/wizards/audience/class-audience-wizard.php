@@ -67,7 +67,7 @@ class Audience_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Development / Setup', 'newspack-plugin' );
+		return esc_html__( 'Audience Management / Setup', 'newspack-plugin' );
 	}
 
 	/**
@@ -149,7 +149,7 @@ class Audience_Wizard extends Wizard {
 	public function register_api_endpoints() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation',
+			'/wizard/' . $this->slug . '/audience-management',
 			[
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_reader_activation_settings' ],
@@ -158,7 +158,7 @@ class Audience_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation',
+			'/wizard/' . $this->slug . '/audience-management',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_reader_activation_settings' ],
@@ -167,7 +167,7 @@ class Audience_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/activate',
+			'/wizard/' . $this->slug . '/audience-management/activate',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_activate_reader_activation' ],
@@ -176,7 +176,7 @@ class Audience_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/emails/(?P<id>\d+)',
+			'/wizard/' . $this->slug . '/audience-management/emails/(?P<id>\d+)',
 			[
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => [ $this, 'api_reset_reader_activation_email' ],
@@ -185,7 +185,7 @@ class Audience_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/reader-activation/skip-campaign',
+			'/wizard/' . $this->slug . '/audience-management/skip-campaign',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => function( $request ) {

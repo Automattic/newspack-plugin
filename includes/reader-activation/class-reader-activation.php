@@ -1,6 +1,6 @@
 <?php
 /**
- * Reader Activation.
+ * Reader Activation (publicly rebranded as "Audience Management").
  *
  * @package Newspack
  */
@@ -373,7 +373,7 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Get a reader activation settings.
+	 * Get a setting value.
 	 *
 	 * @param string $name Setting name.
 	 *
@@ -394,7 +394,7 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Update a reader activation setting.
+	 * Update a setting value.
 	 *
 	 * @param string $key   Option name.
 	 * @param mixed  $value Option value.
@@ -411,7 +411,7 @@ final class Reader_Activation {
 		}
 
 		/**
-		 * Fires just before a Reader Activation setting is updated
+		 * Fires just before a setting is updated
 		 *
 		 * @param string $key   Option name.
 		 * @param mixed  $value Option value.
@@ -722,7 +722,7 @@ final class Reader_Activation {
 				'active'      => self::is_terms_configured(),
 				'label'       => __( 'Legal Pages', 'newspack-plugin' ),
 				'description' => __( 'Displaying legal pages like Privacy Policy and Terms of Service on your site is recommended for allowing readers to register and access their account.', 'newspack-plugin' ),
-				'help_url'    => 'https://help.newspack.com/engagement/reader-activation-system',
+				'help_url'    => 'https://help.newspack.com/engagement/audience-management-system/',
 				'warning'     => __( 'Privacy policies that tell users how you collect and use their data are essential for running a  trustworthy website. While rules and regulations can differ by country, certain legal pages might be required by law.', 'newspack-plugin' ),
 				'fields'      => [
 					'terms_text' => [
@@ -743,7 +743,7 @@ final class Reader_Activation {
 				'label'        => __( 'Email Service Provider (ESP)', 'newspack-plugin' ),
 				'description'  => __( 'Connect to your ESP to register readers with their email addresses and send newsletters.', 'newspack-plugin' ),
 				'instructions' => __( 'Connect to your email service provider (ESP) and enable at least one subscription list.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
+				'help_url'     => 'https://help.newspack.com/engagement/audience-management-system/',
 				'href'         => \admin_url( 'edit.php?post_type=newspack_nl_cpt&page=newspack-newsletters' ),
 				'action_text'  => __( 'ESP settings' ),
 			],
@@ -751,7 +751,7 @@ final class Reader_Activation {
 				'active'      => self::is_transactional_email_configured(),
 				'label'       => __( 'Transactional Emails', 'newspack-plugin' ),
 				'description' => __( 'Your sender name and email address determines how readers find emails related to their account in their inbox. To customize the content of these emails, visit Advanced Settings below.', 'newspack-plugin' ),
-				'help_url'    => 'https://help.newspack.com/engagement/reader-activation-system',
+				'help_url'    => 'https://help.newspack.com/engagement/audience-management-system/',
 				'fields'      => [
 					'sender_name'           => [
 						'label'       => __( 'Sender Name', 'newspack-plugin' ),
@@ -772,7 +772,7 @@ final class Reader_Activation {
 				'label'        => __( 'reCAPTCHA', 'newspack-plugin' ),
 				'description'  => __( 'Connecting to a Google reCAPTCHA account enables enhanced anti-spam for all Newspack sign-up blocks.', 'newspack-plugin' ),
 				'instructions' => __( 'Enable reCAPTCHA and enter your account credentials.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
+				'help_url'     => 'https://help.newspack.com/engagement/audience-management-system/',
 				'href'         => \admin_url( '/admin.php?page=newspack-settings&scrollTo=newspack-settings-recaptcha' ),
 				'action_text'  => __( 'reCAPTCHA settings' ),
 			],
@@ -782,7 +782,7 @@ final class Reader_Activation {
 				'label'        => __( 'Reader Revenue', 'newspack-plugin' ),
 				'description'  => __( 'Setting suggested donation amounts is required for enabling a streamlined donation experience.', 'newspack-plugin' ),
 				'instructions' => __( 'Set platform to "Newspack" or "News Revenue Hub" and configure your default donation settings. If using News Revenue Hub, set an Organization ID and a Donor Landing Page in News Revenue Hub Settings.', 'newspack-plugin' ),
-				'help_url'     => 'https://help.newspack.com/engagement/reader-activation-system',
+				'help_url'     => 'https://help.newspack.com/engagement/audience-management-system/',
 				'href'         => \admin_url( '/admin.php?page=newspack-audience#/payment' ),
 				'action_text'  => __( 'Reader Revenue settings' ),
 			],
@@ -792,12 +792,12 @@ final class Reader_Activation {
 				'plugins'        => [
 					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
 				],
-				'label'          => __( 'Reader Activation Campaign', 'newspack-plugin' ),
-				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.', 'newspack-plugin' ),
-				'help_url'       => 'https://help.newspack.com/engagement/reader-activation-system',
+				'label'          => __( 'Audience Management Campaign', 'newspack-plugin' ),
+				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for audience management.', 'newspack-plugin' ),
+				'help_url'       => 'https://help.newspack.com/engagement/audience-management-system/',
 				'href'           => self::is_ras_campaign_configured() ? admin_url( '/admin.php?page=newspack-audience-campaigns' ) : admin_url( '/admin.php?page=newspack-audience#/campaign' ),
 				'action_enabled' => self::is_ras_ready_to_configure(),
-				'action_text'    => __( 'Reader Activation campaign', 'newspack-plugin' ),
+				'action_text'    => __( 'Audience Management campaign', 'newspack-plugin' ),
 				'disabled_text'  => __( 'Waiting for all settings to be ready', 'newspack-plugin' ),
 			],
 		];

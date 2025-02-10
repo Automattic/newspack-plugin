@@ -34,7 +34,7 @@ class Audience_Subscriptions extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Development / Subscriptions', 'newspack-plugin' );
+		return esc_html__( 'Audience Management / Subscriptions', 'newspack-plugin' );
 	}
 
 	/**

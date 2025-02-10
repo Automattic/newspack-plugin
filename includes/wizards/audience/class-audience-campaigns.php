@@ -47,7 +47,7 @@ class Audience_Campaigns extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Development / Campaigns', 'newspack-plugin' );
+		return esc_html__( 'Audience Management / Campaigns', 'newspack-plugin' );
 	}
 
 	/**
