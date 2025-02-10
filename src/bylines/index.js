@@ -23,35 +23,46 @@ import './style.scss';
 const BYLINE_ID = 'newspack-byline';
 
 const TokenInlineBlock = ( { token, onRemove, onInsert } ) => {
+	const [ isTokenUsed, setIsTokenUsed ] = useState( [] );
+
+	useEffect( () => {
+		const bylineElement = document.querySelector(
+			'.newspack-byline-textarea'
+		);
+
+		const found =
+			bylineElement !== null
+				? !! bylineElement.querySelector( 'span#token-' + token.id )
+				: false;
+
+		setIsTokenUsed( found );
+	}, [ isTokenUsed ] );
+
 	return (
-		<span
-			className="token-inline-block"
-			style={ {
-				background: '#e1e1e1',
-				padding: '6px 6px',
-				borderRadius: '4px',
-				margin: '2em 0',
-			} }
-		>
-			<Button
-				isLink
-				onClick={ onInsert }
-				style={ { padding: '0', margin: '0', textDecoration: 'none' } }
-			>
-				{ token.name }
-			</Button>
-			<Button
-				isLink
-				onClick={ onRemove }
-				style={ {
-					padding: '0',
-					margin: '0 0 0 4px',
-					textDecoration: 'none',
-				} }
-			>
-				x
-			</Button>
-		</span>
+		! isTokenUsed && (
+			<span className="token-inline-block" id={ 'token-' + token.id }>
+				<Button
+					className="token-inline-block__insert"
+					isLink
+					onClick={ () => {
+						onInsert.call();
+						setIsTokenUsed( true );
+					} }
+				>
+					{ token.name }
+				</Button>
+				<Button
+					className="token-inline-block__remove"
+					isLink
+					onClick={ () => {
+						onRemove.call();
+						setIsTokenUsed( false );
+					} }
+				>
+					x
+				</Button>
+			</span>
+		)
 	);
 };
 
@@ -71,11 +82,7 @@ const BylinesSettingsPanel = () => {
 		} );
 	};
 
-	const authorPlaceholder = useSelect(
-		select => select( 'co-authors-plus/blocks' ).getAuthorPlaceholder(),
-		[]
-	);
-	const [ coAuthors, setCoAuthors ] = useState( [ authorPlaceholder ] );
+	const [ coAuthors, setCoAuthors ] = useState( [] );
 
 	const noticesDispatch = useDispatch( 'core/notices' );
 
@@ -97,7 +104,10 @@ const BylinesSettingsPanel = () => {
 		setByline(
 			<>
 				{ byline }{ ' ' }
-				<span id={ token.id } className="author author-token">
+				<span
+					id={ 'token-' + token.id }
+					className="author author-token"
+				>
 					{ token.name }
 				</span>
 			</>

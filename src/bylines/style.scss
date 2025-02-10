@@ -13,3 +13,30 @@
 	margin: 1em auto;
 	max-width: 1200px;
 }
+
+.token-inline-block {
+	background: #e1e1e1;
+	padding: 6px 6px;
+	border-radius: 4px;
+	margin: 2em 0;
+
+	.components-button.is-link {
+		&.token-inline-block__insert {
+			padding: 0;
+			margin: 0;
+			text-decoration: none;
+		}
+
+		&.token-inline-block__remove {
+			padding: 0;
+			margin: 0 0 0 4px;
+			text-decoration: none;
+		}
+	}
+}
+
+.author-token {
+	display: inline-block;
+	padding: 0.5em;
+	background: rgb(225, 225, 225);
+}
