@@ -15,7 +15,7 @@ import { useEffect, useState } from '@wordpress/element';
 import Setup from './setup';
 import Campaign from './campaign';
 import Complete from './complete';
-import { withWizard } from '../../../../components/src';
+import { withWizard, utils } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 import ContentGating from './content-gating';
 import TransactionalEmails from './transactional-emails';
@@ -52,6 +52,33 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		setInFlight( true );
 		wizardApiFetch( {
 			path: '/newspack/v1/wizard/newspack-audience/audience-management',
+			method: 'post',
+			quiet: true,
+			data,
+		} )
+			.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
+				setPrerequisites( prerequisites_status );
+				setConfig( fetchedConfig );
+				setEspSyncErrors( can_esp_sync.errors );
+			} )
+			.catch( setError )
+			.finally( () => setInFlight( false ) );
+	};
+	const skipPrerequisite = data => {
+		if (
+			! utils.confirmAction(
+				__(
+					'Are you sure you want to skip this step?',
+					'newspack-plugin'
+				)
+			)
+		) {
+			return;
+		}
+		setError( false );
+		setInFlight( true );
+		wizardApiFetch( {
+			path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
 			method: 'post',
 			quiet: true,
 			data,
@@ -127,6 +154,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		fetchConfig,
 		updateConfig,
 		saveConfig,
+		skipPrerequisite,
 		setInFlight,
 		setError,
 		getSharedProps,

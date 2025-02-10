@@ -103,7 +103,7 @@ class Audience_Wizard extends Wizard {
 			$data['preview_archive']    = $newspack_popups->preview_archive();
 		}
 
-		$data['is_skipped_campaign_setup'] = get_option( static::SKIP_CAMPAIGN_SETUP_OPTION, '' );
+		$data['is_skipped_campaign_setup'] = Reader_Activation::is_skipped( 'ras_campaign' );
 
 		wp_enqueue_script( 'newspack-wizards' );
 
@@ -185,20 +185,19 @@ class Audience_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/audience-management/skip-campaign',
+			'/wizard/' . $this->slug . '/audience-management/skip',
 			[
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => function( $request ) {
-					$skip = $request->get_param( 'skip' );
-					$skip_campaign_setup = update_option( static::SKIP_CAMPAIGN_SETUP_OPTION, $skip );
-					return rest_ensure_response(
-						[
-							'skipped' => $skip,
-							'updated' => $skip_campaign_setup,
-						]
-					);
-				},
+				'callback'            => [ $this, 'api_skip_prerequisite' ],
 				'permission_callback' => [ $this, 'api_permissions_check' ],
+				'args'                => [
+					'prerequisite' => [
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'skip'         => [
+						'sanitize_callback' => 'Newspack\newspack_string_to_bool',
+					],
+				],
 			]
 		);
 		register_rest_route(
@@ -428,6 +427,7 @@ class Audience_Wizard extends Wizard {
 			[
 				'config'               => Reader_Activation::get_settings(),
 				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
+				'memberships'          => self::get_memberships_settings(),
 				'can_esp_sync'         => Reader_Activation\ESP_Sync::can_esp_sync( true ),
 			]
 		);
@@ -490,6 +490,30 @@ class Audience_Wizard extends Wizard {
 		}
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Activate reader activation and publish RAS prompts/segments.
+	 *
+	 * @param WP_REST_Request $request WP Rest Request object.
+	 * @return WP_REST_Response
+	 */
+	public function api_skip_prerequisite( WP_REST_Request $request ) {
+		$preqrequisite       = $request->get_param( 'prerequisite' );
+		$skip                = $request->get_param( 'skip' );
+		$skip_campaign_setup = Reader_Activation::skip( $preqrequisite, $skip );
+		if ( ! $skip_campaign_setup ) {
+			return new WP_REST_Response( [ 'message' => __( 'Error skipping prerequisite', 'newspack-plugin' ) ], 400 );
+		}
+
+		return rest_ensure_response(
+			[
+				'config'               => Reader_Activation::get_settings(),
+				'prerequisites_status' => Reader_Activation::get_prerequisites_status(),
+				'memberships'          => self::get_memberships_settings(),
+				'can_esp_sync'         => Reader_Activation\ESP_Sync::can_esp_sync( true ),
+			]
+		);
 	}
 
 	/**

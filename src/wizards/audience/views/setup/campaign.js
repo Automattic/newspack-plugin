@@ -72,13 +72,16 @@ export default withWizardScreen( () => {
 		setSkipped( { ...skipped, status: 'pending' } );
 		try {
 			const request = await apiFetch( {
-				path: '/newspack/v1/wizard/newspack-audience/audience-management/skip-campaign',
+				path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
 				method: 'POST',
-				data: { skip: ! skipped.isSkipped },
+				data: {
+					prerequisite: 'ras_campaign',
+					skip: ! skipped.isSkipped
+				},
 			} );
-			if ( ! request.updated ) {
+			if ( ! request?.prerequisites_status?.ras_campaign?.is_skipped ) {
 				setError( {
-					message: __( 'Server not updated', 'newspack-plugin' ),
+					message: __( 'Error skipping this step.', 'newspack-plugin' ),
 				} );
 				setSkipped( { isSkipped: false, status: '' } );
 				return;
@@ -142,7 +145,8 @@ export default withWizardScreen( () => {
 				) ) }
 			<div className="newspack-buttons-card">
 				<Button
-					isTertiary
+					variant={ 'secondary' }
+					isDestructive
 					disabled={
 						inFlight ||
 						skipped.isSkipped ||

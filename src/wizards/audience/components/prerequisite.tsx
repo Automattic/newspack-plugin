@@ -14,14 +14,17 @@ import { HANDOFF_KEY } from '../../../components/src/consts';
  * Expandable ActionCard for RAS prerequisites checklist.
  */
 export default function Prerequisite( {
+	slug,
 	config,
 	getSharedProps,
 	inFlight,
 	prerequisite,
 	saveConfig,
+	skipPrerequisite,
 }: PrequisiteProps ) {
 	const { href } = prerequisite;
-	const isValid = Boolean( prerequisite.active || prerequisite.is_skipped );
+	const isSkipped = Boolean( prerequisite.is_skipped );
+	const isValid = Boolean( isSkipped || prerequisite.active );
 
 	// If the prerequisite is active but has empty fields, show a warning.
 	const hasEmptyFields = () => {
@@ -55,150 +58,167 @@ export default function Prerequisite( {
 				</p>
 			) }
 			{
-				// Form fields.
-				prerequisite.fields && (
+				( prerequisite.fields || prerequisite.action_text ) && (
 					<Grid columns={ 2 } gutter={ 16 }>
-						<div>
-							{ fieldKeys.map( fieldName => {
-								if (
-									! prerequisite.fields ||
-									! prerequisite.fields[ fieldName ]
-								) {
-									return undefined;
-								}
-								return (
-									<TextControl
-										key={ fieldName }
-										label={
-											prerequisite.fields[ fieldName ]
-												.label
+						<div className="button-group">
+							{
+							// Form fields.
+							prerequisite.fields && (
+								<>
+									{ fieldKeys.map( fieldName => {
+										if (
+											! prerequisite.fields ||
+											! prerequisite.fields[ fieldName ]
+										) {
+											return undefined;
 										}
-										help={
-											prerequisite.fields[ fieldName ]
-												.description
-										}
-										{ ...getSharedProps(
-											fieldName,
-											'text'
-										) }
-									/>
-								);
-							} ) }
+										return (
+											<TextControl
+												key={ fieldName }
+												label={
+													prerequisite.fields[ fieldName ]
+														.label
+												}
+												help={
+													prerequisite.fields[ fieldName ]
+														.description
+												}
+												{ ...getSharedProps(
+													fieldName,
+													'text'
+												) }
+											/>
+										);
+									} ) }
 
-							<Button
-								variant={ 'primary' }
-								onClick={ () => {
-									const dataToSave: Partial< Config > = {};
-									fieldKeys.forEach( fieldName => {
-										if ( config[ fieldName ] ) {
-											// @ts-ignore - not sure what's the issue here.
-											dataToSave[ fieldName ] =
-												config[ fieldName ];
-										}
-									} );
-									saveConfig( dataToSave );
-								} }
-								disabled={ inFlight }
-							>
-								{ inFlight
-									? __( 'Saving…', 'newspack-plugin' )
-									: sprintf(
-											// Translators: Save or Update settings.
-											__(
-												'%s settings',
-												'newspack-plugin'
-											),
-											isValid
-												? __(
-														'Update',
+									<Button
+										variant={ 'primary' }
+										onClick={ () => {
+											const dataToSave: Partial< Config > = {};
+											fieldKeys.forEach( fieldName => {
+												if ( config[ fieldName ] ) {
+													// @ts-ignore - not sure what's the issue here.
+													dataToSave[ fieldName ] =
+														config[ fieldName ];
+												}
+											} );
+											saveConfig( dataToSave );
+										} }
+										disabled={ inFlight }
+									>
+										{ inFlight
+											? __( 'Saving…', 'newspack-plugin' )
+											: sprintf(
+													// Translators: Save or Update settings.
+													__(
+														'%s settings',
 														'newspack-plugin'
-												  )
-												: __(
-														'Save',
-														'newspack-plugin'
-												  )
-									  ) }
-							</Button>
-						</div>
-					</Grid>
-				)
-			}
-			{
-				// Link to another settings page or update config in place.
-				href && prerequisite.action_text && (
-					<Grid columns={ 2 } gutter={ 16 }>
-						<div>
-							{ ( ! prerequisite.hasOwnProperty(
-								'action_enabled'
-							) ||
-								prerequisite.action_enabled ) && (
-								<Button
-									variant={ 'primary' }
-									onClick={ () => {
-										// Set up a handoff to indicate that the user is coming from the RAS wizard page.
-										if ( prerequisite.instructions ) {
-											window.localStorage.setItem(
-												HANDOFF_KEY,
-												JSON.stringify( {
-													message: sprintf(
-														// Translators: %s is specific instructions for satisfying the prerequisite.
-														__(
-															'%1$s%2$sReturn to the Audience Configuration page to complete the settings and activate%3$s.',
-															'newspack-plugin'
-														),
-														prerequisite.instructions +
-															' ',
-														window
-															.newspackAudience
-															?.reader_activation_url
-															? `<a href="${ window.newspackAudience.reader_activation_url }">`
-															: '',
-														window
-															.newspackAudience
-															?.reader_activation_url
-															? '</a>'
-															: ''
 													),
-													url: href,
-												} )
-											);
-										}
+													isValid
+														? __(
+																'Update',
+																'newspack-plugin'
+															)
+														: __(
+																'Save',
+																'newspack-plugin'
+															)
+												) }
+									</Button>
+								</>
+							)
+						}
+						{
+							// Link to another settings page or update config in place.
+							href && prerequisite.action_text && (
+								<>
+									{ ( ! prerequisite.hasOwnProperty(
+										'action_enabled'
+									) ||
+										prerequisite.action_enabled ) && (
+										<Button
+											variant={ 'primary' }
+											onClick={ () => {
+												// Set up a handoff to indicate that the user is coming from the RAS wizard page.
+												if ( prerequisite.instructions ) {
+													window.localStorage.setItem(
+														HANDOFF_KEY,
+														JSON.stringify( {
+															message: sprintf(
+																// Translators: %s is specific instructions for satisfying the prerequisite.
+																__(
+																	'%1$s%2$sReturn to the Audience Configuration page to complete the settings and activate%3$s.',
+																	'newspack-plugin'
+																),
+																prerequisite.instructions +
+																	' ',
+																window
+																	.newspackAudience
+																	?.reader_activation_url
+																	? `<a href="${ window.newspackAudience.reader_activation_url }">`
+																	: '',
+																window
+																	.newspackAudience
+																	?.reader_activation_url
+																	? '</a>'
+																	: ''
+															),
+															url: href,
+														} )
+													);
+												}
 
-										window.location.href = href;
+												window.location.href = href;
+											} }
+										>
+											{ /* eslint-disable no-nested-ternary */ }
+											{ ( isValid
+												? __( 'Update ', 'newspack-plugin' )
+												: prerequisite.fields
+												? __( 'Save ', 'newspack-plugin' )
+												: __(
+														'Configure ',
+														'newspack-plugin'
+												) ) + prerequisite.action_text }
+										</Button>
+									) }
+									{ prerequisite.hasOwnProperty( 'action_enabled' ) &&
+										! prerequisite.action_enabled && (
+											<Button variant={ 'secondary' } disabled>
+												{ prerequisite.disabled_text ||
+													prerequisite.action_text }
+											</Button>
+										) }
+								</>
+							)
+						}
+
+						{ prerequisite.skippable && ! prerequisite.active && ! isSkipped && (
+								<Button
+									variant={ 'secondary' }
+									isDestructive
+									onClick={ () => {
+										skipPrerequisite( {
+											prerequisite: slug,
+											skip: true,
+										} );
 									} }
 								>
-									{ /* eslint-disable no-nested-ternary */ }
-									{ ( isValid
-										? __( 'Update ', 'newspack-plugin' )
-										: prerequisite.fields
-										? __( 'Save ', 'newspack-plugin' )
-										: __(
-												'Configure ',
-												'newspack-plugin'
-										  ) ) + prerequisite.action_text }
+									{ __( 'Skip', 'newspack-plugin' ) }
 								</Button>
-							) }
-							{ prerequisite.hasOwnProperty( 'action_enabled' ) &&
-								! prerequisite.action_enabled && (
-									<Button variant={ 'secondary' } disabled>
-										{ prerequisite.disabled_text ||
-											prerequisite.action_text }
-									</Button>
-								) }
-						</div>
-					</Grid>
-				)
-			}
+						) }
+					</div>
+				</Grid>
+			) }
 		</>
 	);
 
 	let status = __( 'Pending', 'newspack-plugin' );
 	if ( isValid ) {
-		status = `${ __( 'Ready', 'newspack-plugin' ) } ${
-			prerequisite.is_skipped
-				? `(${ __( 'Skipped', 'newspack-plugin' ) })`
-				: ''
-		}`;
+		status = __( 'Ready', 'newspack-plugin' );
+	}
+	if ( isSkipped && ! prerequisite.active ) {
+		status = __( 'Skipped', 'newspack-plugin' );
 	}
 	if ( prerequisite.is_unavailable ) {
 		status = __( 'Unavailable', 'newspack-plugin' );
@@ -216,7 +236,8 @@ export default function Prerequisite( {
 				__( 'Status: %s', 'newspack-plugin' ),
 				status
 			) }
-			checkbox={ isValid ? 'checked' : 'unchecked' }
+			checkbox={ isValid && ! isSkipped ? 'checked' : 'unchecked' }
+			isPending={ isSkipped && ! prerequisite.active }
 			notificationLevel="info"
 			notification={ hasEmptyFields() }
 		>
