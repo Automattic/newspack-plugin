@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 
@@ -15,14 +15,14 @@ import {
 } from '../../../../components/src';
 import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
-export const WooPayments = ( { woopayments } ) => {
+export const PaymentGateway = ( { gateway } ) => {
 	const isLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isLoading() );
 	const isQuietLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isQuietLoading() );
 	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
-			path: [ 'payment_gateways', 'woopayments', key ],
+			path: [ 'payment_gateways', gateway.slug, key ],
 			value,
 		} );
 
@@ -30,13 +30,13 @@ export const WooPayments = ( { woopayments } ) => {
 	const onSave = () =>
 		saveWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
-			section: 'woopayments',
-			payloadPath: [ 'payment_gateways', 'woopayments' ],
+			section: 'gateway',
+			payloadPath: [ 'payment_gateways', gateway.slug ],
 		} );
-	const testMode = woopayments?.test_mode;
-	const isConnected = woopayments?.is_connected;
+	const testMode = gateway?.test_mode;
+	const isConnected = gateway?.is_connected;
 	const getConnectionStatus = () => {
-		if ( ! woopayments?.enabled ) {
+		if ( ! gateway?.enabled ) {
 			return null;
 		}
 		if ( isLoading || isQuietLoading ) {
@@ -51,7 +51,7 @@ export const WooPayments = ( { woopayments } ) => {
 		return __( 'Connected', 'newspack-plugin' );
 	}
 	const getBadgeLevel = () => {
-		if ( ! woopayments?.enabled || isLoading || isQuietLoading ) {
+		if ( ! gateway?.enabled || isLoading || isQuietLoading ) {
 			return 'info';
 		}
 		if ( ! isConnected ) {
@@ -63,31 +63,34 @@ export const WooPayments = ( { woopayments } ) => {
 	return (
 		<ActionCard
 			isMedium
-			title={ __( 'WooPayments', 'newspack-plugin' ) }
+			title={ gateway.name }
 			description={ () => (
 				<>
-					{ __(
-						'Enable WooPayments. ',
-						'newspack-plugin'
+					{ sprintf(
+						// Translators: %s is the payment gateway name.
+						__( 'Enable %s. ', 'newspack-plugin' ),
+						gateway.name
 					) }
-					<ExternalLink href="https://woocommerce.com/payments/">
-						{ __( 'Learn more', 'newspack-plugin' ) }
-					</ExternalLink>
+					{ gateway.url && (
+						<ExternalLink href={ gateway.url }>
+							{ __( 'Learn more', 'newspack-plugin' ) }
+						</ExternalLink>
+					) }
 				</>
 			) }
 			hasWhiteHeader
-			toggleChecked={ !! woopayments.enabled }
+			toggleChecked={ !! gateway.enabled }
 			toggleOnChange={ () => {
-				changeHandler( 'enabled', ! woopayments.enabled );
+				changeHandler( 'enabled', ! gateway.enabled );
 				onSave();
 			} }
 			badge={ getConnectionStatus() }
 			badgeLevel={ getBadgeLevel() }
 			// eslint-disable-next-line no-nested-ternary
-			actionContent={ ( ! woopayments?.enabled || isLoading || isQuietLoading ) ? null : isConnected ? (
+			actionContent={ ( ! gateway?.enabled || isLoading || isQuietLoading ) ? null : isConnected ? (
 				<Button
 					variant="secondary"
-					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=woocommerce_payments"
+					href={ gateway.settings }
 					target="_blank"
 					rel="noreferrer"
 				>
@@ -96,7 +99,7 @@ export const WooPayments = ( { woopayments } ) => {
 			) : (
 				<Button
 					variant="primary"
-					href="/wp-admin/admin.php?page=wc-admin&path=%2Fpayments%2Foverview"
+					href={ gateway.connect }
 					target="_blank"
 					rel="noreferrer"
 				>

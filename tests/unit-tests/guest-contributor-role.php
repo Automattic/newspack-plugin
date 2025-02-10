@@ -22,6 +22,22 @@ class Newspack_Test_Guest_Contributor_Role extends WP_UnitTestCase {
 	/**
 	 * On a post with author.
 	 */
+	public function test_guest_contributor_role_get_dummy_email() {
+		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
+		$user = get_userdata( 1 );
+
+		$expected = $user->user_login . '@' . $email_domain;
+
+		$dummy_email = Guest_Contributor_Role::get_dummy_email_address( $user );
+		$this->assertSame( $expected, $dummy_email );
+
+		$dummy_email = Guest_Contributor_Role::get_dummy_email_address( $user->user_login );
+		$this->assertSame( $expected, $dummy_email );
+	}
+
+	/**
+	 * On a post with author.
+	 */
 	public function test_guest_contributor_role_dummy_email_hiding_default() {
 		$email_domain = Guest_Contributor_Role::get_dummy_email_domain();
 		$user_id = \wp_insert_user(
