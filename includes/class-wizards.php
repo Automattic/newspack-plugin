@@ -31,8 +31,6 @@ class Wizards {
 		self::$wizards = [
 			'components-demo'         => new Components_Demo(),
 			'seo'                     => new SEO_Wizard(),
-			'health-check'            => new Health_Check_Wizard(),
-			'engagement'              => new Engagement_Wizard(),
 			// v2 Information Architecture.
 			'newspack-dashboard'      => new Newspack_Dashboard(),
 			'setup'                   => new Setup_Wizard(),

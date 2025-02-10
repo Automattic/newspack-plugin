@@ -190,7 +190,7 @@ class Audience_Donations extends Wizard {
 		}
 
 		if ( isset( $settings['allow_covering_fees_label'] ) ) {
-			update_option( 'newspack_donations_allow_covering_fees_label', intval( $settings['allow_covering_fees_label'] ) );
+			update_option( 'newspack_donations_allow_covering_fees_label', sanitize_text_field( $settings['allow_covering_fees_label'] ) );
 		}
 		if ( isset( $settings['fee_multiplier'] ) ) {
 			update_option( 'newspack_blocks_donate_fee_multiplier', $settings['fee_multiplier'] );
@@ -250,7 +250,7 @@ class Audience_Donations extends Wizard {
 				'platform' => $platform,
 			],
 			'additional_settings' => [
-				'allow_covering_fees'         => boolval( get_option( 'newspack_donations_allow_covering_fees', false ) ),
+				'allow_covering_fees'         => boolval( get_option( 'newspack_donations_allow_covering_fees', true ) ),
 				'allow_covering_fees_default' => boolval( get_option( 'newspack_donations_allow_covering_fees_default', false ) ),
 				'allow_covering_fees_label'   => get_option( 'newspack_donations_allow_covering_fees_label', '' ),
 				'fee_multiplier'              => get_option( 'newspack_blocks_donate_fee_multiplier', '2.9' ),
