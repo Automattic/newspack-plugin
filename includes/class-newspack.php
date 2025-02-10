@@ -115,7 +115,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-oauth.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-services-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-mailchimp-api.php';
-		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-fivetran-connection.php';
 		include_once NEWSPACK_ABSPATH . 'includes/oauth/class-google-login.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-blocks.php';
 		include_once NEWSPACK_ABSPATH . 'includes/tracking/class-pixel.php';
@@ -171,9 +170,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletters-wizard.php';
 
 		/* Unified Wizards */
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-analytics-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-connections-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';

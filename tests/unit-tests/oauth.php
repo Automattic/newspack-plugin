@@ -66,7 +66,7 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 			$consent_page_params,
 			[
 				'scope'          => 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/dfp https://www.googleapis.com/auth/analytics https://www.googleapis.com/auth/analytics.edit',
-				'redirect_after' => 'http://example.org/wp-admin/admin.php?page=newspack-connections-wizard',
+				'redirect_after' => 'http://example.org/wp-admin/admin.php?page=newspack-settings',
 				'csrf_token'     => $csrf_token,
 			],
 			'The consent page request params are as expected.'
@@ -127,26 +127,6 @@ class Newspack_Test_OAuth extends WP_UnitTestCase {
 			Google_Services_Connection::get_oauth2_credentials(),
 			false,
 			'OAuth2 object getter return false after credentials are removed.'
-		);
-	}
-
-	/**
-	 * Fivetran OAuth flow.
-	 */
-	public function test_oauth_fivetran() {
-		self::expectException( Exception::class );
-		self::assertFalse(
-			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
-			'Proxy URL getting throws until configured.'
-		);
-		self::set_api_key();
-		if ( ! defined( 'NEWSPACK_FIVETRAN_PROXY' ) ) {
-			define( 'NEWSPACK_FIVETRAN_PROXY', 'http://dummy.proxy' );
-		}
-		self::assertEquals(
-			'http://dummy.proxy/wp-json/newspack-fivetran?api_key=123abc',
-			OAuth::authenticate_proxy_url( 'fivetran', '/wp-json/newspack-fivetran' ),
-			'Proxy URL is as expected after proxy is configured.'
 		);
 	}
 }

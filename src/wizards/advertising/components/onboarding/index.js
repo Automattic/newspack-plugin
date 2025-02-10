@@ -11,7 +11,7 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
  * Internal dependencies.
  */
 import { Card, ButtonCard, Notice, TextControl } from '../../../../components/src';
-import GoogleOAuth from '../../../connections/views/main/google';
+import GoogleOAuth from '../../../newspack/views/settings/connections/google-oauth';
 import { handleJSONFile } from '../utils';
 
 export default function AdsOnboarding( { onUpdate, onSuccess } ) {

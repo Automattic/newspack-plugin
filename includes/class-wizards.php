@@ -29,11 +29,8 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'analytics'               => new Analytics_Wizard(),
 			'components-demo'         => new Components_Demo(),
 			'seo'                     => new SEO_Wizard(),
-			'engagement'              => new Engagement_Wizard(),
-			'connections'             => new Connections_Wizard(),
 			// v2 Information Architecture.
 			'newspack-dashboard'      => new Newspack_Dashboard(),
 			'setup'                   => new Setup_Wizard(),
