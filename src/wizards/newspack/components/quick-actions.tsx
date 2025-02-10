@@ -29,7 +29,7 @@ const QuickActions = () => {
 						<a href={ action.href } key={ i }>
 							<Card className="newspack-dashboard__card">
 								<div className="newspack-dashboard__card-icon">
-									<Icon size={ 32 } icon={ icons[ action.icon ] } />
+									<Icon icon={ icons[ action.icon ] } />
 								</div>
 								<h4>{ action.title }</h4>
 							</Card>
