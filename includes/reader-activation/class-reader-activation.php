@@ -792,12 +792,12 @@ final class Reader_Activation {
 				'plugins'        => [
 					'newspack-popups' => class_exists( '\Newspack_Popups_Model' ),
 				],
-				'label'          => __( 'Reader Activation Campaign', 'newspack-plugin' ),
+				'label'          => __( 'Audience Management Campaign', 'newspack-plugin' ),
 				'description'    => __( 'Building a set of prompts with default segments and settings allows for an improved experience optimized for Reader Activation.', 'newspack-plugin' ),
 				'help_url'       => 'https://help.newspack.com/engagement/audience-management-system/',
 				'href'           => self::is_ras_campaign_configured() ? admin_url( '/admin.php?page=newspack-audience-campaigns' ) : admin_url( '/admin.php?page=newspack-audience#/campaign' ),
 				'action_enabled' => self::is_ras_ready_to_configure(),
-				'action_text'    => __( 'Reader Activation campaign', 'newspack-plugin' ),
+				'action_text'    => __( 'Audience Management campaign', 'newspack-plugin' ),
 				'disabled_text'  => __( 'Waiting for all settings to be ready', 'newspack-plugin' ),
 			],
 		];
