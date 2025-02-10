@@ -767,7 +767,7 @@ final class Reader_Activation {
 		// Legacy option name compabitility.
 		$legacy_is_skipped = false;
 		if ( 'ras_campaign' === $prerequisite ) {
-			$legacy_is_skipped = get_option( Engagement_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, false ) === '1';
+			$legacy_is_skipped = get_option( Audience_Wizard::SKIP_CAMPAIGN_SETUP_OPTION, false ) === '1';
 		}
 
 		return boolval( get_option( self::OPTIONS_PREFIX . $prerequisite . '_skipped', $legacy_is_skipped ) );
@@ -786,7 +786,7 @@ final class Reader_Activation {
 
 		// Legacy option name compabitility.
 		if ( 'ras_campaign' === $prerequisite && ! $skip && ! $updated ) {
-			$updated = delete_option( Engagement_Wizard::SKIP_CAMPAIGN_SETUP_OPTION );
+			$updated = delete_option( Audience_Wizard::SKIP_CAMPAIGN_SETUP_OPTION );
 		}
 
 		// If all requirements are met or skipped, and RAS isn't yet enabled, enable it.
