@@ -444,7 +444,7 @@ class Plugin_Manager {
 	/**
 	 * Get the list of plugins which are supported, but not managed.
 	 * These plugins will not be added to the WP Admin plugins screen,
-	 * but installing them will not raise any issues in Health Check.
+	 * but installing them shouldn't be an issue.
 	 */
 	private static function get_supported_plugins_slugs() {
 		return [
