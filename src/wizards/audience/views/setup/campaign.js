@@ -42,7 +42,7 @@ export default withWizardScreen( () => {
 		setError( false );
 		setInFlight( true );
 		apiFetch( {
-			path: '/newspack-popups/v1/reader-activation/campaign',
+			path: '/newspack-popups/v1/audience-management/campaign',
 		} )
 			.then( fetchedPrompts => {
 				setPrompts( fetchedPrompts );
@@ -61,7 +61,7 @@ export default withWizardScreen( () => {
 		if (
 			! utils.confirmAction(
 				__(
-					'Are you sure you want to skip setting up a reader activation campaign?',
+					'Are you sure you want to skip setting up an Audience Management campaign?',
 					'newspack-plugin'
 				)
 			)
@@ -72,7 +72,7 @@ export default withWizardScreen( () => {
 		setSkipped( { ...skipped, status: 'pending' } );
 		try {
 			const request = await apiFetch( {
-				path: '/newspack/v1/wizard/newspack-audience/reader-activation/skip-campaign',
+				path: '/newspack/v1/wizard/newspack-audience/audience-management/skip-campaign',
 				method: 'POST',
 				data: { skip: ! skipped.isSkipped },
 			} );
@@ -107,7 +107,7 @@ export default withWizardScreen( () => {
 	return (
 		<WizardsTab
 			title={ __(
-				'Set Up Reader Activation Campaign',
+				'Set Up Audience Management Campaign',
 				'newspack-plugin'
 			) }
 			description={ __(

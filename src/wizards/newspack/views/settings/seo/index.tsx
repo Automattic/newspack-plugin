@@ -21,7 +21,7 @@ import WizardsActionCard from '../../../../wizards-action-card';
 import useFieldsValidation from '../../../../hooks/use-fields-validation';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
-const PATH = '/newspack/v1/wizard/newspack-seo-wizard/settings';
+const PATH = '/newspack/v1/wizard/newspack-settings/seo';
 
 function Seo() {
 	const { wizardApiFetch, isFetching } = useWizardApiFetch( 'newspack-settings/seo' );

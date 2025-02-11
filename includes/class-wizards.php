@@ -29,12 +29,7 @@ class Wizards {
 	 */
 	public static function init() {
 		self::$wizards = [
-			'analytics'               => new Analytics_Wizard(),
 			'components-demo'         => new Components_Demo(),
-			'seo'                     => new SEO_Wizard(),
-			'health-check'            => new Health_Check_Wizard(),
-			'engagement'              => new Engagement_Wizard(),
-			'connections'             => new Connections_Wizard(),
 			// v2 Information Architecture.
 			'newspack-dashboard'      => new Newspack_Dashboard(),
 			'setup'                   => new Setup_Wizard(),
@@ -45,6 +40,7 @@ class Wizards {
 						'social-pixels' => 'Newspack\Wizards\Newspack\Pixels_Section',
 						'recirculation' => 'Newspack\Wizards\Newspack\Recirculation_Section',
 						'syndication'   => 'Newspack\Wizards\Newspack\Syndication_Section',
+						'seo'           => 'Newspack\Wizards\Newspack\Seo_Section',
 					],
 				]
 			),

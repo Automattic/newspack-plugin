@@ -73,7 +73,7 @@ export default withWizardScreen( () => {
 					) }
 					<ExternalLink
 						href={
-							'https://help.newspack.com/engagement/reader-activation-system/content-gating/'
+							'https://help.newspack.com/engagement/audience-management-system/content-gating/'
 						}
 					>
 						{ __( 'Learn more', 'newspack-plugin' ) }

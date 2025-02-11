@@ -31,7 +31,7 @@ class Newspack_Dashboard extends Wizard {
 	/**
 	 * Use a high priorty so that the Newspack parent menu will be created
 	 * prior to submenu items being added.
-	 * 
+	 *
 	 * @var int.
 	 */
 	protected $admin_menu_priority = 1;
@@ -44,13 +44,13 @@ class Newspack_Dashboard extends Wizard {
 	public function get_dashboard() {
 		$dashboard = [
 			'audience_development' => [
-				'title' => __( 'Audience development', 'newspack-plugin' ),
+				'title' => __( 'Audience Management', 'newspack-plugin' ),
 				'desc'  => __( 'Engage your readers more deeply with tools to build customer relationships that drive towards sustainable revenue.', 'newspack-plugin' ),
 				'cards' => [
 					[
 						'icon'  => 'settings',
 						'title' => __( 'Configuration', 'newspack-plugin' ),
-						'desc'  => __( 'Manage your audience development setup.', 'newspack-plugin' ),
+						'desc'  => __( 'Manage your Audience Management setup.', 'newspack-plugin' ),
 						'href'  => admin_url( 'admin.php?page=newspack-audience' ),
 					],
 					[
@@ -258,12 +258,12 @@ class Newspack_Dashboard extends Wizard {
 			'plugins'      => get_plugins(),
 			'siteStatuses' => [
 				'readerActivation' => [
-					'label'        => __( 'Reader Activation', 'newspack-plugin' ),
+					'label'        => __( 'Audience Management', 'newspack-plugin' ),
 					'statuses'     => [
 						'success' => __( 'Enabled', 'newspack-plugin' ),
 						'error'   => __( 'Disabled', 'newspack-plugin' ),
 					],
-					'endpoint'     => '/newspack/v1/wizard/newspack-audience/reader-activation',
+					'endpoint'     => '/newspack/v1/wizard/newspack-audience/audience-management',
 					'configLink'   => admin_url( 'admin.php?page=newspack-audience#/' ),
 					'dependencies' => [
 						'woocommerce' => [

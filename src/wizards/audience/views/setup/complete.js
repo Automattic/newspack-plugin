@@ -37,7 +37,7 @@ const listItems = [
 	},
 	{
 		text: __(
-			'The <strong>Reader Activation campaign</strong> will be activated with default segments and settings.',
+			'The <strong>Audience Management campaign</strong> will be activated with default segments and settings.',
 			'newspack-plugin'
 		),
 		isSkipped: '<span class="is-skipped">[skipped]</span>',
@@ -47,7 +47,7 @@ const listItems = [
 const DEFAULT_ACTIVATION_STEPS = {
 	campaignsSegments: __( 'Setting up new segments…', 'newspack-plugin' ),
 	readerRegistration: __( 'Activating reader registration…', 'newspack-plugin' ),
-	campaignsPrompts: __( 'Activating Reader Activation Campaign…', 'newspack-plugin' ),
+	campaignsPrompts: __( 'Activating Audience Management Campaign…', 'newspack-plugin' ),
 };
 
 /**
@@ -127,7 +127,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 		try {
 			setCompleted(
 				await apiFetch( {
-					path: '/newspack/v1/wizard/newspack-audience/reader-activation/activate',
+					path: '/newspack/v1/wizard/newspack-audience/audience-management/activate',
 					method: 'post',
 					data: {
 						skip_activation: isSkippedCampaignSetup,
@@ -142,7 +142,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 	return (
 		<div className="newspack-ras-campaign__completed">
 			<WizardsTab
-				title={ __( 'Enable Reader Activation', 'newspack-plugin' ) }
+				title={ __( 'Enable Audience Management', 'newspack-plugin' ) }
 				description={
 					<>
 						{ __(
@@ -170,7 +170,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 				) }
 				{ ! inFlight && (
 					<Card className="newspack-ras-campaign__completed-card">
-						<h2>{ __( "You're all set to enable Reader Activation!", 'newspack-plugin' ) }</h2>
+						<h2>{ __( "You're all set to enable Audience Management!", 'newspack-plugin' ) }</h2>
 						<p>{ __( 'This is what will happen next:', 'newspack-plugin' ) }</p>
 
 						<Card noBorder className="justify-center">
@@ -186,7 +186,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 
 						<Card buttonsCard noBorder className="justify-center">
 							<Button isPrimary onClick={ () => activate() }>
-								{ __( 'Enable Reader Activation', 'newspack-plugin' ) }
+								{ __( 'Enable Audience Management', 'newspack-plugin' ) }
 							</Button>
 						</Card>
 					</Card>

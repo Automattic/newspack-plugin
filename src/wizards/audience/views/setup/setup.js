@@ -84,16 +84,16 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 
 	return (
 		<WizardsTab
-			title={ __( 'Audience Development', 'newspack-plugin' ) }
+			title={ __( 'Audience Management', 'newspack-plugin' ) }
 			description={
 				<>
 					{ __(
-						"Newspack's Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
+						"Newspack's Audience Management system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
 						'newspack-plugin'
 					) }
 					<ExternalLink
 						href={
-							'https://help.newspack.com/engagement/reader-activation-system'
+							'https://help.newspack.com/engagement/audience-management-system'
 						}
 					>
 						{ __( 'Learn more', 'newspack-plugin' ) }
@@ -122,7 +122,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			{ 0 === missingPlugins.length && prerequisites && ! allReady && (
 				<Notice
 					noticeText={ __(
-						'Complete these settings to enable Reader Activation.',
+						'Complete these settings to enable Audience Management.',
 						'newspack-plugin'
 					) }
 					isWarning
@@ -131,7 +131,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			{ prerequisites && allReady && config.enabled && (
 				<Notice
 					noticeText={ __(
-						'Reader Activation is enabled.',
+						'Audience Management is enabled.',
 						'newspack-plugin'
 					) }
 					isSuccess
@@ -140,7 +140,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			{ ! prerequisites && (
 				<>
 					<Waiting isLeft />
-					{ __( 'Retrieving status…', 'newspack-plugin' ) }
+					{ __( 'Fetching status…', 'newspack-plugin' ) }
 				</>
 			) }
 			{ 0 < missingPlugins.length && prerequisites && (
