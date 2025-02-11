@@ -1,3 +1,10 @@
+## [5.13.1](https://github.com/Automattic/newspack-plugin/compare/v5.13.0...v5.13.1) (2025-02-06)
+
+
+### Bug Fixes
+
+* **esp-sync:** get last payment amount from actual completed order ([#3726](https://github.com/Automattic/newspack-plugin/issues/3726)) ([db284c1](https://github.com/Automattic/newspack-plugin/commit/db284c11a3c5f3308e17c799733d8a1d680ffaa3))
+
 # [5.13.0](https://github.com/Automattic/newspack-plugin/compare/v5.12.5...v5.13.0) (2025-02-03)
 
 
