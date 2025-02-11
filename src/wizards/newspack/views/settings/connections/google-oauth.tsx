@@ -89,6 +89,7 @@ function GoogleOAuth( {
 		wizardApiFetch< string >(
 			{
 				path: '/newspack/v1/oauth/google/start',
+				isCached: false,
 			},
 			{
 				onSuccess( url ) {
