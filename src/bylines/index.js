@@ -20,54 +20,30 @@ import { useEffect, useState } from 'react';
  */
 import './style.scss';
 
-const BYLINE_ID = 'newspack-byline';
-
-const TokenInlineBlock = ( { token, onRemove, onInsert } ) => {
-	const [ isTokenUsed, setIsTokenUsed ] = useState( [] );
-
-	useEffect( () => {
-		const bylineElement = document.querySelector(
-			'.newspack-byline-textarea'
-		);
-
-		const found =
-			bylineElement !== null
-				? !! bylineElement.querySelector( 'span#token-' + token.id )
-				: false;
-
-		setIsTokenUsed( found );
-	}, [ isTokenUsed ] );
-
+const TokenInlineBlock = ( { token, onInsert } ) => {
 	return (
-		! isTokenUsed && (
-			<span className="token-inline-block" id={ 'token-' + token.id }>
+		<>
+			<span
+				className="token-inline-block"
+				id={ 'token-button-' + token.id }
+			>
 				<Button
 					className="token-inline-block__insert"
 					isLink
 					onClick={ () => {
 						onInsert.call();
-						setIsTokenUsed( true );
 					} }
 				>
 					{ token.name }
 				</Button>
-				<Button
-					className="token-inline-block__remove"
-					isLink
-					onClick={ () => {
-						onRemove.call();
-						setIsTokenUsed( false );
-					} }
-				>
-					x
-				</Button>
 			</span>
-		)
+		</>
 	);
 };
 
 const BylinesSettingsPanel = () => {
 	const [ tokens, setTokens ] = useState( [] );
+	const [ tokensUsed, setTokensUsed ] = useState( [] );
 
 	const { postId } = useSelect(
 		select => ( {
@@ -92,27 +68,57 @@ const BylinesSettingsPanel = () => {
 		select( 'core/editor' )
 	);
 
-	const [ byline, setByline ] = useState(
-		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || ''
-	);
+	const byline =
+		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '';
 
 	const [ isEnabled, setIsEnabled ] = useState(
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
 
 	const insertToken = token => {
-		setByline(
-			<>
-				{ byline }{ ' ' }
-				<span
-					id={ 'token-' + token.id }
-					className="author author-token"
-				>
-					{ token.name }
-				</span>
-			</>
+		const bylineElement = document.querySelector(
+			'.newspack-byline-textarea'
 		);
+
+		const tokenElement = `
+			<span id="token-${ token.id }" class="token-inline-block author author-token">
+				${ token.name }
+				<button
+					class="components-button is-link token-inline-block__remove"
+					type="button"
+					data-token="${ token.id }"
+				>
+					x
+				</button>
+			</span>
+		`;
+
+		bylineElement.innerHTML = bylineElement.innerHTML + ' ' + tokenElement;
+
+		setTokensUsed( [ ...tokensUsed, token.id ] );
 	};
+
+	useEffect( () => {
+		document.body.addEventListener( 'click', function ( event ) {
+			if (
+				event.target.classList.contains( 'token-inline-block__remove' )
+			) {
+				const bylineElement = document.querySelector(
+					'.newspack-byline-textarea'
+				);
+
+				bylineElement
+					.querySelector( 'span#token-' + event.target.dataset.token )
+					.remove();
+
+				setTokensUsed(
+					tokensUsed.filter(
+						token => token !== event.target.dataset.token
+					)
+				);
+			}
+		} );
+	}, [] );
 
 	/**
 	 * Set tokens when coAuthors change.
@@ -146,13 +152,6 @@ const BylinesSettingsPanel = () => {
 	}, [ postId ] );
 
 	/**
-	 * Update byline text in editor.
-	 */
-	useEffect( () => {
-		prependBylineToContent( isEnabled ? byline : '' );
-	}, [ byline, isEnabled ] );
-
-	/**
 	 * Handle Error
 	 *
 	 * @param {Error} error
@@ -172,31 +171,6 @@ const BylinesSettingsPanel = () => {
 	const handleEnableToggle = value => {
 		editPost( { meta: { [ newspackBylines.metaKeyActive ]: value } } );
 		setIsEnabled( value );
-	};
-
-	/**
-	 * Prepend Byline to the content
-	 */
-	const prependBylineToContent = text => {
-		const contentEl = document.querySelector( '.wp-block-post-content' );
-		if ( contentEl ) {
-			let bylineEl = document.getElementById( BYLINE_ID );
-			if ( ! bylineEl ) {
-				bylineEl = document.createElement( 'div' );
-				bylineEl.id = BYLINE_ID;
-				contentEl.insertBefore( bylineEl, contentEl.firstChild );
-			}
-			// If there are author tags
-			if ( /<Author id=(\d+)>/.test( text ) ) {
-				text = text.replace(
-					/<Author id=(\d+)>([^<]+)<\/Author>/g,
-					( match, authorId, authorName ) => {
-						return `<a href="${ newspackBylines.siteUrl }/?author=${ authorId }">${ authorName }</a>`;
-					}
-				);
-			}
-			bylineEl.innerHTML = text;
-		}
 	};
 
 	return (
@@ -221,14 +195,16 @@ const BylinesSettingsPanel = () => {
 					</div>
 
 					<div className="tokens">
-						{ tokens.map( token => (
-							<TokenInlineBlock
-								key={ token.id }
-								token={ token }
-								onRemove={ () => {} }
-								onInsert={ () => insertToken( token ) }
-							/>
-						) ) }
+						{ tokens.map(
+							token =>
+								! tokensUsed.includes( token.id ) && (
+									<TokenInlineBlock
+										key={ token.id }
+										token={ token }
+										onInsert={ () => insertToken( token ) }
+									/>
+								)
+						) }
 					</div>
 				</>
 			) }
