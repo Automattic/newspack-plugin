@@ -275,7 +275,7 @@ class Newspack_Dashboard extends Wizard {
 				'googleAdManager'  => [
 					'label'            => __( 'Google Ad Manager', 'newspack-plugin' ),
 					'statuses'         => [
-						'error-preflight' => __( 'Proxy Not Configured', 'newspack-plugin' ),
+						'error-preflight' => __( 'Disconnected', 'newspack-plugin' ),
 					],
 					'endpoint'         => '/newspack/v1/wizard/billboard',
 					'isPreflightValid' => ( new Newspack_Ads_Configuration_Manager() )->is_gam_connected(),
