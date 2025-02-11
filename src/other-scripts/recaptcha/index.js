@@ -92,12 +92,7 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 				// Empty error messages if present.
 				removeErrorMessages( form );
 
-				grecaptcha.execute( widgetId ).then( () => {
-					// If we are in an iframe scroll to top.
-					if ( window?.location !== window?.parent?.location ) {
-						document.body.scrollIntoView( { behavior: 'smooth' } );
-					}
-				} );
+				grecaptcha.execute( widgetId );
 			} else {
 				form.removeAttribute( 'data-recaptcha-validated' );
 			}
