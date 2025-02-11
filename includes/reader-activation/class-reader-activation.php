@@ -738,6 +738,9 @@ final class Reader_Activation {
 		if ( $skip ) {
 			return $is_valid || self::is_skipped( 'ras_campaign' );
 		}
+		if ( $is_valid ) {
+			self::skip( 'ras_campaign', false );
+		}
 		return $is_valid;
 	}
 
@@ -782,6 +785,10 @@ final class Reader_Activation {
 	 * @return bool True if updated, false if not.
 	 */
 	public static function skip( $prerequisite, $skip = true ) {
+		if ( ( $skip && self::is_skipped( $prerequisite ) ) || ( ! $skip && ! self::is_skipped( $prerequisite ) ) ) {
+			return true;
+		}
+
 		$updated = $skip ? update_option( self::OPTIONS_PREFIX . $prerequisite . '_skipped', '1' ) : delete_option( self::OPTIONS_PREFIX . $prerequisite . '_skipped' );
 
 		// Legacy option name compabitility.

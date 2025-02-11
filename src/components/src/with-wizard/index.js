@@ -28,6 +28,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				error: null,
 				loading: requiredPlugins && requiredPlugins.length > 0 ? 1 : 0,
 				quietLoading: false,
+				confirmation: null,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -249,6 +250,56 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			);
 		};
 
+		/**
+		 * Build a confirmation modal with the given title & message.
+		 * Execute {callback} if confirmed.
+		 *
+		 * @param {string}   title    The title for the modal component.
+		 * @param {string}   message  The message for the modal component body.
+		 * @param {Function} callback A function to call if the user confirms the action.
+		 */
+		confirmAction = ( title, message, callback ) => {
+			this.setState( { confirmation: { title, message, callback } } );
+		}
+
+		/**
+		 * Show a confirmation modal with the given title & message.
+		 * Execute {callback} if confirmed.
+		 *
+		 * @return {Component} <Modal>
+		 */
+		getModal = () => {
+			if ( ! this.state.confirmation ) {
+				return null;
+			}
+			const {  title, message, callback } = this.state.confirmation;
+			return title && message && callback && (
+				<Modal
+					title={ title }
+					onRequestClose={ () => this.setState( { confirmation: null } ) }
+				>
+					<p>{ message }</p>
+					<Card buttonsCard noBorder className="justify-end">
+						<Button
+							variant="primary"
+							onClick={ () => {
+								this.setState( { confirmation: null } );
+								callback();
+							} }
+						>
+							{ __( 'OK', 'newspack-plugin' ) }
+						</Button>
+						<Button
+							variant="secondary"
+							onClick={ () => this.setState( { confirmation: null } ) }
+						>
+							{ __( 'Cancel', 'newspack-plugin' ) }
+						</Button>
+					</Card>
+				</Modal>
+			);
+		}
+
 		getFallbackURL = () => {
 			if ( typeof newspack_urls !== 'undefined' ) {
 				return newspack_urls.dashboard;
@@ -270,8 +321,10 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				<Fragment>
 					{ this.getError() }
+					{ this.getModal() }
 					<div className={ loadingClasses.join( ' ' ) }>
 						<WrappedComponent
+							confirmAction={ this.confirmAction }
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }
 							getError={ this.getError }

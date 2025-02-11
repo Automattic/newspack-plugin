@@ -503,7 +503,7 @@ class Audience_Wizard extends Wizard {
 		$skip                = $request->get_param( 'skip' );
 		$skip_campaign_setup = Reader_Activation::skip( $preqrequisite, $skip );
 		if ( ! $skip_campaign_setup ) {
-			return new WP_REST_Response( [ 'message' => __( 'Error skipping prerequisite', 'newspack-plugin' ) ], 400 );
+			return new WP_REST_Response( [ 'message' => __( 'Error skipping prerequisite.', 'newspack-plugin' ) ], 400 );
 		}
 
 		return rest_ensure_response(

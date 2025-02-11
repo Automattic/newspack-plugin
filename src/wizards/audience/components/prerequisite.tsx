@@ -237,7 +237,6 @@ export default function Prerequisite( {
 				status
 			) }
 			checkbox={ isValid && ! isSkipped ? 'checked' : 'unchecked' }
-			isPending={ isSkipped && ! prerequisite.active }
 			notificationLevel="info"
 			notification={ hasEmptyFields() }
 		>

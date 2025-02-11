@@ -16,7 +16,6 @@ import {
 	Notice,
 	Waiting,
 	withWizardScreen,
-	utils,
 } from '../../../../components/src';
 import Prompt from '../../components/prompt';
 import Router from '../../../../components/src/proxied-imports/router';
@@ -24,18 +23,11 @@ import './style.scss';
 
 const { useHistory } = Router;
 
-export default withWizardScreen( () => {
-	const { is_skipped_campaign_setup, reader_activation_url } =
-		newspackAudience;
-
+const AudienceCampaign = withWizardScreen( ( { error, setError, skipPrerequisite } ) => {
+	const { reader_activation_url } = newspackAudience;
 	const [ inFlight, setInFlight ] = useState( false );
-	const [ error, setError ] = useState( false );
 	const [ prompts, setPrompts ] = useState( null );
 	const [ allReady, setAllReady ] = useState( false );
-	const [ skipped, setSkipped ] = useState( {
-		status: '',
-		isSkipped: is_skipped_campaign_setup === '1',
-	} );
 	const history = useHistory();
 
 	const fetchPrompts = () => {
@@ -50,51 +42,6 @@ export default withWizardScreen( () => {
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
 	};
-
-	/**
-	 * Display prompt requiring editors to confirm skipping, on confirmation send request to
-	 * server to store skipped option in options table and redirect back to RAS
-	 *
-	 * @return {void}
-	 */
-	async function onSkipCampaignSetup() {
-		if (
-			! utils.confirmAction(
-				__(
-					'Are you sure you want to skip setting up an Audience Management campaign?',
-					'newspack-plugin'
-				)
-			)
-		) {
-			return;
-		}
-		setError( false );
-		setSkipped( { ...skipped, status: 'pending' } );
-		try {
-			const request = await apiFetch( {
-				path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
-				method: 'POST',
-				data: {
-					prerequisite: 'ras_campaign',
-					skip: ! skipped.isSkipped
-				},
-			} );
-			if ( ! request?.prerequisites_status?.ras_campaign?.is_skipped ) {
-				setError( {
-					message: __( 'Error skipping this step.', 'newspack-plugin' ),
-				} );
-				setSkipped( { isSkipped: false, status: '' } );
-				return;
-			}
-			setSkipped( { isSkipped: Boolean( request.skipped ), status: '' } );
-			newspackAudience.is_skipped_campaign_setup =
-				request.skipped ? '1' : '';
-			history.push( '/complete' );
-		} catch ( err ) {
-			setError( err );
-			setSkipped( { isSkipped: false, status: '' } );
-		}
-	}
 
 	useEffect( () => {
 		window.scrollTo( 0, 0 );
@@ -147,25 +94,22 @@ export default withWizardScreen( () => {
 				<Button
 					variant={ 'secondary' }
 					isDestructive
-					disabled={
-						inFlight ||
-						skipped.isSkipped ||
-						skipped.status === 'pending'
-					}
-					onClick={ onSkipCampaignSetup }
+					disabled={ inFlight }
+					onClick={ () => {
+						skipPrerequisite(
+							{
+								prerequisite: 'ras_campaign',
+								skip: true,
+							},
+							() => history.push( '/complete' )
+						);
+					} }
 				>
-					{ /* eslint-disable-next-line no-nested-ternary */ }
-					{ skipped.status === 'pending'
-						? __( 'Skipping…', 'newspack-plugin' )
-						: skipped.isSkipped
-						? __( 'Skipped', 'newspack-plugin' )
-						: __( 'Skip', 'newspack-plugin' ) }
+					{ __( 'Skip', 'newspack-plugin' ) }
 				</Button>
 				<Button
 					isPrimary
-					disabled={
-						inFlight || ( ! allReady && ! skipped.isSkipped )
-					}
+					disabled={ inFlight || ! allReady }
 					href={ `${ reader_activation_url }complete` }
 				>
 					{ __( 'Continue', 'newspack-plugin' ) }
@@ -181,3 +125,5 @@ export default withWizardScreen( () => {
 		</WizardsTab>
 	);
 } );
+
+export default AudienceCampaign;
