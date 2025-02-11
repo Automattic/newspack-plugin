@@ -180,7 +180,7 @@ class Network_Wizard extends Wizard {
 	 */
 	private function get_tabs() {
 
-		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings' ], true ) ) {
+		if ( in_array( $this->get_screen_slug(), [ 'newspack-network', 'newspack-network-node', 'newspack-network-distributor-settings', 'newspack-network-distribution-settings' ], true ) ) {
 
 			if ( '' === static::get_site_role() ) {
 				return [];
@@ -193,15 +193,26 @@ class Network_Wizard extends Wizard {
 				],
 			];
 
+			if ( 'node' === static::get_site_role() ) {
+				$tabs[] = [
+					'textContent' => esc_html__( 'Node Settings', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
+				];
+			}
+
+			// Once "Content Distribution" is outside the feature flag,
+			// this tab should be removed.
 			if ( 'hub' === static::get_site_role() && ( ! defined( 'NEWPACK_NETWORK_CONTENT_DISTRIBUTION' ) || ! NEWPACK_NETWORK_CONTENT_DISTRIBUTION ) ) {
 				$tabs[] = [
 					'textContent' => esc_html__( 'Distributor Settings', 'newspack-plugin' ),
 					'href'        => admin_url( 'admin.php?page=newspack-network-distributor-settings' ),
 				];
-			} elseif ( 'node' === static::get_site_role() ) {
+			}
+
+			if ( defined( 'NEWPACK_NETWORK_CONTENT_DISTRIBUTION' ) && NEWPACK_NETWORK_CONTENT_DISTRIBUTION ) {
 				$tabs[] = [
-					'textContent' => esc_html__( 'Node Settings', 'newspack-plugin' ),
-					'href'        => admin_url( 'admin.php?page=newspack-network-node' ),
+					'textContent' => esc_html__( 'Content Distribution', 'newspack-plugin' ),
+					'href'        => admin_url( 'admin.php?page=newspack-network-distribution-settings' ),
 				];
 			}
 
@@ -334,6 +345,24 @@ class Network_Wizard extends Wizard {
 				$this->set_html_title( $hook, $title );
 			}
 		}
+
+		if ( defined( 'NEWPACK_NETWORK_CONTENT_DISTRIBUTION' ) && NEWPACK_NETWORK_CONTENT_DISTRIBUTION ) {
+
+			// Re-add "Content Distribution" as hidden page.
+			if ( is_callable( [ \Newspack_Network\Content_Distribution\Admin::class, 'render' ] ) ) {
+				remove_submenu_page( $this->parent_menu, 'newspack-network-distribution-settings' );
+				$title = __( 'Content Distribution', 'newspack-plugin' );
+				$hook = add_submenu_page(
+					'', // hidden.
+					$title,
+					__( 'Content Distribution', 'newspack-plugin' ),
+					'manage_options', // copied from original.
+					'newspack-network-distribution-settings',
+					[ \Newspack_Network\Content_Distribution\Admin::class, 'render' ]
+				);
+				$this->set_html_title( $hook, $title );
+			}
+		}
 	}
 
 	/**
@@ -351,7 +380,7 @@ class Network_Wizard extends Wizard {
 
 		// Note: get_admin_page_parent() in wp-admin/menu-header.php (line 50) could reset the returned parent_file.
 		// Hack: Try to make the returned value not get reset by adding to _wp_ arrays.
-		if ( empty( $parent_file ) && in_array( $sanitized_page, [ 'newspack-network-node', 'newspack-network-distributor-settings' ] ) ) {
+		if ( empty( $parent_file ) && in_array( $sanitized_page, [ 'newspack-network-node', 'newspack-network-distributor-settings', 'newspack-network-distribution-settings' ] ) ) {
 			$_wp_menu_nopriv[ $sanitized_page ] = true; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$_wp_real_parent_file[ $sanitized_page ] = 'newspack-network'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			return 'newspack-network';
@@ -394,7 +423,7 @@ class Network_Wizard extends Wizard {
 	 */
 	public function submenu_file( $submenu_file ) {
 
-		if ( 'newspack-network-distributor-settings' === filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) {
+		if ( in_array( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ), [ 'newspack-network-distributor-settings', 'newspack-network-distribution-settings' ] ) ) {
 			return 'newspack-network';
 		}
 
