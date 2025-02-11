@@ -1,62 +1,39 @@
 <?php
 /**
- * Newspack's SEO Wizard
+ * Newspack's SEO Section.
  *
  * @package Newspack
  */
 
-namespace Newspack;
+namespace Newspack\Wizards\Newspack;
 
 use WP_Error, WP_Query;
+use Newspack\Configuration_Managers;
+use Newspack\Wizards\Wizard_Section;
 
 defined( 'ABSPATH' ) || exit;
 
-require_once NEWSPACK_ABSPATH . '/includes/wizards/class-wizard.php';
-
 /**
- * Easy interface for setting up general store info.
+ * SEO Section Class.
  */
-class SEO_Wizard extends Wizard {
+class SEO_Section extends Wizard_Section {
 
 	/**
-	 * The slug of this wizard.
+	 * Containing wizard slug.
 	 *
 	 * @var string
 	 */
-	protected $slug = 'newspack-seo-wizard';
-
-	/**
-	 * The capability required to access this wizard.
-	 *
-	 * @var string
-	 */
-	protected $capability = 'manage_options';
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-		add_action( 'rest_api_init', [ $this, 'register_api_endpoints' ] );
-		add_filter( 'wpseo_image_image_weight_limit', [ $this, 'ignore_yoast_weight_limit' ] );
-	}
-
-	/**
-	 * Get the name for this wizard.
-	 *
-	 * @return string The wizard name.
-	 */
-	public function get_name() {
-		return \esc_html__( 'SEO', 'newspack' );
-	}
+	protected $wizard_slug = 'newspack-settings';
 
 	/**
 	 * Register the endpoints needed for the wizard screens.
+	 *
+	 * @return void
 	 */
-	public function register_api_endpoints() {
+	public function register_rest_routes() {
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/settings',
+			'/wizard/' . $this->wizard_slug . '/seo',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'api_get_seo_settings' ],
@@ -65,7 +42,7 @@ class SEO_Wizard extends Wizard {
 		);
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/wizard/' . $this->slug . '/settings',
+			'/wizard/' . $this->wizard_slug . '/seo',
 			[
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => [ $this, 'api_update_seo_settings' ],
@@ -170,36 +147,5 @@ class SEO_Wizard extends Wizard {
 			],
 		];
 		return $response;
-	}
-
-	/**
-	 * Enqueue Subscriptions Wizard scripts and styles.
-	 */
-	public function enqueue_scripts_and_styles() {
-		parent::enqueue_scripts_and_styles();
-
-		if ( filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) !== $this->slug ) {
-			return;
-		}
-
-		\wp_enqueue_script(
-			'newspack-seo-wizard',
-			Newspack::plugin_url() . '/dist/seo.js',
-			$this->get_script_dependencies( [ 'wp-html-entities' ] ),
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-	}
-
-	/**
-	 * We don't want Yoast to exclude large images from og:image tags for 2 reasons:
-	 * 1. Yoast cannot calculate the image size for images served via Jetpack CDN, so any calculations will be incorrect.
-	 * 2. It increases support burden since Yoast doesn't provide the user any explanation for why the image was excluded.
-	 *
-	 * @param int $limit Max image size in bytes.
-	 * @return int Modified $limit.
-	 */
-	public function ignore_yoast_weight_limit( $limit ) {
-		return PHP_INT_MAX;
 	}
 }
