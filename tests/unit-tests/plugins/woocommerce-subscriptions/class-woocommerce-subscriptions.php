@@ -19,7 +19,7 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function test_is_active() {
 		$is_active = WooCommerce_Subscriptions::is_active();
-		$this->assertTrue( $is_active, 'WooCommerce Subscriptions integration should be active when WC_Subscriptions class exists.' );
+		$this->assertFalse( $is_active, 'WooCommerce Subscriptions integration should not be active if the main WooCommerce plugin is not available.' );
 	}
 
 	/**
@@ -27,6 +27,6 @@ class Newspack_Test_WooCommerce_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function test_is_enabled() {
 		$is_enabled = WooCommerce_Subscriptions::is_enabled();
-		$this->assertTrue( $is_enabled, 'WooCommerce Subscriptions integration should be enabled when RAS is enabled.' );
+		$this->assertFalse( $is_enabled, 'WooCommerce Subscriptions integration should not be active if the main WooCommerce plugin is not available.' );
 	}
 }

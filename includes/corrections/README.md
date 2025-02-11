@@ -18,12 +18,13 @@ define( 'NEWSPACK_CORRECTIONS_ENABLED', true );
 
 Corrections are stored as `newspack_correction` custom post type. A correction consists of the following fields:
 
-| Name                          | Type     | Stored As      | Description                                                     |
-| ----------------------------- | -------- | -------------- | --------------------------------------------------------------- |
-| `title`                       | `string` | `post_title`   | The correction title. Defaults to 'Correction for [post title]' |
-| `content`                     | `string` | `post_content` | The correction text.                                            |
-| `date`                        | `string` | `post_date`    | The date assigned to the correction.                            |
-| `newspack_correction-post-id` | `int`    | `post_meta`    | The ID of the post to which the correction is associated.       |
+| Name                          | Type     | Stored As      | Description                                                                    |
+| ----------------------------- | -------- | -------------- | ------------------------------------------------------------------------------ |
+| `title`                       | `string` | `post_title`   | The correction title. Defaults to 'Correction for [post title]'                |
+| `content`                     | `string` | `post_content` | The correction text.                                                           |
+| `date`                        | `string` | `post_date`    | The date assigned to the correction.                                           |
+| `newspack_correction-post-id` | `int`    | `post_meta`    | The ID of the post to which the correction is associated.                      |
+| `newspack_corrections_type`   | `string` | `post_meta`    | Whether it's a correction or a clarification (`correction` or `clarification`) |
 
 In addition, some correction data is stored in the associated post as post meta:
 

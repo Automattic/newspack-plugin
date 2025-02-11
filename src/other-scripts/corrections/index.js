@@ -52,11 +52,23 @@ domReady( () => {
 			const newCorrection = document.createElement( 'div' );
 			newCorrection.classList.add( 'correction' );
 			newCorrection.innerHTML = `
-				<fieldset name="new-corrections[${newCorrectionsCount}]">
+				<fieldset name="new-corrections[${ newCorrectionsCount }]">
 				<p>${ __( 'Article Correction', 'newspack-plugin' ) }</p>
-				<textarea name="new-corrections[${newCorrectionsCount}][content]" rows="3" cols="60"></textarea>
+				<textarea name="new-corrections[${ newCorrectionsCount }][content]" rows="3" cols="60"></textarea>
 				<br/>
-				<p>${ __( 'Date:', 'newspack-plugin' ) } <input type="date" name="new-corrections[${newCorrectionsCount}][date]"></p>
+				<p>${ __(
+					'Date:',
+					'newspack-plugin'
+				) } <input type="date" name="new-corrections[${ newCorrectionsCount }][date]"></p>
+				<p>${ __( 'Type:', 'newspack-plugin' ) }
+					<select name="new-corrections[${ newCorrectionsCount }][type]">
+						<option value="correction">${ __( 'Correction', 'newspack-plugin' ) }</option>
+						<option value="clarification">${ __(
+							'Clarification',
+							'newspack-plugin'
+						) }</option>
+					</select>
+				</p>
 				<button class="delete-correction">X</button>
 				</fieldset>
 			`;
