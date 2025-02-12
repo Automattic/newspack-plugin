@@ -254,12 +254,23 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * Build a confirmation modal with the given title & message.
 		 * Execute {callback} if confirmed.
 		 *
-		 * @param {string}   title    The title for the modal component.
-		 * @param {string}   message  The message for the modal component body.
-		 * @param {Function} callback A function to call if the user confirms the action.
+		 * @property {Object}   options             Options for the confirmation modal.
+		 * @property {string}   options.title       The title for the modal component.
+		 * @property {string}   options.message     The message for the modal component body.
+		 * @property {string}   options.confirmText The text for the confirmation button.
+		 * @property {string}   options.cancelText  The text for the cancel button.
+		 * @property {Function} options.callback    A function to call if the user confirms the action.
 		 */
-		confirmAction = ( title, message, callback ) => {
-			this.setState( { confirmation: { title, message, callback } } );
+		confirmAction = ( options ) => {
+			const modalOptions = {
+				title: null,
+				message: __( 'Are you sure?', 'newpack-plugin' ),
+				confirmText: __( 'OK', 'newspack-plugin' ),
+				cancelText: __( 'Cancel', 'newspack-plugin' ),
+				callback: null,
+				...options,
+			}
+			this.setState( { confirmation: modalOptions } );
 		}
 
 		/**
@@ -272,14 +283,22 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			if ( ! this.state.confirmation ) {
 				return null;
 			}
-			const {  title, message, callback } = this.state.confirmation;
-			return title && message && callback && (
+			const { title, message, confirmText, cancelText, callback } = this.state.confirmation;
+			return message && callback && (
 				<Modal
+					isNarrow
+					hideTitle={ ! title }
 					title={ title }
 					onRequestClose={ () => this.setState( { confirmation: null } ) }
 				>
 					<p>{ message }</p>
 					<Card buttonsCard noBorder className="justify-end">
+						<Button
+							variant="secondary"
+							onClick={ () => this.setState( { confirmation: null } ) }
+						>
+							{ cancelText }
+						</Button>
 						<Button
 							variant="primary"
 							onClick={ () => {
@@ -287,13 +306,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 								callback();
 							} }
 						>
-							{ __( 'OK', 'newspack-plugin' ) }
-						</Button>
-						<Button
-							variant="secondary"
-							onClick={ () => this.setState( { confirmation: null } ) }
-						>
-							{ __( 'Cancel', 'newspack-plugin' ) }
+							{ confirmText }
 						</Button>
 					</Card>
 				</Modal>

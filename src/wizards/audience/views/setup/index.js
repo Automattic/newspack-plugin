@@ -66,30 +66,32 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 	};
 	const skipPrerequisite = ( data, callback = null ) => {
 		confirmAction(
-			__( 'Skip this step', 'newspack-plugin' ),
-			__(
-				'Are you sure you want to skip this step? You can always come back later.',
-				'newspack-plugin'
-			),
-			() => {
-				setError( false );
-				setInFlight( true );
-				wizardApiFetch( {
-					path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
-					method: 'post',
-					quiet: true,
-					data,
-				} )
-					.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
-						setPrerequisites( prerequisites_status );
-						setConfig( fetchedConfig );
-						setEspSyncErrors( can_esp_sync.errors );
-						if ( callback ) {
-							callback();
-						}
+			{
+				message: __(
+					'Are you sure you want to skip this step? You can always come back later.',
+					'newspack-plugin'
+				),
+				confirmText: __( 'Skip', 'newspack-plugin' ),
+				callback: () => {
+					setError( false );
+					setInFlight( true );
+					wizardApiFetch( {
+						path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
+						method: 'post',
+						quiet: true,
+						data,
 					} )
-					.catch( setError )
-					.finally( () => setInFlight( false ) );
+						.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
+							setPrerequisites( prerequisites_status );
+							setConfig( fetchedConfig );
+							setEspSyncErrors( can_esp_sync.errors );
+							if ( callback ) {
+								callback();
+							}
+						} )
+						.catch( setError )
+						.finally( () => setInFlight( false ) );
+				},
 			}
 		);
 	};
