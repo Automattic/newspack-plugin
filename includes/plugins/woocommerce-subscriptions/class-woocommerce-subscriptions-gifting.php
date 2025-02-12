@@ -41,7 +41,7 @@ class WooCommerce_Subscriptions_Gifting {
 	 * @return array
 	 */
 	public static function new_recipient_fields( $fields ) {
-		// Escape hatch to force required shipping address.
+		// Escape hatch to force required shipping address for virtual products.
 		if ( apply_filters( 'wcsg_require_shipping_address_for_virtual_products', false ) ) { // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 			return $fields;
 		}
