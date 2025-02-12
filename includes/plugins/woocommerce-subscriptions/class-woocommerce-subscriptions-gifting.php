@@ -41,13 +41,13 @@ class WooCommerce_Subscriptions_Gifting {
 	 * @return array
 	 */
 	public static function new_recipient_fields( $fields ) {
-		// Escape hatch to force required shipping address for virtual products.
+		// Escape hatch to force required shipping address.
 		if ( apply_filters( 'wcsg_require_shipping_address_for_virtual_products', false ) ) { // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 			return $fields;
 		}
 		$required_fields = Donations::get_billing_fields();
 		foreach ( $fields as $field_name => $field_config ) {
-			if ( ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
+			if ( 'shipping_' !== substr( $field_name, 0, 9 ) && ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
 				unset( $fields[ $field_name ] );
 			}
 		}
@@ -60,7 +60,7 @@ class WooCommerce_Subscriptions_Gifting {
 	 * @return string
 	 */
 	public static function default_gifting_checkbox_text() {
-		return __( 'This purchase is a gift.', 'newspack' );
+		return __( 'This purchase is a gift', 'newspack' );
 	}
 }
 WooCommerce_Subscriptions_Gifting::init();

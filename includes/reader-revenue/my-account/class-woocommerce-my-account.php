@@ -126,7 +126,7 @@ class WooCommerce_My_Account {
 					unset( $shipping_address[ $ignored_field ] );
 				}
 
-				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $billing_address ) ) ) {
+				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $shipping_address ) ) ) {
 					$default_disabled_items[] = 'edit-address';
 				}
 
