@@ -192,7 +192,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 					</Card>
 				) }
 				<div className="newspack-buttons-card">
-					<Button isSecondary disabled={ inFlight } href={ `${ reader_activation_url }/campaign` }>
+					<Button isSecondary disabled={ inFlight } href={ `${ reader_activation_url }campaign` }>
 						{ __( 'Back', 'newspack-plugin' ) }
 					</Button>
 				</div>

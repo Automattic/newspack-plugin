@@ -30,7 +30,21 @@ import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
 import Salesforce from '../../components/salesforce';
 
-export default withWizardScreen( ( { config, fetchConfig, updateConfig, getSharedProps, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
+export default withWizardScreen(
+	(
+		{
+			config,
+			fetchConfig,
+			updateConfig,
+			getSharedProps,
+			saveConfig,
+			skipPrerequisite,
+			prerequisites,
+			espSyncErrors,
+			error,
+			inFlight
+		}
+	) => {
 	const [ allReady, setAllReady ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const [ isMailchimp, setIsMailchimp ] = useState( false );
@@ -60,7 +74,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			! missingPlugins.length &&
 			prerequisites &&
 			Object.keys( prerequisites ).every(
-				key => prerequisites[ key ]?.active || prerequisites[ key ]?.skipped
+				key => prerequisites[ key ]?.active || prerequisites[ key ]?.is_skipped
 			);
 
 		setAllReady( _allReady );
@@ -155,12 +169,14 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 				Object.keys( prerequisites ).map( key => (
 					<Prerequisite
 						key={ key }
+						slug={ key }
 						config={ config }
 						getSharedProps={ getSharedProps }
 						inFlight={ inFlight }
 						prerequisite={ prerequisites[ key ] }
 						fetchConfig={ fetchConfig }
 						saveConfig={ saveConfig }
+						skipPrerequisite={ skipPrerequisite }
 					/>
 				) ) }
 			{ config.enabled && (

@@ -51,7 +51,7 @@ function Connections() {
 			{ /* reCAPTCHA */ }
 			<WizardSection
 				scrollToAnchor="newspack-settings-recaptcha"
-				title={ __( 'reCAPTCHA v3', 'newspack-plugin' ) }
+				title={ __( 'reCAPTCHA', 'newspack-plugin' ) }
 			>
 				<Recaptcha />
 			</WizardSection>
