@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * External dependencies
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 /**
  * Internal dependencies
@@ -43,7 +43,10 @@ const TokenInlineBlock = ( { token, onInsert } ) => {
 
 const BylinesSettingsPanel = () => {
 	const [ tokens, setTokens ] = useState( [] );
-	const [ tokensUsed, setTokensUsed ] = useState( [] );
+
+	const tokensInUse = useRef( [] );
+
+	const [ , forceUpdate ] = useState( {} );
 
 	const { postId } = useSelect(
 		select => ( {
@@ -95,7 +98,9 @@ const BylinesSettingsPanel = () => {
 
 		bylineElement.innerHTML = bylineElement.innerHTML + ' ' + tokenElement;
 
-		setTokensUsed( [ ...tokensUsed, token.id ] );
+		tokensInUse.current = [ ...tokensInUse.current, token.id ];
+
+		forceUpdate( {} );
 	};
 
 	useEffect( () => {
@@ -107,15 +112,23 @@ const BylinesSettingsPanel = () => {
 					'.newspack-byline-textarea'
 				);
 
-				bylineElement
-					.querySelector( 'span#token-' + event.target.dataset.token )
-					.remove();
-
-				setTokensUsed(
-					tokensUsed.filter(
-						token => token !== event.target.dataset.token
+				if (
+					bylineElement.querySelector(
+						'span#token-' + event.target.dataset.token
 					)
+				) {
+					bylineElement
+						.querySelector(
+							'span#token-' + event.target.dataset.token
+						)
+						.remove();
+				}
+
+				tokensInUse.current = tokensInUse.current.filter(
+					token => token !== Number( event.target.dataset.token )
 				);
+
+				forceUpdate( {} );
 			}
 		} );
 	}, [] );
@@ -197,7 +210,7 @@ const BylinesSettingsPanel = () => {
 					<div className="tokens">
 						{ tokens.map(
 							token =>
-								! tokensUsed.includes( token.id ) && (
+								! tokensInUse.current.includes( token.id ) && (
 									<TokenInlineBlock
 										key={ token.id }
 										token={ token }
