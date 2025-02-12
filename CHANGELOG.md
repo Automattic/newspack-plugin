@@ -1,3 +1,10 @@
+## [5.13.2](https://github.com/Automattic/newspack-plugin/compare/v5.13.1...v5.13.2) (2025-02-11)
+
+
+### Bug Fixes
+
+* **wcs:** account for other on-hold cases ([#3723](https://github.com/Automattic/newspack-plugin/issues/3723)) ([0b3406a](https://github.com/Automattic/newspack-plugin/commit/0b3406a35bf9f7a8c74881ebe493a8db1bc0c77c))
+
 ## [5.13.1](https://github.com/Automattic/newspack-plugin/compare/v5.13.0...v5.13.1) (2025-02-06)
 
 

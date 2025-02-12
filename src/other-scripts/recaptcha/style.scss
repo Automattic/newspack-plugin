@@ -23,3 +23,14 @@
 		margin-top: 0 !important;
 	}
 }
+
+// Hide the "real" #place_order button but only in modal checkout and if we've rendered a v2 widget.
+/* stylelint-disable-next-line selector-id-pattern */
+#newspack_modal_checkout_container form[name="checkout"] {
+	&[data-recaptcha-widget-id] {
+		/* stylelint-disable-next-line selector-id-pattern */
+		#place_order {
+			display: none !important;
+		}
+	}
+}
