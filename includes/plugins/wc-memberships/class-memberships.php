@@ -196,7 +196,7 @@ class Memberships {
 	public static function redirect_cpt() {
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-engagement-wizard' ) );
+			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) );
 			exit;
 		}
 	}
@@ -774,7 +774,7 @@ class Memberships {
 					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
 						if ( ras.overlays.get().length ) {
 							ras.on( 'overlay', function( ev ) {
-								if ( ! ev.detail.overlays.length ) {
+								if ( ! ev.detail.overlays.length && ! window?.newspackReaderActivation?.openNewslettersSignupModal ) {
 									window.location.reload();
 								}
 							} );

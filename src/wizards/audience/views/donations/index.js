@@ -37,7 +37,7 @@ const AudienceDonations = () => {
 	];
 	return (
 		<Wizard
-			headerText={ __( 'Audience Development / Donations', 'newspack-plugin' ) }
+			headerText={ __( 'Audience Management / Donations', 'newspack-plugin' ) }
 			sections={ sections }
 			apiSlug={ AUDIENCE_DONATIONS_WIZARD_SLUG }
 			renderAboveSections={ () =>

@@ -23,7 +23,7 @@ import Payment from './payment';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
-function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
+function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } ) {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
 	const [ prerequisites, setPrerequisites ] = useState( null );
@@ -34,7 +34,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		setError( false );
 		setInFlight( true );
 		return wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-audience/reader-activation',
+			path: '/newspack/v1/wizard/newspack-audience/audience-management',
 		} )
 			.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
 				setPrerequisites( prerequisites_status );
@@ -51,7 +51,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		setError( false );
 		setInFlight( true );
 		wizardApiFetch( {
-			path: '/newspack/v1/wizard/newspack-audience/reader-activation',
+			path: '/newspack/v1/wizard/newspack-audience/audience-management',
 			method: 'post',
 			quiet: true,
 			data,
@@ -63,6 +63,37 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 			} )
 			.catch( setError )
 			.finally( () => setInFlight( false ) );
+	};
+	const skipPrerequisite = ( data, callback = null ) => {
+		confirmAction(
+			{
+				message: __(
+					'Are you sure you want to skip this step? You can always come back later.',
+					'newspack-plugin'
+				),
+				confirmText: __( 'Skip', 'newspack-plugin' ),
+				callback: () => {
+					setError( false );
+					setInFlight( true );
+					wizardApiFetch( {
+						path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
+						method: 'post',
+						quiet: true,
+						data,
+					} )
+						.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
+							setPrerequisites( prerequisites_status );
+							setConfig( fetchedConfig );
+							setEspSyncErrors( can_esp_sync.errors );
+							if ( callback ) {
+								callback();
+							}
+						} )
+						.catch( setError )
+						.finally( () => setInFlight( false ) );
+				},
+			}
+		);
 	};
 
 	useEffect( () => {
@@ -117,7 +148,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 
 	const props = {
 		headerText: __(
-			'Audience Development',
+			'Audience Management',
 			'newspack-plugin'
 		),
 		tabbedNavigation: tabs,
@@ -127,6 +158,7 @@ function AudienceWizard( { pluginRequirements, wizardApiFetch } ) {
 		fetchConfig,
 		updateConfig,
 		saveConfig,
+		skipPrerequisite,
 		setInFlight,
 		setError,
 		getSharedProps,

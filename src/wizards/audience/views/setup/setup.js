@@ -30,7 +30,21 @@ import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
 import Salesforce from '../../components/salesforce';
 
-export default withWizardScreen( ( { config, fetchConfig, updateConfig, getSharedProps, saveConfig, prerequisites, espSyncErrors, error, inFlight } ) => {
+export default withWizardScreen(
+	(
+		{
+			config,
+			fetchConfig,
+			updateConfig,
+			getSharedProps,
+			saveConfig,
+			skipPrerequisite,
+			prerequisites,
+			espSyncErrors,
+			error,
+			inFlight
+		}
+	) => {
 	const [ allReady, setAllReady ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
 	const [ isMailchimp, setIsMailchimp ] = useState( false );
@@ -60,7 +74,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			! missingPlugins.length &&
 			prerequisites &&
 			Object.keys( prerequisites ).every(
-				key => prerequisites[ key ]?.active || prerequisites[ key ]?.skipped
+				key => prerequisites[ key ]?.active || prerequisites[ key ]?.is_skipped
 			);
 
 		setAllReady( _allReady );
@@ -84,16 +98,16 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 
 	return (
 		<WizardsTab
-			title={ __( 'Audience Development', 'newspack-plugin' ) }
+			title={ __( 'Audience Management', 'newspack-plugin' ) }
 			description={
 				<>
 					{ __(
-						"Newspack's Reader Activation system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
+						"Newspack's Audience Management system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
 						'newspack-plugin'
 					) }
 					<ExternalLink
 						href={
-							'https://help.newspack.com/engagement/reader-activation-system'
+							'https://help.newspack.com/engagement/audience-management-system'
 						}
 					>
 						{ __( 'Learn more', 'newspack-plugin' ) }
@@ -122,7 +136,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			{ 0 === missingPlugins.length && prerequisites && ! allReady && (
 				<Notice
 					noticeText={ __(
-						'Complete these settings to enable Reader Activation.',
+						'Complete these settings to enable Audience Management.',
 						'newspack-plugin'
 					) }
 					isWarning
@@ -131,7 +145,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			{ prerequisites && allReady && config.enabled && (
 				<Notice
 					noticeText={ __(
-						'Reader Activation is enabled.',
+						'Audience Management is enabled.',
 						'newspack-plugin'
 					) }
 					isSuccess
@@ -140,7 +154,7 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 			{ ! prerequisites && (
 				<>
 					<Waiting isLeft />
-					{ __( 'Retrieving status…', 'newspack-plugin' ) }
+					{ __( 'Fetching status…', 'newspack-plugin' ) }
 				</>
 			) }
 			{ 0 < missingPlugins.length && prerequisites && (
@@ -155,12 +169,14 @@ export default withWizardScreen( ( { config, fetchConfig, updateConfig, getShare
 				Object.keys( prerequisites ).map( key => (
 					<Prerequisite
 						key={ key }
+						slug={ key }
 						config={ config }
 						getSharedProps={ getSharedProps }
 						inFlight={ inFlight }
 						prerequisite={ prerequisites[ key ] }
 						fetchConfig={ fetchConfig }
 						saveConfig={ saveConfig }
+						skipPrerequisite={ skipPrerequisite }
 					/>
 				) ) }
 			{ config.enabled && (

@@ -27,7 +27,7 @@ import { CampaignsContext } from '../../contexts';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
-const headerText = __( 'Audience Development / Campaigns', 'newspack-plugin' );
+const headerText = __( 'Audience Management / Campaigns', 'newspack-plugin' );
 
 const tabbedNavigation = [
 	{

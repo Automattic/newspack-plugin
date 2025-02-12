@@ -69,6 +69,7 @@ function GoogleOAuth( {
 			wizardApiFetch< OAuthData >(
 				{
 					path: '/newspack/v1/oauth/google',
+					isCached: false,
 				},
 				{
 					onSuccess( data ) {
@@ -77,6 +78,7 @@ function GoogleOAuth( {
 							if ( typeof onSuccess === 'function' ) {
 								onSuccess( data );
 							}
+							setError( null );
 						}
 					},
 				}
@@ -89,6 +91,7 @@ function GoogleOAuth( {
 		wizardApiFetch< string >(
 			{
 				path: '/newspack/v1/oauth/google/start',
+				isCached: false,
 			},
 			{
 				onSuccess( url ) {

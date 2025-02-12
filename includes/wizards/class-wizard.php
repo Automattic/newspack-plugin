@@ -209,7 +209,7 @@ abstract class Wizard {
 			'newspack-wizards',
 			Newspack::plugin_url() . '/dist/wizards.js',
 			$this->get_script_dependencies(),
-			$asset_file['version'] ?? NEWSPACK_PLUGIN_VERSION,
+			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 	}

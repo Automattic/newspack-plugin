@@ -143,7 +143,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-newspack-settings.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-custom-events-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-syndication-section.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-wizard.php';
+		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-seo-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-pixels-section.php';
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/newspack/class-recirculation-section.php';
 
@@ -170,8 +170,6 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-newsletters-wizard.php';
 
 		/* Unified Wizards */
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-engagement-wizard.php';
-		include_once NEWSPACK_ABSPATH . 'includes/wizards/class-health-check-wizard.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-wizards.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-handoff-banner.php';
@@ -194,12 +192,14 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-perfmatters.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-pwa.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-guest-contributor-role.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-nicename-change.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/co-authors-plus/class-search-authors-limit.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/wc-memberships/class-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-woocommerce.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/woocommerce-subscriptions/class-woocommerce-subscriptions.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-teams-for-memberships.php';
 		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-newspack-elections.php';
+		include_once NEWSPACK_ABSPATH . 'includes/plugins/class-yoast.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';
@@ -416,12 +416,14 @@ final class Newspack {
 		wp_style_add_data( 'newspack-commons', 'rtl', 'replace' );
 		wp_enqueue_style( 'newspack-commons' );
 
-		\wp_enqueue_style(
-			'newspack-admin',
-			self::plugin_url() . '/dist/admin.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
+		if ( is_admin() ) {
+			\wp_enqueue_style(
+				'newspack-admin',
+				self::plugin_url() . '/dist/admin.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
+			);
+		}
 	}
 }
 Newspack::instance();
