@@ -46,6 +46,8 @@ const BylinesSettingsPanel = () => {
 
 	const tokensInUse = useRef( [] );
 
+	const documentRef = useRef( document );
+
 	const [ , forceUpdate ] = useState( {} );
 
 	const { postId } = useSelect(
@@ -143,7 +145,7 @@ const BylinesSettingsPanel = () => {
 	 * Add event listener for token removal.
 	 */
 	useEffect( () => {
-		document.body.addEventListener( 'click', function ( event ) {
+		documentRef.current.addEventListener( 'click', function ( event ) {
 			if (
 				event.target.classList.contains( 'token-inline-block__remove' )
 			) {
@@ -178,6 +180,8 @@ const BylinesSettingsPanel = () => {
 				forceUpdate( {} );
 			}
 		} );
+
+		return () => {};
 	}, [] );
 
 	/**
@@ -188,13 +192,6 @@ const BylinesSettingsPanel = () => {
 			setTokens( transformAuthorsToTokens( coAuthors ) );
 		}
 	}, [ coAuthors ] );
-
-	useEffect( () => {
-		tokensInUse.current =
-			getEditedPostAttribute( 'meta' )[
-				newspackBylines.metaKeyTokensInUse
-			] || [];
-	}, [] );
 
 	/**
 	 * Fetch co-authors from Co-Authors Plus.
