@@ -105,6 +105,12 @@ const BylinesSettingsPanel = () => {
 
 		tokensInUse.current = [ ...tokensInUse.current, token.id ];
 
+		editPost( {
+			meta: {
+				[ newspackBylines.metaKeyByline ]: bylineElement.innerHTML,
+			},
+		} );
+
 		// Force component update after DOM manipulated directly.
 		forceUpdate( {} );
 	};
@@ -155,6 +161,13 @@ const BylinesSettingsPanel = () => {
 							'span#token-' + event.target.dataset.token
 						)
 						.remove();
+
+					editPost( {
+						meta: {
+							[ newspackBylines.metaKeyByline ]:
+								bylineElement.innerHTML,
+						},
+					} );
 				}
 
 				tokensInUse.current = tokensInUse.current.filter(
@@ -175,6 +188,13 @@ const BylinesSettingsPanel = () => {
 			setTokens( transformAuthorsToTokens( coAuthors ) );
 		}
 	}, [ coAuthors ] );
+
+	useEffect( () => {
+		tokensInUse.current =
+			getEditedPostAttribute( 'meta' )[
+				newspackBylines.metaKeyTokensInUse
+			] || [];
+	}, [] );
 
 	/**
 	 * Fetch co-authors from Co-Authors Plus.
@@ -198,6 +218,47 @@ const BylinesSettingsPanel = () => {
 		};
 	}, [ postId ] );
 
+	/**
+	 * Fill tokenInUse on DOM ready analyzing the .newspack-byline-textarea.
+	 */
+	useEffect( () => {
+		function handleDomReady() {
+			if ( document.readyState === 'complete' ) {
+				const bylineElement = document.querySelector(
+					'.newspack-byline-textarea'
+				);
+
+				const tokenElements = bylineElement.querySelectorAll(
+					'span button[data-token]'
+				);
+
+				tokenElements.forEach( tokenElement => {
+					tokensInUse.current = [
+						...tokensInUse.current,
+						Number( tokenElement.dataset.token ),
+					];
+				} );
+
+				// Remove the listener to prevent it from firing again
+				document.removeEventListener(
+					'readystatechange',
+					handleDomReady
+				);
+			}
+		}
+
+		// Check immediately in case the DOM is already ready
+		handleDomReady();
+
+		// Add a listener for future state changes
+		document.addEventListener( 'readystatechange', handleDomReady );
+
+		return () => {
+			// Clean up the event listener on unmount
+			document.removeEventListener( 'readystatechange', handleDomReady );
+		};
+	}, [] );
+
 	return (
 		<PluginDocumentSettingPanel
 			className="newspack-byline"
@@ -215,9 +276,8 @@ const BylinesSettingsPanel = () => {
 					<div
 						className="newspack-byline-textarea"
 						contentEditable="true"
-					>
-						{ byline }
-					</div>
+						dangerouslySetInnerHTML={ { __html: byline } }
+					/>
 
 					<div className="tokens">
 						{ tokens.map(
