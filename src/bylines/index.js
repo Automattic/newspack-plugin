@@ -78,6 +78,11 @@ const BylinesSettingsPanel = () => {
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
 
+	/**
+	 * Insert token into the custom byline contenteditable div.
+	 *
+	 * @param {Object} token Token prop.
+	 */
 	const insertToken = token => {
 		const bylineElement = document.querySelector(
 			'.newspack-byline-textarea'
@@ -100,9 +105,37 @@ const BylinesSettingsPanel = () => {
 
 		tokensInUse.current = [ ...tokensInUse.current, token.id ];
 
+		// Force component update after DOM manipulated directly.
 		forceUpdate( {} );
 	};
 
+	/**
+	 * Handle Error
+	 *
+	 * @param {Error} error
+	 */
+	function handleError( error ) {
+		if ( 'AbortError' === error.name ) {
+			return;
+		}
+		noticesDispatch.createErrorNotice( error.message, {
+			isDismissible: true,
+		} );
+	}
+
+	/**
+	 * Enabled toggle handler.
+	 *
+	 * @param {boolean} value Boolean, true if custom byline is enabled, false if not.
+	 */
+	const handleEnableToggle = value => {
+		editPost( { meta: { [ newspackBylines.metaKeyActive ]: value } } );
+		setIsEnabled( value );
+	};
+
+	/**
+	 * Add event listener for token removal.
+	 */
 	useEffect( () => {
 		document.body.addEventListener( 'click', function ( event ) {
 			if (
@@ -128,6 +161,7 @@ const BylinesSettingsPanel = () => {
 					token => token !== Number( event.target.dataset.token )
 				);
 
+				// Force component update after DOM manipulated directly.
 				forceUpdate( {} );
 			}
 		} );
@@ -163,28 +197,6 @@ const BylinesSettingsPanel = () => {
 			controller.abort();
 		};
 	}, [ postId ] );
-
-	/**
-	 * Handle Error
-	 *
-	 * @param {Error} error
-	 */
-	function handleError( error ) {
-		if ( 'AbortError' === error.name ) {
-			return;
-		}
-		noticesDispatch.createErrorNotice( error.message, {
-			isDismissible: true,
-		} );
-	}
-
-	/**
-	 * Enabled toggle handler.
-	 */
-	const handleEnableToggle = value => {
-		editPost( { meta: { [ newspackBylines.metaKeyActive ]: value } } );
-		setIsEnabled( value );
-	};
 
 	return (
 		<PluginDocumentSettingPanel
