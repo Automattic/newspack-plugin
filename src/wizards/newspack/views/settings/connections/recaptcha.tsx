@@ -195,7 +195,7 @@ function Recaptcha() {
 			toggleOnChange={ () =>
 				updateSettings(
 					{
-						...settingsDefault,
+						...settings,
 						use_captcha: ! settings.use_captcha,
 					},
 					true
