@@ -29,8 +29,6 @@ class WooCommerce_My_Account {
 	 */
 	public static function init() {
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
-		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
-		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
 		\add_filter( 'woocommerce_default_address_fields', [ __CLASS__, 'required_address_fields' ] );
 		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'required_address_fields' ] );
 		\add_filter( 'woocommerce_get_checkout_url', [ __CLASS__, 'get_checkout_url' ] );
@@ -548,29 +546,6 @@ class WooCommerce_My_Account {
 			$fields = self::get_required_fields( $fields );
 		}
 
-		return $fields;
-	}
-
-	/**
-	 * Ensure that only billing address fields enabled in Reader Revenue settings
-	 * are required for new gift recipient accounts.
-	 *
-	 * See: https://github.com/woocommerce/woocommerce-subscriptions-gifting/blob/trunk/includes/class-wcsg-recipient-details.php#L275
-	 *
-	 * @param array $fields Address fields.
-	 * @return array
-	 */
-	public static function new_recipient_fields( $fields ) {
-		// Escape hatch to force required shipping address for virtual products.
-		if ( apply_filters( 'wcsg_require_shipping_address_for_virtual_products', false ) ) { // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-			return $fields;
-		}
-		$required_fields = Donations::get_billing_fields();
-		foreach ( $fields as $field_name => $field_config ) {
-			if ( ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
-				unset( $fields[ $field_name ] );
-			}
-		}
 		return $fields;
 	}
 

@@ -1,0 +1,66 @@
+<?php
+/**
+ * WooCommerce Subscriptions Gifting Integration class.
+ *
+ * @package Newspack
+ */
+
+namespace Newspack;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Main class.
+ */
+class WooCommerce_Subscriptions_Gifting {
+	/**
+	 * Initialize hooks and filters.
+	 */
+	public static function init() {
+		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
+		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
+		\add_filter( 'default_option_woocommerce_subscriptions_gifting_gifting_checkbox_text', [ __CLASS__, 'default_gifting_checkbox_text' ] );
+	}
+
+	/**
+	 * Check if WooCommerce Subscriptions Gifting is active.
+	 *
+	 * @return bool
+	 */
+	public static function is_active() {
+		return function_exists( 'WC' ) && class_exists( 'WC_Subscriptions' ) && class_exists( 'WCS_Gifting' );
+	}
+
+	/**
+	 * Ensure that only billing address fields enabled in Reader Revenue settings
+	 * are required for new gift recipient accounts.
+	 *
+	 * See: https://github.com/woocommerce/woocommerce-subscriptions-gifting/blob/trunk/includes/class-wcsg-recipient-details.php#L275
+	 *
+	 * @param array $fields Address fields.
+	 * @return array
+	 */
+	public static function new_recipient_fields( $fields ) {
+		// Escape hatch to force required shipping address for virtual products.
+		if ( apply_filters( 'wcsg_require_shipping_address_for_virtual_products', false ) ) { // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			return $fields;
+		}
+		$required_fields = Donations::get_billing_fields();
+		foreach ( $fields as $field_name => $field_config ) {
+			if ( ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
+				unset( $fields[ $field_name ] );
+			}
+		}
+		return $fields;
+	}
+
+	/**
+	 * Filters the default text shown for the gifting checkbox during checkout.
+	 *
+	 * @return string
+	 */
+	public static function default_gifting_checkbox_text() {
+		return __( 'This purchase is a gift.', 'newspack' );
+	}
+}
+WooCommerce_Subscriptions_Gifting::init();
