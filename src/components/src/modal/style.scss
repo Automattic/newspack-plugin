@@ -28,6 +28,17 @@
 		width: 360px;
 	}
 
+	&--hide-title {
+		.components-modal__header {
+			display: none;
+		}
+
+		.components-modal__content {
+			margin-top: 0;
+			padding-top: 32px;
+		}
+	}
+
 	@media screen and ( min-width: 960px ) {
 		max-height: calc(100% - 128px);
 	}
