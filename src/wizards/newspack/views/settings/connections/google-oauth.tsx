@@ -78,6 +78,7 @@ function GoogleOAuth( {
 							if ( typeof onSuccess === 'function' ) {
 								onSuccess( data );
 							}
+							setError( null );
 						}
 					},
 				}
