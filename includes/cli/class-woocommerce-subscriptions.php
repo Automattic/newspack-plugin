@@ -151,7 +151,7 @@ class WooCommerce_Subscriptions {
 								remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
 								if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
 									if ( self::$verbose ) {
-										WP_CLI::error( 'Failed to schedule payment retry. Moving to next subscription...' );
+										WP_CLI::line( 'Failed to schedule payment retry. Moving to next subscription...' );
 										WP_CLI::line( '' );
 									}
 									continue;
