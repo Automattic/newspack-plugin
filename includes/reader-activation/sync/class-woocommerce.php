@@ -319,12 +319,16 @@ class WooCommerce {
 				$metadata['membership_status'] = $current_subscription->get_status();
 			}
 
-			$metadata['sub_start_date']      = $current_subscription->get_date( 'start', 'site' );
-			$metadata['sub_end_date']        = $current_subscription->get_date( 'end', 'site' ) ?? '';
+			$sub_start_date    = $current_subscription->get_date( 'start', 'site' );
+			$sub_end_date      = $current_subscription->get_date( 'end', 'site' );
+			$last_payment_date = $current_subscription->get_date( 'last_order_date_paid', 'site' );
+
+			$metadata['sub_start_date']      = empty( $sub_start_date ) ? '' : $sub_start_date;
+			$metadata['sub_end_date']        = empty( $sub_end_date ) ? '' : $sub_end_date;
 			$metadata['billing_cycle']       = $current_subscription->get_billing_period();
 			$metadata['recurring_payment']   = $current_subscription->get_total();
 			$metadata['last_payment_amount'] = self::get_last_payment_amount( $current_subscription );
-			$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid', 'site' ) ?? current_time( Metadata::DATE_FORMAT );
+			$metadata['last_payment_date']   = empty( $last_payment_date ) ? current_time( Metadata::DATE_FORMAT ) : $last_payment_date;
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
@@ -379,10 +383,9 @@ class WooCommerce {
 		$metadata = [];
 
 		$customer_id                   = $customer->get_id();
-		$user                          = \get_user_by( 'id', $customer_id );
 		$created_date                  = $customer->get_date_created();
 		$metadata['account']           = $customer_id;
-		$metadata['registration_date'] = $created_date ? $created_date->date( Metadata::DATE_FORMAT ) : '';
+		$metadata['registration_date'] = $created_date ? get_date_from_gmt( $created_date->date( Metadata::DATE_FORMAT ) ) : '';
 		$metadata['total_paid']        = $customer->get_total_spent();
 
 		$order = self::get_current_product_order_for_sync( $customer );

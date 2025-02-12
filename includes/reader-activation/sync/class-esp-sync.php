@@ -8,7 +8,6 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
-use Newspack\Reader_Activation\Sync\Metadata;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -108,11 +107,6 @@ class ESP_Sync extends Sync {
 		 * @param string $context The context of the sync.
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
-
-		if ( ! empty( $contact['metadata']['registration_date'] ) ) {
-			// Convert date from UTC to the site's timezone.
-			$contact['metadata']['registration_date'] = get_date_from_gmt( $contact['metadata']['registration_date'] );
-		}
 
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
