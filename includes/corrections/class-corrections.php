@@ -60,7 +60,6 @@ class Corrections {
 		}
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
-		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
@@ -425,60 +424,6 @@ class Corrections {
 			<?php
 		endforeach;
 		return do_blocks( ob_get_clean() );
-	}
-
-	/**
-	 * Outputs corrections on the post content.
-	 *
-	 * @param string $content the post content.
-	 *
-	 * @return string the post content with corrections.
-	 */
-	public static function output_corrections_on_post( $content ) {
-		if ( is_admin() || ! is_single() ) {
-			return $content;
-		}
-
-		if ( 0 == get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true ) ) {
-			return $content;
-		}
-
-		$corrections = self::get_corrections( get_the_ID() );
-		if ( empty( $corrections ) ) {
-			return $content;
-		}
-
-		ob_start();
-		?>
-		<!-- wp:group {"className":"correction-module","backgroundColor":"light-gray"} -->
-		<div class="wp-block-group correction-module has-light-gray-background-color has-background">
-			<div class="wp-block-group__inner-container">
-			<?php
-			foreach ( $corrections as $correction ) :
-				$correction_content = $correction->post_content;
-				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
-				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );
-				$correction_heading = sprintf(
-					'%s, %s %s',
-					self::get_correction_type_label( get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true ) ),
-					$correction_date,
-					$correction_time
-				);
-				?>
-				<!-- wp:paragraph {"fontSize":"small"} -->
-				<p class="has-small-font-size correction-heading"><?php echo esc_html( $correction_heading ); ?></p>
-				<!-- /wp:paragraph -->
-
-				<!-- wp:paragraph {"fontSize":"normal"} -->
-				<p class="has-normal-font-size correction-body"><?php echo esc_html( $correction_content ); ?></p>
-				<!-- /wp:paragraph -->
-			<?php endforeach; ?>
-			</div>
-		</div>
-		<!-- /wp:group -->
-		<?php
-		$markup = do_blocks( ob_get_clean() );
-		return 'top' === get_post_meta( get_the_ID(), self::CORRECTIONS_LOCATION_META, true ) ? $markup . $content : $content . $markup;
 	}
 }
 Corrections::init();
