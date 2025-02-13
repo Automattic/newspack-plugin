@@ -116,6 +116,7 @@ class WooCommerce_Subscriptions {
 							$subscription->update_meta_data( '_newspack_cli_to_status', 'trash' );
 							$subscription->save();
 						}
+						++$trashed;
 						continue;
 					}
 				}
@@ -188,6 +189,7 @@ class WooCommerce_Subscriptions {
 						$subscription->update_meta_data( '_newspack_cli_to_status', 'expired' );
 						$subscription->save();
 					}
+					++$updated;
 				}
 				if ( self::$verbose ) {
 					WP_CLI::line( 'Finished processing subscription ' . $id );
@@ -199,20 +201,17 @@ class WooCommerce_Subscriptions {
 		// Update flagged subscriptions.
 		$flagged_subscriptions = self::get_flagged_subscriptions();
 		while ( ! empty( $flagged_subscriptions ) ) {
-			$to_status = $subscription->get_meta( '_newspack_cli_to_status' );
-			if ( self::$live ) {
-				$end_date = $subscription->get_meta( '_newspack_cli_end_date' );
-				$subscription->update_status( $to_status, __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
-				$subscription->delete_meta_data( '_newspack_cli_end_date' );
-				$subscription->delete_meta_data( '_newspack_cli_to_status' );
-				$subscription->update_meta_data( '_newspack_cli_status_updated', true );
-				$subscription->set_end_date( $end_date );
-				$subscription->save();
-			}
-			if ( 'trash' === $to_status ) {
-				$trashed++;
-			} else {
-				$updated++;
+			foreach ( $flagged_subscriptions as $flagged_subscription ) {
+				if ( self::$live ) {
+					$end_date  = $flagged_subscription->get_meta( '_newspack_cli_end_date' );
+					$to_status = $flagged_subscription->get_meta( '_newspack_cli_to_status' );
+					$flagged_subscription->update_status( $to_status, __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
+					$flagged_subscription->delete_meta_data( '_newspack_cli_end_date' );
+					$flagged_subscription->delete_meta_data( '_newspack_cli_to_status' );
+					$flagged_subscription->update_meta_data( '_newspack_cli_status_updated', true );
+					$flagged_subscription->set_end_date( $end_date );
+					$flagged_subscription->save();
+				}
 			}
 			$flagged_subscriptions = self::get_flagged_subscriptions();
 		}
