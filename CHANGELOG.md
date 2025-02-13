@@ -1,3 +1,10 @@
+## [5.13.3](https://github.com/Automattic/newspack-plugin/compare/v5.13.2...v5.13.3) (2025-02-12)
+
+
+### Bug Fixes
+
+* **wcs:** remove cli error call ([#3745](https://github.com/Automattic/newspack-plugin/issues/3745)) ([6c98fa0](https://github.com/Automattic/newspack-plugin/commit/6c98fa08e4ae87cf112ff11d01716f353272c50c))
+
 ## [5.13.2](https://github.com/Automattic/newspack-plugin/compare/v5.13.1...v5.13.2) (2025-02-11)
 
 
