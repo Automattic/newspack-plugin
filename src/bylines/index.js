@@ -43,14 +43,19 @@ const TokenInlineBlock = ( { token, onInsert } ) => {
 };
 
 const BylinesSettingsPanel = () => {
+	/** Tokens with authors assigned to the post */
 	const [ tokens, setTokens ] = useState( [] );
 
+	/** Tokens that are in use by the custom byline */
 	const tokensInUse = useRef( [] );
 
+	/** Reference to document to add event listners */
 	const documentRef = useRef( document );
 
+	/** Force update, necessary to update component after DOM is manipulated directly */
 	const [ , forceUpdate ] = useState( {} );
 
+	/** Current post ID */
 	const { postId } = useSelect(
 		select => ( {
 			postId: select( 'core/editor' ).getCurrentPostId(),
@@ -58,18 +63,14 @@ const BylinesSettingsPanel = () => {
 		[]
 	);
 
+	/** close icon copied from @wordpress/icons/src/library/close.js to be used as markup */
 	const close = `
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 			<path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z" />
 		</svg>
 	`;
 
-	const transformAuthorsToTokens = coAuthors => {
-		return Object.values( coAuthors ).map( value => {
-			return { id: value.id, name: value.display_name };
-		} );
-	};
-
+	/** coAuthors fetched from co-Authors Plus */
 	const [ coAuthors, setCoAuthors ] = useState( [] );
 
 	const noticesDispatch = useDispatch( 'core/notices' );
@@ -80,12 +81,27 @@ const BylinesSettingsPanel = () => {
 		select( 'core/editor' )
 	);
 
+	/** The custom byline text/html */
 	const byline =
 		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '';
 
+	/** Toggle if custom byline is enabled */
 	const [ isEnabled, setIsEnabled ] = useState(
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
+
+	/**
+	 * Transform coAuthors into an object expected to be used as tokens
+	 * in the format of { id: int; name: string }.
+	 *
+	 * @param {Object} Authors Co-authors fetched from Co-Author Plus API.
+	 * @return {Object}        Co-authors transformed into tokens object: { id: int; name: string }
+	 */
+	const transformAuthorsToTokens = Authors => {
+		return Object.values( Authors ).map( value => {
+			return { id: value.id, name: value.display_name };
+		} );
+	};
 
 	/**
 	 * Insert token into the custom byline contenteditable div.
@@ -97,6 +113,7 @@ const BylinesSettingsPanel = () => {
 			'.newspack-byline-textarea'
 		);
 
+		// Compound new token element with token data.
 		const tokenElement = `
 			<span id="token-${ token.id }" class="token-inline-block author author-token">
 				<button
@@ -110,11 +127,13 @@ const BylinesSettingsPanel = () => {
 			</span>
 		`;
 
+		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
 		bylineElement.innerHTML =
 			bylineElement.innerHTML + ' ' + tokenElement + '&nbsp;';
 
 		tokensInUse.current = [ ...tokensInUse.current, token.id ];
 
+		// Update byline meta
 		editPost( {
 			meta: {
 				[ newspackBylines.metaKeyByline ]: bylineElement.innerHTML,
@@ -125,26 +144,41 @@ const BylinesSettingsPanel = () => {
 		forceUpdate( {} );
 	};
 
+	/**
+	 * Add a Mutation Observer to byline element, so when a token is edited trough delete/backspace it
+	 * gets removed as it was clicked.
+	 *
+	 * @param {Element} bylineElement
+	 */
 	const addMutationObserverToByline = bylineElement => {
+		// Mutation observer config.
 		const config = {
 			attributes: false,
 			childList: true,
 			subtree: true,
 		};
 
+		/**
+		 * Mutation observer callback triggered when any change is made to the byline.
+		 * @param {MutationObserver} mutationList
+		 */
 		const callback = mutationList => {
 			for ( const mutation of mutationList ) {
+				// Check if is a mutation on childList or subtree and if the element changed is a token, matching the class.
 				if (
 					( mutation.type === 'childList' ||
 						mutation.type === 'subtree' ) &&
 					mutation.target.matches?.( '.token-inline-block ' )
 				) {
+					// Hold tokenID
 					const tokenID = mutation.target.querySelector(
 						'.token-inline-block__remove'
 					).dataset.token;
 
+					// Remove token element.
 					mutation.target.remove();
 
+					// Update byline meta
 					editPost( {
 						meta: {
 							[ newspackBylines.metaKeyByline ]:
@@ -152,6 +186,7 @@ const BylinesSettingsPanel = () => {
 						},
 					} );
 
+					// Update tokensInUse
 					tokensInUse.current = tokensInUse.current.filter(
 						token => token !== Number( tokenID )
 					);
@@ -193,10 +228,12 @@ const BylinesSettingsPanel = () => {
 	};
 
 	/**
-	 * Add event listener for token removal.
+	 * Add event listener for token removal on document, since the tokens are dynamically
+	 * inserted into byline element.
 	 */
 	useEffect( () => {
 		documentRef.current.addEventListener( 'click', function ( event ) {
+			// Check if clicked element is token remove button.
 			if (
 				event.target.classList.contains( 'token-inline-block__remove' )
 			) {
@@ -209,12 +246,14 @@ const BylinesSettingsPanel = () => {
 						'span#token-' + event.target.dataset.token
 					)
 				) {
+					// Remove token element.
 					bylineElement
 						.querySelector(
 							'span#token-' + event.target.dataset.token
 						)
 						.remove();
 
+					// Update byline meta.
 					editPost( {
 						meta: {
 							[ newspackBylines.metaKeyByline ]:
@@ -223,6 +262,7 @@ const BylinesSettingsPanel = () => {
 					} );
 				}
 
+				// Update tokensInUse
 				tokensInUse.current = tokensInUse.current.filter(
 					token => token !== Number( event.target.dataset.token )
 				);
