@@ -153,7 +153,15 @@ class WooCommerce_Subscriptions {
 									if ( self::$verbose ) {
 										WP_CLI::line( 'Failed to schedule payment retry.' );
 									}
-									$should_expire = true;
+									// There are cases on live sites where a renewed subscription status fails to transition back to active,
+									// so check to make sure the last order is not completed before flagging for expiration.
+									if ( ! $last_order || 'completed' !== $last_order->get_status() ) {
+										$should_expire = true;
+									} else {
+										WP_CLI::line( 'Subscription last order is completed. Moving to next subscription...' );
+										WP_CLI::line( '' );
+										continue;
+									}
 								} else {
 									$subscription->add_order_note(
 										__( 'Final payment retry scheduled by Newspack CLI command.', 'newspack-plugin' )
