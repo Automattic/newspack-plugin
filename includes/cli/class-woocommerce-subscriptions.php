@@ -163,7 +163,6 @@ class WooCommerce_Subscriptions {
 									$subscription->save();
 								}
 							}
-							++$scheduled;
 						} else {
 							// If there have been no retries, schedule expiration.
 							if ( self::$verbose ) {
@@ -174,8 +173,8 @@ class WooCommerce_Subscriptions {
 								$subscription->update_meta_data( '_newspack_cli_expiration_scheduled', true );
 								$subscription->save();
 							}
-							++$scheduled;
 						}
+						++$scheduled;
 					}
 				}
 				// Expire any subscriptinos that have passed the on-hold duration.
