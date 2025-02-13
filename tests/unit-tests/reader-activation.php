@@ -68,7 +68,7 @@ class Newspack_Test_Reader_Activation extends WP_UnitTestCase {
 		$user_id = self::register_sample_reader();
 		wp_logout();
 		$result = self::register_sample_reader(); // Reregister the same email.
-		$this->assertFalse( $result );
+		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertFalse( is_user_logged_in() );
 		wp_delete_user( $user_id ); // Clean up.
 	}
