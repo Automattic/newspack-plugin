@@ -71,7 +71,6 @@ class WooCommerce_Subscriptions {
 		$updated       = 0;
 		$trashed       = 0;
 		$page          = 1;
-		$per_page      = 25;
 		$subscriptions = self::get_subscriptions( $page );
 		if ( empty( $subscriptions ) ) {
 			WP_CLI::success( 'No on-hold subscriptions to process.' );
@@ -246,7 +245,7 @@ class WooCommerce_Subscriptions {
 			$subscriptions = wcs_get_subscriptions(
 				[
 					'paged'                  => $page,
-					'subscriptions_per_page' => 1,
+					'subscriptions_per_page' => 50,
 					'subscription_status'    => 'on-hold',
 				]
 			);
