@@ -78,6 +78,13 @@ const CorrectionsModal = () => {
 		}
 	}, [] );
 
+	// Send Corrections.
+	useEffect( () => {
+		if ( isSaving ) {
+			saveCorrections();
+		}
+	}, [ isSaving ]);
+
 	// Add a new correction to the list.
 	const saveCorrection = () => {
 		// Check if the correction is empty.
@@ -127,9 +134,7 @@ const CorrectionsModal = () => {
 
 	// Save all corrections.
 	const saveCorrections = async () => {
-		setIsSaving(true);
-		setSaveError(null);
-
+		setSaveError( null );
 		const payload = {
 			post_id: postId,
 			corrections: corrections.map( ( { ID, post_content, type, date, isNew } ) => ({
@@ -262,7 +267,7 @@ const CorrectionsModal = () => {
 						variant="primary"
 						onClick={ () => {
 							saveCorrection();
-							saveCorrections();
+							setIsSaving( true );
 						} }
 						disabled={ isSaving }
 					>
