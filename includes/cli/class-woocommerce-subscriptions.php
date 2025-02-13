@@ -113,7 +113,6 @@ class WooCommerce_Subscriptions {
 						if ( self::$live ) {
 							// Flag the update so we don't break wcs_get_subscriptions pagination.
 							$subscription->update_meta_data( '_newspack_cli_end_date', $subscription->get_date( 'next_payment' ) );
-							$subscription->update_meta_data( '_newspack_cli_status_updated', true );
 							$subscription->update_meta_data( '_newspack_cli_to_status', 'trash' );
 							$subscription->save();
 						}
@@ -162,9 +161,7 @@ class WooCommerce_Subscriptions {
 									$subscription->save();
 								}
 							}
-							if ( ! $should_expire ) {
-								++$scheduled;
-							}
+							++$scheduled;
 						} else {
 							// If there have been no retries, schedule expiration.
 							if ( self::$verbose ) {
@@ -186,7 +183,6 @@ class WooCommerce_Subscriptions {
 					if ( self::$live ) {
 						// Flag the update so we don't break wcs_get_subscriptions pagination.
 						$subscription->update_meta_data( '_newspack_cli_end_date', $end_date );
-						$subscription->update_meta_data( '_newspack_cli_status_updated', true );
 						$subscription->update_meta_data( '_newspack_cli_to_status', 'expired' );
 						$subscription->save();
 					}
@@ -204,8 +200,12 @@ class WooCommerce_Subscriptions {
 			$to_status = $subscription->get_meta( '_newspack_cli_to_status' );
 			if ( self::$live ) {
 				$end_date = $subscription->get_meta( '_newspack_cli_end_date' );
-				$subscription->set_end_date( $end_date );
 				$subscription->update_status( $to_status, __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
+				$subscription->delete_meta_data( '_newspack_cli_end_date' );
+				$subscription->delete_meta_data( '_newspack_cli_to_status' );
+				$subscription->update_meta_data( '_newspack_cli_status_updated', true );
+				$subscription->set_end_date( $end_date );
+				$subscription->save();
 			}
 			if ( 'trash' === $to_status ) {
 				$trashed++;
@@ -265,7 +265,7 @@ class WooCommerce_Subscriptions {
 				'subscription_status'    => 'on-hold',
 				'meta_query'             => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					[
-						'key'     => '_newspack_cli_status_updated',
+						'key'     => '_newspack_cli_to_status',
 						'compare' => 'EXISTS',
 					],
 				],
