@@ -20,6 +20,7 @@ class WooCommerce_Subscriptions_Gifting {
 		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
 		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
 		\add_filter( 'default_option_woocommerce_subscriptions_gifting_gifting_checkbox_text', [ __CLASS__, 'default_gifting_checkbox_text' ] );
+		\add_filter( 'newpack_reader_activation_reader_is_without_password', [ __CLASS__, 'is_reader_without_password' ], 10, 2 );
 	}
 
 	/**
@@ -61,6 +62,18 @@ class WooCommerce_Subscriptions_Gifting {
 	 */
 	public static function default_gifting_checkbox_text() {
 		return __( 'This purchase is a gift', 'newspack' );
+	}
+
+	/**
+	 * New gift recipients don't yet have a password.
+	 *
+	 * @param bool $is_reader_without_password True if the reader has not set a password.
+	 * @param int  $user_id The user ID.
+	 *
+	 * @return bool
+	 */
+	public static function is_reader_without_password( $is_reader_without_password, $user_id ) {
+		return 'true' === get_user_meta( $user_id, 'wcsg_update_account', true );
 	}
 }
 WooCommerce_Subscriptions_Gifting::init();

@@ -1118,7 +1118,14 @@ final class Reader_Activation {
 			return new \WP_Error( 'newspack_is_reader_without_password', __( 'Invalid user.', 'newspack-plugin' ) );
 		}
 
-		return (bool) \get_user_meta( $user->ID, self::WITHOUT_PASSWORD, false );
+		/**
+		 * Filters whether the user should be considered a reader without a password.
+		 *
+		 * @param bool $is_reader_without_password True if the reader has not set a password.
+		 * @param int  $user_id                    User ID.
+		 * @return bool
+		 */
+		return (bool) apply_filters( 'newpack_reader_activation_reader_is_without_password', \get_user_meta( $user->ID, self::WITHOUT_PASSWORD, false ), $user->ID );
 	}
 
 	/**
