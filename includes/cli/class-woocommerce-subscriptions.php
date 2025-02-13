@@ -151,9 +151,10 @@ class WooCommerce_Subscriptions {
 								remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
 								if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
 									if ( self::$verbose ) {
-										WP_CLI::line( 'Failed to schedule payment retry. Moving to next subscription...' );
+										WP_CLI::line( 'Failed to schedule payment retry. Expiring...' );
 										WP_CLI::line( '' );
 									}
+									$should_expire = true;
 									continue;
 								} else {
 									$subscription->add_order_note(
@@ -163,7 +164,9 @@ class WooCommerce_Subscriptions {
 									$subscription->save();
 								}
 							}
-							++$scheduled;
+							if ( ! $should_expire ) {
+								++$scheduled;
+							}
 						} else {
 							// If there have been no retries, schedule expiration.
 							if ( self::$verbose ) {
