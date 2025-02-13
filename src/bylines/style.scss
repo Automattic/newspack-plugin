@@ -18,6 +18,14 @@
 	padding: 1em;
 	border: 1px solid #e1e1e1;
 	margin-bottom: 1em;
+
+	.token-inline-block {
+		.components-button {
+			svg {
+				width: 1.1em;
+			}
+		}
+	}
 }
 
 .tokens {
@@ -28,10 +36,10 @@
 
 .token-inline-block {
 	background: #e1e1e1;
-	padding: 6px 6px;
+	padding: 0 1em;
 	gap: 4px;
 
-	.components-button.is-link {
+	.components-button {
 		&.token-inline-block__insert {
 			padding: 0;
 			margin: 0;
@@ -39,15 +47,23 @@
 		}
 
 		&.token-inline-block__remove {
-			padding: 0;
 			margin: 0 0 0 4px;
 			text-decoration: none;
+			white-space: nowrap;
+			padding: 0.5em;
+		}
+
+		svg {
+			position: relative;
+			width: 1.5em;
+			margin: 0 0 0 4px;
 		}
 	}
 }
 
 .author-token {
 	display: inline-block;
-	padding: 0.3em;
+	padding: 0 0.5em;
 	background: rgb(225, 225, 225);
+	margin: 0.2em 0;
 }
