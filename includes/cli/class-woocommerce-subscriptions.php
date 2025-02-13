@@ -151,17 +151,10 @@ class WooCommerce_Subscriptions {
 								remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
 								if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
 									if ( self::$verbose ) {
-										WP_CLI::line( 'Failed to schedule payment retry.' );
-									}
-									// There are cases on live sites where a renewed subscription status fails to transition back to active,
-									// so check to make sure the last order is not completed before flagging for expiration.
-									if ( ! $last_order || 'completed' !== $last_order->get_status() ) {
-										$should_expire = true;
-									} else {
-										WP_CLI::line( 'Subscription last order is completed. Moving to next subscription...' );
+										WP_CLI::line( 'Failed to schedule payment retry. Moving to next subscription...' );
 										WP_CLI::line( '' );
-										continue;
 									}
+									continue;
 								} else {
 									$subscription->add_order_note(
 										__( 'Final payment retry scheduled by Newspack CLI command.', 'newspack-plugin' )
@@ -207,20 +200,20 @@ class WooCommerce_Subscriptions {
 			$subscriptions = self::get_subscriptions( ++$page );
 		}
 		// Update flagged subscriptions.
-		if ( self::$live ) {
-			$flagged_subscriptions = self::get_flagged_subscriptions();
-			while ( ! empty( $flagged_subscriptions ) ) {
-				$end_date  = $subscription->get_meta( '_newspack_cli_end_date' );
-				$to_status = $subscription->get_meta( '_newspack_cli_to_status' );
+		$flagged_subscriptions = self::get_flagged_subscriptions();
+		while ( ! empty( $flagged_subscriptions ) ) {
+			$to_status = $subscription->get_meta( '_newspack_cli_to_status' );
+			if ( self::$live ) {
+				$end_date = $subscription->get_meta( '_newspack_cli_end_date' );
 				$subscription->set_end_date( $end_date );
 				$subscription->update_status( $to_status, __( 'Subscription status updated by Newspack CLI command.', 'newspack-plugin' ) );
-				if ( 'trash' === $to_status ) {
-					$trashed++;
-				} else {
-					$updated++;
-				}
-				$flagged_subscriptions = self::get_flagged_subscriptions();
 			}
+			if ( 'trash' === $to_status ) {
+				$trashed++;
+			} else {
+				$updated++;
+			}
+			$flagged_subscriptions = self::get_flagged_subscriptions();
 		}
 		WP_CLI::success( 'Finished processing subscriptions. ' . $updated . ' subscriptions updated. ' . $scheduled . ' retries scheduled. ' . $trashed . ' subscriptions trashed.' );
 		if ( ! self::$live ) {
@@ -253,7 +246,7 @@ class WooCommerce_Subscriptions {
 			$subscriptions = wcs_get_subscriptions(
 				[
 					'paged'                  => $page,
-					'subscriptions_per_page' => 50,
+					'subscriptions_per_page' => 1,
 					'subscription_status'    => 'on-hold',
 				]
 			);
