@@ -111,7 +111,7 @@ const BylinesSettingsPanel = () => {
 		`;
 
 		bylineElement.innerHTML =
-			bylineElement.innerHTML + ' ' + tokenElement + ' ';
+			bylineElement.innerHTML + ' ' + tokenElement + '&nbsp;';
 
 		tokensInUse.current = [ ...tokensInUse.current, token.id ];
 
@@ -123,6 +123,49 @@ const BylinesSettingsPanel = () => {
 
 		// Force component update after DOM manipulated directly.
 		forceUpdate( {} );
+	};
+
+	const addMutationObserverToByline = bylineElement => {
+		const config = {
+			attributes: false,
+			childList: true,
+			subtree: true,
+		};
+
+		const callback = mutationList => {
+			for ( const mutation of mutationList ) {
+				if (
+					( mutation.type === 'childList' ||
+						mutation.type === 'subtree' ) &&
+					mutation.target.matches?.( '.token-inline-block ' )
+				) {
+					const tokenID = mutation.target.querySelector(
+						'.token-inline-block__remove'
+					).dataset.token;
+
+					mutation.target.remove();
+
+					editPost( {
+						meta: {
+							[ newspackBylines.metaKeyByline ]:
+								bylineElement.innerHTML,
+						},
+					} );
+
+					tokensInUse.current = tokensInUse.current.filter(
+						token => token !== Number( tokenID )
+					);
+
+					// Force component update after DOM manipulated directly.
+					forceUpdate( {} );
+				}
+			}
+		};
+
+		const observer = new MutationObserver( callback );
+
+		// Start observing the target node for configured mutations
+		observer.observe( bylineElement, config );
 	};
 
 	/**
@@ -224,7 +267,10 @@ const BylinesSettingsPanel = () => {
 	}, [ postId ] );
 
 	/**
-	 * Fill tokenInUse on DOM ready analyzing the .newspack-byline-textarea.
+	 * Initialize on DOM ready
+	 *
+	 * Fill tokenInUse on DOM ready analyzing the byline element.
+	 * Add Mutation Observer to byline element.
 	 */
 	useEffect( () => {
 		function handleDomReady() {
@@ -237,12 +283,16 @@ const BylinesSettingsPanel = () => {
 					'span button[data-token]'
 				);
 
+				// Fill tokensInUse
 				tokenElements.forEach( tokenElement => {
 					tokensInUse.current = [
 						...tokensInUse.current,
 						Number( tokenElement.dataset.token ),
 					];
 				} );
+
+				// Add Mutation Observer
+				addMutationObserverToByline( bylineElement );
 
 				// Remove the listener to prevent it from firing again
 				document.removeEventListener(
