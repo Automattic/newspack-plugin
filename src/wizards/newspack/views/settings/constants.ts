@@ -14,7 +14,7 @@ export const THEME_BRAND_DEFAULTS = {
 	// Colors.
 	header_color: 'custom',
 	theme_colors: 'default',
-	primary_color_hex: '#2240d5',
+	primary_color_hex: '#003da5',
 	secondary_color_hex: '#666666',
 	// Typography.
 	font_header: '',
@@ -26,7 +26,7 @@ export const THEME_BRAND_DEFAULTS = {
 	header_center_logo: false,
 	header_simplified: false,
 	header_solid_background: false,
-	header_color_hex: '#2240d5',
+	header_color_hex: '#003da5',
 	custom_logo: '',
 	logo_size: 0,
 	header_text: false, // No custom_logo set.

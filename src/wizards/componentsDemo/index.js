@@ -11,7 +11,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { audio, home, plus, reusableBlock, typography } from '@wordpress/icons';
+import { audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -55,7 +55,7 @@ class ComponentsDemo extends Component {
 			selectValue3: '',
 			selectValues: [],
 			modalShown: false,
-			color1: '#2240d5',
+			color1: '#003da5',
 		};
 	}
 
@@ -85,7 +85,7 @@ class ComponentsDemo extends Component {
 								href={ newspack_urls.dashboard }
 								label={ __( 'Return to Dashboard', 'newspack-plugin' ) }
 								showTooltip={ true }
-								icon={ home }
+								icon={ category }
 								iconSize={ 36 }
 							>
 								<NewspackIcon size={ 36 } />
@@ -755,9 +755,9 @@ class ComponentsDemo extends Component {
 							#e5bd13 / Inverted
 						</BoxContrast>
 						<h3>{ __( 'Demo 2:', 'newspack-plugin' ) }</h3>
-						<BoxContrast hexColor="#2240d5">#e5bd13</BoxContrast>
-						<BoxContrast hexColor="#2240d5" isInverted>
-							#2240d5 / Inverted
+						<BoxContrast hexColor="#003da5">#003da5</BoxContrast>
+						<BoxContrast hexColor="#003da5" isInverted>
+							#003da5 / Inverted
 						</BoxContrast>
 						<h3>{ __( 'Demo 3:', 'newspack-plugin' ) }</h3>
 						<BoxContrast hexColor="#51f1ff">#e5bd13</BoxContrast>

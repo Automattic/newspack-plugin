@@ -6,34 +6,14 @@
  * WordPress dependencies
  */
 import SVG from './svg';
-import { Path, Rect } from '@wordpress/primitives';
+import { Path } from '@wordpress/primitives';
 
 const gift = (
-	<SVG width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<Rect
-			x="-1"
-			y="-1"
-			width="12.6667"
-			height="19.3333"
-			transform="matrix(3.97376e-08 -1 -1 -4.80825e-08 24.999 24.668)"
-			stroke="#2240D5"
-			strokeWidth="2"
-		/>
+	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Path
 			fillRule="evenodd"
+			d="M14.75 9a2.5 2.5 0 0 0 0-5 2.5 2.5 0 0 0-2.5 2.5 2.5 2.5 0 0 0-5 0A2.5 2.5 0 0 0 9.75 9H4v11h16V9h-5.25Zm-1-2.5c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1h-1v-1Zm-5 0c0-.55.45-1 1-1s1 .45 1 1v1h-1c-.55 0-1-.45-1-1Zm-3.25 4h6v8h-6v-8Zm13 8H13v-8h5.5v8Z"
 			clipRule="evenodd"
-			d="M17.666 25.3333L17.666 12L15.666 12L15.666 25.3333L17.666 25.3333Z"
-			fill="#2240D5"
-		/>
-		<Path
-			d="M22.3327 8.66536C22.3327 9.95403 21.288 10.9987 19.9993 10.9987H17.666V8.66536C17.666 7.3767 18.7107 6.33203 19.9993 6.33203C21.288 6.33203 22.3327 7.3767 22.3327 8.66536Z"
-			stroke="#2240D5"
-			strokeWidth="2"
-		/>
-		<Path
-			d="M10.9993 8.66536C10.9993 9.95403 12.044 10.9987 13.3327 10.9987H15.666V8.66536C15.666 7.3767 14.6213 6.33203 13.3327 6.33203C12.044 6.33203 10.9993 7.3767 10.9993 8.66536Z"
-			stroke="#2240D5"
-			strokeWidth="2"
 		/>
 	</SVG>
 );

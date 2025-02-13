@@ -85,13 +85,13 @@ class Newspack_Dashboard extends Wizard {
 				],
 				'cards'        => [
 					[
-						'icon'  => 'mail',
+						'icon'  => 'envelope',
 						'title' => __( 'All Newsletters', 'newspack-plugin' ),
 						'desc'  => __( 'See all newsletters you’ve sent out, and start new ones.', 'newspack-plugin' ),
 						'href'  => admin_url( 'edit.php?post_type=newspack_nl_cpt' ),
 					],
 					[
-						'icon'  => 'ad',
+						'icon'  => 'pullquote',
 						'title' => __( 'Advertising', 'newspack-plugin' ),
 						'desc'  => __( 'Get advertising revenue from your newsletters.', 'newspack-plugin' ),
 						'href'  => admin_url( 'edit.php?post_type=newspack_nl_ads_cpt' ),
@@ -114,7 +114,7 @@ class Newspack_Dashboard extends Wizard {
 			],
 			'cards'        => [
 				[
-					'icon'  => 'ad',
+					'icon'  => 'pullquote',
 					'title' => __( 'Display Ads', 'newspack-plugin' ),
 					'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
 					'href'  => admin_url( 'admin.php?page=newspack-ads-display-ads#/' ),
@@ -138,7 +138,7 @@ class Newspack_Dashboard extends Wizard {
 				],
 				'cards'        => [
 					[
-						'icon'  => 'blockPostDate',
+						'icon'  => 'postDate',
 						'title' => __( 'Events', 'newspack-plugin' ),
 						'desc'  => __( 'Easily use the same event information across multiple posts.', 'newspack-plugin' ),
 						'href'  => admin_url( 'edit.php?post_type=newspack_lst_event' ),
@@ -208,7 +208,7 @@ class Newspack_Dashboard extends Wizard {
 		if ( 'hub' === $site_role ) {
 			return [
 				[
-					'icon'  => 'positionCenterCenter',
+					'icon'  => 'globe',
 					'title' => __( 'Nodes', 'newspack-plugin' ),
 					'desc'  => __( 'Manage which sites are part of your content network.', 'newspack-plugin' ),
 					'href'  => admin_url( 'edit.php?post_type=newspack_hub_nodes' ),
@@ -312,14 +312,14 @@ class Newspack_Dashboard extends Wizard {
 			$local_data['quickActions'][] = [
 				'href'  => admin_url( 'post-new.php?post_type=newspack_nl_cpt' ),
 				'title' => __( 'Draft a newsletter', 'newspack-plugin' ),
-				'icon'  => 'mail',
+				'icon'  => 'envelope',
 			];
 		}
 
 		$local_data['quickActions'][] = [
 			'href'  => 'https://lookerstudio.google.com/u/0/reporting/b7026fea-8c2c-4c4b-be95-f582ed94f097/page/p_3eqlhk5odd',
 			'title' => __( 'Open data dashboard', 'newspack-plugin' ),
-			'icon'  => 'dashboard',
+			'icon'  => 'chartBar',
 		];
 
 		return $local_data;
@@ -338,7 +338,7 @@ class Newspack_Dashboard extends Wizard {
 	 * Add a parent menu for Newspack and the first submenu item.
 	 */
 	public function add_page() {
-		$icon = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjE4cHgiIGhlaWdodD0iNjE4cHgiIHZpZXdCb3g9IjAgMCA2MTggNjE4IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+CiAgICAgICAgPHBhdGggZD0iTTMwOSwwIEM0NzkuNjU2NDk1LDAgNjE4LDEzOC4zNDQyOTMgNjE4LDMwOS4wMDE3NTkgQzYxOCw0NzkuNjU5MjI2IDQ3OS42NTY0OTUsNjE4IDMwOSw2MTggQzEzOC4zNDM1MDUsNjE4IDAsNDc5LjY1OTIyNiAwLDMwOS4wMDE3NTkgQzAsMTM4LjM0NDI5MyAxMzguMzQzNTA1LDAgMzA5LDAgWiBNMTc0LDE3MSBMMTc0LDI2Mi42NzEzNTYgTDE3NS4zMDUsMjY0IEwxNzQsMjY0IEwxNzQsNDQ2IEwyNDEsNDQ2IEwyNDEsMzMwLjkxMyBMMzUzLjk5Mjk2Miw0NDYgTDQ0NCw0NDYgTDE3NCwxNzEgWiBNNDQ0LDI5OSBMMzg5LDI5OSBMNDEwLjQ3NzYxLDMyMSBMNDQ0LDMyMSBMNDQ0LDI5OSBaIE00NDQsMjM1IEwzMjcsMjM1IEwzNDguMjQ1OTE5LDI1NyBMNDQ0LDI1NyBMNDQ0LDIzNSBaIE00NDQsMTcxIEwyNjQsMTcxIEwyODUuMjkwNTEyLDE5MyBMNDQ0LDE5MyBMNDQ0LDE3MSBaIiBpZD0iQ29tYmluZWQtU2hhcGUiIGZpbGw9IiMyQTdERTEiPjwvcGF0aD4KICAgIDwvZz4KPC9zdmc+';
+		$icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSI+PHBhdGggZmlsbD0iI2ZmZiIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMjIgMTJjMCA1LjUyMy00LjQ3NyAxMC0xMCAxMFMyIDE3LjUyMyAyIDEyIDYuNDc3IDIgMTIgMnMxMCA0LjQ3NyAxMCAxMFptLTUuNDU1IDQuNTQ2LTkuMDktOS4wOTF2OS4wOWgxLjgxOHYtNC42OTdsNC42OTcgNC42OTdoMi41NzVabS01LjE1MS03LjcyOGg1LjE1MlY3LjQ1NUgxMC4wM2wxLjM2NCAxLjM2M1ptNS4xNTIgMi41NzZIMTMuOTdsLTEuMzY0LTEuMzY0aDMuOTR2MS4zNjRabTAgMS4yMTJ2MS4zNjRsLTEuMzY0LTEuMzY0aDEuMzY0WiIgY2xpcC1ydWxlPSJldmVub2RkIi8+PC9zdmc+';
 		add_menu_page(
 			$this->get_name(),
 			$this->get_name(),

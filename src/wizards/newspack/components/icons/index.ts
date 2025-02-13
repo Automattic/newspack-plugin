@@ -7,53 +7,53 @@
  */
 export { Icon } from '@wordpress/icons';
 import {
+	chartBar,
+	currencyDollar,
+	envelope,
+	formatListBullets,
+	globe,
 	help,
-	settings,
+	mapMarker,
 	megaphone,
 	payment,
-	tool,
-	store,
+	post,
+	postDate,
 	postList,
-	mapMarker,
+	pullquote,
 	rotateRight,
-	currencyDollar,
-	formatListBullets,
+	settings,
+	store,
+	tool,
 } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import blockPostDate from './block-post-date';
-import positionCenterCenter from './position-center-center';
 import gift from './gift';
-import ad from './ad';
-import mail from './mail';
-import post from './post';
-import dashboard from './dashboard';
 
 /**
  * Export Dashboard Icons
  */
 export const icons = {
+	chartBar,
+	currencyDollar,
+	envelope,
+	formatListBullets,
+	globe,
 	help,
-	settings,
+	mapMarker,
 	megaphone,
 	payment,
-	tool,
-	store,
-	postList,
-	mapMarker,
-	rotateRight,
-	currencyDollar,
-	formatListBullets,
-	// Custom
 	post,
-	blockPostDate,
-	positionCenterCenter,
+	postDate,
+	postList,
+	pullquote,
+	rotateRight,
+	settings,
+	store,
+	tool,
+	// Custom
 	gift,
-	ad,
-	mail,
-	dashboard,
 };
 
 export default icons;

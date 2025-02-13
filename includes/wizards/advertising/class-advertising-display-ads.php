@@ -31,9 +31,9 @@ class Advertising_Display_Ads extends Wizard {
 	const OPTION_NAME_GAM_NETWORK_CODE = '_newspack_ads_gam_network_code';
 
 	/**
-	 * The slug of this wizard. 
-	 * 
-	 * Note: `newspack-ads-display-ads` (vs. `newspack-advertising-display-ads`) is intentional to avoid 
+	 * The slug of this wizard.
+	 *
+	 * Note: `newspack-ads-display-ads` (vs. `newspack-advertising-display-ads`) is intentional to avoid
 	 * Ad blockers from blocking the Advertising menu item.
 	 *
 	 * @var string
@@ -75,7 +75,7 @@ class Advertising_Display_Ads extends Wizard {
 	/**
 	 * Use a high priorty so that the Advertising parent menu will be created
 	 * prior to submenu items being added.
-	 * 
+	 *
 	 * @var int.
 	 */
 	protected $admin_menu_priority = 1;
@@ -564,8 +564,7 @@ class Advertising_Display_Ads extends Wizard {
 	 * and a first menu item too.
 	 */
 	public function add_page() {
-		// SVG generated via https://boxy-svg.com/ with path width/height 20px.
-		$icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="none" stroke="none" d="M 2 12 C 2 4.313 10.333 -0.491 17 3.352 C 20.094 5.136 22 8.433 22 12 C 22 19.686 13.667 24.49 7 20.647 C 3.906 18.863 2 15.567 2 12 Z M 12 3.727 C 5.622 3.727 1.635 10.621 4.824 16.136 C 6.304 18.696 9.04 20.273 12 20.273 C 18.378 20.273 22.365 13.378 19.176 7.863 C 17.696 5.304 14.96 3.727 12 3.727 Z M 10.471 9.292 C 10.112 9.543 10 9.808 10 10.003 C 10 10.198 10.112 10.463 10.471 10.714 C 10.827 10.962 11.366 11.144 12 11.144 C 12.943 11.144 13.834 11.41 14.512 11.883 C 15.186 12.356 15.714 13.089 15.714 13.997 C 15.714 14.904 15.187 15.637 14.512 16.11 C 14.043 16.436 13.475 16.664 12.857 16.774 L 12.857 17.135 C 12.857 17.793 12.143 18.205 11.571 17.876 C 11.306 17.723 11.143 17.44 11.143 17.135 L 11.143 16.774 C 10.55 16.675 9.985 16.448 9.488 16.11 C 8.814 15.637 8.286 14.904 8.286 13.997 C 8.286 13.338 9 12.926 9.571 13.255 C 9.837 13.408 10 13.691 10 13.997 C 10 14.192 10.112 14.456 10.471 14.707 C 10.827 14.956 11.366 15.138 12 15.138 C 12.634 15.138 13.173 14.956 13.529 14.707 C 13.888 14.456 14 14.192 14 13.997 C 14 13.801 13.888 13.537 13.529 13.286 C 13.173 13.037 12.634 12.855 12 12.855 C 11.057 12.855 10.166 12.59 9.488 12.116 C 8.814 11.644 8.286 10.91 8.286 10.003 C 8.286 9.095 8.813 8.362 9.488 7.889 C 9.985 7.552 10.55 7.324 11.143 7.225 L 11.143 6.865 C 11.143 6.206 11.857 5.794 12.429 6.123 C 12.694 6.276 12.857 6.559 12.857 6.865 L 12.857 7.225 C 13.474 7.335 14.045 7.563 14.512 7.889 C 15.186 8.362 15.714 9.095 15.714 10.003 C 15.714 10.661 15 11.073 14.429 10.744 C 14.163 10.591 14 10.308 14 10.003 C 14 9.808 13.888 9.543 13.529 9.292 C 13.173 9.043 12.634 8.862 12 8.862 C 11.366 8.862 10.827 9.043 10.471 9.292 Z"></path></svg>' );
+		$icon = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false" fill="none"><path d="M18 8H6c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zm.5 6c0 .3-.2.5-.5.5H6c-.3 0-.5-.2-.5-.5v-4c0-.3.2-.5.5-.5h12c.3 0 .5.2.5.5v4zM4 4v1.5h16V4H4zm0 16h16v-1.5H4V20z"></path></svg>' );
 		add_menu_page(
 			$this->get_name(),
 			$this->get_name(),
