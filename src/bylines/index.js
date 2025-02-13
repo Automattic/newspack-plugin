@@ -9,6 +9,7 @@ import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import apiFetch from '@wordpress/api-fetch';
+import { Icon, plus } from '@wordpress/icons';
 
 /**
  * External dependencies
@@ -29,12 +30,12 @@ const TokenInlineBlock = ( { token, onInsert } ) => {
 			>
 				<Button
 					className="token-inline-block__insert"
-					isLink
 					onClick={ () => {
 						onInsert.call();
 					} }
 				>
 					{ token.name }
+					<Icon icon={ plus } />
 				</Button>
 			</span>
 		</>
@@ -56,6 +57,12 @@ const BylinesSettingsPanel = () => {
 		} ),
 		[]
 	);
+
+	const close = `
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+			<path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z" />
+		</svg>
+	`;
 
 	const transformAuthorsToTokens = coAuthors => {
 		return Object.values( coAuthors ).map( value => {
@@ -92,18 +99,19 @@ const BylinesSettingsPanel = () => {
 
 		const tokenElement = `
 			<span id="token-${ token.id }" class="token-inline-block author author-token">
-				${ token.name }
 				<button
-					class="components-button is-link token-inline-block__remove"
+					class="components-button token-inline-block__remove"
 					type="button"
 					data-token="${ token.id }"
 				>
-					x
+					${ token.name }
+					${ close }
 				</button>
 			</span>
 		`;
 
-		bylineElement.innerHTML = bylineElement.innerHTML + ' ' + tokenElement;
+		bylineElement.innerHTML =
+			bylineElement.innerHTML + ' ' + tokenElement + ' ';
 
 		tokensInUse.current = [ ...tokensInUse.current, token.id ];
 
