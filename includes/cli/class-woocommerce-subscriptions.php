@@ -133,9 +133,10 @@ class WooCommerce_Subscriptions {
 						++$scheduled;
 					}
 				} else {
-					$last_retry    = \WCS_Retry_Manager::store()->get_last_retry_for_order( wcs_get_objects_property( $last_order, 'id' ) );
-					$end_date      = $last_retry ? $last_retry->get_date() : $subscription->get_date( 'next_payment' );
-					$should_expire = wcs_date_to_time( $end_date ) + ( On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS ) < time();
+					$last_retry       = \WCS_Retry_Manager::store()->get_last_retry_for_order( wcs_get_objects_property( $last_order, 'id' ) );
+					$end_date         = $last_retry ? $last_retry->get_date() : $subscription->get_date( 'next_payment' );
+					$on_hold_duration = On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS;
+					$should_expire    = wcs_date_to_time( $end_date ) + $on_hold_duration < time();
 					if ( ! $should_expire ) {
 						// If there have been retries, schedule the final retry.
 						if ( $last_retry ) {
@@ -149,10 +150,11 @@ class WooCommerce_Subscriptions {
 								remove_filter( 'wcs_is_scheduled_payment_attempt', '__return_true' );
 								if ( 0 === $subscription->get_date( 'payment_retry' ) ) {
 									if ( self::$verbose ) {
-										WP_CLI::line( 'Failed to schedule payment retry. Moving to next subscription...' );
-										WP_CLI::line( '' );
+										WP_CLI::line( 'Failed to schedule payment retry. Scheduling subscription expiration...' );
 									}
-									continue;
+									On_Hold_Duration::schedule_expiration( $subscription->get_id(), wcs_date_to_time( $end_date ) + $on_hold_duration );
+									$subscription->update_meta_data( '_newspack_cli_expiration_scheduled', true );
+									$subscription->save();
 								} else {
 									$subscription->add_order_note(
 										__( 'Final payment retry scheduled by Newspack CLI command.', 'newspack-plugin' )
@@ -168,8 +170,9 @@ class WooCommerce_Subscriptions {
 								WP_CLI::line( 'No retries found. Scheduling subscription expiration...' );
 							}
 							if ( self::$live ) {
-								$on_hold_duration = On_Hold_Duration::get_on_hold_duration() * DAY_IN_SECONDS;
 								On_Hold_Duration::schedule_expiration( $subscription->get_id(), $subscription->get_time( 'next_payment' ) + $on_hold_duration );
+								$subscription->update_meta_data( '_newspack_cli_expiration_scheduled', true );
+								$subscription->save();
 							}
 							++$scheduled;
 						}
