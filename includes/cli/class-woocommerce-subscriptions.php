@@ -200,6 +200,11 @@ class WooCommerce_Subscriptions {
 		}
 		// Update flagged subscriptions.
 		$flagged_subscriptions = self::get_flagged_subscriptions();
+
+		if ( self::$verbose ) {
+			WP_CLI::line( '' );
+			WP_CLI::line( 'Processing flagged subscriptions:' );
+		}
 		while ( ! empty( $flagged_subscriptions ) ) {
 			foreach ( $flagged_subscriptions as $flagged_subscription ) {
 				if ( self::$live ) {
@@ -211,6 +216,9 @@ class WooCommerce_Subscriptions {
 					$flagged_subscription->update_meta_data( '_newspack_cli_status_updated', true );
 					$flagged_subscription->set_end_date( $end_date );
 					$flagged_subscription->save();
+					if ( self::$verbose ) {
+						WP_CLI::line( 'Updated subscription ' . $flagged_subscription->get_id() . ' to ' . $to_status );
+					}
 				}
 			}
 			$flagged_subscriptions = self::get_flagged_subscriptions();
