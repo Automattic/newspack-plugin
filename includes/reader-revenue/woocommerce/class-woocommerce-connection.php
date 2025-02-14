@@ -704,7 +704,9 @@ class WooCommerce_Connection {
 		}
 		global $wp;
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $wp->query_vars['order-pay'] ) ) {
+		if ( isset( $_GET['resubscribe'] ) && 'my-account' === $wp->query_vars['pagename'] ) {
+			$order_id_to_fix = sanitize_text_field( $_GET['resubscribe'] );
+		} elseif ( isset( $wp->query_vars['order-pay'] ) ) {
 			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
 		} elseif ( isset( $_REQUEST['subscription_renewal_early'] ) ) {
 			$order_id_to_fix = sanitize_text_field( $_REQUEST['subscription_renewal_early'] );
@@ -817,9 +819,7 @@ class WooCommerce_Connection {
 		// Try to figure out if we need to fix the team name – and if we do, then grab the order ID
 		// from the relevant param.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['resubscribe'] ) && 'my-account' === $wp->query_vars['pagename'] ) {
-			$order_id_to_fix = sanitize_text_field( $_GET['resubscribe'] );
-		} elseif ( isset( $wp->query_vars['order-pay'] ) ) {
+		if ( isset( $wp->query_vars['order-pay'] ) ) {
 			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
 		} elseif ( ! empty( $_GET['switch-subscription'] ) && $wp->query_vars['product'] ) {
 			$order_id_to_fix = sanitize_text_field( $_GET['switch-subscription'] );
