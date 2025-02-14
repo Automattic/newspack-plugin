@@ -1,0 +1,36 @@
+/* Corrections Modal */
+.correction {
+
+	&-item {
+		display: flex;
+		gap: var(--newspack-ui-spacer-2);
+		border-bottom: 1px solid #e5e5e5;
+		padding: 10px 0;
+	}
+
+	&-select-type {
+		min-width: 110px;
+	}
+
+	&-textarea {
+		width: 100%;
+	}
+
+	&-date-popover {
+		> * {
+			padding: 10px;
+		}
+	}
+
+	&-delete,
+	&-add {
+		margin-top: auto;
+		margin-bottom: auto;
+	}
+
+	&-save,
+	&-cancel {
+		margin-top: var(--newspack-ui-spacer-2);
+		margin-left: var(--newspack-ui-spacer-2);
+	}
+}
