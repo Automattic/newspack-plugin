@@ -699,15 +699,21 @@ class WooCommerce_Connection {
 	 */
 	public static function wc_memberships_for_teams_product_team_user_input_fields( $fields ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! empty( $_REQUEST['team_name'] ) ) {
+		if ( empty( $fields['team_name'] ) || ! empty( $_REQUEST['team_name'] ) ) {
 			return $fields;
 		}
 		global $wp;
-		if ( empty( $fields['team_name'] ) || ! isset( $wp->query_vars['order-pay'] ) ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( isset( $wp->query_vars['order-pay'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
+		} elseif ( isset( $_REQUEST['subscription_renewal_early'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $_REQUEST['subscription_renewal_early'] );
+		} else {
 			return $fields;
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		$team_name = self::get_membership_team_name_from_order_id( $wp->query_vars['order-pay'] );
+		$team_name = self::get_membership_team_name_from_order_id( $order_id_to_fix );
 		if ( ! empty( $team_name ) ) {
 			$_REQUEST['team_name'] = $team_name;
 		}
@@ -813,6 +819,8 @@ class WooCommerce_Connection {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['resubscribe'] ) && 'my-account' === $wp->query_vars['pagename'] ) {
 			$order_id_to_fix = sanitize_text_field( $_GET['resubscribe'] );
+		} elseif ( isset( $wp->query_vars['order-pay'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
 		} elseif ( ! empty( $_GET['switch-subscription'] ) && $wp->query_vars['product'] ) {
 			$order_id_to_fix = sanitize_text_field( $_GET['switch-subscription'] );
 		} else {
