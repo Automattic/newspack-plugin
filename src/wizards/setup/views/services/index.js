@@ -18,7 +18,7 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../components/src';
 import ReaderRevenue from './ReaderRevenue';
-import { Settings as NewslettersSettings } from '../../../newsletters/views';
+import { Settings as NewslettersSettings } from '../../../newsletters/views/settings';
 import GAMOnboarding from '../../../advertising/components/onboarding';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../audience/constants';
 import './style.scss';
