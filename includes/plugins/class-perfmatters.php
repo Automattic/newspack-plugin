@@ -223,6 +223,19 @@ class Perfmatters {
 		$options['lazyload']['youtube_preview_thumbnails'] = true;
 		$options['lazyload']['image_dimensions']           = true;
 
+
+		if ( empty( $options['lazyload']['lazy_loading_parent_exclusions'] ) ) {
+			$options['lazyload']['lazy_loading_parent_exclusions'] = [];
+		}
+		// Add our customizations to the front of the array to avoid confusion when editing
+		// the setting in the UI.
+		$options['lazyload']['lazy_loading_parent_exclusions'] = array_unshift(
+			$options['lazyload']['lazy_loading_parent_exclusions'],
+			[
+				'wp-block-jetpack-image-compare',
+			]
+		);
+
 		// Fonts.
 		if ( ! isset( $options['fonts'] ) ) {
 			$options['fonts'] = [];
