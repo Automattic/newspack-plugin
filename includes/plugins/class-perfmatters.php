@@ -223,7 +223,6 @@ class Perfmatters {
 		$options['lazyload']['youtube_preview_thumbnails'] = true;
 		$options['lazyload']['image_dimensions']           = true;
 
-
 		if ( empty( $options['lazyload']['lazy_loading_parent_exclusions'] ) ) {
 			$options['lazyload']['lazy_loading_parent_exclusions'] = [];
 		}
