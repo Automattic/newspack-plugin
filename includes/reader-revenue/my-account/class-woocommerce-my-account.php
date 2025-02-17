@@ -623,6 +623,7 @@ class WooCommerce_My_Account {
 			empty( $_POST['account_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			|| ! \is_user_logged_in()
 			|| ! Reader_Activation::is_enabled()
+			|| self::is_email_change_enabled()
 		) {
 			return;
 		}
@@ -763,7 +764,7 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Whether the email changes are enabled.
+	 * Whether email changes are enabled.
 	 */
 	public static function is_email_change_enabled() {
 		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
