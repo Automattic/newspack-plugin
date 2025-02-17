@@ -55,7 +55,6 @@ class WooCommerce_My_Account {
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
-
 		}
 	}
 
@@ -761,6 +760,19 @@ class WooCommerce_My_Account {
 			'on-hold',
 			'pending-cancel',
 		];
+	}
+
+	/**
+	 * Whether the email changes are enabled.
+	 */
+	public static function is_email_change_enabled() {
+		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
+		/**
+		 * Filters whether or not to allow email changes in My Account.
+		 *
+		 * @param bool $enabled Whether or not to allow email changes.
+		 */
+		return \apply_filters( 'newspack_email_change_enabled', $is_enabled );
 	}
 }
 
