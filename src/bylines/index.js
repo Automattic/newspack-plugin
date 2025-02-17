@@ -25,16 +25,18 @@ const TokenInlineBlock = ( { token, onInsert } ) => {
 	return (
 		<>
 			<span
-				className="token-inline-block"
+				className="components-form-token-field__token token-inline-block"
 				id={ 'token-button-' + token.id }
 			>
+				<span className="components-form-token-field__token-text">
+					{ token.name }
+				</span>
 				<Button
-					className="token-inline-block__insert"
+					className="components-form-token-field__insert-token is-small has-icon token-inline-block__insert"
 					onClick={ () => {
 						onInsert.call();
 					} }
 				>
-					{ token.name }
 					<Icon icon={ plus } />
 				</Button>
 			</span>
@@ -114,18 +116,18 @@ const BylinesSettingsPanel = () => {
 		);
 
 		// Compound new token element with token data.
-		const tokenElement = `
-			<span id="token-${ token.id }" class="token-inline-block author author-token">
+		const tokenElement = `<span id="token-${ token.id }" class="components-form-token-field__token token-inline-block author-token">
+				<span class="components-form-token-field__token-text">
+					${ token.name }
+				</span>
 				<button
-					class="components-button token-inline-block__remove"
+					class="components-button components-form-token-field__remove-token token-inline-block__remove"
 					type="button"
 					data-token="${ token.id }"
 				>
-					${ token.name }
 					${ close }
 				</button>
-			</span>
-		`;
+			</span>`;
 
 		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
 		bylineElement.innerHTML =
