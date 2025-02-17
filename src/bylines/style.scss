@@ -22,48 +22,34 @@
 	.token-inline-block {
 		.components-button {
 			svg {
-				width: 1.1em;
+				width: 1em;
+				pointer-events: none;
 			}
 		}
 	}
 }
 
-.tokens {
-	display: flex;
-	gap: 4px;
-	flex-wrap: wrap;
+/**
+ * The component uses classes from FormTokenField to make it stylized according to it.
+ * See: https://wordpress.github.io/gutenberg/?path=/docs/components-formtokenfield--docs
+ */
+
+.token-inline-block.components-form-token-field__token {
+	display: inline-grid;
+	grid-template-columns: 1fr auto;
 }
 
-.token-inline-block {
-	background: #e1e1e1;
-	padding: 0 1em;
-	gap: 4px;
-
-	.components-button {
-		&.token-inline-block__insert {
-			padding: 0;
-			margin: 0;
-			text-decoration: none;
-		}
-
-		&.token-inline-block__remove {
-			margin: 0 0 0 4px;
-			text-decoration: none;
-			white-space: nowrap;
-			padding: 0.5em;
-		}
-
-		svg {
-			position: relative;
-			width: 1.5em;
-			margin: 0 0 0 4px;
-		}
-	}
-}
-
-.author-token {
+// Copied .components-form-token-field__remove-token styles to apply to intert-token
+.components-form-token-field__insert-token {
+	border-radius: 0 1px 1px 0;
+	color: #1e1e1e;
+	cursor: pointer;
+	overflow: initial;
+	padding: 0 2px;
+	background: #ddd;
 	display: inline-block;
-	padding: 0 0.5em;
-	background: rgb(225, 225, 225);
-	margin: 0.2em 0;
+	height: auto;
+	line-height: 24px;
+	min-width: unset;
+	transition: all 0.2 scubic-bezier (0.4, 1, 0.4, 1);
 }
