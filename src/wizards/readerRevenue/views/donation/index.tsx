@@ -66,7 +66,7 @@ type WizardData = {
 				tiered: boolean;
 				minimumDonation: string;
 				billingFields: string[];
-				trashed: [ string ];
+				trashed: string[];
 		};
 	platform_data: {
 		platform: string;
