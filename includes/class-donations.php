@@ -161,6 +161,7 @@ class Donations {
 			],
 			'platform'            => self::get_platform_slug(),
 			'minimumDonation'     => 5.0,
+			'trashed'             => [],
 		];
 	}
 
@@ -237,7 +238,7 @@ class Donations {
 	 */
 	private static function get_parent_donation_product() {
 		$product = \wc_get_product( get_option( self::DONATION_PRODUCT_ID_OPTION, 0 ) );
-		if ( ! $product || 'grouped' !== $product->get_type() || 'trash' === $product->get_status() ) {
+		if ( ! $product || 'grouped' !== $product->get_type() ) {
 			return false;
 		}
 		return $product;
@@ -258,7 +259,7 @@ class Donations {
 			// Add the product IDs for each frequency.
 			foreach ( $product->get_children() as $child_id ) {
 				$child_product = wc_get_product( $child_id );
-				if ( ! $child_product || 'trash' === $child_product->get_status() ) {
+				if ( ! $child_product ) {
 					continue;
 				}
 				if ( 'subscription' === $child_product->get_type() ) {
@@ -372,6 +373,24 @@ class Donations {
 			// Migrate legacy WC settings, stored as product meta.
 			$parent_product = self::get_parent_donation_product();
 			if ( $parent_product ) {
+				$saved_settings['trashed'] = [];
+
+				// Check if parent is in trash.
+				if ( 'trash' === $parent_product->get_status() ) {
+					$saved_settings['trashed'][] = $parent_product->get_name();
+				}
+				$child_products_ids = self::get_donation_product_child_products_ids();
+
+				// Check for child products in trash.
+				foreach ( $child_products_ids as $frequency => $child_product_id ) {
+					if ( ! $child_product_id ) {
+						continue;
+					}
+					$child_product = \wc_get_product( $child_product_id );
+					if ( $child_product && 'trash' === $child_product->get_status() ) {
+						$saved_settings['trashed'][] = $child_product->get_name();
+					}
+				}
 				$suggested_amounts         = $parent_product->get_meta( 'newspack_donation_suggested_amount', true );
 				$untiered_suggested_amount = $parent_product->get_meta( 'newspack_donation_untiered_suggested_amount', true );
 				$parent_product_modified   = false;
