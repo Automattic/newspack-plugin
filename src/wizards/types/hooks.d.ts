@@ -84,6 +84,7 @@ type AudienceDonationsWizardData = {
 				tiered: boolean;
 				minimumDonation: string;
 				billingFields: string[];
+				trashed: string[];
 		};
 	platform_data: {
 		platform: string;
