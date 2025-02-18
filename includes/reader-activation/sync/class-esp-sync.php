@@ -238,12 +238,9 @@ class ESP_Sync extends Sync {
 					// Translators: %1$s is the status and %2$s is the contact's email address.
 					__( '%1$s contact data for %2$s.', 'newspack-plugin' ),
 					$is_dry_run ? __( 'Would sync', 'newspack-plugin' ) : __( 'Synced', 'newspack-plugin' ),
-					$customer->get_email()
+					$contact['email']
 				)
 			);
-			if ( ! empty( static::$results ) ) {
-				static::$results['processed']++;
-			}
 		}
 
 		return $result;
