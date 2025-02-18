@@ -116,7 +116,7 @@ const BylinesSettingsPanel = () => {
 		);
 
 		// Compound new token element with token data.
-		const tokenElement = `<span id="token-${ token.id }" class="components-form-token-field__token token-inline-block author-token">
+		const tokenElement = `<span id="token-${ token.id }" class="components-form-token-field__token token-inline-block author-token" data-token="${ token.id }">
 				<span class="components-form-token-field__token-text">
 					${ token.name }
 				</span>
@@ -155,9 +155,10 @@ const BylinesSettingsPanel = () => {
 	const addMutationObserverToByline = bylineElement => {
 		// Mutation observer config.
 		const config = {
-			attributes: false,
 			childList: true,
 			subtree: true,
+			characterData: true,
+			characterDataOldValue: true,
 		};
 
 		/**
@@ -169,16 +170,26 @@ const BylinesSettingsPanel = () => {
 				// Check if is a mutation on childList or subtree and if the element changed is a token, matching the class.
 				if (
 					( mutation.type === 'childList' ||
-						mutation.type === 'subtree' ) &&
-					mutation.target.matches?.( '.token-inline-block ' )
+						mutation.type === 'subtree' ||
+						mutation.type === 'characterData' ) &&
+					( mutation.target.matches?.( '.token-inline-block' ) ||
+						mutation.target.parentElement.classList.contains(
+							'components-form-token-field__token-text'
+						) )
 				) {
-					// Hold tokenID
-					const tokenID = mutation.target.querySelector(
-						'.token-inline-block__remove'
-					).dataset.token;
+					let rootElement;
+					let tokenID = '';
+
+					if ( mutation.type === 'characterData' ) {
+						rootElement = mutation.target.parentNode;
+						tokenID = rootElement.dataset.token;
+					} else {
+						rootElement = mutation.target;
+						tokenID = rootElement.dataset.token;
+					}
 
 					// Remove token element.
-					mutation.target.remove();
+					rootElement.remove();
 
 					// Update byline meta
 					editPost( {
