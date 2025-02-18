@@ -162,6 +162,7 @@ export function openAuthModal( config = {} ) {
 			},
 			content: null,
 			trigger: null,
+			closeOnSuccess: true,
 		},
 		...config,
 	};
@@ -192,7 +193,7 @@ export function openNewslettersSignupModal( config = {} ) {
 	config = {
 		...{
 			onSuccess: null,
-			onDissmiss: null,
+			onDismiss: null,
 			onError: null,
 			initialState: null,
 			skipSuccess: false,

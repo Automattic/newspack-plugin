@@ -21,7 +21,7 @@ import { stringify } from 'qs';
  */
 import { WebPreview, withWizard } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { Campaigns, Analytics, Settings, Segments } from './views';
+import { Campaigns, Settings, Segments } from './views';
 import { CampaignsContext } from './contexts';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -38,11 +38,6 @@ const tabbedNavigation = [
 	{
 		label: __( 'Segments', 'newpack-plugin' ),
 		path: '/segments',
-		exact: true,
-	},
-	{
-		label: __( 'Analytics', 'newpack-plugin' ),
-		path: '/analytics',
 		exact: true,
 	},
 	{
@@ -366,7 +361,6 @@ class PopupsWizard extends Component {
 										/>
 									) }
 								/>
-								<Route path="/analytics" render={ () => <Analytics { ...sharedProps } /> } />
 								<Route path="/settings" render={ () => <Settings { ...sharedProps } /> } />
 								<Redirect to="/campaigns" />
 							</Switch>

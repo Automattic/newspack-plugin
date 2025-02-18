@@ -223,6 +223,13 @@ class Perfmatters {
 		$options['lazyload']['youtube_preview_thumbnails'] = true;
 		$options['lazyload']['image_dimensions']           = true;
 
+		$parent_exclusions = empty( $options['lazyload']['lazy_loading_parent_exclusions'] ) ? [] : $options['lazyload']['lazy_loading_parent_exclusions'];
+		// Add our customizations to the front of the array to avoid confusion when editing the setting in the UI.
+		$options['lazyload']['lazy_loading_parent_exclusions'] = array_merge(
+			[ 'wp-block-jetpack-image-compare' ],
+			$parent_exclusions
+		);
+
 		// Fonts.
 		if ( ! isset( $options['fonts'] ) ) {
 			$options['fonts'] = [];

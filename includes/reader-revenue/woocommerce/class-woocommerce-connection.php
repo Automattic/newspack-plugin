@@ -38,6 +38,7 @@ class WooCommerce_Connection {
 		include_once __DIR__ . '/class-woocommerce-duplicate-orders.php';
 
 		\add_action( 'admin_init', [ __CLASS__, 'disable_woocommerce_setup' ] );
+		\add_action( 'wp_loaded', [ __CLASS__, 'disable_legacy_form_checkout' ], 1 );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'option_woocommerce_subscriptions_allow_switching_nyp_price', [ __CLASS__, 'force_allow_subscription_switching' ], 10, 2 );
 		\add_filter( 'option_woocommerce_subscriptions_enable_retry', [ __CLASS__, 'force_allow_failed_payment_retry' ] );
@@ -56,6 +57,7 @@ class WooCommerce_Connection {
 
 		// woocommerce-memberships-for-teams plugin.
 		\add_filter( 'wc_memberships_for_teams_product_team_user_input_fields', [ __CLASS__, 'wc_memberships_for_teams_product_team_user_input_fields' ] );
+		\add_filter( 'woocommerce_form_field_args', [ __CLASS__, 'wc_memberships_for_teams_filter_team_name_in_form' ], 10, 3 );
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 		\add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'rate_limit_checkout' ], 10, 2 );
@@ -95,6 +97,26 @@ class WooCommerce_Connection {
 			$task_list = \Automattic\WooCommerce\Admin\Features\OnboardingTasks\TaskLists::get_list( 'setup' );
 			if ( $task_list ) {
 				$task_list->hide();
+			}
+		}
+	}
+
+	/**
+	 * Remove support for the legacy form-based checkout.
+	 * It's not necessary because all sites use modal or ajax checkout.
+	 */
+	public static function disable_legacy_form_checkout() {
+		if ( defined( 'NEWSPACK_ALLOW_LEGACY_FORM_CHECKOUT' ) && NEWSPACK_ALLOW_LEGACY_FORM_CHECKOUT ) {
+			return;
+		}
+
+		if ( class_exists( 'WC_Form_Handler' ) ) {
+			\remove_action( 'wp_loaded', [ 'WC_Form_Handler', 'checkout_action' ], 20 );
+
+			// Throw error if someone attempts a POST to the Checkout.
+			if ( filter_input( INPUT_POST, 'woocommerce_checkout_place_order', FILTER_SANITIZE_SPECIAL_CHARS ) ) {
+				http_response_code( 403 );
+				exit();
 			}
 		}
 	}
@@ -161,19 +183,20 @@ class WooCommerce_Connection {
 	 * @return bool
 	 */
 	public static function rate_limiting_enabled() {
-		return defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) && is_int( NEWSPACK_CHECKOUT_RATE_LIMIT ) && 0 !== NEWSPACK_CHECKOUT_RATE_LIMIT;
+		return defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) && is_int( NEWSPACK_CHECKOUT_RATE_LIMIT ) && 0 !== NEWSPACK_CHECKOUT_RATE_LIMIT && class_exists( 'WC_Rate_Limiter' );
 	}
 
 	/**
 	 * Check the rate limit for the current user or IP.
 	 * Currently locked behind a NEWSPACK_CHECKOUT_RATE_LIMIT environment constant, for controlled rollout.
 	 *
+	 * @param string $action_name   The action the user is trying to perform.
 	 * @param string $error_message Error message to display or return if the user should be rate-limited.
 	 * @param bool   $return_error  If true and the user should be rate-limited, return a WP_Error with the given message instead of a boolean value.
 	 *
 	 * @return bool|WP_Error True or WP_Error if the rate limit is exceeded, false otherwise.
 	 */
-	public static function rate_limit_by_user( $error_message = '', $return_error = false ) {
+	public static function rate_limit_by_user( $action_name, $error_message = '', $return_error = false ) {
 		$rate_limited = false;
 		if ( ! self::rate_limiting_enabled() ) {
 			return $rate_limited;
@@ -185,7 +208,7 @@ class WooCommerce_Connection {
 		$now        = time();
 		$rate_limit = defined( 'NEWSPACK_CHECKOUT_RATE_LIMIT' ) ? (int) NEWSPACK_CHECKOUT_RATE_LIMIT : 90; // Number of seconds to wait before allowing the same user to attempt another checkout action. Default: 90.
 		if ( 0 === $rate_limit ) {
-			return $rate_limited; // If $rate_limit is 0 seconds, bail early to avoid creating a non-expiring transient.
+			return $rate_limited; // If $rate_limit is 0 seconds, no need to proceed.
 		}
 
 		// If not logged in, use IP.
@@ -195,13 +218,9 @@ class WooCommerce_Connection {
 		if ( ! $user_id ) {
 			return $rate_limited;
 		}
-		$transient_name = 'last_checkout_attempt_' . \wp_hash( $user_id, 'nonce' );
-		$last_attempt = (int) \get_transient( $transient_name );
-		if ( $last_attempt && $now - $last_attempt < $rate_limit ) {
-			$rate_limited = true;
-		}
-		\set_transient( $transient_name, $now, $rate_limit );
-
+		$hashed_user_id = \wp_hash( $user_id, 'nonce' );
+		$user_action    = "{$action_name}_{$hashed_user_id}";
+		$rate_limited   = \WC_Rate_Limiter::retried_too_soon( $user_action );
 		if ( $rate_limited ) {
 			if ( $return_error ) {
 				return new \WP_Error( 'newspack_rate_limit', $error_message );
@@ -209,6 +228,8 @@ class WooCommerce_Connection {
 				self::add_wc_notice( $error_message, 'error' );
 			}
 		}
+
+		\WC_Rate_Limiter::set_rate_limit( $user_action, $rate_limit );
 		return $rate_limited;
 	}
 
@@ -219,13 +240,11 @@ class WooCommerce_Connection {
 	 * @param  WP_Error $errors Validation error.
 	 */
 	public static function rate_limit_checkout( $posted_data, $errors ) {
-		$is_validation_only = boolval( filter_input( INPUT_POST, 'is_validation_only', FILTER_SANITIZE_NUMBER_INT ) );
-
-		// Don't rate limit if we're just validating checkout, or if there are other checkout errors.
-		if ( $is_validation_only || $errors->has_errors() ) {
+		// Don't rate limit if there are other checkout errors.
+		if ( $errors->has_errors() ) {
 			return;
 		}
-		self::rate_limit_by_user( __( 'Please wait a moment before trying to complete this transaction again.', 'newspack-plugin' ) );
+		self::rate_limit_by_user( 'checkout', __( 'Please wait a moment before trying to complete this transaction again.', 'newspack-plugin' ) );
 	}
 
 	/**
@@ -236,7 +255,7 @@ class WooCommerce_Connection {
 	 * @return bool
 	 */
 	public static function rate_limit_payment_methods( $is_valid ) {
-		if ( self::rate_limit_by_user( __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ) ) ) {
+		if ( self::rate_limit_by_user( 'add_payment_method', __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ) ) ) {
 			return false;
 		}
 
@@ -688,18 +707,142 @@ class WooCommerce_Connection {
 	 * @param array $fields associative array of user input fields.
 	 */
 	public static function wc_memberships_for_teams_product_team_user_input_fields( $fields ) {
-		global $wp;
-		if ( ! isset( $wp->query_vars['order-pay'] ) || ! class_exists( 'WC_Order' ) || ! function_exists( 'wc_memberships_for_teams_get_team_for_order_item' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $fields['team_name'] ) || ! empty( $_REQUEST['team_name'] ) ) {
 			return $fields;
 		}
-		$order = new \WC_Order( $wp->query_vars['order-pay'] );
-		foreach ( $order->get_items( 'line_item' ) as $id => $item ) {
-			$team = wc_memberships_for_teams_get_team_for_order_item( $item );
-			if ( $team ) {
-				$_REQUEST['team_name'] = $team->get_name();
+		global $wp;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['resubscribe'] ) && 'my-account' === $wp->query_vars['pagename'] ) {
+			$order_id_to_fix = sanitize_text_field( $_GET['resubscribe'] );
+		} elseif ( isset( $wp->query_vars['order-pay'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
+		} elseif ( isset( $_REQUEST['subscription_renewal_early'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $_REQUEST['subscription_renewal_early'] );
+		} else {
+			return $fields;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		$team_name = self::get_membership_team_name_from_order_id( $order_id_to_fix );
+		if ( ! empty( $team_name ) ) {
+			$_REQUEST['team_name'] = $team_name;
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Get the membership team name associated with an order ID (if any).
+	 *
+	 * Attempts to find the team name by checking the order items for team
+	 * membership information. If no team is found in the order items, it falls
+	 * back to retrieving the team name from the user associated with the order.
+	 *
+	 * @param int $order_id The ID of the order to retrieve the team name from.
+	 *
+	 * @return string The membership team name if found, or an empty string if
+	 *                  not found or if required functions are not available.
+	 */
+	public static function get_membership_team_name_from_order_id( $order_id ): string {
+		if ( empty( $order_id ) || ! function_exists( '\wc_get_order' ) || ! function_exists( '\wc_memberships_for_teams_get_team_for_order_item' ) ) {
+			return '';
+		}
+
+		$order = \wc_get_order( $order_id );
+		if ( ! $order ) {
+			return '';
+		}
+
+		foreach ( $order->get_items() as $item ) {
+			try {
+				$team = \wc_memberships_for_teams_get_team_for_order_item( $item );
+				if ( $team ) {
+					return $team->get_name();
+				}
+			} catch ( \Exception $e ) {
+				Logger::log( 'Exception thrown when trying to get team name from order: ' . $e->getMessage() );
 			}
 		}
-		return $fields;
+
+		$user = $order->get_user();
+		if ( $user ) {
+			return self::get_membership_team_name_from_user( $user->ID );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Retrieves the membership team name for a given user.
+	 *
+	 * This function attempts to find an appropriate team name for a user based on their
+	 * billing information or display name. It first checks for a billing company name,
+	 * then falls back to billing first and last name, and finally uses the user's display name.
+	 *
+	 * @param int $user_id The ID of the user for whom to retrieve the team name.
+	 *
+	 * @return string The determined team name. Returns an empty string if the user is not found.
+	 */
+	public static function get_membership_team_name_from_user( $user_id ): string {
+		$team_user = get_user_by( 'ID', $user_id );
+		if ( ! $team_user ) {
+			return '';
+		}
+
+		$company = get_user_meta( $user_id, 'billing_company', true );
+		if ( ! empty( $company ) ) {
+			return $company;
+		}
+
+		$billing_first_name = get_user_meta( $user_id, 'billing_first_name', true );
+		$billing_last_name  = get_user_meta( $user_id, 'billing_last_name', true );
+		if ( ! empty( $billing_first_name ) || ! empty( $billing_last_name ) ) {
+			$team_name = trim( $billing_first_name . ' ' . $billing_last_name );
+		} else {
+			$team_name = $team_user->display_name;
+		}
+
+		// Translators: %s is the user's billing first and last name – or company name.
+		return sprintf( __( "%s's Team", 'newspack-plugin' ), $team_name );
+	}
+
+
+	/**
+	 * Filter callback for the team name in WooCommerce forms.
+	 *
+	 * This is only relevant for the "team_name" field. It will try to figure out if we need to
+	 * fix the team name – and if we do, then get it from the order if it's available.
+	 *
+	 * @param array  $args  The original arguments for the form field.
+	 * @param string $key   The key of the form field.
+	 * @param mixed  $value The value of the form field.
+	 *
+	 * @return array The arguments for the form field.
+	 */
+	public static function wc_memberships_for_teams_filter_team_name_in_form( $args, $key, $value ) {
+		if ( 'team_name' !== $key || ! empty( $args['default'] ) || ! empty( $value ) || is_admin() ) {
+			return $args;
+		}
+		global $wp;
+		// Try to figure out if we need to fix the team name – and if we do, then grab the order ID
+		// from the relevant param.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( isset( $wp->query_vars['order-pay'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
+		} elseif ( ! empty( $_GET['switch-subscription'] ) && $wp->query_vars['product'] ) {
+			$order_id_to_fix = sanitize_text_field( $_GET['switch-subscription'] );
+		} else {
+			return $args;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		$team_name = self::get_membership_team_name_from_order_id( $order_id_to_fix );
+		if ( ! empty( $team_name ) ) {
+			$args['default'] = $team_name;
+		}
+
+		return $args;
 	}
 }
 

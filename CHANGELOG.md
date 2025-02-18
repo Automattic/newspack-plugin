@@ -1,3 +1,141 @@
+## [5.14.1](https://github.com/Automattic/newspack-plugin/compare/v5.14.0...v5.14.1) (2025-02-18)
+
+
+### Bug Fixes
+
+* **esp-sync:** broken CLI sync command ([#3762](https://github.com/Automattic/newspack-plugin/issues/3762)) ([f609670](https://github.com/Automattic/newspack-plugin/commit/f6096706dfba077b13dd3e91687cb4e949ed50b5))
+
+# [5.14.0](https://github.com/Automattic/newspack-plugin/compare/v5.13.5...v5.14.0) (2025-02-17)
+
+
+### Features
+
+* **esp-sync:** queue data events sync to run once ([#3661](https://github.com/Automattic/newspack-plugin/issues/3661)) ([#3759](https://github.com/Automattic/newspack-plugin/issues/3759)) ([74c7122](https://github.com/Automattic/newspack-plugin/commit/74c7122b06e64819fdef1b251f25cb35cc1ddb30))
+
+## [5.13.5](https://github.com/Automattic/newspack-plugin/compare/v5.13.4...v5.13.5) (2025-02-17)
+
+
+### Bug Fixes
+
+* add check for newsletter modal and fix typo ([#3727](https://github.com/Automattic/newspack-plugin/issues/3727)) ([5fdcab6](https://github.com/Automattic/newspack-plugin/commit/5fdcab688bb5654011fd34b0357bf3d4d28c7ee4))
+* check for WC as well as WCS ([#3720](https://github.com/Automattic/newspack-plugin/issues/3720)) ([f91803a](https://github.com/Automattic/newspack-plugin/commit/f91803a7f482893d663b0e16fa67a5d8122152f8))
+* make the cart, checkout pages use shortcodes on install ([#3699](https://github.com/Automattic/newspack-plugin/issues/3699)) ([954e01b](https://github.com/Automattic/newspack-plugin/commit/954e01b792d425f670f415fc4d3142e1b4bcb8ba))
+* update corrections post type slug ([#3702](https://github.com/Automattic/newspack-plugin/issues/3702)) ([5f100ba](https://github.com/Automattic/newspack-plugin/commit/5f100ba9f155d5b9a158bd2008107938f6e3eb15))
+
+## [5.13.4](https://github.com/Automattic/newspack-plugin/compare/v5.13.3...v5.13.4) (2025-02-14)
+
+
+### Bug Fixes
+
+* **wcs:** account for pagination and failed scheduled retries in on-hold migration script ([#3750](https://github.com/Automattic/newspack-plugin/issues/3750)) ([171b29e](https://github.com/Automattic/newspack-plugin/commit/171b29ea6ce5caaf812f2ed93e8fbbdac58ff5d1))
+
+## [5.13.3](https://github.com/Automattic/newspack-plugin/compare/v5.13.2...v5.13.3) (2025-02-12)
+
+
+### Bug Fixes
+
+* **wcs:** remove cli error call ([#3745](https://github.com/Automattic/newspack-plugin/issues/3745)) ([6c98fa0](https://github.com/Automattic/newspack-plugin/commit/6c98fa08e4ae87cf112ff11d01716f353272c50c))
+
+## [5.13.2](https://github.com/Automattic/newspack-plugin/compare/v5.13.1...v5.13.2) (2025-02-11)
+
+
+### Bug Fixes
+
+* **wcs:** account for other on-hold cases ([#3723](https://github.com/Automattic/newspack-plugin/issues/3723)) ([0b3406a](https://github.com/Automattic/newspack-plugin/commit/0b3406a35bf9f7a8c74881ebe493a8db1bc0c77c))
+
+## [5.13.1](https://github.com/Automattic/newspack-plugin/compare/v5.13.0...v5.13.1) (2025-02-06)
+
+
+### Bug Fixes
+
+* **esp-sync:** get last payment amount from actual completed order ([#3726](https://github.com/Automattic/newspack-plugin/issues/3726)) ([db284c1](https://github.com/Automattic/newspack-plugin/commit/db284c11a3c5f3308e17c799733d8a1d680ffaa3))
+
+# [5.13.0](https://github.com/Automattic/newspack-plugin/compare/v5.12.5...v5.13.0) (2025-02-03)
+
+
+### Bug Fixes
+
+* add supported gateways check ([#3650](https://github.com/Automattic/newspack-plugin/issues/3650)) ([74f7773](https://github.com/Automattic/newspack-plugin/commit/74f77735a5135b004516f8d1217d8752d2c8fadd))
+* **corrections:** replace deprecated sanitize method ([#3694](https://github.com/Automattic/newspack-plugin/issues/3694)) ([ce50e24](https://github.com/Automattic/newspack-plugin/commit/ce50e247462672d024a6f93e37d7a9f5e4c934ee))
+* remove support for legacy form checkout ([#3691](https://github.com/Automattic/newspack-plugin/issues/3691)) ([46a3c16](https://github.com/Automattic/newspack-plugin/commit/46a3c160a0146e78cc5b8213b105d10fa523f797))
+* **wcs:** expire manual subscriptions after on-hold duration ([#3681](https://github.com/Automattic/newspack-plugin/issues/3681)) ([658416c](https://github.com/Automattic/newspack-plugin/commit/658416c889c868d0c36c538fba63cd422425dfd4))
+
+
+### Features
+
+* add custom bylines ([#3667](https://github.com/Automattic/newspack-plugin/issues/3667)) ([3f45a6f](https://github.com/Automattic/newspack-plugin/commit/3f45a6fa9075bab583f30a03680eaa287436b7da))
+* rate limit checkout attempts ([#3678](https://github.com/Automattic/newspack-plugin/issues/3678)) ([d275524](https://github.com/Automattic/newspack-plugin/commit/d275524695f72b97b6d92b7c97ab5639aba9674c))
+* **reader-revenue:** add PayPal Payments gateway to wizard ([#3665](https://github.com/Automattic/newspack-plugin/issues/3665)) ([1476eed](https://github.com/Automattic/newspack-plugin/commit/1476eed84788dd28b1852519d5aafa793159f1f3))
+
+## [5.12.5](https://github.com/Automattic/newspack-plugin/compare/v5.12.4...v5.12.5) (2025-01-30)
+
+
+### Bug Fixes
+
+* **reader-revenue:** collect transaction fee settings ([#3697](https://github.com/Automattic/newspack-plugin/issues/3697)) ([28ff2cd](https://github.com/Automattic/newspack-plugin/commit/28ff2cdcdee78684de23d5cbf1fda12d471f721b))
+
+## [5.12.4](https://github.com/Automattic/newspack-plugin/compare/v5.12.3...v5.12.4) (2025-01-28)
+
+
+### Bug Fixes
+
+* create guest contributors dummy emails ([#3705](https://github.com/Automattic/newspack-plugin/issues/3705)) ([528712c](https://github.com/Automattic/newspack-plugin/commit/528712c2638c105f15557facb3611585efda2398))
+
+## [5.12.3](https://github.com/Automattic/newspack-plugin/compare/v5.12.2...v5.12.3) (2025-01-23)
+
+
+### Bug Fixes
+
+* **reader-data:** reduce number of sync requests ([c23c580](https://github.com/Automattic/newspack-plugin/commit/c23c5805a72557b7e684b1bc50939603239733b8))
+
+## [5.12.2](https://github.com/Automattic/newspack-plugin/compare/v5.12.1...v5.12.2) (2025-01-23)
+
+
+### Bug Fixes
+
+* hotfix checkout tweaks ([#3693](https://github.com/Automattic/newspack-plugin/issues/3693)) ([7be88aa](https://github.com/Automattic/newspack-plugin/commit/7be88aa53786e2916151bd427980bdd1bcf56c6b))
+
+## [5.12.1](https://github.com/Automattic/newspack-plugin/compare/v5.12.0...v5.12.1) (2025-01-21)
+
+
+### Bug Fixes
+
+* **ras-sync:** account for missing creation data and first/last name ([#3677](https://github.com/Automattic/newspack-plugin/issues/3677)) ([9ed12bc](https://github.com/Automattic/newspack-plugin/commit/9ed12bc86eca956b2e4a047feba9042db168e46f))
+
+# [5.12.0](https://github.com/Automattic/newspack-plugin/compare/v5.11.3...v5.12.0) (2025-01-20)
+
+
+### Bug Fixes
+
+* **cli:** verify-reader CLI command ([#3660](https://github.com/Automattic/newspack-plugin/issues/3660)) ([c639af7](https://github.com/Automattic/newspack-plugin/commit/c639af78b9ba7cf73ef01e7f499a2389e0626343))
+* **recaptcha:** replace alerts with generic errors ([#3627](https://github.com/Automattic/newspack-plugin/issues/3627)) ([44ef2d2](https://github.com/Automattic/newspack-plugin/commit/44ef2d2a4b38483bce979a4c68b0aa2afb4d0a9a))
+* remove newspack_corrections_ids meta ([#3675](https://github.com/Automattic/newspack-plugin/issues/3675)) ([dad258b](https://github.com/Automattic/newspack-plugin/commit/dad258b2e113310fd312e345f80fc54bb84cf928))
+* **wcs:** migrate-expired-subscriptions handle manual subscriptions ([#3663](https://github.com/Automattic/newspack-plugin/issues/3663)) ([e0f32e8](https://github.com/Automattic/newspack-plugin/commit/e0f32e87eba3e9562f6f7b40d185c9308d86ae84))
+
+
+### Features
+
+* **corrections:** add corrections and clarifications behind feature flag ([#3638](https://github.com/Automattic/newspack-plugin/issues/3638)) ([ea745cf](https://github.com/Automattic/newspack-plugin/commit/ea745cff1a77bf422bb6f1c77b4dd2ca83e8ff69))
+
+
+### Performance Improvements
+
+* **data-events:** queue dispatches to execute on shutdown ([#3616](https://github.com/Automattic/newspack-plugin/issues/3616)) ([510a1a0](https://github.com/Automattic/newspack-plugin/commit/510a1a04881c9bccf3389ecd6dbf6b82a13d461b))
+
+## [5.11.3](https://github.com/Automattic/newspack-plugin/compare/v5.11.2...v5.11.3) (2025-01-17)
+
+
+### Bug Fixes
+
+* **esp-sync:** sync non-donation subscription data even if no completed orders ([#3680](https://github.com/Automattic/newspack-plugin/issues/3680)) ([dd0898f](https://github.com/Automattic/newspack-plugin/commit/dd0898fe92c851631687f78a24c42b4b74d2f0b1))
+
+## [5.11.2](https://github.com/Automattic/newspack-plugin/compare/v5.11.1...v5.11.2) (2025-01-16)
+
+
+### Bug Fixes
+
+* **mc:** handle standard MC merge fields when fixing duplicates ([#3637](https://github.com/Automattic/newspack-plugin/issues/3637)) ([80248a2](https://github.com/Automattic/newspack-plugin/commit/80248a235c6aa295bc38fe77e0ab489ac39ed46c))
+
 ## [5.11.1](https://github.com/Automattic/newspack-plugin/compare/v5.11.0...v5.11.1) (2025-01-14)
 
 

@@ -68,6 +68,7 @@ const entry = {
 		'block-patterns.js'
 	),
 	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
+	'bylines': path.join( __dirname, 'src', 'bylines', 'index.js' ),
 };
 
 // Get files for other scripts.

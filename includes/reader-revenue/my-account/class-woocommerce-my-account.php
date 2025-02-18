@@ -31,8 +31,6 @@ class WooCommerce_My_Account {
 	public static function init() {
 		\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
-		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
-		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
 		\add_filter( 'woocommerce_default_address_fields', [ __CLASS__, 'required_address_fields' ] );
 		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'required_address_fields' ] );
 		\add_filter( 'woocommerce_get_checkout_url', [ __CLASS__, 'get_checkout_url' ] );
@@ -57,7 +55,6 @@ class WooCommerce_My_Account {
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
-
 		}
 	}
 
@@ -80,13 +77,9 @@ class WooCommerce_My_Account {
 	 * REST API handler for rate limit check.
 	 */
 	public static function api_check_rate_limit() {
-		$rate_limited = WooCommerce_Connection::rate_limit_by_user( __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ), true );
-		$response     = [
-			'success' => ! \is_wp_error( $rate_limited ),
+		$response = [
+			'success' => WooCommerce_Connection::rate_limit_payment_methods( true ),
 		];
-		if ( \is_wp_error( $rate_limited ) ) {
-			$response['error'] = $rate_limited->get_error_message();
-		}
 		return new \WP_REST_Response( $response );
 	}
 
@@ -161,7 +154,7 @@ class WooCommerce_My_Account {
 					unset( $shipping_address[ $ignored_field ] );
 				}
 
-				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $billing_address ) ) ) {
+				if ( empty( array_filter( $billing_address ) ) && empty( array_filter( $shipping_address ) ) ) {
 					$default_disabled_items[] = 'edit-address';
 				}
 
@@ -585,29 +578,6 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Ensure that only billing address fields enabled in Reader Revenue settings
-	 * are required for new gift recipient accounts.
-	 *
-	 * See: https://github.com/woocommerce/woocommerce-subscriptions-gifting/blob/trunk/includes/class-wcsg-recipient-details.php#L275
-	 *
-	 * @param array $fields Address fields.
-	 * @return array
-	 */
-	public static function new_recipient_fields( $fields ) {
-		// Escape hatch to force required shipping address for virtual products.
-		if ( apply_filters( 'wcsg_require_shipping_address_for_virtual_products', false ) ) { // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
-			return $fields;
-		}
-		$required_fields = Donations::get_billing_fields();
-		foreach ( $fields as $field_name => $field_config ) {
-			if ( ! in_array( 'billing_' . $field_name, $required_fields, true ) ) {
-				unset( $fields[ $field_name ] );
-			}
-		}
-		return $fields;
-	}
-
-	/**
 	 * WC's page templates hijacking.
 	 *
 	 * @param string $template      Template path.
@@ -657,6 +627,7 @@ class WooCommerce_My_Account {
 			empty( $_POST['account_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			|| ! \is_user_logged_in()
 			|| ! Reader_Activation::is_enabled()
+			|| self::is_email_change_enabled()
 		) {
 			return;
 		}
@@ -794,6 +765,19 @@ class WooCommerce_My_Account {
 			'on-hold',
 			'pending-cancel',
 		];
+	}
+
+	/**
+	 * Whether email changes are enabled.
+	 */
+	public static function is_email_change_enabled() {
+		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
+		/**
+		 * Filters whether or not to allow email changes in My Account.
+		 *
+		 * @param bool $enabled Whether or not to allow email changes.
+		 */
+		return \apply_filters( 'newspack_email_change_enabled', $is_enabled );
 	}
 }
 

@@ -105,17 +105,29 @@ class WooCommerce {
 				$subscription = \wcs_get_subscription( $subscription_id );
 				if ( $subscription->has_status( WooCommerce_Connection::FORMER_SUBSCRIBER_STATUSES ) ) {
 
-					// Only subscriptions that have at least one completed order are considered.
-					$related_orders  = $subscription->get_related_orders();
-					$completed_order = false;
-					foreach ( $related_orders as $order_id ) {
-						$order = \wc_get_order( $order_id );
-						if ( $order->has_status( 'completed' ) ) {
-							$completed_order = $order_id;
-							break;
+					// Only donation subscriptions that have at least one completed order are considered.
+					$is_donation = Donations::is_donation_order( $subscription );
+					$is_valid    = $is_donation ? false : true;
+					if ( $is_donation ) {
+						$related_orders = $subscription->get_related_orders();
+						foreach ( $related_orders as $order_id ) {
+							$order = \wc_get_order( $order_id );
+							if ( $order->has_status( 'completed' ) ) {
+								$is_valid = true;
+								break;
+							}
 						}
 					}
-					if ( ! empty( $completed_order ) ) {
+
+					/**
+					 * Filter to determine if a subscription with inactive status can be considered a contact's current product.
+					 * Allows for customizing the sync behavior to include or exclude certain types of subscriptions.
+					 *
+					 * @param bool            $is_valid If true, this subscription can be the contact's current product.
+					 * @param WC_Subscription $subscription The subscription object.
+					 */
+					$is_valid = \apply_filters( 'newspack_reader_activation_inactive_subscription_is_valid', $is_valid, $subscription );
+					if ( ! empty( $is_valid ) ) {
 						$acc[] = $subscription_id;
 					}
 				}
@@ -167,7 +179,45 @@ class WooCommerce {
 	}
 
 	/**
+	 * Get the amount of the last payment associated with the given subscription.
+	 *
+	 * @param \WC_Subscription $subscription Subscription object.
+	 *
+	 * @return float The amount of the last payment.
+	 */
+	private static function get_last_payment_amount( $subscription ) {
+		$last_order = $subscription->get_last_order(
+			// The whole WC_Order object, not just the ID.
+			'all',
+			// Only parent and renewal orders.
+			[
+				'parent',
+				'renewal',
+			],
+			// Only completed or processing orders, so exclude all other statuses.
+			[
+				'pending',
+				'failed',
+				'on-hold',
+				'cancelled',
+				'trash',
+				'draft',
+				'auto-draft',
+				'new',
+			]
+		);
+
+		if ( ! $last_order ) {
+			return 0;
+		}
+
+		return $last_order->get_total();
+	}
+
+	/**
 	 * Get data about a customer's order to sync to the connected ESP.
+	 *
+	 * Note that all dates are in the site's timezone.
 	 *
 	 * @param \WC_Order|int $order WooCommerce order or order ID.
 	 * @param bool|string   $payment_page_url Payment page URL. If not provided, checkout URL will be used.
@@ -181,11 +231,6 @@ class WooCommerce {
 
 		if ( ! self::should_sync_order( $order ) ) {
 			return [];
-		}
-
-		$is_subscription = false;
-		if ( function_exists( 'wcs_is_subscription' ) ) {
-			$is_subscription = \wcs_is_subscription( $order );
 		}
 
 		$metadata = [];
@@ -274,16 +319,20 @@ class WooCommerce {
 				$metadata['membership_status'] = $current_subscription->get_status();
 			}
 
-			$metadata['sub_start_date']      = $current_subscription->get_date( 'start' );
-			$metadata['sub_end_date']        = $current_subscription->get_date( 'end' ) ? $current_subscription->get_date( 'end' ) : '';
+			$sub_start_date    = $current_subscription->get_date( 'start', 'site' );
+			$sub_end_date      = $current_subscription->get_date( 'end', 'site' );
+			$last_payment_date = $current_subscription->get_date( 'last_order_date_paid', 'site' );
+
+			$metadata['sub_start_date']      = empty( $sub_start_date ) ? '' : $sub_start_date;
+			$metadata['sub_end_date']        = empty( $sub_end_date ) ? '' : $sub_end_date;
 			$metadata['billing_cycle']       = $current_subscription->get_billing_period();
 			$metadata['recurring_payment']   = $current_subscription->get_total();
-			$metadata['last_payment_amount'] = $current_subscription->get_total();
-			$metadata['last_payment_date']   = $current_subscription->get_date( 'last_order_date_paid' ) ? $current_subscription->get_date( 'last_order_date_paid' ) : gmdate( Metadata::DATE_FORMAT );
+			$metadata['last_payment_amount'] = self::get_last_payment_amount( $current_subscription );
+			$metadata['last_payment_date']   = empty( $last_payment_date ) ? current_time( Metadata::DATE_FORMAT ) : $last_payment_date;
 
 			// When a WC Subscription is terminated, the next payment date is set to 0. We don't want to sync that – the next payment date should remain as it was
 			// in the event of cancellation.
-			$next_payment_date = $current_subscription->get_date( 'next_payment' );
+			$next_payment_date = $current_subscription->get_date( 'next_payment', 'site' );
 			if ( $next_payment_date ) {
 				$metadata['next_payment_date'] = $next_payment_date;
 			}
@@ -333,8 +382,10 @@ class WooCommerce {
 
 		$metadata = [];
 
-		$metadata['account']           = $customer->get_id();
-		$metadata['registration_date'] = $customer->get_date_created()->date( Metadata::DATE_FORMAT );
+		$customer_id                   = $customer->get_id();
+		$created_date                  = $customer->get_date_created();
+		$metadata['account']           = $customer_id;
+		$metadata['registration_date'] = $created_date ? get_date_from_gmt( $created_date->date( Metadata::DATE_FORMAT ) ) : '';
 		$metadata['total_paid']        = $customer->get_total_spent();
 
 		$order = self::get_current_product_order_for_sync( $customer );
@@ -356,7 +407,16 @@ class WooCommerce {
 		$first_name = $customer->get_billing_first_name();
 		$last_name  = $customer->get_billing_last_name();
 		$full_name  = trim( "$first_name $last_name" );
-		$contact    = [
+
+		// Correct for empty First and Last Name fields.
+		if ( ! empty( trim( $first_name ) ) && empty( \get_user_meta( $customer_id, 'first_name', true ) ) ) {
+			\update_user_meta( $customer_id, 'first_name', $first_name );
+		}
+		if ( ! empty( trim( $last_name ) ) && empty( \get_user_meta( $customer_id, 'last_name', true ) ) ) {
+			\update_user_meta( $customer_id, 'last_name', $last_name );
+		}
+
+		$contact = [
 			'email'    => $customer->get_email(),
 			'metadata' => $metadata,
 		];
