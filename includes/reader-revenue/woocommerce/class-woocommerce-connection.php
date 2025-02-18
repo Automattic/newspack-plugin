@@ -57,6 +57,7 @@ class WooCommerce_Connection {
 
 		// woocommerce-memberships-for-teams plugin.
 		\add_filter( 'wc_memberships_for_teams_product_team_user_input_fields', [ __CLASS__, 'wc_memberships_for_teams_product_team_user_input_fields' ] );
+		\add_filter( 'woocommerce_form_field_args', [ __CLASS__, 'wc_memberships_for_teams_filter_team_name_in_form' ], 10, 3 );
 
 		\add_action( 'woocommerce_payment_complete', [ __CLASS__, 'order_paid' ], 101 );
 		\add_action( 'woocommerce_after_checkout_validation', [ __CLASS__, 'rate_limit_checkout' ], 10, 2 );
@@ -697,18 +698,142 @@ class WooCommerce_Connection {
 	 * @param array $fields associative array of user input fields.
 	 */
 	public static function wc_memberships_for_teams_product_team_user_input_fields( $fields ) {
-		global $wp;
-		if ( ! isset( $wp->query_vars['order-pay'] ) || ! class_exists( 'WC_Order' ) || ! function_exists( 'wc_memberships_for_teams_get_team_for_order_item' ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( empty( $fields['team_name'] ) || ! empty( $_REQUEST['team_name'] ) ) {
 			return $fields;
 		}
-		$order = new \WC_Order( $wp->query_vars['order-pay'] );
-		foreach ( $order->get_items( 'line_item' ) as $id => $item ) {
-			$team = wc_memberships_for_teams_get_team_for_order_item( $item );
-			if ( $team ) {
-				$_REQUEST['team_name'] = $team->get_name();
+		global $wp;
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['resubscribe'] ) && 'my-account' === $wp->query_vars['pagename'] ) {
+			$order_id_to_fix = sanitize_text_field( $_GET['resubscribe'] );
+		} elseif ( isset( $wp->query_vars['order-pay'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
+		} elseif ( isset( $_REQUEST['subscription_renewal_early'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $_REQUEST['subscription_renewal_early'] );
+		} else {
+			return $fields;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		$team_name = self::get_membership_team_name_from_order_id( $order_id_to_fix );
+		if ( ! empty( $team_name ) ) {
+			$_REQUEST['team_name'] = $team_name;
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Get the membership team name associated with an order ID (if any).
+	 *
+	 * Attempts to find the team name by checking the order items for team
+	 * membership information. If no team is found in the order items, it falls
+	 * back to retrieving the team name from the user associated with the order.
+	 *
+	 * @param int $order_id The ID of the order to retrieve the team name from.
+	 *
+	 * @return string The membership team name if found, or an empty string if
+	 *                  not found or if required functions are not available.
+	 */
+	public static function get_membership_team_name_from_order_id( $order_id ): string {
+		if ( empty( $order_id ) || ! function_exists( '\wc_get_order' ) || ! function_exists( '\wc_memberships_for_teams_get_team_for_order_item' ) ) {
+			return '';
+		}
+
+		$order = \wc_get_order( $order_id );
+		if ( ! $order ) {
+			return '';
+		}
+
+		foreach ( $order->get_items() as $item ) {
+			try {
+				$team = \wc_memberships_for_teams_get_team_for_order_item( $item );
+				if ( $team ) {
+					return $team->get_name();
+				}
+			} catch ( \Exception $e ) {
+				Logger::log( 'Exception thrown when trying to get team name from order: ' . $e->getMessage() );
 			}
 		}
-		return $fields;
+
+		$user = $order->get_user();
+		if ( $user ) {
+			return self::get_membership_team_name_from_user( $user->ID );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Retrieves the membership team name for a given user.
+	 *
+	 * This function attempts to find an appropriate team name for a user based on their
+	 * billing information or display name. It first checks for a billing company name,
+	 * then falls back to billing first and last name, and finally uses the user's display name.
+	 *
+	 * @param int $user_id The ID of the user for whom to retrieve the team name.
+	 *
+	 * @return string The determined team name. Returns an empty string if the user is not found.
+	 */
+	public static function get_membership_team_name_from_user( $user_id ): string {
+		$team_user = get_user_by( 'ID', $user_id );
+		if ( ! $team_user ) {
+			return '';
+		}
+
+		$company = get_user_meta( $user_id, 'billing_company', true );
+		if ( ! empty( $company ) ) {
+			return $company;
+		}
+
+		$billing_first_name = get_user_meta( $user_id, 'billing_first_name', true );
+		$billing_last_name  = get_user_meta( $user_id, 'billing_last_name', true );
+		if ( ! empty( $billing_first_name ) || ! empty( $billing_last_name ) ) {
+			$team_name = trim( $billing_first_name . ' ' . $billing_last_name );
+		} else {
+			$team_name = $team_user->display_name;
+		}
+
+		// Translators: %s is the user's billing first and last name – or company name.
+		return sprintf( __( "%s's Team", 'newspack-plugin' ), $team_name );
+	}
+
+
+	/**
+	 * Filter callback for the team name in WooCommerce forms.
+	 *
+	 * This is only relevant for the "team_name" field. It will try to figure out if we need to
+	 * fix the team name – and if we do, then get it from the order if it's available.
+	 *
+	 * @param array  $args  The original arguments for the form field.
+	 * @param string $key   The key of the form field.
+	 * @param mixed  $value The value of the form field.
+	 *
+	 * @return array The arguments for the form field.
+	 */
+	public static function wc_memberships_for_teams_filter_team_name_in_form( $args, $key, $value ) {
+		if ( 'team_name' !== $key || ! empty( $args['default'] ) || ! empty( $value ) || is_admin() ) {
+			return $args;
+		}
+		global $wp;
+		// Try to figure out if we need to fix the team name – and if we do, then grab the order ID
+		// from the relevant param.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( isset( $wp->query_vars['order-pay'] ) ) {
+			$order_id_to_fix = sanitize_text_field( $wp->query_vars['order-pay'] );
+		} elseif ( ! empty( $_GET['switch-subscription'] ) && $wp->query_vars['product'] ) {
+			$order_id_to_fix = sanitize_text_field( $_GET['switch-subscription'] );
+		} else {
+			return $args;
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		$team_name = self::get_membership_team_name_from_order_id( $order_id_to_fix );
+		if ( ! empty( $team_name ) ) {
+			$args['default'] = $team_name;
+		}
+
+		return $args;
 	}
 }
 
