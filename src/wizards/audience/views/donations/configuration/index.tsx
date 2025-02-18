@@ -1,8 +1,8 @@
 /**
  * WordPress dependencies.
  */
+import { __, sprintf } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import { ToggleControl } from '@wordpress/components';
 
 /**
@@ -64,6 +64,7 @@ export const DonationAmounts = () => {
 		tiered,
 		disabledFrequencies,
 		minimumDonation,
+		trashed,
 	} = wizardData.donation_data;
 
 	const changeHandler = ( path: ( string | number )[] ) => ( value: any ) =>
@@ -118,6 +119,26 @@ export const DonationAmounts = () => {
 					/>
 				) }
 			</Card>
+			{
+				Array.isArray( trashed ) && 0 < trashed.length && (
+					<Notice isError>
+						{ <span
+							dangerouslySetInnerHTML={
+								{ __html: sprintf(
+										// Translators: %1$s is a link to the trashed products. %2$s is a comma-separated list of trashed product names.
+										__(
+											'One or more donation products is in trash. Please <a href="%1$s">restore the product(s)</a> to continue using donation features: %2$s',
+											'newspack-plugin'
+										),
+										'/wp-admin/edit.php?post_status=trash&post_type=product',
+										trashed.join( ', ' )
+									)
+								}
+							}
+						/> }
+					</Notice>
+				)
+			}
 			{ tiered ? (
 				<Grid columns={ 1 }>
 					{ availableFrequencies.map( section => {
