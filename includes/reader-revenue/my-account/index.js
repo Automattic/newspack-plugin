@@ -29,7 +29,7 @@ function domReady( callback ) {
 
 domReady( function () {
 	const cancelButton = document.querySelector( '.subscription_details .button.cancel' );
-	const { labels, should_rate_limit, nonce } = newspack_my_account || {};
+	const { labels, nonce, rest_url, should_rate_limit } = newspack_my_account || {};
 
 	if ( cancelButton ) {
 		const confirmCancel = event => {
@@ -84,7 +84,7 @@ domReady( function () {
 					}
 				};
 
-				xhr.open( 'GET', newspack_my_account.rest_url + 'newspack/v1/check-rate' );
+				xhr.open( 'GET', rest_url + 'newspack/v1/check-rate' );
 				xhr.setRequestHeader( 'X-WP-Nonce', nonce );
 				xhr.send();
 			}
