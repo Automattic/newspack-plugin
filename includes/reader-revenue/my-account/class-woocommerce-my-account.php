@@ -77,9 +77,14 @@ class WooCommerce_My_Account {
 	 * REST API handler for rate limit check.
 	 */
 	public static function api_check_rate_limit() {
-		$response = [
-			'success' => WooCommerce_Connection::rate_limit_payment_methods( true ),
-		];
+		$is_rate_limited = WooCommerce_Connection::rate_limit_by_user( 'add_payment_method', __( 'Please wait a moment before trying to add a new payment method.', 'newspack-plugin' ), true );
+		$response        = [ 'success' => false ];
+		if ( ! \is_wp_error( $is_rate_limited ) && ! $is_rate_limited ) {
+			$response['success'] = true;
+		}
+		if ( \is_wp_error( $is_rate_limited ) ) {
+			$response['error'] = $is_rate_limited->get_error_message();
+		}
 		return new \WP_REST_Response( $response );
 	}
 
