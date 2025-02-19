@@ -32,6 +32,8 @@ if ( isset( $_GET['is_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVeri
 $without_password        = true === Reader_Activation::is_reader_without_password( $user );
 $is_reader               = true === Reader_Activation::is_user_reader( $user );
 $is_email_change_enabled = true === WooCommerce_My_Account::is_email_change_enabled();
+$is_pending_email_change = $user->get( WooCommerce_My_Account::PENDING_EMAIL_CHANGE_META ) ? true : false;
+$display_email           = $user->get( WooCommerce_My_Account::PENDING_EMAIL_CHANGE_META ) ?? $user->user_email;
 ?>
 
 <?php
@@ -65,7 +67,8 @@ endif;
 	<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide mt0">
 		<label for="account_email_display"><?php \esc_html_e( 'Email address', 'newspack-plugin' ); ?>
 		<?php if ( $is_email_change_enabled ) : ?>
-		<input type="email" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
+		<input type="email" class="woocommerce-Input woocommerce-Input--email input-text" name="newspack_account_email" id="newspack_account_email" autocomplete="email" <?php echo \esc_attr( $is_pending_email_change ? 'disabled' : '' ); ?> value="<?php echo \esc_attr( $display_email ); ?>" />
+		<input type="hidden" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />
 		<?php else : ?>
 		<input type="email" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email_display" id="account_email_display" autocomplete="email" disabled value="<?php echo \esc_attr( $user->user_email ); ?>" />
 		<input type="hidden" class="woocommerce-Input woocommerce-Input--email input-text" name="account_email" id="account_email" autocomplete="email" value="<?php echo \esc_attr( $user->user_email ); ?>" />

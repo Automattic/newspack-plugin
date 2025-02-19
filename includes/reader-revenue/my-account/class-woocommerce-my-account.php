@@ -21,6 +21,7 @@ class WooCommerce_My_Account {
 	const DELETE_ACCOUNT_FORM          = 'delete-account-form';
 	const SEND_MAGIC_LINK_PARAM        = 'magic-link';
 	const AFTER_ACCOUNT_DELETION_PARAM = 'account-deleted';
+	const PENDING_EMAIL_CHANGE_META    = 'newspack_pending_email_change';
 
 	/**
 	 * Initialize.
@@ -45,6 +46,7 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
+			\add_action( 'woocommerce_save_account_details', [ __CLASS__, 'handle_email_change_request' ] );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 			\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'verify_saved_account_details' ] );
@@ -749,6 +751,25 @@ class WooCommerce_My_Account {
 		 * @param bool $enabled Whether or not to allow email changes.
 		 */
 		return \apply_filters( 'newspack_email_change_enabled', $is_enabled );
+	}
+
+	/**
+	 * Handle email change request.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public static function handle_email_change_request( $user_id ) {
+		$new_email = filter_input( INPUT_POST, 'newspack_account_email', FILTER_SANITIZE_EMAIL );
+		if (
+			empty( $new_email )
+			|| ! \is_user_logged_in()
+			|| ! Reader_Activation::is_enabled()
+			|| ! self::is_email_change_enabled()
+		) {
+			return;
+		}
+		\update_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, $new_email );
+		// TODO: Send email to new email address with verification link.
 	}
 }
 
