@@ -33,7 +33,7 @@ $without_password        = true === Reader_Activation::is_reader_without_passwor
 $is_reader               = true === Reader_Activation::is_user_reader( $user );
 $is_email_change_enabled = true === WooCommerce_My_Account::is_email_change_enabled();
 $is_pending_email_change = $user->get( WooCommerce_My_Account::PENDING_EMAIL_CHANGE_META ) ? true : false;
-$display_email           = $user->get( WooCommerce_My_Account::PENDING_EMAIL_CHANGE_META ) ?? $user->user_email;
+$display_email           = $is_pending_email_change ? $user->get( WooCommerce_My_Account::PENDING_EMAIL_CHANGE_META ) : $user->user_email;
 ?>
 
 <?php
