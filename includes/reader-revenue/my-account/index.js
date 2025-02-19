@@ -29,11 +29,12 @@ function domReady( callback ) {
 
 domReady( function () {
 	const cancelButton = document.querySelector( '.subscription_details .button.cancel' );
+	const { labels, should_rate_limit, nonce } = newspack_my_account || {};
 
 	if ( cancelButton ) {
 		const confirmCancel = event => {
 			const message =
-				newspack_my_account?.labels?.cancel_subscription_message ||
+				labels?.cancel_subscription_message ||
 				'Are you sure you want to cancel this subscription?';
 
 			// eslint-disable-next-line no-alert
@@ -45,7 +46,7 @@ domReady( function () {
 	}
 
 	const addPaymentForm = document.getElementById( 'add_payment_method' );
-	if ( addPaymentForm && Boolean( newspack_my_account?.should_rate_limit ) ) {
+	if ( addPaymentForm && Boolean( should_rate_limit ) ) {
 		const errorContainer = document.querySelector( '.woocommerce-notices-wrapper' );
 		const submitButton = addPaymentForm.querySelector( 'input[type="submit"], button[type="submit"]' );
 		const rateLimit = function( e ) {
@@ -84,6 +85,7 @@ domReady( function () {
 				};
 
 				xhr.open( 'GET', newspack_my_account.rest_url + 'newspack/v1/check-rate' );
+				xhr.setRequestHeader( 'X-WP-Nonce', nonce );
 				xhr.send();
 			}
 		};

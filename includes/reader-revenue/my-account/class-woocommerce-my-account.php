@@ -109,6 +109,7 @@ class WooCommerce_My_Account {
 					],
 					'rest_url'          => get_rest_url(),
 					'should_rate_limit' => WooCommerce_Connection::rate_limiting_enabled(),
+					'nonce'             => wp_create_nonce( 'wp_rest' ),
 				]
 			);
 			\wp_enqueue_style(
