@@ -50,6 +50,7 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 			\add_action( 'woocommerce_save_account_details', [ __CLASS__, 'handle_email_change_request' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'handle_verify_email_change' ] );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 			\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'verify_saved_account_details' ] );
@@ -847,6 +848,48 @@ class WooCommerce_My_Account {
 		}
 		// Redirect and exit ahead of Woo so only our notice is displayed.
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
+		exit;
+	}
+
+	/**
+	 * Handle email change verification.
+	 */
+	public static function handle_verify_email_change() {
+		if ( ! self::is_email_change_enabled() || ! \is_user_logged_in() ) {
+			return;
+		}
+
+		$nonce = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $nonce ) {
+			return;
+		}
+
+		$is_error = false;
+		if ( \wp_verify_nonce( $nonce, self::VERIFY_EMAIL_CHANGE_PARAM ) ) {
+			$new_email = \get_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META, true );
+			if ( ! $new_email ) {
+				$message  = __( 'Something went wrong.', 'newspack-plugin' );
+				$is_error = true;
+			} else {
+				\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
+				\wp_update_user(
+					[
+						'ID'         => \get_current_user_id(),
+						'user_email' => $new_email,
+					]
+				);
+				$message = __( 'Your email address has been successfully updated.', 'newspack-plugin' );
+			}
+		}
+		\wp_safe_redirect(
+			\add_query_arg(
+				[
+					'message'  => $message,
+					'is_error' => $is_error,
+				],
+				\wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) )
+			)
+		);
 		exit;
 	}
 }
