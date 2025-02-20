@@ -51,6 +51,7 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 			\add_action( 'woocommerce_save_account_details', [ __CLASS__, 'handle_email_change_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_verify_email_change' ] );
+			\add_filter( 'send_email_change_email', '__return_false' );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
 			\add_filter( 'woocommerce_save_account_details_required_fields', [ __CLASS__, 'remove_required_fields' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'verify_saved_account_details' ] );
