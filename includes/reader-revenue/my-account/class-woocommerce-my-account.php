@@ -600,7 +600,6 @@ class WooCommerce_My_Account {
 			empty( $_POST['account_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			|| ! \is_user_logged_in()
 			|| ! Reader_Activation::is_enabled()
-			|| self::is_email_change_enabled()
 		) {
 			return;
 		}
@@ -768,32 +767,42 @@ class WooCommerce_My_Account {
 		) {
 			return;
 		}
-		\update_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, $new_email );
-		// TODO: Update email with custom template.
-		\wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
-			$new_email,
-			__( 'Please verify your new email address', 'newspack-plugin' ),
-			\wp_kses_post(
-				sprintf(
-					// Translators: %s is the verification link.
-					__( 'Please verify your new email address by clicking the following link: %s', 'newspack-plugin' ),
-					\add_query_arg(
-						[
-							'newspack_verify_email' => $new_email,
-							'nonce'                 => \wp_create_nonce( 'newspack_verify_email' ),
-						],
-						\home_url()
+		$old_email = \wp_get_current_user()->user_email;
+		if ( $new_email === $old_email ) {
+			return;
+		}
+		if ( ! \is_email( $new_email ) ) {
+			\wc_add_notice( __( 'Please enter a valid email address.', 'newspack-plugin' ), 'error' );
+		} elseif ( \email_exists( $new_email ) ) {
+			\wc_add_notice( __( 'This email address is already in use.', 'newspack-plugin' ), 'error' );
+		} else {
+			\update_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, $new_email );
+			// TODO: Update email with custom template.
+			\wp_mail( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail
+				$new_email,
+				__( 'Please verify your new email address', 'newspack-plugin' ),
+				\wp_kses_post(
+					sprintf(
+						// Translators: %s is the verification link.
+						__( 'Please verify your new email address by clicking the following link: %s', 'newspack-plugin' ),
+						\add_query_arg(
+							[
+								'newspack_verify_email' => $new_email,
+								'nonce'                 => \wp_create_nonce( 'newspack_verify_email' ),
+							],
+							\home_url()
+						)
 					)
 				)
-			)
-		);
-		\wc_add_notice(
-			sprintf(
-				// Translators: %s is the new email address.
-				__( 'A verification email has been sent to %s. Please verify to complete the change.', 'newspack-plugin' ),
-				$new_email
-			)
-		);
+			);
+			\wc_add_notice(
+				sprintf(
+					// Translators: %s is the new email address.
+					__( 'A verification email has been sent to %s. Please verify to complete the change.', 'newspack-plugin' ),
+					$new_email
+				)
+			);
+		}
 		// Redirect and exit ahead of Woo so only our notice is displayed.
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
