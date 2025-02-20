@@ -182,8 +182,6 @@ const BylinesSettingsPanel = () => {
 						tokenID = rootElement?.dataset?.token ?? '';
 					}
 
-					// debugger;
-
 					// Remove token element.
 					if (
 						rootElement &&
@@ -330,7 +328,10 @@ const BylinesSettingsPanel = () => {
 	 */
 	useEffect( () => {
 		function handleDomReady() {
-			if ( document.readyState === 'complete' ) {
+			if (
+				document.readyState === 'complete' &&
+				document.querySelector( '.newspack-byline-textarea' )
+			) {
 				const bylineElement = document.querySelector(
 					'.newspack-byline-textarea'
 				);
