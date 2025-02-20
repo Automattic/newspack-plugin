@@ -166,32 +166,36 @@ const BylinesSettingsPanel = () => {
 		 * @param {MutationObserver} mutationList
 		 */
 		const callback = mutationList => {
+			// The mutation types we want to watch for changes.
+			const mutationTypes = [ 'childList', 'subtree', 'characterData' ];
+
 			for ( const mutation of mutationList ) {
-				// Check if is a mutation on childList or subtree and if the element changed is a token, matching the class.
-				if (
-					( mutation.type === 'childList' ||
-						mutation.type === 'subtree' ||
-						mutation.type === 'characterData' ) &&
-					( mutation.target.matches?.( '.token-inline-block' ) ||
-						mutation.target.parentElement.classList.contains(
-							'components-form-token-field__token-text'
-						) )
-				) {
+				if ( mutationTypes.includes( mutation.type ) ) {
 					let rootElement;
 					let tokenID = '';
 
 					if ( mutation.type === 'characterData' ) {
-						rootElement = mutation.target.parentNode;
-						tokenID = rootElement.dataset.token;
+						rootElement = mutation.target.parentNode ?? null;
+						tokenID = rootElement?.dataset?.token ?? '';
 					} else {
-						rootElement = mutation.target;
-						tokenID = rootElement.dataset.token;
+						rootElement = mutation.target ?? null;
+						tokenID = rootElement?.dataset?.token ?? '';
 					}
 
-					// Remove token element.
-					rootElement.remove();
+					// debugger;
 
-					// Update byline meta
+					// Remove token element.
+					if (
+						rootElement &&
+						rootElement?.matches?.( '.token-inline-block' )
+					) {
+						rootElement.remove();
+
+						// Force component update after DOM manipulated directly.
+						forceUpdate( {} );
+					}
+
+					// Update byline meta.
 					editPost( {
 						meta: {
 							[ newspackBylines.metaKeyByline ]:
@@ -199,13 +203,12 @@ const BylinesSettingsPanel = () => {
 						},
 					} );
 
-					// Update tokensInUse
-					tokensInUse.current = tokensInUse.current.filter(
-						token => token !== Number( tokenID )
-					);
-
-					// Force component update after DOM manipulated directly.
-					forceUpdate( {} );
+					// Update tokensInUse.
+					if ( tokenID ) {
+						tokensInUse.current = tokensInUse.current.filter(
+							token => token !== Number( tokenID )
+						);
+					}
 				}
 			}
 		};
