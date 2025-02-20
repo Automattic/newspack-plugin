@@ -248,33 +248,35 @@ const CorrectionsModal = () => {
 						</PanelBody>
 					) : null }
 
-					<PanelBody
-						title={ __( 'Add new correction', 'newspack-plugin' ) }
-						initialOpen={ false }
-						className="correction-panel"
-					>
-						<div className="correction-item">
-							<SelectControl
-								label={ __( 'Type', 'newspack-plugin' ) }
-								value={ newCorrectionType }
-								options={ types }
-								onChange={ ( value ) => setNewCorrectionType( value ) }
-								__next40pxDefaultSize
-							/>
-							<TextareaControl
-								label={ __( 'Description', 'newspack-plugin' ) }
-								rows={ 3 }
-								value={ newCorrection }
-								onChange={ ( value ) => setNewCorrection( value ) }
-							/>
-							<Button
-								text={ __( 'Add', 'newspack-plugin' ) }
-								variant="secondary"
-								onClick={ saveCorrection }
-								disabled={ ! newCorrection }
-							/>
-						</div>
-					</PanelBody>
+					{ ! isSaving && (
+						<PanelBody
+							title={ __( 'Add new correction', 'newspack-plugin' ) }
+							initialOpen={ false }
+							className="correction-panel"
+						>
+							<div className="correction-item">
+								<SelectControl
+									label={ __( 'Type', 'newspack-plugin' ) }
+									value={ newCorrectionType }
+									options={ types }
+									onChange={ ( value ) => setNewCorrectionType( value ) }
+									__next40pxDefaultSize
+								/>
+								<TextareaControl
+									label={ __( 'Description', 'newspack-plugin' ) }
+									rows={ 3 }
+									value={ newCorrection }
+									onChange={ ( value ) => setNewCorrection( value ) }
+								/>
+								<Button
+									text={ __( 'Add', 'newspack-plugin' ) }
+									variant="secondary"
+									onClick={ saveCorrection }
+									disabled={ ! newCorrection }
+								/>
+							</div>
+						</PanelBody>
+					) }
 
 					{ saveError && <p className="error-message">{ saveError }</p> }
 
