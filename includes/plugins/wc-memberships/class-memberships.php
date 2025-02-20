@@ -91,7 +91,7 @@ class Memberships {
 	 * Register data event handlers.
 	 */
 	public static function register_data_event_handlers() {
-		Data_Events::register_handler( [ __CLASS__, 'check_user_membership_linked_subscription' ], 'subscription_updated' );
+		Data_Events::register_handler( [ __CLASS__, 'check_user_membership_linked_subscription' ], 'product_subscription_changed' );
 		Data_Events::register_handler( [ __CLASS__, 'check_user_membership_linked_subscription' ], 'reader_logged_in' );
 	}
 
