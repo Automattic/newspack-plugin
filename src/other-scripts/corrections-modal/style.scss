@@ -1,36 +1,44 @@
-/* Corrections Modal */
+@use "~@wordpress/base-styles/colors" as wp-colors;
+
 .correction {
-
-	&-item {
-		display: flex;
-		gap: var(--newspack-ui-spacer-2);
-		border-bottom: 1px solid #e5e5e5;
-		padding: 10px 0;
+	&-panel {
+		border-left: 1px solid wp-colors.$gray-200;
+		border-right: 1px solid wp-colors.$gray-200;
 	}
 
-	&-select-type {
-		min-width: 110px;
-	}
-
-	&-textarea {
-		width: 100%;
+	&-item + &-item {
+		border-top: 1px solid wp-colors.$gray-300;
+		padding-top: 16px;
+		margin-top: 16px;
 	}
 
 	&-date-popover {
-		> * {
-			padding: 10px;
+		.components-popover__content {
+			padding: 16px;
 		}
 	}
 
-	&-delete,
-	&-add {
-		margin-top: auto;
-		margin-bottom: auto;
+	&-date-button {
+		width: 100%;
+
+		&.is-secondary.has-icon {
+			box-shadow: inset 0 0 0 1px var(--wp-components-color-gray-600, wp-colors.$gray-600);
+			color: currentcolor;
+			justify-content: space-between;
+		}
 	}
 
-	&-save,
-	&-cancel {
-		margin-top: var(--newspack-ui-spacer-2);
-		margin-left: var(--newspack-ui-spacer-2);
+	&-actions {
+		display: flex;
+		flex-direction: row-reverse;
+		gap: 8px;
+		margin: 24px 0 0;
+	}
+}
+
+.newspack-corrections-panel {
+	.components-button.is-secondary {
+		justify-content: center;
+		width: 100%;
 	}
 }

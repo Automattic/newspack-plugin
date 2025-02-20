@@ -1,14 +1,23 @@
 /**
  * WordPress dependencies.
  */
-import { useState, useEffect } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
-import { Button, Modal, PanelBody, TextareaControl, SelectControl, Popover, DateTimePicker } from '@wordpress/components';
-import { registerPlugin } from '@wordpress/plugins';
+import {
+	BaseControl,
+	Button,
+	Modal,
+	PanelBody,
+	Popover,
+	SelectControl,
+	TextareaControl,
+	DateTimePicker,
+} from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
-import { Icon, trash, create } from '@wordpress/icons';
+import { useState, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { calendar } from '@wordpress/icons';
+import { registerPlugin } from '@wordpress/plugins';
 
 /**
  * Internal dependencies.
@@ -157,8 +166,13 @@ const CorrectionsModal = () => {
 				title= { __( 'Corrections & Clarifications', 'newspack-plugin' ) }
 				className="newspack-corrections-panel"
 			>
-				<Button isSecondary onClick={ () => setIsOpen( true ) }>
-					{ __( 'Manage Corrections', 'newspack-plugin' ) }
+				<Button
+					variant="secondary"
+					onClick={ () => setIsOpen( true ) }
+					label={ __( 'Manage corrections and clarifications', 'newspack-plugin' ) }
+					__next40pxDefaultSize
+				>
+					{ __( 'Manage corrections', 'newspack-plugin' ) }
 				</Button>
 			</PluginDocumentSettingPanel>
 
@@ -167,30 +181,39 @@ const CorrectionsModal = () => {
 					title={ __( 'Corrections & Clarifications', 'newspack-plugin' ) }
 					onRequestClose={ () => setIsOpen( false ) }
 					className="newspack-corrections-modal"
-					size="fill"
+					size="medium"
 				>
 					{ corrections.length > 0 ? (
 						<PanelBody
-						title={ __( 'Corrections List', 'newspack-plugin' ) }
-						initialOpen={ true }
+							title={ __( 'Corrections log', 'newspack-plugin' ) }
+							initialOpen={ true }
+							className="correction-panel"
 						>
 							{ corrections.map( ( correction ) => (
 									<div key={correction.ID} className="correction-item">
 										<div>
 											<SelectControl
-												className='correction-select-type'
 												label={ __( 'Type', 'newspack-plugin' ) }
 												value={ correction.type }
 												options={ types }
 												onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, value, correction.date ) }
+												__next40pxDefaultSize
 											/>
-											<Button
-												className='correction-date-button'
-												variant='secondary'
-												onClick={ () => setIsDatePopoverOpen( correction.ID ) }
+											<BaseControl
+												id={ `correction-date-${correction.ID}` }
+												label={ __( 'Date', 'newspack-plugin' ) }
 											>
-												{ new Date( correction.date ).toLocaleString() }
-											</Button>
+												<Button
+													variant="secondary"
+													className="correction-date-button"
+													onClick={ () => setIsDatePopoverOpen( correction.ID ) }
+													icon={ calendar}
+													iconPosition="right"
+													__next40pxDefaultSize
+												>
+													{ new Date( correction.date ).toLocaleString() }
+												</Button>
+											</BaseControl>
 											{ isDatePopoverOpen === correction.ID && (
 												<Popover
 													className="correction-date-popover"
@@ -208,17 +231,16 @@ const CorrectionsModal = () => {
 											) }
 										</div>
 										<TextareaControl
-											className='correction-textarea'
 											label={ __( 'Description', 'newspack-plugin' ) }
 											rows={ 3 }
 											value={ correction.post_content }
 											onChange={ ( value ) => updateCorrection( correction.ID, value, correction.type, correction.date ) }
 										/>
 										<Button
-											className='correction-delete'
-											variant='tertiary'
+											text={ __( 'Delete', 'newspack-plugin' ) }
+											variant="secondary"
 											onClick={ () => deleteCorrection( correction.ID ) }
-											icon={ <Icon icon={ trash } height={ 24 } width={ 24 } /> }
+											isDestructive
 										/>
 									</div>
 								) )
@@ -227,56 +249,55 @@ const CorrectionsModal = () => {
 					) : null }
 
 					<PanelBody
-						title={ __( 'Add New Correction', 'newspack-plugin' ) }
+						title={ __( 'Add new correction', 'newspack-plugin' ) }
 						initialOpen={ false }
+						className="correction-panel"
 					>
 						<div className="correction-item">
 							<SelectControl
-								className='correction-select-type'
 								label={ __( 'Type', 'newspack-plugin' ) }
 								value={ newCorrectionType }
 								options={ types }
 								onChange={ ( value ) => setNewCorrectionType( value ) }
+								__next40pxDefaultSize
 							/>
 							<TextareaControl
-								className='correction-textarea'
 								label={ __( 'Description', 'newspack-plugin' ) }
 								rows={ 3 }
 								value={ newCorrection }
 								onChange={ ( value ) => setNewCorrection( value ) }
 							/>
 							<Button
-								className='correction-add'
+								text={ __( 'Add', 'newspack-plugin' ) }
+								variant="secondary"
 								onClick={ saveCorrection }
 								disabled={ ! newCorrection }
-								variant='primary'
-								icon={ <Icon icon={ create } height={ 24 } width={ 24 } /> }
 							/>
 						</div>
 					</PanelBody>
 
 					{ saveError && <p className="error-message">{ saveError }</p> }
 
-					<Button
-						className='correction-save'
-						variant="primary"
-						onClick={ () => {
-							saveCorrection();
-							saveCorrections();
-						} }
-						disabled={ isSaving }
-					>
-						{ isSaving ? __( 'Saving…', 'newspack-plugin' ) : __( 'Save Corrections', 'newspack-plugin' ) }
-					</Button>
-					<Button
-						className='correction-cancel'
-						variant="secondary"
-						onClick={ () => {
-							setIsOpen( false )
-						} }
-					>
-						{ __( 'Cancel', 'newspack-plugin' ) }
-					</Button>
+					<div className="correction-actions">
+						<Button
+							variant="primary"
+							onClick={ () => {
+								saveCorrection();
+								saveCorrections();
+							} }
+							isBusy={ isSaving }
+						>
+							{ isSaving ? __( 'Saving…', 'newspack-plugin' ) : __( 'Close & save', 'newspack-plugin' ) }
+						</Button>
+						<Button
+							variant="tertiary"
+							onClick={ () => {
+								setIsOpen( false )
+							} }
+						>
+							{ __( 'Cancel', 'newspack-plugin' ) }
+						</Button>
+					</div>
 				</Modal>
 			) }
 		</>
