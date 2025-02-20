@@ -859,18 +859,14 @@ class WooCommerce_My_Account {
 		if ( ! self::is_email_change_enabled() || ! \is_user_logged_in() ) {
 			return;
 		}
-
 		$nonce = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $nonce ) {
 			return;
 		}
-
-		$is_error = false;
 		if ( \wp_verify_nonce( $nonce, self::VERIFY_EMAIL_CHANGE_PARAM ) ) {
 			$new_email = \get_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META, true );
 			if ( ! $new_email ) {
-				$message  = __( 'Something went wrong.', 'newspack-plugin' );
-				$is_error = true;
+				\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
 			} else {
 				\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
 				\wp_update_user(
@@ -879,18 +875,12 @@ class WooCommerce_My_Account {
 						'user_email' => $new_email,
 					]
 				);
-				$message = __( 'Your email address has been successfully updated.', 'newspack-plugin' );
+				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
 			}
+		} else {
+			\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
 		}
-		\wp_safe_redirect(
-			\add_query_arg(
-				[
-					'message'  => $message,
-					'is_error' => $is_error,
-				],
-				\wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) )
-			)
-		);
+		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
 	}
 }
