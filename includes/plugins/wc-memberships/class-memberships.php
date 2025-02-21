@@ -58,7 +58,7 @@ class Memberships {
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
 		add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
-		add_filter( 'wc_memberships_expire_user_membership', [ __CLASS__, 'handle_wc_memberships_expire_user_membership' ], 10, 2 );
+		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'fix_membership_end_date' ], 11, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -1067,24 +1067,34 @@ class Memberships {
 	}
 
 	/**
-	 * Prevent User Membership expiring, if the linked subscription is active.
+	 * Ensure that the end date of a membership is reset when a subscription
+	 * reactivates it.
 	 *
-	 * @param bool                            $expire true will expire this membership, false will retain it - default: true, expire it.
-	 * @param \WC_Memberships_User_Membership $user_membership the User Membership object being expired.
+	 * @param \WC_Subscription $subscription Subscription object.
+	 * @param string           $status_to    New status.
 	 */
-	public static function handle_wc_memberships_expire_user_membership( $expire, $user_membership ) {
-		$integration = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
-		if ( ! $integration ) {
-			return $expire;
+	public static function fix_membership_end_date( $subscription, $status_to ) {
+		if ( 'active' !== $status_to ) {
+			return;
 		}
-		$subscription = $integration->get_subscription_from_membership( $user_membership->get_id() );
-		if ( $subscription ) {
-			$subscription_status = $integration->get_subscription_status( $subscription );
-			if ( 'active' === $subscription_status ) {
-				return false;
+		if ( ! function_exists( 'wc_memberships_get_memberships_from_subscription' ) ) {
+			return;
+		}
+		$memberships = wc_memberships_get_memberships_from_subscription( $subscription );
+		if ( empty( $memberships ) ) {
+			return;
+		}
+		foreach ( $memberships as $membership ) {
+			$plan = $membership->get_plan();
+			// Only reset end date for plans with access set to subscription length.
+			if ( ! $plan->is_access_length_type( 'subscription' ) ) {
+				continue;
+			}
+			$end_date = $membership->get_end_date();
+			if ( ! empty( $end_date ) ) {
+				$membership->set_end_date( '' );
 			}
 		}
-		return $expire;
 	}
 }
 Memberships::init();
