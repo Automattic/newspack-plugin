@@ -10,6 +10,7 @@ namespace Newspack;
 use Newspack\Data_Events;
 use Newspack\Logger;
 use Newspack\Memberships\Metering;
+use Newspack\Reader_Activation;
 use Newspack\WooCommerce_Connection;
 
 defined( 'ABSPATH' ) || exit;
@@ -41,7 +42,6 @@ class Memberships {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_action( 'init', [ __CLASS__, 'register_data_event_handlers' ] );
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'admin_init', [ __CLASS__, 'redirect_cpt' ] );
@@ -75,6 +75,10 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'wp_replace_insecure_home_url' );
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
+		/** Fixes to ensure that memberships are linked to the correct active subscription. */
+		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'check_user_memberships_on_subscription_update' ] );
+		add_action( 'wp_login', [ __CLASS__, 'check_user_memberships_on_login' ], 10, 2 );
+
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
 		include __DIR__ . '/class-import-export.php';
@@ -85,102 +89,6 @@ class Memberships {
 	 */
 	public static function is_active() {
 		return class_exists( 'WC_Memberships' ) && function_exists( 'wc_memberships' );
-	}
-
-	/**
-	 * Register data event handlers.
-	 */
-	public static function register_data_event_handlers() {
-		Data_Events::register_handler( [ __CLASS__, 'check_user_membership_linked_subscription' ], 'product_subscription_changed' );
-		Data_Events::register_handler( [ __CLASS__, 'check_user_membership_linked_subscription' ], 'reader_logged_in' );
-	}
-
-	/**
-	 * Ensure that the user's membership is linked to the correct subscription.
-	 *
-	 * @param int   $timestamp Timestamp of the event.
-	 * @param array $data      Data associated with the event.
-	 */
-	public static function check_user_membership_linked_subscription( $timestamp, $data ) {
-		if ( empty( $data['user_id'] ) ) {
-			return;
-		}
-		$user_id = $data['user_id'];
-		self::maybe_relink_user_membership_subscription( $user_id );
-	}
-
-	/**
-	 * Ensure that the user membership is linked to the user's most recent active subscription, if any.
-	 *
-	 * @param int $user_id User ID.
-	 *
-	 * @return bool True if user membership was relinked to a different subscription, false otherwise.
-	 */
-	public static function maybe_relink_user_membership_subscription( $user_id ) {
-		$updated = false;
-		if ( ! self::is_active() ) {
-			return $updated;
-		}
-		$user_memberships = wc_memberships_get_user_memberships( $user_id );
-		foreach ( $user_memberships as $user_membership ) {
-			$membership_plan_id      = $user_membership->get_plan_id();
-			$user_membership_id      = $user_membership->get_id();
-			$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership_id );
-			$active_subscription_id     = self::get_user_subscription_for_membership_plan( $user_id, $subscription_membership->get_plan_id() );
-			if ( $subscription_membership && ! empty( $active_subscription_id ) ) {
-				$linked_subscription_id = (int) $subscription_membership->get_subscription_id();
-
-				// If the user membership is linked to the wrong subscription, relink it.
-				if ( $linked_subscription_id !== $active_subscription_id ) {
-					$updated         = $subscription_membership->set_subscription_id( $active_subscription_id );
-					$membership_plan = $subscription_membership->get_plan();
-
-					// Reset end date for plans with access set to subscription length.
-					if ( $membership_plan->is_access_length_type( 'subscription' ) && ! empty( $subscription_membership->get_end_date() ) ) {
-						$subscription_membership->set_end_date( '' );
-					}
-					Logger::newspack_log(
-						'newspack_user_membership_subscription_relinked',
-						__( 'User membership linked subscription updated.', 'newspack-plugin' ),
-						[
-							'user_id'             => $user_id,
-							'membership_id'       => $user_membership_id,
-							'old_subscription_id' => $linked_subscription_id,
-							'new_subscription_id' => $active_subscription_id,
-							'success'             => $updated,
-						],
-						'debug'
-					);
-				}
-			}
-		}
-
-		return $updated;
-	}
-
-	/**
-	 * Does the given user have an active subscription with the product required by the given membership plan?
-	 *
-	 * @param int $user_id User ID.
-	 * @param int $membership_plan_id Membership plan ID.
-	 *
-	 * @return int Subscription ID if the user has an active subscription with the required product. False if the user does not have the required subscription. Null if the membership plan doesn't require a subscription.
-	 */
-	public static function get_user_subscription_for_membership_plan( $user_id, $membership_plan_id ) {
-		$integrations = wc_memberships()->get_integrations_instance();
-		$integration  = $integrations ? $integrations->get_subscriptions_instance() : null;
-		if ( ! $integration || ! $integration->has_membership_plan_subscription( $membership_plan_id ) ) {
-			return null;
-		}
-
-		$subscription_plan  = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $membership_plan_id );
-		$required_products  = $subscription_plan->get_subscription_product_ids();
-		$user_subscriptions = WooCommerce_Connection::get_active_subscriptions_for_user( $user_id, $required_products );
-		if ( empty( $user_subscriptions ) ) {
-			return false;
-		}
-
-		return (int) reset( $user_subscriptions );
 	}
 
 	/**
@@ -1178,6 +1086,102 @@ class Memberships {
 			}
 		}
 		return $expire;
+	}
+
+	/**
+	 * When a subscription's status changes, ensure that any related user memberships are linked to the correct subscription.
+	 *
+	 * @param WC_Subscription $subscription An instance of a WC_Subscription object that just had its status changed.
+	 */
+	public static function check_user_memberships_on_subscription_update( $subscription ) {
+		self::maybe_relink_user_membership_subscription( $subscription->get_user_id() );
+	}
+
+	/**
+	 * When a reader logs in, ensure that their user memberships are linked to the correct subscription.
+	 *
+	 * @param string  $user_login User's login.
+	 * @param WP_User $user WP_User object for the logged-in user.
+	 */
+	public static function check_user_memberships_on_login( $user_login, $user ) {
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return;
+		}
+		self::maybe_relink_user_membership_subscription( $user->ID );
+	}
+
+	/**
+	 * Ensure that the user membership is linked to the user's most recent active subscription, if any.
+	 *
+	 * @param int $user_id User ID.
+	 *
+	 * @return bool True if user membership was relinked to a different subscription, false otherwise.
+	 */
+	public static function maybe_relink_user_membership_subscription( $user_id ) {
+		$updated = false;
+		if ( ! self::is_active() ) {
+			return $updated;
+		}
+		$user_memberships = wc_memberships_get_user_memberships( $user_id );
+		foreach ( $user_memberships as $user_membership ) {
+			$membership_plan_id      = $user_membership->get_plan_id();
+			$user_membership_id      = $user_membership->get_id();
+			$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership_id );
+			$active_subscription_id     = self::get_user_subscription_for_membership_plan( $user_id, $subscription_membership->get_plan_id() );
+			if ( $subscription_membership && ! empty( $active_subscription_id ) ) {
+				$linked_subscription_id = (int) $subscription_membership->get_subscription_id();
+
+				// If the user membership is linked to the wrong subscription, relink it.
+				if ( $linked_subscription_id !== $active_subscription_id ) {
+					$updated         = $subscription_membership->set_subscription_id( $active_subscription_id );
+					$membership_plan = $subscription_membership->get_plan();
+
+					// Reset end date for plans with access set to subscription length.
+					if ( $membership_plan->is_access_length_type( 'subscription' ) && ! empty( $subscription_membership->get_end_date() ) ) {
+						$subscription_membership->set_end_date( '' );
+					}
+					Logger::newspack_log(
+						'newspack_user_membership_subscription_relinked',
+						__( 'User membership linked subscription updated.', 'newspack-plugin' ),
+						[
+							'user_id'             => $user_id,
+							'membership_id'       => $user_membership_id,
+							'old_subscription_id' => $linked_subscription_id,
+							'new_subscription_id' => $active_subscription_id,
+							'success'             => $updated,
+						],
+						'debug'
+					);
+				}
+			}
+		}
+
+		return $updated;
+	}
+
+	/**
+	 * Does the given user have an active subscription with the product required by the given membership plan?
+	 *
+	 * @param int $user_id User ID.
+	 * @param int $membership_plan_id Membership plan ID.
+	 *
+	 * @return int Subscription ID if the user has an active subscription with the required product. False if the user does not have the required subscription. Null if the membership plan doesn't require a subscription.
+	 */
+	public static function get_user_subscription_for_membership_plan( $user_id, $membership_plan_id ) {
+		$integrations = wc_memberships()->get_integrations_instance();
+		$integration  = $integrations ? $integrations->get_subscriptions_instance() : null;
+		if ( ! $integration || ! $integration->has_membership_plan_subscription( $membership_plan_id ) ) {
+			return null;
+		}
+
+		$subscription_plan  = new \WC_Memberships_Integration_Subscriptions_Membership_Plan( $membership_plan_id );
+		$required_products  = $subscription_plan->get_subscription_product_ids();
+		$user_subscriptions = WooCommerce_Connection::get_active_subscriptions_for_user( $user_id, $required_products );
+		if ( empty( $user_subscriptions ) ) {
+			return false;
+		}
+
+		return (int) reset( $user_subscriptions );
 	}
 }
 Memberships::init();
