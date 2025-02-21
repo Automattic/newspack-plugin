@@ -7,7 +7,6 @@
 
 namespace Newspack;
 
-use Newspack\Data_Events;
 use Newspack\Logger;
 use Newspack\Memberships\Metering;
 use Newspack\Reader_Activation;
