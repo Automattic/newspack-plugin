@@ -76,7 +76,7 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
 		/** Fixes to ensure that memberships are linked to the correct active subscription. */
-		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'check_user_memberships_on_subscription_update' ] );
+		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'check_user_memberships_on_subscription_update' ], 11 );
 		add_action( 'wp_login', [ __CLASS__, 'check_user_memberships_on_login' ], 10, 2 );
 
 		include __DIR__ . '/class-block-patterns.php';
