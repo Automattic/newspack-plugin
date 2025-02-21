@@ -7,4 +7,13 @@ module.exports = {
 		newspack_aux_data: 'readonly',
 	},
 	ignorePatterns: [ '*/dist/', '*/node_modules/', '*/release' ],
+	overrides: [
+		{
+			files: [ '.storybook/**/*.js' ],
+			rules: {
+				'import/no-unresolved': 'off',
+				'import/no-extraneous-dependencies': 'off'
+			}
+		}
+	]
 };

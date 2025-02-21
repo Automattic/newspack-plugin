@@ -1,0 +1,52 @@
+import { Meta, Story, Canvas } from '@storybook/blocks';
+import * as SegmentedControlStories from './index.stories';
+
+<Meta of={SegmentedControlStories} name="Docs" />
+
+# Segmented Control
+
+A segmented control provides a tabbed interface for switching between different views or options.
+
+<Canvas of={SegmentedControlStories.Default} sourceState="shown" />
+
+## CSS Classes
+
+### Base Classes
+- `.newspack-ui`: Root namespace for Newspack UI components
+- `.newspack-ui__segmented-control`: Container for the entire component
+- `.newspack-ui__segmented-control__tabs`: Container for tab buttons
+- `.newspack-ui__button`: Individual tab button
+- `.selected`: Applied to the active tab and panel
+- `.newspack-ui__segmented-control__content`: Container for panel content
+- `.newspack-ui__segmented-control__panel`: Individual content panel
+
+### Modifiers
+- `.newspack-ui__segmented-control--wide`: Makes the control full-width with equal-width buttons
+- `.newspack-ui__button--x-small`: Extra small button size
+- `.newspack-ui__button--small`: Small button size
+- `.newspack-ui__button--medium`: Default button size
+
+## Usage Guidelines
+
+### Button Size
+- `medium` (default): Suitable for most use cases
+- `small`: Use in secondary interfaces or when you need slightly reduced prominence
+- `x-small`: Use in compact interfaces where space is limited
+
+### Layout
+- Default: Buttons will size to their content
+- `wide`: Use when you want the control to span the full width and have equal-width buttons, typically on mobile or in narrow layouts
+
+## Accessibility
+
+1. **Keyboard Navigation**:
+   - Ensure tabs are focusable using the Tab key
+   - Use arrow keys to navigate between tabs
+   - Use Enter or Space to select a tab
+
+2. **ARIA Attributes**:
+   - Use `role="tablist"` on the tabs container
+   - Use `role="tab"` on each button
+   - Use `role="tabpanel"` on content panels
+   - Use `aria-selected="true"` on the selected tab
+   - Use `aria-controls` to associate tabs with their panels

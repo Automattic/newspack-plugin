@@ -1,0 +1,70 @@
+import { Meta, Canvas } from '@storybook/blocks';
+import * as ButtonStories from './index.stories';
+
+<Meta of={ButtonStories} name="Docs" />
+
+# Button
+
+A button component that provides a consistent look and feel across the Newspack UI.
+
+<Canvas of={ButtonStories.Primary} sourceState="shown" />
+<Canvas of={ButtonStories.Secondary} sourceState="shown" />
+<Canvas of={ButtonStories.Branded} sourceState="shown" />
+<Canvas of={ButtonStories.Ghost} sourceState="shown" />
+<Canvas of={ButtonStories.Outline} sourceState="shown" />
+<Canvas of={ButtonStories.Destructive} sourceState="shown" />
+<Canvas of={ButtonStories.IconOnly} sourceState="shown" />
+
+## CSS Classes
+
+- `.newspack-ui`: Root namespace for Newspack UI components
+- `.newspack-ui__button`: Base button class
+- `.newspack-ui__button__label`: Container for button text
+- `.newspack-ui__button__glyph`: Container for button icon
+
+### Modifiers
+- `.newspack-ui__button--primary`: Main call-to-action buttons
+- `.newspack-ui__button--secondary`: Supporting actions (default)
+- `.newspack-ui__button--branded`: Special emphasis using brand colors
+- `.newspack-ui__button--ghost`: Subtle actions that don't need strong visual emphasis
+- `.newspack-ui__button--outline`: Actions that need structure but minimal visual weight
+- `.newspack-ui__button--destructive`: Actions with destructive consequences
+- `.newspack-ui__button--x-small`: Extra small button size
+- `.newspack-ui__button--small`: Small button size
+- `.newspack-ui__button--medium`: Default button size
+- `.newspack-ui__button--wide`: Makes the button take full width of its container
+- `.newspack-ui__button--icon`: Styles the button as an icon-only button
+- `.newspack-ui__button--loading`: Shows a loading spinner and hides button content
+
+## Usage Guidelines
+
+### Button Variants
+- `primary`: Main call-to-action buttons
+- `secondary`: Supporting actions (default)
+- `branded`: Special emphasis using brand colors
+- `ghost`: Subtle actions that don't need strong visual emphasis
+- `outline`: Actions that need structure but minimal visual weight
+- `destructive`: Actions with destructive consequences
+
+### Button Size
+- `medium` (default): Suitable for most use cases
+- `small`: Use in secondary interfaces or when you need slightly reduced prominence
+- `x-small`: Use in compact interfaces where space is limited
+
+### Layout Options
+- Default: Button will size to its content
+- `wide`: Makes the button take full width of its container
+- `icon`: Styles the button as an icon-only button
+- `loading`: Shows a loading spinner and hides button content
+
+## Accessibility
+
+1. **Keyboard Navigation**:
+   - Ensure buttons are focusable using Tab key
+   - Use Enter or Space to activate buttons
+   - Maintain a logical tab order
+
+2. **ARIA Attributes**:
+   - Use `aria-label` for icon-only buttons
+   - Use `aria-disabled="true"` when disabled
+   - Use `aria-pressed` for toggle buttons
