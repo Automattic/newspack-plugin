@@ -76,7 +76,7 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
 		/** Fixes to ensure that memberships are linked to the correct active subscription. */
-		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'check_user_memberships_on_subscription_update' ], 11 );
+		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'check_user_memberships_on_subscription_update' ], 999 );
 		add_action( 'wp_login', [ __CLASS__, 'check_user_memberships_on_login' ], 10, 2 );
 
 		include __DIR__ . '/class-block-patterns.php';
@@ -1074,17 +1074,12 @@ class Memberships {
 	 * @param \WC_Memberships_User_Membership $user_membership the User Membership object being expired.
 	 */
 	public static function handle_wc_memberships_expire_user_membership( $expire, $user_membership ) {
-		$integration = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
-		if ( ! $integration ) {
-			return $expire;
+		$user_id = $user_membership->get_user_id();
+		$relinked = self::maybe_relink_user_membership_subscription( $user_id );
+		if ( $relinked ) {
+			return false;
 		}
-		$subscription = $integration->get_subscription_from_membership( $user_membership->get_id() );
-		if ( $subscription ) {
-			$subscription_status = $integration->get_subscription_status( $subscription );
-			if ( 'active' === $subscription_status ) {
-				return false;
-			}
-		}
+
 		return $expire;
 	}
 
@@ -1124,7 +1119,6 @@ class Memberships {
 		}
 		$user_memberships = wc_memberships_get_user_memberships( $user_id );
 		foreach ( $user_memberships as $user_membership ) {
-			$membership_plan_id      = $user_membership->get_plan_id();
 			$user_membership_id      = $user_membership->get_id();
 			$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership_id );
 			$active_subscription_id  = self::get_user_subscription_for_membership_plan( $user_id, $subscription_membership->get_plan_id() );
@@ -1135,6 +1129,10 @@ class Memberships {
 				if ( $linked_subscription_id !== $active_subscription_id ) {
 					$updated         = $subscription_membership->set_subscription_id( $active_subscription_id );
 					$membership_plan = $subscription_membership->get_plan();
+					$message         = __( 'User membership linked subscription updated.', 'newspack-plugin' );
+
+					// Reset membership to active status.
+					$subscription_membership->update_status( 'active', $message );
 
 					// Reset end date for plans with access set to subscription length.
 					if ( $membership_plan->is_access_length_type( 'subscription' ) && ! empty( $subscription_membership->get_end_date() ) ) {
@@ -1142,7 +1140,7 @@ class Memberships {
 					}
 					Logger::newspack_log(
 						'newspack_user_membership_subscription_relinked',
-						__( 'User membership linked subscription updated.', 'newspack-plugin' ),
+						$message,
 						[
 							'user_id'             => $user_id,
 							'membership_id'       => $user_membership_id,
