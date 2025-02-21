@@ -4,26 +4,30 @@
 		background: var(--newspack-ui-color-neutral-10);
 		border: 0;
 		border-radius: var(--newspack-ui-border-radius-m);
+		box-sizing: border-box;
 		color: var(--newspack-ui-color-neutral-90);
 		cursor: pointer;
 		display: inline-flex;
+		flex-direction: row;
 		font-family: var(--newspack-ui-font-family);
 		font-size: var(--newspack-ui-font-size-s);
 		font-style: normal;
 		font-weight: 600;
 		gap: calc(var(--newspack-ui-spacer-base) / 2);
-		letter-spacing: initial; // Override for custom styles.
-		text-transform: none; // Override for custom styles.
 		justify-content: center;
+		letter-spacing: initial;
 		line-height: var(--newspack-ui-line-height-s);
 		margin-bottom: var(--newspack-ui-spacer-2);
 		min-height: var(--newspack-ui-spacer-9);
-		padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-5);
+		min-width: var(--newspack-ui-spacer-9);
+		padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-4);
 		text-decoration: none;
+		text-transform: none;
 		transition:
 			background-color 125ms ease-in-out,
 			border-color 125ms ease-in-out,
 			outline 125ms ease-in-out;
+		white-space: nowrap;
 
 		&:last-child {
 			margin-bottom: 0;
@@ -50,20 +54,56 @@
 			outline-offset: 1px;
 		}
 
+		// Button icon styles
+		&__glyph {
+			align-items: center;
+			display: inline-flex;
+			flex-shrink: 0;
+			justify-content: center;
+
+			svg {
+				fill: currentcolor;
+				height: var(--newspack-ui-spacer-5);
+				width: var(--newspack-ui-spacer-5);
+			}
+		}
+
 		// Sizes
 		&--x-small {
 			border-radius: var(--newspack-ui-border-radius-s);
 			font-size: var(--newspack-ui-font-size-xs);
 			line-height: var(--newspack-ui-line-height-xs);
-			min-height: var(--newspack-ui-spacer-6);
-			padding: calc(var(--newspack-ui-spacer-base) / 2) var(--newspack-ui-spacer-base);
+			min-height: var(--newspack-ui-spacer-7);
+			min-width: var(--newspack-ui-spacer-7);
+
+			// Default padding for text-only and text+icon buttons
+			&:not(.newspack-ui__button--icon),
+			&.newspack-ui__button--icon:has(.newspack-ui__button__label) {
+				padding: calc(0.75 * var(--newspack-ui-spacer-base)) var(--newspack-ui-spacer-2);
+			}
+
+			// Padding for icon-only buttons
+			&.newspack-ui__button--icon:not(:has(.newspack-ui__button__label)) {
+				padding: calc(0.75 * var(--newspack-ui-spacer-base));
+			}
+
+			.newspack-ui__button__glyph svg {
+				height: var(--newspack-ui-spacer-5);
+				width: var(--newspack-ui-spacer-5);
+			}
 		}
 
 		&--small {
 			font-size: var(--newspack-ui-font-size-xs);
 			line-height: var(--newspack-ui-line-height-xs);
 			min-height: var(--newspack-ui-spacer-8);
+			min-width: var(--newspack-ui-spacer-8);
 			padding: var(--newspack-ui-spacer-base) var(--newspack-ui-spacer-3);
+
+			.newspack-ui__button__glyph svg {
+				height: var(--newspack-ui-spacer-5);
+				width: var(--newspack-ui-spacer-5);
+			}
 		}
 
 		&--medium {
@@ -173,37 +213,47 @@
 		// Wide
 		&--wide {
 			display: flex;
+			justify-content: center;
 			width: 100%;
+			max-width: 100%;
 		}
 
 		// Icon-only
 		&--icon {
-			display: grid;
-			height: var(--newspack-ui-spacer-7);
+			display: inline-flex;
 			min-height: unset;
-			padding: 0;
-			place-items: center;
-			width: var(--newspack-ui-spacer-7);
+			padding: var(--newspack-ui-spacer-2);
 
-			// Sizes
-			&.newspack-ui__button--x-small {
-				height: var(--newspack-ui-spacer-7);
-				width: var(--newspack-ui-spacer-7);
+			// When there's text, don't apply icon-only styles
+			&:has(.newspack-ui__button__label) {
+				aspect-ratio: unset;
+				height: auto;
+				width: auto;
 			}
 
-			&.newspack-ui__button--small {
-				height: var(--newspack-ui-spacer-8);
-				width: var(--newspack-ui-spacer-8);
-			}
+			// When there's no text, apply icon-only styles
+			&:not(:has(.newspack-ui__button__label)) {
+				aspect-ratio: 1;
 
-			&.newspack-ui__button--medium {
-				height: var(--newspack-ui-spacer-9);
-				width: var(--newspack-ui-spacer-9);
-			}
-		}
+				&.newspack-ui__button--x-small {
+					height: var(--newspack-ui-spacer-7);
+					padding: var(--newspack-ui-spacer-base);
+					width: var(--newspack-ui-spacer-7);
+				}
 
-		svg {
-			fill: currentcolor;
+				&.newspack-ui__button--small {
+					height: var(--newspack-ui-spacer-8);
+					padding: var(--newspack-ui-spacer-base);
+					width: var(--newspack-ui-spacer-8);
+				}
+
+				&.newspack-ui__button--medium,
+				&:not(.newspack-ui__button--x-small):not(.newspack-ui__button--small) {
+					height: var(--newspack-ui-spacer-9);
+					padding: var(--newspack-ui-spacer-2);
+					width: var(--newspack-ui-spacer-9);
+				}
+			}
 		}
 
 		// Loading
