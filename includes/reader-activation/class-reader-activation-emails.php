@@ -201,26 +201,5 @@ class Reader_Activation_Emails {
 			]
 		);
 	}
-
-	/**
-	 * Send change email verification email.
-	 *
-	 * @param \WP_User $user User object.
-	 */
-	public static function send_change_email_verification_email( $user ) {
-		if ( ! WooCommerce_My_Account::is_email_change_enabled() ) {
-			return;
-		}
-		Emails::send_email(
-			self::EMAIL_TYPES['CHANGE_EMAIL'],
-			$user->data->user_email,
-			[
-				[
-					'template' => '*EMAIL_VERIFICATION_URL*',
-					'value'    => 'https://example.com',
-				],
-			]
-		);
-	}
 }
 Reader_Activation_Emails::init();
