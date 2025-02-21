@@ -61,7 +61,6 @@ class Memberships {
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
 		add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
-		add_filter( 'wc_memberships_expire_user_membership', [ __CLASS__, 'handle_wc_memberships_expire_user_membership' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -76,6 +75,7 @@ class Memberships {
 		add_filter( 'newspack_gate_content', 'do_shortcode', 11 ); // AFTER wpautop().
 
 		/** Fixes to ensure that memberships are linked to the correct active subscription. */
+		add_filter( 'wc_memberships_expire_user_membership', [ __CLASS__, 'check_user_memberships_on_expire' ], 10, 2 );
 		add_action( 'woocommerce_subscription_status_updated', [ __CLASS__, 'check_user_memberships_on_subscription_update' ], 999 );
 		add_action( 'wp_login', [ __CLASS__, 'check_user_memberships_on_login' ], 10, 2 );
 
@@ -1068,15 +1068,16 @@ class Memberships {
 	}
 
 	/**
-	 * Prevent User Membership expiring, if the linked subscription is active.
+	 * When a user membership is about to expire, ensure that it's linked to the correct subscription.
 	 *
 	 * @param bool                            $expire true will expire this membership, false will retain it - default: true, expire it.
 	 * @param \WC_Memberships_User_Membership $user_membership the User Membership object being expired.
 	 */
-	public static function handle_wc_memberships_expire_user_membership( $expire, $user_membership ) {
-		$user_id = $user_membership->get_user_id();
-		$relinked = self::maybe_relink_user_membership_subscription( $user_id );
-		if ( $relinked ) {
+	public static function check_user_memberships_on_expire( $expire, $user_membership ) {
+		$user_id                 = $user_membership->get_user_id();
+		$active_subscription_id  = self::get_user_subscription_for_membership_plan( $user_id, $user_membership->get_plan_id() );
+		if ( $active_subscription_id ) {
+			self::maybe_relink_user_membership_subscription( $user_id );
 			return false;
 		}
 
