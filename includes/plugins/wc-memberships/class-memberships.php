@@ -144,7 +144,7 @@ class Memberships {
 						__( 'User membership linked subscription updated.', 'newspack-plugin' ),
 						[
 							'user_id'             => $user_id,
-							'membership_id'       => $membership_plan_id,
+							'membership_id'       => $user_membership_id,
 							'old_subscription_id' => $linked_subscription_id,
 							'new_subscription_id' => $active_subscription_id,
 							'success'             => $updated,
