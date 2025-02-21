@@ -1,10 +1,30 @@
 .newspack-ui {
 	&__segmented-control {
+		// Base styles
 		align-items: center;
 		display: flex;
 		gap: var(--newspack-ui-spacer-2);
 		flex-direction: column;
 
+		// Wide variant
+		&--wide {
+			display: flex;
+			width: 100%;
+
+			.newspack-ui__segmented-control__tabs {
+				width: 100%;
+
+				.newspack-ui__button {
+					flex: 1 1 0; // Equal width distribution
+					min-width: 0;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+			}
+		}
+
+		// Tabs container
 		&__tabs {
 			background: var(--newspack-ui-color-neutral-10);
 			border-radius: var(--newspack-ui-border-radius-m);
@@ -14,12 +34,14 @@
 			justify-content: center;
 			padding: calc(var(--newspack-ui-spacer-base) / 2);
 
+			// Button styles
 			.newspack-ui__button {
 				background: transparent;
 				border: 1px solid transparent;
 				border-radius: var(--newspack-ui-border-radius-xs);
 				color: var(--newspack-ui-color-neutral-60);
 				cursor: pointer;
+				margin: 0;
 
 				&:hover {
 					background: transparent;
@@ -42,10 +64,15 @@
 					background: var(--newspack-ui-color-neutral-0);
 					border-color: var(--newspack-ui-color-neutral-30);
 					color: var(--newspack-ui-color-neutral-90);
+
+					&:hover {
+						background: var(--newspack-ui-color-neutral-0);
+					}
 				}
 			}
 		}
 
+		// Content panel styles
 		&__content {
 			width: 100%;
 		}
