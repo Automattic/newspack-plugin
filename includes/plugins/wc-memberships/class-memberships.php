@@ -1127,7 +1127,7 @@ class Memberships {
 			$membership_plan_id      = $user_membership->get_plan_id();
 			$user_membership_id      = $user_membership->get_id();
 			$subscription_membership = new \WC_Memberships_Integration_Subscriptions_User_Membership( $user_membership_id );
-			$active_subscription_id     = self::get_user_subscription_for_membership_plan( $user_id, $subscription_membership->get_plan_id() );
+			$active_subscription_id  = self::get_user_subscription_for_membership_plan( $user_id, $subscription_membership->get_plan_id() );
 			if ( $subscription_membership && ! empty( $active_subscription_id ) ) {
 				$linked_subscription_id = (int) $subscription_membership->get_subscription_id();
 
