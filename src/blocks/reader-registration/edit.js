@@ -319,9 +319,10 @@ export default function ReaderRegistrationEdit( {
 										<div className="newspack-ui">
 											<button className="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
 												<span
+													className="newspack-ui__button__glyph"
 													dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
 												/>
-												{ __( 'Sign in with Google', 'newspack-plugin' ) }
+												<span className="newspack-ui__button__text">{ __( 'Sign in with Google', 'newspack-plugin' ) }</span>
 											</button>
 											<div className="newspack-ui__word-divider">
 												{ __( 'Or', 'newspack-plugin' ) }
