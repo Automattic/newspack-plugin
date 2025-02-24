@@ -16,6 +16,7 @@ import {
 	mapMarker,
 	megaphone,
 	payment,
+	plus,
 	post,
 	postDate,
 	postList,
@@ -24,6 +25,7 @@ import {
 	settings,
 	store,
 	tool,
+	trash,
 } from '@wordpress/icons';
 
 /**
@@ -44,6 +46,7 @@ export const icons = {
 	mapMarker,
 	megaphone,
 	payment,
+	plus,
 	post,
 	postDate,
 	postList,
@@ -52,6 +55,7 @@ export const icons = {
 	settings,
 	store,
 	tool,
+	trash,
 	// Custom
 	gift,
 };

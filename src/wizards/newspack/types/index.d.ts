@@ -34,6 +34,13 @@ declare global {
 				href: string;
 				title: string;
 				icon: keyof typeof icons;
+				id: string;
+			}[];
+			availableQuickActions: {
+				href: string;
+				title: string;
+				icon: keyof typeof icons;
+				id: string;
 			}[];
 			sections: {
 				[ k: string ]: {
@@ -103,6 +110,14 @@ declare global {
 			site: string;
 		};
 	}
+}
+
+interface Status {
+	label: string;
+	statuses: Record< string, string >;
+	endpoint: string;
+	configLink: string;
+	dependencies: Record< string, { label: string; isActive: boolean } >;
 }
 
 export {};
