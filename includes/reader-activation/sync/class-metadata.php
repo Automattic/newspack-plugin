@@ -7,6 +7,7 @@
 
 namespace Newspack\Reader_Activation\Sync;
 
+use Newspack\Donations;
 use Newspack\Reader_Activation;
 use Newspack\Logger;
 
@@ -36,18 +37,28 @@ class Metadata {
 	public static $keys = [];
 
 	/**
+	 * Initializes hooks.
+	 */
+	public static function init_hooks() {
+		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
+	}
+
+	/**
 	 * Get the metadata keys map for Reader Activation.
 	 *
 	 * @return array List of fields.
 	 */
 	public static function get_keys() {
 		if ( empty( self::$keys ) ) {
+			// Only get Woo fields if using Woo.
+			$fields = Donations::is_platform_wc() ? self::get_all_fields() : self::get_basic_fields();
+
 			/**
 			 * Filters the list of key/value pairs for metadata fields to be synced to the connected ESP.
 			 *
 			 * @param array $keys The list of key/value pairs for metadata fields to be synced to the connected ESP.
 			 */
-			self::$keys = \apply_filters( 'newspack_ras_metadata_keys', self::get_all_fields() );
+			self::$keys = \apply_filters( 'newspack_ras_metadata_keys', $fields );
 		}
 		return self::$keys;
 	}
@@ -446,3 +457,4 @@ class Metadata {
 		return apply_filters( 'newspack_esp_sync_normalize_contact', $contact );
 	}
 }
+Metadata::init_hooks();
