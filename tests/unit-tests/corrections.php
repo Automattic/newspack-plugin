@@ -34,6 +34,7 @@ class Test_Corrections extends WP_UnitTestCase {
 		Corrections::init();
 
 		self::$post_id = $this->factory->post->create( [ 'post_type' => 'post' ] );
+		update_post_meta( self::$post_id, Corrections::CORRECTIONS_ACTIVE_META, true );
 	}
 
 	/**
@@ -486,5 +487,49 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$clarification_type = Corrections::get_correction_type( $clarification_id );
 		$this->assertEquals( 'Clarification', $clarification_type, 'The correction type should be "Clarification".' );
+	}
+
+	/**
+	 * Test that the corrections shortcode is handled.
+	 *
+	 * @covers Corrections::handle_corrections_shortcode
+	 */
+	public function test_handle_corrections_shortcode() {
+		$correction_1 = array(
+			'content' => 'Test correction content',
+			'type'    => 'correction',
+			'date'    => current_time( 'mysql' ),
+		);
+
+		$correction_1_id = Corrections::add_correction( self::$post_id, $correction_1 );
+		$this->assertNotWPError( $correction_1_id );
+		$this->assertNotEquals( 0, $correction_1_id );
+
+		$correction_2 = array(
+			'content' => 'Test correction content 2',
+			'type'    => 'clarification',
+			'date'    => current_time( 'mysql' ),
+		);
+
+		$correction_2_id = Corrections::add_correction( self::$post_id, $correction_2 );
+		$this->assertNotWPError( $correction_2_id );
+		$this->assertNotEquals( 0, $correction_2_id );
+
+		$page = $this->factory->post->create_and_get(
+			[
+				'post_type'    => 'page',
+				'post_content' => 'Test Page:- [corrections]',
+			]
+		);
+
+		$corrections_shortcode_output = do_shortcode( $page->post_content );
+		$this->assertStringNotContainsString( '[corrections]', $corrections_shortcode_output, 'The corrections shortcode should be removed from the output.' );
+
+		$this->assertStringContainsString( 'Test correction content', $corrections_shortcode_output, 'The correction content should be included in the output.' );
+		$this->assertStringContainsString( 'Test correction content 2', $corrections_shortcode_output, 'The correction content should be included in the output.' );
+		$correction_1_heading = sprintf( 'Correction on %s', get_the_date( 'M j, Y', $correction_1_id ) );
+		$this->assertStringContainsString( $correction_1_heading, $corrections_shortcode_output, 'The correction date should be included in the output.' );
+		$correction_2_heading = sprintf( 'Correction on %s', get_the_date( 'M j, Y', $correction_2_id ) );
+		$this->assertStringContainsString( $correction_2_heading, $corrections_shortcode_output, 'The correction date should be included in the output.' );
 	}
 }
