@@ -22,6 +22,7 @@ class WooCommerce_My_Account {
 	const DELETE_ACCOUNT_FORM          = 'delete-account-form';
 	const SEND_MAGIC_LINK_PARAM        = 'magic-link';
 	const AFTER_ACCOUNT_DELETION_PARAM = 'account-deleted';
+	const CANCEL_EMAIL_CHANGE_PARAM    = 'cancel-email-change';
 	const VERIFY_EMAIL_CHANGE_PARAM    = 'verify-email-change';
 	const PENDING_EMAIL_CHANGE_META    = 'newspack_pending_email_change';
 
@@ -50,6 +51,7 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 			\add_action( 'woocommerce_save_account_details', [ __CLASS__, 'handle_email_change_request' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'handle_cancel_email_change' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_verify_email_change' ] );
 			\add_filter( 'send_email_change_email', '__return_false' );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
@@ -791,6 +793,34 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Get email change verification url.
+	 *
+	 * @return string
+	 */
+	public static function get_email_change_verification_url() {
+		return \add_query_arg(
+			[
+				self::VERIFY_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::VERIFY_EMAIL_CHANGE_PARAM ),
+			],
+			\home_url()
+		);
+	}
+
+	/**
+	 * Get email change cancellation url.
+	 *
+	 * @return string
+	 */
+	public static function get_email_change_cancellation_url() {
+		return \add_query_arg(
+			[
+				self::CANCEL_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::CANCEL_EMAIL_CHANGE_PARAM ),
+			],
+			\home_url()
+		);
+	}
+
+	/**
 	 * Handle email change request.
 	 *
 	 * @param int $user_id User ID.
@@ -828,12 +858,11 @@ class WooCommerce_My_Account {
 							[
 								[
 									'template' => '*EMAIL_VERIFICATION_URL*',
-									'value'    => \add_query_arg(
-										[
-											self::VERIFY_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::VERIFY_EMAIL_CHANGE_PARAM ),
-										],
-										\home_url()
-									),
+									'value'    => self::get_email_change_verification_url(),
+								],
+								[
+									'template' => '*EMAIL_CANCELLATION_URL*',
+									'value'    => self::get_email_change_cancellation_url(),
 								],
 							]
 						)
@@ -879,6 +908,7 @@ class WooCommerce_My_Account {
 		if ( ! $nonce ) {
 			return;
 		}
+		$error = __( 'Something went wrong.', 'newspack-plugin' );
 		if ( \wp_verify_nonce( $nonce, self::VERIFY_EMAIL_CHANGE_PARAM ) ) {
 			$error     = __( 'Something went wrong.', 'newspack-plugin' );
 			$user_id   = \get_current_user_id();
@@ -905,6 +935,27 @@ class WooCommerce_My_Account {
 			}
 		} else {
 			\wc_add_notice( $error, 'error' );
+		}
+		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
+		exit;
+	}
+
+	/**
+	 * Handle email change cancellation.
+	 */
+	public static function handle_cancel_email_change() {
+		if ( ! self::is_email_change_enabled() || ! \is_user_logged_in() ) {
+			return;
+		}
+		$nonce = filter_input( INPUT_GET, self::CANCEL_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $nonce ) {
+			return;
+		}
+		if ( \wp_verify_nonce( $nonce, self::CANCEL_EMAIL_CHANGE_PARAM ) ) {
+			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
+			\wc_add_notice( __( 'Your email change request has been cancelled.', 'newspack-plugin' ) );
+		} else {
+			\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
 		}
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;

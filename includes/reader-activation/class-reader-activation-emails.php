@@ -163,6 +163,10 @@ class Reader_Activation_Emails {
 							'label'    => __( 'the verification link', 'newspack-plugin' ),
 							'template' => '*EMAIL_VERIFICATION_URL*',
 						],
+						[
+							'label'    => __( 'the email change cancellation link', 'newspack-plugin' ),
+							'template' => '*EMAIL_CANCELLATION_URL*',
+						],
 					]
 				),
 			];
