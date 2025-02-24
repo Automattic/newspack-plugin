@@ -55,7 +55,7 @@
 		"deep-map-keys": "^2.0.1",
 		"js-cookie": "^3.0.5",
 		"moment": "^2.30.1",
-		"moment-range": "^3.1.1",
+		"moment-range": "^4.0.2",
 		"qs": "^6.13.1",
 		"react-daterange-picker": "^2.0.1",
 		"react-router-dom": "^5.3.4",
