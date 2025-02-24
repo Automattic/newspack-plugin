@@ -186,7 +186,7 @@ class ESP_Sync extends Sync {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	protected static function get_contact_data( $user_id ) {
+	public static function get_contact_data( $user_id ) {
 		$user = \get_userdata( $user_id );
 
 		$customer = new \WC_Customer( $user_id );
