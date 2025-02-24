@@ -56,7 +56,7 @@ class WooCommerce {
 	 * @return \WC_Order|false Order object or false.
 	 */
 	private static function get_current_product_order_for_sync( $customer ) {
-		if ( ! is_a( $customer, 'WC_Customer' || ! function_exists( 'WC' ) ) ) {
+		if ( ! class_exists( 'WC_Customer' ) || ! is_a( $customer, 'WC_Customer' ) ) {
 			return false;
 		}
 
