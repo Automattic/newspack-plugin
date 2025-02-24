@@ -532,4 +532,56 @@ class Test_Corrections extends WP_UnitTestCase {
 		$correction_2_heading = sprintf( 'Correction on %s', get_the_date( 'M j, Y', $correction_2_id ) );
 		$this->assertStringContainsString( $correction_2_heading, $corrections_shortcode_output, 'The correction date should be included in the output.' );
 	}
+
+	/**
+	 * Test that the corrections are output on the post.
+	 *
+	 * @covers Corrections::output_corrections_on_post
+	 */
+	public function test_output_corrections_on_post_appends_markup() {
+		$correction_1 = array(
+			'content' => 'Test correction content',
+			'type'    => 'correction',
+			'date'    => current_time( 'mysql' ),
+		);
+
+		$correction_1_id = Corrections::add_correction( self::$post_id, $correction_1 );
+		$this->assertNotWPError( $correction_1_id );
+		$this->assertNotEquals( 0, $correction_1_id );
+
+		$correction_2 = array(
+			'content' => 'Test correction content 2',
+			'type'    => 'clarification',
+			'date'    => current_time( 'mysql' ),
+		);
+
+		$correction_2_id = Corrections::add_correction( self::$post_id, $correction_2 );
+		$this->assertNotWPError( $correction_2_id );
+		$this->assertNotEquals( 0, $correction_2_id );
+
+		// Visit the post.
+		$this->go_to( get_permalink( self::$post_id ) );
+		$this->assertQueryTrue( 'is_single', 'is_singular' );
+		$post_content = get_the_content();
+
+		$corrections_markup = Corrections::output_corrections_on_post( $post_content );
+
+		$correction_1_heading = sprintf(
+			'%s, %s %s',
+			Corrections::get_correction_type( $correction_1_id ),
+			get_the_date( get_option( 'date_format' ), $correction_1_id ),
+			get_the_time( get_option( 'time_format' ), $correction_1_id )
+		);
+		$this->assertStringContainsString( $correction_1_heading, $corrections_markup, 'The correction date should be included in the output.' );
+		$this->assertStringContainsString( 'Test correction content', $corrections_markup, 'The correction content should be included in the output.' );
+
+		$correction_2_heading = sprintf(
+			'%s, %s %s',
+			Corrections::get_correction_type( $correction_2_id ),
+			get_the_date( get_option( 'date_format' ), $correction_2_id ),
+			get_the_time( get_option( 'time_format' ), $correction_2_id )
+		);
+		$this->assertStringContainsString( $correction_2_heading, $corrections_markup, 'The correction date should be included in the output.' );
+		$this->assertStringContainsString( 'Test correction content 2', $corrections_markup, 'The correction content should be included in the output.' );
+	}
 }
