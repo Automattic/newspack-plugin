@@ -448,7 +448,7 @@ class Corrections {
 	 * @return string the post content with corrections.
 	 */
 	public static function output_corrections_on_post( $content ) {
-		if ( is_admin() || ! is_single() ) {
+		if ( is_admin() || ! is_single() || wp_is_block_theme() ) {
 			return $content;
 		}
 
