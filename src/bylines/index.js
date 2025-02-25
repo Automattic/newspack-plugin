@@ -21,7 +21,12 @@ import { useEffect, useState, useRef } from 'react';
  */
 import './style.scss';
 
-const TokenInlineBlock = ( { token, onInsert } ) => {
+const TokenInlineBlock = ( { token, onInsert, onRendered } ) => {
+	useEffect( () => {
+		// Notify parent that this component has rendered.
+		onRendered();
+	}, [ onRendered ] );
+
 	return (
 		<>
 			<span
@@ -45,6 +50,8 @@ const TokenInlineBlock = ( { token, onInsert } ) => {
 };
 
 const BylinesSettingsPanel = () => {
+	const [ isChildReady, setIsChildReady ] = useState( false );
+
 	/** Tokens with authors assigned to the post */
 	const [ tokens, setTokens ] = useState( [] );
 
@@ -174,8 +181,11 @@ const BylinesSettingsPanel = () => {
 					let rootElement;
 					let tokenID = '';
 
+					// If mutation.type is characterData, target the outer span element.
+					// Otherwise, on childList and subtree, remove the target itself.
 					if ( mutation.type === 'characterData' ) {
-						rootElement = mutation.target.parentNode ?? null;
+						rootElement =
+							mutation.target.parentNode.parentNode ?? null;
 						tokenID = rootElement?.dataset?.token ?? '';
 					} else {
 						rootElement = mutation.target ?? null;
@@ -276,7 +286,7 @@ const BylinesSettingsPanel = () => {
 					} );
 				}
 
-				// Update tokensInUse
+				// Update tokensInUse.
 				tokensInUse.current = tokensInUse.current.filter(
 					token => token !== Number( event.target.dataset.token )
 				);
@@ -323,53 +333,37 @@ const BylinesSettingsPanel = () => {
 	/**
 	 * Initialize on DOM ready
 	 *
-	 * Fill tokenInUse on DOM ready analyzing the byline element.
-	 * Add Mutation Observer to byline element.
+	 * Fill tokenInUse analyzing the byline element, and
+	 * add Mutation Observer to byline element after child element is ready.
 	 */
 	useEffect( () => {
-		function handleDomReady() {
-			if (
-				document.readyState === 'complete' &&
-				document.querySelector( '.newspack-byline-textarea' )
-			) {
-				const bylineElement = document.querySelector(
-					'.newspack-byline-textarea'
-				);
-
-				const tokenElements = bylineElement.querySelectorAll(
-					'span button[data-token]'
-				);
-
-				// Fill tokensInUse
-				tokenElements.forEach( tokenElement => {
-					tokensInUse.current = [
-						...tokensInUse.current,
-						Number( tokenElement.dataset.token ),
-					];
-				} );
-
-				// Add Mutation Observer
-				addMutationObserverToByline( bylineElement );
-
-				// Remove the listener to prevent it from firing again
-				document.removeEventListener(
-					'readystatechange',
-					handleDomReady
-				);
-			}
+		// Wait for child component that will be analyzed to be ready.
+		if ( ! isChildReady ) {
+			return;
 		}
 
-		// Check immediately in case the DOM is already ready
-		handleDomReady();
+		const bylineElement = document.querySelector(
+			'.newspack-byline-textarea'
+		);
 
-		// Add a listener for future state changes
-		document.addEventListener( 'readystatechange', handleDomReady );
+		const tokenElements = bylineElement.querySelectorAll(
+			'span button[data-token]'
+		);
 
-		return () => {
-			// Clean up the event listener on unmount
-			document.removeEventListener( 'readystatechange', handleDomReady );
-		};
-	}, [] );
+		// Fill tokensInUse.
+		tokenElements.forEach( tokenElement => {
+			tokensInUse.current = [
+				...tokensInUse.current,
+				Number( tokenElement.dataset.token ),
+			];
+		} );
+
+		// Force component update after tokensInUse updated.
+		forceUpdate( {} );
+
+		// Add Mutation Observer.
+		addMutationObserverToByline( bylineElement );
+	}, [ isChildReady ] );
 
 	return (
 		<PluginDocumentSettingPanel
@@ -399,6 +393,9 @@ const BylinesSettingsPanel = () => {
 										key={ token.id }
 										token={ token }
 										onInsert={ () => insertToken( token ) }
+										onRendered={ () =>
+											setIsChildReady( true )
+										}
 									/>
 								)
 						) }
