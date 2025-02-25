@@ -1013,8 +1013,8 @@ class WooCommerce_My_Account {
 			return;
 		}
 		$list_id          = Reader_Activation::get_esp_master_list_id();
-		$contact          = Metadata::normalize_contact_data( $contact );
 		$existing_contact = array_merge( $contact, [ 'email' => $old_email ] );
+		$contact          = Metadata::normalize_contact_data( $contact );
 		$update           = \Newspack_Newsletters_Contacts::upsert( $contact, $list_id, 'Email_Change', $existing_contact );
 		if ( is_wp_error( $update ) ) {
 			// TODO: reschedule the sync if failure is not due to existing email.
