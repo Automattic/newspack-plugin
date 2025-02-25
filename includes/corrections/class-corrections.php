@@ -491,7 +491,7 @@ class Corrections {
 		<!-- /wp:group -->
 		<?php
 		$markup = do_blocks( ob_get_clean() );
-		return 'top' === get_theme_mod( 'corrections_location', 'bottom' ) ? $markup . $content : $content . $markup;
+		return 'top' === get_theme_mod( self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING, 'bottom' ) ? $markup . $content : $content . $markup;
 	}
 
 	/**
