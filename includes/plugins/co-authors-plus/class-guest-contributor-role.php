@@ -272,6 +272,47 @@ class Guest_Contributor_Role {
 	}
 
 	/**
+     * Generate a unique dummy email address with a random suffix.
+     *
+     * @param string $display_name The user display name.
+     * @return string|WP_Error 
+     */
+	public static function generate_dummy_email_with_random( $display_name ): string|WP_Error {
+
+		// sanitize input.
+		$sanitized_display_name = sanitize_title( sanitize_user( trim( $display_name ), true ) );
+		if ( empty( $sanitized_display_name ) ) {
+			return new WP_Error( 'Sanitization created a blank string.' );
+		}
+
+		// hard code email column char length from db.
+		$db_max_chars = 100; 
+
+		// initial dummy email suffix.
+		$email_suffix = '@' . Guest_Contributor_Role::get_dummy_email_domain();
+
+		// stop infinite loops.
+		$attempts = 0;
+
+		do {
+
+			if( ++$attempts > 9999 ) {
+				// stop...this could cause an ininite loop.
+				return new WP_Error( 'Might be in an infinite loop.' );
+			}
+
+			// try a different random suffix on each loop
+			$suffix = '-' . rand( 11111, 99999 ) . $email_suffix;
+
+			// make room if needed for the random suffix, then add it to the string.
+			$email_out = mb_substr( $sanitized_display_name, 0, $db_max_chars - mb_strlen( $suffix ) ) . $suffix;
+
+		} while( \email_exists( $email_out ) );
+
+		return $email_out;
+	}
+
+	/**
 	 * Filters user validation to allow empty emails for guest authors
 	 *
 	 * When creating a new user, also automatically generate a username from the display name.
@@ -331,6 +372,44 @@ class Guest_Contributor_Role {
 		}
 
 		return $username;
+	}
+
+	/**
+	 * Generate a unique username with a random suffix.
+	 *
+	 * @param string $display_name The user display name.
+	 * @return string|WP_Error
+	 */ 
+	public static function generate_username_with_random( $display_name ): string|WP_Error {
+
+		// sanitize in the same way wp_insert_user would.
+		$sanitized_display_name = sanitize_title( sanitize_user( trim( $display_name ), true ) );
+		if ( empty( $sanitized_display_name ) ) {
+			return new WP_Error( 'Sanitization created a blank string.' );
+		}
+
+		// hard code char length from db.
+		$db_max_chars = 60; 
+
+		// stop infinite loops.
+		$attempts = 0;
+
+		do {
+
+			if( ++$attempts > 9999 ) {
+				// stop...this could cause an ininite loop.
+				return new WP_Error( 'Might be in an infinite loop.' );
+			}
+
+			// try a different random suffix on each loop
+			$suffix = '-' . rand( 11111, 99999 );
+
+			// make room in the username if needed for the random suffix, then add it to the string.
+			$username_out = mb_substr( $sanitized_display_name, 0, $db_max_chars - mb_strlen( $suffix ) ) . $suffix;
+
+		} while( \username_exists( $username_out ) );
+
+		return $username_out;
 	}
 
 	/**
@@ -548,6 +627,89 @@ class Guest_Contributor_Role {
 			}
 		}
 		return $value;
+	}
+
+    /**
+     * Create a Guest Contributor by Display Name.
+     *
+     * @param string $display_name The Display Name of the new user.
+	 * @param bool   $force        Force the creation even if existing user(s) found.
+	 * @return int|array|WP_error  Inserted user ID, array of existing user ID(s), or WP_Error.
+     */
+    public static function create_guest_contributor_by_display_name( $display_name, $force = false ): int|array|WP_Error {
+        
+		// Trim value for better matching (since the DB value will have already been trimmed).
+		$display_name = trim( $display_name );
+
+		// Check for core bug when display name is > 250: https://core.trac.wordpress.org/ticket/53109
+		if ( empty( $display_name) || mb_strlen( $display_name ) > 250 ) {
+			return new WP_Error( 'Display Name must be between 1 and 250 characters.' );
+		}
+		
+		// If we're not forcing user creation, check for existing user(s) - could be multiple.
+		if ( ! $force ) {
+			// SQL match is case-insensitive, and also if display name starts/ends with "*"
+			// like " ** Special Person ** " then sql will wildcard match.
+			// To fix both these issues, exact match will be performed in foreach below.
+			$get_users = get_users( array(
+				'search'         => $display_name, 
+				'search_columns' => array( 'display_name' ),
+				'role'           => self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+				'fields'         => array( 'ID', 'display_name' ),
+				'orderby'       => 'ID',
+			) );
+			// Get ids of users with exact match on display name.
+			$user_matches = array_map(
+				fn( $user ) => $user->ID, 
+				array_filter( $get_users, fn( $user ) => $user->display_name === $display_name )
+			);
+			if ( ! empty( $user_matches ) ) {
+				return $user_matches;
+			}
+		}
+
+		// New user data.
+		$userdata = [
+			'display_name' => $display_name,
+			'nickname'     => $display_name, // set value so it doesn't get set to user_login.
+			'user_pass'    => wp_generate_password(), // generate else wp will write to debug.log.
+			'role'         => Guest_Contributor_Role::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
+		];
+
+		// Cut down on insert errors and increase security by getting a unique user login with random value.
+		$userdata['user_login'] = self::generate_username_with_random( $display_name );
+		if ( is_wp_error( $userdata['user_login'] ) ) {
+			return new WP_Error( "Function generate_username_with_random() failed with wp_error: " . json_encode( $userdata['user_login'] ) );
+		}
+
+		// Cut down on insert errors and increase security by getting a unique user email with random value.
+		$userdata['user_email'] = self::generate_dummy_email_with_random( $display_name );
+		if ( is_wp_error( $userdata['user_email'] ) ) {
+			return new WP_Error( "Function generate_dummy_email_with_random() failed with wp_error: " . json_encode( $userdata['user_email'] ) );
+		}
+
+		// Set user_nicename ourselves for better security and nicer urls otherwise it will be created from user_login.
+		// If duplicate already in db, wordpress will add -2, -3, etc.
+		$userdata['user_nicename'] = mb_substr( sanitize_title( sanitize_user( $display_name, true ) ), 0, 50 );
+		if ( empty( $userdata['user_nicename'] ) ) {
+			// this can happen if sanitization produced empty string. Ex: $display_name = "&nbsp; <div>"
+			return new WP_Error( "User nicename can not be blank." );
+		}
+
+		// Insert.
+		$user_id = wp_insert_user( $userdata );
+
+		// Fail on any errors.
+		if ( is_wp_error( $user_id ) ) {
+			return new WP_Error( "wp_insert_user failed with wp_error: " . json_encode( $user_id ) );
+		}
+		// Fail if wp_insert_user didn't return a positive int (return of 0 can happen on other failures...)
+		// core bug that results in 0 integer value: https://core.trac.wordpress.org/ticket/53109
+		if ( ! is_int( $user_id ) || ! ( $user_id > 0 ) ) {
+			return new WP_Error( "wp_insert_user returned a non-positive integer: " . json_encode( $user_id ) );
+		}
+
+		return $user_id;
 	}
 }
 Guest_Contributor_Role::initialize();
