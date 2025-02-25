@@ -50,6 +50,7 @@ const TokenInlineBlock = ( { token, onInsert, onRendered } ) => {
 };
 
 const BylinesSettingsPanel = () => {
+	/** Set when child component DOM is ready */
 	const [ isChildReady, setIsChildReady ] = useState( false );
 
 	/** Tokens with authors assigned to the post */
@@ -60,9 +61,6 @@ const BylinesSettingsPanel = () => {
 
 	/** Reference to document to add event listners */
 	const documentRef = useRef( document );
-
-	/** Force update, necessary to update component after DOM is manipulated directly */
-	const [ , forceUpdate ] = useState( {} );
 
 	/** Current post ID */
 	const { postId } = useSelect(
@@ -98,6 +96,27 @@ const BylinesSettingsPanel = () => {
 	const [ isEnabled, setIsEnabled ] = useState(
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
+
+	/**
+	 * Update tokenInUse looking up for tokens into the byline element content.
+	 * @param {Element} bylineElement
+	 */
+	const setTokensInUse = bylineElement => {
+		const tokenElements = bylineElement.querySelectorAll(
+			'span button[data-token]'
+		);
+
+		// Cleanup tokensInUse.
+		tokensInUse.current = [];
+
+		// Fill tokensInUse.
+		tokenElements.forEach( tokenElement => {
+			tokensInUse.current = [
+				...tokensInUse.current,
+				Number( tokenElement.dataset.token ),
+			];
+		} );
+	};
 
 	/**
 	 * Transform coAuthors into an object expected to be used as tokens
@@ -140,8 +159,6 @@ const BylinesSettingsPanel = () => {
 		bylineElement.innerHTML =
 			bylineElement.innerHTML + ' ' + tokenElement + '&nbsp;';
 
-		tokensInUse.current = [ ...tokensInUse.current, token.id ];
-
 		// Update byline meta
 		editPost( {
 			meta: {
@@ -149,8 +166,7 @@ const BylinesSettingsPanel = () => {
 			},
 		} );
 
-		// Force component update after DOM manipulated directly.
-		forceUpdate( {} );
+		setTokensInUse( bylineElement );
 	};
 
 	/**
@@ -179,17 +195,14 @@ const BylinesSettingsPanel = () => {
 			for ( const mutation of mutationList ) {
 				if ( mutationTypes.includes( mutation.type ) ) {
 					let rootElement;
-					let tokenID = '';
 
 					// If mutation.type is characterData, target the outer span element.
 					// Otherwise, on childList and subtree, remove the target itself.
 					if ( mutation.type === 'characterData' ) {
 						rootElement =
 							mutation.target.parentNode.parentNode ?? null;
-						tokenID = rootElement?.dataset?.token ?? '';
 					} else {
 						rootElement = mutation.target ?? null;
-						tokenID = rootElement?.dataset?.token ?? '';
 					}
 
 					// Remove token element.
@@ -198,9 +211,6 @@ const BylinesSettingsPanel = () => {
 						rootElement?.matches?.( '.token-inline-block' )
 					) {
 						rootElement.remove();
-
-						// Force component update after DOM manipulated directly.
-						forceUpdate( {} );
 					}
 
 					// Update byline meta.
@@ -210,15 +220,11 @@ const BylinesSettingsPanel = () => {
 								bylineElement.innerHTML,
 						},
 					} );
-
-					// Update tokensInUse.
-					if ( tokenID ) {
-						tokensInUse.current = tokensInUse.current.filter(
-							token => token !== Number( tokenID )
-						);
-					}
 				}
 			}
+
+			// Update tokensInUse.
+			setTokensInUse( bylineElement );
 		};
 
 		const observer = new MutationObserver( callback );
@@ -284,15 +290,9 @@ const BylinesSettingsPanel = () => {
 								bylineElement.innerHTML,
 						},
 					} );
+
+					setTokensInUse( bylineElement );
 				}
-
-				// Update tokensInUse.
-				tokensInUse.current = tokensInUse.current.filter(
-					token => token !== Number( event.target.dataset.token )
-				);
-
-				// Force component update after DOM manipulated directly.
-				forceUpdate( {} );
 			}
 		} );
 
@@ -346,20 +346,7 @@ const BylinesSettingsPanel = () => {
 			'.newspack-byline-textarea'
 		);
 
-		const tokenElements = bylineElement.querySelectorAll(
-			'span button[data-token]'
-		);
-
-		// Fill tokensInUse.
-		tokenElements.forEach( tokenElement => {
-			tokensInUse.current = [
-				...tokensInUse.current,
-				Number( tokenElement.dataset.token ),
-			];
-		} );
-
-		// Force component update after tokensInUse updated.
-		forceUpdate( {} );
+		setTokensInUse( bylineElement );
 
 		// Add Mutation Observer.
 		addMutationObserverToByline( bylineElement );
