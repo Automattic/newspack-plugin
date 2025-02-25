@@ -795,28 +795,17 @@ class WooCommerce_My_Account {
 	/**
 	 * Get email change verification url.
 	 *
-	 * @return string
-	 */
-	public static function get_email_change_verification_url() {
-		return \add_query_arg(
-			[
-				self::VERIFY_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::VERIFY_EMAIL_CHANGE_PARAM ),
-			],
-			\home_url()
-		);
-	}
-
-	/**
-	 * Get email change cancellation url.
+	 * @param string $param The email change param.
+	 * @param string $value The email change param value.
 	 *
 	 * @return string
 	 */
-	public static function get_email_change_cancellation_url() {
+	public static function get_email_change_url( $param, $value ) {
 		return \add_query_arg(
 			[
-				self::CANCEL_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::CANCEL_EMAIL_CHANGE_PARAM ),
+				$param => \wp_hash( $value ),
 			],
-			\home_url()
+			\wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) )
 		);
 	}
 
@@ -858,11 +847,11 @@ class WooCommerce_My_Account {
 							[
 								[
 									'template' => '*EMAIL_VERIFICATION_URL*',
-									'value'    => self::get_email_change_verification_url(),
+									'value'    => self::get_email_change_url( self::VERIFY_EMAIL_CHANGE_PARAM, $new_email ),
 								],
 								[
 									'template' => '*EMAIL_CANCELLATION_URL*',
-									'value'    => self::get_email_change_cancellation_url(),
+									'value'    => self::get_email_change_url( self::CANCEL_EMAIL_CHANGE_PARAM, $old_email ),
 								],
 							]
 						)
@@ -904,34 +893,30 @@ class WooCommerce_My_Account {
 		if ( ! self::is_email_change_enabled() || ! \is_user_logged_in() ) {
 			return;
 		}
-		$nonce = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( ! $nonce ) {
+		$secret = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $secret ) {
 			return;
 		}
-		$error = __( 'Something went wrong.', 'newspack-plugin' );
-		if ( \wp_verify_nonce( $nonce, self::VERIFY_EMAIL_CHANGE_PARAM ) ) {
-			$error     = __( 'Something went wrong.', 'newspack-plugin' );
-			$user_id   = \get_current_user_id();
-			$new_email = \get_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, true );
-			if ( ! $new_email ) {
-				\wc_add_notice( $error, 'error' );
+		$error     = __( 'Something went wrong.', 'newspack-plugin' );
+		$new_email = \get_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, true );
+		$old_email = \wp_get_current_user()->user_email;
+		$user_id   = \get_current_user_id();
+		if ( $new_email && \wp_hash( $old_email ) === $secret ) ) {
+			$update = \wp_update_user(
+				[
+					'ID'         => $user_id,
+					'user_email' => $new_email,
+				]
+			);
+			if ( $update ) {
+				$customer = new \WC_Customer( $user_id );
+				$customer->set_billing_email( $new_email );
+				$customer->save();
+				self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
+				\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
+				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
 			} else {
-				$update = \wp_update_user(
-					[
-						'ID'         => $user_id,
-						'user_email' => $new_email,
-					]
-				);
-				if ( $update ) {
-					$customer = new \WC_Customer( $user_id );
-					$customer->set_billing_email( $new_email );
-					$customer->save();
-					self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
-					\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
-					\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
-				} else {
-					\wc_add_notice( $error, 'error' );
-				}
+				\wc_add_notice( $error, 'error' );
 			}
 		} else {
 			\wc_add_notice( $error, 'error' );
@@ -947,11 +932,12 @@ class WooCommerce_My_Account {
 		if ( ! self::is_email_change_enabled() || ! \is_user_logged_in() ) {
 			return;
 		}
-		$nonce = filter_input( INPUT_GET, self::CANCEL_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( ! $nonce ) {
+		$secret = filter_input( INPUT_GET, self::CANCEL_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $secret ) {
 			return;
 		}
-		if ( \wp_verify_nonce( $nonce, self::CANCEL_EMAIL_CHANGE_PARAM ) ) {
+		$current_email = \wp_get_current_user()->user_email;
+		if ( \wp_hash( $current_email ) === $secret ) {
 			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
 			\wc_add_notice( __( 'Your email change request has been cancelled.', 'newspack-plugin' ) );
 		} else {
