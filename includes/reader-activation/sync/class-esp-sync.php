@@ -93,12 +93,13 @@ class ESP_Sync extends Sync {
 	/**
 	 * Sync contact to the ESP.
 	 *
-	 * @param array  $contact The contact data to sync.
-	 * @param string $context The context of the sync. Defaults to static::$context.
+	 * @param array      $contact The contact data to sync.
+	 * @param string     $context The context of the sync. Defaults to static::$context.
+	 * @param array|null $existing_contact Optional. The existing contact data to compare against.
 	 *
 	 * @return true|\WP_Error True if succeeded or WP_Error.
 	 */
-	public static function sync( $contact, $context = '' ) {
+	public static function sync( $contact, $context = '', $existing_contact = null ) {
 		$can_sync = static::can_esp_sync( true );
 		if ( $can_sync->has_errors() ) {
 			return $can_sync;
@@ -129,7 +130,7 @@ class ESP_Sync extends Sync {
 
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
 
-		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
+		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context, $existing_contact );
 
 		return \is_wp_error( $result ) ? $result : true;
 	}
