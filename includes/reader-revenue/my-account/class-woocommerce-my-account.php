@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
+use Newspack\Reader_Activation\Sync\Metadata;
 use Newspack\Reader_Activation\ESP_Sync;
 use Newspack\Stripe_Connection;
 use Newspack\WooCommerce_Connection;
@@ -982,16 +983,19 @@ class WooCommerce_My_Account {
 	 * @param int    $user_id User ID.
 	 * @param string $new_email New email address.
 	 * @param string $old_email Old email address.
-	 *
-	 * @return bool
 	 */
 	public static function sync_email_change( $user_id, $new_email, $old_email ) {
+		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
+			return;
+		}
 		$contact = ESP_Sync::get_contact_data( $user_id );
 		if ( ! $contact ) {
-			return false;
+			return;
 		}
+		$list_id          = Reader_Activation::get_esp_master_list_id();
 		$existing_contact = array_merge( $contact, [ 'email' => $old_email ] );
-		$update = ESP_Sync::sync( $contact, 'Email Change', $existing_contact );
+		$contact          = Metadata::normalize_contact_data( $contact );
+		$update           = \Newspack_Newsletters_Contacts::upsert( $contact, $list_id, 'Email_Change', $existing_contact );
 		if ( is_wp_error( $update ) ) {
 			// TODO: reschedule the sync if failure is not due to existing email.
 			Logger::error( 'Error syncing email change: ' . $update->get_error_message() );
