@@ -979,17 +979,19 @@ class WooCommerce_My_Account {
 	/**
 	 * Sync email change with site ESPs.
 	 *
-	 * @param int $user_id User ID.
+	 * @param int    $user_id User ID.
+	 * @param string $new_email New email address.
+	 * @param string $old_email Old email address.
 	 *
 	 * @return bool
 	 */
-	public static function sync_email_change( $user_id ) {
+	public static function sync_email_change( $user_id, $new_email, $old_email ) {
 		$contact = ESP_Sync::get_contact_data( $user_id );
 		if ( ! $contact ) {
 			return false;
 		}
-		// TODO: replace sync with update when ESP_Sync::update is implemented.
-		$update = ESP_Sync::sync( $contact );
+		$existing_contact = array_merge( $contact, [ 'email' => $old_email ] );
+		$update = ESP_Sync::sync( $contact, 'Email Change', $existing_contact );
 		if ( is_wp_error( $update ) ) {
 			// TODO: reschedule the sync if failure is not due to existing email.
 			Logger::error( 'Error syncing email change: ' . $update->get_error_message() );
