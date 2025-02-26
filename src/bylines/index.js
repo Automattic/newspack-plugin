@@ -21,12 +21,17 @@ import { useEffect, useState, useRef } from 'react';
  */
 import './style.scss';
 
-const TokenInlineBlock = ( { token, onInsert, onRendered } ) => {
-	useEffect( () => {
-		// Notify parent that this component has rendered.
-		onRendered();
-	}, [ onRendered ] );
+const BylineTextarea = ( { byline } ) => {
+	return (
+		<div
+			className="newspack-byline-textarea"
+			contentEditable="true"
+			dangerouslySetInnerHTML={ { __html: byline.current } }
+		/>
+	);
+};
 
+const TokenInlineBlock = ( { token, onInsert } ) => {
 	return (
 		<>
 			<span
@@ -49,6 +54,28 @@ const TokenInlineBlock = ( { token, onInsert, onRendered } ) => {
 	);
 };
 
+const Tokens = ( { tokens, tokensInUse, insertToken, onRendered } ) => {
+	useEffect( () => {
+		// Notify parent that this component has rendered.
+		onRendered();
+	}, [ onRendered ] );
+
+	return (
+		<div className="tokens">
+			{ tokens.map(
+				token =>
+					! tokensInUse.includes( token.id ) && (
+						<TokenInlineBlock
+							key={ token.id }
+							token={ token }
+							onInsert={ () => insertToken( token ) }
+						/>
+					)
+			) }
+		</div>
+	);
+};
+
 const BylinesSettingsPanel = () => {
 	/** Set when child component DOM is ready */
 	const [ isChildReady, setIsChildReady ] = useState( false );
@@ -57,7 +84,7 @@ const BylinesSettingsPanel = () => {
 	const [ tokens, setTokens ] = useState( [] );
 
 	/** Tokens that are in use by the custom byline */
-	const tokensInUse = useRef( [] );
+	const [ tokensInUse, setTokensInUse ] = useState( [] );
 
 	/** Reference to document to add event listners */
 	const documentRef = useRef( document );
@@ -88,8 +115,11 @@ const BylinesSettingsPanel = () => {
 		select( 'core/editor' )
 	);
 
-	/** The custom byline text/html */
-	const byline =
+	/** byline innerHTML content */
+	const byline = useRef( '' );
+
+	/** The custom byline stored as meta */
+	const metaByline =
 		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '';
 
 	/** Toggle if custom byline is enabled */
@@ -101,21 +131,22 @@ const BylinesSettingsPanel = () => {
 	 * Update tokenInUse looking up for tokens into the byline element content.
 	 * @param {Element} bylineElement
 	 */
-	const setTokensInUse = bylineElement => {
+	const queryTokensInUse = bylineElement => {
 		const tokenElements = bylineElement.querySelectorAll(
 			'span button[data-token]'
 		);
 
-		// Cleanup tokensInUse.
-		tokensInUse.current = [];
+		let tokensBeingUsed = [];
 
 		// Fill tokensInUse.
 		tokenElements.forEach( tokenElement => {
-			tokensInUse.current = [
-				...tokensInUse.current,
+			tokensBeingUsed = [
+				...tokensBeingUsed,
 				Number( tokenElement.dataset.token ),
 			];
 		} );
+
+		setTokensInUse( tokensBeingUsed );
 	};
 
 	/**
@@ -166,7 +197,52 @@ const BylinesSettingsPanel = () => {
 			},
 		} );
 
-		setTokensInUse( bylineElement );
+		queryTokensInUse( bylineElement );
+	};
+
+	/**
+	 * Mutation observer callback triggered when any change is made to the byline.
+	 * @param {MutationObserver} mutationList
+	 */
+	const handleMutation = mutationList => {
+		const bylineElement = document.querySelector(
+			'.newspack-byline-textarea'
+		);
+
+		// The mutation types we want to watch for changes.
+		const mutationTypes = [ 'childList', 'subtree', 'characterData' ];
+
+		for ( const mutation of mutationList ) {
+			if ( mutationTypes.includes( mutation.type ) ) {
+				let rootElement;
+
+				// If mutation.type is characterData, target the outer span element.
+				// Otherwise, on childList and subtree, remove the target itself.
+				if ( mutation.type === 'characterData' ) {
+					rootElement = mutation.target.parentNode.parentNode ?? null;
+				} else {
+					rootElement = mutation.target ?? null;
+				}
+
+				// Remove token element.
+				if (
+					rootElement &&
+					rootElement?.matches?.( '.token-inline-block' )
+				) {
+					rootElement.remove();
+				}
+
+				// Update byline meta.
+				editPost( {
+					meta: {
+						[ newspackBylines.metaKeyByline ]:
+							bylineElement.innerHTML,
+					},
+				} );
+
+				queryTokensInUse( bylineElement );
+			}
+		}
 	};
 
 	/**
@@ -184,50 +260,7 @@ const BylinesSettingsPanel = () => {
 			characterDataOldValue: true,
 		};
 
-		/**
-		 * Mutation observer callback triggered when any change is made to the byline.
-		 * @param {MutationObserver} mutationList
-		 */
-		const callback = mutationList => {
-			// The mutation types we want to watch for changes.
-			const mutationTypes = [ 'childList', 'subtree', 'characterData' ];
-
-			for ( const mutation of mutationList ) {
-				if ( mutationTypes.includes( mutation.type ) ) {
-					let rootElement;
-
-					// If mutation.type is characterData, target the outer span element.
-					// Otherwise, on childList and subtree, remove the target itself.
-					if ( mutation.type === 'characterData' ) {
-						rootElement =
-							mutation.target.parentNode.parentNode ?? null;
-					} else {
-						rootElement = mutation.target ?? null;
-					}
-
-					// Remove token element.
-					if (
-						rootElement &&
-						rootElement?.matches?.( '.token-inline-block' )
-					) {
-						rootElement.remove();
-					}
-
-					// Update byline meta.
-					editPost( {
-						meta: {
-							[ newspackBylines.metaKeyByline ]:
-								bylineElement.innerHTML,
-						},
-					} );
-				}
-			}
-
-			// Update tokensInUse.
-			setTokensInUse( bylineElement );
-		};
-
-		const observer = new MutationObserver( callback );
+		const observer = new MutationObserver( handleMutation );
 
 		// Start observing the target node for configured mutations
 		observer.observe( bylineElement, config );
@@ -291,7 +324,7 @@ const BylinesSettingsPanel = () => {
 						},
 					} );
 
-					setTokensInUse( bylineElement );
+					queryTokensInUse( bylineElement );
 				}
 			}
 		} );
@@ -342,11 +375,13 @@ const BylinesSettingsPanel = () => {
 			return;
 		}
 
+		byline.current = metaByline;
+
 		const bylineElement = document.querySelector(
 			'.newspack-byline-textarea'
 		);
 
-		setTokensInUse( bylineElement );
+		queryTokensInUse( bylineElement );
 
 		// Add Mutation Observer.
 		addMutationObserverToByline( bylineElement );
@@ -366,27 +401,14 @@ const BylinesSettingsPanel = () => {
 			/>
 			{ isEnabled && (
 				<>
-					<div
-						className="newspack-byline-textarea"
-						contentEditable="true"
-						dangerouslySetInnerHTML={ { __html: byline } }
-					/>
+					<BylineTextarea byline={ byline } />
 
-					<div className="tokens">
-						{ tokens.map(
-							token =>
-								! tokensInUse.current.includes( token.id ) && (
-									<TokenInlineBlock
-										key={ token.id }
-										token={ token }
-										onInsert={ () => insertToken( token ) }
-										onRendered={ () =>
-											setIsChildReady( true )
-										}
-									/>
-								)
-						) }
-					</div>
+					<Tokens
+						tokens={ tokens }
+						tokensInUse={ tokensInUse }
+						insertToken={ insertToken }
+						onRendered={ () => setIsChildReady( true ) }
+					/>
 				</>
 			) }
 		</PluginDocumentSettingPanel>
