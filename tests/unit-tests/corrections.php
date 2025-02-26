@@ -33,15 +33,8 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		Corrections::init();
 
-		self::$post_id = $this->factory->post->create( [ 'post_type' => 'post' ] );
+		self::$post_id = $this->factory()->post->create( [ 'post_type' => 'post' ] );
 		update_post_meta( self::$post_id, Corrections::CORRECTIONS_ACTIVE_META, true );
-	}
-
-	/**
-	 * Tear down test fixtures.
-	 */
-	public function tear_down() {
-		wp_delete_post( self::$post_id, true );
 	}
 
 	/**
@@ -515,7 +508,7 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertNotWPError( $correction_2_id );
 		$this->assertNotEquals( 0, $correction_2_id );
 
-		$page = $this->factory->post->create_and_get(
+		$page = $this->factory()->post->create_and_get(
 			[
 				'post_type'    => 'page',
 				'post_content' => 'Test Page:- [corrections]',
