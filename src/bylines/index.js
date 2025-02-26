@@ -21,7 +21,52 @@ import { useEffect, useState, useRef } from 'react';
  */
 import './style.scss';
 
-const BylineTextarea = ( { byline } ) => {
+/** Close icon copied from @wordpress/icons/src/library/close.js to be used as markup */
+const close = `
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+		<path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z" />
+	</svg>
+`;
+
+const BylineTextarea = ( { byline, onRendered } ) => {
+	const { getEditedPostAttribute } = useSelect( select =>
+		select( 'core/editor' )
+	);
+
+	/** The custom byline stored as meta */
+	const metaByline =
+		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '';
+
+	/**
+	 * Parse byline meta to convert custom tags to token markup.
+	 *
+	 * @see    {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
+	 * @return {string} Parsed byline looking up for <Author id=1></Author> tags and replacing them.
+	 */
+	const bylineParser = () => {
+		return metaByline.replace(
+			/<Author id=(\d*)>(\D*)<\/Author>/g,
+			`<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
+						<span class="components-form-token-field__token-text">$2</span>
+						<button
+							class="components-button components-form-token-field__remove-token token-inline-block__remove"
+							type="button"
+							data-token="$1"
+						>
+							${ close }
+						</button>
+				</span>`
+		);
+	};
+
+	useEffect( () => {
+		onRendered();
+	}, [ onRendered ] );
+
+	useEffect( () => {
+		byline.current = bylineParser();
+	}, [] );
+
 	return (
 		<div
 			className="newspack-byline-textarea"
@@ -77,8 +122,9 @@ const Tokens = ( { tokens, tokensInUse, insertToken, onRendered } ) => {
 };
 
 const BylinesSettingsPanel = () => {
-	/** Set when child component DOM is ready */
-	const [ isChildReady, setIsChildReady ] = useState( false );
+	/** Set when child components DOM are ready */
+	const [ isBylineReady, setIsBylineReady ] = useState( false );
+	const [ isTokensdReady, setIsTokensReady ] = useState( false );
 
 	/** Tokens with authors assigned to the post */
 	const [ tokens, setTokens ] = useState( [] );
@@ -97,13 +143,6 @@ const BylinesSettingsPanel = () => {
 		[]
 	);
 
-	/** close icon copied from @wordpress/icons/src/library/close.js to be used as markup */
-	const close = `
-		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-			<path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z" />
-		</svg>
-	`;
-
 	/** coAuthors fetched from co-Authors Plus */
 	const [ coAuthors, setCoAuthors ] = useState( [] );
 
@@ -117,10 +156,6 @@ const BylinesSettingsPanel = () => {
 
 	/** byline innerHTML content */
 	const byline = useRef( '' );
-
-	/** The custom byline stored as meta */
-	const metaByline =
-		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '';
 
 	/** Toggle if custom byline is enabled */
 	const [ isEnabled, setIsEnabled ] = useState(
@@ -188,7 +223,7 @@ const BylinesSettingsPanel = () => {
 
 		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
 		bylineElement.innerHTML =
-			bylineElement.innerHTML + ' ' + tokenElement + '&nbsp;';
+			bylineElement.innerHTML + ' ' + tokenElement + ' ';
 
 		// Update byline meta
 		editPost( {
@@ -371,11 +406,9 @@ const BylinesSettingsPanel = () => {
 	 */
 	useEffect( () => {
 		// Wait for child component that will be analyzed to be ready.
-		if ( ! isChildReady ) {
+		if ( ! isTokensdReady || ! isBylineReady ) {
 			return;
 		}
-
-		byline.current = metaByline;
 
 		const bylineElement = document.querySelector(
 			'.newspack-byline-textarea'
@@ -385,7 +418,7 @@ const BylinesSettingsPanel = () => {
 
 		// Add Mutation Observer.
 		addMutationObserverToByline( bylineElement );
-	}, [ isChildReady ] );
+	}, [ isTokensdReady, isBylineReady ] );
 
 	return (
 		<PluginDocumentSettingPanel
@@ -401,13 +434,16 @@ const BylinesSettingsPanel = () => {
 			/>
 			{ isEnabled && (
 				<>
-					<BylineTextarea byline={ byline } />
+					<BylineTextarea
+						byline={ byline }
+						onRendered={ () => setIsBylineReady( true ) }
+					/>
 
 					<Tokens
 						tokens={ tokens }
 						tokensInUse={ tokensInUse }
 						insertToken={ insertToken }
-						onRendered={ () => setIsChildReady( true ) }
+						onRendered={ () => setIsTokensReady( true ) }
 					/>
 				</>
 			) }
