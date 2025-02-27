@@ -9,15 +9,17 @@ import { registerBlockType } from '@wordpress/blocks';
  * Internal dependencies
  */
 import * as readerRegistration from './reader-registration';
+import * as correctionBox from './correction-box';
 
 /**
  * Block Scripts
  */
 import './core-image';
 
-export const blocks = [ readerRegistration ];
+export const blocks = [ readerRegistration, correctionBox ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
+const correctionBlocks = [ 'newspack/correction-box' ];
 
 /**
  * Function to register an individual block.
@@ -33,6 +35,11 @@ const registerBlock = block => {
 
 	/** Do not register reader activation blocks if it's disabled. */
 	if ( readerActivationBlocks.includes( name ) && ! newspack_blocks.has_reader_activation ) {
+		return;
+	}
+
+	/** Do not register correction blocks if it's disabled. */
+	if ( correctionBlocks.includes( name ) && ! newspack_blocks.corrections_enabled ) {
 		return;
 	}
 
