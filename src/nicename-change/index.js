@@ -77,7 +77,7 @@ import './style.scss';
 				nonce,
 				user_id,
 			},
-			success: function ( response ) {
+			success( response ) {
 				newspack_change_nicename_unset_loading_state();
 				newspack_change_nicename_process_response( response );
 			},
