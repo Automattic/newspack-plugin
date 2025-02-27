@@ -819,29 +819,45 @@ class WooCommerce_My_Account {
 			if ( ! $update ) {
 				\wc_add_notice( __( 'Something went wrong. Please try again.', 'newspack-plugin' ), 'error' );
 			} else {
-				$sent = Emails::send_email(
-					Reader_Activation_Emails::EMAIL_TYPES['CHANGE_EMAIL'],
-					$new_email,
-					[
-						[
-							'template' => '*EMAIL_VERIFICATION_URL*',
-							'value'    => \add_query_arg(
+				$sent = [];
+				foreach ( [ $old_email, $new_email ] as $email ) {
+					if (
+						Emails::send_email(
+							Reader_Activation_Emails::EMAIL_TYPES['CHANGE_EMAIL'],
+							$email,
+							[
 								[
-									self::VERIFY_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::VERIFY_EMAIL_CHANGE_PARAM ),
+									'template' => '*EMAIL_VERIFICATION_URL*',
+									'value'    => \add_query_arg(
+										[
+											self::VERIFY_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::VERIFY_EMAIL_CHANGE_PARAM ),
+										],
+										\home_url()
+									),
 								],
-								\home_url()
-							),
-						],
-					]
-				);
-				if ( ! $sent ) {
+							]
+						)
+					) {
+						$sent[] = $email;
+					}
+				}
+				if ( empty( $sent ) ) {
 					\wc_add_notice( __( 'Something went wrong. Please contact the site administrator.', 'newspack-plugin' ), 'error' );
+				} elseif ( count( $sent ) === 1 ) {
+					\wc_add_notice(
+						sprintf(
+							// Translators: %s is the email address the verification email was sent to..
+							__( 'A verification email has been sent to %s. Please verify to complete the change.', 'newspack-plugin' ),
+							$sent[0]
+						)
+					);
 				} else {
 					\wc_add_notice(
 						sprintf(
-							// Translators: %s is the new email address.
-							__( 'A verification email has been sent to %s. Please verify to complete the change.', 'newspack-plugin' ),
-							$new_email
+							// Translators: 1 and 2 are the email addresses the verification email was sent to.
+							__( 'A verification email has been sent to %1$s and %2$s. Please verify to complete the change.', 'newspack-plugin' ),
+							$sent[0],
+							$sent[1]
 						)
 					);
 				}
