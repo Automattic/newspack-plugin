@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\WooCommerce_My_Account;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -19,6 +21,7 @@ class Reader_Activation_Emails {
 		'OTP_AUTH'       => 'reader-activation-otp-authentication',
 		'RESET_PASSWORD' => 'reader-activation-reset-password',
 		'DELETE_ACCOUNT' => 'reader-activation-delete-account',
+		'CHANGE_EMAIL'   => 'reader-activation-change-email',
 	];
 
 	/**
@@ -146,6 +149,24 @@ class Reader_Activation_Emails {
 				],
 			],
 		];
+		if ( WooCommerce_My_Account::is_email_change_enabled() ) {
+			$configs[ self::EMAIL_TYPES['CHANGE_EMAIL'] ] = [
+				'name'                   => self::EMAIL_TYPES['CHANGE_EMAIL'],
+				'label'                  => __( 'Change Email', 'newspack-plugin' ),
+				'description'            => __( 'Email sent to the reader when changing email addresses.', 'newspack-plugin' ),
+				'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/change-email.php',
+				'editor_notice'          => __( 'This email will be sent to a reader after they\'ve updated their email address.', 'newspack-plugin' ),
+				'available_placeholders' => array_merge(
+					$available_placeholders,
+					[
+						[
+							'label'    => __( 'the verification link', 'newspack-plugin' ),
+							'template' => '*EMAIL_VERIFICATION_URL*',
+						],
+					]
+				),
+			];
+		}
 		return $configs;
 	}
 

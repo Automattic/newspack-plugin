@@ -269,4 +269,47 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			$parsed_data
 		);
 	}
+
+	/**
+	 * Test the current event is set and available during handler execution.
+	 */
+	public function test_current_event() {
+		Data_Events::register_action( 'test_action' );
+		Data_Events::register_action( 'test_action2' );
+
+		$handler = function() {
+			$this->assertEquals( 'test_action', Data_Events::current_event(), 'Current event should be set and equal to the action name' );
+		};
+		Data_Events::register_handler( $handler, 'test_action' );
+		Data_Events::handle( 'test_action', time(), [], 'test-client-id' );
+
+		$this->assertNull( Data_Events::current_event(), 'Current event should be null after handling' );
+
+		$handler2 = function() {
+			$this->assertEquals( 'test_action2', Data_Events::current_event(), 'Current event should be set and equal to the action name' );
+		};
+		Data_Events::register_handler( $handler2, 'test_action2' );
+		Data_Events::handle( 'test_action2', time(), [], 'test-client-id' );
+
+		$this->assertNull( Data_Events::current_event(), 'Current event should be null after handling' );
+	}
+
+	/**
+	 * Test that the current event is set to null even if a handler throws an exception.
+	 */
+	public function test_current_event_exception() {
+		Data_Events::register_action( 'test_action' );
+
+		$handler = function() {
+			$this->assertEquals( 'test_action', Data_Events::current_event(), 'Current event should be set and equal to the action name' );
+			throw new Exception( 'Test exception' );
+		};
+		Data_Events::register_handler( $handler, 'test_action' );
+
+		try {
+			Data_Events::handle( 'test_action', time(), [], 'test-client-id' );
+		} catch ( Exception $e ) {
+			$this->assertNull( Data_Events::current_event(), 'Current event should be null after handling' );
+		}
+	}
 }
