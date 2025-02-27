@@ -51,7 +51,7 @@ import './style.scss';
 				new_nicename,
 				nonce,
 			},
-			success: function ( response ) {
+			success( response ) {
 				newspack_change_nicename_unset_loading_state();
 				newspack_change_nicename_process_response( response );
 			},
