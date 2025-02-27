@@ -834,7 +834,6 @@ class WooCommerce_My_Account {
 			\wc_add_notice( __( 'This email address is already in use.', 'newspack-plugin' ), 'error' );
 		} else {
 			$update = \update_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, $new_email );
-
 			if ( ! $update ) {
 				\wc_add_notice( __( 'Something went wrong. Please try again.', 'newspack-plugin' ), 'error' );
 			} else {
@@ -898,11 +897,12 @@ class WooCommerce_My_Account {
 			return;
 		}
 		$error     = __( 'Something went wrong.', 'newspack-plugin' );
+		$user_id   = \get_current_user_id();
 		$new_email = \get_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, true );
 		$old_email = \wp_get_current_user()->user_email;
-		$user_id   = \get_current_user_id();
-		if ( $new_email && \wp_hash( $old_email ) === $secret ) ) {
-			$update = \wp_update_user(
+		if ( $new_email && \wp_hash( $old_email ) === $secret ) {
+			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
+			\wp_update_user(
 				[
 					'ID'         => $user_id,
 					'user_email' => $new_email,
