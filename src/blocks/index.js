@@ -10,16 +10,17 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import * as readerRegistration from './reader-registration';
 import * as correctionBox from './correction-box';
+import * as correctionItem from './correction-item';
 
 /**
  * Block Scripts
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox ];
+export const blocks = [ readerRegistration, correctionBox, correctionItem ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
-const correctionBlocks = [ 'newspack/correction-box' ];
+const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];
 
 /**
  * Function to register an individual block.

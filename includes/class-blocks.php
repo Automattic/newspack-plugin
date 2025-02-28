@@ -21,6 +21,7 @@ final class Blocks {
 
 		if ( class_exists( 'Newspack\Corrections' ) && defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED ) {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/correction-box/class-correction-box-block.php';
+			require_once NEWSPACK_ABSPATH . 'src/blocks/correction-item/class-correction-item-block.php';
 		}
 
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
