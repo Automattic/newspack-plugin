@@ -44,18 +44,33 @@ const BylineTextarea = ( { byline, onRendered } ) => {
 	 * @return {string} Parsed byline looking up for <Author id=1></Author> tags and replacing them.
 	 */
 	const bylineParser = () => {
-		return metaByline.replace(
+		// For backwards compatibility, replace the '<Author>' tags, which were used before.
+		metaByline.replace(
 			/<Author id=(\d*)>(\D*)<\/Author>/g,
 			`<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
-						<span class="components-form-token-field__token-text">$2</span>
-						<button
-							class="components-button components-form-token-field__remove-token token-inline-block__remove"
-							type="button"
-							data-token="$1"
-						>
-							${ close }
-						</button>
-				</span>`
+				<span class="components-form-token-field__token-text">$2</span>
+				<button
+					class="components-button components-form-token-field__remove-token token-inline-block__remove"
+					type="button"
+					data-token="$1"
+				>
+					${ close }
+				</button>
+			</span>`
+		);
+
+		return metaByline.replace(
+			/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
+			`<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
+				<span class="components-form-token-field__token-text">$2</span>
+				<button
+					class="components-button components-form-token-field__remove-token token-inline-block__remove"
+					type="button"
+					data-token="$1"
+				>
+					${ close }
+				</button>
+			</span>`
 		);
 	};
 
@@ -163,6 +178,48 @@ const BylinesSettingsPanel = () => {
 	);
 
 	/**
+	 * Stores the byline as meta.
+	 * @param {string} meta Content of the byline contentEditable element to be stored.
+	 */
+	const updateBylineMeta = meta => {
+		editPost( {
+			meta: {
+				[ newspackBylines.metaKeyByline ]: transformByline( meta ),
+			},
+		} );
+	};
+
+	/**
+	 * Transform the bylineElement innerHTML into the format that we expect to save.
+	 *
+	 * @see   {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
+	 * @param {Element} bylineElement Byline element reference.
+	 * @return {string}               The transformed bylineElement innerHTML into the expected format to save.
+	 */
+	const transformByline = bylineElement => {
+		const clonebylineElement = bylineElement.cloneNode( true );
+
+		const tokenElements =
+			clonebylineElement.querySelectorAll( 'span[data-token]' );
+
+		tokenElements.forEach( tokenElement => {
+			const authorID = tokenElement.dataset.token;
+			const authorNode = tokenElement.querySelector( 'span' );
+			const authorName = authorNode ? authorNode.innerText.trim() : '';
+
+			if ( authorID && authorName ) {
+				tokenElement.replaceWith(
+					document.createTextNode(
+						`[Author id=${ authorID }]${ authorName }[/Author]`
+					)
+				);
+			}
+		} );
+
+		return clonebylineElement.innerHTML;
+	};
+
+	/**
 	 * Update tokenInUse looking up for tokens into the byline element content.
 	 * @param {Element} bylineElement
 	 */
@@ -225,12 +282,8 @@ const BylinesSettingsPanel = () => {
 		bylineElement.innerHTML =
 			bylineElement.innerHTML + ' ' + tokenElement + ' ';
 
-		// Update byline meta
-		editPost( {
-			meta: {
-				[ newspackBylines.metaKeyByline ]: bylineElement.innerHTML,
-			},
-		} );
+		// Update byline meta.
+		updateBylineMeta( bylineElement );
 
 		queryTokensInUse( bylineElement );
 	};
@@ -268,12 +321,7 @@ const BylinesSettingsPanel = () => {
 				}
 
 				// Update byline meta.
-				editPost( {
-					meta: {
-						[ newspackBylines.metaKeyByline ]:
-							bylineElement.innerHTML,
-					},
-				} );
+				updateBylineMeta( bylineElement );
 
 				queryTokensInUse( bylineElement );
 			}
@@ -352,12 +400,7 @@ const BylinesSettingsPanel = () => {
 						.remove();
 
 					// Update byline meta.
-					editPost( {
-						meta: {
-							[ newspackBylines.metaKeyByline ]:
-								bylineElement.innerHTML,
-						},
-					} );
+					updateBylineMeta( bylineElement );
 
 					queryTokensInUse( bylineElement );
 				}
