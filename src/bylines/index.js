@@ -38,39 +38,29 @@ const BylineTextarea = ( { byline, onRendered } ) => {
 		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '';
 
 	/**
-	 * Parse byline meta to convert custom tags to token markup.
+	 * Parse byline meta to convert custom tags (<Author></Author> or [Author][/Author]) to token markup.
 	 *
 	 * @see    {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
 	 * @return {string} Parsed byline looking up for <Author id=1></Author> tags and replacing them.
 	 */
 	const bylineParser = () => {
+		const tokenMarkup = `<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
+			<span class="components-form-token-field__token-text">$2</span>
+			<button
+				class="components-button components-form-token-field__remove-token token-inline-block__remove"
+				type="button"
+				data-token="$1"
+			>
+				${ close }
+			</button>
+		</span>`;
+
 		// For backwards compatibility, replace the '<Author>' tags, which were used before.
-		metaByline.replace(
-			/<Author id=(\d*)>(\D*)<\/Author>/g,
-			`<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
-				<span class="components-form-token-field__token-text">$2</span>
-				<button
-					class="components-button components-form-token-field__remove-token token-inline-block__remove"
-					type="button"
-					data-token="$1"
-				>
-					${ close }
-				</button>
-			</span>`
-		);
+		metaByline.replace( /<Author id=(\d*)>(\D*)<\/Author>/g, tokenMarkup );
 
 		return metaByline.replace(
 			/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
-			`<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
-				<span class="components-form-token-field__token-text">$2</span>
-				<button
-					class="components-button components-form-token-field__remove-token token-inline-block__remove"
-					type="button"
-					data-token="$1"
-				>
-					${ close }
-				</button>
-			</span>`
+			tokenMarkup
 		);
 	};
 
