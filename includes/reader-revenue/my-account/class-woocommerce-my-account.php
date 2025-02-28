@@ -8,8 +8,8 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
+use Newspack\Stripe_Connection;
 use Newspack\WooCommerce_Connection;
-use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -864,24 +864,52 @@ class WooCommerce_My_Account {
 			return;
 		}
 		if ( \wp_verify_nonce( $nonce, self::VERIFY_EMAIL_CHANGE_PARAM ) ) {
-			$new_email = \get_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META, true );
+			$error     = __( 'Something went wrong.', 'newspack-plugin' );
+			$user_id   = \get_current_user_id();
+			$new_email = \get_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, true );
 			if ( ! $new_email ) {
-				\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
+				\wc_add_notice( $error, 'error' );
 			} else {
-				\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
-				\wp_update_user(
+				$update = \wp_update_user(
 					[
-						'ID'         => \get_current_user_id(),
+						'ID'         => $user_id,
 						'user_email' => $new_email,
 					]
 				);
-				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
+				if ( $update ) {
+					$customer = new \WC_Customer( $user_id );
+					$customer->set_billing_email( $new_email );
+					$customer->save();
+					self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
+					\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
+					\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
+				} else {
+					\wc_add_notice( $error, 'error' );
+				}
 			}
 		} else {
-			\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
+			\wc_add_notice( $error, 'error' );
 		}
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
+	}
+
+	/**
+	 * Sync reader email change with stripe.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $email   New email.
+	 */
+	public static function maybe_sync_email_change_with_stripe( $user_id, $email ) {
+		$request = Stripe_Connection::update_customer_data(
+			$user_id,
+			[
+				'email' => $email,
+			]
+		);
+		if ( \is_wp_error( $request ) ) {
+			Logger::error( 'Error updating Stripe customer email: ' . $result->get_error_message() );
+		}
 	}
 }
 
