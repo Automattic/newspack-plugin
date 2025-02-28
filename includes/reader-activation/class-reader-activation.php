@@ -10,6 +10,7 @@ namespace Newspack;
 use Newspack\Recaptcha;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Renewal;
+use Newspack\WooCommerce_My_Account;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -1356,6 +1357,16 @@ final class Reader_Activation {
 			if ( Renewal::is_subscriptions_page() ) {
 				// If we are on the subscriptions page, set the auth callback URL to the subscriptions page.
 				$auth_callback_url = Renewal::get_subscriptions_url();
+			} elseif ( WooCommerce_My_Account::is_myaccount_url() ) {
+				$params = [];
+				// If we are using one of our my account params, reattach the param to the my account URL.
+				foreach ( WooCommerce_My_Account::ALLOWED_PARAMS as $param ) {
+					$value = $_GET[ $param ] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+					if ( $value ) {
+						$params[ $param ] = $value;
+					}
+				}
+				$auth_callback_url = add_query_arg( $params, \wc_get_page_permalink( 'myaccount' ) );
 			} elseif ( function_exists( 'wc_get_page_permalink' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
 				// If we are already on the my account page, set the my account URL so the page reloads on submit.
 				$auth_callback_url = \wc_get_page_permalink( 'myaccount' );

@@ -25,6 +25,14 @@ class WooCommerce_My_Account {
 	const CANCEL_EMAIL_CHANGE_PARAM    = 'cancel-email-change';
 	const VERIFY_EMAIL_CHANGE_PARAM    = 'verify-email-change';
 	const PENDING_EMAIL_CHANGE_META    = 'newspack_pending_email_change';
+	const ALLOWED_PARAMS               = [
+		self::RESET_PASSWORD_URL_PARAM,
+		self::DELETE_ACCOUNT_URL_PARAM,
+		self::SEND_MAGIC_LINK_PARAM,
+		self::AFTER_ACCOUNT_DELETION_PARAM,
+		self::CANCEL_EMAIL_CHANGE_PARAM,
+		self::VERIFY_EMAIL_CHANGE_PARAM,
+	];
 
 	/**
 	 * Initialize.
@@ -420,7 +428,8 @@ class WooCommerce_My_Account {
 			! $is_resubscribe_request &&
 			! $is_renewal_request &&
 			! $is_cancel_membership_request &&
-			! $is_checkout_request
+			! $is_checkout_request &&
+			! self::is_myaccount_url()
 		) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
@@ -963,6 +972,17 @@ class WooCommerce_My_Account {
 		if ( \is_wp_error( $request ) ) {
 			Logger::error( 'Error updating Stripe customer email: ' . $result->get_error_message() );
 		}
+	}
+
+	/**
+	 * Check if url is newspack my account url.
+	 *
+	 * @return bool
+	 */
+	public static function is_myaccount_url() {
+		$cancel_secret = filter_input( INPUT_GET, self::CANCEL_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$verify_secret = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		return ! empty( $cancel_secret ) || ! empty( $verify_secret );
 	}
 }
 
