@@ -125,6 +125,37 @@ class Co_Authors_Plus {
 	}
 
 	/**
+	 * Create Guest Contributor( Non-Editing Contributor role).
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--live]
+	 * : Run the command in live mode to create user, otherwise default is a dry run.
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc_args Assoc arguments.
+	 * @return void
+	 */
+	public function create_guest_contributor( $args, $assoc_args ) {
+		WP_CLI::line( '' );
+
+		// move this stuff to phpunit...
+		$display_name = 'ron asdf';
+		// $display_name = "* Ron Chambers *";
+		// $display_name = str_repeat( "José Sànch", 25); // strlen = 12 chars.
+		// $display_name = '&nbsp; <div>'; // how does sanitize handle this?
+		// $display_name = '&nbsp; <div>'; // how does sanitize handle this?
+		
+		var_dump( \Newspack\Guest_Contributor_Role::create_guest_contributor_by_display_name( $display_name ) );
+		// var_dump( \Newspack\Guest_Contributor_Role::generate_username_with_random( $display_name ) );
+		// var_dump( \Newspack\Guest_Contributor_Role::generate_dummy_email_with_random( $display_name ) );
+		
+		// assign_authors_to_post
+		
+		WP_CLI::line( '' );
+	}
+
+	/**
 	 * Migrate unlinked guest authors to regular users.
 	 *
 	 * For all unlinked guest authors, copy the guest author's data to a new WP user,
