@@ -51,7 +51,7 @@ class Woo_Member_Commenting {
 		}
 
 		$defaults['comment_notes_before'] = '';
-		$defaults['must_log_in']          = sprintf( '<p class="must-log-in">%s</p>', self::get_membership_required_message() );
+		$defaults['must_log_in']          = self::get_membership_required_message();
 
 		return $defaults;
 	}
@@ -80,7 +80,7 @@ class Woo_Member_Commenting {
 			return $field;
 		}
 
-		return sprintf( '<p class="must-log-in">%s</p>', self::get_membership_required_message() );
+		return self::get_membership_required_message();
 	}
 
 	/**
@@ -91,20 +91,19 @@ class Woo_Member_Commenting {
 	private static function get_membership_required_message(): string {
 		$message = __( 'Only Members may post a comment.', 'newspack-plugin' );
 		if ( ! is_user_logged_in() ) {
-			$message .= ' ' . __( 'If you already have a membership, then <a href="/my-account/">sign in</a>.', 'newspack-plugin' );
+			$sign_in_url = function_exists( '\wc_get_page_permalink' ) ? \wc_get_page_permalink( 'myaccount' ) : wp_login_url( get_permalink() );
+			/* translators: %s: sign in URL */
+			$message .= ' ' . sprintf( __( 'If you already have a membership, then <a href="%s">sign in</a>.', 'newspack-plugin' ), $sign_in_url );
 		}
-		if ( defined( 'NP_WC_MEMBER_COMMENT_MEMBERSHIP_PURCHASE_SLUG' ) && ! empty( NP_WC_MEMBER_COMMENT_MEMBERSHIP_PURCHASE_SLUG ) ) {
-			/* translators: %s - is the slug to buy a membership */
-			$message .= ' ' . sprintf( __( '<a href="/%s">Become a member now</a>.', 'newspack-plugin' ), NP_WC_MEMBER_COMMENT_MEMBERSHIP_PURCHASE_SLUG );
-		}
+		$message .= ' ' . self::get_purchase_membership_link();
 
-		return $message;
+		return sprintf( '<p class="np-woo-member-commenting must-log-in">%s</p>', $message );
 	}
 
 	/**
 	 * Whether class should suppress commenting for non-members.
 	 *
-	 * @return bool True if should suppress commenting for non-members, false otherwise.
+	 * @return bool True if we should suppress commenting for non-members, false otherwise.
 	 */
 	public static function should_load(): bool {
 		if ( empty( self::get_plan_slugs() ) ) {
@@ -112,24 +111,6 @@ class Woo_Member_Commenting {
 		}
 
 		return Settings::is_optional_module_active( 'woo-member-commenting' ) && function_exists( 'wc_memberships_get_user_memberships' ) && ! current_user_can( 'edit_posts' );
-	}
-
-	/**
-	 * Get slugs for membership plans that should allow commenting.
-	 *
-	 * This is managed by a constant for now – note that the constant can be a single string or an array of strings.
-	 *
-	 * @return array Array of plan slugs that allow commenting.
-	 */
-	private static function get_plan_slugs(): array {
-		if ( ! defined( 'NP_WC_MEMBER_COMMENT_PLAN_SLUG' ) || empty( NP_WC_MEMBER_COMMENT_PLAN_SLUG ) ) {
-			return [];
-		}
-		if ( ! is_array( NP_WC_MEMBER_COMMENT_PLAN_SLUG ) ) {
-			return [ NP_WC_MEMBER_COMMENT_PLAN_SLUG ];
-		}
-
-		return NP_WC_MEMBER_COMMENT_PLAN_SLUG;
 	}
 
 	/**
@@ -157,6 +138,73 @@ class Woo_Member_Commenting {
 		}
 
 		return $require_membership_to_comment;
+	}
+
+	/**
+	 * Get slugs for membership plans that should allow commenting.
+	 *
+	 * This is managed in the constant for now – note that the membership_plan_slug value in the array can be a single string or an array of strings.
+	 *
+	 * @return array Array of plan slugs that allow commenting.
+	 */
+	private static function get_plan_slugs(): array {
+		$slugs = self::get_module_setting( 'membership_plan_slug' );
+		if ( empty( $slugs ) ) {
+			return [];
+		}
+		if ( ! is_array( $slugs ) ) {
+			return [ $slugs ];
+		}
+
+		return $slugs;
+	}
+
+	/**
+	 * Get the link to purchase a membership.
+	 *
+	 * If the setting is empty, then an empty string is returned.
+	 *
+	 * @return string The link to purchase a membership or empty string.
+	 */
+	private static function get_purchase_membership_link(): string {
+		$post_id = self::get_module_setting( 'membership_purchase_post_id' );
+		if ( empty( $post_id ) || ! get_post( $post_id ) ) {
+			return '';
+		}
+
+		$post_url = get_permalink( (int) $post_id );
+		$message  = self::get_module_setting( 'membership_required_message' );
+		if ( empty( $message ) ) {
+			$message = __( 'Become a member now', 'newspack-plugin' );
+		}
+
+		return sprintf( '<a href="%s">%s</a>.', $post_url, $message );
+	}
+
+	/**
+	 * Get setting for this module.
+	 *
+	 * For now, settings are just a constant with an array.
+	 *
+	 * @param string $setting_name The setting to get from the constant array.
+	 *
+	 * @return false|mixed The value of the setting, or false if not found.
+	 */
+	private static function get_module_setting( string $setting_name ) {
+		if ( ! defined( 'NP_WC_MEMBER_COMMENT_SETTINGS' ) || empty( NP_WC_MEMBER_COMMENT_SETTINGS ) || ! is_array( NP_WC_MEMBER_COMMENT_SETTINGS ) ) {
+			return false;
+		}
+
+		$settings = wp_parse_args(
+			NP_WC_MEMBER_COMMENT_SETTINGS,
+			[
+				'membership_plan_slug'        => [],
+				'membership_purchase_post_id' => 0,
+				'membership_required_message' => '',
+			]
+		);
+
+		return $settings[ $setting_name ] ?? false;
 	}
 }
 
