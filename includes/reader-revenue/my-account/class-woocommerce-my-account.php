@@ -37,6 +37,11 @@ class WooCommerce_My_Account {
 	];
 
 	/**
+	 * Cron hook for syncing email change with ESP.
+	 */
+	const SYNC_ESP_EMAIL_CHANGE_CRON_HOOK = 'newspack_esp_sync_email_change';
+
+	/**
 	 * Initialize.
 	 *
 	 * @codeCoverageIgnore
@@ -73,6 +78,7 @@ class WooCommerce_My_Account {
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
 			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
+			\add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change' ], 10, 3 );
 		}
 	}
 
@@ -1017,11 +1023,10 @@ class WooCommerce_My_Account {
 		$contact          = Metadata::normalize_contact_data( $contact );
 		$update           = \Newspack_Newsletters_Contacts::upsert( $contact, $list_id, 'Email_Change', $existing_contact );
 		if ( is_wp_error( $update ) ) {
-			// TODO: reschedule the sync if failure is not due to existing email.
-			Logger::error( 'Error syncing email change: ' . $update->get_error_message() );
-			return false;
+			// If the update failed, retry in 1 hour.
+			\wp_schedule_single_event( time() + HOUR_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
+			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 1 hour.' );
 		}
-		return $update;
 	}
 
 	/**
