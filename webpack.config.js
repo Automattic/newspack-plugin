@@ -37,8 +37,18 @@ wizardsScripts.forEach( function( wizard ) {
 } );
 
 const entry = {
-	'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
-	'reader-auth': path.join( __dirname, 'src', 'reader-activation-auth', 'index.js' ),
+	'reader-activation': path.join(
+		__dirname,
+		'src',
+		'reader-activation',
+		'index.js'
+	),
+	'reader-auth': path.join(
+		__dirname,
+		'src',
+		'reader-activation-auth',
+		'index.js'
+	),
 	'newsletters-signup': path.join(
 		__dirname,
 		'src',
@@ -52,15 +62,36 @@ const entry = {
 		'reader-registration',
 		'view.js'
 	),
-	'my-account': path.join( __dirname, 'includes', 'reader-revenue', 'my-account', 'index.js' ),
+	'my-account': path.join(
+		__dirname,
+		'includes',
+		'reader-revenue',
+		'my-account',
+		'index.js'
+	),
 	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
-	'memberships-gate': path.join( __dirname, 'src', 'memberships-gate', 'gate.js' ),
-	'memberships-gate-metering': path.join( __dirname, 'src', 'memberships-gate', 'metering.js' ),
+	'memberships-gate': path.join(
+		__dirname,
+		'src',
+		'memberships-gate',
+		'gate.js'
+	),
+	'memberships-gate-metering': path.join(
+		__dirname,
+		'src',
+		'memberships-gate',
+		'metering.js'
+	),
 
 	// Newspack wizard assets.
 	...wizardsScriptFiles,
 	blocks: path.join( __dirname, 'src', 'blocks', 'index.js' ),
-	'memberships-gate-editor': path.join( __dirname, 'src', 'memberships-gate', 'editor.js' ),
+	'memberships-gate-editor': path.join(
+		__dirname,
+		'src',
+		'memberships-gate',
+		'editor.js'
+	),
 	'memberships-gate-block-patterns': path.join(
 		__dirname,
 		'src',
@@ -68,7 +99,13 @@ const entry = {
 		'block-patterns.js'
 	),
 	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
-	'bylines': path.join( __dirname, 'src', 'bylines', 'index.js' ),
+	bylines: path.join( __dirname, 'src', 'bylines', 'index.js' ),
+	'nicename-change': path.join(
+		__dirname,
+		'src',
+		'nicename-change',
+		'index.js'
+	),
 };
 
 // Get files for other scripts.

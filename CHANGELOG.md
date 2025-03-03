@@ -1,3 +1,10 @@
+# [5.15.0](https://github.com/Automattic/newspack-plugin/compare/v5.14.4...v5.15.0) (2025-02-27)
+
+
+### Features
+
+* trigger release ([2f3b937](https://github.com/Automattic/newspack-plugin/commit/2f3b937060b557185f1c85de19264ca9945147b6))
+
 ## [5.14.4](https://github.com/Automattic/newspack-plugin/compare/v5.14.3...v5.14.4) (2025-02-25)
 
 
