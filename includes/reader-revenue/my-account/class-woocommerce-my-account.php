@@ -924,7 +924,7 @@ class WooCommerce_My_Account {
 				$customer->set_billing_email( $new_email );
 				$customer->save();
 				self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
-				self::sync_email_change( $user_id );
+				self::sync_email_change( $user_id, $new_email, $old_email );
 				\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
 				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
 			} else {
