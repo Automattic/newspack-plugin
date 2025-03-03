@@ -855,7 +855,7 @@ class WooCommerce_My_Account {
 							[
 								[
 									'template' => '*EMAIL_VERIFICATION_URL*',
-									'value'    => self::get_email_change_url( self::VERIFY_EMAIL_CHANGE_PARAM, $new_email ),
+									'value'    => self::get_email_change_url( self::VERIFY_EMAIL_CHANGE_PARAM, $old_email ),
 								],
 								[
 									'template' => '*EMAIL_CANCELLATION_URL*',
@@ -911,7 +911,7 @@ class WooCommerce_My_Account {
 		$old_email = \wp_get_current_user()->user_email;
 		if ( $new_email && \wp_hash( $old_email ) === $secret ) {
 			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
-			\wp_update_user(
+			$update = \wp_update_user(
 				[
 					'ID'         => $user_id,
 					'user_email' => $new_email,
