@@ -8,7 +8,7 @@
 ?>
 
 <!-- wp:paragraph -->
-<p>Replace this with your Header</p>
+<p><?php _e( 'Replace this with your Header', 'newspack-plugin' ); ?></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:query {"queryId":0,"query":{"perPage":20,"pages":0,"offset":0,"postType":"newspack_correction","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false,"taxQuery":null,"parents":[]},"tagName":"main","layout":{"type":"constrained"}} -->
@@ -17,11 +17,11 @@
 	<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|30","margin":{"bottom":"var:preset|spacing|80"}}},"layout":{"type":"flex","orientation":"vertical"}} -->
 	<div class="wp-block-group" style="margin-bottom:var(--wp--preset--spacing--80)">
 		<!-- wp:heading {"level":1} -->
-			<h1 class="wp-block-heading">Corrections &amp; Clarifications</h1>
+			<h1 class="wp-block-heading"><?php _e( 'Corrections & Clarifications', 'newspack-plugin' ); ?></h1>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph -->
-			<p>We are committed to truthful, transparent, and accurate reporting. When we make a mistake, we correct it promptly and note the change clearly. Clarifications, when needed, provide additional context.</p>
+			<p><?php _e( 'We are committed to truthful, transparent, and accurate reporting. When we make a mistake, we correct it promptly and note the change clearly. Clarifications, when needed, provide additional context.', 'newspack-plugin' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
@@ -66,5 +66,5 @@
 <!-- /wp:query -->
 
 <!-- wp:paragraph -->
-<p>Replace this with your Footer</p>
+<p><?php _e( 'Replace this with your Footer', 'newspack-plugin' ); ?></p>
 <!-- /wp:paragraph -->
