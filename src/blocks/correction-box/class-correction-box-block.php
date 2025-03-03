@@ -73,13 +73,11 @@ final class Correction_Box_Block {
 				$correction_content = $correction->post_content;
 				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
 				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );
-				$timezone           = \wp_timezone()->getName();
 				$correction_heading = sprintf(
-					'%s, %s %s %s:',
+					'%s, %s %s:',
 					Corrections::get_correction_type( $correction->ID ),
 					$correction_date,
-					$correction_time,
-					$timezone
+					$correction_time
 				);
 				?>
 				<p class="correction">
