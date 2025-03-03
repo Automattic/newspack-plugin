@@ -178,7 +178,7 @@ class Woo_Member_Commenting {
 			$message = __( 'Become a member now', 'newspack-plugin' );
 		}
 
-		return sprintf( '<a href="%s">%s</a>.', $post_url, $message );
+		return sprintf( '<a href="%s">%s</a>', $post_url, $message );
 	}
 
 	/**
