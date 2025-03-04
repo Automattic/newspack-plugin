@@ -73,7 +73,12 @@ class WooCommerce_Subscriptions_Gifting {
 	 * @return bool
 	 */
 	public static function is_reader_without_password( $is_reader_without_password, $user_id ) {
-		return 'true' === get_user_meta( $user_id, 'wcsg_update_account', true );
+		// wcsg_update_account meta will force the user to update/set account information on login.
+		$user_needs_account_update = get_user_meta( $user_id, 'wcsg_update_account', true );
+		if ( ! empty( $user_needs_account_update ) ) {
+			return 'true' === $user_needs_account_update;
+		}
+		return $is_reader_without_password;
 	}
 }
 WooCommerce_Subscriptions_Gifting::init();

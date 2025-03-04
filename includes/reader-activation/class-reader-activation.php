@@ -1102,7 +1102,7 @@ final class Reader_Activation {
 	}
 
 	/**
-	 * Whether the reader hasn't set its own password.
+	 * Whether the reader hasn't set their password.
 	 *
 	 * @param \WP_User|int $user_or_user_id User object or user ID.
 	 *
