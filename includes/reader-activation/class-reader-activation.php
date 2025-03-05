@@ -2146,13 +2146,19 @@ final class Reader_Activation {
 			$user_data['display_name'] = $user_nicename;
 		}
 
+		if ( empty( $user_data['user_pass'] ) ) {
+			$password = \wp_generate_password();
+		} else {
+			$password = $user_data['user_pass'];
+		}
+
 		$user_data = array_merge(
 			$user_data,
 			[
 				'user_login'    => $user_nicename,
 				'user_nicename' => $user_nicename,
 				'display_name'  => $user_nicename,
-				'user_pass'     => \wp_generate_password(),
+				'user_pass'     => $password,
 			]
 		);
 
