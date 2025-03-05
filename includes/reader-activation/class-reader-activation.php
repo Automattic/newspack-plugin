@@ -1872,7 +1872,7 @@ final class Reader_Activation {
 		}
 
 		if ( ! self::is_user_reader( $user ) ) {
-			$message = 'register' === $action ? __( 'Unable to register your account. Try a different email.', 'newspack-plugin' ) : wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) );
+			$message = 'register' === $action ? __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ) : wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) );
 			$sent = self::send_non_reader_login_reminder( $user );
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : $message ) );
 		}
@@ -1932,7 +1932,7 @@ final class Reader_Activation {
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
 					return self::send_auth_form_response(
-						new \WP_Error( 'unauthorized', __( 'An account was already registered with this email.', 'newspack-plugin' ) )
+						new \WP_Error( 'unauthorized', self::is_reader_without_password( $user ) ? __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ) : __( 'An account was already registered with this email. Please sign in to continue.', 'newspack-plugin' ) )
 					);
 				}
 				if ( \is_wp_error( $user_id ) ) {
@@ -2053,8 +2053,15 @@ final class Reader_Activation {
 		$user_id = false;
 
 		if ( $existing_user ) {
+			if ( ! self::is_user_reader( $existing_user ) ) {
+				self::send_non_reader_login_reminder( $existing_user );
+				return false;
+			}
+
 			// Don't send OTP email for newsletter signup.
-			if ( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) ) {
+			if ( self::is_reader_without_password( $existing_user ) &&
+				( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) )
+			) {
 				Logger::log( "User with $email already exists. Sending magic link." );
 				$redirect = isset( $metadata['current_page_url'] ) ? $metadata['current_page_url'] : '';
 				Magic_Link::send_email( $existing_user, $redirect );
