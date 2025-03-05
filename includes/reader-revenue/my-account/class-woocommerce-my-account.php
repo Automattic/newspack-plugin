@@ -72,6 +72,7 @@ class WooCommerce_My_Account {
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
+			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
 		}
 	}
 
@@ -894,6 +895,25 @@ class WooCommerce_My_Account {
 		// Redirect and exit ahead of Woo so only our notice is displayed.
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
+	}
+
+	/**
+	 * Handle admin email change request.
+	 *
+	 * @param int     $user_id User ID.
+	 * @param WP_User $user    User object.
+	 * @param array   $data    User data.
+	 */
+	public static function handle_admin_email_change_request( $user_id, $user, $data ) {
+		if ( ! is_admin() || ! self::is_email_change_enabled() ) {
+			return;
+		}
+		$new_email = $data['user_email'] ?? '';
+		$old_email = $user->user_email;
+		if ( $new_email !== $old_email && \is_email( $new_email ) && \is_email( $old_email ) ) {
+			self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
+			self::sync_email_change( $user_id, $new_email, $old_email );
+		}
 	}
 
 	/**
