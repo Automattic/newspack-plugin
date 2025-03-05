@@ -1023,9 +1023,9 @@ class WooCommerce_My_Account {
 		$contact          = Metadata::normalize_contact_data( $contact );
 		$update           = \Newspack_Newsletters_Contacts::upsert( $contact, $list_id, 'Email_Change', $existing_contact );
 		if ( is_wp_error( $update ) ) {
-			// If the update failed, retry in 1 hour.
-			\wp_schedule_single_event( time() + HOUR_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
-			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 1 hour.' );
+			// If the update failed, retry in 24 hours.
+			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
+			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 24 hours.' );
 		}
 	}
 
