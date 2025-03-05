@@ -22,6 +22,7 @@ class Reader_Activation_Emails {
 		'RESET_PASSWORD' => 'reader-activation-reset-password',
 		'DELETE_ACCOUNT' => 'reader-activation-delete-account',
 		'CHANGE_EMAIL'   => 'reader-activation-change-email',
+		'NON_READER'     => 'reader-activation-non-reader-user',
 	];
 
 	/**
@@ -171,6 +172,22 @@ class Reader_Activation_Emails {
 				),
 			];
 		}
+		$configs[ self::EMAIL_TYPES['NON_READER'] ] = [
+			'name'                   => self::EMAIL_TYPES['NON_READER'],
+			'label'                  => __( 'Non-reader account', 'newspack-plugin' ),
+			'description'            => __( 'Email reminder sent to non-reader accounts instead of reader account-related emails.', 'newspack-plugin' ),
+			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/non-reader.php',
+			'editor_notice'          => __( 'This email will be sent to non-reader WP user accounts as a reminder to use standard WP login flows.', 'newspack-plugin' ),
+			'available_placeholders' => array_merge(
+				$available_placeholders,
+				[
+					[
+						'label'    => __( 'the standard WP login page', 'newspack-pliugin' ),
+						'template' => '*WP_LOGIN_URL*',
+					],
+				]
+			),
+		];
 		return $configs;
 	}
 

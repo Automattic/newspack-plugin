@@ -1867,8 +1867,14 @@ final class Reader_Activation {
 		self::set_auth_intention_cookie( $email );
 
 		$user = \get_user_by( 'email', $email );
-		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
+		if ( ! $user && 'register' !== $action ) {
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) ) ) );
+		}
+
+		if ( ! self::is_user_reader( $user ) ) {
+			$message = 'register' === $action ? __( 'Unable to register your account. Try a different email.', 'newspack-plugin' ) : wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) );
+			$sent = self::send_non_reader_login_reminder( $user );
+			return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : $message ) );
 		}
 
 		$payload = [
@@ -2046,7 +2052,7 @@ final class Reader_Activation {
 
 		$user_id = false;
 
-		if ( $existing_user && self::is_reader_without_password( $existing_user ) ) {
+		if ( $existing_user ) {
 			// Don't send OTP email for newsletter signup.
 			if ( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) ) {
 				Logger::log( "User with $email already exists. Sending magic link." );
@@ -2298,17 +2304,51 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * If a non-reader account attempts to use reader account flows, send an email reminder to use standard WP login.
+	 *
+	 * @param WP_User $user WP_User to send the email to.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function send_non_reader_login_reminder( $user ) {
+		/** Rate limit control */
+		if ( self::is_reader_email_rate_limited( $user ) ) {
+			return new \WP_Error( 'newspack_non_reader_reminder_interval', __( 'Please wait a moment before trying again.', 'newspack-plugin' ) );
+		}
+
+		$sent = Emails::send_email(
+			Reader_Activation_Emails::EMAIL_TYPES['NON_READER'],
+			$user->user_email,
+			[
+				[
+					'template' => '*WP_LOGIN_URL*',
+					'value'    => \wp_login_url( '', true ), // Force reauth.
+				],
+			]
+		);
+		if ( $sent ) {
+			\update_user_meta( $user->ID, self::LAST_EMAIL_DATE, time() );
+		}
+		return $sent;
+	}
+
+	/**
 	 * Send a magic link with special messaging to verify the user.
 	 *
 	 * @param WP_User $user WP_User object to be verified.
 	 */
 	public static function send_verification_email( $user ) {
-		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
+		// Send reminder to non-reader accounts to use standard WP login.
+		if ( ! self::is_user_reader( $user ) ) {
+			self::send_non_reader_login_reminder( $user );
+		}
 
 		/** Rate limit control */
 		if ( self::is_reader_email_rate_limited( $user ) ) {
 			return new \WP_Error( 'newspack_verification_email_interval', __( 'Please wait before requesting another verification email.', 'newspack-plugin' ) );
 		}
+
+		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 		\update_user_meta( $user->ID, self::LAST_EMAIL_DATE, time() );
 
 		return Emails::send_email(
