@@ -37,11 +37,6 @@ class WooCommerce_My_Account {
 	];
 
 	/**
-	 * Cron hook for syncing email change with ESP.
-	 */
-	const SYNC_ESP_EMAIL_CHANGE_CRON_HOOK = 'newspack_esp_sync_email_change';
-
-	/**
 	 * Initialize.
 	 *
 	 * @codeCoverageIgnore
@@ -78,7 +73,6 @@ class WooCommerce_My_Account {
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
 			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
-			\add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change' ], 10, 3 );
 		}
 	}
 
@@ -918,7 +912,7 @@ class WooCommerce_My_Account {
 		$old_email = $user->user_email;
 		if ( $new_email !== $old_email && \is_email( $new_email ) && \is_email( $old_email ) ) {
 			self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
-			self::sync_email_change( $user_id, $new_email, $old_email );
+			ESP_Sync::sync_email_change( $user_id, $new_email, $old_email );
 		}
 	}
 
@@ -950,7 +944,7 @@ class WooCommerce_My_Account {
 				$customer->set_billing_email( $new_email );
 				$customer->save();
 				self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
-				self::sync_email_change( $user_id, $new_email, $old_email );
+				ESP_Sync::sync_email_change( $user_id, $new_email, $old_email );
 				\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
 				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
 			} else {
@@ -1000,32 +994,6 @@ class WooCommerce_My_Account {
 		);
 		if ( \is_wp_error( $request ) ) {
 			Logger::error( 'Error updating Stripe customer email: ' . $result->get_error_message() );
-		}
-	}
-
-	/**
-	 * Sync email change with site ESPs.
-	 *
-	 * @param int    $user_id User ID.
-	 * @param string $new_email New email address.
-	 * @param string $old_email Old email address.
-	 */
-	public static function sync_email_change( $user_id, $new_email, $old_email ) {
-		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
-			return;
-		}
-		$contact = ESP_Sync::get_contact_data( $user_id );
-		if ( ! $contact ) {
-			return;
-		}
-		$list_id          = Reader_Activation::get_esp_master_list_id();
-		$existing_contact = array_merge( $contact, [ 'email' => $old_email ] );
-		$contact          = Metadata::normalize_contact_data( $contact );
-		$update           = \Newspack_Newsletters_Contacts::upsert( $contact, $list_id, 'Email_Change', $existing_contact );
-		if ( is_wp_error( $update ) ) {
-			// If the update failed, retry in 24 hours.
-			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
-			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 24 hours.' );
 		}
 	}
 
