@@ -9,6 +9,7 @@ namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
 use Newspack\Data_Events;
+use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
