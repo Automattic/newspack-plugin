@@ -37,13 +37,6 @@ class Metadata {
 	public static $keys = [];
 
 	/**
-	 * Initializes hooks.
-	 */
-	public static function init_hooks() {
-		\add_filter( 'newspack_newsletters_contact_data', [ __CLASS__, 'normalize_contact_data' ] );
-	}
-
-	/**
 	 * Get the metadata keys map for Reader Activation.
 	 *
 	 * @return array List of fields.
@@ -346,6 +339,11 @@ class Metadata {
 			$metadata['registration_method'] = $registration_method;
 		}
 
+		$registration_page = self::has_key( 'registration_page', $metadata ) ? self::get_key_value( 'registration_page', $metadata ) : false;
+		if ( ! empty( $registration_page ) ) {
+			$metadata['registration_page'] = $registration_page;
+		}
+
 		$connected_account = self::has_key( 'connected_account', $metadata ) ? self::get_key_value( 'connected_account', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::CONNECTED_ACCOUNT, true );
 		if ( ! empty( $connected_account ) && in_array( $connected_account, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
 			$metadata['connected_account'] = $connected_account;
@@ -457,4 +455,3 @@ class Metadata {
 		return apply_filters( 'newspack_esp_sync_normalize_contact', $contact );
 	}
 }
-Metadata::init_hooks();
