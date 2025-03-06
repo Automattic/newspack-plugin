@@ -36,6 +36,7 @@ class RSS {
 		add_filter( 'option_rss_use_excerpt', [ __CLASS__, 'filter_use_rss_excerpt' ] );
 		add_action( 'pre_get_posts', [ __CLASS__, 'modify_feed_query' ] );
 		add_action( 'rss2_item', [ __CLASS__, 'add_extra_tags' ] );
+		add_action( 'atom_entry', [ __CLASS__, 'add_extra_tags' ] );
 		add_filter( 'the_excerpt_rss', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
 		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
 		add_filter( 'wpseo_include_rss_footer', [ __CLASS__, 'maybe_suppress_yoast' ] );
@@ -49,8 +50,11 @@ class RSS {
 	 * @param WP_Post $feed_post RSS feed post object.
 	 */
 	public static function get_feed_url( $feed_post ) {
-		$base_feed_url = get_bloginfo( 'rss2_url' );
+		$settings      = self::get_feed_settings( $feed_post );
 		$feed_slug     = is_numeric( $feed_post ) ? get_post_field( 'post_name', $feed_post ) : $feed_post->post_name;
+		$base_feed_url = ( isset( $settings['feed_format'] ) && 'atom' === $settings['feed_format'] )
+			? get_bloginfo( 'atom_url' )
+			: get_bloginfo( 'rss2_url' );
 		return add_query_arg( self::FEED_QUERY_ARG, $feed_slug, $base_feed_url );
 	}
 
@@ -78,6 +82,9 @@ class RSS {
 			'update_frequency'       => false,
 			'use_post_id_as_guid'    => false,
 			'cdata_titles'           => false,
+			'republication_tracker'  => false,
+			'only_republishable'     => false,
+			'feed_format'            => 'rss',
 		];
 
 		if ( ! $feed_post ) {
@@ -427,6 +434,34 @@ class RSS {
 					</td>
 				</tr>
 			<?php endif; ?>
+			<?php
+			// Only show these new options if the Republication Tracker Tool plugin is active.
+			if ( class_exists( 'Republication_Tracker_Tool' ) ) :
+				?>
+				<tr>
+					<th><?php esc_html_e( 'Add republication tracker snippet to posts', 'newspack-plugin' ); ?></th>
+					<td>
+						<input type="hidden" name="republication_tracker" value="0" />
+						<input type="checkbox" name="republication_tracker" value="1" <?php checked( $settings['republication_tracker'] ); ?> />
+					</td>
+				</tr>
+				<tr>
+					<th><?php esc_html_e( 'Only include republishable posts', 'newspack-plugin' ); ?></th>
+					<td>
+						<input type="hidden" name="only_republishable" value="0" />
+						<input type="checkbox" name="only_republishable" value="1" <?php checked( $settings['only_republishable'] ); ?> />
+					</td>
+				</tr>
+				<tr>
+					<th><?php esc_html_e( 'Feed format', 'newspack-plugin' ); ?></th>
+					<td>
+						<select name="feed_format">
+							<option value="rss" <?php selected( $settings['feed_format'], 'rss' ); ?>><?php esc_html_e( 'RSS', 'newspack-plugin' ); ?></option>
+							<option value="atom" <?php selected( $settings['feed_format'], 'atom' ); ?>><?php esc_html_e( 'Atom', 'newspack-plugin' ); ?></option>
+						</select>
+					</td>
+				</tr>
+			<?php endif; ?>
 		</table>
 		<?php
 	}
@@ -517,6 +552,18 @@ class RSS {
 			}
 		}
 
+		// Process Republication Tracker options only if the plugin is active.
+		if ( class_exists( 'Republication_Tracker_Tool' ) ) {
+			$republication_tracker             = filter_input( INPUT_POST, 'republication_tracker', FILTER_SANITIZE_NUMBER_INT );
+			$settings['republication_tracker'] = (bool) $republication_tracker;
+
+			$only_republishable             = filter_input( INPUT_POST, 'only_republishable', FILTER_SANITIZE_NUMBER_INT );
+			$settings['only_republishable'] = (bool) $only_republishable;
+
+			$feed_format             = filter_input( INPUT_POST, 'feed_format', FILTER_SANITIZE_SPECIAL_CHARS );
+			$settings['feed_format'] = in_array( $feed_format, [ 'rss', 'atom' ] ) ? $feed_format : 'rss';
+		}
+
 		update_post_meta( $feed_post_id, self::FEED_SETTINGS_META, $settings );
 		// @todo flush feed cache here.
 	}
@@ -578,6 +625,19 @@ class RSS {
 				10,
 				2
 			);
+		}
+
+		if ( ! empty( $settings['only_republishable'] ) ) {
+			$meta_query = $query->get( 'meta_query' );
+			if ( ! is_array( $meta_query ) ) {
+				$meta_query = [];
+			}
+			$meta_query[] = [
+				'key'     => 'republication-tracker-tool-hide-widget',
+				'value'   => '1',
+				'compare' => '!=',
+			];
+			$query->set( 'meta_query', $meta_query );
 		}
 	}
 
@@ -654,6 +714,13 @@ class RSS {
 					<?php
 				}
 			}
+		}
+
+		// If the Republication Tracker Tool is enabled and the option is checked, output the tracker snippet.
+		if ( ! empty( $settings['republication_tracker'] ) && method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
+			?>
+			<republication_tracker><?php echo \Republication_Tracker_Tool::create_tracking_pixel_markup( $post->ID ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></republication_tracker>
+			<?php
 		}
 	}
 
