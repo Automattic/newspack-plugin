@@ -339,11 +339,6 @@ class Metadata {
 			$metadata['registration_method'] = $registration_method;
 		}
 
-		$registration_page = self::has_key( 'registration_page', $metadata ) ? self::get_key_value( 'registration_page', $metadata ) : false;
-		if ( ! empty( $registration_page ) ) {
-			$metadata['registration_page'] = $registration_page;
-		}
-
 		$connected_account = self::has_key( 'connected_account', $metadata ) ? self::get_key_value( 'connected_account', $metadata ) : \get_user_meta( $user->ID, Reader_Activation::CONNECTED_ACCOUNT, true );
 		if ( ! empty( $connected_account ) && in_array( $connected_account, Reader_Activation::SSO_REGISTRATION_METHODS ) ) {
 			$metadata['connected_account'] = $connected_account;
@@ -364,9 +359,9 @@ class Metadata {
 	public static function add_utm_data( $metadata ) {
 		// Capture UTM params and signup/payment page URLs as meta for registration or payment.
 		if ( self::has_key( 'current_page_url', $metadata ) || self::has_key( 'registration_page', $metadata ) || self::has_key( 'payment_page', $metadata ) ) {
-			$is_payment = self::has_key( 'payment_page', $metadata );
+			$payment_page = self::has_key( 'payment_page', $metadata ) ? self::get_key_value( 'payment_page', $metadata ) : false;
 			$raw_url    = false;
-			if ( $is_payment ) {
+			if ( ! empty( $payment_page ) ) {
 				$raw_url = self::get_key_value( 'payment_page', $metadata );
 			} elseif ( self::has_key( 'current_page_url', $metadata ) ) {
 				$raw_url = self::get_key_value( 'current_page_url', $metadata );
@@ -378,7 +373,7 @@ class Metadata {
 
 			// Maybe set UTM meta.
 			if ( ! empty( $parsed_url['query'] ) ) {
-				$utm_key_prefix = $is_payment ? 'payment_page_utm' : 'signup_page_utm';
+				$utm_key_prefix = ! empty( $payment_page ) ? 'payment_page_utm' : 'signup_page_utm';
 				$params         = [];
 				\wp_parse_str( $parsed_url['query'], $params );
 				foreach ( $params as $param => $value ) {
