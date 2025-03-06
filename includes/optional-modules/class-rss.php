@@ -349,9 +349,22 @@ class RSS {
 		</table>
 
 		<script>
+			const handleCDATA = function() {
+				if ( 'atom' === jQuery( '[name="feed_format"]' ).val() ) {
+					jQuery( '[name="cdata_titles"]' ).prop( 'checked', false );
+					jQuery( '[name="cdata_titles"]' ).prop( 'disabled', true );
+				} else {
+					jQuery( '[name="cdata_titles"]' ).prop( 'disabled', false );
+				}
+			};
+
 			jQuery( document ).ready( function() {
 				jQuery( '#category_include' ).select2();
 				jQuery( '#category_exclude' ).select2();
+
+				// WordPress wraps Atom feed titles in CDATA tags by default.
+				handleCDATA();
+				jQuery( '[name="feed_format"]' ).on( 'change', handleCDATA );
 			} );
 		</script>
 		<?php
@@ -788,7 +801,7 @@ xmlns:media="http://search.yahoo.com/mrss/"
 			return $title;
 		}
 
-		if ( $settings['cdata_titles'] ) {
+		if ( $settings['cdata_titles'] && 'atom' !== $settings['feed_format'] ) {
 			$title = '<![CDATA[' . $title . ']]>';
 		}
 
