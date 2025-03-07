@@ -22,12 +22,17 @@
 	<hr class="separator">
 	<ul>
 	<?php
-	$recent_posts = get_posts(
-		array(
-			'posts_per_page' => 20,
-			'post_status'    => 'publish',
-		)
-	);
+	$query_args = [
+		'posts_per_page' => Lite_Site::get_posts_per_page(),
+		'post_status'    => 'publish',
+	];
+
+	$categories = Lite_Site::get_categories();
+	if ( ! empty( $categories ) ) {
+		$query_args['category__in'] = $categories;
+	}
+
+	$recent_posts = get_posts( $query_args );
 
 	foreach ( $recent_posts as $current_post ) {
 		printf(
@@ -38,5 +43,14 @@
 	}
 	?>
 	</ul>
+	<?php
+	$footer_html = Lite_Site::get_footer_html();
+	if ( ! empty( $footer_html ) ) :
+		?>
+		<hr class="separator">
+		<footer class="site-footer">
+			<?php echo wp_kses_post( $footer_html ); ?>
+		</footer>
+	<?php endif; ?>
 </body>
 </html>

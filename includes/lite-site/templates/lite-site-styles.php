@@ -29,4 +29,8 @@
 	.meta .date {
 		margin-top: 0.5rem;
 	}
+	.site-footer {
+		margin-top: 2rem;
+		color: #515151;
+	}
 </style>

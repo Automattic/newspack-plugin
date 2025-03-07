@@ -40,5 +40,14 @@ if ( ! $current_post ) {
 	<div class="content">
 		<?php echo wp_kses_post( Lite_Site::clean_content( $current_post->post_content ) ); ?>
 	</div>
+	<?php
+	$footer_html = Lite_Site::get_footer_html();
+	if ( ! empty( $footer_html ) ) :
+		?>
+		<hr class="separator">
+		<footer class="site-footer">
+			<?php echo wp_kses_post( $footer_html ); ?>
+		</footer>
+	<?php endif; ?>
 </body>
 </html>

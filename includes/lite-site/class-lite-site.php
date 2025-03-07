@@ -10,40 +10,305 @@
  */
 class Lite_Site {
 	/**
+	 * The option name for storing settings
+	 */
+	const OPTION_NAME = 'newspack_lite_site_settings';
+
+	/**
 	 * Initialize the lite site functionality
 	 */
 	public static function init() {
-		add_action( 'init', [ __CLASS__, 'register_rewrite_rules' ] );
-		add_action( 'init', [ __CLASS__, 'maybe_flush_rewrite_rules' ], 11 );
-		add_filter( 'query_vars', [ __CLASS__, 'register_query_vars' ] );
-		add_action( 'template_redirect', [ __CLASS__, 'handle_lite_site_templates' ] );
+		// Only register rewrite rules if the feature is enabled.
+		if ( self::is_enabled() ) {
+			add_action( 'init', [ __CLASS__, 'register_rewrite_rules' ] );
+			add_filter( 'query_vars', [ __CLASS__, 'register_query_vars' ] );
+			add_action( 'template_redirect', [ __CLASS__, 'handle_lite_site_templates' ] );
+		}
+
+		// Always register settings.
+		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
+		add_action( 'admin_menu', [ __CLASS__, 'add_menu_page' ] );
+	}
+
+	/**
+	 * Check if the lite site feature is enabled
+	 */
+	public static function is_enabled() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		return ! empty( $settings['enabled'] );
+	}
+
+	/**
+	 * Get the lite site URL base
+	 */
+	public static function get_url_base() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		return ! empty( $settings['url_base'] ) ? $settings['url_base'] : 'text';
+	}
+
+	/**
+	 * Get the number of posts to display
+	 */
+	public static function get_posts_per_page() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		return ! empty( $settings['posts_per_page'] ) ? intval( $settings['posts_per_page'] ) : 20;
+	}
+
+	/**
+	 * Get the selected categories
+	 */
+	public static function get_categories() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		return ! empty( $settings['categories'] ) ? (array) $settings['categories'] : [];
+	}
+
+	/**
+	 * Get the footer HTML
+	 */
+	public static function get_footer_html() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		return ! empty( $settings['footer_html'] ) ? $settings['footer_html'] : '';
+	}
+
+	/**
+	 * Register settings
+	 */
+	public static function register_settings() {
+		register_setting(
+			'newspack_lite_site',
+			self::OPTION_NAME,
+			[
+				'type'              => 'object',
+				'sanitize_callback' => [ __CLASS__, 'sanitize_settings' ],
+			]
+		);
+
+		add_settings_section(
+			'newspack_lite_site_main',
+			__( 'Lite Site Settings', 'newspack' ),
+			'__return_null',
+			'newspack_lite_site'
+		);
+
+		add_settings_field(
+			'enabled',
+			__( 'Enable Lite Site', 'newspack' ),
+			[ __CLASS__, 'render_enabled_field' ],
+			'newspack_lite_site',
+			'newspack_lite_site_main'
+		);
+
+		add_settings_field(
+			'url_base',
+			__( 'URL Base', 'newspack' ),
+			[ __CLASS__, 'render_url_base_field' ],
+			'newspack_lite_site',
+			'newspack_lite_site_main'
+		);
+
+		add_settings_field(
+			'posts_per_page',
+			__( 'Posts per Page', 'newspack' ),
+			[ __CLASS__, 'render_posts_per_page_field' ],
+			'newspack_lite_site',
+			'newspack_lite_site_main'
+		);
+
+		add_settings_field(
+			'categories',
+			__( 'Categories', 'newspack' ),
+			[ __CLASS__, 'render_categories_field' ],
+			'newspack_lite_site',
+			'newspack_lite_site_main'
+		);
+
+		add_settings_field(
+			'footer_html',
+			__( 'Footer HTML', 'newspack' ),
+			[ __CLASS__, 'render_footer_html_field' ],
+			'newspack_lite_site',
+			'newspack_lite_site_main'
+		);
+	}
+
+	/**
+	 * Add menu page
+	 */
+	public static function add_menu_page() {
+		add_options_page(
+			__( 'Lite Site', 'newspack' ),
+			__( 'Lite Site', 'newspack' ),
+			'manage_options',
+			'newspack-lite-site',
+			[ __CLASS__, 'render_settings_page' ]
+		);
+	}
+
+	/**
+	 * Render settings page
+	 */
+	public static function render_settings_page() {
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'Lite Site Settings', 'newspack' ); ?></h1>
+			<form action="options.php" method="post">
+				<?php
+				settings_fields( 'newspack_lite_site' );
+				do_settings_sections( 'newspack_lite_site' );
+				submit_button();
+				?>
+			</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render enabled field
+	 */
+	public static function render_enabled_field() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		?>
+		<label>
+			<input
+				type="checkbox"
+				name="<?php echo esc_attr( self::OPTION_NAME ); ?>[enabled]"
+				value="1"
+				<?php checked( ! empty( $settings['enabled'] ) ); ?>
+			>
+			<?php esc_html_e( 'Enable lite site feature', 'newspack' ); ?>
+		</label>
+		<?php
+	}
+
+	/**
+	 * Render URL base field
+	 */
+	public static function render_url_base_field() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		$url_base = ! empty( $settings['url_base'] ) ? $settings['url_base'] : 'text';
+		?>
+		<input
+			type="text"
+			name="<?php echo esc_attr( self::OPTION_NAME ); ?>[url_base]"
+			value="<?php echo esc_attr( $url_base ); ?>"
+			class="regular-text"
+		>
+		<p class="description">
+			<?php esc_html_e( 'The URL base for the lite site (e.g. "text" for /text/)', 'newspack' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render posts per page field
+	 */
+	public static function render_posts_per_page_field() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		$posts_per_page = ! empty( $settings['posts_per_page'] ) ? intval( $settings['posts_per_page'] ) : 20;
+		?>
+		<input
+			type="number"
+			name="<?php echo esc_attr( self::OPTION_NAME ); ?>[posts_per_page]"
+			value="<?php echo esc_attr( $posts_per_page ); ?>"
+			min="1"
+			max="100"
+			step="1"
+		>
+		<?php
+	}
+
+	/**
+	 * Render categories field
+	 */
+	public static function render_categories_field() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		$selected_categories = ! empty( $settings['categories'] ) ? (array) $settings['categories'] : [];
+		$categories = get_categories( [ 'hide_empty' => false ] );
+		?>
+		<select
+			name="<?php echo esc_attr( self::OPTION_NAME ); ?>[categories][]"
+			multiple
+			class="regular-text"
+			style="min-height: 100px;"
+		>
+			<option value="" <?php selected( empty( $selected_categories ) ); ?>>
+				All categories
+			</option>
+			<?php foreach ( $categories as $category ) : ?>
+				<option
+					value="<?php echo esc_attr( $category->term_id ); ?>"
+					<?php selected( in_array( $category->term_id, $selected_categories ) ); ?>
+				>
+					<?php echo esc_html( $category->name ); ?>
+				</option>
+			<?php endforeach; ?>
+		</select>
+		<p class="description">
+			<?php esc_html_e( 'Select categories to include. Leave empty to include all categories.', 'newspack' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render footer HTML field
+	 */
+	public static function render_footer_html_field() {
+		$settings = get_option( self::OPTION_NAME, [] );
+		$footer_html = ! empty( $settings['footer_html'] ) ? $settings['footer_html'] : '';
+		?>
+		<textarea
+			name="<?php echo esc_attr( self::OPTION_NAME ); ?>[footer_html]"
+			rows="5"
+			class="large-text"
+		><?php echo esc_textarea( $footer_html ); ?></textarea>
+		<p class="description">
+			<?php esc_html_e( 'HTML to be displayed in the footer of lite site pages.', 'newspack' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Sanitize settings
+	 *
+	 * @param array $settings The settings to sanitize.
+	 * @return array The sanitized settings.
+	 */
+	public static function sanitize_settings( $settings ) {
+		$old_settings = get_option( self::OPTION_NAME, [] );
+
+		flush_rewrite_rules(); // phpcs:ignore
+
+		// handle All categories.
+		if ( in_array( '', $settings['categories'] ) ) {
+			$settings['categories'] = [];
+		}
+
+		return [
+			'enabled'        => ! empty( $settings['enabled'] ),
+			'url_base'       => sanitize_title( $settings['url_base'] ),
+			'posts_per_page' => min( 100, max( 1, intval( $settings['posts_per_page'] ) ) ),
+			'categories'     => ! empty( $settings['categories'] ) ? array_map( 'intval', $settings['categories'] ) : [],
+			'footer_html'    => wp_kses_post( $settings['footer_html'] ),
+		];
 	}
 
 	/**
 	 * Register the rewrite rules for the lite site
 	 */
 	public static function register_rewrite_rules() {
+		$url_base = self::get_url_base();
+
 		add_rewrite_rule(
-			'^text/?$',
+			'^' . $url_base . '/?$',
 			'index.php?lite_site=archive',
 			'top'
 		);
 
 		add_rewrite_rule(
-			'^text/([0-9]+)/?$',
+			'^' . $url_base . '/([0-9]+)/?$',
 			'index.php?lite_site=single&lite_site_id=$matches[1]',
 			'top'
 		);
-	}
-
-	/**
-	 * Flush rewrite rules if they haven't been flushed yet
-	 */
-	public static function maybe_flush_rewrite_rules() {
-		if ( ! get_option( 'lite_site_rewrite_rules_flushed' ) ) {
-			flush_rewrite_rules(); // phpcs:ignore
-			update_option( 'lite_site_rewrite_rules_flushed', true );
-		}
 	}
 
 	/**
