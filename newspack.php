@@ -26,7 +26,7 @@ if ( ! defined( 'NEWSPACK_PLUGIN_BASEDIR' ) ) {
 	define( 'NEWSPACK_PLUGIN_BASEDIR', dirname( plugin_basename( NEWSPACK_PLUGIN_FILE ) ) );
 }
 
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // Include the main Newspack class.
 if ( ! class_exists( 'Newspack' ) ) {
