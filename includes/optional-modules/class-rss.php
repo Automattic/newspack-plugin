@@ -640,7 +640,7 @@ class RSS {
 			);
 		}
 
-		if ( ! empty( $settings['only_republishable'] ) ) {
+		if ( class_exists( 'Republication_Tracker_Tool' ) && ! empty( $settings['only_republishable'] ) ) {
 			$meta_query = $query->get( 'meta_query' );
 			if ( ! is_array( $meta_query ) ) {
 				$meta_query = [];
