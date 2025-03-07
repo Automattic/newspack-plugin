@@ -334,13 +334,8 @@ class Memberships {
 	 * }
 	 */
 	public static function get_gate_metadata() {
-		$post_id = self::get_gate_post_id();
-		$blocks  = self::get_block_names_recursive( parse_blocks( get_post_field( 'post_content', $post_id ) ) );
 		return [
-			'gate_post_id'                => $post_id,
-			'gate_has_donation_block'     => in_array( 'newspack-blocks/donate', $blocks ) ? 'yes' : 'no',
-			'gate_has_registration_block' => in_array( 'newspack/reader-registration', $blocks ) ? 'yes' : 'no',
-			'gate_has_checkout_button'    => in_array( 'newspack-blocks/checkout-button', $blocks ) ? 'yes' : 'no',
+			'gate_post_id' => self::get_gate_post_id(),
 		];
 	}
 

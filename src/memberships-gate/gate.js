@@ -46,6 +46,17 @@ function addFormInputs( gate ) {
 }
 
 /**
+ * Check if a DOM element is visible.
+ */
+function isVisible( el ) {
+	if ( ! el ) {
+		return false;
+	}
+
+	return el.offsetWidth > 0 && el.offsetHeight > 0;
+}
+
+/**
  * Get the full event payload for GA4.
  *
  * @param {Array} payload The event payload.
@@ -53,8 +64,16 @@ function addFormInputs( gate ) {
  * @return {Array} The full event payload
  */
 function getEventPayload( payload ) {
-	return {
+	const gateInfo = {
 		...newspack_memberships_gate.metadata,
+		gate_has_donation_block: isVisible( document.querySelector( '.newspack-memberships__gate .wp-block-newspack-blocks-donate' ) ) ? 'yes' : 'no',
+		gate_has_registration_block: isVisible( document.querySelector( '.newspack-memberships__gate .newspack-registration' ) ) ? 'yes' : 'no',
+		gate_has_checkout_button: isVisible( document.querySelector( '.newspack-memberships__gate .wp-block-newspack-blocks-checkout-button') ) ? 'yes' : 'no',
+
+	};
+
+	return {
+		...gateInfo,
 		...payload,
 	}
 }
