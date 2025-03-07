@@ -465,7 +465,9 @@ class RSS {
 						<input type="checkbox" name="only_republishable" value="1" <?php checked( $settings['only_republishable'] ); ?> />
 					</td>
 				</tr>
-				<tr>
+
+			<?php endif; ?>
+			<tr>
 					<th><?php esc_html_e( 'Feed format', 'newspack-plugin' ); ?></th>
 					<td>
 						<select name="feed_format">
@@ -474,7 +476,6 @@ class RSS {
 						</select>
 					</td>
 				</tr>
-			<?php endif; ?>
 		</table>
 		<?php
 	}
@@ -573,9 +574,10 @@ class RSS {
 			$only_republishable             = filter_input( INPUT_POST, 'only_republishable', FILTER_SANITIZE_NUMBER_INT );
 			$settings['only_republishable'] = (bool) $only_republishable;
 
-			$feed_format             = filter_input( INPUT_POST, 'feed_format', FILTER_SANITIZE_SPECIAL_CHARS );
-			$settings['feed_format'] = in_array( $feed_format, [ 'rss', 'atom' ] ) ? $feed_format : 'rss';
 		}
+
+		$feed_format             = filter_input( INPUT_POST, 'feed_format', FILTER_SANITIZE_SPECIAL_CHARS );
+		$settings['feed_format'] = in_array( $feed_format, [ 'rss', 'atom' ] ) ? $feed_format : 'rss';
 
 		update_post_meta( $feed_post_id, self::FEED_SETTINGS_META, $settings );
 		// @todo flush feed cache here.
