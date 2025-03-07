@@ -315,6 +315,17 @@ class Memberships {
 		foreach ( $blocks as $block ) {
 			if ( ! empty( $block['blockName'] ) ) {
 				$block_names[] = $block['blockName'];
+
+				// If a Memberships conditional block, bail if it's not rendering any content.
+				if ( 'woocommerce-memberships/member-content' === $block['blockName'] || 'woocommerce-memberships/non-member-content' === $block['blockName'] ) {
+					$block_html = render_block( $block );
+					if (
+						empty( trim( $block_html ) ) || // No content rendered.
+						preg_replace( '/\s+/', '', $block_html ) === preg_replace( '/\s+/', '', $block['innerHTML'] ) // No inner content rendered.
+					) {
+						continue;
+					}
+				}
 			}
 			if ( ! empty( $block['innerBlocks'] ) ) {
 				$block_names = array_merge( $block_names, self::get_block_names_recursive( $block['innerBlocks'] ) );
@@ -334,8 +345,13 @@ class Memberships {
 	 * }
 	 */
 	public static function get_gate_metadata() {
+		$post_id = self::get_gate_post_id();
+		$blocks  = self::get_block_names_recursive( parse_blocks( get_post_field( 'post_content', $post_id ) ) );
 		return [
-			'gate_post_id' => self::get_gate_post_id(),
+			'gate_post_id'                => $post_id,
+			'gate_has_donation_block'     => in_array( 'newspack-blocks/donate', $blocks ) ? 'yes' : 'no',
+			'gate_has_registration_block' => in_array( 'newspack/reader-registration', $blocks ) ? 'yes' : 'no',
+			'gate_has_checkout_button'    => in_array( 'newspack-blocks/checkout-button', $blocks ) ? 'yes' : 'no',
 		];
 	}
 
