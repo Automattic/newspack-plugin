@@ -194,8 +194,14 @@ class AdvertisingWizard extends Component {
 							path="/suppression"
 							render={ () => (
 								<Suppression
-									headerText={ __( 'Advertising / Ad Suppression', 'newspack-plugin' ) }
+									headerText={ __( 'Advertising / Suppression', 'newspack-plugin' ) }
+									subHeaderText={ __(
+										'Allows you to manage site-wide ad suppression',
+										'newspack-plugin'
+									) }
 									tabbedNavigation={ tabs }
+									config={ advertisingData.suppression }
+									onChange={ config => this.updateAdSuppression( config ) }
 								/>
 							) }
 						/>
