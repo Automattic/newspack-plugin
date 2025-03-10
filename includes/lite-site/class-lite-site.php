@@ -85,14 +85,14 @@ class Lite_Site {
 
 		add_settings_section(
 			'newspack_lite_site_main',
-			__( 'Lite Site Settings', 'newspack' ),
+			__( 'Lite Site Settings', 'newspack-plugin' ),
 			'__return_null',
 			'newspack_lite_site'
 		);
 
 		add_settings_field(
 			'enabled',
-			__( 'Enable Lite Site', 'newspack' ),
+			__( 'Enable Lite Site', 'newspack-plugin' ),
 			[ __CLASS__, 'render_enabled_field' ],
 			'newspack_lite_site',
 			'newspack_lite_site_main'
@@ -100,7 +100,7 @@ class Lite_Site {
 
 		add_settings_field(
 			'url_base',
-			__( 'URL Base', 'newspack' ),
+			__( 'URL Base', 'newspack-plugin' ),
 			[ __CLASS__, 'render_url_base_field' ],
 			'newspack_lite_site',
 			'newspack_lite_site_main'
@@ -108,7 +108,7 @@ class Lite_Site {
 
 		add_settings_field(
 			'number_of_posts',
-			__( 'Posts per Page', 'newspack' ),
+			__( 'Posts per Page', 'newspack-plugin' ),
 			[ __CLASS__, 'render_number_of_posts_field' ],
 			'newspack_lite_site',
 			'newspack_lite_site_main'
@@ -116,7 +116,7 @@ class Lite_Site {
 
 		add_settings_field(
 			'categories',
-			__( 'Categories', 'newspack' ),
+			__( 'Categories', 'newspack-plugin' ),
 			[ __CLASS__, 'render_categories_field' ],
 			'newspack_lite_site',
 			'newspack_lite_site_main'
@@ -124,7 +124,7 @@ class Lite_Site {
 
 		add_settings_field(
 			'footer_html',
-			__( 'Footer HTML', 'newspack' ),
+			__( 'Footer HTML', 'newspack-plugin' ),
 			[ __CLASS__, 'render_footer_html_field' ],
 			'newspack_lite_site',
 			'newspack_lite_site_main'
@@ -136,8 +136,8 @@ class Lite_Site {
 	 */
 	public static function add_menu_page() {
 		add_options_page(
-			__( 'Lite Site', 'newspack' ),
-			__( 'Lite Site', 'newspack' ),
+			__( 'Lite Site', 'newspack-plugin' ),
+			__( 'Lite Site', 'newspack-plugin' ),
 			'manage_options',
 			'newspack-lite-site',
 			[ __CLASS__, 'render_settings_page' ]
@@ -150,7 +150,7 @@ class Lite_Site {
 	public static function render_settings_page() {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Lite Site Settings', 'newspack' ); ?></h1>
+			<h1><?php esc_html_e( 'Lite Site Settings', 'newspack-plugin' ); ?></h1>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( 'newspack_lite_site' );
@@ -175,7 +175,7 @@ class Lite_Site {
 				value="1"
 				<?php checked( ! empty( $settings['enabled'] ) ); ?>
 			>
-			<?php esc_html_e( 'Enable lite site feature', 'newspack' ); ?>
+			<?php esc_html_e( 'Enable lite site feature', 'newspack-plugin' ); ?>
 		</label>
 		<?php
 	}
@@ -194,7 +194,7 @@ class Lite_Site {
 			class="regular-text"
 		>
 		<p class="description">
-			<?php esc_html_e( 'The URL base for the lite site (e.g. "text" for /text/)', 'newspack' ); ?>
+			<?php esc_html_e( 'The URL base for the lite site (e.g. "text" for /text/)', 'newspack-plugin' ); ?>
 		</p>
 		<?php
 	}
@@ -244,7 +244,7 @@ class Lite_Site {
 			<?php endforeach; ?>
 		</select>
 		<p class="description">
-			<?php esc_html_e( 'Select categories to include. Leave empty to include all categories.', 'newspack' ); ?>
+			<?php esc_html_e( 'Select categories to include.', 'newspack-plugin' ); ?>
 		</p>
 		<?php
 	}
@@ -262,7 +262,7 @@ class Lite_Site {
 			class="large-text"
 		><?php echo esc_textarea( $footer_html ); ?></textarea>
 		<p class="description">
-			<?php esc_html_e( 'HTML to be displayed in the footer of lite site pages.', 'newspack' ); ?>
+			<?php esc_html_e( 'HTML to be displayed in the footer of lite site pages.', 'newspack-plugin' ); ?>
 		</p>
 		<?php
 	}
@@ -389,15 +389,18 @@ class Lite_Site {
 
 			if ( count( $author_links ) > 1 ) {
 				$last_author = array_pop( $author_links );
-				$author_string = implode(
-					/* translators: separator for all but last author in a list */
-					__( ', ', 'newspack' ),
+				$first_authors = implode(
+					', ',
 					$author_links
 				);
-				$author_string .= ' ' .
-					/* translators: separator for last author in a list */
-					__( 'and', 'newspack' ) .
-					' ' . $last_author;
+
+				$author_string = sprintf(
+					/* translators: %1$s: a comma separated list of authors names with links and, after the "and" %2$s: one last author link */
+					__( '%1$s and %2$s', 'newspack-plugin' ),
+					$first_authors,
+					$last_author
+				);
+
 			} else {
 				$author_string = $author_links[0];
 			}
@@ -411,7 +414,7 @@ class Lite_Site {
 
 		return sprintf(
 			/* translators: %s: author name(s) */
-			__( 'By %s', 'newspack' ),
+			__( 'By %s', 'newspack-plugin' ),
 			$author_string
 		);
 	}
