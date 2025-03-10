@@ -376,7 +376,7 @@ class RSS {
 
 			<?php
 			// Only show this new option if the Republication Tracker Tool plugin is active.
-			if ( class_exists( 'Republication_Tracker_Tool' ) ) :
+			if ( self::is_republication_tracker_plugin_active() ) :
 				?>
 				<tr>
 					<th>
@@ -479,7 +479,7 @@ class RSS {
 			<?php endif; ?>
 			<?php
 			// Only show this new option if the Republication Tracker Tool plugin is active.
-			if ( class_exists( 'Republication_Tracker_Tool' ) ) :
+			if ( self::is_republication_tracker_plugin_active() ) :
 				?>
 				<tr>
 					<th><?php esc_html_e( 'Add republication tracker snippet to posts', 'newspack-plugin' ); ?></th>
@@ -581,7 +581,7 @@ class RSS {
 		}
 
 		// Process Republication Tracker options only if the plugin is active.
-		if ( class_exists( 'Republication_Tracker_Tool' ) ) {
+		if ( self::is_republication_tracker_plugin_active() ) {
 			$republication_tracker             = filter_input( INPUT_POST, 'republication_tracker', FILTER_SANITIZE_NUMBER_INT );
 			$settings['republication_tracker'] = (bool) $republication_tracker;
 
@@ -653,7 +653,7 @@ class RSS {
 			);
 		}
 
-		if ( class_exists( 'Republication_Tracker_Tool' ) && ! empty( $settings['only_republishable'] ) ) {
+		if ( self::is_republication_tracker_plugin_active() && ! empty( $settings['only_republishable'] ) ) {
 			$meta_query = $query->get( 'meta_query' );
 			if ( ! is_array( $meta_query ) ) {
 				$meta_query = [];
@@ -819,6 +819,16 @@ xmlns:media="http://search.yahoo.com/mrss/"
 		}
 
 		return $title;
+	}
+
+	/**
+	 * Check if the Republication Tracker Tool plugin is active.
+	 * This is used to determine whether to show additional options in the RSS feed settings.
+	 *
+	 * @return bool Whether the Republication Tracker Tool plugin is active.
+	 */
+	private static function is_republication_tracker_plugin_active() {
+		return class_exists( 'Republication_Tracker_Tool' );
 	}
 }
 RSS::init();
