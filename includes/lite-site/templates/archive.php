@@ -16,14 +16,14 @@
 </head>
 <body>
 	<header class="back">
-		<a href="<?php echo esc_url( home_url() ); ?>" >View full site</a>
+		<a href="<?php echo esc_url( home_url() ); ?>" ><?php esc_html_e( 'View full site', 'newspack-plugin' ); ?></a>
 	</header>
 	<h1><?php bloginfo( 'name' ); ?></h1>
 	<hr class="separator">
 	<ul>
 	<?php
 	$query_args = [
-		'posts_per_page' => Lite_Site::get_posts_per_page(),
+		'posts_per_page' => Lite_Site::get_number_of_posts(),
 		'post_status'    => 'publish',
 	];
 

@@ -49,9 +49,9 @@ class Lite_Site {
 	/**
 	 * Get the number of posts to display
 	 */
-	public static function get_posts_per_page() {
+	public static function get_number_of_posts() {
 		$settings = get_option( self::OPTION_NAME, [] );
-		return ! empty( $settings['posts_per_page'] ) ? intval( $settings['posts_per_page'] ) : 20;
+		return ! empty( $settings['number_of_posts'] ) ? intval( $settings['number_of_posts'] ) : 20;
 	}
 
 	/**
@@ -107,9 +107,9 @@ class Lite_Site {
 		);
 
 		add_settings_field(
-			'posts_per_page',
+			'number_of_posts',
 			__( 'Posts per Page', 'newspack' ),
-			[ __CLASS__, 'render_posts_per_page_field' ],
+			[ __CLASS__, 'render_number_of_posts_field' ],
 			'newspack_lite_site',
 			'newspack_lite_site_main'
 		);
@@ -202,14 +202,14 @@ class Lite_Site {
 	/**
 	 * Render posts per page field
 	 */
-	public static function render_posts_per_page_field() {
+	public static function render_number_of_posts_field() {
 		$settings = get_option( self::OPTION_NAME, [] );
-		$posts_per_page = ! empty( $settings['posts_per_page'] ) ? intval( $settings['posts_per_page'] ) : 20;
+		$number_of_posts = ! empty( $settings['number_of_posts'] ) ? intval( $settings['number_of_posts'] ) : 20;
 		?>
 		<input
 			type="number"
-			name="<?php echo esc_attr( self::OPTION_NAME ); ?>[posts_per_page]"
-			value="<?php echo esc_attr( $posts_per_page ); ?>"
+			name="<?php echo esc_attr( self::OPTION_NAME ); ?>[number_of_posts]"
+			value="<?php echo esc_attr( $number_of_posts ); ?>"
 			min="1"
 			max="100"
 			step="1"
@@ -284,11 +284,11 @@ class Lite_Site {
 		}
 
 		return [
-			'enabled'        => ! empty( $settings['enabled'] ),
-			'url_base'       => sanitize_title( $settings['url_base'] ),
-			'posts_per_page' => min( 100, max( 1, intval( $settings['posts_per_page'] ) ) ),
-			'categories'     => ! empty( $settings['categories'] ) ? array_map( 'intval', $settings['categories'] ) : [],
-			'footer_html'    => wp_kses_post( $settings['footer_html'] ),
+			'enabled'         => ! empty( $settings['enabled'] ),
+			'url_base'        => sanitize_title( $settings['url_base'] ),
+			'number_of_posts' => min( 100, max( 1, intval( $settings['number_of_posts'] ) ) ),
+			'categories'      => ! empty( $settings['categories'] ) ? array_map( 'intval', $settings['categories'] ) : [],
+			'footer_html'     => wp_kses_post( $settings['footer_html'] ),
 		];
 	}
 
