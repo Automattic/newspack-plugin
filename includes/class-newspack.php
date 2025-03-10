@@ -184,6 +184,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-performance.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-default-image.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-media-partners.php';
