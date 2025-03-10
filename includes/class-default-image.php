@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack News Revenue Hub feature management.
+ * Handles Default Image functionality.
  *
  * @package Newspack
  */
