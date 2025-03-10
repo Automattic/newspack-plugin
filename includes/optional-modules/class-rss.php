@@ -48,13 +48,13 @@ class RSS {
 	 * Get URL for a feed.
 	 *
 	 * @param WP_Post $feed_post RSS feed post object.
+	 * @param string  $feed_type Feed type (rss or atom).
+	 *
+	 * @return string Feed URL.
 	 */
-	public static function get_feed_url( $feed_post ) {
-		$settings      = self::get_feed_settings( $feed_post );
+	public static function get_feed_url( $feed_post, $feed_type = 'rss' ) {
 		$feed_slug     = is_numeric( $feed_post ) ? get_post_field( 'post_name', $feed_post ) : $feed_post->post_name;
-		$base_feed_url = ( isset( $settings['feed_format'] ) && 'atom' === $settings['feed_format'] )
-			? get_bloginfo( 'atom_url' )
-			: get_bloginfo( 'rss2_url' );
+		$base_feed_url = 'atom' === $feed_type ? get_bloginfo( 'atom_url' ) : get_bloginfo( 'rss2_url' );
 		return add_query_arg( self::FEED_QUERY_ARG, $feed_slug, $base_feed_url );
 	}
 
@@ -84,7 +84,6 @@ class RSS {
 			'cdata_titles'           => false,
 			'republication_tracker'  => false,
 			'only_republishable'     => false,
-			'feed_format'            => 'rss',
 		];
 
 		if ( ! $feed_post ) {
@@ -161,7 +160,7 @@ class RSS {
 	 * @return array Modified $columns.
 	 */
 	public static function columns_head( $columns ) {
-		$columns['feed_url'] = __( 'Feed URL', 'newspack-plugin' );
+		$columns['feed_url'] = __( 'Feed URLs', 'newspack-plugin' );
 		return $columns;
 	}
 
@@ -173,11 +172,22 @@ class RSS {
 	 */
 	public static function column_content( $column_name, $post_id ) {
 		if ( 'feed_url' === $column_name ) {
-			$feed_url = self::get_feed_url( $post_id );
+			$rss_feed_url  = self::get_feed_url( $post_id );
+			$atom_feed_url = self::get_feed_url( $post_id, 'atom' );
 			?>
-			<a href='<?php echo esc_url( $feed_url ); ?>' target='_blank'>
-				<?php echo esc_url( $feed_url ); ?>
-			</a>
+			<span>
+				<strong><?php esc_html_e( 'RSS:', 'newspack-plugin' ); ?></strong>
+				<a href='<?php echo esc_url( $rss_feed_url ); ?>' target='_blank'>
+					<?php echo esc_url( $rss_feed_url ); ?>
+				</a>
+			</span>
+			<br />
+			<span>
+				<strong><?php esc_html_e( 'Atom:', 'newspack-plugin' ); ?></strong>
+				<a href='<?php echo esc_url( $atom_feed_url ); ?>' target='_blank'>
+					<?php echo esc_url( $atom_feed_url ); ?>
+				</a>
+			</span>
 			<?php
 		}
 	}
@@ -190,7 +200,7 @@ class RSS {
 	public static function add_metaboxes( $feed_post ) {
 		add_meta_box(
 			'partner_rss_feed_url',
-			__( 'Feed URL', 'newspack-plugin' ),
+			__( 'Feed URLs', 'newspack-plugin' ),
 			[ __CLASS__, 'render_url_metabox' ],
 			self::FEED_CPT
 		);
@@ -251,14 +261,31 @@ class RSS {
 			return;
 		}
 
-		$feed_url = self::get_feed_url( $feed_post );
-
+		$rss_feed_url  = self::get_feed_url( $feed_post );
+		$atom_feed_url = self::get_feed_url( $feed_post, 'atom' );
 		?>
-		<h3>
-			<a href='<?php echo esc_url( $feed_url ); ?>' target='_blank'>
-				<?php echo esc_url( $feed_url ); ?>
-			</a>
-		</h3>
+		<table>
+			<tr>
+				<td><h3><?php esc_html_e( 'RSS :-', 'newspack-plugin' ); ?></h3></td>
+				<td>
+					<h3>
+						<a href="<?php echo esc_url( $rss_feed_url ); ?>" target="_blank">
+							<?php echo esc_url( $rss_feed_url ); ?>
+						</a>
+					</h3>
+				</td>
+			</tr>
+			<tr>
+				<td><h3><?php esc_html_e( 'Atom :-', 'newspack-plugin' ); ?></h3></td>
+				<td>
+					<h3>
+						<a href="<?php echo esc_url( $atom_feed_url ); ?>" target="_blank">
+							<?php echo esc_url( $atom_feed_url ); ?>
+						</a>
+					</h3>
+				</td>
+			</tr>
+		</table>
 		<?php
 	}
 
@@ -346,25 +373,28 @@ class RSS {
 					<input type="checkbox" name="use_post_id_as_guid" value="1" <?php checked( $settings['use_post_id_as_guid'] ); ?> />
 				</td>
 			</tr>
+
+			<?php
+			// Only show this new option if the Republication Tracker Tool plugin is active.
+			if ( class_exists( 'Republication_Tracker_Tool' ) ) :
+				?>
+				<tr>
+					<th>
+						<?php esc_html_e( 'Only include republishable posts', 'newspack-plugin' ); ?>
+						<p class="description"><?php echo esc_html_x( '(When toggled on, posts which have republication disabled will be excluded from the feed.)', 'help text for only republishable setting', 'newspack-plugin' ); ?></p>
+					</th>
+					<td>
+						<input type="hidden" name="only_republishable" value="0" />
+						<input type="checkbox" name="only_republishable" value="1" <?php checked( $settings['only_republishable'] ); ?> />
+					</td>
+				</tr>
+			<?php endif; ?>
 		</table>
 
 		<script>
-			const handleCDATA = function() {
-				if ( 'atom' === jQuery( '[name="feed_format"]' ).val() ) {
-					jQuery( '[name="cdata_titles"]' ).prop( 'checked', false );
-					jQuery( '[name="cdata_titles"]' ).prop( 'disabled', true );
-				} else {
-					jQuery( '[name="cdata_titles"]' ).prop( 'disabled', false );
-				}
-			};
-
 			jQuery( document ).ready( function() {
 				jQuery( '#category_include' ).select2();
 				jQuery( '#category_exclude' ).select2();
-
-				// WordPress wraps Atom feed titles in CDATA tags by default.
-				handleCDATA();
-				jQuery( '[name="feed_format"]' ).on( 'change', handleCDATA );
 			} );
 		</script>
 		<?php
@@ -448,7 +478,7 @@ class RSS {
 				</tr>
 			<?php endif; ?>
 			<?php
-			// Only show these new options if the Republication Tracker Tool plugin is active.
+			// Only show this new option if the Republication Tracker Tool plugin is active.
 			if ( class_exists( 'Republication_Tracker_Tool' ) ) :
 				?>
 				<tr>
@@ -458,24 +488,8 @@ class RSS {
 						<input type="checkbox" name="republication_tracker" value="1" <?php checked( $settings['republication_tracker'] ); ?> />
 					</td>
 				</tr>
-				<tr>
-					<th><?php esc_html_e( 'Only include republishable posts', 'newspack-plugin' ); ?></th>
-					<td>
-						<input type="hidden" name="only_republishable" value="0" />
-						<input type="checkbox" name="only_republishable" value="1" <?php checked( $settings['only_republishable'] ); ?> />
-					</td>
-				</tr>
 
 			<?php endif; ?>
-			<tr>
-					<th><?php esc_html_e( 'Feed format', 'newspack-plugin' ); ?></th>
-					<td>
-						<select name="feed_format">
-							<option value="rss" <?php selected( $settings['feed_format'], 'rss' ); ?>><?php esc_html_e( 'RSS', 'newspack-plugin' ); ?></option>
-							<option value="atom" <?php selected( $settings['feed_format'], 'atom' ); ?>><?php esc_html_e( 'Atom', 'newspack-plugin' ); ?></option>
-						</select>
-					</td>
-				</tr>
 		</table>
 		<?php
 	}
@@ -575,9 +589,6 @@ class RSS {
 			$settings['only_republishable'] = (bool) $only_republishable;
 
 		}
-
-		$feed_format             = filter_input( INPUT_POST, 'feed_format', FILTER_SANITIZE_SPECIAL_CHARS );
-		$settings['feed_format'] = in_array( $feed_format, [ 'rss', 'atom' ] ) ? $feed_format : 'rss';
 
 		update_post_meta( $feed_post_id, self::FEED_SETTINGS_META, $settings );
 		// @todo flush feed cache here.
@@ -803,7 +814,7 @@ xmlns:media="http://search.yahoo.com/mrss/"
 			return $title;
 		}
 
-		if ( $settings['cdata_titles'] && 'atom' !== $settings['feed_format'] ) {
+		if ( $settings['cdata_titles'] && 'atom' !== get_query_var( 'feed' ) ) {
 			$title = '<![CDATA[' . $title . ']]>';
 		}
 
