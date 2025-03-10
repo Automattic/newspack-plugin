@@ -355,7 +355,7 @@ class Lite_Site {
 	 */
 	public static function get_primary_color() {
 		if ( ! function_exists( 'newspack_get_primary_color' ) ) {
-			return '#000';
+			return 'currentcolor';
 		}
 
 		$primary_color = newspack_get_primary_color();

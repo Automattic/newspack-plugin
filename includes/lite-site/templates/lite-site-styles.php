@@ -9,28 +9,50 @@
 <style>
 	body {
 		font-family: system-ui, -apple-system, sans-serif;
-		line-height: 1.5;
-		max-width: 41.5rem;
-		margin: 2rem auto;
-		padding: 0 1rem;
+		font-size: clamp( 1.125rem, 0.929rem + 0.402vw, 1.25rem );
+		line-height: 1.6;
+		margin: 0 auto;
+		max-width: 39.5rem;
+		padding: 2rem 1rem;
 	}
-	h1 { margin-bottom: 2rem; }
-	ul { padding-left: 0; list-style: none; }
-	li { margin-bottom: 1rem; }
-	a { color: #000; }
-	.back { display: block; margin-bottom: 2rem; }
+	h1 {
+		font-size: clamp( 1.75rem, -0.213rem + 4.016vw, 3rem );
+		line-height: 1.25;
+		margin: 0 0 2rem;
+	}
+	ul {
+		list-style: none;
+		padding-left: 0;
+	}
+	li {
+		margin-bottom: 1rem;
+	}
+	a {
+		color: currentcolor;
+	}
 	hr.separator {
-		border: 2px solid <?php echo esc_attr( Lite_Site::get_primary_color() ); ?>;
+		border: 0.125rem solid <?php echo esc_attr( Lite_Site::get_primary_color() ); ?>;
+		margin: 2rem 0;
+	}
+	.back {
+		display: block;
+		font-size: 1rem;
+		line-height: 1.5;
+		margin: 0 0 0.5rem;
 	}
 	.meta {
-		color: #515151;
+		color: currentcolor;
 		margin-bottom: 2rem;
 	}
 	.meta .date {
 		margin-top: 0.5rem;
 	}
 	.site-footer {
+		font-size: 1rem;
+		line-height: 1.5;
 		margin-top: 2rem;
-		color: #515151;
+	}
+	.site-footer > :last-child {
+		margin-bottom: 0;
 	}
 </style>
