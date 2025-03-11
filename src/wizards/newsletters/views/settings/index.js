@@ -53,12 +53,7 @@ export const Settings = ( {
 		if ( provider !== newProvider ) {
 			setError( false );
 			setProvider( newProvider );
-			if ( config?.settings?.newspack_newsletters_service_provider?.onboarding ) {
-				// We are onboarding, so we should always lock the lists until saved.
-				setLockedLists( true );
-			} else {
-				setLockedLists( !! provider );
-			}
+			setLockedLists( !! provider );
 		}
 	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
 	// Verify token for OAuth providers.
