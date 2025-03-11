@@ -68,9 +68,10 @@ class Bylines {
 			'newspack-bylines',
 			'newspackBylines',
 			[
-				'metaKeyActive' => self::META_KEY_ACTIVE,
-				'metaKeyByline' => self::META_KEY_BYLINE,
-				'siteUrl'       => \get_site_url(),
+				'metaKeyActive'             => self::META_KEY_ACTIVE,
+				'metaKeyByline'             => self::META_KEY_BYLINE,
+				'siteUrl'                   => \get_site_url(),
+				'is_co_authors_plus_active' => is_plugin_active( 'co-authors-plus/co-authors-plus.php' ),
 			]
 		);
 		\wp_enqueue_style(
