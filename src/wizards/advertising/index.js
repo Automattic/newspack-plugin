@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { withWizard, utils } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
-import { AdUnit, AdUnits, Providers, Settings, Placements } from './views';
+import { AdUnit, AdUnits, Providers, Settings, Placements, Suppression } from './views';
 import { getSizes } from './components/ad-unit-size-control';
 import './style.scss';
 
@@ -155,6 +155,10 @@ class AdvertisingWizard extends Component {
 				path: '/placements',
 			},
 			{
+				label: __( 'Suppression', 'newspack-plugin' ),
+				path: '/suppression',
+			},
+			{
 				label: __( 'Settings', 'newspack-plugin' ),
 				path: '/settings',
 			},
@@ -183,6 +187,21 @@ class AdvertisingWizard extends Component {
 								<Placements
 									headerText={ __( 'Advertising / Display Ads', 'newspack-plugin' ) }
 									tabbedNavigation={ tabs }
+								/>
+							) }
+						/>
+						<Route
+							path="/suppression"
+							render={ () => (
+								<Suppression
+									headerText={ __( 'Advertising / Suppression', 'newspack-plugin' ) }
+									subHeaderText={ __(
+										'Allows you to manage site-wide ad suppression',
+										'newspack-plugin'
+									) }
+									tabbedNavigation={ tabs }
+									config={ advertisingData.suppression }
+									onChange={ config => this.updateAdSuppression( config ) }
 								/>
 							) }
 						/>

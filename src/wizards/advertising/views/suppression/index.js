@@ -18,6 +18,7 @@ import {
 	CategoryAutocomplete,
 	SectionHeader,
 	Waiting,
+	withWizardScreen,
 } from '../../../../components/src';
 
 const Suppression = () => {
@@ -66,6 +67,7 @@ const Suppression = () => {
 	}
 	return (
 		<>
+			<h1>{ __( 'Suppression', 'newspack-plugin' ) }</h1>
 			{ error && <Notice isError noticeText={ error.message } /> }
 			<SectionHeader
 				title={ __( 'Post Types', 'newspack-plugin' ) }
@@ -168,4 +170,4 @@ const Suppression = () => {
 	);
 };
 
-export default Suppression;
+export default withWizardScreen( Suppression );
