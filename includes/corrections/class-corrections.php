@@ -52,37 +52,36 @@ class Corrections {
 	const REST_ROUTE = '/corrections';
 
 	/**
+	 * Customize settings for corrections.
+	 */
+	const CORRECTIONS_LOCATION_CUSTOMIZE_SETTING = 'corrections_location';
+
+	/**
 	 * Initializes the class.
 	 */
 	public static function init() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
+		add_action( 'customize_register', [ __CLASS__, 'corrections_customize_register' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
+		add_action( 'admin_init', [ __CLASS__, 'register_corrections_block_patterns' ] );
+		add_action( 'init', [ __CLASS__, 'register_corrections_template' ] );
 	}
-
-	/**
-	 * Checks if the feature is enabled.
-	 *
-	 * True when:
-	 * - NEWSPACK_CORRECTIONS_ENABLED is defined and true.
-	 *
-	 * @return bool True if the feature is enabled, false otherwise.
-	 */
-	public static function is_enabled() {
-		return defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED;
-	}
-
 
 	/**
 	 * Enqueue scripts and styles.
 	 */
 	public static function wp_enqueue_scripts() {
+		\wp_enqueue_style(
+			'newspack-corrections-single',
+			Newspack::plugin_url() . '/dist/other-scripts/corrections.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+
 		if ( ! is_admin() || ! filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) ) {
 			return;
 		}
@@ -435,7 +434,7 @@ class Corrections {
 	 * @return string the post content with corrections.
 	 */
 	public static function output_corrections_on_post( $content ) {
-		if ( is_admin() || ! is_single() ) {
+		if ( is_admin() || ! is_single() || wp_is_block_theme() ) {
 			return $content;
 		}
 
@@ -448,37 +447,164 @@ class Corrections {
 			return $content;
 		}
 
+		$corrections_archive_url = get_post_type_archive_link( self::POST_TYPE );
+
 		ob_start();
 		?>
 		<!-- wp:group {"className":"correction-module","backgroundColor":"light-gray"} -->
-		<div class="wp-block-group correction-module has-light-gray-background-color has-background">
-			<div class="wp-block-group__inner-container">
-			<?php
-			foreach ( $corrections as $correction ) :
+		<div class="wp-block-group newspack-corrections-module">
+			<?php foreach ( $corrections as $correction ) : ?>
+				<?php
 				$correction_content = $correction->post_content;
 				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
 				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );
+				$timezone           = \wp_timezone()->getName();
 				$correction_heading = sprintf(
-					'%s, %s %s',
-					self::get_correction_type_label( get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true ) ),
+					'%s, %s %s %s:',
+					self::get_correction_type( $correction->ID ),
 					$correction_date,
-					$correction_time
+					$correction_time,
+					$timezone
 				);
 				?>
-				<!-- wp:paragraph {"fontSize":"small"} -->
-				<p class="has-small-font-size correction-heading"><?php echo esc_html( $correction_heading ); ?></p>
-				<!-- /wp:paragraph -->
+				<p class="correction">
+					<a class="correction-title" href="<?php echo esc_url( $corrections_archive_url ); ?>"><?php echo esc_html( $correction_heading ); ?></a>
 
-				<!-- wp:paragraph {"fontSize":"normal"} -->
-				<p class="has-normal-font-size correction-body"><?php echo esc_html( $correction_content ); ?></p>
-				<!-- /wp:paragraph -->
+					<span class="correction-content"><?php echo esc_html( $correction_content ); ?></span>
+				</p>
 			<?php endforeach; ?>
-			</div>
 		</div>
 		<!-- /wp:group -->
 		<?php
 		$markup = do_blocks( ob_get_clean() );
-		return 'top' === get_post_meta( get_the_ID(), self::CORRECTIONS_LOCATION_META, true ) ? $markup . $content : $content . $markup;
+		return 'top' === get_theme_mod( self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING, 'bottom' ) ? $markup . $content : $content . $markup;
+	}
+
+	/**
+	 * Register the customizer setting for the corrections location.
+	 *
+	 * @param WP_Customize_Manager $wp_customize The customizer manager.
+	 */
+	public static function corrections_customize_register( $wp_customize ) {
+		/**
+		 * Corrections Panel.
+		 */
+		$wp_customize->add_panel(
+			self::POST_TYPE . '_panel',
+			array(
+				'title' => esc_html__( 'Corrections Settings', 'newspack-plugin' ),
+			)
+		);
+
+		/**
+		 * Corection settings section.
+		 */
+		$wp_customize->add_section(
+			self::POST_TYPE . '_settings',
+			array(
+				'title' => esc_html__( 'Corrections & Clarifications', 'newspack' ),
+				'panel' => self::POST_TYPE . '_panel',
+			)
+		);
+
+		// Add a setting & control to choose the location of corrections.
+		$wp_customize->add_setting(
+			self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING,
+			array(
+				'type'              => 'theme_mod',
+				'capability'        => 'edit_theme_options',
+				'default'           => 'bottom',
+				'sanitize_callback' => 'sanitize_text_field',
+			)
+		);
+		$wp_customize->add_control(
+			self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING,
+			array(
+				'label'       => esc_html__( 'Corrections Location', 'newspack-plugin' ),
+				'description' => esc_html__( 'Choose where to display corrections on the post.', 'newspack-plugin' ),
+				'section'     => self::POST_TYPE . '_settings',
+				'type'        => 'radio',
+				'choices'     => array(
+					'top'    => esc_html__( 'Top of content', 'newspack-plugin' ),
+					'bottom' => esc_html__( 'Bottom of content', 'newspack-plugin' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Registers the block template.
+	 */
+	public static function register_corrections_block_patterns() {
+		if ( ! class_exists( 'WP_Block_Patterns_Registry' ) || ! wp_is_block_theme() ) {
+			return;
+		}
+
+		$category = 'newspack-corrections';
+
+		\register_block_pattern_category(
+			$category,
+			[
+				'label' => __( 'Newspack Corrections', 'newspack-plugin' ),
+			]
+		);
+
+		\register_block_pattern(
+			'newspack/corrections-loop',
+			[
+				'categories'  => [ $category ],
+				'title'       => __( 'Corrections Loop', 'newspack-plugin' ),
+				'description' => __( 'A block pattern for displaying an archive of corrections.', 'newspack-plugin' ),
+				'content'     => self::get_corrections_pattern_content( 'corrections-loop' ),
+				'keywords'    => [ __( 'corrections', 'newspack-plugin' ), __( 'archive', 'newspack-plugin' ), __( 'loop', 'newspack-plugin' ) ],
+			]
+		);
+	}
+
+	/**
+	 * Retrieves the block template content.
+	 *
+	 * @param string $pattern The pattern name.
+	 *
+	 * @return string The template content.
+	 */
+	private static function get_corrections_pattern_content( $pattern ) {
+		ob_start();
+		include_once __DIR__ . "/../templates/block-patterns/corrections/{$pattern}.php";
+		$content = ob_get_clean();
+		return $content;
+	}
+
+	/**
+	 * Registers the block template.
+	 */
+	public static function register_corrections_template() {
+		if ( ! class_exists( 'WP_Block_Templates_Registry' ) || ! wp_is_block_theme() ) {
+			return;
+		}
+
+		\register_block_template(
+			'newspack//corrections-archive',
+			[
+				'title'       => __( 'Corrections Archive', 'newspack-plugin' ),
+				'description' => __( 'A block template for displaying an archive of corrections.', 'newspack-plugin' ),
+				'content'     => self::get_corrections_template_content( 'corrections-archive' ),
+			]
+		);
+	}
+
+	/**
+	 * Retrieves the block template content.
+	 *
+	 * @param string $template The template name.
+	 *
+	 * @return string The template content.
+	 */
+	private static function get_corrections_template_content( $template ) {
+		ob_start();
+		include_once __DIR__ . "/../templates/corrections/{$template}.php";
+		$content = ob_get_clean();
+		return $content;
 	}
 }
 Corrections::init();

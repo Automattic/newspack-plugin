@@ -9,7 +9,6 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-
 /**
  * This class adds some tweak to allow for a safe change of the nicename of a user.
  *
@@ -132,7 +131,7 @@ class Nicename_Change {
 	 * * value: Either the nicename or the term slug.
 	 * * num_posts: The number of posts associated with this nicename.
 	 */
-	private static function get_existing_nicenames( $nicename ) {
+	public static function get_existing_nicenames( $nicename ) {
 		$existing_nicenames = [];
 
 		// Check the user_nicename.

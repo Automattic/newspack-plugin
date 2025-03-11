@@ -52,8 +52,18 @@ wizardsScripts.forEach( function ( wizard ) {
 } );
 
 const entry = {
-	'reader-activation': path.join( __dirname, 'src', 'reader-activation', 'index.js' ),
-	'reader-auth': path.join( __dirname, 'src', 'reader-activation-auth', 'index.js' ),
+	'reader-activation': path.join(
+		__dirname,
+		'src',
+		'reader-activation',
+		'index.js'
+	),
+	'reader-auth': path.join(
+		__dirname,
+		'src',
+		'reader-activation-auth',
+		'index.js'
+	),
 	'newsletters-signup': path.join(
 		__dirname,
 		'src',
@@ -66,6 +76,20 @@ const entry = {
 		'blocks',
 		'reader-registration',
 		'view.js'
+	),
+	'correction-box-block': path.join(
+		__dirname,
+		'src',
+		'blocks',
+		'correction-box',
+		'index.js'
+	),
+	'correction-item-block': path.join(
+		__dirname,
+		'src',
+		'blocks',
+		'correction-item',
+		'index.js'
 	),
 	'my-account': path.join(
 		__dirname,
@@ -105,7 +129,13 @@ const entry = {
 	),
 	wizards: path.join( __dirname, 'src', 'wizards', 'index.tsx' ),
 	'newspack-ui': path.join( __dirname, 'src', 'newspack-ui', 'index.js' ),
-	'bylines': path.join( __dirname, 'src', 'bylines', 'index.js' ),
+	bylines: path.join( __dirname, 'src', 'bylines', 'index.js' ),
+	'nicename-change': path.join(
+		__dirname,
+		'src',
+		'nicename-change',
+		'index.js'
+	),
 };
 
 // Get files for other scripts.

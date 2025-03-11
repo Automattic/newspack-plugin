@@ -9,6 +9,7 @@ namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
 use Newspack\Data_Events;
+use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -16,6 +17,10 @@ defined( 'ABSPATH' ) || exit;
  * ESP Sync Class.
  */
 class ESP_Sync extends Sync {
+	/**
+	 * Cron hook for syncing email change with ESP.
+	 */
+	const SYNC_ESP_EMAIL_CHANGE_CRON_HOOK = 'newspack_esp_sync_email_change';
 
 	/**
 	 * Context of the sync.
@@ -37,6 +42,7 @@ class ESP_Sync extends Sync {
 	public static function init_hooks() {
 		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
 		add_action( 'shutdown', [ __CLASS__, 'run_queued_syncs' ] );
+		add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change' ], 10, 3 );
 	}
 
 	/**
@@ -186,7 +192,7 @@ class ESP_Sync extends Sync {
 	 *
 	 * @param int $user_id The user ID.
 	 */
-	protected static function get_contact_data( $user_id ) {
+	public static function get_contact_data( $user_id ) {
 		$user = \get_userdata( $user_id );
 
 		$customer = new \WC_Customer( $user_id );
@@ -271,6 +277,33 @@ class ESP_Sync extends Sync {
 		}
 
 		self::$queued_syncs = [];
+	}
+
+
+	/**
+	 * Sync email change with site ESPs.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $new_email New email address.
+	 * @param string $old_email Old email address.
+	 */
+	public static function sync_email_change( $user_id, $new_email, $old_email ) {
+		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
+			return;
+		}
+		$contact = self::get_contact_data( $user_id );
+		if ( ! $contact ) {
+			return;
+		}
+		$list_id          = Reader_Activation::get_esp_master_list_id();
+		$existing_contact = array_merge( $contact, [ 'email' => $old_email ] );
+		$contact          = Sync\Metadata::normalize_contact_data( $contact );
+		$update           = \Newspack_Newsletters_Contacts::upsert( $contact, $list_id, 'Email_Change', $existing_contact );
+		if ( is_wp_error( $update ) ) {
+			// If the update failed, retry in 24 hours.
+			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
+			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 24 hours.' );
+		}
 	}
 }
 ESP_Sync::init_hooks();
