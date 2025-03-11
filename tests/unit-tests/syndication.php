@@ -81,9 +81,9 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 			'RSS module is active after being activated.'
 		);
 
-		Settings::deactivate_optional_module( 'rss' );
+		Syndication::deactivate_optional_module( 'rss' );
 		self::assertEquals(
-			Settings::is_optional_module_active( 'rss' ),
+			Syndication::is_optional_module_active( 'rss' ),
 			false,
 			'RSS module is deactivated.'
 		);
