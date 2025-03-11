@@ -266,7 +266,7 @@ class RSS {
 		?>
 		<table>
 			<tr>
-				<td><h3><?php esc_html_e( 'RSS :-', 'newspack-plugin' ); ?></h3></td>
+				<td><h3><?php esc_html_e( 'RSS -', 'newspack-plugin' ); ?></h3></td>
 				<td>
 					<h3>
 						<a href="<?php echo esc_url( $rss_feed_url ); ?>" target="_blank">
@@ -276,7 +276,7 @@ class RSS {
 				</td>
 			</tr>
 			<tr>
-				<td><h3><?php esc_html_e( 'Atom :-', 'newspack-plugin' ); ?></h3></td>
+				<td><h3><?php esc_html_e( 'Atom -', 'newspack-plugin' ); ?></h3></td>
 				<td>
 					<h3>
 						<a href="<?php echo esc_url( $atom_feed_url ); ?>" target="_blank">
@@ -381,7 +381,7 @@ class RSS {
 				<tr>
 					<th>
 						<?php esc_html_e( 'Only include republishable posts', 'newspack-plugin' ); ?>
-						<p class="description"><?php echo esc_html_x( '(When toggled on, posts which have republication disabled will be excluded from the feed.)', 'help text for only republishable setting', 'newspack-plugin' ); ?></p>
+						<p class="description"><?php echo esc_html_x( 'When toggled on, posts which have republication disabled will be excluded from the feed.', 'help text for only republishable setting', 'newspack-plugin' ); ?></p>
 					</th>
 					<td>
 						<input type="hidden" name="only_republishable" value="0" />
