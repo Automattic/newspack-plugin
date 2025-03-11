@@ -184,7 +184,7 @@ class GA4 {
 					get_coauthors()
 				)
 			);
-		} else {
+		} elseif ( null !== get_post() && is_numeric( get_post()->post_author ) ) {
 			// For some reason, get_the_author() does not work here.
 			$author_user = get_user_by( 'ID', get_post()->post_author );
 			if ( $author_user ) {
