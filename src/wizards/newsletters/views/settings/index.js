@@ -36,45 +36,42 @@ import './style.scss';
 
 export const Settings = ( {
 	onUpdate,
-	initialProvider,
 	newslettersConfig,
 	isOnboarding = true,
 	authUrl = false,
-	setInitialProvider = () => {},
+	provider,
+	setProvider = () => {},
 	setAuthUrl = () => {},
 	setLockedLists = () => {},
 } ) => {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ config, updateConfig ] = hooks.useObjectState( {} );
-
+	// Handle provider updates.
 	useEffect( () => {
-		const provider = newslettersConfig?.newspack_newsletters_service_provider;
-		if ( initialProvider && provider !== initialProvider ) {
-			setLockedLists( true );
-		} else {
-			setLockedLists( false );
-		}
-		if ( ! initialProvider && provider ) {
-			setInitialProvider( provider );
+		const newProvider = newslettersConfig?.newspack_newsletters_service_provider || '';
+		if ( provider !== newProvider ) {
+			setError( false );
+			setLockedLists( !! provider );
+			setProvider( newProvider );
 		}
 	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
-
+	// Verify token for OAuth providers.
 	useEffect( () => {
 		verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
 	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
 
-	const verifyToken = provider => {
+	const verifyToken = serviceProvider => {
 		setAuthUrl( false );
-		if ( ! provider ) {
+		if ( ! serviceProvider ) {
 			return;
 		}
 		// Constant Contact is the only provider using an OAuth strategy.
-		if ( 'constant_contact' !== provider ) {
+		if ( 'constant_contact' !== serviceProvider ) {
 			return;
 		}
 		setInFlight( true );
-		apiFetch( { path: `/newspack-newsletters/v1/${ provider }/verify_token` } )
+		apiFetch( { path: `/newspack-newsletters/v1/${ serviceProvider }/verify_token` } )
 			.then( response => {
 				if ( ! response.valid && response.auth_url ) {
 					setAuthUrl( response.auth_url );
@@ -127,7 +124,7 @@ export const Settings = ( {
 			method: 'POST',
 			data: newslettersConfig,
 		} ).finally( () => {
-			setInitialProvider( newslettersConfig?.newspack_newsletters_service_provider );
+			setProvider( newslettersConfig?.newspack_newsletters_service_provider );
 			verifyToken( newslettersConfig?.newspack_newsletters_service_provider );
 			setLockedLists( false );
 			setInFlight( false );
@@ -254,7 +251,7 @@ export const Settings = ( {
 	);
 };
 
-export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) => {
+export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ lists, setLists ] = useState( [] );
@@ -291,7 +288,18 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 		newLists[ index ][ name ] = value;
 		updateConfig( newLists );
 	};
-	useEffect( fetchLists, [ initialProvider ] );
+	// Handle provider updates.
+	useEffect(
+		() => {
+			setError( false );
+			if ( provider && ! lockedLists ) {
+				// Empty lists before fetching to prevent previous list from appearing while fetching.
+				setLists( [] );
+				fetchLists();
+			}
+		},
+		[ provider, lockedLists ]
+	);
 
 	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
@@ -305,6 +313,16 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 		);
 	}
 
+	/* eslint-disable no-nested-ternary */
+	const notification = lockedLists ?
+		__(
+			'Please save your ESP settings before changing your subscription lists.',
+			'newspack-plugin'
+		) :
+		error ?
+			error?.message || __( 'Something went wrong.', 'newspack-plugin' ) :
+			null;
+
 	return (
 		<ActionCard
 			isMedium
@@ -313,16 +331,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 				'Manage the lists available to readers for subscription.',
 				'newspack-plugin'
 			) }
-			notification={
-				/* eslint-disable no-nested-ternary */
-				error
-					? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
-					: lockedLists
-						? __(
-							'Please save your ESP settings before changing your subscription lists.',
-							'newspack-plugin'
-						) : null
-			}
+			notification={ notification }
 			notificationLevel={ error ? 'error' : 'warning' }
 			hasGreyHeader
 			actionContent={
@@ -343,7 +352,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 			}
 			disabled={ inFlight || lockedLists }
 		>
-			{ ! lockedLists &&
+			{ ! lockedLists && ! error &&
 				lists.map( ( list, index ) => (
 					<ActionCard
 						key={ index }
@@ -392,7 +401,7 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, initialProvider } ) 
 
 const NewslettersSettings = () => {
 	const [ { newslettersConfig }, updateConfiguration ] = hooks.useObjectState( {} );
-	const [ initialProvider, setInitialProvider ] = useState( '' );
+	const [ provider, setProvider ] = useState( '' );
 	const [ lockedLists, setLockedLists ] = useState( false );
 	const [ authUrl, setAuthUrl ] = useState( false );
 
@@ -403,13 +412,13 @@ const NewslettersSettings = () => {
 				isOnboarding={ false }
 				onUpdate={ config => updateConfiguration( { newslettersConfig: config } ) }
 				authUrl={ authUrl }
-				setAuthUrl={ setAuthUrl }
 				newslettersConfig={ newslettersConfig }
+				provider={ provider }
+				setProvider={ setProvider }
+				setAuthUrl={ setAuthUrl }
 				setLockedLists={ setLockedLists }
-				initialProvider={ initialProvider }
-				setInitialProvider={ setInitialProvider }
 			/>
-			<SubscriptionLists lockedLists={ lockedLists } initialProvider={ initialProvider } />
+			<SubscriptionLists lockedLists={ lockedLists } provider={ provider } />
 		</>
 	);
 };
