@@ -85,7 +85,7 @@ class Lite_Site {
 
 		add_settings_section(
 			'newspack_lite_site_main',
-			__( 'Lite Site Settings', 'newspack-plugin' ),
+			__( 'Settings', 'newspack-plugin' ),
 			'__return_null',
 			'newspack_lite_site'
 		);
@@ -150,7 +150,9 @@ class Lite_Site {
 	public static function render_settings_page() {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Lite Site Settings', 'newspack-plugin' ); ?></h1>
+			<h1><?php esc_html_e( 'Lite Site', 'newspack-plugin' ); ?></h1>
+			<p>Lite Site is a text-only version of this website that loads faster and uses less data.</p>
+			<p>It’s designed to allow your readers to still be able to access your content despite connectivity issues, poor network coverage, or in the event of natural disasters and emergencies.</p>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( 'newspack_lite_site' );
@@ -194,7 +196,13 @@ class Lite_Site {
 			class="regular-text"
 		>
 		<p class="description">
-			<?php esc_html_e( 'The URL base for the lite site (e.g. "text" for /text/)', 'newspack-plugin' ); ?>
+			<?php
+			printf(
+				/* translators: %s: is the site URL without a trailing slash, ex: https://example.com */
+				esc_html__( 'The URL base for the lite site (e.g. "text" for %s/text)', 'newspack-plugin' ),
+				esc_url( untrailingslashit( home_url() ) )
+			);
+			?>
 		</p>
 		<?php
 	}
