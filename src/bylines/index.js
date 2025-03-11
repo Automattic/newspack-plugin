@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import apiFetch from '@wordpress/api-fetch';
 import { Icon, plus } from '@wordpress/icons';
+import { store as coreStore } from '@wordpress/core-data';
 
 /**
  * External dependencies
@@ -20,6 +21,17 @@ import { useEffect, useState, useRef } from 'react';
  * Internal dependencies
  */
 import './style.scss';
+
+const BASE_QUERY = {
+	_fields: 'id,name',
+	context: 'view', // Allows non-admins to perform requests.
+};
+
+const AUTHORS_QUERY = {
+	who: 'authors',
+	per_page: 100,
+	...BASE_QUERY,
+};
 
 /** Close icon copied from @wordpress/icons/src/library/close.js to be used as markup */
 const close = `
@@ -140,7 +152,7 @@ const BylinesSettingsPanel = () => {
 	/** Reference to document to add event listners */
 	const documentRef = useRef( document );
 
-	/** Current post ID */
+	/** Current post data */
 	const { postId } = useSelect(
 		select => ( {
 			postId: select( 'core/editor' ).getCurrentPostId(),
@@ -158,6 +170,18 @@ const BylinesSettingsPanel = () => {
 	const { getEditedPostAttribute } = useSelect( select =>
 		select( 'core/editor' )
 	);
+
+	/** Fetch post author from core */
+	const { postAuthor } = useSelect( select => {
+		const { getUser, getUsers } = select( coreStore );
+		const _authorId = getEditedPostAttribute( 'author' );
+		const query = { ...AUTHORS_QUERY };
+
+		return {
+			authors: getUsers( query ),
+			postAuthor: getUser( _authorId, BASE_QUERY ),
+		};
+	} );
 
 	/** byline innerHTML content */
 	const byline = useRef( '' );
@@ -405,7 +429,7 @@ const BylinesSettingsPanel = () => {
 	 */
 	useEffect( () => {
 		if ( coAuthors ) {
-			setTokens( transformAuthorsToTokens( coAuthors ) );
+			setTokens( coAuthors );
 		}
 	}, [ coAuthors ] );
 
@@ -417,19 +441,39 @@ const BylinesSettingsPanel = () => {
 			return;
 		}
 
-		const controller = new AbortController();
+		// If Co-Authors Plus is active, use their authors
+		if ( newspackBylines.is_co_author_plus_active ) {
+			const controller = new AbortController();
 
-		apiFetch( {
-			path: `/coauthors/v1/coauthors?post_id=${ postId }`,
-			signal: controller.signal,
-		} )
-			.then( setCoAuthors )
-			.catch( handleError );
+			apiFetch( {
+				path: `/coauthors/v1/coauthors?post_id=${ postId }`,
+				signal: controller.signal,
+			} )
+				.then( transformAuthorsToTokens )
+				.then( setCoAuthors )
+				.catch( handleError );
 
-		return () => {
-			controller.abort();
-		};
+			return () => {
+				controller.abort();
+			};
+		}
 	}, [ postId ] );
+
+	/**
+	 * Use core post author if Co-Authors Plus is not active
+	 */
+	useEffect( () => {
+		// If Co-Author Plus is active, return
+		if ( newspackBylines.is_co_author_plus_active ) {
+			return;
+		}
+
+		if ( postAuthor === undefined ) {
+			return;
+		}
+
+		setCoAuthors( [ postAuthor ] );
+	}, [ postAuthor ] );
 
 	/**
 	 * Initialize on DOM ready
