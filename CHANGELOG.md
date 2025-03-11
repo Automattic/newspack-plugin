@@ -1,3 +1,17 @@
+## [6.0.3](https://github.com/Automattic/newspack-plugin/compare/v6.0.2...v6.0.3) (2025-03-07)
+
+
+### Bug Fixes
+
+* avoid fatal when sitekit is not configured ([#3809](https://github.com/Automattic/newspack-plugin/issues/3809)) ([fd0fa40](https://github.com/Automattic/newspack-plugin/commit/fd0fa400cb4aa0cbe29034d3da85b014ba8d285b))
+
+## [6.0.2](https://github.com/Automattic/newspack-plugin/compare/v6.0.1...v6.0.2) (2025-03-07)
+
+
+### Bug Fixes
+
+* **google-site-kit:** handle updated analytics option name ([b2c98f3](https://github.com/Automattic/newspack-plugin/commit/b2c98f32e9a435a6fdeecf912fa688a55a2b0d1e))
+
 ## [6.0.1](https://github.com/Automattic/newspack-plugin/compare/v6.0.0...v6.0.1) (2025-03-06)
 
 
