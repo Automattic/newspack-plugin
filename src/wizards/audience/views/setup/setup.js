@@ -179,212 +179,214 @@ export default withWizardScreen(
 						skipPrerequisite={ skipPrerequisite }
 					/>
 				) ) }
-			{ config.enabled && (
-				<Card noBorder>
-					<hr />
-					<SectionHeader
-						title={ __(
-							'Newsletter Subscription Lists',
-							'newspack-plugin'
-						) }
-					/>
-					<ActionCard
-						title={ __(
-							'Present newsletter signup after checkout and registration',
-							'newspack-plugin'
-						) }
-						description={ __(
-							'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
-							'newspack-plugin'
-						) }
-						toggleChecked={ config.use_custom_lists }
-						toggleOnChange={ value =>
-							updateConfig( 'use_custom_lists', value )
-						}
-					/>
-					{ config.use_custom_lists && (
-						<SortableNewsletterListControl
-							lists={
-								newspackAudience.available_newsletter_lists
-							}
-							selected={ config.newsletter_lists }
-							onChange={ selected =>
-								updateConfig( 'newsletter_lists', selected )
-							}
-						/>
-					) }
-
-					<hr />
-
-					<SectionHeader
-						title={ __(
-							'Email Service Provider (ESP) Advanced Settings',
-							'newspack-plugin'
-						) }
-						description={ __(
-							'Settings for Newspack Newsletters integration.',
-							'newspack-plugin'
-						) }
-					/>
-					<TextControl
-						label={ __(
-							'Newsletter subscription text on registration',
-							'newspack-plugin'
-						) }
-						help={ __(
-							'The text to display while subscribing to newsletters from the sign-in modal.',
-							'newspack-plugin'
-						) }
-						{ ...getSharedProps( 'newsletters_label', 'text' ) }
-					/>
-					<ActionCard
-						description={ __(
-							'Configure options for syncing reader data to the connected ESP.',
-							'newspack-plugin'
-						) }
-						hasGreyHeader={ true }
-						isMedium
-						title={ __(
-							'Sync contacts to ESP',
-							'newspack-plugin'
-						) }
-						toggleChecked={ config.sync_esp }
-						toggleOnChange={ value =>
-							updateConfig( 'sync_esp', value )
-						}
-					>
-						{ config.sync_esp && (
-							<>
-								{ 0 < Object.keys( espSyncErrors ).length && (
-									<Notice
-										noticeText={ Object.values(
-											espSyncErrors
-										).join( ' ' ) }
-										isError
-									/>
-								) }
-								{ isMailchimp && (
-									<Mailchimp
-										value={ {
-											audienceId:
-												config.mailchimp_audience_id,
-											readerDefaultStatus:
-												config.mailchimp_reader_default_status,
-										} }
-										onChange={ ( key, value ) => {
-											if ( key === 'audienceId' ) {
-												updateConfig(
-													'mailchimp_audience_id',
-													value
-												);
-											}
-											if (
-												key === 'readerDefaultStatus'
-											) {
-												updateConfig(
-													'mailchimp_reader_default_status',
-													value
-												);
-											}
-										} }
-									/>
-								) }
-								{ isActiveCampaign && (
-									<ActiveCampaign
-										value={ {
-											masterList:
-												config.active_campaign_master_list,
-										} }
-										onChange={ ( key, value ) => {
-											if ( key === 'masterList' ) {
-												updateConfig(
-													'active_campaign_master_list',
-													value
-												);
-											}
-										} }
-									/>
-								) }
-								<MetadataFields
-									availableFields={
-										newspackAudience.esp_metadata_fields ||
-										[]
-									}
-									selectedFields={ config.metadata_fields }
-									updateConfig={ updateConfig }
-									getSharedProps={ getSharedProps }
-								/>
-							</>
-						) }
-					</ActionCard>
-					<div className="newspack-buttons-card">
-						<Button
-							isPrimary
-							onClick={ () => {
-								if ( config.sync_esp ) {
-									if (
-										isMailchimp &&
-										config.mailchimp_audience_id === ''
-									) {
-										// eslint-disable-next-line no-alert
-										alert(
-											__(
-												'Please select a Mailchimp Audience ID.',
-												'newspack-plugin'
-											)
-										);
-										return;
-									}
-									if (
-										isActiveCampaign &&
-										config.active_campaign_master_list ===
-											''
-									) {
-										// eslint-disable-next-line no-alert
-										alert(
-											__(
-												'Please select an ActiveCampaign Master List.',
-												'newspack-plugin'
-											)
-										);
-										return;
-									}
-								}
-								saveConfig( {
-									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
-									mailchimp_audience_id:
-										config.mailchimp_audience_id,
-									mailchimp_reader_default_status:
-										config.mailchimp_reader_default_status,
-									active_campaign_master_list:
-										config.active_campaign_master_list,
-									use_custom_lists: config.use_custom_lists,
-									newsletter_lists: config.newsletter_lists,
-									sync_esp: config.sync_esp,
-									metadata_fields: config.metadata_fields,
-									metadata_prefix: config.metadata_prefix,
-									woocommerce_registration_required: config.woocommerce_registration_required,
-									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
-									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
-									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
-								} );
-							} }
-							disabled={ inFlight }
-						>
-							{ __(
-								'Save Settings',
+			<Card noBorder>
+				{ config.enabled && (
+					<>
+						<hr />
+						<SectionHeader
+							title={ __(
+								'Newsletter Subscription Lists',
 								'newspack-plugin'
 							) }
-						</Button>
-					</div>
-					{ newspackAudience.can_use_salesforce && (
-						<>
-							<hr />
-							<Salesforce />
-						</>
-					) }
-				</Card>
-			) }
+						/>
+						<ActionCard
+							title={ __(
+								'Present newsletter signup after checkout and registration',
+								'newspack-plugin'
+							) }
+							description={ __(
+								'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
+								'newspack-plugin'
+							) }
+							toggleChecked={ config.use_custom_lists }
+							toggleOnChange={ value =>
+								updateConfig( 'use_custom_lists', value )
+							}
+						/>
+						{ config.use_custom_lists && (
+							<SortableNewsletterListControl
+								lists={
+									newspackAudience.available_newsletter_lists
+								}
+								selected={ config.newsletter_lists }
+								onChange={ selected =>
+									updateConfig( 'newsletter_lists', selected )
+								}
+							/>
+						) }
+
+						<hr />
+
+						<SectionHeader
+							title={ __(
+								'Email Service Provider (ESP) Advanced Settings',
+								'newspack-plugin'
+							) }
+							description={ __(
+								'Settings for Newspack Newsletters integration.',
+								'newspack-plugin'
+							) }
+						/>
+						<TextControl
+							label={ __(
+								'Newsletter subscription text on registration',
+								'newspack-plugin'
+							) }
+							help={ __(
+								'The text to display while subscribing to newsletters from the sign-in modal.',
+								'newspack-plugin'
+							) }
+							{ ...getSharedProps( 'newsletters_label', 'text' ) }
+						/>
+						<ActionCard
+							description={ __(
+								'Configure options for syncing reader data to the connected ESP.',
+								'newspack-plugin'
+							) }
+							hasGreyHeader={ true }
+							isMedium
+							title={ __(
+								'Sync contacts to ESP',
+								'newspack-plugin'
+							) }
+							toggleChecked={ config.sync_esp }
+							toggleOnChange={ value =>
+								updateConfig( 'sync_esp', value )
+							}
+						>
+							{ config.sync_esp && (
+								<>
+									{ 0 < Object.keys( espSyncErrors ).length && (
+										<Notice
+											noticeText={ Object.values(
+												espSyncErrors
+											).join( ' ' ) }
+											isError
+										/>
+									) }
+									{ isMailchimp && (
+										<Mailchimp
+											value={ {
+												audienceId:
+													config.mailchimp_audience_id,
+												readerDefaultStatus:
+													config.mailchimp_reader_default_status,
+											} }
+											onChange={ ( key, value ) => {
+												if ( key === 'audienceId' ) {
+													updateConfig(
+														'mailchimp_audience_id',
+														value
+													);
+												}
+												if (
+													key === 'readerDefaultStatus'
+												) {
+													updateConfig(
+														'mailchimp_reader_default_status',
+														value
+													);
+												}
+											} }
+										/>
+									) }
+									{ isActiveCampaign && (
+										<ActiveCampaign
+											value={ {
+												masterList:
+													config.active_campaign_master_list,
+											} }
+											onChange={ ( key, value ) => {
+												if ( key === 'masterList' ) {
+													updateConfig(
+														'active_campaign_master_list',
+														value
+													);
+												}
+											} }
+										/>
+									) }
+									<MetadataFields
+										availableFields={
+											newspackAudience.esp_metadata_fields ||
+											[]
+										}
+										selectedFields={ config.metadata_fields }
+										updateConfig={ updateConfig }
+										getSharedProps={ getSharedProps }
+									/>
+								</>
+							) }
+						</ActionCard>
+						<div className="newspack-buttons-card">
+							<Button
+								isPrimary
+								onClick={ () => {
+									if ( config.sync_esp ) {
+										if (
+											isMailchimp &&
+											config.mailchimp_audience_id === ''
+										) {
+											// eslint-disable-next-line no-alert
+											alert(
+												__(
+													'Please select a Mailchimp Audience ID.',
+													'newspack-plugin'
+												)
+											);
+											return;
+										}
+										if (
+											isActiveCampaign &&
+											config.active_campaign_master_list ===
+												''
+										) {
+											// eslint-disable-next-line no-alert
+											alert(
+												__(
+													'Please select an ActiveCampaign Master List.',
+													'newspack-plugin'
+												)
+											);
+											return;
+										}
+									}
+									saveConfig( {
+										newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
+										mailchimp_audience_id:
+											config.mailchimp_audience_id,
+										mailchimp_reader_default_status:
+											config.mailchimp_reader_default_status,
+										active_campaign_master_list:
+											config.active_campaign_master_list,
+										use_custom_lists: config.use_custom_lists,
+										newsletter_lists: config.newsletter_lists,
+										sync_esp: config.sync_esp,
+										metadata_fields: config.metadata_fields,
+										metadata_prefix: config.metadata_prefix,
+										woocommerce_registration_required: config.woocommerce_registration_required,
+										woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
+										woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
+										woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
+									} );
+								} }
+								disabled={ inFlight }
+							>
+								{ __(
+									'Save Settings',
+									'newspack-plugin'
+								) }
+							</Button>
+						</div>
+					</>
+				) }
+				{ newspackAudience.can_use_salesforce && (
+					<>
+						<hr />
+						<Salesforce />
+					</>
+				) }
+			</Card>
 		</WizardsTab>
 	);
 } );

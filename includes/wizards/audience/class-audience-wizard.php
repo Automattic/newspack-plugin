@@ -67,7 +67,9 @@ class Audience_Wizard extends Wizard {
 	 * @return string The wizard name.
 	 */
 	public function get_name() {
-		return esc_html__( 'Audience Management / Setup', 'newspack-plugin' );
+		return Reader_Activation::is_enabled() ?
+			esc_html__( 'Audience Management / Configuration', 'newspack-plugin' ) :
+			esc_html__( 'Audience Management / Setup', 'newspack-plugin' );
 	}
 
 	/**
@@ -136,7 +138,9 @@ class Audience_Wizard extends Wizard {
 		add_submenu_page(
 			$this->slug,
 			$this->get_name(),
-			__( 'Setup', 'newspack-plugin' ),
+			Reader_Activation::is_enabled() ?
+				__( 'Configuration', 'newspack-plugin' ) :
+				__( 'Setup', 'newspack-plugin' ),
 			$this->capability,
 			$this->slug,
 			[ $this, 'render_wizard' ]
