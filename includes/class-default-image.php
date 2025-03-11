@@ -36,17 +36,15 @@ class Default_Image {
 	 * Handle not found image.
 	 */
 	public static function handle_not_found_image() {
-		if ( is_404() ) {
-			if ( empty( $_SERVER['REQUEST_URI'] ) ) {
-				return;
-			}
-			$requested_url = $_SERVER['REQUEST_URI']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			if ( preg_match( '/\.(jpg|jpeg|png|gif|webp)$/i', $requested_url ) ) {
-				$default_image_url = get_option( self::OPTION_NAME );
-				if ( ! empty( $default_image_url ) ) {
-					wp_safe_redirect( $default_image_url, 301 );
-					exit;
-				}
+		if ( ! is_404() || empty( $_SERVER['REQUEST_URI'] ) ) {
+			return;
+		}
+		$requested_url = $_SERVER['REQUEST_URI']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( preg_match( '/\.(jpg|jpeg|png|gif|webp)$/i', $requested_url ) ) {
+			$default_image_url = get_option( self::OPTION_NAME );
+			if ( ! empty( $default_image_url ) ) {
+				wp_safe_redirect( $default_image_url, 301 );
+				exit;
 			}
 		}
 	}
