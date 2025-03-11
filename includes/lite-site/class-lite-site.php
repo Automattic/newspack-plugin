@@ -108,7 +108,7 @@ class Lite_Site {
 
 		add_settings_field(
 			'number_of_posts',
-			__( 'Posts per Page', 'newspack-plugin' ),
+			__( 'Number of posts to display', 'newspack-plugin' ),
 			[ __CLASS__, 'render_number_of_posts_field' ],
 			'newspack_lite_site',
 			'newspack_lite_site_main'
