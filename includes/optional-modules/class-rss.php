@@ -39,6 +39,7 @@ class RSS {
 		add_action( 'atom_entry', [ __CLASS__, 'add_extra_tags' ] );
 		add_filter( 'the_excerpt_rss', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
 		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
+		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_add_tracking_snippet' ], 1 );
 		add_filter( 'wpseo_include_rss_footer', [ __CLASS__, 'maybe_suppress_yoast' ] );
 		add_action( 'rss2_ns', [ __CLASS__, 'maybe_inject_yahoo_namespace' ] );
 		add_filter( 'the_title_rss', [ __CLASS__, 'maybe_wrap_titles_in_cdata' ] );
@@ -741,13 +742,53 @@ class RSS {
 				}
 			}
 		}
+	}
 
-		// If the Republication Tracker Tool is enabled and the option is checked, output the tracker snippet.
-		if ( ! empty( $settings['republication_tracker'] ) && method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
-			?>
-			<republication_tracker><?php echo \Republication_Tracker_Tool::create_tracking_pixel_markup( $post->ID ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></republication_tracker>
-			<?php
+	/**
+	 * Add tracking pixel to feed content if setting is checked.
+	 *
+	 * @param string $content Feed content.
+	 * @return string Modified $content.
+	 */
+	public static function maybe_add_tracking_snippet( $content ) {
+		$settings = self::get_feed_settings();
+
+		if ( ! $settings || empty( $settings['republication_tracker'] ) || ! method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
+			return $content;
 		}
+
+		$post_id          = get_the_ID();
+		$pixel            = \Republication_Tracker_Tool::create_tracking_pixel_markup( $post_id );
+		$parsely_tracking = \Republication_Tracker_Tool::create_parsely_tracking( $post_id );
+
+		// Check if the attribution should be displayed.
+		$display_attribution = get_option( 'republication_tracker_tool_display_attribution', 'on' );
+
+		if ( 'on' !== $display_attribution ) {
+			return $content . $pixel . $parsely_tracking;
+		}
+
+		$site_icon_markup = '';
+		$site_icon_url    = get_site_icon_url( 150 );
+		if ( ! empty( $site_icon_url ) ) {
+			$site_icon_markup = sprintf(
+				'<img src="%1$s" style="width:1em;height:1em;margin-left:10px;">',
+				esc_attr( $site_icon_url )
+			);
+		}
+
+		$attribution = sprintf(
+			'This <a target="_blank" href="%1$s">article</a> first appeared on <a target="_blank" href="%2$s">%3$s</a> and is republished here under a Creative Commons license. %4$s %5$s',
+			esc_url( get_permalink( $post_id ) ),
+			esc_url( home_url() ),
+			esc_html( get_bloginfo() ) . $site_icon_markup,
+			$pixel,
+			$parsely_tracking
+		);
+
+		$content .= $attribution;
+
+		return $content;
 	}
 
 	/**
