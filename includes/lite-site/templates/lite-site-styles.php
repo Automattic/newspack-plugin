@@ -55,4 +55,12 @@
 	.site-footer > :last-child {
 		margin-bottom: 0;
 	}
+
+	<?php
+	/**
+	 * Hook fired at the end of the style tag in the Lite Site templates.
+	 */
+	do_action( 'newspack_lite_site_styles' );
+	?>
+
 </style>
