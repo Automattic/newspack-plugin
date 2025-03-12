@@ -53,7 +53,12 @@ export const Settings = ( {
 		if ( provider !== newProvider ) {
 			setError( false );
 			setProvider( newProvider );
-			setLockedLists( !! provider );
+			// Don't lock lists if we are setting the initial provider and a key is already set.
+			if ( ! provider && hasSelectedProviderKey() ) {
+				setLockedLists( false );
+			} else {
+				setLockedLists( true );
+			}
 		}
 	}, [ newslettersConfig?.newspack_newsletters_service_provider ] );
 	// Verify token for OAuth providers.
@@ -106,6 +111,15 @@ export const Settings = ( {
 		const value = configItem?.value;
 		return configItem?.options?.find( option => option.value === value )?.name;
 	};
+	const hasSelectedProviderKey = () => {
+		const selectedProvider = newslettersConfig?.newspack_newsletters_service_provider;
+		if ( ! selectedProvider ) {
+			return false
+		}
+		const regex = new RegExp( `${selectedProvider}.*key` );
+		const configKeys = Object.keys( newslettersConfig ).filter( key => regex.test( key ) );
+		return configKeys.some( key => !! newslettersConfig[ key ] );
+	}
 	const handleAuth = () => {
 		if ( authUrl ) {
 			const authWindow = window.open( authUrl, 'esp_oauth', 'width=500,height=600' );
