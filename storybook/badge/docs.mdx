@@ -1,0 +1,58 @@
+import { Meta, Canvas } from '@storybook/blocks';
+import * as BadgeStories from './index.stories';
+
+<Meta of={BadgeStories} name="Docs" />
+
+# Badge
+
+A versatile UI element used to display short labels, status indicators, or counts. Badges are designed to be compact and visually distinct from surrounding content.
+
+<Canvas of={BadgeStories.Primary} sourceState="shown" />
+<Canvas of={BadgeStories.Secondary} sourceState="shown" />
+<Canvas of={BadgeStories.Outline} sourceState="shown" />
+<Canvas of={BadgeStories.Success} sourceState="shown" />
+<Canvas of={BadgeStories.Error} sourceState="shown" />
+<Canvas of={BadgeStories.Warning} sourceState="shown" />
+
+## CSS Classes
+
+### Base Classes
+- `.newspack-ui`: Root namespace for Newspack UI components
+- `.newspack-ui__badge`: Base badge class
+
+### Modifiers
+- `.newspack-ui__badge--primary`: High emphasis badges
+- `.newspack-ui__badge--secondary`: Supporting or complementary badges
+- `.newspack-ui__badge--outline`: Subtle badges with border
+- `.newspack-ui__badge--success`: Positive status indicators
+- `.newspack-ui__badge--error`: Error or alert status indicators
+- `.newspack-ui__badge--warning`: Warning status indicators
+
+## Usage Guidelines
+
+### Badge Variants
+- `primary`: High emphasis badges for important labels
+- `secondary`: Supporting badges with lighter background
+- `outline`: Subtle badges with border for less emphasis
+- `success`: Positive status indicators (e.g., "Complete", "Active")
+- `error`: Error status indicators (e.g., "Failed", "Error")
+- `warning`: Warning status indicators (e.g., "Pending", "Warning")
+
+### Best Practices
+1. Keep badge text concise and meaningful
+2. Use appropriate variants to match the context
+3. Maintain consistent spacing around badges
+4. Ensure sufficient contrast between badge and background
+5. Use badges sparingly to avoid visual clutter
+
+## Accessibility
+
+1. **Color Usage**:
+    - Don't rely solely on color to convey meaning
+    - Ensure sufficient color contrast for all variants
+    - Provide additional context when needed
+
+2. **Screen Readers**:
+    - Use appropriate ARIA labels when badge meaning isn't clear from text
+    - Consider using `role="status"` for dynamic status badges
+    - Ensure badge text is meaningful when read in isolation
