@@ -151,8 +151,8 @@ class Lite_Site {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Lite Site', 'newspack-plugin' ); ?></h1>
-			<p>Lite Site is a text-only version of this website that loads faster and uses less data.</p>
-			<p>It’s designed to allow your readers to still be able to access your content despite connectivity issues, poor network coverage, or in the event of natural disasters and emergencies.</p>
+			<p><?php esc_html_e( 'Lite Site is a text-only version of this website that loads faster and uses less data.', 'newspack-plugin' ); ?></p>
+			<p><?php esc_html_e( 'It’s designed to allow your readers to still be able to access your content despite connectivity issues, poor network coverage, or in the event of natural disasters and emergencies.', 'newspack-plugin' ); ?></p>
 			<form action="options.php" method="post">
 				<?php
 				settings_fields( 'newspack_lite_site' );
