@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Wizards\Newspack\Newspack_Settings;
+use Newspack\Memberships;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -25,9 +26,20 @@ class Wizards {
 	protected static $wizards = [];
 
 	/**
-	 * Initialize and register all of the wizards.
+	 * Initialize.
 	 */
 	public static function init() {
+		add_action( 'init', [ __CLASS__, 'init_wizards' ] );
+		// Allow custom menu order.
+		add_filter( 'custom_menu_order', '__return_true' );
+		// Fix menu order for wizards with parent menu items.
+		add_filter( 'menu_order', [ __CLASS__, 'menu_order' ], 11 );
+	}
+
+	/**
+	 * Initialize wizards.
+	 */
+	public static function init_wizards() {
 		self::$wizards = [
 			'components-demo'         => new Components_Demo(),
 			// v2 Information Architecture.
@@ -49,16 +61,13 @@ class Wizards {
 			'audience'                => new Audience_Wizard(),
 			'audience-campaigns'      => new Audience_Campaigns(),
 			'audience-donations'      => new Audience_Donations(),
-			'audience-subscriptions'  => new Audience_Subscriptions(),
 			'listings'                => new Listings_Wizard(),
 			'network'                 => new Network_Wizard(),
 			'newsletters'             => new Newsletters_Wizard(),
 		];
-
-		// Allow custom menu order.
-		add_filter( 'custom_menu_order', '__return_true' );
-		// Fix menu order for wizards with parent menu items.
-		add_filter( 'menu_order', [ __CLASS__, 'menu_order' ], 11 );
+		if ( Memberships::is_active() ) {
+			self::$wizards['audience-subscriptions'] = new Audience_Subscriptions();
+		}
 	}
 
 	/**
