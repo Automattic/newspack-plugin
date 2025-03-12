@@ -759,9 +759,8 @@ class Memberships {
 	/**
 	 * Render footer JS.
 	 *
-	 * If the gate was rendered, reload the page after 2 seconds in case RAS
-	 * detects a new reader. This allows the membership purchase to unlock the
-	 * content.
+	 * If the gate was rendered, reload the page after a new reader is detected.
+	 * This allows the membership purchase to unlock the content.
 	 */
 	public static function render_js() {
 		if ( ! self::$gate_rendered ) {
@@ -774,15 +773,18 @@ class Memberships {
 				ras.on( 'reader', function( ev ) {
 					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
 						if ( ras.overlays.get().length ) {
+							// When an overlay is added or removed,
+							// check if there are none – this means an overlay was removed and there are none left.
+							// In this case, reload the window.
 							ras.on( 'overlay', function( ev ) {
-								if ( ! ev.detail.overlays.length && ! window?.newspackReaderActivation?.openNewslettersSignupModal ) {
+								if ( ! ev.detail.overlays.length ) {
 									window.location.reload();
 								}
 							} );
 						} else {
 							setTimeout( function() {
 								window.location.reload();
-							}, 2000 );
+							}, 2000 ); // HACK: 2s delay to allow the purchase to be processed.
 						}
 					}
 				} );
