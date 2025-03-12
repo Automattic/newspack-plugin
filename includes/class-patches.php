@@ -419,9 +419,10 @@ class Patches {
 	 * @return array Filtered query args.
 	 */
 	public static function restrict_media_library_access_ajax( $query_args ) {
-		$current_user_id = get_current_user_id();
+		$current_user    = wp_get_current_user();
+		$current_user_id = $current_user->ID;
 
-		if ( $current_user_id && ! current_user_can( 'edit_others_posts' ) && ! current_user_can( 'edit_files' ) ) {
+		if ( $current_user_id && ! current_user_can( 'edit_others_posts' ) && ! current_user_can( 'edit_files' ) && ! in_array( 'author', $current_user->roles, true ) ) {
 			$query_args['author'] = $current_user_id;
 		}
 
