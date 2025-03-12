@@ -2,7 +2,7 @@
 /**
  * WordPress dependencies.
  */
-import { useRef, useState, Fragment } from '@wordpress/element';
+import { useRef, useState, Fragment, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Draggable, MenuItem } from '@wordpress/components';
 import { ESCAPE } from '@wordpress/keycodes';
@@ -249,6 +249,9 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ error, setError ] = useState( null );
 	const ref = useRef();
+	useEffect( () => {
+		window.scrollTo( 0, 0 );
+	}, [] );
 	const toggleSegmentStatus = segment => {
 		setInFlight( true );
 		setError( null );
