@@ -795,6 +795,9 @@ class WooCommerce_My_Account {
 	 * Whether email changes are enabled.
 	 */
 	public static function is_email_change_enabled() {
+		if ( class_exists( '\Newspack_Manager\Features' ) ) {
+			return \Newspack_Manager\Features::is_newspack_user();
+		}
 		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
 		/**
 		 * Filters whether or not to allow email changes in My Account.
