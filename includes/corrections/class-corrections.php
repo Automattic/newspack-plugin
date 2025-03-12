@@ -60,6 +60,9 @@ class Corrections {
 	 * Initializes the class.
 	 */
 	public static function init() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
@@ -70,6 +73,19 @@ class Corrections {
 		add_action( 'admin_init', [ __CLASS__, 'register_corrections_block_patterns' ] );
 		add_action( 'init', [ __CLASS__, 'register_corrections_template' ] );
 	}
+
+	/**
+	 * Checks if the feature is enabled.
+	 *
+	 * True when:
+	 * - NEWSPACK_CORRECTIONS_ENABLED is defined and true.
+	 *
+	 * @return bool True if the feature is enabled, false otherwise.
+	 */
+	public static function is_enabled() {
+		return defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED;
+	}
+
 
 	/**
 	 * Enqueue scripts and styles.
