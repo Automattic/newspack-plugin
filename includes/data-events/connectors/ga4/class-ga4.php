@@ -184,11 +184,14 @@ class GA4 {
 					get_coauthors()
 				)
 			);
-		} elseif ( null !== get_post() && is_numeric( get_post()->post_author ) ) {
-			// For some reason, get_the_author() does not work here.
-			$author_user = get_user_by( 'ID', get_post()->post_author );
-			if ( $author_user ) {
-				$author_name = $author_user->display_name;
+		} else {
+			$post = get_post();
+			if ( null !== $post && is_numeric( $post->post_author ) ) {
+				// For some reason, get_the_author() does not work here.
+				$author_user = get_user_by( 'ID', $post->post_author );
+				if ( $author_user ) {
+					$author_name = $author_user->display_name;
+				}
 			}
 		}
 		if ( ! empty( $author_name ) ) {
