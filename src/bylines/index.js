@@ -3,7 +3,7 @@
 /**
  * WordPress dependencies
  */
-import { Button, ToggleControl } from '@wordpress/components';
+import { Button, Modal, ToggleControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
@@ -40,6 +40,27 @@ const close = `
 	</svg>
 `;
 
+const CustomBylineModal = ( { children } ) => {
+	const [ isOpen, setOpen ] = useState( false );
+	const openModal = () => setOpen( true );
+	const closeModal = () => setOpen( false );
+
+	return (
+		<>
+			<Button variant="secondary" onClick={ openModal }>
+				Set Custom Byline
+			</Button>
+			{ isOpen && (
+				<Modal title="Set Custom Byline" onRequestClose={ closeModal }>
+					{ children }
+					<Button variant="secondary" onClick={ closeModal }>
+						Close
+					</Button>
+				</Modal>
+			) }
+		</>
+	);
+};
 const BylineTextarea = ( { byline, onRendered } ) => {
 	const { getEditedPostAttribute } = useSelect( select =>
 		select( 'core/editor' )
@@ -442,7 +463,7 @@ const BylinesSettingsPanel = () => {
 		}
 
 		// If Co-Authors Plus is active, use their authors
-		if ( newspackBylines.is_co_author_plus_active ) {
+		if ( newspackBylines.is_co_authors_plus_active ) {
 			const controller = new AbortController();
 
 			apiFetch( {
@@ -511,17 +532,19 @@ const BylinesSettingsPanel = () => {
 			/>
 			{ isEnabled && (
 				<>
-					<BylineTextarea
-						byline={ byline }
-						onRendered={ () => setIsBylineReady( true ) }
-					/>
+					<CustomBylineModal>
+						<BylineTextarea
+							byline={ byline }
+							onRendered={ () => setIsBylineReady( true ) }
+						/>
 
-					<Tokens
-						tokens={ tokens }
-						tokensInUse={ tokensInUse }
-						insertToken={ insertToken }
-						onRendered={ () => setIsTokensReady( true ) }
-					/>
+						<Tokens
+							tokens={ tokens }
+							tokensInUse={ tokensInUse }
+							insertToken={ insertToken }
+							onRendered={ () => setIsTokensReady( true ) }
+						/>
+					</CustomBylineModal>
 				</>
 			) }
 		</PluginDocumentSettingPanel>
