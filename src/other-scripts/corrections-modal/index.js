@@ -323,7 +323,9 @@ const CorrectionsModal = () => {
 							} }
 							isBusy={ isSaving }
 						>
-							{ isSaving ? __( 'Saving…', 'newspack-plugin' ) : __( 'Close & save', 'newspack-plugin' ) }
+							{ isSaving
+								? __( 'Saving…', 'newspack-plugin' )
+								: __( 'Save & close', 'newspack-plugin' ) }
 						</Button>
 						<Button
 							variant="tertiary"
