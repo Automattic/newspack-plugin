@@ -262,8 +262,9 @@ class Corrections {
 				'post_type'    => self::POST_TYPE,
 				'post_status'  => 'publish',
 				'meta_input'   => [
-					self::CORRECTION_POST_ID_META => $post_id,
-					self::CORRECTIONS_TYPE_META   => $correction['type'],
+					self::CORRECTION_POST_ID_META   => $post_id,
+					self::CORRECTIONS_TYPE_META     => $correction['type'],
+					self::CORRECTIONS_LOCATION_META => $correction['location'],
 				],
 			]
 		);
@@ -292,8 +293,9 @@ class Corrections {
 
 		// Attach correction type & date to each post.
 		foreach ( $corrections as $correction ) {
-			$correction->correction_type = get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true );
-			$correction->correction_date = get_post_datetime( $correction->ID )->format( 'Y-m-d H:i:s' );
+			$correction->correction_type     = get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true );
+			$correction->correction_date     = get_post_datetime( $correction->ID )->format( 'Y-m-d H:i:s' );
+			$correction->correction_location = get_post_meta( $correction->ID, self::CORRECTIONS_LOCATION_META, true );
 		}
 
 		return $corrections;
@@ -312,7 +314,8 @@ class Corrections {
 				'post_content' => sanitize_textarea_field( $correction['content'] ),
 				'post_date'    => sanitize_text_field( $correction['date'] ),
 				'meta_input'   => [
-					self::CORRECTIONS_TYPE_META => $correction['type'],
+					self::CORRECTIONS_TYPE_META     => $correction['type'],
+					self::CORRECTIONS_LOCATION_META => $correction['location'],
 				],
 			]
 		);
@@ -452,13 +455,11 @@ class Corrections {
 				$correction_content = $correction->post_content;
 				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
 				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );
-				$timezone           = \wp_timezone()->getName();
 				$correction_heading = sprintf(
-					'%s, %s %s %s:',
+					'%s, %s %s:',
 					self::get_correction_type( $correction->ID ),
 					$correction_date,
-					$correction_time,
-					$timezone
+					$correction_time
 				);
 				?>
 				<p class="correction">
