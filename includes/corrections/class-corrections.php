@@ -444,12 +444,45 @@ class Corrections {
 			return $content;
 		}
 
+		// Separate corrections by location.
+		$top_corrections    = [];
+		$bottom_corrections = [];
+
+		foreach ( $corrections as $correction ) {
+			$location = get_post_meta( $correction->ID, self::CORRECTIONS_LOCATION_META, true );
+			if ( 'top' === $location ) {
+				$top_corrections[] = $correction;
+			} else {
+				$bottom_corrections[] = $correction;
+			}
+		}
+
+		$top_corrections_markup    = ! empty( $top_corrections ) ? self::get_corrections_markup( $top_corrections, 'top' ) : '';
+		$bottom_corrections_markup = ! empty( $bottom_corrections ) ? self::get_corrections_markup( $bottom_corrections, 'bottom' ) : '';
+
+		return $top_corrections_markup . $content . $bottom_corrections_markup;
+	}
+
+	/**
+	 * Generates the corrections markup from an array of correction posts.
+	 *
+	 * @param array  $corrections Array of correction post objects.
+	 * @param string $corrections_location The location of the corrections.
+	 *
+	 * @return string Generated markup (or an empty string if no corrections).
+	 */
+	private static function get_corrections_markup( $corrections, $corrections_location = 'bottom' ) {
+		// If no corrections, return an empty string.
+		if ( empty( $corrections ) ) {
+			return '';
+		}
+
 		$corrections_archive_url = get_post_type_archive_link( self::POST_TYPE );
 
 		ob_start();
 		?>
 		<!-- wp:group {"className":"correction-module","backgroundColor":"light-gray"} -->
-		<div class="wp-block-group newspack-corrections-module">
+		<div class="wp-block-group newspack-corrections-module corrections-<?php echo esc_attr( $corrections_location ); ?>-module">
 			<?php foreach ( $corrections as $correction ) : ?>
 				<?php
 				$correction_content = $correction->post_content;
@@ -471,8 +504,7 @@ class Corrections {
 		</div>
 		<!-- /wp:group -->
 		<?php
-		$markup = do_blocks( ob_get_clean() );
-		return $content . $markup;
+		return do_blocks( ob_get_clean() );
 	}
 
 	/**
