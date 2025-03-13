@@ -449,8 +449,7 @@ class Corrections {
 		$bottom_corrections = [];
 
 		foreach ( $corrections as $correction ) {
-			$location = get_post_meta( $correction->ID, self::CORRECTIONS_LOCATION_META, true );
-			if ( 'top' === $location ) {
+			if ( 'top' === $correction->correction_location ) {
 				$top_corrections[] = $correction;
 			} else {
 				$bottom_corrections[] = $correction;
