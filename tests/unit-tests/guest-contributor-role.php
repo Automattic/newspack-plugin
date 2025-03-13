@@ -11,9 +11,6 @@ use Newspack\Guest_Contributor_Role;
  * Tests the Guest_Contributor_Role.
  */
 class Newspack_Test_Guest_Contributor_Role extends WP_UnitTestCase {
-	public static function set_up_before_class() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
-		Guest_Contributor_Role::setup_custom_role_and_capability();
-	}
 
 	public function set_up() { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing
 		wp_reset_postdata();
