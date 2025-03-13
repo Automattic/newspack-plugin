@@ -52,18 +52,12 @@ class Corrections {
 	const REST_ROUTE = '/corrections';
 
 	/**
-	 * Customize settings for corrections.
-	 */
-	const CORRECTIONS_LOCATION_CUSTOMIZE_SETTING = 'corrections_location';
-
-	/**
 	 * Initializes the class.
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
-		add_action( 'customize_register', [ __CLASS__, 'corrections_customize_register' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
@@ -477,59 +471,7 @@ class Corrections {
 		<!-- /wp:group -->
 		<?php
 		$markup = do_blocks( ob_get_clean() );
-		return 'top' === get_theme_mod( self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING, 'bottom' ) ? $markup . $content : $content . $markup;
-	}
-
-	/**
-	 * Register the customizer setting for the corrections location.
-	 *
-	 * @param WP_Customize_Manager $wp_customize The customizer manager.
-	 */
-	public static function corrections_customize_register( $wp_customize ) {
-		/**
-		 * Corrections Panel.
-		 */
-		$wp_customize->add_panel(
-			self::POST_TYPE . '_panel',
-			array(
-				'title' => esc_html__( 'Corrections Settings', 'newspack-plugin' ),
-			)
-		);
-
-		/**
-		 * Corection settings section.
-		 */
-		$wp_customize->add_section(
-			self::POST_TYPE . '_settings',
-			array(
-				'title' => esc_html__( 'Corrections & Clarifications', 'newspack' ),
-				'panel' => self::POST_TYPE . '_panel',
-			)
-		);
-
-		// Add a setting & control to choose the location of corrections.
-		$wp_customize->add_setting(
-			self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING,
-			array(
-				'type'              => 'theme_mod',
-				'capability'        => 'edit_theme_options',
-				'default'           => 'bottom',
-				'sanitize_callback' => 'sanitize_text_field',
-			)
-		);
-		$wp_customize->add_control(
-			self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING,
-			array(
-				'label'       => esc_html__( 'Corrections Location', 'newspack-plugin' ),
-				'description' => esc_html__( 'Choose where to display corrections on the post.', 'newspack-plugin' ),
-				'section'     => self::POST_TYPE . '_settings',
-				'type'        => 'radio',
-				'choices'     => array(
-					'top'    => esc_html__( 'Top of content', 'newspack-plugin' ),
-					'bottom' => esc_html__( 'Bottom of content', 'newspack-plugin' ),
-				),
-			)
-		);
+		return $content . $markup;
 	}
 
 	/**
