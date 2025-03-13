@@ -770,22 +770,22 @@ class Memberships {
 		<script type="text/javascript">
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
+				let hasReader = false;
+				ras.on( 'overlay', function( ev ) {
+					// When an overlay was closed, and there's a reader,
+					// reload the window, but allow other JS – which might have
+					// triggered another overlay – to be executed (setTimeout hack).
+					if ( ! ras.overlays.get().length && hasReader ) {
+						setTimeout( () => {
+							if ( ! ras.overlays.get().length ) {
+								window.location.reload();
+							}
+						}, 1 )
+					}
+				})
 				ras.on( 'reader', function( ev ) {
 					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
-						if ( ras.overlays.get().length ) {
-							// When an overlay is added or removed,
-							// check if there are none – this means an overlay was removed and there are none left.
-							// In this case, reload the window.
-							ras.on( 'overlay', function( ev ) {
-								if ( ! ev.detail.overlays.length ) {
-									window.location.reload();
-								}
-							} );
-						} else {
-							setTimeout( function() {
-								window.location.reload();
-							}, 2000 ); // HACK: 2s delay to allow the purchase to be processed.
-						}
+						hasReader = true;
 					}
 				} );
 			} );
