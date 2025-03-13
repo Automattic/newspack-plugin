@@ -50,7 +50,12 @@ class Guest_Contributor_Role {
 	 */
 	public static function initialize() {
 		add_filter( 'coauthors_edit_author_cap', [ __CLASS__, 'coauthors_edit_author_cap' ] );
-		add_action( 'admin_init', [ __CLASS__, 'setup_custom_role_and_capability' ] );
+
+		// Setup the custom role directly after global $wp_roles is initialized in wp-settings.php.
+		// Do not use 'admin_init' as this will not account for CLI commands where the admin is not initialized.
+		// @link https://github.com/WordPress/WordPress/blob/414951bc877589f671b0367918069166304662c2/wp-settings.php#L646-L653 .
+		add_action( 'setup_theme', [ __CLASS__, 'setup_custom_role_and_capability' ] );
+
 		add_action( 'template_redirect', [ __CLASS__, 'prevent_myaccount_update' ] );
 		add_action( 'newspack_before_delete_account', [ __CLASS__, 'before_delete_account' ] );
 
