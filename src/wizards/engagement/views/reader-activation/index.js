@@ -414,6 +414,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 								) }
 								{ isActiveCampaign && (
 									<ESP
+										title={ 'ActiveCampaign' }
 										value={ { masterList: config.active_campaign_master_list } }
 										onChange={ ( key, value ) => {
 											if ( key === 'masterList' ) {
@@ -424,6 +425,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 								) }
 								{ isConstantContact && (
 									<ESP
+										title={ 'Constant Contact' }
 										value={ { masterList: config.constant_contact_list_id } }
 										onChange={ ( key, value ) => {
 											if ( key === 'masterList' ) {
