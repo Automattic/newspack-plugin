@@ -78,7 +78,7 @@ class WooCommerce_My_Account {
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
 			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
-			\add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change' ], 10, 3 );
+			\add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change_with_esp' ], 10, 3 );
 		}
 	}
 
@@ -1014,20 +1014,18 @@ class WooCommerce_My_Account {
 	 * @param string $old_email Old email address.
 	 */
 	public static function sync_email_change_with_esp( $user_id, $new_email, $old_email ) {
-		if ( ESP_Sync::can_esp_sync() ) {
+		if ( ! ESP_Sync::can_esp_sync() ) {
 			return;
 		}
-		$contact_data = ESP_Sync::get_contact_data( $user_id );
-		if ( ! $contact_data ) {
+		$contact = ESP_Sync::get_contact_data( $user_id );
+		if ( ! $contact ) {
 			return;
 		}
-		$existing_contact_data = array_merge( $contact, [ 'email' => $old_email ] );
-		$contact               = Metadata::normalize_contact_data( $contact_data );
-		$update                = ESP_Sync::sync( $contact, 'Email_Change', $existing_contact_data );
+		$update = ESP_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
 		if ( is_wp_error( $update ) ) {
 			// If the update failed, retry in 24 hours.
 			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
-			Logger::error( 'Error syncing email change with ESP. Retrying in 24 hours.' );
+			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 24 hours.' );
 		}
 	}
 
