@@ -226,7 +226,7 @@ class Corrections {
 
 		// Track processed corrections to handle deletions.
 		$processed_ids = [];
-	
+
 		foreach ( $corrections as $correction ) {
 			$correction_id = $correction['id'];
 
