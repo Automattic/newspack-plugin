@@ -4,7 +4,7 @@
 	"attributes": {
 		"location": {
 			"type": "string",
-			"default": "bottom",
+			"default": "all",
 			"enum": [ "top", "bottom", "all" ]
 		}
 	},
