@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -10,7 +10,7 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import { Notice, SectionHeader, SelectControl } from '../../../components/src';
 
-export default function ActiveCampaign( { value, onChange } ) {
+export default function ESP( { title, value, onChange } ) {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ lists, setLists ] = useState( [] );
 	const [ error, setError ] = useState( false );
@@ -35,14 +35,18 @@ export default function ActiveCampaign( { value, onChange } ) {
 				/>
 			) }
 			<SectionHeader
-				title={ __( 'ActiveCampaign settings', 'newspack-plugin' ) }
-				description={ __( 'Settings for the ActiveCampaign integration.', 'newspack-plugin' ) }
+				title={ sprintf( /** Translators: %s is the email service provider title */ __( '%s settings', 'newspack-plugin' ), title ) }
+				description={ sprintf( /** Translators: %s is the email service provider title */ __( 'Settings for the %s integration.', 'newspack-plugin' ), title ) }
 			/>
 			{ value.masterList === '' && (
 				<Notice
-					noticeText={ __(
-						'No Master List selected. You will not be able to send reader activity data to ActiveCampaign.',
-						'newspack-plugin'
+					noticeText={ sprintf(
+						// Translators: %s is the email service provider title
+						__(
+							'No Master List selected. You will not be able to send reader activity data to %s.',
+							'newspack-plugin'
+						),
+						title
 					) }
 					isError
 				/>

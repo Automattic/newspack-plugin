@@ -24,7 +24,7 @@ import {
 	utils,
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
-import ActiveCampaign from '../../components/active-campaign';
+import ESP from '../../components/esp';
 import MetadataFields from '../../components/metadata-fields';
 import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
@@ -37,6 +37,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ error, setError ] = useState( false );
 	const [ allReady, setAllReady ] = useState( false );
 	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
+	const [ isConstantContact, setIsConstantContact ] = useState( false );
 	const [ isMailchimp, setIsMailchimp ] = useState( false );
 	const [ prerequisites, setPrerequisites ] = useState( null );
 	const [ missingPlugins, setMissingPlugins ] = useState( [] );
@@ -106,6 +107,9 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 			);
 			setIsActiveCampaign(
 				data?.settings?.newspack_newsletters_service_provider?.value === 'active_campaign'
+			);
+			setIsConstantContact(
+				data?.settings?.newspack_newsletters_service_provider?.value === 'constant_contact'
 			);
 		} );
 	}, [] );
@@ -409,11 +413,21 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 									/>
 								) }
 								{ isActiveCampaign && (
-									<ActiveCampaign
+									<ESP
 										value={ { masterList: config.active_campaign_master_list } }
 										onChange={ ( key, value ) => {
 											if ( key === 'masterList' ) {
 												updateConfig( 'active_campaign_master_list', value );
+											}
+										} }
+									/>
+								) }
+								{ isConstantContact && (
+									<ESP
+										value={ { masterList: config.constant_contact_list_id } }
+										onChange={ ( key, value ) => {
+											if ( key === 'masterList' ) {
+												updateConfig( 'constant_contact_list_id', value );
 											}
 										} }
 									/>
@@ -489,12 +503,18 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 										alert( __( 'Please select an ActiveCampaign Master List.', 'newspack-plugin' ) );
 										return
 									}
+									if (isConstantContact && config.constant_contact_list_id === '') {
+										// eslint-disable-next-line no-alert
+										alert( __( 'Please select a Constant Contact Master List.', 'newspack-plugin' ) );
+										return
+									}
 								}
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
 									mailchimp_audience_id: config.mailchimp_audience_id,
 									mailchimp_reader_default_status: config.mailchimp_reader_default_status,
 									active_campaign_master_list: config.active_campaign_master_list,
+									constant_contact_list_id: config.constant_contact_list_id,
 									memberships_require_all_plans: membershipsConfig.require_all_plans,
 									memberships_show_on_subscription_tab: membershipsConfig.show_on_subscription_tab,
 									use_custom_lists: config.use_custom_lists,
