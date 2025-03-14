@@ -70,6 +70,10 @@ final class Correction_Box_Block {
 		<div <?php echo $block_wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php
 			foreach ( $corrections as $correction ) :
+				// Check for location.
+				if ( empty( $attributes['location'] ) || ( $correction->correction_location !== $attributes['location'] && 'all' !== $attributes['location'] ) ) {
+					continue;
+				}
 				$correction_content = $correction->post_content;
 				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
 				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );

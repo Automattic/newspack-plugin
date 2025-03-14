@@ -1,7 +1,13 @@
 {
 	"name": "newspack/correction-box",
 	"category": "newspack",
-	"attributes": {},
+	"attributes": {
+		"location": {
+			"type": "string",
+			"default": "bottom",
+			"enum": [ "top", "bottom", "all" ]
+		}
+	},
 	"supports": {
 		"html": false,
 		"__experimentalBorder": {
