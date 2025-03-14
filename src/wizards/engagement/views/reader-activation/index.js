@@ -24,9 +24,8 @@ import {
 	utils,
 } from '../../../../components/src';
 import Prerequisite from '../../components/prerequisite';
-import ESP from '../../components/esp';
+import Settings from '../../components/settings';
 import MetadataFields from '../../components/metadata-fields';
-import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
 
@@ -36,12 +35,10 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 	const [ membershipsConfig, setMembershipsConfig ] = useState( {} );
 	const [ error, setError ] = useState( false );
 	const [ allReady, setAllReady ] = useState( false );
-	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
-	const [ isConstantContact, setIsConstantContact ] = useState( false );
-	const [ isMailchimp, setIsMailchimp ] = useState( false );
 	const [ prerequisites, setPrerequisites ] = useState( null );
 	const [ missingPlugins, setMissingPlugins ] = useState( [] );
 	const [ showAdvanced, setShowAdvanced ] = useState( false );
+	const [ esp, setEsp ] = useState( '' );
 	const [ espSyncErrors, setEspSyncErrors ] = useState( [] );
 	const updateConfig = ( key, val ) => {
 		setConfig( { ...config, [ key ]: val } );
@@ -102,15 +99,7 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-engagement-wizard/newsletters',
 		} ).then( data => {
-			setIsMailchimp(
-				data?.settings?.newspack_newsletters_service_provider?.value === 'mailchimp'
-			);
-			setIsActiveCampaign(
-				data?.settings?.newspack_newsletters_service_provider?.value === 'active_campaign'
-			);
-			setIsConstantContact(
-				data?.settings?.newspack_newsletters_service_provider?.value === 'constant_contact'
-			);
+			setEsp( data?.settings?.newspack_newsletters_service_provider?.value ?? '' );
 		} );
 	}, [] );
 	useEffect( () => {
@@ -396,8 +385,9 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 										isError
 									/>
 								) }
-								{ isMailchimp && (
-									<Mailchimp
+								{ esp === 'mailchimp' && (
+									<Settings
+										title={ 'Mailchimp' }
 										value={ {
 											audienceId: config.mailchimp_audience_id,
 											readerDefaultStatus: config.mailchimp_reader_default_status,
@@ -412,8 +402,8 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 										} }
 									/>
 								) }
-								{ isActiveCampaign && (
-									<ESP
+								{ esp === 'active_campaign' && (
+									<Settings
 										title={ 'ActiveCampaign' }
 										value={ { masterList: config.active_campaign_master_list } }
 										onChange={ ( key, value ) => {
@@ -423,8 +413,8 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 										} }
 									/>
 								) }
-								{ isConstantContact && (
-									<ESP
+								{ esp === 'constant_contact' && (
+									<Settings
 										title={ 'Constant Contact' }
 										value={ { masterList: config.constant_contact_list_id } }
 										onChange={ ( key, value ) => {
@@ -495,17 +485,17 @@ export default withWizardScreen( ( { wizardApiFetch } ) => {
 							isPrimary
 							onClick={ () => {
 								if ( config.sync_esp ) {
-									if (isMailchimp && config.mailchimp_audience_id === '') {
+									if (esp === 'mailchimp' && config.mailchimp_audience_id === '') {
 										// eslint-disable-next-line no-alert
 										alert( __( 'Please select a Mailchimp Audience ID.', 'newspack-plugin' ) );
 										return
 									}
-									if (isActiveCampaign && config.active_campaign_master_list === '') {
+									if (esp === 'active_campaign' && config.active_campaign_master_list === '') {
 										// eslint-disable-next-line no-alert
 										alert( __( 'Please select an ActiveCampaign Master List.', 'newspack-plugin' ) );
 										return
 									}
-									if (isConstantContact && config.constant_contact_list_id === '') {
+									if (esp === 'constant_contact' && config.constant_contact_list_id === '') {
 										// eslint-disable-next-line no-alert
 										alert( __( 'Please select a Constant Contact Master List.', 'newspack-plugin' ) );
 										return
