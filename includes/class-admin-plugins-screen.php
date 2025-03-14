@@ -18,10 +18,8 @@ class Admin_Plugins_Screen {
 	 * Constructor.
 	 */
 	public function __construct() {
-		if ( ! is_multisite() || is_network_admin() ) {
-			add_filter( 'all_plugins', [ $this, 'inject_managed_plugins' ] );
-			add_filter( 'plugin_action_links', [ $this, 'modify_action_links' ], 10, 3 );
-		}
+		add_filter( 'all_plugins', [ $this, 'inject_managed_plugins' ] );
+		add_filter( 'plugin_action_links', [ $this, 'modify_action_links' ], 10, 3 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts_and_styles' ] );
 		add_action( 'admin_action_newspack_install_plugin', [ $this, 'handle_plugin_install' ] );
 		add_action( 'all_admin_notices', [ $this, 'plugin_install_notices' ] );
@@ -34,6 +32,9 @@ class Admin_Plugins_Screen {
 	 * @return array Modified $plugins.
 	 */
 	public function inject_managed_plugins( $plugins ) {
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			return;
+		}
 		// Don't add managed plugins to the plugins list when using WP CLI.
 		if ( ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			return $plugins;
@@ -102,6 +103,9 @@ class Admin_Plugins_Screen {
 	 * @return array  Modified $actions.
 	 */
 	public function modify_action_links( $actions, $plugin_file, $plugin_data ) {
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			return;
+		}
 		$plugin_slug       = isset( $plugin_data['slug'] ) ? $plugin_data['slug'] : $plugin_file;
 		$installed_plugins = Plugin_Manager::get_installed_plugins();
 		$managed_plugins   = array_keys( Plugin_Manager::get_managed_plugins() );
