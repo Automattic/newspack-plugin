@@ -561,12 +561,14 @@ final class Reader_Activation {
 		if ( empty( $available_lists ) ) {
 			return [];
 		}
-
+		// Filter available lists to only those the reader has access to.
+		// See https://github.com/Automattic/newspack-newsletters/blob/trunk/includes/plugins/woocommerce-memberships/class-woocommerce-memberships.php#L123.
+		$filtered_lists = apply_filters( 'newspack_auth_form_newsletters_lists', $available_lists );
 		foreach ( $available_lists as $list_id => $list ) {
-			// Flag any premium lists.
 			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_subscription_list_tied_to_plan' ) ) {
 				$plan_id = \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_subscription_list_tied_to_plan( $list['db_id'], true );
-				if ( $plan_id ) {
+				// If the plan is premium and the reader does not have access, flag it and set the product IDs.
+				if ( $plan_id && ! in_array( $list_id, array_keys( $filtered_lists ), true ) ) {
 					$list['is_restricted'] = true;
 					$list['product_ids']   = Memberships::get_product_ids_for_membership_plan( $plan_id );
 				}
