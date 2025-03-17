@@ -19,7 +19,6 @@ import {
 	post,
 	postDate,
 	postList,
-	pullquote,
 	rotateRight,
 	settings,
 	store,
@@ -29,7 +28,7 @@ import {
 /**
  * Internal dependencies
  */
-import gift from './gift';
+import { ad, emailAd, gift } from './custom-icons';
 
 /**
  * Export Dashboard Icons
@@ -47,12 +46,13 @@ export const icons = {
 	post,
 	postDate,
 	postList,
-	pullquote,
 	rotateRight,
 	settings,
 	store,
 	tool,
 	// Custom
+	ad,
+	emailAd,
 	gift,
 };
 
