@@ -272,6 +272,9 @@ class WooCommerce_Connection {
 	 * @return int[] Array of active subscription IDs.
 	 */
 	public static function get_active_subscriptions_for_user( $user_id, $product_ids = [] ) {
+		if ( ! function_exists( 'wcs_get_users_subscriptions' ) ) {
+			return [];
+		}
 		$subcriptions = array_reduce(
 			array_keys( \wcs_get_users_subscriptions( $user_id ) ),
 			function( $acc, $subscription_id ) use ( $product_ids ) {

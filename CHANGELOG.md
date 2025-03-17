@@ -1,3 +1,10 @@
+## [6.0.4](https://github.com/Automattic/newspack-plugin/compare/v6.0.3...v6.0.4) (2025-03-12)
+
+
+### Bug Fixes
+
+* **nrh:** fixes for ESP contact syncing w/ NRH, newsletter signups ([#3779](https://github.com/Automattic/newspack-plugin/issues/3779)) ([88c8dc6](https://github.com/Automattic/newspack-plugin/commit/88c8dc63805e3d94d69be9af4719434947309d02))
+
 ## [6.0.3](https://github.com/Automattic/newspack-plugin/compare/v6.0.2...v6.0.3) (2025-03-07)
 
 
