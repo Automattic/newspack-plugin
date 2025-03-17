@@ -89,6 +89,7 @@ final class Reader_Activation {
 		\add_action( 'woocommerce_customer_reset_password', [ __CLASS__, 'login_after_password_reset' ] );
 
 		if ( self::is_enabled() ) {
+			\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_reader_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -224,6 +225,21 @@ final class Reader_Activation {
 				NEWSPACK_PLUGIN_VERSION
 			);
 		}
+	}
+
+	/**
+	 * Register routes.
+	 */
+	public static function register_routes() {
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/reader-newsletter-signup-lists',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_render_newsletters_signup_form' ],
+				'permission_callback' => '__return_true', // TODO: this needs to be restricted to logged-in users and include nonce verification
+			]
+		);
 	}
 
 	/**
@@ -1485,6 +1501,17 @@ final class Reader_Activation {
 		<?php
 	}
 
+	/**
+	 * Fetch HTML for the post-checkout newsletter signup modal.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_render_newsletters_signup_form() {
+		ob_start();
+		self::render_newsletters_signup_modal();
+		$html = trim( ob_get_clean() );
+		return new \WP_REST_Response( [ 'html' => $html ] );
+	}
 
 	/**
 	 * Renders newsletters signup form.
@@ -1538,7 +1565,7 @@ final class Reader_Activation {
 			return;
 		}
 
-		$email_address     = self::get_logged_in_reader_email_address();
+		$email_address = self::get_logged_in_reader_email_address();
 		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
 		if ( empty( $newsletters_lists ) ) {
 			return;

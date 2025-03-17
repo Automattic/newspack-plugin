@@ -11,6 +11,27 @@ export function getModalContainer() {
 	);
 }
 
+export function refreshNewslettersSignupModal() {
+	const container = getModalContainer();
+	if ( ! container ) {
+		return;
+	}
+
+	const modal = container.closest( '.newspack-newsletters-signup-modal' );
+	if ( modal ) {
+		fetch( '/wp-json/newspack/v1/reader-newsletter-signup-lists' )
+			.then( res => {
+				res
+						.json()
+						.then( ( { html } ) => {
+							if ( html ) {
+								modal.innerHTML = html;
+							}
+						} );
+			} );
+	}
+}
+
 /**
  * Open the newsletters signup modal.
  *
