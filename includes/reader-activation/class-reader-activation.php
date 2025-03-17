@@ -233,11 +233,17 @@ final class Reader_Activation {
 	public static function register_routes() {
 		\register_rest_route(
 			NEWSPACK_API_NAMESPACE,
-			'/reader-newsletter-signup-lists',
+			'/reader-newsletter-signup-lists/(?P<email_address>[\a-z]+)',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ __CLASS__, 'api_render_newsletters_signup_form' ],
-				'permission_callback' => '__return_true', // TODO: this needs to be restricted to logged-in users and include nonce verification
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'email_address' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_email',
+					],
+				],
 			]
 		);
 	}
@@ -584,9 +590,10 @@ final class Reader_Activation {
 		/**
 		 * Filters the newsletters lists that should be rendered after checkout.
 		 *
-		 * @param array $registration_lists Array of newsletter lists.
+		 * @param array  $registration_lists Array of newsletter lists.
+		 * @param string $email_address      Email address.
 		 */
-		return apply_filters( 'newspack_post_registration_newsletters_lists', $registration_lists );
+		return apply_filters( 'newspack_post_registration_newsletters_lists', $registration_lists, $email_address );
 	}
 
 	/**
@@ -1504,11 +1511,13 @@ final class Reader_Activation {
 	/**
 	 * Fetch HTML for the post-checkout newsletter signup modal.
 	 *
+	 * @param WP_REST_Request $request The REST request.
+	 *
 	 * @return WP_REST_Response
 	 */
-	public static function api_render_newsletters_signup_form() {
+	public static function api_render_newsletters_signup_form( $request ) {
 		ob_start();
-		self::render_newsletters_signup_modal();
+		self::render_newsletters_signup_modal( $request['email_address'] );
 		$html = trim( ob_get_clean() );
 		return new \WP_REST_Response( [ 'html' => $html ] );
 	}
@@ -1559,13 +1568,16 @@ final class Reader_Activation {
 
 	/**
 	 * Renders the newsletter signup modal.
+	 *
+	 * @param string $email_address Email address. Optional, defaults to the logged-in reader's email address.
 	 */
-	public static function render_newsletters_signup_modal() {
+	public static function render_newsletters_signup_modal( $email_address = '' ) {
 		if ( ! self::is_newsletters_signup_available() ) {
 			return;
 		}
-
-		$email_address = self::get_logged_in_reader_email_address();
+		if ( empty( $email_address ) ) {
+			$email_address = self::get_logged_in_reader_email_address();
+		}
 		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
 		if ( empty( $newsletters_lists ) ) {
 			return;

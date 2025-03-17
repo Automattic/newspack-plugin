@@ -11,7 +11,13 @@ export function getModalContainer() {
 	);
 }
 
-export function refreshNewslettersSignupModal() {
+/**
+ * Refresh the newsletters signup modal content.
+ *
+ * @param {string} email The email address to populate in the modal.
+ * @return {void}
+ */
+export function refreshNewslettersSignupModal( email ) {
 	const container = getModalContainer();
 	if ( ! container ) {
 		return;
@@ -19,13 +25,13 @@ export function refreshNewslettersSignupModal() {
 
 	const modal = container.closest( '.newspack-newsletters-signup-modal' );
 	if ( modal ) {
-		fetch( '/wp-json/newspack/v1/reader-newsletter-signup-lists' )
+		fetch( `/wp-json/newspack/v1/reader-newsletter-signup-lists/${ email }` )
 			.then( res => {
 				res
 						.json()
 						.then( ( { html } ) => {
 							if ( html ) {
-								modal.innerHTML = html;
+								modal.outerHTML = html;
 							}
 						} );
 			} );
