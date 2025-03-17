@@ -485,7 +485,7 @@ const BylinesSettingsPanel = () => {
 	 */
 	useEffect( () => {
 		// If Co-Author Plus is active, return
-		if ( newspackBylines.is_co_author_plus_active ) {
+		if ( newspackBylines.is_co_authors_plus_active ) {
 			return;
 		}
 
