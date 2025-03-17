@@ -11,6 +11,7 @@ use Newspack\Recaptcha;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Renewal;
 use Newspack\WooCommerce_My_Account;
+use Newspack\Memberships;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -562,6 +563,14 @@ final class Reader_Activation {
 		}
 
 		foreach ( $available_lists as $list_id => $list ) {
+			// Flag any premium lists.
+			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_subscription_list_tied_to_plan' ) ) {
+				$plan_id = \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_subscription_list_tied_to_plan( $list['db_id'], true );
+				if ( $plan_id ) {
+					$list['is_restricted'] = true;
+					$list['product_ids']   = Memberships::get_product_ids_for_membership_plan( $plan_id );
+				}
+			}
 			$registration_lists[ $list_id ] = $list;
 		}
 
@@ -1504,7 +1513,11 @@ final class Reader_Activation {
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
 						?>
-						<label class="newspack-ui__input-card" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+						<label
+							class="newspack-ui__input-card<?php echo isset( $list['is_restricted'] ) && $list['is_restricted'] ? \esc_attr( ' is-restricted-newsletter' ) : ''; ?>"
+							data-product-ids="<?php echo isset( $list['product_ids'] ) ? \esc_attr( implode( ',', $list['product_ids'] ) ) : ''; ?>"
+							for="<?php echo \esc_attr( $checkbox_id ); ?>"
+						>
 							<input
 								type="checkbox"
 								name="lists[]"

@@ -102,6 +102,17 @@ export function openNewslettersSignupModal( config = {} ) {
 		}
 	}
 
+	// Handle premium newsletters visibility.
+	const restrictedNewsletters = modal.querySelectorAll( '.is-restricted-newsletter' );
+	restrictedNewsletters.forEach( newsletter => {
+		if ( config?.productId ) {
+			const productIds = newsletter.getAttribute( 'data-product-ids' )?.split( ',' );
+			if ( productIds && productIds.includes( config.productId.toString() ) ) {
+				newsletter.classList.remove( 'is-restricted-newsletter' );
+			}
+		}
+	} );
+
 	modal.setAttribute( 'data-state', 'open' );
 	a11y.trapFocus( modal );
 	if ( window?.newspackReaderActivation?.overlays ) {

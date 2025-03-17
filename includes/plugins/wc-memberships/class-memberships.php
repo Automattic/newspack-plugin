@@ -1087,5 +1087,24 @@ class Memberships {
 
 		return (int) reset( $user_subscriptions );
 	}
+
+	/**
+	 * Get product Ids for the given membership plan.
+	 *
+	 * @param int $plan_id Membership plan ID.
+	 *
+	 * @return array Product IDs.
+	 */
+	public static function get_product_ids_for_membership_plan( $plan_id ) {
+		if ( ! function_exists( 'wc_memberships_get_membership_plan' ) ) {
+			return [];
+		}
+		$product_ids = [];
+		$plan        = \wc_memberships_get_membership_plan( $plan_id );
+		if ( $plan ) {
+			$product_ids = $plan->get_product_ids();
+		}
+		return $product_ids;
+	}
 }
 Memberships::init();
