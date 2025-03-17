@@ -314,8 +314,8 @@ const BylinesSettingsPanel = () => {
 			</span>`;
 
 		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
-		bylineElement.innerHTML =
-			bylineElement.innerHTML + ' ' + tokenElement + ' ';
+		bylineElement.innerHTML = bylineElement.innerHTML + ' ' + tokenElement;
+		bylineElement.innerHTML += '&nbsp';
 
 		// Update byline meta.
 		updateBylineMeta( bylineElement );
