@@ -103,29 +103,25 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 
 	const emails = Object.values( config.emails || {} );
 
-	let tabs = null;
-
-	if ( config.enabled ) {
-		tabs = [
-			{
-				label: __( 'Setup', 'newspack-plugin' ),
-				path: '/',
-			},
-			newspackAudience.has_memberships && {
-				label: __( 'Content Gating', 'newspack-plugin' ),
-				path: '/content-gating',
-			},
-			emails.length > 0 && {
-				label: __( 'Transactional Emails', 'newspack-plugin' ),
-				path: '/transactional-emails',
-			},
-			{
-				label: __( 'Checkout & Payment', 'newspack-plugin' ),
-				path: '/payment',
-			},
-		];
-		tabs = tabs.filter( tab => tab );
-	}
+	let tabs = [
+		{
+			label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
+			path: '/',
+		},
+		( config.enabled && newspackAudience.has_memberships ) && {
+			label: __( 'Content Gating', 'newspack-plugin' ),
+			path: '/content-gating',
+		},
+		( config.enabled && emails.length > 0 ) && {
+			label: __( 'Transactional Emails', 'newspack-plugin' ),
+			path: '/transactional-emails',
+		},
+		{
+			label: __( 'Checkout & Payment', 'newspack-plugin' ),
+			path: '/payment',
+		},
+	];
+	tabs = tabs.filter( tab => tab );
 
 	const getSharedProps = ( configKey, type = 'checkbox' ) => {
 		const props = {

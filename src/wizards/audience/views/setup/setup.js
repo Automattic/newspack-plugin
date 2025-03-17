@@ -377,12 +377,12 @@ export default withWizardScreen(
 							) }
 						</Button>
 					</div>
-					{ newspackAudience.can_use_salesforce && (
-						<>
-							<hr />
-							<Salesforce />
-						</>
-					) }
+				</Card>
+			) }
+			{ newspackAudience.can_use_salesforce && (
+				<Card noBorder>
+					<hr />
+					<Salesforce />
 				</Card>
 			) }
 		</WizardsTab>
