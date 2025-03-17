@@ -6,11 +6,14 @@ import {
 	BaseControl,
 	Button,
 	Modal,
-	PanelBody,
 	Popover,
 	SelectControl,
 	TextareaControl,
 	DateTimePicker,
+	Card,
+	CardHeader,
+	CardBody,
+	withNotices,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
@@ -67,7 +70,7 @@ const saveData = async ( postId, payload ) => {
  *
  * @return {JSX.Element} The corrections modal component.
  */
-const CorrectionsModal = () => {
+const CorrectionsModal = withNotices( ( { noticeUI, noticeOperations } ) => {
 	/**
 	 * Get the current post ID.
 	 */
@@ -84,6 +87,7 @@ const CorrectionsModal = () => {
 	const [ newCorrectionType, setNewCorrectionType ] = useState( 'correction' );
 	const [ newCorrectionLocation, setNewCorrectionLocation ] = useState( 'bottom' );
 	const [ isDatePopoverOpen, setIsDatePopoverOpen ] = useState( null );
+	const [ isAddingCorrection, setIsAddingCorrection ] = useState( false );
 
 	// Fetch corrections when modal opens
 	useEffect( () => {
@@ -179,6 +183,17 @@ const CorrectionsModal = () => {
 		}
 	};
 
+	// Add correction success notice.
+	const triggerCorrectionSuccessNotice = () => {
+		noticeOperations.removeAllNotices();
+		noticeOperations.createNotice(
+			{
+				status: 'success',
+				content: __( 'New correction added.', 'newspack-plugin' ),
+			}
+		);
+	}
+
 	return (
 		<>
 			<PluginDocumentSettingPanel
@@ -203,12 +218,15 @@ const CorrectionsModal = () => {
 					className="newspack-corrections-modal"
 					size="medium"
 				>
-					{ corrections.length > 0 ? (
-						<PanelBody
-							title={ __( 'Corrections log', 'newspack-plugin' ) }
-							initialOpen={ true }
+					{ ! isAddingCorrection && corrections.length > 0 ? (
+						<Card
 							className="correction-panel"
 						>
+							<CardHeader>
+								{ __( 'Corrections log', 'newspack-plugin' ) }
+							</CardHeader>
+							<CardBody>
+							{ noticeUI }
 							{ corrections.map( ( correction ) => (
 									<div key={correction.ID} className="correction-item">
 										<div>
@@ -272,16 +290,16 @@ const CorrectionsModal = () => {
 									</div>
 								) )
 							}
-						</PanelBody>
+							</CardBody>
+						</Card>
 					) : null }
 
-					{ ! isSaving && (
-						<PanelBody
-							title={ __( 'Add new correction', 'newspack-plugin' ) }
-							initialOpen={ false }
-							className="correction-panel"
-						>
-							<div className="correction-item">
+					{ ! isSaving && isAddingCorrection && (
+						<Card className="correction-item">
+							<CardHeader>
+								{ __( 'Add new correction', 'newspack-plugin' ) }
+							</CardHeader>
+							<CardBody>
 								<SelectControl
 									label={ __( 'Type', 'newspack-plugin' ) }
 									value={ newCorrectionType }
@@ -305,11 +323,20 @@ const CorrectionsModal = () => {
 								<Button
 									text={ __( 'Add', 'newspack-plugin' ) }
 									variant="secondary"
-									onClick={ saveCorrection }
+									onClick={ () => {
+										saveCorrection();
+										setIsAddingCorrection( false );
+										triggerCorrectionSuccessNotice();
+									} }
 									disabled={ ! newCorrection }
 								/>
-							</div>
-						</PanelBody>
+								<Button
+									text={ __( 'Cancel', 'newspack-plugin' ) }
+									variant="tertiary"
+									onClick={ () => setIsAddingCorrection( false ) }
+								/>
+							</CardBody>
+						</Card>
 					) }
 
 					{ saveError && <p className="error-message">{ saveError }</p> }
@@ -320,6 +347,7 @@ const CorrectionsModal = () => {
 							onClick={ () => {
 								saveCorrection();
 								setIsSaving( true );
+								setIsAddingCorrection( false );
 							} }
 							isBusy={ isSaving }
 						>
@@ -328,9 +356,19 @@ const CorrectionsModal = () => {
 								: __( 'Save & close', 'newspack-plugin' ) }
 						</Button>
 						<Button
+							variant="secondary"
+							disabled={ isAddingCorrection }
+							onClick={ () => {
+								setIsAddingCorrection( ! isAddingCorrection );
+							} }
+						>
+							{ __( 'Add New', 'newspack-plugin' ) }
+						</Button>
+						<Button
 							variant="tertiary"
 							onClick={ () => {
 								setIsOpen( false )
+								setIsAddingCorrection( false );
 							} }
 						>
 							{ __( 'Cancel', 'newspack-plugin' ) }
@@ -340,7 +378,7 @@ const CorrectionsModal = () => {
 			) }
 		</>
 	);
-};
+} );
 
 registerPlugin( 'newspack-corrections', {
 	render: CorrectionsModal,
