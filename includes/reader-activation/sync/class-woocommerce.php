@@ -56,7 +56,7 @@ class WooCommerce {
 	 * @return \WC_Order|false Order object or false.
 	 */
 	private static function get_current_product_order_for_sync( $customer ) {
-		if ( ! is_a( $customer, 'WC_Customer' ) ) {
+		if ( ! class_exists( 'WC_Customer' ) || ! is_a( $customer, 'WC_Customer' ) ) {
 			return false;
 		}
 
@@ -99,6 +99,9 @@ class WooCommerce {
 	 * @return ?WCS_Subscription A Subscription object or null.
 	 */
 	private static function get_most_recent_cancelled_or_expired_subscription( $user_id ) {
+		if ( ! function_exists( 'wcs_get_users_subscriptions' ) ) {
+			return;
+		}
 		$subscriptions = array_reduce(
 			array_keys( \wcs_get_users_subscriptions( $user_id ) ),
 			function( $acc, $subscription_id ) {
@@ -376,7 +379,7 @@ class WooCommerce {
 	 * @return array|false Contact data or false.
 	 */
 	public static function get_contact_from_customer( $customer, $payment_page_url = false ) {
-		if ( ! is_a( $customer, 'WC_Customer' ) ) {
+		if ( ! class_exists( 'WC_Customer' ) || ! is_a( $customer, 'WC_Customer' ) ) {
 			$customer = new \WC_Customer( $customer );
 		}
 

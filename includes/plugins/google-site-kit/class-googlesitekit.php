@@ -35,6 +35,9 @@ class GoogleSiteKit {
 	 * @param array $googlesitekit_analytics_settings GA settings.
 	 */
 	public static function filter_ga_settings( $googlesitekit_analytics_settings ) {
+		if ( ! is_array( $googlesitekit_analytics_settings ) || ! isset( $googlesitekit_analytics_settings['trackingDisabled'] ) || ! is_array( $googlesitekit_analytics_settings['trackingDisabled'] ) ) {
+			return $googlesitekit_analytics_settings;
+		}
 		if ( in_array( 'loggedinUsers', $googlesitekit_analytics_settings['trackingDisabled'] ) ) {
 			$googlesitekit_analytics_settings['trackingDisabled'] = [ 'contentCreators' ];
 		}
