@@ -162,7 +162,7 @@ const Tokens = ( { tokens, tokensInUse, insertToken, onRendered } ) => {
 const BylinesSettingsPanel = () => {
 	/** Set when child components DOM are ready */
 	const [ isBylineReady, setIsBylineReady ] = useState( false );
-	const [ isTokensdReady, setIsTokensReady ] = useState( false );
+	const [ isTokensReady, setIsTokensReady ] = useState( false );
 
 	/** Tokens with authors assigned to the post */
 	const [ tokens, setTokens ] = useState( [] );
@@ -503,7 +503,7 @@ const BylinesSettingsPanel = () => {
 	 */
 	useEffect( () => {
 		// Wait for child component that will be analyzed to be ready.
-		if ( ! isTokensdReady || ! isBylineReady ) {
+		if ( ! isTokensReady || ! isBylineReady ) {
 			return;
 		}
 
@@ -515,7 +515,7 @@ const BylinesSettingsPanel = () => {
 
 		// Add Mutation Observer.
 		addMutationObserverToByline( bylineElement );
-	}, [ isTokensdReady, isBylineReady ] );
+	}, [ isTokensReady, isBylineReady ] );
 
 	return (
 		<PluginDocumentSettingPanel
