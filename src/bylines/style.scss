@@ -55,5 +55,5 @@
 	height: auto;
 	line-height: 24px;
 	min-width: unset;
-	transition: all 0.2 scubic-bezier (0.4, 1, 0.4, 1);
+	transition: all 0.2 cubic-bezier (0.4, 1, 0.4, 1);
 }
