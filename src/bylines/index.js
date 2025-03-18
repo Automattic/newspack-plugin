@@ -424,11 +424,6 @@ const BylinesSettingsPanel = () => {
 							'span#token-' + event.target.dataset.token
 						)
 						.remove();
-
-					// Update byline meta.
-					updateBylineMeta( bylineElement );
-
-					queryTokensInUse( bylineElement );
 				}
 			}
 		} );
