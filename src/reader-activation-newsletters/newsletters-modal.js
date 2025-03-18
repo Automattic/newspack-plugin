@@ -31,19 +31,18 @@ export function refreshNewslettersSignupModal( email ) {
 						.json()
 						.then( ( { html } ) => {
 							if ( html ) {
-								// Create dom node from html.
 								const parser = new DOMParser();
 								const doc = parser.parseFromString( html, 'text/html' );
-								// Remove existing form.
 								const existingForm = container.querySelector( 'form' );
 								if ( existingForm ) {
 									existingForm.remove();
 								}
-								// Append new form.
 								const newForm = doc.querySelector( '.newspack-newsletters-signup form' );
 								if ( newForm ) {
 									container.appendChild( newForm );
 								}
+								// Dispatch refresh event on the container.
+								container.dispatchEvent( new Event( 'newspack:refresh' ) );
 							}
 						} );
 			} );
