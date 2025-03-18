@@ -27,12 +27,6 @@ const BASE_QUERY = {
 	context: 'view', // Allows non-admins to perform requests.
 };
 
-const AUTHORS_QUERY = {
-	who: 'authors',
-	per_page: 100,
-	...BASE_QUERY,
-};
-
 /** Close icon copied from @wordpress/icons/src/library/close.js to be used as markup */
 const close = `
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -194,12 +188,10 @@ const BylinesSettingsPanel = () => {
 
 	/** Fetch post author from core */
 	const { postAuthor } = useSelect( select => {
-		const { getUser, getUsers } = select( coreStore );
+		const { getUser } = select( coreStore );
 		const _authorId = getEditedPostAttribute( 'author' );
-		const query = { ...AUTHORS_QUERY };
 
 		return {
-			authors: getUsers( query ),
 			postAuthor: getUser( _authorId, BASE_QUERY ),
 		};
 	} );
