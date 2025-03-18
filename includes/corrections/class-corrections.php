@@ -27,11 +27,6 @@ class Corrections {
 	const CORRECTION_POST_ID_META = 'newspack_correction-post-id';
 
 	/**
-	 * Meta key for post corrections active meta.
-	 */
-	const CORRECTIONS_ACTIVE_META = 'newspack_corrections_active';
-
-	/**
 	 * Meta key for post corrections location meta.
 	 */
 	const CORRECTIONS_LOCATION_META = 'newspack_corrections_location';
@@ -390,15 +385,11 @@ class Corrections {
 	public static function handle_corrections_shortcode() {
 		global $wpdb;
 
-		$post_ids = get_posts(
-			[
-				'posts_per_page' => -1,
-				'meta_key'       => self::CORRECTIONS_ACTIVE_META,
-				'meta_value'     => 1, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'fields'         => 'ids',
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-			]
+		$post_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key = %s",
+				self::CORRECTION_POST_ID_META
+			)
 		);
 
 		ob_start();
@@ -448,10 +439,6 @@ class Corrections {
 	 */
 	public static function output_corrections_on_post( $content ) {
 		if ( is_admin() || ! is_single() || wp_is_block_theme() ) {
-			return $content;
-		}
-
-		if ( 0 == get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true ) ) {
 			return $content;
 		}
 

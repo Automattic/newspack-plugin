@@ -34,7 +34,6 @@ class Test_Corrections extends WP_UnitTestCase {
 		Corrections::init();
 
 		self::$post_id = $this->factory()->post->create( [ 'post_type' => 'post' ] );
-		update_post_meta( self::$post_id, Corrections::CORRECTIONS_ACTIVE_META, true );
 	}
 
 	/**
