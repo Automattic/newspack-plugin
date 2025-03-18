@@ -1575,7 +1575,7 @@ final class Reader_Activation {
 		if ( ! self::is_newsletters_signup_available() ) {
 			return;
 		}
-		if ( empty( $email_address ) ) {
+		if ( ! is_email( $email_address ) ) {
 			$email_address = self::get_logged_in_reader_email_address();
 		}
 		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
