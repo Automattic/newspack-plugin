@@ -82,9 +82,6 @@ const BylineTextarea = ( { byline, onRendered } ) => {
 			</button>
 		</span>`;
 
-		// For backwards compatibility, replace the '<Author>' tags, which were used before.
-		metaByline.replace( /<Author id=(\d*)>(\D*)<\/Author>/g, tokenMarkup );
-
 		return metaByline.replace(
 			/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
 			tokenMarkup
