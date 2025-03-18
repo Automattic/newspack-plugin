@@ -54,7 +54,6 @@ class Corrections {
 			return;
 		}
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
-		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
@@ -345,13 +344,6 @@ class Corrections {
 	}
 
 	/**
-	 * Adds the corrections shortcode.
-	 */
-	public static function add_corrections_shortcode() {
-		add_shortcode( 'corrections', [ __CLASS__, 'handle_corrections_shortcode' ] );
-	}
-
-	/**
 	 * Gets the Correction type label for a given post. Defaults to the current global post if none is provided.
 	 *
 	 * @param int $post_id The correction id.
@@ -375,59 +367,6 @@ class Corrections {
 			return __( 'Clarification', 'newspack-plugin' );
 		}
 		return __( 'Correction', 'newspack-plugin' );
-	}
-
-	/**
-	 * Handles the corrections shortcode.
-	 *
-	 * @return string the shortcode output.
-	 */
-	public static function handle_corrections_shortcode() {
-		global $wpdb;
-
-		$post_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT DISTINCT meta_value FROM $wpdb->postmeta WHERE meta_key = %s",
-				self::CORRECTION_POST_ID_META
-			)
-		);
-
-		ob_start();
-		foreach ( $post_ids as $post_id ) :
-			$corrections = self::get_corrections( $post_id );
-			if ( empty( $corrections ) ) {
-				continue;
-			}
-
-			?>
-			<!-- wp:group {"className":"is-style-default correction-shortcode-item"} -->
-			<div class="wp-block-group is-style-default correction-shortcode-item">
-				<div class="wp-block-group__inner-container">
-					<!-- wp:newspack-blocks/homepage-articles {"showExcerpt":false,"showDate":false,"showAuthor":false,"mediaPosition":"left","specificPosts":["<?php echo intval( $post_id ); ?>"],"imageScale":2,"specificMode":true} /-->
-
-					<div class="correction-list">
-						<?php
-						foreach ( $corrections as $correction ) :
-							$correction_content = $correction->post_content;
-							$correction_date    = \get_the_date( 'M j, Y', $correction->ID );
-							$correction_heading = sprintf(
-								// translators: %s: correction date.
-								__( 'Correction on %s', 'newspack-plugin' ),
-								$correction_date
-							);
-							?>
-							<p>
-								<span class="correction-date"><?php echo esc_html( $correction_heading ); ?><span>:</span></span>
-								<?php echo esc_html( $correction_content ); ?>
-							</p>
-						<?php endforeach; ?>
-					</div>
-				</div>
-			</div>
-			<!-- /wp:group -->
-			<?php
-		endforeach;
-		return do_blocks( ob_get_clean() );
 	}
 
 	/**
