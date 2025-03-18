@@ -447,25 +447,6 @@ class Test_Corrections extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the corrections shortcode is added.
-	 *
-	 * @covers Corrections::add_corrections_shortcode
-	 */
-	public function test_add_corrections_shortcode() {
-		global $shortcode_tags;
-
-		Corrections::add_corrections_shortcode();
-
-		$this->assertArrayHasKey( 'corrections', $shortcode_tags, 'The corrections shortcode should be registered.' );
-
-		$callback = $shortcode_tags['corrections'];
-		$this->assertTrue( is_callable( $callback ), 'The corrections shortcode callback should be callable.' );
-
-		$expected_callback = array( 'Newspack\\Corrections', 'handle_corrections_shortcode' );
-		$this->assertEquals( $expected_callback, $callback, 'The corrections shortcode callback does not match the expected value.' );
-	}
-
-	/**
 	 * Test that correction type is returned as "Correction".
 	 *
 	 * @covers Corrections::get_correction_type
@@ -505,52 +486,6 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$clarification_type = Corrections::get_correction_type( $clarification_id );
 		$this->assertEquals( 'Clarification', $clarification_type, 'The correction type should be "Clarification".' );
-	}
-
-	/**
-	 * Test that the corrections shortcode is handled.
-	 *
-	 * @covers Corrections::handle_corrections_shortcode
-	 */
-	public function test_handle_corrections_shortcode() {
-		$correction_1 = array(
-			'content'  => 'Test correction content',
-			'type'     => 'correction',
-			'date'     => current_time( 'mysql' ),
-			'location' => 'bottom',
-		);
-
-		$correction_1_id = Corrections::add_correction( self::$post_id, $correction_1 );
-		$this->assertNotWPError( $correction_1_id );
-		$this->assertNotEquals( 0, $correction_1_id );
-
-		$correction_2 = array(
-			'content'  => 'Test correction content 2',
-			'type'     => 'clarification',
-			'date'     => current_time( 'mysql' ),
-			'location' => 'top',
-		);
-
-		$correction_2_id = Corrections::add_correction( self::$post_id, $correction_2 );
-		$this->assertNotWPError( $correction_2_id );
-		$this->assertNotEquals( 0, $correction_2_id );
-
-		$page = $this->factory()->post->create_and_get(
-			[
-				'post_type'    => 'page',
-				'post_content' => 'Test Page:- [corrections]',
-			]
-		);
-
-		$corrections_shortcode_output = do_shortcode( $page->post_content );
-		$this->assertStringNotContainsString( '[corrections]', $corrections_shortcode_output, 'The corrections shortcode should be removed from the output.' );
-
-		$this->assertStringContainsString( 'Test correction content', $corrections_shortcode_output, 'The correction content should be included in the output.' );
-		$this->assertStringContainsString( 'Test correction content 2', $corrections_shortcode_output, 'The correction content should be included in the output.' );
-		$correction_1_heading = sprintf( 'Correction on %s', get_the_date( 'M j, Y', $correction_1_id ) );
-		$this->assertStringContainsString( $correction_1_heading, $corrections_shortcode_output, 'The correction date should be included in the output.' );
-		$correction_2_heading = sprintf( 'Correction on %s', get_the_date( 'M j, Y', $correction_2_id ) );
-		$this->assertStringContainsString( $correction_2_heading, $corrections_shortcode_output, 'The correction date should be included in the output.' );
 	}
 
 	/**
