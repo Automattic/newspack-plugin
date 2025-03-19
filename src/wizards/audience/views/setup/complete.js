@@ -113,7 +113,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 			setTimeout( () => {
 				fetchConfig().finally( () => {
 					setInFlight( false );
-					window.location.replace( reader_activation_url );
+					window.location.hash = '';
 					window.location.reload(); // A reload is required to refresh the state of the wizard.
 				} );
 			}, 3000 );
