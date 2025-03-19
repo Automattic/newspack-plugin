@@ -13,7 +13,7 @@ import {
 	Card,
 	CardHeader,
 	CardBody,
-	withNotices,
+	Snackbar,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
@@ -70,7 +70,7 @@ const saveData = async ( postId, payload ) => {
  *
  * @return {JSX.Element} The corrections modal component.
  */
-const CorrectionsModal = withNotices( ( { noticeUI, noticeOperations } ) => {
+const CorrectionsModal = () => {
 	/**
 	 * Get the current post ID.
 	 */
@@ -88,6 +88,7 @@ const CorrectionsModal = withNotices( ( { noticeUI, noticeOperations } ) => {
 	const [ newCorrectionLocation, setNewCorrectionLocation ] = useState( 'bottom' );
 	const [ isDatePopoverOpen, setIsDatePopoverOpen ] = useState( null );
 	const [ isAddingCorrection, setIsAddingCorrection ] = useState( false );
+	const [ displayNotice, setDisplayNotice ] = useState( false );
 
 	// Fetch corrections when modal opens
 	useEffect( () => {
@@ -183,17 +184,6 @@ const CorrectionsModal = withNotices( ( { noticeUI, noticeOperations } ) => {
 		}
 	};
 
-	// Add correction success notice.
-	const triggerCorrectionSuccessNotice = () => {
-		noticeOperations.removeAllNotices();
-		noticeOperations.createNotice(
-			{
-				status: 'success',
-				content: __( 'New correction added.', 'newspack-plugin' ),
-			}
-		);
-	}
-
 	return (
 		<>
 			<PluginDocumentSettingPanel
@@ -225,8 +215,21 @@ const CorrectionsModal = withNotices( ( { noticeUI, noticeOperations } ) => {
 							<CardHeader>
 								{ __( 'Corrections log', 'newspack-plugin' ) }
 							</CardHeader>
+							{	displayNotice &&
+								<Snackbar
+									className="correction-success-notice"
+									onRemove={ () => setDisplayNotice( false ) }
+									actions={ [
+										{
+											label: __( 'Add More', 'newspack-plugin' ),
+											onClick: () => setIsAddingCorrection( ! isAddingCorrection ),
+										},
+									] }
+								>
+									{ __( 'Correction has been added successfully.', 'newspack-plugin' ) }
+								</Snackbar>
+							}
 							<CardBody>
-							{ noticeUI }
 							{ corrections.map( ( correction ) => (
 									<div key={correction.ID} className="correction-item">
 										<div>
@@ -326,7 +329,7 @@ const CorrectionsModal = withNotices( ( { noticeUI, noticeOperations } ) => {
 									onClick={ () => {
 										saveCorrection();
 										setIsAddingCorrection( false );
-										triggerCorrectionSuccessNotice();
+										setDisplayNotice( true );
 									} }
 									disabled={ ! newCorrection }
 								/>
@@ -378,7 +381,7 @@ const CorrectionsModal = withNotices( ( { noticeUI, noticeOperations } ) => {
 			) }
 		</>
 	);
-} );
+};
 
 registerPlugin( 'newspack-corrections', {
 	render: CorrectionsModal,
