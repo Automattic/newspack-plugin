@@ -127,6 +127,7 @@ const Emails = () => {
 				}
 				return (
 					<WizardsActionCard
+						isSmall
 						key={ email.post_id }
 						disabled={ isFetching }
 						title={ email.label }
