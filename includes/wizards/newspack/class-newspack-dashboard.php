@@ -248,11 +248,10 @@ class Newspack_Dashboard extends Wizard {
 	 */
 	public function get_local_data() {
 		$site_name = get_bloginfo( 'name' );
-		$colors = newspack_get_theme_colors();
 		$local_data = [
 			'settings'     => [
 				'siteName'      => $site_name,
-				'headerBgColor' => $colors['primary_color'] ?? '',
+				'headerBgColor' => get_theme_mod( 'primary_color_hex', '#f0f0f0' ),
 			],
 			'sections'     => $this->get_dashboard(),
 			'plugins'      => get_plugins(),
