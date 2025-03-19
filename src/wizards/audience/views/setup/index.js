@@ -18,7 +18,6 @@ import Complete from './complete';
 import { withWizard } from '../../../../components/src';
 import Router from '../../../../components/src/proxied-imports/router';
 import ContentGating from './content-gating';
-import TransactionalEmails from './transactional-emails';
 import Payment from './payment';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
@@ -101,8 +100,6 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 		fetchConfig();
 	}, [] );
 
-	const emails = Object.values( config.emails || {} );
-
 	let tabs = [
 		{
 			label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
@@ -111,10 +108,6 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 		( config.enabled && newspackAudience.has_memberships ) && {
 			label: __( 'Content Gating', 'newspack-plugin' ),
 			path: '/content-gating',
-		},
-		( config.enabled && emails.length > 0 ) && {
-			label: __( 'Transactional Emails', 'newspack-plugin' ),
-			path: '/transactional-emails',
 		},
 		{
 			label: __( 'Checkout & Payment', 'newspack-plugin' ),
@@ -161,7 +154,6 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 		espSyncErrors,
 		prerequisites,
 		config,
-		emails,
 	};
 
 	return (
@@ -180,12 +172,6 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 						path="/content-gating"
 						render={ () => (
 							<ContentGating { ...props } />
-						) }
-					/>
-					<Route
-						path="/transactional-emails"
-						render={ () => (
-							<TransactionalEmails { ...props } />
 						) }
 					/>
 					<Route

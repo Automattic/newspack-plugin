@@ -339,7 +339,6 @@ final class Reader_Activation {
 			'active_campaign_master_list'              => '',
 			'mailchimp_audience_id'                    => '',
 			'mailchimp_reader_default_status'          => 'transactional',
-			'emails'                                   => Emails::get_emails( array_values( Reader_Activation_Emails::EMAIL_TYPES ), false ),
 			'sender_name'                              => Emails::get_from_name(),
 			'sender_email_address'                     => Emails::get_from_email(),
 			'contact_email_address'                    => Emails::get_reply_to_email(),

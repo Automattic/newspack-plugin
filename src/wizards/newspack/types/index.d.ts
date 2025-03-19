@@ -73,6 +73,7 @@ declare global {
 								reply_to_email: string;
 								status: string;
 								type: string;
+								category: string;
 							};
 						};
 						dependencies: Record< string, boolean >;

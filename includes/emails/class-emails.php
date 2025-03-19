@@ -416,6 +416,7 @@ class Emails {
 		}
 		$serialized_email = [
 			'type'           => $type,
+			'category'       => $email_config['category'],
 			'label'          => $email_config['label'],
 			'description'    => $email_config['description'],
 			'post_id'        => $post_id,
