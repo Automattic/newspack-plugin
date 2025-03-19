@@ -26,7 +26,12 @@ const BoxContrast = ( {
 	isInverted?: boolean;
 	className?: string;
 } ) => {
-	const contrastColor = getContrast( hexColor );
+	let contrastColor;
+	if ( hexColor === '#f0f0f0' ) {
+		contrastColor = '#1e1e1e';
+	} else {
+		contrastColor = getContrast( hexColor );
+	}
 	const style = isInverted
 		? { color: hexColor, backgoundColor: contrastColor }
 		: { backgroundColor: hexColor, color: contrastColor };
