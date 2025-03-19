@@ -402,6 +402,7 @@ class Emails {
 			$email_config = [
 				'label'       => '',
 				'description' => '',
+				'category'    => '',
 			];
 		}
 		$html_payload = get_post_meta( $post_id, \Newspack_Newsletters::EMAIL_HTML_META, true );
