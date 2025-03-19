@@ -15,8 +15,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Wizard, Notice, withWizard } from '../../../../components/src';
 import Configuration from './configuration';
-import Revenue from './revenue';
-import { AUDIENCE_DONATIONS_WIZARD_SLUG, NEWSPACK, OTHER } from '../../constants';
+import { AUDIENCE_DONATIONS_WIZARD_SLUG, OTHER } from '../../constants';
 
 const AudienceDonations = () => {
 	const { platform_data, donation_data } = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
@@ -27,12 +26,6 @@ const AudienceDonations = () => {
 			path: '/configuration',
 			render: Configuration,
 			isHidden: usedPlatform === OTHER,
-		},
-		{
-			label: __( 'Revenue', 'newspack-plugin' ),
-			path: '/revenue',
-			render: Revenue,
-			isHidden: usedPlatform !== NEWSPACK,
 		},
 	];
 	return (
