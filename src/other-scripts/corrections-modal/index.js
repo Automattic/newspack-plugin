@@ -5,20 +5,18 @@ import apiFetch from '@wordpress/api-fetch';
 import {
 	BaseControl,
 	Button,
+	DateTimePicker,
 	Modal,
+	Notice,
 	Popover,
 	SelectControl,
 	TextareaControl,
-	DateTimePicker,
-	Card,
-	CardHeader,
-	CardBody,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { useState, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
 import { registerPlugin } from '@wordpress/plugins';
 
@@ -207,173 +205,199 @@ const CorrectionsModal = () => {
 
 			{ isOpen && (
 				<Modal
-					title={ __( 'Corrections & Clarifications', 'newspack-plugin' ) }
+					title={
+						isAddingCorrection
+							? __( 'Add New Correction', 'newspack-plugin' )
+							: __( 'Corrections & Clarifications', 'newspack-plugin' )
+					}
 					onRequestClose={ () => setIsOpen( false ) }
 					className="newspack-corrections-modal"
 					overlayClassName="newspack-corrections-modal-overlay"
 					size="medium"
 				>
-					{ ! isAddingCorrection && corrections.length > 0 ? (
-						<Card
-							className="correction-panel"
+					{ saveError && <p className="error-message">{ saveError }</p> }
+
+					{ ! isAddingCorrection && corrections.length === 0 && (
+						<Notice
+							status="warning"
+							isDismissible={ false }
 						>
-							<CardHeader>
-								{ __( 'Corrections log', 'newspack-plugin' ) }
-							</CardHeader>
-							<CardBody>
+							{ __( 'No corrections or clarifications have been added.', 'newspack-plugin' ) }
+						</Notice>
+					) }
+
+					{ ! isAddingCorrection && corrections.length > 0 && (
+						<>
 							{ corrections.map( ( correction ) => (
-									<div key={correction.ID} className="correction-item">
-										<div>
-											<SelectControl
-												label={ __( 'Type', 'newspack-plugin' ) }
-												value={ correction.type }
-												options={ types }
-												onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, value, correction.date, correction.location ) }
+								<div key={correction.ID} className="correction-item">
+									<div>
+										<SelectControl
+											label={ __( 'Type', 'newspack-plugin' ) }
+											value={ correction.type }
+											options={ types }
+											onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, value, correction.date, correction.location ) }
+											__next40pxDefaultSize
+										/>
+										<SelectControl
+											label={ __( 'Location', 'newspack-plugin' ) }
+											value={ correction.location }
+											options={ locations }
+											onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, correction.date, value ) }
+											__next40pxDefaultSize
+										/>
+										<BaseControl
+											id={ `correction-date-${correction.ID}` }
+											label={ __( 'Date', 'newspack-plugin' ) }
+										>
+											<Button
+												variant="secondary"
+												className="correction-date-button"
+												onClick={ () => setIsDatePopoverOpen( correction.ID ) }
+												icon={ calendar}
+												iconPosition="right"
 												__next40pxDefaultSize
-											/>
-											<SelectControl
-												label={ __( 'Location', 'newspack-plugin' ) }
-												value={ correction.location }
-												options={ locations }
-												onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, correction.date, value ) }
-												__next40pxDefaultSize
-											/>
-											<BaseControl
-												id={ `correction-date-${correction.ID}` }
-												label={ __( 'Date', 'newspack-plugin' ) }
 											>
-												<Button
-													variant="secondary"
-													className="correction-date-button"
-													onClick={ () => setIsDatePopoverOpen( correction.ID ) }
-													icon={ calendar}
-													iconPosition="right"
-													__next40pxDefaultSize
-												>
-													{ new Date( correction.date ).toLocaleString() }
-												</Button>
-											</BaseControl>
-											{ isDatePopoverOpen === correction.ID && (
-												<Popover
-													className="correction-date-popover"
-													position="bottom center"
-													onClose={ () => setIsDatePopoverOpen( null ) }
-												>
-													<DateTimePicker
-														label={ __( 'Date', 'newspack-plugin' ) }
-														className='correction-date'
-														is12Hour={ true }
-														currentDate={ new Date( correction.date ) }
-														onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, value, correction.location ) }
-													/>
-												</Popover>
-											) }
-										</div>
-										<TextareaControl
-											label={ __( 'Description', 'newspack-plugin' ) }
-											rows={ 3 }
-											value={ correction.post_content }
-											onChange={ ( value ) => updateCorrection( correction.ID, value, correction.type, correction.date, correction.location ) }
-										/>
-										<Button
-											text={ __( 'Delete', 'newspack-plugin' ) }
-											variant="secondary"
-											onClick={ () => deleteCorrection( correction.ID ) }
-											isDestructive
-										/>
+												{ new Date( correction.date ).toLocaleString() }
+											</Button>
+										</BaseControl>
+										{ isDatePopoverOpen === correction.ID && (
+											<Popover
+												className="correction-date-popover"
+												position="bottom center"
+												onClose={ () => setIsDatePopoverOpen( null ) }
+											>
+												<DateTimePicker
+													label={ __( 'Date', 'newspack-plugin' ) }
+													className='correction-date'
+													is12Hour={ true }
+													currentDate={ new Date( correction.date ) }
+													onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, value, correction.location ) }
+												/>
+											</Popover>
+										) }
 									</div>
-								) )
-							}
-							</CardBody>
-						</Card>
-					) : null }
+									<TextareaControl
+										label={ __( 'Description', 'newspack-plugin' ) }
+										rows={ 3 }
+										value={ correction.post_content }
+										onChange={ ( value ) => updateCorrection( correction.ID, value, correction.type, correction.date, correction.location ) }
+									/>
+									<Button
+										text={ __( 'Delete', 'newspack-plugin' ) }
+										variant="secondary"
+										onClick={ () => {
+											deleteCorrection( correction.ID );
+											createNotice(
+												'success',
+												sprintf(
+													// Translators: Type of correction.
+													__( '%s deleted successfully.', 'newspack-plugin' ),
+													correction.type.replace( /^./, char => char.toUpperCase() )
+												),
+												{
+													type: 'snackbar',
+													isDismissible: true,
+												}
+											);
+										} }
+										isDestructive
+									/>
+								</div>
+							) ) }
+						</>
+					) }
 
 					{ ! isSaving && isAddingCorrection && (
-						<Card className="correction-item">
-							<CardHeader>
-								{ __( 'Add new correction', 'newspack-plugin' ) }
-							</CardHeader>
-							<CardBody>
-								<SelectControl
-									label={ __( 'Type', 'newspack-plugin' ) }
-									value={ newCorrectionType }
-									options={ types }
-									onChange={ ( value ) => setNewCorrectionType( value ) }
-									__next40pxDefaultSize
-								/>
-								<SelectControl
-									label={ __( 'Location', 'newspack-plugin' ) }
-									value={ newCorrectionLocation }
-									options={ locations }
-									onChange={ ( value ) => setNewCorrectionLocation( value ) }
-									__next40pxDefaultSize
-								/>
-								<TextareaControl
-									label={ __( 'Description', 'newspack-plugin' ) }
-									rows={ 3 }
-									value={ newCorrection }
-									onChange={ ( value ) => setNewCorrection( value ) }
-								/>
+						<>
+							<SelectControl
+								label={ __( 'Type', 'newspack-plugin' ) }
+								value={ newCorrectionType }
+								options={ types }
+								onChange={ ( value ) => setNewCorrectionType( value ) }
+								__next40pxDefaultSize
+							/>
+							<SelectControl
+								label={ __( 'Location', 'newspack-plugin' ) }
+								value={ newCorrectionLocation }
+								options={ locations }
+								onChange={ ( value ) => setNewCorrectionLocation( value ) }
+								__next40pxDefaultSize
+							/>
+							<TextareaControl
+								label={ __( 'Description', 'newspack-plugin' ) }
+								rows={ 3 }
+								value={ newCorrection }
+								onChange={ ( value ) => setNewCorrection( value ) }
+							/>
+						</>
+					) }
+
+					<div className="correction-actions">
+						{ ! isSaving && isAddingCorrection ? (
+							<>
 								<Button
 									text={ __( 'Add', 'newspack-plugin' ) }
-									variant="secondary"
+									variant="primary"
 									onClick={ () => {
 										saveCorrection();
 										setIsAddingCorrection( false );
 										createNotice(
 											'success',
-											__( 'Corrections added successfully.', 'newspack-plugin' ),
+											sprintf(
+												// Translators: Type of correction.
+												__( '%s added successfully.', 'newspack-plugin' ),
+												newCorrectionType.replace( /^./, char => char.toUpperCase() )
+											),
 											{
 												type: 'snackbar',
 												isDismissible: true,
 											}
 										);
 									} }
+									isBusy={ isSaving }
 									disabled={ ! newCorrection }
 								/>
 								<Button
-									text={ __( 'Cancel', 'newspack-plugin' ) }
+									text={ __( 'Go back', 'newspack-plugin' ) }
 									variant="tertiary"
 									onClick={ () => setIsAddingCorrection( false ) }
 								/>
-							</CardBody>
-						</Card>
-					) }
-
-					{ saveError && <p className="error-message">{ saveError }</p> }
-
-					<div className="correction-actions">
-						<Button
-							variant="primary"
-							onClick={ () => {
-								saveCorrection();
-								setIsSaving( true );
-								setIsAddingCorrection( false );
-							} }
-							isBusy={ isSaving }
-						>
-							{ isSaving
-								? __( 'Saving…', 'newspack-plugin' )
-								: __( 'Save & close', 'newspack-plugin' ) }
-						</Button>
-						<Button
-							variant="secondary"
-							disabled={ isAddingCorrection }
-							onClick={ () => {
-								setIsAddingCorrection( ! isAddingCorrection );
-							} }
-						>
-							{ __( 'Add New', 'newspack-plugin' ) }
-						</Button>
-						<Button
-							variant="tertiary"
-							onClick={ () => {
-								setIsOpen( false )
-								setIsAddingCorrection( false );
-							} }
-						>
-							{ __( 'Cancel', 'newspack-plugin' ) }
-						</Button>
+							</>
+						) : (
+							<>
+								<Button
+									variant="primary"
+									onClick={ () => {
+										saveCorrection();
+										setIsSaving( true );
+										setIsAddingCorrection( false );
+									} }
+									isBusy={ isSaving }
+								>
+									{ isSaving
+										? __( 'Saving…', 'newspack-plugin' )
+										: __( 'Save & close', 'newspack-plugin' ) }
+								</Button>
+								<Button
+									variant="secondary"
+									disabled={ isAddingCorrection }
+									onClick={ () => {
+										setIsAddingCorrection( ! isAddingCorrection );
+									} }
+								>
+									{ __( 'Add new correction', 'newspack-plugin' ) }
+								</Button>
+								<Button
+									variant="tertiary"
+									onClick={ () => {
+										setIsOpen( false )
+										setIsAddingCorrection( false );
+									} }
+								>
+									{ __( 'Cancel', 'newspack-plugin' ) }
+								</Button>
+							</>
+						) }
 					</div>
 				</Modal>
 			) }

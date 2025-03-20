@@ -1,11 +1,6 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
 .correction {
-	&-panel {
-		border-left: 1px solid wp-colors.$gray-200;
-		border-right: 1px solid wp-colors.$gray-200;
-	}
-
 	&-item + &-item {
 		border-top: 1px solid wp-colors.$gray-300;
 		padding-top: 16px;
