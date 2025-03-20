@@ -76,18 +76,18 @@ export default function Edit( { attributes, setAttributes } ) {
 				<PanelBody title={ __( 'Correction Box Settings', 'newspack-plugin' ) }>
 					<PanelRow>
 						<SelectControl
-							label={ __( 'Corrections by Location', 'newspack-plugin' ) }
+							label={ __( 'Corrections by Priority', 'newspack-plugin' ) }
 							help={ __(
-								'Filter corrections by their location.',
+								'Filter corrections by their priority.',
 								'newspack-plugin'
 							) }
-							value={ attributes.location }
+							value={ attributes.priority }
 							options={ [
-								{ label: __( 'Top', 'newspack-plugin' ), value: 'top' },
-								{ label: __( 'Bottom', 'newspack-plugin' ), value: 'bottom' },
+								{ label: __( 'High', 'newspack-plugin' ), value: 'high' },
+								{ label: __( 'Low', 'newspack-plugin' ), value: 'low' },
 								{ label: __( 'All', 'newspack-plugin' ), value: 'all' },
 							] }
-							onChange={ value => setAttributes( { location : value } ) }
+							onChange={ value => setAttributes( { priority : value } ) }
 						/>
 					</PanelRow>
 				</PanelBody>

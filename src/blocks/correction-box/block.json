@@ -2,10 +2,10 @@
 	"name": "newspack/correction-box",
 	"category": "newspack",
 	"attributes": {
-		"location": {
+		"priority": {
 			"type": "string",
 			"default": "all",
-			"enum": [ "top", "bottom", "all" ]
+			"enum": [ "high", "low", "all" ]
 		}
 	},
 	"supports": {

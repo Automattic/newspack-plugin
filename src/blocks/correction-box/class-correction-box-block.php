@@ -70,8 +70,8 @@ final class Correction_Box_Block {
 		<div <?php echo $block_wrapper_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<?php
 			foreach ( $corrections as $correction ) :
-				// Check for location.
-				if ( empty( $attributes['location'] ) || ( $correction->correction_location !== $attributes['location'] && 'all' !== $attributes['location'] ) ) {
+				// Check for priority.
+				if ( empty( $attributes['priority'] ) || ( $correction->correction_priority !== $attributes['priority'] && 'all' !== $attributes['priority'] ) ) {
 					continue;
 				}
 				$correction_content = $correction->post_content;

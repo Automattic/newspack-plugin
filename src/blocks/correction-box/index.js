@@ -10,7 +10,6 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 import metadata from './block.json';
 import Edit from './edit';
-import variations from './variation';
 
 export const title = __( 'Corrections', 'newspack-plugin' );
 
@@ -38,5 +37,3 @@ export const settings = {
 	usesContext: [ 'postId' ],
 	edit: Edit
 };
-
-export { variations };

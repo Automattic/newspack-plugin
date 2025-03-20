@@ -13,11 +13,6 @@ import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 
 /**
- * Register block variations.
- */
-import './variations';
-
-/**
  * Block Scripts
  */
 import './core-image';
