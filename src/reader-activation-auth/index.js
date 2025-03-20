@@ -32,7 +32,7 @@ window.newspackRAS.push( readerActivation => {
 				}
 
 				container.setFormAction( currentHash === 'register_modal' ? 'register' : 'signin' );
-				openAuthModal();
+				openAuthModal( { closeOnSuccess: true } );
 			}
 		}
 		window.addEventListener( 'hashchange', handleHashChange );

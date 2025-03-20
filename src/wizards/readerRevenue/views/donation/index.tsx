@@ -20,7 +20,7 @@ import {
 	TextControl,
 	Wizard,
 } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
+import { NEWSPACK, READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 type FrequencySlug = 'once' | 'month' | 'year';
 
@@ -371,6 +371,8 @@ const BillingFields = () => {
 const Donation = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { platform_data } = wizardData;
+	const usedPlatform = platform_data?.platform;
 	const onSaveDonationSettings = () =>
 		saveWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
@@ -429,7 +431,7 @@ const Donation = () => {
 				) }
 				<DonationAmounts />
 			</ActionCard>
-			<ActionCard
+			{ NEWSPACK === usedPlatform && ( <ActionCard
 				description={ __( 'Configure options for modal checkouts.', 'newspack-plugin' ) }
 				hasGreyHeader={ true }
 				isMedium
@@ -441,7 +443,7 @@ const Donation = () => {
 				}
 			>
 				<BillingFields />
-			</ActionCard>
+			</ActionCard> ) }
 		</>
 	);
 };

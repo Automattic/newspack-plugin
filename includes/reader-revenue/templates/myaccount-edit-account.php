@@ -95,7 +95,10 @@ endif;
 
 	<p class="woocommerce-buttons-card">
 		<?php \wp_nonce_field( 'save_account_details', 'save-account-details-nonce' ); ?>
-		<button type="submit" class="woocommerce-Button button ma0" name="save_account_details" value="<?php \esc_attr_e( 'Save changes', 'newspack-plugin' ); ?>"><?php \esc_html_e( 'Save changes', 'newspack-plugin' ); ?></button>
+		<?php if ( $is_email_change_enabled && $is_pending_email_change ) : ?>
+			<a href="<?php echo esc_url( WooCommerce_My_Account::get_email_change_url( WooCommerce_My_Account::CANCEL_EMAIL_CHANGE_PARAM, $user->user_email ) ); ?>" class="woocommerce-Button button ma0"><?php \esc_html_e( 'Cancel email change', 'newspack-plugin' ); ?></a>
+		<?php endif; ?>
+		<button type="submit" class="woocommerce-Button button secondary ma0" name="save_account_details" value="<?php \esc_attr_e( 'Save changes', 'newspack-plugin' ); ?>"><?php \esc_html_e( 'Save changes', 'newspack-plugin' ); ?></button>
 		<input type="hidden" name="action" value="save_account_details" />
 	</p>
 

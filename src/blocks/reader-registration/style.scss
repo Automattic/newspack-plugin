@@ -258,7 +258,7 @@
 	}
 
 	&--hidden,
-	+ div:empty {
+	+ div:empty:not(.wp-block-spacer) {
 		display: none;
 	}
 
@@ -283,15 +283,6 @@
 		@media screen and ( min-width: 600px ) {
 			padding-right: 0;
 		}
-	}
-}
-
-@keyframes spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
 	}
 }
 

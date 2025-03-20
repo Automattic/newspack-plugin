@@ -759,9 +759,8 @@ class Memberships {
 	/**
 	 * Render footer JS.
 	 *
-	 * If the gate was rendered, reload the page after 2 seconds in case RAS
-	 * detects a new reader. This allows the membership purchase to unlock the
-	 * content.
+	 * If the gate was rendered, reload the page after a new reader is detected.
+	 * This allows the membership purchase to unlock the content.
 	 */
 	public static function render_js() {
 		if ( ! self::$gate_rendered ) {
@@ -771,19 +770,22 @@ class Memberships {
 		<script type="text/javascript">
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
+				let hasReader = false;
+				ras.on( 'overlay', function( ev ) {
+					// When an overlay was closed, and there's a reader,
+					// reload the window, but allow other JS – which might have
+					// triggered another overlay – to be executed (setTimeout hack).
+					if ( ! ras.overlays.get().length && hasReader ) {
+						setTimeout( () => {
+							if ( ! ras.overlays.get().length ) {
+								window.location.reload();
+							}
+						}, 1 )
+					}
+				})
 				ras.on( 'reader', function( ev ) {
 					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
-						if ( ras.overlays.get().length ) {
-							ras.on( 'overlay', function( ev ) {
-								if ( ! ev.detail.overlays.length && ! window?.newspackReaderActivation?.openNewslettersSignupModal ) {
-									window.location.reload();
-								}
-							} );
-						} else {
-							setTimeout( function() {
-								window.location.reload();
-							}, 2000 );
-						}
+						hasReader = true;
 					}
 				} );
 			} );

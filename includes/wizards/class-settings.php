@@ -49,15 +49,19 @@ class Settings extends Wizard {
 		$default_settings = [
 			self::MODULE_ENABLED_PREFIX . 'rss'            => false,
 			self::MODULE_ENABLED_PREFIX . 'media-partners' => false,
+			self::MODULE_ENABLED_PREFIX . 'woo-member-commenting' => false,
 		];
+
 		return wp_parse_args( get_option( self::SETTINGS_OPTION_NAME ), $default_settings );
 	}
 
 	/**
 	 * Get the list of available optional modules.
+	 *
+	 * @return array List of available optional modules.
 	 */
-	private static function get_available_optional_modules() {
-		return [ 'rss' ];
+	public static function get_available_optional_modules(): array {
+		return [ 'rss', 'woo-member-commenting' ];
 	}
 
 	/**
@@ -88,6 +92,15 @@ class Settings extends Wizard {
 	 */
 	public static function activate_optional_module( $module_name ) {
 		return self::update_setting( self::MODULE_ENABLED_PREFIX . $module_name, true );
+	}
+
+	/**
+	 * Deactivate an optional module.
+	 *
+	 * @param string $module_name Name of the module.
+	 */
+	public static function deactivate_optional_module( string $module_name ) {
+		return self::update_setting( self::MODULE_ENABLED_PREFIX . $module_name, false );
 	}
 
 	/**

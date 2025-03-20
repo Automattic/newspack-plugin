@@ -8,8 +8,10 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
+use Newspack\Reader_Activation\Sync\Metadata;
+use Newspack\Reader_Activation\ESP_Sync;
+use Newspack\Stripe_Connection;
 use Newspack\WooCommerce_Connection;
-use WP_Error;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,8 +24,17 @@ class WooCommerce_My_Account {
 	const DELETE_ACCOUNT_FORM          = 'delete-account-form';
 	const SEND_MAGIC_LINK_PARAM        = 'magic-link';
 	const AFTER_ACCOUNT_DELETION_PARAM = 'account-deleted';
+	const CANCEL_EMAIL_CHANGE_PARAM    = 'cancel-email-change';
 	const VERIFY_EMAIL_CHANGE_PARAM    = 'verify-email-change';
 	const PENDING_EMAIL_CHANGE_META    = 'newspack_pending_email_change';
+	const ALLOWED_PARAMS               = [
+		self::RESET_PASSWORD_URL_PARAM,
+		self::DELETE_ACCOUNT_URL_PARAM,
+		self::SEND_MAGIC_LINK_PARAM,
+		self::AFTER_ACCOUNT_DELETION_PARAM,
+		self::CANCEL_EMAIL_CHANGE_PARAM,
+		self::VERIFY_EMAIL_CHANGE_PARAM,
+	];
 
 	/**
 	 * Initialize.
@@ -50,6 +61,7 @@ class WooCommerce_My_Account {
 			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'edit_account_prevent_email_update' ] );
 			\add_action( 'woocommerce_save_account_details', [ __CLASS__, 'handle_email_change_request' ] );
+			\add_action( 'template_redirect', [ __CLASS__, 'handle_cancel_email_change' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_verify_email_change' ] );
 			\add_filter( 'send_email_change_email', '__return_false' );
 			\add_action( 'init', [ __CLASS__, 'restrict_account_content' ], 100 );
@@ -60,6 +72,7 @@ class WooCommerce_My_Account {
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
+			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
 		}
 	}
 
@@ -418,7 +431,8 @@ class WooCommerce_My_Account {
 			! $is_resubscribe_request &&
 			! $is_renewal_request &&
 			! $is_cancel_membership_request &&
-			! $is_checkout_request
+			! $is_checkout_request &&
+			! self::is_myaccount_url()
 		) {
 			global $wp;
 			$current_url               = \home_url( $wp->request );
@@ -781,6 +795,9 @@ class WooCommerce_My_Account {
 	 * Whether email changes are enabled.
 	 */
 	public static function is_email_change_enabled() {
+		if ( class_exists( '\Newspack_Manager\Features' ) && \Newspack_Manager\Features::is_automattician() ) {
+			return true;
+		}
 		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
 		/**
 		 * Filters whether or not to allow email changes in My Account.
@@ -788,6 +805,23 @@ class WooCommerce_My_Account {
 		 * @param bool $enabled Whether or not to allow email changes.
 		 */
 		return \apply_filters( 'newspack_email_change_enabled', $is_enabled );
+	}
+
+	/**
+	 * Get email change verification url.
+	 *
+	 * @param string $param The email change param.
+	 * @param string $value The email change param value.
+	 *
+	 * @return string
+	 */
+	public static function get_email_change_url( $param, $value ) {
+		return \add_query_arg(
+			[
+				$param => \wp_hash( $value ),
+			],
+			\wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) )
+		);
 	}
 
 	/**
@@ -815,33 +849,47 @@ class WooCommerce_My_Account {
 			\wc_add_notice( __( 'This email address is already in use.', 'newspack-plugin' ), 'error' );
 		} else {
 			$update = \update_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, $new_email );
-
 			if ( ! $update ) {
 				\wc_add_notice( __( 'Something went wrong. Please try again.', 'newspack-plugin' ), 'error' );
 			} else {
-				$sent = Emails::send_email(
-					Reader_Activation_Emails::EMAIL_TYPES['CHANGE_EMAIL'],
-					$new_email,
-					[
-						[
-							'template' => '*EMAIL_VERIFICATION_URL*',
-							'value'    => \add_query_arg(
+				$sent = [];
+				foreach ( [ $old_email, $new_email ] as $email ) {
+					if (
+						Emails::send_email(
+							Reader_Activation_Emails::EMAIL_TYPES['CHANGE_EMAIL'],
+							$email,
+							[
 								[
-									self::VERIFY_EMAIL_CHANGE_PARAM => \wp_create_nonce( self::VERIFY_EMAIL_CHANGE_PARAM ),
+									'template' => '*EMAIL_VERIFICATION_URL*',
+									'value'    => self::get_email_change_url( self::VERIFY_EMAIL_CHANGE_PARAM, $old_email ),
 								],
-								\home_url()
-							),
-						],
-					]
-				);
-				if ( ! $sent ) {
+								[
+									'template' => '*EMAIL_CANCELLATION_URL*',
+									'value'    => self::get_email_change_url( self::CANCEL_EMAIL_CHANGE_PARAM, $old_email ),
+								],
+							]
+						)
+					) {
+						$sent[] = $email;
+					}
+				}
+				if ( empty( $sent ) ) {
 					\wc_add_notice( __( 'Something went wrong. Please contact the site administrator.', 'newspack-plugin' ), 'error' );
+				} elseif ( count( $sent ) === 1 ) {
+					\wc_add_notice(
+						sprintf(
+							// Translators: %s is the email address the verification email was sent to..
+							__( 'A verification email has been sent to %s. Please verify to complete the change.', 'newspack-plugin' ),
+							$sent[0]
+						)
+					);
 				} else {
 					\wc_add_notice(
 						sprintf(
-							// Translators: %s is the new email address.
-							__( 'A verification email has been sent to %s. Please verify to complete the change.', 'newspack-plugin' ),
-							$new_email
+							// Translators: 1 and 2 are the email addresses the verification email was sent to.
+							__( 'A verification email has been sent to %1$s and %2$s. Please verify to complete the change.', 'newspack-plugin' ),
+							$sent[0],
+							$sent[1]
 						)
 					);
 				}
@@ -853,35 +901,114 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Handle admin email change request.
+	 *
+	 * @param int     $user_id User ID.
+	 * @param WP_User $user    User object.
+	 * @param array   $data    User data.
+	 */
+	public static function handle_admin_email_change_request( $user_id, $user, $data ) {
+		if ( ! is_admin() || ! self::is_email_change_enabled() ) {
+			return;
+		}
+		$new_email = $data['user_email'] ?? '';
+		$old_email = $user->user_email;
+		if ( $new_email !== $old_email && \is_email( $new_email ) && \is_email( $old_email ) ) {
+			self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
+			ESP_Sync::sync_email_change( $user_id, $new_email, $old_email );
+		}
+	}
+
+	/**
 	 * Handle email change verification.
 	 */
 	public static function handle_verify_email_change() {
 		if ( ! self::is_email_change_enabled() || ! \is_user_logged_in() ) {
 			return;
 		}
-		$nonce = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( ! $nonce ) {
+		$secret = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $secret ) {
 			return;
 		}
-		if ( \wp_verify_nonce( $nonce, self::VERIFY_EMAIL_CHANGE_PARAM ) ) {
-			$new_email = \get_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META, true );
-			if ( ! $new_email ) {
-				\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
-			} else {
-				\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
-				\wp_update_user(
-					[
-						'ID'         => \get_current_user_id(),
-						'user_email' => $new_email,
-					]
-				);
+		$error     = __( 'Something went wrong.', 'newspack-plugin' );
+		$user_id   = \get_current_user_id();
+		$new_email = \get_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, true );
+		$old_email = \wp_get_current_user()->user_email;
+		if ( $new_email && \wp_hash( $old_email ) === $secret ) {
+			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
+			$update = \wp_update_user(
+				[
+					'ID'         => $user_id,
+					'user_email' => $new_email,
+				]
+			);
+			if ( $update ) {
+				$customer = new \WC_Customer( $user_id );
+				$customer->set_billing_email( $new_email );
+				$customer->save();
+				self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
+				ESP_Sync::sync_email_change( $user_id, $new_email, $old_email );
+				\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
 				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
+			} else {
+				\wc_add_notice( $error, 'error' );
 			}
+		} else {
+			\wc_add_notice( $error, 'error' );
+		}
+		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
+		exit;
+	}
+
+	/**
+	 * Handle email change cancellation.
+	 */
+	public static function handle_cancel_email_change() {
+		if ( ! self::is_email_change_enabled() || ! \is_user_logged_in() ) {
+			return;
+		}
+		$secret = filter_input( INPUT_GET, self::CANCEL_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $secret ) {
+			return;
+		}
+		$current_email = \wp_get_current_user()->user_email;
+		if ( \wp_hash( $current_email ) === $secret ) {
+			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
+			\wc_add_notice( __( 'Your email change request has been cancelled.', 'newspack-plugin' ) );
 		} else {
 			\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
 		}
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
+	}
+
+	/**
+	 * Sync reader email change with stripe.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $email   New email.
+	 */
+	public static function maybe_sync_email_change_with_stripe( $user_id, $email ) {
+		$request = Stripe_Connection::update_customer_data(
+			$user_id,
+			[
+				'email' => $email,
+			]
+		);
+		if ( \is_wp_error( $request ) ) {
+			Logger::error( 'Error updating Stripe customer email: ' . $result->get_error_message() );
+		}
+	}
+
+	/**
+	 * Check if url is newspack my account url.
+	 *
+	 * @return bool
+	 */
+	public static function is_myaccount_url() {
+		$cancel_secret = filter_input( INPUT_GET, self::CANCEL_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$verify_secret = filter_input( INPUT_GET, self::VERIFY_EMAIL_CHANGE_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		return ! empty( $cancel_secret ) || ! empty( $verify_secret );
 	}
 }
 

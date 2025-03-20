@@ -187,6 +187,7 @@ final class Newspack {
 
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-media-partners.php';
+		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-woo-member-commenting.php';
 
 		if ( Donations::is_platform_nrh() ) {
 			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';

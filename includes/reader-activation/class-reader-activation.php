@@ -10,6 +10,7 @@ namespace Newspack;
 use Newspack\Recaptcha;
 use Newspack\Reader_Activation\Sync;
 use Newspack\Renewal;
+use Newspack\WooCommerce_My_Account;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -88,6 +89,7 @@ final class Reader_Activation {
 		\add_action( 'woocommerce_customer_reset_password', [ __CLASS__, 'login_after_password_reset' ] );
 
 		if ( self::is_enabled() ) {
+			\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
 			\add_action( 'clear_auth_cookie', [ __CLASS__, 'clear_auth_reader_cookie' ] );
 			\add_action( 'set_auth_cookie', [ __CLASS__, 'clear_auth_intention_cookie' ] );
@@ -223,6 +225,27 @@ final class Reader_Activation {
 				NEWSPACK_PLUGIN_VERSION
 			);
 		}
+	}
+
+	/**
+	 * Register routes.
+	 */
+	public static function register_routes() {
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/reader-newsletter-signup-lists/(?P<email_address>[\a-z]+)',
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ __CLASS__, 'api_render_newsletters_signup_form' ],
+				'permission_callback' => '__return_true',
+				'args'                => [
+					'email_address' => [
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_email',
+					],
+				],
+			]
+		);
 	}
 
 	/**
@@ -561,20 +584,16 @@ final class Reader_Activation {
 		}
 
 		foreach ( $available_lists as $list_id => $list ) {
-			// Skip any premium lists since the reader has already made a purchase at this stage.
-			if ( method_exists( '\Newspack_Newsletters\Plugins\Woocommerce_Memberships', 'is_subscription_list_tied_to_plan' ) && \Newspack_Newsletters\Plugins\Woocommerce_Memberships::is_subscription_list_tied_to_plan( $list['db_id'] ) ) {
-				continue;
-			}
-
 			$registration_lists[ $list_id ] = $list;
 		}
 
 		/**
 		 * Filters the newsletters lists that should be rendered after checkout.
 		 *
-		 * @param array $registration_lists Array of newsletter lists.
+		 * @param array  $registration_lists Array of newsletter lists.
+		 * @param string $email_address      Email address.
 		 */
-		return apply_filters( 'newspack_post_registration_newsletters_lists', $registration_lists );
+		return apply_filters( 'newspack_post_registration_newsletters_lists', $registration_lists, $email_address );
 	}
 
 	/**
@@ -1356,6 +1375,16 @@ final class Reader_Activation {
 			if ( Renewal::is_subscriptions_page() ) {
 				// If we are on the subscriptions page, set the auth callback URL to the subscriptions page.
 				$auth_callback_url = Renewal::get_subscriptions_url();
+			} elseif ( WooCommerce_My_Account::is_myaccount_url() ) {
+				$params = [];
+				// If we are using one of our my account params, reattach the param to the my account URL.
+				foreach ( WooCommerce_My_Account::ALLOWED_PARAMS as $param ) {
+					$value = $_GET[ $param ] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.NonceVerification.Recommended
+					if ( $value ) {
+						$params[ $param ] = $value;
+					}
+				}
+				$auth_callback_url = add_query_arg( $params, \wc_get_page_permalink( 'myaccount' ) );
 			} elseif ( function_exists( 'wc_get_page_permalink' ) && function_exists( 'is_account_page' ) && \is_account_page() ) {
 				// If we are already on the my account page, set the my account URL so the page reloads on submit.
 				$auth_callback_url = \wc_get_page_permalink( 'myaccount' );
@@ -1479,6 +1508,19 @@ final class Reader_Activation {
 		<?php
 	}
 
+	/**
+	 * Fetch HTML for the post-checkout newsletter signup modal.
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_render_newsletters_signup_form( $request ) {
+		ob_start();
+		self::render_newsletters_signup_modal( $request['email_address'] );
+		$html = trim( ob_get_clean() );
+		return new \WP_REST_Response( [ 'html' => $html ] );
+	}
 
 	/**
 	 * Renders newsletters signup form.
@@ -1526,13 +1568,16 @@ final class Reader_Activation {
 
 	/**
 	 * Renders the newsletter signup modal.
+	 *
+	 * @param string $email_address Email address. Optional, defaults to the logged-in reader's email address.
 	 */
-	public static function render_newsletters_signup_modal() {
+	public static function render_newsletters_signup_modal( $email_address = '' ) {
 		if ( ! self::is_newsletters_signup_available() ) {
 			return;
 		}
-
-		$email_address     = self::get_logged_in_reader_email_address();
+		if ( ! is_email( $email_address ) ) {
+			$email_address = self::get_logged_in_reader_email_address();
+		}
 		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
 		if ( empty( $newsletters_lists ) ) {
 			return;
@@ -2135,13 +2180,19 @@ final class Reader_Activation {
 			$user_data['display_name'] = $user_nicename;
 		}
 
+		if ( empty( $user_data['user_pass'] ) ) {
+			$password = \wp_generate_password();
+		} else {
+			$password = $user_data['user_pass'];
+		}
+
 		$user_data = array_merge(
 			$user_data,
 			[
 				'user_login'    => $user_nicename,
 				'user_nicename' => $user_nicename,
 				'display_name'  => $user_nicename,
-				'user_pass'     => \wp_generate_password(),
+				'user_pass'     => $password,
 			]
 		);
 

@@ -70,6 +70,8 @@ class Corrections {
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
+		add_action( 'admin_init', [ __CLASS__, 'register_corrections_block_patterns' ] );
+		add_action( 'init', [ __CLASS__, 'register_corrections_template' ] );
 	}
 
 	/**
@@ -544,6 +546,81 @@ class Corrections {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Registers the block template.
+	 */
+	public static function register_corrections_block_patterns() {
+		if ( ! class_exists( 'WP_Block_Patterns_Registry' ) || ! wp_is_block_theme() ) {
+			return;
+		}
+
+		$category = 'newspack-corrections';
+
+		\register_block_pattern_category(
+			$category,
+			[
+				'label' => __( 'Newspack Corrections', 'newspack-plugin' ),
+			]
+		);
+
+		\register_block_pattern(
+			'newspack/corrections-loop',
+			[
+				'categories'  => [ $category ],
+				'title'       => __( 'Corrections Loop', 'newspack-plugin' ),
+				'description' => __( 'A block pattern for displaying an archive of corrections.', 'newspack-plugin' ),
+				'content'     => self::get_corrections_pattern_content( 'corrections-loop' ),
+				'keywords'    => [ __( 'corrections', 'newspack-plugin' ), __( 'archive', 'newspack-plugin' ), __( 'loop', 'newspack-plugin' ) ],
+			]
+		);
+	}
+
+	/**
+	 * Retrieves the block template content.
+	 *
+	 * @param string $pattern The pattern name.
+	 *
+	 * @return string The template content.
+	 */
+	private static function get_corrections_pattern_content( $pattern ) {
+		ob_start();
+		include_once __DIR__ . "/../templates/block-patterns/corrections/{$pattern}.php";
+		$content = ob_get_clean();
+		return $content;
+	}
+
+	/**
+	 * Registers the block template.
+	 */
+	public static function register_corrections_template() {
+		if ( ! class_exists( 'WP_Block_Templates_Registry' ) || ! wp_is_block_theme() ) {
+			return;
+		}
+
+		\register_block_template(
+			'newspack//corrections-archive',
+			[
+				'title'       => __( 'Corrections Archive', 'newspack-plugin' ),
+				'description' => __( 'A block template for displaying an archive of corrections.', 'newspack-plugin' ),
+				'content'     => self::get_corrections_template_content( 'corrections-archive' ),
+			]
+		);
+	}
+
+	/**
+	 * Retrieves the block template content.
+	 *
+	 * @param string $template The template name.
+	 *
+	 * @return string The template content.
+	 */
+	private static function get_corrections_template_content( $template ) {
+		ob_start();
+		include_once __DIR__ . "/../templates/corrections/{$template}.php";
+		$content = ob_get_clean();
+		return $content;
 	}
 }
 Corrections::init();

@@ -62,6 +62,20 @@ const entry = {
 		'reader-registration',
 		'view.js'
 	),
+	'correction-box-block': path.join(
+		__dirname,
+		'src',
+		'blocks',
+		'correction-box',
+		'index.js'
+	),
+	'correction-item-block': path.join(
+		__dirname,
+		'src',
+		'blocks',
+		'correction-item',
+		'index.js'
+	),
 	'my-account': path.join(
 		__dirname,
 		'includes',
