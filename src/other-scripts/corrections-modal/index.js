@@ -13,9 +13,9 @@ import {
 	Card,
 	CardHeader,
 	CardBody,
-	Snackbar,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -88,7 +88,11 @@ const CorrectionsModal = () => {
 	const [ newCorrectionLocation, setNewCorrectionLocation ] = useState( 'bottom' );
 	const [ isDatePopoverOpen, setIsDatePopoverOpen ] = useState( null );
 	const [ isAddingCorrection, setIsAddingCorrection ] = useState( false );
-	const [ displayNotice, setDisplayNotice ] = useState( false );
+
+	/**
+	 * Prepare actions.
+	 */
+	const { createNotice } = useDispatch( noticesStore );
 
 	// Fetch corrections when modal opens
 	useEffect( () => {
@@ -206,6 +210,7 @@ const CorrectionsModal = () => {
 					title={ __( 'Corrections & Clarifications', 'newspack-plugin' ) }
 					onRequestClose={ () => setIsOpen( false ) }
 					className="newspack-corrections-modal"
+					overlayClassName="newspack-corrections-modal-overlay"
 					size="medium"
 				>
 					{ ! isAddingCorrection && corrections.length > 0 ? (
@@ -215,20 +220,6 @@ const CorrectionsModal = () => {
 							<CardHeader>
 								{ __( 'Corrections log', 'newspack-plugin' ) }
 							</CardHeader>
-							{	displayNotice &&
-								<Snackbar
-									className="correction-success-notice"
-									onRemove={ () => setDisplayNotice( false ) }
-									actions={ [
-										{
-											label: __( 'Add More', 'newspack-plugin' ),
-											onClick: () => setIsAddingCorrection( ! isAddingCorrection ),
-										},
-									] }
-								>
-									{ __( 'Correction has been added successfully.', 'newspack-plugin' ) }
-								</Snackbar>
-							}
 							<CardBody>
 							{ corrections.map( ( correction ) => (
 									<div key={correction.ID} className="correction-item">
@@ -329,7 +320,14 @@ const CorrectionsModal = () => {
 									onClick={ () => {
 										saveCorrection();
 										setIsAddingCorrection( false );
-										setDisplayNotice( true );
+										createNotice(
+											'success',
+											__( 'Corrections added successfully.', 'newspack-plugin' ),
+											{
+												type: 'snackbar',
+												isDismissible: true,
+											}
+										);
 									} }
 									disabled={ ! newCorrection }
 								/>
