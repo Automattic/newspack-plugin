@@ -91,7 +91,7 @@ class Newspack_Dashboard extends Wizard {
 						'href'  => admin_url( 'edit.php?post_type=newspack_nl_cpt' ),
 					],
 					[
-						'icon'  => 'pullquote',
+						'icon'  => 'emailAd',
 						'title' => __( 'Advertising', 'newspack-plugin' ),
 						'desc'  => __( 'Get advertising revenue from your newsletters.', 'newspack-plugin' ),
 						'href'  => admin_url( 'edit.php?post_type=newspack_nl_ads_cpt' ),
@@ -114,7 +114,7 @@ class Newspack_Dashboard extends Wizard {
 			],
 			'cards'        => [
 				[
-					'icon'  => 'pullquote',
+					'icon'  => 'ad',
 					'title' => __( 'Display Ads', 'newspack-plugin' ),
 					'desc'  => __( 'Sell programmatic advertising on your site to drive revenue.', 'newspack-plugin' ),
 					'href'  => admin_url( 'admin.php?page=newspack-ads-display-ads#/' ),
