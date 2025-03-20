@@ -108,6 +108,7 @@ const Emails = () => {
 		<Fragment>
 			{ emails.map( email => {
 				const isActive = email.status === 'publish';
+				const isAudience = email.category === 'reader-activation';
 				let notification = __(
 					'This email is not active.',
 					'newspack-plugin'
@@ -118,7 +119,6 @@ const Emails = () => {
 						'newspack-plugin'
 					);
 				}
-
 				if ( email.type === 'welcome' ) {
 					notification = __(
 						'This email is not active. The receipt template will be used if active.',
@@ -127,6 +127,7 @@ const Emails = () => {
 				}
 				return (
 					<WizardsActionCard
+						isSmall
 						key={ email.post_id }
 						disabled={ isFetching }
 						title={ email.label }
@@ -148,13 +149,16 @@ const Emails = () => {
 							}
 						} }
 						secondaryDestructive={ true }
-						toggleChecked={ isActive }
-						toggleOnChange={ value =>
-							updateStatus(
-								email.post_id,
-								value ? 'publish' : 'draft'
-							)
-						}
+						{ ...( isAudience
+							? {}
+							: {
+								toggleChecked: isActive,
+								toggleOnChange: value =>
+									updateStatus(
+										email.post_id,
+										value ? 'publish' : 'draft'
+									)
+							} ) }
 						{ ...( isActive
 							? {}
 							: {
