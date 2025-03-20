@@ -1097,8 +1097,8 @@ class Memberships {
 	 */
 	public static function handle_reevaluation_request() {
 		if ( isset( $_GET['reevaluate'] ) && isset( $_GET['post'] ) && function_exists( 'wcs_get_subscription' ) && function_exists( 'wc_memberships_get_user_membership' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$subscription    = \wcs_get_subscription( absint( $_GET['reevaluate'] ) );
-			$membership    = \wc_memberships_get_user_membership( absint( $_GET['post'] ) );
+			$subscription = \wcs_get_subscription( absint( $_GET['reevaluate'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$membership = \wc_memberships_get_user_membership( absint( $_GET['post'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			if ( $subscription instanceof \WC_Subscription && $membership ) {
 				$integrations = wc_memberships()->get_integrations_instance();
