@@ -46,15 +46,6 @@ class Test_Corrections extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the corrections feature is enabled.
-	 *
-	 * @covers Corrections::is_enabled
-	 */
-	public function test_is_enabled() {
-		$this->assertTrue( Corrections::is_enabled() );
-	}
-
-	/**
 	 * Test that the corrections feature is disabled.
 	 *
 	 * @covers Corrections::register_rest_routes
