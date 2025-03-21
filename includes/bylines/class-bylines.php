@@ -34,7 +34,7 @@ class Bylines {
 		}
 		add_action( 'init', [ __CLASS__, 'register_post_meta' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		add_filter( 'the_content', [ __CLASS__, 'output_byline_on_post' ] );
+		add_action( 'pre_newspack_posted_by', [ __CLASS__, 'output_byline_on_post' ] );
 	}
 
 	/**
@@ -123,21 +123,19 @@ class Bylines {
 	/**
 	 * Outputs the byline on the post.
 	 *
-	 * @param string $content The post content.
-	 *
 	 * @return string The post content with the byline prepended.
 	 */
-	public static function output_byline_on_post( $content ) {
-		if ( ! \is_single() || ! \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true ) ) {
-			return $content;
-		}
+	public static function output_byline_on_post() {
 		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
+
 		if ( ! $byline ) {
-			return $content;
+			return;
 		}
+
 		$byline      = preg_replace( '/<Author id=(\d*)>(\D*)<\/Author>/', '<a href="' . \get_site_url() . '/?author=$1">$2</a>', $byline );
 		$byline_html = '<div class="newspack-byline">' . \wp_kses_post( $byline ) . '</div>';
-		return $byline_html . $content;
+
+		return $byline_html;
 	}
 }
 Bylines::init();
