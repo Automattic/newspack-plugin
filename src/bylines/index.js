@@ -157,8 +157,7 @@ const BylinesSettingsPanel = () => {
 	/** Tokens that are in use by the custom byline */
 	const [ tokensInUse, setTokensInUse ] = useState( [] );
 
-	/** Reference to document to add event listners */
-	const documentRef = useRef( document );
+	/** Reference to contenteditable element to add event listners */
 	const editableRef = useRef( null );
 
 	/** Current post data */
@@ -193,7 +192,6 @@ const BylinesSettingsPanel = () => {
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
 
-	const byline = parseForEdit( getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] );
 
 	/**
 	 * Stores the byline as meta.
@@ -356,6 +354,8 @@ const BylinesSettingsPanel = () => {
 			if ( ! element ) {
 				return;
 			}
+			const byline = parseForEdit( getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] );
+
 			editableRef.current = element;
 			element.innerHTML = parseForEdit( byline );
 			element.addEventListener( 'click',
