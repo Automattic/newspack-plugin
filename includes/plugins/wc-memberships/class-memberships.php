@@ -854,7 +854,7 @@ class Memberships {
 	 * @return array Filtered capabilities.
 	 */
 	public static function user_has_cap( $all_caps, $caps, $args ) {
-		// Bail if Woo Memberships is not active.
+		// Bail if Woo Memberships is not active or if this is a product.
 		if ( ! self::is_active() || is_product() ) {
 			return $all_caps;
 		}
