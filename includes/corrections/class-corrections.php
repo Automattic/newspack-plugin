@@ -27,11 +27,6 @@ class Corrections {
 	const CORRECTION_POST_ID_META = 'newspack_correction-post-id';
 
 	/**
-	 * Meta key for post corrections active meta.
-	 */
-	const CORRECTIONS_ACTIVE_META = 'newspack_corrections_active';
-
-	/**
 	 * Meta key for post corrections location meta.
 	 */
 	const CORRECTIONS_LOCATION_META = 'newspack_corrections_location';
@@ -52,11 +47,6 @@ class Corrections {
 	const REST_ROUTE = '/corrections';
 
 	/**
-	 * Customize settings for corrections.
-	 */
-	const CORRECTIONS_LOCATION_CUSTOMIZE_SETTING = 'corrections_location';
-
-	/**
 	 * Initializes the class.
 	 */
 	public static function init() {
@@ -64,9 +54,7 @@ class Corrections {
 			return;
 		}
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
-		add_action( 'init', [ __CLASS__, 'add_corrections_shortcode' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
-		add_action( 'customize_register', [ __CLASS__, 'corrections_customize_register' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
@@ -232,7 +220,7 @@ class Corrections {
 
 		// Track processed corrections to handle deletions.
 		$processed_ids = [];
-	
+
 		foreach ( $corrections as $correction ) {
 			$correction_id = $correction['id'];
 
@@ -284,8 +272,9 @@ class Corrections {
 				'post_type'    => self::POST_TYPE,
 				'post_status'  => 'publish',
 				'meta_input'   => [
-					self::CORRECTION_POST_ID_META => $post_id,
-					self::CORRECTIONS_TYPE_META   => $correction['type'],
+					self::CORRECTION_POST_ID_META   => $post_id,
+					self::CORRECTIONS_TYPE_META     => $correction['type'],
+					self::CORRECTIONS_LOCATION_META => $correction['location'],
 				],
 			]
 		);
@@ -314,8 +303,9 @@ class Corrections {
 
 		// Attach correction type & date to each post.
 		foreach ( $corrections as $correction ) {
-			$correction->correction_type = get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true );
-			$correction->correction_date = get_post_datetime( $correction->ID )->format( 'Y-m-d H:i:s' );
+			$correction->correction_type     = get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true );
+			$correction->correction_date     = get_post_datetime( $correction->ID )->format( 'Y-m-d H:i:s' );
+			$correction->correction_location = get_post_meta( $correction->ID, self::CORRECTIONS_LOCATION_META, true );
 		}
 
 		return $corrections;
@@ -334,7 +324,8 @@ class Corrections {
 				'post_content' => sanitize_textarea_field( $correction['content'] ),
 				'post_date'    => sanitize_text_field( $correction['date'] ),
 				'meta_input'   => [
-					self::CORRECTIONS_TYPE_META => $correction['type'],
+					self::CORRECTIONS_TYPE_META     => $correction['type'],
+					self::CORRECTIONS_LOCATION_META => $correction['location'],
 				],
 			]
 		);
@@ -350,13 +341,6 @@ class Corrections {
 		foreach ( $correction_ids as $id ) {
 			wp_delete_post( $id, true );
 		}
-	}
-
-	/**
-	 * Adds the corrections shortcode.
-	 */
-	public static function add_corrections_shortcode() {
-		add_shortcode( 'corrections', [ __CLASS__, 'handle_corrections_shortcode' ] );
 	}
 
 	/**
@@ -386,63 +370,6 @@ class Corrections {
 	}
 
 	/**
-	 * Handles the corrections shortcode.
-	 *
-	 * @return string the shortcode output.
-	 */
-	public static function handle_corrections_shortcode() {
-		global $wpdb;
-
-		$post_ids = get_posts(
-			[
-				'posts_per_page' => -1,
-				'meta_key'       => self::CORRECTIONS_ACTIVE_META,
-				'meta_value'     => 1, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'fields'         => 'ids',
-				'orderby'        => 'date',
-				'order'          => 'DESC',
-			]
-		);
-
-		ob_start();
-		foreach ( $post_ids as $post_id ) :
-			$corrections = self::get_corrections( $post_id );
-			if ( empty( $corrections ) ) {
-				continue;
-			}
-
-			?>
-			<!-- wp:group {"className":"is-style-default correction-shortcode-item"} -->
-			<div class="wp-block-group is-style-default correction-shortcode-item">
-				<div class="wp-block-group__inner-container">
-					<!-- wp:newspack-blocks/homepage-articles {"showExcerpt":false,"showDate":false,"showAuthor":false,"mediaPosition":"left","specificPosts":["<?php echo intval( $post_id ); ?>"],"imageScale":2,"specificMode":true} /-->
-
-					<div class="correction-list">
-						<?php
-						foreach ( $corrections as $correction ) :
-							$correction_content = $correction->post_content;
-							$correction_date    = \get_the_date( 'M j, Y', $correction->ID );
-							$correction_heading = sprintf(
-								// translators: %s: correction date.
-								__( 'Correction on %s', 'newspack-plugin' ),
-								$correction_date
-							);
-							?>
-							<p>
-								<span class="correction-date"><?php echo esc_html( $correction_heading ); ?><span>:</span></span>
-								<?php echo esc_html( $correction_content ); ?>
-							</p>
-						<?php endforeach; ?>
-					</div>
-				</div>
-			</div>
-			<!-- /wp:group -->
-			<?php
-		endforeach;
-		return do_blocks( ob_get_clean() );
-	}
-
-	/**
 	 * Outputs corrections on the post content.
 	 *
 	 * @param string $content the post content.
@@ -454,13 +381,41 @@ class Corrections {
 			return $content;
 		}
 
-		if ( 0 == get_post_meta( get_the_ID(), self::CORRECTIONS_ACTIVE_META, true ) ) {
-			return $content;
-		}
-
 		$corrections = self::get_corrections( get_the_ID() );
 		if ( empty( $corrections ) ) {
 			return $content;
+		}
+
+		// Separate corrections by location.
+		$top_corrections    = [];
+		$bottom_corrections = [];
+
+		foreach ( $corrections as $correction ) {
+			if ( 'top' === $correction->correction_location ) {
+				$top_corrections[] = $correction;
+			} else {
+				$bottom_corrections[] = $correction;
+			}
+		}
+
+		$top_corrections_markup    = ! empty( $top_corrections ) ? self::get_corrections_markup( $top_corrections, 'top' ) : '';
+		$bottom_corrections_markup = ! empty( $bottom_corrections ) ? self::get_corrections_markup( $bottom_corrections, 'bottom' ) : '';
+
+		return $top_corrections_markup . $content . $bottom_corrections_markup;
+	}
+
+	/**
+	 * Generates the corrections markup from an array of correction posts.
+	 *
+	 * @param array  $corrections Array of correction post objects.
+	 * @param string $corrections_location The location of the corrections.
+	 *
+	 * @return string Generated markup (or an empty string if no corrections).
+	 */
+	private static function get_corrections_markup( $corrections, $corrections_location = 'bottom' ) {
+		// If no corrections, return an empty string.
+		if ( empty( $corrections ) ) {
+			return '';
 		}
 
 		$corrections_archive_url = get_post_type_archive_link( self::POST_TYPE );
@@ -468,19 +423,17 @@ class Corrections {
 		ob_start();
 		?>
 		<!-- wp:group {"className":"correction-module","backgroundColor":"light-gray"} -->
-		<div class="wp-block-group newspack-corrections-module">
+		<div class="wp-block-group newspack-corrections-module corrections-<?php echo esc_attr( $corrections_location ); ?>-module">
 			<?php foreach ( $corrections as $correction ) : ?>
 				<?php
 				$correction_content = $correction->post_content;
 				$correction_date    = \get_the_date( get_option( 'date_format' ), $correction->ID );
 				$correction_time    = \get_the_time( get_option( 'time_format' ), $correction->ID );
-				$timezone           = \wp_timezone()->getName();
 				$correction_heading = sprintf(
-					'%s, %s %s %s:',
+					'%s, %s %s:',
 					self::get_correction_type( $correction->ID ),
 					$correction_date,
-					$correction_time,
-					$timezone
+					$correction_time
 				);
 				?>
 				<p class="correction">
@@ -492,60 +445,7 @@ class Corrections {
 		</div>
 		<!-- /wp:group -->
 		<?php
-		$markup = do_blocks( ob_get_clean() );
-		return 'top' === get_theme_mod( self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING, 'bottom' ) ? $markup . $content : $content . $markup;
-	}
-
-	/**
-	 * Register the customizer setting for the corrections location.
-	 *
-	 * @param WP_Customize_Manager $wp_customize The customizer manager.
-	 */
-	public static function corrections_customize_register( $wp_customize ) {
-		/**
-		 * Corrections Panel.
-		 */
-		$wp_customize->add_panel(
-			self::POST_TYPE . '_panel',
-			array(
-				'title' => esc_html__( 'Corrections Settings', 'newspack-plugin' ),
-			)
-		);
-
-		/**
-		 * Corection settings section.
-		 */
-		$wp_customize->add_section(
-			self::POST_TYPE . '_settings',
-			array(
-				'title' => esc_html__( 'Corrections & Clarifications', 'newspack' ),
-				'panel' => self::POST_TYPE . '_panel',
-			)
-		);
-
-		// Add a setting & control to choose the location of corrections.
-		$wp_customize->add_setting(
-			self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING,
-			array(
-				'type'              => 'theme_mod',
-				'capability'        => 'edit_theme_options',
-				'default'           => 'bottom',
-				'sanitize_callback' => 'sanitize_text_field',
-			)
-		);
-		$wp_customize->add_control(
-			self::CORRECTIONS_LOCATION_CUSTOMIZE_SETTING,
-			array(
-				'label'       => esc_html__( 'Corrections Location', 'newspack-plugin' ),
-				'description' => esc_html__( 'Choose where to display corrections on the post.', 'newspack-plugin' ),
-				'section'     => self::POST_TYPE . '_settings',
-				'type'        => 'radio',
-				'choices'     => array(
-					'top'    => esc_html__( 'Top of content', 'newspack-plugin' ),
-					'bottom' => esc_html__( 'Bottom of content', 'newspack-plugin' ),
-				),
-			)
-		);
+		return do_blocks( ob_get_clean() );
 	}
 
 	/**

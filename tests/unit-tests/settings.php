@@ -25,8 +25,9 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 		self::assertEquals(
 			Settings::api_get_settings(),
 			[
-				'module_enabled_rss'            => false,
-				'module_enabled_media-partners' => false,
+				'module_enabled_rss'                   => false,
+				'module_enabled_media-partners'        => false,
+				'module_enabled_woo-member-commenting' => false,
 			],
 			'Default settings are as expected.'
 		);
@@ -42,8 +43,9 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 		self::assertEquals(
 			Settings::api_get_settings(),
 			[
-				'module_enabled_rss'            => true,
-				'module_enabled_media-partners' => false,
+				'module_enabled_rss'                   => true,
+				'module_enabled_media-partners'        => false,
+				'module_enabled_woo-member-commenting' => false,
 			],
 			'Settings is updated.'
 		);
@@ -53,8 +55,9 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 		self::assertEquals(
 			Settings::api_get_settings(),
 			[
-				'module_enabled_rss'            => true,
-				'module_enabled_media-partners' => false,
+				'module_enabled_rss'                   => true,
+				'module_enabled_media-partners'        => false,
+				'module_enabled_woo-member-commenting' => false,
 			],
 			'A non-existent setting is not saved.'
 		);
@@ -76,6 +79,13 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 			Settings::is_optional_module_active( 'rss' ),
 			true,
 			'RSS module is active after being activated.'
+		);
+
+		Settings::deactivate_optional_module( 'rss' );
+		self::assertEquals(
+			Settings::is_optional_module_active( 'rss' ),
+			false,
+			'RSS module is deactivated.'
 		);
 	}
 }

@@ -14,12 +14,12 @@
 
 	<!-- wp:group {"style":{"spacing":{"blockGap":"var:preset|spacing|30","margin":{"bottom":"var:preset|spacing|80"}}},"layout":{"type":"flex","orientation":"vertical"}} -->
 	<div class="wp-block-group" style="margin-bottom:var(--wp--preset--spacing--80)">
-		<!-- wp:heading {"level":3} -->
-			<h3 class="wp-block-heading"><?php _e( 'Corrections & Clarifications', 'newspack-plugin' ); ?></h3>
+		<!-- wp:heading {"level":1} -->
+		<h1 class="wp-block-heading"><?php esc_html_e( 'Corrections & Clarifications', 'newspack-plugin' ); ?></h1>
 		<!-- /wp:heading -->
 
 		<!-- wp:paragraph -->
-			<p><?php _e( 'We are committed to truthful, transparent, and accurate reporting. When we make a mistake, we correct it promptly and note the change clearly. Clarifications, when needed, provide additional context.', 'newspack-plugin' ); ?></p>
+		<p><?php esc_html_e( 'We are committed to truthful, transparent, and accurate reporting. When we make a mistake, we correct it promptly and note the change clearly. Clarifications, when needed, provide additional context.', 'newspack-plugin' ); ?></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

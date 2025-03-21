@@ -36,6 +36,16 @@ const types = [
 ];
 
 /**
+ * Correction locations.
+ *
+ * @type {Object[]} The correction locations.
+ */
+const locations = [
+	{ label: __( 'Top', 'newspack-plugin' ), value: 'top' },
+	{ label: __( 'Bottom', 'newspack-plugin' ), value: 'bottom' },
+];
+
+/**
  * Save the corrections data.
  *
  * @param {number} postId  The post ID.
@@ -72,6 +82,7 @@ const CorrectionsModal = () => {
 	const [ corrections, setCorrections ] = useState( [] );
 	const [ newCorrection, setNewCorrection ] = useState( '' );
 	const [ newCorrectionType, setNewCorrectionType ] = useState( 'correction' );
+	const [ newCorrectionLocation, setNewCorrectionLocation ] = useState( 'bottom' );
 	const [ isDatePopoverOpen, setIsDatePopoverOpen ] = useState( null );
 
 	// Fetch corrections when modal opens
@@ -82,6 +93,7 @@ const CorrectionsModal = () => {
 					...correction,
 					type: correction.correction_type || 'correction',
 					date: correction.correction_date,
+					location: correction.correction_location || 'bottom',
 				} ) )
 			);
 		}
@@ -117,6 +129,7 @@ const CorrectionsModal = () => {
 					post_content: newCorrection,
 					type: newCorrectionType,
 					date: adjustedDate,
+					location: newCorrectionLocation,
 					isNew: true
 				},
 				...corrections
@@ -127,10 +140,10 @@ const CorrectionsModal = () => {
 	};
 
 	// Update an existing correction.
-	const updateCorrection = ( correctionId, postContent, type, date ) => {
+	const updateCorrection = ( correctionId, postContent, type, date, location ) => {
 		setCorrections( corrections.map( ( correction ) => {
 			if ( correction.ID === correctionId ) {
-				return { ...correction, post_content: postContent, type, date };
+				return { ...correction, post_content: postContent, type, date, location };
 			}
 			return correction;
 		} ) );
@@ -147,10 +160,11 @@ const CorrectionsModal = () => {
 
 		const payload = {
 			post_id: postId,
-			corrections: corrections.map( ( { ID, post_content, type, date, isNew } ) => ({
+			corrections: corrections.map( ( { ID, post_content, type, date, location, isNew } ) => ({
 				id: isNew ? null : ID, // Null means create a new correction
 				content: post_content,
 				type,
+				location,
 				date: moment( new Date( date ) ).format( 'YYYY-MM-DD HH:mm:ss' ),
 			} ) ),
 		};
@@ -202,7 +216,14 @@ const CorrectionsModal = () => {
 												label={ __( 'Type', 'newspack-plugin' ) }
 												value={ correction.type }
 												options={ types }
-												onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, value, correction.date ) }
+												onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, value, correction.date, correction.location ) }
+												__next40pxDefaultSize
+											/>
+											<SelectControl
+												label={ __( 'Location', 'newspack-plugin' ) }
+												value={ correction.location }
+												options={ locations }
+												onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, correction.date, value ) }
 												__next40pxDefaultSize
 											/>
 											<BaseControl
@@ -231,7 +252,7 @@ const CorrectionsModal = () => {
 														className='correction-date'
 														is12Hour={ true }
 														currentDate={ new Date( correction.date ) }
-														onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, value ) }
+														onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, value, correction.location ) }
 													/>
 												</Popover>
 											) }
@@ -240,7 +261,7 @@ const CorrectionsModal = () => {
 											label={ __( 'Description', 'newspack-plugin' ) }
 											rows={ 3 }
 											value={ correction.post_content }
-											onChange={ ( value ) => updateCorrection( correction.ID, value, correction.type, correction.date ) }
+											onChange={ ( value ) => updateCorrection( correction.ID, value, correction.type, correction.date, correction.location ) }
 										/>
 										<Button
 											text={ __( 'Delete', 'newspack-plugin' ) }
@@ -266,6 +287,13 @@ const CorrectionsModal = () => {
 									value={ newCorrectionType }
 									options={ types }
 									onChange={ ( value ) => setNewCorrectionType( value ) }
+									__next40pxDefaultSize
+								/>
+								<SelectControl
+									label={ __( 'Location', 'newspack-plugin' ) }
+									value={ newCorrectionLocation }
+									options={ locations }
+									onChange={ ( value ) => setNewCorrectionLocation( value ) }
 									__next40pxDefaultSize
 								/>
 								<TextareaControl
@@ -295,7 +323,9 @@ const CorrectionsModal = () => {
 							} }
 							isBusy={ isSaving }
 						>
-							{ isSaving ? __( 'Saving…', 'newspack-plugin' ) : __( 'Close & save', 'newspack-plugin' ) }
+							{ isSaving
+								? __( 'Saving…', 'newspack-plugin' )
+								: __( 'Save & close', 'newspack-plugin' ) }
 						</Button>
 						<Button
 							variant="tertiary"

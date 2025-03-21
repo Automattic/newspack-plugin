@@ -8,6 +8,8 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
+use Newspack\Reader_Activation\Sync\Metadata;
+use Newspack\Reader_Activation\ESP_Sync;
 use Newspack\Stripe_Connection;
 use Newspack\WooCommerce_Connection;
 
@@ -70,6 +72,7 @@ class WooCommerce_My_Account {
 			\add_filter( 'wcs_my_account_redirect_to_single_subscription', [ __CLASS__, 'redirect_to_single_subscription' ] );
 			\add_filter( 'wc_memberships_members_area_my-memberships_actions', [ __CLASS__, 'hide_cancel_button_from_memberships_table' ] );
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
+			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
 		}
 	}
 
@@ -415,10 +418,10 @@ class WooCommerce_My_Account {
 	 */
 	public static function redirect_to_account_details() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$is_resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === \get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false;
-		$is_renewal_request           = isset( $_REQUEST['subscription_renewal'] ) ? true : false;
-		$is_cancel_membership_request = isset( $_REQUEST['cancel_membership'] ) ? true : false;
-		$is_checkout_request          = isset( $_REQUEST['my_account_checkout'] ) ? true : false;
+		$is_resubscribe_request       = isset( $_REQUEST['resubscribe'] );
+		$is_renewal_request           = isset( $_REQUEST['subscription_renewal'] );
+		$is_cancel_membership_request = isset( $_REQUEST['cancel_membership'] );
+		$is_checkout_request          = isset( $_REQUEST['my_account_checkout'] );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if (
@@ -792,6 +795,9 @@ class WooCommerce_My_Account {
 	 * Whether email changes are enabled.
 	 */
 	public static function is_email_change_enabled() {
+		if ( class_exists( '\Newspack_Manager\Features' ) && \Newspack_Manager\Features::is_automattician() ) {
+			return true;
+		}
 		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
 		/**
 		 * Filters whether or not to allow email changes in My Account.
@@ -895,6 +901,25 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Handle admin email change request.
+	 *
+	 * @param int     $user_id User ID.
+	 * @param WP_User $user    User object.
+	 * @param array   $data    User data.
+	 */
+	public static function handle_admin_email_change_request( $user_id, $user, $data ) {
+		if ( ! is_admin() || ! self::is_email_change_enabled() ) {
+			return;
+		}
+		$new_email = $data['user_email'] ?? '';
+		$old_email = $user->user_email;
+		if ( $new_email !== $old_email && \is_email( $new_email ) && \is_email( $old_email ) ) {
+			self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
+			ESP_Sync::sync_email_change( $user_id, $new_email, $old_email );
+		}
+	}
+
+	/**
 	 * Handle email change verification.
 	 */
 	public static function handle_verify_email_change() {
@@ -922,6 +947,7 @@ class WooCommerce_My_Account {
 				$customer->set_billing_email( $new_email );
 				$customer->save();
 				self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
+				ESP_Sync::sync_email_change( $user_id, $new_email, $old_email );
 				\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
 				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
 			} else {

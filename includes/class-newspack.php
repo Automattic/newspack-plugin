@@ -127,6 +127,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/authors/class-authors-custom-fields.php';
 		include_once NEWSPACK_ABSPATH . 'includes/corrections/class-corrections.php';
 		include_once NEWSPACK_ABSPATH . 'includes/bylines/class-bylines.php';
+		include_once NEWSPACK_ABSPATH . 'includes/lite-site/class-lite-site.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-provider.php';
 		include_once NEWSPACK_ABSPATH . 'includes/starter_content/class-starter-content-generated.php';
@@ -184,9 +185,11 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-patches.php';
 		include_once NEWSPACK_ABSPATH . 'includes/polyfills/class-amp-polyfills.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-performance.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-default-image.php';
 
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-rss.php';
 		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-media-partners.php';
+		include_once NEWSPACK_ABSPATH . 'includes/optional-modules/class-woo-member-commenting.php';
 
 		if ( Donations::is_platform_nrh() ) {
 			include_once NEWSPACK_ABSPATH . 'includes/class-nrh.php';

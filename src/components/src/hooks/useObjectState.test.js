@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 
 import useObjectState from './useObjectState';
 
@@ -32,17 +32,23 @@ describe( 'useObjectState', () => {
 
 	it( 'updates arrays', () => {
 		expect( getState() ).toStrictEqual( INIT_STATE );
-		screen.getByText( 'Remove widgets' ).click();
+		act( () => screen.getByText( 'Remove widgets' ).click() );
 		expect( getState() ).toMatchObject( { widgets: [] } );
-		screen.getByText( 'Add widget' ).click();
+		act( () => screen.getByText( 'Add widget' ).click() );
 		expect( getState() ).toMatchObject( { widgets: [ 1 ] } );
 	} );
 	it( 'updates a simple value', () => {
-		fireEvent.change( screen.getByPlaceholderText( 'name' ), { target: { value: 'Ramon' } } );
+		act( () =>
+			fireEvent.change( screen.getByPlaceholderText( 'name' ), {
+				target: { value: 'Ramon' },
+			} )
+		);
 		expect( getState() ).toMatchObject( { name: 'Ramon' } );
 	} );
 	it( 'updates a nested object', () => {
-		screen.getByText( 'Nested update' ).click();
-		expect( getState() ).toMatchObject( { attributes: { bar: 2, baz: 1 } } );
+		act( () => screen.getByText( 'Nested update' ).click() );
+		expect( getState() ).toMatchObject( {
+			attributes: { bar: 2, baz: 1 },
+		} );
 	} );
 } );
