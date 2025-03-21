@@ -34,6 +34,61 @@ const close = `
 	</svg>
 `;
 
+/**
+ * Parse byline meta to convert custom tags (<Author></Author> or [Author][/Author]) to token markup.
+ *
+ * @see    {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
+ * @param {string} metaByline Value of byline as stored in meta key.
+ * @return {string}            Parsed byline looking up for <Author id=1></Author> tags and replacing them.
+ */
+const parseForEdit = ( metaByline ) => {
+	const tokenMarkup = `<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
+		<span class="components-form-token-field__token-text">$2</span>
+		<button
+			class="components-button components-form-token-field__remove-token token-inline-block__remove"
+			type="button"
+			data-token="$1"
+		>
+			${ close }
+		</button>
+	</span>`;
+
+	return metaByline.replace(
+		/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
+		tokenMarkup
+	);
+};
+
+/**
+ * Transform the bylineElement innerHTML into the format that we expect to save.
+ *
+ * @see   {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
+ * @param {Element} element Byline element reference.
+ * @return {string}         Updated byline text, transformed into the save format.
+ */
+const transformByline = ( element ) => {
+	const clonebylineElement = element.cloneNode( true );
+
+	const tokenElements =
+		clonebylineElement.querySelectorAll( 'span[data-token]' );
+
+	tokenElements.forEach( tokenElement => {
+		const authorID = tokenElement.dataset.token;
+		const authorNode = tokenElement.querySelector( 'span' );
+		const authorName = authorNode ? authorNode.innerText.trim() : '';
+
+		if ( authorID && authorName ) {
+			tokenElement.replaceWith(
+				document.createTextNode(
+					`[Author id=${ authorID }]${ authorName }[/Author]`
+				)
+			);
+		}
+	} );
+
+	return clonebylineElement.innerHTML;
+};
+
 const CustomBylineModal = ( { children } ) => {
 	const [ isOpen, setOpen ] = useState( false );
 	const openModal = () => setOpen( true );
@@ -55,85 +110,29 @@ const CustomBylineModal = ( { children } ) => {
 		</>
 	);
 };
-const BylineTextarea = ( { byline, onRendered } ) => {
-	const { getEditedPostAttribute } = useSelect( select =>
-		select( 'core/editor' )
-	);
-
-	/** The custom byline stored as meta */
-	const metaByline =
-		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] || '';
-
-	/**
-	 * Parse byline meta to convert custom tags (<Author></Author> or [Author][/Author]) to token markup.
-	 *
-	 * @see    {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
-	 * @return {string} Parsed byline looking up for <Author id=1></Author> tags and replacing them.
-	 */
-	const bylineParser = () => {
-		const tokenMarkup = `<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
-			<span class="components-form-token-field__token-text">$2</span>
-			<button
-				class="components-button components-form-token-field__remove-token token-inline-block__remove"
-				type="button"
-				data-token="$1"
-			>
-				${ close }
-			</button>
-		</span>`;
-
-		return metaByline.replace(
-			/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
-			tokenMarkup
-		);
-	};
-
-	useEffect( () => {
-		onRendered();
-	}, [ onRendered ] );
-
-	useEffect( () => {
-		byline.current = bylineParser();
-	}, [] );
-
-	return (
-		<div
-			className="newspack-byline-textarea"
-			contentEditable="true"
-			dangerouslySetInnerHTML={ { __html: byline.current } }
-		/>
-	);
-};
 
 const TokenInlineBlock = ( { token, onInsert } ) => {
 	return (
-		<>
-			<span
-				className="components-form-token-field__token token-inline-block"
-				id={ 'token-button-' + token.id }
-			>
-				<span className="components-form-token-field__token-text">
-					{ token.name }
-				</span>
-				<Button
-					className="components-form-token-field__insert-token is-small has-icon token-inline-block__insert"
-					onClick={ () => {
-						onInsert.call();
-					} }
-				>
-					<Icon icon={ plus } />
-				</Button>
+		<span
+			className="components-form-token-field__token token-inline-block"
+			id={ 'token-button-' + token.id }
+		>
+			<span className="components-form-token-field__token-text">
+				{ token.name }
 			</span>
-		</>
+			<Button
+				className="components-form-token-field__insert-token is-small has-icon token-inline-block__insert"
+				onClick={ () => {
+					onInsert.call();
+				} }
+			>
+				<Icon icon={ plus } />
+			</Button>
+		</span>
 	);
 };
 
-const Tokens = ( { tokens, tokensInUse, insertToken, onRendered } ) => {
-	useEffect( () => {
-		// Notify parent that this component has rendered.
-		onRendered();
-	}, [ onRendered ] );
-
+const Tokens = ( { tokens, tokensInUse, insertToken } ) => {
 	return (
 		<div className="tokens">
 			{ tokens.map(
@@ -151,9 +150,6 @@ const Tokens = ( { tokens, tokensInUse, insertToken, onRendered } ) => {
 };
 
 const BylinesSettingsPanel = () => {
-	/** Set when child components DOM are ready */
-	const [ isBylineReady, setIsBylineReady ] = useState( false );
-	const [ isTokensReady, setIsTokensReady ] = useState( false );
 
 	/** Tokens with authors assigned to the post */
 	const [ tokens, setTokens ] = useState( [] );
@@ -163,6 +159,7 @@ const BylinesSettingsPanel = () => {
 
 	/** Reference to document to add event listners */
 	const documentRef = useRef( document );
+	const editableRef = useRef( null );
 
 	/** Current post data */
 	const { postId } = useSelect(
@@ -176,8 +173,6 @@ const BylinesSettingsPanel = () => {
 	const [ coAuthors, setCoAuthors ] = useState( [] );
 
 	const noticesDispatch = useDispatch( 'core/notices' );
-
-	const { editPost } = useDispatch( 'core/editor' );
 
 	const { getEditedPostAttribute } = useSelect( select =>
 		select( 'core/editor' )
@@ -193,62 +188,29 @@ const BylinesSettingsPanel = () => {
 		};
 	} );
 
-	/** byline innerHTML content */
-	const byline = useRef( '' );
-
 	/** Toggle if custom byline is enabled */
 	const [ isEnabled, setIsEnabled ] = useState(
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
 
+	const byline = parseForEdit( getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] );
+
 	/**
 	 * Stores the byline as meta.
-	 * @param {string} meta Content of the byline contentEditable element to be stored.
+	 * @param {string} element The contenteditable element to read content from.
 	 */
-	const updateBylineMeta = meta => {
+	const updateBylineMetaFromContentEditable = element => {
 		editPost( {
 			meta: {
-				[ newspackBylines.metaKeyByline ]: transformByline( meta ),
+				[ newspackBylines.metaKeyByline ]: transformByline( element ),
 			},
 		} );
+
+		setTokensInUseFromContentEditable( element );
 	};
 
-	/**
-	 * Transform the bylineElement innerHTML into the format that we expect to save.
-	 *
-	 * @see   {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
-	 * @param {Element} bylineElement Byline element reference.
-	 * @return {string}               The transformed bylineElement innerHTML into the expected format to save.
-	 */
-	const transformByline = bylineElement => {
-		const clonebylineElement = bylineElement.cloneNode( true );
-
-		const tokenElements =
-			clonebylineElement.querySelectorAll( 'span[data-token]' );
-
-		tokenElements.forEach( tokenElement => {
-			const authorID = tokenElement.dataset.token;
-			const authorNode = tokenElement.querySelector( 'span' );
-			const authorName = authorNode ? authorNode.innerText.trim() : '';
-
-			if ( authorID && authorName ) {
-				tokenElement.replaceWith(
-					document.createTextNode(
-						`[Author id=${ authorID }]${ authorName }[/Author]`
-					)
-				);
-			}
-		} );
-
-		return clonebylineElement.innerHTML;
-	};
-
-	/**
-	 * Update tokenInUse looking up for tokens into the byline element content.
-	 * @param {Element} bylineElement
-	 */
-	const queryTokensInUse = bylineElement => {
-		const tokenElements = bylineElement.querySelectorAll(
+	const setTokensInUseFromContentEditable = element => {
+		const tokenElements = element.querySelectorAll(
 			'span button[data-token]'
 		);
 
@@ -306,71 +268,11 @@ const BylinesSettingsPanel = () => {
 		bylineElement.innerHTML += '&nbsp' + tokenElement + '&nbsp';
 
 		// Update byline meta.
-		updateBylineMeta( bylineElement );
-
-		queryTokensInUse( bylineElement );
+		updateBylineMetaFromContentEditable( bylineElement );
 	};
 
-	/**
-	 * Mutation observer callback triggered when any change is made to the byline.
-	 * @param {MutationObserver} mutationList
-	 */
-	const handleMutation = mutationList => {
-		const bylineElement = document.querySelector(
-			'.newspack-byline-textarea'
-		);
 
-		// The mutation types we want to watch for changes.
-		const mutationTypes = [ 'childList', 'subtree', 'characterData' ];
-
-		for ( const mutation of mutationList ) {
-			if ( mutationTypes.includes( mutation.type ) ) {
-				let rootElement;
-
-				// If mutation.type is characterData, target the outer span element.
-				// Otherwise, on childList and subtree, remove the target itself.
-				if ( mutation.type === 'characterData' ) {
-					rootElement = mutation.target.parentNode.parentNode ?? null;
-				} else {
-					rootElement = mutation.target ?? null;
-				}
-
-				// Remove token element.
-				if (
-					rootElement &&
-					rootElement?.matches?.( '.token-inline-block' )
-				) {
-					rootElement.remove();
-				}
-
-				// Update byline meta.
-				updateBylineMeta( bylineElement );
-
-				queryTokensInUse( bylineElement );
-			}
-		}
-	};
-
-	/**
-	 * Add a Mutation Observer to byline element, so when a token is edited trough delete/backspace it
-	 * gets removed as it was clicked.
-	 *
-	 * @param {Element} bylineElement
-	 */
-	const addMutationObserverToByline = bylineElement => {
-		// Mutation observer config.
-		const config = {
-			childList: true,
-			subtree: true,
-			characterData: true,
-			characterDataOldValue: true,
-		};
-
-		const observer = new MutationObserver( handleMutation );
-
-		// Start observing the target node for configured mutations
-		observer.observe( bylineElement, config );
-	};
+	const { editPost } = useDispatch( 'core/editor' );
 
 	/**
 	 * Handle Error
@@ -401,26 +303,17 @@ const BylinesSettingsPanel = () => {
 	 * inserted into byline element.
 	 */
 	useEffect( () => {
-		documentRef.current.addEventListener( 'click', function ( event ) {
+		documentRef.current.addEventListener( 'click', function ( { target } ) {
 			// Check if clicked element is token remove button.
 			if (
-				event.target.classList.contains( 'token-inline-block__remove' )
+				target.classList.contains( 'token-inline-block__remove' )
 			) {
-				const bylineElement = document.querySelector(
-					'.newspack-byline-textarea'
-				);
-
 				if (
-					bylineElement.querySelector(
-						'span#token-' + event.target.dataset.token
-					)
+					editableRef.current.querySelector( `span#token-${target.dataset.token}` )
 				) {
 					// Remove token element.
-					bylineElement
-						.querySelector(
-							'span#token-' + event.target.dataset.token
-						)
-						.remove();
+					editableRef.current.querySelector( `span#token-${target.dataset.token}` ).remove();
+					setTokensInUseFromContentEditable( editableRef.current );
 				}
 			}
 		} );
@@ -479,28 +372,6 @@ const BylinesSettingsPanel = () => {
 		setCoAuthors( [ postAuthor ] );
 	}, [ postAuthor ] );
 
-	/**
-	 * Initialize on DOM ready
-	 *
-	 * Fill tokenInUse analyzing the byline element, and
-	 * add Mutation Observer to byline element after child element is ready.
-	 */
-	useEffect( () => {
-		// Wait for child component that will be analyzed to be ready.
-		if ( ! isTokensReady || ! isBylineReady ) {
-			return;
-		}
-
-		const bylineElement = document.querySelector(
-			'.newspack-byline-textarea'
-		);
-
-		queryTokensInUse( bylineElement );
-
-		// Add Mutation Observer.
-		addMutationObserverToByline( bylineElement );
-	}, [ isTokensReady, isBylineReady ] );
-
 	return (
 		<PluginDocumentSettingPanel
 			className="newspack-byline"
@@ -516,16 +387,18 @@ const BylinesSettingsPanel = () => {
 			{ isEnabled && (
 				<>
 					<CustomBylineModal>
-						<BylineTextarea
-							byline={ byline }
-							onRendered={ () => setIsBylineReady( true ) }
+						<div
+							className="newspack-byline-textarea"
+							contentEditable="true"
+							dangerouslySetInnerHTML={ { __html: parseForEdit( byline ) } }
+							onInput={ ( { currentTarget } ) => updateBylineMetaFromContentEditable( currentTarget ) }
+							ref={ editableRef }
 						/>
 
 						<Tokens
 							tokens={ tokens }
 							tokensInUse={ tokensInUse }
 							insertToken={ insertToken }
-							onRendered={ () => setIsTokensReady( true ) }
 						/>
 					</CustomBylineModal>
 				</>
