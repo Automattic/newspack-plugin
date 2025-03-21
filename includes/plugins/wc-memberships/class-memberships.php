@@ -648,7 +648,7 @@ class Memberships {
 	 */
 	public static function wc_memberships_notice_html( $notice, $message_body, $message_code, $message_args ) {
 		// If the gate is not available, don't mess with the notice.
-		if ( ! self::has_gate() ) {
+		if ( ! self::has_gate() || is_product() ) {
 			return $notice;
 		}
 		// Don't show gate unless attached to a specific post.
@@ -674,7 +674,7 @@ class Memberships {
 	 */
 	public static function wc_memberships_excerpt( $excerpt, $post, $message_code ) {
 		// If the gate is not available, don't mess with the excerpt.
-		if ( ! self::has_gate() ) {
+		if ( ! self::has_gate() || is_product() ) {
 			return $excerpt;
 		}
 		// If rendering the content in a loop, don't truncate the excerpt.
