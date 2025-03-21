@@ -659,7 +659,6 @@ class Memberships {
 		if ( get_queried_object_id() !== get_the_ID() ) {
 			return '';
 		}
-
 		self::$gate_rendered = true;
 		return self::get_inline_gate_content();
 	}
@@ -945,7 +944,6 @@ class Memberships {
 		$has_subscription  = false;
 
 		foreach ( $rules as $rule ) {
-
 			$membership_plan_id = $rule->get_membership_plan_id();
 			$has_subscription   = ! empty( self::get_user_subscription_for_membership_plan( $user_id, $membership_plan_id ) );
 
