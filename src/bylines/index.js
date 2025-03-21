@@ -15,7 +15,7 @@ import { store as coreStore } from '@wordpress/core-data';
 /**
  * External dependencies
  */
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 
 /**
  * Internal dependencies
@@ -199,32 +199,25 @@ const BylinesSettingsPanel = () => {
 	 * Stores the byline as meta.
 	 * @param {string} element The contenteditable element to read content from.
 	 */
-	const updateBylineMetaFromContentEditable = element => {
-		editPost( {
-			meta: {
-				[ newspackBylines.metaKeyByline ]: transformByline( element ),
-			},
-		} );
+	const updateBylineMetaFromContentEditable = useCallback(
+		( element ) => {
+			editPost( {
+				meta: {
+					[ newspackBylines.metaKeyByline ]: transformByline( element ),
+				},
+			} );
 
-		setTokensInUseFromContentEditable( element );
-	};
+			setTokensInUseFromContentEditable( element );
+		}
+	);
 
 	const setTokensInUseFromContentEditable = element => {
-		const tokenElements = element.querySelectorAll(
-			'span button[data-token]'
-		);
+		const tokenElements = element.querySelectorAll( 'span button[data-token]' );
+		const inUse = [ ...tokenElements ].map( ( span ) => Number( span.dataset.token ) );
 
-		let tokensBeingUsed = [];
-
-		// Fill tokensInUse.
-		tokenElements.forEach( tokenElement => {
-			tokensBeingUsed = [
-				...tokensBeingUsed,
-				Number( tokenElement.dataset.token ),
-			];
-		} );
-
-		setTokensInUse( tokensBeingUsed );
+		if ( JSON.stringify( inUse ) !== JSON.stringify( tokensInUse ) ) {
+			setTokensInUse( inUse );
+		}
 	};
 
 	/**
@@ -372,6 +365,34 @@ const BylinesSettingsPanel = () => {
 		setCoAuthors( [ postAuthor ] );
 	}, [ postAuthor ] );
 
+	/**
+	 * Initialize the contenteditable element.
+	 *
+	 * Sets the div's inner HTML with the byline text, sets initial
+	 * tokensInUse, and adds event listeners to the remove buttons in token
+	 * spans.
+	 *
+	 * @param {Element} HTML element being rendered.
+	 */
+	const onMount = useCallback(
+		( element ) => {
+			if ( ! element ) {
+				return;
+			}
+			editableRef.current = element;
+			element.innerHTML = parseForEdit( byline );
+			element.addEventListener( 'click',
+				( { target } ) => {
+					if ( target.classList.contains( 'token-inline-block__remove' ) ) {
+						target.closest( '.token-inline-block' ).remove();
+						updateBylineMetaFromContentEditable( element );
+					}
+				}
+			);
+			setTokensInUseFromContentEditable( element );
+		}
+	);
+
 	return (
 		<PluginDocumentSettingPanel
 			className="newspack-byline"
@@ -385,23 +406,20 @@ const BylinesSettingsPanel = () => {
 				onChange={ () => handleEnableToggle( ! isEnabled ) }
 			/>
 			{ isEnabled && (
-				<>
-					<CustomBylineModal>
-						<div
-							className="newspack-byline-textarea"
-							contentEditable="true"
-							dangerouslySetInnerHTML={ { __html: parseForEdit( byline ) } }
-							onInput={ ( { currentTarget } ) => updateBylineMetaFromContentEditable( currentTarget ) }
-							ref={ editableRef }
-						/>
+				<CustomBylineModal>
+					<div
+						className="newspack-byline-textarea"
+						contentEditable="true"
+						onInput={ ( { currentTarget } ) => updateBylineMetaFromContentEditable( currentTarget ) }
+						ref={ onMount }
+					/>
 
-						<Tokens
-							tokens={ tokens }
-							tokensInUse={ tokensInUse }
-							insertToken={ insertToken }
-						/>
-					</CustomBylineModal>
-				</>
+					<Tokens
+						tokens={ tokens }
+						tokensInUse={ tokensInUse }
+						insertToken={ insertToken }
+					/>
+				</CustomBylineModal>
 			) }
 		</PluginDocumentSettingPanel>
 	);
