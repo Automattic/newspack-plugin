@@ -292,29 +292,6 @@ const BylinesSettingsPanel = () => {
 	};
 
 	/**
-	 * Add event listener for token removal on document, since the tokens are dynamically
-	 * inserted into byline element.
-	 */
-	useEffect( () => {
-		documentRef.current.addEventListener( 'click', function ( { target } ) {
-			// Check if clicked element is token remove button.
-			if (
-				target.classList.contains( 'token-inline-block__remove' )
-			) {
-				if (
-					editableRef.current.querySelector( `span#token-${target.dataset.token}` )
-				) {
-					// Remove token element.
-					editableRef.current.querySelector( `span#token-${target.dataset.token}` ).remove();
-					setTokensInUseFromContentEditable( editableRef.current );
-				}
-			}
-		} );
-
-		return () => {};
-	}, [] );
-
-	/**
 	 * Set tokens when coAuthors change.
 	 */
 	useEffect( () => {
