@@ -2087,7 +2087,7 @@ final class Reader_Activation {
 		$user_id = false;
 
 		if ( $existing_user ) {
-			// If the user is not a reader, send a non-reader login reminder.
+			// If the user is not a reader, send a non-reader login reminder. We don't want to expose on the front-end that the email address belongs to a non-reader account.
 			if ( ! self::is_user_reader( $existing_user ) ) {
 				self::send_non_reader_login_reminder( $existing_user );
 				return false;
