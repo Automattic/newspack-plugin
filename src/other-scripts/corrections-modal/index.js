@@ -183,6 +183,14 @@ const CorrectionsModal = () => {
 			setSaveError( error.message );
 		} finally {
 			setIsSaving(false);
+			createNotice(
+				'success',
+				__( 'Changes have been saved successfully.', 'newspack-plugin' ),
+				{
+					type: 'snackbar',
+					isDismissible: true,
+				}
+			);
 		}
 	};
 
@@ -214,6 +222,9 @@ const CorrectionsModal = () => {
 					className="newspack-corrections-modal"
 					overlayClassName="newspack-corrections-modal-overlay"
 					size="medium"
+					isDismissible={ false }
+					shouldCloseOnClickOutside={ false }
+					shouldCloseOnEsc={ false }
 				>
 					{ saveError && <p className="error-message">{ saveError }</p> }
 
