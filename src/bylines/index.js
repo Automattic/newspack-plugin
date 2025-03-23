@@ -42,7 +42,7 @@ const close = `
  * @return {string}            Parsed byline looking up for <Author id=1></Author> tags and replacing them.
  */
 const parseForEdit = ( metaByline ) => {
-	const tokenMarkup = `<span id="token-$1" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
+	const tokenMarkup = `<span id="token-$1" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
 		<span class="components-form-token-field__token-text">$2</span>
 		<button
 			class="components-button components-form-token-field__remove-token token-inline-block__remove"
@@ -242,7 +242,7 @@ const BylinesSettingsPanel = () => {
 		);
 
 		// Compound new token element with token data.
-		const tokenElement = `<span id="token-${ token.id }" class="components-form-token-field__token token-inline-block author-token" data-token="${ token.id }">
+		const tokenElement = `<span id="token-${ token.id }" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="${ token.id }">
 				<span class="components-form-token-field__token-text">
 					${ token.name }
 				</span>
