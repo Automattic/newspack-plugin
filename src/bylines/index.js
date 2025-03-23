@@ -111,20 +111,22 @@ const CustomBylineModal = ( { children } ) => {
 	);
 };
 
-const TokenInlineBlock = ( { token, onInsert } ) => {
+/**
+ * An author "token" button, to add an author to the byline.
+ *
+ * @param {Object}   props          Component props.
+ * @param {Object}   props.token    Author data, with @id and @name.
+ * @param {Function} props.onInsert Callback when the token is added to the byline.
+ */
+const Token = ( { token, onInsert } ) => {
 	return (
-		<span
-			className="components-form-token-field__token token-inline-block"
-			id={ 'token-button-' + token.id }
-		>
+		<span className="components-form-token-field__token token-inline-block">
 			<span className="components-form-token-field__token-text">
 				{ token.name }
 			</span>
 			<Button
 				className="components-form-token-field__insert-token is-small has-icon token-inline-block__insert"
-				onClick={ () => {
-					onInsert.call();
-				} }
+				onClick={ onInsert }
 			>
 				<Icon icon={ plus } />
 			</Button>
@@ -132,13 +134,21 @@ const TokenInlineBlock = ( { token, onInsert } ) => {
 	);
 };
 
+/**
+ * The list of available tokens to insert.
+ *
+ * @param {Object}   props             Component props.
+ * @param {Object[]} props.tokens      All author values to be inserted.
+ * @param {int[]}    props.tokensInUse Array of author IDs already inserted in byline.
+ * @param {Function} props.insertToken Callback when a token is added to the byline.
+ */
 const Tokens = ( { tokens, tokensInUse, insertToken } ) => {
 	return (
 		<div className="tokens">
 			{ tokens.map(
 				token =>
 					! tokensInUse.includes( token.id ) && (
-						<TokenInlineBlock
+						<Token
 							key={ token.id }
 							token={ token }
 							onInsert={ () => insertToken( token ) }
@@ -192,7 +202,6 @@ const BylinesSettingsPanel = () => {
 		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
 	);
 
-
 	/**
 	 * Stores the byline as meta.
 	 * @param {string} element The contenteditable element to read content from.
@@ -209,6 +218,11 @@ const BylinesSettingsPanel = () => {
 		}
 	);
 
+	/**
+	 * Update the "tokens in use" based on the content.
+	 *
+	 * @param {Element} element The contenteditable element.
+	 */
 	const setTokensInUseFromContentEditable = element => {
 		const tokenElements = element.querySelectorAll( 'span button[data-token]' );
 		const inUse = [ ...tokenElements ].map( ( span ) => Number( span.dataset.token ) );
@@ -280,7 +294,7 @@ const BylinesSettingsPanel = () => {
 	}
 
 	/**
-	 * Enabled toggle handler.
+	 * Enable toggle handler.
 	 *
 	 * @param {boolean} value Boolean, true if custom byline is enabled, false if not.
 	 */
