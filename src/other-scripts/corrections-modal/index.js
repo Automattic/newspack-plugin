@@ -146,6 +146,13 @@ const CorrectionsModal = () => {
 		setNewCorrectionType( 'correction' );
 	};
 
+	// Remove unsaved corrections.
+	const removeUnsavedCorrections = () => {
+		setCorrections( corrections.filter( ( correction ) => ! correction.isNew ) );
+		setNewCorrection( '' );
+		setNewCorrectionType( 'correction' );
+	};
+
 	// Update an existing correction.
 	const updateCorrection = ( correctionId, postContent, type, date, location ) => {
 		setCorrections( corrections.map( ( correction ) => {
@@ -403,6 +410,7 @@ const CorrectionsModal = () => {
 									onClick={ () => {
 										setIsOpen( false )
 										setIsAddingCorrection( false );
+										removeUnsavedCorrections();
 									} }
 								>
 									{ __( 'Cancel', 'newspack-plugin' ) }
