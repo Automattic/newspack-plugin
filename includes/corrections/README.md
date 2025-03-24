@@ -25,7 +25,7 @@ Corrections are stored as `newspack_correction` custom post type. A correction c
 | `date`                          | `string` | `post_date`    | The date assigned to the correction.                                           |
 | `newspack_correction-post-id`   | `int`    | `post_meta`    | The ID of the post to which the correction is associated.                      |
 | `newspack_corrections_type`     | `string` | `post_meta`    | Whether it's a correction or a clarification (`correction` or `clarification`) |
-| `newspack_corrections_location` | `string` | `post_meta`    | Where the correction should be displayed. (`top` or `bottom`)                  |
+| `newspack_corrections_priority` | `string` | `post_meta`    | The correction priority (`high` or `low`). Defines whether they're displayed at the top or bottom of the article.|
 
 In addition, some correction data is stored in the associated post as post meta:
 
