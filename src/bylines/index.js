@@ -139,7 +139,7 @@ const Token = ( { token, onInsert } ) => {
  *
  * @param {Object}   props             Component props.
  * @param {Object[]} props.tokens      All author values to be inserted.
- * @param {int[]}    props.tokensInUse Array of author IDs already inserted in byline.
+ * @param {number[]} props.tokensInUse Array of author IDs already inserted in byline.
  * @param {Function} props.insertToken Callback when a token is added to the byline.
  */
 const Tokens = ( { tokens, tokensInUse, insertToken } ) => {
@@ -166,6 +166,8 @@ const BylinesSettingsPanel = () => {
 
 	/** Tokens that are in use by the custom byline */
 	const [ tokensInUse, setTokensInUse ] = useState( [] );
+
+    const [ cursorPos, setCursorPos ] = useState( null );
 
 	/** Reference to contenteditable element to add event listners */
 	const editableRef = useRef( null );
@@ -251,9 +253,7 @@ const BylinesSettingsPanel = () => {
 	 * @param {Object} token Token prop.
 	 */
 	const insertToken = token => {
-		const bylineElement = document.querySelector(
-			'.newspack-byline-textarea'
-		);
+		let { innerHTML } = editableRef.current;
 
 		// Compound new token element with token data.
 		const tokenElement = `<span id="token-${ token.id }" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="${ token.id }">
@@ -269,13 +269,18 @@ const BylinesSettingsPanel = () => {
 				</button>
 			</span>`;
 
+        const insertLocation = cursorPos ?? innerHTML.length;
+
+		if ( insertLocation === innerHTML.length ) {
+			innerHTML += '&nbsp;';
+		}
+
 		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
-		bylineElement.innerHTML += '&nbsp' + tokenElement + '&nbsp';
+		editableRef.current.innerHTML = innerHTML.slice( 0, insertLocation ) + tokenElement + innerHTML.slice( insertLocation );
 
 		// Update byline meta.
-		updateBylineMetaFromContentEditable( bylineElement );
+		updateBylineMetaFromContentEditable( editableRef.current );
 	};
-
 
 	const { editPost } = useDispatch( 'core/editor' );
 
@@ -384,6 +389,29 @@ const BylinesSettingsPanel = () => {
 		}
 	);
 
+	/**
+	 * Save the current cursor position on blur.
+	 *
+	 * Stores the cursor offset (in characters of rendered HTML) within the
+	 * contentEditable div. This is used to insert the author span "token" at,
+	 * as well as to restore cursor position when clicking back into the
+	 * editor.
+	 */
+	const updateCursorPos = () => {
+		const { current } = editableRef;
+		const selection = current.ownerDocument.getSelection();
+		const range = selection.getRangeAt(0);
+
+		const clonedRange = range.cloneRange();
+		clonedRange.selectNodeContents( current )
+		clonedRange.setEnd( range.endContainer, range.endOffset );
+
+		const tempDiv = current.ownerDocument.createElement( 'div' );
+		tempDiv.appendChild( clonedRange.cloneContents() );
+
+		setCursorPos( tempDiv.innerHTML.length );
+	};
+
 	return (
 		<PluginDocumentSettingPanel
 			className="newspack-byline"
@@ -401,6 +429,7 @@ const BylinesSettingsPanel = () => {
 					<div
 						className="newspack-byline-textarea"
 						contentEditable="true"
+                        onBlur={ updateCursorPos }
 						onInput={ ( { currentTarget } ) => updateBylineMetaFromContentEditable( currentTarget ) }
 						ref={ onMount }
 					/>

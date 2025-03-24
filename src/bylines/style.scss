@@ -18,8 +18,12 @@
 	padding: 1em;
 	border: 1px solid #e1e1e1;
 	margin-bottom: 1em;
+	/* stylelint-disable property-no-unknown */
+	white-space: preserve-spaces;
 
 	.token-inline-block {
+		white-space: nowrap;
+
 		.components-button {
 			svg {
 				width: 1em;
@@ -41,9 +45,13 @@
 .token-inline-block.components-form-token-field__token {
 	display: inline-grid;
 	grid-template-columns: 1fr auto;
+
+	&:last-child {
+		margin-right: 0.5em;
+	}
 }
 
-// Copied .components-form-token-field__remove-token styles to apply to intert-token
+// Copied .components-form-token-field__remove-token styles to apply to insert-token
 .components-form-token-field__insert-token {
 	border-radius: 0 1px 1px 0;
 	color: #1e1e1e;
