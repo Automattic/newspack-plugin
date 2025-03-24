@@ -45,10 +45,6 @@
 .token-inline-block.components-form-token-field__token {
 	display: inline-grid;
 	grid-template-columns: 1fr auto;
-
-	&:last-child {
-		margin-right: 0.5em;
-	}
 }
 
 // Copied .components-form-token-field__remove-token styles to apply to insert-token
