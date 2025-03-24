@@ -28,6 +28,10 @@
 		flex-direction: row-reverse;
 		gap: 8px;
 		margin: 24px 0 0;
+		position: sticky;
+		bottom: 0;
+		background-color: wp-colors.$white;
+		padding: 16px 0 24px 0;
 	}
 }
 
@@ -42,5 +46,11 @@
 
 	&-modal-overlay {
 		z-index: 99999;
+	}
+
+	&-modal {
+		.components-modal__content {
+			padding-bottom: 0;
+		}
 	}
 }
