@@ -5,6 +5,7 @@
  * @package Newspack\Tests
  */
 
+use Newspack\Optional_Modules;
 use Newspack\Syndication;
 
 /**
