@@ -16,15 +16,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 		}
 
 		containers.forEach( container => {
-			const form = container.querySelector( 'form' );
+			let form = container.querySelector( 'form' );
 			if ( ! form ) {
 				return;
 			}
 
-			/**
-			 * Handle newsletters signup form submission.
-			 */
-			form.addEventListener( 'submit', ev => {
+			const handleSubmit = ev => {
 				ev.preventDefault();
 
 				if ( form.classList.contains( 'processing' ) ) {
@@ -56,6 +53,24 @@ window.newspackRAS.push( function ( readerActivation ) {
 					form.classList.remove( 'processing' );
 					form.querySelector( 'button' ).removeAttribute( 'disabled' );
 				} );
+			}
+
+			/**
+			 * Handle newsletters signup form submission.
+			 */
+			form.addEventListener( 'submit', handleSubmit );
+
+			/**
+			 * Handle container refresh.
+			 */
+			container.addEventListener( 'newspack:refresh', () => {
+				form = container.querySelector( 'form' );
+				if ( ! form ) {
+					return;
+				}
+				// Make sure we aren't adding multiple event listeners to the form.
+				form.removeEventListener( 'submit', handleSubmit );
+				form.addEventListener( 'submit', handleSubmit );
 			} );
 		} );
 	} );

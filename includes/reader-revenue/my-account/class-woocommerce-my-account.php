@@ -418,10 +418,10 @@ class WooCommerce_My_Account {
 	 */
 	public static function redirect_to_account_details() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		$is_resubscribe_request       = isset( $_REQUEST['resubscribe'] ) ? 'shop_subscription' === \get_post_type( absint( $_REQUEST['resubscribe'] ) ) : false;
-		$is_renewal_request           = isset( $_REQUEST['subscription_renewal'] ) ? true : false;
-		$is_cancel_membership_request = isset( $_REQUEST['cancel_membership'] ) ? true : false;
-		$is_checkout_request          = isset( $_REQUEST['my_account_checkout'] ) ? true : false;
+		$is_resubscribe_request       = isset( $_REQUEST['resubscribe'] );
+		$is_renewal_request           = isset( $_REQUEST['subscription_renewal'] );
+		$is_cancel_membership_request = isset( $_REQUEST['cancel_membership'] );
+		$is_checkout_request          = isset( $_REQUEST['my_account_checkout'] );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		if (
@@ -795,6 +795,9 @@ class WooCommerce_My_Account {
 	 * Whether email changes are enabled.
 	 */
 	public static function is_email_change_enabled() {
+		if ( class_exists( '\Newspack_Manager\Features' ) && \Newspack_Manager\Features::is_automattician() ) {
+			return true;
+		}
 		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
 		/**
 		 * Filters whether or not to allow email changes in My Account.

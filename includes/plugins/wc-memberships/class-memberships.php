@@ -53,6 +53,8 @@ class Memberships {
 		add_filter( 'wc_memberships_admin_screen_ids', [ __CLASS__, 'admin_screens' ] );
 		add_filter( 'wc_memberships_general_settings', [ __CLASS__, 'wc_memberships_general_settings' ] );
 		add_filter( 'wc_memberships_is_post_public', [ __CLASS__, 'wc_memberships_is_post_public' ] );
+		add_action( 'wc_memberships_user_membership_actions', [ __CLASS__, 'user_membership_meta_box_actions' ], 1, 2 );
+		add_action( 'admin_init', [ __CLASS__, 'handle_reevaluation_request' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
 		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
@@ -759,9 +761,8 @@ class Memberships {
 	/**
 	 * Render footer JS.
 	 *
-	 * If the gate was rendered, reload the page after 2 seconds in case RAS
-	 * detects a new reader. This allows the membership purchase to unlock the
-	 * content.
+	 * If the gate was rendered, reload the page after a new reader is detected.
+	 * This allows the membership purchase to unlock the content.
 	 */
 	public static function render_js() {
 		if ( ! self::$gate_rendered ) {
@@ -771,19 +772,22 @@ class Memberships {
 		<script type="text/javascript">
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
+				let hasReader = false;
+				ras.on( 'overlay', function( ev ) {
+					// When an overlay was closed, and there's a reader,
+					// reload the window, but allow other JS – which might have
+					// triggered another overlay – to be executed (setTimeout hack).
+					if ( ! ras.overlays.get().length && hasReader ) {
+						setTimeout( () => {
+							if ( ! ras.overlays.get().length ) {
+								window.location.reload();
+							}
+						}, 1 )
+					}
+				})
 				ras.on( 'reader', function( ev ) {
 					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
-						if ( ras.overlays.get().length ) {
-							ras.on( 'overlay', function( ev ) {
-								if ( ! ev.detail.overlays.length && ! window?.newspackReaderActivation?.openNewslettersSignupModal ) {
-									window.location.reload();
-								}
-							} );
-						} else {
-							setTimeout( function() {
-								window.location.reload();
-							}, 2000 );
-						}
+						hasReader = true;
 					}
 				} );
 			} );
@@ -1084,6 +1088,64 @@ class Memberships {
 		}
 
 		return (int) reset( $user_subscriptions );
+	}
+
+	/**
+	 * Handle reevaluation request, triggered by the User Membership meta box action.
+	 * Membership and subscription can get unlinked, this will help the administrator
+	 * resync the membership status after relinking the subscription.
+	 */
+	public static function handle_reevaluation_request() {
+		if ( isset( $_GET['reevaluate'] ) && isset( $_GET['post'] ) && function_exists( 'wcs_get_subscription' ) && function_exists( 'wc_memberships_get_user_membership' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$subscription = \wcs_get_subscription( absint( $_GET['reevaluate'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$membership = \wc_memberships_get_user_membership( absint( $_GET['post'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			if ( $subscription instanceof \WC_Subscription && $membership ) {
+				$integrations = wc_memberships()->get_integrations_instance();
+				$integration  = $integrations ? $integrations->get_subscriptions_instance() : null;
+				if ( $integration ) {
+					$has_same_status = $integration->has_subscription_same_status( $subscription, $membership );
+					if ( ! $has_same_status ) {
+						$integration->update_related_membership_status(
+							$subscription,
+							$membership,
+							$subscription->get_status()
+						);
+					}
+				}
+
+				wp_safe_redirect( remove_query_arg( 'reevaluate' ) );
+				exit;
+			}
+		}
+	}
+
+	/**
+	 * Adds User Membership meta box actions.
+	 *
+	 * @param array $actions associative array.
+	 * @param int   $user_membership_id \WC_Membership_User_Membership post ID.
+	 * @return array
+	 */
+	public static function user_membership_meta_box_actions( $actions, $user_membership_id ) {
+		$integration  = wc_memberships()->get_integrations_instance()->get_subscriptions_instance();
+		$subscription = $integration ? $integration->get_subscription_from_membership( $user_membership_id ) : null;
+
+		if ( $subscription instanceof \WC_Subscription ) {
+				$actions = array_merge(
+					[
+						'reevaluate' => [
+							'link'              => admin_url( 'post.php?post=' . $user_membership_id . '&action=edit&reevaluate=' . $subscription->get_id() ),
+							'text'              => __( 'Reevaluate status', 'newspack-plugin' ),
+							'custom_attributes' => [
+								'title' => __( 'Reevaluate status based on subscription status.', 'newspack-plugin' ),
+							],
+						],
+					],
+					$actions
+				);
+		}
+		return $actions;
 	}
 }
 Memberships::init();

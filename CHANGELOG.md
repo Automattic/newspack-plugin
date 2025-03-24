@@ -1,3 +1,53 @@
+## [6.1.1](https://github.com/Automattic/newspack-plugin/compare/v6.1.0...v6.1.1) (2025-03-20)
+
+
+### Bug Fixes
+
+* **woocommerce:** my-account redirect when resubscribing ([#3822](https://github.com/Automattic/newspack-plugin/issues/3822)) ([1b24e9c](https://github.com/Automattic/newspack-plugin/commit/1b24e9cb7f3ccf0fc603ef319ff379b232f43970))
+
+# [6.1.0](https://github.com/Automattic/newspack-plugin/compare/v6.0.5...v6.1.0) (2025-03-18)
+
+
+### Bug Fixes
+
+* **modal-checkout:** endpoint to refresh newsletter lists via REST ([#3841](https://github.com/Automattic/newspack-plugin/issues/3841)) ([2b294e0](https://github.com/Automattic/newspack-plugin/commit/2b294e0c8bcde03e3fe88cf45ca4843bfda55eb7))
+* **modal-checkout:** password setup ([8fbfabd](https://github.com/Automattic/newspack-plugin/commit/8fbfabdf070337dd2873315fd1d22139ad08d6b0))
+* **my-account:** handle email change esp sync errors ([#3792](https://github.com/Automattic/newspack-plugin/issues/3792)) ([3d9f294](https://github.com/Automattic/newspack-plugin/commit/3d9f294c2a17c2a37f3405f20073a8cc24bf7e1d))
+* **my-account:** send change email to old and new emails ([#3786](https://github.com/Automattic/newspack-plugin/issues/3786)) ([710d53d](https://github.com/Automattic/newspack-plugin/commit/710d53d7e01318c8a0e1d2ea66ecf78b2a9f086a))
+* **premium-newsletters:** show premium lists in post-checkout signup ([#3788](https://github.com/Automattic/newspack-plugin/issues/3788)) ([ccb1526](https://github.com/Automattic/newspack-plugin/commit/ccb15262de34948def8072f7c6e2961a0327e15a))
+* spacer block handling with registration block ([e9b7beb](https://github.com/Automattic/newspack-plugin/commit/e9b7beb21efbc835ee72d5eaf3c5e1e908141c8c))
+
+
+### Features
+
+* **correction-blocks:** Correction box & Loop item + Template ([#3787](https://github.com/Automattic/newspack-plugin/issues/3787)) ([c215dc2](https://github.com/Automattic/newspack-plugin/commit/c215dc26b061fc952a4bb877c872e742307b9b45))
+* **correction-blocks:** update corrections template ([#3793](https://github.com/Automattic/newspack-plugin/issues/3793)) ([c7aea33](https://github.com/Automattic/newspack-plugin/commit/c7aea338d821522f5e14cc646d996e8730c05fc9))
+* enable email change for newspack users ([#3824](https://github.com/Automattic/newspack-plugin/issues/3824)) ([9c152a8](https://github.com/Automattic/newspack-plugin/commit/9c152a896a4b2649b3bb6ae0d9e4bc7ced2f65ae))
+* **my-account:** add email change cancellation option ([#3778](https://github.com/Automattic/newspack-plugin/issues/3778)) ([600ad61](https://github.com/Automattic/newspack-plugin/commit/600ad6199f38b89a5be1b50f518159fa4cd5011d))
+* **my-account:** sync admin email change with ESP/stripe ([#3799](https://github.com/Automattic/newspack-plugin/issues/3799)) ([7179ffd](https://github.com/Automattic/newspack-plugin/commit/7179ffd512b5589bee0149d3a27fe46fc662dec3))
+* **my-account:** sync email change with esp ([#3780](https://github.com/Automattic/newspack-plugin/issues/3780)) ([983c087](https://github.com/Automattic/newspack-plugin/commit/983c087ce6aff32174db49a44f606269071cfb3c))
+* **my-account:** sync email change with stripe ([#3789](https://github.com/Automattic/newspack-plugin/issues/3789)) ([4f45795](https://github.com/Automattic/newspack-plugin/commit/4f4579543b290c9f189982b421032a0f505c3e8d))
+* **woo-member-commenting:** optional module for member commenting ([#3783](https://github.com/Automattic/newspack-plugin/issues/3783)) ([90746c8](https://github.com/Automattic/newspack-plugin/commit/90746c8f5c6f22e98daeb4455c3aa98b895e2d4b))
+
+
+### Reverts
+
+* Revert "refactor(corrections): remove corrections feature flag (#3797)" (#3825) ([afd01f2](https://github.com/Automattic/newspack-plugin/commit/afd01f2c126884303ac85c35f77686765d9107c7)), closes [#3797](https://github.com/Automattic/newspack-plugin/issues/3797) [#3825](https://github.com/Automattic/newspack-plugin/issues/3825)
+
+## [6.0.5](https://github.com/Automattic/newspack-plugin/compare/v6.0.4...v6.0.5) (2025-03-18)
+
+
+### Bug Fixes
+
+* dont sync info about failder orders ([#3842](https://github.com/Automattic/newspack-plugin/issues/3842)) ([1cb927b](https://github.com/Automattic/newspack-plugin/commit/1cb927b664a848e5aca8e31cf1be0c67fd1ede38))
+
+## [6.0.4](https://github.com/Automattic/newspack-plugin/compare/v6.0.3...v6.0.4) (2025-03-12)
+
+
+### Bug Fixes
+
+* **nrh:** fixes for ESP contact syncing w/ NRH, newsletter signups ([#3779](https://github.com/Automattic/newspack-plugin/issues/3779)) ([88c8dc6](https://github.com/Automattic/newspack-plugin/commit/88c8dc63805e3d94d69be9af4719434947309d02))
+
 ## [6.0.3](https://github.com/Automattic/newspack-plugin/compare/v6.0.2...v6.0.3) (2025-03-07)
 
 
