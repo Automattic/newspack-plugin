@@ -41,7 +41,7 @@ const close = `
  * @param {string} metaByline Value of byline as stored in meta key.
  * @return {string}            Parsed byline looking up for <Author id=1></Author> tags and replacing them.
  */
-const parseForEdit = ( metaByline ) => {
+const parseForEdit = metaByline => {
 	const tokenMarkup = `<span id="token-$1" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="$1">
 		<span class="components-form-token-field__token-text">$2</span>
 		<button
@@ -66,7 +66,7 @@ const parseForEdit = ( metaByline ) => {
  * @param {Element} element Byline element reference.
  * @return {string}         Updated byline text, transformed into the save format.
  */
-const transformByline = ( element ) => {
+const transformByline = element => {
 	const clonebylineElement = element.cloneNode( true );
 
 	const tokenElements =
@@ -169,14 +169,13 @@ const Tokens = ( { tokens, tokensInUse, insertToken } ) => {
 };
 
 const BylinesSettingsPanel = () => {
-
 	/** Tokens with authors assigned to the post */
 	const [ tokens, setTokens ] = useState( [] );
 
 	/** Tokens that are in use by the custom byline */
 	const [ tokensInUse, setTokensInUse ] = useState( [] );
 
-    const [ cursorPos, setCursorPos ] = useState( null );
+	const [ cursorPos, setCursorPos ] = useState( null );
 
 	/** Reference to contenteditable element to add event listners */
 	const editableRef = useRef( null );
@@ -217,17 +216,15 @@ const BylinesSettingsPanel = () => {
 	 * Stores the byline as meta.
 	 * @param {string} element The contenteditable element to read content from.
 	 */
-	const updateBylineMetaFromContentEditable = useCallback(
-		( element ) => {
-			editPost( {
-				meta: {
-					[ newspackBylines.metaKeyByline ]: transformByline( element ),
-				},
-			} );
+	const updateBylineMetaFromContentEditable = useCallback( element => {
+		editPost( {
+			meta: {
+				[ newspackBylines.metaKeyByline ]: transformByline( element ),
+			},
+		} );
 
-			setTokensInUseFromContentEditable( element );
-		}
-	);
+		setTokensInUseFromContentEditable( element );
+	} );
 
 	/**
 	 * Update the "tokens in use" based on the content.
@@ -235,8 +232,12 @@ const BylinesSettingsPanel = () => {
 	 * @param {Element} element The contenteditable element.
 	 */
 	const setTokensInUseFromContentEditable = element => {
-		const tokenElements = element.querySelectorAll( 'span button[data-token]' );
-		const inUse = [ ...tokenElements ].map( ( span ) => Number( span.dataset.token ) );
+		const tokenElements = element.querySelectorAll(
+			'span button[data-token]'
+		);
+		const inUse = [ ...tokenElements ].map( span =>
+			Number( span.dataset.token )
+		);
 
 		if ( JSON.stringify( inUse ) !== JSON.stringify( tokensInUse ) ) {
 			setTokensInUse( inUse );
@@ -278,14 +279,17 @@ const BylinesSettingsPanel = () => {
 				</button>
 			</span>`;
 
-        const insertLocation = cursorPos ?? innerHTML.length;
+		const insertLocation = cursorPos ?? innerHTML.length;
 
 		if ( insertLocation === innerHTML.length ) {
 			innerHTML += '&nbsp;';
 		}
 
 		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
-		editableRef.current.innerHTML = innerHTML.slice( 0, insertLocation ) + tokenElement + innerHTML.slice( insertLocation );
+		editableRef.current.innerHTML =
+			innerHTML.slice( 0, insertLocation ) +
+			tokenElement +
+			innerHTML.slice( insertLocation );
 
 		// Update byline meta.
 		updateBylineMetaFromContentEditable( editableRef.current );
@@ -377,26 +381,24 @@ const BylinesSettingsPanel = () => {
 	 *
 	 * @param {Element} HTML element being rendered.
 	 */
-	const onMount = useCallback(
-		( element ) => {
-			if ( ! element ) {
-				return;
-			}
-			const byline = parseForEdit( getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] );
-
-			editableRef.current = element;
-			element.innerHTML = parseForEdit( byline );
-			element.addEventListener( 'click',
-				( { target } ) => {
-					if ( target.classList.contains( 'token-inline-block__remove' ) ) {
-						target.closest( '.token-inline-block' ).remove();
-						updateBylineMetaFromContentEditable( element );
-					}
-				}
-			);
-			setTokensInUseFromContentEditable( element );
+	const onMount = useCallback( element => {
+		if ( ! element ) {
+			return;
 		}
-	);
+		const byline = parseForEdit(
+			getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ]
+		);
+
+		editableRef.current = element;
+		element.innerHTML = parseForEdit( byline );
+		element.addEventListener( 'click', ( { target } ) => {
+			if ( target.classList.contains( 'token-inline-block__remove' ) ) {
+				target.closest( '.token-inline-block' ).remove();
+				updateBylineMetaFromContentEditable( element );
+			}
+		} );
+		setTokensInUseFromContentEditable( element );
+	} );
 
 	/**
 	 * Save the current cursor position on blur.
@@ -409,10 +411,10 @@ const BylinesSettingsPanel = () => {
 	const updateCursorPos = () => {
 		const { current } = editableRef;
 		const selection = current.ownerDocument.getSelection();
-		const range = selection.getRangeAt(0);
+		const range = selection.getRangeAt( 0 );
 
 		const clonedRange = range.cloneRange();
-		clonedRange.selectNodeContents( current )
+		clonedRange.selectNodeContents( current );
 		clonedRange.setEnd( range.endContainer, range.endOffset );
 
 		const tempDiv = current.ownerDocument.createElement( 'div' );
@@ -425,7 +427,7 @@ const BylinesSettingsPanel = () => {
 		<PluginDocumentSettingPanel
 			className="newspack-byline"
 			name="Newspack Byline Settings Panel"
-			title={ __( 'Newspack Custom Byline', 'newspack-plugin' ) }
+			title={ __( 'Byline', 'newspack-plugin' ) }
 		>
 			<ToggleControl
 				className="newspack-byline-toggle"
@@ -438,8 +440,10 @@ const BylinesSettingsPanel = () => {
 					<div
 						className="newspack-byline-textarea"
 						contentEditable="true"
-                        onBlur={ updateCursorPos }
-						onInput={ ( { currentTarget } ) => updateBylineMetaFromContentEditable( currentTarget ) }
+						onBlur={ updateCursorPos }
+						onInput={ ( { currentTarget } ) =>
+							updateBylineMetaFromContentEditable( currentTarget )
+						}
 						ref={ onMount }
 					/>
 
