@@ -61,3 +61,13 @@
 	min-width: unset;
 	transition: all 0.2 cubic-bezier (0.4, 1, 0.4, 1);
 }
+
+/**
+ * Modal
+ */
+
+@media (min-width: 960px) {
+	.components-modal__frame {
+		width: 30%;
+	}
+}
