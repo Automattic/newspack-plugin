@@ -94,8 +94,17 @@ const CustomBylineModal = ( { children } ) => {
 	const openModal = () => setOpen( true );
 	const closeModal = () => setOpen( false );
 
+	const byline = useSelect( select => {
+		const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
+		return meta[ newspackBylines.metaKeyByline ];
+	} );
+
 	return (
 		<>
+			<p
+				className="description"
+				dangerouslySetInnerHTML={ { __html: byline } }
+			/>
 			<Button variant="secondary" onClick={ openModal }>
 				Set Custom Byline
 			</Button>
