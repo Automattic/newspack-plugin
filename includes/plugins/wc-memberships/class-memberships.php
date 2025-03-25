@@ -648,7 +648,7 @@ class Memberships {
 	 */
 	public static function wc_memberships_notice_html( $notice, $message_body, $message_code, $message_args ) {
 		// If the gate is not available, don't mess with the notice.
-		// The is_product() check stops products with discounts from plans from being gated; normally they are not gated.
+		// Membership notices are only displayed on products with discounts from plans. The is_product() check makes sure that still works as normal.
 		if ( ! self::has_gate() || is_product() ) {
 			return $notice;
 		}
@@ -675,7 +675,7 @@ class Memberships {
 	 */
 	public static function wc_memberships_excerpt( $excerpt, $post, $message_code ) {
 		// If the gate is not available, don't mess with the excerpt.
-		// The is_product() check stops products with discounts from plans from being gated; normally they are not gated.
+		// Products with discounts from plans also display this excerpt; the is_product() check makes sure that still works as normal.
 		if ( ! self::has_gate() || is_product() ) {
 			return $excerpt;
 		}
