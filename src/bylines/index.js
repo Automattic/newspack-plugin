@@ -60,6 +60,22 @@ const parseForEdit = metaByline => {
 };
 
 /**
+ * Parse byline meta to convert custom tags (<Author></Author> or [Author][/Author]) to token markup.
+ *
+ * @see    {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
+ * @param {string} metaByline Value of byline as stored in meta key.
+ * @return {string}            Parsed byline looking up for <Author id=1></Author> tags and replacing them.
+ */
+const parseForPreview = metaByline => {
+	const tokenMarkup = `<span id="token-$1" data-token="$1">$2</span>`;
+
+	return metaByline.replace(
+		/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
+		tokenMarkup
+	);
+};
+
+/**
  * Transform the bylineElement innerHTML into the format that we expect to save.
  *
  * @see   {@link https://github.com/Automattic/newspack-plugin/tree/trunk/includes/bylines#readme|Custom Bylines}
@@ -103,7 +119,9 @@ const CustomBylineModal = ( { children } ) => {
 		<>
 			<p
 				className="description"
-				dangerouslySetInnerHTML={ { __html: byline } }
+				dangerouslySetInnerHTML={ {
+					__html: parseForPreview( byline ),
+				} }
 			/>
 			<Button variant="secondary" onClick={ openModal }>
 				Set Custom Byline
