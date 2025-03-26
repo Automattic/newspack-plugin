@@ -53,9 +53,6 @@ class WooCommerce_Connection {
 		\add_filter( 'woocommerce_order_status_completed_notification', [ __CLASS__, 'send_customizable_receipt_email' ] );
 		\add_action( 'cancelled_subscription_notification', [ __CLASS__, 'send_customizable_cancellation_email' ] );
 
-		// WooCommerce Subscriptions.
-		\add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'stripe_gateway_payment_request_data' ], 10, 2 );
-
 		// woocommerce-memberships-for-teams plugin.
 		\add_filter( 'wc_memberships_for_teams_product_team_user_input_fields', [ __CLASS__, 'wc_memberships_for_teams_product_team_user_input_fields' ] );
 		\add_filter( 'woocommerce_form_field_args', [ __CLASS__, 'wc_memberships_for_teams_filter_team_name_in_form' ], 10, 3 );
@@ -299,32 +296,6 @@ class WooCommerce_Connection {
 		);
 
 		return $subcriptions;
-	}
-
-	/**
-	 * Filter post request made by the Stripe Gateway for Stripe payments.
-	 *
-	 * @param array     $post_data An array of metadata.
-	 * @param \WC_Order $order The order object.
-	 */
-	public static function stripe_gateway_payment_request_data( $post_data, $order ) {
-		if ( ! function_exists( 'wcs_get_subscriptions_for_renewal_order' ) ) {
-			return $post_data;
-		}
-		$related_subscriptions = \wcs_get_subscriptions_for_renewal_order( $order );
-		if ( ! empty( $related_subscriptions ) ) {
-			// In theory, there should be just one subscription per renewal.
-			$subscription    = reset( $related_subscriptions );
-			$subscription_id = $subscription->get_id();
-			// Add subscription ID to any renewal.
-			$post_data['metadata']['subscription_id'] = $subscription_id;
-			if ( \wcs_order_contains_renewal( $order ) ) {
-				$post_data['metadata']['subscription_status'] = 'renewed';
-			} else {
-				$post_data['metadata']['subscription_status'] = 'created';
-			}
-		}
-		return $post_data;
 	}
 
 	/**
