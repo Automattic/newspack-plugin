@@ -19,6 +19,7 @@ if ( ! $current_post ) {
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title><?php echo esc_html( $current_post->post_title ); ?> - <?php bloginfo( 'name' ); ?></title>
+	<link rel="canonical" href="<?php echo esc_url( get_permalink( $current_post ) ); ?>">
 	<?php require __DIR__ . '/lite-site-styles.php'; ?>
 </head>
 <body>
