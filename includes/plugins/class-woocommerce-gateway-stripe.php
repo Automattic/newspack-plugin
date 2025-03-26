@@ -82,6 +82,23 @@ class WooCommerce_Gateway_Stripe {
 			$metadata[ __( 'Membership Type', 'newspack-plugin' ) ] = $plan->get_name();
 		}
 
+		// Add subscription data.
+		if ( function_exists( 'wcs_get_subscriptions_for_order' ) && function_exists( 'wcs_order_contains_renewal' ) ) {
+			$related_subscriptions = \wcs_get_subscriptions_for_order( $order );
+			if ( ! empty( $related_subscriptions ) ) {
+				// In theory, there should be just one subscription per renewal.
+				$subscription = reset( $related_subscriptions );
+				// Add subscription ID to any renewal.
+				$metadata['subscription_id'] = $subscription->get_id();
+				// `subscription_status` is redundant with `Transaction Type` for legacy reasons.
+				if ( \wcs_order_contains_renewal( $order ) ) {
+					$metadata['subscription_status'] = 'renewed';
+				} else {
+					$metadata['subscription_status'] = 'created';
+				}
+			}
+		}
+
 		return $metadata;
 	}
 }
