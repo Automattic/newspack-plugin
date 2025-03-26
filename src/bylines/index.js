@@ -35,9 +35,19 @@ const BylinesSettingsPanel = () => {
 	}
 	// Byline change handler.
 	const handleBylineChange = value => {
-		const tags = value.match( /<[^>]+>/g );
-		if ( tags && tags.some( tag => ! tag.startsWith( '<Author' ) && ! tag.startsWith( '</Author' ) ) ) {
-			alert( __( 'Only the <Author> tag is allowed.', 'newspack-plugin' ) ); // eslint-disable-line no-alert
+		const tags = value.match( /\[[^\]]+\]/g );
+		if (
+			tags &&
+			tags.some(
+				tag =>
+					! tag.startsWith( '[Author' ) &&
+					! tag.startsWith( '[/Author' )
+			)
+		) {
+			// eslint-disable-next-line no-alert
+			alert(
+				__( 'Only the [Author] tag is allowed.', 'newspack-plugin' )
+			);
 			return;
 		}
 		editPost( { meta: { [ newspackBylines.metaKeyByline ]: value } } );
@@ -53,10 +63,13 @@ const BylinesSettingsPanel = () => {
 				contentEl.insertBefore( bylineEl, contentEl.firstChild );
 			}
 			// If there are author tags
-			if ( /<Author id=(\d+)>/.test( text ) ) {
-				text = text.replace( /<Author id=(\d+)>([^<]+)<\/Author>/g, ( match, authorId, authorName ) => {
-					return `<a href="${ newspackBylines.siteUrl }/?author=${ authorId }">${ authorName }</a>`;
-				} );
+			if ( /\[Author id=(\d+)\]/.test( text ) ) {
+				text = text.replace(
+					/\[Author id=(\d+)\]([^\[]+)\[\/Author\]/g,
+					( match, authorId, authorName ) => {
+						return `<a href="${ newspackBylines.siteUrl }/?author=${ authorId }">${ authorName }</a>`;
+					}
+				);
 			}
 			bylineEl.innerHTML = text;
 		}

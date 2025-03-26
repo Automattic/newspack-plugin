@@ -135,7 +135,7 @@ class Bylines {
 		if ( ! $byline ) {
 			return $content;
 		}
-		$byline      = preg_replace( '/<Author id=(\d*)>(\D*)<\/Author>/', '<a href="' . \get_site_url() . '/?author=$1">$2</a>', $byline );
+		$byline      = preg_replace( '/\[Author id=(\d*)\](\D*)\[\/Author\]/', '<a href="' . \get_site_url() . '/?author=$1">$2</a>', $byline );
 		$byline_html = '<div class="newspack-byline">' . \wp_kses_post( $byline ) . '</div>';
 		return $byline_html . $content;
 	}
