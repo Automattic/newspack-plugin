@@ -11,6 +11,7 @@ namespace Newspack\Wizards\Newspack;
  * WordPress dependencies
  */
 
+use Newspack\Optional_Modules;
 use Newspack\Syndication;
 use WP_REST_Server;
 
@@ -36,7 +37,7 @@ class Syndication_Section extends Wizard_Section {
 	/**
 	 * Register Wizard Section specific endpoints.
 	 *
-	 * @return void 
+	 * @return void
 	 */
 	public function register_rest_routes() {
 		register_rest_route(
@@ -50,9 +51,9 @@ class Syndication_Section extends Wizard_Section {
 		);
 
 		$required_args = array_reduce(
-			Syndication::get_available_optional_modules(),
+			Optional_Modules::get_available_optional_modules(),
 			function( $acc, $module_name ) {
-				$acc[ Syndication::MODULE_ENABLED_PREFIX . $module_name ] = [
+				$acc[ Optional_Modules::MODULE_ENABLED_PREFIX . $module_name ] = [
 					'required'          => true,
 					'sanitize_callback' => 'rest_sanitize_boolean',
 				];
