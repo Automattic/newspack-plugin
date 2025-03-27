@@ -105,10 +105,6 @@ const transformByline = element => {
 	return clonebylineElement.innerHTML;
 };
 
-const defaultByline = () => {
-	return 'By Author';
-};
-
 const CustomBylineModal = ( { children } ) => {
 	const [ isOpen, setOpen ] = useState( false );
 	const openModal = () => setOpen( true );
@@ -116,7 +112,7 @@ const CustomBylineModal = ( { children } ) => {
 
 	const byline = useSelect( select => {
 		const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
-		return meta[ newspackBylines.metaKeyByline ] || defaultByline();
+		return meta[ newspackBylines.metaKeyByline ];
 	} );
 
 	return (
@@ -334,6 +330,42 @@ const BylinesSettingsPanel = () => {
 	}
 
 	/**
+	 * Insert the default custom byline.
+	 * Used when the custom byline setting is first enabled.
+	 */
+	const insertDefaultByline = () => {
+		let defaultCustomByline;
+
+		// Add author tags and connecting text for each token.
+		tokens.forEach( ( token, index ) => {
+			if ( index === 0 ) {
+				defaultCustomByline = 'by';
+			} else if ( index === tokens.length - 1 ) {
+				defaultCustomByline =
+					tokens.length > 2
+						? defaultCustomByline + ', and'
+						: defaultCustomByline + ' and';
+			} else {
+				defaultCustomByline = defaultCustomByline + ',';
+			}
+
+			defaultCustomByline =
+				defaultCustomByline +
+				` [Author id=${ token.id }]${ token.name }[/Author]`;
+		} );
+
+		// Don't edit post meta if the string is still empty.
+		if ( ! defaultCustomByline ) {
+			return;
+		}
+
+		// Edit the post meta with the new byline.
+		editPost( {
+			meta: { [ newspackBylines.metaKeyByline ]: defaultCustomByline },
+		} );
+	};
+
+	/**
 	 * Enable toggle handler.
 	 *
 	 * @param {boolean} value Boolean, true if custom byline is enabled, false if not.
@@ -341,6 +373,13 @@ const BylinesSettingsPanel = () => {
 	const handleEnableToggle = value => {
 		editPost( { meta: { [ newspackBylines.metaKeyActive ]: value } } );
 		setIsEnabled( value );
+
+		const customByline =
+			getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ];
+
+		if ( ! customByline ) {
+			insertDefaultByline();
+		}
 	};
 
 	/**
@@ -408,10 +447,8 @@ const BylinesSettingsPanel = () => {
 			return;
 		}
 
-		const byline = parseForEdit(
-			getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] ||
-				defaultByline()
-		);
+		const byline =
+			getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ];
 
 		editableRef.current = element;
 		element.innerHTML = parseForEdit( byline );
