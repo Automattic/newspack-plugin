@@ -42,7 +42,7 @@ class WooCommerce_Gateway_Stripe {
 		$product_id = $order_item->get_product_id();
 
 		// Product name.
-		$metadata[ __( 'Product', 'newspack-plugin' ) ] = $order_item->get_name();
+		$metadata[ 'Product' ] = $order_item->get_name();
 
 		$is_donation = Donations::is_donation_product( $product_id );
 		$is_renewal = false;
@@ -51,7 +51,7 @@ class WooCommerce_Gateway_Stripe {
 		}
 
 		// Transaction type (donation, subscription, or renewal).
-		$metadata[ __( 'Transaction Type', 'newspack-plugin' ) ] = $is_donation ? 'Donation' : ( $is_renewal ? 'Subscription Renewal' : 'Subscription' );
+		$metadata[ 'Transaction Type' ] = $is_donation ? 'Donation' : ( $is_renewal ? 'Subscription Renewal' : 'Subscription' );
 
 		// Membership type (name of the membership plan associated with the product ID).
 		$plan = null;
@@ -79,7 +79,7 @@ class WooCommerce_Gateway_Stripe {
 			}
 		}
 		if ( $plan ) {
-			$metadata[ __( 'Membership Type', 'newspack-plugin' ) ] = $plan->get_name();
+			$metadata[ 'Membership Type' ] = $plan->get_name();
 		}
 
 		// Add subscription data.
