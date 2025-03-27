@@ -105,6 +105,10 @@ const transformByline = element => {
 	return clonebylineElement.innerHTML;
 };
 
+const defaultByline = () => {
+	return 'By Author';
+};
+
 const CustomBylineModal = ( { children } ) => {
 	const [ isOpen, setOpen ] = useState( false );
 	const openModal = () => setOpen( true );
@@ -112,7 +116,7 @@ const CustomBylineModal = ( { children } ) => {
 
 	const byline = useSelect( select => {
 		const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
-		return meta[ newspackBylines.metaKeyByline ];
+		return meta[ newspackBylines.metaKeyByline ] || defaultByline();
 	} );
 
 	return (
@@ -403,8 +407,10 @@ const BylinesSettingsPanel = () => {
 		if ( ! element ) {
 			return;
 		}
+
 		const byline = parseForEdit(
-			getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ]
+			getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ] ||
+				defaultByline()
 		);
 
 		editableRef.current = element;
