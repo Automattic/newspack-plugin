@@ -67,7 +67,7 @@ const parseForEdit = metaByline => {
  * @return {string}            Parsed byline looking up for <Author id=1></Author> tags and replacing them.
  */
 const parseForPreview = metaByline => {
-	const tokenMarkup = `<span id="token-$1" data-token="$1">$2</span>`;
+	const tokenMarkup = `<span class="newspack-byline-author" id="token-$1" data-token="$1">$2</span>`;
 
 	return metaByline.replace(
 		/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
@@ -118,7 +118,7 @@ const CustomBylineModal = ( { children } ) => {
 	return (
 		<>
 			<p
-				className="description"
+				className="description newspack-byline-preview"
 				dangerouslySetInnerHTML={ {
 					__html: parseForPreview( byline ),
 				} }
@@ -339,7 +339,7 @@ const BylinesSettingsPanel = () => {
 		// Add author tags and connecting text for each token.
 		tokens.forEach( ( token, index ) => {
 			if ( index === 0 ) {
-				defaultCustomByline = 'by';
+				defaultCustomByline = 'By';
 			} else if ( index === tokens.length - 1 ) {
 				defaultCustomByline =
 					tokens.length > 2
