@@ -335,7 +335,9 @@ class Audience_Donations extends Wizard {
 			);
 		}
 
-		return rest_ensure_response( Emails::get_emails( array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false ) );
+		return rest_ensure_response(
+			Emails::get_emails( Reader_Activation::is_enabled() ? [] : array_values( Reader_Revenue_Emails::EMAIL_TYPES ), false )
+		);
 	}
 
 	/**
