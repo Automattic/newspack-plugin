@@ -27,22 +27,9 @@ class Test_Corrections extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		if ( ! defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) ) {
-			define( 'NEWSPACK_CORRECTIONS_ENABLED', true );
-		}
-
 		Corrections::init();
 
 		self::$post_id = $this->factory()->post->create( [ 'post_type' => 'post' ] );
-	}
-
-	/**
-	 * Test that the corrections feature is enabled.
-	 *
-	 * @covers Corrections::is_enabled
-	 */
-	public function test_is_enabled() {
-		$this->assertTrue( Corrections::is_enabled() );
 	}
 
 	/**
