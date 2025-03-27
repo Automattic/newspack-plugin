@@ -123,15 +123,25 @@ const CustomBylineModal = ( { children } ) => {
 					__html: parseForPreview( byline ),
 				} }
 			/>
-			<Button variant="secondary" onClick={ openModal }>
-				Set Custom Byline
+			<Button
+				className="newspack-byline-customize-btn"
+				variant="secondary"
+				onClick={ openModal }
+			>
+				Edit byline
 			</Button>
 			{ isOpen && (
-				<Modal title="Set Custom Byline" onRequestClose={ closeModal }>
+				<Modal
+					className="newspack-byline-customize-modal"
+					title="Edit byline"
+					onRequestClose={ closeModal }
+				>
 					{ children }
-					<Button variant="secondary" onClick={ closeModal }>
-						Close
-					</Button>
+					<div className="newspack-byline-customize-modal-btns">
+						<Button variant="secondary" onClick={ closeModal }>
+							Save
+						</Button>
+					</div>
 				</Modal>
 			) }
 		</>
@@ -493,6 +503,10 @@ const BylinesSettingsPanel = () => {
 			<ToggleControl
 				className="newspack-byline-toggle"
 				checked={ isEnabled }
+				help={ __(
+					'Provides flexibility in defining how the byline appears.',
+					'newspack-plugin'
+				) }
 				label={ __( 'Enable custom byline', 'newspack-plugin' ) }
 				onChange={ () => handleEnableToggle( ! isEnabled ) }
 			/>
