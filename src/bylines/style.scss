@@ -13,3 +13,47 @@
 	margin: 1em auto;
 	max-width: 1200px;
 }
+
+.newspack-byline-textarea {
+	padding: 1em;
+	border: 1px solid #e1e1e1;
+	margin-bottom: 1em;
+
+	.token-inline-block {
+		.components-button {
+			svg {
+				width: 1em;
+				pointer-events: none;
+			}
+		}
+	}
+}
+
+.tokens {
+	margin-bottom: 1em;
+}
+
+/**
+ * The component uses classes from FormTokenField to make it stylized according to it.
+ * See: https://wordpress.github.io/gutenberg/?path=/docs/components-formtokenfield--docs
+ */
+
+.token-inline-block.components-form-token-field__token {
+	display: inline-grid;
+	grid-template-columns: 1fr auto;
+}
+
+// Copied .components-form-token-field__remove-token styles to apply to intert-token
+.components-form-token-field__insert-token {
+	border-radius: 0 1px 1px 0;
+	color: #1e1e1e;
+	cursor: pointer;
+	overflow: initial;
+	padding: 0 2px;
+	background: #ddd;
+	display: inline-block;
+	height: auto;
+	line-height: 24px;
+	min-width: unset;
+	transition: all 0.2 cubic-bezier (0.4, 1, 0.4, 1);
+}
