@@ -50,11 +50,16 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 			form.appendChild( hiddenField );
 		}
 		hiddenField.value = token;
-		const buttons = [
-			...form.querySelectorAll( 'input[type="submit"], button[type="submit"]' )
-		];
 		form.setAttribute( 'data-recaptcha-validated', '1' );
-		form.requestSubmit( buttons[ buttons.length - 1 ] );
+
+		// If the form has a #place_order button, click it.
+		const placeOrder = form.querySelector( '#place_order' );
+		if ( placeOrder ) {
+			placeOrder.click();
+		} else {
+			form.requestSubmit( form.querySelector( 'input[type="submit"], button[type="submit"]' ) );
+		}
+
 		refreshV2Widget( form );
 	};
 	// Callback when reCAPTCHA rendering fails or expires.
@@ -77,24 +82,31 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 
 	// Attach widget to form events.
 	const attachListeners = () => {
+		form.removeAttribute( 'data-submit-button-click' );
 		getIntersectionObserver( () => renderV2Widget( form, onSuccess, onError ) ).observe( form, { attributes: true } );
-		form.addEventListener( 'submit', e => {
+
+		const handleSubmit = e => {
 			if ( ! form.hasAttribute( 'data-recaptcha-validated' ) && ! form.hasAttribute( 'data-skip-recaptcha' ) ) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				// Empty error messages if present.
 				removeErrorMessages( form );
 
-				grecaptcha.execute( widgetId ).then( () => {
-					// If we are in an iframe scroll to top.
-					if ( window?.location !== window?.parent?.location ) {
-						document.body.scrollIntoView( { behavior: 'smooth' } );
-					}
-				} );
+				grecaptcha.execute( widgetId );
 			} else {
 				form.removeAttribute( 'data-recaptcha-validated' );
 			}
-		}, true );
+		};
+		form.addEventListener( 'submit', handleSubmit, true );
+
+		const placeOrderClone = form.querySelector( '#place_order_clone' );
+		if ( placeOrderClone ) {
+			placeOrderClone.addEventListener( 'click', e => {
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				handleSubmit( e )
+			}, true );
+		}
 	}
 	// Refresh reCAPTCHA widgets on Woo checkout update and error.
 	if ( jQuery ) {

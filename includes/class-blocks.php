@@ -18,6 +18,12 @@ final class Blocks {
 	 */
 	public static function init() {
 		require_once NEWSPACK_ABSPATH . 'src/blocks/reader-registration/index.php';
+
+		if ( wp_is_block_theme() && class_exists( 'Newspack\Corrections' ) && defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED ) {
+			require_once NEWSPACK_ABSPATH . 'src/blocks/correction-box/class-correction-box-block.php';
+			require_once NEWSPACK_ABSPATH . 'src/blocks/correction-item/class-correction-item-block.php';
+		}
+
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
 	}
 
@@ -47,6 +53,7 @@ final class Blocks {
 				'reader_activation_url'   => Reader_Activation::get_setting( 'terms_url' ),
 				'has_recaptcha'           => Recaptcha::can_use_captcha(),
 				'recaptcha_url'           => admin_url( 'admin.php?page=newspack-connections-wizard' ),
+				'corrections_enabled'     => wp_is_block_theme() && class_exists( 'Newspack\Corrections' ) && defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED,
 			]
 		);
 		\wp_enqueue_style(

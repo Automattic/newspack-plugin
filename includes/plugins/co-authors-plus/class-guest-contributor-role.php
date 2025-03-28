@@ -50,11 +50,11 @@ class Guest_Contributor_Role {
 	 */
 	public static function initialize() {
 		add_filter( 'coauthors_edit_author_cap', [ __CLASS__, 'coauthors_edit_author_cap' ] );
-		add_action( 'admin_init', [ __CLASS__, 'setup_custom_role_and_capability' ] );
 		add_action( 'template_redirect', [ __CLASS__, 'prevent_myaccount_update' ] );
 		add_action( 'newspack_before_delete_account', [ __CLASS__, 'before_delete_account' ] );
 
 		add_action( 'init', [ __CLASS__, 'early_init' ], 5 );
+		add_action( 'init', [ __CLASS__, 'setup_custom_role_and_capability' ] );
 
 		// Do not allow guest authors to login.
 		\add_filter( 'wp_authenticate_user', [ __CLASS__, 'wp_authenticate_user' ], 10, 2 );

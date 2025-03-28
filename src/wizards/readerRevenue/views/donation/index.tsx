@@ -1,8 +1,8 @@
 /**
  * WordPress dependencies.
  */
+import { __, sprintf } from '@wordpress/i18n';
 import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import { ToggleControl, CheckboxControl } from '@wordpress/components';
 
 /**
@@ -20,7 +20,7 @@ import {
 	TextControl,
 	Wizard,
 } from '../../../../components/src';
-import { READER_REVENUE_WIZARD_SLUG } from '../../constants';
+import { NEWSPACK, READER_REVENUE_WIZARD_SLUG } from '../../constants';
 
 type FrequencySlug = 'once' | 'month' | 'year';
 
@@ -66,6 +66,7 @@ type WizardData = {
 				tiered: boolean;
 				minimumDonation: string;
 				billingFields: string[];
+				trashed: string[];
 		};
 	platform_data: {
 		platform: string;
@@ -88,7 +89,7 @@ export const DonationAmounts = () => {
 		return null;
 	}
 
-	const { amounts, currencySymbol, tiered, disabledFrequencies, minimumDonation } =
+	const { amounts, currencySymbol, tiered, disabledFrequencies, minimumDonation, trashed } =
 		wizardData.donation_data;
 
 	const changeHandler = ( path: ( string | number )[] ) => ( value: any ) =>
@@ -111,6 +112,27 @@ export const DonationAmounts = () => {
 
 	return (
 		<>
+			{
+				Array.isArray( trashed ) && 0 < trashed.length && (
+					<Notice isError>
+						{ <p
+							dangerouslySetInnerHTML={
+								{ __html: sprintf(
+										// Translators: %1$s is a link to the trashed products. %2$s is a comma-separated list of trashed product names.
+										__(
+											'One or more donation products is in trash. Please <a href="%1$s">restore the product(s)</a> to continue using donation features: %2$s',
+											'newspack-plugin'
+										),
+										'/wp-admin/edit.php?post_status=trash&post_type=product',
+										trashed.join( ', ' )
+									)
+								}
+							}
+						/>
+					}
+				</Notice>
+				)
+			}
 			<Card headerActions noBorder>
 				<SectionHeader
 					title={ __( 'Suggested Donations', 'newspack-plugin' ) }
@@ -349,6 +371,8 @@ const BillingFields = () => {
 const Donation = () => {
 	const wizardData = Wizard.useWizardData( 'reader-revenue' ) as WizardData;
 	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { platform_data } = wizardData;
+	const usedPlatform = platform_data?.platform;
 	const onSaveDonationSettings = () =>
 		saveWizardSettings( {
 			slug: READER_REVENUE_WIZARD_SLUG,
@@ -407,7 +431,7 @@ const Donation = () => {
 				) }
 				<DonationAmounts />
 			</ActionCard>
-			<ActionCard
+			{ NEWSPACK === usedPlatform && ( <ActionCard
 				description={ __( 'Configure options for modal checkouts.', 'newspack-plugin' ) }
 				hasGreyHeader={ true }
 				isMedium
@@ -419,7 +443,7 @@ const Donation = () => {
 				}
 			>
 				<BillingFields />
-			</ActionCard>
+			</ActionCard> ) }
 		</>
 	);
 };

@@ -8,6 +8,8 @@
 namespace Newspack\Reader_Activation;
 
 use Newspack\Reader_Activation;
+use Newspack\Data_Events;
+use Newspack\Logger;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,6 +17,10 @@ defined( 'ABSPATH' ) || exit;
  * ESP Sync Class.
  */
 class ESP_Sync extends Sync {
+	/**
+	 * Cron hook for syncing email change with ESP.
+	 */
+	const SYNC_ESP_EMAIL_CHANGE_CRON_HOOK = 'newspack_esp_sync_email_change';
 
 	/**
 	 * Context of the sync.
@@ -22,11 +28,21 @@ class ESP_Sync extends Sync {
 	 * @var string
 	 */
 	protected static $context = 'ESP Sync';
+
+	/**
+	 * Queued syncs containing their contexts keyed by email address.
+	 *
+	 * @var array[]
+	 */
+	protected static $queued_syncs = [];
+
 	/**
 	 * Initialize hooks.
 	 */
 	public static function init_hooks() {
 		add_action( 'newspack_scheduled_esp_sync', [ __CLASS__, 'scheduled_sync' ], 10, 2 );
+		add_action( 'shutdown', [ __CLASS__, 'run_queued_syncs' ] );
+		add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change' ], 10, 3 );
 	}
 
 	/**
@@ -98,6 +114,22 @@ class ESP_Sync extends Sync {
 			$context = static::$context;
 		}
 
+		// If we're running in a data event, queue the sync to run on shutdown.
+		if ( ! isset( self::$queued_syncs[ $contact['email'] ] ) ) {
+			self::$queued_syncs[ $contact['email'] ] = [
+				'contexts' => [],
+				'contact'  => [],
+			];
+		}
+		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
+			$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
+		}
+		self::$queued_syncs[ $contact['email'] ]['contexts'][] = $context;
+		self::$queued_syncs[ $contact['email'] ]['contact']    = $contact;
+		if ( Data_Events::current_event() && ! did_action( 'shutdown' ) ) {
+			return;
+		}
+
 		$master_list_id = Reader_Activation::get_esp_master_list_id();
 
 		/**
@@ -107,10 +139,8 @@ class ESP_Sync extends Sync {
 		 * @param string $context The context of the sync.
 		 */
 		$contact = \apply_filters( 'newspack_esp_sync_contact', $contact, $context );
-
 		$contact = Sync\Metadata::normalize_contact_data( $contact );
-
-		$result = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
+		$result  = \Newspack_Newsletters_Contacts::upsert( $contact, $master_list_id, $context );
 
 		return \is_wp_error( $result ) ? $result : true;
 	}
@@ -163,24 +193,12 @@ class ESP_Sync extends Sync {
 	}
 
 	/**
-	 * Given a user ID or WooCommerce Order, sync that reader's contact data to
-	 * the connected ESP.
+	 * Get contact data for syncing.
 	 *
-	 * @param int|\WC_order $user_id_or_order User ID or WC_Order object.
-	 * @param bool          $is_dry_run       True if a dry run.
-	 *
-	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
+	 * @param int $user_id The user ID.
 	 */
-	public static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
-		$can_sync = static::can_esp_sync( true );
-		if ( ! $is_dry_run && $can_sync->has_errors() ) {
-			return $can_sync;
-		}
-
-		$is_order = $user_id_or_order instanceof \WC_Order;
-		$order    = $is_order ? $user_id_or_order : false;
-		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
-		$user     = \get_userdata( $user_id );
+	public static function get_contact_data( $user_id ) {
+		$user = \get_userdata( $user_id );
 
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
@@ -200,7 +218,36 @@ class ESP_Sync extends Sync {
 			$customer->save();
 		}
 
-		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : Sync\WooCommerce::get_contact_from_customer( $customer );
+		$contact = Sync\WooCommerce::get_contact_from_customer( $customer );
+
+		// Include data from queued syncs too.
+		if ( ! empty( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'] ) ) {
+			$contact['metadata'] = array_merge( self::$queued_syncs[ $contact['email'] ]['contact']['metadata'], $contact['metadata'] );
+		}
+
+		return $contact;
+	}
+
+	/**
+	 * Given a user ID or WooCommerce Order, sync that reader's contact data to
+	 * the connected ESP.
+	 *
+	 * @param int|\WC_order $user_id_or_order User ID or WC_Order object.
+	 * @param bool          $is_dry_run       True if a dry run.
+	 *
+	 * @return true|\WP_Error True if the contact was synced successfully, WP_Error otherwise.
+	 */
+	public static function sync_contact( $user_id_or_order, $is_dry_run = false ) {
+		$can_sync = static::can_esp_sync( true );
+		if ( ! $is_dry_run && $can_sync->has_errors() ) {
+			return $can_sync;
+		}
+
+		$is_order = $user_id_or_order instanceof \WC_Order;
+		$order    = $is_order ? $user_id_or_order : false;
+		$user_id  = $is_order ? $order->get_customer_id() : $user_id_or_order;
+
+		$contact = $is_order ? Sync\WooCommerce::get_contact_from_order( $order ) : self::get_contact_data( $user_id );
 		$result  = $is_dry_run ? true : self::sync( $contact );
 
 		if ( $result && ! \is_wp_error( $result ) ) {
@@ -209,15 +256,66 @@ class ESP_Sync extends Sync {
 					// Translators: %1$s is the status and %2$s is the contact's email address.
 					__( '%1$s contact data for %2$s.', 'newspack-plugin' ),
 					$is_dry_run ? __( 'Would sync', 'newspack-plugin' ) : __( 'Synced', 'newspack-plugin' ),
-					$customer->get_email()
+					$contact['email']
 				)
 			);
-			if ( ! empty( static::$results ) ) {
-				static::$results['processed']++;
-			}
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Run queued syncs.
+	 *
+	 * @return void
+	 */
+	public static function run_queued_syncs() {
+		if ( empty( self::$queued_syncs ) ) {
+			return;
+		}
+
+		foreach ( self::$queued_syncs as $email => $queued_sync ) {
+			$user = get_user_by( 'email', $email );
+			if ( ! $user ) {
+				continue;
+			}
+
+			$contact = self::get_contact_data( $user->ID );
+			if ( ! $contact ) {
+				continue;
+			}
+			$contexts = $queued_sync['contexts'];
+			self::sync( $contact, implode( '; ', $contexts ) );
+		}
+
+		self::$queued_syncs = [];
+	}
+
+
+	/**
+	 * Sync email change with site ESPs.
+	 *
+	 * @param int    $user_id User ID.
+	 * @param string $new_email New email address.
+	 * @param string $old_email Old email address.
+	 */
+	public static function sync_email_change( $user_id, $new_email, $old_email ) {
+		if ( ! class_exists( 'Newspack_Newsletters_Contacts' ) ) {
+			return;
+		}
+		$contact = self::get_contact_data( $user_id );
+		if ( ! $contact ) {
+			return;
+		}
+		$list_id          = Reader_Activation::get_esp_master_list_id();
+		$existing_contact = array_merge( $contact, [ 'email' => $old_email ] );
+		$contact          = Sync\Metadata::normalize_contact_data( $contact );
+		$update           = \Newspack_Newsletters_Contacts::upsert( $contact, $list_id, 'Email_Change', $existing_contact );
+		if ( is_wp_error( $update ) ) {
+			// If the update failed, retry in 24 hours.
+			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
+			Logger::error( 'Error syncing email change with ESP: ' . $update->get_error_message() . '. Retrying in 24 hours.' );
+		}
 	}
 }
 ESP_Sync::init_hooks();

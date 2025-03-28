@@ -54,7 +54,8 @@ type EmailSlugs =
 	| 'reader-activation-magic-link'
 	| 'reader-activation-otp-authentication'
 	| 'reader-activation-reset-password'
-	| 'reader-activation-delete-account';
+	| 'reader-activation-delete-account'
+	| 'reader-activation-change-email';
 
 // RAS config inherited from RAS wizard view.
 export type Config = {
