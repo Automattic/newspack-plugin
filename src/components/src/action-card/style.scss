@@ -434,6 +434,10 @@
 		.newspack-action-card__region-children {
 			border-top: 1px solid wp-colors.$gray-100;
 			padding-top: 24px;
+
+			+ .newspack-action-card__region-children {
+				border-top: none;
+			}
 		}
 
 		&.is-medium .newspack-action-card__region-children {

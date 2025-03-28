@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import { Welcome, Settings, Services, Design, Completed } from './views/';
-import { withWizard, Notice } from '../../components/src';
+import { withWizard, withWizardScreen, Notice } from '../../components/src';
 import Router from '../../components/src/proxied-imports/router';
 import './style.scss';
 
@@ -39,7 +39,7 @@ const ROUTES = [
 		path: '/design',
 		label: __( 'Design', 'newspack' ),
 		subHeaderText: __( 'Customize the look and feel of your site', 'newspack' ),
-		render: Design,
+		render: withWizardScreen( Design, { hidePrimaryButton: true } ),
 	},
 	{
 		path: '/completed',
@@ -82,6 +82,7 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 									subHeaderText: route.subHeaderText,
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
 									buttonAction,
+									isPartOfSetup: true
 								} )
 							}
 						/>

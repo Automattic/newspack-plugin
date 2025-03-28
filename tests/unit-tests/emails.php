@@ -25,6 +25,7 @@ class Newspack_Test_Emails extends WP_UnitTestCase {
 					'label'       => __( 'Test config', 'newspack' ),
 					'description' => __( 'Email sent to test things.', 'newspack' ),
 					'template'    => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-revenue-emails/receipt.php',
+					'category'    => 'test',
 				];
 				return $types;
 			}

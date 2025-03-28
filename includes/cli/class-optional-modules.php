@@ -73,14 +73,14 @@ class Optional_Modules {
 	 */
 	public static function cmd_activate_module( array $pos_args, array $assoc_args ): void {
 		$module_name       = $pos_args[0];
-		$available_modules = \Newspack\Settings::get_available_optional_modules();
+		$available_modules = \Newspack\Optional_Modules::get_available_optional_modules();
 		if ( ! in_array( $module_name, $available_modules ) ) {
 			\WP_CLI::error( sprintf( 'Module is not available. These are the available modules: %s', implode( ', ', $available_modules ) ) );
 		}
 
-		$settings = \Newspack\Settings::activate_optional_module( $module_name );
+		$settings = \Newspack\Optional_Modules::activate_optional_module( $module_name );
 
-		if ( empty( $settings[ \Newspack\Settings::MODULE_ENABLED_PREFIX . $module_name ] ) ) {
+		if ( empty( $settings[ \Newspack\Optional_Modules::MODULE_ENABLED_PREFIX . $module_name ] ) ) {
 			\WP_CLI::success( 'Module activated.' );
 		} else {
 			\WP_CLI::error( "Cannot activate module – it's already active" );
@@ -98,14 +98,14 @@ class Optional_Modules {
 	public static function cmd_deactivate_module( array $pos_args, array $assoc_args ) {
 		$module_name = $pos_args[0];
 
-		$enabled_modules = array_filter( \Newspack\Settings::api_get_settings() );
+		$enabled_modules = array_filter( \Newspack\Optional_Modules::get_settings() );
 
-		if ( empty( $enabled_modules[ \Newspack\Settings::MODULE_ENABLED_PREFIX . $module_name ] ) ) {
+		if ( empty( $enabled_modules[ \Newspack\Optional_Modules::MODULE_ENABLED_PREFIX . $module_name ] ) ) {
 			\WP_CLI::error( 'Module is not active. Cannot deactivate it' );
 		}
-		$settings = \Newspack\Settings::deactivate_optional_module( $module_name );
+		$settings = \Newspack\Optional_Modules::deactivate_optional_module( $module_name );
 
-		if ( empty( $settings[ \Newspack\Settings::MODULE_ENABLED_PREFIX . $module_name ] ) ) {
+		if ( empty( $settings[ \Newspack\Optional_Modules::MODULE_ENABLED_PREFIX . $module_name ] ) ) {
 			\WP_CLI::success( 'Module deactivated.' );
 		} else {
 			\WP_CLI::error( 'Failed to deactivate module.' );

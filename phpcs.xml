@@ -21,6 +21,14 @@
 		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.Found" />
 	</rule>
 
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="newspack_view_others_media" />
+			</property>
+		</properties>
+	</rule>
+
 	<rule ref="PHPCompatibilityWP"/>
 	<config name="testVersion" value="7.2-"/>
 

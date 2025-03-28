@@ -1,4 +1,4 @@
-.newspack-advertising-wizard {
+.newspack-ads-display-ads {
 	.newspack-button-card .newspack-notice {
 		margin: 24px 0 0;
 	}
@@ -26,6 +26,26 @@
 
 		+ .newspack-card__header-actions {
 			margin-top: 64px;
+		}
+	}
+
+	.newspack-section-header {
+		margin: 0;
+	}
+
+	.newspack-section-header__container {
+		margin-bottom: 40px;
+
+		.heading-1 :is(h1, h2, h3, h4, h5, h6) {
+			font-size: 2rem;
+			font-weight: 400;
+			line-height: 1.25;
+		}
+	}
+
+	.newspack-plugin-settings {
+		:nth-last-child(1 of .newspack-card) {
+			margin-bottom: 64px;
 		}
 	}
 }

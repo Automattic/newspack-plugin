@@ -28,7 +28,7 @@ export { metadata, name };
 export const settings = {
 	icon: {
 		src: icon,
-		foreground: '#36f',
+		foreground: '#406ebc',
 	},
 	edit,
 	save: () => <div { ...useInnerBlocksProps.save( useBlockProps.save() ) } />,

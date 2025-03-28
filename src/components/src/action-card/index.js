@@ -105,7 +105,7 @@ class ActionCard extends Component {
 		const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 		return (
-			<Card className={ classes } onClick={ simple && onClick } noBorder={ noBorder }>
+			<Card className={ classes } onClick={ simple && onClick } id={ this.props.id ?? null } noBorder={ noBorder }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ toggleOnChange && (
 						<ToggleControl

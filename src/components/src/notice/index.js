@@ -7,7 +7,6 @@
  */
 import { Component, RawHTML } from '@wordpress/element';
 import { Icon, bug, check, help, info } from '@wordpress/icons';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies.
@@ -62,7 +61,6 @@ class Notice extends Component {
 				{ <Icon icon={ noticeIcon } /> }
 				<div className="newspack-notice__content">
 					{ rawHTML ? <RawHTML>{ noticeText }</RawHTML> : noticeText }
-					{ debugMode && __( 'Debug Mode', 'newspack-plugin' ) }
 					{ children || null }
 				</div>
 			</div>
