@@ -16,15 +16,9 @@
 	}
 }
 
+// Specificity to override core styles.
 .interface-complementary-area .newspack-byline .newspack-byline-preview {
 	margin: 2em 0;
-}
-
-#newspack-byline {
-	font-style: italic;
-	font-weight: 500;
-	margin: 1em auto;
-	max-width: 1200px;
 }
 
 // Admin byline customization modal.
