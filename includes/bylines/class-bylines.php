@@ -47,7 +47,7 @@ class Bylines {
 		}
 		add_action( 'init', [ __CLASS__, 'register_post_meta' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		add_action( 'pre_newspack_posted_by', [ __CLASS__, 'output_byline_on_post' ] );
+		add_filter( 'pre_newspack_posted_by', [ __CLASS__, 'output_byline_on_post' ] );
 	}
 
 	/**
@@ -161,14 +161,14 @@ class Bylines {
 	/**
 	 * Outputs the byline on the post.
 	 *
-	 * @return string The post content with the byline prepended.
+	 * @return false|string The post content with the byline prepended.
 	 */
 	public static function output_byline_on_post() {
 		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
 		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
 
 		if ( ! $byline_is_active || ! $byline ) {
-			return;
+			return false;
 		}
 
 		$byline      = self::get_authors_avatars( $byline ) . self::replace_author_shortcodes( $byline );
