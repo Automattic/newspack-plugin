@@ -196,6 +196,8 @@ class ESP_Sync extends Sync {
 	 * Get contact data for syncing.
 	 *
 	 * @param int $user_id The user ID.
+	 *
+	 * @return array|\WP_Error The contact data or WP_Error.
 	 */
 	public static function get_contact_data( $user_id ) {
 		$user = \get_userdata( $user_id );
@@ -304,7 +306,7 @@ class ESP_Sync extends Sync {
 			return;
 		}
 		$contact = self::get_contact_data( $user_id );
-		if ( ! $contact ) {
+		if ( ! $contact || is_wp_error( $contact ) ) {
 			return;
 		}
 		$list_id          = Reader_Activation::get_esp_master_list_id();

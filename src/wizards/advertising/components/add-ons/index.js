@@ -106,11 +106,19 @@ export default () => (
 			plugins={ {
 				'super-cool-ad-inserter': {
 					actionText: __( 'Configure', 'newspack-plugin' ),
-					href: '#/settings',
+					href: '#/settings/scaip',
+					shouldRefreshAfterUpdate: true,
+					onClick() {
+						document.getElementById( 'plugin-settings-scaip' ).scrollIntoView();
+					},
 				},
 				'ad-refresh-control': {
 					actionText: __( 'Configure', 'newspack-plugin' ),
-					href: '#/settings',
+					href: '#/settings/ad-refresh-control',
+					shouldRefreshAfterUpdate: true,
+					onClick() {
+						document.getElementById( 'ad-refresh-control' ).scrollIntoView();
+					},
 				},
 			} }
 		/>

@@ -409,7 +409,6 @@ const BylinesSettingsPanel = () => {
 	const handleEnableToggle = value => {
 		editPost( { meta: { [ newspackBylines.metaKeyActive ]: value } } );
 		setIsEnabled( value );
-
 		if ( ! customByline ) {
 			insertDefaultByline();
 		}

@@ -187,6 +187,7 @@ class PluginSettings extends Component {
 						<SettingsSection
 							key={ sectionKey }
 							disabled={ inFlight }
+							id={ `plugin-settings-${ sectionKey }` }
 							sectionKey={ sectionKey }
 							title={ this.getSectionTitle( sectionKey ) }
 							description={ this.getSectionDescription( sectionKey ) }
