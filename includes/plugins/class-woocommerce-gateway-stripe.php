@@ -42,16 +42,19 @@ class WooCommerce_Gateway_Stripe {
 		$product_id = $order_item->get_product_id();
 
 		// Product name.
-		$metadata[ 'Product' ] = $order_item->get_name();
+		$metadata['Product'] = $order_item->get_name();
 
-		$is_donation = Donations::is_donation_product( $product_id );
-		$is_renewal = false;
-		if ( function_exists( 'wcs_order_contains_subscription' ) ) {
-			$is_renewal = \wcs_order_contains_subscription( $order, 'renewal' );
+		// Transaction type.
+		$metadata['Transaction Type'] = 'Regular Purchase';
+		if ( Donations::is_donation_product( $product_id ) ) {
+			$metadata['Transaction Type'] = 'Donation';
 		}
-
-		// Transaction type (donation, subscription, or renewal).
-		$metadata[ 'Transaction Type' ] = $is_donation ? 'Donation' : ( $is_renewal ? 'Subscription Renewal' : 'Subscription' );
+		if ( function_exists( 'wcs_order_contains_parent' ) && \wcs_order_contains_parent( $order ) ) {
+			$metadata['Transaction Type'] = 'Subscription';
+		}
+		if ( function_exists( 'wcs_order_contains_subscription' ) && \wcs_order_contains_subscription( $order, 'renewal' ) ) {
+			$metadata['Transaction Type'] = 'Subscription Renewal';
+		}
 
 		// Membership type (name of the membership plan associated with the product ID).
 		$plan = null;
@@ -79,7 +82,7 @@ class WooCommerce_Gateway_Stripe {
 			}
 		}
 		if ( $plan ) {
-			$metadata[ 'Membership Type' ] = $plan->get_name();
+			$metadata['Membership Type'] = $plan->get_name();
 		}
 
 		// Add subscription data.
