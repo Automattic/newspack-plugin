@@ -135,6 +135,30 @@ class Bylines {
 	}
 
 	/**
+	 * Return the author in use into the custom byline.
+	 *
+	 * @return array $authors  Array of authors.
+	 */
+	public static function authors_on_byline() {
+		global $coauthors_plus;
+		$authors = [];
+		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
+		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
+
+		if ( ! $byline_is_active || ! $byline ) {
+			return [];
+		}
+
+		$author_ids = self::extract_author_ids_from_shortcode( $byline );
+
+		foreach ( $author_ids as $author_id ) {
+			$authors[] = $coauthors_plus->get_coauthor_by( 'user_nicename', get_the_author_meta( 'user_nicename', $author_id ) );
+		}
+
+		return $authors;
+	}
+
+	/**
 	 * Outputs the byline on the post.
 	 *
 	 * @return string The post content with the byline prepended.
