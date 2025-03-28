@@ -67,9 +67,11 @@ const Suppression = () => {
 	}
 	return (
 		<>
+			<h1>{ __( 'Suppression', 'newspack-plugin' ) }</h1>
 			{ error && <Notice isError noticeText={ error.message } /> }
 			<SectionHeader
 				title={ __( 'Post Types', 'newspack-plugin' ) }
+				heading={ 3 }
 				description={ __( 'Suppress ads on specific post types.', 'newspack-plugin' ) }
 			/>
 			<Grid columns={ 3 } gutter={ 16 }>
@@ -92,6 +94,7 @@ const Suppression = () => {
 			</Grid>
 			<SectionHeader
 				title={ __( 'Tags', 'newspack-plugin' ) }
+				heading={ 3 }
 				description={ __(
 					'Suppress ads on specific tags and their archive pages.',
 					'newspack-plugin'
@@ -118,6 +121,7 @@ const Suppression = () => {
 			/>
 			<SectionHeader
 				title={ __( 'Categories', 'newspack-plugin' ) }
+				heading={ 3 }
 				description={ __(
 					'Suppress ads on specific categories and their archive pages.',
 					'newspack-plugin'
@@ -143,6 +147,7 @@ const Suppression = () => {
 			/>
 			<SectionHeader
 				title={ __( 'Author Archive Pages', 'newspack-plugin' ) }
+				heading={ 3 }
 				description={ __(
 					'Suppress ads on automatically generated pages displaying a list of posts by an author.',
 					'newspack-plugin'

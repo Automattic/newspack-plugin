@@ -32,28 +32,55 @@ registerStore();
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
+/**
+ * @typedef  {Object}     WizardProps
+ * @property {string}     headerText                The header text.
+ * @property {string}     [subHeaderText]           The sub-header text, optional.
+ * @property {string}     [apiSlug]                 The API slug, optional.
+ * @property {string}     [className]               CSS classes, optional.
+ * @property {any[]}      sections                  Array of sections.
+ * @property {boolean}    [hasSimpleFooter]         Indicates if a simple footer is used, optional.
+ * @property {() => void} [renderAboveSections]     Function to render content above sections, optional.
+ * @property {string[]}   [requiredPlugins]         Array of required plugin strings, optional.
+ * @property {boolean}    [isInitialFetchTriggered] Indicates if the initial fetch should be triggered, optional.
+ */
+
+/**
+ * Wizard Component
+ *
+ * Provides a tabbed UI with history.
+ *
+ * @param {WizardProps} props
+ * @return {JSX.Element} Wizard component
+ */
 const Wizard = ( {
 	sections = [],
-	apiSlug,
 	headerText,
+	apiSlug,
 	subHeaderText,
 	hasSimpleFooter,
 	className,
 	renderAboveSections,
 	requiredPlugins = [],
+	isInitialFetchTriggered = true,
 } ) => {
-	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );
-	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
+	const isLoading = useSelect( select =>
+		select( WIZARD_STORE_NAMESPACE ).isLoading()
+	);
+	const isQuietLoading = useSelect( select =>
+		select( WIZARD_STORE_NAMESPACE ).isQuietLoading()
+	);
 
 	// Trigger initial data fetch. Some sections might not use the wizard data,
 	// but for consistency, fetching is triggered regardless of the section.
-	useSelect( select => select( WIZARD_STORE_NAMESPACE ).getWizardAPIData( apiSlug ) );
+	useSelect( select =>
+		isInitialFetchTriggered && select( WIZARD_STORE_NAMESPACE ).getWizardAPIData( apiSlug )
+	);
 
 	let displayedSections = sections.filter( section => ! section.isHidden );
 
-	const [ pluginRequirementsSatisfied, setPluginRequirementsSatisfied ] = useState(
-		requiredPlugins.length === 0
-	);
+	const [ pluginRequirementsSatisfied, setPluginRequirementsSatisfied ] =
+		useState( requiredPlugins.length === 0 );
 	if ( ! pluginRequirementsSatisfied ) {
 		headerText =
 			requiredPlugins.length > 1
@@ -65,7 +92,9 @@ const Wizard = ( {
 				render: () => (
 					<PluginInstaller
 						plugins={ requiredPlugins }
-						onStatus={ ( { complete } ) => setPluginRequirementsSatisfied( complete ) }
+						onStatus={ ( { complete } ) =>
+							setPluginRequirementsSatisfied( complete )
+						}
 					/>
 				),
 			},
@@ -76,7 +105,9 @@ const Wizard = ( {
 		<>
 			<div
 				className={ classnames(
-					isLoading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded',
+					isLoading
+						? 'newspack-wizard__is-loading'
+						: 'newspack-wizard__is-loaded',
 					{
 						'newspack-wizard__is-loading-quiet': isQuietLoading,
 					}
@@ -90,7 +121,10 @@ const Wizard = ( {
 								<Button
 									isLink
 									href={ newspack_urls.dashboard }
-									label={ __( 'Return to Dashboard', 'newspack-plugin' ) }
+									label={ __(
+										'Return to Dashboard',
+										'newspack-plugin'
+									) }
 									showTooltip={ true }
 									icon={ category }
 									iconSize={ 36 }
@@ -99,7 +133,9 @@ const Wizard = ( {
 								</Button>
 								<div>
 									{ headerText && <h2>{ headerText }</h2> }
-									{ subHeaderText && <span>{ subHeaderText }</span> }
+									{ subHeaderText && (
+										<span>{ subHeaderText }</span>
+									) }
 								</div>
 							</div>
 						</div>
@@ -116,14 +152,21 @@ const Wizard = ( {
 						{ displayedSections.map( ( section, index ) => {
 							const SectionComponent = section.render;
 							return (
-								<Route key={ index } path={ section.path }>
+								<Route
+									key={ index }
+									exact={ section.exact ?? false }
+									path={ section.path }
+								>
 									<div
 										className={ classnames(
-											'newspack-wizard newspack-wizard__content',
+											'newspack-wizard__content',
 											className
 										) }
 									>
-										{ 'function' === typeof renderAboveSections ? renderAboveSections() : null }
+										{ 'function' ===
+										typeof renderAboveSections
+											? renderAboveSections()
+											: null }
 										<SectionComponent />
 									</div>
 								</Route>

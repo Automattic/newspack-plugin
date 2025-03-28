@@ -5,13 +5,12 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 @use "../../../shared/scss/colors";
 
-// Reset Padding of the Admin Page
+// Styling for full-page-react Wizards (ignoring admin-header-only wizards).
+body.newspack-wizard-page:not(.newspack-admin-header) {
 
-.toplevel_page_newspack:not(.menu-top),
-body[class*="newspack_page_newspack-"],
-body[class*="admin_page_newspack-"] {
 	background: white;
 
+	// Reset Padding
 	#wpcontent {
 		padding-left: 0;
 	}
@@ -20,12 +19,37 @@ body[class*="admin_page_newspack-"] {
 		padding-bottom: 220px;
 		min-height: 100vh;
 
+		// For admin notices directly ">" at top of page above the Wizard header.
+		// PHP code should hide these notices, but just incase add this style.
+		> .notice {
+			margin-bottom: 20px;
+			margin-left: 22px;
+		}
+
 		@media screen and ( min-width: 783px ) {
 			padding-bottom: 202px;
 		}
 
 		@media screen and ( min-width: 1128px ) {
 			padding-bottom: 168px;
+		}
+	}
+}
+
+// Styling for wizards that are admin-header-only.
+body.newspack-wizard-page.newspack-admin-header {
+
+	// For mobile.
+	@media screen and (max-width: 600px) {
+
+		// The header bar (and tabs) need padding.
+		#newspack-wizards-admin-header {
+			padding-top: 46px;
+		}
+
+		// Since the padding was added to the header bar, remove from body.
+		#wpbody {
+			padding-top: 0;
 		}
 	}
 }
@@ -44,12 +68,12 @@ svg {
 
 .newspack-wizard__blue {
 	#wpwrap {
-		background: colors.$primary-500;
+		background: var(--wp-admin-theme-color);
 	}
 
 	.newspack-footer {
-		background: colors.$primary-500;
-		border-color: colors.$primary-500;
+		background: var(--wp-admin-theme-color);
+		border-color: var(--wp-admin-theme-color);
 		justify-content: center;
 
 		&__logo {
@@ -92,7 +116,7 @@ svg {
 	}
 
 	&::before {
-		background: colors.$primary-500;
+		background: var(--wp-admin-theme-color);
 		box-shadow:
 			24px 0 0 white,
 			69px 0 0 -15px wp-colors.$gray-900,
@@ -137,7 +161,7 @@ svg {
 
 	// Blue Screen
 	.newspack-wizard__blue & {
-		background: colors.$primary-500;
+		background: var(--wp-admin-theme-color);
 
 		&::before {
 			animation: loading-quiet 1.25s ease-in-out infinite;
@@ -193,7 +217,7 @@ svg {
 
 		&::before {
 			animation: loading-quiet 1.25s ease-in-out infinite;
-			background: colors.$primary-500;
+			background: var(--wp-admin-theme-color);
 			height: 8px;
 			right: 100%;
 			z-index: 9999;

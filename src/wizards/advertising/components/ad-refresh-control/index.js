@@ -132,6 +132,7 @@ export default function AdRefreshControlSettings() {
 	return (
 		<PluginSettings.Section
 			error={ error }
+			id="ad-refresh-control"
 			disabled={ inFlight }
 			sectionKey="ad-refresh-control"
 			title={ __( 'Ad Refresh Control', 'newspack-plugin' ) }

@@ -199,7 +199,7 @@ class Memberships {
 	public static function redirect_cpt() {
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-engagement-wizard' ) );
+			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) );
 			exit;
 		}
 	}

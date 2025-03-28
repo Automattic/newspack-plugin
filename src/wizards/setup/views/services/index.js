@@ -18,8 +18,9 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../components/src';
 import ReaderRevenue from './ReaderRevenue';
-import { NewspackNewsletters } from '../../../engagement/views/newsletters';
+import { Settings as NewslettersSettings } from '../../../newsletters/views/settings';
 import GAMOnboarding from '../../../advertising/components/onboarding';
+import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../audience/constants';
 import './style.scss';
 
 const SERVICES_LIST = {
@@ -38,7 +39,7 @@ const SERVICES_LIST = {
 			'Create email newsletters and send them to your mail lists, all without leaving your website',
 			'newspack'
 		),
-		Component: NewspackNewsletters,
+		Component: NewslettersSettings,
 		configuration: { is_service_enabled: false },
 	},
 	'google-ad-manager': {
@@ -56,7 +57,7 @@ const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
-	const readerRevenueWizardData = Wizard.useWizardData( 'reader-revenue' );
+	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
 
 	useEffect( () => {
 		apiFetch( {
@@ -72,7 +73,7 @@ const Services = ( { renderPrimaryButton } ) => {
 		// Add Reader Revenue Wizard data straight from the Wizard.
 		data[ 'reader-revenue' ] = {
 			...data[ 'reader-revenue' ],
-			...readerRevenueWizardData,
+			...wizardData,
 		};
 		return apiFetch( {
 			path: '/newspack/v1/wizard/newspack-setup-wizard/services',
