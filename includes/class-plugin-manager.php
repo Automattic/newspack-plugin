@@ -85,14 +85,6 @@ class Plugin_Manager {
 				'Download'    => 'wporg',
 				'EditPath'    => 'admin.php?page=jetpack',
 			],
-			'mailchimp-for-woocommerce'   => [
-				'Name'        => 'Mailchimp for WooCommerce',
-				'Description' => \esc_html__( 'Connects WooCommerce to Mailchimp to sync your store data, send targeted campaigns to your customers, and sell more stuff.', 'newspack-plugin' ),
-				'Author'      => \esc_html__( 'Mailchimp', 'newspack-plugin' ),
-				'AuthorURI'   => \esc_url( 'https://mailchimp.com' ),
-				'PluginURI'   => \esc_url( 'https://mailchimp.com/connect-your-store/' ),
-				'Download'    => 'wporg',
-			],
 			'newspack-ads'                => [
 				'Name'        => \esc_html__( 'Newspack Ads', 'newspack-plugin' ),
 				'Description' => \esc_html__( 'Ads integration.', 'newspack-plugin' ),

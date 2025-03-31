@@ -437,14 +437,4 @@ const NewslettersSettings = () => {
 	);
 };
 
-export default withWizardScreen( () => (
-	<>
-		<NewslettersSettings />
-		<hr />
-		<h2>{ __( 'WooCommerce Integration', 'newspack-plugin' ) }</h2>
-		<PluginInstaller
-			plugins={ [ 'mailchimp-for-woocommerce' ] }
-			withoutFooterButton
-		/>
-	</>
-) );
+export default withWizardScreen( () => <NewslettersSettings /> );
