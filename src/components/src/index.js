@@ -28,7 +28,6 @@ export { default as ProgressBar } from './progress-bar';
 export { default as RadioControl } from './radio-control';
 export { default as SectionHeader } from './section-header';
 export { default as SelectControl } from './select-control';
-export { default as DateRangePicker } from './date-range-picker';
 export { default as Settings } from './settings';
 export { default as StepsList } from './steps-list';
 export { default as StepsListItem } from './steps-list-item';
