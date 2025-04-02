@@ -1,3 +1,43 @@
+# [6.2.0](https://github.com/Automattic/newspack-plugin/compare/v6.1.3...v6.2.0) (2025-03-31)
+
+
+### Bug Fixes
+
+* add check if product before gating content ([#3850](https://github.com/Automattic/newspack-plugin/issues/3850)) ([b9e385d](https://github.com/Automattic/newspack-plugin/commit/b9e385d0d6e5e838c89c0473cf843882a5a42c20))
+* **ga:** check if post is not null before reading properties ([#3817](https://github.com/Automattic/newspack-plugin/issues/3817)) ([9dfa47a](https://github.com/Automattic/newspack-plugin/commit/9dfa47ab2ae5d30589504e9be891c692163caf92))
+* handle missing Mailchimp API key in auth status ([#3873](https://github.com/Automattic/newspack-plugin/issues/3873)) ([81a6e51](https://github.com/Automattic/newspack-plugin/commit/81a6e51cb375b9faf6c345ceb2dff958b352e22f))
+* **ia:** render all emails on reset ([#3867](https://github.com/Automattic/newspack-plugin/issues/3867)) ([519890f](https://github.com/Automattic/newspack-plugin/commit/519890f8bc5bad102fb125f0fb00724a958a973b))
+* **image-404-handling:** handle 404 from other sites ([51998b8](https://github.com/Automattic/newspack-plugin/commit/51998b86af95b2837c51ec87ac88b243c242297f))
+* **modal-checkout:** endpoint to refresh newsletter lists via REST ([#3841](https://github.com/Automattic/newspack-plugin/issues/3841)) ([79ea458](https://github.com/Automattic/newspack-plugin/commit/79ea458556594e756abe898a447850e47b0e144e))
+* **notices:** fix PHP notice ([#3872](https://github.com/Automattic/newspack-plugin/issues/3872)) ([9cda1ca](https://github.com/Automattic/newspack-plugin/commit/9cda1ca475016b63c3fa919a1e33921f16996c85))
+* **reader-revenue:** fatal when using woocommerce-paypal-payments@3.0.0 ([#3848](https://github.com/Automattic/newspack-plugin/issues/3848)) ([1d73e17](https://github.com/Automattic/newspack-plugin/commit/1d73e1777af0b5ad0ae01ed9b678f8f1a958d423))
+* remove Mailchimp for WooCommerce from wizard ([#3876](https://github.com/Automattic/newspack-plugin/issues/3876)) ([4353a98](https://github.com/Automattic/newspack-plugin/commit/4353a9847fc0d88b6e08c5b584edf3613728c1b7))
+* update paths to share button, social CSS in Perfmatters ([#3810](https://github.com/Automattic/newspack-plugin/issues/3810)) ([eb2ca7e](https://github.com/Automattic/newspack-plugin/commit/eb2ca7ecd25a9a95071f030f02d8f029cd16d3cf))
+
+
+### Features
+
+* add canonical url to lite site single posts ([#3865](https://github.com/Automattic/newspack-plugin/issues/3865)) ([471ad81](https://github.com/Automattic/newspack-plugin/commit/471ad81f40420a41e96d507efd34982ed079caea))
+* add custom check for media visibility ([#3823](https://github.com/Automattic/newspack-plugin/issues/3823)) ([c1d81dc](https://github.com/Automattic/newspack-plugin/commit/c1d81dcfd79835ce1d620037eb50eafe6b07fc2c))
+* add Lite sites feature ([#3807](https://github.com/Automattic/newspack-plugin/issues/3807)) ([cbd3e61](https://github.com/Automattic/newspack-plugin/commit/cbd3e617723597089dd450e705c31643882c88dc))
+* **correction:** Add Priority setting & refactor Block ([#3844](https://github.com/Automattic/newspack-plugin/issues/3844)) ([9232750](https://github.com/Automattic/newspack-plugin/commit/923275015aad793ec46629ad2268f63200c494a2))
+* **corrections-location:** integrate Correction location logic ([#3829](https://github.com/Automattic/newspack-plugin/issues/3829)) ([6a7cd45](https://github.com/Automattic/newspack-plugin/commit/6a7cd450ebf8071897531ec834aca1868cc11ec9))
+* **corrections-modal:** fix modal action buttons & state handling ([#3852](https://github.com/Automattic/newspack-plugin/issues/3852)) ([220d5d6](https://github.com/Automattic/newspack-plugin/commit/220d5d6f8f21b5d5718f353a63ec550834fc2169))
+* **corrections-modal:** Improve Corrections Modal UX ([#3835](https://github.com/Automattic/newspack-plugin/issues/3835)) ([afc9844](https://github.com/Automattic/newspack-plugin/commit/afc9844914c34b035a873535d0e0475971b19644))
+* enable email change for newspack users ([#3824](https://github.com/Automattic/newspack-plugin/issues/3824)) ([1bfb458](https://github.com/Automattic/newspack-plugin/commit/1bfb45830132d9107e7c043416350e21e08cdc1b))
+* information architecture ([#3857](https://github.com/Automattic/newspack-plugin/issues/3857)) ([6fb5951](https://github.com/Automattic/newspack-plugin/commit/6fb5951f55f11cdc9ce99a1a0d63ec563de97c85))
+* **media:** enable setting a default image for 404 images ([#3811](https://github.com/Automattic/newspack-plugin/issues/3811)) ([465928e](https://github.com/Automattic/newspack-plugin/commit/465928e2f89e8a3b167948ca33689c77c74e61a6))
+* **memberships:** status reevaluation ([#3845](https://github.com/Automattic/newspack-plugin/issues/3845)) ([ba4bea9](https://github.com/Automattic/newspack-plugin/commit/ba4bea9011eb8482b35afe8e6c7b18f5a566818e))
+* **my-account:** disable WC password nag ([a22e756](https://github.com/Automattic/newspack-plugin/commit/a22e756e627ab7dda9b7289abd2b73041905e7dd))
+* **rss-feed:** add feed enhancements for republication tracker; Atom feed URL ([#3801](https://github.com/Automattic/newspack-plugin/issues/3801)) ([719983f](https://github.com/Automattic/newspack-plugin/commit/719983f86c62525950a8bcf87c56c9e82735e213))
+* update custom bylines data structure ([#3863](https://github.com/Automattic/newspack-plugin/issues/3863)) ([9b66c1f](https://github.com/Automattic/newspack-plugin/commit/9b66c1fc24c615b36b4b5e85dc716e37c7a83feb))
+* **woo-member-commenting:** optional module for member commenting ([#3783](https://github.com/Automattic/newspack-plugin/issues/3783)) ([262f8bf](https://github.com/Automattic/newspack-plugin/commit/262f8bf9f49b264ab373b13fed3af783c6400c99))
+
+
+### Reverts
+
+* Revert "refactor(corrections): remove corrections feature flag (#3797)" (#3825) ([f5f6a5c](https://github.com/Automattic/newspack-plugin/commit/f5f6a5cba589215a3697ab4fe39173c9a73e42e9)), closes [#3797](https://github.com/Automattic/newspack-plugin/issues/3797) [#3825](https://github.com/Automattic/newspack-plugin/issues/3825)
+
 ## [6.1.3](https://github.com/Automattic/newspack-plugin/compare/v6.1.2...v6.1.3) (2025-03-25)
 
 

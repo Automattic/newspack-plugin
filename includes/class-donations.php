@@ -45,13 +45,6 @@ class Donations {
 	];
 
 	/**
-	 * Donation product WC name;
-	 *
-	 * @var string
-	 */
-	private static $donation_product_name = '';
-
-	/**
 	 * Cached status of the current request - is it a WC page.
 	 *
 	 * @var string
@@ -64,7 +57,6 @@ class Donations {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
-		self::$donation_product_name = __( 'Donate', 'newspack-plugin' );
 
 		// Process donation request.
 		add_action( 'wp_ajax_modal_checkout_request', [ __CLASS__, 'process_donation_request' ] );
@@ -537,7 +529,10 @@ class Donations {
 		if ( ! $parent_product ) {
 			$parent_product = new \WC_Product_Grouped();
 		}
-		$parent_product->set_name( self::$donation_product_name );
+
+		$donation_product_name = __( 'Donate', 'newspack-plugin' );
+
+		$parent_product->set_name( $donation_product_name );
 		$parent_product->set_catalog_visibility( 'hidden' );
 		$parent_product->set_virtual( true );
 		$parent_product->set_downloadable( true );
@@ -557,14 +552,14 @@ class Donations {
 			}
 
 			/* translators: %s: Product name */
-			$product_name = sprintf( __( '%s: One-Time', 'newspack' ), self::$donation_product_name );
+			$product_name = sprintf( __( '%s: One-Time', 'newspack' ), $donation_product_name );
 			if ( 'month' === $frequency ) {
 				/* translators: %s: Product name */
-				$product_name = sprintf( __( '%s: Monthly', 'newspack' ), self::$donation_product_name );
+				$product_name = sprintf( __( '%s: Monthly', 'newspack' ), $donation_product_name );
 			}
 			if ( 'year' === $frequency ) {
 				/* translators: %s: Product name */
-				$product_name = sprintf( __( '%s: Yearly', 'newspack' ), self::$donation_product_name );
+				$product_name = sprintf( __( '%s: Yearly', 'newspack' ), $donation_product_name );
 			}
 
 			if ( $is_recurring ) {
