@@ -21,6 +21,40 @@ window.newspackRAS.push( function ( readerActivation ) {
 				return;
 			}
 
+			// Handle "See all" button logic.
+			const seeAllButton = container.querySelector( '.see-all-button' );
+			const newsletterContainer = container.querySelector( '.newsletter-list-container' );
+
+			if ( seeAllButton && newsletterContainer ) {
+				seeAllButton.addEventListener( 'click', () => {
+					// Remove the "hidden" class from all newsletter items.
+					newsletterContainer.querySelectorAll( '.hidden' ).forEach( ( item ) => {
+						item.classList.remove( 'hidden' );
+					} );
+
+					// Adjust the container's max-height to fit all items.
+					newsletterContainer.style.maxHeight = 'none';
+
+					// Hide the "See all" button after expanding.
+					seeAllButton.style.display = 'none';
+				});
+
+				// Set the initial max-height to show the default number of newsletters + 1 partially visible.
+				const listDefaultSize = parseInt( newsletterContainer.dataset.listDefaultSize, 10 );
+				const newsletterItems = newsletterContainer.querySelectorAll( '.newspack-ui__input-card' );
+
+				if ( newsletterItems.length > listDefaultSize ) {
+					const itemHeight = newsletterItems[0].offsetHeight; // Height of a single newsletter item.
+					const gap = 16; // Adjust based on CSS gap/margin between items.
+					const extraSpace = 32; // Additional space for partial visibility.
+
+					// Calculate max-height: visible newsletters + 1 partially visible + gaps + extra space.
+					const maxHeight = ( listDefaultSize * itemHeight ) + ( listDefaultSize * gap ) + extraSpace;
+
+					newsletterContainer.style.maxHeight = `${maxHeight}px`;
+				}
+			}
+
 			const handleSubmit = ev => {
 				ev.preventDefault();
 

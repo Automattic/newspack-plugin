@@ -352,6 +352,7 @@ final class Reader_Activation {
 			'newsletters_label'                        => self::get_reader_activation_labels( 'newsletters_cta' ),
 			'use_custom_lists'                         => false,
 			'newsletter_lists'                         => [],
+			'newsletter_list_default_size'             => self::get_newsletters_list_default_size(),
 			'terms_text'                               => '',
 			'terms_url'                                => '',
 			'sync_esp'                                 => true,
@@ -1627,20 +1628,26 @@ final class Reader_Activation {
 	 *
 	 * @param string $email_address     Email address.
 	 * @param array  $newsletters_lists Array of newsletters lists.
+	 * @param int    $default_list_size Default number of lists to show.
 	 *
 	 * @return void
 	 */
-	private static function render_newsletters_signup_form( $email_address, $newsletters_lists ) {
+	private static function render_newsletters_signup_form( $email_address, $newsletters_lists, $default_list_size = 2 ) {
+		$loop_index = 0;
 		?>
 			<div class="newspack-ui newspack-newsletters-signup">
 				<form method="post" target="_top">
 					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
+					
+					<div class="newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
+						$is_hidden = $loop_index <= $default_list_size ? '' : 'hidden';
+						$loop_index++;
 						?>
-						<label class="newspack-ui__input-card" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
 							<input
 								type="checkbox"
 								name="lists[]"
@@ -1660,6 +1667,14 @@ final class Reader_Activation {
 						<?php
 					}
 					?>
+					</div>
+
+					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
+							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
+							<span><?php \Newspack\Newspack_UI_Icons::print_svg( 'arrow-right' ); ?></span>
+						</button>
+					<?php endif; ?>
 					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
 				</form>
 			</div>
@@ -1681,6 +1696,10 @@ final class Reader_Activation {
 		$newsletters_lists = self::get_post_checkout_newsletter_lists( $email_address );
 		if ( empty( $newsletters_lists ) ) {
 			return;
+		}
+		$newsletter_list_default_size = self::get_newsletters_list_default_size();
+		if ( empty( $newsletter_list_default_size ) ) {
+			$newsletter_list_default_size = 2;
 		}
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-newsletters-signup-modal">
@@ -1705,7 +1724,7 @@ final class Reader_Activation {
 							<?php echo esc_html( $email_address ); ?>
 						</span>
 					</p>
-					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
+					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_default_size ); ?>
 				</div>
 			</div>
 		</div>
@@ -2594,6 +2613,15 @@ final class Reader_Activation {
 	 */
 	public static function is_woocommerce_registration_required() {
 		return (bool) \get_option( self::OPTIONS_PREFIX . 'woocommerce_registration_required', false );
+	}
+
+	/**
+	 * Get the default list size for newsletters.
+	 *
+	 * @return int Default list size.
+	 */
+	public static function get_newsletters_list_default_size() {
+		return absint( get_option( self::OPTIONS_PREFIX . 'newsletters_list_default_size', 2 ) );
 	}
 
 	/**

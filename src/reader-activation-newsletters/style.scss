@@ -15,6 +15,19 @@
 
 	.newspack-newsletters-signup {
 		margin-top: var(--newspack-ui-spacer-5);
+
+		.newsletter-list-container {
+			overflow: hidden;
+			transition: max-height 0.3s ease-in-out;
+
+			.newspack-ui__input-card.hidden {
+				display: none !important;
+			}
+		}
+
+		.see-all-button {
+			justify-content: space-between;
+		}
 	}
 }
 
