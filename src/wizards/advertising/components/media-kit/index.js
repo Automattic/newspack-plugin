@@ -88,6 +88,7 @@ const MediaKitToggle = () => {
 		<ActionCard
 			disabled={ isInFlight || ! toggleEnabled }
 			isButtonEnabled={ true }
+			isMedium
 			href={ editURL || null }
 			title={ __( 'Media Kit', 'newspack-plugin' ) }
 			toggle
