@@ -855,7 +855,7 @@ class Memberships {
 	 * @return array Filtered capabilities.
 	 */
 	public static function user_has_cap( $all_caps, $caps, $args ) {
-		if ( ! did_action('wp') ) {
+		if ( ! did_action( 'wp' ) ) {
 			return $all_caps;
 		}
 
