@@ -1,3 +1,10 @@
+## [6.2.1](https://github.com/Automattic/newspack-plugin/compare/v6.2.0...v6.2.1) (2025-04-03)
+
+
+### Bug Fixes
+
+* force release build ([71b44d9](https://github.com/Automattic/newspack-plugin/commit/71b44d91b7b767f972ad6365833aa7ac57025560))
+
 # [6.2.0](https://github.com/Automattic/newspack-plugin/compare/v6.1.3...v6.2.0) (2025-03-31)
 
 
