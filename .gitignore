@@ -20,6 +20,7 @@ project.properties
 
 # OS X metadata
 .DS_Store
+.history
 
 # Windows junk
 Thumbs.db

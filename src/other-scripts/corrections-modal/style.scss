@@ -1,11 +1,6 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
 
 .correction {
-	&-panel {
-		border-left: 1px solid wp-colors.$gray-200;
-		border-right: 1px solid wp-colors.$gray-200;
-	}
-
 	&-item + &-item {
 		border-top: 1px solid wp-colors.$gray-300;
 		padding-top: 16px;
@@ -33,12 +28,29 @@
 		flex-direction: row-reverse;
 		gap: 8px;
 		margin: 24px 0 0;
+		position: sticky;
+		bottom: 0;
+		background-color: wp-colors.$white;
+		padding: 16px 0 24px 0;
 	}
 }
 
-.newspack-corrections-panel {
-	.components-button.is-secondary {
-		justify-content: center;
-		width: 100%;
+.newspack-corrections {
+
+	&-panel {
+		.components-button.is-secondary {
+			justify-content: center;
+			width: 100%;
+		}
+	}
+
+	&-modal-overlay {
+		z-index: 99999;
+	}
+
+	&-modal {
+		.components-modal__content {
+			padding-bottom: 0;
+		}
 	}
 }

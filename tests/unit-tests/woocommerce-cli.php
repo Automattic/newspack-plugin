@@ -48,8 +48,8 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'billing_interval' => 1,
 				'total'            => 10, // Amount of recurring payment.
 				'dates'            => [
-					'start'        => gmdate( 'Y-m-d H:i:s', strtotime( '-6 month' ) ),
-					'next_payment' => gmdate( 'Y-m-d H:i:s', strtotime( '+10 day' ) ),
+					'start'        => gmdate( 'Y-m-d H:i:s', strtotime( 'first day of -6 month' ) ),
+					'next_payment' => gmdate( 'Y-m-d H:i:s', strtotime( 'first day of +1 month' ) ),
 				],
 				'orders'           => [
 					wc_create_order(
@@ -57,7 +57,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 							'customer_id'    => self::$user_id,
 							'status'         => 'completed',
 							'total'          => 10,
-							'date_completed' => gmdate( 'Y-m-d H:i:s', strtotime( '-1 month' ) ),
+							'date_completed' => gmdate( 'Y-m-d H:i:s', strtotime( 'first day of -1 month' ) ),
 						]
 					),
 				],
@@ -79,7 +79,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'billing_interval' => 1,
 				'total'            => 10, // Amount of recurring payment.
 				'dates'            => [
-					'start' => gmdate( 'Y-m-d H:i:s', strtotime( '-6 month' ) ),
+					'start' => gmdate( 'Y-m-d H:i:s', strtotime( 'first day of -6 month' ) ),
 				],
 			]
 		);
@@ -114,7 +114,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'billing_interval' => 1,
 				'total'            => 10, // Amount of recurring payment.
 				'dates'            => [
-					'start' => gmdate( 'Y-m-d H:i:s', strtotime( '-6 month' ) ),
+					'start' => gmdate( 'Y-m-d H:i:s', strtotime( 'first day of -6 month' ) ),
 				],
 				'orders'           => [
 					wc_create_order(
@@ -122,7 +122,7 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 							'customer_id'    => self::$user_id,
 							'status'         => 'completed',
 							'total'          => 10,
-							'date_completed' => gmdate( 'Y-m-d H:i:s', strtotime( '-3 month' ) ),
+							'date_completed' => gmdate( 'Y-m-d H:i:s', strtotime( 'first day of -3 month' ) ),
 						]
 					),
 				],
@@ -159,8 +159,8 @@ class Newspack_Test_WooCommerce_Cli extends WP_UnitTestCase {
 				'billing_interval' => 1,
 				'total'            => 10, // Amount of recurring payment.
 				'dates'            => [
-					'start' => gmdate( 'Y-m-d H:i:s', strtotime( '-6 month' ) ),
-					'end'   => gmdate( 'Y-m-d H:i:s', strtotime( '+3 day' ) ),
+					'start' => gmdate( 'Y-m-d H:i:s', strtotime( 'first day of -6 month' ) ),
+					'end'   => gmdate( 'Y-m-d H:i:s', strtotime( 'last day of' ) ),
 				],
 			]
 		);

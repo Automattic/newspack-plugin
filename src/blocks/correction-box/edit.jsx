@@ -6,8 +6,14 @@ import { update } from '@wordpress/icons';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import ServerSideRender from '@wordpress/server-side-render';
-import { BlockControls } from '@wordpress/block-editor';
-import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import {
+	ToolbarGroup,
+	ToolbarButton,
+	PanelBody,
+	PanelRow,
+	SelectControl,
+} from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -18,9 +24,13 @@ import meta from './block.json';
 /**
  * Edit function for the Correction Box block.
  *
+ * @param {Object}   props               The block properties.
+ * @param {Object}   props.attributes    The block attributes.
+ * @param {Function} props.setAttributes The block attributes setter.
+ *
  * @return {JSX.Element} The Correction Box block.
  */
-export default function Edit() {
+export default function Edit( { attributes, setAttributes } ) {
 	const [ isRefreshing, setIsRefreshing ] = useState( false );
 	const postType = useSelect( select => select( 'core/editor' ).getCurrentPostType(), [] );
 
@@ -55,10 +65,44 @@ export default function Edit() {
 		setIsRefreshing( ! isRefreshing );
 	};
 
+	/**
+	 * Correction Settings Panel.
+	 *
+	 * @return {JSX.Element} The Correction Settings Panel JSX.
+	 */
+	function CorrectionSettings() {
+		return (
+			<InspectorControls>
+				<PanelBody title={ __( 'Correction Box Settings', 'newspack-plugin' ) }>
+					<PanelRow>
+						<SelectControl
+							label={ __( 'Corrections by Priority', 'newspack-plugin' ) }
+							help={ __(
+								'Filter corrections by their priority.',
+								'newspack-plugin'
+							) }
+							value={ attributes.priority }
+							options={ [
+								{ label: __( 'High', 'newspack-plugin' ), value: 'high' },
+								{ label: __( 'Low', 'newspack-plugin' ), value: 'low' },
+								{ label: __( 'All', 'newspack-plugin' ), value: 'all' },
+							] }
+							onChange={ value => setAttributes( { priority : value } ) }
+						/>
+					</PanelRow>
+				</PanelBody>
+			</InspectorControls>
+		);
+	}
+
 	return 'wp_template' === postType ? (
-		<EmptyPlaceholder />
+		<>
+			<EmptyPlaceholder />
+			<CorrectionSettings />
+		</>
 	) : (
 		<>
+			<CorrectionSettings />
 			<BlockControls>
 				<ToolbarGroup>
 					<ToolbarButton
@@ -72,6 +116,7 @@ export default function Edit() {
 				block={ meta.name }
 				EmptyResponsePlaceholder={ EmptyPlaceholder }
 				refresh={ isRefreshing }
+				attributes={ attributes }
 			/>
 		</>
 	);

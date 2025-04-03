@@ -4,7 +4,7 @@
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
-import { home } from '@wordpress/icons';
+import { category } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -28,6 +28,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				error: null,
 				loading: requiredPlugins && requiredPlugins.length > 0 ? 1 : 0,
 				quietLoading: false,
+				confirmation: null,
 			};
 			this.wrappedComponentRef = createRef();
 		}
@@ -221,7 +222,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 												href={ newspack_urls.dashboard }
 												label={ __( 'Return to Dashboard', 'newspack-plugin' ) }
 												showTooltip={ true }
-												icon={ home }
+												icon={ category }
 												iconSize={ 36 }
 											>
 												<NewspackIcon size={ 36 } />
@@ -249,6 +250,69 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			);
 		};
 
+		/**
+		 * Build a confirmation modal with the given title & message.
+		 * Execute {callback} if confirmed.
+		 *
+		 * @property {Object}   options             Options for the confirmation modal.
+		 * @property {string}   options.title       The title for the modal component.
+		 * @property {string}   options.message     The message for the modal component body.
+		 * @property {string}   options.confirmText The text for the confirmation button.
+		 * @property {string}   options.cancelText  The text for the cancel button.
+		 * @property {Function} options.callback    A function to call if the user confirms the action.
+		 */
+		confirmAction = ( options ) => {
+			const modalOptions = {
+				title: null,
+				message: __( 'Are you sure?', 'newpack-plugin' ),
+				confirmText: __( 'OK', 'newspack-plugin' ),
+				cancelText: __( 'Cancel', 'newspack-plugin' ),
+				callback: null,
+				...options,
+			}
+			this.setState( { confirmation: modalOptions } );
+		}
+
+		/**
+		 * Show a confirmation modal with the given title & message.
+		 * Execute {callback} if confirmed.
+		 *
+		 * @return {Component} <Modal>
+		 */
+		getModal = () => {
+			if ( ! this.state.confirmation ) {
+				return null;
+			}
+			const { title, message, confirmText, cancelText, callback } = this.state.confirmation;
+			return message && callback && (
+				<Modal
+					isNarrow
+					hideTitle={ ! title }
+					title={ title }
+					onRequestClose={ () => this.setState( { confirmation: null } ) }
+				>
+					<p>{ message }</p>
+					<Card buttonsCard noBorder className="justify-end">
+						<Button
+							variant="secondary"
+							onClick={ () => this.setState( { confirmation: null } ) }
+						>
+							{ cancelText }
+						</Button>
+						<Button
+							variant="primary"
+							onClick={ () => {
+								this.setState( { confirmation: null } );
+								callback();
+							} }
+						>
+							{ confirmText }
+						</Button>
+					</Card>
+				</Modal>
+			);
+		}
+
 		getFallbackURL = () => {
 			if ( typeof newspack_urls !== 'undefined' ) {
 				return newspack_urls.dashboard;
@@ -270,8 +334,10 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				<Fragment>
 					{ this.getError() }
+					{ this.getModal() }
 					<div className={ loadingClasses.join( ' ' ) }>
 						<WrappedComponent
+							confirmAction={ this.confirmAction }
 							pluginRequirements={ requiredPlugins && this.pluginRequirements() }
 							clearError={ this.clearError }
 							getError={ this.getError }

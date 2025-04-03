@@ -191,6 +191,8 @@ class ESP_Sync extends Sync {
 	 * Get contact data for syncing.
 	 *
 	 * @param int $user_id The user ID.
+	 *
+	 * @return array|\WP_Error The contact data or WP_Error.
 	 */
 	public static function get_contact_data( $user_id ) {
 		$user = \get_userdata( $user_id );
