@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -10,14 +9,9 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 import metadata from './block.json';
 import Edit from './edit';
+import { corrections } from '../../icons';
 
 export const title = __( 'Corrections', 'newspack-plugin' );
-
-export const icon = (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-		<Path d="M4 14.5H20V16H4V14.5ZM4 20H13V18.5H4V20ZM12 5.9L10.1 4L4.7 9.4L4.1 12L6.7 11.4L12.1 6L12 5.9Z" />
-	</SVG>
-);
 
 const { name } = metadata;
 
@@ -26,7 +20,7 @@ export { metadata, name };
 export const settings = {
 	title,
 	icon: {
-		src: icon,
+		src: corrections,
 		foreground: '#406ebc',
 	},
 	keywords: [ __( 'clarifications', 'newspack-plugin' ), __( 'updates', 'newspack-plugin' ) ],
