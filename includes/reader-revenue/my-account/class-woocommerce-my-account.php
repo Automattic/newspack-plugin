@@ -960,7 +960,7 @@ class WooCommerce_My_Account {
 				\wc_add_notice( $error, 'error' );
 			}
 		} else {
-			\wc_add_notice( $error, 'error' );
+			\wc_add_notice( __( 'This email change request has been cancelled or expired.', 'newspack-plugin' ), 'error' );
 		}
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
@@ -982,7 +982,7 @@ class WooCommerce_My_Account {
 			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
 			\wc_add_notice( __( 'Your email change request has been cancelled.', 'newspack-plugin' ) );
 		} else {
-			\wc_add_notice( __( 'Something went wrong.', 'newspack-plugin' ), 'error' );
+			\wc_add_notice( __( 'This email change request has been cancelled or expired.', 'newspack-plugin' ), 'error' );
 		}
 		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
