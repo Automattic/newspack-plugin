@@ -352,7 +352,7 @@ final class Reader_Activation {
 			'newsletters_label'                        => self::get_reader_activation_labels( 'newsletters_cta' ),
 			'use_custom_lists'                         => false,
 			'newsletter_lists'                         => [],
-			'newsletter_list_default_size'             => self::get_newsletters_list_default_size(),
+			'newsletter_list_initial_size'             => self::get_newsletters_list_initial_size(),
 			'terms_text'                               => '',
 			'terms_url'                                => '',
 			'sync_esp'                                 => true,
@@ -1697,10 +1697,7 @@ final class Reader_Activation {
 		if ( empty( $newsletters_lists ) ) {
 			return;
 		}
-		$newsletter_list_default_size = self::get_newsletters_list_default_size();
-		if ( empty( $newsletter_list_default_size ) ) {
-			$newsletter_list_default_size = 2;
-		}
+		$newsletter_list_initial_size = self::get_newsletters_list_initial_size();
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-newsletters-signup-modal">
 			<div class="newspack-ui__modal-container__overlay"></div>
@@ -1724,7 +1721,7 @@ final class Reader_Activation {
 							<?php echo esc_html( $email_address ); ?>
 						</span>
 					</p>
-					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_default_size ); ?>
+					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_initial_size ); ?>
 				</div>
 			</div>
 		</div>
@@ -2620,8 +2617,8 @@ final class Reader_Activation {
 	 *
 	 * @return int Default list size.
 	 */
-	public static function get_newsletters_list_default_size() {
-		return absint( get_option( self::OPTIONS_PREFIX . 'newsletters_list_default_size', 2 ) );
+	private static function get_newsletters_list_initial_size() {
+		return absint( get_option( self::OPTIONS_PREFIX . 'newsletter_list_initial_size', 2 ) );
 	}
 
 	/**

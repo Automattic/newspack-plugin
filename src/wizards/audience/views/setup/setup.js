@@ -14,6 +14,7 @@ import {
 	ActionCard,
 	Button,
 	Card,
+	Grid,
 	Notice,
 	PluginInstaller,
 	SectionHeader,
@@ -196,15 +197,45 @@ export default withWizardScreen(
 						}
 					/>
 					{ config.use_custom_lists && (
-						<SortableNewsletterListControl
-							lists={
-								newspackAudience.available_newsletter_lists
-							}
-							selected={ config.newsletter_lists }
-							onChange={ selected =>
-								updateConfig( 'newsletter_lists', selected )
-							}
-						/>
+						<>
+							<SectionHeader
+								title={ __(
+									'Select Newsletters',
+									'newspack-plugin'
+								) }
+								heading={ 4 }
+								description={ __(
+									'These newsletters will be displayed on signup.',
+									'newspack-plugin'
+								) }
+							/>
+							<Grid columns={ 3 }>
+								<TextControl
+									type="number"
+									min={ 1 }
+									placeholder={ 2 }
+									label={ __(
+										'Initial List Size',
+										'newspack-plugin'
+									) }
+									help={ __(
+										'Number of newsletters to show by default on signup.',
+										'newspack-plugin'
+									) }
+									value={ config.newsletter_list_initial_size || '' }
+									onChange={ value => updateConfig( 'newsletter_list_initial_size', parseInt( value ) ) }
+								/>
+							</Grid>
+							<SortableNewsletterListControl
+								lists={
+									newspackAudience.available_newsletter_lists
+								}
+								selected={ config.newsletter_lists }
+								onChange={ selected =>
+									updateConfig( 'newsletter_lists', selected )
+								}
+							/>
+						</>
 					) }
 
 					<hr />
@@ -376,6 +407,8 @@ export default withWizardScreen(
 										config.constant_contact_list_id,
 									use_custom_lists: config.use_custom_lists,
 									newsletter_lists: config.newsletter_lists,
+									newsletter_list_initial_size:
+										config.newsletter_list_initial_size,
 									sync_esp: config.sync_esp,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
