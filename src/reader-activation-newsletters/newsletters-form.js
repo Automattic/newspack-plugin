@@ -41,11 +41,17 @@ window.newspackRAS.push( function ( readerActivation ) {
 				const newsletterItems = newsletterContainer.querySelectorAll( '.newspack-ui__input-card' );
 
 				if ( newsletterItems.length > listDefaultSize ) {
-					const itemHeight = newsletterItems[0].offsetHeight;
 					const gap = 16;
 					const extraSpace = 32; // Additional space for partial visibility.
 
-					const maxHeight = ( listDefaultSize * itemHeight ) + ( listDefaultSize * gap ) + extraSpace;
+					let totalHeight = 0;
+					newsletterItems.forEach( ( item, index ) => {
+						if ( index < listDefaultSize ) {
+							totalHeight += item.offsetHeight;
+						}
+					} );
+
+					const maxHeight = totalHeight + ( listDefaultSize * gap ) + extraSpace;
 
 					newsletterContainer.style.maxHeight = `${maxHeight}px`;
 				}

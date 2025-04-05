@@ -21,12 +21,17 @@
 			transition: max-height 0.3s ease-in-out;
 
 			.newspack-ui__input-card.hidden {
-				display: none !important;
+				display: none;
 			}
 		}
 
 		.see-all-button {
 			justify-content: space-between;
+			margin: var(--newspack-ui-spacer-2) 0 var(--newspack-ui-spacer-5) 0 !important;
+		}
+
+		button[type="submit"] {
+			background: var(--newspack-ui-color-primary);
 		}
 	}
 }
