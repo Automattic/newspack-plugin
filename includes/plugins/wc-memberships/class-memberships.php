@@ -785,8 +785,7 @@ class Memberships {
 		<script type="text/javascript">
 			window.newspackRAS = window.newspackRAS || [];
 			window.newspackRAS.push( function( ras ) {
-				let hasReader = false;
-				ras.on( 'overlay', function( ev ) {
+				const refreshPage = function( ev ) {
 					// When an overlay was closed, and there's a reader,
 					// reload the window, but allow other JS – which might have
 					// triggered another overlay – to be executed (setTimeout hack).
@@ -797,10 +796,13 @@ class Memberships {
 							}
 						}, 1 )
 					}
-				})
+				};
+				let hasReader = false;
+				ras.on( 'overlay', refreshPage );
 				ras.on( 'reader', function( ev ) {
 					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
 						hasReader = true;
+						refreshPage();
 					}
 				} );
 			} );
