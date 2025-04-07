@@ -110,7 +110,7 @@ class Woo_Member_Commenting {
 			return false;
 		}
 
-		return Settings::is_optional_module_active( 'woo-member-commenting' ) && function_exists( 'wc_memberships_get_user_memberships' ) && ! current_user_can( 'edit_posts' );
+		return Optional_Modules::is_optional_module_active( 'woo-member-commenting' ) && function_exists( 'wc_memberships_get_user_memberships' ) && ! current_user_can( 'edit_posts' );
 	}
 
 	/**

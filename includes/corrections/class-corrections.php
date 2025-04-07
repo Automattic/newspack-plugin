@@ -27,9 +27,9 @@ class Corrections {
 	const CORRECTION_POST_ID_META = 'newspack_correction-post-id';
 
 	/**
-	 * Meta key for post corrections location meta.
+	 * Meta key for post corrections priority meta.
 	 */
-	const CORRECTIONS_LOCATION_META = 'newspack_corrections_location';
+	const CORRECTIONS_PRIORITY_META = 'newspack_corrections_priority';
 
 	/**
 	 * Meta key for post corrections type meta.
@@ -50,9 +50,6 @@ class Corrections {
 	 * Initializes the class.
 	 */
 	public static function init() {
-		if ( ! self::is_enabled() ) {
-			return;
-		}
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_filter( 'the_content', [ __CLASS__, 'output_corrections_on_post' ] );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'wp_enqueue_scripts' ] );
@@ -61,19 +58,6 @@ class Corrections {
 		add_action( 'admin_init', [ __CLASS__, 'register_corrections_block_patterns' ] );
 		add_action( 'init', [ __CLASS__, 'register_corrections_template' ] );
 	}
-
-	/**
-	 * Checks if the feature is enabled.
-	 *
-	 * True when:
-	 * - NEWSPACK_CORRECTIONS_ENABLED is defined and true.
-	 *
-	 * @return bool True if the feature is enabled, false otherwise.
-	 */
-	public static function is_enabled() {
-		return defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) && NEWSPACK_CORRECTIONS_ENABLED;
-	}
-
 
 	/**
 	 * Enqueue scripts and styles.
@@ -274,7 +258,7 @@ class Corrections {
 				'meta_input'   => [
 					self::CORRECTION_POST_ID_META   => $post_id,
 					self::CORRECTIONS_TYPE_META     => $correction['type'],
-					self::CORRECTIONS_LOCATION_META => $correction['location'],
+					self::CORRECTIONS_PRIORITY_META => $correction['priority'],
 				],
 			]
 		);
@@ -305,7 +289,7 @@ class Corrections {
 		foreach ( $corrections as $correction ) {
 			$correction->correction_type     = get_post_meta( $correction->ID, self::CORRECTIONS_TYPE_META, true );
 			$correction->correction_date     = get_post_datetime( $correction->ID )->format( 'Y-m-d H:i:s' );
-			$correction->correction_location = get_post_meta( $correction->ID, self::CORRECTIONS_LOCATION_META, true );
+			$correction->correction_priority = get_post_meta( $correction->ID, self::CORRECTIONS_PRIORITY_META, true );
 		}
 
 		return $corrections;
@@ -325,7 +309,7 @@ class Corrections {
 				'post_date'    => sanitize_text_field( $correction['date'] ),
 				'meta_input'   => [
 					self::CORRECTIONS_TYPE_META     => $correction['type'],
-					self::CORRECTIONS_LOCATION_META => $correction['location'],
+					self::CORRECTIONS_PRIORITY_META => $correction['priority'],
 				],
 			]
 		);
@@ -386,20 +370,20 @@ class Corrections {
 			return $content;
 		}
 
-		// Separate corrections by location.
-		$top_corrections    = [];
-		$bottom_corrections = [];
+		// Separate corrections by priority.
+		$high_priority_corrections    = [];
+		$low_prioirty_corrections = [];
 
 		foreach ( $corrections as $correction ) {
-			if ( 'top' === $correction->correction_location ) {
-				$top_corrections[] = $correction;
+			if ( 'high' === $correction->correction_priority ) {
+				$high_priority_corrections[] = $correction;
 			} else {
-				$bottom_corrections[] = $correction;
+				$low_prioirty_corrections[] = $correction;
 			}
 		}
 
-		$top_corrections_markup    = ! empty( $top_corrections ) ? self::get_corrections_markup( $top_corrections, 'top' ) : '';
-		$bottom_corrections_markup = ! empty( $bottom_corrections ) ? self::get_corrections_markup( $bottom_corrections, 'bottom' ) : '';
+		$top_corrections_markup    = ! empty( $high_priority_corrections ) ? self::get_corrections_markup( $high_priority_corrections, 'high' ) : '';
+		$bottom_corrections_markup = ! empty( $low_prioirty_corrections ) ? self::get_corrections_markup( $low_prioirty_corrections, 'low' ) : '';
 
 		return $top_corrections_markup . $content . $bottom_corrections_markup;
 	}
@@ -408,11 +392,11 @@ class Corrections {
 	 * Generates the corrections markup from an array of correction posts.
 	 *
 	 * @param array  $corrections Array of correction post objects.
-	 * @param string $corrections_location The location of the corrections.
+	 * @param string $corrections_priority The priority of the corrections.
 	 *
 	 * @return string Generated markup (or an empty string if no corrections).
 	 */
-	private static function get_corrections_markup( $corrections, $corrections_location = 'bottom' ) {
+	private static function get_corrections_markup( $corrections, $corrections_priority = 'low' ) {
 		// If no corrections, return an empty string.
 		if ( empty( $corrections ) ) {
 			return '';
@@ -423,7 +407,7 @@ class Corrections {
 		ob_start();
 		?>
 		<!-- wp:group {"className":"correction-module","backgroundColor":"light-gray"} -->
-		<div class="wp-block-group newspack-corrections-module corrections-<?php echo esc_attr( $corrections_location ); ?>-module">
+		<div class="wp-block-group newspack-corrections-module corrections-<?php echo esc_attr( $corrections_priority ); ?>-module">
 			<?php foreach ( $corrections as $correction ) : ?>
 				<?php
 				$correction_content = $correction->post_content;

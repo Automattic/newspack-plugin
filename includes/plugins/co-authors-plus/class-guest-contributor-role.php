@@ -74,6 +74,8 @@ class Guest_Contributor_Role {
 		\add_filter( 'allow_password_reset', [ __CLASS__, 'disable_feature' ], 10, 2 );
 		\add_filter( 'woocommerce_current_user_can_edit_customer_meta_fields', [ __CLASS__, 'disable_feature' ], 10, 2 );
 
+		\add_filter( 'rest_user_query', [ __CLASS__, 'filter_rest_user_query' ], 10, 2 );
+
 		// Only if Members plugin is not active, because it has its own UI for roles.
 		if ( ! class_exists( 'Members_Plugin' ) ) {
 			// Add UI to the user profile to assign the custom role.
@@ -548,6 +550,21 @@ class Guest_Contributor_Role {
 			}
 		}
 		return $value;
+	}
+
+	/**
+	 * Modify the REST API user query to include users with the custom capability.
+	 *
+	 * @param array           $args    The query arguments.
+	 * @param WP_REST_Request $request The request object.
+	 * @return array Modified query arguments.
+	 */
+	public static function filter_rest_user_query( $args, $request ) {
+		if ( isset( $args['who'] ) && $args['who'] === 'authors' && current_user_can( 'list_users' ) ) {
+			unset( $args['who'] );
+			$args['capability__in'] = [ 'edit_posts', self::ASSIGNABLE_TO_POSTS_CAPABILITY_NAME ];
+		}
+		return $args;
 	}
 }
 Guest_Contributor_Role::initialize();

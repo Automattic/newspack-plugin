@@ -172,11 +172,11 @@ class PluginSettings extends Component {
 	 * Render.
 	 */
 	render() {
-		const { title, description, hasGreyHeader, children } = this.props;
+		const { title, description, hasGreyHeader, children, titleLevel = 1 } = this.props;
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
-				{ title && <SectionHeader title={ title } description={ description } /> }
+				{ title && <SectionHeader title={ title } heading={ titleLevel } description={ description } /> }
 				{ error && <Notice isError noticeText={ error.message } /> }
 				<div
 					className={ classnames( 'newspack-plugin-settings', {
@@ -187,6 +187,7 @@ class PluginSettings extends Component {
 						<SettingsSection
 							key={ sectionKey }
 							disabled={ inFlight }
+							id={ `plugin-settings-${ sectionKey }` }
 							sectionKey={ sectionKey }
 							title={ this.getSectionTitle( sectionKey ) }
 							description={ this.getSectionDescription( sectionKey ) }

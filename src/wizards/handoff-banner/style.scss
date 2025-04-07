@@ -7,10 +7,10 @@
 
 #newspack-handoff-banner {
 	// Color
-	--wp-admin-theme-color: #{colors.$primary-500};
-	--wp-admin-theme-color--rgb: #{colors.$primary-500--rgb};
-	--wp-admin-theme-color-darker-10: #{colors.$primary-600};
-	--wp-admin-theme-color-darker-10--rgb: #{colors.$primary-600--rgb};
+	--wp-admin-theme-color: var(--newspack-ui-color-primary);
+	--wp-admin-theme-color--rgb: var(--newspack-ui-color-primary-rgb);
+	--wp-admin-theme-color-darker-10: var(--newspack-ui-color-primary);
+	--wp-admin-theme-color-darker-10--rgb: var(--newspack-ui-color-primary-rgb);
 	--wp-admin-theme-color-darker-20: #{colors.$primary-700};
 	--wp-admin-theme-color-darker-20--rgb: #{colors.$primary-700--rgb};
 

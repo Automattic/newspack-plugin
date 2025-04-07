@@ -97,6 +97,7 @@ class PluginToggle extends Component {
 					description={ description }
 					actionText={ this.actionTextForPlugin( plugin ) }
 					handoff={ handoff }
+					onClick={ plugin.onClick ?? null }
 					href={ href }
 					toggle
 					toggleChecked={ this.isPluginInstalledAndActive( plugin ) }

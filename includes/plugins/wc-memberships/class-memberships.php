@@ -199,7 +199,7 @@ class Memberships {
 	public static function redirect_cpt() {
 		global $pagenow;
 		if ( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && self::GATE_CPT === $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-engagement-wizard' ) );
+			\wp_safe_redirect( \admin_url( 'admin.php?page=newspack-audience#/content-gating' ) );
 			exit;
 		}
 	}
@@ -648,7 +648,8 @@ class Memberships {
 	 */
 	public static function wc_memberships_notice_html( $notice, $message_body, $message_code, $message_args ) {
 		// If the gate is not available, don't mess with the notice.
-		if ( ! self::has_gate() ) {
+		// Membership notices are only displayed on products with discounts from plans. The is_product() check makes sure that still works as normal.
+		if ( ! self::has_gate() || is_product() ) {
 			return $notice;
 		}
 		// Don't show gate unless attached to a specific post.
@@ -674,7 +675,8 @@ class Memberships {
 	 */
 	public static function wc_memberships_excerpt( $excerpt, $post, $message_code ) {
 		// If the gate is not available, don't mess with the excerpt.
-		if ( ! self::has_gate() ) {
+		// Products with discounts from plans also display this excerpt; the is_product() check makes sure that still works as normal.
+		if ( ! self::has_gate() || is_product() ) {
 			return $excerpt;
 		}
 		// If rendering the content in a loop, don't truncate the excerpt.
@@ -853,8 +855,12 @@ class Memberships {
 	 * @return array Filtered capabilities.
 	 */
 	public static function user_has_cap( $all_caps, $caps, $args ) {
-		// Bail if Woo Memberships is not active.
-		if ( ! self::is_active() ) {
+		if ( ! did_action( 'wp' ) ) {
+			return $all_caps;
+		}
+
+		// Bail if Woo Memberships is not active or if this is a product.
+		if ( ! self::is_active() || is_product() ) {
 			return $all_caps;
 		}
 

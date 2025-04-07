@@ -1,0 +1,49 @@
+/**
+ * WordPress dependencies.
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies.
+ */
+import { Button, Card, Wizard, withWizard } from '../../../../components/src';
+import WizardsTab from '../../../wizards-tab';
+import WizardSection from '../../../wizards-section';
+
+const subscriptionTabs = window.newspackAudienceSubscriptions.tabs;
+
+function AudienceSubscriptions() {
+	const tabs = subscriptionTabs.map( tab => {
+		const render = () => (
+			<WizardsTab title={ tab.title }>
+				<WizardSection>
+					<Card isNarrow>
+						<h2>{ tab.header }</h2>
+						<p>{ tab.description }</p>
+						<Button variant="primary" href={ tab.href }>
+							{ tab.btn_text }
+						</Button>
+					</Card>
+				</WizardSection>
+			</WizardsTab>
+		);
+		return {
+			label: tab.title,
+			path: tab.path,
+			render,
+		};
+	} );
+
+	return (
+		<Wizard
+			headerText={ __(
+				'Audience Management / Subscriptions',
+				'newspack-plugin'
+			) }
+			sections={ tabs }
+			requiredPlugins={ [ 'woocommerce', 'woocommerce-memberships' ] }
+		/>
+	);
+}
+
+export default withWizard( AudienceSubscriptions );

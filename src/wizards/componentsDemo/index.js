@@ -11,7 +11,7 @@ import '../../shared/js/public-path';
  */
 import { Component, Fragment, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { audio, home, plus, reusableBlock, typography } from '@wordpress/icons';
+import { audio, category, plus, reusableBlock, typography } from '@wordpress/icons';
 
 /**
  * Internal dependencies.
@@ -19,6 +19,7 @@ import { audio, home, plus, reusableBlock, typography } from '@wordpress/icons';
 import {
 	ActionCard,
 	AutocompleteWithSuggestions,
+	BoxContrast,
 	Button,
 	ButtonCard,
 	Card,
@@ -54,7 +55,7 @@ class ComponentsDemo extends Component {
 			selectValue3: '',
 			selectValues: [],
 			modalShown: false,
-			color1: '#3366ff',
+			color1: '#003da5',
 		};
 	}
 
@@ -84,7 +85,7 @@ class ComponentsDemo extends Component {
 								href={ newspack_urls.dashboard }
 								label={ __( 'Return to Dashboard', 'newspack-plugin' ) }
 								showTooltip={ true }
-								icon={ home }
+								icon={ category }
 								iconSize={ 36 }
 							>
 								<NewspackIcon size={ 36 } />
@@ -148,7 +149,7 @@ class ComponentsDemo extends Component {
 								},
 								'fb-instant-articles': {
 									actionText: __( 'Configure Instant Articles', 'newspack-plugin' ),
-									href: '/wp-admin/admin.php?page=newspack',
+									href: '/wp-admin/admin.php?page=newspack-dashboard',
 								},
 							} }
 						/>
@@ -636,8 +637,8 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'ButtonCard', 'newspack-plugin' ) }</h2>
 						<ButtonCard
-							href="admin.php?page=newspack-site-design-wizard"
-							title={ __( 'Site Design', 'newspack-plugin' ) }
+							href="admin.php?page=newspack-settings#/theme-and-brand"
+							title={ __( 'Theme and Brand', 'newspack-plugin' ) }
 							desc={ __( 'Customize the look and feel of your site', 'newspack-plugin' ) }
 							icon={ typography }
 							chevron
@@ -741,6 +742,28 @@ class ComponentsDemo extends Component {
 								console.log( 'Plugin Settings Section Changed', { key, val } );
 							} }
 						/>
+					</Card>
+					<Card>
+						<h2>{ __( 'Box Contrast', 'newspack-plugin' ) }</h2>
+						<p>
+							Component for adding color black/white depending on contrast ratio for{ ' ' }
+							<code>hexColor</code> prop value.
+						</p>
+						<h3>{ __( 'Demo 1:', 'newspack-plugin' ) }</h3>
+						<BoxContrast hexColor="#e5bd13">#e5bd13</BoxContrast>
+						<BoxContrast hexColor="#e5bd13" isInverted>
+							#e5bd13 / Inverted
+						</BoxContrast>
+						<h3>{ __( 'Demo 2:', 'newspack-plugin' ) }</h3>
+						<BoxContrast hexColor="#003da5">#003da5</BoxContrast>
+						<BoxContrast hexColor="#003da5" isInverted>
+							#003da5 / Inverted
+						</BoxContrast>
+						<h3>{ __( 'Demo 3:', 'newspack-plugin' ) }</h3>
+						<BoxContrast hexColor="#51f1ff">#e5bd13</BoxContrast>
+						<BoxContrast hexColor="#51f1ff" isInverted>
+							#51f1ff / Inverted
+						</BoxContrast>
 					</Card>
 				</div>
 				<Footer />
