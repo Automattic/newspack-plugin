@@ -1,3 +1,17 @@
+## [6.2.2](https://github.com/Automattic/newspack-plugin/compare/v6.2.1...v6.2.2) (2025-04-03)
+
+
+### Bug Fixes
+
+* restore Media Kit components in Ads wizard ([#3881](https://github.com/Automattic/newspack-plugin/issues/3881)) ([86fa89a](https://github.com/Automattic/newspack-plugin/commit/86fa89acbeffe3c5361567b776fc226035e9e1be))
+
+## [6.2.1](https://github.com/Automattic/newspack-plugin/compare/v6.2.0...v6.2.1) (2025-04-03)
+
+
+### Bug Fixes
+
+* force release build ([71b44d9](https://github.com/Automattic/newspack-plugin/commit/71b44d91b7b767f972ad6365833aa7ac57025560))
+
 # [6.2.0](https://github.com/Automattic/newspack-plugin/compare/v6.1.3...v6.2.0) (2025-03-31)
 
 

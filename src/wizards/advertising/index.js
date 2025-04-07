@@ -155,10 +155,6 @@ class AdvertisingWizard extends Component {
 				path: '/placements',
 			},
 			{
-				label: __( 'Suppression', 'newspack-plugin' ),
-				path: '/suppression',
-			},
-			{
 				label: __( 'Settings', 'newspack-plugin' ),
 				path: '/settings',
 			},

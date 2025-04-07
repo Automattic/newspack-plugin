@@ -11,23 +11,27 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import {
+	ActionCard,
 	Grid,
 	Notice,
-	Card,
 	Button,
 	CategoryAutocomplete,
 	SectionHeader,
 	Waiting,
-	withWizardScreen,
 } from '../../../../components/src';
 
 const Suppression = () => {
 	const [ error, setError ] = useState( false );
 	const [ inFlight, setInFlight ] = useState( false );
+	const [ initialConfig, setInitialConfig ] = useState( false );
+	const [ isDirty, setIsDirty ] = useState( false );
 	const [ config, setConfig ] = useState( false );
 	const [ postTypes, setPostTypes ] = useState( [] );
 	const fetchConfig = () => {
-		apiFetch( { path: '/newspack-ads/v1/suppression' } ).then( setConfig );
+		apiFetch( { path: '/newspack-ads/v1/suppression' } ).then( response => {
+			setConfig( response );
+			setInitialConfig( response );
+		} );
 	};
 	const fetchPostTypes = () => {
 		apiFetch( {
@@ -62,12 +66,23 @@ const Suppression = () => {
 	};
 	useEffect( fetchConfig, [] );
 	useEffect( fetchPostTypes, [] );
+	useEffect( () => {
+		setIsDirty( config && initialConfig && JSON.stringify( config ) !== JSON.stringify( initialConfig ) );
+	}, [ config, initialConfig ] );
 	if ( config === false ) {
 		return <Waiting />;
 	}
 	return (
-		<>
-			<h1>{ __( 'Suppression', 'newspack-plugin' ) }</h1>
+		<ActionCard
+			actionContent={
+				<Button isPrimary disabled={ inFlight || ! isDirty } onClick={ updateConfig }>
+					{ __( 'Save Settings', 'newspack-plugin' ) }
+				</Button>
+			}
+			hasGreyHeader
+			title={ __( 'Suppression settings', 'newspack-plugin' ) }
+			description={ __( 'Configure where ads are suppressed.', 'newspack-plugin' ) }
+		>
 			{ error && <Notice isError noticeText={ error.message } /> }
 			<SectionHeader
 				title={ __( 'Post Types', 'newspack-plugin' ) }
@@ -101,6 +116,7 @@ const Suppression = () => {
 				) }
 			/>
 			<CategoryAutocomplete
+				disabled={ config?.tag_archive_pages }
 				value={ config.tags?.map( v => parseInt( v ) ) || [] }
 				onChange={ selected => {
 					setConfig( {
@@ -128,6 +144,7 @@ const Suppression = () => {
 				) }
 			/>
 			<CategoryAutocomplete
+				disabled={ config?.category_archive_pages }
 				value={ config.categories?.map( v => parseInt( v ) ) || [] }
 				onChange={ selected => {
 					setConfig( {
@@ -161,13 +178,8 @@ const Suppression = () => {
 				} }
 				label={ __( 'Suppress ads on author archive pages', 'newspack-plugin' ) }
 			/>{ ' ' }
-			<Card buttonsCard noBorder className="justify-end">
-				<Button isPrimary disabled={ inFlight } onClick={ updateConfig }>
-					{ __( 'Save', 'newspack-plugin' ) }
-				</Button>
-			</Card>
-		</>
+		</ActionCard>
 	);
 };
 
-export default withWizardScreen( Suppression );
+export default Suppression;

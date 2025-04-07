@@ -359,6 +359,7 @@ final class Reader_Activation {
 			'metadata_fields'                          => Sync\Metadata::get_fields(),
 			'sync_esp_delete'                          => true,
 			'active_campaign_master_list'              => '',
+			'constant_contact_list_id'                 => '',
 			'mailchimp_audience_id'                    => '',
 			'mailchimp_reader_default_status'          => 'transactional',
 			'sender_name'                              => Emails::get_from_name(),
@@ -519,6 +520,8 @@ final class Reader_Activation {
 		switch ( $provider ) {
 			case 'active_campaign':
 				return self::get_setting( 'active_campaign_master_list' );
+			case 'constant_contact':
+				return self::get_setting( 'constant_contact_list_id' );
 			case 'mailchimp':
 				$audience_id = self::get_setting( 'mailchimp_audience_id' );
 				/** Attempt to use list ID from "Mailchimp for WooCommerce" */

@@ -14,7 +14,7 @@ import { Notice } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { PluginToggle, ActionCard } from '../../../../components/src';
+import { ActionCard } from '../../../../components/src';
 import { useState } from 'react';
 
 const MediaKitToggle = () => {
@@ -55,19 +55,11 @@ const MediaKitToggle = () => {
 			.finally( () => setInFlight( false ) );
 	};
 
-	const props = editURL
-		? {
-				href: editURL,
-				actionText: isPagePublished
-					? __( 'Edit Media Kit page', 'newspack-plugin' )
-					: __( 'Review draft page', 'newspack-plugin' ),
-		  }
-		: {};
-
 	let description = __(
-		'Media kit page is created but unpublished, click the link to review and publish.',
+		'Media kit page is created but unpublished. Click the link to review and publish.',
 		'newspack-plugin'
 	);
+	let actionText = __( 'Edit Media Kit page', 'newspack-plugin' );
 	let toggleEnabled = false;
 	switch ( pageStatus ) {
 		case 'publish':
@@ -77,6 +69,10 @@ const MediaKitToggle = () => {
 			);
 			toggleEnabled = true;
 			break;
+		case 'draft':
+			actionText = __( 'Review draft page', 'newspack-plugin' );
+			break;
+		case 'trash':
 		case 'non-existent':
 			description = __(
 				'Media Kit page has not been created. Toggle this card to create it.',
@@ -86,12 +82,15 @@ const MediaKitToggle = () => {
 			break;
 	}
 
+	const props = { description, actionText };
+
 	return (
 		<ActionCard
 			disabled={ isInFlight || ! toggleEnabled }
 			isButtonEnabled={ true }
+			isMedium
+			href={ editURL || null }
 			title={ __( 'Media Kit', 'newspack-plugin' ) }
-			description={ description }
 			toggle
 			toggleChecked={ Boolean( editURL ) && isPagePublished }
 			toggleOnChange={ toggleMediaKit }
@@ -100,28 +99,4 @@ const MediaKitToggle = () => {
 	);
 };
 
-export default () => (
-	<>
-		<PluginToggle
-			plugins={ {
-				'super-cool-ad-inserter': {
-					actionText: __( 'Configure', 'newspack-plugin' ),
-					href: '#/settings/scaip',
-					shouldRefreshAfterUpdate: true,
-					onClick() {
-						document.getElementById( 'plugin-settings-scaip' ).scrollIntoView();
-					},
-				},
-				'ad-refresh-control': {
-					actionText: __( 'Configure', 'newspack-plugin' ),
-					href: '#/settings/ad-refresh-control',
-					shouldRefreshAfterUpdate: true,
-					onClick() {
-						document.getElementById( 'ad-refresh-control' ).scrollIntoView();
-					},
-				},
-			} }
-		/>
-		<MediaKitToggle />
-	</>
-);
+export default MediaKitToggle;
