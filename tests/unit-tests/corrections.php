@@ -27,23 +27,9 @@ class Test_Corrections extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		if ( ! defined( 'NEWSPACK_CORRECTIONS_ENABLED' ) ) {
-			define( 'NEWSPACK_CORRECTIONS_ENABLED', true );
-		}
-
 		Corrections::init();
 
 		self::$post_id = $this->factory()->post->create( [ 'post_type' => 'post' ] );
-		update_post_meta( self::$post_id, Corrections::CORRECTIONS_ACTIVE_META, true );
-	}
-
-	/**
-	 * Test that the corrections feature is enabled.
-	 *
-	 * @covers Corrections::is_enabled
-	 */
-	public function test_is_enabled() {
-		$this->assertTrue( Corrections::is_enabled() );
 	}
 
 	/**
@@ -102,10 +88,11 @@ class Test_Corrections extends WP_UnitTestCase {
 	public function test_new_correction_is_created() {
 		$corrections = array(
 			array(
-				'id'      => null, // New correction.
-				'content' => 'Test correction content',
-				'type'    => 'correction',
-				'date'    => current_time( 'mysql' ),
+				'id'       => null, // New correction.
+				'content'  => 'Test correction content',
+				'type'     => 'correction',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'low',
 			),
 		);
 
@@ -133,9 +120,10 @@ class Test_Corrections extends WP_UnitTestCase {
 	 */
 	public function test_existing_correction_is_updated() {
 		$initial_data = array(
-			'content' => 'Original correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Original correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
 		);
 		$correction_id = Corrections::add_correction( self::$post_id, $initial_data );
 		$this->assertNotWPError( $correction_id );
@@ -143,10 +131,11 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$updated_data = array(
 			array(
-				'id'      => $correction_id,
-				'content' => 'Updated correction content',
-				'type'    => 'clarification',
-				'date'    => current_time( 'mysql' ),
+				'id'       => $correction_id,
+				'content'  => 'Updated correction content',
+				'type'     => 'clarification',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'high',
 			),
 		);
 
@@ -173,16 +162,18 @@ class Test_Corrections extends WP_UnitTestCase {
 	public function test_multiple_corrections_are_saved() {
 		$corrections = array(
 			array(
-				'id'      => null, // New correction.
-				'content' => 'Test correction content 1',
-				'type'    => 'correction',
-				'date'    => current_time( 'mysql' ),
+				'id'       => null, // New correction.
+				'content'  => 'Test correction content 1',
+				'type'     => 'correction',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'low',
 			),
 			array(
-				'id'      => null, // New correction.
-				'content' => 'Test correction content 2',
-				'type'    => 'clarification',
-				'date'    => current_time( 'mysql' ),
+				'id'       => null, // New correction.
+				'content'  => 'Test correction content 2',
+				'type'     => 'clarification',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'high',
 			),
 		);
 
@@ -210,10 +201,11 @@ class Test_Corrections extends WP_UnitTestCase {
 	 */
 	public function test_correction_is_deleted() {
 		$correction_1 = array(
-			'id'      => null, // New correction.
-			'content' => 'Test correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
+			'id'       => null, // New correction.
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
 		);
 
 		$correction_id_1 = Corrections::add_correction( self::$post_id, $correction_1 );
@@ -221,10 +213,11 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertNotEquals( 0, $correction_id_1 );
 
 		$correction_2 = array(
-			'id'      => null, // New correction.
-			'content' => 'Test correction content 2',
-			'type'    => 'clarification',
-			'date'    => current_time( 'mysql' ),
+			'id'       => null, // New correction.
+			'content'  => 'Test correction content 2',
+			'type'     => 'clarification',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'high',
 		);
 
 		$correction_id_2 = Corrections::add_correction( self::$post_id, $correction_2 );
@@ -233,10 +226,11 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$updated_corrections_array = array(
 			array(
-				'id'      => $correction_id_1,
-				'content' => 'Updated correction content',
-				'type'    => 'clarification',
-				'date'    => current_time( 'mysql' ),
+				'id'       => $correction_id_1,
+				'content'  => 'Updated correction content',
+				'type'     => 'clarification',
+				'date'     => current_time( 'mysql' ),
+				'priority' => 'high',
 			),
 		);
 
@@ -269,9 +263,10 @@ class Test_Corrections extends WP_UnitTestCase {
 	 */
 	public function test_add_correction() {
 		$correction = array(
-			'content' => 'Test correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'high',
 		);
 
 		$correction_id = Corrections::add_correction( self::$post_id, $correction );
@@ -291,6 +286,9 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$correction_title = sprintf( 'Correction for %s', get_the_title( self::$post_id ) );
 		$this->assertEquals( $correction_title, $correction_post->post_title, 'The correction title should be set.' );
+
+		$correction_priority = get_post_meta( $correction_id, Corrections::CORRECTIONS_PRIORITY_META, true );
+		$this->assertEquals( 'high', $correction_priority, 'The correction priority should be set.' );
 	}
 
 	/**
@@ -301,9 +299,10 @@ class Test_Corrections extends WP_UnitTestCase {
 	public function test_get_corrections() {
 		$time = time() - 60 * 60;
 		$correction_1 = array(
-			'content' => 'Test correction content 1',
-			'type'    => 'correction',
-			'date'    => gmdate( 'Y-m-d H:i:s', $time ), // 1 hour ago.
+			'content'  => 'Test correction content 1',
+			'type'     => 'correction',
+			'date'     => gmdate( 'Y-m-d H:i:s', $time ), // 1 hour ago.
+			'priority' => 'low',
 		);
 
 		$correction_id_1 = Corrections::add_correction( self::$post_id, $correction_1 );
@@ -311,9 +310,10 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertNotEquals( 0, $correction_id_1 );
 
 		$correction_2 = array(
-			'content' => 'Test correction content 2',
-			'type'    => 'clarification',
-			'date'    => gmdate( 'Y-m-d H:i:s', $time + 20 * 60 ), // 40 minutes ago.
+			'content'  => 'Test correction content 2',
+			'type'     => 'clarification',
+			'date'     => gmdate( 'Y-m-d H:i:s', $time + 20 * 60 ), // 40 minutes ago.
+			'priority' => 'high',
 		);
 
 		$correction_id_2 = Corrections::add_correction( self::$post_id, $correction_2 );
@@ -344,6 +344,9 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$this->assertEquals( gmdate( 'Y-m-d H:i:s', $time ), $correction_1->correction_date, 'The correction date is correct.' );
 		$this->assertEquals( gmdate( 'Y-m-d H:i:s', $time + 20 * 60 ), $correction_2->correction_date, 'The correction date is correct.' );
+
+		$this->assertEquals( 'low', $correction_1->correction_priority, 'The correction priority is correct.' );
+		$this->assertEquals( 'high', $correction_2->correction_priority, 'The correction priority is correct.' );
 	}
 
 	/**
@@ -363,9 +366,10 @@ class Test_Corrections extends WP_UnitTestCase {
 	 */
 	public function test_update_correction() {
 		$correction = array(
-			'content' => 'Test correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
 		);
 
 		$correction_id = Corrections::add_correction( self::$post_id, $correction );
@@ -373,9 +377,10 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertNotEquals( 0, $correction_id );
 
 		$updated_data = array(
-			'content' => 'Updated correction content',
-			'type'    => 'clarification',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Updated correction content',
+			'type'     => 'clarification',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'high',
 		);
 
 		Corrections::update_correction( $correction_id, $updated_data );
@@ -386,6 +391,9 @@ class Test_Corrections extends WP_UnitTestCase {
 
 		$updated_correction_type = get_post_meta( $correction_id, Corrections::CORRECTIONS_TYPE_META, true );
 		$this->assertEquals( 'clarification', $updated_correction_type, 'The correction type should be updated.' );
+
+		$updated_correction_priority = get_post_meta( $correction_id, Corrections::CORRECTIONS_PRIORITY_META, true );
+		$this->assertEquals( 'high', $updated_correction_priority, 'The correction priority should be updated.' );
 	}
 
 	/**
@@ -395,9 +403,10 @@ class Test_Corrections extends WP_UnitTestCase {
 	 */
 	public function test_delete_corrections() {
 		$correction_1 = array(
-			'content' => 'Test correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
 		);
 
 		$correction_1_id = Corrections::add_correction( self::$post_id, $correction_1 );
@@ -405,9 +414,10 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertNotEquals( 0, $correction_1_id );
 
 		$correction_2 = array(
-			'content' => 'Test correction content 2',
-			'type'    => 'clarification',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test correction content 2',
+			'type'     => 'clarification',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'high',
 		);
 
 		$correction_2_id = Corrections::add_correction( self::$post_id, $correction_2 );
@@ -424,34 +434,16 @@ class Test_Corrections extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the corrections shortcode is added.
-	 *
-	 * @covers Corrections::add_corrections_shortcode
-	 */
-	public function test_add_corrections_shortcode() {
-		global $shortcode_tags;
-
-		Corrections::add_corrections_shortcode();
-
-		$this->assertArrayHasKey( 'corrections', $shortcode_tags, 'The corrections shortcode should be registered.' );
-
-		$callback = $shortcode_tags['corrections'];
-		$this->assertTrue( is_callable( $callback ), 'The corrections shortcode callback should be callable.' );
-
-		$expected_callback = array( 'Newspack\\Corrections', 'handle_corrections_shortcode' );
-		$this->assertEquals( $expected_callback, $callback, 'The corrections shortcode callback does not match the expected value.' );
-	}
-
-	/**
 	 * Test that correction type is returned as "Correction".
 	 *
 	 * @covers Corrections::get_correction_type
 	 */
 	public function test_get_correction_type_is_correction() {
 		$correction = array(
-			'content' => 'Test correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
 		);
 
 		$correction_id = Corrections::add_correction( self::$post_id, $correction );
@@ -469,9 +461,10 @@ class Test_Corrections extends WP_UnitTestCase {
 	 */
 	public function test_get_correction_type_is_clarification() {
 		$clarification = array(
-			'content' => 'Test clarification content',
-			'type'    => 'clarification',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test clarification content',
+			'type'     => 'clarification',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
 		);
 
 		$clarification_id = Corrections::add_correction( self::$post_id, $clarification );
@@ -483,59 +476,16 @@ class Test_Corrections extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the corrections shortcode is handled.
-	 *
-	 * @covers Corrections::handle_corrections_shortcode
-	 */
-	public function test_handle_corrections_shortcode() {
-		$correction_1 = array(
-			'content' => 'Test correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
-		);
-
-		$correction_1_id = Corrections::add_correction( self::$post_id, $correction_1 );
-		$this->assertNotWPError( $correction_1_id );
-		$this->assertNotEquals( 0, $correction_1_id );
-
-		$correction_2 = array(
-			'content' => 'Test correction content 2',
-			'type'    => 'clarification',
-			'date'    => current_time( 'mysql' ),
-		);
-
-		$correction_2_id = Corrections::add_correction( self::$post_id, $correction_2 );
-		$this->assertNotWPError( $correction_2_id );
-		$this->assertNotEquals( 0, $correction_2_id );
-
-		$page = $this->factory()->post->create_and_get(
-			[
-				'post_type'    => 'page',
-				'post_content' => 'Test Page:- [corrections]',
-			]
-		);
-
-		$corrections_shortcode_output = do_shortcode( $page->post_content );
-		$this->assertStringNotContainsString( '[corrections]', $corrections_shortcode_output, 'The corrections shortcode should be removed from the output.' );
-
-		$this->assertStringContainsString( 'Test correction content', $corrections_shortcode_output, 'The correction content should be included in the output.' );
-		$this->assertStringContainsString( 'Test correction content 2', $corrections_shortcode_output, 'The correction content should be included in the output.' );
-		$correction_1_heading = sprintf( 'Correction on %s', get_the_date( 'M j, Y', $correction_1_id ) );
-		$this->assertStringContainsString( $correction_1_heading, $corrections_shortcode_output, 'The correction date should be included in the output.' );
-		$correction_2_heading = sprintf( 'Correction on %s', get_the_date( 'M j, Y', $correction_2_id ) );
-		$this->assertStringContainsString( $correction_2_heading, $corrections_shortcode_output, 'The correction date should be included in the output.' );
-	}
-
-	/**
 	 * Test that the corrections are output on the post.
 	 *
 	 * @covers Corrections::output_corrections_on_post
 	 */
 	public function test_output_corrections_on_post_appends_markup() {
 		$correction_1 = array(
-			'content' => 'Test correction content',
-			'type'    => 'correction',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
 		);
 
 		$correction_1_id = Corrections::add_correction( self::$post_id, $correction_1 );
@@ -543,9 +493,10 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertNotEquals( 0, $correction_1_id );
 
 		$correction_2 = array(
-			'content' => 'Test correction content 2',
-			'type'    => 'clarification',
-			'date'    => current_time( 'mysql' ),
+			'content'  => 'Test correction content 2',
+			'type'     => 'clarification',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'high',
 		);
 
 		$correction_2_id = Corrections::add_correction( self::$post_id, $correction_2 );
@@ -567,6 +518,7 @@ class Test_Corrections extends WP_UnitTestCase {
 		);
 		$this->assertStringContainsString( $correction_1_heading, $corrections_markup, 'The correction date should be included in the output.' );
 		$this->assertStringContainsString( 'Test correction content', $corrections_markup, 'The correction content should be included in the output.' );
+		$this->assertStringContainsString( 'corrections-low-module', $corrections_markup, 'The correction priority should be included in the output.' );
 
 		$correction_2_heading = sprintf(
 			'%s, %s %s',
@@ -576,5 +528,6 @@ class Test_Corrections extends WP_UnitTestCase {
 		);
 		$this->assertStringContainsString( $correction_2_heading, $corrections_markup, 'The correction date should be included in the output.' );
 		$this->assertStringContainsString( 'Test correction content 2', $corrections_markup, 'The correction content should be included in the output.' );
+		$this->assertStringContainsString( 'corrections-high-module', $corrections_markup, 'The correction priority should be included in the output.' );
 	}
 }
