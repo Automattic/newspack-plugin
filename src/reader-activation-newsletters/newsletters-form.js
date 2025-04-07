@@ -41,7 +41,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				const newsletterItems = newsletterContainer.querySelectorAll( '.newspack-ui__input-card' );
 
 				if ( newsletterItems.length > listDefaultSize ) {
-					const gap = 16;
+					const gap = 12;
 					const extraSpace = 32; // Additional space for partial visibility.
 
 					let totalHeight = 0;
