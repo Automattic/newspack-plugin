@@ -180,6 +180,7 @@ class Reader_Activation_Emails {
 		}
 		$configs[ self::EMAIL_TYPES['NON_READER'] ] = [
 			'name'                   => self::EMAIL_TYPES['NON_READER'],
+			'category'               => 'reader-activation',
 			'label'                  => __( 'Non-reader account', 'newspack-plugin' ),
 			'description'            => __( 'Email reminder sent to non-reader accounts instead of reader account-related emails.', 'newspack-plugin' ),
 			'template'               => dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/templates/reader-activation-emails/non-reader.php',
