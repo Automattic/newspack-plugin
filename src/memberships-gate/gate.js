@@ -27,6 +27,36 @@ function domReady( callback ) {
 }
 
 /**
+ * Reload the page when a newly registered reader is detected.
+ */
+function initReloadHandler() {
+	window.newspackRAS = window.newspackRAS || [];
+	window.newspackRAS.push( function( ras ) {
+		const refreshPage = function() {
+			// If there are no overlays and a reader is detected,
+			// reload the window, but allow other JS – which might have
+			// triggered another overlay – to be executed (setTimeout hack).
+			if ( ! ras.overlays.get().length && hasReader ) {
+				setTimeout( () => {
+					if ( ! ras.overlays.get().length ) {
+						window.location.reload();
+					}
+				}, 2000 )
+			}
+		};
+		let hasReader = false;
+
+		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
+		ras.on( 'reader', function( ev ) { // When a new reader is detected.
+			if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
+				hasReader = true;
+				refreshPage();
+			}
+		} );
+	} );
+}
+
+/**
  * Adds 'memberships_content_gate' hidden input to every form inside the gate.
  *
  * @param {HTMLElement} gate The gate element.
@@ -128,6 +158,7 @@ domReady( function () {
 		return;
 	}
 
+	initReloadHandler();
 	if ( gate.classList.contains( 'newspack-memberships__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {

@@ -56,7 +56,6 @@ class Memberships {
 		add_action( 'wc_memberships_user_membership_actions', [ __CLASS__, 'user_membership_meta_box_actions' ], 1, 2 );
 		add_action( 'admin_init', [ __CLASS__, 'handle_reevaluation_request' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'render_overlay_gate' ], 1 );
-		add_action( 'wp_footer', [ __CLASS__, 'render_js' ] );
 		add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'disable_popups' ] );
 		add_filter( 'newspack_reader_activity_article_view', [ __CLASS__, 'suppress_article_view_activity' ], 100 );
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
@@ -769,45 +768,6 @@ class Memberships {
 		self::$gate_rendered = true;
 		wp_reset_postdata();
 		$post = $_post; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-	}
-
-	/**
-	 * Render footer JS.
-	 *
-	 * If the gate was rendered, reload the page after a new reader is detected.
-	 * This allows the membership purchase to unlock the content.
-	 */
-	public static function render_js() {
-		if ( ! self::$gate_rendered ) {
-			return;
-		}
-		?>
-		<script type="text/javascript">
-			window.newspackRAS = window.newspackRAS || [];
-			window.newspackRAS.push( function( ras ) {
-				const refreshPage = function( ev ) {
-					// When an overlay was closed, and there's a reader,
-					// reload the window, but allow other JS – which might have
-					// triggered another overlay – to be executed (setTimeout hack).
-					if ( ! ras.overlays.get().length && hasReader ) {
-						setTimeout( () => {
-							if ( ! ras.overlays.get().length ) {
-								window.location.reload();
-							}
-						}, 1 )
-					}
-				};
-				let hasReader = false;
-				ras.on( 'overlay', refreshPage );
-				ras.on( 'reader', function( ev ) {
-					if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
-						hasReader = true;
-						refreshPage();
-					}
-				} );
-			} );
-		</script>
-		<?php
 	}
 
 	/**
