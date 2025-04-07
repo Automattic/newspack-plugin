@@ -2193,7 +2193,7 @@ final class Reader_Activation {
 				return false;
 			}
 
-			// Don't send OTP email for newsletter signup.
+			// Don't send OTP email for newsletter signup, or if the reader has a password set. 
 			if ( self::is_reader_without_password( $existing_user ) &&
 				( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) )
 			) {
