@@ -21,7 +21,7 @@
 			position: relative;
 			transition: max-height 250ms ease-in-out;
 
-			&::before {
+			&:not([style*="none"])::before {
 				background: linear-gradient(to top, white, transparent);
 				bottom: 0;
 				content: "";
