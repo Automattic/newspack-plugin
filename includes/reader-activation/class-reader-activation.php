@@ -1639,7 +1639,7 @@ final class Reader_Activation {
 				<form method="post" target="_top">
 					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
-					
+
 					<div class="newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
 					<?php
 					foreach ( $newsletters_lists as $list ) {
@@ -1672,7 +1672,7 @@ final class Reader_Activation {
 					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
 						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
 							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
-							<span><?php \Newspack\Newspack_UI_Icons::print_svg( 'arrow-right' ); ?></span>
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'arrow-right' ); ?>
 						</button>
 					<?php endif; ?>
 					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>

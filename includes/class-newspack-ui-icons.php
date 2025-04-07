@@ -111,8 +111,8 @@ class Newspack_UI_Icons {
 				<path d="M12 3.2c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8 0-4.8-4-8.8-8.8-8.8zm0 16c-4 0-7.2-3.3-7.2-7.2C4.8 8 8 4.8 12 4.8s7.2 3.3 7.2 7.2c0 4-3.2 7.2-7.2 7.2zM11 17h2v-6h-2v6zm0-8h2V7h-2v2z"/>
 			</svg>',
 		'arrow-right' =>
-			'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 12" width="17" height="12" fill="none">
-				<path d="M10.5 0.5L9.5 1.5L13.2 5.2H0V6.8H13.2L9.5 10.5L10.5 11.5L16.1 6L10.5 0.5Z" fill="#1E1E1E"/>
+			'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+				<path d="m14.5 6.5-1 1 3.7 3.7H4v1.6h13.2l-3.7 3.7 1 1 5.6-5.5z"/>
 			</svg>',
 	);
 }
