@@ -74,7 +74,7 @@ domReady( function () {
 				const otpDigit = ev.target.value.trim();
 				if ( otpDigit.match( /^[0-9]$/ ) ) {
 					values[ i ] = otpDigit;
-					const next = inputContainer.querySelector(`[data-index="${i + 1}"]`);
+					const next  = inputContainer.querySelector(`[data-index="${i + 1}"]`);
 					if (next) {
 						next.focus();
 					}
