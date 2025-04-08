@@ -42,7 +42,7 @@ function initReloadHandler() {
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( function( ras ) {
 		const refreshPage = function() {
-			// If there are no overlays and a reader is detected,
+			// If there are no overlays and a new reader is detected,
 			// reload the window, but allow other JS – which might have
 			// triggered another overlay – to be executed (setTimeout hack).
 			const dismissed = ! ras.overlays.get().length;
@@ -195,6 +195,18 @@ function handleFormSubmission( evt, gate ) {
 	}
 	if ( data.newspack_donate ) {
 		payload.action_type = 'donation';
+		if ( data.donation_currency ) {
+			payload.donation_currency = data.donation_currency;
+		}
+		if ( data.donation_frequency ) {
+			payload.donation_frequency = data.donation_frequency;
+			if ( data[ `donation_value_${data.donation_frequency}` ] ) {
+				payload.donation_amount = data[ `donation_value_${data.donation_frequency}` ];
+				if ( 'other' === payload.donation_amount && data[ `donation_value_${data.donation_frequency}_other` ] ) {
+					payload.donation_amount = data[ `donation_value_${data.donation_frequency}_other` ];
+				}
+			}
+		}
 	}
 	if ( data.newspack_checkout ) {
 		payload.action_type = 'paid_membership';
