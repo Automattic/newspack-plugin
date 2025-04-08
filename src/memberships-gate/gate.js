@@ -92,7 +92,7 @@ function addFormInputs( gate ) {
 			const input = document.createElement( 'input' );
 			input.type = 'hidden';
 			input.name = 'memberships_content_gate';
-			input.value = '1';
+			input.value = newspack_memberships_gate.metadata?.gate_post_id || '1';
 			form.appendChild( input );
 			form.addEventListener( 'submit', evt => handleFormSubmission( evt, gate ) );
 		}
@@ -180,12 +180,6 @@ function handleFormSubmission( evt, gate ) {
 		data[ pair[ 0 ] ] = pair[ 1 ];
 	}
 
-	// Product data attached to Checkout Button form.
-	const productData = evt.target.getAttribute( 'data-product' ) ? JSON.parse( evt.target.getAttribute( 'data-product' ) ) : null;
-	if ( productData ) {
-		Object.assign( payload, productData );
-	}
-
 	// Parse form data to determine the type of action.
 	if ( data['reader-activation-auth-form'] && data.action ) {
 		payload.action_type = 'register' === data.action ? 'registration' : 'signin';
@@ -209,7 +203,13 @@ function handleFormSubmission( evt, gate ) {
 		}
 	}
 	if ( data.newspack_checkout ) {
-		payload.action_type = 'paid_membership';
+		payload.action_type = 'checkout_button';
+
+		// Product data attached to Checkout Button form.
+		const productData = evt.target.getAttribute( 'data-product' ) ? JSON.parse( evt.target.getAttribute( 'data-product' ) ) : null;
+		if ( productData ) {
+			Object.assign( payload, productData );
+		}
 	}
 
 	// TODO: parse Donate block data.
