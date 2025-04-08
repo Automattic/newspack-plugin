@@ -94,9 +94,8 @@ function addFormInputs( gate ) {
 			input.name = 'memberships_content_gate';
 			input.value = '1';
 			form.appendChild( input );
+			form.addEventListener( 'submit', evt => handleFormSubmission( evt, gate ) );
 		}
-
-		form.addEventListener( 'submit', evt => handleFormSubmission( evt, gate ) );
 	} );
 }
 
@@ -152,7 +151,7 @@ function handleSeen( gate ) {
 }
 
 /**
- * Handle when the gate is dismissed.
+ * Handle when an overlay (auth modal, checkout modal, or post-checkout modal) is dismissed.
  */
 function handleDismissed() {
 	if ( 'function' !== typeof window.gtag ) {
@@ -201,16 +200,12 @@ function handleFormSubmission( evt, gate ) {
 		payload.action_type = 'paid_membership';
 	}
 
+	// TODO: parse Donate block data.
+
 	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
 }
 
-// TODO: Event to track checkout button click.
-
-// TODO: Event to track dismissal of checkout modal or auth modal.
-
 // TODO: Event to track checkout form submission.
-
-// TODO: Deprecate back-end GA4 events.
 
 /**
  * Handle when a registration attempt is successful.
