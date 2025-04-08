@@ -8,7 +8,7 @@ const EVENT_NAME = 'np_gate_interaction';
 
 // Gate info to send with each event.
 // This is mutable so that its properties can be carried from event to event in gate interaction flows.
-let gateInfo = {
+const gateInfo = {
 	...newspack_memberships_gate.metadata,
 	referrer: window.location.pathname,
 };
@@ -119,17 +119,16 @@ function isVisible( el ) {
  * @return {Array} The full event payload
  */
 function getEventPayload( payload, gate ) {
-	gateInfo = {
-		...gateInfo,
-		...payload,
-	}
 	if ( gate ) {
 		gateInfo.gate_has_donation_block = isVisible( gate.querySelector( '.wp-block-newspack-blocks-donate' ) ) ? 'yes' : 'no';
 		gateInfo.gate_has_registration_block = isVisible( gate.querySelector( '.newspack-registration' ) ) ? 'yes' : 'no';
 		gateInfo.gate_has_checkout_button = isVisible( gate.querySelector( '.wp-block-newspack-blocks-checkout-button') ) ? 'yes' : 'no';
 	}
 
-	return gateInfo;
+	return {
+		...gateInfo,
+		...payload,
+	};
 }
 
 /**
@@ -277,8 +276,10 @@ domReady( function () {
 				( gate?.getBoundingClientRect().top || 0 ) -
 				window.innerHeight / 2;
 			if ( delta < 0 ) {
-				handleSeen( gate );
-				document.removeEventListener( 'scroll', detectSeen );
+				if ( 'function' === typeof window.gtag ) {
+					handleSeen( gate );
+					document.removeEventListener( 'scroll', detectSeen );
+				}
 			}
 		};
 		document.addEventListener( 'scroll', detectSeen );
