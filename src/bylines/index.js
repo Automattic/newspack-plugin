@@ -315,8 +315,10 @@ const BylinesSettingsPanel = () => {
 	const insertToken = token => {
 		let { innerHTML } = editableRef.current;
 
+		const tokenId = `token-${ token.id }`;
+
 		// Compound new token element with token data.
-		const tokenElement = `<span id="token-${ token.id }" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="${ token.id }">
+		const tokenElement = `<span id="${ tokenId }" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="${ token.id }">
 				<span class="components-form-token-field__token-text">
 					${ token.name }
 				</span>
@@ -344,9 +346,14 @@ const BylinesSettingsPanel = () => {
 		// Update byline meta.
 		updateBylineMetaFromContentEditable( editableRef.current );
 
+		// Get index of the new token.
+		const tokenIndex = Array.from(
+			editableRef.current.querySelectorAll( 'span[data-token]' )
+		).indexOf( editableRef.current.querySelector( `#${ tokenId }` ) );
+
 		// Set cursor position and focus on the editable element.
 		const range = document.createRange();
-		range.setStart( editableRef.current, 2 );
+		range.setStart( editableRef.current, ( tokenIndex + 1 ) * 2 );
 		range.collapse( true );
 		const selection = editableRef.current.ownerDocument.getSelection();
 		selection.removeAllRanges();
