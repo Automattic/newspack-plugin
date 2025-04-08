@@ -305,34 +305,75 @@ class Memberships {
 	}
 
 	/**
-	 * Recursively get the unique block names from the post content.
-	 *
-	 * @param array $blocks The blocks.
+	 * Get custom parameters for a GA configuration or event body.
 	 *
 	 * @return array
 	 */
-	private static function get_block_names_recursive( $blocks ) {
-		$block_names = [];
-		foreach ( $blocks as $block ) {
-			if ( ! empty( $block['blockName'] ) ) {
-				$block_names[] = $block['blockName'];
+	public static function get_custom_event_parameters() {
+		$params = [
+			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
+		];
 
-				// If a Memberships conditional block, bail if it's not rendering any content.
-				if ( 'woocommerce-memberships/member-content' === $block['blockName'] || 'woocommerce-memberships/non-member-content' === $block['blockName'] ) {
-					$block_html = render_block( $block );
-					if (
-						empty( trim( $block_html ) ) || // No content rendered.
-						preg_replace( '/\s+/', '', $block_html ) === preg_replace( '/\s+/', '', $block['innerHTML'] ) // No inner content rendered.
-					) {
-						continue;
-					}
+		// Get current post author name.
+		$author_name = '';
+		if ( function_exists( 'get_coauthors' ) ) {
+			$author_name = implode(
+				', ',
+				array_map(
+					function( $author ) {
+						return $author->display_name;
+					},
+					get_coauthors()
+				)
+			);
+		} else {
+			$post = get_post();
+			if ( null !== $post && is_numeric( $post->post_author ) ) {
+				// For some reason, get_the_author() does not work here.
+				$author_user = get_user_by( 'ID', $post->post_author );
+				if ( $author_user ) {
+					$author_name = $author_user->display_name;
 				}
 			}
-			if ( ! empty( $block['innerBlocks'] ) ) {
-				$block_names = array_merge( $block_names, self::get_block_names_recursive( $block['innerBlocks'] ) );
+		}
+		if ( ! empty( $author_name ) ) {
+			$params['author'] = $author_name;
+		}
+
+		// Get current post categories.
+		$category_names = array_map(
+			function( $category ) {
+				return $category->name;
+			},
+			get_the_category()
+		);
+		if ( ! empty( $category_names ) ) {
+			$params['categories'] = implode( ', ', $category_names );
+		}
+
+		$params['is_reader'] = 'no';
+		if ( is_user_logged_in() ) {
+			$current_user = wp_get_current_user();
+			$params['is_reader'] = Reader_Activation::is_user_reader( $current_user ) ? 'yes' : 'no';
+			$params['email_hash'] = md5( $current_user->user_email );
+
+			if ( method_exists( 'Newspack\Reader_Data', 'get_data' ) ) {
+				$reader_data = \Newspack\Reader_Data::get_data( get_current_user_id() );
+				// If the reader is signed up for any newsletters.
+				$params['is_newsletter_subscriber'] = empty( $reader_data['is_newsletter_subscriber'] ) ? 'no' : 'yes';
+				// If reader has donated.
+				$params['is_donor'] = empty( $reader_data['is_donor'] ) ? 'no' : 'yes';
+				// If reader has any currently active non-donation subscriptions.
+				$params['is_subscriber'] = empty( $reader_data['active_subscriptions'] ) ? 'no' : 'yes';
 			}
 		}
-		return array_unique( $block_names );
+
+		/**
+		 * Filters the custom parameters passed to GA4.
+		 *
+		 * @param array $params Custom parameters sent to GA4.
+		 */
+		return apply_filters( 'newspack_ga4_custom_parameters', $params );
 	}
 
 	/**
@@ -347,13 +388,9 @@ class Memberships {
 	 */
 	public static function get_gate_metadata() {
 		$post_id = self::get_gate_post_id();
-		$blocks  = self::get_block_names_recursive( parse_blocks( get_post_field( 'post_content', $post_id ) ) );
-		return [
-			'gate_post_id'                => $post_id,
-			'gate_has_donation_block'     => in_array( 'newspack-blocks/donate', $blocks ) ? 'yes' : 'no',
-			'gate_has_registration_block' => in_array( 'newspack/reader-registration', $blocks ) ? 'yes' : 'no',
-			'gate_has_checkout_button'    => in_array( 'newspack-blocks/checkout-button', $blocks ) ? 'yes' : 'no',
-		];
+		$metadata = self::get_custom_event_parameters();
+		$metadata['gate_post_id'] = $post_id;
+		return $metadata;
 	}
 
 	/**

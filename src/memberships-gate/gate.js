@@ -4,6 +4,15 @@
  */
 import './gate.scss';
 
+const EVENT_NAME = 'np_gate_interaction';
+
+// Gate info to send with each event.
+// This is mutable so that its properties can be carried from event to event in gate interaction flows.
+let gateInfo = {
+	...newspack_memberships_gate.metadata,
+	referrer: window.location.pathname,
+};
+
 /**
  * Specify a function to execute when the DOM is fully loaded.
  *
@@ -36,20 +45,30 @@ function initReloadHandler() {
 			// If there are no overlays and a reader is detected,
 			// reload the window, but allow other JS – which might have
 			// triggered another overlay – to be executed (setTimeout hack).
-			if ( ! ras.overlays.get().length && hasReader ) {
+			const dismissed = ! ras.overlays.get().length;
+			if ( dismissed ) {
 				setTimeout( () => {
-					if ( ! ras.overlays.get().length ) {
+					// Reload the page if a newly registered reader is detected.
+					if ( newReader ) {
 						window.location.reload();
+					} else {
+						handleDismissed();
 					}
 				}, 2000 )
 			}
 		};
-		let hasReader = false;
+		let newReader = false;
 
 		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
-		ras.on( 'reader', function( ev ) { // When a new reader is detected.
-			if ( ev.detail.authenticated && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
-				hasReader = true;
+		ras.on( 'reader', function( ev ) { // When a newly registered reader is detected.
+			if (
+				! newReader &&
+				ev.detail.authenticated &&
+				! window?.newspackReaderActivation?.getPendingCheckout() &&
+				( ! newspack_memberships_gate.metadata?.logged_in || 'no' === newspack_memberships_gate.metadata?.logged_in )
+			) {
+				newReader = true;
+				handleRegistrationSuccess();
 				refreshPage();
 			}
 		} );
@@ -63,15 +82,21 @@ function initReloadHandler() {
  */
 function addFormInputs( gate ) {
 	const forms = [
-		...gate.querySelectorAll( 'form' ),
-		...document.querySelectorAll( '.newspack-reader-auth form' ),
+		...document.querySelectorAll( '.newspack-reader-auth form' ), // Auth modal.
+		...gate.querySelectorAll( '.newspack-registration form' ), // Registration block.
+		...gate.querySelectorAll( '.wp-block-newspack-blocks-checkout-button form' ), // Checkout button block.
+		...gate.querySelectorAll( '.wp-block-newspack-blocks-donate form' ), // Donate block.
 	];
 	forms.forEach( form => {
-		const input = document.createElement( 'input' );
-		input.type = 'hidden';
-		input.name = 'memberships_content_gate';
-		input.value = '1';
-		form.appendChild( input );
+		if ( ! form.querySelector( 'input[name="memberships_content_gate"]' ) ) {
+			const input = document.createElement( 'input' );
+			input.type = 'hidden';
+			input.name = 'memberships_content_gate';
+			input.value = '1';
+			form.appendChild( input );
+		}
+
+		form.addEventListener( 'submit', evt => handleFormSubmission( evt, gate ) );
 	} );
 }
 
@@ -89,39 +114,116 @@ function isVisible( el ) {
 /**
  * Get the full event payload for GA4.
  *
- * @param {Array} payload The event payload.
+ * @param {Array}       payload The event payload.
+ * @param {HTMLElement} gate    The gate element.
  *
  * @return {Array} The full event payload
  */
-function getEventPayload( payload ) {
-	const gateInfo = {
-		...newspack_memberships_gate.metadata,
-		gate_has_donation_block: isVisible( document.querySelector( '.newspack-memberships__gate .wp-block-newspack-blocks-donate' ) ) ? 'yes' : 'no',
-		gate_has_registration_block: isVisible( document.querySelector( '.newspack-memberships__gate .newspack-registration' ) ) ? 'yes' : 'no',
-		gate_has_checkout_button: isVisible( document.querySelector( '.newspack-memberships__gate .wp-block-newspack-blocks-checkout-button') ) ? 'yes' : 'no',
-
-	};
-
-	return {
+function getEventPayload( payload, gate ) {
+	gateInfo = {
 		...gateInfo,
 		...payload,
 	}
+	if ( gate ) {
+		gateInfo.gate_has_donation_block = isVisible( gate.querySelector( '.wp-block-newspack-blocks-donate' ) ) ? 'yes' : 'no';
+		gateInfo.gate_has_registration_block = isVisible( gate.querySelector( '.newspack-registration' ) ) ? 'yes' : 'no';
+		gateInfo.gate_has_checkout_button = isVisible( gate.querySelector( '.wp-block-newspack-blocks-checkout-button') ) ? 'yes' : 'no';
+	}
+
+	return gateInfo;
 }
 
 /**
  * Handle when the gate is seen.
+ *
+ * @param {HTMLElement} gate The gate element.
  */
 function handleSeen( gate ) {
-	// Add form inputs.
+	if ( 'function' !== typeof window.gtag ) {
+		return;
+	}
+
+	// Add hidden form inputs.
 	addFormInputs( gate );
-	// Push gate 'seen' event to Google Analytics.
-	const eventName = 'np_gate_interaction';
 	const payload = {
 		action: 'seen',
 	};
-	if ( 'function' === typeof window.gtag && payload ) {
-		window.gtag( 'event', eventName, getEventPayload( payload ) );
+	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
+}
+
+/**
+ * Handle when the gate is dismissed.
+ */
+function handleDismissed() {
+	if ( 'function' !== typeof window.gtag ) {
+		return;
 	}
+	const payload = {
+		action: 'dismissed',
+	};
+	window.gtag( 'event', EVENT_NAME, getEventPayload( payload ) );
+}
+
+/**
+ * Handle when a registration attempt is made from the gate.
+ *
+ * @param {Event}       evt  The event object.
+ * @param {HTMLElement} gate The gate element.
+ */
+function handleFormSubmission( evt, gate ) {
+	if ( 'function' !== typeof window.gtag ) {
+		return;
+	}
+	const payload = { action: 'form_submission' };
+	const postedData = new FormData( evt.target );
+	const data = {};
+	for ( const pair of postedData.entries() ) {
+		data[ pair[ 0 ] ] = pair[ 1 ];
+	}
+
+	// Product data attached to Checkout Button form.
+	const productData = evt.target.getAttribute( 'data-product' ) ? JSON.parse( evt.target.getAttribute( 'data-product' ) ) : null;
+	if ( productData ) {
+		Object.assign( payload, productData );
+	}
+
+	// Parse form data to determine the type of action.
+	if ( data['reader-activation-auth-form'] && data.action ) {
+		payload.action_type = 'register' === data.action ? 'registration' : 'signin';
+	}
+	if ( data.newspack_reader_registration ) {
+		payload.action_type = 'registration';
+	}
+	if ( data.newspack_donate ) {
+		payload.action_type = 'donation';
+	}
+	if ( data.newspack_checkout ) {
+		payload.action_type = 'paid_membership';
+	}
+
+	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
+}
+
+// TODO: Event to track checkout button click.
+
+// TODO: Event to track dismissal of checkout modal or auth modal.
+
+// TODO: Event to track checkout form submission.
+
+// TODO: Deprecate back-end GA4 events.
+
+/**
+ * Handle when a registration attempt is successful.
+ */
+function handleRegistrationSuccess() {
+	if ( 'function' !== typeof window.gtag ) {
+		return;
+	}
+	const payload = {
+		action: 'form_submission_success',
+		action_type: 'registration',
+	};
+	window.gtag( 'event', EVENT_NAME, getEventPayload( payload ) );
 }
 
 /**
