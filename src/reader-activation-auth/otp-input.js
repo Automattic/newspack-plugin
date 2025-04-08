@@ -74,7 +74,7 @@ domReady( function () {
 				if ( length === otpInput.length ) {
 					for ( let index = 0; index < length; index++ ) {
 						const char = otpInput[ index ];
-						if (/^[0-9]$/.test(char)) {
+						if ( /^[0-9]$/.test( char ) ) {
 							const input   = inputContainer.querySelector(`[data-index="${index}"]`);
 							input.value   = char;
 							values[index] = char;
