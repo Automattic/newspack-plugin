@@ -1,3 +1,10 @@
+# [6.3.0](https://github.com/Automattic/newspack-plugin/compare/v6.2.2...v6.3.0) (2025-04-09)
+
+
+### Features
+
+* **woocommerce:** add metadata to Stripe txns ([#3903](https://github.com/Automattic/newspack-plugin/issues/3903)) ([32076eb](https://github.com/Automattic/newspack-plugin/commit/32076ebba55a4e33c672cc84f92eae8d101c0370))
+
 ## [6.2.2](https://github.com/Automattic/newspack-plugin/compare/v6.2.1...v6.2.2) (2025-04-03)
 
 
