@@ -3,7 +3,7 @@
  * WordPress dependencies.
  */
 // eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-import { ToggleControl, CheckboxControl, __experimentalVStack as VStack } from '@wordpress/components';
+import { ToggleControl, CheckboxControl } from '@wordpress/components';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import find from 'lodash/find';
@@ -20,6 +20,7 @@ import {
 	Settings,
 	TextControl,
 	hooks,
+	Grid,
 } from '../../../../../components/src';
 import ListsControl from '../../../components/lists-control';
 
@@ -409,22 +410,22 @@ addFilter(
 
 			return (
 				<div className="newspack-device-segments">
-				<VStack spacing={4} alignment="topLeft">
-					{criteria.options.map((device) => (
-						<CheckboxControl
-							key={device.value}
-							label={device.label}
-							checked={selectedDevices.includes(device.value)}
-							onChange={(isChecked) => {
-								if (isChecked) {
-									update([...selectedDevices, device.value]);
-								} else {
-									update(selectedDevices.filter(item => item !== device.value));
-								}
-							}}
-						/>
-					))}
-				</VStack>
+					<Grid columns={1} rowGap={16}>
+						{criteria.options.map((device) => (
+							<CheckboxControl
+								key={device.value}
+								label={device.label}
+								checked={selectedDevices.includes(device.value)}
+								onChange={(isChecked) => {
+									if (isChecked) {
+										update([...selectedDevices, device.value]);
+									} else {
+										update(selectedDevices.filter(item => item !== device.value));
+									}
+								}}
+							/>
+						))}
+					</Grid>
 				</div>
 			);
 		}
