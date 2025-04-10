@@ -121,18 +121,13 @@ function useAuthorTokens( postId ) {
 		};
 	} );
 
-	// Only return valid user entities for co-authors. No guest authors.
-	const validCoAuthors = useSelect( select => {
+	if ( coAuthors.length ) {
 		return coAuthors
-			.map( item => {
-				const user = select( coreStore ).getUser( item.id, BASE_QUERY );
-				return user?.name === item.display ? user : null;
-			} )
-			.filter( Boolean );
-	} );
-
-	if ( validCoAuthors?.length ) {
-		return validCoAuthors;
+			.filter( author => author.userType === 'wpuser' )
+			.map( author => ( {
+				id: parseInt( author.id ),
+				name: author.display,
+			} ) );
 	}
 
 	return [ postAuthor ];
