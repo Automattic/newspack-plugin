@@ -2,10 +2,31 @@
 /**
  * Internal dependencies
  */
-import { domReady } from '../reader-activation/utils';
 import './gate.scss';
 
 const EVENT_NAME = 'np_gate_interaction';
+
+/**
+ * Specify a function to execute when the DOM is fully loaded.
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dom-ready/
+ *
+ * @param {Function} callback A function to execute after the DOM is ready.
+ * @return {void}
+ */
+function domReady( callback ) {
+	if ( typeof document === 'undefined' ) {
+		return;
+	}
+	if (
+		document.readyState === 'complete' || // DOMContentLoaded + Images/Styles/etc loaded, so we call directly.
+		document.readyState === 'interactive' // DOMContentLoaded fires at this point, so we call directly.
+	) {
+		return void callback();
+	}
+	// DOMContentLoaded has not fired yet, delay callback until then.
+	document.addEventListener( 'DOMContentLoaded', callback );
+}
 
 // Gate info to send with each event.
 // This is mutable so that its properties can be carried from event to event in gate interaction flows.
