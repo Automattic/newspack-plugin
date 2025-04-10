@@ -124,7 +124,10 @@ function useAuthorTokens( postId ) {
 	// Only return valid user entities for co-authors. No guest authors.
 	const validCoAuthors = useSelect( select => {
 		return coAuthors
-			.map( item => select( coreStore ).getUser( item.id, BASE_QUERY ) )
+			.map( item => {
+				const user = select( coreStore ).getUser( item.id, BASE_QUERY );
+				return user?.name === item.display ? user : null;
+			} )
 			.filter( Boolean );
 	} );
 
