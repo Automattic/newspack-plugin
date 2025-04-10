@@ -4,12 +4,7 @@
  * WordPress dependencies
  */
 import { Button, Modal, ToggleControl } from '@wordpress/components';
-import {
-	useCallback,
-	useMemo,
-	useState,
-	useRef,
-} from '@wordpress/element';
+import { useCallback, useMemo, useState, useRef } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
