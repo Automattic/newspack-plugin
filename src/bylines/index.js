@@ -238,16 +238,17 @@ const BylinesSettingsPanel = () => {
 		select( 'core/editor' )
 	);
 
-	/** Fetch post author from core */
+	/** Fetch post author(s) */
 	const { postAuthor, coAuthors } = useSelect( select => {
 		const { getUser } = select( coreStore );
 		const _authorId = getEditedPostAttribute( 'author' );
 
 		return {
 			postAuthor: getUser( _authorId, BASE_QUERY ),
-			coAuthors: postId
-				? select( 'cap/authors' ).getAuthors( postId )
-				: [],
+			coAuthors:
+				postId && select( 'cap/authors' )
+					? select( 'cap/authors' ).getAuthors( postId )
+					: [],
 		};
 	} );
 
