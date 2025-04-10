@@ -15,7 +15,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-import apiFetch from '@wordpress/api-fetch';
 import { Icon, plus } from '@wordpress/icons';
 import { store as coreStore } from '@wordpress/core-data';
 
@@ -222,13 +221,9 @@ const BylinesSettingsPanel = () => {
 
 	const [ cursorPos, setCursorPos ] = useState( null );
 
-	/** coAuthors fetched from co-Authors Plus */
-	const [ coAuthors, setCoAuthors ] = useState( [] );
-
 	/** Reference to contenteditable element to add event listners */
 	const editableRef = useRef( null );
 
-	const noticesDispatch = useDispatch( 'core/notices' );
 	const { editPost } = useDispatch( 'core/editor' );
 
 	/** Current post data */
@@ -244,14 +239,33 @@ const BylinesSettingsPanel = () => {
 	);
 
 	/** Fetch post author from core */
-	const { postAuthor } = useSelect( select => {
+	const { postAuthor, coAuthors } = useSelect( select => {
 		const { getUser } = select( coreStore );
 		const _authorId = getEditedPostAttribute( 'author' );
 
 		return {
 			postAuthor: getUser( _authorId, BASE_QUERY ),
+			coAuthors: postId
+				? select( 'cap/authors' ).getAuthors( postId )
+				: [],
 		};
 	} );
+
+	/**
+	 * Set tokens when authors change.
+	 */
+	useEffect( () => {
+		if ( coAuthors?.length ) {
+			setTokens(
+				coAuthors.map( author => ( {
+					id: parseInt( author.id ),
+					name: author.display,
+				} ) )
+			);
+		} else {
+			setTokens( [ postAuthor ] );
+		}
+	}, [ coAuthors, postAuthor ] );
 
 	/** Toggle if custom byline is enabled */
 	const [ isEnabled, setIsEnabled ] = useState(
@@ -292,19 +306,6 @@ const BylinesSettingsPanel = () => {
 		);
 
 		setTokensInUse( inUse );
-	};
-
-	/**
-	 * Transform coAuthors into an object expected to be used as tokens
-	 * in the format of { id: int; name: string }.
-	 *
-	 * @param {Object} Authors Co-authors fetched from Co-Author Plus API.
-	 * @return {Object}        Co-authors transformed into tokens object: { id: int; name: string }
-	 */
-	const transformAuthorsToTokens = Authors => {
-		return Object.values( Authors ).map( value => {
-			return { id: value.id, name: value.display_name };
-		} );
 	};
 
 	/**
@@ -362,20 +363,6 @@ const BylinesSettingsPanel = () => {
 	};
 
 	/**
-	 * Handle Error
-	 *
-	 * @param {Error} error
-	 */
-	function handleError( error ) {
-		if ( 'AbortError' === error.name ) {
-			return;
-		}
-		noticesDispatch.createErrorNotice( error.message, {
-			isDismissible: true,
-		} );
-	}
-
-	/**
 	 * Insert the default custom byline.
 	 * Used when the custom byline setting is first enabled.
 	 */
@@ -423,57 +410,6 @@ const BylinesSettingsPanel = () => {
 			insertDefaultByline();
 		}
 	};
-
-	/**
-	 * Set tokens when coAuthors change.
-	 */
-	useEffect( () => {
-		if ( coAuthors ) {
-			setTokens( coAuthors );
-		}
-	}, [ coAuthors ] );
-
-	/**
-	 * Fetch co-authors from Co-Authors Plus.
-	 */
-	useEffect( () => {
-		if ( ! postId ) {
-			return;
-		}
-
-		// If Co-Authors Plus is active, use their authors
-		if ( newspackBylines.is_co_authors_plus_active ) {
-			const controller = new AbortController();
-
-			apiFetch( {
-				path: `/coauthors/v1/coauthors?post_id=${ postId }`,
-				signal: controller.signal,
-			} )
-				.then( transformAuthorsToTokens )
-				.then( setCoAuthors )
-				.catch( handleError );
-
-			return () => {
-				controller.abort();
-			};
-		}
-	}, [ postId ] );
-
-	/**
-	 * Use core post author if Co-Authors Plus is not active
-	 */
-	useEffect( () => {
-		// If Co-Author Plus is active, return
-		if ( newspackBylines.is_co_authors_plus_active ) {
-			return;
-		}
-
-		if ( postAuthor === undefined ) {
-			return;
-		}
-
-		setCoAuthors( [ postAuthor ] );
-	}, [ postAuthor ] );
 
 	/**
 	 * Initialize the contenteditable element.
