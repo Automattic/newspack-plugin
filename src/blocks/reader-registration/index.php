@@ -459,9 +459,10 @@ function process_form() {
 
 	return send_form_response(
 		[
-			'email'         => $email,
-			'authenticated' => $user_logged_in,
-			'existing_user' => ! $user_logged_in,
+			'email'               => $email,
+			'authenticated'       => $user_logged_in,
+			'existing_user'       => ! $user_logged_in,
+			'registration_method' => $metadata['registration_method'],
 		]
 	);
 }

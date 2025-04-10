@@ -295,6 +295,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 					if ( data ) {
 						readerActivation.setReaderEmail( data.email );
 						readerActivation.setAuthenticated( !! data.authenticated );
+						if ( data.registered ) {
+							readerActivation.dispatchActivity( 'reader_registered', { email: data.email, registration_method: 'auth-form' } );
+						} else if ( data.authenticated ) {
+							readerActivation.dispatchActivity( 'reader_logged_in', { email: data.email, login_method: 'auth-form' } );
+						}
 					}
 
 					let callback;

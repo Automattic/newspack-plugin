@@ -2,6 +2,7 @@
 /**
  * Internal dependencies
  */
+import { domReady } from '../reader-activation/utils';
 import './gate.scss';
 
 const EVENT_NAME = 'np_gate_interaction';
@@ -12,28 +13,6 @@ const gateInfo = {
 	...newspack_memberships_gate.metadata,
 	referrer: window.location.pathname,
 };
-
-/**
- * Specify a function to execute when the DOM is fully loaded.
- *
- * @see https://github.com/WordPress/gutenberg/blob/trunk/packages/dom-ready/
- *
- * @param {Function} callback A function to execute after the DOM is ready.
- * @return {void}
- */
-function domReady( callback ) {
-	if ( typeof document === 'undefined' ) {
-		return;
-	}
-	if (
-		document.readyState === 'complete' || // DOMContentLoaded + Images/Styles/etc loaded, so we call directly.
-		document.readyState === 'interactive' // DOMContentLoaded fires at this point, so we call directly.
-	) {
-		return void callback();
-	}
-	// DOMContentLoaded has not fired yet, delay callback until then.
-	document.addEventListener( 'DOMContentLoaded', callback );
-}
 
 /**
  * Reload the page when a newly registered reader is detected.
@@ -60,12 +39,11 @@ function initReloadHandler() {
 		let newReader = false;
 
 		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
-		ras.on( 'reader', function( ev ) { // When a newly registered reader is detected.
+		ras.on( 'activity', function( ev ) { // When a newly registered reader is detected.
 			if (
 				! newReader &&
-				ev.detail.authenticated &&
-				! window?.newspackReaderActivation?.getPendingCheckout() &&
-				( ! newspack_memberships_gate.metadata?.logged_in || 'no' === newspack_memberships_gate.metadata?.logged_in )
+				'reader_registered' === ev.detail.action &&
+				! window?.newspackReaderActivation?.getPendingCheckout()
 			) {
 				newReader = true;
 				handleRegistrationSuccess();
@@ -211,12 +189,8 @@ function handleFormSubmission( evt, gate ) {
 		}
 	}
 
-	// TODO: parse Donate block data.
-
 	window.gtag( 'event', EVENT_NAME, getEventPayload( payload, gate ) );
 }
-
-// TODO: Event to track checkout form submission.
 
 /**
  * Handle when a registration attempt is successful.
