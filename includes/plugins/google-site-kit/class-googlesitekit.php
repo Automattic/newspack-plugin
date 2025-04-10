@@ -197,10 +197,6 @@ class GoogleSiteKit {
 		$params = [
 			'logged_in' => is_user_logged_in() ? 'yes' : 'no',
 		];
-		$session_id = self::extract_sid_from_cookies();
-		if ( $session_id ) {
-			$params['ga_session_id'] = $session_id;
-		}
 
 		// Get current post author name.
 		$author_name = '';
