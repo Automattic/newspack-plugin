@@ -220,6 +220,11 @@ class Bylines {
 			$post_id = \get_the_ID();
 		}
 
+		$byline_is_active = \get_post_meta( $post_id, self::META_KEY_ACTIVE, true );
+		if ( ! $byline_is_active ) {
+			return [];
+		}
+
 		$byline = \get_post_meta( $post_id, self::META_KEY_BYLINE, true );
 		if ( ! $byline ) {
 			return [];
