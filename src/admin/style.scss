@@ -142,7 +142,7 @@ h1 {
 /**
  * Wizards
  */
-#wpwrap:has(.newspack-wizard__content) {
+#wpbody:has(.newspack-wizard__content) {
 	background: #fff;
 }
 
