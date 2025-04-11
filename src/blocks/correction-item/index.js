@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 import metadata from './block.json';
+import colors from '../../shared/scss/_colors.module.scss';
 
 export const title = __( 'Correction Item', 'newspack-plugin' );
 
@@ -60,7 +61,7 @@ export const settings = {
 	title,
 	icon: {
 		src: icon,
-		foreground: '#406ebc',
+		foreground: colors['primary-400'],
 	},
 	description: __(
 		'Display an archive of all the corrections and clarifications.',
