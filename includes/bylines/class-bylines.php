@@ -137,9 +137,11 @@ class Bylines {
 	/**
 	 * Outputs the byline on the post.
 	 *
+	 * @param bool $include_avatars Whether to include avatars in the byline.
+	 *
 	 * @return false|string The post content with the byline prepended.
 	 */
-	public static function output_byline_on_post() {
+	public static function output_byline_on_post( $include_avatars = true ) {
 		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
 		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
 
@@ -147,7 +149,10 @@ class Bylines {
 			return false;
 		}
 
-		$byline      = self::get_authors_avatars( $byline ) . self::replace_author_shortcodes( $byline );
+		$byline = self::replace_author_shortcodes( $byline );
+		if ( $include_avatars ) {
+			$byline = self::get_authors_avatars( $byline ) . $byline;
+		}
 		$byline_html = \wp_kses_post( $byline );
 
 		return $byline_html;
@@ -201,6 +206,32 @@ class Bylines {
 	public static function extract_author_ids_from_shortcode( $byline ) {
 		preg_match_all( '/\[Author id=(\d+)\]/', $byline, $matches );
 		return array_map( 'intval', $matches[1] );
+	}
+
+	/**
+	 * Return post authors according to the byline.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return array $authors The authors.
+	 */
+	public static function get_post_byline_authors( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = \get_the_ID();
+		}
+
+		$byline = \get_post_meta( $post_id, self::META_KEY_BYLINE, true );
+		if ( ! $byline ) {
+			return [];
+		}
+
+		$author_ids = self::extract_author_ids_from_shortcode( $byline );
+		return array_map(
+			function( $author_id ) {
+				return get_user_by( 'id', $author_id );
+			},
+			$author_ids
+		);
 	}
 }
 Bylines::init();
