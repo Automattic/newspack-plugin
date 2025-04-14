@@ -9,7 +9,6 @@ namespace Newspack;
 
 use Newspack\Memberships\Metering;
 use Newspack\WooCommerce_Connection;
-use Newspack\GoogleSiteKit;
 
 defined( 'ABSPATH' ) || exit;
 
