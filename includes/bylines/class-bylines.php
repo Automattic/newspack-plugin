@@ -25,19 +25,6 @@ class Bylines {
 	 */
 	const META_KEY_BYLINE = '_newspack_byline';
 
-	const AVATAR_ARGS = array(
-		'img'      => array(
-			'class'  => true,
-			'src'    => true,
-			'alt'    => true,
-			'width'  => true,
-			'height' => true,
-			'data-*' => true,
-			'srcset' => true,
-		),
-		'noscript' => array(),
-	);
-
 	/**
 	 * Initializes the class.
 	 */
@@ -135,30 +122,6 @@ class Bylines {
 	}
 
 	/**
-	 * Return the author in use into the custom byline.
-	 *
-	 * @return array $authors  Array of authors.
-	 */
-	public static function authors_on_byline() {
-		global $coauthors_plus;
-		$authors = [];
-		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
-		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
-
-		if ( ! $byline_is_active || ! $byline ) {
-			return [];
-		}
-
-		$author_ids = self::extract_author_ids_from_shortcode( $byline );
-
-		foreach ( $author_ids as $author_id ) {
-			$authors[] = $coauthors_plus->get_coauthor_by( 'user_nicename', get_the_author_meta( 'user_nicename', $author_id ) );
-		}
-
-		return $authors;
-	}
-
-	/**
 	 * Outputs the byline on the post.
 	 *
 	 * @return false|string The post content with the byline prepended.
@@ -205,18 +168,11 @@ class Bylines {
 	 * @param string $byline  Byline with author shortcodes on it.
 	 */
 	public static function get_authors_avatars( $byline ) {
-		global $coauthors_plus;
-
 		$author_ids = self::extract_author_ids_from_shortcode( $byline );
 		$avatars = '';
 
 		foreach ( $author_ids as $author_id ) {
-			$author = $coauthors_plus->get_coauthor_by( 'user_nicename', get_the_author_meta( 'user_nicename', $author_id ) );
-
-			// avatar_img_tag is a property added by Newspack Network plugin to distributed posts.
-			$author_avatar = $author->avatar_img_tag ?? coauthors_get_avatar( $author, 80 );
-
-			$avatars .= '<span class="author-avatar">' . wp_kses( $author_avatar, self::AVATAR_ARGS ) . '</span>';
+			$avatars .= '<span class="author-avatar">' . get_avatar( $author_id ) . '</span>';
 		}
 
 		return $avatars;

@@ -936,7 +936,8 @@ class WooCommerce_My_Account {
 		if ( ! $secret ) {
 			return;
 		}
-		$error     = __( 'Something went wrong.', 'newspack-plugin' );
+		$message   = __( 'Your email address has been successfully updated.', 'newspack-plugin' );
+		$is_error  = false;
 		$user_id   = \get_current_user_id();
 		$new_email = \get_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META, true );
 		$old_email = \wp_get_current_user()->user_email;
@@ -955,14 +956,27 @@ class WooCommerce_My_Account {
 				self::maybe_sync_email_change_with_stripe( $user_id, $new_email );
 				self::sync_email_change_with_esp( $user_id, $new_email, $old_email );
 				\delete_user_meta( $user_id, self::PENDING_EMAIL_CHANGE_META );
-				\wc_add_notice( __( 'Your email address has been successfully updated.', 'newspack-plugin' ) );
 			} else {
-				\wc_add_notice( $error, 'error' );
+				$message  = __( 'Something went wrong.', 'newspack-plugin' );
+				$is_error = true;
 			}
 		} else {
-			\wc_add_notice( __( 'This email change request has been cancelled or expired.', 'newspack-plugin' ), 'error' );
+			$message  = __( 'This email change request has been cancelled or expired.', 'newspack-plugin' );
+			$is_error = true;
 		}
-		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
+		\wp_safe_redirect(
+			\add_query_arg(
+				[
+					'message'  => $message,
+					'is_error' => $is_error,
+				],
+				\wc_get_endpoint_url(
+					'edit-account',
+					'',
+					\wc_get_page_permalink( 'myaccount' )
+				)
+			)
+		);
 		exit;
 	}
 
@@ -978,13 +992,27 @@ class WooCommerce_My_Account {
 			return;
 		}
 		$current_email = \wp_get_current_user()->user_email;
+		$message       = __( 'Your email address change request has been cancelled.', 'newspack-plugin' );
+		$is_error      = false;
 		if ( \wp_hash( $current_email ) === $secret ) {
 			\delete_user_meta( \get_current_user_id(), self::PENDING_EMAIL_CHANGE_META );
-			\wc_add_notice( __( 'Your email change request has been cancelled.', 'newspack-plugin' ) );
 		} else {
-			\wc_add_notice( __( 'This email change request has been cancelled or expired.', 'newspack-plugin' ), 'error' );
+			$message  = __( 'This email change request has been cancelled or expired.', 'newspack-plugin' );
+			$is_error = true;
 		}
-		\wp_safe_redirect( \wc_get_endpoint_url( 'edit-account', '', \wc_get_page_permalink( 'myaccount' ) ) );
+		\wp_safe_redirect(
+			\add_query_arg(
+				[
+					'message'  => $message,
+					'is_error' => $is_error,
+				],
+				\wc_get_endpoint_url(
+					'edit-account',
+					'',
+					\wc_get_page_permalink( 'myaccount' )
+				)
+			)
+		);
 		exit;
 	}
 
