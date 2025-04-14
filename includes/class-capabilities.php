@@ -43,10 +43,13 @@ final class Capabilities {
 			foreach ( $caps as $requested_cap ) {
 				if ( stripos( $requested_cap, $post_type ) !== false ) {
 					$found_base_cap_name = array_search( $requested_cap, (array) $post_type_object->cap, true );
-					if ( $found_base_cap_name !== false ) {
-						if ( isset( $allcaps[ $found_base_cap_name ] ) && $allcaps[ $found_base_cap_name ] ) {
-							$allcaps[ $requested_cap ] = true;
-						}
+					$required_mapped_cap = $post_type_object_base->cap->$found_base_cap_name;
+					if (
+						$required_mapped_cap !== false
+						&& isset( $allcaps[ $required_mapped_cap ] )
+						&& $allcaps[ $required_mapped_cap ]
+					) {
+						$allcaps[ $requested_cap ] = true;
 					}
 				}
 			}

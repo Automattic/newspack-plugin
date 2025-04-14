@@ -15,7 +15,6 @@ class Test_Capabilities extends WP_UnitTestCase {
 	 * Test the map_capabilities method.
 	 */
 	public function test_capabilities_mapping() {
-
 		// Use the capabilities map filter.
 		add_filter(
 			'newspack_capabilities_map',
@@ -25,20 +24,15 @@ class Test_Capabilities extends WP_UnitTestCase {
 			]
 		);
 
-		// Mock the post type object.
-		$this->mock_post_type_object(
-			'newspack_post',
-			[
-				'edit_posts'   => 'edit_newspack_posts',
-				'delete_posts' => 'delete_newspack_posts',
-			]
-		);
+		// Mock the post types.
+		$this->mock_post_type_object( 'newspack_post' );
 
 		$user_all_caps = [
 			'edit_posts'   => true,
 			'delete_posts' => false,
 		];
 		$required_caps = [ 'edit_newspack_posts' ];
+
 		$result = Capabilities::map_capabilities( $user_all_caps, $required_caps );
 		$this->assertEquals( array_merge( $user_all_caps, [ 'edit_newspack_posts' => true ] ), $result, 'User with edit_posts cap should get the edit_newspack_post cap, too' );
 
@@ -66,15 +60,33 @@ class Test_Capabilities extends WP_UnitTestCase {
 			$result,
 			'Multiple required caps are supported.'
 		);
+
+		add_filter(
+			'newspack_capabilities_map',
+			fn() => [
+				// 'newspack_post' caps should inherit from 'page'.
+				'newspack_post' => 'page',
+			]
+		);
+
+		$result = Capabilities::map_capabilities( $user_all_caps, [ 'edit_newspack_posts' ] );
+		$this->assertEquals(
+			false,
+			isset( $result['edit_newspack_posts'] ),
+			"User can't edit posts which inherrit caps from pages (even though they can edit posts)."
+		);
 	}
 
 	/**
 	 * Mock a post type object.
 	 *
 	 * @param string $post_type Post type name.
-	 * @param array  $capabilities Capabilities array.
 	 */
-	private function mock_post_type_object( $post_type, $capabilities ) {
+	private function mock_post_type_object( $post_type ) {
+		$capabilities = [
+			'edit_posts'   => 'edit_' . $post_type . 's',
+			'delete_posts' => 'delete_' . $post_type . 's',
+		];
 		add_filter(
 			'register_post_type_args',
 			function( $args, $name ) use ( $post_type, $capabilities ) {
