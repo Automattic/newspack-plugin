@@ -43,8 +43,11 @@ const handleRegistrationSuccess = ras => {
 			const payload = getEventPayload( 'reader_registered', {
 				registration_method: ev.detail.data?.registration_method || 'unknown',
 			} );
-			if ( ev.detail.data?.popup_id ) {
-				payload.popup_id = ev.detail.data.popup_id;
+			if ( ev.detail.data?.newspack_popup_id ) {
+				payload.popup_id = ev.detail.data.newspack_popup_id;
+			}
+			if ( ev.detail.data?.gate_post_id ) {
+				payload.gate_post_id = ev.detail.data.gate_post_id;
 			}
 			sendEvent( payload, 'reader_registered' );
 		}

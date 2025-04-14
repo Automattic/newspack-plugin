@@ -2057,6 +2057,15 @@ final class Reader_Activation {
 				if ( ! empty( $current_page_url ) ) {
 					$metadata['current_page_url'] = $current_page_url;
 				}
+
+				/**
+				 * Filters the metadata to be saved for a reader registered via the auth modal.
+				 *
+				 * @param array  $metadata Metadata.
+				 * @param string $email    Email address of the reader.
+				 */
+				$metadata = apply_filters( 'newspack_auth_form_metadata', $metadata, $email );
+
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
 					return self::send_auth_form_response(

@@ -315,9 +315,10 @@ class Memberships {
 	 */
 	public static function get_gate_metadata() {
 		$post_id = self::get_gate_post_id();
-		$metadata = GoogleSiteKit::get_custom_event_parameters();
-		$metadata['gate_post_id'] = $post_id;
-		return $metadata;
+		return [
+			'gate_post_id' => $post_id,
+			'logged_in'    => \is_user_logged_in() ? 'yes' : 'no',
+		];
 	}
 
 	/**
