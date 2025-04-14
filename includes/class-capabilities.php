@@ -18,6 +18,7 @@ final class Capabilities {
 	 */
 	public static function init() {
 		add_filter( 'user_has_cap', [ __CLASS__, 'map_capabilities' ], 10, 2 );
+		add_filter( 'cme_plugin_capabilities', [ __CLASS__, 'cme_plugin_capabilities' ] );
 	}
 
 	/**
@@ -51,6 +52,16 @@ final class Capabilities {
 			}
 		}
 		return $allcaps;
+	}
+
+	/**
+	 * Filter the capability-manager-enhanced (PublishPress Capabilties) plugin UI.
+	 *
+	 * @param array $plugin_caps Array of per-plugin caps.
+	 */
+	public static function cme_plugin_capabilities( $plugin_caps ) {
+		$plugin_caps['Newspack'] = apply_filters( 'newspack_capabilities_in_cme_plugin', [] );
+		return $plugin_caps;
 	}
 }
 Capabilities::init();
