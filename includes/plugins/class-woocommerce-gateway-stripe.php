@@ -19,6 +19,14 @@ class WooCommerce_Gateway_Stripe {
 	 */
 	public static function init() {
 		add_filter( 'wc_stripe_intent_metadata', [ __CLASS__, 'add_transaction_metadata' ], 10, 2 );
+
+		/**
+		 * Disable Stripe Express Checkout feature flag.
+		 * This is a workaround for the Stripe Express Checkout feature flag
+		 * being enabled by default on new installs.
+		 */
+		add_filter( 'pre_update_option__wcstripe_feature_ece', [ __CLASS__, 'disable_express_checkout_feature_flag' ], 9, 2 );
+		add_filter( 'pre_update_option_woocommerce_stripe_settings', [ __CLASS__, 'disable_express_checkout_in_main_settings' ], 9, 2 );
 	}
 
 	/**
@@ -103,6 +111,42 @@ class WooCommerce_Gateway_Stripe {
 		}
 
 		return $metadata;
+	}
+
+	/**
+	 * Disable Stripe Express Checkout feature flag.
+	 *
+	 * @param array $flag Stripe Express Checkout feature flag.
+	 * @param array $old_value Old Stripe Express Checkout feature flag.
+	 * @return string
+	 */
+	public static function disable_express_checkout_feature_flag( $flag, $old_value ) {
+		/**
+		 * If the Stripe Express Checkout feature flag is empty, it means this is a new install.
+		 * Save the settings as 'no' to prevent the Stripe Express Checkout from being enabled.
+		 */
+		if ( empty( $old_value ) && 'yes' === $flag ) {
+			$flag = 'no';
+		}
+		return $flag;
+	}
+
+	/**
+	 * Disable Stripe Express Checkout in main settings.
+	 *
+	 * @param array $settings Stripe settings.
+	 * @param array $old_settings Old Stripe settings.
+	 * @return array
+	 */
+	public static function disable_express_checkout_in_main_settings( $settings, $old_settings ) {
+		/**
+		 * If the old strip settings are empty, it means this is a new install
+		 * Save the settings as 'no' to prevent the Stripe Express Checkout from being enabled.
+		 */
+		if ( empty( $old_settings ) && 'yes' === $settings['payment_request'] ) {
+			$settings['payment_request'] = 'no';
+		}
+		return $settings;
 	}
 }
 WooCommerce_Gateway_Stripe::init();
