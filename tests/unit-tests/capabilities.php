@@ -14,7 +14,7 @@ class Test_Capabilities extends WP_UnitTestCase {
 	/**
 	 * Test the map_capabilities method.
 	 */
-	public function test_capabilities_mapping() {
+	public function test_capabilities_mapping_post_to_post() {
 		// Use the capabilities map filter.
 		add_filter(
 			'newspack_capabilities_map',
@@ -48,7 +48,6 @@ class Test_Capabilities extends WP_UnitTestCase {
 			'delete_posts' => true,
 		];
 		$required_caps = [ 'edit_newspack_posts', 'delete_newspack_posts' ];
-		$result = Capabilities::map_capabilities( $user_all_caps, $required_caps );
 		$this->assertEquals(
 			array_merge(
 				$user_all_caps,
@@ -57,7 +56,7 @@ class Test_Capabilities extends WP_UnitTestCase {
 					'delete_newspack_posts' => true,
 				]
 			),
-			$result,
+			Capabilities::map_capabilities( $user_all_caps, $required_caps ),
 			'Multiple required caps are supported.'
 		);
 
@@ -68,12 +67,40 @@ class Test_Capabilities extends WP_UnitTestCase {
 				'newspack_post' => 'page',
 			]
 		);
-
 		$result = Capabilities::map_capabilities( $user_all_caps, [ 'edit_newspack_posts' ] );
 		$this->assertEquals(
 			false,
 			isset( $result['edit_newspack_posts'] ),
 			"User can't edit posts which inherrit caps from pages (even though they can edit posts)."
+		);
+	}
+
+	/**
+	 * Test the map_capabilities method.
+	 */
+	public function test_capabilities_mapping_other_caps() {
+		add_filter(
+			'newspack_capabilities_map',
+			fn() => [
+				// 'newspack_widgets' caps should inherit from 'manage_options'.
+				'newspack_widgets' => 'manage_options',
+			]
+		);
+		$user_all_caps = [
+			'manage_options' => true,
+		];
+		$this->assertEquals(
+			array_merge( $user_all_caps, [ 'newspack_widgets' => true ] ),
+			Capabilities::map_capabilities( $user_all_caps, [ 'newspack_widgets' ] ),
+			'User who can manage_options can newspack_widgets too.'
+		);
+		$user_all_caps = [
+			'manage_options' => false,
+		];
+		$this->assertEquals(
+			$user_all_caps,
+			Capabilities::map_capabilities( $user_all_caps, [ 'newspack_widgets' ] ),
+			"User who can't manage_options can't newspack_widgets neither."
 		);
 	}
 

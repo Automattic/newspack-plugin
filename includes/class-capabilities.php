@@ -31,23 +31,19 @@ final class Capabilities {
 	 */
 	public static function map_capabilities( $allcaps, $caps ) {
 		$capabilities_map = apply_filters( 'newspack_capabilities_map', [] );
-		foreach ( $capabilities_map as $post_type => $base_post_type ) {
-			$post_type_object = get_post_type_object( $post_type );
-			if ( ! $post_type_object ) {
-				continue;
-			}
-			$post_type_object_base = get_post_type_object( $base_post_type );
-			if ( ! $post_type_object_base ) {
-				continue;
-			}
+		foreach ( $capabilities_map as $cap_or_post_type => $base_cap_or_post_type ) {
+			$post_type_object = get_post_type_object( $cap_or_post_type );
+			$post_type_object_base = get_post_type_object( $base_cap_or_post_type );
 			foreach ( $caps as $requested_cap ) {
-				if ( stripos( $requested_cap, $post_type ) !== false ) {
-					$found_base_cap_name = array_search( $requested_cap, (array) $post_type_object->cap, true );
-					$required_mapped_cap = $post_type_object_base->cap->$found_base_cap_name;
+				if ( stripos( $requested_cap, $cap_or_post_type ) !== false ) {
+					if ( $post_type_object && $post_type_object_base ) {
+						$base = array_search( $requested_cap, (array) $post_type_object->cap, true );
+						$base_cap_or_post_type = $post_type_object_base->cap->$base;
+					}
 					if (
-						$required_mapped_cap !== false
-						&& isset( $allcaps[ $required_mapped_cap ] )
-						&& $allcaps[ $required_mapped_cap ]
+						$base_cap_or_post_type !== false
+						&& isset( $allcaps[ $base_cap_or_post_type ] )
+						&& $allcaps[ $base_cap_or_post_type ]
 					) {
 						$allcaps[ $requested_cap ] = true;
 					}
