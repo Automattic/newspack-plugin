@@ -25,19 +25,6 @@ class Bylines {
 	 */
 	const META_KEY_BYLINE = '_newspack_byline';
 
-	const AVATAR_ARGS = array(
-		'img'      => array(
-			'class'  => true,
-			'src'    => true,
-			'alt'    => true,
-			'width'  => true,
-			'height' => true,
-			'data-*' => true,
-			'srcset' => true,
-		),
-		'noscript' => array(),
-	);
-
 	/**
 	 * Initializes the class.
 	 */
@@ -181,8 +168,6 @@ class Bylines {
 	 * @param string $byline  Byline with author shortcodes on it.
 	 */
 	public static function get_authors_avatars( $byline ) {
-		global $coauthors_plus;
-
 		$author_ids = self::extract_author_ids_from_shortcode( $byline );
 		$avatars = '';
 
