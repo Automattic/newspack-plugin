@@ -219,7 +219,7 @@ export default withWizardScreen(
 										'newspack-plugin'
 									) }
 									help={ __(
-										'Number of newsletters to show by default on signup.',
+										'Number of newsletters initially visible during signup. Additional newsletters will be hidden behind a "See all" button.',
 										'newspack-plugin'
 									) }
 									value={ config.newsletter_list_initial_size || '' }
