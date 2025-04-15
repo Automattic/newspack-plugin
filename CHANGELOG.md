@@ -1,3 +1,23 @@
+# [6.4.0](https://github.com/Automattic/newspack-plugin/compare/v6.3.1...v6.4.0) (2025-04-14)
+
+
+### Bug Fixes
+
+* **guest-contributors:** return them in authors query ([3703559](https://github.com/Automattic/newspack-plugin/commit/3703559142297d3b111a089a97ce4a1b2d1b718a))
+* handle missing Mailchimp API key in auth status ([#3873](https://github.com/Automattic/newspack-plugin/issues/3873)) ([6df6fda](https://github.com/Automattic/newspack-plugin/commit/6df6fda4c057bb9840c736ba7c52fcf5b7d01fd9))
+* **ia:** render all emails on reset ([#3867](https://github.com/Automattic/newspack-plugin/issues/3867)) ([c6a71c0](https://github.com/Automattic/newspack-plugin/commit/c6a71c0c7206e1645491a19701e45415610a050c))
+* **notices:** fix PHP notice ([#3872](https://github.com/Automattic/newspack-plugin/issues/3872)) ([cc928b2](https://github.com/Automattic/newspack-plugin/commit/cc928b27a8eb2536d3119dbb62fd24c14cbb03ff))
+* path to autoload ([#3808](https://github.com/Automattic/newspack-plugin/issues/3808)) ([97fa24a](https://github.com/Automattic/newspack-plugin/commit/97fa24aa47c6efefde9fe7cf52d93a9e351a0036))
+* remove Mailchimp for WooCommerce from wizard ([#3876](https://github.com/Automattic/newspack-plugin/issues/3876)) ([f6b2484](https://github.com/Automattic/newspack-plugin/commit/f6b248427f745724e6dd265533d32c5fadc3b78d))
+* remove the Design link from the Appearance menu ([#3878](https://github.com/Automattic/newspack-plugin/issues/3878)) ([e24f147](https://github.com/Automattic/newspack-plugin/commit/e24f147b96594c7a1ad57879119f7001a551e504))
+
+
+### Features
+
+* custom byline interface ([#3746](https://github.com/Automattic/newspack-plugin/issues/3746)) ([289f55e](https://github.com/Automattic/newspack-plugin/commit/289f55eff543c6966ebcd9fe3eeb05f239b9ff95))
+* **esp-sync:** add constant contact support ([#3832](https://github.com/Automattic/newspack-plugin/issues/3832)) ([8198956](https://github.com/Automattic/newspack-plugin/commit/8198956df36968240c97b54454f7d30c11237183))
+* frontend display of bylines ([#3856](https://github.com/Automattic/newspack-plugin/issues/3856)) ([9feeba8](https://github.com/Automattic/newspack-plugin/commit/9feeba87dcccd31067ac8efb1df080b59f7dd4c9))
+
 ## [6.3.1](https://github.com/Automattic/newspack-plugin/compare/v6.3.0...v6.3.1) (2025-04-09)
 
 
