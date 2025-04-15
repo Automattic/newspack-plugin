@@ -48,8 +48,9 @@ function initReloadHandler() {
 			const dismissed = ! ras.overlays.get().length;
 			if ( dismissed ) {
 				setTimeout( () => {
-					// Reload the page if a newly registered reader is detected.
-					if ( newReader ) {
+					// Reload the page if a new reader registration or checkout is completed.
+					const activities = window?.newspackReaderActivation?.getActivities();
+					if ( newReader || ( activities.length && 'checkout_completed' === activities[ activities.length - 1 ]?.action ) ) {
 						window.location.reload();
 					} else {
 						handleDismissed();
