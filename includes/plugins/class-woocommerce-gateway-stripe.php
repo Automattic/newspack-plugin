@@ -21,12 +21,12 @@ class WooCommerce_Gateway_Stripe {
 		add_filter( 'wc_stripe_intent_metadata', [ __CLASS__, 'add_transaction_metadata' ], 10, 2 );
 
 		/**
-		 * Disable Stripe Express Checkout feature flag.
-		 * This is a workaround for the Stripe Express Checkout feature flag
+		 * Disable Stripe Express Checkout feature flags.
+		 * This is a workaround for the Stripe Express Checkout feature flags
 		 * being enabled by default on new installs.
 		 */
 		add_filter( 'pre_update_option__wcstripe_feature_ece', [ __CLASS__, 'disable_express_checkout_feature_flag' ], 9, 2 );
-		add_filter( 'pre_update_option_woocommerce_stripe_settings', [ __CLASS__, 'disable_express_checkout_in_main_settings' ], 9, 2 );
+		add_filter( 'pre_update_option_woocommerce_stripe_settings', [ __CLASS__, 'disable_express_checkout_in_main_settings' ], 11, 2 );
 	}
 
 	/**
@@ -140,12 +140,29 @@ class WooCommerce_Gateway_Stripe {
 	 */
 	public static function disable_express_checkout_in_main_settings( $settings, $old_settings ) {
 		/**
-		 * If the old strip settings are empty, it means this is a new install
-		 * Save the settings as 'no' to prevent the Stripe Express Checkout from being enabled.
+		 * If the old strip settings are empty, it means this is a new install.
 		 */
-		if ( empty( $old_settings ) && 'yes' === $settings['payment_request'] ) {
+		if ( ! empty( $old_settings ) ) {
+			return $settings;
+		}
+
+		// Disable Apple Pay/Google Pay for new installs.
+		if ( 'yes' === $settings['payment_request'] ) {
 			$settings['payment_request'] = 'no';
 		}
+
+		// Disable Link by Stripe for new installs.
+		if (
+			is_array( $settings['upe_checkout_experience_accepted_payments'] ) &&
+			! empty( $settings['upe_checkout_experience_accepted_payments'] ) &&
+			in_array( 'link', $settings['upe_checkout_experience_accepted_payments'], true )
+		) {
+			$settings['upe_checkout_experience_accepted_payments'] = array_diff(
+				$settings['upe_checkout_experience_accepted_payments'],
+				[ 'link' ]
+			);
+		}
+
 		return $settings;
 	}
 }
