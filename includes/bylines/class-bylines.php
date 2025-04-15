@@ -34,7 +34,9 @@ class Bylines {
 		}
 		add_action( 'init', [ __CLASS__, 'register_post_meta' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		add_filter( 'pre_newspack_posted_by', [ __CLASS__, 'output_byline_on_post' ] );
+		add_filter( 'pre_newspack_posted_by', [ __CLASS__, 'pre_newspack_posted_by' ] );
+		add_filter( 'newspack_blocks_post_authors', [ __CLASS__, 'newspack_blocks_post_authors' ] );
+		add_filter( 'newspack_blocks_post_byline', [ __CLASS__, 'newspack_blocks_post_byline' ] );
 	}
 
 	/**
@@ -121,36 +123,52 @@ class Bylines {
 	}
 
 	/**
-	 * Outputs the byline on the post.
+	 * Get the post custom byline HTML markup.
 	 *
-	 * @param bool $include_avatars Whether to include avatars in the byline.
+	 * @param bool $include_avatars Whether to include avatars in the markup.
 	 *
-	 * @return false|string The post content with the byline prepended.
+	 * @return false|string The post custom byline HTML markup or false if not available.
 	 */
-	public static function output_byline_on_post( $include_avatars = true ) {
+	public static function get_post_byline_html( $include_avatars = true ) {
 		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
-		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
-
-		if ( ! $byline_is_active || ! $byline ) {
+		if ( ! $byline_is_active ) {
 			return false;
 		}
 
-		$byline = self::replace_author_shortcodes( $byline );
-		if ( $include_avatars ) {
-			$byline = self::get_authors_avatars( $byline ) . $byline;
+		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
+		if ( ! $byline ) {
+			return false;
 		}
-		$byline_html = \wp_kses_post( $byline );
 
+		$byline_html = self::replace_author_shortcodes( $byline );
+		if ( $include_avatars ) {
+			$byline_html = self::get_authors_avatars( $byline ) . $byline_html;
+		}
 		return $byline_html;
 	}
 
 	/**
-	 * Replace author shortcodes on byline by HTML output.
+	 * Short-circuit the "posted by" text to render the custom byline.
 	 *
-	 * @param string $byline  Byline with author shortcodes on it.
+	 * @return string
+	 */
+	public static function pre_newspack_posted_by() {
+		$byline = self::get_post_byline_html();
+		if ( ! $byline ) {
+			return false;
+		}
+		return '<span class="byline">' . wp_kses_post( $byline ) . '</span>';
+	}
+
+	/**
+	 * Replace author shortcodes on byline for HTML markup.
+	 *
+	 * @param string $byline Byline with author shortcodes on it.
+	 *
+	 * @return string
 	 */
 	public static function replace_author_shortcodes( $byline ) {
-		return '<span class="byline">' . preg_replace_callback(
+		return preg_replace_callback(
 			'/\[Author id=(\d+)\](.*?)\[\/Author\]/',
 			function( $matches ) {
 				$author_id = $matches[1];
@@ -163,13 +181,15 @@ class Bylines {
 				);
 			},
 			$byline
-		) . '</span>';
+		);
 	}
 
 	/**
 	 * Return author avatars for authors present in the byline.
 	 *
-	 * @param string $byline  Byline with author shortcodes on it.
+	 * @param string $byline Byline with author shortcodes on it.
+	 *
+	 * @return string
 	 */
 	public static function get_authors_avatars( $byline ) {
 		$author_ids = self::extract_author_ids_from_shortcode( $byline );
@@ -221,6 +241,58 @@ class Bylines {
 			},
 			$author_ids
 		);
+	}
+
+	/**
+	 * Filter Newspack Blocks Authors.
+	 *
+	 * @param object[] $authors The authors.
+	 *
+	 * @return object[] $authors The authors.
+	 */
+	public static function newspack_blocks_post_authors( $authors ) {
+		if ( ! self::is_enabled() ) {
+			return $authors;
+		}
+
+		$byline_authors = self::get_post_byline_authors();
+		if ( empty( $byline_authors ) ) {
+			return $authors;
+		}
+
+		$authors = [];
+		foreach ( $byline_authors as $author ) {
+			$authors[] = (object) [
+				'ID'            => $author->ID,
+				'avatar'        => get_avatar( $author->ID, 48 ),
+				'url'           => get_author_posts_url( $author->ID ),
+				'user_nicename' => $author->user_nicename,
+				'display_name'  => $author->display_name,
+			];
+		}
+
+		return $authors;
+	}
+
+	/**
+	 * Filter Newspack Blocks Byline.
+	 *
+	 * @param string $byline The byline.
+	 *
+	 * @return string $byline The byline.
+	 */
+	public static function newspack_blocks_post_byline( $byline ) {
+		if ( ! self::is_enabled() ) {
+			return $byline;
+		}
+
+		$custom_byline = self::get_post_byline_html( false );
+
+		if ( ! $custom_byline ) {
+			return $byline;
+		}
+
+		return $custom_byline;
 	}
 }
 Bylines::init();
