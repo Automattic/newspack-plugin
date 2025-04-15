@@ -23,7 +23,6 @@ domReady( function () {
 		for ( let i = 0; i < length; i++ ) {
 			const digit = document.createElement( 'input' );
 			digit.setAttribute( 'type', 'text' );
-			digit.setAttribute( 'maxlength', '1' );
 			digit.setAttribute( 'pattern', '[0-9]' );
 			digit.setAttribute( 'autocomplete', 0 === i ? 'one-time-code' : 'off' );
 			digit.setAttribute( 'inputmode', 'numeric' );
@@ -71,9 +70,20 @@ domReady( function () {
 				}
 			} );
 			digit.addEventListener( 'input', ev => {
-				const otpDigit = ev.target.value.trim();
-				if ( otpDigit.match( /^[0-9]$/ ) ) {
-					values[ i ] = otpDigit;
+				const otpInput = ev.target.value.trim();
+				if ( length === otpInput.length ) {
+					for ( let index = 0; index < length; index++ ) {
+						const char = otpInput[ index ];
+						if ( /^[0-9]$/.test( char ) ) {
+							const input   = inputContainer.querySelector(`[data-index="${index}"]`);
+							input.value   = char;
+							values[index] = char;
+						}
+					}
+					otpCodeInput.value = values.join('');
+					return;
+				} else if ( otpInput.match( /^[0-9]$/ ) ) {
+					values[ i ] = otpInput;
 					const next  = inputContainer.querySelector(`[data-index="${i + 1}"]`);
 					if (next) {
 						next.focus();
