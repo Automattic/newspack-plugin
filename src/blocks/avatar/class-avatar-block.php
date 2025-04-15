@@ -106,21 +106,30 @@ final class Avatar_Block {
 						'style' => '',
 					];
 
-				$class        = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
-				$style_inline = ! empty( $border_attributes['style'] ) ? ' style="' . esc_attr( $border_attributes['style'] ) . '"' : '';
+				$class = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
 				?>
 				<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>" style="position: relative; user-select: auto; width: <?php echo esc_attr( $image_size ); ?>px; height:
 					<?php echo esc_attr( $image_size ); ?>px;">
 					<?php if ( $link_to_author ) : ?>
 						<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
-							<img src="<?php echo esc_url( $avatar_url ); ?>" class="<?php echo esc_attr( $class ); ?>"
-								alt="<?php echo esc_attr( $author_name ); ?>" width="<?php echo esc_attr( $image_size ); ?>"
-								height="<?php echo esc_attr( $image_size ); ?>" <?php echo esc_attr( $style_inline ); ?> />
+							<img
+								src="<?php echo esc_url( $avatar_url ); ?>" 
+								class="<?php echo esc_attr( $class ); ?>"
+								alt="<?php echo esc_attr( $author_name ); ?>" 
+								width="<?php echo esc_attr( $image_size ); ?>"
+								height="<?php echo esc_attr( $image_size ); ?>"
+								style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
+							/>
 						</a>
 					<?php else : ?>
-						<img src="<?php echo esc_url( $avatar_url ); ?>" class="<?php echo esc_attr( $class ); ?>"
-							alt="<?php echo esc_attr( $author_name ); ?>" width="<?php echo esc_attr( $image_size ); ?>"
-							height="<?php echo esc_attr( $image_size ); ?>" <?php echo esc_attr( $style_inline ); ?> />
+						<img
+							src="<?php echo esc_url( $avatar_url ); ?>" 
+							class="<?php echo esc_attr( $class ); ?>"
+							alt="<?php echo esc_attr( $author_name ); ?>" 
+							width="<?php echo esc_attr( $image_size ); ?>"
+							height="<?php echo esc_attr( $image_size ); ?>"
+							style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>" 
+						/>
 					<?php endif; ?>
 					<div>
 					</div>
