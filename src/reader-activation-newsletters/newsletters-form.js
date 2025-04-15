@@ -33,8 +33,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} );
 
 					newsletterContainer.style.maxHeight = 'none';
-					seeAllButton.style.display = 'none';
-				});
+					seeAllButton.remove();
+				} );
 
 				// Set the initial height to show partially visible.
 				const listDefaultSize = parseInt( newsletterContainer.dataset.listDefaultSize, 10 );
