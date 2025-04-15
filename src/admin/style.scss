@@ -142,6 +142,10 @@ h1 {
 /**
  * Wizards
  */
+#wpbody:has(.newspack-wizard__content) {
+	background: #fff;
+}
+
 // Only apply styles if there are sections and is immediate descendent.
 .newspack-wizard__content:has(> .newspack-wizard__sections) {
 	margin: 0;

@@ -25,19 +25,6 @@ class Bylines {
 	 */
 	const META_KEY_BYLINE = '_newspack_byline';
 
-	const AVATAR_ARGS = array(
-		'img'      => array(
-			'class'  => true,
-			'src'    => true,
-			'alt'    => true,
-			'width'  => true,
-			'height' => true,
-			'data-*' => true,
-			'srcset' => true,
-		),
-		'noscript' => array(),
-	);
-
 	/**
 	 * Initializes the class.
 	 */
@@ -81,10 +68,9 @@ class Bylines {
 			'newspack-bylines',
 			'newspackBylines',
 			[
-				'metaKeyActive'             => self::META_KEY_ACTIVE,
-				'metaKeyByline'             => self::META_KEY_BYLINE,
-				'siteUrl'                   => \get_site_url(),
-				'is_co_authors_plus_active' => is_plugin_active( 'co-authors-plus/co-authors-plus.php' ),
+				'metaKeyActive' => self::META_KEY_ACTIVE,
+				'metaKeyByline' => self::META_KEY_BYLINE,
+				'siteUrl'       => \get_site_url(),
 			]
 		);
 		\wp_enqueue_style(
@@ -186,8 +172,6 @@ class Bylines {
 	 * @param string $byline  Byline with author shortcodes on it.
 	 */
 	public static function get_authors_avatars( $byline ) {
-		global $coauthors_plus;
-
 		$author_ids = self::extract_author_ids_from_shortcode( $byline );
 		$avatars = '';
 
