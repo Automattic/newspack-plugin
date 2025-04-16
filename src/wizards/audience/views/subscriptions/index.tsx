@@ -2,6 +2,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
+import { forwardRef } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -12,7 +13,7 @@ import WizardSection from '../../../wizards-section';
 
 const subscriptionTabs = window.newspackAudienceSubscriptions.tabs;
 
-function AudienceSubscriptions() {
+function AudienceSubscriptions( props: Record<string, any>, ref: React.ForwardedRef<HTMLDivElement> ) {
 	const tabs = subscriptionTabs.map( tab => {
 		const render = () => (
 			<WizardsTab title={ tab.title }>
@@ -42,8 +43,9 @@ function AudienceSubscriptions() {
 			) }
 			sections={ tabs }
 			requiredPlugins={ [ 'woocommerce', 'woocommerce-memberships' ] }
+			ref={ ref }
 		/>
 	);
 }
 
-export default withWizard( AudienceSubscriptions );
+export default withWizard( forwardRef( AudienceSubscriptions ) );
