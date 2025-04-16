@@ -98,6 +98,9 @@
 	&__gate--reloading &__reloading-overlay {
 		display: flex;
 	}
+	&__overlay-gate &__reloading-overlay {
+		z-index: 99;
+	}
 }
 
 .newspack-modal-checkout-open,

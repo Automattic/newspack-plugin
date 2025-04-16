@@ -729,6 +729,7 @@ class Memberships {
 					<?php echo \apply_filters( 'newspack_gate_content', \get_the_content( null, null, $gate_post_id ) );  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			</div>
+			<div class="newspack-memberships__reloading-overlay"><h3><?php esc_html_e( 'Reloading page content...', 'newspack' ); ?></h3></div>
 		</div>
 		<?php
 		self::$gate_rendered = true;
