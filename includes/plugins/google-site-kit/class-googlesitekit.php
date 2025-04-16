@@ -266,6 +266,9 @@ class GoogleSiteKit {
 	 * @param array $gtag_opt gtag config options.
 	 */
 	public static function add_ga_custom_parameters( $gtag_opt ) {
+		// Set transport type to 'beacon' to allow async requests to complete after a new page is loaded.
+		$gtag_opt['transport_type'] = 'beacon';
+
 		$enable_fe_custom_params = defined( 'NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS' ) && NEWSPACK_GA_ENABLE_CUSTOM_FE_PARAMS;
 		if ( ! $enable_fe_custom_params ) {
 			return $gtag_opt;

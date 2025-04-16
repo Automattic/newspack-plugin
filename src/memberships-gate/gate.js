@@ -38,40 +38,50 @@ const gateInfo = {
 /**
  * Reload the page when a newly registered reader is detected.
  */
-function initReloadHandler() {
+function initReloadHandlers() {
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( function( ras ) {
-		const refreshPage = function() {
-			// If there are no overlays and a new reader is detected,
-			// reload the window, but allow other JS – which might have
-			// triggered another overlay – to be executed (setTimeout hack).
-			const dismissed = ! ras.overlays.get().length;
-			if ( dismissed ) {
-				setTimeout( () => {
-					// Reload the page if a new reader registration or checkout is completed.
-					const activities = window?.newspackReaderActivation?.getActivities();
-					if ( newReader || ( activities.length && 'checkout_completed' === activities[ activities.length - 1 ]?.action ) ) {
-						window.location.reload();
-					} else {
-						handleDismissed();
-					}
-				}, 2000 )
-			}
-		};
 		let newReader = false;
-
-		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
-		ras.on( 'activity', function( ev ) { // When a newly registered reader is detected.
+		let newCheckout = false;
+		const refreshPage = function( ev ) {
 			if (
 				! newReader &&
 				'reader_registered' === ev.detail.action &&
 				! window?.newspackReaderActivation?.getPendingCheckout()
 			) {
 				newReader = true;
-				handleRegistrationSuccess();
-				refreshPage();
 			}
-		} );
+
+			const activities = window?.newspackReaderActivation?.getActivities();
+			if (
+				! newCheckout &&
+				activities.length &&
+				'checkout_completed' === activities[ activities.length - 1 ]?.action
+			) {
+				newCheckout = true;
+			}
+
+			setTimeout( () => {
+				// If there are no overlays and a new reader is detected,
+				// reload the window, but allow other JS – which might have
+				// triggered another overlay – to be executed (setTimeout hack).
+				const dismissed = ! ras.overlays.get().length;
+				if ( dismissed ) {
+					if ( newReader ) {
+						handleRegistrationSuccess( ras );
+					} else if ( newCheckout ) {
+						handleCheckoutSuccess( ras, activities[ activities.length - 1 ] );
+					} else {
+						newReader = false;
+						newCheckout = false;
+						handleDismissed();
+					}
+				}
+			}, 2000 );
+		}
+
+		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
+		ras.on( 'activity', refreshPage ); // When a newly registered reader is detected.
 	} );
 }
 
@@ -156,10 +166,10 @@ function handleDismissed() {
 	if ( 'function' !== typeof window.gtag ) {
 		return;
 	}
-	const payload = {
+	const payload = getEventPayload( {
 		action: 'dismissed',
-	};
-	window.gtag( 'event', EVENT_NAME, getEventPayload( payload ) );
+	} );
+	window.gtag( 'event', EVENT_NAME, payload );
 }
 
 /**
@@ -216,16 +226,47 @@ function handleFormSubmission( evt, gate ) {
 
 /**
  * Handle when a registration attempt is successful.
+ * The page should automatically reload after a successful registration.
+ *
+ * @param {Object} ras The Reader Activation Service object.
  */
-function handleRegistrationSuccess() {
-	if ( 'function' !== typeof window.gtag ) {
+function handleRegistrationSuccess( ras ) {
+	const dismissed = ! ras.overlays.get().length;
+	if ( ! dismissed ) {
 		return;
 	}
-	const payload = {
+	if ( 'function' !== typeof window.gtag ) {
+		return window.location.reload();
+	}
+	const payload = getEventPayload( {
 		action: 'form_submission_success',
 		action_type: 'registration',
-	};
-	window.gtag( 'event', EVENT_NAME, getEventPayload( payload ) );
+	} );
+	payload.event_callback = () => window.location.reload();
+	window.gtag( 'event', EVENT_NAME, payload );
+}
+
+/**
+ * Handle when a checkout attempt is successful.
+ * The page should automatically reload after a successful checkout.
+ *
+ * @param {Object} ras      The Reader Activation Service object.
+ * @param {Object} activity The activity object.
+ */
+function handleCheckoutSuccess( ras, activity = {} ) {
+	const dismissed = ! ras.overlays.get().length;
+	if ( ! dismissed ) {
+		return;
+	}
+	if ( 'function' !== typeof window.gtag ) {
+		return window.location.reload();
+	}
+	const payload = getEventPayload( {
+		action: 'form_submission_success',
+		action_type: activity?.data?.action_type || 'unknown',
+	} );
+	payload.event_callback = () => window.location.reload();
+	window.gtag( 'event', EVENT_NAME, payload );
 }
 
 /**
@@ -262,7 +303,7 @@ domReady( function () {
 		return;
 	}
 
-	initReloadHandler();
+	initReloadHandlers();
 	if ( gate.classList.contains( 'newspack-memberships__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {
