@@ -34,10 +34,9 @@ final class Avatar_Block {
 		if ( is_plugin_active( 'co-authors-plus/co-authors-plus.php' ) && function_exists( 'get_coauthors' ) ) {
 			register_block_style(
 				'newspack/avatar',
-				[ 
-					'name'         => 'stacked',
-					'label'        => __( 'Stacked', 'newspack-plugin' ),
-					'inline_style' => '.is-style-stacked.wp-block-newspack-avatar { flex-direction: row; gap: 0.5em; align-items: flex-start; }',
+				[
+					'name'  => 'stacked',
+					'label' => __( 'Stacked', 'newspack-plugin' ),
 				]
 			);
 		}
@@ -51,7 +50,7 @@ final class Avatar_Block {
 	public static function register_block() {
 		register_block_type_from_metadata(
 			__DIR__ . '/block.json',
-			[ 
+			[
 				'render_callback' => [ __CLASS__, 'render_block' ],
 				'uses_context'    => [ 'postId', 'postType' ],
 			]
@@ -101,7 +100,7 @@ final class Avatar_Block {
 
 				$border_attributes = function_exists( 'get_block_core_avatar_border_attributes' )
 					? get_block_core_avatar_border_attributes( $attributes )
-					: [ 
+					: [
 						'class' => '',
 						'style' => '',
 					];
@@ -113,9 +112,9 @@ final class Avatar_Block {
 					<?php if ( $link_to_author ) : ?>
 						<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
 							<img
-								src="<?php echo esc_url( $avatar_url ); ?>" 
+								src="<?php echo esc_url( $avatar_url ); ?>"
 								class="<?php echo esc_attr( $class ); ?>"
-								alt="<?php echo esc_attr( $author_name ); ?>" 
+								alt="<?php echo esc_attr( $author_name ); ?>"
 								width="<?php echo esc_attr( $image_size ); ?>"
 								height="<?php echo esc_attr( $image_size ); ?>"
 								style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
@@ -123,12 +122,12 @@ final class Avatar_Block {
 						</a>
 					<?php else : ?>
 						<img
-							src="<?php echo esc_url( $avatar_url ); ?>" 
+							src="<?php echo esc_url( $avatar_url ); ?>"
 							class="<?php echo esc_attr( $class ); ?>"
-							alt="<?php echo esc_attr( $author_name ); ?>" 
+							alt="<?php echo esc_attr( $author_name ); ?>"
 							width="<?php echo esc_attr( $image_size ); ?>"
 							height="<?php echo esc_attr( $image_size ); ?>"
-							style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>" 
+							style="<?php echo esc_attr( $border_attributes['style'] ?? '' ); ?>"
 						/>
 					<?php endif; ?>
 					<div>

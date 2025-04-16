@@ -1,6 +1,5 @@
 [data-type="newspack/avatar"] {
 	display: flex;
-	flex-direction: row;
 	gap: 0.5rem;
 
 	&[class*="is-style-stacked"] {
@@ -8,14 +7,13 @@
 
 		.newspack-avatar-wrapper:not(:first-of-type) {
 			display: inline-block;
-			margin: 0 -1.5rem;
+			margin: 0 -0.5rem;
 			position: relative;
 		}
 	}
 }
 .wp-block-newspack-avatar {
 	display: flex;
-	flex-direction: row;
 	gap: 0.5rem;
 
 	&.is-style-stacked {
@@ -23,7 +21,7 @@
 
 		.newspack-avatar-wrapper:not(:first-of-type) {
 			display: inline-block;
-			margin: 0 -1.5rem;
+			margin: 0 -0.5rem;
 			position: relative;
 		}
 	}
