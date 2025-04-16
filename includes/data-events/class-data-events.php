@@ -24,6 +24,21 @@ final class Data_Events {
 	const LOGGER_HEADER = 'NEWSPACK-DATA-EVENTS';
 
 	/**
+	 * Option name for storing the nonce.
+	 */
+	const NONCE_OPTION = 'newspack_data_events_nonce';
+
+	/**
+	 * Option name for storing the nonce expiration.
+	 */
+	const NONCE_EXPIRATION_OPTION = 'newspack_data_events_nonce_expiration';
+
+	/**
+	 * Nonce lifetime in seconds (24 hours).
+	 */
+	const NONCE_LIFETIME = 86400; // 24 hours in seconds
+
+	/**
 	 * Registered callable handlers, keyed by their action name.
 	 *
 	 * @var callable[]
@@ -61,17 +76,64 @@ final class Data_Events {
 	}
 
 	/**
+	 * Get the current nonce for data events.
+	 *
+	 * We use a custom nonce implementation to avoid issues with user authentication.
+	 * In some cases, and in some sites, the nonce is created for a user ID but the dispatched request does not have a user ID.
+	 * This implementation generates a nonce that is not tied to a user ID, making it more reliable.
+	 *
+	 * @return string The nonce.
+	 */
+	public static function get_nonce() {
+		$nonce = \get_option( self::NONCE_OPTION, '' );
+		$expiration = \get_option( self::NONCE_EXPIRATION_OPTION, 0 );
+		$current_time = time();
+
+		// If nonce is empty or expired, generate a new one.
+		if ( empty( $nonce ) || $current_time > $expiration ) {
+			$nonce = self::generate_nonce();
+			$expiration = $current_time + self::NONCE_LIFETIME;
+
+			\update_option( self::NONCE_OPTION, $nonce );
+			\update_option( self::NONCE_EXPIRATION_OPTION, $expiration );
+		}
+
+		return $nonce;
+	}
+
+	/**
+	 * Generate a random nonce that's safe for use in URLs.
+	 *
+	 * @return string URL-safe random nonce.
+	 */
+	private static function generate_nonce() {
+		// Generate password with only alphanumeric characters.
+		return \wp_generate_password( 32, false, false );
+	}
+
+	/**
+	 * Verify the provided nonce.
+	 *
+	 * @param string $nonce The nonce to verify.
+	 * @return bool Whether the nonce is valid.
+	 */
+	public static function verify_nonce( $nonce ) {
+		$current_nonce = self::get_nonce();
+		return $current_nonce === $nonce;
+	}
+
+	/**
 	 * Maybe handle an event.
 	 */
 	public static function maybe_handle() {
 		// Don't lock up other requests while processing.
 		session_write_close(); // phpcs:ignore
 
-		if ( ! isset( $_REQUEST['nonce'] ) || ! \wp_verify_nonce( \sanitize_text_field( $_REQUEST['nonce'] ), self::ACTION ) ) {
+		if ( ! isset( $_REQUEST['nonce'] ) || ! self::verify_nonce( \sanitize_text_field( $_REQUEST['nonce'] ) ) ) { // phpcs:ignore
 			\wp_die();
 		}
 
-		$dispatches = isset( $_POST['dispatches'] ) ? $_POST['dispatches'] : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$dispatches = isset( $_POST['dispatches'] ) ? $_POST['dispatches'] : null; // phpcs:ignore
 
 		if ( empty( $dispatches ) || ! is_array( $dispatches ) ) {
 			\wp_die();
@@ -384,7 +446,7 @@ final class Data_Events {
 		$url = \add_query_arg(
 			[
 				'action' => self::ACTION,
-				'nonce'  => \wp_create_nonce( self::ACTION ),
+				'nonce'  => self::get_nonce(),
 			],
 			\admin_url( 'admin-ajax.php' )
 		);

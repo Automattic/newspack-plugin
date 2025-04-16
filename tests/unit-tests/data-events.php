@@ -312,4 +312,86 @@ class Newspack_Test_Data_Events extends WP_UnitTestCase {
 			$this->assertNull( Data_Events::current_event(), 'Current event should be null after handling' );
 		}
 	}
+
+	/**
+	 * Test the custom nonce generation and verification.
+	 */
+	public function test_nonce_generation_and_verification() {
+		// Get a nonce.
+		$nonce = Data_Events::get_nonce();
+
+		// Verify the nonce is not empty.
+		$this->assertNotEmpty( $nonce );
+
+		// Verify the nonce passes verification.
+		$this->assertTrue( Data_Events::verify_nonce( $nonce ) );
+
+		// Verify an invalid nonce fails verification.
+		$this->assertFalse( Data_Events::verify_nonce( 'invalid_nonce' ) );
+	}
+
+	/**
+	 * Test that the nonce is URL-safe.
+	 */
+	public function test_nonce_is_url_safe() {
+		$nonce = Data_Events::get_nonce();
+
+		// Verify the nonce only contains alphanumeric characters.
+		$this->assertMatchesRegularExpression( '/^[a-zA-Z0-9]+$/', $nonce );
+
+		// Verify the nonce doesn't change when requested multiple times.
+		$nonce2 = Data_Events::get_nonce();
+		$this->assertEquals( $nonce, $nonce2 );
+	}
+
+	/**
+	 * Test nonce expiration and rotation.
+	 */
+	public function test_nonce_expiration() {
+		// Get initial nonce.
+		$initial_nonce = Data_Events::get_nonce();
+
+		// Manually expire the nonce by setting expiration to past time.
+		update_option( Data_Events::NONCE_EXPIRATION_OPTION, time() - 1 );
+
+		// Get a new nonce - should be different.
+		$new_nonce = Data_Events::get_nonce();
+
+		// Verify the new nonce is different from the initial one.
+		$this->assertNotEquals( $initial_nonce, $new_nonce );
+
+		// Verify the new nonce passes verification.
+		$this->assertTrue( Data_Events::verify_nonce( $new_nonce ) );
+
+		// Verify the old nonce fails verification.
+		$this->assertFalse( Data_Events::verify_nonce( $initial_nonce ) );
+	}
+
+	/**
+	 * Test that the nonce is used in dispatches.
+	 */
+	public function test_nonce_in_dispatches() {
+		$action_name = 'test_nonce_action';
+		Data_Events::register_action( $action_name );
+
+		// Hook into the dispatched action to capture the URL.
+		$captured_url = '';
+		add_filter(
+			'pre_http_request',
+			function( $preempt, $args, $url ) use ( &$captured_url ) {
+				$captured_url = $url;
+				return true; // Short-circuit the request.
+			},
+			10,
+			3
+		);
+
+		// Dispatch an action.
+		Data_Events::dispatch( $action_name, [ 'test' => 'data' ] );
+		Data_Events::execute_queued_dispatches();
+
+		// Verify the URL contains our custom nonce.
+		$nonce = Data_Events::get_nonce();
+		$this->assertStringContainsString( 'nonce=' . $nonce, $captured_url );
+	}
 }
