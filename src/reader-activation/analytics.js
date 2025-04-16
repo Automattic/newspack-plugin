@@ -69,6 +69,9 @@ const handleLoginSuccess = ras => {
 			if ( ev.detail.data?.popup_id ) {
 				payload.popup_id = ev.detail.data.popup_id;
 			}
+			if ( ev.detail.data?.gate_post_id ) {
+				payload.gate_post_id = ev.detail.data.gate_post_id;
+			}
 			sendEvent( payload, 'reader_logged_in' );
 		}
 	} );

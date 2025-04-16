@@ -135,6 +135,7 @@ final class Reader_Activation {
 				'authenticated_email'   => $authenticated_email,
 				'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
 				'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
+				'auth_action_result'    => Magic_Link::AUTH_ACTION_RESULT,
 				'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 				'is_ras_enabled'        => self::is_enabled(),
 			];
