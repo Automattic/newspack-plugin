@@ -1,6 +1,9 @@
 @use "vars" as gate;
 
 .newspack-memberships {
+	&__gate {
+		position: relative;
+	}
 	&__overlay-gate {
 		position: fixed;
 		inset: 0;
@@ -76,6 +79,24 @@
 				}
 			}
 		}
+	}
+
+	&__reloading-overlay {
+		color: white;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.75);
+		display: none;
+		align-items: center;
+		justify-content: center;
+		z-index: 1;
+	}
+
+	&__gate--reloading &__reloading-overlay {
+		display: flex;
 	}
 }
 

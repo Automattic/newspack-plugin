@@ -607,8 +607,10 @@ class Memberships {
 			$gate = '<div style="pointer-events: none; height: 10em; margin-top: -10em; width: 100%; position: absolute; background: linear-gradient(180deg, rgba(255,255,255,0) 14%, rgba(255,255,255,1) 76%);"></div>' . $gate;
 		}
 
+		$reloading_overlay = '<div class="newspack-memberships__reloading-overlay"><h3>' . __( 'Reloading page content...', 'newspack' ) . '</h3></div>';
+
 		// Wrap gate in a div for styling.
-		$gate = '<div class="newspack-memberships__gate newspack-memberships__inline-gate">' . $gate . '</div>';
+		$gate = '<div class="newspack-memberships__gate newspack-memberships__inline-gate">' . $gate . $reloading_overlay . '</div>';
 		return $gate;
 	}
 

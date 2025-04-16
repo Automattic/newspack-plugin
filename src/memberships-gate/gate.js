@@ -61,23 +61,33 @@ function initReloadHandlers() {
 				newCheckout = true;
 			}
 
-			setTimeout( () => {
-				// If there are no overlays and a new reader is detected,
-				// reload the window, but allow other JS – which might have
-				// triggered another overlay – to be executed (setTimeout hack).
-				const dismissed = ! ras.overlays.get().length;
-				if ( dismissed ) {
-					if ( newReader ) {
-						handleRegistrationSuccess( ras );
-					} else if ( newCheckout ) {
-						handleCheckoutSuccess( ras, activities[ activities.length - 1 ] );
-					} else {
-						newReader = false;
-						newCheckout = false;
-						handleDismissed();
-					}
+			const gate = document.querySelector( '.newspack-memberships__gate' );
+			if ( ! ras.overlays.get().length ) {
+				if ( newReader || newCheckout ) {
+					gate?.classList.add( 'newspack-memberships__gate--reloading' );
 				}
-			}, 2000 );
+
+				if ( newReader ) {
+					handleRegistrationSuccess( ras );
+				} else if ( newCheckout ) {
+					handleCheckoutSuccess( ras, activities[ activities.length - 1 ] );
+				} else {
+					newReader = false;
+					newCheckout = false;
+					handleDismissed();
+				}
+			} else {
+				gate?.classList.remove( 'newspack-memberships__gate--reloading' );
+			}
+
+			// If there are no overlays and a new reader is detected,
+			// reload the window, but allow other JS – which might have
+			// triggered another overlay – to be executed (setTimeout hack).
+			setTimeout( () => {
+				if ( ! ras.overlays.get().length && ( newReader || newCheckout ) ) {
+					window.location.reload();
+				}
+			}, 5000 );
 		}
 
 		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
@@ -226,46 +236,31 @@ function handleFormSubmission( evt, gate ) {
 
 /**
  * Handle when a registration attempt is successful.
- * The page should automatically reload after a successful registration.
- *
- * @param {Object} ras The Reader Activation Service object.
  */
-function handleRegistrationSuccess( ras ) {
-	const dismissed = ! ras.overlays.get().length;
-	if ( ! dismissed ) {
-		return;
-	}
+function handleRegistrationSuccess() {
 	if ( 'function' !== typeof window.gtag ) {
-		return window.location.reload();
+		return;
 	}
 	const payload = getEventPayload( {
 		action: 'form_submission_success',
 		action_type: 'registration',
 	} );
-	payload.event_callback = () => window.location.reload();
 	window.gtag( 'event', EVENT_NAME, payload );
 }
 
 /**
  * Handle when a checkout attempt is successful.
- * The page should automatically reload after a successful checkout.
  *
- * @param {Object} ras      The Reader Activation Service object.
  * @param {Object} activity The activity object.
  */
-function handleCheckoutSuccess( ras, activity = {} ) {
-	const dismissed = ! ras.overlays.get().length;
-	if ( ! dismissed ) {
-		return;
-	}
+function handleCheckoutSuccess( activity = {} ) {
 	if ( 'function' !== typeof window.gtag ) {
-		return window.location.reload();
+		return;
 	}
 	const payload = getEventPayload( {
 		action: 'form_submission_success',
 		action_type: activity?.data?.action_type || 'unknown',
 	} );
-	payload.event_callback = () => window.location.reload();
 	window.gtag( 'event', EVENT_NAME, payload );
 }
 
