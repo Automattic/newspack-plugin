@@ -61,12 +61,7 @@ function initReloadHandlers() {
 				newCheckout = true;
 			}
 
-			const gate = document.querySelector( '.newspack-memberships__gate' );
 			if ( ! ras.overlays.get().length ) {
-				if ( newReader || newCheckout ) {
-					gate?.classList.add( 'newspack-memberships__gate--reloading' );
-				}
-
 				if ( newReader ) {
 					handleRegistrationSuccess( ras );
 				} else if ( newCheckout ) {
@@ -76,8 +71,6 @@ function initReloadHandlers() {
 					newCheckout = false;
 					handleDismissed();
 				}
-			} else {
-				gate?.classList.remove( 'newspack-memberships__gate--reloading' );
 			}
 
 			// If there are no overlays and a new reader is detected,
