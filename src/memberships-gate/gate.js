@@ -87,7 +87,7 @@ function initReloadHandlers() {
 				if ( ! ras.overlays.get().length && ( newReader || newCheckout ) ) {
 					window.location.reload();
 				}
-			}, 5000 );
+			}, 2000 );
 		}
 
 		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
