@@ -176,12 +176,6 @@ export default withWizardScreen(
 			{ config.enabled && (
 				<Card noBorder>
 					<hr />
-					<SectionHeader
-						title={ __(
-							'Newsletter Subscription Lists',
-							'newspack-plugin'
-						) }
-					/>
 					<ActionCard
 						title={ __(
 							'Present newsletter signup after checkout and registration',
@@ -191,25 +185,24 @@ export default withWizardScreen(
 							'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
 							'newspack-plugin'
 						) }
+						hasGreyHeader={ config.use_custom_lists }
+						isMedium
 						toggleChecked={ config.use_custom_lists }
 						toggleOnChange={ value =>
 							updateConfig( 'use_custom_lists', value )
 						}
-					/>
-					{ config.use_custom_lists && (
-						<>
-							<SectionHeader
-								title={ __(
-									'Select Newsletters',
-									'newspack-plugin'
-								) }
-								heading={ 4 }
-								description={ __(
-									'These newsletters will be displayed on signup.',
-									'newspack-plugin'
-								) }
-							/>
-							<Grid columns={ 3 }>
+					>
+						{ config.use_custom_lists && (
+							<Grid columns={ 4 }>
+								<SortableNewsletterListControl
+									lists={
+										newspackAudience.available_newsletter_lists
+									}
+									selected={ config.newsletter_lists }
+									onChange={ selected =>
+										updateConfig( 'newsletter_lists', selected )
+									}
+								/>
 								<RangeControl
 									min={ 1 }
 									max={ 10 }
@@ -226,17 +219,8 @@ export default withWizardScreen(
 									onChange={ value => updateConfig( 'newsletter_list_initial_size', parseInt( value ) ) }
 								/>
 							</Grid>
-							<SortableNewsletterListControl
-								lists={
-									newspackAudience.available_newsletter_lists
-								}
-								selected={ config.newsletter_lists }
-								onChange={ selected =>
-									updateConfig( 'newsletter_lists', selected )
-								}
-							/>
-						</>
-					) }
+						) }
+					</ActionCard>
 
 					<hr />
 
@@ -266,7 +250,7 @@ export default withWizardScreen(
 							'Configure options for syncing reader data to the connected ESP.',
 							'newspack-plugin'
 						) }
-						hasGreyHeader={ true }
+						hasGreyHeader={ config.sync_esp }
 						isMedium
 						title={ __(
 							'Sync contacts to ESP',
