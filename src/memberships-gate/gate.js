@@ -38,49 +38,43 @@ const gateInfo = {
 /**
  * Reload the page when a newly registered reader is detected.
  */
-function initReloadHandlers() {
+function initReloadHandler() {
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( function( ras ) {
-		let newReader = false;
-		let newCheckout = false;
+		let reload = false;
 		const refreshPage = function( ev ) {
+			// When a new reader is registered, which may or may not happen inside an overlay.
 			if (
-				! newReader &&
+				ev?.detail?.action &&
 				'reader_registered' === ev.detail.action &&
 				! window?.newspackReaderActivation?.getPendingCheckout()
 			) {
-				newReader = true;
+				reload = true;
 			}
 
-			const activities = window?.newspackReaderActivation?.getActivities();
-			if (
-				! newCheckout &&
-				activities.length &&
-				'checkout_completed' === activities[ activities.length - 1 ]?.action
-			) {
-				newCheckout = true;
-			}
-
-			if ( ! ras.overlays.get().length ) {
-				if ( newReader ) {
-					handleRegistrationSuccess( ras );
-				} else if ( newCheckout ) {
-					handleCheckoutSuccess( ras, activities[ activities.length - 1 ] );
+			// When closing an overlay, check if the last activity was a checkout, registration, or login.
+			if ( ev?.detail?.overlays && ev.detail.removed ) {
+				const activities = window?.newspackReaderActivation?.getActivities();
+				const lastActivity = activities?.[ activities.length - 1 ] || {};
+				if (
+					activities.length &&
+					( 'checkout_completed' === lastActivity.action || 'reader_registered' === lastActivity.action || 'reader_logged_in' === lastActivity.action )
+				) {
+					reload = true;
 				} else {
-					newReader = false;
-					newCheckout = false;
+					reload = false;
 					handleDismissed();
 				}
 			}
 
-			// If there are no overlays and a new reader is detected,
+			// If there are no overlays and a new reader, login, or checkout is detected,
 			// reload the window, but allow other JS – which might have
 			// triggered another overlay – to be executed (setTimeout hack).
 			setTimeout( () => {
-				if ( ! ras.overlays.get().length && ( newReader || newCheckout ) ) {
+				if ( ! ras.overlays.get().length && reload ) {
 					window.location.reload();
 				}
-			}, 2000 );
+			}, 5 );
 		}
 
 		ras.on( 'overlay', refreshPage ); // When an overlay is closed.
@@ -228,36 +222,6 @@ function handleFormSubmission( evt, gate ) {
 }
 
 /**
- * Handle when a registration attempt is successful.
- */
-function handleRegistrationSuccess() {
-	if ( 'function' !== typeof window.gtag ) {
-		return;
-	}
-	const payload = getEventPayload( {
-		action: 'form_submission_success',
-		action_type: 'registration',
-	} );
-	window.gtag( 'event', EVENT_NAME, payload );
-}
-
-/**
- * Handle when a checkout attempt is successful.
- *
- * @param {Object} activity The activity object.
- */
-function handleCheckoutSuccess( activity = {} ) {
-	if ( 'function' !== typeof window.gtag ) {
-		return;
-	}
-	const payload = getEventPayload( {
-		action: 'form_submission_success',
-		action_type: activity?.data?.action_type || 'unknown',
-	} );
-	window.gtag( 'event', EVENT_NAME, payload );
-}
-
-/**
  * Initializes the overlay gate.
  *
  * @param {HTMLElement} gate The gate element.
@@ -291,7 +255,7 @@ domReady( function () {
 		return;
 	}
 
-	initReloadHandlers();
+	initReloadHandler();
 	if ( gate.classList.contains( 'newspack-memberships__overlay-gate' ) ) {
 		initOverlay( gate );
 	} else {
