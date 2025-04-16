@@ -34,9 +34,24 @@ final class Data_Events {
 	const NONCE_EXPIRATION_OPTION = 'newspack_data_events_nonce_expiration';
 
 	/**
-	 * Nonce lifetime in seconds (24 hours).
+	 * Nonce lifetime in seconds (1 hour).
 	 */
-	const NONCE_LIFETIME = 86400; // 24 hours in seconds
+	const NONCE_LIFETIME = 3600; // 1 hour in seconds
+
+	/**
+	 * Grace period in seconds for accepting old nonces.
+	 */
+	const NONCE_GRACE_PERIOD = 10; // 10 seconds
+
+	/**
+	 * Option name for storing the previous nonce.
+	 */
+	const PREVIOUS_NONCE_OPTION = 'newspack_data_events_previous_nonce';
+
+	/**
+	 * Option name for storing the previous nonce expiration.
+	 */
+	const PREVIOUS_NONCE_EXPIRATION_OPTION = 'newspack_data_events_previous_nonce_expiration';
 
 	/**
 	 * Registered callable handlers, keyed by their action name.
@@ -91,6 +106,12 @@ final class Data_Events {
 
 		// If nonce is empty or expired, generate a new one.
 		if ( empty( $nonce ) || $current_time > $expiration ) {
+			// Store the current nonce as previous before generating a new one.
+			if ( ! empty( $nonce ) ) {
+				\update_option( self::PREVIOUS_NONCE_OPTION, $nonce );
+				\update_option( self::PREVIOUS_NONCE_EXPIRATION_OPTION, $current_time + self::NONCE_GRACE_PERIOD );
+			}
+
 			$nonce = self::generate_nonce();
 			$expiration = $current_time + self::NONCE_LIFETIME;
 
@@ -118,8 +139,21 @@ final class Data_Events {
 	 * @return bool Whether the nonce is valid.
 	 */
 	public static function verify_nonce( $nonce ) {
-		$current_nonce = self::get_nonce();
-		return $current_nonce === $nonce;
+		// Check against current nonce.
+		$current_nonce = \get_option( self::NONCE_OPTION, '' );
+		if ( $current_nonce === $nonce ) {
+			return true;
+		}
+
+		// If current nonce doesn't match, check against previous nonce if within grace period.
+		$previous_nonce = \get_option( self::PREVIOUS_NONCE_OPTION, '' );
+		$previous_expiration = \get_option( self::PREVIOUS_NONCE_EXPIRATION_OPTION, 0 );
+
+		if ( $previous_nonce === $nonce && time() <= $previous_expiration ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
