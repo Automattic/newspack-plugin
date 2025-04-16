@@ -45,7 +45,7 @@ const AvatarInspectorControls = ( {
 			/>
 			<ToggleControl
 				__nextHasNoMarginBottom
-				label={ __( 'Link to user profile', 'newspack-plugin' ) }
+				label={ __( 'Link to author archive', 'newspack-plugin' ) }
 				onChange={ () =>
 					setAttributes( { linkToAuthorArchive: ! attributes.linkToAuthorArchive } )
 				}
