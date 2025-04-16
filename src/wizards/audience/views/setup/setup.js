@@ -3,7 +3,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, RangeControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -210,12 +210,12 @@ export default withWizardScreen(
 								) }
 							/>
 							<Grid columns={ 3 }>
-								<TextControl
-									type="number"
+								<RangeControl
 									min={ 1 }
-									placeholder={ 2 }
+									max={ 10 }
+									initialPosition={ 2 }
 									label={ __(
-										'Initial List Size',
+										'Initial list size',
 										'newspack-plugin'
 									) }
 									help={ __(
