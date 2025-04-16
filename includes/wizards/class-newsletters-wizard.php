@@ -280,9 +280,6 @@ class Newsletters_Wizard extends Wizard {
 	 * Adjusts the Newsletters menu. Called from parent constructor 'admin_menu'.
 	 */
 	public function add_page() {
-		// Remove "Add New" menu item.
-		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'post-new.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
-
 		// Remove catetory and tags. For remove_submenu_page() to match (===) on submenu slug: "&" in urls need be replaced with "&amp;".
 		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=category&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=post_tag&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
