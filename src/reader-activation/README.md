@@ -16,9 +16,9 @@ This event will be fired when a reader registers for a new account via the Regis
 
 ### `reader_logged_in`
 
-This event will be fired when a reader logs into an existing account via the auth modal.
+This event will be fired when a reader logs into an existing account via the auth modal or magic link.
 
 | Name           | Type     | Obs                                                 |
 |----------------|----------|-----------------------------------------------------|
-| `login_method` | `string` | Currently only `auth-form`.                         |
+| `login_method` | `string` | Currently `auth-form` or `auth-token`.              |
 | `referrer`     | `string` | The URL path of the page the reader logged in from. |
