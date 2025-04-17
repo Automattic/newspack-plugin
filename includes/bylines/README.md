@@ -26,3 +26,5 @@ Bylines are stored as post meta and consists of the following fields:
 | ----------------------------- | --------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
 | `_newspack_byline_active`     | `boolean` | `post_meta` | Whether custom byline is active for the post                                                                          |
 | `_newspack_byline`            | `string`  | `post_meta` | The custom byline. Author links can be included by wrapping text in the Author tag (`by [Author id=5]Jane Doe[/Author] and Eric Doe`) |
+
+Obs: The author display name is also dynamically fetched based on the author ID. The display name stored in the DB is just a fallback for when an author goes missing.

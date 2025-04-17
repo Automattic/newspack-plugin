@@ -17,8 +17,9 @@ import {
 	SectionHeader,
 	SelectControl,
 	TextControl,
-	Wizard,
 } from '../../../../../components/src';
+import { useWizardData } from '../../../../../components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
 import WizardsTab from '../../../../wizards-tab';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../constants';
 import { CoverFeesSettings } from '../../../components/cover-fees-settings';
@@ -49,10 +50,10 @@ const FREQUENCY_SLUGS: FrequencySlug[] = Object.keys(
 ) as FrequencySlug[];
 
 export const DonationAmounts = () => {
-	const wizardData = Wizard.useWizardData(
+	const wizardData = useWizardData(
 		AUDIENCE_DONATIONS_WIZARD_SLUG
 	) as AudienceDonationsWizardData;
-	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	if ( ! wizardData.donation_data || 'errors' in wizardData.donation_data ) {
 		return null;
@@ -341,10 +342,10 @@ export const DonationAmounts = () => {
 };
 
 const Donation = () => {
-	const wizardData = Wizard.useWizardData(
+	const wizardData = useWizardData(
 		AUDIENCE_DONATIONS_WIZARD_SLUG
 	) as AudienceDonationsWizardData;
-	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const onSaveDonationSettings = () =>
 		saveWizardSettings( {
 			slug: AUDIENCE_DONATIONS_WIZARD_SLUG,

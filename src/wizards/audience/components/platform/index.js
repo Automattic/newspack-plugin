@@ -7,16 +7,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { Card, PluginInstaller, SelectControl, Wizard } from '../../../../components/src';
+import { Card, PluginInstaller, SelectControl } from '../../../../components/src';
 import { NEWSPACK, NRH, OTHER } from '../../constants';
 import WizardsSection from '../../../wizards-section';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 
 /**
  * Platform Selection  Screen Component
  */
 const Platform = () => {
-	const wizardData = Wizard.useWizardData( 'newspack-audience/payment' );
-	const { saveWizardSettings, updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const wizardData = useWizardData( 'newspack-audience/payment' );
+	const { saveWizardSettings, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	return (
 		<WizardsSection>
 			<Card noBorder>

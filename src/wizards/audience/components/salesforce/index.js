@@ -7,7 +7,8 @@ import { parse } from 'qs';
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { ClipboardButton, ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import { addQueryArgs } from '@wordpress/url';
@@ -15,16 +16,25 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies.
  */
-import { PluginSettings, Notice, Wizard } from '../../../../components/src';
+import { PluginSettings, Notice } from '../../../../components/src';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 
 const Salesforce = () => {
 	const { salesforce_redirect_url: redirectUrl } = window?.newspackAudience || {};
-	const [ hasCopied, setHasCopied ] = useState( false );
-	const salesforceData = Wizard.useWizardData( 'newspack-audience/salesforce' );
+	const salesforceData = useWizardData( 'newspack-audience/salesforce' );
 	const [ isConnected, setIsConnected ] = useState( salesforceData.refresh_token );
 	const [ error, setError ] = useState( null );
 
-	const { saveWizardSettings, wizardApiFetch } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { createNotice } = useDispatch( 'core/notices' );
+	const copyRef = useCopyToClipboard( redirectUrl, () => {
+		createNotice( 'info', __( 'Redirect URL copied to clipboard.', 'newspack-plugin' ), {
+			isDismissible: true,
+			type: 'snackbar',
+		} );
+	} );
+
+	const { saveWizardSettings, wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const saveAllSettings = value =>
 		saveWizardSettings( {
 			slug: 'newspack-audience/salesforce',
@@ -158,16 +168,12 @@ const Salesforce = () => {
 							'newspack-plugin'
 						) }
 
-						<ClipboardButton
+						<Button
+							ref={ copyRef }
 							className="newspack-button is-link"
-							text={ redirectUrl }
-							onCopy={ () => setHasCopied( true ) }
-							onFinishCopy={ () => setHasCopied( false ) }
 						>
-							{ hasCopied
-								? __( 'copied to clipboard!', 'newspack-plugin' )
-								: __( 'copy to clipboard', 'newspack-plugin' ) }
-						</ClipboardButton>
+							{ __( 'copy to clipboard', 'newspack-plugin' ) }
+						</Button>
 
 						{ __(
 							') into the “Callback URL” field in the Connected App’s settings. ',

@@ -160,6 +160,8 @@ const webpackConfig = getBaseWebpackConfig( {
 	entry,
 } );
 
+webpackConfig.output.chunkFilename = '[name].[contenthash].js';
+
 // Overwrite default optimisation.
 webpackConfig.optimization.splitChunks.cacheGroups.commons = {
 	name: 'commons',

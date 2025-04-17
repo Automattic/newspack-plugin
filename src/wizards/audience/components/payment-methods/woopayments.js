@@ -8,16 +8,13 @@ import { useDispatch, useSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	Button,
-	Wizard,
-} from '../../../../components/src';
+import { ActionCard, Button } from '../../../../components/src';
+import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 
 export const PaymentGateway = ( { gateway } ) => {
-	const isLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isLoading() );
-	const isQuietLoading = useSelect( select => select( Wizard.STORE_NAMESPACE ).isQuietLoading() );
-	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const isLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isLoading() );
+	const isQuietLoading = useSelect( select => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() );
+	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
 			slug: 'newspack-audience/payment',
@@ -25,7 +22,7 @@ export const PaymentGateway = ( { gateway } ) => {
 			value,
 		} );
 
-	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const onSave = () =>
 		saveWizardSettings( {
 			slug: 'newspack-audience/payment',

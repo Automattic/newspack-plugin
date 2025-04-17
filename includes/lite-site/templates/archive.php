@@ -36,7 +36,8 @@
 
 	foreach ( $recent_posts as $current_post ) {
 		printf(
-			'<li><a href="/text/%d">%s</a></li>',
+			'<li><a href="/%s/%d">%s</a></li>',
+			esc_attr( Lite_Site::get_url_base() ),
 			esc_attr( $current_post->ID ),
 			esc_html( $current_post->post_title )
 		);

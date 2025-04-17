@@ -49,6 +49,7 @@ type Config = {
 	metadata_prefix?: string;
 	sync_esp_delete?: boolean;
 	active_campaign_master_list?: number;
+	constant_contact_list_id?: string;
 	mailchimp_audience_id?: string;
 	mailchimp_reader_default_status?: string;
 	emails?: {
