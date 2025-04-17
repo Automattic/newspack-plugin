@@ -140,7 +140,7 @@ class WooCommerce_Gateway_Stripe {
 	 */
 	public static function disable_express_checkout_in_main_settings( $settings, $old_settings ) {
 		/**
-		 * If the old strip settings are empty, it means this is a new install.
+		 * If the old stripe settings are empty, it means this is a new install.
 		 */
 		if ( ! empty( $old_settings ) ) {
 			return $settings;
