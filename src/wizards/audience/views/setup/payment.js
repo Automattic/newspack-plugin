@@ -7,9 +7,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies.
  */
 import {
-	Wizard,
 	withWizardScreen,
 } from '../../../../components/src';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import WizardsTab from '../../../wizards-tab';
 import Platform from '../../components/platform';
 import PaymentGateways from '../../components/payment-methods';
@@ -18,7 +18,7 @@ import BillingFields from '../../components/billing-fields';
 import CheckoutConfiguration from '../../components/checkout-configuration';
 
 export default withWizardScreen( function () {
-	const data = Wizard.useWizardData( 'newspack-audience/payment' );
+	const data = useWizardData( 'newspack-audience/payment' );
 	return (
 		<WizardsTab
 			title={ __( 'Checkout & Payment', 'newspack-plugin' ) }

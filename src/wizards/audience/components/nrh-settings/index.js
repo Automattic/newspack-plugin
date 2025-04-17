@@ -13,14 +13,15 @@ import {
 	Button,
 	Grid,
 	TextControl,
-	Wizard,
 } from '../../../../components/src';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 import WizardsSection from '../../../wizards-section';
 
 const NRHSettings = () => {
 	const [ selectedPage, setSelectedPage ] = useState( null );
-	const wizardData = Wizard.useWizardData( 'newspack-audience/payment' );
-	const { updateWizardSettings, saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const wizardData = useWizardData( 'newspack-audience/payment' );
+	const { updateWizardSettings, saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 
 	useEffect( () => {
 		if ( wizardData?.platform_data?.donor_landing_page ) {

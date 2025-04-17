@@ -1,3 +1,10 @@
+## [6.4.1](https://github.com/Automattic/newspack-plugin/compare/v6.4.0...v6.4.1) (2025-04-16)
+
+
+### Bug Fixes
+
+* **wizards:** react render strategy and ref forwarding ([#3923](https://github.com/Automattic/newspack-plugin/issues/3923)) ([730ffc3](https://github.com/Automattic/newspack-plugin/commit/730ffc397c23a7da7808202092f684ed16ef414b))
+
 # [6.4.0](https://github.com/Automattic/newspack-plugin/compare/v6.3.1...v6.4.0) (2025-04-14)
 
 
