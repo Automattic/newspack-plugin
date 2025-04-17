@@ -75,7 +75,7 @@ class Corrections {
 		}
 
 		$screen = get_current_screen();
-		if ( empty( $screen ) || $screen->base !== 'post' || ! in_array( $screen->post_type, self::SUPPORTED_POST_TYPES, true ) ) {
+		if ( empty( $screen ) || 'post' !== $screen->base || ! in_array( $screen->post_type, self::SUPPORTED_POST_TYPES, true ) ) {
 			return;
 		}
 
