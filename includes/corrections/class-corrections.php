@@ -150,18 +150,20 @@ class Corrections {
 			'item_link_description'    => __( 'A link to a correction.', 'newspack-plugin' ),
 		];
 		$args = array(
-			'labels'             => $labels,
-			'description'        => 'Post type used to store corrections and clarifications.',
-			'has_archive'        => true,
-			'public'             => false,
-			'publicly_queryable' => true,
-			'query_var'          => true,
-			'rewrite'            => [ 'slug' => 'corrections' ],
-			'show_ui'            => false,
-			'show_in_rest'       => true,
-			'supports'           => $supports,
-			'taxonomies'         => [],
-			'menu_icon'          => 'dashicons-edit',
+			'labels'              => $labels,
+			'description'         => 'Post type used to store corrections and clarifications.',
+			'has_archive'         => true,
+			'public'              => false,
+			'publicly_queryable'  => true,
+			'exclude_from_search' => false,
+			'query_var'           => true,
+			'rewrite'             => [ 'slug' => 'corrections' ],
+			'show_ui'             => false,
+			'show_in_nav_menus'   => true,
+			'show_in_rest'        => true,
+			'supports'            => $supports,
+			'taxonomies'          => [],
+			'menu_icon'           => 'dashicons-edit',
 		);
 		\register_post_type( self::POST_TYPE, $args );
 
