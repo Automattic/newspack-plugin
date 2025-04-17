@@ -37,11 +37,6 @@ class Corrections {
 	const CORRECTIONS_TYPE_META = 'newspack_corrections_type';
 
 	/**
-	 * Supported post types.
-	 */
-	const SUPPORTED_POST_TYPES = [ 'article_legacy', 'content_type_blog', 'post', 'press_release' ];
-
-	/**
 	 * REST route for corrections.
 	 */
 	const REST_ROUTE = '/corrections';
@@ -75,7 +70,15 @@ class Corrections {
 		}
 
 		$screen = get_current_screen();
-		if ( empty( $screen ) || 'post' !== $screen->base || ! in_array( $screen->post_type, self::SUPPORTED_POST_TYPES, true ) ) {
+
+		/**
+		 * Filter to allow other post types to support Newspack Corrections and clarifications.
+		 *
+		 * @param array $supported_post_types Array of supported post types slugs.
+		 */
+		$supported_post_types = apply_filters( 'newspack_corrections_supported_post_types', [ 'post' ] );
+
+		if ( empty( $screen ) || 'post' !== $screen->base || ! in_array( $screen->post_type, $supported_post_types, true ) ) {
 			return;
 		}
 
@@ -155,11 +158,11 @@ class Corrections {
 			'has_archive'         => true,
 			'public'              => false,
 			'publicly_queryable'  => true,
-			'exclude_from_search' => false,
+			'exclude_from_search' => true,
 			'query_var'           => true,
 			'rewrite'             => [ 'slug' => 'corrections' ],
 			'show_ui'             => false,
-			'show_in_nav_menus'   => true,
+			'show_in_nav_menus'   => false,
 			'show_in_rest'        => true,
 			'supports'            => $supports,
 			'taxonomies'          => [],
