@@ -8,11 +8,10 @@
  * @return {Object} Event payload.
  */
 
-const getEventPayload = ( action, extraParams = {} ) => {
+const getEventPayload = ( extraParams = {} ) => {
 	return {
 		...extraParams,
 		referrer: window.location.pathname,
-		action
 	};
 };
 
@@ -40,16 +39,16 @@ const handleRegistrationSuccess = ras => {
 			'reader_registered' === ev.detail.action &&
 			! window?.newspackReaderActivation?.getPendingCheckout()
 		) {
-			const payload = getEventPayload( 'reader_registered', {
+			const payload = getEventPayload( {
 				registration_method: ev.detail.data?.registration_method || 'unknown',
 			} );
 			if ( ev.detail.data?.newspack_popup_id ) {
-				payload.popup_id = ev.detail.data.newspack_popup_id;
+				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
 			}
 			if ( ev.detail.data?.gate_post_id ) {
 				payload.gate_post_id = ev.detail.data.gate_post_id;
 			}
-			sendEvent( payload, 'reader_registered' );
+			sendEvent( payload, 'np_reader_registered' );
 		}
 	} );
 };
@@ -62,17 +61,17 @@ const handleRegistrationSuccess = ras => {
 const handleLoginSuccess = ras => {
 	ras.on( 'activity', function( ev ) {
 		if ( 'reader_logged_in' === ev.detail.action ) {
-			const payload = getEventPayload( 'reader_logged_in', {
+			const payload = getEventPayload( {
 				referrer: window.location.pathname,
 				login_method: ev.detail.data?.login_method || 'unknown',
 			} );
-			if ( ev.detail.data?.popup_id ) {
-				payload.popup_id = ev.detail.data.popup_id;
+			if ( ev.detail.data?.newspack_popup_id ) {
+				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
 			}
 			if ( ev.detail.data?.gate_post_id ) {
 				payload.gate_post_id = ev.detail.data.gate_post_id;
 			}
-			sendEvent( payload, 'reader_logged_in' );
+			sendEvent( payload, 'np_reader_logged_in' );
 		}
 	} );
 };
