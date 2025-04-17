@@ -7,9 +7,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import metadata from './block.json';
 import colors from '../../shared/scss/_colors.module.scss';
+import './style.scss';
 
 export const title = __( 'Correction Item', 'newspack-plugin' );
 
