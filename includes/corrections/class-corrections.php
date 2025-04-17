@@ -74,6 +74,11 @@ class Corrections {
 			return;
 		}
 
+		$screen = get_current_screen();
+		if ( empty( $screen ) || $screen->base !== 'post' || ! in_array( $screen->post_type, self::SUPPORTED_POST_TYPES, true ) ) {
+			return;
+		}
+
 		\wp_enqueue_script(
 			'newspack-corrections-modal',
 			Newspack::plugin_url() . '/dist/other-scripts/corrections-modal.js',
