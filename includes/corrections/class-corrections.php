@@ -154,7 +154,7 @@ class Corrections {
 		];
 		$args = array(
 			'labels'              => $labels,
-			'description'         => 'Post type used to store corrections and clarifications.',
+			'description'         => __( 'Post type used to store corrections and clarifications.', 'newspack-plugin' ),
 			'has_archive'         => true,
 			'public'              => false,
 			'publicly_queryable'  => true,
