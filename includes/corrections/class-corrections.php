@@ -494,7 +494,7 @@ class Corrections {
 		}
 
 		\register_block_template(
-			'newspack//corrections-archive',
+			'newspack//archive-' . self::POST_TYPE,
 			[
 				'title'       => __( 'Corrections Archive', 'newspack-plugin' ),
 				'description' => __( 'A block template for displaying an archive of corrections.', 'newspack-plugin' ),
