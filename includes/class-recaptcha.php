@@ -31,7 +31,7 @@ final class Recaptcha {
 		\add_action( 'woocommerce_add_payment_method_form_bottom', [ __CLASS__, 'add_recaptcha_v3_to_checkout' ] );
 
 		// Clone the Place Order button so we can attach the reCAPTCHA widget to it without triggering other third-party extensions' event listeners.
-		\add_filter( 'woocommerce_order_button_html', [ __CLASS__, 'order_button_html' ], 10 );
+		\add_filter( 'woocommerce_order_button_html', [ __CLASS__, 'order_button_html' ], 999 );
 
 		// Verify reCAPTCHA on checkout submission.
 		\add_action( 'woocommerce_checkout_process', [ __CLASS__, 'verify_recaptcha_on_checkout' ] );
