@@ -12,7 +12,7 @@
 		"@types/qs": "^6.9.17",
 		"@types/react": "^17.0.75",
 		"@types/wordpress__api-fetch": "^3.23.1",
-		"@wordpress/browserslist-config": "^6.18.0",
+		"@wordpress/browserslist-config": "^6.22.0",
 		"eslint": "^8.57.0",
 		"lint-staged": "^15.5.1",
 		"newspack-scripts": "^5.5.2",
