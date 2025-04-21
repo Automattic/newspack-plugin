@@ -52,7 +52,7 @@
 		"release:archive": "rm -rf release && mkdir -p release && rsync -r . ./release/newspack-plugin --exclude-from='./.distignore' && cd release && zip -r newspack-plugin.zip newspack-plugin"
 	},
 	"dependencies": {
-		"@wordpress/icons": "^10.20.0",
+		"@wordpress/icons": "^10.22.0",
 		"classnames": "^2.5.1",
 		"colord": "^2.9.3",
 		"deep-map-keys": "^2.0.1",
