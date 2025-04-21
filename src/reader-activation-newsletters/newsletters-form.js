@@ -82,6 +82,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 				fetch( newspack_reader_activation_newsletters.newspack_ajax_url, {
 					method: 'POST',
 					body: data,
+				} ).then( () => {
+					const lists = data.getAll( 'lists[]' );
+					if ( lists.length ) {
+						const signupMethod = form.getAttribute( 'data-signup-method' ) || 'post-checkout';
+						readerActivation.dispatchActivity( 'newsletter_signup', { email: emailInput.value, lists, newsletters_subscription_method: signupMethod } );
+					}
 				} ).finally( () => {
 					if ( container?.newslettersSignupCallback ) {
 						container.newslettersSignupCallback();

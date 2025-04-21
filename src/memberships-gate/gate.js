@@ -56,10 +56,8 @@ function initReloadHandler() {
 			if ( ev?.detail?.overlays && ev.detail.removed ) {
 				const activities = window?.newspackReaderActivation?.getActivities();
 				const lastActivity = activities?.[ activities.length - 1 ] || {};
-				if (
-					activities.length &&
-					( 'checkout_completed' === lastActivity.action || 'reader_registered' === lastActivity.action || 'reader_logged_in' === lastActivity.action )
-				) {
+				const validActions = [ 'checkout_completed', 'reader_registered', 'reader_logged_in', 'newsletter_signup' ];
+				if ( activities.length && validActions.includes( lastActivity.action ) ) {
 					reload = true;
 				} else {
 					reload = false;

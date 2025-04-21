@@ -29,6 +29,30 @@ const sendEvent = ( payload, eventName = 'np_reader_activation_interaction' ) =>
 };
 
 /**
+ * Handle a successful newsletter signup.
+ *
+ * @param {Object} ras Reader Activation Store.
+ */
+const handleNewsletterSignupSuccess = ras => {
+	ras.on( 'activity', function( ev ) {
+		if ( 'newsletter_signup' === ev.detail.action && ev.detail.data?.lists?.length ) {
+			const payload = getEventPayload( {
+				referrer: window.location.pathname,
+				newsletters_subscription_method: ev.detail.data?.newsletters_subscription_method || 'unknown',
+				lists: ev.detail.data.lists,
+			} );
+			if ( ev.detail.data?.newspack_popup_id ) {
+				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
+			}
+			if ( ev.detail.data?.gate_post_id ) {
+				payload.gate_post_id = ev.detail.data.gate_post_id;
+			}
+			sendEvent( payload, 'np_newsletter_subscribed' );
+		}
+	} );
+};
+
+/**
  * Handle a successful reader registration.
  *
  * @param {Object} ras Reader Activation Store.
@@ -40,6 +64,7 @@ const handleRegistrationSuccess = ras => {
 			! window?.newspackReaderActivation?.getPendingCheckout()
 		) {
 			const payload = getEventPayload( {
+				referrer: window.location.pathname,
 				registration_method: ev.detail.data?.registration_method || 'unknown',
 			} );
 			if ( ev.detail.data?.newspack_popup_id ) {
@@ -82,6 +107,7 @@ const handleLoginSuccess = ras => {
 export const initAnalytics = () => {
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( function( ras ) {
+		handleNewsletterSignupSuccess( ras );
 		handleRegistrationSuccess( ras );
 		handleLoginSuccess( ras );
 	} );

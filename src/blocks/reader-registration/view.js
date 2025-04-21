@@ -79,14 +79,19 @@ window.newspackRAS.push( function( readerActivation ) {
 						readerActivation.setAuthenticated( data?.authenticated );
 
 						if ( data.authenticated && ! data.existing_user ) {
-							const activity = { email: data.email, registration_method: data?.metadata?.registration_method || 'registration-block' };
+							const formData = new FormData( form );
+							const lists = formData.getAll( 'lists[]' );
+							const baseActivity = { email: data.email };
 							if ( data?.metadata?.newspack_popup_id ) {
-								activity.newspack_popup_id = data.metadata?.newspack_popup_id;
+								baseActivity.newspack_popup_id = data.metadata.newspack_popup_id;
 							}
 							if ( data?.metadata?.gate_post_id ) {
-								activity.gate_post_id = data.metadata?.gate_post_id;
+								baseActivity.gate_post_id = data.metadata.gate_post_id;
 							}
-							readerActivation.dispatchActivity( 'reader_registered', activity );
+							if ( lists ) {
+								readerActivation.dispatchActivity( 'newsletter_signup', { ...baseActivity, newsletters_subscription_method: 'reader-registration' } );
+							}
+							readerActivation.dispatchActivity( 'reader_registered', { ...baseActivity, registration_method: data?.metadata?.registration_method || 'registration-block' } );
 						}
 					}
 				} else if ( messageNode ) {

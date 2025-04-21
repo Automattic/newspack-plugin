@@ -312,6 +312,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							openNewslettersSignupModal( {
 								onSuccess: container.authCallback( authMessage, authData ),
 								closeOnSuccess: true,
+								signupMethod: 'reader-registration',
 							} );
 					} else {
 						callback = container.authCallback;

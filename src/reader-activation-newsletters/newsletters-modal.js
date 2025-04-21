@@ -72,6 +72,7 @@ export function openNewslettersSignupModal( config = {} ) {
 		}
 		return;
 	}
+	const form = container.querySelector( 'form' );
 
 	/**
 	 * Close the modal.
@@ -123,8 +124,11 @@ export function openNewslettersSignupModal( config = {} ) {
 		const openerContent = document.createElement( 'div' );
 		openerContent.classList.add( 'opener-content' );
 		openerContent.innerHTML = config.content;
-		const form = container.querySelector( 'form' );
 		form.insertBefore( openerContent, form.firstChild );
+	}
+
+	if ( config?.signupMethod ) {
+		form.setAttribute( 'data-signup-method', config.signupMethod );
 	}
 
 	// Populate email if not already set.
