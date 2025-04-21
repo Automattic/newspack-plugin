@@ -302,15 +302,34 @@ final class Data_Events {
 			self::$global_handlers[] = $handler;
 			return;
 		}
+
+		$error = false;
+
 		if ( ! isset( self::$actions[ $action_name ] ) ) {
-			return new WP_Error( 'action_not_registered', __( 'Action not registered.', 'newspack' ) );
+			$error = new WP_Error( 'action_not_registered', __( 'Action not registered.', 'newspack' ) );
 		}
 		if ( ! is_callable( $handler ) ) {
-			return new WP_Error( 'handler_not_callable', __( 'Handler is not callable.', 'newspack' ) );
+			$error = new WP_Error( 'handler_not_callable', __( 'Handler is not callable.', 'newspack' ) );
 		}
+
+		if ( $error ) {
+
+			Logger::log(
+				sprintf(
+					'ATTENTION: Data Event handler for action "%s" was not properly registered: %s',
+					$action_name,
+					$error->get_error_message()
+				),
+				'DATA EVENTS'
+			);
+
+			return $error;
+		}
+
 		if ( in_array( $handler, self::$actions[ $action_name ], true ) ) {
 			return new WP_Error( 'handler_already_registered', __( 'Handler already registered.', 'newspack' ) );
 		}
+
 		self::$actions[ $action_name ][] = $handler;
 	}
 

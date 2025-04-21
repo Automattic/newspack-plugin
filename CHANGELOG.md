@@ -1,3 +1,10 @@
+## [6.4.3](https://github.com/Automattic/newspack-plugin/compare/v6.4.2...v6.4.3) (2025-04-21)
+
+
+### Bug Fixes
+
+* register reader data handlers after listeners ([#3901](https://github.com/Automattic/newspack-plugin/issues/3901)) ([df71105](https://github.com/Automattic/newspack-plugin/commit/df71105c276bb3f872c0f3876287e15022416a99))
+
 ## [6.4.2](https://github.com/Automattic/newspack-plugin/compare/v6.4.1...v6.4.2) (2025-04-17)
 
 
