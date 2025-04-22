@@ -1037,7 +1037,7 @@ class WooCommerce_My_Account {
 			]
 		);
 		if ( false === $result ) {
-			Logger::log( 'Skipping Stripe email update: no Stripe customer found for user ' . $user_id );
+			Logger::log( 'Skipping Stripe email update: no Stripe customer found for user ' . $email );
 		}
 		if ( \is_wp_error( $result ) ) {
 			Logger::error( 'Error updating Stripe customer email: ' . $result->get_error_message() );
