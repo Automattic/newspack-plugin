@@ -1037,7 +1037,7 @@ class WooCommerce_My_Account {
 			]
 		);
 		if ( \is_wp_error( $request ) ) {
-			Logger::error( 'Error updating Stripe customer email: ' . $result->get_error_message() );
+			Logger::error( 'Error updating Stripe customer email: ' . $request->get_error_message() );
 		}
 	}
 
