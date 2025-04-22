@@ -2022,7 +2022,7 @@ final class Reader_Activation {
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) ) ) );
 		}
 
-		if ( ! self::is_user_reader( $user ) ) {
+		if ( $user && ! self::is_user_reader( $user ) ) {
 			$message = 'register' === $action ? __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ) : wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) );
 			$sent = self::send_non_reader_login_reminder( $user );
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : $message ) );
@@ -2219,7 +2219,7 @@ final class Reader_Activation {
 				return false;
 			}
 
-			// Don't send OTP email for newsletter signup, or if the reader has a password set. 
+			// Don't send OTP email for newsletter signup, or if the reader has a password set.
 			if ( self::is_reader_without_password( $existing_user ) &&
 				( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) )
 			) {
