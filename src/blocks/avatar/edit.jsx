@@ -11,11 +11,10 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalUseBorderProps as useBorderProps,
 } from '@wordpress/block-editor';
-import { isRTL, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import {
 	PanelBody,
 	RangeControl,
-	ResizableBox,
 	ToggleControl,
 } from '@wordpress/components';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
@@ -55,12 +54,7 @@ const AvatarInspectorControls = ( {
 	</InspectorControls>
 );
 
-const ResizableAvatar = ( {
-	setAttributes,
-	attributes,
-	avatar,
-	isSelected,
-} ) => {
+const AvatarWrapper = ( { avatar, size, attributes } ) => {
 	const { className } = useBlockProps();
 	const duotoneClassName = className
 		? className.split( ' ' ).filter( ( classes ) => classes.includes( 'wp-duotone' ) )
@@ -76,49 +70,44 @@ const ResizableAvatar = ( {
 			s: attributes?.size * 2,
 		}
 	);
+	const avatarImage = (
+		<img
+			src={ doubledSizedSrc }
+			alt={ avatar.alt }
+			className={ clsx(
+				'avatar',
+				'avatar-' + size,
+				'photo',
+				'wp-block-newspack-avatar__image',
+				borderProps.className
+			) }
+			style={ {
+				width: size,
+				height: size,
+				...borderProps.style,
+			} }
+		/>
+	);
 	return (
-			<ResizableBox
-				className={classNames}
-				size={ {
-					width: attributes.size,
-					height: attributes.size,
-				} }
-				showHandle={ isSelected }
-				onResizeStop={ ( event, direction, elt, delta ) => {
-					setAttributes( {
-						size: parseInt(
-							attributes.size + ( delta.height || delta.width ),
-							10
-						),
-					} );
-				} }
-				lockAspectRatio
-				enable={ {
-					top: false,
-					right: ! isRTL(),
-					bottom: true,
-					left: isRTL(),
-				} }
-				minWidth={ attributes.minWidth }
-				maxWidth={ attributes.maxWidth }
-			>
-				<img
-					src={ doubledSizedSrc }
-					alt={ avatar.alt }
-					className={ clsx(
-						'avatar',
-						'avatar-' + attributes.size,
-						'photo',
-						'wp-block-newspack-avatar__image',
-						borderProps.className
-					) }
-					style={ borderProps.style }
-				/>
-			</ResizableBox>
+		<div
+			className={ classNames }
+		>
+			{ attributes.linkToAuthorArchive ? (
+				<a
+					href="#avatar-pseudo-link"
+					className="wp-block-newspack-avatar__link"
+					onClick={ ( event ) => event.preventDefault() }
+				>
+					{ avatarImage }
+				</a>
+			) : (
+				avatarImage
+			) }
+		</div>
 	);
 };
 
-const Edit = ( { attributes, context, setAttributes, isSelected } ) => {
+const Edit = ( { attributes, context, setAttributes } ) => {
 	const { postId, postType } = context;
 	const avatar = useUserAvatar( { userId: attributes?.userId, postId, postType } );
 	const allAuthors = usePostAuthors( { postId, postType } );
@@ -131,33 +120,14 @@ const Edit = ( { attributes, context, setAttributes, isSelected } ) => {
 		return <div { ...blockProps }>{ __( 'Loading avatar…', 'newspack-plugin' ) }</div>;
 	}
 
-	const renderAvatar = ( currentAvatar, key ) => {
-		const avatarEl = (
-			<ResizableAvatar
-				key={ key }
-				attributes={ attributes }
-				avatar={ currentAvatar }
-				isSelected={ isSelected }
-				setAttributes={ setAttributes }
-			/>
-		);
-
-		if ( attributes.linkToAuthorArchive ) {
-			return (
-				<a
-					key={ key }
-					href="#avatar-pseudo-link"
-					className="wp-block-newspack-avatar__link"
-					onClick={ ( event ) => event.preventDefault() }
-				>
-					{ avatarEl }
-				</a>
-			);
-		}
-
-		return avatarEl;
-	};
-
+	const renderAvatar = ( currentAvatar, key ) => (
+		<AvatarWrapper
+			key={ key }
+			avatar={ currentAvatar }
+			size={ attributes.size }
+			attributes={ attributes }
+		/>
+	);
 	return (
 		<>
 			<AvatarInspectorControls
