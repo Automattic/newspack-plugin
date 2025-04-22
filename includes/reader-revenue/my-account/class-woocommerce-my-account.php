@@ -801,16 +801,12 @@ class WooCommerce_My_Account {
 	 * Whether email changes are enabled.
 	 */
 	public static function is_email_change_enabled() {
-		if ( class_exists( '\Newspack_Manager\Features' ) && \Newspack_Manager\Features::is_automattician() ) {
-			return true;
-		}
-		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
 		/**
 		 * Filters whether or not to allow email changes in My Account.
 		 *
 		 * @param bool $enabled Whether or not to allow email changes.
 		 */
-		return \apply_filters( 'newspack_email_change_enabled', $is_enabled );
+		return \apply_filters( 'newspack_email_change_enabled', true );
 	}
 
 	/**
