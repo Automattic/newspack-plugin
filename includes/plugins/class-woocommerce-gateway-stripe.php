@@ -18,7 +18,24 @@ class WooCommerce_Gateway_Stripe {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_filter( 'wc_stripe_intent_metadata', [ __CLASS__, 'add_transaction_metadata' ], 10, 2 );
+		add_filter( 'wc_stripe_generate_payment_request', [ __CLASS__, 'add_payment_request_metadata' ], 10, 2 );
+		add_filter( 'wc_stripe_intent_metadata', [ __CLASS__, 'add_intent_metadata' ], 10, 2 );
+	}
+
+	/**
+	 * Add metadata to a Stripe transaction.
+	 *
+	 * @param array    $post_data Payment request data.
+	 * @param WC_Order $order Order being processed.
+	 */
+	public static function add_payment_request_metadata( $post_data, $order ) {
+		if ( isset( $post_data['metadata'] ) ) {
+			$post_data['metadata'] = self::add_intent_metadata(
+				$post_data['metadata'],
+				$order
+			);
+		}
+		return $post_data;
 	}
 
 	/**
@@ -29,7 +46,7 @@ class WooCommerce_Gateway_Stripe {
 	 *
 	 * @return array Array of keyed metadata values.
 	 */
-	public static function add_transaction_metadata( $metadata, $order ) {
+	public static function add_intent_metadata( $metadata, $order ) {
 		// Skip orders with multiple products.
 		if ( $order->get_item_count() > 1 ) {
 			return $metadata;
