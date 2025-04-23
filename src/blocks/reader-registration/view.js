@@ -93,8 +93,8 @@ window.newspackRAS.push( function( readerActivation ) {
 							}
 							readerActivation.dispatchActivity( 'reader_registered', { ...baseActivity, registration_method: data?.metadata?.registration_method || 'registration-block' } );
 						}
-						form.remove();
 					}
+					form.remove();
 				} else if ( messageNode ) {
 					messageElement.appendChild( messageNode );
 					messageElement.classList.remove( 'newspack-registration--hidden' );
