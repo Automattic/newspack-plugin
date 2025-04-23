@@ -550,9 +550,10 @@ class Test_Corrections extends WP_UnitTestCase {
 	 * @covers Corrections::register_post_type
 	 */
 	public function test_register_post_type() {
+		$post_type_exists = post_type_exists( Corrections::POST_TYPE );
+		$this->assertTrue( $post_type_exists );
+
 		$post_type_object = get_post_type_object( Corrections::POST_TYPE );
-		
-		$this->assertNotNull( $post_type_object );
 		$this->assertEquals( 'newspack_correction', $post_type_object->name );
 		$this->assertTrue( $post_type_object->has_archive );
 		$this->assertFalse( $post_type_object->public );
