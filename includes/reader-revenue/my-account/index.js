@@ -101,11 +101,11 @@ domReady( function () {
 	window.newspackRAS.push( readerActivation => {
 		const reader = readerActivation.getReader();
 		const params = new URLSearchParams( window.location.search );
-		const subscribed = ( params.get( 'newspack_newsletters_subscription_subscribed' ) || '' ).split( ',' );
+		const subscribed = params.get( 'newspack_newsletters_subscription_subscribed' );
 		if ( subscribed && reader?.email && reader?.authenticated ) {
 			readerActivation.dispatchActivity( 'newsletter_signup', {
 				email: reader.email,
-				lists: subscribed,
+				lists: subscribed.split( ',' ),
 				newsletters_subscription_method: 'my-account',
 			} );
 		}
