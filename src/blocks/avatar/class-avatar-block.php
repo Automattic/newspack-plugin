@@ -57,8 +57,6 @@ final class Avatar_Block {
 		);
 	}
 
-
-
 	/**
 	 * Block render callback.
 	 *
@@ -85,7 +83,7 @@ final class Avatar_Block {
 			$authors[] = get_userdata( get_post_field( 'post_author', $post_id ) );
 		}
 
-		$wrapper_attributes = get_block_wrapper_attributes();
+		$wrapper_attributes = get_block_wrapper_attributes( [ 'style' => '--avatar-size: ' . esc_attr( $image_size ) . 'px;' ] );
 		$duotone_preset     = $attributes['style']['color']['duotone'] ?? null;
 		$duotone_class      = self::newspack_get_duotone_class_name( $duotone_preset );
 
@@ -107,8 +105,7 @@ final class Avatar_Block {
 
 				$class = 'avatar avatar-' . esc_attr( $image_size ) . ' photo wp-block-newspack-avatar__image ' . ( $border_attributes['class'] ?? '' );
 				?>
-				<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>" style="position: relative; user-select: auto; width: <?php echo esc_attr( $image_size ); ?>px; height:
-					<?php echo esc_attr( $image_size ); ?>px;">
+				<div class="newspack-avatar-wrapper <?php echo esc_attr( $duotone_class ); ?>">
 					<?php if ( $link_to_author ) : ?>
 						<a href="<?php echo esc_url( $author_url ); ?>" class="wp-block-newspack-avatar__link">
 							<img

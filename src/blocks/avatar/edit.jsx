@@ -91,6 +91,9 @@ const AvatarWrapper = ( { avatar, size, attributes } ) => {
 	return (
 		<div
 			className={ classNames }
+			style={ {
+				'--avatar-size': size + 'px'
+			} }
 		>
 			{ attributes.linkToAuthorArchive ? (
 				<a
