@@ -1920,7 +1920,7 @@ final class Reader_Activation {
 	 * If Google is connected to the site, this can be overridden by setting the `NEWSPACK_DISABLE_GOOGLE_OAUTH` environment constant.
 	 */
 	public static function render_third_party_auth() {
-		if ( ! Google_OAuth::is_oauth_configured() || ( defined( 'NEWSPACK_DISABLE_GOOGLE_OAUTH' ) && NEWSPACK_DISABLE_GOOGLE_OAUTH ) ) {
+		if ( ! Google_OAuth::is_oauth_configured() ) {
 			return;
 		}
 		?>
@@ -2219,7 +2219,7 @@ final class Reader_Activation {
 				return false;
 			}
 
-			// Don't send OTP email for newsletter signup, or if the reader has a password set. 
+			// Don't send OTP email for newsletter signup, or if the reader has a password set.
 			if ( self::is_reader_without_password( $existing_user ) &&
 				( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) )
 			) {
