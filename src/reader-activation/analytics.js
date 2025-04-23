@@ -1,16 +1,16 @@
 /**
- * Get a GA4 event payload for a given prompt.
+ * Get a GA4 event payload.
  *
- * @param {string} action      Action name for the event.
- * @param {number} promptId    ID of the prompt
- * @param {Object} extraParams Additional key/value pairs to add as params to the event payload.
+ * @param {Object} payload Event payload.
+ * @param {Object} data    Data from the dispatched reader data activity.
  *
  * @return {Object} Event payload.
  */
-
-const getEventPayload = ( extraParams = {} ) => {
+const getEventPayload = ( payload = {}, data = {} ) => {
 	return {
-		...extraParams,
+		...payload,
+		newspack_popup_id: data?.newspack_popup_id || null,
+		gate_post_id: data?.gate_post_id || null,
 		referrer: window.location.pathname,
 	};
 };
@@ -22,93 +22,74 @@ const getEventPayload = ( extraParams = {} ) => {
  * @param {string} eventName Name of the event. Defaults to `np_reader_activation_interaction` but can be overriden if necessary.
  */
 
-const sendEvent = ( payload, eventName = 'np_reader_activation_interaction' ) => {
+const sendEvent = (
+	payload,
+	eventName = 'np_reader_activation_interaction'
+) => {
 	if ( 'function' === typeof window.gtag && payload ) {
 		window.gtag( 'event', eventName, payload );
 	}
 };
 
 /**
- * Handle a successful newsletter signup.
+ * Events to be sent to GA4.
  *
- * @param {Object} ras Reader Activation Store.
+ * @type {Object}
  */
-const handleNewsletterSignupSuccess = ras => {
-	ras.on( 'activity', function( ev ) {
-		if ( 'newsletter_signup' === ev.detail.action && ev.detail.data?.lists?.length ) {
-			const payload = getEventPayload( {
-				referrer: window.location.pathname,
-				newsletters_subscription_method: ev.detail.data?.newsletters_subscription_method || 'unknown',
-				lists: ev.detail.data.lists,
-			} );
-			if ( ev.detail.data?.newspack_popup_id ) {
-				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
-			}
-			if ( ev.detail.data?.gate_post_id ) {
-				payload.gate_post_id = ev.detail.data.gate_post_id;
-			}
-			sendEvent( payload, 'np_newsletter_subscribed' );
-		}
-	} );
+const events = {};
+
+/**
+ * Register an event to be sent to GA4.
+ *
+ * @param {string}   action    Name of the reader data action to register an event for.
+ * @param {Function} cb        Callback function that returns the event payload.
+ * @param {string}   eventName Name of the event to send. Defaults to `np_{action}`.
+ */
+export const registerEvent = ( action, cb, eventName = `np_${ action }` ) => {
+	events[ action ] = {
+		cb,
+		eventName,
+	};
 };
 
 /**
- * Handle a successful reader registration.
- *
- * @param {Object} ras Reader Activation Store.
+ * Register default events to be sent to GA4.
  */
-const handleRegistrationSuccess = ras => {
-	ras.on( 'activity', function( ev ) {
-		if (
-			'reader_registered' === ev.detail.action &&
-			! window?.newspackReaderActivation?.getPendingCheckout()
-		) {
-			const payload = getEventPayload( {
-				referrer: window.location.pathname,
-				registration_method: ev.detail.data?.registration_method || 'unknown',
-			} );
-			if ( ev.detail.data?.newspack_popup_id ) {
-				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
-			}
-			if ( ev.detail.data?.gate_post_id ) {
-				payload.gate_post_id = ev.detail.data.gate_post_id;
-			}
-			sendEvent( payload, 'np_reader_registered' );
-		}
-	} );
+const registerEvents = () => {
+	registerEvent( 'reader_registered', data => ( {
+		registration_method: data?.registration_method || 'unknown',
+	} ) );
+	registerEvent( 'reader_logged_in', data => ( {
+		login_method: data?.login_method || 'unknown',
+	} ) );
+	registerEvent(
+		'newsletter_signup',
+		data => ( {
+			newsletters_subscription_method:
+				data?.newsletters_subscription_method || 'unknown',
+			lists: data?.lists || [],
+		} ),
+		'np_newsletter_subscribed'
+	);
+	registerEvent( 'subscription_cancelled' );
+	registerEvent( 'subscription_reactivated' );
 };
 
 /**
- * Handle a successful reader login.
+ * Initialize analytics listeners.
  *
- * @param {Object} ras Reader Activation Store.
+ * @param {Object} ras Reader Activation Library.
  */
-const handleLoginSuccess = ras => {
-	ras.on( 'activity', function( ev ) {
-		if ( 'reader_logged_in' === ev.detail.action ) {
-			const payload = getEventPayload( {
-				referrer: window.location.pathname,
-				login_method: ev.detail.data?.login_method || 'unknown',
-			} );
-			if ( ev.detail.data?.newspack_popup_id ) {
-				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
-			}
-			if ( ev.detail.data?.gate_post_id ) {
-				payload.gate_post_id = ev.detail.data.gate_post_id;
-			}
-			sendEvent( payload, 'np_reader_logged_in' );
-		}
-	} );
-};
+export default function init( ras ) {
+	registerEvents();
 
-/**
- * Initialize the analytics.
- */
-export const initAnalytics = () => {
-	window.newspackRAS = window.newspackRAS || [];
-	window.newspackRAS.push( function( ras ) {
-		handleNewsletterSignupSuccess( ras );
-		handleRegistrationSuccess( ras );
-		handleLoginSuccess( ras );
+	ras.on( 'activity', function ( ev ) {
+		const { action, data } = ev.detail;
+		if ( ! events[ action ] ) {
+			return;
+		}
+		const { cb, eventName } = events[ action ];
+		const payload = cb( data );
+		sendEvent( getEventPayload( payload, data ), eventName );
 	} );
-};
+}
