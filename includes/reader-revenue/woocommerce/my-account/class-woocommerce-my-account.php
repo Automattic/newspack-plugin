@@ -79,7 +79,24 @@ class WooCommerce_My_Account {
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
 			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
 			\add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change_with_esp' ], 10, 3 );
+
+			// Newspack My Account UI v1.0.0 and above.
+			if ( version_compare( self::get_version(), '1.0.0', '>=' ) ) {
+				include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/woocommerce/my-account/class-woocommerce-my-account-v1.php';
+			}
 		}
+	}
+
+	/**
+	 * Decide which version of the Newspack My Account UI to use.
+	 * 0.0.0 is the default version (core WooCommerce My Account).
+	 * 1.0.0 and above are Newspack's custom My Account UI.
+	 *
+	 * @return string The version number.
+	 */
+	public static function get_version() {
+		$version = defined( 'NEWSPACK_MY_ACCOUNT_VERSION' ) ? NEWSPACK_MY_ACCOUNT_VERSION : '0.0.0'; // Increment this version number to default to a newer My Account version.
+		return $version;
 	}
 
 	/**
@@ -618,14 +635,14 @@ class WooCommerce_My_Account {
 		switch ( $template_name ) {
 			case 'myaccount/form-login.php':
 				if ( isset( $_GET[ self::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-after-delete-account.php';
+					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-after-delete-account.php';
 				}
 				return $template;
 			case 'myaccount/form-edit-account.php':
 				if ( isset( $_GET[ self::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-delete-account.php';
+					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-delete-account.php';
 				}
-				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
+				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-edit-account.php';
 			default:
 				return $template;
 		}
@@ -644,7 +661,7 @@ class WooCommerce_My_Account {
 			\add_action(
 				'woocommerce_account_content',
 				function() {
-					include dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-verify.php';
+					include dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-verify.php';
 				}
 			);
 		}

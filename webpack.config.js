@@ -93,8 +93,7 @@ const entry = {
 	),
 	'my-account': path.join(
 		__dirname,
-		'includes',
-		'reader-revenue',
+		'src',
 		'my-account',
 		'index.js'
 	),
