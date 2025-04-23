@@ -54,3 +54,39 @@ export function convertFormDataToObject( formData, includedFields = [] ) {
 		return acc;
 	}, {} );
 }
+
+/**
+ * Register a reader activity dispatch on an element event.
+ *
+ * @param {string|Element} element      The element to register the activity on. Can either be the element node or a string for the element selector.
+ * @param {string}         action       The action to dispatch an event for.
+ * @param {Function}       cb           The callback to populate the activity data.
+ * @param {string}         elementEvent The event to listen for on the element. Defaults to `click`.
+ */
+export function registerElementActivity(
+	element,
+	action,
+	cb,
+	elementEvent = 'click'
+) {
+	window.newspackRAS = window.newspackRAS || [];
+	if ( typeof element === 'string' ) {
+		element = document.querySelector( element );
+	}
+	if ( ! element ) {
+		return;
+	}
+	// If no callback is provided, use a noop.
+	if ( ! cb ) {
+		cb = () => ( {} );
+	}
+	element.addEventListener( elementEvent, event => {
+		// Wait for the event to be processed.
+		setTimeout( () => {
+			// If the event was not prevented, dispatch the activity.
+			if ( ! event.defaultPrevented ) {
+				window.newspackRAS.push( [ action, cb( element ) ] );
+			}
+		} );
+	} );
+}

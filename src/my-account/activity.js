@@ -1,34 +1,28 @@
 /**
  * Internal dependencies.
  */
-import { domReady } from '../utils';
+import { domReady, registerElementActivity } from '../utils';
 
 domReady( function () {
-	window.newspackRAS = window.newspackRAS || [];
+	const getSubscriptionId = element => {
+		const match = element
+			.getAttribute( 'href' )
+			.match( /subscription_id=(\d+)/ );
+		return match ? match[ 1 ] : null;
+	};
 
-	// Dispatch an activity when the user cancels a subscription.
-	const cancelButton = document.querySelector(
-		'.subscription_details .button.cancel'
+	registerElementActivity(
+		'.subscription_details .button.cancel',
+		'subscription_cancelled',
+		element => ( {
+			subscription_id: getSubscriptionId( element ),
+		} )
 	);
-	if ( cancelButton ) {
-		cancelButton.addEventListener( 'click', event => {
-			// Wait for the click event to be processed.
-			setTimeout( () => {
-				// If the event was not prevented, dispatch the activity.
-				if ( ! event.defaultPrevented ) {
-					window.newspackRAS.push( [ 'subscription_cancelled' ] );
-				}
-			} );
-		} );
-	}
-
-	// Dispatch an activity when the user reactivates a subscription.
-	const reactivateButton = document.querySelector(
-		'.subscription_details .button.reactivate'
+	registerElementActivity(
+		'.subscription_details .button.reactivate',
+		'subscription_reactivated',
+		element => ( {
+			subscription_id: getSubscriptionId( element ),
+		} )
 	);
-	if ( reactivateButton ) {
-		reactivateButton.addEventListener( 'click', () => {
-			window.newspackRAS.push( [ 'subscription_reactivated' ] );
-		} );
-	}
 } );

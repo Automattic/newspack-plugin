@@ -46,6 +46,10 @@ const events = {};
  * @param {string}   eventName Name of the event to send. Defaults to `np_{action}`.
  */
 export const registerEvent = ( action, cb, eventName = `np_${ action }` ) => {
+	// If no callback is provided, use the activity data as the payload.
+	if ( ! cb ) {
+		cb = data => data;
+	}
 	events[ action ] = {
 		cb,
 		eventName,
