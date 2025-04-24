@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 import metadata from './block.json';
 import Edit from './edit';
+import colors from '../../shared/scss/_colors.module.scss';
 
 export const title = __('Avatar', 'newspack-plugin');
 
@@ -27,7 +28,7 @@ export const settings = {
 	title,
 	icon: {
 		src: icon,
-		foreground: '#406EBC',
+		foreground: colors['primary-400'],
 	},
 	keywords: [__('author', 'newspack-plugin'), __('user', 'newspack-plugin'), __('profile', 'newspack-plugin')],
 	description: __(
