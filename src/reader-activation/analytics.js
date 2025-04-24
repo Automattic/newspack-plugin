@@ -39,34 +39,34 @@ const sendEvent = (
 const events = {};
 
 /**
- * Register an event to be sent to GA4.
+ * Register an event to be sent to GA4 based on a reader data activity dispatch.
  *
  * @param {string}   action    Name of the reader data action to register an event for.
  * @param {Function} cb        Callback function that returns the event payload.
  * @param {string}   eventName Name of the event to send. Defaults to `np_{action}`.
  */
-export const registerEvent = ( action, cb, eventName = `np_${ action }` ) => {
+export const registerActivityEvent = ( action, cb, eventName ) => {
+	if ( ! eventName ) {
+		eventName = `np_${ action }`;
+	}
 	// If no callback is provided, use the activity data as the payload.
 	if ( ! cb ) {
 		cb = data => data;
 	}
-	events[ action ] = {
-		cb,
-		eventName,
-	};
+	events[ action ] = { cb, eventName };
 };
 
 /**
  * Register default events to be sent to GA4.
  */
 const registerEvents = () => {
-	registerEvent( 'reader_registered', data => ( {
+	registerActivityEvent( 'reader_registered', data => ( {
 		registration_method: data?.registration_method || 'unknown',
 	} ) );
-	registerEvent( 'reader_logged_in', data => ( {
+	registerActivityEvent( 'reader_logged_in', data => ( {
 		login_method: data?.login_method || 'unknown',
 	} ) );
-	registerEvent(
+	registerActivityEvent(
 		'newsletter_signup',
 		data => ( {
 			newsletters_subscription_method:
@@ -75,8 +75,12 @@ const registerEvents = () => {
 		} ),
 		'np_newsletter_subscribed'
 	);
-	registerEvent( 'subscription_cancelled' );
-	registerEvent( 'subscription_reactivated' );
+	registerActivityEvent( 'subscription_cancelled' );
+	registerActivityEvent( 'subscription_reactivated' );
+	registerActivityEvent( 'subscription_switched' );
+	registerActivityEvent( 'payment_method_deleted' );
+	registerActivityEvent( 'payment_method_added' );
+	registerActivityEvent( 'payment_method_changed' );
 };
 
 /**

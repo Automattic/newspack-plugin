@@ -113,10 +113,37 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Whether it's a payment method change page.
+	 *
+	 * @return bool
+	 */
+	public static function is_payment_method_change_page() {
+		return isset( $_GET['my_account_checkout'] ) && isset( $_GET['change_payment_method'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Whether it's the standard "Switch Subscription" page.
+	 *
+	 * @return bool
+	 */
+	public static function is_switch_subscription_checkout_page() {
+		return (
+			function_exists( 'is_checkout' )
+			&& is_checkout()
+			&& function_exists( 'wcs_cart_contains_switches' )
+			&& wcs_cart_contains_switches()
+		);
+	}
+
+	/**
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+		if (
+			( function_exists( 'is_account_page' ) && is_account_page() )
+			|| self::is_payment_method_change_page()
+			|| self::is_switch_subscription_checkout_page()
+		) {
 			\wp_enqueue_script(
 				'my-account',
 				\Newspack\Newspack::plugin_url() . '/dist/my-account.js',
@@ -128,12 +155,13 @@ class WooCommerce_My_Account {
 				'my-account',
 				'newspack_my_account',
 				[
-					'labels'            => [
+					'labels'                               => [
 						'cancel_subscription_message' => __( 'Are you sure you want to cancel this subscription?', 'newspack-plugin' ),
 					],
-					'rest_url'          => get_rest_url(),
-					'should_rate_limit' => WooCommerce_Connection::rate_limiting_enabled(),
-					'nonce'             => wp_create_nonce( 'wp_rest' ),
+					'rest_url'                             => get_rest_url(),
+					'should_rate_limit'                    => WooCommerce_Connection::rate_limiting_enabled(),
+					'nonce'                                => wp_create_nonce( 'wp_rest' ),
+					'is_switch_subscription_checkout_page' => self::is_switch_subscription_checkout_page(),
 				]
 			);
 			\wp_enqueue_style(

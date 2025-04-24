@@ -61,14 +61,9 @@ export function convertFormDataToObject( formData, includedFields = [] ) {
  * @param {string|Element} element      The element to register the activity on. Can either be the element node or a string for the element selector.
  * @param {string}         action       The action to dispatch an event for.
  * @param {Function}       cb           The callback to populate the activity data.
- * @param {string}         elementEvent The event to listen for on the element. Defaults to `click`.
+ * @param {string}         elementEvent The event to listen for on the element. Defaults to `submit` for form elements and `click` for other elements.
  */
-export function registerElementActivity(
-	element,
-	action,
-	cb,
-	elementEvent = 'click'
-) {
+export function registerElementActivity( element, action, cb, elementEvent ) {
 	window.newspackRAS = window.newspackRAS || [];
 	if ( typeof element === 'string' ) {
 		element = document.querySelector( element );
@@ -80,11 +75,16 @@ export function registerElementActivity(
 	if ( ! cb ) {
 		cb = () => ( {} );
 	}
+	elementEvent =
+		elementEvent || ( element.tagName === 'FORM' ? 'submit' : 'click' );
+
 	element.addEventListener( elementEvent, event => {
 		// Wait for the event to be processed.
 		setTimeout( () => {
 			// If the event was not prevented, dispatch the activity.
-			if ( ! event.defaultPrevented ) {
+			// Form submissions will not consider the default prevented because they
+			// are commonly ajaxified.
+			if ( element.tagName === 'FORM' || ! event.defaultPrevented ) {
 				window.newspackRAS.push( [ action, cb( element ) ] );
 			}
 		} );
