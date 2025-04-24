@@ -136,13 +136,42 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Whether it's a reorder checkout page.
+	 */
+	public static function is_reorder_checkout_page() {
+		return (
+			function_exists( 'is_checkout' )
+			&& is_checkout()
+			&& self::cart_contains_reorders()
+		);
+	}
+
+	/**
+	 * Whether the cart contains reorders.
+	 */
+	public static function cart_contains_reorders() {
+		$cart = \WC()->cart;
+		if ( ! $cart ) {
+			return false;
+		}
+		foreach ( $cart->get_cart() as $item ) {
+			if ( isset( $item['newspack_order_again'] ) && $item['newspack_order_again'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
 		if (
 			( function_exists( 'is_account_page' ) && is_account_page() )
+			|| ( function_exists( 'is_checkout' ) && is_checkout() )
 			|| self::is_payment_method_change_page()
 			|| self::is_switch_subscription_checkout_page()
+			|| self::is_reorder_checkout_page()
 		) {
 			\wp_enqueue_script(
 				'my-account',
@@ -162,6 +191,7 @@ class WooCommerce_My_Account {
 					'should_rate_limit'                    => WooCommerce_Connection::rate_limiting_enabled(),
 					'nonce'                                => wp_create_nonce( 'wp_rest' ),
 					'is_switch_subscription_checkout_page' => self::is_switch_subscription_checkout_page(),
+					'is_reorder_checkout_page'             => self::is_reorder_checkout_page(),
 				]
 			);
 			\wp_enqueue_style(

@@ -90,3 +90,26 @@ export function registerElementActivity( element, action, cb, elementEvent ) {
 		} );
 	} );
 }
+
+/**
+ * Register an activity dispatch on checkout submission.
+ *
+ * @param {string}   action The action to dispatch an event for.
+ * @param {Function} cb     The callback to populate the activity data.
+ */
+export function registerCheckoutActivity( action, cb ) {
+	// Woo Block checkout is react, so we need to wait for the form to be rendered.
+	wp?.hooks?.addAction(
+		'experimental__woocommerce_blocks-checkout-render-checkout-form',
+		'newspack/my-account/activity',
+		() => {
+			registerElementActivity(
+				'.wc-block-components-checkout-place-order-button',
+				action,
+				cb
+			);
+		}
+	);
+	// Shortcode checkout.
+	registerElementActivity( 'form[name="checkout"]', action, cb );
+}

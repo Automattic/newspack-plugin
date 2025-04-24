@@ -2,7 +2,11 @@
 /**
  * Internal dependencies.
  */
-import { domReady, registerElementActivity } from '../utils';
+import {
+	domReady,
+	registerElementActivity,
+	registerCheckoutActivity,
+} from '../utils';
 
 /**
  * Get the subscription ID from the element's href attribute.
@@ -41,22 +45,7 @@ domReady( function () {
 
 	// Track when a user switches a subscription (upgrade or downgrade).
 	if ( newspack_my_account.is_switch_subscription_checkout_page ) {
-		// Block checkout is react, so we need to wait for the form to be rendered.
-		wp?.hooks?.addAction(
-			'experimental__woocommerce_blocks-checkout-render-checkout-form',
-			'newspack/my-account/activity',
-			() => {
-				registerElementActivity(
-					'.wc-block-components-checkout-place-order-button',
-					'subscription_switched'
-				);
-			}
-		);
-		// Shortcode checkout.
-		registerElementActivity(
-			'form[name="checkout"]',
-			'subscription_switched'
-		);
+		registerCheckoutActivity( 'subscription_switched' );
 	}
 
 	// Track when a payment method is deleted.
@@ -105,5 +94,10 @@ domReady( function () {
 					: 'shipping',
 			} )
 		);
+	}
+
+	// Track when a user orders a product again.
+	if ( newspack_my_account.is_reorder_checkout_page ) {
+		registerCheckoutActivity( 'product_reordered' );
 	}
 } );
