@@ -1,0 +1,57 @@
+.wp-block-newspack-bylines {
+	display: flex;
+	align-items: center;
+	margin-bottom: 1em;
+}
+
+/* Editor styles */
+.newspack-byline-preview {
+	line-height: 1.5;
+}
+
+.newspack-byline-author {
+	display: inline-flex;
+	align-items: center;
+	margin-right: 0.5em;
+}
+
+.newspack-byline-author:last-child {
+	margin-right: 0;
+}
+
+.newspack-byline-avatar {
+	display: inline-block;
+	margin-right: 0.5em;
+}
+
+.newspack-byline-avatar img {
+	border-radius: 50%;
+	vertical-align: middle;
+}
+
+.newspack-byline-author-tokens {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.newspack-byline-author-token {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px;
+	background: #f0f0f0;
+	border-radius: 4px;
+}
+
+/* Token styling in the editor */
+.components-form-token-field__token.token-inline-block.author-token {
+	display: inline-flex;
+	align-items: center;
+	background-color: #e0f0ff;
+	border-radius: 4px;
+	padding: 2px 8px;
+	margin: 0 4px;
+	color: #06c;
+	font-weight: 500;
+}
