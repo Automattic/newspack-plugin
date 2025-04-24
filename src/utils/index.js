@@ -58,12 +58,12 @@ export function convertFormDataToObject( formData, includedFields = [] ) {
 /**
  * Register a reader activity dispatch on an element event.
  *
- * @param {string|Element} element      The element to register the activity on. Can either be the element node or a string for the element selector.
- * @param {string}         action       The action to dispatch an event for.
- * @param {Function}       cb           The callback to populate the activity data.
- * @param {string}         elementEvent The event to listen for on the element. Defaults to `submit` for form elements and `click` for other elements.
+ * @param {string|Element} element The element to register the activity on. Can either be the element node or a string for the element selector.
+ * @param {string}         action  The action to dispatch an activity for.
+ * @param {Function}       cb      The callback to populate the activity data.
+ * @param {string}         event   The element event to listen for. Defaults to `submit` for form elements and `click` for other elements.
  */
-export function registerElementActivity( element, action, cb, elementEvent ) {
+export function registerElementActivity( element, action, cb, event ) {
 	window.newspackRAS = window.newspackRAS || [];
 	if ( typeof element === 'string' ) {
 		element = document.querySelector( element );
@@ -75,16 +75,15 @@ export function registerElementActivity( element, action, cb, elementEvent ) {
 	if ( ! cb ) {
 		cb = () => ( {} );
 	}
-	elementEvent =
-		elementEvent || ( element.tagName === 'FORM' ? 'submit' : 'click' );
+	event = event || ( element.tagName === 'FORM' ? 'submit' : 'click' );
 
-	element.addEventListener( elementEvent, event => {
+	element.addEventListener( event, ev => {
 		// Wait for the event to be processed.
 		setTimeout( () => {
 			// If the event was not prevented, dispatch the activity.
 			// Form submissions will not consider the default prevented because they
 			// are commonly ajaxified.
-			if ( element.tagName === 'FORM' || ! event.defaultPrevented ) {
+			if ( element.tagName === 'FORM' || ! ev.defaultPrevented ) {
 				window.newspackRAS.push( [ action, cb( element ) ] );
 			}
 		} );
