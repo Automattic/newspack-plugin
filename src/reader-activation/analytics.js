@@ -82,6 +82,7 @@ const registerActivityEvents = () => {
 	registerActivityEvent( 'payment_method_added' );
 	registerActivityEvent( 'payment_method_changed' );
 	registerActivityEvent( 'address_updated' );
+	registerActivityEvent( 'product_reordered' );
 };
 
 /**
