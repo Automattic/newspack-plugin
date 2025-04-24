@@ -32,11 +32,11 @@ const sendEvent = (
 };
 
 /**
- * Events to be sent to GA4.
+ * Events to be sent to GA4 based on reader data activity dispatch.
  *
  * @type {Object}
  */
-const events = {};
+const activityEvents = {};
 
 /**
  * Register an event to be sent to GA4 based on a reader data activity dispatch.
@@ -53,13 +53,13 @@ export const registerActivityEvent = ( action, cb, eventName ) => {
 	if ( ! cb ) {
 		cb = data => data;
 	}
-	events[ action ] = { cb, eventName };
+	activityEvents[ action ] = { cb, eventName };
 };
 
 /**
- * Register default events to be sent to GA4.
+ * Register default events to be sent to GA4 based on reader data activity dispatch.
  */
-const registerEvents = () => {
+const registerActivityEvents = () => {
 	registerActivityEvent( 'reader_registered', data => ( {
 		registration_method: data?.registration_method || 'unknown',
 	} ) );
@@ -90,14 +90,14 @@ const registerEvents = () => {
  * @param {Object} ras Reader Activation Library.
  */
 export default function init( ras ) {
-	registerEvents();
+	registerActivityEvents();
 
 	ras.on( 'activity', function ( ev ) {
 		const { action, data } = ev.detail;
-		if ( ! events[ action ] ) {
+		if ( ! activityEvents[ action ] ) {
 			return;
 		}
-		const { cb, eventName } = events[ action ];
+		const { cb, eventName } = activityEvents[ action ];
 		const payload = cb( data );
 		sendEvent( getEventPayload( payload, data ), eventName );
 	} );
