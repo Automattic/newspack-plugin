@@ -93,7 +93,7 @@ export function registerElementActivity( element, action, cb, event ) {
 /**
  * Register an activity dispatch on checkout submission.
  *
- * @param {string}   action The action to dispatch an event for.
+ * @param {string}   action The action to dispatch an activity for.
  * @param {Function} cb     The callback to populate the activity data.
  */
 export function registerCheckoutActivity( action, cb ) {
