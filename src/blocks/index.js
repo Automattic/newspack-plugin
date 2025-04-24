@@ -12,13 +12,14 @@ import * as readerRegistration from './reader-registration';
 import * as correctionBox from './correction-box';
 import * as correctionItem from './correction-item';
 import * as avatar from './avatar';
+import * as byline from './byline';
 
 /**
  * Block Scripts
  */
 import './core-image';
 
-export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar ];
+export const blocks = [ readerRegistration, correctionBox, correctionItem, avatar, byline ];
 
 const readerActivationBlocks = [ 'newspack/reader-registration' ];
 const correctionBlocks = [ 'newspack/correction-box', 'newspack/correction-item' ];

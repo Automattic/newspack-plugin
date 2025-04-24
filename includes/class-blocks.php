@@ -25,6 +25,7 @@ final class Blocks {
 		}
 		if ( wp_is_block_theme() ) {
 			require_once NEWSPACK_ABSPATH . 'src/blocks/avatar/class-avatar-block.php';
+			require_once NEWSPACK_ABSPATH . 'src/blocks/byline/class-byline-block.php';
 		}
 
 		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );

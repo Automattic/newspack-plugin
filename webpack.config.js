@@ -98,6 +98,13 @@ const entry = {
 		'avatar',
 		'index.js'
 	),
+	'byline-block': path.join(
+		__dirname,
+		'src',
+		'blocks',
+		'byline',
+		'index.js'
+	),
 	'my-account': path.join(
 		__dirname,
 		'includes',
