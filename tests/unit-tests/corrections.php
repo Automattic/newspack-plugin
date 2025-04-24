@@ -530,4 +530,70 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'Test correction content 2', $corrections_markup, 'The correction content should be included in the output.' );
 		$this->assertStringContainsString( 'corrections-high-module', $corrections_markup, 'The correction priority should be included in the output.' );
 	}
+
+	/**
+	 * Test scripts and styles are enqueued correctly.
+	 *
+	 * @covers Corrections::wp_enqueue_scripts
+	 */
+	public function test_enqueue_scripts_and_styles() {
+		Corrections::wp_enqueue_scripts();
+		$this->assertTrue(
+			wp_style_is( 'newspack-corrections-single', 'registered' ),
+			'Corrections style should be registered.'
+		);
+	}
+
+	/**
+	 * Test corrections post type registration.
+	 *
+	 * @covers Corrections::register_post_type
+	 */
+	public function test_register_post_type() {
+		$post_type_exists = post_type_exists( Corrections::POST_TYPE );
+		$this->assertTrue( $post_type_exists );
+
+		$post_type_object = get_post_type_object( Corrections::POST_TYPE );
+		$this->assertEquals( 'newspack_correction', $post_type_object->name );
+		$this->assertTrue( $post_type_object->has_archive );
+		$this->assertFalse( $post_type_object->public );
+		$this->assertTrue( $post_type_object->show_in_rest );
+
+		$this->assertEquals( 1, get_option( 'newspack_corrections_rewrite_rules_updated' ) );
+	}
+
+	/**
+	 * Test correction type labels.
+	 *
+	 * @covers Corrections::get_correction_type_label
+	 */
+	public function test_correction_type_labels() {
+		$correction    = [
+			'content'  => 'Test content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
+		];
+		$clarification = [
+			'content'  => 'Test content',
+			'type'     => 'clarification', 
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
+		];
+
+		$correction_id    = Corrections::add_correction( self::$post_id, $correction );
+		$clarification_id = Corrections::add_correction( self::$post_id, $clarification );
+
+		$this->assertEquals(
+			'Correction',
+			Corrections::get_correction_type( $correction_id ),
+			'Should return "Correction" for correction type'
+		);
+		
+		$this->assertEquals(
+			'Clarification',
+			Corrections::get_correction_type( $clarification_id ),
+			'Should return "Clarification" for clarification type'
+		);
+	}
 }

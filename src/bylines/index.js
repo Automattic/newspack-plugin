@@ -4,18 +4,11 @@
  * WordPress dependencies
  */
 import { Button, Modal, ToggleControl } from '@wordpress/components';
-import {
-	useCallback,
-	useMemo,
-	useEffect,
-	useState,
-	useRef,
-} from '@wordpress/element';
+import { useCallback, useMemo, useState, useRef } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-import apiFetch from '@wordpress/api-fetch';
 import { Icon, plus } from '@wordpress/icons';
 import { store as coreStore } from '@wordpress/core-data';
 
@@ -108,59 +101,37 @@ const transformByline = element => {
 };
 
 /**
- * Component for the custom byline modal.
+ * Get the author tokens for a post.
  *
- * @param {Object}   props             Component props.
- * @param {Function} props.insertToken Callback when a token is added to the byline.
- * @param {Object[]} props.tokens      All author values to be inserted.
- * @param {number[]} props.tokensInUse Array of author IDs already inserted in byline.
- * @param {Element}  props.textArea    The text area element.
- * @param {boolean}  props.isOpen      Whether the modal is open.
- * @param {Function} props.setOpen     Callback to set the modal open state.
+ * @param {number} postId The post ID.
+ *
+ * @return {Object[]} The author tokens.
  */
-const CustomBylineModal = ( {
-	insertToken,
-	tokens,
-	tokensInUse,
-	textArea,
-	isOpen,
-	setOpen,
-} ) => {
-	const openModal = () => setOpen( true );
-	const closeModal = () => setOpen( false );
+function useAuthorTokens( postId ) {
+	const { postAuthor, coAuthors } = useSelect( select => {
+		return {
+			postAuthor: select( coreStore ).getUser(
+				select( 'core/editor' ).getEditedPostAttribute( 'author' ),
+				BASE_QUERY
+			),
+			coAuthors:
+				postId && select( 'cap/authors' )
+					? select( 'cap/authors' ).getAuthors( postId )
+					: [],
+		};
+	} );
 
-	return (
-		<>
-			<Button
-				className="newspack-byline-customize-btn"
-				variant="secondary"
-				onClick={ openModal }
-			>
-				Edit byline
-			</Button>
+	if ( coAuthors.length ) {
+		return coAuthors
+			.filter( author => author.userType === 'wpuser' )
+			.map( author => ( {
+				id: parseInt( author.id ),
+				name: author.display,
+			} ) );
+	}
 
-			{ isOpen && (
-				<Modal
-					className="newspack-byline-customize-modal"
-					title="Edit byline"
-					onRequestClose={ closeModal }
-				>
-					{ textArea }
-					<Tokens
-						tokens={ tokens }
-						tokensInUse={ tokensInUse }
-						insertToken={ insertToken }
-					/>
-					<div className="newspack-byline-customize-modal-btns">
-						<Button variant="primary" onClick={ closeModal }>
-							Save
-						</Button>
-					</div>
-				</Modal>
-			) }
-		</>
-	);
-};
+	return [ postAuthor ];
+}
 
 /**
  * An author "token" button, to add an author to the byline.
@@ -214,21 +185,14 @@ const Tokens = ( { tokens, tokensInUse, insertToken } ) => {
  * The byline settings panel component.
  */
 const BylinesSettingsPanel = () => {
-	/** Tokens with authors assigned to the post */
-	const [ tokens, setTokens ] = useState( [] );
-
 	/** Tokens that are in use by the custom byline */
 	const [ tokensInUse, setTokensInUse ] = useState( [] );
 
 	const [ cursorPos, setCursorPos ] = useState( null );
 
-	/** coAuthors fetched from co-Authors Plus */
-	const [ coAuthors, setCoAuthors ] = useState( [] );
-
 	/** Reference to contenteditable element to add event listners */
 	const editableRef = useRef( null );
 
-	const noticesDispatch = useDispatch( 'core/notices' );
 	const { editPost } = useDispatch( 'core/editor' );
 
 	/** Current post data */
@@ -239,19 +203,11 @@ const BylinesSettingsPanel = () => {
 		[]
 	);
 
+	const tokens = useAuthorTokens( postId );
+
 	const { getEditedPostAttribute } = useSelect( select =>
 		select( 'core/editor' )
 	);
-
-	/** Fetch post author from core */
-	const { postAuthor } = useSelect( select => {
-		const { getUser } = select( coreStore );
-		const _authorId = getEditedPostAttribute( 'author' );
-
-		return {
-			postAuthor: getUser( _authorId, BASE_QUERY ),
-		};
-	} );
 
 	/** Toggle if custom byline is enabled */
 	const [ isEnabled, setIsEnabled ] = useState(
@@ -264,19 +220,33 @@ const BylinesSettingsPanel = () => {
 	const customByline =
 		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ];
 
+	const [ editedByline, setEditedByline ] = useState( customByline );
+
 	/**
-	 * Stores the byline as meta.
+	 * Update the edited byline.
+	 *
 	 * @param {string} element The contenteditable element to read content from.
 	 */
-	const updateBylineMetaFromContentEditable = useCallback( element => {
-		editPost( {
-			meta: {
-				[ newspackBylines.metaKeyByline ]: transformByline( element ),
-			},
-		} );
-
+	const updateEditedByline = useCallback( element => {
+		setEditedByline( transformByline( element ) );
 		setTokensInUseFromContentEditable( element );
 	} );
+
+	/**
+	 * Reset the editedByline state.
+	 */
+	const resetEditedByline = useCallback( () => {
+		setEditedByline( customByline );
+	}, [ customByline ] );
+
+	/**
+	 * Update the byline meta from the editedByline state.
+	 */
+	const updateByline = useCallback( () => {
+		editPost( {
+			meta: { [ newspackBylines.metaKeyByline ]: editedByline },
+		} );
+	}, [ editedByline ] );
 
 	/**
 	 * Update the "tokens in use" based on the content.
@@ -292,19 +262,6 @@ const BylinesSettingsPanel = () => {
 		);
 
 		setTokensInUse( inUse );
-	};
-
-	/**
-	 * Transform coAuthors into an object expected to be used as tokens
-	 * in the format of { id: int; name: string }.
-	 *
-	 * @param {Object} Authors Co-authors fetched from Co-Author Plus API.
-	 * @return {Object}        Co-authors transformed into tokens object: { id: int; name: string }
-	 */
-	const transformAuthorsToTokens = Authors => {
-		return Object.values( Authors ).map( value => {
-			return { id: value.id, name: value.display_name };
-		} );
 	};
 
 	/**
@@ -344,7 +301,7 @@ const BylinesSettingsPanel = () => {
 			innerHTML.slice( insertLocation );
 
 		// Update byline meta.
-		updateBylineMetaFromContentEditable( editableRef.current );
+		updateEditedByline( editableRef.current );
 
 		// Get index of the new token.
 		const tokenIndex = Array.from(
@@ -360,20 +317,6 @@ const BylinesSettingsPanel = () => {
 		selection.addRange( range );
 		editableRef.current.focus();
 	};
-
-	/**
-	 * Handle Error
-	 *
-	 * @param {Error} error
-	 */
-	function handleError( error ) {
-		if ( 'AbortError' === error.name ) {
-			return;
-		}
-		noticesDispatch.createErrorNotice( error.message, {
-			isDismissible: true,
-		} );
-	}
 
 	/**
 	 * Insert the default custom byline.
@@ -425,57 +368,6 @@ const BylinesSettingsPanel = () => {
 	};
 
 	/**
-	 * Set tokens when coAuthors change.
-	 */
-	useEffect( () => {
-		if ( coAuthors ) {
-			setTokens( coAuthors );
-		}
-	}, [ coAuthors ] );
-
-	/**
-	 * Fetch co-authors from Co-Authors Plus.
-	 */
-	useEffect( () => {
-		if ( ! postId ) {
-			return;
-		}
-
-		// If Co-Authors Plus is active, use their authors
-		if ( newspackBylines.is_co_authors_plus_active ) {
-			const controller = new AbortController();
-
-			apiFetch( {
-				path: `/coauthors/v1/coauthors?post_id=${ postId }`,
-				signal: controller.signal,
-			} )
-				.then( transformAuthorsToTokens )
-				.then( setCoAuthors )
-				.catch( handleError );
-
-			return () => {
-				controller.abort();
-			};
-		}
-	}, [ postId ] );
-
-	/**
-	 * Use core post author if Co-Authors Plus is not active
-	 */
-	useEffect( () => {
-		// If Co-Author Plus is active, return
-		if ( newspackBylines.is_co_authors_plus_active ) {
-			return;
-		}
-
-		if ( postAuthor === undefined ) {
-			return;
-		}
-
-		setCoAuthors( [ postAuthor ] );
-	}, [ postAuthor ] );
-
-	/**
 	 * Initialize the contenteditable element.
 	 *
 	 * Sets the div's inner HTML with the byline text, sets initial
@@ -494,14 +386,14 @@ const BylinesSettingsPanel = () => {
 			element.innerHTML = parseForEdit( customByline );
 			element.addEventListener( 'blur', updateCursorPos );
 			element.addEventListener( 'input', () =>
-				updateBylineMetaFromContentEditable( element )
+				updateEditedByline( element )
 			);
 			element.addEventListener( 'click', ( { target } ) => {
 				if (
 					target.classList.contains( 'token-inline-block__remove' )
 				) {
 					target.closest( '.token-inline-block' ).remove();
-					updateBylineMetaFromContentEditable( element );
+					updateEditedByline( element );
 				}
 			} );
 			setTokensInUseFromContentEditable( element );
@@ -545,7 +437,7 @@ const BylinesSettingsPanel = () => {
 	return (
 		<PluginDocumentSettingPanel
 			className="newspack-byline"
-			name="Newspack Byline Settings Panel"
+			name="newspack-byline-settings-panel"
 			title={ __( 'Byline', 'newspack-plugin' ) }
 		>
 			<ToggleControl
@@ -566,14 +458,41 @@ const BylinesSettingsPanel = () => {
 							__html: parseForPreview( customByline ),
 						} }
 					/>
-					<CustomBylineModal
-						insertToken={ insertToken }
-						tokens={ tokens }
-						tokensInUse={ tokensInUse }
-						textArea={ textArea }
-						isOpen={ isModalOpen }
-						setOpen={ setModalOpen }
-					/>
+					<Button
+						className="newspack-byline-customize-btn"
+						variant="secondary"
+						onClick={ () => setModalOpen( true ) }
+					>
+						{ __( 'Edit byline', 'newspack-plugin' ) }
+					</Button>
+					{ isModalOpen && (
+						<Modal
+							className="newspack-byline-customize-modal"
+							title={ __( 'Edit byline', 'newspack-plugin' ) }
+							onRequestClose={ () => {
+								resetEditedByline();
+								setModalOpen( false );
+							} }
+						>
+							{ textArea }
+							<Tokens
+								tokens={ tokens }
+								tokensInUse={ tokensInUse }
+								insertToken={ insertToken }
+							/>
+							<div className="newspack-byline-customize-modal-btns">
+								<Button
+									variant="primary"
+									onClick={ () => {
+										updateByline();
+										setModalOpen( false );
+									} }
+								>
+									{ __( 'Update', 'newspack-plugin' ) }
+								</Button>
+							</div>
+						</Modal>
+					) }
 				</>
 			) }
 		</PluginDocumentSettingPanel>

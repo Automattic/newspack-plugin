@@ -7,7 +7,7 @@ import classnames from 'classnames';
  * WordPress dependencies.
  */
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { useState, forwardRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { category } from '@wordpress/icons';
 
@@ -25,7 +25,6 @@ import {
 } from '../';
 import Router from '../proxied-imports/router';
 import registerStore, { WIZARD_STORE_NAMESPACE } from './store';
-import { useWizardData } from './store/utils';
 import WizardError from './components/WizardError';
 
 registerStore();
@@ -63,7 +62,7 @@ const Wizard = ( {
 	renderAboveSections,
 	requiredPlugins = [],
 	isInitialFetchTriggered = true,
-} ) => {
+}, ref ) => {
 	const isLoading = useSelect( select =>
 		select( WIZARD_STORE_NAMESPACE ).isLoading()
 	);
@@ -102,7 +101,7 @@ const Wizard = ( {
 	}
 
 	return (
-		<>
+		<div ref={ref}>
 			<div
 				className={ classnames(
 					isLoading
@@ -177,12 +176,8 @@ const Wizard = ( {
 				</HashRouter>
 			</div>
 			{ ! isLoading && <Footer simple={ hasSimpleFooter } /> }
-		</>
+		</div>
 	);
 };
 
-Wizard.useWizardData = useWizardData;
-
-Wizard.STORE_NAMESPACE = WIZARD_STORE_NAMESPACE;
-
-export default Wizard;
+export default forwardRef( Wizard );

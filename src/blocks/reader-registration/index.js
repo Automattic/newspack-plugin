@@ -9,6 +9,7 @@ import { Path, SVG } from '@wordpress/components';
  */
 import edit from './edit';
 import metadata from './block.json';
+import colors from '../../shared/scss/_colors.module.scss';
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -28,7 +29,7 @@ export { metadata, name };
 export const settings = {
 	icon: {
 		src: icon,
-		foreground: '#406ebc',
+		foreground: colors['primary-400'],
 	},
 	edit,
 	save: () => <div { ...useInnerBlocksProps.save( useBlockProps.save() ) } />,

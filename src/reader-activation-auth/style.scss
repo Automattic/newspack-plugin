@@ -166,3 +166,12 @@ li.menu-item .newspack-reader__account-link {
 .woocommerce-account .entry-header .entry-title {
 	display: none;
 }
+
+/**
+ * Hide login links when logged in.
+ */
+body.logged-in {
+	a[href="#signin_modal"] {
+		display: none;
+	}
+}

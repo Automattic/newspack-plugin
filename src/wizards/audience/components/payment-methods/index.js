@@ -8,7 +8,8 @@ import { ExternalLink } from '@wordpress/components';
  * Internal dependencies
  */
 import { Stripe } from './stripe';
-import { Notice, Wizard } from '../../../../components/src';
+import { Notice } from '../../../../components/src';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import WizardsSection from '../../../wizards-section';
 import { PaymentGateway } from './payment-gateway';
 import './style.scss';
@@ -20,7 +21,7 @@ const PaymentGateways = () => {
 		errors = [],
 		plugin_status,
 		platform_data = {},
-	} = Wizard.useWizardData( 'newspack-audience/payment' );
+	} = useWizardData( 'newspack-audience/payment' );
 	if ( false === plugin_status || 'wc' !== platform_data?.platform ) {
 		return null;
 	}

@@ -15,6 +15,27 @@ module.exports = {
 					'to-rgb'
 				]
 			}
+		],
+		'selector-pseudo-class-no-unknown': [
+			true,
+			{
+				ignorePseudoClasses: ['export']
+			}
+		],
+		'property-no-unknown': [
+			true,
+			{
+				ignoreProperties: [
+					/^primary-/,
+					/^secondary-/,
+					/^tertiary-/,
+					/^quaternary-/,
+					/^neutral-/,
+					/^success-/,
+					/^error-/,
+					/^warning-/
+				]
+			}
 		]
 	}
 };

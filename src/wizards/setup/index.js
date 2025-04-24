@@ -3,7 +3,7 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import { Fragment, render, createElement } from '@wordpress/element';
+import { render, createElement, forwardRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -49,9 +49,9 @@ const ROUTES = [
 	},
 ];
 
-const SetupWizard = ( { wizardApiFetch, setError } ) => {
+const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 	return (
-		<Fragment>
+		<div ref={ref}>
 			{ newspack_aux_data.has_completed_setup && (
 				<Notice isWarning className="ma0">
 					{ __(
@@ -89,11 +89,11 @@ const SetupWizard = ( { wizardApiFetch, setError } ) => {
 					);
 				} ) }
 			</HashRouter>
-		</Fragment>
+		</div>
 	);
 };
 
 render(
-	createElement( withWizard( SetupWizard, [] ), { simpleFooter: true } ),
+	createElement( withWizard( forwardRef( SetupWizard ), [] ), { simpleFooter: true } ),
 	document.getElementById( 'newspack-setup-wizard' )
 );
