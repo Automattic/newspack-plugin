@@ -81,6 +81,7 @@ const registerEvents = () => {
 	registerActivityEvent( 'payment_method_deleted' );
 	registerActivityEvent( 'payment_method_added' );
 	registerActivityEvent( 'payment_method_changed' );
+	registerActivityEvent( 'address_updated' );
 };
 
 /**

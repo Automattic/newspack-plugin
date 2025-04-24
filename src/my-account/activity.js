@@ -18,6 +18,8 @@ const getSubscriptionIdFromHref = element => {
 	return match ? match[ 1 ] : null;
 };
 
+const url = new URL( window.location.href );
+
 domReady( function () {
 	// Track when the user cancels a subscription.
 	registerElementActivity(
@@ -88,6 +90,19 @@ domReady( function () {
 				update_all_subscriptions: orderReviewForm.querySelector(
 					'#update_all_subscriptions_payment_method'
 				)?.checked,
+			} )
+		);
+	}
+
+	// Track when the user updates their billing or shipping address.
+	if ( url.pathname.includes( 'edit-address' ) ) {
+		registerElementActivity(
+			'.woocommerce-MyAccount-content form',
+			'address_updated',
+			() => ( {
+				address_type: url.pathname.includes( 'billing' )
+					? 'billing'
+					: 'shipping',
 			} )
 		);
 	}
