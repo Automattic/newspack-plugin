@@ -425,13 +425,6 @@ function process_form() {
 	$metadata['current_page_url']    = home_url( add_query_arg( array(), $metadata['referer'] ) );
 	$metadata['registration_method'] = 'registration-block';
 
-	$popup_id                      = isset( $_REQUEST['newspack_popup_id'] ) ? (int) $_REQUEST['newspack_popup_id'] : false;
-	$metadata['newspack_popup_id'] = $popup_id;
-
-	if ( $popup_id ) {
-		$metadata['registration_method'] = 'registration-block-popup';
-	}
-
 	/**
 	 * Filters the metadata to be saved for a reader registered through the Reader Registration Block.
 	 *
@@ -462,6 +455,7 @@ function process_form() {
 			'email'         => $email,
 			'authenticated' => $user_logged_in,
 			'existing_user' => ! $user_logged_in,
+			'metadata'      => $metadata,
 		]
 	);
 }

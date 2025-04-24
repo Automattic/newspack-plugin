@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Icon, chevronUp, chevronDown, trash } from '@wordpress/icons';
-import { Notice } from '@wordpress/components';
+import { CheckboxControl,Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -42,8 +42,8 @@ export default function SortableNewsletterListControl( {
 							title={ list.name }
 							description={ () => (
 								<>
-									<input
-										type="checkbox"
+									<CheckboxControl
+										label={ __( 'Checked by default', 'newspack-plugin' ) }
 										checked={ selectedList.checked }
 										onChange={ () => {
 											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
@@ -52,11 +52,10 @@ export default function SortableNewsletterListControl( {
 											onChange( newSelected );
 										} }
 									/>
-									{ __( 'Checked by default', 'newspack-plugin' ) }
 								</>
 							) }
 							isSmall
-							actionText={
+							hasWhiteHeader							actionText={
 								<>
 									<Button
 										onClick={ () =>
@@ -64,6 +63,7 @@ export default function SortableNewsletterListControl( {
 										}
 										label={ __( 'Remove', 'newspack-plugin' ) }
 										icon={ trash }
+										isDestructive
 									/>
 								</>
 							}

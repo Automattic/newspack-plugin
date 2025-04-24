@@ -1,10 +1,13 @@
 @use "vars" as gate;
 
 .newspack-memberships {
+	&__gate {
+		position: relative;
+	}
 	&__overlay-gate {
 		position: fixed;
 		inset: 0;
-		z-index: 999999;
+		z-index: 99999;
 		pointer-events: none;
 		overflow: hidden;
 		&::before {

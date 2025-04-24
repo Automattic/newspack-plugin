@@ -8,7 +8,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { render, lazy, Suspense } from '@wordpress/element';
+import { createRoot, lazy, Suspense } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -117,7 +117,7 @@ const AdminPages = () => {
 };
 
 if ( rootElement && pageParam in components ) {
-	render( <AdminPages />, rootElement );
+	createRoot( rootElement ).render( <AdminPages /> );
 } else {
 	// eslint-disable-next-line no-console
 	console.error( `${ pageParam } not found!` );

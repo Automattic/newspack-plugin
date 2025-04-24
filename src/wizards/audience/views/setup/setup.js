@@ -3,7 +3,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, RangeControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -14,6 +14,7 @@ import {
 	ActionCard,
 	Button,
 	Card,
+	Grid,
 	Notice,
 	PluginInstaller,
 	SectionHeader,
@@ -23,9 +24,8 @@ import {
 } from '../../../../components/src';
 import WizardsTab from '../../../wizards-tab';
 import Prerequisite from '../../components/prerequisite';
-import ActiveCampaign from '../../components/active-campaign';
+import Settings from '../../components/settings';
 import MetadataFields from '../../components/metadata-fields';
-import Mailchimp from '../../components/mailchimp';
 import { HANDOFF_KEY } from '../../../../components/src/consts';
 import SortableNewsletterListControl from '../../../../components/src/sortable-newsletter-list-control';
 import Salesforce from '../../components/salesforce';
@@ -46,9 +46,8 @@ export default withWizardScreen(
 		}
 	) => {
 	const [ allReady, setAllReady ] = useState( false );
-	const [ isActiveCampaign, setIsActiveCampaign ] = useState( false );
-	const [ isMailchimp, setIsMailchimp ] = useState( false );
 	const [ missingPlugins, setMissingPlugins ] = useState( [] );
+	const [ esp, setEsp ] = useState( '' );
 
 	useEffect( () => {
 		window.scrollTo( 0, 0 );
@@ -60,12 +59,7 @@ export default withWizardScreen(
 		apiFetch( {
 			path: '/newspack/v1/wizard/newspack-newsletters/settings',
 		} ).then( data => {
-			setIsMailchimp(
-				data?.settings?.newspack_newsletters_service_provider?.value === 'mailchimp'
-			);
-			setIsActiveCampaign(
-				data?.settings?.newspack_newsletters_service_provider?.value === 'active_campaign'
-			);
+			setEsp( data?.settings?.newspack_newsletters_service_provider?.value ?? '' );
 		} );
 	}, [] );
 
@@ -182,12 +176,6 @@ export default withWizardScreen(
 			{ config.enabled && (
 				<Card noBorder>
 					<hr />
-					<SectionHeader
-						title={ __(
-							'Newsletter Subscription Lists',
-							'newspack-plugin'
-						) }
-					/>
 					<ActionCard
 						title={ __(
 							'Present newsletter signup after checkout and registration',
@@ -197,22 +185,42 @@ export default withWizardScreen(
 							'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
 							'newspack-plugin'
 						) }
+						hasGreyHeader={ config.use_custom_lists }
+						isMedium
 						toggleChecked={ config.use_custom_lists }
 						toggleOnChange={ value =>
 							updateConfig( 'use_custom_lists', value )
 						}
-					/>
-					{ config.use_custom_lists && (
-						<SortableNewsletterListControl
-							lists={
-								newspackAudience.available_newsletter_lists
-							}
-							selected={ config.newsletter_lists }
-							onChange={ selected =>
-								updateConfig( 'newsletter_lists', selected )
-							}
-						/>
-					) }
+					>
+						{ config.use_custom_lists && (
+							<Grid columns={ 4 }>
+								<SortableNewsletterListControl
+									lists={
+										newspackAudience.available_newsletter_lists
+									}
+									selected={ config.newsletter_lists }
+									onChange={ selected =>
+										updateConfig( 'newsletter_lists', selected )
+									}
+								/>
+								<RangeControl
+									min={ 1 }
+									max={ 10 }
+									initialPosition={ 2 }
+									label={ __(
+										'Initial list size',
+										'newspack-plugin'
+									) }
+									help={ __(
+										'Number of newsletters initially visible during signup. Additional newsletters will be hidden behind a "See all" button.',
+										'newspack-plugin'
+									) }
+									value={ config.newsletter_list_initial_size || '' }
+									onChange={ value => updateConfig( 'newsletter_list_initial_size', parseInt( value ) ) }
+								/>
+							</Grid>
+						) }
+					</ActionCard>
 
 					<hr />
 
@@ -242,7 +250,7 @@ export default withWizardScreen(
 							'Configure options for syncing reader data to the connected ESP.',
 							'newspack-plugin'
 						) }
-						hasGreyHeader={ true }
+						hasGreyHeader={ config.sync_esp }
 						isMedium
 						title={ __(
 							'Sync contacts to ESP',
@@ -263,8 +271,9 @@ export default withWizardScreen(
 										isError
 									/>
 								) }
-								{ isMailchimp && (
-									<Mailchimp
+								{ esp === 'mailchimp' && (
+									<Settings
+										title={ 'Mailchimp' }
 										value={ {
 											audienceId:
 												config.mailchimp_audience_id,
@@ -289,8 +298,9 @@ export default withWizardScreen(
 										} }
 									/>
 								) }
-								{ isActiveCampaign && (
-									<ActiveCampaign
+								{ esp === 'active_campaign' && (
+									<Settings
+										title={ 'ActiveCampaign' }
 										value={ {
 											masterList:
 												config.active_campaign_master_list,
@@ -301,6 +311,17 @@ export default withWizardScreen(
 													'active_campaign_master_list',
 													value
 												);
+											}
+										} }
+									/>
+								) }
+								{ esp === 'constant_contact' && (
+									<Settings
+										title={ 'Constant Contact' }
+										value={ { masterList: config.constant_contact_list_id } }
+										onChange={ ( key, value ) => {
+											if ( key === 'masterList' ) {
+												updateConfig( 'constant_contact_list_id', value );
 											}
 										} }
 									/>
@@ -323,7 +344,7 @@ export default withWizardScreen(
 							onClick={ () => {
 								if ( config.sync_esp ) {
 									if (
-										isMailchimp &&
+										esp === 'mailchimp' &&
 										config.mailchimp_audience_id === ''
 									) {
 										// eslint-disable-next-line no-alert
@@ -336,7 +357,7 @@ export default withWizardScreen(
 										return;
 									}
 									if (
-										isActiveCampaign &&
+										esp === 'active_campaign' &&
 										config.active_campaign_master_list ===
 											''
 									) {
@@ -349,6 +370,14 @@ export default withWizardScreen(
 										);
 										return;
 									}
+									if (
+										esp === 'constant_contact' &&
+										config.constant_contact_list_id === ''
+									) {
+										// eslint-disable-next-line no-alert
+										alert( __( 'Please select a Constant Contact Master List.', 'newspack-plugin' ) );
+										return
+									}
 								}
 								saveConfig( {
 									newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
@@ -358,8 +387,12 @@ export default withWizardScreen(
 										config.mailchimp_reader_default_status,
 									active_campaign_master_list:
 										config.active_campaign_master_list,
+									constant_contact_list_id:
+										config.constant_contact_list_id,
 									use_custom_lists: config.use_custom_lists,
 									newsletter_lists: config.newsletter_lists,
+									newsletter_list_initial_size:
+										config.newsletter_list_initial_size,
 									sync_esp: config.sync_esp,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,

@@ -1,49 +1,51 @@
+@use "../../../shared/scss/colors.module";
+
 :root {
 	// Neutral:
-	--newspack-ui-color-neutral-0: #fff;
-	--newspack-ui-color-neutral-5: #f7f7f7;
-	--newspack-ui-color-neutral-10: #f0f0f0;
-	--newspack-ui-color-neutral-20: #e0e0e0;
-	--newspack-ui-color-neutral-30: #ddd;
-	--newspack-ui-color-neutral-40: #ccc;
-	--newspack-ui-color-neutral-50: #949494;
-	--newspack-ui-color-neutral-60: #6c6c6c;
-	--newspack-ui-color-neutral-70: #00000070;
-	--newspack-ui-color-neutral-80: #3e3e3e;
-	--newspack-ui-color-neutral-90: #1e1e1e;
-	--newspack-ui-color-neutral-100: #000;
+	--newspack-ui-color-neutral-0: #{colors.$neutral-000};
+	--newspack-ui-color-neutral-5: #{colors.$neutral-050};
+	--newspack-ui-color-neutral-10: #{colors.$neutral-100};
+	--newspack-ui-color-neutral-20: #{colors.$neutral-200};
+	--newspack-ui-color-neutral-30: #{colors.$neutral-300};
+	--newspack-ui-color-neutral-40: #{colors.$neutral-400};
+	--newspack-ui-color-neutral-50: #{colors.$neutral-500};
+	--newspack-ui-color-neutral-60: #{colors.$neutral-600};
+	--newspack-ui-color-neutral-70: #{colors.$neutral-700};
+	--newspack-ui-color-neutral-80: #{colors.$neutral-800};
+	--newspack-ui-color-neutral-90: #{colors.$neutral-900};
+	--newspack-ui-color-neutral-100: #{colors.$neutral-1000};
 
 	// Primary:
-	--newspack-ui-color-primary-0: #dfe7f4;
-	--newspack-ui-color-primary-5: #bfcfe9;
-	--newspack-ui-color-primary-10: #9fb6dd;
-	--newspack-ui-color-primary-20: #809ed2;
-	--newspack-ui-color-primary-30: #6086c7;
-	--newspack-ui-color-primary-40: #406ebc;
-	--newspack-ui-color-primary-50: #2055b0;
-	--newspack-ui-color-primary-60: #003da5;
-	--newspack-ui-color-primary-70: #00296e;
-	--newspack-ui-color-primary-80: #001f53;
-	--newspack-ui-color-primary-90: #001437;
-	--newspack-ui-color-primary-100: #000a1c;
+	--newspack-ui-color-primary-0: #{colors.$primary-000};
+	--newspack-ui-color-primary-5: #{colors.$primary-050};
+	--newspack-ui-color-primary-10: #{colors.$primary-100};
+	--newspack-ui-color-primary-20: #{colors.$primary-200};
+	--newspack-ui-color-primary-30: #{colors.$primary-300};
+	--newspack-ui-color-primary-40: #{colors.$primary-400};
+	--newspack-ui-color-primary-50: #{colors.$primary-500};
+	--newspack-ui-color-primary-60: #{colors.$primary-600};
+	--newspack-ui-color-primary-70: #{colors.$primary-700};
+	--newspack-ui-color-primary-80: #{colors.$primary-800};
+	--newspack-ui-color-primary-90: #{colors.$primary-900};
+	--newspack-ui-color-primary-100: #{colors.$primary-1000};
 
 	// Success:
-	--newspack-ui-color-success-0: #edfaef;
-	--newspack-ui-color-success-5: #b8e6bf;
-	--newspack-ui-color-success-50: #008a20;
-	--newspack-ui-color-success-60: #007017;
+	--newspack-ui-color-success-0: #{colors.$success-000};
+	--newspack-ui-color-success-5: #{colors.$success-050};
+	--newspack-ui-color-success-50: #{colors.$success-500};
+	--newspack-ui-color-success-60: #{colors.$success-600};
 
 	// Error:
-	--newspack-ui-color-error-0: #fcf0f1;
-	--newspack-ui-color-error-5: #facfd2;
-	--newspack-ui-color-error-50: #d63638;
-	--newspack-ui-color-error-60: #b32d2e;
+	--newspack-ui-color-error-0: #{colors.$error-000};
+	--newspack-ui-color-error-5: #{colors.$error-050};
+	--newspack-ui-color-error-50: #{colors.$error-500};
+	--newspack-ui-color-error-60: #{colors.$error-600};
 
 	//Warning:
-	--newspack-ui-color-warning-0: #fcf9e8;
-	--newspack-ui-color-warning-5: #f5e6ab;
-	--newspack-ui-color-warning-30: #dba617;
-	--newspack-ui-color-warning-40: #bd8600;
+	--newspack-ui-color-warning-0: #{colors.$warning-000};
+	--newspack-ui-color-warning-5: #{colors.$warning-050};
+	--newspack-ui-color-warning-30: #{colors.$warning-300};
+	--newspack-ui-color-warning-40: #{colors.$warning-400};
 
 	// Theme variables - from the classic theme; overridden in class-newspack-ui.php for block theme.
 	// TODO: commented out for now with the assumption all should be blue when used.

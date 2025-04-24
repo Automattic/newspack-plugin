@@ -1,10 +1,15 @@
 .newspack__newsletter-list-control {
+	grid-column: span 3;
+
 	&__selected {
 		.newspack-card {
 			display: flex;
 			justify-content: center;
 			min-height: 40px;
 			flex-direction: row;
+			&:first-of-type {
+				margin-top: 0 !important;
+			}
 			.newspack-action-card__region {
 				align-items: center;
 				display: flex;
@@ -14,11 +19,16 @@
 			.newspack-action-card__region-top {
 				flex: 1;
 				order: 2;
+
+				.newspack-grid {
+					margin: 0;
+				}
 			}
 			.newspack-action-card__region-children {
-				padding: 12px;
+				padding: 12px !important;
 			}
 		}
+
 	}
 	&__sort-handle {
 		display: flex;

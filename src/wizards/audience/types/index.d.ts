@@ -35,7 +35,9 @@ type EmailSlugs =
 	| 'reader-activation-otp-authentication'
 	| 'reader-activation-reset-password'
 	| 'reader-activation-delete-account'
-	| 'reader-activation-change-email';
+	| 'reader-activation-change-email'
+	| 'reader-activation-change-email-cancel'
+	| 'reader-activation-non-reader-user';
 
 // RAS config inherited from RAS wizard view.
 type Config = {
@@ -49,6 +51,7 @@ type Config = {
 	metadata_prefix?: string;
 	sync_esp_delete?: boolean;
 	active_campaign_master_list?: number;
+	constant_contact_list_id?: string;
 	mailchimp_audience_id?: string;
 	mailchimp_reader_default_status?: string;
 	emails?: {

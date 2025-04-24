@@ -135,6 +135,7 @@ final class Reader_Activation {
 				'authenticated_email'   => $authenticated_email,
 				'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
 				'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
+				'auth_action_result'    => Magic_Link::AUTH_ACTION_RESULT,
 				'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 				'is_ras_enabled'        => self::is_enabled(),
 			];
@@ -352,6 +353,7 @@ final class Reader_Activation {
 			'newsletters_label'                        => self::get_reader_activation_labels( 'newsletters_cta' ),
 			'use_custom_lists'                         => false,
 			'newsletter_lists'                         => [],
+			'newsletter_list_initial_size'             => self::get_newsletters_list_initial_size(),
 			'terms_text'                               => '',
 			'terms_url'                                => '',
 			'sync_esp'                                 => true,
@@ -359,6 +361,7 @@ final class Reader_Activation {
 			'metadata_fields'                          => Sync\Metadata::get_fields(),
 			'sync_esp_delete'                          => true,
 			'active_campaign_master_list'              => '',
+			'constant_contact_list_id'                 => '',
 			'mailchimp_audience_id'                    => '',
 			'mailchimp_reader_default_status'          => 'transactional',
 			'sender_name'                              => Emails::get_from_name(),
@@ -519,6 +522,8 @@ final class Reader_Activation {
 		switch ( $provider ) {
 			case 'active_campaign':
 				return self::get_setting( 'active_campaign_master_list' );
+			case 'constant_contact':
+				return self::get_setting( 'constant_contact_list_id' );
 			case 'mailchimp':
 				$audience_id = self::get_setting( 'mailchimp_audience_id' );
 				/** Attempt to use list ID from "Mailchimp for WooCommerce" */
@@ -1624,20 +1629,26 @@ final class Reader_Activation {
 	 *
 	 * @param string $email_address     Email address.
 	 * @param array  $newsletters_lists Array of newsletters lists.
+	 * @param int    $default_list_size Default number of lists to show.
 	 *
 	 * @return void
 	 */
-	private static function render_newsletters_signup_form( $email_address, $newsletters_lists ) {
+	private static function render_newsletters_signup_form( $email_address, $newsletters_lists, $default_list_size = 2 ) {
+		$loop_index = 0;
 		?>
 			<div class="newspack-ui newspack-newsletters-signup">
 				<form method="post" target="_top">
 					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
+
+					<div class="newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
+						$is_hidden = $loop_index <= $default_list_size ? '' : 'hidden';
+						$loop_index++;
 						?>
-						<label class="newspack-ui__input-card" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
 							<input
 								type="checkbox"
 								name="lists[]"
@@ -1657,6 +1668,14 @@ final class Reader_Activation {
 						<?php
 					}
 					?>
+					</div>
+
+					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
+							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'arrow-right' ); ?>
+						</button>
+					<?php endif; ?>
 					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
 				</form>
 			</div>
@@ -1679,6 +1698,7 @@ final class Reader_Activation {
 		if ( empty( $newsletters_lists ) ) {
 			return;
 		}
+		$newsletter_list_initial_size = self::get_newsletters_list_initial_size();
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-newsletters-signup-modal">
 			<div class="newspack-ui__modal-container__overlay"></div>
@@ -1702,7 +1722,7 @@ final class Reader_Activation {
 							<?php echo esc_html( $email_address ); ?>
 						</span>
 					</p>
-					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
+					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_initial_size ); ?>
 				</div>
 			</div>
 		</div>
@@ -1900,7 +1920,7 @@ final class Reader_Activation {
 	 * If Google is connected to the site, this can be overridden by setting the `NEWSPACK_DISABLE_GOOGLE_OAUTH` environment constant.
 	 */
 	public static function render_third_party_auth() {
-		if ( ! Google_OAuth::is_oauth_configured() || ( defined( 'NEWSPACK_DISABLE_GOOGLE_OAUTH' ) && NEWSPACK_DISABLE_GOOGLE_OAUTH ) ) {
+		if ( ! Google_OAuth::is_oauth_configured() ) {
 			return;
 		}
 		?>
@@ -1998,8 +2018,14 @@ final class Reader_Activation {
 		self::set_auth_intention_cookie( $email );
 
 		$user = \get_user_by( 'email', $email );
-		if ( ( ! $user && 'register' !== $action ) || ( $user && ! self::is_user_reader( $user ) ) ) {
+		if ( ! $user && 'register' !== $action ) {
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) ) ) );
+		}
+
+		if ( $user && ! self::is_user_reader( $user ) ) {
+			$message = 'register' === $action ? __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ) : wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) );
+			$sent = self::send_non_reader_login_reminder( $user );
+			return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : $message ) );
 		}
 
 		$payload = [
@@ -2054,10 +2080,19 @@ final class Reader_Activation {
 				if ( ! empty( $current_page_url ) ) {
 					$metadata['current_page_url'] = $current_page_url;
 				}
+
+				/**
+				 * Filters the metadata to be saved for a reader registered via the auth modal.
+				 *
+				 * @param array  $metadata Metadata.
+				 * @param string $email    Email address of the reader.
+				 */
+				$metadata = apply_filters( 'newspack_auth_form_metadata', $metadata, $email );
+
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
 					return self::send_auth_form_response(
-						new \WP_Error( 'unauthorized', __( 'An account was already registered with this email.', 'newspack-plugin' ) )
+						new \WP_Error( 'unauthorized', self::is_reader_without_password( $user ) ? __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ) : __( 'An account was already registered with this email. Please sign in to continue.', 'newspack-plugin' ) )
 					);
 				}
 				if ( \is_wp_error( $user_id ) ) {
@@ -2177,9 +2212,17 @@ final class Reader_Activation {
 
 		$user_id = false;
 
-		if ( $existing_user && self::is_reader_without_password( $existing_user ) ) {
-			// Don't send OTP email for newsletter signup.
-			if ( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) ) {
+		if ( $existing_user ) {
+			// If the user is not a reader, send a non-reader login reminder. We don't want to expose on the front-end that the email address belongs to a non-reader account.
+			if ( ! self::is_user_reader( $existing_user ) ) {
+				self::send_non_reader_login_reminder( $existing_user );
+				return false;
+			}
+
+			// Don't send OTP email for newsletter signup, or if the reader has a password set.
+			if ( self::is_reader_without_password( $existing_user ) &&
+				( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) )
+			) {
 				Logger::log( "User with $email already exists. Sending magic link." );
 				$redirect = isset( $metadata['current_page_url'] ) ? $metadata['current_page_url'] : '';
 				Magic_Link::send_email( $existing_user, $redirect );
@@ -2435,17 +2478,51 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * If a non-reader account attempts to use reader account flows, send an email reminder to use standard WP login.
+	 *
+	 * @param WP_User $user WP_User to send the email to.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function send_non_reader_login_reminder( $user ) {
+		/** Rate limit control */
+		if ( self::is_reader_email_rate_limited( $user ) ) {
+			return new \WP_Error( 'newspack_non_reader_reminder_interval', __( 'Please wait a moment before trying again.', 'newspack-plugin' ) );
+		}
+
+		$sent = Emails::send_email(
+			Reader_Activation_Emails::EMAIL_TYPES['NON_READER'],
+			$user->user_email,
+			[
+				[
+					'template' => '*WP_LOGIN_URL*',
+					'value'    => \wp_login_url( '', true ), // Force reauth.
+				],
+			]
+		);
+		if ( $sent ) {
+			\update_user_meta( $user->ID, self::LAST_EMAIL_DATE, time() );
+		}
+		return $sent;
+	}
+
+	/**
 	 * Send a magic link with special messaging to verify the user.
 	 *
 	 * @param WP_User $user WP_User object to be verified.
 	 */
 	public static function send_verification_email( $user ) {
-		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
+		// Send reminder to non-reader accounts to use standard WP login.
+		if ( ! self::is_user_reader( $user ) ) {
+			self::send_non_reader_login_reminder( $user );
+		}
 
 		/** Rate limit control */
 		if ( self::is_reader_email_rate_limited( $user ) ) {
 			return new \WP_Error( 'newspack_verification_email_interval', __( 'Please wait before requesting another verification email.', 'newspack-plugin' ) );
 		}
+
+		$redirect_to = function_exists( '\wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '';
 		\update_user_meta( $user->ID, self::LAST_EMAIL_DATE, time() );
 
 		return Emails::send_email(
@@ -2591,6 +2668,15 @@ final class Reader_Activation {
 	 */
 	public static function is_woocommerce_registration_required() {
 		return (bool) \get_option( self::OPTIONS_PREFIX . 'woocommerce_registration_required', false );
+	}
+
+	/**
+	 * Get the default list size for newsletters.
+	 *
+	 * @return int Default list size.
+	 */
+	private static function get_newsletters_list_initial_size() {
+		return absint( get_option( self::OPTIONS_PREFIX . 'newsletter_list_initial_size', 2 ) );
 	}
 
 	/**

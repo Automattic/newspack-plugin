@@ -1,3 +1,79 @@
+## [6.4.4](https://github.com/Automattic/newspack-plugin/compare/v6.4.3...v6.4.4) (2025-04-21)
+
+
+### Bug Fixes
+
+* **recaptcha-v2:** clone Place Order button for all checkouts, not just modal ([#3930](https://github.com/Automattic/newspack-plugin/issues/3930)) ([90287ab](https://github.com/Automattic/newspack-plugin/commit/90287ab84e42762816633fd11fc7e677c7fa7780))
+
+## [6.4.3](https://github.com/Automattic/newspack-plugin/compare/v6.4.2...v6.4.3) (2025-04-21)
+
+
+### Bug Fixes
+
+* register reader data handlers after listeners ([#3901](https://github.com/Automattic/newspack-plugin/issues/3901)) ([df71105](https://github.com/Automattic/newspack-plugin/commit/df71105c276bb3f872c0f3876287e15022416a99))
+
+## [6.4.2](https://github.com/Automattic/newspack-plugin/compare/v6.4.1...v6.4.2) (2025-04-17)
+
+
+### Bug Fixes
+
+* change nonce strategy for data events ([#3924](https://github.com/Automattic/newspack-plugin/issues/3924)) ([dba7e6b](https://github.com/Automattic/newspack-plugin/commit/dba7e6b8113c55db8c8091755cacb5ceed94209e))
+
+## [6.4.1](https://github.com/Automattic/newspack-plugin/compare/v6.4.0...v6.4.1) (2025-04-16)
+
+
+### Bug Fixes
+
+* **wizards:** react render strategy and ref forwarding ([#3923](https://github.com/Automattic/newspack-plugin/issues/3923)) ([730ffc3](https://github.com/Automattic/newspack-plugin/commit/730ffc397c23a7da7808202092f684ed16ef414b))
+
+# [6.4.0](https://github.com/Automattic/newspack-plugin/compare/v6.3.1...v6.4.0) (2025-04-14)
+
+
+### Bug Fixes
+
+* **guest-contributors:** return them in authors query ([3703559](https://github.com/Automattic/newspack-plugin/commit/3703559142297d3b111a089a97ce4a1b2d1b718a))
+* handle missing Mailchimp API key in auth status ([#3873](https://github.com/Automattic/newspack-plugin/issues/3873)) ([6df6fda](https://github.com/Automattic/newspack-plugin/commit/6df6fda4c057bb9840c736ba7c52fcf5b7d01fd9))
+* **ia:** render all emails on reset ([#3867](https://github.com/Automattic/newspack-plugin/issues/3867)) ([c6a71c0](https://github.com/Automattic/newspack-plugin/commit/c6a71c0c7206e1645491a19701e45415610a050c))
+* **notices:** fix PHP notice ([#3872](https://github.com/Automattic/newspack-plugin/issues/3872)) ([cc928b2](https://github.com/Automattic/newspack-plugin/commit/cc928b27a8eb2536d3119dbb62fd24c14cbb03ff))
+* path to autoload ([#3808](https://github.com/Automattic/newspack-plugin/issues/3808)) ([97fa24a](https://github.com/Automattic/newspack-plugin/commit/97fa24aa47c6efefde9fe7cf52d93a9e351a0036))
+* remove Mailchimp for WooCommerce from wizard ([#3876](https://github.com/Automattic/newspack-plugin/issues/3876)) ([f6b2484](https://github.com/Automattic/newspack-plugin/commit/f6b248427f745724e6dd265533d32c5fadc3b78d))
+* remove the Design link from the Appearance menu ([#3878](https://github.com/Automattic/newspack-plugin/issues/3878)) ([e24f147](https://github.com/Automattic/newspack-plugin/commit/e24f147b96594c7a1ad57879119f7001a551e504))
+
+
+### Features
+
+* custom byline interface ([#3746](https://github.com/Automattic/newspack-plugin/issues/3746)) ([289f55e](https://github.com/Automattic/newspack-plugin/commit/289f55eff543c6966ebcd9fe3eeb05f239b9ff95))
+* **esp-sync:** add constant contact support ([#3832](https://github.com/Automattic/newspack-plugin/issues/3832)) ([8198956](https://github.com/Automattic/newspack-plugin/commit/8198956df36968240c97b54454f7d30c11237183))
+* frontend display of bylines ([#3856](https://github.com/Automattic/newspack-plugin/issues/3856)) ([9feeba8](https://github.com/Automattic/newspack-plugin/commit/9feeba87dcccd31067ac8efb1df080b59f7dd4c9))
+
+## [6.3.1](https://github.com/Automattic/newspack-plugin/compare/v6.3.0...v6.3.1) (2025-04-09)
+
+
+### Bug Fixes
+
+* update Lite Site URL base ([#3900](https://github.com/Automattic/newspack-plugin/issues/3900)) ([9b5d708](https://github.com/Automattic/newspack-plugin/commit/9b5d70865985e5df9c945abe0ab16b73f65f94a8))
+
+# [6.3.0](https://github.com/Automattic/newspack-plugin/compare/v6.2.2...v6.3.0) (2025-04-09)
+
+
+### Features
+
+* **woocommerce:** add metadata to Stripe txns ([#3903](https://github.com/Automattic/newspack-plugin/issues/3903)) ([32076eb](https://github.com/Automattic/newspack-plugin/commit/32076ebba55a4e33c672cc84f92eae8d101c0370))
+
+## [6.2.2](https://github.com/Automattic/newspack-plugin/compare/v6.2.1...v6.2.2) (2025-04-03)
+
+
+### Bug Fixes
+
+* restore Media Kit components in Ads wizard ([#3881](https://github.com/Automattic/newspack-plugin/issues/3881)) ([86fa89a](https://github.com/Automattic/newspack-plugin/commit/86fa89acbeffe3c5361567b776fc226035e9e1be))
+
+## [6.2.1](https://github.com/Automattic/newspack-plugin/compare/v6.2.0...v6.2.1) (2025-04-03)
+
+
+### Bug Fixes
+
+* force release build ([71b44d9](https://github.com/Automattic/newspack-plugin/commit/71b44d91b7b767f972ad6365833aa7ac57025560))
+
 # [6.2.0](https://github.com/Automattic/newspack-plugin/compare/v6.1.3...v6.2.0) (2025-03-31)
 
 

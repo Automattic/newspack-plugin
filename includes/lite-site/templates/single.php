@@ -24,7 +24,7 @@ if ( ! $current_post ) {
 </head>
 <body>
 	<header class="back">
-		<a href="/text">← <?php esc_html_e( 'Back to posts', 'newspack-plugin' ); ?></a> |
+		<a href="/<?php echo esc_attr( Lite_Site::get_url_base() ); ?>">← <?php esc_html_e( 'Back to posts', 'newspack-plugin' ); ?></a> |
 		<a href="<?php echo esc_url( get_permalink( $current_post ) ); ?>"><?php esc_html_e( 'View full site', 'newspack-plugin' ); ?></a>
 	</header>
 	<h1><?php echo esc_html( $current_post->post_title ); ?></h1>

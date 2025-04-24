@@ -13,13 +13,14 @@ import {
 	Button,
 	Grid,
 	TextControl,
-	Wizard,
 } from '../../../../components/src';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../constants';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 
 export const CoverFeesSettings = () => {
-	const { additional_settings: settings = {} } = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
-	const { updateWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { additional_settings: settings = {} } = useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
+	const { updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const changeHandler = ( key, value ) =>
 		updateWizardSettings( {
 			slug: AUDIENCE_DONATIONS_WIZARD_SLUG,
@@ -27,7 +28,7 @@ export const CoverFeesSettings = () => {
 			value,
 		} );
 
-	const { saveWizardSettings } = useDispatch( Wizard.STORE_NAMESPACE );
+	const { saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const onSave = () =>
 		saveWizardSettings( {
 			slug: AUDIENCE_DONATIONS_WIZARD_SLUG,
