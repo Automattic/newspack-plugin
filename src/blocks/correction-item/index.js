@@ -8,12 +8,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import metadata from './block.json';
-<<<<<<< ours
-import { corrections } from '../../icons';
-=======
+import { corrections as icon } from '../../icons';
 import colors from '../../shared/scss/_colors.module.scss';
 import './style.scss';
->>>>>>> theirs
 
 export const title = __( 'Correction Item', 'newspack-plugin' );
 
@@ -21,7 +18,7 @@ const EditComponent = ( { context: { postType } } ) => {
 	if ( 'newspack_correction' !== postType ) {
 		return (
 			<Placeholder
-				icon={ corrections }
+				icon={ icon }
 				label={ __( 'Corrections & Clarifications', 'newspack-plugin' ) }
 				instructions={ __(
 					'Please select "Corrections" as the post type in the Query Loop to use this block.',
@@ -58,13 +55,8 @@ export { metadata, name };
 export const settings = {
 	title,
 	icon: {
-<<<<<<< ours
-		src: corrections,
-		foreground: '#406ebc',
-=======
 		src: icon,
 		foreground: colors['primary-400'],
->>>>>>> theirs
 	},
 	description: __(
 		'Display an archive of all the corrections and clarifications.',
