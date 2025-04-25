@@ -26,7 +26,10 @@ class WooCommerce_Logs {
 	 * @param string $message The error message.
 	 */
 	public static function log_error_notices( $message ) {
-		Logger::newspack_log( 'newspack_woocommerce_error_notice', $message );
+		$data = [
+			'wc_cart' => WC()->cart->get_cart_contents(),
+		];
+		Logger::newspack_log( 'newspack_woocommerce_error_notice', $message, $data );
 		return $message;
 	}
 }
