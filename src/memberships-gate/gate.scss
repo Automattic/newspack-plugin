@@ -82,11 +82,8 @@
 	}
 }
 
-.newspack-modal-checkout-open,
-.newspack-signin {
-	.newspack-memberships {
-		&__overlay-gate {
-			display: none !important;
-		}
+body:has(.newspack-ui__modal-container[data-state="open"]) {
+	.newspack-memberships__overlay-gate {
+		display: none !important;
 	}
 }
