@@ -31,6 +31,7 @@ class WooCommerce_Connection {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		include_once __DIR__ . '/class-woocommerce-logs.php';
 		include_once __DIR__ . '/class-woocommerce-cli.php';
 		include_once __DIR__ . '/class-woocommerce-cover-fees.php';
 		include_once __DIR__ . '/class-woocommerce-order-utm.php';
