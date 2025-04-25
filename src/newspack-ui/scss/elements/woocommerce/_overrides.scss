@@ -1,4 +1,4 @@
-// Some general overrides for WooCommerce styles.
+/** Some general overrides for WooCommerce styles. */
 .newspack-ui {
 	label .optional {
 		color: var(--newspack-ui-color-neutral-60);
@@ -22,9 +22,9 @@
 	}
 }
 
-// See #3292.
+/** See #3292. */
 .woocommerce-account {
-	// Inline sign up form max-width.
+	/** Inline sign up form max-width. */
 	.woocommerce-notices-wrapper:has(+ .newspack-reader-auth__inline-wrapper),
 	.newspack-reader-auth__inline-wrapper {
 		margin-left: auto;

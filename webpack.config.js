@@ -97,6 +97,20 @@ const entry = {
 		'my-account',
 		'index.js'
 	),
+	'my-account-v0': path.join(
+		__dirname,
+		'src',
+		'my-account',
+		'v0',
+		'index.js'
+	),
+	'my-account-v1': path.join(
+		__dirname,
+		'src',
+		'my-account',
+		'v1',
+		'index.js'
+	),
 	admin: path.join( __dirname, 'src', 'admin', 'index.js' ),
 	'memberships-gate': path.join(
 		__dirname,
