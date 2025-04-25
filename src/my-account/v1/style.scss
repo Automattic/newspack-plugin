@@ -12,14 +12,12 @@
 	.site-content {
 		margin-top: 0;
 	}
-	@media ( min-width: 782px ) {
-		#primary {
-			max-width: none;
-			width: auto;
-		}
-		.newspack-ui {
-			margin-top: 0;
-		}
+	#primary {
+		max-width: none;
+		width: auto;
+	}
+	.newspack-ui {
+		margin-top: 0;
 	}
 	.woocommerce {
 		@media ( min-width: 782px ) {
