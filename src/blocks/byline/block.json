@@ -32,13 +32,29 @@
 		  "padding": false
 		}
 	  },
+	  "__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+	  },
 	  "color": {
 		"text": true,
 		"background": true
 	  },
 	  "filter": {
 		"duotone": true
+	  },
+	  "typography": {
+        "fontSize": true,
+        "lineHeight": true,
+        "textAlign": true
 	  }
+	},
+	"selectors": {
+		"filter": {
+			"duotone": ".newspack-byline-avatar img"
+		}
 	},
 	"usesContext": ["postId", "postType"],
 	"textdomain": "newspack-plugin"

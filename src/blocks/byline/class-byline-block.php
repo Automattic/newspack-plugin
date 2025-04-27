@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Bylines_Block Class
  */
-final class Bylines_Block {
+final class Byline_Block {
 	/**
 	 * Initializes the block.
 	 *
@@ -32,7 +32,7 @@ final class Bylines_Block {
 	public static function register_block() {
 		register_block_type_from_metadata(
 			__DIR__ . '/block.json',
-			[
+			[ 
 				'render_callback' => [ __CLASS__, 'render_block' ],
 				'uses_context'    => [ 'postId', 'postType' ],
 			]
@@ -56,7 +56,7 @@ final class Bylines_Block {
 		// Use regex to find all author tags and replace them.
 		return preg_replace_callback(
 			'/\[Author id=(\d*)\](.*?)\[\/Author\]/s',
-			function( $matches ) use ( $with_links, $with_avatars, $avatar_size ) {
+			function ( $matches ) use ( $with_links, $with_avatars, $avatar_size ) {
 				$author_id   = $matches[1];
 				$author_name = $matches[2];
 				$author_url  = get_author_posts_url( $author_id );
@@ -106,7 +106,7 @@ final class Bylines_Block {
 		// If no custom byline is set, generate a default one using post author(s).
 		if ( empty( $custom_byline ) ) {
 			$authors = [];
-			
+
 			if ( function_exists( 'get_coauthors' ) ) {
 				$authors = get_coauthors( $post_id );
 			} else {
@@ -136,4 +136,4 @@ final class Bylines_Block {
 	}
 }
 
-Bylines_Block::init();
+Byline_Block::init();
