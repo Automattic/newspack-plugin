@@ -13,7 +13,7 @@
 	  "avatarSize": {
 		"type": "number",
 		"default": 24,
-		"enum": [ "16 X 16", "24 X 24", "32 X 32", "48 X 48" ]
+		"enum": [ 16, 24, 32, 48 ]
 	  },
 	  "linkToAuthorArchive": {
 		"type": "boolean",

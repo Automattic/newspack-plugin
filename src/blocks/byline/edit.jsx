@@ -67,7 +67,7 @@ const parseForPreview = (metaByline, showAvatar = false, avatarSize = 24, linkTo
 	if (!metaByline) { return ''; }
 
 	return metaByline.replace(
-		/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
+		/\[Author id=(\d*)\](.*?)\[\/Author\]/g,
 		(match, id, name) => {
 			let avatar = '';
 			let authorLink = name;
@@ -607,105 +607,6 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 	// Available authors
 	const availableAuthors = authors.filter(author => !tokensInUse.includes(author.id));
 
-	// CSS for contenteditable
-	const styles = `
-      .newspack-byline-block {
-        position: relative;
-      }
-      
-      .newspack-byline-textarea {
-        min-height: 36px;
-        padding: 4px 0;
-        border: 1px solid transparent;
-        outline: none;
-      }
-      
-      .newspack-byline-textarea:focus {
-        border-color: #007cba;
-      }
-      
-      .newspack-byline-preview {
-        cursor: text;
-      }
-      
-      .token-inline-block {
-        display: inline-flex;
-        align-items: center;
-        padding: 2px 8px;
-        margin: 0 2px;
-        background-color: #e7f0fa;
-        border-radius: 3px;
-        font-size: 13px;
-        line-height: 1.4;
-        border: 1px solid #c0d6e8;
-        position: relative;
-        z-index: 1;
-      }
-      
-      .token-inline-block__remove {
-        margin-left: 4px;
-        padding: 0 !important;
-        min-width: 18px !important;
-        height: 18px !important;
-      }
-      
-      .token-inline-block__remove svg {
-        width: 18px;
-        height: 18px;
-      }
-      
-      .components-form-token-field__remove-token {
-        background-color: transparent !important;
-      }
-      
-      .components-form-token-field__token-text {
-        background-color: transparent;
-      }
-      
-      .newspack-author-selector {
-        display: flex;
-        align-items: center;
-        margin-top: 8px;
-        flex-wrap: wrap;
-        gap: 6px;
-        border-top: 1px solid #ddd;
-        padding-top: 8px;
-      }
-      
-      .newspack-author-selector-label {
-        margin-right: 8px;
-        font-size: 13px;
-      }
-      
-      .author-token-button {
-        margin: 0 !important;
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 8px;
-        background-color: #f0f0f0;
-        border-radius: 3px;
-        font-size: 13px;
-      }
-      
-      .author-token-button svg {
-        margin-left: 4px;
-      }
-        
-      .author-token-button * {
-        pointer-events: none;
-      }
-      
-      .avatar-display {
-        display: inline-block;
-        margin-right: 4px;
-        vertical-align: middle;
-      }
-      
-      .avatar-display img {
-        border-radius: 50%;
-        vertical-align: middle;
-      }
-    `;
 
 	return (
 		<>
@@ -736,8 +637,6 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<style>{styles}</style>
-
 			{isSelected ? (
 				<>
 					{customByline ? (

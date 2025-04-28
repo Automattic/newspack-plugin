@@ -40,15 +40,31 @@ final class Byline_Block {
 	}
 
 	/**
+	 * This function is used to get the duotone class name from the preset value.
+	 *
+	 * @param  mixed $attributes Block attributes.
+	 * @return string Constructed class name for duotone filter.
+	 */
+	public static function newspack_byline_get_duotone_class_name( $attributes ) {
+		$duotone_preset = $attributes['style']['color']['duotone'] ?? null;
+		if ( str_starts_with( $duotone_preset, 'var:preset|duotone|' ) ) {
+			$slug = str_replace( 'var:preset|duotone|', '', $duotone_preset );
+			return ' wp-duotone-' . sanitize_title( $slug );
+		}
+		return '';
+	}
+
+	/**
 	 * Parse byline content to convert custom tags ([Author][/Author]) to HTML.
 	 *
 	 * @param string $byline_content Value of byline as stored in attribute.
 	 * @param bool   $with_links     Whether to include links to author archives.
 	 * @param bool   $with_avatars   Whether to include author avatars.
 	 * @param int    $avatar_size    Avatar size in pixels.
+	 * @param string $duotone_class  Duotone filter class for avatar images.
 	 * @return string                Parsed byline with author tags converted to HTML.
 	 */
-	public static function parse_byline( $byline_content, $with_links = true, $with_avatars = false, $avatar_size = 48 ) {
+	public static function parse_byline( $byline_content, $with_links = true, $with_avatars = false, $avatar_size = 48, $duotone_class = '' ) {
 		if ( empty( $byline_content ) ) {
 			return '';
 		}
@@ -56,7 +72,7 @@ final class Byline_Block {
 		// Use regex to find all author tags and replace them.
 		return preg_replace_callback(
 			'/\[Author id=(\d*)\](.*?)\[\/Author\]/s',
-			function ( $matches ) use ( $with_links, $with_avatars, $avatar_size ) {
+			function ( $matches ) use ( $with_links, $with_avatars, $avatar_size, $duotone_class ) {
 				$author_id   = $matches[1];
 				$author_name = $matches[2];
 				$author_url  = get_author_posts_url( $author_id );
@@ -64,8 +80,15 @@ final class Byline_Block {
 
 				// Add avatar if enabled.
 				if ( $with_avatars ) {
-					$avatar_html = get_avatar( $author_id, $avatar_size );
-					$html .= '<span class="newspack-byline-avatar">' . $avatar_html . '</span>';
+					$avatar_url  = get_avatar_url( $author_id, [ 'size' => $avatar_size * 2 ] );
+					$class       = 'avatar avatar-' . esc_attr( $avatar_size ) . ' photo wp-block-newspack-avatar__image ';
+					$avatar_html = '<img src="' . esc_url( $avatar_url ) . '" alt="' . esc_attr( $author_name ) . '" class="' . esc_attr( $class ) . '"width="' . esc_attr( $avatar_size ) . '" height="' . esc_attr( $avatar_size ) . '" loading="lazy" decoding="async" />';
+
+					if ( ! empty( $duotone_class ) ) {
+						$html .= '<span class="newspack-byline-avatar' . esc_attr( $duotone_class ) . '">' . $avatar_html . '</span>';
+					} else {
+						$html .= '<span class="newspack-byline-avatar abc">' . $avatar_html . '</span>';
+					}
 				}
 
 				// Add author name with or without link.
@@ -99,8 +122,9 @@ final class Byline_Block {
 
 		$custom_byline      = $attributes['customByline'] ?? '';
 		$show_avatar        = $attributes['showAvatar'] ?? false;
-		$avatar_size        = $attributes['avatarSize'] ?? 48;
+		$avatar_size        = $attributes['avatarSize'] ?? 24;
 		$link_to_author     = $attributes['linkToAuthorArchive'] ?? true;
+		$duotone_class      = self::newspack_byline_get_duotone_class_name( $attributes );
 		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'newspack-bylines' ] );
 
 		// If no custom byline is set, generate a default one using post author(s).
@@ -114,7 +138,7 @@ final class Byline_Block {
 			}
 
 			if ( ! empty( $authors ) ) {
-				$custom_byline = 'By ';
+				$custom_byline = 'Published by ';
 				foreach ( $authors as $index => $author ) {
 					if ( $index > 0 ) {
 						$custom_byline .= ( $index === count( $authors ) - 1 ) ? ' and ' : ', ';
@@ -124,7 +148,7 @@ final class Byline_Block {
 			}
 		}
 
-		$parsed_byline = self::parse_byline( $custom_byline, $link_to_author, $show_avatar, $avatar_size );
+		$parsed_byline = self::parse_byline( $custom_byline, $link_to_author, $show_avatar, $avatar_size, $duotone_class );
 
 		ob_start();
 		?>
