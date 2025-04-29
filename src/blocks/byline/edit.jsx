@@ -30,15 +30,12 @@ import { usePostAuthors } from './hooks';
 const parseForEdit = metaByline => {
 	if (!metaByline) { return ''; }
 
-	// Updated regex to use a function-based replacement for more control
+	// Regex to convert [Author][/Author] tags to token markup
 	return metaByline.replace(
 		/\[Author id=(\d+)\](.*?)\[\/Author\]/g,
 		(match, id, name) => {
-			// Ensure name is properly escaped for HTML
-			const safeName = name.trim();
-
-			return `<span id="token-${id}" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="${id}" data-name="${safeName}">
-          <span class="components-form-token-field__token-text">${safeName}</span>
+			return `<span id="token-${id}" contenteditable="false" draggable="true" class="components-form-token-field__token token-inline-block author-token" data-token="${id}" data-name="${name}">
+          <span class="components-form-token-field__token-text">${name}</span>
           <button
             class="components-button components-form-token-field__remove-token token-inline-block__remove"
             type="button"
@@ -73,7 +70,7 @@ const parseForPreview = (metaByline, showAvatar = false, avatarSize = 24, linkTo
 			let authorLink = name;
 
 			const matchedAuthor = authors.find(author => author.id === Number(id));
-			const baseUrl = matchedAuthor?.avatar_urls?.['96'] || ''; // fallback base
+			const baseUrl = matchedAuthor?.avatar_urls?.['96'] || '';
 			const avatarUrl = addQueryArgs(removeQueryArgs(baseUrl, ['s']), {
 				s: avatarSize * 2,
 			});
@@ -118,7 +115,6 @@ const transformByline = element => {
 
 	tokenElements.forEach(tokenElement => {
 		const authorID = tokenElement.dataset.token;
-		// Try to get the name from data-name attribute first (more reliable)
 		const authorName = tokenElement.dataset.name ||
 			(tokenElement.querySelector('.components-form-token-field__token-text')?.innerText || '').trim();
 
@@ -140,7 +136,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 	const [authors, setAuthors] = useState([]);
 	const [tokensInUse, setTokensInUse] = useState([]);
 
-	// Refs to manage state without re-renders
+	// Refs to manage states
 	const editableRef = useRef(null);
 	const contentRef = useRef(customByline || '');
 	const isTypingRef = useRef(false);
@@ -158,7 +154,6 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 			.join(' ')
 		: '';
 
-	// Get post authors
 	const postAuthors = usePostAuthors({ postId, postType });
 
 	useEffect(() => {
@@ -167,7 +162,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 		}
 	}, [postAuthors]);
 
-	// Set default byline if none exists
+	// Set default byline if none exists (initialize byline)
 	useEffect(() => {
 		if ((!customByline || customByline === '') && authors.length > 0) {
 			let defaultByline = 'Published by: ';
@@ -183,15 +178,11 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 		}
 	}, [authors, customByline, setAttributes]);
 
+	// Update avatar when duotone changes
 	useEffect(() => {
 		if (editableRef.current && showAvatar) {
-			// Store selection
 			const selectionData = saveSelection();
-
-			// Update avatars with current duotone setting
 			updateAvatarDisplay();
-
-			// Restore selection if needed
 			if (selectionData) {
 				restoreSelection(selectionData);
 			}
@@ -221,7 +212,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 			selection.removeAllRanges();
 			selection.addRange(selectionData.range);
 		} catch (e) {
-			// Handle error silently
+			// Error occurred while restoring selection
 		}
 	};
 
@@ -243,15 +234,12 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 		const existingAvatars = editableRef.current.querySelectorAll('.avatar-display');
 		existingAvatars.forEach(el => el.remove());
 
-		// Only proceed if avatars should be shown
 		if (!showAvatar) {
 			return;
 		}
 
-		// Get all author tokens
 		const authorTokens = editableRef.current.querySelectorAll('.author-token');
 
-		// Add avatar for each token
 		authorTokens.forEach(token => {
 			const authorId = token.dataset.token;
 			const authorName = token.dataset.name;
@@ -264,11 +252,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 				});
 
 				if (avatarUrl) {
-					// Create avatar element with duotone class
 					const avatarEl = document.createElement('span');
-
-					// Make sure to add the duotone class here
-					// Important: Create a container with the duotone class that matches the avatar block structure
 					avatarEl.className = `newspack-byline-avatar avatar-display avatar-display-${authorId}`;
 
 					// Apply duotone classes from blockProps
@@ -277,25 +261,25 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 					}
 
 					avatarEl.style.cssText = `
-              display: inline-block;
-              margin-right: 4px;
-              vertical-align: middle;
-              position: relative;
-              z-index: 0;
-            `;
+					display: inline-block;
+					margin-right: 4px;
+					vertical-align: middle;
+					position: relative;
+					z-index: 0;
+					`;
 
 					avatarEl.innerHTML = `
-              <img 
-                src="${avatarUrl}"
-                alt="${authorName}" 
-                class="avatar avatar-${avatarSize}" 
-                width="${avatarSize}" 
-                height="${avatarSize}" 
-                style="border-radius: 50%;"
-              />
-            `;
+					<img 
+						src="${avatarUrl}"
+						alt="${authorName}" 
+						class="avatar avatar-${avatarSize}" 
+						width="${avatarSize}" 
+						height="${avatarSize}" 
+						style="border-radius: 50%;"
+					/>
+            		`;
 
-					// Insert before the token
+					// Insert avatar before the token
 					token.parentNode.insertBefore(avatarEl, token);
 				}
 			}
@@ -314,12 +298,10 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 			element.innerHTML = parseForEdit(contentRef.current);
 		}
 
-		// Set up handlers
 		const handleInput = () => {
 			// Mark as typing to prevent focus loss
 			isTypingRef.current = true;
 
-			// Clear previous timeout
 			if (typingTimeoutRef.current) {
 				clearTimeout(typingTimeoutRef.current);
 			}
@@ -327,7 +309,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 			// Set timeout to detect when typing stops
 			typingTimeoutRef.current = setTimeout(() => {
 				isTypingRef.current = false;
-			}, 2000); // 2 seconds inactivity marks end of typing
+			}, 2000);
 
 			// Save changes with debounce
 			if (savingTimeoutRef.current) {
@@ -335,10 +317,9 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 			}
 
 			savingTimeoutRef.current = setTimeout(() => {
-				// Save selection state
 				const selectionData = saveSelection();
 
-				// First remove any avatar displays - they shouldn't be saved
+				// Remove avatar displays - they shouldn't be saved
 				const avatarElements = element.querySelectorAll('.avatar-display');
 				avatarElements.forEach(el => el.remove());
 
@@ -368,7 +349,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 						restoreSelection(selectionData);
 					}
 				}, 10);
-			}, 500); // 500ms debounce for saving
+			}, 1000);
 		};
 
 		// Click handler for token removal
@@ -376,17 +357,13 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 			if (e.target.classList.contains('token-inline-block__remove')) {
 				const tokenElement = e.target.closest('.token-inline-block');
 				if (tokenElement) {
-					// Also remove any associated avatar
+					// Remove associated avatar if present
 					const authorId = tokenElement.dataset.token;
 					const avatarEl = element.querySelector(`.avatar-display-${authorId}`);
 					if (avatarEl) {
 						avatarEl.remove();
 					}
-
-					// Remove token
 					tokenElement.remove();
-
-					// Update content
 					handleInput();
 				}
 			}
@@ -471,7 +448,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 		// Insert token
 		range.insertNode(tokenElement);
 
-		// Add avatar if needed
+		// Add avatar if enabled
 		if (showAvatar && token) {
 			const baseUrl = token?.avatar_urls?.['96'] || '';
 			const avatarUrl = addQueryArgs(removeQueryArgs(baseUrl, ['s']), {
@@ -480,8 +457,6 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 
 			if (avatarUrl) {
 				const avatarEl = document.createElement('span');
-
-				// Apply duotone class to avatar wrapper
 				avatarEl.className = `newspack-byline-avatar avatar-display avatar-display-${token.id}`;
 
 				// Apply duotone classes from blockProps
@@ -490,25 +465,25 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 				}
 
 				avatarEl.style.cssText = `
-            display: inline-block;
-            margin-right: 4px;
-            vertical-align: middle;
-            position: relative;
-            z-index: 0;
-          `;
+					display: inline-block;
+					margin-right: 4px;
+					vertical-align: middle;
+					position: relative;
+					z-index: 0;
+				`;
 
 				avatarEl.innerHTML = `
-            <img 
-              src="${avatarUrl}"
-              alt="${token.display_name}" 
-              class="avatar avatar-${avatarSize}" 
-              width="${avatarSize}" 
-              height="${avatarSize}" 
-              style="border-radius: 50%;"
-            />
-          `;
+					<img 
+					src="${avatarUrl}"
+					alt="${token.display_name}" 
+					class="avatar avatar-${avatarSize}" 
+					width="${avatarSize}" 
+					height="${avatarSize}" 
+					style="border-radius: 50%;"
+					/>
+				`;
 
-				// Insert before the token
+				// Insert avatar before the token
 				tokenElement.parentNode.insertBefore(avatarEl, tokenElement);
 			}
 		}
@@ -524,7 +499,6 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 		selection.removeAllRanges();
 		selection.addRange(newRange);
 
-		// Force focus
 		element.focus();
 
 		// Update content
@@ -536,7 +510,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 		setAttributes({ customByline: transformedContent });
 	};
 
-	// Update content ref when attributes change
+	// Update content ref when block attributes change
 	useEffect(() => {
 		contentRef.current = customByline || '';
 
@@ -604,7 +578,7 @@ const Edit = ({ attributes, context, setAttributes, isSelected }) => {
 		}
 	}, [isSelected]);
 
-	// Available authors
+	// Update available authors
 	const availableAuthors = authors.filter(author => !tokensInUse.includes(author.id));
 
 

@@ -1,18 +1,18 @@
 <?php
 /**
- * Bylines Block.
+ * Byline Block.
  *
  * @package Newspack
  */
 
-namespace Newspack\Blocks\Bylines;
+namespace Newspack\Blocks\Byline;
 
 use Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Bylines_Block Class
+ * Byline_Block Class
  */
 final class Byline_Block {
 	/**
@@ -25,7 +25,7 @@ final class Byline_Block {
 	}
 
 	/**
-	 * Register newspack bylines block.
+	 * Register newspack byline block.
 	 *
 	 * @return void
 	 */
@@ -69,7 +69,7 @@ final class Byline_Block {
 			return '';
 		}
 
-		// Use regex to find all author tags and replace them.
+		// Regex to find all author tags and replace them.
 		return preg_replace_callback(
 			'/\[Author id=(\d*)\](.*?)\[\/Author\]/s',
 			function ( $matches ) use ( $with_links, $with_avatars, $avatar_size, $duotone_class ) {
@@ -78,7 +78,7 @@ final class Byline_Block {
 				$author_url  = get_author_posts_url( $author_id );
 				$html        = '';
 
-				// Add avatar if enabled.
+				// Add avatar before author if enabled.
 				if ( $with_avatars ) {
 					$avatar_url  = get_avatar_url( $author_id, [ 'size' => $avatar_size * 2 ] );
 					$class       = 'avatar avatar-' . esc_attr( $avatar_size ) . ' photo wp-block-newspack-avatar__image ';
@@ -91,7 +91,7 @@ final class Byline_Block {
 					}
 				}
 
-				// Add author name with or without link.
+				// Add link to author archive if enabled.
 				if ( $with_links ) {
 					$html .= '<a href="' . esc_url( $author_url ) . '" rel="author">' . esc_html( $author_name ) . '</a>';
 				} else {
@@ -125,9 +125,9 @@ final class Byline_Block {
 		$avatar_size        = $attributes['avatarSize'] ?? 24;
 		$link_to_author     = $attributes['linkToAuthorArchive'] ?? true;
 		$duotone_class      = self::newspack_byline_get_duotone_class_name( $attributes );
-		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'newspack-bylines' ] );
+		$wrapper_attributes = get_block_wrapper_attributes( [ 'class' => 'newspack-byline' ] );
 
-		// If no custom byline is set, generate a default one using post author(s).
+		// If custom byline is empty, generate a default one using post author(s).
 		if ( empty( $custom_byline ) ) {
 			$authors = [];
 

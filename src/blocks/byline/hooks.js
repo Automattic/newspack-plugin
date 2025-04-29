@@ -38,12 +38,12 @@ export function usePostAuthors({ postId, postType }) {
                 setCoAuthorsLoaded(true);
             })
             .catch(() => {
-                // If co-authors API fails, we'll fall back to the default author
+                // If co-authors API fails, fall back to the default author
                 setCoAuthorsLoaded(true);
             });
 
         return () => {
-            controller.abort(); // Clean up if component unmounts
+            controller.abort();
         };
     }, [postId]);
 
