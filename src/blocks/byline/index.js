@@ -11,7 +11,7 @@ import './style.scss';
 import metadata from './block.json';
 import Edit from './edit';
 
-export const title = __('Bylines', 'newspack-plugin');
+export const title = __('Byline', 'newspack-plugin');
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@ export const settings = {
 		__('coauthor', 'newspack-plugin')
 	],
 	description: __(
-		'Display customizable post bylines with author links and avatars.',
+		'Display post author byline.',
 		'newspack-plugin'
 	),
 	usesContext: ['postId', 'postType'],
