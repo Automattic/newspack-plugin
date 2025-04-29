@@ -78,7 +78,7 @@ const parseForPreview = (metaByline, showAvatar = false, avatarSize = 24, linkTo
 				s: avatarSize * 2,
 			});
 
-			if (showAvatar && avatarUrl) {
+			if (showAvatar && avatarUrl && baseUrl) {
 				avatar = `<span class="newspack-byline-avatar ${duotoneClassName}" style="display: inline-block; margin-right: 8px; vertical-align: middle;">
             <img 
               src="${avatarUrl}"
