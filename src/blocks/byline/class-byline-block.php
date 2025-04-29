@@ -46,7 +46,7 @@ final class Byline_Block {
 	 * @return string Constructed class name for duotone filter.
 	 */
 	public static function newspack_byline_get_duotone_class_name( $attributes ) {
-		$duotone_preset = $attributes['style']['color']['duotone'] ?? null;
+		$duotone_preset = isset( $attributes['style']['color']['duotone'] ) ? $attributes['style']['color']['duotone'] : null;
 		if ( str_starts_with( $duotone_preset, 'var:preset|duotone|' ) ) {
 			$slug = str_replace( 'var:preset|duotone|', '', $duotone_preset );
 			return ' wp-duotone-' . sanitize_title( $slug );
@@ -87,7 +87,7 @@ final class Byline_Block {
 					if ( ! empty( $duotone_class ) ) {
 						$html .= '<span class="newspack-byline-avatar' . esc_attr( $duotone_class ) . '">' . $avatar_html . '</span>';
 					} else {
-						$html .= '<span class="newspack-byline-avatar abc">' . $avatar_html . '</span>';
+						$html .= '<span class="newspack-byline-avatar">' . $avatar_html . '</span>';
 					}
 				}
 
