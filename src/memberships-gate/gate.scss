@@ -82,8 +82,12 @@
 	}
 }
 
-body:has(.newspack-ui__modal-container[data-state="open"]) {
-	.newspack-memberships__overlay-gate {
-		display: none !important;
+// Hide the gate while the sign in or checkout modals are open.
+body {
+	&:has(.newspack-ui__modal-container[data-state="open"]),
+	&.newspack-memberships__gate-passed {
+		.newspack-memberships__overlay-gate {
+			display: none !important;
+		}
 	}
 }

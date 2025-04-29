@@ -42,6 +42,7 @@ function initReloadHandler() {
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( function( ras ) {
 		let reload = false;
+
 		const refreshPage = function( ev ) {
 			// When a new reader is registered, which may or may not happen inside an overlay.
 			if (
@@ -61,6 +62,9 @@ function initReloadHandler() {
 					( 'checkout_completed' === lastActivity.action || 'reader_registered' === lastActivity.action || 'reader_logged_in' === lastActivity.action )
 				) {
 					reload = true;
+					// Add a CSS class to the body so we can keep the overlay content gate hidden while the page refreshes.
+					document.body.classList.add( 'newspack-memberships__gate-passed' );
+
 				} else {
 					reload = false;
 					handleDismissed();
