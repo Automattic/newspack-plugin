@@ -263,11 +263,13 @@ export function getOTPTimeRemaining() {
 /**
  * Authenticate reader using an OTP code.
  *
- * @param {number} code OTP code.
+ * @param {Object} data                          Data.
+ * @param {number} data.code                     OTP code.
+ * @param {number} data.memberships_content_gate Gate post ID.
  *
  * @return {Promise} Promise.
  */
-export function authenticateOTP( code ) {
+export function authenticateOTP( { code, memberships_content_gate } ) {
 	return new Promise( ( resolve, reject ) => {
 		const hash = getOTPHash();
 		const email = getReader()?.email;
@@ -290,6 +292,7 @@ export function authenticateOTP( code ) {
 				email,
 				hash,
 				code,
+				...( memberships_content_gate && { memberships_content_gate } ),
 			} ),
 		} )
 			.then( response => response.json() )
