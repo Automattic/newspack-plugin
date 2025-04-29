@@ -202,6 +202,14 @@ function render_block( $attrs, $content ) {
 				<?php endif; ?>
 				<input type="hidden" name="<?php echo esc_attr( FORM_ACTION ); ?>" value="<?php echo esc_attr( FORM_ACTION ); ?>" />
 				<div class="newspack-registration__form-content">
+				<?php
+				/**
+				 * Action to add custom fields before the form fields of the registration block.
+				 *
+				 * @param array $attrs Block attributes.
+				 */
+				do_action( 'newspack_registration_before_form_fields', $attrs );
+				?>
 					<?php
 					if ( ! empty( $lists ) ) {
 						if ( 1 === count( $lists ) && $attrs['hideSubscriptionInput'] ) {
