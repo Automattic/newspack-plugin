@@ -1,7 +1,7 @@
 // General styles (apply to both editor and frontend)
 .wp-block-newspack-byline {
 	display: flex;
-	flex-wrap: wrap; /* Enable wrapping only when necessary */
+	flex-wrap: wrap;
 	align-items: center;
 	margin-bottom: 1em;
 }
@@ -10,7 +10,7 @@
 	display: inline-flex;
 	align-items: center;
 	margin-right: 0.5em;
-	white-space: nowrap; /* Keep each author on one line */
+	white-space: nowrap;
 
 	&:last-child {
 		margin-right: 0;
@@ -29,7 +29,7 @@
 	}
 }
 
-/* Text nodes between author tokens */
+// Text nodes between author tokens
 .wp-block-newspack-byline > span:not(.newspack-byline-author) {
 	display: inline-block;
 	white-space: nowrap;
@@ -84,7 +84,7 @@
 		border: 1px solid #c0d6e8;
 		position: relative;
 		z-index: 1;
-		white-space: nowrap; /* Prevent token from breaking */
+		white-space: nowrap;
 	}
 
 	.token-inline-block__remove {
@@ -140,7 +140,6 @@
 		}
 	}
 
-	// Avatar display styles (moved from inline CSS)
 	.avatar-display {
 		display: inline-block;
 		margin-right: 4px;
@@ -154,7 +153,6 @@
 		}
 	}
 
-	// Token styling in the editor
 	.components-form-token-field__token.token-inline-block.author-token {
 		display: inline-flex;
 		align-items: center;
@@ -164,6 +162,6 @@
 		margin: 0 4px;
 		color: #06c;
 		font-weight: 500;
-		white-space: nowrap; /* Prevent token from breaking */
+		white-space: nowrap;
 	}
 }
