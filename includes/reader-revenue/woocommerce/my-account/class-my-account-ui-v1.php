@@ -34,7 +34,12 @@ class My_Account_UI_V1 extends WooCommerce_My_Account {
 	public static function add_body_class( $classes ) {
 		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
 			$classes[] = 'newspack-my-account';
-			$classes[] = 'newspack-my-account-v1';
+			$classes[] = 'newspack-my-account--v1';
+			if ( ! \is_user_logged_in() ) {
+				$classes[] = 'newspack-my-account--logged-out';
+			} else {
+				$classes[] = 'newspack-my-account--logged-in';
+			}
 		}
 		return $classes;
 	}
