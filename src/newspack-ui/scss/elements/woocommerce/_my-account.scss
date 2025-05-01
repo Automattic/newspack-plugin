@@ -3,22 +3,23 @@
  */
 
 @use "../forms";
-@use "../boxes";
+@use "../notices";
+
 .woocommerce-account.newspack-my-account .newspack-ui {
 	.newspack-wc-message,
 	.woocommerce-message,
 	.woocommerce-info,
 	.woocommerce-error {
-		@extend .newspack-ui__box;
+		@extend .newspack-ui__notice;
 		list-style: none;
 	}
 	.newspack-wc-message,
 	.woocommerce-message,
 	.woocommerce-info {
-		@extend .newspack-ui__box--success;
+		@extend .newspack-ui__notice--success;
 	}
 	.woocommerce-error {
-		@extend .newspack-ui__box--warning;
+		@extend .newspack-ui__notice--error;
 	}
 	.button,
 	.woocommerce-Button {
