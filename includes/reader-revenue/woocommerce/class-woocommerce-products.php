@@ -197,6 +197,9 @@ class WooCommerce_Products {
 	 * @param WC_Product $product The product associated with this order item.
 	 */
 	public static function require_order_processing( $needs_proccessing, $product ) {
+		if ( $product->is_type( 'variation' ) ) {
+			$product = $product->get_parent_id();
+		}
 		return self::get_custom_option_value( $product, 'newspack_autocomplete_orders' ) ? false : $needs_proccessing;
 	}
 }
