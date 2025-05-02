@@ -296,11 +296,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 						readerActivation.setReaderEmail( data.email );
 						readerActivation.setAuthenticated( !! data.authenticated );
 						const activity = { email: data.email };
-						if ( data.metadata?.gate_post_id ) {
-							activity.gate_post_id = data.metadata.gate_post_id;
+						const body = new FormData( form );
+						if ( data.metadata?.gate_post_id || body.has( 'memberships_content_gate' ) ) {
+							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
 						}
-						if ( data.metadata?.newspack_popup_id ) {
-							activity.newspack_popup_id = data.metadata.newspack_popup_id;
+						if ( data.metadata?.newspack_popup_id || body.has( 'newspack_popup_id' ) ) {
+							activity.newspack_popup_id = data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
 						}
 						if ( data.registered ) {
 							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data.metadata.registration_method || 'auth-form' } );
@@ -402,12 +403,8 @@ window.newspackRAS.push( function ( readerActivation ) {
 				}
 
 				if ( 'otp' === action ) {
-					const code = { code: body.get( 'otp_code' ) };
-					if ( body.get( 'memberships_content_gate' ) ) {
-						code.memberships_content_gate = body.get( 'memberships_content_gate' );
-					}
 					readerActivation
-						.authenticateOTP( code )
+						.authenticateOTP( body.get( 'otp_code' ) )
 						.then( data => {
 							form.endLoginFlow( data.message, 200, data );
 						} )

@@ -377,7 +377,7 @@ function send_form_response( $data, $message = '' ) {
  */
 function process_form() {
 	// No need to process form values if Reader Activation is disabled.
-	if ( ! Reader_Activation::is_enabled() || \is_user_logged_in() ) {
+	if ( ! Reader_Activation::is_enabled() ) {
 		return;
 	}
 

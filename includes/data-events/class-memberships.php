@@ -89,12 +89,6 @@ final class Memberships {
 		$gate_post_id = filter_input( INPUT_POST, self::METADATA_NAME, FILTER_SANITIZE_NUMBER_INT );
 		if ( ! empty( $gate_post_id ) && ( isset( $metadata['registration_method'] ) || isset( $metadata['login_method'] ) ) ) {
 			$metadata['gate_post_id'] = $gate_post_id;
-			if ( isset( $metadata['registration_method'] ) ) {
-				$metadata['registration_method'] = $metadata['registration_method'] . '-content-gate';
-			}
-			if ( isset( $metadata['login_method'] ) ) {
-				$metadata['login_method'] = $metadata['login_method'] . '-content-gate';
-			}
 		}
 		return $metadata;
 	}
