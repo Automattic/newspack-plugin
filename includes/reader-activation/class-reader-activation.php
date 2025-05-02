@@ -2116,7 +2116,7 @@ final class Reader_Activation {
 		}
 
 		/**
-		 * Filters the metadata to be saved for a reader registered via the auth modal.
+		 * Filters the metadata to be saved for a reader going through the auth modal.
 		 *
 		 * @param array  $metadata Metadata.
 		 * @param string $email    Email address of the reader.
