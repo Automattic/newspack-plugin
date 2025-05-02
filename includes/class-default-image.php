@@ -120,22 +120,37 @@ class Default_Image {
 	 * @return string Modified content with onerror attributes.
 	 */
 	public static function add_onerror_to_images( $content ) {
-		$content = preg_replace_callback(
-			'/<img[^>]+>/i',
-			function ( $matches ) {
-				if ( strpos( $matches[0], 'onerror=' ) === false ) {
-					return preg_replace(
-						'/<img/',
-						'<img onerror="if (typeof newspackHandleImageError === \'function\') newspackHandleImageError(this);"',
-						$matches[0],
-						1
-					);
-				}
-				return $matches[0];
-			},
-			$content
-		);
-		return $content;
+		// First, split the content into parts that are inside script tags and parts that are not.
+		$parts = preg_split( '/(<script[^>]*>.*?<\/script>)/is', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
+
+		$modified_content = '';
+		foreach ( $parts as $part ) {
+			// If this part is inside a script tag, don't modify it.
+			if ( preg_match( '/^<script[^>]*>.*?<\/script>$/is', $part ) ) {
+				$modified_content .= $part;
+				continue;
+			}
+
+			// For non-script parts, process image tags.
+			$part = preg_replace_callback(
+				'/<img[^>]+>/i',
+				function ( $matches ) {
+					if ( strpos( $matches[0], 'onerror=' ) === false ) {
+						return preg_replace(
+							'/<img/',
+							'<img onerror="if (typeof newspackHandleImageError === \'function\') newspackHandleImageError(this);"',
+							$matches[0],
+							1
+						);
+					}
+					return $matches[0];
+				},
+				$part
+			);
+			$modified_content .= $part;
+		}
+
+		return $modified_content;
 	}
 }
 Default_Image::init();
