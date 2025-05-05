@@ -26,6 +26,10 @@ class WooCommerce_Logs {
 	 * @param string $message The error message.
 	 */
 	public static function log_error_notices( $message ) {
+		// Only log if there is a message.
+		if ( empty( $message ) ) {
+			return $message;
+		}
 		$data = [
 			'wc_cart' => WC()->cart->get_cart_contents(),
 		];
