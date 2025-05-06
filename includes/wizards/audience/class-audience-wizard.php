@@ -353,6 +353,25 @@ class Audience_Wizard extends Wizard {
 			]
 		);
 
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/subscription-settings',
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'api_get_subscription_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+		register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/wizard/' . $this->slug . '/subscription-settings',
+			[
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'api_update_subscription_settings' ],
+				'permission_callback' => [ $this, 'api_permissions_check' ],
+			]
+		);
+
 		// Save Stripe info.
 		register_rest_route(
 			NEWSPACK_API_NAMESPACE,
@@ -847,5 +866,47 @@ class Audience_Wizard extends Wizard {
 		}
 
 		return $submenu_file;
+	}
+
+	/**
+	 * Get subscription settings.
+	 *
+	 * @return WP_REST_Response Response with the settings.
+	 */
+	public function api_get_subscription_settings() {
+		$settings = [
+			'woocommerce_enable_subscription_confirmation' => get_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_enable_subscription_confirmation', false ),
+			'woocommerce_subscription_confirmation_text'   => get_option( 'woocommerce_subscription_confirmation_text', Reader_Activation::get_subscription_confirmation_text() ),
+			'woocommerce_enable_terms_confirmation'        => get_option( 'woocommerce_enable_terms_confirmation', false ),
+		];
+		return rest_ensure_response( $settings );
+	}
+
+	/**
+	 * Update subscription settings.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response with the updated settings.
+	 */
+	public function api_update_subscription_settings( $request ) {
+		$wc_installed = 'active' === Plugin_Manager::get_managed_plugin_status( 'woocommerce' );
+		if ( ! $wc_installed ) {
+			return $this->api_get_subscription_settings();
+		}
+
+		$params = $request->get_params();
+		if ( isset( $params['woocommerce_enable_subscription_confirmation'] ) ) {
+			update_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_enable_subscription_confirmation', (bool) $params['woocommerce_enable_subscription_confirmation'] );
+		}
+
+		if ( isset( $params['woocommerce_subscription_confirmation_text'] ) ) {
+			update_option( 'woocommerce_subscription_confirmation_text', sanitize_text_field( $params['woocommerce_subscription_confirmation_text'] ) );
+		}
+
+		if ( isset( $params['woocommerce_enable_terms_confirmation'] ) ) {
+			update_option( 'woocommerce_enable_terms_confirmation', (bool) $params['woocommerce_enable_terms_confirmation'] );
+		}
+
+		return $this->api_get_subscription_settings();
 	}
 }
