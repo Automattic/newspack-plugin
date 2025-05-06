@@ -7,12 +7,14 @@
  * @return {Object} Event payload.
  */
 const getEventPayload = ( payload = {}, data = {} ) => {
-	return {
-		...payload,
-		newspack_popup_id: data?.newspack_popup_id || null,
-		gate_post_id: data?.gate_post_id || null,
-		referrer: window.location.pathname,
-	};
+	const eventPayload = { ...payload };
+	if ( data?.newspack_popup_id ) {
+		eventPayload.newspack_popup_id = data.newspack_popup_id;
+	}
+	if ( data?.gate_post_id ) {
+		eventPayload.gate_post_id = data.gate_post_id;
+	}
+	return eventPayload;
 };
 
 /**
