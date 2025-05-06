@@ -3,13 +3,13 @@
  */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { ToggleControl, TextareaControl, TextControl } from '@wordpress/components';
+import { ToggleControl, TextareaControl } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
  */
-import { Button } from '../../../../components/src';
+import { Button, Grid } from '../../../../components/src';
 import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 import WizardsSection from '../../../wizards-section';
@@ -71,16 +71,7 @@ function SubscriptionSettings() {
 			updateWizardSettings({
 				slug: DATA_STORE_KEY,
 				path: ['woocommerce_terms_confirmation_text'],
-				value: __( 'I have read and accept the Terms & Conditions.', 'newspack-plugin' ),
-			} );
-		}
-
-		// Use the default URL when the Terms & Conditions link is empty.
-		if ( ! config.woocommerce_terms_confirmation_link ) {
-			updateWizardSettings({
-				slug: DATA_STORE_KEY,
-				path: ['woocommerce_terms_confirmation_link'],
-				value: __( '#', 'newspack-plugin' ),
+				value: __( 'I have read and accept the <a href="#">Terms & Conditions</a>.', 'newspack-plugin' ),
 			} );
 		}
 
@@ -99,58 +90,55 @@ function SubscriptionSettings() {
 			className={ isQuietLoading ? 'is-fetching' : '' }
 		>
 
-			<ToggleControl
-				label={ __( 'Enable subscription confirmation checkbox', 'newspack-plugin' ) }
-				help={ __(
-					'Display a separate checkbox at checkout to confirm the user understands this is a recurring subscription and they can cancel anytime.',
-					'newspack-plugin'
-				) }
-				checked={ config.woocommerce_enable_subscription_confirmation ?? false }
-				onChange={ value =>
-					onChange( value, 'woocommerce_enable_subscription_confirmation' )
-				}
-				disabled={ isQuietLoading }
-			/>
-
-			{ config.woocommerce_enable_subscription_confirmation && (
-				<TextareaControl
-					label={ __( 'Label', 'newspack-plugin' ) }
-					value={ config.woocommerce_subscription_confirmation_text }
-					onChange={ value =>
-						onChange( value, 'woocommerce_subscription_confirmation_text' )
-					}
-				/>
-			) }
-
-			<ToggleControl
-				label={ __( 'Enable Terms & Conditions confirmation checkbox', 'newspack-plugin' ) }
-				help={ __(
-					"Display the 'I have read and accept the Terms & Conditions' checkbox at checkout. Ensure the Terms & Conditions include subscription details to comply with the FTC guidelines.",
-					'newspack-plugin'
-				) }
-				checked={ config.woocommerce_enable_terms_confirmation ?? false }
-				onChange={ value => onChange( value, 'woocommerce_enable_terms_confirmation' ) }
-				disabled={ isQuietLoading }
-			/>
-
-			{ config.woocommerce_enable_terms_confirmation && (
-				<Fragment>
-					<TextareaControl
-						label={ __( 'Label', 'newspack-plugin' ) }
-						value={ config.woocommerce_terms_confirmation_text }
+				<Grid columns={ 1 }>
+					<Grid columns={ 1 } gutter={ 8 }>
+						<ToggleControl
+							label={ __( 'Enable subscription confirmation checkbox', 'newspack-plugin' ) }
+						help={ __(
+							'Display a separate checkbox at checkout to confirm the user understands this is a recurring subscription and they can cancel anytime.',
+							'newspack-plugin'
+						) }
+						checked={ config.woocommerce_enable_subscription_confirmation ?? false }
 						onChange={ value =>
-							onChange( value, 'woocommerce_terms_confirmation_text' )
+							onChange( value, 'woocommerce_enable_subscription_confirmation' )
 						}
+						disabled={ isQuietLoading }
 					/>
-					<TextControl
-						label={ __( 'URL for Terms & Conditions page', 'newspack-plugin' ) }
-						value={ config.woocommerce_terms_confirmation_link }
-						onChange={ value =>
-							onChange( value, 'woocommerce_terms_confirmation_link' )
-						}
+
+					{ config.woocommerce_enable_subscription_confirmation && (
+						<TextareaControl
+							label={ __( 'Label', 'newspack-plugin' ) }
+							value={ config.woocommerce_subscription_confirmation_text }
+							onChange={ value =>
+								onChange( value, 'woocommerce_subscription_confirmation_text' )
+							}
+						/>
+					) }
+				</Grid>
+
+				<Grid columns={ 1 } gutter={ 8 }>
+					<ToggleControl
+						label={ __( 'Enable Terms & Conditions confirmation checkbox', 'newspack-plugin' ) }
+						help={ __(
+							"Display the 'I have read and accept the Terms & Conditions' checkbox at checkout. Ensure the Terms & Conditions include subscription details to comply with the FTC guidelines.",
+							'newspack-plugin'
+						) }
+						checked={ config.woocommerce_enable_terms_confirmation ?? false }
+						onChange={ value => onChange( value, 'woocommerce_enable_terms_confirmation' ) }
+						disabled={ isQuietLoading }
 					/>
-				</Fragment>
-			) }
+
+					{ config.woocommerce_enable_terms_confirmation && (
+						<TextareaControl
+							label={ __( 'Label', 'newspack-plugin' ) }
+							value={ config.woocommerce_terms_confirmation_text }
+							onChange={ value =>
+								onChange( value, 'woocommerce_terms_confirmation_text' )
+							}
+						/>
+					) }
+				</Grid>
+			</Grid>
 
 			<div className="newspack-buttons-card">
 				<Button

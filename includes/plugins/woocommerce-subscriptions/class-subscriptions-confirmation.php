@@ -90,7 +90,7 @@ class Subscriptions_Confirmation {
 				array(
 					'type'     => 'checkbox',
 					'class'    => array( 'form-row-wide', 'newspack-subscription-confirmation-checkbox' ),
-					'label'    => '<span>' . Reader_Activation::get_terms_confirmation_text() . ' <a href="' . esc_url( Reader_Activation::get_terms_confirmation_link() ) . '">' . esc_html__( 'Read More', 'newspack-plugin' ) . '</a></span>',
+					'label'    => Reader_Activation::get_terms_confirmation_text(),
 					'required' => true,
 				)
 			);
