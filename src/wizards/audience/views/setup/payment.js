@@ -32,8 +32,8 @@ export default withWizardScreen( function () {
 			{ data?.platform_data?.platform === 'wc' && <PaymentGateways /> }
 			{ data?.platform_data?.platform === 'wc' && <BillingFields /> }
 			{ data?.platform_data?.platform === 'nrh' && <NRHSettings /> }
-			<SubscriptionSettings />
 			<CheckoutConfiguration />
+			<SubscriptionSettings />
 		</WizardsTab>
 	);
 } );

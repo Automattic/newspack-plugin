@@ -372,6 +372,8 @@ final class Reader_Activation {
 			'woocommerce_enable_subscription_confirmation' => false,
 			'woocommerce_subscription_confirmation_text'   => self::get_subscription_confirmation_text(),
 			'woocommerce_enable_terms_confirmation'        => false,
+			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
+			'woocommerce_terms_confirmation_link'          => self::get_terms_confirmation_link(),
 		];
 
 		/**
@@ -2678,6 +2680,39 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Return if the Terms & Conditions confirmation checkbox is enabled.
+	 *
+	 * @return bool Whether the Terms & Conditions confirmation checkbox is enabled.
+	 */
+	public static function is_terms_confirmation_enabled() {
+		return (bool) \get_option( self::OPTIONS_PREFIX . 'woocommerce_enable_terms_confirmation', false );
+	}
+
+	/**
+	 * Get the text label for the Terms & Conditions confirmation checkbox.
+	 *
+	 * @return string Returns either the default text label or a customized one.
+	 */
+	public static function get_terms_confirmation_text() {
+		return \get_option(
+			self::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_text',
+			__( 'I have read and accept the Terms & Conditions.', 'newspack-plugin' )
+		);
+	}
+
+	/**
+	 * Get the link for the Terms & Conditions confirmation checkbox.
+	 *
+	 * @return string The link for the Terms & Conditions confirmation checkbox.
+	 */
+	public static function get_terms_confirmation_link() {
+		return \get_option(
+			self::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_link',
+			__( '#', 'newspack-plugin' )
+		);
+	}
+
+	/**
 	 * Get the checkout configuration.
 	 *
 	 * @return array The checkout configuration.
@@ -2690,6 +2725,9 @@ final class Reader_Activation {
 			'woocommerce_post_checkout_registration_success_text' => self::get_post_checkout_registration_success_text(),
 			'woocommerce_enable_subscription_confirmation' => self::is_subscription_confirmation_enabled(),
 			'woocommerce_subscription_confirmation_text'   => self::get_subscription_confirmation_text(),
+			'woocommerce_enable_terms_confirmation'        => self::is_terms_confirmation_enabled(),
+			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
+			'woocommerce_terms_confirmation_link'          => self::get_terms_confirmation_link(),
 		];
 	}
 }

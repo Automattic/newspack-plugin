@@ -383,6 +383,9 @@ export default withWizardScreen(
 									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
 									woocommerce_enable_subscription_confirmation: config.woocommerce_enable_subscription_confirmation,
 									woocommerce_subscription_confirmation_text: config.woocommerce_subscription_confirmation_text,
+									woocommerce_enable_terms_confirmation: config.woocommerce_enable_terms_confirmation,
+									woocommerce_terms_confirmation_text: config.woocommerce_terms_confirmation_text,
+									woocommerce_terms_confirmation_link: config.woocommerce_terms_confirmation_link,
 									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
 									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
 								} );

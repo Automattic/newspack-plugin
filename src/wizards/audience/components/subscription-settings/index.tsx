@@ -3,7 +3,8 @@
  */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { ToggleControl, TextareaControl } from '@wordpress/components';
+import { ToggleControl, TextareaControl, TextControl } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -26,14 +27,63 @@ function SubscriptionSettings() {
 		[]
 	);
 
-	const onChange = ( value: any, key: string ) =>
+	// Toggle between the Subscription confirmation and Terms & Conditions confirmation.
+	// Only one can be enabled at a time.
+	const onChange = ( value: any, key: string ) => {
+		// If enabling Subscription confirmation, disable terms confirmation.
+		if ( key === 'woocommerce_enable_subscription_confirmation' && value ) {
+			updateWizardSettings( {
+				slug: DATA_STORE_KEY,
+				path: ['woocommerce_enable_terms_confirmation'],
+				value: false,
+			} );
+		}
+		// If enabling terms confirmation, disable subscription confirmation.
+		if ( key === 'woocommerce_enable_terms_confirmation' && value ) {
+			updateWizardSettings( {
+				slug: DATA_STORE_KEY,
+				path: ['woocommerce_enable_subscription_confirmation'],
+				value: false,
+			} );
+		}
+
+		// Update the original setting.
 		updateWizardSettings( {
 			slug: DATA_STORE_KEY,
 			path: [ key ],
 			value,
 		} );
+	};
 
+	// When saving, if any of the text fields are empty, set the default text.
 	function onSave() {
+		// Use the default text when the Subscription Confirmation label is empty.
+		if ( ! config.woocommerce_subscription_confirmation_text ) {
+			updateWizardSettings( {
+				slug: DATA_STORE_KEY,
+				path: ['woocommerce_subscription_confirmation_text'],
+				value: __( 'I understand this is a recurring subscription and that I can cancel anytime through the My Account Page.', 'newspack-plugin' ),
+			} );
+		}
+
+		// Use the default text when the Terms & Conditions confirmation label is empty.
+		if ( ! config.woocommerce_terms_confirmation_text ) {
+			updateWizardSettings({
+				slug: DATA_STORE_KEY,
+				path: ['woocommerce_terms_confirmation_text'],
+				value: __( 'I have read and accept the Terms & Conditions.', 'newspack-plugin' ),
+			} );
+		}
+
+		// Use the default URL when the Terms & Conditions link is empty.
+		if ( ! config.woocommerce_terms_confirmation_link ) {
+			updateWizardSettings({
+				slug: DATA_STORE_KEY,
+				path: ['woocommerce_terms_confirmation_link'],
+				value: __( '#', 'newspack-plugin' ),
+			} );
+		}
+
 		saveWizardSettings( {
 			slug: DATA_STORE_KEY,
 		} );
@@ -41,14 +91,16 @@ function SubscriptionSettings() {
 
 	return (
 		<WizardsSection
-			title={ __( 'Subscription Settings', 'newspack-plugin' ) }
+			title={ __( 'Subscription', 'newspack-plugin' ) }
+			description={ __(
+				'Manage the settings for subscription transparency and compliance.',
+				'newspack-plugin'
+			) }
 			className={ isQuietLoading ? 'is-fetching' : '' }
 		>
+
 			<ToggleControl
-				label={ __(
-					'Enable subscription confirmation checkbox',
-					'newspack-plugin'
-				) }
+				label={ __( 'Enable subscription confirmation checkbox', 'newspack-plugin' ) }
 				help={ __(
 					'Display a separate checkbox at checkout to confirm the user understands this is a recurring subscription and they can cancel anytime.',
 					'newspack-plugin'
@@ -62,35 +114,43 @@ function SubscriptionSettings() {
 
 			{ config.woocommerce_enable_subscription_confirmation && (
 				<TextareaControl
-					label={ __(
-						'Label',
-						'newspack-plugin'
-					) }
+					label={ __( 'Label', 'newspack-plugin' ) }
 					value={ config.woocommerce_subscription_confirmation_text }
 					onChange={ value =>
-						onChange(
-							value,
-							'woocommerce_subscription_confirmation_text'
-						)
+						onChange( value, 'woocommerce_subscription_confirmation_text' )
 					}
 				/>
 			) }
 
 			<ToggleControl
-				label={ __(
-					'Enable Terms & Conditions confirmation checkbox',
-					'newspack-plugin'
-				) }
+				label={ __( 'Enable Terms & Conditions confirmation checkbox', 'newspack-plugin' ) }
 				help={ __(
 					"Display the 'I have read and accept the Terms & Conditions' checkbox at checkout. Ensure the Terms & Conditions include subscription details to comply with the FTC guidelines.",
 					'newspack-plugin'
 				) }
 				checked={ config.woocommerce_enable_terms_confirmation ?? false }
-				onChange={ value =>
-					onChange( value, 'woocommerce_enable_terms_confirmation' )
-				}
+				onChange={ value => onChange( value, 'woocommerce_enable_terms_confirmation' ) }
 				disabled={ isQuietLoading }
 			/>
+
+			{ config.woocommerce_enable_terms_confirmation && (
+				<Fragment>
+					<TextareaControl
+						label={ __( 'Label', 'newspack-plugin' ) }
+						value={ config.woocommerce_terms_confirmation_text }
+						onChange={ value =>
+							onChange( value, 'woocommerce_terms_confirmation_text' )
+						}
+					/>
+					<TextControl
+						label={ __( 'URL for Terms & Conditions page', 'newspack-plugin' ) }
+						value={ config.woocommerce_terms_confirmation_link }
+						onChange={ value =>
+							onChange( value, 'woocommerce_terms_confirmation_link' )
+						}
+					/>
+				</Fragment>
+			) }
 
 			<div className="newspack-buttons-card">
 				<Button
