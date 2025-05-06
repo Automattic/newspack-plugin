@@ -20,6 +20,7 @@ import SubscriptionSettings from '../../components/subscription-settings';
 
 export default withWizardScreen( function () {
 	const data = useWizardData( 'newspack-audience/payment' );
+
 	return (
 		<WizardsTab
 			title={ __( 'Checkout & Payment', 'newspack-plugin' ) }
@@ -33,7 +34,7 @@ export default withWizardScreen( function () {
 			{ data?.platform_data?.platform === 'wc' && <BillingFields /> }
 			{ data?.platform_data?.platform === 'nrh' && <NRHSettings /> }
 			<CheckoutConfiguration />
-			<SubscriptionSettings />
+			{ data?.platform_data?.platform === 'wc' && <SubscriptionSettings /> }
 		</WizardsTab>
 	);
 } );
