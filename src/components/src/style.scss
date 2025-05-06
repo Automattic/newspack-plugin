@@ -24,6 +24,10 @@
 	&:empty {
 		display: none;
 	}
+
+	+ .newspack-card {
+		margin-top: 64px;
+	}
 }
 
 // Checkboxes
