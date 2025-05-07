@@ -59,7 +59,7 @@ class Subscriptions_Confirmation {
 
 		if ( Reader_Activation::is_terms_confirmation_enabled() ) {
 			if ( ! isset( $_POST['newspack_subscription_terms_confirmation'] ) || '1' !== $_POST['newspack_subscription_terms_confirmation'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				wc_add_notice( esc_html__( 'You must agree to the terms & conditions before proceeding.', 'newspack-plugin' ), 'error' );
+				wc_add_notice( esc_html__( 'You must agree to the Terms & Conditions before proceeding.', 'newspack-plugin' ), 'error' );
 			}
 		}
 	}
@@ -84,6 +84,7 @@ class Subscriptions_Confirmation {
 		}
 		return $label;
 	}
+
 	/**
 	 * Add either the Subscription Confirmation or Terms & Conditions checkbox to the WooCommerce checkout form when enabled and when the cart contains a subscription product.
 	 */
