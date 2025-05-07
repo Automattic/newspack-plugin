@@ -31,12 +31,12 @@ class Recirculation_Section extends Wizard_Section {
 	 *
 	 * @var string
 	 */
-	protected $related_posts_option = 'newspack_related_posts_max_age';
-	
+	public $related_posts_option = 'newspack_related_posts_max_age';
+
 	/**
 	 * Register Wizard Section specific endpoints.
 	 *
-	 * @return void 
+	 * @return void
 	 */
 	public function register_rest_routes() {
 		register_rest_route(
