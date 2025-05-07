@@ -65,6 +65,26 @@ class Subscriptions_Confirmation {
 	}
 
 	/**
+	 * Generate the label for the Terms & Conditions confirmation checkbox.
+	 *
+	 * @return string Returns the label for the Terms & Conditions confirmation checkbox.
+	 */
+	public static function generate_terms_confirmation_label() {
+		$label = Reader_Activation::get_terms_confirmation_text();
+		$url = Reader_Activation::get_terms_confirmation_url();
+		if ( $url ) {
+			if ( strpos( $label, '{{' ) !== false && strpos( $label, '}}' ) !== false ) {
+				// If the text includes {{ }}, replace it with the link.
+				$label = str_replace( '{{', '<a target="_blank" href="' . $url . '">', $label );
+				$label = str_replace( '}}', '</a>', $label );
+			} else {
+				// If the text doesn't include {{ }}, link the whole text string.
+				$label = '<a target="_blank" href="' . $url . '">' . $label . '</a>';
+			}
+		}
+		return $label;
+	}
+	/**
 	 * Add either the Subscription Confirmation or Terms & Conditions checkbox to the WooCommerce checkout form when enabled and when the cart contains a subscription product.
 	 */
 	public static function add_subscription_confirmation_checkboxes() {
@@ -90,7 +110,7 @@ class Subscriptions_Confirmation {
 				array(
 					'type'     => 'checkbox',
 					'class'    => array( 'form-row-wide', 'newspack-subscription-confirmation-checkbox' ),
-					'label'    => Reader_Activation::get_terms_confirmation_text(),
+					'label'    => self::generate_terms_confirmation_label(),
 					'required' => true,
 				)
 			);

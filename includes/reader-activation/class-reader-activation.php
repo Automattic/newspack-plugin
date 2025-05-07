@@ -373,6 +373,7 @@ final class Reader_Activation {
 			'woocommerce_subscription_confirmation_text'   => self::get_subscription_confirmation_text(),
 			'woocommerce_enable_terms_confirmation'        => false,
 			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
+			'woocommerce_terms_confirmation_url'           => self::get_terms_confirmation_url(),
 		];
 
 		/**
@@ -2695,8 +2696,17 @@ final class Reader_Activation {
 	public static function get_terms_confirmation_text() {
 		return \get_option(
 			self::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_text',
-			__( 'I have read and accept the <a href="#">Terms & Conditions</a>.', 'newspack-plugin' )
+			__( 'I have read and accept the {{Terms & Conditions}}.', 'newspack-plugin' )
 		);
+	}
+
+	/**
+	 * Get the URL for the Terms & Conditions confirmation checkbox.
+	 *
+	 * @return string Returns the URL for the Terms & Conditions confirmation checkbox.
+	 */
+	public static function get_terms_confirmation_url() {
+		return \get_option( self::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_url', '' );
 	}
 
 	/**
@@ -2714,6 +2724,7 @@ final class Reader_Activation {
 			'woocommerce_subscription_confirmation_text'   => self::get_subscription_confirmation_text(),
 			'woocommerce_enable_terms_confirmation'        => self::is_terms_confirmation_enabled(),
 			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
+			'woocommerce_terms_confirmation_url'           => self::get_terms_confirmation_url(),
 		];
 	}
 }

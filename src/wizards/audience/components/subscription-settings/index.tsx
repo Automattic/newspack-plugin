@@ -3,7 +3,8 @@
  */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { ToggleControl, TextareaControl } from '@wordpress/components';
+import { ToggleControl, TextareaControl, TextControl } from '@wordpress/components';
+import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -70,8 +71,15 @@ function SubscriptionSettings() {
 			updateWizardSettings({
 				slug: DATA_STORE_KEY,
 				path: ['woocommerce_terms_confirmation_text'],
-				value: __( 'I have read and accept the <a href="#">Terms & Conditions</a>.', 'newspack-plugin' ),
+				value: __( 'I have read and accept the {{Terms & Conditions}}.', 'newspack-plugin' ),
 			} );
+		}
+
+		// Make sure the URL is populated when Terms & Conditions confirmation is enabled.
+		if ( config.woocommerce_enable_terms_confirmation && ! config.woocommerce_terms_confirmation_url ) {
+			// eslint-disable-next-line no-alert
+			alert( __( 'Please provide a URL for the Terms & Conditions page.', 'newspack-plugin' ) );
+			return;
 		}
 
 		saveWizardSettings( {
@@ -119,7 +127,7 @@ function SubscriptionSettings() {
 					<ToggleControl
 						label={ __( 'Enable Terms & Conditions confirmation checkbox', 'newspack-plugin' ) }
 						help={ __(
-							"Display the 'I have read and accept the Terms & Conditions' checkbox at checkout. Ensure the Terms & Conditions include subscription details to comply with the FTC guidelines.",
+							"Display the 'I have read and accept the Terms & Conditions' checkbox at checkout. Text wrapped in {{ }} will be linked to the URL provided below. Ensure the Terms & Conditions include subscription details to comply with the FTC guidelines.",
 							'newspack-plugin'
 						) }
 						checked={ config.woocommerce_enable_terms_confirmation ?? false }
@@ -128,13 +136,22 @@ function SubscriptionSettings() {
 					/>
 
 					{ config.woocommerce_enable_terms_confirmation && (
-						<TextareaControl
-							label={ __( 'Label', 'newspack-plugin' ) }
-							value={ config.woocommerce_terms_confirmation_text }
-							onChange={ value =>
-								onChange( value, 'woocommerce_terms_confirmation_text' )
-							}
-						/>
+						<Fragment>
+							<TextareaControl
+								label={ __( 'Label', 'newspack-plugin' ) }
+								value={ config.woocommerce_terms_confirmation_text }
+								onChange={ value =>
+									onChange( value, 'woocommerce_terms_confirmation_text' )
+								}
+							/>
+							<TextControl
+								label={ __( 'URL', 'newspack-plugin' ) }
+								value={ config.woocommerce_terms_confirmation_url }
+								onChange={ value =>
+									onChange( value, 'woocommerce_terms_confirmation_url' )
+								}
+							/>
+						</Fragment>
 					) }
 				</Grid>
 			</Grid>

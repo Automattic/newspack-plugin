@@ -385,6 +385,7 @@ export default withWizardScreen(
 									woocommerce_subscription_confirmation_text: config.woocommerce_subscription_confirmation_text,
 									woocommerce_enable_terms_confirmation: config.woocommerce_enable_terms_confirmation,
 									woocommerce_terms_confirmation_text: config.woocommerce_terms_confirmation_text,
+									woocommerce_terms_confirmation_url: config.woocommerce_terms_confirmation_url,
 									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
 									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
 								} );

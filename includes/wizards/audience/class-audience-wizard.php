@@ -879,6 +879,7 @@ class Audience_Wizard extends Wizard {
 			'woocommerce_subscription_confirmation_text'   => get_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_subscription_confirmation_text', Reader_Activation::get_subscription_confirmation_text() ),
 			'woocommerce_enable_terms_confirmation'        => get_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_enable_terms_confirmation', false ),
 			'woocommerce_terms_confirmation_text'          => get_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_text', Reader_Activation::get_terms_confirmation_text() ),
+			'woocommerce_terms_confirmation_url'           => get_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_url', Reader_Activation::get_terms_confirmation_url() ),
 		];
 		return rest_ensure_response( $settings );
 	}
@@ -909,7 +910,11 @@ class Audience_Wizard extends Wizard {
 		}
 
 		if ( isset( $params['woocommerce_terms_confirmation_text'] ) ) {
-			update_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_text', wp_kses_post( $params['woocommerce_terms_confirmation_text'] ) );
+			update_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_text', sanitize_text_field( $params['woocommerce_terms_confirmation_text'] ) );
+		}
+
+		if ( isset( $params['woocommerce_terms_confirmation_url'] ) ) {
+			update_option( \Newspack\Reader_Activation::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_url', sanitize_url( $params['woocommerce_terms_confirmation_url'] ) );
 		}
 
 		return $this->api_get_subscription_settings();
