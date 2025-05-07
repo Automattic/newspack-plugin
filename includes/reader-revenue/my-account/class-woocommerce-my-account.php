@@ -130,6 +130,7 @@ class WooCommerce_My_Account {
 		return (
 			function_exists( 'is_checkout' )
 			&& is_checkout()
+			&& ! self::is_payment_method_change_page() // The payment method change page is also a checkout page.
 			&& function_exists( 'wcs_cart_contains_switches' )
 			&& wcs_cart_contains_switches()
 		);
