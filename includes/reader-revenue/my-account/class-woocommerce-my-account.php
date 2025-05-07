@@ -117,7 +117,7 @@ class WooCommerce_My_Account {
 	 *
 	 * @return bool
 	 */
-	public static function is_payment_method_change_page() {
+	protected static function is_payment_method_change_page() {
 		return isset( $_GET['my_account_checkout'] ) && isset( $_GET['change_payment_method'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
@@ -126,7 +126,7 @@ class WooCommerce_My_Account {
 	 *
 	 * @return bool
 	 */
-	public static function is_switch_subscription_checkout_page() {
+	protected static function is_switch_subscription_checkout_page() {
 		return (
 			function_exists( 'is_checkout' )
 			&& is_checkout()
@@ -138,8 +138,10 @@ class WooCommerce_My_Account {
 
 	/**
 	 * Whether it's a reorder checkout page.
+	 *
+	 * @return bool
 	 */
-	public static function is_reorder_checkout_page() {
+	protected static function is_reorder_checkout_page() {
 		return (
 			function_exists( 'is_checkout' )
 			&& is_checkout()
@@ -148,19 +150,52 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Whether the cart contains reorders.
+	 * Get cart reorder items.
+	 *
+	 * @return array
 	 */
-	public static function cart_contains_reorders() {
+	protected static function get_cart_reorder_items() {
 		$cart = \WC()->cart;
 		if ( ! $cart ) {
-			return false;
+			return [];
 		}
-		foreach ( $cart->get_cart() as $item ) {
-			if ( isset( $item['newspack_order_again'] ) && $item['newspack_order_again'] ) {
-				return true;
+		return array_filter(
+			$cart->get_cart(),
+			function( $item ) {
+				return isset( $item['newspack_order_again'] ) && $item['newspack_order_again'];
 			}
+		);
+	}
+
+	/**
+	 * Whether the cart contains reorders.
+	 *
+	 * @return bool
+	 */
+	protected static function cart_contains_reorders() {
+		return ! empty( self::get_cart_reorder_items() );
+	}
+
+	/**
+	 * Get cart reorder summary.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_reorder_summary() {
+		$items = array_values( self::get_cart_reorder_items() );
+		if ( empty( $items ) ) {
+			return [];
 		}
-		return false;
+		$summary = [
+			'order_id'   => $items[0]['newspack_order_again_order_id'],
+			'product_id' => array_map(
+				function( $item ) {
+					return $item['product_id'];
+				},
+				$items
+			),
+		];
+		return $summary;
 	}
 
 	/**
@@ -193,6 +228,7 @@ class WooCommerce_My_Account {
 					'nonce'                                => wp_create_nonce( 'wp_rest' ),
 					'is_switch_subscription_checkout_page' => self::is_switch_subscription_checkout_page(),
 					'is_reorder_checkout_page'             => self::is_reorder_checkout_page(),
+					'cart_reorder_summary'                 => self::get_cart_reorder_summary(),
 				]
 			);
 			\wp_enqueue_style(

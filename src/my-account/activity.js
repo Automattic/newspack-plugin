@@ -98,6 +98,9 @@ domReady( function () {
 
 	// Track when a user orders a product again.
 	if ( newspack_my_account.is_reorder_checkout_page ) {
-		registerCheckoutActivity( 'product_reordered' );
+		registerCheckoutActivity( 'product_reordered', () => ( {
+			order_id: newspack_my_account.cart_reorder_summary?.order_id,
+			product_id: newspack_my_account.cart_reorder_summary?.product_id,
+		} ) );
 	}
 } );
