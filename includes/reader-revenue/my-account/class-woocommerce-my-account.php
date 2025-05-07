@@ -149,12 +149,19 @@ class WooCommerce_My_Account {
 		if ( empty( $switches ) ) {
 			return [];
 		}
+		$switches = array_values( $switches );
 		return [
-			'subscription_id' => array_map(
+			'subscription_id'        => array_map(
 				function( $switch ) {
 					return $switch['subscription_id'];
 				},
-				array_values( $switches )
+				$switches
+			),
+			'upgraded_or_downgraded' => array_map(
+				function( $switch ) {
+					return $switch['upgraded_or_downgraded'];
+				},
+				$switches
 			),
 		];
 	}

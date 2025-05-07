@@ -49,6 +49,9 @@ domReady( function () {
 			subscription_id:
 				newspack_my_account.cart_switch_subscriptions_summary
 					?.subscription_id,
+			upgraded_or_downgraded:
+				newspack_my_account.cart_switch_subscriptions_summary
+					?.upgraded_or_downgraded,
 		} ) );
 	}
 
