@@ -4,7 +4,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { ToggleControl, TextareaControl, TextControl } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -127,7 +126,7 @@ function SubscriptionSettings() {
 					<ToggleControl
 						label={ __( 'Enable Terms & Conditions confirmation checkbox', 'newspack-plugin' ) }
 						help={ __(
-							"Display the 'I have read and accept the Terms & Conditions' checkbox at checkout. Text wrapped in {{ }} will be linked to the URL provided below. Ensure the Terms & Conditions include subscription details to comply with the FTC guidelines.",
+							"Display the 'I have read and accept the Terms & Conditions' checkbox at checkout. Ensure the Terms & Conditions include subscription details to comply with the FTC guidelines.",
 							'newspack-plugin'
 						) }
 						checked={ config.woocommerce_enable_terms_confirmation ?? false }
@@ -136,10 +135,14 @@ function SubscriptionSettings() {
 					/>
 
 					{ config.woocommerce_enable_terms_confirmation && (
-						<Fragment>
+						<Grid>
 							<TextareaControl
 								label={ __( 'Label', 'newspack-plugin' ) }
 								value={ config.woocommerce_terms_confirmation_text }
+								help={ __(
+									'Text wrapped in {{ }} will be linked to the page set in the URL field.',
+									'newspack-plugin'
+								) }
 								onChange={ value =>
 									onChange( value, 'woocommerce_terms_confirmation_text' )
 								}
@@ -151,7 +154,7 @@ function SubscriptionSettings() {
 									onChange( value, 'woocommerce_terms_confirmation_url' )
 								}
 							/>
-						</Fragment>
+						</Grid>
 					) }
 				</Grid>
 			</Grid>
