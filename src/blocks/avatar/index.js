@@ -30,11 +30,11 @@ export const settings = {
 		src: icon,
 		foreground: colors['primary-400'],
 	},
-	keywords: [__('author', 'newspack-plugin'), __('user', 'newspack-plugin'), __('profile', 'newspack-plugin')],
+	keywords: [ __( 'author', 'newspack-plugin' ), __( 'user', 'newspack-plugin' ), __( 'profile', 'newspack-plugin' ), __( 'newspack', 'newspack-plugin' ) ],
 	description: __(
 		'Display post author avatar.',
 		'newspack-plugin'
 	),
-	usesContext: ['postId', 'postType'],
+	usesContext: [ 'postId', 'postType' ],
 	edit: Edit
 };
