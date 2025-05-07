@@ -137,6 +137,29 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Get cart switch subscriptions summary.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_switch_subscriptions_summary() {
+		if ( ! function_exists( 'wcs_cart_contains_switches' ) ) {
+			return [];
+		}
+		$switches = wcs_cart_contains_switches();
+		if ( empty( $switches ) ) {
+			return [];
+		}
+		return [
+			'subscription_id' => array_map(
+				function( $switch ) {
+					return $switch['subscription_id'];
+				},
+				array_values( $switches )
+			),
+		];
+	}
+
+	/**
 	 * Whether it's a reorder checkout page.
 	 *
 	 * @return bool
@@ -229,6 +252,7 @@ class WooCommerce_My_Account {
 					'is_switch_subscription_checkout_page' => self::is_switch_subscription_checkout_page(),
 					'is_reorder_checkout_page'             => self::is_reorder_checkout_page(),
 					'cart_reorder_summary'                 => self::get_cart_reorder_summary(),
+					'cart_switch_subscriptions_summary'    => self::get_cart_switch_subscriptions_summary(),
 				]
 			);
 			\wp_enqueue_style(

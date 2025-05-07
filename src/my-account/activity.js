@@ -45,7 +45,11 @@ domReady( function () {
 
 	// Track when a user switches a subscription (upgrade or downgrade).
 	if ( newspack_my_account.is_switch_subscription_checkout_page ) {
-		registerCheckoutActivity( 'subscription_switched' );
+		registerCheckoutActivity( 'subscription_switched', () => ( {
+			subscription_id:
+				newspack_my_account.cart_switch_subscriptions_summary
+					?.subscription_id,
+		} ) );
 	}
 
 	// Track when a payment method is deleted.
