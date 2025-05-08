@@ -90,9 +90,18 @@ domReady( function () {
 
 	// Track when a user orders a product again.
 	if ( newspack_my_account.is_reorder_checkout_page ) {
-		registerCheckoutActivity( 'product_reordered', () => ( {
-			order_id: newspack_my_account.cart_reorder_summary?.order_id,
-			product_id: newspack_my_account.cart_reorder_summary?.product_id,
-		} ) );
+		if ( newspack_my_account.cart_reorder_summary?.early_renewal ) {
+			registerCheckoutActivity( 'subscription_renewal_early', () => ( {
+				subscription_id:
+					newspack_my_account.cart_reorder_summary?.early_renewal
+						?.subscription_id,
+			} ) );
+		} else {
+			registerCheckoutActivity( 'product_reordered', () => ( {
+				order_id: newspack_my_account.cart_reorder_summary?.order_id,
+				product_id:
+					newspack_my_account.cart_reorder_summary?.product_id,
+			} ) );
+		}
 	}
 } );

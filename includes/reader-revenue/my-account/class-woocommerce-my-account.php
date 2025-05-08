@@ -216,9 +216,11 @@ class WooCommerce_My_Account {
 		if ( empty( $items ) ) {
 			return [];
 		}
-		$summary = [
-			'order_id'   => $items[0]['newspack_order_again_order_id'],
-			'product_id' => array_map(
+		$early_renewal = function_exists( 'wcs_cart_contains_early_renewal' ) ? wcs_cart_contains_early_renewal() : false;
+		$summary       = [
+			'order_id'      => $items[0]['newspack_order_again_order_id'],
+			'early_renewal' => $early_renewal ? $early_renewal['subscription_renewal'] : false,
+			'product_id'    => array_map(
 				function( $item ) {
 					return $item['product_id'];
 				},
