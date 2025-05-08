@@ -1,18 +1,27 @@
 /**
  * Get a GA4 event payload for a given prompt.
  *
- * @param {string} action      Action name for the event.
- * @param {number} promptId    ID of the prompt
+ * @param {Object} data        Base activity data to build the payload.
  * @param {Object} extraParams Additional key/value pairs to add as params to the event payload.
  *
  * @return {Object} Event payload.
  */
-
-const getEventPayload = ( extraParams = {} ) => {
-	return {
+const getEventPayload = ( data = {}, extraParams = {} ) => {
+	const payload = {
 		...extraParams,
 		referrer: window.location.pathname,
 	};
+
+	if ( data?.newspack_popup_id ) {
+		payload.newspack_popup_id = data.newspack_popup_id;
+	}
+	if ( data?.gate_post_id ) {
+		payload.gate_post_id = data.gate_post_id;
+	}
+	if ( data?.sso ) {
+		payload.sso = data.sso;
+	}
+	return payload;
 };
 
 /**
@@ -36,17 +45,13 @@ const sendEvent = ( payload, eventName = 'np_reader_activation_interaction' ) =>
 const handleNewsletterSignupSuccess = ras => {
 	ras.on( 'activity', function( ev ) {
 		if ( 'newsletter_signup' === ev.detail.action && ev.detail.data?.lists?.length ) {
-			const payload = getEventPayload( {
-				referrer: window.location.pathname,
-				newsletters_subscription_method: ev.detail.data?.newsletters_subscription_method || 'unknown',
-				lists: ev.detail.data.lists,
-			} );
-			if ( ev.detail.data?.newspack_popup_id ) {
-				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
-			}
-			if ( ev.detail.data?.gate_post_id ) {
-				payload.gate_post_id = ev.detail.data.gate_post_id;
-			}
+			const payload = getEventPayload(
+				ev.detail.data,
+				{
+					newsletters_subscription_method: ev.detail.data?.newsletters_subscription_method || 'unknown',
+					lists: ev.detail.data.lists,
+				}
+			);
 			sendEvent( payload, 'np_newsletter_subscribed' );
 		}
 	} );
@@ -63,16 +68,12 @@ const handleRegistrationSuccess = ras => {
 			'reader_registered' === ev.detail.action &&
 			! window?.newspackReaderActivation?.getPendingCheckout()
 		) {
-			const payload = getEventPayload( {
-				referrer: window.location.pathname,
-				registration_method: ev.detail.data?.registration_method || 'unknown',
-			} );
-			if ( ev.detail.data?.newspack_popup_id ) {
-				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
-			}
-			if ( ev.detail.data?.gate_post_id ) {
-				payload.gate_post_id = ev.detail.data.gate_post_id;
-			}
+			const payload = getEventPayload(
+				ev.detail.data || {},
+				{
+					registration_method: ev.detail.data?.registration_method || 'unknown',
+				}
+			);
 			sendEvent( payload, 'np_reader_registered' );
 		}
 	} );
@@ -86,16 +87,12 @@ const handleRegistrationSuccess = ras => {
 const handleLoginSuccess = ras => {
 	ras.on( 'activity', function( ev ) {
 		if ( 'reader_logged_in' === ev.detail.action ) {
-			const payload = getEventPayload( {
-				referrer: window.location.pathname,
-				login_method: ev.detail.data?.login_method || 'unknown',
-			} );
-			if ( ev.detail.data?.newspack_popup_id ) {
-				payload.newspack_popup_id = ev.detail.data.newspack_popup_id;
-			}
-			if ( ev.detail.data?.gate_post_id ) {
-				payload.gate_post_id = ev.detail.data.gate_post_id;
-			}
+			const payload = getEventPayload(
+				ev.detail.data || {},
+				{
+					login_method: ev.detail.data?.login_method || 'unknown',
+				}
+			);
 			sendEvent( payload, 'np_reader_logged_in' );
 		}
 	} );
