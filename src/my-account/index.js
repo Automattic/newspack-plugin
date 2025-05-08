@@ -26,6 +26,15 @@ domReady( function () {
 		cancelButton.addEventListener( 'click', confirmCancel );
 	}
 
+	// Add "name" attribute to My Account forms for analytics purposes.
+	const url = new URL( window.location.href );
+	if ( url.pathname.includes( 'edit-address' ) ) {
+		const form = document.querySelector( '.woocommerce-MyAccount-content form' );
+		if ( form && ! form.name ) {
+			form.setAttribute( 'name', url.pathname.includes( 'billing' ) ? 'billing_address' : 'shipping_address' );
+		}
+	}
+
 	// Rate limit the add payment method form.
 	const addPaymentForm = document.getElementById( 'add_payment_method' );
 	if ( addPaymentForm && Boolean( should_rate_limit ) ) {

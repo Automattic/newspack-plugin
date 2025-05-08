@@ -46,7 +46,7 @@ if ( $message ) :
 endif;
 ?>
 
-<form class="woocommerce-EditAccountForm edit-account" action="" method="post" <?php \do_action( 'newspack_woocommerce_edit_account_form_tag' ); ?> >
+<form class="woocommerce-EditAccountForm edit-account" action="" name="edit_account" method="post" <?php \do_action( 'newspack_woocommerce_edit_account_form_tag' ); ?> >
 
 	<?php \do_action( 'newspack_woocommerce_edit_account_form_start' ); ?>
 
