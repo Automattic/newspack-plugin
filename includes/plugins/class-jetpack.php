@@ -325,7 +325,7 @@ class Jetpack {
 	 * @return array Filtered array of start/end dates.
 	 */
 	public static function restrict_age_of_related_posts( $date_range ) {
-		$related_posts_max_age = get_option( ( new \Newspack\Wizards\Newspack\Recirculation_Section() )->related_posts_option );
+		$related_posts_max_age = get_option( Wizards\Newspack\Recirculation_Section::RELATED_POSTS_OPTION );
 		if ( is_numeric( $related_posts_max_age ) && 0 < $related_posts_max_age ) {
 			$date_range['from'] = strtotime( '-' . $related_posts_max_age . ' months' );
 			$date_range['to']   = time();
