@@ -18,7 +18,7 @@ class Subscriptions_Confirmation {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		if ( ! WooCommerce_Subscriptions::is_active() ) {
+		if ( ! class_exists( 'WooCommerce_Subscriptions' ) || ! WooCommerce_Subscriptions::is_active() ) {
 			return;
 		}
 		add_action( 'woocommerce_review_order_before_submit', [ __CLASS__, 'add_subscription_confirmation_checkboxes' ] );
