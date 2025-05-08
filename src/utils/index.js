@@ -66,7 +66,7 @@ export function convertFormDataToObject( formData, includedFields = [] ) {
 export function registerElementActivity( element, action, cb, event ) {
 	window.newspackRAS = window.newspackRAS || [];
 	if ( typeof element === 'string' ) {
-		element = document.querySelector( element );
+		element = [ ...document.querySelectorAll( element ) ];
 	}
 	if ( ! element ) {
 		return;
@@ -77,15 +77,21 @@ export function registerElementActivity( element, action, cb, event ) {
 	}
 	event = event || ( element.tagName === 'FORM' ? 'submit' : 'click' );
 
-	element.addEventListener( event, ev => {
-		// Wait for the event to be processed.
-		setTimeout( () => {
-			// If the event was not prevented, dispatch the activity.
-			// Form submissions will not consider the default prevented because they
-			// are commonly ajaxified.
-			if ( element.tagName === 'FORM' || ! ev.defaultPrevented ) {
-				window.newspackRAS.push( [ action, cb( element ) ] );
-			}
+	if ( element && ! Array.isArray( element ) ) {
+		element = [ element ];
+	}
+
+	element.forEach( el => {
+		el.addEventListener( event, ev => {
+			// Wait for the event to be processed.
+			setTimeout( () => {
+				// If the event was not prevented, dispatch the activity.
+				// Form submissions will not consider the default prevented because they
+				// are commonly ajaxified.
+				if ( el.tagName === 'FORM' || ! ev.defaultPrevented ) {
+					window.newspackRAS.push( [ action, cb( el ) ] );
+				}
+			} );
 		} );
 	} );
 }
