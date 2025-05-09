@@ -1,3 +1,10 @@
+# [6.5.0](https://github.com/Automattic/newspack-plugin/compare/v6.4.4...v6.5.0) (2025-05-08)
+
+
+### Features
+
+* add Subscription Confirmation checkboxes for FTC compliance ([#3961](https://github.com/Automattic/newspack-plugin/issues/3961)) ([90d4bf6](https://github.com/Automattic/newspack-plugin/commit/90d4bf610d47379811677a40a39d12e4f2622381))
+
 ## [6.4.4](https://github.com/Automattic/newspack-plugin/compare/v6.4.3...v6.4.4) (2025-04-21)
 
 

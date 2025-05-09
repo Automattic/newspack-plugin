@@ -3,14 +3,9 @@
 /**
  * Initialize functions for the Payment Methods page.
  */
-export function init() {
-	rateLimitPaymentMethods();
-}
+import { domReady } from '../utils';
 
-/**
- * Rate limit the add payment method form.
- */
-function rateLimitPaymentMethods() {
+domReady( function () {
 	const { nonce, rest_url, should_rate_limit } = newspack_my_account || {};
 
 	// Rate limit the add payment method form.
@@ -62,4 +57,4 @@ function rateLimitPaymentMethods() {
 		addPaymentForm.addEventListener( 'submit' , rateLimit, true );
 		submitButton.addEventListener( 'click', rateLimit, true );
 	}
-}
+} );

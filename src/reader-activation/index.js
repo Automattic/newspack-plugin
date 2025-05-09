@@ -7,7 +7,7 @@ import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
 import { getCookie, setCookie, generateID } from './utils.js';
 import overlays from './overlays.js';
-import { initAnalytics } from './analytics.js';
+import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
 
 /**
@@ -474,6 +474,7 @@ function init() {
 		store.set( 'reader', reader, false );
 	}
 	emit( EVENTS.reader, reader );
+	initAnalytics( readerActivation );
 	fixClientID();
 	setupArticleViewsAggregates( readerActivation );
 	attachAuthCookiesListener();
@@ -492,7 +493,6 @@ function init() {
 
 if ( ! window.newspackRASInitialized ) {
 	init();
-	initAnalytics();
 }
 
 export default readerActivation;

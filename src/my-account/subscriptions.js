@@ -3,14 +3,11 @@
 /**
  * Initialize functions for the Subscriptions page.
  */
-export function init() {
-	confirmCancelSubscription();
-}
 
-/**
- * Show a confirmation dialog before cancelling a subscription.
- */
-function confirmCancelSubscription() {
+import { domReady } from '../utils';
+
+domReady( function () {
+	 // Show a confirmation dialog before cancelling a subscription.
 	const cancelButton = document.querySelector( '.subscription_details .button.cancel' );
 	const { labels } = newspack_my_account || {};
 
@@ -28,4 +25,4 @@ function confirmCancelSubscription() {
 		};
 		cancelButton.addEventListener( 'click', confirmCancel );
 	}
-}
+} );

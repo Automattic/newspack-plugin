@@ -1,11 +1,10 @@
 /**
  * Initialize functions for the Newsletters page.
  */
-export function init() {
-	newsletterSignupActivity();
-}
 
-function newsletterSignupActivity() {
+import { domReady } from '../utils';
+
+domReady( function () {
 	// Dispatch a newsletter_signup activity when the user subscribes to a newsletter via My Account.
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( readerActivation => {
@@ -23,4 +22,4 @@ function newsletterSignupActivity() {
 		const newQueryString = params.toString() ? '?' + params.toString() : '';
 		window.history.replaceState( {}, '', window.location.pathname + newQueryString );
 	} );
-}
+} );

@@ -110,10 +110,134 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Whether it's a payment method change page.
+	 *
+	 * @return bool
+	 */
+	protected static function is_payment_method_change_page() {
+		return isset( $_GET['my_account_checkout'] ) && isset( $_GET['change_payment_method'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Whether it's the standard "Switch Subscription" page.
+	 *
+	 * @return bool
+	 */
+	protected static function is_switch_subscription_checkout_page() {
+		return (
+			function_exists( 'is_checkout' )
+			&& is_checkout()
+			&& ! self::is_payment_method_change_page() // The payment method change page is also a checkout page.
+			&& function_exists( 'wcs_cart_contains_switches' )
+			&& wcs_cart_contains_switches()
+		);
+	}
+
+	/**
+	 * Get cart switch subscriptions summary.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_switch_subscriptions_summary() {
+		if ( ! function_exists( 'wcs_cart_contains_switches' ) ) {
+			return [];
+		}
+		$switches = wcs_cart_contains_switches();
+		if ( empty( $switches ) ) {
+			return [];
+		}
+		$switches = array_values( $switches );
+		return [
+			'subscription_id'        => array_map(
+				function( $switch ) {
+					return $switch['subscription_id'];
+				},
+				$switches
+			),
+			'upgraded_or_downgraded' => array_map(
+				function( $switch ) {
+					return $switch['upgraded_or_downgraded'];
+				},
+				$switches
+			),
+		];
+	}
+
+	/**
+	 * Whether it's a reorder checkout page.
+	 *
+	 * @return bool
+	 */
+	protected static function is_reorder_checkout_page() {
+		return (
+			function_exists( 'is_checkout' )
+			&& is_checkout()
+			&& self::cart_contains_reorders()
+		);
+	}
+
+	/**
+	 * Get cart reorder items.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_reorder_items() {
+		$cart = \WC()->cart;
+		if ( ! $cart ) {
+			return [];
+		}
+		return array_filter(
+			$cart->get_cart(),
+			function( $item ) {
+				return isset( $item['newspack_order_again'] ) && $item['newspack_order_again'];
+			}
+		);
+	}
+
+	/**
+	 * Whether the cart contains reorders.
+	 *
+	 * @return bool
+	 */
+	protected static function cart_contains_reorders() {
+		return ! empty( self::get_cart_reorder_items() );
+	}
+
+	/**
+	 * Get cart reorder summary.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_reorder_summary() {
+		$items = array_values( self::get_cart_reorder_items() );
+		if ( empty( $items ) ) {
+			return [];
+		}
+		$early_renewal = function_exists( 'wcs_cart_contains_early_renewal' ) ? wcs_cart_contains_early_renewal() : false;
+		$summary       = [
+			'order_id'      => $items[0]['newspack_order_again_order_id'],
+			'early_renewal' => $early_renewal ? $early_renewal['subscription_renewal'] : false,
+			'product_id'    => array_map(
+				function( $item ) {
+					return $item['product_id'];
+				},
+				$items
+			),
+		];
+		return $summary;
+	}
+
+	/**
 	 * Enqueue front-end scripts.
 	 */
 	public static function enqueue_scripts() {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+		if (
+			( function_exists( 'is_account_page' ) && is_account_page() )
+			|| ( function_exists( 'is_checkout' ) && is_checkout() )
+			|| self::is_payment_method_change_page()
+			|| self::is_switch_subscription_checkout_page()
+			|| self::is_reorder_checkout_page()
+		) {
 			\wp_enqueue_script(
 				'my-account',
 				\Newspack\Newspack::plugin_url() . '/dist/my-account.js',
@@ -125,12 +249,16 @@ class WooCommerce_My_Account {
 				'my-account',
 				'newspack_my_account',
 				[
-					'labels'            => [
+					'labels'                               => [
 						'cancel_subscription_message' => __( 'Are you sure you want to cancel this subscription?', 'newspack-plugin' ),
 					],
-					'rest_url'          => get_rest_url(),
-					'should_rate_limit' => WooCommerce_Connection::rate_limiting_enabled(),
-					'nonce'             => wp_create_nonce( 'wp_rest' ),
+					'rest_url'                             => get_rest_url(),
+					'should_rate_limit'                    => WooCommerce_Connection::rate_limiting_enabled(),
+					'nonce'                                => wp_create_nonce( 'wp_rest' ),
+					'is_switch_subscription_checkout_page' => self::is_switch_subscription_checkout_page(),
+					'is_reorder_checkout_page'             => self::is_reorder_checkout_page(),
+					'cart_reorder_summary'                 => self::get_cart_reorder_summary(),
+					'cart_switch_subscriptions_summary'    => self::get_cart_switch_subscriptions_summary(),
 				]
 			);
 		}
