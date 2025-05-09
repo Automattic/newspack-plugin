@@ -7,8 +7,6 @@
 
 namespace Newspack;
 
-use Newspack\WooCommerce_Connection;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
