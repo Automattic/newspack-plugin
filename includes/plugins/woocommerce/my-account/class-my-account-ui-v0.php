@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Connection with WooCommerce's "My Account" page.
  */
-class My_Account_UI_V0 extends WooCommerce_My_Account {
+class My_Account_UI_V0 {
 	/**
 	 * Initialize.
 	 *
@@ -48,12 +48,12 @@ class My_Account_UI_V0 extends WooCommerce_My_Account {
 	public static function wc_get_template( $template, $template_name ) {
 		switch ( $template_name ) {
 			case 'myaccount/form-login.php':
-				if ( isset( $_GET[ self::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( isset( $_GET[ WooCommerce_My_Account::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					return __DIR__ . '/templates/myaccount-after-delete-account.php';
 				}
 				return $template;
 			case 'myaccount/form-edit-account.php':
-				if ( isset( $_GET[ self::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( isset( $_GET[ WooCommerce_My_Account::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					return __DIR__ . '/templates/myaccount-delete-account.php';
 				}
 				return __DIR__ . '/templates/myaccount-edit-account.php';
