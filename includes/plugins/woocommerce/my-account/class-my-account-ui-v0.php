@@ -49,14 +49,14 @@ class My_Account_UI_V0 extends WooCommerce_My_Account {
 		switch ( $template_name ) {
 			case 'myaccount/form-login.php':
 				if ( isset( $_GET[ self::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-after-delete-account.php';
+					return __DIR__ . '/templates/myaccount-after-delete-account.php';
 				}
 				return $template;
 			case 'myaccount/form-edit-account.php':
 				if ( isset( $_GET[ self::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-delete-account.php';
+					return __DIR__ . '/templates/myaccount-delete-account.php';
 				}
-				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-edit-account.php';
+				return __DIR__ . '/templates/myaccount-edit-account.php';
 			default:
 				return $template;
 		}

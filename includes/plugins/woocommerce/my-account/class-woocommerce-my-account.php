@@ -75,9 +75,9 @@ class WooCommerce_My_Account {
 
 			// Decide which My Account UI version to load.
 			if ( version_compare( self::get_version(), '1.0.0', '<' ) ) {
-				include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/woocommerce/my-account/class-my-account-ui-v0.php';
+				include_once __DIR__ . '/class-my-account-ui-v0.php';
 			} else {
-				include_once NEWSPACK_ABSPATH . 'includes/reader-revenue/woocommerce/my-account/class-my-account-ui-v1.php';
+				include_once __DIR__ . '/class-my-account-ui-v1.php';
 			}
 		}
 	}
@@ -761,7 +761,7 @@ class WooCommerce_My_Account {
 			\add_action(
 				'woocommerce_account_content',
 				function() {
-					include dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/woocommerce/my-account/templates/myaccount-verify.php';
+					include __DIR__ . '/templates/myaccount-verify.php';
 				}
 			);
 		}
