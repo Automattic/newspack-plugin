@@ -27,6 +27,10 @@
 				font-weight: 600;
 				padding: var(--newspack-ui-spacer-2) var(--newspack-ui-spacer-5);
 				text-decoration: none;
+				&:hover {
+					background: var(--newspack-ui-color-neutral-30);
+					color: var(--newspack-ui-color-neutral-90);
+				}
 			}
 			&.is-active a {
 				background-color: var(--newspack--my-account--color--accent);
@@ -34,12 +38,10 @@
 			}
 			@media ( min-width: 782px ) {
 				a {
+					border-radius: var(--newspack-ui-border-radius-m);
 					margin-left: 0;
 					margin-right: 0;
 					padding: var(--newspack-ui-spacer-2);
-				}
-				&.is-active a {
-					border-radius: var(--newspack-ui-border-radius-m);
 				}
 			}
 		}
