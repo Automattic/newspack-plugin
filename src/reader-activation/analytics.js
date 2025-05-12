@@ -1,27 +1,23 @@
 /**
- * Get a GA4 event payload for a given prompt.
+ * Get a GA4 event payload.
  *
- * @param {Object} data        Base activity data to build the payload.
- * @param {Object} extraParams Additional key/value pairs to add as params to the event payload.
+ * @param {Object} payload Event payload.
+ * @param {Object} data    Data from the dispatched reader data activity.
  *
  * @return {Object} Event payload.
  */
-const getEventPayload = ( data = {}, extraParams = {} ) => {
-	const payload = {
-		...extraParams,
-		referrer: window.location.pathname,
-	};
-
+const getEventPayload = ( payload = {}, data = {} ) => {
+	const eventPayload = { ...payload };
 	if ( data?.newspack_popup_id ) {
-		payload.newspack_popup_id = data.newspack_popup_id;
+		eventPayload.newspack_popup_id = data.newspack_popup_id;
 	}
 	if ( data?.gate_post_id ) {
-		payload.gate_post_id = data.gate_post_id;
+		eventPayload.gate_post_id = data.gate_post_id;
 	}
 	if ( data?.sso ) {
-		payload.sso = data.sso;
+		eventPayload.sso = data.sso;
 	}
-	return payload;
+	return eventPayload;
 };
 
 /**
@@ -46,11 +42,11 @@ const handleNewsletterSignupSuccess = ras => {
 	ras.on( 'activity', function( ev ) {
 		if ( 'newsletter_signup' === ev.detail.action && ev.detail.data?.lists?.length ) {
 			const payload = getEventPayload(
-				ev.detail.data,
 				{
 					newsletters_subscription_method: ev.detail.data?.newsletters_subscription_method || 'unknown',
 					lists: ev.detail.data.lists,
-				}
+				},
+				ev.detail.data
 			);
 			sendEvent( payload, 'np_newsletter_subscribed' );
 		}
@@ -69,10 +65,10 @@ const handleRegistrationSuccess = ras => {
 			! window?.newspackReaderActivation?.getPendingCheckout()
 		) {
 			const payload = getEventPayload(
-				ev.detail.data || {},
 				{
 					registration_method: ev.detail.data?.registration_method || 'unknown',
-				}
+				},
+				ev.detail.data
 			);
 			sendEvent( payload, 'np_reader_registered' );
 		}
@@ -88,10 +84,10 @@ const handleLoginSuccess = ras => {
 	ras.on( 'activity', function( ev ) {
 		if ( 'reader_logged_in' === ev.detail.action ) {
 			const payload = getEventPayload(
-				ev.detail.data || {},
 				{
 					login_method: ev.detail.data?.login_method || 'unknown',
-				}
+				},
+				ev.detail.data
 			);
 			sendEvent( payload, 'np_reader_logged_in' );
 		}
