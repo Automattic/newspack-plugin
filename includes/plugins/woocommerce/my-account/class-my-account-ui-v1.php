@@ -19,10 +19,51 @@ class My_Account_UI_V1 {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		\add_filter( 'page_template', [ __CLASS__, 'page_template' ], 10 );
+		\add_filter( 'newspack_ads_should_show_ads', [ __CLASS__, 'suppress_ads' ], 10 ); // Suppress ads on My Account pages.
+		\add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'suppress_popups' ], 10 ); // Suppress popups on My Account pages.
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
-		\add_filter( 'do_shortcode_tag', [ __CLASS__, 'add_newspack_ui_wrapper' ], 10, 2 );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+	}
+
+	/**
+	 * Render My Account pages with a no-header/no-footer page template.
+	 *
+	 * @param string $template The template.
+	 * @return string The template file path.
+	 */
+	public static function page_template( $template ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return __DIR__ . '/templates/v1/myaccount.php';
+		}
+		return $template;
+	}
+
+	/**
+	 * Suppress ads on My Account pages.
+	 *
+	 * @param bool $should_show_ads Whether ads should be shown.
+	 * @return bool Whether ads should be shown.
+	 */
+	public static function suppress_ads( $should_show_ads ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return false;
+		}
+		return $should_show_ads;
+	}
+
+	/**
+	 * Suppress Newspack Campaigns prompts on My Account pages.
+	 *
+	 * @param bool $should_suppress True if prompts should be suppressed, false otherwise.
+	 * @return bool Whether prompts should be suppressed.
+	 */
+	public static function suppress_popups( $should_suppress ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return true;
+		}
+		return $should_suppress;
 	}
 
 	/**
@@ -33,6 +74,7 @@ class My_Account_UI_V1 {
 	 */
 	public static function add_body_class( $classes ) {
 		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			$classes[] = 'newspack-ui';
 			$classes[] = 'newspack-my-account';
 			$classes[] = 'newspack-my-account--v1';
 			if ( ! \is_user_logged_in() ) {
@@ -42,21 +84,6 @@ class My_Account_UI_V1 {
 			}
 		}
 		return $classes;
-	}
-
-	/**
-	 * Render a wrapper element to apply Newspack UI styles to My Account page content.
-	 *
-	 * @param string $output The output.
-	 * @param string $tag The tag.
-	 *
-	 * @return string The output.
-	 */
-	public static function add_newspack_ui_wrapper( $output, $tag ) {
-		if ( 'woocommerce_my_account' === $tag ) {
-			return '<div class="newspack-ui">' . $output . '</div>';
-		}
-		return $output;
 	}
 
 	/**
