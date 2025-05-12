@@ -30,7 +30,8 @@
 		&.button-secondary {
 			@extend .newspack-ui__button--secondary;
 		}
-		&.cancel {
+		&.cancel,
+		&.delete {
 			@extend .newspack-ui__button--destructive;
 		}
 	}
