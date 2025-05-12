@@ -4,6 +4,7 @@
 
 @use "../forms";
 @use "../notices";
+@use "../../variables/breakpoints";
 
 .woocommerce-account.newspack-my-account .newspack-ui {
 	.newspack-wc-message,
@@ -50,10 +51,25 @@
 		.woocommerce-Button {
 			@extend .newspack-ui__button--secondary;
 			@extend .newspack-ui__button--x-small;
-			margin-top: 8px;
-			margin-bottom: 8px;
+			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
+			margin-bottom: calc(var(--newspack-ui-spacer-base) / 2);
 		}
-
+		* + button,
+		* + .button,
+		* + .woocommerce-Button {
+			margin-left: 0;
+			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
+			@media only screen and ( min-width: breakpoints.$tablet_width ) {
+				margin-top: 0;
+			}
+		}
+		.product-quantity {
+			margin-right: var(--newspack-ui-spacer-base);
+			+ .button {
+				margin-bottom: 0;
+				margin-top: 0;
+			}
+		}
 		& + button,
 		& + .button,
 		& + .woocommerce-Button {
