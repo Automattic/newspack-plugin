@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 do_action( 'woocommerce_before_account_navigation' );
+$site_icon_url = \get_site_icon_url( 96 );
 ?>
 
 <div class="newspack-my-account__navigation-topbar">
@@ -24,9 +25,11 @@ do_action( 'woocommerce_before_account_navigation' );
 		<button class="newspack-my-account__icon-button newspack-my-account__icon-button--close-navigation">
 			<span class="screen-reader-text"><?php _e( 'Close navigation', 'newspack-plugin' ); ?></span>
 		</button>
+		<?php if ( ! empty( $site_icon_url ) ) : ?>
 		<a class="newspack-my-account__site-logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php esc_attr_e( 'Back to homepage', 'newspack-plugin' ); ?>">
-			<img src="<?php echo esc_url( \get_site_icon_url( 96 ) ); ?>" />
+			<img src="<?php echo esc_url( $site_icon_url ); ?>" />
 		</a>
+		<?php endif; ?>
 
 		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="newspack-my-account__home-link"><?php _e( 'Back to Homepage', 'newspack-plugin' ); ?></a>
 
