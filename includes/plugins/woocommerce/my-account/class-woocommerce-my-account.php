@@ -261,6 +261,7 @@ class WooCommerce_My_Account {
 					'cart_switch_subscriptions_summary'    => self::get_cart_switch_subscriptions_summary(),
 				]
 			);
+			\Newspack_Blocks\Modal_Checkout::enqueue_modal();
 		}
 	}
 

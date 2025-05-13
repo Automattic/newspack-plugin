@@ -10,3 +10,4 @@ import './activity';
 import './subscriptions';
 import './payment-methods';
 import './newsletters';
+import './resubscribe';
