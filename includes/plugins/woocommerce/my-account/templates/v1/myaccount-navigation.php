@@ -38,6 +38,19 @@ do_action( 'woocommerce_before_account_navigation' );
 			</li>
 		<?php endforeach; ?>
 	</ul>
+
+	<footer class="newspack-my-account__navigation-footer">
+		<ul>
+			<?php foreach ( apply_filters( 'newspack_my_account_navigation_footer_items', [] ) as $item ) : ?>
+				<li class="newspack-my-account__navigation-footer-item">
+					<a href="<?php echo esc_url( $item['url'] ); ?>"><?php echo esc_html( $item['label'] ); ?></a>
+				</li>
+			<?php endforeach; ?>
+			<li class="<?php echo esc_attr( wc_get_account_menu_item_classes( 'customer-logout' ) ); ?>">
+				<a href="<?php echo esc_url( wp_logout_url( wc_get_account_endpoint_url( 'customer-logout' ) ) ); ?>" class="newspack-my-account__logout-link"><?php _e( 'Sign out', 'newspack-plugin' ); ?></a>
+			</li>
+		</ul>
+	</footer>
 </nav>
 
 <?php do_action( 'woocommerce_after_account_navigation' ); ?>

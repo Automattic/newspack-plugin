@@ -25,6 +25,7 @@ class My_Account_UI_V1 {
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1001 );
 	}
 
 	/**
@@ -133,6 +134,18 @@ class My_Account_UI_V1 {
 			default:
 				return $template;
 		}
+	}
+
+	/**
+	 * Modify nav menu items.
+	 *
+	 * @param array $items Menu items.
+	 * @return array Modified menu items.
+	 */
+	public static function my_account_menu_items( $items ) {
+		// Remove logout menu item (to be replaced in our custom template).
+		unset( $items['customer-logout'] );
+		return $items;
 	}
 }
 My_Account_UI_V1::init();
