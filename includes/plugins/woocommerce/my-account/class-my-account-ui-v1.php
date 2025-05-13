@@ -19,9 +19,9 @@ class My_Account_UI_V1 {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
-		\add_filter( 'page_template', [ __CLASS__, 'page_template' ], 10 );
-		\add_filter( 'newspack_ads_should_show_ads', [ __CLASS__, 'suppress_ads' ], 10 ); // Suppress ads on My Account pages.
-		\add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'suppress_popups' ], 10 ); // Suppress popups on My Account pages.
+		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
+		\add_filter( 'newspack_ads_should_show_ads', [ __CLASS__, 'suppress_ads' ] ); // Suppress ads on My Account pages.
+		\add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'suppress_popups' ] ); // Suppress popups on My Account pages.
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
