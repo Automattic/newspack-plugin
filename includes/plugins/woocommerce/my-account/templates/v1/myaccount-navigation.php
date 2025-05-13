@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 do_action( 'woocommerce_before_account_navigation' );
-$site_icon_url = \get_site_icon_url( 96 );
+$site_icon_url = apply_filters( 'newspack_my_account_site_logo_url', get_site_icon_url( 96 ) );
 ?>
 
 <div class="newspack-my-account__navigation-topbar">
