@@ -64,9 +64,12 @@
 	}
 	.woocommerce-MyAccount-navigation {
 		background-color: var(--newspack-ui-color-neutral-0);
+		display: flex;
+		flex-direction: column;
 		float: none;
 		font-family: var(--newspack-ui-font-family);
 		font-size: var(--newspack-ui-font-size-s);
+		justify-content: space-between;
 		height: 100vh;
 		left: 100vw;
 		line-height: var(--newspack-ui-line-height-s);
@@ -137,11 +140,8 @@
 			}
 		}
 		.newspack-my-account__navigation-footer {
-			bottom: 0;
-			left: 0;
-			padding: var(--newspack-ui-spacer-5) calc(var(--newspack-ui-spacer-5) + var(--newspack-ui-spacer-2));
-			position: absolute;
-			width: 100%;
+			margin-top: var(--newspack-ui-spacer-5);
+			padding: 0 var(--newspack-ui-spacer-3);
 			li {
 				a {
 					background: none;
