@@ -1,8 +1,6 @@
 <?php
 /**
- * Template Name: No header or footer
- *
- * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
+ * My Account page template with no header or footer.
  *
  * @package Newspack
  */

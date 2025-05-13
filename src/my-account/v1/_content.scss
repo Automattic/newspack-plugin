@@ -2,11 +2,14 @@
  * Main content area
  */
 
-.woocommerce-account.newspack-my-account {
+.newspack-my-account {
 	.woocommerce-MyAccount-content {
-		padding-left: var(--newspack-ui-spacer-5);
-		padding-right: var(--newspack-ui-spacer-5);
+		padding-left: var(--newspack-ui-spacer-3);
+		padding-right: var(--newspack-ui-spacer-3);
+		padding-top: var(--newspack-ui-spacer-10);
+		transition: transform 0.25s ease-in-out;
 		@media ( min-width: 768px ) {
+			border: none;
 			margin-left: auto;
 			margin-right: auto;
 			max-width: calc(782px + var(--newspack-ui-spacer-5) * 2);
@@ -14,6 +17,7 @@
 			padding-left: var(--newspack-ui-spacer-5);
 			padding-right: var(--newspack-ui-spacer-5);
 			padding-top: 0;
+			transition: none;
 			width: 100%;
 		}
 	}
