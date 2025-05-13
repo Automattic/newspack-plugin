@@ -306,10 +306,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 						if ( data?.sso ) {
 							activity.sso = true;
 						}
-						if ( data?.registered ) {
-							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data?.metadata?.registration_method || 'auth-form' } );
-						} else {
+						if ( data?.existing_user ) {
 							readerActivation.dispatchActivity( 'reader_logged_in', { ...activity, login_method: data?.metadata?.login_method || 'auth-form' } );
+						} else {
+							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data?.metadata?.registration_method || 'auth-form' } );
 						}
 					}
 

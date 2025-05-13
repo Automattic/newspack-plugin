@@ -96,7 +96,7 @@ window.newspackRAS.push( function( readerActivation ) {
 							}
 							if ( data?.existing_user ) {
 								readerActivation.dispatchActivity( 'reader_logged_in', { ...baseActivity, login_method: data?.metadata?.login_method || 'registration-block' } );
-							} else if ( data.authenticated ) {
+							} else {
 								readerActivation.dispatchActivity( 'reader_registered', { ...baseActivity, registration_method: data?.metadata?.registration_method || 'registration-block' } );
 							}
 						}
