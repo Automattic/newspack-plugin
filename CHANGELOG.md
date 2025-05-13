@@ -1,3 +1,10 @@
+## [6.5.1](https://github.com/Automattic/newspack-plugin/compare/v6.5.0...v6.5.1) (2025-05-13)
+
+
+### Bug Fixes
+
+* **stripe-gateway:** transaction metadata for renewals ([#3939](https://github.com/Automattic/newspack-plugin/issues/3939)) ([5929618](https://github.com/Automattic/newspack-plugin/commit/59296184c0130c10f3c9c15908ae117fe2105831))
+
 # [6.5.0](https://github.com/Automattic/newspack-plugin/compare/v6.4.4...v6.5.0) (2025-05-08)
 
 
