@@ -93,11 +93,11 @@
 			height: 48px;
 			margin-bottom: var(--newspack-ui-spacer-6);
 			margin-left: var(--newspack-ui-spacer-3);
-			width: 48px;
 			img {
-				height: 100%;
-				width: 100%;
-				object-fit: contain;
+				height: auto;
+				max-height: 100%;
+				max-width: 100%;
+				width: auto;
 			}
 			@media ( min-width: 768px ) {
 				display: block;
