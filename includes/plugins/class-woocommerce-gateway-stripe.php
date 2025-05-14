@@ -18,8 +18,6 @@ class WooCommerce_Gateway_Stripe {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
-		add_filter( 'wc_stripe_intent_metadata', [ __CLASS__, 'add_transaction_metadata' ], 10, 2 );
-
 		/**
 		 * Disable Stripe Express Checkout feature flags.
 		 * This is a workaround for the Stripe Express Checkout feature flags
