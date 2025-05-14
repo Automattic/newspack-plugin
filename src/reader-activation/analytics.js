@@ -27,10 +27,68 @@ const getEventPayload = ( payload = {}, data = {} ) => {
  * @param {string} eventName Name of the event. Defaults to `np_reader_activation_interaction` but can be overriden if necessary.
  */
 
-const sendEvent = ( payload, eventName = 'np_reader_activation_interaction' ) => {
+const sendEvent = (
+	payload,
+	eventName = 'np_reader_activation_interaction'
+) => {
 	if ( 'function' === typeof window.gtag && payload ) {
 		window.gtag( 'event', eventName, payload );
 	}
+};
+
+/**
+ * Events to be sent to GA4 based on reader data activity dispatch.
+ *
+ * @type {Object}
+ */
+const activityEvents = {};
+
+/**
+ * Register an event to be sent to GA4 based on a reader data activity dispatch.
+ *
+ * @param {string}   action    Name of the reader data action to register an event for.
+ * @param {Function} cb        Callback function that returns the event payload.
+ * @param {string}   eventName Name of the event to send. Defaults to `np_{action}`.
+ */
+export const registerActivityEvent = ( action, cb, eventName ) => {
+	if ( ! eventName ) {
+		eventName = `np_${ action }`;
+	}
+	// If no callback is provided, use the activity data as the payload.
+	if ( ! cb ) {
+		cb = data => data;
+	}
+	activityEvents[ action ] = { cb, eventName };
+};
+
+/**
+ * Register default events to be sent to GA4 based on reader data activity dispatch.
+ */
+const registerActivityEvents = () => {
+	registerActivityEvent( 'reader_registered', data => ( {
+		registration_method: data?.registration_method || 'unknown',
+	} ) );
+	registerActivityEvent( 'reader_logged_in', data => ( {
+		login_method: data?.login_method || 'unknown',
+	} ) );
+	registerActivityEvent(
+		'newsletter_signup',
+		data => ( {
+			newsletters_subscription_method:
+				data?.newsletters_subscription_method || 'unknown',
+			lists: data?.lists || [],
+		} ),
+		'np_newsletter_subscribed'
+	);
+	registerActivityEvent( 'subscription_cancelled' );
+	registerActivityEvent( 'subscription_reactivated' );
+	registerActivityEvent( 'subscription_switched' );
+	registerActivityEvent( 'payment_method_deleted' );
+	registerActivityEvent( 'payment_method_added' );
+	registerActivityEvent( 'payment_method_changed' );
+	registerActivityEvent( 'address_updated' );
+	registerActivityEvent( 'product_reordered' );
+	registerActivityEvent( 'subscription_renewal_early' );
 };
 
 /**
@@ -51,7 +109,7 @@ const handleNewsletterSignupSuccess = ras => {
 			sendEvent( payload, 'np_newsletter_subscribed' );
 		}
 	} );
-};
+}
 
 /**
  * Handle a successful reader registration.
@@ -73,7 +131,7 @@ const handleRegistrationSuccess = ras => {
 			sendEvent( payload, 'np_reader_registered' );
 		}
 	} );
-};
+}
 
 /**
  * Handle a successful reader login.
@@ -95,13 +153,23 @@ const handleLoginSuccess = ras => {
 };
 
 /**
- * Initialize the analytics.
+ * Initialize analytics listeners.
+ *
+ * @param {Object} ras Reader Activation Library.
  */
-export const initAnalytics = () => {
-	window.newspackRAS = window.newspackRAS || [];
-	window.newspackRAS.push( function( ras ) {
-		handleNewsletterSignupSuccess( ras );
-		handleRegistrationSuccess( ras );
-		handleLoginSuccess( ras );
+export default function init( ras ) {
+	handleNewsletterSignupSuccess( ras );
+	handleRegistrationSuccess( ras );
+	handleLoginSuccess( ras );
+	registerActivityEvents();
+
+	ras.on( 'activity', function ( ev ) {
+		const { action, data } = ev.detail;
+		if ( ! activityEvents[ action ] ) {
+			return;
+		}
+		const { cb, eventName } = activityEvents[ action ];
+		const payload = cb( data );
+		sendEvent( getEventPayload( payload, data ), eventName );
 	} );
-};
+}

@@ -54,3 +54,71 @@ export function convertFormDataToObject( formData, includedFields = [] ) {
 		return acc;
 	}, {} );
 }
+
+/**
+ * Register a reader activity dispatch on an element event.
+ *
+ * @param {string|Element} element The element to register the activity on. Can either be the element node or a string for the element selector.
+ * @param {string}         action  The action to dispatch an activity for.
+ * @param {Function}       cb      The callback to populate the activity data.
+ * @param {string}         event   The element event to listen for. Defaults to `submit` for form elements and `click` for other elements.
+ */
+export function registerElementActivity( element, action, cb, event ) {
+	window.newspackRAS = window.newspackRAS || [];
+	if ( typeof element === 'string' ) {
+		element = [ ...document.querySelectorAll( element ) ];
+	}
+
+	if ( element && ! Array.isArray( element ) ) {
+		element = [ element ];
+	}
+
+	if ( ! element?.length ) {
+		return;
+	}
+
+	// If no callback is provided, use a noop.
+	if ( ! cb ) {
+		cb = () => ( {} );
+	}
+
+	element.forEach( el => {
+		el.addEventListener(
+			event || ( el.tagName === 'FORM' ? 'submit' : 'click' ),
+			ev => {
+				// Wait for the event to be processed.
+				setTimeout( () => {
+					// If the event was not prevented, dispatch the activity.
+					// Form submissions will not consider the default prevented because they
+					// are commonly ajaxified.
+					if ( el.tagName === 'FORM' || ! ev.defaultPrevented ) {
+						window.newspackRAS.push( [ action, cb( el ) ] );
+					}
+				} );
+			}
+		);
+	} );
+}
+
+/**
+ * Register an activity dispatch on checkout submission.
+ *
+ * @param {string}   action The action to dispatch an activity for.
+ * @param {Function} cb     The callback to populate the activity data.
+ */
+export function registerCheckoutActivity( action, cb ) {
+	// Woo Block checkout is react, so we need to wait for the form to be rendered.
+	wp?.hooks?.addAction(
+		'experimental__woocommerce_blocks-checkout-render-checkout-form',
+		'newspack/my-account/activity',
+		() => {
+			registerElementActivity(
+				'.wc-block-components-checkout-place-order-button',
+				action,
+				cb
+			);
+		}
+	);
+	// Shortcode checkout.
+	registerElementActivity( 'form[name="checkout"]', action, cb );
+}

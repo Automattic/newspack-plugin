@@ -1,0 +1,81 @@
+/**
+ * Extend Newspack UI styles to My Account elements.
+ */
+
+@use "../forms";
+@use "../notices";
+@use "../../variables/breakpoints";
+
+.woocommerce-account.newspack-my-account .newspack-ui {
+	.newspack-wc-message,
+	.woocommerce-message,
+	.woocommerce-info,
+	.woocommerce-error {
+		@extend .newspack-ui__notice;
+		list-style: none;
+	}
+	.newspack-wc-message,
+	.woocommerce-message,
+	.woocommerce-info {
+		@extend .newspack-ui__notice--success;
+	}
+	.woocommerce-error {
+		@extend .newspack-ui__notice--error;
+	}
+	.button,
+	.woocommerce-Button {
+		@extend .newspack-ui__button;
+		@extend .newspack-ui__button--primary;
+		&.secondary,
+		&.button-secondary {
+			@extend .newspack-ui__button--secondary;
+		}
+		&.cancel,
+		&.delete {
+			@extend .newspack-ui__button--destructive;
+		}
+	}
+	.shop_table {
+		th,
+		td {
+			padding-bottom: var(--newspack-ui-spacer-2);
+			padding-right: var(--newspack-ui-spacer-2);
+			padding-top: var(--newspack-ui-spacer-2);
+			vertical-align: middle;
+		}
+		th {
+			color: var(--newspack-ui-color-neutral-60);
+			font-weight: 600;
+		}
+		button,
+		.button,
+		.woocommerce-Button {
+			@extend .newspack-ui__button--secondary;
+			@extend .newspack-ui__button--x-small;
+			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
+			margin-bottom: calc(var(--newspack-ui-spacer-base) / 2);
+		}
+		* + button,
+		* + .button,
+		* + .woocommerce-Button {
+			margin-left: 0;
+			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
+			@media only screen and ( min-width: breakpoints.$tablet_width ) {
+				margin-top: 0;
+			}
+		}
+		.product-quantity {
+			margin-right: var(--newspack-ui-spacer-base);
+			+ .button {
+				margin-bottom: 0;
+				margin-top: 0;
+			}
+		}
+		& + * {
+			margin-top: var(--newspack-ui-spacer-5);
+		}
+	}
+	.is-destructive {
+		color: var(--newspack-ui-color-error-50);
+	}
+}

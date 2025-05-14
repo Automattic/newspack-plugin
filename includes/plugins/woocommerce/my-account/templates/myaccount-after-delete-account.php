@@ -21,4 +21,3 @@ defined( 'ABSPATH' ) || exit;
 		<?php echo esc_html__( 'Return to home page', 'newspack-plugin' ); ?>
 	</a>
 </div>
-
