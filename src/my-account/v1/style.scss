@@ -1,0 +1,37 @@
+/**
+ * General layout styles
+ */
+
+@use "variables";
+@use "components";
+@use "navigation";
+@use "content";
+@use "forms";
+
+.woocommerce-account.newspack-my-account {
+	&--logged-in {
+		.site-content {
+			margin-top: 0;
+		}
+		#primary {
+			max-width: none;
+			width: auto;
+		}
+		.newspack-ui {
+			margin-top: 0;
+		}
+		.woocommerce {
+			@media ( min-width: 782px ) {
+				column-gap: var(--newspack-ui-spacer-5);
+				display: flex;
+			}
+		}
+		.woocommerce-MyAccount-navigation,
+		.woocommerce-MyAccount-content {
+			float: none;
+			@media ( min-width: 782px ) {
+				padding-top: var(--newspack-ui-spacer-9);
+			}
+		}
+	}
+}

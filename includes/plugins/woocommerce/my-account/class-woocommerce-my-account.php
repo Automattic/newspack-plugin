@@ -1,22 +1,16 @@
 <?php
 /**
- * Connection with WooCommerce's features.
+ * Newspack customizations of WooCommerce's My Account features.
  *
  * @package Newspack
  */
 
 namespace Newspack;
 
-use Newspack\Reader_Activation;
-use Newspack\Reader_Activation\Sync\Metadata;
-use Newspack\Reader_Activation\ESP_Sync;
-use Newspack\Stripe_Connection;
-use Newspack\WooCommerce_Connection;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Connection with WooCommerce's "My Account" page.
+ * This class handles functional customizations. UI customizations are handled in My_Account_UI classes.
  */
 class WooCommerce_My_Account {
 	const RESET_PASSWORD_URL_PARAM     = 'reset-password';
@@ -58,7 +52,6 @@ class WooCommerce_My_Account {
 		// Reader Activation mods.
 		if ( Reader_Activation::is_enabled() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
-			\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
@@ -79,7 +72,26 @@ class WooCommerce_My_Account {
 			\add_filter( 'wc_memberships_my_memberships_column_names', [ __CLASS__, 'remove_next_bill_on' ], 21 );
 			\add_action( 'profile_update', [ __CLASS__, 'handle_admin_email_change_request' ], 10, 3 );
 			\add_action( self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ __CLASS__, 'sync_email_change_with_esp' ], 10, 3 );
+
+			// Decide which My Account UI version to load.
+			if ( version_compare( self::get_version(), '1.0.0', '<' ) ) {
+				include_once __DIR__ . '/class-my-account-ui-v0.php';
+			} else {
+				include_once __DIR__ . '/class-my-account-ui-v1.php';
+			}
 		}
+	}
+
+	/**
+	 * Decide which version of the Newspack My Account UI to use.
+	 * 0.0.0 is the default version (core WooCommerce My Account).
+	 * 1.0.0 and above are Newspack's custom My Account UI.
+	 *
+	 * @return string The version number.
+	 */
+	public static function get_version() {
+		$version = defined( 'NEWSPACK_MY_ACCOUNT_VERSION' ) ? NEWSPACK_MY_ACCOUNT_VERSION : '0.0.0'; // Increment this version number to default to a newer My Account version.
+		return $version;
 	}
 
 	/**
@@ -98,6 +110,161 @@ class WooCommerce_My_Account {
 	}
 
 	/**
+	 * Whether it's a payment method change page.
+	 *
+	 * @return bool
+	 */
+	protected static function is_payment_method_change_page() {
+		return isset( $_GET['my_account_checkout'] ) && isset( $_GET['change_payment_method'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Whether it's the standard "Switch Subscription" page.
+	 *
+	 * @return bool
+	 */
+	protected static function is_switch_subscription_checkout_page() {
+		return (
+			function_exists( 'is_checkout' )
+			&& is_checkout()
+			&& ! self::is_payment_method_change_page() // The payment method change page is also a checkout page.
+			&& function_exists( 'wcs_cart_contains_switches' )
+			&& wcs_cart_contains_switches()
+		);
+	}
+
+	/**
+	 * Get cart switch subscriptions summary.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_switch_subscriptions_summary() {
+		if ( ! function_exists( 'wcs_cart_contains_switches' ) ) {
+			return [];
+		}
+		$switches = wcs_cart_contains_switches();
+		if ( empty( $switches ) ) {
+			return [];
+		}
+		$switches = array_values( $switches );
+		return [
+			'subscription_id'        => array_map(
+				function( $switch ) {
+					return $switch['subscription_id'];
+				},
+				$switches
+			),
+			'upgraded_or_downgraded' => array_map(
+				function( $switch ) {
+					return $switch['upgraded_or_downgraded'];
+				},
+				$switches
+			),
+		];
+	}
+
+	/**
+	 * Whether it's a reorder checkout page.
+	 *
+	 * @return bool
+	 */
+	protected static function is_reorder_checkout_page() {
+		return (
+			function_exists( 'is_checkout' )
+			&& is_checkout()
+			&& self::cart_contains_reorders()
+		);
+	}
+
+	/**
+	 * Get cart reorder items.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_reorder_items() {
+		$cart = \WC()->cart;
+		if ( ! $cart ) {
+			return [];
+		}
+		return array_filter(
+			$cart->get_cart(),
+			function( $item ) {
+				return isset( $item['newspack_order_again'] ) && $item['newspack_order_again'];
+			}
+		);
+	}
+
+	/**
+	 * Whether the cart contains reorders.
+	 *
+	 * @return bool
+	 */
+	protected static function cart_contains_reorders() {
+		return ! empty( self::get_cart_reorder_items() );
+	}
+
+	/**
+	 * Get cart reorder summary.
+	 *
+	 * @return array
+	 */
+	protected static function get_cart_reorder_summary() {
+		$items = array_values( self::get_cart_reorder_items() );
+		if ( empty( $items ) ) {
+			return [];
+		}
+		$early_renewal = function_exists( 'wcs_cart_contains_early_renewal' ) ? wcs_cart_contains_early_renewal() : false;
+		$summary       = [
+			'order_id'      => $items[0]['newspack_order_again_order_id'],
+			'early_renewal' => $early_renewal ? $early_renewal['subscription_renewal'] : false,
+			'product_id'    => array_map(
+				function( $item ) {
+					return $item['product_id'];
+				},
+				$items
+			),
+		];
+		return $summary;
+	}
+
+	/**
+	 * Enqueue front-end scripts.
+	 */
+	public static function enqueue_scripts() {
+		if (
+			( function_exists( 'is_account_page' ) && is_account_page() )
+			|| ( function_exists( 'is_checkout' ) && is_checkout() )
+			|| self::is_payment_method_change_page()
+			|| self::is_switch_subscription_checkout_page()
+			|| self::is_reorder_checkout_page()
+		) {
+			\wp_enqueue_script(
+				'my-account',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account.js',
+				[],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				'my-account',
+				'newspack_my_account',
+				[
+					'labels'                               => [
+						'cancel_subscription_message' => __( 'Are you sure you want to cancel this subscription?', 'newspack-plugin' ),
+					],
+					'rest_url'                             => get_rest_url(),
+					'should_rate_limit'                    => WooCommerce_Connection::rate_limiting_enabled(),
+					'nonce'                                => wp_create_nonce( 'wp_rest' ),
+					'is_switch_subscription_checkout_page' => self::is_switch_subscription_checkout_page(),
+					'is_reorder_checkout_page'             => self::is_reorder_checkout_page(),
+					'cart_reorder_summary'                 => self::get_cart_reorder_summary(),
+					'cart_switch_subscriptions_summary'    => self::get_cart_switch_subscriptions_summary(),
+				]
+			);
+		}
+	}
+
+	/**
 	 * REST API handler for rate limit check.
 	 */
 	public static function api_check_rate_limit() {
@@ -112,38 +279,6 @@ class WooCommerce_My_Account {
 		return new \WP_REST_Response( $response );
 	}
 
-	/**
-	 * Enqueue front-end scripts.
-	 */
-	public static function enqueue_scripts() {
-		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
-			\wp_enqueue_script(
-				'my-account',
-				\Newspack\Newspack::plugin_url() . '/dist/my-account.js',
-				[],
-				NEWSPACK_PLUGIN_VERSION,
-				true
-			);
-			\wp_localize_script(
-				'my-account',
-				'newspack_my_account',
-				[
-					'labels'            => [
-						'cancel_subscription_message' => __( 'Are you sure you want to cancel this subscription?', 'newspack-plugin' ),
-					],
-					'rest_url'          => get_rest_url(),
-					'should_rate_limit' => WooCommerce_Connection::rate_limiting_enabled(),
-					'nonce'             => wp_create_nonce( 'wp_rest' ),
-				]
-			);
-			\wp_enqueue_style(
-				'my-account',
-				\Newspack\Newspack::plugin_url() . '/dist/my-account.css',
-				[],
-				NEWSPACK_PLUGIN_VERSION
-			);
-		}
-	}
 
 	/**
 	 * Filter "My Account" items.
@@ -152,6 +287,11 @@ class WooCommerce_My_Account {
 	 */
 	public static function my_account_menu_items( $items ) {
 		$default_disabled_items = [];
+
+		// Rename 'Account details' to 'Account settings'.
+		if ( isset( $items['edit-account'] ) ) {
+			$items['edit-account'] = __( 'Account settings', 'newspack-plugin' );
+		}
 
 		// Rename 'Logout' action to 'Log out', for grammatical reasons.
 		if ( isset( $items['customer-logout'] ) ) {
@@ -211,7 +351,7 @@ class WooCommerce_My_Account {
 				}
 			}
 
-			// Move "Account Details" and "S"ubscriptions" to the top of the menu.
+			// Move "Account Details" and "Subscriptions" to the top of the menu.
 			if ( isset( $items['subscriptions'] ) ) {
 				$items = [ 'subscriptions' => $items['subscriptions'] ] + $items;
 			}
@@ -609,29 +749,6 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * WC's page templates hijacking.
-	 *
-	 * @param string $template      Template path.
-	 * @param string $template_name Template name.
-	 */
-	public static function wc_get_template( $template, $template_name ) {
-		switch ( $template_name ) {
-			case 'myaccount/form-login.php':
-				if ( isset( $_GET[ self::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-after-delete-account.php';
-				}
-				return $template;
-			case 'myaccount/form-edit-account.php':
-				if ( isset( $_GET[ self::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-delete-account.php';
-				}
-				return dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-edit-account.php';
-			default:
-				return $template;
-		}
-	}
-
-	/**
 	 * Restrict account content for unverified readers.
 	 */
 	public static function restrict_account_content() {
@@ -644,7 +761,7 @@ class WooCommerce_My_Account {
 			\add_action(
 				'woocommerce_account_content',
 				function() {
-					include dirname( NEWSPACK_PLUGIN_FILE ) . '/includes/reader-revenue/templates/myaccount-verify.php';
+					include __DIR__ . '/templates/myaccount-verify.php';
 				}
 			);
 		}
@@ -665,7 +782,7 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Modify redurect url to home after a reader logs out from My Account.
+	 * Modify redirect url to home after a reader logs out from My Account.
 	 *
 	 * @param string $redirect_to The redirect destination URL.
 	 *
@@ -801,16 +918,12 @@ class WooCommerce_My_Account {
 	 * Whether email changes are enabled.
 	 */
 	public static function is_email_change_enabled() {
-		if ( class_exists( '\Newspack_Manager\Features' ) && \Newspack_Manager\Features::is_automattician() ) {
-			return true;
-		}
-		$is_enabled = defined( 'NEWSPACK_EMAIL_CHANGE_ENABLED' ) && NEWSPACK_EMAIL_CHANGE_ENABLED;
 		/**
 		 * Filters whether or not to allow email changes in My Account.
 		 *
 		 * @param bool $enabled Whether or not to allow email changes.
 		 */
-		return \apply_filters( 'newspack_email_change_enabled', $is_enabled );
+		return \apply_filters( 'newspack_email_change_enabled', true );
 	}
 
 	/**
