@@ -78,4 +78,9 @@
 	.is-destructive {
 		color: var(--newspack-ui-color-error-50);
 	}
+	.woocommerce-pagination {
+		.button {
+			margin-bottom: 0;
+		}
+	}
 }
