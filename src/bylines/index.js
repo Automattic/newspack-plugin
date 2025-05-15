@@ -9,7 +9,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
-import { Icon, plus } from '@wordpress/icons';
+import { plus } from '@wordpress/icons';
 import { store as coreStore } from '@wordpress/core-data';
 
 /**
@@ -25,7 +25,7 @@ const BASE_QUERY = {
 /** Close icon copied from @wordpress/icons/src/library/close.js to be used as markup */
 const close = `
 	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-		<path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z" />
+		<path d="m13.06 12 6.47-6.47-1.06-1.06L12 10.94 5.53 4.47 4.47 5.53 10.94 12l-6.47 6.47 1.06 1.06L12 13.06l6.47 6.47 1.06-1.06L13.06 12Z" />
 	</svg>
 `;
 
@@ -149,9 +149,9 @@ const Token = ( { token, onInsert } ) => {
 			<Button
 				className="components-form-token-field__insert-token is-small has-icon token-inline-block__insert"
 				onClick={ onInsert }
-			>
-				<Icon icon={ plus } />
-			</Button>
+				icon={ plus }
+				label={ __( 'Add author', 'newspack-plugin' ) }
+			/>
 		</span>
 	);
 };
