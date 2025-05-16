@@ -1165,14 +1165,14 @@ class WooCommerce_My_Account {
 	 * @param string $old_email Old email address.
 	 */
 	public static function sync_email_change_with_esp( $user_id, $new_email, $old_email ) {
-		if ( ! ESP_Sync::can_esp_sync() ) {
+		if ( ! Reader_Activation\ESP_Sync::can_esp_sync() ) {
 			return;
 		}
-		$contact = ESP_Sync::get_contact_data( $user_id );
+		$contact = Reader_Activation\ESP_Sync::get_contact_data( $user_id );
 		if ( ! $contact ) {
 			return;
 		}
-		$update = ESP_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
+		$update = Reader_Activation\ESP_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
 		if ( is_wp_error( $update ) ) {
 			// If the update failed, retry in 24 hours.
 			\wp_schedule_single_event( time() + DAY_IN_SECONDS, self::SYNC_ESP_EMAIL_CHANGE_CRON_HOOK, [ $user_id, $new_email, $old_email ] );
