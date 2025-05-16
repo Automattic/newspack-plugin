@@ -8,7 +8,6 @@ domReady( function () {
 	 // Show a confirmation dialog before cancelling a subscription.
 	const cancelButton = document.querySelector( '.subscription_details .button.cancel' );
 
-	// Show a confirmation dialog before cancelling a subscription.
 	if ( cancelButton ) {
 		const confirmationModal = document.getElementById( 'newspack-my-account__confirm-subscription-cancellation' );
 		if ( confirmationModal ) {
