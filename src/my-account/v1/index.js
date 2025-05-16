@@ -5,4 +5,6 @@
 /**
  * Internal dependencies.
  */
+import './modals';
+import './subscriptions';
 import './style.scss';
