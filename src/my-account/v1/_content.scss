@@ -12,5 +12,8 @@
 			max-width: 782px;
 			padding: 0;
 		}
+		section + section {
+			margin-top: var(--newspack-ui-spacer-10);
+		}
 	}
 }

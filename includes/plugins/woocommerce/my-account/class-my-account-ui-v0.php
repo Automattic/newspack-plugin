@@ -54,7 +54,7 @@ class My_Account_UI_V0 {
 				if ( isset( $_GET[ WooCommerce_My_Account::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					return __DIR__ . '/templates/myaccount-delete-account.php';
 				}
-				return __DIR__ . '/templates/myaccount-edit-account.php';
+				return __DIR__ . '/templates/v0/myaccount-edit-account.php';
 			default:
 				return $template;
 		}

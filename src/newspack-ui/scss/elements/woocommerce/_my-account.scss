@@ -22,6 +22,9 @@
 	.woocommerce-error {
 		@extend .newspack-ui__notice--error;
 	}
+	p.woocommerce-form-row {
+		margin: var(--newspack-ui-spacer-3) 0;
+	}
 	.button,
 	.woocommerce-Button {
 		@extend .newspack-ui__button;
@@ -33,6 +36,9 @@
 		&.cancel,
 		&.delete {
 			@extend .newspack-ui__button--destructive;
+		}
+		&.ghost {
+			@extend .newspack-ui__button--ghost;
 		}
 	}
 	.shop_table {

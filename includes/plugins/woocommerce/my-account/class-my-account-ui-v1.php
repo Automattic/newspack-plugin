@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Reader_Activation;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -23,6 +25,9 @@ class My_Account_UI_V1 {
 		\add_filter( 'do_shortcode_tag', [ __CLASS__, 'add_newspack_ui_wrapper' ], 10, 2 );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+		\add_filter( 'newspack_myaccount_required_fields', [ __CLASS__, 'account_settings_required_fields' ] );
+		\add_filter( 'validate_password_reset', [ __CLASS__, 'validate_password_reset' ], 10, 2 );
+		\add_action( 'wp_loaded', [ __CLASS__, 'maybe_password_reset_success' ] );
 		\add_action( 'woocommerce_subscription_details_table', [ __CLASS__, 'cancel_subscription_modal' ] );
 	}
 
@@ -101,9 +106,70 @@ class My_Account_UI_V1 {
 				if ( isset( $_GET[ WooCommerce_My_Account::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					return __DIR__ . '/templates/myaccount-delete-account.php';
 				}
-				return __DIR__ . '/templates/myaccount-edit-account.php';
+				return __DIR__ . '/templates/v1/myaccount-account-settings.php';
 			default:
 				return $template;
+		}
+	}
+
+	/**
+	 * Remove required fields from the account settings form.
+	 *
+	 * @param array $required_fields The required fields.
+	 * @return array The required fields.
+	 */
+	public static function account_settings_required_fields( $required_fields ) {
+		unset( $required_fields['account_display_name'] );
+		return $required_fields;
+	}
+
+	/**
+	 * Validate new reader password before being saved.
+	 *
+	 * @param WP_Error $errors Errors object.
+	 * @param WP_User  $user   The user object.
+	 *
+	 * @return array
+	 */
+	public static function validate_password_reset( $errors, $user ) {
+		// Only if the user is logged in.
+		if ( ! \is_user_logged_in() ) {
+			return $errors;
+		}
+
+		// Only if the user is a reader.
+		if ( ! Reader_Activation::is_user_reader( $user ) ) {
+			return $errors;
+		}
+
+		// Only if updating password from Account Settings page.
+		$action = filter_input( INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( 'newspack_my_account_reset_password' !== $action ) {
+			return $errors;
+		}
+
+		// Check if the current password is correct.
+		$is_without_password = Reader_Activation::is_reader_without_password( $user );
+		$current_password = filter_input( INPUT_POST, 'current_password', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $is_without_password && empty( $current_password ) ) {
+			$errors->add( 'missing_current_password', __( 'Please enter your current password.', 'newspack-plugin' ) );
+			return $errors;
+		}
+		$password_check = $is_without_password || \wp_check_password( $current_password, $user->data->user_pass, $user->ID );
+		if ( ! $password_check ) {
+			$errors->add( 'invalid_current_password', __( 'Invalid current password.', 'newspack-plugin' ) );
+			return $errors;
+		}
+
+		return $errors;
+	}
+
+	/**
+	 * Display a success notice if the password was updated.
+	 */
+	public static function maybe_password_reset_success() {
+		if ( \is_user_logged_in() && filter_input( INPUT_GET, 'password-reset', FILTER_VALIDATE_BOOLEAN ) ) {
+			\wc_add_notice( __( 'Password updated.', 'newspack-plugin' ), 'success' );
 		}
 	}
 
@@ -186,6 +252,7 @@ class My_Account_UI_V1 {
 
 	/**
 	 * Confirmation modal to cancel a subscription.
+	 * Rendered when viewing a single subscription page.
 	 *
 	 * @param WC_Subscription $subscription The subscription.
 	 */
