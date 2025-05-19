@@ -231,9 +231,6 @@ endif;
 			/>
 		</p>
 
-		<input type="hidden" name="reset_key" value="<?php echo esc_attr( get_password_reset_key( $user ) ); ?>" />
-		<input type="hidden" name="reset_login" value="<?php echo esc_attr( $user->data->user_login ); ?>" />
-
 		<?php do_action( 'newspack_woocommerce_resetpassword_form' ); ?>
 
 		<p class="woocommerce-buttons-card">
