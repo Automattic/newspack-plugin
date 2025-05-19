@@ -49,7 +49,7 @@ endif;
 ?>
 
 <section id="account-profile">
-	<h1 class="newspack-ui__font--l"><?php \esc_html_e( 'Profile', 'newspack-plugin' ); ?></h1>
+	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Profile', 'newspack-plugin' ); ?></h1>
 	<form class="woocommerce-EditAccountForm edit-profile" action="" name="edit_account" method="post" <?php \do_action( 'newspack_woocommerce_edit_account_form_tag' ); ?> >
 
 		<?php \do_action( 'newspack_woocommerce_edit_account_form_start' ); ?>
@@ -190,7 +190,7 @@ endif;
 </section>
 
 <section id="account-password">
-	<h1 class="newspack-ui__font--l"><?php \esc_html_e( 'Password', 'newspack-plugin' ); ?></h1>
+	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Password', 'newspack-plugin' ); ?></h1>
 	<form method="post" class="woocommerce-ResetPassword lost_reset_password">
 		<?php if ( ! $without_password ) : ?>
 		<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
@@ -260,21 +260,15 @@ endif;
 	if ( $is_reader ) :
 		?>
 
-	<div class="woocommerce-card woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-		<a href="<?php echo '?' . \esc_attr( $newspack_delete_account_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_delete_account_arg ) ); ?>" class="is-destructive">
-			<span class="woocommerce-card__content">
-				<h4 class="woocommerce-card__title">
-					<?php \esc_html_e( 'Delete Account', 'newspack-plugin' ); ?>
-				</h4>
-				<span class="woocommerce-card__description">
-					<?php \esc_html_e( 'Request account deletion', 'newspack-plugin' ); ?>
-				</span>
-			</span>
+	<h1 class="newspack-ui__font--m is-destructive"><?php \esc_html_e( 'Delete account', 'newspack-plugin' ); ?></h1>
+	<p>
+		<?php \esc_html_e( 'Please note, account deletion is final, and there will be no way to restore your account.', 'newspack-plugin' ); ?>
+	</p>
+	<p class="woocommerce-buttons-card">
+		<a class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_delete_account_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_delete_account_arg ) ); ?>">
+			<?php \esc_html_e( 'Delete Account', 'newspack-plugin' ); ?>
 		</a>
-		<p>
-			<?php \esc_html_e( 'Deleting your account will also cancel any newsletter subscriptions and recurring payments.', 'newspack-plugin' ); ?>
-		</p>
-	</div>
+	</p>
 </section>
 
 <?php endif; ?>

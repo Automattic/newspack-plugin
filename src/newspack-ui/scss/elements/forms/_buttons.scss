@@ -187,6 +187,7 @@
 
 		@media only screen and ( min-width: breakpoints.$tablet_width ) {
 			&--wide-on-mobile {
+				display: inline-flex;
 				width: auto;
 			}
 		}

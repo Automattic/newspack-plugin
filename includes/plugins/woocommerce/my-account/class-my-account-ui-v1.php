@@ -177,7 +177,7 @@ class My_Account_UI_V1 {
 
 		// Check if the current password is correct.
 		$is_without_password = Reader_Activation::is_reader_without_password( $user );
-		$current_password = filter_input( INPUT_POST, 'current_password', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$current_password    = filter_input( INPUT_POST, 'current_password', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( ! $is_without_password && empty( $current_password ) ) {
 			$errors->add( 'missing_current_password', __( 'Please enter your current password.', 'newspack-plugin' ) );
 			return $errors;
