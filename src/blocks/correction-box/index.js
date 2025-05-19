@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
  */
 import metadata from './block.json';
 import Edit from './edit';
-import { corrections as icon } from '../../icons';
+import { corrections as icon } from '../../../packages/icons';
 import colors from '../../shared/scss/_colors.module.scss';
 import './style.scss';
 

@@ -26,7 +26,7 @@ import {
 	overlayInline,
 	overlayCenter,
 	overlayTop,
-} from '../../../../icons';
+} from '../../../../../packages/icons';
 import './style.scss';
 
 const addNewURL = ( placement, campaignId, segmentId ) => {

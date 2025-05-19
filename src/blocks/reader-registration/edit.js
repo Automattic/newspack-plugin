@@ -32,7 +32,7 @@ import { Icon, check } from '@wordpress/icons';
  * Internal dependencies
  */
 import './editor.scss';
-import { emailSend } from '../../icons';
+import { emailSend } from '../../../packages/icons';
 
 const getListCheckboxId = ( listId ) => {
 	return 'newspack-reader-registration-list-checkbox-' + listId;
