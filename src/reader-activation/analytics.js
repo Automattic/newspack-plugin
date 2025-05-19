@@ -92,75 +92,11 @@ const registerActivityEvents = () => {
 };
 
 /**
- * Handle a successful newsletter signup.
- *
- * @param {Object} ras Reader Activation Store.
- */
-const handleNewsletterSignupSuccess = ras => {
-	ras.on( 'activity', function( ev ) {
-		if ( 'newsletter_signup' === ev.detail.action && ev.detail.data?.lists?.length ) {
-			const payload = getEventPayload(
-				{
-					newsletters_subscription_method: ev.detail.data?.newsletters_subscription_method || 'unknown',
-					lists: ev.detail.data.lists,
-				},
-				ev.detail.data
-			);
-			sendEvent( payload, 'np_newsletter_subscribed' );
-		}
-	} );
-}
-
-/**
- * Handle a successful reader registration.
- *
- * @param {Object} ras Reader Activation Store.
- */
-const handleRegistrationSuccess = ras => {
-	ras.on( 'activity', function( ev ) {
-		if (
-			'reader_registered' === ev.detail.action &&
-			! window?.newspackReaderActivation?.getPendingCheckout()
-		) {
-			const payload = getEventPayload(
-				{
-					registration_method: ev.detail.data?.registration_method || 'unknown',
-				},
-				ev.detail.data
-			);
-			sendEvent( payload, 'np_reader_registered' );
-		}
-	} );
-}
-
-/**
- * Handle a successful reader login.
- *
- * @param {Object} ras Reader Activation Store.
- */
-const handleLoginSuccess = ras => {
-	ras.on( 'activity', function( ev ) {
-		if ( 'reader_logged_in' === ev.detail.action ) {
-			const payload = getEventPayload(
-				{
-					login_method: ev.detail.data?.login_method || 'unknown',
-				},
-				ev.detail.data
-			);
-			sendEvent( payload, 'np_reader_logged_in' );
-		}
-	} );
-};
-
-/**
  * Initialize analytics listeners.
  *
  * @param {Object} ras Reader Activation Library.
  */
 export default function init( ras ) {
-	handleNewsletterSignupSuccess( ras );
-	handleRegistrationSuccess( ras );
-	handleLoginSuccess( ras );
 	registerActivityEvents();
 
 	ras.on( 'activity', function ( ev ) {
