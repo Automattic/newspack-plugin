@@ -6,3 +6,4 @@
  * Internal dependencies.
  */
 import './style.scss';
+import './resubscribe';

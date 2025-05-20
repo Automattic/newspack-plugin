@@ -72,6 +72,23 @@ class My_Account_UI_V1 {
 				[],
 				NEWSPACK_PLUGIN_VERSION
 			);
+			\wp_enqueue_script(
+				'my-account-v1',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
+				[],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				'my-account-v1',
+				'newspackMyAccountV1',
+				[
+					'myAccountUrl' => wc_get_account_endpoint_url( 'dashboard' ),
+					'labels'       => [
+						'resubscribe_title' => __( 'Renew subscription', 'newspack-plugin' ),
+					],
+				]
+			);
 		}
 	}
 

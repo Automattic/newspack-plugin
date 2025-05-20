@@ -12,5 +12,9 @@
 			max-width: 782px;
 			padding: 0;
 		}
+		&.is-loading {
+			opacity: 0.5;
+			pointer-events: none;
+		}
 	}
 }
