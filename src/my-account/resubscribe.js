@@ -4,18 +4,6 @@
 
 import { domReady } from '../utils';
 
-/**
- * Start the modal checkout given a resubscribe URL.
- *
- * @param {string} url The resubscribe URL.
- */
-const resubscribeCheckout = async url => {
-	// Fetch the resubscribe URL.
-	await fetch( url );
-	// Open the modal.
-	window.newspackOpenModalCheckout();
-};
-
 domReady( function () {
 	const resubscribeButtons = [
 		...document.querySelectorAll( '.resubscribe' ),
@@ -28,7 +16,13 @@ domReady( function () {
 				return;
 			}
 			try {
-				resubscribeCheckout( url );
+				// Fetch the resubscribe URL to generate the cart.
+				await fetch( url );
+				// Open the modal checkout.
+				window.newspackOpenModalCheckout( 'Renew subscription', {
+					url: '/my-account/subscriptions',
+				} );
+				// Prevent the default action if the above succeeds.
 				e.preventDefault();
 			} catch ( error ) {
 				console.error( error ); // eslint-disable-line no-console
