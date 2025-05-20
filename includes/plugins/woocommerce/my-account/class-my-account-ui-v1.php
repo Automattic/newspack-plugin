@@ -11,6 +11,11 @@ use Newspack\Reader_Activation;
 
 defined( 'ABSPATH' ) || exit;
 
+use Newspack\WooCommerce_Connection;
+use Newspack\WooCommerce_My_Account;
+use Newspack\Newspack_UI;
+use Newspack\Newspack_UI_Icons;
+
 /**
  * Newspack "My Account" customizations v1.x.x.
  */
@@ -29,6 +34,9 @@ class My_Account_UI_V1 {
 		\add_action( 'wp_loaded', [ __CLASS__, 'maybe_generate_password_reset_key' ] );
 		\add_filter( 'validate_password_reset', [ __CLASS__, 'validate_password_reset' ], 10, 2 );
 		\add_action( 'wp_loaded', [ __CLASS__, 'maybe_password_reset_success' ] );
+		\add_action( 'newspack_woocommerce_after_edit_account_form', [ __CLASS__, 'delete_account_modal' ] );
+		\add_action( 'newspack_after_delete_account', [ __CLASS__, 'handle_after_delete_account' ] );
+		\add_action( 'wp_footer', [ __CLASS__, 'add_after_delete_account_notice' ] );
 		\add_action( 'woocommerce_subscription_details_table', [ __CLASS__, 'cancel_subscription_modal' ] );
 	}
 
@@ -98,15 +106,7 @@ class My_Account_UI_V1 {
 	 */
 	public static function wc_get_template( $template, $template_name ) {
 		switch ( $template_name ) {
-			case 'myaccount/form-login.php':
-				if ( isset( $_GET[ WooCommerce_My_Account::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return __DIR__ . '/templates/myaccount-after-delete-account.php';
-				}
-				return $template;
 			case 'myaccount/form-edit-account.php':
-				if ( isset( $_GET[ WooCommerce_My_Account::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return __DIR__ . '/templates/myaccount-delete-account.php';
-				}
 				return __DIR__ . '/templates/v1/myaccount-account-settings.php';
 			default:
 				return $template;
@@ -201,80 +201,205 @@ class My_Account_UI_V1 {
 	}
 
 	/**
-	 * Generate markup for a Newspack UI modal.
-	 *
-	 * @param array $args {
-	 *     Arguments for building the modal.
-	 *     @type string $id The modal ID.
-	 *     @type string $title The modal title.
-	 *     @type string $content The modal content HTML.
-	 *     @type string $footer The modal footer HTML.
-	 *     @type array $actions {
-	 *         @type string $label The button label.
-	 *         @type string $type The button type.
-	 *         @type string $action The action to perform when the button is clicked.
-	 *         @type string $url The URL to navigate to when the button is clicked.
-	 *     }
-	 * }
+	 * Display a series of modals to request account deletion.
 	 */
-	public static function generate_modal( $args ) {
-		$args = wp_parse_args(
-			$args,
+	public static function delete_account_modal() {
+		// Only if the user is logged in and a reader.
+		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			return;
+		}
+
+		// If the user has clicked the button from the delete account email, show the confirmation modal.
+		$delete_account_form = filter_input( INPUT_GET, WooCommerce_My_Account::DELETE_ACCOUNT_FORM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! empty( $delete_account_form ) ) {
+			return self::delete_account_confirmation_modal();
+		}
+
+		ob_start();
+		?>
+		<h2 class="font-size newspack-ui__font--l">
+			<?php esc_html_e( 'Are you sure?', 'newspack-plugin' ); ?>
+		</h2>
+		<p>
+			<?php
+			esc_html_e( 'Deleting your account is permanent and cannot be undone. All your data will be removed from our systems. Your newsletter subscriptions and all recurring payments will be cancelled.', 'newspack-plugin' );
+			?>
+		</p>
+		<p>
+			<?php
+			esc_html_e( 'Instead of deleting your account, you may want to:', 'newspack-plugin' );
+			?>
+		</p>
+		<div class="newspack-ui__row">
+			<div>
+				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Subscriptions', 'newspack-plugin' ); ?></p>
+				<p class="newspack-ui__helper-text"><?php esc_html_e( 'Review and cancel active subscriptions.', 'newspack-plugin' ); ?></p>
+			</div>
+			<div class="newspack-ui__width--33">
+				<a class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide" href="<?php echo esc_url( \wc_get_endpoint_url( 'subscriptions', '', \wc_get_page_permalink( 'myaccount' ) ) ); ?>">
+					<?php esc_html_e( 'Manage subscriptions', 'newspack-plugin' ); ?>
+				</a>
+			</div>
+		</div>
+		<div class="newspack-ui__row">
+			<div>
+				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Newsletters', 'newspack-plugin' ); ?></p>
+				<p class="newspack-ui__helper-text"><?php esc_html_e( 'Update your newsletter preferences.', 'newspack-plugin' ); ?></p>
+			</div>
+			<div class="newspack-ui__width--33">
+				<a class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide" href="<?php echo esc_url( \wc_get_endpoint_url( 'newsletters', '', \wc_get_page_permalink( 'myaccount' ) ) ); ?>">
+					<?php esc_html_e( 'Manage newsletters', 'newspack-plugin' ); ?>
+				</a>
+			</div>
+		</div>
+		<?php
+		$content_send_email = ob_get_clean();
+
+		// Modal to send the delete account email.
+		Newspack_UI::generate_modal(
 			[
-				'id'   => 'modal-' . wp_rand( 1, 1000 ),
-				'size' => 'small',
+				'id'      => 'delete-account',
+				'title'   => __( 'Delete account', 'newspack-plugin' ),
+				'content' => $content_send_email,
+				'size'    => 'medium',
+				'actions' => [
+					'confirm' => [
+						'label' => __( 'Delete account', 'newspack-plugin' ),
+						'type'  => 'destructive',
+						'fetch' => [
+							'url'    => \rest_url( 'newspack/v1/delete-account' ),
+							'method' => 'POST',
+							'next'   => 'delete-account-email-sent',
+							'nonce'  => \wp_create_nonce( 'wp_rest' ),
+							'body'   => [
+								'user_id' => \wp_get_current_user()->ID,
+							],
+						],
+					],
+					'cancel'  => [
+						'label'  => __( 'Cancel', 'newspack-plugin' ),
+						'type'   => 'ghost',
+						'action' => 'close',
+					],
+				],
 			]
 		);
-		?>
-		<div id="newspack-my-account__<?php echo esc_attr( $args['id'] ); ?>" class="newspack-ui__modal-container" data-state="closed">
-			<div class="newspack-ui__modal-container__overlay"></div>
-			<div class="newspack-ui__modal newspack-ui__modal--<?php echo esc_attr( $args['size'] ); ?>">
-				<header class="newspack-ui__modal__header">
-					<?php if ( ! empty( $args['title'] ) ) : ?>
-						<h2 class="newspack-ui__font--l"><?php echo wp_kses_post( $args['title'] ); ?></h2>
-					<?php endif; ?>
-					<button class="newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost newspack-ui__modal__close">
-						<span class="screen-reader-text"><?php esc_html_e( 'Close', 'newspack-plugin' ); ?></span>
-						<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
-					</button>
-				</header>
 
-				<section class="newspack-ui__modal__content">
-					<?php echo wp_kses_post( $args['content'] ); ?>
-					<?php
-					if ( ! empty( $args['actions'] ) ) :
-						foreach ( $args['actions'] as $action ) :
-							$classes = [
-								'newspack-ui__button',
-								'newspack-ui__button--wide',
-								'newspack-ui__button--' . ( $action['type'] ?? 'secondary' ),
-							];
-							if ( ! empty( $action['action'] ) ) {
-								$classes[] = 'newspack-ui__modal__' . $action['action'];
-							}
-							?>
-							<?php if ( isset( $action['url'] ) ) : ?>
-								<a href="<?php echo esc_url( $action['url'] ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
-									<?php echo wp_kses_post( $action['label'] ); ?>
-								</a>
-							<?php else : ?>
-								<button class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
-									<?php echo wp_kses_post( $action['label'] ); ?>
-								</button>
-								<?php
-							endif;
-						endforeach;
-						endif;
-					?>
-				</section>
-				<?php if ( ! empty( $args['footer'] ) ) : ?>
-				<footer class="newspack-ui__modal__footer">
-					<?php echo wp_kses_post( $args['footer'] ); ?>
-				</footer>
-				<?php endif; ?>
-			</div><!-- .newspack-ui__modal__small -->
-		</div> <!-- .newspack-ui__modal-container -->
+		ob_start();
+		?>
+		<div class="newspack-ui__box newspack-ui__box--text-center">
+			<span class="newspack-ui__icon newspack-ui__icon--neutral">
+				<?php Newspack_UI_Icons::print_svg( 'email' ); ?>
+			</span>
+			<p>
+				<strong><?php esc_html_e( 'Your account deletion has been requested.', 'newspack-plugin' ); ?></strong>
+			</p>
+			<p><?php esc_html_e( 'We just sent instructions on how to delete your account to', 'newspack-plugin' ); ?> <strong><?php echo esc_html( \wp_get_current_user()->user_email ); ?></strong>.</p>
+		</div>
 		<?php
+		$content_email_sent = ob_get_clean();
+
+		// Modal to confirm that the email was sent.
+		Newspack_UI::generate_modal(
+			[
+				'id'      => 'delete-account-email-sent',
+				'title'   => __( 'Delete account', 'newspack-plugin' ),
+				'content' => $content_email_sent,
+				'size'    => 'small',
+				'actions' => [
+					'continue' => [
+						'label'  => __( 'Continue', 'newspack-plugin' ),
+						'type'   => 'primary',
+						'action' => 'close',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Display a confirmation modal to confirm account deletion.
+	 */
+	public static function delete_account_confirmation_modal() {
+		$delete_account_form = WooCommerce_My_Account::DELETE_ACCOUNT_FORM;
+		$nonce_value         = filter_input( INPUT_GET, $delete_account_form, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$token               = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$transient_token     = \get_transient( 'np_reader_account_delete_' . \get_current_user_id() );
+		if ( ! \wp_verify_nonce( $nonce_value, $delete_account_form ) ) {
+			WooCommerce_Connection::add_wc_notice( __( 'Invalid nonce.', 'newspack-plugin' ), 'error' );
+			return;
+		}
+		if ( ! $token || ! $transient_token || $transient_token !== $token ) {
+			WooCommerce_Connection::add_wc_notice( __( 'Invalid token.', 'newspack-plugin' ), 'error' );
+			return;
+		}
+		ob_start();
+		?>
+		<h2 class="font-size newspack-ui__font--l">
+			<?php esc_html_e( 'Are you sure?', 'newspack-plugin' ); ?>
+		</h2>
+		<p>
+			<?php esc_html_e( 'Confirm to delete your account permanently.', 'newspack-plugin' ); ?>&nbsp;
+			<strong><?php esc_html_e( 'Caution, this action is irreversible!', 'newspack-plugin' ); ?></strong>
+		</p>
+		<input type="hidden" name="<?php echo \esc_attr( $delete_account_form ); ?>" value="<?php echo \esc_attr( $nonce_value ); ?>">
+		<input type="hidden" name="token" value="<?php echo \esc_attr( $token ); ?>">
+		<input type="hidden" name="confirm_delete" value="1" />
+		<?php
+		$content_email_sent = ob_get_clean();
+
+		// Modal to confirm that the email was sent.
+		Newspack_UI::generate_modal(
+			[
+				'id'      => 'delete-account',
+				'title'   => __( 'Delete account', 'newspack-plugin' ),
+				'content' => $content_email_sent,
+				'size'    => 'small',
+				'form'    => 'POST',
+				'state'   => 'open',
+				'actions' => [
+					'continue' => [
+						'label' => __( 'Delete account', 'newspack-plugin' ),
+						'type'  => 'destructive',
+					],
+					'cancel'   => [
+						'label'  => __( 'Cancel', 'newspack-plugin' ),
+						'type'   => 'ghost',
+						'action' => 'close',
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Handle after delete account.
+	 */
+	public static function handle_after_delete_account() {
+		\wp_safe_redirect(
+			\add_query_arg(
+				WooCommerce_My_Account::AFTER_ACCOUNT_DELETION_PARAM,
+				1,
+				\home_url()
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Show a notice after the account is deleted.
+	 */
+	public static function add_after_delete_account_notice() {
+		$account_deleted = filter_input( INPUT_GET, WooCommerce_My_Account::AFTER_ACCOUNT_DELETION_PARAM, FILTER_VALIDATE_BOOLEAN );
+		if ( $account_deleted ) {
+			?>
+			<div class="newspack-ui">
+				<div class="newspack-ui__snackbar newspack-ui__snackbar--top-right newspack-ui__snackbar--success active-on-load">
+					<?php esc_html_e( 'Your account has been successfully deleted.', 'newspack-plugin' ); ?>
+				</div>
+			</div>
+			<?php
+		}
 	}
 
 	/**
@@ -284,6 +409,11 @@ class My_Account_UI_V1 {
 	 * @param WC_Subscription $subscription The subscription.
 	 */
 	public static function cancel_subscription_modal( $subscription ) {
+		// Only if the user is logged in and a reader.
+		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			return;
+		}
+
 		if ( ! $subscription || ! is_a( $subscription, 'WC_Subscription' ) ) {
 			return;
 		}
@@ -318,7 +448,7 @@ class My_Account_UI_V1 {
 			</p>
 			<?php
 			$content = ob_get_clean();
-			self::generate_modal(
+			Newspack_UI::generate_modal(
 				[
 					'id'      => 'confirm-subscription-cancellation',
 					'title'   => __( 'Cancel subscription', 'newspack-plugin' ),

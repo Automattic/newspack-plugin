@@ -265,7 +265,7 @@ endif;
 		<?php \esc_html_e( 'Please note, account deletion is final, and there will be no way to restore your account.', 'newspack-plugin' ); ?>
 	</p>
 	<p class="woocommerce-buttons-card">
-		<a class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_delete_account_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_delete_account_arg ) ); ?>">
+		<a class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_delete_account_arg ) . '=' . \esc_attr( WooCommerce_My_Account::get_delete_account_nonce() ); ?>">
 			<?php \esc_html_e( 'Delete Account', 'newspack-plugin' ); ?>
 		</a>
 	</p>

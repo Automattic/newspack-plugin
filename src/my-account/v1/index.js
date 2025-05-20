@@ -6,5 +6,6 @@
  * Internal dependencies.
  */
 import './modals';
+import './account-settings';
 import './subscriptions';
 import './style.scss';
