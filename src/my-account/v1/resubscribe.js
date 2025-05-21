@@ -58,9 +58,7 @@ const handleCheckoutSuccess = ev => {
 };
 
 domReady( function () {
-	const buttons = [
-		...document.querySelectorAll( '.resubscribe' ),
-	];
+	const buttons = [ ...document.querySelectorAll( '.resubscribe' ) ];
 
 	const myAccountContent = document.querySelector(
 		'.woocommerce-MyAccount-content'

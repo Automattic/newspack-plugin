@@ -68,7 +68,7 @@ domReady( function () {
 
 	buttons.forEach( button => {
 		button.addEventListener( 'click', ev => {
-      myAccountContent.classList.add( 'is-loading' );
+			myAccountContent.classList.add( 'is-loading' );
 
 			const url = button.getAttribute( 'href' );
 			if ( ! url ) {
