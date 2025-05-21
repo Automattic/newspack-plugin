@@ -1,9 +1,14 @@
 /* global newspackMyAccountV1 */
 let modalCheckoutRedirectUrl = null;
 
+/**
+ * Handle the checkout complete event.
+ *
+ * @param {Object} data The order details object.
+ */
 function handleCheckoutComplete( data ) {
 	const { subscription_ids, order_id } = data;
-	if ( subscription_ids && subscription_ids.length ) {
+	if ( subscription_ids?.length ) {
 		modalCheckoutRedirectUrl = `${ newspackMyAccountV1.myAccountUrl }/view-subscription/${ subscription_ids[ 0 ] }`;
 	} else if ( order_id ) {
 		modalCheckoutRedirectUrl = `${ newspackMyAccountV1.myAccountUrl }/view-order/${ order_id }`;
