@@ -191,7 +191,7 @@ endif;
 
 <section id="account-password">
 	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Password', 'newspack-plugin' ); ?></h1>
-	<?php if ( $without_password ) : ?>
+	<?php if ( $without_password || ! empty( filter_input( INPUT_GET, My_Account_UI_V1::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) ) : ?>
 	<p>
 		<?php \esc_html_e( 'Create a password to secure your account.', 'newspack-plugin' ); ?>
 	</p>

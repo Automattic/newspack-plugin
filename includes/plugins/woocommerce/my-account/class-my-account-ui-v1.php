@@ -174,14 +174,33 @@ class My_Account_UI_V1 {
 	}
 
 	/**
+	 * Check if the user has a valid password reset key.
+	 *
+	 * @return bool True if the user has a valid password reset key, false otherwise.
+	 */
+	public static function check_password_reset_key() {
+		if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) && 0 < strpos( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ], ':' ) ) {  // @codingStandardsIgnoreLine
+			list( $rp_id, $rp_key ) = array_map( 'wc_clean', explode( ':', \wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ), 2 ) ); // @codingStandardsIgnoreLine
+			$userdata               = \get_userdata( absint( $rp_id ) );
+			$rp_login               = $userdata ? $userdata->user_login : '';
+			$user                   = \WC_Shortcode_My_Account::check_password_reset_key( $rp_key, $rp_login );
+
+			if ( is_a( $user, 'WP_User' ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Redirect the user to the Account Settings page to reset their password via a custom modal.
 	 */
 	public static function redirect_reset_password_link() {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() && \is_user_logged_in() && filter_input( INPUT_GET, 'show-reset-form', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() && \is_user_logged_in() && filter_input( INPUT_GET, 'show-reset-form', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) && self::check_password_reset_key() ) {
 			\wp_safe_redirect(
 				\add_query_arg(
 					self::RESET_PASSWORD_URL_PARAM,
-					'1',
+					\wp_create_nonce( 'newspack_my_account_reset_password' ),
 					\wc_get_account_endpoint_url( 'edit-account' )
 				)
 			);
@@ -206,12 +225,11 @@ class My_Account_UI_V1 {
 		// Only if updating password from Account Settings page.
 		$action = filter_input( INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( self::RESET_PASSWORD_ACTION !== $action ) {
-			$_POST['errors'] = $errors;
 			return $errors;
 		}
 
 		// If resetting via the email-based flow, skip the password check.
-		$reset_password = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_VALIDATE_BOOLEAN );
+		$reset_password = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		if ( $reset_password ) {
 			return $errors;
 		}
@@ -251,8 +269,8 @@ class My_Account_UI_V1 {
 		}
 
 		// If the user has clicked the button from the reset password email, show the modal.
-		$reset_password = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_VALIDATE_BOOLEAN );
-		if ( ! $reset_password ) {
+		$reset_password = filter_input( INPUT_GET, self::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! $reset_password || ! \wp_verify_nonce( $reset_password, 'newspack_my_account_reset_password' ) ) {
 			return;
 		}
 
