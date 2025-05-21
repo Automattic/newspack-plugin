@@ -34,7 +34,7 @@ class My_Account_UI_V1 {
 	 */
 	public static function page_template( $template ) {
 		if ( function_exists( 'is_account_page' ) && \is_account_page() && \is_user_logged_in() ) {
-			return __DIR__ . '/templates/v1/myaccount.php';
+			return __DIR__ . '/templates/v1/my-account.php';
 		}
 		return $template;
 	}
@@ -93,16 +93,16 @@ class My_Account_UI_V1 {
 		switch ( $template_name ) {
 			case 'myaccount/form-login.php':
 				if ( isset( $_GET[ WooCommerce_My_Account::AFTER_ACCOUNT_DELETION_PARAM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return __DIR__ . '/templates/myaccount-after-delete-account.php';
+					return __DIR__ . '/templates/after-delete-account.php';
 				}
 				return $template;
 			case 'myaccount/form-edit-account.php':
 				if ( isset( $_GET[ WooCommerce_My_Account::DELETE_ACCOUNT_FORM ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					return __DIR__ . '/templates/myaccount-delete-account.php';
+					return __DIR__ . '/templates/delete-account.php';
 				}
-				return __DIR__ . '/templates/myaccount-edit-account.php';
+				return __DIR__ . '/templates/edit-account.php';
 			case 'myaccount/navigation.php':
-				return __DIR__ . '/templates/v1/myaccount-navigation.php';
+				return __DIR__ . '/templates/v1/navigation.php';
 			default:
 				return $template;
 		}
