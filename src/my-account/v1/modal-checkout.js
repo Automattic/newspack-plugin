@@ -9,6 +9,8 @@
 import { domReady } from '../../utils';
 import { registerModalCheckoutButton } from './utils';
 
+window.newspackRAS = window.newspackRAS || [];
+
 domReady( () => {
 	/**
 	 * Resubscribe.
@@ -34,7 +36,9 @@ domReady( () => {
 	/**
 	 * Renewal early.
 	 */
-	const renewalEarly = document.querySelectorAll( '.subscription_renewal_early' );
+	const renewalEarly = document.querySelectorAll(
+		'.subscription_renewal_early'
+	);
 	renewalEarly.forEach( button => {
 		registerModalCheckoutButton(
 			button,
