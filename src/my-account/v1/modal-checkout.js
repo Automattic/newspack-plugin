@@ -44,7 +44,7 @@ domReady( () => {
 				// Track the renewal early.
 				window.newspackRAS.push( [
 					'renewal_early',
-					{ subscription_id: data.subscription_ids?.[ 0 ] },
+					{ subscription_id: data.subscription_renewal },
 				] );
 			}
 		);

@@ -7,9 +7,11 @@ let modalCheckoutRedirectUrl = null;
  * @param {Object} data The order details object.
  */
 function handleCheckoutComplete( data ) {
-	const { subscription_ids, order_id } = data;
+	const { subscription_renewal, subscription_ids, order_id } = data;
 	if ( subscription_ids?.length ) {
 		modalCheckoutRedirectUrl = `${ newspackMyAccountV1.myAccountUrl }/view-subscription/${ subscription_ids[ 0 ] }`;
+	} else if ( subscription_renewal ) {
+		modalCheckoutRedirectUrl = `${ newspackMyAccountV1.myAccountUrl }/view-subscription/${ subscription_renewal }`;
 	} else if ( order_id ) {
 		modalCheckoutRedirectUrl = `${ newspackMyAccountV1.myAccountUrl }/view-order/${ order_id }`;
 	}
