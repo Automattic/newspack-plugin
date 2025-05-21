@@ -815,7 +815,7 @@ class WooCommerce_My_Account {
 			\add_action(
 				'woocommerce_account_content',
 				function() {
-					include __DIR__ . '/templates/myaccount-verify.php';
+					include __DIR__ . '/templates/verify.php';
 				}
 			);
 		}
