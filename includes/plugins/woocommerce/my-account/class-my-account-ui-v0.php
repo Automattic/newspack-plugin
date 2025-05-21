@@ -36,7 +36,7 @@ class My_Account_UI_V0 {
 			\wp_enqueue_style(
 				'my-account-v0',
 				\Newspack\Newspack::plugin_url() . '/dist/my-account-v0.css',
-				[ 'my-account' ],
+				[],
 				NEWSPACK_PLUGIN_VERSION
 			);
 		}
