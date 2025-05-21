@@ -191,8 +191,15 @@ endif;
 
 <section id="account-password">
 	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Password', 'newspack-plugin' ); ?></h1>
+	<?php if ( $without_password ) : ?>
+	<p>
+		<?php \esc_html_e( 'Create a password to secure your account.', 'newspack-plugin' ); ?>
+	</p>
+	<a class="woocommerce-Button button primary newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
+		<?php \esc_html_e( 'Create a password', 'newspack-plugin' ); ?>
+	</a>
+	<?php else : ?>
 	<form method="post" class="woocommerce-ResetPassword lost_reset_password">
-		<?php if ( ! $without_password ) : ?>
 		<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 			<label for="current_password"><?php esc_html_e( 'Current password', 'newspack-plugin' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'newspack-plugin' ); ?></span></label>
 			<input
@@ -204,8 +211,6 @@ endif;
 				aria-required="true"
 			/>
 		</p>
-		<?php endif; ?>
-
 		<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
 			<label for="password_1"><?php esc_html_e( 'New password', 'newspack-plugin' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'newspack-plugin' ); ?></span></label>
 			<input
@@ -243,16 +248,15 @@ endif;
 			>
 				<?php echo esc_html( $without_password ? __( 'Set password', 'newspack-plugin' ) : __( 'Update password', 'newspack-plugin' ) ); ?>
 			</button>
-			<?php if ( ! $without_password ) : ?>
-				<a class="woocommerce-Button button ghost newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
-					<?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?>
-				</a>
-			<?php endif; ?>
+			<a class="woocommerce-Button button ghost newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
+				<?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?>
+			</a>
 		</p>
 
 		<?php wp_nonce_field( 'reset_password', 'woocommerce-reset-password-nonce' ); ?>
 
 	</form>
+	<?php endif; ?>
 </section>
 
 <section id="delete-account">
