@@ -20,8 +20,6 @@ class My_Account_UI_V1 {
 	 */
 	public static function init() {
 		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
-		\add_filter( 'newspack_ads_should_show_ads', [ __CLASS__, 'suppress_ads' ] ); // Suppress ads on My Account pages.
-		\add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'suppress_popups' ] ); // Suppress popups on My Account pages.
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
@@ -39,32 +37,6 @@ class My_Account_UI_V1 {
 			return __DIR__ . '/templates/v1/myaccount.php';
 		}
 		return $template;
-	}
-
-	/**
-	 * Suppress ads on My Account pages.
-	 *
-	 * @param bool $should_show_ads Whether ads should be shown.
-	 * @return bool Whether ads should be shown.
-	 */
-	public static function suppress_ads( $should_show_ads ) {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
-			return false;
-		}
-		return $should_show_ads;
-	}
-
-	/**
-	 * Suppress Newspack Campaigns prompts on My Account pages.
-	 *
-	 * @param bool $should_suppress True if prompts should be suppressed, false otherwise.
-	 * @return bool Whether prompts should be suppressed.
-	 */
-	public static function suppress_popups( $should_suppress ) {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
-			return true;
-		}
-		return $should_suppress;
 	}
 
 	/**

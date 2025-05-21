@@ -42,6 +42,8 @@ class WooCommerce_My_Account {
 	 */
 	public static function init() {
 		\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
+		\add_filter( 'newspack_ads_should_show_ads', [ __CLASS__, 'suppress_ads' ] ); // Suppress ads on My Account pages.
+		\add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'suppress_popups' ] ); // Suppress popups on My Account pages.
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		\add_filter( 'woocommerce_default_address_fields', [ __CLASS__, 'required_address_fields' ] );
 		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'required_address_fields' ] );
@@ -107,6 +109,32 @@ class WooCommerce_My_Account {
 				'permission_callback' => '__return_true',
 			]
 		);
+	}
+
+	/**
+	 * Suppress ads on My Account pages.
+	 *
+	 * @param bool $should_show_ads Whether ads should be shown.
+	 * @return bool Whether ads should be shown.
+	 */
+	public static function suppress_ads( $should_show_ads ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return false;
+		}
+		return $should_show_ads;
+	}
+
+	/**
+	 * Suppress Newspack Campaigns prompts on My Account pages.
+	 *
+	 * @param bool $should_suppress True if prompts should be suppressed, false otherwise.
+	 * @return bool Whether prompts should be suppressed.
+	 */
+	public static function suppress_popups( $should_suppress ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return true;
+		}
+		return $should_suppress;
 	}
 
 	/**
