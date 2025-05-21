@@ -18,30 +18,13 @@ window.newspackRAS = window.newspackRAS || [];
 let redirectUrl = null;
 
 /**
- * Start the modal checkout given the cart generation URL.
+ * Handle the checkout complete event.
  *
- * @param {string} url The cart generation URL.
- */
-const startCheckout = async url => {
-	await fetch( url );
-	window.newspackOpenModalCheckout(
-		newspackMyAccountV1.labels.resubscribe_title,
-		'resubscribe'
-	);
-};
-
-/**
- * Set the redirect URL to the subscription page on checkout success.
- *
- * @param {Object} ev The activity event data.
+ * @param {Object} data The checkout complete data.
  *
  * @return {void}
  */
-const handleCheckoutSuccess = ev => {
-	const { action, data } = ev.detail;
-	if ( action !== 'checkout_completed' ) {
-		return;
-	}
+const handleCheckoutComplete = data => {
 	const { subscription_ids } = data;
 	if ( ! subscription_ids || ! subscription_ids.length ) {
 		return;
@@ -57,6 +40,40 @@ const handleCheckoutSuccess = ev => {
 	] );
 };
 
+/**
+ * Handle the checkout close event.
+ */
+const handleCheckoutClose = () => {
+	if ( redirectUrl ) {
+		window.location.href = redirectUrl;
+		redirectUrl = null;
+	} else {
+		/**
+		 * Reload to restore the page state.
+		 * This is behind a timeout because when running in the ESC
+		 * keydown thread the reload doesn't work.
+		 */
+		setTimeout( () => {
+			window.location.reload();
+		}, 100 );
+	}
+};
+
+/**
+ * Start the modal checkout given the cart generation URL.
+ *
+ * @param {string} url The cart generation URL.
+ */
+const openCheckout = async url => {
+	await fetch( url );
+	window.newspackOpenModalCheckout( {
+		title: newspackMyAccountV1.labels.resubscribe_title,
+		action_type: 'resubscribe',
+		onCheckoutComplete: handleCheckoutComplete,
+		onClose: handleCheckoutClose,
+	} );
+};
+
 domReady( function () {
 	const buttons = [ ...document.querySelectorAll( '.resubscribe' ) ];
 
@@ -67,33 +84,13 @@ domReady( function () {
 	buttons.forEach( button => {
 		button.addEventListener( 'click', ev => {
 			myAccountContent.classList.add( 'is-loading' );
-
 			const url = button.getAttribute( 'href' );
 			if ( ! url ) {
 				return;
 			}
 			try {
-				startCheckout( url );
+				openCheckout( url );
 				ev.preventDefault();
-				window.newspackRAS.push( ras => {
-					ras.on( 'activity', handleCheckoutSuccess );
-					document.addEventListener( 'checkout-closed', () => {
-						ras.off( 'activity', handleCheckoutSuccess );
-						if ( redirectUrl ) {
-							window.location.href = redirectUrl;
-							redirectUrl = null;
-						} else {
-							/**
-							 * Reload to restore the page state.
-							 * This is behind a timeout because when running in the ESC
-							 * keydown thread the reload doesn't work.
-							 */
-							setTimeout( () => {
-								window.location.reload();
-							}, 100 );
-						}
-					} );
-				} );
 			} catch ( error ) {
 				console.error( error ); // eslint-disable-line no-console
 			}
