@@ -8,13 +8,12 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
-
-defined( 'ABSPATH' ) || exit;
-
 use Newspack\WooCommerce_Connection;
 use Newspack\WooCommerce_My_Account;
 use Newspack\Newspack_UI;
 use Newspack\Newspack_UI_Icons;
+
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Newspack "My Account" customizations v1.x.x.
