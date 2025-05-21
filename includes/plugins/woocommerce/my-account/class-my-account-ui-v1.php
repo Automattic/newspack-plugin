@@ -183,7 +183,7 @@ class My_Account_UI_V1 {
 			list( $rp_id, $rp_key ) = array_map( 'wc_clean', explode( ':', \wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ), 2 ) ); // @codingStandardsIgnoreLine
 			$userdata               = \get_userdata( absint( $rp_id ) );
 			$rp_login               = $userdata ? $userdata->user_login : '';
-			$user                   = \WC_Shortcode_My_Account::check_password_reset_key( $rp_key, $rp_login );
+			$user                   = \check_password_reset_key( $rp_key, $rp_login );
 
 			if ( is_a( $user, 'WP_User' ) ) {
 				return true;
