@@ -70,8 +70,14 @@ domReady( function () {
 							window.location.href = redirectUrl;
 							redirectUrl = null;
 						} else {
-							// Reload to restore the page state.
-							window.location.reload();
+							/**
+							 * Reload to restore the page state.
+							 * This is behind a timeout because when running in the ESC
+							 * keydown thread the reload doesn't work.
+							 */
+							setTimeout( () => {
+								window.location.reload();
+							}, 100 );
 						}
 					} );
 				} );
