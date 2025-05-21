@@ -58,7 +58,7 @@ const handleCheckoutSuccess = ev => {
 };
 
 domReady( function () {
-	const resubscribeButtons = [
+	const buttons = [
 		...document.querySelectorAll( '.resubscribe' ),
 	];
 
@@ -66,8 +66,10 @@ domReady( function () {
 		'.woocommerce-MyAccount-content'
 	);
 
-	resubscribeButtons.forEach( button => {
+	buttons.forEach( button => {
 		button.addEventListener( 'click', ev => {
+			myAccountContent.classList.add( 'is-loading' );
+
 			const url = button.getAttribute( 'href' );
 			if ( ! url ) {
 				return;
@@ -78,8 +80,6 @@ domReady( function () {
 				window.newspackRAS.push( ras => {
 					ras.on( 'activity', handleCheckoutSuccess );
 					document.addEventListener( 'checkout-closed', () => {
-						myAccountContent.classList.add( 'is-loading' );
-
 						ras.off( 'activity', handleCheckoutSuccess );
 						if ( redirectUrl ) {
 							window.location.href = redirectUrl;
