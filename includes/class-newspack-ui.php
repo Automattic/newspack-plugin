@@ -117,7 +117,7 @@ class Newspack_UI {
 				</header>
 
 				<?php if ( ! empty( $args['form'] ) ) : ?>
-				<form class="newspack-ui__modal__content" method="<?php echo esc_attr( $args['form'] ); ?>">
+				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>">
 				<?php else : ?>
 				<section class="newspack-ui__modal__content">
 				<?php endif; ?>
@@ -126,7 +126,19 @@ class Newspack_UI {
 							$args['content'],
 							array_merge(
 								\wp_kses_allowed_html( 'post' ),
-								Newspack_UI_Icons::sanitize_svgs()
+								Newspack_UI_Icons::sanitize_svgs(),
+								[
+									'input' => [
+										'type'          => true,
+										'name'          => true,
+										'id'            => true,
+										'placeholder'   => true,
+										'required'      => true,
+										'aria-required' => true,
+										'class'         => true,
+										'value'         => true,
+									],
+								]
 							)
 						);
 						?>
@@ -148,7 +160,7 @@ class Newspack_UI {
 									<?php echo wp_kses_post( $action['label'] ); ?>
 								</a>
 							<?php else : ?>
-								<button class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" <?php echo esc_attr( $fetch_data ); ?>>
+								<button type="submit" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" <?php echo esc_attr( $fetch_data ); ?>>
 									<?php echo wp_kses_post( $action['label'] ); ?>
 								</button>
 								<?php

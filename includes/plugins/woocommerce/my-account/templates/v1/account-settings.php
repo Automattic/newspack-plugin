@@ -195,7 +195,7 @@ endif;
 	<p>
 		<?php \esc_html_e( 'Create a password to secure your account.', 'newspack-plugin' ); ?>
 	</p>
-	<a class="woocommerce-Button button primary newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
+	<a id="newspack-my-account__reset-password" class="woocommerce-Button button primary newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
 		<?php \esc_html_e( 'Create a password', 'newspack-plugin' ); ?>
 	</a>
 	<?php else : ?>
@@ -248,7 +248,7 @@ endif;
 			>
 				<?php echo esc_html( $without_password ? __( 'Set password', 'newspack-plugin' ) : __( 'Update password', 'newspack-plugin' ) ); ?>
 			</button>
-			<a class="woocommerce-Button button ghost newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
+			<a id="newspack-my-account__reset-password" class="woocommerce-Button button ghost newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
 				<?php \esc_html_e( 'Forgot password', 'newspack-plugin' ); ?>
 			</a>
 		</p>
