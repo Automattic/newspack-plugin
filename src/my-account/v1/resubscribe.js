@@ -5,6 +5,8 @@
 
 import { domReady } from '../../utils';
 
+window.newspackRAS = window.newspackRAS || [];
+
 /**
  * The redirect URL on checkout success.
  *
@@ -22,7 +24,10 @@ let redirectUrl = null;
  */
 const startCheckout = async url => {
 	await fetch( url );
-	window.newspackOpenModalCheckout( newspackMyAccountV1.labels.resubscribe_title, 'resubscribe' );
+	window.newspackOpenModalCheckout(
+		newspackMyAccountV1.labels.resubscribe_title,
+		'resubscribe'
+	);
 };
 
 /**
@@ -42,6 +47,14 @@ const handleCheckoutSuccess = ev => {
 		return;
 	}
 	redirectUrl = `${ newspackMyAccountV1.myAccountUrl }/view-subscription/${ subscription_ids[ 0 ] }`;
+
+	// Track the subscription reactivation.
+	window.newspackRAS.push( [
+		'subscription_reactivated',
+		{
+			subscription_id: subscription_ids[ 0 ],
+		},
+	] );
 };
 
 domReady( function () {
@@ -49,7 +62,9 @@ domReady( function () {
 		...document.querySelectorAll( '.resubscribe' ),
 	];
 
-	const myAccountContent = document.querySelector( '.woocommerce-MyAccount-content' );
+	const myAccountContent = document.querySelector(
+		'.woocommerce-MyAccount-content'
+	);
 
 	resubscribeButtons.forEach( button => {
 		button.addEventListener( 'click', ev => {
