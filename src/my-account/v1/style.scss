@@ -30,10 +30,6 @@
 		.woocommerce-MyAccount-navigation,
 		.woocommerce-MyAccount-content {
 			float: none;
-			@media ( min-width: 768px ) {
-				padding-bottom: var(--newspack-ui-spacer-9);
-				padding-top: var(--newspack-ui-spacer-9);
-			}
 		}
 	}
 }
