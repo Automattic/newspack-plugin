@@ -303,10 +303,13 @@ window.newspackRAS.push( function ( readerActivation ) {
 						if ( data.metadata?.newspack_popup_id || body.has( 'newspack_popup_id' ) ) {
 							activity.newspack_popup_id = data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
 						}
-						if ( data.registered ) {
-							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data.metadata.registration_method || 'auth-form' } );
-						} else if ( data.authenticated ) {
-							readerActivation.dispatchActivity( 'reader_logged_in', { ...activity, login_method: data.metadata.login_method || 'auth-form' } );
+						if ( data?.sso ) {
+							activity.sso = true;
+						}
+						if ( data?.existing_user ) {
+							readerActivation.dispatchActivity( 'reader_logged_in', { ...activity, login_method: data?.metadata?.login_method || 'auth-form' } );
+						} else {
+							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data?.metadata?.registration_method || 'auth-form' } );
 						}
 					}
 

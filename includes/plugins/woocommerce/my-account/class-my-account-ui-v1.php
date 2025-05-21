@@ -25,10 +25,11 @@ class My_Account_UI_V1 {
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
+		\add_filter( 'page_template', [ __CLASS__, 'page_template' ] );
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
-		\add_filter( 'do_shortcode_tag', [ __CLASS__, 'add_newspack_ui_wrapper' ], 10, 2 );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1001 );
 		\add_filter( 'newspack_myaccount_required_fields', [ __CLASS__, 'account_settings_required_fields' ] );
 		\add_action( 'wp_loaded', [ __CLASS__, 'maybe_generate_password_reset_key' ] );
 		\add_filter( 'validate_password_reset', [ __CLASS__, 'validate_password_reset' ], 10, 2 );
@@ -40,6 +41,19 @@ class My_Account_UI_V1 {
 	}
 
 	/**
+	 * Render My Account pages with a no-header/no-footer page template.
+	 *
+	 * @param string $template The template.
+	 * @return string The template file path.
+	 */
+	public static function page_template( $template ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() && \is_user_logged_in() ) {
+			return __DIR__ . '/templates/v1/my-account.php';
+		}
+		return $template;
+	}
+
+	/**
 	 * Add a body class to the My Account page.
 	 *
 	 * @param array $classes The body classes.
@@ -47,6 +61,7 @@ class My_Account_UI_V1 {
 	 */
 	public static function add_body_class( $classes ) {
 		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			$classes[] = 'newspack-ui';
 			$classes[] = 'newspack-my-account';
 			$classes[] = 'newspack-my-account--v1';
 			if ( ! \is_user_logged_in() ) {
@@ -56,21 +71,6 @@ class My_Account_UI_V1 {
 			}
 		}
 		return $classes;
-	}
-
-	/**
-	 * Render a wrapper element to apply Newspack UI styles to My Account page content.
-	 *
-	 * @param string $output The output.
-	 * @param string $tag The tag.
-	 *
-	 * @return string The output.
-	 */
-	public static function add_newspack_ui_wrapper( $output, $tag ) {
-		if ( 'woocommerce_my_account' === $tag ) {
-			return '<div class="newspack-ui">' . $output . '</div>';
-		}
-		return $output;
 	}
 
 	/**
@@ -105,11 +105,25 @@ class My_Account_UI_V1 {
 	 */
 	public static function wc_get_template( $template, $template_name ) {
 		switch ( $template_name ) {
+			case 'myaccount/navigation.php':
+				return __DIR__ . '/templates/v1/navigation.php';
 			case 'myaccount/form-edit-account.php':
-				return __DIR__ . '/templates/v1/myaccount-account-settings.php';
+				return __DIR__ . '/templates/v1/account-settings.php';
 			default:
 				return $template;
 		}
+	}
+
+	/**
+	 * Modify nav menu items.
+	 *
+	 * @param array $items Menu items.
+	 * @return array Modified menu items.
+	 */
+	public static function my_account_menu_items( $items ) {
+		// Remove logout menu item (to be replaced in our custom template).
+		unset( $items['customer-logout'] );
+		return $items;
 	}
 
 	/**

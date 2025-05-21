@@ -51,6 +51,10 @@
 		margin-bottom: 1em;
 	}
 
+	.components-button svg {
+		display: block;
+	}
+
 	/**
 	* The component uses classes from FormTokenField to make it stylized according to it.
 	* See: https://wordpress.github.io/gutenberg/?path=/docs/components-formtokenfield--docs
@@ -62,11 +66,8 @@
 	}
 
 	.components-form-token-field__remove-token {
-		padding: 0 0.4em;
-
-		svg {
-			stroke: #1e1e1e;
-		}
+		padding: 0;
+		width: 24px;
 	}
 
 	// Copied .components-form-token-field__remove-token styles to apply to insert-token
@@ -97,7 +98,6 @@
 	.token-inline-block {
 		.components-button {
 			svg {
-				width: 1em;
 				pointer-events: none;
 			}
 		}

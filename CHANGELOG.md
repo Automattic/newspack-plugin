@@ -1,3 +1,10 @@
+## [6.6.2](https://github.com/Automattic/newspack-plugin/compare/v6.6.1...v6.6.2) (2025-05-21)
+
+
+### Bug Fixes
+
+* ensure compatibility with woo memberships 1.27.2 ([#3987](https://github.com/Automattic/newspack-plugin/issues/3987)) ([a52224a](https://github.com/Automattic/newspack-plugin/commit/a52224ae16096c555b1979ce4b4b508d834a5410))
+
 ## [6.6.1](https://github.com/Automattic/newspack-plugin/compare/v6.6.0...v6.6.1) (2025-05-15)
 
 

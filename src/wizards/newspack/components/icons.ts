@@ -5,7 +5,6 @@
 /**
  * WordPress dependencies
  */
-export { Icon } from '@wordpress/icons';
 import {
 	chartBar,
 	currencyDollar,
@@ -28,12 +27,13 @@ import {
 /**
  * Internal dependencies
  */
-import { ad, emailAd, gift } from './custom-icons';
+import { ad, emailAd, gift } from '../../../icons';
 
 /**
  * Export Dashboard Icons
  */
 export const icons = {
+	// WordPress
 	chartBar,
 	currencyDollar,
 	envelope,
@@ -50,7 +50,7 @@ export const icons = {
 	settings,
 	store,
 	tool,
-	// Custom
+	// Newspack
 	ad,
 	emailAd,
 	gift,
