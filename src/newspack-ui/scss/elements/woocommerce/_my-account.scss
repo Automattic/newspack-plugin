@@ -13,12 +13,23 @@
 	.woocommerce-error {
 		@extend .newspack-ui__notice;
 		list-style: none;
+
+		> p:first-child {
+			margin-top: 0;
+			padding-top: 0;
+		}
+
+		> p:last-child {
+			margin-bottom: 0;
+			padding-bottom: 0;
+		}
 	}
 	.newspack-wc-message,
 	.woocommerce-message,
 	.woocommerce-info {
 		@extend .newspack-ui__notice--success;
 	}
+	.newspack-wc-message--error,
 	.woocommerce-error {
 		@extend .newspack-ui__notice--error;
 	}
