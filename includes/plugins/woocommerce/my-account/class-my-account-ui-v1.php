@@ -276,7 +276,7 @@ class My_Account_UI_V1 {
 
 		ob_start();
 		?>
-		<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+		<p>
 			<label for="password_1"><?php esc_html_e( 'New password', 'newspack-plugin' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'newspack-plugin' ); ?></span></label>
 			<input
 				type="password"
@@ -288,7 +288,7 @@ class My_Account_UI_V1 {
 				aria-required="true"
 			/>
 		</p>
-		<p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+		<p>
 			<label for="password_2"><?php esc_html_e( 'Re-enter new password', 'newspack-plugin' ); ?>&nbsp;<span class="required" aria-hidden="true">*</span><span class="screen-reader-text"><?php esc_html_e( 'Required', 'newspack-plugin' ); ?></span></label>
 			<input
 				type="password"
