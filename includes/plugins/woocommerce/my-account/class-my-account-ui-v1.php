@@ -64,14 +64,6 @@ class My_Account_UI_V1 {
 	 */
 	public static function enqueue_assets() {
 		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
-			\wp_enqueue_script(
-				'my-account-v1',
-				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
-				[ 'my-account' ],
-				NEWSPACK_PLUGIN_VERSION,
-				true
-			);
-
 			// Dequeue styles from the Newspack theme first, for a fresh start.
 			\wp_dequeue_style( 'newspack-woocommerce-style' );
 			\wp_enqueue_style(
@@ -83,7 +75,7 @@ class My_Account_UI_V1 {
 			\wp_enqueue_script(
 				'my-account-v1',
 				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
-				[],
+				[ 'my-account' ],
 				NEWSPACK_PLUGIN_VERSION,
 				true
 			);
