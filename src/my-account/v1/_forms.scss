@@ -13,5 +13,24 @@
 			display: block;
 			margin: var(--newspack-ui-spacer-base) 0;
 		}
+		small {
+			font-size: inherit;
+		}
+		.woocommerce-password-strength {
+			& + small {
+				display: block;
+				margin-top: calc(var(--newspack-ui-spacer-base) * -1);
+			}
+			&.short,
+			&.bad {
+				color: var(--newspack-ui-color-error-50);
+			}
+			&.good {
+				color: var(--newspack-ui-color-warning-40);
+			}
+			&.strong {
+				color: var(--newspack-ui-color-success-50);
+			}
+		}
 	}
 }
