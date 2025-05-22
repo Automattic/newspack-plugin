@@ -43,6 +43,7 @@ final class Memberships {
 		add_action( 'woocommerce_checkout_create_order_line_item', [ __CLASS__, 'checkout_create_order_line_item' ], 10, 4 );
 		add_filter( 'newspack_register_reader_metadata', [ __CLASS__, 'register_reader_metadata' ] );
 		add_filter( 'newspack_auth_form_metadata', [ __CLASS__, 'register_reader_metadata' ] );
+		add_filter( 'newspack_otp_login_metadata', [ __CLASS__, 'register_reader_metadata' ] );
 		add_filter( 'newspack_register_reader_form_metadata', [ __CLASS__, 'register_reader_metadata' ] );
 		add_filter( 'newspack_newsletters_subscription_form_metadata', [ __CLASS__, 'register_reader_metadata' ] );
 	}
@@ -86,9 +87,8 @@ final class Memberships {
 	 */
 	public static function register_reader_metadata( $metadata ) {
 		$gate_post_id = filter_input( INPUT_POST, self::METADATA_NAME, FILTER_SANITIZE_NUMBER_INT );
-		if ( ! empty( $gate_post_id ) && isset( $metadata['registration_method'] ) ) {
-			$metadata['gate_post_id']        = $gate_post_id;
-			$metadata['registration_method'] = $metadata['registration_method'] . '-content-gate';
+		if ( ! empty( $gate_post_id ) && ( isset( $metadata['registration_method'] ) || isset( $metadata['login_method'] ) ) ) {
+			$metadata['gate_post_id'] = $gate_post_id;
 		}
 		return $metadata;
 	}

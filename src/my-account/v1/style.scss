@@ -8,7 +8,7 @@
 @use "content";
 @use "forms";
 
-.woocommerce-account.newspack-my-account {
+.newspack-my-account {
 	&--logged-in {
 		.site-content {
 			margin-top: 0;
@@ -17,19 +17,17 @@
 			max-width: none;
 			width: auto;
 		}
-		.newspack-ui {
-			margin-top: 0;
-		}
 		.woocommerce {
-			@media ( min-width: 782px ) {
-				column-gap: var(--newspack-ui-spacer-5);
-				display: flex;
+			/* WooCommerce breakpoint is 768px. */
+			@media ( min-width: 768px ) {
+				padding-left: 300px;
 			}
 		}
 		.woocommerce-MyAccount-navigation,
 		.woocommerce-MyAccount-content {
 			float: none;
-			@media ( min-width: 782px ) {
+			@media ( min-width: 768px ) {
+				padding-bottom: var(--newspack-ui-spacer-9);
 				padding-top: var(--newspack-ui-spacer-9);
 			}
 		}

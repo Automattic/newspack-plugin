@@ -889,7 +889,22 @@ final class Magic_Link {
 			return self::send_otp_request_response( __( 'Unable to authenticate, try again.', 'newspack-plugin' ), false, [ 'expired' => true ] );
 		}
 
-		return self::send_otp_request_response( __( 'Login successful!', 'newspack-plugin' ), true );
+		/**
+		 * Filters the metadata to be saved for a reader registered via the auth modal.
+		 *
+		 * @param array  $metadata Metadata.
+		 * @param string $email    Email address of the reader.
+		 */
+		$metadata = apply_filters(
+			'newspack_otp_login_metadata',
+			[
+				'email'        => $email,
+				'login_method' => 'otp',
+			],
+			$email
+		);
+
+		return self::send_otp_request_response( __( 'Login successful!', 'newspack-plugin' ), true, [ 'metadata' => $metadata ] );
 	}
 
 	/**

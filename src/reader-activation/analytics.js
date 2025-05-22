@@ -14,6 +14,9 @@ const getEventPayload = ( payload = {}, data = {} ) => {
 	if ( data?.gate_post_id ) {
 		eventPayload.gate_post_id = data.gate_post_id;
 	}
+	if ( data?.sso ) {
+		eventPayload.sso = data.sso;
+	}
 	return eventPayload;
 };
 

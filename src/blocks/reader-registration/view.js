@@ -79,19 +79,26 @@ window.newspackRAS.push( function( readerActivation ) {
 						// Set authenticated only if email is set, otherwise an error will be thrown.
 						readerActivation.setAuthenticated( data?.authenticated );
 
-						if ( data.authenticated && ! data.existing_user ) {
-							const lists = body.getAll( 'lists[]' );
+						if ( data.authenticated ) {
 							const baseActivity = { email: data.email };
-							if ( data?.metadata?.newspack_popup_id ) {
-								baseActivity.newspack_popup_id = data.metadata.newspack_popup_id;
+							const lists = body.getAll( 'lists[]' );
+							if ( body.has( 'newspack_popup_id' ) ) {
+								baseActivity.newspack_popup_id = body.get( 'newspack_popup_id' );
 							}
-							if ( data?.metadata?.gate_post_id ) {
-								baseActivity.gate_post_id = data.metadata.gate_post_id;
+							if ( body.has( 'gate_post_id' ) ) {
+								baseActivity.gate_post_id = body.get( 'gate_post_id' );
+							}
+							if ( data?.sso ) {
+								baseActivity.sso = true;
 							}
 							if ( lists?.length ) {
 								readerActivation.dispatchActivity( 'newsletter_signup', { ...baseActivity, newsletters_subscription_method: 'reader-registration', lists } );
 							}
-							readerActivation.dispatchActivity( 'reader_registered', { ...baseActivity, registration_method: data?.metadata?.registration_method || 'registration-block' } );
+							if ( data?.existing_user ) {
+								readerActivation.dispatchActivity( 'reader_logged_in', { ...baseActivity, login_method: data?.metadata?.login_method || 'registration-block' } );
+							} else {
+								readerActivation.dispatchActivity( 'reader_registered', { ...baseActivity, registration_method: data?.metadata?.registration_method || 'registration-block' } );
+							}
 						}
 					}
 					form.remove();
