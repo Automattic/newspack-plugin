@@ -7,7 +7,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useState, Fragment } from '@wordpress/element';
-import { header, layout } from '@wordpress/icons';
+import { blockTable, header, layout, postList } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -22,13 +22,11 @@ import {
 	warningForPopup,
 } from '../../views/campaigns/utils';
 import {
-	iconInline,
-	iconOverlayBottom,
-	iconOverlayCenter,
-	iconOverlayTop,
-	postList,
-	blockTable,
-} from './icons';
+	overlayBottom,
+	overlayInline,
+	overlayCenter,
+	overlayTop,
+} from '../../../../icons';
 import './style.scss';
 
 const addNewURL = ( placement, campaignId, segmentId ) => {
@@ -120,25 +118,25 @@ const SegmentGroup = props => {
 											href={ addNewURL( 'overlay-center', campaignId, id ) }
 											title={ __( 'Center Overlay', 'newspack-plugin' ) }
 											desc={ __( 'Fixed at the center of the screen', 'newspack-plugin' ) }
-											icon={ iconOverlayCenter }
+											icon={ overlayCenter }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'overlay-top', campaignId, id ) }
 											title={ __( 'Top Overlay', 'newspack-plugin' ) }
 											desc={ __( 'Fixed at the top of the screen', 'newspack-plugin' ) }
-											icon={ iconOverlayTop }
+											icon={ overlayTop }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'overlay-bottom', campaignId, id ) }
 											title={ __( 'Bottom Overlay', 'newspack-plugin' ) }
 											desc={ __( 'Fixed at the bottom of the screen', 'newspack-plugin' ) }
-											icon={ iconOverlayBottom }
+											icon={ overlayBottom }
 										/>
 										<ButtonCard
 											href={ addNewURL( null, campaignId, id ) }
 											title={ __( 'Inline', 'newspack-plugin' ) }
 											desc={ __( 'Embedded in content', 'newspack-plugin' ) }
-											icon={ iconInline }
+											icon={ overlayInline }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'archives', campaignId, id ) }

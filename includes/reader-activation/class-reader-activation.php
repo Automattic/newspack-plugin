@@ -2039,12 +2039,14 @@ final class Reader_Activation {
 		];
 
 		$magic_link_label = self::get_reader_activation_labels( 'magic_link' );
+		$metadata         = [];
+		$message          = false;
 
 		switch ( $action ) {
 			case 'signin':
 				if ( Magic_Link::has_active_token( $user ) ) {
 					$payload['action'] = 'otp';
-					return self::send_auth_form_response( $payload, false );
+					break;
 				}
 				if ( self::is_reader_without_password( $user ) ) {
 					$sent = Magic_Link::send_email( $user, $redirect );
@@ -2052,10 +2054,10 @@ final class Reader_Activation {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
 					$payload['action'] = 'otp';
-					return self::send_auth_form_response( $payload, false );
+					break;
 				} else {
 					$payload['action'] = 'pwd';
-					return self::send_auth_form_response( $payload, false );
+					break;
 				}
 			case 'pwd':
 				if ( empty( $password ) ) {
@@ -2065,17 +2067,20 @@ final class Reader_Activation {
 				if ( \is_wp_error( $user ) ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Password not recognized, try again.', 'newspack-plugin' ) ) );
 				}
-				$authenticated            = self::set_current_reader( $user->ID );
+				$authenticated = self::set_current_reader( $user->ID );
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
-				return self::send_auth_form_response( $payload, false );
+				$payload['existing_user'] = \is_wp_error( $authenticated ) ? 0 : 1;
+				$metadata['login_method'] = 'auth-form-password';
+				break;
 			case 'link':
 				$sent = Magic_Link::send_email( $user, $redirect );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}
-				return self::send_auth_form_response( $payload, $magic_link_label );
+				$message = $magic_link_label;
+				break;
 			case 'register':
-				$metadata = [ 'registration_method' => 'auth-form' ];
+				$metadata['registration_method'] = 'auth-form';
 				if ( ! empty( $lists ) ) {
 					$metadata['lists'] = $lists;
 				}
@@ -2085,14 +2090,6 @@ final class Reader_Activation {
 				if ( ! empty( $current_page_url ) ) {
 					$metadata['current_page_url'] = $current_page_url;
 				}
-
-				/**
-				 * Filters the metadata to be saved for a reader registered via the auth modal.
-				 *
-				 * @param array  $metadata Metadata.
-				 * @param string $email    Email address of the reader.
-				 */
-				$metadata = apply_filters( 'newspack_auth_form_metadata', $metadata, $email );
 
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
@@ -2121,10 +2118,25 @@ final class Reader_Activation {
 
 				$payload['registered']    = 1;
 				$payload['authenticated'] = 1;
-				return self::send_auth_form_response( $payload, false );
+				break;
 		}
-	}
 
+		/**
+		 * Filters the metadata to be saved for a reader going through the auth modal.
+		 *
+		 * @param array  $metadata Metadata.
+		 * @param string $email    Email address of the reader.
+		 */
+		$metadata = apply_filters( 'newspack_auth_form_metadata', $metadata, $email );
+		if ( isset( $metadata['gate_post_id'] ) ) {
+			$payload['gate_post_id'] = $metadata['gate_post_id'];
+		}
+		if ( isset( $metadata['newspack_popup_id'] ) ) {
+			$payload['newspack_popup_id'] = $metadata['newspack_popup_id'];
+		}
+		$payload['metadata'] = $metadata;
+		return self::send_auth_form_response( $payload, $message );
+	}
 
 	/**
 	 * Check if current reader has its email verified.

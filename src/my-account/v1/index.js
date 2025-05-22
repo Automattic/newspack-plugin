@@ -7,3 +7,4 @@
  */
 import './style.scss';
 import './modal-checkout';
+import './navigation';
