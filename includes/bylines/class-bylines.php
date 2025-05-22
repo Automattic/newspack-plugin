@@ -342,7 +342,7 @@ class Bylines {
 			return;
 		}
 
-		$byline = \get_post_meta( $post_id, self::META_KEY_BYLINE, true );
+		$byline = get_post_meta( $post_id, self::META_KEY_BYLINE, true );
 
 		$mapping = get_post_meta( $post_id, '_newspack_byline_network_authors', true );
 
