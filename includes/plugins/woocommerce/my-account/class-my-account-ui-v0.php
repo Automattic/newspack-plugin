@@ -89,12 +89,12 @@ class My_Account_UI_V0 {
 		$sent    = WooCommerce_My_Account::send_delete_account_email( $user );
 		$message = $sent ? __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack-plugin' ) : __( 'Something went wrong.', 'newspack-plugin' );
 		if ( \is_wp_error( $sent ) ) {
-			$message = $sent->get_error_message();
+			$message = \wp_strip_all_tags( $sent->get_error_message() );
 		}
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'message'  => $message,
+					'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 					'is_error' => ! $sent || \is_wp_error( $sent ),
 				],
 				\remove_query_arg( WooCommerce_My_Account::DELETE_ACCOUNT_URL_PARAM )

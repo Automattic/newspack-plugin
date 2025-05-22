@@ -434,7 +434,7 @@ class WooCommerce_My_Account {
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'message'  => $message,
+					'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 					'is_error' => $is_error,
 				],
 				\remove_query_arg( self::RESET_PASSWORD_URL_PARAM )
@@ -584,7 +584,7 @@ class WooCommerce_My_Account {
 			wp_safe_redirect(
 				\add_query_arg(
 					[
-						'message'  => $message,
+						'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 						'is_error' => $is_error,
 					],
 					\remove_query_arg( self::SEND_MAGIC_LINK_PARAM )
@@ -1141,7 +1141,7 @@ class WooCommerce_My_Account {
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'message'  => $message,
+					'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 					'is_error' => $is_error,
 				],
 				\wc_get_endpoint_url(
@@ -1177,7 +1177,7 @@ class WooCommerce_My_Account {
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'message'  => $message,
+					'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 					'is_error' => $is_error,
 				],
 				\wc_get_endpoint_url(
