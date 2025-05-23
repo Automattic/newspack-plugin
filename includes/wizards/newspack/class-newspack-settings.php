@@ -105,6 +105,11 @@ class Newspack_Settings extends Wizard {
 				'label' => __( 'Display Settings', 'newspack-plugin' ),
 			],
 		];
+		if ( \Newspack\Collections::is_feature_enabled() ) {
+			$newspack_settings['collections'] = [
+				'label' => __( 'Collections', 'newspack-plugin' ),
+			];
+		}
 		if ( defined( 'NEWSPACK_MULTIBRANDED_SITE_PLUGIN_FILE' ) ) {
 			$newspack_settings['additional-brands'] = [
 				'label'          => __( 'Additional Brands', 'newspack-plugin' ),
