@@ -45,6 +45,27 @@ export function openAuthModal( config = {} ) {
 	}
 
 	/**
+	 * Handle keydown events.
+	 *
+	 * @param {KeyboardEvent} ev The keyboard event.
+	 */
+	const handleKeydown = ( ev ) => {
+		if ( ev.key === 'Escape' ) {
+			close();
+		}
+	};
+
+	/**
+	 * Handle close button click.
+	 *
+	 * @param {MouseEvent} ev The mouse event.
+	 */
+	const handleCloseButtonClick = ( ev ) => {
+		ev.preventDefault();
+		close();
+	};
+
+	/**
 	 * Close the auth modal.
 	 *
 	 * @param {boolean} dismiss Whether it's a dismiss action.
@@ -69,23 +90,21 @@ export function openAuthModal( config = {} ) {
 		if ( dismiss && config.onDismiss && typeof config.onDismiss === 'function' ) {
 			config.onDismiss();
 		}
+
+		document.removeEventListener( 'keydown', handleKeydown );
+		closeButtons.forEach( closeButton => {
+			closeButton.removeEventListener( 'click', handleCloseButtonClick );
+		} );
 	};
 
 	const closeButtons = modal.querySelectorAll( 'button[data-close], .newspack-ui__modal__close' );
 	if ( closeButtons?.length ) {
 		closeButtons.forEach( closeButton => {
-			closeButton.addEventListener( 'click', function ( ev ) {
-				ev.preventDefault();
-				close();
-			} );
+			closeButton.addEventListener( 'click', handleCloseButtonClick );
 		} );
 	}
 
-	document.addEventListener( 'keydown', function ( ev ) {
-		if ( ev.key === 'Escape' ) {
-			close();
-		}
-	} );
+	document.addEventListener( 'keydown', handleKeydown );
 
 	config.labels = {
 		...newspack_reader_activation_labels,
