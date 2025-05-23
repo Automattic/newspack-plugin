@@ -43,7 +43,7 @@ class Collections_Section {
 					'callback'            => [ __CLASS__, 'api_update_settings' ],
 					'permission_callback' => [ $this, 'api_permissions_check' ],
 					'args'                => [
-						'module_enabled_collections' => [
+						Optional_Modules::MODULE_ENABLED_PREFIX . 'collections' => [
 							'required'          => true,
 							'sanitize_callback' => 'rest_sanitize_boolean',
 						],
@@ -68,7 +68,7 @@ class Collections_Section {
 	 */
 	public static function api_update_settings( $request ) {
 		$settings = Optional_Modules::get_settings();
-		$settings['module_enabled_collections'] = $request->get_param( 'module_enabled_collections' );
+		$settings[ Optional_Modules::MODULE_ENABLED_PREFIX . 'collections' ] = $request->get_param( Optional_Modules::MODULE_ENABLED_PREFIX . 'collections' );
 		update_option( Optional_Modules::OPTION_NAME, $settings );
 		return Optional_Modules::get_settings();
 	}
