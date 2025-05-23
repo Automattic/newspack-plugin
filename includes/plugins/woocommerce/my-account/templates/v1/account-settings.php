@@ -1,6 +1,6 @@
 <?php
 /**
- * My Account Account Details page.
+ * My Account Account Settings page.
  * Based on woocommerce/templates/myaccount/form-edit-account.php.
  *
  * @package Newspack

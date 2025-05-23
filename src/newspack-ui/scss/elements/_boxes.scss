@@ -1,3 +1,5 @@
+@use "../mixins";
+
 .newspack-ui {
 	.newspack-ui {
 		&__box {
@@ -5,6 +7,7 @@
 			border-radius: var(--newspack-ui-border-radius-m);
 			margin-bottom: var(--newspack-ui-spacer-5);
 			padding: var(--newspack-ui-spacer-5);
+			position: relative;
 
 			// Backgrounds & Borders
 			&--success {
@@ -40,6 +43,39 @@
 
 			> *:last-child {
 				margin-bottom: 0;
+			}
+
+			&--has-dropdown {
+				padding-right: var(--newspack-ui-spacer-6);
+			}
+		}
+	}
+	&__dropdown {
+		&__toggle {
+			bottom: var(--newspack-ui-spacer-base);
+			position: absolute;
+			right: var(--newspack-ui-spacer-base);
+		}
+		&__content {
+			background: var(--newspack-ui-color-body-bg);
+			border: 1px solid var(--newspack-ui-color-border);
+			border-radius: var(--newspack-ui-border-radius-s);
+			font-size: var(--newspack-ui-font-size-xs);
+			opacity: 0;
+			padding: var(--newspack-ui-spacer-2);
+			position: absolute;
+			left: calc(100% - var(--newspack-ui-spacer-6));
+			min-width: 160px;
+			top: calc(100% - var(--newspack-ui-spacer-2));
+			transform: scaleY(0);
+			transform-origin: center top 0;
+			transition: opacity 0.33s cubic-bezier(0.33, 0, 0, 1), transform 0.33s cubic-bezier(0.33, 0, 0, 1);
+			@include mixins.newspack-ui-elevation( 1 );
+		}
+		&.active {
+			.newspack-ui__dropdown__content {
+				opacity: 1;
+				transform: scaleY(1);
 			}
 		}
 	}

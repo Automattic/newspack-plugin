@@ -265,6 +265,19 @@ class Newspack_UI {
 				<p>Plus a little bit of text below it.</p>
 			</div>
 
+			<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown">
+				<p>Box with "more"-style dropdown menu</p>
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
+						<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+						<span class="screen-reader-text">More</span>
+					</button>
+					<div class="newspack-ui__dropdown__content">
+						<p>Dropdown content</p>
+					</div>
+				</div>
+			</div>
+
 			<hr>
 
 			<h2 id="notices">Notices</h2>

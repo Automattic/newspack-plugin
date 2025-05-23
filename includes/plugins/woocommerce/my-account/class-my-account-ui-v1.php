@@ -32,7 +32,9 @@ class My_Account_UI_V1 {
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
+		\add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_query_var' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1001 );
+		\add_action( 'woocommerce_account_payment-information_endpoint', [ __CLASS__, 'payment_information_endpoint' ] );
 		\add_filter( 'newspack_myaccount_required_fields', [ __CLASS__, 'account_settings_required_fields' ] );
 		\add_action( 'wp_loaded', [ __CLASS__, 'maybe_generate_password_reset_key' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_reset_password_link' ], 11 );
@@ -114,9 +116,24 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/navigation.php';
 			case 'myaccount/form-edit-account.php':
 				return __DIR__ . '/templates/v1/account-settings.php';
+			case 'myaccount/payment-information.php':
+				return __DIR__ . '/templates/v1/payment-information.php';
 			default:
 				return $template;
 		}
+	}
+
+
+	/**
+	 * Add query var for the "Payment Information" page.
+	 *
+	 * @param array $vars Query var.
+	 *
+	 * @return array
+	 */
+	public static function add_query_var( $vars ) {
+		$vars[] = 'payment-information';
+		return $vars;
 	}
 
 	/**
@@ -128,7 +145,26 @@ class My_Account_UI_V1 {
 	public static function my_account_menu_items( $items ) {
 		// Remove logout menu item (to be replaced in our custom template).
 		unset( $items['customer-logout'] );
+
+		// Remove "Payment Methods" and "Addresses" (replaced by custom "Payment Information" page).
+		unset( $items['payment-methods'] );
+		unset( $items['addresses'] );
+
+		// Add "Payment Information" menu item.
+		$position       = -1;
+		$menu_item_name = __( 'Payment Information', 'newspack-plugin' );
+		$items          = array_slice( $items, 0, $position, true ) + [ 'payment-information' => $menu_item_name ] + array_slice( $items, $position, null, true );
+
 		return $items;
+	}
+
+	/**
+	 * Render the "Payment Information" page.
+	 */
+	public static function payment_information_endpoint() {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			\wc_get_template( 'myaccount/payment-information.php' );
+		}
 	}
 
 	/**
