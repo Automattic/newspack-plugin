@@ -49,8 +49,8 @@ class My_Account_UI_V1 {
 			return $template;
 		}
 
-		// Only if the user is logged in and a reader.
-		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+		// Only if the user is logged in.
+		if ( ! \is_user_logged_in() ) {
 			return $template;
 		}
 
