@@ -50,7 +50,7 @@ class My_Account_UI_V1_Passwords {
 		// Only if updating password from Account Settings page.
 		$action = filter_input( INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$nonce  = filter_input( INPUT_POST, 'woocommerce-reset-password-nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( self::RESET_PASSWORD_ACTION !== $action || empty( $nonce ) ) {
+		if ( self::RESET_PASSWORD_ACTION !== $action || empty( $nonce ) || ! \wp_verify_nonce( $nonce, 'reset_password' ) ) {
 			return;
 		}
 
