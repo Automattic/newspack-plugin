@@ -189,14 +189,15 @@ endif;
 	</form>
 </section>
 
+<?php if ( $is_reader ) : ?>
 <section id="account-password">
 	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Password', 'newspack-plugin' ); ?></h1>
-	<?php if ( $without_password || ! empty( filter_input( INPUT_GET, My_Account_UI_V1::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) ) : ?>
+	<?php if ( $without_password || ! empty( filter_input( INPUT_GET, My_Account_UI_V1_Passwords::RESET_PASSWORD_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) ) : ?>
 	<p>
-		<?php \esc_html_e( 'Create a password to secure your account.', 'newspack-plugin' ); ?>
+		<?php echo \esc_html( $without_password ? __( 'Create a password to secure your account.', 'newspack-plugin' ) : __( 'Reset your account password.', 'newspack-plugin' ) ); ?>
 	</p>
 	<a id="newspack-my-account__reset-password" class="woocommerce-Button button primary newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_reset_password_arg ) . '=' . \esc_attr( \wp_create_nonce( $newspack_reset_password_arg ) ); ?>">
-		<?php \esc_html_e( 'Create a password', 'newspack-plugin' ); ?>
+		<?php echo \esc_html( $without_password ? __( 'Create a password', 'newspack-plugin' ) : __( 'Reset password', 'newspack-plugin' ) ); ?>
 	</a>
 	<?php else : ?>
 	<form method="post" class="woocommerce-ResetPassword lost_reset_password">
@@ -260,9 +261,6 @@ endif;
 </section>
 
 <section id="delete-account">
-	<?php
-	if ( $is_reader ) :
-		?>
 
 	<h1 class="newspack-ui__font--m is-destructive"><?php \esc_html_e( 'Delete account', 'newspack-plugin' ); ?></h1>
 	<p>
@@ -270,11 +268,10 @@ endif;
 	</p>
 	<p class="woocommerce-buttons-card">
 		<a class="newspack-ui__button newspack-ui__button--destructive newspack-ui__button--wide-on-mobile" href="<?php echo '?' . \esc_attr( $newspack_delete_account_arg ) . '=' . \esc_attr( WooCommerce_My_Account::get_delete_account_nonce() ); ?>">
-			<?php \esc_html_e( 'Delete Account', 'newspack-plugin' ); ?>
+		<?php \esc_html_e( 'Delete Account', 'newspack-plugin' ); ?>
 		</a>
 	</p>
 </section>
-
 <?php endif; ?>
 
 <?php \do_action( 'newspack_woocommerce_after_edit_account_form' ); ?>
