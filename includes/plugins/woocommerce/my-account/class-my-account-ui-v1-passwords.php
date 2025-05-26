@@ -8,10 +8,7 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
-use Newspack\WooCommerce_Connection;
-use Newspack\WooCommerce_My_Account;
 use Newspack\Newspack_UI;
-use Newspack\Newspack_UI_Icons;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -89,16 +86,34 @@ class My_Account_UI_V1_Passwords {
 	 * Redirect the user to the Account Settings page to reset their password via a custom modal.
 	 */
 	public static function redirect_reset_password_link() {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() && \is_user_logged_in() && filter_input( INPUT_GET, 'show-reset-form', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) && self::check_password_reset_key() ) {
-			\wp_safe_redirect(
-				\add_query_arg(
-					self::RESET_PASSWORD_URL_PARAM,
-					\wp_create_nonce( 'newspack_my_account_reset_password' ),
-					\wc_get_account_endpoint_url( 'edit-account' )
-				)
-			);
-			exit;
+		// Only in My Account.
+		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+			return;
 		}
+
+		// Only if the user is logged in and a reader.
+		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			return;
+		}
+
+		// Only if showing the password reset form.
+		if ( empty( filter_input( INPUT_GET, 'show-reset-form', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) ) {
+			return;
+		}
+
+		// Only if the user has a valid password reset key.
+		if ( ! self::check_password_reset_key() ) {
+			return;
+		}
+
+		\wp_safe_redirect(
+			\add_query_arg(
+				self::RESET_PASSWORD_URL_PARAM,
+				\wp_create_nonce( 'newspack_my_account_reset_password' ),
+				\wc_get_account_endpoint_url( 'edit-account' )
+			)
+		);
+		exit;
 	}
 
 	/**
