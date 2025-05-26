@@ -4,6 +4,7 @@
 
 @use "../forms";
 @use "../notices";
+@use "../typography";
 @use "../../variables/breakpoints";
 
 .woocommerce-account.newspack-my-account.newspack-ui {
@@ -109,5 +110,38 @@
 		.button {
 			margin-bottom: 0;
 		}
+	}
+	.payment-method {
+		padding: var(--newspack-ui-spacer-3);
+		.newspack-ui__badge {
+			float: right;
+			margin-left: calc(var(--newspack-ui-spacer-base) / 2);
+		}
+		> h3,
+		> p {
+			margin: 0;
+			overflow-wrap: break-word;
+			word-wrap: break-word;
+		}
+	}
+	.woocommerce-PaymentBox {
+		p {
+			@extend .newspack-ui__font--xs;
+			color: var(--newspack-ui-color-neutral-60);
+			margin: 0;
+		}
+		fieldset {
+			border: none;
+			margin-top: var(--newspack-ui-spacer-2);
+			padding: 0 !important;
+		}
+	}
+	#payment-methods .newspack-ui__row > .payment-method {
+		min-height: 106px;
+	}
+	#wcpay-upe-element,
+	.wcpay-upe-element {
+		margin-bottom: var(--newspack-ui-spacer-2);
+		padding: 0;
 	}
 }

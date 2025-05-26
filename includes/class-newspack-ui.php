@@ -117,7 +117,7 @@ class Newspack_UI {
 				</header>
 
 				<?php if ( ! empty( $args['form'] ) ) : ?>
-				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>">
+				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ?? '' ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>" <?php echo esc_attr( $args['form_id'] ? 'id=' . esc_attr( $args['form_id'] ) : '' ); ?>>
 				<?php else : ?>
 				<section class="newspack-ui__modal__content">
 				<?php endif; ?>

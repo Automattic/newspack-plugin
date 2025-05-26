@@ -32,10 +32,7 @@ class My_Account_UI_V1 {
 		\add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 11 );
 		\add_filter( 'wc_get_template', [ __CLASS__, 'wc_get_template' ], 10, 5 );
-		\add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_query_var' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1001 );
-		\add_action( 'woocommerce_account_payment-information_endpoint', [ __CLASS__, 'payment_information_endpoint' ] );
-		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
 		\add_filter( 'newspack_myaccount_required_fields', [ __CLASS__, 'account_settings_required_fields' ] );
 		\add_action( 'wp_loaded', [ __CLASS__, 'maybe_generate_password_reset_key' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_reset_password_link' ], 11 );
@@ -46,6 +43,10 @@ class My_Account_UI_V1 {
 		\add_action( 'newspack_after_delete_account', [ __CLASS__, 'handle_after_delete_account' ] );
 		\add_action( 'wp_footer', [ __CLASS__, 'add_after_delete_account_notice' ] );
 		\add_action( 'woocommerce_subscription_details_table', [ __CLASS__, 'cancel_subscription_modal' ] );
+		\add_filter( 'option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
+		\add_filter( 'default_option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
+		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'add_payment_method_modal' ] );
 	}
 
 	/**
@@ -117,13 +118,12 @@ class My_Account_UI_V1 {
 				return __DIR__ . '/templates/v1/navigation.php';
 			case 'myaccount/form-edit-account.php':
 				return __DIR__ . '/templates/v1/account-settings.php';
-			case 'myaccount/payment-information.php':
+			case 'myaccount/payment-methods.php':
 				return __DIR__ . '/templates/v1/payment-information.php';
 			default:
 				return $template;
 		}
 	}
-
 
 	/**
 	 * Add query var for the "Payment Information" page.
@@ -132,8 +132,8 @@ class My_Account_UI_V1 {
 	 *
 	 * @return array
 	 */
-	public static function add_query_var( $vars ) {
-		$vars[] = 'payment-information';
+	public static function query_vars( $vars ) {
+		$vars[] = 'add-payment-method';
 		return $vars;
 	}
 
@@ -147,39 +147,15 @@ class My_Account_UI_V1 {
 		// Remove logout menu item (to be replaced in our custom template).
 		unset( $items['customer-logout'] );
 
-		// Remove "Payment Methods" and "Addresses" (replaced by custom "Payment Information" page).
-		unset( $items['payment-methods'] );
-		unset( $items['addresses'] );
+		// Rename "Payment Methods" to "Payment Information".
+		if ( isset( $items['payment-methods'] ) ) {
+			$items['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
+		}
 
-		// Add "Payment Information" menu item.
-		$position       = -1;
-		$menu_item_name = __( 'Payment Information', 'newspack-plugin' );
-		$items          = array_slice( $items, 0, $position, true ) + [ 'payment-information' => $menu_item_name ] + array_slice( $items, $position, null, true );
+		// Remove "Addresses" (replaced by custom "Payment Information" page).
+		unset( $items['edit-address'] );
 
 		return $items;
-	}
-
-	/**
-	 * Render the "Payment Information" page.
-	 */
-	public static function payment_information_endpoint() {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
-			\wc_get_template( 'myaccount/payment-information.php' );
-		}
-	}
-
-	/**
-	 * Redirect "Payment Methods" and "Addresses" to the "Payment Information" page.
-	 */
-	public static function redirect_payment_information_endpoint() {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
-			global $wp;
-			$current_url = \trailingslashit( \home_url( $wp->request ) );
-			if ( \wc_get_account_endpoint_url( 'payment-methods' ) === $current_url || \wc_get_account_endpoint_url( 'edit-address' ) === $current_url ) {
-				\wp_safe_redirect( \wc_get_account_endpoint_url( 'payment-information' ) );
-				exit;
-			}
-		}
 	}
 
 	/**
@@ -656,6 +632,60 @@ class My_Account_UI_V1 {
 				]
 			);
 		}
+	}
+
+	/**
+	 * Set "Add Payment Method" endpoint to "payment-methods".
+	 * The add-payment-method form is now rendered via a modal.
+	 *
+	 * @return string
+	 */
+	public static function add_payment_method_endpoint() {
+		return \get_option( 'woocommerce_myaccount_payment_methods_endpoint', 'payment-methods' );
+	}
+
+	/**
+	 * Redirect "Addresses" to the "Payment Information" page.
+	 */
+	public static function redirect_payment_information_endpoint() {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			global $wp;
+			$current_url = \trailingslashit( \home_url( $wp->request ) );
+			if ( \trailingslashit( \wc_get_account_endpoint_url( 'edit-address' ) ) === $current_url ) {
+				\wp_safe_redirect( \wc_get_account_endpoint_url( 'payment-methods' ) );
+				exit;
+			}
+		}
+	}
+
+	/**
+	 * Render the "Add Payment Method" modal.
+	 */
+	public static function add_payment_method_modal() {
+		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+			return;
+		}
+		ob_start();
+		\WC_Shortcode_My_Account::add_payment_method();
+		$content = ob_get_clean();
+		Newspack_UI::generate_modal(
+			[
+				'id'         => 'add-payment-method',
+				'title'      => __( 'Add Payment Method', 'newspack-plugin' ),
+				'content'    => $content,
+				'size'       => 'medium',
+				'form'       => 'POST',
+				'form_class' => 'newspack-ui__accordion newspack-ui__accordion--open',
+				'form_id'    => 'add_payment_method',
+				'actions'    => [
+					'cancel' => [
+						'label'  => __( 'Cancel', 'newspack-plugin' ),
+						'type'   => 'ghost',
+						'action' => 'close',
+					],
+				],
+			]
+		);
 	}
 }
 My_Account_UI_V1::init();

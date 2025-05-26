@@ -24,7 +24,31 @@ $types         = \wc_get_account_payment_methods_types();
 			<?php foreach ( $saved_methods as $type => $methods ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited ?>
 				<?php foreach ( $methods as $method ) : ?>
 					<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown payment-method<?php echo ! empty( $method['is_default'] ) ? ' default-payment-method' : ''; ?>">
-						<?php foreach ( \wc_get_account_payment_methods_columns() as $column_id => $column_name ) : ?>
+						<?php
+						$parsed_date = null;
+						if ( ! empty( $method['expires'] ) ) :
+							$parsed_date = date_parse_from_format( 'n/y', $method['expires'] );
+							if (
+								empty( $parsed_date['errors'] ) &&
+								! empty( $parsed_date['year'] ) &&
+								! empty( $parsed_date['month'] ) &&
+								(
+									(int) $parsed_date['year'] < (int) gmdate( 'Y' ) ||
+									( (int) $parsed_date['year'] === (int) gmdate( 'Y' ) && (int) $parsed_date['month'] < (int) gmdate( 'm' ) )
+								)
+							) :
+								?>
+								<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php \esc_html_e( 'Expired', 'newspack-plugin' ); ?></span>
+								<?php
+							endif;
+						endif;
+						if ( ! empty( $method['is_default'] ) ) :
+							?>
+							<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php \esc_html_e( 'Default', 'newspack-plugin' ); ?></span>
+							<?php
+						endif;
+						foreach ( \wc_get_account_payment_methods_columns() as $column_id => $column_name ) :
+							?>
 							<?php
 							if ( \has_action( 'newspack_woocommerce_account_payment_methods_column_' . $column_id ) ) {
 								\do_action( 'newspack_woocommerce_account_payment_methods_column_' . $column_id, $method );
@@ -45,13 +69,13 @@ $types         = \wc_get_account_payment_methods_types();
 									</p>
 									<?php
 								endif;
-							} elseif ( 'expires' === $column_id ) {
+							} elseif ( 'expires' === $column_id && isset( $parsed_date['error_count'] ) && 0 === $parsed_date['error_count'] ) {
 								?>
 								<p class="newspack-ui__font--s">
 									<?php
 									printf(
 										/* translators: expiration date */
-										\esc_html__( 'Expires %s', 'newspack-plugin' ),
+										\esc_html__( 'Exp. %s', 'newspack-plugin' ),
 										\esc_html( $method['expires'] )
 									);
 									?>
@@ -101,6 +125,6 @@ $types         = \wc_get_account_payment_methods_types();
 	<?php do_action( 'newspack_woocommerce_after_account_payment_methods', $has_methods ); ?>
 
 	<?php if ( \WC()->payment_gateways->get_available_payment_gateways() ) : ?>
-		<a class="newspack-ui__button newspack__ui__button--primary newspack-my-account__add-payment-method" href="<?php echo \esc_url( \wc_get_endpoint_url( 'add-payment-method' ) ); ?>"><?php \esc_html_e( 'Add payment method', 'newspack-plugin' ); ?></a>
+		<a class="newspack-ui__button newspack-ui__button--primary newspack-my-account__add-payment-method" href="<?php echo \esc_url( \wc_get_endpoint_url( 'add-payment-method' ) ); ?>"><?php \esc_html_e( 'Add payment method', 'newspack-plugin' ); ?></a>
 	<?php endif; ?>
 </section>

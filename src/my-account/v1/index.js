@@ -8,4 +8,5 @@
 import './navigation';
 import './account-settings';
 import './subscriptions';
+import './payment-information';
 import './style.scss';
