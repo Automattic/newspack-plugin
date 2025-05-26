@@ -7,6 +7,9 @@
 			border-top: 1px solid var(--newspack-ui-color-neutral-20);
 			margin-top: 0;
 		}
+		&--no-padding {
+			padding: 0;
+		}
 		&:last-child {
 			margin-bottom: 0;
 		}

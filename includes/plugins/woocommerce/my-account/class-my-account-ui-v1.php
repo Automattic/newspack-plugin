@@ -35,6 +35,7 @@ class My_Account_UI_V1 {
 		\add_filter( 'woocommerce_get_query_vars', [ __CLASS__, 'add_query_var' ] );
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1001 );
 		\add_action( 'woocommerce_account_payment-information_endpoint', [ __CLASS__, 'payment_information_endpoint' ] );
+		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
 		\add_filter( 'newspack_myaccount_required_fields', [ __CLASS__, 'account_settings_required_fields' ] );
 		\add_action( 'wp_loaded', [ __CLASS__, 'maybe_generate_password_reset_key' ] );
 		\add_action( 'template_redirect', [ __CLASS__, 'redirect_reset_password_link' ], 11 );
@@ -164,6 +165,20 @@ class My_Account_UI_V1 {
 	public static function payment_information_endpoint() {
 		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
 			\wc_get_template( 'myaccount/payment-information.php' );
+		}
+	}
+
+	/**
+	 * Redirect "Payment Methods" and "Addresses" to the "Payment Information" page.
+	 */
+	public static function redirect_payment_information_endpoint() {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			global $wp;
+			$current_url = \trailingslashit( \home_url( $wp->request ) );
+			if ( \wc_get_account_endpoint_url( 'payment-methods' ) === $current_url || \wc_get_account_endpoint_url( 'edit-address' ) === $current_url ) {
+				\wp_safe_redirect( \wc_get_account_endpoint_url( 'payment-information' ) );
+				exit;
+			}
 		}
 	}
 

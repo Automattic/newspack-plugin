@@ -62,7 +62,6 @@
 			border-radius: var(--newspack-ui-border-radius-s);
 			font-size: var(--newspack-ui-font-size-xs);
 			opacity: 0;
-			padding: var(--newspack-ui-spacer-2);
 			position: absolute;
 			left: calc(100% - var(--newspack-ui-spacer-6));
 			min-width: 160px;
@@ -70,7 +69,29 @@
 			transform: scaleY(0);
 			transform-origin: center top 0;
 			transition: opacity 0.33s cubic-bezier(0.33, 0, 0, 1), transform 0.33s cubic-bezier(0.33, 0, 0, 1);
+			z-index: 1;
 			@include mixins.newspack-ui-elevation( 1 );
+			ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				li {
+					margin: 0;
+					padding: 0;
+					.newspack-ui__button {
+						border-radius: 0;
+						display: block;
+						text-align: left;
+						white-space: nowrap;
+						width: 100%;
+						&.cancel,
+						&.delete,
+						&--destructive {
+							color: var(--newspack-ui-color-error-50);
+						}
+					}
+				}
+			}
 		}
 		&.active {
 			.newspack-ui__dropdown__content {

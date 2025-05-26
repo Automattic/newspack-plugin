@@ -20,10 +20,10 @@ $types         = \wc_get_account_payment_methods_types();
 	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Payment methods', 'newspack-plugin' ); ?></h1>
 	<?php if ( $has_methods ) : ?>
 
-		<div class="newspack-my-account__payment-methods newspack-ui__row">
+		<div class="newspack-my-account__payment-methods newspack-ui__row newspack-ui__row--no-padding">
 			<?php foreach ( $saved_methods as $type => $methods ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited ?>
 				<?php foreach ( $methods as $method ) : ?>
-					<div class="newspack-ui__box newspack-ui__box--border payment-method<?php echo ! empty( $method['is_default'] ) ? ' default-payment-method' : ''; ?>">
+					<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown payment-method<?php echo ! empty( $method['is_default'] ) ? ' default-payment-method' : ''; ?>">
 						<?php foreach ( \wc_get_account_payment_methods_columns() as $column_id => $column_name ) : ?>
 							<?php
 							if ( \has_action( 'newspack_woocommerce_account_payment_methods_column_' . $column_id ) ) {
@@ -58,13 +58,31 @@ $types         = \wc_get_account_payment_methods_types();
 								</p>
 								<?php
 							} elseif ( 'actions' === $column_id ) {
-								foreach ( $method['actions'] as $key => $action ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-									?>
-										<a href="<?php echo \esc_url( $action['url'] ); ?>" class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--icon <?php echo \sanitize_html_class( $key ); ?>">
-											<span class="screen-reader-text"><?php echo \esc_html( $action['name'] ); ?></span>
-										</a>&nbsp;
-									<?php
-								endforeach;
+								ksort( $method['actions'] );
+								?>
+								<div class="newspack-ui__dropdown">
+									<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
+										<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+										<span class="screen-reader-text">More</span>
+									</button>
+									<div class="newspack-ui__dropdown__content">
+										<ul>
+										<?php
+										foreach ( $method['actions'] as $key => $action ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+											if ( 'delete' === $key ) {
+												$action['name'] = __( 'Delete payment method', 'newspack-plugin' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+											}
+											?>
+											<li>
+												<a href="<?php echo \esc_url( $action['url'] ); ?>" class="newspack-ui__button newspack-ui__button--ghost <?php echo \sanitize_html_class( $key ); ?>">
+													<?php echo \esc_html( $action['name'] ); ?>
+												</a>
+											</li>
+										<?php endforeach; ?>
+										</ul>
+									</div>
+								</div>
+								<?php
 							}
 							?>
 						<?php endforeach; ?>
