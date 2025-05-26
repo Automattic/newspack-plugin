@@ -97,7 +97,7 @@ class My_Account_UI_V1_Passwords {
 		}
 
 		// Only if showing the password reset form.
-		if ( empty( filter_input( INPUT_GET, 'show-reset-form', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) ) {
+		if ( empty( filter_input( INPUT_GET, 'show-reset-form', FILTER_VALIDATE_BOOLEAN ) ) ) {
 			return;
 		}
 
