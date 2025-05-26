@@ -86,6 +86,7 @@ class WooCommerce_My_Account {
 				include_once __DIR__ . '/class-my-account-ui-v0.php';
 			} else {
 				include_once __DIR__ . '/class-my-account-ui-v1.php';
+				include_once __DIR__ . '/class-my-account-ui-v1-passwords.php';
 			}
 		}
 	}
