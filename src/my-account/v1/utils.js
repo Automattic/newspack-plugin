@@ -1,5 +1,29 @@
 /* global newspackMyAccountV1 */
+
+window.newspackRAS = window.newspackRAS || [];
+
 let modalCheckoutRedirectUrl = null;
+
+/**
+ * Handle overlays on checkout close.
+ *
+ * @param {Object} event                 The event object.
+ * @param {Object} event.detail          The event detail object.
+ * @param {Array}  event.detail.overlays The overlays array.
+ */
+function handleOverlay( { detail: { overlays } } ) {
+	setTimeout( () => {
+		if ( ! overlays.length ) {
+			if ( modalCheckoutRedirectUrl ) {
+				window.location.href = modalCheckoutRedirectUrl;
+				modalCheckoutRedirectUrl = null;
+			} else {
+				window.location.reload();
+			}
+			window.newspackReaderActivation.off( 'overlay', handleOverlay );
+		}
+	}, 50 );
+}
 
 /**
  * Handle the checkout complete event.
@@ -21,19 +45,20 @@ function handleCheckoutComplete( data ) {
  * Handle the modal close event.
  */
 function handleClose() {
-	if ( modalCheckoutRedirectUrl ) {
-		window.location.href = modalCheckoutRedirectUrl;
-		modalCheckoutRedirectUrl = null;
-	} else {
-		/**
-		 * Reload to restore the page state.
-		 * This is behind a timeout because when running in the ESC
-		 * keydown thread the reload doesn't work.
-		 */
+	window.newspackRAS.push( ras => {
 		setTimeout( () => {
-			window.location.reload();
-		}, 100 );
-	}
+			if ( ras.overlays.get().length ) {
+				ras.on( 'overlay', handleOverlay );
+				return;
+			}
+			if ( modalCheckoutRedirectUrl ) {
+				window.location.href = modalCheckoutRedirectUrl;
+				modalCheckoutRedirectUrl = null;
+			} else {
+				window.location.reload();
+			}
+		}, 50 );
+	} );
 }
 
 /**
