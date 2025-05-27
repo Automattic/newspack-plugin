@@ -8,6 +8,7 @@
 namespace Newspack;
 
 use Newspack\Reader_Activation;
+use Newspack\Reader_Data;
 use Newspack\WooCommerce_Connection;
 use Newspack\WooCommerce_My_Account;
 use Newspack\Newspack_UI;
@@ -164,8 +165,9 @@ class My_Account_UI_V1 {
 			return self::delete_account_confirmation_modal();
 		}
 
-		$active_subscriptions     = WooCommerce_Connection::get_active_subscriptions_for_user( $user->ID );
-		$newsletter_subscriptions = method_exists( 'Newspack_Newsletters_Subscription', 'get_contact_lists' ) ? \Newspack_Newsletters_Subscription::get_contact_lists( $user->data->user_email ) : [];
+		$active_subscriptions     = json_decode( Reader_Data::get_data( $user->ID, 'active_subscriptions' ) );
+		$active_donations         = boolval( Reader_Data::get_data( $user->ID, 'is_donor' ) );
+		$newsletter_subscriptions = json_decode( Reader_Data::get_data( $user->ID, 'newsletter_subscribed_lists' ) );
 
 		ob_start();
 		?>
@@ -178,12 +180,12 @@ class My_Account_UI_V1 {
 				sprintf(
 					// Translators: %s will be displayed only if the user has active subscriptions or newsletter subscriptions.
 					__( 'Deleting your account is permanent and cannot be undone. All your data will be removed from our systems. %s', 'newspack-plugin' ),
-					! empty( $active_subscriptions ) || ! empty( $newsletter_subscriptions ) ? __( 'Your newsletter subscriptions and all recurring payments will be cancelled.', 'newspack-plugin' ) : ''
+					! empty( $active_subscriptions ) || ! empty( $newsletter_subscriptions ) || $active_donations ? __( 'Your newsletter subscriptions and all recurring payments will be cancelled.', 'newspack-plugin' ) : ''
 				)
 			);
 			?>
 		</p>
-		<?php if ( ! empty( $active_subscriptions ) || ! empty( $newsletter_subscriptions ) ) : ?>
+		<?php if ( ! empty( $active_subscriptions ) || ! empty( $newsletter_subscriptions ) || $active_donations ) : ?>
 		<p>
 			<?php
 			esc_html_e( 'Instead of deleting your account, you may want to:', 'newspack-plugin' );
@@ -191,7 +193,7 @@ class My_Account_UI_V1 {
 		</p>
 			<?php
 		endif;
-		if ( ! empty( $active_subscriptions ) ) :
+		if ( ! empty( $active_subscriptions ) || $active_donations ) :
 			?>
 		<div class="newspack-ui__row">
 			<div>
