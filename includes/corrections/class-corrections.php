@@ -171,7 +171,7 @@ class Corrections {
 		\register_post_type( self::POST_TYPE, $args );
 
 		$rewrite_rules_updated_option_name = 'newspack_corrections_rewrite_rules_updated';
-		if ( get_option( $rewrite_rules_updated_option_name ) !== true ) {
+		if ( get_option( $rewrite_rules_updated_option_name ) !== 'true' ) {
 			flush_rewrite_rules(); //phpcs:ignore
 			update_option( $rewrite_rules_updated_option_name, true );
 		}
