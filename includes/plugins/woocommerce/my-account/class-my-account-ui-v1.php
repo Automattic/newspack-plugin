@@ -151,8 +151,10 @@ class My_Account_UI_V1 {
 	 * Display a series of modals to request account deletion.
 	 */
 	public static function delete_account_modal() {
+		$user = \wp_get_current_user();
+
 		// Only if the user is logged in and a reader.
-		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
+		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( $user ) ) {
 			return;
 		}
 
@@ -162,6 +164,9 @@ class My_Account_UI_V1 {
 			return self::delete_account_confirmation_modal();
 		}
 
+		$active_subscriptions     = WooCommerce_Connection::get_active_subscriptions_for_user( $user->ID );
+		$newsletter_subscriptions = method_exists( 'Newspack_Newsletters_Subscription', 'get_contact_lists' ) ? \Newspack_Newsletters_Subscription::get_contact_lists( $user->data->user_email ) : [];
+
 		ob_start();
 		?>
 		<h2 class="font-size newspack-ui__font--l">
@@ -169,14 +174,25 @@ class My_Account_UI_V1 {
 		</h2>
 		<p>
 			<?php
-			esc_html_e( 'Deleting your account is permanent and cannot be undone. All your data will be removed from our systems. Your newsletter subscriptions and all recurring payments will be cancelled.', 'newspack-plugin' );
+			echo esc_html(
+				sprintf(
+					// Translators: %s will be displayed only if the user has active subscriptions or newsletter subscriptions.
+					__( 'Deleting your account is permanent and cannot be undone. All your data will be removed from our systems. %s', 'newspack-plugin' ),
+					! empty( $active_subscriptions ) || ! empty( $newsletter_subscriptions ) ? __( 'Your newsletter subscriptions and all recurring payments will be cancelled.', 'newspack-plugin' ) : ''
+				)
+			);
 			?>
 		</p>
+		<?php if ( ! empty( $active_subscriptions ) || ! empty( $newsletter_subscriptions ) ) : ?>
 		<p>
 			<?php
 			esc_html_e( 'Instead of deleting your account, you may want to:', 'newspack-plugin' );
 			?>
 		</p>
+			<?php
+		endif;
+		if ( ! empty( $active_subscriptions ) ) :
+			?>
 		<div class="newspack-ui__row">
 			<div>
 				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Subscriptions', 'newspack-plugin' ); ?></p>
@@ -188,6 +204,8 @@ class My_Account_UI_V1 {
 				</a>
 			</div>
 		</div>
+		<?php endif; ?>
+		<?php if ( ! empty( $newsletter_subscriptions ) ) : ?>
 		<div class="newspack-ui__row">
 			<div>
 				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Newsletters', 'newspack-plugin' ); ?></p>
@@ -197,9 +215,10 @@ class My_Account_UI_V1 {
 				<a class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide" href="<?php echo esc_url( \wc_get_endpoint_url( 'newsletters', '', \wc_get_page_permalink( 'myaccount' ) ) ); ?>">
 					<?php esc_html_e( 'Manage newsletters', 'newspack-plugin' ); ?>
 				</a>
+				</div>
 			</div>
-		</div>
-		<?php
+			<?php
+		endif;
 		$content_send_email = ob_get_clean();
 
 		// Modal to send the delete account email.
