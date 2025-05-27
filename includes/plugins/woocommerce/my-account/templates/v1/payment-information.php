@@ -128,3 +128,52 @@ $types         = \wc_get_account_payment_methods_types();
 		<a class="newspack-ui__button newspack-ui__button--primary newspack-my-account__add-payment-method" href="<?php echo \esc_url( \wc_get_endpoint_url( 'add-payment-method' ) ); ?>"><?php \esc_html_e( 'Add payment method', 'newspack-plugin' ); ?></a>
 	<?php endif; ?>
 </section>
+
+<section id="addresses">
+	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Addresses', 'newspack-plugin' ); ?></h1>
+	<?php
+	$addresses = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
+	if ( ! \wc_ship_to_billing_address_only() && \wc_shipping_enabled() ) {
+		$addresses['shipping'] = __( 'Shipping', 'newspack-plugin' );
+	}
+	if ( ! empty( $addresses ) ) :
+		?>
+		<div class="newspack-my-account__payment-methods newspack-ui__row newspack-ui__row--no-padding">
+		<?php
+		foreach ( $addresses as $address_type => $address_label ) :
+			$address = \wc_get_account_formatted_address( $address_type );
+			if ( $address ) :
+				?>
+				<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown woocommerce-Address">
+					<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php echo \esc_html( $address_label ); ?></span>
+					<p class="newspack-ui__font--s">
+						<?php echo \wp_kses_post( $address ); ?>
+					</p>
+					<div class="newspack-ui__dropdown">
+						<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+							<span class="screen-reader-text">More</span>
+						</button>
+						<div class="newspack-ui__dropdown__content">
+							<ul>
+								<li>
+									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-ui__button newspack-ui__button--ghost edit">
+										<?php \esc_html_e( 'Edit', 'newspack-plugin' ); ?>
+									</a>
+								</li>
+								<li>
+									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-ui__button newspack-ui__button--ghost delete">
+										<?php \esc_html_e( 'Delete address', 'newspack-plugin' ); ?>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<?php
+			endif;
+		endforeach;
+		?>
+		</div>
+	<?php endif; ?>
+</section>

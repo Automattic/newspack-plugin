@@ -48,6 +48,10 @@
 			&--has-dropdown {
 				padding-right: var(--newspack-ui-spacer-6);
 			}
+			.newspack-ui__badge {
+				float: right;
+				margin-left: calc(var(--newspack-ui-spacer-base) / 2);
+			}
 		}
 	}
 	&__dropdown {
