@@ -132,23 +132,36 @@ $types         = \wc_get_account_payment_methods_types();
 <section id="addresses">
 	<h1 class="newspack-ui__font--m"><?php \esc_html_e( 'Addresses', 'newspack-plugin' ); ?></h1>
 	<?php
-	$addresses = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
+	$address_types = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
 	if ( ! \wc_ship_to_billing_address_only() && \wc_shipping_enabled() ) {
-		$addresses['shipping'] = __( 'Shipping', 'newspack-plugin' );
+		$address_types['shipping'] = __( 'Shipping', 'newspack-plugin' );
 	}
-	if ( ! empty( $addresses ) ) :
+	$address_types    = \apply_filters( 'woocommerce_my_account_get_addresses', $address_types );
+	$addresses_to_add = [];
+	$addresses        = [];
+	if ( ! empty( $address_types ) ) :
 		?>
-		<div class="newspack-my-account__payment-methods newspack-ui__row newspack-ui__row--no-padding">
+		<div class="newspack-my-account__addresses newspack-ui__row newspack-ui__row--no-padding">
 		<?php
-		foreach ( $addresses as $address_type => $address_label ) :
+		foreach ( $address_types as $address_type => $address_label ) :
 			$address = \wc_get_account_formatted_address( $address_type );
 			if ( $address ) :
+				$addresses[ $address_type ] = $address;
 				?>
 				<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown woocommerce-Address">
 					<span class="newspack-ui__badge newspack-ui__badge--secondary"><?php echo \esc_html( $address_label ); ?></span>
-					<p class="newspack-ui__font--s">
+					<address class="newspack-ui__font--s">
 						<?php echo \wp_kses_post( $address ); ?>
-					</p>
+					</address>
+					<?php
+					/**
+					 * Used to output content after core address fields.
+					 *
+					 * @param string $name Address type.
+					 * @since 8.7.0
+					 */
+					do_action( 'newspack_woocommerce_my_account_after_my_address', $address_type );
+					?>
 					<div class="newspack-ui__dropdown">
 						<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
 							<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
@@ -157,12 +170,12 @@ $types         = \wc_get_account_payment_methods_types();
 						<div class="newspack-ui__dropdown__content">
 							<ul>
 								<li>
-									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-ui__button newspack-ui__button--ghost edit">
+									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-my-account__edit-address newspack-ui__button newspack-ui__button--ghost edit" data-address-type="<?php echo esc_attr( $address_type ); ?>">
 										<?php \esc_html_e( 'Edit', 'newspack-plugin' ); ?>
 									</a>
 								</li>
 								<li>
-									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-ui__button newspack-ui__button--ghost delete">
+									<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-my-account__delete-address newspack-ui__button newspack-ui__button--ghost delete" data-address-type="<?php echo esc_attr( $address_type ); ?>">
 										<?php \esc_html_e( 'Delete address', 'newspack-plugin' ); ?>
 									</a>
 								</li>
@@ -171,9 +184,32 @@ $types         = \wc_get_account_payment_methods_types();
 					</div>
 				</div>
 				<?php
+			else :
+				$addresses_to_add[] = $address_type;
 			endif;
 		endforeach;
 		?>
+		<?php if ( empty( $addresses ) ) : ?>
+			<p>
+				<?php \esc_html_e( 'You don’t have any addresses saved yet.', 'newspack-plugin' ); ?>
+			</p>
+		<?php endif; ?>
 		</div>
+		<?php if ( ! empty( $addresses_to_add ) ) : ?>
+			<div class="newspack-ui__button__row">
+				<?php foreach ( $addresses_to_add as $address_type ) : ?>
+					<a href="<?php echo esc_url( \wc_get_endpoint_url( 'edit-address', $address_type ) ); ?>" class="newspack-my-account__edit-address newspack-ui__button newspack-ui__button--primary" data-address-type="<?php echo esc_attr( $address_type ); ?>">
+						<?php
+						printf(
+							/* translators: address type */
+							\esc_html__( 'Add %s address', 'newspack-plugin' ),
+							\esc_html( $address_type )
+						);
+						?>
+					</a>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
 	<?php endif; ?>
+	<?php do_action( 'newspack_woocommerce_after_account_addresses', $addresses ); ?>
 </section>

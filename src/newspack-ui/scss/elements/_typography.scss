@@ -9,7 +9,7 @@
 		font-size: inherit;
 		line-height: inherit;
 		margin: var(--newspack-ui-spacer-2) 0;
-		&:first-child {
+		&:first-child:not(.form-row) {
 			margin-top: 0;
 		}
 		> input[type="checkbox"],

@@ -128,15 +128,42 @@ class Newspack_UI {
 								\wp_kses_allowed_html( 'post' ),
 								Newspack_UI_Icons::sanitize_svgs(),
 								[
-									'input' => [
+									'input'    => [
 										'type'          => true,
 										'name'          => true,
 										'id'            => true,
+										'class'         => true,
+										'tabindex'      => true,
 										'placeholder'   => true,
 										'required'      => true,
+										'aria-hidden'   => true,
 										'aria-required' => true,
-										'class'         => true,
 										'value'         => true,
+										'disabled'      => true,
+									],
+									'select'   => [
+										'name'             => true,
+										'id'               => true,
+										'class'            => true,
+										'tabindex'         => true,
+										'required'         => true,
+										'aria-hidden'      => true,
+										'aria-required'    => true,
+										'value'            => true,
+										'disabled'         => true,
+										'multiple'         => true,
+										'autocomplete'     => true,
+										'data-label'       => true,
+										'data-placeholder' => true,
+									],
+									'option'   => [
+										'value'    => true,
+										'selected' => true,
+										'disabled' => true,
+									],
+									'noscript' => [],
+									'iframe'   => [
+										'src' => true,
 									],
 								]
 							)
