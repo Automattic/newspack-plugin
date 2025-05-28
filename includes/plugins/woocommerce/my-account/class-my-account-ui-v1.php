@@ -38,9 +38,7 @@ class My_Account_UI_V1 {
 		\add_action( 'woocommerce_subscription_details_table', [ __CLASS__, 'cancel_subscription_modal' ] );
 		\add_filter( 'option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
 		\add_filter( 'default_option_woocommerce_myaccount_add_payment_method_endpoint', [ __CLASS__, 'add_payment_method_endpoint' ] );
-		\add_action( 'template_redirect', [ __CLASS__, 'redirect_payment_information_endpoint' ] );
 		\add_action( 'newspack_woocommerce_after_account_payment_methods', [ __CLASS__, 'add_payment_method_modal' ] );
-		\add_action( 'newspack_woocommerce_after_account_addresses', [ __CLASS__, 'add_address_modals' ] );
 	}
 
 	/**
@@ -158,9 +156,6 @@ class My_Account_UI_V1 {
 		if ( isset( $items['payment-methods'] ) ) {
 			$items['payment-methods'] = __( 'Payment information', 'newspack-plugin' );
 		}
-
-		// Remove "Addresses" (replaced by custom "Payment Information" page).
-		unset( $items['edit-address'] );
 
 		return $items;
 	}
@@ -477,20 +472,6 @@ class My_Account_UI_V1 {
 	}
 
 	/**
-	 * Redirect "Addresses" to the "Payment Information" page.
-	 */
-	public static function redirect_payment_information_endpoint() {
-		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
-			global $wp;
-			$current_url = \trailingslashit( \home_url( $wp->request ) );
-			if ( \trailingslashit( \wc_get_account_endpoint_url( 'edit-address' ) ) === $current_url ) {
-				\wp_safe_redirect( \wc_get_account_endpoint_url( 'payment-methods' ) );
-				exit;
-			}
-		}
-	}
-
-	/**
 	 * Render the "Add Payment Method" modal.
 	 */
 	public static function add_payment_method_modal() {
@@ -518,51 +499,6 @@ class My_Account_UI_V1 {
 				],
 			]
 		);
-	}
-
-	/**
-	 * Render the "Add Address" modal.
-	 */
-	public static function add_address_modals() {
-		if ( ! \is_user_logged_in() || ! Reader_Activation::is_user_reader( \wp_get_current_user() ) ) {
-			return;
-		}
-		$address_types = [ 'billing' => __( 'Billing', 'newspack-plugin' ) ];
-		if ( ! \wc_ship_to_billing_address_only() && \wc_shipping_enabled() ) {
-			$address_types['shipping'] = __( 'Shipping', 'newspack-plugin' );
-		}
-		$address_types = \apply_filters( 'woocommerce_my_account_get_addresses', $address_types );
-		foreach ( $address_types as $address_type => $address_name ) {
-			$address = \wc_get_account_formatted_address( $address_type );
-			ob_start();
-			\woocommerce_account_edit_address( $address_type );
-			$content = ob_get_clean();
-			Newspack_UI::generate_modal(
-				[
-					'id'      => 'edit-address-' . $address_type,
-					'title'   => ! empty( $address ) ? sprintf(
-						// Translators: %s is the address type.
-						__( 'Edit %s address', 'newspack-plugin' ),
-						$address_type
-					) : sprintf(
-						// Translators: %s is the address type.
-						__( 'Add %s address', 'newspack-plugin' ),
-						$address_type
-					),
-					'content' => $content,
-					'size'    => 'medium',
-					'form'    => 'POST',
-					'form_id' => 'edit_address_' . $address_type,
-					'actions' => [
-						'cancel' => [
-							'label'  => __( 'Cancel', 'newspack-plugin' ),
-							'type'   => 'ghost',
-							'action' => 'close',
-						],
-					],
-				]
-			);
-		}
 	}
 }
 My_Account_UI_V1::init();
