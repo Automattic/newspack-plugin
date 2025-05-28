@@ -1,3 +1,10 @@
+## [6.6.3](https://github.com/Automattic/newspack-plugin/compare/v6.6.2...v6.6.3) (2025-05-27)
+
+
+### Bug Fixes
+
+* **corrections:** rewrite rule flush check ([#3998](https://github.com/Automattic/newspack-plugin/issues/3998)) ([e2023db](https://github.com/Automattic/newspack-plugin/commit/e2023db4f10304c7b4fd062439fd580ffa113dcd))
+
 ## [6.6.2](https://github.com/Automattic/newspack-plugin/compare/v6.6.1...v6.6.2) (2025-05-21)
 
 

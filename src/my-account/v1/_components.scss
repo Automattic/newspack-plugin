@@ -4,15 +4,17 @@
 
 .newspack-my-account {
 	.woocommerce-buttons-card {
+		clear: both;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.8em;
+		margin: var(--newspack-ui-spacer-5) 0;
 	}
 
 	.woocommerce-card {
 		a {
 			align-items: center;
-			border: 1px solid var(--newspack-theme-color-border-light);
+			border: 1px solid var(--newspack-ui-color-border);
 			border-radius: 5px;
 			display: flex;
 			gap: 0.8em;
@@ -30,7 +32,7 @@
 			}
 
 			&:hover {
-				border-color: var(--newspack-theme-color-text-main);
+				border-color: var(--newspack-ui-color-border);
 
 				&::after {
 					transform: translateX(0.4em);

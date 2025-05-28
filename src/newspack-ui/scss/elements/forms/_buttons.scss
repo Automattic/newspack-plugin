@@ -1,3 +1,5 @@
+@use "../../variables/breakpoints";
+
 .newspack-ui {
 	.newspack-ui__button {
 		align-items: center;
@@ -27,6 +29,12 @@
 
 		&:last-child {
 			margin-bottom: 0;
+		}
+
+		@media only screen and ( min-width: breakpoints.$tablet_width ) {
+			&:not(.newspack-ui__button--wide) {
+				margin-bottom: 0;
+			}
 		}
 
 		&:hover {
@@ -171,9 +179,17 @@
 		}
 
 		// Wide
-		&--wide {
+		&--wide,
+		&--wide-on-mobile {
 			display: flex;
 			width: 100%;
+		}
+
+		@media only screen and ( min-width: breakpoints.$tablet_width ) {
+			&--wide-on-mobile {
+				display: inline-flex;
+				width: auto;
+			}
 		}
 
 		// Icon-only
@@ -226,6 +242,10 @@
 				width: calc(var(--newspack-ui-spacer-base) * 2.25);
 			}
 		}
+	}
+	br + .newspack-ui__button,
+	.newspack-ui__demo .newspack-ui__button + .newspack-ui__button {
+		margin-top: var(--newspack-ui-spacer-2);
 	}
 }
 

@@ -8,5 +8,31 @@
 		color: var(--newspack-ui-color-neutral-60);
 		font-size: var(--newspack-ui-font-size-xs);
 		line-height: var(--newspack-ui-line-height-xs);
+		.legend {
+			display: block;
+			margin: var(--newspack-ui-spacer-base) 0;
+		}
+		small {
+			font-size: inherit;
+		}
+	}
+	.woocommerce-password-strength {
+		display: block;
+		font-size: var(--newspack-ui-font-size-xs);
+		margin: var(--newspack-ui-spacer-base) 0;
+		& + small {
+			display: block;
+			margin-top: calc(var(--newspack-ui-spacer-base) * -1);
+		}
+		&.short,
+		&.bad {
+			color: var(--newspack-ui-color-error-50);
+		}
+		&.good {
+			color: var(--newspack-ui-color-warning-40);
+		}
+		&.strong {
+			color: var(--newspack-ui-color-success-50);
+		}
 	}
 }
