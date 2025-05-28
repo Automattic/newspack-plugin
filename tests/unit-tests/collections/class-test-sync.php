@@ -22,11 +22,10 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		register_post_type( Post_Type::get_post_type() );
-		register_taxonomy( Collection_Taxonomy::get_taxonomy(), Post_Type::get_post_type() );
-		// Register hooks for both post type and taxonomy to enable sync functionality.
-		Post_Type::register_hooks();
-		Collection_Taxonomy::register_hooks();
+
+		// Call init to register post type and taxonomy and enable sync functionality.
+		Post_Type::init();
+		Collection_Taxonomy::init();
 	}
 
 	/**
