@@ -227,7 +227,7 @@ class My_Account_UI_V1 {
 				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Subscriptions', 'newspack-plugin' ); ?></p>
 				<p class="newspack-ui__helper-text"><?php esc_html_e( 'Review and cancel active subscriptions.', 'newspack-plugin' ); ?></p>
 			</div>
-			<div class="newspack-ui__width--33">
+			<div class="newspack-ui__width--40">
 				<a class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide" href="<?php echo esc_url( \wc_get_endpoint_url( 'subscriptions', '', \wc_get_page_permalink( 'myaccount' ) ) ); ?>">
 					<?php esc_html_e( 'Manage subscriptions', 'newspack-plugin' ); ?>
 				</a>
@@ -240,7 +240,7 @@ class My_Account_UI_V1 {
 				<p class="font-size newspack-ui__font--s newspack-ui__font--bold"><?php esc_html_e( 'Newsletters', 'newspack-plugin' ); ?></p>
 				<p class="newspack-ui__helper-text"><?php esc_html_e( 'Update your newsletter preferences.', 'newspack-plugin' ); ?></p>
 			</div>
-			<div class="newspack-ui__width--33">
+			<div class="newspack-ui__width--40">
 				<a class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide" href="<?php echo esc_url( \wc_get_endpoint_url( 'newsletters', '', \wc_get_page_permalink( 'myaccount' ) ) ); ?>">
 					<?php esc_html_e( 'Manage newsletters', 'newspack-plugin' ); ?>
 				</a>

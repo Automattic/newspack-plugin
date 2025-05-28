@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Reader_Activation\ESP_Sync;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -1224,7 +1226,7 @@ class WooCommerce_My_Account {
 			return;
 		}
 		$contact = ESP_Sync::get_contact_data( $user_id );
-		if ( ! $contact ) {
+		if ( ! $contact || is_wp_error( $contact ) ) {
 			return;
 		}
 		$update = ESP_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );
