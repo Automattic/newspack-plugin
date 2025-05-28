@@ -93,12 +93,12 @@ $types         = \wc_get_account_payment_methods_types();
 										<ul>
 										<?php
 										foreach ( $method['actions'] as $key => $action ) : // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-											if ( 'delete' === $key ) {
+											if ( 'delete' === $key || 'wcs_deletion_error' === $key ) {
 												$action['name'] = __( 'Delete payment method', 'newspack-plugin' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 											}
 											?>
 											<li>
-												<a href="<?php echo \esc_url( $action['url'] ); ?>" class="newspack-ui__button newspack-ui__button--ghost <?php echo \sanitize_html_class( $key ); ?>">
+												<a href="<?php echo \esc_url( $action['url'] ); ?>" class="newspack-ui__button newspack-ui__button--ghost <?php echo \sanitize_html_class( $key ); ?> <?php echo 'wcs_deletion_error' === $key ? 'disabled' : ''; ?>">
 													<?php echo \esc_html( $action['name'] ); ?>
 												</a>
 											</li>

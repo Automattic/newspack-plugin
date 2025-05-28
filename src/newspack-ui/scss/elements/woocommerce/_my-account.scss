@@ -13,6 +13,7 @@
 	.woocommerce-info,
 	.woocommerce-error {
 		@extend .newspack-ui__notice;
+		display: block;
 		list-style: none;
 
 		> p:first-child {
