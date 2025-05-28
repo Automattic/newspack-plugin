@@ -150,6 +150,10 @@
 			height: 100%;
 		}
 	}
+	.woocommerce form .form-row label,
+	.woocommerce-page form .form-row label {
+		display: inline;
+	}
 	label:has(input[type="checkbox"]),
 	label:has(input[type="radio"]) {
 		display: inline !important;
