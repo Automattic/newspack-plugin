@@ -14,7 +14,7 @@ use Newspack\Collections\Collection_Taxonomy;
 /**
  * Test the Collections Taxonomy functionality.
  */
-class Test_Taxonomy extends WP_UnitTestCase {
+class Test_Collection_Taxonomy extends WP_UnitTestCase {
 	use Traits\Trait_Collections_Test;
 
 	/**
