@@ -9,6 +9,14 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
+require_once __DIR__ . '/../collections/traits/trait-hook-management.php';
+require_once __DIR__ . '/../collections/class-post-type.php';
+require_once __DIR__ . '/../collections/class-collection-taxonomy.php';
+require_once __DIR__ . '/../collections/class-sync.php';
+
+use Newspack\Collections\Post_Type;
+use Newspack\Collections\Collection_Taxonomy;
+
 /**
  * Collections module for managing print editions and other collections.
  */
@@ -29,23 +37,8 @@ class Collections {
 			return;
 		}
 
-		// Register hooks and filters.
-		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
-		add_action( 'init', [ __CLASS__, 'register_taxonomies' ] );
-	}
-
-	/**
-	 * Register the Collections custom post type.
-	 */
-	public static function register_post_type() {
-		// TODO: Implement post type registration.
-	}
-
-	/**
-	 * Register the Collections and Sections taxonomies.
-	 */
-	public static function register_taxonomies() {
-		// TODO: Implement taxonomy registration.
+		Post_Type::init();
+		Collection_Taxonomy::init();
 	}
 
 	/**

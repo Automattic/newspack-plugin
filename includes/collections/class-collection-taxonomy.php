@@ -1,0 +1,119 @@
+<?php
+/**
+ * Collections Taxonomy handler.
+ *
+ * @package Newspack
+ */
+
+namespace Newspack\Collections;
+
+use Newspack\Collections\Traits\Hook_Management_Trait;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Handles the Collections taxonomy and related operations.
+ */
+class Collection_Taxonomy {
+	use Hook_Management_Trait;
+
+	/**
+	 * Taxonomy for Collections.
+	 *
+	 * @var string
+	 */
+	private const TAXONOMY = 'collection_tax';
+
+	/**
+	 * Get the hooks for collection taxonomy operations.
+	 *
+	 * @return array {
+	 *     Array of hooks with the same structure as the add_action() parameters.
+	 *
+	 *     @type string   $hook
+	 *     @type callable $callback
+	 *     @type int      $priority
+	 *     @type int      $accepted_args
+	 * }
+	 */
+	protected static function get_hooks() {
+		return [
+			[ 'created_' . self::get_taxonomy(), [ Sync::class, 'handle_term_created' ], 10, 2 ],
+			[ 'edited_' . self::get_taxonomy(), [ Sync::class, 'handle_term_edited' ], 10, 2 ],
+			[ 'pre_delete_term', [ Sync::class, 'handle_term_deleted' ], 10, 2 ],
+		];
+	}
+
+	/**
+	 * Get the taxonomy for Collections.
+	 *
+	 * @return string The taxonomy name.
+	 */
+	public static function get_taxonomy() {
+		return self::TAXONOMY;
+	}
+
+	/**
+	 * Initialize the taxonomy handler.
+	 */
+	public static function init() {
+		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
+		self::register_hooks();
+	}
+
+	/**
+	 * Register the Collections taxonomy.
+	 */
+	public static function register_taxonomy() {
+		$labels = array(
+			'name'              => _x( 'Collections', 'taxonomy general name', 'newspack-plugin' ),
+			'singular_name'     => _x( 'Collection', 'taxonomy singular name', 'newspack-plugin' ),
+			'search_items'      => __( 'Search Collections', 'newspack-plugin' ),
+			'all_items'         => __( 'All Collections', 'newspack-plugin' ),
+			'parent_item'       => __( 'Parent Collection', 'newspack-plugin' ),
+			'parent_item_colon' => __( 'Parent Collection:', 'newspack-plugin' ),
+			'edit_item'         => __( 'Edit Collection', 'newspack-plugin' ),
+			'update_item'       => __( 'Update Collection', 'newspack-plugin' ),
+			'add_new_item'      => __( 'Add New Collection', 'newspack-plugin' ),
+			'new_item_name'     => __( 'New Collection Name', 'newspack-plugin' ),
+			'menu_name'         => __( 'Collections', 'newspack-plugin' ),
+		);
+
+		$args = array(
+			'labels'            => $labels,
+			'description'       => __( 'Internal taxonomy for associating collections with posts.', 'newspack-plugin' ),
+			'public'            => false,
+			'show_ui'           => true,
+			'show_in_menu'      => false,
+			'show_admin_column' => true,
+			'query_var'         => false,
+			'rewrite'           => false,
+			'show_in_rest'      => true,
+		);
+
+		register_taxonomy( self::get_taxonomy(), array( 'post' ), $args );
+	}
+
+	/**
+	 * Find a term by name with optional meta conditions.
+	 *
+	 * @param string $term_name The name of the term to find.
+	 * @param array  $meta_conditions Optional. Array of meta conditions to check. Default empty array.
+	 * @return int[]|WP_Error Array of term IDs on success, WP_Error on failure.
+	 */
+	public static function find_term_by_name( $term_name, $meta_conditions = [] ) {
+		$args = [
+			'taxonomy'   => self::get_taxonomy(),
+			'hide_empty' => false,
+			'name'       => $term_name,
+			'fields'     => 'ids',
+			'number'     => 1,
+		];
+
+		if ( ! empty( $meta_conditions ) ) {
+			$args['meta_query'] = $meta_conditions; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		}
+
+		return get_terms( $args );
+	}
+}
