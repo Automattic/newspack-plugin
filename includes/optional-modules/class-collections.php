@@ -12,10 +12,12 @@ defined( 'ABSPATH' ) || exit;
 require_once __DIR__ . '/../collections/traits/trait-hook-management.php';
 require_once __DIR__ . '/../collections/class-post-type.php';
 require_once __DIR__ . '/../collections/class-collection-taxonomy.php';
+require_once __DIR__ . '/../collections/class-collection-category-taxonomy.php';
 require_once __DIR__ . '/../collections/class-sync.php';
 
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Collection_Taxonomy;
+use Newspack\Collections\Collection_Category_Taxonomy;
 
 /**
  * Collections module for managing print editions and other collections.
@@ -39,6 +41,7 @@ class Collections {
 
 		Post_Type::init();
 		Collection_Taxonomy::init();
+		Collection_Category_Taxonomy::init();
 	}
 
 	/**
