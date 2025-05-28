@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Display Settings > Media Credits
+ * Newspack > Settings > Advanced Settings > Media Credits
  */
 
 /**

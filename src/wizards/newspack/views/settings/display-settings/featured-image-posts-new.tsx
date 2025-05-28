@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Display Settings > Featured Image Posts New
+ * Newspack > Settings > Advanced Settings > Featured Image Posts New
  */
 
 /**

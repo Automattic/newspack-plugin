@@ -102,7 +102,7 @@ class Newspack_Settings extends Wizard {
 				'label' => __( 'Theme and Brand', 'newspack-plugin' ),
 			],
 			'display-settings' => [
-				'label' => __( 'Display Settings', 'newspack-plugin' ),
+				'label' => __( 'Advanced Settings', 'newspack-plugin' ),
 			],
 		];
 		if ( defined( 'NEWSPACK_MULTIBRANDED_SITE_PLUGIN_FILE' ) ) {
