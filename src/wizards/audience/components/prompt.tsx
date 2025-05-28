@@ -162,7 +162,6 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 				<Grid columns={ 2 } gutter={ 64 } className="newspack-ras-campaign__grid">
 					<div className="newspack-ras-campaign__fields">
 						{ prompt.user_input_fields.map( ( field: InputField ) => (
-							// @ts-expect-error TS doesn't like Fragments when used in a map function in this way.
 							<Fragment key={ field.name }>
 								{ 'array' === field.type && Array.isArray( field.options ) && (
 									<BaseControl
