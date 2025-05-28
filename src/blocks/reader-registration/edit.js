@@ -18,14 +18,7 @@ import {
 	useInnerBlocksProps,
 	InnerBlocks,
 } from '@wordpress/block-editor';
-import {
-	Spinner,
-	Notice,
-	TextControl,
-	ToggleControl,
-	PanelBody,
-	Button,
-} from '@wordpress/components';
+import { Spinner, Notice, TextControl, ToggleControl, PanelBody, Button } from '@wordpress/components';
 import { Icon, check } from '@wordpress/icons';
 
 /**
@@ -34,7 +27,7 @@ import { Icon, check } from '@wordpress/icons';
 import './editor.scss';
 import { emailSend } from '../../icons';
 
-const getListCheckboxId = ( listId ) => {
+const getListCheckboxId = listId => {
 	return 'newspack-reader-registration-list-checkbox-' + listId;
 };
 
@@ -118,10 +111,10 @@ export default function ReaderRegistrationEdit( {
 		return lists.length === 1 && hideSubscriptionInput;
 	};
 
-	const isListSelected = ( listId ) => {
+	const isListSelected = listId => {
 		return listsCheckboxes.hasOwnProperty( listId ) && listsCheckboxes[ listId ];
 	};
-	const toggleListCheckbox = ( listId ) => () => {
+	const toggleListCheckbox = listId => () => {
 		const newListsCheckboxes = { ...listsCheckboxes };
 		newListsCheckboxes[ listId ] = ! isListSelected( listId );
 		setAttributes( { listsCheckboxes: newListsCheckboxes } );
@@ -135,7 +128,7 @@ export default function ReaderRegistrationEdit( {
 						label={ __( 'Input placeholder', 'newspack-plugin' ) }
 						value={ placeholder }
 						disabled={ inFlight }
-						onChange={ ( value ) => setAttributes( { placeholder: value } ) }
+						onChange={ value => setAttributes( { placeholder: value } ) }
 					/>
 				</PanelBody>
 				{ newspack_blocks.has_newsletters && (
@@ -166,7 +159,9 @@ export default function ReaderRegistrationEdit( {
 											checked={ displayListDescription }
 											disabled={ inFlight }
 											onChange={ () =>
-												setAttributes( { displayListDescription: ! displayListDescription } )
+												setAttributes( {
+													displayListDescription: ! displayListDescription,
+												} )
 											}
 										/>
 										<ToggleControl
@@ -177,20 +172,25 @@ export default function ReaderRegistrationEdit( {
 											checked={ hideSubscriptionInput }
 											disabled={ inFlight || lists.length !== 1 }
 											onChange={ () =>
-												setAttributes( { hideSubscriptionInput: ! hideSubscriptionInput } )
+												setAttributes( {
+													hideSubscriptionInput: ! hideSubscriptionInput,
+												} )
 											}
 										/>
 										{ lists.length < 1 && (
 											<div style={ { marginBottom: '1.5rem' } }>
 												<Notice isDismissible={ false } status="error">
-													{ __( 'You must select at least one list.', 'newspack-plugin' ) }
+													{ __(
+														'You must select at least one list.',
+														'newspack-plugin'
+													) }
 												</Notice>
 											</div>
 										) }
 										{ Object.keys( listConfig ).length > 0 && (
 											<p>{ __( 'Lists', 'newspack-plugin' ) }:</p>
 										) }
-										{ Object.keys( listConfig ).map( ( listId ) => (
+										{ Object.keys( listConfig ).map( listId => (
 											<ToggleControl
 												key={ listId }
 												label={ listConfig[ listId ].title }
@@ -200,7 +200,9 @@ export default function ReaderRegistrationEdit( {
 													if ( ! lists.includes( listId ) ) {
 														setAttributes( { lists: lists.concat( listId ) } );
 													} else {
-														setAttributes( { lists: lists.filter( ( id ) => id !== listId ) } );
+														setAttributes( {
+															lists: lists.filter( id => id !== listId ),
+														} );
 													}
 												} }
 											/>
@@ -246,7 +248,7 @@ export default function ReaderRegistrationEdit( {
 				<div className="newspack-registration__state-bar">
 					<span>{ __( 'Edited State', 'newspack-plugin' ) }</span>
 					<div>
-						{ editedStateOptions.map( ( option ) => (
+						{ editedStateOptions.map( option => (
 							<Button
 								key={ option.value }
 								data-is-active={ editedState === option.value }
@@ -262,7 +264,7 @@ export default function ReaderRegistrationEdit( {
 						<form onSubmit={ ev => ev.preventDefault() }>
 							<div className="newspack-registration__header">
 								<RichText
-									onChange={ ( value ) => setAttributes( { title: value } ) }
+									onChange={ value => setAttributes( { title: value } ) }
 									placeholder={ __( 'Add title', 'newspack-plugin' ) }
 									value={ title }
 									allowedFormats={ [] }
@@ -271,7 +273,7 @@ export default function ReaderRegistrationEdit( {
 								/>
 							</div>
 							<RichText
-								onChange={ ( value ) => setAttributes( { description: value } ) }
+								onChange={ value => setAttributes( { description: value } ) }
 								placeholder={ __( 'Add description', 'newspack-plugin' ) }
 								value={ description }
 								tagName="p"
@@ -295,8 +297,13 @@ export default function ReaderRegistrationEdit( {
 												<strong>
 													{ lists.length === 1 ? (
 														<RichText
-															onChange={ value => setAttributes( { newsletterLabel: value } ) }
-															placeholder={ __( 'Subscribe to our newsletter', 'newspack-plugin' ) }
+															onChange={ value =>
+																setAttributes( { newsletterLabel: value } )
+															}
+															placeholder={ __(
+																'Subscribe to our newsletter',
+																'newspack-plugin'
+															) }
 															value={ newsletterLabel }
 															allowedFormats={ [] }
 															tagName="span"
@@ -319,7 +326,9 @@ export default function ReaderRegistrationEdit( {
 										<div className="newspack-ui">
 											<button className="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary newspack-ui__button--google-oauth">
 												<span
-													dangerouslySetInnerHTML={ { __html: newspack_blocks.google_logo_svg } }
+													dangerouslySetInnerHTML={ {
+														__html: newspack_blocks.google_logo_svg,
+													} }
 												/>
 												{ __( 'Sign in with Google', 'newspack-plugin' ) }
 											</button>
@@ -336,7 +345,7 @@ export default function ReaderRegistrationEdit( {
 												className="newspack-ui__button newspack-ui__button--primary"
 											>
 												<RichText
-													onChange={ ( value ) => setAttributes( { label: value } ) }
+													onChange={ value => setAttributes( { label: value } ) }
 													placeholder={ __( 'Sign up', 'newspack-plugin' ) }
 													value={ label }
 													allowedFormats={ [] }
@@ -356,7 +365,10 @@ export default function ReaderRegistrationEdit( {
 								>
 									<RichText
 										onChange={ value => setAttributes( { signInLabel: value } ) }
-										placeholder={ __( 'Sign in to an existing account', 'newspack-plugin' ) }
+										placeholder={ __(
+											'Sign in to an existing account',
+											'newspack-plugin'
+										) }
 										value={ signInLabel }
 										allowedFormats={ [] }
 										tagName="span"

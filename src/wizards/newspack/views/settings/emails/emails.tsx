@@ -27,9 +27,7 @@ const Emails = () => {
 	const { wizardApiFetch, isFetching, errorMessage, resetError } =
 		useWizardApiFetch( 'newspack-settings/emails' );
 
-	const [ emails, setEmails ] = useState(
-		Object.values( emailSections.emails.all )
-	);
+	const [ emails, setEmails ] = useState( Object.values( emailSections.emails.all ) );
 
 	const updateStatus = ( postId: number, status: string ) => {
 		wizardApiFetch(
@@ -92,9 +90,7 @@ const Emails = () => {
 						'Newspack Newsletters is the plugin that powers Newspack email receipts.',
 						'newspack-plugin'
 					) }
-					onStatusChange={ (
-						statuses: Record< string, boolean >
-					) => {
+					onStatusChange={ ( statuses: Record< string, boolean > ) => {
 						if ( ! statuses.isLoading ) {
 							setPluginsReady( statuses.isSetup );
 						}
@@ -109,10 +105,7 @@ const Emails = () => {
 			{ emails.map( email => {
 				const isActive = email.status === 'publish';
 				const isAudience = email.category === 'reader-activation';
-				let notification = __(
-					'This email is not active.',
-					'newspack-plugin'
-				);
+				let notification = __( 'This email is not active.', 'newspack-plugin' );
 				if ( email.type === 'receipt' ) {
 					notification = __(
 						'This email is not active. The default receipt will be used.',
@@ -152,13 +145,10 @@ const Emails = () => {
 						{ ...( isAudience
 							? {}
 							: {
-								toggleChecked: isActive,
-								toggleOnChange: value =>
-									updateStatus(
-										email.post_id,
-										value ? 'publish' : 'draft'
-									)
-							} ) }
+									toggleChecked: isActive,
+									toggleOnChange: value =>
+										updateStatus( email.post_id, value ? 'publish' : 'draft' ),
+							  } ) }
 						{ ...( isActive
 							? {}
 							: {
@@ -169,11 +159,7 @@ const Emails = () => {
 						{ errorMessage && (
 							<Notice
 								noticeText={
-									errorMessage ||
-									__(
-										'Something went wrong.',
-										'newspack-plugin'
-									)
+									errorMessage || __( 'Something went wrong.', 'newspack-plugin' )
 								}
 								isError
 							/>

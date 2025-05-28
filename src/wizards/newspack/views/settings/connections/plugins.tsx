@@ -13,8 +13,7 @@ import { Fragment } from '@wordpress/element';
  */
 import WizardsPluginCard from '../../../../wizards-plugin-card';
 
-const { plugins: pluginsSection, analytics: analyticsSection } =
-	window.newspackSettings.connections.sections;
+const { plugins: pluginsSection, analytics: analyticsSection } = window.newspackSettings.connections.sections;
 
 const PLUGINS: Record< string, PluginCard > = {
 	jetpack: {
@@ -27,10 +26,7 @@ const PLUGINS: Record< string, PluginCard > = {
 		editLink: analyticsSection.editLink,
 		title: __( 'Site Kit by Google', 'newspack-plugin' ),
 		statusDescription: {
-			notConfigured: __(
-				'Not connected for this user',
-				'newspack-plugin'
-			),
+			notConfigured: __( 'Not connected for this user', 'newspack-plugin' ),
 		},
 	},
 	everlit: {
@@ -44,11 +40,7 @@ const PLUGINS: Record< string, PluginCard > = {
 					'Complete setup and licensing agreement to unlock 5 free audio stories per month.',
 					'newspack-plugin'
 				) }{ ' ' }
-				<a
-					href="https://everlit.audio/"
-					target="_blank"
-					rel="noreferrer"
-				>
+				<a href="https://everlit.audio/" target="_blank" rel="noreferrer">
 					{ __( 'Learn more', 'newspack-plugin' ) }
 				</a>
 			</>
@@ -65,25 +57,19 @@ const PLUGINS: Record< string, PluginCard > = {
  * Newspack Settings Plugins section.
  */
 function Plugins() {
-	const plugins = Object.keys( PLUGINS ).reduce(
-		( acc: Record< string, PluginCard >, pluginKey ) => {
-			acc[ pluginKey ] = {
-				...PLUGINS[ pluginKey ],
-				isEnabled: pluginsSection.enabled?.[ pluginKey ] ?? true,
-			};
-			return acc;
-		},
-		{}
-	);
+	const plugins = Object.keys( PLUGINS ).reduce( ( acc: Record< string, PluginCard >, pluginKey ) => {
+		acc[ pluginKey ] = {
+			...PLUGINS[ pluginKey ],
+			isEnabled: pluginsSection.enabled?.[ pluginKey ] ?? true,
+		};
+		return acc;
+	}, {} );
 	return (
 		<Fragment>
 			{ Object.keys( plugins ).map( pluginKey => {
 				return (
 					plugins[ pluginKey ].isEnabled && (
-						<WizardsPluginCard
-							key={ pluginKey }
-							{ ...plugins[ pluginKey ] }
-						/>
+						<WizardsPluginCard key={ pluginKey } { ...plugins[ pluginKey ] } />
 					)
 				);
 			} ) }

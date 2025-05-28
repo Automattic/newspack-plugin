@@ -356,7 +356,9 @@ class AudienceCampaigns extends Component {
 										<Segments
 											{ ...props }
 											{ ...sharedProps }
-											setSegments={ segmentsList => this.setState( { segments: segmentsList } ) }
+											setSegments={ segmentsList =>
+												this.setState( { segments: segmentsList } )
+											}
 										/>
 									) }
 								/>

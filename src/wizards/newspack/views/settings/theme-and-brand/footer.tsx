@@ -11,13 +11,7 @@ import { ToggleControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import {
-	ColorPicker,
-	Grid,
-	ImageUpload,
-	SelectControl,
-	TextControl,
-} from '../../../../../components/src';
+import { ColorPicker, Grid, ImageUpload, SelectControl, TextControl } from '../../../../../components/src';
 
 export default function Footer( {
 	themeMods,
@@ -35,9 +29,7 @@ export default function Footer( {
 				<TextControl
 					label={ __( 'Copyright information', 'newspack' ) }
 					value={ themeMods.footer_copyright || '' }
-					onChange={ ( footer_copyright: string ) =>
-						updateThemeMods( { footer_copyright } )
-					}
+					onChange={ ( footer_copyright: string ) => updateThemeMods( { footer_copyright } ) }
 				/>
 				{ /* <Card noBorder className="newspack-design__footer__copyright">
 				</Card> */ }
@@ -48,18 +40,13 @@ export default function Footer( {
 							footer_color: checked ? 'custom' : 'default',
 						} )
 					}
-					label={ __(
-						'Apply a background color to the footer',
-						'newspack'
-					) }
+					label={ __( 'Apply a background color to the footer', 'newspack' ) }
 				/>
 				{ themeMods.footer_color === 'custom' && (
 					<ColorPicker
 						label={ __( 'Background color' ) }
 						color={ themeMods.footer_color_hex }
-						onChange={ ( footer_color_hex: string ) =>
-							updateThemeMods( { footer_color_hex } )
-						}
+						onChange={ ( footer_color_hex: string ) => updateThemeMods( { footer_color_hex } ) }
 					/>
 				) }
 			</Grid>
@@ -67,14 +54,10 @@ export default function Footer( {
 				<ImageUpload
 					className="newspack-design__footer__logo"
 					label={ __( 'Alternative Logo', 'newspack' ) }
-					help={ __(
-						'Optional alternative logo to be displayed in the footer.',
-						'newspack'
-					) }
+					help={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
 					style={ {
 						backgroundColor:
-							themeMods.footer_color === 'custom' &&
-							themeMods.footer_color_hex
+							themeMods.footer_color === 'custom' && themeMods.footer_color_hex
 								? themeMods.footer_color_hex
 								: 'transparent',
 					} }
@@ -88,9 +71,7 @@ export default function Footer( {
 						className="icon-only"
 						label={ __( 'Alternative logo - Size', 'newspack' ) }
 						value={ themeMods.footer_logo_size }
-						onChange={ ( footer_logo_size: string ) =>
-							updateThemeMods( { footer_logo_size } )
-						}
+						onChange={ ( footer_logo_size: string ) => updateThemeMods( { footer_logo_size } ) }
 						buttonOptions={ [
 							{ value: 'small', label: 'S' },
 							{ value: 'medium', label: 'M' },

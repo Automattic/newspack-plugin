@@ -23,8 +23,7 @@ const TestComponent = () => {
 };
 
 describe( 'useObjectState', () => {
-	const getState = () =>
-		JSON.parse( screen.getByPlaceholderText( 'state' ).getAttribute( 'value' ) );
+	const getState = () => JSON.parse( screen.getByPlaceholderText( 'state' ).getAttribute( 'value' ) );
 
 	beforeEach( () => {
 		render( <TestComponent /> );

@@ -192,7 +192,10 @@ const SegmentActionCard = ( {
 										onKeyDown={ event => ESCAPE === event.keyCode && onFocusOutside }
 										onFocusOutside={ onFocusOutside }
 									>
-										<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
+										<MenuItem
+											onClick={ () => onFocusOutside() }
+											className="screen-reader-text"
+										>
 											{ __( 'Close Popover', 'newspack-plugin' ) }
 										</MenuItem>
 										<MenuItem

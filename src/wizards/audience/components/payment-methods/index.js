@@ -43,11 +43,7 @@ const PaymentGateways = () => {
 		>
 			{ errors.length > 0 &&
 				errors.map( ( error, index ) => (
-					<Notice
-						isError
-						key={ index }
-						noticeText={ <span>{ error.message }</span> }
-					/>
+					<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
 				) ) }
 			{ is_ssl === false && (
 				<Notice
@@ -65,15 +61,15 @@ const PaymentGateways = () => {
 					}
 				/>
 			) }
-			{
-				Object.keys( paymentGateways ).map( gateway => {
-					// Stripe has unique connection status and badge level logic.
-					if ( 'stripe' === gateway ) {
-						return <Stripe key={ paymentGateways[ gateway ] } stripe={ paymentGateways[ gateway ] } />;
-					}
-					return <PaymentGateway key={ gateway } gateway={ paymentGateways[ gateway ] } />;
-				} )
-			}
+			{ Object.keys( paymentGateways ).map( gateway => {
+				// Stripe has unique connection status and badge level logic.
+				if ( 'stripe' === gateway ) {
+					return (
+						<Stripe key={ paymentGateways[ gateway ] } stripe={ paymentGateways[ gateway ] } />
+					);
+				}
+				return <PaymentGateway key={ gateway } gateway={ paymentGateways[ gateway ] } />;
+			} ) }
 		</WizardsSection>
 	);
 };

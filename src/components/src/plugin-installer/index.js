@@ -166,8 +166,7 @@ class PluginInstaller extends Component {
 		} );
 
 		// Make sure plugin status falls in either one of these, to handle button text.
-		const pluginInstalled = currentStatus =>
-			currentStatus === 'active' || currentStatus === 'inactive';
+		const pluginInstalled = currentStatus => currentStatus === 'active' || currentStatus === 'inactive';
 
 		const buttonText = currentPluginStatuses.every( pluginInstalled )
 			? __( 'Activate', 'newspack-plugin' )

@@ -127,6 +127,9 @@ window.newspackRAS.push( readerActivation => {
 		params.delete( newspack_ras_config?.auth_action_result );
 		const newQueryString = params.toString() ? '?' + params.toString() : '';
 		window.history.replaceState( {}, '', window.location.pathname + newQueryString );
-		readerActivation.dispatchActivity( 'reader_logged_in', { email: reader.email, login_method: 'auth-token' } );
+		readerActivation.dispatchActivity( 'reader_logged_in', {
+			email: reader.email,
+			login_method: 'auth-token',
+		} );
 	}
 } );

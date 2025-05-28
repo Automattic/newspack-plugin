@@ -25,14 +25,11 @@ function VerificationCodes( {
 		<Grid>
 			<TextControl
 				label="Google"
-				onChange={ ( google: string ) =>
-					setData( { ...data, google } )
-				}
+				onChange={ ( google: string ) => setData( { ...data, google } ) }
 				value={ data.google }
 				help={
 					<Fragment>
-						{ __( 'Get your verification code in', 'newspack' ) +
-							' ' }
+						{ __( 'Get your verification code in', 'newspack' ) + ' ' }
 						<ExternalLink
 							href={ `https://search.google.com/search-console/ownership?resource_id=${ encodeURIComponent(
 								window.location.origin
@@ -49,10 +46,7 @@ function VerificationCodes( {
 				value={ data.bing }
 				help={
 					<Fragment>
-						{ `${ __(
-							'Get your verification code in',
-							'newspack'
-						) } ` }
+						{ `${ __( 'Get your verification code in', 'newspack' ) } ` }
 						<ExternalLink href="https://www.bing.com/toolbox/webmaster/#/Dashboard/">
 							{ __( 'Bing Webmaster Tools', 'newspack' ) }
 						</ExternalLink>

@@ -32,9 +32,7 @@ export default function WizardSection( {
 	scrollToAnchor?: string | null;
 	className?: string;
 } ) {
-	const classNames = `newspack-wizard__section${
-		className ? ` ${ className }` : ''
-	}`;
+	const classNames = `newspack-wizard__section${ className ? ` ${ className }` : '' }`;
 	return (
 		<div className={ classNames }>
 			{ title && (

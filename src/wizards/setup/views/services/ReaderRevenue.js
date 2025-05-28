@@ -31,12 +31,7 @@ const ReaderRevenue = ( { className } ) => {
 				</p>
 			) }
 			{ 'other' === wizardData.platform_data?.platform && (
-				<p>
-					{ __(
-						'Use a third-party reader revenue platform.',
-						'newspack-plugin'
-					) }
-				</p>
+				<p>{ __( 'Use a third-party reader revenue platform.', 'newspack-plugin' ) }</p>
 			) }
 			{ 'wc' === wizardData.platform_data?.platform && (
 				<>

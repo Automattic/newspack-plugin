@@ -51,7 +51,7 @@ type ValidationMap< TData, TConfig > = [
 	( TConfig & {
 		dependsOn?: { [ k in keyof TData ]?: string };
 		message?: string;
-	} )?
+	} )?,
 ][];
 
 /**
@@ -68,7 +68,7 @@ export function useFieldsValidation< TData, TConfig = Record< string, unknown > 
 				const inputValue = data[ key ] as string;
 				const isFieldValid = (
 					typeof callback === 'string' ? knownValidationCallbacks[ callback ] : callback
-				 )( inputValue, options?.message );
+				)( inputValue, options?.message );
 				if ( '' !== isFieldValid ) {
 					setErrorMessage( new WizardError( isFieldValid, `invalid_field_${ key.toString() }` ) );
 					return false;

@@ -26,8 +26,7 @@ function WizardsTab( {
 	description?: React.ReactNode;
 } ) {
 	const isWizardLoading = useSelect(
-		( select: ( namespace: string ) => WizardSelector ) =>
-			select( WIZARD_STORE_NAMESPACE ).isLoading(),
+		( select: ( namespace: string ) => WizardSelector ) => select( WIZARD_STORE_NAMESPACE ).isLoading(),
 		[]
 	);
 	const className = props.className || '';

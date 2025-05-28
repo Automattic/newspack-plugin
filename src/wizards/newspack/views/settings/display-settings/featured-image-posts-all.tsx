@@ -22,11 +22,7 @@ export default function FeaturedImagePostsAll( {
 	return (
 		<Fragment>
 			{ Number( postCount ) > 1000 && (
-				<Notice
-					isDismissible={ false }
-					status="warning"
-					className="ma0 mb2"
-				>
+				<Notice isDismissible={ false } status="warning" className="ma0 mb2">
 					{ __(
 						'You have more than 1000 posts. Applying these settings might take a moment.',
 						'newspack-plugin'
@@ -36,21 +32,12 @@ export default function FeaturedImagePostsAll( {
 			<Grid gutter={ 32 }>
 				<div>
 					<SelectControl
-						label={ __(
-							'Featured image position for all posts',
-							'newspack-plugin'
-						) }
-						help={ __(
-							'Set a featured image position for all posts.',
-							'newspack-plugin'
-						) }
+						label={ __( 'Featured image position for all posts', 'newspack-plugin' ) }
+						help={ __( 'Set a featured image position for all posts.', 'newspack-plugin' ) }
 						value={ data.featured_image_all_posts }
 						options={ [
 							{
-								label: __(
-									'Select to change all posts',
-									'newspack-plugin'
-								),
+								label: __( 'Select to change all posts', 'newspack-plugin' ),
 								value: 'none',
 							},
 							{
@@ -62,17 +49,11 @@ export default function FeaturedImagePostsAll( {
 								value: 'small',
 							},
 							{
-								label: __(
-									'Behind article title',
-									'newspack-plugin'
-								),
+								label: __( 'Behind article title', 'newspack-plugin' ),
 								value: 'behind',
 							},
 							{
-								label: __(
-									'Beside article title',
-									'newspack-plugin'
-								),
+								label: __( 'Beside article title', 'newspack-plugin' ),
 								value: 'beside',
 							},
 							{
@@ -85,11 +66,7 @@ export default function FeaturedImagePostsAll( {
 						}
 					/>
 					{ data.featured_image_all_posts !== 'none' && (
-						<Notice
-							isDismissible={ false }
-							status="warning"
-							className="ma0 mt2"
-						>
+						<Notice isDismissible={ false } status="warning" className="ma0 mt2">
 							{ __(
 								'After saving the settings with this option selected, all posts will be updated. This cannot be undone.',
 								'newspack-plugin'
@@ -100,21 +77,12 @@ export default function FeaturedImagePostsAll( {
 
 				<div>
 					<SelectControl
-						label={ __(
-							'Template for all posts',
-							'newspack-plugin'
-						) }
-						help={ __(
-							'Set a template for all posts.',
-							'newspack-plugin'
-						) }
+						label={ __( 'Template for all posts', 'newspack-plugin' ) }
+						help={ __( 'Set a template for all posts.', 'newspack-plugin' ) }
 						value={ data.post_template_all_posts }
 						options={ [
 							{
-								label: __(
-									'Select to change all posts',
-									'newspack-plugin'
-								),
+								label: __( 'Select to change all posts', 'newspack-plugin' ),
 								value: 'none',
 							},
 							{
@@ -126,10 +94,7 @@ export default function FeaturedImagePostsAll( {
 								value: 'single-feature.php',
 							},
 							{
-								label: __(
-									'One Column Wide',
-									'newspack-plugin'
-								),
+								label: __( 'One Column Wide', 'newspack-plugin' ),
 								value: 'single-wide.php',
 							},
 						] }
@@ -138,11 +103,7 @@ export default function FeaturedImagePostsAll( {
 						}
 					/>
 					{ data.post_template_all_posts !== 'none' && (
-						<Notice
-							isDismissible={ false }
-							status="warning"
-							className="ma0 mt2"
-						>
+						<Notice isDismissible={ false } status="warning" className="ma0 mt2">
 							{ __(
 								'After saving the settings with this option selected, all posts will be updated. This cannot be undone.',
 								'newspack-plugin'

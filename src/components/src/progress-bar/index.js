@@ -34,10 +34,7 @@ class ProgressBar extends Component {
 	render() {
 		const { label, completed, total, displayFraction } = this.props;
 		const cleanTotal = Math.max( 0, parseInt( total ) || 0 );
-		const cleanCompleted = Math.max(
-			0,
-			Math.min( parseInt( completed ) || 0, parseInt( cleanTotal ) )
-		);
+		const cleanCompleted = Math.max( 0, Math.min( parseInt( completed ) || 0, parseInt( cleanTotal ) ) );
 
 		const barStyle = {
 			width: this.getCompletionPercentage( cleanCompleted, cleanTotal ) + '%',

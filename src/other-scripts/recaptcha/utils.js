@@ -58,7 +58,7 @@ export function getIntersectionObserver( handleEvent ) {
 	);
 
 	return observer;
-};
+}
 
 /**
  * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.

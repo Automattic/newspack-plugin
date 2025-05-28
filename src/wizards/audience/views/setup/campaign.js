@@ -11,12 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import WizardsTab from '../../../wizards-tab';
-import {
-	Button,
-	Notice,
-	Waiting,
-	withWizardScreen,
-} from '../../../../components/src';
+import { Button, Notice, Waiting, withWizardScreen } from '../../../../components/src';
 import Prompt from '../../components/prompt';
 import Router from '../../../../components/src/proxied-imports/router';
 import './style.scss';
@@ -56,10 +51,7 @@ const AudienceCampaign = withWizardScreen( ( { error, setError, skipPrerequisite
 
 	return (
 		<WizardsTab
-			title={ __(
-				'Set Up Audience Management Campaign',
-				'newspack-plugin'
-			) }
+			title={ __( 'Set Up Audience Management Campaign', 'newspack-plugin' ) }
 			description={ __(
 				'Preview and customize the prompts, or use our suggested defaults.',
 				'newspack-plugin'
@@ -67,10 +59,7 @@ const AudienceCampaign = withWizardScreen( ( { error, setError, skipPrerequisite
 		>
 			{ error && (
 				<Notice
-					noticeText={
-						error?.message ||
-						__( 'Something went wrong.', 'newspack-plugin' )
-					}
+					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
 					isError
 				/>
 			) }
@@ -114,11 +103,7 @@ const AudienceCampaign = withWizardScreen( ( { error, setError, skipPrerequisite
 				>
 					{ __( 'Continue', 'newspack-plugin' ) }
 				</Button>
-				<Button
-					isSecondary
-					disabled={ inFlight }
-					href={ reader_activation_url }
-				>
+				<Button isSecondary disabled={ inFlight } href={ reader_activation_url }>
 					{ __( 'Back', 'newspack-plugin' ) }
 				</Button>
 			</div>

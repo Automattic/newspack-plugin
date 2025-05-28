@@ -12,14 +12,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import WizardsTab from '../../../wizards-tab';
-import {
-	Button,
-	withWizardScreen,
-	Card,
-	Notice,
-	ProgressBar,
-	StepsList,
-} from '../../../../components/src';
+import { Button, withWizardScreen, Card, Notice, ProgressBar, StepsList } from '../../../../components/src';
 
 const listItems = [
 	{
@@ -68,9 +61,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 	const [ progressLabel, setProgressLabel ] = useState( false );
 	const [ completed, setCompleted ] = useState( false );
 	const timer = useRef();
-	const [ activationSteps, setActivationSteps ] = useState(
-		Object.values( DEFAULT_ACTIVATION_STEPS )
-	);
+	const [ activationSteps, setActivationSteps ] = useState( Object.values( DEFAULT_ACTIVATION_STEPS ) );
 	const { reader_activation_url, is_skipped_campaign_setup = '' } = newspackAudience;
 	const isSkippedCampaignSetup = is_skipped_campaign_setup === '1';
 
@@ -103,9 +94,12 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 		}
 		if ( ! error && inFlight && 0 <= progress && progress < activationSteps.length ) {
 			setProgressLabel( activationSteps[ progress ] );
-			timer.current = setTimeout( () => {
-				setProgress( _progress => _progress + 1 );
-			}, generateRandomNumber( 1000, 2000 ) );
+			timer.current = setTimeout(
+				() => {
+					setProgress( _progress => _progress + 1 );
+				},
+				generateRandomNumber( 1000, 2000 )
+			);
 		}
 		if ( progress >= activationSteps.length && completed ) {
 			setProgress( activationSteps.length + 1 ); // Plus one to account for the "Done!" step.
@@ -157,7 +151,6 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 					</>
 				}
 			>
-
 				{ inFlight && (
 					<Card className="newspack-ras-campaign__completed-card">
 						<ProgressBar
@@ -179,7 +172,9 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 
 						{ error && (
 							<Notice
-								noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
+								noticeText={
+									error?.message || __( 'Something went wrong.', 'newspack-plugin' )
+								}
 								isError
 							/>
 						) }

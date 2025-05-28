@@ -261,7 +261,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 * @property {string}   options.cancelText  The text for the cancel button.
 		 * @property {Function} options.callback    A function to call if the user confirms the action.
 		 */
-		confirmAction = ( options ) => {
+		confirmAction = options => {
 			const modalOptions = {
 				title: null,
 				message: __( 'Are you sure?', 'newpack-plugin' ),
@@ -269,9 +269,9 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				cancelText: __( 'Cancel', 'newspack-plugin' ),
 				callback: null,
 				...options,
-			}
+			};
 			this.setState( { confirmation: modalOptions } );
-		}
+		};
 
 		/**
 		 * Show a confirmation modal with the given title & message.
@@ -284,34 +284,37 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 				return null;
 			}
 			const { title, message, confirmText, cancelText, callback } = this.state.confirmation;
-			return message && callback && (
-				<Modal
-					isNarrow
-					hideTitle={ ! title }
-					title={ title }
-					onRequestClose={ () => this.setState( { confirmation: null } ) }
-				>
-					<p>{ message }</p>
-					<Card buttonsCard noBorder className="justify-end">
-						<Button
-							variant="secondary"
-							onClick={ () => this.setState( { confirmation: null } ) }
-						>
-							{ cancelText }
-						</Button>
-						<Button
-							variant="primary"
-							onClick={ () => {
-								this.setState( { confirmation: null } );
-								callback();
-							} }
-						>
-							{ confirmText }
-						</Button>
-					</Card>
-				</Modal>
+			return (
+				message &&
+				callback && (
+					<Modal
+						isNarrow
+						hideTitle={ ! title }
+						title={ title }
+						onRequestClose={ () => this.setState( { confirmation: null } ) }
+					>
+						<p>{ message }</p>
+						<Card buttonsCard noBorder className="justify-end">
+							<Button
+								variant="secondary"
+								onClick={ () => this.setState( { confirmation: null } ) }
+							>
+								{ cancelText }
+							</Button>
+							<Button
+								variant="primary"
+								onClick={ () => {
+									this.setState( { confirmation: null } );
+									callback();
+								} }
+							>
+								{ confirmText }
+							</Button>
+						</Card>
+					</Modal>
+				)
 			);
-		}
+		};
 
 		getFallbackURL = () => {
 			if ( typeof newspack_urls !== 'undefined' ) {
@@ -325,9 +328,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		render() {
 			const { simpleFooter } = this.props;
 			const { loading, quietLoading, error } = this.state;
-			const loadingClasses = [
-				loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded',
-			];
+			const loadingClasses = [ loading ? 'newspack-wizard__is-loading' : 'newspack-wizard__is-loaded' ];
 			if ( quietLoading ) {
 				loadingClasses.push( 'newspack-wizard__is-loading-quiet' );
 			}

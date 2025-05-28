@@ -8,12 +8,7 @@ import { useDispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	Button,
-	Grid,
-	TextControl,
-} from '../../../../components/src';
+import { ActionCard, Button, Grid, TextControl } from '../../../../components/src';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../constants';
 import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
@@ -41,7 +36,10 @@ export const CoverFeesSettings = () => {
 			<ActionCard
 				isMedium
 				title={ __( 'Collect transaction fees', 'newspack-plugin' ) }
-				description={ __( 'Allow donors to optionally cover transaction fees imposed by payment processors.', 'newspack-plugin' ) }
+				description={ __(
+					'Allow donors to optionally cover transaction fees imposed by payment processors.',
+					'newspack-plugin'
+				) }
 				notificationLevel="info"
 				toggleChecked={ settings.allow_covering_fees }
 				toggleOnChange={ () => {
@@ -79,7 +77,12 @@ export const CoverFeesSettings = () => {
 						<CheckboxControl
 							label={ __( 'Cover fees by default', 'newspack-plugin' ) }
 							checked={ settings.allow_covering_fees_default }
-							onChange={ () => changeHandler( 'allow_covering_fees_default', ! settings.allow_covering_fees_default ) }
+							onChange={ () =>
+								changeHandler(
+									'allow_covering_fees_default',
+									! settings.allow_covering_fees_default
+								)
+							}
 							help={ __(
 								'If enabled, the option to cover the transaction fee will be checked by default.',
 								'newspack-plugin'
@@ -97,4 +100,4 @@ export const CoverFeesSettings = () => {
 			) }
 		</>
 	);
-}
+};

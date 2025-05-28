@@ -12,21 +12,13 @@ import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import {
-	withWizardScreen,
-	ActionCard,
-	Button,
-	Card,
-	Grid,
-	SectionHeader,
-} from '../../../../components/src';
+import { withWizardScreen, ActionCard, Button, Card, Grid, SectionHeader } from '../../../../components/src';
 
 const Completed = () => {
 	useEffect( () => {
 		document.body.classList.add( 'newspack-wizard__completed', 'newspack-wizard__blue' );
 		document.querySelector( '.newspack-wizard__header' ).remove();
-		return () =>
-			document.body.classList.remove( 'newspack-wizard__completed', 'newspack-wizard__blue' );
+		return () => document.body.classList.remove( 'newspack-wizard__completed', 'newspack-wizard__blue' );
 	}, [] );
 
 	const cardClasses = classnames( 'flex', 'flex-column', 'justify-between' );
@@ -96,7 +88,10 @@ const Completed = () => {
 
 					<ActionCard
 						title={ __( 'View your site', 'newspack' ) }
-						description={ __( 'Preview what you’ve created so far. It looks great!', 'newspack' ) }
+						description={ __(
+							'Preview what you’ve created so far. It looks great!',
+							'newspack'
+						) }
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>

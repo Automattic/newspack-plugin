@@ -114,10 +114,7 @@ class CategoryAutocomplete extends Component {
 			}
 			return acc;
 		}, [] );
-		const availableSuggestions = filter(
-			suggestions,
-			( { id } ) => selectedIds.indexOf( id ) === -1
-		);
+		const availableSuggestions = filter( suggestions, ( { id } ) => selectedIds.indexOf( id ) === -1 );
 		return availableSuggestions.map( v => v.name );
 	};
 
@@ -125,15 +122,8 @@ class CategoryAutocomplete extends Component {
 	 * Render the component.
 	 */
 	render() {
-		const {
-			className,
-			disabled,
-			description,
-			hideHelpFromVision,
-			hideLabelFromVision,
-			label,
-			value,
-		} = this.props;
+		const { className, disabled, description, hideHelpFromVision, hideLabelFromVision, label, value } =
+			this.props;
 		const { allCategories, isLoading } = this.state;
 		const classes = classnames( 'newspack-category-autocomplete', className );
 		return (

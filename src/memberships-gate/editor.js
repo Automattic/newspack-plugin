@@ -115,7 +115,10 @@ function GateEdit() {
 								dangerouslySetInnerHTML={ {
 									__html: sprintf(
 										// translators: %s is the link to the primary gate.
-										__( 'Edit the <a href="%s">primary gate</a>, or:', 'newspack-plugin' ),
+										__(
+											'Edit the <a href="%s">primary gate</a>, or:',
+											'newspack-plugin'
+										),
 										newspack_memberships_gate.edit_gate_url
 									),
 								} }
@@ -191,7 +194,10 @@ function GateEdit() {
 							onChange={ value => editPost( { meta: { overlay_position: value } } ) }
 							help={ sprintf(
 								// translators: %s is the placement of the gate.
-								__( 'The gate will be displayed at the %s of the screen.', 'newspack-plugin' ),
+								__(
+									'The gate will be displayed at the %s of the screen.',
+									'newspack-plugin'
+								),
 								overlayPositionsLabels[ meta.overlay_position ]
 							) }
 						/>

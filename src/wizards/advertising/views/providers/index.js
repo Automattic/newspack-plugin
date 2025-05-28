@@ -13,14 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import {
-	PluginToggle,
-	ActionCard,
-	Modal,
-	Card,
-	Button,
-	withWizardScreen,
-} from '../../../../components/src';
+import { PluginToggle, ActionCard, Modal, Card, Button, withWizardScreen } from '../../../../components/src';
 import GAMOnboarding from '../../components/onboarding';
 
 /**
@@ -64,11 +57,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 		] );
 	}
 
-	if (
-		google_ad_manager.enabled &&
-		google_ad_manager.available &&
-		! google_ad_manager.status.connected
-	) {
+	if ( google_ad_manager.enabled && google_ad_manager.available && ! google_ad_manager.status.connected ) {
 		notifications.push(
 			<Button key="gam-connect-account" isLink onClick={ () => setIsOnboarding( true ) }>
 				{ __( 'Click here to connect your account.', 'newspack-plugin' ) }

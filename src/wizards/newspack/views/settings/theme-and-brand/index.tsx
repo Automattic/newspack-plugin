@@ -33,9 +33,7 @@ const DEFAULT_DATA: ThemeData = {
 };
 
 const ThemeBrand = ( { isPartOfSetup = false } ) => {
-	const { wizardApiFetch, isFetching } = useWizardApiFetch(
-		'newspack-settings/theme-mods'
-	);
+	const { wizardApiFetch, isFetching } = useWizardApiFetch( 'newspack-settings/theme-mods' );
 	const [ data, setDataState ] = useState< ThemeData >( DEFAULT_DATA );
 
 	const history = useHistory();
@@ -92,26 +90,16 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 	}, [] );
 
 	return (
-		<WizardsTab
-			title={ __( 'Theme and Brand', 'newspack-plugin' ) }
-			isFetching={ isFetching }
-		>
+		<WizardsTab title={ __( 'Theme and Brand', 'newspack-plugin' ) } isFetching={ isFetching }>
 			{ ! isPartOfSetup && (
 				<Fragment>
 					<WizardSection
 						title={ __( 'Theme', 'newspack-plugin' ) }
-						description={ __(
-							'Update your sites theme.',
-							'newspack-plugin'
-						) }
+						description={ __( 'Update your sites theme.', 'newspack-plugin' ) }
 					>
 						<ThemeSelection
-							theme={
-								isFetching ? '' : data.theme || 'newspack-theme'
-							}
-							updateTheme={ theme =>
-								setData( { ...data, theme } )
-							}
+							theme={ isFetching ? '' : data.theme || 'newspack-theme' }
+							updateTheme={ theme => setData( { ...data, theme } ) }
 						/>
 					</WizardSection>
 				</Fragment>
@@ -119,16 +107,11 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 			{ isPartOfSetup && (
 				<WizardSection
 					title={ __( 'Homepage', 'newspack-plugin' ) }
-					description={ __(
-						'Select a homepage layout.',
-						'newspack-plugin'
-					) }
+					description={ __( 'Select a homepage layout.', 'newspack-plugin' ) }
 				>
 					<HomepageSelect
 						isFetching={ isFetching }
-						homepagePatternIndex={
-							data.theme_mods.homepage_pattern_index
-						}
+						homepagePatternIndex={ data.theme_mods.homepage_pattern_index }
 						homepagePatterns={ data.homepage_patterns }
 						updateHomepagePattern={ homepage_pattern_index => {
 							setData( {
@@ -144,10 +127,7 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 			) }
 			<WizardSection
 				title={ __( 'Colors', 'newspack-plugin' ) }
-				description={ __(
-					'Pick your primary and secondary colors.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Pick your primary and secondary colors.', 'newspack-plugin' ) }
 			>
 				<Colors
 					themeMods={ data.theme_mods }
@@ -161,10 +141,7 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 			</WizardSection>
 			<WizardSection
 				title={ __( 'Typography', 'newspack-plugin' ) }
-				description={ __(
-					'Define the font pairing to use throughout your site',
-					'newspack-plugin'
-				) }
+				description={ __( 'Define the font pairing to use throughout your site', 'newspack-plugin' ) }
 			>
 				<Typography
 					data={ data.theme_mods }
@@ -179,10 +156,7 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 			</WizardSection>
 			<WizardSection
 				title={ __( 'Header', 'newspack-plugin' ) }
-				description={ __(
-					'Update the header and add your logo.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Update the header and add your logo.', 'newspack-plugin' ) }
 			>
 				<Header
 					themeMods={ data.theme_mods }
@@ -196,10 +170,7 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 			</WizardSection>
 			<WizardSection
 				title={ __( 'Footer', 'newspack-plugin' ) }
-				description={ __(
-					'Personalize the footer of your site.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Personalize the footer of your site.', 'newspack-plugin' ) }
 			>
 				<Footer
 					themeMods={ data.theme_mods }
@@ -213,10 +184,7 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 			</WizardSection>
 			<div className="newspack-buttons-card">
 				{ isPartOfSetup ? (
-					<Button
-						variant="primary"
-						onClick={ () => save().then( finishSetup ) }
-					>
+					<Button variant="primary" onClick={ () => save().then( finishSetup ) }>
 						{ __( 'Finish', 'newspack-plugin' ) }
 					</Button>
 				) : (

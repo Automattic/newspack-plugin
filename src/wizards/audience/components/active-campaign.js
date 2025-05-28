@@ -46,7 +46,7 @@ export default function ActiveCampaign( { value, onChange } ) {
 					) }
 					isError
 				/>
-			)}
+			) }
 			<SelectControl
 				label={ __( 'Master List', 'newspack-plugin' ) }
 				help={ __(

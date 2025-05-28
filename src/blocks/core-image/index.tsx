@@ -13,25 +13,21 @@ const currentUrl = window.location.href;
 /**
  * Add image credit meta to core/image block attributes
  */
-addFilter(
-	'blocks.registerBlockType',
-	'newspack-plugin/register-hook/core-image',
-	( settings, name ) => {
-		if ( name !== 'core/image' ) {
-			return settings;
-		}
-		return {
-			...settings,
-			attributes: {
-				...settings.attributes,
-				meta: {
-					type: 'object',
-					default: {},
-				},
-			},
-		};
+addFilter( 'blocks.registerBlockType', 'newspack-plugin/register-hook/core-image', ( settings, name ) => {
+	if ( name !== 'core/image' ) {
+		return settings;
 	}
-);
+	return {
+		...settings,
+		attributes: {
+			...settings.attributes,
+			meta: {
+				type: 'object',
+				default: {},
+			},
+		},
+	};
+} );
 
 /**
  * Display spinner and lock post saving until meta attributes are added to block
@@ -39,7 +35,7 @@ addFilter(
 const AttributesLoader = ( { setAttributes, attributes }: ImageBlockTypes.AttributeProps ) => {
 	const imageId = attributes.id;
 	const { meta }: { meta: ImageBlockTypes.AttributesMeta } = useSelect(
-		// @ts-ignore Not sure why this is throwing an error.
+		// @ts-expect-error Not sure why this is throwing an error.
 		select => select( 'core' ).getMedia( imageId ),
 		[ imageId ]
 	) ?? {
@@ -84,9 +80,7 @@ addFilter(
 	'editor.BlockEdit',
 	'newspack-plugin/block-edit-hook/core-image',
 	createHigherOrderComponent( BlockEdit => {
-		const blockEditComponent = (
-			props: ImageBlockTypes.BaseProps< ImageBlockTypes.Attributes >
-		) => {
+		const blockEditComponent = ( props: ImageBlockTypes.BaseProps< ImageBlockTypes.Attributes > ) => {
 			if ( props.name === 'core/image' ) {
 				return (
 					<>

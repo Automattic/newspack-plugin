@@ -7,7 +7,7 @@ import {
 	domReady,
 	getIntersectionObserver,
 	refreshV2Widget,
-	removeErrorMessages
+	removeErrorMessages,
 } from './utils';
 import './style.scss';
 
@@ -71,7 +71,10 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 			grecaptcha.execute( form.getAttribute( 'data-recaptcha-widget-id' ) );
 			form.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
 		} else {
-			const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
+			const message = wp.i18n.__(
+				'There was an error connecting with reCAPTCHA. Please reload the page and try again.',
+				'newspack-plugin'
+			);
 			if ( onError ) {
 				onError( message );
 			} else {
@@ -83,10 +86,15 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 	// Attach widget to form events.
 	const attachListeners = () => {
 		form.removeAttribute( 'data-submit-button-click' );
-		getIntersectionObserver( () => renderV2Widget( form, onSuccess, onError ) ).observe( form, { attributes: true } );
+		getIntersectionObserver( () => renderV2Widget( form, onSuccess, onError ) ).observe( form, {
+			attributes: true,
+		} );
 
 		const handleSubmit = e => {
-			if ( ! form.hasAttribute( 'data-recaptcha-validated' ) && ! form.hasAttribute( 'data-skip-recaptcha' ) ) {
+			if (
+				! form.hasAttribute( 'data-recaptcha-validated' ) &&
+				! form.hasAttribute( 'data-skip-recaptcha' )
+			) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				// Empty error messages if present.
@@ -101,13 +109,17 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 
 		const placeOrderClone = form.querySelector( '#place_order_clone' );
 		if ( placeOrderClone ) {
-			placeOrderClone.addEventListener( 'click', e => {
-				e.preventDefault();
-				e.stopImmediatePropagation();
-				handleSubmit( e )
-			}, true );
+			placeOrderClone.addEventListener(
+				'click',
+				e => {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					handleSubmit( e );
+				},
+				true
+			);
 		}
-	}
+	};
 	// Refresh reCAPTCHA widgets on Woo checkout update and error.
 	if ( jQuery ) {
 		jQuery( document ).on( 'updated_checkout', () => renderV2Widget( form, onSuccess, onError ) );
@@ -146,9 +158,11 @@ function render( forms = [], onSuccess = null, onError = null ) {
 
 	const formsToHandle = forms.length
 		? forms
-		: [ ...document.querySelectorAll(
-			'form[data-newspack-recaptcha],form#add_payment_method,form.checkout',
-		) ];
+		: [
+				...document.querySelectorAll(
+					'form[data-newspack-recaptcha],form#add_payment_method,form.checkout'
+				),
+		  ];
 
 	formsToHandle.forEach( form => {
 		const renderForm = () => {

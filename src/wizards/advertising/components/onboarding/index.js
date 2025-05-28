@@ -113,7 +113,10 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 										target="_blank"
 										rel="noopener noreferrer"
 									>
-										{ __( 'How to get a service account user for API access', 'newspack-plugin' ) }
+										{ __(
+											'How to get a service account user for API access',
+											'newspack-plugin'
+										) }
 									</a>
 									.
 								</p>

@@ -37,11 +37,7 @@ const MetaPixel = () => {
 					},
 				],
 			] }
-			renderProp={ ( {
-				settingsUpdates,
-				setSettingsUpdates,
-				isFetching,
-			} ) => (
+			renderProp={ ( { settingsUpdates, setSettingsUpdates, isFetching } ) => (
 				<TextControl
 					value={ settingsUpdates?.pixel_id ?? '' }
 					label={ __( 'Pixel ID', 'newspack-plugin' ) }

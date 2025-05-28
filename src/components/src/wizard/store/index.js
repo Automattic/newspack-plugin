@@ -59,13 +59,7 @@ const actions = {
 	setError: createAction( 'SET_ERROR' ),
 
 	// Async actions. These will not show up in Redux devtools.
-	*saveWizardSettings( {
-		slug,
-		section = '',
-		payloadPath = false,
-		auxData = {},
-		updatePayload = null,
-	} ) {
+	*saveWizardSettings( { slug, section = '', payloadPath = false, auxData = {}, updatePayload = null } ) {
 		// Optionally data can be updated before saving - an immediate update case
 		// (without an explicit "save" action).
 		if ( updatePayload ) {

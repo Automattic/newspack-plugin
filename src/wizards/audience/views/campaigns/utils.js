@@ -132,8 +132,7 @@ export const promptDescription = prompt => {
 	}
 	if ( categories.length > 0 ) {
 		descriptionMessages.push(
-			__( 'Categories: ', 'newspack-plugin' ) +
-				categories.map( category => category.name ).join( ', ' )
+			__( 'Categories: ', 'newspack-plugin' ) + categories.map( category => category.name ).join( ', ' )
 		);
 	}
 	if ( tags.length > 0 ) {
@@ -286,9 +285,9 @@ const ItemNames = ( { label, ids, path } ) => {
 			{ label }{ ' ' }
 			{ items.length
 				? items
-					.filter( item => ids.includes( item.id ) )
-					.map( item => item.label )
-					.join( ', ' )
+						.filter( item => ids.includes( item.id ) )
+						.map( item => item.label )
+						.join( ', ' )
 				: '' }
 		</span>
 	);

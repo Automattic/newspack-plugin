@@ -12,14 +12,7 @@ import { trash } from '@wordpress/icons';
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	Card,
-	Grid,
-	Notice,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { Button, Card, Grid, Notice, TextControl, withWizardScreen } from '../../../../components/src';
 import AdUnitSizeControl, { getSizes } from '../../components/ad-unit-size-control';
 
 /**
@@ -35,9 +28,7 @@ class AdUnit extends Component {
 	handleOnChange( adUnitChangesOrKey, value ) {
 		const { adUnit, onChange, service } = this.props;
 		const adUnitChanges =
-			typeof adUnitChangesOrKey === 'string'
-				? { [ adUnitChangesOrKey ]: value }
-				: adUnitChangesOrKey;
+			typeof adUnitChangesOrKey === 'string' ? { [ adUnitChangesOrKey ]: value } : adUnitChangesOrKey;
 		onChange( { ...adUnit, ad_service: service, ...adUnitChanges } );
 	}
 
@@ -54,9 +45,7 @@ class AdUnit extends Component {
 	getNextAvailableSize() {
 		const sizes = getSizes();
 		const options = this.getSizeOptions().map( size => size.toString() );
-		const index = sizes
-			.map( size => size.toString() )
-			.findIndex( size => ! options.includes( size ) );
+		const index = sizes.map( size => size.toString() ).findIndex( size => ! options.includes( size ) );
 		return sizes[ index ] || [ 0, 0 ];
 	}
 
@@ -101,9 +90,9 @@ class AdUnit extends Component {
 								isLegacy
 									? undefined
 									: __(
-										"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
-										'newspack-plugin'
-									)
+											"Identifies the ad unit in the associated ad tag. Once you've created the ad unit, you can't change the code.",
+											'newspack-plugin'
+									  )
 							}
 							disabled={ ! isLegacy }
 							onChange={ value => this.handleOnChange( 'code', value ) }

@@ -25,8 +25,7 @@ class StyleCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { ariaLabel, className, cardTitle, url, image, imageType, isActive, onClick, id } =
-			this.props;
+		const { ariaLabel, className, cardTitle, url, image, imageType, isActive, onClick, id } = this.props;
 		const classes = classnames(
 			'newspack-style-card',
 			isActive && 'newspack-style-card__is-active',
@@ -50,7 +49,9 @@ class StyleCard extends Component {
 								variant="link"
 								onClick={ onClick }
 								aria-label={
-									ariaLabel ? ariaLabel : __( 'Select', 'newspack-plugin' ) + ' ' + cardTitle
+									ariaLabel
+										? ariaLabel
+										: __( 'Select', 'newspack-plugin' ) + ' ' + cardTitle
 								}
 								tabIndex="0"
 							>

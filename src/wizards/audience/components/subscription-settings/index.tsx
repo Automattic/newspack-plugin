@@ -17,12 +17,9 @@ const DATA_STORE_KEY = 'newspack-audience/subscription-settings';
 
 function SubscriptionSettings() {
 	const config = useWizardData( DATA_STORE_KEY );
-	const { updateWizardSettings, saveWizardSettings } = useDispatch(
-		WIZARD_STORE_NAMESPACE
-	);
+	const { updateWizardSettings, saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const isQuietLoading = useSelect(
-		( select: any ) =>
-			select( WIZARD_STORE_NAMESPACE ).isQuietLoading() ?? false,
+		( select: any ) => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() ?? false,
 		[]
 	);
 
@@ -33,7 +30,7 @@ function SubscriptionSettings() {
 		if ( key === 'woocommerce_enable_subscription_confirmation' && value ) {
 			updateWizardSettings( {
 				slug: DATA_STORE_KEY,
-				path: ['woocommerce_enable_terms_confirmation'],
+				path: [ 'woocommerce_enable_terms_confirmation' ],
 				value: false,
 			} );
 		}
@@ -41,7 +38,7 @@ function SubscriptionSettings() {
 		if ( key === 'woocommerce_enable_terms_confirmation' && value ) {
 			updateWizardSettings( {
 				slug: DATA_STORE_KEY,
-				path: ['woocommerce_enable_subscription_confirmation'],
+				path: [ 'woocommerce_enable_subscription_confirmation' ],
 				value: false,
 			} );
 		}
@@ -60,16 +57,19 @@ function SubscriptionSettings() {
 		if ( ! config.woocommerce_subscription_confirmation_text ) {
 			updateWizardSettings( {
 				slug: DATA_STORE_KEY,
-				path: ['woocommerce_subscription_confirmation_text'],
-				value: __( 'I understand this is a recurring subscription and that I can cancel anytime through the My Account Page.', 'newspack-plugin' ),
+				path: [ 'woocommerce_subscription_confirmation_text' ],
+				value: __(
+					'I understand this is a recurring subscription and that I can cancel anytime through the My Account Page.',
+					'newspack-plugin'
+				),
 			} );
 		}
 
 		// Use the default text when the Terms & Conditions confirmation label is empty.
 		if ( ! config.woocommerce_terms_confirmation_text ) {
-			updateWizardSettings({
+			updateWizardSettings( {
 				slug: DATA_STORE_KEY,
-				path: ['woocommerce_terms_confirmation_text'],
+				path: [ 'woocommerce_terms_confirmation_text' ],
 				value: __( 'I have read and accept the {{Terms & Conditions}}.', 'newspack-plugin' ),
 			} );
 		}
@@ -95,11 +95,10 @@ function SubscriptionSettings() {
 			) }
 			className={ isQuietLoading ? 'is-fetching' : '' }
 		>
-
-				<Grid columns={ 1 }>
-					<Grid columns={ 1 } gutter={ 8 }>
-						<ToggleControl
-							label={ __( 'Enable subscription confirmation checkbox', 'newspack-plugin' ) }
+			<Grid columns={ 1 }>
+				<Grid columns={ 1 } gutter={ 8 }>
+					<ToggleControl
+						label={ __( 'Enable subscription confirmation checkbox', 'newspack-plugin' ) }
 						help={ __(
 							'Display a separate checkbox at checkout to confirm the user understands this is a recurring subscription and they can cancel anytime.',
 							'newspack-plugin'
@@ -143,16 +142,12 @@ function SubscriptionSettings() {
 									'Text wrapped in {{ }} will be linked to the page set in the URL field.',
 									'newspack-plugin'
 								) }
-								onChange={ value =>
-									onChange( value, 'woocommerce_terms_confirmation_text' )
-								}
+								onChange={ value => onChange( value, 'woocommerce_terms_confirmation_text' ) }
 							/>
 							<TextControl
 								label={ __( 'URL', 'newspack-plugin' ) }
 								value={ config.woocommerce_terms_confirmation_url }
-								onChange={ value =>
-									onChange( value, 'woocommerce_terms_confirmation_url' )
-								}
+								onChange={ value => onChange( value, 'woocommerce_terms_confirmation_url' ) }
 							/>
 						</Grid>
 					) }
@@ -160,11 +155,7 @@ function SubscriptionSettings() {
 			</Grid>
 
 			<div className="newspack-buttons-card">
-				<Button
-					variant="primary"
-					onClick={ onSave }
-					disabled={ isQuietLoading }
-				>
+				<Button variant="primary" onClick={ onSave } disabled={ isQuietLoading }>
 					{ isQuietLoading
 						? __( 'Saving…', 'newspack-plugin' )
 						: __( 'Save Settings', 'newspack-plugin' ) }

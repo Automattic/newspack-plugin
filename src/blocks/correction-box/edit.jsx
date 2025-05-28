@@ -7,13 +7,7 @@ import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import ServerSideRender from '@wordpress/server-side-render';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import {
-	ToolbarGroup,
-	ToolbarButton,
-	PanelBody,
-	PanelRow,
-	SelectControl,
-} from '@wordpress/components';
+import { ToolbarGroup, ToolbarButton, PanelBody, PanelRow, SelectControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -76,17 +70,14 @@ export default function Edit( { attributes, setAttributes } ) {
 					<PanelRow>
 						<SelectControl
 							label={ __( 'Corrections by Priority', 'newspack-plugin' ) }
-							help={ __(
-								'Filter corrections by their priority.',
-								'newspack-plugin'
-							) }
+							help={ __( 'Filter corrections by their priority.', 'newspack-plugin' ) }
 							value={ attributes.priority }
 							options={ [
 								{ label: __( 'High', 'newspack-plugin' ), value: 'high' },
 								{ label: __( 'Low', 'newspack-plugin' ), value: 'low' },
 								{ label: __( 'All', 'newspack-plugin' ), value: 'all' },
 							] }
-							onChange={ value => setAttributes( { priority : value } ) }
+							onChange={ value => setAttributes( { priority: value } ) }
 						/>
 					</PanelRow>
 				</PanelBody>

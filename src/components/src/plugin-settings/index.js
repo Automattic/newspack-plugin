@@ -30,9 +30,7 @@ class PluginSettings extends Component {
 		const { afterFetch, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
 		apiFetch( {
-			path: isWizard
-				? `/newspack/v1/wizard/${ pluginSlug }/settings`
-				: `/${ pluginSlug }/v1/settings`,
+			path: isWizard ? `/newspack/v1/wizard/${ pluginSlug }/settings` : `/${ pluginSlug }/v1/settings`,
 		} )
 			.then( settings => {
 				this.setState( { settings, error: null } );
@@ -80,9 +78,7 @@ class PluginSettings extends Component {
 		const { afterUpdate, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
 		apiFetch( {
-			path: isWizard
-				? `/newspack/v1/wizard/${ pluginSlug }/settings`
-				: `/${ pluginSlug }/v1/settings`,
+			path: isWizard ? `/newspack/v1/wizard/${ pluginSlug }/settings` : `/${ pluginSlug }/v1/settings`,
 			method: 'POST',
 			data: {
 				section: sectionKey,
@@ -176,7 +172,9 @@ class PluginSettings extends Component {
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
-				{ title && <SectionHeader title={ title } heading={ titleLevel } description={ description } /> }
+				{ title && (
+					<SectionHeader title={ title } heading={ titleLevel } description={ description } />
+				) }
 				{ error && <Notice isError noticeText={ error.message } /> }
 				<div
 					className={ classnames( 'newspack-plugin-settings', {

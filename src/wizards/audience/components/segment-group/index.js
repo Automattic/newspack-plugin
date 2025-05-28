@@ -21,12 +21,7 @@ import {
 	getCardClassName,
 	warningForPopup,
 } from '../../views/campaigns/utils';
-import {
-	overlayBottom,
-	overlayInline,
-	overlayCenter,
-	overlayTop,
-} from '../../../../icons';
+import { overlayBottom, overlayInline, overlayCenter, overlayTop } from '../../../../icons';
 import './style.scss';
 
 const addNewURL = ( placement, campaignId, segmentId ) => {
@@ -117,7 +112,10 @@ const SegmentGroup = props => {
 										<ButtonCard
 											href={ addNewURL( 'overlay-center', campaignId, id ) }
 											title={ __( 'Center Overlay', 'newspack-plugin' ) }
-											desc={ __( 'Fixed at the center of the screen', 'newspack-plugin' ) }
+											desc={ __(
+												'Fixed at the center of the screen',
+												'newspack-plugin'
+											) }
 											icon={ overlayCenter }
 										/>
 										<ButtonCard
@@ -129,7 +127,10 @@ const SegmentGroup = props => {
 										<ButtonCard
 											href={ addNewURL( 'overlay-bottom', campaignId, id ) }
 											title={ __( 'Bottom Overlay', 'newspack-plugin' ) }
-											desc={ __( 'Fixed at the bottom of the screen', 'newspack-plugin' ) }
+											desc={ __(
+												'Fixed at the bottom of the screen',
+												'newspack-plugin'
+											) }
 											icon={ overlayBottom }
 										/>
 										<ButtonCard
@@ -150,13 +151,19 @@ const SegmentGroup = props => {
 										<ButtonCard
 											href={ addNewURL( 'above-header', campaignId, id ) }
 											title={ __( 'Above Header', 'newspack-plugin' ) }
-											desc={ __( 'Embedded at the very top of the page', 'newspack-plugin' ) }
+											desc={ __(
+												'Embedded at the very top of the page',
+												'newspack-plugin'
+											) }
 											icon={ header }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'custom', campaignId, id ) }
 											title={ __( 'Custom Placement', 'newspack-plugin' ) }
-											desc={ __( 'Only appears when placed in content', 'newspack-plugin' ) }
+											desc={ __(
+												'Only appears when placed in content',
+												'newspack-plugin'
+											) }
 											icon={ layout }
 										/>
 										<ButtonCard
@@ -187,7 +194,11 @@ const SegmentGroup = props => {
 					/>
 				) ) }
 			</Card>
-			{ prompts.length < 1 ? <p className="newspack-campaigns__segment-group__empty-segment-text">{ emptySegmentText }</p> : '' }
+			{ prompts.length < 1 ? (
+				<p className="newspack-campaigns__segment-group__empty-segment-text">{ emptySegmentText }</p>
+			) : (
+				''
+			) }
 		</Card>
 	);
 };

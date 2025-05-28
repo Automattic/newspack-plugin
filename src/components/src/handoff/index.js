@@ -53,8 +53,7 @@ class Handoff extends Component {
 		const defaults = {
 			modalBody: null,
 			modalTitle: pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
-			primaryButton:
-				pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
+			primaryButton: pluginInfo.Name && `${ __( 'Manage', 'newspack-plugin' ) } ${ pluginInfo.Name }`,
 			primaryModalButton: __( 'Manage', 'newspack-plugin' ),
 			dismissModalButton: __( 'Dismiss', 'newspack-plugin' ),
 		};
@@ -105,7 +104,9 @@ class Handoff extends Component {
 				{ Name && 'active' === Status && (
 					<Button
 						className={ classes }
-						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
+						isSecondary={
+							! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink
+						}
 						{ ...otherProps }
 						onClick={ () =>
 							useModal ? this.setState( { showModal: true } ) : this.goToPlugin( Slug )
@@ -122,7 +123,9 @@ class Handoff extends Component {
 				{ ! Name && (
 					<Button
 						className={ classes }
-						isSecondary={ ! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink }
+						isSecondary={
+							! otherProps.isPrimary && ! otherProps.isTertiary && ! otherProps.isLink
+						}
 						{ ...otherProps }
 					>
 						<Fragment>
@@ -138,7 +141,10 @@ class Handoff extends Component {
 					>
 						<p>{ modalBody }</p>
 						<Card buttonsCard noBorder className="justify-end">
-							<Button variant="secondary" onClick={ () => this.setState( { showModal: false } ) }>
+							<Button
+								variant="secondary"
+								onClick={ () => this.setState( { showModal: false } ) }
+							>
 								{ dismissModalButton }
 							</Button>
 							<Button variant="primary" onClick={ () => this.goToPlugin( Slug ) }>

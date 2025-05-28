@@ -16,18 +16,13 @@ import { useEffect, useState, useRef, Fragment } from '@wordpress/element';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 import { WIZARD_ERROR_MESSAGES, WizardError } from '../../../../errors';
-import {
-	Button,
-	Card,
-	Grid,
-	Modal,
-	TextControl,
-} from '../../../../../components/src';
+import { Button, Card, Grid, Modal, TextControl } from '../../../../../components/src';
 
 function Mailchimp() {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } =
-		useWizardApiFetch( '/newspack-settings/connections/apis/mailchimp' );
+	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
+		'/newspack-settings/connections/apis/mailchimp'
+	);
 	const [ authState, setAuthState ] = useState< OAuthData >();
 	const [ apiKey, setAPIKey ] = useState< string | undefined >();
 
@@ -47,8 +42,7 @@ function Mailchimp() {
 
 	useEffect( () => {
 		if ( isModalOpen && modalTextRef.current ) {
-			const [ inputElement ] =
-				modalTextRef.current.getElementsByTagName( 'input' );
+			const [ inputElement ] = modalTextRef.current.getElementsByTagName( 'input' );
 			if ( inputElement ) {
 				inputElement.focus();
 			}
@@ -165,20 +159,12 @@ function Mailchimp() {
 						<Grid columns={ 1 } gutter={ 8 }>
 							<TextControl
 								placeholder="123457103961b1f4dc0b2b2fd59c137b-us1"
-								label={ __(
-									'Mailchimp API Key',
-									'newspack-plugin'
-								) }
+								label={ __( 'Mailchimp API Key', 'newspack-plugin' ) }
 								hideLabelFromVision={ true }
 								value={ apiKey ?? '' }
-								onChange={ ( value: string ) =>
-									setAPIKey( value )
-								}
+								onChange={ ( value: string ) => setAPIKey( value ) }
 								onKeyDown={ ( event: KeyboardEvent ) => {
-									if (
-										ENTER === event.keyCode &&
-										'' !== apiKey
-									) {
+									if ( ENTER === event.keyCode && '' !== apiKey ) {
 										event.preventDefault();
 										submitAPIKey();
 									}
@@ -186,10 +172,7 @@ function Mailchimp() {
 							/>
 							<p>
 								<ExternalLink href="https://mailchimp.com/help/about-api-keys/#Find_or_generate_your_API_key">
-									{ __(
-										'Find or generate your API key',
-										'newspack-plugin'
-									) }
+									{ __( 'Find or generate your API key', 'newspack-plugin' ) }
 								</ExternalLink>
 							</p>
 						</Grid>
@@ -198,11 +181,7 @@ function Mailchimp() {
 						<Button variant="secondary" onClick={ closeModal }>
 							{ __( 'Cancel', 'newspack-plugin' ) }
 						</Button>
-						<Button
-							variant="primary"
-							disabled={ ! apiKey }
-							onClick={ submitAPIKey }
-						>
+						<Button variant="primary" disabled={ ! apiKey } onClick={ submitAPIKey }>
 							{ getModalButtonText() }
 						</Button>
 					</Card>

@@ -9,36 +9,34 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	Button,
-	Grid,
-	Notice,
-	SelectControl,
-} from '../../../../../components/src';
+import { ActionCard, Button, Grid, Notice, SelectControl } from '../../../../../components/src';
 
 const isValidError = ( e: unknown ): e is WpRestApiError => {
 	return e instanceof Error && 'message' in e;
-}
+};
 
 const JetpackSSO = () => {
-	const [ error, setError ] = useState<string>( '' );
-	const [ isLoading, setIsLoading ] = useState<boolean>( false );
-	const [ settings, setSettings ] = useState<JetpackSSOSettings>( {} );
-	const [ settingsToUpdate, setSettingsToUpdate ] = useState<JetpackSSOSettings>( {} );
+	const [ error, setError ] = useState< string >( '' );
+	const [ isLoading, setIsLoading ] = useState< boolean >( false );
+	const [ settings, setSettings ] = useState< JetpackSSOSettings >( {} );
+	const [ settingsToUpdate, setSettingsToUpdate ] = useState< JetpackSSOSettings >( {} );
 
-  const getCapLabel = ( cap: JetpackSSOCaps ): string | undefined =>
-    settings.available_caps ? settings.available_caps[ cap ] : undefined;
+	const getCapLabel = ( cap: JetpackSSOCaps ): string | undefined =>
+		settings.available_caps ? settings.available_caps[ cap ] : undefined;
 
 	useEffect( () => {
 		const fetchSettings = async () => {
 			setIsLoading( true );
 			try {
-				const fetchedSettings = await apiFetch<JetpackSSOSettings>( { path: '/newspack-manager/v1/jetpack-sso' } );
+				const fetchedSettings = await apiFetch< JetpackSSOSettings >( {
+					path: '/newspack-manager/v1/jetpack-sso',
+				} );
 				setSettings( fetchedSettings );
 				setSettingsToUpdate( fetchedSettings );
 			} catch ( e: unknown ) {
-				setError( isValidError( e ) ? e.message : __( 'Error fetching settings.', 'newspack-plugin' ) );
+				setError(
+					isValidError( e ) ? e.message : __( 'Error fetching settings.', 'newspack-plugin' )
+				);
 			} finally {
 				setIsLoading( false );
 			}
@@ -50,7 +48,7 @@ const JetpackSSO = () => {
 		setError( '' );
 		setIsLoading( true );
 		try {
-			const newSettings = await apiFetch<JetpackSSOSettings>( {
+			const newSettings = await apiFetch< JetpackSSOSettings >( {
 				path: '/newspack-manager/v1/jetpack-sso',
 				method: 'POST',
 				data,
@@ -58,7 +56,7 @@ const JetpackSSO = () => {
 			setSettings( newSettings );
 			setSettingsToUpdate( newSettings );
 		} catch ( e: unknown ) {
-      setError( isValidError( e ) ? e.message : __( 'Error updating settings.', 'newspack-plugin' ) );
+			setError( isValidError( e ) ? e.message : __( 'Error updating settings.', 'newspack-plugin' ) );
 		} finally {
 			setIsLoading( false );
 		}
@@ -97,25 +95,28 @@ const JetpackSSO = () => {
 						{ error && <Notice isError noticeText={ error } /> }
 						{ settings.jetpack_sso_force_2fa && (
 							<>
-							<Notice
-								isError
-								noticeText={ __(
-									'Two-factor authentication is currently enforced for all users via Jetpack configuration.',
-									'newspack-plugin'
-								) }
-							/>
-							<p>
-								{ __(
-									'Customize which capabilties to enforce 2FA by untoggling the “Require accounts to use WordPress.com Two-Step Authentication” option in Jetpack settings.',
-									'newspack-plugin'
-								) }
-							</p>
+								<Notice
+									isError
+									noticeText={ __(
+										'Two-factor authentication is currently enforced for all users via Jetpack configuration.',
+										'newspack-plugin'
+									) }
+								/>
+								<p>
+									{ __(
+										'Customize which capabilties to enforce 2FA by untoggling the “Require accounts to use WordPress.com Two-Step Authentication” option in Jetpack settings.',
+										'newspack-plugin'
+									) }
+								</p>
 							</>
 						) }
 						<Grid columns={ 1 }>
 							<BaseControl
 								id="force-2fa-cap"
-								label={ __( 'Select the user capability to enforce two-factor authentication', 'newspack-plugin' ) }
+								label={ __(
+									'Select the user capability to enforce two-factor authentication',
+									'newspack-plugin'
+								) }
 							>
 								<SelectControl
 									label={ __( 'Capability', 'newspack-plugin' ) }
@@ -124,20 +125,25 @@ const JetpackSSO = () => {
 									onChange={ ( value: JetpackSSOCaps ) =>
 										setSettingsToUpdate( { ...settingsToUpdate, force_2fa_cap: value } )
 									}
-									options={
-										Object.keys( settings.available_caps || {} ).map( ( cap: string ) => ( {
+									options={ Object.keys( settings.available_caps || {} ).map(
+										( cap: string ) => ( {
 											label: getCapLabel( cap as JetpackSSOCaps ),
 											value: cap,
-										} ) )
-									}
+										} )
+									) }
 								/>
 							</BaseControl>
 						</Grid>
 						<Grid columns={ 1 }>
 							<CheckboxControl
 								checked={ settingsToUpdate?.obfuscate_account || false }
-								onChange={ value => setSettingsToUpdate( { ...settingsToUpdate, obfuscate_account: value } ) }
-								label={ __( 'Obfuscate restricted accounts by throwing WP’s “user not found” errors on login form attempts.', 'newspack-plugin' ) }
+								onChange={ value =>
+									setSettingsToUpdate( { ...settingsToUpdate, obfuscate_account: value } )
+								}
+								label={ __(
+									'Obfuscate restricted accounts by throwing WP’s “user not found” errors on login form attempts.',
+									'newspack-plugin'
+								) }
 							/>
 						</Grid>
 					</>

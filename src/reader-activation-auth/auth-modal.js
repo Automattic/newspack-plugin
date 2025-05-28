@@ -167,10 +167,7 @@ export function openAuthModal( config = {} ) {
 	container.setFormAction( initialFormAction, true );
 
 	// Default to signin action if otp and timer has expired.
-	if (
-		initialFormAction === 'otp' &&
-		window?.newspackReaderActivation?.getOTPTimeRemaining() <= 0
-	) {
+	if ( initialFormAction === 'otp' && window?.newspackReaderActivation?.getOTPTimeRemaining() <= 0 ) {
 		container.setFormAction( 'signin' );
 	}
 	document.body.classList.add( 'newspack-signin' );

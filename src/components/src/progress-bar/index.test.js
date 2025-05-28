@@ -64,9 +64,7 @@ describe( 'ProgressBar', () => {
 	} );
 
 	it( 'should handle non-logical values in ProgressBar element', () => {
-		const { getByText, getByTestId } = render(
-			<ProgressBar completed="3" total="-1" displayFraction />
-		);
+		const { getByText, getByTestId } = render( <ProgressBar completed="3" total="-1" displayFraction /> );
 		expect( getByText( '0/0' ) ).toBeInTheDocument();
 		expect( getByTestId( 'progress-bar-indicator' ) ).toHaveAttribute( 'style', 'width: 100%;' );
 	} );

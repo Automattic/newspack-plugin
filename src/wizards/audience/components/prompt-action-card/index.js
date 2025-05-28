@@ -152,7 +152,10 @@ const PromptActionCard = props => {
 								>
 									{ __( 'Close', 'newspack-plugin' ) }
 								</Button>
-								<Button isPrimary href={ `/wp-admin/post.php?post=${ duplicated }&action=edit` }>
+								<Button
+									isPrimary
+									href={ `/wp-admin/post.php?post=${ duplicated }&action=edit` }
+								>
 									{ __( 'Edit', 'newspack-plugin' ) }
 								</Button>
 							</Card>
@@ -190,7 +193,8 @@ const PromptActionCard = props => {
 									disabled={ inFlight || null === duplicateTitle }
 									isPrimary
 									onClick={ () => {
-										const titleForDuplicate = duplicateTitle.trim() || getDefaultDupicateTitle();
+										const titleForDuplicate =
+											duplicateTitle.trim() || getDefaultDupicateTitle();
 										duplicatePopup( id, titleForDuplicate );
 									} }
 								>

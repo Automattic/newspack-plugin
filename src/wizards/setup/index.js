@@ -51,7 +51,7 @@ const ROUTES = [
 
 const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 	return (
-		<div ref={ref}>
+		<div ref={ ref }>
 			{ newspack_aux_data.has_completed_setup && (
 				<Notice isWarning className="ma0">
 					{ __(
@@ -65,8 +65,9 @@ const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 					const nextRoute = ROUTES[ index + 1 ]?.path;
 					const buttonAction = nextRoute
 						? {
-							href: '#' + nextRoute,
-						} : {};
+								href: '#' + nextRoute,
+						  }
+						: {};
 					return (
 						<Route
 							key={ index }
@@ -80,9 +81,11 @@ const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 									tabbedNavigation: ROUTES,
 									headerText: route.label,
 									subHeaderText: route.subHeaderText,
-									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
+									buttonText: nextRoute
+										? route.buttonText || __( 'Continue' )
+										: __( 'Finish' ),
 									buttonAction,
-									isPartOfSetup: true
+									isPartOfSetup: true,
 								} )
 							}
 						/>

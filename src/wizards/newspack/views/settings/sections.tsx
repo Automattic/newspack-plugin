@@ -20,10 +20,7 @@ import Collections from './collections';
 type SectionKeys = keyof typeof settingsTabs;
 
 const sectionComponents: Partial<
-	Record<
-		SectionKeys | 'default',
-		( props: { isPartOfSetup?: boolean } ) => React.ReactNode
-	>
+	Record< SectionKeys | 'default', ( props: { isPartOfSetup?: boolean } ) => React.ReactNode >
 > = {
 	connections: Connections,
 	social: Social,
@@ -41,10 +38,7 @@ const sectionComponents: Partial<
  */
 if ( 'additional-brands' in settingsTabs ) {
 	sectionComponents[ 'additional-brands' ] = lazy(
-		() =>
-			import(
-				/* webpackChunkName: "newspack-wizards" */ './additional-brands'
-			)
+		() => import( /* webpackChunkName: "newspack-wizards" */ './additional-brands' )
 	);
 }
 

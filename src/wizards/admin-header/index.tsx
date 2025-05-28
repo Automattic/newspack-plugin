@@ -26,27 +26,20 @@ export function WizardsAdminHeader( {
 				</div>
 			</div>
 			{ tabs.length > 0 && (
-			<div className="newspack-tabbed-navigation">
-				<ul>
-					{ tabs.map( ( tab, i ) => {
-						const selected = tab.forceSelected ? true : window.location.href === tab.href;
-						return (
-							<li key={ `${ tab.textContent }:${ i }` }>
-								<a
-									href={ tab.href }
-									className={
-										selected
-											? 'selected'
-											: ''
-									}
-								>
-									{ tab.textContent }
-								</a>
-							</li>
-						);
-					} ) }
-				</ul>
-			</div>
+				<div className="newspack-tabbed-navigation">
+					<ul>
+						{ tabs.map( ( tab, i ) => {
+							const selected = tab.forceSelected ? true : window.location.href === tab.href;
+							return (
+								<li key={ `${ tab.textContent }:${ i }` }>
+									<a href={ tab.href } className={ selected ? 'selected' : '' }>
+										{ tab.textContent }
+									</a>
+								</li>
+							);
+						} ) }
+					</ul>
+				</div>
 			) }
 		</Fragment>
 	);

@@ -114,12 +114,12 @@ export const Settings = ( {
 	const hasSelectedProviderKey = () => {
 		const selectedProvider = newslettersConfig?.newspack_newsletters_service_provider;
 		if ( ! selectedProvider ) {
-			return false
+			return false;
 		}
-		const regex = new RegExp( `${selectedProvider}.*key` );
+		const regex = new RegExp( `${ selectedProvider }.*key` );
 		const configKeys = Object.keys( newslettersConfig ).filter( key => regex.test( key ) );
 		return configKeys.some( key => !! newslettersConfig[ key ] );
-	}
+	};
 	const handleAuth = () => {
 		if ( authUrl ) {
 			const authWindow = window.open( authUrl, 'esp_oauth', 'width=500,height=600' );
@@ -200,7 +200,9 @@ export const Settings = ( {
 					{ 'campaign_monitor' ===
 						config?.settings?.newspack_newsletters_service_provider?.value && (
 						<Notice status="warning" isDismissible={ false }>
-							<h2>{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }</h2>
+							<h2>
+								{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }
+							</h2>
 							<p>
 								{ __(
 									'Please connect a different service provider to ensure continued support.',
@@ -220,11 +222,17 @@ export const Settings = ( {
 							switch ( setting.type ) {
 								case 'select':
 									return (
-										<SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />
+										<SelectControl
+											key={ setting.key }
+											{ ...getSettingProps( setting.key ) }
+										/>
 									);
 								case 'checkbox':
 									return (
-										<CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />
+										<CheckboxControl
+											key={ setting.key }
+											{ ...getSettingProps( setting.key ) }
+										/>
 									);
 								default:
 									return (
@@ -232,7 +240,9 @@ export const Settings = ( {
 											<TextControl { ...getSettingProps( setting.key ) } />
 											{ setting.help && setting.helpURL && (
 												<p>
-													<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
+													<ExternalLink href={ setting.helpURL }>
+														{ setting.help }
+													</ExternalLink>
 												</p>
 											) }
 										</Grid>
@@ -303,17 +313,14 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 		updateConfig( newLists );
 	};
 	// Handle provider updates.
-	useEffect(
-		() => {
-			setError( false );
-			if ( provider && ! lockedLists ) {
-				// Empty lists before fetching to prevent previous list from appearing while fetching.
-				setLists( [] );
-				fetchLists();
-			}
-		},
-		[ provider, lockedLists ]
-	);
+	useEffect( () => {
+		setError( false );
+		if ( provider && ! lockedLists ) {
+			// Empty lists before fetching to prevent previous list from appearing while fetching.
+			setLists( [] );
+			fetchLists();
+		}
+	}, [ provider, lockedLists ] );
 
 	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
@@ -328,23 +335,17 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 	}
 
 	/* eslint-disable no-nested-ternary */
-	const notification = lockedLists ?
-		__(
-			'Please save your ESP settings before changing your subscription lists.',
-			'newspack-plugin'
-		) :
-		error ?
-			error?.message || __( 'Something went wrong.', 'newspack-plugin' ) :
-			null;
+	const notification = lockedLists
+		? __( 'Please save your ESP settings before changing your subscription lists.', 'newspack-plugin' )
+		: error
+		? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
+		: null;
 
 	return (
 		<ActionCard
 			isMedium
 			title={ __( 'Subscription Lists', 'newspack-plugin' ) }
-			description={ __(
-				'Manage the lists available to readers for subscription.',
-				'newspack-plugin'
-			) }
+			description={ __( 'Manage the lists available to readers for subscription.', 'newspack-plugin' ) }
 			notification={ notification }
 			notificationLevel={ error ? 'error' : 'warning' }
 			hasGreyHeader
@@ -366,7 +367,8 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 			}
 			disabled={ inFlight || lockedLists }
 		>
-			{ ! lockedLists && ! error &&
+			{ ! lockedLists &&
+				! error &&
 				lists.map( ( list, index ) => (
 					<ActionCard
 						key={ index }

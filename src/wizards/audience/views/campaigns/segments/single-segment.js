@@ -273,10 +273,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 			</SettingsCard>
 			<SettingsCard
 				title={ __( 'Referrer Sources', 'newspack-plugin' ) }
-				description={ __(
-					'Target readers based on where they’re coming from.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Target readers based on where they’re coming from.', 'newspack-plugin' ) }
 				notification={ __(
 					'Segments using these options will apply only to the first page visited after coming from an external source.',
 					'newspack-plugin'
@@ -401,36 +398,32 @@ addFilter(
 /**
  * Adds a custom input for the devices criteria so more than one device can be selected.
  */
-addFilter(
-	'newspack.criteria.input',
-	'newspack.devices',
-	function (element, criteria, value, update) {
-		if (criteria.id === 'devices') {
-			const selectedDevices = Array.isArray(value) ? value : [];
+addFilter( 'newspack.criteria.input', 'newspack.devices', function ( element, criteria, value, update ) {
+	if ( criteria.id === 'devices' ) {
+		const selectedDevices = Array.isArray( value ) ? value : [];
 
-			return (
-				<div className="newspack-device-segments">
-					<Grid columns={1} rowGap={16}>
-						{criteria.options.map((device) => (
-							<CheckboxControl
-								key={device.value}
-								label={device.label}
-								checked={selectedDevices.includes(device.value)}
-								onChange={(isChecked) => {
-									if (isChecked) {
-										update([...selectedDevices, device.value]);
-									} else {
-										update(selectedDevices.filter(item => item !== device.value));
-									}
-								}}
-							/>
-						))}
-					</Grid>
-				</div>
-			);
-		}
-		return element;
+		return (
+			<div className="newspack-device-segments">
+				<Grid columns={ 1 } rowGap={ 16 }>
+					{ criteria.options.map( device => (
+						<CheckboxControl
+							key={ device.value }
+							label={ device.label }
+							checked={ selectedDevices.includes( device.value ) }
+							onChange={ isChecked => {
+								if ( isChecked ) {
+									update( [ ...selectedDevices, device.value ] );
+								} else {
+									update( selectedDevices.filter( item => item !== device.value ) );
+								}
+							} }
+						/>
+					) ) }
+				</Grid>
+			</div>
+		);
 	}
-);
+	return element;
+} );
 
 export default SingleSegment;

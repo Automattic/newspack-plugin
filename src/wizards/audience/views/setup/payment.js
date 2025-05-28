@@ -6,9 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import {
-	withWizardScreen,
-} from '../../../../components/src';
+import { withWizardScreen } from '../../../../components/src';
 import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import WizardsTab from '../../../wizards-tab';
 import Platform from '../../components/platform';

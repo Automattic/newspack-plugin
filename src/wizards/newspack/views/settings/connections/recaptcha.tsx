@@ -16,12 +16,7 @@ import { ERROR_MESSAGES } from './constants';
 import WizardsActionCard from '../../../../wizards-action-card';
 import WizardError from '../../../../errors/class-wizard-error';
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
-import {
-	Grid,
-	Button,
-	TextControl,
-	SelectControl,
-} from '../../../../../components/src';
+import { Grid, Button, TextControl, SelectControl } from '../../../../../components/src';
 
 const settingsDefault: RecaptchaData = {
 	threshold: '',
@@ -46,10 +41,7 @@ const fieldValidationMap = new Map<
 		'credentials',
 		{
 			dependsOn: { version: 'v3' },
-			callback: (
-				credentials: RecaptchaData[ 'credentials' ],
-				version = 'v3'
-			) => {
+			callback: ( credentials: RecaptchaData[ 'credentials' ], version = 'v3' ) => {
 				if ( ! credentials[ version ].site_key ) {
 					return ERROR_MESSAGES.RECAPTCHA.SITE_KEY_EMPTY;
 				}
@@ -81,17 +73,16 @@ const fieldValidationMap = new Map<
 const apiPath = '/newspack/v1/recaptcha';
 
 function Recaptcha() {
-	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } =
-		useWizardApiFetch( '/newspack-settings/connections/recaptcha' );
+	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
+		'/newspack-settings/connections/recaptcha'
+	);
 
 	const [ settings, setSettings ] = useState< RecaptchaData >( {
 		...settingsDefault,
 	} );
-	const [ settingsToUpdate, setSettingsToUpdate ] = useState< RecaptchaData >(
-		{
-			...settingsDefault,
-		}
-	);
+	const [ settingsToUpdate, setSettingsToUpdate ] = useState< RecaptchaData >( {
+		...settingsDefault,
+	} );
 	const credentials = settingsToUpdate.credentials || {};
 	const versionCredentials = credentials[ settingsToUpdate.version ];
 
@@ -116,13 +107,8 @@ function Recaptcha() {
 		if ( ! isToggleSave ) {
 			for ( const [ field, validate ] of fieldValidationMap ) {
 				if ( validate.dependsOn ) {
-					const [ [ key, value ] ] = Object.entries(
-						validate.dependsOn
-					);
-					if (
-						settingsToUpdate[ key as keyof RecaptchaDependsOn ] !==
-						value
-					) {
+					const [ [ key, value ] ] = Object.entries( validate.dependsOn );
+					if ( settingsToUpdate[ key as keyof RecaptchaDependsOn ] !== value ) {
 						continue;
 					}
 				}
@@ -153,10 +139,7 @@ function Recaptcha() {
 		);
 	}
 
-	function onCredentialsChange(
-		field: 'site_key' | 'site_secret',
-		value: string
-	) {
+	function onCredentialsChange( field: 'site_key' | 'site_secret', value: string ) {
 		setSettingsToUpdate( prev => ( {
 			...prev,
 			credentials: {
@@ -205,10 +188,7 @@ function Recaptcha() {
 				settings.use_captcha && (
 					<Button
 						variant="primary"
-						disabled={
-							isFetching ||
-							! Object.keys( settingsToUpdate ).length
-						}
+						disabled={ isFetching || ! Object.keys( settingsToUpdate ).length }
 						onClick={ () => updateSettings( settingsToUpdate ) }
 					>
 						{ isFetching
@@ -225,24 +205,15 @@ function Recaptcha() {
 					<Grid noMargin rowGap={ 16 }>
 						<BaseControl
 							id="recaptcha-version"
-							label={ __(
-								'reCAPTCHA Version',
-								'newspack-plugin'
-							) }
+							label={ __( 'reCAPTCHA Version', 'newspack-plugin' ) }
 							help={
 								<ExternalLink href="https://developers.google.com/recaptcha/docs/versions">
-									{ __(
-										'Learn more about reCAPTCHA versions',
-										'newspack-plugin'
-									) }
+									{ __( 'Learn more about reCAPTCHA versions', 'newspack-plugin' ) }
 								</ExternalLink>
 							}
 						>
 							<SelectControl
-								label={ __(
-									'reCAPTCHA Version',
-									'newspack-plugin'
-								) }
+								label={ __( 'reCAPTCHA Version', 'newspack-plugin' ) }
 								hideLabelFromVision
 								value={ settingsToUpdate.version || 'v3' }
 								onChange={ ( version: RecaptchaVersions ) =>
@@ -255,10 +226,7 @@ function Recaptcha() {
 								options={ [
 									{
 										value: 'v3',
-										label: __(
-											'Score based (v3)',
-											'newspack-plugin'
-										),
+										label: __( 'Score based (v3)', 'newspack-plugin' ),
 									},
 									{
 										value: 'v2_invisible',
@@ -275,9 +243,7 @@ function Recaptcha() {
 						<TextControl
 							value={ versionCredentials.site_key || '' }
 							label={ __( 'Site Key', 'newspack-plugin' ) }
-							onChange={ ( value: string ) =>
-								onCredentialsChange( 'site_key', value )
-							}
+							onChange={ ( value: string ) => onCredentialsChange( 'site_key', value ) }
 							disabled={ isFetching }
 							autoComplete="off"
 						/>
@@ -285,9 +251,7 @@ function Recaptcha() {
 							type="password"
 							value={ versionCredentials.site_secret || '' }
 							label={ __( 'Site Secret', 'newspack-plugin' ) }
-							onChange={ ( value: string ) =>
-								onCredentialsChange( 'site_secret', value )
-							}
+							onChange={ ( value: string ) => onCredentialsChange( 'site_secret', value ) }
 							disabled={ isFetching }
 							autoComplete="one-time-code"
 						/>
@@ -297,9 +261,7 @@ function Recaptcha() {
 								step="0.05"
 								min="0.1"
 								max="1"
-								value={ parseFloat(
-									settingsToUpdate?.threshold || '0'
-								) }
+								value={ parseFloat( settingsToUpdate?.threshold || '0' ) }
 								label={ __( 'Threshold', 'newspack-plugin' ) }
 								onChange={ ( value: string ) =>
 									setSettingsToUpdate( {
@@ -310,10 +272,7 @@ function Recaptcha() {
 								disabled={ isFetching }
 								help={
 									<ExternalLink href="https://developers.google.com/recaptcha/docs/v3#interpreting_the_score">
-										{ __(
-											'Learn more about the threshold value',
-											'newspack-plugin'
-										) }
+										{ __( 'Learn more about the threshold value', 'newspack-plugin' ) }
 									</ExternalLink>
 								}
 							/>

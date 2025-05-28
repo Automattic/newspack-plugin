@@ -158,7 +158,10 @@ const Salesforce = () => {
 
 						{ isConnected && ! error && (
 							<Notice
-								noticeText={ __( 'Your site is connected to Salesforce.', 'newspack-plugin' ) }
+								noticeText={ __(
+									'Your site is connected to Salesforce.',
+									'newspack-plugin'
+								) }
 								isSuccess
 							/>
 						) }
@@ -168,10 +171,7 @@ const Salesforce = () => {
 							'newspack-plugin'
 						) }
 
-						<Button
-							ref={ copyRef }
-							className="newspack-button is-link"
-						>
+						<Button ref={ copyRef } className="newspack-button is-link">
 							{ __( 'copy to clipboard', 'newspack-plugin' ) }
 						</Button>
 

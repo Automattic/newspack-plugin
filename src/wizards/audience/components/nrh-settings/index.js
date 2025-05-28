@@ -8,12 +8,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import {
-	AutocompleteWithSuggestions,
-	Button,
-	Grid,
-	TextControl,
-} from '../../../../components/src';
+import { AutocompleteWithSuggestions, Button, Grid, TextControl } from '../../../../components/src';
 import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 import WizardsSection from '../../../wizards-section';

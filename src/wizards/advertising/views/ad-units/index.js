@@ -178,7 +178,8 @@ const AdUnits = ( {
 									<span>
 										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ adUnit.code }</code>
+												<i>{ __( 'Code:', 'newspack-plugin' ) }</i>{ ' ' }
+												<code>{ adUnit.code }</code>
 											</>
 										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
@@ -186,9 +187,13 @@ const AdUnits = ( {
 												{ ' ' }
 												| { __( 'Sizes:', 'newspack-plugin' ) }{ ' ' }
 												{ adUnit.sizes.map( ( size, i ) => (
-													<code key={ i }>{ Array.isArray( size ) ? size.join( 'x' ) : size }</code>
+													<code key={ i }>
+														{ Array.isArray( size ) ? size.join( 'x' ) : size }
+													</code>
 												) ) }
-												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack-plugin' ) }</code> }
+												{ adUnit.fluid && (
+													<code>{ __( 'Fluid', 'newspack-plugin' ) }</code>
+												) }
 											</>
 										) : null }
 										{ adUnit.is_legacy ? (

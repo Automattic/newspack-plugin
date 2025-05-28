@@ -68,11 +68,9 @@ const Welcome = ( { buttonAction } ) => {
 	const isSetupApproachNew = setupApproach === 'generated';
 	const isSetupApproachMigrate = setupApproach === 'import';
 
-	const addError = errorInfo => error =>
-		setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
+	const addError = errorInfo => error => setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
 
-	const total =
-		( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) + softwareInfo.length;
+	const total = ( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) + softwareInfo.length;
 
 	useEffect( () => {
 		document.body.classList.add( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
@@ -82,8 +80,7 @@ const Welcome = ( { buttonAction } ) => {
 			setIsSSL( res.is_ssl );
 		} );
 
-		return () =>
-			document.body.classList.remove( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
+		return () => document.body.classList.remove( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
 	}, [] );
 
 	const increment = () => setInstallationProgress( progress => progress + 1 );
@@ -122,7 +119,8 @@ const Welcome = ( { buttonAction } ) => {
 				.then( increment )
 				.catch( err => {
 					window.location =
-						'/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' + err.message;
+						'/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' +
+						err.message;
 				} );
 
 			// Generate posts.
@@ -373,7 +371,10 @@ const Welcome = ( { buttonAction } ) => {
 								) }
 								{ isInit && ( isSetupApproachNew || isSetupApproachMigrate ) && (
 									<Button
-										disabled={ ! isSSL || ( isSetupApproachMigrate && ! isURL( existingSiteURL ) ) }
+										disabled={
+											! isSSL ||
+											( isSetupApproachMigrate && ! isURL( existingSiteURL ) )
+										}
 										isPrimary
 										onClick={ install }
 									>
@@ -381,7 +382,11 @@ const Welcome = ( { buttonAction } ) => {
 									</Button>
 								) }
 								{ ! isInit && (
-									<Button disabled={ ! isSSL } isPrimary href={ isDone ? nextRouteAddress : null }>
+									<Button
+										disabled={ ! isSSL }
+										isPrimary
+										href={ isDone ? nextRouteAddress : null }
+									>
 										{ __( 'Continue', 'newspack' ) }
 									</Button>
 								) }

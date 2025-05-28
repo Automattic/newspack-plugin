@@ -16,8 +16,7 @@ domReady( function () {
 		const checkLoginStatus = metadata => {
 			fetch( `/wp-json/newspack/v1/login/google/register?metadata=${ JSON.stringify( metadata ) }` )
 				.then( res => {
-					res
-						.json()
+					res.json()
 						.then( ( { message, data } ) => {
 							if ( googleLoginForm?.endLoginFlow ) {
 								googleLoginForm.endLoginFlow( message, res.status, data );
@@ -45,11 +44,7 @@ domReady( function () {
 				? convertFormDataToObject( new FormData( googleLoginForm ), [ 'lists[]' ] )
 				: {};
 			metadata.current_page_url = window.location.href;
-			const authWindow = window.open(
-				'about:blank',
-				'newspack_google_login',
-				'width=500,height=600'
-			);
+			const authWindow = window.open( 'about:blank', 'newspack_google_login', 'width=500,height=600' );
 			let googleOAuthSuccess = false;
 			window.addEventListener( 'google-oauth-success', () => {
 				googleOAuthSuccess = true;

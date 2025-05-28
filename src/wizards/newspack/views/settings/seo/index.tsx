@@ -44,11 +44,7 @@ function Seo() {
 
 	const codesValidation = useFieldsValidation< SeoData[ 'verification' ] >(
 		[
-			[
-				'google',
-				'isId',
-				{ message: __( 'Invalid Google verification code!', 'newspack-plugin' ) },
-			],
+			[ 'google', 'isId', { message: __( 'Invalid Google verification code!', 'newspack-plugin' ) } ],
 			[
 				'bing',
 				/** JS version of [WPSEO PHP regex](https://github.com/Yoast/wordpress-seo/blob/trunk/inc/options/class-wpseo-option.php#L313) */
@@ -114,10 +110,7 @@ function Seo() {
 		);
 	}
 	return (
-		<WizardsTab
-			title={ __( 'SEO', 'newspack-plugin' ) }
-			className={ isFetching ? 'is-fetching' : '' }
-		>
+		<WizardsTab title={ __( 'SEO', 'newspack-plugin' ) } className={ isFetching ? 'is-fetching' : '' }>
 			<WizardSection
 				title={ __( 'Webmaster Tools', 'newspack-plugin' ) }
 				description={ __( 'Add verification meta tags to your site', 'newspack-plugin' ) }

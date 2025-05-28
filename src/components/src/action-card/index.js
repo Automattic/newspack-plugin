@@ -74,7 +74,7 @@ class ActionCard extends Component {
 			noBorder,
 			isPending,
 			expandable = false,
-			isButtonEnabled = false
+			isButtonEnabled = false,
 		} = this.props;
 
 		const { expanded } = this.state;
@@ -105,7 +105,12 @@ class ActionCard extends Component {
 		const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 		return (
-			<Card className={ classes } onClick={ simple && onClick } id={ this.props.id ?? null } noBorder={ noBorder }>
+			<Card
+				className={ classes }
+				onClick={ simple && onClick }
+				id={ this.props.id ?? null }
+				noBorder={ noBorder }
+			>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
 					{ toggleOnChange && (
 						<ToggleControl
@@ -144,7 +149,10 @@ class ActionCard extends Component {
 								<span className="newspack-action-card__title" { ...titleProps }>
 									{ titleLink && <a href={ titleLink }>{ title }</a> }
 									{ ! titleLink && expandable && (
-										<Button isLink onClick={ () => this.setState( { expanded: ! expanded } ) }>
+										<Button
+											isLink
+											onClick={ () => this.setState( { expanded: ! expanded } ) }
+										>
 											{ title }
 										</Button>
 									) }
@@ -152,7 +160,10 @@ class ActionCard extends Component {
 								</span>
 								{ badges?.length &&
 									badges.map( ( badgeText, i ) => (
-										<span key={ `badge-${ i }` } className={ `newspack-action-card__badge newspack-action-card__badge-level-${ badgeLevel }` }>
+										<span
+											key={ `badge-${ i }` }
+											className={ `newspack-action-card__badge newspack-action-card__badge-level-${ badgeLevel }` }
+										>
 											{ badgeText }
 										</span>
 									) ) }
@@ -185,7 +196,10 @@ class ActionCard extends Component {
 										{ actionText }
 									</Button>
 								) : href ? (
-									<ExternalLink href={ href } className="newspack-action-card__primary_button">
+									<ExternalLink
+										href={ href }
+										className="newspack-action-card__primary_button"
+									>
 										{ actionText }
 									</ExternalLink>
 								) : (

@@ -17,25 +17,19 @@ import useWizardApiFetchToggle from '../../../../hooks/use-wizard-api-fetch-togg
  * Collections settings component.
  */
 function Collections() {
-	const {
-		description,
-		apiData,
-		isFetching,
-		actionText,
-		apiFetchToggle,
-		errorMessage,
-	} = useWizardApiFetchToggle< { module_enabled_collections: boolean } >( {
-		path: '/newspack/v1/wizard/newspack-settings/collections',
-		apiNamespace: 'newspack-settings/collections',
-		refreshOn: [ 'POST' ],
-		data: {
-			module_enabled_collections: false,
-		},
-		description: __(
-			'Manage print editions and other collections of content with custom ordering and organization.',
-			'newspack-plugin'
-		),
-	} );
+	const { description, apiData, isFetching, actionText, apiFetchToggle, errorMessage } =
+		useWizardApiFetchToggle< { module_enabled_collections: boolean } >( {
+			path: '/newspack/v1/wizard/newspack-settings/collections',
+			apiNamespace: 'newspack-settings/collections',
+			refreshOn: [ 'POST' ],
+			data: {
+				module_enabled_collections: false,
+			},
+			description: __(
+				'Manage print editions and other collections of content with custom ordering and organization.',
+				'newspack-plugin'
+			),
+		} );
 
 	return (
 		<div className="newspack-wizard__sections">
@@ -48,10 +42,7 @@ function Collections() {
 				error={ errorMessage }
 				toggleChecked={ apiData.module_enabled_collections }
 				toggleOnChange={ ( value: boolean ) =>
-					apiFetchToggle(
-						{ ...apiData, module_enabled_collections: value },
-						true
-					)
+					apiFetchToggle( { ...apiData, module_enabled_collections: value }, true )
 				}
 			/>
 		</div>

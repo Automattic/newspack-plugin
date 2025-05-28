@@ -114,7 +114,9 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
 					if ( 'register' === action ) {
 						form.removeAttribute( 'data-skip-recaptcha' );
-						newspack_grecaptcha.render( [ form ], ( error ) => form.setMessageContent( error, true ) );
+						newspack_grecaptcha.render( [ form ], error =>
+							form.setMessageContent( error, true )
+						);
 					} else {
 						form.setAttribute( 'data-skip-recaptcha', '1' );
 					}
@@ -192,16 +194,21 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( ! resendCodeButton ) {
 					return;
 				}
-				resendCodeButton.originalButtonText = resendCodeButton.textContent.replace( /\s\(\d{1,}:\d{2}\)/, '' );
+				resendCodeButton.originalButtonText = resendCodeButton.textContent.replace(
+					/\s\(\d{1,}:\d{2}\)/,
+					''
+				);
 				const updateButton = () => {
 					const remaining = readerActivation.getOTPTimeRemaining();
 					if ( remaining ) {
-						resendCodeButton.textContent = `${ resendCodeButton.originalButtonText } (${ formatTime( remaining ) })`;
+						resendCodeButton.textContent = `${
+							resendCodeButton.originalButtonText
+						} (${ formatTime( remaining ) })`;
 					} else {
 						resendCodeButton.textContent = resendCodeButton.originalButtonText;
 						clearInterval( resendCodeButton.otpTimerInterval );
 					}
-					resendCodeButton.disabled = !!remaining;
+					resendCodeButton.disabled = !! remaining;
 				};
 				const remaining = readerActivation.getOTPTimeRemaining();
 				if ( remaining ) {
@@ -298,18 +305,26 @@ window.newspackRAS.push( function ( readerActivation ) {
 						const activity = { email: data.email };
 						const body = new FormData( form );
 						if ( data.metadata?.gate_post_id || body.has( 'memberships_content_gate' ) ) {
-							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
+							activity.gate_post_id =
+								data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
 						}
 						if ( data.metadata?.newspack_popup_id || body.has( 'newspack_popup_id' ) ) {
-							activity.newspack_popup_id = data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
+							activity.newspack_popup_id =
+								data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
 						}
 						if ( data?.sso ) {
 							activity.sso = true;
 						}
 						if ( data?.existing_user ) {
-							readerActivation.dispatchActivity( 'reader_logged_in', { ...activity, login_method: data?.metadata?.login_method || 'auth-form' } );
+							readerActivation.dispatchActivity( 'reader_logged_in', {
+								...activity,
+								login_method: data?.metadata?.login_method || 'auth-form',
+							} );
 						} else {
-							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data?.metadata?.registration_method || 'auth-form' } );
+							readerActivation.dispatchActivity( 'reader_registered', {
+								...activity,
+								registration_method: data?.metadata?.registration_method || 'auth-form',
+							} );
 						}
 					}
 
@@ -427,8 +442,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					} )
 						.then( res => {
 							container.setAttribute( 'data-form-status', res.status );
-							res
-								.json()
+							res.json()
 								.then( ( { message, data } ) => {
 									const status = res.status;
 									if ( status === 200 ) {

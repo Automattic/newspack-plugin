@@ -56,12 +56,9 @@ export const settings = {
 	title,
 	icon: {
 		src: icon,
-		foreground: colors['primary-400'],
+		foreground: colors[ 'primary-400' ],
 	},
-	description: __(
-		'Display an archive of all the corrections and clarifications.',
-		'newspack-plugin'
-	),
+	description: __( 'Display an archive of all the corrections and clarifications.', 'newspack-plugin' ),
 	usesContext: [ 'postType' ],
 	edit: EditComponent,
 };

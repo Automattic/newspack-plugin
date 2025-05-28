@@ -111,7 +111,10 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 					title={ __( 'Targeting', 'newspack-plugin' ) }
 					description={ () => (
 						<>
-							{ __( 'Under which conditions should the prompt be displayed', 'newspack-plugin' ) }
+							{ __(
+								'Under which conditions should the prompt be displayed',
+								'newspack-plugin'
+							) }
 							<br />
 							{ __(
 								'If multiple conditions are set, all will have to be satisfied in order to display the prompt',
@@ -161,7 +164,9 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 							{ sprintf(
 								// Translators: whether to show or hide advanced settings fields.
 								__( '%s Advanced Settings', 'newspack-plugin' ),
-								showAdvanced ? __( 'Hide', 'newspack-plugin' ) : __( 'Show', 'newspack-plugin' )
+								showAdvanced
+									? __( 'Hide', 'newspack-plugin' )
+									: __( 'Show', 'newspack-plugin' )
 							) }
 						</Button>
 					</div>

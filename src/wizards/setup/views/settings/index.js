@@ -125,9 +125,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 					</Fragment>
 				) ) }
 			</Grid>
-			<div className="newspack-buttons-card">
-				{ renderPrimaryButton( { onClick: updateProfile } ) }
-			</div>
+			<div className="newspack-buttons-card">{ renderPrimaryButton( { onClick: updateProfile } ) }</div>
 		</Fragment>
 	);
 };

@@ -19,23 +19,13 @@ import { useState } from 'react';
 
 const MediaKitToggle = () => {
 	const [ isInFlight, setInFlight ] = useState( false );
-	const [ editURL, setEditURL ] = useState(
-		newspack_ads_wizard.media_kit_page_edit_url
-	);
-	const [ pageStatus, setPageStatus ] = useState(
-		newspack_ads_wizard.media_kit_page_status
-	);
+	const [ editURL, setEditURL ] = useState( newspack_ads_wizard.media_kit_page_edit_url );
+	const [ pageStatus, setPageStatus ] = useState( newspack_ads_wizard.media_kit_page_status );
 
-	if (
-		! newspack_ads_wizard.media_kit_page_status &&
-		! newspack_ads_wizard.media_kit_page_edit_url
-	) {
+	if ( ! newspack_ads_wizard.media_kit_page_status && ! newspack_ads_wizard.media_kit_page_edit_url ) {
 		return (
 			<Notice isDismissible={ false } status="error">
-				{ __(
-					'Something went wrong, the Media Kit feature is unavailable.',
-					'newspack-plugin'
-				) }
+				{ __( 'Something went wrong, the Media Kit feature is unavailable.', 'newspack-plugin' ) }
 			</Notice>
 		);
 	}

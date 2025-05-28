@@ -49,9 +49,7 @@ const WizardError = () => {
 		);
 	}
 
-	return (
-		<Notice isError className="newspack-wizard__above-header" noticeText={ message } rawHTML />
-	);
+	return <Notice isError className="newspack-wizard__above-header" noticeText={ message } rawHTML />;
 };
 
 export default WizardError;

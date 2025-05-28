@@ -118,9 +118,7 @@ const Services = ( { renderPrimaryButton } ) => {
 					</ActionCard>
 				);
 			} ) }
-			<div className="newspack-buttons-card">
-				{ renderPrimaryButton( { onClick: saveSettings } ) }
-			</div>
+			<div className="newspack-buttons-card">{ renderPrimaryButton( { onClick: saveSettings } ) }</div>
 		</>
 	);
 };

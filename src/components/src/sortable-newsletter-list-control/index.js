@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Icon, chevronUp, chevronDown, trash } from '@wordpress/icons';
-import { CheckboxControl,Notice } from '@wordpress/components';
+import { CheckboxControl, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -12,11 +12,7 @@ import ActionCard from '../action-card';
 import Button from '../button';
 import './style.scss';
 
-export default function SortableNewsletterListControl( {
-	lists,
-	selected = [],
-	onChange = () => {},
-} ) {
+export default function SortableNewsletterListControl( { lists, selected = [], onChange = () => {} } ) {
 	if ( ! Array.isArray( lists ) && lists.errors ) {
 		return (
 			<Notice status="error" isDismissible={ false }>
@@ -46,7 +42,9 @@ export default function SortableNewsletterListControl( {
 										label={ __( 'Checked by default', 'newspack-plugin' ) }
 										checked={ selectedList.checked }
 										onChange={ () => {
-											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
+											const index = selected.findIndex(
+												( { id } ) => id === selectedList.id
+											);
 											const newSelected = [ ...selected ];
 											newSelected[ index ].checked = ! newSelected[ index ].checked;
 											onChange( newSelected );
@@ -55,11 +53,14 @@ export default function SortableNewsletterListControl( {
 								</>
 							) }
 							isSmall
-							hasWhiteHeader							actionText={
+							hasWhiteHeader
+							actionText={
 								<>
 									<Button
 										onClick={ () =>
-											onChange( selected.filter( ( { id } ) => id !== selectedList.id ) )
+											onChange(
+												selected.filter( ( { id } ) => id !== selectedList.id )
+											)
 										}
 										label={ __( 'Remove', 'newspack-plugin' ) }
 										icon={ trash }
@@ -72,7 +73,9 @@ export default function SortableNewsletterListControl( {
 								<span className="newspack__newsletter-list-control__sort-handle">
 									<button
 										onClick={ () => {
-											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
+											const index = selected.findIndex(
+												( { id } ) => id === selectedList.id
+											);
 											if ( index === 0 ) {
 												return;
 											}
@@ -91,7 +94,9 @@ export default function SortableNewsletterListControl( {
 									</button>
 									<button
 										onClick={ () => {
-											const index = selected.findIndex( ( { id } ) => id === selectedList.id );
+											const index = selected.findIndex(
+												( { id } ) => id === selectedList.id
+											);
 											const newSelected = [ ...selected ];
 											newSelected.splice( index, 1 );
 											newSelected.splice( index + 1, 0, selectedList );

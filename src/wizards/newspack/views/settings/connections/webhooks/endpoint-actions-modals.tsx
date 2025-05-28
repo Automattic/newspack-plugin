@@ -43,8 +43,7 @@ const EndpointActionsModals = ( {
 				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
-				onSuccess: endpoints =>
-					onSuccess( endpointToToggle.id, endpoints ),
+				onSuccess: endpoints => onSuccess( endpointToToggle.id, endpoints ),
 			}
 		);
 	}
@@ -56,8 +55,7 @@ const EndpointActionsModals = ( {
 				updateCacheKey: ENDPOINTS_CACHE_KEY,
 			},
 			{
-				onSuccess: endpoints =>
-					onSuccess( endpointToDelete.id, endpoints ),
+				onSuccess: endpoints => onSuccess( endpointToDelete.id, endpoints ),
 			}
 		);
 	}
@@ -69,10 +67,7 @@ const EndpointActionsModals = ( {
 					title={ __( 'Remove Endpoint', 'newspack-plugin' ) }
 					description={ sprintf(
 						/* translators: %s: endpoint title */
-						__(
-							'Are you sure you want to remove the endpoint %s?',
-							'newspack-plugin'
-						),
+						__( 'Are you sure you want to remove the endpoint %s?', 'newspack-plugin' ),
 						`"${ getDisplayUrl( endpoint.url ) }"`
 					) }
 					onClose={ () => setAction( null, endpoint.id ) }

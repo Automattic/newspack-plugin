@@ -129,7 +129,9 @@ class ComponentsDemo extends Component {
 								'newspack-plugin'
 							) }
 							onChange={ items =>
-								this.setState( { selectedPostsForAutocompleteWithSuggestionsMultiSelect: items } )
+								this.setState( {
+									selectedPostsForAutocompleteWithSuggestionsMultiSelect: items,
+								} )
 							}
 							postTypes={ [
 								{ slug: 'page', label: 'Pages' },
@@ -240,10 +242,16 @@ class ComponentsDemo extends Component {
 									) }
 								</p>
 								<Card buttonsCard noBorder className="justify-end">
-									<Button isPrimary onClick={ () => this.setState( { modalShown: false } ) }>
+									<Button
+										isPrimary
+										onClick={ () => this.setState( { modalShown: false } ) }
+									>
 										{ __( 'Dismiss', 'newspack-plugin' ) }
 									</Button>
-									<Button isSecondary onClick={ () => this.setState( { modalShown: false } ) }>
+									<Button
+										isSecondary
+										onClick={ () => this.setState( { modalShown: false } ) }
+									>
 										{ __( 'Also dismiss', 'newspack-plugin' ) }
 									</Button>
 								</Card>
@@ -255,8 +263,14 @@ class ComponentsDemo extends Component {
 						<Notice noticeText={ __( 'This is an info notice.', 'newspack-plugin' ) } />
 						<Notice noticeText={ __( 'This is an error notice.', 'newspack-plugin' ) } isError />
 						<Notice noticeText={ __( 'This is a help notice.', 'newspack-plugin' ) } isHelp />
-						<Notice noticeText={ __( 'This is a success notice.', 'newspack-plugin' ) } isSuccess />
-						<Notice noticeText={ __( 'This is a warning notice.', 'newspack-plugin' ) } isWarning />
+						<Notice
+							noticeText={ __( 'This is a success notice.', 'newspack-plugin' ) }
+							isSuccess
+						/>
+						<Notice
+							noticeText={ __( 'This is a warning notice.', 'newspack-plugin' ) }
+							isWarning
+						/>
 					</Card>
 					<Card>
 						<h2>{ __( 'Plugin installer', 'newspack-plugin' ) }</h2>
@@ -312,7 +326,10 @@ class ComponentsDemo extends Component {
 					/>
 					<ActionCard
 						title={ __( 'Example Three', 'newspack-plugin' ) }
-						description={ __( 'Waiting/in-progress state, no action button.', 'newspack-plugin' ) }
+						description={ __(
+							'Waiting/in-progress state, no action button.',
+							'newspack-plugin'
+						) }
 						actionText={ __( 'Installing…', 'newspack-plugin' ) }
 						isWaiting
 					/>
@@ -325,7 +342,8 @@ class ComponentsDemo extends Component {
 						} }
 						notification={
 							<Fragment>
-								Plugin cannot be installed <a href="#">Retry</a> | <a href="#">Documentation</a>
+								Plugin cannot be installed <a href="#">Retry</a> |{ ' ' }
+								<a href="#">Documentation</a>
 							</Fragment>
 						}
 						notificationLevel="error"
@@ -415,7 +433,10 @@ class ComponentsDemo extends Component {
 					<ActionCard
 						badge={ [ __( 'Premium', 'newspack-plugin' ), __( 'Archived', 'newspack-plugin' ) ] }
 						title={ __( 'Example Fourteen', 'newspack-plugin' ) }
-						description={ __( 'An example of an action card with two badges.', 'newspack-plugin' ) }
+						description={ __(
+							'An example of an action card with two badges.',
+							'newspack-plugin'
+						) }
 						actionText={ __( 'Install', 'newspack-plugin' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
@@ -425,7 +446,10 @@ class ComponentsDemo extends Component {
 						badge={ __( 'It works', 'newspack-plugin' ) }
 						badgeLevel="success"
 						title={ __( 'Example Fifteen', 'newspack-plugin' ) }
-						description={ __( 'An example of an action card with a success badge.', 'newspack-plugin' ) }
+						description={ __(
+							'An example of an action card with a success badge.',
+							'newspack-plugin'
+						) }
 						actionText={ __( 'Install', 'newspack-plugin' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
@@ -435,7 +459,10 @@ class ComponentsDemo extends Component {
 						badge={ __( 'Uh oh', 'newspack-plugin' ) }
 						badgeLevel="warning"
 						title={ __( 'Example Sixteen', 'newspack-plugin' ) }
-						description={ __( 'An example of an action card with a warning badge.', 'newspack-plugin' ) }
+						description={ __(
+							'An example of an action card with a warning badge.',
+							'newspack-plugin'
+						) }
 						actionText={ __( 'Install', 'newspack-plugin' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
@@ -445,7 +472,10 @@ class ComponentsDemo extends Component {
 						badge={ __( 'Oh no', 'newspack-plugin' ) }
 						badgeLevel="error"
 						title={ __( 'Example Seventeen', 'newspack-plugin' ) }
-						description={ __( 'An example of an action card with an error badge.', 'newspack-plugin' ) }
+						description={ __(
+							'An example of an action card with an error badge.',
+							'newspack-plugin'
+						) }
 						actionText={ __( 'Install', 'newspack-plugin' ) }
 						onClick={ () => {
 							console.log( 'Install clicked' );
@@ -516,7 +546,11 @@ class ComponentsDemo extends Component {
 								label={ __( 'Label for Select with a preselection', 'newspack-plugin' ) }
 								value={ selectValue1 }
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },
@@ -527,7 +561,11 @@ class ComponentsDemo extends Component {
 								label={ __( 'Label for Select with no preselection', 'newspack-plugin' ) }
 								value={ selectValue2 }
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },
@@ -538,7 +576,11 @@ class ComponentsDemo extends Component {
 								label={ __( 'Label for disabled Select', 'newspack-plugin' ) }
 								disabled
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },
@@ -549,7 +591,11 @@ class ComponentsDemo extends Component {
 								value={ selectValue3 }
 								isSmall
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },

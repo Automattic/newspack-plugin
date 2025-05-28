@@ -46,16 +46,10 @@ function EndpointActions( {
 						ESCAPE === event.keyCode && setPopoverVisible( false )
 					}
 				>
-					<MenuItem
-						onClick={ () => setPopoverVisible( false ) }
-						className="screen-reader-text"
-					>
+					<MenuItem onClick={ () => setPopoverVisible( false ) } className="screen-reader-text">
 						{ __( 'Close Endpoint Actions', 'newspack-plugin' ) }
 					</MenuItem>
-					<MenuItem
-						onClick={ () => setAction( 'view', endpoint.id ) }
-						className="newspack-button"
-					>
+					<MenuItem onClick={ () => setAction( 'view', endpoint.id ) } className="newspack-button">
 						{ __( 'View Requests', 'newspack-plugin' ) }
 					</MenuItem>
 					{ ! isSystem && (

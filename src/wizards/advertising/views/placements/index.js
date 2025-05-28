@@ -20,14 +20,7 @@ import { ToggleControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	Button,
-	Card,
-	Modal,
-	Notice,
-	withWizardScreen,
-} from '../../../../components/src';
+import { ActionCard, Button, Card, Modal, Notice, withWizardScreen } from '../../../../components/src';
 import PlacementControl from '../../components/placement-control';
 
 /**
@@ -133,10 +126,7 @@ const Placements = () => {
 		<Fragment>
 			<h1>{ __( 'Placements', 'newspack-plugin' ) }</h1>
 			{ ! inFlight && ! providers.length && (
-				<Notice
-					isWarning
-					noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) }
-				/>
+				<Notice isWarning noticeText={ __( 'There is no provider available.', 'newspack-plugin' ) } />
 			) }
 			<div
 				className={ classnames( {
@@ -214,7 +204,11 @@ const Placements = () => {
 							checked={ !! placement.data?.stick_to_top }
 							onChange={ value => {
 								setPlacements(
-									set( { ...placements }, [ editingPlacement, 'data', 'stick_to_top' ], value )
+									set(
+										{ ...placements },
+										[ editingPlacement, 'data', 'stick_to_top' ],
+										value
+									)
 								);
 							} }
 						/>

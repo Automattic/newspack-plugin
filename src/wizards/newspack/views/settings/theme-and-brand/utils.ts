@@ -3,10 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 
-const processFontOptions = (
-	headingsOnly: boolean,
-	options: { label: string; value?: string }[]
-) =>
+const processFontOptions = ( headingsOnly: boolean, options: { label: string; value?: string }[] ) =>
 	options.reduce( ( acc: { label: string; value?: string }[], option ) => {
 		const isHeadingsOnly = option.label.indexOf( '(*)' ) > 0;
 		const label = option.label.replace( ' (*)', '' );
@@ -99,12 +96,7 @@ const MONOSPACE_FONTS = [
 	{ label: 'Space Mono' },
 	{ label: 'Roboto Mono' },
 ];
-const ALL_FONTS = [
-	...SERIF_FONTS,
-	...SANS_SERIF_FONTS,
-	...DISPLAY_FONTS,
-	...MONOSPACE_FONTS,
-];
+const ALL_FONTS = [ ...SERIF_FONTS, ...SANS_SERIF_FONTS, ...DISPLAY_FONTS, ...MONOSPACE_FONTS ];
 
 export const TYPOGRAPHY_OPTIONS: {
 	value: 'curated' | 'custom';
@@ -165,7 +157,4 @@ export const LOGO_SIZE_OPTIONS = [
  * The size might have been set in the Customizer, where it is a slider input.
  */
 export const parseLogoSize = ( size: number, options = LOGO_SIZE_OPTIONS ) =>
-	options.reduce(
-		( foundSize, { value } ) => ( size >= value ? value : foundSize ),
-		options[ 0 ].value
-	);
+	options.reduce( ( foundSize, { value } ) => ( size >= value ? value : foundSize ), options[ 0 ].value );

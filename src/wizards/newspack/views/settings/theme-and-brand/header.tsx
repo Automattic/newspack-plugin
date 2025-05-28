@@ -12,12 +12,7 @@ import { ToggleControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import {
-	ColorPicker,
-	Grid,
-	ImageUpload,
-	SelectControl,
-} from '../../../../../components/src';
+import { ColorPicker, Grid, ImageUpload, SelectControl } from '../../../../../components/src';
 import { LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
 
 export default function Header( {
@@ -30,16 +25,11 @@ export default function Header( {
 	return (
 		<Grid gutter={ 32 }>
 			<Grid columns={ 1 } gutter={ 16 }>
-				<Grid
-					gutter={ 16 }
-					className="newspack-design__header__style-size"
-				>
+				<Grid gutter={ 16 } className="newspack-design__header__style-size">
 					<SelectControl
 						className="icon-only"
 						label={ __( 'Style', 'newspack' ) }
-						value={
-							themeMods.header_center_logo ? 'center' : 'left'
-						}
+						value={ themeMods.header_center_logo ? 'center' : 'left' }
 						onChange={ ( align: string ) =>
 							updateHeader( {
 								...themeMods,
@@ -54,9 +44,7 @@ export default function Header( {
 					<SelectControl
 						className="icon-only"
 						label={ __( 'Size', 'newspack' ) }
-						value={
-							themeMods.header_simplified ? 'small' : 'large'
-						}
+						value={ themeMods.header_simplified ? 'small' : 'large' }
 						onChange={ ( size: string ) =>
 							updateHeader( {
 								...themeMods,
@@ -77,10 +65,7 @@ export default function Header( {
 							header_solid_background,
 						} )
 					}
-					label={ __(
-						'Apply a background color to the header',
-						'newspack'
-					) }
+					label={ __( 'Apply a background color to the header', 'newspack' ) }
 				/>
 				{ themeMods.header_solid_background && (
 					<ColorPicker
