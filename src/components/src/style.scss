@@ -1,5 +1,5 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
-@use "../../shared/scss/colors" as colors;
+@use "../../shared/scss/colors.module" as colors;
 
 :root {
 	// WP Admin
@@ -23,6 +23,10 @@
 
 	&:empty {
 		display: none;
+	}
+
+	+ .newspack-card {
+		margin-top: 64px;
 	}
 }
 

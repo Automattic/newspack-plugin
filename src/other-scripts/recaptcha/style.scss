@@ -34,3 +34,19 @@
 		}
 	}
 }
+
+body:not(.newspack-ui) .woocommerce #payment,
+body:not(.newspack-ui) .woocommerce-page #payment {
+	/* stylelint-disable-next-line selector-id-pattern */
+	#place_order_clone {
+		@media only screen and (max-width: 768px) {
+			width: 100% !important;
+		}
+		float: right;
+
+		/* stylelint-disable-next-line selector-id-pattern */
+		& + #place_order {
+			display: none;
+		}
+	}
+}

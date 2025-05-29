@@ -135,6 +135,7 @@ final class Reader_Activation {
 				'authenticated_email'   => $authenticated_email,
 				'otp_auth_action'       => Magic_Link::OTP_AUTH_ACTION,
 				'otp_rate_interval'     => Magic_Link::RATE_INTERVAL,
+				'auth_action_result'    => Magic_Link::AUTH_ACTION_RESULT,
 				'account_url'           => function_exists( 'wc_get_account_endpoint_url' ) ? \wc_get_account_endpoint_url( 'dashboard' ) : '',
 				'is_ras_enabled'        => self::is_enabled(),
 			];
@@ -346,29 +347,35 @@ final class Reader_Activation {
 	 */
 	private static function get_settings_config() {
 		$settings_config = [
-			'enabled'                                  => false,
-			'enabled_account_link'                     => true,
-			'account_link_menu_locations'              => [ 'tertiary-menu' ],
-			'newsletters_label'                        => self::get_reader_activation_labels( 'newsletters_cta' ),
-			'use_custom_lists'                         => false,
-			'newsletter_lists'                         => [],
-			'terms_text'                               => '',
-			'terms_url'                                => '',
-			'sync_esp'                                 => true,
-			'metadata_prefix'                          => Sync\Metadata::get_prefix(),
-			'metadata_fields'                          => Sync\Metadata::get_fields(),
-			'sync_esp_delete'                          => true,
-			'active_campaign_master_list'              => '',
-			'constant_contact_list_id'                 => '',
-			'mailchimp_audience_id'                    => '',
-			'mailchimp_reader_default_status'          => 'transactional',
-			'sender_name'                              => Emails::get_from_name(),
-			'sender_email_address'                     => Emails::get_from_email(),
-			'contact_email_address'                    => Emails::get_reply_to_email(),
-			'woocommerce_registration_required'        => false,
-			'woocommerce_checkout_privacy_policy_text' => self::get_checkout_privacy_policy_text(),
-			'woocommerce_post_checkout_success_text'   => self::get_post_checkout_success_text(),
+			'enabled'                                      => false,
+			'enabled_account_link'                         => true,
+			'account_link_menu_locations'                  => [ 'tertiary-menu' ],
+			'newsletters_label'                            => self::get_reader_activation_labels( 'newsletters_cta' ),
+			'use_custom_lists'                             => false,
+			'newsletter_lists'                             => [],
+			'newsletter_list_initial_size'                 => self::get_newsletters_list_initial_size(),
+			'terms_text'                                   => '',
+			'terms_url'                                    => '',
+			'sync_esp'                                     => true,
+			'metadata_prefix'                              => Sync\Metadata::get_prefix(),
+			'metadata_fields'                              => Sync\Metadata::get_fields(),
+			'sync_esp_delete'                              => true,
+			'active_campaign_master_list'                  => '',
+			'constant_contact_list_id'                     => '',
+			'mailchimp_audience_id'                        => '',
+			'mailchimp_reader_default_status'              => 'transactional',
+			'sender_name'                                  => Emails::get_from_name(),
+			'sender_email_address'                         => Emails::get_from_email(),
+			'contact_email_address'                        => Emails::get_reply_to_email(),
+			'woocommerce_registration_required'            => false,
+			'woocommerce_checkout_privacy_policy_text'     => self::get_checkout_privacy_policy_text(),
+			'woocommerce_post_checkout_success_text'       => self::get_post_checkout_success_text(),
 			'woocommerce_post_checkout_registration_success_text' => self::get_post_checkout_registration_success_text(),
+			'woocommerce_enable_subscription_confirmation' => false,
+			'woocommerce_subscription_confirmation_text'   => self::get_subscription_confirmation_text(),
+			'woocommerce_enable_terms_confirmation'        => false,
+			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
+			'woocommerce_terms_confirmation_url'           => self::get_terms_confirmation_url(),
 		];
 
 		/**
@@ -1627,20 +1634,26 @@ final class Reader_Activation {
 	 *
 	 * @param string $email_address     Email address.
 	 * @param array  $newsletters_lists Array of newsletters lists.
+	 * @param int    $default_list_size Default number of lists to show.
 	 *
 	 * @return void
 	 */
-	private static function render_newsletters_signup_form( $email_address, $newsletters_lists ) {
+	private static function render_newsletters_signup_form( $email_address, $newsletters_lists, $default_list_size = 2 ) {
+		$loop_index = 0;
 		?>
 			<div class="newspack-ui newspack-newsletters-signup">
 				<form method="post" target="_top">
 					<input type="hidden" name="<?php echo \esc_attr( self::NEWSLETTERS_SIGNUP_FORM_ACTION ); ?>" value="1" />
 					<input type="hidden" name="email_address" value="<?php echo esc_attr( $email_address ); ?>" />
+
+					<div class="newsletter-list-container" data-list-default-size="<?php echo esc_attr( $default_list_size ); ?>">
 					<?php
 					foreach ( $newsletters_lists as $list ) {
 						$checkbox_id = sprintf( 'newspack-plugin-list-%s', $list['id'] );
+						$is_hidden = $loop_index <= $default_list_size ? '' : 'hidden';
+						$loop_index++;
 						?>
-						<label class="newspack-ui__input-card" for="<?php echo \esc_attr( $checkbox_id ); ?>">
+						<label class="newspack-ui__input-card <?php echo esc_attr( $is_hidden ); ?>" for="<?php echo \esc_attr( $checkbox_id ); ?>">
 							<input
 								type="checkbox"
 								name="lists[]"
@@ -1660,6 +1673,14 @@ final class Reader_Activation {
 						<?php
 					}
 					?>
+					</div>
+
+					<?php if ( count( $newsletters_lists ) > $default_list_size ) : ?>
+						<button type="button" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--secondary see-all-button">
+							<span><?php esc_html_e( 'See all', 'newspack-plugin' ); ?></span>
+							<?php \Newspack\Newspack_UI_Icons::print_svg( 'arrow-right' ); ?>
+						</button>
+					<?php endif; ?>
 					<button type="submit" class="newspack-ui__button newspack-ui__button--wide newspack-ui__button--primary"><?php echo \esc_html( self::get_reader_activation_labels( 'newsletters_continue' ) ); ?></button>
 				</form>
 			</div>
@@ -1682,6 +1703,7 @@ final class Reader_Activation {
 		if ( empty( $newsletters_lists ) ) {
 			return;
 		}
+		$newsletter_list_initial_size = self::get_newsletters_list_initial_size();
 		?>
 		<div class="newspack-ui newspack-ui__modal-container newspack-newsletters-signup-modal">
 			<div class="newspack-ui__modal-container__overlay"></div>
@@ -1705,7 +1727,7 @@ final class Reader_Activation {
 							<?php echo esc_html( $email_address ); ?>
 						</span>
 					</p>
-					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists ); ?>
+					<?php self::render_newsletters_signup_form( $email_address, $newsletters_lists, $newsletter_list_initial_size ); ?>
 				</div>
 			</div>
 		</div>
@@ -1903,7 +1925,7 @@ final class Reader_Activation {
 	 * If Google is connected to the site, this can be overridden by setting the `NEWSPACK_DISABLE_GOOGLE_OAUTH` environment constant.
 	 */
 	public static function render_third_party_auth() {
-		if ( ! Google_OAuth::is_oauth_configured() || ( defined( 'NEWSPACK_DISABLE_GOOGLE_OAUTH' ) && NEWSPACK_DISABLE_GOOGLE_OAUTH ) ) {
+		if ( ! Google_OAuth::is_oauth_configured() ) {
 			return;
 		}
 		?>
@@ -2005,7 +2027,7 @@ final class Reader_Activation {
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) ) ) );
 		}
 
-		if ( ! self::is_user_reader( $user ) ) {
+		if ( $user && ! self::is_user_reader( $user ) ) {
 			$message = 'register' === $action ? __( 'An account was already registered with this email. Please check your inbox for an authentication link.', 'newspack-plugin' ) : wp_kses_post( __( 'Account not found. <a data-set-action="register" href="#register_modal">Create an account</a> instead?', 'newspack-plugin' ) );
 			$sent = self::send_non_reader_login_reminder( $user );
 			return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : $message ) );
@@ -2017,12 +2039,14 @@ final class Reader_Activation {
 		];
 
 		$magic_link_label = self::get_reader_activation_labels( 'magic_link' );
+		$metadata         = [];
+		$message          = false;
 
 		switch ( $action ) {
 			case 'signin':
 				if ( Magic_Link::has_active_token( $user ) ) {
 					$payload['action'] = 'otp';
-					return self::send_auth_form_response( $payload, false );
+					break;
 				}
 				if ( self::is_reader_without_password( $user ) ) {
 					$sent = Magic_Link::send_email( $user, $redirect );
@@ -2030,10 +2054,10 @@ final class Reader_Activation {
 						return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 					}
 					$payload['action'] = 'otp';
-					return self::send_auth_form_response( $payload, false );
+					break;
 				} else {
 					$payload['action'] = 'pwd';
-					return self::send_auth_form_response( $payload, false );
+					break;
 				}
 			case 'pwd':
 				if ( empty( $password ) ) {
@@ -2043,17 +2067,20 @@ final class Reader_Activation {
 				if ( \is_wp_error( $user ) ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', __( 'Password not recognized, try again.', 'newspack-plugin' ) ) );
 				}
-				$authenticated            = self::set_current_reader( $user->ID );
+				$authenticated = self::set_current_reader( $user->ID );
 				$payload['authenticated'] = \is_wp_error( $authenticated ) ? 0 : 1;
-				return self::send_auth_form_response( $payload, false );
+				$payload['existing_user'] = \is_wp_error( $authenticated ) ? 0 : 1;
+				$metadata['login_method'] = 'auth-form-password';
+				break;
 			case 'link':
 				$sent = Magic_Link::send_email( $user, $redirect );
 				if ( true !== $sent ) {
 					return self::send_auth_form_response( new \WP_Error( 'unauthorized', \is_wp_error( $sent ) ? $sent->get_error_message() : __( 'We encountered an error sending an authentication link. Please try again.', 'newspack-plugin' ) ) );
 				}
-				return self::send_auth_form_response( $payload, $magic_link_label );
+				$message = $magic_link_label;
+				break;
 			case 'register':
-				$metadata = [ 'registration_method' => 'auth-form' ];
+				$metadata['registration_method'] = 'auth-form';
 				if ( ! empty( $lists ) ) {
 					$metadata['lists'] = $lists;
 				}
@@ -2063,6 +2090,7 @@ final class Reader_Activation {
 				if ( ! empty( $current_page_url ) ) {
 					$metadata['current_page_url'] = $current_page_url;
 				}
+
 				$user_id = self::register_reader( $email, '', true, $metadata );
 				if ( false === $user_id ) {
 					return self::send_auth_form_response(
@@ -2090,10 +2118,25 @@ final class Reader_Activation {
 
 				$payload['registered']    = 1;
 				$payload['authenticated'] = 1;
-				return self::send_auth_form_response( $payload, false );
+				break;
 		}
-	}
 
+		/**
+		 * Filters the metadata to be saved for a reader going through the auth modal.
+		 *
+		 * @param array  $metadata Metadata.
+		 * @param string $email    Email address of the reader.
+		 */
+		$metadata = apply_filters( 'newspack_auth_form_metadata', $metadata, $email );
+		if ( isset( $metadata['gate_post_id'] ) ) {
+			$payload['gate_post_id'] = $metadata['gate_post_id'];
+		}
+		if ( isset( $metadata['newspack_popup_id'] ) ) {
+			$payload['newspack_popup_id'] = $metadata['newspack_popup_id'];
+		}
+		$payload['metadata'] = $metadata;
+		return self::send_auth_form_response( $payload, $message );
+	}
 
 	/**
 	 * Check if current reader has its email verified.
@@ -2193,7 +2236,7 @@ final class Reader_Activation {
 				return false;
 			}
 
-			// Don't send OTP email for newsletter signup, or if the reader has a password set. 
+			// Don't send OTP email for newsletter signup, or if the reader has a password set.
 			if ( self::is_reader_without_password( $existing_user ) &&
 				( ! isset( $metadata['registration_method'] ) || false === strpos( $metadata['registration_method'], 'newsletters-subscription' ) )
 			) {
@@ -2645,6 +2688,15 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Get the default list size for newsletters.
+	 *
+	 * @return int Default list size.
+	 */
+	private static function get_newsletters_list_initial_size() {
+		return absint( get_option( self::OPTIONS_PREFIX . 'newsletter_list_initial_size', 2 ) );
+	}
+
+	/**
 	 * Modal checkout registration privacy policy text.
 	 *
 	 * @return string Privacy policy text.
@@ -2699,16 +2751,75 @@ final class Reader_Activation {
 	}
 
 	/**
+	 * Return if the Subscription confirmation checkbox is enabled.
+	 *
+	 * @return bool Whether the subscription confirmation checkbox is enabled.
+	 */
+	public static function is_subscription_confirmation_enabled() {
+		return (bool) \get_option( self::OPTIONS_PREFIX . 'woocommerce_enable_subscription_confirmation', false );
+	}
+
+	/**
+	 * Get the text label for the subscription confirmation checkbox.
+	 *
+	 * @return string Returns either the default text label or a customized one.
+	 */
+	public static function get_subscription_confirmation_text() {
+		return \get_option(
+			self::OPTIONS_PREFIX . 'woocommerce_subscription_confirmation_text',
+			__(
+				'I understand this is a recurring subscription and that I can cancel anytime through the My Account Page.',
+				'newspack-plugin'
+			)
+		);
+	}
+
+	/**
+	 * Return if the Terms & Conditions confirmation checkbox is enabled.
+	 *
+	 * @return bool Whether the Terms & Conditions confirmation checkbox is enabled.
+	 */
+	public static function is_terms_confirmation_enabled() {
+		return (bool) \get_option( self::OPTIONS_PREFIX . 'woocommerce_enable_terms_confirmation', false );
+	}
+
+	/**
+	 * Get the text label for the Terms & Conditions confirmation checkbox.
+	 *
+	 * @return string Returns either the default text label or a customized one.
+	 */
+	public static function get_terms_confirmation_text() {
+		return \get_option(
+			self::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_text',
+			__( 'I have read and accept the {{Terms & Conditions}}.', 'newspack-plugin' )
+		);
+	}
+
+	/**
+	 * Get the URL for the Terms & Conditions confirmation checkbox.
+	 *
+	 * @return string Returns the URL for the Terms & Conditions confirmation checkbox.
+	 */
+	public static function get_terms_confirmation_url() {
+		return \get_option( self::OPTIONS_PREFIX . 'woocommerce_terms_confirmation_url', '' );
+	}
+
+	/**
 	 * Get the checkout configuration.
 	 *
 	 * @return array The checkout configuration.
 	 */
 	public static function get_checkout_configuration() {
 		return [
-			'woocommerce_registration_required'        => self::is_woocommerce_registration_required(),
-			'woocommerce_post_checkout_success_text'   => self::get_post_checkout_success_text(),
-			'woocommerce_checkout_privacy_policy_text' => self::get_checkout_privacy_policy_text(),
+			'woocommerce_registration_required'            => self::is_woocommerce_registration_required(),
+			'woocommerce_post_checkout_success_text'       => self::get_post_checkout_success_text(),
+			'woocommerce_checkout_privacy_policy_text'     => self::get_checkout_privacy_policy_text(),
 			'woocommerce_post_checkout_registration_success_text' => self::get_post_checkout_registration_success_text(),
+			'woocommerce_enable_subscription_confirmation' => self::is_subscription_confirmation_enabled(),
+			'woocommerce_subscription_confirmation_text'   => self::get_subscription_confirmation_text(),
+			'woocommerce_enable_terms_confirmation'        => self::is_terms_confirmation_enabled(),
+			'woocommerce_terms_confirmation_text'          => self::get_terms_confirmation_text(),
+			'woocommerce_terms_confirmation_url'           => self::get_terms_confirmation_url(),
 		];
 	}
 }

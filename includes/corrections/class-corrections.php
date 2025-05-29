@@ -37,11 +37,6 @@ class Corrections {
 	const CORRECTIONS_TYPE_META = 'newspack_corrections_type';
 
 	/**
-	 * Supported post types.
-	 */
-	const SUPPORTED_POST_TYPES = [ 'article_legacy', 'content_type_blog', 'post', 'press_release' ];
-
-	/**
 	 * REST route for corrections.
 	 */
 	const REST_ROUTE = '/corrections';
@@ -57,6 +52,31 @@ class Corrections {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 		add_action( 'admin_init', [ __CLASS__, 'register_corrections_block_patterns' ] );
 		add_action( 'init', [ __CLASS__, 'register_corrections_template' ] );
+		add_action( 'transition_post_status', [ __CLASS__, 'update_corrections_status' ], 10, 3 );
+	}
+
+	/**
+	 * Get supported post types.
+	 *
+	 * @return array Array of supported post types slugs.
+	 */
+	public static function get_supported_post_types() {
+		/**
+		 * Filter to allow other post types to support Newspack Corrections and Clarifications.
+		 *
+		 * @param array $supported_post_types Array of supported post types slugs.
+		 */
+		return apply_filters( 'newspack_corrections_supported_post_types', [ 'post' ] );
+	}
+
+	/**
+	 * Check if a post type is supported.
+	 *
+	 * @param string $post_type The post type slug.
+	 * @return bool Whether the post type is supported.
+	 */
+	public static function is_supported_post_type( $post_type ) {
+		return in_array( $post_type, self::get_supported_post_types(), true );
 	}
 
 	/**
@@ -71,6 +91,12 @@ class Corrections {
 		);
 
 		if ( ! is_admin() || ! filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		if ( empty( $screen ) || 'post' !== $screen->base || ! self::is_supported_post_type( $screen->post_type ) ) {
 			return;
 		}
 
@@ -145,23 +171,25 @@ class Corrections {
 			'item_link_description'    => __( 'A link to a correction.', 'newspack-plugin' ),
 		];
 		$args = array(
-			'labels'           => $labels,
-			'description'      => 'Post type used to store corrections and clarifications.',
-			'has_archive'      => true,
-			'public'           => true,
-			'public_queryable' => true,
-			'query_var'        => true,
-			'rewrite'          => [ 'slug' => 'corrections' ],
-			'show_ui'          => false,
-			'show_in_rest'     => true,
-			'supports'         => $supports,
-			'taxonomies'       => [],
-			'menu_icon'        => 'dashicons-edit',
+			'labels'              => $labels,
+			'description'         => __( 'Post type used to store corrections and clarifications.', 'newspack-plugin' ),
+			'has_archive'         => true,
+			'public'              => false,
+			'publicly_queryable'  => true,
+			'exclude_from_search' => true,
+			'query_var'           => true,
+			'rewrite'             => [ 'slug' => 'corrections' ],
+			'show_ui'             => false,
+			'show_in_nav_menus'   => false,
+			'show_in_rest'        => true,
+			'supports'            => $supports,
+			'taxonomies'          => [],
+			'menu_icon'           => 'dashicons-edit',
 		);
-		\register_post_type( self::POST_TYPE, $args );
+		\register_post_type( self::POST_TYPE, $args ); // phpcs:ignore WordPress.NamingConventions.ValidPostTypeSlug.NotStringLiteral
 
 		$rewrite_rules_updated_option_name = 'newspack_corrections_rewrite_rules_updated';
-		if ( get_option( $rewrite_rules_updated_option_name ) !== true ) {
+		if ( false === get_option( $rewrite_rules_updated_option_name ) ) {
 			flush_rewrite_rules(); //phpcs:ignore
 			update_option( $rewrite_rules_updated_option_name, true );
 		}
@@ -215,7 +243,7 @@ class Corrections {
 			// ID will be null if it's a new correction.
 			if ( ! empty( $correction_id ) ) {
 				// Update existing correction.
-				self::update_correction( $correction_id, $correction );
+				self::update_correction( $post_id, $correction_id, $correction );
 				$processed_ids[] = $correction_id;
 			} else {
 				// Create new correction.
@@ -254,7 +282,7 @@ class Corrections {
 				'post_content' => sanitize_textarea_field( $correction['content'] ),
 				'post_date'    => sanitize_text_field( $correction['date'] ),
 				'post_type'    => self::POST_TYPE,
-				'post_status'  => 'publish',
+				'post_status'  => get_post_status( $post_id ),
 				'meta_input'   => [
 					self::CORRECTION_POST_ID_META   => $post_id,
 					self::CORRECTIONS_TYPE_META     => $correction['type'],
@@ -274,10 +302,11 @@ class Corrections {
 	 * @return array The corrections.
 	 */
 	public static function get_corrections( $post_id ) {
-		$corrections = get_posts(
+		$corrections = get_posts( // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.get_posts_get_posts
 			[
 				'posts_per_page' => -1,
 				'post_type'      => self::POST_TYPE,
+				'post_status'    => 'any',
 				'meta_key'       => self::CORRECTION_POST_ID_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 				'meta_value'     => $post_id, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'orderby'        => 'date',
@@ -298,21 +327,51 @@ class Corrections {
 	/**
 	 * Update correction.
 	 *
+	 * @param int   $post_id       the post id.
 	 * @param int   $correction_id the post id.
 	 * @param array $correction    the correction.
 	 */
-	public static function update_correction( $correction_id, $correction ) {
+	public static function update_correction( $post_id, $correction_id, $correction ) {
 		wp_update_post(
 			[
 				'ID'           => $correction_id,
 				'post_content' => sanitize_textarea_field( $correction['content'] ),
 				'post_date'    => sanitize_text_field( $correction['date'] ),
+				'post_status'  => get_post_status( $post_id ),
 				'meta_input'   => [
 					self::CORRECTIONS_TYPE_META     => $correction['type'],
 					self::CORRECTIONS_PRIORITY_META => $correction['priority'],
 				],
 			]
 		);
+	}
+
+	/**
+	 * Update corrections status when the post status changes.
+	 *
+	 * @param string  $new_status The new post status.
+	 * @param string  $old_status The old post status.
+	 * @param WP_Post $post The post object.
+	 */
+	public static function update_corrections_status( $new_status, $old_status, $post ) {
+		if ( $new_status === $old_status || ! self::is_supported_post_type( $post->post_type ) ) {
+			return;
+		}
+
+		$corrections = self::get_corrections( $post->ID );
+
+		if ( empty( $corrections ) ) {
+			return;
+		}
+
+		foreach ( $corrections as $correction ) {
+			wp_update_post(
+				[
+					'ID'          => $correction->ID,
+					'post_status' => $new_status,
+				]
+			);
+		}
 	}
 
 	/**
@@ -484,7 +543,7 @@ class Corrections {
 		}
 
 		\register_block_template(
-			'newspack//corrections-archive',
+			'newspack//archive-' . self::POST_TYPE,
 			[
 				'title'       => __( 'Corrections Archive', 'newspack-plugin' ),
 				'description' => __( 'A block template for displaying an archive of corrections.', 'newspack-plugin' ),

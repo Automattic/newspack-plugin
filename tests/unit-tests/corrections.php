@@ -383,7 +383,7 @@ class Test_Corrections extends WP_UnitTestCase {
 			'priority' => 'high',
 		);
 
-		Corrections::update_correction( $correction_id, $updated_data );
+		Corrections::update_correction( self::$post_id, $correction_id, $updated_data );
 
 		$updated_correction = get_post( $correction_id );
 		$this->assertInstanceOf( 'WP_Post', $updated_correction, 'Expected a WP_Post object for the updated correction.' );
@@ -529,5 +529,137 @@ class Test_Corrections extends WP_UnitTestCase {
 		$this->assertStringContainsString( $correction_2_heading, $corrections_markup, 'The correction date should be included in the output.' );
 		$this->assertStringContainsString( 'Test correction content 2', $corrections_markup, 'The correction content should be included in the output.' );
 		$this->assertStringContainsString( 'corrections-high-module', $corrections_markup, 'The correction priority should be included in the output.' );
+	}
+
+	/**
+	 * Test scripts and styles are enqueued correctly.
+	 *
+	 * @covers Corrections::wp_enqueue_scripts
+	 */
+	public function test_enqueue_scripts_and_styles() {
+		Corrections::wp_enqueue_scripts();
+		$this->assertTrue(
+			wp_style_is( 'newspack-corrections-single', 'registered' ),
+			'Corrections style should be registered.'
+		);
+	}
+
+	/**
+	 * Test corrections post type registration.
+	 *
+	 * @covers Corrections::register_post_type
+	 */
+	public function test_register_post_type() {
+		$post_type_exists = post_type_exists( Corrections::POST_TYPE );
+		$this->assertTrue( $post_type_exists );
+
+		$post_type_object = get_post_type_object( Corrections::POST_TYPE );
+		$this->assertEquals( 'newspack_correction', $post_type_object->name );
+		$this->assertTrue( $post_type_object->has_archive );
+		$this->assertFalse( $post_type_object->public );
+		$this->assertTrue( $post_type_object->show_in_rest );
+
+		$this->assertEquals( 1, get_option( 'newspack_corrections_rewrite_rules_updated' ) );
+	}
+
+	/**
+	 * Test correction type labels.
+	 *
+	 * @covers Corrections::get_correction_type_label
+	 */
+	public function test_correction_type_labels() {
+		$correction    = [
+			'content'  => 'Test content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
+		];
+		$clarification = [
+			'content'  => 'Test content',
+			'type'     => 'clarification', 
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
+		];
+
+		$correction_id    = Corrections::add_correction( self::$post_id, $correction );
+		$clarification_id = Corrections::add_correction( self::$post_id, $clarification );
+
+		$this->assertEquals(
+			'Correction',
+			Corrections::get_correction_type( $correction_id ),
+			'Should return "Correction" for correction type'
+		);
+		
+		$this->assertEquals(
+			'Clarification',
+			Corrections::get_correction_type( $clarification_id ),
+			'Should return "Clarification" for clarification type'
+		);
+	}
+
+	/**
+	 * Test that corrections status is updated when post status changes.
+	 *
+	 * @covers Corrections::update_corrections_status
+	 */
+	public function test_update_corrections_status() {
+		$correction = array(
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
+		);
+
+		$correction_id = Corrections::add_correction( self::$post_id, $correction );
+		$this->assertNotWPError( $correction_id );
+		$this->assertNotEquals( 0, $correction_id );
+
+		// Change post status to draft.
+		wp_update_post(
+			array(
+				'ID'          => self::$post_id,
+				'post_status' => 'draft',
+			)
+		);
+
+		// Check that correction status was updated.
+		$updated_correction = get_post( $correction_id );
+		$this->assertEquals( 'draft', $updated_correction->post_status, 'Correction status should match post status.' );
+
+		// Change post status back to publish.
+		wp_update_post(
+			array(
+				'ID'          => self::$post_id,
+				'post_status' => 'publish',
+			)
+		);
+
+		// Check that correction status was updated again.
+		$updated_correction = get_post( $correction_id );
+		$this->assertEquals( 'publish', $updated_correction->post_status, 'Correction status should match post status.' );
+	}
+
+	/**
+	 * Test that corrections can be filtered by supported post types.
+	 *
+	 * @covers Corrections::get_supported_post_types
+	 * @covers Corrections::is_supported_post_type
+	 */
+	public function test_get_supported_post_types() {
+		$supported_types = Corrections::get_supported_post_types();
+		$this->assertIsArray( $supported_types );
+		$this->assertContains( 'post', $supported_types );
+
+		// Test the filter.
+		add_filter(
+			'newspack_corrections_supported_post_types',
+			function( $types ) {
+				$types[] = 'test_post_type';
+				return $types;
+			}
+		);
+
+		$filtered_types = Corrections::get_supported_post_types();
+		$this->assertContains( 'test_post_type', $filtered_types );
 	}
 }

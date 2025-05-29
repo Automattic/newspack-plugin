@@ -21,6 +21,42 @@ window.newspackRAS.push( function ( readerActivation ) {
 				return;
 			}
 
+			// Handle "See all" button logic.
+			const seeAllButton = container.querySelector( '.see-all-button' );
+			const newsletterContainer = container.querySelector( '.newsletter-list-container' );
+
+			if ( seeAllButton && newsletterContainer ) {
+				// Remove the "hidden" class from all newsletter items.
+				seeAllButton.addEventListener( 'click', () => {
+					newsletterContainer.querySelectorAll( '.hidden' ).forEach( ( item ) => {
+						item.classList.remove( 'hidden' );
+					} );
+
+					newsletterContainer.style.maxHeight = 'none';
+					seeAllButton.remove();
+				} );
+
+				// Set the initial height to show partially visible.
+				const listDefaultSize = parseInt( newsletterContainer.dataset.listDefaultSize, 10 );
+				const newsletterItems = newsletterContainer.querySelectorAll( '.newspack-ui__input-card' );
+
+				if ( newsletterItems.length > listDefaultSize ) {
+					const gap = 12;
+					const extraSpace = 32; // Additional space for partial visibility.
+
+					let totalHeight = 0;
+					newsletterItems.forEach( ( item, index ) => {
+						if ( index < listDefaultSize ) {
+							totalHeight += item.offsetHeight;
+						}
+					} );
+
+					const maxHeight = totalHeight + ( listDefaultSize * gap ) + extraSpace;
+
+					newsletterContainer.style.maxHeight = `${maxHeight}px`;
+				}
+			}
+
 			const handleSubmit = ev => {
 				ev.preventDefault();
 
@@ -46,6 +82,12 @@ window.newspackRAS.push( function ( readerActivation ) {
 				fetch( newspack_reader_activation_newsletters.newspack_ajax_url, {
 					method: 'POST',
 					body: data,
+				} ).then( () => {
+					const lists = data.getAll( 'lists[]' );
+					if ( lists.length ) {
+						const signupMethod = form.getAttribute( 'data-signup-method' ) || 'post-checkout';
+						readerActivation.dispatchActivity( 'newsletter_signup', { email: emailInput.value, lists, newsletters_subscription_method: signupMethod } );
+					}
 				} ).finally( () => {
 					if ( container?.newslettersSignupCallback ) {
 						container.newslettersSignupCallback();

@@ -16,7 +16,8 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { withWizardScreen, Wizard, ActionCard, hooks } from '../../../../components/src';
+import { withWizardScreen, ActionCard, hooks } from '../../../../components/src';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import ReaderRevenue from './ReaderRevenue';
 import { Settings as NewslettersSettings } from '../../../newsletters/views/settings';
 import GAMOnboarding from '../../../advertising/components/onboarding';
@@ -57,7 +58,7 @@ const Services = ( { renderPrimaryButton } ) => {
 	const [ services, updateServices ] = hooks.useObjectState( SERVICES_LIST );
 	const [ isLoading, setIsLoading ] = useState( true );
 	const slugs = keys( services );
-	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
+	const wizardData = useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
 
 	useEffect( () => {
 		apiFetch( {

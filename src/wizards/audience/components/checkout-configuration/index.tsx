@@ -8,19 +8,21 @@ import { ToggleControl, TextareaControl } from '@wordpress/components';
 /**
  * Internal dependencies.
  */
-import { Button, Grid, Wizard } from '../../../../components/src';
+import { Button, Grid } from '../../../../components/src';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
+import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 import WizardsSection from '../../../wizards-section';
 
 const DATA_STORE_KEY = 'newspack-audience/checkout-configuration';
 
 function CheckoutConfiguration() {
-	const config = Wizard.useWizardData( DATA_STORE_KEY );
+	const config = useWizardData( DATA_STORE_KEY );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch(
-		Wizard.STORE_NAMESPACE
+		WIZARD_STORE_NAMESPACE
 	);
 	const isQuietLoading = useSelect(
 		( select: any ) =>
-			select( Wizard.STORE_NAMESPACE ).isQuietLoading() ?? false,
+			select( WIZARD_STORE_NAMESPACE ).isQuietLoading() ?? false,
 		[]
 	);
 

@@ -2,7 +2,8 @@
 /**
  * WordPress dependencies.
  */
-import { ToggleControl } from '@wordpress/components';
+// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+import { ToggleControl, CheckboxControl } from '@wordpress/components';
 import { useEffect, useState, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import find from 'lodash/find';
@@ -19,6 +20,7 @@ import {
 	Settings,
 	TextControl,
 	hooks,
+	Grid,
 } from '../../../../../components/src';
 import ListsControl from '../../../components/lists-control';
 
@@ -390,6 +392,41 @@ addFilter(
 					value={ value }
 					onChange={ update }
 				/>
+			);
+		}
+		return element;
+	}
+);
+
+/**
+ * Adds a custom input for the devices criteria so more than one device can be selected.
+ */
+addFilter(
+	'newspack.criteria.input',
+	'newspack.devices',
+	function (element, criteria, value, update) {
+		if (criteria.id === 'devices') {
+			const selectedDevices = Array.isArray(value) ? value : [];
+
+			return (
+				<div className="newspack-device-segments">
+					<Grid columns={1} rowGap={16}>
+						{criteria.options.map((device) => (
+							<CheckboxControl
+								key={device.value}
+								label={device.label}
+								checked={selectedDevices.includes(device.value)}
+								onChange={(isChecked) => {
+									if (isChecked) {
+										update([...selectedDevices, device.value]);
+									} else {
+										update(selectedDevices.filter(item => item !== device.value));
+									}
+								}}
+							/>
+						))}
+					</Grid>
+				</div>
 			);
 		}
 		return element;

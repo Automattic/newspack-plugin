@@ -25,19 +25,6 @@ class Bylines {
 	 */
 	const META_KEY_BYLINE = '_newspack_byline';
 
-	const AVATAR_ARGS = array(
-		'img'      => array(
-			'class'  => true,
-			'src'    => true,
-			'alt'    => true,
-			'width'  => true,
-			'height' => true,
-			'data-*' => true,
-			'srcset' => true,
-		),
-		'noscript' => array(),
-	);
-
 	/**
 	 * Initializes the class.
 	 */
@@ -47,7 +34,13 @@ class Bylines {
 		}
 		add_action( 'init', [ __CLASS__, 'register_post_meta' ] );
 		add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_block_editor_assets' ] );
-		add_filter( 'pre_newspack_posted_by', [ __CLASS__, 'output_byline_on_post' ] );
+		add_filter( 'pre_newspack_posted_by', [ __CLASS__, 'pre_newspack_posted_by' ] );
+		add_filter( 'newspack_blocks_post_authors', [ __CLASS__, 'newspack_blocks_post_authors' ] );
+		add_filter( 'newspack_blocks_post_byline', [ __CLASS__, 'newspack_blocks_post_byline' ] );
+
+		// Newspack Network compatibility.
+		add_filter( 'newspack_network_distributed_post_meta', [ __CLASS__, 'newspack_network_distributed_post_meta' ], 10, 2 );
+		add_action( 'newspack_network_incoming_post_inserted', [ __CLASS__, 'newspack_network_incoming_post_inserted' ], 10, 3 );
 	}
 
 	/**
@@ -81,10 +74,9 @@ class Bylines {
 			'newspack-bylines',
 			'newspackBylines',
 			[
-				'metaKeyActive'             => self::META_KEY_ACTIVE,
-				'metaKeyByline'             => self::META_KEY_BYLINE,
-				'siteUrl'                   => \get_site_url(),
-				'is_co_authors_plus_active' => is_plugin_active( 'co-authors-plus/co-authors-plus.php' ),
+				'metaKeyActive' => self::META_KEY_ACTIVE,
+				'metaKeyByline' => self::META_KEY_BYLINE,
+				'siteUrl'       => \get_site_url(),
 			]
 		);
 		\wp_enqueue_style(
@@ -135,55 +127,52 @@ class Bylines {
 	}
 
 	/**
-	 * Return the author in use into the custom byline.
+	 * Get the post custom byline HTML markup.
 	 *
-	 * @return array $authors  Array of authors.
-	 */
-	public static function authors_on_byline() {
-		global $coauthors_plus;
-		$authors = [];
-		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
-		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
-
-		if ( ! $byline_is_active || ! $byline ) {
-			return [];
-		}
-
-		$author_ids = self::extract_author_ids_from_shortcode( $byline );
-
-		foreach ( $author_ids as $author_id ) {
-			$authors[] = $coauthors_plus->get_coauthor_by( 'user_nicename', get_the_author_meta( 'user_nicename', $author_id ) );
-		}
-
-		return $authors;
-	}
-
-	/**
-	 * Outputs the byline on the post.
+	 * @param bool $include_avatars Whether to include avatars in the markup.
 	 *
-	 * @return false|string The post content with the byline prepended.
+	 * @return false|string The post custom byline HTML markup or false if not available.
 	 */
-	public static function output_byline_on_post() {
+	public static function get_post_byline_html( $include_avatars = true ) {
 		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
-		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
-
-		if ( ! $byline_is_active || ! $byline ) {
+		if ( ! $byline_is_active ) {
 			return false;
 		}
 
-		$byline      = self::get_authors_avatars( $byline ) . self::replace_author_shortcodes( $byline );
-		$byline_html = \wp_kses_post( $byline );
+		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
+		if ( ! $byline ) {
+			return false;
+		}
 
+		$byline_html = self::replace_author_shortcodes( $byline );
+		if ( $include_avatars ) {
+			$byline_html = self::get_authors_avatars( $byline ) . $byline_html;
+		}
 		return $byline_html;
 	}
 
 	/**
-	 * Replace author shortcodes on byline by HTML output.
+	 * Short-circuit the "posted by" text to render the custom byline.
 	 *
-	 * @param string $byline  Byline with author shortcodes on it.
+	 * @return string
+	 */
+	public static function pre_newspack_posted_by() {
+		$byline = self::get_post_byline_html();
+		if ( ! $byline ) {
+			return false;
+		}
+		return '<span class="byline">' . wp_kses_post( $byline ) . '</span>';
+	}
+
+	/**
+	 * Replace author shortcodes on byline for HTML markup.
+	 *
+	 * @param string $byline Byline with author shortcodes on it.
+	 *
+	 * @return string
 	 */
 	public static function replace_author_shortcodes( $byline ) {
-		return '<span class="byline">' . preg_replace_callback(
+		return preg_replace_callback(
 			'/\[Author id=(\d+)\](.*?)\[\/Author\]/',
 			function( $matches ) {
 				$author_id = $matches[1];
@@ -196,27 +185,22 @@ class Bylines {
 				);
 			},
 			$byline
-		) . '</span>';
+		);
 	}
 
 	/**
 	 * Return author avatars for authors present in the byline.
 	 *
-	 * @param string $byline  Byline with author shortcodes on it.
+	 * @param string $byline Byline with author shortcodes on it.
+	 *
+	 * @return string
 	 */
 	public static function get_authors_avatars( $byline ) {
-		global $coauthors_plus;
-
 		$author_ids = self::extract_author_ids_from_shortcode( $byline );
 		$avatars = '';
 
 		foreach ( $author_ids as $author_id ) {
-			$author = $coauthors_plus->get_coauthor_by( 'user_nicename', get_the_author_meta( 'user_nicename', $author_id ) );
-
-			// avatar_img_tag is a property added by Newspack Network plugin to distributed posts.
-			$author_avatar = $author->avatar_img_tag ?? coauthors_get_avatar( $author, 80 );
-
-			$avatars .= '<span class="author-avatar">' . wp_kses( $author_avatar, self::AVATAR_ARGS ) . '</span>';
+			$avatars .= '<span class="author-avatar">' . get_avatar( $author_id ) . '</span>';
 		}
 
 		return $avatars;
@@ -230,6 +214,153 @@ class Bylines {
 	public static function extract_author_ids_from_shortcode( $byline ) {
 		preg_match_all( '/\[Author id=(\d+)\]/', $byline, $matches );
 		return array_map( 'intval', $matches[1] );
+	}
+
+	/**
+	 * Return post authors according to the byline.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return array $authors The authors.
+	 */
+	public static function get_post_byline_authors( $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = \get_the_ID();
+		}
+
+		$byline_is_active = \get_post_meta( $post_id, self::META_KEY_ACTIVE, true );
+		if ( ! $byline_is_active ) {
+			return [];
+		}
+
+		$byline = \get_post_meta( $post_id, self::META_KEY_BYLINE, true );
+		if ( ! $byline ) {
+			return [];
+		}
+
+		$author_ids = self::extract_author_ids_from_shortcode( $byline );
+		return array_map(
+			function( $author_id ) {
+				return get_user_by( 'id', $author_id );
+			},
+			$author_ids
+		);
+	}
+
+	/**
+	 * Filter Newspack Blocks Authors.
+	 *
+	 * @param object[] $authors The authors.
+	 *
+	 * @return object[] $authors The authors.
+	 */
+	public static function newspack_blocks_post_authors( $authors ) {
+		if ( ! self::is_enabled() ) {
+			return $authors;
+		}
+
+		$byline_authors = self::get_post_byline_authors();
+		if ( empty( $byline_authors ) ) {
+			return $authors;
+		}
+
+		$authors = [];
+		foreach ( $byline_authors as $author ) {
+			$authors[] = (object) [
+				'ID'            => $author->ID,
+				'avatar'        => get_avatar( $author->ID, 48 ),
+				'url'           => get_author_posts_url( $author->ID ),
+				'user_nicename' => $author->user_nicename,
+				'display_name'  => $author->display_name,
+			];
+		}
+
+		return $authors;
+	}
+
+	/**
+	 * Filter Newspack Blocks Byline.
+	 *
+	 * @param string $byline The byline.
+	 *
+	 * @return string $byline The byline.
+	 */
+	public static function newspack_blocks_post_byline( $byline ) {
+		if ( ! self::is_enabled() ) {
+			return $byline;
+		}
+
+		$custom_byline = self::get_post_byline_html( false );
+
+		if ( ! $custom_byline ) {
+			return $byline;
+		}
+
+		return $custom_byline;
+	}
+
+	/**
+	 * Filters the post meta data for distribution and add a new method with a mapping of author IDs to author emails.
+	 *
+	 * @param array   $meta The post meta data.
+	 * @param WP_Post $post The post object.
+	 */
+	public static function newspack_network_distributed_post_meta( $meta, $post ) {
+		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
+		if ( ! $byline_is_active ) {
+			return $meta;
+		}
+
+		$byline = \get_post_meta( $post->ID, self::META_KEY_BYLINE, true );
+
+		$author_ids = self::extract_author_ids_from_shortcode( $byline );
+
+		if ( empty( $author_ids ) ) {
+			return $meta;
+		}
+
+		$mapping = [];
+		// create a mapping of author IDs to author emails.
+		foreach ( $author_ids as $author_id ) {
+			$mapping[ $author_id ] = get_the_author_meta( 'user_email', $author_id );
+		}
+
+		$meta['_newspack_byline_network_authors'] = [ wp_json_encode( $mapping ) ];
+
+		return $meta;
+	}
+
+	/**
+	 * After an incoming post is inserted, update the IDs with the IDs in the target site, based on the mapping that was sent.
+	 *
+	 * @param int   $post_id   The post ID.
+	 * @param bool  $is_linked Whether the post is linked.
+	 * @param array $payload   The post payload.
+	 */
+	public static function newspack_network_incoming_post_inserted( $post_id, $is_linked, $payload ) {
+		if ( ! $is_linked ) {
+			return;
+		}
+
+		$byline = get_post_meta( $post_id, self::META_KEY_BYLINE, true );
+
+		$mapping = get_post_meta( $post_id, '_newspack_byline_network_authors', true );
+
+		$mapping = json_decode( $mapping, true );
+
+		if ( empty( $mapping ) ) {
+			return;
+		}
+
+		foreach ( $mapping as $author_id => $author_email ) {
+			$local_user = get_user_by( 'email', $author_email );
+			if ( ! $local_user ) {
+				continue;
+			}
+			$byline = str_replace( 'id=' . $author_id, 'id=' . $local_user->ID, $byline );
+		}
+
+		update_post_meta( $post_id, self::META_KEY_BYLINE, $byline );
 	}
 }
 Bylines::init();

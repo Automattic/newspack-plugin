@@ -14,11 +14,11 @@ import { __ } from '@wordpress/i18n';
  */
 import Platform from '../../../audience/components/platform';
 import { DonationAmounts } from '../../../audience/views/donations/configuration';
-import { Wizard } from '../../../../components/src';
+import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import { AUDIENCE_DONATIONS_WIZARD_SLUG } from '../../../audience/constants';
 
 const ReaderRevenue = ( { className } ) => {
-	const wizardData = Wizard.useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
+	const wizardData = useWizardData( AUDIENCE_DONATIONS_WIZARD_SLUG );
 	return (
 		<div className={ classnames( className, { 'o-50': isEmpty( wizardData ) } ) }>
 			<Platform />

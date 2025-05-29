@@ -88,6 +88,10 @@
 				}
 			}
 		}
+
+		.newspack-ui__helper-text:empty {
+			margin: 0;
+		}
 	}
 
 	&__inputs {

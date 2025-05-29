@@ -7,7 +7,7 @@
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, forwardRef } from '@wordpress/element';
 
 /**
  * Internal dependencies.
@@ -22,7 +22,7 @@ import Payment from './payment';
 
 const { HashRouter, Redirect, Route, Switch } = Router;
 
-function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } ) {
+function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, ref ) {
 	const [ inFlight, setInFlight ] = useState( false );
 	const [ config, setConfig ] = useState( {} );
 	const [ prerequisites, setPrerequisites ] = useState( null );
@@ -157,7 +157,7 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 	};
 
 	return (
-		<>
+		<div ref={ref}>
 			<HashRouter hashType="slash">
 				<Switch>
 					{ pluginRequirements }
@@ -195,8 +195,8 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch } )
 					<Redirect to="/" />
 				</Switch>
 			</HashRouter>
-		</>
+		</div>
 	);
 }
 
-export default withWizard( AudienceWizard );
+export default withWizard( forwardRef( AudienceWizard ) );

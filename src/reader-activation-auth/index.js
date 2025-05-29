@@ -115,4 +115,18 @@ window.newspackRAS.push( readerActivation => {
 		window.newspackReaderActivation.on( 'reader', handleReaderChanges );
 		handleReaderChanges();
 	} );
+
+	/**
+	 * Detect a reader login via magic link token.
+	 */
+	const queryString = window.location.search;
+	const params = new URLSearchParams( queryString );
+	const reader = readerActivation.getReader();
+	if ( params.get( newspack_ras_config?.auth_action_result ) && reader?.email && reader?.authenticated ) {
+		// Remove the auth action result from the URL.
+		params.delete( newspack_ras_config?.auth_action_result );
+		const newQueryString = params.toString() ? '?' + params.toString() : '';
+		window.history.replaceState( {}, '', window.location.pathname + newQueryString );
+		readerActivation.dispatchActivity( 'reader_logged_in', { email: reader.email, login_method: 'auth-token' } );
+	}
 } );
