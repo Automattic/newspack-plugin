@@ -365,10 +365,12 @@ class Corrections {
 		}
 
 		foreach ( $corrections as $correction ) {
+			// If scheduling the post, set correction status to private to prevent core from immediately publishing it.
+			// This ensures the status update isn't skipped when the correction date is in the past, while preserving the original correction date.
 			wp_update_post(
 				[
 					'ID'          => $correction->ID,
-					'post_status' => $new_status,
+					'post_status' => 'future' === $new_status ? 'private' : $new_status,
 				]
 			);
 		}
