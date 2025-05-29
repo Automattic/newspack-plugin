@@ -29,6 +29,13 @@ class Audience_Campaigns extends Wizard {
 	protected $parent_slug = 'newspack-audience';
 
 	/**
+	 * Required capability.
+	 *
+	 * @var string
+	 */
+	protected $capability = 'newspack_campaigns';
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -39,6 +46,8 @@ class Audience_Campaigns extends Wizard {
 		// Determine active menu items.
 		add_filter( 'parent_file', [ $this, 'parent_file' ] );
 		add_filter( 'submenu_file', [ $this, 'submenu_file' ] );
+		add_filter( 'newspack_capabilities_map', [ $this, 'newspack_capabilities_map' ] );
+		add_filter( 'newspack_capabilities_in_cme_plugin', [ $this, 'newspack_capabilities_in_cme_plugin' ] );
 	}
 
 	/**
@@ -1018,5 +1027,25 @@ class Audience_Campaigns extends Wizard {
 		}
 
 		return $submenu_file;
+	}
+
+	/**
+	 * Map this wizard capability from 'manage_options' capability.
+	 *
+	 * @param array $capabilities_map Mapping of capabilities.
+	 */
+	public function newspack_capabilities_map( $capabilities_map ) {
+		$capabilities_map[ $this->capability ] = 'manage_options';
+		return $capabilities_map;
+	}
+
+	/**
+	 * Register this capability in Newspack capabilities list in the capability-manager-enhanced plugin.
+	 *
+	 * @param array $capabilities Mapping of capabilities.
+	 */
+	public function newspack_capabilities_in_cme_plugin( $capabilities ) {
+		$capabilities[] = $this->capability;
+		return $capabilities;
 	}
 }
