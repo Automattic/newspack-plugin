@@ -3,7 +3,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, RangeControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -14,6 +14,7 @@ import {
 	ActionCard,
 	Button,
 	Card,
+	Grid,
 	Notice,
 	PluginInstaller,
 	SectionHeader,
@@ -175,12 +176,6 @@ export default withWizardScreen(
 			{ config.enabled && (
 				<Card noBorder>
 					<hr />
-					<SectionHeader
-						title={ __(
-							'Newsletter Subscription Lists',
-							'newspack-plugin'
-						) }
-					/>
 					<ActionCard
 						title={ __(
 							'Present newsletter signup after checkout and registration',
@@ -190,22 +185,42 @@ export default withWizardScreen(
 							'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
 							'newspack-plugin'
 						) }
+						hasGreyHeader={ config.use_custom_lists }
+						isMedium
 						toggleChecked={ config.use_custom_lists }
 						toggleOnChange={ value =>
 							updateConfig( 'use_custom_lists', value )
 						}
-					/>
-					{ config.use_custom_lists && (
-						<SortableNewsletterListControl
-							lists={
-								newspackAudience.available_newsletter_lists
-							}
-							selected={ config.newsletter_lists }
-							onChange={ selected =>
-								updateConfig( 'newsletter_lists', selected )
-							}
-						/>
-					) }
+					>
+						{ config.use_custom_lists && (
+							<Grid columns={ 4 }>
+								<SortableNewsletterListControl
+									lists={
+										newspackAudience.available_newsletter_lists
+									}
+									selected={ config.newsletter_lists }
+									onChange={ selected =>
+										updateConfig( 'newsletter_lists', selected )
+									}
+								/>
+								<RangeControl
+									min={ 1 }
+									max={ 10 }
+									initialPosition={ 2 }
+									label={ __(
+										'Initial list size',
+										'newspack-plugin'
+									) }
+									help={ __(
+										'Number of newsletters initially visible during signup. Additional newsletters will be hidden behind a "See all" button.',
+										'newspack-plugin'
+									) }
+									value={ config.newsletter_list_initial_size || '' }
+									onChange={ value => updateConfig( 'newsletter_list_initial_size', parseInt( value ) ) }
+								/>
+							</Grid>
+						) }
+					</ActionCard>
 
 					<hr />
 
@@ -235,7 +250,7 @@ export default withWizardScreen(
 							'Configure options for syncing reader data to the connected ESP.',
 							'newspack-plugin'
 						) }
-						hasGreyHeader={ true }
+						hasGreyHeader={ config.sync_esp }
 						isMedium
 						title={ __(
 							'Sync contacts to ESP',
@@ -376,11 +391,18 @@ export default withWizardScreen(
 										config.constant_contact_list_id,
 									use_custom_lists: config.use_custom_lists,
 									newsletter_lists: config.newsletter_lists,
+									newsletter_list_initial_size:
+										config.newsletter_list_initial_size,
 									sync_esp: config.sync_esp,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
 									woocommerce_registration_required: config.woocommerce_registration_required,
 									woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
+									woocommerce_enable_subscription_confirmation: config.woocommerce_enable_subscription_confirmation,
+									woocommerce_subscription_confirmation_text: config.woocommerce_subscription_confirmation_text,
+									woocommerce_enable_terms_confirmation: config.woocommerce_enable_terms_confirmation,
+									woocommerce_terms_confirmation_text: config.woocommerce_terms_confirmation_text,
+									woocommerce_terms_confirmation_url: config.woocommerce_terms_confirmation_url,
 									woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
 									woocommerce_post_checkout_registration_success_text: config.woocommerce_post_checkout_registration_success_text,
 								} );

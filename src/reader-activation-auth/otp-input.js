@@ -23,9 +23,8 @@ domReady( function () {
 		for ( let i = 0; i < length; i++ ) {
 			const digit = document.createElement( 'input' );
 			digit.setAttribute( 'type', 'text' );
-			digit.setAttribute( 'maxlength', '1' );
 			digit.setAttribute( 'pattern', '[0-9]' );
-			digit.setAttribute( 'autocomplete', 'off' );
+			digit.setAttribute( 'autocomplete', 0 === i ? 'one-time-code' : 'off' );
 			digit.setAttribute( 'inputmode', 'numeric' );
 			digit.setAttribute( 'data-index', i );
 			digit.addEventListener( 'keydown', ev => {
@@ -71,8 +70,24 @@ domReady( function () {
 				}
 			} );
 			digit.addEventListener( 'input', ev => {
-				if ( ev.target.value.match( /^[0-9]$/ ) ) {
-					values[ i ] = ev.target.value;
+				const otpInput = ev.target.value.trim();
+				if ( length === otpInput.length ) {
+					for ( let index = 0; index < length; index++ ) {
+						const char = otpInput[ index ];
+						if ( /^[0-9]$/.test( char ) ) {
+							const input   = inputContainer.querySelector(`[data-index="${index}"]`);
+							input.value   = char;
+							values[index] = char;
+						}
+					}
+					otpCodeInput.value = values.join('');
+					return;
+				} else if ( otpInput.match( /^[0-9]$/ ) ) {
+					values[ i ] = otpInput;
+					const next  = inputContainer.querySelector(`[data-index="${i + 1}"]`);
+					if (next) {
+						next.focus();
+					}
 				} else {
 					ev.target.value = '';
 				}

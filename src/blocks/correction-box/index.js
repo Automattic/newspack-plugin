@@ -7,9 +7,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import metadata from './block.json';
 import Edit from './edit';
+import colors from '../../shared/scss/_colors.module.scss';
+import './style.scss';
 
 export const title = __( 'Corrections', 'newspack-plugin' );
 
@@ -27,7 +28,7 @@ export const settings = {
 	title,
 	icon: {
 		src: icon,
-		foreground: '#406ebc',
+		foreground: colors['primary-400'],
 	},
 	keywords: [ __( 'clarifications', 'newspack-plugin' ), __( 'updates', 'newspack-plugin' ) ],
 	description: __(

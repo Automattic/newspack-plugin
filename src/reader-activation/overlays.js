@@ -24,7 +24,7 @@ function add( overlayId = '' ) {
 		overlayId = generateID();
 	}
 	overlays.push( overlayId );
-	emit( EVENTS.overlay, { overlays } );
+	emit( EVENTS.overlay, { overlays, added: overlayId } );
 	return overlayId;
 }
 
@@ -43,7 +43,7 @@ function remove( overlayId ) {
 	if ( index > -1 ) {
 		overlays.splice( index, 1 );
 	}
-	emit( EVENTS.overlay, { overlays } );
+	emit( EVENTS.overlay, { overlays, removed: overlayId } );
 	return overlays;
 }
 

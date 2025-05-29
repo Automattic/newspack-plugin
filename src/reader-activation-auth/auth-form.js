@@ -292,9 +292,22 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 				}
 				if ( status === 200 ) {
-					if ( data ) {
+					if ( data?.email ) {
 						readerActivation.setReaderEmail( data.email );
 						readerActivation.setAuthenticated( !! data.authenticated );
+						const activity = { email: data.email };
+						const body = new FormData( form );
+						if ( data.metadata?.gate_post_id || body.has( 'memberships_content_gate' ) ) {
+							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
+						}
+						if ( data.metadata?.newspack_popup_id || body.has( 'newspack_popup_id' ) ) {
+							activity.newspack_popup_id = data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
+						}
+						if ( data.registered ) {
+							readerActivation.dispatchActivity( 'reader_registered', { ...activity, registration_method: data.metadata.registration_method || 'auth-form' } );
+						} else if ( data.authenticated ) {
+							readerActivation.dispatchActivity( 'reader_logged_in', { ...activity, login_method: data.metadata.login_method || 'auth-form' } );
+						}
 					}
 
 					let callback;
@@ -307,6 +320,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							openNewslettersSignupModal( {
 								onSuccess: container.authCallback( authMessage, authData ),
 								closeOnSuccess: true,
+								signupMethod: 'reader-registration',
 							} );
 					} else {
 						callback = container.authCallback;
