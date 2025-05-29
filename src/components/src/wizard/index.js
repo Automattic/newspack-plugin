@@ -117,19 +117,23 @@ const Wizard = ( {
 					<div className="bg-white">
 						<div className="newspack-wizard__header__inner">
 							<div className="newspack-wizard__title">
-								<Button
-									isLink
-									href={ newspack_urls.dashboard }
-									label={ __(
-										'Return to Dashboard',
-										'newspack-plugin'
-									) }
-									showTooltip={ true }
-									icon={ category }
-									iconSize={ 36 }
-								>
+								{ newspack_urls.dashboard !== window.location.href ? (
+									<Button
+										isLink
+										href={ newspack_urls.dashboard }
+										label={ __(
+											'Return to Dashboard',
+											'newspack-plugin'
+										) }
+										showTooltip={ true }
+										icon={ category }
+										iconSize={ 36 }
+									>
+										<NewspackIcon size={ 36 } />
+									</Button>
+								) : (
 									<NewspackIcon size={ 36 } />
-								</Button>
+								) }
 								<div>
 									{ headerText && <h2>{ headerText }</h2> }
 									{ subHeaderText && (
