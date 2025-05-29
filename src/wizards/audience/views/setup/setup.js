@@ -3,7 +3,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, RangeControl } from '@wordpress/components';
+import { CheckboxControl, ExternalLink, RangeControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 
@@ -326,6 +326,16 @@ export default withWizardScreen(
 										} }
 									/>
 								) }
+
+								<SectionHeader
+									title={ __( 'Sync user account deletion', 'newspack-plugin' ) }
+									description={ __( 'If enabled, the contact will be deleted from the ESP when a user account is deleted. If disabled, the contact will be unsubscribed from all lists, but not deleted.', 'newspack-plugin' ) }
+								/>
+								<CheckboxControl
+									label={ __( 'Sync user account deletion', 'newspack-plugin' ) }
+									checked={ config.sync_esp_delete }
+									onChange={ value => updateConfig( 'sync_esp_delete', value ) }
+								/>
 								<MetadataFields
 									availableFields={
 										newspackAudience.esp_metadata_fields ||
@@ -394,6 +404,7 @@ export default withWizardScreen(
 									newsletter_list_initial_size:
 										config.newsletter_list_initial_size,
 									sync_esp: config.sync_esp,
+									sync_esp_delete: config.sync_esp_delete,
 									metadata_fields: config.metadata_fields,
 									metadata_prefix: config.metadata_prefix,
 									woocommerce_registration_required: config.woocommerce_registration_required,
