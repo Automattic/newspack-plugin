@@ -87,7 +87,7 @@
 		* + button,
 		* + .button,
 		* + .woocommerce-Button {
-			margin-left: 0;
+			margin-left: calc(var(--newspack-ui-spacer-base) / 2);
 			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
 			@media only screen and ( min-width: breakpoints.$tablet_width ) {
 				margin-top: 0;
