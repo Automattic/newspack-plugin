@@ -16,11 +16,15 @@ domReady( () => {
 	];
 	const blockUIonInteraction = [ ...document.querySelectorAll( interactionElements.join( ',' ) ) ];
 	blockUIonInteraction.forEach( element => {
-		element.addEventListener( 'click', e => {
-			const parent = e.target.closest( 'form, div' );
-			if ( parent ) {
-				parent.classList.add( 'newspack-ui--loading' );
-			}
-		} );
+		const parent = element.closest( 'form, div' );
+		if ( ( 'button' === element.tagName.toLowerCase() || 'input' === element.tagName.toLowerCase() ) && 'form' === parent.tagName.toLowerCase() ) {
+			parent.addEventListener( 'submit', e => {
+				e.target.classList.add( 'newspack-ui--loading' );
+			} )
+		} else {
+			element.addEventListener( 'click', e => {
+				e.target.closest( 'form, div' ).classList.add( 'newspack-ui--loading' );
+			} );
+		}
 	} );
 } );
