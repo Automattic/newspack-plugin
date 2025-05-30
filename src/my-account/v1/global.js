@@ -10,7 +10,6 @@ import { domReady } from '../../utils';
 domReady( () => {
 	const interactionElements = [
 		'.newspack-ui--block-on-interaction',
-		'.newspack-ui__modal__content button[type="submit"]:not(.newspack-ui__modal__close)',
 		'.newspack-ui__dropdown__content a',
 
 	];
