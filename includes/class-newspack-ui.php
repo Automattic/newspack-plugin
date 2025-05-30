@@ -300,7 +300,11 @@ class Newspack_UI {
 						<span class="screen-reader-text">More</span>
 					</button>
 					<div class="newspack-ui__dropdown__content">
-						<p>Dropdown content</p>
+						<ul>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 1</a></li>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 2</a></li>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 3</a></li>
+						</ul>
 					</div>
 				</div>
 			</div>

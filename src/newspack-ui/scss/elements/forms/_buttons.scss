@@ -42,7 +42,8 @@
 			color: var(--newspack-ui-color-neutral-90);
 		}
 
-		&:disabled {
+		&:disabled,
+		&.disabled {
 			background: var(--newspack-ui-color-neutral-5) !important;
 			color: var(--newspack-ui-color-neutral-40) !important;
 			cursor: default;

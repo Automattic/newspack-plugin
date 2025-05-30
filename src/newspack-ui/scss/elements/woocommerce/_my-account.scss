@@ -13,6 +13,7 @@
 	.woocommerce-info,
 	.woocommerce-error {
 		@extend .newspack-ui__notice;
+		display: block;
 		list-style: none;
 
 		> p:first-child {
@@ -86,7 +87,7 @@
 		* + button,
 		* + .button,
 		* + .woocommerce-Button {
-			margin-left: 0;
+			margin-left: calc(var(--newspack-ui-spacer-base) / 2);
 			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
 			@media only screen and ( min-width: breakpoints.$tablet_width ) {
 				margin-top: 0;
@@ -148,6 +149,10 @@
 		.select2-selection__arrow {
 			height: 100%;
 		}
+	}
+	.woocommerce form .form-row label,
+	.woocommerce-page form .form-row label {
+		display: inline;
 	}
 	label:has(input[type="checkbox"]),
 	label:has(input[type="radio"]) {
