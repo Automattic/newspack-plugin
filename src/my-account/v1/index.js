@@ -5,6 +5,7 @@
 /**
  * Internal dependencies.
  */
+import './global';
 import './navigation';
 import './account-settings';
 import './subscriptions';

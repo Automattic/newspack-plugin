@@ -66,4 +66,15 @@
 			}
 		}
 	}
+	&--loading::after {
+		background-color: var(--newspack-ui-color-neutral-0);
+		content: "";
+		display: block;
+		height: 100%;
+		left: 0;
+		opacity: 0.5;
+		position: absolute;
+		top: 0;
+		width: 100%;
+	}
 }

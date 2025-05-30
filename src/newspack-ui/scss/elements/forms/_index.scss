@@ -9,9 +9,13 @@
 // TODO: Find a better home for this stuff.
 .newspack-ui {
 	form {
+		position: relative;
 		> *:last-child {
 			margin-bottom: 0;
 		}
+	}
+	div {
+		position: relative;
 	}
 
 	& &__last-child {
