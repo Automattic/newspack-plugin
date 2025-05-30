@@ -215,10 +215,10 @@ function handleFormSubmission( evt, gate ) {
 	if ( data.newspack_checkout ) {
 		payload.action_type = 'checkout_button';
 
-		// Product data attached to Checkout Button form.
-		const productData = evt.target.getAttribute( 'data-product' ) ? JSON.parse( evt.target.getAttribute( 'data-product' ) ) : null;
-		if ( productData ) {
-			Object.assign( payload, productData );
+		// Checkout data attached to Checkout Button form.
+		const checkoutData = evt.target.getAttribute( 'data-checkout' ) ? JSON.parse( evt.target.getAttribute( 'data-checkout' ) ) : null;
+		if ( checkoutData ) {
+			Object.assign( payload, checkoutData );
 		}
 	}
 

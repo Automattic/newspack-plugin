@@ -100,6 +100,17 @@ class My_Account_UI_V1 {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
+		\wp_localize_script(
+			'my-account-v1',
+			'newspackMyAccountV1',
+			[
+				'myAccountUrl' => wc_get_account_endpoint_url( 'dashboard' ),
+				'labels'       => [
+					'resubscribe_title'   => __( 'Renew subscription', 'newspack-plugin' ),
+					'renewal_early_title' => __( 'Renew subscription early', 'newspack-plugin' ),
+				],
+			]
+		);
 
 		// Dequeue styles from the Newspack theme first, for a fresh start.
 		\wp_dequeue_style( 'newspack-woocommerce-style' );

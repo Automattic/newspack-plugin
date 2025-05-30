@@ -1,3 +1,10 @@
+## [6.6.4](https://github.com/Automattic/newspack-plugin/compare/v6.6.3...v6.6.4) (2025-05-29)
+
+
+### Bug Fixes
+
+* **autocomplete-orders:** apply option to variations, not parent product ([#3958](https://github.com/Automattic/newspack-plugin/issues/3958)) ([f8bf431](https://github.com/Automattic/newspack-plugin/commit/f8bf431763377a4432f23b177c24514e79ea9f9b))
+
 ## [6.6.3](https://github.com/Automattic/newspack-plugin/compare/v6.6.2...v6.6.3) (2025-05-27)
 
 
