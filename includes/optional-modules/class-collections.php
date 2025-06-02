@@ -76,8 +76,9 @@ class Collections {
 	 * Enqueue admin scripts.
 	 */
 	public static function enqueue_admin_scripts() {
+		\Newspack\Newspack::load_common_assets();
 		wp_enqueue_script(
-			'newspack-collections-admin',
+			Collections_Data::SCRIPT_NAME_ADMIN,
 			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.js',
 			[ 'jquery' ],
 			NEWSPACK_PLUGIN_VERSION,

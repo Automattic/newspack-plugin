@@ -2,6 +2,9 @@
 /**
  * Collection Section Taxonomy quick edit functionality.
  */
+
+import { domReady } from '../../utils';
+
 class SectionTaxonomyQuickEdit {
 	/**
 	 * @param {Object} config                 Configuration object.
@@ -80,7 +83,7 @@ class SectionTaxonomyQuickEdit {
 }
 
 // Initialize.
-( () => {
+domReady( () => {
 	const { sectionTaxonomy } = window.newspackCollections || {};
 	const { inlineEditTax } = window;
 
@@ -102,4 +105,4 @@ class SectionTaxonomyQuickEdit {
 			init();
 		}
 	}
-} )();
+} );
