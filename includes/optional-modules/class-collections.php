@@ -9,13 +9,7 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-require_once __DIR__ . '/../collections/traits/trait-hook-management.php';
-require_once __DIR__ . '/../collections/class-post-type.php';
-require_once __DIR__ . '/../collections/class-collection-taxonomy.php';
-require_once __DIR__ . '/../collections/class-collection-category-taxonomy.php';
-require_once __DIR__ . '/../collections/class-collection-section-taxonomy.php';
-require_once __DIR__ . '/../collections/class-sync.php';
-
+use Newspack\Collections\Collections_Data;
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Collection_Taxonomy;
 use Newspack\Collections\Collection_Category_Taxonomy;
@@ -41,6 +35,20 @@ class Collections {
 			return;
 		}
 
+		// Require classes.
+		require_once __DIR__ . '/../collections/traits/trait-hook-management.php';
+		require_once __DIR__ . '/../collections/class-collections-data.php';
+		require_once __DIR__ . '/../collections/class-post-type.php';
+		require_once __DIR__ . '/../collections/class-collection-taxonomy.php';
+		require_once __DIR__ . '/../collections/class-collection-category-taxonomy.php';
+		require_once __DIR__ . '/../collections/class-collection-section-taxonomy.php';
+		require_once __DIR__ . '/../collections/class-sync.php';
+
+		// Enqueue admin scripts.
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ] );
+
+		// Initialize classes.
+		Collections_Data::init();
 		Post_Type::init();
 		Collection_Taxonomy::init();
 		Collection_Category_Taxonomy::init();
@@ -62,6 +70,19 @@ class Collections {
 		 * @param bool $is_enabled Whether the Collections module is enabled.
 		 */
 		return apply_filters( 'newspack_collections_enabled', $is_enabled );
+	}
+
+	/**
+	 * Enqueue admin scripts.
+	 */
+	public static function enqueue_admin_scripts() {
+		wp_enqueue_script(
+			'newspack-collections-admin',
+			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.js',
+			[ 'jquery' ],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
 	}
 }
 

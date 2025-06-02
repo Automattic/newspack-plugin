@@ -156,6 +156,13 @@ const entry = {
 		'nicename-change',
 		'index.js'
 	),
+	'collections-admin': path.join(
+		__dirname,
+		'src',
+		'collections',
+		'admin',
+		'index.js'
+	),
 };
 
 // Get files for other scripts.
