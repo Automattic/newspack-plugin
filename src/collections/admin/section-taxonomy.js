@@ -92,17 +92,9 @@ domReady( () => {
 		sectionTaxonomy?.orderColumnName &&
 		inlineEditTax
 	) {
-		const init = () => {
-			new SectionTaxonomyQuickEdit( {
-				...sectionTaxonomy,
-				inlineEditTax,
-			} );
-		};
-
-		if ( document.readyState === 'loading' ) {
-			document.addEventListener( 'DOMContentLoaded', init );
-		} else {
-			init();
-		}
+		new SectionTaxonomyQuickEdit( {
+			...sectionTaxonomy,
+			inlineEditTax,
+		} );
 	}
 } );
