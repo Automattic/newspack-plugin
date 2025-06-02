@@ -44,7 +44,7 @@ class Collection_Category_Taxonomy {
 	 * Register the Collection Categories taxonomy.
 	 */
 	public static function register_taxonomy() {
-		$labels = array(
+		$labels = [
 			'name'              => _x( 'Collection Categories', 'taxonomy general name', 'newspack-plugin' ),
 			'singular_name'     => _x( 'Collection Category', 'taxonomy singular name', 'newspack-plugin' ),
 			'search_items'      => __( 'Search Collection Categories', 'newspack-plugin' ),
@@ -56,18 +56,17 @@ class Collection_Category_Taxonomy {
 			'add_new_item'      => __( 'Add New Collection Category', 'newspack-plugin' ),
 			'new_item_name'     => __( 'New Collection Category Name', 'newspack-plugin' ),
 			'menu_name'         => __( 'Categories', 'newspack-plugin' ),
-		);
+		];
 
-		$args = array(
+		$args = [
 			'labels'            => $labels,
 			'description'       => __( 'Taxonomy for categorizing collections.', 'newspack-plugin' ),
 			'public'            => true,
 			'show_admin_column' => true,
-			'hierarchical'      => true,
 			'show_in_rest'      => true,
-		);
+		];
 
-		register_taxonomy( self::get_taxonomy(), array( Post_Type::get_post_type() ), $args );
+		register_taxonomy( self::get_taxonomy(), [ Post_Type::get_post_type() ], $args );
 	}
 
 	/**
