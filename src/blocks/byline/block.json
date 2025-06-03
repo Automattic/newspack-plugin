@@ -1,0 +1,64 @@
+{
+	"name": "newspack/byline",
+	"category": "newspack",
+	"attributes": {
+		"customByline": {
+			"type": "string",
+			"default": ""
+		},
+		"showAvatar": {
+			"type": "boolean",
+			"default": false
+		},
+		"avatarSize": {
+			"type": "number",
+			"default": 24,
+			"enum": [ 16, 24, 32, 48 ]
+		},
+		"linkToAuthorArchive": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": true,
+		"alignWide": false,
+		"spacing": {
+			"margin": true,
+			"padding": true,
+			"__experimentalDefaultControls": {
+				"margin": false,
+				"padding": false
+			}
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
+		"color": {
+			"text": true,
+			"background": true
+		},
+		"filter": {
+			"duotone": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"textAlign": true
+		}
+	},
+	"selectors": {
+		"filter": {
+			"duotone": ".newspack-byline-avatar img"
+		}
+	},
+	"usesContext": [
+		"postId",
+		"postType"
+	],
+	"textdomain": "newspack-plugin"
+}

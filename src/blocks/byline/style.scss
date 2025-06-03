@@ -1,0 +1,167 @@
+// General styles (apply to both editor and frontend)
+.wp-block-newspack-byline {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-bottom: 1em;
+}
+
+.newspack-byline-author {
+	display: inline-flex;
+	align-items: center;
+	margin-right: 0.5em;
+	white-space: nowrap;
+
+	&:last-child {
+		margin-right: 0;
+	}
+}
+
+.newspack-byline-avatar {
+	display: inline-block;
+	margin: 0 0.5rem;
+	position: relative;
+	z-index: 0;
+
+	img {
+		border-radius: 50%;
+		vertical-align: middle;
+	}
+}
+
+// Text nodes between author tokens
+.wp-block-newspack-byline > span:not(.newspack-byline-author) {
+	display: inline-block;
+	white-space: nowrap;
+	margin-right: 0.25em;
+}
+
+// Editor-only styles
+.editor-styles-wrapper {
+	.newspack-byline-preview {
+		line-height: 1.5;
+		cursor: text;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	.newspack-byline-author-tokens {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.newspack-byline-author-token {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 8px;
+		background: #f0f0f0;
+		border-radius: 4px;
+	}
+
+	.newspack-byline-textarea {
+		min-height: 36px;
+		padding: 4px 0;
+		border: 1px solid transparent;
+		outline: none;
+
+		&:focus {
+			border-color: #007cba;
+		}
+	}
+
+	.token-inline-block {
+		display: inline-flex;
+		align-items: center;
+		padding: 2px 8px;
+		margin: 0 2px;
+		background-color: #e7f0fa;
+		border-radius: 3px;
+		font-size: 13px;
+		line-height: 1.4;
+		border: 1px solid #c0d6e8;
+		position: relative;
+		z-index: 1;
+		white-space: nowrap;
+	}
+
+	.token-inline-block__remove {
+		margin-left: 4px;
+		padding: 0 !important;
+		min-width: 18px !important;
+		height: 18px !important;
+
+		svg {
+			width: 18px;
+			height: 18px;
+		}
+	}
+
+	.components-form-token-field__remove-token {
+		background-color: transparent !important;
+	}
+
+	.components-form-token-field__token-text {
+		background-color: transparent;
+	}
+
+	.newspack-author-selector {
+		display: flex;
+		align-items: center;
+		margin-top: 8px;
+		flex-wrap: wrap;
+		gap: 6px;
+		border-top: 1px solid #ddd;
+		padding-top: 8px;
+	}
+
+	.newspack-author-selector-label {
+		margin-right: 8px;
+		font-size: 13px;
+	}
+
+	.author-token-button {
+		margin: 0 !important;
+		display: inline-flex;
+		align-items: center;
+		padding: 4px 8px;
+		background-color: #f0f0f0;
+		border-radius: 3px;
+		font-size: 13px;
+
+		svg {
+			margin-left: 4px;
+		}
+
+		* {
+			pointer-events: none;
+		}
+	}
+
+	.avatar-display {
+		display: inline-block;
+		margin-right: 4px;
+		vertical-align: middle;
+		position: relative;
+		z-index: 0;
+
+		img {
+			border-radius: 50%;
+			vertical-align: middle;
+		}
+	}
+
+	.components-form-token-field__token.token-inline-block.author-token {
+		display: inline-flex;
+		align-items: center;
+		background-color: #e0f0ff;
+		border-radius: 4px;
+		padding: 2px 8px;
+		margin: 0 4px;
+		color: #06c;
+		font-weight: 500;
+		white-space: nowrap;
+	}
+}
