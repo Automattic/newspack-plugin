@@ -49,7 +49,7 @@ export function openAuthModal( config = {} ) {
 	 *
 	 * @param {KeyboardEvent} ev The keyboard event.
 	 */
-	const handleKeydown = ( ev ) => {
+	const handleKeydown = ev => {
 		if ( ev.key === 'Escape' ) {
 			close();
 		}
@@ -60,7 +60,7 @@ export function openAuthModal( config = {} ) {
 	 *
 	 * @param {MouseEvent} ev The mouse event.
 	 */
-	const handleCloseButtonClick = ( ev ) => {
+	const handleCloseButtonClick = ev => {
 		ev.preventDefault();
 		close();
 	};
