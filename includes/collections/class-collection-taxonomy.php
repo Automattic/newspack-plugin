@@ -25,6 +25,13 @@ class Collection_Taxonomy {
 	private const TAXONOMY = 'collection_tax';
 
 	/**
+	 * Meta key for storing whether a term is inactive.
+	 *
+	 * @var string
+	 */
+	public const INACTIVE_TERM_META_KEY = '_newspack_collection_inactive';
+
+	/**
 	 * Get the hooks for collection taxonomy operations.
 	 *
 	 * @return array {
@@ -41,6 +48,7 @@ class Collection_Taxonomy {
 			[ 'created_' . self::get_taxonomy(), [ Sync::class, 'handle_term_created' ], 10, 2 ],
 			[ 'edited_' . self::get_taxonomy(), [ Sync::class, 'handle_term_edited' ], 10, 2 ],
 			[ 'pre_delete_term', [ Sync::class, 'handle_term_deleted' ], 10, 2 ],
+			[ 'get_terms_args', [ __CLASS__, 'filter_inactive_terms' ], 10, 2 ],
 		];
 	}
 
@@ -65,7 +73,7 @@ class Collection_Taxonomy {
 	 * Register the Collections taxonomy.
 	 */
 	public static function register_taxonomy() {
-		$labels = array(
+		$labels = [
 			'name'              => _x( 'Collections', 'taxonomy general name', 'newspack-plugin' ),
 			'singular_name'     => _x( 'Collection', 'taxonomy singular name', 'newspack-plugin' ),
 			'search_items'      => __( 'Search Collections', 'newspack-plugin' ),
@@ -77,21 +85,64 @@ class Collection_Taxonomy {
 			'add_new_item'      => __( 'Add New Collection', 'newspack-plugin' ),
 			'new_item_name'     => __( 'New Collection Name', 'newspack-plugin' ),
 			'menu_name'         => __( 'Collections', 'newspack-plugin' ),
-		);
+		];
 
-		$args = array(
+		$args = [
 			'labels'            => $labels,
 			'description'       => __( 'Internal taxonomy for associating collections with posts.', 'newspack-plugin' ),
 			'public'            => false,
 			'show_ui'           => true,
-			'show_in_menu'      => false,
+			'show_in_menu'      => true,
 			'show_admin_column' => true,
 			'query_var'         => false,
 			'rewrite'           => false,
 			'show_in_rest'      => true,
-		);
+		];
 
-		register_taxonomy( self::get_taxonomy(), array( 'post' ), $args );
+		register_taxonomy( self::get_taxonomy(), [ 'post' ], $args );
+	}
+
+	/**
+	 * Check if a term is inactive.
+	 *
+	 * @param int $term_id Term ID.
+	 * @return bool True if the term is inactive, false otherwise.
+	 */
+	public static function is_term_inactive( $term_id ) {
+		return (bool) get_term_meta( $term_id, self::INACTIVE_TERM_META_KEY, true );
+	}
+
+	/**
+	 * Filter out inactive terms from queries.
+	 *
+	 * @param array    $args       An array of get_terms() arguments.
+	 * @param string[] $taxonomies Array of taxonomy names.
+	 * @return array Modified arguments.
+	 */
+	public static function filter_inactive_terms( $args, $taxonomies ) {
+		if ( ! in_array( self::get_taxonomy(), $taxonomies, true ) ) {
+			return $args;
+		}
+
+		$meta_query = isset( $args['meta_query'] ) && is_array( $args['meta_query'] ) ? $args['meta_query'] : [];
+
+		$meta_query[] = [
+			'relation' => 'OR',
+			[
+				'key'     => self::INACTIVE_TERM_META_KEY,
+				'compare' => 'NOT EXISTS',
+			],
+			[
+				'key'     => self::INACTIVE_TERM_META_KEY,
+				'value'   => '1',
+				'compare' => '!=',
+				'type'    => 'CHAR',
+			],
+		];
+
+		$args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+
+		return $args;
 	}
 
 	/**

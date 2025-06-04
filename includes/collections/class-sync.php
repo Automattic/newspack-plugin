@@ -237,22 +237,39 @@ class Sync {
 	}
 
 	/**
-	 * Delete the linked term when a collection post is deleted or trashed.
+	 * Handle collection post deletion or trashing.
 	 *
-	 * @param int $post_id Post ID.
-	 * @return bool|int|WP_Error|void True on success, false if term does not exist. Zero on attempted deletion of default Category. WP_Error if the taxonomy does not exist. Void if no changes were made.
+	 * @param int  $post_id    Post ID.
+	 * @param bool $is_trashed Whether this is a trash operation (true) or permanent deletion (false).
+	 * @return bool|int|WP_Error True on success, false if term does not exist. Zero on attempted deletion of default Category. WP_Error if the taxonomy does not exist.
 	 */
-	public static function handle_post_deleted( $post_id ) {
+	public static function handle_post_deleted( $post_id, $is_trashed = false ) {
 		$post = get_post( $post_id );
 
 		// Check if the post exists and is a collection post.
-		if ( ! $post || $post->post_type !== Post_Type::get_post_type() ) {
-			return;
+		if ( ! $post || Post_Type::get_post_type() !== $post->post_type ) {
+			return false;
 		}
 
 		$linked_term_id = get_post_meta( $post_id, self::LINKED_TERM_META_KEY, true );
 		if ( ! $linked_term_id || ! term_exists( (int) $linked_term_id, Collection_Taxonomy::get_taxonomy() ) ) {
-			return;
+			return false;
+		}
+
+		if ( $is_trashed ) {
+			/**
+			 * Fires before marking a term as inactive.
+			 *
+			 * @param int $post_id Post ID.
+			 * @param int $term_id Term ID.
+			 */
+			do_action( 'newspack_collections_before_marking_term_inactive', $post_id, $linked_term_id );
+
+			Collection_Taxonomy::unregister_hooks();
+			$result = update_term_meta( $linked_term_id, Collection_Taxonomy::INACTIVE_TERM_META_KEY, '1' );
+			Collection_Taxonomy::register_hooks();
+
+			return $result;
 		}
 
 		/**
@@ -271,23 +288,51 @@ class Sync {
 	}
 
 	/**
+	 * Handle trashing of a collection post.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return bool True on success, false if term does not exist.
+	 */
+	public static function handle_post_trashed( $post_id ) {
+		return self::handle_post_deleted( $post_id, true );
+	}
+
+	/**
 	 * Handle untrashing of a collection.
 	 *
 	 * @param int $post_id Post ID.
-	 * @return WP_Term|array|WP_Error|void Term object if exists, array if created, WP_Error on failure, void if no changes were made.
+	 * @return bool True on success, false on failure.
 	 */
 	public static function handle_post_untrashed( $post_id ) {
 		$post = get_post( $post_id );
-		if ( ! $post || $post->post_type !== Post_Type::get_post_type() ) {
-			return;
+		if ( ! $post || Post_Type::get_post_type() !== $post->post_type ) {
+			return false;
 		}
 
 		$linked_term_id = get_post_meta( $post_id, self::LINKED_TERM_META_KEY, true );
-		if ( $linked_term_id && term_exists( (int) $linked_term_id, Collection_Taxonomy::get_taxonomy() ) ) {
-			return;
+		if ( ! $linked_term_id ) {
+			return false;
 		}
 
-		return self::create_linked_term( $post );
+		// Temporarily remove the filter to check if term is in the database.
+		Collection_Taxonomy::unregister_hooks();
+		$term_exists = term_exists( (int) $linked_term_id, Collection_Taxonomy::get_taxonomy() );
+		Collection_Taxonomy::register_hooks();
+
+		if ( ! $term_exists ) {
+			return false;
+		}
+
+		/**
+		 * Fires before reactivating a term.
+		 *
+		 * @param int $post_id Post ID.
+		 * @param int $term_id Term ID.
+		 */
+		do_action( 'newspack_collections_before_reactivating_term', $post_id, $linked_term_id );
+
+		// Remove the inactive flag.
+		return delete_term_meta( $linked_term_id, Collection_Taxonomy::INACTIVE_TERM_META_KEY );
 	}
 
 	/**
@@ -324,7 +369,7 @@ class Sync {
 		}
 
 		$post = get_post( $post_id );
-		if ( ! $post || $post->post_type !== Post_Type::get_post_type() ) {
+		if ( ! $post || Post_Type::get_post_type() !== $post->post_type ) {
 			return;
 		}
 
@@ -349,7 +394,7 @@ class Sync {
 		}
 
 		$post = get_post( $post_id );
-		if ( ! $post || $post->post_type !== Post_Type::get_post_type() ) {
+		if ( ! $post || Post_Type::get_post_type() !== $post->post_type ) {
 			return;
 		}
 

@@ -41,7 +41,7 @@ class Post_Type {
 		return [
 			[ 'save_post_' . self::get_post_type(), [ Sync::class, 'handle_post_save' ], 10, 3 ],
 			[ 'before_delete_post', [ Sync::class, 'handle_post_deleted' ] ],
-			[ 'wp_trash_post', [ Sync::class, 'handle_post_deleted' ] ],
+			[ 'wp_trash_post', [ Sync::class, 'handle_post_trashed' ] ],
 			[ 'untrashed_post', [ Sync::class, 'handle_post_untrashed' ] ],
 		];
 	}
@@ -67,7 +67,7 @@ class Post_Type {
 	 * Register the Collections custom post type.
 	 */
 	public static function register_post_type() {
-		$labels = array(
+		$labels = [
 			'name'               => _x( 'Collections', 'post type general name', 'newspack-plugin' ),
 			'singular_name'      => _x( 'Collection', 'post type singular name', 'newspack-plugin' ),
 			'menu_name'          => _x( 'Collections', 'admin menu', 'newspack-plugin' ),
@@ -84,9 +84,9 @@ class Post_Type {
 			'not_found_in_trash' => __( 'No collections found in Trash.', 'newspack-plugin' ),
 			'item_published'     => __( 'Collection published', 'newspack-plugin' ),
 			'item_updated'       => __( 'Collection updated', 'newspack-plugin' ),
-		);
+		];
 
-		$args = array(
+		$args = [
 			'label'        => __( 'Collection', 'newspack-plugin' ),
 			'labels'       => $labels,
 			'description'  => __( 'Collections of content for custom classification.', 'newspack-plugin' ),
@@ -94,7 +94,7 @@ class Post_Type {
 			'show_in_rest' => true,
 			'menu_icon'    => 'dashicons-portfolio',
 			'has_archive'  => true,
-		);
+		];
 
 		register_post_type( self::get_post_type(), $args );
 	}
