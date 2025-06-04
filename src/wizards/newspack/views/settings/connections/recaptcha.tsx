@@ -73,9 +73,7 @@ const fieldValidationMap = new Map<
 const apiPath = '/newspack/v1/recaptcha';
 
 function Recaptcha() {
-	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
-		'/newspack-settings/connections/recaptcha'
-	);
+	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch( '/newspack-settings/connections/recaptcha' );
 
 	const [ settings, setSettings ] = useState< RecaptchaData >( {
 		...settingsDefault,
@@ -112,10 +110,7 @@ function Recaptcha() {
 						continue;
 					}
 				}
-				const validationError = validate.callback(
-					settingsToUpdate[ field ],
-					settingsToUpdate.version
-				);
+				const validationError = validate.callback( settingsToUpdate[ field ], settingsToUpdate.version );
 				if ( validationError ) {
 					setError( new WizardError( validationError, field ) );
 					return;
@@ -162,10 +157,7 @@ function Recaptcha() {
 						__( 'Loading…', 'newspack-plugin' )
 					) : (
 						<>
-							{ __(
-								'Enabling reCAPTCHA can help protect your site against bot attacks and credit card testing.',
-								'newspack-plugin'
-							) }{ ' ' }
+							{ __( 'Enabling reCAPTCHA can help protect your site against bot attacks and credit card testing.', 'newspack-plugin' ) }{ ' ' }
 							<ExternalLink href="https://www.google.com/recaptcha/admin/create">
 								{ __( 'Get started', 'newspack-plugin' ) }
 							</ExternalLink>
@@ -191,9 +183,7 @@ function Recaptcha() {
 						disabled={ isFetching || ! Object.keys( settingsToUpdate ).length }
 						onClick={ () => updateSettings( settingsToUpdate ) }
 					>
-						{ isFetching
-							? __( 'Loading…', 'newspack-plugin' )
-							: __( 'Save Settings', 'newspack-plugin' ) }
+						{ isFetching ? __( 'Loading…', 'newspack-plugin' ) : __( 'Save Settings', 'newspack-plugin' ) }
 					</Button>
 				)
 			}
@@ -230,10 +220,7 @@ function Recaptcha() {
 									},
 									{
 										value: 'v2_invisible',
-										label: __(
-											'Challenge (v2) - invisible reCAPTCHA badge',
-											'newspack-plugin'
-										),
+										label: __( 'Challenge (v2) - invisible reCAPTCHA badge', 'newspack-plugin' ),
 									},
 								] }
 							/>

@@ -20,10 +20,7 @@ const EditComponent = ( { context: { postType } } ) => {
 			<Placeholder
 				icon={ icon }
 				label={ __( 'Corrections & Clarifications', 'newspack-plugin' ) }
-				instructions={ __(
-					'Please select "Corrections" as the post type in the Query Loop to use this block.',
-					'newspack-plugin'
-				) }
+				instructions={ __( 'Please select "Corrections" as the post type in the Query Loop to use this block.', 'newspack-plugin' ) }
 			/>
 		);
 	}
@@ -31,9 +28,7 @@ const EditComponent = ( { context: { postType } } ) => {
 	return (
 		<>
 			<div className="correction__item">
-				<strong className="correction__item-title">
-					{ __( 'Correction Type, Date, and Time: ', 'newspack-plugin' ) }
-				</strong>
+				<strong className="correction__item-title">{ __( 'Correction Type, Date, and Time: ', 'newspack-plugin' ) }</strong>
 				<span className="correction__item-content">
 					{ __(
 						'This is where the content will appear, providing details about the update, whether correcting an error or offering additional context.',

@@ -79,10 +79,7 @@ class CategoryAutocomplete extends Component {
 		} )
 			.then( categories => {
 				this.setState( {
-					suggestions: categories.reduce(
-						( accumulator, category ) => ( { ...accumulator, [ category.name ]: category } ),
-						{}
-					),
+					suggestions: categories.reduce( ( accumulator, category ) => ( { ...accumulator, [ category.name ]: category } ), {} ),
 				} );
 			} )
 			.finally( () => this.setState( { isLoading: false } ) );
@@ -122,8 +119,7 @@ class CategoryAutocomplete extends Component {
 	 * Render the component.
 	 */
 	render() {
-		const { className, disabled, description, hideHelpFromVision, hideLabelFromVision, label, value } =
-			this.props;
+		const { className, disabled, description, hideHelpFromVision, hideLabelFromVision, label, value } = this.props;
 		const { allCategories, isLoading } = this.state;
 		const classes = classnames( 'newspack-category-autocomplete', className );
 		return (
@@ -131,8 +127,7 @@ class CategoryAutocomplete extends Component {
 				<FormTokenField
 					onInputChange={ input => this.debouncedUpdateSuggestions( input ) }
 					value={ value.reduce( ( acc, item ) => {
-						const categoryOrItem =
-							typeof item === 'number' ? find( allCategories, [ 'id', item ] ) : item;
+						const categoryOrItem = typeof item === 'number' ? find( allCategories, [ 'id', item ] ) : item;
 						if ( categoryOrItem ) {
 							acc.push( {
 								id: categoryOrItem.term_id || categoryOrItem.id,

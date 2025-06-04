@@ -54,12 +54,7 @@ const AttributesLoader = ( { setAttributes, attributes }: ImageBlockTypes.Attrib
 				setAttributes( { meta: { _media_credit, _media_credit_url, _navis_media_credit_org } } );
 			}
 		}
-	}, [
-		meta,
-		attributes?.meta?._media_credit,
-		attributes?.meta?._media_credit_url,
-		attributes?.meta?._navis_media_credit_org,
-	] );
+	}, [ meta, attributes?.meta?._media_credit, attributes?.meta?._media_credit_url, attributes?.meta?._navis_media_credit_org ] );
 
 	return <></>;
 };
@@ -85,9 +80,7 @@ addFilter(
 				return (
 					<>
 						<BlockEdit { ...props } />
-						{ props.attributes.url && isSameOrigin( props.attributes.url ) && (
-							<AttributesLoader { ...props } />
-						) }
+						{ props.attributes.url && isSameOrigin( props.attributes.url ) && <AttributesLoader { ...props } /> }
 					</>
 				);
 			}

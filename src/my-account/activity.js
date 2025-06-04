@@ -22,10 +22,7 @@ domReady( function () {
 	if ( url.pathname.includes( 'edit-address' ) ) {
 		const form = document.querySelector( '.woocommerce-MyAccount-content form' );
 		if ( form && ! form.name ) {
-			form.setAttribute(
-				'name',
-				url.pathname.includes( 'billing' ) ? 'billing_address' : 'shipping_address'
-			);
+			form.setAttribute( 'name', url.pathname.includes( 'billing' ) ? 'billing_address' : 'shipping_address' );
 		}
 	}
 
@@ -35,20 +32,15 @@ domReady( function () {
 	} ) );
 
 	// Track when the user reactivates a subscription.
-	registerElementActivity(
-		'.subscription_details .button.reactivate',
-		'subscription_reactivated',
-		element => ( {
-			subscription_id: getSubscriptionIdFromHref( element ),
-		} )
-	);
+	registerElementActivity( '.subscription_details .button.reactivate', 'subscription_reactivated', element => ( {
+		subscription_id: getSubscriptionIdFromHref( element ),
+	} ) );
 
 	// Track when a user switches a subscription (upgrade or downgrade).
 	if ( newspack_my_account.is_switch_subscription_checkout_page ) {
 		registerCheckoutActivity( 'subscription_switched', () => ( {
 			subscription_id: newspack_my_account.cart_switch_subscriptions_summary?.subscription_id,
-			upgraded_or_downgraded:
-				newspack_my_account.cart_switch_subscriptions_summary?.upgraded_or_downgraded,
+			upgraded_or_downgraded: newspack_my_account.cart_switch_subscriptions_summary?.upgraded_or_downgraded,
 		} ) );
 	}
 
@@ -66,9 +58,7 @@ domReady( function () {
 	if ( orderReviewForm && changePaymentInput ) {
 		registerElementActivity( orderReviewForm, 'payment_method_changed', () => ( {
 			subscription_id: changePaymentInput.value,
-			update_all_subscriptions: orderReviewForm.querySelector(
-				'#update_all_subscriptions_payment_method'
-			)?.checked,
+			update_all_subscriptions: orderReviewForm.querySelector( '#update_all_subscriptions_payment_method' )?.checked,
 		} ) );
 	}
 

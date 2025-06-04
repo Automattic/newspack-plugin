@@ -45,18 +45,12 @@ const MediaKitToggle = () => {
 			.finally( () => setInFlight( false ) );
 	};
 
-	let description = __(
-		'Media kit page is created but unpublished. Click the link to review and publish.',
-		'newspack-plugin'
-	);
+	let description = __( 'Media kit page is created but unpublished. Click the link to review and publish.', 'newspack-plugin' );
 	let actionText = __( 'Edit Media Kit page', 'newspack-plugin' );
 	let toggleEnabled = false;
 	switch ( pageStatus ) {
 		case 'publish':
-			description = __(
-				'Media Kit page is published. Click the link to edit it, or toggle this card to unpublish.',
-				'newspack-plugin'
-			);
+			description = __( 'Media Kit page is published. Click the link to edit it, or toggle this card to unpublish.', 'newspack-plugin' );
 			toggleEnabled = true;
 			break;
 		case 'draft':
@@ -64,10 +58,7 @@ const MediaKitToggle = () => {
 			break;
 		case 'trash':
 		case 'non-existent':
-			description = __(
-				'Media Kit page has not been created. Toggle this card to create it.',
-				'newspack-plugin'
-			);
+			description = __( 'Media Kit page has not been created. Toggle this card to create it.', 'newspack-plugin' );
 			toggleEnabled = true;
 			break;
 	}

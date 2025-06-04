@@ -9,11 +9,7 @@ import classnames from 'classnames';
 import { Grid, ActionCard } from '../';
 
 const SettingsCard = ( { children, className, columns = 3, gutter = 32, noBorder, rowGap, ...props } ) => {
-	const classes = classnames(
-		'newspack-settings__card',
-		noBorder && 'newspack-settings__no-border',
-		className
-	);
+	const classes = classnames( 'newspack-settings__card', noBorder && 'newspack-settings__no-border', className );
 
 	return (
 		<ActionCard { ...props } className={ classes } notificationLevel="info" noBorder={ noBorder }>

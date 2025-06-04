@@ -41,10 +41,7 @@ const PaymentGateways = () => {
 				</>
 			) }
 		>
-			{ errors.length > 0 &&
-				errors.map( ( error, index ) => (
-					<Notice isError key={ index } noticeText={ <span>{ error.message }</span> } />
-				) ) }
+			{ errors.length > 0 && errors.map( ( error, index ) => <Notice isError key={ index } noticeText={ <span>{ error.message }</span> } /> ) }
 			{ is_ssl === false && (
 				<Notice
 					isWarning
@@ -54,9 +51,7 @@ const PaymentGateways = () => {
 								'Missing or invalid SSL configuration detected. To collect payments, the site must be secured with SSL. ',
 								'newspack-plugin'
 							) }
-							<ExternalLink href="https://stripe.com/docs/security/guide">
-								{ __( 'Learn more', 'newspack-plugin' ) }
-							</ExternalLink>
+							<ExternalLink href="https://stripe.com/docs/security/guide">{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
 						</>
 					}
 				/>
@@ -64,9 +59,7 @@ const PaymentGateways = () => {
 			{ Object.keys( paymentGateways ).map( gateway => {
 				// Stripe has unique connection status and badge level logic.
 				if ( 'stripe' === gateway ) {
-					return (
-						<Stripe key={ paymentGateways[ gateway ] } stripe={ paymentGateways[ gateway ] } />
-					);
+					return <Stripe key={ paymentGateways[ gateway ] } stripe={ paymentGateways[ gateway ] } />;
 				}
 				return <PaymentGateway key={ gateway } gateway={ paymentGateways[ gateway ] } />;
 			} ) }

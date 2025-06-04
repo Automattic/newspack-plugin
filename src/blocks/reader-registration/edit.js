@@ -11,13 +11,7 @@ import intersection from 'lodash/intersection';
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-import {
-	useBlockProps,
-	RichText,
-	InspectorControls,
-	useInnerBlocksProps,
-	InnerBlocks,
-} from '@wordpress/block-editor';
+import { useBlockProps, RichText, InspectorControls, useInnerBlocksProps, InnerBlocks } from '@wordpress/block-editor';
 import { Spinner, Notice, TextControl, ToggleControl, PanelBody, Button } from '@wordpress/components';
 import { Icon, check } from '@wordpress/icons';
 
@@ -56,8 +50,7 @@ export default function ReaderRegistrationEdit( {
 } ) {
 	const blockProps = useBlockProps();
 	const [ editedState, setEditedState ] = useState( editedStateOptions[ 0 ].value );
-	let { reader_activation_terms: defaultTermsText, reader_activation_url: defaultTermsUrl } =
-		window.newspack_blocks;
+	let { reader_activation_terms: defaultTermsText, reader_activation_url: defaultTermsUrl } = window.newspack_blocks;
 
 	if ( defaultTermsUrl ) {
 		defaultTermsText = `<a href="${ defaultTermsUrl }">` + defaultTermsText + '</a>';
@@ -74,10 +67,7 @@ export default function ReaderRegistrationEdit( {
 					'core/paragraph',
 					{
 						align: 'center',
-						content: __(
-							'Success! Your account was created and you’re signed in.',
-							'newspack-plugin'
-						),
+						content: __( 'Success! Your account was created and you’re signed in.', 'newspack-plugin' ),
 					},
 				],
 			],
@@ -137,9 +127,7 @@ export default function ReaderRegistrationEdit( {
 							label={ __( 'Enable newsletter subscription', 'newspack-plugin' ) }
 							checked={ !! newsletterSubscription }
 							disabled={ inFlight }
-							onChange={ () =>
-								setAttributes( { newsletterSubscription: ! newsletterSubscription } )
-							}
+							onChange={ () => setAttributes( { newsletterSubscription: ! newsletterSubscription } ) }
 						/>
 						{ newsletterSubscription && (
 							<>
@@ -165,10 +153,7 @@ export default function ReaderRegistrationEdit( {
 											}
 										/>
 										<ToggleControl
-											label={ __(
-												'Hide newsletter selection and always subscribe',
-												'newspack-plugin'
-											) }
+											label={ __( 'Hide newsletter selection and always subscribe', 'newspack-plugin' ) }
 											checked={ hideSubscriptionInput }
 											disabled={ inFlight || lists.length !== 1 }
 											onChange={ () =>
@@ -180,16 +165,11 @@ export default function ReaderRegistrationEdit( {
 										{ lists.length < 1 && (
 											<div style={ { marginBottom: '1.5rem' } }>
 												<Notice isDismissible={ false } status="error">
-													{ __(
-														'You must select at least one list.',
-														'newspack-plugin'
-													) }
+													{ __( 'You must select at least one list.', 'newspack-plugin' ) }
 												</Notice>
 											</div>
 										) }
-										{ Object.keys( listConfig ).length > 0 && (
-											<p>{ __( 'Lists', 'newspack-plugin' ) }:</p>
-										) }
+										{ Object.keys( listConfig ).length > 0 && <p>{ __( 'Lists', 'newspack-plugin' ) }:</p> }
 										{ Object.keys( listConfig ).map( listId => (
 											<ToggleControl
 												key={ listId }
@@ -210,10 +190,7 @@ export default function ReaderRegistrationEdit( {
 									</>
 								) }
 								<p>
-									<a href={ newspack_blocks.newsletters_url }>
-										{ __( 'Configure your subscription lists', 'newspack-plugin' ) }
-									</a>
-									.
+									<a href={ newspack_blocks.newsletters_url }>{ __( 'Configure your subscription lists', 'newspack-plugin' ) }</a>.
 								</p>
 							</>
 						) }
@@ -224,9 +201,7 @@ export default function ReaderRegistrationEdit( {
 						{ sprintf(
 							// translators: %s is either 'enabled' or 'disabled'.
 							__( 'reCAPTCHA is currently %s.', 'newspack-plugin' ),
-							newspack_blocks.has_recaptcha
-								? __( 'enabled', 'newspack-plugin' )
-								: __( 'disabled', 'newspack-plugin' )
+							newspack_blocks.has_recaptcha ? __( 'enabled', 'newspack-plugin' ) : __( 'disabled', 'newspack-plugin' )
 						) }
 					</p>
 					{ ! newspack_blocks.has_recaptcha && (
@@ -238,9 +213,7 @@ export default function ReaderRegistrationEdit( {
 						</p>
 					) }
 					<p>
-						<a href={ newspack_blocks.recaptcha_url }>
-							{ __( 'Configure your reCAPTCHA settings.', 'newspack-plugin' ) }
-						</a>
+						<a href={ newspack_blocks.recaptcha_url }>{ __( 'Configure your reCAPTCHA settings.', 'newspack-plugin' ) }</a>
 					</p>
 				</PanelBody>
 			</InspectorControls>
@@ -283,11 +256,7 @@ export default function ReaderRegistrationEdit( {
 								{ ! shouldHideSubscribeInput() && newsletterSubscription && lists.length ? (
 									<>
 										{ lists.map( listId => (
-											<label
-												key={ listId }
-												htmlFor={ getListCheckboxId( listId ) }
-												className="newspack-ui__input-card"
-											>
+											<label key={ listId } htmlFor={ getListCheckboxId( listId ) } className="newspack-ui__input-card">
 												<input
 													id={ getListCheckboxId( listId ) }
 													type="checkbox"
@@ -297,13 +266,8 @@ export default function ReaderRegistrationEdit( {
 												<strong>
 													{ lists.length === 1 ? (
 														<RichText
-															onChange={ value =>
-																setAttributes( { newsletterLabel: value } )
-															}
-															placeholder={ __(
-																'Subscribe to our newsletter',
-																'newspack-plugin'
-															) }
+															onChange={ value => setAttributes( { newsletterLabel: value } ) }
+															placeholder={ __( 'Subscribe to our newsletter', 'newspack-plugin' ) }
 															value={ newsletterLabel }
 															allowedFormats={ [] }
 															tagName="span"
@@ -313,9 +277,7 @@ export default function ReaderRegistrationEdit( {
 													) }
 												</strong>
 												{ displayListDescription && (
-													<span className="newspack-ui__helper-text">
-														{ listConfig[ listId ]?.description }
-													</span>
+													<span className="newspack-ui__helper-text">{ listConfig[ listId ]?.description }</span>
 												) }
 											</label>
 										) ) }
@@ -332,18 +294,13 @@ export default function ReaderRegistrationEdit( {
 												/>
 												{ __( 'Sign in with Google', 'newspack-plugin' ) }
 											</button>
-											<div className="newspack-ui__word-divider">
-												{ __( 'Or', 'newspack-plugin' ) }
-											</div>
+											<div className="newspack-ui__word-divider">{ __( 'Or', 'newspack-plugin' ) }</div>
 										</div>
 									) }
 									<div>
 										<div className="newspack-registration__inputs">
 											<input type="email" placeholder={ placeholder } />
-											<button
-												type="submit"
-												className="newspack-ui__button newspack-ui__button--primary"
-											>
+											<button type="submit" className="newspack-ui__button newspack-ui__button--primary">
 												<RichText
 													onChange={ value => setAttributes( { label: value } ) }
 													placeholder={ __( 'Sign up', 'newspack-plugin' ) }
@@ -365,10 +322,7 @@ export default function ReaderRegistrationEdit( {
 								>
 									<RichText
 										onChange={ value => setAttributes( { signInLabel: value } ) }
-										placeholder={ __(
-											'Sign in to an existing account',
-											'newspack-plugin'
-										) }
+										placeholder={ __( 'Sign in to an existing account', 'newspack-plugin' ) }
 										value={ signInLabel }
 										allowedFormats={ [] }
 										tagName="span"

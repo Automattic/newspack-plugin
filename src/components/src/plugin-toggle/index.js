@@ -28,9 +28,7 @@ class PluginToggle extends Component {
 	 */
 	retrievePluginInfo = () => {
 		return new Promise( () => {
-			apiFetch( { path: '/newspack/v1/plugins/' } ).then( pluginInfo =>
-				this.setState( { pluginInfo } )
-			);
+			apiFetch( { path: '/newspack/v1/plugins/' } ).then( pluginInfo => this.setState( { pluginInfo } ) );
 		} );
 	};
 
@@ -67,9 +65,7 @@ class PluginToggle extends Component {
 								...pluginInfo,
 								[ plugin ]: {
 									...pluginInfo[ plugin ],
-									error:
-										e.message ||
-										__( 'There was an error managing this plugin.', 'newspack-plugin' ),
+									error: e.message || __( 'There was an error managing this plugin.', 'newspack-plugin' ),
 								},
 							},
 						} );
@@ -120,8 +116,7 @@ class PluginToggle extends Component {
 					? Object.keys( pluginsFromAPI[ pluginSlug ] ).reduce(
 							( accumulator, key ) => ( {
 								...accumulator,
-								[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]:
-									pluginsFromAPI[ pluginSlug ][ key ],
+								[ key.charAt( 0 ).toLowerCase() + key.slice( 1 ) ]: pluginsFromAPI[ pluginSlug ][ key ],
 							} ),
 							{}
 					  )

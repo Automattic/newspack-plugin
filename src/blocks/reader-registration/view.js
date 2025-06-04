@@ -104,8 +104,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 							} else {
 								readerActivation.dispatchActivity( 'reader_registered', {
 									...baseActivity,
-									registration_method:
-										data?.metadata?.registration_method || 'registration-block',
+									registration_method: data?.metadata?.registration_method || 'registration-block',
 								} );
 							}
 						}
@@ -142,9 +141,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					body,
 				} )
 					.then( res => {
-						res.json().then( ( { message, data } ) =>
-							form.endLoginFlow( message, res.status, data )
-						);
+						res.json().then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
 					} )
 					.catch( e => {
 						form.endLoginFlow( e, 400 );

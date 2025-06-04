@@ -36,10 +36,7 @@ const PLUGINS: Record< string, PluginCard > = {
 		subTitle: __( 'AI-Generated Audio Stories', 'newspack-plugin' ),
 		description: (
 			<>
-				{ __(
-					'Complete setup and licensing agreement to unlock 5 free audio stories per month.',
-					'newspack-plugin'
-				) }{ ' ' }
+				{ __( 'Complete setup and licensing agreement to unlock 5 free audio stories per month.', 'newspack-plugin' ) }{ ' ' }
 				<a href="https://everlit.audio/" target="_blank" rel="noreferrer">
 					{ __( 'Learn more', 'newspack-plugin' ) }
 				</a>
@@ -67,11 +64,7 @@ function Plugins() {
 	return (
 		<Fragment>
 			{ Object.keys( plugins ).map( pluginKey => {
-				return (
-					plugins[ pluginKey ].isEnabled && (
-						<WizardsPluginCard key={ pluginKey } { ...plugins[ pluginKey ] } />
-					)
-				);
+				return plugins[ pluginKey ].isEnabled && <WizardsPluginCard key={ pluginKey } { ...plugins[ pluginKey ] } />;
 			} ) }
 		</Fragment>
 	);

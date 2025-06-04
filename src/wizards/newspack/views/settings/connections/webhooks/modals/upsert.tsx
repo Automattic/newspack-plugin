@@ -23,9 +23,7 @@ import { validateEndpoint, validateUrl } from '../utils';
  * @param param WP CheckboxControl Component props.
  * @return      JSX.Element
  */
-const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckboxControl > > = ( {
-	...props
-} ) => {
+const CheckboxControl: React.FC< WpCheckboxControlPropsOverride< typeof WpCheckboxControl > > = ( { ...props } ) => {
 	return <WpCheckboxControl { ...props } />;
 };
 
@@ -93,13 +91,7 @@ const Upsert = ( {
 				},
 				onSuccess( res ) {
 					if ( ! res.success ) {
-						setError(
-							new WizardApiError(
-								`${ res.code ? `${ res.code }: ` : '' }${ res.message }`,
-								res.code,
-								'endpoint_test'
-							)
-						);
+						setError( new WizardApiError( `${ res.code ? `${ res.code }: ` : '' }${ res.message }`, res.code, 'endpoint_test' ) );
 						return;
 					}
 					setTestResponse( res );
@@ -110,9 +102,7 @@ const Upsert = ( {
 
 	useEffect( () => {
 		if ( errorMessage ) {
-			modalRef?.current
-				?.querySelector( '.components-modal__content' )
-				?.scrollTo( { top: 0, left: 0, behavior: 'smooth' } );
+			modalRef?.current?.querySelector( '.components-modal__content' )?.scrollTo( { top: 0, left: 0, behavior: 'smooth' } );
 		}
 	}, [ errorMessage ] );
 
@@ -126,20 +116,11 @@ const Upsert = ( {
 				} }
 			>
 				{ errorMessage && <Notice isError noticeText={ errorMessage } /> }
-				{ true === editing.disabled && (
-					<Notice
-						noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack-plugin' ) }
-					/>
-				) }
+				{ true === editing.disabled && <Notice noticeText={ __( 'This webhook endpoint is currently disabled.', 'newspack-plugin' ) } /> }
 				{ editing.disabled && editing.disabled_error && (
-					<Notice
-						isError
-						noticeText={ __( 'Request Error: ', 'newspack-plugin' ) + editing.disabled_error }
-					/>
+					<Notice isError noticeText={ __( 'Request Error: ', 'newspack-plugin' ) + editing.disabled_error } />
 				) }
-				{ testResponse.success && (
-					<Notice isSuccess noticeText={ `${ testResponse.message }: ${ testResponse.code }` } />
-				) }
+				{ testResponse.success && <Notice isSuccess noticeText={ `${ testResponse.message }: ${ testResponse.code }` } /> }
 				<Grid columns={ 1 } gutter={ 16 } className="mt0">
 					<TextControl
 						label={ __( 'URL', 'newspack-plugin' ) }
@@ -175,10 +156,7 @@ const Upsert = ( {
 				<hr />
 				<TextControl
 					label={ __( 'Label (optional)', 'newspack-plugin' ) }
-					help={ __(
-						'A label to help you identify this endpoint. It will not be sent to the endpoint.',
-						'newspack-plugin'
-					) }
+					help={ __( 'A label to help you identify this endpoint. It will not be sent to the endpoint.', 'newspack-plugin' ) }
 					value={ editing.label }
 					onChange={ ( value: string ) => setEditing( { ...editing, label: value } ) }
 					disabled={ inFlight }
@@ -187,29 +165,18 @@ const Upsert = ( {
 					<h3>{ __( 'Actions', 'newspack-plugin' ) }</h3>
 					{ actions.length > 0 && (
 						<Fragment>
-							<p>
-								{ __(
-									'Select which actions should trigger this endpoint:',
-									'newspack-plugin'
-								) }
-							</p>
+							<p>{ __( 'Select which actions should trigger this endpoint:', 'newspack-plugin' ) }</p>
 							<Grid columns={ 2 } gutter={ 16 }>
 								{ actions.map( ( actionKey, i ) => (
 									<CheckboxControl
 										key={ i }
 										disabled={ inFlight }
 										label={ actionKey }
-										checked={
-											( editing.actions && editing.actions.includes( actionKey ) ) ||
-											false
-										}
+										checked={ ( editing.actions && editing.actions.includes( actionKey ) ) || false }
 										onChange={ () => {
 											const currentActions = editing.actions || [];
 											if ( currentActions.includes( actionKey ) ) {
-												currentActions.splice(
-													currentActions.indexOf( actionKey ),
-													1
-												);
+												currentActions.splice( currentActions.indexOf( actionKey ), 1 );
 											} else {
 												currentActions.push( actionKey );
 											}

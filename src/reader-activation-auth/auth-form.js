@@ -75,26 +75,21 @@ window.newspackRAS.push( function ( readerActivation ) {
 					messageContentElement.style.display = 'block';
 
 					// If the message includes a registration toggle, hide the message when clicked.
-					messageContentElement
-						.querySelectorAll( 'a[data-set-action="register"], a[data-set-action="signin"]' )
-						.forEach( registerLink => {
-							registerLink.parentNode.setAttribute( 'data-action', 'signin' );
+					messageContentElement.querySelectorAll( 'a[data-set-action="register"], a[data-set-action="signin"]' ).forEach( registerLink => {
+						registerLink.parentNode.setAttribute( 'data-action', 'signin' );
 
-							registerLink.addEventListener(
-								'click',
-								function () {
-									messageContentElement.innerHTML = '';
-								},
-								false
-							);
-						} );
+						registerLink.addEventListener(
+							'click',
+							function () {
+								messageContentElement.innerHTML = '';
+							},
+							false
+						);
+					} );
 				} else {
 					messageContentElement.style.display = 'none';
 					messageContentElement.innerHTML = '';
-					messageContentElement.classList.remove(
-						'newspack-ui__inline-error',
-						'newspack-ui__helper-text'
-					);
+					messageContentElement.classList.remove( 'newspack-ui__inline-error', 'newspack-ui__helper-text' );
 				}
 			};
 
@@ -114,9 +109,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( 'v2_invisible' === newspack_grecaptcha?.version ) {
 					if ( 'register' === action ) {
 						form.removeAttribute( 'data-skip-recaptcha' );
-						newspack_grecaptcha.render( [ form ], error =>
-							form.setMessageContent( error, true )
-						);
+						newspack_grecaptcha.render( [ form ], error => form.setMessageContent( error, true ) );
 					} else {
 						form.setAttribute( 'data-skip-recaptcha', '1' );
 					}
@@ -194,16 +187,11 @@ window.newspackRAS.push( function ( readerActivation ) {
 				if ( ! resendCodeButton ) {
 					return;
 				}
-				resendCodeButton.originalButtonText = resendCodeButton.textContent.replace(
-					/\s\(\d{1,}:\d{2}\)/,
-					''
-				);
+				resendCodeButton.originalButtonText = resendCodeButton.textContent.replace( /\s\(\d{1,}:\d{2}\)/, '' );
 				const updateButton = () => {
 					const remaining = readerActivation.getOTPTimeRemaining();
 					if ( remaining ) {
-						resendCodeButton.textContent = `${
-							resendCodeButton.originalButtonText
-						} (${ formatTime( remaining ) })`;
+						resendCodeButton.textContent = `${ resendCodeButton.originalButtonText } (${ formatTime( remaining ) })`;
 					} else {
 						resendCodeButton.textContent = resendCodeButton.originalButtonText;
 						clearInterval( resendCodeButton.otpTimerInterval );
@@ -247,9 +235,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 									} );
 								}
 								form.setMessageContent(
-									formAction === 'pwd'
-										? newspack_reader_activation_labels.code_sent
-										: newspack_reader_activation_labels.code_resent
+									formAction === 'pwd' ? newspack_reader_activation_labels.code_sent : newspack_reader_activation_labels.code_resent
 								);
 								container.setFormAction( 'otp' );
 								if ( ! readerActivation.getOTPTimeRemaining() ) {
@@ -293,9 +279,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 
 					if ( status !== 200 ) {
 						form.setMessageContent( message, true );
-						messageContentElement
-							.querySelectorAll( '[data-set-action]' )
-							.forEach( setActionListener );
+						messageContentElement.querySelectorAll( '[data-set-action]' ).forEach( setActionListener );
 					}
 				}
 				if ( status === 200 ) {
@@ -305,12 +289,10 @@ window.newspackRAS.push( function ( readerActivation ) {
 						const activity = { email: data.email };
 						const body = new FormData( form );
 						if ( data.metadata?.gate_post_id || body.has( 'memberships_content_gate' ) ) {
-							activity.gate_post_id =
-								data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
+							activity.gate_post_id = data.metadata.gate_post_id || body.get( 'memberships_content_gate' );
 						}
 						if ( data.metadata?.newspack_popup_id || body.has( 'newspack_popup_id' ) ) {
-							activity.newspack_popup_id =
-								data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
+							activity.newspack_popup_id = data.metadata.newspack_popup_id || body.get( 'newspack_popup_id' );
 						}
 						if ( data?.sso ) {
 							activity.sso = true;
@@ -329,11 +311,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 					}
 
 					let callback;
-					if (
-						! container.config?.skipNewslettersSignup &&
-						data?.registered &&
-						container.authCallback
-					) {
+					if ( ! container.config?.skipNewslettersSignup && data?.registered && container.authCallback ) {
 						callback = ( authMessage, authData ) =>
 							openNewslettersSignupModal( {
 								onSuccess: container.authCallback( authMessage, authData ),
@@ -356,8 +334,7 @@ window.newspackRAS.push( function ( readerActivation ) {
 						}
 						container.setFormAction( 'success' );
 						container.querySelector( '.success-title' ).innerHTML = labels.success_title || '';
-						container.querySelector( '.success-description' ).innerHTML =
-							labels.success_description || '';
+						container.querySelector( '.success-description' ).innerHTML = labels.success_description || '';
 						const callbackButton = container.querySelector( '.auth-callback' );
 						if ( callbackButton && callback ) {
 							callbackButton.addEventListener( 'click', ev => {

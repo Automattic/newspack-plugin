@@ -46,9 +46,6 @@ export function WizardsAdminHeader( {
 }
 
 render(
-	<WizardsAdminHeader
-		title={ window.newspackWizardsAdminHeader.title }
-		tabs={ window.newspackWizardsAdminHeader.tabs }
-	/>,
+	<WizardsAdminHeader title={ window.newspackWizardsAdminHeader.title } tabs={ window.newspackWizardsAdminHeader.tabs } />,
 	document.getElementById( 'newspack-wizards-admin-header' )
 );

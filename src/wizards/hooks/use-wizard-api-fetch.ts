@@ -85,8 +85,7 @@ export function useWizardApiFetch( slug: string ) {
 	const [ isFetching, setIsFetching ] = useState( false );
 	const { wizardApiFetch, updateWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const wizardData: WizardData = useSelect(
-		( select: ( namespace: string ) => WizardSelector ) =>
-			select( WIZARD_STORE_NAMESPACE ).getWizardData( slug ),
+		( select: ( namespace: string ) => WizardSelector ) => select( WIZARD_STORE_NAMESPACE ).getWizardData( slug ),
 		[ slug ]
 	);
 	const [ error, setError ] = useState< WizardApiError | null >( wizardData.error ?? null );
@@ -122,15 +121,11 @@ export function useWizardApiFetch( slug: string ) {
 		return ( prop: string | string[], value: any, cacheKeyPathOverride = cacheKeyPath ) => {
 			// Remove query parameters from the cacheKeyPath
 
-			const normalizedPath = cacheKeyPathOverride
-				? removeQueryArgs( cacheKeyPathOverride )
-				: cacheKeyPathOverride;
+			const normalizedPath = cacheKeyPathOverride ? removeQueryArgs( cacheKeyPathOverride ) : cacheKeyPathOverride;
 
 			updateWizardSettings( {
 				slug,
-				path: [ normalizedPath, ...( Array.isArray( prop ) ? prop : [ prop ] ) ].filter(
-					str => typeof str === 'string'
-				),
+				path: [ normalizedPath, ...( Array.isArray( prop ) ? prop : [ prop ] ) ].filter( str => typeof str === 'string' ),
 				value,
 			} );
 		};
@@ -150,17 +145,9 @@ export function useWizardApiFetch( slug: string ) {
 			const updateSettings = updateWizardData( opts.path );
 			const { path, method = 'GET' } = opts;
 			const cacheKeyPath = removeQueryArgs( path ?? '' );
-			const {
-				isCached = method === 'GET',
-				updateCacheKey = null,
-				updateCacheMethods = [],
-				...options
-			} = opts;
+			const { isCached = method === 'GET', updateCacheKey = null, updateCacheMethods = [], ...options } = opts;
 
-			const {
-				error: cachedError,
-				[ cacheKeyPath ]: { [ method ]: cachedMethod = null } = {},
-			}: WizardData = wizardData;
+			const { error: cachedError, [ cacheKeyPath ]: { [ method ]: cachedMethod = null } = {} }: WizardData = wizardData;
 
 			function thenCallback( response: T ) {
 				if ( isCached ) {
@@ -169,8 +156,7 @@ export function useWizardApiFetch( slug: string ) {
 
 				if ( updateCacheKey && updateCacheKey.constructor === Object ) {
 					// Derive the key and method from the updateCacheKey object.
-					const [ updateCacheKeyKey, updateCacheKeyMethod ]: [ keyof WizardData, ApiMethods ] =
-						Object.entries( updateCacheKey )[ 0 ];
+					const [ updateCacheKeyKey, updateCacheKeyMethod ]: [ keyof WizardData, ApiMethods ] = Object.entries( updateCacheKey )[ 0 ];
 
 					const cachedValue = wizardData[ updateCacheKeyKey ][ updateCacheKeyMethod ];
 
@@ -214,10 +200,7 @@ export function useWizardApiFetch( slug: string ) {
 			// If the promise is already in progress, return it before making a new request.
 			if ( promiseCache[ cacheKeyPath ] ) {
 				setIsFetching( true );
-				return promiseCache[ cacheKeyPath ]
-					.then( thenCallback )
-					.catch( catchCallback )
-					.finally( finallyCallback );
+				return promiseCache[ cacheKeyPath ].then( thenCallback ).catch( catchCallback ).finally( finallyCallback );
 			}
 
 			// Cache exists and is not empty, return it.

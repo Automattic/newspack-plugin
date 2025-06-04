@@ -25,15 +25,7 @@ const defaultStatuses = {
 	'error-request': undefined,
 };
 
-const SiteStatus = ( {
-	label = '',
-	isPreflightValid = true,
-	dependencies: dependenciesProp,
-	statuses,
-	endpoint,
-	configLink,
-	then,
-}: Status ) => {
+const SiteStatus = ( { label = '', isPreflightValid = true, dependencies: dependenciesProp, statuses, endpoint, configLink, then }: Status ) => {
 	const parsedStatusLabels: Record< StatusLabels, string > = {
 		...defaultStatuses,
 		...statuses,
@@ -109,13 +101,7 @@ const SiteStatus = ( {
 
 	return (
 		<>
-			{ isModalVisible && (
-				<SiteActionModal
-					plugins={ failedDependencies }
-					onSuccess={ makeRequest }
-					onRequestClose={ setIsModalVisible }
-				/>
-			) }
+			{ isModalVisible && <SiteActionModal plugins={ failedDependencies } onSuccess={ makeRequest } onRequestClose={ setIsModalVisible } /> }
 			{ /* Error UI, link user to config */ }
 			{ requestStatus === 'error' && (
 				<Tooltip text={ __( 'Click to navigate to configuration', 'newspack-plugin' ) }>
@@ -135,30 +121,15 @@ const SiteStatus = ( {
 					) }
 				>
 					<button onClick={ () => setIsModalVisible( true ) } className={ classes }>
-						{ label }:{ ' ' }
-						<span>
-							{ _n(
-								'Missing dependency',
-								'Missing dependencies',
-								failedDependencies.length,
-								'newspack-plugin'
-							) }
-						</span>
+						{ label }: <span>{ _n( 'Missing dependency', 'Missing dependencies', failedDependencies.length, 'newspack-plugin' ) }</span>
 						<span className="hidden">
-							{ _n(
-								'Install dependency',
-								'Install dependencies',
-								failedDependencies.length,
-								'newspack-plugin'
-							) }
+							{ _n( 'Install dependency', 'Install dependencies', failedDependencies.length, 'newspack-plugin' ) }
 						</span>
 					</button>
 				</Tooltip>
 			) }
 			{ /* Display standard UI for the rest */ }
-			{ [ 'error-preflight', 'success', 'idle', 'pending', 'error-request' ].includes(
-				requestStatus
-			) && (
+			{ [ 'error-preflight', 'success', 'idle', 'pending', 'error-request' ].includes( requestStatus ) && (
 				<div className={ classes }>
 					{ label }:{ ' ' }
 					<span>

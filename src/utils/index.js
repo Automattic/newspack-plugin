@@ -105,13 +105,9 @@ export function registerElementActivity( element, action, cb, event ) {
  */
 export function registerCheckoutActivity( action, cb ) {
 	// Woo Block checkout is react, so we need to wait for the form to be rendered.
-	wp?.hooks?.addAction(
-		'experimental__woocommerce_blocks-checkout-render-checkout-form',
-		'newspack/my-account/activity',
-		() => {
-			registerElementActivity( '.wc-block-components-checkout-place-order-button', action, cb );
-		}
-	);
+	wp?.hooks?.addAction( 'experimental__woocommerce_blocks-checkout-render-checkout-form', 'newspack/my-account/activity', () => {
+		registerElementActivity( '.wc-block-components-checkout-place-order-button', action, cb );
+	} );
 	// Shortcode checkout.
 	registerElementActivity( 'form[name="checkout"]', action, cb );
 }

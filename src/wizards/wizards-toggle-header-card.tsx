@@ -169,14 +169,8 @@ const WizardsToggleHeaderCard = < T extends Record< string, any > >( {
 				hasGreyHeader={ isChecked }
 				actionContent={
 					isChecked && (
-						<Button
-							variant="primary"
-							disabled={ isFetching }
-							onClick={ () => updateSettings( settingsUpdates ) }
-						>
-							{ isFetching
-								? __( 'Loading…', 'newspack-plugin' )
-								: __( 'Save Settings', 'newspack-plugin' ) }
+						<Button variant="primary" disabled={ isFetching } onClick={ () => updateSettings( settingsUpdates ) }>
+							{ isFetching ? __( 'Loading…', 'newspack-plugin' ) : __( 'Save Settings', 'newspack-plugin' ) }
 						</Button>
 					)
 				}

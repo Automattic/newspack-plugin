@@ -7,10 +7,7 @@
 		$( e.currentTarget ).closest( '.woocommerce_variation' ).find( '.show_if_variation_virtual' ).hide();
 
 		if ( $( e.currentTarget ).is( ':checked' ) ) {
-			$( e.currentTarget )
-				.closest( '.woocommerce_variation' )
-				.find( '.show_if_variation_virtual' )
-				.show();
+			$( e.currentTarget ).closest( '.woocommerce_variation' ).find( '.show_if_variation_virtual' ).show();
 		}
 	} );
 } )( jQuery );

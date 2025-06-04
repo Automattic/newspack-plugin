@@ -20,18 +20,9 @@ import moment from 'moment';
 import { Notice, Modal } from '../../../../../../../components/src';
 import { getEndpointLabel, getRequestStatusIcon, hasEndpointErrors } from '../utils';
 
-const View = ( {
-	endpoint,
-	setAction,
-}: {
-	endpoint: ModalComponentProps[ 'endpoint' ];
-	setAction: ModalComponentProps[ 'setAction' ];
-} ) => {
+const View = ( { endpoint, setAction }: { endpoint: ModalComponentProps[ 'endpoint' ]; setAction: ModalComponentProps[ 'setAction' ] } ) => {
 	return (
-		<Modal
-			title={ __( 'Latest Requests', 'newspack-plugin' ) }
-			onRequestClose={ () => setAction( null, endpoint.id ) }
-		>
+		<Modal title={ __( 'Latest Requests', 'newspack-plugin' ) } onRequestClose={ () => setAction( null, endpoint.id ) }>
 			<p>
 				{ sprintf(
 					// translators: %s is the endpoint title (shortened URL).
@@ -40,17 +31,11 @@ const View = ( {
 				) }
 			</p>
 			{ endpoint.requests.length > 0 ? (
-				<table
-					className={ `newspack-webhooks__requests ${
-						hasEndpointErrors( endpoint ) ? 'has-error' : ''
-					}` }
-				>
+				<table className={ `newspack-webhooks__requests ${ hasEndpointErrors( endpoint ) ? 'has-error' : '' }` }>
 					<tr>
 						<th />
 						<th colSpan={ 2 }>{ __( 'Action', 'newspack-plugin' ) }</th>
-						{ hasEndpointErrors( endpoint ) && (
-							<th colSpan={ 2 }>{ __( 'Error', 'newspack-plugin' ) }</th>
-						) }
+						{ hasEndpointErrors( endpoint ) && <th colSpan={ 2 }>{ __( 'Error', 'newspack-plugin' ) }</th> }
 					</tr>
 					{ endpoint.requests.map( request => (
 						<tr key={ request.id }>
@@ -74,9 +59,7 @@ const View = ( {
 							{ hasEndpointErrors( endpoint ) && (
 								<Fragment>
 									<td className="error">
-										{ request.errors && request.errors.length > 0
-											? request.errors[ request.errors.length - 1 ]
-											: '--' }
+										{ request.errors && request.errors.length > 0 ? request.errors[ request.errors.length - 1 ] : '--' }
 									</td>
 									<td>
 										<span className="error-count">
@@ -93,9 +76,7 @@ const View = ( {
 					) ) }
 				</table>
 			) : (
-				<Notice
-					noticeText={ __( "This endpoint hasn't received any requests yet.", 'newspack-plugin' ) }
-				/>
+				<Notice noticeText={ __( "This endpoint hasn't received any requests yet.", 'newspack-plugin' ) } />
 			) }
 		</Modal>
 	);

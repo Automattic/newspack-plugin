@@ -40,10 +40,7 @@ export default function MediaCredits( { data, update }: ThemeModComponentProps< 
 					/>
 					<TextControl
 						label={ __( 'Credit Label', 'newspack-plugin' ) }
-						help={ __(
-							'A label to prefix all media credits. Leave blank to display no prefix.',
-							'newspack-plugin'
-						) }
+						help={ __( 'A label to prefix all media credits. Leave blank to display no prefix.', 'newspack-plugin' ) }
 						value={ data.newspack_image_credits_prefix_label }
 						onChange={ ( newspack_image_credits_prefix_label: string ) =>
 							update( {
@@ -77,10 +74,7 @@ export default function MediaCredits( { data, update }: ThemeModComponentProps< 
 					/>
 					<ToggleControl
 						label={ __( 'Auto-populate image credits', 'newspack-plugin' ) }
-						help={ __(
-							'Automatically populate image credits from EXIF or IPTC metadata when uploading new images.',
-							'newspack-plugin'
-						) }
+						help={ __( 'Automatically populate image credits from EXIF or IPTC metadata when uploading new images.', 'newspack-plugin' ) }
 						checked={ data.newspack_image_credits_auto_populate }
 						onChange={ newspack_image_credits_auto_populate =>
 							update( {

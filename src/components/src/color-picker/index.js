@@ -52,13 +52,7 @@ const ColorPicker = ( { label, color = '#fff', onChange, className } ) => {
 			</InteractiveDiv>
 
 			<div className="newspack-color-picker__main" ref={ ref }>
-				{ isExpanded && (
-					<ColorPickerComponent
-						color={ color }
-						onChange={ hex => onChange( hex ) }
-						enableAlpha={ false }
-					/>
-				) }
+				{ isExpanded && <ColorPickerComponent color={ color } onChange={ hex => onChange( hex ) } enableAlpha={ false } /> }
 			</div>
 		</div>
 	);

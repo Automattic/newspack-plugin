@@ -16,10 +16,7 @@ import { Button, withWizardScreen, Card, Notice, ProgressBar, StepsList } from '
 
 const listItems = [
 	{
-		text: __(
-			'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
-			'newspack-plugin'
-		),
+		text: __( 'Your <strong>current segments and prompts</strong> will be deactivated and archived.', 'newspack-plugin' ),
 		isSkipped: '<span class="is-skipped">[skipped]</span>',
 	},
 	{
@@ -29,10 +26,7 @@ const listItems = [
 		),
 	},
 	{
-		text: __(
-			'The <strong>Audience Management campaign</strong> will be activated with default segments and settings.',
-			'newspack-plugin'
-		),
+		text: __( 'The <strong>Audience Management campaign</strong> will be activated with default segments and settings.', 'newspack-plugin' ),
 		isSkipped: '<span class="is-skipped">[skipped]</span>',
 	},
 ];
@@ -145,9 +139,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 						) }
 
 						{ /** TODO: Update this URL with the real one once the docs are ready. */ }
-						<ExternalLink href={ 'https://help.newspack.com' }>
-							{ __( 'Learn more', 'newspack-plugin' ) }
-						</ExternalLink>
+						<ExternalLink href={ 'https://help.newspack.com' }>{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
 					</>
 				}
 			>
@@ -170,14 +162,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 							<StepsList stepsListItems={ listItems } narrowList />
 						</Card>
 
-						{ error && (
-							<Notice
-								noticeText={
-									error?.message || __( 'Something went wrong.', 'newspack-plugin' )
-								}
-								isError
-							/>
-						) }
+						{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 
 						<Card buttonsCard noBorder className="justify-center">
 							<Button isPrimary onClick={ () => activate() }>

@@ -20,12 +20,9 @@ const Emails = () => {
 	const emailSections = window.newspackSettings.emails.sections;
 	const postType = emailSections.emails.postType;
 
-	const [ pluginsReady, setPluginsReady ] = useState(
-		emailSections.emails.dependencies.newspackNewsletters
-	);
+	const [ pluginsReady, setPluginsReady ] = useState( emailSections.emails.dependencies.newspackNewsletters );
 
-	const { wizardApiFetch, isFetching, errorMessage, resetError } =
-		useWizardApiFetch( 'newspack-settings/emails' );
+	const { wizardApiFetch, isFetching, errorMessage, resetError } = useWizardApiFetch( 'newspack-settings/emails' );
 
 	const [ emails, setEmails ] = useState( Object.values( emailSections.emails.all ) );
 
@@ -78,18 +75,12 @@ const Emails = () => {
 						'newspack-plugin'
 					) }
 					<br />
-					{ __(
-						'Until this feature is configured, default receipts will be used.',
-						'newspack-plugin'
-					) }
+					{ __( 'Until this feature is configured, default receipts will be used.', 'newspack-plugin' ) }
 				</Notice>
 				<WizardsPluginCard
 					slug="newspack-newsletters"
 					title={ __( 'Newspack Newsletters', 'newspack-plugin' ) }
-					description={ __(
-						'Newspack Newsletters is the plugin that powers Newspack email receipts.',
-						'newspack-plugin'
-					) }
+					description={ __( 'Newspack Newsletters is the plugin that powers Newspack email receipts.', 'newspack-plugin' ) }
 					onStatusChange={ ( statuses: Record< string, boolean > ) => {
 						if ( ! statuses.isLoading ) {
 							setPluginsReady( statuses.isSetup );
@@ -107,16 +98,10 @@ const Emails = () => {
 				const isAudience = email.category === 'reader-activation';
 				let notification = __( 'This email is not active.', 'newspack-plugin' );
 				if ( email.type === 'receipt' ) {
-					notification = __(
-						'This email is not active. The default receipt will be used.',
-						'newspack-plugin'
-					);
+					notification = __( 'This email is not active. The default receipt will be used.', 'newspack-plugin' );
 				}
 				if ( email.type === 'welcome' ) {
-					notification = __(
-						'This email is not active. The receipt template will be used if active.',
-						'newspack-plugin'
-					);
+					notification = __( 'This email is not active. The receipt template will be used if active.', 'newspack-plugin' );
 				}
 				return (
 					<WizardsActionCard
@@ -130,14 +115,7 @@ const Emails = () => {
 						actionText={ __( 'Edit', 'newspack-plugin' ) }
 						secondaryActionText={ __( 'Reset', 'newspack-plugin' ) }
 						onSecondaryActionClick={ () => {
-							if (
-								utils.confirmAction(
-									__(
-										'Are you sure you want to reset the contents of this email?',
-										'newspack-plugin'
-									)
-								)
-							) {
+							if ( utils.confirmAction( __( 'Are you sure you want to reset the contents of this email?', 'newspack-plugin' ) ) ) {
 								resetEmail( email.post_id );
 							}
 						} }
@@ -146,8 +124,7 @@ const Emails = () => {
 							? {}
 							: {
 									toggleChecked: isActive,
-									toggleOnChange: value =>
-										updateStatus( email.post_id, value ? 'publish' : 'draft' ),
+									toggleOnChange: value => updateStatus( email.post_id, value ? 'publish' : 'draft' ),
 							  } ) }
 						{ ...( isActive
 							? {}
@@ -156,14 +133,7 @@ const Emails = () => {
 									notificationLevel: 'info',
 							  } ) }
 					>
-						{ errorMessage && (
-							<Notice
-								noticeText={
-									errorMessage || __( 'Something went wrong.', 'newspack-plugin' )
-								}
-								isError
-							/>
-						) }
+						{ errorMessage && <Notice noticeText={ errorMessage || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 					</WizardsActionCard>
 				);
 			} ) }

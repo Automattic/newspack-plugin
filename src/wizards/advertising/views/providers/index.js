@@ -70,22 +70,13 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 			<h1>{ __( 'Providers', 'newspack-plugin' ) }</h1>
 			<ActionCard
 				title={ __( 'Google Ad Manager', 'newspack-plugin' ) }
-				description={ __(
-					'Manage Google Ad Manager ad units and placements directly from the Newspack dashboard.',
-					'newspack-plugin'
-				) }
-				actionText={
-					google_ad_manager && google_ad_manager.enabled && __( 'Configure', 'newspack-plugin' )
-				}
+				description={ __( 'Manage Google Ad Manager ad units and placements directly from the Newspack dashboard.', 'newspack-plugin' ) }
+				actionText={ google_ad_manager && google_ad_manager.enabled && __( 'Configure', 'newspack-plugin' ) }
 				toggle
 				toggleChecked={ google_ad_manager && google_ad_manager.enabled }
 				toggleOnChange={ value => {
 					toggleService( 'google_ad_manager', value ).then( () => {
-						if (
-							value === true &&
-							! google_ad_manager.status.connected &&
-							! google_ad_manager.status.network_code
-						) {
+						if ( value === true && ! google_ad_manager.status.connected && ! google_ad_manager.status.network_code ) {
 							setIsOnboarding( true );
 						}
 					} );
@@ -104,10 +95,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 				} }
 			/>
 			{ isOnboarding && (
-				<Modal
-					title={ __( 'Google Ad Manager Setup', 'newspack-plugin' ) }
-					onRequestClose={ () => setIsOnboarding( false ) }
-				>
+				<Modal title={ __( 'Google Ad Manager Setup', 'newspack-plugin' ) } onRequestClose={ () => setIsOnboarding( false ) }>
 					<GAMOnboarding
 						onUpdate={ data => setNetworkCode( data.networkCode ) }
 						onSuccess={ () => {
@@ -119,11 +107,7 @@ const Providers = ( { services, fetchAdvertisingData, toggleService } ) => {
 						<Button isSecondary disabled={ inFlight } onClick={ () => setIsOnboarding( false ) }>
 							{ __( 'Cancel', 'newspack-plugin' ) }
 						</Button>
-						<Button
-							isPrimary
-							disabled={ inFlight || ! networkCode }
-							onClick={ () => updateGAMNetworkCode() }
-						>
+						<Button isPrimary disabled={ inFlight || ! networkCode } onClick={ () => updateGAMNetworkCode() }>
 							{ __( 'Save', 'newspack-plugin' ) }
 						</Button>
 					</Card>

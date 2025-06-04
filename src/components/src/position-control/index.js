@@ -14,15 +14,7 @@ import classnames from 'classnames';
  */
 import './style.scss';
 
-export default function PositionControl( {
-	allowedPositions,
-	value,
-	label,
-	help,
-	onChange,
-	size,
-	...props
-} ) {
+export default function PositionControl( { allowedPositions, value, label, help, onChange, size, ...props } ) {
 	/**
 	 * Set layout options
 	 */
@@ -98,10 +90,7 @@ export default function PositionControl( {
 			<ButtonGroup aria-label={ __( 'Select Position', 'newspack-plugin' ) } { ...props }>
 				{ options.map( ( option, index ) => {
 					return (
-						<div
-							key={ `newspack-position-placement-item-${ index }` }
-							className={ option.value === value ? 'is-selected' : null }
-						>
+						<div key={ `newspack-position-placement-item-${ index }` } className={ option.value === value ? 'is-selected' : null }>
 							<Button
 								isSmall
 								title={ option.label }
@@ -110,9 +99,7 @@ export default function PositionControl( {
 								onClick={ () => {
 									onChange( option.value );
 								} }
-								disabled={
-									allowedPositions?.length && ! allowedPositions.includes( option.value )
-								}
+								disabled={ allowedPositions?.length && ! allowedPositions.includes( option.value ) }
 							/>
 						</div>
 					);

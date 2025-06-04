@@ -36,10 +36,7 @@ export const CoverFeesSettings = () => {
 			<ActionCard
 				isMedium
 				title={ __( 'Collect transaction fees', 'newspack-plugin' ) }
-				description={ __(
-					'Allow donors to optionally cover transaction fees imposed by payment processors.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Allow donors to optionally cover transaction fees imposed by payment processors.', 'newspack-plugin' ) }
 				notificationLevel="info"
 				toggleChecked={ settings.allow_covering_fees }
 				toggleOnChange={ () => {
@@ -68,25 +65,14 @@ export const CoverFeesSettings = () => {
 						<TextControl
 							value={ settings.allow_covering_fees_label }
 							label={ __( 'Custom message', 'newspack-plugin' ) }
-							placeholder={ __(
-								'A message to explain the transaction fee option (optional).',
-								'newspack-plugin'
-							) }
+							placeholder={ __( 'A message to explain the transaction fee option (optional).', 'newspack-plugin' ) }
 							onChange={ value => changeHandler( 'allow_covering_fees_label', value ) }
 						/>
 						<CheckboxControl
 							label={ __( 'Cover fees by default', 'newspack-plugin' ) }
 							checked={ settings.allow_covering_fees_default }
-							onChange={ () =>
-								changeHandler(
-									'allow_covering_fees_default',
-									! settings.allow_covering_fees_default
-								)
-							}
-							help={ __(
-								'If enabled, the option to cover the transaction fee will be checked by default.',
-								'newspack-plugin'
-							) }
+							onChange={ () => changeHandler( 'allow_covering_fees_default', ! settings.allow_covering_fees_default ) }
+							help={ __( 'If enabled, the option to cover the transaction fee will be checked by default.', 'newspack-plugin' ) }
 						/>
 					</Grid>
 				) }

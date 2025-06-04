@@ -125,8 +125,7 @@ export function openAuthModal( config = {} ) {
 
 	container.formActionCallback = action => {
 		const titleEl = modal.querySelector( 'h2' );
-		titleEl.textContent =
-			'register' === action ? config.labels.register.title : config.labels.signin.title;
+		titleEl.textContent = 'register' === action ? config.labels.register.title : config.labels.signin.title;
 
 		modal.querySelectorAll( '[data-action]' ).forEach( item => {
 			if ( 'none' !== item.style.display ) {

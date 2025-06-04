@@ -17,16 +17,7 @@ import { stringify } from 'qs';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	Button,
-	Grid,
-	ImageUpload,
-	Notice,
-	TextControl,
-	WebPreview,
-	hooks,
-} from '../../../components/src';
+import { ActionCard, Button, Grid, ImageUpload, Notice, TextControl, WebPreview, hooks } from '../../../components/src';
 
 type Attachment = {
 	id?: number;
@@ -91,21 +82,14 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 		let previewURL = '/';
 		if ( 'archives' === placement && window.newspackAudience?.preview_archive ) {
 			previewURL = window.newspackAudience.preview_archive;
-		} else if (
-			( 'inline' === placement || 'scroll' === triggerType ) &&
-			window &&
-			window.newspackAudience?.preview_post
-		) {
+		} else if ( ( 'inline' === placement || 'scroll' === triggerType ) && window && window.newspackAudience?.preview_post ) {
 			previewURL = window.newspackAudience?.preview_post;
 		}
 
 		return `${ previewURL }?${ stringify( { ...abbreviatedKeys } ) }`;
 	};
 
-	const unblock = hooks.usePrompt(
-		isDirty,
-		__( 'You have unsaved changes. Discard changes?', 'newspack-plugin' )
-	);
+	const unblock = hooks.usePrompt( isDirty, __( 'You have unsaved changes. Discard changes?', 'newspack-plugin' ) );
 
 	const savePrompt = ( slug: string, data: InputValues ) => {
 		return new Promise< void >( ( res, rej ) => {
@@ -164,10 +148,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 						{ prompt.user_input_fields.map( ( field: InputField ) => (
 							<Fragment key={ field.name }>
 								{ 'array' === field.type && Array.isArray( field.options ) && (
-									<BaseControl
-										id={ `newspack-engagement-wizard__${ field.name }` }
-										label={ field.label }
-									>
+									<BaseControl id={ `newspack-engagement-wizard__${ field.name }` } label={ field.label }>
 										{ field.options.map( option => (
 											<BaseControl
 												key={ option.id }
@@ -230,45 +211,34 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										) ) }
 									</BaseControl>
 								) }
-								{ 'string' === field.type &&
-									field.max_length &&
-									Array.isArray( values ) &&
-									150 < field.max_length && (
-										<TextareaControl
-											className="newspack-textarea-control"
-											label={ field.label }
-											disabled={ inFlight }
-											help={ `${
-												( values[ field.name ] as string | undefined )?.length || 0
-											} / ${ field.max_length }` }
-											onChange={ ( value: string ) => {
-												if (
-													value.length >
-													// @ts-expect-error There's a check for max_length above.
-													field.max_length
-												) {
-													return;
-												}
+								{ 'string' === field.type && field.max_length && Array.isArray( values ) && 150 < field.max_length && (
+									<TextareaControl
+										className="newspack-textarea-control"
+										label={ field.label }
+										disabled={ inFlight }
+										help={ `${ ( values[ field.name ] as string | undefined )?.length || 0 } / ${ field.max_length }` }
+										onChange={ ( value: string ) => {
+											if (
+												value.length >
+												// @ts-expect-error There's a check for max_length above.
+												field.max_length
+											) {
+												return;
+											}
 
-												const toUpdate = {
-													...values,
-												};
-												toUpdate[ field.name ] = value;
-												setValues( toUpdate );
-												setIsDirty( true );
-											} }
-											placeholder={
-												typeof field.default === 'string' ? field.default : ''
-											}
-											rows={ 10 }
-											// @ts-expect-error TS still does not see it as a string.
-											value={
-												typeof values[ field.name ] === 'string'
-													? values[ field.name ]
-													: ''
-											}
-										/>
-									) }
+											const toUpdate = {
+												...values,
+											};
+											toUpdate[ field.name ] = value;
+											setValues( toUpdate );
+											setIsDirty( true );
+										} }
+										placeholder={ typeof field.default === 'string' ? field.default : '' }
+										rows={ 10 }
+										// @ts-expect-error TS still does not see it as a string.
+										value={ typeof values[ field.name ] === 'string' ? values[ field.name ] : '' }
+									/>
+								) }
 								{ 'string' === field.type && field.max_length && 150 >= field.max_length && (
 									<TextControl
 										label={ field.label }
@@ -298,10 +268,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 									/>
 								) }
 								{ 'int' === field.type && 'featured_image_id' === field.name && (
-									<BaseControl
-										id={ `newspack-engagement-wizard__${ field.name }` }
-										label={ field.label }
-									>
+									<BaseControl id={ `newspack-engagement-wizard__${ field.name }` } label={ field.label }>
 										<ImageUpload
 											buttonLabel={ __( 'Select file', 'newspack-plugin' ) }
 											disabled={ inFlight }
@@ -326,14 +293,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 								) }
 							</Fragment>
 						) ) }
-						{ error && (
-							<Notice
-								noticeText={
-									error?.message || __( 'Something went wrong.', 'newspack-plugin' )
-								}
-								isError
-							/>
-						) }
+						{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 						{ success && <Notice noticeText={ success } isSuccess /> }
 						<div className="newspack-buttons-card">
 							<Button
@@ -349,20 +309,13 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 									: sprintf(
 											// Translators: Save or Update settings.
 											__( '%s prompt settings', 'newspack-plugin' ),
-											prompt.ready
-												? __( 'Update', 'newspack-plugin' )
-												: __( 'Save', 'newspack-plugin' )
+											prompt.ready ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
 									  ) }
 							</Button>
 							<WebPreview
 								url={ getPreviewUrl( prompt ) }
 								renderButton={ ( { showPreview }: { showPreview: () => void } ) => (
-									<Button
-										disabled={ inFlight }
-										icon={ seen }
-										isSecondary
-										onClick={ async () => showPreview() }
-									>
+									<Button disabled={ inFlight } icon={ seen } isSecondary onClick={ async () => showPreview() }>
 										{ __( 'Preview prompt', 'newspack-plugin' ) }
 									</Button>
 								) }
@@ -371,9 +324,7 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 					</div>
 					{ helpInfo && (
 						<div className="newspack-ras-campaign__help">
-							{ helpInfo.screenshot && (
-								<img src={ helpInfo.screenshot } alt={ prompt.title } />
-							) }
+							{ helpInfo.screenshot && <img src={ helpInfo.screenshot } alt={ prompt.title } /> }
 							{ helpInfo.description && (
 								<p>
 									<span
@@ -382,17 +333,13 @@ export default function Prompt( { inFlight, prompt, setInFlight, setPrompts }: P
 										} }
 									/>{ ' ' }
 									{ helpInfo.url && (
-										<ExternalLink href={ 'https://none.com' }>
-											{ __( 'Learn more', 'newspack-plugin' ) }
-										</ExternalLink>
+										<ExternalLink href={ 'https://none.com' }>{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
 									) }
 								</p>
 							) }
 							{ helpInfo.recommendations && (
 								<>
-									<h4 className="newspack-ras-campaign__recommendation-heading">
-										{ __( 'We recommend', 'newspack-plugin' ) }
-									</h4>
+									<h4 className="newspack-ras-campaign__recommendation-heading">{ __( 'We recommend', 'newspack-plugin' ) }</h4>
 									<ul>
 										{ helpInfo.recommendations.map( ( recommendation, index ) => (
 											<li key={ index }>

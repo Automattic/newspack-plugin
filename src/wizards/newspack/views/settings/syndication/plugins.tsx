@@ -38,15 +38,7 @@ function Plugins() {
 	return (
 		<Fragment>
 			{ Object.keys( PLUGINS ).map( pluginKey => {
-				return (
-					<WizardsPluginCard
-						key={ pluginKey }
-						isTogglable
-						isStatusPrepended={ false }
-						isMedium={ false }
-						{ ...PLUGINS[ pluginKey ] }
-					/>
-				);
+				return <WizardsPluginCard key={ pluginKey } isTogglable isStatusPrepended={ false } isMedium={ false } { ...PLUGINS[ pluginKey ] } />;
 			} ) }
 		</Fragment>
 	);

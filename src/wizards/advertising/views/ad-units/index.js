@@ -13,15 +13,7 @@ import { arrowLeft } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import {
-	ActionCard,
-	Button,
-	Card,
-	Notice,
-	SelectControl,
-	TextControl,
-	withWizardScreen,
-} from '../../../../components/src';
+import { ActionCard, Button, Card, Notice, SelectControl, TextControl, withWizardScreen } from '../../../../components/src';
 import ServiceAccountConnection from './service-account-connection';
 import OptionsPopover from './options-popover';
 
@@ -30,15 +22,7 @@ const CREATE_AD_ID_PARAM = 'create';
 /**
  * Advertising management screen.
  */
-const AdUnits = ( {
-	adUnits,
-	onDelete,
-	wizardApiFetch,
-	updateWithAPI,
-	service,
-	serviceData,
-	fetchAdvertisingData,
-} ) => {
+const AdUnits = ( { adUnits, onDelete, wizardApiFetch, updateWithAPI, service, serviceData, fetchAdvertisingData } ) => {
 	const gamErrorMessage = serviceData?.status?.error
 		? `${ __( 'Google Ad Manager Error', 'newspack-plugin' ) }: ${ serviceData.status.error }`
 		: false;
@@ -123,10 +107,7 @@ const AdUnits = ( {
 			) }
 			{ isLegacy && serviceData.enabled && (
 				<>
-					<Notice
-						noticeText={ __( 'Currently operating in legacy mode.', 'newspack-plugin' ) }
-						isWarning
-					/>
+					<Notice noticeText={ __( 'Currently operating in legacy mode.', 'newspack-plugin' ) } isWarning />
 					<div className="flex items-end">
 						<TextControl
 							label={ __( 'Network Code', 'newspack-plugin' ) }
@@ -143,10 +124,7 @@ const AdUnits = ( {
 				</>
 			) }
 			<p>
-				{ __(
-					'Set up multiple ad units to use on your homepage, articles and other places throughout your site.',
-					'newspack-plugin'
-				) }
+				{ __( 'Set up multiple ad units to use on your homepage, articles and other places throughout your site.', 'newspack-plugin' ) }
 				<br />
 				{ __(
 					'You can place ads through our Newspack Ad Block in the Editor, Newspack Ad widget, and using the global placements.',
@@ -178,8 +156,7 @@ const AdUnits = ( {
 									<span>
 										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Code:', 'newspack-plugin' ) }</i>{ ' ' }
-												<code>{ adUnit.code }</code>
+												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ adUnit.code }</code>
 											</>
 										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
@@ -187,13 +164,9 @@ const AdUnits = ( {
 												{ ' ' }
 												| { __( 'Sizes:', 'newspack-plugin' ) }{ ' ' }
 												{ adUnit.sizes.map( ( size, i ) => (
-													<code key={ i }>
-														{ Array.isArray( size ) ? size.join( 'x' ) : size }
-													</code>
+													<code key={ i }>{ Array.isArray( size ) ? size.join( 'x' ) : size }</code>
 												) ) }
-												{ adUnit.fluid && (
-													<code>{ __( 'Fluid', 'newspack-plugin' ) }</code>
-												) }
+												{ adUnit.fluid && <code>{ __( 'Fluid', 'newspack-plugin' ) }</code> }
 											</>
 										) : null }
 										{ adUnit.is_legacy ? (
@@ -217,12 +190,7 @@ const AdUnits = ( {
 									</span>
 								) }
 								actionText={
-									canEdit( adUnit ) && (
-										<OptionsPopover
-											deleteLink={ () => onDelete( adUnit.id ) }
-											editLink={ editLink }
-										/>
-									)
+									canEdit( adUnit ) && <OptionsPopover deleteLink={ () => onDelete( adUnit.id ) } editLink={ editLink } />
 								}
 							/>
 						);

@@ -33,10 +33,7 @@ const WizardError = () => {
 	if ( 'fatal' === level ) {
 		const fallbackURL = typeof newspack_urls !== 'undefined' && newspack_urls.dashboard;
 		return (
-			<Modal
-				title={ __( 'Unrecoverable error' ) }
-				onRequestClose={ fallbackURL ? () => ( window.location = fallbackURL ) : undefined }
-			>
+			<Modal title={ __( 'Unrecoverable error' ) } onRequestClose={ fallbackURL ? () => ( window.location = fallbackURL ) : undefined }>
 				<Notice noticeText={ message } isError rawHTML />
 				{ fallbackURL && (
 					<Card buttonsCard noBorder className="justify-end">

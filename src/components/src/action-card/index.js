@@ -97,35 +97,18 @@ class ActionCard extends Component {
 		const backgroundImageStyles = url => {
 			return url ? { backgroundImage: `url(${ url })` } : {};
 		};
-		const titleProps =
-			toggleOnChange && ! titleLink && ! disabled
-				? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' }
-				: {};
+		const titleProps = toggleOnChange && ! titleLink && ! disabled ? { onClick: () => toggleOnChange( ! toggleChecked ), tabIndex: '0' } : {};
 		const hasInternalLink = href && href.indexOf( 'http' ) !== 0;
 		const isDisplayingSecondaryAction = secondaryActionText && onSecondaryActionClick;
 		const badges = ! Array.isArray( badge ) && badge ? [ badge ] : badge;
 		return (
-			<Card
-				className={ classes }
-				onClick={ simple && onClick }
-				id={ this.props.id ?? null }
-				noBorder={ noBorder }
-			>
+			<Card className={ classes } onClick={ simple && onClick } id={ this.props.id ?? null } noBorder={ noBorder }>
 				<div className="newspack-action-card__region newspack-action-card__region-top">
-					{ toggleOnChange && (
-						<ToggleControl
-							checked={ toggleChecked }
-							onChange={ toggleOnChange }
-							disabled={ disabled }
-						/>
-					) }
+					{ toggleOnChange && <ToggleControl checked={ toggleChecked } onChange={ toggleOnChange } disabled={ disabled } /> }
 					{ image && ! toggleOnChange && (
 						<div className="newspack-action-card__region newspack-action-card__region-left">
 							<a href={ imageLink }>
-								<div
-									className="newspack-action-card__image"
-									style={ backgroundImageStyles( image ) }
-								/>
+								<div className="newspack-action-card__image" style={ backgroundImageStyles( image ) } />
 							</a>
 						</div>
 					) }
@@ -149,10 +132,7 @@ class ActionCard extends Component {
 								<span className="newspack-action-card__title" { ...titleProps }>
 									{ titleLink && <a href={ titleLink }>{ title }</a> }
 									{ ! titleLink && expandable && (
-										<Button
-											isLink
-											onClick={ () => this.setState( { expanded: ! expanded } ) }
-										>
+										<Button isLink onClick={ () => this.setState( { expanded: ! expanded } ) }>
 											{ title }
 										</Button>
 									) }
@@ -196,10 +176,7 @@ class ActionCard extends Component {
 										{ actionText }
 									</Button>
 								) : href ? (
-									<ExternalLink
-										href={ href }
-										className="newspack-action-card__primary_button"
-									>
+									<ExternalLink href={ href } className="newspack-action-card__primary_button">
 										{ actionText }
 									</ExternalLink>
 								) : (
@@ -229,18 +206,10 @@ class ActionCard extends Component {
 				</div>
 				{ notification && (
 					<div className="newspack-action-card__notification newspack-action-card__region-children">
-						{ 'error' === notificationLevel && (
-							<Notice noticeText={ notification } isError rawHTML={ notificationHTML } />
-						) }
-						{ 'info' === notificationLevel && (
-							<Notice noticeText={ notification } rawHTML={ notificationHTML } />
-						) }
-						{ 'success' === notificationLevel && (
-							<Notice noticeText={ notification } isSuccess rawHTML={ notificationHTML } />
-						) }
-						{ 'warning' === notificationLevel && (
-							<Notice noticeText={ notification } isWarning rawHTML={ notificationHTML } />
-						) }
+						{ 'error' === notificationLevel && <Notice noticeText={ notification } isError rawHTML={ notificationHTML } /> }
+						{ 'info' === notificationLevel && <Notice noticeText={ notification } rawHTML={ notificationHTML } /> }
+						{ 'success' === notificationLevel && <Notice noticeText={ notification } isSuccess rawHTML={ notificationHTML } /> }
+						{ 'warning' === notificationLevel && <Notice noticeText={ notification } isWarning rawHTML={ notificationHTML } /> }
 					</div>
 				) }
 				{ children && ( ( expandable && expanded ) || ! expandable ) && (

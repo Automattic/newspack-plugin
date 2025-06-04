@@ -13,15 +13,7 @@ import { HANDOFF_KEY } from '../../../components/src/consts';
 /**
  * Expandable ActionCard for RAS prerequisites checklist.
  */
-export default function Prerequisite( {
-	slug,
-	config,
-	getSharedProps,
-	inFlight,
-	prerequisite,
-	saveConfig,
-	skipPrerequisite,
-}: PrequisiteProps ) {
+export default function Prerequisite( { slug, config, getSharedProps, inFlight, prerequisite, saveConfig, skipPrerequisite }: PrequisiteProps ) {
 	const { href } = prerequisite;
 	const isSkipped = Boolean( prerequisite.is_skipped );
 	const isValid = Boolean( isSkipped || prerequisite.active );
@@ -29,9 +21,7 @@ export default function Prerequisite( {
 	// If the prerequisite is active but has empty fields, show a warning.
 	const hasEmptyFields = () => {
 		if ( isValid && prerequisite.fields && prerequisite.warning ) {
-			const emptyValues = Object.keys( prerequisite.fields ).filter(
-				fieldName => '' === config[ fieldName as keyof Config ]
-			);
+			const emptyValues = Object.keys( prerequisite.fields ).filter( fieldName => '' === config[ fieldName as keyof Config ] );
 			if ( emptyValues.length ) {
 				return prerequisite.warning;
 			}
@@ -50,9 +40,7 @@ export default function Prerequisite( {
 					{ prerequisite.help_url && (
 						<>
 							{ ' ' }
-							<ExternalLink href={ prerequisite.help_url }>
-								{ __( 'Learn more', 'newspack-plugin' ) }
-							</ExternalLink>
+							<ExternalLink href={ prerequisite.help_url }>{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
 						</>
 					) }
 				</p>
@@ -97,9 +85,7 @@ export default function Prerequisite( {
 											: sprintf(
 													// Translators: Save or Update settings.
 													__( '%s settings', 'newspack-plugin' ),
-													isValid
-														? __( 'Update', 'newspack-plugin' )
-														: __( 'Save', 'newspack-plugin' )
+													isValid ? __( 'Update', 'newspack-plugin' ) : __( 'Save', 'newspack-plugin' )
 											  ) }
 									</Button>
 								</>
@@ -109,8 +95,7 @@ export default function Prerequisite( {
 							// Link to another settings page or update config in place.
 							href && prerequisite.action_text && (
 								<>
-									{ ( ! prerequisite.hasOwnProperty( 'action_enabled' ) ||
-										prerequisite.action_enabled ) && (
+									{ ( ! prerequisite.hasOwnProperty( 'action_enabled' ) || prerequisite.action_enabled ) && (
 										<Button
 											variant={ 'primary' }
 											onClick={ () => {
@@ -129,9 +114,7 @@ export default function Prerequisite( {
 																window.newspackAudience?.reader_activation_url
 																	? `<a href="${ window.newspackAudience.reader_activation_url }">`
 																	: '',
-																window.newspackAudience?.reader_activation_url
-																	? '</a>'
-																	: ''
+																window.newspackAudience?.reader_activation_url ? '</a>' : ''
 															),
 															url: href,
 														} )
@@ -146,16 +129,14 @@ export default function Prerequisite( {
 												? __( 'Update ', 'newspack-plugin' )
 												: prerequisite.fields
 												? __( 'Save ', 'newspack-plugin' )
-												: __( 'Configure ', 'newspack-plugin' ) ) +
-												prerequisite.action_text }
+												: __( 'Configure ', 'newspack-plugin' ) ) + prerequisite.action_text }
 										</Button>
 									) }
-									{ prerequisite.hasOwnProperty( 'action_enabled' ) &&
-										! prerequisite.action_enabled && (
-											<Button variant={ 'secondary' } disabled>
-												{ prerequisite.disabled_text || prerequisite.action_text }
-											</Button>
-										) }
+									{ prerequisite.hasOwnProperty( 'action_enabled' ) && ! prerequisite.action_enabled && (
+										<Button variant={ 'secondary' } disabled>
+											{ prerequisite.disabled_text || prerequisite.action_text }
+										</Button>
+									) }
 								</>
 							)
 						}

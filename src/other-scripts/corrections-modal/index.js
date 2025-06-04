@@ -2,16 +2,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import {
-	BaseControl,
-	Button,
-	DateTimePicker,
-	Modal,
-	Notice,
-	Popover,
-	SelectControl,
-	TextareaControl,
-} from '@wordpress/components';
+import { BaseControl, Button, DateTimePicker, Modal, Notice, Popover, SelectControl, TextareaControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
@@ -214,9 +205,7 @@ const CorrectionsModal = () => {
 			{ isOpen && (
 				<Modal
 					title={
-						isAddingCorrection
-							? __( 'Add New Correction', 'newspack-plugin' )
-							: __( 'Corrections & Clarifications', 'newspack-plugin' )
+						isAddingCorrection ? __( 'Add New Correction', 'newspack-plugin' ) : __( 'Corrections & Clarifications', 'newspack-plugin' )
 					}
 					onRequestClose={ () => setIsOpen( false ) }
 					className="newspack-corrections-modal"
@@ -259,20 +248,11 @@ const CorrectionsModal = () => {
 											value={ correction.priority }
 											options={ piority }
 											onChange={ value =>
-												updateCorrection(
-													correction.ID,
-													correction.post_content,
-													correction.type,
-													correction.date,
-													value
-												)
+												updateCorrection( correction.ID, correction.post_content, correction.type, correction.date, value )
 											}
 											__next40pxDefaultSize
 										/>
-										<BaseControl
-											id={ `correction-date-${ correction.ID }` }
-											label={ __( 'Date', 'newspack-plugin' ) }
-										>
+										<BaseControl id={ `correction-date-${ correction.ID }` } label={ __( 'Date', 'newspack-plugin' ) }>
 											<Button
 												variant="secondary"
 												className="correction-date-button"
@@ -313,13 +293,7 @@ const CorrectionsModal = () => {
 										rows={ 3 }
 										value={ correction.post_content }
 										onChange={ value =>
-											updateCorrection(
-												correction.ID,
-												value,
-												correction.type,
-												correction.date,
-												correction.priority
-											)
+											updateCorrection( correction.ID, value, correction.type, correction.date, correction.priority )
 										}
 									/>
 									<Button
@@ -332,9 +306,7 @@ const CorrectionsModal = () => {
 												sprintf(
 													// Translators: Type of correction.
 													__( '%s deleted successfully.', 'newspack-plugin' ),
-													correction.type.replace( /^./, char =>
-														char.toUpperCase()
-													)
+													correction.type.replace( /^./, char => char.toUpperCase() )
 												),
 												{
 													type: 'snackbar',
@@ -416,9 +388,7 @@ const CorrectionsModal = () => {
 									} }
 									isBusy={ isSaving }
 								>
-									{ isSaving
-										? __( 'Saving…', 'newspack-plugin' )
-										: __( 'Save & close', 'newspack-plugin' ) }
+									{ isSaving ? __( 'Saving…', 'newspack-plugin' ) : __( 'Save & close', 'newspack-plugin' ) }
 								</Button>
 								<Button
 									variant="secondary"

@@ -14,13 +14,7 @@ import { ExternalLink } from '@wordpress/components';
  */
 import { Grid, TextControl } from '../../../../../components/src';
 
-function VerificationCodes( {
-	data,
-	setData,
-}: {
-	data: SeoData[ 'verification' ];
-	setData: ( v: SeoData[ 'verification' ] ) => void;
-} ) {
+function VerificationCodes( { data, setData }: { data: SeoData[ 'verification' ]; setData: ( v: SeoData[ 'verification' ] ) => void } ) {
 	return (
 		<Grid>
 			<TextControl

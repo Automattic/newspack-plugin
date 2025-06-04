@@ -20,9 +20,7 @@ import { Button, Card, Grid, Modal, TextControl } from '../../../../../component
 
 function Mailchimp() {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch(
-		'/newspack-settings/connections/apis/mailchimp'
-	);
+	const { wizardApiFetch, isFetching, errorMessage, setError, resetError } = useWizardApiFetch( '/newspack-settings/connections/apis/mailchimp' );
 	const [ authState, setAuthState ] = useState< OAuthData >();
 	const [ apiKey, setAPIKey ] = useState< string | undefined >();
 
@@ -90,12 +88,7 @@ function Mailchimp() {
 			{
 				onSuccess( data ) {
 					setAuthState( data );
-					setError(
-						new WizardError(
-							WIZARD_ERROR_MESSAGES.MAILCHIMP_API_KEY_INVALID,
-							'MAILCHIMP_API_KEY_INVALID'
-						)
-					);
+					setError( new WizardError( WIZARD_ERROR_MESSAGES.MAILCHIMP_API_KEY_INVALID, 'MAILCHIMP_API_KEY_INVALID' ) );
 				},
 			}
 		);
@@ -136,25 +129,15 @@ function Mailchimp() {
 				description={ getDescription() }
 				isChecked={ isConnected }
 				actionText={
-					<Button
-						variant="link"
-						isDestructive={ isConnected }
-						onClick={ isConnected ? disconnect : openModal }
-						disabled={ isFetching }
-					>
-						{ isConnected
-							? __( 'Disconnect', 'newspack-plugin' )
-							: __( 'Connect', 'newspack-plugin' ) }
+					<Button variant="link" isDestructive={ isConnected } onClick={ isConnected ? disconnect : openModal } disabled={ isFetching }>
+						{ isConnected ? __( 'Disconnect', 'newspack-plugin' ) : __( 'Connect', 'newspack-plugin' ) }
 					</Button>
 				}
 				error={ errorMessage }
 				isMedium
 			/>
 			{ isModalOpen && (
-				<Modal
-					title={ __( 'Add Mailchimp API Key', 'newspack-plugin' ) }
-					onRequestClose={ closeModal }
-				>
+				<Modal title={ __( 'Add Mailchimp API Key', 'newspack-plugin' ) } onRequestClose={ closeModal }>
 					<div ref={ modalTextRef }>
 						<Grid columns={ 1 } gutter={ 8 }>
 							<TextControl

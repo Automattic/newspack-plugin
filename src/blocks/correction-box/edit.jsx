@@ -35,18 +35,8 @@ export default function Edit( { attributes, setAttributes } ) {
 	function EmptyPlaceholder() {
 		return (
 			<>
-				<p>
-					{ __(
-						'This is the Corrections block, it will display all the corrections and clarifications.',
-						'newspack-plugin'
-					) }
-				</p>
-				<p>
-					{ __(
-						'If there are no corrections or clarifications, this block will not be displayed.',
-						'newspack-plugin'
-					) }
-				</p>
+				<p>{ __( 'This is the Corrections block, it will display all the corrections and clarifications.', 'newspack-plugin' ) }</p>
+				<p>{ __( 'If there are no corrections or clarifications, this block will not be displayed.', 'newspack-plugin' ) }</p>
 			</>
 		);
 	}
@@ -95,19 +85,10 @@ export default function Edit( { attributes, setAttributes } ) {
 			<CorrectionSettings />
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton
-						icon={ update }
-						label={ __( 'Refresh', 'newspack-plugin' ) }
-						onClick={ toggleRefresh }
-					/>
+					<ToolbarButton icon={ update } label={ __( 'Refresh', 'newspack-plugin' ) } onClick={ toggleRefresh } />
 				</ToolbarGroup>
 			</BlockControls>
-			<ServerSideRender
-				block={ meta.name }
-				EmptyResponsePlaceholder={ EmptyPlaceholder }
-				refresh={ isRefreshing }
-				attributes={ attributes }
-			/>
+			<ServerSideRender block={ meta.name } EmptyResponsePlaceholder={ EmptyPlaceholder } refresh={ isRefreshing } attributes={ attributes } />
 		</>
 	);
 }

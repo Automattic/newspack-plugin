@@ -77,27 +77,17 @@ const EndpointActionsModals = ( {
 			) }
 			{ action === 'toggle' && (
 				<ModalConfirmation
-					title={
-						endpoint.disabled
-							? __( 'Enable Endpoint', 'newspack-plugin' )
-							: __( 'Disable Endpoint', 'newspack-plugin' )
-					}
+					title={ endpoint.disabled ? __( 'Enable Endpoint', 'newspack-plugin' ) : __( 'Disable Endpoint', 'newspack-plugin' ) }
 					description={
 						endpoint.disabled
 							? sprintf(
 									/* translators: %s: endpoint title */
-									__(
-										'Are you sure you want to enable the endpoint %s?',
-										'newspack-plugin'
-									),
+									__( 'Are you sure you want to enable the endpoint %s?', 'newspack-plugin' ),
 									`"${ getDisplayUrl( endpoint.url ) }"`
 							  )
 							: sprintf(
 									/* translators: %s: endpoint title */
-									__(
-										'Are you sure you want to disable the endpoint %s?',
-										'newspack-plugin'
-									),
+									__( 'Are you sure you want to disable the endpoint %s?', 'newspack-plugin' ),
 									`"${ getDisplayUrl( endpoint.url ) }"`
 							  )
 					}

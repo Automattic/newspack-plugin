@@ -130,8 +130,7 @@ const AutocompleteWithSuggestions = ( {
 				return posts.reduce( ( acc, post ) => {
 					acc.push( {
 						value: parseInt( post.id ),
-						label:
-							decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack-plugin' ),
+						label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack-plugin' ),
 					} );
 
 					return acc;
@@ -152,9 +151,7 @@ const AutocompleteWithSuggestions = ( {
 
 		// Loop through new selections to determine whether to add or remove them.
 		_selections.forEach( _selection => {
-			const existingSelection = selections.findIndex(
-				selection => parseInt( selection.value ) === parseInt( _selection.value )
-			);
+			const existingSelection = selections.findIndex( selection => parseInt( selection.value ) === parseInt( _selection.value ) );
 
 			if ( -1 < existingSelection ) {
 				// If the selection is already selected, remove it.
@@ -204,11 +201,7 @@ const AutocompleteWithSuggestions = ( {
 						key={ selection.value }
 						className="newspack-autocomplete-with-suggestions__selected-item-button"
 						isTertiary
-						onClick={ () =>
-							onChange(
-								selections.filter( _selection => _selection.value !== selection.value )
-							)
-						}
+						onClick={ () => onChange( selections.filter( _selection => _selection.value !== selection.value ) ) }
 					>
 						{ selection.label }
 					</Button>
@@ -247,9 +240,7 @@ const AutocompleteWithSuggestions = ( {
 		if ( multiSelect ) {
 			const selections = selectedPost ? [ ...selectedItems, selectedPost ] : [ ...selectedItems ];
 			const isSelected = !! selections.find(
-				_selection =>
-					parseInt( _selection.value ) === parseInt( suggestion.value ) &&
-					_selection.label === suggestion.label
+				_selection => parseInt( _selection.value ) === parseInt( suggestion.value ) && _selection.label === suggestion.label
 			);
 			return (
 				<CheckboxControl
@@ -294,14 +285,8 @@ const AutocompleteWithSuggestions = ( {
 				<div className={ className }>
 					{ suggestions.map( renderSuggestion ) }
 					{ suggestions.length < ( maxItemsToSuggest || maxSuggestions ) && (
-						<Button
-							disabled={ isLoadingMore }
-							isSecondary
-							onClick={ () => setIsLoadingMore( true ) }
-						>
-							{ isLoadingMore
-								? __( 'Loading…', 'newspack-plugin' )
-								: __( 'Load more', 'newspack-plugin' ) }
+						<Button disabled={ isLoadingMore } isSecondary onClick={ () => setIsLoadingMore( true ) }>
+							{ isLoadingMore ? __( 'Loading…', 'newspack-plugin' ) : __( 'Load more', 'newspack-plugin' ) }
 						</Button>
 					) }
 				</div>

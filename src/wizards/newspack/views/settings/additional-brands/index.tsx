@@ -23,9 +23,7 @@ import { TAB_PATH } from './constants';
 const { Route, Switch, useHistory, useRouteMatch, useLocation } = Router;
 
 export default function AdditionalBrands() {
-	const { wizardApiFetch, isFetching, cache, errorMessage, resetError } = useWizardApiFetch(
-		'newspack-settings/additional-brands'
-	);
+	const { wizardApiFetch, isFetching, cache, errorMessage, resetError } = useWizardApiFetch( 'newspack-settings/additional-brands' );
 
 	const brandsCache = cache( '/wp/v2/brand' );
 
@@ -66,9 +64,7 @@ export default function AdditionalBrands() {
 							...brand,
 							meta: {
 								...brand.meta,
-								_theme_colors: brand.meta._theme_colors?.length
-									? brand.meta._theme_colors
-									: [],
+								_theme_colors: brand.meta._theme_colors?.length ? brand.meta._theme_colors : [],
 								_menus: brand.meta._menus?.length ? brand.meta._menus : [],
 							},
 						} ) )
@@ -89,8 +85,7 @@ export default function AdditionalBrands() {
 					meta: {
 						...brand.meta,
 						...( brand.meta._logo && {
-							_logo:
-								brand.meta._logo instanceof Object ? brand.meta._logo.id : brand.meta._logo,
+							_logo: brand.meta._logo instanceof Object ? brand.meta._logo.id : brand.meta._logo,
 						} ),
 					},
 				},
@@ -122,9 +117,7 @@ export default function AdditionalBrands() {
 				{
 					onSuccess( result ) {
 						if ( result.deleted ) {
-							setBrands( oldBrands =>
-								oldBrands.filter( oldBrand => brand.id !== oldBrand.id )
-							);
+							setBrands( oldBrands => oldBrands.filter( oldBrand => brand.id !== oldBrand.id ) );
 						}
 					},
 				}
@@ -172,13 +165,7 @@ export default function AdditionalBrands() {
 		<WizardsTab isFetching={ isFetching } title={ __( 'Additional Brands', 'newspack-plugin' ) }>
 			<WizardSection>
 				<Switch>
-					<Route
-						exact
-						path={ path }
-						render={ () => (
-							<Brands { ...wizardScreenProps } brands={ brands } deleteBrand={ deleteBrand } />
-						) }
-					/>
+					<Route exact path={ path } render={ () => <Brands { ...wizardScreenProps } brands={ brands } deleteBrand={ deleteBrand } /> } />
 					<Route
 						path={ `${ path }/new` }
 						render={ () => (

@@ -81,9 +81,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 		 */
 		getErrorNotice = error => {
 			const { message } = error;
-			return (
-				<Notice isError className="newspack-wizard__above-header" noticeText={ message } rawHTML />
-			);
+			return <Notice isError className="newspack-wizard__above-header" noticeText={ message } rawHTML />;
 		};
 
 		/**
@@ -99,10 +97,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			}
 			const { message } = error;
 			return (
-				<Modal
-					title={ __( 'Unrecoverable error' ) }
-					onRequestClose={ () => ( window.location = fallbackURL ) }
-				>
+				<Modal title={ __( 'Unrecoverable error' ) } onRequestClose={ () => ( window.location = fallbackURL ) }>
 					<Notice noticeText={ message } isError rawHTML />
 					<Card buttonsCard noBorder className="justify-end">
 						<Button isPrimary href={ fallbackURL }>
@@ -239,10 +234,7 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 								</div>
 							) }
 							<div className="newspack-wizard newspack-wizard__content">
-								<PluginInstaller
-									plugins={ requiredPlugins }
-									onStatus={ status => this.pluginInstallationStatus( status ) }
-								/>
+								<PluginInstaller plugins={ requiredPlugins } onStatus={ status => this.pluginInstallationStatus( status ) } />
 							</div>
 						</Fragment>
 					) }
@@ -287,18 +279,10 @@ export default function withWizard( WrappedComponent, requiredPlugins ) {
 			return (
 				message &&
 				callback && (
-					<Modal
-						isNarrow
-						hideTitle={ ! title }
-						title={ title }
-						onRequestClose={ () => this.setState( { confirmation: null } ) }
-					>
+					<Modal isNarrow hideTitle={ ! title } title={ title } onRequestClose={ () => this.setState( { confirmation: null } ) }>
 						<p>{ message }</p>
 						<Card buttonsCard noBorder className="justify-end">
-							<Button
-								variant="secondary"
-								onClick={ () => this.setState( { confirmation: null } ) }
-							>
+							<Button variant="secondary" onClick={ () => this.setState( { confirmation: null } ) }>
 								{ cancelText }
 							</Button>
 							<Button

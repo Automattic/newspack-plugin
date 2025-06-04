@@ -65,10 +65,7 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 	};
 	const skipPrerequisite = ( data, callback = null ) => {
 		confirmAction( {
-			message: __(
-				'Are you sure you want to skip this step? You can always come back later.',
-				'newspack-plugin'
-			),
+			message: __( 'Are you sure you want to skip this step? You can always come back later.', 'newspack-plugin' ),
 			confirmText: __( 'Skip', 'newspack-plugin' ),
 			callback: () => {
 				setError( false );
@@ -100,9 +97,7 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 
 	let tabs = [
 		{
-			label: config.enabled
-				? __( 'Configuration', 'newspack-plugin' )
-				: __( 'Setup', 'newspack-plugin' ),
+			label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
 			path: '/',
 		},
 		config.enabled &&

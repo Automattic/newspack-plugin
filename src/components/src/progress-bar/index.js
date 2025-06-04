@@ -56,11 +56,7 @@ class ProgressBar extends Component {
 				) }
 
 				<div className="newspack-progress-bar__container">
-					<div
-						className="newspack-progress-bar__bar"
-						style={ barStyle }
-						data-testid="progress-bar-indicator"
-					/>
+					<div className="newspack-progress-bar__bar" style={ barStyle } data-testid="progress-bar-indicator" />
 				</div>
 			</div>
 		);

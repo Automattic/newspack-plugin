@@ -407,9 +407,7 @@ function attachNewsletterFormListener() {
 
 	// For third-party forms, set reader data on form submit. For first-party forms, listen for the custom event upon successful signup response.
 	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => attachHandler( el ) );
-	document
-		.querySelectorAll( newspackForms.join( ',' ) )
-		.forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
+	document.querySelectorAll( newspackForms.join( ',' ) ).forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
 }
 
 const readerActivation = {

@@ -47,10 +47,7 @@ export default withWizardScreen( () => {
 	};
 
 	const getContentGateDescription = () => {
-		let message = __(
-			'Configure the gate rendered on content with restricted access.',
-			'newspack-plugin'
-		);
+		let message = __( 'Configure the gate rendered on content with restricted access.', 'newspack-plugin' );
 		if ( 'publish' === config?.gate_status ) {
 			message += ' ' + __( 'The gate is currently published.', 'newspack-plugin' );
 		} else if ( 'draft' === config?.gate_status || 'trash' === config?.gate_status ) {
@@ -64,26 +61,14 @@ export default withWizardScreen( () => {
 			title={ __( 'Content Gating', 'newspack-plugin' ) }
 			description={
 				<>
-					{ __(
-						'WooCommerce Memberships integration to improve the reader experience with content gating. ',
-						'newspack-plugin'
-					) }
-					<ExternalLink
-						href={
-							'https://help.newspack.com/engagement/audience-management-system/content-gating/'
-						}
-					>
+					{ __( 'WooCommerce Memberships integration to improve the reader experience with content gating. ', 'newspack-plugin' ) }
+					<ExternalLink href={ 'https://help.newspack.com/engagement/audience-management-system/content-gating/' }>
 						{ __( 'Learn more', 'newspack-plugin' ) }
 					</ExternalLink>
 				</>
 			}
 		>
-			{ error && (
-				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-					isError
-				/>
-			) }
+			{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 			<ActionCard
 				title={ __( 'Content Gate', 'newspack-plugin' ) }
 				titleLink={ config.edit_gate_url }

@@ -27,14 +27,8 @@ type FontGroup = {
 	} >;
 };
 
-export default function Typography( {
-	data,
-	isFetching,
-	update,
-}: ThemeModComponentProps & { isFetching: boolean } ) {
-	const [ typographyOptionsType, updateTypographyOptionsType ] = useState< null | 'curated' | 'custom' >(
-		null
-	);
+export default function Typography( { data, isFetching, update }: ThemeModComponentProps & { isFetching: boolean } ) {
+	const [ typographyOptionsType, updateTypographyOptionsType ] = useState< null | 'curated' | 'custom' >( null );
 
 	useEffect( () => {
 		if ( typographyOptionsType ) {
@@ -47,10 +41,7 @@ export default function Typography( {
 
 	function getType() {
 		const { font_header: headerFont, font_body: bodyFont } = data;
-		if (
-			( headerFont && ! isFontInOptions( headerFont ) ) ||
-			( bodyFont && ! isFontInOptions( bodyFont ) )
-		) {
+		if ( ( headerFont && ! isFontInOptions( headerFont ) ) || ( bodyFont && ! isFontInOptions( bodyFont ) ) ) {
 			return TYPOGRAPHY_OPTIONS[ 1 ].value;
 		}
 		return TYPOGRAPHY_OPTIONS[ 0 ].value;
@@ -74,19 +65,10 @@ export default function Typography( {
 			<Grid columns={ 1 } gutter={ 16 }>
 				<TextareaControl
 					label={ label + ' - ' + __( 'Font provider import code or URL', 'newspack-plugin' ) }
-					placeholder={
-						'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap'
-					}
-					value={
-						( isHeadings
-							? data.custom_font_import_code
-							: data.custom_font_import_code_alternate ) ?? ''
-					}
+					placeholder={ 'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap' }
+					value={ ( isHeadings ? data.custom_font_import_code : data.custom_font_import_code_alternate ) ?? '' }
 					onChange={ e => {
-						updateTypographyState(
-							isHeadings ? 'custom_font_import_code' : 'custom_font_import_code_alternate',
-							e
-						);
+						updateTypographyState( isHeadings ? 'custom_font_import_code' : 'custom_font_import_code_alternate', e );
 					} }
 					rows={ 3 }
 				/>
@@ -118,9 +100,7 @@ export default function Typography( {
 						},
 					] }
 					value={ isHeadings ? data.font_header_stack : data.font_body_stack }
-					onChange={ ( e: string ) =>
-						updateTypographyState( isHeadings ? 'font_header_stack' : 'font_body_stack', e )
-					}
+					onChange={ ( e: string ) => updateTypographyState( isHeadings ? 'font_header_stack' : 'font_body_stack', e ) }
 				/>
 			</Grid>
 		);

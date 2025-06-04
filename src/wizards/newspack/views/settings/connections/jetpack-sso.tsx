@@ -21,8 +21,7 @@ const JetpackSSO = () => {
 	const [ settings, setSettings ] = useState< JetpackSSOSettings >( {} );
 	const [ settingsToUpdate, setSettingsToUpdate ] = useState< JetpackSSOSettings >( {} );
 
-	const getCapLabel = ( cap: JetpackSSOCaps ): string | undefined =>
-		settings.available_caps ? settings.available_caps[ cap ] : undefined;
+	const getCapLabel = ( cap: JetpackSSOCaps ): string | undefined => ( settings.available_caps ? settings.available_caps[ cap ] : undefined );
 
 	useEffect( () => {
 		const fetchSettings = async () => {
@@ -34,9 +33,7 @@ const JetpackSSO = () => {
 				setSettings( fetchedSettings );
 				setSettingsToUpdate( fetchedSettings );
 			} catch ( e: unknown ) {
-				setError(
-					isValidError( e ) ? e.message : __( 'Error fetching settings.', 'newspack-plugin' )
-				);
+				setError( isValidError( e ) ? e.message : __( 'Error fetching settings.', 'newspack-plugin' ) );
 			} finally {
 				setIsLoading( false );
 			}
@@ -113,33 +110,24 @@ const JetpackSSO = () => {
 						<Grid columns={ 1 }>
 							<BaseControl
 								id="force-2fa-cap"
-								label={ __(
-									'Select the user capability to enforce two-factor authentication',
-									'newspack-plugin'
-								) }
+								label={ __( 'Select the user capability to enforce two-factor authentication', 'newspack-plugin' ) }
 							>
 								<SelectControl
 									label={ __( 'Capability', 'newspack-plugin' ) }
 									hideLabelFromVision
 									value={ settingsToUpdate?.force_2fa_cap || '' }
-									onChange={ ( value: JetpackSSOCaps ) =>
-										setSettingsToUpdate( { ...settingsToUpdate, force_2fa_cap: value } )
-									}
-									options={ Object.keys( settings.available_caps || {} ).map(
-										( cap: string ) => ( {
-											label: getCapLabel( cap as JetpackSSOCaps ),
-											value: cap,
-										} )
-									) }
+									onChange={ ( value: JetpackSSOCaps ) => setSettingsToUpdate( { ...settingsToUpdate, force_2fa_cap: value } ) }
+									options={ Object.keys( settings.available_caps || {} ).map( ( cap: string ) => ( {
+										label: getCapLabel( cap as JetpackSSOCaps ),
+										value: cap,
+									} ) ) }
 								/>
 							</BaseControl>
 						</Grid>
 						<Grid columns={ 1 }>
 							<CheckboxControl
 								checked={ settingsToUpdate?.obfuscate_account || false }
-								onChange={ value =>
-									setSettingsToUpdate( { ...settingsToUpdate, obfuscate_account: value } )
-								}
+								onChange={ value => setSettingsToUpdate( { ...settingsToUpdate, obfuscate_account: value } ) }
 								label={ __(
 									'Obfuscate restricted accounts by throwing WP’s “user not found” errors on login form attempts.',
 									'newspack-plugin'

@@ -4,11 +4,7 @@ import { Fragment } from '@wordpress/element';
 import WizardsActionCard from '../../../../wizards-action-card';
 import { Button, Card, Grid, TextControl, Waiting } from '../../../../../components/src';
 
-export default function Recirculation( {
-	data,
-	update,
-	isFetching,
-}: ThemeModComponentProps< Recirculation > ) {
+export default function Recirculation( { data, update, isFetching }: ThemeModComponentProps< Recirculation > ) {
 	return (
 		<>
 			<WizardsActionCard
@@ -18,10 +14,7 @@ export default function Recirculation( {
 					<Fragment>
 						{ isFetching
 							? __( 'Loading…', 'newspack-plugin' )
-							: __(
-									'Automatically add related content at the bottom of each post.',
-									'newspack-plugin'
-							  ) }
+							: __( 'Automatically add related content at the bottom of each post.', 'newspack-plugin' ) }
 					</Fragment>
 				) }
 				editLink="admin.php?page=jetpack#/traffic"
@@ -48,10 +41,7 @@ export default function Recirculation( {
 							) }
 							label={ __( 'Maximum age of related content, in months', 'newspack-plugin' ) }
 							onChange={ ( relatedPostsMaxAge: number ) => update( { relatedPostsMaxAge } ) }
-							placeholder={ __(
-								'Maximum age of related content, in months',
-								'newspack-plugin'
-							) }
+							placeholder={ __( 'Maximum age of related content, in months', 'newspack-plugin' ) }
 							type="number"
 							value={ data.relatedPostsMaxAge || 0 }
 						/>

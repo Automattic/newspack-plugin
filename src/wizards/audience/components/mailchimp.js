@@ -28,12 +28,7 @@ export default function Mailchimp( { value, onChange } ) {
 	const handleChange = key => val => onChange && onChange( key, val );
 	return (
 		<>
-			{ error && (
-				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-					isError
-				/>
-			) }
+			{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 			<SectionHeader
 				title={ __( 'Mailchimp settings', 'newspack-plugin' ) }
 				description={ __( 'Settings for the Mailchimp integration.', 'newspack-plugin' ) }

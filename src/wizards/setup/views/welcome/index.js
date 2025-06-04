@@ -118,9 +118,7 @@ const Welcome = ( { buttonAction } ) => {
 			await starterContentInit( setupApproach, existingSiteURL )
 				.then( increment )
 				.catch( err => {
-					window.location =
-						'/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' +
-						err.message;
+					window.location = '/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' + err.message;
 				} );
 
 			// Generate posts.
@@ -278,11 +276,7 @@ const Welcome = ( { buttonAction } ) => {
 				</Grid>
 			) }
 
-			<Card
-				isNarrow
-				isWhite
-				className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }
-			>
+			<Card isNarrow isWhite className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }>
 				<Grid columns={ 1 }>
 					{ ! isInit && (
 						<h1>
@@ -291,9 +285,7 @@ const Welcome = ( { buttonAction } ) => {
 						</h1>
 					) }
 
-					{ errors.length === 0 && installationProgress > 0 ? (
-						<ProgressBar completed={ installationProgress } total={ total } />
-					) : null }
+					{ errors.length === 0 && installationProgress > 0 ? <ProgressBar completed={ installationProgress } total={ total } /> : null }
 
 					<p>
 						{ getInfoText() }
@@ -301,21 +293,14 @@ const Welcome = ( { buttonAction } ) => {
 							<>
 								<br />
 								<i>
-									{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{ ' ' }
-									{ __( 'seconds…', 'newspack' ) }
+									{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter } { __( 'seconds…', 'newspack' ) }
 								</i>
 							</>
 						) }
 					</p>
 
 					{ isSSL === false && (
-						<Notice
-							isError
-							noticeText={ __(
-								"This site does not use HTTPS. Newspack can't be installed.",
-								'newspack'
-							) }
-						/>
+						<Notice isError noticeText={ __( "This site does not use HTTPS. Newspack can't be installed.", 'newspack' ) } />
 					) }
 
 					{ errors.length ? errors.map( renderErrorBox ) : null }
@@ -371,10 +356,7 @@ const Welcome = ( { buttonAction } ) => {
 								) }
 								{ isInit && ( isSetupApproachNew || isSetupApproachMigrate ) && (
 									<Button
-										disabled={
-											! isSSL ||
-											( isSetupApproachMigrate && ! isURL( existingSiteURL ) )
-										}
+										disabled={ ! isSSL || ( isSetupApproachMigrate && ! isURL( existingSiteURL ) ) }
 										isPrimary
 										onClick={ install }
 									>
@@ -382,11 +364,7 @@ const Welcome = ( { buttonAction } ) => {
 									</Button>
 								) }
 								{ ! isInit && (
-									<Button
-										disabled={ ! isSSL }
-										isPrimary
-										href={ isDone ? nextRouteAddress : null }
-									>
+									<Button disabled={ ! isSSL } isPrimary href={ isDone ? nextRouteAddress : null }>
 										{ __( 'Continue', 'newspack' ) }
 									</Button>
 								) }
@@ -401,6 +379,4 @@ const Welcome = ( { buttonAction } ) => {
 
 const WelcomeWizardScreen = withWizardScreen( Welcome );
 // eslint-disable-next-line react/display-name
-export default props => (
-	<WelcomeWizardScreen { ...omit( props, [ 'routes', 'headerText', 'buttonText' ] ) } />
-);
+export default props => <WelcomeWizardScreen { ...omit( props, [ 'routes', 'headerText', 'buttonText' ] ) } />;

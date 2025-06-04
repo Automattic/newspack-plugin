@@ -8,12 +8,7 @@ import { __ } from '@wordpress/i18n';
 ( function () {
 	const statusMarker = document.getElementById( 'newspack-salesforce-sync-status' );
 	const statusMarkerLabel = statusMarker.querySelector( 'span' );
-	const {
-		base_url: baseUrl,
-		order_id: orderId,
-		salesforce_url: salesforceUrl,
-		nonce,
-	} = newspack_salesforce_data;
+	const { base_url: baseUrl, order_id: orderId, salesforce_url: salesforceUrl, nonce } = newspack_salesforce_data;
 
 	if ( statusMarker ) {
 		fetch( `${ baseUrl }newspack/salesforce/v1/order?orderId=${ orderId }`, {

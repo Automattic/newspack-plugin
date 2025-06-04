@@ -9,15 +9,7 @@ import { ToggleControl } from '@wordpress/components';
  * Internal dependencies.
  */
 import MoneyInput from '../../../components/money-input';
-import {
-	Button,
-	Card,
-	Grid,
-	Notice,
-	SectionHeader,
-	SelectControl,
-	TextControl,
-} from '../../../../../components/src';
+import { Button, Card, Grid, Notice, SectionHeader, SelectControl, TextControl } from '../../../../../components/src';
 import { useWizardData } from '../../../../../components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../../components/src/wizard/store';
 import WizardsTab from '../../../../wizards-tab';
@@ -55,8 +47,7 @@ export const DonationAmounts = () => {
 		return null;
 	}
 
-	const { amounts, currencySymbol, tiered, disabledFrequencies, minimumDonation, trashed } =
-		wizardData.donation_data;
+	const { amounts, currencySymbol, tiered, disabledFrequencies, minimumDonation, trashed } = wizardData.donation_data;
 
 	const changeHandler = ( path: ( string | number )[] ) => ( value: any ) =>
 		updateWizardSettings( {
@@ -130,19 +121,13 @@ export const DonationAmounts = () => {
 				<Grid columns={ 1 }>
 					{ availableFrequencies.map( section => {
 						const isFrequencyDisabled = disabledFrequencies[ section.key ];
-						const isOneFrequencyActive =
-							Object.values( disabledFrequencies ).filter( Boolean ).length ===
-							FREQUENCY_SLUGS.length - 1;
+						const isOneFrequencyActive = Object.values( disabledFrequencies ).filter( Boolean ).length === FREQUENCY_SLUGS.length - 1;
 						return (
 							<Card noBorder key={ section.key }>
 								<Grid columns={ 1 } gutter={ 8 }>
 									<ToggleControl
 										checked={ ! isFrequencyDisabled }
-										onChange={ () =>
-											changeHandler( [ 'disabledFrequencies', section.key ] )(
-												! isFrequencyDisabled
-											)
-										}
+										onChange={ () => changeHandler( [ 'disabledFrequencies', section.key ] )( ! isFrequencyDisabled ) }
 										label={ section.tieredLabel }
 										disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
 									/>
@@ -207,17 +192,12 @@ export const DonationAmounts = () => {
 							{ availableFrequencies.map( section => {
 								const isFrequencyDisabled = disabledFrequencies[ section.key ];
 								const isOneFrequencyActive =
-									Object.values( disabledFrequencies ).filter( Boolean ).length ===
-									FREQUENCY_SLUGS.length - 1;
+									Object.values( disabledFrequencies ).filter( Boolean ).length === FREQUENCY_SLUGS.length - 1;
 								return (
 									<Grid columns={ 1 } gutter={ 16 } key={ section.key }>
 										<ToggleControl
 											checked={ ! isFrequencyDisabled }
-											onChange={ () =>
-												changeHandler( [ 'disabledFrequencies', section.key ] )(
-													! isFrequencyDisabled
-												)
-											}
+											onChange={ () => changeHandler( [ 'disabledFrequencies', section.key ] )( ! isFrequencyDisabled ) }
 											label={ section.tieredLabel }
 											disabled={ ! isFrequencyDisabled && isOneFrequencyActive }
 										/>
@@ -279,31 +259,20 @@ const Donation = () => {
 				<>
 					<Card noBorder headerActions>
 						<SectionHeader title={ __( 'Donations Landing Page', 'newspack-plugin' ) } noMargin />
-						<Button
-							variant="secondary"
-							isSmall
-							href={ wizardData.donation_page.editUrl }
-							onClick={ undefined }
-						>
+						<Button variant="secondary" isSmall href={ wizardData.donation_page.editUrl } onClick={ undefined }>
 							{ __( 'Edit Page' ) }
 						</Button>
 					</Card>
 					{ 'publish' === wizardData.donation_page.status ? (
 						<Notice
 							isSuccess
-							noticeText={ __(
-								'Your donations landing page is published.',
-								'newspack-plugin'
-							) }
+							noticeText={ __( 'Your donations landing page is published.', 'newspack-plugin' ) }
 							style={ { marginBottom: '64px' } }
 						/>
 					) : (
 						<Notice
 							isWarning
-							noticeText={ __(
-								'Your donations landing page is not yet published.',
-								'newspack-plugin'
-							) }
+							noticeText={ __( 'Your donations landing page is not yet published.', 'newspack-plugin' ) }
 							style={ { marginBottom: '64px' } }
 						/>
 					) }

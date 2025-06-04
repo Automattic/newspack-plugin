@@ -23,11 +23,7 @@ class Popover extends Component {
 	 */
 	render() {
 		const { className, padding, ...otherProps } = this.props;
-		const classes = classnames(
-			'newspack-popover',
-			padding && 'newspack-popover__padding-' + padding,
-			className
-		);
+		const classes = classnames( 'newspack-popover', padding && 'newspack-popover__padding-' + padding, className );
 		return <BaseComponent className={ classes } { ...otherProps } />;
 	}
 }

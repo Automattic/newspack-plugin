@@ -14,19 +14,12 @@ import { Notice } from '@wordpress/components';
  */
 import { Grid, SelectControl } from '../../../../../components/src';
 
-export default function FeaturedImagePostsAll( {
-	data,
-	update,
-	postCount,
-}: ThemeModComponentProps< DisplaySettings > & { postCount: string } ) {
+export default function FeaturedImagePostsAll( { data, update, postCount }: ThemeModComponentProps< DisplaySettings > & { postCount: string } ) {
 	return (
 		<Fragment>
 			{ Number( postCount ) > 1000 && (
 				<Notice isDismissible={ false } status="warning" className="ma0 mb2">
-					{ __(
-						'You have more than 1000 posts. Applying these settings might take a moment.',
-						'newspack-plugin'
-					) }
+					{ __( 'You have more than 1000 posts. Applying these settings might take a moment.', 'newspack-plugin' ) }
 				</Notice>
 			) }
 			<Grid gutter={ 32 }>
@@ -61,9 +54,7 @@ export default function FeaturedImagePostsAll( {
 								value: 'hidden',
 							},
 						] }
-						onChange={ ( featured_image_all_posts: string ) =>
-							update( { featured_image_all_posts } )
-						}
+						onChange={ ( featured_image_all_posts: string ) => update( { featured_image_all_posts } ) }
 					/>
 					{ data.featured_image_all_posts !== 'none' && (
 						<Notice isDismissible={ false } status="warning" className="ma0 mt2">
@@ -98,9 +89,7 @@ export default function FeaturedImagePostsAll( {
 								value: 'single-wide.php',
 							},
 						] }
-						onChange={ ( post_template_all_posts: string ) =>
-							update( { post_template_all_posts } )
-						}
+						onChange={ ( post_template_all_posts: string ) => update( { post_template_all_posts } ) }
 					/>
 					{ data.post_template_all_posts !== 'none' && (
 						<Notice isDismissible={ false } status="warning" className="ma0 mt2">

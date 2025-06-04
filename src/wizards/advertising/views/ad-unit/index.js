@@ -27,8 +27,7 @@ class AdUnit extends Component {
 	 */
 	handleOnChange( adUnitChangesOrKey, value ) {
 		const { adUnit, onChange, service } = this.props;
-		const adUnitChanges =
-			typeof adUnitChangesOrKey === 'string' ? { [ adUnitChangesOrKey ]: value } : adUnitChangesOrKey;
+		const adUnitChanges = typeof adUnitChangesOrKey === 'string' ? { [ adUnitChangesOrKey ]: value } : adUnitChangesOrKey;
 		onChange( { ...adUnit, ad_service: service, ...adUnitChanges } );
 	}
 
@@ -101,17 +100,8 @@ class AdUnit extends Component {
 				</Grid>
 
 				<Card headerActions noBorder>
-					<h2>
-						{ sizeOptions.length > 1
-							? __( 'Ad Unit Sizes', 'newspack-plugin' )
-							: __( 'Ad Unit Size', 'newspack-plugin' ) }
-					</h2>
-					<Button
-						variant="secondary"
-						onClick={ () =>
-							this.handleOnChange( 'sizes', [ ...sizes, this.getNextAvailableSize() ] )
-						}
-					>
+					<h2>{ sizeOptions.length > 1 ? __( 'Ad Unit Sizes', 'newspack-plugin' ) : __( 'Ad Unit Size', 'newspack-plugin' ) }</h2>
+					<Button variant="secondary" onClick={ () => this.handleOnChange( 'sizes', [ ...sizes, this.getNextAvailableSize() ] ) }>
 						{ __( 'Add New Size', 'newspack-plugin' ) }
 					</Button>
 				</Card>
@@ -119,10 +109,7 @@ class AdUnit extends Component {
 				{ isInvalidSize && (
 					<Notice
 						isWarning
-						noticeText={ __(
-							'The ad unit must have at least one valid size or fluid size enabled.',
-							'newspack-plugin'
-						) }
+						noticeText={ __( 'The ad unit must have at least one valid size or fluid size enabled.', 'newspack-plugin' ) }
 					/>
 				) }
 

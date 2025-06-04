@@ -112,9 +112,7 @@ class PluginSettings extends Component {
 	 * @return {Object} The section setting.
 	 */
 	getSectionInfo = sectionKey => {
-		return this.state.settings[ sectionKey ]?.find(
-			setting => ! setting.key || setting.key === 'active'
-		);
+		return this.state.settings[ sectionKey ]?.find( setting => ! setting.key || setting.key === 'active' );
 	};
 
 	/**
@@ -159,9 +157,7 @@ class PluginSettings extends Component {
 	 * @return {?Array} List of section fields.
 	 */
 	getSectionFields = sectionKey => {
-		return this.state.settings[ sectionKey ]?.filter(
-			setting => setting.key && setting.key !== 'active'
-		);
+		return this.state.settings[ sectionKey ]?.filter( setting => setting.key && setting.key !== 'active' );
 	};
 
 	/**
@@ -172,9 +168,7 @@ class PluginSettings extends Component {
 		const { settings, inFlight, error } = this.state;
 		return (
 			<Fragment>
-				{ title && (
-					<SectionHeader title={ title } heading={ titleLevel } description={ description } />
-				) }
+				{ title && <SectionHeader title={ title } heading={ titleLevel } description={ description } /> }
 				{ error && <Notice isError noticeText={ error.message } /> }
 				<div
 					className={ classnames( 'newspack-plugin-settings', {

@@ -93,10 +93,7 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 		<WizardsTab title={ __( 'Theme and Brand', 'newspack-plugin' ) } isFetching={ isFetching }>
 			{ ! isPartOfSetup && (
 				<Fragment>
-					<WizardSection
-						title={ __( 'Theme', 'newspack-plugin' ) }
-						description={ __( 'Update your sites theme.', 'newspack-plugin' ) }
-					>
+					<WizardSection title={ __( 'Theme', 'newspack-plugin' ) } description={ __( 'Update your sites theme.', 'newspack-plugin' ) }>
 						<ThemeSelection
 							theme={ isFetching ? '' : data.theme || 'newspack-theme' }
 							updateTheme={ theme => setData( { ...data, theme } ) }
@@ -105,10 +102,7 @@ const ThemeBrand = ( { isPartOfSetup = false } ) => {
 				</Fragment>
 			) }
 			{ isPartOfSetup && (
-				<WizardSection
-					title={ __( 'Homepage', 'newspack-plugin' ) }
-					description={ __( 'Select a homepage layout.', 'newspack-plugin' ) }
-				>
+				<WizardSection title={ __( 'Homepage', 'newspack-plugin' ) } description={ __( 'Select a homepage layout.', 'newspack-plugin' ) }>
 					<HomepageSelect
 						isFetching={ isFetching }
 						homepagePatternIndex={ data.theme_mods.homepage_pattern_index }

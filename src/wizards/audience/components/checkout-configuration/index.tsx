@@ -18,10 +18,7 @@ const DATA_STORE_KEY = 'newspack-audience/checkout-configuration';
 function CheckoutConfiguration() {
 	const config = useWizardData( DATA_STORE_KEY );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const isQuietLoading = useSelect(
-		( select: any ) => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() ?? false,
-		[]
-	);
+	const isQuietLoading = useSelect( ( select: any ) => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() ?? false, [] );
 
 	const onChange = ( value: any, key: string ) =>
 		updateWizardSettings( {
@@ -37,10 +34,7 @@ function CheckoutConfiguration() {
 	}
 
 	return (
-		<WizardsSection
-			title={ __( 'Checkout Configuration', 'newspack-plugin' ) }
-			className={ isQuietLoading ? 'is-fetching' : '' }
-		>
+		<WizardsSection title={ __( 'Checkout Configuration', 'newspack-plugin' ) } className={ isQuietLoading ? 'is-fetching' : '' }>
 			<ToggleControl
 				label={ __( 'Require sign in or create account before checkout', 'newspack-plugin' ) }
 				help={ __(
@@ -54,10 +48,7 @@ function CheckoutConfiguration() {
 			<Grid>
 				<TextareaControl
 					label={ __( 'Post-checkout success message', 'newspack-plugin' ) }
-					help={ __(
-						'The success message to display to readers after completing checkout.',
-						'newspack-plugin'
-					) }
+					help={ __( 'The success message to display to readers after completing checkout.', 'newspack-plugin' ) }
 					value={ config.woocommerce_post_checkout_success_text }
 					onChange={ value => onChange( value, 'woocommerce_post_checkout_success_text' ) }
 				/>
@@ -69,9 +60,7 @@ function CheckoutConfiguration() {
 							'newspack-plugin'
 						) }
 						value={ config.woocommerce_post_checkout_registration_success_text }
-						onChange={ value =>
-							onChange( value, 'woocommerce_post_checkout_registration_success_text' )
-						}
+						onChange={ value => onChange( value, 'woocommerce_post_checkout_registration_success_text' ) }
 					/>
 				) }
 			</Grid>
@@ -88,9 +77,7 @@ function CheckoutConfiguration() {
 			</Grid>
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ onSave } disabled={ isQuietLoading }>
-					{ isQuietLoading
-						? __( 'Saving…', 'newspack-plugin' )
-						: __( 'Save Settings', 'newspack-plugin' ) }
+					{ isQuietLoading ? __( 'Saving…', 'newspack-plugin' ) : __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</WizardsSection>

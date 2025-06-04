@@ -53,15 +53,8 @@ const getCreateButton =
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false"><path d="m13.06 12 6.47-6.47-1.06-1.06L12 10.94 5.53 4.47 4.47 5.53 10.94 12l-6.47 6.47 1.06 1.06L12 13.06l6.47 6.47 1.06-1.06L13.06 12Z"></path></svg>';
 		modalCloseEl.onclick = closeModal;
 
-		createButton(
-			wp.i18n.__( 'Plugin Review Form', 'newspack-plugin' ),
-			newspack_plugin_info.plugin_review_link,
-			true
-		);
-		createButton(
-			wp.i18n.__( 'Approved Plugins List', 'newspack-plugin' ),
-			newspack_plugin_info.approved_plugins_list_link
-		);
+		createButton( wp.i18n.__( 'Plugin Review Form', 'newspack-plugin' ), newspack_plugin_info.plugin_review_link, true );
+		createButton( wp.i18n.__( 'Approved Plugins List', 'newspack-plugin' ), newspack_plugin_info.approved_plugins_list_link );
 		createButton( wp.i18n.__( 'Close this message', 'newspack-plugin' ), closeModal );
 
 		modalEl.appendChild( modalContentEl );

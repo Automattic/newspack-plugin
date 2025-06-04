@@ -52,17 +52,9 @@ const AudienceCampaign = withWizardScreen( ( { error, setError, skipPrerequisite
 	return (
 		<WizardsTab
 			title={ __( 'Set Up Audience Management Campaign', 'newspack-plugin' ) }
-			description={ __(
-				'Preview and customize the prompts, or use our suggested defaults.',
-				'newspack-plugin'
-			) }
+			description={ __( 'Preview and customize the prompts, or use our suggested defaults.', 'newspack-plugin' ) }
 		>
-			{ error && (
-				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-					isError
-				/>
-			) }
+			{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 			{ ! prompts && ! error && (
 				<>
 					<Waiting isLeft />
@@ -71,13 +63,7 @@ const AudienceCampaign = withWizardScreen( ( { error, setError, skipPrerequisite
 			) }
 			{ prompts &&
 				prompts.map( prompt => (
-					<Prompt
-						key={ prompt.slug }
-						prompt={ prompt }
-						inFlight={ inFlight }
-						setInFlight={ setInFlight }
-						setPrompts={ setPrompts }
-					/>
+					<Prompt key={ prompt.slug } prompt={ prompt } inFlight={ inFlight } setInFlight={ setInFlight } setPrompts={ setPrompts } />
 				) ) }
 			<div className="newspack-buttons-card">
 				<Button
@@ -96,11 +82,7 @@ const AudienceCampaign = withWizardScreen( ( { error, setError, skipPrerequisite
 				>
 					{ __( 'Skip', 'newspack-plugin' ) }
 				</Button>
-				<Button
-					isPrimary
-					disabled={ inFlight || ! allReady }
-					href={ `${ reader_activation_url }complete` }
-				>
+				<Button isPrimary disabled={ inFlight || ! allReady } href={ `${ reader_activation_url }complete` }>
 					{ __( 'Continue', 'newspack-plugin' ) }
 				</Button>
 				<Button isSecondary disabled={ inFlight } href={ reader_activation_url }>

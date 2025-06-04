@@ -70,9 +70,7 @@ export const Stripe = ( { stripe } ) => {
 			description={ () => (
 				<>
 					{ __( 'Enable the Stripe payment gateway for WooCommerce. ', 'newspack-plugin' ) }
-					<ExternalLink href="https://woocommerce.com/document/stripe/">
-						{ __( 'Learn more', 'newspack-plugin' ) }
-					</ExternalLink>
+					<ExternalLink href="https://woocommerce.com/document/stripe/">{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
 				</>
 			) }
 			hasWhiteHeader

@@ -82,9 +82,7 @@ const transformByline = element => {
 		const authorName = authorNode ? authorNode.innerText.trim() : '';
 
 		if ( authorID && authorName ) {
-			tokenElement.replaceWith(
-				document.createTextNode( `[Author id=${ authorID }]${ authorName }[/Author]` )
-			);
+			tokenElement.replaceWith( document.createTextNode( `[Author id=${ authorID }]${ authorName }[/Author]` ) );
 		}
 	} );
 
@@ -101,10 +99,7 @@ const transformByline = element => {
 function useAuthorTokens( postId ) {
 	const { postAuthor, coAuthors } = useSelect( select => {
 		return {
-			postAuthor: select( coreStore ).getUser(
-				select( 'core/editor' ).getEditedPostAttribute( 'author' ),
-				BASE_QUERY
-			),
+			postAuthor: select( coreStore ).getUser( select( 'core/editor' ).getEditedPostAttribute( 'author' ), BASE_QUERY ),
 			coAuthors: postId && select( 'cap/authors' ) ? select( 'cap/authors' ).getAuthors( postId ) : [],
 		};
 	} );
@@ -154,10 +149,7 @@ const Tokens = ( { tokens, tokensInUse, insertToken } ) => {
 	return (
 		<div className="tokens">
 			{ tokens.map(
-				token =>
-					! tokensInUse.includes( token.id ) && (
-						<Token key={ token.id } token={ token } onInsert={ () => insertToken( token ) } />
-					)
+				token => ! tokensInUse.includes( token.id ) && <Token key={ token.id } token={ token } onInsert={ () => insertToken( token ) } />
 			) }
 		</div>
 	);
@@ -190,9 +182,7 @@ const BylinesSettingsPanel = () => {
 	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ) );
 
 	/** Toggle if custom byline is enabled */
-	const [ isEnabled, setIsEnabled ] = useState(
-		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
-	);
+	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ] );
 
 	/** Toggle if custom byline modal is open */
 	const [ isModalOpen, setModalOpen ] = useState( false );
@@ -270,8 +260,7 @@ const BylinesSettingsPanel = () => {
 		}
 
 		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
-		editableRef.current.innerHTML =
-			innerHTML.slice( 0, insertLocation ) + tokenElement + innerHTML.slice( insertLocation );
+		editableRef.current.innerHTML = innerHTML.slice( 0, insertLocation ) + tokenElement + innerHTML.slice( insertLocation );
 
 		// Update byline meta.
 		updateEditedByline( editableRef.current );
@@ -303,8 +292,7 @@ const BylinesSettingsPanel = () => {
 			if ( index === 0 ) {
 				defaultCustomByline = 'By';
 			} else if ( index === tokens.length - 1 ) {
-				defaultCustomByline =
-					tokens.length > 2 ? defaultCustomByline + ', and' : defaultCustomByline + ' and';
+				defaultCustomByline = tokens.length > 2 ? defaultCustomByline + ', and' : defaultCustomByline + ' and';
 			} else {
 				defaultCustomByline = defaultCustomByline + ',';
 			}
@@ -394,11 +382,7 @@ const BylinesSettingsPanel = () => {
 	}, [ isModalOpen ] );
 
 	return (
-		<PluginDocumentSettingPanel
-			className="newspack-byline"
-			name="newspack-byline-settings-panel"
-			title={ __( 'Byline', 'newspack-plugin' ) }
-		>
+		<PluginDocumentSettingPanel className="newspack-byline" name="newspack-byline-settings-panel" title={ __( 'Byline', 'newspack-plugin' ) }>
 			<ToggleControl
 				className="newspack-byline-toggle"
 				checked={ isEnabled }
@@ -414,11 +398,7 @@ const BylinesSettingsPanel = () => {
 							__html: parseForPreview( customByline ),
 						} }
 					/>
-					<Button
-						className="newspack-byline-customize-btn"
-						variant="secondary"
-						onClick={ () => setModalOpen( true ) }
-					>
+					<Button className="newspack-byline-customize-btn" variant="secondary" onClick={ () => setModalOpen( true ) }>
 						{ __( 'Edit byline', 'newspack-plugin' ) }
 					</Button>
 					{ isModalOpen && (
@@ -431,11 +411,7 @@ const BylinesSettingsPanel = () => {
 							} }
 						>
 							{ textArea }
-							<Tokens
-								tokens={ tokens }
-								tokensInUse={ tokensInUse }
-								insertToken={ insertToken }
-							/>
+							<Tokens tokens={ tokens } tokensInUse={ tokensInUse } insertToken={ insertToken } />
 							<div className="newspack-byline-customize-modal-btns">
 								<Button
 									variant="primary"

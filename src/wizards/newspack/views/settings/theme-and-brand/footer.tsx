@@ -13,13 +13,7 @@ import { ToggleControl } from '@wordpress/components';
  */
 import { ColorPicker, Grid, ImageUpload, SelectControl, TextControl } from '../../../../../components/src';
 
-export default function Footer( {
-	themeMods,
-	onUpdate,
-}: {
-	themeMods: ThemeMods;
-	onUpdate: ( a: ThemeMods ) => void;
-} ) {
+export default function Footer( { themeMods, onUpdate }: { themeMods: ThemeMods; onUpdate: ( a: ThemeMods ) => void } ) {
 	function updateThemeMods( themeModChanges: Partial< ThemeMods > ) {
 		onUpdate( { ...themeMods, ...themeModChanges } );
 	}
@@ -57,14 +51,10 @@ export default function Footer( {
 					help={ __( 'Optional alternative logo to be displayed in the footer.', 'newspack' ) }
 					style={ {
 						backgroundColor:
-							themeMods.footer_color === 'custom' && themeMods.footer_color_hex
-								? themeMods.footer_color_hex
-								: 'transparent',
+							themeMods.footer_color === 'custom' && themeMods.footer_color_hex ? themeMods.footer_color_hex : 'transparent',
 					} }
 					image={ themeMods.newspack_footer_logo }
-					onChange={ ( newspack_footer_logo: string ) =>
-						updateThemeMods( { newspack_footer_logo } )
-					}
+					onChange={ ( newspack_footer_logo: string ) => updateThemeMods( { newspack_footer_logo } ) }
 				/>
 				{ themeMods.newspack_footer_logo && (
 					<SelectControl

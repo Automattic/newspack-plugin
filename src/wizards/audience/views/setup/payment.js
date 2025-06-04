@@ -22,10 +22,7 @@ export default withWizardScreen( function () {
 	return (
 		<WizardsTab
 			title={ __( 'Checkout & Payment', 'newspack-plugin' ) }
-			description={ __(
-				'Reader revenue configuration for donations and subscriptions.',
-				'newspack-plugin'
-			) }
+			description={ __( 'Reader revenue configuration for donations and subscriptions.', 'newspack-plugin' ) }
 		>
 			<Platform />
 			{ data?.platform_data?.platform === 'wc' && <PaymentGateways /> }

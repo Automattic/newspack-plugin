@@ -9,9 +9,7 @@ domReady( function () {
 	const cancelButton = document.querySelector( '.subscription_details .button.cancel' );
 
 	if ( cancelButton ) {
-		const confirmationModal = document.getElementById(
-			'newspack-my-account__confirm-subscription-cancellation'
-		);
+		const confirmationModal = document.getElementById( 'newspack-my-account__confirm-subscription-cancellation' );
 		if ( confirmationModal ) {
 			cancelButton.classList.remove( 'wcs_block_ui_on_click' ); // Don't block subscription details table on click.
 			const confirmCancel = event => {

@@ -57,18 +57,16 @@ type ValidationMap< TData, TConfig > = [
 /**
  * React hook for validating form fields.
  */
-export function useFieldsValidation< TData, TConfig = Record< string, unknown > >(
-	config: ValidationMap< TData, TConfig >,
-	data: TData
-) {
+export function useFieldsValidation< TData, TConfig = Record< string, unknown > >( config: ValidationMap< TData, TConfig >, data: TData ) {
 	const [ errorMessage, setErrorMessage ] = useState< WizardError | null >( null );
 	return {
 		isInputsValid() {
 			for ( const [ key, callback, options ] of config ) {
 				const inputValue = data[ key ] as string;
-				const isFieldValid = (
-					typeof callback === 'string' ? knownValidationCallbacks[ callback ] : callback
-				)( inputValue, options?.message );
+				const isFieldValid = ( typeof callback === 'string' ? knownValidationCallbacks[ callback ] : callback )(
+					inputValue,
+					options?.message
+				);
 				if ( '' !== isFieldValid ) {
 					setErrorMessage( new WizardError( isFieldValid, `invalid_field_${ key.toString() }` ) );
 					return false;

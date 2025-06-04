@@ -47,10 +47,7 @@ function Connections() {
 			) : null }
 
 			{ /* reCAPTCHA */ }
-			<WizardSection
-				scrollToAnchor="newspack-settings-recaptcha"
-				title={ __( 'reCAPTCHA', 'newspack-plugin' ) }
-			>
+			<WizardSection scrollToAnchor="newspack-settings-recaptcha" title={ __( 'reCAPTCHA', 'newspack-plugin' ) }>
 				<Recaptcha />
 			</WizardSection>
 
@@ -67,10 +64,7 @@ function Connections() {
 			{ /* Custom Events */ }
 			<WizardSection
 				title={ __( 'Activate Newspack Custom Events', 'newspack-plugin' ) }
-				description={ __(
-					'Allows Newspack to send enhanced custom event data to your Google Analytics.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Allows Newspack to send enhanced custom event data to your Google Analytics.', 'newspack-plugin' ) }
 			>
 				<CustomEvents />
 			</WizardSection>

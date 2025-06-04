@@ -38,8 +38,9 @@ export default function DisplaySettings() {
 	} );
 
 	const { wizardApiFetch, isFetching, errorMessage } = useWizardApiFetch( 'newspack-settings/theme-mods' );
-	const { wizardApiFetch: wizardApiFetchRecirculation, isFetching: isFetchingRecirculation } =
-		useWizardApiFetch( 'newspack-settings/display-settings/recirculation' );
+	const { wizardApiFetch: wizardApiFetchRecirculation, isFetching: isFetchingRecirculation } = useWizardApiFetch(
+		'newspack-settings/display-settings/recirculation'
+	);
 
 	useEffect( () => {
 		wizardApiFetch< ThemeData >(
@@ -80,10 +81,7 @@ export default function DisplaySettings() {
 		if ( data.featured_image_all_posts !== 'none' || data.post_template_all_posts !== 'none' ) {
 			if (
 				! utils.confirmAction(
-					__(
-						'Saving will overwrite existing posts, this cannot be undone. Are you sure you want to proceed?',
-						'newspack-plugin'
-					)
+					__( 'Saving will overwrite existing posts, this cannot be undone. Are you sure you want to proceed?', 'newspack-plugin' )
 				)
 			) {
 				return;
@@ -110,26 +108,16 @@ export default function DisplaySettings() {
 	}
 
 	return (
-		<WizardsTab
-			title={ __( 'Display Settings', 'newspack-plugin' ) }
-			isFetching={ isFetching || isFetchingRecirculation }
-		>
+		<WizardsTab title={ __( 'Display Settings', 'newspack-plugin' ) } isFetching={ isFetching || isFetchingRecirculation }>
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
-				<Recirculation
-					isFetching={ isFetchingRecirculation }
-					update={ setRecirculationData }
-					data={ recirculationData }
-				/>
+				<Recirculation isFetching={ isFetchingRecirculation } update={ setRecirculationData } data={ recirculationData } />
 			</WizardSection>
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
 				<AuthorBio update={ setData } data={ data } isFetching={ isFetching } />
 			</WizardSection>
 			<WizardSection
 				title={ __( 'Default Featured Image Position And Post Template', 'newspack-plugin' ) }
-				description={ __(
-					'Modify how the featured image and post template settings are applied to new posts.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Modify how the featured image and post template settings are applied to new posts.', 'newspack-plugin' ) }
 			>
 				<FeaturedImagePostsNew data={ data } update={ setData } />
 			</WizardSection>

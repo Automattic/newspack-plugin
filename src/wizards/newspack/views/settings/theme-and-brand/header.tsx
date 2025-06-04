@@ -15,13 +15,7 @@ import { ToggleControl } from '@wordpress/components';
 import { ColorPicker, Grid, ImageUpload, SelectControl } from '../../../../../components/src';
 import { LOGO_SIZE_OPTIONS, parseLogoSize } from './utils';
 
-export default function Header( {
-	themeMods,
-	updateHeader,
-}: {
-	themeMods: ThemeMods;
-	updateHeader: ( a: ThemeMods ) => void;
-} ) {
+export default function Header( { themeMods, updateHeader }: { themeMods: ThemeMods; updateHeader: ( a: ThemeMods ) => void } ) {
 	return (
 		<Grid gutter={ 32 }>
 			<Grid columns={ 1 } gutter={ 16 }>
@@ -84,9 +78,7 @@ export default function Header( {
 				<ImageUpload
 					className="newspack-design__header__logo"
 					style={ {
-						backgroundColor: themeMods.header_solid_background
-							? themeMods.header_color_hex
-							: 'transparent',
+						backgroundColor: themeMods.header_solid_background ? themeMods.header_color_hex : 'transparent',
 					} }
 					label={ __( 'Logo', 'newspack' ) }
 					image={ themeMods.custom_logo }

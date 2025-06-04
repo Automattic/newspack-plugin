@@ -47,9 +47,7 @@ export default function Brands( {
 					{ isFetching ? (
 						<p>{ __( 'Fetching brands…', 'newspack-plugin' ) }</p>
 					) : (
-						<p>
-							{ __( 'Create brands to enhance your readers experience.', 'newspack-plugin' ) }
-						</p>
+						<p>{ __( 'Create brands to enhance your readers experience.', 'newspack-plugin' ) }</p>
 					) }
 				</Fragment>
 			) }

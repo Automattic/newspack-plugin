@@ -64,9 +64,7 @@ export function getIntersectionObserver( handleEvent ) {
  * Destroy hidden reCAPTCHA v3 token fields to avoid unnecessary reCAPTCHA checks.
  */
 export function destroyV3Field( forms = [] ) {
-	const formsToHandle = forms.length
-		? forms
-		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
+	const formsToHandle = forms.length ? forms : [ ...document.querySelectorAll( 'form[data-newspack-recaptcha]' ) ];
 
 	formsToHandle.forEach( form => {
 		removeHiddenV3Field( form );

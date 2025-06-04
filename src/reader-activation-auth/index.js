@@ -80,9 +80,7 @@ window.newspackRAS.push( readerActivation => {
 		 * Initialize trigger links.
 		 */
 		function initializeTriggerLinks() {
-			const triggerLinks = document.querySelectorAll(
-				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
-			);
+			const triggerLinks = document.querySelectorAll( `[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]` );
 			triggerLinks.forEach( link => {
 				link.addEventListener( 'click', handleAccountLinkClick );
 			} );

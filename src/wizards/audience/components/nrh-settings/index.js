@@ -79,10 +79,7 @@ const NRHSettings = () => {
 					</p>
 					<AutocompleteWithSuggestions
 						label={ __( 'Search for a New Donor Landing Page', 'newspack-plugin' ) }
-						help={ __(
-							'Begin typing page title, click autocomplete result to select.',
-							'newspack'
-						) }
+						help={ __( 'Begin typing page title, click autocomplete result to select.', 'newspack' ) }
 						onChange={ items => {
 							if ( ! items || ! items.length ) {
 								setSelectedPage( null );

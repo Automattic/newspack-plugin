@@ -21,10 +21,7 @@ export const ACCOUNTS = [
 				return __( 'X handle cannot exceed 15 characters!', 'newspack-plugin' );
 			}
 			if ( ! /^[a-zA-Z0-9_]+$/.test( inputValue ) ) {
-				return __(
-					'X handle may only contain letters, numbers, and underscores!',
-					'newspack-plugin'
-				);
+				return __( 'X handle may only contain letters, numbers, and underscores!', 'newspack-plugin' );
 			}
 			return '';
 		},

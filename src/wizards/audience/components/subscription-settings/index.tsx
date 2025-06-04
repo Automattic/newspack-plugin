@@ -18,10 +18,7 @@ const DATA_STORE_KEY = 'newspack-audience/subscription-settings';
 function SubscriptionSettings() {
 	const config = useWizardData( DATA_STORE_KEY );
 	const { updateWizardSettings, saveWizardSettings } = useDispatch( WIZARD_STORE_NAMESPACE );
-	const isQuietLoading = useSelect(
-		( select: any ) => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() ?? false,
-		[]
-	);
+	const isQuietLoading = useSelect( ( select: any ) => select( WIZARD_STORE_NAMESPACE ).isQuietLoading() ?? false, [] );
 
 	// Toggle between the Subscription confirmation and Terms & Conditions confirmation.
 	// Only one can be enabled at a time.
@@ -89,10 +86,7 @@ function SubscriptionSettings() {
 	return (
 		<WizardsSection
 			title={ __( 'Subscription', 'newspack-plugin' ) }
-			description={ __(
-				'Manage the settings for subscription transparency and compliance.',
-				'newspack-plugin'
-			) }
+			description={ __( 'Manage the settings for subscription transparency and compliance.', 'newspack-plugin' ) }
 			className={ isQuietLoading ? 'is-fetching' : '' }
 		>
 			<Grid columns={ 1 }>
@@ -104,9 +98,7 @@ function SubscriptionSettings() {
 							'newspack-plugin'
 						) }
 						checked={ config.woocommerce_enable_subscription_confirmation ?? false }
-						onChange={ value =>
-							onChange( value, 'woocommerce_enable_subscription_confirmation' )
-						}
+						onChange={ value => onChange( value, 'woocommerce_enable_subscription_confirmation' ) }
 						disabled={ isQuietLoading }
 					/>
 
@@ -114,9 +106,7 @@ function SubscriptionSettings() {
 						<TextareaControl
 							label={ __( 'Label', 'newspack-plugin' ) }
 							value={ config.woocommerce_subscription_confirmation_text }
-							onChange={ value =>
-								onChange( value, 'woocommerce_subscription_confirmation_text' )
-							}
+							onChange={ value => onChange( value, 'woocommerce_subscription_confirmation_text' ) }
 						/>
 					) }
 				</Grid>
@@ -138,10 +128,7 @@ function SubscriptionSettings() {
 							<TextareaControl
 								label={ __( 'Label', 'newspack-plugin' ) }
 								value={ config.woocommerce_terms_confirmation_text }
-								help={ __(
-									'Text wrapped in {{ }} will be linked to the page set in the URL field.',
-									'newspack-plugin'
-								) }
+								help={ __( 'Text wrapped in {{ }} will be linked to the page set in the URL field.', 'newspack-plugin' ) }
 								onChange={ value => onChange( value, 'woocommerce_terms_confirmation_text' ) }
 							/>
 							<TextControl
@@ -156,9 +143,7 @@ function SubscriptionSettings() {
 
 			<div className="newspack-buttons-card">
 				<Button variant="primary" onClick={ onSave } disabled={ isQuietLoading }>
-					{ isQuietLoading
-						? __( 'Saving…', 'newspack-plugin' )
-						: __( 'Save Settings', 'newspack-plugin' ) }
+					{ isQuietLoading ? __( 'Saving…', 'newspack-plugin' ) : __( 'Save Settings', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</WizardsSection>

@@ -1,14 +1,6 @@
 /* globals jQuery, grecaptcha, newspack_recaptcha_data */
 
-import {
-	addErrorMessage,
-	addHiddenV3Field,
-	destroyV3Field,
-	domReady,
-	getIntersectionObserver,
-	refreshV2Widget,
-	removeErrorMessages,
-} from './utils';
+import { addErrorMessage, addHiddenV3Field, destroyV3Field, domReady, getIntersectionObserver, refreshV2Widget, removeErrorMessages } from './utils';
 import './style.scss';
 
 window.newspack_grecaptcha = window.newspack_grecaptcha || {
@@ -71,10 +63,7 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 			grecaptcha.execute( form.getAttribute( 'data-recaptcha-widget-id' ) );
 			form.setAttribute( 'data-recaptcha-retry-count', retryCount + 1 );
 		} else {
-			const message = wp.i18n.__(
-				'There was an error connecting with reCAPTCHA. Please reload the page and try again.',
-				'newspack-plugin'
-			);
+			const message = wp.i18n.__( 'There was an error connecting with reCAPTCHA. Please reload the page and try again.', 'newspack-plugin' );
 			if ( onError ) {
 				onError( message );
 			} else {
@@ -91,10 +80,7 @@ function renderV2Widget( form, onSuccess = null, onError = null ) {
 		} );
 
 		const handleSubmit = e => {
-			if (
-				! form.hasAttribute( 'data-recaptcha-validated' ) &&
-				! form.hasAttribute( 'data-skip-recaptcha' )
-			) {
+			if ( ! form.hasAttribute( 'data-recaptcha-validated' ) && ! form.hasAttribute( 'data-skip-recaptcha' ) ) {
 				e.preventDefault();
 				e.stopImmediatePropagation();
 				// Empty error messages if present.
@@ -158,11 +144,7 @@ function render( forms = [], onSuccess = null, onError = null ) {
 
 	const formsToHandle = forms.length
 		? forms
-		: [
-				...document.querySelectorAll(
-					'form[data-newspack-recaptcha],form#add_payment_method,form.checkout'
-				),
-		  ];
+		: [ ...document.querySelectorAll( 'form[data-newspack-recaptcha],form#add_payment_method,form.checkout' ) ];
 
 	formsToHandle.forEach( form => {
 		const renderForm = () => {

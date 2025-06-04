@@ -165,13 +165,8 @@ export const Settings = ( {
 			<ActionCard
 				isMedium
 				title={ __( 'Email Service Provider', 'newspack-plugin' ) }
-				description={ __(
-					'Connect an email service provider (ESP) to author and send newsletters.',
-					'newspack-plugin'
-				) }
-				notification={
-					error ? error?.message || __( 'Something went wrong.', 'newspack-plugin' ) : null
-				}
+				description={ __( 'Connect an email service provider (ESP) to author and send newsletters.', 'newspack-plugin' ) }
+				notification={ error ? error?.message || __( 'Something went wrong.', 'newspack-plugin' ) : null }
 				notificationLevel="error"
 				hasGreyHeader
 				actionContent={
@@ -197,52 +192,30 @@ export const Settings = ( {
 							</Button>
 						</Card>
 					) }
-					{ 'campaign_monitor' ===
-						config?.settings?.newspack_newsletters_service_provider?.value && (
+					{ 'campaign_monitor' === config?.settings?.newspack_newsletters_service_provider?.value && (
 						<Notice status="warning" isDismissible={ false }>
-							<h2>
-								{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }
-							</h2>
-							<p>
-								{ __(
-									'Please connect a different service provider to ensure continued support.',
-									'newspack-'
-								) }
-							</p>
+							<h2>{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }</h2>
+							<p>{ __( 'Please connect a different service provider to ensure continued support.', 'newspack-' ) }</p>
 						</Notice>
 					) }
 					{ values( config.settings )
-						.filter(
-							setting => ! setting.provider || setting.provider === providerSelectProps.value
-						)
+						.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
 						.map( setting => {
 							if ( isOnboarding && ! setting.onboarding ) {
 								return null;
 							}
 							switch ( setting.type ) {
 								case 'select':
-									return (
-										<SelectControl
-											key={ setting.key }
-											{ ...getSettingProps( setting.key ) }
-										/>
-									);
+									return <SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
 								case 'checkbox':
-									return (
-										<CheckboxControl
-											key={ setting.key }
-											{ ...getSettingProps( setting.key ) }
-										/>
-									);
+									return <CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
 								default:
 									return (
 										<Grid columns={ 1 } gutter={ 8 } key={ setting.key }>
 											<TextControl { ...getSettingProps( setting.key ) } />
 											{ setting.help && setting.helpURL && (
 												<p>
-													<ExternalLink href={ setting.helpURL }>
-														{ setting.help }
-													</ExternalLink>
+													<ExternalLink href={ setting.helpURL }>{ setting.help }</ExternalLink>
 												</p>
 											) }
 										</Grid>
@@ -381,16 +354,10 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 						toggleOnChange={ handleChange( index, 'active' ) }
 						toggleChecked={ list.active }
 						className={
-							list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
-								? 'newspack-newsletters-sub-list-item'
-								: ''
+							list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) ) ? 'newspack-newsletters-sub-list-item' : ''
 						}
 						actionText={
-							list?.edit_link ? (
-								<ExternalLink href={ list.edit_link }>
-									{ __( 'Edit', 'newspack-plugin' ) }
-								</ExternalLink>
-							) : null
+							list?.edit_link ? <ExternalLink href={ list.edit_link }>{ __( 'Edit', 'newspack-plugin' ) }</ExternalLink> : null
 						}
 					>
 						{ list.active && 'local' !== list?.type && (

@@ -31,18 +31,7 @@ import SortableNewsletterListControl from '../../../../components/src/sortable-n
 import Salesforce from '../../components/salesforce';
 
 export default withWizardScreen(
-	( {
-		config,
-		fetchConfig,
-		updateConfig,
-		getSharedProps,
-		saveConfig,
-		skipPrerequisite,
-		prerequisites,
-		espSyncErrors,
-		error,
-		inFlight,
-	} ) => {
+	( { config, fetchConfig, updateConfig, getSharedProps, saveConfig, skipPrerequisite, prerequisites, espSyncErrors, error, inFlight } ) => {
 		const [ allReady, setAllReady ] = useState( false );
 		const [ missingPlugins, setMissingPlugins ] = useState( [] );
 		const [ esp, setEsp ] = useState( '' );
@@ -65,9 +54,7 @@ export default withWizardScreen(
 			const _allReady =
 				! missingPlugins.length &&
 				prerequisites &&
-				Object.keys( prerequisites ).every(
-					key => prerequisites[ key ]?.active || prerequisites[ key ]?.is_skipped
-				);
+				Object.keys( prerequisites ).every( key => prerequisites[ key ]?.active || prerequisites[ key ]?.is_skipped );
 
 			setAllReady( _allReady );
 
@@ -97,40 +84,19 @@ export default withWizardScreen(
 							"Newspack's Audience Management system is a set of features that aim to increase reader loyalty, promote engagement, and drive revenue. ",
 							'newspack-plugin'
 						) }
-						<ExternalLink
-							href={ 'https://help.newspack.com/engagement/audience-management-system' }
-						>
+						<ExternalLink href={ 'https://help.newspack.com/engagement/audience-management-system' }>
 							{ __( 'Learn more', 'newspack-plugin' ) }
 						</ExternalLink>
 					</>
 				}
 			>
-				{ error && (
-					<Notice
-						noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-						isError
-					/>
-				) }
-				{ 0 < missingPlugins.length && (
-					<Notice
-						noticeText={ __( 'The following plugins are required.', 'newspack-plugin' ) }
-						isWarning
-					/>
-				) }
+				{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
+				{ 0 < missingPlugins.length && <Notice noticeText={ __( 'The following plugins are required.', 'newspack-plugin' ) } isWarning /> }
 				{ 0 === missingPlugins.length && prerequisites && ! allReady && (
-					<Notice
-						noticeText={ __(
-							'Complete these settings to enable Audience Management.',
-							'newspack-plugin'
-						) }
-						isWarning
-					/>
+					<Notice noticeText={ __( 'Complete these settings to enable Audience Management.', 'newspack-plugin' ) } isWarning />
 				) }
 				{ prerequisites && allReady && config.enabled && (
-					<Notice
-						noticeText={ __( 'Audience Management is enabled.', 'newspack-plugin' ) }
-						isSuccess
-					/>
+					<Notice noticeText={ __( 'Audience Management is enabled.', 'newspack-plugin' ) } isSuccess />
 				) }
 				{ ! prerequisites && (
 					<>
@@ -139,11 +105,7 @@ export default withWizardScreen(
 					</>
 				) }
 				{ 0 < missingPlugins.length && prerequisites && (
-					<PluginInstaller
-						plugins={ missingPlugins }
-						withoutFooterButton
-						onStatus={ ( { complete } ) => complete && fetchConfig() }
-					/>
+					<PluginInstaller plugins={ missingPlugins } withoutFooterButton onStatus={ ( { complete } ) => complete && fetchConfig() } />
 				) }
 				{ ! missingPlugins.length &&
 					prerequisites &&
@@ -164,10 +126,7 @@ export default withWizardScreen(
 					<Card noBorder>
 						<hr />
 						<ActionCard
-							title={ __(
-								'Present newsletter signup after checkout and registration',
-								'newspack-plugin'
-							) }
+							title={ __( 'Present newsletter signup after checkout and registration', 'newspack-plugin' ) }
 							description={ __(
 								'Ask readers to sign up for newsletters after creating an account or completing a purchase.',
 								'newspack-plugin'
@@ -194,9 +153,7 @@ export default withWizardScreen(
 											'newspack-plugin'
 										) }
 										value={ config.newsletter_list_initial_size || '' }
-										onChange={ value =>
-											updateConfig( 'newsletter_list_initial_size', parseInt( value ) )
-										}
+										onChange={ value => updateConfig( 'newsletter_list_initial_size', parseInt( value ) ) }
 									/>
 								</Grid>
 							) }
@@ -205,28 +162,16 @@ export default withWizardScreen(
 						<hr />
 
 						<SectionHeader
-							title={ __(
-								'Email Service Provider (ESP) Advanced Settings',
-								'newspack-plugin'
-							) }
-							description={ __(
-								'Settings for Newspack Newsletters integration.',
-								'newspack-plugin'
-							) }
+							title={ __( 'Email Service Provider (ESP) Advanced Settings', 'newspack-plugin' ) }
+							description={ __( 'Settings for Newspack Newsletters integration.', 'newspack-plugin' ) }
 						/>
 						<TextControl
 							label={ __( 'Newsletter subscription text on registration', 'newspack-plugin' ) }
-							help={ __(
-								'The text to display while subscribing to newsletters from the sign-in modal.',
-								'newspack-plugin'
-							) }
+							help={ __( 'The text to display while subscribing to newsletters from the sign-in modal.', 'newspack-plugin' ) }
 							{ ...getSharedProps( 'newsletters_label', 'text' ) }
 						/>
 						<ActionCard
-							description={ __(
-								'Configure options for syncing reader data to the connected ESP.',
-								'newspack-plugin'
-							) }
+							description={ __( 'Configure options for syncing reader data to the connected ESP.', 'newspack-plugin' ) }
 							hasGreyHeader={ config.sync_esp }
 							isMedium
 							title={ __( 'Sync contacts to ESP', 'newspack-plugin' ) }
@@ -236,10 +181,7 @@ export default withWizardScreen(
 							{ config.sync_esp && (
 								<>
 									{ 0 < Object.keys( espSyncErrors ).length && (
-										<Notice
-											noticeText={ Object.values( espSyncErrors ).join( ' ' ) }
-											isError
-										/>
+										<Notice noticeText={ Object.values( espSyncErrors ).join( ' ' ) } isError />
 									) }
 									{ esp === 'mailchimp' && (
 										<Settings
@@ -298,46 +240,24 @@ export default withWizardScreen(
 									if ( config.sync_esp ) {
 										if ( esp === 'mailchimp' && config.mailchimp_audience_id === '' ) {
 											// eslint-disable-next-line no-alert
-											alert(
-												__(
-													'Please select a Mailchimp Audience ID.',
-													'newspack-plugin'
-												)
-											);
+											alert( __( 'Please select a Mailchimp Audience ID.', 'newspack-plugin' ) );
 											return;
 										}
-										if (
-											esp === 'active_campaign' &&
-											config.active_campaign_master_list === ''
-										) {
+										if ( esp === 'active_campaign' && config.active_campaign_master_list === '' ) {
 											// eslint-disable-next-line no-alert
-											alert(
-												__(
-													'Please select an ActiveCampaign Master List.',
-													'newspack-plugin'
-												)
-											);
+											alert( __( 'Please select an ActiveCampaign Master List.', 'newspack-plugin' ) );
 											return;
 										}
-										if (
-											esp === 'constant_contact' &&
-											config.constant_contact_list_id === ''
-										) {
+										if ( esp === 'constant_contact' && config.constant_contact_list_id === '' ) {
 											// eslint-disable-next-line no-alert
-											alert(
-												__(
-													'Please select a Constant Contact Master List.',
-													'newspack-plugin'
-												)
-											);
+											alert( __( 'Please select a Constant Contact Master List.', 'newspack-plugin' ) );
 											return;
 										}
 									}
 									saveConfig( {
 										newsletters_label: config.newsletters_label, // TODO: Deprecate this in favor of user input via the prompt copy wizard.
 										mailchimp_audience_id: config.mailchimp_audience_id,
-										mailchimp_reader_default_status:
-											config.mailchimp_reader_default_status,
+										mailchimp_reader_default_status: config.mailchimp_reader_default_status,
 										active_campaign_master_list: config.active_campaign_master_list,
 										constant_contact_list_id: config.constant_contact_list_id,
 										use_custom_lists: config.use_custom_lists,
@@ -346,22 +266,14 @@ export default withWizardScreen(
 										sync_esp: config.sync_esp,
 										metadata_fields: config.metadata_fields,
 										metadata_prefix: config.metadata_prefix,
-										woocommerce_registration_required:
-											config.woocommerce_registration_required,
-										woocommerce_checkout_privacy_policy_text:
-											config.woocommerce_checkout_privacy_policy_text,
-										woocommerce_enable_subscription_confirmation:
-											config.woocommerce_enable_subscription_confirmation,
-										woocommerce_subscription_confirmation_text:
-											config.woocommerce_subscription_confirmation_text,
-										woocommerce_enable_terms_confirmation:
-											config.woocommerce_enable_terms_confirmation,
-										woocommerce_terms_confirmation_text:
-											config.woocommerce_terms_confirmation_text,
-										woocommerce_terms_confirmation_url:
-											config.woocommerce_terms_confirmation_url,
-										woocommerce_post_checkout_success_text:
-											config.woocommerce_post_checkout_success_text,
+										woocommerce_registration_required: config.woocommerce_registration_required,
+										woocommerce_checkout_privacy_policy_text: config.woocommerce_checkout_privacy_policy_text,
+										woocommerce_enable_subscription_confirmation: config.woocommerce_enable_subscription_confirmation,
+										woocommerce_subscription_confirmation_text: config.woocommerce_subscription_confirmation_text,
+										woocommerce_enable_terms_confirmation: config.woocommerce_enable_terms_confirmation,
+										woocommerce_terms_confirmation_text: config.woocommerce_terms_confirmation_text,
+										woocommerce_terms_confirmation_url: config.woocommerce_terms_confirmation_url,
+										woocommerce_post_checkout_success_text: config.woocommerce_post_checkout_success_text,
 										woocommerce_post_checkout_registration_success_text:
 											config.woocommerce_post_checkout_registration_success_text,
 									} );

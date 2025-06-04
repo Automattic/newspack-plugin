@@ -17,10 +17,7 @@ export default function AuthorBio( { data, isFetching, update }: ThemeModCompone
 				{ data.show_author_bio && (
 					<ToggleControl
 						label={ __( 'Author Email', 'newspack-plugin' ) }
-						help={ __(
-							'Display the author email with bio on individual posts.',
-							'newspack-plugin'
-						) }
+						help={ __( 'Display the author email with bio on individual posts.', 'newspack-plugin' ) }
 						disabled={ isFetching }
 						checked={ data.show_author_email }
 						onChange={ show_author_email => update( { show_author_email } ) }

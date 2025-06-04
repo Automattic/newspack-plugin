@@ -38,17 +38,13 @@ domReady( function () {
 						.then( response => {
 							const json = response.json();
 							if ( ! response.ok || json.error ) {
-								throw new Error(
-									json.message || json.error || 'An error occurred. Please try again.'
-								);
+								throw new Error( json.message || json.error || 'An error occurred. Please try again.' );
 							}
 							return json;
 						} )
 						.then( () => {
 							if ( fetchData.next ) {
-								const nextModal = document.getElementById(
-									`newspack-my-account__${ fetchData.next }`
-								);
+								const nextModal = document.getElementById( `newspack-my-account__${ fetchData.next }` );
 								if ( nextModal ) {
 									modal.setAttribute( 'data-state', 'closed' );
 									nextModal.setAttribute( 'data-state', 'open' );

@@ -67,11 +67,7 @@ export const PaymentGateway = ( { gateway } ) => {
 						__( 'Enable %s. ', 'newspack-plugin' ),
 						gateway.name
 					) }
-					{ gateway.url && (
-						<ExternalLink href={ gateway.url }>
-							{ __( 'Learn more', 'newspack-plugin' ) }
-						</ExternalLink>
-					) }
+					{ gateway.url && <ExternalLink href={ gateway.url }>{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink> }
 				</>
 			) }
 			hasWhiteHeader

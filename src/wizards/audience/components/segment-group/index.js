@@ -15,12 +15,7 @@ import { blockTable, header, layout, postList } from '@wordpress/icons';
 import { Button, ButtonCard, Card, Grid, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
-import {
-	promptDescription,
-	segmentDescription,
-	getCardClassName,
-	warningForPopup,
-} from '../../views/campaigns/utils';
+import { promptDescription, segmentDescription, getCardClassName, warningForPopup } from '../../views/campaigns/utils';
 import { overlayBottom, overlayInline, overlayCenter, overlayTop } from '../../../../icons';
 import './style.scss';
 
@@ -49,8 +44,7 @@ const SegmentGroup = props => {
 	if ( 'unassigned' === campaignId ) {
 		emptySegmentText = __( 'No unassigned prompts in this segment.', 'newspack-plugin' );
 	} else if ( campaignData ) {
-		emptySegmentText =
-			__( 'No prompts in this segment for', 'newspack-plugin' ) + ' ' + campaignData.name + '.';
+		emptySegmentText = __( 'No prompts in this segment for', 'newspack-plugin' ) + ' ' + campaignData.name + '.';
 	} else {
 		emptySegmentText = __( 'No active prompts in this segment.', 'newspack-plugin' );
 	}
@@ -93,11 +87,7 @@ const SegmentGroup = props => {
 					/>
 					{ 'unassigned' !== campaignId && (
 						<Fragment>
-							<Button
-								isSmall
-								variant="secondary"
-								onClick={ () => setModalVisible( ! modalVisible ) }
-							>
+							<Button isSmall variant="secondary" onClick={ () => setModalVisible( ! modalVisible ) }>
 								{ __( 'Add New Prompt', 'newspack-plugin' ) }
 							</Button>
 							{ modalVisible && (
@@ -112,10 +102,7 @@ const SegmentGroup = props => {
 										<ButtonCard
 											href={ addNewURL( 'overlay-center', campaignId, id ) }
 											title={ __( 'Center Overlay', 'newspack-plugin' ) }
-											desc={ __(
-												'Fixed at the center of the screen',
-												'newspack-plugin'
-											) }
+											desc={ __( 'Fixed at the center of the screen', 'newspack-plugin' ) }
 											icon={ overlayCenter }
 										/>
 										<ButtonCard
@@ -127,10 +114,7 @@ const SegmentGroup = props => {
 										<ButtonCard
 											href={ addNewURL( 'overlay-bottom', campaignId, id ) }
 											title={ __( 'Bottom Overlay', 'newspack-plugin' ) }
-											desc={ __(
-												'Fixed at the bottom of the screen',
-												'newspack-plugin'
-											) }
+											desc={ __( 'Fixed at the bottom of the screen', 'newspack-plugin' ) }
 											icon={ overlayBottom }
 										/>
 										<ButtonCard
@@ -142,37 +126,25 @@ const SegmentGroup = props => {
 										<ButtonCard
 											href={ addNewURL( 'archives', campaignId, id ) }
 											title={ __( 'In Archive Pages', 'newspack-plugin' ) }
-											desc={ __(
-												'Embedded once or many times in archive pages',
-												'newspack-plugin'
-											) }
+											desc={ __( 'Embedded once or many times in archive pages', 'newspack-plugin' ) }
 											icon={ postList }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'above-header', campaignId, id ) }
 											title={ __( 'Above Header', 'newspack-plugin' ) }
-											desc={ __(
-												'Embedded at the very top of the page',
-												'newspack-plugin'
-											) }
+											desc={ __( 'Embedded at the very top of the page', 'newspack-plugin' ) }
 											icon={ header }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'custom', campaignId, id ) }
 											title={ __( 'Custom Placement', 'newspack-plugin' ) }
-											desc={ __(
-												'Only appears when placed in content',
-												'newspack-plugin'
-											) }
+											desc={ __( 'Only appears when placed in content', 'newspack-plugin' ) }
 											icon={ layout }
 										/>
 										<ButtonCard
 											href={ addNewURL( 'manual', campaignId, id ) }
 											title={ __( 'Manual Only', 'newspack-plugin' ) }
-											desc={ __(
-												'Only appears where Single Prompt block is inserted',
-												'newspack-plugin'
-											) }
+											desc={ __( 'Only appears where Single Prompt block is inserted', 'newspack-plugin' ) }
 											icon={ blockTable }
 										/>
 									</Grid>
@@ -194,11 +166,7 @@ const SegmentGroup = props => {
 					/>
 				) ) }
 			</Card>
-			{ prompts.length < 1 ? (
-				<p className="newspack-campaigns__segment-group__empty-segment-text">{ emptySegmentText }</p>
-			) : (
-				''
-			) }
+			{ prompts.length < 1 ? <p className="newspack-campaigns__segment-group__empty-segment-text">{ emptySegmentText }</p> : '' }
 		</Card>
 	);
 };

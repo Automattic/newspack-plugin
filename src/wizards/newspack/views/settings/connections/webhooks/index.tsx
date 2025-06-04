@@ -30,13 +30,7 @@ const defaultEndpoint: Endpoint = {
 };
 
 function Webhooks() {
-	const {
-		setError,
-		resetError,
-		errorMessage,
-		wizardApiFetch,
-		isFetching: inFlight,
-	} = useWizardApiFetch( API_NAMESPACE );
+	const { setError, resetError, errorMessage, wizardApiFetch, isFetching: inFlight } = useWizardApiFetch( API_NAMESPACE );
 
 	const [ action, setAction ] = useState< WebhookActions >( null );
 	const [ actions, setActions ] = useState< string[] >( [] );
@@ -94,20 +88,14 @@ function Webhooks() {
 					noMargin
 				/>
 				<Button variant="primary" onClick={ () => setActionHandler( 'new' ) } disabled={ inFlight }>
-					{ inFlight
-						? __( 'Loading…', 'newspack-plugin' )
-						: __( 'Add New Endpoint', 'newspack-plugin' ) }
+					{ inFlight ? __( 'Loading…', 'newspack-plugin' ) : __( 'Add New Endpoint', 'newspack-plugin' ) }
 				</Button>
 			</div>
 			{ ! inFlight &&
 				( endpoints && endpoints.length > 0 ? (
 					<Fragment>
 						{ endpoints.map( endpoint => (
-							<EndpointActionsCard
-								key={ endpoint.id }
-								endpoint={ endpoint }
-								setAction={ setActionHandler }
-							/>
+							<EndpointActionsCard key={ endpoint.id } endpoint={ endpoint } setAction={ setActionHandler } />
 						) ) }
 					</Fragment>
 				) : (

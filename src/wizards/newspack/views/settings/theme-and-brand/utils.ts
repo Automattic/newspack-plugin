@@ -135,14 +135,10 @@ export const getFontsList = ( headingsOnly: boolean = false ) =>
 		} ) )
 		.filter( group => group.options.length );
 
-export const isFontInOptions = ( label: string ) =>
-	ALL_FONTS.filter( option => ! option.label.includes( label ) ).length >= 1;
+export const isFontInOptions = ( label: string ) => ALL_FONTS.filter( option => ! option.label.includes( label ) ).length >= 1;
 
 export const getFontImportURL = ( value: string ) =>
-	`//fonts.googleapis.com/css2?family=${ value.replace(
-		/\s/g,
-		'+'
-	) }:ital,wght@0,400;0,700;1,400;1,700&display=swap`;
+	`//fonts.googleapis.com/css2?family=${ value.replace( /\s/g, '+' ) }:ital,wght@0,400;0,700;1,400;1,700&display=swap`;
 
 export const LOGO_SIZE_OPTIONS = [
 	{ value: 0, label: __( 'XS', 'newspack-plugin' ) },

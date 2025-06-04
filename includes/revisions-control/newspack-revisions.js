@@ -50,10 +50,7 @@ import './newspack-revisions.scss';
 			const labels = newspack_revisions_control.labels;
 
 			const button = this.$el.find( '.mark-major' );
-			button.prop(
-				'value',
-				this.model.attributes.to.attributes.newspack_major ? labels.unmark : labels.mark
-			);
+			button.prop( 'value', this.model.attributes.to.attributes.newspack_major ? labels.unmark : labels.mark );
 		};
 
 		/**

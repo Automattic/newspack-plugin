@@ -72,9 +72,7 @@ const getProviderUnitsForSelect = provider => {
  */
 const hasAnySize = ( sizes, sizesToCheck ) => {
 	return sizesToCheck.some( sizeToCheck => {
-		return ( sizes || [] ).find(
-			size => size[ 0 ] === sizeToCheck[ 0 ] && size[ 1 ] === sizeToCheck[ 1 ]
-		);
+		return ( sizes || [] ).find( size => size[ 0 ] === sizeToCheck[ 0 ] && size[ 1 ] === sizeToCheck[ 1 ] );
 	} );
 };
 
@@ -90,8 +88,7 @@ const PlacementControl = ( {
 	const [ biddersErrors, setBiddersErrors ] = useState( {} );
 
 	// Default provider is GAM or first index if GAM is not active.
-	const placementProvider =
-		providers.find( provider => provider?.id === ( value.provider || 'gam' ) ) || providers[ 0 ];
+	const placementProvider = providers.find( provider => provider?.id === ( value.provider || 'gam' ) ) || providers[ 0 ];
 
 	useEffect( () => {
 		const errors = {};
