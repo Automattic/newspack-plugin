@@ -9,6 +9,8 @@ namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
 use Newspack\Collections\Post_Type;
+use Newspack\Collections\Collections_Data;
+use Newspack\Collections\Collection_Meta;
 
 /**
  * Test the Collections Post Type functionality.
@@ -85,10 +87,39 @@ class Test_Post_Type extends WP_UnitTestCase {
 
 		// Create a collection post.
 		$post_id = $this->create_test_collection( $args );
-		$post = get_post( $post_id );
+		$post    = get_post( $post_id );
 
 		$this->assertEquals( Post_Type::get_post_type(), $post->post_type, 'Post should be a collection.' );
 		$this->assertEquals( $args['post_title'], $post->post_title, 'Post title should be set correctly.' );
 		$this->assertEquals( $args['post_name'], $post->post_name, 'Post slug should be set correctly.' );
+	}
+
+	/**
+	 * Test that collection meta data is output for admin scripts.
+	 *
+	 * @covers \Newspack\Collections\Post_Type::output_collection_meta_data_for_admin_scripts
+	 */
+	public function test_output_collection_meta_data_for_admin_scripts() {
+		global $current_screen, $wp_scripts;
+
+		// Set up the current screen.
+		$current_screen = (object) [ 'post_type' => Post_Type::get_post_type() ]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		// Call the method with post.php hook.
+		Post_Type::output_collection_meta_data_for_admin_scripts( 'post.php' );
+
+		// Register the test script.
+		wp_register_script( Collections_Data::SCRIPT_NAME_ADMIN, 'test.js', [], '1.0.0', true );
+		Collections_Data::localize_data();
+
+		// Get the localized data.
+		$script                    = $wp_scripts->registered[ Collections_Data::SCRIPT_NAME_ADMIN ];
+		$frontend_meta_definitions = wp_json_encode( Collection_Meta::get_frontend_meta_definitions() );
+		$this->assertStringContainsString( $frontend_meta_definitions, $script->extra['data'], 'Localized data should match the added data.' );
+
+		// Clean up.
+		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		wp_deregister_script( Collections_Data::SCRIPT_NAME_ADMIN );
+		( new \ReflectionClass( Collections_Data::class ) )->setStaticPropertyValue( 'data', [] );
 	}
 }
