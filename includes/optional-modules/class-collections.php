@@ -44,8 +44,9 @@ class Collections {
 		require_once __DIR__ . '/../collections/class-collection-section-taxonomy.php';
 		require_once __DIR__ . '/../collections/class-sync.php';
 
-		// Enqueue admin scripts.
+		// Enqueue admin scripts and styles.
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_styles' ] );
 
 		// Initialize classes.
 		Collections_Data::init();
@@ -80,9 +81,21 @@ class Collections {
 		wp_enqueue_script(
 			Collections_Data::SCRIPT_NAME_ADMIN,
 			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.js',
-			[ 'jquery' ],
+			[ 'jquery', 'wp-i18n', 'wp-plugins', 'wp-edit-post', 'wp-components', 'wp-element', 'wp-data', 'wp-editor', 'wp-api-fetch' ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
+		);
+	}
+
+	/**
+	 * Enqueue admin styles.
+	 */
+	public static function enqueue_admin_styles() {
+		wp_enqueue_style(
+			Collections_Data::SCRIPT_NAME_ADMIN,
+			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
 		);
 	}
 }

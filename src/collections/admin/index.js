@@ -3,3 +3,4 @@
  */
 
 import './section-taxonomy';
+import './collection-meta-panel';
