@@ -22,7 +22,7 @@ class Post_Type {
 	 *
 	 * @var string
 	 */
-	private const POST_TYPE = 'collection';
+	private const POST_TYPE = 'newspack_collection';
 
 	/**
 	 * Get the hooks for collection custom post type operations.

@@ -22,7 +22,7 @@ class Collection_Taxonomy {
 	 *
 	 * @var string
 	 */
-	private const TAXONOMY = 'collection_tax';
+	private const TAXONOMY = 'newspack_collection_taxonomy';
 
 	/**
 	 * Meta key for storing whether a term is inactive.
@@ -92,7 +92,7 @@ class Collection_Taxonomy {
 			'description'       => __( 'Internal taxonomy for associating collections with posts.', 'newspack-plugin' ),
 			'public'            => false,
 			'show_ui'           => true,
-			'show_in_menu'      => true,
+			'show_in_menu'      => false,
 			'show_admin_column' => true,
 			'query_var'         => false,
 			'rewrite'           => false,
