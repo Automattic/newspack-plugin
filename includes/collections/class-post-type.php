@@ -11,6 +11,8 @@ use Newspack\Collections\Traits\Hook_Management_Trait;
 
 defined( 'ABSPATH' ) || exit;
 
+require_once __DIR__ . '/class-collection-meta.php';
+
 /**
  * Handles the Collections custom post type and related operations.
  */
@@ -60,7 +62,9 @@ class Post_Type {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'output_collection_meta_data_for_admin_scripts' ] );
 		self::register_hooks();
+		Collection_Meta::init();
 	}
 
 	/**
@@ -93,9 +97,30 @@ class Post_Type {
 			'public'       => true,
 			'show_in_rest' => true,
 			'menu_icon'    => 'dashicons-portfolio',
+			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields' ],
 			'has_archive'  => true,
 		];
 
 		register_post_type( self::get_post_type(), $args );
+	}
+
+	/**
+	 * Output collection meta data for admin scripts.
+	 *
+	 * @param string $hook_suffix The current admin page.
+	 */
+	public static function output_collection_meta_data_for_admin_scripts( $hook_suffix ) {
+		if (
+			'post.php' === $hook_suffix &&
+			self::get_post_type() === get_current_screen()->post_type
+		) {
+			Collections_Data::add_data(
+				'collectionPostType',
+				[
+					'postType' => self::get_post_type(),
+					'postMeta' => Collection_Meta::get_frontend_meta_definitions(),
+				]
+			);
+		}
 	}
 }
