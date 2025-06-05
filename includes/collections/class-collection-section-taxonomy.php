@@ -20,14 +20,14 @@ class Collection_Section_Taxonomy {
 	 *
 	 * @var string
 	 */
-	private const TAXONOMY = 'collection_section';
+	private const TAXONOMY = 'newspack_collection_section';
 
 	/**
 	 * Term meta key for ordering.
 	 *
 	 * @var string
 	 */
-	private const ORDER_META_KEY = '_newspack_collection_section_order';
+	private const ORDER_META_KEY = 'newspack_collection_section_order';
 
 	/**
 	 * The column name for the order field.
