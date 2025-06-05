@@ -162,7 +162,7 @@ domReady( () => {
 	const { collectionPostType } = window.newspackCollections || {};
 
 	if ( collectionPostType?.postType && collectionPostType?.postMeta ) {
-		registerPlugin( `${ collectionPostType.postType }-meta`, {
+		registerPlugin( 'newspack-collection-meta-panel', {
 			render: () => (
 				<CollectionMetaPanel
 					postType={ collectionPostType.postType }
