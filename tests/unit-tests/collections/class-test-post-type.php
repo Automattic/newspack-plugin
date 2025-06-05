@@ -19,6 +19,24 @@ class Test_Post_Type extends WP_UnitTestCase {
 	use Traits\Trait_Collections_Test;
 
 	/**
+	 * The order column name accessible via reflection.
+	 *
+	 * @var string
+	 */
+	protected static $order_column_name;
+
+	/**
+	 * Access private constants via reflection once.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		// Use reflection to access the private constants.
+		$reflection              = new \ReflectionClass( Post_Type::class );
+		self::$order_column_name = $reflection->getConstant( 'ORDER_COLUMN_NAME' );
+	}
+
+	/**
 	 * Set up the test environment.
 	 */
 	public function set_up() {
@@ -121,5 +139,109 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		wp_deregister_script( Collections_Data::SCRIPT_NAME_ADMIN );
 		( new \ReflectionClass( Collections_Data::class ) )->setStaticPropertyValue( 'data', [] );
+	}
+
+	/**
+	 * Test that the order column is added to the admin list view.
+	 *
+	 * @covers \Newspack\Collections\Post_Type::add_order_column
+	 */
+	public function test_add_order_column() {
+		$columns = [
+			'cb'    => '<input type="checkbox" />',
+			'title' => 'Title',
+			'date'  => 'Date',
+		];
+
+		$result = Post_Type::add_order_column( $columns );
+
+		$this->assertArrayHasKey( self::$order_column_name, $result, 'Order column should be added.' );
+		$this->assertEquals( Post_Type::get_order_column_heading(), $result[ self::$order_column_name ], 'Order column should have the correct heading.' );
+		$this->assertEquals( 'Title', $result['title'], 'Title column should be preserved.' );
+		$this->assertEquals( 'Date', $result['date'], 'Date column should be preserved.' );
+	}
+
+	/**
+	 * Test that the order column displays the correct value.
+	 *
+	 * @covers \Newspack\Collections\Post_Type::display_order_column
+	 */
+	public function test_display_order_column() {
+		$post_id = $this->create_test_collection( [ self::$order_column_name => 42 ] );
+
+		// Capture the output.
+		ob_start();
+		Post_Type::display_order_column( self::$order_column_name, $post_id );
+		$output = ob_get_clean();
+
+		$this->assertEquals( '42', $output, 'Order column should display the correct menu order value.' );
+
+		// Test with a different column name.
+		ob_start();
+		Post_Type::display_order_column( 'title', $post_id );
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output, 'Non-order column should not output anything.' );
+	}
+
+	/**
+	 * Test that the order column is sortable.
+	 *
+	 * @covers \Newspack\Collections\Post_Type::make_order_column_sortable
+	 */
+	public function test_make_order_column_sortable() {
+		$columns = [
+			'title' => 'Title',
+			'date'  => 'Date',
+		];
+
+		$result = Post_Type::make_order_column_sortable( $columns );
+
+		$this->assertArrayHasKey( self::$order_column_name, $result, 'Order column should be added to sortable columns.' );
+		$this->assertEquals( self::$order_column_name, $result[ self::$order_column_name ], 'Order column should be sortable by menu_order.' );
+		$this->assertEquals( 'Title', $result['title'], 'Title column should be preserved.' );
+		$this->assertEquals( 'Date', $result['date'], 'Date column should be preserved.' );
+	}
+
+	/**
+	 * Test that collections can be ordered by menu_order.
+	 *
+	 * @covers \Newspack\Collections\Post_Type::register_post_type
+	 */
+	public function test_collections_menu_order() {
+		// Create collections with different menu orders.
+		$post1 = $this->create_test_collection(
+			[
+				'post_title'             => 'First Collection',
+				self::$order_column_name => 10,
+			]
+		);
+		$post2 = $this->create_test_collection(
+			[
+				'post_title'             => 'Second Collection',
+				self::$order_column_name => 5,
+			]
+		);
+		$post3 = $this->create_test_collection(
+			[
+				'post_title'             => 'Third Collection',
+				self::$order_column_name => 15,
+			]
+		);
+
+		// Query posts ordered by menu_order.
+		$query = new \WP_Query(
+			[
+				'post_type'      => Post_Type::get_post_type(),
+				'orderby'        => self::$order_column_name,
+				'order'          => 'ASC',
+				'posts_per_page' => -1,
+			]
+		);
+
+		$this->assertCount( 3, $query->posts, 'Should find all three collections.' );
+		$this->assertEquals( $post2, $query->posts[0]->ID, 'Second collection should be first (menu_order: 5).' );
+		$this->assertEquals( $post1, $query->posts[1]->ID, 'First collection should be second (menu_order: 10).' );
+		$this->assertEquals( $post3, $query->posts[2]->ID, 'Third collection should be last (menu_order: 15).' );
 	}
 }

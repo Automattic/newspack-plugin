@@ -27,6 +27,13 @@ class Post_Type {
 	private const POST_TYPE = 'newspack_collection';
 
 	/**
+	 * Order column name (using default WP menu order column).
+	 *
+	 * @var string
+	 */
+	private const ORDER_COLUMN_NAME = 'menu_order';
+
+	/**
 	 * Get the hooks for collection custom post type operations.
 	 * Same structure as the add_action() parameters.
 	 *
@@ -58,11 +65,23 @@ class Post_Type {
 	}
 
 	/**
+	 * Get the translated column heading.
+	 *
+	 * @return string The translated column heading.
+	 */
+	public static function get_order_column_heading() {
+		return __( 'Order', 'newspack-plugin' );
+	}
+
+	/**
 	 * Initialize the post type handler.
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'output_collection_meta_data_for_admin_scripts' ] );
+		add_action( 'manage_' . self::get_post_type() . '_posts_columns', [ __CLASS__, 'add_order_column' ] );
+		add_action( 'manage_' . self::get_post_type() . '_posts_custom_column', [ __CLASS__, 'display_order_column' ], 10, 2 );
+		add_filter( 'manage_edit-' . self::get_post_type() . '_sortable_columns', [ __CLASS__, 'make_order_column_sortable' ] );
 		self::register_hooks();
 		Collection_Meta::init();
 	}
@@ -97,11 +116,45 @@ class Post_Type {
 			'public'       => true,
 			'show_in_rest' => true,
 			'menu_icon'    => 'dashicons-portfolio',
-			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields' ],
+			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes' ],
 			'has_archive'  => true,
 		];
 
 		register_post_type( self::get_post_type(), $args );
+	}
+
+	/**
+	 * Add menu order column to the admin list view.
+	 *
+	 * @param array $columns The existing columns.
+	 * @return array Modified columns array.
+	 */
+	public static function add_order_column( $columns ) {
+		$columns[ self::ORDER_COLUMN_NAME ] = self::get_order_column_heading();
+		return $columns;
+	}
+
+	/**
+	 * Display the menu order value in the custom column.
+	 *
+	 * @param string $column_name The name of the column.
+	 * @param int    $post_id     The post ID.
+	 */
+	public static function display_order_column( $column_name, $post_id ) {
+		if ( self::ORDER_COLUMN_NAME === $column_name ) {
+			echo esc_html( get_post_field( self::ORDER_COLUMN_NAME, $post_id ) );
+		}
+	}
+
+	/**
+	 * Make the menu order column sortable.
+	 *
+	 * @param array $columns The sortable columns.
+	 * @return array Modified sortable columns array.
+	 */
+	public static function make_order_column_sortable( $columns ) {
+		$columns[ self::ORDER_COLUMN_NAME ] = self::ORDER_COLUMN_NAME;
+		return $columns;
 	}
 
 	/**
