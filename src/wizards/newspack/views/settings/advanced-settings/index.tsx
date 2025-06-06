@@ -178,7 +178,6 @@ export default function AdvancedSettings() {
 				<AccessibilityStatement
 					data={ data }
 					isFetching={ isFetching }
-					refresh={ fetchThemeMods }
 				/>
 			</WizardSection>
 			{ errorMessage && <Notice /> }

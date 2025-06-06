@@ -20,10 +20,9 @@ interface AccessibilityStatementProps {
 		};
 	};
 	isFetching: boolean;
-	refresh: () => void;
 }
 
-export default function AccessibilityStatement( { data, isFetching, refresh }: AccessibilityStatementProps ) {
+export default function AccessibilityStatement( { data, isFetching }: AccessibilityStatementProps ) {
 	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/display-settings/accessibility-statement' );
 	const [ localIsFetching, setLocalIsFetching ] = useState( false );
 	const [ localPageData, setLocalPageData ] = useState<AccessibilityStatementProps['data']['accessibility_statement_page'] | null>( null );
@@ -45,7 +44,6 @@ export default function AccessibilityStatement( { data, isFetching, refresh }: A
 						// If no valid response, clear the local data
 						setLocalPageData( null );
 					}
-					refresh();
 					setLocalIsFetching( false );
 				},
 				onError: () => {
@@ -62,7 +60,7 @@ export default function AccessibilityStatement( { data, isFetching, refresh }: A
 			setLocalPageData(data.accessibility_statement_page);
 		}
 		fetchFreshData();
-	}, [data] );
+	}, [data?.accessibility_statement_page] ); // Only depend on the accessibility statement page data
 
 	const createPage = () => {
 		setLocalIsFetching( true );
