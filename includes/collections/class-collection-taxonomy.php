@@ -113,6 +113,55 @@ class Collection_Taxonomy {
 	}
 
 	/**
+	 * Deactivate a term by setting the inactive flag.
+	 *
+	 * @param int $term_id Term ID.
+	 * @return int|bool|\WP_Error Meta ID if the key didn't exist. true on successful update, false on failure or if the value passed to the function is the same as the one that is already in the database. WP_Error when term_id is ambiguous between taxonomies.
+	 */
+	public static function deactivate_term( $term_id ) {
+		/**
+		 * Fires before marking a term as inactive.
+		 *
+		 * @param int $term_id Term ID.
+		 */
+		do_action( 'newspack_collections_before_deactivating_term', $term_id );
+
+		return update_term_meta( $term_id, self::INACTIVE_TERM_META_KEY, '1' );
+	}
+
+	/**
+	 * Reactivate a term by removing the inactive flag.
+	 *
+	 * @param int $term_id Term ID.
+	 * @return bool True on success, false on failure.
+	 */
+	public static function reactivate_term( $term_id ) {
+		/**
+		 * Fires before reactivating a term.
+		 *
+		 * @param int $term_id Term ID.
+		 */
+		do_action( 'newspack_collections_before_reactivating_term', $term_id );
+
+		return delete_term_meta( $term_id, self::INACTIVE_TERM_META_KEY );
+	}
+
+	/**
+	 * Check if a term exists, even if it's inactive.
+	 *
+	 * @param int $term_id Term ID.
+	 * @return mixed Returns null if the term does not exist. Returns an array of the term ID and the term taxonomy ID if the taxonomy is specified and the pairing exists. Returns 0 if term ID 0 is passed to the function.
+	 */
+	public static function term_exists( $term_id ) {
+		// Remove the filter to check if term is in the database.
+		self::unregister_hooks();
+		$result = term_exists( $term_id, self::get_taxonomy() );
+		self::register_hooks();
+
+		return $result;
+	}
+
+	/**
 	 * Filter out inactive terms from queries.
 	 *
 	 * @param array    $args       An array of get_terms() arguments.

@@ -124,7 +124,7 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 				'compare' => 'NOT EXISTS',
 			],
 		];
-		$found_terms = Collection_Taxonomy::find_term_by_name( 'Find Me Term', $meta_conditions );
+		$found_terms     = Collection_Taxonomy::find_term_by_name( 'Find Me Term', $meta_conditions );
 		$this->assertNotWPError( $found_terms, 'Term lookup with meta should not return an error.' );
 		$this->assertCount( 1, $found_terms, 'Should find exactly one term with meta conditions.' );
 		$this->assertEquals( $term->term_id, $found_terms[0], 'Should find the correct term with meta conditions.' );
@@ -138,8 +138,55 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 				'compare' => '=',
 			],
 		];
-		$found_terms = Collection_Taxonomy::find_term_by_name( 'Find Me Term', $meta_conditions );
+		$found_terms     = Collection_Taxonomy::find_term_by_name( 'Find Me Term', $meta_conditions );
 		$this->assertNotWPError( $found_terms, 'Term lookup with non-matching meta should not return an error.' );
 		$this->assertEmpty( $found_terms, 'Should not find any terms with non-matching meta conditions.' );
+	}
+
+	/**
+	 * Test term inactive status management.
+	 *
+	 * @covers \Newspack\Collections\Taxonomy::is_term_inactive
+	 * @covers \Newspack\Collections\Taxonomy::deactivate_term
+	 * @covers \Newspack\Collections\Taxonomy::reactivate_term
+	 */
+	public function test_term_inactive_status() {
+		Collection_Taxonomy::register_hooks();
+
+		// Create a test term.
+		$term = $this->create_test_collection_term();
+
+		// Initially term should not be inactive.
+		$this->assertFalse( Collection_Taxonomy::is_term_inactive( $term->term_id ), 'Term should not be inactive by default.' );
+
+		// Deactivate the term.
+		$deactivate_result = Collection_Taxonomy::deactivate_term( $term->term_id );
+		$this->assertNotWPError( $deactivate_result, 'Deactivating term should not return an error.' );
+		$this->assertTrue( Collection_Taxonomy::is_term_inactive( $term->term_id ), 'Term should be marked as inactive after deactivation.' );
+
+		// Verify term is filtered out of queries when inactive.
+		$terms = get_terms(
+			[
+				'taxonomy'   => Collection_Taxonomy::get_taxonomy(),
+				'hide_empty' => false,
+				'fields'     => 'ids',
+			]
+		);
+		$this->assertNotContains( (int) $term->term_id, $terms, 'Inactive term should be filtered out of queries.' );
+
+		// Reactivate the term.
+		$reactivate_result = Collection_Taxonomy::reactivate_term( $term->term_id );
+		$this->assertTrue( $reactivate_result, 'Reactivating term should return true.' );
+		$this->assertFalse( Collection_Taxonomy::is_term_inactive( $term->term_id ), 'Term should not be inactive after reactivation.' );
+
+		// Verify term is included in queries after reactivation.
+		$terms = get_terms(
+			[
+				'taxonomy'   => Collection_Taxonomy::get_taxonomy(),
+				'hide_empty' => false,
+				'fields'     => 'ids',
+			]
+		);
+		$this->assertContains( (int) $term->term_id, $terms, 'Reactivated term should be included in queries.' );
 	}
 }

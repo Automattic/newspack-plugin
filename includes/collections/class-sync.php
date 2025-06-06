@@ -252,24 +252,12 @@ class Sync {
 		}
 
 		$linked_term_id = get_post_meta( $post_id, self::LINKED_TERM_META_KEY, true );
-		if ( ! $linked_term_id || ! term_exists( (int) $linked_term_id, Collection_Taxonomy::get_taxonomy() ) ) {
+		if ( ! $linked_term_id || ! Collection_Taxonomy::term_exists( (int) $linked_term_id ) ) {
 			return false;
 		}
 
 		if ( $is_trashed ) {
-			/**
-			 * Fires before marking a term as inactive.
-			 *
-			 * @param int $post_id Post ID.
-			 * @param int $term_id Term ID.
-			 */
-			do_action( 'newspack_collections_before_marking_term_inactive', $post_id, $linked_term_id );
-
-			Collection_Taxonomy::unregister_hooks();
-			$result = update_term_meta( $linked_term_id, Collection_Taxonomy::INACTIVE_TERM_META_KEY, '1' );
-			Collection_Taxonomy::register_hooks();
-
-			return $result;
+			return Collection_Taxonomy::deactivate_term( $linked_term_id );
 		}
 
 		/**
@@ -310,29 +298,11 @@ class Sync {
 		}
 
 		$linked_term_id = get_post_meta( $post_id, self::LINKED_TERM_META_KEY, true );
-		if ( ! $linked_term_id ) {
+		if ( ! $linked_term_id || ! Collection_Taxonomy::term_exists( (int) $linked_term_id ) ) {
 			return false;
 		}
 
-		// Temporarily remove the filter to check if term is in the database.
-		Collection_Taxonomy::unregister_hooks();
-		$term_exists = term_exists( (int) $linked_term_id, Collection_Taxonomy::get_taxonomy() );
-		Collection_Taxonomy::register_hooks();
-
-		if ( ! $term_exists ) {
-			return false;
-		}
-
-		/**
-		 * Fires before reactivating a term.
-		 *
-		 * @param int $post_id Post ID.
-		 * @param int $term_id Term ID.
-		 */
-		do_action( 'newspack_collections_before_reactivating_term', $post_id, $linked_term_id );
-
-		// Remove the inactive flag.
-		return delete_term_meta( $linked_term_id, Collection_Taxonomy::INACTIVE_TERM_META_KEY );
+		return Collection_Taxonomy::reactivate_term( $linked_term_id );
 	}
 
 	/**
