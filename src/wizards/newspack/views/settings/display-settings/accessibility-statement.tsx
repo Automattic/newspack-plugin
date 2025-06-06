@@ -58,8 +58,11 @@ export default function AccessibilityStatement( { data, isFetching, refresh }: A
 
 	// Fetch on mount and when data changes
 	useEffect( () => {
+		if (data?.accessibility_statement_page) {
+			setLocalPageData(data.accessibility_statement_page);
+		}
 		fetchFreshData();
-	}, [] );
+	}, [data] );
 
 	const createPage = () => {
 		setLocalIsFetching( true );
