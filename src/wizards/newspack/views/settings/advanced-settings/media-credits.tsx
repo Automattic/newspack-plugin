@@ -17,7 +17,7 @@ import { Grid, ImageUpload, TextControl } from '../../../../../components/src';
 export default function MediaCredits( {
 	data,
 	update,
-}: ThemeModComponentProps< DisplaySettings > ) {
+}: ThemeModComponentProps< AdvancedSettings > ) {
 	const [ imageThumbnail, setImageThumbnail ] = useState< null | string >(
 		null
 	);

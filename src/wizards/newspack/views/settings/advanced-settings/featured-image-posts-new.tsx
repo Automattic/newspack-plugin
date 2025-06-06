@@ -15,7 +15,7 @@ import { Grid, SelectControl } from '../../../../../components/src';
 export default function FeaturedImagePostsNew( {
 	data,
 	update,
-}: ThemeModComponentProps< DisplaySettings > ) {
+}: ThemeModComponentProps< AdvancedSettings > ) {
 	return (
 		<Grid gutter={ 32 }>
 			<SelectControl

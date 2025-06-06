@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Emails.
+ * Newspack > Settings > Advanced Settings.
  */
 
 /**
@@ -23,8 +23,8 @@ import FeaturedImagePostsNew from './featured-image-posts-new';
 import MediaCredits from './media-credits';
 import AccessibilityStatement from './accessibility-statement';
 
-export default function DisplaySettings() {
-	const [ data, setData ] = hooks.useObjectState< DisplaySettings >( {
+export default function AdvancedSettings() {
+	const [ data, setData ] = hooks.useObjectState< AdvancedSettings >( {
 		...DEFAULT_THEME_MODS,
 	} );
 	const [ etc, setEtc ] = hooks.useObjectState< Etc >( {
@@ -45,7 +45,7 @@ export default function DisplaySettings() {
 	const {
 		wizardApiFetch: wizardApiFetchRecirculation,
 		isFetching: isFetchingRecirculation,
-	} = useWizardApiFetch( 'newspack-settings/display-settings/recirculation' );
+	} = useWizardApiFetch( 'newspack-settings/advanced-settings/recirculation' );
 
 	const fetchThemeMods = () => {
 		wizardApiFetch< ThemeData >(
@@ -125,7 +125,7 @@ export default function DisplaySettings() {
 
 	return (
 		<WizardsTab
-			title={ __( 'Display Settings', 'newspack-plugin' ) }
+			title={ __( 'Advanced Settings', 'newspack-plugin' ) }
 			isFetching={ isFetching || isFetchingRecirculation }
 		>
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
@@ -183,11 +183,11 @@ export default function DisplaySettings() {
 			</WizardSection>
 			{ errorMessage && <Notice /> }
 			<div className="newspack-buttons-card">
-				<Button variant="tertiary" href="/wp-admin/customize.php">
-					{ __( 'Advanced Settings', 'newspack-plugin' ) }
-				</Button>
 				<Button variant="primary" onClick={ save }>
 					{ __( 'Save', 'newspack-plugin' ) }
+				</Button>
+				<Button variant="tertiary" href="/wp-admin/customize.php">
+					{ __( 'Open Customizer', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</WizardsTab>

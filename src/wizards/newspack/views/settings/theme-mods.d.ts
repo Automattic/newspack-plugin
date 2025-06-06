@@ -99,9 +99,9 @@ interface Recirculation {
 }
 
 /**
- * Display settings.
+ * Advanced settings.
  */
-interface DisplaySettings {
+interface AdvancedSettings {
 	// Author Bio.
 	show_author_bio: boolean;
 	show_author_email: boolean;
@@ -137,4 +137,4 @@ interface MiscSettings {
 	custom_css_post_id: number;
 }
 
-interface ThemeMods extends ThemeAndBrand, DisplaySettings, MiscSettings {}
+interface ThemeMods extends ThemeAndBrand, AdvancedSettings, MiscSettings {}
