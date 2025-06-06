@@ -69,7 +69,7 @@ domReady( () => {
 				// Track the change payment method.
 				window.newspackRAS.push( [
 					'change_payment_method',
-					{ subscription_id: data.subscription_id },
+					{ subscription_id: data.subscription_ids?.[ 0 ] },
 				] );
 			}
 		);
