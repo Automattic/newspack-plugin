@@ -1,4 +1,4 @@
-# Newspack Collections
+# Newspack Collections Module
 
 This directory contains the core implementation of the Newspack Collections system, which provides a structured way to manage and organize content collections in WordPress.
 
@@ -50,18 +50,13 @@ The following table details all available meta fields for collections:
 
 | Meta Field | Type | Description | Format |
 |------------|------|-------------|---------|
-| `newspack_collection_file_attachment` | Integer | For uploaded files | Attachment ID |
+| `newspack_collection_file_attachment` | Integer | For uploaded file | Attachment ID |
 | `newspack_collection_file_link` | String | External file URL | Valid URL |
 | `newspack_collection_volume` | String | Collection volume information | Text |
 | `newspack_collection_issue_number` | String | Issue number | Text |
 | `newspack_collection_issue_date` | String | Issue date | Text (e.g., "Spring 2025") |
 | `newspack_collection_subscribe_link` | String | Subscription URL | Valid URL |
 | `newspack_collection_order_link` | String | Order URL | Valid URL |
-
-All meta fields are:
-- REST API enabled
-- Access-controlled
-- Sanitized
 
 ### 3. Data management ([`class-collections-data.php`](class-collections-data.php))
 - Manages JavaScript data localization.
@@ -115,25 +110,7 @@ Term deleted   -> Post trashed (to prevent data loss)
 
 ## Frontend components
 
-The collections system includes several frontend components that handle the admin interface:
-
-### Admin JavaScript modules
-
-Located in [`src/collections/admin/`](src/collections/admin/):
-
-| File | Purpose |
-|------|---------|
-| [`collection-meta-panel.js`](src/collections/admin/collection-meta-panel.js) | Main React component for the collection editor meta panel. Handles collection metadata editing. |
-| [`collection-meta-upload-field.js`](src/collections/admin/collection-meta-upload-field.js) | React component for handling file uploads in the collection editor. Manages the file attachment meta field. |
-| [`post-meta-panel.js`](src/collections/admin/post-meta-panel.js) | React component for the post editor meta panel. Handles post meta fields editing. |
-| [`section-taxonomy.js`](src/collections/admin/section-taxonomy.js) | JavaScript component for managing section taxonomy terms ordering in the admin interface. |
-| [`index.js`](src/collections/admin/index.js) | Entry point for the admin JavaScript bundle. |
-
-### Admin styles
-
-| File | Purpose |
-|------|---------|
-| [`collection-meta-panel.scss`](src/collections/admin/collection-meta-panel.scss) | Styles for the collection editor meta panel components. |
+The module provides a set of components for displaying collections-related elements on the admin frontend. These include panels for setting up meta data, performing ordering, and additional customizations.
 
 ### Integration
 
@@ -150,145 +127,14 @@ The frontend components are integrated into WordPress through:
 3. **Data Localization**
    - Collection data is localized via `Collections_Data::localize_data()`.
    - Available globally as `newspackCollections` window object.
-   - Frontend receives:
-     - Collection post type configuration.
-     - Meta field definitions.
-     - Taxonomy data.
 
 4. **REST API Integration**
-   - All components use the WordPress REST API.
-   - Consumes endpoints for:
-     - Collection CRUD operations.
-     - Meta field management.
-     - Taxonomy term management.
-     - Attachment uploads.
-     - Settings management.
+   - All created components in this module are REST API-enabled.
 
-## File structure
+## Module structure
 
-```
-newspack-plugin/
-├── includes/
-│   ├── collections/
-│   │   ├── class-collection-category-taxonomy.php
-│   │   ├── class-collection-meta.php 
-│   │   ├── class-collection-section-taxonomy.php
-│   │   ├── class-collection-taxonomy.php
-│   │   ├── class-collections-data.php
-│   │   ├── class-post-meta.php
-│   │   ├── class-post-type.php
-│   │   ├── class-sync.php
-│   │   ├── README.md
-│   │   └── traits/
-│   │       └── hook-management-trait.php
-│   ├── optional-modules/
-│   │   └── class-collections.php
-│   └── wizards/
-│       └── newspack/
-│           └── class-collections-section.php
-├── src/
-│   └── collections/
-│       └── admin/
-│           ├── collection-meta-panel.js
-│           ├── collection-meta-panel.scss
-│           ├── collection-meta-upload-field.js
-│           ├── index.js
-│           ├── post-meta-panel.js
-│           └── section-taxonomy.js
-└── tests/
-    └── unit-tests/
-        └── collections/
-            ├── class-test-collection-category-taxonomy.php
-            ├── class-test-collection-meta.php
-            ├── class-test-collection-section-taxonomy.php
-            ├── class-test-collection-taxonomy.php
-            ├── class-test-collections-data.php
-            ├── class-test-collections-section.php
-            ├── class-test-collections.php
-            ├── class-test-post-meta.php
-            ├── class-test-post-type.php
-            ├── class-test-sync.php
-            └── traits/
-                └── trait-collections-test.php
-```
-
-## Data model
-
-```mermaid
-erDiagram
-    %% Post Types
-    wp_posts ||--o{ newspack_collection : "post_type = 'newspack_collection'"
-    wp_posts ||--o{ post : "post_type = 'post'"
-    post {
-        string post_type "post"
-    }
-    wp_posts {
-        int menu_order
-    }
-    wp_posts ||--o{ wp_postmeta : "has meta"
-    wp_posts ||--o{ wp_term_relationships : "has terms"
-
-    %% Collection Meta
-    wp_postmeta ||--|| newspack_collection_meta : "meta_key LIKE '%newspack_collection_%'"
-    newspack_collection_meta {
-        string meta_key "_newspack_collection_term_id"
-        string meta_key "newspack_collection_file_attachment"
-        string meta_key "newspack_collection_file_link"
-        string meta_key "newspack_collection_volume"
-        string meta_key "newspack_collection_issue_number"
-        string meta_key "newspack_collection_issue_date"
-        string meta_key "newspack_collection_subscribe_link"
-        string meta_key "newspack_collection_order_link"
-    }
-
-    %% Post Collection Meta (for assigned posts)
-    post_collection_meta {
-        string meta_key "newspack_order_in_collection"
-    }
-    wp_postmeta ||--|| post_collection_meta : "meta for assigned posts"
-
-    %% Taxonomies
-    wp_terms ||--o{ wp_term_taxonomy : "has taxonomy"
-    wp_term_taxonomy ||--o{ wp_term_relationships : "has relationships"
-
-    %% Collection Taxonomy
-    wp_term_taxonomy ||--|| newspack_collection_taxonomy : "taxonomy = 'newspack_collection_taxonomy'"
-    newspack_collection_taxonomy {
-        string taxonomy "newspack_collection_taxonomy"
-        %% Term meta for status and sync are stored in wp_termmeta
-    }
-
-    %% Section Taxonomy
-    wp_term_taxonomy ||--|| newspack_collection_section : "taxonomy = 'newspack_collection_section'"
-    newspack_collection_section {
-        string taxonomy "newspack_collection_section"
-        string term_meta "newspack_collection_section_order"
-    }
-
-    %% Category Taxonomy
-    wp_term_taxonomy ||--|| newspack_collection_category : "taxonomy = 'newspack_collection_category'"
-    newspack_collection_category {
-        string taxonomy "newspack_collection_category"
-    }
-
-    %% Term Meta
-    wp_terms ||--o{ wp_termmeta : "has term meta"
-    wp_termmeta ||--|| newspack_collection_term_meta : "term meta fields"
-    newspack_collection_term_meta {
-        string meta_key "_newspack_collection_post_id"
-        string meta_key "_newspack_collection_inactive"
-    }
-
-    %% Post Meta for Terms
-    wp_postmeta ||--|| newspack_collection_term_meta : "meta_key = '_newspack_collection_term_id'"
-    %% newspack_collection_term_meta already defined above
-
-    %% Legend
-    classDef postType fill:#f9f,stroke:#333,stroke-width:2px
-    classDef taxonomy fill:#bbf,stroke:#333,stroke-width:2px
-    classDef meta fill:#bfb,stroke:#333,stroke-width:2px
-    
-    class wp_posts postType
-    class wp_term_taxonomy taxonomy
-    class wp_postmeta,wp_termmeta meta
-```
+- [`includes/collections/`](includes/collections/) - Core collection functionality (PHP).
+- [`includes/optional-modules/class-collections-optional-module.php`](includes/optional-modules/class-collections-optional-module.php) - Optional module setup.
+- [`includes/wizards/newspack/class-collections-section.php`](includes/wizards/newspack/class-collections-section.php) - Newspack settings Collections tab.
+- [`src/collections/admin/`](src/collections/admin/) - Admin interface (JavaScript/styles).
+- [`tests/unit-tests/collections/`](tests/unit-tests/collections/) - Unit tests
