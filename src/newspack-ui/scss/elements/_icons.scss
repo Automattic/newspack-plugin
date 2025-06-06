@@ -1,4 +1,6 @@
-// Thank you SVG
+/**
+ * SVG icons.
+ */
 .newspack-ui {
 	&__icon {
 		align-items: center;
@@ -8,6 +10,11 @@
 		justify-content: center;
 		margin: 0 auto var(--newspack-ui-spacer-2);
 		width: var(--newspack-ui-spacer-8);
+
+		&--neutral {
+			background-color: var(--newspack-ui-color-neutral-90);
+			color: var(--newspack-ui-color-body-bg);
+		}
 
 		&--success {
 			background: var(--newspack-ui-color-success-50);

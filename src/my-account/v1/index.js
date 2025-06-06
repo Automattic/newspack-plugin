@@ -6,3 +6,7 @@
  * Internal dependencies.
  */
 import './style.scss';
+import './navigation';
+import './account-settings';
+import './subscriptions';
+import './modal-checkout';

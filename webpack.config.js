@@ -91,6 +91,13 @@ const entry = {
 		'correction-item',
 		'index.js'
 	),
+	'avatar-block': path.join(
+		__dirname,
+		'src',
+		'blocks',
+		'avatar',
+		'index.js'
+	),
 	'my-account': path.join(
 		__dirname,
 		'src',

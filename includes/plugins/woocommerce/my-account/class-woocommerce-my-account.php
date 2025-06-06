@@ -7,6 +7,8 @@
 
 namespace Newspack;
 
+use Newspack\Reader_Activation\ESP_Sync;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -36,12 +38,21 @@ class WooCommerce_My_Account {
 	const SYNC_ESP_EMAIL_CHANGE_CRON_HOOK = 'newspack_esp_sync_email_change';
 
 	/**
+	 * Memoized nonce for account deletion.
+	 *
+	 * @var string
+	 */
+	private static $delete_account_nonce;
+
+	/**
 	 * Initialize.
 	 *
 	 * @codeCoverageIgnore
 	 */
 	public static function init() {
 		\add_action( 'rest_api_init', [ __CLASS__, 'register_routes' ] );
+		\add_filter( 'newspack_ads_should_show_ads', [ __CLASS__, 'suppress_ads' ] ); // Suppress ads on My Account pages.
+		\add_filter( 'newspack_popups_assess_has_disabled_popups', [ __CLASS__, 'suppress_popups' ] ); // Suppress popups on My Account pages.
 		\add_filter( 'woocommerce_account_menu_items', [ __CLASS__, 'my_account_menu_items' ], 1000 );
 		\add_filter( 'woocommerce_default_address_fields', [ __CLASS__, 'required_address_fields' ] );
 		\add_filter( 'woocommerce_billing_fields', [ __CLASS__, 'required_address_fields' ] );
@@ -53,7 +64,6 @@ class WooCommerce_My_Account {
 		if ( Reader_Activation::is_enabled() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_password_reset_request' ] );
-			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_delete_account' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'handle_magic_link_request' ] );
 			\add_action( 'template_redirect', [ __CLASS__, 'redirect_to_account_details' ] );
@@ -78,6 +88,7 @@ class WooCommerce_My_Account {
 				include_once __DIR__ . '/class-my-account-ui-v0.php';
 			} else {
 				include_once __DIR__ . '/class-my-account-ui-v1.php';
+				include_once __DIR__ . '/class-my-account-ui-v1-passwords.php';
 			}
 		}
 	}
@@ -107,6 +118,41 @@ class WooCommerce_My_Account {
 				'permission_callback' => '__return_true',
 			]
 		);
+		\register_rest_route(
+			NEWSPACK_API_NAMESPACE,
+			'/delete-account',
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ __CLASS__, 'api_request_delete_account' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+	}
+
+	/**
+	 * Suppress ads on My Account pages.
+	 *
+	 * @param bool $should_show_ads Whether ads should be shown.
+	 * @return bool Whether ads should be shown.
+	 */
+	public static function suppress_ads( $should_show_ads ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return false;
+		}
+		return $should_show_ads;
+	}
+
+	/**
+	 * Suppress Newspack Campaigns prompts on My Account pages.
+	 *
+	 * @param bool $should_suppress True if prompts should be suppressed, false otherwise.
+	 * @return bool Whether prompts should be suppressed.
+	 */
+	public static function suppress_popups( $should_suppress ) {
+		if ( function_exists( 'is_account_page' ) && \is_account_page() ) {
+			return true;
+		}
+		return $should_suppress;
 	}
 
 	/**
@@ -261,6 +307,7 @@ class WooCommerce_My_Account {
 					'cart_switch_subscriptions_summary'    => self::get_cart_switch_subscriptions_summary(),
 				]
 			);
+			\Newspack_Blocks\Modal_Checkout::enqueue_modal();
 		}
 	}
 
@@ -391,7 +438,7 @@ class WooCommerce_My_Account {
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'message'  => $message,
+					'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 					'is_error' => $is_error,
 				],
 				\remove_query_arg( self::RESET_PASSWORD_URL_PARAM )
@@ -401,24 +448,28 @@ class WooCommerce_My_Account {
 	}
 
 	/**
-	 * Handle delete account request.
+	 * Get delete account nonce.
+	 *
+	 * @return string
 	 */
-	public static function handle_delete_account_request() {
-		if ( ! \is_user_logged_in() ) {
-			return;
+	public static function get_delete_account_nonce() {
+		if ( ! self::$delete_account_nonce ) {
+			self::$delete_account_nonce = \wp_create_nonce( self::DELETE_ACCOUNT_URL_PARAM );
 		}
+		return self::$delete_account_nonce;
+	}
 
-		$user_id = \get_current_user_id();
-		$user    = \wp_get_current_user();
-		if ( ! Reader_Activation::is_user_reader( $user ) ) {
-			return;
+	/**
+	 * Send email instructions to delete a reader account.
+	 *
+	 * @param WP_User $user The user of the account being deleted.
+	 * @return bool|WP_Error True if sent, false otherwise.
+	 */
+	public static function send_delete_account_email( $user ) {
+		if ( empty( $user->ID ) || ! is_a( $user, 'WP_User' ) ) {
+			return new \WP_Error( 'invalid_user', __( 'Invalid user.', 'newspack-plugin' ) );
 		}
-
-		$nonce = filter_input( INPUT_GET, self::DELETE_ACCOUNT_URL_PARAM, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		if ( ! $nonce || ! \wp_verify_nonce( $nonce, self::DELETE_ACCOUNT_URL_PARAM ) ) {
-			return;
-		}
-
+		$user_id    = $user->ID;
 		$token      = \wp_generate_password( 43, false, false );
 		$form_nonce = \wp_create_nonce( self::DELETE_ACCOUNT_FORM );
 
@@ -438,7 +489,7 @@ class WooCommerce_My_Account {
 		);
 		\set_transient( 'np_reader_account_delete_' . $user_id, $token, DAY_IN_SECONDS );
 
-		$sent = Emails::send_email(
+		return Emails::send_email(
 			Reader_Activation_Emails::EMAIL_TYPES['DELETE_ACCOUNT'],
 			$user->user_email,
 			[
@@ -448,17 +499,25 @@ class WooCommerce_My_Account {
 				],
 			]
 		);
+	}
 
-		\wp_safe_redirect(
-			\add_query_arg(
-				[
-					'message'  => $sent ? __( 'Please check your email inbox for instructions on how to delete your account.', 'newspack-plugin' ) : __( 'Something went wrong.', 'newspack-plugin' ),
-					'is_error' => ! $sent,
-				],
-				\remove_query_arg( self::DELETE_ACCOUNT_URL_PARAM )
+	/**
+	 * REST API handler for delete account request.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return \WP_REST_Response|\WP_Error The response or error.
+	 */
+	public static function api_request_delete_account( $request ) {
+		$request_body = json_decode( $request->get_body(), true );
+		$user_id      = $request_body['user_id'] ?? null;
+		if ( ! $user_id || (int) $user_id !== \get_current_user_id() ) {
+			return new \WP_Error( 'invalid_user_id', __( 'Invalid user ID.', 'newspack-plugin' ) );
+		}
+		return \rest_ensure_response(
+			self::send_delete_account_email(
+				\get_user_by( 'id', $user_id )
 			)
 		);
-		exit;
 	}
 
 	/**
@@ -500,8 +559,7 @@ class WooCommerce_My_Account {
 		\delete_transient( 'np_reader_account_delete_' . $user_id );
 
 		\wp_delete_user( $user_id );
-		\wp_safe_redirect( add_query_arg( self::AFTER_ACCOUNT_DELETION_PARAM, 1, \wc_get_account_endpoint_url( 'edit-account' ) ) );
-		exit;
+		\do_action( 'newspack_after_delete_account', $user_id );
 	}
 
 	/**
@@ -530,7 +588,7 @@ class WooCommerce_My_Account {
 			wp_safe_redirect(
 				\add_query_arg(
 					[
-						'message'  => $message,
+						'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 						'is_error' => $is_error,
 					],
 					\remove_query_arg( self::SEND_MAGIC_LINK_PARAM )
@@ -761,7 +819,7 @@ class WooCommerce_My_Account {
 			\add_action(
 				'woocommerce_account_content',
 				function() {
-					include __DIR__ . '/templates/myaccount-verify.php';
+					include __DIR__ . '/templates/verify.php';
 				}
 			);
 		}
@@ -1087,7 +1145,7 @@ class WooCommerce_My_Account {
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'message'  => $message,
+					'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 					'is_error' => $is_error,
 				],
 				\wc_get_endpoint_url(
@@ -1123,7 +1181,7 @@ class WooCommerce_My_Account {
 		\wp_safe_redirect(
 			\add_query_arg(
 				[
-					'message'  => $message,
+					'message'  => \wp_strip_all_tags( \wp_unslash( $message ) ),
 					'is_error' => $is_error,
 				],
 				\wc_get_endpoint_url(
@@ -1169,7 +1227,7 @@ class WooCommerce_My_Account {
 			return;
 		}
 		$contact = ESP_Sync::get_contact_data( $user_id );
-		if ( ! $contact ) {
+		if ( ! $contact || is_wp_error( $contact ) ) {
 			return;
 		}
 		$update = ESP_Sync::sync( $contact, 'Email_Change', array_merge( $contact, [ 'email' => $old_email ] ) );

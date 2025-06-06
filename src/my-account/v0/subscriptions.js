@@ -4,7 +4,7 @@
  * Initialize functions for the Subscriptions page.
  */
 
-import { domReady } from '../utils';
+import { domReady } from '../../utils';
 
 domReady( function () {
 	 // Show a confirmation dialog before cancelling a subscription.

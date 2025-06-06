@@ -15,6 +15,7 @@ import Connections from './connections';
 import Syndication from './syndication';
 import AdvancedSettings from './advanced-settings';
 import ThemeAndBrand from './theme-and-brand';
+import Collections from './collections';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -31,6 +32,7 @@ const sectionComponents: Partial<
 	seo: Seo,
 	'theme-and-brand': ThemeAndBrand,
 	'advanced-settings': AdvancedSettings,
+	collections: Collections,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
 
