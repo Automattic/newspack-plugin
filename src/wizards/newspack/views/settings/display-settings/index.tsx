@@ -21,6 +21,7 @@ import AuthorBio from './author-bio';
 import FeaturedImagePostsAll from './featured-image-posts-all';
 import FeaturedImagePostsNew from './featured-image-posts-new';
 import MediaCredits from './media-credits';
+import AccessibilityStatement from './accessibility-statement';
 
 export default function DisplaySettings() {
 	const [ data, setData ] = hooks.useObjectState< DisplaySettings >( {
@@ -46,7 +47,7 @@ export default function DisplaySettings() {
 		isFetching: isFetchingRecirculation,
 	} = useWizardApiFetch( 'newspack-settings/display-settings/recirculation' );
 
-	useEffect( () => {
+	const fetchThemeMods = () => {
 		wizardApiFetch< ThemeData >(
 			{
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
@@ -58,6 +59,10 @@ export default function DisplaySettings() {
 				},
 			}
 		);
+	};
+
+	useEffect( () => {
+		fetchThemeMods();
 		wizardApiFetchRecirculation< Recirculation >(
 			{
 				path: '/newspack/v1/wizard/newspack-settings/related-content',
@@ -130,6 +135,7 @@ export default function DisplaySettings() {
 					data={ recirculationData }
 				/>
 			</WizardSection>
+
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
 				<AuthorBio
 					update={ setData }
@@ -167,6 +173,13 @@ export default function DisplaySettings() {
 			</WizardSection>
 			<WizardSection title={ __( 'Media Credits', 'newspack-plugin' ) }>
 				<MediaCredits data={ data } update={ setData } />
+			</WizardSection>
+			<WizardSection>
+				<AccessibilityStatement
+					data={ data }
+					isFetching={ isFetching }
+					refresh={ fetchThemeMods }
+				/>
 			</WizardSection>
 			{ errorMessage && <Notice /> }
 			<div className="newspack-buttons-card">

@@ -121,6 +121,13 @@ interface DisplaySettings {
 	newspack_image_credits_prefix_label: string;
 	newspack_image_credits_placeholder: number | null;
 	newspack_image_credits_auto_populate: boolean;
+
+	// Accessibility Statement.
+	accessibility_statement_page?: {
+		editUrl: string;
+		status: string;
+		pageUrl: string;
+	};
 }
 
 interface MiscSettings {
