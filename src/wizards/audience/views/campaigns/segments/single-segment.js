@@ -349,6 +349,7 @@ addFilter(
 					path="/newspack-newsletters/v1/lists_config"
 					value={ value }
 					onChange={ update }
+					getDeletedItemLabel={ () => __( 'Deleted list', 'newspack-plugin' ) }
 				/>
 			);
 		}
@@ -370,6 +371,7 @@ addFilter(
 					path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
 					value={ value }
 					onChange={ update }
+					getDeletedItemLabel={ () => __( 'Deleted subscription', 'newspack-plugin' ) }
 				/>
 			);
 		}
@@ -391,6 +393,7 @@ addFilter(
 					path="/wc/v3/memberships/plans?per_page=100"
 					value={ value }
 					onChange={ update }
+					getDeletedItemLabel={ () => __( 'Deleted plan', 'newspack-plugin' ) }
 				/>
 			);
 		}
