@@ -104,7 +104,7 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 			case 'pending':
 				return {
 					type: 'warning',
-					message: __( 'Your accessibility statement page is not yet published.', 'newspack-plugin' ),
+					message: __( 'Your accessibility statement page is not yet published. Please review and make edits before publishing.', 'newspack-plugin' ),
 				};
 			case 'trash':
 			default:
