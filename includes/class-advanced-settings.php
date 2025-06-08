@@ -11,6 +11,17 @@ namespace Newspack;
  * Advanced Settings class.
  */
 class Advanced_Settings {
+
+	/**
+	 * Add hooks.
+	 */
+	public static function init() {
+		// Register REST routes.
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
+		// Add post status to accessibility statement page.
+		add_filter( 'display_post_states', [ __CLASS__, 'accessibility_post_status' ], 10, 2 );
+	}
+
 	/**
 	 * Create an accessibility statement page.
 	 *
@@ -161,7 +172,20 @@ class Advanced_Settings {
 		}
 		return true;
 	}
-}
 
-// Register REST routes.
-add_action( 'rest_api_init', [ 'Newspack\Advanced_Settings', 'register_rest_routes' ] );
+	/**
+	 * Add post status to accessibility statement page.
+	 *
+	 * @param array   $post_states The post states.
+	 * @param WP_Post $post The post object.
+	 * @return array The post states.
+	 */
+	public static function accessibility_post_status( $post_states, $post ) {
+		$page_id = get_theme_mod( 'accessibility_statement_page_id' );
+		if ( $page_id === $post->ID ) {
+			$post_states['accessibility_statement'] = __( 'Accessibility Statement', 'newspack-plugin' );
+		}
+		return $post_states;
+	}
+}
+Advanced_Settings::init();
