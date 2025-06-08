@@ -32,16 +32,14 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 		setLocalIsFetching( true );
 		wizardApiFetch(
 			{
-				path: '/newspack/v1/wizard/newspack-settings/accessibility-statement',
+				path: `/newspack/v1/wizard/newspack-settings/accessibility-statement?_t=${Date.now()}`,
 				method: 'GET',
 			},
 			{
 				onSuccess: ( response ) => {
-					// Only update if we got a valid response
 					if ( response && response.editUrl && response.status ) {
 						setLocalPageData( response );
 					} else {
-						// If no valid response, clear the local data
 						setLocalPageData( null );
 					}
 					setLocalIsFetching( false );
@@ -56,11 +54,11 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 
 	// Fetch on mount and when data changes
 	useEffect( () => {
-		if (data?.accessibility_statement_page) {
-			setLocalPageData(data.accessibility_statement_page);
+		// Only fetch fresh data if we don't have any local data
+		if ( ! localPageData ) {
+			fetchFreshData();
 		}
-		fetchFreshData();
-	}, [data?.accessibility_statement_page] ); // Only depend on the accessibility statement page data
+	}, [] ); // Only run on mount
 
 	const createPage = () => {
 		setLocalIsFetching( true );
@@ -90,7 +88,7 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 		if ( ! localPageData ) {
 			return {
 				type: 'warning',
-				message: __( 'Your accessibility statement has not been created yet.', 'newspack-plugin' ),
+				message: __( 'Your accessibility statement page has been moved to trash or deleted. Click "Create Page" to create a new one.', 'newspack-plugin' ),
 			};
 		}
 
@@ -110,8 +108,25 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 			default:
 				return {
 					type: 'warning',
-					message: __( 'Your accessibility statement page has not been created yet.', 'newspack-plugin' ),
+					message: __( 'Your accessibility statement page has been moved to trash. Click "Create Page" to create a new one.', 'newspack-plugin' ),
 				};
+		}
+	};
+
+	const getButtonText = () => {
+		if ( ! localPageData ) {
+			return __( 'Create Page', 'newspack-plugin' );
+		}
+
+		switch ( localPageData.status ) {
+			case 'publish':
+				return __( 'Edit Page', 'newspack-plugin' );
+			case 'draft':
+			case 'pending':
+				return __( 'Edit and Publish Page', 'newspack-plugin' );
+			case 'trash':
+			default:
+				return __( 'Create Page', 'newspack-plugin' );
 		}
 	};
 
@@ -124,7 +139,7 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 					title={ __( 'Accessibility Statement Page', 'newspack-plugin' ) }
 					noMargin
 					description={ __(
-						'Create an accessibility statement page. Once published, a link to this page will display in the footer of your site.',
+						'Edit and publish an accessibility statement page. Once published, a link to this page will display in the footer of your site.',
 						'newspack-plugin'
 					) }
 				/>
@@ -134,7 +149,7 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 						isSmall
 						href={ localPageData.editUrl }
 					>
-						{ __( 'Edit Page', 'newspack-plugin' ) }
+						{ getButtonText() }
 					</Button>
 				) : (
 					<Button
@@ -143,7 +158,7 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 						onClick={ createPage }
 						disabled={ isFetching || localIsFetching }
 					>
-						{ __( 'Create Page', 'newspack-plugin' ) }
+						{ getButtonText() }
 					</Button>
 				) }
 			</Card>
@@ -155,13 +170,13 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 			/>
 
 			<p>
-				{ __( 'An accessibility statement helps your readers understand how your site supports accessibility standards and what to do if they encounter accessibility issues.', 'newspack-plugin' ) }
-				<ExternalLink href="https://www.w3.org/WAI/planning/statements/"> { __( 'Learn more about what makes a good accessibility statement.', 'newspack-plugin' ) } </ExternalLink>
+				{ __( 'An accessibility statement helps your readers understand how your site supports accessibility standards and what to do if they encounter accessibility issues. ', 'newspack-plugin' ) }
+				<ExternalLink href="https://www.w3.org/WAI/planning/statements/">{ __( 'Learn more about what makes a good accessibility statement.', 'newspack-plugin' ) } </ExternalLink>
 			</p>
 
 			<p>
-				{ __( 'The page you create here will include a boilerplate accessibility statement, but we highly recommend you use the W3C Accessibility Statement Generator to create a custom statement.', 'newspack-plugin' ) }
-				<ExternalLink href="https://www.w3.org/WAI/planning/statements/generator/#create"> { __( 'Try out the Accessibility Statement Generator.', 'newspack-plugin' ) } </ExternalLink>
+				{ __( 'The page you create here will include a boilerplate accessibility statement, but we highly recommend you use the W3C Accessibility Statement Generator to create a custom statement. ', 'newspack-plugin' ) }
+				<ExternalLink href="https://www.w3.org/WAI/planning/statements/generator/#create">{ __( 'Try out the Accessibility Statement Generator.', 'newspack-plugin' ) } </ExternalLink>
 			</p>
 		</>
 	);

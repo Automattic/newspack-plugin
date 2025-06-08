@@ -17,11 +17,12 @@ class Advanced_Settings {
 	 * @return array|WP_Error The created page data or error.
 	 */
 	public static function create_accessibility_statement_page() {
-		// Check if page already exists by ID.
+		// Check if page ID is stored in theme_mods.
 		$page_id = get_theme_mod( 'accessibility_statement_page_id' );
 		if ( $page_id ) {
 			$page = get_post( $page_id );
-			if ( $page && 'page' === $page->post_type && 'trash' !== get_post_status( $page->ID ) ) {
+			// Check if page exists and is either published or draft.
+			if ( $page && 'page' === $page->post_type && in_array( get_post_status( $page->ID ), [ 'publish', 'draft' ] ) ) {
 				$page_data = [
 					'editUrl' => get_edit_post_link( $page->ID, 'raw' ),
 					'status'  => get_post_status( $page->ID ),
@@ -29,9 +30,11 @@ class Advanced_Settings {
 				];
 				return $page_data;
 			}
+			// If page doesn't exist or is in trash, return null but keep the ID stored.
+			return null;
 		}
 
-		// Create the page.
+		// If no page ID is stored, create a new page.
 		$page_id = wp_insert_post(
 			[
 				'post_title'   => __( 'Accessibility Statement', 'newspack-plugin' ),
@@ -71,12 +74,17 @@ class Advanced_Settings {
 	public static function get_accessibility_statement_page() {
 		$page_id = get_theme_mod( 'accessibility_statement_page_id' );
 		if ( ! $page_id ) {
+			// If no page ID exists, create a new page.
+			$result = self::create_accessibility_statement_page();
+			if ( ! is_wp_error( $result ) ) {
+				return $result;
+			}
 			return false;
 		}
 
 		$page = get_post( $page_id );
-		if ( ! $page || 'page' !== $page->post_type ) {
-			// If page doesn't exist or isn't a page, clear the stored ID.
+		if ( ! $page || 'page' !== $page->post_type || 'trash' === get_post_status( $page->ID ) ) {
+			// If page doesn't exist, isn't a page, or is in trash, clear the stored ID.
 			remove_theme_mod( 'accessibility_statement_page_id' );
 			return false;
 		}
