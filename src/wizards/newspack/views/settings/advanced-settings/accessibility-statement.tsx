@@ -56,7 +56,7 @@ export default function AccessibilityStatement( { isFetching }: AccessibilitySta
 		if ( ! localPageData ) {
 			fetchFreshData();
 		}
-	}, [] ); // Only run on mount
+	}, [] );
 
 	const createPage = () => {
 		setLocalIsFetching( true );
