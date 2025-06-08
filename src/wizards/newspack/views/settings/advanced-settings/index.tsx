@@ -175,10 +175,7 @@ export default function AdvancedSettings() {
 				<MediaCredits data={ data } update={ setData } />
 			</WizardSection>
 			<WizardSection>
-				<AccessibilityStatement
-					data={ data }
-					isFetching={ isFetching }
-				/>
+				<AccessibilityStatement isFetching={ isFetching } />
 			</WizardSection>
 			{ errorMessage && <Notice /> }
 			<div className="newspack-buttons-card">

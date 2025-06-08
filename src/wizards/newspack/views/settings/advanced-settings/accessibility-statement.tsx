@@ -12,20 +12,19 @@ import { Button, Card, Notice, SectionHeader } from '../../../../../components/s
 import { useWizardApiFetch } from '../../../../hooks/use-wizard-api-fetch';
 
 interface AccessibilityStatementProps {
-	data: {
-		accessibility_statement_page?: {
-			editUrl: string;
-			status: string;
-			pageUrl: string;
-		};
-	};
 	isFetching: boolean;
 }
 
-export default function AccessibilityStatement( { data, isFetching }: AccessibilityStatementProps ) {
+type PageData = {
+	editUrl: string;
+	status: string;
+	pageUrl: string;
+};
+
+export default function AccessibilityStatement( { isFetching }: AccessibilityStatementProps ) {
 	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/display-settings/accessibility-statement' );
 	const [ localIsFetching, setLocalIsFetching ] = useState( false );
-	const [ localPageData, setLocalPageData ] = useState<AccessibilityStatementProps['data']['accessibility_statement_page'] | null>( null );
+	const [ localPageData, setLocalPageData ] = useState<PageData | null>( null );
 
 	// Function to fetch fresh data
 	const fetchFreshData = () => {
@@ -54,11 +53,11 @@ export default function AccessibilityStatement( { data, isFetching }: Accessibil
 
 	// Fetch on mount and when data changes
 	useEffect( () => {
-		// Only fetch fresh data if we don't have any local data
+		// Only fetch fresh data if we don't have any local data.
 		if ( ! localPageData ) {
 			fetchFreshData();
 		}
-	}, [] ); // Only run on mount
+	}, [] ); // Only run on mount.
 
 	const createPage = () => {
 		setLocalIsFetching( true );
