@@ -25,7 +25,6 @@ export default function AccessibilityStatement( { isFetching }: AccessibilitySta
 	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/display-settings/accessibility-statement' );
 	const [ localIsFetching, setLocalIsFetching ] = useState( false );
 	const [ localPageData, setLocalPageData ] = useState<PageData | null>( null );
-	const [ hasInitialized, setHasInitialized ] = useState( false );
 
 	// Function to fetch fresh data
 	const fetchFreshData = () => {
@@ -37,29 +36,27 @@ export default function AccessibilityStatement( { isFetching }: AccessibilitySta
 			},
 			{
 				onSuccess: ( response ) => {
-					if ( response && response.editUrl && response.status ) {
+					if ( response && response.editUrl && response.status && response.status !== 'trash' ) {
 						setLocalPageData( response );
 					} else {
 						setLocalPageData( null );
 					}
 					setLocalIsFetching( false );
-					setHasInitialized( true );
 				},
 				onError: () => {
 					setLocalPageData( null );
 					setLocalIsFetching( false );
-					setHasInitialized( true );
 				},
 			}
 		);
 	};
 
-	// Only fetch on mount if we haven't initialized yet
+	// Only fetch on mount
 	useEffect( () => {
-		if ( ! hasInitialized ) {
+		if ( ! localPageData ) {
 			fetchFreshData();
 		}
-	}, [ hasInitialized ] );
+	}, [] ); // Only run on mount
 
 	const createPage = () => {
 		setLocalIsFetching( true );
