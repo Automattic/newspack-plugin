@@ -19,7 +19,7 @@ class Accessibility_Statement_Page {
 		// Register REST routes.
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 		// Add post status to accessibility statement page.
-		add_filter( 'display_post_states', [ __CLASS__, 'accessibility_post_status' ], 10, 2 );
+		add_filter( 'display_post_states', [ __CLASS__, 'post_status' ], 10, 2 );
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Accessibility_Statement_Page {
 	 *
 	 * @return array|null|WP_Error The created page data, null if it has been trashed or deleted, or error.
 	 */
-	public static function create_accessibility_statement_page() {
+	public static function create_page() {
 		// Check if page ID is stored in theme_mods.
 		$page_id = get_theme_mod( 'accessibility_statement_page_id' );
 		if ( $page_id ) {
@@ -79,11 +79,11 @@ class Accessibility_Statement_Page {
 	 *
 	 * @return array|false The page data or false if not set.
 	 */
-	public static function get_accessibility_statement_page() {
+	public static function get_page() {
 		$page_id = get_theme_mod( 'accessibility_statement_page_id' );
 		if ( ! $page_id ) {
 			// If no page ID exists, create a new page.
-			$result = self::create_accessibility_statement_page();
+			$result = self::create_page();
 			if ( ! is_wp_error( $result ) ) {
 				return $result;
 			}
@@ -115,7 +115,7 @@ class Accessibility_Statement_Page {
 			'/wizard/newspack-settings/accessibility-statement',
 			[
 				'methods'             => 'POST',
-				'callback'            => [ __CLASS__, 'api_create_accessibility_statement' ],
+				'callback'            => [ __CLASS__, 'api_create_page' ],
 				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
@@ -125,7 +125,7 @@ class Accessibility_Statement_Page {
 			'/wizard/newspack-settings/accessibility-statement',
 			[
 				'methods'             => 'GET',
-				'callback'            => [ __CLASS__, 'api_get_accessibility_statement' ],
+				'callback'            => [ __CLASS__, 'api_get_page' ],
 				'permission_callback' => [ __CLASS__, 'api_permissions_check' ],
 			]
 		);
@@ -136,8 +136,8 @@ class Accessibility_Statement_Page {
 	 *
 	 * @return WP_REST_Response|WP_Error Response object.
 	 */
-	public static function api_create_accessibility_statement() {
-		$result = self::create_accessibility_statement_page();
+	public static function api_create_page() {
+		$result = self::create_page();
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -149,8 +149,8 @@ class Accessibility_Statement_Page {
 	 *
 	 * @return WP_REST_Response Response object.
 	 */
-	public static function api_get_accessibility_statement() {
-		$page_data = self::get_accessibility_statement_page();
+	public static function api_get_page() {
+		$page_data = self::get_page();
 		return rest_ensure_response( $page_data );
 	}
 
@@ -177,7 +177,7 @@ class Accessibility_Statement_Page {
 	 * @param WP_Post $post The post object.
 	 * @return array The post states.
 	 */
-	public static function accessibility_post_status( $post_states, $post ) {
+	public static function post_status( $post_states, $post ) {
 		$page_id = get_theme_mod( 'accessibility_statement_page_id' );
 		if ( $page_id === $post->ID ) {
 			$post_states['accessibility_statement'] = __( 'Accessibility Statement', 'newspack-plugin' );
