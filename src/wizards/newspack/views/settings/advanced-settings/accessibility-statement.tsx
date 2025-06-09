@@ -22,7 +22,7 @@ type PageData = {
 };
 
 export default function AccessibilityStatement( { isFetching }: AccessibilityStatementProps ) {
-	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/display-settings/accessibility-statement' );
+	const { wizardApiFetch } = useWizardApiFetch( 'newspack-settings/advanced-settings/accessibility-statement' );
 	const [ localIsFetching, setLocalIsFetching ] = useState( false );
 	const [ localPageData, setLocalPageData ] = useState<PageData | null>( null );
 
@@ -31,7 +31,7 @@ export default function AccessibilityStatement( { isFetching }: AccessibilitySta
 		setLocalIsFetching( true );
 		wizardApiFetch(
 			{
-				path: `/newspack/v1/wizard/newspack-settings/accessibility-statement?_t=${Date.now()}`,
+				path: `/newspack/v1/wizard/newspack-settings/accessibility-statement`,
 				method: 'GET',
 			},
 			{
