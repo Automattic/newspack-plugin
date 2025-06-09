@@ -45,6 +45,11 @@ class Accessibility_Statement_Page {
 			return null;
 		}
 
+		// Get the Accessibility Statement boilerplate content.
+		ob_start();
+		require __DIR__ . '/class-accessibility-statement-boilerplate.php';
+		$page_content = ob_get_clean();
+
 		// If no page ID is stored, create a new page.
 		$page_id = wp_insert_post(
 			[
@@ -52,7 +57,7 @@ class Accessibility_Statement_Page {
 				'post_name'    => 'accessibility-statement',
 				'post_status'  => 'draft',
 				'post_type'    => 'page',
-				'post_content' => require NEWSPACK_ABSPATH . 'includes/advanced-settings/class-accessibility-statement-boilerplate.php',
+				'post_content' => $page_content,
 			]
 		);
 

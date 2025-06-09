@@ -5,10 +5,9 @@
  * @package Newspack
  */
 
-namespace Newspack;
-
-return '<!-- wp:paragraph {"backgroundColor":"light-gray","fontSize":"small"} -->
-<p class="has-light-gray-background-color has-background has-small-font-size"><em>We recommend generating your own Accessibility Statement using </em><a href="https://www.w3.org/WAI/planning/statements/generator/#preview" target="_blank" rel="noreferrer noopener"><em>the tool on the W3C website</em></a><em>. If you use this boilerplate text, please review, make edits as needed, and update the highlighted text with your publication\'s information. <strong>Finally, remove this paragraph before publishing.</strong></em></p>
+?>
+<!-- wp:paragraph {"backgroundColor":"light-gray","fontSize":"small"} -->
+<p class="has-light-gray-background-color has-background has-small-font-size"><em>We recommend generating your own Accessibility Statement using </em><a href="https://www.w3.org/WAI/planning/statements/generator/#preview" target="_blank" rel="noreferrer noopener"><em>the tool on the W3C website</em></a><em>. If you use this boilerplate text, please review, make edits as needed, and update the highlighted text with your publication's information. <strong>Finally, remove this paragraph before publishing.</strong></em></p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->
@@ -41,7 +40,7 @@ return '<!-- wp:paragraph {"backgroundColor":"light-gray","fontSize":"small"} --
 <!-- /wp:list-item -->
 
 <!-- wp:list-item -->
-<li>Focus trap prevents users from accidentally navigating outside the modal while it\'s open</li>
+<li>Focus trap prevents users from accidentally navigating outside the modal while it's open</li>
 <!-- /wp:list-item -->
 
 <!-- wp:list-item -->
@@ -174,7 +173,7 @@ return '<!-- wp:paragraph {"backgroundColor":"light-gray","fontSize":"small"} --
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>This accessibility statement was created on <mark style="background-color:#ffe54d" class="has-inline-color">[today\'s date]</mark> and reflects the accessibility features built into our Newspack checkout system. We are committed to maintaining these accessibility standards and encourage feedback to help us continue improving.</p>
+<p>This accessibility statement was created on <mark style="background-color:#ffe54d" class="has-inline-color">[today's date]</mark> and reflects the accessibility features built into our Newspack checkout system. We are committed to maintaining these accessibility standards and encourage feedback to help us continue improving.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -182,7 +181,7 @@ return '<!-- wp:paragraph {"backgroundColor":"light-gray","fontSize":"small"} --
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p><strong>Technical Specifications:</strong> Our website\'s accessibility relies on the following technologies working with web browsers and assistive technologies installed on your computer:</p>
+<p><strong>Technical Specifications:</strong> Our website's accessibility relies on the following technologies working with web browsers and assistive technologies installed on your computer:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:list -->
@@ -223,4 +222,4 @@ return '<!-- wp:paragraph {"backgroundColor":"light-gray","fontSize":"small"} --
 
 <!-- wp:paragraph -->
 <p><em>This statement demonstrates our ongoing commitment to accessibility and our compliance with the EU Accessibility Act requirements.</em></p>
-<!-- /wp:paragraph -->';
+<!-- /wp:paragraph -->
