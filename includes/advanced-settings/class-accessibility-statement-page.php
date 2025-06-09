@@ -1,6 +1,6 @@
 <?php
 /**
- * Newspack Advanced Settings functionality.
+ * Newspack Accessibility Statement Page functionality.
  *
  * @package Newspack
  */
@@ -8,9 +8,9 @@
 namespace Newspack;
 
 /**
- * Advanced Settings class.
+ * Accessibility Statement Page class.
  */
-class Advanced_Settings {
+class Accessibility_Statement_Page {
 
 	/**
 	 * Add hooks.
@@ -185,4 +185,4 @@ class Advanced_Settings {
 		return $post_states;
 	}
 }
-Advanced_Settings::init();
+Accessibility_Statement_Page::init();
