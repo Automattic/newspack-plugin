@@ -53,8 +53,8 @@ The following table details all available meta fields for collections:
 | `newspack_collection_file_attachment` | Integer | For uploaded file | Attachment ID |
 | `newspack_collection_file_link` | String | External file URL | Valid URL |
 | `newspack_collection_volume` | String | Collection volume information | Text |
-| `newspack_collection_issue_number` | String | Issue number | Text |
-| `newspack_collection_issue_date` | String | Issue date | Text (e.g., "Spring 2025") |
+| `newspack_collection_number` | String | Collection number | Text |
+| `newspack_collection_period` | String | Collection period | Text (e.g., "Spring 2025") |
 | `newspack_collection_subscribe_link` | String | Subscription URL | Valid URL |
 | `newspack_collection_order_link` | String | Order URL | Valid URL |
 
@@ -117,15 +117,15 @@ The module provides a set of components for displaying collections-related eleme
 The frontend components are integrated into WordPress through:
 
 1. **Script Loading**
-   - Enqueued via `Collections::enqueue_admin_scripts()` if the Collections module is enabled.
+   - Enqueued via `Enqueuer::enqueue_admin_scripts()` if the Collections module is enabled.
    - Bundle: `dist/collections-admin.js`
 
 2. **Style Loading**
-   - Enqueued via `Collections::enqueue_admin_styles()` if the Collections module is enabled.
+   - Enqueued via `Enqueuer::enqueue_admin_styles()` if the Collections module is enabled.
    - Bundle: `dist/collections-admin.css`
 
 3. **Data Localization**
-   - Collection data is localized via `Collections_Data::localize_data()`.
+   - Collection data is localized via `Enqueuer::localize_data()`.
    - Available globally as `newspackCollections` window object.
 
 4. **REST API Integration**
