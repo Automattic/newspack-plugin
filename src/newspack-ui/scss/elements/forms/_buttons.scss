@@ -42,7 +42,8 @@
 			color: var(--newspack-ui-color-neutral-90);
 		}
 
-		&:disabled {
+		&:disabled,
+		&.disabled {
 			background: var(--newspack-ui-color-neutral-5) !important;
 			color: var(--newspack-ui-color-neutral-40) !important;
 			cursor: default;
@@ -56,6 +57,12 @@
 		&:focus-visible {
 			outline: 2px solid var(--newspack-ui-color-button-bg);
 			outline-offset: 1px;
+		}
+
+		&__row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--newspack-ui-spacer-2);
 		}
 
 		// Sizes

@@ -67,6 +67,11 @@ class Newspack_Unit_Tests_Bootstrap {
 		// Load the composer autoloader.
 		require_once __DIR__ . '/../vendor/autoload.php';
 
+		// Load traits early to ensure they're available before test classes.
+		foreach ( glob( __DIR__ . '/unit-tests/**/traits/*.php' ) as $trait_file ) {
+			require_once $trait_file;
+		}
+
 		// Load the WP testing environment.
 		require_once $_tests_dir . '/includes/bootstrap.php';
 

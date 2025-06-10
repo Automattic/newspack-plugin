@@ -6,14 +6,17 @@
  * @covers \Newspack\Wizards\Newspack\Collections_Section
  */
 
+namespace Newspack\Tests\Unit\Collections;
+
+use WP_UnitTestCase;
+use WP_REST_Request;
 use Newspack\Wizards\Newspack\Collections_Section;
 use Newspack\Optional_Modules;
-use WP_UnitTestCase;
 
 /**
  * Tests for the Collections_Section wizard class.
  */
-class Newspack_Test_Collections_Section extends WP_UnitTestCase {
+class Test_Collections_Section extends WP_UnitTestCase {
 
 	/**
 	 * Clean up settings before each test.
@@ -65,7 +68,7 @@ class Newspack_Test_Collections_Section extends WP_UnitTestCase {
 	 */
 	public function test_api_permissions_check_for_admin() {
 		// Simulate admin user.
-		$user_id = $this->factory->user->create( [ 'role' => 'administrator' ] );
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 		wp_set_current_user( $user_id );
 		$section = new Collections_Section();
 		$this->assertTrue( $section->api_permissions_check() );
@@ -78,7 +81,7 @@ class Newspack_Test_Collections_Section extends WP_UnitTestCase {
 	 */
 	public function test_api_permissions_check_for_non_admin() {
 		// Simulate subscriber user.
-		$user_id = $this->factory->user->create( [ 'role' => 'subscriber' ] );
+		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
 		wp_set_current_user( $user_id );
 		$section = new Collections_Section();
 		$this->assertFalse( $section->api_permissions_check() );
