@@ -1,5 +1,5 @@
 /* globals jQuery */
-( function( $ ) {
+( function ( $ ) {
 	if ( ! $ ) {
 		return;
 	}
