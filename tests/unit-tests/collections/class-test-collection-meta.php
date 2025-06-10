@@ -25,8 +25,8 @@ class Test_Collection_Meta extends WP_UnitTestCase {
 		'file_attachment',
 		'file_link',
 		'volume',
-		'issue_number',
-		'issue_date',
+		'number',
+		'period',
 		'subscribe_link',
 		'order_link',
 	];

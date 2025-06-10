@@ -63,17 +63,17 @@ class Collection_Meta {
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			],
-			'issue_number'    => [
+			'number'          => [
 				'type'              => 'string',
-				'label'             => __( 'Issue Number', 'newspack-plugin' ),
+				'label'             => __( 'Number', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
 			],
-			'issue_date'      => [
+			'period'          => [
 				'type'              => 'string',
-				'label'             => __( 'Issue Date', 'newspack-plugin' ),
-				'description'       => __( 'Issue date as a string (e.g., "Spring 2025", "January 2025")', 'newspack-plugin' ),
+				'label'             => __( 'Period', 'newspack-plugin' ),
+				'description'       => __( 'Period as a string (e.g., "Spring 2025", "January 2025")', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'sanitize_text_field',
 				'show_in_rest'      => true,
