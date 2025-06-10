@@ -1,6 +1,6 @@
 <?php
 /**
- * Collections Data Manager.
+ * Collections Enqueuer.
  *
  * @package Newspack\Collections
  */
@@ -10,11 +10,11 @@ namespace Newspack\Collections;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Manages the data structure for collections JavaScript.
+ * Manages the enqueuing of collections scripts and styles.
  */
-class Collections_Data {
+class Enqueuer {
 	/**
-	 * The name of the script to localize the data to.
+	 * The name of the script to enqueue and localize the data to.
 	 *
 	 * @var string
 	 */
@@ -38,8 +38,7 @@ class Collections_Data {
 	 * Initialize the data manager.
 	 */
 	public static function init() {
-		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'localize_data' ], 100 );
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'localize_data' ], 100 );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'localize_data' ] );
 	}
 
 	/**
@@ -62,12 +61,42 @@ class Collections_Data {
 	}
 
 	/**
+	 * Enqueue admin scripts.
+	 */
+	public static function enqueue_admin_scripts() {
+		\Newspack\Newspack::load_common_assets();
+		wp_enqueue_script(
+			self::SCRIPT_NAME_ADMIN,
+			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.js',
+			[ 'jquery', 'wp-i18n', 'wp-plugins', 'wp-edit-post', 'wp-components', 'wp-element', 'wp-data', 'wp-editor', 'wp-api-fetch' ],
+			NEWSPACK_PLUGIN_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Enqueue admin styles.
+	 */
+	public static function enqueue_admin_styles() {
+		wp_enqueue_style(
+			self::SCRIPT_NAME_ADMIN,
+			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.css',
+			[],
+			NEWSPACK_PLUGIN_VERSION
+		);
+	}
+
+	/**
 	 * Localize the data to JavaScript.
 	 */
 	public static function localize_data() {
 		if ( empty( self::$data ) ) {
 			return;
 		}
+
+		// Enqueue admin scripts and styles.
+		self::enqueue_admin_scripts();
+		self::enqueue_admin_styles();
 
 		// Localize to multiple scripts if they exist.
 		$scripts = [ self::SCRIPT_NAME_ADMIN ];

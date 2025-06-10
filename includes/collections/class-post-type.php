@@ -78,7 +78,7 @@ class Post_Type {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'output_collection_meta_data_for_admin_scripts' ] );
+		add_action( 'current_screen', [ __CLASS__, 'output_collection_meta_data_for_admin_scripts' ] );
 		add_action( 'manage_' . self::get_post_type() . '_posts_columns', [ __CLASS__, 'add_order_column' ] );
 		add_action( 'manage_' . self::get_post_type() . '_posts_custom_column', [ __CLASS__, 'display_order_column' ], 10, 2 );
 		add_filter( 'manage_edit-' . self::get_post_type() . '_sortable_columns', [ __CLASS__, 'make_order_column_sortable' ] );
@@ -160,14 +160,14 @@ class Post_Type {
 	/**
 	 * Output collection meta data for admin scripts.
 	 *
-	 * @param string $hook_suffix The current admin page.
+	 * @param WP_Screen $current_screen The current screen object.
 	 */
-	public static function output_collection_meta_data_for_admin_scripts( $hook_suffix ) {
+	public static function output_collection_meta_data_for_admin_scripts( $current_screen ) {
 		if (
-			'post.php' === $hook_suffix &&
-			self::get_post_type() === get_current_screen()->post_type
+			'post' === $current_screen->base &&
+			self::get_post_type() === $current_screen->post_type
 		) {
-			Collections_Data::add_data(
+			Enqueuer::add_data(
 				'collectionPostType',
 				[
 					'postType' => self::get_post_type(),

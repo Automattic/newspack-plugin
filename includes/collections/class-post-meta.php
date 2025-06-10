@@ -26,7 +26,7 @@ class Post_Meta {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'output_post_meta_data_for_admin_scripts' ] );
+		add_action( 'current_screen', [ __CLASS__, 'output_post_meta_data_for_admin_scripts' ] );
 	}
 
 	/**
@@ -59,14 +59,14 @@ class Post_Meta {
 	/**
 	 * Output post meta data for admin scripts.
 	 *
-	 * @param string $hook_suffix The current admin page.
+	 * @param WP_Screen $current_screen The current screen object.
 	 */
-	public static function output_post_meta_data_for_admin_scripts( $hook_suffix ) {
+	public static function output_post_meta_data_for_admin_scripts( $current_screen ) {
 		if (
-			'post.php' === $hook_suffix &&
-			'post' === get_current_screen()->post_type
+			'post' === $current_screen->base &&
+			'post' === $current_screen->post_type
 		) {
-			Collections_Data::add_data(
+			Enqueuer::add_data(
 				'postMeta',
 				[
 					'orderMetaKey' => self::ORDER_META_KEY,

@@ -9,7 +9,7 @@ namespace Newspack;
 
 defined( 'ABSPATH' ) || exit;
 
-use Newspack\Collections\Collections_Data;
+use Newspack\Collections\Enqueuer;
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Collection_Taxonomy;
 use Newspack\Collections\Collection_Category_Taxonomy;
@@ -36,12 +36,8 @@ class Collections {
 			return;
 		}
 
-		// Enqueue admin scripts and styles.
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ] );
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_styles' ] );
-
 		// Initialize classes.
-		Collections_Data::init();
+		Enqueuer::init();
 		Post_Type::init();
 		Collection_Taxonomy::init();
 		Collection_Category_Taxonomy::init();
@@ -64,32 +60,6 @@ class Collections {
 		 * @param bool $is_enabled Whether the Collections module is enabled.
 		 */
 		return apply_filters( 'newspack_collections_enabled', $is_enabled );
-	}
-
-	/**
-	 * Enqueue admin scripts.
-	 */
-	public static function enqueue_admin_scripts() {
-		\Newspack\Newspack::load_common_assets();
-		wp_enqueue_script(
-			Collections_Data::SCRIPT_NAME_ADMIN,
-			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.js',
-			[ 'jquery', 'wp-i18n', 'wp-plugins', 'wp-edit-post', 'wp-components', 'wp-element', 'wp-data', 'wp-editor', 'wp-api-fetch' ],
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-	}
-
-	/**
-	 * Enqueue admin styles.
-	 */
-	public static function enqueue_admin_styles() {
-		wp_enqueue_style(
-			Collections_Data::SCRIPT_NAME_ADMIN,
-			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
 	}
 }
 

@@ -9,7 +9,7 @@ namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
 use Newspack\Collections\Post_Type;
-use Newspack\Collections\Collections_Data;
+use Newspack\Collections\Enqueuer;
 use Newspack\Collections\Collection_Meta;
 
 /**
@@ -118,27 +118,27 @@ class Test_Post_Type extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Post_Type::output_collection_meta_data_for_admin_scripts
 	 */
 	public function test_output_collection_meta_data_for_admin_scripts() {
-		global $current_screen, $wp_scripts;
+		global $current_screen;
 
 		// Set up the current screen.
-		$current_screen = (object) [ 'post_type' => Post_Type::get_post_type() ]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$current_screen = (object) [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			'post_type' => Post_Type::get_post_type(),
+			'base'      => 'post',
+		];
 
-		// Call the method with post.php hook.
-		Post_Type::output_collection_meta_data_for_admin_scripts( 'post.php' );
+		// Call the method with the current screen object.
+		Post_Type::output_collection_meta_data_for_admin_scripts( $current_screen );
 
-		// Register the test script.
-		wp_register_script( Collections_Data::SCRIPT_NAME_ADMIN, 'test.js', [], '1.0.0', true );
-		Collections_Data::localize_data();
-
-		// Get the localized data.
-		$script                    = $wp_scripts->registered[ Collections_Data::SCRIPT_NAME_ADMIN ];
-		$frontend_meta_definitions = wp_json_encode( Collection_Meta::get_frontend_meta_definitions() );
-		$this->assertStringContainsString( $frontend_meta_definitions, $script->extra['data'], 'Localized data should match the added data.' );
+		// Check that data was added correctly.
+		$data = Enqueuer::get_data();
+		$this->assertArrayHasKey( 'collectionPostType', $data, 'Collection post type data should be added.' );
+		$this->assertEquals( Post_Type::get_post_type(), $data['collectionPostType']['postType'], 'Post type should be correct.' );
+		$this->assertArrayHasKey( 'postMeta', $data['collectionPostType'], 'Post meta should be included.' );
 
 		// Clean up.
 		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		wp_deregister_script( Collections_Data::SCRIPT_NAME_ADMIN );
-		( new \ReflectionClass( Collections_Data::class ) )->setStaticPropertyValue( 'data', [] );
+		wp_deregister_script( Enqueuer::SCRIPT_NAME_ADMIN );
+		( new \ReflectionClass( Enqueuer::class ) )->setStaticPropertyValue( 'data', [] );
 	}
 
 	/**

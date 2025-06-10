@@ -80,7 +80,7 @@ class Collection_Section_Taxonomy {
 		// Quick edit functionality.
 		add_action( 'quick_edit_custom_box', [ __CLASS__, 'add_quick_edit_field' ], 10, 3 );
 		add_action( 'edited_' . self::get_taxonomy(), [ __CLASS__, 'save_order_meta' ] );
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'output_section_taxonomy_data_for_admin_scripts' ] );
+		add_action( 'current_screen', [ __CLASS__, 'output_section_taxonomy_data_for_admin_scripts' ] );
 	}
 
 	/**
@@ -334,14 +334,14 @@ class Collection_Section_Taxonomy {
 	/**
 	 * Output section taxonomy data for admin scripts.
 	 *
-	 * @param string $hook_suffix The current admin page.
+	 * @param WP_Screen $current_screen The current screen object.
 	 */
-	public static function output_section_taxonomy_data_for_admin_scripts( $hook_suffix ) {
+	public static function output_section_taxonomy_data_for_admin_scripts( $current_screen ) {
 		if (
-			'edit-tags.php' === $hook_suffix &&
-			self::get_taxonomy() === get_current_screen()->taxonomy
+			'edit-tags' === $current_screen->base &&
+			self::get_taxonomy() === $current_screen->taxonomy
 		) {
-			Collections_Data::add_data(
+			Enqueuer::add_data(
 				'sectionTaxonomy',
 				[
 					'orderMetaKey'    => self::ORDER_META_KEY,
