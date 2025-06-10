@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Emails.
+ * Newspack > Settings > Advanced Settings.
  */
 
 /**
@@ -21,9 +21,10 @@ import AuthorBio from './author-bio';
 import FeaturedImagePostsAll from './featured-image-posts-all';
 import FeaturedImagePostsNew from './featured-image-posts-new';
 import MediaCredits from './media-credits';
+import AccessibilityStatement from './accessibility-statement';
 
-export default function DisplaySettings() {
-	const [ data, setData ] = hooks.useObjectState< DisplaySettings >( {
+export default function AdvancedSettings() {
+	const [ data, setData ] = hooks.useObjectState< AdvancedSettings >( {
 		...DEFAULT_THEME_MODS,
 	} );
 	const [ etc, setEtc ] = hooks.useObjectState< Etc >( {
@@ -44,9 +45,9 @@ export default function DisplaySettings() {
 	const {
 		wizardApiFetch: wizardApiFetchRecirculation,
 		isFetching: isFetchingRecirculation,
-	} = useWizardApiFetch( 'newspack-settings/display-settings/recirculation' );
+	} = useWizardApiFetch( 'newspack-settings/advanced-settings/recirculation' );
 
-	useEffect( () => {
+	const fetchThemeMods = () => {
 		wizardApiFetch< ThemeData >(
 			{
 				path: '/newspack/v1/wizard/newspack-setup-wizard/theme',
@@ -58,6 +59,10 @@ export default function DisplaySettings() {
 				},
 			}
 		);
+	};
+
+	useEffect( () => {
+		fetchThemeMods();
 		wizardApiFetchRecirculation< Recirculation >(
 			{
 				path: '/newspack/v1/wizard/newspack-settings/related-content',
@@ -120,7 +125,7 @@ export default function DisplaySettings() {
 
 	return (
 		<WizardsTab
-			title={ __( 'Display Settings', 'newspack-plugin' ) }
+			title={ __( 'Advanced Settings', 'newspack-plugin' ) }
 			isFetching={ isFetching || isFetchingRecirculation }
 		>
 			<WizardSection title={ __( 'Recirculation', 'newspack-plugin' ) }>
@@ -130,6 +135,7 @@ export default function DisplaySettings() {
 					data={ recirculationData }
 				/>
 			</WizardSection>
+
 			<WizardSection title={ __( 'Author Bio', 'newspack-plugin' ) }>
 				<AuthorBio
 					update={ setData }
@@ -168,13 +174,16 @@ export default function DisplaySettings() {
 			<WizardSection title={ __( 'Media Credits', 'newspack-plugin' ) }>
 				<MediaCredits data={ data } update={ setData } />
 			</WizardSection>
+			<WizardSection>
+				<AccessibilityStatement isFetching={ isFetching } />
+			</WizardSection>
 			{ errorMessage && <Notice /> }
 			<div className="newspack-buttons-card">
-				<Button variant="tertiary" href="/wp-admin/customize.php">
-					{ __( 'Advanced Settings', 'newspack-plugin' ) }
-				</Button>
 				<Button variant="primary" onClick={ save }>
 					{ __( 'Save', 'newspack-plugin' ) }
+				</Button>
+				<Button variant="tertiary" href="/wp-admin/customize.php">
+					{ __( 'Open Customizer', 'newspack-plugin' ) }
 				</Button>
 			</div>
 		</WizardsTab>
