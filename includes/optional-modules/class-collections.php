@@ -36,16 +36,6 @@ class Collections {
 			return;
 		}
 
-		// Require classes.
-		require_once __DIR__ . '/../collections/traits/trait-hook-management.php';
-		require_once __DIR__ . '/../collections/class-collections-data.php';
-		require_once __DIR__ . '/../collections/class-post-type.php';
-		require_once __DIR__ . '/../collections/class-collection-taxonomy.php';
-		require_once __DIR__ . '/../collections/class-collection-category-taxonomy.php';
-		require_once __DIR__ . '/../collections/class-collection-section-taxonomy.php';
-		require_once __DIR__ . '/../collections/class-sync.php';
-		require_once __DIR__ . '/../collections/class-post-meta.php';
-
 		// Enqueue admin scripts and styles.
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_admin_styles' ] );
