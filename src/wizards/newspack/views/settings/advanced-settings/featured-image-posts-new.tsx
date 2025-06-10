@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Display Settings > Featured Image Posts New
+ * Newspack > Settings > Advanced Settings > Featured Image Posts New
  */
 
 /**
@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { Grid, SelectControl } from '../../../../../components/src';
 
-export default function FeaturedImagePostsNew( { data, update }: ThemeModComponentProps< DisplaySettings > ) {
+export default function FeaturedImagePostsNew( { data, update }: ThemeModComponentProps< AdvancedSettings > ) {
 	return (
 		<Grid gutter={ 32 }>
 			<SelectControl

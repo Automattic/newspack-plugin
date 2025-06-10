@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Display Settings > Featured Image Posts All
+ * Newspack > Settings > Advanced Settings > Featured Image Posts All
  */
 
 /**
@@ -14,7 +14,7 @@ import { Notice } from '@wordpress/components';
  */
 import { Grid, SelectControl } from '../../../../../components/src';
 
-export default function FeaturedImagePostsAll( { data, update, postCount }: ThemeModComponentProps< DisplaySettings > & { postCount: string } ) {
+export default function FeaturedImagePostsAll( { data, update, postCount }: ThemeModComponentProps< AdvancedSettings > & { postCount: string } ) {
 	return (
 		<Fragment>
 			{ Number( postCount ) > 1000 && (

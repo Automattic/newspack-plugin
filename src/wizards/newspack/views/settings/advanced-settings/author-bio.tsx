@@ -3,7 +3,7 @@ import { ToggleControl } from '@wordpress/components';
 
 import { Grid, TextControl } from '../../../../../components/src';
 
-export default function AuthorBio( { data, isFetching, update }: ThemeModComponentProps< DisplaySettings > ) {
+export default function AuthorBio( { data, isFetching, update }: ThemeModComponentProps< AdvancedSettings > ) {
 	return (
 		<Grid gutter={ 32 }>
 			<Grid columns={ 1 } gutter={ 16 }>

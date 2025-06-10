@@ -1,5 +1,5 @@
 /**
- * Newspack > Settings > Display Settings > Media Credits
+ * Newspack > Settings > Advanced Settings > Media Credits
  */
 
 /**
@@ -14,7 +14,7 @@ import { useEffect, useState, Fragment } from '@wordpress/element';
  */
 import { Grid, ImageUpload, TextControl } from '../../../../../components/src';
 
-export default function MediaCredits( { data, update }: ThemeModComponentProps< DisplaySettings > ) {
+export default function MediaCredits( { data, update }: ThemeModComponentProps< AdvancedSettings > ) {
 	const [ imageThumbnail, setImageThumbnail ] = useState< null | string >( null );
 	useEffect( () => {
 		if ( data.newspack_image_credits_placeholder_url ) {
