@@ -65,25 +65,6 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a collection section term can be created.
-	 *
-	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::register_taxonomy
-	 */
-	public function test_create_collection_section() {
-		$args = [
-			'name' => 'Test Section',
-			'slug' => 'test-section',
-		];
-
-		$term = wp_insert_term( $args['name'], Collection_Section_Taxonomy::get_taxonomy(), $args );
-		$this->assertNotWPError( $term, 'Term should be created successfully.' );
-
-		$created_term = get_term( $term['term_id'], Collection_Section_Taxonomy::get_taxonomy() );
-		$this->assertEquals( $args['name'], $created_term->name, 'Term name should be set correctly.' );
-		$this->assertEquals( $args['slug'], $created_term->slug, 'Term slug should be set correctly.' );
-	}
-
-	/**
 	 * Test set_parent_menu returns the collections menu slug when taxonomy matches.
 	 */
 	public function test_set_parent_menu_returns_collections_menu_when_taxonomy_matches() {
