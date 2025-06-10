@@ -40,24 +40,19 @@ domReady( function () {
 							if ( ! response.ok || json.error ) {
 								throw new Error( json.message || json.error || 'An error occurred. Please try again.' );
 							}
-							return json;
-						} )
-						.then( () => {
-							if ( fetchData.next ) {
-								const nextModal = document.getElementById( `newspack-my-account__${ fetchData.next }` );
-								if ( nextModal ) {
-									modal.setAttribute( 'data-state', 'closed' );
-									nextModal.setAttribute( 'data-state', 'open' );
-								}
-							}
-						} )
-						.catch( error => {
-							const errorsDiv = document.createElement( 'div' );
-							errorsDiv.textContent = error || 'An error occurred.';
-							errorsDiv.classList.add( 'newspack-ui__notice', 'newspack-ui__notice--error' );
-							content.insertBefore( errorsDiv, content.firstChild );
-						} )
-						.finally( () => e.target.removeAttribute( 'disabled' ) );
+						}
+					} )
+					.catch( error => {
+						const errorsDiv = document.createElement( 'div' );
+						errorsDiv.textContent = error || 'An error occurred.';
+						errorsDiv.classList.add( 'newspack-ui__notice', 'newspack-ui__notice--error' );
+						content.insertBefore( errorsDiv, content.firstChild );
+					} )
+					.finally( () => {
+						e.target.removeAttribute( 'disabled' );
+						e.target.classList.remove( 'newspack-ui--loading' );
+						e.target.closest( 'form, div' ).classList.remove( 'newspack-ui--loading' );
+					} );
 				}
 			} );
 		} );

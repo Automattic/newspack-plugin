@@ -117,7 +117,7 @@ class Newspack_UI {
 				</header>
 
 				<?php if ( ! empty( $args['form'] ) ) : ?>
-				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>">
+				<form class="newspack-ui__modal__content <?php echo esc_attr( $args['form_class'] ?? '' ); ?>" method="<?php echo esc_attr( $args['form'] ); ?>" <?php echo esc_attr( $args['form_id'] ? 'id=' . esc_attr( $args['form_id'] ) : '' ); ?>>
 				<?php else : ?>
 				<section class="newspack-ui__modal__content">
 				<?php endif; ?>
@@ -128,15 +128,42 @@ class Newspack_UI {
 								\wp_kses_allowed_html( 'post' ),
 								Newspack_UI_Icons::sanitize_svgs(),
 								[
-									'input' => [
+									'input'    => [
 										'type'          => true,
 										'name'          => true,
 										'id'            => true,
+										'class'         => true,
+										'tabindex'      => true,
 										'placeholder'   => true,
 										'required'      => true,
+										'aria-hidden'   => true,
 										'aria-required' => true,
-										'class'         => true,
 										'value'         => true,
+										'disabled'      => true,
+									],
+									'select'   => [
+										'name'             => true,
+										'id'               => true,
+										'class'            => true,
+										'tabindex'         => true,
+										'required'         => true,
+										'aria-hidden'      => true,
+										'aria-required'    => true,
+										'value'            => true,
+										'disabled'         => true,
+										'multiple'         => true,
+										'autocomplete'     => true,
+										'data-label'       => true,
+										'data-placeholder' => true,
+									],
+									'option'   => [
+										'value'    => true,
+										'selected' => true,
+										'disabled' => true,
+									],
+									'noscript' => [],
+									'iframe'   => [
+										'src' => true,
 									],
 								]
 							)
@@ -263,6 +290,23 @@ class Newspack_UI {
 					<strong>Error box style, plus icon + <code>newspack-ui__box--text-center</code> class.</strong>
 				</p>
 				<p>Plus a little bit of text below it.</p>
+			</div>
+
+			<div class="newspack-ui__box newspack-ui__box--border newspack-ui__box--has-dropdown">
+				<p>Box with "more"-style dropdown menu</p>
+				<div class="newspack-ui__dropdown">
+					<button class="newspack-ui__dropdown__toggle newspack-ui__button newspack-ui__button--icon newspack-ui__button--ghost">
+						<?php \Newspack\Newspack_UI_Icons::print_svg( 'more' ); ?>
+						<span class="screen-reader-text">More</span>
+					</button>
+					<div class="newspack-ui__dropdown__content">
+						<ul>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 1</a></li>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 2</a></li>
+							<li><a class="newspack-ui__button newspack-ui__button--ghost" href="#">Dropdown item 3</a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 
 			<hr>
