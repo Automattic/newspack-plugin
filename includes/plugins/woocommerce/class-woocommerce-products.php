@@ -49,7 +49,8 @@ class WooCommerce_Products {
 	 * @return array Keyed array of custom product options.
 	 */
 	public static function get_custom_options() {
-		return [
+
+		$custom_options = [
 			'newspack_autocomplete_orders' => [
 				'id'            => '_newspack_autocomplete_orders',
 				'wrapper_class' => '',
@@ -59,6 +60,19 @@ class WooCommerce_Products {
 				'product_types' => [ 'simple', 'variation', 'subscription', 'subscription_variation' ],
 			],
 		];
+
+		if ( \Newspack\WooCommerce_Subscriptions_Gifting::is_active() ) {
+			// Don't limit by product type so we can show/hide it based on product settings.
+			$custom_options['newspack_allow_gifting'] = [
+				'id'            => '_newspack_allow_gifting',
+				'wrapper_class' => '',
+				'label'         => __( 'Allow to be gifted', 'newspack-plugin' ),
+				'description'   => __( 'Allow this subscription product to be gifted to another reader.', 'newspack-plugin' ),
+				'default'       => 'no',
+			];
+		}
+
+		return $custom_options;
 	}
 
 	/**

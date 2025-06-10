@@ -19,6 +19,7 @@ class WooCommerce_Subscriptions_Gifting {
 	public static function init() {
 		\add_filter( 'wcsg_new_recipient_account_details_fields', [ __CLASS__, 'new_recipient_fields' ] );
 		\add_filter( 'wcsg_require_shipping_address_for_virtual_products', '__return_false' );
+		\add_filter( 'wcsg_is_giftable_product', [ __CLASS__, 'is_giftable_product' ], 10, 2 );
 		\add_filter( 'default_option_woocommerce_subscriptions_gifting_gifting_checkbox_text', [ __CLASS__, 'default_gifting_checkbox_text' ] );
 		\add_filter( 'newpack_reader_activation_reader_is_without_password', [ __CLASS__, 'is_reader_without_password' ], 10, 2 );
 	}
@@ -79,6 +80,32 @@ class WooCommerce_Subscriptions_Gifting {
 			return 'true' === $user_needs_account_update;
 		}
 		return $is_reader_without_password;
+	}
+
+	/**
+	 * Filter to check if a product is giftable.
+	 *
+	 * @param bool        $is_giftable Whether the product is giftable.
+	 * @param \WC_Product $product The product object.
+	 *
+	 * @return bool
+	 */
+	public static function is_giftable_product( $is_giftable, $product ) {
+		// Check if gifting is enabled for this product.
+		$allow_gifting = get_post_meta( $product->get_id(), '_newspack_allow_gifting', true );
+		if ( 'yes' !== $allow_gifting ) {
+			return false;
+		}
+
+		// Check if product is a subscription type, just in case.
+		$product_type = $product->get_type();
+		if ( ! in_array( $product_type, [ 'subscription', 'variable-subscription' ] ) ) {
+			return false;
+		}
+
+		// Check if subscription limit is set to 'no' (no limit), just in case.
+		$subscription_limit = get_post_meta( $product->get_id(), '_subscription_limit', true );
+		return 'no' === $subscription_limit;
 	}
 }
 WooCommerce_Subscriptions_Gifting::init();
