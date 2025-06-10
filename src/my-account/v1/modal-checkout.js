@@ -74,4 +74,23 @@ domReady( () => {
 			}
 		);
 	} );
+
+	/**
+	 * Order pay.
+	 */
+	const orderPay = document.querySelectorAll( '.pay' );
+	orderPay.forEach( button => {
+		registerModalCheckoutButton(
+			button,
+			newspackMyAccountV1.labels.order_pay_title,
+			'pay_order',
+			data => {
+				// Track the pay order.
+				window.newspackRAS.push( [
+					'pay_order',
+					{ subscription_id: data.subscription_ids?.[ 0 ] },
+				] );
+			}
+		);
+	} );
 } );

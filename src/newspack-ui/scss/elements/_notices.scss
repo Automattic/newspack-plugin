@@ -15,6 +15,10 @@
 			padding: var(--newspack-ui-spacer-3);
 			padding-left: calc(var(--newspack-ui-spacer-3) - 3px);
 
+			a {
+				text-decoration: underline;
+			}
+
 			> svg {
 				display: block;
 				fill: var(--newspack-ui-color-neutral-90);

@@ -27,9 +27,11 @@
 		}
 	}
 	.newspack-wc-message,
-	.woocommerce-message,
-	.woocommerce-info {
+	.woocommerce-message {
 		@extend .newspack-ui__notice--success;
+	}
+	.woocommerce-info {
+		@extend .newspack-ui__notice--warning;
 	}
 	.newspack-wc-message--error,
 	.woocommerce-error {
