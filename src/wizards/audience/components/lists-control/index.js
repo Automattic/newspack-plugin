@@ -8,10 +8,10 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import AutocompleteTokenField from '../../../../components/src/autocomplete-tokenfield';
 
-export default function ListsControl( { label, help, placeholder, value, onChange, path, getDeletedItemLabel } ) {
+export default function ListsControl( { label, help, placeholder, value, onChange, path, deletedItemLabel } ) {
 	const getSuggestions = item => ( {
 		value: isNaN( parseInt( item.id ) ) ? item.id.toString() : parseInt( item.id ),
-		label: item.title || item.name,
+		label: item.title || item.name || deletedItemLabel,
 	} );
 
 	return (
@@ -32,21 +32,18 @@ export default function ListsControl( { label, help, placeholder, value, onChang
 					path,
 				} );
 				const values = Array.isArray( lists ) ? lists : Object.values( lists );
-				const foundItems = values.filter( item => ids.includes( item.id ) ).map( getSuggestions );
+				return ids
+					.map( id => {
+						const item = values.find( it => it.id === id );
+						if ( item ) {
+							return getSuggestions( item );
+						}
+						return deletedItemLabel
+							? getSuggestions( { id } )
+							: false;
+					} )
+					.filter( Boolean );
 
-				// If no callback for the label of deleted items is provided, return found items without checking for deletions.
-				if ( ! getDeletedItemLabel ) {
-					return foundItems;
-				}
-
-				const foundIds = foundItems.map( item => item.value );
-				const missingIds = ids.filter( id => ! foundIds.includes( id ) );
-				const deletedItems = missingIds.map( id => ( {
-					value: isNaN( parseInt( id ) ) ? id.toString() : parseInt( id ),
-					label: getDeletedItemLabel( id ),
-				} ) );
-
-				return [ ...foundItems, ...deletedItems ];
 			} }
 			onChange={ onChange }
 		/>
