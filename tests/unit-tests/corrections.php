@@ -640,6 +640,40 @@ class Test_Corrections extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that corrections are set to private when the post is scheduled.
+	 *
+	 * @covers Corrections::update_corrections_status
+	 */
+	public function test_corrections_set_to_private_when_post_scheduled() {
+		$correction = array(
+			'content'  => 'Test correction content',
+			'type'     => 'correction',
+			'date'     => current_time( 'mysql' ),
+			'priority' => 'low',
+		);
+
+		$correction_id = Corrections::add_correction( self::$post_id, $correction );
+		$this->assertNotWPError( $correction_id );
+		$this->assertNotEquals( 0, $correction_id );
+
+		// Schedule the post.
+		$future_date = gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) );
+		wp_update_post(
+			array(
+				'ID'            => self::$post_id,
+				'post_status'   => 'future',
+				'post_date'     => $future_date,
+				'post_date_gmt' => $future_date,
+			)
+		);
+
+		// Check that correction status was set to private.
+		$updated_correction = get_post( $correction_id );
+		$this->assertEquals( 'private', $updated_correction->post_status, 'Correction status should be set to private when post is scheduled.' );
+		$this->assertEquals( $correction['date'], $updated_correction->post_date, 'Correction date should be preserved.' );
+	}
+
+	/**
 	 * Test that corrections can be filtered by supported post types.
 	 *
 	 * @covers Corrections::get_supported_post_types

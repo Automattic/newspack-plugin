@@ -56,8 +56,21 @@ class WooCommerce_Products {
 				'label'         => __( 'Auto-complete orders', 'newspack-plugin' ),
 				'description'   => __( 'Allow orders containing this product to automatically complete upon successful payment.', 'newspack-plugin' ),
 				'default'       => 'yes',
+				'product_types' => [ 'simple', 'variation', 'subscription', 'subscription_variation' ],
 			],
 		];
+	}
+
+	/**
+	 * Get config for a custom product option.
+	 *
+	 * @param string $option_name The name of the option.
+	 *
+	 * @return array|null The config for the option, or null if the option doesn't exist.
+	 */
+	public static function get_custom_option_config( $option_name ) {
+		$custom_options = self::get_custom_options();
+		return isset( $custom_options[ $option_name ] ) ? $custom_options[ $option_name ] : null;
 	}
 
 	/**
@@ -95,8 +108,16 @@ class WooCommerce_Products {
 	 * @return array
 	 */
 	public static function show_custom_product_options( $options ) {
+		$product = \wc_get_product( get_the_ID() );
+		if ( ! $product ) {
+			return $options;
+		}
+
 		$custom_options = self::get_custom_options();
 		foreach ( $custom_options as $option_key => $option_config ) {
+			if ( isset( $option_config['product_types'] ) && ! in_array( $product->get_type(), $option_config['product_types'], true ) ) {
+				continue;
+			}
 			if ( ! isset( $options[ $option_key ] ) ) {
 				$options[ $option_key ] = $option_config;
 			}
@@ -122,10 +143,10 @@ class WooCommerce_Products {
 		foreach ( $custom_options as $option_key => $option_config ) {
 			$meta_key = $option_config['id'];
 			?>
-			<label class="tips show_if_variation_virtual" data-tip="<?php echo esc_attr( $option_config['description'] ); ?>">
+			<label class="tips" data-tip="<?php echo esc_attr( $option_config['description'] ); ?>">
 				<?php echo esc_html( $option_config['label'] ); ?>
 				<input
-					type="checkbox" class="checkbox show_if_variation_virtual variable_<?php echo esc_attr( $option_key ); ?>"
+					type="checkbox" class="checkbox variable_<?php echo esc_attr( $option_key ); ?>"
 					name="<?php echo esc_attr( $meta_key . '[' . $loop . ']' ); ?>"
 					<?php \checked( self::get_custom_option_value( $variation, $option_key ), true ); ?>
 				/>
@@ -197,6 +218,10 @@ class WooCommerce_Products {
 	 * @param WC_Product $product The product associated with this order item.
 	 */
 	public static function require_order_processing( $needs_proccessing, $product ) {
+		$config = self::get_custom_option_config( 'newspack_autocomplete_orders' );
+		if ( ! $config || ( isset( $config['product_types'] ) && ! in_array( $product->get_type(), $config['product_types'], true ) ) ) {
+			return $needs_proccessing;
+		}
 		return self::get_custom_option_value( $product, 'newspack_autocomplete_orders' ) ? false : $needs_proccessing;
 	}
 }
