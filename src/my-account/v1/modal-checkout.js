@@ -80,15 +80,22 @@ domReady( () => {
 	 */
 	const orderPay = document.querySelectorAll( '.pay' );
 	orderPay.forEach( button => {
+		const subscriptionId = button.dataset?.subscriptionId;
+		const action = button.dataset?.action || 'pay_order';
 		registerModalCheckoutButton(
 			button,
-			newspackMyAccountV1.labels.order_pay_title,
-			'pay_order',
+			button.dataset?.title || null,
+			action,
 			data => {
-				// Track the pay order.
+				// Track the action.
 				window.newspackRAS.push( [
-					'pay_order',
-					{ subscription_id: data.subscription_ids?.[ 0 ] },
+					action,
+					{
+						subscription_id:
+							subscriptionId || data.subscription_renewal
+								? data.subscription_renewal
+								: data.subscription_ids?.[ 0 ],
+					},
 				] );
 			}
 		);
