@@ -34,7 +34,7 @@
 		if ( 'no' === $subscriptionLimit && ( $productType === 'subscription' || $productType === 'variable-subscription' ) ) {
 			$giftingLabel.show();
 
-			// Restore previous state of the checkboxif it exists
+			// Restore previous state of the checkbox from this product edit session, if it exists.
 			const previousState = $giftingCheckbox.data( 'previous-state' );
 			if ( previousState !== undefined ) {
 				// If undefined, switch it to the default (unchecked) state.
@@ -42,7 +42,7 @@
 				$giftingCheckbox.removeData( 'previous-state' );
 			}
 		} else {
-			// Store current state before hiding.
+			// Store current state before unchecking the checkbox and hiding it.
 			$giftingCheckbox.data( 'previous-state', $giftingCheckbox.prop( 'checked' ) );
 			$giftingCheckbox.prop( 'checked', false );
 			$giftingLabel.hide();
@@ -53,9 +53,9 @@
 	$( document ).ready( function() {
 		handleGiftingCheckbox();
 
-		// Update when subscription limit changes.
+		// Update when the subscription limit changes.
 		$( '#_subscription_limit' ).on( 'change', handleGiftingCheckbox );
-		// Update when product type changes (switching to and away from subscription products).
+		// Update when the product type changes (switching to and away from subscription products).
 		$( '#product-type' ).on( 'change', handleGiftingCheckbox );
 	} );
 } )( jQuery );
