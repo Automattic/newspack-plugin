@@ -4,6 +4,7 @@
 
 @use "variables";
 @use "components";
+@use "modals";
 @use "navigation";
 @use "content";
 @use "forms";
@@ -18,18 +19,17 @@
 			width: auto;
 		}
 		.woocommerce {
+			padding: var(--newspack-ui-spacer-10) var(--newspack-ui-spacer-3);
+
 			/* WooCommerce breakpoint is 768px. */
 			@media ( min-width: 768px ) {
-				padding-left: 300px;
+				padding-left: var(--newspack-ui-spacer-5);
+				padding-right: var(--newspack-ui-spacer-5);
 			}
 		}
 		.woocommerce-MyAccount-navigation,
 		.woocommerce-MyAccount-content {
 			float: none;
-			@media ( min-width: 768px ) {
-				padding-bottom: var(--newspack-ui-spacer-9);
-				padding-top: var(--newspack-ui-spacer-9);
-			}
 		}
 	}
 }
