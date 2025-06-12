@@ -30,6 +30,7 @@ domReady( function () {
 
 				if ( editAddressModal ) {
 					editAddressModal.setAttribute( 'data-state', 'open' );
+					button.closest('div').classList.remove( 'newspack-ui--loading' );
 					jQuery( document.body ).trigger( 'refresh' );
 				}
 			} );
