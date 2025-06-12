@@ -85,8 +85,9 @@ export function registerModalCheckoutButton(
 	);
 
 	const openCheckout = async url => {
-		await fetch( url );
+		const response = await fetch( url );
 		window.newspackOpenModalCheckout( {
+			url: response.url,
 			title,
 			actionType,
 			onCheckoutComplete: data => {
