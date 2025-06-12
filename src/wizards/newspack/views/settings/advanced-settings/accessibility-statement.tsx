@@ -169,13 +169,17 @@ export default function AccessibilityStatement( { isFetching }: AccessibilitySta
 
 			<p>
 				{ __( 'An accessibility statement helps your readers understand how your site supports accessibility standards and what to do if they encounter accessibility issues. ', 'newspack-plugin' ) }
-				<ExternalLink href="https://www.w3.org/WAI/planning/statements/">{ __( 'Learn more about what makes a good accessibility statement.', 'newspack-plugin' ) } </ExternalLink>
+				<ExternalLink href="https://www.w3.org/WAI/planning/statements/">{ __( 'What makes a good accessibility statement.', 'newspack-plugin' ) } </ExternalLink>
 			</p>
 
 			<p>
-				{ __( 'The page you create here will include a boilerplate accessibility statement, but we highly recommend you use the W3C Accessibility Statement Generator to create a custom statement. ', 'newspack-plugin' ) }
+				{ __( 'The page you create here will include a boilerplate accessibility statement. ', 'newspack-plugin' ) }
+				<strong>{ __( 'Please review and make edits to ensure it meets the requirements before publishing. ', 'newspack-plugin' ) }</strong>
+				{ __( 'You can also use the W3C Accessibility Statement Generator to create a custom statement. ', 'newspack-plugin' ) }
 				<ExternalLink href="https://www.w3.org/WAI/planning/statements/generator/#create">{ __( 'Try out the Accessibility Statement Generator.', 'newspack-plugin' ) } </ExternalLink>
 			</p>
+
+			<p><ExternalLink href="https://help.newspack.com/revenue/reader-revenue/how-to-add-an-accessibility-statement/">{ __( 'Learn more about this feature in our documentation.', 'newspack-plugin' ) } </ExternalLink></p>
 		</>
 	);
 }
