@@ -100,6 +100,8 @@ const Wizard = ( {
 		];
 	}
 
+	const urlWithoutHash = window.location.href.split('#')[0];
+
 	return (
 		<div ref={ref}>
 			<div
@@ -117,7 +119,7 @@ const Wizard = ( {
 					<div className="bg-white">
 						<div className="newspack-wizard__header__inner">
 							<div className="newspack-wizard__title">
-								{ newspack_urls.dashboard !== window.location.href ? (
+								{ newspack_urls.dashboard !== urlWithoutHash ? (
 									<Button
 										isLink
 										href={ newspack_urls.dashboard }
