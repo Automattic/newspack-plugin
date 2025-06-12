@@ -2,6 +2,12 @@
 
 This directory contains the core implementation of the Newspack Collections system, which provides a structured way to manage and organize content collections in WordPress.
 
+Collections can be used for a number of things, but in Newspack it's usually used to organize Print issues. When an online publication also has a print edition, collections can be used to organize a digital version of their print publication.
+
+Each issue will be a collection and, inside each collection you can browse all the posts that are part of that issue, organized by the same sections used in the print publication.
+
+Readers are also able to browse the archive of issues (collections), with a nice grid view showing all the covers. If available, they can also see or download the PDF with the print edition itself.
+
 ## Usage
 
 ### Enabling the module
@@ -38,13 +44,21 @@ The Collections system is built around a custom post type (`newspack_collection`
 
 ## Backend components
 
-### 1. Collection custom post type ([`class-post-type.php`](class-post-type.php))
+### 1. Anatomy of a collection
+
+A collection is a post of the `newspack_collection` CPT and a term of the `newspack_collection_taxonomy` at the same time. Both entities are linked together and share the same name.
+
+A post is assigned to a collection via the `newspack_collection_taxonomy` taxonomy. Posts can also be organized in the `newspack_collection_section` taxonomy. When visiting the Collections page (single template for the collection CPT), posts will be listed organized by the Sections taxonomy.
+
+The collections themselves can also be categorized using the `newspack_collection_category` taxonomy. This will allow us to not only have one archive to list all the collections, but additional archives for each Collection category.
+
+### 2. Collection custom post type ([`class-post-type.php`](class-post-type.php))
 - Defined as a `newspack_collection` CPT.
 - Supports: `title`, `editor`, `thumbnail`, `custom-fields`, and `page-attributes`.
 - Includes custom ordering functionality via `menu_order`.
 - Provides admin interface customizations.
 
-### 2. Collection post meta fields ([`class-collection-meta.php`](class-collection-meta.php))
+### 3. Collection post meta fields ([`class-collection-meta.php`](class-collection-meta.php))
 
 The following table details all available meta fields for collections:
 
@@ -52,18 +66,18 @@ The following table details all available meta fields for collections:
 |------------|------|-------------|---------|
 | `newspack_collection_file_attachment` | Integer | For uploaded file | Attachment ID |
 | `newspack_collection_file_link` | String | External file URL | Valid URL |
-| `newspack_collection_volume` | String | Collection volume information | Text |
-| `newspack_collection_number` | String | Collection number | Text |
+| `newspack_collection_volume` | String | Collection volume information | Text (e.g. "IV") |
+| `newspack_collection_number` | String | Collection number | Text (e.g "#22") |
 | `newspack_collection_period` | String | Collection period | Text (e.g., "Spring 2025") |
-| `newspack_collection_subscribe_link` | String | Subscription URL | Valid URL |
-| `newspack_collection_order_link` | String | Order URL | Valid URL |
+| `newspack_collection_subscribe_link` | String | A link to subscribe that will be displayed as a button in the collection page | Valid URL |
+| `newspack_collection_order_link` | String | A link to order the physical version of that collection | Valid URL |
 
-### 3. Data management ([`class-collections-data.php`](class-collections-data.php))
+### 4. Data management ([`class-collections-data.php`](class-collections-data.php))
 - Manages JavaScript data localization.
 - Provides a common interface for adding/retrieving collection data dynamically.
 - Handles script enqueuing for rendering the localized data in a single place.
 
-### 4. Taxonomies
+### 5. Taxonomies
 The system includes multiple taxonomy classes for organizing collections:
 
 #### Collection category taxonomy ([`class-collection-category-taxonomy.php`](class-collection-category-taxonomy.php))
@@ -87,7 +101,7 @@ The system includes multiple taxonomy classes for organizing collections:
 - Adds a new "Collection" column to the post list.
 - Terms can be deactivated via an internal `_newspack_collection_inactive` term meta. Used when trashing posts, as terms don't manage status.
 
-### 5. Synchronization ([`class-sync.php`](class-sync.php))
+### 6. Synchronization ([`class-sync.php`](class-sync.php))
 - Handles synchronization of collection posts and collection terms.
 - Ensures data consistency across objects using a two-way meta relationship:
   - For posts, link via `_newspack_collection_term_id` internal post meta.
@@ -104,7 +118,7 @@ Term edited    -> Post edited (copy title and slug)
 Term deleted   -> Post trashed (to prevent data loss)
 ```
 
-### 6. Post meta fields ([`class-post-meta.php`](class-post-meta.php))
+### 7. Post meta fields ([`class-post-meta.php`](class-post-meta.php))
 - Meta key: `newspack_order_in_collection`.
 - Used for storing the post order in collection.
 
