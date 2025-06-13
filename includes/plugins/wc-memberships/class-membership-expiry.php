@@ -48,6 +48,13 @@ class Membership_Expiry {
 						$user_membership->set_order_id( $first_parent_order_id );
 					}
 					$user_membership->update_status( 'active' );
+					$user_membership->add_note(
+						sprintf(
+							/* translators: %s: Subscription ID */
+							__( 'Another active subscription for this product was found (Subscription ID: %s). Expiry prevented.', 'newspack-plugin' ),
+							$subscription_id
+						)
+					);
 					$cancel_membership = false;
 					break;
 				}
