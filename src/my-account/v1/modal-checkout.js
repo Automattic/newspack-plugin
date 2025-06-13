@@ -38,4 +38,25 @@ domReady( () => {
 			window.newspackRAS.push( [ 'renewal_early', { subscription_id: data.subscription_renewal } ] );
 		} );
 	} );
+
+	/**
+	 * Change payment method.
+	 */
+	const changePaymentMethod = document.querySelectorAll(
+		'.change_payment_method'
+	);
+	changePaymentMethod.forEach( button => {
+		registerModalCheckoutButton(
+			button,
+			newspackMyAccountV1.labels.change_payment_method_title,
+			'change_payment_method',
+			data => {
+				// Track the change payment method.
+				window.newspackRAS.push( [
+					'change_payment_method',
+					{ subscription_id: data.subscription_ids?.[ 0 ] },
+				] );
+			}
+		);
+	} );
 } );

@@ -77,8 +77,9 @@ export function registerModalCheckoutButton( element, title, actionType, onCheck
 	const myAccountContent = document.querySelector( '.woocommerce-MyAccount-content' );
 
 	const openCheckout = async url => {
-		await fetch( url );
+		const response = await fetch( url );
 		window.newspackOpenModalCheckout( {
+			url: response.url,
 			title,
 			actionType,
 			onCheckoutComplete: data => {
