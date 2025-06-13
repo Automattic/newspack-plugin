@@ -239,7 +239,7 @@ class Collection_Section_Taxonomy {
 	 * @param WP_Term_Query $query The term query object.
 	 */
 	public static function handle_admin_sorting( $query ) {
-		if ( is_admin() ) {
+		if ( is_admin() && function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
 
 			if (
