@@ -78,7 +78,7 @@ class Settings {
 	public static function get_setting( $key, $default_value = null ) {
 		$settings = self::get_settings();
 
-		return isset( $settings[ $key ] ) ? $settings[ $key ] : $default_value;
+		return ( isset( $settings[ $key ] ) && '' !== $settings[ $key ] ) ? $settings[ $key ] : $default_value;
 	}
 
 	/**

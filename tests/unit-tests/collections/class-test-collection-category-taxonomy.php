@@ -11,6 +11,7 @@ namespace Newspack\Tests\Unit\Collections;
 use WP_UnitTestCase;
 use Newspack\Collections\Collection_Category_Taxonomy;
 use Newspack\Collections\Post_Type;
+use Newspack\Collections\Settings;
 
 /**
  * Test the Collection Category Taxonomy functionality.
@@ -62,5 +63,25 @@ class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 			$result[ 'taxonomy-' . Collection_Category_Taxonomy::get_taxonomy() ],
 			'The taxonomy column label should be changed to "Categories".'
 		);
+	}
+
+	/**
+	 * Test collection category taxonomy uses custom slug.
+	 *
+	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::register_taxonomy
+	 */
+	public function test_collection_category_taxonomy_with_custom_slug() {
+		$custom_slug = 'magazine';
+
+		$custom_settings = [
+			'custom_naming_enabled' => true,
+			'custom_slug'           => $custom_slug,
+		];
+		update_option( Settings::OPTION_NAME, $custom_settings );
+
+		Collection_Category_Taxonomy::register_taxonomy();
+
+		$taxonomy = get_taxonomy( Collection_Category_Taxonomy::get_taxonomy() );
+		$this->assertEquals( $custom_slug . '-category', $taxonomy->rewrite['slug'] );
 	}
 }
