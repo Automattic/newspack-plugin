@@ -24,7 +24,6 @@ class Patches {
 		add_action( 'manage_edit-wp_block_columns', [ __CLASS__, 'add_custom_columns' ] );
 		add_action( 'manage_edit-wp_block_sortable_columns', [ __CLASS__, 'add_sortable_columns' ] );
 		add_action( 'manage_wp_block_posts_custom_column', [ __CLASS__, 'custom_column_content' ], 10, 2 );
-		add_filter( 'wpseo_opengraph_url', [ __CLASS__, 'http_ogurls' ] );
 		add_filter( 'map_meta_cap', [ __CLASS__, 'prevent_accidental_page_deletion' ], 10, 4 );
 		add_action( 'pre_post_update', [ __CLASS__, 'prevent_unpublish_front_page' ], 10, 2 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'maybe_display_author_page' ] );
@@ -167,20 +166,6 @@ class Patches {
 				);
 				break;
 		}
-	}
-
-	/**
-	 * On Atomic infrastructure, URLs are `http` for Facebook requests.
-	 * This forces the `og:url` to `http` for consistency, to prevent 301 redirect loop issues.
-	 *
-	 * @param string $og_url The opengraph URL.
-	 * @return string modified $og_url
-	 */
-	public static function http_ogurls( $og_url ) {
-		if ( defined( 'ATOMIC_SITE_ID' ) && ATOMIC_SITE_ID ) {
-			$og_url = str_replace( 'https:', 'http:', $og_url );
-		}
-		return $og_url;
 	}
 
 	/**
