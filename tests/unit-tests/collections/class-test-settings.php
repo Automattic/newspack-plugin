@@ -151,11 +151,11 @@ class Test_Settings extends WP_UnitTestCase {
 		$this->assertEquals( 'https://example.com/subscribe', $url_callback( 'https://example.com/subscribe' ) );
 		$this->assertEquals( '', $url_callback( 'javascript:alert("xss")' ) ); // Dangerous URLs should be sanitized to empty string.
 
-		// Test permastruct base sanitization.
-		$permastruct_callback = $rest_args['custom_permastruct_base']['sanitize_callback'];
-		$this->assertEquals( 'clean-slug', $permastruct_callback( 'Clean Slug' ) );
-		$this->assertEquals( 'clean-slug', $permastruct_callback( 'Clean Slug!' ) );
-		$this->assertEquals( '', $permastruct_callback( 123 ) ); // Non-string should return empty string.
+		// Test slug sanitization.
+		$slug_callback = $rest_args['custom_slug']['sanitize_callback'];
+		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug' ) );
+		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug!' ) );
+		$this->assertEquals( '', $slug_callback( 123 ) ); // Non-string should return empty string.
 	}
 
 	/**

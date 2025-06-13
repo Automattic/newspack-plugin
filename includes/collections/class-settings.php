@@ -23,11 +23,11 @@ class Settings {
 	 * Settings fields and their defaults.
 	 */
 	const FIELDS = [
-		'custom_naming_enabled'   => false,
-		'custom_name'             => '',
-		'custom_singular_name'    => '',
-		'custom_permastruct_base' => '',
-		'subscribe_link'          => '',
+		'custom_naming_enabled' => false,
+		'custom_name'           => '',
+		'custom_singular_name'  => '',
+		'custom_slug'           => '',
+		'subscribe_link'        => '',
 	];
 
 	/**
@@ -87,25 +87,25 @@ class Settings {
 	 */
 	public static function get_rest_args() {
 		return [
-			'custom_naming_enabled'   => [
+			'custom_naming_enabled' => [
 				'required'          => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			],
-			'custom_name'             => [
+			'custom_name'           => [
 				'required'          => false,
 				'sanitize_callback' => 'sanitize_text_field',
 			],
-			'custom_singular_name'    => [
+			'custom_singular_name'  => [
 				'required'          => false,
 				'sanitize_callback' => 'sanitize_text_field',
 			],
-			'custom_permastruct_base' => [
+			'custom_slug'           => [
 				'required'          => false,
 				'sanitize_callback' => function ( $value ) {
 					return sanitize_title( is_string( $value ) ? $value : '' );
 				},
 			],
-			'subscribe_link'          => [
+			'subscribe_link'        => [
 				'required'          => false,
 				'sanitize_callback' => 'esc_url_raw',
 			],

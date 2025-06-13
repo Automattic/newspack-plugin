@@ -51,7 +51,7 @@ class Test_Collections_Section extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'custom_naming_enabled', $result );
 		$this->assertArrayHasKey( 'custom_name', $result );
 		$this->assertArrayHasKey( 'custom_singular_name', $result );
-		$this->assertArrayHasKey( 'custom_permastruct_base', $result );
+		$this->assertArrayHasKey( 'custom_slug', $result );
 		$this->assertArrayHasKey( 'subscribe_link', $result );
 	}
 
@@ -109,25 +109,25 @@ class Test_Collections_Section extends WP_UnitTestCase {
 	 * @covers \Newspack\Wizards\Newspack\Collections_Section::api_update_settings
 	 */
 	public function test_api_update_settings_updates_custom_name_options() {
-		$custom_name             = 'Issues';
-		$custom_singular_name    = 'Issue';
-		$custom_permastruct_base = 'issue';
+		$custom_name          = 'Issues';
+		$custom_singular_name = 'Issue';
+		$custom_slug          = 'issue';
 
 		$request = new WP_REST_Request();
 		$request->set_param( 'custom_name', $custom_name );
 		$request->set_param( 'custom_singular_name', $custom_singular_name );
-		$request->set_param( 'custom_permastruct_base', $custom_permastruct_base );
+		$request->set_param( 'custom_slug', $custom_slug );
 
 		$result = Collections_Section::api_update_settings( $request );
 
 		$this->assertEquals( $custom_name, $result['custom_name'] );
 		$this->assertEquals( $custom_singular_name, $result['custom_singular_name'] );
-		$this->assertEquals( $custom_permastruct_base, $result['custom_permastruct_base'] );
+		$this->assertEquals( $custom_slug, $result['custom_slug'] );
 
 		$collection_settings = get_option( Settings::OPTION_NAME );
 		$this->assertEquals( $custom_name, $collection_settings['custom_name'] );
 		$this->assertEquals( $custom_singular_name, $collection_settings['custom_singular_name'] );
-		$this->assertEquals( $custom_permastruct_base, $collection_settings['custom_permastruct_base'] );
+		$this->assertEquals( $custom_slug, $collection_settings['custom_slug'] );
 	}
 
 	/**

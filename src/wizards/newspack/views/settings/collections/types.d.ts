@@ -4,7 +4,7 @@ type CollectionsSettingsData = {
 	custom_naming_enabled: boolean;
 	custom_name: string;
 	custom_singular_name: string;
-	custom_permastruct_base: string;
+	custom_slug: string;
 	subscribe_link: string;
 };
 

@@ -21,7 +21,7 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_naming_enabled: false,
 	custom_name: '',
 	custom_singular_name: '',
-	custom_permastruct_base: '',
+	custom_slug: '',
 	subscribe_link: '',
 };
 

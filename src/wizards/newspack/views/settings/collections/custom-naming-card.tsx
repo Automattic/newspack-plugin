@@ -60,9 +60,9 @@ const CustomNamingCard: React.FC< CustomNamingCardProps > = ( {
 						'Base slug to be used instead of "collection" in permalinks and the REST API (e.g., "issue", "magazine")',
 						'newspack-plugin'
 					) }
-					value={ settings.custom_permastruct_base }
+					value={ settings.custom_slug }
 					onChange={ ( value: string ) =>
-						onChange( 'custom_permastruct_base', value )
+						onChange( 'custom_slug', value )
 					}
 					placeholder="collection"
 				/>
