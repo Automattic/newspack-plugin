@@ -13,7 +13,7 @@ import Social from './social';
 import Emails from './emails';
 import Connections from './connections';
 import Syndication from './syndication';
-import DisplaySettings from './display-settings';
+import AdvancedSettings from './advanced-settings';
 import ThemeAndBrand from './theme-and-brand';
 import Collections from './collections';
 
@@ -31,7 +31,7 @@ const sectionComponents: Partial<
 	syndication: Syndication,
 	seo: Seo,
 	'theme-and-brand': ThemeAndBrand,
-	'display-settings': DisplaySettings,
+	'advanced-settings': AdvancedSettings,
 	collections: Collections,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
