@@ -73,23 +73,37 @@ class Collection_Taxonomy {
 	 * Register the Collections taxonomy.
 	 */
 	public static function register_taxonomy() {
+		[ 'name' => $name, 'singular_name' => $singular_name ] = Settings::get_custom_names(
+			_x( 'Collections', 'collection taxonomy general name', 'newspack-plugin' ),
+			_x( 'Collection', 'collection taxonomy singular name', 'newspack-plugin' )
+		);
+
 		$labels = [
-			'name'              => _x( 'Collections', 'taxonomy general name', 'newspack-plugin' ),
-			'singular_name'     => _x( 'Collection', 'taxonomy singular name', 'newspack-plugin' ),
-			'search_items'      => __( 'Search Collections', 'newspack-plugin' ),
-			'all_items'         => __( 'All Collections', 'newspack-plugin' ),
-			'parent_item'       => __( 'Parent Collection', 'newspack-plugin' ),
-			'parent_item_colon' => __( 'Parent Collection:', 'newspack-plugin' ),
-			'edit_item'         => __( 'Edit Collection', 'newspack-plugin' ),
-			'update_item'       => __( 'Update Collection', 'newspack-plugin' ),
-			'add_new_item'      => __( 'Add New Collection', 'newspack-plugin' ),
-			'new_item_name'     => __( 'New Collection Name', 'newspack-plugin' ),
-			'menu_name'         => __( 'Collections', 'newspack-plugin' ),
+			'name'          => $name,
+			'singular_name' => $singular_name,
+			/* translators: %s: Collection plural name */
+			'search_items'  => sprintf( _x( 'Search %s', 'label for search collection terms', 'newspack-plugin' ), $name ),
+			/* translators: %s: Collection plural name */
+			'popular_items' => sprintf( _x( 'Popular %s', 'label for popular collection terms', 'newspack-plugin' ), $name ),
+			/* translators: %s: Collection plural name */
+			'all_items'     => sprintf( _x( 'All %s', 'label for all collection terms', 'newspack-plugin' ), $name ),
+			/* translators: %s: Collection singular name */
+			'view_item'     => sprintf( _x( 'View %s', 'label for view collection term', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'edit_item'     => sprintf( _x( 'Edit %s', 'label for edit collection term', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'update_item'   => sprintf( _x( 'Update %s', 'label for update collection term', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'add_new_item'  => sprintf( _x( 'Add New %s', 'label for add new collection term', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'new_item_name' => sprintf( _x( 'New %s Name', 'label for new collection term name', 'newspack-plugin' ), $singular_name ),
+			'menu_name'     => $name,
 		];
 
 		$args = [
 			'labels'            => $labels,
-			'description'       => __( 'Internal taxonomy for associating collections with posts.', 'newspack-plugin' ),
+			/* translators: %s: Collection plural name in lowercase */
+			'description'       => sprintf( __( 'Internal taxonomy for associating %s with posts.', 'newspack-plugin' ), strtolower( $name ) ),
 			'public'            => false,
 			'show_ui'           => true,
 			'show_in_menu'      => false,

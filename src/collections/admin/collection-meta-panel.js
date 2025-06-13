@@ -31,7 +31,11 @@ const isValidUrl = value => {
 	}
 };
 
-const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
+const CollectionMetaPanel = ( {
+	postType,
+	postMetaDefinitions,
+	panelTitle,
+} ) => {
 	const [ fieldErrors, setFieldErrors ] = useState( {} );
 	const { editPost, lockPostSaving, unlockPostSaving } =
 		useDispatch( editorStore );
@@ -105,7 +109,7 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 		postType === currentPostType && (
 			<PluginDocumentSettingPanel
 				name="newspack-collections-meta-panel"
-				title={ __( 'Collection Details', 'newspack-plugin' ) }
+				title={ panelTitle }
 				className="newspack-collections-meta-panel"
 				icon="media-document"
 			>
@@ -159,16 +163,11 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 
 // Register the plugin if the collection meta definitions are available.
 domReady( () => {
-	const { collectionPostType } = window.newspackCollections || {};
+	const { collectionPostType: props } = window.newspackCollections || {};
 
-	if ( collectionPostType?.postType && collectionPostType?.postMeta ) {
+	if ( props?.postType && props?.postMetaDefinitions && props?.panelTitle ) {
 		registerPlugin( 'newspack-collection-meta-panel', {
-			render: () => (
-				<CollectionMetaPanel
-					postType={ collectionPostType.postType }
-					postMetaDefinitions={ collectionPostType.postMeta }
-				/>
-			),
+			render: () => <CollectionMetaPanel { ...props } />,
 			icon: 'media-document',
 		} );
 	}

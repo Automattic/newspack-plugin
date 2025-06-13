@@ -90,31 +90,49 @@ class Post_Type {
 	 * Register the Collections custom post type.
 	 */
 	public static function register_post_type() {
+		[ 'name' => $name, 'singular_name' => $singular_name, 'slug' => $slug ] = Settings::get_custom_names(
+			_x( 'Collections', 'collection post type general name', 'newspack-plugin' ),
+			_x( 'Collection', 'collection post type singular name', 'newspack-plugin' )
+		);
+
 		$labels = [
-			'name'               => _x( 'Collections', 'post type general name', 'newspack-plugin' ),
-			'singular_name'      => _x( 'Collection', 'post type singular name', 'newspack-plugin' ),
-			'menu_name'          => _x( 'Collections', 'admin menu', 'newspack-plugin' ),
-			'name_admin_bar'     => _x( 'Collection', 'add new on admin bar', 'newspack-plugin' ),
-			'add_new'            => _x( 'Add New', 'collection', 'newspack-plugin' ),
-			'add_new_item'       => __( 'Add New Collection', 'newspack-plugin' ),
-			'new_item'           => __( 'New Collection', 'newspack-plugin' ),
-			'edit_item'          => __( 'Edit Collection', 'newspack-plugin' ),
-			'view_item'          => __( 'View Collection', 'newspack-plugin' ),
-			'all_items'          => __( 'All Collections', 'newspack-plugin' ),
-			'search_items'       => __( 'Search Collections', 'newspack-plugin' ),
-			'parent_item_colon'  => __( 'Parent Collections:', 'newspack-plugin' ),
-			'not_found'          => __( 'No collections found.', 'newspack-plugin' ),
-			'not_found_in_trash' => __( 'No collections found in Trash.', 'newspack-plugin' ),
-			'item_published'     => __( 'Collection published', 'newspack-plugin' ),
-			'item_updated'       => __( 'Collection updated', 'newspack-plugin' ),
+			'name'               => $name,
+			'singular_name'      => $singular_name,
+			'add_new'            => _x( 'Add New', 'label for add new collection', 'newspack-plugin' ),
+			/* translators: %s: Collection singular name */
+			'add_new_item'       => sprintf( _x( 'Add New %s', 'label for add new collection', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'edit_item'          => sprintf( _x( 'Edit %s', 'label for edit collection', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'new_item'           => sprintf( _x( 'New %s', 'label for new collection', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'view_item'          => sprintf( _x( 'View %s', 'label for view collection', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection plural name */
+			'view_items'         => sprintf( _x( 'View %s', 'label for view collections', 'newspack-plugin' ), $name ),
+			/* translators: %s: Collection plural name */
+			'search_items'       => sprintf( _x( 'Search %s', 'label for search collections', 'newspack-plugin' ), $name ),
+			/* translators: %s: Collection plural name in lowercase */
+			'not_found'          => sprintf( _x( 'No %s found.', 'label for no collections found', 'newspack-plugin' ), strtolower( $name ) ),
+			/* translators: %s: Collection plural name in lowercase */
+			'not_found_in_trash' => sprintf( _x( 'No %s found in Trash.', 'label for no collections found in trash', 'newspack-plugin' ), strtolower( $name ) ),
+			/* translators: %s: Collection plural name */
+			'all_items'          => sprintf( _x( 'All %s', 'label for all collections', 'newspack-plugin' ), $name ),
+			/* translators: %s: Collection singular name */
+			'item_published'     => sprintf( _x( '%s published', 'label for published collection', 'newspack-plugin' ), $singular_name ),
+			/* translators: %s: Collection singular name */
+			'item_updated'       => sprintf( _x( '%s updated', 'label for updated collection', 'newspack-plugin' ), $singular_name ),
 		];
 
 		$args = [
-			'label'        => __( 'Collection', 'newspack-plugin' ),
+			'label'        => $singular_name,
 			'labels'       => $labels,
-			'description'  => __( 'Collections of content for custom classification.', 'newspack-plugin' ),
+			'description'  => __( 'Grouped content for custom classification.', 'newspack-plugin' ),
 			'public'       => true,
 			'show_in_rest' => true,
+			'rest_base'    => $slug,
+			'rewrite'      => [
+				'slug' => $slug,
+			],
 			'menu_icon'    => 'dashicons-portfolio',
 			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes' ],
 			'has_archive'  => true,
@@ -167,11 +185,18 @@ class Post_Type {
 			'post' === $current_screen->base &&
 			self::get_post_type() === $current_screen->post_type
 		) {
+			[ 'singular_name' => $singular_name ] = Settings::get_custom_names();
+
 			Enqueuer::add_data(
 				'collectionPostType',
 				[
-					'postType' => self::get_post_type(),
-					'postMeta' => Collection_Meta::get_frontend_meta_definitions(),
+					'postType'            => self::get_post_type(),
+					'postMetaDefinitions' => Collection_Meta::get_frontend_meta_definitions(),
+					'panelTitle'          => sprintf(
+						/* translators: %s: Collection singular name */
+						_x( '%s Details', 'title for collection details panel', 'newspack-plugin' ),
+						$singular_name
+					),
 				]
 			);
 		}
