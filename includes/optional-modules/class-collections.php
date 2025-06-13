@@ -5,10 +5,11 @@
  * @package Newspack
  */
 
-namespace Newspack;
+namespace Newspack\Optional_Modules;
 
 defined( 'ABSPATH' ) || exit;
 
+use Newspack\Optional_Modules;
 use Newspack\Collections\Enqueuer;
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Collection_Taxonomy;
@@ -25,7 +26,7 @@ class Collections {
 	 *
 	 * @var string
 	 */
-	const MODULE_NAME = 'collections';
+	public const MODULE_NAME = 'collections';
 
 	/**
 	 * Initialize the module.
