@@ -3,14 +3,14 @@
  * Unit tests for the Collections module.
  *
  * @package Newspack\Tests
- * @covers \Newspack\Collections
+ * @covers \Newspack\Optional_Modules\Collections
  */
 
 namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
-use Newspack\Collections;
 use Newspack\Optional_Modules;
+use Newspack\Optional_Modules\Collections;
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Collection_Taxonomy;
 
@@ -30,18 +30,9 @@ class Test_Collections extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the Collections class exists.
-	 *
-	 * @covers \Newspack\Collections
-	 */
-	public function test_class_exists() {
-		$this->assertTrue( class_exists( '\Newspack\Collections' ), 'Collections class should exist.' );
-	}
-
-	/**
 	 * Test that the feature is disabled by default.
 	 *
-	 * @covers \Newspack\Collections::is_feature_enabled
+	 * @covers \Newspack\Optional_Modules\Collections::is_feature_enabled
 	 */
 	public function test_is_module_enabled_default_false() {
 		$this->assertFalse( Collections::is_feature_enabled(), 'Module should be disabled by default.' );
@@ -50,7 +41,7 @@ class Test_Collections extends WP_UnitTestCase {
 	/**
 	 * Test that the feature is enabled when the filter returns true.
 	 *
-	 * @covers \Newspack\Collections::is_feature_enabled
+	 * @covers \Newspack\Optional_Modules\Collections::is_feature_enabled
 	 */
 	public function test_is_feature_enabled_filter_true() {
 		add_filter( 'newspack_collections_enabled', '__return_true' );
@@ -60,7 +51,7 @@ class Test_Collections extends WP_UnitTestCase {
 	/**
 	 * Test that the module is not initialized when disabled.
 	 *
-	 * @covers \Newspack\Collections::init
+	 * @covers \Newspack\Optional_Modules\Collections::init
 	 */
 	public function test_module_disabled() {
 		Collections::init();
@@ -72,7 +63,7 @@ class Test_Collections extends WP_UnitTestCase {
 	/**
 	 * Test that the module is initialized when enabled.
 	 *
-	 * @covers \Newspack\Collections::init
+	 * @covers \Newspack\Optional_Modules\Collections::init
 	 */
 	public function test_module_initialization() {
 		Optional_Modules::activate_optional_module( 'collections' );

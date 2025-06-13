@@ -85,6 +85,8 @@ class Collections_Section extends Wizard_Section {
 	 * @return array Updated collections settings.
 	 */
 	public static function api_update_settings( $request ) {
+		$settings = Optional_Modules::get_settings();
+
 		// Update the optional module enabled setting.
 		if ( $request->has_param( Optional_Modules::MODULE_ENABLED_PREFIX . Collections::MODULE_NAME ) ) {
 			$is_enabled = $request->get_param( Optional_Modules::MODULE_ENABLED_PREFIX . Collections::MODULE_NAME );
