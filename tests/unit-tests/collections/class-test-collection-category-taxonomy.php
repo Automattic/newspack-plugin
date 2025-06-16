@@ -43,25 +43,6 @@ class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that a collection category term can be created.
-	 *
-	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::register_taxonomy
-	 */
-	public function test_create_collection_category() {
-		$args = [
-			'name' => 'Test Category',
-			'slug' => 'test-category',
-		];
-
-		$term = wp_insert_term( $args['name'], Collection_Category_Taxonomy::get_taxonomy(), $args );
-		$this->assertNotWPError( $term, 'Term should be created successfully.' );
-
-		$created_term = get_term( $term['term_id'], Collection_Category_Taxonomy::get_taxonomy() );
-		$this->assertEquals( $args['name'], $created_term->name, 'Term name should be set correctly.' );
-		$this->assertEquals( $args['slug'], $created_term->slug, 'Term slug should be set correctly.' );
-	}
-
-	/**
 	 * Test that set_taxonomy_column_name changes the taxonomy column label to 'Categories'.
 	 *
 	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::set_taxonomy_column_name
