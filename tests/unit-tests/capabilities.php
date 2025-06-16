@@ -15,15 +15,6 @@ class Test_Capabilities extends WP_UnitTestCase {
 	 * Test the map_capabilities method.
 	 */
 	public function test_capabilities_mapping() {
-		// Use the capabilities map filter.
-		add_filter(
-			'newspack_capabilities_map',
-			fn() => [
-				// 'newspack_post' caps should inherit from 'post'.
-				'newspack_post' => 'post',
-			]
-		);
-
 		// Mock the post types.
 		$this->mock_post_type_object( 'newspack_post' );
 
@@ -132,26 +123,13 @@ class Test_Capabilities extends WP_UnitTestCase {
 	 * @param string $post_type Post type name.
 	 */
 	private function mock_post_type_object( $post_type ) {
-		$capabilities = [
-			'edit_posts'             => 'edit_' . $post_type . 's',
-			'edit_others_posts'      => 'edit_others_' . $post_type . 's',
-			'publish_posts'          => 'publish_' . $post_type . 's',
-			'read_private_posts'     => 'read_private_' . $post_type . 's',
-			'delete_posts'           => 'delete_' . $post_type . 's',
-			'delete_private_posts'   => 'delete_private_' . $post_type . 's',
-			'delete_published_posts' => 'delete_published_' . $post_type . 's',
-			'delete_others_posts'    => 'delete_others_' . $post_type . 's',
-			'edit_private_posts'     => 'edit_private_' . $post_type . 's',
-			'edit_published_posts'   => 'edit_published_' . $post_type . 's',
-		];
-		global $wp_post_types;
-		$wp_post_types[ $post_type ] = (object) [
-			'name'         => $post_type,
-			'labels'       => (object) [ 'name' => ucfirst( $post_type ) ],
-			'public'       => true,
-			'hierarchical' => false,
-			'cap'          => (object) $capabilities,
-		];
+		register_post_type(
+			$post_type,
+			[
+				'capability_type' => $post_type,
+				'map_meta_cap'    => true,
+			]
+		);
 
 		// Map capabilities to regular post.
 		add_filter(
