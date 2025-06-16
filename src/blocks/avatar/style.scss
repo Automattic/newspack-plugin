@@ -1,0 +1,29 @@
+[data-type="newspack/avatar"],
+.wp-block-newspack-avatar {
+	display: flex;
+	gap: 0.5rem;
+
+	&.is-style-stacked,
+	&[class*="is-style-stacked"] {
+		gap: 0;
+
+		.newspack-avatar-wrapper:not(:last-of-type) {
+			margin-right: calc(var(--avatar-size) * -0.175);
+
+			img {
+				mask-image: radial-gradient(var(--avatar-size) at calc(62.5% + calc(var(--avatar-size) * 0.875) - calc(var(--avatar-size) * 0.25)) 50%, transparent 50%, white 50%);
+			}
+		}
+	}
+
+	.newspack-avatar-wrapper {
+		height: var(--avatar-size);
+		position: relative;
+		width: var(--avatar-size);
+
+		a {
+			border-radius: 50%;
+			display: flex;
+		}
+	}
+}

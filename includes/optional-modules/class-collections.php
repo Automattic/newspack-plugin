@@ -5,9 +5,17 @@
  * @package Newspack
  */
 
-namespace Newspack;
+namespace Newspack\Optional_Modules;
 
 defined( 'ABSPATH' ) || exit;
+
+use Newspack\Optional_Modules;
+use Newspack\Collections\Enqueuer;
+use Newspack\Collections\Post_Type;
+use Newspack\Collections\Collection_Taxonomy;
+use Newspack\Collections\Collection_Category_Taxonomy;
+use Newspack\Collections\Collection_Section_Taxonomy;
+use Newspack\Collections\Post_Meta;
 
 /**
  * Collections module for managing print editions and other collections.
@@ -18,7 +26,7 @@ class Collections {
 	 *
 	 * @var string
 	 */
-	const MODULE_NAME = 'collections';
+	public const MODULE_NAME = 'collections';
 
 	/**
 	 * Initialize the module.
@@ -29,23 +37,13 @@ class Collections {
 			return;
 		}
 
-		// Register hooks and filters.
-		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
-		add_action( 'init', [ __CLASS__, 'register_taxonomies' ] );
-	}
-
-	/**
-	 * Register the Collections custom post type.
-	 */
-	public static function register_post_type() {
-		// TODO: Implement post type registration.
-	}
-
-	/**
-	 * Register the Collections and Sections taxonomies.
-	 */
-	public static function register_taxonomies() {
-		// TODO: Implement taxonomy registration.
+		// Initialize classes.
+		Enqueuer::init();
+		Post_Type::init();
+		Collection_Taxonomy::init();
+		Collection_Category_Taxonomy::init();
+		Collection_Section_Taxonomy::init();
+		Post_Meta::init();
 	}
 
 	/**

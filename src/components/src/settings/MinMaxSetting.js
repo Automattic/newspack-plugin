@@ -10,8 +10,8 @@ import { CheckboxControl } from '@wordpress/components';
 import { TextControl } from '../';
 
 const MinMaxSetting = ( {
-	min = 0,
-	max= 100,
+	min,
+	max,
 	onChangeMin,
 	onChangeMax,
 	minPlaceholder,

@@ -1,0 +1,64 @@
+/**
+ * Collection meta fields styles.
+ */
+
+.newspack-collections-meta-panel {
+	.collection-meta-fields {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+
+		.meta-field-error {
+			input {
+				border-color: var(--newspack-ui-color-error-50);
+			}
+
+			.components-base-control__help {
+				color: var(--newspack-ui-color-error-50);
+			}
+		}
+
+	}
+
+	.upload-controls {
+		display: flex;
+		flex-direction: column;
+
+		.components-spinner {
+			display: block;
+			margin: 0 auto 26px;
+		}
+
+		.uploaded-file {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-bottom: 0.8rem;
+
+			.dashicons-pdf {
+				font-size: 1.8rem;
+				width: auto;
+				height: auto;
+				display: inline-block;
+			}
+		}
+
+		.upload-actions {
+			display: flex;
+			gap: 10px;
+
+			button {
+				justify-content: center;
+				width: 100%;
+			}
+		}
+
+		&.has-uploaded-file {
+			.upload-actions {
+				button {
+					flex: 1;
+				}
+			}
+		}
+	}
+}

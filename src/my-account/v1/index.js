@@ -5,7 +5,10 @@
 /**
  * Internal dependencies.
  */
+import './global';
 import './navigation';
 import './account-settings';
 import './subscriptions';
+import './payment-information';
+import './modal-checkout';
 import './style.scss';

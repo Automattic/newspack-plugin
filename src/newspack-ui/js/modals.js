@@ -57,7 +57,11 @@ domReady( function () {
 						errorsDiv.classList.add( 'newspack-ui__notice', 'newspack-ui__notice--error' );
 						content.insertBefore( errorsDiv, content.firstChild );
 					} )
-					.finally( () => e.target.removeAttribute( 'disabled' ) );
+					.finally( () => {
+						e.target.removeAttribute( 'disabled' );
+						e.target.classList.remove( 'newspack-ui--loading' );
+						e.target.closest( 'form, div' ).classList.remove( 'newspack-ui--loading' );
+					} );
 				}
 			} );
 		} );
