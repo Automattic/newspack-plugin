@@ -45,7 +45,7 @@ export const PaymentGateway = ( { gateway } ) => {
 			return __( 'Connected - test mode', 'newspack-plugin' );
 		}
 		return __( 'Connected', 'newspack-plugin' );
-	}
+	};
 	const getBadgeLevel = () => {
 		if ( ! gateway?.enabled || isLoading || isQuietLoading ) {
 			return 'info';
@@ -54,7 +54,7 @@ export const PaymentGateway = ( { gateway } ) => {
 			return 'error';
 		}
 		return 'success';
-	}
+	};
 
 	return (
 		<ActionCard
@@ -67,11 +67,7 @@ export const PaymentGateway = ( { gateway } ) => {
 						__( 'Enable %s. ', 'newspack-plugin' ),
 						gateway.name
 					) }
-					{ gateway.url && (
-						<ExternalLink href={ gateway.url }>
-							{ __( 'Learn more', 'newspack-plugin' ) }
-						</ExternalLink>
-					) }
+					{ gateway.url && <ExternalLink href={ gateway.url }>{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink> }
 				</>
 			) }
 			hasWhiteHeader
@@ -82,26 +78,18 @@ export const PaymentGateway = ( { gateway } ) => {
 			} }
 			badge={ getConnectionStatus() }
 			badgeLevel={ getBadgeLevel() }
-			// eslint-disable-next-line no-nested-ternary
-			actionContent={ ( ! gateway?.enabled || isLoading || isQuietLoading ) ? null : isConnected ? (
-				<Button
-					variant="secondary"
-					href={ gateway.settings }
-					target="_blank"
-					rel="noreferrer"
-				>
-					{ __( 'Configure', 'newspack-plugin' ) }
-				</Button>
-			) : (
-				<Button
-					variant="primary"
-					href={ gateway.connect }
-					target="_blank"
-					rel="noreferrer"
-				>
-					{ __( 'Connect', 'newspack-plugin' ) }
-				</Button>
-			) }
+			actionContent={
+				// eslint-disable-next-line no-nested-ternary
+				! gateway?.enabled || isLoading || isQuietLoading ? null : isConnected ? (
+					<Button variant="secondary" href={ gateway.settings } target="_blank" rel="noreferrer">
+						{ __( 'Configure', 'newspack-plugin' ) }
+					</Button>
+				) : (
+					<Button variant="primary" href={ gateway.connect } target="_blank" rel="noreferrer">
+						{ __( 'Connect', 'newspack-plugin' ) }
+					</Button>
+				)
+			}
 		/>
 	);
-}
+};

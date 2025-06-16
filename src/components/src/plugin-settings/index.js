@@ -30,9 +30,7 @@ class PluginSettings extends Component {
 		const { afterFetch, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
 		apiFetch( {
-			path: isWizard
-				? `/newspack/v1/wizard/${ pluginSlug }/settings`
-				: `/${ pluginSlug }/v1/settings`,
+			path: isWizard ? `/newspack/v1/wizard/${ pluginSlug }/settings` : `/${ pluginSlug }/v1/settings`,
 		} )
 			.then( settings => {
 				this.setState( { settings, error: null } );
@@ -80,9 +78,7 @@ class PluginSettings extends Component {
 		const { afterUpdate, pluginSlug, isWizard } = this.props;
 		this.setState( { inFlight: true } );
 		apiFetch( {
-			path: isWizard
-				? `/newspack/v1/wizard/${ pluginSlug }/settings`
-				: `/${ pluginSlug }/v1/settings`,
+			path: isWizard ? `/newspack/v1/wizard/${ pluginSlug }/settings` : `/${ pluginSlug }/v1/settings`,
 			method: 'POST',
 			data: {
 				section: sectionKey,
@@ -116,9 +112,7 @@ class PluginSettings extends Component {
 	 * @return {Object} The section setting.
 	 */
 	getSectionInfo = sectionKey => {
-		return this.state.settings[ sectionKey ]?.find(
-			setting => ! setting.key || setting.key === 'active'
-		);
+		return this.state.settings[ sectionKey ]?.find( setting => ! setting.key || setting.key === 'active' );
 	};
 
 	/**
@@ -163,9 +157,7 @@ class PluginSettings extends Component {
 	 * @return {?Array} List of section fields.
 	 */
 	getSectionFields = sectionKey => {
-		return this.state.settings[ sectionKey ]?.filter(
-			setting => setting.key && setting.key !== 'active'
-		);
+		return this.state.settings[ sectionKey ]?.filter( setting => setting.key && setting.key !== 'active' );
 	};
 
 	/**

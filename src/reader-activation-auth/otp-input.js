@@ -75,17 +75,17 @@ domReady( function () {
 					for ( let index = 0; index < length; index++ ) {
 						const char = otpInput[ index ];
 						if ( /^[0-9]$/.test( char ) ) {
-							const input   = inputContainer.querySelector(`[data-index="${index}"]`);
-							input.value   = char;
-							values[index] = char;
+							const input = inputContainer.querySelector( `[data-index="${ index }"]` );
+							input.value = char;
+							values[ index ] = char;
 						}
 					}
-					otpCodeInput.value = values.join('');
+					otpCodeInput.value = values.join( '' );
 					return;
 				} else if ( otpInput.match( /^[0-9]$/ ) ) {
 					values[ i ] = otpInput;
-					const next  = inputContainer.querySelector(`[data-index="${i + 1}"]`);
-					if (next) {
+					const next = inputContainer.querySelector( `[data-index="${ i + 1 }"]` );
+					if ( next ) {
 						next.focus();
 					}
 				} else {

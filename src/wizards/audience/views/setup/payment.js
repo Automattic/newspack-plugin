@@ -6,9 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies.
  */
-import {
-	withWizardScreen,
-} from '../../../../components/src';
+import { withWizardScreen } from '../../../../components/src';
 import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import WizardsTab from '../../../wizards-tab';
 import Platform from '../../components/platform';
@@ -24,10 +22,7 @@ export default withWizardScreen( function () {
 	return (
 		<WizardsTab
 			title={ __( 'Checkout & Payment', 'newspack-plugin' ) }
-			description={ __(
-				'Reader revenue configuration for donations and subscriptions.',
-				'newspack-plugin'
-			) }
+			description={ __( 'Reader revenue configuration for donations and subscriptions.', 'newspack-plugin' ) }
 		>
 			<Platform />
 			{ data?.platform_data?.platform === 'wc' && <PaymentGateways /> }

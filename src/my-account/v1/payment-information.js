@@ -7,7 +7,7 @@
 import { domReady } from '../../utils';
 
 domReady( function () {
-	 // Add Payment Method modal.
+	// Add Payment Method modal.
 	const addPaymentMethodButton = document.querySelector( '.newspack-my-account__add-payment-method' );
 	if ( addPaymentMethodButton ) {
 		const addPaymentMethodModal = document.getElementById( 'newspack-my-account__add-payment-method' );
@@ -26,7 +26,7 @@ domReady( function () {
 			button.addEventListener( 'click', e => {
 				e.preventDefault();
 				const addressType = button.getAttribute( 'data-address-type' );
-				const editAddressModal = document.getElementById( `newspack-my-account__edit-address-${addressType}` );
+				const editAddressModal = document.getElementById( `newspack-my-account__edit-address-${ addressType }` );
 
 				if ( editAddressModal ) {
 					editAddressModal.setAttribute( 'data-state', 'open' );

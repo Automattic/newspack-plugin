@@ -21,7 +21,7 @@ class Collection_Category_Taxonomy {
 	 *
 	 * @var string
 	 */
-	private const TAXONOMY = 'collection_category';
+	private const TAXONOMY = 'newspack_collection_category';
 
 	/**
 	 * Get the taxonomy for Collection Categories.

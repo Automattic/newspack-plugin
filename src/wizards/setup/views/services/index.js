@@ -27,28 +27,19 @@ import './style.scss';
 const SERVICES_LIST = {
 	'reader-revenue': {
 		label: __( 'Reader Revenue', 'newspack' ),
-		description: __(
-			'Encourage site visitors to contribute to your publishing through donations',
-			'newspack'
-		),
+		description: __( 'Encourage site visitors to contribute to your publishing through donations', 'newspack' ),
 		Component: ReaderRevenue,
 		configuration: { is_service_enabled: false },
 	},
 	newsletters: {
 		label: __( 'Newsletters', 'newspack' ),
-		description: __(
-			'Create email newsletters and send them to your mail lists, all without leaving your website',
-			'newspack'
-		),
+		description: __( 'Create email newsletters and send them to your mail lists, all without leaving your website', 'newspack' ),
 		Component: NewslettersSettings,
 		configuration: { is_service_enabled: false },
 	},
 	'google-ad-manager': {
 		label: __( 'Google Ad Manager', 'newspack' ),
-		description: __(
-			'An advanced ad inventory creation and management platform, allowing you to be specific about ad placements',
-			'newspack'
-		),
+		description: __( 'An advanced ad inventory creation and management platform, allowing you to be specific about ad placements', 'newspack' ),
 		Component: GAMOnboarding,
 		configuration: { is_service_enabled: false },
 	},
@@ -110,17 +101,13 @@ const Services = ( { renderPrimaryButton } ) => {
 							<ServiceComponent
 								className="newspack-action-card__region-children__inner"
 								configuration={ service.configuration }
-								onUpdate={ configuration =>
-									updateServices( { [ serviceSlug ]: { configuration } } )
-								}
+								onUpdate={ configuration => updateServices( { [ serviceSlug ]: { configuration } } ) }
 							/>
 						) : null }
 					</ActionCard>
 				);
 			} ) }
-			<div className="newspack-buttons-card">
-				{ renderPrimaryButton( { onClick: saveSettings } ) }
-			</div>
+			<div className="newspack-buttons-card">{ renderPrimaryButton( { onClick: saveSettings } ) }</div>
 		</>
 	);
 };

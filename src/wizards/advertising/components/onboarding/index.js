@@ -60,18 +60,9 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 				{ newspack_ads_wizard.can_connect_google && ( true === useOAuth || null === useOAuth ) && (
 					<Fragment>
 						{ useOAuth && (
-							<p>
-								{ __(
-									'Authenticate with Google in order to connect your Google Ad Manager account:',
-									'newspack-plugin'
-								) }
-							</p>
+							<p>{ __( 'Authenticate with Google in order to connect your Google Ad Manager account:', 'newspack-plugin' ) }</p>
 						) }
-						<GoogleOAuth
-							onInit={ err => setUseOAuth( ! err ) }
-							onSuccess={ onSuccess }
-							isOnboarding={ true }
-						/>
+						<GoogleOAuth onInit={ err => setUseOAuth( ! err ) } onSuccess={ onSuccess } isOnboarding={ true } />
 					</Fragment>
 				) }
 				{ ( ! newspack_ads_wizard.can_connect_google || false === useOAuth ) && (
@@ -99,20 +90,13 @@ export default function AdsOnboarding( { onUpdate, onSuccess } ) {
 									onClick={ () => credentialsInputFile.current.click() }
 									title={ __( 'Upload credentials', 'newspack-plugin' ) }
 									desc={ [
-										__(
-											'Upload your Service Account credentials file to connect your GAM account.',
-											'newspack-plugin'
-										),
+										__( 'Upload your Service Account credentials file to connect your GAM account.', 'newspack-plugin' ),
 										fileError && <Notice noticeText={ fileError } isError />,
 									] }
 									chevron
 								/>
 								<p>
-									<a
-										href="https://developers.google.com/ad-manager/api/authentication"
-										target="_blank"
-										rel="noopener noreferrer"
-									>
+									<a href="https://developers.google.com/ad-manager/api/authentication" target="_blank" rel="noopener noreferrer">
 										{ __( 'How to get a service account user for API access', 'newspack-plugin' ) }
 									</a>
 									.

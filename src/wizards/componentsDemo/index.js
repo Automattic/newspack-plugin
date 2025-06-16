@@ -92,12 +92,7 @@ class ComponentsDemo extends Component {
 							</Button>
 							<div>
 								<h2>{ __( 'Components Demo', 'newspack-plugin' ) }</h2>
-								<span>
-									{ __(
-										'Simple components used for composing the UI of Newspack',
-										'newspack-plugin'
-									) }
-								</span>
+								<span>{ __( 'Simple components used for composing the UI of Newspack', 'newspack-plugin' ) }</span>
 							</div>
 						</div>
 					</div>
@@ -107,13 +102,8 @@ class ComponentsDemo extends Component {
 						<h2>{ __( 'Autocomplete with Suggestions (single-select)', 'newspack-plugin' ) }</h2>
 						<AutocompleteWithSuggestions
 							label={ __( 'Search for a post', 'newspack-plugin' ) }
-							help={ __(
-								'Begin typing post title, click autocomplete result to select.',
-								'newspack-plugin'
-							) }
-							onChange={ items =>
-								this.setState( { selectedPostForAutocompleteWithSuggestions: items } )
-							}
+							help={ __( 'Begin typing post title, click autocomplete result to select.', 'newspack-plugin' ) }
+							onChange={ items => this.setState( { selectedPostForAutocompleteWithSuggestions: items } ) }
 							selectedItems={ selectedPostForAutocompleteWithSuggestions }
 						/>
 
@@ -124,12 +114,11 @@ class ComponentsDemo extends Component {
 							hideHelp
 							multiSelect
 							label={ __( 'Search widgets', 'newspack-plugin' ) }
-							help={ __(
-								'Begin typing post title, click autocomplete result to select.',
-								'newspack-plugin'
-							) }
+							help={ __( 'Begin typing post title, click autocomplete result to select.', 'newspack-plugin' ) }
 							onChange={ items =>
-								this.setState( { selectedPostsForAutocompleteWithSuggestionsMultiSelect: items } )
+								this.setState( {
+									selectedPostsForAutocompleteWithSuggestionsMultiSelect: items,
+								} )
 							}
 							postTypes={ [
 								{ slug: 'page', label: 'Pages' },
@@ -157,11 +146,7 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Web Previews', 'newspack-plugin' ) }</h2>
 						<Card buttonsCard noBorder className="items-center">
-							<WebPreview
-								url="//newspack.com/"
-								label={ __( 'Preview Newspack Blog', 'newspack-plugin' ) }
-								variant="primary"
-							/>
+							<WebPreview url="//newspack.com/" label={ __( 'Preview Newspack Blog', 'newspack-plugin' ) } variant="primary" />
 							<WebPreview
 								url="//newspack.com/"
 								renderButton={ ( { showPreview } ) => (
@@ -212,11 +197,7 @@ class ComponentsDemo extends Component {
 							<Handoff plugin="jetpack" />
 							<Handoff plugin="google-site-kit" />
 							<Handoff plugin="woocommerce" />
-							<Handoff
-								plugin="wordpress-seo"
-								isPrimary
-								editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features"
-							>
+							<Handoff plugin="wordpress-seo" isPrimary editLink="/wp-admin/admin.php?page=wpseo_dashboard#top#features">
 								{ __( 'Specific Yoast Page', 'newspack-plugin' ) }
 							</Handoff>
 						</Card>
@@ -264,12 +245,7 @@ class ComponentsDemo extends Component {
 							plugins={ [ 'woocommerce', 'wordpress-seo' ] }
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log(
-									complete
-										? 'All plugins installed successfully'
-										: 'Plugin installation incomplete',
-									pluginInfo
-								);
+								console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
 							} }
 						/>
 					</Card>
@@ -280,12 +256,7 @@ class ComponentsDemo extends Component {
 							isSmall
 							canUninstall
 							onStatus={ ( { complete, pluginInfo } ) => {
-								console.log(
-									complete
-										? 'All plugins installed successfully'
-										: 'Plugin installation incomplete',
-									pluginInfo
-								);
+								console.log( complete ? 'All plugins installed successfully' : 'Plugin installation incomplete', pluginInfo );
 							} }
 						/>
 					</Card>
@@ -335,8 +306,7 @@ class ComponentsDemo extends Component {
 						description={ __( 'Warning notification, action button', 'newspack-plugin' ) }
 						notification={
 							<Fragment>
-								There is a new version available. <a href="#">View details</a> or{ ' ' }
-								<a href="#">update now</a>
+								There is a new version available. <a href="#">View details</a> or <a href="#">update now</a>
 							</Fragment>
 						}
 						notificationLevel="warning"
@@ -459,10 +429,7 @@ class ComponentsDemo extends Component {
 					/>
 					<ActionCard
 						title={ __( 'Handoff', 'newspack-plugin' ) }
-						description={ __(
-							' An example of an action card with Handoff and EditLink.',
-							'newspack-plugin'
-						) }
+						description={ __( ' An example of an action card with Handoff and EditLink.', 'newspack-plugin' ) }
 						actionText={ __( 'Configure', 'newspack-plugin' ) }
 						handoff="jetpack"
 						editLink="admin.php?page=jetpack#/settings"
@@ -470,17 +437,9 @@ class ComponentsDemo extends Component {
 					<ActionCard
 						expandable
 						title={ __( 'Expandable', 'newspack-plugin' ) }
-						description={ __(
-							' An example of an action card with expandable inner content.',
-							'newspack-plugin'
-						) }
+						description={ __( ' An example of an action card with expandable inner content.', 'newspack-plugin' ) }
 					>
-						<p>
-							{ __(
-								'Some inner content to display when the card is expanded.',
-								'newspack-plugin'
-							) }
-						</p>
+						<p>{ __( 'Some inner content to display when the card is expanded.', 'newspack-plugin' ) }</p>
 					</ActionCard>
 					<Card>
 						<h2>{ __( 'Image Uploader', 'newspack-plugin' ) }</h2>
@@ -496,18 +455,9 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Progress bar', 'newspack-plugin' ) }</h2>
 						<ProgressBar completed="2" total="3" />
-						<ProgressBar
-							completed="2"
-							total="5"
-							label={ __( 'Progress made', 'newspack-plugin' ) }
-						/>
+						<ProgressBar completed="2" total="5" label={ __( 'Progress made', 'newspack-plugin' ) } />
 						<ProgressBar completed="0" total="5" displayFraction />
-						<ProgressBar
-							completed="3"
-							total="8"
-							label={ __( 'Progress made', 'newspack-plugin' ) }
-							displayFraction
-						/>
+						<ProgressBar completed="3" total="8" label={ __( 'Progress made', 'newspack-plugin' ) } displayFraction />
 					</Card>
 					<Card>
 						<h2>{ __( 'Select dropdowns', 'newspack-plugin' ) }</h2>
@@ -516,7 +466,11 @@ class ComponentsDemo extends Component {
 								label={ __( 'Label for Select with a preselection', 'newspack-plugin' ) }
 								value={ selectValue1 }
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },
@@ -527,7 +481,11 @@ class ComponentsDemo extends Component {
 								label={ __( 'Label for Select with no preselection', 'newspack-plugin' ) }
 								value={ selectValue2 }
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },
@@ -538,7 +496,11 @@ class ComponentsDemo extends Component {
 								label={ __( 'Label for disabled Select', 'newspack-plugin' ) }
 								disabled
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },
@@ -549,7 +511,11 @@ class ComponentsDemo extends Component {
 								value={ selectValue3 }
 								isSmall
 								options={ [
-									{ value: null, label: __( '- Select -', 'newspack-plugin' ), disabled: true },
+									{
+										value: null,
+										label: __( '- Select -', 'newspack-plugin' ),
+										disabled: true,
+									},
 									{ value: '1st', label: __( 'First', 'newspack-plugin' ) },
 									{ value: '2nd', label: __( 'Second', 'newspack-plugin' ) },
 									{ value: '3rd', label: __( 'Third', 'newspack-plugin' ) },
@@ -746,8 +712,7 @@ class ComponentsDemo extends Component {
 					<Card>
 						<h2>{ __( 'Box Contrast', 'newspack-plugin' ) }</h2>
 						<p>
-							Component for adding color black/white depending on contrast ratio for{ ' ' }
-							<code>hexColor</code> prop value.
+							Component for adding color black/white depending on contrast ratio for <code>hexColor</code> prop value.
 						</p>
 						<h3>{ __( 'Demo 1:', 'newspack-plugin' ) }</h3>
 						<BoxContrast hexColor="#e5bd13">#e5bd13</BoxContrast>

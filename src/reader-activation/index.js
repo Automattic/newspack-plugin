@@ -252,8 +252,7 @@ export function getOTPTimeRemaining() {
 	if ( ! timer ) {
 		return 0;
 	}
-	const timeRemaining =
-		newspack_ras_config.otp_rate_interval - ( Math.floor( Date.now() / 1000 ) - timer );
+	const timeRemaining = newspack_ras_config.otp_rate_interval - ( Math.floor( Date.now() / 1000 ) - timer );
 	if ( ! timeRemaining ) {
 		clearOTPTimer();
 	}
@@ -408,9 +407,7 @@ function attachNewsletterFormListener() {
 
 	// For third-party forms, set reader data on form submit. For first-party forms, listen for the custom event upon successful signup response.
 	document.querySelectorAll( thirdPartyForms.join( ',' ) ).forEach( el => attachHandler( el ) );
-	document
-		.querySelectorAll( newspackForms.join( ',' ) )
-		.forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
+	document.querySelectorAll( newspackForms.join( ',' ) ).forEach( el => attachHandler( el, 'newspack-newsletters-subscribe-success' ) );
 }
 
 const readerActivation = {
@@ -436,7 +433,7 @@ const readerActivation = {
 	getAuthStrategy,
 	setPendingCheckout,
 	getPendingCheckout,
-	...( newspack_ras_config.is_ras_enabled && { openAuthModal } )
+	...( newspack_ras_config.is_ras_enabled && { openAuthModal } ),
 };
 
 /**
@@ -467,10 +464,7 @@ function init() {
 	const authenticated = !! data?.authenticated_email;
 	const currentReader = getReader();
 	const reader = { email: initialEmail || currentReader?.email, authenticated };
-	if (
-		currentReader?.email !== reader?.email ||
-		currentReader?.authenticated !== reader?.authenticated
-	) {
+	if ( currentReader?.email !== reader?.email || currentReader?.authenticated !== reader?.authenticated ) {
 		store.set( 'reader', reader, false );
 	}
 	emit( EVENTS.reader, reader );

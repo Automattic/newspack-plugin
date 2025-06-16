@@ -114,12 +114,12 @@ export const Settings = ( {
 	const hasSelectedProviderKey = () => {
 		const selectedProvider = newslettersConfig?.newspack_newsletters_service_provider;
 		if ( ! selectedProvider ) {
-			return false
+			return false;
 		}
-		const regex = new RegExp( `${selectedProvider}.*key` );
+		const regex = new RegExp( `${ selectedProvider }.*key` );
 		const configKeys = Object.keys( newslettersConfig ).filter( key => regex.test( key ) );
 		return configKeys.some( key => !! newslettersConfig[ key ] );
-	}
+	};
 	const handleAuth = () => {
 		if ( authUrl ) {
 			const authWindow = window.open( authUrl, 'esp_oauth', 'width=500,height=600' );
@@ -165,13 +165,8 @@ export const Settings = ( {
 			<ActionCard
 				isMedium
 				title={ __( 'Email Service Provider', 'newspack-plugin' ) }
-				description={ __(
-					'Connect an email service provider (ESP) to author and send newsletters.',
-					'newspack-plugin'
-				) }
-				notification={
-					error ? error?.message || __( 'Something went wrong.', 'newspack-plugin' ) : null
-				}
+				description={ __( 'Connect an email service provider (ESP) to author and send newsletters.', 'newspack-plugin' ) }
+				notification={ error ? error?.message || __( 'Something went wrong.', 'newspack-plugin' ) : null }
 				notificationLevel="error"
 				hasGreyHeader
 				actionContent={
@@ -197,35 +192,23 @@ export const Settings = ( {
 							</Button>
 						</Card>
 					) }
-					{ 'campaign_monitor' ===
-						config?.settings?.newspack_newsletters_service_provider?.value && (
+					{ 'campaign_monitor' === config?.settings?.newspack_newsletters_service_provider?.value && (
 						<Notice status="warning" isDismissible={ false }>
 							<h2>{ __( 'Campaign Monitor support will be deprecated', 'newspack-plugin' ) }</h2>
-							<p>
-								{ __(
-									'Please connect a different service provider to ensure continued support.',
-									'newspack-'
-								) }
-							</p>
+							<p>{ __( 'Please connect a different service provider to ensure continued support.', 'newspack-' ) }</p>
 						</Notice>
 					) }
 					{ values( config.settings )
-						.filter(
-							setting => ! setting.provider || setting.provider === providerSelectProps.value
-						)
+						.filter( setting => ! setting.provider || setting.provider === providerSelectProps.value )
 						.map( setting => {
 							if ( isOnboarding && ! setting.onboarding ) {
 								return null;
 							}
 							switch ( setting.type ) {
 								case 'select':
-									return (
-										<SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />
-									);
+									return <SelectControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
 								case 'checkbox':
-									return (
-										<CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />
-									);
+									return <CheckboxControl key={ setting.key } { ...getSettingProps( setting.key ) } />;
 								default:
 									return (
 										<Grid columns={ 1 } gutter={ 8 } key={ setting.key }>
@@ -303,17 +286,14 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 		updateConfig( newLists );
 	};
 	// Handle provider updates.
-	useEffect(
-		() => {
-			setError( false );
-			if ( provider && ! lockedLists ) {
-				// Empty lists before fetching to prevent previous list from appearing while fetching.
-				setLists( [] );
-				fetchLists();
-			}
-		},
-		[ provider, lockedLists ]
-	);
+	useEffect( () => {
+		setError( false );
+		if ( provider && ! lockedLists ) {
+			// Empty lists before fetching to prevent previous list from appearing while fetching.
+			setLists( [] );
+			fetchLists();
+		}
+	}, [ provider, lockedLists ] );
 
 	if ( ! inFlight && ! lists?.length && ! error ) {
 		return null;
@@ -328,23 +308,17 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 	}
 
 	/* eslint-disable no-nested-ternary */
-	const notification = lockedLists ?
-		__(
-			'Please save your ESP settings before changing your subscription lists.',
-			'newspack-plugin'
-		) :
-		error ?
-			error?.message || __( 'Something went wrong.', 'newspack-plugin' ) :
-			null;
+	const notification = lockedLists
+		? __( 'Please save your ESP settings before changing your subscription lists.', 'newspack-plugin' )
+		: error
+		? error?.message || __( 'Something went wrong.', 'newspack-plugin' )
+		: null;
 
 	return (
 		<ActionCard
 			isMedium
 			title={ __( 'Subscription Lists', 'newspack-plugin' ) }
-			description={ __(
-				'Manage the lists available to readers for subscription.',
-				'newspack-plugin'
-			) }
+			description={ __( 'Manage the lists available to readers for subscription.', 'newspack-plugin' ) }
 			notification={ notification }
 			notificationLevel={ error ? 'error' : 'warning' }
 			hasGreyHeader
@@ -366,7 +340,8 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 			}
 			disabled={ inFlight || lockedLists }
 		>
-			{ ! lockedLists && ! error &&
+			{ ! lockedLists &&
+				! error &&
 				lists.map( ( list, index ) => (
 					<ActionCard
 						key={ index }
@@ -379,16 +354,10 @@ export const SubscriptionLists = ( { lockedLists, onUpdate, provider } ) => {
 						toggleOnChange={ handleChange( index, 'active' ) }
 						toggleChecked={ list.active }
 						className={
-							list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) )
-								? 'newspack-newsletters-sub-list-item'
-								: ''
+							list?.id && ( list.id.startsWith( 'group' ) || list.id.startsWith( 'tag' ) ) ? 'newspack-newsletters-sub-list-item' : ''
 						}
 						actionText={
-							list?.edit_link ? (
-								<ExternalLink href={ list.edit_link }>
-									{ __( 'Edit', 'newspack-plugin' ) }
-								</ExternalLink>
-							) : null
+							list?.edit_link ? <ExternalLink href={ list.edit_link }>{ __( 'Edit', 'newspack-plugin' ) }</ExternalLink> : null
 						}
 					>
 						{ list.active && 'local' !== list?.type && (

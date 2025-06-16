@@ -63,10 +63,7 @@ const PrimaryPromptPopover = ( {
 					<MenuItem href={ decodeEntities( editLink ) } className="newspack-button" isLink>
 						{ __( 'Edit', 'newspack-plugin' ) }
 					</MenuItem>
-					<MenuItem
-						onClick={ () => setIsDuplicatePromptModalVisible( true ) }
-						className="newspack-button"
-					>
+					<MenuItem onClick={ () => setIsDuplicatePromptModalVisible( true ) } className="newspack-button">
 						{ __( 'Duplicate', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem
@@ -76,9 +73,7 @@ const PrimaryPromptPopover = ( {
 						} }
 						className="newspack-button"
 					>
-						{ isPublished
-							? __( 'Deactivate', 'newspack-plugin' )
-							: __( 'Activate', 'newspack-plugin' ) }
+						{ isPublished ? __( 'Deactivate', 'newspack-plugin' ) : __( 'Activate', 'newspack-plugin' ) }
 					</MenuItem>
 					<MenuItem onClick={ () => deletePopup( id ) } className="newspack-button">
 						{ __( 'Delete', 'newspack-plugin' ) }

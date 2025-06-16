@@ -73,16 +73,8 @@ function handleClose() {
  * @param {Function}    onCheckoutComplete The function to call when the checkout is complete.
  * @param {Function}    onClose            The function to call when the modal is closed. Default is `handleClose`.
  */
-export function registerModalCheckoutButton(
-	element,
-	title,
-	actionType,
-	onCheckoutComplete,
-	onClose
-) {
-	const myAccountContent = document.querySelector(
-		'.woocommerce-MyAccount-content'
-	);
+export function registerModalCheckoutButton( element, title, actionType, onCheckoutComplete, onClose ) {
+	const myAccountContent = document.querySelector( '.woocommerce-MyAccount-content' );
 
 	const openCheckout = async url => {
 		const response = await fetch( url );

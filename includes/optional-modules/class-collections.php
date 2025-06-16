@@ -5,19 +5,17 @@
  * @package Newspack
  */
 
-namespace Newspack;
+namespace Newspack\Optional_Modules;
 
 defined( 'ABSPATH' ) || exit;
 
-require_once __DIR__ . '/../collections/traits/trait-hook-management.php';
-require_once __DIR__ . '/../collections/class-post-type.php';
-require_once __DIR__ . '/../collections/class-collection-taxonomy.php';
-require_once __DIR__ . '/../collections/class-collection-category-taxonomy.php';
-require_once __DIR__ . '/../collections/class-sync.php';
-
+use Newspack\Optional_Modules;
+use Newspack\Collections\Enqueuer;
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Collection_Taxonomy;
 use Newspack\Collections\Collection_Category_Taxonomy;
+use Newspack\Collections\Collection_Section_Taxonomy;
+use Newspack\Collections\Post_Meta;
 
 /**
  * Collections module for managing print editions and other collections.
@@ -28,7 +26,7 @@ class Collections {
 	 *
 	 * @var string
 	 */
-	const MODULE_NAME = 'collections';
+	public const MODULE_NAME = 'collections';
 
 	/**
 	 * Initialize the module.
@@ -39,9 +37,13 @@ class Collections {
 			return;
 		}
 
+		// Initialize classes.
+		Enqueuer::init();
 		Post_Type::init();
 		Collection_Taxonomy::init();
 		Collection_Category_Taxonomy::init();
+		Collection_Section_Taxonomy::init();
+		Post_Meta::init();
 	}
 
 	/**

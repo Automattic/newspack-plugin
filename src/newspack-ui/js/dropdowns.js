@@ -20,7 +20,7 @@ domReady( function () {
 				// If content would overflow the right edge of viewport.
 				if ( rect.right + rect.width > viewportWidth ) {
 					const contentWidth = rect.width;
-					content.style.left = `calc(100% - ${contentWidth}px - var(--newspack-ui-spacer-base))`;
+					content.style.left = `calc(100% - ${ contentWidth }px - var(--newspack-ui-spacer-base))`;
 				} else {
 					// Reset position if no overflow
 					content.style.left = 'calc(100% - var(--newspack-ui-spacer-6))';
