@@ -509,8 +509,7 @@ class RSS {
 			return;
 		}
 
-		$post_type_object = get_post_type_object( self::FEED_CPT );
-		if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
+		if ( ! Capabilities::current_user_can( 'edit_posts', self::FEED_CPT ) ) {
 			return;
 		}
 

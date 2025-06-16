@@ -56,5 +56,20 @@ final class Capabilities {
 		}
 		return $allcaps;
 	}
+
+	/**
+	 * Determines if the current user has the required capability.
+	 *
+	 * @param string $capability The capability to check.
+	 * @param string $post_type  The post type to check the capability against.
+	 * @return bool True if the user has the capability, false otherwise.
+	 */
+	public static function current_user_can( $capability, $post_type ) {
+		$post_type_object = get_post_type_object( $post_type );
+		if ( isset( $post_type_object->cap->$capability ) ) {
+			return current_user_can( $post_type_object->cap->$capability );
+		}
+		return false;
+	}
 }
 Capabilities::init();
