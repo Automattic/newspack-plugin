@@ -41,10 +41,7 @@ const PostMetaPanel = ( { metaKey } ) => {
 					type="number"
 					value={ meta[ metaKey ] || '' }
 					onChange={ updateMeta }
-					help={ __(
-						'Set the order of this post within a collection.',
-						'newspack-plugin'
-					) }
+					help={ __( 'Set the order of this post within a collection.', 'newspack-plugin' ) }
 					min={ 0 }
 				/>
 			</PluginDocumentSettingPanel>

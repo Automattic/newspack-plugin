@@ -9,49 +9,30 @@ interface CustomNamingCardProps {
 	onChange: FieldChangeHandler< CollectionsSettingsData >;
 }
 
-const CustomNamingCard: React.FC< CustomNamingCardProps > = ( {
-	settings,
-	isSaving,
-	onChange,
-} ) => (
+const CustomNamingCard: React.FC< CustomNamingCardProps > = ( { settings, isSaving, onChange } ) => (
 	<WizardsActionCard
 		isMedium
 		title={ __( 'Customize collections naming schema', 'newspack-plugin' ) }
-		description={ __(
-			'Override post type labels, menus and other parts with custom naming.',
-			'newspack-plugin'
-		) }
+		description={ __( 'Override post type labels, menus and other parts with custom naming.', 'newspack-plugin' ) }
 		disabled={ isSaving }
 		toggleChecked={ !! settings.custom_naming_enabled }
-		toggleOnChange={ ( value: boolean ) =>
-			onChange( 'custom_naming_enabled', value )
-		}
+		toggleOnChange={ ( value: boolean ) => onChange( 'custom_naming_enabled', value ) }
 		hasGreyHeader={ !! settings.custom_naming_enabled }
 	>
 		{ settings.custom_naming_enabled && (
 			<Grid columns={ 1 } gutter={ 24 }>
 				<TextControl
 					label={ __( 'Name', 'newspack-plugin' ) }
-					help={ __(
-						'Name to be used instead of "Collections" (e.g., "Issues", "Magazines")',
-						'newspack-plugin'
-					) }
+					help={ __( 'Name to be used instead of "Collections" (e.g., "Issues", "Magazines")', 'newspack-plugin' ) }
 					value={ settings.custom_name }
-					onChange={ ( value: string ) =>
-						onChange( 'custom_name', value )
-					}
+					onChange={ ( value: string ) => onChange( 'custom_name', value ) }
 					placeholder="Collections"
 				/>
 				<TextControl
 					label={ __( 'Singular name', 'newspack-plugin' ) }
-					help={ __(
-						'Singular name to be used instead of "Collection" (e.g., "Issue", "Magazine")',
-						'newspack-plugin'
-					) }
+					help={ __( 'Singular name to be used instead of "Collection" (e.g., "Issue", "Magazine")', 'newspack-plugin' ) }
 					value={ settings.custom_singular_name }
-					onChange={ ( value: string ) =>
-						onChange( 'custom_singular_name', value )
-					}
+					onChange={ ( value: string ) => onChange( 'custom_singular_name', value ) }
 					placeholder="Collection"
 				/>
 				<TextControl
@@ -61,9 +42,7 @@ const CustomNamingCard: React.FC< CustomNamingCardProps > = ( {
 						'newspack-plugin'
 					) }
 					value={ settings.custom_slug }
-					onChange={ ( value: string ) =>
-						onChange( 'custom_slug', value )
-					}
+					onChange={ ( value: string ) => onChange( 'custom_slug', value ) }
 					placeholder="collection"
 				/>
 			</Grid>

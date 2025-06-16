@@ -33,8 +33,7 @@ const isValidUrl = value => {
 
 const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 	const [ fieldErrors, setFieldErrors ] = useState( {} );
-	const { editPost, lockPostSaving, unlockPostSaving } =
-		useDispatch( editorStore );
+	const { editPost, lockPostSaving, unlockPostSaving } = useDispatch( editorStore );
 
 	// Get the current post type and meta data.
 	const { currentPostType, meta = {} } = useSelect( select => {
@@ -55,11 +54,7 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 
 	// Remove an error for a specific field.
 	const removeFieldError = useCallback( key => {
-		setFieldErrors( prev =>
-			Object.fromEntries(
-				Object.entries( prev ).filter( ( [ k ] ) => k !== key )
-			)
-		);
+		setFieldErrors( prev => Object.fromEntries( Object.entries( prev ).filter( ( [ k ] ) => k !== key ) ) );
 	}, [] );
 
 	// Lock or unlock the post saving based on the field errors.
@@ -89,10 +84,7 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 					}
 					return {
 						...prev,
-						[ key ]: __(
-							'Please enter a valid URL.',
-							'newspack-plugin'
-						),
+						[ key ]: __( 'Please enter a valid URL.', 'newspack-plugin' ),
 					};
 				} );
 			}
@@ -110,47 +102,35 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 				icon="media-document"
 			>
 				<div className="collection-meta-fields">
-					{ Object.entries( postMetaDefinitions ).map(
-						( [ name, def ] ) => {
-							if ( name === 'file_attachment' ) {
-								return (
-									<CollectionMetaUploadField
-										key={ def.key }
-										metaKey={ def.key }
-										label={ def.label }
-										meta={ meta }
-										updateMeta={ updateMeta }
-										lockPostSaving={ lockPostSaving }
-										unlockPostSaving={ unlockPostSaving }
-									/>
-								);
-							}
-
-							const hasError = !! fieldErrors[ def.key ];
+					{ Object.entries( postMetaDefinitions ).map( ( [ name, def ] ) => {
+						if ( name === 'file_attachment' ) {
 							return (
-								<TextControl
+								<CollectionMetaUploadField
 									key={ def.key }
+									metaKey={ def.key }
 									label={ def.label }
-									help={ fieldErrors[ def.key ] || def.help }
-									value={ meta[ def.key ] || '' }
-									type={ def.type }
-									onChange={ value =>
-										updateMeta( def.key, value )
-									}
-									onBlur={ event =>
-										handleMetaBlur(
-											def.key,
-											event.target.value,
-											def.type
-										)
-									}
-									className={
-										hasError ? 'meta-field-error' : ''
-									}
+									meta={ meta }
+									updateMeta={ updateMeta }
+									lockPostSaving={ lockPostSaving }
+									unlockPostSaving={ unlockPostSaving }
 								/>
 							);
 						}
-					) }
+
+						const hasError = !! fieldErrors[ def.key ];
+						return (
+							<TextControl
+								key={ def.key }
+								label={ def.label }
+								help={ fieldErrors[ def.key ] || def.help }
+								value={ meta[ def.key ] || '' }
+								type={ def.type }
+								onChange={ value => updateMeta( def.key, value ) }
+								onBlur={ event => handleMetaBlur( def.key, event.target.value, def.type ) }
+								className={ hasError ? 'meta-field-error' : '' }
+							/>
+						);
+					} ) }
 				</div>
 			</PluginDocumentSettingPanel>
 		)
@@ -163,12 +143,7 @@ domReady( () => {
 
 	if ( collectionPostType?.postType && collectionPostType?.postMeta ) {
 		registerPlugin( 'newspack-collection-meta-panel', {
-			render: () => (
-				<CollectionMetaPanel
-					postType={ collectionPostType.postType }
-					postMetaDefinitions={ collectionPostType.postMeta }
-				/>
-			),
+			render: () => <CollectionMetaPanel postType={ collectionPostType.postType } postMetaDefinitions={ collectionPostType.postMeta } />,
 			icon: 'media-document',
 		} );
 	}
