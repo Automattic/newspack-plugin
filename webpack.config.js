@@ -98,12 +98,7 @@ const entry = {
 		'avatar',
 		'index.js'
 	),
-	'my-account': path.join(
-		__dirname,
-		'src',
-		'my-account',
-		'index.js'
-	),
+	'my-account': path.join( __dirname, 'src', 'my-account', 'index.js' ),
 	'my-account-v0': path.join(
 		__dirname,
 		'src',
@@ -154,6 +149,13 @@ const entry = {
 		__dirname,
 		'src',
 		'nicename-change',
+		'index.js'
+	),
+	'collections-admin': path.join(
+		__dirname,
+		'src',
+		'collections',
+		'admin',
 		'index.js'
 	),
 };

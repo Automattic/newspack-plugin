@@ -50,19 +50,13 @@ const SectionHeader = ( {
 	// If id is in the URL as a scrollTo param, scroll to it on render.
 	const ref = useRef();
 	useEffect( () => {
-		const params = new Proxy(
-			new URLSearchParams( window.location.search ),
-			{
-				get: ( searchParams, prop ) => searchParams.get( prop ),
-			}
-		);
+		const params = new Proxy( new URLSearchParams( window.location.search ), {
+			get: ( searchParams, prop ) => searchParams.get( prop ),
+		} );
 		const scrollToId = params.scrollTo;
 		if ( scrollToId && scrollToId === id ) {
 			// Let parent scroll action run before running this.
-			window.setTimeout(
-				() => ref.current.scrollIntoView( { behavior: 'smooth' } ),
-				250
-			);
+			window.setTimeout( () => ref.current.scrollIntoView( { behavior: 'smooth' } ), 250 );
 		}
 	}, [] );
 
@@ -77,24 +71,12 @@ const SectionHeader = ( {
 	const HeadingTag = `h${ heading }`;
 
 	return (
-		<div
-			id={ id }
-			className="newspack-section-header__container"
-			ref={ ref }
-		>
+		<div id={ id } className="newspack-section-header__container" ref={ ref }>
 			<Grid columns={ 1 } gutter={ 8 } className={ classes }>
-				{ typeof title === 'string' && (
-					<HeadingTag>{ title }</HeadingTag>
-				) }
-				{ typeof title === 'function' && (
-					<HeadingTag>{ title() }</HeadingTag>
-				) }
-				{ description && typeof description === 'string' && (
-					<p>{ description }</p>
-				) }
-				{ typeof description === 'function' && (
-					<p>{ description() }</p>
-				) }
+				{ typeof title === 'string' && <HeadingTag>{ title }</HeadingTag> }
+				{ typeof title === 'function' && <HeadingTag>{ title() }</HeadingTag> }
+				{ description && typeof description === 'string' && <p>{ description }</p> }
+				{ typeof description === 'function' && <p>{ description() }</p> }
 			</Grid>
 		</div>
 	);

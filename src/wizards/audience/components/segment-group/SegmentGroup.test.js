@@ -311,8 +311,7 @@ describe( 'A segment with conflicting prompts', () => {
 		SEGMENT.prompts = PROMPTS.overlaysUncategorized;
 
 		// Expected warning text.
-		const noticeText =
-			'If multiple overlays are rendered on the same pageview, only the most recent one will be displayed.';
+		const noticeText = 'If multiple overlays are rendered on the same pageview, only the most recent one will be displayed.';
 		const props = {
 			campaignData: CAMPAIGN.campaignData,
 			campaign: CAMPAIGN.campaignId,
@@ -323,20 +322,15 @@ describe( 'A segment with conflicting prompts', () => {
 		const notice2 = getByTestId( 'conflict-warning-2' );
 
 		// Notice text has expected shape.
-		expect( notice1.textContent ).toEqual(
-			`${ PROMPTS.overlaysUncategorized[ 1 ].title }: ${ noticeText }`
-		);
-		expect( notice2.textContent ).toEqual(
-			`${ PROMPTS.overlaysUncategorized[ 0 ].title }: ${ noticeText }`
-		);
+		expect( notice1.textContent ).toEqual( `${ PROMPTS.overlaysUncategorized[ 1 ].title }: ${ noticeText }` );
+		expect( notice2.textContent ).toEqual( `${ PROMPTS.overlaysUncategorized[ 0 ].title }: ${ noticeText }` );
 	} );
 
 	it( 'renders a conflict notice for multiple above-header prompts in the same segment', async () => {
 		SEGMENT.prompts = PROMPTS.aboveHeadersUncategorized;
 
 		// Expected warning text.
-		const noticeText =
-			'If multiple above-header prompts are rendered on the same pageview, only the most recent one will be displayed.';
+		const noticeText = 'If multiple above-header prompts are rendered on the same pageview, only the most recent one will be displayed.';
 		const props = {
 			campaignData: CAMPAIGN.campaignData,
 			campaign: CAMPAIGN.campaignId,
@@ -347,20 +341,15 @@ describe( 'A segment with conflicting prompts', () => {
 		const notice2 = getByTestId( 'conflict-warning-6' );
 
 		// Notice text has expected shape.
-		expect( notice1.textContent ).toEqual(
-			`${ PROMPTS.aboveHeadersUncategorized[ 1 ].title }: ${ noticeText }`
-		);
-		expect( notice2.textContent ).toEqual(
-			`${ PROMPTS.aboveHeadersUncategorized[ 0 ].title }: ${ noticeText }`
-		);
+		expect( notice1.textContent ).toEqual( `${ PROMPTS.aboveHeadersUncategorized[ 1 ].title }: ${ noticeText }` );
+		expect( notice2.textContent ).toEqual( `${ PROMPTS.aboveHeadersUncategorized[ 0 ].title }: ${ noticeText }` );
 	} );
 
 	it( 'renders a conflict notice for multiple prompts in the same custom placement and segment', async () => {
 		SEGMENT.prompts = PROMPTS.customPlacementsUncategorized;
 
 		// Expected warning text.
-		const noticeText =
-			'If multiple prompts are rendered in the same custom placement, only the most recent one will be displayed.';
+		const noticeText = 'If multiple prompts are rendered in the same custom placement, only the most recent one will be displayed.';
 		const props = {
 			campaignData: CAMPAIGN.campaignData,
 			campaign: CAMPAIGN.campaignId,
@@ -371,12 +360,8 @@ describe( 'A segment with conflicting prompts', () => {
 		const notice2 = getByTestId( 'conflict-warning-10' );
 
 		// Notice text has expected shape.
-		expect( notice1.textContent ).toEqual(
-			`${ PROMPTS.customPlacementsUncategorized[ 1 ].title }: ${ noticeText }`
-		);
-		expect( notice2.textContent ).toEqual(
-			`${ PROMPTS.customPlacementsUncategorized[ 0 ].title }: ${ noticeText }`
-		);
+		expect( notice1.textContent ).toEqual( `${ PROMPTS.customPlacementsUncategorized[ 1 ].title }: ${ noticeText }` );
+		expect( notice2.textContent ).toEqual( `${ PROMPTS.customPlacementsUncategorized[ 0 ].title }: ${ noticeText }` );
 	} );
 
 	it( 'renders a conflict notice for conflicting prompts that have no segment', async () => {
@@ -391,8 +376,7 @@ describe( 'A segment with conflicting prompts', () => {
 		everyone.prompts.forEach( prompt => ( prompt.segments = [] ) );
 
 		// Expected warning text.
-		const noticeText =
-			'If multiple overlays are rendered on the same pageview, only the most recent one will be displayed.';
+		const noticeText = 'If multiple overlays are rendered on the same pageview, only the most recent one will be displayed.';
 		const props = {
 			campaignData: CAMPAIGN.campaignData,
 			campaign: CAMPAIGN.campaignId,
@@ -403,11 +387,7 @@ describe( 'A segment with conflicting prompts', () => {
 		const notice2 = getByTestId( 'conflict-warning-2' );
 
 		// Notice text has expected shape.
-		expect( notice1.textContent ).toEqual(
-			`${ PROMPTS.overlaysUncategorized[ 1 ].title }: ${ noticeText }`
-		);
-		expect( notice2.textContent ).toEqual(
-			`${ PROMPTS.overlaysUncategorized[ 0 ].title }: ${ noticeText }`
-		);
+		expect( notice1.textContent ).toEqual( `${ PROMPTS.overlaysUncategorized[ 1 ].title }: ${ noticeText }` );
+		expect( notice2.textContent ).toEqual( `${ PROMPTS.overlaysUncategorized[ 0 ].title }: ${ noticeText }` );
 	} );
 } );

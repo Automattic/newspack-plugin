@@ -4,7 +4,8 @@
 
 .newspack-my-account {
 	p.woocommerce-form-row,
-	.woocommerce-form-row p {
+	.woocommerce-form-row p,
+	p.form-row {
 		color: var(--newspack-ui-color-neutral-60);
 		font-size: var(--newspack-ui-font-size-xs);
 		line-height: var(--newspack-ui-line-height-xs);
@@ -16,6 +17,19 @@
 			font-size: inherit;
 		}
 	}
+	/* stylelint-disable selector-id-pattern */
+	#billing_city_field,
+	#shipping_city_field,
+	#billing_state_field,
+	#shipping_state_field,
+	#billing_postcode_field,
+	#shipping_postcode_field {
+		width: 30%;
+		&:not(.form-row-last) {
+			margin-right: 5%;
+		}
+	}
+	/* stylelint-enable selector-id-pattern */
 	.woocommerce-password-strength {
 		display: block;
 		font-size: var(--newspack-ui-font-size-xs);

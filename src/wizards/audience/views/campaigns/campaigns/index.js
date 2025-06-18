@@ -13,15 +13,7 @@ import { moreVertical } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import {
-	Button,
-	Card,
-	CustomSelectControl,
-	Modal,
-	Router,
-	TextControl,
-	withWizardScreen,
-} from '../../../../../components/src';
+import { Button, Card, CustomSelectControl, Modal, Router, TextControl, withWizardScreen } from '../../../../../components/src';
 import CampaignManagementPopover from '../../../components/campaign-management-popover';
 import SegmentGroup from '../../../components/segment-group';
 import { dataForCampaignId } from '../utils';
@@ -71,14 +63,9 @@ const filterByCampaign = ( prompts, campaignId ) => {
 		return notTrashedPrompts.filter( ( { status } ) => 'trash' !== status );
 	}
 	if ( 'unassigned' === campaignId ) {
-		return notTrashedPrompts.filter(
-			( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length
-		);
+		return notTrashedPrompts.filter( ( { campaign_groups: campaigns } ) => ! campaigns || ! campaigns.length );
 	}
-	return notTrashedPrompts.filter(
-		( { campaign_groups: campaigns } ) =>
-			campaigns && campaigns.find( term => +term.term_id === +campaignId )
-	);
+	return notTrashedPrompts.filter( ( { campaign_groups: campaigns } ) => campaigns && campaigns.find( term => +term.term_id === +campaignId ) );
 };
 
 const groupBySegment = ( segments, prompts ) => {
@@ -172,19 +159,21 @@ const Campaigns = props => {
 		},
 		...( hasUnassigned
 			? [
-				{
-					key: 'unassigned',
-					name: __( 'Unassigned Prompts', 'newspack-plugin' ),
-				},
-			] : [] ),
+					{
+						key: 'unassigned',
+						name: __( 'Unassigned Prompts', 'newspack-plugin' ),
+					},
+			  ]
+			: [] ),
 		...( activeCampaigns.length
 			? [
-				{
-					key: 'header-campaigns',
-					name: __( 'Campaigns', 'newspack-plugin' ),
-					className: 'is-header',
-				},
-			] : [] ),
+					{
+						key: 'header-campaigns',
+						name: __( 'Campaigns', 'newspack-plugin' ),
+						className: 'is-header',
+					},
+			  ]
+			: [] ),
 		...activeCampaigns.map( ( { term_id: id, name } ) => ( {
 			key: String( id ),
 			name,
@@ -192,12 +181,13 @@ const Campaigns = props => {
 		} ) ),
 		...( archivedCampaigns.length
 			? [
-				{
-					key: 'header-archived-campaigns',
-					name: __( 'Archived Campaigns', 'newspack-plugin' ),
-					className: 'is-header',
-				},
-			] : [] ),
+					{
+						key: 'header-archived-campaigns',
+						name: __( 'Archived Campaigns', 'newspack-plugin' ),
+						className: 'is-header',
+					},
+			  ]
+			: [] ),
 		...archivedCampaigns.map( ( { term_id: id, name } ) => ( {
 			key: String( id ),
 			name: name + ' ' + __( '(archived)', 'newspack-plugin' ),
@@ -218,14 +208,9 @@ const Campaigns = props => {
 							} ),
 						} ) ) }
 						onChange={ ( { selectedItem: { key } } ) =>
-							DEFAULT_CAMPAIGNS_FILTER === key
-								? history.push( '/campaigns' )
-								: history.push( `/campaigns/${ key }` )
+							DEFAULT_CAMPAIGNS_FILTER === key ? history.push( '/campaigns' ) : history.push( `/campaigns/${ key }` )
 						}
-						value={ find( campaignsSelectOptions, [
-							'key',
-							campaignId || DEFAULT_CAMPAIGNS_FILTER,
-						] ) }
+						value={ find( campaignsSelectOptions, [ 'key', campaignId || DEFAULT_CAMPAIGNS_FILTER ] ) }
 						hideLabelFromVision={ true }
 					/>
 					{ campaignData && (
@@ -305,11 +290,7 @@ const Campaigns = props => {
 								>
 									{ __( 'Cancel', 'newspack-plugin' ) }
 								</Button>
-								<Button
-									variant="primary"
-									disabled={ ! campaignName }
-									onClick={ () => submitModal( campaignName ) }
-								>
+								<Button variant="primary" disabled={ ! campaignName } onClick={ () => submitModal( campaignName ) }>
 									{ modalButton( modalType ) }
 								</Button>
 							</Card>
@@ -319,13 +300,7 @@ const Campaigns = props => {
 			</Card>
 			{ groupBySegment( segments, prompts ).map( ( segment, index ) =>
 				DEFAULT_CAMPAIGNS_FILTER === campaignId && segment.configuration.is_disabled ? null : (
-					<SegmentGroup
-						key={ index }
-						segment={ segment }
-						campaignId={ campaignId }
-						campaignData={ campaignData }
-						{ ...props }
-					/>
+					<SegmentGroup key={ index } segment={ segment } campaignId={ campaignId } campaignData={ campaignData } { ...props } />
 				)
 			) }
 		</Fragment>

@@ -27,8 +27,8 @@ function domReady( callback ) {
 
 window.newspackRAS = window.newspackRAS || [];
 
-window.newspackRAS.push( function( readerActivation ) {
-	domReady( function() {
+window.newspackRAS.push( function ( readerActivation ) {
+	domReady( function () {
 		document.querySelectorAll( '.newspack-registration' ).forEach( container => {
 			const form = container.querySelector( 'form' );
 			if ( ! form ) {
@@ -40,9 +40,7 @@ window.newspackRAS.push( function( readerActivation ) {
 			const submitElement = form.querySelector( 'button[type="submit"]' );
 			const spinner = document.createElement( 'span' );
 			spinner.classList.add( 'spinner' );
-			let successElement = container.querySelector(
-				'.newspack-registration__registration-success'
-			);
+			let successElement = container.querySelector( '.newspack-registration__registration-success' );
 
 			form.startLoginFlow = () => {
 				messageElement.classList.add( 'newspack-registration--hidden' );
@@ -92,12 +90,22 @@ window.newspackRAS.push( function( readerActivation ) {
 								baseActivity.sso = true;
 							}
 							if ( lists?.length ) {
-								readerActivation.dispatchActivity( 'newsletter_signup', { ...baseActivity, newsletters_subscription_method: 'reader-registration', lists } );
+								readerActivation.dispatchActivity( 'newsletter_signup', {
+									...baseActivity,
+									newsletters_subscription_method: 'reader-registration',
+									lists,
+								} );
 							}
 							if ( data?.existing_user ) {
-								readerActivation.dispatchActivity( 'reader_logged_in', { ...baseActivity, login_method: data?.metadata?.login_method || 'registration-block' } );
+								readerActivation.dispatchActivity( 'reader_logged_in', {
+									...baseActivity,
+									login_method: data?.metadata?.login_method || 'registration-block',
+								} );
 							} else {
-								readerActivation.dispatchActivity( 'reader_registered', { ...baseActivity, registration_method: data?.metadata?.registration_method || 'registration-block' } );
+								readerActivation.dispatchActivity( 'reader_registered', {
+									...baseActivity,
+									registration_method: data?.metadata?.registration_method || 'registration-block',
+								} );
 							}
 						}
 					}
@@ -133,9 +141,7 @@ window.newspackRAS.push( function( readerActivation ) {
 					body,
 				} )
 					.then( res => {
-						res
-							.json()
-							.then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
+						res.json().then( ( { message, data } ) => form.endLoginFlow( message, res.status, data ) );
 					} )
 					.catch( e => {
 						form.endLoginFlow( e, 400 );

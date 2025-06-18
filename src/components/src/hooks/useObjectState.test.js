@@ -12,19 +12,13 @@ const TestComponent = () => {
 			<button onClick={ () => updateState( { widgets: [] } ) }>Remove widgets</button>
 			<button onClick={ () => updateState( { widgets: [ 1 ] } ) }>Add widget</button>
 			<button onClick={ () => updateState( { attributes: { bar: 2 } } ) }>Nested update</button>
-			<input
-				type="text"
-				value={ state.name }
-				onChange={ e => updateState( { name: e.target.value } ) }
-				placeholder="name"
-			/>
+			<input type="text" value={ state.name } onChange={ e => updateState( { name: e.target.value } ) } placeholder="name" />
 		</div>
 	);
 };
 
 describe( 'useObjectState', () => {
-	const getState = () =>
-		JSON.parse( screen.getByPlaceholderText( 'state' ).getAttribute( 'value' ) );
+	const getState = () => JSON.parse( screen.getByPlaceholderText( 'state' ).getAttribute( 'value' ) );
 
 	beforeEach( () => {
 		render( <TestComponent /> );

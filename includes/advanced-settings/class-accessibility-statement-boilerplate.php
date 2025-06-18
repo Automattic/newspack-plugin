@@ -6,9 +6,15 @@
  */
 
 ?>
-<!-- wp:paragraph {"backgroundColor":"light-gray","fontSize":"small"} -->
-<p class="has-light-gray-background-color has-background has-small-font-size"><em>We recommend generating your own Accessibility Statement using </em><a href="https://www.w3.org/WAI/planning/statements/generator/#preview" target="_blank" rel="noreferrer noopener"><em>the tool on the W3C website</em></a><em>. If you use this boilerplate text, please review, make edits as needed, and update the highlighted text with your publication's information. <strong>Finally, remove this paragraph before publishing.</strong></em></p>
+<!-- wp:group {"backgroundColor":"light-gray","layout":{"type":"constrained"}} -->
+<div class="wp-block-group has-light-gray-background-color has-background"><!-- wp:paragraph {"fontSize":"small"} -->
+<p class="has-small-font-size"><strong>Remove this statement before publishing.</strong></p>
 <!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"fontSize":"small"} -->
+<p class="has-small-font-size"><em>We recommend generating your own Accessibility Statement using <a href="https://href.li/?https://www.w3.org/WAI/planning/statements/generator/#preview" target="_blank" rel="noreferrer noopener">the tool on the W3C website</a>. If you use this boilerplate text, be sure to review, make edits as needed, and update the <strong>highlighted text</strong> with your publication’s information.</em></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
 
 <!-- wp:heading -->
 <h2 class="wp-block-heading">Conformance Status</h2>
@@ -140,7 +146,7 @@
 <!-- /wp:list-item -->
 
 <!-- wp:list-item -->
-<li>Browser zoom up to 200%%</li>
+<li>Browser zoom up to 200%</li>
 <!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 

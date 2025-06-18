@@ -38,11 +38,7 @@ class SelectControl extends Component {
 				{ optgroups ? (
 					<GroupedSelectControl optgroups={ optgroups } { ...otherProps } />
 				) : buttonOptions ? (
-					<ButtonGroupControl
-						buttonOptions={ buttonOptions }
-						buttonSmall={ buttonSmall }
-						{ ...otherProps }
-					/>
+					<ButtonGroupControl buttonOptions={ buttonOptions } buttonSmall={ buttonSmall } { ...otherProps } />
 				) : (
 					<BaseComponent { ...otherProps } />
 				) }

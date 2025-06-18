@@ -105,7 +105,7 @@ class Newspack_Settings extends Wizard {
 				'label' => __( 'Advanced Settings', 'newspack-plugin' ),
 			],
 		];
-		if ( \Newspack\Collections::is_feature_enabled() ) {
+		if ( \Newspack\Optional_Modules\Collections::is_feature_enabled() ) {
 			$newspack_settings['collections'] = [
 				'label' => __( 'Collections', 'newspack-plugin' ),
 			];

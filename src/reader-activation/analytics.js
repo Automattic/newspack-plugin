@@ -27,10 +27,7 @@ const getEventPayload = ( payload = {}, data = {} ) => {
  * @param {string} eventName Name of the event. Defaults to `np_reader_activation_interaction` but can be overriden if necessary.
  */
 
-const sendEvent = (
-	payload,
-	eventName = 'np_reader_activation_interaction'
-) => {
+const sendEvent = ( payload, eventName = 'np_reader_activation_interaction' ) => {
 	if ( 'function' === typeof window.gtag && payload ) {
 		window.gtag( 'event', eventName, payload );
 	}
@@ -74,8 +71,7 @@ const registerActivityEvents = () => {
 	registerActivityEvent(
 		'newsletter_signup',
 		data => ( {
-			newsletters_subscription_method:
-				data?.newsletters_subscription_method || 'unknown',
+			newsletters_subscription_method: data?.newsletters_subscription_method || 'unknown',
 			lists: data?.lists || [],
 		} ),
 		'np_newsletter_subscribed'

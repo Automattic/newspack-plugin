@@ -28,10 +28,7 @@ class StepsListItem extends Component {
 		return (
 			<div className={ classes } style={ style }>
 				<div className="steps-list-item__number">{ listItemCount }</div>
-				<div
-					className="steps-list-item__content"
-					dangerouslySetInnerHTML={ { __html: listItemText } }
-				/>
+				<div className="steps-list-item__content" dangerouslySetInnerHTML={ { __html: listItemText } } />
 			</div>
 		);
 	}

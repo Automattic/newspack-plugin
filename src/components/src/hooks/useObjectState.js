@@ -29,8 +29,7 @@ const mergeCustomizer = ( objValue, srcValue ) => {
 export default ( initial = {} ) => {
 	const [ stateObject, setStateObject ] = useState( initial );
 
-	const runUpdate = update =>
-		setStateObject( _stateObject => mergeWith( {}, _stateObject, update, mergeCustomizer ) );
+	const runUpdate = update => setStateObject( _stateObject => mergeWith( {}, _stateObject, update, mergeCustomizer ) );
 
 	const updateStateObject = keyOrUpdate => {
 		if ( typeof keyOrUpdate === 'string' ) {
