@@ -70,19 +70,17 @@ class Newspack_UI {
 				'type' => $args,
 			];
 		}
-		if ( is_array( $args ) ) {
-			$notice = wp_parse_args(
-				$args,
-				[
-					'message'        => $message,
-					'corner'         => 'top-right',
-					'type'           => 'success',
-					'id'             => uniqid(),
-					'autohide'       => true,
-					'active_on_load' => true,
-				]
-			);
-		}
+		$notice = wp_parse_args(
+			$args,
+			[
+				'message'        => $message,
+				'corner'         => 'top-right',
+				'type'           => 'success',
+				'id'             => uniqid(),
+				'autohide'       => true,
+				'active_on_load' => true,
+			]
+		);
 		self::$notices[ $notice['corner'] ][ $notice['id'] ] = $notice;
 
 		return $notice['id'];
