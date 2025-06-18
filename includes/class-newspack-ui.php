@@ -16,6 +16,13 @@ use Newspack\Newspack_UI_Icons;
  */
 class Newspack_UI {
 	/**
+	 * Array of notices to display.
+	 *
+	 * @var array
+	 */
+	private static $notices = [];
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
@@ -26,6 +33,7 @@ class Newspack_UI {
 		if ( wp_theme_has_theme_json() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'colors_css_wrap' ] );
 		}
+		add_action( 'wp_footer', [ __CLASS__, 'print_notices' ], 100 );
 	}
 
 	/**
@@ -46,6 +54,69 @@ class Newspack_UI {
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Add a snackbar notice.
+	 *
+	 * @param string       $message The notice message.
+	 * @param string|array $args    Notice arguments array or notice type.
+	 *
+	 * @return string The notice ID.
+	 */
+	public static function add_notice( $message, $args = [] ) {
+		if ( is_string( $args ) ) {
+			$args = [
+				'type' => $args,
+			];
+		}
+		if ( is_array( $args ) ) {
+			$notice = wp_parse_args(
+				$args,
+				[
+					'message'        => $message,
+					'corner'         => 'top-right',
+					'type'           => 'success',
+					'id'             => uniqid(),
+					'autohide'       => true,
+					'active_on_load' => true,
+				]
+			);
+		}
+		self::$notices[ $notice['corner'] ][ $notice['id'] ] = $notice;
+
+		return $notice['id'];
+	}
+
+	/**
+	 * Print the notices.
+	 */
+	public static function print_notices() {
+		if ( empty( self::$notices ) ) {
+			return;
+		}
+
+		foreach ( self::$notices as $corner => $notices ) {
+			if ( empty( $notices ) ) {
+				continue;
+			}
+			?>
+			<div class="newspack-ui">
+				<div class="newspack-ui__snackbar newspack-ui__snackbar--<?php echo esc_attr( $corner ); ?>">
+					<?php foreach ( $notices as $notice ) : ?>
+						<div
+							class="newspack-ui__snackbar__item newspack-ui__snackbar__item--<?php echo esc_attr( $notice['type'] ); ?>"
+							id="<?php echo esc_attr( $notice['id'] ); ?>"
+							data-autohide="<?php echo $notice['autohide'] ? 'true' : 'false'; ?>"
+							data-active-on-load="<?php echo $notice['active_on_load'] ? 'true' : 'false'; ?>"
+						>
+							<?php echo wp_kses_post( $notice['message'] ); ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+			<?php
+		}
 	}
 
 	/**

@@ -17,13 +17,14 @@ class WooCommerce_Update_Payment_Notice {
 	 * Initialize the class.
 	 */
 	public static function init() {
-		add_action( 'wp', [ __CLASS__, 'maybe_display_update_payment_notice' ] );
+		add_action( 'wp', [ __CLASS__, 'maybe_add_wc_notices' ] );
+		add_action( 'wp_footer', [ __CLASS__, 'maybe_add_newspack_notices' ] );
 	}
 
 	/**
-	 * Maybe display the update payment notice.
+	 * Maybe add WC notices.
 	 */
-	public static function maybe_display_update_payment_notice() {
+	public static function maybe_add_wc_notices() {
 		if ( ! function_exists( 'is_account_page' ) || ! is_account_page() ) {
 			return;
 		}
@@ -36,11 +37,55 @@ class WooCommerce_Update_Payment_Notice {
 			return;
 		}
 
+		$notices = self::get_notices();
+		if ( empty( $notices ) ) {
+			return;
+		}
+
+		foreach ( $notices as $notice ) {
+			wc_add_notice( $notice, 'notice' );
+		}
+	}
+
+	/**
+	 * Maybe add Newspack UI snackbar.
+	 */
+	public static function maybe_add_newspack_notices() {
+		// Under "My Account" page we use WC notices.
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			return;
+		}
+
+		$notices = self::get_notices();
+		if ( empty( $notices ) ) {
+			return;
+		}
+
+		foreach ( $notices as $notice ) {
+			Newspack_UI::add_notice(
+				$notice,
+				[
+					'type'     => 'warning',
+					'corner'   => 'top-right',
+					'autohide' => false,
+				]
+			);
+		}
+	}
+
+	/**
+	 * Get the notices for subscriptions that need payment.
+	 *
+	 * @return array The notices.
+	 */
+	private static function get_notices() {
 		$subscriptions = wcs_get_subscriptions(
 			[
 				'customer_id' => wp_get_current_user()->ID,
 			]
 		);
+
+		$notices = [];
 
 		foreach ( $subscriptions as $subscription ) {
 			if ( 'cancelled' === $subscription->get_status() ) {
@@ -70,25 +115,24 @@ class WooCommerce_Update_Payment_Notice {
 				];
 			}
 
-			wc_add_notice(
-				$message . ' ' . sprintf(
+			$notices[] = $message . ' ' . sprintf(
 					/* translators: %1$s: action URL, %2$s: link attributes */
-					__( 'Please <a href="%1$s" %2$s>update your payment method</a>.', 'newspack-plugin' ),
-					esc_url( $url ),
-					implode(
-						' ',
-						array_map(
-							function( $key, $value ) {
-								return sprintf( '%s="%s"', $key, $value );
-							},
-							array_keys( $link_attrs ),
-							array_values( $link_attrs )
-						)
+				__( 'Please <a href="%1$s" %2$s>update your payment method</a>.', 'newspack-plugin' ),
+				esc_url( $url ),
+				implode(
+					' ',
+					array_map(
+						function( $key, $value ) {
+							return sprintf( '%s="%s"', $key, $value );
+						},
+						array_keys( $link_attrs ),
+						array_values( $link_attrs )
 					)
-				),
-				'notice'
+				)
 			);
 		}
+
+		return $notices;
 	}
 }
 WooCommerce_Update_Payment_Notice::init();
