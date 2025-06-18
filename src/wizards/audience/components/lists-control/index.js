@@ -27,7 +27,7 @@ export default function ListsControl( { label, help, placeholder, value, onChang
 				const values = Array.isArray( lists ) ? lists : Object.values( lists );
 				return values.map( getSuggestions );
 			} }
-			fetchSavedInfo={ async (ids) => {
+			fetchSavedInfo={ async ids => {
 				const lists = await apiFetch( {
 					path,
 				} );
@@ -38,12 +38,9 @@ export default function ListsControl( { label, help, placeholder, value, onChang
 						if ( item ) {
 							return getSuggestions( item );
 						}
-						return deletedItemLabel
-							? getSuggestions( { id } )
-							: false;
+						return deletedItemLabel ? getSuggestions( { id } ) : false;
 					} )
 					.filter( Boolean );
-
 			} }
 			onChange={ onChange }
 		/>
