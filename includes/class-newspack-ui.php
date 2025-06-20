@@ -77,8 +77,8 @@ class Newspack_UI {
 				'corner'         => 'top-right',
 				'type'           => 'success',
 				'id'             => uniqid(),
-				'autohide'       => true,
-				'active_on_load' => true,
+				'autohide'       => true, // If false, the notice will have a close button.
+				'active_on_load' => true, // Whether the notice should be visible on page load.
 			]
 		);
 		self::$notices[ $notice['corner'] ][ $notice['id'] ] = $notice;
@@ -108,7 +108,9 @@ class Newspack_UI {
 							data-autohide="<?php echo $notice['autohide'] ? 'true' : 'false'; ?>"
 							data-active-on-load="<?php echo $notice['active_on_load'] ? 'true' : 'false'; ?>"
 						>
-							<?php echo wp_kses_post( $notice['message'] ); ?>
+							<div class="newspack-ui__snackbar__content">
+								<?php echo wp_kses_post( $notice['message'] ); ?>
+							</div>
 						</div>
 					<?php endforeach; ?>
 				</div>

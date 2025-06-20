@@ -1,42 +1,64 @@
 import { domReady } from './utils';
 
 domReady( function () {
-	// Create a MutationObserver to watch for class changes.
-	const observer = new MutationObserver( mutations => {
-		mutations.forEach( mutation => {
-			const element = mutation.target;
-			if ( mutation.type === 'attributes' && mutation.attributeName === 'class' && element.classList.contains( 'active' ) ) {
-				if ( element.dataset.autohide === 'false' ) {
-					appendCloseButton( element );
-					return;
-				}
-				// Set timeout to remove active class after 5 seconds.
-				setTimeout( () => {
-					element.classList.remove( 'active' );
-				}, 5000 );
-			}
-		} );
-	} );
-
-	// Start observing all snackbar elements.
-	const snackbars = [ ...document.querySelectorAll( '.newspack-ui__snackbar__item' ) ];
-	snackbars.forEach( snackbar => {
-		observer.observe( snackbar, {
-			attributes: true,
-			attributeFilter: [ 'class' ],
-		} );
-		if ( snackbar.dataset.activeOnLoad === 'true' ) {
-			snackbar.classList.add( 'active' );
+	const notices = [ ...document.querySelectorAll( '.newspack-ui__snackbar__item' ) ];
+	notices.forEach( notice => {
+		if ( notice.dataset.autohide === 'false' ) {
+			appendCloseButton( notice );
 		}
+		if ( notice.dataset.activeOnLoad === 'true' ) {
+			openNotice( notice );
+		}
+		const interactiveElements = notice.querySelectorAll( 'a, button' );
+		[ ...interactiveElements ].forEach( element => {
+			element.addEventListener( 'click', () => {
+				closeNotice( notice );
+			} );
+		} );
 	} );
 } );
 
+/**
+ * Open a notice.
+ *
+ * @param {Element} element - The notice element.
+ */
+function openNotice( element ) {
+	element.classList.add( 'active' );
+	if ( element.dataset.autohide !== 'false' ) {
+		setTimeout( () => {
+			closeNotice( element );
+		}, 5000 );
+	}
+}
+
+/**
+ * Close a notice.
+ *
+ * @param {Element} element - The notice element.
+ */
+function closeNotice( element ) {
+	element.classList.remove( 'active' );
+	setTimeout( () => {
+		element.remove();
+	}, 125 );
+}
+
+/**
+ * Append a close button to a notice.
+ *
+ * @param {Element} element - The notice element.
+ */
 function appendCloseButton( element ) {
 	const closeButton = document.createElement( 'button' );
 	closeButton.classList.add( 'newspack-ui__snackbar__close' );
-	closeButton.innerHTML = 'Close';
-	element.appendChild( closeButton );
+	closeButton.setAttribute( 'aria-label', 'Close' );
+	closeButton.setAttribute( 'aria-hidden', 'true' );
+	closeButton.setAttribute( 'type', 'button' );
+	closeButton.setAttribute( 'title', 'Close' );
+	closeButton.innerHTML = '×';
+	element.insertBefore( closeButton, element.firstChild );
 	closeButton.addEventListener( 'click', () => {
-		element.classList.remove( 'active' );
+		closeNotice( element );
 	} );
 }

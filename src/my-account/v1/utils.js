@@ -74,7 +74,9 @@ function handleClose() {
  * @param {Function}    onClose            The function to call when the modal is closed. Default is `handleClose`.
  */
 export function registerModalCheckoutButton( element, title, actionType, onCheckoutComplete, onClose ) {
-	const myAccountContent = document.querySelector( '.woocommerce-MyAccount-content' );
+	const spinner = document.createElement( 'div' );
+	spinner.classList.add( 'newspack-ui' );
+	spinner.innerHTML = '<div class="newspack-ui__spinner"><span></span></div>';
 
 	const openCheckout = async url => {
 		const response = await fetch( url );
@@ -93,7 +95,7 @@ export function registerModalCheckoutButton( element, title, actionType, onCheck
 	};
 
 	element.addEventListener( 'click', ev => {
-		myAccountContent.classList.add( 'is-loading' );
+		document.body.appendChild( spinner );
 
 		const url = element.getAttribute( 'href' );
 		if ( ! url ) {
@@ -104,7 +106,7 @@ export function registerModalCheckoutButton( element, title, actionType, onCheck
 			openCheckout( url );
 			ev.preventDefault();
 		} catch ( error ) {
-			myAccountContent.classList.remove( 'is-loading' );
+			document.body.removeChild( spinner );
 			console.error( error ); // eslint-disable-line no-console
 		}
 	} );

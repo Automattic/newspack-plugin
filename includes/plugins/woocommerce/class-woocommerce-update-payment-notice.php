@@ -13,6 +13,10 @@ defined( 'ABSPATH' ) || exit;
  * Class for the update payment notice.
  */
 class WooCommerce_Update_Payment_Notice {
+
+	const NOTICE_TIMESTAMP_KEY = 'newspack_update_payment_notice_timestamp';
+	const NOTICE_INTERVAL = 60 * 60 * 24; // 24 hours.
+
 	/**
 	 * Initialize the class.
 	 */
@@ -25,10 +29,8 @@ class WooCommerce_Update_Payment_Notice {
 	 * Maybe add WC notices.
 	 */
 	public static function maybe_add_wc_notices() {
+		// Only use WC notices on account pages.
 		if ( ! function_exists( 'is_account_page' ) || ! is_account_page() ) {
-			return;
-		}
-		if ( ! function_exists( 'wcs_get_subscriptions' ) ) {
 			return;
 		}
 
@@ -56,6 +58,11 @@ class WooCommerce_Update_Payment_Notice {
 			return;
 		}
 
+		$timestamp = get_user_meta( wp_get_current_user()->ID, self::NOTICE_TIMESTAMP_KEY, true );
+		if ( $timestamp && $timestamp > time() - self::NOTICE_INTERVAL ) {
+			return;
+		}
+
 		$notices = self::get_notices();
 		if ( empty( $notices ) ) {
 			return;
@@ -71,14 +78,23 @@ class WooCommerce_Update_Payment_Notice {
 				]
 			);
 		}
+		update_user_meta( wp_get_current_user()->ID, self::NOTICE_TIMESTAMP_KEY, time() );
 	}
 
 	/**
-	 * Get the notices for subscriptions that need payment.
+	 * Get the current user notices for subscriptions that need payment.
 	 *
-	 * @return array The notices.
+	 * @return string[] The notices.
 	 */
 	private static function get_notices() {
+		if ( ! function_exists( 'wcs_get_subscriptions' ) ) {
+			return [];
+		}
+
+		if ( ! is_user_logged_in() ) {
+			return [];
+		}
+
 		$subscriptions = wcs_get_subscriptions(
 			[
 				'customer_id' => wp_get_current_user()->ID,
@@ -95,12 +111,6 @@ class WooCommerce_Update_Payment_Notice {
 				continue;
 			}
 
-			$message = __( 'Your subscription is not active.', 'newspack-plugin' );
-			$is_donation = Donations::is_donation_order( $subscription );
-			if ( $is_donation ) {
-				$message = __( 'Your recurring donation has stopped.', 'newspack-plugin' );
-			}
-
 			$link_attrs = [];
 			$url = $subscription->get_view_order_url();
 
@@ -115,7 +125,7 @@ class WooCommerce_Update_Payment_Notice {
 				];
 			}
 
-			$notices[] = $message . ' ' . sprintf(
+			$notices[] = self::get_message( $subscription ) . ' ' . sprintf(
 					/* translators: %1$s: action URL, %2$s: link attributes */
 				__( 'Please <a href="%1$s" %2$s>update your payment method</a>.', 'newspack-plugin' ),
 				esc_url( $url ),
@@ -133,6 +143,33 @@ class WooCommerce_Update_Payment_Notice {
 		}
 
 		return $notices;
+	}
+
+	/**
+	 * Get the notice message given a subscription.
+	 *
+	 * @param \WC_Subscription $subscription The subscription.
+	 *
+	 * @return string The notice message.
+	 */
+	protected static function get_message( $subscription ) {
+		$product = array_values( $subscription->get_items() )[0]->get_product();
+		$is_donation = Donations::is_donation_product( $product->get_id() );
+		if ( $is_donation ) {
+			$message = sprintf(
+				/* translators: %s: donation formatted value */
+				__( 'Your recurring donation of %s has stopped.', 'newspack-plugin' ),
+				$subscription->get_formatted_order_total()
+			);
+		} else {
+			$message = sprintf(
+				/* translators: %s: subscription product name */
+				__( 'Your “%s” subscription is not active.', 'newspack-plugin' ),
+				$product->get_name()
+			);
+		}
+
+		return $message;
 	}
 }
 WooCommerce_Update_Payment_Notice::init();
