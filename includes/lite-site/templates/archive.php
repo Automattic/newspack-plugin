@@ -34,16 +34,16 @@ namespace Newspack;
 		$query_args['category__in'] = $categories;
 	}
 
-	$recent_posts = get_posts( $query_args );
-
 	// Render sticky posts prominently at the top.
 	$sticky_post_ids_option = get_option( 'sticky_posts' );
 	$sticky_post_ids        = [];
 	if ( ! empty( $sticky_post_ids_option ) ) {
 		$sticky_post_ids = array_values( $sticky_post_ids_option );
-		$sticky_posts    = get_posts( [
-			'post__in' => $sticky_post_ids,
-		] );
+		$sticky_posts    = get_posts(
+			[
+				'post__in' => $sticky_post_ids,
+			]
+		);
 		foreach ( $sticky_posts as $sticky_post ) {
 			printf(
 				'<li><h3><a href="/%s/%d">%s</a></h3></li>',
@@ -54,6 +54,7 @@ namespace Newspack;
 		}
 	}
 
+	$recent_posts = get_posts( $query_args );
 	foreach ( $recent_posts as $current_post ) {
 		if ( ! in_array( $current_post->ID, $sticky_post_ids ) ) {
 			printf(
