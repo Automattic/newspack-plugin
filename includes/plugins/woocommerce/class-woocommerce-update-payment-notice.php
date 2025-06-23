@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class WooCommerce_Update_Payment_Notice {
 
-	const NOTICE_TIMESTAMP_KEY = 'newspack_update_payment_notice_timestamp';
+	const NOTICE_TIMESTAMP_KEY = 'newspack_payment_notice';
 	const NOTICE_INTERVAL = 60 * 60 * 24; // 24 hours.
 
 	/**
@@ -23,6 +23,7 @@ class WooCommerce_Update_Payment_Notice {
 	public static function init() {
 		add_action( 'wp', [ __CLASS__, 'maybe_add_wc_notices' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'maybe_add_newspack_notices' ] );
+		add_action( 'newspack_ui_dismiss_notice', [ __CLASS__, 'dismiss_notice' ] );
 	}
 
 	/**
@@ -50,16 +51,22 @@ class WooCommerce_Update_Payment_Notice {
 	}
 
 	/**
+	 * Get notice dismiss timestamp.
+	 *
+	 * @param string $notice_id The ID of the notice.
+	 *
+	 * @return int The timestamp.
+	 */
+	private static function get_notice_dismiss_timestamp( $notice_id ) {
+		return get_user_meta( wp_get_current_user()->ID, self::NOTICE_TIMESTAMP_KEY . '_' . $notice_id, true );
+	}
+
+	/**
 	 * Maybe add Newspack UI snackbar.
 	 */
 	public static function maybe_add_newspack_notices() {
 		// Under "My Account" page we use WC notices.
 		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
-			return;
-		}
-
-		$timestamp = get_user_meta( wp_get_current_user()->ID, self::NOTICE_TIMESTAMP_KEY, true );
-		if ( $timestamp && $timestamp > time() - self::NOTICE_INTERVAL ) {
 			return;
 		}
 
@@ -69,16 +76,22 @@ class WooCommerce_Update_Payment_Notice {
 		}
 
 		foreach ( $notices as $notice ) {
+			$notice_id = md5( $notice );
+			$timestamp = self::get_notice_dismiss_timestamp( $notice_id );
+			if ( $timestamp && $timestamp > time() - self::NOTICE_INTERVAL ) {
+				continue;
+			}
+
 			Newspack_UI::add_notice(
 				$notice,
 				[
+					'id'       => $notice_id,
 					'type'     => 'warning',
 					'corner'   => 'top-right',
 					'autohide' => false,
 				]
 			);
 		}
-		update_user_meta( wp_get_current_user()->ID, self::NOTICE_TIMESTAMP_KEY, time() );
 	}
 
 	/**
@@ -170,6 +183,15 @@ class WooCommerce_Update_Payment_Notice {
 		}
 
 		return $message;
+	}
+
+	/**
+	 * Dismiss a Newspack notice.
+	 *
+	 * @param string $notice_id The ID of the notice that was dismissed.
+	 */
+	public static function dismiss_notice( $notice_id ) {
+		update_user_meta( wp_get_current_user()->ID, self::NOTICE_TIMESTAMP_KEY . '_' . $notice_id, time() );
 	}
 }
 WooCommerce_Update_Payment_Notice::init();

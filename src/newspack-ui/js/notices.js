@@ -3,9 +3,6 @@ import { domReady } from './utils';
 domReady( function () {
 	const notices = [ ...document.querySelectorAll( '.newspack-ui__snackbar__item' ) ];
 	notices.forEach( notice => {
-		if ( notice.dataset.autohide === 'false' ) {
-			appendCloseButton( notice );
-		}
 		if ( notice.dataset.activeOnLoad === 'true' ) {
 			openNotice( notice );
 		}
@@ -42,23 +39,10 @@ function closeNotice( element ) {
 	setTimeout( () => {
 		element.remove();
 	}, 125 );
-}
-
-/**
- * Append a close button to a notice.
- *
- * @param {Element} element - The notice element.
- */
-function appendCloseButton( element ) {
-	const closeButton = document.createElement( 'button' );
-	closeButton.classList.add( 'newspack-ui__snackbar__close' );
-	closeButton.setAttribute( 'aria-label', 'Close' );
-	closeButton.setAttribute( 'aria-hidden', 'true' );
-	closeButton.setAttribute( 'type', 'button' );
-	closeButton.setAttribute( 'title', 'Close' );
-	closeButton.innerHTML = '×';
-	element.insertBefore( closeButton, element.firstChild );
-	closeButton.addEventListener( 'click', () => {
-		closeNotice( element );
+	wp.ajax.send( 'newspack_ui_dismiss_notice', {
+		data: {
+			id: element.dataset.noticeId,
+			nonce: element.dataset.nonce,
+		},
 	} );
 }

@@ -26,20 +26,23 @@ class Newspack_UI {
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_styles' ] );
-		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_styles' ] );
+		\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ] );
+		\add_action( 'enqueue_block_editor_assets', [ __CLASS__, 'enqueue_assets' ] );
 		\add_filter( 'the_content', [ __CLASS__, 'load_demo' ] );
 		// Only run if the site is using a block theme.
 		if ( wp_theme_has_theme_json() ) {
 			\add_action( 'wp_enqueue_scripts', [ __CLASS__, 'colors_css_wrap' ] );
 		}
 		add_action( 'wp_footer', [ __CLASS__, 'print_notices' ], 100 );
+
+		add_action( 'wp_ajax_newspack_ui_dismiss_notice', [ __CLASS__, 'ajax_dismiss_notice' ] );
+		add_action( 'wp_ajax_nopriv_newspack_ui_dismiss_notice', [ __CLASS__, 'ajax_dismiss_notice' ] );
 	}
 
 	/**
-	 * Enqueue styles for the Newspack UI.
+	 * Enqueue assets for the Newspack UI.
 	 */
-	public static function enqueue_styles() {
+	public static function enqueue_assets() {
 		\wp_enqueue_style(
 			'newspack-ui',
 			Newspack::plugin_url() . '/dist/newspack-ui.css',
@@ -50,7 +53,7 @@ class Newspack_UI {
 		wp_enqueue_script(
 			'newspack-ui',
 			Newspack::plugin_url() . '/dist/newspack-ui.js',
-			[],
+			[ 'wp-util' ],
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
@@ -104,10 +107,16 @@ class Newspack_UI {
 					<?php foreach ( $notices as $notice ) : ?>
 						<div
 							class="newspack-ui__snackbar__item newspack-ui__snackbar__item--<?php echo esc_attr( $notice['type'] ); ?>"
-							id="<?php echo esc_attr( $notice['id'] ); ?>"
+							data-notice-id="<?php echo esc_attr( $notice['id'] ); ?>"
+							data-nonce="<?php echo esc_attr( wp_create_nonce( 'newspack_ui_dismiss_notice' ) ); ?>"
 							data-autohide="<?php echo $notice['autohide'] ? 'true' : 'false'; ?>"
 							data-active-on-load="<?php echo $notice['active_on_load'] ? 'true' : 'false'; ?>"
 						>
+							<?php if ( ! $notice['autohide'] ) : ?>
+								<button class="newspack-ui__snackbar__close" aria-label="<?php esc_attr_e( 'Close', 'newspack-plugin' ); ?>" title="<?php esc_attr_e( 'Close', 'newspack-plugin' ); ?>">
+									<?php Newspack_UI_Icons::print_svg( 'close' ); ?>
+								</button>
+							<?php endif; ?>
 							<div class="newspack-ui__snackbar__content">
 								<?php echo wp_kses_post( $notice['message'] ); ?>
 							</div>
@@ -117,6 +126,24 @@ class Newspack_UI {
 			</div>
 			<?php
 		}
+	}
+
+	/**
+	 * Ajax handler when a notice is dismissed.
+	 */
+	public static function ajax_dismiss_notice() {
+		check_ajax_referer( 'newspack_ui_dismiss_notice', 'nonce' );
+		$notice_id = isset( $_POST['id'] ) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
+		if ( empty( $notice_id ) ) {
+			wp_send_json_error( 'No notice ID provided' );
+		}
+		/**
+		 * Fires when a notice is dismissed.
+		 *
+		 * @param string $notice_id The ID of the notice that was dismissed.
+		 */
+		do_action( 'newspack_ui_dismiss_notice', $notice_id );
+		wp_send_json_success( 'Notice dismissed' );
 	}
 
 	/**
