@@ -39,7 +39,7 @@ function closeNotice( element ) {
 	setTimeout( () => {
 		element.remove();
 	}, 125 );
-	wp.ajax.send( 'newspack_ui_dismiss_notice', {
+	wp.ajax.send( 'newspack_ui_notice_dismissed', {
 		data: {
 			id: element.dataset.noticeId,
 			nonce: element.dataset.nonce,

@@ -35,8 +35,8 @@ class Newspack_UI {
 		}
 		add_action( 'wp_footer', [ __CLASS__, 'print_notices' ], 100 );
 
-		add_action( 'wp_ajax_newspack_ui_dismiss_notice', [ __CLASS__, 'ajax_dismiss_notice' ] );
-		add_action( 'wp_ajax_nopriv_newspack_ui_dismiss_notice', [ __CLASS__, 'ajax_dismiss_notice' ] );
+		add_action( 'wp_ajax_newspack_ui_notice_dismissed', [ __CLASS__, 'ajax_notice_dismissed' ] );
+		add_action( 'wp_ajax_nopriv_newspack_ui_notice_dismissed', [ __CLASS__, 'ajax_notice_dismissed' ] );
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Newspack_UI {
 	/**
 	 * Ajax handler when a notice is dismissed.
 	 */
-	public static function ajax_dismiss_notice() {
+	public static function ajax_notice_dismissed() {
 		check_ajax_referer( 'newspack_ui_notice_dismissed', 'nonce' );
 		$notice_id = isset( $_POST['id'] ) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
 		if ( empty( $notice_id ) ) {
