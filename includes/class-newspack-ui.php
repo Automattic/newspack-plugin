@@ -108,7 +108,7 @@ class Newspack_UI {
 						<div
 							class="newspack-ui__snackbar__item newspack-ui__snackbar__item--<?php echo esc_attr( $notice['type'] ); ?>"
 							data-notice-id="<?php echo esc_attr( $notice['id'] ); ?>"
-							data-nonce="<?php echo esc_attr( wp_create_nonce( 'newspack_ui_dismiss_notice' ) ); ?>"
+							data-nonce="<?php echo esc_attr( wp_create_nonce( 'newspack_ui_notice_dismissed' ) ); ?>"
 							data-autohide="<?php echo $notice['autohide'] ? 'true' : 'false'; ?>"
 							data-active-on-load="<?php echo $notice['active_on_load'] ? 'true' : 'false'; ?>"
 						>
@@ -132,7 +132,7 @@ class Newspack_UI {
 	 * Ajax handler when a notice is dismissed.
 	 */
 	public static function ajax_dismiss_notice() {
-		check_ajax_referer( 'newspack_ui_dismiss_notice', 'nonce' );
+		check_ajax_referer( 'newspack_ui_notice_dismissed', 'nonce' );
 		$notice_id = isset( $_POST['id'] ) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
 		if ( empty( $notice_id ) ) {
 			wp_send_json_error( 'No notice ID provided' );
@@ -142,7 +142,7 @@ class Newspack_UI {
 		 *
 		 * @param string $notice_id The ID of the notice that was dismissed.
 		 */
-		do_action( 'newspack_ui_dismiss_notice', $notice_id );
+		do_action( 'newspack_ui_notice_dismissed', $notice_id );
 		wp_send_json_success( 'Notice dismissed' );
 	}
 

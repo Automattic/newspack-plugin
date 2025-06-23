@@ -23,7 +23,7 @@ class WooCommerce_Update_Payment_Notice {
 	public static function init() {
 		add_action( 'wp', [ __CLASS__, 'maybe_add_wc_notices' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'maybe_add_newspack_notices' ] );
-		add_action( 'newspack_ui_dismiss_notice', [ __CLASS__, 'dismiss_notice' ] );
+		add_action( 'newspack_ui_notice_dismissed', [ __CLASS__, 'dismiss_notice' ] );
 	}
 
 	/**
