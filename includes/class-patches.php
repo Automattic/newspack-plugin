@@ -368,6 +368,8 @@ class Patches {
 
 	/**
 	 * Restrict non-privileged users from seeing posts not owned by them.
+	 * An author without the edit_others_* cap will not be able to edit the posts,
+	 * but still can view the list of posts. This method prevents that.
 	 * Affects all admin post lists and the legacy (non-AJAX) media library list page.
 	 *
 	 * @param WP_Query $query Query to alter.
@@ -385,7 +387,10 @@ class Patches {
 		$is_posts_list    = 'edit' === $current_screen->base;
 
 		// If the user can't edit others' posts, only allow them to view their own posts.
-		if ( ( $is_media_library || $is_posts_list ) && ! current_user_can( 'edit_others_posts' ) ) {
+		if (
+			( $is_media_library || $is_posts_list )
+			&& ! Capabilities::current_user_can( 'edit_others_posts', $current_screen->post_type )
+		) {
 			$query->set( 'author', $current_user_id ); // phpcs:ignore WordPressVIPMinimum.Hooks.PreGetPosts.PreGetPosts
 			add_filter( 'wp_count_posts', [ __CLASS__, 'fix_post_counts' ], 10, 2 );
 		}
@@ -427,7 +432,12 @@ class Patches {
 	public static function restrict_media_library_access_ajax( $query_args ) {
 		$current_user_id = get_current_user_id();
 
-		if ( $current_user_id && ! current_user_can( 'edit_others_posts' ) && ! current_user_can( 'edit_files' ) && ! current_user_can( 'newspack_view_others_media' ) ) {
+		if (
+			$current_user_id
+			&& ! current_user_can( 'edit_others_posts' )
+			&& ! current_user_can( 'edit_files' )
+			&& ! current_user_can( 'newspack_view_others_media' )
+		) {
 			$query_args['author'] = $current_user_id;
 		}
 

@@ -13,8 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * RSS feed enhancements.
  */
 class RSS {
-	const FEED_CPT           = 'partner_rss_feed';
-	const FEED_QUERY_ARG     = 'partner-feed';
+	const FEED_CPT = 'partner_rss_feed';
+	const FEED_QUERY_ARG = 'partner-feed';
 	const FEED_SETTINGS_META = 'partner_feed_settings';
 
 	/**
@@ -43,6 +43,8 @@ class RSS {
 		add_filter( 'wpseo_include_rss_footer', [ __CLASS__, 'maybe_suppress_yoast' ] );
 		add_action( 'rss2_ns', [ __CLASS__, 'maybe_inject_yahoo_namespace' ] );
 		add_filter( 'the_title_rss', [ __CLASS__, 'maybe_wrap_titles_in_cdata' ] );
+
+		add_filter( 'newspack_capabilities_map', [ __CLASS__, 'newspack_capabilities_map' ] );
 	}
 
 	/**
@@ -141,7 +143,8 @@ class RSS {
 			'show_in_menu'         => true,
 			'menu_icon'            => 'dashicons-rss',
 			'query_var'            => true,
-			'capability_type'      => 'post',
+			'capability_type'      => self::FEED_CPT,
+			'map_meta_cap'         => true,
 			'has_archive'          => false,
 			'hierarchical'         => false,
 			'menu_position'        => null,
@@ -506,7 +509,7 @@ class RSS {
 			return;
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! Capabilities::current_user_can( 'edit_posts', self::FEED_CPT ) ) {
 			return;
 		}
 
@@ -870,6 +873,17 @@ xmlns:media="http://search.yahoo.com/mrss/"
 	 */
 	private static function is_republication_tracker_plugin_active() {
 		return class_exists( 'Republication_Tracker_Tool' );
+	}
+
+	/**
+	 * Map the capabilities for the RSS feed custom post type.
+	 *
+	 * @param array $capabilities_map The existing capabilities map.
+	 * @return array The modified capabilities map with RSS feed CPT capabilities.
+	 */
+	public static function newspack_capabilities_map( $capabilities_map ) {
+		$capabilities_map[ self::FEED_CPT ] = 'post';
+		return $capabilities_map;
 	}
 }
 RSS::init();
