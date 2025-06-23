@@ -44,26 +44,23 @@ namespace Newspack;
 				'post__in' => $sticky_post_ids,
 			]
 		);
-		foreach ( $sticky_posts as $sticky_post ) {
-			printf(
-				'<li><h3><a href="/%s/%d">%s</a></h3></li>',
-				esc_attr( Lite_Site::get_url_base() ),
-				esc_attr( $sticky_post->ID ),
-				esc_html( $sticky_post->post_title )
-			);
-		}
 	}
 
 	$recent_posts = get_posts( $query_args );
-	foreach ( $recent_posts as $current_post ) {
-		if ( ! in_array( $current_post->ID, $sticky_post_ids ) ) {
-			printf(
-				'<li><a href="/%s/%d">%s</a></li>',
-				esc_attr( Lite_Site::get_url_base() ),
-				esc_attr( $current_post->ID ),
-				esc_html( $current_post->post_title )
-			);
-		}
+
+	$all_posts = array_merge( $sticky_posts, $recent_posts );
+
+	$all_posts = array_unique( $all_posts, SORT_REGULAR );
+
+	$all_posts = array_slice( $all_posts, 0, Lite_Site::get_number_of_posts() );
+
+	foreach ( $all_posts as $current_post ) {
+		printf(
+			'<li><a href="/%s/%d">%s</a></li>',
+			esc_attr( Lite_Site::get_url_base() ),
+			esc_attr( $current_post->ID ),
+			esc_html( $current_post->post_title )
+		);
 	}
 	?>
 	</ul>
