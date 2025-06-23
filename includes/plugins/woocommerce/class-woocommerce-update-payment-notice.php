@@ -23,7 +23,7 @@ class WooCommerce_Update_Payment_Notice {
 	public static function init() {
 		add_action( 'wp', [ __CLASS__, 'maybe_add_wc_notices' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'maybe_add_newspack_notices' ] );
-		add_action( 'newspack_ui_notice_dismissed', [ __CLASS__, 'dismiss_notice' ] );
+		add_action( 'newspack_ui_notice_dismissed', [ __CLASS__, 'handle_notice_dismissed' ] );
 	}
 
 	/**
@@ -190,7 +190,7 @@ class WooCommerce_Update_Payment_Notice {
 	 *
 	 * @param string $notice_id The ID of the notice that was dismissed.
 	 */
-	public static function dismiss_notice( $notice_id ) {
+	public static function handle_notice_dismissed( $notice_id ) {
 		update_user_meta( wp_get_current_user()->ID, self::NOTICE_TIMESTAMP_KEY . '_' . $notice_id, time() );
 	}
 }
