@@ -59,6 +59,8 @@ class Memberships {
 		add_filter( 'user_has_cap', [ __CLASS__, 'user_has_cap' ], 10, 3 );
 		add_action( 'wp', [ __CLASS__, 'remove_unnecessary_content_restriction' ], 11 );
 		add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'disable_subscription_linked_membership_fields' ] );
+		add_action( 'save_post_wc_user_membership', [ __CLASS__, 'prevent_subscription_linked_membership_field_updates' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -1089,6 +1091,121 @@ class Memberships {
 				);
 		}
 		return $actions;
+	}
+
+	/**
+	 * Disable Status, Member since, and Expires fields for subscription-linked memberships.
+	 */
+	public static function disable_subscription_linked_membership_fields() {
+		global $current_screen, $post;
+
+		// Only apply on user membership edit screen.
+		if ( ! $current_screen || 'wc_user_membership' !== $current_screen->id || 'post' !== $current_screen->base ) {
+			return;
+		}
+
+		// Ensure we have a valid post.
+		if ( ! $post || 'wc_user_membership' !== $post->post_type ) {
+			return;
+		}
+
+		// Check if membership is linked to a subscription.
+		$subscription_id = get_post_meta( $post->ID, '_subscription_id', true );
+		if ( empty( $subscription_id ) ) {
+			return;
+		}
+
+		// Enqueue JavaScript to disable the fields.
+		wp_add_inline_script(
+			'jquery',
+			'
+			jQuery(document).ready(function($) {
+				function disableFields() {
+					// Disable Status field (Select2-based)
+					$(".plan-details #post_status").prop("disabled", true).css("opacity", "0.6");
+					$("#post_status").next(".select2-container").css("opacity", "0.6").css("pointer-events", "none");
+
+					// Disable Member since fields
+					$("#_start_date").prop("disabled", true).css("opacity", "0.6");
+					$("#_start_date").next(".ui-datepicker-trigger").css("display", "none");
+
+					// Disable Expires fields
+					$("#_end_date").prop("disabled", true).css("opacity", "0.6");
+					$("#_end_date").next(".ui-datepicker-trigger").css("display", "none");
+
+					// Add visual indication that fields are disabled
+					$("#post_status, #_start_date, #_end_date").each(function() {
+						var container = $(this).closest("p, .form-field");
+						if (!container.find(".subscription-linked-notice").length) {
+							container.append("<small class=\"subscription-linked-notice\" style=\"color: #666; font-style: italic; display: block; margin-top: 5px;\">This field cannot be edited because this membership is linked to a subscription.</small>");
+						}
+					});
+				}
+
+				// Initial disable
+				disableFields();
+
+				// Re-disable after Select2 initialization (it may re-enable the field)
+				setTimeout(disableFields, 500);
+
+				// Watch for Select2 events and re-disable if needed
+				$(document).on("select2:opening", "#post_status", function(e) {
+					e.preventDefault();
+					return false;
+				});
+			});
+		'
+		);
+	}
+
+	/**
+	 * Prevent updating Status, Member since, and Expires fields for subscription-linked memberships.
+	 *
+	 * @param int     $post_id The post ID.
+	 * @param WP_Post $post    Post object.
+	 */
+	public static function prevent_subscription_linked_membership_field_updates( $post_id, $post ) {
+		// Skip if not a user membership post type.
+		if ( 'wc_user_membership' !== $post->post_type ) {
+			return;
+		}
+
+		// Skip during autosave.
+		if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		// Check if membership is linked to a subscription.
+		$subscription_id = get_post_meta( $post_id, '_subscription_id', true );
+		if ( empty( $subscription_id ) ) {
+			return;
+		}
+
+		// Get the original post data before the update.
+		$original_post = get_post( $post_id );
+
+		// Restore original status if it was changed.
+		if ( $original_post && $original_post->post_status !== $post->post_status ) {
+			wp_update_post(
+				[
+					'ID'          => $post_id,
+					'post_status' => $original_post->post_status,
+				]
+			);
+		}
+
+		// Restore original start date if it was changed.
+		$original_start_date = get_post_meta( $post_id, '_start_date', true );
+
+		if ( isset( $_POST['_start_date'] ) && $_POST['_start_date'] !== $original_start_date ) { // phpcs:disable WordPress.Security.NonceVerification.Missing
+			update_post_meta( $post_id, '_start_date', $original_start_date );
+		}
+
+		// Restore original end date if it was changed.
+		$original_end_date = get_post_meta( $post_id, '_end_date', true );
+		if ( isset( $_POST['_end_date'] ) && $_POST['_end_date'] !== $original_end_date ) { // phpcs:disable WordPress.Security.NonceVerification.Missing
+			update_post_meta( $post_id, '_end_date', $original_end_date );
+		}
 	}
 }
 Memberships::init();
