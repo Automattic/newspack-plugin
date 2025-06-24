@@ -8,6 +8,7 @@
 namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
+use WP_REST_Request;
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Enqueuer;
 use Newspack\Collections\Settings;
@@ -263,5 +264,24 @@ class Test_Post_Type extends WP_UnitTestCase {
 
 		$post_type = get_post_type_object( Post_Type::get_post_type() );
 		$this->assertEquals( $custom_slug, $post_type->rewrite['slug'] );
+	}
+
+	/**
+	 * Test that post type slug updates when settings change via REST API.
+	 *
+	 * @covers \Newspack\Collections\Settings::update_from_request
+	 * @covers \Newspack\Collections\Post_Type::register_post_type
+	 */
+	public function test_post_type_slug_updates() {
+		Post_Type::init();
+		$this->assertEquals( 'collection', get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
+
+		// Update settings via REST API.
+		$custom_slug = 'magazine';
+		$request     = new WP_REST_Request();
+		$request->set_param( 'custom_naming_enabled', true );
+		$request->set_param( 'custom_slug', $custom_slug );
+		Settings::update_from_request( $request );
+		$this->assertEquals( $custom_slug, get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
 	}
 }

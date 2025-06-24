@@ -60,6 +60,7 @@ class Collection_Section_Taxonomy {
 	public static function init() {
 		// Register taxonomy and menu relationships.
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
+		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'register_taxonomy' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'add_to_collections_menu' ] );
 		add_filter( 'parent_file', [ __CLASS__, 'set_parent_menu' ] );
 

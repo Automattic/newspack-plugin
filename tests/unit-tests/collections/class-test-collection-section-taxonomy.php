@@ -9,8 +9,10 @@
 namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
+use WP_REST_Request;
 use Newspack\Collections\Collection_Section_Taxonomy;
 use Newspack\Collections\Post_Type;
+use Newspack\Collections\Settings;
 
 /**
  * Test the Collection Section Taxonomy functionality.
@@ -232,5 +234,24 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 		Collection_Section_Taxonomy::add_quick_edit_field( 'other_column', 'edit-tags', Collection_Section_Taxonomy::get_taxonomy() );
 		$output = ob_get_clean();
 		$this->assertEmpty( $output, 'Quick edit field should not be added for other columns.' );
+	}
+
+	/**
+	 * Test that section taxonomy slug updates when settings change via REST API.
+	 *
+	 * @covers \Newspack\Collections\Settings::update_from_request
+	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::register_taxonomy
+	 */
+	public function test_section_taxonomy_slug_updates() {
+		Collection_Section_Taxonomy::init();
+		$this->assertEquals( 'collection-section', get_taxonomy( Collection_Section_Taxonomy::get_taxonomy() )->rewrite['slug'] );
+
+		// Update settings via REST API.
+		$custom_slug = 'magazine';
+		$request     = new WP_REST_Request();
+		$request->set_param( 'custom_naming_enabled', true );
+		$request->set_param( 'custom_slug', $custom_slug );
+		Settings::update_from_request( $request );
+		$this->assertEquals( $custom_slug . '-section', get_taxonomy( Collection_Section_Taxonomy::get_taxonomy() )->rewrite['slug'] );
 	}
 }

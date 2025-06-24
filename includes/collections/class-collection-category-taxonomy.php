@@ -37,6 +37,7 @@ class Collection_Category_Taxonomy {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
+		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'register_taxonomy' ] );
 		add_action( 'manage_' . Post_Type::get_post_type() . '_posts_columns', [ __CLASS__, 'set_taxonomy_column_name' ] );
 	}
 
