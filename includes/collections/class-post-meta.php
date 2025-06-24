@@ -38,8 +38,7 @@ class Post_Meta {
 			self::ORDER_META_KEY,
 			[
 				'type'              => 'integer',
-				/* translators: %s: Collection plural name in lowercase */
-				'description'       => sprintf( __( 'Order of the post within %s.', 'newspack-plugin' ), strtolower( Settings::get_custom_names()['name'] ) ),
+				'description'       => __( 'Order of the post within collections.', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
@@ -67,22 +66,12 @@ class Post_Meta {
 			'post' === $current_screen->base &&
 			'post' === $current_screen->post_type
 		) {
-			[ 'name' => $name, 'singular_name' => $singular_name ] = Settings::get_custom_names();
-
 			Enqueuer::add_data(
 				'postMeta',
 				[
 					'orderMetaKey'   => self::ORDER_META_KEY,
-					'panelTitle'     => sprintf(
-						/* translators: %s: Collection singular name */
-						_x( '%s Settings', 'title for collection settings panel', 'newspack-plugin' ),
-						$singular_name
-					),
-					'orderFieldHelp' => sprintf(
-						/* translators: %s: Collection singular name */
-						_x( 'Set the order of this post within %s.', 'help text for collection order field', 'newspack-plugin' ),
-						strtolower( $name )
-					),
+					'panelTitle'     => _x( 'Collection Settings', 'title for collection settings panel', 'newspack-plugin' ),
+					'orderFieldHelp' => _x( 'Set the order of this post within collections.', 'help text for collection order field', 'newspack-plugin' ),
 				]
 			);
 		}

@@ -87,51 +87,31 @@ class Collection_Section_Taxonomy {
 	 * Register the Collection Sections taxonomy.
 	 */
 	public static function register_taxonomy() {
-		[ 'name' => $name, 'singular_name' => $singular_name, 'slug' => $slug ] = Settings::get_custom_names(
-			_x( 'Collections', 'collection section taxonomy general name', 'newspack-plugin' ),
-			_x( 'Collection', 'collection section taxonomy singular name', 'newspack-plugin' )
-		);
-
-		$slug  .= '-section';
 		$labels = [
-			/* translators: %s: Collection singular name */
-			'name'              => sprintf( _x( '%s Sections', 'collection section taxonomy general name', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'singular_name'     => sprintf( _x( '%s Section', 'collection section taxonomy singular name', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'search_items'      => sprintf( _x( 'Search %s Sections', 'label for search collection section', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'popular_items'     => sprintf( _x( 'Popular %s Sections', 'label for popular collection sections', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'all_items'         => sprintf( _x( 'All %s Sections', 'label for all collection sections', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'parent_item'       => sprintf( _x( 'Parent %s Section', 'label for parent collection section', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'parent_item_colon' => sprintf( _x( 'Parent %s Section:', 'label for parent collection section', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'edit_item'         => sprintf( _x( 'Edit %s Section', 'label for edit collection section', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'view_item'         => sprintf( _x( 'View %s Section', 'label for view collection section', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'update_item'       => sprintf( _x( 'Update %s Section', 'label for update collection section', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'add_new_item'      => sprintf( _x( 'Add New %s Section', 'label for add new collection section', 'newspack-plugin' ), $singular_name ),
-			/* translators: %s: Collection singular name */
-			'new_item_name'     => sprintf( _x( 'New %s Name', 'label for new collection section name', 'newspack-plugin' ), $singular_name ),
+			'name'              => _x( 'Collection Sections', 'collection section taxonomy general name', 'newspack-plugin' ),
+			'singular_name'     => _x( 'Collection Section', 'collection section taxonomy singular name', 'newspack-plugin' ),
+			'search_items'      => __( 'Search Collection Sections', 'newspack-plugin' ),
+			'popular_items'     => __( 'Popular Collection Sections', 'newspack-plugin' ),
+			'all_items'         => __( 'All Collection Sections', 'newspack-plugin' ),
+			'parent_item'       => __( 'Parent Collection Section', 'newspack-plugin' ),
+			'parent_item_colon' => __( 'Parent Collection Section:', 'newspack-plugin' ),
+			'edit_item'         => __( 'Edit Collection Section', 'newspack-plugin' ),
+			'view_item'         => __( 'View Collection Section', 'newspack-plugin' ),
+			'update_item'       => __( 'Update Collection Section', 'newspack-plugin' ),
+			'add_new_item'      => __( 'Add New Collection Section', 'newspack-plugin' ),
+			'new_item_name'     => __( 'New Collection Section Name', 'newspack-plugin' ),
 			'menu_name'         => _x( 'Sections', 'label for collection section menu name', 'newspack-plugin' ),
 		];
 
 		$args = [
 			'labels'            => $labels,
-			/* translators: %s: Collection plural name in lowercase */
-			'description'       => sprintf( __( 'Taxonomy for organizing posts into sections within %s.', 'newspack-plugin' ), strtolower( $name ) ),
+			'description'       => __( 'Taxonomy for organizing posts into sections within collections.', 'newspack-plugin' ),
 			'public'            => true,
 			'show_in_menu'      => false, // Hide in the posts menu (but show in the collections menu).
 			'show_admin_column' => true,
 			'show_in_rest'      => true,
-			'rest_base'         => $slug,
 			'rewrite'           => [
-				'slug' => $slug,
+				'slug' => Settings::get_setting( 'custom_naming_enabled', false ) ? Settings::get_setting( 'custom_slug', 'collection' ) . '-section' : 'collection-section',
 			],
 		];
 
@@ -144,11 +124,7 @@ class Collection_Section_Taxonomy {
 	public static function add_to_collections_menu() {
 		add_submenu_page(
 			'edit.php?post_type=' . Post_Type::get_post_type(), // Parent menu slug.
-			sprintf(
-				/* translators: %s: Collection singular name */
-				_x( '%s Sections', 'collection section taxonomy page title', 'newspack-plugin' ),
-				Settings::get_custom_names()['singular_name']
-			),
+			_x( 'Sections', 'collection section taxonomy page title', 'newspack-plugin' ), // Page title.
 			_x( 'Sections', 'collection section taxonomy menu title', 'newspack-plugin' ), // Menu title.
 			'manage_categories', // Capability.
 			'edit-tags.php?taxonomy=' . self::get_taxonomy() // Menu slug.

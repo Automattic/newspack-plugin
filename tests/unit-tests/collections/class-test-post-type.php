@@ -246,19 +246,15 @@ class Test_Post_Type extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test post type registration uses custom names when enabled.
+	 * Test post type registration uses custom slug when enabled.
 	 *
 	 * @covers \Newspack\Collections\Post_Type::register_post_type
 	 */
-	public function test_post_type_registration_with_custom_names() {
-		$custom_name          = 'Issues';
-		$custom_singular_name = 'Issue';
-		$custom_slug          = 'issue';
+	public function test_post_type_registration_with_custom_slug() {
+		$custom_slug = 'magazine';
 
 		$custom_settings = [
 			'custom_naming_enabled' => true,
-			'custom_name'           => $custom_name,
-			'custom_singular_name'  => $custom_singular_name,
 			'custom_slug'           => $custom_slug,
 		];
 		update_option( Settings::OPTION_NAME, $custom_settings );
@@ -266,35 +262,6 @@ class Test_Post_Type extends WP_UnitTestCase {
 		Post_Type::register_post_type();
 
 		$post_type = get_post_type_object( Post_Type::get_post_type() );
-		$this->assertEquals( $custom_name, $post_type->labels->name );
-		$this->assertEquals( $custom_singular_name, $post_type->labels->singular_name );
 		$this->assertEquals( $custom_slug, $post_type->rewrite['slug'] );
-	}
-
-	/**
-	 * Test admin script data includes dynamic panel title.
-	 *
-	 * @covers \Newspack\Collections\Post_Type::output_collection_meta_data_for_admin_scripts
-	 */
-	public function test_admin_script_data_with_dynamic_panel_title() {
-		$custom_singular_name = 'Magazine';
-		$custom_settings      = [
-			'custom_naming_enabled' => true,
-			'custom_singular_name'  => $custom_singular_name,
-		];
-		update_option( Settings::OPTION_NAME, $custom_settings );
-
-		global $current_screen;
-		$current_screen = (object) [ // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			'post_type' => Post_Type::get_post_type(),
-			'base'      => 'post',
-		];
-
-		Post_Type::output_collection_meta_data_for_admin_scripts( $current_screen );
-
-		$data = Enqueuer::get_data();
-		$this->assertEquals( $custom_singular_name . ' Details', $data['collectionPostType']['panelTitle'] );
-
-		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 }

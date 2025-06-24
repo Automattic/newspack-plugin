@@ -190,27 +190,4 @@ class Test_Collection_Taxonomy extends WP_UnitTestCase {
 		);
 		$this->assertContains( (int) $term->term_id, $terms, 'Reactivated term should be included in queries.' );
 	}
-
-	/**
-	 * Test collection taxonomy uses custom names.
-	 *
-	 * @covers \Newspack\Collections\Collection_Taxonomy::register_taxonomy
-	 */
-	public function test_collection_taxonomy_with_custom_names() {
-		$custom_name          = 'Issues';
-		$custom_singular_name = 'Issue';
-
-		$custom_settings = [
-			'custom_naming_enabled' => true,
-			'custom_name'           => $custom_name,
-			'custom_singular_name'  => $custom_singular_name,
-		];
-		update_option( Settings::OPTION_NAME, $custom_settings );
-
-		Collection_Taxonomy::register_taxonomy();
-
-		$taxonomy = get_taxonomy( Collection_Taxonomy::get_taxonomy() );
-		$this->assertEquals( $custom_name, $taxonomy->labels->name );
-		$this->assertEquals( $custom_singular_name, $taxonomy->labels->singular_name );
-	}
 }

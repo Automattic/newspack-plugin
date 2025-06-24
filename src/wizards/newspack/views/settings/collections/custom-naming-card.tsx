@@ -13,7 +13,7 @@ const CustomNamingCard: React.FC< CustomNamingCardProps > = ( { settings, isSavi
 	<WizardsActionCard
 		isMedium
 		title={ __( 'Customize collections naming schema', 'newspack-plugin' ) }
-		description={ __( 'Override post type labels, menus and other parts with custom naming.', 'newspack-plugin' ) }
+		description={ __( 'Override labels, messages and other reader-facing elements with custom naming.', 'newspack-plugin' ) }
 		disabled={ isSaving }
 		toggleChecked={ !! settings.custom_naming_enabled }
 		toggleOnChange={ ( value: boolean ) => onChange( 'custom_naming_enabled', value ) }

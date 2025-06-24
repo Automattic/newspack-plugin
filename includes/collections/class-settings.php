@@ -132,33 +132,4 @@ class Settings {
 
 		return self::get_settings();
 	}
-
-	/**
-	 * Get the names for the Collections.
-	 *
-	 * @param string $name          The plural name of the collection. Default: 'Collections'.
-	 * @param string $singular_name The singular name of the collection. Default: 'Collection'.
-	 * @param string $slug          The slug of the collection. Default: 'collection'.
-	 *
-	 * @return array {
-	 *     Array of names.
-	 *
-	 *     @type string $name          The plural name of the collection.
-	 *     @type string $singular_name The singular name of the collection.
-	 *     @type string $slug          The slug of the collection.
-	 * }
-	 */
-	public static function get_custom_names( $name = 'Collections', $singular_name = 'Collection', $slug = 'collection' ) {
-		if ( self::get_setting( 'custom_naming_enabled', false ) ) {
-			$name          = self::get_setting( 'custom_name', $name );
-			$singular_name = self::get_setting( 'custom_singular_name', $singular_name );
-			$slug          = self::get_setting( 'custom_slug', $slug );
-		}
-
-		return [
-			'name'          => $name,
-			'singular_name' => $singular_name,
-			'slug'          => $slug,
-		];
-	}
 }
