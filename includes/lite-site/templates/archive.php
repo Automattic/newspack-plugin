@@ -56,10 +56,12 @@ namespace Newspack;
 
 	foreach ( $all_posts as $current_post ) {
 		printf(
-			'<li><a href="/%s/%d">%s</a></li>',
+			'<li>%s<a href="/%s/%d">%s</a>%s</li>',
+			in_array( $current_post->ID, $sticky_post_ids, true ) ? '<h3>' : '',
 			esc_attr( Lite_Site::get_url_base() ),
 			esc_attr( $current_post->ID ),
-			esc_html( $current_post->post_title )
+			esc_html( $current_post->post_title ),
+			in_array( $current_post->ID, $sticky_post_ids, true ) ? '</h3>' : ''
 		);
 	}
 	?>
