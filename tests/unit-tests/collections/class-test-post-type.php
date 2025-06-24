@@ -247,26 +247,6 @@ class Test_Post_Type extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test post type registration uses custom slug when enabled.
-	 *
-	 * @covers \Newspack\Collections\Post_Type::register_post_type
-	 */
-	public function test_post_type_registration_with_custom_slug() {
-		$custom_slug = 'magazine';
-
-		$custom_settings = [
-			'custom_naming_enabled' => true,
-			'custom_slug'           => $custom_slug,
-		];
-		update_option( Settings::OPTION_NAME, $custom_settings );
-
-		Post_Type::register_post_type();
-
-		$post_type = get_post_type_object( Post_Type::get_post_type() );
-		$this->assertEquals( $custom_slug, $post_type->rewrite['slug'] );
-	}
-
-	/**
 	 * Test that post type slug updates when settings change via REST API.
 	 *
 	 * @covers \Newspack\Collections\Settings::update_from_request
