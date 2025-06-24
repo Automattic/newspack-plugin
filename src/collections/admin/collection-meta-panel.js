@@ -31,11 +31,7 @@ const isValidUrl = value => {
 	}
 };
 
-const CollectionMetaPanel = ( {
-	postType,
-	postMetaDefinitions,
-	panelTitle,
-} ) => {
+const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) => {
 	const [ fieldErrors, setFieldErrors ] = useState( {} );
 	const { editPost, lockPostSaving, unlockPostSaving } = useDispatch( editorStore );
 

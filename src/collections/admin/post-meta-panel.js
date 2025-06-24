@@ -31,11 +31,7 @@ const PostMetaPanel = ( { orderMetaKey, panelTitle, orderFieldHelp } ) => {
 	return (
 		// Only render the panel for posts.
 		'post' === currentPostType && (
-			<PluginDocumentSettingPanel
-				name="newspack-post-meta-panel"
-				title={ panelTitle }
-				icon="media-document"
-			>
+			<PluginDocumentSettingPanel name="newspack-post-meta-panel" title={ panelTitle } icon="media-document">
 				<TextControl
 					label={ __( 'Order', 'newspack-plugin' ) }
 					type="number"
