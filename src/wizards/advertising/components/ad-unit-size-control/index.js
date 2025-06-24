@@ -28,10 +28,7 @@ const IAB_SIZES = window.newspack_ads_wizard.iab_sizes;
  * @return {Array} List of sizes.
  */
 export function getSizes() {
-	return [
-		...Object.keys( IAB_SIZES ).map( sizeString => sizeString.split( 'x' ).map( Number ) ),
-		'fluid',
-	];
+	return [ ...Object.keys( IAB_SIZES ).map( sizeString => sizeString.split( 'x' ).map( Number ) ), 'fluid' ];
 }
 
 /**
@@ -60,13 +57,9 @@ const AdUnitSizeControl = ( { value, selectedOptions, onChange } ) => {
 	const options = getSizes().filter(
 		size =>
 			JSON.stringify( value ) === JSON.stringify( size ) ||
-			! selectedOptions.find(
-				selectedOption => JSON.stringify( selectedOption ) === JSON.stringify( size )
-			)
+			! selectedOptions.find( selectedOption => JSON.stringify( selectedOption ) === JSON.stringify( size ) )
 	);
-	const sizeIndex = isCustom
-		? -1
-		: options.findIndex( size => JSON.stringify( size ) === JSON.stringify( value ) );
+	const sizeIndex = isCustom ? -1 : options.findIndex( size => JSON.stringify( size ) === JSON.stringify( value ) );
 	return (
 		<>
 			<SelectControl

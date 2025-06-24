@@ -29,12 +29,7 @@ const PopupAnalytics = () => (
 				</>
 			</p>
 			<Card buttonsCard noBorder>
-				<Button
-					target="_blank"
-					rel="noopener noreferrer"
-					href="https://help.newspack.com/analytics/"
-					isPrimary
-				>
+				<Button target="_blank" rel="noopener noreferrer" href="https://help.newspack.com/analytics/" isPrimary>
 					{ __( 'View the help page', 'newspack-plugin' ) }
 				</Button>
 			</Card>

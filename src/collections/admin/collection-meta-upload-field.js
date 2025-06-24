@@ -1,26 +1,11 @@
 import { __ } from '@wordpress/i18n';
 import { MediaUpload } from '@wordpress/block-editor';
-import {
-	Button,
-	Spinner,
-	Notice,
-	BaseControl,
-	useBaseControlProps,
-	ExternalLink,
-	Dashicon,
-} from '@wordpress/components';
+import { Button, Spinner, Notice, BaseControl, useBaseControlProps, ExternalLink, Dashicon } from '@wordpress/components';
 import { useEffect, useCallback, useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import PropTypes from 'prop-types';
 
-export default function CollectionMetaUploadField( {
-	metaKey,
-	meta,
-	updateMeta,
-	lockPostSaving,
-	unlockPostSaving,
-	...baseProps
-} ) {
+export default function CollectionMetaUploadField( { metaKey, meta, updateMeta, lockPostSaving, unlockPostSaving, ...baseProps } ) {
 	const { baseControlProps, controlProps } = useBaseControlProps( baseProps );
 	const [ attachment, setAttachment ] = useState( null );
 	const [ isUploading, setIsUploading ] = useState( false );
@@ -46,9 +31,7 @@ export default function CollectionMetaUploadField( {
 				updateMeta( metaKey, media.id );
 				setIsUploading( false );
 			} else {
-				setUploadError(
-					__( 'Please upload a PDF file.', 'newspack-plugin' )
-				);
+				setUploadError( __( 'Please upload a PDF file.', 'newspack-plugin' ) );
 				setIsUploading( false );
 			}
 		},
@@ -69,12 +52,7 @@ export default function CollectionMetaUploadField( {
 				} )
 				.catch( () => {
 					setAttachment( null );
-					setUploadError(
-						__(
-							'Error loading file. Please try uploading again.',
-							'newspack-plugin'
-						)
-					);
+					setUploadError( __( 'Error loading file. Please try uploading again.', 'newspack-plugin' ) );
 					updateMeta( metaKey, '' );
 					unlockPostSaving();
 				} )
@@ -85,27 +63,12 @@ export default function CollectionMetaUploadField( {
 		} else {
 			setIsInitialLoading( false );
 		}
-	}, [
-		meta[ metaKey ],
-		updateMeta,
-		metaKey,
-		lockPostSaving,
-		unlockPostSaving,
-	] );
+	}, [ meta[ metaKey ], updateMeta, metaKey, lockPostSaving, unlockPostSaving ] );
 
 	return (
-		<BaseControl
-			{ ...baseControlProps }
-			className={ `upload-controls ${
-				attachment ? 'has-uploaded-file' : ''
-			}` }
-		>
+		<BaseControl { ...baseControlProps } className={ `upload-controls ${ attachment ? 'has-uploaded-file' : '' }` }>
 			{ uploadError && (
-				<Notice
-					status="error"
-					isDismissible={ false }
-					className="upload-error"
-				>
+				<Notice status="error" isDismissible={ false } className="upload-error">
 					{ uploadError }
 				</Notice>
 			) }
@@ -113,10 +76,7 @@ export default function CollectionMetaUploadField( {
 			{ attachment && ! isInitialLoading && (
 				<div className="uploaded-file">
 					<Dashicon icon="pdf" />
-					<ExternalLink
-						href={ attachment.source_url }
-						target="_blank"
-					>
+					<ExternalLink href={ attachment.source_url } target="_blank">
 						{ attachment.title?.rendered || attachment.source_url }
 					</ExternalLink>
 				</div>
@@ -131,16 +91,10 @@ export default function CollectionMetaUploadField( {
 							isSecondary
 							onClick={ open }
 							disabled={ isUploading || isInitialLoading }
-							aria-label={
-								attachment
-									? __( 'Replace file', 'newspack-plugin' )
-									: __( 'Upload file', 'newspack-plugin' )
-							}
+							aria-label={ attachment ? __( 'Replace file', 'newspack-plugin' ) : __( 'Upload file', 'newspack-plugin' ) }
 							{ ...controlProps }
 						>
-							{ attachment
-								? __( 'Replace file', 'newspack-plugin' )
-								: __( 'Upload file', 'newspack-plugin' ) }
+							{ attachment ? __( 'Replace file', 'newspack-plugin' ) : __( 'Upload file', 'newspack-plugin' ) }
 						</Button>
 					) }
 				/>

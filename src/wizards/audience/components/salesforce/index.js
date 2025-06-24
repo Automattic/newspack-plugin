@@ -135,15 +135,12 @@ const Salesforce = () => {
 					} );
 
 					if ( clientId && clientSecret && redirectUrl ) {
-						const loginUrl = addQueryArgs(
-							'https://login.salesforce.com/services/oauth2/authorize',
-							{
-								response_type: 'code',
-								client_id: encodeURIComponent( clientId ),
-								client_secret: encodeURIComponent( clientSecret ),
-								redirect_uri: encodeURI( redirectUrl ),
-							}
-						);
+						const loginUrl = addQueryArgs( 'https://login.salesforce.com/services/oauth2/authorize', {
+							response_type: 'code',
+							client_id: encodeURIComponent( clientId ),
+							client_secret: encodeURIComponent( clientSecret ),
+							redirect_uri: encodeURI( redirectUrl ),
+						} );
 
 						window.location.assign( loginUrl );
 					} else {
@@ -157,10 +154,7 @@ const Salesforce = () => {
 						{ error && <Notice noticeText={ error } isWarning /> }
 
 						{ isConnected && ! error && (
-							<Notice
-								noticeText={ __( 'Your site is connected to Salesforce.', 'newspack-plugin' ) }
-								isSuccess
-							/>
+							<Notice noticeText={ __( 'Your site is connected to Salesforce.', 'newspack-plugin' ) } isSuccess />
 						) }
 
 						{ __(
@@ -168,17 +162,11 @@ const Salesforce = () => {
 							'newspack-plugin'
 						) }
 
-						<Button
-							ref={ copyRef }
-							className="newspack-button is-link"
-						>
+						<Button ref={ copyRef } className="newspack-button is-link">
 							{ __( 'copy to clipboard', 'newspack-plugin' ) }
 						</Button>
 
-						{ __(
-							') into the “Callback URL” field in the Connected App’s settings. ',
-							'newspack-plugin'
-						) }
+						{ __( ') into the “Callback URL” field in the Connected App’s settings. ', 'newspack-plugin' ) }
 
 						<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
 							{ __( 'Learn how to create a Connected App', 'newspack-plugin' ) }

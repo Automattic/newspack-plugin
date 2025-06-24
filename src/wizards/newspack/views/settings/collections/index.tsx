@@ -26,9 +26,7 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 };
 
 // Helper function to extract collection settings from API data with defaults.
-const extractCollectionSettings = (
-	apiData: Partial< CollectionsSettingsData >
-): CollectionsSettingsData => ( {
+const extractCollectionSettings = ( apiData: Partial< CollectionsSettingsData > ): CollectionsSettingsData => ( {
 	...DEFAULT_COLLECTIONS_SETTINGS,
 	...apiData,
 } );
@@ -37,14 +35,7 @@ const extractCollectionSettings = (
  * Collections settings component.
  */
 function Collections() {
-	const {
-		description,
-		apiData,
-		isFetching,
-		actionText,
-		apiFetchToggle,
-		errorMessage,
-	} = useWizardApiFetchToggle<
+	const { description, apiData, isFetching, actionText, apiFetchToggle, errorMessage } = useWizardApiFetchToggle<
 		CollectionsSettingsData & { module_enabled_collections: boolean }
 	>( {
 		path: '/newspack/v1/wizard/newspack-settings/collections',
@@ -53,15 +44,10 @@ function Collections() {
 			...DEFAULT_COLLECTIONS_SETTINGS,
 			module_enabled_collections: false,
 		},
-		description: __(
-			'Manage print editions and other collections of content with custom ordering and organization.',
-			'newspack-plugin'
-		),
+		description: __( 'Manage print editions and other collections of content with custom ordering and organization.', 'newspack-plugin' ),
 	} );
 
-	const [ settings, setSettings ] = useState<
-		Partial< CollectionsSettingsData >
-	>( DEFAULT_COLLECTIONS_SETTINGS );
+	const [ settings, setSettings ] = useState< Partial< CollectionsSettingsData > >( DEFAULT_COLLECTIONS_SETTINGS );
 
 	// Sync local state from apiData when it changes.
 	useEffect( () => {
@@ -82,10 +68,7 @@ function Collections() {
 		apiFetchToggle( { ...apiData, ...settings }, true );
 	};
 
-	const updateSetting: FieldChangeHandler< CollectionsSettingsData > = (
-		key,
-		value
-	) => {
+	const updateSetting: FieldChangeHandler< CollectionsSettingsData > = ( key, value ) => {
 		setSettings( prev => ( { ...prev, [ key ]: value } ) );
 	};
 
@@ -101,49 +84,26 @@ function Collections() {
 				actionText={ actionText }
 				error={ errorMessage }
 				toggleChecked={ apiData.module_enabled_collections }
-				toggleOnChange={ ( value: boolean ) =>
-					apiFetchToggle(
-						{ ...apiData, module_enabled_collections: value },
-						true
-					)
-				}
+				toggleOnChange={ ( value: boolean ) => apiFetchToggle( { ...apiData, module_enabled_collections: value }, true ) }
 			/>
 
 			{ apiData.module_enabled_collections && (
 				<>
-					<CustomNamingCard
-						settings={ settings }
-						isSaving={ isSavingSettings }
-						onChange={ updateSetting }
-					/>
+					<CustomNamingCard settings={ settings } isSaving={ isSavingSettings } onChange={ updateSetting } />
 
 					<Grid columns={ 1 } gutter={ 32 }>
 						<TextControl
-							label={ __(
-								'Subscription URL',
-								'newspack-plugin'
-							) }
-							help={ __(
-								'Global URL where readers can subscribe to collections.',
-								'newspack-plugin'
-							) }
+							label={ __( 'Subscription URL', 'newspack-plugin' ) }
+							help={ __( 'Global URL where readers can subscribe to collections.', 'newspack-plugin' ) }
 							value={ settings.subscribe_link }
-							onChange={ ( value: string ) =>
-								updateSetting( 'subscribe_link', value )
-							}
+							onChange={ ( value: string ) => updateSetting( 'subscribe_link', value ) }
 							placeholder={ `e.g., https://${ window.location.hostname }/subscribe` }
 						/>
 					</Grid>
 
 					<div className="newspack-buttons-card">
-						<Button
-							variant="primary"
-							onClick={ handleSaveSettings }
-							disabled={ isSavingSettings }
-						>
-							{ isSavingSettings
-								? __( 'Saving…', 'newspack-plugin' )
-								: __( 'Save Settings', 'newspack-plugin' ) }
+						<Button variant="primary" onClick={ handleSaveSettings } disabled={ isSavingSettings }>
+							{ isSavingSettings ? __( 'Saving…', 'newspack-plugin' ) : __( 'Save Settings', 'newspack-plugin' ) }
 						</Button>
 					</div>
 				</>

@@ -49,7 +49,7 @@ export const Stripe = ( { stripe } ) => {
 			return __( 'Connected - test mode', 'newspack-plugin' );
 		}
 		return __( 'Connected', 'newspack-plugin' );
-	}
+	};
 	const getBadgeLevel = () => {
 		if ( ! stripe?.enabled || isLoading || isQuietLoading ) {
 			return 'info';
@@ -61,7 +61,7 @@ export const Stripe = ( { stripe } ) => {
 			return 'warning';
 		}
 		return 'success';
-	}
+	};
 
 	return (
 		<ActionCard
@@ -69,13 +69,8 @@ export const Stripe = ( { stripe } ) => {
 			title={ __( 'Stripe', 'newspack-plugin' ) }
 			description={ () => (
 				<>
-					{ __(
-						'Enable the Stripe payment gateway for WooCommerce. ',
-						'newspack-plugin'
-					) }
-					<ExternalLink href="https://woocommerce.com/document/stripe/">
-						{ __( 'Learn more', 'newspack-plugin' ) }
-					</ExternalLink>
+					{ __( 'Enable the Stripe payment gateway for WooCommerce. ', 'newspack-plugin' ) }
+					<ExternalLink href="https://woocommerce.com/document/stripe/">{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
 				</>
 			) }
 			hasWhiteHeader
@@ -86,26 +81,28 @@ export const Stripe = ( { stripe } ) => {
 			} }
 			badge={ getConnectionStatus() }
 			badgeLevel={ getBadgeLevel() }
-			// eslint-disable-next-line no-nested-ternary
-			actionContent={ ( ! stripe?.enabled || isLoading || isQuietLoading ) ? null : isConnectedOauth ? (
-				<Button
-					variant="secondary"
-					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=settings"
-					target="_blank"
-					rel="noreferrer"
-				>
-					{ __( 'Configure', 'newspack-plugin' ) }
-				</Button>
-			) : (
-				<Button
-					variant="primary"
-					href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=payment-methods"
-					target="_blank"
-					rel="noreferrer"
-				>
-					{ __( 'Connect', 'newspack-plugin' ) }
-				</Button>
-			) }
+			actionContent={
+				// eslint-disable-next-line no-nested-ternary
+				! stripe?.enabled || isLoading || isQuietLoading ? null : isConnectedOauth ? (
+					<Button
+						variant="secondary"
+						href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=settings"
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Configure', 'newspack-plugin' ) }
+					</Button>
+				) : (
+					<Button
+						variant="primary"
+						href="/wp-admin/admin.php?page=wc-settings&tab=checkout&section=stripe&panel=payment-methods"
+						target="_blank"
+						rel="noreferrer"
+					>
+						{ __( 'Connect', 'newspack-plugin' ) }
+					</Button>
+				)
+			}
 		/>
 	);
-}
+};

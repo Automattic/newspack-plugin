@@ -181,6 +181,7 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-amp-enhancements.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-image-credits.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-rss-add-image.php';
+		include_once NEWSPACK_ABSPATH . 'includes/class-capabilities.php';
 		include_once NEWSPACK_ABSPATH . 'includes/advanced-settings/class-accessibility-statement-page.php';
 
 		/* Integrations with other plugins. */

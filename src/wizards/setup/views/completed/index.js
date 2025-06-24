@@ -12,21 +12,13 @@ import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import {
-	withWizardScreen,
-	ActionCard,
-	Button,
-	Card,
-	Grid,
-	SectionHeader,
-} from '../../../../components/src';
+import { withWizardScreen, ActionCard, Button, Card, Grid, SectionHeader } from '../../../../components/src';
 
 const Completed = () => {
 	useEffect( () => {
 		document.body.classList.add( 'newspack-wizard__completed', 'newspack-wizard__blue' );
 		document.querySelector( '.newspack-wizard__header' ).remove();
-		return () =>
-			document.body.classList.remove( 'newspack-wizard__completed', 'newspack-wizard__blue' );
+		return () => document.body.classList.remove( 'newspack-wizard__completed', 'newspack-wizard__blue' );
 	}, [] );
 
 	const cardClasses = classnames( 'flex', 'flex-column', 'justify-between' );
@@ -37,10 +29,7 @@ const Completed = () => {
 			<Card noBorder>
 				<SectionHeader
 					title={ __( 'You’re ready to go!', 'newspack' ) }
-					description={ __(
-						'While you’re off to a great start, there’s plenty more you can do:',
-						'newspack'
-					) }
+					description={ __( 'While you’re off to a great start, there’s plenty more you can do:', 'newspack' ) }
 					heading={ 1 }
 					centered
 					isWhite
@@ -51,10 +40,7 @@ const Completed = () => {
 				<Grid>
 					<ActionCard
 						title={ __( 'Configure Newspack', 'newspack' ) }
-						description={ __(
-							'Go in-depth with our various options to set up Newspack to meet your needs.',
-							'newspack'
-						) }
+						description={ __( 'Go in-depth with our various options to set up Newspack to meet your needs.', 'newspack' ) }
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>
@@ -66,10 +52,7 @@ const Completed = () => {
 
 					<ActionCard
 						title={ __( 'Explore our documentation', 'newspack' ) }
-						description={ __(
-							'Read about the different tools, plugins, and themes that make up Newspack.',
-							'newspack'
-						) }
+						description={ __( 'Read about the different tools, plugins, and themes that make up Newspack.', 'newspack' ) }
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>
@@ -81,10 +64,7 @@ const Completed = () => {
 
 					<ActionCard
 						title={ __( 'Update your homepage', 'newspack' ) }
-						description={ __(
-							'We’ve created the basics, now it’s time to update the content.',
-							'newspack'
-						) }
+						description={ __( 'We’ve created the basics, now it’s time to update the content.', 'newspack' ) }
 						className={ cardClasses }
 					>
 						<div className={ buttonClasses }>

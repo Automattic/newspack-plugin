@@ -34,11 +34,7 @@ const AudienceDonations = ( props, ref ) => {
 			headerText={ __( 'Audience Management / Donations', 'newspack-plugin' ) }
 			sections={ sections }
 			apiSlug={ AUDIENCE_DONATIONS_WIZARD_SLUG }
-			renderAboveSections={ () =>
-			values( donation_data?.errors ).map( ( error, i ) => (
-				<Notice key={ i } isError noticeText={ error } />
-			) )
-		}
+			renderAboveSections={ () => values( donation_data?.errors ).map( ( error, i ) => <Notice key={ i } isError noticeText={ error } /> ) }
 			requiredPlugins={ [ 'newspack-blocks' ] }
 			ref={ ref }
 		/>

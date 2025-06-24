@@ -43,21 +43,11 @@ class NewslettersWizard extends Component {
 						<Route
 							path="/"
 							exact
-							render={ () => (
-								<Settings
-									headerText={ __( 'Newsletters / Settings', 'newspack-plugin' ) }
-									tabbedNavigation={ tabs }
-								/>
-							) }
+							render={ () => <Settings headerText={ __( 'Newsletters / Settings', 'newspack-plugin' ) } tabbedNavigation={ tabs } /> }
 						/>
 						<Route
 							path="/tracking"
-							render={ () => (
-								<Tracking
-									headerText={ __( 'Newsletters / Tracking', 'newspack-plugin' ) }
-									tabbedNavigation={ tabs }
-								/>
-							) }
+							render={ () => <Tracking headerText={ __( 'Newsletters / Tracking', 'newspack-plugin' ) } tabbedNavigation={ tabs } /> }
 						/>
 						<Redirect to="/" />
 					</Switch>
@@ -66,7 +56,4 @@ class NewslettersWizard extends Component {
 		);
 	}
 }
-render(
-	createElement( withWizard( NewslettersWizard, [ 'newspack-newsletters' ] ) ),
-	document.getElementById( 'newspack-newsletters' )
-);
+render( createElement( withWizard( NewslettersWizard, [ 'newspack-newsletters' ] ) ), document.getElementById( 'newspack-newsletters' ) );

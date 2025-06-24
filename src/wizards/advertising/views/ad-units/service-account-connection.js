@@ -60,22 +60,13 @@ const ServiceAccountConnection = ( { updateWithAPI, isConnected } ) => {
 					onClick={ () => credentialsInputFile.current.click() }
 					title={ __( 'Connect your Google Ad Manager account', 'newspack' ) }
 					desc={ [
-						__(
-							'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.',
-							'newspack'
-						),
+						__( 'Upload your Service Account credentials file to connect your GAM account with Newspack Ads.', 'newspack' ),
 						fileError && <Notice noticeText={ fileError } isError />,
 					] }
 					chevron
 				/>
 			) }
-			<input
-				type="file"
-				accept=".json"
-				ref={ credentialsInputFile }
-				style={ { display: 'none' } }
-				onChange={ handleCredentialsFile }
-			/>
+			<input type="file" accept=".json" ref={ credentialsInputFile } style={ { display: 'none' } } onChange={ handleCredentialsFile } />
 		</>
 	);
 };

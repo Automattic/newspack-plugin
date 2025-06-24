@@ -18,9 +18,7 @@ class SectionTaxonomyQuickEdit {
 		this.inlineEditTax = inlineEditTax;
 		this.originalEdit = inlineEditTax.edit;
 		this.originalSave = inlineEditTax.save;
-		this.isSortedByOrder = document
-			.querySelector( `.wp-list-table #${ orderColumnName }` )
-			?.classList.contains( 'sorted' );
+		this.isSortedByOrder = document.querySelector( `.wp-list-table #${ orderColumnName }` )?.classList.contains( 'sorted' );
 
 		this.init();
 	}
@@ -41,10 +39,7 @@ class SectionTaxonomyQuickEdit {
 	handleEdit( id ) {
 		this.originalEdit.apply( this.inlineEditTax, arguments );
 
-		const termId = parseInt(
-			typeof id === 'object' ? this.inlineEditTax.getId( id ) : id,
-			10
-		);
+		const termId = parseInt( typeof id === 'object' ? this.inlineEditTax.getId( id ) : id, 10 );
 
 		if ( ! termId ) {
 			return;
@@ -56,12 +51,8 @@ class SectionTaxonomyQuickEdit {
 			return;
 		}
 
-		const orderColumn = row.querySelector(
-			`.column-${ this.orderColumnName }`
-		);
-		const orderInput = editForm.querySelector(
-			`input[name="${ this.orderMetaKey }"]`
-		);
+		const orderColumn = row.querySelector( `.column-${ this.orderColumnName }` );
+		const orderInput = editForm.querySelector( `input[name="${ this.orderMetaKey }"]` );
 		if ( orderColumn && orderInput ) {
 			orderInput.value = orderColumn.textContent.trim();
 		}
@@ -87,11 +78,7 @@ domReady( () => {
 	const { sectionTaxonomy } = window.newspackCollections || {};
 	const { inlineEditTax } = window;
 
-	if (
-		sectionTaxonomy?.orderMetaKey &&
-		sectionTaxonomy?.orderColumnName &&
-		inlineEditTax
-	) {
+	if ( sectionTaxonomy?.orderMetaKey && sectionTaxonomy?.orderColumnName && inlineEditTax ) {
 		new SectionTaxonomyQuickEdit( {
 			...sectionTaxonomy,
 			inlineEditTax,

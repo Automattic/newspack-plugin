@@ -8,15 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import {
-	Grid,
-	ImageUpload,
-	SectionHeader,
-	SelectControl,
-	TextControl,
-	withWizardScreen,
-	hooks,
-} from '../../../../components/src';
+import { Grid, ImageUpload, SectionHeader, SelectControl, TextControl, withWizardScreen, hooks } from '../../../../components/src';
 
 const pageTitleTemplate = document.title.replace( newspack_aux_data.site_title, '__SITE_TITLE__' );
 
@@ -89,10 +81,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 
 	return (
 		<Fragment>
-			<SectionHeader
-				title={ __( 'Site Profile', 'newspack' ) }
-				description={ __( 'Add and manage the basic information', 'newspack' ) }
-			/>
+			<SectionHeader title={ __( 'Site Profile', 'newspack' ) } description={ __( 'Add and manage the basic information', 'newspack' ) } />
 			<Grid columns={ 3 } gutter={ 32 } rowGap={ 16 } className="newspack-site-profile">
 				{ renderSetting( {
 					key: 'site_icon',
@@ -125,9 +114,7 @@ const Settings = ( { setError, wizardApiFetch, renderPrimaryButton } ) => {
 					</Fragment>
 				) ) }
 			</Grid>
-			<div className="newspack-buttons-card">
-				{ renderPrimaryButton( { onClick: updateProfile } ) }
-			</div>
+			<div className="newspack-buttons-card">{ renderPrimaryButton( { onClick: updateProfile } ) }</div>
 		</Fragment>
 	);
 };

@@ -49,7 +49,7 @@ export function openAuthModal( config = {} ) {
 	 *
 	 * @param {KeyboardEvent} ev The keyboard event.
 	 */
-	const handleKeydown = ( ev ) => {
+	const handleKeydown = ev => {
 		if ( ev.key === 'Escape' ) {
 			close();
 		}
@@ -60,7 +60,7 @@ export function openAuthModal( config = {} ) {
 	 *
 	 * @param {MouseEvent} ev The mouse event.
 	 */
-	const handleCloseButtonClick = ( ev ) => {
+	const handleCloseButtonClick = ev => {
 		ev.preventDefault();
 		close();
 	};
@@ -125,8 +125,7 @@ export function openAuthModal( config = {} ) {
 
 	container.formActionCallback = action => {
 		const titleEl = modal.querySelector( 'h2' );
-		titleEl.textContent =
-			'register' === action ? config.labels.register.title : config.labels.signin.title;
+		titleEl.textContent = 'register' === action ? config.labels.register.title : config.labels.signin.title;
 
 		modal.querySelectorAll( '[data-action]' ).forEach( item => {
 			if ( 'none' !== item.style.display ) {
@@ -167,10 +166,7 @@ export function openAuthModal( config = {} ) {
 	container.setFormAction( initialFormAction, true );
 
 	// Default to signin action if otp and timer has expired.
-	if (
-		initialFormAction === 'otp' &&
-		window?.newspackReaderActivation?.getOTPTimeRemaining() <= 0
-	) {
+	if ( initialFormAction === 'otp' && window?.newspackReaderActivation?.getOTPTimeRemaining() <= 0 ) {
 		container.setFormAction( 'signin' );
 	}
 	document.body.classList.add( 'newspack-signin' );

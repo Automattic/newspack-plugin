@@ -25,13 +25,8 @@ class StyleCard extends Component {
 	 * Render.
 	 */
 	render() {
-		const { ariaLabel, className, cardTitle, url, image, imageType, isActive, onClick, id } =
-			this.props;
-		const classes = classnames(
-			'newspack-style-card',
-			isActive && 'newspack-style-card__is-active',
-			className
-		);
+		const { ariaLabel, className, cardTitle, url, image, imageType, isActive, onClick, id } = this.props;
+		const classes = classnames( 'newspack-style-card', isActive && 'newspack-style-card__is-active', className );
 		return (
 			<div className={ classes } id={ id }>
 				<div className="newspack-style-card__image">
@@ -42,28 +37,18 @@ class StyleCard extends Component {
 					) }
 					<div className="newspack-style-card__actions">
 						{ isActive ? (
-							<span className="newspack-style-card__actions__badge">
-								{ __( 'Selected', 'newspack-plugin' ) }
-							</span>
+							<span className="newspack-style-card__actions__badge">{ __( 'Selected', 'newspack-plugin' ) }</span>
 						) : (
 							<Button
 								variant="link"
 								onClick={ onClick }
-								aria-label={
-									ariaLabel ? ariaLabel : __( 'Select', 'newspack-plugin' ) + ' ' + cardTitle
-								}
+								aria-label={ ariaLabel ? ariaLabel : __( 'Select', 'newspack-plugin' ) + ' ' + cardTitle }
 								tabIndex="0"
 							>
 								{ __( 'Select', 'newspack-plugin' ) }
 							</Button>
 						) }
-						{ url && (
-							<WebPreview
-								url={ url }
-								label={ __( 'View Demo', 'newspack-plugin' ) }
-								variant="link"
-							/>
-						) }
+						{ url && <WebPreview url={ url } label={ __( 'View Demo', 'newspack-plugin' ) } variant="link" /> }
 					</div>
 				</div>
 				{ cardTitle && <div className="newspack-style-card__title">{ cardTitle }</div> }

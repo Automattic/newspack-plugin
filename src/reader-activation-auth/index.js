@@ -80,9 +80,7 @@ window.newspackRAS.push( readerActivation => {
 		 * Initialize trigger links.
 		 */
 		function initializeTriggerLinks() {
-			const triggerLinks = document.querySelectorAll(
-				`[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]`
-			);
+			const triggerLinks = document.querySelectorAll( `[data-newspack-reader-account-link],[href="${ newspack_ras_config.account_url }"]` );
 			triggerLinks.forEach( link => {
 				link.addEventListener( 'click', handleAccountLinkClick );
 			} );
@@ -127,6 +125,9 @@ window.newspackRAS.push( readerActivation => {
 		params.delete( newspack_ras_config?.auth_action_result );
 		const newQueryString = params.toString() ? '?' + params.toString() : '';
 		window.history.replaceState( {}, '', window.location.pathname + newQueryString );
-		readerActivation.dispatchActivity( 'reader_logged_in', { email: reader.email, login_method: 'auth-token' } );
+		readerActivation.dispatchActivity( 'reader_logged_in', {
+			email: reader.email,
+			login_method: 'auth-token',
+		} );
 	}
 } );

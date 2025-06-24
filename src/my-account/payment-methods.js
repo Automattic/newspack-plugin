@@ -13,13 +13,13 @@ domReady( function () {
 	if ( addPaymentForm && Boolean( should_rate_limit ) ) {
 		const errorContainer = document.querySelector( '.woocommerce-notices-wrapper' );
 		const submitButton = addPaymentForm.querySelector( 'input[type="submit"], button[type="submit"]' );
-		const rateLimit = function( e ) {
+		const rateLimit = function ( e ) {
 			if ( addPaymentForm.hasAttribute( 'data-check-rate-limit' ) ) {
 				errorContainer.textContent = '';
 				submitButton.setAttribute( 'disabled', '' );
 				e.preventDefault();
 				const xhr = new XMLHttpRequest();
-				xhr.onreadystatechange = function() {
+				xhr.onreadystatechange = function () {
 					// Return if the request is completed.
 					if ( xhr.readyState !== 4 ) {
 						return;
@@ -54,7 +54,7 @@ domReady( function () {
 			}
 		};
 		addPaymentForm.setAttribute( 'data-check-rate-limit', '1' );
-		addPaymentForm.addEventListener( 'submit' , rateLimit, true );
+		addPaymentForm.addEventListener( 'submit', rateLimit, true );
 		submitButton.addEventListener( 'click', rateLimit, true );
 	}
 } );

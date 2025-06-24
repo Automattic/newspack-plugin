@@ -98,12 +98,7 @@ const entry = {
 		'avatar',
 		'index.js'
 	),
-	'my-account': path.join(
-		__dirname,
-		'src',
-		'my-account',
-		'index.js'
-	),
+	'my-account': path.join( __dirname, 'src', 'my-account', 'index.js' ),
 	'my-account-v0': path.join(
 		__dirname,
 		'src',

@@ -64,35 +64,30 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 			.finally( () => setInFlight( false ) );
 	};
 	const skipPrerequisite = ( data, callback = null ) => {
-		confirmAction(
-			{
-				message: __(
-					'Are you sure you want to skip this step? You can always come back later.',
-					'newspack-plugin'
-				),
-				confirmText: __( 'Skip', 'newspack-plugin' ),
-				callback: () => {
-					setError( false );
-					setInFlight( true );
-					wizardApiFetch( {
-						path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
-						method: 'post',
-						quiet: true,
-						data,
+		confirmAction( {
+			message: __( 'Are you sure you want to skip this step? You can always come back later.', 'newspack-plugin' ),
+			confirmText: __( 'Skip', 'newspack-plugin' ),
+			callback: () => {
+				setError( false );
+				setInFlight( true );
+				wizardApiFetch( {
+					path: '/newspack/v1/wizard/newspack-audience/audience-management/skip',
+					method: 'post',
+					quiet: true,
+					data,
+				} )
+					.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
+						setPrerequisites( prerequisites_status );
+						setConfig( fetchedConfig );
+						setEspSyncErrors( can_esp_sync.errors );
+						if ( callback ) {
+							callback();
+						}
 					} )
-						.then( ( { config: fetchedConfig, prerequisites_status, can_esp_sync } ) => {
-							setPrerequisites( prerequisites_status );
-							setConfig( fetchedConfig );
-							setEspSyncErrors( can_esp_sync.errors );
-							if ( callback ) {
-								callback();
-							}
-						} )
-						.catch( setError )
-						.finally( () => setInFlight( false ) );
-				},
-			}
-		);
+					.catch( setError )
+					.finally( () => setInFlight( false ) );
+			},
+		} );
 	};
 
 	useEffect( () => {
@@ -105,10 +100,11 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 			label: config.enabled ? __( 'Configuration', 'newspack-plugin' ) : __( 'Setup', 'newspack-plugin' ),
 			path: '/',
 		},
-		( config.enabled && newspackAudience.has_memberships ) && {
-			label: __( 'Content Gating', 'newspack-plugin' ),
-			path: '/content-gating',
-		},
+		config.enabled &&
+			newspackAudience.has_memberships && {
+				label: __( 'Content Gating', 'newspack-plugin' ),
+				path: '/content-gating',
+			},
 		{
 			label: __( 'Checkout & Payment', 'newspack-plugin' ),
 			path: '/payment',
@@ -136,10 +132,7 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 	};
 
 	const props = {
-		headerText: __(
-			'Audience Management',
-			'newspack-plugin'
-		),
+		headerText: __( 'Audience Management', 'newspack-plugin' ),
 		tabbedNavigation: tabs,
 		wizardApiFetch,
 		inFlight,
@@ -157,41 +150,15 @@ function AudienceWizard( { confirmAction, pluginRequirements, wizardApiFetch }, 
 	};
 
 	return (
-		<div ref={ref}>
+		<div ref={ ref }>
 			<HashRouter hashType="slash">
 				<Switch>
 					{ pluginRequirements }
-					<Route
-						path="/"
-						exact
-						render={ () => (
-							<Setup { ...props } />
-						) }
-					/>
-					<Route
-						path="/content-gating"
-						render={ () => (
-							<ContentGating { ...props } />
-						) }
-					/>
-					<Route
-						path="/payment"
-						render={ () => (
-							<Payment { ...props } />
-						) }
-					/>
-					<Route
-						path="/campaign"
-						render={ () => (
-							<Campaign { ...props } />
-						) }
-					/>
-					<Route
-						path="/complete"
-						render={ () => (
-							<Complete { ...props } />
-						) }
-					/>
+					<Route path="/" exact render={ () => <Setup { ...props } /> } />
+					<Route path="/content-gating" render={ () => <ContentGating { ...props } /> } />
+					<Route path="/payment" render={ () => <Payment { ...props } /> } />
+					<Route path="/campaign" render={ () => <Campaign { ...props } /> } />
+					<Route path="/complete" render={ () => <Complete { ...props } /> } />
 					<Redirect to="/" />
 				</Switch>
 			</HashRouter>

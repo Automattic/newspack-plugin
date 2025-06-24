@@ -76,13 +76,7 @@ const Footer = ( { simple = undefined } ) => {
 			{ ! simple && (
 				<ul>
 					{ footerElements.map( ( { url, label, external }, index ) => (
-						<li key={ index }>
-							{ external ? (
-								<ExternalLink href={ url }>{ label }</ExternalLink>
-							) : (
-								<a href={ url }>{ label }</a>
-							) }
-						</li>
+						<li key={ index }>{ external ? <ExternalLink href={ url }>{ label }</ExternalLink> : <a href={ url }>{ label }</a> }</li>
 					) ) }
 				</ul>
 			) }
