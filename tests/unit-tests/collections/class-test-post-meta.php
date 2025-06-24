@@ -9,8 +9,6 @@ namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
 use Newspack\Collections\Post_Meta;
-use Newspack\Collections\Settings;
-use Newspack\Collections\Enqueuer;
 
 /**
  * Test the Post_Meta functionality.

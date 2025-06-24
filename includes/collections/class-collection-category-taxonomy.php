@@ -70,7 +70,6 @@ class Collection_Category_Taxonomy {
 				'slug' => Settings::get_setting( 'custom_naming_enabled', false ) ? Settings::get_setting( 'custom_slug', 'collection' ) . '-category' : 'collection-category',
 			],
 		];
-		
 
 		register_taxonomy( self::get_taxonomy(), [ Post_Type::get_post_type() ], $args );
 	}

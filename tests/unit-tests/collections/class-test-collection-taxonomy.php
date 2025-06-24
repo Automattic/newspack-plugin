@@ -10,7 +10,6 @@ namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
 use Newspack\Collections\Collection_Taxonomy;
-use Newspack\Collections\Settings;
 
 /**
  * Test the Collections Taxonomy functionality.
