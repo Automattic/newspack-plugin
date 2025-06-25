@@ -7,8 +7,7 @@ import { parse } from 'qs';
  * WordPress dependencies.
  */
 import { __ } from '@wordpress/i18n';
-import { Button, ExternalLink } from '@wordpress/components';
-import { useCopyToClipboard } from '@wordpress/compose';
+import { ClipboardButton, ExternalLink } from '@wordpress/components';
 import { useState, useEffect } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import { addQueryArgs } from '@wordpress/url';
@@ -25,14 +24,7 @@ const Salesforce = () => {
 	const salesforceData = useWizardData( 'newspack-audience/salesforce' );
 	const [ isConnected, setIsConnected ] = useState( salesforceData.refresh_token );
 	const [ error, setError ] = useState( null );
-
-	const { createNotice } = useDispatch( 'core/notices' );
-	const copyRef = useCopyToClipboard( redirectUrl, () => {
-		createNotice( 'info', __( 'Redirect URL copied to clipboard.', 'newspack-plugin' ), {
-			isDismissible: true,
-			type: 'snackbar',
-		} );
-	} );
+	const [ hasCopied, setHasCopied ] = useState( false );
 
 	const { saveWizardSettings, wizardApiFetch } = useDispatch( WIZARD_STORE_NAMESPACE );
 	const saveAllSettings = value =>
@@ -135,15 +127,12 @@ const Salesforce = () => {
 					} );
 
 					if ( clientId && clientSecret && redirectUrl ) {
-						const loginUrl = addQueryArgs(
-							'https://login.salesforce.com/services/oauth2/authorize',
-							{
-								response_type: 'code',
-								client_id: encodeURIComponent( clientId ),
-								client_secret: encodeURIComponent( clientSecret ),
-								redirect_uri: encodeURI( redirectUrl ),
-							}
-						);
+						const loginUrl = addQueryArgs( 'https://login.salesforce.com/services/oauth2/authorize', {
+							response_type: 'code',
+							client_id: encodeURIComponent( clientId ),
+							client_secret: encodeURIComponent( clientSecret ),
+							redirect_uri: encodeURI( redirectUrl ),
+						} );
 
 						window.location.assign( loginUrl );
 					} else {
@@ -157,10 +146,7 @@ const Salesforce = () => {
 						{ error && <Notice noticeText={ error } isWarning /> }
 
 						{ isConnected && ! error && (
-							<Notice
-								noticeText={ __( 'Your site is connected to Salesforce.', 'newspack-plugin' ) }
-								isSuccess
-							/>
+							<Notice noticeText={ __( 'Your site is connected to Salesforce.', 'newspack-plugin' ) } isSuccess />
 						) }
 
 						{ __(
@@ -168,17 +154,16 @@ const Salesforce = () => {
 							'newspack-plugin'
 						) }
 
-						<Button
-							ref={ copyRef }
+						<ClipboardButton
+							text={ redirectUrl }
+							onCopy={ () => setHasCopied( true ) }
+							onFinishCopy={ () => setHasCopied( false ) }
 							className="newspack-button is-link"
 						>
-							{ __( 'copy to clipboard', 'newspack-plugin' ) }
-						</Button>
+							{ hasCopied ? __( 'copied to clipboard!', 'newspack-plugin' ) : __( 'copy to clipboard', 'newspack-plugin' ) }{ ' ' }
+						</ClipboardButton>
 
-						{ __(
-							') into the “Callback URL” field in the Connected App’s settings. ',
-							'newspack-plugin'
-						) }
+						{ __( ') into the “Callback URL” field in the Connected App’s settings. ', 'newspack-plugin' ) }
 
 						<ExternalLink href="https://help.salesforce.com/articleView?id=connected_app_create.htm">
 							{ __( 'Learn how to create a Connected App', 'newspack-plugin' ) }
