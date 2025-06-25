@@ -21,6 +21,11 @@ class WooCommerce_Update_Payment_Notice {
 	 * Initialize the class.
 	 */
 	public static function init() {
+		// Only for My Account UI v1 and above.
+		if ( version_compare( WooCommerce_My_Account::get_version(), '1.0.0', '<' ) ) {
+			return;
+		}
+
 		add_action( 'wp', [ __CLASS__, 'maybe_add_wc_notices' ] );
 		add_action( 'wp_footer', [ __CLASS__, 'maybe_add_newspack_notices' ] );
 		add_action( 'newspack_ui_notice_dismissed', [ __CLASS__, 'handle_notice_dismissed' ] );
