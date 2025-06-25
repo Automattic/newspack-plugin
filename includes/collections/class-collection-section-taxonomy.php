@@ -220,6 +220,7 @@ class Collection_Section_Taxonomy {
 			$screen = get_current_screen();
 
 			if (
+				$screen &&
 				'edit-tags' === $screen->base &&
 				self::get_taxonomy() === $screen->taxonomy &&
 				'meta_value_num' === $query->query_vars['orderby']
