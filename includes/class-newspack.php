@@ -234,6 +234,8 @@ final class Newspack {
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-ui.php';
 		include_once NEWSPACK_ABSPATH . 'includes/class-newspack-ui-icons.php';
 
+		include_once NEWSPACK_ABSPATH . 'includes/foundation-events/class-foundation-events.php';
+
 		\Newspack\CLI\Initializer::init();
 	}
 
