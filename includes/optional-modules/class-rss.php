@@ -39,7 +39,7 @@ class RSS {
 		add_action( 'atom_entry', [ __CLASS__, 'add_extra_tags' ] );
 		add_filter( 'the_excerpt_rss', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
 		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
-		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_add_tracking_snippet' ], 1 );
+		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_add_tracking_snippets' ], 1 );
 		add_filter( 'wpseo_include_rss_footer', [ __CLASS__, 'maybe_suppress_yoast' ] );
 		add_action( 'rss2_ns', [ __CLASS__, 'maybe_inject_yahoo_namespace' ] );
 		add_filter( 'the_title_rss', [ __CLASS__, 'maybe_wrap_titles_in_cdata' ] );
@@ -760,12 +760,12 @@ class RSS {
 	}
 
 	/**
-	 * Add tracking pixel to feed content if setting is checked.
+	 * Add tracking pixels to feed content if settings are configured.
 	 *
 	 * @param string $content Feed content.
 	 * @return string Modified $content.
 	 */
-	public static function maybe_add_tracking_snippet( $content ) {
+	public static function maybe_add_tracking_snippets( $content ) {
 		$settings = self::get_feed_settings();
 
 		if ( ! $settings ) {
