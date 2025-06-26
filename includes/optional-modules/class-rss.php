@@ -468,7 +468,7 @@ class RSS {
 			<tr>
 				<th>
 					<?php esc_html_e( 'Custom tracking snippet', 'newspack-plugin' ); ?>
-					<p class="description"><?php echo esc_html_x( 'Tracking snipper that will be appended to the end of each post in the feed.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?></p>
+					<p class="description"><?php echo esc_html_x( 'Tracking snippet that will be appended to the end of each post in the feed.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?></p>
 				</th>
 				<td>
 					<textarea name="custom_tracking_snippet" rows="4" cols="50"><?php echo esc_textarea( $settings['custom_tracking_snippet'] ); ?></textarea>
