@@ -64,13 +64,30 @@ The following table details all available meta fields for collections:
 
 | Meta Field | Type | Description | Format |
 |------------|------|-------------|---------|
-| `newspack_collection_file_attachment` | Integer | For uploaded file | Attachment ID |
-| `newspack_collection_file_link` | String | External file URL | Valid URL |
 | `newspack_collection_volume` | String | Collection volume information | Text (e.g., "IV") |
 | `newspack_collection_number` | String | Collection number | Text (e.g., "#22") |
 | `newspack_collection_period` | String | Collection period | Text (e.g., "Spring 2025") |
 | `newspack_collection_subscribe_link` | String | A link to subscribe that will be displayed as a button on the collection page | Valid URL |
 | `newspack_collection_order_link` | String | A link to order the physical version of that collection | Valid URL |
+| `newspack_collection_ctas` | Array | An array of CTAs (Call-to-Action buttons) | Array of objects with `label`, `type`, `id` and `url` properties |
+
+Sample `newspack_collection_ctas` post meta structure:
+```php
+[
+   {
+      "type": "link",
+      "label": "Digital Edition",
+      "url": "https://example.com"
+   },
+   {
+      "type": "attachment",
+      "label": "Download PDF",
+      "id": 123
+   }
+]
+```
+
+Where `type` can either be `link` or `attachment`, and `id` is the attachment ID.
 
 ### 4. Data management ([`class-enqueuer.php`](class-enqueuer.php))
 - Manages JavaScript data localization.
