@@ -88,39 +88,52 @@ class My_Account_UI_V1 {
 	 * Enqueue assets.
 	 */
 	public static function enqueue_assets() {
+		$script_data = [
+			'myAccountUrl' => wc_get_account_endpoint_url( 'dashboard' ),
+			'labels'       => [
+				'resubscribe_title'           => __( 'Renew subscription', 'newspack-plugin' ),
+				'renewal_early_title'         => __( 'Renew subscription early', 'newspack-plugin' ),
+				'change_payment_method_title' => __( 'Change payment method', 'newspack-plugin' ),
+			],
+		];
+
 		// Only in My Account.
 		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
-			return;
+			\wp_enqueue_script(
+				'account-frontend',
+				\Newspack\Newspack::plugin_url() . '/dist/account-frontend.js',
+				[],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				'account-frontend',
+				'newspackMyAccountV1',
+				$script_data
+			);
+		} else {
+			\wp_enqueue_script(
+				'my-account-v1',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
+				[ 'my-account' ],
+				NEWSPACK_PLUGIN_VERSION,
+				true
+			);
+			\wp_localize_script(
+				'my-account-v1',
+				'newspackMyAccountV1',
+				$script_data
+			);
+
+			// Dequeue styles from the Newspack theme first, for a fresh start.
+			\wp_dequeue_style( 'newspack-woocommerce-style' );
+			\wp_enqueue_style(
+				'my-account-v1',
+				\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.css',
+				[],
+				NEWSPACK_PLUGIN_VERSION
+			);
 		}
-
-		\wp_enqueue_script(
-			'my-account-v1',
-			\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.js',
-			[ 'my-account' ],
-			NEWSPACK_PLUGIN_VERSION,
-			true
-		);
-		\wp_localize_script(
-			'my-account-v1',
-			'newspackMyAccountV1',
-			[
-				'myAccountUrl' => wc_get_account_endpoint_url( 'dashboard' ),
-				'labels'       => [
-					'resubscribe_title'           => __( 'Renew subscription', 'newspack-plugin' ),
-					'renewal_early_title'         => __( 'Renew subscription early', 'newspack-plugin' ),
-					'change_payment_method_title' => __( 'Change payment method', 'newspack-plugin' ),
-				],
-			]
-		);
-
-		// Dequeue styles from the Newspack theme first, for a fresh start.
-		\wp_dequeue_style( 'newspack-woocommerce-style' );
-		\wp_enqueue_style(
-			'my-account-v1',
-			\Newspack\Newspack::plugin_url() . '/dist/my-account-v1.css',
-			[],
-			NEWSPACK_PLUGIN_VERSION
-		);
 	}
 
 	/**

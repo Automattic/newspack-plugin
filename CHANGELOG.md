@@ -1,3 +1,10 @@
+# [6.9.0](https://github.com/Automattic/newspack-plugin/compare/v6.8.0...v6.9.0) (2025-06-25)
+
+
+### Features
+
+* release for Liste site sticky posts support ([a2f7b2d](https://github.com/Automattic/newspack-plugin/commit/a2f7b2dd4606e92ecd39c51a5167bfaff348b753))
+
 # [6.8.0](https://github.com/Automattic/newspack-plugin/compare/v6.7.0...v6.8.0) (2025-06-16)
 
 

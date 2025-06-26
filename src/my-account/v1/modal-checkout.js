@@ -60,4 +60,22 @@ domReady( () => {
 			window.newspackRAS.push( [ 'product_reordered', { order_id: data.order_id, product_id: data.product_id } ] );
 		} );
 	} );
+
+	/**
+	 * Order pay.
+	 */
+	const orderPay = document.querySelectorAll( '.pay' );
+	orderPay.forEach( button => {
+		const subscriptionId = button.dataset?.subscriptionId;
+		const action = button.dataset?.action || 'pay_order';
+		registerModalCheckoutButton( button, button.dataset?.title || null, action, data => {
+			// Track the action.
+			window.newspackRAS.push( [
+				action,
+				{
+					subscription_id: subscriptionId || data.subscription_renewal ? data.subscription_renewal : data.subscription_ids?.[ 0 ],
+				},
+			] );
+		} );
+	} );
 } );
