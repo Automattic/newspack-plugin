@@ -69,24 +69,25 @@ class RSS {
 	 */
 	public static function get_feed_settings( $feed_post = null ) {
 		$default_settings = [
-			'category_include'       => [],
-			'category_exclude'       => [],
-			'use_image_tags'         => false,
-			'use_media_tags'         => false,
-			'use_updated_tags'       => false,
-			'use_tags_tags'          => false,
-			'full_content'           => true,
-			'num_items_in_feed'      => 10,
-			'offset'                 => 0,
-			'timeframe'              => false,
-			'content_featured_image' => false,
-			'suppress_yoast'         => false,
-			'yahoo_namespace'        => false,
-			'update_frequency'       => false,
-			'use_post_id_as_guid'    => false,
-			'cdata_titles'           => false,
-			'republication_tracker'  => false,
-			'only_republishable'     => false,
+			'category_include'        => [],
+			'category_exclude'        => [],
+			'use_image_tags'          => false,
+			'use_media_tags'          => false,
+			'use_updated_tags'        => false,
+			'use_tags_tags'           => false,
+			'full_content'            => true,
+			'num_items_in_feed'       => 10,
+			'offset'                  => 0,
+			'timeframe'               => false,
+			'content_featured_image'  => false,
+			'suppress_yoast'          => false,
+			'yahoo_namespace'         => false,
+			'update_frequency'        => false,
+			'use_post_id_as_guid'     => false,
+			'cdata_titles'            => false,
+			'republication_tracker'   => false,
+			'only_republishable'      => false,
+			'custom_tracking_snippet' => '',
 		];
 
 		if ( ! $feed_post ) {
@@ -464,6 +465,15 @@ class RSS {
 					<input type="checkbox" name="cdata_titles" value="1" <?php checked( $settings['cdata_titles'] ); ?> />
 				</td>
 			</tr>
+			<tr>
+				<th>
+					<?php esc_html_e( 'Custom tracking snippet', 'newspack-plugin' ); ?>
+					<p class="description"><?php echo esc_html_x( 'Tracking snipper that will be appended to the end of each post in the feed.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?></p>
+				</th>
+				<td>
+					<textarea name="custom_tracking_snippet" rows="4" cols="50"><?php echo esc_textarea( $settings['custom_tracking_snippet'] ); ?></textarea>
+				</td>
+			</tr>
 			<?php if ( defined( 'WPSEO_VERSION' ) && WPSEO_VERSION ) : ?>
 				<tr>
 					<th>
@@ -492,7 +502,6 @@ class RSS {
 						<input type="checkbox" name="republication_tracker" value="1" <?php checked( $settings['republication_tracker'] ); ?> />
 					</td>
 				</tr>
-
 			<?php endif; ?>
 		</table>
 		<?php
@@ -556,6 +565,9 @@ class RSS {
 
 		$cdata_titles             = filter_input( INPUT_POST, 'cdata_titles', FILTER_SANITIZE_NUMBER_INT );
 		$settings['cdata_titles'] = (bool) $cdata_titles;
+
+		$custom_tracking_snippet = filter_input( INPUT_POST, 'custom_tracking_snippet', FILTER_DEFAULT ); // phpcs:ignore WordPressVIPMinimum.Security.PHPFilterFunctions.RestrictedFilter
+		$settings['custom_tracking_snippet'] = wp_kses_post( $custom_tracking_snippet );
 
 		$category_settings = filter_input_array(
 			INPUT_POST,
@@ -756,8 +768,18 @@ class RSS {
 	public static function maybe_add_tracking_snippet( $content ) {
 		$settings = self::get_feed_settings();
 
-		if ( ! $settings || empty( $settings['republication_tracker'] ) || ! method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
+		if ( ! $settings ) {
 			return $content;
+		}
+
+		// Add custom tracking snippet if provided.
+		$custom_tracking_content = '';
+		if ( ! empty( $settings['custom_tracking_snippet'] ) ) {
+			$custom_tracking_content = $settings['custom_tracking_snippet'];
+		}
+
+		if ( empty( $settings['republication_tracker'] ) || ! method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
+			return $content . $custom_tracking_content;
 		}
 
 		$post_id          = get_the_ID();
@@ -768,7 +790,7 @@ class RSS {
 		$display_attribution = get_option( 'republication_tracker_tool_display_attribution', 'on' );
 
 		if ( 'on' !== $display_attribution ) {
-			return $content . $pixel . $parsely_tracking;
+			return $content . $pixel . $parsely_tracking . $custom_tracking_content;
 		}
 
 		$site_icon_markup = '';
@@ -789,7 +811,7 @@ class RSS {
 			$parsely_tracking
 		);
 
-		$content .= $attribution;
+		$content .= $attribution . $custom_tracking_content;
 
 		return $content;
 	}
