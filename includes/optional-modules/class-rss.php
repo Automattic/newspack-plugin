@@ -468,7 +468,7 @@ class RSS {
 			<tr>
 				<th>
 					<?php esc_html_e( 'Custom tracking snippet', 'newspack-plugin' ); ?>
-					<p class="description"><?php echo esc_html_x( 'Tracking snippet that will be appended to the end of each post in the feed.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?></p>
+					<p class="description"><?php echo esc_html_x( 'Tracking snippet that will be appended to the end of each post in the feed. You can use {{post-id}} and {{post-url}} as dynamic variables.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?></p>
 				</th>
 				<td>
 					<textarea name="custom_tracking_snippet" rows="4" cols="50"><?php echo esc_textarea( $settings['custom_tracking_snippet'] ); ?></textarea>
@@ -772,17 +772,20 @@ class RSS {
 			return $content;
 		}
 
+		$post_id = get_the_ID();
+
 		// Add custom tracking snippet if provided.
 		$custom_tracking_content = '';
 		if ( ! empty( $settings['custom_tracking_snippet'] ) ) {
 			$custom_tracking_content = $settings['custom_tracking_snippet'];
+			$custom_tracking_content = str_replace( '{{post-id}}', $post_id, $custom_tracking_content );
+			$custom_tracking_content = str_replace( '{{post-url}}', get_permalink( $post_id ), $custom_tracking_content );
 		}
 
 		if ( empty( $settings['republication_tracker'] ) || ! method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
 			return $content . $custom_tracking_content;
 		}
 
-		$post_id          = get_the_ID();
 		$pixel            = \Republication_Tracker_Tool::create_tracking_pixel_markup( $post_id );
 		$parsely_tracking = \Republication_Tracker_Tool::create_parsely_tracking( $post_id );
 
