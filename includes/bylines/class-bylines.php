@@ -47,12 +47,12 @@ class Bylines {
 	 * Checks if the feature is enabled.
 	 *
 	 * True when:
-	 * - NEWSPACK_BYLINES_ENABLED is defined and true.
+	 * - NEWSPACK_CUSTOM_BYLINES_DISABLED is not defined or is false.
 	 *
 	 * @return bool True if the feature is enabled, false otherwise.
 	 */
 	public static function is_enabled() {
-		return defined( 'NEWSPACK_BYLINES_ENABLED' ) && NEWSPACK_BYLINES_ENABLED;
+		return ! defined( 'NEWSPACK_CUSTOM_BYLINES_DISABLED' ) || ! NEWSPACK_CUSTOM_BYLINES_DISABLED;
 	}
 
 
