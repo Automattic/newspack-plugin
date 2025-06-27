@@ -12,13 +12,12 @@ import { store as editorStore } from '@wordpress/editor';
 import { domReady } from '../../utils';
 
 import CollectionMetaCtasField from './collection-meta-ctas-field';
-import { useValidationLock } from './hooks/use-validation-lock';
 import { isValidUrl } from './utils';
 import './collection-meta-panel.scss';
 
 const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) => {
 	const [ fieldErrors, setFieldErrors ] = useState( {} );
-	const { editPost, lockPostSaving, unlockPostSaving } = useDispatch( editorStore );
+	const { editPost } = useDispatch( editorStore );
 
 	// Get the current post type and meta data.
 	const { currentPostType, meta = {} } = useSelect( select => {
@@ -41,8 +40,6 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) =>
 	const removeFieldError = useCallback( key => {
 		setFieldErrors( prev => Object.fromEntries( Object.entries( prev ).filter( ( [ k ] ) => k !== key ) ) );
 	}, [] );
-
-	useValidationLock( fieldErrors, lockPostSaving, unlockPostSaving, 'collection-meta-validation' );
 
 	// Handle the fields blur event.
 	const handleMetaBlur = useCallback(
@@ -89,8 +86,6 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) =>
 									help={ def.help }
 									meta={ meta }
 									updateMeta={ updateMeta }
-									lockPostSaving={ lockPostSaving }
-									unlockPostSaving={ unlockPostSaving }
 								/>
 							);
 						}

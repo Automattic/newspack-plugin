@@ -62,32 +62,30 @@
 				}
 			}
 
-			.attachment-upload-section {
-				.attachment-info {
-					display: flex;
-					align-items: center;
-					padding: 3px;
-					background: var(--newspack-ui-color-neutral-0);
-					border: 1px solid var(--newspack-ui-color-neutral-30);
-					border-radius: 4px;
-					min-height: 32px;
-					margin: 0;
+			.attachment-info {
+				display: flex;
+				align-items: center;
+				padding: 3px;
+				background: var(--newspack-ui-color-neutral-0);
+				border: 1px solid var(--newspack-ui-color-neutral-30);
+				border-radius: 4px;
+				min-height: 32px;
+				margin: 0;
 
-					.dashicons {
-						font-size: 1.5rem;
-						width: auto;
-						height: auto;
-						margin-right: 4px;
-					}
-
-					.attachment-name {
-						margin-right: auto;
-					}
+				.dashicons {
+					font-size: 1.5rem;
+					width: auto;
+					height: auto;
+					margin-right: 4px;
 				}
 
-				.components-spinner {
-					margin-bottom: 7px;
+				.attachment-name {
+					margin-right: auto;
 				}
+			}
+
+			.components-spinner {
+				margin-bottom: 7px;
 			}
 		}
 
