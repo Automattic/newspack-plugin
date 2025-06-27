@@ -44,7 +44,7 @@ The Collections system is built around a custom post type (`newspack_collection`
 
 ## Backend components
 
-### 1. Anatomy of a collection
+### Anatomy of a collection
 
 A collection is a post of the `newspack_collection` CPT and a term of the `newspack_collection_taxonomy` at the same time. Both entities are linked together and share the same name.
 
@@ -52,23 +52,39 @@ A post is assigned to a collection via the `newspack_collection_taxonomy` taxono
 
 The collections themselves can also be categorized using the `newspack_collection_category` taxonomy. This will allow us to not only have one archive to list all the collections, but additional archives for each Collection category.
 
-### 2. Collection custom post type ([`class-post-type.php`](class-post-type.php))
+### Global settings ([`class-settings.php`](class-settings.php))
+
+Collections can be configured globally via the Newspack settings.
+The following nested options are available as properties of the `newspack_collections_settings` option array:
+
+| Setting | Type | Description | Format |
+|---------|------|-------------|--------|
+| `custom_naming_enabled` | Boolean | Enable custom naming for collections | Boolean |
+| `custom_name` | String | Custom plural name for collections. Only affects the reader-facing nomenclature | Text (e.g., "Issues") |
+| `custom_singular_name` | String | Custom singular name for collections. Only affects the reader-facing nomenclature | Text (e.g., "Issue") |
+| `custom_slug` | String | Custom URL slug for collections. | Text (e.g., "issue") |
+| `subscribe_link` | String | Global subscription URL displayed on collection pages | Valid URL |
+| `order_link` | String | Global order URL for purchasing physical copies | Valid URL |
+
+The `subscribe_link` and `order_link` settings provide defaults that can be overridden at the collection category level (via term meta) or collection level (via post meta).
+
+### Collection custom post type ([`class-post-type.php`](class-post-type.php))
 - Defined as a `newspack_collection` CPT.
 - Supports: `title`, `editor`, `thumbnail`, `custom-fields`, and `page-attributes`.
 - Includes custom ordering functionality via `menu_order`.
 - Provides admin interface customizations.
 
-### 3. Collection post meta fields ([`class-collection-meta.php`](class-collection-meta.php))
+### Collection post meta fields ([`class-collection-meta.php`](class-collection-meta.php))
 
 The following table details all available meta fields for collections:
 
 | Meta Field | Type | Description | Format |
-|------------|------|-------------|---------|
+|------------|------|-------------|--------|
 | `newspack_collection_volume` | String | Collection volume information | Text (e.g., "IV") |
 | `newspack_collection_number` | String | Collection number | Text (e.g., "#22") |
 | `newspack_collection_period` | String | Collection period | Text (e.g., "Spring 2025") |
-| `newspack_collection_subscribe_link` | String | A link to subscribe that will be displayed as a button on the collection page | Valid URL |
-| `newspack_collection_order_link` | String | A link to order the physical version of that collection | Valid URL |
+| `newspack_collection_subscribe_link` | String | Override global/category subscription link for this specific collection | Valid URL |
+| `newspack_collection_order_link` | String | Override global/category order link for this specific collection | Valid URL |
 | `newspack_collection_ctas` | Array | An array of CTAs (Call-to-Action buttons) | Array of objects with `label`, `type`, `id` and `url` properties |
 
 Sample `newspack_collection_ctas` post meta structure:
@@ -89,36 +105,50 @@ Sample `newspack_collection_ctas` post meta structure:
 
 Where `type` can either be `link` or `attachment`, and `id` is the attachment ID.
 
-### 4. Data management ([`class-enqueuer.php`](class-enqueuer.php))
+### Data management ([`class-enqueuer.php`](class-enqueuer.php))
 - Manages JavaScript data localization.
 - Provides a common interface for adding/retrieving collection data dynamically.
 - Dynamically handles styles and scripts enqueuing in a single place if data is localized and passed to the frontend.
 
-### 5. Taxonomies
+### Taxonomies
 The system includes multiple taxonomy classes for organizing collections:
 
 #### Collection category taxonomy ([`class-collection-category-taxonomy.php`](class-collection-category-taxonomy.php))
 - Taxonomy name: `newspack_collection_category`.
 - Non-hierarchical taxonomy for categorizing collections.
 - Similar to WordPress post categories.
+- Term meta fields:
+
+| Meta Field | Type | Description | Format |
+|------------|------|-------------|--------|
+| `newspack_collection_subscribe_link` | String | Override global subscription link for the current collection category | Valid URL |
+| `newspack_collection_order_link` | String | Override global order link for the current collection category | Valid URL |
 
 #### Collection section taxonomy ([`class-collection-section-taxonomy.php`](class-collection-section-taxonomy.php))
 - Taxonomy name: `newspack_collection_section`.
 - Non-hierarchical taxonomy for categorizing posts into sections.
 - Similar to WordPress tags.
 - Adds a new "Section" column to the post list.
-- Order is stored in the term meta `newspack_collection_section_order`.
+- Term meta fields:
+
+| Meta Field | Type | Description | Format |
+|------------|------|-------------|--------|
+| `newspack_collection_section_order` | Integer | Order of the section | Integer |
 
 #### Collection taxonomy ([`class-collection-taxonomy.php`](class-collection-taxonomy.php))
 - Taxonomy name: `newspack_collection_taxonomy`.
-- Special internal taxonomy (`newspack_collection_taxonomy`) for associating collections with posts.
+- Special internal taxonomy for associating collections with posts.
 - It's a copy of the collection post title and slug to allow regular posts to be tagged with collections.
 - Not publicly queryable.
 - Hidden from the admin UI.
 - Adds a new "Collection" column to the post list.
-- Terms can be deactivated via an internal `_newspack_collection_inactive` term meta. Used when trashing posts, as terms don't manage status.
+- Term meta fields:
 
-### 6. Synchronization ([`class-sync.php`](class-sync.php))
+| Meta Field | Type | Description | Format |
+|------------|------|-------------|--------|
+| `_newspack_collection_inactive` | Boolean | Internal. Whether the section is inactive. Used when trashing posts, as terms don't manage status. | Boolean |
+
+### Synchronization ([`class-sync.php`](class-sync.php))
 - Handles synchronization of collection posts and collection terms.
 - Ensures data consistency across objects using a two-way meta relationship:
   - For posts, link via `_newspack_collection_term_id` internal post meta.
@@ -135,9 +165,11 @@ Term edited    -> Post edited (copy title and slug)
 Term deleted   -> Post trashed (to prevent data loss)
 ```
 
-### 7. Post meta fields ([`class-post-meta.php`](class-post-meta.php))
-- Meta key: `newspack_order_in_collection`.
-- Used for storing the post order in collection.
+### Post meta fields ([`class-post-meta.php`](class-post-meta.php))
+
+| Meta Field | Type | Description | Format |
+|------------|------|-------------|--------|
+| `newspack_order_in_collection` | Integer | Order of the post in a collection | Integer |
 
 ## Frontend components
 
