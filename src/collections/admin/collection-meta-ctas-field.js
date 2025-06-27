@@ -78,9 +78,20 @@ const CollectionMetaCtasField = ( { metaKey, meta, updateMeta, ...baseProps } ) 
 					...newCtas[ index ],
 					type: 'attachment',
 					id: media.id,
-					label: attachmentInfo.title || newCtas[ index ].label || '',
 				};
 				updateMeta( metaKey, newCtas );
+
+				// Clear any existing error for this field
+				setFieldErrors( prev => {
+					const newErrors = { ...prev };
+					delete newErrors[ `${ metaKey }_${ index }` ];
+					return newErrors;
+				} );
+			} else {
+				setFieldErrors( prev => ( {
+					...prev,
+					[ `${ metaKey }_${ index }` ]: __( 'Please upload a PDF file.', 'newspack-plugin' ),
+				} ) );
 			}
 		},
 		[ currentCtas, updateMeta, metaKey ]
@@ -216,7 +227,8 @@ const CollectionMetaCtasField = ( { metaKey, meta, updateMeta, ...baseProps } ) 
 								) : (
 									<BaseControl
 										label={ __( 'File', 'newspack-plugin' ) }
-										className="attachment-upload-section"
+										className={ hasFieldError ? 'meta-field-error' : '' }
+										help={ fieldErrors[ fieldErrorKey ] }
 										id={ `${ controlProps.id }-attachment-${ index }` }
 									>
 										{ cta.id ? (
@@ -227,7 +239,7 @@ const CollectionMetaCtasField = ( { metaKey, meta, updateMeta, ...baseProps } ) 
 												allowedTypes={ [ 'application/pdf' ] }
 												render={ ( { open } ) => (
 													<Button isSecondary isSmall onClick={ open } className="upload-button">
-														{ __( 'Upload File', 'newspack-plugin' ) }
+														{ __( 'Upload PDF', 'newspack-plugin' ) }
 													</Button>
 												) }
 											/>
