@@ -10,17 +10,14 @@ import { dragHandle } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 
 import CollectionMetaAttachmentInfo, { attachmentCache } from './collection-meta-attachment-info';
-import { useValidationLock } from './hooks/use-validation-lock';
 import { isValidUrl } from './utils';
 
-const CollectionMetaCtasField = ( { metaKey, meta, updateMeta, lockPostSaving, unlockPostSaving, ...baseProps } ) => {
+const CollectionMetaCtasField = ( { metaKey, meta, updateMeta, ...baseProps } ) => {
 	const { baseControlProps, controlProps } = useBaseControlProps( baseProps );
 	const [ fieldErrors, setFieldErrors ] = useState( {} );
 	const [ draggedIndex, setDraggedIndex ] = useState( null );
 	const [ dragOverIndex, setDragOverIndex ] = useState( null );
 	const currentCtas = meta[ metaKey ] || [];
-
-	useValidationLock( fieldErrors, lockPostSaving, unlockPostSaving, 'collection-meta-ctas-validation' );
 
 	const addCta = useCallback( () => {
 		const newCtas = [ ...currentCtas, { type: 'link', label: '', url: '' } ];
@@ -256,8 +253,6 @@ CollectionMetaCtasField.propTypes = {
 	metaKey: PropTypes.string.isRequired,
 	meta: PropTypes.object.isRequired,
 	updateMeta: PropTypes.func.isRequired,
-	lockPostSaving: PropTypes.func,
-	unlockPostSaving: PropTypes.func,
 };
 
 export default CollectionMetaCtasField;
