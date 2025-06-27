@@ -44,6 +44,7 @@ class Test_Settings extends WP_UnitTestCase {
 		$existing_settings = [
 			'custom_name'    => 'Issues',
 			'subscribe_link' => 'https://example.com/subscribe',
+			'order_link'     => 'https://example.com/order',
 		];
 
 		update_option( Settings::OPTION_NAME, $existing_settings );
@@ -100,6 +101,7 @@ class Test_Settings extends WP_UnitTestCase {
 		// Test defaults for unset fields.
 		$this->assertEquals( '', Settings::get_setting( 'custom_singular_name' ) );
 		$this->assertEquals( '', Settings::get_setting( 'subscribe_link' ) );
+		$this->assertEquals( '', Settings::get_setting( 'order_link' ) );
 
 		// Test non-existent field.
 		$this->assertNull( Settings::get_setting( 'non_existent_field' ) );
@@ -150,6 +152,10 @@ class Test_Settings extends WP_UnitTestCase {
 		$url_callback = $rest_args['subscribe_link']['sanitize_callback'];
 		$this->assertEquals( 'https://example.com/subscribe', $url_callback( 'https://example.com/subscribe' ) );
 		$this->assertEquals( '', $url_callback( 'javascript:alert("xss")' ) ); // Dangerous URLs should be sanitized to empty string.
+
+		$url_callback = $rest_args['order_link']['sanitize_callback'];
+		$this->assertEquals( 'https://example.com/order', $url_callback( 'https://example.com/order' ) );
+		$this->assertEquals( 'http://example.com', $url_callback( '{example}.com' ) );
 
 		// Test slug sanitization.
 		$slug_callback = $rest_args['custom_slug']['sanitize_callback'];

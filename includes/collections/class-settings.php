@@ -28,6 +28,7 @@ class Settings {
 		'custom_singular_name'  => '',
 		'custom_slug'           => '',
 		'subscribe_link'        => '',
+		'order_link'            => '',
 	];
 
 	/**
@@ -107,6 +108,10 @@ class Settings {
 				},
 			],
 			'subscribe_link'        => [
+				'required'          => false,
+				'sanitize_callback' => 'esc_url_raw',
+			],
+			'order_link'            => [
 				'required'          => false,
 				'sanitize_callback' => 'esc_url_raw',
 			],

@@ -20,7 +20,7 @@ const CustomNamingCard: React.FC< CustomNamingCardProps > = ( { settings, isSavi
 		hasGreyHeader={ !! settings.custom_naming_enabled }
 	>
 		{ settings.custom_naming_enabled && (
-			<Grid columns={ 1 } gutter={ 24 }>
+			<Grid columns={ 2 } gutter={ 24 }>
 				<TextControl
 					label={ __( 'Name', 'newspack-plugin' ) }
 					help={ __( 'Name to be used instead of "Collections" (e.g., "Issues", "Magazines")', 'newspack-plugin' ) }

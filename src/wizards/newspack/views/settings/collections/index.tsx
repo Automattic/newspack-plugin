@@ -23,6 +23,7 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_singular_name: '',
 	custom_slug: '',
 	subscribe_link: '',
+	order_link: '',
 };
 
 // Helper function to extract collection settings from API data with defaults.
@@ -91,13 +92,20 @@ function Collections() {
 				<>
 					<CustomNamingCard settings={ settings } isSaving={ isSavingSettings } onChange={ updateSetting } />
 
-					<Grid columns={ 1 } gutter={ 32 }>
+					<Grid columns={ 2 } gutter={ 32 }>
 						<TextControl
 							label={ __( 'Subscription URL', 'newspack-plugin' ) }
 							help={ __( 'Global URL where readers can subscribe to collections.', 'newspack-plugin' ) }
 							value={ settings.subscribe_link }
 							onChange={ ( value: string ) => updateSetting( 'subscribe_link', value ) }
 							placeholder={ `e.g., https://${ window.location.hostname }/subscribe` }
+						/>
+						<TextControl
+							label={ __( 'Order URL', 'newspack-plugin' ) }
+							help={ __( 'Global URL where readers can order collections.', 'newspack-plugin' ) }
+							value={ settings.order_link }
+							onChange={ ( value: string ) => updateSetting( 'order_link', value ) }
+							placeholder={ `e.g., https://${ window.location.hostname }/order` }
 						/>
 					</Grid>
 
