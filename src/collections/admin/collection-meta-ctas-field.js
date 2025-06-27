@@ -78,7 +78,6 @@ const CollectionMetaCtasField = ( { metaKey, meta, updateMeta, ...baseProps } ) 
 					...newCtas[ index ],
 					type: 'attachment',
 					id: media.id,
-					label: attachmentInfo.title || newCtas[ index ].label || '',
 				};
 				updateMeta( metaKey, newCtas );
 			}
