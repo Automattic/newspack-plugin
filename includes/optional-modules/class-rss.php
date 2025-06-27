@@ -39,6 +39,7 @@ class RSS {
 		add_action( 'atom_entry', [ __CLASS__, 'add_extra_tags' ] );
 		add_filter( 'the_excerpt_rss', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
 		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
+		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_non_distributable_images' ], 1 );
 		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_add_tracking_snippets' ], 1 );
 		add_filter( 'wpseo_include_rss_footer', [ __CLASS__, 'maybe_suppress_yoast' ] );
 		add_action( 'rss2_ns', [ __CLASS__, 'maybe_inject_yahoo_namespace' ] );
@@ -69,25 +70,26 @@ class RSS {
 	 */
 	public static function get_feed_settings( $feed_post = null ) {
 		$default_settings = [
-			'category_include'        => [],
-			'category_exclude'        => [],
-			'use_image_tags'          => false,
-			'use_media_tags'          => false,
-			'use_updated_tags'        => false,
-			'use_tags_tags'           => false,
-			'full_content'            => true,
-			'num_items_in_feed'       => 10,
-			'offset'                  => 0,
-			'timeframe'               => false,
-			'content_featured_image'  => false,
-			'suppress_yoast'          => false,
-			'yahoo_namespace'         => false,
-			'update_frequency'        => false,
-			'use_post_id_as_guid'     => false,
-			'cdata_titles'            => false,
-			'republication_tracker'   => false,
-			'only_republishable'      => false,
-			'custom_tracking_snippet' => '',
+			'category_include'          => [],
+			'category_exclude'          => [],
+			'use_image_tags'            => false,
+			'use_media_tags'            => false,
+			'use_updated_tags'          => false,
+			'use_tags_tags'             => false,
+			'full_content'              => true,
+			'num_items_in_feed'         => 10,
+			'offset'                    => 0,
+			'timeframe'                 => false,
+			'content_featured_image'    => false,
+			'suppress_yoast'            => false,
+			'yahoo_namespace'           => false,
+			'update_frequency'          => false,
+			'use_post_id_as_guid'       => false,
+			'cdata_titles'              => false,
+			'republication_tracker'     => false,
+			'only_republishable'        => false,
+			'only_distributable_images' => false,
+			'custom_tracking_snippet'   => '',
 		];
 
 		if ( ! $feed_post ) {
@@ -393,6 +395,16 @@ class RSS {
 						<input type="checkbox" name="only_republishable" value="1" <?php checked( $settings['only_republishable'] ); ?> />
 					</td>
 				</tr>
+				<tr>
+					<th>
+						<?php esc_html_e( 'Skip non-distributable images', 'newspack-plugin' ); ?>
+						<p class="description"><?php echo esc_html_x( 'When toggled on, images not marked as distributable will be excluded from feed content.', 'help text for remove non-distributable images setting', 'newspack-plugin' ); ?></p>
+					</th>
+					<td>
+						<input type="hidden" name="only_distributable_images" value="0" />
+						<input type="checkbox" name="only_distributable_images" value="1" <?php checked( $settings['only_distributable_images'] ); ?> />
+					</td>
+				</tr>
 			<?php endif; ?>
 		</table>
 
@@ -604,6 +616,8 @@ class RSS {
 			$only_republishable             = filter_input( INPUT_POST, 'only_republishable', FILTER_SANITIZE_NUMBER_INT );
 			$settings['only_republishable'] = (bool) $only_republishable;
 
+			$only_distributable_images             = filter_input( INPUT_POST, 'only_distributable_images', FILTER_SANITIZE_NUMBER_INT );
+			$settings['only_distributable_images'] = (bool) $only_distributable_images;
 		}
 
 		update_post_meta( $feed_post_id, self::FEED_SETTINGS_META, $settings );
@@ -834,6 +848,42 @@ class RSS {
 		if ( ! $settings['content_featured_image'] ) {
 			remove_filter( 'the_excerpt_rss', [ 'Newspack\RSS_Add_Image', 'thumbnails_in_rss' ] );
 			remove_filter( 'the_content_feed', [ 'Newspack\RSS_Add_Image', 'thumbnails_in_rss' ] );
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Filter feed content to remove non-distributable images if needed.
+	 *
+	 * @param string $content Feed content.
+	 * @return string Modified $content.
+	 */
+	public static function maybe_remove_non_distributable_images( $content ) {
+		$settings = self::get_feed_settings();
+		if ( ! $settings || ! self::is_republication_tracker_plugin_active() || empty( $settings['only_distributable_images'] ) ) {
+			return $content;
+		}
+
+		// Find all images with wp-image-{id} class.
+		preg_match_all( '/<img[^>]+class="[^"]*wp-image-(\d+)[^"]*"[^>]*>/', $content, $matches );
+		$found_images = [];
+
+		// Check each image to see if it can be distributed.
+		foreach ( $matches[1] as $key => $attachment_id ) {
+			if ( ! get_post_meta( $attachment_id, Newspack_Image_Credits::MEDIA_CREDIT_CAN_DISTRIBUTE_META, true ) ) {
+				$found_images[] = [ $attachment_id, $matches[0][ $key ] ];
+			}
+		}
+
+		// Remove the non-distributable images.
+		foreach ( $found_images as [ $attachment_id, $found_image ] ) {
+			// Remove the figure and figcaption of $found_image using regex.
+			$pattern = '/<figure[^>]*>' . preg_quote( $found_image, '/' ) . '.*?<\/figure>/s';
+			$content = preg_replace( $pattern, "<!-- Non-distributable image removed from RSS feed ({$attachment_id}) -->", $content );
+
+			// Also remove the lone image if it's not wrapped in a figure.
+			$content = str_replace( $found_image, "<!-- Non-distributable image removed from RSS feed ({$attachment_id}) -->", $content );
 		}
 
 		return $content;
