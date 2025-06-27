@@ -285,6 +285,10 @@ class Newsletters_Wizard extends Wizard {
 		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=post_tag&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 		remove_submenu_page( 'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT, 'edit-tags.php?taxonomy=' . Newspack_Newsletters_Ads::ADVERTISER_TAX . '&amp;post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT );
 
+		if ( method_exists( '\Newspack_Newsletters', 'user_can_edit_newsletters' ) && ! \Newspack_Newsletters::user_can_edit_newsletters() ) {
+			return;
+		}
+
 		// Re-add Ads (Advertising) item with updated title. ( See 'remove_action' above. See Newsletters Plugin: Newspack_Newsletters_Ads > 'add_ads_page' ) .
 		add_submenu_page(
 			'edit.php?post_type=' . Newspack_Newsletters::NEWSPACK_NEWSLETTERS_CPT,
