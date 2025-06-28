@@ -865,25 +865,10 @@ class RSS {
 			return $content;
 		}
 
-		// Find all images with wp-image-{id} class.
-		preg_match_all( '/<img[^>]+class="[^"]*wp-image-(\d+)[^"]*"[^>]*>/', $content, $matches );
-		$found_images = [];
-
-		// Check each image to see if it can be distributed.
-		foreach ( $matches[1] as $key => $attachment_id ) {
-			if ( ! get_post_meta( $attachment_id, Newspack_Image_Credits::MEDIA_CREDIT_CAN_DISTRIBUTE_META, true ) ) {
-				$found_images[] = [ $attachment_id, $matches[0][ $key ] ];
-			}
-		}
-
-		// Remove the non-distributable images.
-		foreach ( $found_images as [ $attachment_id, $found_image ] ) {
-			// Remove the figure and figcaption of $found_image using regex.
-			$pattern = '/<figure[^>]*>' . preg_quote( $found_image, '/' ) . '.*?<\/figure>/s';
-			$content = preg_replace( $pattern, "<!-- Non-distributable image removed from RSS feed ({$attachment_id}) -->", $content );
-
-			// Also remove the lone image if it's not wrapped in a figure.
-			$content = str_replace( $found_image, "<!-- Non-distributable image removed from RSS feed ({$attachment_id}) -->", $content );
+		if ( class_exists( '\Republication_Tracker_Tool_Content' ) && 
+			method_exists( '\Republication_Tracker_Tool_Content', 'remove_non_distributable_images' )
+		) {
+			return \Republication_Tracker_Tool_Content::remove_non_distributable_images( $content, true );
 		}
 
 		return $content;
