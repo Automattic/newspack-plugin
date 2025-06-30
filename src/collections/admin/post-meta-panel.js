@@ -7,7 +7,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import domReady from '@wordpress/dom-ready';
 
-const PostMetaPanel = ( { metaKey } ) => {
+const PostMetaPanel = ( { orderMetaKey, panelTitle, orderFieldHelp } ) => {
 	const { editPost } = useDispatch( editorStore );
 
 	// Get the current post type and meta data.
@@ -23,25 +23,21 @@ const PostMetaPanel = ( { metaKey } ) => {
 	const updateMeta = useCallback(
 		value => {
 			const sanitized = value === '' ? '' : parseInt( value, 10 ) || 0;
-			editPost( { meta: { [ metaKey ]: sanitized } } );
+			editPost( { meta: { [ orderMetaKey ]: sanitized } } );
 		},
-		[ editPost, metaKey ]
+		[ editPost, orderMetaKey ]
 	);
 
 	return (
 		// Only render the panel for posts.
 		'post' === currentPostType && (
-			<PluginDocumentSettingPanel
-				name="newspack-post-meta-panel"
-				title={ __( 'Collection Settings', 'newspack-plugin' ) }
-				icon="media-document"
-			>
+			<PluginDocumentSettingPanel name="newspack-post-meta-panel" title={ panelTitle } icon="media-document">
 				<TextControl
 					label={ __( 'Order', 'newspack-plugin' ) }
 					type="number"
-					value={ meta[ metaKey ] || '' }
+					value={ meta[ orderMetaKey ] || '' }
 					onChange={ updateMeta }
-					help={ __( 'Set the order of this post within a collection.', 'newspack-plugin' ) }
+					help={ orderFieldHelp }
 					min={ 0 }
 				/>
 			</PluginDocumentSettingPanel>
@@ -50,10 +46,10 @@ const PostMetaPanel = ( { metaKey } ) => {
 };
 
 domReady( () => {
-	const { postMeta } = window.newspackCollections || {};
-	if ( postMeta?.orderMetaKey ) {
+	const { postMeta: props } = window.newspackCollections || {};
+	if ( props?.orderMetaKey && props?.panelTitle && props?.orderFieldHelp ) {
 		registerPlugin( 'newspack-post-meta-panel', {
-			render: () => <PostMetaPanel metaKey={ postMeta.orderMetaKey } />,
+			render: () => <PostMetaPanel { ...props } />,
 			icon: 'media-document',
 		} );
 	}

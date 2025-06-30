@@ -75,6 +75,7 @@ class Memberships {
 		include __DIR__ . '/class-block-patterns.php';
 		include __DIR__ . '/class-metering.php';
 		include __DIR__ . '/class-import-export.php';
+		include __DIR__ . '/class-membership-expiry.php';
 	}
 
 	/**

@@ -13,14 +13,14 @@ const CustomNamingCard: React.FC< CustomNamingCardProps > = ( { settings, isSavi
 	<WizardsActionCard
 		isMedium
 		title={ __( 'Customize collections naming schema', 'newspack-plugin' ) }
-		description={ __( 'Override post type labels, menus and other parts with custom naming.', 'newspack-plugin' ) }
+		description={ __( 'Override labels, messages and other reader-facing elements with custom naming.', 'newspack-plugin' ) }
 		disabled={ isSaving }
 		toggleChecked={ !! settings.custom_naming_enabled }
 		toggleOnChange={ ( value: boolean ) => onChange( 'custom_naming_enabled', value ) }
 		hasGreyHeader={ !! settings.custom_naming_enabled }
 	>
 		{ settings.custom_naming_enabled && (
-			<Grid columns={ 1 } gutter={ 24 }>
+			<Grid columns={ 2 } gutter={ 24 }>
 				<TextControl
 					label={ __( 'Name', 'newspack-plugin' ) }
 					help={ __( 'Name to be used instead of "Collections" (e.g., "Issues", "Magazines")', 'newspack-plugin' ) }

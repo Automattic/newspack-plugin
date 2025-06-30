@@ -18,47 +18,85 @@
 			}
 		}
 
-	}
-
-	.upload-controls {
-		display: flex;
-		flex-direction: column;
-
-		.components-spinner {
-			display: block;
-			margin: 0 auto 26px;
-		}
-
-		.uploaded-file {
+		.cta-input-row {
+			position: relative;
 			display: flex;
-			justify-content: center;
-			align-items: center;
-			margin-bottom: 0.8rem;
+			flex-direction: column;
+			gap: 6px;
+			margin-bottom: 1rem;
+			padding: 12px;
+			border: 1px solid var(--newspack-ui-color-neutral-30);
+			border-radius: 4px;
+			background: var(--newspack-ui-color-neutral-5);
+			transition: opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
-			.dashicons-pdf {
-				font-size: 1.8rem;
-				width: auto;
-				height: auto;
-				display: inline-block;
+			&.cta-dragging {
+				opacity: 0.5;
 			}
-		}
 
-		.upload-actions {
-			display: flex;
-			gap: 10px;
-
-			button {
-				justify-content: center;
-				width: 100%;
+			&.cta-drag-over {
+				border-color: var(--wp-admin-theme-color);
+				box-shadow: 0 0 0 1px var(--wp-admin-theme-color);
 			}
-		}
 
-		&.has-uploaded-file {
-			.upload-actions {
-				button {
-					flex: 1;
+			&:hover {
+				border-color: var(--newspack-ui-color-neutral-40);
+			}
+
+			.cta-drag-handle {
+				position: absolute;
+				top: 0;
+				right: 0;
+				cursor: grab;
+
+				&:active {
+					cursor: grabbing;
+				}
+
+				&:focus {
+					box-shadow: none;
+				}
+
+				&:hover {
+					color: var(--wp-admin-theme-color);
 				}
 			}
+
+			.attachment-info {
+				display: flex;
+				align-items: center;
+				padding: 3px;
+				background: var(--newspack-ui-color-neutral-0);
+				border: 1px solid var(--newspack-ui-color-neutral-30);
+				border-radius: 4px;
+				min-height: 32px;
+				margin: 0;
+
+				.dashicons {
+					font-size: 1.5rem;
+					width: auto;
+					height: auto;
+					margin-right: 4px;
+				}
+
+				.attachment-name {
+					margin-right: auto;
+				}
+			}
+
+			.components-spinner {
+				margin-bottom: 7px;
+			}
+		}
+
+		.upload-button,
+		.remove-cta-button {
+			min-height: 32px;
+		}
+
+		.components-button:not(.has-icon) {
+			width: 100%;
+			justify-content: center;
 		}
 	}
 }

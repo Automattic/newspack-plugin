@@ -53,6 +53,7 @@ class Test_Collections_Section extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'custom_singular_name', $result );
 		$this->assertArrayHasKey( 'custom_slug', $result );
 		$this->assertArrayHasKey( 'subscribe_link', $result );
+		$this->assertArrayHasKey( 'order_link', $result );
 	}
 
 	/**
