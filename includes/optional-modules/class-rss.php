@@ -90,6 +90,9 @@ class RSS {
 			'custom_tracking_snippet' => '',
 		];
 
+		// Add default settings via filter.
+		$default_settings = apply_filters( 'newspack_rss_feed_settings', $default_settings );
+
 		if ( ! $feed_post ) {
 			$query_feed = filter_input( INPUT_GET, self::FEED_QUERY_ARG, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			if ( ! $query_feed ) {
@@ -107,6 +110,9 @@ class RSS {
 		if ( ! is_array( $saved_settings ) ) {
 			return $default_settings;
 		}
+
+		// Modify saved settings via filter.
+		$saved_settings = apply_filters( 'newspack_rss_saved_settings', $saved_settings, $feed_post_id );
 
 		return shortcode_atts( $default_settings, $saved_settings );
 	}
@@ -378,6 +384,10 @@ class RSS {
 					<input type="checkbox" name="use_post_id_as_guid" value="1" <?php checked( $settings['use_post_id_as_guid'] ); ?> />
 				</td>
 			</tr>
+			<?php
+				// Hook for plugins to add their own content settings.
+				do_action( 'newspack_rss_render_content_settings', $settings, $feed_post );
+			?>
 
 			<?php
 			// Only show this new option if the Republication Tracker Tool plugin is active.
@@ -474,6 +484,10 @@ class RSS {
 					<textarea name="custom_tracking_snippet" rows="4" cols="50"><?php echo esc_textarea( $settings['custom_tracking_snippet'] ); ?></textarea>
 				</td>
 			</tr>
+			<?php
+				// Hook for plugins to add their own technical settings.
+				do_action( 'newspack_rss_render_technical_settings', $settings, $feed_post );
+			?>
 			<?php if ( defined( 'WPSEO_VERSION' ) && WPSEO_VERSION ) : ?>
 				<tr>
 					<th>
@@ -606,6 +620,9 @@ class RSS {
 
 		}
 
+		// Filter settings before saving.
+		$settings = apply_filters( 'newspack_rss_modify_save_settings', $settings, $feed_post_id );
+
 		update_post_meta( $feed_post_id, self::FEED_SETTINGS_META, $settings );
 		// @todo flush feed cache here.
 	}
@@ -681,6 +698,9 @@ class RSS {
 			];
 			$query->set( 'meta_query', $meta_query );
 		}
+
+		// Modify feed query via hook.
+		do_action( 'newspack_rss_modify_feed_query', $query, $settings );
 	}
 
 	/**
@@ -815,6 +835,9 @@ class RSS {
 		);
 
 		$content .= $attribution . $custom_tracking_content;
+
+		// Modify final content via hook.
+		$content = apply_filters( 'newspack_rss_after_tracking_snippet', $content, $post_id, $settings );
 
 		return $content;
 	}
