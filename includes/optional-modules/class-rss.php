@@ -397,8 +397,12 @@ class RSS {
 				</tr>
 				<tr>
 					<th>
-						<?php esc_html_e( 'Skip non-distributable images', 'newspack-plugin' ); ?>
-						<p class="description"><?php echo esc_html_x( 'When toggled on, images not marked as distributable will be excluded from feed content.', 'help text for remove non-distributable images setting', 'newspack-plugin' ); ?></p>
+						<?php esc_html_e( 'Include only distributable images', 'newspack-plugin' ); ?>
+						<p class="description">
+							<?php echo esc_html_x( 'When toggled on, images not marked as distributable will be excluded from feed content.', 'help text for remove non-distributable images setting', 'newspack-plugin' ); ?>
+							<br/>
+							<?php esc_html_e( 'Note: this will respect the same settings for distributable images RTT uses for other distributiion purposes', 'newspack-plugin' ); ?>
+						</p>
 					</th>
 					<td>
 						<input type="hidden" name="only_distributable_images" value="0" />
@@ -868,7 +872,7 @@ class RSS {
 		if ( class_exists( '\Republication_Tracker_Tool_Content' ) && 
 			method_exists( '\Republication_Tracker_Tool_Content', 'remove_non_distributable_images' )
 		) {
-			return \Republication_Tracker_Tool_Content::remove_non_distributable_images( $content, true );
+			return \Republication_Tracker_Tool_Content::remove_non_distributable_images( $content );
 		}
 
 		return $content;
