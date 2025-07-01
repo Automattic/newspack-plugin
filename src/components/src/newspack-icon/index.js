@@ -24,20 +24,9 @@ class NewspackIcon extends Component {
 	 */
 	render() {
 		const { className, simple, size, white } = this.props;
-		const classes = classnames(
-			'newspack-icon',
-			simple && 'newspack-icon--simple',
-			white && 'newspack-icon--white',
-			className
-		);
+		const classes = classnames( 'newspack-icon', simple && 'newspack-icon--simple', white && 'newspack-icon--white', className );
 		return (
-			<SVG
-				xmlns="http://www.w3.org/2000/svg"
-				height={ size }
-				width={ size }
-				viewBox="0 0 24 24"
-				className={ classes }
-			>
+			<SVG xmlns="http://www.w3.org/2000/svg" height={ size } width={ size } viewBox="0 0 24 24" className={ classes }>
 				<Path
 					fillRule="evenodd"
 					clipRule="evenodd"

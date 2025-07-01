@@ -2,16 +2,7 @@
  * WordPress dependencies.
  */
 import apiFetch from '@wordpress/api-fetch';
-import {
-	BaseControl,
-	Button,
-	DateTimePicker,
-	Modal,
-	Notice,
-	Popover,
-	SelectControl,
-	TextareaControl,
-} from '@wordpress/components';
+import { BaseControl, Button, DateTimePicker, Modal, Notice, Popover, SelectControl, TextareaControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
@@ -56,7 +47,7 @@ const piority = [
  */
 const saveData = async ( postId, payload ) => {
 	const response = await apiFetch( {
-		path: `${window.NewspackCorrectionsData.restPath}/${postId}`,
+		path: `${ window.NewspackCorrectionsData.restPath }/${ postId }`,
 		method: 'POST',
 		data: payload,
 	} );
@@ -72,14 +63,14 @@ const CorrectionsModal = () => {
 	/**
 	 * Get the current post ID.
 	 */
-	const postId = useSelect( ( select ) => select( 'core/editor' ).getCurrentPostId(), [] );
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 
 	/**
 	 * Define the state variables.
 	 */
 	const [ isOpen, setIsOpen ] = useState( false );
-	const [ isSaving, setIsSaving ] = useState(false);
-	const [ saveError, setSaveError ] = useState(null);
+	const [ isSaving, setIsSaving ] = useState( false );
+	const [ saveError, setSaveError ] = useState( null );
 	const [ corrections, setCorrections ] = useState( [] );
 	const [ newCorrection, setNewCorrection ] = useState( '' );
 	const [ newCorrectionType, setNewCorrectionType ] = useState( 'correction' );
@@ -96,7 +87,7 @@ const CorrectionsModal = () => {
 	useEffect( () => {
 		if ( window.NewspackCorrectionsData.corrections ) {
 			setCorrections(
-				window.NewspackCorrectionsData.corrections.map( ( correction ) => ( {
+				window.NewspackCorrectionsData.corrections.map( correction => ( {
 					...correction,
 					type: correction.correction_type || 'correction',
 					date: correction.correction_date,
@@ -111,7 +102,7 @@ const CorrectionsModal = () => {
 		if ( isSaving ) {
 			saveCorrections();
 		}
-	}, [ isSaving ]);
+	}, [ isSaving ] );
 
 	// Add a new correction to the list.
 	const saveCorrection = () => {
@@ -121,51 +112,48 @@ const CorrectionsModal = () => {
 		}
 
 		// Add date as per site's timezone.
-		const adjustedDate  = new Date().toLocaleString(
-			'en-US',
-			{
-				timeZone: window.NewspackCorrectionsData.siteTimezone,
-				hour12: false
-			}
-		);
+		const adjustedDate = new Date().toLocaleString( 'en-US', {
+			timeZone: window.NewspackCorrectionsData.siteTimezone,
+			hour12: false,
+		} );
 
-		setCorrections(
-			[
-				{
-					ID: Date.now(),
-					post_content: newCorrection,
-					type: newCorrectionType,
-					date: adjustedDate,
-					priority: newCorrectionPriority,
-					isNew: true
-				},
-				...corrections
-			]
-		);
+		setCorrections( [
+			{
+				ID: Date.now(),
+				post_content: newCorrection,
+				type: newCorrectionType,
+				date: adjustedDate,
+				priority: newCorrectionPriority,
+				isNew: true,
+			},
+			...corrections,
+		] );
 		setNewCorrection( '' );
 		setNewCorrectionType( 'correction' );
 	};
 
 	// Remove unsaved corrections.
 	const removeUnsavedCorrections = () => {
-		setCorrections( corrections.filter( ( correction ) => ! correction.isNew ) );
+		setCorrections( corrections.filter( correction => ! correction.isNew ) );
 		setNewCorrection( '' );
 		setNewCorrectionType( 'correction' );
 	};
 
 	// Update an existing correction.
 	const updateCorrection = ( correctionId, postContent, type, date, priority ) => {
-		setCorrections( corrections.map( ( correction ) => {
-			if ( correction.ID === correctionId ) {
-				return { ...correction, post_content: postContent, type, date, priority };
-			}
-			return correction;
-		} ) );
+		setCorrections(
+			corrections.map( correction => {
+				if ( correction.ID === correctionId ) {
+					return { ...correction, post_content: postContent, type, date, priority };
+				}
+				return correction;
+			} )
+		);
 	};
 
 	// Delete a correction.
-	const deleteCorrection = ( correctionId ) => {
-		setCorrections( corrections.filter( ( correction ) => correction.ID !== correctionId ) );
+	const deleteCorrection = correctionId => {
+		setCorrections( corrections.filter( correction => correction.ID !== correctionId ) );
 	};
 
 	// Save all corrections.
@@ -174,7 +162,7 @@ const CorrectionsModal = () => {
 
 		const payload = {
 			post_id: postId,
-			corrections: corrections.map( ( { ID, post_content, type, date, priority, isNew } ) => ({
+			corrections: corrections.map( ( { ID, post_content, type, date, priority, isNew } ) => ( {
 				id: isNew ? null : ID, // Null means create a new correction
 				content: post_content,
 				type,
@@ -185,19 +173,15 @@ const CorrectionsModal = () => {
 
 		try {
 			await saveData( postId, payload );
-			setIsOpen(false);
+			setIsOpen( false );
 		} catch ( error ) {
 			setSaveError( error.message );
 		} finally {
-			setIsSaving(false);
-			createNotice(
-				'success',
-				__( 'Changes have been saved successfully.', 'newspack-plugin' ),
-				{
-					type: 'snackbar',
-					isDismissible: true,
-				}
-			);
+			setIsSaving( false );
+			createNotice( 'success', __( 'Changes have been saved successfully.', 'newspack-plugin' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
 		}
 	};
 
@@ -205,7 +189,7 @@ const CorrectionsModal = () => {
 		<>
 			<PluginDocumentSettingPanel
 				name="newspack-corrections-panel"
-				title= { __( 'Corrections & Clarifications', 'newspack-plugin' ) }
+				title={ __( 'Corrections & Clarifications', 'newspack-plugin' ) }
 				className="newspack-corrections-panel"
 			>
 				<Button
@@ -221,9 +205,7 @@ const CorrectionsModal = () => {
 			{ isOpen && (
 				<Modal
 					title={
-						isAddingCorrection
-							? __( 'Add New Correction', 'newspack-plugin' )
-							: __( 'Corrections & Clarifications', 'newspack-plugin' )
+						isAddingCorrection ? __( 'Add New Correction', 'newspack-plugin' ) : __( 'Corrections & Clarifications', 'newspack-plugin' )
 					}
 					onRequestClose={ () => setIsOpen( false ) }
 					className="newspack-corrections-modal"
@@ -236,42 +218,46 @@ const CorrectionsModal = () => {
 					{ saveError && <p className="error-message">{ saveError }</p> }
 
 					{ ! isAddingCorrection && corrections.length === 0 && (
-						<Notice
-							status="warning"
-							isDismissible={ false }
-						>
+						<Notice status="warning" isDismissible={ false }>
 							{ __( 'No corrections or clarifications have been added.', 'newspack-plugin' ) }
 						</Notice>
 					) }
 
 					{ ! isAddingCorrection && corrections.length > 0 && (
 						<>
-							{ corrections.map( ( correction ) => (
-								<div key={correction.ID} className="correction-item">
+							{ corrections.map( correction => (
+								<div key={ correction.ID } className="correction-item">
 									<div>
 										<SelectControl
 											label={ __( 'Type', 'newspack-plugin' ) }
 											value={ correction.type }
 											options={ types }
-											onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, value, correction.date, correction.priority ) }
+											onChange={ value =>
+												updateCorrection(
+													correction.ID,
+													correction.post_content,
+													value,
+													correction.date,
+													correction.priority
+												)
+											}
 											__next40pxDefaultSize
 										/>
 										<SelectControl
 											label={ __( 'Priority', 'newspack-plugin' ) }
 											value={ correction.priority }
 											options={ piority }
-											onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, correction.date, value ) }
+											onChange={ value =>
+												updateCorrection( correction.ID, correction.post_content, correction.type, correction.date, value )
+											}
 											__next40pxDefaultSize
 										/>
-										<BaseControl
-											id={ `correction-date-${correction.ID}` }
-											label={ __( 'Date', 'newspack-plugin' ) }
-										>
+										<BaseControl id={ `correction-date-${ correction.ID }` } label={ __( 'Date', 'newspack-plugin' ) }>
 											<Button
 												variant="secondary"
 												className="correction-date-button"
 												onClick={ () => setIsDatePopoverOpen( correction.ID ) }
-												icon={ calendar}
+												icon={ calendar }
 												iconPosition="right"
 												__next40pxDefaultSize
 											>
@@ -286,10 +272,18 @@ const CorrectionsModal = () => {
 											>
 												<DateTimePicker
 													label={ __( 'Date', 'newspack-plugin' ) }
-													className='correction-date'
+													className="correction-date"
 													is12Hour={ true }
 													currentDate={ new Date( correction.date ) }
-													onChange={ ( value ) => updateCorrection( correction.ID, correction.post_content, correction.type, value, correction.priority ) }
+													onChange={ value =>
+														updateCorrection(
+															correction.ID,
+															correction.post_content,
+															correction.type,
+															value,
+															correction.priority
+														)
+													}
 												/>
 											</Popover>
 										) }
@@ -298,7 +292,9 @@ const CorrectionsModal = () => {
 										label={ __( 'Description', 'newspack-plugin' ) }
 										rows={ 3 }
 										value={ correction.post_content }
-										onChange={ ( value ) => updateCorrection( correction.ID, value, correction.type, correction.date, correction.priority ) }
+										onChange={ value =>
+											updateCorrection( correction.ID, value, correction.type, correction.date, correction.priority )
+										}
 									/>
 									<Button
 										text={ __( 'Delete', 'newspack-plugin' ) }
@@ -331,21 +327,21 @@ const CorrectionsModal = () => {
 								label={ __( 'Type', 'newspack-plugin' ) }
 								value={ newCorrectionType }
 								options={ types }
-								onChange={ ( value ) => setNewCorrectionType( value ) }
+								onChange={ value => setNewCorrectionType( value ) }
 								__next40pxDefaultSize
 							/>
 							<SelectControl
 								label={ __( 'Priority', 'newspack-plugin' ) }
 								value={ newCorrectionPriority }
 								options={ piority }
-								onChange={ ( value ) => setNewCorrectionPriority( value ) }
+								onChange={ value => setNewCorrectionPriority( value ) }
 								__next40pxDefaultSize
 							/>
 							<TextareaControl
 								label={ __( 'Description', 'newspack-plugin' ) }
 								rows={ 3 }
 								value={ newCorrection }
-								onChange={ ( value ) => setNewCorrection( value ) }
+								onChange={ value => setNewCorrection( value ) }
 							/>
 						</>
 					) }
@@ -392,9 +388,7 @@ const CorrectionsModal = () => {
 									} }
 									isBusy={ isSaving }
 								>
-									{ isSaving
-										? __( 'Saving…', 'newspack-plugin' )
-										: __( 'Save & close', 'newspack-plugin' ) }
+									{ isSaving ? __( 'Saving…', 'newspack-plugin' ) : __( 'Save & close', 'newspack-plugin' ) }
 								</Button>
 								<Button
 									variant="secondary"
@@ -408,7 +402,7 @@ const CorrectionsModal = () => {
 								<Button
 									variant="tertiary"
 									onClick={ () => {
-										setIsOpen( false )
+										setIsOpen( false );
 										setIsAddingCorrection( false );
 										removeUnsavedCorrections();
 									} }

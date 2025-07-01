@@ -37,6 +37,7 @@ namespace Newspack;
 	// Render sticky posts prominently at the top.
 	$sticky_post_ids_option = get_option( 'sticky_posts' );
 	$sticky_post_ids        = [];
+	$sticky_posts           = [];
 	if ( ! empty( $sticky_post_ids_option ) ) {
 		$sticky_post_ids = array_values( $sticky_post_ids_option );
 		$sticky_posts    = get_posts(

@@ -7,21 +7,21 @@ import './plugins-screen.scss';
 
 const getCreateButton =
 	targetEl =>
-		( text, hrefOrCallback, isPrimary = false ) => {
-			const buttonEl = document.createElement( 'a' );
-			if ( typeof hrefOrCallback === 'string' ) {
-				buttonEl.setAttribute( 'href', hrefOrCallback );
-			} else if ( typeof hrefOrCallback === 'function' ) {
-				buttonEl.onclick = hrefOrCallback;
-			} else {
-				return;
-			}
-			buttonEl.setAttribute( 'target', '_blank' );
-			buttonEl.classList.add( `button-${ isPrimary ? 'primary' : 'secondary' }` );
-			buttonEl.innerText = text;
-			targetEl.appendChild( buttonEl );
-			return buttonEl;
-		};
+	( text, hrefOrCallback, isPrimary = false ) => {
+		const buttonEl = document.createElement( 'a' );
+		if ( typeof hrefOrCallback === 'string' ) {
+			buttonEl.setAttribute( 'href', hrefOrCallback );
+		} else if ( typeof hrefOrCallback === 'function' ) {
+			buttonEl.onclick = hrefOrCallback;
+		} else {
+			return;
+		}
+		buttonEl.setAttribute( 'target', '_blank' );
+		buttonEl.classList.add( `button-${ isPrimary ? 'primary' : 'secondary' }` );
+		buttonEl.innerText = text;
+		targetEl.appendChild( buttonEl );
+		return buttonEl;
+	};
 
 /**
  * Extra zazz for the WP Admin Plugins page.
@@ -30,10 +30,7 @@ const getCreateButton =
  */
 ( function ( $ ) {
 	// Display a modal when adding a new plugin.
-	if (
-		newspack_plugin_info.screen === 'plugin-install.php' &&
-		newspack_plugin_info.plugin_review_link
-	) {
+	if ( newspack_plugin_info.screen === 'plugin-install.php' && newspack_plugin_info.plugin_review_link ) {
 		const modalEl = document.createElement( 'div' );
 		const modalContentEl = document.createElement( 'div' );
 		const modalHeadingEl = document.createElement( 'h1' );
@@ -56,15 +53,8 @@ const getCreateButton =
 			'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" role="img" aria-hidden="true" focusable="false"><path d="m13.06 12 6.47-6.47-1.06-1.06L12 10.94 5.53 4.47 4.47 5.53 10.94 12l-6.47 6.47 1.06 1.06L12 13.06l6.47 6.47 1.06-1.06L13.06 12Z"></path></svg>';
 		modalCloseEl.onclick = closeModal;
 
-		createButton(
-			wp.i18n.__( 'Plugin Review Form', 'newspack-plugin' ),
-			newspack_plugin_info.plugin_review_link,
-			true
-		);
-		createButton(
-			wp.i18n.__( 'Approved Plugins List', 'newspack-plugin' ),
-			newspack_plugin_info.approved_plugins_list_link
-		);
+		createButton( wp.i18n.__( 'Plugin Review Form', 'newspack-plugin' ), newspack_plugin_info.plugin_review_link, true );
+		createButton( wp.i18n.__( 'Approved Plugins List', 'newspack-plugin' ), newspack_plugin_info.approved_plugins_list_link );
 		createButton( wp.i18n.__( 'Close this message', 'newspack-plugin' ), closeModal );
 
 		modalEl.appendChild( modalContentEl );

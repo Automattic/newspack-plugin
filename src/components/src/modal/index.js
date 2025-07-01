@@ -28,6 +28,5 @@ function Modal( { className, isWide, isNarrow, hideTitle, ...otherProps }, ref )
 	);
 
 	return <BaseComponent className={ classes } { ...otherProps } ref={ ref } />;
-
 }
 export default forwardRef( Modal );

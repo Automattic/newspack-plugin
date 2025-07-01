@@ -28,7 +28,5 @@ domReady( function () {
 		} );
 	}
 
-	[ ...document.querySelectorAll( '.newspack-ui__segmented-control' ) ].forEach( x =>
-		segmented_control( x )
-	);
+	[ ...document.querySelectorAll( '.newspack-ui__segmented-control' ) ].forEach( x => segmented_control( x ) );
 } );

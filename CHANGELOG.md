@@ -1,3 +1,39 @@
+# [6.10.0](https://github.com/Automattic/newspack-plugin/compare/v6.9.1...v6.10.0) (2025-06-30)
+
+
+### Bug Fixes
+
+* **esp-sync:** control to sync account deletion; unsubscribe reader on delete ([#4008](https://github.com/Automattic/newspack-plugin/issues/4008)) ([a027e06](https://github.com/Automattic/newspack-plugin/commit/a027e06d9138a86a1cb991c5fee0c9f76a779c60))
+* return to dashboard link ([#4005](https://github.com/Automattic/newspack-plugin/issues/4005)) ([1045782](https://github.com/Automattic/newspack-plugin/commit/1045782ff31e895094130801f5edfb96d7b92a31))
+* update text in accessibility statement ([#4030](https://github.com/Automattic/newspack-plugin/issues/4030)) ([3e71b75](https://github.com/Automattic/newspack-plugin/commit/3e71b750c004b763670d9d80e5816907a8232f95))
+
+
+### Features
+
+* add an option to create an Accessibility Statement page ([#4022](https://github.com/Automattic/newspack-plugin/issues/4022)) ([754da19](https://github.com/Automattic/newspack-plugin/commit/754da1975cac79862b3b8e1ef0872b836d062d19))
+* **collections:** add module global settings ([#4031](https://github.com/Automattic/newspack-plugin/issues/4031)) ([d6cc707](https://github.com/Automattic/newspack-plugin/commit/d6cc70722fc460d9b4fe0aecafcee8102a2c9498))
+* **collections:** register collection category taxonomy ([#4001](https://github.com/Automattic/newspack-plugin/issues/4001)) ([cb94d8c](https://github.com/Automattic/newspack-plugin/commit/cb94d8c7debe44efb9a638b166aab441c4ee5c8b))
+* **collections:** register collection CPT and taxonomy ([#4000](https://github.com/Automattic/newspack-plugin/issues/4000)) ([f08c928](https://github.com/Automattic/newspack-plugin/commit/f08c92872e5a5fd162bff98b5837d994d91029ea))
+* **collections:** register collection section taxonomy ([#4003](https://github.com/Automattic/newspack-plugin/issues/4003)) ([4846618](https://github.com/Automattic/newspack-plugin/commit/48466183294a87689730497b805fa329deb232f7)), closes [#4017](https://github.com/Automattic/newspack-plugin/issues/4017) [#4018](https://github.com/Automattic/newspack-plugin/issues/4018)
+* **dashboard:** update card style to be more inline with core button card ([#4002](https://github.com/Automattic/newspack-plugin/issues/4002)) ([2e551d3](https://github.com/Automattic/newspack-plugin/commit/2e551d3a112a938bb19db021e5402d8cccdbf5b9))
+* **my-account:** change payment method modal ([#4016](https://github.com/Automattic/newspack-plugin/issues/4016)) ([714a073](https://github.com/Automattic/newspack-plugin/commit/714a0730fcb887ea8224eee46f67beb48878d79a))
+* **my-account:** payment information custom page template ([#3991](https://github.com/Automattic/newspack-plugin/issues/3991)) ([de03d6c](https://github.com/Automattic/newspack-plugin/commit/de03d6c4df6d4928867648dabb4bcbd779426f46))
+* remove custom bylines flag ([#4039](https://github.com/Automattic/newspack-plugin/issues/4039)) ([da83c21](https://github.com/Automattic/newspack-plugin/commit/da83c2187b9a4fefc9bf81e70187bdec97ef347f))
+
+## [6.9.1](https://github.com/Automattic/newspack-plugin/compare/v6.9.0...v6.9.1) (2025-06-27)
+
+
+### Bug Fixes
+
+* lite site error without sticky posts ([#4054](https://github.com/Automattic/newspack-plugin/issues/4054)) ([cdba629](https://github.com/Automattic/newspack-plugin/commit/cdba629f86ee6406e1fc31b819b33ff3bc2d75a3))
+
+# [6.9.0](https://github.com/Automattic/newspack-plugin/compare/v6.8.0...v6.9.0) (2025-06-25)
+
+
+### Features
+
+* release for Liste site sticky posts support ([a2f7b2d](https://github.com/Automattic/newspack-plugin/commit/a2f7b2dd4606e92ecd39c51a5167bfaff348b753))
+
 # [6.8.0](https://github.com/Automattic/newspack-plugin/compare/v6.7.0...v6.8.0) (2025-06-16)
 
 

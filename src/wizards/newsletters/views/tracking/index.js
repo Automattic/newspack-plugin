@@ -24,10 +24,10 @@ export default withWizardScreen( () => {
 			} )
 			.finally( () => {
 				setInFlight( false );
-			} )
+			} );
 	};
 
-	const handleChange = type => async ( value ) => {
+	const handleChange = type => async value => {
 		const newData = {
 			...tracking,
 			[ type ]: value,
@@ -36,7 +36,7 @@ export default withWizardScreen( () => {
 		apiFetch( {
 			path: apiPath,
 			method: 'POST',
-			data: newData
+			data: newData,
 		} )
 			.then( () => {
 				setTracking( newData );

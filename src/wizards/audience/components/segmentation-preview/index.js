@@ -21,13 +21,7 @@ const SegmentationPreview = props => {
 	const postPreviewLink = window?.newspackAudienceCampaigns?.preview_post;
 	const frontendUrl = window?.newspackAudienceCampaigns?.frontend_url || '/';
 
-	const {
-		campaign = false,
-		onLoad = () => {},
-		segment = '',
-		showUnpublished = false,
-		url = postPreviewLink || frontendUrl,
-	} = props;
+	const { campaign = false, onLoad = () => {}, segment = '', showUnpublished = false, url = postPreviewLink || frontendUrl } = props;
 
 	useEffect( () => {
 		if ( ! isOpen ) {

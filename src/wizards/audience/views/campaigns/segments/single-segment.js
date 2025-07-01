@@ -12,16 +12,7 @@ import { applyFilters, addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	CategoryAutocomplete,
-	Router,
-	SelectControl,
-	Settings,
-	TextControl,
-	hooks,
-	Grid,
-} from '../../../../../components/src';
+import { Button, CategoryAutocomplete, Router, SelectControl, Settings, TextControl, hooks, Grid } from '../../../../../components/src';
 import ListsControl from '../../../components/lists-control';
 
 const { useHistory } = Router;
@@ -56,10 +47,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 		nameInitially !== name ||
 		JSON.stringify( segmentInitially.is_disabled ) !== JSON.stringify( segmentConfig.is_disabled );
 
-	const unblock = hooks.usePrompt(
-		isDirty,
-		__( 'There are unsaved changes to this segment. Discard changes?', 'newspack-plugin' )
-	);
+	const unblock = hooks.usePrompt( isDirty, __( 'There are unsaved changes to this segment. Discard changes?', 'newspack-plugin' ) );
 
 	const isNew = segmentId === 'new';
 	useEffect( () => {
@@ -87,9 +75,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 	const saveSegment = () => {
 		unblock();
 
-		const path = isNew
-			? `${ newspackAudienceCampaigns.api }/segmentation`
-			: `${ newspackAudienceCampaigns.api }/segmentation/${ segmentId }`;
+		const path = isNew ? `${ newspackAudienceCampaigns.api }/segmentation` : `${ newspackAudienceCampaigns.api }/segmentation/${ segmentId }`;
 		wizardApiFetch( {
 			path,
 			method: 'POST',
@@ -181,10 +167,7 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 
 			<SettingsCard
 				title={ __( 'Segment Status', 'newspack-plugin' ) }
-				description={ __(
-					'If not enabled, the segment will be ignored for reader segmentation.',
-					'newspack-plugin'
-				) }
+				description={ __( 'If not enabled, the segment will be ignored for reader segmentation.', 'newspack-plugin' ) }
 				noBorder
 			>
 				<ToggleControl
@@ -202,53 +185,35 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				{ allCriteria
 					.filter( criteria => criteria.category === 'reader_engagement' )
 					.map( criteria => (
-						<SettingsSection
-							key={ criteria.id }
-							title={ criteria.name }
-							description={ criteria.description }
-						>
+						<SettingsSection key={ criteria.id } title={ criteria.name } description={ criteria.description }>
 							{ getCriteriaInput( criteria ) }
 						</SettingsSection>
 					) ) }
 			</SettingsCard>
 			<SettingsCard
 				title={ __( 'Registration', 'newspack-plugin' ) }
-				description={ __(
-					'Target readers based on their user account registration status.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Target readers based on their user account registration status.', 'newspack-plugin' ) }
 				columns={ 3 }
 				noBorder
 			>
 				{ allCriteria
 					.filter( criteria => criteria.category === 'reader_activity' )
 					.map( criteria => (
-						<SettingsSection
-							key={ criteria.id }
-							title={ criteria.name }
-							description={ criteria.description }
-						>
+						<SettingsSection key={ criteria.id } title={ criteria.name } description={ criteria.description }>
 							{ getCriteriaInput( criteria ) }
 						</SettingsSection>
 					) ) }
 			</SettingsCard>
 			<SettingsCard
 				title={ __( 'Newsletters', 'newspack-plugin' ) }
-				description={ __(
-					'Target readers based on their newsletter subscription status.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Target readers based on their newsletter subscription status.', 'newspack-plugin' ) }
 				columns={ 3 }
 				noBorder
 			>
 				{ allCriteria
 					.filter( criteria => criteria.category === 'newsletter' )
 					.map( criteria => (
-						<SettingsSection
-							key={ criteria.id }
-							title={ criteria.name }
-							description={ criteria.description }
-						>
+						<SettingsSection key={ criteria.id } title={ criteria.name } description={ criteria.description }>
 							{ getCriteriaInput( criteria ) }
 						</SettingsSection>
 					) ) }
@@ -262,21 +227,14 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				{ allCriteria
 					.filter( criteria => criteria.category === 'reader_revenue' )
 					.map( criteria => (
-						<SettingsSection
-							key={ criteria.id }
-							title={ criteria.name }
-							description={ criteria.description }
-						>
+						<SettingsSection key={ criteria.id } title={ criteria.name } description={ criteria.description }>
 							{ getCriteriaInput( criteria ) }
 						</SettingsSection>
 					) ) }
 			</SettingsCard>
 			<SettingsCard
 				title={ __( 'Referrer Sources', 'newspack-plugin' ) }
-				description={ __(
-					'Target readers based on where they’re coming from.',
-					'newspack-plugin'
-				) }
+				description={ __( 'Target readers based on where they’re coming from.', 'newspack-plugin' ) }
 				notification={ __(
 					'Segments using these options will apply only to the first page visited after coming from an external source.',
 					'newspack-plugin'
@@ -287,21 +245,13 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 				{ allCriteria
 					.filter( criteria => criteria.category === 'referrer_sources' )
 					.map( criteria => (
-						<SettingsSection
-							key={ criteria.id }
-							title={ criteria.name }
-							description={ criteria.description }
-						>
+						<SettingsSection key={ criteria.id } title={ criteria.name } description={ criteria.description }>
 							{ getCriteriaInput( criteria ) }
 						</SettingsSection>
 					) ) }
 			</SettingsCard>
 			<div className="newspack-buttons-card">
-				<Button
-					disabled={ ! isSegmentValid() || ( ! isNew && ! isDirty ) }
-					isPrimary
-					onClick={ saveSegment }
-				>
+				<Button disabled={ ! isSegmentValid() || ( ! isNew && ! isDirty ) } isPrimary onClick={ saveSegment }>
 					{ __( 'Save', 'newspack-plugin' ) }
 				</Button>
 				<Button isSecondary href="#/segments">
@@ -315,122 +265,102 @@ const SingleSegment = ( { segmentId, setSegments, wizardApiFetch } ) => {
 /**
  * Adds a custom input for the favorite_categories criteria.
  */
-addFilter(
-	'newspack.criteria.input',
-	'newspack.favoriteCategories',
-	function ( element, criteria, value, update ) {
-		if ( criteria.id === 'favorite_categories' ) {
-			return (
-				<CategoryAutocomplete
-					value={ value || [] }
-					onChange={ selected => {
-						update( selected.map( item => item.id ) );
-					} }
-					label={ criteria.name }
-					hideLabelFromVision
-				/>
-			);
-		}
-		return element;
+addFilter( 'newspack.criteria.input', 'newspack.favoriteCategories', function ( element, criteria, value, update ) {
+	if ( criteria.id === 'favorite_categories' ) {
+		return (
+			<CategoryAutocomplete
+				value={ value || [] }
+				onChange={ selected => {
+					update( selected.map( item => item.id ) );
+				} }
+				label={ criteria.name }
+				hideLabelFromVision
+			/>
+		);
 	}
-);
+	return element;
+} );
 
 /**
  * Adds a custom input for the subscribed_lists and not_subscribed_lists criteria.
  */
-addFilter(
-	'newspack.criteria.input',
-	'newspack.newsletterSubscribedLists',
-	function ( element, criteria, value, update ) {
-		if ( [ 'subscribed_lists', 'not_subscribed_lists' ].includes( criteria.id ) ) {
-			return (
-				<ListsControl
-					placeholder={ __( 'Start typing to search for lists…', 'newspack-plugin' ) }
-					path="/newspack-newsletters/v1/lists_config"
-					value={ value }
-					onChange={ update }
-				/>
-			);
-		}
-		return element;
+addFilter( 'newspack.criteria.input', 'newspack.newsletterSubscribedLists', function ( element, criteria, value, update ) {
+	if ( [ 'subscribed_lists', 'not_subscribed_lists' ].includes( criteria.id ) ) {
+		return (
+			<ListsControl
+				placeholder={ __( 'Start typing to search for lists…', 'newspack-plugin' ) }
+				path="/newspack-newsletters/v1/lists_config"
+				value={ value }
+				onChange={ update }
+			/>
+		);
 	}
-);
+	return element;
+} );
 
 /**
  * Adds a custom input for the active_subscriptions and not_active_subscriptions criteria.
  */
-addFilter(
-	'newspack.criteria.input',
-	'newspack.activeSubscriptions',
-	function ( element, criteria, value, update ) {
-		if ( [ 'active_subscriptions', 'not_active_subscriptions' ].includes( criteria.id ) ) {
-			return (
-				<ListsControl
-					placeholder={ __( 'Start typing to search for products…', 'newspack-plugin' ) }
-					path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
-					value={ value }
-					onChange={ update }
-				/>
-			);
-		}
-		return element;
+addFilter( 'newspack.criteria.input', 'newspack.activeSubscriptions', function ( element, criteria, value, update ) {
+	if ( [ 'active_subscriptions', 'not_active_subscriptions' ].includes( criteria.id ) ) {
+		return (
+			<ListsControl
+				placeholder={ __( 'Start typing to search for products…', 'newspack-plugin' ) }
+				path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
+				value={ value }
+				onChange={ update }
+			/>
+		);
 	}
-);
+	return element;
+} );
 
 /**
  * Adds a custom input for the active_memberships and not_active_memberships criteria.
  */
-addFilter(
-	'newspack.criteria.input',
-	'newspack.activeMemberships',
-	function ( element, criteria, value, update ) {
-		if ( [ 'active_memberships', 'not_active_memberships' ].includes( criteria.id ) ) {
-			return (
-				<ListsControl
-					placeholder={ __( 'Start typing to search for membership plans…', 'newspack-plugin' ) }
-					path="/wc/v3/memberships/plans?per_page=100"
-					value={ value }
-					onChange={ update }
-				/>
-			);
-		}
-		return element;
+addFilter( 'newspack.criteria.input', 'newspack.activeMemberships', function ( element, criteria, value, update ) {
+	if ( [ 'active_memberships', 'not_active_memberships' ].includes( criteria.id ) ) {
+		return (
+			<ListsControl
+				placeholder={ __( 'Start typing to search for membership plans…', 'newspack-plugin' ) }
+				path="/wc/v3/memberships/plans?per_page=100"
+				value={ value }
+				onChange={ update }
+			/>
+		);
 	}
-);
+	return element;
+} );
 
 /**
  * Adds a custom input for the devices criteria so more than one device can be selected.
  */
-addFilter(
-	'newspack.criteria.input',
-	'newspack.devices',
-	function (element, criteria, value, update) {
-		if (criteria.id === 'devices') {
-			const selectedDevices = Array.isArray(value) ? value : [];
+addFilter( 'newspack.criteria.input', 'newspack.devices', function ( element, criteria, value, update ) {
+	if ( criteria.id === 'devices' ) {
+		const selectedDevices = Array.isArray( value ) ? value : [];
 
-			return (
-				<div className="newspack-device-segments">
-					<Grid columns={1} rowGap={16}>
-						{criteria.options.map((device) => (
-							<CheckboxControl
-								key={device.value}
-								label={device.label}
-								checked={selectedDevices.includes(device.value)}
-								onChange={(isChecked) => {
-									if (isChecked) {
-										update([...selectedDevices, device.value]);
-									} else {
-										update(selectedDevices.filter(item => item !== device.value));
-									}
-								}}
-							/>
-						))}
-					</Grid>
-				</div>
-			);
-		}
-		return element;
+		return (
+			<div className="newspack-device-segments">
+				<Grid columns={ 1 } rowGap={ 16 }>
+					{ criteria.options.map( device => (
+						<CheckboxControl
+							key={ device.value }
+							label={ device.label }
+							checked={ selectedDevices.includes( device.value ) }
+							onChange={ isChecked => {
+								if ( isChecked ) {
+									update( [ ...selectedDevices, device.value ] );
+								} else {
+									update( selectedDevices.filter( item => item !== device.value ) );
+								}
+							} }
+						/>
+					) ) }
+				</Grid>
+			</div>
+		);
 	}
-);
+	return element;
+} );
 
 export default SingleSegment;

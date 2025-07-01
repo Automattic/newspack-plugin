@@ -77,11 +77,7 @@ export const placementsForPopups = prompt => {
 	const customPlacements = window.newspackAudienceCampaigns?.custom_placements;
 	const overlayPlacements = window.newspackAudienceCampaigns?.overlay_placements;
 	const options = Object.keys( placementMap )
-		.filter( key =>
-			isOverlay( prompt )
-				? -1 < overlayPlacements.indexOf( key )
-				: -1 === overlayPlacements.indexOf( key )
-		)
+		.filter( key => ( isOverlay( prompt ) ? -1 < overlayPlacements.indexOf( key ) : -1 === overlayPlacements.indexOf( key ) ) )
 		.map( key => ( { label: placementMap[ key ], value: key } ) );
 
 	if ( ! isOverlay( prompt ) && customPlacements ) {
@@ -125,21 +121,14 @@ export const promptDescription = prompt => {
 	if ( campaigns.length > 0 ) {
 		const campaignsList = campaigns.map( ( { name } ) => name ).join( ', ' );
 		descriptionMessages.push(
-			( campaigns.length === 1
-				? __( 'Campaign: ', 'newspack-plugin' )
-				: __( 'Campaigns: ', 'newspack-plugin' ) ) + campaignsList
+			( campaigns.length === 1 ? __( 'Campaign: ', 'newspack-plugin' ) : __( 'Campaigns: ', 'newspack-plugin' ) ) + campaignsList
 		);
 	}
 	if ( categories.length > 0 ) {
-		descriptionMessages.push(
-			__( 'Categories: ', 'newspack-plugin' ) +
-				categories.map( category => category.name ).join( ', ' )
-		);
+		descriptionMessages.push( __( 'Categories: ', 'newspack-plugin' ) + categories.map( category => category.name ).join( ', ' ) );
 	}
 	if ( tags.length > 0 ) {
-		descriptionMessages.push(
-			__( 'Tags: ', 'newspack-plugin' ) + tags.map( tag => tag.name ).join( ', ' )
-		);
+		descriptionMessages.push( __( 'Tags: ', 'newspack-plugin' ) + tags.map( tag => tag.name ).join( ', ' ) );
 	}
 	if ( 'pending' === status ) {
 		descriptionMessages.push( __( 'Pending review', 'newspack-plugin' ) );
@@ -165,9 +154,7 @@ export const segmentDescription = segment => {
 			if ( item?.value ) {
 				let value = item.value;
 				if ( config.options ) {
-					const option = config.options.find(
-						( { value: optionValue } ) => optionValue === item.value
-					);
+					const option = config.options.find( ( { value: optionValue } ) => optionValue === item.value );
 					if ( option ) {
 						value = option.label;
 					}
@@ -238,25 +225,20 @@ const FavoriteCategoriesNames = ( { ids } ) => {
 	}
 	return (
 		<span>
-			{ __( 'Favorite Categories:', 'newspack-plugin' ) }{ ' ' }
-			{ favoriteCategoryNames.length ? favoriteCategoryNames.join( ', ' ) : '' }
+			{ __( 'Favorite Categories:', 'newspack-plugin' ) } { favoriteCategoryNames.length ? favoriteCategoryNames.join( ', ' ) : '' }
 		</span>
 	);
 };
 
-addFilter(
-	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
-	'newspack.favoriteCategories',
-	( message, value, config, item ) => {
-		if ( 'favorite_categories' === config.id ) {
-			if ( ! item.value?.length ) {
-				return null;
-			}
-			return <FavoriteCategoriesNames ids={ item.value } />;
+addFilter( 'newspack.wizards.campaigns.segmentDescription.criteriaMessage', 'newspack.favoriteCategories', ( message, value, config, item ) => {
+	if ( 'favorite_categories' === config.id ) {
+		if ( ! item.value?.length ) {
+			return null;
 		}
-		return message;
+		return <FavoriteCategoriesNames ids={ item.value } />;
 	}
-);
+	return message;
+} );
 
 const getItems = memoize( async path => {
 	try {
@@ -286,9 +268,9 @@ const ItemNames = ( { label, ids, path } ) => {
 			{ label }{ ' ' }
 			{ items.length
 				? items
-					.filter( item => ids.includes( item.id ) )
-					.map( item => item.label )
-					.join( ', ' )
+						.filter( item => ids.includes( item.id ) )
+						.map( item => item.label )
+						.join( ', ' )
 				: '' }
 		</span>
 	);
@@ -305,9 +287,7 @@ addFilter(
 			return (
 				<ItemNames
 					label={
-						config.id === 'subscribed_lists'
-							? __( 'Subscribed to:', 'newspack-plugin' )
-							: __( 'Not subscribed to:', 'newspack-plugin' )
+						config.id === 'subscribed_lists' ? __( 'Subscribed to:', 'newspack-plugin' ) : __( 'Not subscribed to:', 'newspack-plugin' )
 					}
 					ids={ item.value }
 					path="/newspack-newsletters/v1/lists_config"
@@ -318,53 +298,45 @@ addFilter(
 	}
 );
 
-addFilter(
-	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
-	'newspack.activeSubscriptions',
-	( message, value, config, item ) => {
-		if ( [ 'active_subscriptions', 'not_active_subscriptions' ].includes( config.id ) ) {
-			if ( ! item.value?.length ) {
-				return null;
-			}
-			return (
-				<ItemNames
-					label={
-						config.id === 'active_subscriptions'
-							? __( 'Has active subscription(s):', 'newspack-plugin' )
-							: __( 'Does not have active subscription(s):', 'newspack-plugin' )
-					}
-					ids={ item.value }
-					path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
-				/>
-			);
+addFilter( 'newspack.wizards.campaigns.segmentDescription.criteriaMessage', 'newspack.activeSubscriptions', ( message, value, config, item ) => {
+	if ( [ 'active_subscriptions', 'not_active_subscriptions' ].includes( config.id ) ) {
+		if ( ! item.value?.length ) {
+			return null;
 		}
-		return message;
+		return (
+			<ItemNames
+				label={
+					config.id === 'active_subscriptions'
+						? __( 'Has active subscription(s):', 'newspack-plugin' )
+						: __( 'Does not have active subscription(s):', 'newspack-plugin' )
+				}
+				ids={ item.value }
+				path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
+			/>
+		);
 	}
-);
+	return message;
+} );
 
-addFilter(
-	'newspack.wizards.campaigns.segmentDescription.criteriaMessage',
-	'newspack.activeMemberships',
-	( message, value, config, item ) => {
-		if ( [ 'active_memberships', 'not_active_memberships' ].includes( config.id ) ) {
-			if ( ! item.value?.length ) {
-				return null;
-			}
-			return (
-				<ItemNames
-					label={
-						config.id === 'active_memberships'
-							? __( 'Has active membership(s):', 'newspack-plugin' )
-							: __( 'Does not have active membership(s):', 'newspack-plugin' )
-					}
-					ids={ item.value }
-					path="/wc/v3/memberships/plans?per_page=100"
-				/>
-			);
+addFilter( 'newspack.wizards.campaigns.segmentDescription.criteriaMessage', 'newspack.activeMemberships', ( message, value, config, item ) => {
+	if ( [ 'active_memberships', 'not_active_memberships' ].includes( config.id ) ) {
+		if ( ! item.value?.length ) {
+			return null;
 		}
-		return message;
+		return (
+			<ItemNames
+				label={
+					config.id === 'active_memberships'
+						? __( 'Has active membership(s):', 'newspack-plugin' )
+						: __( 'Does not have active membership(s):', 'newspack-plugin' )
+				}
+				ids={ item.value }
+				path="/wc/v3/memberships/plans?per_page=100"
+			/>
+		);
 	}
-);
+	return message;
+} );
 
 export const isSameType = ( campaignA, campaignB ) => {
 	return campaignA.options.placement === campaignB.options.placement;
@@ -373,31 +345,20 @@ export const isSameType = ( campaignA, campaignB ) => {
 const sharesSegments = ( segmentsA, segmentsB ) => {
 	const segmentsArrayA = segmentsA.map( segment => segment.term_id );
 	const segmentsArrayB = segmentsB.map( segment => segment.term_id );
-	return (
-		( ! segmentsArrayA.length && ! segmentsArrayB.length ) ||
-		segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) )
-	);
+	return ( ! segmentsArrayA.length && ! segmentsArrayB.length ) || segmentsArrayA.some( segment => -1 < segmentsArrayB.indexOf( segment ) );
 };
 
 export const buildWarning = prompt => {
 	if ( isOverlay( prompt ) || isAboveHeader( prompt ) ) {
 		return sprintf(
 			// Translators: %s is prompt type (above-header or overlay).
-			__(
-				'If multiple %s are rendered on the same pageview, only the most recent one will be displayed.',
-				'newspack-plugin'
-			),
-			isAboveHeader( prompt )
-				? __( 'above-header prompts', 'newspack-plugin' )
-				: __( 'overlays', 'newspack-plugin' )
+			__( 'If multiple %s are rendered on the same pageview, only the most recent one will be displayed.', 'newspack-plugin' ),
+			isAboveHeader( prompt ) ? __( 'above-header prompts', 'newspack-plugin' ) : __( 'overlays', 'newspack-plugin' )
 		);
 	}
 
 	if ( isCustomPlacement( prompt ) ) {
-		return __(
-			'If multiple prompts are rendered in the same custom placement, only the most recent one will be displayed.',
-			'newspack-plugin'
-		);
+		return __( 'If multiple prompts are rendered in the same custom placement, only the most recent one will be displayed.', 'newspack-plugin' );
 	}
 
 	return '';
@@ -406,10 +367,7 @@ export const buildWarning = prompt => {
 export const warningForPopup = ( prompts, prompt ) => {
 	const warningMessages = [];
 
-	if (
-		'publish' === prompt.status &&
-		( isAboveHeader( prompt ) || isOverlay( prompt ) || isCustomPlacement( prompt ) )
-	) {
+	if ( 'publish' === prompt.status && ( isAboveHeader( prompt ) || isOverlay( prompt ) || isCustomPlacement( prompt ) ) ) {
 		const promptCategories = prompt.categories;
 		const conflictingPrompts = prompts.filter( conflict => {
 			const conflictCategories = conflict.categories;
@@ -417,11 +375,7 @@ export const warningForPopup = ( prompts, prompt ) => {
 			// There's a conflict if both campaigns have zero categories, or if they share at least one category.
 			const hasConflictingCategory =
 				( 0 === promptCategories.length && 0 === conflictCategories.length ) ||
-				promptCategories.some( category =>
-					conflictCategories.some(
-						conflictCategory => category.term_id === conflictCategory.term_id
-					)
-				);
+				promptCategories.some( category => conflictCategories.some( conflictCategory => category.term_id === conflictCategory.term_id ) );
 
 			return (
 				'publish' === conflict.status &&
@@ -432,12 +386,7 @@ export const warningForPopup = ( prompts, prompt ) => {
 			);
 		} );
 
-		const filteredConflictingPrompts = applyFilters(
-			'newspack.wizards.campaigns.conflictingPrompts',
-			conflictingPrompts,
-			prompt,
-			prompts
-		);
+		const filteredConflictingPrompts = applyFilters( 'newspack.wizards.campaigns.conflictingPrompts', conflictingPrompts, prompt, prompts );
 
 		if ( 0 < filteredConflictingPrompts.length ) {
 			return (
@@ -446,9 +395,7 @@ export const warningForPopup = ( prompts, prompt ) => {
 						{ sprintf(
 							// Translators: %s: 'Conflicts' or 'Conflict' depending on number of conflicts.
 							__( '%s detected:', 'newspack-plugin' ),
-							1 < filteredConflictingPrompts.length
-								? __( 'Conflicts', 'newspack-plugin' )
-								: __( 'Conflict', 'newspack-plugin' )
+							1 < filteredConflictingPrompts.length ? __( 'Conflicts', 'newspack-plugin' ) : __( 'Conflict', 'newspack-plugin' )
 						) }
 					</strong>
 					<ul>
@@ -473,5 +420,4 @@ export const warningForPopup = ( prompts, prompt ) => {
 
 export const frequencyForPopup = ( { options: { frequency } } ) => frequencyMap[ frequency ];
 
-export const dataForCampaignId = ( id, campaigns ) =>
-	campaigns.reduce( ( acc, group ) => ( +id > 0 && +id === +group.term_id ? group : acc ), null );
+export const dataForCampaignId = ( id, campaigns ) => campaigns.reduce( ( acc, group ) => ( +id > 0 && +id === +group.term_id ? group : acc ), null );

@@ -2,8 +2,8 @@ import { domReady } from './utils';
 
 domReady( function () {
 	// Create a MutationObserver to watch for class changes.
-	const observer = new MutationObserver( ( mutations ) => {
-		mutations.forEach( ( mutation ) => {
+	const observer = new MutationObserver( mutations => {
+		mutations.forEach( mutation => {
 			if (
 				mutation.type === 'attributes' &&
 				mutation.attributeName === 'class' &&
@@ -20,10 +20,10 @@ domReady( function () {
 
 	// Start observing all snackbar elements.
 	const snackbars = [ ...document.querySelectorAll( '.newspack-ui__snackbar' ) ];
-	snackbars.forEach( ( snackbar ) => {
+	snackbars.forEach( snackbar => {
 		observer.observe( snackbar, {
 			attributes: true,
-			attributeFilter: [ 'class' ]
+			attributeFilter: [ 'class' ],
 		} );
 		if ( snackbar.classList.contains( 'active-on-load' ) ) {
 			snackbar.classList.add( 'active' );
