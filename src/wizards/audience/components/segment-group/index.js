@@ -15,18 +15,8 @@ import { blockTable, header, layout, postList } from '@wordpress/icons';
 import { Button, ButtonCard, Card, Grid, Modal } from '../../../../components/src';
 import SegmentationPreview from '../segmentation-preview';
 import PromptActionCard from '../prompt-action-card';
-import {
-	promptDescription,
-	segmentDescription,
-	getCardClassName,
-	warningForPopup,
-} from '../../views/campaigns/utils';
-import {
-	overlayBottom,
-	overlayInline,
-	overlayCenter,
-	overlayTop,
-} from '../../../../../packages/icons';
+import { promptDescription, segmentDescription, getCardClassName, warningForPopup } from '../../views/campaigns/utils';
+import { overlayBottom, overlayInline, overlayCenter, overlayTop } from '../../../../../packages/icons';
 import './style.scss';
 
 const addNewURL = ( placement, campaignId, segmentId ) => {
