@@ -62,6 +62,8 @@ class Memberships {
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'disable_subscription_linked_membership_fields' ] );
 		add_action( 'save_post_wc_user_membership', [ __CLASS__, 'prevent_subscription_linked_membership_field_updates' ], 10, 2 );
 		add_action( 'post_row_actions', [ __CLASS__, 'prevent_subscription_linked_membership_field_updates_row_actions' ], 20, 2 );
+		add_action( 'load-edit.php', [ __CLASS__, 'store_original_membership_data_before_bulk_edit' ] );
+		add_action( 'bulk_edit_posts', [ __CLASS__, 'prevent_bulk_edit_subscription_linked_memberships' ], 10, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -1227,6 +1229,124 @@ class Memberships {
 		$original_end_date = get_post_meta( $post_id, '_end_date', true );
 		if ( isset( $_POST['_end_date'] ) && $_POST['_end_date'] !== $original_end_date ) { // phpcs:disable WordPress.Security.NonceVerification.Missing
 			update_post_meta( $post_id, '_end_date', $original_end_date );
+		}
+	}
+
+	/**
+	 * Store original membership data before bulk edit to allow restoration.
+	 */
+	public static function store_original_membership_data_before_bulk_edit() {
+		// Only on wc_user_membership edit page.
+		if ( ! isset( $_GET['post_type'] ) || 'wc_user_membership' !== $_GET['post_type'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+
+		// Check if this is a bulk edit request.
+		if ( ! isset( $_REQUEST['bulk_edit'] ) && ! isset( $_REQUEST['action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+
+		// Get post IDs from bulk edit.
+		$post_ids = [];
+		if ( isset( $_REQUEST['post'] ) && is_array( $_REQUEST['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$post_ids = array_map( 'intval', $_REQUEST['post'] ); // phpcs:ignore WordPress.Security.NonceVerification
+		}
+
+		if ( empty( $post_ids ) ) {
+			return;
+		}
+
+		// Store original data for subscription-linked memberships.
+		$original_data = [];
+		foreach ( $post_ids as $post_id ) {
+			$post = get_post( $post_id );
+			if ( $post && 'wc_user_membership' === $post->post_type && self::should_disable_editing_membership_status( $post ) ) {
+				$original_data[ $post_id ] = [
+					'post_status' => $post->post_status,
+					'_start_date' => get_post_meta( $post_id, '_start_date', true ),
+					'_end_date'   => get_post_meta( $post_id, '_end_date', true ),
+				];
+			}
+		}
+
+		if ( ! empty( $original_data ) ) {
+			set_transient( 'newspack_membership_original_data_' . get_current_user_id(), $original_data, 300 );
+		}
+	}
+
+	/**
+	 * Prevent bulk editing of subscription-linked memberships.
+	 * This fires after bulk edits are processed and restores original values for subscription-linked memberships.
+	 *
+	 * @param array $post_ids Array of post IDs that were bulk edited.
+	 * @param array $edit_data Array of edit data from the bulk edit form.
+	 */
+	public static function prevent_bulk_edit_subscription_linked_memberships( $post_ids, $edit_data ) {
+		// Only handle wc_user_membership posts.
+		if ( empty( $post_ids ) || ! is_array( $post_ids ) ) {
+			return;
+		}
+
+		// Get stored original data.
+		$original_data = get_transient( 'newspack_membership_original_data_' . get_current_user_id() );
+		if ( ! $original_data ) {
+			return;
+		}
+
+		$reverted_count = 0;
+
+		foreach ( $post_ids as $post_id ) {
+			// Skip if we don't have original data for this post or it's not subscription-linked.
+			if ( ! isset( $original_data[ $post_id ] ) ) {
+				continue;
+			}
+
+			$post = get_post( $post_id );
+			if ( ! $post || 'wc_user_membership' !== $post->post_type ) {
+				continue;
+			}
+
+			// Restore original post status.
+			if ( $post->post_status !== $original_data[ $post_id ]['post_status'] ) {
+				wp_update_post(
+					[
+						'ID'          => $post_id,
+						'post_status' => $original_data[ $post_id ]['post_status'],
+					]
+				);
+				$reverted_count++;
+			}
+
+			// Restore original start date.
+			$current_start_date = get_post_meta( $post_id, '_start_date', true );
+			if ( $current_start_date !== $original_data[ $post_id ]['_start_date'] ) {
+				update_post_meta( $post_id, '_start_date', $original_data[ $post_id ]['_start_date'] );
+			}
+
+			// Restore original end date.
+			$current_end_date = get_post_meta( $post_id, '_end_date', true );
+			if ( $current_end_date !== $original_data[ $post_id ]['_end_date'] ) {
+				update_post_meta( $post_id, '_end_date', $original_data[ $post_id ]['_end_date'] );
+			}
+		}
+
+		// Clean up stored data.
+		delete_transient( 'newspack_membership_original_data_' . get_current_user_id() );
+
+		// Show admin notice if any memberships were reverted.
+		if ( $reverted_count > 0 ) {
+			$message = sprintf(
+				/* translators: %d: number of memberships */
+				_n(
+					'%d membership was not updated because it is linked to a subscription.',
+					'%d memberships were not updated because they are linked to subscriptions.',
+					$reverted_count,
+					'newspack-plugin'
+				),
+				$reverted_count
+			);
+
+			set_transient( 'newspack_membership_bulk_edit_notice', $message, 30 );
 		}
 	}
 }
