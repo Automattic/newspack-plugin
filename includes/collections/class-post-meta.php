@@ -38,7 +38,7 @@ class Post_Meta {
 			self::ORDER_META_KEY,
 			[
 				'type'              => 'integer',
-				'description'       => __( 'Order of the post within a collection.', 'newspack-plugin' ),
+				'description'       => __( 'Order of the post within collections.', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
@@ -69,7 +69,9 @@ class Post_Meta {
 			Enqueuer::add_data(
 				'postMeta',
 				[
-					'orderMetaKey' => self::ORDER_META_KEY,
+					'orderMetaKey'   => self::ORDER_META_KEY,
+					'panelTitle'     => _x( 'Collection Settings', 'title for collection settings panel', 'newspack-plugin' ),
+					'orderFieldHelp' => _x( 'Set the order of this post within collections.', 'help text for collection order field', 'newspack-plugin' ),
 				]
 			);
 		}
