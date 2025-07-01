@@ -188,11 +188,7 @@ class AudienceCampaigns extends Component {
 		let previewURL = '/';
 		if ( 'archives' === placement && window.newspackAudienceCampaigns?.preview_archive ) {
 			previewURL = window.newspackAudienceCampaigns.preview_archive;
-		} else if (
-			( 'inline' === placement || 'scroll' === triggerType ) &&
-			window &&
-			window.newspackAudienceCampaigns?.preview_post
-		) {
+		} else if ( ( 'inline' === placement || 'scroll' === triggerType ) && window && window.newspackAudienceCampaigns?.preview_post ) {
 			previewURL = window.newspackAudienceCampaigns?.preview_post;
 		}
 
@@ -215,8 +211,7 @@ class AudienceCampaigns extends Component {
 	};
 
 	render() {
-		const { pluginRequirements, setError, isLoading, wizardApiFetch, startLoading, doneLoading } =
-			this.props;
+		const { pluginRequirements, setError, isLoading, wizardApiFetch, startLoading, doneLoading } = this.props;
 		const { campaigns, inFlight, prompts, segments, settings, previewUrl, duplicated } = this.state;
 		return (
 			<WebPreview
@@ -243,10 +238,7 @@ class AudienceCampaigns extends Component {
 						deletePopup: this.deletePopup,
 						restorePopup: this.restorePopup,
 						duplicatePopup: this.duplicatePopup,
-						previewPopup: popup =>
-							this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () =>
-								showPreview()
-							),
+						previewPopup: popup => this.setState( { previewUrl: this.previewUrlForPopup( popup ) }, () => showPreview() ),
 						publishPopup: this.publishPopup,
 						resetDuplicated: () => this.setState( { duplicated: null } ),
 						unpublishPopup: this.unpublishPopup,

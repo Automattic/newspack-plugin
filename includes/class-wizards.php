@@ -53,6 +53,7 @@ class Wizards {
 						'recirculation' => 'Newspack\Wizards\Newspack\Recirculation_Section',
 						'syndication'   => 'Newspack\Wizards\Newspack\Syndication_Section',
 						'seo'           => 'Newspack\Wizards\Newspack\Seo_Section',
+						'collections'   => 'Newspack\Wizards\Newspack\Collections_Section',
 					],
 				]
 			),

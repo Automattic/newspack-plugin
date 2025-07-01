@@ -7,32 +7,15 @@ import { useState } from '@wordpress/element';
 /**
  * Internal dependencies.
  */
-import {
-	Button,
-	Card,
-	CategoryAutocomplete,
-	Grid,
-	Modal,
-	SelectControl,
-	Settings,
-	hooks,
-} from '../../../../components/src';
-import {
-	frequenciesForPopup,
-	isOverlay,
-	placementsForPopups,
-	overlaySizesForPopups,
-} from '../../views/campaigns/utils';
+import { Button, Card, CategoryAutocomplete, Grid, Modal, SelectControl, Settings, hooks } from '../../../../components/src';
+import { frequenciesForPopup, isOverlay, placementsForPopups, overlaySizesForPopups } from '../../views/campaigns/utils';
 
 const { SettingsCard } = Settings;
 
 const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 	const [ promptConfig, setPromptConfig ] = hooks.useObjectState( prompt );
-	const { excluded_categories: excludedCategories = [], excluded_tags: excludedTags = [] } =
-		promptConfig.options || {};
-	const [ showAdvanced, setShowAdvanced ] = useState(
-		0 < excludedCategories.length || 0 < excludedTags.length || false
-	);
+	const { excluded_categories: excludedCategories = [], excluded_tags: excludedTags = [] } = promptConfig.options || {};
+	const [ showAdvanced, setShowAdvanced ] = useState( 0 < excludedCategories.length || 0 < excludedTags.length || false );
 
 	const handleSave = () => {
 		updatePopup( promptConfig ).then( onClose );
@@ -46,10 +29,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 			<Grid gutter={ 64 } columns={ 1 }>
 				<SettingsCard
 					title={ __( 'Campaigns', 'newspack-plugin' ) }
-					description={ __(
-						'Assign a prompt to one or more campaigns for easier management',
-						'newspack-plugin'
-					) }
+					description={ __( 'Assign a prompt to one or more campaigns for easier management', 'newspack-plugin' ) }
 					columns={ 1 }
 					className="newspack-settings__campaigns"
 					noBorder
@@ -82,11 +62,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 						value={ promptConfig.options.frequency }
 					/>
 					<SelectControl
-						label={
-							isOverlay( prompt )
-								? __( 'Position', 'newspack-plugin' )
-								: __( 'Placement', 'newspack-plugin' )
-						}
+						label={ isOverlay( prompt ) ? __( 'Position', 'newspack-plugin' ) : __( 'Placement', 'newspack-plugin' ) }
 						disabled={ disabled }
 						onChange={ value => {
 							setPromptConfig( { options: { placement: value } } );
@@ -138,10 +114,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 							hideHelpFromVision
 							value={ promptConfig.categories || [] }
 							onChange={ tokens => setPromptConfig( { categories: tokens } ) }
-							description={ __(
-								'Prompt will only appear on posts with the specified categories.',
-								'newspack-plugin'
-							) }
+							description={ __( 'Prompt will only appear on posts with the specified categories.', 'newspack-plugin' ) }
 						/>
 						<CategoryAutocomplete
 							label={ __( 'Post tags', 'newspack-plugin' ) }
@@ -150,10 +123,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 							taxonomy="tags"
 							value={ promptConfig.tags || [] }
 							onChange={ tokens => setPromptConfig( { tags: tokens } ) }
-							description={ __(
-								'Prompt will only appear on posts with the specified tags.',
-								'newspack-plugin'
-							) }
+							description={ __( 'Prompt will only appear on posts with the specified tags.', 'newspack-plugin' ) }
 						/>
 					</Grid>
 					<div>
@@ -179,10 +149,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 										},
 									} )
 								}
-								description={ __(
-									'Prompt will not appear on posts with the specified categories.',
-									'newspack-plugin'
-								) }
+								description={ __( 'Prompt will not appear on posts with the specified categories.', 'newspack-plugin' ) }
 							/>
 							<CategoryAutocomplete
 								label={ __( 'Tag Exclusions', 'newspack-plugin' ) }
@@ -197,10 +164,7 @@ const PromptSettingsModal = ( { prompt, disabled, onClose, updatePopup } ) => {
 										},
 									} )
 								}
-								description={ __(
-									'Prompt will not appear on posts with the specified tags.',
-									'newspack-plugin'
-								) }
+								description={ __( 'Prompt will not appear on posts with the specified tags.', 'newspack-plugin' ) }
 							/>
 						</Grid>
 					) }

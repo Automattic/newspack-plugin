@@ -68,11 +68,9 @@ const Welcome = ( { buttonAction } ) => {
 	const isSetupApproachNew = setupApproach === 'generated';
 	const isSetupApproachMigrate = setupApproach === 'import';
 
-	const addError = errorInfo => error =>
-		setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
+	const addError = errorInfo => error => setErrors( _errors => [ ..._errors, { ...errorInfo, error } ] );
 
-	const total =
-		( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) + softwareInfo.length;
+	const total = ( shouldInstallStarterContent ? STARTER_CONTENT_REQUEST_COUNT : 0 ) + softwareInfo.length;
 
 	useEffect( () => {
 		document.body.classList.add( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
@@ -82,8 +80,7 @@ const Welcome = ( { buttonAction } ) => {
 			setIsSSL( res.is_ssl );
 		} );
 
-		return () =>
-			document.body.classList.remove( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
+		return () => document.body.classList.remove( 'newspack-wizard__welcome', 'newspack-wizard__blue' );
 	}, [] );
 
 	const increment = () => setInstallationProgress( progress => progress + 1 );
@@ -121,8 +118,7 @@ const Welcome = ( { buttonAction } ) => {
 			await starterContentInit( setupApproach, existingSiteURL )
 				.then( increment )
 				.catch( err => {
-					window.location =
-						'/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' + err.message;
+					window.location = '/wp-admin/admin.php?page=newspack-setup-wizard&newspack-notice=_error_' + err.message;
 				} );
 
 			// Generate posts.
@@ -280,11 +276,7 @@ const Welcome = ( { buttonAction } ) => {
 				</Grid>
 			) }
 
-			<Card
-				isNarrow
-				isWhite
-				className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }
-			>
+			<Card isNarrow isWhite className={ errors.length === 0 && installationProgress > 0 && ! isDone ? 'loading' : null }>
 				<Grid columns={ 1 }>
 					{ ! isInit && (
 						<h1>
@@ -293,9 +285,7 @@ const Welcome = ( { buttonAction } ) => {
 						</h1>
 					) }
 
-					{ errors.length === 0 && installationProgress > 0 ? (
-						<ProgressBar completed={ installationProgress } total={ total } />
-					) : null }
+					{ errors.length === 0 && installationProgress > 0 ? <ProgressBar completed={ installationProgress } total={ total } /> : null }
 
 					<p>
 						{ getInfoText() }
@@ -303,21 +293,14 @@ const Welcome = ( { buttonAction } ) => {
 							<>
 								<br />
 								<i>
-									{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter }{ ' ' }
-									{ __( 'seconds…', 'newspack' ) }
+									{ __( 'Automatic redirection in', 'newspack' ) } { redirectCounter } { __( 'seconds…', 'newspack' ) }
 								</i>
 							</>
 						) }
 					</p>
 
 					{ isSSL === false && (
-						<Notice
-							isError
-							noticeText={ __(
-								"This site does not use HTTPS. Newspack can't be installed.",
-								'newspack'
-							) }
-						/>
+						<Notice isError noticeText={ __( "This site does not use HTTPS. Newspack can't be installed.", 'newspack' ) } />
 					) }
 
 					{ errors.length ? errors.map( renderErrorBox ) : null }
@@ -396,6 +379,4 @@ const Welcome = ( { buttonAction } ) => {
 
 const WelcomeWizardScreen = withWizardScreen( Welcome );
 // eslint-disable-next-line react/display-name
-export default props => (
-	<WelcomeWizardScreen { ...omit( props, [ 'routes', 'headerText', 'buttonText' ] ) } />
-);
+export default props => <WelcomeWizardScreen { ...omit( props, [ 'routes', 'headerText', 'buttonText' ] ) } />;

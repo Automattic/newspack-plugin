@@ -24,18 +24,7 @@ class ButtonCard extends Component {
 	 * Render
 	 */
 	render() {
-		const {
-			chevron,
-			className,
-			desc,
-			grouped,
-			icon,
-			isDestructive,
-			isPressed,
-			isSmall,
-			title,
-			...otherProps
-		} = this.props;
+		const { chevron, className, desc, grouped, icon, isDestructive, isPressed, isSmall, title, ...otherProps } = this.props;
 		const classes = classnames(
 			'newspack-button-card',
 			className,

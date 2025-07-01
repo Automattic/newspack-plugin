@@ -48,10 +48,7 @@ const parseForEdit = metaByline => {
 		</button>
 	</span>`;
 
-	return metaByline.replace(
-		/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
-		tokenMarkup
-	);
+	return metaByline.replace( /\[Author id=(\d*)\](\D*)\[\/Author\]/g, tokenMarkup );
 };
 
 /**
@@ -64,10 +61,7 @@ const parseForEdit = metaByline => {
 const parseForPreview = metaByline => {
 	const tokenMarkup = `<span class="newspack-byline-author" id="token-$1" data-token="$1">$2</span>`;
 
-	return metaByline.replace(
-		/\[Author id=(\d*)\](\D*)\[\/Author\]/g,
-		tokenMarkup
-	);
+	return metaByline.replace( /\[Author id=(\d*)\](\D*)\[\/Author\]/g, tokenMarkup );
 };
 
 /**
@@ -80,8 +74,7 @@ const parseForPreview = metaByline => {
 const transformByline = element => {
 	const clonebylineElement = element.cloneNode( true );
 
-	const tokenElements =
-		clonebylineElement.querySelectorAll( 'span[data-token]' );
+	const tokenElements = clonebylineElement.querySelectorAll( 'span[data-token]' );
 
 	tokenElements.forEach( tokenElement => {
 		const authorID = tokenElement.dataset.token;
@@ -89,11 +82,7 @@ const transformByline = element => {
 		const authorName = authorNode ? authorNode.innerText.trim() : '';
 
 		if ( authorID && authorName ) {
-			tokenElement.replaceWith(
-				document.createTextNode(
-					`[Author id=${ authorID }]${ authorName }[/Author]`
-				)
-			);
+			tokenElement.replaceWith( document.createTextNode( `[Author id=${ authorID }]${ authorName }[/Author]` ) );
 		}
 	} );
 
@@ -110,14 +99,8 @@ const transformByline = element => {
 function useAuthorTokens( postId ) {
 	const { postAuthor, coAuthors } = useSelect( select => {
 		return {
-			postAuthor: select( coreStore ).getUser(
-				select( 'core/editor' ).getEditedPostAttribute( 'author' ),
-				BASE_QUERY
-			),
-			coAuthors:
-				postId && select( 'cap/authors' )
-					? select( 'cap/authors' ).getAuthors( postId )
-					: [],
+			postAuthor: select( coreStore ).getUser( select( 'core/editor' ).getEditedPostAttribute( 'author' ), BASE_QUERY ),
+			coAuthors: postId && select( 'cap/authors' ) ? select( 'cap/authors' ).getAuthors( postId ) : [],
 		};
 	} );
 
@@ -143,9 +126,7 @@ function useAuthorTokens( postId ) {
 const Token = ( { token, onInsert } ) => {
 	return (
 		<span className="components-form-token-field__token token-inline-block">
-			<span className="components-form-token-field__token-text">
-				{ token.name }
-			</span>
+			<span className="components-form-token-field__token-text">{ token.name }</span>
 			<Button
 				className="components-form-token-field__insert-token is-small has-icon token-inline-block__insert"
 				onClick={ onInsert }
@@ -168,14 +149,7 @@ const Tokens = ( { tokens, tokensInUse, insertToken } ) => {
 	return (
 		<div className="tokens">
 			{ tokens.map(
-				token =>
-					! tokensInUse.includes( token.id ) && (
-						<Token
-							key={ token.id }
-							token={ token }
-							onInsert={ () => insertToken( token ) }
-						/>
-					)
+				token => ! tokensInUse.includes( token.id ) && <Token key={ token.id } token={ token } onInsert={ () => insertToken( token ) } />
 			) }
 		</div>
 	);
@@ -205,20 +179,15 @@ const BylinesSettingsPanel = () => {
 
 	const tokens = useAuthorTokens( postId );
 
-	const { getEditedPostAttribute } = useSelect( select =>
-		select( 'core/editor' )
-	);
+	const { getEditedPostAttribute } = useSelect( select => select( 'core/editor' ) );
 
 	/** Toggle if custom byline is enabled */
-	const [ isEnabled, setIsEnabled ] = useState(
-		!! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ]
-	);
+	const [ isEnabled, setIsEnabled ] = useState( !! getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyActive ] );
 
 	/** Toggle if custom byline modal is open */
 	const [ isModalOpen, setModalOpen ] = useState( false );
 
-	const customByline =
-		getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ];
+	const customByline = getEditedPostAttribute( 'meta' )[ newspackBylines.metaKeyByline ];
 
 	const [ editedByline, setEditedByline ] = useState( customByline );
 
@@ -254,12 +223,8 @@ const BylinesSettingsPanel = () => {
 	 * @param {Element} element The contenteditable element.
 	 */
 	const setTokensInUseFromContentEditable = element => {
-		const tokenElements = element.querySelectorAll(
-			'span button[data-token]'
-		);
-		const inUse = [ ...tokenElements ].map( span =>
-			Number( span.dataset.token )
-		);
+		const tokenElements = element.querySelectorAll( 'span button[data-token]' );
+		const inUse = [ ...tokenElements ].map( span => Number( span.dataset.token ) );
 
 		setTokensInUse( inUse );
 	};
@@ -295,18 +260,15 @@ const BylinesSettingsPanel = () => {
 		}
 
 		// Assign new token to byline innerHTML (Adds a space to the end allowing insertion of content after token).
-		editableRef.current.innerHTML =
-			innerHTML.slice( 0, insertLocation ) +
-			tokenElement +
-			innerHTML.slice( insertLocation );
+		editableRef.current.innerHTML = innerHTML.slice( 0, insertLocation ) + tokenElement + innerHTML.slice( insertLocation );
 
 		// Update byline meta.
 		updateEditedByline( editableRef.current );
 
 		// Get index of the new token.
-		const tokenIndex = Array.from(
-			editableRef.current.querySelectorAll( 'span[data-token]' )
-		).indexOf( editableRef.current.querySelector( `#${ tokenId }` ) );
+		const tokenIndex = Array.from( editableRef.current.querySelectorAll( 'span[data-token]' ) ).indexOf(
+			editableRef.current.querySelector( `#${ tokenId }` )
+		);
 
 		// Set cursor position and focus on the editable element.
 		const range = document.createRange();
@@ -330,17 +292,12 @@ const BylinesSettingsPanel = () => {
 			if ( index === 0 ) {
 				defaultCustomByline = 'By';
 			} else if ( index === tokens.length - 1 ) {
-				defaultCustomByline =
-					tokens.length > 2
-						? defaultCustomByline + ', and'
-						: defaultCustomByline + ' and';
+				defaultCustomByline = tokens.length > 2 ? defaultCustomByline + ', and' : defaultCustomByline + ' and';
 			} else {
 				defaultCustomByline = defaultCustomByline + ',';
 			}
 
-			defaultCustomByline =
-				defaultCustomByline +
-				` [Author id=${ token.id }]${ token.name }[/Author]`;
+			defaultCustomByline = defaultCustomByline + ` [Author id=${ token.id }]${ token.name }[/Author]`;
 		} );
 
 		// Don't edit post meta if the string is still empty.
@@ -385,13 +342,9 @@ const BylinesSettingsPanel = () => {
 			editableRef.current = element;
 			element.innerHTML = parseForEdit( customByline );
 			element.addEventListener( 'blur', updateCursorPos );
-			element.addEventListener( 'input', () =>
-				updateEditedByline( element )
-			);
+			element.addEventListener( 'input', () => updateEditedByline( element ) );
 			element.addEventListener( 'click', ( { target } ) => {
-				if (
-					target.classList.contains( 'token-inline-block__remove' )
-				) {
+				if ( target.classList.contains( 'token-inline-block__remove' ) ) {
 					target.closest( '.token-inline-block' ).remove();
 					updateEditedByline( element );
 				}
@@ -425,28 +378,15 @@ const BylinesSettingsPanel = () => {
 	};
 
 	const textArea = useMemo( () => {
-		return (
-			<div
-				contentEditable
-				className="newspack-byline-textarea"
-				ref={ onMount }
-			/>
-		);
+		return <div contentEditable className="newspack-byline-textarea" ref={ onMount } />;
 	}, [ isModalOpen ] );
 
 	return (
-		<PluginDocumentSettingPanel
-			className="newspack-byline"
-			name="newspack-byline-settings-panel"
-			title={ __( 'Byline', 'newspack-plugin' ) }
-		>
+		<PluginDocumentSettingPanel className="newspack-byline" name="newspack-byline-settings-panel" title={ __( 'Byline', 'newspack-plugin' ) }>
 			<ToggleControl
 				className="newspack-byline-toggle"
 				checked={ isEnabled }
-				help={ __(
-					'Provides flexibility in defining how the byline appears.',
-					'newspack-plugin'
-				) }
+				help={ __( 'Provides flexibility in defining how the byline appears.', 'newspack-plugin' ) }
 				label={ __( 'Enable custom byline', 'newspack-plugin' ) }
 				onChange={ () => handleEnableToggle( ! isEnabled ) }
 			/>
@@ -458,11 +398,7 @@ const BylinesSettingsPanel = () => {
 							__html: parseForPreview( customByline ),
 						} }
 					/>
-					<Button
-						className="newspack-byline-customize-btn"
-						variant="secondary"
-						onClick={ () => setModalOpen( true ) }
-					>
+					<Button className="newspack-byline-customize-btn" variant="secondary" onClick={ () => setModalOpen( true ) }>
 						{ __( 'Edit byline', 'newspack-plugin' ) }
 					</Button>
 					{ isModalOpen && (
@@ -475,11 +411,7 @@ const BylinesSettingsPanel = () => {
 							} }
 						>
 							{ textArea }
-							<Tokens
-								tokens={ tokens }
-								tokensInUse={ tokensInUse }
-								insertToken={ insertToken }
-							/>
+							<Tokens tokens={ tokens } tokensInUse={ tokensInUse } insertToken={ insertToken } />
 							<div className="newspack-byline-customize-modal-btns">
 								<Button
 									variant="primary"

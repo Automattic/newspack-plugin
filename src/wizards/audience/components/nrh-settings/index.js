@@ -8,12 +8,7 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import {
-	AutocompleteWithSuggestions,
-	Button,
-	Grid,
-	TextControl,
-} from '../../../../components/src';
+import { AutocompleteWithSuggestions, Button, Grid, TextControl } from '../../../../components/src';
 import { useWizardData } from '../../../../components/src/wizard/store/utils';
 import { WIZARD_STORE_NAMESPACE } from '../../../../components/src/wizard/store';
 import WizardsSection from '../../../wizards-section';
@@ -84,10 +79,7 @@ const NRHSettings = () => {
 					</p>
 					<AutocompleteWithSuggestions
 						label={ __( 'Search for a New Donor Landing Page', 'newspack-plugin' ) }
-						help={ __(
-							'Begin typing page title, click autocomplete result to select.',
-							'newspack'
-						) }
+						help={ __( 'Begin typing page title, click autocomplete result to select.', 'newspack' ) }
 						onChange={ items => {
 							if ( ! items || ! items.length ) {
 								setSelectedPage( null );

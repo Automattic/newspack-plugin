@@ -94,14 +94,8 @@ const SegmentActionCard = ( {
 		const isDraggingToTop = e.pageY <= wrapperRect.top + window.scrollY;
 		const isDraggingToBottom = e.pageY >= wrapperRect.bottom + window.scrollY;
 
-		if (
-			isDraggingToTop ||
-			isDraggingToBottom ||
-			e.target.classList.contains( 'newspack-action-card' )
-		) {
-			const segmentCards = Array.prototype.slice.call(
-				wrapperRef.current.querySelectorAll( '.newspack-campaigns__draggable' )
-			);
+		if ( isDraggingToTop || isDraggingToBottom || e.target.classList.contains( 'newspack-action-card' ) ) {
+			const segmentCards = Array.prototype.slice.call( wrapperRef.current.querySelectorAll( '.newspack-campaigns__draggable' ) );
 
 			let targetIndex = segmentCards.indexOf( e.target.parentElement );
 
@@ -175,9 +169,7 @@ const SegmentActionCard = ( {
 						description={ segmentDescription( segment ) }
 						toggleChecked={ ! segment.configuration.is_disabled }
 						toggleOnChange={ () => toggleSegmentStatus( segment ) }
-						badge={
-							segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : undefined
-						}
+						badge={ segment.is_criteria_duplicated ? __( 'Duplicate', 'newspack-plugin' ) : undefined }
 						actionText={
 							<>
 								<Button
@@ -195,16 +187,10 @@ const SegmentActionCard = ( {
 										<MenuItem onClick={ () => onFocusOutside() } className="screen-reader-text">
 											{ __( 'Close Popover', 'newspack-plugin' ) }
 										</MenuItem>
-										<MenuItem
-											onClick={ () => history.push( `/segments/${ segment.id }` ) }
-											className="newspack-button"
-										>
+										<MenuItem onClick={ () => history.push( `/segments/${ segment.id }` ) } className="newspack-button">
 											{ __( 'Edit', 'newspack-plugin' ) }
 										</MenuItem>
-										<MenuItem
-											onClick={ () => deleteSegment( segment ) }
-											className="newspack-button"
-										>
+										<MenuItem onClick={ () => deleteSegment( segment ) } className="newspack-button">
 											{ __( 'Delete', 'newspack-plugin' ) }
 										</MenuItem>
 									</Popover>
@@ -213,12 +199,7 @@ const SegmentActionCard = ( {
 						}
 					>
 						<div className="newspack-campaigns__segment-priority-controls">
-							<div
-								className="drag-handle"
-								draggable
-								onDragStart={ onDraggableStart }
-								onDragEnd={ onDraggableEnd }
-							>
+							<div className="drag-handle" draggable onDragStart={ onDraggableStart } onDragEnd={ onDraggableEnd }>
 								<Icon icon={ dragHandle } height={ 18 } width={ 18 } />
 							</div>
 							<div className="movers">
@@ -309,10 +290,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 			} )
 			.catch( e => {
 				setInFlight( false );
-				setError(
-					e.message ||
-						__( 'There was an error sorting segments. Please try again.', 'newspack-plugin' )
-				);
+				setError( e.message || __( 'There was an error sorting segments. Please try again.', 'newspack-plugin' ) );
 				setSegments( segments );
 			} );
 	};
@@ -331,10 +309,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				<h2>{ __( 'Audience segments', 'newspack-plugin' ) }</h2>
 				<AddNewSegmentLink />
 			</Card>
-			<div
-				className={ 'newspack-campaigns-wizard-segments__list' + ( inFlight ? ' is-loading' : '' ) }
-				ref={ ref }
-			>
+			<div className={ 'newspack-campaigns-wizard-segments__list' + ( inFlight ? ' is-loading' : '' ) } ref={ ref }>
 				{ segmentsToShow.map( ( segment, index ) => (
 					<SegmentActionCard
 						deleteSegment={ deleteSegment }
@@ -359,12 +334,7 @@ const SegmentsList = ( { wizardApiFetch, segments, setSegments, isLoading } ) =>
 				<h2>{ __( 'You have no saved audience segments.', 'newspack-plugin' ) }</h2>
 				<AddNewSegmentLink />
 			</Card>
-			<p>
-				{ __(
-					'Create audience segments to target visitors by engagement, activity, and more.',
-					'newspack-plugin'
-				) }
-			</p>
+			<p>{ __( 'Create audience segments to target visitors by engagement, activity, and more.', 'newspack-plugin' ) }</p>
 		</Fragment>
 	);
 };

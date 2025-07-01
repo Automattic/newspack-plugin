@@ -51,13 +51,10 @@ const ROUTES = [
 
 const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 	return (
-		<div ref={ref}>
+		<div ref={ ref }>
 			{ newspack_aux_data.has_completed_setup && (
 				<Notice isWarning className="ma0">
-					{ __(
-						'Heads up! The setup has already been completed. No need to run it again.',
-						'newspack'
-					) }
+					{ __( 'Heads up! The setup has already been completed. No need to run it again.', 'newspack' ) }
 				</Notice>
 			) }
 			<HashRouter hashType="slash">
@@ -65,8 +62,9 @@ const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 					const nextRoute = ROUTES[ index + 1 ]?.path;
 					const buttonAction = nextRoute
 						? {
-							href: '#' + nextRoute,
-						} : {};
+								href: '#' + nextRoute,
+						  }
+						: {};
 					return (
 						<Route
 							key={ index }
@@ -82,7 +80,7 @@ const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 									subHeaderText: route.subHeaderText,
 									buttonText: nextRoute ? route.buttonText || __( 'Continue' ) : __( 'Finish' ),
 									buttonAction,
-									isPartOfSetup: true
+									isPartOfSetup: true,
 								} )
 							}
 						/>
@@ -93,7 +91,4 @@ const SetupWizard = ( { wizardApiFetch, setError }, ref ) => {
 	);
 };
 
-render(
-	createElement( withWizard( forwardRef( SetupWizard ), [] ), { simpleFooter: true } ),
-	document.getElementById( 'newspack-setup-wizard' )
-);
+render( createElement( withWizard( forwardRef( SetupWizard ), [] ), { simpleFooter: true } ), document.getElementById( 'newspack-setup-wizard' ) );

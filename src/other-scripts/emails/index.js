@@ -92,14 +92,8 @@ const ReaderRevenueEmailSidebar = compose( [
 	return (
 		<>
 			{ config.available_placeholders?.length && (
-				<PluginDocumentSettingPanel
-					name="email-instructions-panel"
-					title={ __( 'Instructions', 'newspack-plugin' ) }
-				>
-					{ __(
-						'Use the following placeholders to insert dynamic content in the email:',
-						'newspack-plugin'
-					) }
+				<PluginDocumentSettingPanel name="email-instructions-panel" title={ __( 'Instructions', 'newspack-plugin' ) }>
+					{ __( 'Use the following placeholders to insert dynamic content in the email:', 'newspack-plugin' ) }
 					<ul>
 						{ config.available_placeholders.map( ( item, i ) => (
 							<li key={ i }>
@@ -109,20 +103,10 @@ const ReaderRevenueEmailSidebar = compose( [
 					</ul>
 				</PluginDocumentSettingPanel>
 			) }
-			<PluginDocumentSettingPanel
-				name="email-settings-panel"
-				title={ __( 'Settings', 'newspack-plugin' ) }
-			>
-				<TextControl
-					label={ __( 'Subject', 'newspack-plugin' ) }
-					value={ title }
-					onChange={ updatePostTitle }
-				/>
+			<PluginDocumentSettingPanel name="email-settings-panel" title={ __( 'Settings', 'newspack-plugin' ) }>
+				<TextControl label={ __( 'Subject', 'newspack-plugin' ) } value={ title } onChange={ updatePostTitle } />
 			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel
-				name="email-testing-panel"
-				title={ __( 'Testing', 'newspack-plugin' ) }
-			>
+			<PluginDocumentSettingPanel name="email-testing-panel" title={ __( 'Testing', 'newspack-plugin' ) }>
 				<TextControl
 					label={ __( 'Send to', 'newspack-plugin' ) }
 					value={ settings.testRecipient }

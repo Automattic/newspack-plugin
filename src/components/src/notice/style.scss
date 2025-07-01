@@ -13,7 +13,7 @@
 	display: flex;
 	justify-content: flex-start;
 	margin: 32px 0;
-	padding: 6px 8px;
+	padding: 8px 12px;
 
 	> svg {
 		display: block;
@@ -42,7 +42,7 @@
 	}
 
 	&__is-error {
-		background: color.adjust(wp-colors.$alert-red, $lightness: 51%);
+		background: color.adjust(wp-colors.$alert-red, $lightness: 35%);
 
 		> svg {
 			fill: wp-colors.$alert-red;
@@ -51,7 +51,7 @@
 	}
 
 	&__is-handoff {
-		background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
+		background: color.adjust(wp-colors.$alert-yellow, $lightness: 35%);
 		margin-top: 0;
 		position: sticky;
 		top: 46px;
@@ -71,7 +71,7 @@
 	}
 
 	&__is-success {
-		background: color.adjust(wp-colors.$alert-green, $lightness: 42%);
+		background: color.adjust(wp-colors.$alert-green, $lightness: 45%);
 
 		> svg {
 			fill: wp-colors.$alert-green;
@@ -79,7 +79,7 @@
 	}
 
 	&__is-warning {
-		background: color.adjust(wp-colors.$alert-yellow, $lightness: 30%);
+		background: color.adjust(wp-colors.$alert-yellow, $lightness: 35%);
 
 		> svg {
 			fill: wp-colors.$alert-yellow;

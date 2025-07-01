@@ -30,36 +30,31 @@ export default function Settings( { title, value, onChange } ) {
 	useEffect( fetchLists, [] );
 	const isMailchimp = title === 'Mailchimp';
 	const listsLabel = isMailchimp ? __( 'Audience ID', 'newspack-plugin' ) : __( 'Master List', 'newspack-plugin' );
-	const helpText = isMailchimp ?
-		__( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ) :
-		__( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' );
+	const helpText = isMailchimp
+		? __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' )
+		: __( 'Choose a master list to which all registered readers will be added.', 'newspack-plugin' );
 	const handleChange = key => val => onChange && onChange( key, val );
 	return (
 		<>
-			{ error && (
-				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-					isError
-				/>
-			) }
+			{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 			<SectionHeader
 				title={ sprintf( /** Translators: %s is the email service provider title */ __( '%s settings', 'newspack-plugin' ), title ) }
-				description={ sprintf( /** Translators: %s is the email service provider title */ __( 'Settings for the %s integration.', 'newspack-plugin' ), title ) }
+				description={ sprintf(
+					/** Translators: %s is the email service provider title */ __( 'Settings for the %s integration.', 'newspack-plugin' ),
+					title
+				) }
 			/>
 			{ value.masterList === '' && (
 				<Notice
 					noticeText={ sprintf(
 						// Translators: 1 is the term used to refer to lists for a given email service provider and 2 is the email service provider title
-						__(
-							'No %1$s selected. You will not be able to send reader activity data to %2$s.',
-							'newspack-plugin'
-						),
+						__( 'No %1$s selected. You will not be able to send reader activity data to %2$s.', 'newspack-plugin' ),
 						listsLabel,
 						title
 					) }
 					isError
 				/>
-			)}
+			) }
 			<SelectControl
 				label={ listsLabel }
 				help={ helpText }
@@ -86,7 +81,10 @@ export default function Settings( { title, value, onChange } ) {
 					value={ value.readerDefaultStatus }
 					onChange={ handleChange( 'readerDefaultStatus' ) }
 					options={ [
-						{ value: 'transactional', label: __( 'Transactional/Non-Subscribed', 'newspack-plugin' ) },
+						{
+							value: 'transactional',
+							label: __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
+						},
 						{ value: 'subscribed', label: __( 'Subscribed', 'newspack-plugin' ) },
 					] }
 				/>

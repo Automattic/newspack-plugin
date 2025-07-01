@@ -20,15 +20,7 @@ import { hooks } from '..';
 /**
  * SelectControl with optgroup support
  */
-export default function GroupedSelectControl( {
-	help,
-	label,
-	onChange,
-	optgroups = [],
-	className,
-	hideLabelFromVision,
-	...props
-} ) {
+export default function GroupedSelectControl( { help, label, onChange, optgroups = [], className, hideLabelFromVision, ...props } ) {
 	const onChangeValue = event => {
 		const { value } = event.target;
 		const optgroup = find( optgroups, group => some( group.options, [ 'value', value ] ) );

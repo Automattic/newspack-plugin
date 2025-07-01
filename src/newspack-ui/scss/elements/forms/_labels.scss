@@ -59,6 +59,10 @@
 		a {
 			text-decoration: underline;
 		}
+
+		.required {
+			color: var(--newspack-ui-color-error-50);
+		}
 	}
 
 	&__label-optional {

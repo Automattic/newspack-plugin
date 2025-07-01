@@ -29,6 +29,7 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 				'module_enabled_rss'                   => false,
 				'module_enabled_media-partners'        => false,
 				'module_enabled_woo-member-commenting' => false,
+				'module_enabled_collections'           => false,
 			],
 			'Default settings are as expected.'
 		);
@@ -47,6 +48,20 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 				'module_enabled_rss'                   => true,
 				'module_enabled_media-partners'        => false,
 				'module_enabled_woo-member-commenting' => false,
+				'module_enabled_collections'           => false,
+			],
+			'Settings is updated.'
+		);
+
+		$request->set_param( 'module_enabled_collections', true );
+		Syndication::api_update_settings( $request );
+		self::assertEquals(
+			Optional_Modules::get_settings(),
+			[
+				'module_enabled_rss'                   => true,
+				'module_enabled_media-partners'        => false,
+				'module_enabled_woo-member-commenting' => false,
+				'module_enabled_collections'           => true,
 			],
 			'Settings is updated.'
 		);
@@ -59,6 +74,7 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 				'module_enabled_rss'                   => true,
 				'module_enabled_media-partners'        => false,
 				'module_enabled_woo-member-commenting' => false,
+				'module_enabled_collections'           => true,
 			],
 			'A non-existent setting is not saved.'
 		);
@@ -87,6 +103,27 @@ class Newspack_Test_Settings extends WP_UnitTestCase {
 			Optional_Modules::is_optional_module_active( 'rss' ),
 			false,
 			'RSS module is deactivated.'
+		);
+
+		// Test collections module activation.
+		self::assertEquals(
+			Optional_Modules::is_optional_module_active( 'collections' ),
+			false,
+			'Collections module is not active by default.'
+		);
+
+		Optional_Modules::activate_optional_module( 'collections' );
+		self::assertEquals(
+			Optional_Modules::is_optional_module_active( 'collections' ),
+			true,
+			'Collections module is active after being activated.'
+		);
+
+		Optional_Modules::deactivate_optional_module( 'collections' );
+		self::assertEquals(
+			Optional_Modules::is_optional_module_active( 'collections' ),
+			false,
+			'Collections module is deactivated.'
 		);
 	}
 }

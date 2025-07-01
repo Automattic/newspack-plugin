@@ -76,19 +76,11 @@ function GateEdit() {
 		<Fragment>
 			{ newspack_memberships_gate.has_campaigns && (
 				<PluginPostStatusInfo>
-					<p>
-						{ __(
-							"Newspack Campaign prompts won't be displayed when rendering gated content.",
-							'newspack-plugin'
-						) }
-					</p>
+					<p>{ __( "Newspack Campaign prompts won't be displayed when rendering gated content.", 'newspack-plugin' ) }</p>
 				</PluginPostStatusInfo>
 			) }
 			{ newspack_memberships_gate.plans.length > 1 && (
-				<PluginDocumentSettingPanel
-					name="memberships-gate-plans"
-					title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }
-				>
+				<PluginDocumentSettingPanel name="memberships-gate-plans" title={ __( 'WooCommerce Memberships', 'newspack-plugin' ) }>
 					{ ! Object.keys( newspack_memberships_gate.gate_plans ).length ? (
 						<Fragment>
 							<p>
@@ -103,10 +95,7 @@ function GateEdit() {
 							<p>
 								{ sprintf(
 									// translators: %s is the list of plans.
-									__(
-										'This gate will be rendered for the following membership plans: %s',
-										'newspack-plugin'
-									),
+									__( 'This gate will be rendered for the following membership plans: %s', 'newspack-plugin' ),
 									Object.values( newspack_memberships_gate.gate_plans ).join( ', ' )
 								) }
 							</p>
@@ -137,9 +126,7 @@ function GateEdit() {
 									</Fragment>
 								) }
 								<a href={ newspack_memberships_gate.edit_gate_url + '&plan_id=' + plan.id }>
-									{ plan.gate_id
-										? __( 'edit gate', 'newspack-plugin' )
-										: __( 'create gate', 'newspack-plugin' ) }
+									{ plan.gate_id ? __( 'edit gate', 'newspack-plugin' ) : __( 'create gate', 'newspack-plugin' ) }
 								</a>
 								)
 							</li>
@@ -147,10 +134,7 @@ function GateEdit() {
 					</ul>
 				</PluginDocumentSettingPanel>
 			) }
-			<PluginDocumentSettingPanel
-				name="memberships-gate-styles-panel"
-				title={ __( 'Styles', 'newspack-plugin' ) }
-			>
+			<PluginDocumentSettingPanel name="memberships-gate-styles-panel" title={ __( 'Styles', 'newspack-plugin' ) }>
 				<div className="newspack-memberships-gate-style-selector">
 					{ styles.map( style => (
 						<Button
@@ -169,10 +153,7 @@ function GateEdit() {
 						label={ __( 'Apply fade to last paragraph', 'newspack-plugin' ) }
 						checked={ meta.inline_fade }
 						onChange={ value => editPost( { meta: { inline_fade: value } } ) }
-						help={ __(
-							'Whether to apply a gradient fade effect before rendering the gate.',
-							'newspack-plugin'
-						) }
+						help={ __( 'Whether to apply a gradient fade effect before rendering the gate.', 'newspack-plugin' ) }
 					/>
 				) }
 				{ meta.style === 'overlay' && (
@@ -198,44 +179,29 @@ function GateEdit() {
 					</Fragment>
 				) }
 			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel
-				name="memberships-gate-settings-panel"
-				title={ __( 'Settings', 'newspack-plugin' ) }
-			>
+			<PluginDocumentSettingPanel name="memberships-gate-settings-panel" title={ __( 'Settings', 'newspack-plugin' ) }>
 				<TextControl
 					type="number"
 					min="0"
 					value={ meta.visible_paragraphs }
 					label={ __( 'Default paragraph count', 'newspack-plugin' ) }
 					onChange={ value => editPost( { meta: { visible_paragraphs: value } } ) }
-					help={ __(
-						'Number of paragraphs that readers can see above the content gate.',
-						'newspack-plugin'
-					) }
+					help={ __( 'Number of paragraphs that readers can see above the content gate.', 'newspack-plugin' ) }
 				/>
 				<hr />
 				<CheckboxControl
 					label={ __( 'Use “More” tag to manually place content gate', 'newspack-plugin' ) }
 					checked={ meta.use_more_tag }
 					onChange={ value => editPost( { meta: { use_more_tag: value } } ) }
-					help={ __(
-						'Override the default paragraph count on pages where a “More” block has been placed.',
-						'newspack-plugin'
-					) }
+					help={ __( 'Override the default paragraph count on pages where a “More” block has been placed.', 'newspack-plugin' ) }
 				/>
 			</PluginDocumentSettingPanel>
-			<PluginDocumentSettingPanel
-				name="memberships-gate-metering-panel"
-				title={ __( 'Metering', 'newspack-plugin' ) }
-			>
+			<PluginDocumentSettingPanel name="memberships-gate-metering-panel" title={ __( 'Metering', 'newspack-plugin' ) }>
 				<CheckboxControl
 					label={ __( 'Enable metering', 'newspack-plugin' ) }
 					checked={ meta.metering }
 					onChange={ value => editPost( { meta: { metering: value } } ) }
-					help={ __(
-						'Implement metering to configure access to restricted content before showing the gate.',
-						'newspack-plugin'
-					) }
+					help={ __( 'Implement metering to configure access to restricted content before showing the gate.', 'newspack-plugin' ) }
 				/>
 				{ meta.metering && (
 					<Fragment>

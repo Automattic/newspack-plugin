@@ -1,3 +1,5 @@
+@use "../../variables/breakpoints";
+
 .newspack-ui {
 	.newspack-ui__button {
 		align-items: center;
@@ -29,12 +31,19 @@
 			margin-bottom: 0;
 		}
 
+		@media only screen and ( min-width: breakpoints.$tablet_width ) {
+			&:not(.newspack-ui__button--wide) {
+				margin-bottom: 0;
+			}
+		}
+
 		&:hover {
 			background: var(--newspack-ui-color-neutral-30);
 			color: var(--newspack-ui-color-neutral-90);
 		}
 
-		&:disabled {
+		&:disabled,
+		&.disabled {
 			background: var(--newspack-ui-color-neutral-5) !important;
 			color: var(--newspack-ui-color-neutral-40) !important;
 			cursor: default;
@@ -48,6 +57,12 @@
 		&:focus-visible {
 			outline: 2px solid var(--newspack-ui-color-button-bg);
 			outline-offset: 1px;
+		}
+
+		&__row {
+			display: flex;
+			flex-wrap: wrap;
+			gap: var(--newspack-ui-spacer-2);
 		}
 
 		// Sizes
@@ -171,9 +186,17 @@
 		}
 
 		// Wide
-		&--wide {
+		&--wide,
+		&--wide-on-mobile {
 			display: flex;
 			width: 100%;
+		}
+
+		@media only screen and ( min-width: breakpoints.$tablet_width ) {
+			&--wide-on-mobile {
+				display: inline-flex;
+				width: auto;
+			}
 		}
 
 		// Icon-only
@@ -226,6 +249,10 @@
 				width: calc(var(--newspack-ui-spacer-base) * 2.25);
 			}
 		}
+	}
+	br + .newspack-ui__button,
+	.newspack-ui__demo .newspack-ui__button + .newspack-ui__button {
+		margin-top: var(--newspack-ui-spacer-2);
 	}
 }
 
