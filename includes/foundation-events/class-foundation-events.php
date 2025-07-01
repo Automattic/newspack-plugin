@@ -100,37 +100,41 @@ class Foundation_Events {
 
 	public static function get_event_schema() {
 		return [
-			'event_id'     => [
+			'event_id'       => [
 				'name' => 'Event ID',
 				'type' => 'string',
 			],
-			'title'        => [
+			'title'          => [
 				'name' => 'Title',
 				'type' => 'string',
 			],
-			'description'  => [
+			'description'    => [
 				'name' => 'Description',
 				'type' => 'string',
 			],
-			'time'         => [
+			'time'           => [
 				'name' => 'Time',
 				'type' => 'string',
 			],
-			'location'     => [
+			'location'       => [
 				'name' => 'Location',
 				'type' => 'string',
 			],
-			'url'          => [
+			'url'            => [
 				'name' => 'URL',
 				'type' => 'url',
 			],
-			'internal_url' => [
+			'internal_url'   => [
 				'name' => 'Internal URL',
 				'type' => 'button_url',
 			],
-			'imageUrl'     => [
+			'imageUrl'       => [
 				'name' => 'Image',
 				'type' => 'image_url',
+			],
+			'community_link' => [
+				'name' => 'Community Link',
+				'type' => 'html',
 			],
 
 		];
@@ -188,14 +192,15 @@ class Foundation_Events {
 
 	public static function transform_event_from_request( $event ) {
 		return [
-			'event_id'     => $event['oid'],
-			'title'        => $event['title'],
-			'description'  => $event['description'],
-			'time'         => $event['time'],
-			'location'     => $event['location']['name'] . ', ' . $event['location']['address'] . ', ' . $event['location']['city'],
-			'url'          => $event['url'],
-			'imageUrl'     => $event['imageUrl'],
-			'internal_url' => home_url( 'event/' . $event['oid'] ),
+			'event_id'       => $event['oid'],
+			'title'          => $event['title'],
+			'description'    => $event['description'],
+			'time'           => $event['time'],
+			'location'       => $event['location']['name'] . ', ' . $event['location']['address'] . ', ' . $event['location']['city'],
+			'url'            => $event['url'],
+			'imageUrl'       => $event['imageUrl'],
+			'internal_url'   => home_url( 'event/' . $event['oid'] ),
+			'community_link' => 'See event on the <a href="' . $event['url'] . '" target="_blank">Community Site</a>',
 		];
 	}
 }
