@@ -61,6 +61,7 @@ class Memberships {
 		add_filter( 'body_class', [ __CLASS__, 'add_body_class' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'disable_subscription_linked_membership_fields' ] );
 		add_action( 'save_post_wc_user_membership', [ __CLASS__, 'prevent_subscription_linked_membership_field_updates' ], 10, 2 );
+		add_action( 'post_row_actions', [ __CLASS__, 'prevent_subscription_linked_membership_field_updates_row_actions' ], 20, 2 );
 
 		/** Add gate content filters to mimic 'the_content'. See 'wp-includes/default-filters.php' for reference. */
 		add_filter( 'newspack_gate_content', 'capital_P_dangit', 11 );
@@ -1094,6 +1095,20 @@ class Memberships {
 	}
 
 	/**
+	 * Should editing the status be disabled for a membership?
+	 *
+	 * @param \WP_Post $post Membership post object.
+	 */
+	public static function should_disable_editing_membership_status( $post ): bool {
+		// Ensure we have a valid post.
+		if ( ! $post || 'wc_user_membership' !== $post->post_type ) {
+			return false;
+		}
+		$subscription_id = get_post_meta( $post->ID, '_subscription_id', true );
+		return ! empty( $subscription_id );
+	}
+
+	/**
 	 * Disable Status, Member since, and Expires fields for subscription-linked memberships.
 	 */
 	public static function disable_subscription_linked_membership_fields() {
@@ -1104,14 +1119,7 @@ class Memberships {
 			return;
 		}
 
-		// Ensure we have a valid post.
-		if ( ! $post || 'wc_user_membership' !== $post->post_type ) {
-			return;
-		}
-
-		// Check if membership is linked to a subscription.
-		$subscription_id = get_post_meta( $post->ID, '_subscription_id', true );
-		if ( empty( $subscription_id ) ) {
+		if ( ! self::should_disable_editing_membership_status( $post ) ) {
 			return;
 		}
 
@@ -1156,6 +1164,20 @@ class Memberships {
 			});
 		'
 		);
+	}
+
+	/**
+	 * Removes edit screen row actions from subscription-linked user memberships.
+	 *
+	 * @param array    $actions associative array of row actions.
+	 * @param \WP_Post $post related membership post object.
+	 * @return array
+	 */
+	public static function prevent_subscription_linked_membership_field_updates_row_actions( $actions, $post ) {
+		if ( self::should_disable_editing_membership_status( $post ) ) {
+			unset( $actions['pause'], $actions['cancel'], $actions['delete'] );
+		}
+		return $actions;
 	}
 
 	/**
