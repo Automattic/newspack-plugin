@@ -1,3 +1,10 @@
+# [6.11.0](https://github.com/Automattic/newspack-plugin/compare/v6.10.0...v6.11.0) (2025-07-01)
+
+
+### Features
+
+* **rss:** add 1 minute update frequency ([#4063](https://github.com/Automattic/newspack-plugin/issues/4063)) ([b9896b9](https://github.com/Automattic/newspack-plugin/commit/b9896b9007306847ee7cfaca83ac1cb102eaece7))
+
 # [6.10.0](https://github.com/Automattic/newspack-plugin/compare/v6.9.1...v6.10.0) (2025-06-30)
 
 
