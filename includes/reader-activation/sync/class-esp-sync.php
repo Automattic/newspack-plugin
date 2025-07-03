@@ -195,6 +195,9 @@ class ESP_Sync extends Sync {
 	 * @return array|\WP_Error The contact data or WP_Error.
 	 */
 	public static function get_contact_data( $user_id ) {
+		if ( ! class_exists( '\WC_Customer' ) ) {
+			return;
+		}
 		$user = \get_userdata( $user_id );
 
 		$customer = new \WC_Customer( $user_id );
