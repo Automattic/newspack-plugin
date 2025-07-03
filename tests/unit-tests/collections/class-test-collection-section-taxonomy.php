@@ -19,6 +19,7 @@ use Newspack\Collections\Settings;
  */
 class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 
+	use Traits\Trait_Collections_Test;
 	use Traits\Trait_Meta_Handler_Test;
 
 	/**
@@ -50,6 +51,7 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::register_meta
 	 */
 	public function test_register_meta() {
+		$this->set_current_user_role( 'administrator' );
 		$this->assertMetaFieldsRegistered( Collection_Section_Taxonomy::class, 'term', Collection_Section_Taxonomy::get_taxonomy() );
 		$this->assertFrontendMetaDefinitionsValid( Collection_Section_Taxonomy::class );
 		$term_id = wp_insert_term( 'Test Section', Collection_Section_Taxonomy::get_taxonomy() );
@@ -138,6 +140,8 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::display_order_column
 	 */
 	public function test_display_order_column() {
+		$this->set_current_user_role( 'administrator' );
+
 		// Create a term with order meta.
 		$term = wp_insert_term( 'Test Section', Collection_Section_Taxonomy::get_taxonomy() );
 		$this->assertNotWPError( $term );
@@ -178,6 +182,8 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::ensure_order_meta_on_create
 	 */
 	public function test_save_order_meta() {
+		$this->set_current_user_role( 'administrator' );
+
 		// Test saving order meta when creating a term.
 		$_POST[ Collection_Section_Taxonomy::$prefix . 'section_order' ] = '10';
 		$term = wp_insert_term( 'Test Section', Collection_Section_Taxonomy::get_taxonomy() );

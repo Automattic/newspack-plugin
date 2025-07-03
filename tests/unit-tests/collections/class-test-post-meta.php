@@ -15,6 +15,7 @@ use Newspack\Collections\Post_Meta;
  */
 class Test_Post_Meta extends WP_UnitTestCase {
 
+	use Traits\Trait_Collections_Test;
 	use Traits\Trait_Meta_Handler_Test;
 
 	/**
@@ -58,8 +59,7 @@ class Test_Post_Meta extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Post_Meta::auth_callback
 	 */
 	public function test_post_meta_auth_callback() {
-		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $user_id );
+		$this->set_current_user_role( 'administrator' );
 		$this->assertTrue( Post_Meta::auth_callback(), 'Auth callback should return true for user with edit_posts.' );
 	}
 }

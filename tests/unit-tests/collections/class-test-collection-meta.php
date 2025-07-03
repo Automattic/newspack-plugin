@@ -16,6 +16,7 @@ use Newspack\Collections\Post_Type;
  */
 class Test_Collection_Meta extends WP_UnitTestCase {
 
+	use Traits\Trait_Collections_Test;
 	use Traits\Trait_Meta_Handler_Test;
 
 	/**
@@ -99,13 +100,11 @@ class Test_Collection_Meta extends WP_UnitTestCase {
 	 */
 	public function test_auth_callback() {
 		// Test with admin user.
-		$admin_user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $admin_user_id );
+		$this->set_current_user_role( 'administrator' );
 		$this->assertTrue( Collection_Meta::auth_callback(), 'Admin user should be able to edit collection meta' );
 
 		// Test with subscriber.
-		$subscriber_user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-		wp_set_current_user( $subscriber_user_id );
+		$this->set_current_user_role( 'subscriber' );
 		$this->assertFalse( Collection_Meta::auth_callback(), 'Subscriber user should not be able to edit collection meta' );
 
 		// Test with no user.

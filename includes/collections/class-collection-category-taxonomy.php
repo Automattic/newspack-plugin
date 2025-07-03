@@ -115,7 +115,7 @@ class Collection_Category_Taxonomy {
 	 * Register meta fields for the collection category taxonomy.
 	 */
 	public static function register_meta() {
-		self::register_meta_for_object( 'term', self::get_taxonomy() );
+		self::register_meta_for_object( 'term', self::get_taxonomy(), 'manage_categories' );
 	}
 
 	/**
@@ -191,6 +191,8 @@ class Collection_Category_Taxonomy {
 	 * @param int $term_id Term ID.
 	 */
 	public static function save_term_meta( $term_id ) {
+		self::check_auth();
+
 		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		foreach ( self::get_meta_definitions() as $key => $meta ) {
 			$meta_key = self::$prefix . $key;
@@ -204,14 +206,5 @@ class Collection_Category_Taxonomy {
 			}
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	}
-
-	/**
-	 * Auth callback for term meta fields.
-	 *
-	 * @return bool Whether the user can manage categories.
-	 */
-	public static function auth_callback() {
-		return current_user_can( 'manage_categories' );
 	}
 }

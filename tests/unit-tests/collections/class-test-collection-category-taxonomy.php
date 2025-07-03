@@ -116,6 +116,7 @@ class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 
 		// Test saving subscribe link.
 		$_POST[ Collection_Category_Taxonomy::$prefix . 'subscribe_link' ] = $subscribe_link;
+		$this->set_current_user_role( 'administrator' );
 		Collection_Category_Taxonomy::save_term_meta( $term_id );
 
 		$subscribe_link = get_term_meta( $term_id, 'newspack_collection_subscribe_link', true );
@@ -145,12 +146,10 @@ class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::auth_callback
 	 */
 	public function test_auth_callback() {
-		$admin_user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $admin_user_id );
+		$this->set_current_user_role( 'administrator' );
 		$this->assertTrue( Collection_Category_Taxonomy::auth_callback(), 'Editor should have permission to manage categories.' );
 
-		$subscriber_user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-		wp_set_current_user( $subscriber_user_id );
+		$this->set_current_user_role( 'subscriber' );
 		$this->assertFalse( Collection_Category_Taxonomy::auth_callback(), 'Subscriber should not have permission to manage categories.' );
 	}
 }

@@ -316,6 +316,8 @@ class Collection_Section_Taxonomy {
 	 * @param int $term_id Term ID.
 	 */
 	public static function save_order_meta( $term_id ) {
+		self::check_auth();
+
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$order = isset( $_POST[ self::$prefix . 'section_order' ] ) ? (int) $_POST[ self::$prefix . 'section_order' ] : false;
 		if ( $order ) {

@@ -36,7 +36,7 @@ trait Trait_Collections_Test {
 		];
 
 		$post_args = wp_parse_args( $args, $defaults );
-		$post_id = self::factory()->post->create( $post_args );
+		$post_id   = self::factory()->post->create( $post_args );
 
 		$this->assertNotWPError( $post_id, 'Post should be created successfully.' );
 		return $post_id;
@@ -56,9 +56,18 @@ trait Trait_Collections_Test {
 		];
 
 		$term_args = wp_parse_args( $args, $defaults );
-		$term = self::factory()->term->create_and_get( $term_args );
+		$term      = self::factory()->term->create_and_get( $term_args );
 		$this->assertValidCollectionTerm( $term );
 		return $term;
+	}
+
+	/**
+	 * Set the current user to a test user with the given role.
+	 *
+	 * @param string $role The role of the user to set.
+	 */
+	protected function set_current_user_role( $role ) {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => $role ] ) );
 	}
 
 	/**

@@ -20,6 +20,8 @@ use Newspack\Collections\Settings;
  */
 class Test_Collections_Section extends WP_UnitTestCase {
 
+	use Traits\Trait_Collections_Test;
+
 	/**
 	 * Clean up settings before each test.
 	 */
@@ -181,9 +183,7 @@ class Test_Collections_Section extends WP_UnitTestCase {
 	 * @covers \Newspack\Wizards\Newspack\Collections_Section::api_permissions_check
 	 */
 	public function test_api_permissions_check_for_admin() {
-		// Simulate admin user.
-		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		wp_set_current_user( $user_id );
+		$this->set_current_user_role( 'administrator' );
 		$section = new Collections_Section();
 		$this->assertTrue( $section->api_permissions_check() );
 	}
@@ -194,9 +194,7 @@ class Test_Collections_Section extends WP_UnitTestCase {
 	 * @covers \Newspack\Wizards\Newspack\Collections_Section::api_permissions_check
 	 */
 	public function test_api_permissions_check_for_non_admin() {
-		// Simulate subscriber user.
-		$user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-		wp_set_current_user( $user_id );
+		$this->set_current_user_role( 'subscriber' );
 		$section = new Collections_Section();
 		$result  = $section->api_permissions_check();
 		$this->assertInstanceOf( \WP_Error::class, $result );

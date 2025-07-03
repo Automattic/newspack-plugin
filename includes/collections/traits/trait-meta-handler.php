@@ -36,6 +36,13 @@ trait Meta_Handler {
 	public static $object_subtype;
 
 	/**
+	 * Capability.
+	 *
+	 * @var string
+	 */
+	public static $capability;
+
+	/**
 	 * Get meta definitions.
 	 *
 	 * @return array {
@@ -57,12 +64,14 @@ trait Meta_Handler {
 	 *
 	 * @param string $object_type    The object type to register meta for. Accepts 'post' or 'term'.
 	 * @param string $object_subtype The object subtype to register meta for.
+	 * @param string $capability     The capability required to edit the meta field.
 	 *
 	 * @throws \InvalidArgumentException If the object type is invalid.
 	 */
-	public static function register_meta_for_object( $object_type, $object_subtype ) {
+	public static function register_meta_for_object( $object_type, $object_subtype, $capability = 'edit_posts' ) {
 		static::$object_type    = $object_type;
 		static::$object_subtype = $object_subtype;
+		static::$capability     = $capability;
 
 		if ( ! in_array( $object_type, [ 'post', 'term' ], true ) ) {
 			throw new \InvalidArgumentException( 'Invalid object type: ' . esc_html( $object_type ) );
@@ -154,6 +163,26 @@ trait Meta_Handler {
 	 * @return bool Whether the user can edit posts.
 	 */
 	public static function auth_callback() {
-		return current_user_can( 'edit_posts' );
+		return current_user_can( static::$capability );
+	}
+
+	/**
+	 * Check if the current user has the required capability to edit the meta field.
+	 * Halts execution if the user does not have the required capability.
+	 */
+	public static function check_auth() {
+		if ( ! self::auth_callback() ) {
+			wp_die(
+				esc_html(
+					sprintf(
+					/* translators: %s: object type */
+						__( 'You are not authorized to edit this %s.', 'newspack-plugin' ),
+						static::$object_type
+					)
+				),
+				esc_html__( 'Unauthorized', 'newspack-plugin' ),
+				403
+			);
+		}
 	}
 }
