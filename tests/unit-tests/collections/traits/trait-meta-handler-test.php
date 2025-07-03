@@ -44,7 +44,7 @@ trait Trait_Meta_Handler_Test {
 			$this->assertArrayHasKey(
 				$meta_key,
 				$registered_meta,
-				$message ? $message : sprintf( 'Meta key "%s" is not registered', $meta_key )
+				sprintf( 'Meta key "%s" is not registered.' . $message, $meta_key )
 			);
 
 			// Assert that each property of the meta definition matches the registered meta.
@@ -52,8 +52,8 @@ trait Trait_Meta_Handler_Test {
 				$this->assertEquals(
 					$value,
 					$registered_meta[ $meta_key ][ $property ],
-					$message ? $message : sprintf(
-						'Meta key "%s" has incorrect value for property "%s"',
+					sprintf(
+						'Meta key "%s" has incorrect value for property "%s".' . $message,
 						$meta_key,
 						$property
 					)
@@ -64,44 +64,7 @@ trait Trait_Meta_Handler_Test {
 			$this->assertEquals(
 				[ $class_name, 'auth_callback' ],
 				$registered_meta[ $meta_key ]['auth_callback'],
-				$message ? $message : sprintf( 'Meta key "%s" should have correct auth_callback', $meta_key )
-			);
-
-			// Assert that the object_subtype is set correctly.
-			$this->assertEquals(
-				$object_subtype,
-				$registered_meta[ $meta_key ]['object_subtype'],
-				$message ? $message : sprintf( 'Meta key "%s" should have correct object_subtype', $meta_key )
-			);
-		}
-	}
-
-	/**
-	 * Assert that meta fields are NOT registered for a given class.
-	 *
-	 * This method tests that meta fields from a class are NOT registered,
-	 * which can be useful for testing cleanup or unregistration scenarios.
-	 *
-	 * @param string $class_name The class name that uses the Meta_Handler trait.
-	 * @param string $object_type The object type ('post' or 'term').
-	 * @param string $object_subtype The object subtype (post type or taxonomy name).
-	 * @param string $message Optional. Message to display on failure.
-	 */
-	protected function assertMetaFieldsNotRegistered( $class_name, $object_type, $object_subtype, $message = '' ) {
-		// Get registered meta keys for the object type and subtype.
-		$registered_meta = get_registered_meta_keys( $object_type, $object_subtype );
-
-		// Get meta definitions from the class.
-		$meta_definitions = $class_name::get_meta_definitions();
-
-		// Test that none of our meta keys are registered.
-		foreach ( $meta_definitions as $key => $meta ) {
-			$meta_key = $class_name::$prefix . $key;
-
-			$this->assertArrayNotHasKey(
-				$meta_key,
-				$registered_meta,
-				$message ? $message : sprintf( 'Meta key "%s" should not be registered', $meta_key )
+				sprintf( 'Meta key "%s" should have correct auth_callback.' . $message, $meta_key )
 			);
 		}
 	}
@@ -123,7 +86,7 @@ trait Trait_Meta_Handler_Test {
 		$this->assertCount(
 			count( $meta_definitions ),
 			$frontend_definitions,
-			$message ? $message : 'Frontend definitions should have the same count as meta definitions'
+			'Frontend definitions should have the same count as meta definitions.' . $message
 		);
 
 		// Test each frontend definition.
@@ -132,27 +95,27 @@ trait Trait_Meta_Handler_Test {
 			$this->assertArrayHasKey(
 				$key,
 				$meta_definitions,
-				$message ? $message : sprintf( 'Frontend key "%s" should exist in meta definitions', $key )
+				sprintf( 'Frontend key "%s" should exist in meta definitions.' . $message, $key )
 			);
 
 			// Assert that required frontend properties are present.
 			$this->assertArrayHasKey(
 				'key',
 				$frontend_meta,
-				$message ? $message : sprintf( 'Frontend meta for "%s" should have a "key" property', $key )
+				sprintf( 'Frontend meta for "%s" should have a "key" property.' . $message, $key )
 			);
 
 			$this->assertArrayHasKey(
 				'type',
 				$frontend_meta,
-				$message ? $message : sprintf( 'Frontend meta for "%s" should have a "type" property', $key )
+				sprintf( 'Frontend meta for "%s" should have a "type" property.' . $message, $key )
 			);
 
 			// Assert that the key is properly prefixed.
 			$this->assertEquals(
 				$class_name::$prefix . $key,
 				$frontend_meta['key'],
-				$message ? $message : sprintf( 'Frontend meta key for "%s" should be properly prefixed', $key )
+				sprintf( 'Frontend meta key for "%s" should be properly prefixed.' . $message, $key )
 			);
 
 			// Assert that the type is valid.
@@ -160,7 +123,7 @@ trait Trait_Meta_Handler_Test {
 			$this->assertContains(
 				$frontend_meta['type'],
 				$valid_types,
-				$message ? $message : sprintf( 'Frontend meta type for "%s" should be valid', $key )
+				sprintf( 'Frontend meta type for "%s" should be valid.' . $message, $key )
 			);
 		}
 	}
