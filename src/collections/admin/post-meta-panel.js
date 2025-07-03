@@ -6,7 +6,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import domReady from '@wordpress/dom-ready';
 
-const PostMetaPanel = ( { panelTitle, metaFields } ) => {
+const PostMetaPanel = ( { panelTitle, metaDefinitions } ) => {
 	const { editPost } = useDispatch( editorStore );
 
 	// Get the current post type and meta data.
@@ -69,7 +69,7 @@ const PostMetaPanel = ( { panelTitle, metaFields } ) => {
 		// Only render the panel for posts.
 		'post' === currentPostType && (
 			<PluginDocumentSettingPanel name="newspack-post-meta-panel" title={ panelTitle } icon="media-document">
-				{ Object.entries( metaFields ).map( ( [ fieldKey, field ] ) => renderControl( fieldKey, field ) ) }
+				{ Object.entries( metaDefinitions ).map( ( [ fieldKey, field ] ) => renderControl( fieldKey, field ) ) }
 			</PluginDocumentSettingPanel>
 		)
 	);
@@ -77,7 +77,7 @@ const PostMetaPanel = ( { panelTitle, metaFields } ) => {
 
 domReady( () => {
 	const { postMeta: props } = window.newspackCollections || {};
-	if ( props?.panelTitle && props?.metaFields ) {
+	if ( props?.panelTitle && props?.metaDefinitions ) {
 		registerPlugin( 'newspack-post-meta-panel', {
 			render: () => <PostMetaPanel { ...props } />,
 			icon: 'media-document',

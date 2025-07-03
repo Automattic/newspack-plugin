@@ -48,7 +48,7 @@ class Test_Post_Meta extends WP_UnitTestCase {
 	 */
 	public function test_post_meta_sanitization() {
 		$post_id = $this->factory()->post->create();
-		update_post_meta( $post_id, Post_Meta::$prefix . 'post_order', '123abc' );
+		Post_Meta::set( $post_id, 'post_order', '123abc' );
 		$this->assertSame( '123', Post_Meta::get( $post_id, 'post_order' ), 'Meta value should be sanitized to number.' );
 	}
 

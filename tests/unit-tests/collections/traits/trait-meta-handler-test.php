@@ -142,8 +142,7 @@ trait Trait_Meta_Handler_Test {
 	 */
 	protected function assertMetaValueCanBeSetAndRetrieved( $class_name, $object_id, $meta_key, $test_value, $message = '' ) {
 		// Set the meta value.
-		$full_meta_key = $class_name::$prefix . $meta_key;
-		update_metadata( 'post', $object_id, $full_meta_key, $test_value );
+		$class_name::set( $object_id, $meta_key, $test_value );
 
 		// Retrieve the meta value using the class method.
 		$retrieved_value = $class_name::get( $object_id, $meta_key );

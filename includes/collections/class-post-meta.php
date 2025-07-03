@@ -72,8 +72,8 @@ class Post_Meta {
 			Enqueuer::add_data(
 				'postMeta',
 				[
-					'postMetaDefinitions' => self::get_frontend_meta_definitions(),
-					'panelTitle'          => _x( 'Collection Settings', 'title for collection settings panel', 'newspack-plugin' ),
+					'metaDefinitions' => self::get_frontend_meta_definitions(),
+					'panelTitle'      => _x( 'Collection Settings', 'title for collection settings panel', 'newspack-plugin' ),
 				]
 			);
 		}

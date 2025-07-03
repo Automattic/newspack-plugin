@@ -134,7 +134,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$data = Enqueuer::get_data();
 		$this->assertArrayHasKey( 'collectionPostType', $data, 'Collection post type data should be added.' );
 		$this->assertEquals( Post_Type::get_post_type(), $data['collectionPostType']['postType'], 'Post type should be correct.' );
-		$this->assertArrayHasKey( 'postMetaDefinitions', $data['collectionPostType'], 'Post meta definitions should be included.' );
+		$this->assertArrayHasKey( 'metaDefinitions', $data['collectionPostType'], 'Post meta definitions should be included.' );
 
 		// Clean up.
 		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

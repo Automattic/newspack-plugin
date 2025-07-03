@@ -15,7 +15,7 @@ import CollectionMetaCtasField from './collection-meta-ctas-field';
 import { isValidUrl } from './utils';
 import './collection-meta-panel.scss';
 
-const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) => {
+const CollectionMetaPanel = ( { postType, metaDefinitions, panelTitle } ) => {
 	const [ fieldErrors, setFieldErrors ] = useState( {} );
 	const { editPost } = useDispatch( editorStore );
 
@@ -76,7 +76,7 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) =>
 				icon="media-document"
 			>
 				<div className="collection-meta-fields">
-					{ Object.entries( postMetaDefinitions ).map( ( [ name, def ] ) => {
+					{ Object.entries( metaDefinitions ).map( ( [ name, def ] ) => {
 						if ( 'ctas' === name ) {
 							return (
 								<CollectionMetaCtasField
@@ -114,7 +114,7 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) =>
 domReady( () => {
 	const { collectionPostType: props } = window.newspackCollections || {};
 
-	if ( props?.postType && props?.postMetaDefinitions && props?.panelTitle ) {
+	if ( props?.postType && props?.metaDefinitions && props?.panelTitle ) {
 		registerPlugin( 'newspack-collection-meta-panel', {
 			render: () => <CollectionMetaPanel { ...props } />,
 			icon: 'media-document',

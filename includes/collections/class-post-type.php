@@ -170,9 +170,9 @@ class Post_Type {
 			Enqueuer::add_data(
 				'collectionPostType',
 				[
-					'postType'            => self::get_post_type(),
-					'postMetaDefinitions' => Collection_Meta::get_frontend_meta_definitions(),
-					'panelTitle'          => __( 'Collection Details', 'newspack-plugin' ),
+					'postType'        => self::get_post_type(),
+					'metaDefinitions' => Collection_Meta::get_frontend_meta_definitions(),
+					'panelTitle'      => __( 'Collection Details', 'newspack-plugin' ),
 				]
 			);
 		}

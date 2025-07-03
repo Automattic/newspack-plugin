@@ -22,6 +22,20 @@ trait Meta_Handler {
 	public static $prefix = 'newspack_collection_';
 
 	/**
+	 * Object type.
+	 *
+	 * @var string
+	 */
+	public static $object_type;
+
+	/**
+	 * Object subtype.
+	 *
+	 * @var string
+	 */
+	public static $object_subtype;
+
+	/**
 	 * Get meta definitions.
 	 *
 	 * @return array {
@@ -41,12 +55,15 @@ trait Meta_Handler {
 	/**
 	 * Register meta fields for the specified object type.
 	 *
-	 * @param string $object_type The object type to register meta for. Accepts 'post' or 'term'.
+	 * @param string $object_type    The object type to register meta for. Accepts 'post' or 'term'.
 	 * @param string $object_subtype The object subtype to register meta for.
 	 *
 	 * @throws \InvalidArgumentException If the object type is invalid.
 	 */
 	public static function register_meta_for_object( $object_type, $object_subtype ) {
+		static::$object_type    = $object_type;
+		static::$object_subtype = $object_subtype;
+
 		if ( ! in_array( $object_type, [ 'post', 'term' ], true ) ) {
 			throw new \InvalidArgumentException( 'Invalid object type: ' . esc_html( $object_type ) );
 		}
@@ -93,14 +110,25 @@ trait Meta_Handler {
 	}
 
 	/**
-	 * Get a meta value for a post.
+	 * Get a meta value for an object.
 	 *
-	 * @param int    $post_id The post ID.
-	 * @param string $key     The meta key.
+	 * @param int    $object_id ID of the object metadata is for.
+	 * @param string $key       Optional. Metadata key. If not specified, retrieve all metadata for the specified object. Default empty string.
 	 * @return mixed The meta value.
 	 */
-	public static function get( $post_id, $key ) {
-		return get_post_meta( $post_id, static::$prefix . $key, true );
+	public static function get( $object_id, $key = '' ) {
+		return get_metadata( static::$object_type, $object_id, static::$prefix . $key, true );
+	}
+
+	/**
+	 * Set a meta value for an object.
+	 *
+	 * @param int    $object_id ID of the object metadata is for.
+	 * @param string $key       Metadata key.
+	 * @param mixed  $value     Metadata value.
+	 */
+	public static function set( $object_id, $key, $value ) {
+		update_metadata( static::$object_type, $object_id, static::$prefix . $key, $value );
 	}
 
 	/**

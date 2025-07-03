@@ -19,6 +19,7 @@ use Newspack\Collections\Settings;
  */
 class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 	use Traits\Trait_Collections_Test;
+	use Traits\Trait_Meta_Handler_Test;
 
 	/**
 	 * Set up the test environment.
@@ -94,16 +95,10 @@ class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 	 */
 	public function test_register_meta() {
 		Collection_Category_Taxonomy::register_meta();
-		$registered_meta = get_registered_meta_keys( 'term', Collection_Category_Taxonomy::get_taxonomy() );
-
-		// Test that our meta keys are registered and have the correct values.
-		foreach ( Collection_Category_Taxonomy::get_meta_definitions() as $key => $meta ) {
-			$meta_key = Collection_Category_Taxonomy::$prefix . $key;
-			$this->assertArrayHasKey( $meta_key, $registered_meta, 'Meta key "' . $meta_key . '" is not registered' );
-			foreach ( $meta as $property => $value ) {
-				$this->assertEquals( $value, $registered_meta[ $meta_key ][ $property ], 'Meta key "' . $meta_key . '" has incorrect value for property "' . $property . '"' );
-			}
-		}
+		$this->assertMetaFieldsRegistered( Collection_Category_Taxonomy::class, 'term', Collection_Category_Taxonomy::get_taxonomy() );
+		$this->assertFrontendMetaDefinitionsValid( Collection_Category_Taxonomy::class );
+		$term_id = wp_insert_term( 'Test Category', Collection_Category_Taxonomy::get_taxonomy() );
+		$this->assertMetaValueCanBeSetAndRetrieved( Collection_Category_Taxonomy::class, $term_id['term_id'], 'subscribe_link', 'https://example.com/subscribe' );
 	}
 
 	/**

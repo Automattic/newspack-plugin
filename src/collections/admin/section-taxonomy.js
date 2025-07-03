@@ -8,12 +8,12 @@ import { domReady } from '../../utils';
 class SectionTaxonomyQuickEdit {
 	/**
 	 * @param {Object} config                 Configuration object.
-	 * @param {string} config.orderMetaKey    Meta key for the order field.
+	 * @param {Object} config.metaDefinitions Meta definitions for the taxonomy.
 	 * @param {string} config.orderColumnName Column name for the order field.
 	 * @param {Object} config.inlineEditTax   WordPress inline edit tax object.
 	 */
-	constructor( { orderMetaKey, orderColumnName, inlineEditTax } ) {
-		this.orderMetaKey = orderMetaKey;
+	constructor( { metaDefinitions, orderColumnName, inlineEditTax } ) {
+		this.metaDefinitions = metaDefinitions;
 		this.orderColumnName = orderColumnName;
 		this.inlineEditTax = inlineEditTax;
 		this.originalEdit = inlineEditTax.edit;
@@ -52,7 +52,7 @@ class SectionTaxonomyQuickEdit {
 		}
 
 		const orderColumn = row.querySelector( `.column-${ this.orderColumnName }` );
-		const orderInput = editForm.querySelector( `input[name="${ this.orderMetaKey }"]` );
+		const orderInput = editForm.querySelector( `input[name="${ this.metaDefinitions.section_order.key }"]` );
 		if ( orderColumn && orderInput ) {
 			orderInput.value = orderColumn.textContent.trim();
 		}
@@ -78,7 +78,7 @@ domReady( () => {
 	const { sectionTaxonomy } = window.newspackCollections || {};
 	const { inlineEditTax } = window;
 
-	if ( sectionTaxonomy?.orderMetaKey && sectionTaxonomy?.orderColumnName && inlineEditTax ) {
+	if ( sectionTaxonomy?.metaDefinitions && sectionTaxonomy?.orderColumnName && inlineEditTax ) {
 		new SectionTaxonomyQuickEdit( {
 			...sectionTaxonomy,
 			inlineEditTax,

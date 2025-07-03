@@ -28,18 +28,9 @@ class Collection_Category_Taxonomy {
 	}
 
 	/**
-	 * Get meta keys.
+	 * Get meta definitions.
 	 *
-	 * @return array {
-	 *     Array of term meta definitions.
-	 *
-	 *     @type string $type              The type of data associated with this meta key.
-	 *     @type string $label             A human-readable label of the data attached to this meta key.
-	 *     @type string $description       A description of the data attached to this meta key.
-	 *     @type bool   $single            Whether the meta key has one value per object, or an array of values per object.
-	 *     @type string $sanitize_callback A function or method to call when sanitizing `$meta_key` data.
-	 *     @type array  $show_in_rest      Show in REST configuration.
-	 * }
+	 * @return array Array of meta definitions. See `Traits\Meta_Handler::get_meta_definitions()` for more details.
 	 */
 	public static function get_meta_definitions() {
 		return [
