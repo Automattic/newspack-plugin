@@ -89,7 +89,11 @@ class My_Account_UI_V1 {
 	 */
 	public static function enqueue_assets() {
 		// Only in My Account.
-		if ( ! function_exists( 'is_account_page' ) || ! \is_account_page() ) {
+		if (
+			! function_exists( 'wc_get_account_endpoint_url' )
+			|| ! function_exists( 'is_account_page' )
+			|| ! \is_account_page()
+		) {
 			return;
 		}
 
