@@ -1,32 +1,48 @@
 import { domReady } from './utils';
 
 domReady( function () {
-	// Create a MutationObserver to watch for class changes.
-	const observer = new MutationObserver( mutations => {
-		mutations.forEach( mutation => {
-			if (
-				mutation.type === 'attributes' &&
-				mutation.attributeName === 'class' &&
-				mutation.target.classList.contains( 'newspack-ui__snackbar' ) &&
-				mutation.target.classList.contains( 'active' )
-			) {
-				// Set timeout to remove active class after 5 seconds.
-				setTimeout( () => {
-					mutation.target.classList.remove( 'active' );
-				}, 5000 );
-			}
-		} );
-	} );
-
-	// Start observing all snackbar elements.
-	const snackbars = [ ...document.querySelectorAll( '.newspack-ui__snackbar' ) ];
-	snackbars.forEach( snackbar => {
-		observer.observe( snackbar, {
-			attributes: true,
-			attributeFilter: [ 'class' ],
-		} );
-		if ( snackbar.classList.contains( 'active-on-load' ) ) {
-			snackbar.classList.add( 'active' );
+	const notices = [ ...document.querySelectorAll( '.newspack-ui__snackbar__item' ) ];
+	notices.forEach( notice => {
+		if ( notice.dataset.activeOnLoad === 'true' ) {
+			openNotice( notice );
 		}
+		const interactiveElements = notice.querySelectorAll( 'a, button' );
+		[ ...interactiveElements ].forEach( element => {
+			element.addEventListener( 'click', () => {
+				closeNotice( notice );
+			} );
+		} );
 	} );
 } );
+
+/**
+ * Open a notice.
+ *
+ * @param {Element} element - The notice element.
+ */
+function openNotice( element ) {
+	element.classList.add( 'active' );
+	if ( element.dataset.autohide !== 'false' ) {
+		setTimeout( () => {
+			closeNotice( element );
+		}, 5000 );
+	}
+}
+
+/**
+ * Close a notice.
+ *
+ * @param {Element} element - The notice element.
+ */
+function closeNotice( element ) {
+	element.classList.remove( 'active' );
+	setTimeout( () => {
+		element.remove();
+	}, 125 );
+	wp.ajax.send( 'newspack_ui_notice_dismissed', {
+		data: {
+			id: element.dataset.noticeId,
+			nonce: element.dataset.nonce,
+		},
+	} );
+}

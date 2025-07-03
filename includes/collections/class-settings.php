@@ -28,6 +28,7 @@ class Settings {
 		'custom_singular_name'  => '',
 		'custom_slug'           => '',
 		'subscribe_link'        => '',
+		'order_link'            => '',
 	];
 
 	/**
@@ -71,13 +72,14 @@ class Settings {
 	/**
 	 * Get a specific setting.
 	 *
-	 * @param string $key Setting key.
+	 * @param string $key           Setting key.
+	 * @param mixed  $default_value Optional default value if setting is not set.
 	 * @return mixed Setting value or null if not set.
 	 */
-	public static function get_setting( $key ) {
+	public static function get_setting( $key, $default_value = null ) {
 		$settings = self::get_settings();
 
-		return isset( $settings[ $key ] ) ? $settings[ $key ] : null;
+		return ( isset( $settings[ $key ] ) && '' !== $settings[ $key ] ) ? $settings[ $key ] : $default_value;
 	}
 
 	/**
@@ -109,25 +111,61 @@ class Settings {
 				'required'          => false,
 				'sanitize_callback' => 'esc_url_raw',
 			],
+			'order_link'            => [
+				'required'          => false,
+				'sanitize_callback' => 'esc_url_raw',
+			],
 		];
 	}
 
 	/**
 	 * Update collection settings from REST request.
+	 * Conditionally flushes rewrite rules when there are changes that will affect the post type or taxonomy slugs.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
 	 * @return array Updated collection settings.
 	 */
 	public static function update_from_request( $request ) {
-		$collection_settings = get_option( self::OPTION_NAME, [] );
+		$settings         = self::get_settings();
+		$updated_settings = [];
 
 		foreach ( array_keys( self::FIELDS ) as $key ) {
-			if ( $request->has_param( $key ) ) {
-				$collection_settings[ $key ] = $request->get_param( $key );
+			if ( ! $request->has_param( $key ) ) {
+				continue;
+			}
+
+			$new_value = $request->get_param( $key );
+
+			if ( $new_value !== $settings[ $key ] ) {
+				$updated_settings[ $key ] = $new_value;
 			}
 		}
 
-		update_option( self::OPTION_NAME, $collection_settings );
+		if ( empty( $updated_settings ) ) {
+			return $settings;
+		}
+
+		/**
+		 * Fires before updating collection settings.
+		 *
+		 * @param array $settings         Current collection settings.
+		 * @param array $updated_settings Updated collection settings.
+		 */
+		do_action( 'newspack_collections_before_update_settings', $settings, $updated_settings );
+
+		self::update_settings( $updated_settings );
+
+		// Flush rewrite rules only if slug-related settings changed.
+		if ( ! empty( array_intersect( array_keys( $updated_settings ), [ 'custom_naming_enabled', 'custom_slug' ] ) ) ) {
+			/**
+			 * Fires before flushing rewrite rules after collection settings are updated.
+			 *
+			 * @param array $updated_settings Updated collection settings.
+			 */
+			do_action( 'newspack_collections_before_flush_rewrites', $updated_settings );
+
+			flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
+		}
 
 		return self::get_settings();
 	}

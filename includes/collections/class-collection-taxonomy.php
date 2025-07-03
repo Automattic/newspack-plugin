@@ -74,17 +74,17 @@ class Collection_Taxonomy {
 	 */
 	public static function register_taxonomy() {
 		$labels = [
-			'name'              => _x( 'Collections', 'taxonomy general name', 'newspack-plugin' ),
-			'singular_name'     => _x( 'Collection', 'taxonomy singular name', 'newspack-plugin' ),
-			'search_items'      => __( 'Search Collections', 'newspack-plugin' ),
-			'all_items'         => __( 'All Collections', 'newspack-plugin' ),
-			'parent_item'       => __( 'Parent Collection', 'newspack-plugin' ),
-			'parent_item_colon' => __( 'Parent Collection:', 'newspack-plugin' ),
-			'edit_item'         => __( 'Edit Collection', 'newspack-plugin' ),
-			'update_item'       => __( 'Update Collection', 'newspack-plugin' ),
-			'add_new_item'      => __( 'Add New Collection', 'newspack-plugin' ),
-			'new_item_name'     => __( 'New Collection Name', 'newspack-plugin' ),
-			'menu_name'         => __( 'Collections', 'newspack-plugin' ),
+			'name'          => _x( 'Collections', 'collection taxonomy general name', 'newspack-plugin' ),
+			'singular_name' => _x( 'Collection', 'collection taxonomy singular name', 'newspack-plugin' ),
+			'search_items'  => __( 'Search Collections', 'newspack-plugin' ),
+			'popular_items' => __( 'Popular Collections', 'newspack-plugin' ),
+			'all_items'     => __( 'All Collections', 'newspack-plugin' ),
+			'view_item'     => __( 'View Collection', 'newspack-plugin' ),
+			'edit_item'     => __( 'Edit Collection', 'newspack-plugin' ),
+			'update_item'   => __( 'Update Collection', 'newspack-plugin' ),
+			'add_new_item'  => __( 'Add New Collection', 'newspack-plugin' ),
+			'new_item_name' => __( 'New Collection Name', 'newspack-plugin' ),
+			'menu_name'     => _x( 'Collections', 'label for collection menu name', 'newspack-plugin' ),
 		];
 
 		$args = [
