@@ -14,28 +14,14 @@ defined( 'ABSPATH' ) || exit;
  */
 class Collection_Meta {
 
-	/**
-	 * Meta key prefix.
-	 *
-	 * @var string
-	 */
-	public const PREFIX = 'newspack_collection_';
+	use Traits\Meta_Handler;
 
 	/**
-	 * Get meta keys.
+	 * Get meta definitions.
 	 *
-	 * @return array {
-	 *     Array of post meta definitions.
-	 *
-	 *     @type string $type              The type of data associated with this meta key.
-	 *     @type string $label             A human-readable label of the data attached to this meta key.
-	 *     @type string $description       A description of the data attached to this meta key.
-	 *     @type bool   $single            Whether the meta key has one value per object, or an array of values per object.
-	 *     @type string $sanitize_callback A function or method to call when sanitizing `$meta_key` data.
-	 *     @type array  $show_in_rest      Show in REST configuration.
-	 * }
+	 * @return array Array of meta definitions. See `Traits\Meta_Handler::get_meta_definitions()` for more details.
 	 */
-	public static function get_metas() {
+	public static function get_meta_definitions() {
 		return [
 			'volume'         => [
 				'type'              => 'string',
@@ -115,27 +101,6 @@ class Collection_Meta {
 		];
 	}
 
-	/**
-	 * Get meta definitions to be passed to the frontend.
-	 *
-	 * @return array Meta keys array.
-	 */
-	public static function get_frontend_meta_definitions() {
-		$metas = self::get_metas();
-
-		return array_combine(
-			array_keys( $metas ),
-			array_map(
-				fn( $key ) => [
-					'key'   => self::PREFIX . $key,
-					'type'  => 'array' === $metas[ $key ]['type'] ? 'array' : ( 'uri' === ( $metas[ $key ]['show_in_rest']['schema']['format'] ?? null ) ? 'url' : 'text' ),
-					'label' => $metas[ $key ]['label'] ?? null,
-					'help'  => $metas[ $key ]['description'] ?? null,
-				],
-				array_keys( $metas )
-			)
-		);
-	}
 
 	/**
 	 * Initialize the meta fields handler.
@@ -148,18 +113,7 @@ class Collection_Meta {
 	 * Register meta fields for the collection post type.
 	 */
 	public static function register_meta() {
-		foreach ( self::get_metas() as $key => $meta ) {
-			register_post_meta(
-				Post_Type::get_post_type(),
-				self::PREFIX . $key,
-				array_merge(
-					$meta,
-					[
-						'auth_callback' => [ __CLASS__, 'auth_callback' ],
-					]
-				)
-			);
-		}
+		self::register_meta_for_object( 'post', Post_Type::get_post_type() );
 	}
 
 	/**
@@ -222,14 +176,5 @@ class Collection_Meta {
 		}
 
 		return $sanitized_cta;
-	}
-
-	/**
-	 * Auth callback for meta fields.
-	 *
-	 * @return bool Whether the user can edit posts.
-	 */
-	public static function auth_callback() {
-		return current_user_can( 'edit_posts' );
 	}
 }
