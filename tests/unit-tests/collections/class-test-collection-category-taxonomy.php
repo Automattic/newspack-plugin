@@ -88,15 +88,22 @@ class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 	/**
 	 * Test that term meta fields are registered correctly.
 	 *
-	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::register_term_meta
-	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::get_metas
+	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::register_meta
+	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::register_meta_for_object
+	 * @covers \Newspack\Collections\Collection_Category_Taxonomy::get_meta_definitions
 	 */
-	public function test_term_meta_registration() {
-		Collection_Category_Taxonomy::register_term_meta();
-		$registered_metas = get_registered_meta_keys( 'term', Collection_Category_Taxonomy::get_taxonomy() );
+	public function test_register_meta() {
+		Collection_Category_Taxonomy::register_meta();
+		$registered_meta = get_registered_meta_keys( 'term', Collection_Category_Taxonomy::get_taxonomy() );
 
-		$this->assertArrayHasKey( Collection_Category_Taxonomy::PREFIX . 'subscribe_link', $registered_metas, 'Subscribe link meta should be registered.' );
-		$this->assertArrayHasKey( Collection_Category_Taxonomy::PREFIX . 'order_link', $registered_metas, 'Order link meta should be registered.' );
+		// Test that our meta keys are registered and have the correct values.
+		foreach ( Collection_Category_Taxonomy::get_meta_definitions() as $key => $meta ) {
+			$meta_key = Collection_Category_Taxonomy::$prefix . $key;
+			$this->assertArrayHasKey( $meta_key, $registered_meta, 'Meta key "' . $meta_key . '" is not registered' );
+			foreach ( $meta as $property => $value ) {
+				$this->assertEquals( $value, $registered_meta[ $meta_key ][ $property ], 'Meta key "' . $meta_key . '" has incorrect value for property "' . $property . '"' );
+			}
+		}
 	}
 
 	/**
@@ -113,28 +120,28 @@ class Test_Collection_Category_Taxonomy extends WP_UnitTestCase {
 		$order_link     = 'https://example.com/order';
 
 		// Test saving subscribe link.
-		$_POST[ Collection_Category_Taxonomy::PREFIX . 'subscribe_link' ] = $subscribe_link;
+		$_POST[ Collection_Category_Taxonomy::$prefix . 'subscribe_link' ] = $subscribe_link;
 		Collection_Category_Taxonomy::save_term_meta( $term_id );
 
 		$subscribe_link = get_term_meta( $term_id, 'newspack_collection_subscribe_link', true );
 		$this->assertEquals( $subscribe_link, $subscribe_link, 'Subscribe link should be saved correctly.' );
 
 		// Test saving order link.
-		$_POST[ Collection_Category_Taxonomy::PREFIX . 'order_link' ] = $order_link;
+		$_POST[ Collection_Category_Taxonomy::$prefix . 'order_link' ] = $order_link;
 		Collection_Category_Taxonomy::save_term_meta( $term_id );
 
 		$order_link = get_term_meta( $term_id, 'newspack_collection_order_link', true );
 		$this->assertEquals( $order_link, $order_link, 'Order link should be saved correctly.' );
 
 		// Test deleting meta when empty value is provided.
-		$_POST[ Collection_Category_Taxonomy::PREFIX . 'subscribe_link' ] = '';
+		$_POST[ Collection_Category_Taxonomy::$prefix . 'subscribe_link' ] = '';
 		Collection_Category_Taxonomy::save_term_meta( $term_id );
 
 		$subscribe_link = get_term_meta( $term_id, 'newspack_collection_subscribe_link', true );
 		$this->assertEmpty( $subscribe_link, 'Subscribe link should be deleted when empty value is provided.' );
 
 		// Clean up $_POST.
-		unset( $_POST[ Collection_Category_Taxonomy::PREFIX . 'subscribe_link' ], $_POST[ Collection_Category_Taxonomy::PREFIX . 'order_link' ] );
+		unset( $_POST[ Collection_Category_Taxonomy::$prefix . 'subscribe_link' ], $_POST[ Collection_Category_Taxonomy::$prefix . 'order_link' ] );
 	}
 
 	/**

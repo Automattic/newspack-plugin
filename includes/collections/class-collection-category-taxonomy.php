@@ -16,12 +16,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class Collection_Category_Taxonomy {
 
-	/**
-	 * Taxonomy and term meta prefix.
-	 *
-	 * @var string
-	 */
-	public const PREFIX = 'newspack_collection_';
+	use Traits\Meta_Handler;
 
 	/**
 	 * Get the taxonomy for Collection Categories.
@@ -29,7 +24,7 @@ class Collection_Category_Taxonomy {
 	 * @return string The taxonomy name.
 	 */
 	public static function get_taxonomy() {
-		return self::PREFIX . 'category';
+		return self::$prefix . 'category';
 	}
 
 	/**
@@ -46,7 +41,7 @@ class Collection_Category_Taxonomy {
 	 *     @type array  $show_in_rest      Show in REST configuration.
 	 * }
 	 */
-	public static function get_metas() {
+	public static function get_meta_definitions() {
 		return [
 			'subscribe_link' => [
 				'type'              => 'string',
@@ -80,7 +75,7 @@ class Collection_Category_Taxonomy {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
-		add_action( 'init', [ __CLASS__, 'register_term_meta' ] );
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'register_taxonomy' ] );
 		add_action( 'manage_' . Post_Type::get_post_type() . '_posts_columns', [ __CLASS__, 'set_taxonomy_column_name' ] );
 
@@ -126,6 +121,13 @@ class Collection_Category_Taxonomy {
 	}
 
 	/**
+	 * Register meta fields for the collection category taxonomy.
+	 */
+	public static function register_meta() {
+		self::register_meta_for_object( 'term', self::get_taxonomy() );
+	}
+
+	/**
 	 * Set the taxonomy column name in the admin post list table.
 	 * Used to simplify the column name to "Categories" instead of "Collection Categories".
 	 *
@@ -147,36 +149,18 @@ class Collection_Category_Taxonomy {
 	 * @return array The modified columns array.
 	 */
 	public static function add_meta_columns( $columns ) {
-		foreach ( self::get_metas() as $key => $meta ) {
-			$columns[ self::PREFIX . $key ] = $meta['label'];
+		foreach ( self::get_meta_definitions() as $key => $meta ) {
+			$columns[ self::$prefix . $key ] = $meta['label'];
 		}
 		return $columns;
-	}
-
-	/**
-	 * Register meta fields for the collection category taxonomy.
-	 */
-	public static function register_term_meta() {
-		foreach ( self::get_metas() as $key => $meta ) {
-			register_term_meta(
-				self::get_taxonomy(),
-				self::PREFIX . $key,
-				array_merge(
-					$meta,
-					[
-						'auth_callback' => [ __CLASS__, 'auth_callback' ],
-					]
-				)
-			);
-		}
 	}
 
 	/**
 	 * Add term meta fields to the add term form.
 	 */
 	public static function add_term_meta_fields() {
-		foreach ( self::get_metas() as $key => $meta ) {
-			$meta_key = self::PREFIX . $key;
+		foreach ( self::get_meta_definitions() as $key => $meta ) {
+			$meta_key = self::$prefix . $key;
 			?>
 			<div class="form-field">
 				<label for="<?php echo esc_attr( $meta_key ); ?>"><?php echo esc_html( $meta['label'] ); ?></label>
@@ -193,8 +177,8 @@ class Collection_Category_Taxonomy {
 	 * @param WP_Term $term Current taxonomy term object.
 	 */
 	public static function edit_term_meta_fields( $term ) {
-		foreach ( self::get_metas() as $key => $meta ) {
-			$meta_key = self::PREFIX . $key;
+		foreach ( self::get_meta_definitions() as $key => $meta ) {
+			$meta_key = self::$prefix . $key;
 			$value    = get_term_meta( $term->term_id, $meta_key, true );
 			?>
 			<tr class="form-field">
@@ -217,8 +201,8 @@ class Collection_Category_Taxonomy {
 	 */
 	public static function save_term_meta( $term_id ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		foreach ( self::get_metas() as $key => $meta ) {
-			$meta_key = self::PREFIX . $key;
+		foreach ( self::get_meta_definitions() as $key => $meta ) {
+			$meta_key = self::$prefix . $key;
 			if ( isset( $_POST[ $meta_key ] ) ) {
 				$value = $meta['sanitize_callback']( $_POST[ $meta_key ] );
 				if ( $value ) {
