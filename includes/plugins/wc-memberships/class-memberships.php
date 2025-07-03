@@ -1316,6 +1316,14 @@ class Memberships {
 					]
 				);
 				$reverted_count++;
+
+				// Add a note to the user membership explaining why the changes were reverted.
+				if ( function_exists( 'wc_memberships_get_user_membership' ) ) {
+					$membership = wc_memberships_get_user_membership( $post_id );
+					if ( $membership ) {
+						$membership->add_note( __( 'Bulk edit changes were reverted because this membership is linked to a subscription.', 'newspack-plugin' ) );
+					}
+				}
 			}
 
 			// Restore original start date.
@@ -1333,22 +1341,6 @@ class Memberships {
 
 		// Clean up stored data.
 		delete_transient( 'newspack_membership_original_data_' . get_current_user_id() );
-
-		// Show admin notice if any memberships were reverted.
-		if ( $reverted_count > 0 ) {
-			$message = sprintf(
-				/* translators: %d: number of memberships */
-				_n(
-					'%d membership was not updated because it is linked to a subscription.',
-					'%d memberships were not updated because they are linked to subscriptions.',
-					$reverted_count,
-					'newspack-plugin'
-				),
-				$reverted_count
-			);
-
-			set_transient( 'newspack_membership_bulk_edit_notice', $message, 30 );
-		}
 	}
 }
 Memberships::init();
