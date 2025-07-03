@@ -16,6 +16,7 @@ use Newspack\Collections\Collection_Taxonomy;
 use Newspack\Collections\Collection_Category_Taxonomy;
 use Newspack\Collections\Collection_Section_Taxonomy;
 use Newspack\Collections\Post_Meta;
+use Newspack\Collections\Query_Helper;
 
 /**
  * Collections module for managing print editions and other collections.
@@ -43,6 +44,7 @@ class Collections {
 		Collection_Category_Taxonomy::init();
 		Collection_Section_Taxonomy::init();
 		Post_Meta::init();
+		Query_Helper::init();
 	}
 
 	/**

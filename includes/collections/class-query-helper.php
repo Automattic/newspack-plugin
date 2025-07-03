@@ -14,8 +14,81 @@ defined( 'ABSPATH' ) || exit;
  */
 class Query_Helper {
 
-	public const COVER_SECTION = 'cover';
-	public const NO_SECTION    = 'no-section';
+	public const COVER_SECTION   = 'cover';
+	public const NO_SECTION      = 'no-section';
+	public const YEARS_CACHE_KEY = 'newspack_collections_years_data';
+	public const CACHE_GROUP     = 'newspack_collections';
+
+	/**
+	 * Initialize cache invalidation hooks.
+	 */
+	public static function init() {
+		// Clear cache when collections are saved, deleted, or status changes.
+		add_action( 'save_post_' . Post_Type::get_post_type(), [ __CLASS__, 'clear_cache_on_collection_change' ] );
+		add_action( 'delete_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
+		add_action( 'wp_trash_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
+		add_action( 'untrash_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
+
+		// Clear cache when collection categories are created, edited, or deleted.
+		add_action( 'create_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
+		add_action( 'edit_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
+		add_action( 'delete_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
+
+		// Clear cache when term relationships change (posts assigned to collections).
+		add_action( 'set_object_terms', [ __CLASS__, 'clear_cache_on_term_relationship_change' ], 10, 4 );
+	}
+
+	/**
+	 * Clear the available years cache.
+	 */
+	public static function clear_available_years_cache() {
+		wp_cache_delete( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
+	}
+
+	/**
+	 * Clear cache when a collection post is modified.
+	 *
+	 * @param int $post_id The post ID.
+	 */
+	public static function clear_cache_on_collection_change( $post_id ) {
+		if ( get_post_type( $post_id ) === Post_Type::get_post_type() ) {
+			self::clear_available_years_cache();
+		}
+	}
+
+	/**
+	 * Clear cache when collection taxonomies are modified.
+	 *
+	 * @param int    $term_id  Term ID.
+	 * @param int    $tt_id    Term taxonomy ID.
+	 * @param string $taxonomy Taxonomy slug.
+	 */
+	public static function clear_cache_on_term_change( $term_id, $tt_id, $taxonomy ) {
+		if (
+			Collection_Category_Taxonomy::get_taxonomy() === $taxonomy ||
+			Collection_Taxonomy::get_taxonomy() === $taxonomy
+		) {
+			self::clear_available_years_cache();
+		}
+	}
+
+	/**
+	 * Clear cache when term relationships change for collections.
+	 *
+	 * @param int    $object_id Object ID.
+	 * @param array  $terms     An array of object terms.
+	 * @param array  $tt_ids    An array of term taxonomy IDs.
+	 * @param string $taxonomy  Taxonomy slug.
+	 */
+	public static function clear_cache_on_term_relationship_change( $object_id, $terms, $tt_ids, $taxonomy ) {
+		if (
+			Collection_Category_Taxonomy::get_taxonomy() === $taxonomy ||
+			Collection_Taxonomy::get_taxonomy() === $taxonomy ||
+			Post_Type::get_post_type() === get_post_type( $object_id )
+		) {
+			self::clear_available_years_cache();
+		}
+	}
 
 	/**
 	 * Get available years from published collections for filtering.
@@ -24,36 +97,62 @@ class Query_Helper {
 	 * @return array Array of years.
 	 */
 	public static function get_available_years( $selected_category = '' ) {
-		$args = [
-			'post_type'      => Post_Type::get_post_type(),
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-		];
-
-		// Add category filter if specified.
-		if ( ! empty( $selected_category ) ) {
-			$args['tax_query'] = [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				[
-					'taxonomy' => Collection_Category_Taxonomy::get_taxonomy(),
-					'field'    => 'slug',
-					'terms'    => $selected_category,
-				],
-			];
+		// Try to get from cache first.
+		$cached_data = wp_cache_get( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
+		if ( false !== $cached_data && isset( $cached_data[ $selected_category ] ) ) {
+			return $cached_data[ $selected_category ];
 		}
 
-		$collections = get_posts( $args );
-		$years       = [];
+		global $wpdb;
 
-		foreach ( $collections as $collection_id ) {
-			$year = get_the_date( 'Y', $collection_id );
-			if ( $year && ! in_array( $year, $years, true ) ) {
-				$years[] = $year;
+		// Get all years with their associated categories in one query.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DISTINCT YEAR(p.post_date) as year, t.slug as category
+				FROM {$wpdb->posts} p
+				INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+				INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+				INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
+				WHERE tt.taxonomy = %s
+				AND p.post_type = %s
+				AND p.post_status = 'publish'
+				ORDER BY year DESC",
+				Collection_Category_Taxonomy::get_taxonomy(),
+				Post_Type::get_post_type()
+			)
+		);
+
+		$years_data = [ '' => [] ]; // Initialize with empty category (all years).
+
+		foreach ( $results as $result ) {
+			$year = intval( $result->year );
+			if ( $year ) {
+				// Add to "all years" (empty category).
+				if ( ! in_array( $year, $years_data[''], true ) ) {
+					$years_data[''][] = $year;
+				}
+
+				// Add to specific category if it exists.
+				if ( $result->category ) {
+					if ( ! isset( $years_data[ $result->category ] ) ) {
+						$years_data[ $result->category ] = [];
+					}
+					if ( ! in_array( $year, $years_data[ $result->category ], true ) ) {
+						$years_data[ $result->category ][] = $year;
+					}
+				}
 			}
 		}
 
-		rsort( $years ); // Sort years in descending order.
-		return $years;
+		// Sort all arrays in descending order.
+		foreach ( $years_data as &$years ) {
+			rsort( $years );
+		}
+
+		wp_cache_set( self::YEARS_CACHE_KEY, $years_data, self::CACHE_GROUP );
+
+		return $years_data[ $selected_category ] ?? [];
 	}
 
 	/**
