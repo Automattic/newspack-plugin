@@ -83,6 +83,50 @@ class Settings {
 	}
 
 	/**
+	 * Get the custom name setting.
+	 *
+	 * @param string $key           Setting key. Default is 'custom_name'.
+	 * @param mixed  $default_value Optional default value if setting is not set.
+	 * @return mixed Setting value or null if not set.
+	 */
+	public static function get_custom_name( $key = 'custom_name', $default_value = null ) {
+		$settings = self::get_settings();
+
+		if ( ! empty( $settings['custom_naming_enabled'] ) && ! empty( $settings[ $key ] ) ) {
+			return $settings[ $key ];
+		}
+
+		return $default_value;
+	}
+
+	/**
+	 * Get the plural collection label.
+	 *
+	 * @return string The plural collection label.
+	 */
+	public static function get_collection_label() {
+		return self::get_custom_name( 'custom_name', 'Collections' );
+	}
+
+	/**
+	 * Get the singular collection label.
+	 *
+	 * @return string The singular collection label.
+	 */
+	public static function get_collection_singular_label() {
+		return self::get_custom_name( 'custom_singular_name', 'Collection' );
+	}
+
+	/**
+	 * Get the collection slug.
+	 *
+	 * @return string
+	 */
+	public static function get_collection_slug() {
+		return self::get_custom_name( 'custom_slug', 'collection' );
+	}
+
+	/**
 	 * Get REST API args for collection fields.
 	 *
 	 * @return array REST API arguments.

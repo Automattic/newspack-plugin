@@ -113,7 +113,7 @@ class Post_Type {
 			'public'       => true,
 			'show_in_rest' => true,
 			'rewrite'      => [
-				'slug' => Settings::get_setting( 'custom_naming_enabled', false ) ? Settings::get_setting( 'custom_slug', 'collection' ) : 'collection',
+				'slug' => Settings::get_collection_slug(),
 			],
 			'menu_icon'    => 'dashicons-portfolio',
 			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes' ],
