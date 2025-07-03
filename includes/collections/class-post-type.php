@@ -7,8 +7,6 @@
 
 namespace Newspack\Collections;
 
-use Newspack\Collections\Traits\Hook_Management_Trait;
-
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/class-collection-meta.php';
@@ -17,7 +15,7 @@ require_once __DIR__ . '/class-collection-meta.php';
  * Handles the Collections custom post type and related operations.
  */
 class Post_Type {
-	use Hook_Management_Trait;
+	use Traits\Hook_Manager;
 
 	/**
 	 * Post type for Collections.

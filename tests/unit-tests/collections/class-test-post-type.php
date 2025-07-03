@@ -66,7 +66,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 	 *
 	 * @covers \Newspack\Collections\Post_Type::register_hooks
 	 * @covers \Newspack\Collections\Post_Type::unregister_hooks
-	 * @covers \Newspack\Collections\Traits\Hook_Management_Trait::manage_hooks
+	 * @covers \Newspack\Collections\Post_Type::manage_hooks
 	 */
 	public function test_hooks_management() {
 		$reflection = new \ReflectionMethod( Post_Type::class, 'get_hooks' );
