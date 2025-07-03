@@ -26,7 +26,7 @@ class Post_Meta {
 			'is_cover_story' => [
 				'type'              => 'boolean',
 				'label'             => __( 'Cover Story', 'newspack-plugin' ),
-				'description'       => __( 'Mark this post as a cover story in collections.', 'newspack-plugin' ),
+				'description'       => __( 'Mark this post as a cover story in collections. If enabled, this post will appear at the top of the collection page.', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'show_in_rest'      => true,
@@ -35,7 +35,7 @@ class Post_Meta {
 			'post_order'     => [
 				'type'              => 'integer',
 				'label'             => __( 'Order', 'newspack-plugin' ),
-				'description'       => __( 'Set the order of this post within collections. If enabled, this post will appear at the top of the collection page.', 'newspack-plugin' ),
+				'description'       => __( 'Set the order of this post within collections.', 'newspack-plugin' ),
 				'single'            => true,
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
