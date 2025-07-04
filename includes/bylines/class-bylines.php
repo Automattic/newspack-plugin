@@ -130,10 +130,11 @@ class Bylines {
 	 * Get the post custom byline HTML markup.
 	 *
 	 * @param bool $include_avatars Whether to include avatars in the markup.
+	 * @param bool $byline_wrapper Whether to wrap the byline in a span element.
 	 *
 	 * @return false|string The post custom byline HTML markup or false if not available.
 	 */
-	public static function get_post_byline_html( $include_avatars = true ) {
+	public static function get_post_byline_html( $include_avatars = true, $byline_wrapper = true ) {
 		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
 		if ( ! $byline_is_active ) {
 			return false;
@@ -145,6 +146,9 @@ class Bylines {
 		}
 
 		$byline_html = self::replace_author_shortcodes( $byline );
+		if ( $byline_wrapper ) {
+			$byline_html = '<span class="byline">' . $byline_html . '</span>';
+		}
 		if ( $include_avatars ) {
 			$byline_html = self::get_authors_avatars( $byline ) . $byline_html;
 		}
@@ -161,7 +165,7 @@ class Bylines {
 		if ( ! $byline ) {
 			return false;
 		}
-		return '<span class="byline">' . wp_kses_post( $byline ) . '</span>';
+		return wp_kses_post( $byline );
 	}
 
 	/**
@@ -290,7 +294,7 @@ class Bylines {
 			return $byline;
 		}
 
-		$custom_byline = self::get_post_byline_html( false );
+		$custom_byline = self::get_post_byline_html( false, false );
 
 		if ( ! $custom_byline ) {
 			return $byline;
