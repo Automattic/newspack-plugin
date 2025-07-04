@@ -78,6 +78,7 @@ class Post_Type {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
+		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'current_screen', [ __CLASS__, 'output_collection_meta_data_for_admin_scripts' ] );
 		add_action( 'manage_' . self::get_post_type() . '_posts_columns', [ __CLASS__, 'add_order_column' ] );
 		add_action( 'manage_' . self::get_post_type() . '_posts_custom_column', [ __CLASS__, 'display_order_column' ], 10, 2 );
@@ -91,20 +92,18 @@ class Post_Type {
 	 */
 	public static function register_post_type() {
 		$labels = [
-			'name'               => _x( 'Collections', 'post type general name', 'newspack-plugin' ),
-			'singular_name'      => _x( 'Collection', 'post type singular name', 'newspack-plugin' ),
-			'menu_name'          => _x( 'Collections', 'admin menu', 'newspack-plugin' ),
-			'name_admin_bar'     => _x( 'Collection', 'add new on admin bar', 'newspack-plugin' ),
-			'add_new'            => _x( 'Add New', 'collection', 'newspack-plugin' ),
+			'name'               => _x( 'Collections', 'collection post type general name', 'newspack-plugin' ),
+			'singular_name'      => _x( 'Collection', 'collection post type singular name', 'newspack-plugin' ),
+			'add_new'            => _x( 'Add New', 'label for add new collection', 'newspack-plugin' ),
 			'add_new_item'       => __( 'Add New Collection', 'newspack-plugin' ),
-			'new_item'           => __( 'New Collection', 'newspack-plugin' ),
 			'edit_item'          => __( 'Edit Collection', 'newspack-plugin' ),
+			'new_item'           => __( 'New Collection', 'newspack-plugin' ),
 			'view_item'          => __( 'View Collection', 'newspack-plugin' ),
-			'all_items'          => __( 'All Collections', 'newspack-plugin' ),
+			'view_items'         => __( 'View Collections', 'newspack-plugin' ),
 			'search_items'       => __( 'Search Collections', 'newspack-plugin' ),
-			'parent_item_colon'  => __( 'Parent Collections:', 'newspack-plugin' ),
 			'not_found'          => __( 'No collections found.', 'newspack-plugin' ),
 			'not_found_in_trash' => __( 'No collections found in Trash.', 'newspack-plugin' ),
+			'all_items'          => __( 'All Collections', 'newspack-plugin' ),
 			'item_published'     => __( 'Collection published', 'newspack-plugin' ),
 			'item_updated'       => __( 'Collection updated', 'newspack-plugin' ),
 		];
@@ -112,9 +111,12 @@ class Post_Type {
 		$args = [
 			'label'        => __( 'Collection', 'newspack-plugin' ),
 			'labels'       => $labels,
-			'description'  => __( 'Collections of content for custom classification.', 'newspack-plugin' ),
+			'description'  => __( 'Grouped content for custom classification.', 'newspack-plugin' ),
 			'public'       => true,
 			'show_in_rest' => true,
+			'rewrite'      => [
+				'slug' => Settings::get_setting( 'custom_naming_enabled', false ) ? Settings::get_setting( 'custom_slug', 'collection' ) : 'collection',
+			],
 			'menu_icon'    => 'dashicons-portfolio',
 			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes' ],
 			'has_archive'  => true,
@@ -170,8 +172,9 @@ class Post_Type {
 			Enqueuer::add_data(
 				'collectionPostType',
 				[
-					'postType' => self::get_post_type(),
-					'postMeta' => Collection_Meta::get_frontend_meta_definitions(),
+					'postType'            => self::get_post_type(),
+					'postMetaDefinitions' => Collection_Meta::get_frontend_meta_definitions(),
+					'panelTitle'          => __( 'Collection Details', 'newspack-plugin' ),
 				]
 			);
 		}

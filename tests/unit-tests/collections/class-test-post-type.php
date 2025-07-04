@@ -8,9 +8,10 @@
 namespace Newspack\Tests\Unit\Collections;
 
 use WP_UnitTestCase;
+use WP_REST_Request;
 use Newspack\Collections\Post_Type;
 use Newspack\Collections\Enqueuer;
-use Newspack\Collections\Collection_Meta;
+use Newspack\Collections\Settings;
 
 /**
  * Test the Collections Post Type functionality.
@@ -133,7 +134,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$data = Enqueuer::get_data();
 		$this->assertArrayHasKey( 'collectionPostType', $data, 'Collection post type data should be added.' );
 		$this->assertEquals( Post_Type::get_post_type(), $data['collectionPostType']['postType'], 'Post type should be correct.' );
-		$this->assertArrayHasKey( 'postMeta', $data['collectionPostType'], 'Post meta should be included.' );
+		$this->assertArrayHasKey( 'postMetaDefinitions', $data['collectionPostType'], 'Post meta definitions should be included.' );
 
 		// Clean up.
 		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -243,5 +244,24 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$this->assertEquals( $post2, $query->posts[0]->ID, 'Second collection should be first (menu_order: 5).' );
 		$this->assertEquals( $post1, $query->posts[1]->ID, 'First collection should be second (menu_order: 10).' );
 		$this->assertEquals( $post3, $query->posts[2]->ID, 'Third collection should be last (menu_order: 15).' );
+	}
+
+	/**
+	 * Test that post type slug updates when settings change via REST API.
+	 *
+	 * @covers \Newspack\Collections\Settings::update_from_request
+	 * @covers \Newspack\Collections\Post_Type::register_post_type
+	 */
+	public function test_post_type_slug_updates() {
+		Post_Type::init();
+		$this->assertEquals( 'collection', get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
+
+		// Update settings via REST API.
+		$custom_slug = 'magazine';
+		$request     = new WP_REST_Request();
+		$request->set_param( 'custom_naming_enabled', true );
+		$request->set_param( 'custom_slug', $custom_slug );
+		Settings::update_from_request( $request );
+		$this->assertEquals( $custom_slug, get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
 	}
 }

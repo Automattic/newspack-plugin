@@ -255,7 +255,7 @@ const getItems = memoize( async path => {
 	}
 } );
 
-const ItemNames = ( { label, ids, path } ) => {
+const ItemNames = ( { label, ids, path, deletedItemLabel } ) => {
 	const [ items, setItems ] = useState( [] );
 	useEffect( () => {
 		getItems( path ).then( setItems );
@@ -263,15 +263,13 @@ const ItemNames = ( { label, ids, path } ) => {
 	if ( ! items.length ) {
 		return null;
 	}
+	const labels = ids.map( id => {
+		const item = items.find( it => it.id === id );
+		return item ? item.label : deletedItemLabel;
+	} );
 	return (
 		<span>
-			{ label }{ ' ' }
-			{ items.length
-				? items
-						.filter( item => ids.includes( item.id ) )
-						.map( item => item.label )
-						.join( ', ' )
-				: '' }
+			{ label } { labels.length ? labels.join( ', ' ) : '' }
 		</span>
 	);
 };
@@ -291,6 +289,7 @@ addFilter(
 					}
 					ids={ item.value }
 					path="/newspack-newsletters/v1/lists_config"
+					deletedItemLabel={ __( 'Deleted list', 'newspack-plugin' ) }
 				/>
 			);
 		}
@@ -312,6 +311,7 @@ addFilter( 'newspack.wizards.campaigns.segmentDescription.criteriaMessage', 'new
 				}
 				ids={ item.value }
 				path={ `${ newspackAudienceCampaigns.api }/subscription-products` }
+				deletedItemLabel={ __( 'Deleted subscription', 'newspack-plugin' ) }
 			/>
 		);
 	}
@@ -332,6 +332,7 @@ addFilter( 'newspack.wizards.campaigns.segmentDescription.criteriaMessage', 'new
 				}
 				ids={ item.value }
 				path="/wc/v3/memberships/plans?per_page=100"
+				deletedItemLabel={ __( 'Deleted membership', 'newspack-plugin' ) }
 			/>
 		);
 	}

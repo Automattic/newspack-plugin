@@ -7,33 +7,17 @@ import { registerPlugin } from '@wordpress/plugins';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { TextControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { store as editorStore } from '@wordpress/editor';
 import { domReady } from '../../utils';
 
-import CollectionMetaUploadField from './collection-meta-upload-field';
+import CollectionMetaCtasField from './collection-meta-ctas-field';
+import { isValidUrl } from './utils';
 import './collection-meta-panel.scss';
 
-const VALIDATION_LOCK_KEY = 'collection-meta-validation';
-
-/**
- * Check if a string is a valid URL.
- *
- * @param {string} value The URL to validate.
- * @return {boolean} Whether the URL is valid.
- */
-const isValidUrl = value => {
-	try {
-		new URL( value );
-		return true;
-	} catch {
-		return false;
-	}
-};
-
-const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
+const CollectionMetaPanel = ( { postType, postMetaDefinitions, panelTitle } ) => {
 	const [ fieldErrors, setFieldErrors ] = useState( {} );
-	const { editPost, lockPostSaving, unlockPostSaving } = useDispatch( editorStore );
+	const { editPost } = useDispatch( editorStore );
 
 	// Get the current post type and meta data.
 	const { currentPostType, meta = {} } = useSelect( select => {
@@ -56,16 +40,6 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 	const removeFieldError = useCallback( key => {
 		setFieldErrors( prev => Object.fromEntries( Object.entries( prev ).filter( ( [ k ] ) => k !== key ) ) );
 	}, [] );
-
-	// Lock or unlock the post saving based on the field errors.
-	useEffect( () => {
-		const hasErrors = Object.keys( fieldErrors ).length > 0;
-		if ( hasErrors ) {
-			lockPostSaving( VALIDATION_LOCK_KEY );
-		} else {
-			unlockPostSaving( VALIDATION_LOCK_KEY );
-		}
-	}, [ fieldErrors, lockPostSaving, unlockPostSaving ] );
 
 	// Handle the fields blur event.
 	const handleMetaBlur = useCallback(
@@ -97,22 +71,21 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 		postType === currentPostType && (
 			<PluginDocumentSettingPanel
 				name="newspack-collections-meta-panel"
-				title={ __( 'Collection Details', 'newspack-plugin' ) }
+				title={ panelTitle }
 				className="newspack-collections-meta-panel"
 				icon="media-document"
 			>
 				<div className="collection-meta-fields">
 					{ Object.entries( postMetaDefinitions ).map( ( [ name, def ] ) => {
-						if ( name === 'file_attachment' ) {
+						if ( 'ctas' === name ) {
 							return (
-								<CollectionMetaUploadField
+								<CollectionMetaCtasField
 									key={ def.key }
 									metaKey={ def.key }
 									label={ def.label }
+									help={ def.help }
 									meta={ meta }
 									updateMeta={ updateMeta }
-									lockPostSaving={ lockPostSaving }
-									unlockPostSaving={ unlockPostSaving }
 								/>
 							);
 						}
@@ -139,11 +112,11 @@ const CollectionMetaPanel = ( { postType, postMetaDefinitions } ) => {
 
 // Register the plugin if the collection meta definitions are available.
 domReady( () => {
-	const { collectionPostType } = window.newspackCollections || {};
+	const { collectionPostType: props } = window.newspackCollections || {};
 
-	if ( collectionPostType?.postType && collectionPostType?.postMeta ) {
+	if ( props?.postType && props?.postMetaDefinitions && props?.panelTitle ) {
 		registerPlugin( 'newspack-collection-meta-panel', {
-			render: () => <CollectionMetaPanel postType={ collectionPostType.postType } postMetaDefinitions={ collectionPostType.postMeta } />,
+			render: () => <CollectionMetaPanel { ...props } />,
 			icon: 'media-document',
 		} );
 	}
