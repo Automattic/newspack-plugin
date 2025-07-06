@@ -222,6 +222,7 @@ class Query_Helper {
 					function ( $cta ) {
 						$label = $cta['label'] ?? '';
 						$url   = '';
+						$class = $cta['class'] ?? '';
 
 						if ( 'attachment' === ( $cta['type'] ?? '' ) && ! empty( $cta['id'] ) ) {
 							$url = wp_get_attachment_url( $cta['id'] );
@@ -233,6 +234,7 @@ class Query_Helper {
 							return [
 								'url'   => $url,
 								'label' => $label,
+								'class' => $class,
 							];
 						}
 
@@ -282,6 +284,7 @@ class Query_Helper {
 							'label' => $cta_keys[ $key ],
 							'type'  => 'link',
 							'url'   => $url,
+							'class' => 'cta--' . $key,
 						] : null;
 					},
 					array_keys( $cta_keys )
