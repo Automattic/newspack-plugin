@@ -156,6 +156,35 @@ class Query_Helper {
 	}
 
 	/**
+	 * Get the collection categories.
+	 *
+	 * @return array Array of collection categories.
+	 */
+	public static function get_collection_categories() {
+		$categories = get_terms(
+			[
+				'taxonomy'   => Collection_Category_Taxonomy::get_taxonomy(),
+				'hide_empty' => true,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+			]
+		);
+
+		/**
+		 * Filters the collection categories.
+		 *
+		 * @param array $categories Array of collection categories.
+		 */
+		$categories = apply_filters( 'newspack_collections_collection_categories', $categories );
+
+		if ( is_wp_error( $categories ) ) {
+			return [];
+		}
+
+		return $categories;
+	}
+
+	/**
 	 * Get processed CTAs from a collection post.
 	 *
 	 * @param int      $post_id The post ID.
