@@ -15,7 +15,6 @@ defined( 'ABSPATH' ) || exit;
 class Query_Helper {
 
 	public const COVER_SECTION   = 'cover';
-	public const NO_SECTION      = 'no-section';
 	public const YEARS_CACHE_KEY = 'newspack_collections_years_data';
 	public const CACHE_GROUP     = 'newspack_collections';
 
@@ -362,7 +361,7 @@ class Query_Helper {
 				}
 			} else {
 				// Posts without sections are grouped under 'no-section'.
-				$sections[ self::NO_SECTION ][] = $post;
+				$sections[''][] = $post;
 			}
 		}
 
@@ -397,20 +396,23 @@ class Query_Helper {
 
 		$section_order_cache = [];
 
-		// Sort sections: cover stories first, then no-section, then by order meta.
+		// Sort sections: cover stories first, then post with no section, then by order meta.
 		uksort(
 			$sections,
 			function ( $a, $b ) use ( &$section_order_cache ) {
+				// Cover stories first.
 				if ( self::COVER_SECTION === $a ) {
 					return -1;
 				}
 				if ( self::COVER_SECTION === $b ) {
 					return 1;
 				}
-				if ( self::NO_SECTION === $a ) {
+
+				// Posts with no section.
+				if ( '' === $a ) {
 					return -1;
 				}
-				if ( self::NO_SECTION === $b ) {
+				if ( '' === $b ) {
 					return 1;
 				}
 
