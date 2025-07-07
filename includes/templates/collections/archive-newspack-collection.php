@@ -1,0 +1,116 @@
+<?php
+/**
+ * The template for displaying Collections archives.
+ *
+ * @link https://developer.wordpress.org/themes/basics/template-hierarchy/
+ *
+ * @package Newspack\Collections
+ *
+ * @phpcs:disable WordPress.Security.NonceVerification.Recommended
+ */
+
+use Newspack\Collections\Query_Helper;
+use Newspack\Collections\Settings;
+use Newspack\Collections\Template_Helper;
+
+get_header();
+?>
+
+<section id="primary" class="content-area">
+	<header class="page-header">
+		<h1 class="page-title"><?php echo esc_html( Settings::get_collection_label() ); ?></h1>
+	</header><!-- .page-header -->
+
+	<main id="main" class="site-main">
+
+		<?php if ( have_posts() ) : ?>
+
+			<!-- Filter controls -->
+			<form class="collections-filter" method="get">
+				<?php
+				$selected_year     = isset( $_GET['year'] ) ? sanitize_text_field( $_GET['year'] ) : '';
+				$selected_category = isset( $_GET['category'] ) ? sanitize_text_field( $_GET['category'] ) : '';
+				$available_years   = Query_Helper::get_available_years( $selected_category );
+				?>
+
+				<div class="collections-filter__select">
+					<label for="year"><?php esc_html_e( 'Year:', 'newspack' ); ?></label>
+					<select name="year" id="year">
+						<option value="" <?php selected( $selected_year, '' ); ?>><?php esc_html_e( 'All', 'newspack' ); ?></option>
+						<?php foreach ( $available_years as $available_year ) : ?>
+							<option value="<?php echo esc_attr( $available_year ); ?>" <?php selected( $selected_year, $available_year ); ?>><?php echo esc_html( $available_year ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+
+				<div class="collections-filter__select">
+					<label for="category"><?php esc_html_e( 'Publication:', 'newspack' ); ?></label>
+					<select name="category" id="category">
+						<option value="" <?php selected( $selected_category, '' ); ?>><?php esc_html_e( 'All', 'newspack' ); ?></option>
+						<?php
+							$categories = Query_Helper::get_collection_categories();
+
+						if ( ! empty( $categories ) ) {
+							foreach ( $categories as $category ) {
+								echo '<option value="' . esc_attr( $category->slug ) . '" ' . selected( $selected_category, $category->slug, false ) . '>' . esc_html( $category->name ) . '</option>';
+							}
+						}
+						?>
+					</select>
+				</div>
+
+			</form> <!-- .collections-filter -->
+
+			<!-- Collections grid -->
+			<div class="collections-grid collections-grid--previous">
+				<?php
+				while ( have_posts() ) :
+					the_post();
+					?>
+
+					<div class="collection-item">
+						<?php echo wp_kses_post( Template_Helper::render_image( $post ) ); ?>
+
+						<div class="collection-content">
+							<h3 class="has-normal-font-size">
+								<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+							</h3>
+
+							<?php echo wp_kses_post( Template_Helper::render_meta_text( get_the_ID() ) ); ?>
+						</div>
+
+						<?php
+						$ctas = Query_Helper::get_ctas( get_the_ID(), 1 );
+						if ( ! empty( $ctas ) ) :
+							?>
+							<div class="collection-buttons">
+								<?php foreach ( $ctas as $cta ) : ?>
+									<?php echo wp_kses_post( Template_Helper::render_cta( $cta ) ); ?>
+								<?php endforeach; ?>
+							</div>
+						<?php endif; ?>
+					</div>
+
+				<?php endwhile; ?>
+			</div> <!-- .collections-grid -->
+
+			<?php
+			// Use Newspack theme navigation if it exists, otherwise use core navigation.
+			if ( function_exists( 'newspack_the_posts_navigation' ) ) {
+				newspack_the_posts_navigation();
+			} else {
+				the_posts_navigation();
+			}
+
+		else :
+			get_template_part( 'template-parts/content/content', 'none' );
+
+		endif;
+		?>
+
+	</main><!-- #main -->
+
+</section><!-- #primary -->
+
+<?php
+get_footer();
