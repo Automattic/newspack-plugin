@@ -14,6 +14,11 @@ use Newspack\Collections\Settings;
 use Newspack\Collections\Template_Helper;
 
 get_header();
+
+/**
+ * Fires at the start of the collections archive template.
+ */
+do_action( 'newspack_collections_archive_start' );
 ?>
 
 <section id="primary" class="content-area">
@@ -61,11 +66,22 @@ get_header();
 
 			</form> <!-- .collections-filter -->
 
+			<?php
+			/**
+			 * Fires after the filter controls in the archive template.
+			 *
+			 * @param string $selected_year     The selected year filter.
+			 * @param string $selected_category The selected category filter.
+			 */
+			do_action( 'newspack_collections_archive_after_filters', $selected_year, $selected_category );
+			?>
+
 			<!-- Collections grid -->
-			<div class="collections-grid collections-grid--previous">
+			<div class="collections-grid">
 				<?php
 				while ( have_posts() ) :
 					the_post();
+					$collection_id = get_the_ID();
 					?>
 
 					<div class="collection-item">
@@ -76,11 +92,11 @@ get_header();
 								<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 							</h3>
 
-							<?php echo wp_kses_post( Template_Helper::render_meta_text( get_the_ID() ) ); ?>
+							<?php echo wp_kses_post( Template_Helper::render_meta_text( $collection_id ) ); ?>
 						</div>
 
 						<?php
-						$ctas = Query_Helper::get_ctas( get_the_ID(), 1 );
+						$ctas = Query_Helper::get_ctas( $collection_id, 1 );
 						if ( ! empty( $ctas ) ) :
 							?>
 							<div class="collection-buttons">
@@ -91,10 +107,23 @@ get_header();
 						<?php endif; ?>
 					</div>
 
-				<?php endwhile; ?>
+					<?php
+					/**
+					 * Fires after each collection item in the archive grid.
+					 *
+					 * @param int $collection_id The collection post ID.
+					 */
+					do_action( 'newspack_collections_archive_after_item', $collection_id );
+				endwhile;
+				?>
 			</div> <!-- .collections-grid -->
 
 			<?php
+			/**
+			 * Fires before the navigation in the archive template.
+			 */
+			do_action( 'newspack_collections_archive_before_navigation' );
+
 			// Use Newspack theme navigation if it exists, otherwise use core navigation.
 			if ( function_exists( 'newspack_the_posts_navigation' ) ) {
 				newspack_the_posts_navigation();
@@ -113,4 +142,9 @@ get_header();
 </section><!-- #primary -->
 
 <?php
+/**
+ * Fires at the end of the collections archive template.
+ */
+do_action( 'newspack_collections_archive_end' );
+
 get_footer();
