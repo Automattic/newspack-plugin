@@ -14,11 +14,18 @@ defined( 'ABSPATH' ) || exit;
  */
 class Enqueuer {
 	/**
-	 * The name of the script to enqueue and localize the data to.
+	 * The name of the admin script.
 	 *
 	 * @var string
 	 */
-	public const SCRIPT_NAME_ADMIN = 'newspack-collections-admin';
+	public const SCRIPT_NAME_ADMIN = 'collections-admin';
+
+	/**
+	 * The name of the frontend script.
+	 *
+	 * @var string
+	 */
+	public const SCRIPT_NAME_FRONTEND = 'collections-frontend';
 
 	/**
 	 * The name of the global JavaScript object.
@@ -35,10 +42,11 @@ class Enqueuer {
 	private static $data = [];
 
 	/**
-	 * Initialize the data manager.
+	 * Initialize the enqueuer hooks.
 	 */
 	public static function init() {
-		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'localize_data' ] );
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'maybe_enqueue_admin_assets' ] );
+		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'maybe_enqueue_frontend_assets' ] );
 	}
 
 	/**
@@ -61,53 +69,82 @@ class Enqueuer {
 	}
 
 	/**
-	 * Enqueue admin scripts.
+	 * Conditionally enqueue admin assets only if data was added.
 	 */
-	public static function enqueue_admin_scripts() {
+	public static function maybe_enqueue_admin_assets() {
+		if ( empty( self::$data ) ) {
+			return;
+		}
+
+		// Enqueue admin assets.
 		\Newspack\Newspack::load_common_assets();
-		wp_enqueue_script(
+		self::enqueue_script(
 			self::SCRIPT_NAME_ADMIN,
-			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.js',
-			[ 'jquery', 'wp-i18n', 'wp-plugins', 'wp-edit-post', 'wp-components', 'wp-element', 'wp-data', 'wp-editor', 'wp-api-fetch' ],
+			[ 'jquery', 'wp-i18n', 'wp-plugins', 'wp-edit-post', 'wp-components', 'wp-element', 'wp-data', 'wp-editor', 'wp-api-fetch' ]
+		);
+		self::enqueue_style( self::SCRIPT_NAME_ADMIN );
+		self::localize_data( self::SCRIPT_NAME_ADMIN );
+	}
+
+	/**
+	 * Conditionally enqueue frontend assets only if data was added.
+	 */
+	public static function maybe_enqueue_frontend_assets() {
+		if ( empty( self::$data ) ) {
+			return;
+		}
+
+		// Enqueue frontend assets.
+		self::enqueue_script( self::SCRIPT_NAME_FRONTEND, [ 'wp-dom-ready' ] );
+		self::enqueue_style( self::SCRIPT_NAME_FRONTEND );
+		self::localize_data( self::SCRIPT_NAME_FRONTEND );
+	}
+
+	/**
+	 * Enqueue a script.
+	 *
+	 * @param string $handle       Script handle.
+	 * @param array  $dependencies Script dependencies. Default is empty array.
+	 */
+	private static function enqueue_script( $handle, $dependencies = [] ) {
+		wp_enqueue_script(
+			$handle,
+			\Newspack\Newspack::plugin_url() . '/dist/' . $handle . '.js',
+			$dependencies,
 			NEWSPACK_PLUGIN_VERSION,
 			true
 		);
 	}
 
 	/**
-	 * Enqueue admin styles.
+	 * Enqueue a style.
+	 *
+	 * @param string $handle   Style handle.
+	 * @param array  $dependencies Style dependencies. Default is empty array.
 	 */
-	public static function enqueue_admin_styles() {
+	private static function enqueue_style( $handle, $dependencies = [] ) {
 		wp_enqueue_style(
-			self::SCRIPT_NAME_ADMIN,
-			\Newspack\Newspack::plugin_url() . '/dist/collections-admin.css',
-			[],
+			$handle,
+			\Newspack\Newspack::plugin_url() . '/dist/' . $handle . '.css',
+			$dependencies,
 			NEWSPACK_PLUGIN_VERSION
 		);
+
+		wp_style_add_data( $handle, 'rtl', 'replace' );
 	}
 
 	/**
-	 * Localize the data to JavaScript.
+	 * Localize data to the specified script.
+	 *
+	 * @param string $script_handle The script handle to localize data to.
 	 */
-	public static function localize_data() {
-		if ( empty( self::$data ) ) {
-			return;
-		}
-
-		// Enqueue admin scripts and styles.
-		self::enqueue_admin_scripts();
-		self::enqueue_admin_styles();
-
-		// Localize to multiple scripts if they exist.
-		$scripts = [ self::SCRIPT_NAME_ADMIN ];
-		foreach ( $scripts as $script ) {
-			if ( wp_script_is( $script, 'registered' ) ) {
-				wp_localize_script(
-					$script,
-					self::JS_OBJECT_NAME,
-					self::$data
-				);
-			}
+	private static function localize_data( $script_handle ) {
+		if ( wp_script_is( $script_handle, 'registered' ) ) {
+			wp_localize_script(
+				$script_handle,
+				self::JS_OBJECT_NAME,
+				self::$data
+			);
 		}
 	}
 }
