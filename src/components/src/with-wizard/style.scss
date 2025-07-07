@@ -3,7 +3,6 @@
  */
 
 @use "~@wordpress/base-styles/colors" as wp-colors;
-@use "../../../shared/scss/colors.module";
 
 // Styling for full-page-react Wizards (ignoring admin-header-only wizards).
 body.newspack-wizard-page:not(.newspack-admin-header) {

@@ -2,8 +2,8 @@
  * Web Preview
  */
 
-@use "../../../shared/scss/colors.module";
 @use "~@wordpress/base-styles/colors" as wp-colors;
+@use "../../../../packages/colors/colors.module" as colors;
 
 .newspack-web-preview {
 	// Color

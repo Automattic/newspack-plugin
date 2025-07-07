@@ -1,5 +1,5 @@
 @use "~@wordpress/base-styles/colors" as wp-colors;
-@use "../../shared/scss/colors.module" as colors;
+@use "../../../packages/colors/colors.module" as colors;
 
 :root {
 	// WP Admin

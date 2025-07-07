@@ -9,7 +9,7 @@ import { useInnerBlocksProps, useBlockProps } from '@wordpress/block-editor';
 import edit from './edit';
 import metadata from './block.json';
 import { readerRegistration as icon } from '../../../packages/icons';
-import colors from '../../shared/scss/_colors.module.scss';
+import colors from '../../../packages/colors/colors.module.scss';
 
 const { name } = metadata;
 
