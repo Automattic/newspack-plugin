@@ -89,7 +89,7 @@ class Template_Helper {
 	 * @param WP_Query $query The WP_Query instance.
 	 */
 	public static function archive_filters( $query ) {
-		if ( ! is_admin() && $query->is_main_query() && is_post_type_archive( Post_Type::get_post_type() ) ) {
+		if ( is_admin() || ! $query->is_main_query() || ! is_post_type_archive( Post_Type::get_post_type() ) ) {
 			return;
 		}
 
