@@ -187,37 +187,35 @@ class Query_Helper {
 	/**
 	 * Get processed CTAs from a collection post.
 	 *
-	 * @param int      $post_id The post ID.
-	 * @param int|null $limit Optional limit on the number of CTAs.
+	 * @param int      $post_id     The post ID.
+	 * @param int|null $limit       Optional limit on the number of CTAs.
+	 * @param bool     $hierarchical Whether to include hierarchical CTAs. Default is true.
 	 * @return array Array of processed CTAs with 'url' and 'label' keys.
 	 */
-	public static function get_ctas( $post_id, $limit = null ) {
+	public static function get_ctas( $post_id, $limit = null, $hierarchical = true ) {
 		$ctas = Collection_Meta::get( $post_id, 'ctas' );
 
-		if ( ! is_array( $ctas ) || empty( $ctas ) ) {
+		if ( ! is_array( $ctas ) ) {
+			$ctas = [];
+		}
+
+		// Add hierarchical CTAs if enabled and there's room.
+		if ( $hierarchical && ( null === $limit || count( $ctas ) < $limit ) ) {
+			$hierarchical_ctas = self::get_hierarchical_ctas( $post_id );
+			$ctas              = array_merge( $ctas, $hierarchical_ctas );
+		}
+
+		if ( empty( $ctas ) ) {
 			return [];
 		}
 
-		$cta_count = count( $ctas );
-
-		if ( null !== $limit && $cta_count >= $limit ) {
+		// Apply limit to final result if specified.
+		if ( null !== $limit ) {
 			$ctas = array_slice( $ctas, 0, $limit );
-		} else {
-			// If there's room for more CTAs, get the hierarchical CTAs.
-			$remaining         = null !== $limit ? $limit - $cta_count : null;
-			$hierarchical_ctas = self::get_hierarchical_ctas( $post_id );
-
-			// If there's a limit, slice the hierarchical CTAs to the limit.
-			if ( null !== $remaining ) {
-				$hierarchical_ctas = array_slice( $hierarchical_ctas, 0, $remaining );
-			}
-
-			// Merge the hierarchical CTAs into the existing CTAs.
-			$ctas = array_merge( $ctas, $hierarchical_ctas );
 		}
 
 		// Process the CTAs.
-		return array_values(
+		$ctas = array_values(
 			array_filter(
 				array_map(
 					function ( $cta ) {
@@ -231,20 +229,20 @@ class Query_Helper {
 							$url = $cta['url'];
 						}
 
-						if ( $label && $url ) {
-							return [
-								'url'   => $url,
-								'label' => $label,
-								'class' => $class,
-							];
-						}
-
-						return null;
+						return ( $label && $url ) ? compact( 'url', 'label', 'class' ) : null;
 					},
 					$ctas
 				)
 			)
 		);
+
+		/**
+		 * Filters the collection CTAs.
+		 *
+		 * @param array $ctas Array of collection CTAs.
+		 * @param int   $post_id The post ID.
+		 */
+		return apply_filters( 'newspack_collections_ctas', $ctas, $post_id );
 	}
 
 	/**
