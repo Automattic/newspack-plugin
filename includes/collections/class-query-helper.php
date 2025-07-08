@@ -15,7 +15,8 @@ defined( 'ABSPATH' ) || exit;
 class Query_Helper {
 
 	public const COVER_SECTION   = 'cover';
-	public const YEARS_CACHE_KEY = 'newspack_collections_years_data';
+	public const YEARS_CACHE_KEY = 'available_years_data';
+	public const POSTS_CACHE_KEY = 'posts_in_collection_';
 	public const CACHE_GROUP     = 'newspack_collections';
 
 	/**
@@ -309,9 +310,17 @@ class Query_Helper {
 	 *    - Posts with `newspack_collection_post_order` meta (by ascending order value)
 	 *
 	 * @param int $collection_id Collection post ID.
-	 * @return array Array of posts organized by section slug.
+	 * @return array Array of post IDs organized by section slug.
 	 */
 	public static function get_collection_posts( $collection_id ) {
+		// Try to get from cache first.
+		$cache_key   = self::POSTS_CACHE_KEY . $collection_id;
+		$cached_data = wp_cache_get( $cache_key, self::CACHE_GROUP );
+
+		if ( false !== $cached_data ) {
+			return $cached_data;
+		}
+
 		// Get the linked collection term.
 		$linked_term_id = get_post_meta( $collection_id, Sync::LINKED_TERM_META_KEY, true );
 		if ( ! $linked_term_id ) {
@@ -448,7 +457,16 @@ class Query_Helper {
 			}
 		);
 
-		return $sections;
+		// Cache post IDs.
+		$post_ids_by_section = [];
+
+		foreach ( $sections as $section_slug => $section_posts ) {
+			$post_ids_by_section[ $section_slug ] = wp_list_pluck( $section_posts, 'ID' );
+		}
+
+		wp_cache_set( $cache_key, $post_ids_by_section, self::CACHE_GROUP );
+
+		return $post_ids_by_section;
 	}
 
 	/**
