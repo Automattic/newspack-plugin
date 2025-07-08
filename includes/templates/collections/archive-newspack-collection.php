@@ -48,21 +48,22 @@ do_action( 'newspack_collections_archive_start' );
 					</select>
 				</div>
 
-				<div class="collections-filter__select">
-					<label for="category"><?php esc_html_e( 'Publication:', 'newspack' ); ?></label>
-					<select name="category" id="category">
-						<option value="" <?php selected( $selected_category, '' ); ?>><?php esc_html_e( 'All', 'newspack' ); ?></option>
-						<?php
-							$categories = Query_Helper::get_collection_categories();
+				<?php
+				$categories = Query_Helper::get_collection_categories();
 
-						if ( ! empty( $categories ) ) {
-							foreach ( $categories as $category ) {
-								echo '<option value="' . esc_attr( $category->slug ) . '" ' . selected( $selected_category, $category->slug, false ) . '>' . esc_html( $category->name ) . '</option>';
-							}
-						}
-						?>
-					</select>
-				</div>
+				if ( count( $categories ) > 1 ) :
+					?>
+					<div class="collections-filter__select">
+						<label for="category"><?php esc_html_e( 'Publication:', 'newspack' ); ?></label>
+						<select name="category" id="category">
+							<option value="" <?php selected( $selected_category, '' ); ?>><?php esc_html_e( 'All', 'newspack' ); ?></option>
+							<?php foreach ( $categories as $category ) : ?>
+								<option value="<?php echo esc_attr( $category->slug ); ?>" <?php selected( $selected_category, $category->slug ); ?>><?php echo esc_html( $category->name ); ?></option>
+							<?php endforeach; ?>
+							?>
+						</select>
+					</div>
+				<?php endif; ?>
 
 			</form> <!-- .collections-filter -->
 

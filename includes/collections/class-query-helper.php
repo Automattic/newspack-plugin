@@ -98,61 +98,72 @@ class Query_Helper {
 	 */
 	public static function get_available_years( $selected_category = '' ) {
 		// Try to get from cache first.
-		$cached_data = wp_cache_get( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
-		if ( false !== $cached_data && isset( $cached_data[ $selected_category ] ) ) {
-			return $cached_data[ $selected_category ];
-		}
+		$cached_data    = wp_cache_get( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
+		$category_years = [];
 
-		global $wpdb;
+		if ( ! empty( $cached_data[ $selected_category ] ) && is_array( $cached_data[ $selected_category ] ) ) {
+			$category_years = $cached_data[ $selected_category ];
+		} elseif ( ! empty( $cached_data[''] ) && is_array( $cached_data[''] ) ) {
+			$category_years = $cached_data[''];
+		} else {
+			global $wpdb;
 
-		// Get all years with their associated categories in one query.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT DISTINCT YEAR(p.post_date) as year, t.slug as category
-				FROM {$wpdb->posts} p
-				INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
-				INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-				INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
-				WHERE tt.taxonomy = %s
-				AND p.post_type = %s
-				AND p.post_status = 'publish'
-				ORDER BY year DESC",
-				Collection_Category_Taxonomy::get_taxonomy(),
-				Post_Type::get_post_type()
-			)
-		);
+			// Get all years with their associated categories in one query.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$results = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT DISTINCT YEAR(p.post_date) as year, t.slug as category
+					FROM {$wpdb->posts} p
+					LEFT JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id AND EXISTS (
+						SELECT 1 FROM {$wpdb->term_taxonomy} tt2
+						WHERE tr.term_taxonomy_id = tt2.term_taxonomy_id
+						AND tt2.taxonomy = %s
+					)
+					LEFT JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+					LEFT JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
+					WHERE p.post_type = %s
+					AND p.post_status = 'publish'
+					ORDER BY year DESC",
+					Collection_Category_Taxonomy::get_taxonomy(),
+					Post_Type::get_post_type()
+				)
+			);
 
-		$years_data = [ '' => [] ]; // Initialize with empty category (all years).
+			$years_data = [ '' => [] ]; // Initialize with empty category (all years).
 
-		foreach ( $results as $result ) {
-			$year = intval( $result->year );
-			if ( $year ) {
-				// Add to "all years" (empty category).
-				if ( ! in_array( $year, $years_data[''], true ) ) {
-					$years_data[''][] = $year;
-				}
-
-				// Add to specific category if it exists.
-				if ( $result->category ) {
-					if ( ! isset( $years_data[ $result->category ] ) ) {
-						$years_data[ $result->category ] = [];
+			if ( is_array( $results ) ) {
+				foreach ( $results as $result ) {
+					$year = (int) $result->year;
+					if ( ! $year ) {
+						continue;
 					}
-					if ( ! in_array( $year, $years_data[ $result->category ], true ) ) {
+
+					$years_data[''][] = $year;
+
+					if ( $result->category ) {
 						$years_data[ $result->category ][] = $year;
 					}
 				}
+
+				// Sort all arrays in descending order and ensure uniqueness.
+				foreach ( $years_data as &$years ) {
+					$years = array_unique( $years );
+					rsort( $years );
+				}
+				unset( $years );
 			}
+
+			wp_cache_set( self::YEARS_CACHE_KEY, $years_data, self::CACHE_GROUP );
+			$category_years = $years_data[ $selected_category ] ?? [];
 		}
 
-		// Sort all arrays in descending order.
-		foreach ( $years_data as &$years ) {
-			rsort( $years );
-		}
-
-		wp_cache_set( self::YEARS_CACHE_KEY, $years_data, self::CACHE_GROUP );
-
-		return $years_data[ $selected_category ] ?? [];
+		/**
+		 * Filters the available years for a given collection category.
+		 *
+		 * @param array  $category_years    Array of years.
+		 * @param string $selected_category Selected category slug.
+		 */
+		return apply_filters( 'newspack_collections_available_years', (array) $category_years, $selected_category );
 	}
 
 	/**
@@ -177,7 +188,11 @@ class Query_Helper {
 		 */
 		$categories = apply_filters( 'newspack_collections_collection_categories', $categories );
 
-		if ( is_wp_error( $categories ) ) {
+		if (
+			is_wp_error( $categories ) ||
+			! is_array( $categories ) ||
+			( ! empty( $categories ) && ! $categories[0] instanceof \WP_Term )
+		) {
 			return [];
 		}
 
