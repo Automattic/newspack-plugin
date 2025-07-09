@@ -37,7 +37,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_create_collection_term_from_post() {
 		$post_id = $this->create_test_collection();
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 
 		$term = get_term( $term_id, Collection_Taxonomy::get_taxonomy() );
 		$this->assertValidCollectionTerm( $term, 'Collection term should be created from post.' );
@@ -52,7 +52,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_term_marked_inactive_when_post_trashed() {
 		$post_id = $this->create_test_collection();
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 
 		// Trash the post.
 		wp_trash_post( $post_id );
@@ -82,7 +82,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_term_reactivated_when_post_untrashed() {
 		$post_id = $this->create_test_collection();
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 
 		// Trash the post.
 		wp_trash_post( $post_id );
@@ -111,7 +111,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_term_deleted_when_post_deleted() {
 		$post_id = $this->create_test_collection();
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 
 		// Permanently delete the post.
 		wp_delete_post( $post_id, true );
@@ -129,7 +129,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_update_collection_term_from_post() {
 		$post_id = $this->create_test_collection();
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 
 		wp_update_post(
 			[
@@ -151,7 +151,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_delete_collection_term_from_post() {
 		$post_id = $this->create_test_collection();
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 
 		wp_delete_post( $post_id, true );
 
@@ -167,12 +167,12 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_restore_collection_term_from_post() {
 		$post_id = $this->create_test_collection();
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 
 		wp_trash_post( $post_id );
 		wp_untrash_post( $post_id );
 
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 		$term    = get_term( $term_id, Collection_Taxonomy::get_taxonomy() );
 
 		$this->assertValidCollectionTerm( $term, 'Term should be restored when post is untrashed.' );
@@ -187,7 +187,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_create_collection_post_from_term() {
 		$term    = $this->create_test_collection_term();
-		$post_id = get_term_meta( $term->term_id, Sync::LINKED_POST_META_KEY, true );
+		$post_id = Sync::get_collection_linked_to_term( $term->term_id );
 
 		$this->assertValidCollection( $post_id, 'Collection post should be created from term.' );
 		$this->assertCollectionAndTermLinked( $post_id, $term->term_id );
@@ -201,7 +201,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_update_collection_post_from_term() {
 		$term    = $this->create_test_collection_term();
-		$post_id = get_term_meta( $term->term_id, Sync::LINKED_POST_META_KEY, true );
+		$post_id = Sync::get_collection_linked_to_term( $term->term_id );
 
 		wp_update_term(
 			$term->term_id,
@@ -224,7 +224,7 @@ class Test_Sync extends \WP_UnitTestCase {
 	 */
 	public function test_trash_collection_post_from_term() {
 		$term    = $this->create_test_collection_term();
-		$post_id = get_term_meta( $term->term_id, Sync::LINKED_POST_META_KEY, true );
+		$post_id = Sync::get_collection_linked_to_term( $term->term_id );
 
 		wp_delete_term( $term->term_id, Collection_Taxonomy::get_taxonomy() );
 
