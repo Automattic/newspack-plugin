@@ -14,81 +14,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Query_Helper {
 
-	public const COVER_SECTION   = 'cover';
-	public const YEARS_CACHE_KEY = 'available_years_data';
-	public const POSTS_CACHE_KEY = 'posts_in_collection_';
-	public const CACHE_GROUP     = 'newspack_collections';
+	public const COVER_SECTION = 'cover';
 
-	/**
-	 * Initialize cache invalidation hooks.
-	 */
-	public static function init() {
-		// Clear cache when collections are saved, deleted, or status changes.
-		add_action( 'save_post_' . Post_Type::get_post_type(), [ __CLASS__, 'clear_cache_on_collection_change' ] );
-		add_action( 'delete_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
-		add_action( 'wp_trash_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
-		add_action( 'untrash_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
-
-		// Clear cache when collection categories are created, edited, or deleted.
-		add_action( 'create_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
-		add_action( 'edit_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
-		add_action( 'delete_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
-
-		// Clear cache when term relationships change (posts assigned to collections).
-		add_action( 'set_object_terms', [ __CLASS__, 'clear_cache_on_term_relationship_change' ], 10, 4 );
-	}
-
-	/**
-	 * Clear the available years cache.
-	 */
-	public static function clear_available_years_cache() {
-		wp_cache_delete( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
-	}
-
-	/**
-	 * Clear cache when a collection post is modified.
-	 *
-	 * @param int $post_id The post ID.
-	 */
-	public static function clear_cache_on_collection_change( $post_id ) {
-		if ( get_post_type( $post_id ) === Post_Type::get_post_type() ) {
-			self::clear_available_years_cache();
-		}
-	}
-
-	/**
-	 * Clear cache when collection taxonomies are modified.
-	 *
-	 * @param int    $term_id  Term ID.
-	 * @param int    $tt_id    Term taxonomy ID.
-	 * @param string $taxonomy Taxonomy slug.
-	 */
-	public static function clear_cache_on_term_change( $term_id, $tt_id, $taxonomy ) {
-		if (
-			Collection_Category_Taxonomy::get_taxonomy() === $taxonomy ||
-			Collection_Taxonomy::get_taxonomy() === $taxonomy
-		) {
-			self::clear_available_years_cache();
-		}
-	}
-
-	/**
-	 * Clear cache when term relationships change for collections.
-	 *
-	 * @param int    $object_id Object ID.
-	 * @param array  $terms     An array of object terms.
-	 * @param array  $tt_ids    An array of term taxonomy IDs.
-	 * @param string $taxonomy  Taxonomy slug.
-	 */
-	public static function clear_cache_on_term_relationship_change( $object_id, $terms, $tt_ids, $taxonomy ) {
-		if (
-			Collection_Category_Taxonomy::get_taxonomy() === $taxonomy ||
-			Collection_Taxonomy::get_taxonomy() === $taxonomy ||
-			Post_Type::get_post_type() === get_post_type( $object_id )
-		) {
-			self::clear_available_years_cache();
-		}
-	}
 
 	/**
 	 * Get available years from published collections for filtering.
@@ -98,7 +25,7 @@ class Query_Helper {
 	 */
 	public static function get_available_years( $selected_category = '' ) {
 		// Try to get from cache first.
-		$cached_data    = wp_cache_get( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
+		$cached_data    = wp_cache_get( Cache::YEARS_CACHE_KEY, Cache::CACHE_GROUP );
 		$category_years = [];
 
 		if ( ! empty( $cached_data[ $selected_category ] ) && is_array( $cached_data[ $selected_category ] ) ) {
@@ -153,7 +80,7 @@ class Query_Helper {
 				unset( $years );
 			}
 
-			wp_cache_set( self::YEARS_CACHE_KEY, $years_data, self::CACHE_GROUP );
+			wp_cache_set( Cache::YEARS_CACHE_KEY, $years_data, Cache::CACHE_GROUP );
 			$category_years = $years_data[ $selected_category ] ?? [];
 		}
 
@@ -327,15 +254,15 @@ class Query_Helper {
 	 */
 	public static function get_collection_posts( $collection_id ) {
 		// Try to get from cache first.
-		$cache_key   = self::POSTS_CACHE_KEY . $collection_id;
-		$cached_data = wp_cache_get( $cache_key, self::CACHE_GROUP );
+		$cache_key   = Cache::get_posts_cache_key( $collection_id );
+		$cached_data = wp_cache_get( $cache_key, Cache::CACHE_GROUP );
 
 		if ( false !== $cached_data ) {
 			return $cached_data;
 		}
 
 		// Get the linked collection term.
-		$linked_term_id = get_post_meta( $collection_id, Sync::LINKED_TERM_META_KEY, true );
+		$linked_term_id = Sync::get_term_linked_to_collection( $collection_id );
 		if ( ! $linked_term_id ) {
 			return [];
 		}
@@ -477,9 +404,57 @@ class Query_Helper {
 			$post_ids_by_section[ $section_slug ] = wp_list_pluck( $section_posts, 'ID' );
 		}
 
-		wp_cache_set( $cache_key, $post_ids_by_section, self::CACHE_GROUP );
+		wp_cache_set( $cache_key, $post_ids_by_section, Cache::CACHE_GROUP );
 
 		return $post_ids_by_section;
+	}
+
+	/**
+	 * Get collections that a post belongs to.
+	 *
+	 * @param int  $post_id      The post ID.
+	 * @param bool $return_posts Whether to return collection posts or just terms. Default false (terms).
+	 * @param bool $single       Whether to return only the first occurrence. Default false.
+	 * @return array Array of collection terms or collection posts.
+	 */
+	public static function get_post_collections( $post_id, $return_posts = false, $single = false ) {
+		$collection_terms = get_the_terms( $post_id, Collection_Taxonomy::get_taxonomy() );
+
+		if ( empty( $collection_terms ) || is_wp_error( $collection_terms ) ) {
+			return [];
+		}
+
+		// Slice early if we only need one result.
+		if ( $single ) {
+			$collection_terms = array_slice( $collection_terms, 0, 1 );
+		}
+
+		if ( ! $return_posts ) {
+			$result = $collection_terms;
+		} else {
+			// Get collection posts linked to these terms.
+			$collections = [];
+			foreach ( $collection_terms as $term ) {
+				$collection_id = Sync::get_collection_linked_to_term( $term->term_id );
+				if ( $collection_id ) {
+					$collections[] = $collection_id;
+				}
+			}
+
+			// Remove duplicates and get post objects.
+			$collections = array_unique( $collections );
+			$result      = array_map( 'get_post', $collections );
+		}
+
+		/**
+		 * Filters the collections for a post.
+		 *
+		 * @param array $result       Array of collection terms or posts.
+		 * @param int   $post_id      The post ID.
+		 * @param bool  $return_posts Whether collection posts were returned.
+		 * @param bool  $single       Whether only single result was requested.
+		 */
+		return apply_filters( 'newspack_collections_post_collections', $result, $post_id, $return_posts, $single );
 	}
 
 	/**
