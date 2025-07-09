@@ -155,19 +155,21 @@ class Template_Helper {
 	/**
 	 * Render a collection image.
 	 *
-	 * @param int|WP_Post $post      The post object or ID.
-	 * @param bool        $permalink Whether to wrap the image in a permalink.
+	 * @param int|WP_Post  $post      The post object or ID.
+	 * @param bool|string  $permalink Whether to wrap the image in a permalink. If a string, it will be used as the URL. Otherwise, the permalink will be generated from the post.
+	 * @param string|int[] $size      Optional. Image size. Accepts any registered image size name, or an array of width and height values in pixels (in that order). Default 'post-thumbnail'.
+	 * @param string|array $attr      Optional. Query string or array of attributes to add to the image. Default empty.
 	 * @return string The rendered image HTML.
 	 */
-	public static function render_image( $post, $permalink = true ) {
+	public static function render_image( $post, $permalink = true, $size = 'post-thumbnail', $attr = '' ) {
 		$image = has_post_thumbnail( $post )
-			? get_the_post_thumbnail( $post, 'full' )
+			? get_the_post_thumbnail( $post, $size, $attr )
 			: '<div class="collection-placeholder has-light-gray-background-color" aria-hidden="true"></div>';
 
 		if ( $permalink ) {
 			$image = sprintf(
 				'<a href="%s">%s</a>',
-				esc_url( get_permalink( $post ) ),
+				is_string( $permalink ) ? $permalink : esc_url( get_permalink( $post ) ),
 				$image
 			);
 		}
@@ -177,11 +179,13 @@ class Template_Helper {
 		/**
 		 * Filter the rendered collection image HTML.
 		 *
-		 * @param string      $html      The complete image HTML.
-		 * @param int|WP_Post $post      The post.
-		 * @param bool        $permalink Whether the image is wrapped in a permalink.
+		 * @param string       $html      The complete image HTML.
+		 * @param int|WP_Post  $post      The post.
+		 * @param bool         $permalink Whether the image is wrapped in a permalink.
+		 * @param string|int[] $size      The image size.
+		 * @param string|array $attr      The image attributes.
 		 */
-		return apply_filters( 'newspack_collections_render_image', $html, $post, $permalink );
+		return apply_filters( 'newspack_collections_render_image', $html, $post, $permalink, $size, $attr );
 	}
 
 	/**
