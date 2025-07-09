@@ -15,15 +15,15 @@ use Newspack\Collections\Enqueuer;
  * Test the Collections Enqueuer functionality.
  */
 class Test_Enqueuer extends WP_UnitTestCase {
-	/**
-	 * Set up the test environment.
-	 */
-	public function set_up() {
-		parent::set_up();
+	use Traits\Trait_Enqueuer_Test;
 
-		// Reset the data every time via reflection.
-		$reflection = new \ReflectionClass( Enqueuer::class );
-		$reflection->setStaticPropertyValue( 'data', [] );
+	/**
+	 * Tear down the test environment.
+	 */
+	public function tear_down() {
+		parent::tear_down();
+
+		$this->cleanup_enqueuer_state();
 	}
 
 	/**
