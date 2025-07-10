@@ -88,6 +88,7 @@ class InDesign_Converter {
 	 */
 	private function process_post_content( $content, $options = [] ) {
 		$content = $this->remove_images_and_captions( $content );
+		$content = $this->convert_html_to_indesign( $content );
 
 		return $content;
 	}
@@ -102,6 +103,47 @@ class InDesign_Converter {
 		$content = preg_replace( '/<figure[^>]*>.*?<\/figure>/is', '', $content );
 		$content = preg_replace( '/<figcaption[^>]*>.*?<\/figcaption>/is', '', $content );
 		$content = preg_replace( '/<img[^>]*>/i', '', $content );
+
+		return $content;
+	}
+
+	/**
+	 * Convert HTML elements to InDesign tagged text equivalents.
+	 *
+	 * @param string $content Post content.
+	 * @return string Content with InDesign tags.
+	 */
+	private function convert_html_to_indesign( $content ) {
+		$conversions = [
+			// Blockquotes and pullquotes.
+			'/<blockquote[^>]*class="[^"]*wp-block-quote[^"]*"[^>]*>/' => $this->styles['pullquote'],
+			'/<blockquote[^>]*>/'                => $this->styles['pullquote'],
+			'/<cite[^>]*>/'                      => $this->styles['pullquote_name'],
+
+			// Paragraphs.
+			'/<(?!pstyle:)(p[^>]*)>/'            => $this->styles['paragraph'],
+
+			// Typography.
+			'/<strong[^>]*>/'                    => '<cTypeface:Bold>',
+			'/<\/strong>/'                       => '<cTypeface:>',
+			'/<b[^>]*>/'                         => '<cTypeface:Bold>',
+			'/<\/b>/'                            => '<cTypeface:>',
+			'/<em[^>]*>/'                        => '<cTypeface:Italic>',
+			'/<\/em>/'                           => '<cTypeface:>',
+			'/<i[^>]*>/'                         => '<cTypeface:Italic>',
+			'/<\/i>/'                            => '<cTypeface:>',
+
+			// Remove links but keep content.
+			'/<a[^>]*>/'                         => '',
+			'/<\/a>/'                            => '',
+
+			// Remove closing tags for block elements.
+			'/<\/(?:p|blockquote|cite|h[1-6])>/' => '',
+		];
+
+		foreach ( $conversions as $pattern => $replacement ) {
+			$content = preg_replace( $pattern, $replacement, $content );
+		}
 
 		return $content;
 	}
