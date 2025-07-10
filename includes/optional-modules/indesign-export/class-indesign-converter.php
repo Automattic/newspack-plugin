@@ -47,6 +47,66 @@ class InDesign_Converter {
 	}
 
 	/**
+	 * Convert a WordPress post to InDesign Tagged Text format.
+	 *
+	 * @param int|\WP_Post $post Post ID or WP_Post object.
+	 * @param array        $options Optional conversion options.
+	 * @return string|false InDesign Tagged Text content, or false on failure.
+	 */
+	public function convert_post( $post, $options = [] ) {
+		$post = get_post( $post );
+		if ( ! $post ) {
+			return false;
+		}
+
+		$default_options = [
+			'include_subtitle' => true,
+			'include_byline'   => true,
+		];
+		$options = wp_parse_args( $options, $default_options );
+
+		$content_parts = [];
+
+		$content_parts[] = '<ASCII-WIN>';
+
+		$post_content = $this->process_post_content( $post->post_content, $options );
+		$content_parts[] = $post_content;
+
+		if ( ! empty( $this->styles['end_of_story'] ) ) {
+			$content_parts[] = $this->styles['end_of_story'];
+		}
+
+		return implode( "\r\n", array_filter( $content_parts ) );
+	}
+
+	/**
+	 * Process post content for InDesign export.
+	 *
+	 * @param string $content Raw post content.
+	 * @param array  $options Conversion options.
+	 * @return string Processed content.
+	 */
+	private function process_post_content( $content, $options = [] ) {
+		$content = $this->remove_images_and_captions( $content );
+
+		return $content;
+	}
+
+	/**
+	 * Remove images (figures) and captions from content.
+	 *
+	 * @param string $content Post content.
+	 * @return string Content without images and captions.
+	 */
+	private function remove_images_and_captions( $content ) {
+		$content = preg_replace( '/<figure[^>]*>.*?<\/figure>/is', '', $content );
+		$content = preg_replace( '/<figcaption[^>]*>.*?<\/figcaption>/is', '', $content );
+		$content = preg_replace( '/<img[^>]*>/i', '', $content );
+
+		return $content;
+	}
+
+	/**
 	 * Update the InDesign styles configuration.
 	 *
 	 * @param array $styles New styles configuration.
