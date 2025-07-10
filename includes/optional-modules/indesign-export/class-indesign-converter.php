@@ -68,6 +68,21 @@ class InDesign_Converter {
 		$content_parts = [];
 
 		$content_parts[] = '<ASCII-WIN>';
+		$content_parts[] = $this->styles['headline'] . $this->convert_text_for_indesign( $post->post_title );
+
+		if ( $options['include_subtitle'] ) {
+			$subtitle = $this->get_post_subtitle( $post );
+			if ( $subtitle ) {
+				$content_parts[] = $this->styles['subhead'] . $this->convert_text_for_indesign( $subtitle );
+			}
+		}
+
+		if ( $options['include_byline'] ) {
+			$author_name = get_the_author_meta( 'display_name', absint( $post->post_author ) );
+			if ( $author_name ) {
+				$content_parts[] = $this->styles['byline'] . $this->convert_text_for_indesign( $author_name );
+			}
+		}
 
 		$post_content = $this->process_post_content( $post->post_content, $options );
 		$content_parts[] = $post_content;
@@ -80,6 +95,17 @@ class InDesign_Converter {
 	}
 
 	/**
+	 * Get the post subtitle.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return string|null Post subtitle or null if not available.
+	 */
+	private function get_post_subtitle( $post ) {
+		$subtitle = get_post_meta( $post->ID, 'newspack_post_subtitle', true );
+		return $subtitle ?? null;
+	}
+
+	/**
 	 * Process post content for InDesign export.
 	 *
 	 * @param string $content Raw post content.
@@ -89,6 +115,7 @@ class InDesign_Converter {
 	private function process_post_content( $content, $options = [] ) {
 		$content = $this->remove_images_and_captions( $content );
 		$content = $this->convert_html_to_indesign( $content );
+		$content = $this->convert_text_for_indesign( $content );
 
 		return $content;
 	}
@@ -146,6 +173,66 @@ class InDesign_Converter {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Convert text for InDesign, handling special characters and typography.
+	 *
+	 * @param string $text Text to convert.
+	 * @return string Converted text.
+	 */
+	private function convert_text_for_indesign( $text ) {
+		// Character conversions for InDesign Tagged Text.
+		$conversions = [
+			// Dashes.
+			'--' => '<0x2014>',
+			'—'  => '<0x2014>',
+			'–'  => '<0x2014>',
+
+			// Quotes.
+			'“'  => '"',
+			'”'  => '"',
+			'‘'  => "'",
+			'’'  => "'",
+
+			// Ellipsis.
+			'…'  => '...',
+
+			// Special characters.
+			'•'  => '<CharStyle:bullet>n<CharStyle:>',
+
+			// accented characters.
+			'ā'  => '<0x0101>',
+			'à'  => '<0x00E0>',
+			'é'  => '<0x00E9>',
+			'è'  => '<0x00E8>',
+			'ê'  => '<0x00EA>',
+			'É'  => '<0x00C9>',
+			'È'  => '<0x00C8>',
+			'í'  => '<0x00ED>',
+			'ñ'  => '<0x00F1>',
+			'Ñ'  => '<0x00D1>',
+			'ö'  => '<0x00F6>',
+			'ô'  => '<0x00F4>',
+			'ő'  => '<0x0151>',
+			'û'  => '<0x00FB>',
+			'Û'  => '<0x00DB>',
+			'ú'  => '<0x00FA>',
+		];
+
+		$text = str_replace( array_keys( $conversions ), array_values( $conversions ), $text );
+		$text = html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		// Convert remaining HTML entities.
+		$text = str_replace(
+			[ '&nbsp;', '&amp;', '&lt;', '&gt;' ],
+			[ ' ', '&', '<', '>' ],
+			$text
+		);
+
+		// Remove non-breaking space UTF-8 character.
+		$text = str_replace( "\xC2\xA0", ' ', $text );
+
+		return $text;
 	}
 
 	/**
