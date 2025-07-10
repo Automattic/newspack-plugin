@@ -114,6 +114,7 @@ class InDesign_Converter {
 	 */
 	private function process_post_content( $content, $options = [] ) {
 		$content = $this->remove_images_and_captions( $content );
+		$content = $this->process_headings( $content );
 		$content = $this->convert_html_to_indesign( $content );
 		$content = $this->convert_text_for_indesign( $content );
 
@@ -130,6 +131,40 @@ class InDesign_Converter {
 		$content = preg_replace( '/<figure[^>]*>.*?<\/figure>/is', '', $content );
 		$content = preg_replace( '/<figcaption[^>]*>.*?<\/figcaption>/is', '', $content );
 		$content = preg_replace( '/<img[^>]*>/i', '', $content );
+
+		return $content;
+	}
+
+	/**
+	 * Process headings in the content.
+	 *
+	 * @param string $content Post content.
+	 * @return string Content with processed subheads.
+	 */
+	private function process_headings( $content ) {
+		$content = preg_replace_callback(
+			'/<h([2-6])[^>]*>(.*?)<\/h[2-6]>/is',
+			function ( $matches ) {
+				switch ( $matches[1] ) {
+					/**
+					 * Process subheadings (h4 elements) in the content.
+					 */
+					case '4':
+						return $this->styles['subhead'] . $this->convert_text_for_indesign( $matches[2] );
+					/**
+					 * TODO: Handle other heading levels as per requirements.
+					 * For now, treating them as regular paragraphs.
+					 */
+					case '2':
+					case '3':
+					case '5':
+					case '6':
+					default:
+						return $this->styles['paragraph'] . $this->convert_text_for_indesign( $matches[2] );
+				}
+			},
+			$content
+		);
 
 		return $content;
 	}
