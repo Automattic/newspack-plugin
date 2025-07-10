@@ -116,7 +116,9 @@ class InDesign_Converter {
 		$content = $this->remove_images_and_captions( $content );
 		$content = $this->process_headings( $content );
 		$content = $this->convert_html_to_indesign( $content );
+		$content = preg_replace( '/<!--.*?-->/s', '', $content );
 		$content = $this->convert_text_for_indesign( $content );
+		$content = $this->clean_whitespace( $content );
 
 		return $content;
 	}
@@ -268,6 +270,19 @@ class InDesign_Converter {
 		$text = str_replace( "\xC2\xA0", ' ', $text );
 
 		return $text;
+	}
+
+	/**
+	 * Clean up whitespace and line breaks.
+	 *
+	 * @param string $content Content to clean.
+	 * @return string Cleaned content.
+	 */
+	private function clean_whitespace( $content ) {
+		$content = preg_replace( '/\n{2,}/', "\r\n", $content );
+		$content = trim( $content );
+
+		return $content;
 	}
 
 	/**
