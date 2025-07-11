@@ -71,6 +71,7 @@ class InDesign_Exporter {
 			header( 'Content-Type: text/plain' );
 			header( 'Content-Disposition: attachment; filename="indesign-export-' . absint( $test_post->ID ) . '.txt"' );
 			echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit;
 		}
 	}
 }
