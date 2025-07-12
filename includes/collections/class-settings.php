@@ -82,6 +82,11 @@ class Settings {
 					return in_array( $value, self::POSTS_PER_PAGE_OPTIONS, true ) ? $value : 12;
 				},
 			],
+			'highlight_latest'      => [
+				'required'          => false,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			],
 		];
 
 		switch ( $return_type ) {

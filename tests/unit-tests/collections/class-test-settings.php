@@ -182,6 +182,11 @@ class Test_Settings extends WP_UnitTestCase {
 			$this->assertEquals( $option, $posts_per_page_callback( $option ) );
 		}
 		$this->assertEquals( 12, $posts_per_page_callback( 42 ) ); // Invalid values default to 12.
+
+		// Test highlight latest sanitization.
+		$highlight_latest_callback = $rest_args['highlight_latest']['sanitize_callback'];
+		$this->assertTrue( $highlight_latest_callback( 'true' ) );
+		$this->assertFalse( $highlight_latest_callback( 'false' ) );
 	}
 
 	/**
