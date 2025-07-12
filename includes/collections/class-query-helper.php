@@ -14,8 +14,12 @@ defined( 'ABSPATH' ) || exit;
  */
 class Query_Helper {
 
+	/**
+	 * Cover section (virtual) slug.
+	 *
+	 * @var string
+	 */
 	public const COVER_SECTION = 'cover';
-
 
 	/**
 	 * Get available years from published collections for filtering.
@@ -199,7 +203,7 @@ class Query_Helper {
 			'order_link'     => __( 'Order', 'newspack' ),
 		];
 
-		return array_values(
+		$ctas = array_values(
 			array_filter(
 				array_map(
 					function ( $key ) use ( $post_id, $cta_keys ) {
@@ -232,6 +236,14 @@ class Query_Helper {
 				)
 			)
 		);
+
+		/**
+		 * Filters the hierarchical CTAs.
+		 *
+		 * @param array $ctas    Array of hierarchical CTAs.
+		 * @param int   $post_id The post ID.
+		 */
+		return apply_filters( 'newspack_collections_hierarchical_ctas', $ctas, $post_id );
 	}
 
 	/**
@@ -249,27 +261,35 @@ class Query_Helper {
 	 *    - Posts without `newspack_collection_post_order` meta (newest to oldest)
 	 *    - Posts with `newspack_collection_post_order` meta (by ascending order value)
 	 *
-	 * @param int $collection_id Collection post ID.
+	 * @param int|WP_Post $collection Collection post ID or post object.
 	 * @return array Array of post IDs organized by section slug.
 	 */
-	public static function get_collection_posts( $collection_id ) {
+	public static function get_collection_posts( $collection ) {
+		$collection_id = $collection instanceof \WP_Post ? $collection->ID : $collection;
+
 		// Try to get from cache first.
 		$cache_key   = Cache::get_posts_cache_key( $collection_id );
 		$cached_data = wp_cache_get( $cache_key, Cache::CACHE_GROUP );
 
 		if ( false !== $cached_data ) {
-			return $cached_data;
+			/**
+			 * Filters the collection posts organized by section.
+			 *
+			 * @param array          $post_ids_by_section Array of post IDs organized by section slug.
+			 * @param int|\WP_Post   $collection           Collection post ID or post object.
+			 */
+			return apply_filters( 'newspack_collections_posts_by_section', $cached_data, $collection );
 		}
 
 		// Get the linked collection term.
 		$linked_term_id = Sync::get_term_linked_to_collection( $collection_id );
 		if ( ! $linked_term_id ) {
-			return [];
+			return apply_filters( 'newspack_collections_posts_by_section', [], $collection );
 		}
 
 		$term = get_term( $linked_term_id, Collection_Taxonomy::get_taxonomy() );
 		if ( ! $term || is_wp_error( $term ) ) {
-			return [];
+			return apply_filters( 'newspack_collections_posts_by_section', [], $collection );
 		}
 
 		// Get posts in this collection.
@@ -291,7 +311,7 @@ class Query_Helper {
 		);
 
 		if ( empty( $posts ) ) {
-			return [];
+			return apply_filters( 'newspack_collections_posts_by_section', [], $collection );
 		}
 
 		// Organize posts by section.
@@ -406,7 +426,7 @@ class Query_Helper {
 
 		wp_cache_set( $cache_key, $post_ids_by_section, Cache::CACHE_GROUP );
 
-		return $post_ids_by_section;
+		return apply_filters( 'newspack_collections_posts_by_section', $post_ids_by_section, $collection );
 	}
 
 	/**
@@ -462,15 +482,22 @@ class Query_Helper {
 	 * @return string The section name.
 	 */
 	public static function get_section_name( $section_slug ) {
+		$section_name = $section_slug;
+
 		if ( ! empty( $section_slug ) ) {
 			$section_term = get_term_by( 'slug', $section_slug, Collection_Section_Taxonomy::get_taxonomy() );
 			if ( $section_term && ! is_wp_error( $section_term ) ) {
-				return $section_term->name;
+				$section_name = $section_term->name;
 			}
 		}
 
-		// Fallback to the slug if the term is not found.
-		return $section_slug;
+		/**
+		 * Filters the section name.
+		 *
+		 * @param string $section_name The section name.
+		 * @param string $section_slug The section slug.
+		 */
+		return apply_filters( 'newspack_collections_section_name', $section_name, $section_slug );
 	}
 
 	/**
@@ -487,7 +514,7 @@ class Query_Helper {
 			[
 				'post_type'      => Post_Type::get_post_type(),
 				'post_status'    => 'publish',
-				'posts_per_page' => $limit + count( $exclude ),
+				'posts_per_page' => $limit + ( is_array( $exclude ) ? count( $exclude ) : 0 ),
 				'orderby'        => 'date',
 				'order'          => 'DESC',
 			]
@@ -497,13 +524,20 @@ class Query_Helper {
 			return [];
 		}
 
-		$filtered = array_filter(
+		$filtered = empty( $exclude ) ? $collections : array_filter(
 			$collections,
 			function ( $post ) use ( $exclude ) {
 				return ! in_array( $post->ID, $exclude, true );
 			}
 		);
 
-		return array_slice( $filtered, 0, $limit );
+		/**
+		 * Filters the recent collections.
+		 *
+		 * @param array $recent  Array of recent collection posts.
+		 * @param array $exclude Array of excluded collection IDs.
+		 * @param int   $limit   Number of items returned.
+		 */
+		return apply_filters( 'newspack_collections_recent', array_slice( $filtered, 0, $limit ), $exclude, $limit );
 	}
 }
