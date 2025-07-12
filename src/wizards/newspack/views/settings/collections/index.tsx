@@ -13,7 +13,7 @@ import { useState, useEffect } from '@wordpress/element';
  */
 import WizardsActionCard from '../../../../wizards-action-card';
 import useWizardApiFetchToggle from '../../../../hooks/use-wizard-api-fetch-toggle';
-import { TextControl, Button, Grid } from '../../../../../components/src';
+import { TextControl, SelectControl, Button, Grid } from '../../../../../components/src';
 import CustomNamingCard from './custom-naming-card';
 
 // Default values for collections settings
@@ -24,6 +24,8 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_slug: '',
 	subscribe_link: '',
 	order_link: '',
+	post_indicator_style: 'default',
+	card_message: __( "Keep reading. There's plenty more to discover.", 'newspack-plugin' ),
 };
 
 // Helper function to extract collection settings from API data with defaults.
@@ -113,6 +115,25 @@ function Collections() {
 							onChange={ ( value: string ) => updateSetting( 'order_link', value ) }
 							placeholder={ `e.g., https://${ window.location.hostname }/order` }
 						/>
+						<SelectControl
+							label={ __( 'Collection Indicator Style', 'newspack-plugin' ) }
+							help={ __( 'Choose how collection indicators should be displayed on posts.', 'newspack-plugin' ) }
+							value={ settings.post_indicator_style }
+							onChange={ ( value: string ) => updateSetting( 'post_indicator_style', value ) }
+							buttonOptions={ [
+								{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
+								{ label: __( 'Card', 'newspack-plugin' ), value: 'card' },
+							] }
+						/>
+						{ settings.post_indicator_style === 'card' && (
+							<TextControl
+								label={ __( 'Card Message', 'newspack-plugin' ) }
+								help={ __( 'Custom message displayed in the card style indicator.', 'newspack-plugin' ) }
+								value={ settings.card_message }
+								onChange={ ( value: string ) => updateSetting( 'card_message', value ) }
+								placeholder={ DEFAULT_COLLECTIONS_SETTINGS.card_message }
+							/>
+						) }
 					</Grid>
 
 					<div className="newspack-buttons-card">

@@ -7,6 +7,8 @@ type CollectionsSettingsData = {
 	custom_slug: string;
 	subscribe_link: string;
 	order_link: string;
+	post_indicator_style: string;
+	card_message: string;
 };
 
 type FieldChangeHandler< T > = < K extends keyof T >( key: K, value: T[ K ] ) => void;
