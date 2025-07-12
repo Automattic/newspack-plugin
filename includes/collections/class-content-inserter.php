@@ -121,7 +121,7 @@ class Content_Inserter {
 	 * @param int             $limit       The number of collections to render. Default is self::MAX_COLLECTIONS_TO_RENDER.
 	 * @return string The card HTML.
 	 */
-	private static function build_card_html( $collections, $limit = self::MAX_COLLECTIONS_TO_RENDER ) {
+	public static function build_card_html( $collections, $limit = self::MAX_COLLECTIONS_TO_RENDER ) {
 		if ( empty( $collections ) ) {
 			return '';
 		}
@@ -207,7 +207,7 @@ class Content_Inserter {
 	 * @param int    $nth_block   The block number (1-based). Default is self::INSERT_AFTER_BLOCK_NUMBER.
 	 * @return string The modified content.
 	 */
-	private static function insert_after_nth_block( $content, $insert_html, $nth_block = self::INSERT_AFTER_BLOCK_NUMBER ) {
+	public static function insert_after_nth_block( $content, $insert_html, $nth_block = self::INSERT_AFTER_BLOCK_NUMBER ) {
 		$parsed_blocks = parse_blocks( $content );
 
 		// Filter out empty blocks.
@@ -258,7 +258,7 @@ class Content_Inserter {
 	 * @param int|null        $limit       The number of collections to render. Default is self::MAX_COLLECTIONS_TO_RENDER.
 	 * @return string The indicator HTML.
 	 */
-	private static function build_default_indicator_html( $collections, $limit = self::MAX_COLLECTIONS_TO_RENDER ) {
+	public static function build_default_indicator_html( $collections, $limit = self::MAX_COLLECTIONS_TO_RENDER ) {
 		if ( empty( $collections ) ) {
 			return '';
 		}
