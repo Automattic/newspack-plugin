@@ -94,7 +94,8 @@ class Template_Helper {
 		}
 
 		// Set posts per page.
-		$query->set( 'posts_per_page', 24 ); // TODO: Make this a global setting.
+		$posts_per_page = Settings::get_setting( 'posts_per_page' );
+		$query->set( 'posts_per_page', $posts_per_page );
 
 		// Handle category filtering.
 		$category = isset( $_GET['category'] ) ? sanitize_text_field( $_GET['category'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended

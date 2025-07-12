@@ -175,6 +175,13 @@ class Test_Settings extends WP_UnitTestCase {
 		$message_callback = $rest_args['card_message']['sanitize_callback'];
 		$this->assertEquals( 'Custom message', $message_callback( 'Custom message' ) );
 		$this->assertEquals( 'Clean message', $message_callback( '<script>alert("xss")</script>Clean message' ) );
+
+		// Test posts per page archive sanitization.
+		$posts_per_page_callback = $rest_args['posts_per_page']['sanitize_callback'];
+		foreach ( Settings::POSTS_PER_PAGE_OPTIONS as $option ) {
+			$this->assertEquals( $option, $posts_per_page_callback( $option ) );
+		}
+		$this->assertEquals( 12, $posts_per_page_callback( 42 ) ); // Invalid values default to 12.
 	}
 
 	/**

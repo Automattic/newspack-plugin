@@ -2,21 +2,17 @@
  * Settings Collections: Global settings for Collections module.
  */
 
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import WizardsActionCard from '../../../../wizards-action-card';
 import useWizardApiFetchToggle from '../../../../hooks/use-wizard-api-fetch-toggle';
 import { TextControl, SelectControl, Button, Grid } from '../../../../../components/src';
 import CustomNamingCard from './custom-naming-card';
 
-// Default values for collections settings
+// Collections per page options.
+const COLLECTIONS_PER_PAGE_OPTIONS = [ 12, 18, 24 ];
+
+// Default values for collections settings.
 const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_naming_enabled: false,
 	custom_name: '',
@@ -26,6 +22,7 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	order_link: '',
 	post_indicator_style: 'default',
 	card_message: __( "Keep reading. There's plenty more to discover.", 'newspack-plugin' ),
+	posts_per_page: 12,
 };
 
 // Helper function to extract collection settings from API data with defaults.
@@ -98,7 +95,7 @@ function Collections() {
 						<TextControl
 							label={ __( 'Subscription URL', 'newspack-plugin' ) }
 							help={ __(
-								'URL for the "Subscribe" button that will be displayed in the Collections archive pages when no subscription URL is set for the Collection or its parent category.',
+								'URL for the "Subscribe" button that will be displayed in the Collections archive page when no subscription URL is set for the Collection or its parent category.',
 								'newspack-plugin'
 							) }
 							value={ settings.subscribe_link }
@@ -108,7 +105,7 @@ function Collections() {
 						<TextControl
 							label={ __( 'Order URL', 'newspack-plugin' ) }
 							help={ __(
-								'URL for the "Order" button that will be displayed in the Collections archive pages when no order URL is set for the Collection or its parent category.',
+								'URL for the "Order" button that will be displayed in the Collections archive page when no order URL is set for the Collection or its parent category.',
 								'newspack-plugin'
 							) }
 							value={ settings.order_link }
@@ -140,6 +137,19 @@ function Collections() {
 								placeholder={ DEFAULT_COLLECTIONS_SETTINGS.card_message }
 							/>
 						) }
+					</Grid>
+
+					<Grid columns={ 2 } gutter={ 32 }>
+						<SelectControl
+							label={ __( 'Collections per page', 'newspack-plugin' ) }
+							help={ __( 'Number of collections to display per page in the Collections archive page.', 'newspack-plugin' ) }
+							value={ settings.posts_per_page }
+							onChange={ ( value: number ) => updateSetting( 'posts_per_page', value ) }
+							buttonOptions={ COLLECTIONS_PER_PAGE_OPTIONS.map( option => ( {
+								label: option.toString(),
+								value: option,
+							} ) ) }
+						/>
 					</Grid>
 
 					<div className="newspack-buttons-card">

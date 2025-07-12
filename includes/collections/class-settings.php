@@ -17,7 +17,12 @@ class Settings {
 	/**
 	 * Option name for all collection settings.
 	 */
-	const OPTION_NAME = 'newspack_collections_settings';
+	public const OPTION_NAME = 'newspack_collections_settings';
+
+	/**
+	 * Posts per page options.
+	 */
+	public const POSTS_PER_PAGE_OPTIONS = [ 12, 18, 24 ];
 
 	/**
 	 * Get fields definitions to be used in the REST API.
@@ -68,6 +73,14 @@ class Settings {
 				'required'          => false,
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'posts_per_page'        => [
+				'required'          => false,
+				'default'           => 12,
+				'sanitize_callback' => function ( $value ) {
+					$value = intval( $value );
+					return in_array( $value, self::POSTS_PER_PAGE_OPTIONS, true ) ? $value : 12;
+				},
 			],
 		];
 
