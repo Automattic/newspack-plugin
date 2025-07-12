@@ -28,7 +28,24 @@ do_action( 'newspack_collections_archive_start' );
 
 	<main id="main" class="site-main">
 
-		<?php if ( have_posts() ) : ?>
+		<?php
+		if ( have_posts() ) :
+			// Render the intro section only if it's the first page of results and "Highlight Most Recent Collection" setting is enabled.
+			if ( ! is_paged() && Settings::get_setting( 'highlight_latest' ) ) :
+				get_template_part(
+					Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro',
+					null,
+					[
+						'is_latest' => true,
+						'permalink' => true,
+					]
+				);
+
+				// Advance the loop to the next post so it doesn't render twice.
+				the_post();
+				?>
+				<hr class="has-light-gray-background-color has-background is-style-wide"/>
+			<?php endif; ?>
 
 			<!-- Filter controls -->
 			<form class="collections-filter" method="get">
@@ -39,9 +56,9 @@ do_action( 'newspack_collections_archive_start' );
 				?>
 
 				<div class="collections-filter__select">
-					<label for="year"><?php esc_html_e( 'Year:', 'newspack' ); ?></label>
+					<label for="year"><?php esc_html_e( 'Year:', 'newspack-plugin' ); ?></label>
 					<select name="year" id="year">
-						<option value="" <?php selected( $selected_year, '' ); ?>><?php esc_html_e( 'All', 'newspack' ); ?></option>
+						<option value="" <?php selected( $selected_year, '' ); ?>><?php esc_html_e( 'All', 'newspack-plugin' ); ?></option>
 						<?php foreach ( $available_years as $available_year ) : ?>
 							<option value="<?php echo esc_attr( $available_year ); ?>" <?php selected( $selected_year, $available_year ); ?>><?php echo esc_html( $available_year ); ?></option>
 						<?php endforeach; ?>
@@ -54,9 +71,9 @@ do_action( 'newspack_collections_archive_start' );
 				if ( count( $categories ) > 1 ) :
 					?>
 					<div class="collections-filter__select">
-						<label for="category"><?php esc_html_e( 'Publication:', 'newspack' ); ?></label>
+						<label for="category"><?php esc_html_e( 'Publication:', 'newspack-plugin' ); ?></label>
 						<select name="category" id="category">
-							<option value="" <?php selected( $selected_category, '' ); ?>><?php esc_html_e( 'All', 'newspack' ); ?></option>
+							<option value="" <?php selected( $selected_category, '' ); ?>><?php esc_html_e( 'All', 'newspack-plugin' ); ?></option>
 							<?php foreach ( $categories as $category ) : ?>
 								<option value="<?php echo esc_attr( $category->slug ); ?>" <?php selected( $selected_category, $category->slug ); ?>><?php echo esc_html( $category->name ); ?></option>
 							<?php endforeach; ?>
@@ -66,6 +83,8 @@ do_action( 'newspack_collections_archive_start' );
 				<?php endif; ?>
 
 			</form> <!-- .collections-filter -->
+
+			<hr class="has-light-gray-background-color has-background is-style-wide"/>
 
 			<?php
 			/**
