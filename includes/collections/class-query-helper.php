@@ -412,12 +412,14 @@ class Query_Helper {
 	/**
 	 * Get collections that a post belongs to.
 	 *
-	 * @param int  $post_id      The post ID.
-	 * @param bool $return_posts Whether to return collection posts or just terms. Default false (terms).
-	 * @param bool $single       Whether to return only the first occurrence. Default false.
+	 * @param int|WP_Post $post         Post ID or post object.
+	 * @param bool        $return_posts Whether to return collection post objects or just the IDs. Default false (IDs).
+	 * @param bool        $single       Whether to return only the first occurrence. Default false.
 	 * @return array Array of collection terms or collection posts.
 	 */
-	public static function get_post_collections( $post_id, $return_posts = false, $single = false ) {
+	public static function get_post_collections( $post, $return_posts = false, $single = false ) {
+		$post_id = $post instanceof \WP_Post ? $post->ID : $post;
+
 		$collection_terms = get_the_terms( $post_id, Collection_Taxonomy::get_taxonomy() );
 
 		if ( empty( $collection_terms ) || is_wp_error( $collection_terms ) ) {
@@ -429,32 +431,28 @@ class Query_Helper {
 			$collection_terms = array_slice( $collection_terms, 0, 1 );
 		}
 
-		if ( ! $return_posts ) {
-			$result = $collection_terms;
-		} else {
-			// Get collection posts linked to these terms.
-			$collections = [];
-			foreach ( $collection_terms as $term ) {
-				$collection_id = Sync::get_collection_linked_to_term( $term->term_id );
-				if ( $collection_id ) {
-					$collections[] = $collection_id;
-				}
+		// Get collection posts linked to these terms.
+		$collections = [];
+		foreach ( $collection_terms as $term ) {
+			$collection_id = Sync::get_collection_linked_to_term( $term->term_id );
+			if ( $collection_id ) {
+				$collections[] = $collection_id;
 			}
-
-			// Remove duplicates and get post objects.
-			$collections = array_unique( $collections );
-			$result      = array_map( 'get_post', $collections );
 		}
+
+		// There shouldn't be duplicates, but just in case.
+		$collections = array_unique( $collections );
+		$result      = $return_posts ? array_map( 'get_post', $collections ) : $collections;
 
 		/**
 		 * Filters the collections for a post.
 		 *
-		 * @param array $result       Array of collection terms or posts.
-		 * @param int   $post_id      The post ID.
-		 * @param bool  $return_posts Whether collection posts were returned.
-		 * @param bool  $single       Whether only single result was requested.
+		 * @param array       $result       Array of collection post objects or IDs.
+		 * @param int|WP_Post $post         Post ID or post object.
+		 * @param bool        $return_posts Whether collection post objects were returned.
+		 * @param bool        $single       Whether only single result was requested.
 		 */
-		return apply_filters( 'newspack_collections_post_collections', $result, $post_id, $return_posts, $single );
+		return apply_filters( 'newspack_collections_post_collections', $result, $post, $return_posts, $single );
 	}
 
 	/**

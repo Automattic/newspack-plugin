@@ -366,11 +366,11 @@ class Test_Query_Helper extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_post_collections with terms.
+	 * Test get_post_collections with IDs.
 	 *
 	 * @covers \Newspack\Collections\Query_Helper::get_post_collections
 	 */
-	public function test_get_post_collections_with_terms() {
+	public function test_get_post_collections_with_ids() {
 		$collection_id = $this->create_test_collection();
 		$post_id       = self::factory()->post->create();
 
@@ -380,12 +380,12 @@ class Test_Query_Helper extends \WP_UnitTestCase {
 		// Assign post to collection.
 		wp_set_object_terms( $post_id, $term_id, Collection_Taxonomy::get_taxonomy() );
 
-		$collection_terms = Query_Helper::get_post_collections( $post_id );
+		$collection_ids = Query_Helper::get_post_collections( $post_id );
 
-		$this->assertIsArray( $collection_terms, 'Collection terms should be an array.' );
-		$this->assertCount( 1, $collection_terms, 'There should be one collection term.' );
-		$this->assertInstanceOf( \WP_Term::class, $collection_terms[0], 'The first collection term should be an instance of WP_Term.' );
-		$this->assertEquals( $term_id, $collection_terms[0]->term_id, 'The first collection term should have the term ID ' . $term_id );
+		$this->assertIsArray( $collection_ids, 'Collection IDs should be an array.' );
+		$this->assertCount( 1, $collection_ids, 'There should be one collection ID.' );
+		$this->assertIsInt( $collection_ids[0], 'The first collection ID should be an integer.' );
+		$this->assertEquals( $collection_id, $collection_ids[0], 'The first collection ID should be ' . $collection_id );
 	}
 
 	/**
@@ -429,11 +429,11 @@ class Test_Query_Helper extends \WP_UnitTestCase {
 		wp_set_object_terms( $post_id, [ $term_id_1, $term_id_2 ], Collection_Taxonomy::get_taxonomy() );
 
 		// Test single = true returns only one result.
-		$collection_terms = Query_Helper::get_post_collections( $post_id, false, true );
+		$collection_terms = Query_Helper::get_post_collections( $post_id, true, true );
 
 		$this->assertIsArray( $collection_terms, 'Collection terms should be an array.' );
 		$this->assertCount( 1, $collection_terms, 'There should be one collection term.' );
-		$this->assertInstanceOf( \WP_Term::class, $collection_terms[0], 'The first collection term should be an instance of WP_Term.' );
+		$this->assertInstanceOf( \WP_Post::class, $collection_terms[0], 'The first collection term should be an instance of WP_Post.' );
 	}
 
 	/**

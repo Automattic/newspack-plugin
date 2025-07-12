@@ -93,9 +93,9 @@ class Cache {
 			self::clear_cache( 'posts', $post_id );
 		} elseif ( 'post' === $post_type ) {
 			// For regular posts, clear cache for all collections this post belongs to.
-			$collections = Query_Helper::get_post_collections( $post_id, true );
+			$collections = Query_Helper::get_post_collections( $post_id );
 			foreach ( $collections as $collection ) {
-				self::clear_cache( 'posts', $collection->ID );
+				self::clear_cache( 'posts', $collection );
 			}
 		}
 	}
