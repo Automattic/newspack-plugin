@@ -117,7 +117,10 @@ function Collections() {
 						/>
 						<SelectControl
 							label={ __( 'Collection Indicator Style', 'newspack-plugin' ) }
-							help={ __( 'Choose how collection indicators should be displayed on posts.', 'newspack-plugin' ) }
+							help={ __(
+								'How collection indicators should be displayed on posts. When choosing the default style, an indicator with a link will be displayed at the bottom of the post content.',
+								'newspack-plugin'
+							) }
 							value={ settings.post_indicator_style }
 							onChange={ ( value: string ) => updateSetting( 'post_indicator_style', value ) }
 							buttonOptions={ [
@@ -128,7 +131,10 @@ function Collections() {
 						{ settings.post_indicator_style === 'card' && (
 							<TextControl
 								label={ __( 'Card Message', 'newspack-plugin' ) }
-								help={ __( 'Custom message displayed in the card style indicator.', 'newspack-plugin' ) }
+								help={ __(
+									'Custom message displayed in the card style indicator, along with the featured image and a button to view the collection.',
+									'newspack-plugin'
+								) }
 								value={ settings.card_message }
 								onChange={ ( value: string ) => updateSetting( 'card_message', value ) }
 								placeholder={ DEFAULT_COLLECTIONS_SETTINGS.card_message }
