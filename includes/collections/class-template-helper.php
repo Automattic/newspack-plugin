@@ -392,4 +392,14 @@ class Template_Helper {
 		 */
 		return apply_filters( 'newspack_collections_see_all_link_html', $html );
 	}
+
+	/**
+	 * Render a separator.
+	 *
+	 * @param string $class_name Optional class for the separator.
+	 * @return string The separator HTML.
+	 */
+	public static function render_separator( $class_name = '' ) {
+		return '<hr class="has-light-gray-background-color has-background is-style-wide ' . esc_attr( $class_name ) . '"/>';
+	}
 }

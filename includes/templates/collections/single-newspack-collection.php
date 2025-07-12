@@ -37,11 +37,9 @@ get_header();
 			 * @param int $collection_id The collection post ID.
 			 */
 			do_action( 'newspack_collections_single_after_intro', $collection_id );
-			?>
 
-			<hr class="has-light-gray-background-color has-background is-style-wide"/>
+			echo wp_kses_post( Template_Helper::render_separator( 'is-latest-collection' ) );
 
-			<?php
 			// Get posts in this collection organized by sections.
 			$collection_posts = Query_Helper::get_collection_posts( $collection_id );
 
@@ -79,8 +77,8 @@ get_header();
 			$recent_collections = Query_Helper::get_recent( [ $collection_id ], 6 );
 
 			if ( $recent_collections ) :
+				echo wp_kses_post( Template_Helper::render_separator( 'is-latest-collection' ) );
 				?>
-				<hr class="has-light-gray-background-color has-background is-style-wide"/>
 
 				<!-- Recent Collections Section -->
 				<div class="collections-recent">

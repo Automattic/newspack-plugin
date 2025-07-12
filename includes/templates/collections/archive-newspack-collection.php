@@ -43,9 +43,9 @@ do_action( 'newspack_collections_archive_start' );
 
 				// Advance the loop to the next post so it doesn't render twice.
 				the_post();
-				?>
-				<hr class="has-light-gray-background-color has-background is-style-wide"/>
-			<?php endif; ?>
+				echo wp_kses_post( Template_Helper::render_separator( 'is-latest-collection' ) );
+			endif;
+			?>
 
 			<!-- Filter controls -->
 			<form class="collections-filter" method="get">
@@ -84,9 +84,9 @@ do_action( 'newspack_collections_archive_start' );
 
 			</form> <!-- .collections-filter -->
 
-			<hr class="has-light-gray-background-color has-background is-style-wide"/>
-
 			<?php
+			echo wp_kses_post( Template_Helper::render_separator() );
+
 			/**
 			 * Fires after the filter controls in the archive template.
 			 *
