@@ -4,6 +4,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
+import WizardSection from '../../../../wizards-section';
 import WizardsActionCard from '../../../../wizards-action-card';
 import useWizardApiFetchToggle from '../../../../hooks/use-wizard-api-fetch-toggle';
 import { TextControl, SelectControl, Button, Grid } from '../../../../../components/src';
@@ -91,66 +92,87 @@ function Collections() {
 				<>
 					<CustomNamingCard settings={ settings } isSaving={ isSavingSettings } onChange={ updateSetting } />
 
-					<Grid columns={ 2 } gutter={ 32 }>
-						<TextControl
-							label={ __( 'Subscription URL', 'newspack-plugin' ) }
-							help={ __(
-								'URL for the "Subscribe" button that will be displayed in the Collections archive page when no subscription URL is set for the Collection or its parent category.',
-								'newspack-plugin'
-							) }
-							value={ settings.subscribe_link }
-							onChange={ ( value: string ) => updateSetting( 'subscribe_link', value ) }
-							placeholder={ `e.g., https://${ window.location.hostname }/subscribe` }
-						/>
-						<TextControl
-							label={ __( 'Order URL', 'newspack-plugin' ) }
-							help={ __(
-								'URL for the "Order" button that will be displayed in the Collections archive page when no order URL is set for the Collection or its parent category.',
-								'newspack-plugin'
-							) }
-							value={ settings.order_link }
-							onChange={ ( value: string ) => updateSetting( 'order_link', value ) }
-							placeholder={ `e.g., https://${ window.location.hostname }/order` }
-						/>
-						<SelectControl
-							label={ __( 'Collection Indicator Style', 'newspack-plugin' ) }
-							help={ __(
-								'How collection indicators should be displayed on posts. When choosing the default style, an indicator with a link will be displayed at the bottom of the post content.',
-								'newspack-plugin'
-							) }
-							value={ settings.post_indicator_style }
-							onChange={ ( value: string ) => updateSetting( 'post_indicator_style', value ) }
-							buttonOptions={ [
-								{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
-								{ label: __( 'Card', 'newspack-plugin' ), value: 'card' },
-							] }
-						/>
-						{ settings.post_indicator_style === 'card' && (
+					<WizardSection
+						title={ __( 'Global CTAs', 'newspack-plugin' ) }
+						description={ __(
+							'Renderd in Collections-related pages. Can be overridden on a per-category or per-collection basis.',
+							'newspack-plugin'
+						) }
+					>
+						<Grid columns={ 2 } gutter={ 32 }>
 							<TextControl
-								label={ __( 'Card Message', 'newspack-plugin' ) }
+								label={ __( 'Subscription URL', 'newspack-plugin' ) }
 								help={ __(
-									'Custom message displayed in the card style indicator, along with the featured image and a button to view the collection.',
+									'URL for the "Subscribe" button that will be displayed in the Collections archive page when no subscription URL is set for the Collection or its parent category.',
 									'newspack-plugin'
 								) }
-								value={ settings.card_message }
-								onChange={ ( value: string ) => updateSetting( 'card_message', value ) }
-								placeholder={ DEFAULT_COLLECTIONS_SETTINGS.card_message }
+								value={ settings.subscribe_link }
+								onChange={ ( value: string ) => updateSetting( 'subscribe_link', value ) }
+								placeholder={ `e.g., https://${ window.location.hostname }/subscribe` }
 							/>
-						) }
-					</Grid>
+							<TextControl
+								label={ __( 'Order URL', 'newspack-plugin' ) }
+								help={ __(
+									'URL for the "Order" button that will be displayed in the Collections archive page when no order URL is set for the Collection or its parent category.',
+									'newspack-plugin'
+								) }
+								value={ settings.order_link }
+								onChange={ ( value: string ) => updateSetting( 'order_link', value ) }
+								placeholder={ `e.g., https://${ window.location.hostname }/order` }
+							/>
+						</Grid>
+					</WizardSection>
 
-					<Grid columns={ 2 } gutter={ 32 }>
-						<SelectControl
-							label={ __( 'Collections per page', 'newspack-plugin' ) }
-							help={ __( 'Number of collections to display per page in the Collections archive page.', 'newspack-plugin' ) }
-							value={ settings.posts_per_page }
-							onChange={ ( value: number ) => updateSetting( 'posts_per_page', value ) }
-							buttonOptions={ COLLECTIONS_PER_PAGE_OPTIONS.map( option => ( {
-								label: option.toString(),
-								value: option,
-							} ) ) }
-						/>
-					</Grid>
+					<WizardSection
+						title={ __( 'Collections Archive', 'newspack-plugin' ) }
+						description={ __( 'Customize the Collections archive page.', 'newspack-plugin' ) }
+					>
+						<Grid columns={ 2 } gutter={ 32 }>
+							<SelectControl
+								label={ __( 'Collections per page', 'newspack-plugin' ) }
+								help={ __( 'Number of collections to display per page in the Collections archive page.', 'newspack-plugin' ) }
+								value={ settings.posts_per_page }
+								onChange={ ( value: number ) => updateSetting( 'posts_per_page', value ) }
+								buttonOptions={ COLLECTIONS_PER_PAGE_OPTIONS.map( option => ( {
+									label: option.toString(),
+									value: option,
+								} ) ) }
+							/>
+						</Grid>
+					</WizardSection>
+
+					<WizardSection
+						title={ __( 'Collection Posts', 'newspack-plugin' ) }
+						description={ __( 'Customize post single pages when they belong to a collection.', 'newspack-plugin' ) }
+					>
+						<Grid columns={ 2 } gutter={ 32 }>
+							<SelectControl
+								label={ __( 'Collection Indicator Style', 'newspack-plugin' ) }
+								help={ __(
+									'How collection indicators should be displayed on posts. When choosing the default style, an indicator with a link will be displayed at the bottom of the post content.',
+									'newspack-plugin'
+								) }
+								value={ settings.post_indicator_style }
+								onChange={ ( value: string ) => updateSetting( 'post_indicator_style', value ) }
+								buttonOptions={ [
+									{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
+									{ label: __( 'Card', 'newspack-plugin' ), value: 'card' },
+								] }
+							/>
+							{ settings.post_indicator_style === 'card' && (
+								<TextControl
+									label={ __( 'Card Message', 'newspack-plugin' ) }
+									help={ __(
+										'Custom message displayed in the card style indicator, along with the featured image and a button to view the collection.',
+										'newspack-plugin'
+									) }
+									value={ settings.card_message }
+									onChange={ ( value: string ) => updateSetting( 'card_message', value ) }
+									placeholder={ DEFAULT_COLLECTIONS_SETTINGS.card_message }
+								/>
+							) }
+						</Grid>
+					</WizardSection>
 
 					<div className="newspack-buttons-card">
 						<Button variant="primary" onClick={ handleSaveSettings } disabled={ isSavingSettings }>
