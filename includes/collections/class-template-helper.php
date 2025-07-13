@@ -83,10 +83,10 @@ class Template_Helper {
 	 * Override template part loading for Collections pages to use plugin templates as fallback.
 	 * Follows WordPress template hierarchy - theme template parts take precedence.
 	 *
-	 * @param string   $slug      The template slug.
-	 * @param string   $name      The template name.
+	 * @param string   $slug      The slug name for the generic template.
+	 * @param string   $name      The name of the specialized template or an empty string if there is none.
 	 * @param string[] $templates Array of template names.
-	 * @param array    $args      Additional arguments.
+	 * @param array    $args      Additional arguments passed to the template.
 	 */
 	public static function load_template_part( $slug, $name, $templates, $args ) {
 		if ( ! str_starts_with( $slug, self::TEMPLATE_PARTS_DIR ) ) {
@@ -102,8 +102,24 @@ class Template_Helper {
 			return;
 		}
 
-		// Fallback to plugin template.
-		$plugin_template = plugin_dir_path( __DIR__ ) . "templates/{$template_file}";
+		/**
+		 * Filters the fallback plugin template path before attempting to load it.
+		 *
+		 * @param string $plugin_template Path to the plugin template.
+		 * @param string $template_file   Relative template file name.
+		 * @param string $slug            The slug name for the generic template.
+		 * @param string $name            The name of the specialized template or an empty string if there is none.
+		 * @param array  $args            Additional arguments passed to the template.
+		 */
+		$plugin_template = apply_filters(
+			'newspack_collections_plugin_template_part',
+			plugin_dir_path( __DIR__ ) . "templates/{$template_file}",
+			$template_file,
+			$slug,
+			$name,
+			$args
+		);
+
 		if ( file_exists( $plugin_template ) ) {
 			load_template( $plugin_template, false, $args );
 		}
