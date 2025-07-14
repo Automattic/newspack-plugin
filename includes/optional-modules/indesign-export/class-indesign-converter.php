@@ -78,9 +78,9 @@ class InDesign_Converter {
 		}
 
 		if ( $options['include_byline'] ) {
-			$author_name = get_the_author_meta( 'display_name', absint( $post->post_author ) );
-			if ( $author_name ) {
-				$content_parts[] = $this->styles['byline'] . $this->convert_text_for_indesign( $author_name );
+			$byline = $this->get_byline( $post );
+			if ( ! empty( $byline ) ) {
+				$content_parts[] = $this->styles['byline'] . $this->convert_text_for_indesign( $byline );
 			}
 		}
 
@@ -103,6 +103,47 @@ class InDesign_Converter {
 	private function get_post_subtitle( $post ) {
 		$subtitle = get_post_meta( $post->ID, 'newspack_post_subtitle', true );
 		return $subtitle ?? null;
+	}
+
+	/**
+	 * Get the post authors.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return array Array of author objects.
+	 */
+	private function get_post_authors( $post ) {
+		if ( function_exists( 'get_coauthors' ) ) {
+			return get_coauthors( $post->ID );
+		}
+
+		$author = get_userdata( $post->post_author );
+		return $author ? [ $author ] : [];
+	}
+
+	/**
+	 * Format byline.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return string Formatted byline.
+	 */
+	private function get_byline( $post ) {
+		$authors = $this->get_post_authors( $post );
+
+		if ( empty( $authors ) ) {
+			return '';
+		}
+
+		$author_names = [];
+		foreach ( $authors as $author ) {
+			$author_names[] = $author->display_name;
+		}
+
+		if ( 1 === count( $author_names ) ) {
+			return $author_names[0];
+		} else {
+			$last_author = array_pop( $author_names );
+			return implode( ', ', $author_names ) . ' & ' . $last_author;
+		}
 	}
 
 	/**
