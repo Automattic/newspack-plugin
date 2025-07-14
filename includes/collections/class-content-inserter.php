@@ -69,6 +69,14 @@ class Content_Inserter {
 			return;
 		}
 
+		// Sort by post date descending.
+		usort(
+			$collections,
+			function ( $a, $b ) {
+				return get_the_date( 'U', $b ) - get_the_date( 'U', $a );
+			}
+		);
+
 		self::$post_collections = $collections;
 		Enqueuer::add_data( 'post_is_in_collections', true );
 		add_filter( 'the_content', [ __CLASS__, 'maybe_insert_collection_indicators' ], 1 );
