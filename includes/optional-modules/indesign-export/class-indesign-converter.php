@@ -242,8 +242,8 @@ class InDesign_Converter {
 			'/<a[^>]*>/'                         => '',
 			'/<\/a>/'                            => '',
 
-			// Remove closing tags for block elements.
-			'/<\/(?:p|blockquote|cite|h[1-6])>/' => '',
+			// Remove closing tags for block elements and add line breaks.
+			'/<\/(?:p|blockquote|cite|h[1-6])>/' => "\r\n",
 		];
 
 		foreach ( $conversions as $pattern => $replacement ) {
