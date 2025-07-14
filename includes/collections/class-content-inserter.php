@@ -166,15 +166,15 @@ class Content_Inserter {
 					</div>
 
 					<div class="wp-block-column collection-card__buttons-column is-vertically-aligned-center">
-						<?php 
+						<?php
 						echo wp_kses_post(
 							Template_Helper::render_cta(
 								[
 									'url'   => $collection_link,
 									'label' => __( 'See more', 'newspack-plugin' ),
-								] 
-							) 
-						); 
+								]
+							)
+						);
 						?>
 					</div>
 				</div>
@@ -255,26 +255,41 @@ class Content_Inserter {
 	 * Build the default indicator HTML.
 	 *
 	 * @param int[]|WP_Post[] $collections The collections.
-	 * @param int|null        $limit       The number of collections to render. Default is self::MAX_COLLECTIONS_TO_RENDER.
+	 * @param int|null        $limit       The number of collections to render. Default is null (show all).
 	 * @return string The indicator HTML.
 	 */
-	public static function build_default_indicator_html( $collections, $limit = self::MAX_COLLECTIONS_TO_RENDER ) {
+	public static function build_default_indicator_html( $collections, $limit = null ) {
+		if ( ! is_array( $collections ) ) {
+			return '';
+		}
+
+		if ( $limit ) {
+			$collections = array_slice( $collections, 0, $limit );
+		}
+
 		if ( empty( $collections ) ) {
 			return '';
 		}
 
-		$collections    = is_array( $collections ) ? array_slice( $collections, 0, $limit ) : [];
-		$indicator_html = '';
-		$intro_text     = __( 'This article appears in', 'newspack-plugin' );
+		$collection_links = array_map(
+			function ( $collection ) {
+				return sprintf(
+					'<a href="%s">%s</a>',
+					esc_url( get_permalink( $collection ) ),
+					esc_html( get_the_title( $collection ) )
+				);
+			},
+			$collections
+		);
 
-		foreach ( $collections as $collection ) {
-			$indicator_html .= sprintf(
-				'<p class="collection-link has-small-font-size">%s <a href="%s">%s</a>.</p>',
-				esc_html( $intro_text ),
-				esc_url( get_permalink( $collection ) ),
-				esc_html( get_the_title( $collection ) )
-			);
-		}
+		$indicator_html = sprintf(
+			'<p class="collection-link has-small-font-size">%s</p>',
+			wp_sprintf(
+				/* translators: %l is replaced with the collection name(s) */
+				__( 'This article appears in %l.', 'newspack-plugin' ),
+				$collection_links
+			)
+		);
 
 		/**
 		 * Filters the collection default indicator HTML.

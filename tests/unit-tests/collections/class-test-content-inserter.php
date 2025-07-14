@@ -127,12 +127,12 @@ class Test_Content_Inserter extends \WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Content_Inserter::build_default_indicator_html
 	 */
 	public function test_maybe_insert_collection_indicators_default_style() {
-		$collection_title = 'Test Collection';
-		$collection_id    = $this->create_test_collection( [ 'post_title' => $collection_title ] );
+		$collection_id_1 = $this->create_test_collection( [ 'post_title' => 'Test Collection 1' ] );
+		$collection_id_2 = $this->create_test_collection( [ 'post_title' => 'Test Collection 2' ] );
 
 		// Set up collections for the inserter.
 		$reflection = new \ReflectionClass( Content_Inserter::class );
-		$reflection->setStaticPropertyValue( 'post_collections', [ $collection_id ] );
+		$reflection->setStaticPropertyValue( 'post_collections', [ $collection_id_1, $collection_id_2 ] );
 
 		// Mock in_the_loop() to return true.
 		global $wp_query;
@@ -143,8 +143,8 @@ class Test_Content_Inserter extends \WP_UnitTestCase {
 
 		$this->assertStringContainsString( $content, $result, 'Original content should be preserved.' );
 		$this->assertStringContainsString( 'This article appears in', $result, 'Default indicator text should be present.' );
-		$this->assertStringContainsString( $collection_title, $result, 'Collection title should be present.' );
-		$this->assertStringContainsString( get_permalink( $collection_id ), $result, 'Collection link should be present.' );
+		$this->assertStringContainsString( get_the_title( $collection_id_1 ), $result, 'Collection title should be present.' );
+		$this->assertStringContainsString( get_permalink( $collection_id_2 ), $result, 'Collection link should be present.' );
 	}
 
 	/**
