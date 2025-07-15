@@ -16,6 +16,7 @@ import Syndication from './syndication';
 import AdvancedSettings from './advanced-settings';
 import ThemeAndBrand from './theme-and-brand';
 import Collections from './collections';
+import Print from './print';
 
 type SectionKeys = keyof typeof settingsTabs;
 
@@ -28,6 +29,7 @@ const sectionComponents: Partial< Record< SectionKeys | 'default', ( props: { is
 	'theme-and-brand': ThemeAndBrand,
 	'advanced-settings': AdvancedSettings,
 	collections: Collections,
+	print: Print,
 	default: () => <h2>🚫 { __( 'Not found' ) }</h2>,
 };
 

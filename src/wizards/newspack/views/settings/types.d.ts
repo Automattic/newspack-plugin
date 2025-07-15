@@ -99,3 +99,11 @@ type JetpackSSOSettings = Partial< {
 	obfuscate_account: boolean;
 	available_caps: { [ key in JetpackSSOCaps ]?: string };
 } >;
+
+/** Print */
+/**
+ * Print API data
+ */
+type PrintData = {
+	module_enabled_print: boolean;
+};
