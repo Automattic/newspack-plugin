@@ -27,7 +27,7 @@ class InDesign_Exporter {
 	 * Initialize the module.
 	 */
 	public static function init() {
-		if ( ! self::is_feature_enabled() || ! Optional_Modules::is_optional_module_active( self::MODULE_NAME ) ) {
+		if ( ! Optional_Modules::is_optional_module_active( self::MODULE_NAME ) ) {
 			return;
 		}
 
@@ -42,22 +42,6 @@ class InDesign_Exporter {
 		add_filter( 'post_row_actions', [ __CLASS__, 'add_row_action' ], 10, 2 );
 		add_action( 'admin_post_export_indesign_single', [ __CLASS__, 'handle_single_export' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notices' ] );
-	}
-
-	/**
-	 * Whether the InDesign Export module is enabled.
-	 *
-	 * @return bool True if InDesign Export is enabled.
-	 */
-	public static function is_feature_enabled() {
-		$is_enabled = defined( 'NEWSPACK_INDESIGN_EXPORT_ENABLED' ) ? constant( 'NEWSPACK_INDESIGN_EXPORT_ENABLED' ) : false;
-
-		/**
-		 * Filters whether the InDesign Export feature is enabled.
-		 *
-		 * @param bool $is_enabled Whether the InDesign Export module is enabled.
-		 */
-		return apply_filters( 'newspack_indesign_export_enabled', $is_enabled );
 	}
 
 	/**
