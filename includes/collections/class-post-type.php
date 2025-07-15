@@ -118,7 +118,7 @@ class Post_Type {
 				'slug' => Settings::get_setting( 'custom_naming_enabled', false ) ? Settings::get_setting( 'custom_slug', 'collection' ) : 'collection',
 			],
 			'menu_icon'    => 'dashicons-portfolio',
-			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes', 'newspack-blocks' ],
+			'supports'     => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes', 'newspack_blocks' ],
 			'has_archive'  => true,
 		];
 
