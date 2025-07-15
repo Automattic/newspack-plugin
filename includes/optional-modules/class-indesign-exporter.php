@@ -57,6 +57,22 @@ class InDesign_Exporter {
 	}
 
 	/**
+	 * Get supported post types for InDesign export.
+	 *
+	 * @return array Array of supported post types.
+	 */
+	public static function get_supported_post_types() {
+		$supported_post_types = [ 'post' ];
+
+		/**
+		 * Filters the post types that support InDesign export.
+		 *
+		 * @param array $supported_post_types Array of post type names that support InDesign export.
+		 */
+		return apply_filters( 'newspack_indesign_export_supported_post_types', $supported_post_types );
+	}
+
+	/**
 	 * Add bulk action to posts list table.
 	 *
 	 * @param array $bulk_actions Existing bulk actions.
@@ -104,7 +120,7 @@ class InDesign_Exporter {
 	 * @return array Modified row actions.
 	 */
 	public static function add_row_action( $actions, $post ) {
-		if ( 'post' === $post->post_type && current_user_can( 'edit_post', $post->ID ) ) {
+		if ( in_array( $post->post_type, self::get_supported_post_types(), true ) && current_user_can( 'edit_post', $post->ID ) ) {
 			$export_url = wp_nonce_url(
 				add_query_arg(
 					[
