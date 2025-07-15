@@ -17,19 +17,94 @@ class Settings {
 	/**
 	 * Option name for all collection settings.
 	 */
-	const OPTION_NAME = 'newspack_collections_settings';
+	public const OPTION_NAME = 'newspack_collections_settings';
 
 	/**
-	 * Settings fields and their defaults.
+	 * Posts per page options.
 	 */
-	const FIELDS = [
-		'custom_naming_enabled' => false,
-		'custom_name'           => '',
-		'custom_singular_name'  => '',
-		'custom_slug'           => '',
-		'subscribe_link'        => '',
-		'order_link'            => '',
-	];
+	public const POSTS_PER_PAGE_OPTIONS = [ 12, 18, 24 ];
+
+	/**
+	 * Get fields definitions to be used in the REST API.
+	 *
+	 * @param string $return_type Whether to return only the default values, keys, or all. Returns all the configuration by default.
+	 * @return array Fields definitions.
+	 */
+	public static function get_rest_args( $return_type = 'all' ) {
+		$fields = [
+			'custom_naming_enabled' => [
+				'required'          => false,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			],
+			'custom_name'           => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'custom_singular_name'  => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'custom_slug'           => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => function ( $value ) {
+					return sanitize_title( is_string( $value ) ? $value : '' );
+				},
+			],
+			'subscribe_link'        => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => 'esc_url_raw',
+			],
+			'order_link'            => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => 'esc_url_raw',
+			],
+			'post_indicator_style'  => [
+				'required'          => false,
+				'default'           => 'default',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'card_message'          => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'posts_per_page'        => [
+				'required'          => false,
+				'default'           => 12,
+				'sanitize_callback' => function ( $value ) {
+					$value = intval( $value );
+					return in_array( $value, self::POSTS_PER_PAGE_OPTIONS, true ) ? $value : 12;
+				},
+			],
+			'highlight_latest'      => [
+				'required'          => false,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			],
+		];
+
+		switch ( $return_type ) {
+			case 'defaults':
+				$fields = array_map(
+					function ( $field ) {
+						return $field['default'];
+					},
+					$fields
+				);
+				break;
+			case 'keys':
+				$fields = array_keys( $fields );
+				break;
+		}
+
+		return $fields;
+	}
 
 	/**
 	 * Get all collection settings with defaults applied.
@@ -38,8 +113,9 @@ class Settings {
 	 */
 	public static function get_settings() {
 		$collection_settings = get_option( self::OPTION_NAME, [] );
+		$defaults            = self::get_rest_args( 'defaults' );
 
-		return wp_parse_args( $collection_settings, self::FIELDS );
+		return wp_parse_args( $collection_settings, $defaults );
 	}
 
 	/**
@@ -127,42 +203,6 @@ class Settings {
 	}
 
 	/**
-	 * Get REST API args for collection fields.
-	 *
-	 * @return array REST API arguments.
-	 */
-	public static function get_rest_args() {
-		return [
-			'custom_naming_enabled' => [
-				'required'          => false,
-				'sanitize_callback' => 'rest_sanitize_boolean',
-			],
-			'custom_name'           => [
-				'required'          => false,
-				'sanitize_callback' => 'sanitize_text_field',
-			],
-			'custom_singular_name'  => [
-				'required'          => false,
-				'sanitize_callback' => 'sanitize_text_field',
-			],
-			'custom_slug'           => [
-				'required'          => false,
-				'sanitize_callback' => function ( $value ) {
-					return sanitize_title( is_string( $value ) ? $value : '' );
-				},
-			],
-			'subscribe_link'        => [
-				'required'          => false,
-				'sanitize_callback' => 'esc_url_raw',
-			],
-			'order_link'            => [
-				'required'          => false,
-				'sanitize_callback' => 'esc_url_raw',
-			],
-		];
-	}
-
-	/**
 	 * Update collection settings from REST request.
 	 * Conditionally flushes rewrite rules when there are changes that will affect the post type or taxonomy slugs.
 	 *
@@ -173,7 +213,7 @@ class Settings {
 		$settings         = self::get_settings();
 		$updated_settings = [];
 
-		foreach ( array_keys( self::FIELDS ) as $key ) {
+		foreach ( self::get_rest_args( 'keys' ) as $key ) {
 			if ( ! $request->has_param( $key ) ) {
 				continue;
 			}

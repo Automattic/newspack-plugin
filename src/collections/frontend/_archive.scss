@@ -1,9 +1,14 @@
 @use "breakpoints" as bp;
+@use "intro";
 
 /* Collections archive template styles */
 .post-type-archive-newspack_collection {
 	main#main {
 		width: 100%;
+	}
+
+	hr {
+		margin: 16px 0;
 	}
 
 	.collections-filter {
