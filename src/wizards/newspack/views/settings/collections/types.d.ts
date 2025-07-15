@@ -9,6 +9,8 @@ type CollectionsSettingsData = {
 	order_link: string;
 	post_indicator_style: string;
 	card_message: string;
+	posts_per_page: number;
+	highlight_latest: boolean;
 };
 
 type FieldChangeHandler< T > = < K extends keyof T >( key: K, value: T[ K ] ) => void;

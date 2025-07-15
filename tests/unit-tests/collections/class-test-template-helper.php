@@ -254,4 +254,32 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		$this->assertStringContainsString( '<a ', $html, 'See all link should be rendered.' );
 		$this->assertStringContainsString( get_post_type_archive_link( Post_Type::get_post_type() ), $html, 'See all link should point to the collection archive.' );
 	}
+
+	/**
+	 * Test load_template_part handles collections template parts correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::load_template_part
+	 */
+	public function test_load_template_part() {
+		ob_start();
+		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', null, [], [] );
+		$output = ob_get_clean();
+		$this->assertNotEmpty( $output, 'Collections template part should be processed.' );
+		$this->assertStringContainsString( 'collection-intro', $output, 'Collections template part should contain "collection-intro".' );
+
+		// Test collections template part with name parameter.
+		ob_start();
+		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', 'variant', [], [] );
+		$this->assertEmpty( ob_get_clean(), 'Template with name should not output without existing file.' );
+
+		// Test collections template part with missing file should not output anything.
+		ob_start();
+		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'non-existent', null, [], [] );
+		$this->assertEmpty( ob_get_clean(), 'Missing template should not output anything.' );
+
+		// Test non-collections template part.
+		ob_start();
+		Template_Helper::load_template_part( 'some/other/template', null, [], [] );
+		$this->assertEmpty( ob_get_clean(), 'Non-collections template should not be processed.' );
+	}
 }

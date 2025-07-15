@@ -133,13 +133,14 @@ class Query_Helper {
 	/**
 	 * Get processed CTAs from a collection post.
 	 *
-	 * @param int      $post_id     The post ID.
-	 * @param int|null $limit       Optional limit on the number of CTAs.
-	 * @param bool     $hierarchical Whether to include hierarchical CTAs. Default is true.
+	 * @param int|WP_Post $post         The post ID or post object.
+	 * @param int|null    $limit        Optional limit on the number of CTAs.
+	 * @param bool        $hierarchical Whether to include hierarchical CTAs. Default is true.
 	 * @return array Array of processed CTAs with 'url' and 'label' keys.
 	 */
-	public static function get_ctas( $post_id, $limit = null, $hierarchical = true ) {
-		$ctas = Collection_Meta::get( $post_id, 'ctas' );
+	public static function get_ctas( $post, $limit = null, $hierarchical = true ) {
+		$post_id = $post instanceof \WP_Post ? $post->ID : $post;
+		$ctas    = Collection_Meta::get( $post_id, 'ctas' );
 
 		if ( ! is_array( $ctas ) ) {
 			$ctas = [];
@@ -199,8 +200,8 @@ class Query_Helper {
 	 */
 	public static function get_hierarchical_ctas( $post_id ) {
 		$cta_keys = [
-			'subscribe_link' => __( 'Subscribe', 'newspack' ),
-			'order_link'     => __( 'Order', 'newspack' ),
+			'subscribe_link' => __( 'Subscribe', 'newspack-plugin' ),
+			'order_link'     => __( 'Order', 'newspack-plugin' ),
 		];
 
 		$ctas = array_values(
