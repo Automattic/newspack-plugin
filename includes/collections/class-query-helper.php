@@ -14,80 +14,12 @@ defined( 'ABSPATH' ) || exit;
  */
 class Query_Helper {
 
-	public const COVER_SECTION   = 'cover';
-	public const YEARS_CACHE_KEY = 'newspack_collections_years_data';
-	public const CACHE_GROUP     = 'newspack_collections';
-
 	/**
-	 * Initialize cache invalidation hooks.
-	 */
-	public static function init() {
-		// Clear cache when collections are saved, deleted, or status changes.
-		add_action( 'save_post_' . Post_Type::get_post_type(), [ __CLASS__, 'clear_cache_on_collection_change' ] );
-		add_action( 'delete_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
-		add_action( 'wp_trash_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
-		add_action( 'untrash_post', [ __CLASS__, 'clear_cache_on_collection_change' ] );
-
-		// Clear cache when collection categories are created, edited, or deleted.
-		add_action( 'create_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
-		add_action( 'edit_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
-		add_action( 'delete_term', [ __CLASS__, 'clear_cache_on_term_change' ], 10, 3 );
-
-		// Clear cache when term relationships change (posts assigned to collections).
-		add_action( 'set_object_terms', [ __CLASS__, 'clear_cache_on_term_relationship_change' ], 10, 4 );
-	}
-
-	/**
-	 * Clear the available years cache.
-	 */
-	public static function clear_available_years_cache() {
-		wp_cache_delete( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
-	}
-
-	/**
-	 * Clear cache when a collection post is modified.
+	 * Cover section (virtual) slug.
 	 *
-	 * @param int $post_id The post ID.
+	 * @var string
 	 */
-	public static function clear_cache_on_collection_change( $post_id ) {
-		if ( get_post_type( $post_id ) === Post_Type::get_post_type() ) {
-			self::clear_available_years_cache();
-		}
-	}
-
-	/**
-	 * Clear cache when collection taxonomies are modified.
-	 *
-	 * @param int    $term_id  Term ID.
-	 * @param int    $tt_id    Term taxonomy ID.
-	 * @param string $taxonomy Taxonomy slug.
-	 */
-	public static function clear_cache_on_term_change( $term_id, $tt_id, $taxonomy ) {
-		if (
-			Collection_Category_Taxonomy::get_taxonomy() === $taxonomy ||
-			Collection_Taxonomy::get_taxonomy() === $taxonomy
-		) {
-			self::clear_available_years_cache();
-		}
-	}
-
-	/**
-	 * Clear cache when term relationships change for collections.
-	 *
-	 * @param int    $object_id Object ID.
-	 * @param array  $terms     An array of object terms.
-	 * @param array  $tt_ids    An array of term taxonomy IDs.
-	 * @param string $taxonomy  Taxonomy slug.
-	 */
-	public static function clear_cache_on_term_relationship_change( $object_id, $terms, $tt_ids, $taxonomy ) {
-		if (
-			Collection_Category_Taxonomy::get_taxonomy() === $taxonomy ||
-			Collection_Taxonomy::get_taxonomy() === $taxonomy ||
-			Post_Type::get_post_type() === get_post_type( $object_id )
-		) {
-			self::clear_available_years_cache();
-		}
-	}
+	public const COVER_SECTION = 'cover';
 
 	/**
 	 * Get available years from published collections for filtering.
@@ -97,61 +29,72 @@ class Query_Helper {
 	 */
 	public static function get_available_years( $selected_category = '' ) {
 		// Try to get from cache first.
-		$cached_data = wp_cache_get( self::YEARS_CACHE_KEY, self::CACHE_GROUP );
-		if ( false !== $cached_data && isset( $cached_data[ $selected_category ] ) ) {
-			return $cached_data[ $selected_category ];
-		}
+		$cached_data    = wp_cache_get( Cache::YEARS_CACHE_KEY, Cache::CACHE_GROUP );
+		$category_years = [];
 
-		global $wpdb;
+		if ( ! empty( $cached_data[ $selected_category ] ) && is_array( $cached_data[ $selected_category ] ) ) {
+			$category_years = $cached_data[ $selected_category ];
+		} elseif ( ! empty( $cached_data[''] ) && is_array( $cached_data[''] ) ) {
+			$category_years = $cached_data[''];
+		} else {
+			global $wpdb;
 
-		// Get all years with their associated categories in one query.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$results = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT DISTINCT YEAR(p.post_date) as year, t.slug as category
-				FROM {$wpdb->posts} p
-				INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
-				INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-				INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
-				WHERE tt.taxonomy = %s
-				AND p.post_type = %s
-				AND p.post_status = 'publish'
-				ORDER BY year DESC",
-				Collection_Category_Taxonomy::get_taxonomy(),
-				Post_Type::get_post_type()
-			)
-		);
+			// Get all years with their associated categories in one query.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$results = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT DISTINCT YEAR(p.post_date) as year, t.slug as category
+					FROM {$wpdb->posts} p
+					LEFT JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id AND EXISTS (
+						SELECT 1 FROM {$wpdb->term_taxonomy} tt2
+						WHERE tr.term_taxonomy_id = tt2.term_taxonomy_id
+						AND tt2.taxonomy = %s
+					)
+					LEFT JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+					LEFT JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
+					WHERE p.post_type = %s
+					AND p.post_status = 'publish'
+					ORDER BY year DESC",
+					Collection_Category_Taxonomy::get_taxonomy(),
+					Post_Type::get_post_type()
+				)
+			);
 
-		$years_data = [ '' => [] ]; // Initialize with empty category (all years).
+			$years_data = [ '' => [] ]; // Initialize with empty category (all years).
 
-		foreach ( $results as $result ) {
-			$year = intval( $result->year );
-			if ( $year ) {
-				// Add to "all years" (empty category).
-				if ( ! in_array( $year, $years_data[''], true ) ) {
-					$years_data[''][] = $year;
-				}
-
-				// Add to specific category if it exists.
-				if ( $result->category ) {
-					if ( ! isset( $years_data[ $result->category ] ) ) {
-						$years_data[ $result->category ] = [];
+			if ( is_array( $results ) ) {
+				foreach ( $results as $result ) {
+					$year = (int) $result->year;
+					if ( ! $year ) {
+						continue;
 					}
-					if ( ! in_array( $year, $years_data[ $result->category ], true ) ) {
+
+					$years_data[''][] = $year;
+
+					if ( $result->category ) {
 						$years_data[ $result->category ][] = $year;
 					}
 				}
+
+				// Sort all arrays in descending order and ensure uniqueness.
+				foreach ( $years_data as &$years ) {
+					$years = array_unique( $years );
+					rsort( $years );
+				}
+				unset( $years );
 			}
+
+			wp_cache_set( Cache::YEARS_CACHE_KEY, $years_data, Cache::CACHE_GROUP );
+			$category_years = $years_data[ $selected_category ] ?? [];
 		}
 
-		// Sort all arrays in descending order.
-		foreach ( $years_data as &$years ) {
-			rsort( $years );
-		}
-
-		wp_cache_set( self::YEARS_CACHE_KEY, $years_data, self::CACHE_GROUP );
-
-		return $years_data[ $selected_category ] ?? [];
+		/**
+		 * Filters the available years for a given collection category.
+		 *
+		 * @param array  $category_years    Array of years.
+		 * @param string $selected_category Selected category slug.
+		 */
+		return apply_filters( 'newspack_collections_available_years', (array) $category_years, $selected_category );
 	}
 
 	/**
@@ -176,7 +119,11 @@ class Query_Helper {
 		 */
 		$categories = apply_filters( 'newspack_collections_collection_categories', $categories );
 
-		if ( is_wp_error( $categories ) ) {
+		if (
+			is_wp_error( $categories ) ||
+			! is_array( $categories ) ||
+			( ! empty( $categories ) && ! $categories[0] instanceof \WP_Term )
+		) {
 			return [];
 		}
 
@@ -186,37 +133,36 @@ class Query_Helper {
 	/**
 	 * Get processed CTAs from a collection post.
 	 *
-	 * @param int      $post_id The post ID.
-	 * @param int|null $limit Optional limit on the number of CTAs.
+	 * @param int|WP_Post $post         The post ID or post object.
+	 * @param int|null    $limit        Optional limit on the number of CTAs.
+	 * @param bool        $hierarchical Whether to include hierarchical CTAs. Default is true.
 	 * @return array Array of processed CTAs with 'url' and 'label' keys.
 	 */
-	public static function get_ctas( $post_id, $limit = null ) {
-		$ctas = Collection_Meta::get( $post_id, 'ctas' );
+	public static function get_ctas( $post, $limit = null, $hierarchical = true ) {
+		$post_id = $post instanceof \WP_Post ? $post->ID : $post;
+		$ctas    = Collection_Meta::get( $post_id, 'ctas' );
 
-		if ( ! is_array( $ctas ) || empty( $ctas ) ) {
+		if ( ! is_array( $ctas ) ) {
+			$ctas = [];
+		}
+
+		// Add hierarchical CTAs if enabled and there's room.
+		if ( $hierarchical && ( null === $limit || count( $ctas ) < $limit ) ) {
+			$hierarchical_ctas = self::get_hierarchical_ctas( $post_id );
+			$ctas              = array_merge( $ctas, $hierarchical_ctas );
+		}
+
+		if ( empty( $ctas ) ) {
 			return [];
 		}
 
-		$cta_count = count( $ctas );
-
-		if ( null !== $limit && $cta_count >= $limit ) {
+		// Apply limit to final result if specified.
+		if ( null !== $limit ) {
 			$ctas = array_slice( $ctas, 0, $limit );
-		} else {
-			// If there's room for more CTAs, get the hierarchical CTAs.
-			$remaining         = null !== $limit ? $limit - $cta_count : null;
-			$hierarchical_ctas = self::get_hierarchical_ctas( $post_id );
-
-			// If there's a limit, slice the hierarchical CTAs to the limit.
-			if ( null !== $remaining ) {
-				$hierarchical_ctas = array_slice( $hierarchical_ctas, 0, $remaining );
-			}
-
-			// Merge the hierarchical CTAs into the existing CTAs.
-			$ctas = array_merge( $ctas, $hierarchical_ctas );
 		}
 
 		// Process the CTAs.
-		return array_values(
+		$ctas = array_values(
 			array_filter(
 				array_map(
 					function ( $cta ) {
@@ -230,20 +176,20 @@ class Query_Helper {
 							$url = $cta['url'];
 						}
 
-						if ( $label && $url ) {
-							return [
-								'url'   => $url,
-								'label' => $label,
-								'class' => $class,
-							];
-						}
-
-						return null;
+						return ( $label && $url ) ? compact( 'url', 'label', 'class' ) : null;
 					},
 					$ctas
 				)
 			)
 		);
+
+		/**
+		 * Filters the collection CTAs.
+		 *
+		 * @param array $ctas Array of collection CTAs.
+		 * @param int   $post_id The post ID.
+		 */
+		return apply_filters( 'newspack_collections_ctas', $ctas, $post_id );
 	}
 
 	/**
@@ -254,11 +200,11 @@ class Query_Helper {
 	 */
 	public static function get_hierarchical_ctas( $post_id ) {
 		$cta_keys = [
-			'subscribe_link' => __( 'Subscribe', 'newspack' ),
-			'order_link'     => __( 'Order', 'newspack' ),
+			'subscribe_link' => __( 'Subscribe', 'newspack-plugin' ),
+			'order_link'     => __( 'Order', 'newspack-plugin' ),
 		];
 
-		return array_values(
+		$ctas = array_values(
 			array_filter(
 				array_map(
 					function ( $key ) use ( $post_id, $cta_keys ) {
@@ -291,6 +237,14 @@ class Query_Helper {
 				)
 			)
 		);
+
+		/**
+		 * Filters the hierarchical CTAs.
+		 *
+		 * @param array $ctas    Array of hierarchical CTAs.
+		 * @param int   $post_id The post ID.
+		 */
+		return apply_filters( 'newspack_collections_hierarchical_ctas', $ctas, $post_id );
 	}
 
 	/**
@@ -308,19 +262,35 @@ class Query_Helper {
 	 *    - Posts without `newspack_collection_post_order` meta (newest to oldest)
 	 *    - Posts with `newspack_collection_post_order` meta (by ascending order value)
 	 *
-	 * @param int $collection_id Collection post ID.
-	 * @return array Array of posts organized by section slug.
+	 * @param int|WP_Post $collection Collection post ID or post object.
+	 * @return array Array of post IDs organized by section slug.
 	 */
-	public static function get_collection_posts( $collection_id ) {
+	public static function get_collection_posts( $collection ) {
+		$collection_id = $collection instanceof \WP_Post ? $collection->ID : $collection;
+
+		// Try to get from cache first.
+		$cache_key   = Cache::get_posts_cache_key( $collection_id );
+		$cached_data = wp_cache_get( $cache_key, Cache::CACHE_GROUP );
+
+		if ( false !== $cached_data ) {
+			/**
+			 * Filters the collection posts organized by section.
+			 *
+			 * @param array          $post_ids_by_section Array of post IDs organized by section slug.
+			 * @param int|\WP_Post   $collection           Collection post ID or post object.
+			 */
+			return apply_filters( 'newspack_collections_posts_by_section', $cached_data, $collection );
+		}
+
 		// Get the linked collection term.
-		$linked_term_id = get_post_meta( $collection_id, Sync::LINKED_TERM_META_KEY, true );
+		$linked_term_id = Sync::get_term_linked_to_collection( $collection_id );
 		if ( ! $linked_term_id ) {
-			return [];
+			return apply_filters( 'newspack_collections_posts_by_section', [], $collection );
 		}
 
 		$term = get_term( $linked_term_id, Collection_Taxonomy::get_taxonomy() );
 		if ( ! $term || is_wp_error( $term ) ) {
-			return [];
+			return apply_filters( 'newspack_collections_posts_by_section', [], $collection );
 		}
 
 		// Get posts in this collection.
@@ -342,7 +312,7 @@ class Query_Helper {
 		);
 
 		if ( empty( $posts ) ) {
-			return [];
+			return apply_filters( 'newspack_collections_posts_by_section', [], $collection );
 		}
 
 		// Organize posts by section.
@@ -448,7 +418,62 @@ class Query_Helper {
 			}
 		);
 
-		return $sections;
+		// Cache post IDs.
+		$post_ids_by_section = [];
+
+		foreach ( $sections as $section_slug => $section_posts ) {
+			$post_ids_by_section[ $section_slug ] = wp_list_pluck( $section_posts, 'ID' );
+		}
+
+		wp_cache_set( $cache_key, $post_ids_by_section, Cache::CACHE_GROUP );
+
+		return apply_filters( 'newspack_collections_posts_by_section', $post_ids_by_section, $collection );
+	}
+
+	/**
+	 * Get collections that a post belongs to.
+	 *
+	 * @param int|WP_Post $post         Post ID or post object.
+	 * @param bool        $return_posts Whether to return collection post objects or just the IDs. Default false (IDs).
+	 * @param bool        $single       Whether to return only the first occurrence. Default false.
+	 * @return array Array of collection terms or collection posts.
+	 */
+	public static function get_post_collections( $post, $return_posts = false, $single = false ) {
+		$post_id = $post instanceof \WP_Post ? $post->ID : $post;
+
+		$collection_terms = get_the_terms( $post_id, Collection_Taxonomy::get_taxonomy() );
+
+		if ( empty( $collection_terms ) || is_wp_error( $collection_terms ) ) {
+			return [];
+		}
+
+		// Slice early if we only need one result.
+		if ( $single ) {
+			$collection_terms = array_slice( $collection_terms, 0, 1 );
+		}
+
+		// Get collection posts linked to these terms.
+		$collections = [];
+		foreach ( $collection_terms as $term ) {
+			$collection_id = Sync::get_collection_linked_to_term( $term->term_id );
+			if ( $collection_id ) {
+				$collections[] = $collection_id;
+			}
+		}
+
+		// There shouldn't be duplicates, but just in case.
+		$collections = array_unique( $collections );
+		$result      = $return_posts ? array_map( 'get_post', $collections ) : $collections;
+
+		/**
+		 * Filters the collections for a post.
+		 *
+		 * @param array       $result       Array of collection post objects or IDs.
+		 * @param int|WP_Post $post         Post ID or post object.
+		 * @param bool        $return_posts Whether collection post objects were returned.
+		 * @param bool        $single       Whether only single result was requested.
+		 */
+		return apply_filters( 'newspack_collections_post_collections', $result, $post, $return_posts, $single );
 	}
 
 	/**
@@ -458,15 +483,22 @@ class Query_Helper {
 	 * @return string The section name.
 	 */
 	public static function get_section_name( $section_slug ) {
+		$section_name = $section_slug;
+
 		if ( ! empty( $section_slug ) ) {
 			$section_term = get_term_by( 'slug', $section_slug, Collection_Section_Taxonomy::get_taxonomy() );
 			if ( $section_term && ! is_wp_error( $section_term ) ) {
-				return $section_term->name;
+				$section_name = $section_term->name;
 			}
 		}
 
-		// Fallback to the slug if the term is not found.
-		return $section_slug;
+		/**
+		 * Filters the section name.
+		 *
+		 * @param string $section_name The section name.
+		 * @param string $section_slug The section slug.
+		 */
+		return apply_filters( 'newspack_collections_section_name', $section_name, $section_slug );
 	}
 
 	/**
@@ -483,7 +515,7 @@ class Query_Helper {
 			[
 				'post_type'      => Post_Type::get_post_type(),
 				'post_status'    => 'publish',
-				'posts_per_page' => $limit + count( $exclude ),
+				'posts_per_page' => $limit + ( is_array( $exclude ) ? count( $exclude ) : 0 ),
 				'orderby'        => 'date',
 				'order'          => 'DESC',
 			]
@@ -493,13 +525,20 @@ class Query_Helper {
 			return [];
 		}
 
-		$filtered = array_filter(
+		$filtered = empty( $exclude ) ? $collections : array_filter(
 			$collections,
 			function ( $post ) use ( $exclude ) {
 				return ! in_array( $post->ID, $exclude, true );
 			}
 		);
 
-		return array_slice( $filtered, 0, $limit );
+		/**
+		 * Filters the recent collections.
+		 *
+		 * @param array $recent  Array of recent collection posts.
+		 * @param array $exclude Array of excluded collection IDs.
+		 * @param int   $limit   Number of items returned.
+		 */
+		return apply_filters( 'newspack_collections_recent', array_slice( $filtered, 0, $limit ), $exclude, $limit );
 	}
 }

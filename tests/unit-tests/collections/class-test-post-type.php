@@ -18,6 +18,7 @@ use Newspack\Collections\Settings;
  */
 class Test_Post_Type extends WP_UnitTestCase {
 	use Traits\Trait_Collections_Test;
+	use Traits\Trait_Enqueuer_Test;
 
 	/**
 	 * The order column name accessible via reflection.
@@ -138,8 +139,8 @@ class Test_Post_Type extends WP_UnitTestCase {
 
 		// Clean up.
 		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		wp_deregister_script( Enqueuer::SCRIPT_NAME_ADMIN );
-		( new \ReflectionClass( Enqueuer::class ) )->setStaticPropertyValue( 'data', [] );
+		$this->cleanup_enqueued_assets_for_script( Enqueuer::SCRIPT_NAME_ADMIN );
+		$this->reset_enqueuer_data();
 	}
 
 	/**
