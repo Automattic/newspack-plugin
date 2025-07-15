@@ -81,24 +81,24 @@ const AutocompleteWithSuggestions = ( {
 	const handleFetchSaved = fetchSavedPosts
 		? fetchSavedPosts
 		: async ( postIds = [], searchSlug = null ) => {
-			const postTypeSlug = searchSlug || postTypeToSearch;
-			const endpoint =
+				const postTypeSlug = searchSlug || postTypeToSearch;
+				const endpoint =
 					'post' === postTypeSlug || 'page' === postTypeSlug
 						? postTypeSlug + 's' // Default post type endpoints are plural.
 						: postTypeSlug; // Custom post type endpoints are singular.
-			const posts = await apiFetch( {
-				path: addQueryArgs( '/wp/v2/' + endpoint, {
-					per_page: 100,
-					include: postIds.join( ',' ),
-					_fields: 'id,title',
-				} ),
-			} );
+				const posts = await apiFetch( {
+					path: addQueryArgs( '/wp/v2/' + endpoint, {
+						per_page: 100,
+						include: postIds.join( ',' ),
+						_fields: 'id,title',
+					} ),
+				} );
 
-			return posts.map( post => ( {
-				value: parseInt( post.id ),
-				label: decodeEntities( post.title ) || __( '(no title)', 'newspack-plugin' ),
-			} ) );
-		};
+				return posts.map( post => ( {
+					value: parseInt( post.id ),
+					label: decodeEntities( post.title ) || __( '(no title)', 'newspack-plugin' ),
+				} ) );
+		  };
 
 	/**
 	 * If passed a `fetchSuggestions` prop, use that, otherwise, build it based on the selected post type.
@@ -106,36 +106,36 @@ const AutocompleteWithSuggestions = ( {
 	const handleFetchSuggestions = fetchSuggestions
 		? fetchSuggestions
 		: async ( search = null, offset = 0, searchSlug = null ) => {
-			const postTypeSlug = searchSlug || postTypeToSearch;
-			const endpoint =
+				const postTypeSlug = searchSlug || postTypeToSearch;
+				const endpoint =
 					'post' === postTypeSlug || 'page' === postTypeSlug
 						? postTypeSlug + 's' // Default post type endpoints are plural.
 						: postTypeSlug; // Custom post type endpoints are singular.
-			const response = await apiFetch( {
-				parse: false,
-				path: addQueryArgs( '/wp/v2/' + endpoint, {
-					search,
-					offset,
-					per_page: suggestionsToFetch,
-					_fields: 'id,title',
-				} ),
-			} );
-
-			const total = parseInt( response.headers.get( 'x-wp-total' ) || 0 );
-			const posts = await response.json();
-
-			setMaxSuggestions( total );
-
-			// Format suggestions for FormTokenField display.
-			return posts.reduce( ( acc, post ) => {
-				acc.push( {
-					value: parseInt( post.id ),
-					label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack-plugin' ),
+				const response = await apiFetch( {
+					parse: false,
+					path: addQueryArgs( '/wp/v2/' + endpoint, {
+						search,
+						offset,
+						per_page: suggestionsToFetch,
+						_fields: 'id,title',
+					} ),
 				} );
 
-				return acc;
-			}, [] );
-		};
+				const total = parseInt( response.headers.get( 'x-wp-total' ) || 0 );
+				const posts = await response.json();
+
+				setMaxSuggestions( total );
+
+				// Format suggestions for FormTokenField display.
+				return posts.reduce( ( acc, post ) => {
+					acc.push( {
+						value: parseInt( post.id ),
+						label: decodeEntities( post?.title.rendered ) || __( '(no title)', 'newspack-plugin' ),
+					} );
+
+					return acc;
+				}, [] );
+		  };
 
 	/**
 	 * Intercept onChange callback so we can decide whether to allow multiple selections.
@@ -151,9 +151,7 @@ const AutocompleteWithSuggestions = ( {
 
 		// Loop through new selections to determine whether to add or remove them.
 		_selections.forEach( _selection => {
-			const existingSelection = selections.findIndex(
-				selection => parseInt( selection.value ) === parseInt( _selection.value )
-			);
+			const existingSelection = selections.findIndex( selection => parseInt( selection.value ) === parseInt( _selection.value ) );
 
 			if ( -1 < existingSelection ) {
 				// If the selection is already selected, remove it.
@@ -176,15 +174,16 @@ const AutocompleteWithSuggestions = ( {
 		const selections = selectedPost ? [ ...selectedItems, selectedPost ] : selectedItems;
 		const selectedMessage = multiSelect
 			? sprintf(
-				// Translators: %1: the length of selections. %2: the selection leabel.
-				__( '%1$s %2$s selected', 'newspack-plugin' ),
-				selections.length,
-				selections.length > 1 ? postTypeLabelPlural : postTypeLabel
-			) : sprintf(
-				// Translators: %s: The label for the selection.
-				__( 'Selected %s', 'newspack-plugin' ),
-				postTypeLabel
-			);
+					// Translators: %1: the length of selections. %2: the selection leabel.
+					__( '%1$s %2$s selected', 'newspack-plugin' ),
+					selections.length,
+					selections.length > 1 ? postTypeLabelPlural : postTypeLabel
+			  )
+			: sprintf(
+					// Translators: %s: The label for the selection.
+					__( 'Selected %s', 'newspack-plugin' ),
+					postTypeLabel
+			  );
 
 		return (
 			<div className="newspack-autocomplete-with-suggestions__selected-items">
@@ -202,9 +201,7 @@ const AutocompleteWithSuggestions = ( {
 						key={ selection.value }
 						className="newspack-autocomplete-with-suggestions__selected-item-button"
 						isTertiary
-						onClick={ () =>
-							onChange( selections.filter( _selection => _selection.value !== selection.value ) )
-						}
+						onClick={ () => onChange( selections.filter( _selection => _selection.value !== selection.value ) ) }
 					>
 						{ selection.label }
 					</Button>
@@ -243,9 +240,7 @@ const AutocompleteWithSuggestions = ( {
 		if ( multiSelect ) {
 			const selections = selectedPost ? [ ...selectedItems, selectedPost ] : [ ...selectedItems ];
 			const isSelected = !! selections.find(
-				_selection =>
-					parseInt( _selection.value ) === parseInt( suggestion.value ) &&
-					_selection.label === suggestion.label
+				_selection => parseInt( _selection.value ) === parseInt( suggestion.value ) && _selection.label === suggestion.label
 			);
 			return (
 				<CheckboxControl
@@ -290,14 +285,8 @@ const AutocompleteWithSuggestions = ( {
 				<div className={ className }>
 					{ suggestions.map( renderSuggestion ) }
 					{ suggestions.length < ( maxItemsToSuggest || maxSuggestions ) && (
-						<Button
-							disabled={ isLoadingMore }
-							isSecondary
-							onClick={ () => setIsLoadingMore( true ) }
-						>
-							{ isLoadingMore
-								? __( 'Loading…', 'newspack-plugin' )
-								: __( 'Load more', 'newspack-plugin' ) }
+						<Button disabled={ isLoadingMore } isSecondary onClick={ () => setIsLoadingMore( true ) }>
+							{ isLoadingMore ? __( 'Loading…', 'newspack-plugin' ) : __( 'Load more', 'newspack-plugin' ) }
 						</Button>
 					) }
 				</div>

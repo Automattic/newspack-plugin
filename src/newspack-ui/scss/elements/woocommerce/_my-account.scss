@@ -4,15 +4,21 @@
 
 @use "../forms";
 @use "../notices";
+@use "../typography";
 @use "../../variables/breakpoints";
 
 .woocommerce-account.newspack-my-account.newspack-ui {
+	.woocommerce-notices-wrapper:not(:empty) {
+		margin-bottom: var(--newspack-ui-spacer-6);
+	}
 	.newspack-wc-message,
 	.woocommerce-message,
 	.woocommerce-info,
 	.woocommerce-error {
 		@extend .newspack-ui__notice;
+		display: block;
 		list-style: none;
+		margin: var(--newspack-ui-spacer-3) 0;
 
 		> p:first-child {
 			margin-top: 0;
@@ -25,9 +31,11 @@
 		}
 	}
 	.newspack-wc-message,
-	.woocommerce-message,
-	.woocommerce-info {
+	.woocommerce-message {
 		@extend .newspack-ui__notice--success;
+	}
+	.woocommerce-info {
+		@extend .newspack-ui__notice--warning;
 	}
 	.newspack-wc-message--error,
 	.woocommerce-error {
@@ -85,7 +93,7 @@
 		* + button,
 		* + .button,
 		* + .woocommerce-Button {
-			margin-left: 0;
+			margin-left: calc(var(--newspack-ui-spacer-base) / 2);
 			margin-top: calc(var(--newspack-ui-spacer-base) / 2);
 			@media only screen and ( min-width: breakpoints.$tablet_width ) {
 				margin-top: 0;
@@ -109,5 +117,58 @@
 		.button {
 			margin-bottom: 0;
 		}
+	}
+	.payment-method,
+	.woocommerce-Address {
+		padding: var(--newspack-ui-spacer-3);
+		> h3,
+		> p {
+			margin: 0;
+			overflow-wrap: break-word;
+			word-wrap: break-word;
+		}
+	}
+	.woocommerce-PaymentBox {
+		p {
+			@extend .newspack-ui__font--xs;
+			color: var(--newspack-ui-color-neutral-60);
+			margin: 0;
+		}
+		fieldset {
+			border: none;
+			margin-top: var(--newspack-ui-spacer-2);
+			padding: 0 !important;
+		}
+	}
+	#payment-methods .newspack-ui__row > .payment-method {
+		min-height: 106px;
+	}
+	#wcpay-upe-element,
+	.wcpay-upe-element {
+		margin-bottom: var(--newspack-ui-spacer-2);
+		padding: 0;
+	}
+	.select2-container .select2-selection--single {
+		border-color: var(--newspack-ui-color-input-border);
+		height: auto;
+		padding: calc(var(--newspack-ui-spacer-2) - 3px);
+		.select2-selection__arrow {
+			height: 100%;
+		}
+	}
+	.woocommerce form .form-row label,
+	.woocommerce-page form .form-row label {
+		display: inline;
+	}
+	label:has(input[type="checkbox"]),
+	label:has(input[type="radio"]) {
+		display: inline !important;
+		input {
+			margin-bottom: calc(var(--newspack-ui-spacer-base / 2));
+			vertical-align: middle;
+		}
+	}
+	address {
+		font-style: normal;
 	}
 }

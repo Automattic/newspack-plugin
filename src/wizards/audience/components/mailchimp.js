@@ -28,12 +28,7 @@ export default function Mailchimp( { value, onChange } ) {
 	const handleChange = key => val => onChange && onChange( key, val );
 	return (
 		<>
-			{ error && (
-				<Notice
-					noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-					isError
-				/>
-			) }
+			{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 			<SectionHeader
 				title={ __( 'Mailchimp settings', 'newspack-plugin' ) }
 				description={ __( 'Settings for the Mailchimp integration.', 'newspack-plugin' ) }
@@ -46,7 +41,7 @@ export default function Mailchimp( { value, onChange } ) {
 					) }
 					isError
 				/>
-			)}
+			) }
 			<SelectControl
 				label={ __( 'Audience ID', 'newspack-plugin' ) }
 				help={ __( 'Choose an audience to receive reader activity data.', 'newspack-plugin' ) }
@@ -69,7 +64,10 @@ export default function Mailchimp( { value, onChange } ) {
 					value={ value.readerDefaultStatus }
 					onChange={ handleChange( 'readerDefaultStatus' ) }
 					options={ [
-						{ value: 'transactional', label: __( 'Transactional/Non-Subscribed', 'newspack-plugin' ) },
+						{
+							value: 'transactional',
+							label: __( 'Transactional/Non-Subscribed', 'newspack-plugin' ),
+						},
 						{ value: 'subscribed', label: __( 'Subscribed', 'newspack-plugin' ) },
 					] }
 				/>

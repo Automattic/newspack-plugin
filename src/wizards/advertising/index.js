@@ -7,12 +7,7 @@ import '../../shared/js/public-path';
 /**
  * WordPress dependencies.
  */
-import {
-	Component,
-	createRoot,
-	Fragment,
-	createElement,
-} from '@wordpress/element';
+import { Component, createRoot, Fragment, createElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -63,13 +58,10 @@ class AdvertisingWizard extends Component {
 							{
 								advertisingData: {
 									...response,
-									adUnits: response.ad_units.reduce(
-										( result, value ) => {
-											result[ value.id ] = value;
-											return result;
-										},
-										{}
-									),
+									adUnits: response.ad_units.reduce( ( result, value ) => {
+										result[ value.id ] = value;
+										return result;
+									}, {} ),
 								},
 							},
 							() => {
@@ -84,8 +76,7 @@ class AdvertisingWizard extends Component {
 				throw err;
 			} );
 
-	fetchAdvertisingData = ( quiet = false ) =>
-		this.updateWithAPI( { path: '/newspack/v1/wizard/billboard', quiet } );
+	fetchAdvertisingData = ( quiet = false ) => this.updateWithAPI( { path: '/newspack/v1/wizard/billboard', quiet } );
 
 	toggleService = ( service, enabled ) =>
 		this.updateWithAPI( {
@@ -124,14 +115,7 @@ class AdvertisingWizard extends Component {
 	 * @param {number} id Ad Unit ID.
 	 */
 	deleteAdUnit = id => {
-		if (
-			utils.confirmAction(
-				__(
-					'Are you sure you want to archive this ad unit?',
-					'newspack-plugin'
-				)
-			)
-		) {
+		if ( utils.confirmAction( __( 'Are you sure you want to archive this ad unit?', 'newspack-plugin' ) ) ) {
 			return this.updateWithAPI( {
 				path: '/newspack/v1/wizard/billboard/ad_unit/' + id,
 				method: 'delete',
@@ -180,15 +164,10 @@ class AdvertisingWizard extends Component {
 							exact
 							render={ () => (
 								<Providers
-									headerText={ __(
-										'Advertising / Display Ads',
-										'newspack-plugin'
-									) }
+									headerText={ __( 'Advertising / Display Ads', 'newspack-plugin' ) }
 									services={ services }
 									toggleService={ this.toggleService }
-									fetchAdvertisingData={
-										this.fetchAdvertisingData
-									}
+									fetchAdvertisingData={ this.fetchAdvertisingData }
 									tabbedNavigation={ tabs }
 								/>
 							) }
@@ -196,25 +175,13 @@ class AdvertisingWizard extends Component {
 						<Route
 							path="/placements"
 							render={ () => (
-								<Placements
-									headerText={ __(
-										'Advertising / Display Ads',
-										'newspack-plugin'
-									) }
-									tabbedNavigation={ tabs }
-								/>
+								<Placements headerText={ __( 'Advertising / Display Ads', 'newspack-plugin' ) } tabbedNavigation={ tabs } />
 							) }
 						/>
 						<Route
 							path="/settings"
 							render={ () => (
-								<Settings
-									headerText={ __(
-										'Advertising / Display Ads',
-										'newspack-plugin'
-									) }
-									tabbedNavigation={ tabs }
-								/>
+								<Settings headerText={ __( 'Advertising / Display Ads', 'newspack-plugin' ) } tabbedNavigation={ tabs } />
 							) }
 						/>
 						<Route
@@ -223,18 +190,13 @@ class AdvertisingWizard extends Component {
 							render={ () => (
 								<AdUnits
 									headerText="Google Ad Manager"
-									subHeaderText={ __(
-										'Monetize your content through Google Ad Manager',
-										'newspack-plugin'
-									) }
+									subHeaderText={ __( 'Monetize your content through Google Ad Manager', 'newspack-plugin' ) }
 									adUnits={ adUnits }
 									service={ 'google_ad_manager' }
 									serviceData={ services.google_ad_manager }
 									onDelete={ id => this.deleteAdUnit( id ) }
 									wizardApiFetch={ wizardApiFetch }
-									fetchAdvertisingData={
-										this.fetchAdvertisingData
-									}
+									fetchAdvertisingData={ this.fetchAdvertisingData }
 									updateWithAPI={ this.updateWithAPI }
 									tabbedNavigation={ tabs }
 								/>
@@ -244,14 +206,8 @@ class AdvertisingWizard extends Component {
 							path={ `/google_ad_manager/${ CREATE_AD_ID_PARAM }` }
 							render={ routeProps => (
 								<AdUnit
-									headerText={ __(
-										'Add New Ad Unit',
-										'newspack-plugin'
-									) }
-									subHeaderText={ __(
-										'Allows you to place ads on your site',
-										'newspack-plugin'
-									) }
+									headerText={ __( 'Add New Ad Unit', 'newspack-plugin' ) }
+									subHeaderText={ __( 'Allows you to place ads on your site', 'newspack-plugin' ) }
 									adUnit={
 										adUnits[ 0 ] || {
 											id: 0,
@@ -268,9 +224,7 @@ class AdvertisingWizard extends Component {
 									onSave={ id =>
 										this.saveAdUnit( id )
 											.then( () => {
-												routeProps.history.push(
-													'/google_ad_manager'
-												);
+												routeProps.history.push( '/google_ad_manager' );
 											} )
 											.catch( () => {} )
 									}
@@ -285,22 +239,14 @@ class AdvertisingWizard extends Component {
 								const adId = routeProps.match.params.id;
 								return (
 									<AdUnit
-										headerText={ __(
-											'Edit Ad Unit',
-											'newspack-plugin'
-										) }
-										subHeaderText={ __(
-											'Allows you to place ads on your site',
-											'newspack-plugin'
-										) }
+										headerText={ __( 'Edit Ad Unit', 'newspack-plugin' ) }
+										subHeaderText={ __( 'Allows you to place ads on your site', 'newspack-plugin' ) }
 										adUnit={ adUnits[ adId ] || {} }
 										service={ 'google_ad_manager' }
 										onChange={ this.onAdUnitChange }
 										onSave={ id =>
 											this.saveAdUnit( id ).then( () => {
-												routeProps.history.push(
-													'/google_ad_manager'
-												);
+												routeProps.history.push( '/google_ad_manager' );
 											} )
 										}
 										onCancel={ this.onAdUnitCancel }
@@ -317,6 +263,4 @@ class AdvertisingWizard extends Component {
 	}
 }
 
-createRoot( document.getElementById( 'newspack-ads-display-ads' ) ).render(
-	createElement( withWizard( AdvertisingWizard, [ 'newspack-ads' ] ) )
-);
+createRoot( document.getElementById( 'newspack-ads-display-ads' ) ).render( createElement( withWizard( AdvertisingWizard, [ 'newspack-ads' ] ) ) );

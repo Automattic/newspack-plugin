@@ -55,28 +55,19 @@ const fields = [
 		key: 'line_item_ids',
 		type: 'string',
 		description: __( 'Line Items IDs to Exclude', 'newspack-plugin' ),
-		help: __(
-			'Prevent ad refreshs for specific line item IDs. (Comma Seperated List)',
-			'newspack-plugin'
-		),
+		help: __( 'Prevent ad refreshs for specific line item IDs. (Comma Seperated List)', 'newspack-plugin' ),
 	},
 	{
 		key: 'sizes_to_exclude',
 		type: 'string',
 		description: __( 'Sizes to Exclude', 'newspack-plugin' ),
-		help: __(
-			'Prevent ad refreshs for specific sizes. Accepts string (fluid) or array (300x250). Example: fluid, 300x250.',
-			'newspack-plugin'
-		),
+		help: __( 'Prevent ad refreshs for specific sizes. Accepts string (fluid) or array (300x250). Example: fluid, 300x250.', 'newspack-plugin' ),
 	},
 	{
 		key: 'slot_ids_to_exclude',
 		type: 'string',
 		description: __( 'Slot IDs to Exclude', 'newspack-plugin' ),
-		help: __(
-			'Prevent ad refreshs for specific slot IDs e.g. div-gpt-ad-grid-1. (Comma Seperated List).',
-			'newspack-plugin'
-		),
+		help: __( 'Prevent ad refreshs for specific slot IDs e.g. div-gpt-ad-grid-1. (Comma Seperated List).', 'newspack-plugin' ),
 	},
 ];
 
@@ -136,10 +127,7 @@ export default function AdRefreshControlSettings() {
 			disabled={ inFlight }
 			sectionKey="ad-refresh-control"
 			title={ __( 'Ad Refresh Control', 'newspack-plugin' ) }
-			description={ __(
-				'Enable Active View refresh for Google Ad Manager ads without needing to modify any code.',
-				'newspack-plugin'
-			) }
+			description={ __( 'Enable Active View refresh for Google Ad Manager ads without needing to modify any code.', 'newspack-plugin' ) }
 			active={ ! settings.disable_refresh }
 			fields={ fields }
 			onUpdate={ handleUpdate }

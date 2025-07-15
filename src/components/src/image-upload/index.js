@@ -72,18 +72,7 @@ class ImageUpload extends Component {
 	 * Render.
 	 */
 	render = () => {
-		const {
-			buttonLabel,
-			className,
-			disabled,
-			help,
-			image,
-			info,
-			isCovering,
-			label,
-			onChange,
-			style = {},
-		} = this.props;
+		const { buttonLabel, className, disabled, help, image, info, isCovering, label, onChange, style = {} } = this.props;
 		const classes = classnames(
 			'newspack-image-upload__image',
 			{ 'newspack-image-upload__image--has-image': image },
@@ -99,22 +88,13 @@ class ImageUpload extends Component {
 				<div className={ classes } style={ { ...style } }>
 					{ image?.url ? (
 						<>
-							<img
-								data-testid="image-upload"
-								src={ image.url }
-								alt={ __( 'Image preview', 'newspack-plugin' ) }
-							/>
+							<img data-testid="image-upload" src={ image.url } alt={ __( 'Image preview', 'newspack-plugin' ) } />
 							<div className="newspack-image-upload__controls">
 								<Button disabled={ disabled } onClick={ this.openModal } isLink>
 									{ __( 'Replace', 'newspack-plugin' ) }
 								</Button>
 								<span className="sep" />
-								<Button
-									disabled={ disabled }
-									onClick={ () => onChange( null ) }
-									isLink
-									isDestructive
-								>
+								<Button disabled={ disabled } onClick={ () => onChange( null ) } isLink isDestructive>
 									{ __( 'Remove', 'newspack-plugin' ) }
 								</Button>
 							</div>

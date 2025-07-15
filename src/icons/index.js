@@ -9,7 +9,7 @@ export { default as contentCarousel } from './src/content-carousel';
 export { default as contentLoop } from './src/content-loop';
 export { default as corrections } from './src/corrections';
 export { default as curatedList } from './src/curated-list';
-export { default as dynamicCountdown } from './src/dynamic-countdown'
+export { default as dynamicCountdown } from './src/dynamic-countdown';
 export { default as emailAd } from './src/email-ad';
 export { default as emailCheck } from './src/email-check';
 export { default as emailError } from './src/email-error';

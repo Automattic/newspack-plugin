@@ -1,12 +1,4 @@
-import {
-	store,
-	dispatchActivity,
-	getActivities,
-	getUniqueActivitiesBy,
-	setReaderEmail,
-	setAuthenticated,
-	getReader,
-} from './index';
+import { store, dispatchActivity, getActivities, getUniqueActivitiesBy, setReaderEmail, setAuthenticated, getReader } from './index';
 import { on, off } from './events';
 
 describe( 'newspackReaderActivation', () => {
@@ -84,9 +76,7 @@ describe( 'newspackReaderActivation', () => {
 		};
 		dispatchActivity( activity1.action, activity1.data );
 		dispatchActivity( activity2.action, activity2.data );
-		expect(
-			getUniqueActivitiesBy( 'test-unique-iteratee', activity => activity.data.test ).length
-		).toEqual( 1 );
+		expect( getUniqueActivitiesBy( 'test-unique-iteratee', activity => activity.data.test ).length ).toEqual( 1 );
 	} );
 	it( 'should store reader email', () => {
 		const email = 'test@example.com';

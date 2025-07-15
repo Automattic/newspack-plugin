@@ -12,21 +12,11 @@ import { useEffect, useRef, useState } from '@wordpress/element';
  * Internal dependencies
  */
 import WizardsTab from '../../../wizards-tab';
-import {
-	Button,
-	withWizardScreen,
-	Card,
-	Notice,
-	ProgressBar,
-	StepsList,
-} from '../../../../components/src';
+import { Button, withWizardScreen, Card, Notice, ProgressBar, StepsList } from '../../../../components/src';
 
 const listItems = [
 	{
-		text: __(
-			'Your <strong>current segments and prompts</strong> will be deactivated and archived.',
-			'newspack-plugin'
-		),
+		text: __( 'Your <strong>current segments and prompts</strong> will be deactivated and archived.', 'newspack-plugin' ),
 		isSkipped: '<span class="is-skipped">[skipped]</span>',
 	},
 	{
@@ -36,10 +26,7 @@ const listItems = [
 		),
 	},
 	{
-		text: __(
-			'The <strong>Audience Management campaign</strong> will be activated with default segments and settings.',
-			'newspack-plugin'
-		),
+		text: __( 'The <strong>Audience Management campaign</strong> will be activated with default segments and settings.', 'newspack-plugin' ),
 		isSkipped: '<span class="is-skipped">[skipped]</span>',
 	},
 ];
@@ -68,9 +55,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 	const [ progressLabel, setProgressLabel ] = useState( false );
 	const [ completed, setCompleted ] = useState( false );
 	const timer = useRef();
-	const [ activationSteps, setActivationSteps ] = useState(
-		Object.values( DEFAULT_ACTIVATION_STEPS )
-	);
+	const [ activationSteps, setActivationSteps ] = useState( Object.values( DEFAULT_ACTIVATION_STEPS ) );
 	const { reader_activation_url, is_skipped_campaign_setup = '' } = newspackAudience;
 	const isSkippedCampaignSetup = is_skipped_campaign_setup === '1';
 
@@ -103,9 +88,12 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 		}
 		if ( ! error && inFlight && 0 <= progress && progress < activationSteps.length ) {
 			setProgressLabel( activationSteps[ progress ] );
-			timer.current = setTimeout( () => {
-				setProgress( _progress => _progress + 1 );
-			}, generateRandomNumber( 1000, 2000 ) );
+			timer.current = setTimeout(
+				() => {
+					setProgress( _progress => _progress + 1 );
+				},
+				generateRandomNumber( 1000, 2000 )
+			);
 		}
 		if ( progress >= activationSteps.length && completed ) {
 			setProgress( activationSteps.length + 1 ); // Plus one to account for the "Done!" step.
@@ -151,13 +139,10 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 						) }
 
 						{ /** TODO: Update this URL with the real one once the docs are ready. */ }
-						<ExternalLink href={ 'https://help.newspack.com' }>
-							{ __( 'Learn more', 'newspack-plugin' ) }
-						</ExternalLink>
+						<ExternalLink href={ 'https://help.newspack.com' }>{ __( 'Learn more', 'newspack-plugin' ) }</ExternalLink>
 					</>
 				}
 			>
-
 				{ inFlight && (
 					<Card className="newspack-ras-campaign__completed-card">
 						<ProgressBar
@@ -177,12 +162,7 @@ export default withWizardScreen( ( { fetchConfig } ) => {
 							<StepsList stepsListItems={ listItems } narrowList />
 						</Card>
 
-						{ error && (
-							<Notice
-								noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) }
-								isError
-							/>
-						) }
+						{ error && <Notice noticeText={ error?.message || __( 'Something went wrong.', 'newspack-plugin' ) } isError /> }
 
 						<Card buttonsCard noBorder className="justify-center">
 							<Button isPrimary onClick={ () => activate() }>

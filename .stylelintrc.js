@@ -1,41 +1,24 @@
 module.exports = {
-	ignoreFiles: [
-		'dist/**',
-		'node_modules/**',
-		'release/**',
-		'scripts/**',
-	],
+	ignoreFiles: [ 'dist/**', 'node_modules/**', 'release/**', 'scripts/**' ],
 	extends: [ './node_modules/newspack-scripts/config/stylelint.config.js' ],
 	rules: {
 		'function-no-unknown': [
 			true,
 			{
-				ignoreFunctions: [
-					'color.adjust',
-					'to-rgb'
-				]
-			}
+				ignoreFunctions: [ 'color.adjust', 'to-rgb' ],
+			},
 		],
 		'selector-pseudo-class-no-unknown': [
 			true,
 			{
-				ignorePseudoClasses: ['export']
-			}
+				ignorePseudoClasses: [ 'export' ],
+			},
 		],
 		'property-no-unknown': [
 			true,
 			{
-				ignoreProperties: [
-					/^primary-/,
-					/^secondary-/,
-					/^tertiary-/,
-					/^quaternary-/,
-					/^neutral-/,
-					/^success-/,
-					/^error-/,
-					/^warning-/
-				]
-			}
-		]
-	}
+				ignoreProperties: [ /^primary-/, /^secondary-/, /^tertiary-/, /^quaternary-/, /^neutral-/, /^success-/, /^error-/, /^warning-/ ],
+			},
+		],
+	},
 };

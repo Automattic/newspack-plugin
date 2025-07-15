@@ -12,7 +12,7 @@ import metadata from './block.json';
 import Edit from './edit';
 import colors from '../../shared/scss/_colors.module.scss';
 
-export const title = __('Avatar', 'newspack-plugin');
+export const title = __( 'Avatar', 'newspack-plugin' );
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -28,13 +28,15 @@ export const settings = {
 	title,
 	icon: {
 		src: icon,
-		foreground: colors['primary-400'],
+		foreground: colors[ 'primary-400' ],
 	},
-	keywords: [ __( 'author', 'newspack-plugin' ), __( 'user', 'newspack-plugin' ), __( 'profile', 'newspack-plugin' ), __( 'newspack', 'newspack-plugin' ) ],
-	description: __(
-		'Display post author avatar.',
-		'newspack-plugin'
-	),
+	keywords: [
+		__( 'author', 'newspack-plugin' ),
+		__( 'user', 'newspack-plugin' ),
+		__( 'profile', 'newspack-plugin' ),
+		__( 'newspack', 'newspack-plugin' ),
+	],
+	description: __( 'Display post author avatar.', 'newspack-plugin' ),
 	usesContext: [ 'postId', 'postType' ],
-	edit: Edit
+	edit: Edit,
 };

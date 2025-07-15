@@ -22,13 +22,10 @@ export const settings = {
 	title,
 	icon: {
 		src: icon,
-		foreground: colors['primary-400'],
+		foreground: colors[ 'primary-400' ],
 	},
 	keywords: [ __( 'clarifications', 'newspack-plugin' ), __( 'updates', 'newspack-plugin' ) ],
-	description: __(
-		'Display all corrections and clarifications made to a post.',
-		'newspack-plugin'
-	),
+	description: __( 'Display all corrections and clarifications made to a post.', 'newspack-plugin' ),
 	usesContext: [ 'postId' ],
-	edit: Edit
+	edit: Edit,
 };

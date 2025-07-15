@@ -5,7 +5,7 @@
 import { domReady } from '../../utils';
 
 domReady( function () {
-	 // Show a confirmation dialog before cancelling a subscription.
+	// Show a confirmation dialog before cancelling a subscription.
 	const cancelButton = document.querySelector( '.subscription_details .button.cancel' );
 
 	if ( cancelButton ) {

@@ -13,8 +13,8 @@ defined( 'ABSPATH' ) || exit;
  * RSS feed enhancements.
  */
 class RSS {
-	const FEED_CPT           = 'partner_rss_feed';
-	const FEED_QUERY_ARG     = 'partner-feed';
+	const FEED_CPT = 'partner_rss_feed';
+	const FEED_QUERY_ARG = 'partner-feed';
 	const FEED_SETTINGS_META = 'partner_feed_settings';
 
 	/**
@@ -39,10 +39,13 @@ class RSS {
 		add_action( 'atom_entry', [ __CLASS__, 'add_extra_tags' ] );
 		add_filter( 'the_excerpt_rss', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
 		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_content_featured_image' ], 1 );
-		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_add_tracking_snippet' ], 1 );
+		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_remove_non_distributable_images' ], 1 );
+		add_filter( 'the_content_feed', [ __CLASS__, 'maybe_add_tracking_snippets' ], 1 );
 		add_filter( 'wpseo_include_rss_footer', [ __CLASS__, 'maybe_suppress_yoast' ] );
 		add_action( 'rss2_ns', [ __CLASS__, 'maybe_inject_yahoo_namespace' ] );
 		add_filter( 'the_title_rss', [ __CLASS__, 'maybe_wrap_titles_in_cdata' ] );
+
+		add_filter( 'newspack_capabilities_map', [ __CLASS__, 'newspack_capabilities_map' ] );
 	}
 
 	/**
@@ -67,25 +70,35 @@ class RSS {
 	 */
 	public static function get_feed_settings( $feed_post = null ) {
 		$default_settings = [
-			'category_include'       => [],
-			'category_exclude'       => [],
-			'use_image_tags'         => false,
-			'use_media_tags'         => false,
-			'use_updated_tags'       => false,
-			'use_tags_tags'          => false,
-			'full_content'           => true,
-			'num_items_in_feed'      => 10,
-			'offset'                 => 0,
-			'timeframe'              => false,
-			'content_featured_image' => false,
-			'suppress_yoast'         => false,
-			'yahoo_namespace'        => false,
-			'update_frequency'       => false,
-			'use_post_id_as_guid'    => false,
-			'cdata_titles'           => false,
-			'republication_tracker'  => false,
-			'only_republishable'     => false,
+			'category_include'          => [],
+			'category_exclude'          => [],
+			'use_image_tags'            => false,
+			'use_media_tags'            => false,
+			'use_updated_tags'          => false,
+			'use_tags_tags'             => false,
+			'full_content'              => true,
+			'num_items_in_feed'         => 10,
+			'offset'                    => 0,
+			'timeframe'                 => false,
+			'content_featured_image'    => false,
+			'suppress_yoast'            => false,
+			'yahoo_namespace'           => false,
+			'update_frequency'          => false,
+			'use_post_id_as_guid'       => false,
+			'cdata_titles'              => false,
+			'republication_tracker'     => false,
+			'only_republishable'        => false,
+			'only_distributable_images' => false,
+			'custom_tracking_snippet'   => '',
 		];
+
+		/**
+		 * Filter the default RSS feed settings.
+		 *
+		 * @param array $default_settings The default settings for RSS feeds.
+		 * @return array Modified default settings.
+		 */
+		$default_settings = apply_filters( 'newspack_rss_feed_settings', $default_settings );
 
 		if ( ! $feed_post ) {
 			$query_feed = filter_input( INPUT_GET, self::FEED_QUERY_ARG, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
@@ -104,6 +117,15 @@ class RSS {
 		if ( ! is_array( $saved_settings ) ) {
 			return $default_settings;
 		}
+
+		/**
+		 * Filter the saved RSS feed settings.
+		 *
+		 * @param array $saved_settings The saved settings for this feed.
+		 * @param int   $feed_post_id   The post ID of the feed.
+		 * @return array Modified saved settings.
+		 */
+		$saved_settings = apply_filters( 'newspack_rss_saved_settings', $saved_settings, $feed_post_id );
 
 		return shortcode_atts( $default_settings, $saved_settings );
 	}
@@ -141,7 +163,8 @@ class RSS {
 			'show_in_menu'         => true,
 			'menu_icon'            => 'dashicons-rss',
 			'query_var'            => true,
-			'capability_type'      => 'post',
+			'capability_type'      => self::FEED_CPT,
+			'map_meta_cap'         => true,
 			'has_archive'          => false,
 			'hierarchical'         => false,
 			'menu_position'        => null,
@@ -361,6 +384,7 @@ class RSS {
 				<td>
 					<select name="update_frequency">
 						<option value="hourly-1" <?php selected( $settings['update_frequency'], 'hourly-1' ); ?> ><?php esc_html_e( 'Every hour', 'newspack-plugin' ); ?></option>
+						<option value="hourly-60" <?php selected( $settings['update_frequency'], 'hourly-60' ); ?> ><?php esc_html_e( 'Every 1 minute', 'newspack-plugin' ); ?></option>
 						<option value="hourly-12" <?php selected( $settings['update_frequency'], 'hourly-12' ); ?> ><?php esc_html_e( 'Every 5 minutes', 'newspack-plugin' ); ?></option>
 						<option value="daily-8" <?php selected( $settings['update_frequency'], 'daily-8' ); ?> ><?php esc_html_e( 'Every 3 hours', 'newspack-plugin' ); ?></option>
 						<option value="daily-1" <?php selected( $settings['update_frequency'], 'daily' ); ?> ><?php esc_html_e( 'Daily', 'newspack-plugin' ); ?></option>
@@ -374,6 +398,15 @@ class RSS {
 					<input type="checkbox" name="use_post_id_as_guid" value="1" <?php checked( $settings['use_post_id_as_guid'] ); ?> />
 				</td>
 			</tr>
+			<?php
+				/**
+				 * Action for plugins to add their own content settings to the RSS feed settings UI.
+				 *
+				 * @param array $settings Current feed settings.
+				 * @param WP_Post $feed_post The feed post object.
+				 */
+				do_action( 'newspack_rss_render_content_settings', $settings, $feed_post );
+			?>
 
 			<?php
 			// Only show this new option if the Republication Tracker Tool plugin is active.
@@ -387,6 +420,20 @@ class RSS {
 					<td>
 						<input type="hidden" name="only_republishable" value="0" />
 						<input type="checkbox" name="only_republishable" value="1" <?php checked( $settings['only_republishable'] ); ?> />
+					</td>
+				</tr>
+				<tr>
+					<th>
+						<?php esc_html_e( 'Include only distributable images', 'newspack-plugin' ); ?>
+						<p class="description">
+							<?php echo esc_html_x( 'When toggled on, images not marked as distributable will be excluded from feed content.', 'help text for remove non-distributable images setting', 'newspack-plugin' ); ?>
+							<br/>
+							<?php esc_html_e( 'Note: this will respect the same settings for distributable images RTT uses for other distributiion purposes', 'newspack-plugin' ); ?>
+						</p>
+					</th>
+					<td>
+						<input type="hidden" name="only_distributable_images" value="0" />
+						<input type="checkbox" name="only_distributable_images" value="1" <?php checked( $settings['only_distributable_images'] ); ?> />
 					</td>
 				</tr>
 			<?php endif; ?>
@@ -461,6 +508,24 @@ class RSS {
 					<input type="checkbox" name="cdata_titles" value="1" <?php checked( $settings['cdata_titles'] ); ?> />
 				</td>
 			</tr>
+			<tr>
+				<th>
+					<?php esc_html_e( 'Custom tracking snippet', 'newspack-plugin' ); ?>
+					<p class="description"><?php echo esc_html_x( 'Tracking snippet that will be appended to the end of each post in the feed. You can use {{post-id}} and {{post-url}} as dynamic variables.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?></p>
+				</th>
+				<td>
+					<textarea name="custom_tracking_snippet" rows="4" cols="50"><?php echo esc_textarea( $settings['custom_tracking_snippet'] ); ?></textarea>
+				</td>
+			</tr>
+			<?php
+				/**
+				 * Action for plugins to add their own technical settings to the RSS feed settings UI.
+				 *
+				 * @param array $settings Current feed settings.
+				 * @param WP_Post $feed_post The feed post object.
+				 */
+				do_action( 'newspack_rss_render_technical_settings', $settings, $feed_post );
+			?>
 			<?php if ( defined( 'WPSEO_VERSION' ) && WPSEO_VERSION ) : ?>
 				<tr>
 					<th>
@@ -489,7 +554,6 @@ class RSS {
 						<input type="checkbox" name="republication_tracker" value="1" <?php checked( $settings['republication_tracker'] ); ?> />
 					</td>
 				</tr>
-
 			<?php endif; ?>
 		</table>
 		<?php
@@ -506,7 +570,7 @@ class RSS {
 			return;
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		if ( ! Capabilities::current_user_can( 'edit_posts', self::FEED_CPT ) ) {
 			return;
 		}
 
@@ -554,6 +618,9 @@ class RSS {
 		$cdata_titles             = filter_input( INPUT_POST, 'cdata_titles', FILTER_SANITIZE_NUMBER_INT );
 		$settings['cdata_titles'] = (bool) $cdata_titles;
 
+		$custom_tracking_snippet = filter_input( INPUT_POST, 'custom_tracking_snippet', FILTER_DEFAULT ); // phpcs:ignore WordPressVIPMinimum.Security.PHPFilterFunctions.RestrictedFilter
+		$settings['custom_tracking_snippet'] = wp_kses_post( $custom_tracking_snippet );
+
 		$category_settings = filter_input_array(
 			INPUT_POST,
 			[
@@ -589,7 +656,18 @@ class RSS {
 			$only_republishable             = filter_input( INPUT_POST, 'only_republishable', FILTER_SANITIZE_NUMBER_INT );
 			$settings['only_republishable'] = (bool) $only_republishable;
 
+			$only_distributable_images             = filter_input( INPUT_POST, 'only_distributable_images', FILTER_SANITIZE_NUMBER_INT );
+			$settings['only_distributable_images'] = (bool) $only_distributable_images;
 		}
+
+		/**
+		 * Filter the feed settings before they are saved.
+		 *
+		 * @param array $settings      The feed settings to be saved.
+		 * @param int   $feed_post_id  The post ID of the feed.
+		 * @return array Modified feed settings.
+		 */
+		$settings = apply_filters( 'newspack_rss_modify_save_settings', $settings, $feed_post_id );
 
 		update_post_meta( $feed_post_id, self::FEED_SETTINGS_META, $settings );
 		// @todo flush feed cache here.
@@ -666,6 +744,14 @@ class RSS {
 			];
 			$query->set( 'meta_query', $meta_query );
 		}
+
+		/**
+		 * Modify the RSS feed query.
+		 *
+		 * @param WP_Query $query    The WP_Query object for the feed.
+		 * @param array    $settings The current feed settings.
+		 */
+		do_action( 'newspack_rss_modify_feed_query', $query, $settings );
 	}
 
 	/**
@@ -745,19 +831,32 @@ class RSS {
 	}
 
 	/**
-	 * Add tracking pixel to feed content if setting is checked.
+	 * Add tracking pixels to feed content if settings are configured.
 	 *
 	 * @param string $content Feed content.
 	 * @return string Modified $content.
 	 */
-	public static function maybe_add_tracking_snippet( $content ) {
+	public static function maybe_add_tracking_snippets( $content ) {
 		$settings = self::get_feed_settings();
 
-		if ( ! $settings || empty( $settings['republication_tracker'] ) || ! method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
+		if ( ! $settings ) {
 			return $content;
 		}
 
-		$post_id          = get_the_ID();
+		$post_id = get_the_ID();
+
+		// Add custom tracking snippet if provided.
+		$custom_tracking_content = '';
+		if ( ! empty( $settings['custom_tracking_snippet'] ) ) {
+			$custom_tracking_content = $settings['custom_tracking_snippet'];
+			$custom_tracking_content = str_replace( '{{post-id}}', $post_id, $custom_tracking_content );
+			$custom_tracking_content = str_replace( '{{post-url}}', get_permalink( $post_id ), $custom_tracking_content );
+		}
+
+		if ( empty( $settings['republication_tracker'] ) || ! method_exists( 'Republication_Tracker_Tool', 'create_tracking_pixel_markup' ) ) {
+			return $content . $custom_tracking_content;
+		}
+
 		$pixel            = \Republication_Tracker_Tool::create_tracking_pixel_markup( $post_id );
 		$parsely_tracking = \Republication_Tracker_Tool::create_parsely_tracking( $post_id );
 
@@ -765,7 +864,7 @@ class RSS {
 		$display_attribution = get_option( 'republication_tracker_tool_display_attribution', 'on' );
 
 		if ( 'on' !== $display_attribution ) {
-			return $content . $pixel . $parsely_tracking;
+			return $content . $pixel . $parsely_tracking . $custom_tracking_content;
 		}
 
 		$site_icon_markup = '';
@@ -786,7 +885,17 @@ class RSS {
 			$parsely_tracking
 		);
 
-		$content .= $attribution;
+		$content .= $attribution . $custom_tracking_content;
+
+		/**
+		 * Filter the feed content after tracking snippets have been added.
+		 *
+		 * @param string $content  The feed content with tracking snippets applied.
+		 * @param int    $post_id  The ID of the current post.
+		 * @param array  $settings The current feed settings.
+		 * @return string Modified feed content.
+		 */
+		$content = apply_filters( 'newspack_rss_after_tracking_snippet', $content, $post_id, $settings );
 
 		return $content;
 	}
@@ -806,6 +915,27 @@ class RSS {
 		if ( ! $settings['content_featured_image'] ) {
 			remove_filter( 'the_excerpt_rss', [ 'Newspack\RSS_Add_Image', 'thumbnails_in_rss' ] );
 			remove_filter( 'the_content_feed', [ 'Newspack\RSS_Add_Image', 'thumbnails_in_rss' ] );
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Filter feed content to remove non-distributable images if needed.
+	 *
+	 * @param string $content Feed content.
+	 * @return string Modified $content.
+	 */
+	public static function maybe_remove_non_distributable_images( $content ) {
+		$settings = self::get_feed_settings();
+		if ( ! $settings || ! self::is_republication_tracker_plugin_active() || empty( $settings['only_distributable_images'] ) ) {
+			return $content;
+		}
+
+		if ( class_exists( '\Republication_Tracker_Tool_Content' ) && 
+			method_exists( '\Republication_Tracker_Tool_Content', 'remove_non_distributable_images' )
+		) {
+			return \Republication_Tracker_Tool_Content::remove_non_distributable_images( $content );
 		}
 
 		return $content;
@@ -870,6 +1000,17 @@ xmlns:media="http://search.yahoo.com/mrss/"
 	 */
 	private static function is_republication_tracker_plugin_active() {
 		return class_exists( 'Republication_Tracker_Tool' );
+	}
+
+	/**
+	 * Map the capabilities for the RSS feed custom post type.
+	 *
+	 * @param array $capabilities_map The existing capabilities map.
+	 * @return array The modified capabilities map with RSS feed CPT capabilities.
+	 */
+	public static function newspack_capabilities_map( $capabilities_map ) {
+		$capabilities_map[ self::FEED_CPT ] = 'post';
+		return $capabilities_map;
 	}
 }
 RSS::init();
