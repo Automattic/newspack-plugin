@@ -101,6 +101,9 @@ class Newspack_Settings extends Wizard {
 			'theme-and-brand'   => [
 				'label' => __( 'Theme and Brand', 'newspack-plugin' ),
 			],
+			'print'             => [
+				'label' => __( 'Print', 'newspack-plugin' ),
+			],
 			'advanced-settings' => [
 				'label' => __( 'Advanced Settings', 'newspack-plugin' ),
 			],
