@@ -28,61 +28,18 @@ get_header();
 			 * @param WP_Post $post The collection post.
 			 */
 			do_action( 'newspack_collections_single_start', $post );
-			?>
 
-			<!-- Intro Section -->
-			<div class="collection-intro">
+			get_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro' );
 
-				<!-- Cover Card -->
-				<div class="collection-intro__card">
-					<?php echo wp_kses_post( Template_Helper::render_image( $post, false ) ); ?>
-				</div>
-
-				<!-- Content -->
-				<div class="collection-intro__content">
-					<div class="collection-intro__content__meta">
-						<h1><?php the_title(); ?></h1>
-						<?php echo wp_kses_post( Template_Helper::render_meta_text( $collection_id, 1 ) ); ?>
-					</div>
-
-					<?php
-					/**
-					 * Fires after the collection meta in the intro section.
-					 *
-					 * @param int $collection_id The collection post ID.
-					 */
-					do_action( 'newspack_collections_single_after_meta', $collection_id );
-					?>
-
-					<div class="collection-intro__content__description">
-						<?php the_content(); ?>
-					</div>
-
-					<?php
-					$ctas = Query_Helper::get_ctas( $collection_id );
-					if ( $ctas ) :
-						?>
-						<div class="collection-buttons">
-							<?php foreach ( $ctas as $cta ) : ?>
-								<?php echo wp_kses_post( Template_Helper::render_cta( $cta ) ); ?>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
-				</div>
-			</div>
-
-			<?php
 			/**
 			 * Fires after the collection intro section.
 			 *
 			 * @param int $collection_id The collection post ID.
 			 */
 			do_action( 'newspack_collections_single_after_intro', $collection_id );
-			?>
 
-			<hr class="has-light-gray-background-color has-background is-style-wide"/>
+			echo wp_kses_post( Template_Helper::render_separator( 'is-latest-collection' ) );
 
-			<?php
 			// Get posts in this collection organized by sections.
 			$collection_posts = Query_Helper::get_collection_posts( $collection_id );
 
@@ -103,7 +60,7 @@ get_header();
 
 					$is_cover     = Query_Helper::COVER_SECTION === $section_slug;
 					$section_name = $is_cover
-						? ( count( $post_ids ) > 1 ? __( 'Cover Stories', 'newspack' ) : __( 'Cover Story', 'newspack' ) )
+						? ( count( $post_ids ) > 1 ? __( 'Cover Stories', 'newspack-plugin' ) : __( 'Cover Story', 'newspack-plugin' ) )
 						: Query_Helper::get_section_name( $section_slug );
 					$show_image   = ! $is_cover;
 					$columns      = $is_cover ? 1 : 2;
@@ -120,13 +77,13 @@ get_header();
 			$recent_collections = Query_Helper::get_recent( [ $collection_id ], 6 );
 
 			if ( $recent_collections ) :
+				echo wp_kses_post( Template_Helper::render_separator( 'is-latest-collection' ) );
 				?>
-				<hr class="has-light-gray-background-color has-background is-style-wide"/>
 
 				<!-- Recent Collections Section -->
 				<div class="collections-recent">
 					<div class="collections-recent__header">
-						<h2><?php esc_html_e( 'Recent', 'newspack' ); ?></h2>
+						<h2><?php esc_html_e( 'Recent', 'newspack-plugin' ); ?></h2>
 						<p class="has-medium-gray-color has-text-color has-link-color has-small-font-size">
 							<?php echo wp_kses_post( Template_Helper::render_see_all_link() ); ?>
 						</p>

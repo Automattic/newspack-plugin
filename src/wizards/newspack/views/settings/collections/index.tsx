@@ -4,6 +4,7 @@
 
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
+import { ToggleControl } from '@wordpress/components';
 import WizardSection from '../../../../wizards-section';
 import WizardsActionCard from '../../../../wizards-action-card';
 import useWizardApiFetchToggle from '../../../../hooks/use-wizard-api-fetch-toggle';
@@ -24,6 +25,7 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	post_indicator_style: 'default',
 	card_message: __( "Keep reading. There's plenty more to discover.", 'newspack-plugin' ),
 	posts_per_page: 12,
+	highlight_latest: false,
 };
 
 // Helper function to extract collection settings from API data with defaults.
@@ -137,6 +139,15 @@ function Collections() {
 									label: option.toString(),
 									value: option,
 								} ) ) }
+							/>
+							<ToggleControl
+								label={ __( 'Highlight Most Recent Collection', 'newspack-plugin' ) }
+								help={ __(
+									'Feature the latest Collection prominently at the top of the archive page, showcasing its content and any associated CTAs.',
+									'newspack-plugin'
+								) }
+								checked={ settings.highlight_latest }
+								onChange={ ( value: boolean ) => updateSetting( 'highlight_latest', value ) }
 							/>
 						</Grid>
 					</WizardSection>

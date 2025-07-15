@@ -15,10 +15,18 @@ defined( 'ABSPATH' ) || exit;
 class Template_Helper {
 
 	/**
+	 * The directory where the collection template parts are located.
+	 *
+	 * @var string
+	 */
+	public const TEMPLATE_PARTS_DIR = 'collections/parts/';
+
+	/**
 	 * Initialize hooks.
 	 */
 	public static function init() {
 		add_filter( 'template_include', [ __CLASS__, 'template_include' ] );
+		add_action( 'get_template_part', [ __CLASS__, 'load_template_part' ], 10, 4 );
 		add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueue_assets' ], 5 );
 		add_action( 'pre_get_posts', [ __CLASS__, 'archive_filters' ] );
 		add_filter( 'redirect_canonical', [ __CLASS__, 'prevent_year_redirect' ] );
@@ -69,6 +77,52 @@ class Template_Helper {
 		$plugin_template = plugin_dir_path( __DIR__ ) . 'templates/collections/' . $template_name;
 
 		return file_exists( $plugin_template ) ? $plugin_template : '';
+	}
+
+	/**
+	 * Override template part loading for Collections pages to use plugin templates as fallback.
+	 * Follows WordPress template hierarchy - theme template parts take precedence.
+	 *
+	 * @param string   $slug      The slug name for the generic template.
+	 * @param string   $name      The name of the specialized template or an empty string if there is none.
+	 * @param string[] $templates Array of template names.
+	 * @param array    $args      Additional arguments passed to the template.
+	 */
+	public static function load_template_part( $slug, $name, $templates, $args ) {
+		if ( ! str_starts_with( $slug, self::TEMPLATE_PARTS_DIR ) ) {
+			return;
+		}
+
+		// Build the template file path.
+		$template_file = ( $name ? "{$slug}-{$name}" : $slug ) . '.php';
+
+		// Look in theme first.
+		$theme_template = locate_template( $template_file );
+		if ( $theme_template ) {
+			return;
+		}
+
+		/**
+		 * Filters the fallback plugin template path before attempting to load it.
+		 *
+		 * @param string $plugin_template Path to the plugin template.
+		 * @param string $template_file   Relative template file name.
+		 * @param string $slug            The slug name for the generic template.
+		 * @param string $name            The name of the specialized template or an empty string if there is none.
+		 * @param array  $args            Additional arguments passed to the template.
+		 */
+		$plugin_template = apply_filters(
+			'newspack_collections_plugin_template_part',
+			plugin_dir_path( __DIR__ ) . "templates/{$template_file}",
+			$template_file,
+			$slug,
+			$name,
+			$args
+		);
+
+		if ( file_exists( $plugin_template ) ) {
+			load_template( $plugin_template, false, $args );
+		}
 	}
 
 	/**
@@ -192,11 +246,12 @@ class Template_Helper {
 	/**
 	 * Get formatted collection metadata text.
 	 *
-	 * @param int $post_id Post ID.
-	 * @param int $lines   Number of lines to output (1 = inline, 2 = stacked). Default 2.
+	 * @param int|WP_Post $post  Post ID or post object.
+	 * @param int         $lines Number of lines to output (1 = inline, 2 = stacked). Default 2.
 	 * @return string Formatted metadata text.
 	 */
-	public static function render_meta_text( $post_id, $lines = 2 ) {
+	public static function render_meta_text( $post, $lines = 2 ) {
+		$post_id    = $post instanceof \WP_Post ? $post->ID : $post;
 		$meta_parts = [];
 		$volume     = Collection_Meta::get( $post_id, 'volume' );
 		$number     = Collection_Meta::get( $post_id, 'number' );
@@ -343,7 +398,7 @@ class Template_Helper {
 	 */
 	public static function render_see_all_link() {
 		$link  = get_post_type_archive_link( Post_Type::get_post_type() );
-		$label = __( 'See all', 'newspack' );
+		$label = __( 'See all', 'newspack-plugin' );
 		$html  = sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $label ) );
 
 		/**
@@ -352,5 +407,15 @@ class Template_Helper {
 		 * @param string $html The see all link HTML.
 		 */
 		return apply_filters( 'newspack_collections_see_all_link_html', $html );
+	}
+
+	/**
+	 * Render a separator.
+	 *
+	 * @param string $class_name Optional class for the separator.
+	 * @return string The separator HTML.
+	 */
+	public static function render_separator( $class_name = '' ) {
+		return '<hr class="has-light-gray-background-color has-background is-style-wide ' . esc_attr( $class_name ) . '"/>';
 	}
 }
