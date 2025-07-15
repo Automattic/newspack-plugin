@@ -38,7 +38,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 	};
 
 	const updateParentAdUnit = async value => {
-		await wizardApiFetch( {
+		await updateWithAPI( {
 			path: '/newspack/v1/wizard/billboard/parent_ad_unit/',
 			method: 'POST',
 			data: { parent_ad_unit_id: value },
