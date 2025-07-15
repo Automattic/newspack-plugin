@@ -62,6 +62,7 @@ class AdvertisingWizard extends Component {
 										result[ value.id ] = value;
 										return result;
 									}, {} ),
+									parentAdUnits: response.parent_ad_units,
 								},
 							},
 							() => {
@@ -138,7 +139,7 @@ class AdvertisingWizard extends Component {
 	render() {
 		const { advertisingData } = this.state;
 		const { pluginRequirements, wizardApiFetch } = this.props;
-		const { services, adUnits } = advertisingData;
+		const { services, adUnits, parentAdUnits } = advertisingData;
 		const tabs = [
 			{
 				label: __( 'Providers', 'newspack-plugin' ),
@@ -192,6 +193,7 @@ class AdvertisingWizard extends Component {
 									headerText="Google Ad Manager"
 									subHeaderText={ __( 'Monetize your content through Google Ad Manager', 'newspack-plugin' ) }
 									adUnits={ adUnits }
+									parentAdUnits={ parentAdUnits }
 									service={ 'google_ad_manager' }
 									serviceData={ services.google_ad_manager }
 									onDelete={ id => this.deleteAdUnit( id ) }
