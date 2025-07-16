@@ -19,18 +19,17 @@ function Print() {
 	const { description, apiData, isFetching, actionText, apiFetchToggle, errorMessage } = useWizardApiFetchToggle< PrintData >( {
 		path: '/newspack/v1/wizard/newspack-settings/print',
 		apiNamespace: 'newspack-settings/print',
-		refreshOn: [ 'POST' ],
 		data: {
 			module_enabled_print: false,
 		},
-		description: __( 'Enable functionality to allow users to export article content in Adobe Indesign format.', 'newspack-plugin' ),
+		description: __( 'Allows editors to export article content in Adobe InDesign Tagged Text format.', 'newspack-plugin' ),
 	} );
 
 	return (
-		<WizardsTab title={ __( 'Print', 'newspack-plugin' ) }>
+		<WizardsTab title={ __( 'Adobe Indesign', 'newspack-plugin' ) }>
 			<WizardSection>
 				<WizardsActionCard
-					title={ __( 'Enable Adobe InDesign Export', 'newspack-plugin' ) }
+					title={ __( 'Enable InDesign Export', 'newspack-plugin' ) }
 					description={ description }
 					disabled={ isFetching }
 					actionText={ actionText }
