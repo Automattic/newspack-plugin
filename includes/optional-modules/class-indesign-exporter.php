@@ -33,8 +33,12 @@ class InDesign_Exporter {
 
 		require_once NEWSPACK_ABSPATH . 'includes/optional-modules/indesign-export/class-indesign-converter.php';
 
-		add_filter( 'bulk_actions-edit-post', [ __CLASS__, 'add_bulk_action' ] );
-		add_filter( 'handle_bulk_actions-edit-post', [ __CLASS__, 'handle_bulk_action' ], 100, 3 );
+		$supported_post_types = self::get_supported_post_types();
+		foreach ( $supported_post_types as $post_type ) {
+			add_filter( "bulk_actions-edit-{$post_type}", [ __CLASS__, 'add_bulk_action' ] );
+			add_filter( "handle_bulk_actions-edit-{$post_type}", [ __CLASS__, 'handle_bulk_action' ], 100, 3 );
+		}
+
 		add_filter( 'post_row_actions', [ __CLASS__, 'add_row_action' ], 10, 2 );
 		add_action( 'admin_post_export_indesign_single', [ __CLASS__, 'handle_single_export' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'admin_notices' ] );
