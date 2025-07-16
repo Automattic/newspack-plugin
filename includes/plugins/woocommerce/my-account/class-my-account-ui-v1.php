@@ -88,6 +88,9 @@ class My_Account_UI_V1 {
 	 * Enqueue assets.
 	 */
 	public static function enqueue_assets() {
+		if ( ! function_exists( 'wc_get_account_endpoint_url' ) ) {
+			return;
+		}
 		$script_data = [
 			'myAccountUrl' => wc_get_account_endpoint_url( 'dashboard' ),
 			'labels'       => [
