@@ -7,8 +7,6 @@
 
 namespace Newspack\Collections;
 
-use Newspack\Collections\Traits\Hook_Management_Trait;
-
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/class-collection-meta.php';
@@ -17,7 +15,7 @@ require_once __DIR__ . '/class-collection-meta.php';
  * Handles the Collections custom post type and related operations.
  */
 class Post_Type {
-	use Hook_Management_Trait;
+	use Traits\Hook_Manager;
 
 	/**
 	 * Post type for Collections.
@@ -122,10 +120,10 @@ class Post_Type {
 			'public'        => true,
 			'show_in_rest'  => true,
 			'rewrite'       => [
-				'slug' => Settings::get_setting( 'custom_naming_enabled', false ) ? Settings::get_setting( 'custom_slug', 'collection' ) : 'collection',
+				'slug' => Settings::get_collection_slug(),
 			],
 			'menu_icon'     => $icon,
-			'supports'      => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes' ],
+			'supports'      => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes', 'newspack_blocks' ],
 			'has_archive'   => true,
 			'menu_position' => 6,
 		];
@@ -180,9 +178,9 @@ class Post_Type {
 			Enqueuer::add_data(
 				'collectionPostType',
 				[
-					'postType'            => self::get_post_type(),
-					'postMetaDefinitions' => Collection_Meta::get_frontend_meta_definitions(),
-					'panelTitle'          => __( 'Collection Details', 'newspack-plugin' ),
+					'postType'        => self::get_post_type(),
+					'metaDefinitions' => Collection_Meta::get_frontend_meta_definitions(),
+					'panelTitle'      => __( 'Collection Details', 'newspack-plugin' ),
 				]
 			);
 		}

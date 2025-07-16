@@ -2,21 +2,19 @@
  * Settings Collections: Global settings for Collections module.
  */
 
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { ToggleControl } from '@wordpress/components';
+import WizardSection from '../../../../wizards-section';
 import WizardsActionCard from '../../../../wizards-action-card';
 import useWizardApiFetchToggle from '../../../../hooks/use-wizard-api-fetch-toggle';
-import { TextControl, Button, Grid } from '../../../../../components/src';
+import { TextControl, SelectControl, Button, Grid } from '../../../../../components/src';
 import CustomNamingCard from './custom-naming-card';
 
-// Default values for collections settings
+// Collections per page options.
+const COLLECTIONS_PER_PAGE_OPTIONS = [ 12, 18, 24 ];
+
+// Default values for collections settings.
 const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_naming_enabled: false,
 	custom_name: '',
@@ -24,6 +22,10 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_slug: '',
 	subscribe_link: '',
 	order_link: '',
+	post_indicator_style: 'default',
+	card_message: __( "Keep reading. There's plenty more to discover.", 'newspack-plugin' ),
+	posts_per_page: 12,
+	highlight_latest: false,
 };
 
 // Helper function to extract collection settings from API data with defaults.
@@ -92,28 +94,96 @@ function Collections() {
 				<>
 					<CustomNamingCard settings={ settings } isSaving={ isSavingSettings } onChange={ updateSetting } />
 
-					<Grid columns={ 2 } gutter={ 32 }>
-						<TextControl
-							label={ __( 'Subscription URL', 'newspack-plugin' ) }
-							help={ __(
-								'URL for the "Subscribe" button that will be displayed in the Collections archive pages when no subscription URL is set for the Collection or its parent category.',
-								'newspack-plugin'
+					<WizardSection
+						title={ __( 'Global CTAs', 'newspack-plugin' ) }
+						description={ __(
+							'Renderd in Collections-related pages. Can be overridden on a per-category or per-collection basis.',
+							'newspack-plugin'
+						) }
+					>
+						<Grid columns={ 2 } gutter={ 32 }>
+							<TextControl
+								label={ __( 'Subscription URL', 'newspack-plugin' ) }
+								help={ __(
+									'URL for the "Subscribe" button that will be displayed in the Collections archive page when no subscription URL is set for the Collection or its parent category.',
+									'newspack-plugin'
+								) }
+								value={ settings.subscribe_link }
+								onChange={ ( value: string ) => updateSetting( 'subscribe_link', value ) }
+								placeholder={ `e.g., https://${ window.location.hostname }/subscribe` }
+							/>
+							<TextControl
+								label={ __( 'Order URL', 'newspack-plugin' ) }
+								help={ __(
+									'URL for the "Order" button that will be displayed in the Collections archive page when no order URL is set for the Collection or its parent category.',
+									'newspack-plugin'
+								) }
+								value={ settings.order_link }
+								onChange={ ( value: string ) => updateSetting( 'order_link', value ) }
+								placeholder={ `e.g., https://${ window.location.hostname }/order` }
+							/>
+						</Grid>
+					</WizardSection>
+
+					<WizardSection
+						title={ __( 'Collections Archive', 'newspack-plugin' ) }
+						description={ __( 'Customize the Collections archive page.', 'newspack-plugin' ) }
+					>
+						<Grid columns={ 2 } gutter={ 32 }>
+							<SelectControl
+								label={ __( 'Collections per page', 'newspack-plugin' ) }
+								help={ __( 'Number of collections to display per page in the Collections archive page.', 'newspack-plugin' ) }
+								value={ settings.posts_per_page }
+								onChange={ ( value: number ) => updateSetting( 'posts_per_page', value ) }
+								buttonOptions={ COLLECTIONS_PER_PAGE_OPTIONS.map( option => ( {
+									label: option.toString(),
+									value: option,
+								} ) ) }
+							/>
+							<ToggleControl
+								label={ __( 'Highlight Most Recent Collection', 'newspack-plugin' ) }
+								help={ __(
+									'Feature the latest Collection prominently at the top of the archive page, showcasing its content and any associated CTAs.',
+									'newspack-plugin'
+								) }
+								checked={ settings.highlight_latest }
+								onChange={ ( value: boolean ) => updateSetting( 'highlight_latest', value ) }
+							/>
+						</Grid>
+					</WizardSection>
+
+					<WizardSection
+						title={ __( 'Collection Posts', 'newspack-plugin' ) }
+						description={ __( 'Customize post single pages when they belong to a collection.', 'newspack-plugin' ) }
+					>
+						<Grid columns={ 2 } gutter={ 32 }>
+							<SelectControl
+								label={ __( 'Collection Indicator Style', 'newspack-plugin' ) }
+								help={ __(
+									'How collection indicators should be displayed on posts. When choosing the default style, an indicator with a link will be displayed at the bottom of the post content.',
+									'newspack-plugin'
+								) }
+								value={ settings.post_indicator_style }
+								onChange={ ( value: string ) => updateSetting( 'post_indicator_style', value ) }
+								buttonOptions={ [
+									{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
+									{ label: __( 'Card', 'newspack-plugin' ), value: 'card' },
+								] }
+							/>
+							{ settings.post_indicator_style === 'card' && (
+								<TextControl
+									label={ __( 'Card Message', 'newspack-plugin' ) }
+									help={ __(
+										'Custom message displayed in the card style indicator, along with the featured image and a button to view the collection.',
+										'newspack-plugin'
+									) }
+									value={ settings.card_message }
+									onChange={ ( value: string ) => updateSetting( 'card_message', value ) }
+									placeholder={ DEFAULT_COLLECTIONS_SETTINGS.card_message }
+								/>
 							) }
-							value={ settings.subscribe_link }
-							onChange={ ( value: string ) => updateSetting( 'subscribe_link', value ) }
-							placeholder={ `e.g., https://${ window.location.hostname }/subscribe` }
-						/>
-						<TextControl
-							label={ __( 'Order URL', 'newspack-plugin' ) }
-							help={ __(
-								'URL for the "Order" button that will be displayed in the Collections archive pages when no order URL is set for the Collection or its parent category.',
-								'newspack-plugin'
-							) }
-							value={ settings.order_link }
-							onChange={ ( value: string ) => updateSetting( 'order_link', value ) }
-							placeholder={ `e.g., https://${ window.location.hostname }/order` }
-						/>
-					</Grid>
+						</Grid>
+					</WizardSection>
 
 					<div className="newspack-buttons-card">
 						<Button variant="primary" onClick={ handleSaveSettings } disabled={ isSavingSettings }>

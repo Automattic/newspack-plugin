@@ -18,6 +18,7 @@ use Newspack\Collections\Settings;
  */
 class Test_Post_Type extends WP_UnitTestCase {
 	use Traits\Trait_Collections_Test;
+	use Traits\Trait_Enqueuer_Test;
 
 	/**
 	 * The order column name accessible via reflection.
@@ -66,7 +67,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 	 *
 	 * @covers \Newspack\Collections\Post_Type::register_hooks
 	 * @covers \Newspack\Collections\Post_Type::unregister_hooks
-	 * @covers \Newspack\Collections\Traits\Hook_Management_Trait::manage_hooks
+	 * @covers \Newspack\Collections\Post_Type::manage_hooks
 	 */
 	public function test_hooks_management() {
 		$reflection = new \ReflectionMethod( Post_Type::class, 'get_hooks' );
@@ -134,12 +135,12 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$data = Enqueuer::get_data();
 		$this->assertArrayHasKey( 'collectionPostType', $data, 'Collection post type data should be added.' );
 		$this->assertEquals( Post_Type::get_post_type(), $data['collectionPostType']['postType'], 'Post type should be correct.' );
-		$this->assertArrayHasKey( 'postMetaDefinitions', $data['collectionPostType'], 'Post meta definitions should be included.' );
+		$this->assertArrayHasKey( 'metaDefinitions', $data['collectionPostType'], 'Post meta definitions should be included.' );
 
 		// Clean up.
 		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		wp_deregister_script( Enqueuer::SCRIPT_NAME_ADMIN );
-		( new \ReflectionClass( Enqueuer::class ) )->setStaticPropertyValue( 'data', [] );
+		$this->cleanup_enqueued_assets_for_script( Enqueuer::SCRIPT_NAME_ADMIN );
+		$this->reset_enqueuer_data();
 	}
 
 	/**

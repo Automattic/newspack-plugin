@@ -208,7 +208,7 @@ class Sync {
 			return;
 		}
 
-		$linked_term_id = get_post_meta( $post_id, self::LINKED_TERM_META_KEY, true );
+		$linked_term_id = self::get_term_linked_to_collection( $post_id );
 
 		if ( $linked_term_id ) {
 			self::sync_collection_changes_to_term( $post_id, $linked_term_id );
@@ -251,7 +251,7 @@ class Sync {
 			return false;
 		}
 
-		$linked_term_id = get_post_meta( $post_id, self::LINKED_TERM_META_KEY, true );
+		$linked_term_id = self::get_term_linked_to_collection( $post_id );
 		if ( ! $linked_term_id || ! Collection_Taxonomy::term_exists( (int) $linked_term_id ) ) {
 			return false;
 		}
@@ -297,7 +297,7 @@ class Sync {
 			return false;
 		}
 
-		$linked_term_id = get_post_meta( $post_id, self::LINKED_TERM_META_KEY, true );
+		$linked_term_id = self::get_term_linked_to_collection( $post_id );
 		if ( ! $linked_term_id || ! Collection_Taxonomy::term_exists( (int) $linked_term_id ) ) {
 			return false;
 		}
@@ -318,7 +318,7 @@ class Sync {
 		}
 
 		// Check if term already has a linked post.
-		$post_id = get_term_meta( $term_id, self::LINKED_POST_META_KEY, true );
+		$post_id = self::get_collection_linked_to_term( $term_id );
 		if ( $post_id ) {
 			return false;
 		}
@@ -333,7 +333,7 @@ class Sync {
 	 * @return bool|void True on success, false on failure. Void if no changes were made.
 	 */
 	public static function handle_term_edited( $term_id ) {
-		$post_id = get_term_meta( $term_id, self::LINKED_POST_META_KEY, true );
+		$post_id = self::get_collection_linked_to_term( $term_id );
 		if ( ! $post_id ) {
 			return;
 		}
@@ -358,7 +358,7 @@ class Sync {
 			return;
 		}
 
-		$post_id = get_term_meta( $term, self::LINKED_POST_META_KEY, true );
+		$post_id = self::get_collection_linked_to_term( $term );
 		if ( ! $post_id ) {
 			return;
 		}
@@ -382,5 +382,27 @@ class Sync {
 		Post_Type::register_hooks();
 
 		return $result;
+	}
+
+	/**
+	 * Get collection ID linked to a specific term.
+	 *
+	 * @param int $term_id The term ID.
+	 * @return int|null Collection ID or null if no collection is linked.
+	 */
+	public static function get_collection_linked_to_term( $term_id ) {
+		$collection_id = get_term_meta( $term_id, self::LINKED_POST_META_KEY, true );
+		return $collection_id ? (int) $collection_id : null;
+	}
+
+	/**
+	 * Get term ID linked to a specific collection.
+	 *
+	 * @param int $collection_id Collection ID.
+	 * @return int|null Term ID or null if no term is linked.
+	 */
+	public static function get_term_linked_to_collection( $collection_id ) {
+		$term_id = get_post_meta( $collection_id, self::LINKED_TERM_META_KEY, true );
+		return $term_id ? (int) $term_id : null;
 	}
 }

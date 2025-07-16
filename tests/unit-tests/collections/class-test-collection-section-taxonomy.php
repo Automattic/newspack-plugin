@@ -18,31 +18,9 @@ use Newspack\Collections\Settings;
  * Test the Collection Section Taxonomy functionality.
  */
 class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
-	/**
-	 * The order meta key accessible via reflection.
-	 *
-	 * @var string
-	 */
-	protected static $order_meta_key;
 
-	/**
-	 * The order column name accessible via reflection.
-	 *
-	 * @var string
-	 */
-	protected static $order_column_name;
-
-	/**
-	 * Access private constants via reflection once.
-	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
-		// Use reflection to access the private constants.
-		$reflection              = new \ReflectionClass( Collection_Section_Taxonomy::class );
-		self::$order_meta_key    = $reflection->getConstant( 'ORDER_META_KEY' );
-		self::$order_column_name = $reflection->getConstant( 'ORDER_COLUMN_NAME' );
-	}
+	use Traits\Trait_Collections_Test;
+	use Traits\Trait_Meta_Handler_Test;
 
 	/**
 	 * Set up the test environment.
@@ -50,6 +28,7 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Collection_Section_Taxonomy::register_taxonomy();
+		Collection_Section_Taxonomy::register_meta();
 		Collection_Section_Taxonomy::init();
 	}
 
@@ -64,6 +43,19 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 		$this->assertEquals( 'Collection Sections', $taxonomy->labels->name, 'Taxonomy label should be "Collection Sections".' );
 		$this->assertTrue( $taxonomy->public, 'Taxonomy should be public.' );
 		$this->assertContains( 'post', $taxonomy->object_type, 'Taxonomy should be associated with posts.' );
+	}
+
+	/**
+	 * Test that the meta is registered.
+	 *
+	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::register_meta
+	 */
+	public function test_register_meta() {
+		$this->set_current_user_role( 'administrator' );
+		$this->assertMetaFieldsRegistered( Collection_Section_Taxonomy::class, 'term', Collection_Section_Taxonomy::get_taxonomy() );
+		$this->assertFrontendMetaDefinitionsValid( Collection_Section_Taxonomy::class );
+		$term_id = wp_insert_term( 'Test Section', Collection_Section_Taxonomy::get_taxonomy() );
+		$this->assertMetaValueCanBeSetAndRetrieved( Collection_Section_Taxonomy::class, $term_id['term_id'], 'section_order', 5 );
 	}
 
 	/**
@@ -135,8 +127,8 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 
 		$result = Collection_Section_Taxonomy::add_order_column( $columns );
 
-		$this->assertArrayHasKey( self::$order_column_name, $result, 'Order column should be added.' );
-		$this->assertEquals( Collection_Section_Taxonomy::get_order_column_heading(), $result[ self::$order_column_name ], 'Order column should have the correct heading.' );
+		$this->assertArrayHasKey( Collection_Section_Taxonomy::ORDER_COLUMN_NAME, $result, 'Order column should be added.' );
+		$this->assertEquals( Collection_Section_Taxonomy::get_order_column_heading(), $result[ Collection_Section_Taxonomy::ORDER_COLUMN_NAME ], 'Order column should have the correct heading.' );
 		$this->assertEquals( 'Name', $result['name'], 'Name column should be preserved.' );
 		$this->assertEquals( 'Description', $result['description'], 'Description column should be preserved.' );
 		$this->assertEquals( 'Slug', $result['slug'], 'Slug column should be preserved.' );
@@ -148,19 +140,21 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::display_order_column
 	 */
 	public function test_display_order_column() {
+		$this->set_current_user_role( 'administrator' );
+
 		// Create a term with order meta.
 		$term = wp_insert_term( 'Test Section', Collection_Section_Taxonomy::get_taxonomy() );
 		$this->assertNotWPError( $term );
-		update_term_meta( $term['term_id'], self::$order_meta_key, 5 );
+		Collection_Section_Taxonomy::set( $term['term_id'], 'section_order', 5 );
 
 		// Test displaying the order.
-		$content = Collection_Section_Taxonomy::display_order_column( '', self::$order_column_name, $term['term_id'] );
+		$content = Collection_Section_Taxonomy::display_order_column( '', Collection_Section_Taxonomy::ORDER_COLUMN_NAME, $term['term_id'] );
 		$this->assertEquals( '5', $content, 'Order column should display the correct value.' );
 
 		// Test with a term that has no order meta.
 		$term2 = wp_insert_term( 'Test Section 2', Collection_Section_Taxonomy::get_taxonomy() );
 		$this->assertNotWPError( $term2 );
-		$content = Collection_Section_Taxonomy::display_order_column( '', self::$order_column_name, $term2['term_id'] );
+		$content = Collection_Section_Taxonomy::display_order_column( '', Collection_Section_Taxonomy::ORDER_COLUMN_NAME, $term2['term_id'] );
 		$this->assertEquals( '0', $content, 'Order column should display 0 for terms with no order meta.' );
 
 		// Test with a different column.
@@ -177,8 +171,8 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 		$sortable_columns = [];
 		$result           = Collection_Section_Taxonomy::make_order_column_sortable( $sortable_columns );
 
-		$this->assertArrayHasKey( self::$order_column_name, $result, 'Order column should be made sortable.' );
-		$this->assertEquals( 'meta_value_num', $result[ self::$order_column_name ], 'Order column should be sorted by meta value numerically.' );
+		$this->assertArrayHasKey( Collection_Section_Taxonomy::ORDER_COLUMN_NAME, $result, 'Order column should be made sortable.' );
+		$this->assertEquals( 'meta_value_num', $result[ Collection_Section_Taxonomy::ORDER_COLUMN_NAME ], 'Order column should be sorted by meta value numerically.' );
 	}
 
 	/**
@@ -188,27 +182,29 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	 * @covers \Newspack\Collections\Collection_Section_Taxonomy::ensure_order_meta_on_create
 	 */
 	public function test_save_order_meta() {
+		$this->set_current_user_role( 'administrator' );
+
 		// Test saving order meta when creating a term.
-		$_POST[ self::$order_meta_key ] = '10';
-		$term                           = wp_insert_term( 'Test Section', Collection_Section_Taxonomy::get_taxonomy() );
+		$_POST[ Collection_Section_Taxonomy::$prefix . 'section_order' ] = '10';
+		$term = wp_insert_term( 'Test Section', Collection_Section_Taxonomy::get_taxonomy() );
 		$this->assertNotWPError( $term );
 
-		$order = get_term_meta( $term['term_id'], self::$order_meta_key, true );
+		$order = Collection_Section_Taxonomy::get( $term['term_id'], 'section_order' );
 		$this->assertEquals( '10', $order, 'Order meta should be saved when creating a term.' );
 
 		// Test saving order meta when updating a term.
-		$_POST[ self::$order_meta_key ] = '20';
+		$_POST[ Collection_Section_Taxonomy::$prefix . 'section_order' ] = '20';
 		wp_update_term( $term['term_id'], Collection_Section_Taxonomy::get_taxonomy(), [ 'name' => 'Updated Section' ] );
 
-		$order = get_term_meta( $term['term_id'], self::$order_meta_key, true );
+		$order = Collection_Section_Taxonomy::get( $term['term_id'], 'section_order' );
 		$this->assertEquals( '20', $order, 'Order meta should be saved when updating a term.' );
 
 		// Test that order meta is set to 0 when creating a term without order.
-		unset( $_POST[ self::$order_meta_key ] );
+		unset( $_POST[ Collection_Section_Taxonomy::$prefix . 'section_order' ] );
 		$term2 = wp_insert_term( 'Test Section 2', Collection_Section_Taxonomy::get_taxonomy() );
 		$this->assertNotWPError( $term2 );
 
-		$order = get_term_meta( $term2['term_id'], self::$order_meta_key, true );
+		$order = Collection_Section_Taxonomy::get( $term2['term_id'], 'section_order' );
 		$this->assertEquals( '0', $order, 'Order meta should default to 0 when creating a term without order.' );
 	}
 
@@ -220,10 +216,10 @@ class Test_Collection_Section_Taxonomy extends WP_UnitTestCase {
 	public function test_add_quick_edit_field() {
 		// Start output buffering to capture the output.
 		ob_start();
-		Collection_Section_Taxonomy::add_quick_edit_field( self::$order_column_name, 'edit-tags', Collection_Section_Taxonomy::get_taxonomy() );
+		Collection_Section_Taxonomy::add_quick_edit_field( Collection_Section_Taxonomy::ORDER_COLUMN_NAME, 'edit-tags', Collection_Section_Taxonomy::get_taxonomy() );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( self::$order_meta_key, $output, 'Quick edit field should include the order meta key.' );
+		$this->assertStringContainsString( Collection_Section_Taxonomy::$prefix . 'section_order', $output, 'Quick edit field should include the order meta key.' );
 		$this->assertStringContainsString( Collection_Section_Taxonomy::get_order_column_heading(), $output, 'Quick edit field should include the order column heading.' );
 		$this->assertStringContainsString( 'type="number"', $output, 'Quick edit field should be a number input.' );
 		$this->assertStringContainsString( 'min="0"', $output, 'Quick edit field should have a minimum value of 0.' );

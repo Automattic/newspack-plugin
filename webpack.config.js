@@ -64,6 +64,7 @@ const entry = {
 	bylines: path.join( __dirname, 'src', 'bylines', 'index.js' ),
 	'nicename-change': path.join( __dirname, 'src', 'nicename-change', 'index.js' ),
 	'collections-admin': path.join( __dirname, 'src', 'collections', 'admin', 'index.js' ),
+	'collections-frontend': path.join( __dirname, 'src', 'collections', 'frontend', 'index.js' ),
 };
 
 // Get files for other scripts.

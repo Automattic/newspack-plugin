@@ -1,0 +1,285 @@
+<?php
+/**
+ * Tests for the Template_Helper class.
+ *
+ * @package Newspack\Tests\Unit\Collections
+ */
+
+namespace Newspack\Tests\Unit\Collections;
+
+use Newspack\Collections\Post_Type;
+use Newspack\Collections\Collection_Meta;
+use Newspack\Collections\Collection_Taxonomy;
+use Newspack\Collections\Collection_Category_Taxonomy;
+use Newspack\Collections\Template_Helper;
+use Newspack\Collections\Enqueuer;
+
+/**
+ * Tests for the Template_Helper class.
+ */
+class Test_Template_Helper extends \WP_UnitTestCase {
+	use Traits\Trait_Collections_Test;
+	use Traits\Trait_Enqueuer_Test;
+
+	/**
+	 * Set up the test environment.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		Post_Type::register_post_type();
+		Collection_Meta::register_meta();
+		Collection_Taxonomy::register_taxonomy();
+		Collection_Category_Taxonomy::register_taxonomy();
+	}
+
+	/**
+	 * Test template_include returns correct template names.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::template_include
+	 */
+	public function test_template_include() {
+		// Test archive template.
+		$this->go_to( get_post_type_archive_link( Post_Type::get_post_type() ) );
+
+		$template = Template_Helper::template_include( 'default-template.php' );
+		$this->assertStringEndsWith( 'archive-newspack-collection.php', $template, 'Template should match archive template.' );
+
+		// Test single template.
+		$collection_id = $this->create_test_collection();
+		$this->go_to( get_permalink( $collection_id ) );
+
+		$template = Template_Helper::template_include( 'default-template.php' );
+		$this->assertStringEndsWith( 'single-newspack-collection.php', $template, 'Template should match single template.' );
+	}
+
+	/**
+	 * Test enqueue_assets triggers on collection pages.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::enqueue_assets
+	 */
+	public function test_enqueue_assets() {
+		// Test archive page.
+		$this->go_to( get_post_type_archive_link( Post_Type::get_post_type() ) );
+		Template_Helper::enqueue_assets();
+		Enqueuer::maybe_enqueue_frontend_assets();
+
+		$this->assertFalse( wp_script_is( Enqueuer::SCRIPT_NAME_ADMIN, 'registered' ), 'Admin script should not be registered.' );
+		$this->assertFalse( wp_style_is( Enqueuer::SCRIPT_NAME_ADMIN, 'registered' ), 'Admin style should not be registered.' );
+		$this->assertTrue( wp_script_is( Enqueuer::SCRIPT_NAME_FRONTEND, 'registered' ), 'Frontend script should be registered.' );
+		$this->assertTrue( wp_style_is( Enqueuer::SCRIPT_NAME_FRONTEND, 'registered' ), 'Frontend style should be registered.' );
+
+		// Reset state.
+		$this->cleanup_enqueued_assets_for_script( Enqueuer::SCRIPT_NAME_FRONTEND );
+		$this->reset_enqueuer_data();
+
+		// Test regular post.
+		$this->go_to( get_permalink( $this->factory()->post->create() ) );
+		Template_Helper::enqueue_assets();
+		Enqueuer::maybe_enqueue_frontend_assets();
+
+		$this->assertFalse( wp_script_is( Enqueuer::SCRIPT_NAME_ADMIN, 'registered' ), 'Admin script should not be registered.' );
+		$this->assertFalse( wp_style_is( Enqueuer::SCRIPT_NAME_ADMIN, 'registered' ), 'Admin style should not be registered.' );
+		$this->assertFalse( wp_script_is( Enqueuer::SCRIPT_NAME_FRONTEND, 'registered' ), 'Frontend script should not be registered.' );
+		$this->assertFalse( wp_style_is( Enqueuer::SCRIPT_NAME_FRONTEND, 'registered' ), 'Frontend style should not be registered.' );
+
+		$this->cleanup_enqueued_assets_for_script( Enqueuer::SCRIPT_NAME_FRONTEND );
+	}
+
+	/**
+	 * Test archive_filters modifies query correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::archive_filters
+	 */
+	public function test_archive_filters() {
+		// Create a test category.
+		$this->set_current_user_role( 'administrator' );
+		$term_data = wp_insert_term( 'Test Category', Collection_Category_Taxonomy::get_taxonomy() );
+
+		// Go to collection archive.
+		$this->go_to( get_post_type_archive_link( Post_Type::get_post_type() ) );
+
+		global $wp_query;
+
+		// Test category filtering.
+		$_GET['category'] = 'test-category';
+		Template_Helper::archive_filters( $wp_query );
+		$tax_query = $wp_query->get( 'tax_query' );
+		$this->assertIsArray( $tax_query, 'Tax query should be an array.' );
+		$this->assertEquals( Collection_Category_Taxonomy::get_taxonomy(), $tax_query[0]['taxonomy'], 'Taxonomy should match.' );
+		$this->assertEquals( 'test-category', $tax_query[0]['terms'], 'Terms should match.' );
+
+		// Test year filtering.
+		$_GET['year'] = '2023';
+		Template_Helper::archive_filters( $wp_query );
+		$date_query = $wp_query->get( 'date_query' );
+		$this->assertIsArray( $date_query, 'Date query should be an array.' );
+		$this->assertEquals( 2023, $date_query[0]['year'], 'Year should match.' );
+
+		// Test posts per page setting.
+		$posts_per_page = $wp_query->get( 'posts_per_page' );
+		$this->assertGreaterThan( 0, $posts_per_page, 'Posts per page should be greater than 0.' );
+
+		// Clean up.
+		unset( $_GET['category'], $_GET['year'] );
+	}
+
+	/**
+	 * Test prevent_year_redirect prevents redirects on collection archives.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::prevent_year_redirect
+	 */
+	public function test_prevent_year_redirect() {
+		$year_url = 'http://example.com/2023';
+		// Test on collection archive with year parameter.
+		$this->go_to( get_post_type_archive_link( Post_Type::get_post_type() ) );
+		$_GET['year'] = '2023';
+
+		$result = Template_Helper::prevent_year_redirect( $year_url );
+		$this->assertFalse( $result, 'Redirect should be prevented.' );
+
+		// Test on regular page.
+		$this->go_to( home_url() );
+		$result = Template_Helper::prevent_year_redirect( $year_url );
+		$this->assertEquals( $year_url, $result, 'Redirect should not be prevented.' );
+
+		// Clean up.
+		unset( $_GET['year'] );
+	}
+
+	/**
+	 * Test render_image generates correct HTML.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_image
+	 */
+	public function test_render_image() {
+		$collection_id = $this->create_test_collection();
+
+		// Test without thumbnail (placeholder).
+		$html = Template_Helper::render_image( $collection_id );
+		$this->assertStringContainsString( 'collection-placeholder', $html, 'Placeholder should be rendered.' );
+		$this->assertStringContainsString( get_permalink( $collection_id ), $html, 'Permalink should be rendered.' );
+
+		// Test with permalink disabled.
+		$html = Template_Helper::render_image( $collection_id, false );
+		$this->assertStringNotContainsString( '<a ', $html, 'Permalink should not be rendered.' );
+
+		// Test with custom permalink.
+		$custom_permalink = 'https://example.com';
+		$html             = Template_Helper::render_image( $collection_id, $custom_permalink );
+		$this->assertStringContainsString( $custom_permalink, $html, 'Custom permalink should be rendered.' );
+	}
+
+	/**
+	 * Test render_meta_text formats metadata correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_meta_text
+	 */
+	public function test_render_meta_text() {
+		$collection_id = $this->create_test_collection();
+
+		// Test with no metadata.
+		$html = Template_Helper::render_meta_text( $collection_id );
+		$this->assertEmpty( $html, 'No metadata should be rendered.' );
+
+		// Test with metadata.
+		Collection_Meta::set( $collection_id, 'volume', '1' );
+		Collection_Meta::set( $collection_id, 'number', '2' );
+		Collection_Meta::set( $collection_id, 'period', 'Spring 2023' );
+
+		$html = Template_Helper::render_meta_text( $collection_id );
+		$this->assertStringContainsString( 'Spring 2023', $html, 'Period should be rendered.' );
+		$this->assertStringContainsString( 'Vol. 1', $html, 'Volume should be rendered.' );
+		$this->assertStringContainsString( 'No. 2', $html, 'Number should be rendered.' );
+		$this->assertStringContainsString( '<br>', $html, 'There should be 2 lines by default.' );
+
+		// Test with 1 line.
+		$html = Template_Helper::render_meta_text( $collection_id, 1 );
+		$this->assertStringNotContainsString( '<br>', $html, 'There should be 1 line.' );
+	}
+
+	/**
+	 * Test render_cta generates correct button HTML.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_cta
+	 */
+	public function test_render_cta() {
+		$url   = 'https://example.com';
+		$label = 'Subscribe';
+		$class = 'cta--subscribe_link';
+
+		$cta = compact( 'url', 'label', 'class' );
+
+		$html = Template_Helper::render_cta( $cta );
+		$this->assertStringContainsString( $url, $html, 'URL should be rendered.' );
+		$this->assertStringContainsString( $label, $html, 'Label should be rendered.' );
+		$this->assertStringContainsString( $class, $html, 'Class should be rendered.' );
+
+		// Test with missing data.
+		$empty_cta = [
+			'url'   => '',
+			'label' => '',
+		];
+		$html      = Template_Helper::render_cta( $empty_cta );
+		$this->assertEmpty( $html, 'Empty CTA should not be rendered.' );
+	}
+
+	/**
+	 * Test render_articles generates content loop block.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_articles
+	 */
+	public function test_render_articles() {
+		$post_ids = [
+			self::factory()->post->create(),
+			self::factory()->post->create(),
+		];
+
+		$html = Template_Helper::render_articles( $post_ids, 'Test Section' );
+		$this->assertIsString( $html, 'Articles HTML should be a string.' );
+
+		// Test with empty post IDs.
+		$html = Template_Helper::render_articles( [] );
+		$this->assertEmpty( $html, 'Empty post IDs should not render articles.' );
+	}
+
+	/**
+	 * Test render_see_all_link generates correct link.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::render_see_all_link
+	 */
+	public function test_render_see_all_link() {
+		$html = Template_Helper::render_see_all_link();
+
+		$this->assertStringContainsString( '<a ', $html, 'See all link should be rendered.' );
+		$this->assertStringContainsString( get_post_type_archive_link( Post_Type::get_post_type() ), $html, 'See all link should point to the collection archive.' );
+	}
+
+	/**
+	 * Test load_template_part handles collections template parts correctly.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::load_template_part
+	 */
+	public function test_load_template_part() {
+		ob_start();
+		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', null, [], [] );
+		$output = ob_get_clean();
+		$this->assertNotEmpty( $output, 'Collections template part should be processed.' );
+		$this->assertStringContainsString( 'collection-intro', $output, 'Collections template part should contain "collection-intro".' );
+
+		// Test collections template part with name parameter.
+		ob_start();
+		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro', 'variant', [], [] );
+		$this->assertEmpty( ob_get_clean(), 'Template with name should not output without existing file.' );
+
+		// Test collections template part with missing file should not output anything.
+		ob_start();
+		Template_Helper::load_template_part( Template_Helper::TEMPLATE_PARTS_DIR . 'non-existent', null, [], [] );
+		$this->assertEmpty( ob_get_clean(), 'Missing template should not output anything.' );
+
+		// Test non-collections template part.
+		ob_start();
+		Template_Helper::load_template_part( 'some/other/template', null, [], [] );
+		$this->assertEmpty( ob_get_clean(), 'Non-collections template should not be processed.' );
+	}
+}

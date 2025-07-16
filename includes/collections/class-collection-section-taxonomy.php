@@ -15,6 +15,9 @@ defined( 'ABSPATH' ) || exit;
  * Handles the Collection Sections taxonomy and related operations.
  */
 class Collection_Section_Taxonomy {
+
+	use Traits\Meta_Handler;
+
 	/**
 	 * Taxonomy for Collection Sections.
 	 *
@@ -23,18 +26,11 @@ class Collection_Section_Taxonomy {
 	private const TAXONOMY = 'newspack_collection_section';
 
 	/**
-	 * Term meta key for ordering.
-	 *
-	 * @var string
-	 */
-	private const ORDER_META_KEY = 'newspack_collection_section_order';
-
-	/**
 	 * The column name for the order field.
 	 *
 	 * @var string
 	 */
-	private const ORDER_COLUMN_NAME = 'order';
+	public const ORDER_COLUMN_NAME = 'order';
 
 	/**
 	 * Get the taxonomy for Collection Sections.
@@ -43,6 +39,25 @@ class Collection_Section_Taxonomy {
 	 */
 	public static function get_taxonomy() {
 		return self::TAXONOMY;
+	}
+
+	/**
+	 * Get meta definitions.
+	 *
+	 * @return array Array of meta definitions. See `Traits\Meta_Handler::get_meta_definitions()` for more details.
+	 */
+	public static function get_meta_definitions() {
+		return [
+			'section_order' => [
+				'type'              => 'integer',
+				'label'             => __( 'Order', 'newspack-plugin' ),
+				'description'       => __( 'Set the order of this section within collections (lower numbers appear first).', 'newspack-plugin' ),
+				'single'            => true,
+				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
+				'default'           => 0,
+			],
+		];
 	}
 
 	/**
@@ -60,6 +75,7 @@ class Collection_Section_Taxonomy {
 	public static function init() {
 		// Register taxonomy and menu relationships.
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
+		add_action( 'init', [ __CLASS__, 'register_meta' ] );
 		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'register_taxonomy' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'add_to_collections_menu' ] );
 		add_filter( 'parent_file', [ __CLASS__, 'set_parent_menu' ] );
@@ -82,6 +98,13 @@ class Collection_Section_Taxonomy {
 		add_action( 'quick_edit_custom_box', [ __CLASS__, 'add_quick_edit_field' ], 10, 3 );
 		add_action( 'edited_' . self::get_taxonomy(), [ __CLASS__, 'save_order_meta' ] );
 		add_action( 'current_screen', [ __CLASS__, 'output_section_taxonomy_data_for_admin_scripts' ] );
+	}
+
+	/**
+	 * Register meta fields for the collection section taxonomy.
+	 */
+	public static function register_meta() {
+		self::register_meta_for_object( 'term', self::get_taxonomy() );
 	}
 
 	/**
@@ -192,7 +215,7 @@ class Collection_Section_Taxonomy {
 	 */
 	public static function display_order_column( $content, $column_name, $term_id ) {
 		if ( self::ORDER_COLUMN_NAME === $column_name ) {
-			$order = get_term_meta( $term_id, self::ORDER_META_KEY, true );
+			$order = self::get( $term_id, 'section_order' );
 			return $order ? esc_html( $order ) : '0';
 		}
 
@@ -225,7 +248,7 @@ class Collection_Section_Taxonomy {
 				self::get_taxonomy() === $screen->taxonomy &&
 				'meta_value_num' === $query->query_vars['orderby']
 			) {
-				$query->query_vars['meta_key'] = self::ORDER_META_KEY;
+				$query->query_vars['meta_key'] = self::$prefix . 'section_order';
 			}
 		}
 	}
@@ -237,9 +260,8 @@ class Collection_Section_Taxonomy {
 	 * @param int    $order    The current order value.
 	 */
 	private static function render_order_field_html( $context = 'add', $order = 0 ) {
-		$field_id    = self::ORDER_META_KEY;
-		$field_name  = self::ORDER_META_KEY;
-		$description = __( 'Enter a number to specify the order of this section (lower numbers appear first).', 'newspack-plugin' );
+		$field_id    = self::$prefix . 'section_order';
+		$description = self::get_meta_definitions()['section_order']['description'];
 
 		if ( 'add' === $context ) {
 			$template = '
@@ -265,7 +287,7 @@ class Collection_Section_Taxonomy {
 			$template, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			/* %1$s */ esc_attr( $field_id ),
 			/* %2$s */ esc_html( self::get_order_column_heading() ),
-			/* %3$s */ esc_attr( $field_name ),
+			/* %3$s */ esc_attr( $field_id ),
 			/* %4$d */ esc_attr( $order ),
 			/* %5$s */ esc_html( $description )
 		);
@@ -284,7 +306,7 @@ class Collection_Section_Taxonomy {
 	 * @param WP_Term $term Current taxonomy term object.
 	 */
 	public static function edit_order_field( $term ) {
-		$order = get_term_meta( $term->term_id, self::ORDER_META_KEY, true );
+		$order = self::get( $term->term_id, 'section_order' );
 		self::render_order_field_html( 'edit', $order ? (int) $order : 0 );
 	}
 
@@ -294,10 +316,12 @@ class Collection_Section_Taxonomy {
 	 * @param int $term_id Term ID.
 	 */
 	public static function save_order_meta( $term_id ) {
+		self::check_auth();
+
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$order = isset( $_POST[ self::ORDER_META_KEY ] ) ? (int) $_POST[ self::ORDER_META_KEY ] : false;
+		$order = isset( $_POST[ self::$prefix . 'section_order' ] ) ? (int) $_POST[ self::$prefix . 'section_order' ] : false;
 		if ( $order ) {
-			update_term_meta( $term_id, self::ORDER_META_KEY, $order );
+			self::set( $term_id, 'section_order', $order );
 		}
 	}
 
@@ -308,8 +332,8 @@ class Collection_Section_Taxonomy {
 	 */
 	public static function ensure_order_meta_on_create( $term_id ) {
 		// Check if order meta exists. If not, set it to 0.
-		if ( '' === get_term_meta( $term_id, self::ORDER_META_KEY, true ) ) {
-			update_term_meta( $term_id, self::ORDER_META_KEY, 0 );
+		if ( '' === self::get( $term_id, 'section_order' ) ) {
+			self::set( $term_id, 'section_order', 0 );
 		}
 	}
 
@@ -328,7 +352,7 @@ class Collection_Section_Taxonomy {
 					<label>
 						<span class="title"><?php echo esc_html( self::get_order_column_heading() ); ?></span>
 						<span class="input-text-wrap">
-							<input type="number" name="<?php echo esc_attr( self::ORDER_META_KEY ); ?>"
+							<input type="number" name="<?php echo esc_attr( self::$prefix . 'section_order' ); ?>"
 									class="ptitle" value="" min="0" step="1" />
 						</span>
 					</label>
@@ -351,7 +375,7 @@ class Collection_Section_Taxonomy {
 			Enqueuer::add_data(
 				'sectionTaxonomy',
 				[
-					'orderMetaKey'    => self::ORDER_META_KEY,
+					'metaDefinitions' => self::get_frontend_meta_definitions(),
 					'orderColumnName' => self::ORDER_COLUMN_NAME,
 				]
 			);

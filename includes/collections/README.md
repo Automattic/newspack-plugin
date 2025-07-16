@@ -169,7 +169,8 @@ Term deleted   -> Post trashed (to prevent data loss)
 
 | Meta Field | Type | Description | Format |
 |------------|------|-------------|--------|
-| `newspack_order_in_collection` | Integer | Order of the post in a collection | Integer |
+| `newspack_collection_post_order` | Integer | Order of the post in a collection | Integer |
+| `newspack_collection_is_cover_story` | Boolean | Whether the post is a cover story | Boolean |
 
 ## Frontend components
 

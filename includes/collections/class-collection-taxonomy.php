@@ -7,15 +7,13 @@
 
 namespace Newspack\Collections;
 
-use Newspack\Collections\Traits\Hook_Management_Trait;
-
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Handles the Collections taxonomy and related operations.
  */
 class Collection_Taxonomy {
-	use Hook_Management_Trait;
+	use Traits\Hook_Manager;
 
 	/**
 	 * Taxonomy for Collections.
