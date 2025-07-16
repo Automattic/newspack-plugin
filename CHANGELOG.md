@@ -1,3 +1,10 @@
+## [6.12.1](https://github.com/Automattic/newspack-plugin/compare/v6.12.0...v6.12.1) (2025-07-15)
+
+
+### Bug Fixes
+
+* update the plugin's translations template (POT) file ([#4079](https://github.com/Automattic/newspack-plugin/issues/4079)) ([f30c5a1](https://github.com/Automattic/newspack-plugin/commit/f30c5a1e68027b53626d4af8350be41c5fffe5df))
+
 # [6.12.0](https://github.com/Automattic/newspack-plugin/compare/v6.11.3...v6.12.0) (2025-07-14)
 
 
