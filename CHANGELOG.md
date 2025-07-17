@@ -1,3 +1,25 @@
+## [6.12.3](https://github.com/Automattic/newspack-plugin/compare/v6.12.2...v6.12.3) (2025-07-16)
+
+
+### Bug Fixes
+
+* ensure my-account is working w/out woocommerce ([#4065](https://github.com/Automattic/newspack-plugin/issues/4065)) ([1ae57a3](https://github.com/Automattic/newspack-plugin/commit/1ae57a354f461c0612d34af6766e1458b5a60bff))
+* **sitekit-logger:** prevent logging if not connected to prod manager ([cb51633](https://github.com/Automattic/newspack-plugin/commit/cb51633f8f6303f3028a38d358f7788b34fa0801))
+
+## [6.12.2](https://github.com/Automattic/newspack-plugin/compare/v6.12.1...v6.12.2) (2025-07-16)
+
+
+### Bug Fixes
+
+* user deletion w/out WC ([#4080](https://github.com/Automattic/newspack-plugin/issues/4080)) ([4b7ad7f](https://github.com/Automattic/newspack-plugin/commit/4b7ad7fa45c7730c98fa7e5ba039007313f07fbd))
+
+## [6.12.1](https://github.com/Automattic/newspack-plugin/compare/v6.12.0...v6.12.1) (2025-07-15)
+
+
+### Bug Fixes
+
+* update the plugin's translations template (POT) file ([#4079](https://github.com/Automattic/newspack-plugin/issues/4079)) ([f30c5a1](https://github.com/Automattic/newspack-plugin/commit/f30c5a1e68027b53626d4af8350be41c5fffe5df))
+
 # [6.12.0](https://github.com/Automattic/newspack-plugin/compare/v6.11.3...v6.12.0) (2025-07-14)
 
 

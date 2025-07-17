@@ -30,6 +30,12 @@ class GoogleSiteKit_Logger {
 	 * Initialize hooks and filters.
 	 */
 	public static function init() {
+		if (
+			method_exists( 'Newspack_Manager', 'is_connected_to_production_manager' )
+			&& ! \Newspack_Manager::is_connected_to_production_manager()
+		) {
+			return false;
+		}
 		if ( GoogleSiteKit::is_active() ) {
 			add_action( 'admin_init', [ __CLASS__, 'cron_init' ] );
 			add_action( 'delete_option_' . self::get_sitekit_ga4_has_connected_admin_option_name(), [ __CLASS__, 'log_disconnected_admins' ] );
