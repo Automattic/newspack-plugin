@@ -93,8 +93,8 @@ class Guest_Contributor_Role {
 		}
 		add_action( $re_check_guest_authors, [ __CLASS__, 'clear_site_has_cap_guest_authors_check' ] );
 
-		// Make Guest Contributors available for the Author List block.
-		\add_filter( 'newspack_blocks_author_list_editable_roles', [ __CLASS__, 'add_guest_contributor_to_author_list_block' ] );
+		// Make Guest Contributors available for the Author List and Profile blocks.
+		\add_filter( 'newspack_blocks_authors_roles', [ __CLASS__, 'add_guest_contributor_to_authors_blocks' ] );
 	}
 
 	/**
@@ -576,8 +576,8 @@ class Guest_Contributor_Role {
 	 * @param array $roles The list of roles.
 	 * @return array Modified list of roles.
 	 */
-	public static function add_guest_contributor_to_author_list_block( $roles ) {
-		$roles[ self::CONTRIBUTOR_NO_EDIT_ROLE_NAME ] = [
+	public static function add_guest_contributor_to_authors_blocks( $roles ) {
+		$roles[] = [
 			'slug'  => self::CONTRIBUTOR_NO_EDIT_ROLE_NAME,
 			'label' => __( 'Guest Contributor', 'newspack-plugin' ),
 		];
