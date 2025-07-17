@@ -72,6 +72,7 @@ class RSS {
 		$default_settings = [
 			'category_include'          => [],
 			'category_exclude'          => [],
+			'tag_include'               => [],
 			'use_image_tags'            => false,
 			'use_media_tags'            => false,
 			'use_updated_tags'          => false,
@@ -321,6 +322,7 @@ class RSS {
 	public static function render_content_settings_metabox( $feed_post ) {
 		$settings   = self::get_feed_settings( $feed_post );
 		$categories = get_categories();
+		$tags       = get_tags();
 		wp_nonce_field( 'newspack_rss_enhancements_nonce', 'newspack_rss_enhancements_nonce' );
 		?>
 		<style>
@@ -375,6 +377,16 @@ class RSS {
 					<select id="category_exclude" name="category_exclude[]" multiple="multiple" style="width:300px">
 						<?php foreach ( $categories as $category ) : ?>
 							<option value="<?php echo esc_attr( $category->term_id ); ?>" <?php selected( in_array( $category->term_id, $settings['category_exclude'] ) ); ?>><?php echo esc_html( $category->name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Include only posts with these tags:', 'newspack-plugin' ); ?></th>
+				<td>
+					<select id="tag_include" name="tag_include[]" multiple="multiple" style="width:300px">
+						<?php foreach ( $tags as $tag ) : ?>
+							<option value="<?php echo esc_attr( $tag->term_id ); ?>" <?php selected( in_array( $tag->term_id, $settings['tag_include'] ) ); ?>><?php echo esc_html( $tag->name ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</td>
@@ -443,6 +455,7 @@ class RSS {
 			jQuery( document ).ready( function() {
 				jQuery( '#category_include' ).select2();
 				jQuery( '#category_exclude' ).select2();
+				jQuery( '#tag_include' ).select2();
 			} );
 		</script>
 		<?php
@@ -648,6 +661,23 @@ class RSS {
 			}
 		}
 
+		$tag_settings = filter_input_array(
+			INPUT_POST,
+			[
+				'tag_include' => [
+					'filter' => FILTER_SANITIZE_NUMBER_INT,
+					'flags'  => FILTER_REQUIRE_ARRAY,
+				],
+			]
+		);
+		if ( $tag_settings ) {
+			if ( isset( $tag_settings['tag_include'] ) && is_array( $tag_settings['tag_include'] ) ) {
+				$settings['tag_include'] = array_map( 'absint', $tag_settings['tag_include'] );
+			} else {
+				$settings['tag_include'] = [];
+			}
+		}
+
 		// Process Republication Tracker options only if the plugin is active.
 		if ( self::is_republication_tracker_plugin_active() ) {
 			$republication_tracker             = filter_input( INPUT_POST, 'republication_tracker', FILTER_SANITIZE_NUMBER_INT );
@@ -702,6 +732,10 @@ class RSS {
 
 		if ( ! empty( $settings['category_exclude'] ) ) {
 			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
+		}
+
+		if ( ! empty( $settings['tag_include'] ) ) {
+			$query->set( 'tag__in', array_map( 'absint', $settings['tag_include'] ) );
 		}
 
 		if ( ! empty( $settings['update_frequency'] ) ) {
