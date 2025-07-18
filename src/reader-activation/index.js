@@ -337,6 +337,21 @@ export function getAuthStrategy() {
 }
 
 /**
+ * Debug logging function that only logs when localStorage flag is set.
+ *
+ * @param {string} level Log level ('log' or 'error').
+ * @param {...any} args  Arguments to pass to console.
+ */
+// eslint-disable-next-line no-console
+export function debugLog( level = 'log', ...args ) {
+	if ( localStorage.getItem( 'newspack-google-oauth-debug' ) === 'true' ) {
+		const method = level === 'error' ? 'error' : 'log';
+		// eslint-disable-next-line no-console
+		console[ method ]( ...args );
+	}
+}
+
+/**
  * Ensure the client ID cookie is set.
  */
 function fixClientID() {
@@ -433,6 +448,7 @@ const readerActivation = {
 	getAuthStrategy,
 	setPendingCheckout,
 	getPendingCheckout,
+	debugLog,
 	...( newspack_ras_config.is_ras_enabled && { openAuthModal } ),
 };
 
