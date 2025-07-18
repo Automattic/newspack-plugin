@@ -72,7 +72,7 @@ do_action( 'newspack_collections_archive_start' );
 				if ( count( $categories ) > 1 ) :
 					?>
 					<div class="collections-filter__select">
-						<label for="category"><?php esc_html_e( 'Publication:', 'newspack-plugin' ); ?></label>
+						<label for="category"><?php echo esc_html( Settings::get_setting( 'category_filter_label', _x( 'Publication:', 'collections category filter label', 'newspack-plugin' ) ) ); ?></label>
 						<select name="category" id="category">
 							<option value="" <?php selected( $selected_category, '' ); ?>><?php esc_html_e( 'All', 'newspack-plugin' ); ?></option>
 							<?php foreach ( $categories as $category ) : ?>

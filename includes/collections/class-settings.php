@@ -32,6 +32,7 @@ class Settings {
 	 */
 	public static function get_rest_args( $return_type = 'all' ) {
 		$fields = [
+			// Custom Naming section.
 			'custom_naming_enabled' => [
 				'required'          => false,
 				'default'           => false,
@@ -47,13 +48,6 @@ class Settings {
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 			],
-			'custom_slug'           => [
-				'required'          => false,
-				'default'           => '',
-				'sanitize_callback' => function ( $value ) {
-					return sanitize_title( is_string( $value ) ? $value : '' );
-				},
-			],
 			'custom_archive_slug'   => [
 				'required'          => false,
 				'default'           => '',
@@ -61,6 +55,14 @@ class Settings {
 					return sanitize_title( is_string( $value ) ? $value : '' );
 				},
 			],
+			'custom_slug'           => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => function ( $value ) {
+					return sanitize_title( is_string( $value ) ? $value : '' );
+				},
+			],
+			// Global CTAs section.
 			'subscribe_link'        => [
 				'required'          => false,
 				'default'           => '',
@@ -71,6 +73,26 @@ class Settings {
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
 			],
+			// Collections Archive section.
+			'posts_per_page'        => [
+				'required'          => false,
+				'default'           => 12,
+				'sanitize_callback' => function ( $value ) {
+					$value = intval( $value );
+					return in_array( $value, self::POSTS_PER_PAGE_OPTIONS, true ) ? $value : 12;
+				},
+			],
+			'category_filter_label' => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+			'highlight_latest'      => [
+				'required'          => false,
+				'default'           => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			],
+			// Collection Posts section.
 			'post_indicator_style'  => [
 				'required'          => false,
 				'default'           => 'default',
@@ -80,19 +102,6 @@ class Settings {
 				'required'          => false,
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
-			],
-			'posts_per_page'        => [
-				'required'          => false,
-				'default'           => 12,
-				'sanitize_callback' => function ( $value ) {
-					$value = intval( $value );
-					return in_array( $value, self::POSTS_PER_PAGE_OPTIONS, true ) ? $value : 12;
-				},
-			],
-			'highlight_latest'      => [
-				'required'          => false,
-				'default'           => false,
-				'sanitize_callback' => 'rest_sanitize_boolean',
 			],
 		];
 
