@@ -124,7 +124,7 @@ class Post_Type {
 			],
 			'menu_icon'     => $icon,
 			'supports'      => [ 'title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes', 'newspack_blocks' ],
-			'has_archive'   => true,
+			'has_archive'   => Settings::get_collection_archive_slug(),
 			'menu_position' => 6,
 		];
 

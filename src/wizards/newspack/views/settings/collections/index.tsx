@@ -20,6 +20,7 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_name: '',
 	custom_singular_name: '',
 	custom_slug: '',
+	custom_archive_slug: '',
 	subscribe_link: '',
 	order_link: '',
 	post_indicator_style: 'default',

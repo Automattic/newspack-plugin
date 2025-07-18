@@ -54,6 +54,13 @@ class Settings {
 					return sanitize_title( is_string( $value ) ? $value : '' );
 				},
 			],
+			'custom_archive_slug'   => [
+				'required'          => false,
+				'default'           => '',
+				'sanitize_callback' => function ( $value ) {
+					return sanitize_title( is_string( $value ) ? $value : '' );
+				},
+			],
 			'subscribe_link'        => [
 				'required'          => false,
 				'default'           => '',
@@ -203,6 +210,15 @@ class Settings {
 	}
 
 	/**
+	 * Get the collection archive slug.
+	 *
+	 * @return string
+	 */
+	public static function get_collection_archive_slug() {
+		return self::get_custom_name( 'custom_archive_slug', 'collections' );
+	}
+
+	/**
 	 * Update collection settings from REST request.
 	 * Conditionally flushes rewrite rules when there are changes that will affect the post type or taxonomy slugs.
 	 *
@@ -240,7 +256,7 @@ class Settings {
 		self::update_settings( $updated_settings );
 
 		// Flush rewrite rules only if slug-related settings changed.
-		if ( ! empty( array_intersect( array_keys( $updated_settings ), [ 'custom_naming_enabled', 'custom_slug' ] ) ) ) {
+		if ( ! empty( array_intersect( array_keys( $updated_settings ), [ 'custom_naming_enabled', 'custom_slug', 'custom_archive_slug' ] ) ) ) {
 			/**
 			 * Fires before flushing rewrite rules after collection settings are updated.
 			 *

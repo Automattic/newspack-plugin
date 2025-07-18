@@ -5,6 +5,7 @@ type CollectionsSettingsData = {
 	custom_name: string;
 	custom_singular_name: string;
 	custom_slug: string;
+	custom_archive_slug: string;
 	subscribe_link: string;
 	order_link: string;
 	post_indicator_style: string;
