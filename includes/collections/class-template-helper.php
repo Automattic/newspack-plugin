@@ -264,11 +264,13 @@ class Template_Helper {
 		$vol_number = [];
 
 		if ( $volume ) {
-			$vol_number[] = sprintf( 'Vol. %s', esc_html( $volume ) );
+			/* translators: %s is the volume number of a collection */
+			$vol_number[] = sprintf( _x( 'Vol. %s', 'collection volume number', 'newspack-plugin' ), esc_html( $volume ) );
 		}
 
 		if ( $number ) {
-			$vol_number[] = sprintf( 'No. %s', esc_html( $number ) );
+			/* translators: %s is the issue number of a collection */
+			$vol_number[] = sprintf( _x( 'No. %s', 'collection issue number', 'newspack-plugin' ), esc_html( $number ) );
 		}
 
 		if ( $vol_number ) {
@@ -398,7 +400,7 @@ class Template_Helper {
 	 */
 	public static function render_see_all_link() {
 		$link  = get_post_type_archive_link( Post_Type::get_post_type() );
-		$label = __( 'See all', 'newspack-plugin' );
+		$label = _x( 'See all', 'see all collections link', 'newspack-plugin' );
 		$html  = sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $label ) );
 
 		/**
