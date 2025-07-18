@@ -173,7 +173,8 @@ class Test_Settings extends WP_UnitTestCase {
 		// Test post indicator style sanitization.
 		$style_callback = $rest_args['post_indicator_style']['sanitize_callback'];
 		$this->assertEquals( 'default', $style_callback( 'default' ) );
-		$this->assertEquals( 'custom', $style_callback( 'custom' ) );
+		$this->assertEquals( 'card', $style_callback( 'card' ) );
+		$this->assertEquals( 'default', $style_callback( 'custom' ) );
 
 		// Test card message sanitization.
 		$message_callback = $rest_args['card_message']['sanitize_callback'];
