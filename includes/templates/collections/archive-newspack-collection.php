@@ -30,8 +30,10 @@ do_action( 'newspack_collections_archive_start' );
 
 		<?php
 		if ( have_posts() ) :
-			// Render the intro section only if it's the first page of results and "Highlight Most Recent Collection" setting is enabled.
-			if ( ! is_paged() && Settings::get_setting( 'highlight_latest' ) ) :
+			$selected_year = isset( $_GET['year'] ) ? sanitize_text_field( $_GET['year'] ) : '';
+
+			// Render the intro section only if no year filter is applied, it's the first page of results and "Highlight Most Recent Collection" setting is enabled.
+			if ( empty( $selected_year ) && ! is_paged() && Settings::get_setting( 'highlight_latest' ) ) :
 				get_template_part(
 					Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro',
 					null,
@@ -50,7 +52,6 @@ do_action( 'newspack_collections_archive_start' );
 			<!-- Filter controls -->
 			<form class="collections-filter" method="get">
 				<?php
-				$selected_year     = isset( $_GET['year'] ) ? sanitize_text_field( $_GET['year'] ) : '';
 				$selected_category = isset( $_GET['category'] ) ? sanitize_text_field( $_GET['category'] ) : '';
 				$available_years   = Query_Helper::get_available_years( $selected_category );
 				?>
