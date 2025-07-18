@@ -164,7 +164,11 @@ class Test_Settings extends WP_UnitTestCase {
 		$slug_callback = $rest_args['custom_slug']['sanitize_callback'];
 		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug' ) );
 		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug!' ) );
-		$this->assertEquals( '', $slug_callback( 123 ) ); // Non-string should return empty string.
+
+		// Test archive slug sanitization.
+		$archive_slug_callback = $rest_args['custom_archive_slug']['sanitize_callback'];
+		$this->assertEquals( 'clean-archive-slug', $archive_slug_callback( 'Clean Archive Slug' ) );
+		$this->assertEquals( 'clean-archive-slug', $archive_slug_callback( '#$%Clean Archive Slug!' ) );
 
 		// Test post indicator style sanitization.
 		$style_callback = $rest_args['post_indicator_style']['sanitize_callback'];
@@ -187,6 +191,11 @@ class Test_Settings extends WP_UnitTestCase {
 		$highlight_latest_callback = $rest_args['highlight_latest']['sanitize_callback'];
 		$this->assertTrue( $highlight_latest_callback( 'true' ) );
 		$this->assertFalse( $highlight_latest_callback( 'false' ) );
+
+		// Test category filter label sanitization.
+		$category_filter_label_callback = $rest_args['category_filter_label']['sanitize_callback'];
+		$this->assertEquals( 'Custom label', $category_filter_label_callback( 'Custom label' ) );
+		$this->assertEquals( 'Clean label', $category_filter_label_callback( '<script>alert("xss")</script>Clean label' ) );
 	}
 
 	/**

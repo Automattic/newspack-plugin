@@ -59,7 +59,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$this->assertEquals( 'Collections', $post_type->labels->name, 'Post type label should be "Collections".' );
 		$this->assertTrue( $post_type->public, 'Post type should be public.' );
 		$this->assertTrue( $post_type->show_in_rest, 'Post type should be available in REST API.' );
-		$this->assertTrue( $post_type->has_archive, 'Post type should have archive.' );
+		$this->assertNotFalse( $post_type->has_archive, 'Post type should have archive.' );
 	}
 
 	/**
