@@ -351,6 +351,8 @@ class Template_Helper {
 	 * Render articles block.
 	 * Reuses the Content Loop block.
 	 *
+	 * @uses newspack-blocks/homepage-articles Content Loop block from newspack-blocks plugin.
+	 *
 	 * @param array  $post_ids       Array of post IDs.
 	 * @param string $section_header The header of the section.
 	 * @param bool   $show_image     Whether to show the image.
@@ -361,6 +363,17 @@ class Template_Helper {
 	public static function render_articles( $post_ids, $section_header = '', $show_image = true, $columns = 2, $type_scale = 3 ) {
 		if ( empty( $post_ids ) ) {
 			return '';
+		}
+
+		$block_name = 'newspack-blocks/homepage-articles';
+
+		// Check if the required block is registered.
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( $block_name ) ) {
+			// Surface dependency for logged-in editors.
+			return ( current_user_can( 'edit_posts' ) )
+				/* translators: %s is the block name */
+				? sprintf( esc_html__( 'The %s block is required but not available. Please install and activate the Newspack Blocks plugin.', 'newspack-plugin' ), '<code>' . esc_html( $block_name ) . '</code>' )
+				: '';
 		}
 
 		$attrs = [
@@ -387,7 +400,7 @@ class Template_Helper {
 
 		return render_block(
 			[
-				'blockName' => 'newspack-blocks/homepage-articles',
+				'blockName' => $block_name,
 				'attrs'     => $attrs,
 			]
 		);
