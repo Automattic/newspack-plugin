@@ -15,7 +15,7 @@ type CollectionsSettingsData = {
 	category_filter_label: string;
 	highlight_latest: boolean;
 	// Collection Posts section.
-	post_indicator_style: string;
+	post_indicator_style: 'default' | 'card';
 	card_message: string;
 };
 

@@ -180,7 +180,7 @@ function Collections() {
 									'newspack-plugin'
 								) }
 								value={ settings.post_indicator_style }
-								onChange={ ( value: string ) => updateSetting( 'post_indicator_style', value ) }
+								onChange={ ( value: 'default' | 'card' ) => updateSetting( 'post_indicator_style', value ) }
 								buttonOptions={ [
 									{ label: __( 'Default', 'newspack-plugin' ), value: 'default' },
 									{ label: __( 'Card', 'newspack-plugin' ), value: 'card' },

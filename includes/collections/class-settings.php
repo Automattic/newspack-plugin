@@ -25,6 +25,11 @@ class Settings {
 	public const POSTS_PER_PAGE_OPTIONS = [ 12, 18, 24 ];
 
 	/**
+	 * Post indicator style options.
+	 */
+	public const POST_INDICATOR_STYLE_OPTIONS = [ 'default', 'card' ];
+
+	/**
 	 * Get fields definitions to be used in the REST API.
 	 *
 	 * @param string $return_type Whether to return only the default values, keys, or all. Returns all the configuration by default.
@@ -96,7 +101,9 @@ class Settings {
 			'post_indicator_style'  => [
 				'required'          => false,
 				'default'           => 'default',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => function ( $value ) {
+					return in_array( $value, self::POST_INDICATOR_STYLE_OPTIONS, true ) ? $value : 'default';
+				},
 			],
 			'card_message'          => [
 				'required'          => false,
