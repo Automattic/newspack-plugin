@@ -412,9 +412,20 @@ class Template_Helper {
 	 * @return string The rendered see all link.
 	 */
 	public static function render_see_all_link() {
-		$link  = get_post_type_archive_link( Post_Type::get_post_type() );
-		$label = _x( 'See all', 'see all collections link', 'newspack-plugin' );
-		$html  = sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $label ) );
+		$link       = get_post_type_archive_link( Post_Type::get_post_type() );
+		$label      = _x( 'See all', 'see all collections link', 'newspack-plugin' );
+		$aria_label = sprintf(
+			/* translators: %s is the collection name (e.g., "Collections", "Issues") */
+			_x( 'See all %s', 'see all collections link aria-label', 'newspack-plugin' ),
+			strtolower( Settings::get_collection_label() )
+		);
+
+		$html = sprintf(
+			'<a href="%s" aria-label="%s">%s</a>',
+			esc_url( $link ),
+			esc_attr( $aria_label ),
+			esc_html( $label )
+		);
 
 		/**
 		 * Filters the see all link HTML.
