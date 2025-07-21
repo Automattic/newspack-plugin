@@ -155,7 +155,6 @@ class Collection_Taxonomy {
 		// Remove the filter to check if term is in the database.
 		self::unregister_hooks();
 		$result = term_exists( $term_id, self::get_taxonomy() );
-
 		self::register_hooks();
 
 		return $result;
