@@ -64,6 +64,7 @@ class Collection_Taxonomy {
 	 */
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
+		add_filter( 'newspack_blocks_home_page_block_custom_taxonomies', [ __CLASS__, 'add_collections_taxonomy_to_blocks' ] );
 		self::register_hooks();
 	}
 
@@ -154,6 +155,7 @@ class Collection_Taxonomy {
 		// Remove the filter to check if term is in the database.
 		self::unregister_hooks();
 		$result = term_exists( $term_id, self::get_taxonomy() );
+
 		self::register_hooks();
 
 		return $result;
@@ -213,5 +215,43 @@ class Collection_Taxonomy {
 		}
 
 		return get_terms( $args );
+	}
+
+	/**
+	 * Add the Collections taxonomy to the custom taxonomies array.
+	 *
+	 * @param array $custom_taxonomies Array of custom taxonomies.
+	 * @return array Modified array of custom taxonomies.
+	 */
+	public static function add_collections_taxonomy_to_blocks( $custom_taxonomies ) {
+		$collections_taxonomy = [
+			'slug'  => self::TAXONOMY,
+			'label' => __( 'Collections', 'newspack-plugin' ),
+		];
+
+		// Don't add a duplicate if this taxonomy is already in the list.
+		foreach ( $custom_taxonomies as $tax ) {
+			if ( $tax['slug'] === $collections_taxonomy['slug'] ) {
+				return $custom_taxonomies;
+			}
+		}
+
+		// Capture where Collection Sections is in the sidebar.
+		$point_of_insertion = null;
+		foreach ( $custom_taxonomies as $index => $tax ) {
+			if ( isset( $tax['slug'] ) && $tax['slug'] === 'newspack_collection_section' ) {
+				$point_of_insertion = $index;
+				break;
+			}
+		}
+
+		// If Collection Sections exists in the taxonomy filters, insert Collections before it. If not, use the default insertion point.
+		if ( null !== $point_of_insertion ) {
+			array_splice( $custom_taxonomies, $insert_index, 0, [ $collections_taxonomy ] );
+		} else {
+			$custom_taxonomies[] = $collections_taxonomy;
+		}
+
+		return $custom_taxonomies;
 	}
 }
