@@ -246,7 +246,7 @@ class Collection_Taxonomy {
 
 		// If Collection Sections exists in the taxonomy filters, insert Collections before it. If not, use the default insertion point.
 		if ( null !== $point_of_insertion ) {
-			array_splice( $custom_taxonomies, $insert_index, 0, [ $collections_taxonomy ] );
+			array_splice( $custom_taxonomies, $point_of_insertion, 0, [ $collections_taxonomy ] );
 		} else {
 			$custom_taxonomies[] = $collections_taxonomy;
 		}
