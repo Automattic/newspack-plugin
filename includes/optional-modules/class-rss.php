@@ -631,7 +631,7 @@ class RSS {
 		$cdata_titles             = filter_input( INPUT_POST, 'cdata_titles', FILTER_SANITIZE_NUMBER_INT );
 		$settings['cdata_titles'] = (bool) $cdata_titles;
 
-		$custom_tracking_snippet = filter_input( INPUT_POST, 'custom_tracking_snippet', FILTER_DEFAULT ); // phpcs:ignore WordPressVIPMinimum.Security.PHPFilterFunctions.RestrictedFilter
+		$custom_tracking_snippet             = filter_input( INPUT_POST, 'custom_tracking_snippet', FILTER_DEFAULT ); // phpcs:ignore WordPressVIPMinimum.Security.PHPFilterFunctions.RestrictedFilter
 		$settings['custom_tracking_snippet'] = wp_unslash( $custom_tracking_snippet );
 
 		$category_settings = filter_input_array(
