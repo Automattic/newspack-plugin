@@ -228,19 +228,16 @@ class Collection_Taxonomy {
 			'label' => __( 'Collections', 'newspack-plugin' ),
 		];
 
-		// Don't add a duplicate if this taxonomy is already in the list.
-		foreach ( $custom_taxonomies as $tax ) {
-			if ( $tax['slug'] === $collections_taxonomy['slug'] ) {
-				return $custom_taxonomies;
-			}
-		}
-
-		// Capture where Collection Sections is in the sidebar.
 		$point_of_insertion = null;
+		// Loop through the taxonomies; confirm Collections doesn't already exist, and grab the index of Collection Sections if it's there.
 		foreach ( $custom_taxonomies as $index => $tax ) {
-			if ( isset( $tax['slug'] ) && $tax['slug'] === 'newspack_collection_section' ) {
-				$point_of_insertion = $index;
-				break;
+			if ( isset( $tax['slug'] ) ) {
+				if ( $tax['slug'] === $collections_taxonomy['slug'] ) {
+					return $custom_taxonomies;
+				}
+				if ( $tax['slug'] === Collection_Section_Taxonomy::get_taxonomy() ) {
+					$point_of_insertion = $index;
+				}
 			}
 		}
 
