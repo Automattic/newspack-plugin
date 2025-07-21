@@ -3,20 +3,9 @@
  * Internal dependencies
  */
 import './gate.scss';
+import { debugLog } from '../reader-activation/utils';
 
 const EVENT_NAME = 'np_gate_interaction';
-
-/**
- * Debug logging function that uses the centralized logging from newspackReaderActivation.
- *
- * @param {string} level Log level ('log' or 'error')
- * @param {...any} args  Arguments to pass to console
- */
-const debugLog = ( level, ...args ) => {
-	if ( window.newspackReaderActivation?.debugLog ) {
-		window.newspackReaderActivation.debugLog( level, ...args );
-	}
-};
 
 /**
  * Specify a function to execute when the DOM is fully loaded.

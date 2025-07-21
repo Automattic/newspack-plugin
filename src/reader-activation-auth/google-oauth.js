@@ -4,18 +4,7 @@
  * Internal dependencies.
  */
 import { domReady, convertFormDataToObject } from '../utils';
-
-/**
- * Debug logging function that uses the centralized logging from newspackReaderActivation.
- *
- * @param {string} level Log level ('log' or 'error')
- * @param {...any} args  Arguments to pass to console
- */
-const debugLog = ( level, ...args ) => {
-	if ( window.newspackReaderActivation?.debugLog ) {
-		window.newspackReaderActivation.debugLog( level, ...args );
-	}
-};
+import { debugLog } from '../reader-activation/utils';
 
 domReady( function () {
 	const loginsElements = document.querySelectorAll( '.newspack-reader__logins' );
@@ -88,13 +77,6 @@ domReady( function () {
 				}
 			};
 			window.addEventListener( 'message', messageListener );
-
-			// Keep the legacy event listener for backwards compatibility.
-			window.addEventListener( 'google-oauth-success', () => {
-				debugLog( 'log', '[Google OAuth] Legacy google-oauth-success event received' );
-				cleanup();
-				checkLoginStatus( metadata );
-			} );
 
 			fetch( '/wp-json/newspack/v1/login/google?r=' + Math.random() )
 				.then( res => res.json().then( data => Promise.resolve( { data, status: res.status } ) ) )

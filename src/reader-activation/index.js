@@ -5,7 +5,7 @@ window.newspack_ras_config = window.newspack_ras_config || {};
 import Store from './store.js';
 import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
-import { getCookie, setCookie, generateID } from './utils.js';
+import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
@@ -334,21 +334,6 @@ export function getAuthStrategy() {
 		return 'otp';
 	}
 	return getCookie( 'np_auth_strategy' );
-}
-
-/**
- * Debug logging function that only logs when localStorage flag is set.
- *
- * @param {string} level Log level ('log' or 'error').
- * @param {...any} args  Arguments to pass to console.
- */
-// eslint-disable-next-line no-console
-export function debugLog( level = 'log', ...args ) {
-	if ( localStorage.getItem( 'newspack-google-oauth-debug' ) === 'true' ) {
-		const method = level === 'error' ? 'error' : 'log';
-		// eslint-disable-next-line no-console
-		console[ method ]( ...args );
-	}
 }
 
 /**
