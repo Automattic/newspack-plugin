@@ -471,7 +471,29 @@ class RSS {
 		?>
 		<p><strong>Note:</strong> These settings are for modifying a feed to make it compatible with various integrations (SmartNews, Pugpig, etc.). They should only be used if a specific integration requires a non-standard RSS feed. Consult the integration's documentation or support for information about which elements are required.</p>
 
-		<table>
+		<style>
+			.newspack-rss-technical-settings {
+				width: 100%;
+				table-layout: auto;
+			}
+			.newspack-rss-technical-settings th {
+				vertical-align: top;
+				padding-right: 20px;
+				padding-bottom: 10px;
+				word-wrap: break-word;
+				max-width: 600px;
+			}
+			.newspack-rss-technical-settings td {
+				vertical-align: top;
+				padding-bottom: 10px;
+			}
+			.newspack-rss-technical-settings textarea {
+				width: 100%;
+				max-width: 400px;
+				box-sizing: border-box;
+			}
+		</style>
+		<table class="newspack-rss-technical-settings">
 			<tr>
 				<th><?php esc_html_e( 'Add post featured images in <image> tags', 'newspack-plugin' ); ?></th>
 				<td>
