@@ -20,7 +20,6 @@ const DEFAULT_COLLECTIONS_SETTINGS: CollectionsSettingsData = {
 	custom_naming_enabled: false,
 	custom_name: '',
 	custom_singular_name: '',
-	custom_archive_slug: '',
 	custom_slug: '',
 	// Global CTAs section
 	subscribe_link: '',

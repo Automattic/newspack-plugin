@@ -5,7 +5,6 @@ type CollectionsSettingsData = {
 	custom_naming_enabled: boolean;
 	custom_name: string;
 	custom_singular_name: string;
-	custom_archive_slug: string;
 	custom_slug: string;
 	// Global CTAs section.
 	subscribe_link: string;

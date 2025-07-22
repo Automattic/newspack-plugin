@@ -53,13 +53,6 @@ class Settings {
 				'default'           => '',
 				'sanitize_callback' => 'sanitize_text_field',
 			],
-			'custom_archive_slug'   => [
-				'required'          => false,
-				'default'           => '',
-				'sanitize_callback' => function ( $value ) {
-					return sanitize_title( is_string( $value ) ? $value : '' );
-				},
-			],
 			'custom_slug'           => [
 				'required'          => false,
 				'default'           => '',
@@ -222,16 +215,7 @@ class Settings {
 	 * @return string
 	 */
 	public static function get_collection_slug() {
-		return self::get_custom_name( 'custom_slug', 'collection' );
-	}
-
-	/**
-	 * Get the collection archive slug.
-	 *
-	 * @return string
-	 */
-	public static function get_collection_archive_slug() {
-		return self::get_custom_name( 'custom_archive_slug', 'collections' );
+		return self::get_custom_name( 'custom_slug', 'collections' );
 	}
 
 	/**
@@ -272,7 +256,7 @@ class Settings {
 		self::update_settings( $updated_settings );
 
 		// Flush rewrite rules only if slug-related settings changed.
-		if ( ! empty( array_intersect( array_keys( $updated_settings ), [ 'custom_naming_enabled', 'custom_slug', 'custom_archive_slug' ] ) ) ) {
+		if ( ! empty( array_intersect( array_keys( $updated_settings ), [ 'custom_naming_enabled', 'custom_slug' ] ) ) ) {
 			/**
 			 * Fires before flushing rewrite rules after collection settings are updated.
 			 *

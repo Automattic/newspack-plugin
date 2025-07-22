@@ -165,11 +165,6 @@ class Test_Settings extends WP_UnitTestCase {
 		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug' ) );
 		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug!' ) );
 
-		// Test archive slug sanitization.
-		$archive_slug_callback = $rest_args['custom_archive_slug']['sanitize_callback'];
-		$this->assertEquals( 'clean-archive-slug', $archive_slug_callback( 'Clean Archive Slug' ) );
-		$this->assertEquals( 'clean-archive-slug', $archive_slug_callback( '#$%Clean Archive Slug!' ) );
-
 		// Test post indicator style sanitization.
 		$style_callback = $rest_args['post_indicator_style']['sanitize_callback'];
 		$this->assertEquals( 'default', $style_callback( 'default' ) );

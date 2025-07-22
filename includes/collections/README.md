@@ -62,7 +62,6 @@ The following nested options are available as properties of the `newspack_collec
 | `custom_naming_enabled` | Boolean | Enable custom naming for collections | Boolean |
 | `custom_name` | String | Custom plural name for collections. Only affects the reader-facing nomenclature | Text (e.g., "Issues") |
 | `custom_singular_name` | String | Custom singular name for collections. Only affects the reader-facing nomenclature | Text (e.g., "Issue") |
-| `custom_archive_slug` | String | Custom URL slug for collections archive. | Text (e.g., "issues") |
 | `custom_slug` | String | Custom URL slug for collections. | Text (e.g., "issue") |
 | `subscribe_link` | String | Global subscription URL displayed on collection pages | Valid URL |
 | `order_link` | String | Global order URL for purchasing physical copies | Valid URL |
