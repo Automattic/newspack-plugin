@@ -47,12 +47,9 @@
 	--newspack-ui-color-warning-30: #{colors.$warning-300};
 	--newspack-ui-color-warning-40: #{colors.$warning-400};
 
-	// Theme variables - from the classic theme; overridden in class-newspack-ui.php for block theme.
-	// TODO: commented out for now with the assumption all should be blue when used.
-	// --newspack-ui-color-primary: var(--newspack-theme-color-primary, var(--newspack-ui-color-neutral-90));
-	// --newspack-ui-color-against-primary: var(--newspack-theme-color-against-primary, var(--newspack-ui-color-neutral-0));
-	--newspack-ui-color-primary: var(--newspack-ui-color-primary-60);
-	--newspack-ui-color-against-primary: var(--newspack-ui-color-neutral-0);
+	// Theme variables - from the classic and block themes; overridden in class-newspack-ui.php for block theme.
+	--newspack-ui-color-primary: var(--newspack-theme-color-primary, var(--newspack-ui-color-primary-60));
+	--newspack-ui-color-against-primary: var(--newspack-theme-color-against-primary, var(--newspack-ui-color-neutral-0));
 
 	// Specific assignments - general:
 	--newspack-ui-color-border: var(--newspack-ui-color-neutral-30);

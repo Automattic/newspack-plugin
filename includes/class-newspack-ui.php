@@ -652,11 +652,11 @@ class Newspack_UI {
 			<hr>
 
 			<h2 id="buttons">Buttons</h2>
-			<p><code>newspack-ui__button--primary</code>, <code>--branded</code>, <code>--secondary</code>, <code>--ghost</code>, and <code>--destructive</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
+			<p><code>newspack-ui__button--primary</code>, <code>--accent</code>, <code>--secondary</code>, <code>--ghost</code>, and <code>--destructive</code> classes for colours/borders, and <code>newspack-ui__button--wide</code> for being 100% wide</p>
 			<button class="newspack-ui__button newspack-ui__button--primary">Primary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--primary" disabled>Primary Button Disabled</button><br>
-			<button class="newspack-ui__button newspack-ui__button--branded">Branded Button</button><br>
-			<button class="newspack-ui__button newspack-ui__button--branded" disabled>Branded Button Disabled</button><br>
+			<button class="newspack-ui__button newspack-ui__button--accent">Accent Button</button><br>
+			<button class="newspack-ui__button newspack-ui__button--accent" disabled>Accent Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary">Secondary Button</button><br>
 			<button class="newspack-ui__button newspack-ui__button--secondary" disabled>Secondary Button Disabled</button><br>
 			<button class="newspack-ui__button newspack-ui__button--ghost">Ghost Button</button><br>
@@ -674,7 +674,7 @@ class Newspack_UI {
 
 			<h3>Wide buttons</h3>
 			<button class="newspack-ui__button newspack-ui__button--primary newspack-ui__button--wide">Primary Button</button>
-			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--wide">Branded Button</button>
+			<button class="newspack-ui__button newspack-ui__button--accent newspack-ui__button--wide">Accent Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">Secondary Button</button>
 			<button class="newspack-ui__button newspack-ui__button--ghost newspack-ui__button--wide">Ghost Button</button>
 			<button class="newspack-ui__button newspack-ui__button--secondary newspack-ui__button--wide">
@@ -802,7 +802,7 @@ class Newspack_UI {
 				<?php \Newspack\Newspack_UI_Icons::print_svg( 'menu' ); ?>
 				<span class="screen-reader-text"><?php esc_html_e( 'Open Menu', 'newspack-plugin' ); ?></span>
 			</button>
-			<button class="newspack-ui__button newspack-ui__button--branded newspack-ui__button--icon">
+			<button class="newspack-ui__button newspack-ui__button--accent newspack-ui__button--icon">
 				<?php \Newspack\Newspack_UI_Icons::print_svg( 'menu' ); ?>
 				<span class="screen-reader-text"><?php esc_html_e( 'Open Menu', 'newspack-plugin' ); ?></span>
 			</button>
