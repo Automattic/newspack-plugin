@@ -524,7 +524,11 @@ class RSS {
 			<tr>
 				<th>
 					<?php esc_html_e( 'Custom tracking snippet', 'newspack-plugin' ); ?>
-					<p class="description"><?php echo esc_html_x( 'Tracking snippet that will be appended to the end of each post in the feed. You can use {{post-id}} and {{post-url}} as dynamic variables.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?></p>
+					<p class="description">
+						<?php echo esc_html_x( 'Tracking snippet that will be appended to the end of each post in the feed. You can use {{post-id}} and {{post-url}} as dynamic variables.', 'help text for custom tracking snippet', 'newspack-plugin' ); ?>
+						<br>
+						<?php echo esc_html_x( 'Allowed HTML: script, img, iframe, noscript, div, span with safe attributes only.', 'help text for allowed HTML in tracking snippet', 'newspack-plugin' ); ?>
+					</p>
 				</th>
 				<td>
 					<textarea name="custom_tracking_snippet" rows="4" cols="50"><?php echo esc_textarea( $settings['custom_tracking_snippet'] ); ?></textarea>
@@ -632,7 +636,39 @@ class RSS {
 		$settings['cdata_titles'] = (bool) $cdata_titles;
 
 		$custom_tracking_snippet             = filter_input( INPUT_POST, 'custom_tracking_snippet', FILTER_DEFAULT ); // phpcs:ignore WordPressVIPMinimum.Security.PHPFilterFunctions.RestrictedFilter
-		$settings['custom_tracking_snippet'] = wp_unslash( $custom_tracking_snippet );
+		$settings['custom_tracking_snippet'] = wp_kses(
+			$custom_tracking_snippet,
+			[
+				'script'   => [
+					'id'    => true,
+					'src'   => true,
+					'type'  => true,
+					'async' => true,
+					'defer' => true,
+					'class' => true,
+				],
+				'img'      => [
+					'id'     => true,
+					'style'  => true,
+					'src'    => true,
+					'alt'    => true,
+					'class'  => true,
+					'width'  => true,
+					'height' => true,
+				],
+				'iframe'   => [
+					'id'     => true,
+					'style'  => true,
+					'src'    => true,
+					'class'  => true,
+					'width'  => true,
+					'height' => true,
+				],
+				'noscript' => true,
+				'div'      => true,
+				'span'     => true,
+			]
+		);
 
 		$category_settings = filter_input_array(
 			INPUT_POST,
