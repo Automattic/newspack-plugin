@@ -31,6 +31,7 @@ class Template_Helper {
 		add_action( 'pre_get_posts', [ __CLASS__, 'archive_filters' ] );
 		add_filter( 'redirect_canonical', [ __CLASS__, 'prevent_year_redirect' ] );
 		add_filter( 'jetpack_relatedposts_filter_enabled_for_request', [ __CLASS__, 'disable_jetpack_related_posts' ] );
+		add_filter( 'document_title_parts', [ __CLASS__, 'update_document_title' ] );
 	}
 
 	/**
@@ -443,5 +444,19 @@ class Template_Helper {
 	 */
 	public static function render_separator( $class_name = '' ) {
 		return '<hr class="has-light-gray-background-color has-background is-style-wide ' . esc_attr( $class_name ) . '"/>';
+	}
+
+	/**
+	 * Filter document title for collections pages to use custom label.
+	 *
+	 * @param array $title_parts The document title parts.
+	 * @return array Modified title parts.
+	 */
+	public static function update_document_title( $title_parts ) {
+		if ( is_post_type_archive( Post_Type::get_post_type() ) ) {
+			$title_parts['title'] = Settings::get_collection_label();
+		}
+
+		return $title_parts;
 	}
 }
