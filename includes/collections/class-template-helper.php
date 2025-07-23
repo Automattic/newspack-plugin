@@ -392,6 +392,12 @@ class Template_Helper {
 			'specificMode'  => true,
 		];
 
+		// Override with global settings if set.
+		$global_attrs = Settings::get_setting( 'articles_block_attrs', [] );
+		if ( is_array( $global_attrs ) && ! empty( $global_attrs ) ) {
+			$attrs = array_merge( $attrs, $global_attrs );
+		}
+
 		/**
 		 * Filters the attributes before rendering the content loop block for posts in a section.
 		 *

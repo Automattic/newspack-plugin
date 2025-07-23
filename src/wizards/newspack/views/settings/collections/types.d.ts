@@ -13,6 +13,10 @@ type CollectionsSettingsData = {
 	posts_per_page: number;
 	category_filter_label: string;
 	highlight_latest: boolean;
+	// Collection Single section.
+	articles_block_attrs: {
+		showCategory?: boolean;
+	};
 	// Collection Posts section.
 	post_indicator_style: 'default' | 'card';
 	card_message: string;

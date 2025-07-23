@@ -90,6 +90,12 @@ class Settings {
 				'default'           => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			],
+			// Collection Single section.
+			'articles_block_attrs'  => [
+				'required'          => false,
+				'default'           => [],
+				'sanitize_callback' => [ self::class, 'sanitize_articles_block_attrs' ],
+			],
 			// Collection Posts section.
 			'post_indicator_style'  => [
 				'required'          => false,
@@ -268,5 +274,39 @@ class Settings {
 		}
 
 		return self::get_settings();
+	}
+
+	/**
+	 * Sanitize articles block attributes, preserving unmanaged keys.
+	 *
+	 * @param mixed $value The input value to sanitize.
+	 * @return array Sanitized articles block attributes.
+	 */
+	public static function sanitize_articles_block_attrs( $value ) {
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
+		// Get current value to preserve unmanaged keys.
+		$attrs = self::get_settings()['articles_block_attrs'] ?? null;
+		if ( ! is_array( $attrs ) ) {
+			return [];
+		}
+
+		// UI-managed keys with their sanitization.
+		$ui_managed = [
+			'showCategory' => 'rest_sanitize_boolean',
+		];
+
+		// Update only UI-managed keys.
+		foreach ( $ui_managed as $key => $sanitizer ) {
+			if ( isset( $value[ $key ] ) ) {
+				$attrs[ $key ] = $sanitizer( $value[ $key ] );
+			} elseif ( array_key_exists( $key, $value ) ) {
+				unset( $attrs[ $key ] );
+			}
+		}
+
+		return $attrs;
 	}
 }

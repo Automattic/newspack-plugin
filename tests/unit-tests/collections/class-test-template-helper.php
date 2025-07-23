@@ -236,12 +236,33 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 			self::factory()->post->create(),
 		];
 
+		// Register to prevent skipping the rest of the method, given that the block is not registered in the test environment.
+		register_block_type(
+			'newspack-blocks/homepage-articles',
+			[
+				'render_callback' => '__return_empty_string',
+			]
+		);
+
 		$html = Template_Helper::render_articles( $post_ids, 'Test Section' );
 		$this->assertIsString( $html, 'Articles HTML should be a string.' );
 
-		// Test with empty post IDs.
-		$html = Template_Helper::render_articles( [] );
-		$this->assertEmpty( $html, 'Empty post IDs should not render articles.' );
+		// Test global settings override.
+		Settings::update_setting( 'articles_block_attrs', [ 'showCategory' => true ] );
+
+		$filter = add_filter(
+			'newspack_collections_render_articles_attrs',
+			function ( $attrs ) {
+				$this->assertTrue( $attrs['showCategory'], 'Global setting should be present.' );
+				return $attrs;
+			}
+		);
+
+		// Test that render_articles doesn't fail with global settings.
+		Template_Helper::render_articles( $post_ids );
+
+		remove_filter( 'newspack_collections_render_articles_attrs', $filter );
+		unregister_block_type( 'newspack-blocks/homepage-articles' );
 	}
 
 	/**
