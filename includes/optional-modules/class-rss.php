@@ -101,6 +101,12 @@ class RSS {
 		 */
 		$default_settings = apply_filters( 'newspack_rss_feed_settings', $default_settings );
 
+		$custom_taxonomies = self::get_custom_taxonomies_for_posts();
+
+		foreach ( $custom_taxonomies as $taxonomy ) {
+			$default_settings[ $taxonomy->name . '_include' ] = [];
+		}
+
 		if ( ! $feed_post ) {
 			$query_feed = filter_input( INPUT_GET, self::FEED_QUERY_ARG, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			if ( ! $query_feed ) {
@@ -320,9 +326,10 @@ class RSS {
 	 * @param WP_Post $feed_post RSS feed post object.
 	 */
 	public static function render_content_settings_metabox( $feed_post ) {
-		$settings   = self::get_feed_settings( $feed_post );
-		$categories = get_categories();
-		$tags       = get_tags();
+		$settings          = self::get_feed_settings( $feed_post );
+		$categories        = get_categories();
+		$tags              = get_tags();
+		$custom_taxonomies = self::get_custom_taxonomies_for_posts();
 		wp_nonce_field( 'newspack_rss_enhancements_nonce', 'newspack_rss_enhancements_nonce' );
 		?>
 		<style>
@@ -381,6 +388,33 @@ class RSS {
 					</select>
 				</td>
 			</tr>
+			<?php
+			foreach ( $custom_taxonomies as $taxonomy ) {
+				$taxonomy_include_key = $taxonomy->name . '_include';
+				$selected_terms       = isset( $settings[ $taxonomy_include_key ] ) ? (array) $settings[ $taxonomy_include_key ] : [];
+				$terms                = get_terms(
+					[
+						'taxonomy'   => $taxonomy->name,
+						'hide_empty' => false,
+					]
+				);
+				?>
+				<tr>
+					<?php /* translators: %s is a taxonomy label. */ ?>
+					<th><?php echo esc_html( sprintf( __( 'Include only posts with %s:', 'newspack-plugin' ), $taxonomy->label ) ); ?></th>
+					<td>
+						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-custom-taxonomy-select">
+							<?php foreach ( $terms as $term ) : ?>
+								<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected_terms ) ); ?>>
+									<?php echo esc_html( $term->name ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
 			<tr>
 				<th><?php esc_html_e( 'Include only posts with these tags:', 'newspack-plugin' ); ?></th>
 				<td>
@@ -456,6 +490,7 @@ class RSS {
 				jQuery( '#category_include' ).select2();
 				jQuery( '#category_exclude' ).select2();
 				jQuery( '#tag_include' ).select2();
+				jQuery( '.newspack-custom-taxonomy-select' ).select2();
 			} );
 		</script>
 		<?php
@@ -613,7 +648,8 @@ class RSS {
 			return;
 		}
 
-		$settings = self::get_feed_settings( $feed_post_id );
+		$settings          = self::get_feed_settings( $feed_post_id );
+		$custom_taxonomies = self::get_custom_taxonomies_for_posts();
 
 		$use_image_tags             = filter_input( INPUT_POST, 'use_image_tags', FILTER_SANITIZE_NUMBER_INT );
 		$settings['use_image_tags'] = (bool) $use_image_tags;
@@ -736,6 +772,12 @@ class RSS {
 			}
 		}
 
+		foreach ( $custom_taxonomies as $taxonomy ) {
+			$key              = $taxonomy->name . '_include';
+			$values           = isset( $_POST[ $key ] ) ? array_map( 'absint', (array) $_POST[ $key ] ) : [];
+			$settings[ $key ] = $values;
+		}
+
 		// Process Republication Tracker options only if the plugin is active.
 		if ( self::is_republication_tracker_plugin_active() ) {
 			$republication_tracker             = filter_input( INPUT_POST, 'republication_tracker', FILTER_SANITIZE_NUMBER_INT );
@@ -794,6 +836,23 @@ class RSS {
 
 		if ( ! empty( $settings['tag_include'] ) ) {
 			$query->set( 'tag__in', array_map( 'absint', $settings['tag_include'] ) );
+		}
+
+		$tax_query = [];
+		foreach ( self::get_custom_taxonomies_for_posts() as $taxonomy ) {
+			$key = $taxonomy->name . '_include';
+			if ( ! empty( $settings[ $key ] ) && is_array( $settings[ $key ] ) ) {
+				$tax_query[] = [
+					'taxonomy' => $taxonomy->name,
+					'field'    => 'term_id',
+					'terms'    => $settings[ $key ],
+					'operator' => 'IN',
+				];
+			}
+		}
+
+		if ( ! empty( $tax_query ) ) {
+			$query->set( 'tax_query', $tax_query );
 		}
 
 		if ( ! empty( $settings['update_frequency'] ) ) {
@@ -1092,6 +1151,23 @@ xmlns:media="http://search.yahoo.com/mrss/"
 	 */
 	private static function is_republication_tracker_plugin_active() {
 		return class_exists( 'Republication_Tracker_Tool' );
+	}
+
+	/**
+	 * Get custom taxonomies registered for posts (excluding built-in taxonomies).
+	 *
+	 * @return array Array of custom taxonomies registered for posts.
+	 */
+	private static function get_custom_taxonomies_for_posts() {
+		$custom_taxonomies = get_taxonomies(
+			[
+				'object_type' => [ 'post' ],
+				'public'      => true,
+				'_builtin'    => false,
+			],
+			'objects'
+		);
+		return $custom_taxonomies;
 	}
 
 	/**
