@@ -104,7 +104,7 @@ class RSS {
 		$custom_taxonomies = self::get_custom_taxonomies_for_posts();
 
 		foreach ( $custom_taxonomies as $taxonomy ) {
-			$default_settings[ $taxonomy->name . '_include' ] = [];
+			$default_settings[ $taxonomy . '_include' ] = [];
 		}
 
 		if ( ! $feed_post ) {
@@ -390,18 +390,19 @@ class RSS {
 			</tr>
 			<?php
 			foreach ( $custom_taxonomies as $taxonomy ) {
-				$taxonomy_include_key = $taxonomy->name . '_include';
+				$taxonomy_object      = get_taxonomy( $taxonomy );
+				$taxonomy_include_key = $taxonomy . '_include';
 				$selected_terms       = isset( $settings[ $taxonomy_include_key ] ) ? (array) $settings[ $taxonomy_include_key ] : [];
 				$terms                = get_terms(
 					[
-						'taxonomy'   => $taxonomy->name,
+						'taxonomy'   => $taxonomy,
 						'hide_empty' => false,
 					]
 				);
 				?>
 				<tr>
 					<?php /* translators: %s is a taxonomy label. */ ?>
-					<th><?php echo esc_html( sprintf( __( 'Include only posts with %s:', 'newspack-plugin' ), $taxonomy->label ) ); ?></th>
+					<th><?php echo esc_html( sprintf( __( 'Include only posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
 					<td>
 						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-custom-taxonomy-select">
 							<?php foreach ( $terms as $term ) : ?>
@@ -773,7 +774,7 @@ class RSS {
 		}
 
 		foreach ( $custom_taxonomies as $taxonomy ) {
-			$key              = $taxonomy->name . '_include';
+			$key              = $taxonomy . '_include';
 			$values           = isset( $_POST[ $key ] ) ? array_map( 'absint', (array) $_POST[ $key ] ) : [];
 			$settings[ $key ] = $values;
 		}
@@ -840,10 +841,10 @@ class RSS {
 
 		$tax_query = [];
 		foreach ( self::get_custom_taxonomies_for_posts() as $taxonomy ) {
-			$key = $taxonomy->name . '_include';
+			$key = $taxonomy . '_include';
 			if ( ! empty( $settings[ $key ] ) && is_array( $settings[ $key ] ) ) {
 				$tax_query[] = [
-					'taxonomy' => $taxonomy->name,
+					'taxonomy' => $taxonomy,
 					'field'    => 'term_id',
 					'terms'    => $settings[ $key ],
 					'operator' => 'IN',
@@ -1156,7 +1157,7 @@ xmlns:media="http://search.yahoo.com/mrss/"
 	/**
 	 * Get custom taxonomies registered for posts (excluding built-in taxonomies).
 	 *
-	 * @return array Array of custom taxonomies registered for posts.
+	 * @return array Array of custom taxonomy names registered for posts.
 	 */
 	private static function get_custom_taxonomies_for_posts() {
 		$custom_taxonomies = get_taxonomies(
@@ -1165,7 +1166,7 @@ xmlns:media="http://search.yahoo.com/mrss/"
 				'public'      => true,
 				'_builtin'    => false,
 			],
-			'objects'
+			'names'
 		);
 		return $custom_taxonomies;
 	}
