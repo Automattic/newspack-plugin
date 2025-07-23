@@ -79,7 +79,8 @@ class Optional_Modules {
 		}
 
 		if ( \Newspack\Optional_Modules::is_optional_module_active( $module_name ) ) {
-			\WP_CLI::error( "Cannot activate module – it's already active." );
+			\WP_CLI::warning( "Cannot activate module – it's already active." );
+			return;
 		}
 
 		$settings = \Newspack\Optional_Modules::activate_optional_module( $module_name );
@@ -102,7 +103,8 @@ class Optional_Modules {
 		$module_name = $pos_args[0];
 
 		if ( ! \Newspack\Optional_Modules::is_optional_module_active( $module_name ) ) {
-			\WP_CLI::error( 'Module is not active. Cannot deactivate it' );
+			\WP_CLI::warning( 'Module is not active. Cannot deactivate it' );
+			return;
 		}
 
 		$settings = \Newspack\Optional_Modules::deactivate_optional_module( $module_name );
