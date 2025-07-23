@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 class Collection_Section_Taxonomy {
 
 	use Traits\Meta_Handler;
+	use Traits\Registration_Manager;
 
 	/**
 	 * Taxonomy for Collection Sections.
@@ -76,7 +77,7 @@ class Collection_Section_Taxonomy {
 		// Register taxonomy and menu relationships.
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
-		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'register_taxonomy' ] );
+		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'update_registration' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'add_to_collections_menu' ] );
 		add_filter( 'parent_file', [ __CLASS__, 'set_parent_menu' ] );
 
