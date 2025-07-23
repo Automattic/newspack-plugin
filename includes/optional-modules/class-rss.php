@@ -73,6 +73,7 @@ class RSS {
 			'category_include'          => [],
 			'category_exclude'          => [],
 			'tag_include'               => [],
+			'category_tag_relation'     => 'AND',
 			'use_image_tags'            => false,
 			'use_media_tags'            => false,
 			'use_updated_tags'          => false,
@@ -388,6 +389,18 @@ class RSS {
 						<?php foreach ( $tags as $tag ) : ?>
 							<option value="<?php echo esc_attr( $tag->term_id ); ?>" <?php selected( in_array( $tag->term_id, $settings['tag_include'] ) ); ?>><?php echo esc_html( $tag->name ); ?></option>
 						<?php endforeach; ?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<?php esc_html_e( 'Category and tag filter relationship:', 'newspack-plugin' ); ?>
+					<p class="description"><?php echo esc_html_x( 'When both categories and tags are selected above, should posts match ALL conditions (AND) or ANY condition (OR)?', 'help text for category/tag relation', 'newspack-plugin' ); ?></p>
+				</th>
+				<td>
+					<select name="category_tag_relation">
+						<option value="AND" <?php selected( $settings['category_tag_relation'], 'AND' ); ?> ><?php esc_html_e( 'AND - Posts must match both category AND tag filters', 'newspack-plugin' ); ?></option>
+						<option value="OR" <?php selected( $settings['category_tag_relation'], 'OR' ); ?> ><?php esc_html_e( 'OR - Posts can match either category OR tag filters', 'newspack-plugin' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -736,6 +749,11 @@ class RSS {
 			}
 		}
 
+		$category_tag_relation = filter_input( INPUT_POST, 'category_tag_relation', FILTER_SANITIZE_SPECIAL_CHARS );
+		if ( in_array( $category_tag_relation, [ 'AND', 'OR' ], true ) ) {
+			$settings['category_tag_relation'] = $category_tag_relation;
+		}
+
 		// Process Republication Tracker options only if the plugin is active.
 		if ( self::is_republication_tracker_plugin_active() ) {
 			$republication_tracker             = filter_input( INPUT_POST, 'republication_tracker', FILTER_SANITIZE_NUMBER_INT );
@@ -784,16 +802,45 @@ class RSS {
 			$query->set( 'date_query', [ 'after' => gmdate( 'Y-m-d H:i:s', strtotime( '- ' . $settings['timeframe'] . ' hours' ) ) ] );
 		}
 
-		if ( ! empty( $settings['category_include'] ) ) {
-			$query->set( 'category__in', array_map( 'absint', $settings['category_include'] ) );
-		}
+		// Handle category and tag filtering with configurable relation.
+		$tax_queries = [];
+		$has_include_filters = false;
 
-		if ( ! empty( $settings['category_exclude'] ) ) {
-			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
+		if ( ! empty( $settings['category_include'] ) ) {
+			$has_include_filters = true;
+			$tax_queries[] = [
+				'taxonomy' => 'category',
+				'field'    => 'term_id',
+				'terms'    => array_map( 'absint', $settings['category_include'] ),
+				'operator' => 'IN',
+			];
 		}
 
 		if ( ! empty( $settings['tag_include'] ) ) {
+			$has_include_filters = true;
+			$tax_queries[] = [
+				'taxonomy' => 'post_tag',
+				'field'    => 'term_id',
+				'terms'    => array_map( 'absint', $settings['tag_include'] ),
+				'operator' => 'IN',
+			];
+		}
+
+		// If we have both category and tag includes, use tax_query with the configured relation.
+		if ( $has_include_filters && count( $tax_queries ) > 1 ) {
+			$tax_queries['relation'] = $settings['category_tag_relation'];
+			$query->set( 'tax_query', $tax_queries );
+		} elseif ( ! empty( $settings['category_include'] ) ) {
+			// Single filter, use the simpler approach for backward compatibility.
+			$query->set( 'category__in', array_map( 'absint', $settings['category_include'] ) );
+		} elseif ( ! empty( $settings['tag_include'] ) ) {
+			// Single filter, use the simpler approach for backward compatibility.
 			$query->set( 'tag__in', array_map( 'absint', $settings['tag_include'] ) );
+		}
+
+		// Category exclusion remains separate as it should always exclude.
+		if ( ! empty( $settings['category_exclude'] ) ) {
+			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
 		}
 
 		if ( ! empty( $settings['update_frequency'] ) ) {
