@@ -13,6 +13,7 @@ use Newspack\Collections\Collection_Taxonomy;
 use Newspack\Collections\Collection_Category_Taxonomy;
 use Newspack\Collections\Template_Helper;
 use Newspack\Collections\Enqueuer;
+use Newspack\Collections\Settings;
 
 /**
  * Tests for the Template_Helper class.
@@ -281,5 +282,40 @@ class Test_Template_Helper extends \WP_UnitTestCase {
 		ob_start();
 		Template_Helper::load_template_part( 'some/other/template', null, [], [] );
 		$this->assertEmpty( ob_get_clean(), 'Non-collections template should not be processed.' );
+	}
+
+	/**
+	 * Test update_document_title modifies title for collections archive pages.
+	 *
+	 * @covers \Newspack\Collections\Template_Helper::update_document_title
+	 */
+	public function test_update_document_title() {
+		$original_title_parts = [
+			'title' => 'Original Title',
+			'site'  => 'Test Site',
+		];
+
+		$custom_label = 'Magazines';
+
+		// Set custom collection label.
+		Settings::update_settings(
+			[
+				'custom_naming_enabled' => true,
+				'custom_name'           => $custom_label,
+			]
+		);
+
+		// Test on collections archive page.
+		$this->go_to( get_post_type_archive_link( Post_Type::get_post_type() ) );
+
+		$modified_title_parts = Template_Helper::update_document_title( $original_title_parts );
+		$this->assertEquals( $custom_label, $modified_title_parts['title'], 'Title should be updated to custom label on archive page.' );
+		$this->assertEquals( $original_title_parts['site'], $modified_title_parts['site'], 'Other title parts should remain unchanged.' );
+
+		// Test on regular page (should not modify title).
+		$this->go_to( home_url() );
+
+		$unmodified_title_parts = Template_Helper::update_document_title( $original_title_parts );
+		$this->assertEquals( $original_title_parts['title'], $unmodified_title_parts['title'], 'Title should not be modified.' );
 	}
 }
