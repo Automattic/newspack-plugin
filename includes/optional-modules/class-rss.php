@@ -105,6 +105,7 @@ class RSS {
 
 		foreach ( $custom_taxonomies as $taxonomy ) {
 			$default_settings[ $taxonomy . '_include' ] = [];
+			$default_settings[ $taxonomy . '_exclude' ] = [];
 		}
 
 		if ( ! $feed_post ) {
@@ -390,10 +391,12 @@ class RSS {
 			</tr>
 			<?php
 			foreach ( $custom_taxonomies as $taxonomy ) {
-				$taxonomy_object      = get_taxonomy( $taxonomy );
-				$taxonomy_include_key = $taxonomy . '_include';
-				$selected_terms       = isset( $settings[ $taxonomy_include_key ] ) ? (array) $settings[ $taxonomy_include_key ] : [];
-				$terms                = get_terms(
+				$taxonomy_object        = get_taxonomy( $taxonomy );
+				$taxonomy_include_key   = $taxonomy . '_include';
+				$taxonomy_exclude_key   = $taxonomy . '_exclude';
+				$selected_include_terms = isset( $settings[ $taxonomy_include_key ] ) ? (array) $settings[ $taxonomy_include_key ] : [];
+				$selected_exclude_terms = isset( $settings[ $taxonomy_exclude_key ] ) ? (array) $settings[ $taxonomy_exclude_key ] : [];
+				$terms                  = get_terms(
 					[
 						'taxonomy'   => $taxonomy,
 						'hide_empty' => false,
@@ -406,7 +409,20 @@ class RSS {
 					<td>
 						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-custom-taxonomy-select">
 							<?php foreach ( $terms as $term ) : ?>
-								<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected_terms ) ); ?>>
+								<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected_include_terms ) ); ?>>
+									<?php echo esc_html( $term->name ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<?php /* translators: %s is a taxonomy label. */ ?>
+					<th><?php echo esc_html( sprintf( __( 'Exclude posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
+					<td>
+						<select name="<?php echo esc_attr( $taxonomy_exclude_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-custom-taxonomy-select">
+							<?php foreach ( $terms as $term ) : ?>
+								<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected_exclude_terms ) ); ?>>
 									<?php echo esc_html( $term->name ); ?>
 								</option>
 							<?php endforeach; ?>
@@ -774,9 +790,12 @@ class RSS {
 		}
 
 		foreach ( $custom_taxonomies as $taxonomy ) {
-			$key              = $taxonomy . '_include';
-			$values           = isset( $_POST[ $key ] ) ? array_map( 'absint', (array) $_POST[ $key ] ) : [];
-			$settings[ $key ] = $values;
+			$include_key              = $taxonomy . '_include';
+			$exclude_key              = $taxonomy . '_exclude';
+			$include_values           = isset( $_POST[ $include_key ] ) ? array_map( 'absint', (array) $_POST[ $include_key ] ) : [];
+			$exclude_values           = isset( $_POST[ $exclude_key ] ) ? array_map( 'absint', (array) $_POST[ $exclude_key ] ) : [];
+			$settings[ $include_key ] = $include_values;
+			$settings[ $exclude_key ] = $exclude_values;
 		}
 
 		// Process Republication Tracker options only if the plugin is active.
@@ -841,18 +860,32 @@ class RSS {
 
 		$tax_query = [];
 		foreach ( self::get_custom_taxonomies_for_posts() as $taxonomy ) {
-			$key = $taxonomy . '_include';
-			if ( ! empty( $settings[ $key ] ) && is_array( $settings[ $key ] ) ) {
+			$include_key = $taxonomy . '_include';
+			$exclude_key = $taxonomy . '_exclude';
+
+			if ( ! empty( $settings[ $include_key ] ) && is_array( $settings[ $include_key ] ) ) {
 				$tax_query[] = [
 					'taxonomy' => $taxonomy,
 					'field'    => 'term_id',
-					'terms'    => $settings[ $key ],
+					'terms'    => $settings[ $include_key ],
 					'operator' => 'IN',
+				];
+			}
+
+			if ( ! empty( $settings[ $exclude_key ] ) && is_array( $settings[ $exclude_key ] ) ) {
+				$tax_query[] = [
+					'taxonomy' => $taxonomy,
+					'field'    => 'term_id',
+					'terms'    => $settings[ $exclude_key ],
+					'operator' => 'NOT IN',
 				];
 			}
 		}
 
 		if ( ! empty( $tax_query ) ) {
+			if ( count( $tax_query ) > 1 ) {
+				$tax_query['relation'] = 'AND';
+			}
 			$query->set( 'tax_query', $tax_query );
 		}
 
