@@ -445,13 +445,13 @@ class RSS {
 			</tr>
 			<tr>
 				<th>
-					<?php esc_html_e( 'Category and tag filter relationship:', 'newspack-plugin' ); ?>
-					<p class="description"><?php echo esc_html_x( 'When both categories and tags are selected above, should posts match ALL conditions (AND) or ANY condition (OR)?', 'help text for category/tag relation', 'newspack-plugin' ); ?></p>
+					<?php esc_html_e( 'Category, Taxonomies and tag filter relationship:', 'newspack-plugin' ); ?>
+					<p class="description"><?php echo esc_html_x( 'When categories, custom taxonomies and tags are selected above, should posts match ALL conditions (AND) or ANY condition (OR)?', 'help text for category/taxonomy/tag relation', 'newspack-plugin' ); ?></p>
 				</th>
 				<td>
 					<select name="category_tag_relation">
-						<option value="AND" <?php selected( $settings['category_tag_relation'], 'AND' ); ?> ><?php esc_html_e( 'AND - Posts must match both category AND tag filters', 'newspack-plugin' ); ?></option>
-						<option value="OR" <?php selected( $settings['category_tag_relation'], 'OR' ); ?> ><?php esc_html_e( 'OR - Posts can match either category OR tag filters', 'newspack-plugin' ); ?></option>
+						<option value="AND" <?php selected( $settings['category_tag_relation'], 'AND' ); ?> ><?php esc_html_e( 'AND - Posts must match all category, custom taxonomies AND tag filters', 'newspack-plugin' ); ?></option>
+						<option value="OR" <?php selected( $settings['category_tag_relation'], 'OR' ); ?> ><?php esc_html_e( 'OR - Posts can match either category, custom taxonomies OR tag filters', 'newspack-plugin' ); ?></option>
 					</select>
 				</td>
 			</tr>
@@ -864,12 +864,10 @@ class RSS {
 			$query->set( 'date_query', [ 'after' => gmdate( 'Y-m-d H:i:s', strtotime( '- ' . $settings['timeframe'] . ' hours' ) ) ] );
 		}
 
-		// Handle category and tag filtering with configurable relation.
+		// Handle category, taxonomy and tag filtering with configurable relation.
 		$tax_queries = [];
-		$has_include_filters = false;
 
 		if ( ! empty( $settings['category_include'] ) ) {
-			$has_include_filters = true;
 			$tax_queries[] = [
 				'taxonomy' => 'category',
 				'field'    => 'term_id',
@@ -879,7 +877,6 @@ class RSS {
 		}
 
 		if ( ! empty( $settings['tag_include'] ) ) {
-			$has_include_filters = true;
 			$tax_queries[] = [
 				'taxonomy' => 'post_tag',
 				'field'    => 'term_id',
@@ -888,30 +885,12 @@ class RSS {
 			];
 		}
 
-		// If we have both category and tag includes, use tax_query with the configured relation.
-		if ( $has_include_filters && count( $tax_queries ) > 1 ) {
-			$tax_queries['relation'] = $settings['category_tag_relation'];
-			$query->set( 'tax_query', $tax_queries );
-		} elseif ( ! empty( $settings['category_include'] ) ) {
-			// Single filter, use the simpler approach for backward compatibility.
-			$query->set( 'category__in', array_map( 'absint', $settings['category_include'] ) );
-		} elseif ( ! empty( $settings['tag_include'] ) ) {
-			// Single filter, use the simpler approach for backward compatibility.
-			$query->set( 'tag__in', array_map( 'absint', $settings['tag_include'] ) );
-		}
-
-		// Category exclusion remains separate as it should always exclude.
-		if ( ! empty( $settings['category_exclude'] ) ) {
-			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
-		}
-
-		$tax_query = [];
 		foreach ( self::get_custom_taxonomies_for_posts() as $taxonomy ) {
 			$include_key = $taxonomy . '_include';
 			$exclude_key = $taxonomy . '_exclude';
 
 			if ( ! empty( $settings[ $include_key ] ) && is_array( $settings[ $include_key ] ) ) {
-				$tax_query[] = [
+				$tax_queries[] = [
 					'taxonomy' => $taxonomy,
 					'field'    => 'term_id',
 					'terms'    => $settings[ $include_key ],
@@ -920,7 +899,7 @@ class RSS {
 			}
 
 			if ( ! empty( $settings[ $exclude_key ] ) && is_array( $settings[ $exclude_key ] ) ) {
-				$tax_query[] = [
+				$tax_queries[] = [
 					'taxonomy' => $taxonomy,
 					'field'    => 'term_id',
 					'terms'    => $settings[ $exclude_key ],
@@ -929,11 +908,24 @@ class RSS {
 			}
 		}
 
-		if ( ! empty( $tax_query ) ) {
-			if ( count( $tax_query ) > 1 ) {
-				$tax_query['relation'] = 'AND';
+		// Use tax_query if we have multiple filters OR any custom taxonomy filters OR exclude filters.
+		if ( ! empty( $tax_queries ) ) {
+			// Only set relation if we have multiple queries.
+			if ( count( $tax_queries ) > 1 ) {
+				$tax_queries['relation'] = $settings['category_tag_relation'];
 			}
-			$query->set( 'tax_query', $tax_query );
+			$query->set( 'tax_query', $tax_queries );
+		} elseif ( ! empty( $settings['category_include'] ) ) {
+			// Single category include filter, use the simpler approach for backward compatibility.
+			$query->set( 'category__in', array_map( 'absint', $settings['category_include'] ) );
+		} elseif ( ! empty( $settings['tag_include'] ) ) {
+			// Single tag include filter, use the simpler approach for backward compatibility.
+			$query->set( 'tag__in', array_map( 'absint', $settings['tag_include'] ) );
+		}
+
+		// Category exclusion remains separate as it should always exclude.
+		if ( ! empty( $settings['category_exclude'] ) ) {
+			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
 		}
 
 		if ( ! empty( $settings['update_frequency'] ) ) {
