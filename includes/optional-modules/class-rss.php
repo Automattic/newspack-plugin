@@ -880,7 +880,7 @@ class RSS {
 			$thumbnail_url = get_the_post_thumbnail_url( $post, 'full' );
 			if ( $thumbnail_url ) :
 				?>
-				<image><?php echo esc_url( $thumbnail_url ); ?></image>
+				<image><?php echo esc_url( $thumbnail_url, null, 'db' ); ?></image>
 				<?php
 			endif;
 		}
@@ -910,11 +910,11 @@ class RSS {
 				if ( $thumbnail_data ) {
 					$caption = get_the_post_thumbnail_caption();
 					?>
-					<media:content type="<?php echo esc_attr( get_post_mime_type( $thumbnail_id ) ); ?>" url="<?php echo esc_url( $thumbnail_data[0] ); ?>">
+					<media:content type="<?php echo esc_attr( get_post_mime_type( $thumbnail_id ) ); ?>" url="<?php echo esc_url( $thumbnail_data[0], null, 'db' ); ?>">
 						<?php if ( ! empty( $caption ) ) : ?>
 						<media:description><?php echo esc_html( $caption ); ?></media:description>
 						<?php endif; ?>
-						<media:thumbnail url="<?php echo esc_url( $thumbnail_data[0] ); ?>" width="<?php echo esc_attr( $thumbnail_data[1] ); ?>" height="<?php echo esc_attr( $thumbnail_data[2] ); ?>" />
+						<media:thumbnail url="<?php echo esc_url( $thumbnail_data[0], null, 'db' ); ?>" width="<?php echo esc_attr( $thumbnail_data[1] ); ?>" height="<?php echo esc_attr( $thumbnail_data[2] ); ?>" />
 					</media:content>
 					<?php
 				}
