@@ -380,11 +380,12 @@ class RSS {
 									'taxonomy'   => 'category',
 									'include'    => $settings['category_include'],
 									'hide_empty' => false,
+									'fields'     => 'id=>name',
 								]
 							);
-							foreach ( $selected_categories as $category ) :
+							foreach ( $selected_categories as $category_id => $category_name ) :
 								?>
-								<option value="<?php echo esc_attr( $category->term_id ); ?>" selected="selected"><?php echo esc_html( $category->name ); ?></option>
+								<option value="<?php echo esc_attr( $category_id ); ?>" selected="selected"><?php echo esc_html( $category_name ); ?></option>
 								<?php
 							endforeach;
 						}
@@ -403,11 +404,12 @@ class RSS {
 									'taxonomy'   => 'category',
 									'include'    => $settings['category_exclude'],
 									'hide_empty' => false,
+									'fields'     => 'id=>name',
 								]
 							);
-							foreach ( $selected_categories as $category ) :
+							foreach ( $selected_categories as $category_id => $category_name ) :
 								?>
-								<option value="<?php echo esc_attr( $category->term_id ); ?>" selected="selected"><?php echo esc_html( $category->name ); ?></option>
+								<option value="<?php echo esc_attr( $category_id ); ?>" selected="selected"><?php echo esc_html( $category_name ); ?></option>
 								<?php
 							endforeach;
 						}
@@ -428,6 +430,7 @@ class RSS {
 						'taxonomy'   => $taxonomy,
 						'include'    => $selected_include_terms,
 						'hide_empty' => false,
+						'fields'     => 'id=>name',
 					]
 				) : [];
 				$exclude_terms = ! empty( $selected_exclude_terms ) ? get_terms(
@@ -435,6 +438,7 @@ class RSS {
 						'taxonomy'   => $taxonomy,
 						'include'    => $selected_exclude_terms,
 						'hide_empty' => false,
+						'fields'     => 'id=>name',
 					]
 				) : [];
 				?>
@@ -444,10 +448,10 @@ class RSS {
 					<td>
 						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
 							<?php
-							foreach ( $include_terms as $term ) :
+							foreach ( $include_terms as $term_id => $term_name ) :
 								?>
-								<option value="<?php echo esc_attr( $term->term_id ); ?>" selected="selected">
-									<?php echo esc_html( $term->name ); ?>
+								<option value="<?php echo esc_attr( $term_id ); ?>" selected="selected">
+									<?php echo esc_html( $term_name ); ?>
 								</option>
 								<?php
 							endforeach;
@@ -461,10 +465,10 @@ class RSS {
 					<td>
 						<select name="<?php echo esc_attr( $taxonomy_exclude_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
 							<?php
-							foreach ( $exclude_terms as $term ) :
+							foreach ( $exclude_terms as $term_id => $term_name ) :
 								?>
-								<option value="<?php echo esc_attr( $term->term_id ); ?>" selected="selected">
-									<?php echo esc_html( $term->name ); ?>
+								<option value="<?php echo esc_attr( $term_id ); ?>" selected="selected">
+									<?php echo esc_html( $term_name ); ?>
 								</option>
 								<?php
 							endforeach;
@@ -486,11 +490,12 @@ class RSS {
 									'taxonomy'   => 'post_tag',
 									'include'    => $settings['tag_include'],
 									'hide_empty' => false,
+									'fields'     => 'id=>name',
 								]
 							);
-							foreach ( $selected_tags as $tag ) :
+							foreach ( $selected_tags as $tag_id => $tag_name ) :
 								?>
-								<option value="<?php echo esc_attr( $tag->term_id ); ?>" selected="selected"><?php echo esc_html( $tag->name ); ?></option>
+								<option value="<?php echo esc_attr( $tag_id ); ?>" selected="selected"><?php echo esc_html( $tag_name ); ?></option>
 								<?php
 							endforeach;
 						}
@@ -1329,15 +1334,16 @@ xmlns:media="http://search.yahoo.com/mrss/"
 				'search'     => $search,
 				'hide_empty' => false,
 				'number'     => 50,
+				'fields'     => 'id=>name',
 			]
 		);
 
 		$results = [];
 		if ( ! is_wp_error( $terms ) ) {
-			foreach ( $terms as $term ) {
+			foreach ( $terms as $term_id => $term_name ) {
 				$results[] = [
-					'id'   => $term->term_id,
-					'text' => $term->name,
+					'id'   => $term_id,
+					'text' => $term_name,
 				];
 			}
 		}
