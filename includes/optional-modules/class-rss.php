@@ -31,6 +31,7 @@ class RSS {
 		add_action( 'save_post_' . self::FEED_CPT, [ __CLASS__, 'save_settings' ] );
 		add_filter( 'manage_' . self::FEED_CPT . '_posts_columns', [ __CLASS__, 'columns_head' ] );
 		add_action( 'manage_' . self::FEED_CPT . '_posts_custom_column', [ __CLASS__, 'column_content' ], 10, 2 );
+		add_action( 'wp_ajax_newspack_rss_search_terms', [ __CLASS__, 'ajax_search_terms' ] );
 
 		// Frontend.
 		add_filter( 'option_rss_use_excerpt', [ __CLASS__, 'filter_use_rss_excerpt' ] );
@@ -329,8 +330,6 @@ class RSS {
 	 */
 	public static function render_content_settings_metabox( $feed_post ) {
 		$settings          = self::get_feed_settings( $feed_post );
-		$categories        = get_categories();
-		$tags              = get_tags();
 		$custom_taxonomies = self::get_custom_taxonomies_for_posts();
 		wp_nonce_field( 'newspack_rss_enhancements_nonce', 'newspack_rss_enhancements_nonce' );
 		?>
@@ -373,20 +372,46 @@ class RSS {
 			<tr>
 				<th><?php esc_html_e( 'Include only posts from these categories:', 'newspack-plugin' ); ?></th>
 				<td>
-					<select id="category_include" name="category_include[]" multiple="multiple" style="width:300px">
-						<?php foreach ( $categories as $category ) : ?>
-							<option value="<?php echo esc_attr( $category->term_id ); ?>" <?php selected( in_array( $category->term_id, $settings['category_include'] ) ); ?>><?php echo esc_html( $category->name ); ?></option>
-						<?php endforeach; ?>
+					<select id="category_include" name="category_include[]" multiple="multiple" style="width:300px" data-taxonomy="category" class="newspack-ajax-taxonomy-select">
+						<?php
+						if ( ! empty( $settings['category_include'] ) ) {
+							$selected_categories = get_terms(
+								[
+									'taxonomy'   => 'category',
+									'include'    => $settings['category_include'],
+									'hide_empty' => false,
+								]
+							);
+							foreach ( $selected_categories as $category ) :
+								?>
+								<option value="<?php echo esc_attr( $category->term_id ); ?>" selected="selected"><?php echo esc_html( $category->name ); ?></option>
+								<?php
+							endforeach;
+						}
+						?>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<th><?php esc_html_e( 'Exclude posts from these categories:', 'newspack-plugin' ); ?></th>
 				<td>
-					<select id="category_exclude" name="category_exclude[]" multiple="multiple" style="width:300px">
-						<?php foreach ( $categories as $category ) : ?>
-							<option value="<?php echo esc_attr( $category->term_id ); ?>" <?php selected( in_array( $category->term_id, $settings['category_exclude'] ) ); ?>><?php echo esc_html( $category->name ); ?></option>
-						<?php endforeach; ?>
+					<select id="category_exclude" name="category_exclude[]" multiple="multiple" style="width:300px" data-taxonomy="category" class="newspack-ajax-taxonomy-select">
+						<?php
+						if ( ! empty( $settings['category_exclude'] ) ) {
+							$selected_categories = get_terms(
+								[
+									'taxonomy'   => 'category',
+									'include'    => $settings['category_exclude'],
+									'hide_empty' => false,
+								]
+							);
+							foreach ( $selected_categories as $category ) :
+								?>
+								<option value="<?php echo esc_attr( $category->term_id ); ?>" selected="selected"><?php echo esc_html( $category->name ); ?></option>
+								<?php
+							endforeach;
+						}
+						?>
 					</select>
 				</td>
 			</tr>
@@ -397,23 +422,36 @@ class RSS {
 				$taxonomy_exclude_key   = $taxonomy . '_exclude';
 				$selected_include_terms = isset( $settings[ $taxonomy_include_key ] ) ? (array) $settings[ $taxonomy_include_key ] : [];
 				$selected_exclude_terms = isset( $settings[ $taxonomy_exclude_key ] ) ? (array) $settings[ $taxonomy_exclude_key ] : [];
-				$terms                  = get_terms(
+
+				$include_terms = ! empty( $selected_include_terms ) ? get_terms(
 					[
 						'taxonomy'   => $taxonomy,
+						'include'    => $selected_include_terms,
 						'hide_empty' => false,
 					]
-				);
+				) : [];
+				$exclude_terms = ! empty( $selected_exclude_terms ) ? get_terms(
+					[
+						'taxonomy'   => $taxonomy,
+						'include'    => $selected_exclude_terms,
+						'hide_empty' => false,
+					]
+				) : [];
 				?>
 				<tr>
 					<?php /* translators: %s is a taxonomy label. */ ?>
 					<th><?php echo esc_html( sprintf( __( 'Include only posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
 					<td>
-						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-custom-taxonomy-select">
-							<?php foreach ( $terms as $term ) : ?>
-								<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected_include_terms ) ); ?>>
+						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
+							<?php
+							foreach ( $include_terms as $term ) :
+								?>
+								<option value="<?php echo esc_attr( $term->term_id ); ?>" selected="selected">
 									<?php echo esc_html( $term->name ); ?>
 								</option>
-							<?php endforeach; ?>
+								<?php
+							endforeach;
+							?>
 						</select>
 					</td>
 				</tr>
@@ -421,12 +459,16 @@ class RSS {
 					<?php /* translators: %s is a taxonomy label. */ ?>
 					<th><?php echo esc_html( sprintf( __( 'Exclude posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
 					<td>
-						<select name="<?php echo esc_attr( $taxonomy_exclude_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-custom-taxonomy-select">
-							<?php foreach ( $terms as $term ) : ?>
-								<option value="<?php echo esc_attr( $term->term_id ); ?>" <?php selected( in_array( $term->term_id, $selected_exclude_terms ) ); ?>>
+						<select name="<?php echo esc_attr( $taxonomy_exclude_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
+							<?php
+							foreach ( $exclude_terms as $term ) :
+								?>
+								<option value="<?php echo esc_attr( $term->term_id ); ?>" selected="selected">
 									<?php echo esc_html( $term->name ); ?>
 								</option>
-							<?php endforeach; ?>
+								<?php
+							endforeach;
+							?>
 						</select>
 					</td>
 				</tr>
@@ -436,10 +478,23 @@ class RSS {
 			<tr>
 				<th><?php esc_html_e( 'Include only posts with these tags:', 'newspack-plugin' ); ?></th>
 				<td>
-					<select id="tag_include" name="tag_include[]" multiple="multiple" style="width:300px">
-						<?php foreach ( $tags as $tag ) : ?>
-							<option value="<?php echo esc_attr( $tag->term_id ); ?>" <?php selected( in_array( $tag->term_id, $settings['tag_include'] ) ); ?>><?php echo esc_html( $tag->name ); ?></option>
-						<?php endforeach; ?>
+					<select id="tag_include" name="tag_include[]" multiple="multiple" style="width:300px" data-taxonomy="post_tag" class="newspack-ajax-taxonomy-select">
+						<?php
+						if ( ! empty( $settings['tag_include'] ) ) {
+							$selected_tags = get_terms(
+								[
+									'taxonomy'   => 'post_tag',
+									'include'    => $settings['tag_include'],
+									'hide_empty' => false,
+								]
+							);
+							foreach ( $selected_tags as $tag ) :
+								?>
+								<option value="<?php echo esc_attr( $tag->term_id ); ?>" selected="selected"><?php echo esc_html( $tag->name ); ?></option>
+								<?php
+							endforeach;
+						}
+						?>
 					</select>
 				</td>
 			</tr>
@@ -517,10 +572,31 @@ class RSS {
 
 		<script>
 			jQuery( document ).ready( function() {
-				jQuery( '#category_include' ).select2();
-				jQuery( '#category_exclude' ).select2();
-				jQuery( '#tag_include' ).select2();
-				jQuery( '.newspack-custom-taxonomy-select' ).select2();
+				jQuery( '.newspack-ajax-taxonomy-select' ).select2( {
+					ajax: {
+						url: ajaxurl,
+						dataType: 'json',
+						type: 'POST',
+						delay: 250,
+						data: function( params ) {
+							return {
+								action: 'newspack_rss_search_terms',
+								taxonomy: jQuery( this ).data( 'taxonomy' ),
+								search: params.term,
+								nonce: '<?php echo wp_create_nonce( 'newspack_rss_search_terms' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>'
+							};
+						},
+						processResults: function( data ) {
+							return {
+								results: data
+							};
+						},
+						cache: true
+					},
+					minimumInputLength: 1,
+					placeholder: '<?php esc_html_e( 'Search and select terms...', 'newspack-plugin' ); ?>',
+					allowClear: true
+				} );
 			} );
 		</script>
 		<?php
@@ -1224,6 +1300,49 @@ xmlns:media="http://search.yahoo.com/mrss/"
 	 */
 	private static function is_republication_tracker_plugin_active() {
 		return class_exists( 'Republication_Tracker_Tool' );
+	}
+
+	/**
+	 * Handle AJAX search for taxonomy terms.
+	 */
+	public static function ajax_search_terms() {
+		check_ajax_referer( 'newspack_rss_search_terms', 'nonce' );
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die( 'Insufficient permissions' );
+		}
+
+		if ( ! isset( $_POST['taxonomy'] ) || ! isset( $_POST['search'] ) ) {
+			wp_die( 'Invalid request' );
+		}
+
+		$taxonomy = sanitize_text_field( $_POST['taxonomy'] );
+		$search   = sanitize_text_field( $_POST['search'] );
+
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			wp_die( 'Invalid taxonomy' );
+		}
+
+		$terms = get_terms(
+			[
+				'taxonomy'   => $taxonomy,
+				'search'     => $search,
+				'hide_empty' => false,
+				'number'     => 50,
+			]
+		);
+
+		$results = [];
+		if ( ! is_wp_error( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$results[] = [
+					'id'   => $term->term_id,
+					'text' => $term->name,
+				];
+			}
+		}
+
+		wp_send_json( $results );
 	}
 
 	/**
