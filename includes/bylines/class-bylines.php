@@ -131,16 +131,21 @@ class Bylines {
 	 *
 	 * @param bool $include_avatars Whether to include avatars in the markup.
 	 * @param bool $byline_wrapper Whether to wrap the byline in a span element.
+	 * @param int  $post_id Optional post ID. Defaults to current post.
 	 *
 	 * @return false|string The post custom byline HTML markup or false if not available.
 	 */
-	public static function get_post_byline_html( $include_avatars = true, $byline_wrapper = true ) {
-		$byline_is_active = \get_post_meta( \get_the_ID(), self::META_KEY_ACTIVE, true );
+	public static function get_post_byline_html( $include_avatars = true, $byline_wrapper = true, $post_id = null ) {
+		if ( ! $post_id ) {
+			$post_id = \get_the_ID();
+		}
+
+		$byline_is_active = \get_post_meta( $post_id, self::META_KEY_ACTIVE, true );
 		if ( ! $byline_is_active ) {
 			return false;
 		}
 
-		$byline = \get_post_meta( \get_the_ID(), self::META_KEY_BYLINE, true );
+		$byline = \get_post_meta( $post_id, self::META_KEY_BYLINE, true );
 		if ( ! $byline ) {
 			return false;
 		}
@@ -153,6 +158,25 @@ class Bylines {
 			$byline_html = self::get_authors_avatars( $byline ) . $byline_html;
 		}
 		return $byline_html;
+	}
+
+	/**
+	 * Get the custom byline HTML for a specific post.
+	 *
+	 * @param int $post_id The post ID.
+	 *
+	 * @return string|null The custom byline HTML or null if not active.
+	 */
+	public static function get_custom_byline_html( $post_id = null ) {
+		if ( ! self::is_enabled() ) {
+			return null;
+		}
+
+		// Get byline HTML without avatars or wrapper.
+		$byline_html = self::get_post_byline_html( false, false, $post_id );
+
+		// Convert false to null for consistency.
+		return $byline_html === false ? null : $byline_html;
 	}
 
 	/**

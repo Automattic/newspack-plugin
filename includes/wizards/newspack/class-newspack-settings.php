@@ -101,9 +101,6 @@ class Newspack_Settings extends Wizard {
 			'theme-and-brand'   => [
 				'label' => __( 'Theme and Brand', 'newspack-plugin' ),
 			],
-			'print'             => [
-				'label' => __( 'Print', 'newspack-plugin' ),
-			],
 			'advanced-settings' => [
 				'label' => __( 'Advanced Settings', 'newspack-plugin' ),
 			],
@@ -112,6 +109,12 @@ class Newspack_Settings extends Wizard {
 			$newspack_settings['collections'] = [
 				'label' => __( 'Collections', 'newspack-plugin' ),
 			];
+		}
+		if ( \Newspack\Optional_Modules\InDesign_Exporter::is_feature_enabled() ) {
+			$newspack_settings['print'] = [
+				'label' => __( 'Print', 'newspack-plugin' ),
+			];
+
 		}
 		if ( defined( 'NEWSPACK_MULTIBRANDED_SITE_PLUGIN_FILE' ) ) {
 			$newspack_settings['additional-brands'] = [

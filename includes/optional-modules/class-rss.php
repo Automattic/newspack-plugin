@@ -927,6 +927,11 @@ class RSS {
 			}
 		}
 
+		$category_tag_relation = filter_input( INPUT_POST, 'category_tag_relation', FILTER_SANITIZE_SPECIAL_CHARS );
+		if ( in_array( $category_tag_relation, [ 'AND', 'OR' ], true ) ) {
+			$settings['category_tag_relation'] = $category_tag_relation;
+		}
+
 		// Process Republication Tracker options only if the plugin is active.
 		if ( self::is_republication_tracker_plugin_active() ) {
 			$republication_tracker             = filter_input( INPUT_POST, 'republication_tracker', FILTER_SANITIZE_NUMBER_INT );
@@ -1031,6 +1036,11 @@ class RSS {
 			$query->set( 'tax_query', $tax_queries );
 		}
 
+		// Category exclusion remains separate as it should always exclude.
+		if ( ! empty( $settings['category_exclude'] ) ) {
+			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
+		}
+
 		if ( ! empty( $settings['update_frequency'] ) ) {
 			// Split the string on the hyphen to get the update frequency and the number of times to update.
 			$settings['update_frequency'] = explode( '-', $settings['update_frequency'] );
@@ -1115,7 +1125,7 @@ class RSS {
 			$thumbnail_url = get_the_post_thumbnail_url( $post, 'full' );
 			if ( $thumbnail_url ) :
 				?>
-				<image><?php echo esc_url( $thumbnail_url ); ?></image>
+				<image><?php echo esc_url( $thumbnail_url, null, 'db' ); ?></image>
 				<?php
 			endif;
 		}
@@ -1145,11 +1155,11 @@ class RSS {
 				if ( $thumbnail_data ) {
 					$caption = get_the_post_thumbnail_caption();
 					?>
-					<media:content type="<?php echo esc_attr( get_post_mime_type( $thumbnail_id ) ); ?>" url="<?php echo esc_url( $thumbnail_data[0] ); ?>">
+					<media:content type="<?php echo esc_attr( get_post_mime_type( $thumbnail_id ) ); ?>" url="<?php echo esc_url( $thumbnail_data[0], null, 'db' ); ?>">
 						<?php if ( ! empty( $caption ) ) : ?>
 						<media:description><?php echo esc_html( $caption ); ?></media:description>
 						<?php endif; ?>
-						<media:thumbnail url="<?php echo esc_url( $thumbnail_data[0] ); ?>" width="<?php echo esc_attr( $thumbnail_data[1] ); ?>" height="<?php echo esc_attr( $thumbnail_data[2] ); ?>" />
+						<media:thumbnail url="<?php echo esc_url( $thumbnail_data[0], null, 'db' ); ?>" width="<?php echo esc_attr( $thumbnail_data[1] ); ?>" height="<?php echo esc_attr( $thumbnail_data[2] ); ?>" />
 					</media:content>
 					<?php
 				}

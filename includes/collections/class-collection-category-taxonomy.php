@@ -17,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 class Collection_Category_Taxonomy {
 
 	use Traits\Meta_Handler;
+	use Traits\Registration_Manager;
 
 	/**
 	 * Get the taxonomy for Collection Categories.
@@ -67,7 +68,7 @@ class Collection_Category_Taxonomy {
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register_taxonomy' ] );
 		add_action( 'init', [ __CLASS__, 'register_meta' ] );
-		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'register_taxonomy' ] );
+		add_action( 'newspack_collections_before_flush_rewrites', [ __CLASS__, 'update_registration' ] );
 		add_action( 'manage_' . Post_Type::get_post_type() . '_posts_columns', [ __CLASS__, 'set_taxonomy_column_name' ] );
 
 		// Term meta field handling.
