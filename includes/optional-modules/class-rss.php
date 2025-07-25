@@ -74,7 +74,7 @@ class RSS {
 			'category_include'          => [],
 			'category_exclude'          => [],
 			'tag_include'               => [],
-			'category_tag_relation'     => 'AND',
+			'taxonomy_filters_relation' => 'AND',
 			'use_image_tags'            => false,
 			'use_media_tags'            => false,
 			'use_updated_tags'          => false,
@@ -124,6 +124,7 @@ class RSS {
 
 		$feed_post_id   = is_numeric( $feed_post ) ? $feed_post : $feed_post->ID;
 		$saved_settings = get_post_meta( $feed_post_id, self::FEED_SETTINGS_META, true );
+
 		if ( ! is_array( $saved_settings ) ) {
 			return $default_settings;
 		}
@@ -370,6 +371,30 @@ class RSS {
 				</td>
 			</tr>
 			<tr>
+				<th><?php esc_html_e( 'Update frequency:', 'newspack-plugin' ); ?></th>
+				<td>
+					<select name="update_frequency">
+						<option value="hourly-1" <?php selected( $settings['update_frequency'], 'hourly-1' ); ?> ><?php esc_html_e( 'Every hour', 'newspack-plugin' ); ?></option>
+						<option value="hourly-60" <?php selected( $settings['update_frequency'], 'hourly-60' ); ?> ><?php esc_html_e( 'Every 1 minute', 'newspack-plugin' ); ?></option>
+						<option value="hourly-12" <?php selected( $settings['update_frequency'], 'hourly-12' ); ?> ><?php esc_html_e( 'Every 5 minutes', 'newspack-plugin' ); ?></option>
+						<option value="daily-8" <?php selected( $settings['update_frequency'], 'daily-8' ); ?> ><?php esc_html_e( 'Every 3 hours', 'newspack-plugin' ); ?></option>
+						<option value="daily-1" <?php selected( $settings['update_frequency'], 'daily' ); ?> ><?php esc_html_e( 'Daily', 'newspack-plugin' ); ?></option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Use post ID as the guid instead of post URL:', 'newspack-plugin' ); ?></th>
+				<td>
+					<input type="hidden" name="use_post_id_as_guid" value="0" />
+					<input type="checkbox" name="use_post_id_as_guid" value="1" <?php checked( $settings['use_post_id_as_guid'] ); ?> />
+				</td>
+			</tr>
+			<tr>
+				<th colspan="2">
+					<h3><?php esc_html_e( 'Taxonomy Filters:', 'newspack-plugin' ); ?></h3>
+				</th>
+			</tr>
+			<tr>
 				<th><?php esc_html_e( 'Include only posts from these categories:', 'newspack-plugin' ); ?></th>
 				<td>
 					<select id="category_include" name="category_include[]" multiple="multiple" style="width:300px" data-taxonomy="category" class="newspack-ajax-taxonomy-select">
@@ -417,68 +442,6 @@ class RSS {
 					</select>
 				</td>
 			</tr>
-			<?php
-			foreach ( $custom_taxonomies as $taxonomy ) {
-				$taxonomy_object        = get_taxonomy( $taxonomy );
-				$taxonomy_include_key   = $taxonomy . '_include';
-				$taxonomy_exclude_key   = $taxonomy . '_exclude';
-				$selected_include_terms = isset( $settings[ $taxonomy_include_key ] ) ? (array) $settings[ $taxonomy_include_key ] : [];
-				$selected_exclude_terms = isset( $settings[ $taxonomy_exclude_key ] ) ? (array) $settings[ $taxonomy_exclude_key ] : [];
-
-				$include_terms = ! empty( $selected_include_terms ) ? get_terms(
-					[
-						'taxonomy'   => $taxonomy,
-						'include'    => $selected_include_terms,
-						'hide_empty' => false,
-						'fields'     => 'id=>name',
-					]
-				) : [];
-				$exclude_terms = ! empty( $selected_exclude_terms ) ? get_terms(
-					[
-						'taxonomy'   => $taxonomy,
-						'include'    => $selected_exclude_terms,
-						'hide_empty' => false,
-						'fields'     => 'id=>name',
-					]
-				) : [];
-				?>
-				<tr>
-					<?php /* translators: %s is a taxonomy label. */ ?>
-					<th><?php echo esc_html( sprintf( __( 'Include only posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
-					<td>
-						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
-							<?php
-							foreach ( $include_terms as $term_id => $term_name ) :
-								?>
-								<option value="<?php echo esc_attr( $term_id ); ?>" selected="selected">
-									<?php echo esc_html( $term_name ); ?>
-								</option>
-								<?php
-							endforeach;
-							?>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<?php /* translators: %s is a taxonomy label. */ ?>
-					<th><?php echo esc_html( sprintf( __( 'Exclude posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
-					<td>
-						<select name="<?php echo esc_attr( $taxonomy_exclude_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
-							<?php
-							foreach ( $exclude_terms as $term_id => $term_name ) :
-								?>
-								<option value="<?php echo esc_attr( $term_id ); ?>" selected="selected">
-									<?php echo esc_html( $term_name ); ?>
-								</option>
-								<?php
-							endforeach;
-							?>
-						</select>
-					</td>
-				</tr>
-				<?php
-			}
-			?>
 			<tr>
 				<th><?php esc_html_e( 'Include only posts with these tags:', 'newspack-plugin' ); ?></th>
 				<td>
@@ -503,37 +466,54 @@ class RSS {
 					</select>
 				</td>
 			</tr>
+			<?php
+			foreach ( $custom_taxonomies as $taxonomy ) {
+				$taxonomy_object        = get_taxonomy( $taxonomy );
+				$taxonomy_include_key   = $taxonomy . '_include';
+				$selected_include_terms = isset( $settings[ $taxonomy_include_key ] ) ? (array) $settings[ $taxonomy_include_key ] : [];
+
+				$include_terms = ! empty( $selected_include_terms ) ? get_terms(
+					[
+						'taxonomy'   => $taxonomy,
+						'include'    => $selected_include_terms,
+						'hide_empty' => false,
+						'fields'     => 'id=>name',
+					]
+				) : [];
+				?>
+				<tr>
+					<?php /* translators: %s is a taxonomy label. */ ?>
+					<th><?php echo esc_html( sprintf( __( 'Include only posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
+					<td>
+						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
+							<?php
+							foreach ( $include_terms as $term_id => $term_name ) :
+								?>
+								<option value="<?php echo esc_attr( $term_id ); ?>" selected="selected">
+									<?php echo esc_html( $term_name ); ?>
+								</option>
+								<?php
+							endforeach;
+							?>
+						</select>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
 			<tr>
 				<th>
-					<?php esc_html_e( 'Category, Taxonomies and tag filter relationship:', 'newspack-plugin' ); ?>
-					<p class="description"><?php echo esc_html_x( 'When categories, custom taxonomies and tags are selected above, should posts match ALL conditions (AND) or ANY condition (OR)?', 'help text for category/taxonomy/tag relation', 'newspack-plugin' ); ?></p>
+					<?php esc_html_e( 'Taxonomies relationship:', 'newspack-plugin' ); ?>
+					<p class="description"><?php echo esc_html_x( 'When more than one taxonomy is selected, should posts match conditions in ALL taxonomies (AND) or at least one of them (OR)?', 'newspack-plugin' ); ?></p>
 				</th>
 				<td>
-					<select name="category_tag_relation">
-						<option value="AND" <?php selected( $settings['category_tag_relation'], 'AND' ); ?> ><?php esc_html_e( 'AND - Posts must match all category, custom taxonomies AND tag filters', 'newspack-plugin' ); ?></option>
-						<option value="OR" <?php selected( $settings['category_tag_relation'], 'OR' ); ?> ><?php esc_html_e( 'OR - Posts can match either category, custom taxonomies OR tag filters', 'newspack-plugin' ); ?></option>
+					<select name="taxonomy_filters_relation">
+						<option value="AND" <?php selected( $settings['taxonomy_filters_relation'], 'AND' ); ?> ><?php esc_html_e( 'AND - Posts must match all taxonomies filters', 'newspack-plugin' ); ?></option>
+						<option value="OR" <?php selected( $settings['taxonomy_filters_relation'], 'OR' ); ?> ><?php esc_html_e( 'OR - Posts can match at least one taxonomy filter', 'newspack-plugin' ); ?></option>
 					</select>
 				</td>
 			</tr>
-			<tr>
-				<th><?php esc_html_e( 'Update frequency:', 'newspack-plugin' ); ?></th>
-				<td>
-					<select name="update_frequency">
-						<option value="hourly-1" <?php selected( $settings['update_frequency'], 'hourly-1' ); ?> ><?php esc_html_e( 'Every hour', 'newspack-plugin' ); ?></option>
-						<option value="hourly-60" <?php selected( $settings['update_frequency'], 'hourly-60' ); ?> ><?php esc_html_e( 'Every 1 minute', 'newspack-plugin' ); ?></option>
-						<option value="hourly-12" <?php selected( $settings['update_frequency'], 'hourly-12' ); ?> ><?php esc_html_e( 'Every 5 minutes', 'newspack-plugin' ); ?></option>
-						<option value="daily-8" <?php selected( $settings['update_frequency'], 'daily-8' ); ?> ><?php esc_html_e( 'Every 3 hours', 'newspack-plugin' ); ?></option>
-						<option value="daily-1" <?php selected( $settings['update_frequency'], 'daily' ); ?> ><?php esc_html_e( 'Daily', 'newspack-plugin' ); ?></option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<th><?php esc_html_e( 'Use post ID as the guid instead of post URL:', 'newspack-plugin' ); ?></th>
-				<td>
-					<input type="hidden" name="use_post_id_as_guid" value="0" />
-					<input type="checkbox" name="use_post_id_as_guid" value="1" <?php checked( $settings['use_post_id_as_guid'] ); ?> />
-				</td>
-			</tr>
+
 			<?php
 				/**
 				 * Action for plugins to add their own content settings to the RSS feed settings UI.
@@ -548,6 +528,11 @@ class RSS {
 			// Only show this new option if the Republication Tracker Tool plugin is active.
 			if ( self::is_republication_tracker_plugin_active() ) :
 				?>
+				<tr>
+					<th colspan="2">
+						<h3><?php esc_html_e( 'Republication Tracker Tool Options:', 'newspack-plugin' ); ?></h3>
+					</th>
+				</tr>
 				<tr>
 					<th>
 						<?php esc_html_e( 'Only include republishable posts', 'newspack-plugin' ); ?>
@@ -883,18 +868,15 @@ class RSS {
 			}
 		}
 
-		$category_tag_relation = filter_input( INPUT_POST, 'category_tag_relation', FILTER_SANITIZE_SPECIAL_CHARS );
-		if ( in_array( $category_tag_relation, [ 'AND', 'OR' ], true ) ) {
-			$settings['category_tag_relation'] = $category_tag_relation;
+		$taxonomy_filters_relation = filter_input( INPUT_POST, 'taxonomy_filters_relation', FILTER_SANITIZE_SPECIAL_CHARS );
+		if ( in_array( $taxonomy_filters_relation, [ 'AND', 'OR' ], true ) ) {
+			$settings['taxonomy_filters_relation'] = $taxonomy_filters_relation;
 		}
 
 		foreach ( $custom_taxonomies as $taxonomy ) {
 			$include_key              = $taxonomy . '_include';
-			$exclude_key              = $taxonomy . '_exclude';
 			$include_values           = isset( $_POST[ $include_key ] ) ? array_map( 'absint', (array) $_POST[ $include_key ] ) : [];
-			$exclude_values           = isset( $_POST[ $exclude_key ] ) ? array_map( 'absint', (array) $_POST[ $exclude_key ] ) : [];
 			$settings[ $include_key ] = $include_values;
-			$settings[ $exclude_key ] = $exclude_values;
 		}
 
 		// Process Republication Tracker options only if the plugin is active.
@@ -926,13 +908,15 @@ class RSS {
 	 * Apply settings on frontend to WP query.
 	 *
 	 * @param WP_Query $query WP_Query object.
+	 * @param bool     $force Whether to force the query modification. Used for tests.
 	 */
-	public static function modify_feed_query( $query ) {
-		if ( ! $query->is_feed() || ! $query->is_main_query() ) {
+	public static function modify_feed_query( $query, $force = false ) {
+		if ( ! $force && ( ! $query->is_feed() || ! $query->is_main_query() ) ) {
 			return;
 		}
 
-		$settings = self::get_feed_settings();
+		$settings = self::get_feed_settings( is_numeric( $force ) ? $force : null );
+
 		if ( ! $settings ) {
 			return;
 		}
@@ -968,7 +952,6 @@ class RSS {
 
 		foreach ( self::get_custom_taxonomies_for_posts() as $taxonomy ) {
 			$include_key = $taxonomy . '_include';
-			$exclude_key = $taxonomy . '_exclude';
 
 			if ( ! empty( $settings[ $include_key ] ) && is_array( $settings[ $include_key ] ) ) {
 				$tax_queries[] = [
@@ -978,35 +961,25 @@ class RSS {
 					'operator' => 'IN',
 				];
 			}
-
-			if ( ! empty( $settings[ $exclude_key ] ) && is_array( $settings[ $exclude_key ] ) ) {
-				$tax_queries[] = [
-					'taxonomy' => $taxonomy,
-					'field'    => 'term_id',
-					'terms'    => $settings[ $exclude_key ],
-					'operator' => 'NOT IN',
-				];
-			}
 		}
 
-		// Use tax_query if we have multiple filters OR any custom taxonomy filters OR exclude filters.
+		// Handle category exclusion using tax_query.
+		if ( ! empty( $settings['category_exclude'] ) ) {
+			$tax_queries[] = [
+				'taxonomy' => 'category',
+				'field'    => 'term_id',
+				'terms'    => array_map( 'absint', $settings['category_exclude'] ),
+				'operator' => 'NOT IN',
+			];
+		}
+
+		// Use tax_query if we have any filters.
 		if ( ! empty( $tax_queries ) ) {
 			// Only set relation if we have multiple queries.
 			if ( count( $tax_queries ) > 1 ) {
-				$tax_queries['relation'] = $settings['category_tag_relation'];
+				$tax_queries['relation'] = $settings['taxonomy_filters_relation'];
 			}
 			$query->set( 'tax_query', $tax_queries );
-		} elseif ( ! empty( $settings['category_include'] ) ) {
-			// Single category include filter, use the simpler approach for backward compatibility.
-			$query->set( 'category__in', array_map( 'absint', $settings['category_include'] ) );
-		} elseif ( ! empty( $settings['tag_include'] ) ) {
-			// Single tag include filter, use the simpler approach for backward compatibility.
-			$query->set( 'tag__in', array_map( 'absint', $settings['tag_include'] ) );
-		}
-
-		// Category exclusion remains separate as it should always exclude.
-		if ( ! empty( $settings['category_exclude'] ) ) {
-			$query->set( 'category__not_in', array_map( 'absint', $settings['category_exclude'] ) );
 		}
 
 		if ( ! empty( $settings['update_frequency'] ) ) {
@@ -1237,7 +1210,7 @@ class RSS {
 			return $content;
 		}
 
-		if ( class_exists( '\Republication_Tracker_Tool_Content' ) && 
+		if ( class_exists( '\Republication_Tracker_Tool_Content' ) &&
 			method_exists( '\Republication_Tracker_Tool_Content', 'remove_non_distributable_images' )
 		) {
 			return \Republication_Tracker_Tool_Content::remove_non_distributable_images( $content );
