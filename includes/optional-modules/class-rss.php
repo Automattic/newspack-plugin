@@ -73,7 +73,9 @@ class RSS {
 		$default_settings = [
 			'category_include'          => [],
 			'category_exclude'          => [],
+			'category_inner_relation'   => 'IN',
 			'tag_include'               => [],
+			'tag_inner_relation'        => 'IN',
 			'taxonomy_filters_relation' => 'AND',
 			'use_image_tags'            => false,
 			'use_media_tags'            => false,
@@ -108,6 +110,7 @@ class RSS {
 		foreach ( $custom_taxonomies as $taxonomy ) {
 			$default_settings[ $taxonomy . '_include' ] = [];
 			$default_settings[ $taxonomy . '_exclude' ] = [];
+			$default_settings[ $taxonomy . '_inner_relation' ] = 'IN';
 		}
 
 		if ( ! $feed_post ) {
@@ -395,7 +398,13 @@ class RSS {
 				</th>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Include only posts from these categories:', 'newspack-plugin' ); ?></th>
+				<th>
+					<?php esc_html_e( 'Include only posts that have', 'newspack-plugin' ); ?>
+					<select name="category_inner_relation">
+						<option value="IN" <?php selected( $settings['category_inner_relation'], 'IN' ); ?> ><?php esc_html_e( 'any of these categories', 'newspack-plugin' ); ?></option>
+						<option value="AND" <?php selected( $settings['category_inner_relation'], 'AND' ); ?> ><?php esc_html_e( 'all of these categories', 'newspack-plugin' ); ?></option>
+					</select>
+				</th>
 				<td>
 					<select id="category_include" name="category_include[]" multiple="multiple" style="width:300px" data-taxonomy="category" class="newspack-ajax-taxonomy-select">
 						<?php
@@ -443,7 +452,13 @@ class RSS {
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Include only posts with these tags:', 'newspack-plugin' ); ?></th>
+				<th>
+					<?php esc_html_e( 'Include only posts that have', 'newspack-plugin' ); ?>
+					<select name="tag_inner_relation">
+						<option value="IN" <?php selected( $settings['tag_inner_relation'], 'IN' ); ?> ><?php esc_html_e( 'any of these tags', 'newspack-plugin' ); ?></option>
+						<option value="AND" <?php selected( $settings['tag_inner_relation'], 'AND' ); ?> ><?php esc_html_e( 'all of these tags', 'newspack-plugin' ); ?></option>
+					</select>
+				</th>
 				<td>
 					<select id="tag_include" name="tag_include[]" multiple="multiple" style="width:300px" data-taxonomy="post_tag" class="newspack-ajax-taxonomy-select">
 						<?php
@@ -482,8 +497,16 @@ class RSS {
 				) : [];
 				?>
 				<tr>
-					<?php /* translators: %s is a taxonomy label. */ ?>
-					<th><?php echo esc_html( sprintf( __( 'Include only posts with %s:', 'newspack-plugin' ), $taxonomy_object->label ) ); ?></th>
+
+					<th>
+						<?php echo esc_html( __( 'Include only posts that have', 'newspack-plugin' ) ); ?>
+						<select name="<?php echo esc_attr( $taxonomy ); ?>_inner_relation">
+							<?php /* translators: %s is a taxonomy label. */ ?>
+							<option value="IN" <?php selected( $settings[ $taxonomy . '_inner_relation' ], 'IN' ); ?> ><?php printf( esc_html__( 'any of these %s', 'newspack-plugin' ), esc_html( $taxonomy_object->label ) ); ?></option>
+							<?php /* translators: %s is a taxonomy label. */ ?>
+							<option value="AND" <?php selected( $settings[ $taxonomy . '_inner_relation' ], 'AND' ); ?> ><?php printf( esc_html__( 'all of these %s', 'newspack-plugin' ), esc_html( $taxonomy_object->label ) ); ?></option>
+						</select>
+					</th>
 					<td>
 						<select name="<?php echo esc_attr( $taxonomy_include_key ); ?>[]" multiple="multiple" style="width:300px" class="newspack-ajax-taxonomy-select" data-taxonomy="<?php echo esc_attr( $taxonomy ); ?>">
 							<?php
@@ -827,13 +850,16 @@ class RSS {
 		$category_settings = filter_input_array(
 			INPUT_POST,
 			[
-				'category_include' => [
+				'category_include'        => [
 					'filter' => FILTER_SANITIZE_NUMBER_INT,
 					'flags'  => FILTER_REQUIRE_ARRAY,
 				],
-				'category_exclude' => [
+				'category_exclude'        => [
 					'filter' => FILTER_SANITIZE_NUMBER_INT,
 					'flags'  => FILTER_REQUIRE_ARRAY,
+				],
+				'category_inner_relation' => [
+					'filter' => FILTER_SANITIZE_SPECIAL_CHARS,
 				],
 			]
 		);
@@ -849,14 +875,23 @@ class RSS {
 			} else {
 				$settings['category_exclude'] = [];
 			}
+
+			if ( isset( $category_settings['category_inner_relation'] ) ) {
+				$settings['category_inner_relation'] = $category_settings['category_inner_relation'];
+			} else {
+				$settings['category_inner_relation'] = 'IN';
+			}
 		}
 
 		$tag_settings = filter_input_array(
 			INPUT_POST,
 			[
-				'tag_include' => [
+				'tag_include'        => [
 					'filter' => FILTER_SANITIZE_NUMBER_INT,
 					'flags'  => FILTER_REQUIRE_ARRAY,
+				],
+				'tag_inner_relation' => [
+					'filter' => FILTER_SANITIZE_SPECIAL_CHARS,
 				],
 			]
 		);
@@ -865,6 +900,12 @@ class RSS {
 				$settings['tag_include'] = array_map( 'absint', $tag_settings['tag_include'] );
 			} else {
 				$settings['tag_include'] = [];
+			}
+
+			if ( isset( $tag_settings['tag_inner_relation'] ) ) {
+				$settings['tag_inner_relation'] = $tag_settings['tag_inner_relation'];
+			} else {
+				$settings['tag_inner_relation'] = 'IN';
 			}
 		}
 
@@ -877,6 +918,13 @@ class RSS {
 			$include_key              = $taxonomy . '_include';
 			$include_values           = isset( $_POST[ $include_key ] ) ? array_map( 'absint', (array) $_POST[ $include_key ] ) : [];
 			$settings[ $include_key ] = $include_values;
+
+			$inner_relation_key = $taxonomy . '_inner_relation';
+			if ( isset( $_POST[ $inner_relation_key ] ) ) {
+				$settings[ $inner_relation_key ] = 'AND' === $_POST[ $inner_relation_key ] ? 'AND' : 'IN';
+			} else {
+				$settings[ $inner_relation_key ] = 'IN';
+			}
 		}
 
 		// Process Republication Tracker options only if the plugin is active.
@@ -937,7 +985,7 @@ class RSS {
 				'taxonomy' => 'category',
 				'field'    => 'term_id',
 				'terms'    => array_map( 'absint', $settings['category_include'] ),
-				'operator' => 'IN',
+				'operator' => $settings['category_inner_relation'] ?? 'IN',
 			];
 		}
 
@@ -946,19 +994,20 @@ class RSS {
 				'taxonomy' => 'post_tag',
 				'field'    => 'term_id',
 				'terms'    => array_map( 'absint', $settings['tag_include'] ),
-				'operator' => 'IN',
+				'operator' => $settings['tag_inner_relation'] ?? 'IN',
 			];
 		}
 
 		foreach ( self::get_custom_taxonomies_for_posts() as $taxonomy ) {
 			$include_key = $taxonomy . '_include';
-
+			$inner_relation_key = $taxonomy . '_inner_relation';
+			$inner_relation = ! empty( $settings[ $inner_relation_key ] ) ? $settings[ $inner_relation_key ] : 'IN';
 			if ( ! empty( $settings[ $include_key ] ) && is_array( $settings[ $include_key ] ) ) {
 				$tax_queries[] = [
 					'taxonomy' => $taxonomy,
 					'field'    => 'term_id',
 					'terms'    => $settings[ $include_key ],
-					'operator' => 'IN',
+					'operator' => $inner_relation,
 				];
 			}
 		}
