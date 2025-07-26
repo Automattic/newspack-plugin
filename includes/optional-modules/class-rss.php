@@ -1391,13 +1391,20 @@ xmlns:media="http://search.yahoo.com/mrss/"
 	private static function get_custom_taxonomies_for_posts() {
 		$custom_taxonomies = get_taxonomies(
 			[
-				'object_type' => [ 'post' ],
-				'public'      => true,
-				'_builtin'    => false,
+				'public'   => true,
+				'_builtin' => false,
 			],
-			'names'
+			'objects'
 		);
-		return $custom_taxonomies;
+
+		$taxonomies = [];
+		foreach ( $custom_taxonomies as $taxonomy ) {
+			if ( in_array( 'post', $taxonomy->object_type, true ) ) {
+				$taxonomies[] = $taxonomy->name;
+			}
+		}
+
+		return $taxonomies;
 	}
 
 	/**
