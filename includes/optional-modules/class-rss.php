@@ -590,7 +590,7 @@ class RSS {
 						url: ajaxurl,
 						dataType: 'json',
 						type: 'POST',
-						delay: 250,
+						delay: 2000,
 						data: function( params ) {
 							return {
 								action: 'newspack_rss_search_terms',
