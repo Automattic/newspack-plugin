@@ -28,6 +28,9 @@ if ( ! defined( 'NEWSPACK_PLUGIN_BASEDIR' ) ) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Action Scheduler.
+require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
+
 // Include the main Newspack class.
 if ( ! class_exists( 'Newspack' ) ) {
 	include_once __DIR__ . '/includes/class-newspack.php';
