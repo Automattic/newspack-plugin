@@ -18,6 +18,7 @@ use Newspack\Collections\Settings;
  */
 class Test_Post_Type extends WP_UnitTestCase {
 	use Traits\Trait_Collections_Test;
+	use Traits\Trait_Enqueuer_Test;
 
 	/**
 	 * The order column name accessible via reflection.
@@ -58,7 +59,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$this->assertEquals( 'Collections', $post_type->labels->name, 'Post type label should be "Collections".' );
 		$this->assertTrue( $post_type->public, 'Post type should be public.' );
 		$this->assertTrue( $post_type->show_in_rest, 'Post type should be available in REST API.' );
-		$this->assertTrue( $post_type->has_archive, 'Post type should have archive.' );
+		$this->assertNotFalse( $post_type->has_archive, 'Post type should have archive.' );
 	}
 
 	/**
@@ -66,7 +67,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 	 *
 	 * @covers \Newspack\Collections\Post_Type::register_hooks
 	 * @covers \Newspack\Collections\Post_Type::unregister_hooks
-	 * @covers \Newspack\Collections\Traits\Hook_Management_Trait::manage_hooks
+	 * @covers \Newspack\Collections\Post_Type::manage_hooks
 	 */
 	public function test_hooks_management() {
 		$reflection = new \ReflectionMethod( Post_Type::class, 'get_hooks' );
@@ -134,12 +135,12 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$data = Enqueuer::get_data();
 		$this->assertArrayHasKey( 'collectionPostType', $data, 'Collection post type data should be added.' );
 		$this->assertEquals( Post_Type::get_post_type(), $data['collectionPostType']['postType'], 'Post type should be correct.' );
-		$this->assertArrayHasKey( 'postMetaDefinitions', $data['collectionPostType'], 'Post meta definitions should be included.' );
+		$this->assertArrayHasKey( 'metaDefinitions', $data['collectionPostType'], 'Post meta definitions should be included.' );
 
 		// Clean up.
 		$current_screen = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		wp_deregister_script( Enqueuer::SCRIPT_NAME_ADMIN );
-		( new \ReflectionClass( Enqueuer::class ) )->setStaticPropertyValue( 'data', [] );
+		$this->cleanup_enqueued_assets_for_script( Enqueuer::SCRIPT_NAME_ADMIN );
+		$this->reset_enqueuer_data();
 	}
 
 	/**
@@ -254,7 +255,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 	 */
 	public function test_post_type_slug_updates() {
 		Post_Type::init();
-		$this->assertEquals( 'collection', get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
+		$this->assertEquals( 'collections', get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
 
 		// Update settings via REST API.
 		$custom_slug = 'magazine';

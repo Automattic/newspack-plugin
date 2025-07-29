@@ -10,7 +10,7 @@ namespace Newspack\Collections\Traits;
 /**
  * Trait providing hook management functionality.
  */
-trait Hook_Management_Trait {
+trait Hook_Manager {
 	/**
 	 * Get the hooks configuration from the implementing class.
 	 *

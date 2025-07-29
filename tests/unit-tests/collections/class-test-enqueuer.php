@@ -15,31 +15,15 @@ use Newspack\Collections\Enqueuer;
  * Test the Collections Enqueuer functionality.
  */
 class Test_Enqueuer extends WP_UnitTestCase {
-	/**
-	 * Set up the test environment.
-	 */
-	public function set_up() {
-		parent::set_up();
-
-		// Reset the data every time via reflection.
-		$reflection = new \ReflectionClass( Enqueuer::class );
-		$reflection->setStaticPropertyValue( 'data', [] );
-
-		// Unregister the script if it's registered.
-		if ( wp_script_is( Enqueuer::SCRIPT_NAME_ADMIN, 'registered' ) ) {
-			wp_deregister_script( Enqueuer::SCRIPT_NAME_ADMIN );
-		}
-
-		Enqueuer::init();
-	}
+	use Traits\Trait_Enqueuer_Test;
 
 	/**
-	 * Test that the data manager is initialized.
-	 *
-	 * @covers \Newspack\Collections\Enqueuer::init
+	 * Tear down the test environment.
 	 */
-	public function test_init() {
-		$this->assertGreaterThan( 0, has_action( 'admin_enqueue_scripts', [ Enqueuer::class, 'localize_data' ] ), 'Data manager should be initialized for admin.' );
+	public function tear_down() {
+		parent::tear_down();
+
+		$this->cleanup_enqueuer_state();
 	}
 
 	/**
@@ -63,62 +47,66 @@ class Test_Enqueuer extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that data is localized to JavaScript.
+	 * Data provider for asset enqueuing tests.
 	 *
-	 * @covers \Newspack\Collections\Enqueuer::localize_data
+	 * @return array
 	 */
-	public function test_localize_data() {
+	public function asset_enqueuing_provider() {
+		return [
+			'admin assets'    => [
+				'script_name' => Enqueuer::SCRIPT_NAME_ADMIN,
+				'method'      => 'maybe_enqueue_admin_assets',
+			],
+			'frontend assets' => [
+				'script_name' => Enqueuer::SCRIPT_NAME_FRONTEND,
+				'method'      => 'maybe_enqueue_frontend_assets',
+			],
+		];
+	}
+
+	/**
+	 * Test that assets are not enqueued when no data is present.
+	 *
+	 * @param string $script_name The script name constant.
+	 * @param string $method      The method to call.
+	 * @dataProvider asset_enqueuing_provider
+	 * @covers \Newspack\Collections\Enqueuer::maybe_enqueue_admin_assets
+	 * @covers \Newspack\Collections\Enqueuer::maybe_enqueue_frontend_assets
+	 */
+	public function test_maybe_enqueue_assets_no_data( $script_name, $method ) {
+		// Call the method with no data.
+		Enqueuer::$method();
+
+		// Verify no scripts were enqueued.
+		$this->assertFalse( wp_script_is( $script_name, 'enqueued' ), 'Script should not be enqueued when no data is present.' );
+		$this->assertFalse( wp_style_is( $script_name, 'enqueued' ), 'Style should not be enqueued when no data is present.' );
+	}
+
+	/**
+	 * Test that assets are enqueued when data is present.
+	 *
+	 * @param string $script_name The script name constant.
+	 * @param string $method      The method to call.
+	 * @dataProvider asset_enqueuing_provider
+	 * @covers \Newspack\Collections\Enqueuer::maybe_enqueue_admin_assets
+	 * @covers \Newspack\Collections\Enqueuer::maybe_enqueue_frontend_assets
+	 */
+	public function test_maybe_enqueue_assets_with_data( $script_name, $method ) {
 		// Add test data.
 		$test_data = [ 'test' => 'value' ];
 		Enqueuer::add_data( 'test_key', $test_data );
 
-		// Register the test script.
-		wp_register_script( Enqueuer::SCRIPT_NAME_ADMIN, 'test.js', [], '1.0.0', true );
+		// Call the method with data.
+		Enqueuer::$method();
 
-		// Trigger the localization.
-		Enqueuer::localize_data();
+		// Verify scripts and styles were enqueued.
+		$this->assertTrue( wp_script_is( $script_name, 'enqueued' ), 'Script should be enqueued when data is present.' );
+		$this->assertTrue( wp_style_is( $script_name, 'enqueued' ), 'Style should be enqueued when data is present.' );
 
-		// Get the localized data.
+		// Verify data was localized.
 		global $wp_scripts;
-		$script = $wp_scripts->registered[ Enqueuer::SCRIPT_NAME_ADMIN ];
-
-		$this->assertStringContainsString( Enqueuer::JS_OBJECT_NAME, $script->extra['data'], 'Data should be localized to the script.' );
-		$this->assertStringContainsString( wp_json_encode( $test_data ), $script->extra['data'], 'Localized data should match the added data.' );
-	}
-
-	/**
-	 * Test that data is not localized when no data is present.
-	 *
-	 * @covers \Newspack\Collections\Enqueuer::localize_data
-	 */
-	public function test_localize_data_empty() {
-		// Register the test script.
-		wp_register_script( Enqueuer::SCRIPT_NAME_ADMIN, 'test.js', [], '1.0.0', true );
-
-		// Trigger the localization.
-		Enqueuer::localize_data();
-
-		// Get the localized data.
-		global $wp_scripts;
-		$script = $wp_scripts->registered[ Enqueuer::SCRIPT_NAME_ADMIN ];
-
-		$this->assertArrayNotHasKey( Enqueuer::JS_OBJECT_NAME, $script->extra, 'No data should be localized when data is empty.' );
-	}
-
-	/**
-	 * Test that data is not localized to unregistered scripts.
-	 *
-	 * @covers \Newspack\Collections\Enqueuer::localize_data
-	 */
-	public function test_localize_data_unregistered_script() {
-		// Add test data.
-		$test_data = [ 'test' => 'value' ];
-		Enqueuer::add_data( 'test_key', $test_data );
-
-		// Trigger the localization without registering the script.
-		Enqueuer::localize_data();
-
-		// Verify no errors were triggered.
-		$this->assertTrue( true, 'No errors should be triggered when script is not registered.' );
+		$script = $wp_scripts->registered[ $script_name ];
+		$this->assertArrayHasKey( 'data', $script->extra, 'Script should have localized data.' );
+		$this->assertStringContainsString( Enqueuer::JS_OBJECT_NAME, $script->extra['data'], 'Data should be localized with the correct object name.' );
 	}
 }

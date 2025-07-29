@@ -14,12 +14,35 @@ defined( 'ABSPATH' ) || exit;
  */
 class Post_Meta {
 
+	use Traits\Meta_Handler;
+
 	/**
-	 * Meta key for storing the order in collection.
+	 * Get meta definitions.
 	 *
-	 * @var string
+	 * @return array Array of meta definitions. See `Traits\Meta_Handler::get_meta_definitions()` for more details.
 	 */
-	public const ORDER_META_KEY = 'newspack_order_in_collection';
+	public static function get_meta_definitions() {
+		return [
+			'is_cover_story' => [
+				'type'              => 'boolean',
+				'label'             => __( 'Cover Story', 'newspack-plugin' ),
+				'description'       => __( 'Mark this post as a cover story in collections. If enabled, this post will appear at the top of the collection page.', 'newspack-plugin' ),
+				'single'            => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'show_in_rest'      => true,
+				'default'           => false,
+			],
+			'post_order'     => [
+				'type'              => 'integer',
+				'label'             => __( 'Order', 'newspack-plugin' ),
+				'description'       => __( 'Set the order of this post within collections.', 'newspack-plugin' ),
+				'single'            => true,
+				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
+				'default'           => 0,
+			],
+		];
+	}
 
 	/**
 	 * Initialize the meta fields handler.
@@ -33,27 +56,7 @@ class Post_Meta {
 	 * Register meta fields for the post post type.
 	 */
 	public static function register_meta() {
-		register_post_meta(
-			'post',
-			self::ORDER_META_KEY,
-			[
-				'type'              => 'integer',
-				'description'       => __( 'Order of the post within collections.', 'newspack-plugin' ),
-				'single'            => true,
-				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
-				'auth_callback'     => [ __CLASS__, 'auth_callback' ],
-			]
-		);
-	}
-
-	/**
-	 * Auth callback for meta fields.
-	 *
-	 * @return bool Whether the user can edit posts.
-	 */
-	public static function auth_callback() {
-		return current_user_can( 'edit_posts' );
+		self::register_meta_for_object( 'post', 'post' );
 	}
 
 	/**
@@ -69,9 +72,8 @@ class Post_Meta {
 			Enqueuer::add_data(
 				'postMeta',
 				[
-					'orderMetaKey'   => self::ORDER_META_KEY,
-					'panelTitle'     => _x( 'Collection Settings', 'title for collection settings panel', 'newspack-plugin' ),
-					'orderFieldHelp' => _x( 'Set the order of this post within collections.', 'help text for collection order field', 'newspack-plugin' ),
+					'metaDefinitions' => self::get_frontend_meta_definitions(),
+					'panelTitle'      => _x( 'Collection Settings', 'title for collection settings panel', 'newspack-plugin' ),
 				]
 			);
 		}

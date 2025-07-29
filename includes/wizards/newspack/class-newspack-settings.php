@@ -110,6 +110,12 @@ class Newspack_Settings extends Wizard {
 				'label' => __( 'Collections', 'newspack-plugin' ),
 			];
 		}
+		if ( \Newspack\Optional_Modules\InDesign_Exporter::is_feature_enabled() ) {
+			$newspack_settings['print'] = [
+				'label' => __( 'Print', 'newspack-plugin' ),
+			];
+
+		}
 		if ( defined( 'NEWSPACK_MULTIBRANDED_SITE_PLUGIN_FILE' ) ) {
 			$newspack_settings['additional-brands'] = [
 				'label'          => __( 'Additional Brands', 'newspack-plugin' ),

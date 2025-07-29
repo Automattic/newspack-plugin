@@ -76,5 +76,13 @@ namespace Newspack;
 			<?php echo wp_kses_post( $footer_html ); ?>
 		</footer>
 	<?php endif; ?>
+
+	<?php
+	/**
+	 * Fires after the footer of the lite site archive page.
+	 */
+	do_action( 'newspack_lite_site_archive_after_footer' );
+	?>
+
 </body>
 </html>

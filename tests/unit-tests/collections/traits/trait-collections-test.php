@@ -36,7 +36,7 @@ trait Trait_Collections_Test {
 		];
 
 		$post_args = wp_parse_args( $args, $defaults );
-		$post_id = self::factory()->post->create( $post_args );
+		$post_id   = self::factory()->post->create( $post_args );
 
 		$this->assertNotWPError( $post_id, 'Post should be created successfully.' );
 		return $post_id;
@@ -56,9 +56,18 @@ trait Trait_Collections_Test {
 		];
 
 		$term_args = wp_parse_args( $args, $defaults );
-		$term = self::factory()->term->create_and_get( $term_args );
+		$term      = self::factory()->term->create_and_get( $term_args );
 		$this->assertValidCollectionTerm( $term );
 		return $term;
+	}
+
+	/**
+	 * Set the current user to a test user with the given role.
+	 *
+	 * @param string $role The role of the user to set.
+	 */
+	protected function set_current_user_role( $role ) {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => $role ] ) );
 	}
 
 	/**
@@ -73,7 +82,7 @@ trait Trait_Collections_Test {
 		$this->assertNotWPError( $post, 'Post should be valid.' );
 		$this->assertEquals( Post_Type::get_post_type(), $post->post_type, 'Post should be a collection.' );
 
-		$term_id = get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true );
+		$term_id = Sync::get_term_linked_to_collection( $post_id );
 		$this->assertNotEmpty( $term_id, 'Linked term ID should be stored in post meta.' );
 
 		$term = get_term( $term_id, Collection_Taxonomy::get_taxonomy() );
@@ -104,12 +113,12 @@ trait Trait_Collections_Test {
 	protected function assertCollectionAndTermLinked( $post_id, $term_id, $message = '' ) {
 		$this->assertEquals(
 			$term_id,
-			get_post_meta( $post_id, Sync::LINKED_TERM_META_KEY, true ),
+			Sync::get_term_linked_to_collection( $post_id ),
 			$message ? $message : 'Post should be linked to term.'
 		);
 		$this->assertEquals(
 			$post_id,
-			get_term_meta( $term_id, Sync::LINKED_POST_META_KEY, true ),
+			Sync::get_collection_linked_to_term( $term_id ),
 			$message ? $message : 'Term should be linked to post.'
 		);
 	}

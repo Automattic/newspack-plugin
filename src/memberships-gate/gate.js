@@ -3,6 +3,7 @@
  * Internal dependencies
  */
 import './gate.scss';
+import { debugLog } from '../reader-activation/utils';
 
 const EVENT_NAME = 'np_gate_interaction';
 
@@ -39,22 +40,32 @@ const gateInfo = {
  * Reload the page when a newly registered reader is detected.
  */
 function initReloadHandler() {
+	debugLog( 'log', '[Gate] initReloadHandler called' );
 	window.newspackRAS = window.newspackRAS || [];
 	window.newspackRAS.push( function ( ras ) {
+		debugLog( 'log', '[Gate] RAS initialized' );
 		let reload = false;
 
 		const refreshPage = function ( ev ) {
+			debugLog( 'log', '[Gate] refreshPage called with event:', ev );
+			debugLog( 'log', '[Gate] Event detail:', ev?.detail );
+			debugLog( 'log', '[Gate] Event detail action:', ev?.detail?.action );
+			debugLog( 'log', '[Gate] Pending checkout:', window?.newspackReaderActivation?.getPendingCheckout() );
+
 			// When a new reader is registered, which may or may not happen inside an overlay.
 			if ( ev?.detail?.action && 'reader_registered' === ev.detail.action && ! window?.newspackReaderActivation?.getPendingCheckout() ) {
+				debugLog( 'log', '[Gate] reader_registered action detected' );
 				reload = true;
 			}
 
 			// When closing an overlay, check if the last activity was a checkout, registration, or login.
 			if ( ev?.detail?.overlays && ev.detail.removed ) {
 				const activities = window?.newspackReaderActivation?.getActivities();
+				debugLog( 'log', '[Gate] Overlay removed, activities:', activities );
 				const lastActivity = activities?.[ activities.length - 1 ] || {};
 				const validActions = [ 'checkout_completed', 'reader_registered', 'reader_logged_in', 'newsletter_signup' ];
 				if ( activities.length && validActions.includes( lastActivity.action ) ) {
+					debugLog( 'log', '[Gate] Valid action detected:', lastActivity.action );
 					reload = true;
 					// Add a CSS class to the body so we can keep the overlay content gate hidden while the page refreshes.
 					document.body.classList.add( 'newspack-memberships__gate-passed' );
@@ -64,11 +75,22 @@ function initReloadHandler() {
 				}
 			}
 
+			// Check for reader_logged_in action specifically for non-overlay contexts
+			if ( ev?.detail?.action && 'reader_logged_in' === ev.detail.action ) {
+				debugLog( 'log', '[Gate] reader_logged_in action detected' );
+				reload = true;
+			}
+
 			// If there are no overlays and a new reader, login, or checkout is detected,
 			// reload the window, but allow other JS – which might have
 			// triggered another overlay – to be executed (setTimeout hack).
 			setTimeout( () => {
-				if ( ! ras.overlays.get().length && reload ) {
+				const overlays = ras.overlays.get();
+				const activities = window?.newspackReaderActivation?.getActivities();
+				debugLog( 'log', '[Gate] Checking reload conditions - overlays:', overlays, 'reload:', reload );
+				debugLog( 'log', '[Gate] Current activities:', activities );
+				if ( ! overlays.length && reload ) {
+					debugLog( 'log', '[Gate] Reloading page!' );
 					window.location.reload();
 				}
 			}, 5 );

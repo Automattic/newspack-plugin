@@ -67,7 +67,7 @@
 
 		// Sizes
 		&--x-small {
-			border-radius: var(--newspack-ui-border-radius-s);
+			border-radius: var(--newspack-ui-border-radius-xs);
 			font-size: var(--newspack-ui-font-size-xs);
 			line-height: var(--newspack-ui-line-height-xs);
 			min-height: var(--newspack-ui-spacer-6);
@@ -75,6 +75,7 @@
 		}
 
 		&--small {
+			border-radius: var(--newspack-ui-border-radius-s);
 			font-size: var(--newspack-ui-font-size-xs);
 			line-height: var(--newspack-ui-line-height-xs);
 			min-height: var(--newspack-ui-spacer-8);
@@ -101,6 +102,7 @@
 			}
 		}
 
+		&--accent,
 		&--branded {
 			background: var(--newspack-ui-color-primary);
 			color: var(--newspack-ui-color-against-primary);

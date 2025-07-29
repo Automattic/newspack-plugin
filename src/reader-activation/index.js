@@ -5,7 +5,7 @@ window.newspack_ras_config = window.newspack_ras_config || {};
 import Store from './store.js';
 import { getPendingCheckout, setPendingCheckout } from './checkout.js';
 import { EVENTS, on, off, emit } from './events.js';
-import { getCookie, setCookie, generateID } from './utils.js';
+import { getCookie, setCookie, generateID, debugLog } from './utils.js';
 import overlays from './overlays.js';
 import initAnalytics from './analytics.js';
 import setupArticleViewsAggregates from './article-view.js';
@@ -433,6 +433,7 @@ const readerActivation = {
 	getAuthStrategy,
 	setPendingCheckout,
 	getPendingCheckout,
+	debugLog,
 	...( newspack_ras_config.is_ras_enabled && { openAuthModal } ),
 };
 

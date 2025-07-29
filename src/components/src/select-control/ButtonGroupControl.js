@@ -14,11 +14,12 @@ import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
  */
 import { hooks } from '..';
 
-const ButtonGroupControl = ( { buttonOptions, buttonSmall, className, hideLabelFromVision, label, onChange, value } ) => {
+const ButtonGroupControl = ( { buttonOptions, buttonSmall, className, help, hideLabelFromVision, label, onChange, value } ) => {
 	const id = hooks.useUniqueId( 'button-group' );
 	return (
 		<BaseControl
 			label={ label }
+			help={ help }
 			hideLabelFromVision={ hideLabelFromVision }
 			id={ id.current }
 			className={ classnames( className, 'components-select-control' ) }

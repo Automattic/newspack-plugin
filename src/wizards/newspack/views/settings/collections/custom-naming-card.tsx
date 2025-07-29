@@ -38,12 +38,12 @@ const CustomNamingCard: React.FC< CustomNamingCardProps > = ( { settings, isSavi
 				<TextControl
 					label={ __( 'Permalink base slug', 'newspack-plugin' ) }
 					help={ __(
-						'Base slug to be used instead of "collection" in permalinks and the REST API (e.g., "issue", "magazine")',
+						'Base slug to be used in permalinks and the REST API (e.g., "issues", "magazine"). Default: "collections".',
 						'newspack-plugin'
 					) }
 					value={ settings.custom_slug }
 					onChange={ ( value: string ) => onChange( 'custom_slug', value ) }
-					placeholder="collection"
+					placeholder="collections"
 				/>
 			</Grid>
 		) }

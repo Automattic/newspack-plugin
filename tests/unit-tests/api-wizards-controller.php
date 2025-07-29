@@ -20,6 +20,20 @@ class Newspack_Test_Wizards_Controller extends WP_UnitTestCase {
 	protected $api_route = '/newspack/v1/wizards/newspack-dashboard';
 
 	/**
+	 * REST server instance.
+	 *
+	 * @var WP_REST_Server
+	 */
+	protected $server;
+
+	/**
+	 * Administrator user ID.
+	 *
+	 * @var int
+	 */
+	protected $administrator;
+
+	/**
 	 * Set up stuff for testing API requests.
 	 */
 	public function set_up() {

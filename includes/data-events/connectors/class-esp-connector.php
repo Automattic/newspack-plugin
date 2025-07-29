@@ -56,6 +56,9 @@ class ESP_Connector extends Reader_Activation\ESP_Sync {
 	 * @param int $user_id User ID being deleted.
 	 */
 	public static function store_user_data_before_deletion( $user_id ) {
+		if ( ! class_exists( 'WC_Customer' ) ) {
+			return;
+		}
 		$user = get_userdata( $user_id );
 		if ( ! $user ) {
 			return;

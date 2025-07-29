@@ -1,13 +1,12 @@
-import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
-import { TextControl } from '@wordpress/components';
+import { TextControl, ToggleControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import domReady from '@wordpress/dom-ready';
 
-const PostMetaPanel = ( { orderMetaKey, panelTitle, orderFieldHelp } ) => {
+const PostMetaPanel = ( { panelTitle, metaDefinitions } ) => {
 	const { editPost } = useDispatch( editorStore );
 
 	// Get the current post type and meta data.
@@ -19,27 +18,58 @@ const PostMetaPanel = ( { orderMetaKey, panelTitle, orderFieldHelp } ) => {
 		};
 	}, [] );
 
-	// Update the meta data.
+	// Update meta data.
 	const updateMeta = useCallback(
-		value => {
-			const sanitized = value === '' ? '' : parseInt( value, 10 ) || 0;
-			editPost( { meta: { [ orderMetaKey ]: sanitized } } );
+		( key, value, type ) => {
+			let sanitized = value;
+
+			if ( type === 'integer' ) {
+				sanitized = value === '' ? '' : parseInt( value, 10 ) || 0;
+			} else if ( type === 'boolean' ) {
+				sanitized = !! value;
+			}
+
+			editPost( { meta: { [ key ]: sanitized } } );
 		},
-		[ editPost, orderMetaKey ]
+		[ editPost ]
 	);
+
+	// Render control based on type.
+	const renderControl = ( fieldKey, field ) => {
+		const { key, type, label, help } = field;
+
+		if ( type === 'boolean' ) {
+			return (
+				<ToggleControl
+					key={ fieldKey }
+					label={ label }
+					checked={ !! meta[ key ] }
+					onChange={ value => updateMeta( key, value, type ) }
+					help={ help }
+				/>
+			);
+		} else if ( type === 'integer' ) {
+			return (
+				<TextControl
+					key={ fieldKey }
+					label={ label }
+					type="number"
+					value={ meta[ key ] || '' }
+					onChange={ value => updateMeta( key, value, type ) }
+					help={ help }
+					min={ 0 }
+				/>
+			);
+		}
+
+		return null;
+	};
 
 	return (
 		// Only render the panel for posts.
 		'post' === currentPostType && (
 			<PluginDocumentSettingPanel name="newspack-post-meta-panel" title={ panelTitle } icon="media-document">
-				<TextControl
-					label={ __( 'Order', 'newspack-plugin' ) }
-					type="number"
-					value={ meta[ orderMetaKey ] || '' }
-					onChange={ updateMeta }
-					help={ orderFieldHelp }
-					min={ 0 }
-				/>
+				{ Object.entries( metaDefinitions ).map( ( [ fieldKey, field ] ) => renderControl( fieldKey, field ) ) }
 			</PluginDocumentSettingPanel>
 		)
 	);
@@ -47,7 +77,7 @@ const PostMetaPanel = ( { orderMetaKey, panelTitle, orderFieldHelp } ) => {
 
 domReady( () => {
 	const { postMeta: props } = window.newspackCollections || {};
-	if ( props?.orderMetaKey && props?.panelTitle && props?.orderFieldHelp ) {
+	if ( props?.panelTitle && props?.metaDefinitions ) {
 		registerPlugin( 'newspack-post-meta-panel', {
 			render: () => <PostMetaPanel { ...props } />,
 			icon: 'media-document',

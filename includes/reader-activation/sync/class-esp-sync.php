@@ -200,6 +200,9 @@ class ESP_Sync extends Sync {
 		}
 		$user = \get_userdata( $user_id );
 
+		if ( ! class_exists( '\WC_Customer' ) ) {
+			return new \WP_Error( 'newspack_esp_sync_contact', __( 'WC_Customer class unavailable.', 'newspack-plugin' ) );
+		}
 		$customer = new \WC_Customer( $user_id );
 		if ( ! $customer || ! $customer->get_id() ) {
 			return new \WP_Error(

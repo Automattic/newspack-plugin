@@ -32,7 +32,8 @@ class Test_Settings extends WP_UnitTestCase {
 	 */
 	public function test_get_settings_returns_defaults_when_empty() {
 		$settings = Settings::get_settings();
-		$this->assertEquals( Settings::FIELDS, $settings );
+		$defaults = Settings::get_rest_args( 'defaults' );
+		$this->assertEquals( $defaults, $settings );
 	}
 
 	/**
@@ -50,7 +51,8 @@ class Test_Settings extends WP_UnitTestCase {
 		update_option( Settings::OPTION_NAME, $existing_settings );
 
 		$settings = Settings::get_settings();
-		$expected = array_merge( Settings::FIELDS, $existing_settings );
+		$defaults = Settings::get_rest_args( 'defaults' );
+		$expected = array_merge( $defaults, $existing_settings );
 
 		$this->assertEquals( $expected, $settings );
 	}
@@ -118,10 +120,11 @@ class Test_Settings extends WP_UnitTestCase {
 		$this->assertIsArray( $rest_args );
 
 		// Test all expected fields exist.
-		$expected_fields = array_keys( Settings::FIELDS );
+		$expected_fields = Settings::get_rest_args( 'keys' );
 		foreach ( $expected_fields as $field ) {
 			$this->assertArrayHasKey( $field, $rest_args );
 			$this->assertArrayHasKey( 'required', $rest_args[ $field ] );
+			$this->assertArrayHasKey( 'default', $rest_args[ $field ] );
 			$this->assertArrayHasKey( 'sanitize_callback', $rest_args[ $field ] );
 			$this->assertFalse( $rest_args[ $field ]['required'] );
 			$this->assertIsCallable( $rest_args[ $field ]['sanitize_callback'] );
@@ -161,7 +164,43 @@ class Test_Settings extends WP_UnitTestCase {
 		$slug_callback = $rest_args['custom_slug']['sanitize_callback'];
 		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug' ) );
 		$this->assertEquals( 'clean-slug', $slug_callback( 'Clean Slug!' ) );
-		$this->assertEquals( '', $slug_callback( 123 ) ); // Non-string should return empty string.
+
+		// Test post indicator style sanitization.
+		$style_callback = $rest_args['post_indicator_style']['sanitize_callback'];
+		$this->assertEquals( 'default', $style_callback( 'default' ) );
+		$this->assertEquals( 'card', $style_callback( 'card' ) );
+		$this->assertEquals( 'default', $style_callback( 'custom' ) );
+
+		// Test card message sanitization.
+		$message_callback = $rest_args['card_message']['sanitize_callback'];
+		$this->assertEquals( 'Custom message', $message_callback( 'Custom message' ) );
+		$this->assertEquals( 'Clean message', $message_callback( '<script>alert("xss")</script>Clean message' ) );
+
+		// Test posts per page archive sanitization.
+		$posts_per_page_callback = $rest_args['posts_per_page']['sanitize_callback'];
+		foreach ( Settings::POSTS_PER_PAGE_OPTIONS as $option ) {
+			$this->assertEquals( $option, $posts_per_page_callback( $option ) );
+		}
+		$this->assertEquals( 12, $posts_per_page_callback( 42 ) ); // Invalid values default to 12.
+
+		// Test highlight latest sanitization.
+		$highlight_latest_callback = $rest_args['highlight_latest']['sanitize_callback'];
+		$this->assertTrue( $highlight_latest_callback( 'true' ) );
+		$this->assertFalse( $highlight_latest_callback( 'false' ) );
+
+		// Test category filter label sanitization.
+		$category_filter_label_callback = $rest_args['category_filter_label']['sanitize_callback'];
+		$this->assertEquals( 'Custom label', $category_filter_label_callback( 'Custom label' ) );
+		$this->assertEquals( 'Clean label', $category_filter_label_callback( '<script>alert("xss")</script>Clean label' ) );
+
+		// Test articles block attrs sanitization.
+		$articles_callback = $rest_args['articles_block_attrs']['sanitize_callback'];
+		$this->assertEquals( [], $articles_callback( 'invalid' ) );
+
+		// Set up existing settings for proper testing.
+		Settings::update_setting( 'articles_block_attrs', [] );
+		$this->assertTrue( $articles_callback( [ 'showCategory' => true ] )['showCategory'] );
+		$this->assertFalse( $articles_callback( [ 'showCategory' => 'false' ] )['showCategory'] );
 	}
 
 	/**
@@ -171,9 +210,10 @@ class Test_Settings extends WP_UnitTestCase {
 	 */
 	public function test_update_from_request_handles_non_field_parameters_and_empty_requests() {
 		// Test with empty request.
-		$request = new WP_REST_Request();
-		$result  = Settings::update_from_request( $request );
-		$this->assertEquals( Settings::FIELDS, $result );
+		$request  = new WP_REST_Request();
+		$result   = Settings::update_from_request( $request );
+		$defaults = Settings::get_rest_args( 'defaults' );
+		$this->assertEquals( $defaults, $result );
 
 		// Test ignores non-field parameters.
 		$request = new WP_REST_Request();
@@ -186,5 +226,36 @@ class Test_Settings extends WP_UnitTestCase {
 
 		$stored_settings = get_option( Settings::OPTION_NAME );
 		$this->assertArrayNotHasKey( 'non_field_param', $stored_settings );
+	}
+
+	/**
+	 * Test sanitize_articles_block_attrs preserves unmanaged keys.
+	 *
+	 * @covers \Newspack\Collections\Settings::sanitize_articles_block_attrs
+	 */
+	public function test_sanitize_articles_block_attrs() {
+		// Set up existing settings with unmanaged keys.
+		$articles_block_attrs = [
+			'showDate'      => true,
+			'excerptLength' => 150,
+			'showCategory'  => false,
+		];
+		Settings::update_setting( 'articles_block_attrs', $articles_block_attrs );
+
+		// Test preserving unmanaged keys while updating managed ones.
+		$result = Settings::sanitize_articles_block_attrs( [ 'showCategory' => true ] );
+		$this->assertEquals( true, $result['showCategory'], 'showCategory should be true' );
+		$this->assertEquals( $articles_block_attrs['showDate'], $result['showDate'], 'showDate should be preserved' );
+		$this->assertEquals( $articles_block_attrs['excerptLength'], $result['excerptLength'], 'excerptLength should be preserved' );
+
+		// Test with invalid input.
+		$this->assertEquals( [], Settings::sanitize_articles_block_attrs( 'invalid' ) );
+		$this->assertEquals( [], Settings::sanitize_articles_block_attrs( null ) );
+
+		// Test with empty existing settings.
+		delete_option( Settings::OPTION_NAME );
+		$result = Settings::sanitize_articles_block_attrs( [ 'showCategory' => true ] );
+		$this->assertEquals( true, $result['showCategory'], 'showCategory should be true' );
+		$this->assertArrayNotHasKey( 'showDate', $result, 'showDate should be removed' );
 	}
 }
