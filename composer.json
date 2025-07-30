@@ -10,7 +10,8 @@
 	"require": {
 		"composer/installers": "~2.0",
 		"joshtronic/php-loremipsum": "^2.1",
-		"google/auth": "^1.15"
+		"google/auth": "^1.15",
+		"woocommerce/action-scheduler": "^3.9"
 	},
 	"require-dev": {
 		"brainmaestro/composer-git-hooks": "^3.0",
@@ -19,7 +20,7 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "*",
 		"phpcompatibility/phpcompatibility-wp": "*",
 		"yoast/phpunit-polyfills": "^3.0",
-		"phpunit/phpunit": "^7.0 || ^9.5"
+		"phpunit/phpunit": "^9.5"
 	},
 	"autoload": {
 		"classmap": [
@@ -41,11 +42,16 @@
 			"commit-msg": [
 				"cat $1 | ./node_modules/.bin/newspack-scripts commitlint"
 			]
+		},
+		"installer-paths": {
+			"vendor/{$vendor}/{$name}": [
+				"woocommerce/action-scheduler"
+			]
 		}
 	},
 	"config": {
 		"platform": {
-			"php": "8.0"
+			"php": "8.3"
 		},
 		"allow-plugins": {
 			"composer/installers": true,

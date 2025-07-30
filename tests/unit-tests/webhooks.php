@@ -185,17 +185,20 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 	 * Test request scheduling.
 	 */
 	public function test_request_scheduling() {
+		add_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 		$this->dispatch_event();
 		$requests = Data_Events\Webhooks::get_endpoint_requests( $this->action_endpoint );
 		$post     = get_post( $requests[0]['id'] );
 		$this->assertEquals( 'future', $post->post_status );
 		$this->assertGreaterThan( time(), strtotime( $post->post_date ) );
+		remove_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 	}
 
 	/**
 	 * Test that publishing a request processes it.
 	 */
 	public function test_request_publish() {
+		add_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 		$this->dispatch_event();
 		$http_args = [];
 		$http_url  = '';
@@ -220,12 +223,14 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		$this->assertEquals( 'POST', $http_args['method'] );
 		$this->assertEquals( 'application/json', $http_args['headers']['Content-Type'] );
 		$this->assertEquals( get_post_meta( $request_id, 'body', true ), $http_args['body'] );
+		remove_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 	}
 
 	/**
 	 * Test that a failed send re-schedules the request.
 	 */
 	public function test_request_error_handling() {
+		add_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 		$this->dispatch_event();
 		add_filter(
 			'pre_http_request',
@@ -242,12 +247,14 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 		wp_publish_post( $request_id );
 		$this->assertEquals( 'future', get_post_status( $request_id ) );
 		$this->assertGreaterThan( time(), strtotime( get_post( $request_id )->post_date ) );
+		remove_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 	}
 
 	/**
 	 * Test reaching max retries should kill the request and disable the endpoint.
 	 */
 	public function test_request_max_retries() {
+		add_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 		$this->dispatch_event();
 
 		$max_retries = Data_Events\Webhooks::MAX_RETRIES;
@@ -279,12 +286,15 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 
 		$endpoint = Data_Events\Webhooks::get_endpoint( $this->action_endpoint );
 		$this->assertTrue( $endpoint['disabled'] );
+		remove_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 	}
 
 	/**
 	 * Test that finished requests older than 7 days should be deleted.
 	 */
 	public function test_finished_request_deletion() {
+		add_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
+
 		$dispatches_count = 10;
 
 		for ( $i = 0; $i < $dispatches_count; $i++ ) {
@@ -339,6 +349,7 @@ class Newspack_Test_Webhooks extends WP_UnitTestCase {
 
 		// Half should've been deleted.
 		$this->assertEquals( count( $created_requests ) / 2, count( $requests ) );
+		remove_filter( 'newspack_data_events_use_action_scheduler', '__return_false' );
 	}
 
 	/**

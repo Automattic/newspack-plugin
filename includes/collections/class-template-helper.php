@@ -31,6 +31,7 @@ class Template_Helper {
 		add_action( 'pre_get_posts', [ __CLASS__, 'archive_filters' ] );
 		add_filter( 'redirect_canonical', [ __CLASS__, 'prevent_year_redirect' ] );
 		add_filter( 'jetpack_relatedposts_filter_enabled_for_request', [ __CLASS__, 'disable_jetpack_related_posts' ] );
+		add_filter( 'document_title_parts', [ __CLASS__, 'update_document_title' ] );
 	}
 
 	/**
@@ -264,11 +265,13 @@ class Template_Helper {
 		$vol_number = [];
 
 		if ( $volume ) {
-			$vol_number[] = sprintf( 'Vol. %s', esc_html( $volume ) );
+			/* translators: %s is the volume number of a collection */
+			$vol_number[] = sprintf( _x( 'Vol. %s', 'collection volume number', 'newspack-plugin' ), esc_html( $volume ) );
 		}
 
 		if ( $number ) {
-			$vol_number[] = sprintf( 'No. %s', esc_html( $number ) );
+			/* translators: %s is the issue number of a collection */
+			$vol_number[] = sprintf( _x( 'No. %s', 'collection issue number', 'newspack-plugin' ), esc_html( $number ) );
 		}
 
 		if ( $vol_number ) {
@@ -349,6 +352,8 @@ class Template_Helper {
 	 * Render articles block.
 	 * Reuses the Content Loop block.
 	 *
+	 * @uses newspack-blocks/homepage-articles Content Loop block from newspack-blocks plugin.
+	 *
 	 * @param array  $post_ids       Array of post IDs.
 	 * @param string $section_header The header of the section.
 	 * @param bool   $show_image     Whether to show the image.
@@ -359,6 +364,17 @@ class Template_Helper {
 	public static function render_articles( $post_ids, $section_header = '', $show_image = true, $columns = 2, $type_scale = 3 ) {
 		if ( empty( $post_ids ) ) {
 			return '';
+		}
+
+		$block_name = 'newspack-blocks/homepage-articles';
+
+		// Check if the required block is registered.
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( $block_name ) ) {
+			// Surface dependency for logged-in editors.
+			return ( current_user_can( 'edit_posts' ) )
+				/* translators: %s is the block name */
+				? sprintf( esc_html__( 'The %s block is required but not available. Please install and activate the Newspack Blocks plugin.', 'newspack-plugin' ), '<code>' . esc_html( $block_name ) . '</code>' )
+				: '';
 		}
 
 		$attrs = [
@@ -376,6 +392,12 @@ class Template_Helper {
 			'specificMode'  => true,
 		];
 
+		// Override with global settings if set.
+		$global_attrs = Settings::get_setting( 'articles_block_attrs', [] );
+		if ( is_array( $global_attrs ) && ! empty( $global_attrs ) ) {
+			$attrs = array_merge( $attrs, $global_attrs );
+		}
+
 		/**
 		 * Filters the attributes before rendering the content loop block for posts in a section.
 		 *
@@ -385,7 +407,7 @@ class Template_Helper {
 
 		return render_block(
 			[
-				'blockName' => 'newspack-blocks/homepage-articles',
+				'blockName' => $block_name,
 				'attrs'     => $attrs,
 			]
 		);
@@ -397,9 +419,20 @@ class Template_Helper {
 	 * @return string The rendered see all link.
 	 */
 	public static function render_see_all_link() {
-		$link  = get_post_type_archive_link( Post_Type::get_post_type() );
-		$label = __( 'See all', 'newspack-plugin' );
-		$html  = sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $label ) );
+		$link       = get_post_type_archive_link( Post_Type::get_post_type() );
+		$label      = _x( 'See all', 'see all collections link', 'newspack-plugin' );
+		$aria_label = sprintf(
+			/* translators: %s is the collection name (e.g., "Collections", "Issues") */
+			_x( 'See all %s', 'see all collections link aria-label', 'newspack-plugin' ),
+			strtolower( Settings::get_collection_label() )
+		);
+
+		$html = sprintf(
+			'<a href="%s" aria-label="%s">%s</a>',
+			esc_url( $link ),
+			esc_attr( $aria_label ),
+			esc_html( $label )
+		);
 
 		/**
 		 * Filters the see all link HTML.
@@ -417,5 +450,19 @@ class Template_Helper {
 	 */
 	public static function render_separator( $class_name = '' ) {
 		return '<hr class="has-light-gray-background-color has-background is-style-wide ' . esc_attr( $class_name ) . '"/>';
+	}
+
+	/**
+	 * Filter document title for collections pages to use custom label.
+	 *
+	 * @param array $title_parts The document title parts.
+	 * @return array Modified title parts.
+	 */
+	public static function update_document_title( $title_parts ) {
+		if ( is_post_type_archive( Post_Type::get_post_type() ) ) {
+			$title_parts['title'] = Settings::get_collection_label();
+		}
+
+		return $title_parts;
 	}
 }

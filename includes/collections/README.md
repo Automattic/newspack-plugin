@@ -65,6 +65,11 @@ The following nested options are available as properties of the `newspack_collec
 | `custom_slug` | String | Custom URL slug for collections. | Text (e.g., "issue") |
 | `subscribe_link` | String | Global subscription URL displayed on collection pages | Valid URL |
 | `order_link` | String | Global order URL for purchasing physical copies | Valid URL |
+| `posts_per_page` | Integer | Global posts per page | 12, 18, 24 |
+| `category_filter_label` | String | Custom label for the category filter dropdown | Text (e.g., "Publication:") |
+| `highlight_latest` | Boolean | Highlight the latest collection | Boolean |
+| `post_indicator_style` | String | Global post indicator style | "default" or "card" |
+| `card_message` | String | Global card message | Text |
 
 The `subscribe_link` and `order_link` settings provide defaults that can be overridden at the collection category level (via term meta) or collection level (via post meta).
 
@@ -181,12 +186,12 @@ The module provides a set of components for displaying collections-related eleme
 The frontend components are integrated into WordPress through:
 
 1. **Script Loading**
-   - Enqueued via `Enqueuer::enqueue_admin_scripts()` if the Collections module is enabled.
-   - Bundle: `dist/collections-admin.js`
+   - Enqueued via `Enqueuer::init()` if the Collections module is enabled.
+   - Bundles: `dist/collections-admin.js` and `dist/collections-frontend.js`
 
 2. **Style Loading**
-   - Enqueued via `Enqueuer::enqueue_admin_styles()` if the Collections module is enabled.
-   - Bundle: `dist/collections-admin.css`
+   - Enqueued via `Enqueuer::init()` if the Collections module is enabled.
+   - Bundles: `dist/collections-admin.css` and `dist/collections-frontend.css`
 
 3. **Data Localization**
    - Collection data is localized via `Enqueuer::localize_data()`.
@@ -199,6 +204,8 @@ The frontend components are integrated into WordPress through:
 
 - [`includes/collections/`](includes/collections/) - Core collection functionality (PHP).
 - [`includes/optional-modules/class-collections-optional-module.php`](includes/optional-modules/class-collections-optional-module.php) - Optional module setup.
+- [`includes/templates/collections/`](includes/templates/collections/) - Templates.
 - [`includes/wizards/newspack/class-collections-section.php`](includes/wizards/newspack/class-collections-section.php) - Newspack settings Collections tab.
 - [`src/collections/admin/`](src/collections/admin/) - Admin interface (JavaScript/styles).
+- [`src/wizards/newspack/views/settings/collections/`](src/wizards/newspack/views/settings/collections/) - Settings UI components.
 - [`tests/unit-tests/collections/`](tests/unit-tests/collections/) - Unit tests

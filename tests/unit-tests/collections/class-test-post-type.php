@@ -59,7 +59,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 		$this->assertEquals( 'Collections', $post_type->labels->name, 'Post type label should be "Collections".' );
 		$this->assertTrue( $post_type->public, 'Post type should be public.' );
 		$this->assertTrue( $post_type->show_in_rest, 'Post type should be available in REST API.' );
-		$this->assertTrue( $post_type->has_archive, 'Post type should have archive.' );
+		$this->assertNotFalse( $post_type->has_archive, 'Post type should have archive.' );
 	}
 
 	/**
@@ -255,7 +255,7 @@ class Test_Post_Type extends WP_UnitTestCase {
 	 */
 	public function test_post_type_slug_updates() {
 		Post_Type::init();
-		$this->assertEquals( 'collection', get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
+		$this->assertEquals( 'collections', get_post_type_object( Post_Type::get_post_type() )->rewrite['slug'] );
 
 		// Update settings via REST API.
 		$custom_slug = 'magazine';

@@ -30,8 +30,10 @@ do_action( 'newspack_collections_archive_start' );
 
 		<?php
 		if ( have_posts() ) :
-			// Render the intro section only if it's the first page of results and "Highlight Most Recent Collection" setting is enabled.
-			if ( ! is_paged() && Settings::get_setting( 'highlight_latest' ) ) :
+			$selected_year = isset( $_GET['year'] ) ? sanitize_text_field( $_GET['year'] ) : '';
+
+			// Render the intro section only if no year filter is applied, it's the first page of results and "Highlight Most Recent Collection" setting is enabled.
+			if ( empty( $selected_year ) && ! is_paged() && Settings::get_setting( 'highlight_latest' ) ) :
 				get_template_part(
 					Template_Helper::TEMPLATE_PARTS_DIR . 'newspack-collection-intro',
 					null,
@@ -50,7 +52,6 @@ do_action( 'newspack_collections_archive_start' );
 			<!-- Filter controls -->
 			<form class="collections-filter" method="get">
 				<?php
-				$selected_year     = isset( $_GET['year'] ) ? sanitize_text_field( $_GET['year'] ) : '';
 				$selected_category = isset( $_GET['category'] ) ? sanitize_text_field( $_GET['category'] ) : '';
 				$available_years   = Query_Helper::get_available_years( $selected_category );
 				?>
@@ -71,7 +72,7 @@ do_action( 'newspack_collections_archive_start' );
 				if ( count( $categories ) > 1 ) :
 					?>
 					<div class="collections-filter__select">
-						<label for="category"><?php esc_html_e( 'Publication:', 'newspack-plugin' ); ?></label>
+						<label for="category"><?php echo esc_html( Settings::get_setting( 'category_filter_label', _x( 'Publication:', 'collections category filter label', 'newspack-plugin' ) ) ); ?></label>
 						<select name="category" id="category">
 							<option value="" <?php selected( $selected_category, '' ); ?>><?php esc_html_e( 'All', 'newspack-plugin' ); ?></option>
 							<?php foreach ( $categories as $category ) : ?>

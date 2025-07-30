@@ -85,19 +85,35 @@ class Collections_Section extends Wizard_Section {
 	 * @return array Updated collections settings.
 	 */
 	public static function api_update_settings( $request ) {
-		$settings = Optional_Modules::get_settings();
+		$module            = Collections::MODULE_NAME;
+		$enabled_param_key = Optional_Modules::MODULE_ENABLED_PREFIX . $module;
+		$settings          = Optional_Modules::get_settings();
 
-		// Update the optional module enabled setting.
-		if ( $request->has_param( Optional_Modules::MODULE_ENABLED_PREFIX . Collections::MODULE_NAME ) ) {
-			$is_enabled = $request->get_param( Optional_Modules::MODULE_ENABLED_PREFIX . Collections::MODULE_NAME );
-			if ( $is_enabled ) {
-				$settings = Optional_Modules::activate_optional_module( Collections::MODULE_NAME );
-			} else {
-				$settings = Optional_Modules::deactivate_optional_module( Collections::MODULE_NAME );
+		if ( $request->has_param( $enabled_param_key ) ) {
+			$is_enabled     = (bool) $request->get_param( $enabled_param_key );
+			$current_status = Optional_Modules::is_optional_module_active( $module );
+
+			if ( $is_enabled !== $current_status ) {
+				$settings = $is_enabled
+					? Optional_Modules::activate_optional_module( $module )
+					: Optional_Modules::deactivate_optional_module( $module );
+
+				// Initialize Collections module when turning it on to register flush rewrite-related actions.
+				if ( $is_enabled ) {
+					Collections::init();
+				}
+
+				/**
+				 * Fires before flushing rewrite rules after collections module is toggled.
+				 *
+				 * @param bool $settings Optional module settings.
+				 */
+				do_action( 'newspack_collections_before_flush_rewrites', $settings );
+
+				flush_rewrite_rules(); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
 			}
 		}
 
-		// Update collection settings.
 		$collection_settings = Settings::update_from_request( $request );
 
 		return array_merge( $settings, $collection_settings );
