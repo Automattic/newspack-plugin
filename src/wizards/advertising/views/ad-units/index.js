@@ -75,6 +75,16 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 		return ! adUnit.is_default && ! isDisconnectedGAM( adUnit );
 	};
 
+	const getCodeValue = adUnit => {
+		const { code, path } = adUnit;
+		if ( isLegacy ) {
+			return code;
+		} else if ( ! path.length ) {
+			return code;
+		}
+		return `${ path.map( parent => parent.code ).join( '/' ) }/${ code }`;
+	};
+
 	return (
 		<>
 			<Card noBorder>
@@ -199,7 +209,7 @@ const AdUnits = ( { adUnits, parentAdUnits, onDelete, wizardApiFetch, updateWith
 									<span>
 										{ adUnit.code ? (
 											<>
-												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ adUnit.code }</code>
+												<i>{ __( 'Code:', 'newspack-plugin' ) }</i> <code>{ getCodeValue( adUnit ) }</code>
 											</>
 										) : null }
 										{ adUnit.sizes?.length || adUnit.fluid ? (
