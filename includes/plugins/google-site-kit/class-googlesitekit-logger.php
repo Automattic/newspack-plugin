@@ -92,61 +92,13 @@ class GoogleSiteKit_Logger {
 			];
 		}
 
-		// Check if required classes exist..
-		if ( ! class_exists( 'Google\Site_Kit\Context' ) ||
-			! class_exists( 'Google\Site_Kit\Core\Authentication\Authentication' ) ) {
-			return [
-				'status'  => 'disconnected',
-				'reason'  => 'classes_missing',
-				'details' => 'Required Site Kit classes not found',
-			];
-		}
-
 		try {
-			// Create the context.
-			$context = new \Google\Site_Kit\Context( GOOGLESITEKIT_PLUGIN_MAIN_FILE );
-
-			// Create the authentication instance.
-			$authentication = new \Google\Site_Kit\Core\Authentication\Authentication( $context );
-
-			// Check credentials first.
-			if ( ! $authentication->credentials()->has() ) {
+			$settings = get_option( 'googlesitekit_analytics-4_settings', [] );
+			$will_output_snippet = ! empty( $settings['useSnippet'] ) && ! empty( $settings['measurementID'] );
+			if ( ! $will_output_snippet ) {
 				return [
-					'status'  => 'disconnected',
-					'reason'  => 'no_credentials',
-					'details' => 'OAuth credentials not configured',
-				];
-			}
-
-			// Check if setup is completed.
-			if ( ! $authentication->is_setup_completed() ) {
-				return [
-					'status'  => 'disconnected',
-					'reason'  => 'setup_incomplete',
-					'details' => 'Site Kit setup not completed',
-				];
-			}
-
-			// Check if site has connected admins.
-			$has_connected_admins_option = class_exists( 'Google\Site_Kit\Core\Authentication\Has_Connected_Admins' )
-				? Has_Connected_Admins::OPTION
-				: 'googlesitekit_has_connected_admins';
-			$has_connected_admins = get_option( $has_connected_admins_option, false );
-			if ( empty( $has_connected_admins ) ) {
-				return [
-					'status'  => 'disconnected',
-					'reason'  => 'no_connected_admins',
-					'details' => 'No administrators with active Google connections',
-				];
-			}
-
-			// Check for disconnected reason in user meta.
-			$disconnected_reason = self::get_disconnected_reason();
-			if ( ! empty( $disconnected_reason ) ) {
-				return [
-					'status'  => 'disconnected',
-					'reason'  => 'user_disconnected',
-					'details' => 'Disconnected with reason: ' . $disconnected_reason,
+					'status' => 'disconnected',
+					'reason' => 'will_not_output_snippet',
 				];
 			}
 
@@ -162,27 +114,6 @@ class GoogleSiteKit_Logger {
 				'details' => $e->getMessage(),
 			];
 		}
-	}
-
-	/**
-	 * Get the disconnected reason from user meta for any administrator.
-	 *
-	 * @return string|null The disconnected reason or null if none found.
-	 */
-	private static function get_disconnected_reason() {
-		$admins = get_users( [ 'role' => 'administrator' ] );
-		$disconnected_reason_option = class_exists( 'Google\Site_Kit\Core\Authentication\Disconnected_Reason' )
-			? Disconnected_Reason::OPTION
-			: 'googlesitekit_disconnected_reason';
-
-		foreach ( $admins as $admin ) {
-			$reason = get_user_meta( $admin->ID, $disconnected_reason_option, true );
-			if ( ! empty( $reason ) ) {
-				return $reason;
-			}
-		}
-
-		return null;
 	}
 
 	/**
